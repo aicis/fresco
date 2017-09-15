@@ -21,11 +21,8 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
  * Please see these projects for any further licensing issues.
  *******************************************************************************/
+
 package dk.alexandra.fresco.lib.conditional;
-
-import java.math.BigInteger;
-
-import org.junit.Assert;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
@@ -37,19 +34,13 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.math.BigInteger;
+import org.junit.Assert;
 
 public class ConditionalSelectTests {
 
-  /**
-   * Performs a ConditionalSelect computation on two SInt.
-   * 
-   * Should select left value
-   * 
-   * @author nv
-   *
-   * @param <ResourcePoolT>
-   */
-  public static class TestSelect<ResourcePoolT extends ResourcePool> extends TestThreadFactory {
+  public static class TestSelect<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     final BigInteger selectorOpen;
     final BigInteger expected;
@@ -73,7 +64,7 @@ public class ConditionalSelectTests {
           // define functionality to be tested
           Application<BigInteger, ProtocolBuilderNumeric> testApplication = root -> {
             Numeric numeric = root.numeric();
-            AdvancedNumeric advancedNumeric = root.advancedNumeric(); 
+            AdvancedNumeric advancedNumeric = root.advancedNumeric();
             DRes<SInt> left = numeric.input(leftOpen, 1);
             DRes<SInt> right = numeric.input(rightOpen, 1);
             DRes<SInt> selector = numeric.input(selectorOpen, 1);

@@ -44,7 +44,7 @@ import org.junit.Assert;
 public class AddTests {
 
   public static class TestOnebitHalfAdder<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public TestOnebitHalfAdder() {
     }
@@ -96,7 +96,7 @@ public class AddTests {
   }
 
   public static class TestOnebitFullAdder<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public TestOnebitFullAdder() {
     }
@@ -160,7 +160,7 @@ public class AddTests {
   }
 
   public static class TestFullAdder<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     private boolean doAsserts = false;
 
@@ -215,7 +215,7 @@ public class AddTests {
   }
 
   public static class TestBitIncrement<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public TestBitIncrement() {
     }

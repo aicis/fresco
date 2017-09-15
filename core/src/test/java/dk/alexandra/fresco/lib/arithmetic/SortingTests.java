@@ -47,8 +47,8 @@ import org.junit.Assert;
 
 public class SortingTests {
 
-  public static class TestIsSorted<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+  public static class TestIsSorted<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     private BigInteger zero = BigInteger.valueOf(0);
     private BigInteger one = BigInteger.valueOf(1);
@@ -91,8 +91,8 @@ public class SortingTests {
     }
   }
 
-  public static class TestCompareAndSwap<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+  public static class TestCompareAndSwap<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -120,8 +120,8 @@ public class SortingTests {
     }
   }
 
-  public static class TestSort<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+  public static class TestSort<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     private final List<BigInteger> values;
     private final List<BigInteger> sorted;

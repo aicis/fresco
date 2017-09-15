@@ -21,15 +21,11 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
  * Please see these projects for any further licensing issues.
  *******************************************************************************/
+
 package dk.alexandra.fresco.lib.collections.shuffle;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Random;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
@@ -42,18 +38,15 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.collections.MatrixTestUtils;
 import dk.alexandra.fresco.lib.collections.MatrixUtils;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
 
 public class ShuffleRowsTests {
 
-  /**
-   * Performs a ShuffleRows computation on a matrix of SInts.
-   * 
-   * @author nv
-   *
-   * @param <ResourcePoolT>
-   */
   public static class TestShuffleRowsGeneric<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     final Matrix<BigInteger> input;
     final Matrix<BigInteger> expected;

@@ -7,6 +7,7 @@ import dk.alexandra.fresco.suite.ProtocolSuite.RoundSynchronization;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMacCheckProtocol;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.io.IOException;
+import java.math.BigInteger;
 
 /**
  * A default implementation of the round synchronization for spdz - mostly doing
@@ -30,8 +31,8 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
     int batchSize = 128;
 
     do {
-      ProtocolCollectionList protocolCollectionList =
-          new ProtocolCollectionList(batchSize);
+      ProtocolCollectionList<BigInteger, SpdzResourcePool> protocolCollectionList =
+          new ProtocolCollectionList<BigInteger, SpdzResourcePool>(batchSize);
       macCheck.getNextProtocols(protocolCollectionList);
 
       BatchedStrategy.processBatch(protocolCollectionList, sceNetworks, 0, resourcePool);

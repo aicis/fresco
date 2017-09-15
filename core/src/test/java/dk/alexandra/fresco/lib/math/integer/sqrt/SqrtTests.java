@@ -41,11 +41,11 @@ import org.junit.Assert;
 
 public class SqrtTests {
 
-  public static class TestSquareRoot<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+  public static class TestSquareRoot<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 

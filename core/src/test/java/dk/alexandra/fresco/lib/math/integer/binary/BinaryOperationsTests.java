@@ -58,10 +58,11 @@ public class BinaryOperationsTests {
   /**
    * Test binary right shift of a shared secret.
    */
-  public static class TestRightShift<ResourcePoolT extends ResourcePool> extends TestThreadFactory {
+  public static class TestRightShift<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final BigInteger input = BigInteger.valueOf(12332157);
@@ -116,10 +117,11 @@ public class BinaryOperationsTests {
   /**
    * Test binary right shift of a shared secret.
    */
-  public static class TestBitLength<ResourcePoolT extends ResourcePool> extends TestThreadFactory {
+  public static class TestBitLength<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final BigInteger input = BigInteger.valueOf(5);

@@ -35,9 +35,7 @@ import java.math.BigInteger;
  */
 public class SpdzInputMask implements Serializable{
 
-	/**
-	 * 
-	 */
+  private static final long serialVersionUID = 8757701490552440720L;
 
   private SpdzElement mask;
   BigInteger realValue;

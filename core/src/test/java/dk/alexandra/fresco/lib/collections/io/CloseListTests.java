@@ -55,7 +55,7 @@ public class CloseListTests {
    * @param <ResourcePoolT>
    */
   public static class TestCloseEmptyList<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {

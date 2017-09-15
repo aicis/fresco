@@ -162,10 +162,6 @@ public class DummyDataSupplierImpl implements DataSupplier {
     }
   }
 
-  private BigInteger b(String num) {
-    return new BigInteger(num);
-  }
-
   private void fillout2PartyData() {
     //triple data
     this.triples_2party.put(1, new SpdzTriple(

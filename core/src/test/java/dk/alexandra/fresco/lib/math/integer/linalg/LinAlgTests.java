@@ -41,11 +41,11 @@ import org.junit.Assert;
 public class LinAlgTests {
 
 
-  public static class TestInnerProductClosed<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+  public static class TestInnerProductClosed<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final List<Integer> data1 = Arrays.asList(200, 144, 99, 211);
@@ -79,11 +79,11 @@ public class LinAlgTests {
     }
   }
 
-  public static class TestInnerProductOpen<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+  public static class TestInnerProductOpen<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final List<Integer> data1 = Arrays.asList(200, 144, 99, 211);

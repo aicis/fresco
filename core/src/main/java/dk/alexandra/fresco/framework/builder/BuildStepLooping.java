@@ -61,7 +61,8 @@ class BuildStepLooping<BuilderT extends ProtocolBuilderImpl<BuilderT>, InputT>
     }
 
     @Override
-    public void getNextProtocols(ProtocolCollection protocolCollection) {
+    public void getNextProtocols(
+        @SuppressWarnings("rawtypes") ProtocolCollection protocolCollection) {
       currentProducer.getNextProtocols(protocolCollection);
     }
 

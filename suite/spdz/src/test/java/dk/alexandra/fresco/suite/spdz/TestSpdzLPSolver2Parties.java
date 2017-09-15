@@ -37,20 +37,21 @@ public class TestSpdzLPSolver2Parties extends AbstractSpdzTest {
 
   @Test
   public void test_LPSolver_2_Sequential_dummy() throws Exception {
-    runTest(new LPSolverTests.TestLPSolver(PivotRule.DANZIG), EvaluationStrategy.SEQUENTIAL,
+    runTest(new LPSolverTests.TestLPSolver<>(PivotRule.DANZIG), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_LPSolver_2_Sequential_dummy_bland() throws Exception {
-    runTest(new LPSolverTests.TestLPSolver(PivotRule.BLAND), EvaluationStrategy.SEQUENTIAL,
+    runTest(new LPSolverTests.TestLPSolver<>(PivotRule.BLAND), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_LPSolver_2_Sequential_batched_dummy() throws Exception {
 
-    runTest(new LPSolverTests.TestLPSolver(PivotRule.DANZIG), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new LPSolverTests.TestLPSolver<>(PivotRule.DANZIG),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
@@ -63,7 +64,7 @@ public class TestSpdzLPSolver2Parties extends AbstractSpdzTest {
       InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()),
           2, noOfThreads, 10000, 1000, 500000, 2000);
 
-      runTest(new LPSolverTests.TestLPSolver(PivotRule.DANZIG),
+      runTest(new LPSolverTests.TestLPSolver<>(PivotRule.DANZIG),
           EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
           PreprocessingStrategy.STATIC, 2);
     } finally {

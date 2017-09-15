@@ -49,7 +49,7 @@ import java.util.List;
 public class ConditionalSwapNeighborsTests {
 
   public static class TestSwapGeneric<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     final List<BigInteger> openSwappers;
     final Matrix<BigInteger> expected;

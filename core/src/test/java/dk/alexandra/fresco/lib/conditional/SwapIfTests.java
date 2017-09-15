@@ -41,7 +41,8 @@ import org.junit.Assert;
 
 public class SwapIfTests {
 
-  public static class TestSwap<ResourcePoolT extends ResourcePool> extends TestThreadFactory {
+  public static class TestSwap<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     final BigInteger swapperOpen;
     final Pair<BigInteger, BigInteger> expected;

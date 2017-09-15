@@ -43,7 +43,8 @@ public abstract class SimpleProtocolProducer implements ProtocolProducer {
   private ProtocolProducer pp = null;
 
   @Override
-  public void getNextProtocols(ProtocolCollection protocolCollection) {
+  public void getNextProtocols(
+      @SuppressWarnings("rawtypes") ProtocolCollection protocolCollection) {
     if (pp == null) {
       pp = initializeProtocolProducer();
       if (pp == null) {

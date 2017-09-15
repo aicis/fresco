@@ -21,13 +21,11 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
  * Please see these projects for any further licensing issues.
  *******************************************************************************/
+
 package dk.alexandra.fresco.lib.collections.relational;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-
-import java.math.BigInteger;
-import java.util.Collections;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
@@ -40,21 +38,18 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.collections.MatrixTestUtils;
 import dk.alexandra.fresco.lib.collections.MatrixUtils;
+import java.math.BigInteger;
+import java.util.Collections;
 
-public class MiMCAggregationTests {
+public class LeakyAggregationTests {
 
-  /**
-   * Performs a MiMCAggregation computation on a matrix of SInts.
-   * 
-   * @param <ResourcePoolT>
-   */
-  public static class TestMiMCAggregationGeneric<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+  public static class TestLeakyAggregationGeneric<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     final Matrix<BigInteger> input;
     final Matrix<BigInteger> expected;
 
-    TestMiMCAggregationGeneric(Matrix<BigInteger> input, Matrix<BigInteger> expected) {
+    TestLeakyAggregationGeneric(Matrix<BigInteger> input, Matrix<BigInteger> expected) {
       this.input = input;
       this.expected = expected;
     }
@@ -83,7 +78,7 @@ public class MiMCAggregationTests {
     }
   }
 
-  public static <ResourcePoolT extends ResourcePool> TestMiMCAggregationGeneric<ResourcePoolT> aggregate() {
+  public static <ResourcePoolT extends ResourcePool> TestLeakyAggregationGeneric<ResourcePoolT> aggregate() {
     MatrixTestUtils utils = new MatrixTestUtils();
     BigInteger[][] rawRows = {{BigInteger.valueOf(1), BigInteger.valueOf(7), BigInteger.valueOf(8)},
         {BigInteger.valueOf(1), BigInteger.valueOf(19), BigInteger.valueOf(20)},
@@ -97,10 +92,10 @@ public class MiMCAggregationTests {
     BigInteger[][] expectedRows = {{BigInteger.valueOf(1), BigInteger.valueOf(40)},
         {BigInteger.valueOf(2), BigInteger.valueOf(52)}};
     Matrix<BigInteger> expected = utils.getInputMatrix(expectedRows);
-    return new TestMiMCAggregationGeneric<>(input, expected);
+    return new TestLeakyAggregationGeneric<>(input, expected);
   }
 
-  public static <ResourcePoolT extends ResourcePool> TestMiMCAggregationGeneric<ResourcePoolT> aggregateUniqueKeys() {
+  public static <ResourcePoolT extends ResourcePool> TestLeakyAggregationGeneric<ResourcePoolT> aggregateUniqueKeys() {
     MatrixTestUtils utils = new MatrixTestUtils();
     BigInteger[][] rawRows = {{BigInteger.valueOf(1), BigInteger.valueOf(7), BigInteger.valueOf(8)},
         {BigInteger.valueOf(2), BigInteger.valueOf(19), BigInteger.valueOf(20)},
@@ -120,13 +115,13 @@ public class MiMCAggregationTests {
         {BigInteger.valueOf(7), BigInteger.valueOf(22)},
         {BigInteger.valueOf(8), BigInteger.valueOf(16)}};
     Matrix<BigInteger> expected = utils.getInputMatrix(expectedRows);
-    return new TestMiMCAggregationGeneric<>(input, expected);
+    return new TestLeakyAggregationGeneric<>(input, expected);
   }
 
-  public static <ResourcePoolT extends ResourcePool> TestMiMCAggregationGeneric<ResourcePoolT> aggregateEmpty() {
+  public static <ResourcePoolT extends ResourcePool> TestLeakyAggregationGeneric<ResourcePoolT> aggregateEmpty() {
     MatrixTestUtils utils = new MatrixTestUtils();
     Matrix<BigInteger> input = utils.getInputMatrix(0, 0);
     Matrix<BigInteger> expected = utils.getInputMatrix(0, 0);
-    return new TestMiMCAggregationGeneric<>(input, expected);
+    return new TestLeakyAggregationGeneric<>(input, expected);
   }
 }

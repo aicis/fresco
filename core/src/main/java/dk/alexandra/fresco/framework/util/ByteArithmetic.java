@@ -28,8 +28,6 @@ import java.util.List;
 
 public class ByteArithmetic {
 
-  private static final int[] M = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80};
-
   // This is supposed to be a "static class", ie no instantiation
   private ByteArithmetic() {}
 

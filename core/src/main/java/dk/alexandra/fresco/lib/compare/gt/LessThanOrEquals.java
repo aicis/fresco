@@ -55,6 +55,7 @@ public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeri
   private final DRes<SInt> y;
 
 
+  @SuppressWarnings("unchecked")
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     final BigInteger modulus = builder.getBasicNumericContext().getModulus();
@@ -197,5 +198,6 @@ public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeri
       return numeric.mult(twoToNegBitLength, resUnshifted);
     });
   }
+
 
 }

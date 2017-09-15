@@ -174,6 +174,7 @@ public class LPBuildingBlockTests {
 
     private int expectedIndex;
 
+    @SuppressWarnings("unused")
     int getExpextedIndex() {
       return expectedIndex;
     }
@@ -241,6 +242,7 @@ public class LPBuildingBlockTests {
 
     int exitingIdx;
 
+    @SuppressWarnings("unused")
     private int exitingIndex(int enteringIndex) {
       //TODO Fix this test case
 //      BigInteger[] updatedColumn = new BigInteger[b.length];
@@ -280,27 +282,27 @@ public class LPBuildingBlockTests {
       return 0;
     }
 
-    private BigInteger innerProduct(BigInteger[] a, BigInteger[] b) {
-      if (a.length > b.length) {
-        throw new RuntimeException("b vector too short");
-      }
-      BigInteger result = BigInteger.valueOf(0);
-      for (int i = 0; i < a.length; i++) {
-        result = (result.add(a[i].multiply(b[i]))).mod(mod);
-      }
-      return result;
-    }
+    // private BigInteger innerProduct(BigInteger[] a, BigInteger[] b) {
+    // if (a.length > b.length) {
+    // throw new RuntimeException("b vector too short");
+    // }
+    // BigInteger result = BigInteger.valueOf(0);
+    // for (int i = 0; i < a.length; i++) {
+    // result = (result.add(a[i].multiply(b[i]))).mod(mod);
+    // }
+    // return result;
+    // }
   }
 
 
   public static class TestEnteringVariable<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+ TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     public TestEnteringVariable() {
     }
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         @Override
@@ -337,13 +339,13 @@ public class LPBuildingBlockTests {
   }
 
   public static class TestBlandEnteringVariable<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+ TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     public TestBlandEnteringVariable() {
     }
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         @Override
@@ -382,13 +384,13 @@ public class LPBuildingBlockTests {
 
 
     public static class TestExitingVariable<ResourcePoolT extends ResourcePool> extends
-        TestThreadFactory {
+ TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
       public TestExitingVariable() {
       }
 
       @Override
-      public TestThread next() {
+      public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
         return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
           @Override

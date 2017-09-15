@@ -49,7 +49,7 @@ public class SequentialProtocolProducer implements ProtocolProducer, ProtocolPro
   }
 
   @Override
-  public void getNextProtocols(ProtocolCollection protocolCollection) {
+  public void getNextProtocols(@SuppressWarnings("rawtypes") ProtocolCollection protocolCollection) {
     if (currentProducer == null) {
       currentProducer = inline();
       if (currentProducer == null) {

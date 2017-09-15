@@ -37,7 +37,7 @@ import dk.alexandra.fresco.lib.collections.io.CloseListTests;
 import dk.alexandra.fresco.lib.collections.io.CloseMatrixTests;
 import dk.alexandra.fresco.lib.collections.permute.PermuteRows;
 import dk.alexandra.fresco.lib.collections.permute.PermuteRowsTests;
-import dk.alexandra.fresco.lib.collections.relational.MiMCAggregationTests;
+import dk.alexandra.fresco.lib.collections.relational.LeakyAggregationTests;
 import dk.alexandra.fresco.lib.collections.shuffle.ShuffleRowsTests;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 
@@ -112,19 +112,19 @@ public class TestSpdzCollections extends AbstractSpdzTest {
 
   @Test
   public void test_MiMC_aggregate_two() throws Exception {
-    runTest(MiMCAggregationTests.aggregate(), EvaluationStrategy.SEQUENTIAL,
+    runTest(LeakyAggregationTests.aggregate(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_MiMC_aggregate_three() throws Exception {
-    runTest(MiMCAggregationTests.aggregate(), EvaluationStrategy.SEQUENTIAL,
+    runTest(LeakyAggregationTests.aggregate(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 3);
   }
 
   @Test
   public void test_MiMC_aggregate_empty() throws Exception {
-    runTest(MiMCAggregationTests.aggregateEmpty(), EvaluationStrategy.SEQUENTIAL,
+    runTest(LeakyAggregationTests.aggregateEmpty(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 }

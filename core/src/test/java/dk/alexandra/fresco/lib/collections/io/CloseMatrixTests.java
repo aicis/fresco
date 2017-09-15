@@ -21,14 +21,12 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
  * Please see these projects for any further licensing issues.
  *******************************************************************************/
+
 package dk.alexandra.fresco.lib.collections.io;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
@@ -41,21 +39,13 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.collections.MatrixUtils;
+import java.math.BigInteger;
+import java.util.ArrayList;
 
-/**
- * Test class for the CloseList protocol.
- */
 public class CloseMatrixTests {
 
-  /**
-   * Closes an empty matrix of BigIntegers. Checks that result is empty.
-   * 
-   * @author nv
-   *
-   * @param <ResourcePoolT>
-   */
   public static class TestCloseEmptyMatrix<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -81,17 +71,8 @@ public class CloseMatrixTests {
     }
   }
 
-  /**
-   * Closes, then opens a matrix of BigIntegers.
-   * 
-   * Checks that result equals original matrix.
-   * 
-   * @author nv
-   *
-   * @param <ResourcePoolT>
-   */
   public static class TestCloseAndOpenMatrix<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {

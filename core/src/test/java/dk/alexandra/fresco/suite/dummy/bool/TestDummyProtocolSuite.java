@@ -25,7 +25,7 @@ package dk.alexandra.fresco.suite.dummy.bool;
 
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.lib.bool.BasicBooleanTests;
 import dk.alexandra.fresco.lib.bool.ComparisonBooleanTests;
 import dk.alexandra.fresco.lib.collections.sort.CollectionsSortingTests;
@@ -44,19 +44,19 @@ import org.junit.Test;
  *
  * Currently, we simply test that AES works using the dummy protocol suite.
  */
-public class TestDummyProtocolSuite<ResourcePoolT extends ResourcePool>
+public class TestDummyProtocolSuite
     extends AbstractDummyBooleanTest {
 
   // Basic tests for boolean suites
   @Test
   public void test_basic_logic() throws Exception {
-    runTest(new BasicBooleanTests.TestInput<ResourcePoolT>(true), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicBooleanTests.TestInput<>(true), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET);
-    runTest(new BasicBooleanTests.TestXOR<ResourcePoolT>(true), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicBooleanTests.TestXOR<>(true), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET);
-    runTest(new BasicBooleanTests.TestAND<ResourcePoolT>(true), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicBooleanTests.TestAND<>(true), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET);
-    runTest(new BasicBooleanTests.TestNOT<ResourcePoolT>(true), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicBooleanTests.TestNOT<>(true), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET);
   }
 
@@ -64,142 +64,147 @@ public class TestDummyProtocolSuite<ResourcePoolT extends ResourcePool>
   // Slightly more advanced protocols for lowlevel logic operations
   @Test
   public void test_XNor() throws Exception {
-    runTest(new FieldBoolTests.TestXNorFromXorAndNot<ResourcePoolT>(),
+    runTest(new FieldBoolTests.TestXNorFromXorAndNot<>(),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET);
-    runTest(new FieldBoolTests.TestXNorFromOpen<ResourcePoolT>(),
+    runTest(new FieldBoolTests.TestXNorFromOpen<>(),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET);
   }
 
   @Test
   public void test_OR() throws Exception {
-    runTest(new FieldBoolTests.TestOrFromXorAnd<ResourcePoolT>(),
+    runTest(new FieldBoolTests.TestOrFromXorAnd<ResourcePoolImpl>(),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET);
-    runTest(new FieldBoolTests.TestOrFromCopyConst<ResourcePoolT>(),
+    runTest(new FieldBoolTests.TestOrFromCopyConst<ResourcePoolImpl>(),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET);
   }
 
   @Test
   public void test_NAND() throws Exception {
-    runTest(new FieldBoolTests.TestNandFromAndAndNot<ResourcePoolT>(),
+    runTest(new FieldBoolTests.TestNandFromAndAndNot<>(),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET);
-    runTest(new FieldBoolTests.TestNandFromOpen<ResourcePoolT>(),
+    runTest(new FieldBoolTests.TestNandFromOpen<>(),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET);
   }
 
   @Test
   public void test_AndFromCopy() throws Exception {
-    runTest(new FieldBoolTests.TestAndFromCopyConst<ResourcePoolT>(),
+    runTest(new FieldBoolTests.TestAndFromCopyConst<>(),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET);
   }
 
   // lib.math.bool
   @Test
   public void test_One_Bit_Half_Adder() throws Exception {
-    runTest(new AddTests.TestOnebitHalfAdder<ResourcePoolT>(),
+    runTest(new AddTests.TestOnebitHalfAdder<>(),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET);
   }
 
   @Test
   public void test_One_Bit_Full_Adder() throws Exception {
-    runTest(new AddTests.TestOnebitFullAdder<ResourcePoolT>(),
+    runTest(new AddTests.TestOnebitFullAdder<>(),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET);
   }
 
   @Test
   public void test_Binary_Adder() throws Exception {
-    runTest(new AddTests.TestFullAdder<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new AddTests.TestFullAdder<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         NetworkingStrategy.KRYONET);
   }
 
   @Test
   public void test_Binary_BitIncrementAdder() throws Exception {
-    runTest(new AddTests.TestBitIncrement<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new AddTests.TestBitIncrement<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
         NetworkingStrategy.KRYONET);
   }
 
   @Test
   public void test_Binary_Mult() throws Exception {
-    runTest(new MultTests.TestBinaryMult<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new MultTests.TestBinaryMult<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         NetworkingStrategy.KRYONET);
   }
 
   // Bristol tests
   @Test
   public void test_Mult32x32_Sequential() throws Exception {
-    runTest(new BristolCryptoTests.Mult32x32Test<ResourcePoolT>(true),
+    runTest(new BristolCryptoTests.Mult32x32Test<>(true),
         EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET);
   }
 
   @Test
   public void test_AES_Sequential() throws Exception {
-    runTest(new BristolCryptoTests.AesTest<ResourcePoolT>(true), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BristolCryptoTests.AesTest<>(true), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET);
   }
 
   @Test
   public void test_AES_SequentialBatched() throws Exception {
-    runTest(new BristolCryptoTests.AesTest<ResourcePoolT>(true),
+    runTest(new BristolCryptoTests.AesTest<>(true),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET);
   }
 
   @Test
   public void test_DES_Sequential() throws Exception {
-    runTest(new BristolCryptoTests.DesTest<ResourcePoolT>(true), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BristolCryptoTests.DesTest<>(true), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET);
   }
 
   @Test
   public void test_MD5_Sequential() throws Exception {
-    runTest(new BristolCryptoTests.MD5Test<ResourcePoolT>(true), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BristolCryptoTests.MD5Test<>(true), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET);
   }
 
   @Test
   public void test_SHA1_Sequential() throws Exception {
-    runTest(new BristolCryptoTests.Sha1Test<ResourcePoolT>(true), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BristolCryptoTests.Sha1Test<>(true), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET);
   }
 
   @Test
   public void test_SHA256_Sequential() throws Exception {
-    runTest(new BristolCryptoTests.Sha256Test<ResourcePoolT>(true), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BristolCryptoTests.Sha256Test<>(true),
+        EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET);
   }
 
   @Test
   public void test_basic_logic_all_in_one() throws Exception {
-    runTest(new BasicBooleanTests.TestBasicProtocols<ResourcePoolT>(true),
+    runTest(new BasicBooleanTests.TestBasicProtocols<>(true),
         EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET);
   }
 
   @Test
   public void test_comparison() throws Exception {
-    runTest(new ComparisonBooleanTests.TestGreaterThan<ResourcePoolT>(),
+    runTest(new ComparisonBooleanTests.TestGreaterThan<>(),
         EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET);
   }
 
   @Test
   public void test_comparison_unequal_length() throws Exception {
-    runTest(new ComparisonBooleanTests.TestGreaterThanUnequalLength<ResourcePoolT>(),
+    runTest(new ComparisonBooleanTests.TestGreaterThanUnequalLength<>(),
         EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET);
   }
 
   @Test
   public void test_equality() throws Exception {
-    runTest(new ComparisonBooleanTests.TestEquality<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new ComparisonBooleanTests.TestEquality<>(),
+        EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET);
   }
 
   // collections.sort
   @Test
   public void test_Uneven_Odd_Even_Merge_2_parties() throws Exception {
-    runTest(new CollectionsSortingTests.TestOddEvenMerge<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new CollectionsSortingTests.TestOddEvenMerge<>(),
+        EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET);
   }
 
   @Test
   public void test_Keyed_Compare_And_Swap_2_parties() throws Exception {
-    runTest(new CollectionsSortingTests.TestKeyedCompareAndSwap<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new CollectionsSortingTests.TestKeyedCompareAndSwap<>(),
+        EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET);
   }
 
@@ -211,7 +216,7 @@ public class TestDummyProtocolSuite<ResourcePoolT extends ResourcePool>
 
   @Test
   public void test_Debug_Marker() throws Exception {
-    runTest(new BinaryDebugTests.TestBinaryOpenAndPrint<ResourcePoolT>(),
+    runTest(new BinaryDebugTests.TestBinaryOpenAndPrint<>(),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET);
   }
 

@@ -15,7 +15,7 @@ import dk.alexandra.fresco.lib.collections.io.CloseListTests;
 import dk.alexandra.fresco.lib.collections.io.CloseMatrixTests;
 import dk.alexandra.fresco.lib.collections.permute.PermuteRows;
 import dk.alexandra.fresco.lib.collections.permute.PermuteRowsTests;
-import dk.alexandra.fresco.lib.collections.relational.MiMCAggregationTests;
+import dk.alexandra.fresco.lib.collections.relational.LeakyAggregationTests;
 import dk.alexandra.fresco.lib.collections.shuffle.ShuffleRowsTests;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelectTests;
 import dk.alexandra.fresco.lib.conditional.ConditionalSwapNeighborsTests;
@@ -326,26 +326,26 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
-  public void test_MiMC_aggregate_two() throws Exception {
-    runTest(MiMCAggregationTests.aggregate(), EvaluationStrategy.SEQUENTIAL,
+  public void test_leaky_aggregate_two() throws Exception {
+    runTest(LeakyAggregationTests.aggregate(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 2);
   }
 
   @Test
-  public void test_MiMC_aggregate_unique_keys_two() throws Exception {
-    runTest(MiMCAggregationTests.aggregateUniqueKeys(), EvaluationStrategy.SEQUENTIAL,
+  public void test_leaky_aggregate_unique_keys_two() throws Exception {
+    runTest(LeakyAggregationTests.aggregateUniqueKeys(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 2);
   }
 
   @Test
-  public void test_MiMC_aggregate_three() throws Exception {
-    runTest(MiMCAggregationTests.aggregate(), EvaluationStrategy.SEQUENTIAL,
+  public void test_leaky_aggregate_three() throws Exception {
+    runTest(LeakyAggregationTests.aggregate(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 3);
   }
 
   @Test
-  public void test_MiMC_aggregate_empty() throws Exception {
-    runTest(MiMCAggregationTests.aggregateEmpty(), EvaluationStrategy.SEQUENTIAL,
+  public void test_leaky_aggregate_empty() throws Exception {
+    runTest(LeakyAggregationTests.aggregateEmpty(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 2);
   }
 

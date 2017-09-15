@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
 public class ConditionalSwapRowsTests {
 
   private static class TestSwapGeneric<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     final BigInteger swapperOpen;
     final Pair<List<BigInteger>, List<BigInteger>> input;
