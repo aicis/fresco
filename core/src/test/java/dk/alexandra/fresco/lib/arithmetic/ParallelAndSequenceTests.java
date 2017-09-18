@@ -26,8 +26,8 @@ public class ParallelAndSequenceTests {
   private static final Integer[] inputAsArray = {1, 2, 3, 4, 5, 6, 7, 8, 9};
 
   // TODO Split these tests into two
-  public static class TestSumAndProduct<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+  public static class TestSumAndProduct<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {

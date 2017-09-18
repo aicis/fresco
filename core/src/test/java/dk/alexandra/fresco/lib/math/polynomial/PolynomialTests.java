@@ -44,11 +44,11 @@ import org.junit.Assert;
 
 public class PolynomialTests {
 
-  public static class TestPolynomialEvaluator<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+  public static class TestPolynomialEvaluator<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final int[] coefficients = {1, 0, 1, 2};

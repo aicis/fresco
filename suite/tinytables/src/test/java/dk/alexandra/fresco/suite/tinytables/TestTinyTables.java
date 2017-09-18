@@ -60,8 +60,8 @@ import org.junit.experimental.categories.Category;
 
 public class TestTinyTables {
 
-  private void runTest(TestThreadFactory f, EvaluationStrategy evalStrategy, boolean preprocessing,
-      String name) throws Exception {
+  private void runTest(TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f,
+      EvaluationStrategy evalStrategy, boolean preprocessing, String name) throws Exception {
     int noPlayers = 2;
     // Since SCAPI currently does not work with ports > 9999 we use fixed
     // ports
@@ -73,14 +73,15 @@ public class TestTinyTables {
 
     Map<Integer, NetworkConfiguration> netConf =
         TestConfiguration.getNetworkConfigurations(noPlayers, ports);
-    Map<Integer, TestThreadConfiguration> conf = new HashMap<>();
+    Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
+        new HashMap<>();
 
     for (int playerId : netConf.keySet()) {
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>();
       ttc.netConf = netConf.get(playerId);
 
-      ProtocolEvaluator<ResourcePoolImpl> evaluator;
+      ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator;
 
       ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> suite;
       File tinyTablesFile = new File(getFilenameForTest(playerId, name));

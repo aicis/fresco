@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
 public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder>
     implements SecureComputationEngine<ResourcePoolT, Builder> {
 
-  private ProtocolEvaluator<ResourcePoolT> evaluator;
+  private ProtocolEvaluator<ResourcePoolT, Builder> evaluator;
   private ExecutorService executorService;
   private boolean setup;
   private ProtocolSuite<ResourcePoolT, Builder> protocolSuite;
@@ -61,7 +61,7 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Bui
       LoggerFactory.getLogger(SecureComputationEngineImpl.class);
 
   public SecureComputationEngineImpl(ProtocolSuite<ResourcePoolT, Builder> protocolSuite,
-      ProtocolEvaluator<ResourcePoolT> evaluator) {
+      ProtocolEvaluator<ResourcePoolT, Builder> evaluator) {
     this.protocolSuite = protocolSuite;
 
     this.setup = false;

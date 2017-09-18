@@ -3,6 +3,7 @@ package dk.alexandra.fresco.suite.spdz.gates;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
@@ -41,7 +42,8 @@ public class SpdzMacCheckProtocol implements ProtocolProducer {
   }
 
   @Override
-  public void getNextProtocols(ProtocolCollection protocolCollection) {
+  public <ResourcePoolT extends ResourcePool> void getNextProtocols(
+      ProtocolCollection<ResourcePoolT> protocolCollection) {
     if (pp == null) {
       if (round == 0) {
         BigInteger s = new BigInteger(modulus.bitLength(), rand).mod(modulus);

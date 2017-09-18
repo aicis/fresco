@@ -30,8 +30,8 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
     int batchSize = 128;
 
     do {
-      ProtocolCollectionList protocolCollectionList =
-          new ProtocolCollectionList(batchSize);
+      ProtocolCollectionList<SpdzResourcePool> protocolCollectionList =
+          new ProtocolCollectionList<>(batchSize);
       macCheck.getNextProtocols(protocolCollectionList);
 
       BatchedStrategy.processBatch(protocolCollectionList, sceNetworks, 0, resourcePool);

@@ -50,7 +50,7 @@ import org.junit.Assert;
 public class CollectionsSortingTests {
 
   public static class TestKeyedCompareAndSwap<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public TestKeyedCompareAndSwap() {}
 
@@ -132,7 +132,7 @@ public class CollectionsSortingTests {
   }
 
   public static class TestOddEvenMerge<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public TestOddEvenMerge() {}
 

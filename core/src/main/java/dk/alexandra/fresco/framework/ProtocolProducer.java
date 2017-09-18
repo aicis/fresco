@@ -23,6 +23,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework;
 
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 
 /**
  * Invariants:
@@ -51,7 +52,8 @@ public interface ProtocolProducer {
    *
    * @param protocolCollection destination for protocols.
    */
-  void getNextProtocols(ProtocolCollection protocolCollection);
+  <ResourcePoolT extends ResourcePool> void getNextProtocols(
+      ProtocolCollection<ResourcePoolT> protocolCollection);
 
   /**
    * Returns true if there is at least one protocols left in the protocol that has not already been

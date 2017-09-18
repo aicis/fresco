@@ -41,7 +41,7 @@ public class ExponentiationTests {
    * Test binary right shift of a shared secret.
    */
   public static class TestExponentiation<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -70,11 +70,11 @@ public class ExponentiationTests {
     }
   }
 
-  public static class TestExponentiationOpenExponent<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+  public static class TestExponentiationOpenExponent<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final BigInteger input = BigInteger.valueOf(12332157);
@@ -100,11 +100,11 @@ public class ExponentiationTests {
     }
   }
 
-  public static class TestExponentiationOpenBase<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+  public static class TestExponentiationOpenBase<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final BigInteger input = BigInteger.valueOf(12332157);
@@ -129,11 +129,11 @@ public class ExponentiationTests {
     }
   }
 
-  public static class TestExponentiationZeroExponent<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+  public static class TestExponentiationZeroExponent<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final BigInteger input = BigInteger.valueOf(12332157);

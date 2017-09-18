@@ -98,7 +98,7 @@ public class MinInfFrac implements Computation<MinInfOutput, ProtocolBuilderNume
       };
     }
     ArrayList<DRes<SInt>> cs = new ArrayList<>(fs.size());
-    for (Frac f : fs) {
+    for (@SuppressWarnings("unused") Frac f : fs) {
       cs.add(null);
     }
     return builder.seq(seq -> () -> new IterationState(fs, 0))

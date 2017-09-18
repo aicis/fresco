@@ -36,7 +36,8 @@ public class TestSpdzRightShift extends AbstractSpdzTest {
 
   @Test
   public void testRightShiftTwoParties() throws Exception {
-    runTest(new TestRightShift(), EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
+    runTest(new TestRightShift<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+        NetworkingStrategy.KRYONET,
         PreprocessingStrategy.DUMMY, 2);
   }
 }

@@ -53,9 +53,9 @@ public class FilebasedStreamedStorageImpl implements StreamedStorage {
 
 	public FilebasedStreamedStorageImpl(Storage internalStorage) {
 		this.storage = internalStorage;
-		oiss = new ConcurrentHashMap<String, ObjectInputStream>();
-		ooss = new ConcurrentHashMap<String, ObjectOutputStream>();
-	}
+    oiss = new ConcurrentHashMap<>();
+    ooss = new ConcurrentHashMap<>();
+  }
 	
 	@SuppressWarnings("unchecked")
 	@Override

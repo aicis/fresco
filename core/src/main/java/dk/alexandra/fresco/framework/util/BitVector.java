@@ -1,9 +1,8 @@
 package dk.alexandra.fresco.framework.util;
 
-import java.io.Serializable;
 import java.util.BitSet;
 
-public class BitVector implements Serializable {
+public class BitVector {
 
 	/**
 	 * 

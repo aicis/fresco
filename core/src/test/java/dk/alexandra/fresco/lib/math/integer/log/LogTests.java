@@ -50,11 +50,11 @@ import org.junit.Assert;
  */
 public class LogTests {
 
-  public static class TestLogarithm<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+  public static class TestLogarithm<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final BigInteger[] x = {BigInteger.valueOf(201235), BigInteger.valueOf(1234),

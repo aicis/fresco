@@ -28,6 +28,7 @@ package dk.alexandra.fresco.lib.helper;
 
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.util.Arrays;
 import java.util.LinkedList;
 
@@ -49,7 +50,8 @@ public class SequentialProtocolProducer implements ProtocolProducer, ProtocolPro
   }
 
   @Override
-  public void getNextProtocols(ProtocolCollection protocolCollection) {
+  public <ResourcePoolT extends ResourcePool> void getNextProtocols(
+      ProtocolCollection<ResourcePoolT> protocolCollection) {
     if (currentProducer == null) {
       currentProducer = inline();
       if (currentProducer == null) {

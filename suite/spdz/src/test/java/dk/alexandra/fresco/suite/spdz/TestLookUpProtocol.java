@@ -36,7 +36,8 @@ public class TestLookUpProtocol extends AbstractSpdzTest{
 	
 	@Test
 	public void test_lookup_is_sorted() throws Exception {
-		runTest(new SearchingTests.TestIsSorted(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+    runTest(new SearchingTests.TestIsSorted<>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
 	}
 	
 	

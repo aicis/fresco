@@ -67,10 +67,10 @@ public class DivisionTests {
    * Test Euclidian division
    */
   public static class TestEuclidianDivision<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final BigInteger x = new BigInteger("123978634193227335452345761");
@@ -99,11 +99,11 @@ public class DivisionTests {
    * Test Euclidian division
    */
   public static class TestEuclidianDivisionLargeDivisor<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final BigInteger x = new BigInteger("123978634193227335452345761");
@@ -132,10 +132,10 @@ public class DivisionTests {
    * Test division with secret shared divisor
    */
   public static class TestSecretSharedDivision<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final BigInteger[] x = new BigInteger[]{new BigInteger("1234567"),
