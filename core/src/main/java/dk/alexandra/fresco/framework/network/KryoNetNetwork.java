@@ -8,6 +8,7 @@ import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 import com.esotericsoftware.minlog.Log;
 import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.PerformanceLogger;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.crypto.AES;
 import java.io.IOException;
@@ -109,14 +110,18 @@ public class KryoNetNetwork implements Network {
       // Maybe a keep alive message will be offered to the queue. - so we should ignore it.
       if (object instanceof byte[]) {
         byte[] data = (byte[]) object;
+        int fromPartyId = this.connectionIdToPartyId.get(connection.getID());
+        if (PerformanceLogger.LOG_NETWORK) {
+          PerformanceLogger.getLogger(conf.getMyId()).bytesReceived(data.length, fromPartyId);
+        }
         if (encryption) {
           try {
-            data = ciphers.get(this.connectionIdToPartyId.get(connection.getID())).decrypt(data);
+            data = ciphers.get(fromPartyId).decrypt(data);
           } catch (IOException e) {
             throw new RuntimeException("IOException occured while decrypting data stream", e);
           }
         }
-        this.queue.get(this.connectionIdToPartyId.get(connection.getID())).offer(data);
+        this.queue.get(fromPartyId).offer(data);
       } else if (object instanceof Integer) {
         // Initial handshake to determine who the remote party is.
         this.connectionIdToPartyId.put(connection.getID(), (Integer) object);

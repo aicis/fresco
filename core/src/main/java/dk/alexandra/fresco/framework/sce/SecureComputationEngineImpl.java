@@ -27,6 +27,7 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.PerformanceLogger;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -100,7 +101,9 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Bui
       this.evaluator.eval(builder.build(), resourcePool);
       long now = System.currentTimeMillis();
       long timeSpend = now - then;
-      logger.info("Running the application " + application + " took " + timeSpend + " ms.");
+      if (PerformanceLogger.LOG_RUNTIME) {
+        PerformanceLogger.getLogger(resourcePool.getMyId()).informRuntime(application, timeSpend);
+      }
       application.close();
       return output;
     } catch (IOException e) {

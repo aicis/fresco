@@ -4,11 +4,11 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
-import dk.alexandra.fresco.lib.arithmetic.ComparisonTests;
 import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
 import dk.alexandra.fresco.lib.arithmetic.ParallelAndSequenceTests.TestSumAndProduct;
 import dk.alexandra.fresco.lib.arithmetic.SearchingTests;
 import dk.alexandra.fresco.lib.arithmetic.SortingTests;
+import dk.alexandra.fresco.lib.compare.CompareTests;
 import dk.alexandra.fresco.lib.debug.ArithmeticDebugTests;
 import dk.alexandra.fresco.lib.list.EliminateDuplicatesTests;
 import dk.alexandra.fresco.lib.lp.LPBuildingBlockTests;
@@ -24,9 +24,7 @@ import dk.alexandra.fresco.lib.math.polynomial.PolynomialTests;
 import dk.alexandra.fresco.lib.statistics.CreditRaterTest;
 import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
 import dk.alexandra.fresco.lib.statistics.DEASolverTests.RandomDataDeaTest;
-
 import java.math.BigInteger;
-
 import org.junit.Test;
 
 
@@ -70,8 +68,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void testSumAndProduct() throws Exception {
-    runTest(new TestSumAndProduct(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, 2);
+    runTest(new TestSumAndProduct(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 2);
   }
 
   @Test
@@ -88,13 +85,13 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void test_compareLT_Sequential() throws Exception {
-    runTest(new ComparisonTests.TestCompareLT(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new CompareTests.TestCompareLT(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 2);
   }
 
   @Test
   public void test_compareEQ_Sequential() throws Exception {
-    runTest(new ComparisonTests.TestCompareEQ(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new CompareTests.TestCompareEQ(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 2);
   }
 
@@ -230,7 +227,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(new MiMCTests.TestMiMCEncDecFixedRounds<>(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 2, mod);
   }
-  
+
   @Test
   public void test_MiMC_Deterministically() throws Exception {
     BigInteger mod = new BigInteger(

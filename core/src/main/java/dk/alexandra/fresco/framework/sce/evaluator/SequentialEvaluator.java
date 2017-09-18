@@ -29,6 +29,7 @@ package dk.alexandra.fresco.framework.sce.evaluator;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.NativeProtocol.EvaluationStatus;
+import dk.alexandra.fresco.framework.PerformanceLogger;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -148,6 +149,9 @@ public class SequentialEvaluator<ResourcePoolT extends ResourcePool> implements
    */
   private void processBatch(ProtocolCollection protocols, ResourcePoolT resourcePool)
       throws IOException {
+    if(PerformanceLogger.LOG_NATIVE_BATCH) {
+      PerformanceLogger.getLogger(resourcePool.getMyId()).nativeBatch(protocols.size());
+    }
     Network network = resourcePool.getNetwork();
     SCENetworkImpl sceNetwork = createSceNetwork(resourcePool.getNoOfParties());
     for (NativeProtocol<?, ResourcePoolT> protocol : protocols) {
