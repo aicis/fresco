@@ -32,10 +32,23 @@ The initial version, released 2015-11-30.
 0.2
 ---
 
-This is a planned future release. We plan to include:
+This is the next release in the pipeline. Most of it is already present within the
+development branch. We plan to include:
 
-* A protocol suite that uses the 2PC protocol in SCAPI.
+* The :ref:`TinyTables<tinytables>` protocol suite as well as a :ref:`Dummy
+  arithmetic<DUMMY_ARITHMETIC>` protocol suite.
 
-* A persistent storage alternative to the current MySQL storage, but
-  that is instead based on files and that can efficiently handles very
-  large amounts of preprocessed data.
+* The preprocessing phase for the SPDZ protocol suite. 
+
+* Many improvements to the standard library. See the :ref:`full list<STD_LIB>`.
+
+* Rework of the entire framework to ease the writing and understanding of
+  applications.
+
+* Great improvements to the test coverage.
+
+Future work/releases
+--------------------
+
+We will work towards a stable release 1.0. The framework will continuously be
+improved on, but no major changes are present in the current pipeline.

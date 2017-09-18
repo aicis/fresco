@@ -26,7 +26,7 @@ FRESCO is covered by the MIT license: ::
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
     DEALINGS IN THE SOFTWARE.
 
-Note that FRESCO uses `SCAPI <https://github.com/cryptobiu/scapi>`_
-which is also MIT. SCAPI, in turn, uses Crypto++, Miracl, NTL and
-Bouncy Castle. Please see these projects for any further licensing
-issues.
+Note that the FRESCO projects suite/tinytable and scapiNetwork uses `SCAPI
+<https://github.com/cryptobiu/scapi>`_ which is also MIT. SCAPI, in turn, uses
+Crypto++, Miracl, NTL and Bouncy Castle. Please see these projects for any
+further licensing issues.
