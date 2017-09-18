@@ -2,6 +2,7 @@ package dk.alexandra.fresco.lib.helper;
 
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.util.function.Supplier;
 
 /**
@@ -19,8 +20,8 @@ public class LazyProtocolProducerDecorator implements ProtocolProducer {
   }
 
   @Override
-  public void getNextProtocols(
-      @SuppressWarnings("rawtypes") ProtocolCollection protocolCollection) {
+  public <ResourcePoolT extends ResourcePool> void getNextProtocols(
+      ProtocolCollection<ResourcePoolT> protocolCollection) {
     getInnerProtocolProducer().getNextProtocols(protocolCollection);
   }
 
