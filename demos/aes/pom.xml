@@ -15,7 +15,7 @@
       <groupId>dk.alexandra.fresco</groupId>
       <artifactId>demos-common</artifactId>
       <version>0.2-SNAPSHOT</version>
-    </dependency>    
+    </dependency>
   </dependencies>
   
   <build>
