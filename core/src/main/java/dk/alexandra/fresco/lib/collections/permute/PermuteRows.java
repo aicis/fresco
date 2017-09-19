@@ -17,6 +17,14 @@ public class PermuteRows implements Computation<Matrix<DRes<SInt>>, ProtocolBuil
   // not final as this will be set during protocol execution
   private Matrix<DRes<SInt>> cbits;
 
+  /**
+   * Constructs a new PermuteRows computation.
+   * 
+   * @param values rows to permute
+   * @param idxPerm encodes the desired permutation by supplying for each index a new index
+   * @param permProviderPid the ID of the party choosing permutation
+   * @param isPermProvider flag that indicates if I provide permutation
+   */
   public PermuteRows(DRes<Matrix<DRes<SInt>>> values, int[] idxPerm, int permProviderPid,
       boolean isPermProvider) {
     super();

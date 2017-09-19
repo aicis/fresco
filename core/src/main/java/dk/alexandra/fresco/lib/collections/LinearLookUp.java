@@ -24,16 +24,16 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.lib.collections;
 
-import java.util.ArrayList;
-import java.util.List;
+package dk.alexandra.fresco.lib.collections;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelect;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Implements a lookup protocol using a linear number of equality protocols. A

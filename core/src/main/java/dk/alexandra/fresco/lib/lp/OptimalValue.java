@@ -24,6 +24,7 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  */
+
 package dk.alexandra.fresco.lib.lp;
 
 import dk.alexandra.fresco.framework.DRes;
@@ -32,7 +33,6 @@ import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
-
 import java.util.ArrayList;
 
 /**

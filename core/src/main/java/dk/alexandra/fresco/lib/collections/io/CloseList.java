@@ -41,6 +41,10 @@ public class CloseList implements ComputationParallel<List<DRes<SInt>>, Protocol
   private final int inputParty;
   private final boolean isInputProvider;
 
+  /**
+   * See {@link dk.alexandra.fresco.framework.builder.numeric.Collections#closeList(List, int)
+   * closeList}.
+   */
   public CloseList(List<BigInteger> openInputs, int inputParty) {
     super();
     this.openInputs = openInputs;
@@ -49,6 +53,10 @@ public class CloseList implements ComputationParallel<List<DRes<SInt>>, Protocol
     this.isInputProvider = true;
   }
 
+  /**
+   * See {@link dk.alexandra.fresco.framework.builder.numeric.Collections#closeList(int, int)
+   * closeList}.
+   */
   public CloseList(int numberOfInputs, int inputParty) {
     super();
     this.openInputs = new ArrayList<>();

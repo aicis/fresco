@@ -21,11 +21,8 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
  * Please see these projects for any further licensing issues.
  */
-package dk.alexandra.fresco.lib.lp;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
+package dk.alexandra.fresco.lib.lp;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
@@ -36,6 +33,9 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BlandEnteringVariable
     implements Computation<Pair<List<DRes<SInt>>, SInt>, ProtocolBuilderNumeric> {

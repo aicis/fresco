@@ -1,18 +1,17 @@
 package dk.alexandra.fresco.lib.collections;
 
+import dk.alexandra.fresco.framework.DRes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import dk.alexandra.fresco.framework.DRes;
-
 public class MatrixUtils {
 
   /**
-   * Unwraps rows in matrix to get lists
+   * Unwraps raw rows and creates matrix.
    * 
-   * @param closedRows
-   * @return
+   * @param closedRows raw rows
+   * @return matrix 
    */
   public <T> Matrix<DRes<T>> unwrapRows(List<DRes<List<DRes<T>>>> closedRows) {
     ArrayList<ArrayList<DRes<T>>> unwrapped = closedRows.stream()
@@ -23,10 +22,10 @@ public class MatrixUtils {
   }
 
   /**
-   * Unwrap a Matrix<DRes<T>> into a Matrix<T>.
+   * Unwraps inner values of matrix.
    * 
    * @param mat the matrix to unwrap
-   * @return
+   * @return unwrapper matrix
    */
   public <T> Matrix<T> unwrapMatrix(DRes<Matrix<DRes<T>>> mat) {
     ArrayList<ArrayList<T>> tmp = new ArrayList<>();

@@ -44,6 +44,10 @@ public class CloseMatrix
   private final int width;
   private final boolean isInputProvider;
 
+  /**
+   * See {@link dk.alexandra.fresco.framework.builder.numeric.Collections#closeMatrix(Matrix, int)
+   * closeMatrix}.
+   */
   public CloseMatrix(Matrix<BigInteger> openMatrix, int inputParty) {
     super();
     this.openMatrix = openMatrix;
@@ -53,6 +57,10 @@ public class CloseMatrix
     this.isInputProvider = true;
   }
 
+  /**
+   * See {@link dk.alexandra.fresco.framework.builder.numeric.Collections#closeMatrix(int, int, int)
+   * closeMatrix}.
+   */
   public CloseMatrix(int h, int w, int inputParty) {
     super();
     this.openMatrix = null;
