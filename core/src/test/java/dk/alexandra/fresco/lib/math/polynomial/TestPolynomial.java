@@ -21,25 +21,22 @@ public class TestPolynomial {
 
   @Test(expected = IndexOutOfBoundsException.class)
   public void testPolynomial() {
-    BasicNumericContext dummyFact = new BasicNumericContext(8, BigInteger.valueOf(1001),
-        new DummyArithmeticResourcePoolImpl(1, 1, null, new Random(), new SecureRandom(),
-            BigInteger.ONE));
+    BasicNumericContext dummyFact =
+        new BasicNumericContext(8, BigInteger.valueOf(1001), new DummyArithmeticResourcePoolImpl(1,
+            1, null, new Random(), new SecureRandom(), BigInteger.ONE, null));
     BuilderFactoryNumeric builderFactory = new DummyArithmeticBuilderFactory(dummyFact);
     Numeric numeric = builderFactory.createNumeric(builderFactory.createSequential());
 
-    int[] coefficients = new int[]{1, 2, 3, 4};
+    int[] coefficients = new int[] {1, 2, 3, 4};
 
-    List<DRes<SInt>> secretCoefficients =
-        Arrays.stream(coefficients)
-            .mapToObj(BigInteger::valueOf)
-            .map(numeric::known)
-            .collect(Collectors.toList());
+    List<DRes<SInt>> secretCoefficients = Arrays.stream(coefficients).mapToObj(BigInteger::valueOf)
+        .map(numeric::known).collect(Collectors.toList());
 
     Polynomial p = new PolynomialImpl(secretCoefficients);
 
     Assert.assertThat(p.getMaxDegree(), Is.is(4));
     // for(int i = 0; i< 4; i++) {
-    //  p.setCoefficient(i, new DummyArithmeticSInt(i));  
+    // p.setCoefficient(i, new DummyArithmeticSInt(i));
     // }
 
     for (int i = 0; i < 4; i++) {

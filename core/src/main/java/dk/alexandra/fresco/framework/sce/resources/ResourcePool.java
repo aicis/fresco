@@ -26,6 +26,7 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.sce.resources;
 
+import dk.alexandra.fresco.framework.PerformanceLogger;
 import dk.alexandra.fresco.framework.network.Network;
 import java.security.SecureRandom;
 import java.util.Random;
@@ -61,4 +62,9 @@ public interface ResourcePool {
    */
   SecureRandom getSecureRandom();
 
+  /**
+   * Returns null if not present, or the performance logger to be used for gathering 
+   * information about the system. 
+   */
+  PerformanceLogger getPerformanceLogger();
 }

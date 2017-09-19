@@ -8,7 +8,6 @@ import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 import com.esotericsoftware.minlog.Log;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.PerformanceLogger;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.crypto.AES;
 import java.io.IOException;
@@ -26,6 +25,7 @@ import org.slf4j.LoggerFactory;
 public class KryoNetNetwork implements Network {
 
   private List<Server> servers;
+  private boolean connected = false;
 
   // Map per partyId to a list of clients where the length of the list is equal to channelAmount.
   private Map<Integer, List<Client>> clients;
@@ -111,9 +111,6 @@ public class KryoNetNetwork implements Network {
       if (object instanceof byte[]) {
         byte[] data = (byte[]) object;
         int fromPartyId = this.connectionIdToPartyId.get(connection.getID());
-        if (PerformanceLogger.LOG_NETWORK) {
-          PerformanceLogger.getLogger(conf.getMyId()).bytesReceived(data.length, fromPartyId);
-        }
         if (encryption) {
           try {
             data = ciphers.get(fromPartyId).decrypt(data);
@@ -131,6 +128,9 @@ public class KryoNetNetwork implements Network {
 
   @Override
   public void connect(int timeoutMillis) throws IOException {
+    if (connected) {
+      return;
+    }
     final Semaphore semaphore = new Semaphore(-((conf.noOfParties() - 1) * channelAmount - 1));
     for (int j = 0; j < channelAmount; j++) {
       Server server = this.servers.get(j);
@@ -204,6 +204,7 @@ public class KryoNetNetwork implements Network {
     }
     try {
       semaphore.acquire();
+      connected = true;
     } catch (InterruptedException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -255,7 +256,7 @@ public class KryoNetNetwork implements Network {
         }
       }
     }
-
+    connected = false;
   }
 
   private static class Registrator {

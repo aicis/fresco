@@ -26,7 +26,6 @@ package dk.alexandra.fresco.framework;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
@@ -66,8 +65,8 @@ public class TestThreadRunner {
 
     protected <OutputT> OutputT runApplication(Application<OutputT, Builder> app)
         throws IOException {
-      ResourcePoolT resourcePool = ResourcePoolCreator.createResourcePool(conf.sceConf);
-      return secureComputationEngine.runApplication(app, resourcePool);
+      conf.resourcePool.getNetwork().connect(10000);
+      return secureComputationEngine.runApplication(app, conf.resourcePool);
     }
 
     @Override
@@ -141,11 +140,20 @@ public class TestThreadRunner {
    */
   public static class TestThreadConfiguration<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> {
 
-    public NetworkConfiguration netConf;
-    public TestSCEConfiguration<ResourcePoolT, Builder> sceConf;
+    protected final NetworkConfiguration netConf;
+    protected final TestSCEConfiguration<ResourcePoolT, Builder> sceConf;
+    protected final ResourcePoolT resourcePool;
 
     public int getMyId() {
       return this.netConf.getMyId();
+    }
+
+    public TestThreadConfiguration(NetworkConfiguration netConf,
+        TestSCEConfiguration<ResourcePoolT, Builder> sceConf, ResourcePoolT resourcePool) {
+      super();
+      this.netConf = netConf;
+      this.sceConf = sceConf;
+      this.resourcePool = resourcePool;
     }
   }
 
@@ -164,15 +172,11 @@ public class TestThreadRunner {
 
   private static <ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> void run(
       TestThreadFactory<ResourcePoolT, Builder> f,
-      Map<Integer, TestThreadConfiguration<ResourcePoolT, Builder>> confs,
-      int randSeed) throws TestFrameworkException {
-    // TODO: Rather use thread container from util.concurrent?
-
+      Map<Integer, TestThreadConfiguration<ResourcePoolT, Builder>> confs, int randSeed)
+          throws TestFrameworkException {
     final Set<TestThread<ResourcePoolT, Builder>> threads = new HashSet<>();
-    final int n = confs.size();
 
-    for (int i = 0; i < n; i++) {
-      TestThreadConfiguration<ResourcePoolT, Builder> c = confs.get(i + 1);
+    for (TestThreadConfiguration<ResourcePoolT, Builder> c : confs.values()) {
       TestThread<ResourcePoolT, Builder> t = f.next();
       t.setConfiguration(c);
       threads.add(t);
@@ -185,7 +189,9 @@ public class TestThreadRunner {
     try {
       for (TestThread<ResourcePoolT, Builder> t : threads) {
         try {
+          System.out.println("Waiting for thread");
           t.join(MAX_WAIT_FOR_THREAD);
+          System.out.println("Done waiting");
         } catch (InterruptedException e) {
           throw new TestFrameworkException("Test was interrupted");
         }
@@ -206,29 +212,22 @@ public class TestThreadRunner {
       // propagate up
       throw e;
     } finally {
-      closeNetworks();
+      closeNetworks(confs);
     }
   }
 
-  private static void closeNetworks() {
+  private static <ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> void closeNetworks(
+      Map<Integer, TestThreadConfiguration<ResourcePoolT, Builder>> confs) {
     // Cleanup - shut down network in manually. All tests should use the NetworkCreator
     // in order for this to work, or manage the network themselves.
-    Map<Integer, ResourcePool> rps = ResourcePoolCreator.getCurrentResourcePools();
-    for (int id : rps.keySet()) {
-      Network network = rps.get(id).getNetwork();
+
+    for (int id : confs.keySet()) {
+      Network network = confs.get(id).resourcePool.getNetwork();
       try {
         network.close();
       } catch (IOException e) {
         // Cannot do anything about this.
       }
-    }
-    rps.clear();
-    // allow the sockets to become available again.
-    try {
-      Thread.sleep(10);
-    } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
     }
   }
 }

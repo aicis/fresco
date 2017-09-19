@@ -69,8 +69,9 @@ public class BatchedStrategy {
       ResourcePoolT rp) throws IOException {
     Network network = rp.getNetwork();
     int round = 0;
-    if (PerformanceLogger.LOG_NATIVE_BATCH) {
-      PerformanceLogger.getLogger(rp.getMyId()).nativeBatch(protocols.size());
+    PerformanceLogger pl = rp.getPerformanceLogger();
+    if (pl != null && pl.LOG_NATIVE_BATCH) {
+      pl.nativeBatch(protocols.size());
     }
     while (protocols.size() > 0) {
       evaluateCurrentRound(protocols, sceNetwork, channel, rp, network, round);
@@ -105,6 +106,10 @@ public class BatchedStrategy {
       Set<Integer> expected = sceNetworkSupplier.getExpectedInputForNextRound();
       for (int i : expected) {
         byte[] data = network.receive(channel, i);
+        PerformanceLogger pl = rp.getPerformanceLogger();
+        if (pl != null && pl.LOG_NETWORK) {
+          pl.bytesReceivedInBatch(data.length, i);
+        }
         inputs.put(i, ByteBuffer.wrap(data));
       }
 

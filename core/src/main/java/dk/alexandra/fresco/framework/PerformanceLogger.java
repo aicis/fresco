@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.framework;
 
-import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,35 +20,31 @@ public class PerformanceLogger {
 
   private Logger log = LoggerFactory.getLogger(PerformanceLogger.class);
 
-  private static final ConcurrentMap<Integer, PerformanceLogger> loggers =
-      new ConcurrentHashMap<>();
-
-  // static final booleans for which metrics to run
-  // They have to be final to ensure that booleans set to false will not impede on performance.
-  public static final boolean LOG_NETWORK = true; // Logs network traffic
-  public static final boolean LOG_RUNTIME = true; // Logs application runtimes
-  public static final boolean LOG_NATIVE_BATCH = true; // Logs metrics on native protocols used per
-                                                       // batch
+  public final boolean LOG_NETWORK; // Logs network traffic
+  public final boolean LOG_RUNTIME; // Logs application runtimes
+  public final boolean LOG_NATIVE_BATCH; // Logs metrics on native protocols used per batch
 
   private final int myId;
 
   // private variables for holding performance metric information
   private ConcurrentMap<Integer, Integer> networkLogger = new ConcurrentHashMap<>();
-  private List<Pair<Application<?, ?>, Long>> runtimeLogger = new ArrayList<>();
+  private int noNetworkBatches = 0;
+  private int minBytesReceived = Integer.MAX_VALUE;
+  private int maxBytesReceived = 0;
+
+  private List<RuntimeInfo> runtimeLogger = new ArrayList<>();
+
   private int noBatches = 0;
   private long noNativeProtocols = 0;
   private int minNoNativeProtocolsPerBatch = Integer.MAX_VALUE;
   private int maxNoNativeProtocolsPerBatch = 0;
 
-  private PerformanceLogger(int partyId) {
+  public PerformanceLogger(int partyId, boolean logNetwork, boolean logRunningTimes,
+      boolean logNativePerBatch) {
     this.myId = partyId;
-  }
-
-  public static PerformanceLogger getLogger(int partyId) {
-    if (!loggers.containsKey(partyId)) {
-      loggers.put(partyId, new PerformanceLogger(partyId));
-    }
-    return loggers.get(partyId);
+    this.LOG_NETWORK = logNetwork;
+    this.LOG_RUNTIME = logRunningTimes;
+    this.LOG_NATIVE_BATCH = logNativePerBatch;
   }
 
   // Methods for inputting performance data into the performance metric logger.
@@ -60,11 +56,18 @@ public class PerformanceLogger {
    * @param noBytes The number of bytes received.
    * @param fromPartyId The party the bytes where received from.
    */
-  public void bytesReceived(int noBytes, int fromPartyId) {
+  public void bytesReceivedInBatch(int noBytes, int fromPartyId) {
     if (!networkLogger.containsKey(fromPartyId)) {
       networkLogger.put(fromPartyId, noBytes);
     } else {
       networkLogger.put(fromPartyId, networkLogger.get(fromPartyId) + noBytes);
+    }
+    noNetworkBatches++;
+    if (minBytesReceived > noBytes) {
+      minBytesReceived = noBytes;
+    }
+    if (maxBytesReceived < noBytes) {
+      maxBytesReceived = noBytes;
     }
   }
 
@@ -73,9 +76,12 @@ public class PerformanceLogger {
    * 
    * @param app The application which was run.
    * @param timeSpend The running time in ms.
+   * @param protocolSuite The protocol suite used to compute the application.
+   * @param strategy The strategy used to evalute the native protocols.
    */
-  public void informRuntime(Application<?, ?> app, long timeSpend) {
-    this.runtimeLogger.add(new Pair<>(app, timeSpend));
+  public void informRuntime(Application<?, ?> app, long timeSpend, EvaluationStrategy strategy,
+      String protocolSuite) {
+    this.runtimeLogger.add(new RuntimeInfo(app, timeSpend, strategy, protocolSuite));
   }
 
   /**
@@ -98,34 +104,47 @@ public class PerformanceLogger {
    * Prints all performance metrics and resets counters, maps etc. for future runs.
    */
   public void printPerformanceLog() {
+    DecimalFormat df = new DecimalFormat("#.00");
     StringBuilder sb = new StringBuilder();
     newline("Performance metrics info log for party " + this.myId + ":", sb);
 
     if (LOG_RUNTIME) {
-      newline("Running times for applications:", sb);
+      newline("=== Running times for applications ===", sb);
       if (this.runtimeLogger.isEmpty()) {
         newline("No applications were run, or they have not completed yet.", sb);
       }
-      for (Pair<Application<?, ?>, Long> p : this.runtimeLogger) {
-        Application<?, ?> app = p.getFirst();
-        long runtime = p.getSecond();
-        newline("The application " + app.getClass().getName() + " took " + runtime + "ms.", sb);
+      for (RuntimeInfo info : this.runtimeLogger) {
+        newline("Evaluation strategy used: " + info.strategy, sb);
+        newline("Protocol suite used: " + info.protocolSuite, sb);
+        newline(
+            "The application " + info.app.getClass().getName() + " took " + info.timeSpend + "ms.",
+            sb);
       }
       newline("", sb);
     }
     if (LOG_NETWORK) {
-      newline("Network logged - results:", sb);
+      newline("=== Network logged - results ===", sb);
       if (networkLogger.isEmpty()) {
         newline("No network activity logged", sb);
       } else {
+        newline("Received data " + noNetworkBatches + " times in total (including from ourselves)",
+            sb);
+        long totalNoBytes = 0;
         for (Integer partyId : networkLogger.keySet()) {
-          newline("Received " + networkLogger.get(partyId) + " bytes from party " + partyId, sb);
+          int bytes = networkLogger.get(partyId);
+          newline("Received " + bytes + " bytes from party " + partyId, sb);
+          totalNoBytes += bytes;
         }
+        newline("Total amount of bytes received: " + totalNoBytes, sb);
+        newline("Minimum amount of bytes received in a batch: " + minBytesReceived, sb);
+        newline("maximum amount of bytes received in a batch: " + maxBytesReceived, sb);
+        double avg = totalNoBytes / (double) noNetworkBatches;
+        newline("Average amount of bytes received in a batch: " + df.format(avg), sb);
       }
       newline("", sb);
     }
     if (LOG_NATIVE_BATCH) {
-      newline("Native protocols per batch metrics:", sb);
+      newline("=== Native protocols per batch metrics ===", sb);
       if (noBatches == 0) {
         newline("No batches were recorded", sb);
       } else {
@@ -136,7 +155,6 @@ public class PerformanceLogger {
         newline("maximum amount of native protocols evaluated in a single batch: "
             + maxNoNativeProtocolsPerBatch, sb);
         double avg = noNativeProtocols / (double) noBatches;
-        DecimalFormat df = new DecimalFormat("#.00");
         newline("Average amount of native protocols evaluated per batch: " + df.format(avg), sb);
       }
       newline("", sb);
@@ -154,5 +172,22 @@ public class PerformanceLogger {
   private void newline(String msg, StringBuilder sb) {
     sb.append(msg);
     sb.append(System.lineSeparator());
+  }
+
+  private class RuntimeInfo {
+    public Application<?, ?> app;
+    public long timeSpend;
+    public EvaluationStrategy strategy;
+    public String protocolSuite;
+
+    public RuntimeInfo(Application<?, ?> app, long timeSpend, EvaluationStrategy strategy,
+        String protocolSuite) {
+      super();
+      this.app = app;
+      this.timeSpend = timeSpend;
+      this.strategy = strategy;
+      this.protocolSuite = protocolSuite;
+    }
+
   }
 }

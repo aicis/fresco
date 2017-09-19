@@ -31,7 +31,6 @@ import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.builder.numeric.Comparison;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -87,8 +86,7 @@ public class CompareTests {
             return () -> result;
           });
 
-          List<List<Boolean>> res = secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<List<Boolean>> res = runApplication(app);
 
           Assert.assertEquals("00", ByteArithmetic.toHex(res.get(0)));
           Assert.assertEquals("ee", ByteArithmetic.toHex(res.get(1)));
@@ -133,8 +131,7 @@ public class CompareTests {
               return () -> new Pair<>(res1.out(), res2.out());
             }
           };
-          Pair<BigInteger, BigInteger> output = secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          Pair<BigInteger, BigInteger> output = runApplication(app);
           Assert.assertEquals(BigInteger.ONE, output.getFirst());
           Assert.assertEquals(BigInteger.ZERO, output.getSecond());
         }
@@ -177,8 +174,7 @@ public class CompareTests {
               return () -> new Pair<>(res1.out(), res2.out());
             }
           };
-          Pair<BigInteger, BigInteger> output = secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          Pair<BigInteger, BigInteger> output = runApplication(app);
           Assert.assertEquals(BigInteger.ONE, output.getFirst());
           Assert.assertEquals(BigInteger.ZERO, output.getSecond());
         }

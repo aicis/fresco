@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -28,72 +27,42 @@ public class EliminateDuplicatesTests {
     private BigInteger five = BigInteger.valueOf(5);
 
     private List<List<BigInteger>> values =
-        Arrays.asList(
-            Arrays.asList(zero, five),
-            Arrays.asList(one, zero),
-            Arrays.asList(two, three),
-            Arrays.asList(three, one),
-            Arrays.asList(four, three)
-        );
+        Arrays.asList(Arrays.asList(zero, five), Arrays.asList(one, zero),
+            Arrays.asList(two, three), Arrays.asList(three, one), Arrays.asList(four, three));
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          Application<List<BigInteger>, ProtocolBuilderNumeric> app =
-              builder -> {
-                Numeric input = builder.numeric();
-                DRes<SInt> zero = input.known(BigInteger.ZERO);
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = builder -> {
+            Numeric input = builder.numeric();
+            DRes<SInt> zero = input.known(BigInteger.ZERO);
 
-                SIntListofTuples list1 = new SIntListofTuples(2);
-                SIntListofTuples list2 = new SIntListofTuples(2);
+            SIntListofTuples list1 = new SIntListofTuples(2);
+            SIntListofTuples list2 = new SIntListofTuples(2);
 
-                list1.add(
-                    values.get(0).stream().map(input::known).collect(Collectors.toList()),
-                    zero
-                );
-                list1.add(
-                    values.get(1).stream().map(input::known).collect(Collectors.toList()),
-                    zero
-                );
-                list1.add(
-                    values.get(2).stream().map(input::known).collect(Collectors.toList()),
-                    zero
-                );
+            list1.add(values.get(0).stream().map(input::known).collect(Collectors.toList()), zero);
+            list1.add(values.get(1).stream().map(input::known).collect(Collectors.toList()), zero);
+            list1.add(values.get(2).stream().map(input::known).collect(Collectors.toList()), zero);
 
-                list2.add(
-                    values.get(2).stream().map(input::known).collect(Collectors.toList()),
-                    zero
-                );
-                list2.add(
-                    values.get(3).stream().map(input::known).collect(Collectors.toList()),
-                    zero
-                );
-                list2.add(
-                    values.get(4).stream().map(input::known).collect(Collectors.toList()),
-                    zero
-                );
+            list2.add(values.get(2).stream().map(input::known).collect(Collectors.toList()), zero);
+            list2.add(values.get(3).stream().map(input::known).collect(Collectors.toList()), zero);
+            list2.add(values.get(4).stream().map(input::known).collect(Collectors.toList()), zero);
 
-                return builder.par(par -> {
-                      new FindDuplicatesHelper().findDuplicates(par, list1, list2);
-                      return () -> list1;
-                    }
-                ).par((par, list) -> {
-                  Numeric numeric = par.numeric();
-                  List<DRes<BigInteger>> openDuplicates = Arrays.asList(
-                      numeric.open(list.getDuplicate(0)),
-                      numeric.open(list.getDuplicate(1)),
-                      numeric.open(list.getDuplicate(2))
-                  );
-                  return () -> openDuplicates.stream().map(DRes::out)
-                      .collect(Collectors.toList());
-                });
-              };
+            return builder.par(par -> {
+              new FindDuplicatesHelper().findDuplicates(par, list1, list2);
+              return () -> list1;
+            }).par((par, list) -> {
+              Numeric numeric = par.numeric();
+              List<DRes<BigInteger>> openDuplicates =
+                  Arrays.asList(numeric.open(list.getDuplicate(0)),
+                      numeric.open(list.getDuplicate(1)), numeric.open(list.getDuplicate(2)));
+              return () -> openDuplicates.stream().map(DRes::out).collect(Collectors.toList());
+            });
+          };
 
-          List<BigInteger> outputs = secureComputationEngine
-              .runApplication(app,
-                  ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<BigInteger> outputs = runApplication(app);
           secureComputationEngine.shutdownSCE();
           Assert.assertEquals(BigInteger.ZERO, outputs.get(0));
           Assert.assertEquals(BigInteger.ZERO, outputs.get(1));

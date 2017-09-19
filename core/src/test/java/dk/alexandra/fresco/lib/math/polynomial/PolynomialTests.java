@@ -3,26 +3,23 @@
  *
  * This file is part of the FRESCO project.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
- * and Bouncy Castle. Please see these projects for any further licensing issues.
+ * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
+ * Please see these projects for any further licensing issues.
  *******************************************************************************/
 package dk.alexandra.fresco.lib.math.polynomial;
 
@@ -32,7 +29,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.polynomial.evaluator.PolynomialEvaluator;
@@ -59,20 +55,18 @@ public class PolynomialTests {
           Application<BigInteger, ProtocolBuilderNumeric> app = provider -> {
             Numeric numeric = provider.numeric();
             List<DRes<SInt>> secretCoefficients =
-                Arrays.stream(coefficients)
-                    .mapToObj(BigInteger::valueOf)
-                    .map((n) -> numeric.input(n, 1))
-                    .collect(Collectors.toList());
+                Arrays.stream(coefficients).mapToObj(BigInteger::valueOf)
+                    .map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
 
             PolynomialImpl polynomial = new PolynomialImpl(secretCoefficients);
             DRes<SInt> secretX = numeric.input(BigInteger.valueOf(x), 1);
 
             DRes<SInt> result = provider.seq(new PolynomialEvaluator(secretX, polynomial));
-
             return numeric.open(result);
           };
-          BigInteger result = secureComputationEngine
-              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+          System.out.println("Party " + conf.getMyId() + " about to run app");
+          BigInteger result = runApplication(app);
+          System.out.println("Party " + conf.getMyId() + " done running app");
 
           int f = 0;
           int power = 1;
@@ -81,6 +75,7 @@ public class PolynomialTests {
             power *= x;
           }
           Assert.assertTrue(result.intValue() == f);
+          System.out.println("Party " + conf.getMyId() + " is done");
         }
       };
     }

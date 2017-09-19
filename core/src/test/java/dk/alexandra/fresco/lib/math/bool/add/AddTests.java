@@ -29,7 +29,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.AdvancedBinary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -46,8 +45,7 @@ public class AddTests {
   public static class TestOnebitHalfAdder<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
-    public TestOnebitHalfAdder() {
-    }
+    public TestOnebitHalfAdder() {}
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
@@ -55,33 +53,30 @@ public class AddTests {
 
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, ProtocolBuilderBinary> app =
-              producer -> {
+          Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> {
 
-                List<DRes<Pair<SBool, SBool>>> data =
-                    new ArrayList<>();
+            List<DRes<Pair<SBool, SBool>>> data = new ArrayList<>();
 
-                return producer.seq(seq -> {
-                  AdvancedBinary prov = seq.advancedBinary();
-                  DRes<SBool> inp0 = seq.binary().known(false);
-                  DRes<SBool> inp1 = seq.binary().known(true);
-                  data.add(prov.oneBitHalfAdder(inp0, inp0));
-                  data.add(prov.oneBitHalfAdder(inp0, inp1));
-                  data.add(prov.oneBitHalfAdder(inp1, inp0));
-                  data.add(prov.oneBitHalfAdder(inp1, inp1));
-                  return () -> data;
-                }).seq((seq, dat) -> {
-                  List<DRes<Boolean>> out = new ArrayList<>();
-                  for (DRes<Pair<SBool, SBool>> o : dat) {
-                    out.add(seq.binary().open(o.out().getFirst()));
-                    out.add(seq.binary().open(o.out().getSecond()));
-                  }
-                  return () -> out.stream().map(DRes::out).collect(Collectors.toList());
-                });
-              };
+            return producer.seq(seq -> {
+              AdvancedBinary prov = seq.advancedBinary();
+              DRes<SBool> inp0 = seq.binary().known(false);
+              DRes<SBool> inp1 = seq.binary().known(true);
+              data.add(prov.oneBitHalfAdder(inp0, inp0));
+              data.add(prov.oneBitHalfAdder(inp0, inp1));
+              data.add(prov.oneBitHalfAdder(inp1, inp0));
+              data.add(prov.oneBitHalfAdder(inp1, inp1));
+              return () -> data;
+            }).seq((seq, dat) -> {
+              List<DRes<Boolean>> out = new ArrayList<>();
+              for (DRes<Pair<SBool, SBool>> o : dat) {
+                out.add(seq.binary().open(o.out().getFirst()));
+                out.add(seq.binary().open(o.out().getSecond()));
+              }
+              return () -> out.stream().map(DRes::out).collect(Collectors.toList());
+            });
+          };
 
-          List<Boolean> outputs = secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Boolean> outputs = runApplication(app);
           Assert.assertThat(outputs.get(0), Is.is(false));
           Assert.assertThat(outputs.get(1), Is.is(false));
           Assert.assertThat(outputs.get(2), Is.is(true));
@@ -98,8 +93,7 @@ public class AddTests {
   public static class TestOnebitFullAdder<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
-    public TestOnebitFullAdder() {
-    }
+    public TestOnebitFullAdder() {}
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
@@ -107,37 +101,34 @@ public class AddTests {
 
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, ProtocolBuilderBinary> app =
-              producer -> {
+          Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> {
 
-                List<DRes<Pair<SBool, SBool>>> data =
-                    new ArrayList<>();
+            List<DRes<Pair<SBool, SBool>>> data = new ArrayList<>();
 
-                return producer.seq(seq -> {
-                  AdvancedBinary prov = seq.advancedBinary();
-                  DRes<SBool> inp0 = seq.binary().known(false);
-                  DRes<SBool> inp1 = seq.binary().known(true);
-                  data.add(prov.oneBitFullAdder(inp0, inp0, inp0));
-                  data.add(prov.oneBitFullAdder(inp0, inp0, inp1));
-                  data.add(prov.oneBitFullAdder(inp0, inp1, inp0));
-                  data.add(prov.oneBitFullAdder(inp0, inp1, inp1));
-                  data.add(prov.oneBitFullAdder(inp1, inp0, inp0));
-                  data.add(prov.oneBitFullAdder(inp1, inp0, inp1));
-                  data.add(prov.oneBitFullAdder(inp1, inp1, inp0));
-                  data.add(prov.oneBitFullAdder(inp1, inp1, inp1));
-                  return () -> data;
-                }).seq((seq, dat) -> {
-                  List<DRes<Boolean>> out = new ArrayList<>();
-                  for (DRes<Pair<SBool, SBool>> o : dat) {
-                    out.add(seq.binary().open(o.out().getFirst()));
-                    out.add(seq.binary().open(o.out().getSecond()));
-                  }
-                  return () -> out.stream().map(DRes::out).collect(Collectors.toList());
-                });
-              };
+            return producer.seq(seq -> {
+              AdvancedBinary prov = seq.advancedBinary();
+              DRes<SBool> inp0 = seq.binary().known(false);
+              DRes<SBool> inp1 = seq.binary().known(true);
+              data.add(prov.oneBitFullAdder(inp0, inp0, inp0));
+              data.add(prov.oneBitFullAdder(inp0, inp0, inp1));
+              data.add(prov.oneBitFullAdder(inp0, inp1, inp0));
+              data.add(prov.oneBitFullAdder(inp0, inp1, inp1));
+              data.add(prov.oneBitFullAdder(inp1, inp0, inp0));
+              data.add(prov.oneBitFullAdder(inp1, inp0, inp1));
+              data.add(prov.oneBitFullAdder(inp1, inp1, inp0));
+              data.add(prov.oneBitFullAdder(inp1, inp1, inp1));
+              return () -> data;
+            }).seq((seq, dat) -> {
+              List<DRes<Boolean>> out = new ArrayList<>();
+              for (DRes<Pair<SBool, SBool>> o : dat) {
+                out.add(seq.binary().open(o.out().getFirst()));
+                out.add(seq.binary().open(o.out().getSecond()));
+              }
+              return () -> out.stream().map(DRes::out).collect(Collectors.toList());
+            });
+          };
 
-          List<Boolean> outputs = secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Boolean> outputs = runApplication(app);
           Assert.assertThat(outputs.get(0), Is.is(false)); // 000
           Assert.assertThat(outputs.get(1), Is.is(false)); // 000
           Assert.assertThat(outputs.get(2), Is.is(true)); // 001
@@ -164,8 +155,7 @@ public class AddTests {
 
     private boolean doAsserts = false;
 
-    public TestFullAdder() {
-    }
+    public TestFullAdder() {}
 
     public TestFullAdder(boolean doAsserts) {
       this.doAsserts = doAsserts;
@@ -182,29 +172,27 @@ public class AddTests {
 
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, ProtocolBuilderBinary> app =
-              producer -> producer.seq(seq -> {
-                AdvancedBinary prov = seq.advancedBinary();
-                DRes<SBool> carry = seq.binary().known(true);
+          Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
+            AdvancedBinary prov = seq.advancedBinary();
+            DRes<SBool> carry = seq.binary().known(true);
 
-                List<DRes<SBool>> first =
-                    rawFirst.stream().map(seq.binary()::known).collect(Collectors.toList());
-                List<DRes<SBool>> second =
-                    rawSecond.stream().map(seq.binary()::known).collect(Collectors.toList());
+            List<DRes<SBool>> first =
+                rawFirst.stream().map(seq.binary()::known).collect(Collectors.toList());
+            List<DRes<SBool>> second =
+                rawSecond.stream().map(seq.binary()::known).collect(Collectors.toList());
 
-                DRes<List<DRes<SBool>>> adder = prov.fullAdder(first, second, carry);
+            DRes<List<DRes<SBool>>> adder = prov.fullAdder(first, second, carry);
 
-                return adder;
-              }).seq((seq, dat) -> {
-                List<DRes<Boolean>> out = new ArrayList<>();
-                for (DRes<SBool> o : dat) {
-                  out.add(seq.binary().open(o));
-                }
-                return () -> out.stream().map(DRes::out).collect(Collectors.toList());
-              });
+            return adder;
+          }).seq((seq, dat) -> {
+            List<DRes<Boolean>> out = new ArrayList<>();
+            for (DRes<SBool> o : dat) {
+              out.add(seq.binary().open(o));
+            }
+            return () -> out.stream().map(DRes::out).collect(Collectors.toList());
+          });
 
-          List<Boolean> outputs = secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Boolean> outputs = runApplication(app);
           if (doAsserts) {
             Assert.assertThat(ByteArithmetic.toHex(outputs), Is.is(expected));
             Assert.assertThat(outputs.size(), Is.is(rawFirst.size() + 1));
@@ -217,8 +205,7 @@ public class AddTests {
   public static class TestBitIncrement<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
-    public TestBitIncrement() {
-    }
+    public TestBitIncrement() {}
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
@@ -230,27 +217,25 @@ public class AddTests {
 
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, ProtocolBuilderBinary> app =
-              producer -> producer.seq(seq -> {
-                AdvancedBinary prov = seq.advancedBinary();
-                DRes<SBool> increment = seq.binary().known(true);
+          Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
+            AdvancedBinary prov = seq.advancedBinary();
+            DRes<SBool> increment = seq.binary().known(true);
 
-                List<DRes<SBool>> large =
-                    rawLarge.stream().map(seq.binary()::known).collect(Collectors.toList());
+            List<DRes<SBool>> large =
+                rawLarge.stream().map(seq.binary()::known).collect(Collectors.toList());
 
-                DRes<List<DRes<SBool>>> adder = prov.bitIncrement(large, increment);
+            DRes<List<DRes<SBool>>> adder = prov.bitIncrement(large, increment);
 
-                return adder;
-              }).seq((seq, dat) -> {
-                List<DRes<Boolean>> out = new ArrayList<>();
-                for (DRes<SBool> o : dat) {
-                  out.add(seq.binary().open(o));
-                }
-                return () -> out.stream().map(DRes::out).collect(Collectors.toList());
-              });
+            return adder;
+          }).seq((seq, dat) -> {
+            List<DRes<Boolean>> out = new ArrayList<>();
+            for (DRes<SBool> o : dat) {
+              out.add(seq.binary().open(o));
+            }
+            return () -> out.stream().map(DRes::out).collect(Collectors.toList());
+          });
 
-          List<Boolean> outputs = secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Boolean> outputs = runApplication(app);
 
           Assert.assertThat(ByteArithmetic.toHex(outputs), Is.is(expected));
           Assert.assertThat(outputs.size(), Is.is(rawLarge.size() + 1));

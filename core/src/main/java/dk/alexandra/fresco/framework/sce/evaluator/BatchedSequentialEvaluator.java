@@ -65,11 +65,9 @@ public class BatchedSequentialEvaluator<ResourcePoolT extends ResourcePool, Buil
     ProtocolSuite.RoundSynchronization<ResourcePoolT> roundSynchronization =
         protocolSuite.createRoundSynchronization();
     do {
-      ProtocolCollectionList<ResourcePoolT> protocols =
-          new ProtocolCollectionList<>(maxBatchSize);
+      ProtocolCollectionList<ResourcePoolT> protocols = new ProtocolCollectionList<>(maxBatchSize);
       protocolProducer.getNextProtocols(protocols);
       int size = protocols.size();
-
       BatchedStrategy.processBatch(protocols, sceNetwork, DEFAULT_CHANNEL, resourcePool);
       roundSynchronization.finishedBatch(size, resourcePool, sceNetwork);
     } while (protocolProducer.hasNextProtocols());

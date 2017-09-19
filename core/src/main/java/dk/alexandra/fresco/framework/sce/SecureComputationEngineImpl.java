@@ -30,6 +30,9 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.PerformanceLogger;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchedSequentialEvaluator;
+import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
@@ -71,8 +74,8 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Bui
 
   @Override
   public <OutputT> OutputT runApplication(Application<OutputT, Builder> application,
-      ResourcePoolT sceNetwork) {
-    Future<OutputT> future = startApplication(application, sceNetwork);
+      ResourcePoolT resourcePool) {
+    Future<OutputT> future = startApplication(application, resourcePool);
     try {
       return future.get(10, TimeUnit.MINUTES);
     } catch (InterruptedException | TimeoutException e) {
@@ -101,8 +104,15 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Bui
       this.evaluator.eval(builder.build(), resourcePool);
       long now = System.currentTimeMillis();
       long timeSpend = now - then;
-      if (PerformanceLogger.LOG_RUNTIME) {
-        PerformanceLogger.getLogger(resourcePool.getMyId()).informRuntime(application, timeSpend);
+      PerformanceLogger pl = resourcePool.getPerformanceLogger();
+      if (pl != null && pl.LOG_RUNTIME) {
+        EvaluationStrategy strategy = null;
+        if (evaluator instanceof SequentialEvaluator) {
+          strategy = EvaluationStrategy.SEQUENTIAL;
+        } else if (evaluator instanceof BatchedSequentialEvaluator) {
+          strategy = EvaluationStrategy.SEQUENTIAL_BATCHED;
+        }
+        pl.informRuntime(application, timeSpend, strategy, this.protocolSuite.getClass().getName());
       }
       application.close();
       return output;

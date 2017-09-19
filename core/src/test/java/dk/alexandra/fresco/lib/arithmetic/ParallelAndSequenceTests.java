@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -37,9 +36,8 @@ public class ParallelAndSequenceTests {
           TestApplicationSum sumApp = new ParallelAndSequenceTests().new TestApplicationSum();
           TestApplicationMult multApp = new ParallelAndSequenceTests().new TestApplicationMult();
 
-          ResourcePoolT resourcePool = ResourcePoolCreator.createResourcePool(conf.sceConf);
-          BigInteger sum = secureComputationEngine.runApplication(sumApp, resourcePool);
-          BigInteger mult = secureComputationEngine.runApplication(multApp, resourcePool);
+          BigInteger sum = runApplication(sumApp);
+          BigInteger mult = runApplication(multApp);
 
           Assert.assertEquals(BigInteger.valueOf(1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9), sum);
           Assert.assertEquals(BigInteger.valueOf(1 * 2 * 3 * 4 * 5 * 6 * 7 * 8 * 9), mult);
@@ -51,12 +49,9 @@ public class ParallelAndSequenceTests {
   private class TestApplicationSum implements Application<BigInteger, ProtocolBuilderNumeric> {
 
     @Override
-    public DRes<BigInteger> buildComputation(
-        ProtocolBuilderNumeric producer) {
-      List<DRes<SInt>> input =
-          Arrays.stream(inputAsArray)
-              .map((integer) -> convertToSInt(integer, producer))
-              .collect(Collectors.toList());
+    public DRes<BigInteger> buildComputation(ProtocolBuilderNumeric producer) {
+      List<DRes<SInt>> input = Arrays.stream(inputAsArray)
+          .map((integer) -> convertToSInt(integer, producer)).collect(Collectors.toList());
       DRes<SInt> result = producer.advancedNumeric().sum(input);
       return producer.numeric().open(result);
     }
@@ -66,12 +61,9 @@ public class ParallelAndSequenceTests {
   private class TestApplicationMult implements Application<BigInteger, ProtocolBuilderNumeric> {
 
     @Override
-    public DRes<BigInteger> buildComputation(
-        ProtocolBuilderNumeric producer) {
-      DRes<SInt> result = producer.advancedNumeric().product(
-          Arrays.stream(inputAsArray)
-              .map((integer) -> convertToSInt(integer, producer))
-              .collect(Collectors.toList()));
+    public DRes<BigInteger> buildComputation(ProtocolBuilderNumeric producer) {
+      DRes<SInt> result = producer.advancedNumeric().product(Arrays.stream(inputAsArray)
+          .map((integer) -> convertToSInt(integer, producer)).collect(Collectors.toList()));
       return producer.numeric().open(result);
     }
   }

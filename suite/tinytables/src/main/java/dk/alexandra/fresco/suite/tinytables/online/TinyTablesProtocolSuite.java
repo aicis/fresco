@@ -24,6 +24,7 @@
 package dk.alexandra.fresco.suite.tinytables.online;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.PerformanceLogger;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
@@ -115,8 +116,8 @@ public class TinyTablesProtocolSuite
 
   @Override
   public ResourcePoolImpl createResourcePool(int myId, int size, Network network, Random rand,
-      SecureRandom secRand) {
-    return new ResourcePoolImpl(myId, size, network, rand, secRand);
+      SecureRandom secRand, PerformanceLogger pl) {
+    return new ResourcePoolImpl(myId, size, network, rand, secRand, pl);
   }
 
 }

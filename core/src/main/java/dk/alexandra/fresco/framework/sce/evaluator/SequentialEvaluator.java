@@ -40,8 +40,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Generic Evaluator for doing simple gate-by-gate (or protocol by protocol in Practice terms). It
@@ -61,7 +59,6 @@ public class SequentialEvaluator<ResourcePoolT extends ResourcePool, Builder ext
    * This is just to avoid an infinite loop if there is an error in the protocol producer.
    */
   private static final int MAX_EMPTY_BATCHES_IN_A_ROW = 10;
-  private static Logger logger = LoggerFactory.getLogger(SequentialEvaluator.class);
 
   private int maxBatchSize;
 
@@ -102,21 +99,11 @@ public class SequentialEvaluator<ResourcePoolT extends ResourcePool, Builder ext
 
   public void eval(ProtocolProducer protocolProducer, ResourcePoolT resourcePool)
       throws IOException {
-    int batch = 0;
-    int totalProtocols = 0;
-    int totalBatches = 0;
     int zeroBatches = 0;
     RoundSynchronization<ResourcePoolT> roundSynchronization =
         protocolSuite.createRoundSynchronization();
     while (protocolProducer.hasNextProtocols()) {
       int numOfProtocolsInBatch = doOneRound(protocolProducer, resourcePool, roundSynchronization);
-      logger.trace("Done evaluating batch: " + batch++ + " with " + numOfProtocolsInBatch
-          + " native protocols");
-      if (numOfProtocolsInBatch == 0) {
-        logger.debug("Batch " + batch + " is empty");
-      }
-      totalProtocols += numOfProtocolsInBatch;
-      totalBatches += 1;
       if (numOfProtocolsInBatch == 0) {
         zeroBatches++;
       } else {
@@ -129,8 +116,6 @@ public class SequentialEvaluator<ResourcePoolT extends ResourcePool, Builder ext
     }
     roundSynchronization.finishedEval(resourcePool,
         createSceNetwork(resourcePool.getNoOfParties()));
-    logger.debug("Sequential evaluator done. Evaluated a total of " + totalProtocols
-        + " native protocols in " + totalBatches + " batches.");
   }
 
   /*
@@ -139,8 +124,9 @@ public class SequentialEvaluator<ResourcePoolT extends ResourcePool, Builder ext
    */
   private void processBatch(ProtocolCollection<ResourcePoolT> protocols, ResourcePoolT resourcePool)
       throws IOException {
-    if (PerformanceLogger.LOG_NATIVE_BATCH) {
-      PerformanceLogger.getLogger(resourcePool.getMyId()).nativeBatch(protocols.size());
+    PerformanceLogger pl = resourcePool.getPerformanceLogger();
+    if (pl != null && pl.LOG_NATIVE_BATCH) {
+      pl.nativeBatch(protocols.size());
     }
     Network network = resourcePool.getNetwork();
     SCENetworkImpl sceNetwork = createSceNetwork(resourcePool.getNoOfParties());
@@ -160,6 +146,9 @@ public class SequentialEvaluator<ResourcePoolT extends ResourcePool, Builder ext
         Map<Integer, ByteBuffer> inputForThisRound = new HashMap<>();
         for (int pId : sceNetwork.getExpectedInputForNextRound()) {
           byte[] messages = network.receive(DEFAULT_CHANNEL, pId);
+          if (pl != null && pl.LOG_NATIVE_BATCH) {
+            pl.bytesReceivedInBatch(messages.length, pId);
+          }
           inputForThisRound.put(pId, ByteBuffer.wrap(messages));
         }
         sceNetwork.setInput(inputForThisRound);
