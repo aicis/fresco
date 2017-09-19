@@ -140,9 +140,9 @@ public class TestThreadRunner {
    */
   public static class TestThreadConfiguration<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> {
 
-    protected final NetworkConfiguration netConf;
-    protected final TestSCEConfiguration<ResourcePoolT, Builder> sceConf;
-    protected final ResourcePoolT resourcePool;
+    public final NetworkConfiguration netConf;
+    public final TestSCEConfiguration<ResourcePoolT, Builder> sceConf;
+    public final ResourcePoolT resourcePool;
 
     public int getMyId() {
       return this.netConf.getMyId();
@@ -220,11 +220,14 @@ public class TestThreadRunner {
     // in order for this to work, or manage the network themselves.
 
     for (int id : confs.keySet()) {
-      Network network = confs.get(id).resourcePool.getNetwork();
-      try {
-        network.close();
-      } catch (IOException e) {
-        // Cannot do anything about this.
+      ResourcePoolT rp = confs.get(id).resourcePool;
+      if (rp != null) {
+        Network network = rp.getNetwork();
+        try {
+          network.close();
+        } catch (IOException e) {
+          // Cannot do anything about this.
+        }
       }
     }
   }

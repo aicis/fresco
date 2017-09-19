@@ -80,8 +80,8 @@ public class TestScapiNetworkLayer<ResourcePoolT extends ResourcePool> {
         new HashMap<>();
     for (int i : netConf.keySet()) {
       TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> ttc =
-          new TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric>();
-      ttc.netConf = netConf.get(i);
+          new TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric>(netConf.get(i), null,
+              null);
       conf.put(i, ttc);
     }
     TestThreadRunner.run(test, conf);

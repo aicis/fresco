@@ -25,21 +25,23 @@ package dk.alexandra.fresco.dummy;
 
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.network.NetworkingStrategy;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.framework.util.DetermSecureRandom;
+import dk.alexandra.fresco.network.ScapiNetworkImpl;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePool;
+import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * Abstract class which handles a lot of boiler plate testing code. This makes running a single test
@@ -47,8 +49,14 @@ import java.util.Map;
  */
 public abstract class AbstractDummyArithmeticTest {
 
-  protected void runTest(TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
+  /**
+   * Runs test with default modulus and no performance logging. i.e. standard test setup.
+   */
+  protected void runTest(
+      TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, int noOfParties) throws Exception {
+    BigInteger mod = new BigInteger(
+        "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
 
     List<Integer> ports = new ArrayList<Integer>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
@@ -57,15 +65,11 @@ public abstract class AbstractDummyArithmeticTest {
 
     Map<Integer, NetworkConfiguration> netConf =
         TestConfiguration.getNetworkConfigurations(noOfParties, ports);
-    Map<Integer, TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>> conf =
-        new HashMap<>();
+    Map<Integer, TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>> conf =
+        new HashMap<Integer, TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>>();
     for (int playerId : netConf.keySet()) {
-      TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
-          new TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>();
-      ttc.netConf = netConf.get(playerId);
 
-      BigInteger mod = new BigInteger(
-          "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
+      NetworkConfiguration partyNetConf = netConf.get(playerId);
 
       DummyArithmeticProtocolSuite ps = new DummyArithmeticProtocolSuite(mod, 200);
 
@@ -75,8 +79,17 @@ public abstract class AbstractDummyArithmeticTest {
 
       ProtocolEvaluator<DummyArithmeticResourcePool, ProtocolBuilderNumeric> evaluator =
           EvaluationStrategy.fromEnum(evalStrategy);
-      ttc.sceConf = new TestSCEConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>(
-          ps, NetworkingStrategy.KRYONET, evaluator, ttc.netConf, useSecureConnection);
+      int channelAmount = 1;
+      Network network = new ScapiNetworkImpl();
+      network.init(partyNetConf, channelAmount);
+      DummyArithmeticResourcePool rp = new DummyArithmeticResourcePoolImpl(playerId, noOfParties,
+          network, new Random(0), new DetermSecureRandom(), mod, null);
+      TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
+          new TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>(
+              partyNetConf,
+              new TestSCEConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>(ps,
+                  evaluator, partyNetConf, useSecureConnection),
+              rp);
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);

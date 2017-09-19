@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.dummy;
 
-import dk.alexandra.fresco.comparison.ComparisonTests;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.lib.arithmetic.ComparisonTests;
 import org.junit.Test;
 
 public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTest {
