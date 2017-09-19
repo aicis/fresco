@@ -57,9 +57,11 @@ public class DetermSecureRandom extends SecureRandom {
    * @param amount is the amount of bytes used from each iteration of the hash-function. The
    *        hashfunction returns 32 bytes, so setting amount to e.g. 10 reduces the security to 22
    *        bytes.
+   * @param seed The initial seed to use. This implicitly calls {@link #setSeed(byte[])} with this
+   *        argument.
    * @throws MPCException if the algorithm is not found.
    */
-  public DetermSecureRandom(int amount) throws MPCException {
+  public DetermSecureRandom(int amount, byte[] seed) throws MPCException {
     try {
       md = MessageDigest.getInstance("SHA");
     } catch (NoSuchAlgorithmException e) {
@@ -69,20 +71,18 @@ public class DetermSecureRandom extends SecureRandom {
       throw new MPCException("amount is not allowed to surpass the length of the digest");
     }
     this.amount = amount;
+    setSeed(seed);
   }
 
   /**
-   * Convenience constructor. It does the same as a call to DetermSecureRandom(1) would do.
+   * Convenience constructor. It does the same as a call to {@link #DetermSecureRandom(int, byte[])}
+   * with the parameters (1, new byte[]{0x00}) would do.
    */
   public DetermSecureRandom() throws MPCException {
-    this.amount = 1;
-    try {
-      md = MessageDigest.getInstance("SHA");
-    } catch (NoSuchAlgorithmException e) {
-      throw new MPCException("Error while instantiating DetermSecureRandom", e);
-    }
+    this(1, new byte[] {0x00});
   }
 
+  @Override
   public synchronized void nextBytes(byte[] bytes) {
     byte[] res = null;
     this.md.update(this.seed);

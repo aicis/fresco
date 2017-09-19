@@ -189,9 +189,7 @@ public class TestThreadRunner {
     try {
       for (TestThread<ResourcePoolT, Builder> t : threads) {
         try {
-          System.out.println("Waiting for thread");
           t.join(MAX_WAIT_FOR_THREAD);
-          System.out.println("Done waiting");
         } catch (InterruptedException e) {
           throw new TestFrameworkException("Test was interrupted");
         }

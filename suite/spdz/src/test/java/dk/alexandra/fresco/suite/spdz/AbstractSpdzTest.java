@@ -23,19 +23,31 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz;
 
+import dk.alexandra.fresco.framework.PerformanceLogger;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
+import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
+import dk.alexandra.fresco.framework.util.DetermSecureRandom;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * Abstract class which handles a lot of boiler plate testing code. This makes running a single test
@@ -47,6 +59,13 @@ public abstract class AbstractSpdzTest {
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, NetworkingStrategy network,
       PreprocessingStrategy preProStrat, int noOfParties) throws Exception {
+    runTest(f, evalStrategy, network, preProStrat, noOfParties, null);
+  }
+
+  protected void runTest(
+      TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
+      EvaluationStrategy evalStrategy, NetworkingStrategy networkStrategy,
+      PreprocessingStrategy preProStrat, int noOfParties, PerformanceLogger pl) throws Exception {
     // Since SCAPI currently does not work with ports > 9999 we use fixed
     // ports
     // here instead of relying on ephemeral ports which are often > 9999.
@@ -60,19 +79,39 @@ public abstract class AbstractSpdzTest {
     Map<Integer, TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     for (int playerId : netConf.keySet()) {
-      TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
-          new TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>();
-      ttc.netConf = netConf.get(playerId);
-
-      SpdzProtocolSuite spdzConf = new SpdzProtocolSuite(150, preProStrat, null);
+      SpdzProtocolSuite protocolSuite = new SpdzProtocolSuite(150);
 
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
           EvaluationStrategy.fromEnum(evalStrategy);
-      ttc.sceConf = new TestSCEConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>(spdzConf,
-          network, evaluator, ttc.netConf, false);
+      Network network =
+          ResourcePoolCreator.getNetworkFromConfiguration(networkStrategy, netConf.get(playerId));
+      SpdzResourcePool rp = createResourcePool(playerId, noOfParties, network, new Random(),
+          new DetermSecureRandom(), pl, preProStrat);
+      TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
+          new TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>(
+              netConf.get(playerId),
+              new TestSCEConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>(protocolSuite,
+                  evaluator, netConf.get(playerId), false),
+              rp);
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
   }
 
+  private SpdzResourcePool createResourcePool(int myId, int size, Network network, Random rand,
+      SecureRandom secRand, PerformanceLogger pl, PreprocessingStrategy preproStrat) {
+    SpdzStorage store;
+    switch (preproStrat) {
+      case DUMMY:
+        store = new SpdzStorageDummyImpl(myId, size);
+        break;
+      case STATIC:
+        store = new SpdzStorageImpl(0, size, myId,
+            new FilebasedStreamedStorageImpl(new InMemoryStorage()));
+        break;
+      default:
+        throw new ConfigurationException("Unkonwn preprocessing strategy: " + preproStrat);
+    }
+    return new SpdzResourcePoolImpl(myId, size, network, rand, secRand, store, pl);
+  }
 }
