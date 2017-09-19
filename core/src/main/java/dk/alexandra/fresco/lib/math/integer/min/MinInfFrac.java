@@ -32,7 +32,7 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.ConditionalSelect;
+import dk.alexandra.fresco.lib.conditional.ConditionalSelect;
 import dk.alexandra.fresco.lib.math.integer.min.MinInfFrac.MinInfOutput;
 import java.math.BigInteger;
 import java.util.ArrayList;

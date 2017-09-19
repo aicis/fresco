@@ -28,7 +28,7 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.lp.Matrix;
+import dk.alexandra.fresco.lib.collections.Matrix;
 import java.io.PrintStream;
 import java.math.BigInteger;
 import java.util.ArrayList;

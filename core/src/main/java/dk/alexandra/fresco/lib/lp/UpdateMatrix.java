@@ -26,16 +26,18 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.lp;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.ConditionalSelect;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
+import dk.alexandra.fresco.lib.collections.Matrix;
+import dk.alexandra.fresco.lib.conditional.ConditionalSelect;
 
 public class UpdateMatrix implements
     Computation<Matrix<DRes<SInt>>, ProtocolBuilderNumeric> {

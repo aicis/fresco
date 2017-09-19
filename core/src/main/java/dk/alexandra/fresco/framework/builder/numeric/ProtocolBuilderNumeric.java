@@ -14,6 +14,7 @@ public class ProtocolBuilderNumeric extends
   private BasicNumericContext basicNumericContext;
   private Numeric numeric;
   private Comparison comparison;
+  private Collections collections;
   private AdvancedNumeric advancedNumeric;
   private Debug debug;
 
@@ -58,6 +59,13 @@ public class ProtocolBuilderNumeric extends
     return advancedNumeric;
   }
 
+  public Collections collections() {
+    if (collections == null) {
+      collections = factory.createCollections(this);
+    }
+    return collections;
+  }
+  
   public Debug debug() {
     if (debug == null) {
       debug = factory.createDebug(this);

@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.debug.ArithmeticOpenAndPrint;
 import dk.alexandra.fresco.lib.debug.Marker;
-import dk.alexandra.fresco.lib.lp.Matrix;
+import dk.alexandra.fresco.lib.collections.Matrix;
 import java.io.PrintStream;
 import java.util.List;
 
