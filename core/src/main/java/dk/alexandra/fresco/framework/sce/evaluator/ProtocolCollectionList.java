@@ -7,11 +7,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ProtocolCollectionList<OutputT, ResourcePoolT extends ResourcePool>
-    implements ProtocolCollection<OutputT, ResourcePoolT> {
+public class ProtocolCollectionList<ResourcePoolT extends ResourcePool>
+    implements ProtocolCollection<ResourcePoolT> {
 
   private int capacity;
-  private List<NativeProtocol<OutputT, ResourcePoolT>> protocols;
+  private List<NativeProtocol<?, ResourcePoolT>> protocols;
 
   public ProtocolCollectionList(int capacity) {
     this.capacity = capacity;
@@ -19,7 +19,7 @@ public class ProtocolCollectionList<OutputT, ResourcePoolT extends ResourcePool>
   }
 
   @Override
-  public void addProtocol(NativeProtocol<OutputT, ResourcePoolT> protocol) {
+  public void addProtocol(NativeProtocol<?, ResourcePoolT> protocol) {
     protocols.add(protocol);
   }
 
@@ -29,7 +29,7 @@ public class ProtocolCollectionList<OutputT, ResourcePoolT extends ResourcePool>
   }
 
   @Override
-  public Iterator<NativeProtocol<OutputT, ResourcePoolT>> iterator() {
+  public Iterator<NativeProtocol<?, ResourcePoolT>> iterator() {
     return protocols.iterator();
   }
 

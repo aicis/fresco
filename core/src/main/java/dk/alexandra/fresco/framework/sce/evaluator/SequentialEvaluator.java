@@ -89,7 +89,7 @@ public class SequentialEvaluator<ResourcePoolT extends ResourcePool, Builder ext
 
   private int doOneRound(ProtocolProducer protocolProducer, ResourcePoolT resourcePool,
       RoundSynchronization<ResourcePoolT> roundSynchronization) throws IOException {
-    ProtocolCollectionList<?, ResourcePoolT> protocols = new ProtocolCollectionList<>(maxBatchSize);
+    ProtocolCollectionList<ResourcePoolT> protocols = new ProtocolCollectionList<>(maxBatchSize);
     protocolProducer.getNextProtocols(protocols);
     int size = protocols.size();
 
@@ -136,7 +136,7 @@ public class SequentialEvaluator<ResourcePoolT extends ResourcePool, Builder ext
    * As soon as this method finishes, it may be called again with a new batch -- ie to process more
    * than one batch at a time, simply return before the first one is finished
    */
-  private void processBatch(ProtocolCollection<?, ResourcePoolT> protocols,
+  private void processBatch(ProtocolCollection<ResourcePoolT> protocols,
       ResourcePoolT resourcePool) throws IOException {
     Network network = resourcePool.getNetwork();
     SCENetworkImpl sceNetwork = createSceNetwork(resourcePool.getNoOfParties());

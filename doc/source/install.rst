@@ -21,42 +21,38 @@ To install from source, make sure you have installed `git
 <https://maven.apache.org/>`_. Then run: ::
 
   $ git clone https://github.com/aicis/fresco/fresco.git
-  $ cd fresco
-  $ mvn install -DskipITs
+  $ cd fresco/core
+  $ mvn install
 
-This will download some dependencies, compile FRESCO, and run a number
-of tests. If everything works fine Maven installs FRESCO on your
-system and a FRESCO JAR file can now be found in the ``./target``
-folder.
+This will download some dependencies, compile the FRESCO core, and runs our
+extensive test suite. If everything works fine Maven installs FRESCO on your
+system and a FRESCO JAR file can now be found in the ``./target`` folder as well
+as in your local maven repository.
 
-.. _scapi: https://github.com/cryptobiu/scapi
+FRESCO is split up into several projects in order to better manage
+dependencies. We have the following projects which are all included in your git
+clone you just fetched:
 
+- core
+- suite
+- demos
+- scapiNetwork
+- tools
 
-Persistent Store
-----------------
+The core project contains the :ref:`standard library<STD_LIB>` as well as the
+two :ref:`dummy protocol suites<DUMMY_BOOL>`. It essentially contains all you
+need to be able to run a secure computation.
 
-If you don't care about running protocol suites in the
-:term:`preprocessing model`, such as :ref:`SPDZ <SPDZ>`, you can just
-ignore this section.
+The suite project contains all the actually secure protocol suites that FRESCO
+currently can run.
 
-Protocols in the preprocessing model run in two phases, the *offline*
-phase and the *online* phase. Data from the offline phase needs to be
-available in the online phase. As a default, offline data gets stored
-in memory, but this puts a limit to the amount of preprocessed data
-you can store and it has the drawback that data is lost when the host
-is switched off.
+Demos are demonstrators which shows different applications in actual use. It
+should be fairly straightforward to take the jar file these generate and run
+them on different machines. The AES demo is chosen as the :ref:`quickstart
+tutorial<Quickstart>`, where we go into greater depths of the inner workings.
 
-FRESCO also supports persistent storage via MySQL. To make use of this
-feature you must have MySQL installed. You can, e.g., use the
-following MySQL commands to set up the database: ::
+ScapiNetwork is an example of how to create a different network implementation
+and use this instead.
 
-    CREATE USER 'fresco'@'localhost' IDENTIFIED BY 'yourpassowrd';
-    CREATE DATABASE IF NOT EXISTS fresco;
-    GRANT ALL PRIVILEGES ON fresco.* TO 'fresco'@'localhost';
-
-Then modify the files in ``properties/db.properties`` to match the
-database, username, and password that you choose.
-
-If you have set up a MySQL database like this, you can run ``mvn
-install`` without the ``-DskipITs`` flag which will also run a few
-tests of the MySQL connection.
+Tools contains projects that either helps the developer or is a standalone tool
+which can help in certain situations. 

@@ -16,6 +16,7 @@ Contents:
    quickstart
    design
    protocol_suites
+   standard_lib
    releases
    developers
    glossary

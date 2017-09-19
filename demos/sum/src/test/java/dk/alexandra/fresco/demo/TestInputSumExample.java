@@ -53,7 +53,7 @@ public class TestInputSumExample {
       TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> test, boolean dummy, int n) {
     // Since SCAPI currently does not work with ports > 9999 we use fixed ports
     // here instead of relying on ephemeral ports which are often > 9999.
-    List<Integer> ports = new ArrayList<Integer>(n);
+    List<Integer> ports = new ArrayList<>(n);
     for (int i = 1; i <= n; i++) {
       ports.add(9000 + i * 10);
     }
@@ -76,7 +76,7 @@ public class TestInputSumExample {
         suite = (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new SpdzProtocolSuite(150,
             PreprocessingStrategy.DUMMY, null);
       }
-      ttc.sceConf = new TestSCEConfiguration<ResourcePoolT, ProtocolBuilderNumeric>(suite,
+      ttc.sceConf = new TestSCEConfiguration<>(suite,
           NetworkingStrategy.KRYONET, new SequentialEvaluator<>(), netConf.get(i), false);
       conf.put(i, ttc);
     }

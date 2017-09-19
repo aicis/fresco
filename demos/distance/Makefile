@@ -2,6 +2,7 @@ build: install move
 
 install:
 	cd ../../core && mvn clean install -DskipTests
+	cd ../../suite/spdz && mvn clean install -DskipTests
 	cd ../common && mvn clean install -DskipTests
 	mvn clean install -DskipTests
 

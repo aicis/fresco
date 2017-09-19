@@ -18,8 +18,12 @@ fresco@alexandra.dk with any ideas, etc.
 The team of people that are or have been involved in developing FRESCO
 is (ordered alphabetically):
 
+* Emil Bremer Orloff <ebo@partisia.dk>
+* Jonas Lindstrøm <jonas.lindstrom@alexandra.dk>
 * Kasper Damgaard <kasper.damgaard@alexandra.dk>
+* Michael Bladt Stausholm <michael.stausholm@alexandra.dk>
 * Thomas P. Jakobsen <tpj@sepior.dk>
+* Peter F. Frandsen <pff@partisia.dk>
 * Peter S. Nordholt <peter.s.nordholt@alexandra.dk>
 * Tomas Toft <ttoft@cs.au.dk>
 
@@ -63,13 +67,27 @@ go to the local directory where FRESCO is located and run: ::
 Then choose *File > Import ... > General > Existing Projects into Workspace*
 from Eclipse and select the folder containing the FRESCO source.
 
+IntelliJ support is also present - look for the .idea files in the root of the
+git repository. 
 
-.. Coding Conventions
-   ------------------
+Coding Conventions
+------------------
 
-   This section contains a few guidelines for both application
-   developers, protocol suite developers, and developers of FRESCO
-   itself.
+This section contains a few guidelines for both application
+developers, protocol suite developers, and developers of FRESCO
+itself.
+
+We use Google code style, so please ensure that your IDE supports this when
+developing on FRESCO. The XML document describing the code style can be found in the root
+of the git repository.
+
+When writing a new piece of code, try to ensure 100% code coverage using unit
+tests. We use jacoco for this purpose, and a report will be generated after
+running the maven test target.
+
+Avoid creating warnings in the code. If e.g. for some *good reason* generics
+cannot be correctly parameterized, use ``@SuppressWarnings("rawtypes")`` to get
+rid of the warning.
 
 
 Building the Documentation
@@ -90,8 +108,9 @@ effects:  Go to the ``doc`` folder. Then create a new virtual environment: ::
   $ source ./env/bin/activate
   $ pip install -r requirements.txt
 
-This only needs to be done once. When done, you can activate the virtual
-environment just by doing::
+If the install fails, you might have to update pip. Just follow the directions
+pip gives you. This only needs to be done once. When done, you can activate the
+virtual environment just by doing::
 
   $ source ./env/bin/activate
 
@@ -122,13 +141,13 @@ code itself. Whenever you write a test for something in package
 ``/test/x/y/z``. This way, you can test methods that are not exposed
 in the FRESCO API by making them *package private*.
 
-We have three classes of tests:
+We have two classes of tests:
 
-* Unit tests. These should be fast and not rely on any external
-  dependencies, such as MySQL being installed on the system. Unit
-  tests should be run regularly by developers. Also, it should ideally
-  be possible to check out the code and just run ``mvn test`` without
-  doing a lot of setup.
+* Unit tests. These should be fast and not rely on any external dependencies
+  such as a server already running. Unit tests should be run continously by
+  developers. Also, it should ideally be possible to check out the code and just
+  run ``mvn test`` with only meeting the requirements seen in the
+  :ref:`install<install>` section.
 
 * Integration tests. This is tests that for example rely on external
   databases being set up, or involve deployment to different
@@ -142,14 +161,7 @@ We have three classes of tests:
         // Your test goes here.
     }
 
-* Slow tests. This is tests that take too long time to be part of the
-  unit test suite. Use ``@Category(SlowTest.class)`` to mark slow
-  tests. Often you want many tests, e.g., for testing a protocol suite
-  with different parameters. You can mark some of them as slow tests
-  (even though each of them are not slow) and only leave a few good
-  tests as unit tests.
-
-Integration tests and slow tests are ignored when you run ::
+Integration tests are ignored when you run ::
 
   mvn test
 
@@ -174,19 +186,23 @@ A few good practices regarding tests:
    if you want a test to say something. A failing test should say a
    lot of useful things.
 
+#. Try to obtain 100% code coverage for whatever you are testing.
+
 
 Writing Tests for a Protocol Suite
 ----------------------------------
 
 If you are developing a new protocol suite you should write tests in
 the same way as the tests for suites that are already included in
-FRESCO. Consider, e.g., the BGW suite. Tests are placed in the
+FRESCO. Consider, e.g., the SPDZ suite. Tests are placed in the
 ``test`` folder under ``dk.alexandra.fresco.suite.mysuite``. A helper
 method is made:
 
 .. sourcecode:: java
 
-    private void runTest(TestThreadFactory f, int noPlayers, int threshold, EvaluationStrategy evalStrategy) throws Exception
+   protected void runTest(TestThreadRunner.TestThreadFactory f, EvaluationStrategy evalStrategy,
+	NetworkingStrategy network,
+	PreprocessingStrategy preProStrat, int noOfParties) throws Exception
 
 The first argument to ``runTest`` is a ``TestThreadFactory`` which
 defines which logic should be tested. It is a factory that provides
@@ -194,40 +210,38 @@ threads for each party in the test. If the protocol to test is
 symmetric, each thread is identical. The test framework makes sure
 that each thread has access to its own ``partyId`` so if the test
 requires the parties to do different things, they can branch on their
-playerId.
+partyId.
 
-The rest of the arguments to ``runTest`` are parameters over which you
-want your tests to vary. For example this could be number of players
-and evaluation strategy. But it can also include parameters specific
-to your suite, such as ``threshold`` which is specific to the BGW
-suite. The ``runTest`` should set up the remaining parameters for your
-test -- those parameters that should remain fixed in all your tests.
+The rest of the arguments to ``runTest`` are parameters over which you want your
+tests to vary. For example this could be number of players and evaluation
+strategy. But it can also include parameters specific to your suite. The
+``runTest`` should set up the remaining parameters for your test -- those
+parameters that should remain fixed in all your tests.
 
 Then create a number of small tests, like the following:
 
 .. sourcecode:: java
 
-    @Test
-    public void test_simple_arithmetic_3_1_sequential() throws Exception {
-        runTest(new BasicArithmeticTests.TestSimpleMultAndAdd(), 3, 1, EvaluationStrategy.SEQUENTIAL);
-    }
-
+   @Test
+   public void test_MultAndAdd_Sequential() throws Exception {
+     runTest(new BasicArithmeticTests.TestSimpleMultAndAdd(), EvaluationStrategy.SEQUENTIAL,
+       NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+     }
+   
 It is fine to let the name reflect the specific parameters used in the
 test. Note how we use a generic test here: The test
 ``BasicArithmeticTests.TestSimpleMultAndAdd`` can be used to test
 multiplications and additions for any protocol suite that supports
 basic arithmetic operations, so there is no need to rewrite such
-tests. Only write your own specific tests if your need to test some
+tests. Only write your own specific tests if you need to test some
 specific functionality of your suite that no other suite has,
 otherwise consider making the test generic such that it can be reused
 by others.
 
-Writing many small tests like this makes it easy to decide later which
-of the tests to include. The "unit" test suite should be relatively
-quick and not require external setup such as MySQL. If it depends on
-such things, mark it with ``@Category(IntegrationTest.class)``. If it
-is slow, mark it with ``@Category(SlowTest.class)``.
-
+Writing many small tests like this makes it easy to decide later which of the
+tests to include. The "unit" test suite should be relatively quick and not
+require external setup. If it depends on such things, mark it with
+``@Category(IntegrationTest.class)``.
 
 Versioning
 ----------
