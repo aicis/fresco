@@ -8,7 +8,8 @@ import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.lp.Matrix;
+import dk.alexandra.fresco.lib.collections.Matrix;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.math.BigInteger;
@@ -34,11 +35,9 @@ public class ArithmeticDebugTests {
         public void test() throws Exception {
           Application<Void, ProtocolBuilderNumeric> app = producer -> producer.seq(seq -> {
             Numeric numeric = seq.numeric();
-            List<DRes<SInt>> toPrint =
-                Arrays
-                    .stream(new BigInteger[] {BigInteger.ONE, BigInteger.TEN, BigInteger.ZERO,
-                        BigInteger.ONE})
-                    .map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
+            List<DRes<SInt>> toPrint = Arrays.stream(
+                new BigInteger[] {BigInteger.ONE, BigInteger.TEN, BigInteger.ZERO, BigInteger.ONE})
+                .map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
             return () -> toPrint;
           }).seq((seq, inputs) -> {
             seq.debug().openAndPrint("testNumber", inputs.get(0), stream);

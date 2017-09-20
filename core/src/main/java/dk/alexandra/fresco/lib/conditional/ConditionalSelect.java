@@ -1,5 +1,5 @@
-/*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
+/*
+ * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
  *
  * This file is part of the FRESCO project.
  *
@@ -24,17 +24,32 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
  * and Bouncy Castle. Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco;
 
-/**
- * Use this interface in combination with @Category to specify test classes and
- * methods that are part of integration tests, i.e., that are not run with 'mvn
- * test', but with 'mvn integration-test' and 'mvn verify'.
- *
- * See
- * http://www.javacodegeeks.com/2015/01/separating-integration-tests-from-unit-
- * tests-using-maven-failsafe-junit-category.html
- */
-public interface IntegrationTest {
+package dk.alexandra.fresco.lib.conditional;
 
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.value.SInt;
+
+public class ConditionalSelect implements Computation<SInt, ProtocolBuilderNumeric> {
+
+  private final DRes<SInt> left;
+  private final DRes<SInt> right;
+  private final DRes<SInt> condition;
+
+  public ConditionalSelect(DRes<SInt> selector, DRes<SInt> left, DRes<SInt> right) {
+    this.condition = selector;
+    this.left = left;
+    this.right = right;
+  }
+
+  @Override
+  public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
+    Numeric numeric = builder.numeric();
+    DRes<SInt> sub = numeric.sub(left, right);
+    DRes<SInt> mult = numeric.mult(condition, sub);
+    return numeric.add(mult, right);
+  }
 }

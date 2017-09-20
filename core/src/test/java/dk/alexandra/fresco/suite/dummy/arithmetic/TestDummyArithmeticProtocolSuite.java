@@ -1,14 +1,26 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
-
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
 import dk.alexandra.fresco.lib.arithmetic.ParallelAndSequenceTests.TestSumAndProduct;
 import dk.alexandra.fresco.lib.arithmetic.SearchingTests;
 import dk.alexandra.fresco.lib.arithmetic.SortingTests;
+import dk.alexandra.fresco.lib.collections.Matrix;
+import dk.alexandra.fresco.lib.collections.io.CloseListTests;
+import dk.alexandra.fresco.lib.collections.io.CloseMatrixTests;
+import dk.alexandra.fresco.lib.collections.permute.PermuteRows;
+import dk.alexandra.fresco.lib.collections.permute.PermuteRowsTests;
+import dk.alexandra.fresco.lib.collections.relational.LeakyAggregationTests;
+import dk.alexandra.fresco.lib.collections.shuffle.ShuffleRowsTests;
 import dk.alexandra.fresco.lib.compare.CompareTests;
+import dk.alexandra.fresco.lib.conditional.ConditionalSelectTests;
+import dk.alexandra.fresco.lib.conditional.ConditionalSwapNeighborsTests;
+import dk.alexandra.fresco.lib.conditional.ConditionalSwapRowsTests;
+import dk.alexandra.fresco.lib.conditional.SwapIfTests;
 import dk.alexandra.fresco.lib.debug.ArithmeticDebugTests;
 import dk.alexandra.fresco.lib.list.EliminateDuplicatesTests;
 import dk.alexandra.fresco.lib.lp.LPBuildingBlockTests;
@@ -25,6 +37,7 @@ import dk.alexandra.fresco.lib.statistics.CreditRaterTest;
 import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
 import dk.alexandra.fresco.lib.statistics.DEASolverTests.RandomDataDeaTest;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import org.junit.Test;
 
 
@@ -194,12 +207,149 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
   }
 
+  // lib.conditional
+
+  @Test
+  public void test_conditional_select_left() throws Exception {
+    runTest(ConditionalSelectTests.testSelectLeft(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 1);
+  }
+
+  @Test
+  public void test_conditional_select_right() throws Exception {
+    runTest(ConditionalSelectTests.testSelectRight(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 1);
+  }
+
+  @Test
+  public void test_swap_yes() throws Exception {
+    runTest(SwapIfTests.testSwapYes(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
+        1);
+  }
+
+  @Test
+  public void test_swap_no() throws Exception {
+    runTest(SwapIfTests.testSwapNo(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 1);
+  }
+
+  @Test
+  public void test_swap_rows_yes() throws Exception {
+    runTest(ConditionalSwapRowsTests.testSwapYes(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 1);
+  }
+
+  @Test
+  public void test_swap_rows_no() throws Exception {
+    runTest(ConditionalSwapRowsTests.testSwapNo(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 1);
+  }
+
+  @Test
+  public void test_swap_neighbors_yes() throws Exception {
+    runTest(ConditionalSwapNeighborsTests.testSwapYes(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 1);
+  }
+
+  @Test
+  public void test_swap_neighbors_no() throws Exception {
+    runTest(ConditionalSwapNeighborsTests.testSwapNo(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 1);
+  }
+
   // lib.collections
+
+  @Test
+  public void test_close_empty_list() throws Exception {
+    runTest(new CloseListTests.TestCloseEmptyList<>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_close_list() throws Exception {
+    runTest(new CloseListTests.TestCloseEmptyList<>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_close_empty_matrix() throws Exception {
+    runTest(new CloseMatrixTests.TestCloseEmptyMatrix<>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_close_matrix() throws Exception {
+    runTest(new CloseMatrixTests.TestCloseAndOpenMatrix<>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 2);
+  }
+
   @Test
   public void test_Test_Is_Sorted() throws Exception {
     runTest(new SearchingTests.TestIsSorted<>(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 1);
   }
+
+  @Test
+  public void test_permute_empty_rows() throws Exception {
+    runTest(PermuteRowsTests.permuteEmptyRows(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_permute_rows() throws Exception {
+    runTest(PermuteRowsTests.permuteRows(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void test_permute_rows_non_power_of_two() throws Throwable {
+    ArrayList<ArrayList<DRes<SInt>>> fakeRows = new ArrayList<>();
+    Matrix<DRes<SInt>> fakeMatrix = new Matrix<>(3, 2, fakeRows);
+    new PermuteRows(() -> fakeMatrix, new int[] {}, 1, true).buildComputation(null);
+  }
+
+  @Test
+  public void test_shuffle_rows_two_parties() throws Exception {
+    runTest(ShuffleRowsTests.shuffleRowsTwoParties(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_shuffle_rows_three_parties() throws Exception {
+    runTest(ShuffleRowsTests.shuffleRowsThreeParties(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 3);
+  }
+
+  @Test
+  public void test_shuffle_rows_empty() throws Exception {
+    runTest(ShuffleRowsTests.shuffleRowsEmpty(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_leaky_aggregate_two() throws Exception {
+    runTest(LeakyAggregationTests.aggregate(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_leaky_aggregate_unique_keys_two() throws Exception {
+    runTest(LeakyAggregationTests.aggregateUniqueKeys(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_leaky_aggregate_three() throws Exception {
+    runTest(LeakyAggregationTests.aggregate(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 3);
+  }
+
+  @Test
+  public void test_leaky_aggregate_empty() throws Exception {
+    runTest(LeakyAggregationTests.aggregateEmpty(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 2);
+  }
+
+  //
 
   @Test
   public void test_MiMC_DifferentPlainTexts() throws Exception {

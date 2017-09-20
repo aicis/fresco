@@ -1,3 +1,5 @@
+.. _Quickstart:
+
 Quickstart
 ==========
 
@@ -23,234 +25,248 @@ computation. We will solve the problem with FRESCO using the following
 code:
 
 .. sourcecode:: java
+		
+  public class AESDemo implements Application<List<Boolean>, ProtocolBuilderBinary> {
 
-    import dk.alexandra.fresco.framework.Application;
-    import dk.alexandra.fresco.framework.NativeProtocol;
-    import dk.alexandra.fresco.framework.ProtocolProducer;
-    import dk.alexandra.fresco.framework.ProtocolFactory;
-    import dk.alexandra.fresco.framework.sce.SecureComputationEngineomputationEngine.SCE;
-    import dk.alexandra.fresco.framework.secureComputationEngine.SCEFactory;
-    import dk.alexandra.fresco.framework.secureComputationEngine.configuration.SCEConfiguration;
-    import dk.alexandra.fresco.framework.secureComputationEngine.configuration.ProtocolSuiteConfiguration;
-    import dk.alexandra.fresco.framework.value.OBool;
-    import dk.alexandra.fresco.framework.value.SBool;
-    import dk.alexandra.fresco.framework.configuration.CmdLineUtil;
-    import dk.alexandra.fresco.framework.util.ByteArithmetic;
-
-    import dk.alexandra.fresco.lib.field.bool.BasicLogicFactory;
-    import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
-    import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
-    import dk.alexandra.fresco.lib.crypto.BristolCryptoFactory;
-
-    import org.apache.commons.cli.CommandLine;
-
-    public class AESDemo implements Application {
-
-        private int myId;
-        private boolean[] in;
-
-        private OBool[] out;
-
-        private final static int BLOCK_SIZE = 128; // We do 128 bit AES.
-
-        public AESDemo(int myId, boolean[] input) {
-            this.myId = myId;
-            this.in = input;
-        }
-
-        public static void main(String[] args) throws Exception {
-
-            // Read FRESCO configuration from command line args.
-            CmdLineUtil util = new CmdLineUtil();
-            CommandLine parsedCommandLine = util.parse(args);
-            SCEConfiguration sceConf = util.getSCEConfiguration();
-            ProtocolSuiteConfiguration psConf = util.getProtocolSuiteConfiguration();
-
-	    // Read and parse key or plaintext.
-            String in = parsedCommandLine.getArgs()[0];
-            boolean[] input = ByteArithmetic.toBoolean(in);
-
-            // Run secure computation.
-            AESDemo aes = new AESDemo(sceConf.getMyId(), input);
-            SCE secureComputationEngine = SCEFactory.getSCEFromConfiguration(sceConf, psConf);
-            secureComputationEngine.runApplication(aes);
-
-            // Print result.
-            boolean[] res = new boolean[BLOCK_SIZE];
-            for (int i=0; i<BLOCK_SIZE; i++) {
-                res[i] = aes.out[i].getValue();
-            }
-            System.out.println("The resulting ciphertext is: " + ByteArithmetic.toHex(res));
-
-        }
-
-        @Override
-        public ProtocolProducer buildComputation(ProtocolFactory factory) {
-
-            BasicLogicFactory blf = (BasicLogicFactory) factory;
-
-	    // Convert input to open FRESCO values.
-            OBool[] plainOpen = new OBool[BLOCK_SIZE];
-            OBool[] keyOpen = new OBool[BLOCK_SIZE];
-            for (int i=0; i<BLOCK_SIZE; i++) {
-                keyOpen[i] = blf.getOBool();
-                plainOpen[i] = blf.getOBool();
-                if (this.myId == 1) {
-                    keyOpen[i].setValue(this.in[i]);
-                } else if (this.myId == 2) {
-                    plainOpen[i].setValue(this.in[i]);
-                }
-            }
-
-            // Establish some secure values.
-            SBool[] keyClosed = blf.getSBools(BLOCK_SIZE);
-            SBool[] plainClosed = blf.getSBools(BLOCK_SIZE);
-            SBool[] outClosed = blf.getSBools(BLOCK_SIZE);
-
-            // Build protocol where Alice (id=1) closes his key.
-            ProtocolProducer[] closeKeyBits = new ProtocolProducer[BLOCK_SIZE];
-            for (int i=0; i<BLOCK_SIZE; i++) {
-                closeKeyBits[i] = blf.getCloseProtocol(1, keyOpen[i], keyClosed[i]);
-            }
-            ProtocolProducer closeKey = new ParallelProtocolProducer(closeKeyBits);
-
-            // Build protocol where Bob (id=2) closes his plaintext.
-            ProtocolProducer[] closePlainBits= new ProtocolProducer[BLOCK_SIZE];
-            for (int i=0; i<BLOCK_SIZE; i++) {
-                closePlainBits[i] = blf.getCloseProtocol(2, plainOpen[i], plainClosed[i]);
-            }
-            ProtocolProducer closePlain = new ParallelProtocolProducer(closePlainBits);
-
-            // We can close key and plaintext in parallel.
-            ProtocolProducer closeKeyAndPlain = new ParallelProtocolProducer(closeKey, closePlain);
-
-            // Build an AES protocol.
-            Protocol doAES = new BristolCryptoFactory(blf).getAesProtocol(plainClosed, keyClosed, outClosed);
-
-            // Create wires that glue together the AES to the following open of the result.
-            this.out = blf.getOBools(BLOCK_SIZE);
-
-            // Construct protocol for opening up the result.
-            Protocol[] opens = new Protocol[BLOCK_SIZE];
-            for (int i=0; i<BLOCK_SIZE; i++) {
-                opens[i] = blf.getOpenProtocol(outClosed[i], out[i]);
-            }
-            ProtocolProducer openCipher = new ParallelProtocolProducer(opens);
-
-            // First we close key and plaintext, then we do the AES, then we open the resulting ciphertext.
-            ProtocolProducer finalProtocol = new SequentialProtocolProducer(closeKeyAndPlain, doAES, openCipher);
-
-            return finalProtocol;
-
-        }
-
+    private Boolean[] in;
+    private int id;
+  
+    private final static int BLOCK_SIZE = 128; // 128 bit AES
+    private final static int INPUT_LENGTH = 32; // chars for defining 128 bit in hex
+  
+    public AESDemo(int id, Boolean[] in) {
+      this.in = in;
+      this.id = id;
     }
+  
+  
+    /**
+     * The main method sets up application specific command line parameters, parses command line
+     * arguments. Based on the command line arguments it configures the SCE, instantiates the
+     * TestAESDemo and runs the TestAESDemo on the SCE.
+     */
+    public static void main(String[] args) {
+      CmdLineUtil util = new CmdLineUtil();
+      Boolean[] input = null;
+      try {
+  
+        util.addOption(Option.builder("in")
+            .desc("The input to use for encryption. " + "A " + INPUT_LENGTH
+                + " char hex string. Required for player 1 and 2. "
+                + "For player 1 this is interpreted as the AES key. "
+                + "For player 2 this is interpreted as the plaintext block to encrypt.")
+            .longOpt("input").hasArg().build());
+  
+        CommandLine cmd = util.parse(args);
+  
+        // Get and validate the AES specific input.
+        int myId = util.getNetworkConfiguration().getMyId();
+        if (myId == 1 || myId == 2) {
+          if (!cmd.hasOption("in")) {
+            throw new ParseException("Player 1 and 2 must submit input");
+          } else {
+            if (cmd.getOptionValue("in").length() != INPUT_LENGTH) {
+              throw new IllegalArgumentException(
+                  "bad input hex string: must be hex string of length " + INPUT_LENGTH);
+            }
+            input = ByteArithmetic.toBoolean(cmd.getOptionValue("in"));
+          }
+        } else {
+          if (cmd.hasOption("in")) {
+            throw new ParseException("Only player 1 and 2 should submit input");
+          }
+        }
+  
+      } catch (ParseException | IllegalArgumentException e) {
+        System.out.println("Error: " + e);
+        System.out.println();
+        util.displayHelp();
+        System.exit(-1);
+      }
+  
+      // Do the secure computation using config from command line.
+      AESDemo aes = new AESDemo(util.getNetworkConfiguration().getMyId(), input);
+      ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> ps =
+          (ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary>) util.getProtocolSuite();
+      SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce =
+          new SecureComputationEngineImpl<ResourcePoolImpl, ProtocolBuilderBinary>(ps,
+              util.getEvaluator());
+  
+      List<Boolean> aesResult = null;
+      try {
+        ResourcePoolImpl resourcePool = ResourcePoolHelper.createResourcePool(ps,
+            util.getNetworkStrategy(), util.getNetworkConfiguration());
+        aesResult = sce.runApplication(aes, resourcePool);
+      } catch (Exception e) {
+        System.out.println("Error while doing MPC: " + e.getMessage());
+        System.exit(-1);
+      } finally {
+        ResourcePoolHelper.shutdown();
+      }
+  
+      // Print result.
+      boolean[] res = new boolean[BLOCK_SIZE];
+      for (int i = 0; i < BLOCK_SIZE; i++) {
+        res[i] = aesResult.get(i);
+      }
+      System.out.println("The resulting ciphertext is: " + ByteArithmetic.toHex(res));
+    }
+  
+    //This is the actual application computing the AES function
+    @Override
+    public DRes<List<Boolean>> buildComputation(ProtocolBuilderBinary producer) {
+      return producer.seq(seq -> {
+        Binary bin = seq.binary();
+        List<DRes<SBool>> keyInputs = new ArrayList<>();
+        List<DRes<SBool>> plainInputs = new ArrayList<>();
+        if (this.id == 1) {
+          for (boolean b : in) {
+            keyInputs.add(bin.input(b, 1));
+            plainInputs.add(bin.input(false, 2));
+          }
+        } else {
+          // Receive inputs
+          for (boolean b : in) {
+            keyInputs.add(bin.input(false, 1));
+            plainInputs.add(bin.input(b, 2));
+          }
+        }
+        DRes<List<SBool>> res = seq.bristol().AES(plainInputs, keyInputs);
+        return res;
+      }).seq((seq, aesRes) -> {
+        List<DRes<Boolean>> outs = new ArrayList<>();
+        for (SBool toOpen : aesRes) {
+          outs.add(seq.binary().open(toOpen));
+        }
+        return () -> outs;
+      }).seq((seq, opened) -> {
+        return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
+      });
+    }
+  }
 
 
-We are going to assume that you installed FRESCO from source using
-Maven. Go to the root directory of the FRESCO project that you checked
-out using git, i.e., where you invoked the ``mvn install``. For this
-quickstart we will instead build a FRESCO jar that include all FRESCOs
-dependencies. So run ::
+We are going to assume that you installed FRESCO from source using Maven. Go to
+the root directory of the FRESCO project that you checked out using git. For
+this quickstart we will use the AES demonstrator located within 'demos/aes', so
+go there. The commands which follows are unix system specific, but Windows users
+should be able to easily replicate the steps taken by looking within the
+Makefile. Now run ::
 
-    mvn clean compile assembly:single
+    make build
 
-This will create a jar a la
+This will create two directories, one for both Alice and Bob. It also creates a
+jar a la
 
 .. parsed-literal::
 
-  target/fresco-|release|-SNAPSHOT-jar-with-dependencies.jar.
+  fresco-demo-aes.jar.
 
-Then create a subfolder containing a file called ``AESDemo.java``: ::
+This jar contains the above source file as the main target.
 
-    $ mkdir tmp
-    $ touch tmp/AESDemo.java
-
-Paste the above Java code into the ``AESDemo.java`` file. Then compile
-the file:
-
-.. parsed-literal::
-
-    $ javac -cp target/fresco-|release|-SNAPSHOT-jar-with-dependencies.jar tmp/AESDemo.java
-
-Now we want to execute the secure computation. Open two terminals and
-go to the FRESCO project directory in each terminal. Suppose Alice's
-128-bit key :math:`k` is 00112233445566778899aabbccddeeff (in
-hexadecimal representation). In the first terminal you launch a
-computation party for Alice by typing:
+Now we want to execute the secure computation. Open two terminals and go to the
+FRESCO AES demo project directory in each terminal. Suppose Alice's 128-bit key
+:math:`k` is 00112233445566778899aabbccddeeff (in hexadecimal
+representation). In the first terminal you launch a computation party for Alice
+by typing:
 
 .. parsed-literal::
 
-    $ java -cp tmp:target/fresco-|release|-SNAPSHOT-jar-with-dependencies.jar AESDemo -i1 -sdummy -p1:localhost:9001 -p2:localhost:9002 00112233445566778899aabbccddeeff
+    $ java -jar server1/fresco-demo-aes.jar -i1 -sdummyBool -p1:localhost:9001 -p2:localhost:9002 -in 000102030405060708090a0b0c0d0e0f
 
-This starts up the first party (Alice) at port 9001 on localhost. It
-will listen for the second party at port 9002 on localhost. Suppose
-Bob's 128-bit plaintext :math:`p` is
-000102030405060708090a0b0c0d0e0f. In the second terminal you type:
+This starts up the first party (Alice) at port 9001 on localhost. It will listen
+for the second party at port 9002 on localhost. Suppose Bob's 128-bit plaintext
+:math:`p` is 000102030405060708090a0b0c0d0e0f. In the second terminal you type:
 
 .. parsed-literal::
 
-    $ java -cp tmp:target/fresco-|release|-SNAPSHOT-jar-with-dependencies.jar AESDemo -i2 -sdummy -p1:localhost:9001 -p2:localhost:9002 000102030405060708090a0b0c0d0e0f
+    $ java -jar server2/fresco-demo-aes.jar -i2 -sdummyBool -p1:localhost:9001 -p2:localhost:9002 -in 00112233445566778899aabbccddeeff
 
 This will start Bob at port 9002 and cause the secure computation to
 execute, resulting in the following output in both terminals: ::
 
     The resulting ciphertext is: 69c4e0d86a7b0430d8cdb78070b4c55a
 
+A quicker way to launch the servers locally is using the Makefile again, by
+writing either
 
+.. parsed-literal::
+
+   $ make runDummy
+
+Which will do exactly as the manual method stated above, or:
+
+.. parsed-literal::
+
+   $ make runPrePro
+   $ make run
+
+Which runs the exact same code, but tells the command line tool to create an SCE
+with the TinyTables protocol suite instead. TinyTables needs to preprocess the
+application before being able to run with actual input though, 
+    
 
 A Little Explanation
 --------------------
 
 Lets have a look at each part of the example.
 
-A FRESCO application implements the ``Application`` interface. To run
-an application we must first create a *secure computation engine*
-(SCE). This is a component of FRESCO that coordinates the
-communication between applications and protocol suites.
+A FRESCO application implements the ``Application`` interface. To run an
+application we must first create a *secure computation engine* (SCE). This is a
+core component of FRESCO that coordinates the communication between applications
+and protocol suites.
 
-To create a ``SCE`` we need a ``SCEConfiguration`` and a
-``ProtocolSuiteConfiguration``. These are objects that define various
-parameters for the computation and the protocol suite. In our case we
-use ``CmdLineUtil`` to create these from command line arguments. Once
-we have our application ``aes`` and our ``secureComputationEngine``, we simply write:
+To create a ``SCE`` we need to choose a protocol suite and an evaluator. In our
+case we use ``CmdLineUtil`` to create these from command line arguments. To run
+an application, we also need a ``ResourcePool``. A ResourcePool is controlled by
+you, the application developer, and contains most importantly, the network. By
+default FRESCO uses KryoNet as the network supplier, but you can create your own
+and use that if this matches your application better. In the demonstrator, the
+ResourcePool is created for you based on the command line inputs.
+
+Once we have our application ``aes``, our ``secureComputationEngine`` and the
+``ResourcePool``, we simply write:
 
 .. sourcecode:: java
 
-    secureComputationEngine.runApplication(aes);
+    List<Boolean> aesResult = sce.runApplication(aes, resourcePool);
 
-to launch the secure computation.
+to launch the secure computation and obtain the output of the application (which
+in this case, is the revealed output of the AES computation on the given input
+key and plaintext.
 
 Notice how our ``Application`` is made. Implementing ``Application``
-signals that our ``AESDemo`` class is a FRESCO application. It
-requires us to implement the method
+signals that our ``AESDemo`` class is a FRESCO application. An application must
+also state what it outputs as well as what type of application this is i.e. are
+we creating a binary or arithmetic application. This is seen in the interface ::
+
+    public interface Application<OutputT, Builder extends ProtocolBuilder> extends Computation<OutputT, Builder> 
+
+The output type can be anything you want. In our case it is a list of
+booleans. The builder type we use is a binary type since the AES computation
+works best with binary protocol suites. Since the Application interface extends
+the Computation interface, this requires us to implement the method
 
 .. sourcecode:: java
 
-   public ProtocolProducer buildComputation(ProtocolFactory factory)
+   public DRes<List<Boolean>> buildComputation(ProtocolBuilderBinary producer)
 
-This is the method that defines how our FRESCO application is
-built. In our example we start with simple protocols for closing the
-input values. Using the ``SequentialProtocolProducer`` and
-``ParallelProtocolProduer`` we then glue together the protocols into
-more complex protocols until we arrive at the final
-application. [#async]_
+This is the method that defines how our FRESCO application is built. The DRes
+return type is just a container for the output type. In our example we start
+with basic protocols for closing the input values. Using the closed values, we
+then use the bristol description of the AES circuit to compute the AES function
+which is then finally output. [#async]_
 
-
-
-In the first line we cast the given ``ProtocolFactory`` to a
-``BasicLogicFactory``:
-
-.. sourcecode:: java
-
-    BasicLogicFactory blf = (BasicLogicFactory) factory;
-
-This is a way of stating that we build our application in a generic
-way that only requires the protocols provided by a basic logic
-factory, namely AND, XOR and NOT protocols. As a consequence, our
-application can run *natively* on any protocol suite that supports the
-basic logic factory.
-
+The preferred method for creating applications is using the lambda expressions
+shown in the demonstrator. If you have not used this Java 8 construction before,
+it might seem strange, but once you get the hang of it, you might even like
+it. Functional language users will hopefully feel right at home. The main idea
+is to use the given builder to glue the application together. The builder
+contains all of the various functions that FRESCO offers, so look around within
+this to discover what options there is. Note that the builder is protocol suite
+agnostic and only cares about if the application is binary or arithmetic. This
+means that the same application code can be reused for all protocol suites of
+the same type.
 
 Changing the Configuration
 --------------------------
@@ -262,7 +278,7 @@ command line arguments have the following meaning: ::
     -s  The name of the protocol suite to use.
     -p  Specifies the host and port of each player.
 
-In our example above we used the :ref:`DUMMY <DUMMY>` suite which
+In our example above we used the :ref:`DUMMY_BOOL <DUMMY_BOOL>` suite which
 gives no security at all. If you instead want to run using another
 suite, simply use the ``-s`` option to change the name.
 
@@ -275,19 +291,18 @@ or you can control the memory footprint of FRESCO by explicitly
 setting a limit to the number of native protocols to evaluate in
 parallel by using, e.g.,::
 
-    --max-batch-size=2048
+    -b 2048
 
 Use ``--help`` to get a list of all possible configurations, including
 configurations that are specific to each supported protocol suite.
 
-The AES given here, with more error handling, etc., and other demos
-can be found in the ``dk.alexandra.fresco.demo`` package in the FRESCO
-source code.
+The AES given here, and other demos can be found in the
+demos project folder in the FRESCO source code.
 
 
 .. [#async] Note that we *explicitly* state which parts of the
   computation are done in sequence and which are done in parallel. For
-  example, we state that evaluation of the AES circuit should not be
-  done until all input values are closed. This is the current way FRESCO
+  example, we state that evaluation of the AES circuit should be
+  done before opening the result. This is the current way FRESCO
   works. The FRESCO design do allow asynchronous evaluation, but this is
   not currently implemented.

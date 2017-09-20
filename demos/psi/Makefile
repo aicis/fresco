@@ -1,5 +1,6 @@
 build:
 	cd ../../core && mvn clean install -DskipTests
+	cd ../../suite/tinytables && mvn clean install -DskipTests
 	cd ../common && mvn clean install -DskipTests
 	mvn clean install -DskipTests
 	mkdir -p server1;

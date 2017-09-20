@@ -26,6 +26,8 @@ package dk.alexandra.fresco.lib.lp;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.collections.Matrix;
+
 import java.util.ArrayList;
 
 public class LPTableau {

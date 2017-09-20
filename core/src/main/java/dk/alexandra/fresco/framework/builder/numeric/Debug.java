@@ -3,7 +3,7 @@ package dk.alexandra.fresco.framework.builder.numeric;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.lp.Matrix;
+import dk.alexandra.fresco.lib.collections.Matrix;
 import java.io.PrintStream;
 import java.util.List;
 

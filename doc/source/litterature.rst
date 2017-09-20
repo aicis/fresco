@@ -5,7 +5,8 @@ Literature
 Here we keep a list of the research papers and text books related to
 the secure computation that is found in FRESCO.
 
-.. [BGW88] Michael Ben-Or, Shafi Goldwasser, Avi Wigderson:
+..
+  //.. [BGW88] Michael Ben-Or, Shafi Goldwasser, Avi Wigderson:
            Completeness Theorems for Non-Cryptographic Fault-Tolerant
            Distributed Computation (Extended Abstract). STOC 1988:
            1-10.
@@ -33,3 +34,7 @@ the secure computation that is found in FRESCO.
 
 .. [Sha79] Adi Shamir: How to Share a Secret. Commun. ACM 22(11):
            612-613 (1979).
+
+.. [TINY] Damgård, Ivan, et al. "The TinyTable Protocol for 2-Party Secure
+          Computation, or: Gate-Scrambling Revisited." Annual International
+          Cryptology Conference. Springer, Cham, 2017.
