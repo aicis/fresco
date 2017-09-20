@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class TestAggregation {
@@ -53,8 +52,6 @@ public class TestAggregation {
 
   }
 
-  // FIXME: Both unit test and compiled version throws the same exception: BufferUnderflowException
-  @Ignore
   @Test
   public void testAggregation() throws Exception {
     final TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f =
@@ -73,7 +70,7 @@ public class TestAggregation {
             };
           }
 
-      ;
+        ;
         };
     runTest(f, 2);
   }
