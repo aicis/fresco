@@ -25,7 +25,6 @@ package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.demo.cli.CmdLineUtil;
 import dk.alexandra.fresco.demo.helpers.DemoNumericApplication;
-import dk.alexandra.fresco.demo.helpers.ResourcePoolHelper;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -119,8 +118,7 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
     SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce =
         SCEFactory.getSCEFromConfiguration(psConf, cmdUtil.getEvaluator());
     try {
-      ResourcePoolT resourcePool = (ResourcePoolT) ResourcePoolHelper.createResourcePool(psConf,
-          cmdUtil.getNetworkStrategy(), networkConfiguration);
+      ResourcePoolT resourcePool = cmdUtil.getResourcePool();
       BigInteger bigInteger = sce.runApplication(distDemo, resourcePool);
       resourcePool.getNetwork().close();
       double dist = Math.sqrt(bigInteger.doubleValue());

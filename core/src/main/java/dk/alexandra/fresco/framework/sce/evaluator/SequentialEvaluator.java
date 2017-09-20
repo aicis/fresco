@@ -27,6 +27,7 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.NativeProtocol.EvaluationStatus;
 import dk.alexandra.fresco.framework.PerformanceLogger;
+import dk.alexandra.fresco.framework.PerformanceLogger.Flag;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -125,7 +126,7 @@ public class SequentialEvaluator<ResourcePoolT extends ResourcePool, Builder ext
   private void processBatch(ProtocolCollection<ResourcePoolT> protocols, ResourcePoolT resourcePool)
       throws IOException {
     PerformanceLogger pl = resourcePool.getPerformanceLogger();
-    if (pl != null && pl.LOG_NATIVE_BATCH) {
+    if (pl != null && pl.flags.contains(Flag.LOG_NATIVE_BATCH)) {
       pl.nativeBatch(protocols.size());
     }
     Network network = resourcePool.getNetwork();
@@ -146,7 +147,7 @@ public class SequentialEvaluator<ResourcePoolT extends ResourcePool, Builder ext
         Map<Integer, ByteBuffer> inputForThisRound = new HashMap<>();
         for (int pId : sceNetwork.getExpectedInputForNextRound()) {
           byte[] messages = network.receive(DEFAULT_CHANNEL, pId);
-          if (pl != null && pl.LOG_NATIVE_BATCH) {
+          if (pl != null && pl.flags.contains(Flag.LOG_NATIVE_BATCH)) {
             pl.bytesReceivedInBatch(messages.length, pId);
           }
           inputForThisRound.put(pId, ByteBuffer.wrap(messages));

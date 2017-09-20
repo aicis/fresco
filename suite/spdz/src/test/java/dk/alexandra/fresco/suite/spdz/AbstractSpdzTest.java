@@ -24,6 +24,7 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.PerformanceLogger;
+import dk.alexandra.fresco.framework.PerformanceLogger.Flag;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -44,6 +45,7 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,10 +64,11 @@ public abstract class AbstractSpdzTest {
     runTest(f, evalStrategy, network, preProStrat, noOfParties, null);
   }
 
-  protected void runTest(
+  protected List<PerformanceLogger> runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, NetworkingStrategy networkStrategy,
-      PreprocessingStrategy preProStrat, int noOfParties, PerformanceLogger pl) throws Exception {
+      PreprocessingStrategy preProStrat, int noOfParties, EnumSet<Flag> performanceloggerFlags)
+          throws Exception {
     // Since SCAPI currently does not work with ports > 9999 we use fixed
     // ports
     // here instead of relying on ephemeral ports which are often > 9999.
@@ -78,6 +81,7 @@ public abstract class AbstractSpdzTest {
         TestConfiguration.getNetworkConfigurations(noOfParties, ports);
     Map<Integer, TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
+    List<PerformanceLogger> pls = new ArrayList<>();
     for (int playerId : netConf.keySet()) {
       SpdzProtocolSuite protocolSuite = new SpdzProtocolSuite(150);
 
@@ -85,6 +89,11 @@ public abstract class AbstractSpdzTest {
           EvaluationStrategy.fromEnum(evalStrategy);
       Network network =
           ResourcePoolCreator.getNetworkFromConfiguration(networkStrategy, netConf.get(playerId));
+      PerformanceLogger pl = null;
+      if (performanceloggerFlags != null) {
+        pl = new PerformanceLogger(playerId, performanceloggerFlags);
+      }
+      pls.add(pl);
       SpdzResourcePool rp = createResourcePool(playerId, noOfParties, network, new Random(),
           new DetermSecureRandom(), pl, preProStrat);
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
@@ -96,6 +105,7 @@ public abstract class AbstractSpdzTest {
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
+    return pls;
   }
 
   private SpdzResourcePool createResourcePool(int myId, int size, Network network, Random rand,

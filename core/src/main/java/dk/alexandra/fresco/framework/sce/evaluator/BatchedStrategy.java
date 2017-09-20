@@ -26,6 +26,7 @@ package dk.alexandra.fresco.framework.sce.evaluator;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.NativeProtocol.EvaluationStatus;
 import dk.alexandra.fresco.framework.PerformanceLogger;
+import dk.alexandra.fresco.framework.PerformanceLogger.Flag;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetwork;
@@ -70,7 +71,7 @@ public class BatchedStrategy {
     Network network = rp.getNetwork();
     int round = 0;
     PerformanceLogger pl = rp.getPerformanceLogger();
-    if (pl != null && pl.LOG_NATIVE_BATCH) {
+    if (pl != null && pl.flags.contains(Flag.LOG_NATIVE_BATCH)) {
       pl.nativeBatch(protocols.size());
     }
     while (protocols.size() > 0) {
@@ -107,7 +108,7 @@ public class BatchedStrategy {
       for (int i : expected) {
         byte[] data = network.receive(channel, i);
         PerformanceLogger pl = rp.getPerformanceLogger();
-        if (pl != null && pl.LOG_NETWORK) {
+        if (pl != null && pl.flags.contains(Flag.LOG_NETWORK)) {
           pl.bytesReceivedInBatch(data.length, i);
         }
         inputs.put(i, ByteBuffer.wrap(data));

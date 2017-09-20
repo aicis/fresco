@@ -3,6 +3,7 @@ package dk.alexandra.fresco.framework;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -20,10 +21,13 @@ public class PerformanceLogger {
 
   private Logger log = LoggerFactory.getLogger(PerformanceLogger.class);
 
-  public final boolean LOG_NETWORK; // Logs network traffic
-  public final boolean LOG_RUNTIME; // Logs application runtimes
-  public final boolean LOG_NATIVE_BATCH; // Logs metrics on native protocols used per batch
+  public enum Flag {
+    LOG_NETWORK, LOG_RUNTIME, LOG_NATIVE_BATCH;
 
+    public static final EnumSet<Flag> ALL_OPTS = EnumSet.allOf(Flag.class);
+  }
+
+  public final EnumSet<Flag> flags;
   private final int myId;
 
   // private variables for holding performance metric information
@@ -39,12 +43,9 @@ public class PerformanceLogger {
   private int minNoNativeProtocolsPerBatch = Integer.MAX_VALUE;
   private int maxNoNativeProtocolsPerBatch = 0;
 
-  public PerformanceLogger(int partyId, boolean logNetwork, boolean logRunningTimes,
-      boolean logNativePerBatch) {
+  public PerformanceLogger(int partyId, EnumSet<Flag> flags) {
     this.myId = partyId;
-    this.LOG_NETWORK = logNetwork;
-    this.LOG_RUNTIME = logRunningTimes;
-    this.LOG_NATIVE_BATCH = logNativePerBatch;
+    this.flags = flags;
   }
 
   // Methods for inputting performance data into the performance metric logger.
@@ -108,7 +109,7 @@ public class PerformanceLogger {
     StringBuilder sb = new StringBuilder();
     newline("Performance metrics info log for party " + this.myId + ":", sb);
 
-    if (LOG_RUNTIME) {
+    if (flags.contains(Flag.LOG_RUNTIME)) {
       newline("=== Running times for applications ===", sb);
       if (this.runtimeLogger.isEmpty()) {
         newline("No applications were run, or they have not completed yet.", sb);
@@ -122,7 +123,7 @@ public class PerformanceLogger {
       }
       newline("", sb);
     }
-    if (LOG_NETWORK) {
+    if (flags.contains(Flag.LOG_NETWORK)) {
       newline("=== Network logged - results ===", sb);
       if (networkLogger.isEmpty()) {
         newline("No network activity logged", sb);
@@ -143,7 +144,7 @@ public class PerformanceLogger {
       }
       newline("", sb);
     }
-    if (LOG_NATIVE_BATCH) {
+    if (flags.contains(Flag.LOG_NATIVE_BATCH)) {
       newline("=== Native protocols per batch metrics ===", sb);
       if (noBatches == 0) {
         newline("No batches were recorded", sb);

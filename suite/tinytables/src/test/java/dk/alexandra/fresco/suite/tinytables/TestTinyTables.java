@@ -31,10 +31,13 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
+import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
+import dk.alexandra.fresco.framework.util.DetermSecureRandom;
 import dk.alexandra.fresco.lib.bool.BasicBooleanTests;
 import dk.alexandra.fresco.lib.bool.ComparisonBooleanTests;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
@@ -53,6 +56,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -77,10 +81,6 @@ public class TestTinyTables {
         new HashMap<>();
 
     for (int playerId : netConf.keySet()) {
-      TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
-          new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>();
-      ttc.netConf = netConf.get(playerId);
-
       ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator;
 
       ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> suite;
@@ -90,11 +90,17 @@ public class TestTinyTables {
       } else {
         suite = new TinyTablesProtocolSuite(playerId, tinyTablesFile);
       }
-
+      Network network = ResourcePoolCreator.getNetworkFromConfiguration(NetworkingStrategy.KRYONET,
+          netConf.get(playerId));
       evaluator = EvaluationStrategy.fromEnum(evalStrategy);
-
-      ttc.sceConf = new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(suite,
-          NetworkingStrategy.KRYONET, evaluator, ttc.netConf, false);
+      ResourcePoolImpl rp = new ResourcePoolImpl(playerId, noPlayers, network, new Random(),
+          new DetermSecureRandom());
+      TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
+          new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(
+              netConf.get(playerId),
+              new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(suite, evaluator,
+                  netConf.get(playerId), false),
+              rp);
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);

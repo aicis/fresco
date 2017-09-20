@@ -28,6 +28,7 @@ import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.PerformanceLogger;
+import dk.alexandra.fresco.framework.PerformanceLogger.Flag;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedSequentialEvaluator;
@@ -105,7 +106,7 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Bui
       long now = System.currentTimeMillis();
       long timeSpend = now - then;
       PerformanceLogger pl = resourcePool.getPerformanceLogger();
-      if (pl != null && pl.LOG_RUNTIME) {
+      if (pl != null && pl.flags.contains(Flag.LOG_RUNTIME)) {
         EvaluationStrategy strategy = null;
         if (evaluator instanceof SequentialEvaluator) {
           strategy = EvaluationStrategy.SEQUENTIAL;
