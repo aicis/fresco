@@ -1,6 +1,4 @@
-
-FRESCO
-======
+# FRESCO [![Build Status](https://travis-ci.org/aicis/fresco.svg?branch=develop)](https://travis-ci.org/aicis/fresco)
 
 FRESCO is a *FRamework for Efficient and Secure COmputation*, written
 in Java and licensed under the open source MIT license.

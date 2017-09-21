@@ -20,3 +20,5 @@ target/
 !.idea/fileTemplates/*
 *.iml
 
+# Spdz
+suite/spdz/spdz/
