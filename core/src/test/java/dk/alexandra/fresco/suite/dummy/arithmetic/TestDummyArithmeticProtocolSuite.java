@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.PerformanceLogger;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -38,6 +39,7 @@ import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
 import dk.alexandra.fresco.lib.statistics.DEASolverTests.RandomDataDeaTest;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.List;
 import org.junit.Test;
 
 
@@ -536,5 +538,17 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   public void test_debug_tools() throws Exception {
     runTest(new ArithmeticDebugTests.TestArithmeticOpenAndPrint<>(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_performance_logger() throws Exception {
+    BigInteger mod = new BigInteger(
+        "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
+    List<PerformanceLogger> pls =
+        runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
+            NetworkingStrategy.KRYONET, 2, mod, PerformanceLogger.Flag.ALL_OPTS);
+    for (PerformanceLogger pl : pls) {
+      pl.printPerformanceLog();
+    }
   }
 }
