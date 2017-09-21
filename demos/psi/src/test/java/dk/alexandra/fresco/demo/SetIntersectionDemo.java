@@ -24,7 +24,6 @@
 package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.IntegrationTest;
-import dk.alexandra.fresco.demo.helpers.ResourcePoolHelper;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -33,12 +32,13 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.network.NetworkingStrategy;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
+import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
+import dk.alexandra.fresco.framework.util.DetermSecureRandom;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
@@ -49,6 +49,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -71,9 +72,6 @@ public class SetIntersectionDemo {
     Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
         new HashMap<>();
     for (int playerId : netConf.keySet()) {
-      TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
-          new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>();
-      ttc.netConf = netConf.get(playerId);
 
       // Protocol specific configuration
       ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> suite =
@@ -82,8 +80,16 @@ public class SetIntersectionDemo {
       // The rest is generic configuration as well
       ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
           new SequentialEvaluator<ResourcePoolImpl, ProtocolBuilderBinary>();
-      ttc.sceConf = new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(suite,
-          NetworkingStrategy.KRYONET, evaluator, ttc.netConf, true);
+      Network network = new KryoNetNetwork();
+      network.init(netConf.get(playerId), 1);
+      ResourcePoolImpl resourcePool = new ResourcePoolImpl(playerId, noPlayers, network,
+          new Random(), new DetermSecureRandom());
+      TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
+          new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(
+              netConf.get(playerId),
+              new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(suite, evaluator,
+                  netConf.get(playerId), true),
+              resourcePool);
       conf.put(playerId, ttc);
     }
     String[] result = this.setIntersectionDemo(conf);
@@ -108,20 +114,24 @@ public class SetIntersectionDemo {
     Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
         new HashMap<>();
     for (int playerId : netConf.keySet()) {
-      TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
-          new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>();
-      ttc.netConf = netConf.get(playerId);
-
       // Protocol specific configuration + suite
       ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> suite =
           (ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary>) getTinyTablesPreproProtocolSuite(
-              9000 + ttc.netConf.getMyId(), playerId);
+              9000 + playerId, playerId);
 
       // More generic configuration
       ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
           new SequentialEvaluator<ResourcePoolImpl, ProtocolBuilderBinary>();
-      ttc.sceConf = new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(suite,
-          NetworkingStrategy.KRYONET, evaluator, ttc.netConf, true);
+      Network network = new KryoNetNetwork();
+      network.init(netConf.get(playerId), 1);
+      ResourcePoolImpl resourcePool = new ResourcePoolImpl(playerId, noPlayers, network,
+          new Random(), new DetermSecureRandom());
+      TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
+          new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(
+              netConf.get(playerId),
+              new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(suite, evaluator,
+                  netConf.get(playerId), true),
+              resourcePool);
       conf.put(playerId, ttc);
     }
 
@@ -133,19 +143,23 @@ public class SetIntersectionDemo {
     netConf = TestConfiguration.getNetworkConfigurations(noPlayers, ports);
     conf = new HashMap<>();
     for (int playerId : netConf.keySet()) {
-      TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
-          new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>();
-      ttc.netConf = netConf.get(playerId);
-
       // These 2 lines are protocol specific, the rest is generic configuration
       ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> suite =
           (ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary>) getTinyTablesProtocolSuite(
-              ttc.netConf.getMyId());
+              playerId);
 
       ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
           new SequentialEvaluator<ResourcePoolImpl, ProtocolBuilderBinary>();
-      ttc.sceConf = new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(suite,
-          NetworkingStrategy.KRYONET, evaluator, ttc.netConf, true);
+      Network network = new KryoNetNetwork();
+      network.init(netConf.get(playerId), 1);
+      ResourcePoolImpl resourcePool = new ResourcePoolImpl(playerId, noPlayers, network,
+          new Random(), new DetermSecureRandom());
+      TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
+          new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(
+              netConf.get(playerId),
+              new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(suite, evaluator,
+                  netConf.get(playerId), true),
+              resourcePool);
       conf.put(playerId, ttc);
     }
 
@@ -205,8 +219,7 @@ public class SetIntersectionDemo {
 
                 PrivateSetDemo app = new PrivateSetDemo(conf.netConf.getMyId(), key, inputList);
 
-                List<List<Boolean>> psiResult = secureComputationEngine.runApplication(app,
-                    ResourcePoolCreator.createResourcePool(conf.sceConf));
+                List<List<Boolean>> psiResult = runApplication(app);
                 System.out.println(
                     "Result Dimentions: " + psiResult.size() + ", " + psiResult.get(0).size());
                 boolean[][] actualBoolean = new boolean[psiResult.size()][psiResult.get(0).size()];
@@ -223,7 +236,6 @@ public class SetIntersectionDemo {
           }
         };
     TestThreadRunner.run(f, conf);
-    ResourcePoolHelper.shutdown();
     return result;
   }
 

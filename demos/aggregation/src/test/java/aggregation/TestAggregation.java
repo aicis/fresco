@@ -8,18 +8,22 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.network.NetworkingStrategy;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
+import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
+import dk.alexandra.fresco.framework.util.DetermSecureRandom;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
-import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import org.junit.Test;
 
 public class TestAggregation {
@@ -37,15 +41,18 @@ public class TestAggregation {
     Map<Integer, TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     for (int i : netConf.keySet()) {
+      ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> suite = new SpdzProtocolSuite(150);
+      Network network = new KryoNetNetwork();
+      network.init(netConf.get(i), 1);
+      SpdzStorage store = new SpdzStorageDummyImpl(i, n);
+      SpdzResourcePool rp = new SpdzResourcePoolImpl(i, n, network, new Random(),
+          new DetermSecureRandom(), store, null);
       TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
-          new TestThreadConfiguration<>();
-      ttc.netConf = netConf.get(i);
-      ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> suite =
-          new SpdzProtocolSuite(150, PreprocessingStrategy.DUMMY, null);
-      ttc.sceConf = new TestSCEConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>(suite,
-          NetworkingStrategy.KRYONET,
-          new SequentialEvaluator<SpdzResourcePool, ProtocolBuilderNumeric>(), netConf.get(i),
-          false);
+          new TestThreadConfiguration<>(netConf.get(i),
+              new TestSCEConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>(suite,
+                  new SequentialEvaluator<SpdzResourcePool, ProtocolBuilderNumeric>(),
+                  netConf.get(i), false),
+              rp);
       conf.put(i, ttc);
     }
     TestThreadRunner.run(test, conf);
@@ -63,14 +70,13 @@ public class TestAggregation {
               public void test() throws Exception {
                 // Create application we are going run
                 AggregationDemo<SpdzResourcePool> app = new AggregationDemo<>();
-
-                app.runApplication(secureComputationEngine,
-                    (SpdzResourcePool) ResourcePoolCreator.createResourcePool(conf.sceConf));
+                conf.resourcePool.getNetwork().connect(10000);
+                app.runApplication(secureComputationEngine, conf.resourcePool);
               }
             };
           }
 
-        ;
+      ;
         };
     runTest(f, 2);
   }

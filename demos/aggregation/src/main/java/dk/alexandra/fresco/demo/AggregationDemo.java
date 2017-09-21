@@ -1,32 +1,53 @@
 package dk.alexandra.fresco.demo;
 
-import dk.alexandra.fresco.demo.helpers.ResourcePoolHelper;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
-import dk.alexandra.fresco.framework.network.NetworkingStrategy;
+import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.util.DetermSecureRandom;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
-import dk.alexandra.fresco.lib.collections.MatrixTestUtils;
 import dk.alexandra.fresco.lib.collections.MatrixUtils;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
-import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 public class AggregationDemo<ResourcePoolT extends ResourcePool> {
+
+  /**
+   * Creates matrix from 2d array.
+   * 
+   * @param rows
+   * @return
+   */
+  private <T> Matrix<T> getInputMatrix(T[][] rows) {
+    int h = rows.length;
+    int w = rows[0].length;
+    ArrayList<ArrayList<T>> mat = new ArrayList<>();
+    for (T[] row : rows) {
+      mat.add(new ArrayList<>(Arrays.asList(row)));
+    }
+    return new Matrix<>(h, w, mat);
+  }
 
   /**
    * Generates mock input data.
@@ -34,7 +55,6 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
    * @return mock input matrix
    */
   public Matrix<BigInteger> readInputs() {
-    MatrixTestUtils utils = new MatrixTestUtils();
     BigInteger[][] rawRows = {{BigInteger.valueOf(1), BigInteger.valueOf(7)},
         {BigInteger.valueOf(1), BigInteger.valueOf(19)},
         {BigInteger.valueOf(1), BigInteger.valueOf(10)},
@@ -43,7 +63,7 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
         {BigInteger.valueOf(2), BigInteger.valueOf(1)},
         {BigInteger.valueOf(2), BigInteger.valueOf(22)},
         {BigInteger.valueOf(2), BigInteger.valueOf(16)}};
-    return utils.getInputMatrix(rawRows);
+    return getInputMatrix(rawRows);
   }
 
   /**
@@ -87,6 +107,12 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
     Matrix<BigInteger> result = sce.runApplication(aggApp, rp);
     writeOutputs(result);
     sce.shutdownSCE();
+    try {
+      rp.getNetwork().close();
+    } catch (IOException e) {
+      // Nothing to do about this
+      e.printStackTrace();
+    }
   }
 
   /**
@@ -104,20 +130,22 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
     sequentialEvaluator.setMaxBatchSize(4096);
 
     // Create SPDZ protocol suite
-    ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> suite =
-        new SpdzProtocolSuite(150, PreprocessingStrategy.DUMMY, null);
+    ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> suite = new SpdzProtocolSuite(150);
 
     // Instantiate execution environment
     SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =
         new SecureComputationEngineImpl<>(suite, sequentialEvaluator);
 
     // Create resource pool
-    SpdzResourcePool rp;
+    Network network = new KryoNetNetwork();
+    network.init(getNetworkConfiguration(pid), 1);
+    SpdzStorage store = new SpdzStorageDummyImpl(pid, getNetworkConfiguration(pid).noOfParties());
+    SpdzResourcePool rp = new SpdzResourcePoolImpl(pid, getNetworkConfiguration(pid).noOfParties(),
+        network, new Random(), new DetermSecureRandom(), store, null);
     try {
-      rp = ResourcePoolHelper.createResourcePool(suite, NetworkingStrategy.KRYONET,
-          getNetworkConfiguration(pid));
+      network.connect(10000);
     } catch (IOException e) {
-      System.err.println("Failed to create resource pool.");
+      System.err.println("Failed to connect the network.");
       return;
     }
 

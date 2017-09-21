@@ -23,7 +23,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.demo;
 
-import dk.alexandra.fresco.demo.helpers.ResourcePoolHelper;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -32,18 +31,20 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.network.NetworkingStrategy;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
+import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
+import dk.alexandra.fresco.framework.util.DetermSecureRandom;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanProtocolSuite;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -64,16 +65,20 @@ public class TestAESDemo {
     Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
         new HashMap<>();
     for (int playerId : netConf.keySet()) {
-      TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
-          new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>();
-      ttc.netConf = netConf.get(playerId);
       ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> suite =
           new DummyBooleanProtocolSuite();
       ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
           new SequentialEvaluator<ResourcePoolImpl, ProtocolBuilderBinary>();
-      boolean useSecureConnection = false;
-      ttc.sceConf = new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(suite,
-          NetworkingStrategy.KRYONET, evaluator, ttc.netConf, useSecureConnection);
+      Network network = new KryoNetNetwork();
+      network.init(netConf.get(playerId), 1);
+      ResourcePoolImpl resourcePool = new ResourcePoolImpl(playerId, noPlayers, network,
+          new Random(), new DetermSecureRandom());
+      TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
+          new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(
+              netConf.get(playerId),
+              new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(suite, evaluator,
+                  netConf.get(playerId), true),
+              resourcePool);
       conf.put(playerId, ttc);
     }
 
@@ -97,8 +102,7 @@ public class TestAESDemo {
 
                 AESDemo app = new AESDemo(conf.netConf.getMyId(), input);
 
-                List<Boolean> aesResult = secureComputationEngine.runApplication(app,
-                    ResourcePoolCreator.createResourcePool(conf.sceConf));
+                List<Boolean> aesResult = runApplication(app);
 
                 // Verify output state.
                 String expected = "69c4e0d86a7b0430d8cdb78070b4c55a"; // expected cipher
@@ -116,7 +120,6 @@ public class TestAESDemo {
         };
 
     TestThreadRunner.run(f, conf);
-    ResourcePoolHelper.shutdown();
   }
 
 

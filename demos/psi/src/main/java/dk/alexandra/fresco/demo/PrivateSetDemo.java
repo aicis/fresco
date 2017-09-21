@@ -24,7 +24,6 @@
 package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.demo.cli.CmdLineUtil;
-import dk.alexandra.fresco.demo.helpers.ResourcePoolHelper;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.binary.Binary;
@@ -166,8 +165,7 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
 
     List<List<Boolean>> psiResult = null;
     try {
-      ResourcePoolImpl resourcePool = ResourcePoolHelper.createResourcePool(psConf,
-          util.getNetworkStrategy(), networkConfiguration);
+      ResourcePoolImpl resourcePool = util.getResourcePool();
       psiResult = sce.runApplication(privateSetDemo, resourcePool);
       resourcePool.getNetwork().close();
     } catch (Exception e) {

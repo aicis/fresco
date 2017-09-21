@@ -30,20 +30,24 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.network.NetworkingStrategy;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
+import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.util.DetermSecureRandom;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
+import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import org.junit.Test;
 
 public class TestInputSumExample {
@@ -62,22 +66,29 @@ public class TestInputSumExample {
     Map<Integer, TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     for (int i : netConf.keySet()) {
-      TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> ttc =
-          new TestThreadConfiguration<>();
-      ttc.netConf = netConf.get(i);
       ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric> suite;
+      ResourcePoolT resourcePool = null;
+      Network network = new KryoNetNetwork();
+      network.init(netConf.get(i), 1);
       if (dummy) {
         BigInteger mod = new BigInteger(
             "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
         suite =
             (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new DummyArithmeticProtocolSuite(
                 mod, 150);
+        resourcePool = (ResourcePoolT) new DummyArithmeticResourcePoolImpl(i, n, network,
+            new Random(), new DetermSecureRandom(), mod, null);
       } else {
-        suite = (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new SpdzProtocolSuite(150,
-            PreprocessingStrategy.DUMMY, null);
+        suite = (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new SpdzProtocolSuite(150);
+        resourcePool = (ResourcePoolT) new SpdzResourcePoolImpl(i, n, network, new Random(),
+            new DetermSecureRandom(), new SpdzStorageDummyImpl(i, n), null);
       }
-      ttc.sceConf = new TestSCEConfiguration<>(suite,
-          NetworkingStrategy.KRYONET, new SequentialEvaluator<>(), netConf.get(i), false);
+      TestSCEConfiguration<ResourcePoolT, ProtocolBuilderNumeric> sceConf =
+          new TestSCEConfiguration<ResourcePoolT, ProtocolBuilderNumeric>(suite,
+              new SequentialEvaluator<>(), netConf.get(i), false);
+      TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> ttc =
+          new TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric>(netConf.get(i),
+              sceConf, resourcePool);
       conf.put(i, ttc);
     }
     TestThreadRunner.run(test, conf);
@@ -93,8 +104,7 @@ public class TestInputSumExample {
             return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
               @Override
               public void test() throws Exception {
-                InputSumExample.runApplication(secureComputationEngine,
-                    ResourcePoolCreator.createResourcePool(conf.sceConf));
+                InputSumExample.runApplication(secureComputationEngine, conf.resourcePool);
               }
             };
           }
@@ -113,8 +123,7 @@ public class TestInputSumExample {
             return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
               @Override
               public void test() throws Exception {
-                InputSumExample.runApplication(secureComputationEngine,
-                    ResourcePoolCreator.createResourcePool(conf.sceConf));
+                InputSumExample.runApplication(secureComputationEngine, conf.resourcePool);
               }
             };
           }
