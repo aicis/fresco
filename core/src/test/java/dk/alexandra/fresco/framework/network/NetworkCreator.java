@@ -3,7 +3,7 @@ package dk.alexandra.fresco.framework.network;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 
-public class ResourcePoolCreator {
+public class NetworkCreator {
 
   public static Network getNetworkFromConfiguration(NetworkingStrategy networkStrategy,
       NetworkConfiguration networkConfiguration) {

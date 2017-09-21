@@ -33,7 +33,7 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
+import dk.alexandra.fresco.framework.network.NetworkCreator;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
@@ -88,7 +88,7 @@ public abstract class AbstractSpdzTest {
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
           EvaluationStrategy.fromEnum(evalStrategy);
       Network network =
-          ResourcePoolCreator.getNetworkFromConfiguration(networkStrategy, netConf.get(playerId));
+          NetworkCreator.getNetworkFromConfiguration(networkStrategy, netConf.get(playerId));
       PerformanceLogger pl = null;
       if (performanceloggerFlags != null) {
         pl = new PerformanceLogger(playerId, performanceloggerFlags);

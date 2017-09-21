@@ -33,7 +33,7 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
+import dk.alexandra.fresco.framework.network.NetworkCreator;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
@@ -90,7 +90,7 @@ public class TestTinyTables {
       } else {
         suite = new TinyTablesProtocolSuite(playerId, tinyTablesFile);
       }
-      Network network = ResourcePoolCreator.getNetworkFromConfiguration(NetworkingStrategy.KRYONET,
+      Network network = NetworkCreator.getNetworkFromConfiguration(NetworkingStrategy.KRYONET,
           netConf.get(playerId));
       evaluator = EvaluationStrategy.fromEnum(evalStrategy);
       ResourcePoolImpl rp = new ResourcePoolImpl(playerId, noPlayers, network, new Random(),
