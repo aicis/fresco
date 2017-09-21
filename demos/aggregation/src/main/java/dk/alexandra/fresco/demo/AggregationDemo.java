@@ -14,7 +14,6 @@ import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
-import dk.alexandra.fresco.lib.collections.MatrixTestUtils;
 import dk.alexandra.fresco.lib.collections.MatrixUtils;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
@@ -22,6 +21,8 @@ import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,8 +35,7 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
    * @return mock input matrix
    */
   public Matrix<BigInteger> readInputs() {
-    MatrixTestUtils utils = new MatrixTestUtils();
-    BigInteger[][] rawRows = {{BigInteger.valueOf(1), BigInteger.valueOf(7)},
+    BigInteger[][] rows = {{BigInteger.valueOf(1), BigInteger.valueOf(7)},
         {BigInteger.valueOf(1), BigInteger.valueOf(19)},
         {BigInteger.valueOf(1), BigInteger.valueOf(10)},
         {BigInteger.valueOf(1), BigInteger.valueOf(4)},
@@ -43,7 +43,13 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
         {BigInteger.valueOf(2), BigInteger.valueOf(1)},
         {BigInteger.valueOf(2), BigInteger.valueOf(22)},
         {BigInteger.valueOf(2), BigInteger.valueOf(16)}};
-    return utils.getInputMatrix(rawRows);
+    int h = rows.length;
+    int w = rows[0].length;
+    ArrayList<ArrayList<BigInteger>> mat = new ArrayList<>();
+    for (BigInteger[] row: rows) {
+      mat.add(new ArrayList<>(Arrays.asList(row)));
+    }
+    return new Matrix<>(h, w, mat);
   }
 
   /**
