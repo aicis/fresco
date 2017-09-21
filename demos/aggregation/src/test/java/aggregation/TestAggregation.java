@@ -70,7 +70,6 @@ public class TestAggregation {
               public void test() throws Exception {
                 // Create application we are going run
                 AggregationDemo<SpdzResourcePool> app = new AggregationDemo<>();
-                conf.resourcePool.getNetwork().connect(10000);
                 app.runApplication(secureComputationEngine, conf.resourcePool);
               }
             };

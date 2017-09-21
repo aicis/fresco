@@ -166,6 +166,7 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
     List<List<Boolean>> psiResult = null;
     try {
       ResourcePoolImpl resourcePool = util.getResourcePool();
+      resourcePool.getNetwork().connect(10000);
       psiResult = sce.runApplication(privateSetDemo, resourcePool);
       resourcePool.getNetwork().close();
     } catch (Exception e) {

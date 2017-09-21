@@ -53,7 +53,7 @@ public class InputSumExample {
 
     resourcePool.getNetwork().connect(10000);
     BigInteger result = sce.runApplication(app, resourcePool);
-
+    resourcePool.getNetwork().close();
     int sum = 0;
     for (int i : inputs) {
       sum += i;

@@ -94,10 +94,11 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
       return () -> new MatrixUtils().unwrapMatrix(opened);
     };
     // Run application and get result
-    Matrix<BigInteger> result = sce.runApplication(aggApp, rp);
-    writeOutputs(result);
-    sce.shutdownSCE();
     try {
+      rp.getNetwork().connect(10000);
+      Matrix<BigInteger> result = sce.runApplication(aggApp, rp);
+      writeOutputs(result);
+      sce.shutdownSCE();
       rp.getNetwork().close();
     } catch (IOException e) {
       // Nothing to do about this
@@ -132,12 +133,6 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
     SpdzStorage store = new SpdzStorageDummyImpl(pid, getNetworkConfiguration(pid).noOfParties());
     SpdzResourcePool rp = new SpdzResourcePoolImpl(pid, getNetworkConfiguration(pid).noOfParties(),
         network, new Random(), new DetermSecureRandom(), store, null);
-    try {
-      network.connect(10000);
-    } catch (IOException e) {
-      System.err.println("Failed to connect the network.");
-      return;
-    }
 
     // Instatiate our demo and run
     AggregationDemo<SpdzResourcePool> demo = new AggregationDemo<>();

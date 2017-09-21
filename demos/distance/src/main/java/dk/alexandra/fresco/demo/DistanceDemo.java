@@ -39,11 +39,15 @@ import java.math.BigInteger;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A simple demo computing the distance between two secret points
  */
 public class DistanceDemo extends DemoNumericApplication<BigInteger> {
+
+  private static Logger log = LoggerFactory.getLogger(DistanceDemo.class);
 
   private int myId, myX, myY;
 
@@ -119,12 +123,13 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
         SCEFactory.getSCEFromConfiguration(psConf, cmdUtil.getEvaluator());
     try {
       ResourcePoolT resourcePool = cmdUtil.getResourcePool();
+      resourcePool.getNetwork().connect(10000);
       BigInteger bigInteger = sce.runApplication(distDemo, resourcePool);
       resourcePool.getNetwork().close();
       double dist = Math.sqrt(bigInteger.doubleValue());
-      System.out.println("Distance between party 1 and 2 is: " + dist);
+      log.info("Distance between party 1 and 2 is: " + dist);
     } catch (Exception e) {
-      System.out.println("Error while doing MPC: " + e.getMessage());
+      log.error("Error while doing MPC: " + e.getMessage());
       e.printStackTrace();
       System.exit(-1);
     } finally {
