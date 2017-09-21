@@ -88,7 +88,7 @@ public class ResourcePoolImpl implements ResourcePool {
   }
 
   @Override
-  public PerformanceLogger getPerformanceLogger() {
+  public final PerformanceLogger getPerformanceLogger() {
     return logger;
   }
 
