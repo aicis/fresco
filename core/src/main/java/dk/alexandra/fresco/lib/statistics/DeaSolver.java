@@ -34,41 +34,43 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.lp.LPSolver;
+import dk.alexandra.fresco.lib.lp.LPSolver.LPOutput;
 import dk.alexandra.fresco.lib.lp.LPSolver.PivotRule;
 import dk.alexandra.fresco.lib.lp.LPTableau;
 import dk.alexandra.fresco.lib.lp.OptimalValue;
 import dk.alexandra.fresco.lib.lp.SimpleLPPrefix;
-import dk.alexandra.fresco.lib.statistics.DEASolver.DEAResult;
+import dk.alexandra.fresco.lib.statistics.DeaSolver.DeaResult;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * NativeProtocol for solving DEA problems.
  *
- * Given a dataset (two matrices of inputs and outputs) and a number of query
- * vectors, the protocol will compute how well the query vectors perform
- * compared to the dataset.
+ * <p>
+ * Given a dataset (two matrices of inputs and outputs) and a number of query vectors, the protocol
+ * will compute how well the query vectors perform compared to the dataset.
  *
- * The result/score of the computation must be converted to a double using Gauss
- * reduction to be meaningful. See the DEASolverTests for an example.
+ * The result/score of the computation must be converted to a double using Gauss reduction to be
+ * meaningful. See the DEASolverTests for an example.
+ * </p>
  */
-public class DEASolver implements Application<List<DEAResult>, ProtocolBuilderNumeric> {
+public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNumeric> {
 
-  private final List<List<DRes<SInt>>> targetInputs, targetOutputs;
-  private final List<List<DRes<SInt>>> inputDataSet, outputDataSet;
+  private final List<List<DRes<SInt>>> targetInputs;
+  private final List<List<DRes<SInt>>> targetOutputs;
+  private final List<List<DRes<SInt>>> inputDataSet;
+  private final List<List<DRes<SInt>>> outputDataSet;
 
   private final AnalysisType type;
   private final PivotRule pivotRule;
 
-
   /**
-   * Construct a DEA problem for the solver to solve. The problem consists of
-   * 4 matrixes: 2 basis input/output matrices containing the dataset which
-   * the queries will be measured against
-   *
-   * 2 query input/output matrices containing the data to be evaluated.
+   * Construct a DEA problem for the solver to solve. The problem consists of 4 matrixes: 2 basis
+   * input/output matrices containing the dataset which the queries will be measured against 2 query
+   * input/output matrices containing the data to be evaluated.
    *
    * @param type The type of analysis to do
    * @param inputValues Matrix of query input values
@@ -76,19 +78,16 @@ public class DEASolver implements Application<List<DEAResult>, ProtocolBuilderNu
    * @param setInput Matrix containing the basis input
    * @param setOutput Matrix containing the basis output
    */
-  public DEASolver(AnalysisType type, List<List<DRes<SInt>>> inputValues,
-      List<List<DRes<SInt>>> outputValues,
-      List<List<DRes<SInt>>> setInput,
+  public DeaSolver(AnalysisType type, List<List<DRes<SInt>>> inputValues,
+      List<List<DRes<SInt>>> outputValues, List<List<DRes<SInt>>> setInput,
       List<List<DRes<SInt>>> setOutput) throws MPCException {
     this(PivotRule.DANZIG, type, inputValues, outputValues, setInput, setOutput);
   }
 
   /**
-   * Construct a DEA problem for the solver to solve. The problem consists of
-   * 4 matrixes: 2 basis input/output matrices containing the dataset which
-   * the queries will be measured against
-   *
-   * 2 query input/output matrices containing the data to be evaluated.
+   * Construct a DEA problem for the solver to solve. The problem consists of 4 matrixes: 2 basis
+   * input/output matrices containing the dataset which the queries will be measured against 2 query
+   * input/output matrices containing the data to be evaluated.
    *
    * @param pivotRule the pivot rule to use in LP solver
    * @param type The type of analysis to do
@@ -97,12 +96,8 @@ public class DEASolver implements Application<List<DEAResult>, ProtocolBuilderNu
    * @param setInput Matrix containing the basis input
    * @param setOutput Matrix containing the basis output
    */
-  public DEASolver(
-      PivotRule pivotRule,
-      AnalysisType type,
-      List<List<DRes<SInt>>> inputValues,
-      List<List<DRes<SInt>>> outputValues,
-      List<List<DRes<SInt>>> setInput,
+  public DeaSolver(PivotRule pivotRule, AnalysisType type, List<List<DRes<SInt>>> inputValues,
+      List<List<DRes<SInt>>> outputValues, List<List<DRes<SInt>>> setInput,
       List<List<DRes<SInt>>> setOutput) throws MPCException {
     this.pivotRule = pivotRule;
     this.type = type;
@@ -154,41 +149,40 @@ public class DEASolver implements Application<List<DEAResult>, ProtocolBuilderNu
   }
 
   @Override
-  public DRes<List<DEAResult>> buildComputation(ProtocolBuilderNumeric builder) {
-    List<DRes<SimpleLPPrefix>> prefixes = getPrefixWithSecretSharedValues(
-        builder);
+  public DRes<List<DeaResult>> buildComputation(ProtocolBuilderNumeric builder) {
+    List<DRes<SimpleLPPrefix>> prefixes = getPrefixWithSecretSharedValues(builder);
     return builder.par((par) -> {
-
-      List<DRes<Pair<List<DRes<SInt>>, DRes<SInt>>>> result =
-          new ArrayList<>(targetInputs.size());
+      List<DRes<Pair<List<DRes<SInt>>, DRes<SInt>>>> result = new ArrayList<>(targetInputs.size());
       for (int i = 0; i < targetInputs.size(); i++) {
-
         SimpleLPPrefix prefix = prefixes.get(i).out();
         DRes<SInt> pivot = prefix.getPivot();
         LPTableau tableau = prefix.getTableau();
         Matrix<DRes<SInt>> update = prefix.getUpdateMatrix();
         List<DRes<SInt>> initialBasis = prefix.getBasis();
-
-        result.add(
-            par.seq((subSeq) ->
-                subSeq.seq((solverSec) -> {
-                  LPSolver lpSolver = new LPSolver(
-                      pivotRule, tableau, update, pivot, initialBasis);
-                  return lpSolver.buildComputation(solverSec);
-
-                }).seq((optSec, lpOutput) ->
-                    Pair.lazy(
-                        lpOutput.basis,
-                        new OptimalValue(lpOutput.updateMatrix, lpOutput.tableau, lpOutput.pivot)
-                            .buildComputation(optSec)
-                    )
-                ))
-        );
+        result.add(par.seq(subSeq -> subSeq.seq((solverSec) -> {
+          LPSolver lpSolver = new LPSolver(pivotRule, tableau, update, pivot, initialBasis);
+          DRes<LPOutput> lpOutput = lpSolver.buildComputation(solverSec);
+          return lpOutput;
+        }).seq((optSec, lpOutput) -> {
+          // Compute peers from lpOutput here!
+          DRes<SInt> invPivot = optSec.advancedNumeric().invert(lpOutput.pivot);
+          List<DRes<SInt>> column = new LinkedList<>(tableau.getB());
+          column.add(tableau.getZ());
+          List<ArrayList<DRes<SInt>>> umRows = lpOutput.updateMatrix.getRows();
+          List<DRes<SInt>> upColumn = umRows.stream()
+              .map(row -> optSec.advancedNumeric().dot(row, column)).collect(Collectors.toList());
+          upColumn.remove(upColumn.size() - 1);
+          List<DRes<SInt>> baisValues = upColumn.stream()
+              .map(n -> optSec.numeric().mult(invPivot, n)).collect(Collectors.toList());
+          return Pair.lazy(lpOutput.basis,
+              new OptimalValue(lpOutput.updateMatrix, lpOutput.tableau, lpOutput.pivot)
+              .buildComputation(optSec));
+        })));
       }
       return () -> result;
     }).seq((seq, result) -> {
-      List<DEAResult> convertedResult = result.stream().map(DEAResult::new)
-          .collect(Collectors.toList());
+      List<DeaResult> convertedResult =
+          result.stream().map(DeaResult::new).collect(Collectors.toList());
       return () -> convertedResult;
     });
   }
@@ -225,28 +219,27 @@ public class DEASolver implements Application<List<DEAResult>, ProtocolBuilderNu
       if (type == AnalysisType.INPUT_EFFICIENCY) {
         prefixes.add(DEAInputEfficiencyPrefixBuilder.build(
             Collections.unmodifiableList(basisInputs), Collections.unmodifiableList(basisOutputs),
-            targetInputs.get(i), targetOutputs.get(i),
-            builder
-        ));
+            targetInputs.get(i), targetOutputs.get(i), builder));
       } else {
-        prefixes.add(DEAPrefixBuilderMaximize.build(
-            Collections.unmodifiableList(basisInputs), Collections.unmodifiableList(basisOutputs),
-            targetInputs.get(i), targetOutputs.get(i),
-            builder
-        ));
+        prefixes.add(DEAPrefixBuilderMaximize.build(Collections.unmodifiableList(basisInputs),
+            Collections.unmodifiableList(basisOutputs), targetInputs.get(i), targetOutputs.get(i),
+            builder));
       }
     }
     return prefixes;
   }
 
-  public enum AnalysisType {INPUT_EFFICIENCY, OUTPUT_EFFICIENCY}
+  public enum AnalysisType {
+    INPUT_EFFICIENCY, OUTPUT_EFFICIENCY
+  }
 
-  public static class DEAResult {
+  public static class DeaResult {
 
     public final List<DRes<SInt>> basis;
     public final SInt optimal;
+    public List<Pair<DRes<SInt>, DRes<SInt>>> peers;
 
-    private DEAResult(DRes<Pair<List<DRes<SInt>>, DRes<SInt>>> output) {
+    private DeaResult(DRes<Pair<List<DRes<SInt>>, DRes<SInt>>> output) {
       Pair<List<DRes<SInt>>, DRes<SInt>> out = output.out();
       this.basis = out.getFirst().stream().map(DRes::out).collect(Collectors.toList());
       this.optimal = out.getSecond().out();

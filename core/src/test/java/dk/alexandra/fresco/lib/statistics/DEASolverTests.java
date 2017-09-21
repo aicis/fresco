@@ -36,8 +36,8 @@ import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
-import dk.alexandra.fresco.lib.statistics.DEASolver.DEAResult;
+import dk.alexandra.fresco.lib.statistics.DeaSolver.AnalysisType;
+import dk.alexandra.fresco.lib.statistics.DeaSolver.DeaResult;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -184,7 +184,7 @@ public class DEASolverTests {
         public void test() throws Exception {
           ResourcePoolT resourcePool = ResourcePoolCreator.createResourcePool(conf.sceConf);
 
-          Application<DEASolver, ProtocolBuilderNumeric> app =
+          Application<DeaSolver, ProtocolBuilderNumeric> app =
               producer -> {
                 modulus = producer.getBasicNumericContext().getModulus();
                 Numeric numeric = producer.numeric();
@@ -197,20 +197,20 @@ public class DEASolverTests {
                     knownMatrix(numeric, rawBasisOutputs);
                 List<List<DRes<SInt>>> basisInputs =
                     knownMatrix(numeric, rawBasisInputs);
-                return () -> new DEASolver(type, targetInputs, targetOutputs, basisInputs,
+                return () -> new DeaSolver(type, targetInputs, targetOutputs, basisInputs,
                     basisOutputs);
               };
-          DEASolver solver = secureComputationEngine
+          DeaSolver solver = secureComputationEngine
               .runApplication(app, resourcePool);
 
-          List<DEAResult> deaResults = secureComputationEngine
+          List<DeaResult> deaResults = secureComputationEngine
               .runApplication(solver, resourcePool);
 
           Application<List<Pair<BigInteger, List<BigInteger>>>, ProtocolBuilderNumeric> app2 =
               producer -> {
                 Numeric numeric = producer.numeric();
                 ArrayList<Pair<DRes<BigInteger>, List<DRes<BigInteger>>>> result = new ArrayList<>();
-                for (DEAResult deaResult : deaResults) {
+                for (DeaResult deaResult : deaResults) {
                   result.add(
                       new Pair<>(
                           numeric.open(deaResult.optimal),
@@ -288,7 +288,7 @@ public class DEASolverTests {
       BigInteger modulus) {
     BigInteger[] gauss = gauss(input, modulus);
     double res = (gauss[0].doubleValue() / gauss[1].doubleValue());
-    if (type == DEASolver.AnalysisType.INPUT_EFFICIENCY) {
+    if (type == DeaSolver.AnalysisType.INPUT_EFFICIENCY) {
       res *= -1;
     }
     return res;
