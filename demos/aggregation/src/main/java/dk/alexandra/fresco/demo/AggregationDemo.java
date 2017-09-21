@@ -34,28 +34,12 @@ import java.util.Random;
 public class AggregationDemo<ResourcePoolT extends ResourcePool> {
 
   /**
-   * Creates matrix from 2d array.
-   * 
-   * @param rows
-   * @return
-   */
-  private <T> Matrix<T> getInputMatrix(T[][] rows) {
-    int h = rows.length;
-    int w = rows[0].length;
-    ArrayList<ArrayList<T>> mat = new ArrayList<>();
-    for (T[] row : rows) {
-      mat.add(new ArrayList<>(Arrays.asList(row)));
-    }
-    return new Matrix<>(h, w, mat);
-  }
-
-  /**
    * Generates mock input data.
    * 
    * @return mock input matrix
    */
   public Matrix<BigInteger> readInputs() {
-    BigInteger[][] rawRows = {{BigInteger.valueOf(1), BigInteger.valueOf(7)},
+    BigInteger[][] rows = {{BigInteger.valueOf(1), BigInteger.valueOf(7)},
         {BigInteger.valueOf(1), BigInteger.valueOf(19)},
         {BigInteger.valueOf(1), BigInteger.valueOf(10)},
         {BigInteger.valueOf(1), BigInteger.valueOf(4)},
@@ -63,7 +47,13 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
         {BigInteger.valueOf(2), BigInteger.valueOf(1)},
         {BigInteger.valueOf(2), BigInteger.valueOf(22)},
         {BigInteger.valueOf(2), BigInteger.valueOf(16)}};
-    return getInputMatrix(rawRows);
+    int h = rows.length;
+    int w = rows[0].length;
+    ArrayList<ArrayList<BigInteger>> mat = new ArrayList<>();
+    for (BigInteger[] row : rows) {
+      mat.add(new ArrayList<>(Arrays.asList(row)));
+    }
+    return new Matrix<>(h, w, mat);
   }
 
   /**

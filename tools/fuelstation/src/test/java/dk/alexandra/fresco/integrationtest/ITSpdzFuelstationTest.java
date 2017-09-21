@@ -24,6 +24,7 @@
 package dk.alexandra.fresco.integrationtest;
 
 import dk.alexandra.fresco.Application;
+import dk.alexandra.fresco.IntegrationTest;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
@@ -54,6 +55,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -104,23 +106,27 @@ public class ITSpdzFuelstationTest {
   }
 
   @Test
+  @Category(IntegrationTest.class)
   public void test_mimc_same_enc() throws Exception {
     runTest(new MiMCTests.TestMiMCEncSameEnc<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
 
   @Test
+  @Category(IntegrationTest.class)
   public void test_division() throws Exception {
     runTest(new DivisionTests.TestSecretSharedDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         2);
   }
 
   @Test
+  @Category(IntegrationTest.class)
   public void test_dea() throws Exception {
     runTest(new RandomDataDeaTest<>(2, 1, 5, 1, DEASolver.AnalysisType.OUTPUT_EFFICIENCY),
         EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
 
   @Test
+  @Category(IntegrationTest.class)
   public void test_mult_single() throws Exception {
     runTest(new BasicArithmeticTests.TestSumAndMult<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
