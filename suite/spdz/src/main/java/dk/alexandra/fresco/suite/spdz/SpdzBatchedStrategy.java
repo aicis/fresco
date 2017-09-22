@@ -28,7 +28,7 @@ import dk.alexandra.fresco.framework.NativeProtocol.EvaluationStatus;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.network.SCENetworkSupplier;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOutputProtocol;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputProtocol;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;

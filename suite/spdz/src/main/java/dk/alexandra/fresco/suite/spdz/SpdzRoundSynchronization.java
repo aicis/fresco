@@ -4,8 +4,8 @@ import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.ProtocolCollectionList;
 import dk.alexandra.fresco.suite.ProtocolSuite.RoundSynchronization;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOutputProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMacCheckProtocol;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputProtocol;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.io.IOException;
 import java.util.List;
@@ -38,15 +38,15 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
     }
   }
 
-  private void checkMACsInBatch(SpdzResourcePool resourcePool, SCENetwork sceNetworks)
+  private void checkMACsInBatch(SpdzResourcePool resourcePool, SCENetwork sceNetwork)
       throws IOException {
-    doMACCheck(resourcePool, sceNetworks);
+    doMACCheck(resourcePool, sceNetwork);
 
     // Check for output protocols in the batch. If any are present, evaluate them one at a time with
     // a MAC Check in between to prevent cheating.
     List<SpdzOutputProtocol<?>> outputProtocols = resourcePool.getOutputProtocolsInBatch();
-    SpdzBatchedStrategy.processOutputProtocolBatch(outputProtocols, sceNetworks, resourcePool);
-    doMACCheck(resourcePool, sceNetworks);
+    SpdzBatchedStrategy.processOutputProtocolBatch(outputProtocols, sceNetwork, resourcePool);
+    doMACCheck(resourcePool, sceNetwork);
     // reset stuff to gain memory back and not check them again.
     resourcePool.getOutputProtocolsInBatch().clear();
     this.gatesEvaluated = 0;

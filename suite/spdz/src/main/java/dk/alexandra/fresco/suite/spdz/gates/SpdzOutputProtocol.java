@@ -1,6 +1,4 @@
-package dk.alexandra.fresco.suite.spdz.datatypes;
-
-import dk.alexandra.fresco.suite.spdz.gates.SpdzNativeProtocol;
+package dk.alexandra.fresco.suite.spdz.gates;
 
 /**
  * Marks a protocol as being able to output to some party. This means that the protocol should be

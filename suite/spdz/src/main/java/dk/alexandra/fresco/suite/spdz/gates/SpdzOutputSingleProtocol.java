@@ -34,7 +34,6 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOutputProtocol;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;

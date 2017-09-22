@@ -5,7 +5,7 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOutputProtocol;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputProtocol;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 import java.security.MessageDigest;
