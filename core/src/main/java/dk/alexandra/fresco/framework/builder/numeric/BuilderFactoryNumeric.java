@@ -34,6 +34,10 @@ public interface BuilderFactoryNumeric extends BuilderFactory<ProtocolBuilderNum
   default AdvancedNumeric createAdvancedNumeric(ProtocolBuilderNumeric builder) {
     return new DefaultAdvancedNumeric(this, builder);
   }
+  
+  default Collections createCollections(ProtocolBuilderNumeric builder) {
+    return new DefaultCollections(this, builder);
+  }
 
   /**
    * Returns a builder which can be helpful while developing a new protocol. Be very careful though,

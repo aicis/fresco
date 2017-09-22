@@ -45,7 +45,7 @@ public class ComparisonBooleanTests {
    * @author Kasper Damgaard
    */
   public static class TestGreaterThan<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     private boolean doAsserts = false;
 
@@ -91,7 +91,8 @@ public class ComparisonBooleanTests {
    *
    * @author Kasper Damgaard
    */
-  public static class TestEquality<ResourcePoolT extends ResourcePool> extends TestThreadFactory {
+  public static class TestEquality<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     private boolean doAsserts = false;
 
@@ -138,7 +139,7 @@ public class ComparisonBooleanTests {
    * @author Kasper Damgaard
    */
   public static class TestGreaterThanUnequalLength<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {

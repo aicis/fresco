@@ -28,6 +28,7 @@ package dk.alexandra.fresco.lib.helper;
 
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
@@ -64,7 +65,8 @@ public class ParallelProtocolProducer implements ProtocolProducer, ProtocolProdu
   }
 
   @Override
-  public void getNextProtocols(ProtocolCollection protocolCollection) {
+  public <ResourcePoolT extends ResourcePool> void getNextProtocols(
+      ProtocolCollection<ResourcePoolT> protocolCollection) {
     ListIterator<ProtocolProducer> iterator = subProducers.listIterator();
     while (iterator.hasNext() && protocolCollection.hasFreeCapacity()) {
       ProtocolProducer producer = iterator.next();

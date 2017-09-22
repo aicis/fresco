@@ -25,12 +25,14 @@ package dk.alexandra.fresco.demo.cli;
 
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanProtocolSuite;
@@ -62,7 +64,7 @@ import org.slf4j.LoggerFactory;
  * A set of default configurations are used when parameters are not specified at runtime.
  * </p>
  */
-public class CmdLineUtil {
+public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> {
 
   private final static Logger logger = LoggerFactory.getLogger(CmdLineUtil.class);
 
@@ -70,8 +72,8 @@ public class CmdLineUtil {
   private Options appOptions;
   private CommandLine cmd;
   private NetworkConfiguration networkConfiguration;
-  private ProtocolSuite<?, ?> protocolSuite;
-  private ProtocolEvaluator<?> evaluator;
+  private ProtocolSuite<ResourcePoolT, Builder> protocolSuite;
+  private ProtocolEvaluator<ResourcePoolT, Builder> evaluator;
 
   public CmdLineUtil() {
     this.appOptions = new Options();
@@ -86,11 +88,11 @@ public class CmdLineUtil {
     return NetworkingStrategy.KRYONET;
   }
 
-  public ProtocolEvaluator getEvaluator() {
+  public ProtocolEvaluator<ResourcePoolT, Builder> getEvaluator() {
     return evaluator;
   }
 
-  public ProtocolSuite getProtocolSuite() {
+  public ProtocolSuite<ResourcePoolT, Builder> getProtocolSuite() {
     return this.protocolSuite;
   }
 
@@ -219,7 +221,7 @@ public class CmdLineUtil {
         throw new ParseException("Invalid evaluation strategy: " + this.cmd.getOptionValue("e"));
       }
     } else {
-      this.evaluator = new SequentialEvaluator();
+      this.evaluator = new SequentialEvaluator<ResourcePoolT, Builder>();
     }
 
     if (this.cmd.hasOption("b")) {
@@ -245,6 +247,7 @@ public class CmdLineUtil {
     this.appOptions.addOption(option);
   }
 
+  @SuppressWarnings("unchecked")
   public CommandLine parse(String[] args) {
     try {
       CommandLineParser parser = new DefaultParser();
@@ -270,20 +273,25 @@ public class CmdLineUtil {
       String protocolSuiteName = ((String) this.cmd.getParsedOptionValue("s")).toLowerCase();
       switch (protocolSuiteName) {
         case "dummybool":
-          this.protocolSuite = new DummyBooleanProtocolSuite();
+          this.protocolSuite =
+              (ProtocolSuite<ResourcePoolT, Builder>) new DummyBooleanProtocolSuite();
           break;
         case "dummyarithmetic":
-          this.protocolSuite = dummyArithmeticFromCmdLine(cmd);
+          this.protocolSuite =
+              (ProtocolSuite<ResourcePoolT, Builder>) dummyArithmeticFromCmdLine(cmd);
           break;
         case "spdz":
-          this.protocolSuite = SpdzConfigurationFromCmdLine(cmd);
+          this.protocolSuite =
+              (ProtocolSuite<ResourcePoolT, Builder>) SpdzConfigurationFromCmdLine(cmd);
           break;
         case "tinytablesprepro":
           this.protocolSuite =
-              tinyTablesPreProFromCmdLine(cmd, this.networkConfiguration.getMyId());
+              (ProtocolSuite<ResourcePoolT, Builder>) tinyTablesPreProFromCmdLine(cmd,
+                  this.networkConfiguration.getMyId());
           break;
         case "tinytables":
-          this.protocolSuite = tinyTablesFromCmdLine(cmd, this.networkConfiguration.getMyId());
+          this.protocolSuite = (ProtocolSuite<ResourcePoolT, Builder>) tinyTablesFromCmdLine(cmd,
+              this.networkConfiguration.getMyId());
           break;
         default:
           throw new ParseException("Unknown protocol suite: " + protocolSuiteName);

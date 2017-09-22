@@ -75,12 +75,6 @@ import org.apache.commons.cli.ParseException;
  */
 public class AESDemo implements Application<List<Boolean>, ProtocolBuilderBinary> {
 
-  /**
-   * Applications can be uploaded to fresco dynamically and are therefore Serializable's. This means
-   * that each application must have a unique serialVersionUID.
-   */
-
-
   private Boolean[] in;
   private int id;
 
@@ -99,7 +93,7 @@ public class AESDemo implements Application<List<Boolean>, ProtocolBuilderBinary
    * TestAESDemo and runs the TestAESDemo on the SCE.
    */
   public static void main(String[] args) {
-    CmdLineUtil util = new CmdLineUtil();
+    CmdLineUtil<ResourcePoolImpl, ProtocolBuilderBinary> util = new CmdLineUtil<>();
     Boolean[] input = null;
     try {
 

@@ -48,30 +48,36 @@ import org.junit.Test;
 
 public class TestInputSumExample {
 
-  private static void runTest(TestThreadFactory test,
-      boolean dummy, int n) {
+  @SuppressWarnings("unchecked")
+  private static <ResourcePoolT extends ResourcePool> void runTest(
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> test, boolean dummy, int n) {
     // Since SCAPI currently does not work with ports > 9999 we use fixed ports
     // here instead of relying on ephemeral ports which are often > 9999.
-    List<Integer> ports = new ArrayList<Integer>(n);
+    List<Integer> ports = new ArrayList<>(n);
     for (int i = 1; i <= n; i++) {
       ports.add(9000 + i * 10);
     }
     Map<Integer, NetworkConfiguration> netConf =
         TestConfiguration.getNetworkConfigurations(n, ports);
-    Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
+    Map<Integer, TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric>> conf =
+        new HashMap<>();
     for (int i : netConf.keySet()) {
-      TestThreadConfiguration<?, ProtocolBuilderNumeric> ttc = new TestThreadConfiguration<>();
+      TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> ttc =
+          new TestThreadConfiguration<>();
       ttc.netConf = netConf.get(i);
-      ProtocolSuite<?, ProtocolBuilderNumeric> suite;
+      ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric> suite;
       if (dummy) {
         BigInteger mod = new BigInteger(
             "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
-        suite = new DummyArithmeticProtocolSuite(mod, 150);
+        suite =
+            (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new DummyArithmeticProtocolSuite(
+                mod, 150);
       } else {
-        suite = new SpdzProtocolSuite(150, PreprocessingStrategy.DUMMY, null);
+        suite = (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new SpdzProtocolSuite(150,
+            PreprocessingStrategy.DUMMY, null);
       }
-      ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET,
-          new SequentialEvaluator<>(), netConf.get(i), false);
+      ttc.sceConf = new TestSCEConfiguration<>(suite,
+          NetworkingStrategy.KRYONET, new SequentialEvaluator<>(), netConf.get(i), false);
       conf.put(i, ttc);
     }
     TestThreadRunner.run(test, conf);
@@ -80,39 +86,41 @@ public class TestInputSumExample {
 
   @Test
   public <ResourcePoolT extends ResourcePool> void testInput() throws Exception {
-    final TestThreadFactory f = new TestThreadFactory() {
-      @Override
-      public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-        return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+    final TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> f =
+        new TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric>() {
           @Override
-          public void test() throws Exception {
-            InputSumExample.runApplication(secureComputationEngine,
-                ResourcePoolCreator.createResourcePool(conf.sceConf));
+          public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+            return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+              @Override
+              public void test() throws Exception {
+                InputSumExample.runApplication(secureComputationEngine,
+                    ResourcePoolCreator.createResourcePool(conf.sceConf));
+              }
+            };
           }
-        };
-      }
 
       ;
-    };
+        };
     runTest(f, false, 3);
   }
 
   @Test
   public <ResourcePoolT extends ResourcePool> void testInput_dummy() throws Exception {
-    final TestThreadFactory f = new TestThreadFactory() {
-      @Override
-      public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-        return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+    final TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> f =
+        new TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric>() {
           @Override
-          public void test() throws Exception {
-            InputSumExample.runApplication(secureComputationEngine,
-                ResourcePoolCreator.createResourcePool(conf.sceConf));
+          public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+            return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+              @Override
+              public void test() throws Exception {
+                InputSumExample.runApplication(secureComputationEngine,
+                    ResourcePoolCreator.createResourcePool(conf.sceConf));
+              }
+            };
           }
-        };
-      }
 
       ;
-    };
+        };
     runTest(f, true, 3);
   }
 }

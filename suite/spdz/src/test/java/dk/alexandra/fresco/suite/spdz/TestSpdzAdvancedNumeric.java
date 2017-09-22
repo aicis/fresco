@@ -54,7 +54,7 @@ public class TestSpdzAdvancedNumeric extends AbstractSpdzTest {
   }
 
   private void test_Division(int numerator, int denominator) throws Exception {
-    runTest(new AdvancedNumericTests.TestDivision(numerator, denominator),
+    runTest(new AdvancedNumericTests.TestDivision<>(numerator, denominator),
         EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
@@ -76,26 +76,26 @@ public class TestSpdzAdvancedNumeric extends AbstractSpdzTest {
   }
 
   private void test_DivisionWithKnownDenominator(int numerator, int denominator) throws Exception {
-    runTest(new AdvancedNumericTests.TestDivisionWithKnownDenominator(numerator, denominator),
+    runTest(new AdvancedNumericTests.TestDivisionWithKnownDenominator<>(numerator, denominator),
         EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_Modulus() throws Exception {
-    runTest(new AdvancedNumericTests.TestModulus(),
+    runTest(new AdvancedNumericTests.TestModulus<>(),
         EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_exponentiation() throws Exception {
-    runTest(new TestExponentiation(),
+    runTest(new TestExponentiation<>(),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_polynomial() throws Exception {
-    runTest(new TestPolynomialEvaluator(),
+    runTest(new TestPolynomialEvaluator<>(),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
         PreprocessingStrategy.DUMMY, 2);
   }

@@ -1,14 +1,5 @@
 package dk.alexandra.fresco.lib.lp;
 
-import java.math.BigInteger;
-
-import org.hamcrest.core.Is;
-import org.junit.Assert;
-import org.junit.Test;
-
-import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
-
 public class TestLPBuildingBlocks {
 /*
   @Test

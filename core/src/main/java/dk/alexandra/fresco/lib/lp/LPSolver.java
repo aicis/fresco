@@ -28,7 +28,8 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.ConditionalSelect;
+import dk.alexandra.fresco.lib.collections.Matrix;
+import dk.alexandra.fresco.lib.conditional.ConditionalSelect;
 import dk.alexandra.fresco.lib.lp.LPSolver.LPOutput;
 import java.io.PrintStream;
 import java.math.BigInteger;
@@ -88,8 +89,8 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
     }
   }
 
-  public LPSolver(LPTableau tableau, Matrix<DRes<SInt>> updateMatrix,
-      DRes<SInt> pivot, List<DRes<SInt>> initialBasis) {
+  public LPSolver(LPTableau tableau, Matrix<DRes<SInt>> updateMatrix, DRes<SInt> pivot,
+      List<DRes<SInt>> initialBasis) {
     this(PivotRule.DANZIG, tableau, updateMatrix, pivot, initialBasis);
   }
 
@@ -115,27 +116,25 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
       LPState initialState = new LPState(BigInteger.ZERO, tableau, updateMatrix, null, pivot,
           enumeratedVariables, initialBasis, pivot);
       return () -> initialState;
-    }).whileLoop(
-        state -> !state.terminated(),
-        (seq, state) -> {
-          iterations++;
-          if (debugLog) {
-            debugInfo(seq, state);
-          }
-          return seq.seq((inner) -> {
-            logger.info("LP Iterations=" + iterations + " solving " + identityHashCode);
-            if (pivotRule == PivotRule.BLAND) {
-              return blandPhaseOneProtocol(inner, state);
-            } else {
-              return phaseOneProtocol(inner, state, zero);
-            }
-          }).seq((inner, phaseOneOutput) -> {
-            if (!phaseOneOutput.terminated()) {
-              phaseTwoProtocol(inner, phaseOneOutput);
-            }
-            return phaseOneOutput;
-          });
-        }).seq((seq, whileState) -> () -> new LPOutput(whileState.tableau, whileState.updateMatrix,
+    }).whileLoop(state -> !state.terminated(), (seq, state) -> {
+      iterations++;
+      if (debugLog) {
+        debugInfo(seq, state);
+      }
+      return seq.seq((inner) -> {
+        logger.info("LP Iterations=" + iterations + " solving " + identityHashCode);
+        if (pivotRule == PivotRule.BLAND) {
+          return blandPhaseOneProtocol(inner, state);
+        } else {
+          return phaseOneProtocol(inner, state, zero);
+        }
+      }).seq((inner, phaseOneOutput) -> {
+        if (!phaseOneOutput.terminated()) {
+          phaseTwoProtocol(inner, phaseOneOutput);
+        }
+        return phaseOneOutput;
+      });
+    }).seq((seq, whileState) -> () -> new LPOutput(whileState.tableau, whileState.updateMatrix,
         whileState.basis, whileState.pivot));
   }
 
@@ -154,9 +153,8 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
    */
   private DRes<LPState> phaseTwoProtocol(ProtocolBuilderNumeric builder, LPState state) {
     return builder.seq((seq) -> seq.seq(
-        new ExitingVariable(state.tableau, state.updateMatrix, state.enteringIndex, state.basis))
-    ).pairInPar(
-        (seq, exitingVariable) -> {
+        new ExitingVariable(state.tableau, state.updateMatrix, state.enteringIndex, state.basis)))
+        .pairInPar((seq, exitingVariable) -> {
           state.pivot = exitingVariable.pivot;
           ArrayList<DRes<SInt>> exitingIndex = exitingVariable.exitingIndex;
           // Update Basis
@@ -165,23 +163,22 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
           return seq.par((par) -> {
             ArrayList<DRes<SInt>> nextBasis = new ArrayList<>(noConstraints);
             for (int i = 0; i < noConstraints; i++) {
-              nextBasis.add(par.seq(
-                  new ConditionalSelect(exitingIndex.get(i), ent, state.basis.get(i))));
+              nextBasis.add(
+                  par.seq(new ConditionalSelect(exitingIndex.get(i), ent, state.basis.get(i))));
             }
             return () -> nextBasis;
           });
-        },
-        (seq, exitingVariable) -> seq.seq(
-            new UpdateMatrix(state.updateMatrix, exitingVariable.exitingIndex,
-                exitingVariable.updateColumn, state.pivot, state.prevPivot))
-    ).seq((seq, pair) -> {
-      List<DRes<SInt>> basis = pair.getFirst();
-      state.updateMatrix = pair.getSecond();
-      state.basis = basis;
-      // // Copy the resulting new update matrix to overwrite the current
-      state.prevPivot = state.pivot;
-      return () -> state;
-    });
+        }, (seq, exitingVariable) -> seq
+            .seq(new UpdateMatrix(state.updateMatrix, exitingVariable.exitingIndex,
+                exitingVariable.updateColumn, state.pivot, state.prevPivot)))
+        .seq((seq, pair) -> {
+          List<DRes<SInt>> basis = pair.getFirst();
+          state.updateMatrix = pair.getSecond();
+          state.basis = basis;
+          // // Copy the resulting new update matrix to overwrite the current
+          state.prevPivot = state.pivot;
+          return () -> state;
+        });
   }
 
   /**
@@ -196,19 +193,20 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
    */
   private DRes<LPState> phaseOneProtocol(ProtocolBuilderNumeric builder, LPState state,
       DRes<SInt> zero) {
-    return builder.seq(
-        // Compute potential entering variable index and corresponding value of
-        // entry in F
-        new EnteringVariable(state.tableau, state.updateMatrix)
-    ).seq((seq, enteringAndMinimum) -> {
-      List<DRes<SInt>> entering = enteringAndMinimum.getFirst();
-      SInt minimum = enteringAndMinimum.getSecond();
-      // Check if the entry in F is non-negative
-      DRes<SInt> positive = seq.comparison().compareLEQLong(zero, () -> minimum);
-      state.terminationOut = seq.numeric().open(positive);
-      state.enteringIndex = entering;
-      return () -> state;
-    });
+    return builder
+        .seq(
+            // Compute potential entering variable index and corresponding value of
+            // entry in F
+            new EnteringVariable(state.tableau, state.updateMatrix))
+        .seq((seq, enteringAndMinimum) -> {
+          List<DRes<SInt>> entering = enteringAndMinimum.getFirst();
+          SInt minimum = enteringAndMinimum.getSecond();
+          // Check if the entry in F is non-negative
+          DRes<SInt> positive = seq.comparison().compareLEQLong(zero, () -> minimum);
+          state.terminationOut = seq.numeric().open(positive);
+          state.enteringIndex = entering;
+          return () -> state;
+        });
   }
 
   /**
@@ -221,19 +219,19 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
    *
    * @return a protocol producer for the first half of a simplex iteration
    */
-  private DRes<LPState> blandPhaseOneProtocol(ProtocolBuilderNumeric builder,
-      LPState state) {
-    return builder.seq(
-        // Compute potential entering variable index and corresponding value of
-        // entry in F
-        new BlandEnteringVariable(state.tableau, state.updateMatrix)
-    ).seq((seq, enteringAndMinimum) -> {
-      List<DRes<SInt>> entering = enteringAndMinimum.getFirst();
-      SInt termination = enteringAndMinimum.getSecond();
-      state.terminationOut = seq.numeric().open(() -> termination);
-      state.enteringIndex = entering;
-      return () -> state;
-    });
+  private DRes<LPState> blandPhaseOneProtocol(ProtocolBuilderNumeric builder, LPState state) {
+    return builder
+        .seq(
+            // Compute potential entering variable index and corresponding value of
+            // entry in F
+            new BlandEnteringVariable(state.tableau, state.updateMatrix))
+        .seq((seq, enteringAndMinimum) -> {
+          List<DRes<SInt>> entering = enteringAndMinimum.getFirst();
+          SInt termination = enteringAndMinimum.getSecond();
+          state.terminationOut = seq.numeric().open(() -> termination);
+          state.enteringIndex = entering;
+          return () -> state;
+        });
   }
 
   /**
@@ -283,8 +281,8 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
     public final List<DRes<SInt>> basis;
     public final DRes<SInt> pivot;
 
-    public LPOutput(LPTableau tableau, Matrix<DRes<SInt>> updateMatrix,
-        List<DRes<SInt>> basis, DRes<SInt> pivot) {
+    public LPOutput(LPTableau tableau, Matrix<DRes<SInt>> updateMatrix, List<DRes<SInt>> basis,
+        DRes<SInt> pivot) {
       this.tableau = tableau;
       this.updateMatrix = updateMatrix;
       this.basis = basis;
@@ -303,9 +301,8 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
     public List<DRes<SInt>> basis;
     public DRes<SInt> prevPivot;
 
-    public LPState(BigInteger terminationOut, LPTableau tableau,
-        Matrix<DRes<SInt>> updateMatrix, List<DRes<SInt>> enteringIndex,
-        DRes<SInt> pivot, List<BigInteger> enumeratedVariables,
+    public LPState(BigInteger terminationOut, LPTableau tableau, Matrix<DRes<SInt>> updateMatrix,
+        List<DRes<SInt>> enteringIndex, DRes<SInt> pivot, List<BigInteger> enumeratedVariables,
         List<DRes<SInt>> basis, DRes<SInt> prevPivot) {
       this.terminationOut = () -> terminationOut;
       this.tableau = tableau;

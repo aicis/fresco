@@ -24,10 +24,12 @@
 package dk.alexandra.fresco.integrationtest;
 
 import dk.alexandra.fresco.Application;
+import dk.alexandra.fresco.IntegrationTest;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
@@ -40,12 +42,14 @@ import dk.alexandra.fresco.lib.statistics.DEASolver;
 import dk.alexandra.fresco.lib.statistics.DEASolverTests.RandomDataDeaTest;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -59,8 +63,8 @@ public class ITSpdzFuelstationTest {
   @LocalServerPort
   private int port;
 
-  private void runTest(TestThreadFactory f, EvaluationStrategy evalStrategy, int noOfParties)
-      throws Exception {
+  private void runTest(TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
+      EvaluationStrategy evalStrategy, int noOfParties) throws Exception {
 
     // Since SCAPI currently does not work with ports > 9999 we use fixed
     // ports
@@ -72,44 +76,49 @@ public class ITSpdzFuelstationTest {
 
     Map<Integer, NetworkConfiguration> netConf =
         TestConfiguration.getNetworkConfigurations(noOfParties, ports);
-    Map<Integer, TestThreadConfiguration> conf = new HashMap<Integer, TestThreadConfiguration>();
+    Map<Integer, TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>> conf =
+        new HashMap<>();
     for (int playerId : netConf.keySet()) {
-      TestThreadConfiguration ttc = new TestThreadConfiguration();
+      TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
+          new TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>();
       ttc.netConf = netConf.get(playerId);
 
-      ProtocolSuite<?, ?> suite =
+      ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> suite =
           new SpdzProtocolSuite(150, PreprocessingStrategy.FUELSTATION, "http://localhost:" + port);
 
-      ProtocolEvaluator evaluator = EvaluationStrategy.fromEnum(evalStrategy);
-      ttc.sceConf = new TestSCEConfiguration(suite, NetworkingStrategy.KRYONET, evaluator,
-          ttc.netConf, false);
+      ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
+          EvaluationStrategy.fromEnum(evalStrategy);
+      ttc.sceConf = new TestSCEConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>(suite,
+          NetworkingStrategy.KRYONET, evaluator, ttc.netConf, false);
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
   }
 
   @Test
+  @Category(IntegrationTest.class)
   public void test_mimc_same_enc() throws Exception {
-    runTest(new MiMCTests.TestMiMCEncSameEnc(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        2);
+    runTest(new MiMCTests.TestMiMCEncSameEnc<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
 
   @Test
+  @Category(IntegrationTest.class)
   public void test_division() throws Exception {
-    runTest(new DivisionTests.TestSecretSharedDivision(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new DivisionTests.TestSecretSharedDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         2);
   }
 
   @Test
+  @Category(IntegrationTest.class)
   public void test_dea() throws Exception {
-    runTest(new RandomDataDeaTest(2, 1, 5, 1, DEASolver.AnalysisType.OUTPUT_EFFICIENCY),
+    runTest(new RandomDataDeaTest<>(2, 1, 5, 1, DEASolver.AnalysisType.OUTPUT_EFFICIENCY),
         EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
 
   @Test
+  @Category(IntegrationTest.class)
   public void test_mult_single() throws Exception {
-    runTest(new BasicArithmeticTests.TestSumAndMult(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        2);
+    runTest(new BasicArithmeticTests.TestSumAndMult<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
 
 }

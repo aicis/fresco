@@ -32,7 +32,7 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.ConditionalSelect;
+import dk.alexandra.fresco.lib.conditional.ConditionalSelect;
 import dk.alexandra.fresco.lib.math.integer.min.MinInfFrac.MinInfOutput;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -98,7 +98,7 @@ public class MinInfFrac implements Computation<MinInfOutput, ProtocolBuilderNume
       };
     }
     ArrayList<DRes<SInt>> cs = new ArrayList<>(fs.size());
-    for (Frac f : fs) {
+    for (@SuppressWarnings("unused") Frac f : fs) {
       cs.add(null);
     }
     return builder.seq(seq -> () -> new IterationState(fs, 0))

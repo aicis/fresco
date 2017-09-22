@@ -26,6 +26,14 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.lp;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+
+import org.junit.Assert;
+
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -35,12 +43,7 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
-import org.junit.Assert;
+import dk.alexandra.fresco.lib.collections.Matrix;
 
 
 public class LPBuildingBlockTests {
@@ -171,6 +174,7 @@ public class LPBuildingBlockTests {
 
     private int expectedIndex;
 
+    @SuppressWarnings("unused")
     int getExpextedIndex() {
       return expectedIndex;
     }
@@ -238,6 +242,7 @@ public class LPBuildingBlockTests {
 
     int exitingIdx;
 
+    @SuppressWarnings("unused")
     private int exitingIndex(int enteringIndex) {
       //TODO Fix this test case
 //      BigInteger[] updatedColumn = new BigInteger[b.length];
@@ -277,27 +282,27 @@ public class LPBuildingBlockTests {
       return 0;
     }
 
-    private BigInteger innerProduct(BigInteger[] a, BigInteger[] b) {
-      if (a.length > b.length) {
-        throw new RuntimeException("b vector too short");
-      }
-      BigInteger result = BigInteger.valueOf(0);
-      for (int i = 0; i < a.length; i++) {
-        result = (result.add(a[i].multiply(b[i]))).mod(mod);
-      }
-      return result;
-    }
+    // private BigInteger innerProduct(BigInteger[] a, BigInteger[] b) {
+    // if (a.length > b.length) {
+    // throw new RuntimeException("b vector too short");
+    // }
+    // BigInteger result = BigInteger.valueOf(0);
+    // for (int i = 0; i < a.length; i++) {
+    // result = (result.add(a[i].multiply(b[i]))).mod(mod);
+    // }
+    // return result;
+    // }
   }
 
 
   public static class TestEnteringVariable<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+ TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     public TestEnteringVariable() {
     }
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         @Override
@@ -334,13 +339,13 @@ public class LPBuildingBlockTests {
   }
 
   public static class TestBlandEnteringVariable<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+ TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     public TestBlandEnteringVariable() {
     }
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         @Override
@@ -379,13 +384,13 @@ public class LPBuildingBlockTests {
 
 
     public static class TestExitingVariable<ResourcePoolT extends ResourcePool> extends
-        TestThreadFactory {
+ TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
       public TestExitingVariable() {
       }
 
       @Override
-      public TestThread next() {
+      public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
         return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
           @Override

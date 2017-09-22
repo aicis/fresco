@@ -2,6 +2,7 @@ package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.List;
@@ -25,9 +26,8 @@ public interface AdvancedNumeric extends ComputationDirectory {
   DRes<SInt> product(List<DRes<SInt>> elements);
 
   /**
-   * This protocol calculates an approximation of
-   * <code>floor(dividend / divisor)</code>, which will be either correct or
-   * slightly smaller than the correct result.
+   * This protocol calculates an approximation of <code>floor(dividend / divisor)</code>, which will
+   * be either correct or slightly smaller than the correct result.
    *
    * @param dividend The dividend.
    * @param divisor The divisor.
@@ -36,9 +36,8 @@ public interface AdvancedNumeric extends ComputationDirectory {
   DRes<SInt> div(DRes<SInt> dividend, BigInteger divisor);
 
   /**
-   * This protocol calculates an approximation of
-   * <code>floor(dividend / divisor)</code>, which will be either correct or
-   * slightly smaller than the correct result.
+   * This protocol calculates an approximation of <code>floor(dividend / divisor)</code>, which will
+   * be either correct or slightly smaller than the correct result.
    *
    * @param dividend The dividend.
    * @param divisor The divisor.
@@ -47,9 +46,8 @@ public interface AdvancedNumeric extends ComputationDirectory {
   DRes<SInt> mod(DRes<SInt> dividend, BigInteger divisor);
 
   /**
-   * This protocol calculates an approximation of
-   * <code>floor(dividend / divisor)</code>, which will be either correct or
-   * slightly smaller than the correct result.
+   * This protocol calculates an approximation of <code>floor(dividend / divisor)</code>, which will
+   * be either correct or slightly smaller than the correct result.
    *
    * @param dividend The dividend.
    * @param divisor The divisor.
@@ -58,8 +56,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
   DRes<SInt> div(DRes<SInt> dividend, DRes<SInt> divisor);
 
   /**
-   * Convert an integer to an list of bits, with index 0 being the least
-   * significant bit
+   * Convert an integer to an list of bits, with index 0 being the least significant bit
    *
    * @param in SInt
    * @return the list of bits
@@ -103,8 +100,9 @@ public interface AdvancedNumeric extends ComputationDirectory {
 
   /**
    * @param input input
-   * @return result: input >> 1<br> remainder: The <code>shifts</code> least significant bits of the
-   * input with the least significant having index 0.
+   * @return result: input >> 1<br>
+   *         remainder: The <code>shifts</code> least significant bits of the input with the least
+   *         significant having index 0.
    */
   DRes<RightShiftResult> rightShiftWithRemainder(DRes<SInt> input);
 
@@ -118,27 +116,47 @@ public interface AdvancedNumeric extends ComputationDirectory {
   /**
    * @param input input
    * @param shifts Number of shifts
-   * @return result: input >> shifts<br> remainder: The <code>shifts</code> least significant bits
-   * of the input with the least significant having index 0.
+   * @return result: input >> shifts<br>
+   *         remainder: The <code>shifts</code> least significant bits of the input with the least
+   *         significant having index 0.
    */
-  DRes<RightShiftResult> rightShiftWithRemainder(DRes<SInt> input,
-      int shifts);
+  DRes<RightShiftResult> rightShiftWithRemainder(DRes<SInt> input, int shifts);
 
   DRes<SInt> bitLength(DRes<SInt> input, int maxBitLength);
 
   DRes<SInt> invert(DRes<SInt> x);
 
   /**
-   * result input >> 1
-   * remainder the least significant bit of input
+   * Selects left or right based on condition.
+   *
+   * @param condition the Computation holding the condition on which to select.
+   * @param left the Computation holding the left argument.
+   * @param right the Computation holding the right argument.
+   * @return an computation holding the output of the appended protocol.
+   */
+  DRes<SInt> condSelect(DRes<SInt> condition, DRes<SInt> left, DRes<SInt> right);
+
+  /**
+   * Swaps <code>left</code> and <code>right</code> if <code>condition</code> is 1, keeps original
+   * order otherwise. Returns result as a pair.
+   * 
+   * @param condition must be 0 or 1
+   * @param left
+   * @param right
+   * @return
+   */
+  DRes<Pair<DRes<SInt>, DRes<SInt>>> swapIf(DRes<SInt> condition, DRes<SInt> left,
+      DRes<SInt> right);
+
+  /**
+   * result input >> 1 remainder the least significant bit of input
    */
   class RightShiftResult {
 
     final SInt result;
     final List<SInt> remainder;
 
-    public RightShiftResult(SInt result,
-        List<SInt> remainder) {
+    public RightShiftResult(SInt result, List<SInt> remainder) {
       this.result = result;
       this.remainder = remainder;
     }

@@ -41,7 +41,7 @@ import org.junit.Assert;
 public class CompareTests {
 
   public static class CompareAndSwapTest<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public CompareAndSwapTest() {}
 

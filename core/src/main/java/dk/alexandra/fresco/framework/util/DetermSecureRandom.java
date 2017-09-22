@@ -44,8 +44,6 @@ import java.security.NoSuchAlgorithmException;
  */
 public class DetermSecureRandom {
 
-	private static final long serialVersionUID = -1788521018099108784L;
-	
     private MessageDigest md = null;
     private byte[] seed = null;
     private int amount;

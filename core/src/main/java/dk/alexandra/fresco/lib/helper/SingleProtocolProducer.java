@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 
 /**
  * A protocol producer that only produces a single protocol.
@@ -18,10 +19,12 @@ public class SingleProtocolProducer<T> implements ProtocolProducer, DRes<T> {
     this.protocol = protocol;
   }
 
+  @SuppressWarnings({"unchecked"})
   @Override
-  public void getNextProtocols(ProtocolCollection protocolCollection) {
+  public <ResourcePoolT extends ResourcePool> void getNextProtocols(
+      ProtocolCollection<ResourcePoolT> protocolCollection) {
     evaluated = true;
-    protocolCollection.addProtocol(protocol);
+    protocolCollection.addProtocol((NativeProtocol<?, ResourcePoolT>) protocol);
   }
 
   @Override

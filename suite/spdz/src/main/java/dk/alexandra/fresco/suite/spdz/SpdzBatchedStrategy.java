@@ -23,61 +23,55 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.spdz;
 
+import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.NativeProtocol.EvaluationStatus;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.network.SCENetworkSupplier;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzNativeProtocol;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzOutputProtocol;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * This class implements the core of a general batched communication strategy for evaluating
- * Protocols. In this strategy a number of Protocols will be evaluated round by round in such a way
- * that the communication of all Protocols is collected and batched together between rounds. More
- * precisely the process is as follows for a batch of Protocols:
- *
- * 1. Evaluate the next round of all Protocols and collect messages to be sent in this round.
- *
- * 2. Send all messages collected in step 1.
- *
- * 3. Recieve all messages expected before the next round.
- *
- * 4. If there are Protocols that are not done start over at step 1.
- *
- * The processing is done is in a sequential manner (i.e. no parallelization).
- */
 public class SpdzBatchedStrategy {
 
   /**
-   * @param protocols array holding the protocols to be evaluated
-   * @param sceNetwork array of sceNetworks corresponding to the protocols to be evaluated. I.e.,
-   *        the array should contain numProtocols SCENetworks, with sceNetwork[i] used for
-   *        communication in protocols[i].
-   * @param channel string indicating the channel to communicate over.
-   * @param rp the resource pool.
-   * @param startingRound The round to start from
+   * Process output protocols in the same manner as the
+   * {@link dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy} does. The only change is
+   * that the round argument starts at 1 which will trigger the SpdzOutput protocols to actually
+   * evaluate, instead of just waiting.
+   * 
+   * @param protocols The output protocols to evaluate
+   * @param sceNetwork The SCE internal network to use
+   * @param rp The resource pool used
+   * @throws IOException
    */
-  public static void processBatch(SpdzNativeProtocol<?> protocol, SCENetwork sceNetwork,
-      SpdzResourcePool rp, int startingRound) throws IOException {
+  public static void processOutputProtocolBatch(List<SpdzOutputProtocol<?>> protocols,
+      SCENetwork sceNetwork, SpdzResourcePool rp) throws IOException {
     Network network = rp.getNetwork();
-    EvaluationStatus status = EvaluationStatus.HAS_MORE_ROUNDS;
+    int round = 1;
 
-    while (status == EvaluationStatus.HAS_MORE_ROUNDS) {
-      status = evaluateCurrentRound(protocol, sceNetwork, rp, network, startingRound);
-      startingRound++;
+    while (protocols.size() > 0) {
+      evaluateCurrentRound(protocols, sceNetwork, 0, rp, network, round);
+
+      round++;
     }
   }
 
-  private static EvaluationStatus evaluateCurrentRound(SpdzNativeProtocol<?> protocol,
-      SCENetwork sceNetwork, SpdzResourcePool rp, Network network, int round) throws IOException {
-
-    EvaluationStatus status = protocol.evaluate(round, rp, sceNetwork);
-    if (status == EvaluationStatus.IS_DONE) {
-      return status;
+  private static void evaluateCurrentRound(List<SpdzOutputProtocol<?>> protocols,
+      SCENetwork sceNetwork, int channel, SpdzResourcePool rp, Network network, int round)
+          throws IOException {
+    Iterator<SpdzOutputProtocol<?>> iterator = protocols.iterator();
+    while (iterator.hasNext()) {
+      NativeProtocol<?, SpdzResourcePool> protocol = iterator.next();
+      EvaluationStatus status = protocol.evaluate(round, rp, sceNetwork);
+      if (status.equals(EvaluationStatus.IS_DONE)) {
+        iterator.remove();
+      }
     }
     if (sceNetwork instanceof SCENetworkSupplier) {
       // Send/Receive data for this round if SCENetwork is a supplier
@@ -87,21 +81,18 @@ public class SpdzBatchedStrategy {
       // Send data
       Map<Integer, byte[]> output = sceNetworkSupplier.getOutputFromThisRound();
       for (Map.Entry<Integer, byte[]> e : output.entrySet()) {
-        network.send(0, e.getKey(), e.getValue());
+        network.send(channel, e.getKey(), e.getValue());
       }
 
       // receive data
       Set<Integer> expected = sceNetworkSupplier.getExpectedInputForNextRound();
       for (int i : expected) {
-        byte[] data = network.receive(0, i);
+        byte[] data = network.receive(channel, i);
         inputs.put(i, ByteBuffer.wrap(data));
       }
 
       sceNetworkSupplier.setInput(inputs);
       sceNetworkSupplier.nextRound();
-      return status;
-    } else {
-      throw new IllegalArgumentException("sceNetwork must be of type SCENetworkSupplier as well");
     }
   }
 }

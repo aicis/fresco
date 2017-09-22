@@ -40,8 +40,8 @@ Main Features of FRESCO
 * **Rapid and simple application development**. With FRESCO you can
   write application that uses secure computation without being an
   expert in cryptography. You only need to specify which data to
-  "close" and which data to "open". FRESCO provides a *standard
-  library* of many commonly used secure functionalites. These can be
+  "close" and which data to "open". FRESCO provides a :ref:`standard
+  library<STD_LIB>` of many commonly used secure functionalites. These can be
   easily combined in order to quickly achieve new applications. Once
   you have written your application, you can run it using many
   different kinds of protocol suites. This is important, since each

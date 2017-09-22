@@ -62,14 +62,16 @@ public class BatchedStrategy {
 
   /**
    * @param protocols array holding the protocols to be evaluated
-   * @param sceNetwork array of sceNetworks corresponding to the protocols to be evaluated. I.e.,
-   * the array should contain numProtocols SCENetworks, with sceNetwork[i] used for communication in
-   * protocols[i].
+   * @param sceNetwork array of sceNetworks corresponding to the protocols to be evaluated.
+   *     I.e.,
+   *     the array should contain numProtocols SCENetworks, with sceNetwork[i] used for
+   *     communication in
+   *     protocols[i].
    * @param channel string indicating the channel to communicate over.
    * @param rp the resource pool.
    */
   public static <ResourcePoolT extends ResourcePool> void processBatch(
-      ProtocolCollection protocols,
+      ProtocolCollection<ResourcePoolT> protocols,
       SCENetwork sceNetwork, int channel, ResourcePoolT rp) throws IOException {
     Network network = rp.getNetwork();
     int round = 0;
@@ -82,9 +84,9 @@ public class BatchedStrategy {
   }
 
   private static <ResourcePoolT extends ResourcePool> void evaluateCurrentRound(
-      ProtocolCollection protocols, SCENetwork sceNetwork,
+      ProtocolCollection<ResourcePoolT> protocols, SCENetwork sceNetwork,
       int channel, ResourcePoolT rp, Network network, int round) throws IOException {
-    Iterator<NativeProtocol> iterator = protocols.iterator();
+    Iterator<NativeProtocol<?, ResourcePoolT>> iterator = protocols.iterator();
     while (iterator.hasNext()) {
       NativeProtocol<?, ResourcePoolT> protocol = iterator.next();
       EvaluationStatus status = protocol.evaluate(round, rp, sceNetwork);

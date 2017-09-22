@@ -29,7 +29,8 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
           resourcePool.getMessageDigest(), storage, null, resourcePool.getModulus());
 
       do {
-        ProtocolCollectionList protocolCollectionList = new ProtocolCollectionList(batchSize);
+        ProtocolCollectionList<SpdzResourcePool> protocolCollectionList =
+            new ProtocolCollectionList<>(batchSize);
         macCheck.getNextProtocols(protocolCollectionList);
 
         BatchedStrategy.processBatch(protocolCollectionList, sceNetworks, 0, resourcePool);
@@ -44,13 +45,8 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
     // Check for output protocols in the batch. If any are present, evaluate them one at a time with
     // a MAC Check in between to prevent cheating.
     List<SpdzOutputProtocol<?>> outputProtocols = resourcePool.getOutputProtocolsInBatch();
-    for (SpdzOutputProtocol<?> p : outputProtocols) {
-      SpdzBatchedStrategy.processBatch(p, sceNetworks, resourcePool, 1);
-
-      // Run a MAC Check after each output protocol to ensure validity
-      doMACCheck(resourcePool, sceNetworks);
-    }
-
+    SpdzBatchedStrategy.processOutputProtocolBatch(outputProtocols, sceNetworks, resourcePool);
+    doMACCheck(resourcePool, sceNetworks);
     // reset stuff to gain memory back and not check them again.
     resourcePool.getOutputProtocolsInBatch().clear();
     this.gatesEvaluated = 0;

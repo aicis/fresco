@@ -106,7 +106,7 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
    * PrivateSetDemo and runs the PrivateSetDemo on the SCE.
    */
   public static void main(String[] args) {
-    CmdLineUtil util = new CmdLineUtil();
+    CmdLineUtil<ResourcePoolImpl, ProtocolBuilderBinary> util = new CmdLineUtil<>();
     NetworkConfiguration networkConfiguration = null;
     Boolean[] key = null;
     int[] inputs = null;
@@ -169,6 +169,7 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
       ResourcePoolImpl resourcePool = ResourcePoolHelper.createResourcePool(psConf,
           util.getNetworkStrategy(), networkConfiguration);
       psiResult = sce.runApplication(privateSetDemo, resourcePool);
+      resourcePool.getNetwork().close();
     } catch (Exception e) {
       System.out.println("Error while doing MPC: " + e.getMessage());
       System.exit(-1);
@@ -254,8 +255,7 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
       }
       return () -> aesResults;
     }).seq((seq, aesResults) -> {
-      List<List<SBool>> res =
-          aesResults.stream().map(DRes::out).collect(Collectors.toList());
+      List<List<SBool>> res = aesResults.stream().map(DRes::out).collect(Collectors.toList());
       List<List<DRes<Boolean>>> output = new ArrayList<>();
       for (List<SBool> bs : res) {
         List<DRes<Boolean>> innerOut = new ArrayList<>();
@@ -266,9 +266,9 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
       }
       return () -> output;
     }).seq((seq, output) -> {
-      List<List<Boolean>> outs = output.stream()
-          .map(row -> row.stream().map(DRes::out).collect(Collectors.toList()))
-          .collect(Collectors.toList());
+      List<List<Boolean>> outs =
+          output.stream().map(row -> row.stream().map(DRes::out).collect(Collectors.toList()))
+              .collect(Collectors.toList());
       return () -> outs;
     });
   }

@@ -3,6 +3,7 @@ package dk.alexandra.fresco.integrationtest;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import dk.alexandra.fresco.IntegrationTest;
 import dk.alexandra.fresco.rest.FuelEndpoint;
 import dk.alexandra.fresco.services.DummyDataGenerator;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
@@ -16,6 +17,7 @@ import java.math.BigInteger;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -71,6 +73,7 @@ public class FuelStationTest {
   }
 
   @Test
+  @Category(IntegrationTest.class)
   public void integrationTestTriples() throws Exception {
 
     MockHttpServletResponse resp = this.mockMvc
@@ -116,6 +119,7 @@ public class FuelStationTest {
   }
 
   @Test
+  @Category(IntegrationTest.class)
   public void integrationTestBits() throws Exception {
 
     String modString = this.mockMvc
@@ -149,6 +153,7 @@ public class FuelStationTest {
   }
 
   @Test
+  @Category(IntegrationTest.class)
   public void integrationTestExpPipes() throws Exception {
     String modString = this.mockMvc
         .perform(get("/api/fuel/modulus").contentType("application/json")
@@ -208,6 +213,7 @@ public class FuelStationTest {
   }
 
   @Test
+  @Category(IntegrationTest.class)
   public void integrationTestInputMasks() throws Exception {
 
     String modString = this.mockMvc
