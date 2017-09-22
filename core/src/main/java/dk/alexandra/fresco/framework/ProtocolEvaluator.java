@@ -24,6 +24,8 @@
 package dk.alexandra.fresco.framework;
 
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.SCENetworkSupplier;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
@@ -38,6 +40,10 @@ public interface ProtocolEvaluator<ResourcePoolT extends ResourcePool, Builder e
    * @throws IOException inheritly from the network
    */
   void eval(ProtocolProducer protocolProducer, ResourcePoolT resourcePool) throws IOException;
+
+  <sceNetwork extends SCENetwork & SCENetworkSupplier> void processBatch(
+      ProtocolCollection<ResourcePoolT> protocols, ResourcePoolT resourcePool, sceNetwork network)
+          throws IOException;
 
   /**
    * Set the protocol invocation which the gate evaluator should call.

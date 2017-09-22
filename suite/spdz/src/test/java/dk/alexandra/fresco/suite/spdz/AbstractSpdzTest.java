@@ -32,8 +32,8 @@ import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.network.NetworkCreator;
+import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
@@ -69,9 +69,6 @@ public abstract class AbstractSpdzTest {
       EvaluationStrategy evalStrategy, NetworkingStrategy networkStrategy,
       PreprocessingStrategy preProStrat, int noOfParties, EnumSet<Flag> performanceloggerFlags)
           throws Exception {
-    // Since SCAPI currently does not work with ports > 9999 we use fixed
-    // ports
-    // here instead of relying on ephemeral ports which are often > 9999.
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * (noOfParties - 1));
@@ -87,20 +84,21 @@ public abstract class AbstractSpdzTest {
 
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
           EvaluationStrategy.fromEnum(evalStrategy);
-      Network network =
-          NetworkCreator.getNetworkFromConfiguration(networkStrategy, netConf.get(playerId));
       PerformanceLogger pl = null;
       if (performanceloggerFlags != null) {
         pl = new PerformanceLogger(playerId, performanceloggerFlags);
       }
       pls.add(pl);
+
+      Network network =
+          NetworkCreator.getNetworkFromConfiguration(networkStrategy, netConf.get(playerId), pl);
       SpdzResourcePool rp = createResourcePool(playerId, noOfParties, network, new Random(),
-          new DetermSecureRandom(), pl, preProStrat);
+          new DetermSecureRandom(), preProStrat);
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>(
               netConf.get(playerId),
               new TestSCEConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>(protocolSuite,
-                  evaluator, netConf.get(playerId), false),
+                  evaluator, netConf.get(playerId), false, pl),
               rp);
       conf.put(playerId, ttc);
     }
@@ -109,7 +107,7 @@ public abstract class AbstractSpdzTest {
   }
 
   private SpdzResourcePool createResourcePool(int myId, int size, Network network, Random rand,
-      SecureRandom secRand, PerformanceLogger pl, PreprocessingStrategy preproStrat) {
+      SecureRandom secRand, PreprocessingStrategy preproStrat) {
     SpdzStorage store;
     switch (preproStrat) {
       case DUMMY:
@@ -122,6 +120,6 @@ public abstract class AbstractSpdzTest {
       default:
         throw new ConfigurationException("Unkonwn preprocessing strategy: " + preproStrat);
     }
-    return new SpdzResourcePoolImpl(myId, size, network, rand, secRand, store, pl);
+    return new SpdzResourcePoolImpl(myId, size, network, rand, secRand, store);
   }
 }

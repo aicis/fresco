@@ -26,7 +26,6 @@ package dk.alexandra.fresco.demo;
 import dk.alexandra.fresco.demo.cli.CmdLineUtil;
 import dk.alexandra.fresco.demo.helpers.DemoNumericApplication;
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.PerformanceLogger;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
@@ -120,8 +119,8 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
       System.exit(-1);
     }
     DistanceDemo distDemo = new DistanceDemo(networkConfiguration.getMyId(), x, y);
-    SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce =
-        SCEFactory.getSCEFromConfiguration(psConf, cmdUtil.getEvaluator());
+    SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce = SCEFactory
+        .getSCEFromConfiguration(psConf, cmdUtil.getEvaluator(), cmdUtil.getPerformanceLogger());
     try {
       ResourcePoolT resourcePool = cmdUtil.getResourcePool();
       resourcePool.getNetwork().connect(10000);
@@ -129,10 +128,6 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
       resourcePool.getNetwork().close();
       double dist = Math.sqrt(bigInteger.doubleValue());
       log.info("Distance between party 1 and 2 is: " + dist);
-      PerformanceLogger pl = resourcePool.getPerformanceLogger();
-      if (pl != null) {
-        pl.printPerformanceLog();
-      }
     } catch (Exception e) {
       log.error("Error while doing MPC: " + e.getMessage());
       e.printStackTrace();

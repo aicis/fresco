@@ -65,7 +65,7 @@ public abstract class AbstractDummyArithmeticTest {
   /**
    * Runs test with all parameters free. Only the starting port of 9000 is chosen by default.
    */
-  protected List<PerformanceLogger> runTest(
+  protected void runTest(
       TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, NetworkingStrategy networkStrategy, int noOfParties,
       BigInteger mod, EnumSet<Flag> performanceLoggerFlags) throws Exception {
@@ -78,7 +78,6 @@ public abstract class AbstractDummyArithmeticTest {
         TestConfiguration.getNetworkConfigurations(noOfParties, ports);
     Map<Integer, TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<Integer, TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>>();
-    List<PerformanceLogger> pls = new ArrayList<>();
     for (int playerId : netConf.keySet()) {
 
       NetworkConfiguration partyNetConf = netConf.get(playerId);
@@ -91,23 +90,22 @@ public abstract class AbstractDummyArithmeticTest {
 
       ProtocolEvaluator<DummyArithmeticResourcePool, ProtocolBuilderNumeric> evaluator =
           EvaluationStrategy.fromEnum(evalStrategy);
-      Network network = NetworkCreator.getNetworkFromConfiguration(networkStrategy, partyNetConf);
       PerformanceLogger pl = null;
-      if (performanceLoggerFlags != null) {
+      if (performanceLoggerFlags != null && !performanceLoggerFlags.isEmpty()) {
         pl = new PerformanceLogger(playerId, performanceLoggerFlags);
       }
-      pls.add(pl);
+      Network network =
+          NetworkCreator.getNetworkFromConfiguration(networkStrategy, partyNetConf, pl);
       DummyArithmeticResourcePool rp = new DummyArithmeticResourcePoolImpl(playerId, noOfParties,
-          network, new Random(0), new DetermSecureRandom(), mod, pl);
+          network, new Random(0), new DetermSecureRandom(), mod);
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>(
               partyNetConf,
               new TestSCEConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>(ps,
-                  evaluator, partyNetConf, useSecureConnection),
+                  evaluator, partyNetConf, useSecureConnection, pl),
               rp);
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
-    return pls;
   }
 }

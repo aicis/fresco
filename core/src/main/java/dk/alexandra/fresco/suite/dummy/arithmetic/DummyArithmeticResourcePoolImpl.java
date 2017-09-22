@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
-import dk.alexandra.fresco.framework.PerformanceLogger;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
@@ -31,8 +30,8 @@ public class DummyArithmeticResourcePoolImpl extends ResourcePoolImpl
    * @param modulus the modulus
    */
   public DummyArithmeticResourcePoolImpl(int myId, int noOfPlayers, Network network, Random random,
-      SecureRandom secRand, BigInteger modulus, PerformanceLogger pl) {
-    super(myId, noOfPlayers, network, random, secRand, pl);
+      SecureRandom secRand, BigInteger modulus) {
+    super(myId, noOfPlayers, network, random, secRand);
     this.modulus = modulus;
     this.modulusSize = modulus.toByteArray().length;
   }

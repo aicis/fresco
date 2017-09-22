@@ -23,10 +23,13 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.sce.evaluator;
 
+import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.network.SCENetworkImpl;
+import dk.alexandra.fresco.framework.network.SCENetworkSupplier;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
@@ -68,7 +71,7 @@ public class BatchedSequentialEvaluator<ResourcePoolT extends ResourcePool, Buil
       ProtocolCollectionList<ResourcePoolT> protocols = new ProtocolCollectionList<>(maxBatchSize);
       protocolProducer.getNextProtocols(protocols);
       int size = protocols.size();
-      BatchedStrategy.processBatch(protocols, sceNetwork, DEFAULT_CHANNEL, resourcePool);
+      processBatch(protocols, resourcePool, sceNetwork);
       roundSynchronization.finishedBatch(size, resourcePool, sceNetwork);
     } while (protocolProducer.hasNextProtocols());
 
@@ -77,5 +80,12 @@ public class BatchedSequentialEvaluator<ResourcePoolT extends ResourcePool, Buil
 
   private SCENetworkImpl createSceNetwork(ResourcePool resourcePool) {
     return new SCENetworkImpl(resourcePool.getNoOfParties());
+  }
+
+  @Override
+  public <sceNetwork extends SCENetwork & SCENetworkSupplier> void processBatch(
+      ProtocolCollection<ResourcePoolT> protocols, ResourcePoolT resourcePool, sceNetwork network)
+          throws IOException {
+    BatchedStrategy.processBatch(protocols, network, DEFAULT_CHANNEL, resourcePool);
   }
 }

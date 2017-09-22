@@ -132,7 +132,7 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
     network.init(getNetworkConfiguration(pid), 1);
     SpdzStorage store = new SpdzStorageDummyImpl(pid, getNetworkConfiguration(pid).noOfParties());
     SpdzResourcePool rp = new SpdzResourcePoolImpl(pid, getNetworkConfiguration(pid).noOfParties(),
-        network, new Random(), new DetermSecureRandom(), store, null);
+        network, new Random(), new DetermSecureRandom(), store);
 
     // Instatiate our demo and run
     AggregationDemo<SpdzResourcePool> demo = new AggregationDemo<>();

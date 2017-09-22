@@ -77,15 +77,15 @@ public class TestInputSumExample {
             (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new DummyArithmeticProtocolSuite(
                 mod, 150);
         resourcePool = (ResourcePoolT) new DummyArithmeticResourcePoolImpl(i, n, network,
-            new Random(), new DetermSecureRandom(), mod, null);
+            new Random(), new DetermSecureRandom(), mod);
       } else {
         suite = (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new SpdzProtocolSuite(150);
         resourcePool = (ResourcePoolT) new SpdzResourcePoolImpl(i, n, network, new Random(),
-            new DetermSecureRandom(), new SpdzStorageDummyImpl(i, n), null);
+            new DetermSecureRandom(), new SpdzStorageDummyImpl(i, n));
       }
       TestSCEConfiguration<ResourcePoolT, ProtocolBuilderNumeric> sceConf =
           new TestSCEConfiguration<ResourcePoolT, ProtocolBuilderNumeric>(suite,
-              new SequentialEvaluator<>(), netConf.get(i), false);
+              new SequentialEvaluator<>(), netConf.get(i), false, null);
       TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> ttc =
           new TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric>(netConf.get(i),
               sceConf, resourcePool);

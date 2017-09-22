@@ -27,13 +27,8 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.PerformanceLogger;
-import dk.alexandra.fresco.framework.PerformanceLogger.Flag;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
-import dk.alexandra.fresco.framework.sce.evaluator.BatchedSequentialEvaluator;
-import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
@@ -95,26 +90,14 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Bui
 
   private <OutputT> DRes<OutputT> evalApplication(Application<OutputT, Builder> application,
       ResourcePoolT resourcePool) throws Exception {
-    logger.info(
+    logger.trace(
         "Running application: " + application + " using protocol suite: " + this.protocolSuite);
     try {
       BuilderFactory<Builder> protocolFactory = this.protocolSuite.init(resourcePool);
       Builder builder = protocolFactory.createSequential();
       DRes<OutputT> output = application.buildComputation(builder);
-      long then = System.currentTimeMillis();
+
       this.evaluator.eval(builder.build(), resourcePool);
-      long now = System.currentTimeMillis();
-      long timeSpend = now - then;
-      PerformanceLogger pl = resourcePool.getPerformanceLogger();
-      if (pl != null && pl.flags.contains(Flag.LOG_RUNTIME)) {
-        EvaluationStrategy strategy = null;
-        if (evaluator instanceof SequentialEvaluator) {
-          strategy = EvaluationStrategy.SEQUENTIAL;
-        } else if (evaluator instanceof BatchedSequentialEvaluator) {
-          strategy = EvaluationStrategy.SEQUENTIAL_BATCHED;
-        }
-        pl.informRuntime(application, timeSpend, strategy, this.protocolSuite.getClass().getName());
-      }
       application.close();
       return output;
     } catch (IOException e) {

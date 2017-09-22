@@ -21,22 +21,32 @@
  * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
  * Please see these projects for any further licensing issues.
  *******************************************************************************/
-package dk.alexandra.fresco.suite.dummy.bool;
+package dk.alexandra.fresco.dummy;
 
 import dk.alexandra.fresco.framework.PerformanceLogger;
 import dk.alexandra.fresco.framework.PerformanceLogger.Flag;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.NetworkCreator;
-import dk.alexandra.fresco.framework.network.NetworkingStrategy;
+import dk.alexandra.fresco.framework.network.NetworkPerformanceDecorator;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
+import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
+import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.util.DetermSecureRandom;
+import dk.alexandra.fresco.network.ScapiNetworkImpl;
+import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
+import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -48,57 +58,64 @@ import java.util.Random;
  * Abstract class which handles a lot of boiler plate testing code. This makes running a single test
  * using different parameters quite easy.
  */
-public abstract class AbstractDummyBooleanTest {
-
-  protected void runTest(
-      TestThreadRunner.TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f,
-      EvaluationStrategy evalStrategy, NetworkingStrategy networkStrategy) throws Exception {
-    runTest(f, evalStrategy, networkStrategy, null);
-  }
+public abstract class AbstractSpdzTest {
 
   protected List<PerformanceLogger> runTest(
-      TestThreadRunner.TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f,
-      EvaluationStrategy evalStrategy, NetworkingStrategy networkStrategy,
-      EnumSet<Flag> performanceLoggerFlags) throws Exception {
-    // The dummy protocol suite has the nice property that it can be run by just one player.
-    int noOfParties = 1;
-    List<Integer> ports = new ArrayList<Integer>(noOfParties);
+      TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
+      EvaluationStrategy evalStrategy, int noOfParties, EnumSet<Flag> performanceLoggerFlags)
+          throws Exception {
+    List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * (noOfParties - 1));
     }
 
     Map<Integer, NetworkConfiguration> netConf =
         TestConfiguration.getNetworkConfigurations(noOfParties, ports);
-    Map<Integer, TestThreadRunner.TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
-        new HashMap<Integer, TestThreadRunner.TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>>();
+    Map<Integer, TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>> conf =
+        new HashMap<>();
     List<PerformanceLogger> pls = new ArrayList<>();
     for (int playerId : netConf.keySet()) {
+      SpdzProtocolSuite protocolSuite = new SpdzProtocolSuite(150);
 
-      NetworkConfiguration partyNetConf = netConf.get(playerId);
-
-      DummyBooleanProtocolSuite ps = new DummyBooleanProtocolSuite();
-
-      boolean useSecureConnection = false; // No tests of secure connection here.
-
+      ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
+          EvaluationStrategy.fromEnum(evalStrategy);
+      Network network = new ScapiNetworkImpl();
+      network.init(netConf.get(playerId), 1);
       PerformanceLogger pl = null;
-      if (performanceLoggerFlags != null && !performanceLoggerFlags.isEmpty()) {
+      if (performanceLoggerFlags != null) {
         pl = new PerformanceLogger(playerId, performanceLoggerFlags);
+        network = new NetworkPerformanceDecorator(network, pl);
       }
       pls.add(pl);
-      ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
-          EvaluationStrategy.fromEnum(evalStrategy);
-      TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> sceConf =
-          new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(ps, evaluator,
-              partyNetConf, useSecureConnection, pl);
-      Network network =
-          NetworkCreator.getNetworkFromConfiguration(networkStrategy, partyNetConf, pl);
-      ResourcePoolImpl rp = new ResourcePoolImpl(playerId, noOfParties, network, new Random(),
-          new DetermSecureRandom());
-      TestThreadRunner.TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
-          new TestThreadRunner.TestThreadConfiguration<>(partyNetConf, sceConf, rp);
+
+      SpdzResourcePool rp = createResourcePool(playerId, noOfParties, network, new Random(),
+          new DetermSecureRandom(), PreprocessingStrategy.DUMMY);
+      TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
+          new TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>(
+              netConf.get(playerId),
+              new TestSCEConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>(protocolSuite,
+                  evaluator, netConf.get(playerId), false, pl),
+              rp);
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
     return pls;
+  }
+
+  private SpdzResourcePool createResourcePool(int myId, int size, Network network, Random rand,
+      SecureRandom secRand, PreprocessingStrategy preproStrat) {
+    SpdzStorage store;
+    switch (preproStrat) {
+      case DUMMY:
+        store = new SpdzStorageDummyImpl(myId, size);
+        break;
+      case STATIC:
+        store = new SpdzStorageImpl(0, size, myId,
+            new FilebasedStreamedStorageImpl(new InMemoryStorage()));
+        break;
+      default:
+        throw new ConfigurationException("Unkonwn preprocessing strategy: " + preproStrat);
+    }
+    return new SpdzResourcePoolImpl(myId, size, network, rand, secRand, store);
   }
 }

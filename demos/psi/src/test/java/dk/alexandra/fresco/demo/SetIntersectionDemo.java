@@ -88,7 +88,7 @@ public class SetIntersectionDemo {
           new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(
               netConf.get(playerId),
               new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(suite, evaluator,
-                  netConf.get(playerId), true),
+                  netConf.get(playerId), true, null),
               resourcePool);
       conf.put(playerId, ttc);
     }
@@ -130,7 +130,7 @@ public class SetIntersectionDemo {
           new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(
               netConf.get(playerId),
               new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(suite, evaluator,
-                  netConf.get(playerId), true),
+                  netConf.get(playerId), true, null),
               resourcePool);
       conf.put(playerId, ttc);
     }
@@ -158,7 +158,7 @@ public class SetIntersectionDemo {
           new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(
               netConf.get(playerId),
               new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(suite, evaluator,
-                  netConf.get(playerId), true),
+                  netConf.get(playerId), true, null),
               resourcePool);
       conf.put(playerId, ttc);
     }

@@ -24,6 +24,7 @@
 package dk.alexandra.fresco.framework.sce.configuration;
 
 import dk.alexandra.fresco.framework.Party;
+import dk.alexandra.fresco.framework.PerformanceLogger;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
@@ -35,14 +36,17 @@ public class TestSCEConfiguration<ResourcePoolT extends ResourcePool, Builder ex
   private ProtocolEvaluator<ResourcePoolT, Builder> evaluator;
   private final ProtocolSuite<ResourcePoolT, Builder> suite;
   private NetworkConfiguration networkConfiguration;
+  private PerformanceLogger pl;
 
   public TestSCEConfiguration(ProtocolSuite<ResourcePoolT, Builder> suite,
       ProtocolEvaluator<ResourcePoolT, Builder> evaluator, NetworkConfiguration conf,
-      boolean useSecureConn) {
+      boolean useSecureConn, PerformanceLogger pl) {
+
     this.suite = suite;
     this.evaluator = evaluator;
     evaluator.setMaxBatchSize(4096);
     networkConfiguration = conf;
+    this.pl = pl;
     for (int i = 1; i <= conf.noOfParties(); i++) {
       if (useSecureConn) {
         Party p = conf.getParty(i);
@@ -64,4 +68,7 @@ public class TestSCEConfiguration<ResourcePoolT extends ResourcePool, Builder ex
     return this.evaluator;
   }
 
+  public PerformanceLogger getPerformanceLogger() {
+    return pl;
+  }
 }

@@ -71,7 +71,7 @@ public class TestThreadRunner {
 
     @Override
     public String toString() {
-      return "TestThread(" + this.conf.netConf.getMyId() + ")";
+      return "TestThread(" + this.conf.getMyId() + ")";
     }
 
     @Override
@@ -79,8 +79,8 @@ public class TestThreadRunner {
       try {
         if (conf.sceConf != null) {
           ProtocolSuite<ResourcePoolT, Builder> suite = conf.sceConf.getSuite();
-          secureComputationEngine =
-              SCEFactory.getSCEFromConfiguration(suite, conf.sceConf.getEvaluator());
+          secureComputationEngine = SCEFactory.getSCEFromConfiguration(suite,
+              conf.sceConf.getEvaluator(), conf.sceConf.getPerformanceLogger());
         }
         setUp();
         runTest();

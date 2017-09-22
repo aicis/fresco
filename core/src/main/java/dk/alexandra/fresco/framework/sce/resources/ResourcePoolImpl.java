@@ -23,7 +23,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework.sce.resources;
 
-import dk.alexandra.fresco.framework.PerformanceLogger;
 import dk.alexandra.fresco.framework.network.Network;
 import java.security.SecureRandom;
 import java.util.Random;
@@ -40,7 +39,6 @@ public class ResourcePoolImpl implements ResourcePool {
   protected Network network;
   protected Random random;
   private SecureRandom secRand;
-  private final PerformanceLogger logger;
 
   public ResourcePoolImpl(int myId, int noOfPlayers, Network network, Random random,
       SecureRandom secRand) {
@@ -49,17 +47,6 @@ public class ResourcePoolImpl implements ResourcePool {
     this.network = network;
     this.random = random;
     this.secRand = secRand;
-    this.logger = null;
-  }
-
-  public ResourcePoolImpl(int myId, int noOfPlayers, Network network, Random random,
-      SecureRandom secRand, PerformanceLogger performanceLogger) {
-    this.myId = myId;
-    this.noOfPlayers = noOfPlayers;
-    this.network = network;
-    this.random = random;
-    this.secRand = secRand;
-    this.logger = performanceLogger;
   }
 
   @Override
@@ -85,11 +72,6 @@ public class ResourcePoolImpl implements ResourcePool {
   @Override
   public int getNoOfParties() {
     return this.noOfPlayers;
-  }
-
-  @Override
-  public final PerformanceLogger getPerformanceLogger() {
-    return logger;
   }
 
 }

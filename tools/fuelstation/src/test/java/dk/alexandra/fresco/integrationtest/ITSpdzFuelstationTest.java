@@ -33,8 +33,8 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.network.NetworkCreator;
+import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.util.DetermSecureRandom;
@@ -90,15 +90,15 @@ public class ITSpdzFuelstationTest {
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
           EvaluationStrategy.fromEnum(evalStrategy);
       Network network = NetworkCreator.getNetworkFromConfiguration(NetworkingStrategy.KRYONET,
-          netConf.get(playerId));
+          netConf.get(playerId), null);
       SpdzStorage store = new SpdzStorageImpl(0, noOfParties, playerId, "http://localhost:" + port);
       SpdzResourcePool rp = new SpdzResourcePoolImpl(playerId, noOfParties, network, new Random(),
-          new DetermSecureRandom(), store, null);
+          new DetermSecureRandom(), store);
       TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>(
               netConf.get(playerId),
               new TestSCEConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>(suite, evaluator,
-                  netConf.get(playerId), false),
+                  netConf.get(playerId), false, null),
               rp);
       conf.put(playerId, ttc);
     }

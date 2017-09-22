@@ -33,6 +33,7 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.NetworkPerformanceDecorator;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
@@ -89,6 +90,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
   private CommandLine cmd;
   private NetworkConfiguration networkConfiguration;
   private Network network;
+  private PerformanceLogger pl;
   private ProtocolSuite<ResourcePoolT, Builder> protocolSuite;
   private ProtocolEvaluator<ResourcePoolT, Builder> evaluator;
   private ResourcePoolT resourcePool;
@@ -108,6 +110,10 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
 
   public ResourcePoolT getResourcePool() {
     return resourcePool;
+  }
+
+  public PerformanceLogger getPerformanceLogger() {
+    return pl;
   }
 
   public NetworkingStrategy getNetworkStrategy() {
@@ -243,6 +249,15 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
           + " but this id is not present in the list of parties " + parties.keySet());
     }
 
+    EnumSet<Flag> performanceLoggerFlags = null;
+    if (this.cmd.hasOption("l")) {
+      performanceLoggerFlags = Flag.ALL_OPTS;
+      this.pl = null;
+      if (performanceLoggerFlags != null) {
+        pl = new PerformanceLogger(this.networkConfiguration.getMyId(), performanceLoggerFlags);
+      }
+    }
+
     if (this.cmd.hasOption("e")) {
       try {
         this.evaluator = EvaluationStrategy.fromString(this.cmd.getOptionValue("e"));
@@ -268,7 +283,11 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
 
     this.networkConfiguration = new NetworkConfigurationImpl(myId, parties);
     this.network = new KryoNetNetwork();
+    if (pl != null) {
+      this.network = new NetworkPerformanceDecorator(network, pl);
+    }
     this.network.init(networkConfiguration, 1);
+
   }
 
   /**
@@ -301,11 +320,6 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
       cmd = parser.parse(allOpts, args);
 
       validateStandardOptions();
-      EnumSet<Flag> performanceLoggerFlags = parseFlags(this.cmd);
-      PerformanceLogger pl = null;
-      if (performanceLoggerFlags != null) {
-        pl = new PerformanceLogger(this.networkConfiguration.getMyId(), performanceLoggerFlags);
-      }
       String protocolSuiteName = ((String) this.cmd.getParsedOptionValue("s")).toLowerCase();
       switch (protocolSuiteName) {
         case "dummybool":
@@ -314,7 +328,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
           this.resourcePool =
               (ResourcePoolT) new ResourcePoolImpl(this.networkConfiguration.getMyId(),
                   this.networkConfiguration.noOfParties(), network, new Random(),
-                  new SecureRandom(), pl);
+                  new SecureRandom());
           break;
         case "dummyarithmetic":
           this.protocolSuite =
@@ -324,7 +338,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
               "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329"));
           this.resourcePool = (ResourcePoolT) new DummyArithmeticResourcePoolImpl(
               this.networkConfiguration.getMyId(), this.networkConfiguration.noOfParties(), network,
-              new Random(), new SecureRandom(), mod, pl);
+              new Random(), new SecureRandom(), mod);
           break;
         case "spdz":
           this.protocolSuite =
@@ -332,7 +346,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
           this.resourcePool =
               (ResourcePoolT) createSpdzResourcePool(this.networkConfiguration.getMyId(),
                   this.networkConfiguration.noOfParties(), network, new Random(),
-                  new SecureRandom(), cmd, pl);
+                  new SecureRandom(), cmd);
           break;
         case "tinytablesprepro":
           this.protocolSuite =
@@ -341,7 +355,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
           this.resourcePool =
               (ResourcePoolT) new ResourcePoolImpl(this.networkConfiguration.getMyId(),
                   this.networkConfiguration.noOfParties(), network, new Random(),
-                  new SecureRandom(), pl);
+                  new SecureRandom());
           break;
         case "tinytables":
           this.protocolSuite = (ProtocolSuite<ResourcePoolT, Builder>) tinyTablesFromCmdLine(cmd,
@@ -349,7 +363,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
           this.resourcePool =
               (ResourcePoolT) new ResourcePoolImpl(this.networkConfiguration.getMyId(),
                   this.networkConfiguration.noOfParties(), network, new Random(),
-                  new SecureRandom(), pl);
+                  new SecureRandom());
           break;
         default:
           throw new ParseException("Unknown protocol suite: " + protocolSuiteName);
@@ -361,14 +375,6 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
       System.exit(-1); // TODO: Consider moving to top level.
     }
     return this.cmd;
-  }
-
-  private EnumSet<Flag> parseFlags(CommandLine cmd) {
-    if (!cmd.hasOption("l")) {
-      return null;
-    } else {
-      return Flag.ALL_OPTS;
-    }
   }
 
   private static ProtocolSuite<?, ?> dummyArithmeticFromCmdLine(CommandLine cmd) {
@@ -390,7 +396,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
   }
 
   private SpdzResourcePool createSpdzResourcePool(int myId, int size, Network network, Random rand,
-      SecureRandom secRand, CommandLine cmd, PerformanceLogger pl) {
+      SecureRandom secRand, CommandLine cmd) {
     Properties p = cmd.getOptionProperties("D");
     final String fuelStationBaseUrl = p.getProperty("spdz.fuelStationBaseUrl", null);
     String strat = p.getProperty("spdz.preprocessingStrategy");
@@ -409,7 +415,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
       default:
         throw new ConfigurationException("Unkonwn preprocessing strategy: " + strategy);
     }
-    return new SpdzResourcePoolImpl(myId, size, network, rand, secRand, store, pl);
+    return new SpdzResourcePoolImpl(myId, size, network, rand, secRand, store);
   }
 
   private static ProtocolSuite<?, ?> tinyTablesPreProFromCmdLine(CommandLine cmd, int myId)

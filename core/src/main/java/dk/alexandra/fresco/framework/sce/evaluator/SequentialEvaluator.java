@@ -26,14 +26,14 @@ package dk.alexandra.fresco.framework.sce.evaluator;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.NativeProtocol.EvaluationStatus;
-import dk.alexandra.fresco.framework.PerformanceLogger;
-import dk.alexandra.fresco.framework.PerformanceLogger.Flag;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.network.SCENetworkImpl;
+import dk.alexandra.fresco.framework.network.SCENetworkSupplier;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.ProtocolSuite.RoundSynchronization;
@@ -92,7 +92,8 @@ public class SequentialEvaluator<ResourcePoolT extends ResourcePool, Builder ext
     protocolProducer.getNextProtocols(protocols);
     int size = protocols.size();
 
-    processBatch(protocols, resourcePool);
+    SCENetworkImpl sceNetwork = createSceNetwork(resourcePool.getNoOfParties());
+    processBatch(protocols, resourcePool, sceNetwork);
     roundSynchronization.finishedBatch(size, resourcePool,
         createSceNetwork(resourcePool.getNoOfParties()));
     return size;
@@ -123,14 +124,10 @@ public class SequentialEvaluator<ResourcePoolT extends ResourcePool, Builder ext
    * As soon as this method finishes, it may be called again with a new batch -- ie to process more
    * than one batch at a time, simply return before the first one is finished
    */
-  private void processBatch(ProtocolCollection<ResourcePoolT> protocols, ResourcePoolT resourcePool)
-      throws IOException {
-    PerformanceLogger pl = resourcePool.getPerformanceLogger();
-    if (pl != null && pl.flags.contains(Flag.LOG_NATIVE_BATCH)) {
-      pl.nativeBatch(protocols.size());
-    }
+  public <sceNetwork extends SCENetwork & SCENetworkSupplier> void processBatch(
+      ProtocolCollection<ResourcePoolT> protocols, ResourcePoolT resourcePool,
+      sceNetwork sceNetwork) throws IOException {
     Network network = resourcePool.getNetwork();
-    SCENetworkImpl sceNetwork = createSceNetwork(resourcePool.getNoOfParties());
     for (NativeProtocol<?, ResourcePoolT> protocol : protocols) {
       int round = 0;
       EvaluationStatus status;
@@ -147,9 +144,6 @@ public class SequentialEvaluator<ResourcePoolT extends ResourcePool, Builder ext
         Map<Integer, ByteBuffer> inputForThisRound = new HashMap<>();
         for (int pId : sceNetwork.getExpectedInputForNextRound()) {
           byte[] messages = network.receive(DEFAULT_CHANNEL, pId);
-          if (pl != null && pl.flags.contains(Flag.LOG_NATIVE_BATCH)) {
-            pl.bytesReceivedInBatch(messages.length, pId);
-          }
           inputForThisRound.put(pId, ByteBuffer.wrap(messages));
         }
         sceNetwork.setInput(inputForThisRound);

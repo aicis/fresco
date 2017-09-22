@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.framework;
 
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.framework.util.Pair;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -11,8 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Class for getting performance numbers. Set final static boolean variables to true to log
- * performance numbers for the different parameters.
+ * Class for getting performance numbers. Use the EnumSet to indicate which parameters to log. Note
+ * that network logging is done on ONLY the data received and used within FRESCO. This means that if
+ * the network implementation uses double the bytes to wrap the messages, this will not show.
  * 
  * @author Kasper Damgaard
  *
@@ -31,8 +33,7 @@ public class PerformanceLogger {
   private final int myId;
 
   // private variables for holding performance metric information
-  private ConcurrentMap<Integer, Integer> networkLogger = new ConcurrentHashMap<>();
-  private int noNetworkBatches = 0;
+  private ConcurrentMap<Integer, Pair<Integer, Integer>> networkLogger = new ConcurrentHashMap<>();
   private int minBytesReceived = Integer.MAX_VALUE;
   private int maxBytesReceived = 0;
 
@@ -57,13 +58,14 @@ public class PerformanceLogger {
    * @param noBytes The number of bytes received.
    * @param fromPartyId The party the bytes where received from.
    */
-  public void bytesReceivedInBatch(int noBytes, int fromPartyId) {
+  public void bytesReceived(int noBytes, int fromPartyId) {
     if (!networkLogger.containsKey(fromPartyId)) {
-      networkLogger.put(fromPartyId, noBytes);
+      networkLogger.put(fromPartyId, new Pair<>(1, noBytes));
     } else {
-      networkLogger.put(fromPartyId, networkLogger.get(fromPartyId) + noBytes);
+      Pair<Integer, Integer> p = networkLogger.get(fromPartyId);
+      networkLogger.put(fromPartyId, new Pair<>(p.getFirst() + 1, p.getSecond() + noBytes));
     }
-    noNetworkBatches++;
+
     if (minBytesReceived > noBytes) {
       minBytesReceived = noBytes;
     }
@@ -73,7 +75,9 @@ public class PerformanceLogger {
   }
 
   /**
-   * Informs the performance logger that an application took x ms to run
+   * Informs the performance logger that an application took x ms to run. Also prints the
+   * performance numbers since one is likely interested in numbers per application, and can
+   * otherwise check the cumulative numbers at the end.
    * 
    * @param app The application which was run.
    * @param timeSpend The running time in ms.
@@ -83,6 +87,7 @@ public class PerformanceLogger {
   public void informRuntime(Application<?, ?> app, long timeSpend, EvaluationStrategy strategy,
       String protocolSuite) {
     this.runtimeLogger.add(new RuntimeInfo(app, timeSpend, strategy, protocolSuite));
+    printPerformanceLog();
   }
 
   /**
@@ -128,19 +133,21 @@ public class PerformanceLogger {
       if (networkLogger.isEmpty()) {
         newline("No network activity logged", sb);
       } else {
+        long totalNoBytes = 0;
+        int noNetworkBatches = 0;
+        for (Integer partyId : networkLogger.keySet()) {
+          Pair<Integer, Integer> p = networkLogger.get(partyId);
+          newline("Received " + p.getSecond() + " bytes from party " + partyId, sb);
+          totalNoBytes += p.getSecond();
+          noNetworkBatches += p.getFirst();
+        }
         newline("Received data " + noNetworkBatches + " times in total (including from ourselves)",
             sb);
-        long totalNoBytes = 0;
-        for (Integer partyId : networkLogger.keySet()) {
-          int bytes = networkLogger.get(partyId);
-          newline("Received " + bytes + " bytes from party " + partyId, sb);
-          totalNoBytes += bytes;
-        }
         newline("Total amount of bytes received: " + totalNoBytes, sb);
-        newline("Minimum amount of bytes received in a batch: " + minBytesReceived, sb);
-        newline("maximum amount of bytes received in a batch: " + maxBytesReceived, sb);
+        newline("Minimum amount of bytes received: " + minBytesReceived, sb);
+        newline("maximum amount of bytes received: " + maxBytesReceived, sb);
         double avg = totalNoBytes / (double) noNetworkBatches;
-        newline("Average amount of bytes received in a batch: " + df.format(avg), sb);
+        newline("Average amount of bytes received: " + df.format(avg), sb);
       }
       newline("", sb);
     }

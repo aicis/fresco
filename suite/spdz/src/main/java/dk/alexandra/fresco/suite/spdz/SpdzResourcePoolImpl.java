@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.PerformanceLogger;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
@@ -26,8 +25,8 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
   private boolean outputProtocolInBatch;
 
   public SpdzResourcePoolImpl(int myId, int noOfPlayers, Network network, Random random,
-      SecureRandom secRand, SpdzStorage store, PerformanceLogger pl) {
-    super(myId, noOfPlayers, network, random, secRand, pl);
+      SecureRandom secRand, SpdzStorage store) {
+    super(myId, noOfPlayers, network, random, secRand);
 
     this.store = store;
 

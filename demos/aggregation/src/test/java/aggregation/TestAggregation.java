@@ -45,13 +45,13 @@ public class TestAggregation {
       Network network = new KryoNetNetwork();
       network.init(netConf.get(i), 1);
       SpdzStorage store = new SpdzStorageDummyImpl(i, n);
-      SpdzResourcePool rp = new SpdzResourcePoolImpl(i, n, network, new Random(),
-          new DetermSecureRandom(), store, null);
+      SpdzResourcePool rp =
+          new SpdzResourcePoolImpl(i, n, network, new Random(), new DetermSecureRandom(), store);
       TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadConfiguration<>(netConf.get(i),
               new TestSCEConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>(suite,
                   new SequentialEvaluator<SpdzResourcePool, ProtocolBuilderNumeric>(),
-                  netConf.get(i), false),
+                  netConf.get(i), false, null),
               rp);
       conf.put(i, ttc);
     }

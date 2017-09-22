@@ -32,8 +32,8 @@ import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.network.NetworkCreator;
+import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
@@ -91,7 +91,7 @@ public class TestTinyTables {
         suite = new TinyTablesProtocolSuite(playerId, tinyTablesFile);
       }
       Network network = NetworkCreator.getNetworkFromConfiguration(NetworkingStrategy.KRYONET,
-          netConf.get(playerId));
+          netConf.get(playerId), null);
       evaluator = EvaluationStrategy.fromEnum(evalStrategy);
       ResourcePoolImpl rp = new ResourcePoolImpl(playerId, noPlayers, network, new Random(),
           new DetermSecureRandom());
@@ -99,7 +99,7 @@ public class TestTinyTables {
           new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(
               netConf.get(playerId),
               new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(suite, evaluator,
-                  netConf.get(playerId), false),
+                  netConf.get(playerId), false, null),
               rp);
       conf.put(playerId, ttc);
     }

@@ -23,7 +23,7 @@ public class TestPolynomial {
   public void testPolynomial() {
     BasicNumericContext dummyFact =
         new BasicNumericContext(8, BigInteger.valueOf(1001), new DummyArithmeticResourcePoolImpl(1,
-            1, null, new Random(), new SecureRandom(), BigInteger.ONE, null));
+            1, null, new Random(), new SecureRandom(), BigInteger.ONE));
     BuilderFactoryNumeric builderFactory = new DummyArithmeticBuilderFactory(dummyFact);
     Numeric numeric = builderFactory.createNumeric(builderFactory.createSequential());
 
