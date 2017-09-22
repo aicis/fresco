@@ -6,6 +6,11 @@ coverage:
   precision: 2
   round: down
   range: "70...100"
+  notify:
+    gitter:
+      default:
+        url: "https://webhooks.gitter.im/e/26fb31b10380d1eda3b0"
+        threshold: 1%
 
   status:
     project: yes
@@ -25,9 +30,3 @@ comment:
   behavior: default
   require_changes: no
 
-coverage:
-  notify:
-    gitter:
-      default:
-        url: "https://webhooks.gitter.im/e/26fb31b10380d1eda3b0"
-        threshold: 1%
