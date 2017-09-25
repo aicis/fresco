@@ -3,6 +3,7 @@ package dk.alexandra.fresco.demo;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.Party;
+import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
@@ -10,7 +11,8 @@ import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
-import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
+import dk.alexandra.fresco.framework.sce.evaluator.SequentialStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.DetermSecureRandom;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -116,8 +118,8 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
     int pid = Integer.parseInt(args[0]);
 
     // Define circuit evaluation strategy
-    SequentialEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> sequentialEvaluator =
-        new SequentialEvaluator<>();
+    ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> sequentialEvaluator =
+        new BatchedProtocolEvaluator<>(new SequentialStrategy<>());
     sequentialEvaluator.setMaxBatchSize(4096);
 
     // Create SPDZ protocol suite

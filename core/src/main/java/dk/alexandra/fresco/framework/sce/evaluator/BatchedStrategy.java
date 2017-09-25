@@ -53,29 +53,22 @@ import java.util.Set;
  *
  * The processing is done is in a sequential manner (i.e. no parallelization).
  */
-public class BatchedStrategy {
+public class BatchedStrategy<ResourcePoolT extends ResourcePool> implements BatchEvaluationStrategy<ResourcePoolT>{
 
-  /**
-   * @param protocols array holding the protocols to be evaluated
-   * @param sceNetwork array of sceNetworks corresponding to the protocols to be evaluated. I.e.,
-   *        the array should contain numProtocols SCENetworks, with sceNetwork[i] used for
-   *        communication in protocols[i].
-   * @param channel string indicating the channel to communicate over.
-   * @param rp the resource pool.
-   */
-  public static <ResourcePoolT extends ResourcePool> void processBatch(
-      ProtocolCollection<ResourcePoolT> protocols, SCENetwork sceNetwork, int channel,
-      ResourcePoolT rp) throws IOException {
-    Network network = rp.getNetwork();
+  @Override
+  public <sceNetwork extends SCENetwork & SCENetworkSupplier> void processBatch(
+      ProtocolCollection<ResourcePoolT> protocols, ResourcePoolT resourcePool, sceNetwork sceNetwork)
+          throws IOException {
+    Network network = resourcePool.getNetwork();
     int round = 0;
     while (protocols.size() > 0) {
-      evaluateCurrentRound(protocols, sceNetwork, channel, rp, network, round);
+      evaluateCurrentRound(protocols, sceNetwork, 0, resourcePool, network, round);
 
       round++;
     }
-  }
+  }  
 
-  private static <ResourcePoolT extends ResourcePool> void evaluateCurrentRound(
+  private void evaluateCurrentRound(
       ProtocolCollection<ResourcePoolT> protocols, SCENetwork sceNetwork, int channel,
       ResourcePoolT rp, Network network, int round) throws IOException {
     Iterator<NativeProtocol<?, ResourcePoolT>> iterator = protocols.iterator();

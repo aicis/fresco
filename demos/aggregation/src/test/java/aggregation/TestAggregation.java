@@ -1,6 +1,7 @@
 package aggregation;
 
 import dk.alexandra.fresco.demo.AggregationDemo;
+import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
@@ -10,8 +11,10 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
-import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
+import dk.alexandra.fresco.framework.sce.evaluator.SequentialStrategy;
 import dk.alexandra.fresco.framework.util.DetermSecureRandom;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
@@ -47,11 +50,13 @@ public class TestAggregation {
       SpdzStorage store = new SpdzStorageDummyImpl(i, n);
       SpdzResourcePool rp =
           new SpdzResourcePoolImpl(i, n, network, new Random(), new DetermSecureRandom(), store);
+      ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
+          new BatchedProtocolEvaluator<>(new SequentialStrategy<>());
+      SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce = 
+          new SecureComputationEngineImpl<>(suite, evaluator);
       TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
-          new TestThreadConfiguration<>(netConf.get(i),
-              new TestSCEConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>(suite,
-                  new SequentialEvaluator<SpdzResourcePool, ProtocolBuilderNumeric>(),
-                  netConf.get(i), false, null),
+          new TestThreadConfiguration<>(
+              sce,
               rp);
       conf.put(i, ttc);
     }
@@ -70,7 +75,7 @@ public class TestAggregation {
               public void test() throws Exception {
                 // Create application we are going run
                 AggregationDemo<SpdzResourcePool> app = new AggregationDemo<>();
-                app.runApplication(secureComputationEngine, conf.resourcePool);
+                app.runApplication(conf.sce, conf.resourcePool);
               }
             };
           }

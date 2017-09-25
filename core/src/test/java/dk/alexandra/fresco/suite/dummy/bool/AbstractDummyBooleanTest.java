@@ -23,22 +23,21 @@
  *******************************************************************************/
 package dk.alexandra.fresco.suite.dummy.bool;
 
-import dk.alexandra.fresco.framework.PerformanceLogger;
-import dk.alexandra.fresco.framework.PerformanceLogger.Flag;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
+import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.NetworkCreator;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
-import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.DetermSecureRandom;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,13 +52,6 @@ public abstract class AbstractDummyBooleanTest {
   protected void runTest(
       TestThreadRunner.TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f,
       EvaluationStrategy evalStrategy, NetworkingStrategy networkStrategy) throws Exception {
-    runTest(f, evalStrategy, networkStrategy, null);
-  }
-
-  protected List<PerformanceLogger> runTest(
-      TestThreadRunner.TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f,
-      EvaluationStrategy evalStrategy, NetworkingStrategy networkStrategy,
-      EnumSet<Flag> performanceLoggerFlags) throws Exception {
     // The dummy protocol suite has the nice property that it can be run by just one player.
     int noOfParties = 1;
     List<Integer> ports = new ArrayList<Integer>(noOfParties);
@@ -71,34 +63,27 @@ public abstract class AbstractDummyBooleanTest {
         TestConfiguration.getNetworkConfigurations(noOfParties, ports);
     Map<Integer, TestThreadRunner.TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
         new HashMap<Integer, TestThreadRunner.TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>>();
-    List<PerformanceLogger> pls = new ArrayList<>();
     for (int playerId : netConf.keySet()) {
 
       NetworkConfiguration partyNetConf = netConf.get(playerId);
 
       DummyBooleanProtocolSuite ps = new DummyBooleanProtocolSuite();
 
-      boolean useSecureConnection = false; // No tests of secure connection here.
-
-      PerformanceLogger pl = null;
-      if (performanceLoggerFlags != null && !performanceLoggerFlags.isEmpty()) {
-        pl = new PerformanceLogger(playerId, performanceLoggerFlags);
-      }
-      pls.add(pl);
-      ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
-          EvaluationStrategy.fromEnum(evalStrategy);
-      TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> sceConf =
-          new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(ps, evaluator,
-              partyNetConf, useSecureConnection, pl);
-      Network network =
-          NetworkCreator.getNetworkFromConfiguration(networkStrategy, partyNetConf, pl);
+      ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator = 
+          new BatchedProtocolEvaluator<>(EvaluationStrategy.fromEnum(evalStrategy));
+      
+      Network network = new KryoNetNetwork();
+      network.init(partyNetConf, 1);
+      
       ResourcePoolImpl rp = new ResourcePoolImpl(playerId, noOfParties, network, new Random(),
           new DetermSecureRandom());
+      
+      SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce = new SecureComputationEngineImpl<>(ps, evaluator);
+      
       TestThreadRunner.TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
-          new TestThreadRunner.TestThreadConfiguration<>(partyNetConf, sceConf, rp);
+          new TestThreadRunner.TestThreadConfiguration<>(sce, rp);
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
-    return pls;
   }
 }

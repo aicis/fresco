@@ -30,10 +30,16 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
+import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.NetworkCreator;
+import dk.alexandra.fresco.framework.network.NetworkPerformanceDelegate;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
-import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
+import dk.alexandra.fresco.framework.sce.SCEPerformanceDelegate;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationPerformanceDelegate;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.util.DetermSecureRandom;
 import java.math.BigInteger;
@@ -78,34 +84,47 @@ public abstract class AbstractDummyArithmeticTest {
         TestConfiguration.getNetworkConfigurations(noOfParties, ports);
     Map<Integer, TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<Integer, TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>>();
+    List<PerformanceLogger> pls = new ArrayList<>();
     for (int playerId : netConf.keySet()) {
 
       NetworkConfiguration partyNetConf = netConf.get(playerId);
 
       DummyArithmeticProtocolSuite ps = new DummyArithmeticProtocolSuite(mod, 200);
 
-      boolean useSecureConnection = false; // No tests of secure
-      // connection
-      // here.
-
-      ProtocolEvaluator<DummyArithmeticResourcePool, ProtocolBuilderNumeric> evaluator =
+      BatchEvaluationStrategy<DummyArithmeticResourcePool> batchEvaluationStrategy =
           EvaluationStrategy.fromEnum(evalStrategy);
-      PerformanceLogger pl = null;
-      if (performanceLoggerFlags != null && !performanceLoggerFlags.isEmpty()) {
-        pl = new PerformanceLogger(playerId, performanceLoggerFlags);
+      if (performanceLoggerFlags != null && performanceLoggerFlags.contains(Flag.LOG_NATIVE_BATCH)) {
+        batchEvaluationStrategy =
+            new BatchEvaluationPerformanceDelegate<>(batchEvaluationStrategy, playerId);
+        pls.add((PerformanceLogger) batchEvaluationStrategy);
       }
-      Network network =
-          NetworkCreator.getNetworkFromConfiguration(networkStrategy, partyNetConf, pl);
+      ProtocolEvaluator<DummyArithmeticResourcePool, ProtocolBuilderNumeric> evaluator =
+          new BatchedProtocolEvaluator<>(batchEvaluationStrategy);
+      Network network = new KryoNetNetwork();
+      network.init(partyNetConf, 1);
+      if(performanceLoggerFlags != null && performanceLoggerFlags.contains(Flag.LOG_NETWORK)) {
+        network = new NetworkPerformanceDelegate(network, playerId);
+        pls.add((PerformanceLogger) network);
+      }
+      
       DummyArithmeticResourcePool rp = new DummyArithmeticResourcePoolImpl(playerId, noOfParties,
           network, new Random(0), new DetermSecureRandom(), mod);
+      
+      SecureComputationEngine<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce =
+          new SecureComputationEngineImpl<>(ps, evaluator);
+      if(performanceLoggerFlags != null && performanceLoggerFlags.contains(Flag.LOG_RUNTIME)) {
+        sce = new SCEPerformanceDelegate<>(sce, ps, playerId);
+        pls.add((PerformanceLogger) sce);
+      }
+
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>(
-              partyNetConf,
-              new TestSCEConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>(ps,
-                  evaluator, partyNetConf, useSecureConnection, pl),
-              rp);
+              sce, rp);
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
+    for(PerformanceLogger pl : pls) {
+      pl.printPerformanceLog();
+    }
   }
 }

@@ -9,10 +9,10 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
+import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.NetworkCreator;
-import dk.alexandra.fresco.framework.network.NetworkingStrategy;
-import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
@@ -56,16 +56,14 @@ public class TestDistanceDemo {
       SpdzProtocolSuite protocolSuite = new SpdzProtocolSuite(150);
 
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
-          EvaluationStrategy.fromEnum(evalStrategy);
-      Network network = NetworkCreator.getNetworkFromConfiguration(NetworkingStrategy.KRYONET,
-          netConf.get(playerId), null);
+          new BatchedProtocolEvaluator<>(EvaluationStrategy.fromEnum(evalStrategy));
+      Network network = new KryoNetNetwork();
+      network.init(netConf.get(playerId), 1);
       SpdzResourcePool rp = createResourcePool(playerId, noOfParties, network, new Random(),
           new DetermSecureRandom(), PreprocessingStrategy.DUMMY);
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>(
-              netConf.get(playerId),
-              new TestSCEConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>(protocolSuite,
-                  evaluator, netConf.get(playerId), false, null),
+              new SecureComputationEngineImpl<>(protocolSuite, evaluator),
               rp);
       conf.put(playerId, ttc);
     }

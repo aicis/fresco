@@ -34,8 +34,9 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
-import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.framework.util.DetermSecureRandom;
@@ -79,16 +80,14 @@ public class SetIntersectionDemo {
 
       // The rest is generic configuration as well
       ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
-          new SequentialEvaluator<ResourcePoolImpl, ProtocolBuilderBinary>();
+          new BatchedProtocolEvaluator<>(new BatchedStrategy<>());
       Network network = new KryoNetNetwork();
       network.init(netConf.get(playerId), 1);
       ResourcePoolImpl resourcePool = new ResourcePoolImpl(playerId, noPlayers, network,
           new Random(), new DetermSecureRandom());
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(
-              netConf.get(playerId),
-              new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(suite, evaluator,
-                  netConf.get(playerId), true, null),
+              new SecureComputationEngineImpl<>(suite, evaluator),
               resourcePool);
       conf.put(playerId, ttc);
     }
@@ -121,16 +120,14 @@ public class SetIntersectionDemo {
 
       // More generic configuration
       ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
-          new SequentialEvaluator<ResourcePoolImpl, ProtocolBuilderBinary>();
+          new BatchedProtocolEvaluator<>(new BatchedStrategy<>());
       Network network = new KryoNetNetwork();
       network.init(netConf.get(playerId), 1);
       ResourcePoolImpl resourcePool = new ResourcePoolImpl(playerId, noPlayers, network,
           new Random(), new DetermSecureRandom());
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(
-              netConf.get(playerId),
-              new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(suite, evaluator,
-                  netConf.get(playerId), true, null),
+              new SecureComputationEngineImpl<>(suite, evaluator),
               resourcePool);
       conf.put(playerId, ttc);
     }
@@ -149,16 +146,14 @@ public class SetIntersectionDemo {
               playerId);
 
       ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
-          new SequentialEvaluator<ResourcePoolImpl, ProtocolBuilderBinary>();
+          new BatchedProtocolEvaluator<>(new BatchedStrategy<>());
       Network network = new KryoNetNetwork();
       network.init(netConf.get(playerId), 1);
       ResourcePoolImpl resourcePool = new ResourcePoolImpl(playerId, noPlayers, network,
           new Random(), new DetermSecureRandom());
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(
-              netConf.get(playerId),
-              new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(suite, evaluator,
-                  netConf.get(playerId), true, null),
+              new SecureComputationEngineImpl<>(suite, evaluator),
               resourcePool);
       conf.put(playerId, ttc);
     }
@@ -209,15 +204,15 @@ public class SetIntersectionDemo {
               public void test() throws Exception {
                 Boolean[] key = null;
                 int[] inputList = null;
-                if (conf.netConf.getMyId() == 2) {
+                if (conf.getMyId() == 2) {
                   key = ByteArithmetic.toBoolean("00112233445566778899aabbccddeeff"); // 128-bit key
                   inputList = new int[] {2, 66, 112, 1123};
-                } else if (conf.netConf.getMyId() == 1) {
+                } else if (conf.getMyId() == 1) {
                   key = ByteArithmetic.toBoolean("000102030405060708090a0b0c0d0e0f"); // 128-bit key
                   inputList = new int[] {1, 3, 66, 1123};
                 }
 
-                PrivateSetDemo app = new PrivateSetDemo(conf.netConf.getMyId(), key, inputList);
+                PrivateSetDemo app = new PrivateSetDemo(conf.getMyId(), key, inputList);
 
                 List<List<Boolean>> psiResult = runApplication(app);
                 System.out.println(

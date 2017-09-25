@@ -24,13 +24,9 @@
 package dk.alexandra.fresco.framework;
 
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
-import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
-import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
@@ -57,8 +53,6 @@ public class TestThreadRunner {
 
     Throwable teardownException;
 
-    protected SecureComputationEngine<ResourcePoolT, Builder> secureComputationEngine;
-
     void setConfiguration(TestThreadConfiguration<ResourcePoolT, Builder> conf) {
       this.conf = conf;
     }
@@ -66,7 +60,7 @@ public class TestThreadRunner {
     protected <OutputT> OutputT runApplication(Application<OutputT, Builder> app)
         throws IOException {
       conf.resourcePool.getNetwork().connect(10000);
-      return secureComputationEngine.runApplication(app, conf.resourcePool);
+      return conf.sce.runApplication(app, conf.resourcePool);
     }
 
     @Override
@@ -77,11 +71,6 @@ public class TestThreadRunner {
     @Override
     public void run() {
       try {
-        if (conf.sceConf != null) {
-          ProtocolSuite<ResourcePoolT, Builder> suite = conf.sceConf.getSuite();
-          secureComputationEngine = SCEFactory.getSCEFromConfiguration(suite,
-              conf.sceConf.getEvaluator(), conf.sceConf.getPerformanceLogger());
-        }
         setUp();
         runTest();
       } catch (Throwable e) {
@@ -108,10 +97,10 @@ public class TestThreadRunner {
     }
 
     private void runTearDown() {
-      try {
-        if (secureComputationEngine != null) {
-          // Shut down SCE resources - does not include the resource pool.
-          secureComputationEngine.shutdownSCE();
+      try {        
+        // Shut down SCE resources - does not include the resource pool.
+        if(conf.sce != null) {
+          conf.sce.shutdownSCE();
         }
         tearDown();
         finished = true;
@@ -140,19 +129,16 @@ public class TestThreadRunner {
    */
   public static class TestThreadConfiguration<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> {
 
-    public final NetworkConfiguration netConf;
-    public final TestSCEConfiguration<ResourcePoolT, Builder> sceConf;
+    public final SecureComputationEngine<ResourcePoolT, Builder> sce;
     public final ResourcePoolT resourcePool;
 
     public int getMyId() {
-      return this.netConf.getMyId();
+      return this.resourcePool.getMyId();
     }
 
-    public TestThreadConfiguration(NetworkConfiguration netConf,
-        TestSCEConfiguration<ResourcePoolT, Builder> sceConf, ResourcePoolT resourcePool) {
+    public TestThreadConfiguration(SecureComputationEngine<ResourcePoolT, Builder> sce, ResourcePoolT resourcePool) {
       super();
-      this.netConf = netConf;
-      this.sceConf = sceConf;
+      this.sce = sce;
       this.resourcePool = resourcePool;
     }
   }

@@ -64,9 +64,7 @@ public class PolynomialTests {
             DRes<SInt> result = provider.seq(new PolynomialEvaluator(secretX, polynomial));
             return numeric.open(result);
           };
-          System.out.println("Party " + conf.getMyId() + " about to run app");
           BigInteger result = runApplication(app);
-          System.out.println("Party " + conf.getMyId() + " done running app");
 
           int f = 0;
           int power = 1;

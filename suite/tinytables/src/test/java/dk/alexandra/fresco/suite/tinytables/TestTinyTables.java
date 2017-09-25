@@ -31,10 +31,11 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
+import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.NetworkCreator;
-import dk.alexandra.fresco.framework.network.NetworkingStrategy;
-import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.DetermSecureRandom;
@@ -90,16 +91,15 @@ public class TestTinyTables {
       } else {
         suite = new TinyTablesProtocolSuite(playerId, tinyTablesFile);
       }
-      Network network = NetworkCreator.getNetworkFromConfiguration(NetworkingStrategy.KRYONET,
-          netConf.get(playerId), null);
-      evaluator = EvaluationStrategy.fromEnum(evalStrategy);
+      Network network = new KryoNetNetwork();
+      network.init(netConf.get(playerId), 1);
+      BatchEvaluationStrategy<ResourcePoolImpl> batchStrat = EvaluationStrategy.fromEnum(evalStrategy);
+      evaluator = new BatchedProtocolEvaluator<>(batchStrat);
       ResourcePoolImpl rp = new ResourcePoolImpl(playerId, noPlayers, network, new Random(),
           new DetermSecureRandom());
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(
-              netConf.get(playerId),
-              new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(suite, evaluator,
-                  netConf.get(playerId), false, null),
+              new SecureComputationEngineImpl<>(suite, evaluator),
               rp);
       conf.put(playerId, ttc);
     }

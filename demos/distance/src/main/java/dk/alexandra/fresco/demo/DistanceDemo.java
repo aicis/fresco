@@ -29,12 +29,10 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.math.BigInteger;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -87,7 +85,6 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
   public static <ResourcePoolT extends ResourcePool> void main(String[] args) {
     CmdLineUtil<ResourcePoolT, ProtocolBuilderNumeric> cmdUtil = new CmdLineUtil<>();
     NetworkConfiguration networkConfiguration = null;
-    ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric> psConf = null;
     int x, y;
     x = y = 0;
     try {
@@ -97,7 +94,6 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
           + "Note only party 1 and 2 should supply this input").hasArg().build());
       CommandLine cmd = cmdUtil.parse(args);
       networkConfiguration = cmdUtil.getNetworkConfiguration();
-      psConf = cmdUtil.getProtocolSuite();
 
       if (networkConfiguration.getMyId() == 1 || networkConfiguration.getMyId() == 2) {
         if (!cmd.hasOption("x") || !cmd.hasOption("y")) {
@@ -119,8 +115,7 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
       System.exit(-1);
     }
     DistanceDemo distDemo = new DistanceDemo(networkConfiguration.getMyId(), x, y);
-    SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce = SCEFactory
-        .getSCEFromConfiguration(psConf, cmdUtil.getEvaluator(), cmdUtil.getPerformanceLogger());
+    SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce = cmdUtil.getSCE();
     try {
       ResourcePoolT resourcePool = cmdUtil.getResourcePool();
       resourcePool.getNetwork().connect(10000);

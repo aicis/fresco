@@ -32,10 +32,10 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
+import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.NetworkCreator;
-import dk.alexandra.fresco.framework.network.NetworkingStrategy;
-import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.util.DetermSecureRandom;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
@@ -88,17 +88,15 @@ public class ITSpdzFuelstationTest {
       ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> suite = new SpdzProtocolSuite(150);
 
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
-          EvaluationStrategy.fromEnum(evalStrategy);
-      Network network = NetworkCreator.getNetworkFromConfiguration(NetworkingStrategy.KRYONET,
-          netConf.get(playerId), null);
+          new BatchedProtocolEvaluator<>(EvaluationStrategy.fromEnum(evalStrategy));
+      Network network = new KryoNetNetwork();
+      network.init(netConf.get(playerId), 1);
       SpdzStorage store = new SpdzStorageImpl(0, noOfParties, playerId, "http://localhost:" + port);
       SpdzResourcePool rp = new SpdzResourcePoolImpl(playerId, noOfParties, network, new Random(),
           new DetermSecureRandom(), store);
       TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>(
-              netConf.get(playerId),
-              new TestSCEConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>(suite, evaluator,
-                  netConf.get(playerId), false, null),
+              new SecureComputationEngineImpl<>(suite, evaluator),
               rp);
       conf.put(playerId, ttc);
     }

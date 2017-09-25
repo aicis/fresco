@@ -31,10 +31,16 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
+import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.NetworkCreator;
+import dk.alexandra.fresco.framework.network.NetworkPerformanceDelegate;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
-import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
+import dk.alexandra.fresco.framework.sce.SCEPerformanceDelegate;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationPerformanceDelegate;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
@@ -64,7 +70,7 @@ public abstract class AbstractSpdzTest {
     runTest(f, evalStrategy, network, preProStrat, noOfParties, null);
   }
 
-  protected List<PerformanceLogger> runTest(
+  protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, NetworkingStrategy networkStrategy,
       PreprocessingStrategy preProStrat, int noOfParties, EnumSet<Flag> performanceloggerFlags)
@@ -82,28 +88,38 @@ public abstract class AbstractSpdzTest {
     for (int playerId : netConf.keySet()) {
       SpdzProtocolSuite protocolSuite = new SpdzProtocolSuite(150);
 
-      ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
-          EvaluationStrategy.fromEnum(evalStrategy);
-      PerformanceLogger pl = null;
-      if (performanceloggerFlags != null) {
-        pl = new PerformanceLogger(playerId, performanceloggerFlags);
+      BatchEvaluationStrategy<SpdzResourcePool> batchEvalStrat = EvaluationStrategy.fromEnum(evalStrategy);
+      if(performanceloggerFlags != null && performanceloggerFlags.contains(Flag.LOG_NATIVE_BATCH)) {
+        batchEvalStrat = new BatchEvaluationPerformanceDelegate<>(batchEvalStrat, playerId);
+        pls.add((PerformanceLogger) batchEvalStrat);
       }
-      pls.add(pl);
-
-      Network network =
-          NetworkCreator.getNetworkFromConfiguration(networkStrategy, netConf.get(playerId), pl);
+      ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
+          new BatchedProtocolEvaluator<>(batchEvalStrat);
+      
+      Network network = new KryoNetNetwork();
+      network.init(netConf.get(playerId), 1);
+      if(performanceloggerFlags != null && performanceloggerFlags.contains(Flag.LOG_NETWORK)) {
+        network = new NetworkPerformanceDelegate(network, playerId);
+        pls.add((PerformanceLogger) network);
+      }          
       SpdzResourcePool rp = createResourcePool(playerId, noOfParties, network, new Random(),
           new DetermSecureRandom(), preProStrat);
+      SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce = 
+          new SecureComputationEngineImpl<>(protocolSuite, evaluator);
+      if(performanceloggerFlags != null && performanceloggerFlags.contains(Flag.LOG_RUNTIME)) {
+        sce = new SCEPerformanceDelegate<>(sce, protocolSuite, playerId);
+        pls.add((PerformanceLogger) sce);
+      }
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>(
-              netConf.get(playerId),
-              new TestSCEConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>(protocolSuite,
-                  evaluator, netConf.get(playerId), false, pl),
+              sce,
               rp);
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
-    return pls;
+    for(PerformanceLogger pl : pls) {
+      pl.printPerformanceLog();
+    }
   }
 
   private SpdzResourcePool createResourcePool(int myId, int size, Network network, Random rand,

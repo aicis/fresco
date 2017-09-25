@@ -90,14 +90,19 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Bui
 
   private <OutputT> DRes<OutputT> evalApplication(Application<OutputT, Builder> application,
       ResourcePoolT resourcePool) throws Exception {
-    logger.trace(
+    logger.info(
         "Running application: " + application + " using protocol suite: " + this.protocolSuite);
     try {
       BuilderFactory<Builder> protocolFactory = this.protocolSuite.init(resourcePool);
       Builder builder = protocolFactory.createSequential();
       DRes<OutputT> output = application.buildComputation(builder);
 
+      long then = System.currentTimeMillis();
       this.evaluator.eval(builder.build(), resourcePool);
+      long now = System.currentTimeMillis();
+      long timeSpend = now - then;
+      logger
+          .info("The application " + application + " finished evaluation in " + timeSpend + " ms.");
       application.close();
       return output;
     } catch (IOException e) {

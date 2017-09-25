@@ -63,7 +63,6 @@ public class EliminateDuplicatesTests {
           };
 
           List<BigInteger> outputs = runApplication(app);
-          secureComputationEngine.shutdownSCE();
           Assert.assertEquals(BigInteger.ZERO, outputs.get(0));
           Assert.assertEquals(BigInteger.ZERO, outputs.get(1));
           Assert.assertEquals(BigInteger.ONE, outputs.get(2));

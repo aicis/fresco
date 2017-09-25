@@ -33,8 +33,10 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
-import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
+import dk.alexandra.fresco.framework.sce.evaluator.SequentialStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.framework.util.DetermSecureRandom;
@@ -68,16 +70,16 @@ public class TestAESDemo {
       ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> suite =
           new DummyBooleanProtocolSuite();
       ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
-          new SequentialEvaluator<ResourcePoolImpl, ProtocolBuilderBinary>();
+          new BatchedProtocolEvaluator<>(new SequentialStrategy<>());
       Network network = new KryoNetNetwork();
       network.init(netConf.get(playerId), 1);
       ResourcePoolImpl resourcePool = new ResourcePoolImpl(playerId, noPlayers, network,
           new Random(), new DetermSecureRandom());
+      SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce = 
+          new SecureComputationEngineImpl<>(suite, evaluator);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(
-              netConf.get(playerId),
-              new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(suite, evaluator,
-                  netConf.get(playerId), true, null),
+              sce,
               resourcePool);
       conf.put(playerId, ttc);
     }
@@ -92,15 +94,15 @@ public class TestAESDemo {
               public void test() throws Exception {
 
                 Boolean[] input = null;
-                if (conf.netConf.getMyId() == 2) {
+                if (conf.getMyId() == 2) {
                   // 128-bit AES plaintext block
                   input = ByteArithmetic.toBoolean("00112233445566778899aabbccddeeff");
-                } else if (conf.netConf.getMyId() == 1) {
+                } else if (conf.getMyId() == 1) {
                   // 128-bit key
                   input = ByteArithmetic.toBoolean("000102030405060708090a0b0c0d0e0f");
                 }
 
-                AESDemo app = new AESDemo(conf.netConf.getMyId(), input);
+                AESDemo app = new AESDemo(conf.getMyId(), input);
 
                 List<Boolean> aesResult = runApplication(app);
 

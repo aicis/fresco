@@ -24,7 +24,6 @@
 package dk.alexandra.fresco.demo.cli;
 
 import dk.alexandra.fresco.framework.Party;
-import dk.alexandra.fresco.framework.PerformanceLogger;
 import dk.alexandra.fresco.framework.PerformanceLogger.Flag;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
@@ -33,10 +32,15 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.NetworkPerformanceDecorator;
+import dk.alexandra.fresco.framework.network.NetworkPerformanceDelegate;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
+import dk.alexandra.fresco.framework.sce.SCEPerformanceDelegate;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationPerformanceDelegate;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
@@ -90,10 +94,11 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
   private CommandLine cmd;
   private NetworkConfiguration networkConfiguration;
   private Network network;
-  private PerformanceLogger pl;
+  private EnumSet<Flag> flags;
   private ProtocolSuite<ResourcePoolT, Builder> protocolSuite;
   private ProtocolEvaluator<ResourcePoolT, Builder> evaluator;
   private ResourcePoolT resourcePool;
+  private SecureComputationEngine<ResourcePoolT, Builder> sce;
 
   public CmdLineUtil() {
     this.appOptions = new Options();
@@ -112,8 +117,8 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     return resourcePool;
   }
 
-  public PerformanceLogger getPerformanceLogger() {
-    return pl;
+  public EnumSet<Flag> getPerformanceLoggerFlags() {
+    return flags;
   }
 
   public NetworkingStrategy getNetworkStrategy() {
@@ -128,6 +133,10 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     return this.protocolSuite;
   }
 
+  public SecureComputationEngine<ResourcePoolT, Builder> getSCE() {
+    return this.sce;
+  }
+  
   /**
    * Adds standard options.
    *
@@ -249,23 +258,18 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
           + " but this id is not present in the list of parties " + parties.keySet());
     }
 
-    EnumSet<Flag> performanceLoggerFlags = null;
     if (this.cmd.hasOption("l")) {
-      performanceLoggerFlags = Flag.ALL_OPTS;
-      this.pl = null;
-      if (performanceLoggerFlags != null) {
-        pl = new PerformanceLogger(this.networkConfiguration.getMyId(), performanceLoggerFlags);
-      }
+      this.flags = Flag.ALL_OPTS;
     }
 
-    if (this.cmd.hasOption("e")) {
-      try {
-        this.evaluator = EvaluationStrategy.fromString(this.cmd.getOptionValue("e"));
-      } catch (ConfigurationException e) {
-        throw new ParseException("Invalid evaluation strategy: " + this.cmd.getOptionValue("e"));
+    try {
+      BatchEvaluationStrategy<ResourcePoolT> batchEvalStrat = EvaluationStrategy.fromString(this.cmd.getOptionValue("e", EvaluationStrategy.SEQUENTIAL.name()));
+      if(this.flags != null) {
+        batchEvalStrat = new BatchEvaluationPerformanceDelegate<>(batchEvalStrat, myId);
       }
-    } else {
-      this.evaluator = new SequentialEvaluator<ResourcePoolT, Builder>();
+      this.evaluator = new BatchedProtocolEvaluator<>(batchEvalStrat);
+    } catch (ConfigurationException e) {
+      throw new ParseException("Invalid evaluation strategy: " + this.cmd.getOptionValue("e"));
     }
 
     if (this.cmd.hasOption("b")) {
@@ -283,8 +287,8 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
 
     this.networkConfiguration = new NetworkConfigurationImpl(myId, parties);
     this.network = new KryoNetNetwork();
-    if (pl != null) {
-      this.network = new NetworkPerformanceDecorator(network, pl);
+    if (flags != null) {
+      this.network = new NetworkPerformanceDelegate(network, myId);
     }
     this.network.init(networkConfiguration, 1);
 
@@ -374,6 +378,12 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
       displayHelp();
       System.exit(-1); // TODO: Consider moving to top level.
     }
+    
+    this.sce = new SecureComputationEngineImpl<>(protocolSuite, evaluator);
+    if(flags != null) {
+      this.sce = new SCEPerformanceDelegate<>(sce, protocolSuite, this.networkConfiguration.getMyId());
+    }
+    
     return this.cmd;
   }
 
