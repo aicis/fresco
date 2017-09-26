@@ -7,9 +7,15 @@ import org.junit.Test;
 public class TestParty {
 
   @Test
-  public void testGetId() {
-    Party party = new Party(1, "hostname", 8080, "myshared key");
+  public void testGetters() {
+    String key = "mySharedKey";
+    Party party = new Party(1, "hostname", 8080, key);
+    party.setSecretSharedKey(key);
+    Assert.assertThat(party.getSecretSharedKey(), Is.is(key));
+    Assert.assertThat(party.getHostname(), Is.is("hostname"));
+    Assert.assertThat(party.getPort(), Is.is(8080));
     Assert.assertThat(party.getPartyId(), Is.is(1));
+    
   }
   
   @SuppressWarnings("deprecation")

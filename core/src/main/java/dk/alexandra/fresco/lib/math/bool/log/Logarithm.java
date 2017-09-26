@@ -110,9 +110,6 @@ public class Logarithm implements
    * Computes the floor(log_2(x))
    */
   private int log2(int n) {
-    if (n <= 0) {
-      throw new IllegalArgumentException();
-    }
     return 31 - Integer.numberOfLeadingZeros(n);
   }
 
