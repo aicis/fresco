@@ -69,7 +69,7 @@ public class BatchedSequentialEvaluator<ResourcePoolT extends ResourcePool, Buil
           new ProtocolCollectionList<>(maxBatchSize);
       protocolProducer.getNextProtocols(protocols);
       int size = protocols.size();
-
+      roundSynchronization.beforeBatch(protocols, resourcePool);
       BatchedStrategy.processBatch(protocols, sceNetwork, DEFAULT_CHANNEL, resourcePool);
       roundSynchronization.finishedBatch(size, resourcePool, sceNetwork);
     } while (protocolProducer.hasNextProtocols());

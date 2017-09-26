@@ -93,6 +93,7 @@ public class SequentialEvaluator<ResourcePoolT extends ResourcePool, Builder ext
     protocolProducer.getNextProtocols(protocols);
     int size = protocols.size();
 
+    roundSynchronization.beforeBatch(protocols, resourcePool);
     processBatch(protocols, resourcePool);
     roundSynchronization.finishedBatch(size, resourcePool,
         createSceNetwork(resourcePool.getNoOfParties()));
