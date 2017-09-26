@@ -53,6 +53,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
     if (this.gatesEvaluated > macCheckThreshold || doMacCheck) {
       doMACCheck(resourcePool, sceNetwork);
       doMacCheck = false;
+      this.gatesEvaluated = 0;
     }
   }
 
