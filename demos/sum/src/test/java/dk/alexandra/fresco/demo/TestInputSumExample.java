@@ -43,6 +43,7 @@ import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImp
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -131,5 +132,38 @@ public class TestInputSumExample {
       ;
         };
     runTest(f, true, 3);
+  }
+  
+  @Test
+  public void testInputCmdLine() throws Exception {
+    Runnable p1 = new Runnable() {
+      
+      @Override
+      public void run() {
+        try {
+          InputSumExample.main(new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s", "dummyArithmetic"});
+        } catch (IOException e) {
+          System.exit(-1);
+        }
+      }
+    };
+    
+    Runnable p2 = new Runnable() {
+      
+      @Override
+      public void run() {
+        try {
+          InputSumExample.main(new String[]{"-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s", "dummyArithmetic"});
+        } catch (IOException e) {
+          System.exit(-1);
+        }
+      }
+    }; 
+    Thread t1 = new Thread(p1);
+    Thread t2 = new Thread(p2);
+    t1.start();
+    t2.start();
+    t1.join();
+    t2.join();
   }
 }

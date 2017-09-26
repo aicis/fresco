@@ -8,21 +8,21 @@ import dk.alexandra.fresco.framework.network.SCENetworkSupplier;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.io.IOException;
 
-public class BatchEvaluationPerformanceDelegate<
+public class BatchEvaluationLoggingDecorator<
   ResourcePoolT extends ResourcePool, 
   Builder extends ProtocolBuilder
   > 
   extends PerformanceLogger
   implements BatchEvaluationStrategy<ResourcePoolT>  {
 
-  private BatchEvaluationStrategy<ResourcePoolT> batchEvaluation;
+  private BatchEvaluationStrategy<ResourcePoolT> delegate;
   private int noNativeProtocols = 0;
   private int minNoNativeProtocolsPerBatch = Integer.MAX_VALUE;
   private int maxNoNativeProtocolsPerBatch = 0;
 
-  public BatchEvaluationPerformanceDelegate(BatchEvaluationStrategy<ResourcePoolT> batchEvaluation, int myId) {
+  public BatchEvaluationLoggingDecorator(BatchEvaluationStrategy<ResourcePoolT> batchEvaluation, int myId) {
     super(myId);
-    this.batchEvaluation = batchEvaluation;
+    this.delegate = batchEvaluation;
   }
 
   @Override
@@ -38,7 +38,7 @@ public class BatchEvaluationPerformanceDelegate<
     if (maxNoNativeProtocolsPerBatch < size) {
       maxNoNativeProtocolsPerBatch = size;
     }
-    batchEvaluation.processBatch(protocols, resourcePool, network);
+    delegate.processBatch(protocols, resourcePool, network);
   }
 
   @Override

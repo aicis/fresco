@@ -252,4 +252,28 @@ public class SetIntersectionDemo {
     return config;
   }
 
+  @Test
+  public void testPSICmdLine() throws Exception {
+    Runnable p1 = new Runnable() {
+      
+      @Override
+      public void run() {
+        PrivateSetDemo.main(new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s", "dummyBool",  "-in" ,"2,3,4,5,8,9,14", "-key", "abc123abc123abc123abc123abc123ab"});
+      }
+    };
+    
+    Runnable p2 = new Runnable() {
+      
+      @Override
+      public void run() {
+        PrivateSetDemo.main(new String[]{"-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s", "dummyBool",  "-in" ,"2,3,4,6,7,12,14", "-key", "abc123abc123abc123abc123abc123ab"});
+      }
+    }; 
+    Thread t1 = new Thread(p1);
+    Thread t2 = new Thread(p2);
+    t1.start();
+    t2.start();
+    t1.join();
+    t2.join();
+  }
 }

@@ -32,12 +32,12 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.NetworkPerformanceDelegate;
+import dk.alexandra.fresco.framework.network.NetworkLoggingDecorator;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
-import dk.alexandra.fresco.framework.sce.SCEPerformanceDelegate;
+import dk.alexandra.fresco.framework.sce.SCELoggingDecorator;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
-import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationPerformanceDelegate;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
@@ -95,17 +95,17 @@ public abstract class AbstractDummyArithmeticTest {
           EvaluationStrategy.fromEnum(evalStrategy);
       if (performanceLoggerFlags != null && performanceLoggerFlags.contains(Flag.LOG_NATIVE_BATCH)) {
         batchEvaluationStrategy =
-            new BatchEvaluationPerformanceDelegate<>(batchEvaluationStrategy, playerId);
+            new BatchEvaluationLoggingDecorator<>(batchEvaluationStrategy, playerId);
         pls.add((PerformanceLogger) batchEvaluationStrategy);
       }
       ProtocolEvaluator<DummyArithmeticResourcePool, ProtocolBuilderNumeric> evaluator =
           new BatchedProtocolEvaluator<>(batchEvaluationStrategy);
-      Network network = new KryoNetNetwork();
-      network.init(partyNetConf, 1);
+      Network network = new KryoNetNetwork();      
       if(performanceLoggerFlags != null && performanceLoggerFlags.contains(Flag.LOG_NETWORK)) {
-        network = new NetworkPerformanceDelegate(network, playerId);
+        network = new NetworkLoggingDecorator(network, playerId);
         pls.add((PerformanceLogger) network);
       }
+      network.init(partyNetConf, 1);
       
       DummyArithmeticResourcePool rp = new DummyArithmeticResourcePoolImpl(playerId, noOfParties,
           network, new Random(0), new DetermSecureRandom(), mod);
@@ -113,7 +113,7 @@ public abstract class AbstractDummyArithmeticTest {
       SecureComputationEngine<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(ps, evaluator);
       if(performanceLoggerFlags != null && performanceLoggerFlags.contains(Flag.LOG_RUNTIME)) {
-        sce = new SCEPerformanceDelegate<>(sce, ps, playerId);
+        sce = new SCELoggingDecorator<>(sce, ps, playerId);
         pls.add((PerformanceLogger) sce);
       }
 
@@ -125,6 +125,7 @@ public abstract class AbstractDummyArithmeticTest {
     TestThreadRunner.run(f, conf);
     for(PerformanceLogger pl : pls) {
       pl.printPerformanceLog();
+      pl.reset();
     }
   }
 }

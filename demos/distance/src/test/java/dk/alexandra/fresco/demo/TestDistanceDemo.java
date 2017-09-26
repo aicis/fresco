@@ -119,4 +119,29 @@ public class TestDistanceDemo {
         };
     runTest(f, EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
+  
+  @Test
+  public void testDistanceFromCmdLine() throws Exception{ 
+    Runnable p1 = new Runnable() {
+      
+      @Override
+      public void run() {
+        DistanceDemo.main(new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s", "dummyArithmetic",  "-x" ,"10", "-y", "10"});
+      }
+    };
+    
+    Runnable p2 = new Runnable() {
+      
+      @Override
+      public void run() {
+        DistanceDemo.main(new String[]{"-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s", "dummyArithmetic",  "-x" ,"20", "-y", "15"});
+      }
+    }; 
+    Thread t1 = new Thread(p1);
+    Thread t2 = new Thread(p2);
+    t1.start();
+    t2.start();
+    t1.join();
+    t2.join();
+  }
 }

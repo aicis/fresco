@@ -7,21 +7,21 @@ import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class NetworkPerformanceDelegate extends PerformanceLogger implements Network {
+public class NetworkLoggingDecorator extends PerformanceLogger implements Network {
 
-  private Network network;
+  private Network delegate;
   private ConcurrentMap<Integer, Pair<Integer, Integer>> networkLogger = new ConcurrentHashMap<>();
   private int minBytesReceived = Integer.MAX_VALUE;
   private int maxBytesReceived = 0;
 
-  public NetworkPerformanceDelegate(Network network, int myId) {
+  public NetworkLoggingDecorator(Network network, int myId) {
     super(myId);
-    this.network = network;
+    this.delegate = network;
   }
 
   @Override
   public byte[] receive(int channelId, int partyId) throws IOException {
-    byte[] res = this.network.receive(channelId, partyId);
+    byte[] res = this.delegate.receive(channelId, partyId);
     int noBytes = res.length;
     if (!networkLogger.containsKey(partyId)) {
       networkLogger.put(partyId, new Pair<>(1, noBytes));
@@ -41,22 +41,22 @@ public class NetworkPerformanceDelegate extends PerformanceLogger implements Net
 
   @Override
   public void init(NetworkConfiguration conf, int channelAmount) {
-    this.network.init(conf, channelAmount);
+    this.delegate.init(conf, channelAmount);
   }
 
   @Override
   public void connect(int timeoutMillis) throws IOException {
-    this.network.connect(timeoutMillis);
+    this.delegate.connect(timeoutMillis);
   }
 
   @Override
   public void send(int channelId, int partyId, byte[] data) throws IOException {
-    this.network.send(channelId, partyId, data);
+    this.delegate.send(channelId, partyId, data);
   }
 
   @Override
   public void close() throws IOException {
-    this.network.close();
+    this.delegate.close();
   }
 
   @Override

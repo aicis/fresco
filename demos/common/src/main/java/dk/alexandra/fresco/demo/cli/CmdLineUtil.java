@@ -32,12 +32,12 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.NetworkPerformanceDelegate;
+import dk.alexandra.fresco.framework.network.NetworkLoggingDecorator;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
-import dk.alexandra.fresco.framework.sce.SCEPerformanceDelegate;
+import dk.alexandra.fresco.framework.sce.SCELoggingDecorator;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
-import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationPerformanceDelegate;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
@@ -153,7 +153,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
 
     options.addOption(Option.builder("s")
         .desc("The name of the protocol suite to use. Must be one of these: "
-            + getSupportedProtocolSuites() + ". " + "The default value is: bgw")
+            + getSupportedProtocolSuites())
         .longOpt("suite").required(true).hasArg().build());
 
     options.addOption(Option.builder("p")
@@ -265,7 +265,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     try {
       BatchEvaluationStrategy<ResourcePoolT> batchEvalStrat = EvaluationStrategy.fromString(this.cmd.getOptionValue("e", EvaluationStrategy.SEQUENTIAL.name()));
       if(this.flags != null) {
-        batchEvalStrat = new BatchEvaluationPerformanceDelegate<>(batchEvalStrat, myId);
+        batchEvalStrat = new BatchEvaluationLoggingDecorator<>(batchEvalStrat, myId);
       }
       this.evaluator = new BatchedProtocolEvaluator<>(batchEvalStrat);
     } catch (ConfigurationException e) {
@@ -288,7 +288,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     this.networkConfiguration = new NetworkConfigurationImpl(myId, parties);
     this.network = new KryoNetNetwork();
     if (flags != null) {
-      this.network = new NetworkPerformanceDelegate(network, myId);
+      this.network = new NetworkLoggingDecorator(network, myId);
     }
     this.network.init(networkConfiguration, 1);
 
@@ -381,7 +381,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     
     this.sce = new SecureComputationEngineImpl<>(protocolSuite, evaluator);
     if(flags != null) {
-      this.sce = new SCEPerformanceDelegate<>(sce, protocolSuite, this.networkConfiguration.getMyId());
+      this.sce = new SCELoggingDecorator<>(sce, protocolSuite, this.networkConfiguration.getMyId());
     }
     
     return this.cmd;

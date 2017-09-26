@@ -9,21 +9,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 
-public class SCEPerformanceDelegate<
+public class SCELoggingDecorator<
   ResourcePoolT extends ResourcePool, 
   Builder extends ProtocolBuilder
   >
   extends PerformanceLogger
   implements SecureComputationEngine<ResourcePoolT, Builder> {
 
-  private SecureComputationEngine<ResourcePoolT, Builder> sce;
+  private SecureComputationEngine<ResourcePoolT, Builder> delegate;
   private String protocolSuiteName;
   private List<RuntimeInfo> runtimeLogger = new ArrayList<>();
 
-  public SCEPerformanceDelegate(SecureComputationEngine<ResourcePoolT, Builder> sce,
+  public SCELoggingDecorator(SecureComputationEngine<ResourcePoolT, Builder> sce,
       ProtocolSuite<ResourcePoolT, Builder> suite, int myId) {
     super(myId);
-    this.sce = sce;    
+    this.delegate = sce;    
     this.protocolSuiteName = suite.getClass().getName();
   }
 
@@ -31,7 +31,7 @@ public class SCEPerformanceDelegate<
   public <OutputT> OutputT runApplication(Application<OutputT, Builder> application,
       ResourcePoolT resources) {
     long then = System.currentTimeMillis();
-    OutputT res = this.sce.runApplication(application, resources);
+    OutputT res = this.delegate.runApplication(application, resources);
     long now = System.currentTimeMillis();
     long timeSpend = now - then;
       this.runtimeLogger.add(new RuntimeInfo(application, timeSpend, protocolSuiteName));
@@ -43,17 +43,17 @@ public class SCEPerformanceDelegate<
       ResourcePoolT resources) {
     // TODO: If applications are started this way, no running time logging is applied. We need to
     // inject a decorator future which logs the timing before handing over the result.
-    return this.sce.startApplication(application, resources);
+    return this.delegate.startApplication(application, resources);
   }
 
   @Override
   public void setup() {
-    this.sce.setup();
+    this.delegate.setup();
   }
 
   @Override
   public void shutdownSCE() {
-    this.sce.shutdownSCE();
+    this.delegate.shutdownSCE();
   }
 
   @Override
