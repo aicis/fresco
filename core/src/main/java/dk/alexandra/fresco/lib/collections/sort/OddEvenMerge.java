@@ -89,7 +89,7 @@ public class OddEvenMerge implements
         }
         return null;
       });
-    } else if (length == 2) {
+    } else { // length == 2
       compareAndSwapAtIndices(first, first + step, builder);
     }
   }
