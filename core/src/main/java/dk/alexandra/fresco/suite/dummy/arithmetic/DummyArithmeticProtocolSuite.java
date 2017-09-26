@@ -25,6 +25,7 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetwork;
@@ -71,6 +72,12 @@ public class DummyArithmeticProtocolSuite
       @Override
       public void finishedEval(DummyArithmeticResourcePool resourcePool, SCENetwork sceNetwork)
           throws IOException {
+      }
+
+      @Override
+      public void beforeBatch(ProtocolCollection<DummyArithmeticResourcePool> protocols,
+          DummyArithmeticResourcePool resourcePool) throws IOException {
+        
       }
     };
   }

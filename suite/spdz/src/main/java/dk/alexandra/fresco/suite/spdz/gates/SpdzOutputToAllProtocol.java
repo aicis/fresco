@@ -55,14 +55,11 @@ public class SpdzOutputToAllProtocol extends SpdzOutputProtocol<BigInteger> {
     BigIntegerSerializer serializer = spdzResourcePool.getSerializer();
     switch (round) {
       case 0:
-        spdzResourcePool.addOutputProtocolToBatch(this);
-        return EvaluationStatus.IS_DONE;
-      case 1:
         SpdzSInt out = (SpdzSInt) in.out();
         network.sendToAll(serializer.toBytes(out.value.getShare()));
         network.expectInputFromAll();
         return EvaluationStatus.HAS_MORE_ROUNDS;
-      case 2:
+      case 1:
         List<ByteBuffer> shares = network.receiveFromAll();
         BigInteger openedVal = BigInteger.valueOf(0);
         for (ByteBuffer buffer : shares) {

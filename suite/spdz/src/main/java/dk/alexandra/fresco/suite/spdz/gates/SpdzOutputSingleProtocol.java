@@ -66,9 +66,6 @@ public class SpdzOutputSingleProtocol extends SpdzOutputProtocol<BigInteger> {
     BigIntegerSerializer serializer = spdzResourcePool.getSerializer();
     switch (round) {
       case 0:
-        spdzResourcePool.addOutputProtocolToBatch(this);
-        return EvaluationStatus.IS_DONE;
-      case 1:
         this.mask = storage.getSupplier().getNextInputMask(target_player);
         SpdzSInt closedValue = (SpdzSInt) this.in.out();
         SpdzElement inMinusMask = closedValue.value.subtract(this.mask.getMask());
@@ -76,7 +73,7 @@ public class SpdzOutputSingleProtocol extends SpdzOutputProtocol<BigInteger> {
         network.sendToAll(serializer.toBytes(inMinusMask.getShare()));
         network.expectInputFromAll();
         return EvaluationStatus.HAS_MORE_ROUNDS;
-      case 2:
+      case 1:
         List<ByteBuffer> shares = network.receiveFromAll();
         BigInteger openedVal = BigInteger.valueOf(0);
         for (ByteBuffer buffer : shares) {

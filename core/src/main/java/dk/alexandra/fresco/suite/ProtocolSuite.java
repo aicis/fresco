@@ -27,6 +27,7 @@
 package dk.alexandra.fresco.suite;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
+import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetwork;
@@ -64,8 +65,19 @@ public interface ProtocolSuite<ResourcePoolT extends ResourcePool, Builder exten
    */
   RoundSynchronization<ResourcePoolT> createRoundSynchronization();
 
-  interface RoundSynchronization<ResourcePoolT> {
+  interface RoundSynchronization<ResourcePoolT extends ResourcePool> {
 
+    /**
+     * Before batch is called before the evaluator has started the evaluation of the given batch of
+     * protocols. This method is available because some protocol suites will need to know in advance
+     * the type of native protocols that will appear.
+     * 
+     * @param protocols The protocols about to be evaluated right after this method finishes.
+     * @param resourcePool The resource pool used.
+     */
+    void beforeBatch(ProtocolCollection<ResourcePoolT> protocols, ResourcePoolT resourcePool)
+        throws IOException;
+    
     /**
      * Let's the protocol suite know that now is a possible point of synchronization.
      * The invariant is that all threads are done executing. This means that no
@@ -74,6 +86,8 @@ public interface ProtocolSuite<ResourcePoolT extends ResourcePool, Builder exten
      *
      * @param gatesEvaluated Indicates how many gates was evaluated since last call to synchronize.
      * It is therefore _not_ indicative of a total amount.
+     * @param resourcePool The resource pool used
+     * @param sceNetwork the internal network used during the batch evaluation. 
      */
     void finishedBatch(
         int gatesEvaluated, ResourcePoolT resourcePool, SCENetwork sceNetwork)
@@ -93,6 +107,11 @@ public interface ProtocolSuite<ResourcePoolT extends ResourcePool, Builder exten
       RoundSynchronization<ResourcePoolT> {
 
     @Override
+    public void beforeBatch(ProtocolCollection<ResourcePoolT> protocols, ResourcePoolT resourcePool) {
+      
+    }
+    
+    @Override
     public void finishedBatch(
         int gatesEvaluated, ResourcePoolT resourcePool, SCENetwork sceNetwork) {
 
@@ -102,5 +121,6 @@ public interface ProtocolSuite<ResourcePoolT extends ResourcePool, Builder exten
     public void finishedEval(ResourcePoolT resourcePool, SCENetwork sceNetwork) {
 
     }
+
   }
 }

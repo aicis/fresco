@@ -5,14 +5,11 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputProtocol;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +22,6 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
   private BigInteger modulus;
   private BigInteger modulusHalf;
   private SpdzStorage store;
-  private final List<SpdzOutputProtocol<?>> outputProtocols = new ArrayList<>();
 
   public SpdzResourcePoolImpl(int myId, int noOfPlayers,
       Network network,
@@ -76,26 +72,11 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
   }
 
   @Override
-  public boolean isOutputProtocolInBatch() {
-    return !this.outputProtocols.isEmpty();
-  }
-
-  @Override
   public BigInteger convertRepresentation(BigInteger b) {
     BigInteger actual = b.mod(modulus);
     if (actual.compareTo(modulusHalf) > 0) {
       actual = actual.subtract(modulus);
     }
     return actual;
-  }
-
-  @Override
-  public void addOutputProtocolToBatch(SpdzOutputProtocol<?> p) {
-    this.outputProtocols.add(p);
-  }
-
-  @Override
-  public final List<SpdzOutputProtocol<?>> getOutputProtocolsInBatch() {
-    return this.outputProtocols;
   }
 }
