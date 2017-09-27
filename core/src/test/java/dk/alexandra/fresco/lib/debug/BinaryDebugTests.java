@@ -39,7 +39,7 @@ import org.junit.Assert;
 
 public class BinaryDebugTests {
 
-  public static class TestBinaryOpenAndPrint<ResourcePoolT extends ResourcePool>
+  public static class TestBinaryDebug<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory {
 
     @Override
@@ -58,6 +58,7 @@ public class BinaryDebugTests {
                 return () -> toPrint;
               }).seq((seq, inputs) -> {
                 seq.debug().openAndPrint("test", inputs, stream);
+                seq.debug().marker("test", stream);
                 return null;
               });
 
@@ -66,9 +67,37 @@ public class BinaryDebugTests {
 
           String output = bytes.toString("UTF-8");
 
-          Assert.assertEquals("test\n1001\n", output.replace("\r", ""));
+          Assert.assertEquals("test\n1001\ntest\n", output.replace("\r", ""));
         }
       };
     }
   }
+
+  public static class TestBinaryDebugToNullStream<ResourcePoolT extends ResourcePool>
+  extends TestThreadFactory {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
+
+        @Override
+        public void test() throws Exception {
+          Application<Void, ProtocolBuilderBinary> app =
+              producer -> producer.seq(seq -> {
+                List<DRes<SBool>> toPrint =
+                    BooleanHelper.known(new Boolean[] {true, false, false, true}, seq.binary());
+                return () -> toPrint;
+              }).seq((seq, inputs) -> {
+                seq.debug().openAndPrint("test", inputs);
+                seq.debug().marker("test");
+                return null;
+              });
+
+              secureComputationEngine.runApplication(app,
+                  ResourcePoolCreator.createResourcePool(conf.sceConf));
+        }
+      };
+    }
+  }
+
 }

@@ -116,9 +116,9 @@ public class MiscOIntGenerators {
 
     for (int i = 1; i <= l; i++) {
       int k = i;
-      if (i >= m) {
-        k++;
-      }
+      //if (i >= m) { // Private method is only called using m = 1!
+      k++;
+      //}
 
       // Apply recurrence relation
       f[i] = f[i - 1].multiply(BigInteger.valueOf(-k)).mod(modulus);

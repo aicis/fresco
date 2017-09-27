@@ -210,11 +210,16 @@ public class TestDummyProtocolSuite<ResourcePoolT extends ResourcePool>
   }
 
   @Test
-  public void test_Debug_Marker() throws Exception {
-    runTest(new BinaryDebugTests.TestBinaryOpenAndPrint<ResourcePoolT>(),
+  public void test_Debug_OpenAndPrint() throws Exception {
+    runTest(new BinaryDebugTests.TestBinaryDebug<ResourcePoolT>(),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET);
   }
 
+  @Test
+  public void test_Debug_OpenAndPrintSysout() throws Exception {
+    runTest(new BinaryDebugTests.TestBinaryDebugToNullStream<ResourcePoolT>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET);
+  }
 
   @Test
   public void test_Binary_Log_Nice() throws Exception {

@@ -22,6 +22,18 @@ public class TestSerializers {
 		Assert.assertEquals(b, bb);
 	}
 
+	 @Test
+	  public void testBigIntegerSerializerArray() {
+	    BigInteger b = new BigInteger("12983762173218321342");
+	    BigInteger b2 = new BigInteger("8376321832134446642");
+	    BigInteger b3 = new BigInteger("1298372323732183234");
+	    BigInteger[] bigInts  = {b, b2, b3};
+	    byte[] bytes = BigIntegerSerializerStream.toBytes(bigInts);
+	    ByteBuffer buf = ByteBuffer.wrap(bytes);
+	    BigInteger[] bb = BigIntegerSerializerStream.toBigIntegers(buf);
+	    Assert.assertEquals(bigInts, bb);
+	  }
+	
 	@Test
 	public void testBigIntegerWithFixedLengthSerializer() {
 		BigInteger mod = new BigInteger("1298376217321832134223");
