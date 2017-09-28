@@ -32,7 +32,7 @@ public class SCELoggingDecorator<
     OutputT res = this.delegate.runApplication(application, resources);
     long now = System.currentTimeMillis();
     long timeSpend = now - then;
-      this.runtimeLogger.add(new RuntimeInfo(application, timeSpend, protocolSuiteName));
+    this.runtimeLogger.add(new RuntimeInfo(application, timeSpend, protocolSuiteName));
     return res;
   }
 
