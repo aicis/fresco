@@ -109,26 +109,19 @@ public class CompareTests {
 
         @Override
         public void test() throws Exception {
-          Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app =
-              new Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric>() {
-            private BigInteger three = BigInteger.valueOf(3);
-            private BigInteger five = BigInteger.valueOf(5);
-
-            @Override
-            public DRes<Pair<BigInteger, BigInteger>> buildComputation(
-                ProtocolBuilderNumeric builder) {
-              Numeric numeric = builder.numeric();
-              DRes<SInt> x = numeric.known(three);
-              DRes<SInt> y = numeric.known(five);
-              Comparison comparison = builder.comparison();
-              DRes<SInt> compResult1 = comparison.compareLEQ(x, y);
-              DRes<SInt> compResult2 = comparison.compareLEQ(y, x);
-              DRes<BigInteger> res1;
-              DRes<BigInteger> res2;
-              res1 = numeric.open(compResult1);
-              res2 = numeric.open(compResult2);
-              return () -> new Pair<>(res1.out(), res2.out());
-            }
+          Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app = builder -> {
+            Numeric input = builder.numeric();
+            DRes<SInt> x = input.known(BigInteger.valueOf(3));
+            DRes<SInt> y = input.known(BigInteger.valueOf(5));
+            Comparison comparison = builder.comparison();
+            DRes<SInt> compResult1 = comparison.compareLEQ(x, y);
+            DRes<SInt> compResult2 = comparison.compareLEQ(y, x);
+            Numeric open = builder.numeric();
+            DRes<BigInteger> res1;
+            DRes<BigInteger> res2;
+            res1 = open.open(compResult1);
+            res2 = open.open(compResult2);
+            return () -> new Pair<>(res1.out(), res2.out());
           };
           Pair<BigInteger, BigInteger> output = runApplication(app);
           Assert.assertEquals(BigInteger.ONE, output.getFirst());
@@ -152,26 +145,17 @@ public class CompareTests {
 
         @Override
         public void test() throws Exception {
-          Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app =
-              new Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric>() {
-
-            private BigInteger three = BigInteger.valueOf(3);
-            private BigInteger five = BigInteger.valueOf(5);
-
-            @Override
-            public DRes<Pair<BigInteger, BigInteger>> buildComputation(
-                ProtocolBuilderNumeric builder) {
-              Numeric input = builder.numeric();
-              DRes<SInt> x = input.known(three);
-              DRes<SInt> y = input.known(five);
-              Comparison comparison = builder.comparison();
-              DRes<SInt> compResult1 = comparison.equals(x, x);
-              DRes<SInt> compResult2 = comparison.equals(x, y);
-              Numeric open = builder.numeric();
-              DRes<BigInteger> res1 = open.open(compResult1);
-              DRes<BigInteger> res2 = open.open(compResult2);
-              return () -> new Pair<>(res1.out(), res2.out());
-            }
+          Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app = builder -> {
+            Numeric input = builder.numeric();
+            DRes<SInt> x = input.known(BigInteger.valueOf(3));
+            DRes<SInt> y = input.known(BigInteger.valueOf(5));
+            Comparison comparison = builder.comparison();
+            DRes<SInt> compResult1 = comparison.equals(x, x);
+            DRes<SInt> compResult2 = comparison.equals(x, y);
+            Numeric open = builder.numeric();
+            DRes<BigInteger> res1 = open.open(compResult1);
+            DRes<BigInteger> res2 = open.open(compResult2);
+            return () -> new Pair<>(res1.out(), res2.out());
           };
           Pair<BigInteger, BigInteger> output = runApplication(app);
           Assert.assertEquals(BigInteger.ONE, output.getFirst());

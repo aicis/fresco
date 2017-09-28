@@ -1,18 +1,18 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.PerformanceLogger;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Comparison;
-import dk.alexandra.fresco.framework.builder.numeric.ComparisonLoggerDecorator;
 import dk.alexandra.fresco.framework.builder.numeric.DefaultComparison;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
-import dk.alexandra.fresco.framework.builder.numeric.NumericLoggingDecorator;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
+import dk.alexandra.fresco.logging.ComparisonLoggerDecorator;
+import dk.alexandra.fresco.logging.NumericLoggingDecorator;
+import dk.alexandra.fresco.logging.PerformanceLogger;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;

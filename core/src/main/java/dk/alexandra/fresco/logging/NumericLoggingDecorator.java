@@ -1,7 +1,7 @@
-package dk.alexandra.fresco.framework.builder.numeric;
+package dk.alexandra.fresco.logging;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.PerformanceLogger;
+import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 

@@ -10,10 +10,10 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 public class ProtocolBuilderNumeric extends
     ProtocolBuilderImpl<ProtocolBuilderNumeric> {
 
-  protected final BuilderFactoryNumeric factory;
+  private final BuilderFactoryNumeric factory;
   private BasicNumericContext basicNumericContext;
-  protected Numeric numeric;
-  protected Comparison comparison;
+  private Numeric numeric;
+  private Comparison comparison;
   private Collections collections;
   private AdvancedNumeric advancedNumeric;
   private Debug debug;

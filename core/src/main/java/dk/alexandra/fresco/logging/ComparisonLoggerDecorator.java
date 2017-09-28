@@ -1,7 +1,7 @@
-package dk.alexandra.fresco.framework.builder.numeric;
+package dk.alexandra.fresco.logging;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.PerformanceLogger;
+import dk.alexandra.fresco.framework.builder.numeric.Comparison;
 import dk.alexandra.fresco.framework.value.SInt;
 
 public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger {

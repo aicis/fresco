@@ -74,8 +74,8 @@ public class SearchingTests {
           for (int i = 0; i < PAIRS; i++) {
             final int counter = i;
 
-            Application<BigInteger, ProtocolBuilderNumeric> app1 =
-                producer -> producer.seq((seq) -> seq.numeric().known(BigInteger.valueOf(NOTFOUND)))
+            Application<BigInteger, ProtocolBuilderNumeric> app1 = producer -> 
+              producer.seq((seq) -> seq.numeric().known(BigInteger.valueOf(NOTFOUND)))
                     .seq((seq, notFound) -> seq
                         .seq(new LinearLookUp(sKeys.get(counter), sKeys, sValues, notFound)))
                 .seq((seq, out) -> seq.numeric().open(out));

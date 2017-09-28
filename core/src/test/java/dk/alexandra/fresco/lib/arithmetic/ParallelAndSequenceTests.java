@@ -49,9 +49,12 @@ public class ParallelAndSequenceTests {
   private class TestApplicationSum implements Application<BigInteger, ProtocolBuilderNumeric> {
 
     @Override
-    public DRes<BigInteger> buildComputation(ProtocolBuilderNumeric producer) {
-      List<DRes<SInt>> input = Arrays.stream(inputAsArray)
-          .map((integer) -> convertToSInt(integer, producer)).collect(Collectors.toList());
+    public DRes<BigInteger> buildComputation(
+        ProtocolBuilderNumeric producer) {
+      List<DRes<SInt>> input =
+          Arrays.stream(inputAsArray)
+              .map((integer) -> convertToSInt(integer, producer))
+              .collect(Collectors.toList());
       DRes<SInt> result = producer.advancedNumeric().sum(input);
       return producer.numeric().open(result);
     }
@@ -61,9 +64,12 @@ public class ParallelAndSequenceTests {
   private class TestApplicationMult implements Application<BigInteger, ProtocolBuilderNumeric> {
 
     @Override
-    public DRes<BigInteger> buildComputation(ProtocolBuilderNumeric producer) {
-      DRes<SInt> result = producer.advancedNumeric().product(Arrays.stream(inputAsArray)
-          .map((integer) -> convertToSInt(integer, producer)).collect(Collectors.toList()));
+    public DRes<BigInteger> buildComputation(
+        ProtocolBuilderNumeric producer) {
+      DRes<SInt> result = producer.advancedNumeric().product(
+          Arrays.stream(inputAsArray)
+              .map((integer) -> convertToSInt(integer, producer))
+              .collect(Collectors.toList()));
       return producer.numeric().open(result);
     }
   }

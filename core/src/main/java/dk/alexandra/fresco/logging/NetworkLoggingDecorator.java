@@ -1,7 +1,7 @@
-package dk.alexandra.fresco.framework.network;
+package dk.alexandra.fresco.logging;
 
-import dk.alexandra.fresco.framework.PerformanceLogger;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;

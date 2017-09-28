@@ -75,7 +75,6 @@ public class InputSumExample {
 
     ResourcePoolT resourcePool = util.getResourcePool();
     runApplication(sce, resourcePool);
-    resourcePool.getNetwork().close();
   }
 
 }

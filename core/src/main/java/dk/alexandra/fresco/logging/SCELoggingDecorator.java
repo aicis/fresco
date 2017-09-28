@@ -1,8 +1,8 @@
-package dk.alexandra.fresco.framework.sce;
+package dk.alexandra.fresco.logging;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.PerformanceLogger;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.util.ArrayList;

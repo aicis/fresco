@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.framework;
+package dk.alexandra.fresco.logging;
 
 import java.text.DecimalFormat;
 import java.util.EnumSet;
