@@ -84,14 +84,15 @@ public abstract class AbstractSpdzTest {
         TestConfiguration.getNetworkConfigurations(noOfParties, ports);
     Map<Integer, TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
-    List<PerformanceLogger> pls = new ArrayList<>();
+    Map<Integer, List<PerformanceLogger>> pls = new HashMap<>();
     for (int playerId : netConf.keySet()) {
+      pls.put(playerId, new ArrayList<>());
       SpdzProtocolSuite protocolSuite = new SpdzProtocolSuite(150);
 
       BatchEvaluationStrategy<SpdzResourcePool> batchEvalStrat = EvaluationStrategy.fromEnum(evalStrategy);
       if(performanceloggerFlags != null && performanceloggerFlags.contains(Flag.LOG_NATIVE_BATCH)) {
-        batchEvalStrat = new BatchEvaluationLoggingDecorator<>(batchEvalStrat, playerId);
-        pls.add((PerformanceLogger) batchEvalStrat);
+        batchEvalStrat = new BatchEvaluationLoggingDecorator<>(batchEvalStrat);
+        pls.get(playerId).add((PerformanceLogger) batchEvalStrat);
       }
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
           new BatchedProtocolEvaluator<>(batchEvalStrat);
@@ -99,16 +100,16 @@ public abstract class AbstractSpdzTest {
       Network network = new KryoNetNetwork();
       network.init(netConf.get(playerId), 1);
       if(performanceloggerFlags != null && performanceloggerFlags.contains(Flag.LOG_NETWORK)) {
-        network = new NetworkLoggingDecorator(network, playerId);
-        pls.add((PerformanceLogger) network);
+        network = new NetworkLoggingDecorator(network);
+        pls.get(playerId).add((PerformanceLogger) network);
       }          
       SpdzResourcePool rp = createResourcePool(playerId, noOfParties, network, new Random(),
           new DetermSecureRandom(), preProStrat);
       SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce = 
           new SecureComputationEngineImpl<>(protocolSuite, evaluator);
       if(performanceloggerFlags != null && performanceloggerFlags.contains(Flag.LOG_RUNTIME)) {
-        sce = new SCELoggingDecorator<>(sce, protocolSuite, playerId);
-        pls.add((PerformanceLogger) sce);
+        sce = new SCELoggingDecorator<>(sce, protocolSuite);
+        pls.get(playerId).add((PerformanceLogger) sce);
       }
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>(
@@ -117,8 +118,10 @@ public abstract class AbstractSpdzTest {
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
-    for(PerformanceLogger pl : pls) {
-      pl.printPerformanceLog();
+    for(Integer pId : pls.keySet()) {
+      for(PerformanceLogger pl : pls.get(pId)) {
+        pl.printPerformanceLog(pId);
+      }
     }
   }
 

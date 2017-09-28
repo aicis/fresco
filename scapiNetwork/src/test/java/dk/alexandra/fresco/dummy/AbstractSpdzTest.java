@@ -65,7 +65,7 @@ import java.util.Random;
  */
 public abstract class AbstractSpdzTest {
 
-  protected List<PerformanceLogger> runTest(
+  protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, int noOfParties, EnumSet<Flag> performanceLoggerFlags)
           throws Exception {
@@ -78,22 +78,23 @@ public abstract class AbstractSpdzTest {
         TestConfiguration.getNetworkConfigurations(noOfParties, ports);
     Map<Integer, TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
-    List<PerformanceLogger> pls = new ArrayList<>();
+    Map<Integer, List<PerformanceLogger>> pls = new HashMap<>();
     for (int playerId : netConf.keySet()) {
+      pls.put(playerId, new ArrayList<>());
       SpdzProtocolSuite protocolSuite = new SpdzProtocolSuite(150);
 
       BatchEvaluationStrategy<SpdzResourcePool> batchStrat = EvaluationStrategy.fromEnum(evalStrategy);
       if(performanceLoggerFlags != null && performanceLoggerFlags.contains(Flag.LOG_NATIVE_BATCH)) {
-        batchStrat = new BatchEvaluationLoggingDecorator<>(batchStrat, playerId);
-        pls.add((PerformanceLogger) batchStrat);
+        batchStrat = new BatchEvaluationLoggingDecorator<>(batchStrat);
+        pls.get(playerId).add((PerformanceLogger) batchStrat);
       }
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
           new BatchedProtocolEvaluator<>(batchStrat);
       Network network = new ScapiNetworkImpl();
       network.init(netConf.get(playerId), 1);      
       if (performanceLoggerFlags != null && performanceLoggerFlags.contains(Flag.LOG_NETWORK)) {
-        network = new NetworkLoggingDecorator(network, playerId);
-        pls.add((PerformanceLogger) network);
+        network = new NetworkLoggingDecorator(network);
+        pls.get(playerId).add((PerformanceLogger) network);
       }
       
       SpdzResourcePool rp = createResourcePool(playerId, noOfParties, network, new Random(),
@@ -101,8 +102,8 @@ public abstract class AbstractSpdzTest {
       SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce = 
           new SecureComputationEngineImpl<>(protocolSuite, evaluator);
       if(performanceLoggerFlags != null && performanceLoggerFlags.contains(Flag.LOG_RUNTIME)) {
-        sce = new SCELoggingDecorator<>(sce, protocolSuite, playerId);
-        pls.add((PerformanceLogger) sce);
+        sce = new SCELoggingDecorator<>(sce, protocolSuite);
+        pls.get(playerId).add((PerformanceLogger) sce);
       }
       
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
@@ -112,10 +113,11 @@ public abstract class AbstractSpdzTest {
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
-    for(PerformanceLogger pl : pls) {
-      pl.printPerformanceLog();
+    for(Integer pId : pls.keySet()) {
+      for(PerformanceLogger pl : pls.get(pId)) {
+        pl.printPerformanceLog(pId);
+      }
     }
-    return pls;
   }
 
   private SpdzResourcePool createResourcePool(int myId, int size, Network network, Random rand,

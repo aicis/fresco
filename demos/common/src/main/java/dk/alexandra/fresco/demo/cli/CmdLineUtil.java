@@ -265,7 +265,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     try {
       BatchEvaluationStrategy<ResourcePoolT> batchEvalStrat = EvaluationStrategy.fromString(this.cmd.getOptionValue("e", EvaluationStrategy.SEQUENTIAL.name()));
       if(this.flags != null) {
-        batchEvalStrat = new BatchEvaluationLoggingDecorator<>(batchEvalStrat, myId);
+        batchEvalStrat = new BatchEvaluationLoggingDecorator<>(batchEvalStrat);
       }
       this.evaluator = new BatchedProtocolEvaluator<>(batchEvalStrat);
     } catch (ConfigurationException e) {
@@ -288,7 +288,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     this.networkConfiguration = new NetworkConfigurationImpl(myId, parties);
     this.network = new KryoNetNetwork();
     if (flags != null) {
-      this.network = new NetworkLoggingDecorator(network, myId);
+      this.network = new NetworkLoggingDecorator(network);
     }
     this.network.init(networkConfiguration, 1);
 
@@ -381,7 +381,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     
     this.sce = new SecureComputationEngineImpl<>(protocolSuite, evaluator);
     if(flags != null) {
-      this.sce = new SCELoggingDecorator<>(sce, protocolSuite, this.networkConfiguration.getMyId());
+      this.sce = new SCELoggingDecorator<>(sce, protocolSuite);
     }
     
     return this.cmd;
