@@ -13,10 +13,10 @@ import org.slf4j.LoggerFactory;
  * @author Kasper Damgaard
  *
  */
-public abstract class PerformanceLogger {
+public interface PerformanceLogger {
 
-  protected Logger log = LoggerFactory.getLogger(PerformanceLogger.class);
-  protected DecimalFormat df = new DecimalFormat("#.00");
+  public Logger log = LoggerFactory.getLogger(PerformanceLogger.class);
+  public DecimalFormat df = new DecimalFormat("#.00");
   
   public enum Flag {
     LOG_NETWORK, LOG_RUNTIME, LOG_NATIVE_BATCH;
@@ -24,17 +24,10 @@ public abstract class PerformanceLogger {
     public static final EnumSet<Flag> ALL_OPTS = EnumSet.allOf(Flag.class);
   }
 
-  protected final int myId;
-  protected int counter = 0;
-
-  public PerformanceLogger(int myId) {
-    this.myId = myId;
-  }
-
   /**
    * Prints any performance numbers picked up.
    */
-  public abstract void printPerformanceLog();
+  public abstract void printPerformanceLog(int myId);
   
   /**
    * Resets any counters/maps/lists used. 

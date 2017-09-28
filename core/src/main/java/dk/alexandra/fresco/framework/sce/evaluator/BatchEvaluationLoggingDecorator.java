@@ -11,17 +11,16 @@ import java.io.IOException;
 public class BatchEvaluationLoggingDecorator<
   ResourcePoolT extends ResourcePool, 
   Builder extends ProtocolBuilder
-  > 
-  extends PerformanceLogger
-  implements BatchEvaluationStrategy<ResourcePoolT>  {
+  >   
+  implements BatchEvaluationStrategy<ResourcePoolT>, PerformanceLogger {
 
   private BatchEvaluationStrategy<ResourcePoolT> delegate;
+  private int counter = 0;
   private int noNativeProtocols = 0;
   private int minNoNativeProtocolsPerBatch = Integer.MAX_VALUE;
   private int maxNoNativeProtocolsPerBatch = 0;
 
-  public BatchEvaluationLoggingDecorator(BatchEvaluationStrategy<ResourcePoolT> batchEvaluation, int myId) {
-    super(myId);
+  public BatchEvaluationLoggingDecorator(BatchEvaluationStrategy<ResourcePoolT> batchEvaluation) {
     this.delegate = batchEvaluation;
   }
 
@@ -42,8 +41,8 @@ public class BatchEvaluationLoggingDecorator<
   }
 
   @Override
-  public void printPerformanceLog() {
-    log.info("=== P"+this.myId+": Native protocols per batch metrics ===");
+  public void printPerformanceLog(int myId) {
+    log.info("=== P"+myId+": Native protocols per batch metrics ===");
     if (counter == 0) {
       log.info("No batches were recorded");
     } else {

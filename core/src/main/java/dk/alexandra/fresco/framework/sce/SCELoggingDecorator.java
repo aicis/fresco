@@ -12,17 +12,15 @@ import java.util.concurrent.Future;
 public class SCELoggingDecorator<
   ResourcePoolT extends ResourcePool, 
   Builder extends ProtocolBuilder
-  >
-  extends PerformanceLogger
-  implements SecureComputationEngine<ResourcePoolT, Builder> {
+  >  
+  implements SecureComputationEngine<ResourcePoolT, Builder>, PerformanceLogger {
 
   private SecureComputationEngine<ResourcePoolT, Builder> delegate;
   private String protocolSuiteName;
   private List<RuntimeInfo> runtimeLogger = new ArrayList<>();
 
   public SCELoggingDecorator(SecureComputationEngine<ResourcePoolT, Builder> sce,
-      ProtocolSuite<ResourcePoolT, Builder> suite, int myId) {
-    super(myId);
+      ProtocolSuite<ResourcePoolT, Builder> suite) {
     this.delegate = sce;    
     this.protocolSuiteName = suite.getClass().getName();
   }
@@ -57,8 +55,8 @@ public class SCELoggingDecorator<
   }
 
   @Override
-  public void printPerformanceLog() {
-    log.info("=== P"+this.myId+": Running times for applications ===");
+  public void printPerformanceLog(int myId) {
+    log.info("=== P"+myId+": Running times for applications ===");
     if (this.runtimeLogger.isEmpty()) {
       log.info("No applications were run, or they have not completed yet.");
     }

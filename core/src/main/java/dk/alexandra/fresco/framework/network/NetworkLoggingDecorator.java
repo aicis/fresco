@@ -7,15 +7,14 @@ import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class NetworkLoggingDecorator extends PerformanceLogger implements Network {
+public class NetworkLoggingDecorator implements Network, PerformanceLogger  {
 
   private Network delegate;
   private ConcurrentMap<Integer, Pair<Integer, Integer>> networkLogger = new ConcurrentHashMap<>();
   private int minBytesReceived = Integer.MAX_VALUE;
   private int maxBytesReceived = 0;
 
-  public NetworkLoggingDecorator(Network network, int myId) {
-    super(myId);
+  public NetworkLoggingDecorator(Network network) {
     this.delegate = network;
   }
 
@@ -60,8 +59,8 @@ public class NetworkLoggingDecorator extends PerformanceLogger implements Networ
   }
 
   @Override
-  public void printPerformanceLog() {
-    log.info("=== P"+this.myId+": Network logged - results ===");
+  public void printPerformanceLog(int myId) {
+    log.info("=== P"+myId+": Network logged - results ===");
     if (networkLogger.isEmpty()) {
       log.info("No network activity logged");
     } else {

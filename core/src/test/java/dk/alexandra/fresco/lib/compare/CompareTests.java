@@ -117,17 +117,16 @@ public class CompareTests {
             @Override
             public DRes<Pair<BigInteger, BigInteger>> buildComputation(
                 ProtocolBuilderNumeric builder) {
-              Numeric input = builder.numeric();
-              DRes<SInt> x = input.known(three);
-              DRes<SInt> y = input.known(five);
+              Numeric numeric = builder.numeric();
+              DRes<SInt> x = numeric.known(three);
+              DRes<SInt> y = numeric.known(five);
               Comparison comparison = builder.comparison();
               DRes<SInt> compResult1 = comparison.compareLEQ(x, y);
               DRes<SInt> compResult2 = comparison.compareLEQ(y, x);
-              Numeric open = builder.numeric();
               DRes<BigInteger> res1;
               DRes<BigInteger> res2;
-              res1 = open.open(compResult1);
-              res2 = open.open(compResult2);
+              res1 = numeric.open(compResult1);
+              res2 = numeric.open(compResult2);
               return () -> new Pair<>(res1.out(), res2.out());
             }
           };

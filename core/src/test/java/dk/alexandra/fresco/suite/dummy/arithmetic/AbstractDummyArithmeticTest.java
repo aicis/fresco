@@ -95,14 +95,14 @@ public abstract class AbstractDummyArithmeticTest {
           EvaluationStrategy.fromEnum(evalStrategy);
       if (performanceLoggerFlags != null && performanceLoggerFlags.contains(Flag.LOG_NATIVE_BATCH)) {
         batchEvaluationStrategy =
-            new BatchEvaluationLoggingDecorator<>(batchEvaluationStrategy, playerId);
+            new BatchEvaluationLoggingDecorator<>(batchEvaluationStrategy);
         pls.add((PerformanceLogger) batchEvaluationStrategy);
       }
       ProtocolEvaluator<DummyArithmeticResourcePool, ProtocolBuilderNumeric> evaluator =
           new BatchedProtocolEvaluator<>(batchEvaluationStrategy);
       Network network = new KryoNetNetwork();      
       if(performanceLoggerFlags != null && performanceLoggerFlags.contains(Flag.LOG_NETWORK)) {
-        network = new NetworkLoggingDecorator(network, playerId);
+        network = new NetworkLoggingDecorator(network);
         pls.add((PerformanceLogger) network);
       }
       network.init(partyNetConf, 1);
@@ -113,7 +113,7 @@ public abstract class AbstractDummyArithmeticTest {
       SecureComputationEngine<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(ps, evaluator);
       if(performanceLoggerFlags != null && performanceLoggerFlags.contains(Flag.LOG_RUNTIME)) {
-        sce = new SCELoggingDecorator<>(sce, ps, playerId);
+        sce = new SCELoggingDecorator<>(sce, ps);
         pls.add((PerformanceLogger) sce);
       }
 
@@ -123,8 +123,9 @@ public abstract class AbstractDummyArithmeticTest {
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
+    int id = 1;
     for(PerformanceLogger pl : pls) {
-      pl.printPerformanceLog();
+      pl.printPerformanceLog(id++);
       pl.reset();
     }
   }
