@@ -1,8 +1,9 @@
-package dk.alexandra.fresco.logging;
+package dk.alexandra.fresco.logging.arithmetic;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.logging.PerformanceLogger;
 import java.math.BigInteger;
 
 public class NumericLoggingDecorator implements Numeric, PerformanceLogger {
