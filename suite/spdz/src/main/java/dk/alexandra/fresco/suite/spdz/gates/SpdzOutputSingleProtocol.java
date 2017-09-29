@@ -40,7 +40,8 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-public class SpdzOutputSingleProtocol extends SpdzOutputProtocol<BigInteger> {
+public class SpdzOutputSingleProtocol extends SpdzNativeProtocol<BigInteger>
+    implements SpdzOutputProtocol {
 
   private DRes<SInt> in;
   private BigInteger out;

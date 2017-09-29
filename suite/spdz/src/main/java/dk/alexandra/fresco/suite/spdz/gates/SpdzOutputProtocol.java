@@ -8,6 +8,6 @@ package dk.alexandra.fresco.suite.spdz.gates;
  * @author Kasper Damgaard
  *
  */
-public abstract class SpdzOutputProtocol<OutputT> extends SpdzNativeProtocol<OutputT> {
+public interface SpdzOutputProtocol {
 
 }

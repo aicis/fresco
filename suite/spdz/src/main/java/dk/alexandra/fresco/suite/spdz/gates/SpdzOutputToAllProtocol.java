@@ -38,7 +38,8 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-public class SpdzOutputToAllProtocol extends SpdzOutputProtocol<BigInteger> {
+public class SpdzOutputToAllProtocol extends SpdzNativeProtocol<BigInteger>
+    implements SpdzOutputProtocol {
 
   private DRes<SInt> in;
   private BigInteger out;
