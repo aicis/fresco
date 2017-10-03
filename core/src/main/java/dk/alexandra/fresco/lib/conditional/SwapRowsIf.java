@@ -31,6 +31,9 @@ import dk.alexandra.fresco.framework.util.RowPairD;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.List;
 
+/**
+ * Swaps the two rows if the condition bit is true, and does nothing if false.
+ */
 public class SwapRowsIf
     implements ComputationParallel<RowPairD<SInt, SInt>, ProtocolBuilderNumeric> {
 

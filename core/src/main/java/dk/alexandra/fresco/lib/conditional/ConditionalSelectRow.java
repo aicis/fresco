@@ -31,6 +31,10 @@ import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Does a conditional select on two lists rather than on two numbers. Equivalent to the java
+ * expression: <code>condition ? left : right</code>
+ */
 public class ConditionalSelectRow
     implements ComputationParallel<List<DRes<SInt>>, ProtocolBuilderNumeric> {
 

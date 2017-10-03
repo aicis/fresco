@@ -94,12 +94,12 @@ public class ExitingVariable implements
       for (int i = 0; i < tableauHeight - 1; i++) {
         ArrayList<DRes<SInt>> tableauRow = tableau.getC().getRow(i);
         enteringColumn.add(
-            advanced.dot(enteringIndex, tableauRow)
+            advanced.innerProduct(enteringIndex, tableauRow)
         );
       }
       ArrayList<DRes<SInt>> tableauRow = tableau.getF();
       enteringColumn.add(
-          advanced.dot(enteringIndex, tableauRow)
+          advanced.innerProduct(enteringIndex, tableauRow)
       );
       return () -> enteringColumn;
     }).par((par, enteringColumn) -> {
@@ -109,7 +109,7 @@ public class ExitingVariable implements
       for (int i = 0; i < tableauHeight; i++) {
         ArrayList<DRes<SInt>> updateRow = updateMatrix.getRow(i);
         updatedEnteringColumn.add(
-            advanced.dot(updateRow, enteringColumn)
+            advanced.innerProduct(updateRow, enteringColumn)
         );
       }
 
@@ -118,7 +118,7 @@ public class ExitingVariable implements
       for (int i = 0; i < tableauHeight - 1; i++) {
         List<DRes<SInt>> updateRow = updateMatrix.getRow(i).subList(0, tableauHeight - 1);
         updatedB.add(
-            advanced.dot(updateRow, tableau.getB())
+            advanced.innerProduct(updateRow, tableau.getB())
         );
       }
       return Pair.lazy(updatedEnteringColumn, updatedB);

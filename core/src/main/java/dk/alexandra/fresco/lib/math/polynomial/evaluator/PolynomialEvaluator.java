@@ -32,6 +32,9 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.polynomial.Polynomial;
 
+/**
+ * Evaluates a polynomial using Horner's method.
+ */
 public class PolynomialEvaluator implements Computation<SInt, ProtocolBuilderNumeric> {
 
   private final DRes<SInt> x;

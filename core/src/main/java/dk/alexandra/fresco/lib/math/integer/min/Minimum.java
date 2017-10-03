@@ -34,12 +34,14 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelect;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Computes the minimum element in a list. 
+ */
 public class Minimum implements
     Computation<Pair<List<DRes<SInt>>, SInt>, ProtocolBuilderNumeric> {
 

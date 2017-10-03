@@ -2,7 +2,7 @@ package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
-import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
+import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 
 /**
@@ -25,7 +25,7 @@ public interface BuilderFactoryNumeric extends BuilderFactory<ProtocolBuilderNum
 
   Numeric createNumeric(ProtocolBuilderNumeric builder);
 
-  MiscOIntGenerators getBigIntegerHelper();
+  MiscBigIntegerGenerators getBigIntegerHelper();
 
   default Comparison createComparison(ProtocolBuilderNumeric builder) {
     return new DefaultComparison(this, builder);

@@ -33,6 +33,9 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
+/**
+ * Computes the inverse of an element within the field of operation. 
+ */
 public class Inversion implements Computation<SInt, ProtocolBuilderNumeric> {
 
   private final DRes<SInt> x;

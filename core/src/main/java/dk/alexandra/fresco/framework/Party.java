@@ -26,7 +26,9 @@
  *******************************************************************************/
 package dk.alexandra.fresco.framework;
 
-
+/**
+ * FRESCO's view of a MPC party. 
+ */
 public class Party {
 
 	private final int id;

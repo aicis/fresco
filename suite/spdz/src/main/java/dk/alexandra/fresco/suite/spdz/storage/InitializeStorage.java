@@ -48,6 +48,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Class which is useful in tests where we use a file-based approach for fetching the pre-processed
+ * material. It works by utilizing the {@link FakeTripGen} to generate correct, but not secure
+ * pre-processed values.
+ */
 public class InitializeStorage {
 
 	/**

@@ -37,6 +37,13 @@ import java.math.BigInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * MPC Decryption of an already MIMC encrypted number. See {@link MiMCEncryption} for more
+ * information.
+ * 
+ * @author Kasper Damgaard
+ *
+ */
 public class MiMCDecryption implements Computation<SInt, ProtocolBuilderNumeric> {
 
   // TODO: require that our modulus - 1 and 3 are co-prime
@@ -81,10 +88,10 @@ public class MiMCDecryption implements Computation<SInt, ProtocolBuilderNumeric>
 
     return builder.seq(seq -> {
 
-			/*
-       * We're in the first round so we need to initialize
-			 * by subtracting the key from the input cipher text
-			 */
+      /*
+       * We're in the first round so we need to initialize by subtracting the key from the input
+       * cipher text
+       */
       DRes<SInt> sub = seq.numeric().sub(cipherText, encryptionKey);
       return new IterationState(1, sub);
     }).whileLoop(

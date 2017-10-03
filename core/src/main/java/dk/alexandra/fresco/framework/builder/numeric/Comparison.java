@@ -4,6 +4,9 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.framework.value.SInt;
 
+/**
+ * Interface for comparing numeric values
+ */
 public interface Comparison extends ComputationDirectory {
 
   DRes<SInt> equals(int bitLength, DRes<SInt> x, DRes<SInt> y);

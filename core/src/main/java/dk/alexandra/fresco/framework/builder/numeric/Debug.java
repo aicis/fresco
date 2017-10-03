@@ -7,6 +7,11 @@ import dk.alexandra.fresco.lib.collections.Matrix;
 import java.io.PrintStream;
 import java.util.List;
 
+/**
+ * Be careful when using the methods within this interface, as most would not belong in production
+ * code. Some of the methods opens values in order to print the actual plain-text values for
+ * inspection.
+ */
 public interface Debug extends ComputationDirectory {
 
   /**

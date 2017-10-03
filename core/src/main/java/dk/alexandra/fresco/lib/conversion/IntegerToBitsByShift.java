@@ -7,6 +7,10 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.List;
 
+/**
+ * Converts a number to its bit representation by shifting the maximum bit-length of the number
+ * times.
+ */
 public class IntegerToBitsByShift implements
     Computation<List<SInt>, ProtocolBuilderNumeric> {
 

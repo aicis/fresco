@@ -34,17 +34,17 @@ import java.util.Map;
 
 
 /**
- * Misc computation on OInts -- results are cached
+ * Misc computation on BigIntegers -- results are cached
  *
  * @author ttoft
  */
-public class MiscOIntGenerators {
+public class MiscBigIntegerGenerators {
 
   private Map<Integer, BigInteger[]> coefficientsOfPolynomiums;
   private LinkedList<BigInteger> twoPowersList;
   private BigInteger modulus;
 
-  public MiscOIntGenerators(BigInteger modulus) {
+  public MiscBigIntegerGenerators(BigInteger modulus) {
     coefficientsOfPolynomiums = new HashMap<>();
 
     this.modulus = modulus;
@@ -138,7 +138,11 @@ public class MiscOIntGenerators {
     return f;
   }
 
-
+  /**
+   * Generates a list of [2^0, 2^1, ..., 2^length]
+   * @param length
+   * @return
+   */
   public List<BigInteger> getTwoPowersList(int length) {
     if (length > twoPowersList.size()) {
       BigInteger currentValue = twoPowersList.getLast();
@@ -150,6 +154,13 @@ public class MiscOIntGenerators {
     return twoPowersList.subList(0, length);
   }
 
+  /**
+   * Generates the sequence: [value, value^2, value^3, ..., value^maxBitSize-1]
+   * 
+   * @param value The base of the exponentiation sequence
+   * @param maxBitSize The length of the sequence
+   * @return [value, value^2, value^3, ..., value^maxBitSize-1]
+   */
   public BigInteger[] getExpFromOInt(BigInteger value, int maxBitSize) {
     BigInteger[] Ms = new BigInteger[maxBitSize];
     Ms[0] = value;

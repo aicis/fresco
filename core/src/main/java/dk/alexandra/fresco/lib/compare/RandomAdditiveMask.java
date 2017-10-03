@@ -34,11 +34,11 @@ public class RandomAdditiveMask implements
       allBits.add(randomBit);
     }
 
-    MiscOIntGenerators oIntGenerators = builder.getBigIntegerHelper();
+    MiscBigIntegerGenerators oIntGenerators = builder.getBigIntegerHelper();
 
     List<BigInteger> twoPows = oIntGenerators.getTwoPowersList(securityParameter + noOfBits);
     AdvancedNumeric innerProductBuilder = builder.advancedNumeric();
-    value = innerProductBuilder.openDot(twoPows, allBits);
+    value = innerProductBuilder.innerProductWithPublicPart(twoPows, allBits);
     bits = allBits.subList(0, noOfBits);
     return () -> new AdvancedNumeric.RandomAdditiveMask(
         bits,

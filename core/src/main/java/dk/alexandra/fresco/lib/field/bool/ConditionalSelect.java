@@ -29,6 +29,9 @@ import dk.alexandra.fresco.framework.builder.binary.Binary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
 
+/**
+ * Binary conditional select. Returns <code> selector ? a : b</code>
+ */
 public class ConditionalSelect implements Computation<SBool, ProtocolBuilderBinary> {
 
   private final DRes<SBool> a, b, selector;

@@ -25,10 +25,13 @@ package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
+import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.lib.arithmetic.ComparisonTests;
 import dk.alexandra.fresco.lib.arithmetic.SortingTests;
 import dk.alexandra.fresco.lib.list.EliminateDuplicatesTests.TestFindDuplicatesOne;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
+import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
 import org.junit.Test;
 
 public class TestSpdzComparison extends AbstractSpdzTest {
@@ -37,6 +40,21 @@ public class TestSpdzComparison extends AbstractSpdzTest {
   public void test_compareLT_Sequential() throws Exception {
     runTest(new ComparisonTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+  }
+  
+  @Test
+  public void test_compareLT_Sequential_static() throws Exception {
+    int noOfThreads = 1;
+    try {
+      InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()),
+          2, noOfThreads, 1000, 100, 10000, 100);
+      runTest(new ComparisonTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
+          NetworkingStrategy.KRYONET, PreprocessingStrategy.STATIC, 2);
+    } catch (Exception e) {
+
+    } finally {
+      InitializeStorage.cleanup();
+    }
   }
 
   @Test

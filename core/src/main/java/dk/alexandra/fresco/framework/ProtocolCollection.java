@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 
 /**
  * A collection of protocol that has a specific capacity. Elements can be added but not expected
- * after the capacity has been reacehd, the Iterable allows traversal and removal.
+ * after the capacity has been reached, the Iterable interface allows traversal and removal.
  */
 public interface ProtocolCollection<ResourcePoolT extends ResourcePool>
     extends Iterable<NativeProtocol<?, ResourcePoolT>> {

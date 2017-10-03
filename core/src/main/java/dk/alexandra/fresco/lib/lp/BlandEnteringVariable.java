@@ -79,7 +79,7 @@ public class BlandEnteringVariable
 
         AdvancedNumeric advancedNumericBuilder = par.advancedNumeric();
         updatedF.add(
-            advancedNumericBuilder.dot(
+            advancedNumericBuilder.innerProduct(
                 constraintColumn,
                 updateVector)
         );

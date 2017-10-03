@@ -93,13 +93,13 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
 
 
   @Override
-  public DRes<SInt> dot(List<DRes<SInt>> aVector,
+  public DRes<SInt> innerProduct(List<DRes<SInt>> aVector,
       List<DRes<SInt>> bVector) {
     return builder.seq(new InnerProduct(aVector, bVector));
   }
 
   @Override
-  public DRes<SInt> openDot(List<BigInteger> aVector, List<DRes<SInt>> bVector) {
+  public DRes<SInt> innerProductWithPublicPart(List<BigInteger> aVector, List<DRes<SInt>> bVector) {
     return builder.seq(new InnerProductOpen(aVector, bVector));
   }
 

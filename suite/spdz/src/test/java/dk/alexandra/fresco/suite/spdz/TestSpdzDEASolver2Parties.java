@@ -26,16 +26,12 @@ package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
-import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.lib.statistics.DEASolver;
 import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
 import dk.alexandra.fresco.lib.statistics.DEASolverTests.RandomDataDeaTest;
 import dk.alexandra.fresco.lib.statistics.DEASolverTests.TestDeaFixed1;
 import dk.alexandra.fresco.lib.statistics.DEASolverTests.TestDeaFixed2;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
-import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
-import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -87,41 +83,4 @@ public class TestSpdzDEASolver2Parties extends AbstractSpdzTest {
         EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
-
-  // Ignoring the streamed tests since they take too long with respect to generating preprocessed
-  // material
-  // Note that the poor performance of non-batched evaulation is most likely also the case here.
-  // TODO: Maybe add the @Category(IntegrationTest.class) instead of @Ignore.
-  @Ignore
-  @Test
-  public void test_DEASolver_2_Sequential_batched_streamed() throws Exception {
-    int noOfThreads = 1;
-      InitializeStorage.cleanup();
-    try {
-      InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()),
-          2, noOfThreads, 20000, 500, 800000, 3000);
-      runTest(new RandomDataDeaTest<>(4, 1, 10, 2, DEASolver.AnalysisType.OUTPUT_EFFICIENCY),
-          EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
-          PreprocessingStrategy.STATIC, 2);
-    } finally {
-      InitializeStorage.cleanup();
-    }
-    }
-
-
-  @Test
-  @Ignore
-  public void test_DEASolver_2_SequentialBatched_streamed() throws Exception {
-    int noOfThreads = 2;
-      InitializeStorage.cleanup();
-    try {
-      InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()),
-          2, noOfThreads, 20000, 500, 800000, 3000);
-      runTest(new RandomDataDeaTest<>(4, 1, 10, 2, DEASolver.AnalysisType.OUTPUT_EFFICIENCY),
-          EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
-          PreprocessingStrategy.STATIC, 2);
-    } finally {
-      InitializeStorage.cleanup();
-    }
-    }
-  }
+}

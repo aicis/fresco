@@ -81,7 +81,7 @@ public class EnteringVariable
 
         AdvancedNumeric advancedNumericBuilder = par.advancedNumeric();
         updatedF.add(
-            advancedNumericBuilder.dot(
+            advancedNumericBuilder.innerProduct(
                 constraintColumn,
                 updateVector)
         );

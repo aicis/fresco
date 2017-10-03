@@ -33,6 +33,10 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
+/**
+ * Finds the bit length of an integer. This is done by finding the bit representation of the integer
+ * and then returning the index of the highest set bit.
+ */
 public class BitLength implements Computation<SInt, ProtocolBuilderNumeric> {
 
   private DRes<SInt> input;

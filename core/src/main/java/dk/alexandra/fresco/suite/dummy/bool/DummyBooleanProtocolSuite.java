@@ -35,9 +35,7 @@ import java.util.Random;
 /**
  * Dummy protocol suite that does no secret computation. Only for testing purposes.
  *
- * Do NOT use in production! :-)
- *
- * Currently it only implements basic logic operations "natively".
+ * <b>NB: Do NOT use in production!</b>
  */
 public class DummyBooleanProtocolSuite
     implements ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> {

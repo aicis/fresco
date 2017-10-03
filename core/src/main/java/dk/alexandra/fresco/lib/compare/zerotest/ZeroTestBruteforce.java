@@ -11,6 +11,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Tests if a number of a maximum bitlength is actually 0 using a bruteforce technique. This is done
+ * by breaking the number down into the bit representation, masking them and then opening each. We
+ * then interpret each bit as points in a polynomial and evaluate it to get the result.
+ */
 public class ZeroTestBruteforce implements Computation<SInt, ProtocolBuilderNumeric> {
 
   private final int maxLength;
@@ -24,13 +29,12 @@ public class ZeroTestBruteforce implements Computation<SInt, ProtocolBuilderNume
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    BigInteger one = BigInteger.ONE;
     return builder.seq((seq) ->
         seq.numeric().getExponentiationPipe()
     ).seq((seq, expPipe) -> {
-      //Add one, mult and unmask
+      //Add one, mult with the random number and unmask
       Numeric numeric = seq.numeric();
-      DRes<SInt> increased = numeric.add(one, input);
+      DRes<SInt> increased = numeric.add(BigInteger.ONE, input);
       DRes<SInt> maskedS = numeric.mult(increased, () -> expPipe[0]);
       DRes<BigInteger> open = seq.numeric().open(maskedS);
       return () -> new Pair<>(expPipe, open.out());
@@ -57,7 +61,7 @@ public class ZeroTestBruteforce implements Computation<SInt, ProtocolBuilderNume
       System.arraycopy(polynomialCoefficients, 1,
           mostSignificantPolynomialCoefficients, 0, maxLength);
       DRes<SInt> tmp = seq.advancedNumeric()
-          .openDot(Arrays.asList(mostSignificantPolynomialCoefficients), powers);
+          .innerProductWithPublicPart(Arrays.asList(mostSignificantPolynomialCoefficients), powers);
       return seq.numeric().add(polynomialCoefficients[0], tmp);
     });
   }

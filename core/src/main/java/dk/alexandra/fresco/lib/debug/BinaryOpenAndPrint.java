@@ -31,6 +31,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * <b>NB: Use with caution as using this class will open values to all MPC parties.</b>
+ * 
+ * This class opens a binary number for debugging purposes and prints a message along with the
+ * revealed values.
+ * 
+ */
 public class BinaryOpenAndPrint implements
     dk.alexandra.fresco.framework.builder.Computation<Void, ProtocolBuilderBinary> {
 

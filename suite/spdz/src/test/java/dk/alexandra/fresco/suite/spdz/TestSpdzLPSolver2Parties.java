@@ -25,12 +25,8 @@ package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
-import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.lib.lp.LPSolver.PivotRule;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
-import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class TestSpdzLPSolver2Parties extends AbstractSpdzTest {
@@ -53,22 +49,5 @@ public class TestSpdzLPSolver2Parties extends AbstractSpdzTest {
     runTest(new LPSolverTests.TestLPSolver<>(PivotRule.DANZIG),
         EvaluationStrategy.SEQUENTIAL_BATCHED,
         NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
-  }
-
-  @Ignore
-  @Test
-  public void test_LPSolver_2_Sequential_Batched_streamed() throws Exception {
-    int noOfThreads = 3;
-    InitializeStorage.cleanup();
-    try {
-      InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()),
-          2, noOfThreads, 10000, 1000, 500000, 2000);
-
-      runTest(new LPSolverTests.TestLPSolver<>(PivotRule.DANZIG),
-          EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
-          PreprocessingStrategy.STATIC, 2);
-    } finally {
-      InitializeStorage.cleanup();
-    }
   }
 }

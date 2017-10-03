@@ -30,6 +30,11 @@ import dk.alexandra.fresco.framework.network.Network;
 import java.security.SecureRandom;
 import java.util.Random;
 
+/**
+ * The ResourcePool gives the protocol suites and their native protocols access to whatever is
+ * within a Resource pool. A basic implementation contains the methods seen here, but often protocol
+ * suites would extend this. 
+ */
 public interface ResourcePool {
 
   /**
@@ -57,7 +62,7 @@ public interface ResourcePool {
 
   /**
    * Returns the secure version of the randomness generator of the system. Use
-   * where the randomness needs to be crypographically secure.
+   * where the randomness needs to be cryptographically secure.
    */
   SecureRandom getSecureRandom();
 

@@ -26,6 +26,9 @@ package dk.alexandra.fresco.framework.util;
 import java.util.BitSet;
 import java.util.List;
 
+/**
+ * Class for operating on bytes. Can also convert between a byte array and a hex string. 
+ */
 public class ByteArithmetic {
 
   // This is supposed to be a "static class", ie no instantiation

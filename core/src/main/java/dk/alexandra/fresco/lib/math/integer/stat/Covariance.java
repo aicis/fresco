@@ -35,6 +35,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Computes the covariance over two data vectors. If the mean is known, a more precise result will
+ * be given.
+ */
 public class Covariance implements Computation<SInt, ProtocolBuilderNumeric> {
 
   private final List<DRes<SInt>> data1;

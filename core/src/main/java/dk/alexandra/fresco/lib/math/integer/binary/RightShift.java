@@ -34,6 +34,9 @@ import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.Collections;
 
+/**
+ * Shifts a number to the right.
+ */
 public class RightShift implements Computation<RightShiftResult, ProtocolBuilderNumeric> {
 
   private final boolean calculateRemainders;

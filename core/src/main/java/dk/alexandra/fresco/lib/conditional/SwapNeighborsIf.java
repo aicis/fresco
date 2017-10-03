@@ -23,9 +23,6 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.conditional;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationParallel;
 import dk.alexandra.fresco.framework.builder.numeric.Collections;
@@ -33,7 +30,13 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.RowPairD;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
+import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * Swaps neighboring rows in a matrix depending on the swapping bits. Swaps are potentially done
+ * between rows <code>i</code> and <code>i+1</code> for all even <code>i</code>.
+ */
 public class SwapNeighborsIf
     implements ComputationParallel<Matrix<DRes<SInt>>, ProtocolBuilderNumeric> {
 

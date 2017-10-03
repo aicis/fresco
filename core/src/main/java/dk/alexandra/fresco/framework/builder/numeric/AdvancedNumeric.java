@@ -7,6 +7,9 @@ import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.List;
 
+/**
+ * Interface for advanced functionality applicable to numeric type applications. 
+ */
 public interface AdvancedNumeric extends ComputationDirectory {
 
   /**
@@ -63,11 +66,30 @@ public interface AdvancedNumeric extends ComputationDirectory {
    */
   DRes<List<SInt>> toBits(DRes<SInt> in, int maxInputLength);
 
-
+  /**
+   * Computes the exponentiation of x^e
+   * @param x The base
+   * @param e The exponent
+   * @param maxExponentLength The maximum length of the exponent.
+   * @return x^e
+   */
   DRes<SInt> exp(DRes<SInt> x, DRes<SInt> e, int maxExponentLength);
 
+  /**
+   * Computes the exponentiation of x^e
+   * @param x The base
+   * @param e The exponent
+   * @param maxExponentLength The maximum length of the exponent.
+   * @return x^e
+   */
   DRes<SInt> exp(BigInteger x, DRes<SInt> e, int maxExponentLength);
 
+  /**
+   * Computes the exponentiation of x^e
+   * @param x The base
+   * @param e The exponent
+   * @return x^e
+   */
   DRes<SInt> exp(DRes<SInt> x, BigInteger e);
 
   /**
@@ -86,10 +108,29 @@ public interface AdvancedNumeric extends ComputationDirectory {
    */
   DRes<SInt> log(DRes<SInt> input, int maxInputLength);
 
-  DRes<SInt> dot(List<DRes<SInt>> aVector, List<DRes<SInt>> bVector);
+  /**
+   * Computes the inner product between two vectors.
+   * 
+   * @param aVector The first vector
+   * @param bVector The second vector
+   * @return The inner product of the two given vectors
+   */
+  DRes<SInt> innerProduct(List<DRes<SInt>> aVector, List<DRes<SInt>> bVector);
 
-  DRes<SInt> openDot(List<BigInteger> aVector, List<DRes<SInt>> bVector);
+  /**
+   * Computes the inner product between a public vector and a secret vector. 
+   * 
+   * @param aVector The public vector
+   * @param bVector The secret vector
+   * @return The inner product of the two given vectors
+   */
+  DRes<SInt> innerProductWithPublicPart(List<BigInteger> aVector, List<DRes<SInt>> bVector);
 
+  /**
+   * Creates a string of random bits.
+   * @param noOfBits The amount of bits to create - i.e. the bit string length.
+   * @return A container holding the bit string once evaluated.
+   */
   DRes<RandomAdditiveMask> additiveMask(int noOfBits);
 
   /**
@@ -122,8 +163,21 @@ public interface AdvancedNumeric extends ComputationDirectory {
    */
   DRes<RightShiftResult> rightShiftWithRemainder(DRes<SInt> input, int shifts);
 
+  /**
+   * Computes the bit length of the input.
+   * 
+   * @param input The number to know the bit length of
+   * @param maxBitLength The maximum bit length this number can have (if unknown, set this to the
+   *        modulus bit size)
+   * @return The bit length of the input number.
+   */
   DRes<SInt> bitLength(DRes<SInt> input, int maxBitLength);
 
+  /**
+   * Compute the inverse of x within the field of operation
+   * @param x The element to take the inverse of
+   * @return x^-1 mod p where p is the modulus of the field.
+   */
   DRes<SInt> invert(DRes<SInt> x);
 
   /**

@@ -39,6 +39,7 @@ import java.util.Random;
 /**
  * The {@link ProtocolSuite} of the Dummy Arithmetic suite. Uses a
  * {@link DummyArithmeticResourcePool} and provides a {@link ProtocolBuilderNumeric}.
+ * <b>NB: Do NOT use in production!</b>
  */
 public class DummyArithmeticProtocolSuite
     implements ProtocolSuite<DummyArithmeticResourcePool, ProtocolBuilderNumeric> {

@@ -1,11 +1,11 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderImpl;
-import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
+import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 
 /**
- * Central class for building protocols that are based on numeric protocols.
+ * Central class for building protocols that are based on numeric protocol suites.
  */
 public class ProtocolBuilderNumeric extends
     ProtocolBuilderImpl<ProtocolBuilderNumeric> {
@@ -73,7 +73,7 @@ public class ProtocolBuilderNumeric extends
     return debug;
   }
 
-  public MiscOIntGenerators getBigIntegerHelper() {
+  public MiscBigIntegerGenerators getBigIntegerHelper() {
     return factory.getBigIntegerHelper();
   }
 }

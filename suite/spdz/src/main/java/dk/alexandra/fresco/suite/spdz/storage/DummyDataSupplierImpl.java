@@ -34,6 +34,10 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Data supplier which should not be used in production. It uses the same pre-generated values for
+ * supplying the online phase with data.
+ */
 public class DummyDataSupplierImpl implements DataSupplier {
 
   private int myId;

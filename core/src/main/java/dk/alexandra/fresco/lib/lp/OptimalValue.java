@@ -69,7 +69,7 @@ public class OptimalValue implements Computation<SInt, ProtocolBuilderNumeric> {
     column.addAll(tableau.getB());
     column.add(tableau.getZ());
     AdvancedNumeric advanced = builder.advancedNumeric();
-    DRes<SInt> numerator = advanced.dot(row, column);
+    DRes<SInt> numerator = advanced.innerProduct(row, column);
     DRes<SInt> invDenominator = advanced.invert(pivot);
     return builder.numeric().mult(numerator, invDenominator);
   }

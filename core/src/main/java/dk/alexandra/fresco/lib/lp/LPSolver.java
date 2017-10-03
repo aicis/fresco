@@ -159,7 +159,7 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
           ArrayList<DRes<SInt>> exitingIndex = exitingVariable.exitingIndex;
           // Update Basis
           DRes<SInt> ent =
-              seq.advancedNumeric().openDot(state.enumeratedVariables, state.enteringIndex);
+              seq.advancedNumeric().innerProductWithPublicPart(state.enumeratedVariables, state.enteringIndex);
           return seq.par((par) -> {
             ArrayList<DRes<SInt>> nextBasis = new ArrayList<>(noConstraints);
             for (int i = 0; i < noConstraints; i++) {

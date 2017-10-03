@@ -26,13 +26,9 @@ package dk.alexandra.fresco.suite.spdz;
 import dk.alexandra.fresco.IntegrationTest;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
-import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.lib.statistics.CreditRaterTest;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
-import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
@@ -126,41 +122,4 @@ public class TestSpdzCreditRater2Parties extends AbstractSpdzTest {
         EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
   }
 
-
-  // Ignoring the streamed tests since they take too long with respect to generating preprocessed
-  // material
-  // Note that the poor performance of non-batched evaulation is most likely also the case here.
-  // TODO: Maybe add the @Category(IntegrationTest.class) instead of @Ignore.
-  // TODO Does not work atm
-  @Ignore
-  @Test
-  public void test_CreditRater_2_Sequential_batched_streamed() throws Exception {
-    int noOfThreads = 1;
-    InitializeStorage.cleanup();
-    try {
-      InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()),
-          2, noOfThreads, 20000, 500, 500000, 2000);
-      runTest(new CreditRaterTest.TestCreditRater<>(values, intervals, scores),
-          EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
-          PreprocessingStrategy.STATIC, 2);
-    } finally {
-      InitializeStorage.cleanup();
-    }
-  }
-
-  @Ignore
-  @Test
-  public void test_CreditRater_2_SequentialBatched_streamed() throws Exception {
-    int noOfThreads = 2;
-    InitializeStorage.cleanup();
-    try {
-      InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()),
-          2, noOfThreads, 20000, 500, 800000, 3000);
-      runTest(new CreditRaterTest.TestCreditRater<>(values, intervals, scores),
-          EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
-          PreprocessingStrategy.STATIC, 2);
-    } finally {
-      InitializeStorage.cleanup();
-    }
-  }
 }

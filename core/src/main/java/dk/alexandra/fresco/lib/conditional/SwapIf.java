@@ -29,7 +29,9 @@ import dk.alexandra.fresco.framework.builder.ComputationParallel;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-
+/**
+ * Swaps left with right if the swapper bit is true. Does no swapping otherwise.
+ */
 public class SwapIf
     implements ComputationParallel<Pair<DRes<SInt>, DRes<SInt>>, ProtocolBuilderNumeric> {
 

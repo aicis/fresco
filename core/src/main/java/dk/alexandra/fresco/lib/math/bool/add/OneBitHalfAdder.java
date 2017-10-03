@@ -29,6 +29,9 @@ import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 
+/**
+ * Uses a straightforward way of computing the addition plus the carry.
+ */
 public class OneBitHalfAdder
     implements Computation<Pair<SBool, SBool>, ProtocolBuilderBinary> {
 

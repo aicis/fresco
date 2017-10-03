@@ -35,6 +35,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * <b>NB: Use with caution as using this class will open values to all MPC parties.</b>
+ * 
+ * This class opens a number for debugging purposes and prints a message along with the revealed
+ * value(s).
+ * 
+ */
 public class ArithmeticOpenAndPrint implements Computation<Void, ProtocolBuilderNumeric> {
 
   private DRes<SInt> number = null;

@@ -33,6 +33,10 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
+/**
+ * Computes the exponentiation when only the exponent is secret. We require the knowledge of the
+ * maximum bit size of the exponent.
+ */
 public class ExponentiationOpenBase implements Computation<SInt, ProtocolBuilderNumeric> {
 
   private final BigInteger base;

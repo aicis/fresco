@@ -33,6 +33,9 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
+/**
+ * Computes the exponentiation when the exponent is public. 
+ */
 public class ExponentiationOpenExponent implements
     Computation<SInt, ProtocolBuilderNumeric> {
 

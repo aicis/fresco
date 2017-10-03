@@ -33,6 +33,10 @@ import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 
+/**
+ * Chooses left or right based on the selection bit. Equivalent to the java expression:
+ * <code>selector ? left : right<code>
+ */
 public class ConditionalSelect implements Computation<SInt, ProtocolBuilderNumeric> {
 
   private final DRes<SInt> left;

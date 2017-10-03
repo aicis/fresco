@@ -34,6 +34,9 @@ import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Shifts a number to the right an amount of times.
+ */
 public class RepeatedRightShift implements
     Computation<RightShiftResult, ProtocolBuilderNumeric> {
 

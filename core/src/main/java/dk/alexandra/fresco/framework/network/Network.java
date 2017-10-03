@@ -27,7 +27,7 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import java.io.IOException;
 
 /**
- * A player's view of a network.
+ * A player's view of a network. Should be used when sending messages between MPC parties.
  * 
  */
 public interface Network {

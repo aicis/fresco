@@ -32,7 +32,7 @@ import java.util.Set;
 
 /**
  * Supplies the higher level layer with the outputs that the protocol queued up
- * within the ProtocolNetwork. Separated from that interface since the protocols
+ * within the {@link SCENetwork}. Separated from that interface since the protocols
  * only need to know about the methods contained within that interface.
  * Typically, a class implementing that interface, also implements this.
  * 

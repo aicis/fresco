@@ -29,8 +29,7 @@ import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
 
 /**
- * An efficient way of OR'ing an SBool with an OBool if we can construct SBools of constants and if
- * we can copy protocols.
+ * An efficient way of OR'ing an SBool with a public value if we can construct SBools of constants.
  */
 public class OrFromPublicValue implements Computation<SBool, ProtocolBuilderBinary> {
 
