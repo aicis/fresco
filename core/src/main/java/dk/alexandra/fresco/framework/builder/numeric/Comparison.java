@@ -9,6 +9,13 @@ import dk.alexandra.fresco.framework.value.SInt;
  */
 public interface Comparison extends ComputationDirectory {
 
+  /**
+   * Compares two values and return x == y
+   * @param bitLength The maximum bit-length of the numbers to compare. 
+   * @param x The first number
+   * @param y The second number
+   * @return x == y
+   */
   DRes<SInt> equals(int bitLength, DRes<SInt> x, DRes<SInt> y);
 
   /**
@@ -38,7 +45,12 @@ public interface Comparison extends ComputationDirectory {
    * @return output - [1] (true) or [0] (false) (result of x == y)
    */
   DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y);
-
+  
+  /**
+   * Computes the sign of the value (positive or negative)
+   * @param x The value to compute the sign off
+   * @return 1 if the value is positive (including 0) and -1 if negative. 
+   */
   DRes<SInt> sign(DRes<SInt> x);
 
   /**

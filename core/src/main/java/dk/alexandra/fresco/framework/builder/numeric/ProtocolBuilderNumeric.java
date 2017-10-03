@@ -5,10 +5,11 @@ import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 
 /**
- * Central class for building protocols that are based on numeric protocol suites.
+ * Central class for building protocols that are based on numeric protocol suites. This class
+ * contains all computation directives within FRESCO which numeric applications can use to build
+ * applications.
  */
-public class ProtocolBuilderNumeric extends
-    ProtocolBuilderImpl<ProtocolBuilderNumeric> {
+public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderNumeric> {
 
   private final BuilderFactoryNumeric factory;
   private BasicNumericContext basicNumericContext;
@@ -24,14 +25,21 @@ public class ProtocolBuilderNumeric extends
     this.basicNumericContext = factory.getBasicNumericContext();
   }
 
+  /**
+   * Returns the container for information about the field of operation.
+   * 
+   * @return The {@link BasicNumericContext} used within this protocol builder.
+   */
   public BasicNumericContext getBasicNumericContext() {
     return basicNumericContext;
   }
 
   /**
-   * Creates a numeric builder for this instance - i.e. this intended producer.
-   *
-   * @return the numeric builder.
+   * Creates a {@link Numeric} computation directive for this instance - i.e. this intended
+   * producer. Contains only protocol suite native basic operations such as Addition and
+   * multiplication.
+   * 
+   * @return The {@link Numeric} computation directory.
    */
   public Numeric numeric() {
     if (numeric == null) {
@@ -41,9 +49,10 @@ public class ProtocolBuilderNumeric extends
   }
 
   /**
-   * Creates a comparison builder for this instance - i.e. this intended producer.
+   * Creates a {@link Comparison} computation directive for this instance - i.e. this intended
+   * producer. Contains protocols on comparing numbers and computing the sign.
    *
-   * @return the comparison builder.
+   * @return The comparison computation directory.
    */
   public Comparison comparison() {
     if (comparison == null) {
@@ -52,6 +61,12 @@ public class ProtocolBuilderNumeric extends
     return comparison;
   }
 
+  /**
+   * Creates an {@link AdvancedNumeric} computation directory for this instance - i.e. this intended
+   * producer. Contains a lot of useful protocols such as sum, division, bit-shifting.
+   *
+   * @return The advanced numeric computation directory.
+   */
   public AdvancedNumeric advancedNumeric() {
     if (advancedNumeric == null) {
       advancedNumeric = factory.createAdvancedNumeric(this);
@@ -59,13 +74,26 @@ public class ProtocolBuilderNumeric extends
     return advancedNumeric;
   }
 
+  /**
+   * Creates a {@link Collections} computation directive for this instance - i.e. this intended
+   * producer. Contains operations on collections.
+   *
+   * @return The collections computation directive.
+   */
   public Collections collections() {
     if (collections == null) {
       collections = factory.createCollections(this);
     }
     return collections;
   }
-  
+
+  /**
+   * Creates a {@link Debug} computation directive for this instance - i.e. this intended producer.
+   * Contains debugging protocols for use during application development. <b>WARNING: Do not use in
+   * production code as most methods within this builder reveals values to all parties.</b>
+   * 
+   * @return The debug computation directive.
+   */
   public Debug debug() {
     if (debug == null) {
       debug = factory.createDebug(this);
@@ -73,6 +101,12 @@ public class ProtocolBuilderNumeric extends
     return debug;
   }
 
+  /**
+   * Mostly for use within internal FRESCO protocols. Contains methods helpful for working with the
+   * BigInteger class.
+   * 
+   * @return The {@link MiscBigIntegerGenerators} used within the builder.
+   */
   public MiscBigIntegerGenerators getBigIntegerHelper() {
     return factory.getBigIntegerHelper();
   }

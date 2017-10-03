@@ -6,6 +6,12 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.util.List;
 
+/**
+ * Binary operations included in FRESCO which are not comparison or native basic operations can be
+ * found here. This includes addition and multiplication of binary represented numbers, conditional
+ * select statements and much more. All methods have a generic generation based on the
+ * {@link Binary} computation directive.
+ */
 public interface AdvancedBinary extends ComputationDirectory {
 
   /**

@@ -12,10 +12,29 @@ import dk.alexandra.fresco.framework.value.SBool;
  */
 public interface Binary extends ComputationDirectory {
 
+  /**
+   * Creates a secret value from a public value. This is mostly a helper method for making types
+   * match - it should not be used to load actual secret values. Use input for this.
+   * 
+   * @param known The public value to transform.
+   * @return A secret representation of the known value.
+   */
   DRes<SBool> known(boolean known);
 
+  /**
+   * Inputs a secret value to be used in FRESCO protocols. If your party ID is different from the
+   * inputter id, your input will be disregarded.
+   * 
+   * @param in The value to input, or any value if you are not the inputting party.
+   * @param inputter The party which gives input.
+   * @return A secret share of the given input.
+   */
   DRes<SBool> input(boolean in, int inputter);
 
+  /**
+   * Produces a random bit.
+   * @return A secret share of a random bit.
+   */
   DRes<SBool> randomBit();
 
   /**

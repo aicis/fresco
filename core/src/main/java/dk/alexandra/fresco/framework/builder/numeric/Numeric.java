@@ -8,7 +8,8 @@ import java.math.BigInteger;
 /**
  * Basic interface for numeric applications. This is the interface which an arithmetic protocol
  * suite must implement in order to function within FRESCO. Binary protocol suites are also welcome
- * to implement this interface, as that makes it possible to do arithmetic operations using bits.
+ * to implement this interface, as that makes it possible to do arithmetic operations using bits as
+ * the underlying representation.
  */
 public interface Numeric extends ComputationDirectory {
 
