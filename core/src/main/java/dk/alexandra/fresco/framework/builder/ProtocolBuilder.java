@@ -9,7 +9,7 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
  * a protocol producer rather than the actual protocol producer and only when requested
  * actually evaluates the closure and returns the actual protocol producer.</p>
  * <p>This class also exposes builders with an intuitive and readable api but
- * automatic creates native protocols and adds these to this protocol builder as
+ * automatically creates native protocols and adds these to this protocol builder as
  * intentions to be resolved later</p>
  */
 public interface ProtocolBuilder {
