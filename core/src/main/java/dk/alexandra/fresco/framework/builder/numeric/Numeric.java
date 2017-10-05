@@ -37,7 +37,4 @@ public interface Numeric extends ComputationDirectory {
   DRes<BigInteger> open(DRes<SInt> secretShare);
 
   DRes<BigInteger> open(DRes<SInt> secretShare, int outputParty);
-
-  DRes<SInt[]> getExponentiationPipe();
-
 }

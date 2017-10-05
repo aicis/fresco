@@ -16,7 +16,6 @@ import java.math.BigInteger;
  */
 public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
 
-  private static final int EXP_PIPE_LENGTH = 201;
   private BasicNumericContext factory;
   private MiscOIntGenerators mog;
 
@@ -151,31 +150,6 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
       @Override
       public DRes<SInt> input(BigInteger value, int inputParty) {
         DummyArithmeticCloseProtocol c = new DummyArithmeticCloseProtocol(inputParty, () -> value);
-        return builder.append(c);
-      }
-
-      @Override
-      public DRes<SInt[]> getExponentiationPipe() {
-        // TODO: fix how to set exponentiation pipe length
-        DummyArithmeticNativeProtocol<SInt[]> c = new DummyArithmeticNativeProtocol<SInt[]>() {
-
-          DummyArithmeticSInt[] pipe;
-
-          @Override
-          public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool resourcePool,
-              SCENetwork network) {
-            pipe = new DummyArithmeticSInt[EXP_PIPE_LENGTH];
-            for (int i = 0; i < pipe.length; i++) {
-              pipe[i] = new DummyArithmeticSInt(1);
-            }
-            return EvaluationStatus.IS_DONE;
-          }
-
-          @Override
-          public SInt[] out() {
-            return pipe;
-          }
-        };
         return builder.append(c);
       }
 
