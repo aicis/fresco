@@ -25,26 +25,27 @@ package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.demo.cli.CmdLineUtil;
 import dk.alexandra.fresco.demo.helpers.DemoNumericApplication;
-import dk.alexandra.fresco.demo.helpers.ResourcePoolHelper;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.math.BigInteger;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A simple demo computing the distance between two secret points
  */
 public class DistanceDemo extends DemoNumericApplication<BigInteger> {
+
+  private static Logger log = LoggerFactory.getLogger(DistanceDemo.class);
 
   private int myId, myX, myY;
 
@@ -84,7 +85,6 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
   public static <ResourcePoolT extends ResourcePool> void main(String[] args) {
     CmdLineUtil<ResourcePoolT, ProtocolBuilderNumeric> cmdUtil = new CmdLineUtil<>();
     NetworkConfiguration networkConfiguration = null;
-    ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric> psConf = null;
     int x, y;
     x = y = 0;
     try {
@@ -94,7 +94,6 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
           + "Note only party 1 and 2 should supply this input").hasArg().build());
       CommandLine cmd = cmdUtil.parse(args);
       networkConfiguration = cmdUtil.getNetworkConfiguration();
-      psConf = cmdUtil.getProtocolSuite();
 
       if (networkConfiguration.getMyId() == 1 || networkConfiguration.getMyId() == 2) {
         if (!cmd.hasOption("x") || !cmd.hasOption("y")) {
@@ -116,17 +115,16 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
       System.exit(-1);
     }
     DistanceDemo distDemo = new DistanceDemo(networkConfiguration.getMyId(), x, y);
-    SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce =
-        SCEFactory.getSCEFromConfiguration(psConf, cmdUtil.getEvaluator());
+    SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce = cmdUtil.getSCE();
     try {
-      ResourcePoolT resourcePool = (ResourcePoolT) ResourcePoolHelper.createResourcePool(psConf,
-          cmdUtil.getNetworkStrategy(), networkConfiguration);
+      ResourcePoolT resourcePool = cmdUtil.getResourcePool();
+      resourcePool.getNetwork().connect(10000);
       BigInteger bigInteger = sce.runApplication(distDemo, resourcePool);
       resourcePool.getNetwork().close();
       double dist = Math.sqrt(bigInteger.doubleValue());
-      System.out.println("Distance between party 1 and 2 is: " + dist);
+      log.info("Distance between party 1 and 2 is: " + dist);
     } catch (Exception e) {
-      System.out.println("Error while doing MPC: " + e.getMessage());
+      log.error("Error while doing MPC: " + e.getMessage());
       e.printStackTrace();
       System.exit(-1);
     } finally {

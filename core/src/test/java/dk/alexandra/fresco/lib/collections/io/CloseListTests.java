@@ -27,20 +27,18 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.Collections;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Test class for the CloseList protocol.
@@ -70,8 +68,7 @@ public class CloseListTests {
             DRes<List<DRes<SInt>>> closed = root.collections().closeList(input, 1);
             return () -> closed.out().stream().map(DRes::out).collect(Collectors.toList());
           };
-          List<SInt> output = secureComputationEngine.runApplication(testApplication,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<SInt> output = runApplication(testApplication);
           assertTrue(output.isEmpty());
         }
       };
@@ -87,7 +84,7 @@ public class CloseListTests {
    * @param <ResourcePoolT>
    */
   public static class TestCloseAndOpenList<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -116,8 +113,7 @@ public class CloseListTests {
             return () -> opened.out().stream().map(DRes::out).collect(Collectors.toList());
           };
           // run test application
-          List<BigInteger> output = secureComputationEngine.runApplication(testApplication,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<BigInteger> output = runApplication(testApplication);
 
           // define expected result and assert
           List<BigInteger> expected = new ArrayList<>();

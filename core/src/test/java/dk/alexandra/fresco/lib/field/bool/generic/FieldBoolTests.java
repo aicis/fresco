@@ -29,7 +29,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.AdvancedBinary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.util.ArrayList;
@@ -52,29 +51,28 @@ public class FieldBoolTests {
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> app =
               producer -> producer.seq(builder -> {
-                AdvancedBinary prov = builder.advancedBinary();
-                List<DRes<Boolean>> results = new ArrayList<>();
-                DRes<SBool> inp100 = builder.binary().known(false);
-                DRes<SBool> inp200 = builder.binary().known(false);
-                results.add(builder.binary().open(prov.xnor(inp100, inp200)));
+            AdvancedBinary prov = builder.advancedBinary();
+            List<DRes<Boolean>> results = new ArrayList<>();
+            DRes<SBool> inp100 = builder.binary().known(false);
+            DRes<SBool> inp200 = builder.binary().known(false);
+            results.add(builder.binary().open(prov.xnor(inp100, inp200)));
 
-                DRes<SBool> inp110 = builder.binary().known(true);
-                DRes<SBool> inp210 = builder.binary().known(false);
-                results.add(builder.binary().open(prov.xnor(inp110, inp210)));
+            DRes<SBool> inp110 = builder.binary().known(true);
+            DRes<SBool> inp210 = builder.binary().known(false);
+            results.add(builder.binary().open(prov.xnor(inp110, inp210)));
 
-                DRes<SBool> inp101 = builder.binary().known(false);
-                DRes<SBool> inp201 = builder.binary().known(true);
-                results.add(builder.binary().open(prov.xnor(inp101, inp201)));
+            DRes<SBool> inp101 = builder.binary().known(false);
+            DRes<SBool> inp201 = builder.binary().known(true);
+            results.add(builder.binary().open(prov.xnor(inp101, inp201)));
 
-                DRes<SBool> inp111 = builder.binary().known(true);
-                DRes<SBool> inp211 = builder.binary().known(true);
-                results.add(builder.binary().open(prov.xnor(inp111, inp211)));
-                return () -> results;
-              }).seq((seq, results) -> () -> results.stream().map(DRes::out)
-                  .collect(Collectors.toList()));
+            DRes<SBool> inp111 = builder.binary().known(true);
+            DRes<SBool> inp211 = builder.binary().known(true);
+            results.add(builder.binary().open(prov.xnor(inp111, inp211)));
+            return () -> results;
+          }).seq(
+              (seq, results) -> () -> results.stream().map(DRes::out).collect(Collectors.toList()));
 
-          List<Boolean> res = secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Boolean> res = runApplication(app);
 
           Assert.assertEquals(true, res.get(0));
           Assert.assertEquals(false, res.get(1));
@@ -98,27 +96,26 @@ public class FieldBoolTests {
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> app =
               producer -> producer.seq(builder -> {
-                AdvancedBinary prov = builder.advancedBinary();
-                List<DRes<Boolean>> results = new ArrayList<>();
+            AdvancedBinary prov = builder.advancedBinary();
+            List<DRes<Boolean>> results = new ArrayList<>();
 
-                DRes<SBool> inp100 = builder.binary().known(false);
-                results.add(builder.binary().open(prov.xnor(inp100, false)));
+            DRes<SBool> inp100 = builder.binary().known(false);
+            results.add(builder.binary().open(prov.xnor(inp100, false)));
 
-                DRes<SBool> inp110 = builder.binary().known(true);
-                results.add(builder.binary().open(prov.xnor(inp110, false)));
+            DRes<SBool> inp110 = builder.binary().known(true);
+            results.add(builder.binary().open(prov.xnor(inp110, false)));
 
-                DRes<SBool> inp101 = builder.binary().known(false);
-                results.add(builder.binary().open(prov.xnor(inp101, true)));
+            DRes<SBool> inp101 = builder.binary().known(false);
+            results.add(builder.binary().open(prov.xnor(inp101, true)));
 
-                DRes<SBool> inp111 = builder.binary().known(true);
-                results.add(builder.binary().open(prov.xnor(inp111, true)));
+            DRes<SBool> inp111 = builder.binary().known(true);
+            results.add(builder.binary().open(prov.xnor(inp111, true)));
 
-                return () -> results;
-              }).seq((seq, results) -> () -> results.stream().map(DRes::out)
-                  .collect(Collectors.toList()));
+            return () -> results;
+          }).seq(
+              (seq, results) -> () -> results.stream().map(DRes::out).collect(Collectors.toList()));
 
-          List<Boolean> res = secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Boolean> res = runApplication(app);
 
           Assert.assertEquals(true, res.get(0));
           Assert.assertEquals(false, res.get(1));
@@ -143,29 +140,28 @@ public class FieldBoolTests {
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> app =
               producer -> producer.seq(builder -> {
-                AdvancedBinary prov = builder.advancedBinary();
-                List<DRes<Boolean>> results = new ArrayList<>();
-                DRes<SBool> inp100 = builder.binary().known(false);
-                DRes<SBool> inp200 = builder.binary().known(false);
-                results.add(builder.binary().open(prov.or(inp100, inp200)));
+            AdvancedBinary prov = builder.advancedBinary();
+            List<DRes<Boolean>> results = new ArrayList<>();
+            DRes<SBool> inp100 = builder.binary().known(false);
+            DRes<SBool> inp200 = builder.binary().known(false);
+            results.add(builder.binary().open(prov.or(inp100, inp200)));
 
-                DRes<SBool> inp110 = builder.binary().known(true);
-                DRes<SBool> inp210 = builder.binary().known(false);
-                results.add(builder.binary().open(prov.or(inp110, inp210)));
+            DRes<SBool> inp110 = builder.binary().known(true);
+            DRes<SBool> inp210 = builder.binary().known(false);
+            results.add(builder.binary().open(prov.or(inp110, inp210)));
 
-                DRes<SBool> inp101 = builder.binary().known(false);
-                DRes<SBool> inp201 = builder.binary().known(true);
-                results.add(builder.binary().open(prov.or(inp101, inp201)));
+            DRes<SBool> inp101 = builder.binary().known(false);
+            DRes<SBool> inp201 = builder.binary().known(true);
+            results.add(builder.binary().open(prov.or(inp101, inp201)));
 
-                DRes<SBool> inp111 = builder.binary().known(true);
-                DRes<SBool> inp211 = builder.binary().known(true);
-                results.add(builder.binary().open(prov.or(inp111, inp211)));
-                return () -> results;
-              }).seq((seq, results) -> () -> results.stream().map(DRes::out)
-                  .collect(Collectors.toList()));
+            DRes<SBool> inp111 = builder.binary().known(true);
+            DRes<SBool> inp211 = builder.binary().known(true);
+            results.add(builder.binary().open(prov.or(inp111, inp211)));
+            return () -> results;
+          }).seq(
+              (seq, results) -> () -> results.stream().map(DRes::out).collect(Collectors.toList()));
 
-          List<Boolean> res = secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Boolean> res = runApplication(app);
 
           Assert.assertEquals(false, res.get(0));
           Assert.assertEquals(true, res.get(1));
@@ -190,26 +186,25 @@ public class FieldBoolTests {
 
           Application<List<Boolean>, ProtocolBuilderBinary> app =
               producer -> producer.seq(builder -> {
-                AdvancedBinary prov = builder.advancedBinary();
-                List<DRes<Boolean>> results = new ArrayList<>();
-                DRes<SBool> inp100 = builder.binary().known(false);
-                results.add(builder.binary().open(prov.or(inp100, false)));
+            AdvancedBinary prov = builder.advancedBinary();
+            List<DRes<Boolean>> results = new ArrayList<>();
+            DRes<SBool> inp100 = builder.binary().known(false);
+            results.add(builder.binary().open(prov.or(inp100, false)));
 
-                DRes<SBool> inp110 = builder.binary().known(true);
-                results.add(builder.binary().open(prov.or(inp110, false)));
+            DRes<SBool> inp110 = builder.binary().known(true);
+            results.add(builder.binary().open(prov.or(inp110, false)));
 
-                DRes<SBool> inp101 = builder.binary().known(false);
-                results.add(builder.binary().open(prov.or(inp101, true)));
+            DRes<SBool> inp101 = builder.binary().known(false);
+            results.add(builder.binary().open(prov.or(inp101, true)));
 
-                DRes<SBool> inp111 = builder.binary().known(true);
-                results.add(builder.binary().open(prov.or(inp111, true)));
+            DRes<SBool> inp111 = builder.binary().known(true);
+            results.add(builder.binary().open(prov.or(inp111, true)));
 
-                return () -> results;
-              }).seq((seq, results) -> () -> results.stream().map(DRes::out)
-                  .collect(Collectors.toList()));
+            return () -> results;
+          }).seq(
+              (seq, results) -> () -> results.stream().map(DRes::out).collect(Collectors.toList()));
 
-          List<Boolean> res = secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Boolean> res = runApplication(app);
 
           Assert.assertEquals(false, res.get(0));
           Assert.assertEquals(true, res.get(1));
@@ -235,30 +230,29 @@ public class FieldBoolTests {
 
           Application<List<Boolean>, ProtocolBuilderBinary> app =
               producer -> producer.seq(builder -> {
-                AdvancedBinary prov = builder.advancedBinary();
-                List<DRes<Boolean>> results = new ArrayList<>();
-                DRes<SBool> inp100 = builder.binary().known(false);
-                DRes<SBool> inp200 = builder.binary().known(false);
-                results.add(builder.binary().open(prov.nand(inp100, inp200)));
+            AdvancedBinary prov = builder.advancedBinary();
+            List<DRes<Boolean>> results = new ArrayList<>();
+            DRes<SBool> inp100 = builder.binary().known(false);
+            DRes<SBool> inp200 = builder.binary().known(false);
+            results.add(builder.binary().open(prov.nand(inp100, inp200)));
 
-                DRes<SBool> inp110 = builder.binary().known(true);
-                DRes<SBool> inp210 = builder.binary().known(false);
-                results.add(builder.binary().open(prov.nand(inp110, inp210)));
+            DRes<SBool> inp110 = builder.binary().known(true);
+            DRes<SBool> inp210 = builder.binary().known(false);
+            results.add(builder.binary().open(prov.nand(inp110, inp210)));
 
-                DRes<SBool> inp101 = builder.binary().known(false);
-                DRes<SBool> inp201 = builder.binary().known(true);
-                results.add(builder.binary().open(prov.nand(inp101, inp201)));
+            DRes<SBool> inp101 = builder.binary().known(false);
+            DRes<SBool> inp201 = builder.binary().known(true);
+            results.add(builder.binary().open(prov.nand(inp101, inp201)));
 
-                DRes<SBool> inp111 = builder.binary().known(true);
-                DRes<SBool> inp211 = builder.binary().known(true);
-                results.add(builder.binary().open(prov.nand(inp111, inp211)));
+            DRes<SBool> inp111 = builder.binary().known(true);
+            DRes<SBool> inp211 = builder.binary().known(true);
+            results.add(builder.binary().open(prov.nand(inp111, inp211)));
 
-                return () -> results;
-              }).seq((seq, results) -> () -> results.stream().map(DRes::out)
-                  .collect(Collectors.toList()));
+            return () -> results;
+          }).seq(
+              (seq, results) -> () -> results.stream().map(DRes::out).collect(Collectors.toList()));
 
-          List<Boolean> res = secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Boolean> res = runApplication(app);
 
           Assert.assertEquals(true, res.get(0));
           Assert.assertEquals(true, res.get(1));
@@ -283,27 +277,26 @@ public class FieldBoolTests {
 
           Application<List<Boolean>, ProtocolBuilderBinary> app =
               producer -> producer.seq(builder -> {
-                AdvancedBinary prov = builder.advancedBinary();
+            AdvancedBinary prov = builder.advancedBinary();
 
-                List<DRes<Boolean>> results = new ArrayList<>();
-                DRes<SBool> inp100 = builder.binary().known(false);
-                results.add(builder.binary().open(prov.nand(inp100, false)));
+            List<DRes<Boolean>> results = new ArrayList<>();
+            DRes<SBool> inp100 = builder.binary().known(false);
+            results.add(builder.binary().open(prov.nand(inp100, false)));
 
-                DRes<SBool> inp110 = builder.binary().known(true);
-                results.add(builder.binary().open(prov.nand(inp110, false)));
+            DRes<SBool> inp110 = builder.binary().known(true);
+            results.add(builder.binary().open(prov.nand(inp110, false)));
 
-                DRes<SBool> inp101 = builder.binary().known(false);
-                results.add(builder.binary().open(prov.nand(inp101, true)));
+            DRes<SBool> inp101 = builder.binary().known(false);
+            results.add(builder.binary().open(prov.nand(inp101, true)));
 
-                DRes<SBool> inp111 = builder.binary().known(true);
-                results.add(builder.binary().open(prov.nand(inp111, true)));
+            DRes<SBool> inp111 = builder.binary().known(true);
+            results.add(builder.binary().open(prov.nand(inp111, true)));
 
-                return () -> results;
-              }).seq((seq, results) -> () -> results.stream().map(DRes::out)
-                  .collect(Collectors.toList()));
+            return () -> results;
+          }).seq(
+              (seq, results) -> () -> results.stream().map(DRes::out).collect(Collectors.toList()));
 
-          List<Boolean> res = secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Boolean> res = runApplication(app);
 
           Assert.assertEquals(true, res.get(0));
           Assert.assertEquals(true, res.get(1));
@@ -329,27 +322,26 @@ public class FieldBoolTests {
 
           Application<List<Boolean>, ProtocolBuilderBinary> app =
               producer -> producer.seq(builder -> {
-                AdvancedBinary prov = builder.advancedBinary();
-                List<DRes<Boolean>> results = new ArrayList<>();
+            AdvancedBinary prov = builder.advancedBinary();
+            List<DRes<Boolean>> results = new ArrayList<>();
 
-                DRes<SBool> inp100 = builder.binary().known(false);
-                results.add(builder.binary().open(prov.and(inp100, false)));
+            DRes<SBool> inp100 = builder.binary().known(false);
+            results.add(builder.binary().open(prov.and(inp100, false)));
 
-                DRes<SBool> inp110 = builder.binary().known(true);
-                results.add(builder.binary().open(prov.and(inp110, false)));
+            DRes<SBool> inp110 = builder.binary().known(true);
+            results.add(builder.binary().open(prov.and(inp110, false)));
 
-                DRes<SBool> inp101 = builder.binary().known(false);
-                results.add(builder.binary().open(prov.and(inp101, true)));
+            DRes<SBool> inp101 = builder.binary().known(false);
+            results.add(builder.binary().open(prov.and(inp101, true)));
 
-                DRes<SBool> inp111 = builder.binary().known(true);
-                results.add(builder.binary().open(prov.and(inp111, true)));
+            DRes<SBool> inp111 = builder.binary().known(true);
+            results.add(builder.binary().open(prov.and(inp111, true)));
 
-                return () -> results;
-              }).seq((seq, results) -> () -> results.stream().map(DRes::out)
-                  .collect(Collectors.toList()));
+            return () -> results;
+          }).seq(
+              (seq, results) -> () -> results.stream().map(DRes::out).collect(Collectors.toList()));
 
-          List<Boolean> res = secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Boolean> res = runApplication(app);
 
           Assert.assertEquals(false, res.get(0));
           Assert.assertEquals(false, res.get(1));
