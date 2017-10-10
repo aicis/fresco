@@ -29,7 +29,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -61,8 +60,7 @@ public class ExponentiationTests {
 
             return numeric.open(result);
           };
-          BigInteger result = secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          BigInteger result = runApplication(app);
 
           Assert.assertEquals(input.pow(exp), result);
         }
@@ -91,8 +89,7 @@ public class ExponentiationTests {
 
             return numeric.open(result);
           };
-          BigInteger result = secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          BigInteger result = runApplication(app);
 
           Assert.assertEquals(input.pow(exp), result);
         }
@@ -120,8 +117,7 @@ public class ExponentiationTests {
 
             return numeric.open(result);
           };
-          BigInteger result = secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          BigInteger result = runApplication(app);
 
           Assert.assertEquals(input.pow(exp), result);
         }
@@ -151,8 +147,7 @@ public class ExponentiationTests {
             return numeric.open(result);
           };
           try {
-            secureComputationEngine.runApplication(app,
-                ResourcePoolCreator.createResourcePool(conf.sceConf));
+            runApplication(app);
           } catch (RuntimeException e) {
             // Cause is wrapped in an intermediate concurrent exception.
             if (e.getCause() instanceof IllegalArgumentException) {

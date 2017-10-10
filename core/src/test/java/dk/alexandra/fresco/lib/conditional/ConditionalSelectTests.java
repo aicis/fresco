@@ -31,7 +31,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -71,8 +70,7 @@ public class ConditionalSelectTests {
             DRes<SInt> selected = advancedNumeric.condSelect(selector, left, right);
             return numeric.open(selected);
           };
-          BigInteger output = secureComputationEngine.runApplication(testApplication,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          BigInteger output = runApplication(testApplication);
           Assert.assertEquals(expected, output);
         }
       };

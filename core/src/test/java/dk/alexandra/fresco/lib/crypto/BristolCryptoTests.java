@@ -30,7 +30,6 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.bool.BooleanHelper;
@@ -109,8 +108,7 @@ public class BristolCryptoTests {
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> multApp =
               producer -> producer.seq(seq -> {
-            List<DRes<SBool>> plainText =
-                BooleanHelper.known(toBoolean(plainVec), seq.binary());
+            List<DRes<SBool>> plainText = BooleanHelper.known(toBoolean(plainVec), seq.binary());
             List<DRes<SBool>> key = BooleanHelper.known(toBoolean(keyVec[0]), seq.binary());
             List<List<DRes<SBool>>> inputs = new ArrayList<>();
             inputs.add(plainText);
@@ -125,11 +123,10 @@ public class BristolCryptoTests {
               outputs.add(seq.binary().open(() -> boo));
             }
             return () -> outputs;
-          }).seq((seq,
-              output) -> () -> output.stream().map(DRes::out).collect(Collectors.toList()));
+          }).seq(
+              (seq, output) -> () -> output.stream().map(DRes::out).collect(Collectors.toList()));
 
-          List<Boolean> res = secureComputationEngine.runApplication(multApp,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Boolean> res = runApplication(multApp);
           Boolean[] expected = toBoolean(cipherVec[0]);
           Boolean[] actual = new Boolean[res.size()];
           for (int i = 0; i < res.size(); i++) {
@@ -176,8 +173,7 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, ProtocolBuilderBinary> multApp =
-              producer -> producer.seq(seq -> {
+          Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
             List<DRes<SBool>> input1 = BooleanHelper.known(toBoolean(ins[0]), seq.binary());
             // List<Computation<SBool>> input2 = seq.binary().known(toBoolean(ins[1]));
             // List<Computation<SBool>> input3 = seq.binary().known(toBoolean(ins[2]));
@@ -217,8 +213,7 @@ public class BristolCryptoTests {
             // return () -> result;
           });
 
-          List<Boolean> res = secureComputationEngine.runApplication(multApp,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Boolean> res = runApplication(app);
           Boolean[][] expected = new Boolean[1][];
           Boolean[][] actuals = new Boolean[1][res.size()];
           for (int count = 0; count < 1; count++) {
@@ -273,8 +268,7 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, ProtocolBuilderBinary> multApp =
-              producer -> producer.seq(seq -> {
+          Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
             List<DRes<SBool>> input1 = BooleanHelper.known(toBoolean(in1), seq.binary());
             List<List<DRes<SBool>>> inputs = new ArrayList<>();
             inputs.add(input1);
@@ -288,11 +282,10 @@ public class BristolCryptoTests {
               outputs.add(seq.binary().open(boo));
             }
             return () -> outputs;
-          }).seq((seq,
-              output) -> () -> output.stream().map(DRes::out).collect(Collectors.toList()));
+          }).seq(
+              (seq, output) -> () -> output.stream().map(DRes::out).collect(Collectors.toList()));
 
-          List<Boolean> res = secureComputationEngine.runApplication(multApp,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Boolean> res = runApplication(app);
           Boolean[] expected = toBoolean(out1);
           Boolean[] actual = new Boolean[res.size()];
           for (int i = 0; i < res.size(); i++) {
@@ -344,8 +337,7 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, ProtocolBuilderBinary> multApp =
-              producer -> producer.seq(seq -> {
+          Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
             List<DRes<SBool>> input1 = BooleanHelper.known(toBoolean(in1), seq.binary());
             List<List<DRes<SBool>>> inputs = new ArrayList<>();
             inputs.add(input1);
@@ -359,11 +351,10 @@ public class BristolCryptoTests {
               outputs.add(seq.binary().open(boo));
             }
             return () -> outputs;
-          }).seq((seq,
-              output) -> () -> output.stream().map(DRes::out).collect(Collectors.toList()));
+          }).seq(
+              (seq, output) -> () -> output.stream().map(DRes::out).collect(Collectors.toList()));
 
-          List<Boolean> res = secureComputationEngine.runApplication(multApp,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Boolean> res = runApplication(app);
           Boolean[] expected = toBoolean(out1);
           Boolean[] actual = new Boolean[res.size()];
           for (int i = 0; i < res.size(); i++) {
@@ -403,8 +394,7 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, ProtocolBuilderBinary> multApp =
-              producer -> producer.seq(seq -> {
+          Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
             List<DRes<SBool>> in1 = BooleanHelper.known(toBoolean(inv1), seq.binary());
             List<DRes<SBool>> in2 = BooleanHelper.known(toBoolean(inv2), seq.binary());
             List<List<DRes<SBool>>> inputs = new ArrayList<>();
@@ -420,11 +410,10 @@ public class BristolCryptoTests {
               outputs.add(seq.binary().open(() -> boo));
             }
             return () -> outputs;
-          }).seq((seq,
-              output) -> () -> output.stream().map(DRes::out).collect(Collectors.toList()));
+          }).seq(
+              (seq, output) -> () -> output.stream().map(DRes::out).collect(Collectors.toList()));
 
-          List<Boolean> res = secureComputationEngine.runApplication(multApp,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Boolean> res = runApplication(app);
           Boolean[] expected = toBoolean(outv);
           Boolean[] actual = new Boolean[res.size()];
           actual[0] = false;
@@ -465,12 +454,9 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, ProtocolBuilderBinary> multApp =
-              producer -> producer.seq(seq -> {
-            List<DRes<SBool>> plainText =
-                BooleanHelper.known(toBoolean(plainV), seq.binary());
-            List<DRes<SBool>> keyMaterial =
-                BooleanHelper.known(toBoolean(keyV), seq.binary());
+          Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
+            List<DRes<SBool>> plainText = BooleanHelper.known(toBoolean(plainV), seq.binary());
+            List<DRes<SBool>> keyMaterial = BooleanHelper.known(toBoolean(keyV), seq.binary());
             List<List<DRes<SBool>>> inputs = new ArrayList<>();
             inputs.add(plainText);
             inputs.add(keyMaterial);
@@ -484,11 +470,10 @@ public class BristolCryptoTests {
               outputs.add(seq.binary().open(() -> boo));
             }
             return () -> outputs;
-          }).seq((seq,
-              output) -> () -> output.stream().map(DRes::out).collect(Collectors.toList()));
+          }).seq(
+              (seq, output) -> () -> output.stream().map(DRes::out).collect(Collectors.toList()));
 
-          List<Boolean> res = secureComputationEngine.runApplication(multApp,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Boolean> res = runApplication(app);
           Boolean[] expected = toBoolean(cipherV);
           Boolean[] actual = new Boolean[res.size()];
           for (int i = 0; i < res.size(); i++) {

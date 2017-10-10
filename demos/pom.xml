@@ -15,11 +15,17 @@
       <artifactId>spdz</artifactId>
       <version>${fresco-version}</version>
     </dependency>
-
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>
       <artifactId>tinytables</artifactId>
       <version>${fresco-version}</version>
+    </dependency>
+
+    <!-- Logging should work also for running demos -->
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.2.3</version>
     </dependency>
 
     <!-- Test dependencies -->

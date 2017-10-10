@@ -22,7 +22,6 @@
       <artifactId>slf4j-api</artifactId>
       <version>1.7.25</version>
     </dependency>
-
     <!-- logging in tests are done via logback -->
     <dependency>
       <groupId>ch.qos.logback</groupId>

@@ -28,7 +28,6 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.util.Arrays;
@@ -71,11 +70,10 @@ public class ComparisonBooleanTests {
             DRes<Boolean> open1 = seq.binary().open(res1);
             DRes<Boolean> open2 = seq.binary().open(res2);
             return () -> Arrays.asList(open1, open2);
-          }).seq((seq,
-              opened) -> () -> opened.stream().map(DRes::out).collect(Collectors.toList()));
+          }).seq(
+              (seq, opened) -> () -> opened.stream().map(DRes::out).collect(Collectors.toList()));
 
-          List<Boolean> res = secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Boolean> res = runApplication(app);
 
           if (doAsserts) {
             Assert.assertEquals(false, res.get(0));
@@ -118,11 +116,10 @@ public class ComparisonBooleanTests {
             DRes<Boolean> open1 = seq.binary().open(res1);
             DRes<Boolean> open2 = seq.binary().open(res2);
             return () -> Arrays.asList(open1, open2);
-          }).seq((seq,
-              opened) -> () -> opened.stream().map(DRes::out).collect(Collectors.toList()));
+          }).seq(
+              (seq, opened) -> () -> opened.stream().map(DRes::out).collect(Collectors.toList()));
 
-          List<Boolean> res = secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Boolean> res = runApplication(app);
 
           if (doAsserts) {
             Assert.assertEquals(false, res.get(0));
@@ -155,12 +152,11 @@ public class ComparisonBooleanTests {
             DRes<SBool> res1 = seq.comparison().greaterThan(in1, in2);
             DRes<Boolean> open1 = seq.binary().open(res1);
             return () -> Collections.singletonList(open1);
-          }).seq((seq,
-              opened) -> () -> opened.stream().map(DRes::out).collect(Collectors.toList()));
+          }).seq(
+              (seq, opened) -> () -> opened.stream().map(DRes::out).collect(Collectors.toList()));
 
           try {
-            secureComputationEngine.runApplication(app,
-                ResourcePoolCreator.createResourcePool(conf.sceConf));
+            runApplication(app);
           } catch (Exception e) {
             if (e.getCause() instanceof IllegalArgumentException) {
 
