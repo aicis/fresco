@@ -46,6 +46,7 @@ import org.slf4j.LoggerFactory;
 public class ScapiNetworkImpl implements Network {
 
   private NetworkConfiguration conf;
+  private boolean connected = false;
 
   // Unless explicitly named, SCAPI channels are named with
   // strings "0", "1", etc.
@@ -75,6 +76,9 @@ public class ScapiNetworkImpl implements Network {
   // how many channels are wanted to each player.
   // Implement this also for send to self queues.
   public void connect(int timeoutMillis) throws IOException {
+    if (connected) {
+      return;
+    }
     // Convert FRESCO configuration to SCAPI configuration.
     List<PartyData> parties = new LinkedList<>();
     idToPartyData = new HashMap<>();
@@ -142,7 +146,7 @@ public class ScapiNetworkImpl implements Network {
         }
       }
     }
-
+    connected = true;
   }
 
   // We currently either use plain channels or auth+enc channels. Future
@@ -185,6 +189,7 @@ public class ScapiNetworkImpl implements Network {
         }
       }
     }
+    connected = false;
   }
 
   /**

@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -26,12 +25,12 @@ public class SearchingTests {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          ResourcePoolT resourcePool = ResourcePoolCreator.createResourcePool(conf.sceConf);
           final int PAIRS = 10;
           final int MAXVALUE = 20000;
           final int NOTFOUND = -1;
           int[] values = new int[PAIRS];
-          Application<Pair<ArrayList<DRes<SInt>>, ArrayList<DRes<SInt>>>, ProtocolBuilderNumeric> app = producer -> {
+          Application<Pair<ArrayList<DRes<SInt>>, ArrayList<DRes<SInt>>>, ProtocolBuilderNumeric> app =
+              producer -> {
             ArrayList<DRes<SInt>> sKeys = new ArrayList<>(PAIRS);
             ArrayList<DRes<SInt>> sValues = new ArrayList<>(PAIRS);
 
@@ -46,22 +45,20 @@ public class SearchingTests {
             }
             return () -> new Pair<>(sKeys, sValues);
           };
-          Pair<ArrayList<DRes<SInt>>, ArrayList<DRes<SInt>>> inputs =
-              secureComputationEngine.runApplication(app, resourcePool);
+          Pair<ArrayList<DRes<SInt>>, ArrayList<DRes<SInt>>> inputs = runApplication(app);
           ArrayList<DRes<SInt>> sKeys = inputs.getFirst();
           ArrayList<DRes<SInt>> sValues = inputs.getSecond();
           for (int i = 0; i < PAIRS; i++) {
             final int counter = i;
 
-            Application<BigInteger, ProtocolBuilderNumeric> app1 = producer -> producer
-                .seq((seq) -> seq.numeric().known(BigInteger.valueOf(NOTFOUND)))
-                .seq((seq, notFound) -> seq
-                    .seq(new LinearLookUp(sKeys.get(counter), sKeys, sValues, notFound)))
+            Application<BigInteger, ProtocolBuilderNumeric> app1 = producer -> 
+              producer.seq((seq) -> seq.numeric().known(BigInteger.valueOf(NOTFOUND)))
+                    .seq((seq, notFound) -> seq
+                        .seq(new LinearLookUp(sKeys.get(counter), sKeys, sValues, notFound)))
                 .seq((seq, out) -> seq.numeric().open(out));
-            BigInteger bigInteger = secureComputationEngine.runApplication(app1, resourcePool);
+            BigInteger bigInteger = runApplication(app1);
 
-            Assert.assertEquals("Checking value index " + i,
-                values[i], bigInteger.intValue());
+            Assert.assertEquals("Checking value index " + i, values[i], bigInteger.intValue());
           }
         }
       };

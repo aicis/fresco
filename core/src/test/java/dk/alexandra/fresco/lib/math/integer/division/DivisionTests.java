@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -27,8 +26,8 @@ import org.junit.Assert;
  */
 public class DivisionTests {
 
-  public static Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric>
-  createDivideApplication(BigInteger x, BigInteger d) {
+  public static Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> createDivideApplication(
+      BigInteger x, BigInteger d) {
     return (producer) -> {
       Numeric numeric = producer.numeric();
       DRes<SInt> input1 = numeric.input(x, 1);
@@ -57,8 +56,7 @@ public class DivisionTests {
         public void test() throws Exception {
           Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app =
               DivisionTests.createDivideApplication(x, d);
-          Pair<BigInteger, BigInteger> result = secureComputationEngine
-              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+          Pair<BigInteger, BigInteger> result = runApplication(app);
           BigInteger quotient = result.getFirst();
           BigInteger remainder = result.getSecond();
 
@@ -92,8 +90,7 @@ public class DivisionTests {
         public void test() throws Exception {
           Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app =
               DivisionTests.createDivideApplication(x, d);
-          Pair<BigInteger, BigInteger> result = secureComputationEngine
-              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+          Pair<BigInteger, BigInteger> result = runApplication(app);
           BigInteger quotient = result.getFirst();
           BigInteger remainder = result.getSecond();
 
@@ -115,7 +112,7 @@ public class DivisionTests {
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-        private final BigInteger[] x = new BigInteger[]{new BigInteger("1234567"),
+        private final BigInteger[] x = new BigInteger[] {new BigInteger("1234567"),
             BigInteger.valueOf(1230121230), BigInteger.valueOf(313222110),
             BigInteger.valueOf(5111215), BigInteger.valueOf(6537)};
         private final BigInteger d = BigInteger.valueOf(1110);
@@ -135,8 +132,7 @@ public class DivisionTests {
             }
             return () -> results.stream().map(DRes::out).collect(Collectors.toList());
           };
-          List<BigInteger> results = secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<BigInteger> results = runApplication(app);
           for (int i = 0; i < n; i++) {
             BigInteger actual = results.get(i);
 

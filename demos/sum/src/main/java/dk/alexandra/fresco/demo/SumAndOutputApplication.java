@@ -29,7 +29,7 @@ public class SumAndOutputApplication extends DemoNumericApplication<BigInteger> 
         if (sum == null) {
           sum = input;
         } else {
-          seq.numeric().add(sum, input);
+          sum = seq.numeric().add(sum, input);
         }
       }
       return seq.numeric().open(sum);

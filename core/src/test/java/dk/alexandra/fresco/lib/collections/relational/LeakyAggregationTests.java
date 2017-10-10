@@ -8,7 +8,6 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
@@ -43,8 +42,7 @@ public class LeakyAggregationTests {
             DRes<Matrix<DRes<BigInteger>>> opened = root.collections().openMatrix(aggregated);
             return () -> new MatrixUtils().unwrapMatrix(opened);
           };
-          Matrix<BigInteger> actual = secureComputationEngine.runApplication(testApplication,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          Matrix<BigInteger> actual = runApplication(testApplication);
           // sort by key to undo shuffling
           // (keys are guaranteed to be unique)
           Collections.sort(actual.getRows(), (r1, r2) -> r1.get(0).compareTo(r2.get(0)));

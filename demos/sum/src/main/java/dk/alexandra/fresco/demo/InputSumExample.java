@@ -1,9 +1,7 @@
 package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.demo.cli.CmdLineUtil;
-import dk.alexandra.fresco.demo.helpers.ResourcePoolHelper;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -30,8 +28,9 @@ public class InputSumExample {
 
     SumAndOutputApplication app = new SumAndOutputApplication(inputApp);
 
+    resourcePool.getNetwork().connect(10000);
     BigInteger result = sce.runApplication(app, resourcePool);
-
+    resourcePool.getNetwork().close();
     int sum = 0;
     for (int i : inputs) {
       sum += i;
@@ -41,10 +40,8 @@ public class InputSumExample {
 
   public static <ResourcePoolT extends ResourcePool> void main(String[] args) throws IOException {
     CmdLineUtil<ResourcePoolT, ProtocolBuilderNumeric> util = new CmdLineUtil<>();
-    NetworkConfiguration networkConfiguration;
 
     util.parse(args);
-    networkConfiguration = util.getNetworkConfiguration();
 
     ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric> psConf =
         (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) util.getProtocolSuite();
@@ -53,10 +50,8 @@ public class InputSumExample {
         new SecureComputationEngineImpl<ResourcePoolT, ProtocolBuilderNumeric>(psConf,
             util.getEvaluator());
 
-    ResourcePoolT resourcePool = ResourcePoolHelper.createResourcePool(psConf,
-        util.getNetworkStrategy(), networkConfiguration);
+    ResourcePoolT resourcePool = util.getResourcePool();
     runApplication(sce, resourcePool);
-    resourcePool.getNetwork().close();
   }
 
 }

@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -31,24 +30,21 @@ public class LinAlgTests {
 
         @Override
         public void test() throws Exception {
-          Application<BigInteger, ProtocolBuilderNumeric> app =
-              builder -> {
-                Numeric sIntFactory = builder.numeric();
+          Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
+            Numeric sIntFactory = builder.numeric();
 
-                List<DRes<SInt>> input1 = data1.stream().map(BigInteger::valueOf)
-                    .map(sIntFactory::known).collect(Collectors.toList());
-                // LinkedList<Computation<SInt>> bleh = new LinkedList(input1);
-                System.out.println(input1);
-                List<DRes<SInt>> input2 = data2.stream().map(BigInteger::valueOf)
-                    .map(sIntFactory::known).collect(Collectors.toList());
-                DRes<SInt> min =
-                    builder.seq(new InnerProduct(input1, input2));
+            List<DRes<SInt>> input1 = data1.stream().map(BigInteger::valueOf)
+                .map(sIntFactory::known).collect(Collectors.toList());
+            // LinkedList<Computation<SInt>> bleh = new LinkedList(input1);
+            System.out.println(input1);
+            List<DRes<SInt>> input2 = data2.stream().map(BigInteger::valueOf)
+                .map(sIntFactory::known).collect(Collectors.toList());
+            DRes<SInt> min = builder.seq(new InnerProduct(input1, input2));
 
-                return builder.numeric().open(min);
-              };
+            return builder.numeric().open(min);
+          };
 
-          BigInteger result = secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          BigInteger result = runApplication(app);
 
           Assert.assertEquals(expected, result);
         }
@@ -70,20 +66,17 @@ public class LinAlgTests {
 
         @Override
         public void test() throws Exception {
-          Application<BigInteger, ProtocolBuilderNumeric> app =
-              builder -> {
-                Numeric sIntFactory = builder.numeric();
+          Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
+            Numeric sIntFactory = builder.numeric();
 
-                List<DRes<SInt>> input1 = data1.stream().map(BigInteger::valueOf)
-                    .map(sIntFactory::known).collect(Collectors.toList());
-                DRes<SInt> min =
-                    builder.seq(new InnerProductOpen(data2, input1));
+            List<DRes<SInt>> input1 = data1.stream().map(BigInteger::valueOf)
+                .map(sIntFactory::known).collect(Collectors.toList());
+            DRes<SInt> min = builder.seq(new InnerProductOpen(data2, input1));
 
-                return builder.numeric().open(min);
-              };
+            return builder.numeric().open(min);
+          };
 
-          BigInteger result = secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          BigInteger result = runApplication(app);
 
           Assert.assertEquals(expected, result);
         }

@@ -47,8 +47,8 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Bui
 
   @Override
   public <OutputT> OutputT runApplication(Application<OutputT, Builder> application,
-      ResourcePoolT sceNetwork) {
-    Future<OutputT> future = startApplication(application, sceNetwork);
+      ResourcePoolT resourcePool) {
+    Future<OutputT> future = startApplication(application, resourcePool);
     try {
       return future.get(10, TimeUnit.MINUTES);
     } catch (InterruptedException | TimeoutException e) {
@@ -73,11 +73,13 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Bui
       BuilderFactory<Builder> protocolFactory = this.protocolSuite.init(resourcePool);
       Builder builder = protocolFactory.createSequential();
       DRes<OutputT> output = application.buildComputation(builder);
+
       long then = System.currentTimeMillis();
       this.evaluator.eval(builder.build(), resourcePool);
       long now = System.currentTimeMillis();
       long timeSpend = now - then;
-      logger.info("Running the application " + application + " took " + timeSpend + " ms.");
+      logger
+          .info("The application " + application + " finished evaluation in " + timeSpend + " ms.");
       application.close();
       return output;
     } catch (IOException e) {

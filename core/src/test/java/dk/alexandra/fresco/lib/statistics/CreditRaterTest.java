@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -32,6 +31,14 @@ public class CreditRaterTest {
     final int[][] intervals;
     final int[][] scores;
 
+    /**
+     * Creates an instance of the Credit rater tester.
+     * 
+     * @param values The values to score.
+     * @param intervals The intervals at which to separate scores (we assume the same number of
+     *        intervals as values and scores.)
+     * @param scores The DEA scores The score you get per interval.
+     */
     public TestCreditRater(int[] values, int[][] intervals, int[][] scores) {
       this.values = values;
       this.intervals = intervals;
@@ -43,38 +50,28 @@ public class CreditRaterTest {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          ResourcePoolT resourcePool = ResourcePoolCreator.createResourcePool(conf.sceConf);
+          Application<CreditRaterInput, ProtocolBuilderNumeric> input = producer -> {
+            Numeric numeric = producer.numeric();
+            int[] values = TestCreditRater.this.values;
+            List<DRes<SInt>> closedValues = knownArray(numeric, values);
 
-          Application<CreditRaterInput, ProtocolBuilderNumeric> input =
-              producer -> {
-                Numeric numeric = producer.numeric();
-                int[] values = TestCreditRater.this.values;
-                List<DRes<SInt>> closedValues = knownArray(numeric, values);
+            List<List<DRes<SInt>>> closedIntervals = Arrays.stream(intervals)
+                .map(array -> knownArray(numeric, array)).collect(Collectors.toList());
 
-                List<List<DRes<SInt>>> closedIntervals = Arrays.stream(intervals)
-                    .map(array -> knownArray(numeric, array))
-                    .collect(Collectors.toList());
+            List<List<DRes<SInt>>> closedScores = Arrays.stream(scores)
+                .map(array -> knownArray(numeric, array)).collect(Collectors.toList());
+            return () -> new CreditRaterInput(closedValues, closedIntervals, closedScores);
+          };
+          CreditRaterInput creditRaterInput = runApplication(input);
 
-                List<List<DRes<SInt>>> closedScores = Arrays.stream(scores)
-                    .map(array -> knownArray(numeric, array))
-                    .collect(Collectors.toList());
-                return () -> new CreditRaterInput(closedValues, closedIntervals, closedScores);
-              };
-          CreditRaterInput creditRaterInput = secureComputationEngine
-              .runApplication(input, resourcePool);
-
-          CreditRater rater = new CreditRater(
-              creditRaterInput.values,
-              creditRaterInput.intervals,
+          CreditRater rater = new CreditRater(creditRaterInput.values, creditRaterInput.intervals,
               creditRaterInput.intervalScores);
-          SInt creditRatingOutput = secureComputationEngine
-              .runApplication((builder) -> builder.seq(rater), resourcePool);
+          SInt creditRatingOutput = runApplication((builder) -> builder.seq(rater));
 
           Application<BigInteger, ProtocolBuilderNumeric> outputApp =
               seq -> seq.numeric().open(creditRatingOutput);
 
-          BigInteger resultCreditOut = secureComputationEngine
-              .runApplication(outputApp, resourcePool);
+          BigInteger resultCreditOut = runApplication(outputApp);
 
           Assert.assertThat(resultCreditOut, Is.is(
               BigInteger.valueOf(PlaintextCreditRater.calculateScore(values, intervals, scores))));
@@ -84,9 +81,7 @@ public class CreditRaterTest {
   }
 
   private static List<DRes<SInt>> knownArray(Numeric numeric, int[] values) {
-    return Arrays.stream(values)
-        .mapToObj(BigInteger::valueOf)
-        .map(numeric::known)
+    return Arrays.stream(values).mapToObj(BigInteger::valueOf).map(numeric::known)
         .collect(Collectors.toList());
   }
 
@@ -96,9 +91,7 @@ public class CreditRaterTest {
     private final List<List<DRes<SInt>>> intervals;
     private final List<List<DRes<SInt>>> intervalScores;
 
-    private CreditRaterInput(
-        List<DRes<SInt>> values,
-        List<List<DRes<SInt>>> intervals,
+    private CreditRaterInput(List<DRes<SInt>> values, List<List<DRes<SInt>>> intervals,
         List<List<DRes<SInt>>> intervalScores) {
       this.values = values;
       this.intervals = intervals;

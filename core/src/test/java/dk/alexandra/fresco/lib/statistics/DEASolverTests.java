@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -27,27 +26,21 @@ import org.junit.Assert;
  */
 public class DEASolverTests {
 
-  public static class RandomDataDeaTest<ResourcePoolT extends ResourcePool> extends
-      TestDeaSolver<ResourcePoolT> {
+  public static class RandomDataDeaTest<ResourcePoolT extends ResourcePool>
+      extends TestDeaSolver<ResourcePoolT> {
 
     private static final int BIT_LENGTH = 9;
 
-    public RandomDataDeaTest(
-        int inputVariables, int outputVariables, int rows, int queries,
+    public RandomDataDeaTest(int inputVariables, int outputVariables, int rows, int queries,
         AnalysisType type) {
       this(inputVariables, outputVariables, rows, queries, type, new Random(2));
     }
 
-    private RandomDataDeaTest(
-        int inputVariables, int outputVariables, int rows, int queries,
+    private RandomDataDeaTest(int inputVariables, int outputVariables, int rows, int queries,
         AnalysisType type, Random rand) {
-      super(
-          randomMatrix(rows, inputVariables, rand),
-          randomMatrix(rows, outputVariables, rand),
-          randomMatrix(queries, inputVariables, rand),
-          randomMatrix(queries, outputVariables, rand),
-          type
-      );
+      super(randomMatrix(rows, inputVariables, rand), randomMatrix(rows, outputVariables, rand),
+          randomMatrix(queries, inputVariables, rand), randomMatrix(queries, outputVariables, rand),
+          type);
     }
 
     private static List<List<BigInteger>> randomMatrix(int width, int height, Random rand) {
@@ -63,19 +56,18 @@ public class DEASolverTests {
     }
   }
 
-  public static class TestDeaFixed1<ResourcePoolT extends ResourcePool> extends
-      TestDeaSolver<ResourcePoolT> {
+  public static class TestDeaFixed1<ResourcePoolT extends ResourcePool>
+      extends TestDeaSolver<ResourcePoolT> {
 
     private static List<List<BigInteger>> inputs;
     private static List<List<BigInteger>> outputs;
 
     static {
-      int[][] dataSet1 = new int[][]{
-          new int[]{29, 13451, 14409, 16477}, // Score 1
-          new int[]{2, 581, 531, 1037}, // Score 1
-          new int[]{26, 13352, 1753, 13528}, // Score 1
-          new int[]{15, 4828, 949, 5126}, // Score 0.9857962644001192
-          new int[]{20, 6930, 6376, 9680}  //
+      int[][] dataSet1 = new int[][] {new int[] {29, 13451, 14409, 16477}, // Score 1
+          new int[] {2, 581, 531, 1037}, // Score 1
+          new int[] {26, 13352, 1753, 13528}, // Score 1
+          new int[] {15, 4828, 949, 5126}, // Score 0.9857962644001192
+          new int[] {20, 6930, 6376, 9680} //
       };
       inputs = buildInputs(dataSet1);
       outputs = buildOutputs(dataSet1);
@@ -86,18 +78,15 @@ public class DEASolverTests {
     }
   }
 
-  public static class TestDeaFixed2<ResourcePoolT extends ResourcePool> extends
-      TestDeaSolver<ResourcePoolT> {
+  public static class TestDeaFixed2<ResourcePoolT extends ResourcePool>
+      extends TestDeaSolver<ResourcePoolT> {
 
     private static List<List<BigInteger>> inputs;
     private static List<List<BigInteger>> outputs;
 
     static {
-      int[][] dataset = new int[][]{
-          new int[]{10, 20, 30, 1000},
-          new int[]{5, 10, 15, 1000},
-          new int[]{200, 300, 400, 100}
-      };
+      int[][] dataset = new int[][] {new int[] {10, 20, 30, 1000}, new int[] {5, 10, 15, 1000},
+          new int[] {200, 300, 400, 100}};
       inputs = buildInputs(dataset);
       outputs = buildOutputs(dataset);
     }
@@ -137,10 +126,9 @@ public class DEASolverTests {
     private final List<List<BigInteger>> rawBasisInputs;
     private final AnalysisType type;
 
-    public TestDeaSolver(
-        List<List<BigInteger>> rawBasisInputs, List<List<BigInteger>> rawBasisOutputs,
-        List<List<BigInteger>> rawTargetInputs, List<List<BigInteger>> rawTargetOutputs,
-        AnalysisType type) {
+    public TestDeaSolver(List<List<BigInteger>> rawBasisInputs,
+        List<List<BigInteger>> rawBasisOutputs, List<List<BigInteger>> rawTargetInputs,
+        List<List<BigInteger>> rawTargetOutputs, AnalysisType type) {
       this.rawTargetOutputs = rawTargetOutputs;
       this.rawTargetInputs = rawTargetInputs;
       this.rawBasisOutputs = rawBasisOutputs;
@@ -156,83 +144,60 @@ public class DEASolverTests {
 
         @Override
         public void test() throws Exception {
-          ResourcePoolT resourcePool = ResourcePoolCreator.createResourcePool(conf.sceConf);
+          Application<DEASolver, ProtocolBuilderNumeric> app = producer -> {
+            modulus = producer.getBasicNumericContext().getModulus();
+            Numeric numeric = producer.numeric();
+            List<List<BigInteger>> rawTargetOutputs = TestDeaSolver.this.rawTargetOutputs;
+            List<List<DRes<SInt>>> targetOutputs = knownMatrix(numeric, rawTargetOutputs);
+            List<List<DRes<SInt>>> targetInputs = knownMatrix(numeric, rawTargetInputs);
+            List<List<DRes<SInt>>> basisOutputs = knownMatrix(numeric, rawBasisOutputs);
+            List<List<DRes<SInt>>> basisInputs = knownMatrix(numeric, rawBasisInputs);
+            return () -> new DEASolver(type, targetInputs, targetOutputs, basisInputs,
+                basisOutputs);
+          };
+          DEASolver solver = runApplication(app);
 
-          Application<DEASolver, ProtocolBuilderNumeric> app =
-              producer -> {
-                modulus = producer.getBasicNumericContext().getModulus();
-                Numeric numeric = producer.numeric();
-                List<List<BigInteger>> rawTargetOutputs = TestDeaSolver.this.rawTargetOutputs;
-                List<List<DRes<SInt>>> targetOutputs =
-                    knownMatrix(numeric, rawTargetOutputs);
-                List<List<DRes<SInt>>> targetInputs =
-                    knownMatrix(numeric, rawTargetInputs);
-                List<List<DRes<SInt>>> basisOutputs =
-                    knownMatrix(numeric, rawBasisOutputs);
-                List<List<DRes<SInt>>> basisInputs =
-                    knownMatrix(numeric, rawBasisInputs);
-                return () -> new DEASolver(type, targetInputs, targetOutputs, basisInputs,
-                    basisOutputs);
-              };
-          DEASolver solver = secureComputationEngine
-              .runApplication(app, resourcePool);
-
-          List<DEAResult> deaResults = secureComputationEngine
-              .runApplication(solver, resourcePool);
+          List<DEAResult> deaResults = runApplication(solver);
 
           Application<List<Pair<BigInteger, List<BigInteger>>>, ProtocolBuilderNumeric> app2 =
               producer -> {
-                Numeric numeric = producer.numeric();
-                ArrayList<Pair<DRes<BigInteger>, List<DRes<BigInteger>>>> result = new ArrayList<>();
-                for (DEAResult deaResult : deaResults) {
-                  result.add(
-                      new Pair<>(
-                          numeric.open(deaResult.optimal),
-                          deaResult.basis.stream().map(numeric::open).collect(Collectors.toList())
-                      )
-                  );
-                }
-                return () ->
-                    result
-                        .stream()
-                        .map(pair -> new Pair<>(
-                            pair.getFirst().out(),
-                            pair.getSecond().stream().map(DRes::out)
-                                .collect(Collectors.toList())
-                        )).collect(Collectors.toList());
-              };
-          List<Pair<BigInteger, List<BigInteger>>> openResults = secureComputationEngine
-              .runApplication(app2, resourcePool);
+            Numeric numeric = producer.numeric();
+            ArrayList<Pair<DRes<BigInteger>, List<DRes<BigInteger>>>> result = new ArrayList<>();
+            for (DEAResult deaResult : deaResults) {
+              result.add(new Pair<>(numeric.open(deaResult.optimal),
+                  deaResult.basis.stream().map(numeric::open).collect(Collectors.toList())));
+            }
+            return () -> result.stream()
+                .map(pair -> new Pair<>(pair.getFirst().out(),
+                    pair.getSecond().stream().map(DRes::out).collect(Collectors.toList())))
+                .collect(Collectors.toList());
+          };
+          List<Pair<BigInteger, List<BigInteger>>> openResults = runApplication(app2);
 
           // Solve the problem using a plaintext solver
           PlaintextDEASolver plainSolver = new PlaintextDEASolver();
-          plainSolver.addBasis(
-              asArray(rawBasisInputs),
-              asArray(rawBasisOutputs));
+          plainSolver.addBasis(asArray(rawBasisInputs), asArray(rawBasisOutputs));
 
-          double[] plain = plainSolver.solve(
-              asArray(rawTargetInputs),
-              asArray(rawTargetOutputs),
-              type);
+          double[] plain =
+              plainSolver.solve(asArray(rawTargetInputs), asArray(rawTargetOutputs), type);
 
-          //rawBasisInputs = new BigInteger[datasetRows][inputVariables];
+          // rawBasisInputs = new BigInteger[datasetRows][inputVariables];
 
           // Perform postprocessing and compare MPC result with plaintext result
           int lambdas = rawBasisInputs.size();
 
           int slackvariables = rawBasisInputs.get(0).size() + rawBasisOutputs.get(0).size() + 1;
-          int variables = lambdas + slackvariables + 1 + 2; //+2 is new
-          
+          int variables = lambdas + slackvariables + 1 + 2; // +2 is new
+
           for (int i = 0; i < rawTargetInputs.size(); i++) {
-            Assert.assertEquals(plain[i],
-                postProcess(openResults.get(i).getFirst(), type, modulus), 0.0000001);
+            Assert.assertEquals(plain[i], postProcess(openResults.get(i).getFirst(), type, modulus),
+                0.0000001);
             List<BigInteger> basis = openResults.get(i).getSecond();
             for (int j = 0; j < basis.size(); j++) {
 
               int value = basis.get(j).intValue();
-              Assert.assertTrue(
-                  "Basis value " + value + ", was larger than " + (
-                      variables - 1), value <= variables);
+              Assert.assertTrue("Basis value " + value + ", was larger than " + (variables - 1),
+                  value <= variables);
             }
           }
 
@@ -241,9 +206,7 @@ public class DEASolverTests {
     }
 
     private BigInteger[][] asArray(List<List<BigInteger>> lists) {
-      return lists
-          .stream()
-          .map(list -> list.toArray(new BigInteger[list.size()]))
+      return lists.stream().map(list -> list.toArray(new BigInteger[list.size()]))
           .toArray(BigInteger[][]::new);
     }
   }
@@ -258,8 +221,7 @@ public class DEASolverTests {
   /**
    * Reduces a field-element to a double using Gauss reduction.
    */
-  private static double postProcess(BigInteger input, AnalysisType type,
-      BigInteger modulus) {
+  private static double postProcess(BigInteger input, AnalysisType type, BigInteger modulus) {
     BigInteger[] gauss = gauss(input, modulus);
     double res = (gauss[0].doubleValue() / gauss[1].doubleValue());
     if (type == DEASolver.AnalysisType.INPUT_EFFICIENCY) {
@@ -270,15 +232,18 @@ public class DEASolverTests {
 
   /**
    * Converts a number of the form <i>t = r*s<sup>-1</sup> mod N</i> to the rational number
-   * <i>r/s</i> represented as a reduced fraction. <p> This is useful outputting non-integer
-   * rational numbers from MPC, when outputting a non-reduced fraction may leak too much
-   * information. The technique used is adapted from the paper "CryptoComputing With Rationals" of
-   * Fouque et al. Financial Cryptography 2002. This methods restricts us to integers <i>t =
-   * r*s<sup>-1</sup> mod N</i> so that <i>2r*s < N</i>. See <a href="https://www.di.ens.fr/~stern/data/St100.pdf">https://www.di.ens.
-   * fr/~stern/data/St100.pdf</a> </p>
+   * <i>r/s</i> represented as a reduced fraction.
+   * <p>
+   * This is useful outputting non-integer rational numbers from MPC, when outputting a non-reduced
+   * fraction may leak too much information. The technique used is adapted from the paper
+   * "CryptoComputing With Rationals" of Fouque et al. Financial Cryptography 2002. This methods
+   * restricts us to integers <i>t = r*s<sup>-1</sup> mod N</i> so that <i>2r*s < N</i>. See
+   * <a href="https://www.di.ens.fr/~stern/data/St100.pdf">https://www.di.ens.
+   * fr/~stern/data/St100.pdf</a>
+   * </p>
    *
    * @param product The integer <i>t = r*s<sup>-1</sup>mod N</i>. Note that we must have that
-   * <i>2r*s < N</i>.
+   *        <i>2r*s < N</i>.
    * @param mod the modulus, i.e., <i>N</i>.
    * @return The fraction as represented as the rational number <i>r/s</i>.
    */
@@ -305,12 +270,12 @@ public class DEASolverTests {
       BigInteger r0 = u[0].subtract(v[0].multiply(q[0]));
       BigInteger r1 = u[1].subtract(v[1].multiply(q[0]));
       u = v;
-      v = new BigInteger[]{r0, r1};
+      v = new BigInteger[] {r0, r1};
       uu = vv;
       uv = innerproduct(u, v);
       vv = innerproduct(v, v);
     } while (uu.compareTo(vv) > 0);
-    return new BigInteger[]{u[0], u[1]};
+    return new BigInteger[] {u[0], u[1]};
   }
 
   private static BigInteger innerproduct(BigInteger[] u, BigInteger[] v) {

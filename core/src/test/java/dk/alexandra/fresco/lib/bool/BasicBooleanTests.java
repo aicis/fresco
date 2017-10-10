@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.Binary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.util.ArrayList;
@@ -38,8 +37,7 @@ public class BasicBooleanTests {
             return () -> out;
           });
 
-          boolean output = secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          boolean output = runApplication(app);
 
           if (doAsserts) {
             Assert.assertEquals(true, output);
@@ -78,8 +76,7 @@ public class BasicBooleanTests {
             return () -> list.stream().map(DRes::out).collect(Collectors.toList());
           });
 
-          List<Boolean> outs = secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Boolean> outs = runApplication(app);
 
           if (doAsserts) {
             Assert.assertEquals(false, outs.get(0));
@@ -121,8 +118,7 @@ public class BasicBooleanTests {
             return () -> list.stream().map(DRes::out).collect(Collectors.toList());
           });
 
-          List<Boolean> outs = secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Boolean> outs = runApplication(app);
 
           if (doAsserts) {
             Assert.assertEquals(false, outs.get(0));
@@ -161,8 +157,7 @@ public class BasicBooleanTests {
             return () -> list.stream().map(DRes::out).collect(Collectors.toList());
           });
 
-          List<Boolean> outs = secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Boolean> outs = runApplication(app);
 
           if (doAsserts) {
             Assert.assertEquals(true, outs.get(0));
@@ -208,8 +203,7 @@ public class BasicBooleanTests {
             return () -> list.stream().map(DRes::out).collect(Collectors.toList());
           });
 
-          List<Boolean> outs = secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Boolean> outs = runApplication(app);
 
           if (doAsserts) {
             Assert.assertEquals(true, outs.get(0));

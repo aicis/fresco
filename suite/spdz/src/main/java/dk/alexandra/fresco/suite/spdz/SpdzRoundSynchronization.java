@@ -1,6 +1,8 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.SCENetworkImpl;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.ProtocolCollectionList;
 import dk.alexandra.fresco.suite.ProtocolSuite.RoundSynchronization;
@@ -17,7 +19,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
   private static final int macCheckThreshold = 100000;
 
   private void MACCheck(SpdzResourcePool resourcePool,
-      SCENetwork sceNetworks) throws IOException {
+      SCENetworkImpl sceNetwork) throws IOException {
 
     SpdzStorage storage = resourcePool.getStore();
 
@@ -33,8 +35,8 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
       ProtocolCollectionList<SpdzResourcePool> protocolCollectionList =
           new ProtocolCollectionList<>(batchSize);
       macCheck.getNextProtocols(protocolCollectionList);
-
-      BatchedStrategy.processBatch(protocolCollectionList, sceNetworks, 0, resourcePool);
+      BatchEvaluationStrategy<SpdzResourcePool> batchStrat = new BatchedStrategy<>(); 
+      batchStrat.processBatch(protocolCollectionList, resourcePool, sceNetwork);
     } while (macCheck.hasNextProtocols());
 
     //reset boolean value
@@ -44,7 +46,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
   @Override
   public void finishedEval(SpdzResourcePool resourcePool, SCENetwork sceNetwork)
       throws IOException {
-    MACCheck(resourcePool, sceNetwork);
+    MACCheck(resourcePool, (SCENetworkImpl)sceNetwork);
   }
 
   @Override
@@ -52,7 +54,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
       SCENetwork sceNetwork) throws IOException {
     gatesEvaluated += gatesEvaluated;
     if (gatesEvaluated > macCheckThreshold || resourcePool.isOutputProtocolInBatch()) {
-      MACCheck(resourcePool, sceNetwork);
+      MACCheck(resourcePool, (SCENetworkImpl)sceNetwork);
     }
   }
 }

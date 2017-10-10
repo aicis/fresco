@@ -2,7 +2,6 @@ package dk.alexandra.fresco.suite.tinytables.online;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesANDProtocol;
@@ -16,10 +15,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,11 +86,4 @@ public class TinyTablesProtocolSuite
   public RoundSynchronization<ResourcePoolImpl> createRoundSynchronization() {
     return new DummyRoundSynchronization<>();
   }
-
-  @Override
-  public ResourcePoolImpl createResourcePool(int myId, int size, Network network, Random rand,
-      SecureRandom secRand) {
-    return new ResourcePoolImpl(myId, size, network, rand, secRand);
-  }
-
 }

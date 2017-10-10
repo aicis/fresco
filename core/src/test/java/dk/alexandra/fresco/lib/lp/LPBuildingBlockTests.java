@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
@@ -45,26 +44,19 @@ public class LPBuildingBlockTests {
         sTableau = new LPTableau(
             new Matrix<>(constraints.getHeight(), constraints.getWidth(),
                 (i) -> toArrayList(numeric, constraints.getRow(i))),
-            toArrayList(numeric, b),
-            toArrayList(numeric, f),
-            numeric.known(BigInteger.ZERO)
-        );
-        sUpdateMatrix = new Matrix<>(
-            updateMatrix.getHeight(), updateMatrix.getWidth(),
+            toArrayList(numeric, b), toArrayList(numeric, f), numeric.known(BigInteger.ZERO));
+        sUpdateMatrix = new Matrix<>(updateMatrix.getHeight(), updateMatrix.getWidth(),
             (i) -> toArrayList(numeric, updateMatrix.getRow(i)));
         return () -> null;
       });
     }
 
-    private ArrayList<DRes<SInt>> toArrayList(Numeric numeric,
-        ArrayList<BigInteger> row) {
-      return new ArrayList<>(row.stream().map(numeric::known)
-          .collect(Collectors.toList()));
+    private ArrayList<DRes<SInt>> toArrayList(Numeric numeric, ArrayList<BigInteger> row) {
+      return new ArrayList<>(row.stream().map(numeric::known).collect(Collectors.toList()));
     }
 
     Matrix<BigInteger> randomMatrix(int n, int m) {
-      return new Matrix<>(n, m,
-          (i) -> randomList(m));
+      return new Matrix<>(n, m, (i) -> randomList(m));
     }
 
     ArrayList<BigInteger> randomList(int m) {
@@ -90,20 +82,19 @@ public class LPBuildingBlockTests {
 
       expectedIndex = enteringDanzigVariableIndex(constraints, updateMatrix, b, f);
 
-      return builder.seq((seq) ->
-          new EnteringVariable(sTableau, sUpdateMatrix).buildComputation(seq)
-      ).seq((seq, enteringOutput) -> {
-        List<DRes<SInt>> enteringIndex = enteringOutput.getFirst();
-        Numeric numeric = seq.numeric();
-        List<DRes<BigInteger>> opened = enteringIndex.stream().map(numeric::open)
-            .collect(Collectors.toList());
-        return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
-      });
+      return builder
+          .seq((seq) -> new EnteringVariable(sTableau, sUpdateMatrix).buildComputation(seq))
+          .seq((seq, enteringOutput) -> {
+            List<DRes<SInt>> enteringIndex = enteringOutput.getFirst();
+            Numeric numeric = seq.numeric();
+            List<DRes<BigInteger>> opened =
+                enteringIndex.stream().map(numeric::open).collect(Collectors.toList());
+            return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
+          });
     }
 
     /**
-     * Computes the index of the entering variable given the plaintext LP tableu using Danzigs
-     * rule.
+     * Computes the index of the entering variable given the plaintext LP tableu using Danzigs rule.
      *
      * @param C the constraint matrix
      * @param updateMatrix the update matrix
@@ -112,8 +103,7 @@ public class LPBuildingBlockTests {
      * @return the entering index
      */
     private int enteringDanzigVariableIndex(Matrix<BigInteger> C, Matrix<BigInteger> updateMatrix,
-        ArrayList<BigInteger> B,
-        ArrayList<BigInteger> F) {
+        ArrayList<BigInteger> B, ArrayList<BigInteger> F) {
       BigInteger[] updatedF = new BigInteger[F.size()];
       ArrayList<BigInteger> updateRow = updateMatrix.getRow(updateMatrix.getHeight() - 1);
       for (int i = 0; i < F.size(); i++) {
@@ -122,8 +112,8 @@ public class LPBuildingBlockTests {
         for (int j = 0; j < C.getHeight(); j++) {
           updatedF[i] = updatedF[i].add(column.get(j).multiply(updateRow.get(j)));
         }
-        updatedF[i] = updatedF[i]
-            .add(F.get(i).multiply(updateRow.get(updateMatrix.getHeight() - 1)));
+        updatedF[i] =
+            updatedF[i].add(F.get(i).multiply(updateRow.get(updateMatrix.getHeight() - 1)));
       }
       BigInteger half = mod.divide(BigInteger.valueOf(2));
       BigInteger min = updatedF[0];
@@ -157,20 +147,19 @@ public class LPBuildingBlockTests {
 
       expectedIndex = enteringDanzigVariableIndex(constraints, updateMatrix, b, f);
 
-      return builder.seq((seq) ->
-          new BlandEnteringVariable(sTableau, sUpdateMatrix).buildComputation(seq)
-      ).seq((seq, enteringOutput) -> {
-        List<DRes<SInt>> enteringIndex = enteringOutput.getFirst();
-        Numeric numeric = seq.numeric();
-        List<DRes<BigInteger>> opened = enteringIndex.stream().map(numeric::open)
-            .collect(Collectors.toList());
-        return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
-      });
+      return builder
+          .seq((seq) -> new BlandEnteringVariable(sTableau, sUpdateMatrix).buildComputation(seq))
+          .seq((seq, enteringOutput) -> {
+            List<DRes<SInt>> enteringIndex = enteringOutput.getFirst();
+            Numeric numeric = seq.numeric();
+            List<DRes<BigInteger>> opened =
+                enteringIndex.stream().map(numeric::open).collect(Collectors.toList());
+            return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
+          });
     }
 
     /**
-     * Computes the index of the entering variable given the plaintext LP tableu using Danzigs
-     * rule.
+     * Computes the index of the entering variable given the plaintext LP tableu using Danzigs rule.
      *
      * @param C the constraint matrix
      * @param updateMatrix the update matrix
@@ -179,8 +168,7 @@ public class LPBuildingBlockTests {
      * @return the entering index
      */
     private int enteringDanzigVariableIndex(Matrix<BigInteger> C, Matrix<BigInteger> updateMatrix,
-        ArrayList<BigInteger> B,
-        ArrayList<BigInteger> F) {
+        ArrayList<BigInteger> B, ArrayList<BigInteger> F) {
       BigInteger[] updatedF = new BigInteger[F.size()];
       ArrayList<BigInteger> updateRow = updateMatrix.getRow(updateMatrix.getHeight() - 1);
       for (int i = 0; i < F.size(); i++) {
@@ -189,8 +177,8 @@ public class LPBuildingBlockTests {
         for (int j = 0; j < C.getHeight(); j++) {
           updatedF[i] = updatedF[i].add(column.get(j).multiply(updateRow.get(j)));
         }
-        updatedF[i] = updatedF[i]
-            .add(F.get(i).multiply(updateRow.get(updateMatrix.getHeight() - 1)));
+        updatedF[i] =
+            updatedF[i].add(F.get(i).multiply(updateRow.get(updateMatrix.getHeight() - 1)));
       }
       BigInteger half = mod.divide(BigInteger.valueOf(2));
       BigInteger min = updatedF[0];
@@ -216,41 +204,41 @@ public class LPBuildingBlockTests {
 
     @SuppressWarnings("unused")
     private int exitingIndex(int enteringIndex) {
-      //TODO Fix this test case
-//      BigInteger[] updatedColumn = new BigInteger[b.length];
-//      BigInteger[] updatedB = new BigInteger[b.length];
-//      BigInteger[] column = new BigInteger[b.length];
-//      column = constraints.getIthColumn(enteringIndex, column);
-//      for (int i = 0; i < b.length; i++) {
-//        updatedB[i] = innerProduct(b, updateMatrix.getIthRow(i));
-//        updatedColumn[i] = innerProduct(column, updateMatrix.getIthRow(i));
-//      }
-//      int exitingIndex = 0;
-//      BigInteger half = mod.divide(BigInteger.valueOf(2));
-//      BigInteger minNominator = null;
-//      BigInteger minDenominator = null;
-//      for (int i = 0; i < updatedB.length; i++) {
-//        boolean nonPos = updatedColumn[i].compareTo(half) > 0;
-//        nonPos = nonPos || updatedColumn[i].compareTo(BigInteger.ZERO) == 0;
-//        if (!nonPos) {
-//          if (minNominator == null) {
-//            minNominator = updatedB[i];
-//            minDenominator = updatedColumn[i];
-//            exitingIndex = i;
-//          } else {
-//            BigInteger leftHand = minNominator.multiply(updatedColumn[i]);
-//            BigInteger rightHand = minDenominator.multiply(updatedB[i]);
-//            BigInteger diff = leftHand.subtract(rightHand).mod(mod);
-//            diff = diff.compareTo(half) > 0 ? diff.subtract(mod) : diff;
-//            if (diff.compareTo(BigInteger.ZERO) > 0) {
-//              minNominator = updatedB[i];
-//              minDenominator = updatedColumn[i];
-//              exitingIndex = i;
-//            }
-//          }
-//        }
-//      }
-//      return exitingIndex;
+      // TODO Fix this test case
+      // BigInteger[] updatedColumn = new BigInteger[b.length];
+      // BigInteger[] updatedB = new BigInteger[b.length];
+      // BigInteger[] column = new BigInteger[b.length];
+      // column = constraints.getIthColumn(enteringIndex, column);
+      // for (int i = 0; i < b.length; i++) {
+      // updatedB[i] = innerProduct(b, updateMatrix.getIthRow(i));
+      // updatedColumn[i] = innerProduct(column, updateMatrix.getIthRow(i));
+      // }
+      // int exitingIndex = 0;
+      // BigInteger half = mod.divide(BigInteger.valueOf(2));
+      // BigInteger minNominator = null;
+      // BigInteger minDenominator = null;
+      // for (int i = 0; i < updatedB.length; i++) {
+      // boolean nonPos = updatedColumn[i].compareTo(half) > 0;
+      // nonPos = nonPos || updatedColumn[i].compareTo(BigInteger.ZERO) == 0;
+      // if (!nonPos) {
+      // if (minNominator == null) {
+      // minNominator = updatedB[i];
+      // minDenominator = updatedColumn[i];
+      // exitingIndex = i;
+      // } else {
+      // BigInteger leftHand = minNominator.multiply(updatedColumn[i]);
+      // BigInteger rightHand = minDenominator.multiply(updatedB[i]);
+      // BigInteger diff = leftHand.subtract(rightHand).mod(mod);
+      // diff = diff.compareTo(half) > 0 ? diff.subtract(mod) : diff;
+      // if (diff.compareTo(BigInteger.ZERO) > 0) {
+      // minNominator = updatedB[i];
+      // minDenominator = updatedColumn[i];
+      // exitingIndex = i;
+      // }
+      // }
+      // }
+      // }
+      // return exitingIndex;
       return 0;
     }
 
@@ -267,11 +255,10 @@ public class LPBuildingBlockTests {
   }
 
 
-  public static class TestEnteringVariable<ResourcePoolT extends ResourcePool> extends
- TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  public static class TestEnteringVariable<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
-    public TestEnteringVariable() {
-    }
+    public TestEnteringVariable() {}
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -283,14 +270,12 @@ public class LPBuildingBlockTests {
 
 
             @Override
-            public DRes<List<BigInteger>> buildComputation(
-                ProtocolBuilderNumeric builder) {
+            public DRes<List<BigInteger>> buildComputation(ProtocolBuilderNumeric builder) {
               mod = builder.getBasicNumericContext().getModulus();
               return setupRandom(10, 10, builder);
             }
           };
-          List<BigInteger> outputs = secureComputationEngine
-              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<BigInteger> outputs = runApplication(app);
           int actualIndex = 0;
           int sum = 0;
           BigInteger zero = BigInteger.ZERO;
@@ -310,11 +295,10 @@ public class LPBuildingBlockTests {
     }
   }
 
-  public static class TestBlandEnteringVariable<ResourcePoolT extends ResourcePool> extends
- TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  public static class TestBlandEnteringVariable<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
-    public TestBlandEnteringVariable() {
-    }
+    public TestBlandEnteringVariable() {}
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -326,14 +310,12 @@ public class LPBuildingBlockTests {
 
 
             @Override
-            public DRes<List<BigInteger>> buildComputation(
-                ProtocolBuilderNumeric builder) {
+            public DRes<List<BigInteger>> buildComputation(ProtocolBuilderNumeric builder) {
               mod = builder.getBasicNumericContext().getModulus();
               return setupRandom(10, 10, builder);
             }
           };
-          List<BigInteger> outputs = secureComputationEngine
-              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<BigInteger> outputs = runApplication(app);
           int actualIndex = 0;
           int sum = 0;
           BigInteger zero = BigInteger.ZERO;
@@ -346,8 +328,8 @@ public class LPBuildingBlockTests {
               sum++;
             }
           }
-          //Assert.assertEquals(1, sum);
-          //Assert.assertEquals(app.getExpextedIndex(), actualIndex);
+          // Assert.assertEquals(1, sum);
+          // Assert.assertEquals(app.getExpextedIndex(), actualIndex);
           Assert.assertEquals(0, sum);
           Assert.assertEquals(20, actualIndex);
         }
@@ -355,11 +337,10 @@ public class LPBuildingBlockTests {
     }
 
 
-    public static class TestExitingVariable<ResourcePoolT extends ResourcePool> extends
- TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+    public static class TestExitingVariable<ResourcePoolT extends ResourcePool>
+        extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
-      public TestExitingVariable() {
-      }
+      public TestExitingVariable() {}
 
       @Override
       public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -371,15 +352,13 @@ public class LPBuildingBlockTests {
 
 
               @Override
-              public DRes<List<BigInteger>> buildComputation(
-                  ProtocolBuilderNumeric builder) {
+              public DRes<List<BigInteger>> buildComputation(ProtocolBuilderNumeric builder) {
                 mod = builder.getBasicNumericContext().getModulus();
-                //setupRandom(10, 10, builder);
+                // setupRandom(10, 10, builder);
                 return () -> null;
               }
             };
-            List<BigInteger> outputs = secureComputationEngine
-                .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+            List<BigInteger> outputs = runApplication(app);
             int actualIndex = 0;
             int sum = 0;
             BigInteger zero = BigInteger.ZERO;
@@ -392,8 +371,8 @@ public class LPBuildingBlockTests {
                 sum++;
               }
             }
-            //      Assert.assertEquals(1, sum);
-            //     Assert.assertEquals(app.getExpextedIndex(), actualIndex);
+            // Assert.assertEquals(1, sum);
+            // Assert.assertEquals(app.getExpextedIndex(), actualIndex);
           }
         };
       }

@@ -15,51 +15,46 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * This class implements the core of a general batched communication strategy
- * for evaluating Protocols. In this strategy a number of Protocols will be
- * evaluated round by round in such a way that the communication of all
- * Protocols is collected and batched together between rounds. More precisely
- * the process is as follows for a batch of Protocols:
- *
- * 1. Evaluate the next round of all Protocols and collect messages to be sent
- * in this round.
- *
+ * This class implements the core of a general batched communication strategy for evaluating
+ * Protocols. In this strategy a number of Protocols will be evaluated round by round in such a way
+ * that the communication of all Protocols is collected and batched together between rounds. More
+ * precisely the process is as follows for a batch of Protocols:
+ * <p>
+ * 1. Evaluate the next round of all Protocols and collect messages to be sent in this round.
+ * </p>
+ * <p>
  * 2. Send all messages collected in step 1.
- *
+ * </p>
+ * <p>
  * 3. Recieve all messages expected before the next round.
- *
+ * </p>
+ * <p>
  * 4. If there are Protocols that are not done start over at step 1.
- *
+ * </p>
+ * <p>
  * The processing is done is in a sequential manner (i.e. no parallelization).
+ * </p>
  */
-public class BatchedStrategy {
+public class BatchedStrategy<ResourcePoolT extends ResourcePool>
+    implements BatchEvaluationStrategy<ResourcePoolT> {
 
-  /**
-   * @param protocols array holding the protocols to be evaluated
-   * @param sceNetwork array of sceNetworks corresponding to the protocols to be evaluated.
-   *     I.e.,
-   *     the array should contain numProtocols SCENetworks, with sceNetwork[i] used for
-   *     communication in
-   *     protocols[i].
-   * @param channel string indicating the channel to communicate over.
-   * @param rp the resource pool.
-   */
-  public static <ResourcePoolT extends ResourcePool> void processBatch(
-      ProtocolCollection<ResourcePoolT> protocols,
-      SCENetwork sceNetwork, int channel, ResourcePoolT rp) throws IOException {
-    Network network = rp.getNetwork();
+  @Override
+  public <sceNetwork extends SCENetwork & SCENetworkSupplier> void processBatch(
+      ProtocolCollection<ResourcePoolT> protocols, ResourcePoolT resourcePool,
+      sceNetwork sceNetwork)
+          throws IOException {
+    Network network = resourcePool.getNetwork();
     int round = 0;
-
     while (protocols.size() > 0) {
-      evaluateCurrentRound(protocols, sceNetwork, channel, rp, network, round);
+      evaluateCurrentRound(protocols, sceNetwork, 0, resourcePool, network, round);
 
       round++;
     }
-  }
+  }  
 
-  private static <ResourcePoolT extends ResourcePool> void evaluateCurrentRound(
-      ProtocolCollection<ResourcePoolT> protocols, SCENetwork sceNetwork,
-      int channel, ResourcePoolT rp, Network network, int round) throws IOException {
+  private void evaluateCurrentRound(
+      ProtocolCollection<ResourcePoolT> protocols, SCENetwork sceNetwork, int channel,
+      ResourcePoolT rp, Network network, int round) throws IOException {
     Iterator<NativeProtocol<?, ResourcePoolT>> iterator = protocols.iterator();
     while (iterator.hasNext()) {
       NativeProtocol<?, ResourcePoolT> protocol = iterator.next();
@@ -73,13 +68,13 @@ public class BatchedStrategy {
       SCENetworkSupplier sceNetworkSupplier = (SCENetworkSupplier) sceNetwork;
       Map<Integer, ByteBuffer> inputs = new HashMap<>();
 
-      //Send data
+      // Send data
       Map<Integer, byte[]> output = sceNetworkSupplier.getOutputFromThisRound();
       for (Map.Entry<Integer, byte[]> e : output.entrySet()) {
         network.send(channel, e.getKey(), e.getValue());
       }
 
-      //receive data
+      // receive data
       Set<Integer> expected = sceNetworkSupplier.getExpectedInputForNextRound();
       for (int i : expected) {
         byte[] data = network.receive(channel, i);

@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -30,22 +29,18 @@ public class AdvancedNumericTests {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          Application<BigInteger, ProtocolBuilderNumeric> app =
-              builder -> {
-                modulus = builder.getBasicNumericContext().getModulus();
+          Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
+            modulus = builder.getBasicNumericContext().getModulus();
 
-                DRes<SInt> p = builder.numeric()
-                    .known(BigInteger.valueOf(numerator));
-                DRes<SInt> q = builder.numeric()
-                    .known(BigInteger.valueOf(denominator));
+            DRes<SInt> p = builder.numeric().known(BigInteger.valueOf(numerator));
+            DRes<SInt> q = builder.numeric().known(BigInteger.valueOf(denominator));
 
-                DRes<SInt> result = builder.advancedNumeric().div(p, q);
+            DRes<SInt> result = builder.advancedNumeric().div(p, q);
 
-                return builder.numeric().open(result);
-              };
+            return builder.numeric().open(result);
+          };
 
-          BigInteger result = secureComputationEngine
-              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+          BigInteger result = runApplication(app);
 
           Assert.assertEquals(BigInteger.valueOf(numerator / denominator),
               convertRepresentation(result, modulus));
@@ -82,21 +77,18 @@ public class AdvancedNumericTests {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          Application<BigInteger, ProtocolBuilderNumeric> app =
-              builder -> {
-                modulus = builder.getBasicNumericContext().getModulus();
+          Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
+            modulus = builder.getBasicNumericContext().getModulus();
 
-                DRes<SInt> p = builder.numeric()
-                    .known(BigInteger.valueOf(numerator));
-                BigInteger q = BigInteger.valueOf(denominator);
+            DRes<SInt> p = builder.numeric().known(BigInteger.valueOf(numerator));
+            BigInteger q = BigInteger.valueOf(denominator);
 
-                DRes<SInt> result = builder.advancedNumeric().div(p, q);
+            DRes<SInt> result = builder.advancedNumeric().div(p, q);
 
-                return builder.numeric().open(result);
-              };
+            return builder.numeric().open(result);
+          };
 
-          BigInteger result = secureComputationEngine
-              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+          BigInteger result = runApplication(app);
 
           Assert.assertEquals(BigInteger.valueOf(numerator / denominator),
               convertRepresentation(result, modulus));
@@ -116,23 +108,18 @@ public class AdvancedNumericTests {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          Application<BigInteger, ProtocolBuilderNumeric> app =
-              builder -> {
-                DRes<SInt> p = builder.numeric()
-                    .known(BigInteger.valueOf(numerator));
-                BigInteger q = BigInteger.valueOf(denominator);
+          Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
+            DRes<SInt> p = builder.numeric().known(BigInteger.valueOf(numerator));
+            BigInteger q = BigInteger.valueOf(denominator);
 
-                DRes<SInt> result = builder.advancedNumeric()
-                    .mod(p, q);
+            DRes<SInt> result = builder.advancedNumeric().mod(p, q);
 
-                return builder.numeric().open(result);
-              };
+            return builder.numeric().open(result);
+          };
 
-          BigInteger result = secureComputationEngine
-              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+          BigInteger result = runApplication(app);
 
-          Assert.assertEquals(BigInteger.valueOf(numerator % denominator),
-              result);
+          Assert.assertEquals(BigInteger.valueOf(numerator % denominator), result);
         }
       };
     }

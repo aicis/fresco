@@ -24,10 +24,8 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
   private SpdzStorage store;
   private boolean outputProtocolInBatch;
 
-  public SpdzResourcePoolImpl(int myId, int noOfPlayers,
-      Network network,
-      Random random, SecureRandom secRand,
-      SpdzStorage store) {
+  public SpdzResourcePoolImpl(int myId, int noOfPlayers, Network network, Random random,
+      SecureRandom secRand, SpdzStorage store) {
     super(myId, noOfPlayers, network, random, secRand);
 
     this.store = store;

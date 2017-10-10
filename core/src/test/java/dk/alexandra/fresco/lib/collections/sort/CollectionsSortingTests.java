@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.Binary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -61,8 +60,7 @@ public class CollectionsSortingTests {
               return seq.advancedBinary().keyedCompareAndSwap(new Pair<>(leftKey, leftValue),
                   new Pair<>(rightKey, rightValue));
             }).seq((seq, data) -> {
-              List<Pair<List<DRes<Boolean>>, List<DRes<Boolean>>>> open =
-                  new ArrayList<>();
+              List<Pair<List<DRes<Boolean>>, List<DRes<Boolean>>>> open = new ArrayList<>();
 
               for (Pair<List<DRes<SBool>>, List<DRes<SBool>>> o : data) {
 
@@ -71,8 +69,7 @@ public class CollectionsSortingTests {
                 List<DRes<Boolean>> second =
                     o.getSecond().stream().map(seq.binary()::open).collect(Collectors.toList());
 
-                Pair<List<DRes<Boolean>>, List<DRes<Boolean>>> pair =
-                    new Pair<>(first, second);
+                Pair<List<DRes<Boolean>>, List<DRes<Boolean>>> pair = new Pair<>(first, second);
                 open.add(pair);
               }
               return () -> open;
@@ -93,8 +90,7 @@ public class CollectionsSortingTests {
             });
           };
 
-          List<Pair<List<Boolean>, List<Boolean>>> result = secureComputationEngine
-              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Pair<List<Boolean>, List<Boolean>>> result = runApplication(app);
 
           Assert.assertEquals("ff", ByteArithmetic.toHex(result.get(0).getFirst()));
 
@@ -154,25 +150,19 @@ public class CollectionsSortingTests {
                 List<DRes<SBool>> l42 =
                     Arrays.asList(left42).stream().map(builder::known).collect(Collectors.toList());
 
-                List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> unSorted =
-                    new ArrayList<>();
+                List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> unSorted = new ArrayList<>();
 
-                unSorted
-                    .add(new Pair<>(l11, l12));
-                unSorted
-                    .add(new Pair<>(l21, l22));
-                unSorted
-                    .add(new Pair<>(l31, l32));
-                unSorted
-                    .add(new Pair<>(l41, l42));
+                unSorted.add(new Pair<>(l11, l12));
+                unSorted.add(new Pair<>(l21, l22));
+                unSorted.add(new Pair<>(l31, l32));
+                unSorted.add(new Pair<>(l41, l42));
 
                 DRes<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>> sorted =
                     new OddEvenMerge(unSorted).buildComputation(seq);
                 return sorted;
               }).seq((seq, sorted) -> {
                 Binary builder = seq.binary();
-                List<Pair<List<DRes<Boolean>>, List<DRes<Boolean>>>> opened =
-                    new ArrayList<>();
+                List<Pair<List<DRes<Boolean>>, List<DRes<Boolean>>>> opened = new ArrayList<>();
                 for (Pair<List<DRes<SBool>>, List<DRes<SBool>>> p : sorted) {
                   List<DRes<Boolean>> oKeys = new ArrayList<>();
                   for (DRes<SBool> key : p.getFirst()) {
@@ -198,8 +188,7 @@ public class CollectionsSortingTests {
 
           };
 
-          List<Pair<List<Boolean>, List<Boolean>>> results = secureComputationEngine
-              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Pair<List<Boolean>, List<Boolean>>> results = runApplication(app);
 
           Assert.assertEquals(Arrays.asList(left21), results.get(0).getFirst());
           Assert.assertEquals(Arrays.asList(left22), results.get(0).getSecond());

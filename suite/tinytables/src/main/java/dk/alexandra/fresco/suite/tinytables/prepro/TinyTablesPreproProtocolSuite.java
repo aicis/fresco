@@ -3,7 +3,6 @@ package dk.alexandra.fresco.suite.tinytables.prepro;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
@@ -31,14 +30,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -221,12 +218,6 @@ public class TinyTablesPreproProtocolSuite
     ObjectOutputStream oos = new ObjectOutputStream(fout);
     oos.writeObject(tinyTablesStorage);
     oos.close();
-  }
-
-  @Override
-  public ResourcePoolImpl createResourcePool(int myId, int size, Network network, Random rand,
-      SecureRandom secRand) {
-    return new ResourcePoolImpl(myId, size, network, rand, secRand);
   }
 
 }

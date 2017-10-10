@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.demo.cli.CmdLineUtil;
-import dk.alexandra.fresco.demo.helpers.ResourcePoolHelper;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.binary.Binary;
@@ -12,6 +11,7 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -117,15 +117,19 @@ public class AESDemo implements Application<List<Boolean>, ProtocolBuilderBinary
             util.getEvaluator());
 
     List<Boolean> aesResult = null;
+    ResourcePoolImpl resourcePool = util.getResourcePool();
     try {
-      ResourcePoolImpl resourcePool = ResourcePoolHelper.createResourcePool(ps,
-          util.getNetworkStrategy(), util.getNetworkConfiguration());
+      resourcePool.getNetwork().connect(10000);
       aesResult = sce.runApplication(aes, resourcePool);
     } catch (Exception e) {
       System.out.println("Error while doing MPC: " + e.getMessage());
       System.exit(-1);
     } finally {
-      ResourcePoolHelper.shutdown();
+      try {
+        resourcePool.getNetwork().close();
+      } catch (IOException e) {
+        // Nothing to do
+      }
     }
 
     // Print result.

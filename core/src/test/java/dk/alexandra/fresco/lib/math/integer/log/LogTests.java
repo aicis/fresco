@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -18,9 +17,10 @@ import org.junit.Assert;
 
 /**
  * Generic test cases for basic finite field operations.
- *
+ * <p>
  * Can be reused by a test case for any protocol suite that implements the basic field protocol
  * factory.
+ * </p>
  */
 public class LogTests {
 
@@ -36,22 +36,19 @@ public class LogTests {
 
         @Override
         public void test() throws Exception {
-          Application<List<BigInteger>, ProtocolBuilderNumeric> app =
-              builder -> {
-                Numeric sIntFactory = builder.numeric();
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = builder -> {
+            Numeric sIntFactory = builder.numeric();
 
-                ArrayList<DRes<BigInteger>> results = new ArrayList<>();
-                for (BigInteger input : x) {
-                  DRes<SInt> actualInput = sIntFactory.input(input, 1);
-                  DRes<SInt> result = builder.advancedNumeric()
-                      .log(actualInput, input.bitLength());
-                  DRes<BigInteger> openResult = builder.numeric().open(result);
-                  results.add(openResult);
-                }
-                return () -> results.stream().map(DRes::out).collect(Collectors.toList());
-              };
-          List<BigInteger> results = secureComputationEngine
-              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+            ArrayList<DRes<BigInteger>> results = new ArrayList<>();
+            for (BigInteger input : x) {
+              DRes<SInt> actualInput = sIntFactory.input(input, 1);
+              DRes<SInt> result = builder.advancedNumeric().log(actualInput, input.bitLength());
+              DRes<BigInteger> openResult = builder.numeric().open(result);
+              results.add(openResult);
+            }
+            return () -> results.stream().map(DRes::out).collect(Collectors.toList());
+          };
+          List<BigInteger> results = runApplication(app);
 
           for (int i = 0; i < x.length; i++) {
             int actual = results.get(i).intValue();

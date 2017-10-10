@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.lp.LPSolver;
@@ -21,8 +20,8 @@ import org.junit.Assert;
 
 class LPSolverTests {
 
-  public static class TestLPSolver<ResourcePoolT extends ResourcePool> extends
- TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  public static class TestLPSolver<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     private final PivotRule pivotRule;
 
@@ -40,14 +39,10 @@ class LPSolverTests {
             File program = new File("src/test/resources/lp/program7.csv");
             PlainLPInputReader inputreader;
             try {
-              inputreader = PlainLPInputReader
-                  .getFileInputReader(program, pattern,
-                      conf.getMyId());
+              inputreader = PlainLPInputReader.getFileInputReader(program, pattern, conf.getMyId());
             } catch (FileNotFoundException e) {
               e.printStackTrace();
-              throw new MPCException(
-                  "Could not read needed files: "
-                      + e.getMessage(), e);
+              throw new MPCException("Could not read needed files: " + e.getMessage(), e);
             }
             return builder.par(par -> {
               PlainSpdzLPPrefix prefix;
@@ -55,36 +50,26 @@ class LPSolverTests {
                 prefix = new PlainSpdzLPPrefix(inputreader, par);
               } catch (IOException e) {
                 e.printStackTrace();
-                throw new MPCException("IOException: "
-                    + e.getMessage(), e);
+                throw new MPCException("IOException: " + e.getMessage(), e);
               }
               return () -> prefix;
             }).seq((seq, prefix) -> {
-              DRes<LPOutput> lpOutput = seq.seq(
-                  new LPSolver(
-                      pivotRule,
-                      prefix.getTableau(),
-                      prefix.getUpdateMatrix(),
-                      prefix.getPivot(),
-                      prefix.getBasis()));
+              DRes<LPOutput> lpOutput = seq.seq(new LPSolver(pivotRule, prefix.getTableau(),
+                  prefix.getUpdateMatrix(), prefix.getPivot(), prefix.getBasis()));
 
               DRes<SInt> optimalValue = seq.seq((inner) -> {
-                    LPOutput out = lpOutput.out();
-                    return new OptimalValue(out.updateMatrix, out.tableau, out.pivot)
-                        .buildComputation(inner);
-                  }
-              );
+                LPOutput out = lpOutput.out();
+                return new OptimalValue(out.updateMatrix, out.tableau, out.pivot)
+                    .buildComputation(inner);
+              });
               DRes<BigInteger> open = seq.numeric().open(optimalValue);
               return open;
             });
           };
           long startTime = System.nanoTime();
-          ResourcePoolT resourcePool = ResourcePoolCreator.createResourcePool(
-              conf.sceConf);
-          BigInteger result = secureComputationEngine.runApplication(app, resourcePool);
+          BigInteger result = runApplication(app);
           long endTime = System.nanoTime();
-          System.out.println("============ Seq Time: "
-              + ((endTime - startTime) / 1000000));
+          System.out.println("============ Seq Time: " + ((endTime - startTime) / 1000000));
           Assert.assertTrue(BigInteger.valueOf(161).equals(result));
         }
       };

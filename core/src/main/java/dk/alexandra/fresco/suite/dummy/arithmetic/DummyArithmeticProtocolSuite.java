@@ -2,14 +2,11 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.SecureRandom;
-import java.util.Random;
 
 
 /**
@@ -30,8 +27,7 @@ public class DummyArithmeticProtocolSuite
   }
 
   @Override
-  public BuilderFactory<ProtocolBuilderNumeric> init(
-      DummyArithmeticResourcePool resourcePool) {
+  public BuilderFactory<ProtocolBuilderNumeric> init(DummyArithmeticResourcePool resourcePool) {
     basicNumericContext = new BasicNumericContext(maxBitLength, modulus, resourcePool);
     return new DummyArithmeticBuilderFactory(basicNumericContext);
   }
@@ -42,21 +38,11 @@ public class DummyArithmeticProtocolSuite
 
       @Override
       public void finishedBatch(int gatesEvaluated, DummyArithmeticResourcePool resourcePool,
-          SCENetwork sceNetwork) throws IOException {
-      }
+          SCENetwork sceNetwork) throws IOException {}
 
       @Override
       public void finishedEval(DummyArithmeticResourcePool resourcePool, SCENetwork sceNetwork)
-          throws IOException {
-      }
+          throws IOException {}
     };
   }
-
-  @Override
-  public DummyArithmeticResourcePool createResourcePool(int myId, int size, Network network,
-      Random rand, SecureRandom secRand) {
-    return new DummyArithmeticResourcePoolImpl(
-        myId, size, network, rand, secRand, modulus);
-  }
-
 }

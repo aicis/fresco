@@ -10,7 +10,8 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import edu.biu.scapi.comm.AuthenticatedChannel;
 import edu.biu.scapi.comm.Channel;
 import edu.biu.scapi.comm.EncryptedChannel;
@@ -33,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import org.junit.Before;
 import org.junit.Test;
 
 
@@ -40,11 +42,12 @@ import org.junit.Test;
  * Test some basic functionality of SCAPI network layer, independently of fresco.
  * 
  */
-public class TestScapiNetworkLayer<ResourcePoolT extends ResourcePool> {
+public class TestScapiNetworkLayer {
 
+  private static Map<Integer, NetworkConfiguration> netConfs = new HashMap<>(); 
 
-  private static <ResourcePoolT extends ResourcePool> void runTest(
-      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> test, int n) {
+  private static void runTest(
+      TestThreadFactory<ResourcePoolImpl, ProtocolBuilderNumeric> test, int n) {
     // Since SCAPI currently does not work with ports > 9999 we use fixed ports
     // here instead of relying on ephemeral ports which are often > 9999.
     List<Integer> ports = new ArrayList<Integer>(n);
@@ -53,16 +56,24 @@ public class TestScapiNetworkLayer<ResourcePoolT extends ResourcePool> {
     }
     Map<Integer, NetworkConfiguration> netConf =
         TestConfiguration.getNetworkConfigurations(n, ports);
-    Map<Integer, TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric>> conf =
+    Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     for (int i : netConf.keySet()) {
-      TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> ttc =
-          new TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric>();
-      ttc.netConf = netConf.get(i);
+      Network network = new ScapiNetworkImpl();
+      network.init(netConf.get(i), 1);
+      ResourcePoolImpl rp = new ResourcePoolImpl(i, n, network, null, null);
+      TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderNumeric> ttc =
+          new TestThreadConfiguration<>(null, rp);
       conf.put(i, ttc);
+      netConfs.put(i, netConf.get(i));
     }
     TestThreadRunner.run(test, conf);
 
+  }
+  
+  @Before
+  public void clear() {
+    netConfs.clear();
   }
 
   private AuthenticatedChannel createAuthenticatedChannel(PlainChannel ch) throws Exception {
@@ -108,15 +119,15 @@ public class TestScapiNetworkLayer<ResourcePoolT extends ResourcePool> {
   @Test
   public void testPlainSocketChannel() throws Exception {
     final byte[] data = new byte[] {-61, -19, 106, -9 - 67, 98, 102, 16, 21};
-    final TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> test =
-        new TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric>() {
+    final TestThreadFactory<ResourcePoolImpl, ProtocolBuilderNumeric> test =
+        new TestThreadFactory<ResourcePoolImpl, ProtocolBuilderNumeric>() {
           @Override
-          public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-            return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+          public TestThread<ResourcePoolImpl, ProtocolBuilderNumeric> next() {
+            return new TestThread<ResourcePoolImpl, ProtocolBuilderNumeric>() {
               @Override
               public void test() throws Exception {
-                Party me = conf.netConf.getMe();
-                Party other = conf.netConf.getParty(conf.getMyId() == 1 ? 2 : 1);
+                Party me = netConfs.get(conf.getMyId()).getMe();
+                Party other = netConfs.get(conf.getMyId()).getParty(conf.getMyId() == 1 ? 2 : 1);
                 PartyData meD =
                     new SocketPartyData(InetAddress.getByName(me.getHostname()), me.getPort());
                 PartyData otherD = new SocketPartyData(InetAddress.getByName(other.getHostname()),
@@ -139,15 +150,15 @@ public class TestScapiNetworkLayer<ResourcePoolT extends ResourcePool> {
   @Test
   public void testAuthenticatedSocketChannel() throws Exception {
     final byte[] data = new byte[] {-61, -19, 106, -9 - 67, 98, 102, 16, 21};
-    final TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> test =
-        new TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric>() {
+    final TestThreadFactory<ResourcePoolImpl, ProtocolBuilderNumeric> test =
+        new TestThreadFactory<ResourcePoolImpl, ProtocolBuilderNumeric>() {
           @Override
-          public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-            return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+          public TestThread<ResourcePoolImpl, ProtocolBuilderNumeric> next() {
+            return new TestThread<ResourcePoolImpl, ProtocolBuilderNumeric>() {
               @Override
               public void test() throws Exception {
-                Party me = conf.netConf.getMe();
-                Party other = conf.netConf.getParty(conf.getMyId() == 1 ? 2 : 1);
+                Party me = netConfs.get(conf.getMyId()).getMe();
+                Party other = netConfs.get(conf.getMyId()).getParty(conf.getMyId() == 1 ? 2 : 1);
                 PartyData meD =
                     new SocketPartyData(InetAddress.getByName(me.getHostname()), me.getPort());
                 PartyData otherD = new SocketPartyData(InetAddress.getByName(other.getHostname()),
@@ -172,15 +183,15 @@ public class TestScapiNetworkLayer<ResourcePoolT extends ResourcePool> {
   @Test
   public void testSecureSocketChannel() throws Exception {
     final byte[] data = new byte[] {-61, -19, 106, -9 - 67, 98, 102, 16, 21};
-    final TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> test =
-        new TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric>() {
+    final TestThreadFactory<ResourcePoolImpl, ProtocolBuilderNumeric> test =
+        new TestThreadFactory<ResourcePoolImpl, ProtocolBuilderNumeric>() {
           @Override
-          public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-            return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+          public TestThread<ResourcePoolImpl, ProtocolBuilderNumeric> next() {
+            return new TestThread<ResourcePoolImpl, ProtocolBuilderNumeric>() {
               @Override
               public void test() throws Exception {
-                Party me = conf.netConf.getMe();
-                Party other = conf.netConf.getParty(conf.getMyId() == 1 ? 2 : 1);
+                Party me = netConfs.get(conf.getMyId()).getMe();
+                Party other = netConfs.get(conf.getMyId()).getParty(conf.getMyId() == 1 ? 2 : 1);
                 PartyData meD =
                     new SocketPartyData(InetAddress.getByName(me.getHostname()), me.getPort());
                 PartyData otherD = new SocketPartyData(InetAddress.getByName(other.getHostname()),

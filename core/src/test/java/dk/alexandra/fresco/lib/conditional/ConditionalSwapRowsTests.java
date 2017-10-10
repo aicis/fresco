@@ -9,7 +9,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.Collections;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.RowPairD;
@@ -63,8 +62,7 @@ public class ConditionalSwapRowsTests {
                   return new Pair<>(leftRes, rightRes);
                 };
               };
-          Pair<List<BigInteger>, List<BigInteger>> output = secureComputationEngine.runApplication(
-              testApplication, ResourcePoolCreator.createResourcePool(conf.sceConf));
+          Pair<List<BigInteger>, List<BigInteger>> output = runApplication(testApplication);
           assertThat(output, is(expected));
         }
       };

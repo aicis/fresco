@@ -8,7 +8,6 @@ import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Collections;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -52,8 +51,7 @@ public class SwapIfTests {
                     advancedNumeric.swapIf(selector, left, right);
                 return collections.openPair(swapped);
               };
-          Pair<DRes<BigInteger>, DRes<BigInteger>> output = secureComputationEngine.runApplication(
-              testApplication, ResourcePoolCreator.createResourcePool(conf.sceConf));
+          Pair<DRes<BigInteger>, DRes<BigInteger>> output = runApplication(testApplication);
           Pair<BigInteger, BigInteger> actual =
               new Pair<>(output.getFirst().out(), output.getSecond().out());
           Assert.assertEquals(expected, actual);
