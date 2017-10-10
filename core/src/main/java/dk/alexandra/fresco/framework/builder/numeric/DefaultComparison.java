@@ -12,7 +12,7 @@ public class DefaultComparison implements Comparison {
   private final BuilderFactoryNumeric factoryNumeric;
   private final ProtocolBuilderNumeric builder;
 
-  protected DefaultComparison(BuilderFactoryNumeric factoryNumeric,
+  public DefaultComparison(BuilderFactoryNumeric factoryNumeric,
       ProtocolBuilderNumeric builder) {
     this.factoryNumeric = factoryNumeric;
     this.builder = builder;

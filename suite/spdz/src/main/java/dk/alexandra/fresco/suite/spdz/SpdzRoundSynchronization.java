@@ -3,6 +3,7 @@ package dk.alexandra.fresco.suite.spdz;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.network.SCENetworkImpl;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.ProtocolCollectionList;
 import dk.alexandra.fresco.suite.ProtocolSuite.RoundSynchronization;
@@ -21,7 +22,8 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
   private int gatesEvaluated = 0;
   private boolean doMacCheck = false;
 
-  private void doMACCheck(SpdzResourcePool resourcePool, SCENetwork sceNetwork) throws IOException {
+  private void doMACCheck(SpdzResourcePool resourcePool,
+      SCENetworkImpl sceNetwork) throws IOException {
     SpdzStorage storage = resourcePool.getStore();
     int batchSize = 128;
 
@@ -34,8 +36,8 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
         ProtocolCollectionList<SpdzResourcePool> protocolCollectionList =
             new ProtocolCollectionList<>(batchSize);
         macCheck.getNextProtocols(protocolCollectionList);
-
-        BatchedStrategy.processBatch(protocolCollectionList, sceNetwork, 0, resourcePool);
+        BatchEvaluationStrategy<SpdzResourcePool> batchStrat = new BatchedStrategy<>();
+        batchStrat.processBatch(protocolCollectionList, resourcePool, sceNetwork);
       } while (macCheck.hasNextProtocols());
     }
   }
@@ -43,7 +45,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
   @Override
   public void finishedEval(SpdzResourcePool resourcePool, SCENetwork sceNetwork)
       throws IOException {
-    doMACCheck(resourcePool, sceNetwork);
+    doMACCheck(resourcePool, (SCENetworkImpl)sceNetwork);
   }
 
   @Override
@@ -51,7 +53,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
       SCENetwork sceNetwork) throws IOException {
     this.gatesEvaluated += gatesEvaluated;
     if (this.gatesEvaluated > macCheckThreshold || doMacCheck) {
-      doMACCheck(resourcePool, sceNetwork);
+      doMACCheck(resourcePool, (SCENetworkImpl) sceNetwork);
       doMacCheck = false;
       this.gatesEvaluated = 0;
     }

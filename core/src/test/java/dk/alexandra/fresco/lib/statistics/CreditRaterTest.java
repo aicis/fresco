@@ -3,26 +3,23 @@
  *
  * This file is part of the FRESCO project.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
- * and Bouncy Castle. Please see these projects for any further licensing issues.
+ * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
+ * Please see these projects for any further licensing issues.
  *******************************************************************************/
 package dk.alexandra.fresco.lib.statistics;
 
@@ -32,7 +29,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -69,38 +65,28 @@ public class CreditRaterTest {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          ResourcePoolT resourcePool = ResourcePoolCreator.createResourcePool(conf.sceConf);
+          Application<CreditRaterInput, ProtocolBuilderNumeric> input = producer -> {
+            Numeric numeric = producer.numeric();
+            int[] values = TestCreditRater.this.values;
+            List<DRes<SInt>> closedValues = knownArray(numeric, values);
 
-          Application<CreditRaterInput, ProtocolBuilderNumeric> input =
-              producer -> {
-                Numeric numeric = producer.numeric();
-                int[] values = TestCreditRater.this.values;
-                List<DRes<SInt>> closedValues = knownArray(numeric, values);
+            List<List<DRes<SInt>>> closedIntervals = Arrays.stream(intervals)
+                .map(array -> knownArray(numeric, array)).collect(Collectors.toList());
 
-                List<List<DRes<SInt>>> closedIntervals = Arrays.stream(intervals)
-                    .map(array -> knownArray(numeric, array))
-                    .collect(Collectors.toList());
+            List<List<DRes<SInt>>> closedScores = Arrays.stream(scores)
+                .map(array -> knownArray(numeric, array)).collect(Collectors.toList());
+            return () -> new CreditRaterInput(closedValues, closedIntervals, closedScores);
+          };
+          CreditRaterInput creditRaterInput = runApplication(input);
 
-                List<List<DRes<SInt>>> closedScores = Arrays.stream(scores)
-                    .map(array -> knownArray(numeric, array))
-                    .collect(Collectors.toList());
-                return () -> new CreditRaterInput(closedValues, closedIntervals, closedScores);
-              };
-          CreditRaterInput creditRaterInput = secureComputationEngine
-              .runApplication(input, resourcePool);
-
-          CreditRater rater = new CreditRater(
-              creditRaterInput.values,
-              creditRaterInput.intervals,
+          CreditRater rater = new CreditRater(creditRaterInput.values, creditRaterInput.intervals,
               creditRaterInput.intervalScores);
-          SInt creditRatingOutput = secureComputationEngine
-              .runApplication((builder) -> builder.seq(rater), resourcePool);
+          SInt creditRatingOutput = runApplication((builder) -> builder.seq(rater));
 
           Application<BigInteger, ProtocolBuilderNumeric> outputApp =
               seq -> seq.numeric().open(creditRatingOutput);
 
-          BigInteger resultCreditOut = secureComputationEngine
-              .runApplication(outputApp, resourcePool);
+          BigInteger resultCreditOut = runApplication(outputApp);
 
           Assert.assertThat(resultCreditOut, Is.is(
               BigInteger.valueOf(PlaintextCreditRater.calculateScore(values, intervals, scores))));
@@ -110,9 +96,7 @@ public class CreditRaterTest {
   }
 
   private static List<DRes<SInt>> knownArray(Numeric numeric, int[] values) {
-    return Arrays.stream(values)
-        .mapToObj(BigInteger::valueOf)
-        .map(numeric::known)
+    return Arrays.stream(values).mapToObj(BigInteger::valueOf).map(numeric::known)
         .collect(Collectors.toList());
   }
 
@@ -122,9 +106,7 @@ public class CreditRaterTest {
     private final List<List<DRes<SInt>>> intervals;
     private final List<List<DRes<SInt>>> intervalScores;
 
-    private CreditRaterInput(
-        List<DRes<SInt>> values,
-        List<List<DRes<SInt>>> intervals,
+    private CreditRaterInput(List<DRes<SInt>> values, List<List<DRes<SInt>>> intervals,
         List<List<DRes<SInt>>> intervalScores) {
       this.values = values;
       this.intervals = intervals;

@@ -33,7 +33,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.Collections;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -69,8 +68,7 @@ public class CloseListTests {
             DRes<List<DRes<SInt>>> closed = root.collections().closeList(input, 1);
             return () -> closed.out().stream().map(DRes::out).collect(Collectors.toList());
           };
-          List<SInt> output = secureComputationEngine.runApplication(testApplication,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<SInt> output = runApplication(testApplication);
           assertTrue(output.isEmpty());
         }
       };
@@ -115,8 +113,7 @@ public class CloseListTests {
             return () -> opened.out().stream().map(DRes::out).collect(Collectors.toList());
           };
           // run test application
-          List<BigInteger> output = secureComputationEngine.runApplication(testApplication,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<BigInteger> output = runApplication(testApplication);
 
           // define expected result and assert
           List<BigInteger> expected = new ArrayList<>();

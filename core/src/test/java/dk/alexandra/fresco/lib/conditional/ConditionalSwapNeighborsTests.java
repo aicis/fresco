@@ -33,7 +33,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.Collections;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
@@ -77,8 +76,7 @@ public class ConditionalSwapNeighborsTests {
             DRes<Matrix<DRes<BigInteger>>> opened = collections.openMatrix(swapped);
             return () -> new MatrixUtils().unwrapMatrix(opened);
           };
-          Matrix<BigInteger> output = secureComputationEngine.runApplication(testApplication,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          Matrix<BigInteger> output = runApplication(testApplication);
           assertThat(output.getRows(), is(expected.getRows()));
         }
       };
