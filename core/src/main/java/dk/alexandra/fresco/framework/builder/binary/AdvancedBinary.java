@@ -10,7 +10,7 @@ import java.util.List;
  * Binary operations included in FRESCO which are not comparison or native basic operations can be
  * found here. This includes addition and multiplication of binary represented numbers, conditional
  * select statements and much more. All methods have a generic generation based on the
- * {@link Binary} computation directive.
+ * {@link Binary} computation directory.
  */
 public interface AdvancedBinary extends ComputationDirectory {
 

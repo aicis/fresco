@@ -26,11 +26,11 @@ public class ProtocolBuilderBinary extends ProtocolBuilderImpl<ProtocolBuilderBi
   }
 
   /**
-   * Creates a {@link Binary} computation directive for this instance - i.e. this intended producer.
+   * Creates a {@link Binary} computation directory for this instance - i.e. this intended producer.
    * Contains only protocol suite native operations such as XOR and AND. Basic operations which can
    * be created from XOR, AND and NOT (such as XNOR, NAND) are found using {@link #advancedBinary}.
    * 
-   * @return The binary computation directive.
+   * @return The binary computation directory.
    */
   public Binary binary() {
     if (this.binaryBuilder == null) {
@@ -40,11 +40,11 @@ public class ProtocolBuilderBinary extends ProtocolBuilderImpl<ProtocolBuilderBi
   }
 
   /**
-   * Creates an {@link AdvancedBinary} computation directive for this instance - i.e. this intended
+   * Creates an {@link AdvancedBinary} computation directory for this instance - i.e. this intended
    * producer. Contains advanced binary protocols. These protocols include, but are not limited to,
    * addition and multiplication of numbers represented in binary form.
    * 
-   * @return The advanced binary computation directive.
+   * @return The advanced binary computation directory.
    */
   public AdvancedBinary advancedBinary() {
     if (this.advancedBinary == null) {
@@ -54,10 +54,10 @@ public class ProtocolBuilderBinary extends ProtocolBuilderImpl<ProtocolBuilderBi
   }
 
   /**
-   * Creates a {@link Comparison} computation directive for this instance - i.e. this intended
+   * Creates a {@link Comparison} computation directory for this instance - i.e. this intended
    * producer. Contains protocols on comparing numbers in binary form.
    * 
-   * @return The comparison computation directive.
+   * @return The comparison computation directory.
    */
   public Comparison comparison() {
     if (this.comparison == null) {
@@ -67,10 +67,10 @@ public class ProtocolBuilderBinary extends ProtocolBuilderImpl<ProtocolBuilderBi
   }
 
   /**
-   * Creates a {@link BristolCrypto} computation directive for this instance - i.e. this intended
+   * Creates a {@link BristolCrypto} computation directory for this instance - i.e. this intended
    * producer. Contains various cryptographic primitives such as AES and SHA-256.
    * 
-   * @return The bristol crypto computation directive.
+   * @return The bristol crypto computation directory.
    */
   public BristolCrypto bristol() {
     if (this.bristolCrypto == null) {
@@ -80,12 +80,12 @@ public class ProtocolBuilderBinary extends ProtocolBuilderImpl<ProtocolBuilderBi
   }
 
   /**
-   * Creates a {@link Debug} computation directive for for this instance - i.e. this intended
+   * Creates a {@link Debug} computation directory for for this instance - i.e. this intended
    * producer. Contains debugging protocols for use during application development. <b>WARNING: Do
    * not use in production code as most methods within this builder reveals values to all
    * parties.</b>
    * 
-   * @return The debug computation directive.
+   * @return The debug computation directory.
    */
   public Debug debug() {
     if (this.debug == null) {

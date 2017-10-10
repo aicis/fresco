@@ -6,7 +6,7 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 
 /**
  * Central class for building protocols that are based on numeric protocol suites. This class
- * contains all computation directives within FRESCO which numeric applications can use to build
+ * contains all computation directories within FRESCO which numeric applications can use to build
  * applications.
  */
 public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderNumeric> {
@@ -35,7 +35,7 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
   }
 
   /**
-   * Creates a {@link Numeric} computation directive for this instance - i.e. this intended
+   * Creates a {@link Numeric} computation directory for this instance - i.e. this intended
    * producer. Contains only protocol suite native basic operations such as Addition and
    * multiplication.
    * 
@@ -49,7 +49,7 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
   }
 
   /**
-   * Creates a {@link Comparison} computation directive for this instance - i.e. this intended
+   * Creates a {@link Comparison} computation directory for this instance - i.e. this intended
    * producer. Contains protocols on comparing numbers and computing the sign.
    *
    * @return The comparison computation directory.
@@ -75,10 +75,10 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
   }
 
   /**
-   * Creates a {@link Collections} computation directive for this instance - i.e. this intended
+   * Creates a {@link Collections} computation directory for this instance - i.e. this intended
    * producer. Contains operations on collections.
    *
-   * @return The collections computation directive.
+   * @return The collections computation directory.
    */
   public Collections collections() {
     if (collections == null) {
@@ -88,11 +88,11 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
   }
 
   /**
-   * Creates a {@link Debug} computation directive for this instance - i.e. this intended producer.
+   * Creates a {@link Debug} computation directory for this instance - i.e. this intended producer.
    * Contains debugging protocols for use during application development. <b>WARNING: Do not use in
    * production code as most methods within this builder reveals values to all parties.</b>
    * 
-   * @return The debug computation directive.
+   * @return The debug computation directory.
    */
   public Debug debug() {
     if (debug == null) {

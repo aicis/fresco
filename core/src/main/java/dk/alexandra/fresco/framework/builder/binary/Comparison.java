@@ -6,7 +6,7 @@ import dk.alexandra.fresco.framework.value.SBool;
 import java.util.List;
 
 /**
- * This computation directive knows about comparing numbers represented in binary form. A default
+ * This computation directory knows about comparing numbers represented in binary form. A default
  * implementation based only on {@link Binary} exists, but protocol suites might implement a more
  * efficient version.
  */
