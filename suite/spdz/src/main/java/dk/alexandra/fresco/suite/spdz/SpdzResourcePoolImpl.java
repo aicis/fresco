@@ -22,7 +22,6 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
   private BigInteger modulus;
   private BigInteger modulusHalf;
   private SpdzStorage store;
-  private boolean outputProtocolInBatch;
 
   public SpdzResourcePoolImpl(int myId, int noOfPlayers, Network network, Random random,
       SecureRandom secRand, SpdzStorage store) {
@@ -68,16 +67,6 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
   @Override
   public MessageDigest getMessageDigest() {
     return messageDigest;
-  }
-
-  @Override
-  public boolean isOutputProtocolInBatch() {
-    return outputProtocolInBatch;
-  }
-
-  @Override
-  public void setOutputProtocolInBatch(boolean outputProtocolInBatch) {
-    this.outputProtocolInBatch = outputProtocolInBatch;
   }
 
   @Override
