@@ -181,6 +181,7 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
               .map(n -> optSec.numeric().mult(invPivot, n)).collect(Collectors.toList());
           BigInteger f = BigInteger.valueOf(2); // The first index representing a possible peer
           BigInteger l = BigInteger.valueOf(2 + inputDataSet.size() - 1); // The last index representing a possible peer
+          l = (type == AnalysisType.INPUT_EFFICIENCY) ? l : l.add(BigInteger.ONE);
           DRes<SInt> firstPeer = optSec.numeric().known(f);
           DRes<SInt> lastPeer = optSec.numeric().known(l);
           List<DRes<SInt>> above = lpOutput.basis.stream().map(n -> optSec.comparison().compareLEQ(firstPeer, n)).collect(Collectors.toList());

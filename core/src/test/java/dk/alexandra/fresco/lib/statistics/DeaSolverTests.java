@@ -217,7 +217,7 @@ public class DeaSolverTests {
           double[] plain =
               plainSolver.solve(asArray(rawTargetInputs), asArray(rawTargetOutputs), type);
 
-          int lambdas = rawBasisInputs.size();
+          int lambdas = (type == AnalysisType.INPUT_EFFICIENCY) ? rawBasisInputs.size() : rawBasisInputs.size() + 1;
 
           for (int i = 0; i < rawTargetInputs.size(); i++) {
             Assert.assertEquals(plain[i], postProcess(openResults.get(i).getFirst(), type, modulus),
@@ -226,15 +226,13 @@ public class DeaSolverTests {
             List<BigInteger> peers = openResults.get(i).getSecond().getFirst();
             List<BigInteger> peerValues = openResults.get(i).getSecond().getSecond();
             double sum = 0;
-            StringBuilder sb1 = new StringBuilder();
             for (BigInteger b : peerValues) {
-              sb1.append(postProcess(b, AnalysisType.OUTPUT_EFFICIENCY, modulus) + " ");
               sum += postProcess(b, AnalysisType.OUTPUT_EFFICIENCY, modulus);
             }
-            Assert.assertEquals(1, sum, 0.000001);
+            Assert.assertEquals("Peer values summed to " + sum + " instead of 1", 1, sum, 0.000001);
             for (BigInteger b : peers) {
               int idx = b.intValue();
-              Assert.assertTrue("Peer index" + idx + ", was larger than " + lambdas, idx < lambdas);
+              Assert.assertTrue("Peer index" + idx + ", was larger than " + (lambdas - 1), idx < lambdas);
             }
             // Input constraints
             for (int k = 0; k < rawTargetInputs.get(i).size(); k++) {
@@ -260,6 +258,9 @@ public class DeaSolverTests {
             // Output constraints
             for (int k = 0; k < rawTargetOutputs.get(i).size(); k++) {
               List<BigInteger> cList = getConstraintRow(k, rawBasisOutputs);
+              if (type == AnalysisType.OUTPUT_EFFICIENCY) {
+                cList.add(rawTargetOutputs.get(i).get(k));
+              }
               double leftHand = 0;
               for (int l = 0; l < cList.size(); l++) {
                 int idx = peers.indexOf(BigInteger.valueOf(l));
