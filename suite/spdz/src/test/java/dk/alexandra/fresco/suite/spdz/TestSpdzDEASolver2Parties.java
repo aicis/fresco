@@ -30,9 +30,9 @@ import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStor
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.lib.statistics.DeaSolver;
 import dk.alexandra.fresco.lib.statistics.DeaSolver.AnalysisType;
-import dk.alexandra.fresco.lib.statistics.DEASolverTests.RandomDataDeaTest;
-import dk.alexandra.fresco.lib.statistics.DEASolverTests.TestDeaFixed1;
-import dk.alexandra.fresco.lib.statistics.DEASolverTests.TestDeaFixed2;
+import dk.alexandra.fresco.lib.statistics.DeaSolverTests.RandomDataDeaTest;
+import dk.alexandra.fresco.lib.statistics.DeaSolverTests.TestDeaFixed1;
+import dk.alexandra.fresco.lib.statistics.DeaSolverTests.TestDeaFixed2;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
 import org.junit.Ignore;

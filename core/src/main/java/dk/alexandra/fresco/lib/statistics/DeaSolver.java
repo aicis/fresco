@@ -40,11 +40,13 @@ import dk.alexandra.fresco.lib.lp.LPTableau;
 import dk.alexandra.fresco.lib.lp.OptimalValue;
 import dk.alexandra.fresco.lib.lp.SimpleLPPrefix;
 import dk.alexandra.fresco.lib.statistics.DeaSolver.DeaResult;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * NativeProtocol for solving DEA problems.
@@ -152,13 +154,15 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
   public DRes<List<DeaResult>> buildComputation(ProtocolBuilderNumeric builder) {
     List<DRes<SimpleLPPrefix>> prefixes = getPrefixWithSecretSharedValues(builder);
     return builder.par((par) -> {
-      List<DRes<Pair<List<DRes<SInt>>, DRes<SInt>>>> result = new ArrayList<>(targetInputs.size());
+      List<DRes<Pair<Pair<List<DRes<SInt>>, List<DRes<SInt>>>, DRes<SInt>>>> result =
+          new ArrayList<>(targetInputs.size());
       for (int i = 0; i < targetInputs.size(); i++) {
         SimpleLPPrefix prefix = prefixes.get(i).out();
         DRes<SInt> pivot = prefix.getPivot();
         LPTableau tableau = prefix.getTableau();
         Matrix<DRes<SInt>> update = prefix.getUpdateMatrix();
         List<DRes<SInt>> initialBasis = prefix.getBasis();
+
         result.add(par.seq(subSeq -> subSeq.seq((solverSec) -> {
           LPSolver lpSolver = new LPSolver(pivotRule, tableau, update, pivot, initialBasis);
           DRes<LPOutput> lpOutput = lpSolver.buildComputation(solverSec);
@@ -169,12 +173,23 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
           List<DRes<SInt>> column = new LinkedList<>(tableau.getB());
           column.add(tableau.getZ());
           List<ArrayList<DRes<SInt>>> umRows = lpOutput.updateMatrix.getRows();
+          // These could be done in parallel
           List<DRes<SInt>> upColumn = umRows.stream()
               .map(row -> optSec.advancedNumeric().dot(row, column)).collect(Collectors.toList());
           upColumn.remove(upColumn.size() - 1);
-          List<DRes<SInt>> baisValues = upColumn.stream()
+          List<DRes<SInt>> basisValues = upColumn.stream()
               .map(n -> optSec.numeric().mult(invPivot, n)).collect(Collectors.toList());
-          return Pair.lazy(lpOutput.basis,
+          BigInteger f = BigInteger.valueOf(2); // The first index representing a possible peer
+          BigInteger l = BigInteger.valueOf(2 + inputDataSet.size() - 1); // The last index representing a possible peer
+          DRes<SInt> firstPeer = optSec.numeric().known(f);
+          DRes<SInt> lastPeer = optSec.numeric().known(l);
+          List<DRes<SInt>> above = lpOutput.basis.stream().map(n -> optSec.comparison().compareLEQ(firstPeer, n)).collect(Collectors.toList());
+          List<DRes<SInt>> below = lpOutput.basis.stream().map(n -> optSec.comparison().compareLEQ(n, lastPeer)).collect(Collectors.toList());
+          List<DRes<SInt>> inRange = IntStream.range(0, lpOutput.basis.size()).mapToObj(n -> optSec.numeric().mult(above.get(n), below.get(n))).collect(Collectors.toList());
+          List<DRes<SInt>> peers = IntStream.range(0, lpOutput.basis.size()).mapToObj(n -> optSec.numeric().mult(lpOutput.basis.get(n), inRange.get(n))).collect(Collectors.toList());
+          List<DRes<SInt>> peersFromZero = peers.stream().map(n -> optSec.numeric().sub(n, f)).collect(Collectors.toList());
+          List<DRes<SInt>> peerValues = IntStream.range(0, lpOutput.basis.size()).mapToObj(n -> optSec.numeric().mult(basisValues.get(n), inRange.get(n))).collect(Collectors.toList());
+          return Pair.lazy(new Pair<>(peersFromZero, peerValues),
               new OptimalValue(lpOutput.updateMatrix, lpOutput.tableau, lpOutput.pivot)
               .buildComputation(optSec));
         })));
@@ -235,13 +250,15 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
 
   public static class DeaResult {
 
-    public final List<DRes<SInt>> basis;
+    public final List<SInt> peers;
+    public final List<SInt> peerValues;
     public final SInt optimal;
-    public List<Pair<DRes<SInt>, DRes<SInt>>> peers;
 
-    private DeaResult(DRes<Pair<List<DRes<SInt>>, DRes<SInt>>> output) {
-      Pair<List<DRes<SInt>>, DRes<SInt>> out = output.out();
-      this.basis = out.getFirst().stream().map(DRes::out).collect(Collectors.toList());
+    private DeaResult(DRes<Pair<Pair<List<DRes<SInt>>, List<DRes<SInt>>>, DRes<SInt>>> output) {
+      Pair<Pair<List<DRes<SInt>>, List<DRes<SInt>>>, DRes<SInt>> out = output.out();
+      this.peers = out.getFirst().getFirst().stream().map(DRes::out).collect(Collectors.toList());
+      this.peerValues =
+          out.getFirst().getSecond().stream().map(DRes::out).collect(Collectors.toList());
       this.optimal = out.getSecond().out();
     }
   }

@@ -39,7 +39,7 @@ import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests;
 import dk.alexandra.fresco.lib.statistics.DeaSolver;
-import dk.alexandra.fresco.lib.statistics.DEASolverTests.RandomDataDeaTest;
+import dk.alexandra.fresco.lib.statistics.DeaSolverTests.RandomDataDeaTest;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
