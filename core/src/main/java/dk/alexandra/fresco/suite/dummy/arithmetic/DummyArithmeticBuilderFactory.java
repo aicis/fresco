@@ -30,9 +30,9 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
   /**
    * Map from party ID to performance loggers. 
    */
-  public static final ConcurrentMap<Integer, List<PerformanceLogger>> performanceLoggers = new ConcurrentHashMap<>();
-  
-  private static final int EXP_PIPE_LENGTH = 201;
+  public static final ConcurrentMap<Integer, List<PerformanceLogger>> performanceLoggers =
+      new ConcurrentHashMap<>();
+
   private BasicNumericContext factory;
   private MiscOIntGenerators mog;
   private ComparisonLoggerDecorator compDecorator;
@@ -47,7 +47,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
   @Override
   public Comparison createComparison(ProtocolBuilderNumeric builder) {
     Comparison comp = new DefaultComparison(this, builder);
-    if(compDecorator == null) {      
+    if (compDecorator == null) {
       compDecorator = new ComparisonLoggerDecorator(comp);
       
       performanceLoggers.get(factory.getMyId()).add(compDecorator);  
@@ -183,31 +183,6 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
       @Override
       public DRes<SInt> input(BigInteger value, int inputParty) {
         DummyArithmeticCloseProtocol c = new DummyArithmeticCloseProtocol(inputParty, () -> value);
-        return builder.append(c);
-      }
-
-      @Override
-      public DRes<SInt[]> getExponentiationPipe() {
-        // TODO: fix how to set exponentiation pipe length
-        DummyArithmeticNativeProtocol<SInt[]> c = new DummyArithmeticNativeProtocol<SInt[]>() {
-
-          DummyArithmeticSInt[] pipe;
-
-          @Override
-          public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool resourcePool,
-              SCENetwork network) {
-            pipe = new DummyArithmeticSInt[EXP_PIPE_LENGTH];
-            for (int i = 0; i < pipe.length; i++) {
-              pipe[i] = new DummyArithmeticSInt(1);
-            }
-            return EvaluationStatus.IS_DONE;
-          }
-
-          @Override
-          public SInt[] out() {
-            return pipe;
-          }
-        };
         return builder.append(c);
       }
 

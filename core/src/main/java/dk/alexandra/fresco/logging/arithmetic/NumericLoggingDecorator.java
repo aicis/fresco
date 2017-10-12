@@ -13,7 +13,6 @@ public class NumericLoggingDecorator implements Numeric, PerformanceLogger {
   private long subCount;
   private long bitCount;
   private long randElmCount;
-  private long expCount;
   private long multCount;
   
   public NumericLoggingDecorator(Numeric delegate) {
@@ -92,20 +91,13 @@ public class NumericLoggingDecorator implements Numeric, PerformanceLogger {
   }
 
   @Override
-  public DRes<SInt[]> getExponentiationPipe() {
-    this.expCount++;
-    return this.delegate.getExponentiationPipe();
-  }
-
-  @Override
   public void printPerformanceLog(int myId) {
-    log.info("=== P"+myId+": Basic numeric operations logged - results ===");
+    log.info("=== P" + myId + ": Basic numeric operations logged - results ===");
     log.info("Multiplications: " + this.multCount);
     log.info("Additions: " + this.addCount);
     log.info("Subtractions: " + this.subCount);
     log.info("Random bits fetched: " + this.bitCount);
     log.info("Random elements fetched: " + this.randElmCount);
-    log.info("Exponentiation pipes fetched: " + this.expCount);
   }
 
   @Override
@@ -115,7 +107,6 @@ public class NumericLoggingDecorator implements Numeric, PerformanceLogger {
     this.subCount = 0;
     this.bitCount = 0;
     this.randElmCount = 0;
-    this.expCount = 0;
   }
 
   public void setDelegate(Numeric numeric) {

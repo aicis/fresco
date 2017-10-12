@@ -8,6 +8,9 @@ target/
 .settings
 .project
 
+# Checkstyle files
+.checkstyle
+
 ./lpinputs/
 ./triples/
 # OS X meta files

@@ -16,6 +16,7 @@ public class ProtocolBuilderNumeric extends
   private Comparison comparison;
   private Collections collections;
   private AdvancedNumeric advancedNumeric;
+  private PreprocessedValues preprocessedValues; 
   private Debug debug;
 
   ProtocolBuilderNumeric(BuilderFactoryNumeric factory, boolean parallel) {
@@ -64,6 +65,13 @@ public class ProtocolBuilderNumeric extends
       collections = factory.createCollections(this);
     }
     return collections;
+  }
+  
+  public PreprocessedValues preprocessedValues() {
+    if(preprocessedValues == null) {
+      preprocessedValues = factory.createPreprocessedValues(this);      
+    }
+    return preprocessedValues;
   }
   
   public Debug debug() {
