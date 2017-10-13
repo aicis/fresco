@@ -16,7 +16,7 @@ public class DummyArithmeticOpenToAllProtocol extends DummyArithmeticNativeProto
 
   /**
    * Constructs a native protocol to open a closed integer towards all parties.
-   * 
+   *
    * @param s a computation supplying the {@link SInt} to open
    */
   public DummyArithmeticOpenToAllProtocol(DRes<SInt> s) {
@@ -28,6 +28,10 @@ public class DummyArithmeticOpenToAllProtocol extends DummyArithmeticNativeProto
   public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool resourcePool,
       SCENetwork network) {
     opened = ((DummyArithmeticSInt) closed.out()).getValue();
+    opened = opened.mod(resourcePool.getModulus());
+    if (opened.compareTo(resourcePool.getModulus().divide(BigInteger.valueOf(2))) > 0) {
+      opened = opened.subtract(resourcePool.getModulus());
+    }
     return EvaluationStatus.IS_DONE;
   }
 

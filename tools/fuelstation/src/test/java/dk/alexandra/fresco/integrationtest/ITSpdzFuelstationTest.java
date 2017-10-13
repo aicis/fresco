@@ -41,8 +41,8 @@ import dk.alexandra.fresco.framework.util.DetermSecureRandom;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests;
-import dk.alexandra.fresco.lib.statistics.DEASolver;
-import dk.alexandra.fresco.lib.statistics.DEASolverTests.RandomDataDeaTest;
+import dk.alexandra.fresco.lib.statistics.DeaSolver;
+import dk.alexandra.fresco.lib.statistics.DeaSolverTests.RandomDataDeaTest;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
@@ -119,7 +119,7 @@ public class ITSpdzFuelstationTest {
   @Test
   @Category(IntegrationTest.class)
   public void test_dea() throws Exception {
-    runTest(new RandomDataDeaTest<>(2, 1, 5, 1, DEASolver.AnalysisType.OUTPUT_EFFICIENCY),
+    runTest(new RandomDataDeaTest<>(2, 1, 5, 1, DeaSolver.AnalysisType.OUTPUT_EFFICIENCY),
         EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
 
