@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Streamed Storage based on files.
- * @author Kasper Damgaard
  *
  */
 public class FilebasedStreamedStorageImpl implements StreamedStorage {

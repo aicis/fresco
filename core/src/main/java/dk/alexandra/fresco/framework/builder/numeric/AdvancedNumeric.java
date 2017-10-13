@@ -16,7 +16,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
    * Calculates the sum of all elements in the list.
    *
    * @param elements the elements to sum
-   * @return the sum of the elements
+   * @return A deferred result computing the sum of the elements
    */
   DRes<SInt> sum(List<DRes<SInt>> elements);
 
@@ -24,7 +24,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
    * Calculates the product of all elements in the list.
    *
    * @param elements the elements to sum
-   * @return the product of the elements
+   * @return A deferred result computing the product of the elements
    */
   DRes<SInt> product(List<DRes<SInt>> elements);
 
@@ -34,35 +34,35 @@ public interface AdvancedNumeric extends ComputationDirectory {
    *
    * @param dividend The dividend.
    * @param divisor The divisor.
-   * @return An approximation of <i>dividend / divisor</i>.
+   * @return A deferred result computing an approximation of <i>dividend / divisor</i>.
    */
   DRes<SInt> div(DRes<SInt> dividend, BigInteger divisor);
-
+  
   /**
    * This protocol calculates an approximation of <code>floor(dividend / divisor)</code>, which will
    * be either correct or slightly smaller than the correct result.
    *
    * @param dividend The dividend.
    * @param divisor The divisor.
-   * @return quotient and remainder.
-   */
-  DRes<SInt> mod(DRes<SInt> dividend, BigInteger divisor);
-
-  /**
-   * This protocol calculates an approximation of <code>floor(dividend / divisor)</code>, which will
-   * be either correct or slightly smaller than the correct result.
-   *
-   * @param dividend The dividend.
-   * @param divisor The divisor.
-   * @return An approximation of <i>dividend / divisor</i>.
+   * @return A deferred result computing an approximation of <i>dividend / divisor</i>.
    */
   DRes<SInt> div(DRes<SInt> dividend, DRes<SInt> divisor);
 
   /**
-   * Convert an integer to an list of bits, with index 0 being the least significant bit
+   * This protocol calculates an approximation of <code>floor(dividend / divisor)</code>, which will
+   * be either correct or slightly smaller than the correct result.
+   *
+   * @param dividend The dividend.
+   * @param divisor The divisor.
+   * @return A deferred result computing quotient and remainder.
+   */
+  DRes<SInt> mod(DRes<SInt> dividend, BigInteger divisor);
+
+  /**
+   * Convert an integer to an list of bits, with index 0 being the least significant bit.
    *
    * @param in SInt
-   * @return the list of bits
+   * @return A deferred result computing the list of bits
    */
   DRes<List<SInt>> toBits(DRes<SInt> in, int maxInputLength);
 
@@ -71,7 +71,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
    * @param x The base
    * @param e The exponent
    * @param maxExponentLength The maximum length of the exponent.
-   * @return x^e
+   * @return A deferred result computing x^e
    */
   DRes<SInt> exp(DRes<SInt> x, DRes<SInt> e, int maxExponentLength);
 
@@ -80,22 +80,22 @@ public interface AdvancedNumeric extends ComputationDirectory {
    * @param x The base
    * @param e The exponent
    * @param maxExponentLength The maximum length of the exponent.
-   * @return x^e
+   * @return A deferred result computing x^e
    */
   DRes<SInt> exp(BigInteger x, DRes<SInt> e, int maxExponentLength);
 
   /**
-   * Computes the exponentiation of x^e
+   * Computes the exponentiation of x^e.
    * @param x The base
    * @param e The exponent
-   * @return x^e
+   * @return A deferred result computing x^e
    */
   DRes<SInt> exp(DRes<SInt> x, BigInteger e);
 
   /**
    * @param input The input.
    * @param maxInputLength An upper bound for <i>log<sub>2</sub>(input)</i>.
-   * @return An approximation of the square root of the input.
+   * @return A deferred result computing an approximation of the square root of the input.
    */
   DRes<SInt> sqrt(DRes<SInt> input, int maxInputLength);
 
@@ -104,7 +104,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
    *
    * @param input The input.
    * @param maxInputLength An upper bound for the bit length of the input.
-   * @return The natural logarithm of the input.
+   * @return A deferred result computing the natural logarithm of the input.
    */
   DRes<SInt> log(DRes<SInt> input, int maxInputLength);
 
@@ -113,7 +113,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
    * 
    * @param aVector The first vector
    * @param bVector The second vector
-   * @return The inner product of the two given vectors
+   * @return A deferred result computing the inner product of the two given vectors
    */
   DRes<SInt> innerProduct(List<DRes<SInt>> aVector, List<DRes<SInt>> bVector);
 
@@ -122,7 +122,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
    * 
    * @param aVector The public vector
    * @param bVector The secret vector
-   * @return The inner product of the two given vectors
+   * @return A deferred result computing the inner product of the two given vectors
    */
   DRes<SInt> innerProductWithPublicPart(List<BigInteger> aVector, List<DRes<SInt>> bVector);
 
@@ -134,14 +134,22 @@ public interface AdvancedNumeric extends ComputationDirectory {
   DRes<RandomAdditiveMask> additiveMask(int noOfBits);
 
   /**
-   * @param input input
-   * @return result input >> 1
+   * @param input input.
+   * @return A deferred result computing input >> 1
    */
   DRes<SInt> rightShift(DRes<SInt> input);
 
   /**
+   * @param input input.
+   * @param shifts Number of shifts
+   * @return A deferred result computing input >> shifts
+   */
+  DRes<SInt> rightShift(DRes<SInt> input, int shifts);
+  
+  /**
    * @param input input
-   * @return result: input >> 1<br>
+   * @return A deferred result computing<br> 
+   *         result: input >> 1<br>
    *         remainder: The <code>shifts</code> least significant bits of the input with the least
    *         significant having index 0.
    */
@@ -150,14 +158,8 @@ public interface AdvancedNumeric extends ComputationDirectory {
   /**
    * @param input input
    * @param shifts Number of shifts
-   * @return result input >> shifts
-   */
-  DRes<SInt> rightShift(DRes<SInt> input, int shifts);
-
-  /**
-   * @param input input
-   * @param shifts Number of shifts
-   * @return result: input >> shifts<br>
+   * @return A deferred result computing <br>
+   *         result: input >> shifts<br>
    *         remainder: The <code>shifts</code> least significant bits of the input with the least
    *         significant having index 0.
    */
@@ -169,24 +171,25 @@ public interface AdvancedNumeric extends ComputationDirectory {
    * @param input The number to know the bit length of
    * @param maxBitLength The maximum bit length this number can have (if unknown, set this to the
    *        modulus bit size)
-   * @return The bit length of the input number.
+   * @return A deferred result computing the bit length of the input number.
    */
   DRes<SInt> bitLength(DRes<SInt> input, int maxBitLength);
 
   /**
    * Compute the inverse of x within the field of operation
    * @param x The element to take the inverse of
-   * @return x^-1 mod p where p is the modulus of the field.
+   * @return A deferred result computing x^-1 mod p where p is the modulus of the field.
    */
   DRes<SInt> invert(DRes<SInt> x);
 
   /**
    * Selects left or right based on condition.
    *
-   * @param condition the Computation holding the condition on which to select.
+   * @param condition the Computation holding the condition on which to select. Must be either 0 or
+   *        1.
    * @param left the Computation holding the left argument.
    * @param right the Computation holding the right argument.
-   * @return an computation holding the output of the appended protocol.
+   * @return a computation holding either left or right depending on the condition.
    */
   DRes<SInt> condSelect(DRes<SInt> condition, DRes<SInt> left, DRes<SInt> right);
 
@@ -194,16 +197,17 @@ public interface AdvancedNumeric extends ComputationDirectory {
    * Swaps <code>left</code> and <code>right</code> if <code>condition</code> is 1, keeps original
    * order otherwise. Returns result as a pair.
    * 
-   * @param condition must be 0 or 1
-   * @param left
-   * @param right
-   * @return
+   * @param condition must be 0 or 1.
+   * @param left The left argument
+   * @param right The right argument
+   * @return A deferred result computing a pair containing [left, right] if the condition is 0 and
+   *         [right, left] if condition is 1.
    */
   DRes<Pair<DRes<SInt>, DRes<SInt>>> swapIf(DRes<SInt> condition, DRes<SInt> left,
       DRes<SInt> right);
 
   /**
-   * result input >> 1 remainder the least significant bit of input
+   * Container holding the deferred result and remainder of shifting a number.  
    */
   class RightShiftResult {
 

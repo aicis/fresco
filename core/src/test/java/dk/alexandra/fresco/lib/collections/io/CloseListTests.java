@@ -24,10 +24,6 @@ public class CloseListTests {
 
   /**
    * Performs a CloseList computation on an empty list of BigIntegers. Checks that result is empty.
-   * 
-   * @author nv
-   *
-   * @param <ResourcePoolT>
    */
   public static class TestCloseEmptyList<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
@@ -55,10 +51,6 @@ public class CloseListTests {
   /**
    * Opens and closes an input list of BigIntegers. Checks that opened result is same as original
    * input.
-   * 
-   * @author nv
-   *
-   * @param <ResourcePoolT>
    */
   public static class TestCloseAndOpenList<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
@@ -90,8 +82,8 @@ public class CloseListTests {
             return () -> opened.out().stream().map(DRes::out).collect(Collectors.toList());
           };
           // run test application
-          List<BigInteger> output = runApplication(testApplication);
-
+          final List<BigInteger> output = runApplication(testApplication);
+          
           // define expected result and assert
           List<BigInteger> expected = new ArrayList<>();
           expected.add(BigInteger.valueOf(1));

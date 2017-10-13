@@ -74,8 +74,6 @@ public class CompareTests {
 
   /**
    * Compares the two numbers 3 and 5 and checks that 3 < 5. Also checks that 5 is not < 3
-   *
-   * @author Kasper Damgaard
    */
   public static class TestCompareLT<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
@@ -110,8 +108,6 @@ public class CompareTests {
 
   /**
    * Compares the two numbers 3 and 5 and checks that 3 == 3. Also checks that 3 != 5
-   *
-   * @author Kasper Damgaard
    */
   public static class TestCompareEQ<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {

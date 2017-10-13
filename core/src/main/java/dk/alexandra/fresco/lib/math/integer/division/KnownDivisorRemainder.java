@@ -15,8 +15,6 @@ import java.math.BigInteger;
  * with <i>m</i> will correspond to the desired division -- just shifted a
  * number of bits to the left. To get the right result we just need to shift
  * back again.
- *
- * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
 public class KnownDivisorRemainder implements Computation<SInt, ProtocolBuilderNumeric> {
 

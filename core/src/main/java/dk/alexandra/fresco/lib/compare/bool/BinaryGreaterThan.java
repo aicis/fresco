@@ -9,13 +9,12 @@ import java.util.List;
  * Represents a comparison protocol between two bitstrings. Concretely, the protocol computes the
  * 'greater than' relation of strings A and B, i.e., it computes C := A > B.
  * 
- * @author psn
- * 
  */
-public class BinaryGreaterThan implements
-dk.alexandra.fresco.framework.builder.Computation<SBool, ProtocolBuilderBinary> {
+public class BinaryGreaterThan
+    implements dk.alexandra.fresco.framework.builder.Computation<SBool, ProtocolBuilderBinary> {
 
-  private List<DRes<SBool>> inA, inB;
+  private List<DRes<SBool>> inA;
+  private List<DRes<SBool>> inB;
   private int length;
 
   /**

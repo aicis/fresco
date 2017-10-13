@@ -14,8 +14,6 @@ import org.slf4j.LoggerFactory;
 /**
  * MPC Decryption of an already MIMC encrypted number. See {@link MiMCEncryption} for more
  * information.
- * 
- * @author Kasper Damgaard
  *
  */
 public class MiMCDecryption implements Computation<SInt, ProtocolBuilderNumeric> {

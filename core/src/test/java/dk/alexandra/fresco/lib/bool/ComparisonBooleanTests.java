@@ -17,8 +17,6 @@ public class ComparisonBooleanTests {
 
   /**
    * Tests if the number 01010 > 01110 - then it reverses that.
-   *
-   * @author Kasper Damgaard
    */
   public static class TestGreaterThan<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
@@ -63,8 +61,6 @@ public class ComparisonBooleanTests {
 
   /**
    * Tests if the number 01010 == 01110 and then checks if 01010 == 01010.
-   *
-   * @author Kasper Damgaard
    */
   public static class TestEquality<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
@@ -108,9 +104,7 @@ public class ComparisonBooleanTests {
   }
 
   /**
-   * Tests if the number 01010 > 01110 - then it reverses that.
-   *
-   * @author Kasper Damgaard
+   * Tests if the number 01010 > 01110 - then it reverses that.   
    */
   public static class TestGreaterThanUnequalLength<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
@@ -135,9 +129,7 @@ public class ComparisonBooleanTests {
           try {
             runApplication(app);
           } catch (Exception e) {
-            if (e.getCause() instanceof IllegalArgumentException) {
-
-            } else {
+            if (!(e.getCause() instanceof IllegalArgumentException)) {
               throw e;
             }
           }

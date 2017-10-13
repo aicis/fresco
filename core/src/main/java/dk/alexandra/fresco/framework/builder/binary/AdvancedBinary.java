@@ -15,24 +15,57 @@ import java.util.List;
 public interface AdvancedBinary extends ComputationDirectory {
 
   /**
-   * Appends a OR protocol to the current protocol.
+   * Computes the OR of the two inputs.
    *
    * @param left the Computation holding the left argument.
    * @param right the Computation holding the right argument.
-   * @return an computation holding the output of the appended protocol.
+   * @return A deferred result computing <code>left OR right</code>.
    */
   DRes<SBool> or(DRes<SBool> left, DRes<SBool> right);
 
+  /**
+   * Computes the OR of the two inputs.
+   *
+   * @param left the Computation holding the left argument.
+   * @param right the public right argument.
+   * @return A deferred result computing <code>left OR right</code>.
+   */
   DRes<SBool> or(DRes<SBool> left, boolean right);
 
-
-
+  /**
+   * Computes the XNOR of the two inputs.
+   *
+   * @param left the Computation holding the left argument.
+   * @param right the Computation holding the right argument.
+   * @return A deferred result computing <code>left XNOR right</code>.
+   */
   DRes<SBool> xnor(DRes<SBool> left, DRes<SBool> right);
 
+  /**
+   * Computes the XNOR of the two inputs.
+   *
+   * @param left the Computation holding the left argument.
+   * @param right the public right argument.
+   * @return A deferred result computing <code>left XNOR right</code>.
+   */
   DRes<SBool> xnor(DRes<SBool> left, boolean right);
 
+  /**
+   * Computes the NAND of the two inputs.
+   *
+   * @param left the Computation holding the left argument.
+   * @param right the Computation holding the right argument.
+   * @return A deferred result computing <code>left NAND right</code>.
+   */
   DRes<SBool> nand(DRes<SBool> left, DRes<SBool> right);
 
+  /**
+   * Computes the NAND of the two inputs.
+   *
+   * @param left the Computation holding the left argument.
+   * @param right the public right argument.
+   * @return A deferred result computing <code>left NAND right</code>.
+   */
   DRes<SBool> nand(DRes<SBool> left, boolean right);
 
   /**
@@ -40,10 +73,9 @@ public interface AdvancedBinary extends ComputationDirectory {
    * 
    * @param left The left secret shared input.
    * @param right The publicly known input.
-   * @return left AND right
+   * @return A deferred result computing <code>left AND right</code>
    */
   DRes<SBool> and(DRes<SBool> left, boolean right);
-
 
   /**
    * Appends a conditional select protocol to the current protocol. The output of this protocol on
@@ -52,18 +84,18 @@ public interface AdvancedBinary extends ComputationDirectory {
    * @param condition the Computation holding the condition on which to select.
    * @param left the Computation holding the left argument.
    * @param right the Computation holding the right argument.
-   * @return an computation holding the output of the appended protocol.
+   * @return A deferred result computing <code>condition ? left : right</code>.
    */
   DRes<SBool> condSelect(DRes<SBool> condition, DRes<SBool> left,
       DRes<SBool> right);
 
   /**
-   * Half adder which returns the result in the 0'th position and the carry in the 1'st position of
-   * the array.
+   * Half adder which returns the result in the left part of the pair and the carry in the right
+   * part of the pair.
    * 
    * @param left The first input.
    * @param right The second input.
-   * @return A computation which yields the result and the carry.
+   * @return A deferred result computing <code>left+right</code> and the carry.
    */
   DRes<Pair<SBool, SBool>> oneBitHalfAdder(DRes<SBool> left,
       DRes<SBool> right);
@@ -75,7 +107,7 @@ public interface AdvancedBinary extends ComputationDirectory {
    * @param left The first input.
    * @param right The second input.
    * @param carry The potential carry from a previous adder.
-   * @return A computation which yields the result and the carry.
+   * @return A deferred result computing <code>left+right+carry</code> and the carry.
    */
   DRes<Pair<SBool, SBool>> oneBitFullAdder(DRes<SBool> left, DRes<SBool> right,
       DRes<SBool> carry);
@@ -89,7 +121,7 @@ public interface AdvancedBinary extends ComputationDirectory {
    * @param lefts The first inputs.
    * @param rights The second inputs.
    * @param inCarry The potential carry from a previous adder.
-   * @return A computation which yields the results and the carry.
+   * @return A deferred result computing <code>lefts+rights+inCarry</code> and the carry.
    */
   DRes<List<DRes<SBool>>> fullAdder(List<DRes<SBool>> lefts,
       List<DRes<SBool>> rights, DRes<SBool> inCarry);
@@ -100,8 +132,8 @@ public interface AdvancedBinary extends ComputationDirectory {
    * 
    * @param lefts The left input
    * @param rights The right input
-   * @return An array of size lefts.size+rights.size containing the multiplication of the two
-   *         numbers.
+   * @return A deferred result computing an array of size lefts.size+rights.size containing the
+   *         multiplication of the two numbers.
    */
   DRes<List<DRes<SBool>>> binaryMult(List<DRes<SBool>> lefts,
       List<DRes<SBool>> rights);
@@ -112,7 +144,7 @@ public interface AdvancedBinary extends ComputationDirectory {
    * incorrect as log_2(0) = NaN.
    * 
    * @param number The number to compute log_2 on.
-   * @return An array containing the log_2(number).
+   * @return A deferred result computing an array containing the log_2(number).
    */
   DRes<List<DRes<SBool>>> logProtocol(List<DRes<SBool>> number);
 
@@ -122,7 +154,8 @@ public interface AdvancedBinary extends ComputationDirectory {
    * 
    * @param large The bit representation of a number
    * @param increment The bit to increment with
-   * @return A list representing the new number after the incrementation.
+   * @return A deferred result computing a list representing the new number after the
+   *         incrementation.
    */
   DRes<List<DRes<SBool>>> bitIncrement(List<DRes<SBool>> large,
       DRes<SBool> increment);
@@ -133,7 +166,7 @@ public interface AdvancedBinary extends ComputationDirectory {
    * 
    * @param leftKeyAndValue A pair of first the key and then the value.
    * @param rightKeyAndValue A pair of first the key and then the value.
-   * @return A list of pairs where the first pair has the largest key.
+   * @return A deferred result computing a list of pairs where the first pair has the largest key.
    */
   DRes<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>> keyedCompareAndSwap(
       Pair<List<DRes<SBool>>, List<DRes<SBool>>> leftKeyAndValue,

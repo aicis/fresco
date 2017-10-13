@@ -18,7 +18,7 @@ public interface Comparison extends ComputationDirectory {
    * 
    * @param inLeft The left secret shared bit string
    * @param inRight The right secret shared bit string
-   * @return inLeft > inRight
+   * @return A deferred result computing inLeft > inRight
    */
   DRes<SBool> greaterThan(List<DRes<SBool>> inLeft, List<DRes<SBool>> inRight);
 
@@ -27,7 +27,7 @@ public interface Comparison extends ComputationDirectory {
    * 
    * @param inLeft The left secret shared bit string
    * @param inRight The right secret shared bit string
-   * @return inLeft == inRight
+   * @return A deferred result computing inLeft == inRight
    */
   DRes<SBool> equal(List<DRes<SBool>> inLeft, List<DRes<SBool>> inRight);
 }

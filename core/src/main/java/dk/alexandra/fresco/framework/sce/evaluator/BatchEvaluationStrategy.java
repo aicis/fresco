@@ -9,8 +9,6 @@ import java.io.IOException;
 /**
  * Interface which knows how to evaluate a "batch" of protocols. A batch is a collection of native
  * protocols which are functionally independent.
- * 
- * @author Kasper Damgaard
  *
  * @param <ResourcePoolT> The type of resource pool to use
  */
@@ -19,7 +17,7 @@ public interface BatchEvaluationStrategy<ResourcePoolT extends ResourcePool> {
   /**
    * @param protocols Array holding the protocols to be evaluated
    * @param resourcePool The resource pool.
-   * @param network the SceNetwork used for the evaluation process.
+   * @param sceNetwork the SceNetwork used for the evaluation process.
    * 
    */
   <SceNetwork extends SCENetwork & SCENetworkSupplier> void processBatch(

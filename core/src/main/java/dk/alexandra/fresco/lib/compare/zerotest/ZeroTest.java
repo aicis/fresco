@@ -6,9 +6,8 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 
 /**
- * testing for equality with zero for a bitLength-bit number (positive or negative)
+ * testing for equality with zero for a bitLength-bit number (positive or negative).
  *
- * @author ttoft
  */
 public class ZeroTest implements Computation<SInt, ProtocolBuilderNumeric> {
 

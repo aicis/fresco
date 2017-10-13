@@ -3,9 +3,8 @@ package dk.alexandra.fresco.lib.helper;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 
 /**
- * ProtocolProducers that can have other Protocolproducers appended to them
+ * ProtocolProducers that can have other Protocolproducers appended to them.
  *
- * @author psn
  */
 public interface ProtocolProducerCollection {
 

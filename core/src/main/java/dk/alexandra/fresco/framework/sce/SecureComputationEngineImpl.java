@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
  * Secure Computation Engine - responsible for having the overview of things and setting everything
  * up, e.g., based on properties.
  *
- * @author Kasper Damgaard (.. and others)
  */
 public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder>
     implements SecureComputationEngine<ResourcePoolT, Builder> {

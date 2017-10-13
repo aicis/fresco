@@ -17,7 +17,7 @@ public interface Numeric extends ComputationDirectory {
    * Adds two secret values and returns the result.
    * @param a Secret value 1
    * @param b Secret value 2
-   * @return A protocol computing a+b
+   * @return A deferred result computing a+b
    */
   DRes<SInt> add(DRes<SInt> a, DRes<SInt> b);
 
@@ -25,7 +25,7 @@ public interface Numeric extends ComputationDirectory {
    * Adds a secret value with a public value and returns the result.
    * @param a Public value
    * @param b Secret value
-   * @return A protocol computing a+b
+   * @return A deferred result computing a+b
    */
   DRes<SInt> add(BigInteger a, DRes<SInt> b);
 
@@ -33,7 +33,7 @@ public interface Numeric extends ComputationDirectory {
    * Subtracts two secret values and returns the result.
    * @param a Secret value 1
    * @param b Secret value 2
-   * @return A protocol computing a-b
+   * @return A deferred result computing a-b
    */
   DRes<SInt> sub(DRes<SInt> a, DRes<SInt> b);
 
@@ -41,7 +41,7 @@ public interface Numeric extends ComputationDirectory {
    * Subtracts a public value and a secret value and returns the result.
    * @param a Public value
    * @param b Secret value
-   * @return A protocol computing a-b
+   * @return A deferred result computing a-b
    */
   DRes<SInt> sub(BigInteger a, DRes<SInt> b);
 
@@ -49,7 +49,7 @@ public interface Numeric extends ComputationDirectory {
    * Subtracts a secret value and a public value and returns the result.
    * @param a Secret value
    * @param b Public value
-   * @return A protocol computing a-b
+   * @return A deferred result computing a-b
    */
   DRes<SInt> sub(DRes<SInt> a, BigInteger b);
 
@@ -57,7 +57,7 @@ public interface Numeric extends ComputationDirectory {
    * Multiplies two secret values and returns the result.
    * @param a Secret value 1
    * @param b Secret value 2
-   * @return A protocol computing a*b
+   * @return A deferred result computing a*b
    */
   DRes<SInt> mult(DRes<SInt> a, DRes<SInt> b);
 
@@ -65,12 +65,12 @@ public interface Numeric extends ComputationDirectory {
    * Multiplies a public value onto a secret value and returns the result.
    * @param a Public value
    * @param b Secret value
-   * @return A protocol computing a*b
+   * @return A deferred result computing a*b
    */
   DRes<SInt> mult(BigInteger a, DRes<SInt> b);
 
   /**
-   * Returns a protocol which creates a secret shared random bit. (This should be computed
+   * Returns a deferred result which creates a secret shared random bit. (This should be computed
    * beforehand to increase the speed of the application)
    * 
    * @return A secret value representing either 0 or 1.
@@ -78,7 +78,7 @@ public interface Numeric extends ComputationDirectory {
   DRes<SInt> randomBit();
 
   /**
-   * Returns a protocol which creates a secret shared random element within the field of operation.
+   * Returns a deferred result which creates a secret shared random element within the field of operation.
    * (This should be computed beforehand to increase the speed of the application)
    * 
    * @return A random element within the field of operation (i.e. the modulus)

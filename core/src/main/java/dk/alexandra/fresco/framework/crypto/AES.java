@@ -18,8 +18,6 @@ import org.apache.commons.crypto.stream.CryptoOutputStream;
 /**
  * Simple implementation of AES. 
  * NOTE: This class has not been thoroughly checked and tested, and should be used with caution.
- * 
- * @author Kasper Damgaard
  *
  */
 public class AES {

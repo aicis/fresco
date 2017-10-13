@@ -12,8 +12,6 @@ import java.math.BigInteger;
  * MiMC encryption is a symmetric cipher which can be used to great effect when utilizing it within
  * MPC. Implementation is done using <a href="https://eprint.iacr.org/2016/492.pdf">this paper</a>
  * as base line. Encryption is both simple and fast, but decryption is a heavy operation. 
- * 
- * @author Kasper Damgaard
  *
  */
 public class MiMCEncryption implements Computation<SInt, ProtocolBuilderNumeric> {

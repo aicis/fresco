@@ -7,8 +7,6 @@ import java.util.List;
  * Network towards the protocols. This does not expose the real network, and
  * sending has no effect on the TCP layer. A higher level should handle the
  * input/output (typically the evaluator)
- * 
- * @author Kasper Damgaard
  *
  */
 public interface SCENetwork {

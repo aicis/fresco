@@ -9,8 +9,6 @@ import java.util.Set;
  * within the {@link SCENetwork}. Separated from that interface since the protocols
  * only need to know about the methods contained within that interface.
  * Typically, a class implementing that interface, also implements this.
- * 
- * @author Kasper Damgaard
  *
  */
 public interface SCENetworkSupplier {

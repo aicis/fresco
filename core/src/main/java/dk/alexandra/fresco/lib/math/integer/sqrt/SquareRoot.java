@@ -13,7 +13,6 @@ import java.math.BigInteger;
  * <a href= "https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Babylonian_method"
  * >Babylonian Method</a>.
  *
- * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
 public class SquareRoot implements Computation<SInt, ProtocolBuilderNumeric> {
 

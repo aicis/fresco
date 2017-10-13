@@ -12,12 +12,12 @@ import java.util.List;
  * This means that we connect O(n^2) 1-Bit-FullAdders in order to get the result.
  * As one would imagine, this is not the most efficient method, but it works as a basic case.
  *
- * @author Kasper Damgaard
  */
 public class BinaryMultiplication implements
     Computation<List<DRes<SBool>>, ProtocolBuilderBinary> {
 
-  private List<DRes<SBool>> lefts, rights;
+  private List<DRes<SBool>> lefts;
+  private List<DRes<SBool>> rights;
 
   public BinaryMultiplication(List<DRes<SBool>> lefts,
       List<DRes<SBool>> rights) {

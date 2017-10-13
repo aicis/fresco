@@ -18,7 +18,6 @@ import org.junit.Assert;
  * Tests which ensures that the SecureComputationEngine's parallel and sequential evaluations of
  * application works.
  *
- * @author Kasper Damgaard
  */
 public class ParallelAndSequenceTests {
 

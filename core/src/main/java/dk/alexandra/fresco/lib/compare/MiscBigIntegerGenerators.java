@@ -8,9 +8,8 @@ import java.util.Map;
 
 
 /**
- * Misc computation on BigIntegers -- results are cached
+ * Misc computation on BigIntegers -- results are cached.
  *
- * @author ttoft
  */
 public class MiscBigIntegerGenerators {
 

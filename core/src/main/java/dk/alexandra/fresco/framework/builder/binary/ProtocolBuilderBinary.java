@@ -7,8 +7,6 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilderImpl;
  * Protocol builder for binary applications. Applications can be given an instance of this class for
  * building their binary applications. This class includes all {@link ComputationDirectory} classes
  * known to FRESCO which are relevant for binary applications.
- * 
- * @author Kasper Damgaard
  *
  */
 public class ProtocolBuilderBinary extends ProtocolBuilderImpl<ProtocolBuilderBinary> {
