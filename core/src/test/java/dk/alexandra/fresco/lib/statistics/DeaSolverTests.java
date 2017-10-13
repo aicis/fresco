@@ -30,7 +30,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -169,7 +168,6 @@ public class DeaSolverTests {
 
         @Override
         public void test() throws Exception {
-          ResourcePoolT resourcePool = ResourcePoolCreator.createResourcePool(conf.sceConf);
 
           Application<DeaSolver, ProtocolBuilderNumeric> app = producer -> {
             modulus = producer.getBasicNumericContext().getModulus();
@@ -182,9 +180,9 @@ public class DeaSolverTests {
             return () -> new DeaSolver(type, targetInputs, targetOutputs, basisInputs,
                 basisOutputs);
           };
-          DeaSolver solver = secureComputationEngine.runApplication(app, resourcePool);
+          DeaSolver solver = runApplication(app);
 
-          List<DeaResult> deaResults = secureComputationEngine.runApplication(solver, resourcePool);
+          List<DeaResult> deaResults = runApplication(solver);
 
           Application<List<Pair<BigInteger, Pair<List<BigInteger>, List<BigInteger>>>>, ProtocolBuilderNumeric> app2 =
               producer -> {
@@ -208,7 +206,7 @@ public class DeaSolverTests {
                     .collect(Collectors.toList());
               };
           List<Pair<BigInteger, Pair<List<BigInteger>, List<BigInteger>>>> openResults =
-              secureComputationEngine.runApplication(app2, resourcePool);
+              runApplication(app2);
 
           // Solve the problem using a plaintext solver
           PlaintextDEASolver plainSolver = new PlaintextDEASolver();
