@@ -34,8 +34,9 @@ import dk.alexandra.fresco.lib.math.integer.sqrt.SqrtTests;
 import dk.alexandra.fresco.lib.math.integer.stat.StatisticsTests;
 import dk.alexandra.fresco.lib.math.polynomial.PolynomialTests;
 import dk.alexandra.fresco.lib.statistics.CreditRaterTest;
-import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
-import dk.alexandra.fresco.lib.statistics.DEASolverTests.RandomDataDeaTest;
+import dk.alexandra.fresco.lib.statistics.DeaSolver.AnalysisType;
+import dk.alexandra.fresco.lib.statistics.DeaSolverTests.RandomDataDeaTest;
+import dk.alexandra.fresco.lib.statistics.DeaSolverTests.TestDeaFixed1;
 import dk.alexandra.fresco.logging.PerformanceLogger;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -205,6 +206,12 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_DEASolver_multiple_queries__output_2_parties() throws Exception {
     runTest(new RandomDataDeaTest<>(5, 2, 10, 2, AnalysisType.OUTPUT_EFFICIENCY),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_DEASolver_fixedData1() throws Exception {
+    runTest(new TestDeaFixed1<>(AnalysisType.OUTPUT_EFFICIENCY),
         EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
   }
 

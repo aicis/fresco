@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.lib.statistics;
 
-import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
+import dk.alexandra.fresco.lib.statistics.DeaSolver.AnalysisType;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,7 +72,7 @@ public class PlaintextDEASolver {
     LinearObjectiveFunction objectiveFuntion = new LinearObjectiveFunction(objectiveCoeffs, 0);
 
     LinkedList<LinearConstraint> constraints = null;
-    if (type == DEASolver.AnalysisType.OUTPUT_EFFICIENCY) {
+    if (type == DeaSolver.AnalysisType.OUTPUT_EFFICIENCY) {
       constraints = buildOutputEfficienceConstraints(targetInputs, targetOutputs, sizePlusTheta);
     } else {
       constraints = buildInputEfficienceConstraints(targetInputs, targetOutputs, sizePlusTheta - 1);
@@ -82,7 +82,7 @@ public class PlaintextDEASolver {
     SimplexSolver solver = new SimplexSolver();
     LinearConstraintSet set = new LinearConstraintSet(constraints);
     GoalType goal =
-        (type == DEASolver.AnalysisType.OUTPUT_EFFICIENCY) ? GoalType.MAXIMIZE : GoalType.MINIMIZE;
+        (type == DeaSolver.AnalysisType.OUTPUT_EFFICIENCY) ? GoalType.MAXIMIZE : GoalType.MINIMIZE;
     PointValuePair pvp =
         solver.optimize(objectiveFuntion, set, goal, new NonNegativeConstraint(true));
     return pvp.getValue();

@@ -30,28 +30,29 @@ public class ZeroTestBruteforce implements Computation<SInt, ProtocolBuilderNume
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq((seq) ->
-        seq.numeric().getExponentiationPipe()
+        seq.preprocessedValues().getExponentiationPipe(maxLength)
     ).seq((seq, expPipe) -> {
       //Add one, mult with the random number and unmask
       Numeric numeric = seq.numeric();
       DRes<SInt> increased = numeric.add(BigInteger.ONE, input);
-      DRes<SInt> maskedS = numeric.mult(increased, () -> expPipe[0]);
+      DRes<SInt> maskedS = numeric.mult(increased, expPipe.get(0));
+
       DRes<BigInteger> open = seq.numeric().open(maskedS);
       return () -> new Pair<>(expPipe, open.out());
     }).seq((seq, pair) -> {
       // compute powers and evaluate polynomial
-      SInt[] R = pair.getFirst();
+      List<DRes<SInt>> expPipe = pair.getFirst();
       BigInteger maskedO = pair.getSecond();
       BigInteger[] maskedPowers = seq.getBigIntegerHelper().getExpFromOInt(maskedO, maxLength);
-      return () -> new Pair<>(R, maskedPowers);
+      return () -> new Pair<>(expPipe, maskedPowers);
     }).par((par, pair) -> {
-      SInt[] R = pair.getFirst();
+      List<DRes<SInt>> expPipe = pair.getFirst();
       BigInteger[] maskedPowers = pair.getSecond();
       List<DRes<SInt>> powers = new ArrayList<>(maxLength);
       Numeric numeric = par.numeric();
       for (int i = 0; i < maxLength; i++) {
-        SInt rpartPair = R[i + 1];
-        powers.add(numeric.mult(maskedPowers[i], () -> rpartPair));
+        DRes<SInt> rpartPair = expPipe.get(i + 1);
+        powers.add(numeric.mult(maskedPowers[i], rpartPair));
       }
       return () -> powers;
     }).seq((seq, powers) -> {

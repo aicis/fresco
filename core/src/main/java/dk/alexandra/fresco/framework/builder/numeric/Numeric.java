@@ -78,8 +78,8 @@ public interface Numeric extends ComputationDirectory {
   DRes<SInt> randomBit();
 
   /**
-   * Returns a deferred result which creates a secret shared random element within the field of operation.
-   * (This should be computed beforehand to increase the speed of the application)
+   * Returns a deferred result which creates a secret shared random element within the field of
+   * operation. (This should be computed beforehand to increase the speed of the application)
    * 
    * @return A random element within the field of operation (i.e. the modulus)
    */
@@ -95,10 +95,12 @@ public interface Numeric extends ComputationDirectory {
   DRes<SInt> known(BigInteger value);
 
   /**
-   * Closes a public value. If the MPC party calling this method is not providing input, just use null as the input value.
+   * Closes a public value. If the MPC party calling this method is not providing input, just use
+   * null as the input value.
+   * 
    * @param value The value to input or null if no input should be given.
    * @param inputParty The ID of the MPC party.
-   * @return The closed input value. 
+   * @return The closed input value.
    */
   DRes<SInt> input(BigInteger value, int inputParty);
 
@@ -116,15 +118,4 @@ public interface Numeric extends ComputationDirectory {
    * @return The opened value if you are the outputParty, or null otherwise.
    */
   DRes<BigInteger> open(DRes<SInt> secretShare, int outputParty);
-
-  /**
-   * This construction is used primarily for comparisons within FRESCO. It should return an array
-   * with the following construction: Choose a random element R. Return [R^-1, R, R^2, ..., R^l],
-   * where l is the required number of bits needed to do the comparison. This depends on the chosen
-   * modulus.
-   * 
-   * @return [R^-1, R, R^2, ..., R^l]
-   */
-  DRes<SInt[]> getExponentiationPipe();
-
 }

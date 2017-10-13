@@ -12,7 +12,8 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-public class SpdzOutputToAllProtocol extends SpdzNativeProtocol<BigInteger> {
+public class SpdzOutputToAllProtocol extends SpdzNativeProtocol<BigInteger>
+    implements SpdzOutputProtocol {
 
   private DRes<SInt> in;
   private BigInteger out;
@@ -24,7 +25,6 @@ public class SpdzOutputToAllProtocol extends SpdzNativeProtocol<BigInteger> {
   @Override
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       SCENetwork network) {
-    spdzResourcePool.setOutputProtocolInBatch(true);
 
     SpdzStorage storage = spdzResourcePool.getStore();
     BigIntegerSerializer serializer = spdzResourcePool.getSerializer();

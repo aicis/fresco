@@ -9,8 +9,8 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
-import dk.alexandra.fresco.lib.statistics.DEASolver.DEAResult;
+import dk.alexandra.fresco.lib.statistics.DeaSolver.AnalysisType;
+import dk.alexandra.fresco.lib.statistics.DeaSolver.DeaResult;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +24,7 @@ import org.junit.Assert;
  * input and output variables, the number of rows in the basis and the number of queries to perform.
  * The MPC result is compared with the result of a plaintext DEA solver.
  */
-public class DEASolverTests {
+public class DeaSolverTests {
 
   public static class RandomDataDeaTest<ResourcePoolT extends ResourcePool>
       extends TestDeaSolver<ResourcePoolT> {
@@ -63,11 +63,11 @@ public class DEASolverTests {
     private static List<List<BigInteger>> outputs;
 
     static {
-      int[][] dataSet1 = new int[][] {new int[] {29, 13451, 14409, 16477}, // Score 1
-          new int[] {2, 581, 531, 1037}, // Score 1
-          new int[] {26, 13352, 1753, 13528}, // Score 1
-          new int[] {15, 4828, 949, 5126}, // Score 0.9857962644001192
-          new int[] {20, 6930, 6376, 9680} //
+      int[][] dataSet1 = new int[][] { new int[] { 29, 13451, 14409, 16477 }, // Score 1
+          new int[] { 2, 581, 531, 1037 }, // Score 1
+          new int[] { 26, 13352, 1753, 13528 }, // Score 1
+          new int[] { 15, 4828, 949, 5126 }, // Score 0.9857962644001192
+          new int[] { 20, 6930, 6376, 9680 } //
       };
       inputs = buildInputs(dataSet1);
       outputs = buildOutputs(dataSet1);
@@ -85,8 +85,8 @@ public class DEASolverTests {
     private static List<List<BigInteger>> outputs;
 
     static {
-      int[][] dataset = new int[][] {new int[] {10, 20, 30, 1000}, new int[] {5, 10, 15, 1000},
-          new int[] {200, 300, 400, 100}};
+      int[][] dataset = new int[][] { new int[] { 10, 20, 30, 1000 }, new int[] { 5, 10, 15, 1000 },
+          new int[] { 200, 300, 400, 100 } };
       inputs = buildInputs(dataset);
       outputs = buildOutputs(dataset);
     }
@@ -144,7 +144,8 @@ public class DEASolverTests {
 
         @Override
         public void test() throws Exception {
-          Application<DEASolver, ProtocolBuilderNumeric> app = producer -> {
+
+          Application<DeaSolver, ProtocolBuilderNumeric> app = producer -> {
             modulus = producer.getBasicNumericContext().getModulus();
             Numeric numeric = producer.numeric();
             List<List<BigInteger>> rawTargetOutputs = TestDeaSolver.this.rawTargetOutputs;
@@ -152,27 +153,36 @@ public class DEASolverTests {
             List<List<DRes<SInt>>> targetInputs = knownMatrix(numeric, rawTargetInputs);
             List<List<DRes<SInt>>> basisOutputs = knownMatrix(numeric, rawBasisOutputs);
             List<List<DRes<SInt>>> basisInputs = knownMatrix(numeric, rawBasisInputs);
-            return () -> new DEASolver(type, targetInputs, targetOutputs, basisInputs,
+            return () -> new DeaSolver(type, targetInputs, targetOutputs, basisInputs,
                 basisOutputs);
           };
-          DEASolver solver = runApplication(app);
+          DeaSolver solver = runApplication(app);
 
-          List<DEAResult> deaResults = runApplication(solver);
+          List<DeaResult> deaResults = runApplication(solver);
 
-          Application<List<Pair<BigInteger, List<BigInteger>>>, ProtocolBuilderNumeric> app2 =
+          Application<List<Pair<BigInteger, Pair<List<BigInteger>, List<BigInteger>>>>, ProtocolBuilderNumeric> app2 =
               producer -> {
-            Numeric numeric = producer.numeric();
-            ArrayList<Pair<DRes<BigInteger>, List<DRes<BigInteger>>>> result = new ArrayList<>();
-            for (DEAResult deaResult : deaResults) {
-              result.add(new Pair<>(numeric.open(deaResult.optimal),
-                  deaResult.basis.stream().map(numeric::open).collect(Collectors.toList())));
-            }
-            return () -> result.stream()
-                .map(pair -> new Pair<>(pair.getFirst().out(),
-                    pair.getSecond().stream().map(DRes::out).collect(Collectors.toList())))
-                .collect(Collectors.toList());
-          };
-          List<Pair<BigInteger, List<BigInteger>>> openResults = runApplication(app2);
+                Numeric numeric = producer.numeric();
+                ArrayList<Pair<DRes<BigInteger>, Pair<List<DRes<BigInteger>>, List<DRes<BigInteger>>>>> result =
+                    new ArrayList<>();
+                for (DeaResult deaResult : deaResults) {
+                  result.add(new Pair<>(numeric.open(deaResult.optimal),
+                      new Pair<>(
+                          deaResult.peers.stream().map(numeric::open).collect(Collectors.toList()),
+                          deaResult.peerValues.stream().map(numeric::open)
+                              .collect(Collectors.toList()))));
+                }
+                return () -> result.stream()
+                    .map(pair -> new Pair<>(pair.getFirst().out(),
+                        new Pair<>(
+                            pair.getSecond().getFirst().stream().map(DRes::out)
+                                .collect(Collectors.toList()),
+                            pair.getSecond().getSecond().stream().map(DRes::out)
+                                .collect(Collectors.toList()))))
+                    .collect(Collectors.toList());
+              };
+          List<Pair<BigInteger, Pair<List<BigInteger>, List<BigInteger>>>> openResults =
+              runApplication(app2);
 
           // Solve the problem using a plaintext solver
           PlaintextDEASolver plainSolver = new PlaintextDEASolver();
@@ -181,28 +191,83 @@ public class DEASolverTests {
           double[] plain =
               plainSolver.solve(asArray(rawTargetInputs), asArray(rawTargetOutputs), type);
 
-          // rawBasisInputs = new BigInteger[datasetRows][inputVariables];
-
-          // Perform postprocessing and compare MPC result with plaintext result
-          int lambdas = rawBasisInputs.size();
-
-          int slackvariables = rawBasisInputs.get(0).size() + rawBasisOutputs.get(0).size() + 1;
-          int variables = lambdas + slackvariables + 1 + 2; // +2 is new
+          int lambdas = (type == AnalysisType.INPUT_EFFICIENCY) ? rawBasisInputs.size()
+              : rawBasisInputs.size() + 1;
 
           for (int i = 0; i < rawTargetInputs.size(); i++) {
             Assert.assertEquals(plain[i], postProcess(openResults.get(i).getFirst(), type, modulus),
                 0.0000001);
-            List<BigInteger> basis = openResults.get(i).getSecond();
-            for (int j = 0; j < basis.size(); j++) {
 
-              int value = basis.get(j).intValue();
-              Assert.assertTrue("Basis value " + value + ", was larger than " + (variables - 1),
-                  value <= variables);
+            List<BigInteger> peers = openResults.get(i).getSecond().getFirst();
+            List<BigInteger> peerValues = openResults.get(i).getSecond().getSecond();
+            double sum = 0;
+            for (BigInteger b : peerValues) {
+              sum += postProcess(b, AnalysisType.OUTPUT_EFFICIENCY, modulus);
+            }
+            Assert.assertEquals("Peer values summed to " + sum + " instead of 1", 1, sum, 0.000001);
+            for (BigInteger b : peers) {
+              int idx = b.intValue();
+              Assert.assertTrue("Peer index" + idx + ", was larger than " + (lambdas - 1),
+                  idx < lambdas);
+            }
+            // Check input constraints are satisfied
+            for (int k = 0; k < rawTargetInputs.get(i).size(); k++) {
+              List<BigInteger> constraintRow = getConstraintRow(k, rawBasisInputs);
+              double leftHand = 0;
+              for (int l = 0; l < constraintRow.size(); l++) {
+                int idx = peers.indexOf(BigInteger.valueOf(l));
+                if (idx > -1) {
+                  double peerValue =
+                      postProcess(peerValues.get(idx), AnalysisType.OUTPUT_EFFICIENCY, modulus);
+                  double constraintValue = constraintRow.get(l).doubleValue();
+                  double prod = peerValue * constraintValue;
+                  leftHand += prod;
+                }
+              }
+              double rightHand = 0;
+              if (type == AnalysisType.INPUT_EFFICIENCY) {
+                rightHand = rawTargetInputs.get(i).get(k).doubleValue() * plain[i];
+              } else {
+                rightHand = rawTargetInputs.get(i).get(k).doubleValue();
+              }
+              Assert.assertTrue((leftHand - rightHand) < 0.000001);
+            }
+            // Check output constraints are satisfied
+            for (int k = 0; k < rawTargetOutputs.get(i).size(); k++) {
+              List<BigInteger> constraintRow = getConstraintRow(k, rawBasisOutputs);
+              if (type == AnalysisType.OUTPUT_EFFICIENCY) {
+                constraintRow.add(rawTargetOutputs.get(i).get(k));
+              }
+              double leftHand = 0;
+              for (int l = 0; l < constraintRow.size(); l++) {
+                int idx = peers.indexOf(BigInteger.valueOf(l));
+                if (idx > -1) {
+                  double peerValue =
+                      postProcess(peerValues.get(idx), AnalysisType.OUTPUT_EFFICIENCY, modulus);
+                  double constraintValue = constraintRow.get(l).doubleValue();
+                  double prod = peerValue * constraintValue;
+                  leftHand += prod;
+                }
+              }
+              double rightHand = 0;
+              if (type == AnalysisType.INPUT_EFFICIENCY) {
+                rightHand = rawTargetOutputs.get(i).get(k).doubleValue();
+              } else {
+                rightHand = rawTargetOutputs.get(i).get(k).doubleValue() * plain[i];
+              }
+              Assert.assertTrue((rightHand - leftHand) < 0.000001);
             }
           }
-
         }
       };
+    }
+
+    private List<BigInteger> getConstraintRow(int i, List<List<BigInteger>> basisData) {
+      ArrayList<BigInteger> constraintRow = new ArrayList<>();
+      for (List<BigInteger> l : basisData) {
+        constraintRow.add(l.get(i));
+      }
+      return constraintRow;
     }
 
     private BigInteger[][] asArray(List<List<BigInteger>> lists) {
@@ -224,7 +289,7 @@ public class DEASolverTests {
   private static double postProcess(BigInteger input, AnalysisType type, BigInteger modulus) {
     BigInteger[] gauss = gauss(input, modulus);
     double res = (gauss[0].doubleValue() / gauss[1].doubleValue());
-    if (type == DEASolver.AnalysisType.INPUT_EFFICIENCY) {
+    if (type == DeaSolver.AnalysisType.INPUT_EFFICIENCY) {
       res *= -1;
     }
     return res;
@@ -249,8 +314,8 @@ public class DEASolverTests {
    */
   private static BigInteger[] gauss(BigInteger product, BigInteger mod) {
     product = product.mod(mod);
-    BigInteger[] u = {mod, BigInteger.ZERO};
-    BigInteger[] v = {product, BigInteger.ONE};
+    BigInteger[] u = { mod, BigInteger.ZERO };
+    BigInteger[] v = { product, BigInteger.ONE };
     BigInteger two = BigInteger.valueOf(2);
     BigInteger uv = innerproduct(u, v);
     BigInteger vv = innerproduct(v, v);
@@ -270,12 +335,12 @@ public class DEASolverTests {
       BigInteger r0 = u[0].subtract(v[0].multiply(q[0]));
       BigInteger r1 = u[1].subtract(v[1].multiply(q[0]));
       u = v;
-      v = new BigInteger[] {r0, r1};
+      v = new BigInteger[] { r0, r1 };
       uu = vv;
       uv = innerproduct(u, v);
       vv = innerproduct(v, v);
     } while (uu.compareTo(vv) > 0);
-    return new BigInteger[] {u[0], u[1]};
+    return new BigInteger[] { u[0], u[1] };
   }
 
   private static BigInteger innerproduct(BigInteger[] u, BigInteger[] v) {

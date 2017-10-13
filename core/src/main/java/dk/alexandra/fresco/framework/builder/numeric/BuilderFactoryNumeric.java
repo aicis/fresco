@@ -40,6 +40,10 @@ public interface BuilderFactoryNumeric extends BuilderFactory<ProtocolBuilderNum
   default Collections createCollections(ProtocolBuilderNumeric builder) {
     return new DefaultCollections(this, builder);
   }
+  
+  default PreprocessedValues createPreprocessedValues(ProtocolBuilderNumeric builder) {
+    return new DefaultPreprocessedValues(builder);
+  }
 
   /**
    * Returns a builder which can be helpful while developing a new protocol. Be very careful though,

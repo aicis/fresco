@@ -17,6 +17,7 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
   private Comparison comparison;
   private Collections collections;
   private AdvancedNumeric advancedNumeric;
+  private PreprocessedValues preprocessedValues; 
   private Debug debug;
 
   ProtocolBuilderNumeric(BuilderFactoryNumeric factory, boolean parallel) {
@@ -85,6 +86,21 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
       collections = factory.createCollections(this);
     }
     return collections;
+  }
+
+  /**
+   * Creates a {@link PreprocessedValues} computation directory for this instance - i.e. this
+   * intended producer. Contains elements which, if created prior to this evaluation, would save
+   * computation and network. Preprocessed values does not depend on the input of the function to
+   * evaluate.
+   * 
+   * @return The preprocessed values computation directory.
+   */
+  public PreprocessedValues preprocessedValues() {
+    if (preprocessedValues == null) {
+      preprocessedValues = factory.createPreprocessedValues(this);
+    }
+    return preprocessedValues;
   }
 
   /**

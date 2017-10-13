@@ -67,6 +67,8 @@ public class BatchedProtocolEvaluator<
       ProtocolCollectionList<ResourcePoolT> protocols = new ProtocolCollectionList<>(maxBatchSize);
       protocolProducer.getNextProtocols(protocols);
       int size = protocols.size();
+
+      roundSynchronization.beforeBatch(protocols, resourcePool);
       batchEvaluator.processBatch(protocols, resourcePool, sceNetwork);
       logger.trace("Done evaluating batch: " + batch++ + " with " + size + " native protocols");
       if (size == 0) {
