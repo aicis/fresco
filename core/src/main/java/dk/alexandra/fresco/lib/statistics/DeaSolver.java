@@ -168,31 +168,72 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
           DRes<LPOutput> lpOutput = lpSolver.buildComputation(solverSec);
           return lpOutput;
         }).seq((optSec, lpOutput) -> {
-          // Compute peers from lpOutput here!
+          // Compute peers from lpOutput
           DRes<SInt> invPivot = optSec.advancedNumeric().invert(lpOutput.pivot);
           List<DRes<SInt>> column = new LinkedList<>(tableau.getB());
           column.add(tableau.getZ());
           List<ArrayList<DRes<SInt>>> umRows = lpOutput.updateMatrix.getRows();
-          // These could be done in parallel
-          List<DRes<SInt>> upColumn = umRows.stream()
-              .map(row -> optSec.advancedNumeric().dot(row, column)).collect(Collectors.toList());
-          upColumn.remove(upColumn.size() - 1);
-          List<DRes<SInt>> basisValues = upColumn.stream()
-              .map(n -> optSec.numeric().mult(invPivot, n)).collect(Collectors.toList());
-          BigInteger f = BigInteger.valueOf(2); // The first index representing a possible peer
-          BigInteger l = BigInteger.valueOf(2 + inputDataSet.size() - 1); // The last index representing a possible peer
+          // The first index representing a possible peer as defined by the prefixes
+          BigInteger f = BigInteger.valueOf(2);
+          // The last index representing a possible peer as defined by the prefixes
+          BigInteger l = BigInteger.valueOf(2 + inputDataSet.size() - 1);
           l = (type == AnalysisType.INPUT_EFFICIENCY) ? l : l.add(BigInteger.ONE);
           DRes<SInt> firstPeer = optSec.numeric().known(f);
           DRes<SInt> lastPeer = optSec.numeric().known(l);
-          List<DRes<SInt>> above = lpOutput.basis.stream().map(n -> optSec.comparison().compareLEQ(firstPeer, n)).collect(Collectors.toList());
-          List<DRes<SInt>> below = lpOutput.basis.stream().map(n -> optSec.comparison().compareLEQ(n, lastPeer)).collect(Collectors.toList());
-          List<DRes<SInt>> inRange = IntStream.range(0, lpOutput.basis.size()).mapToObj(n -> optSec.numeric().mult(above.get(n), below.get(n))).collect(Collectors.toList());
-          List<DRes<SInt>> peers = IntStream.range(0, lpOutput.basis.size()).mapToObj(n -> optSec.numeric().mult(lpOutput.basis.get(n), inRange.get(n))).collect(Collectors.toList());
-          List<DRes<SInt>> peersFromZero = peers.stream().map(n -> optSec.numeric().sub(n, f)).collect(Collectors.toList());
-          List<DRes<SInt>> peerValues = IntStream.range(0, lpOutput.basis.size()).mapToObj(n -> optSec.numeric().mult(basisValues.get(n), inRange.get(n))).collect(Collectors.toList());
-          return Pair.lazy(new Pair<>(peersFromZero, peerValues),
-              new OptimalValue(lpOutput.updateMatrix, lpOutput.tableau, lpOutput.pivot)
-              .buildComputation(optSec));
+          // These could be done in parallel
+          return optSec.par(innerPar -> {
+            List<DRes<SInt>> upColumn =
+                umRows.stream().map(row -> innerPar.advancedNumeric().dot(row, column))
+                    .collect(Collectors.toList());
+            return () -> upColumn;
+          }).par((innerPar, upColumn) -> {
+            upColumn.remove(upColumn.size() - 1);
+            List<DRes<SInt>> basisValues = upColumn.stream()
+                .map(n -> innerPar.numeric().mult(invPivot, n)).collect(Collectors.toList());
+            return () -> basisValues;
+          }).par((innerPar, basisValues) -> {
+            List<DRes<SInt>> above =
+                lpOutput.basis.stream().map(n -> innerPar.comparison().compareLEQ(firstPeer, n))
+                    .collect(Collectors.toList());
+            List<DRes<SInt>> below =
+                lpOutput.basis.stream().map(n -> innerPar.comparison().compareLEQ(n, lastPeer))
+                    .collect(Collectors.toList());
+            List<List<DRes<SInt>>> newState = new ArrayList<>(3);
+            newState.add(above);
+            newState.add(below);
+            newState.add(basisValues);
+            return () -> newState;
+          }).par((innerPar, state) -> {
+            List<DRes<SInt>> inRange = IntStream.range(0, lpOutput.basis.size())
+                .mapToObj(n -> innerPar.numeric().mult(state.get(0).get(n), state.get(1).get(n)))
+                .collect(Collectors.toList());
+            List<List<DRes<SInt>>> newState = new ArrayList<>(2);
+            newState.add(inRange);
+            newState.add(state.get(2));
+            return () -> newState;
+          }).par((innerPar, state) -> {
+            List<DRes<SInt>> peers = IntStream.range(0, lpOutput.basis.size())
+                .mapToObj(n -> innerPar.numeric().mult(lpOutput.basis.get(n), state.get(0).get(n)))
+                .collect(Collectors.toList());
+            List<DRes<SInt>> peerValues = IntStream.range(0, lpOutput.basis.size())
+                .mapToObj(n -> innerPar.numeric().mult(state.get(0).get(n), state.get(1).get(n)))
+                .collect(Collectors.toList());
+            List<List<DRes<SInt>>> newState = new ArrayList<>(2);
+            newState.add(peers);
+            newState.add(peerValues);
+            return () -> newState;
+          }).par((innerPar, state) -> {
+            List<DRes<SInt>> peersFromZero = state.get(0).stream()
+                .map(n -> innerPar.numeric().sub(n, f)).collect(Collectors.toList());
+            List<List<DRes<SInt>>> newState = new ArrayList<>(2);
+            newState.add(peersFromZero);
+            newState.add(state.get(1));
+            return () -> newState;
+          }).seq((seq, state) -> {
+            return Pair.lazy(new Pair<>(state.get(0), state.get(1)),
+                new OptimalValue(lpOutput.updateMatrix, lpOutput.tableau, lpOutput.pivot)
+                    .buildComputation(seq));
+          });
         })));
       }
       return () -> result;

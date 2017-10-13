@@ -217,7 +217,8 @@ public class DeaSolverTests {
           double[] plain =
               plainSolver.solve(asArray(rawTargetInputs), asArray(rawTargetOutputs), type);
 
-          int lambdas = (type == AnalysisType.INPUT_EFFICIENCY) ? rawBasisInputs.size() : rawBasisInputs.size() + 1;
+          int lambdas = (type == AnalysisType.INPUT_EFFICIENCY) ? rawBasisInputs.size()
+              : rawBasisInputs.size() + 1;
 
           for (int i = 0; i < rawTargetInputs.size(); i++) {
             Assert.assertEquals(plain[i], postProcess(openResults.get(i).getFirst(), type, modulus),
@@ -232,18 +233,20 @@ public class DeaSolverTests {
             Assert.assertEquals("Peer values summed to " + sum + " instead of 1", 1, sum, 0.000001);
             for (BigInteger b : peers) {
               int idx = b.intValue();
-              Assert.assertTrue("Peer index" + idx + ", was larger than " + (lambdas - 1), idx < lambdas);
+              Assert.assertTrue("Peer index" + idx + ", was larger than " + (lambdas - 1),
+                  idx < lambdas);
             }
-            // Input constraints
+            // Check input constraints are satisfied
             for (int k = 0; k < rawTargetInputs.get(i).size(); k++) {
-              List<BigInteger> cList = getConstraintRow(k, rawBasisInputs);
+              List<BigInteger> constraintRow = getConstraintRow(k, rawBasisInputs);
               double leftHand = 0;
-              for (int l = 0; l < cList.size(); l++) {
+              for (int l = 0; l < constraintRow.size(); l++) {
                 int idx = peers.indexOf(BigInteger.valueOf(l));
                 if (idx > -1) {
-                  double pVal = postProcess(peerValues.get(idx), AnalysisType.OUTPUT_EFFICIENCY, modulus);
-                  double cVal = cList.get(l).doubleValue();
-                  double prod =  pVal * cVal;
+                  double peerValue =
+                      postProcess(peerValues.get(idx), AnalysisType.OUTPUT_EFFICIENCY, modulus);
+                  double constraintValue = constraintRow.get(l).doubleValue();
+                  double prod = peerValue * constraintValue;
                   leftHand += prod;
                 }
               }
@@ -255,19 +258,20 @@ public class DeaSolverTests {
               }
               Assert.assertTrue((leftHand - rightHand) < 0.000001);
             }
-            // Output constraints
+            // Check output constraints are satisfied
             for (int k = 0; k < rawTargetOutputs.get(i).size(); k++) {
-              List<BigInteger> cList = getConstraintRow(k, rawBasisOutputs);
+              List<BigInteger> constraintRow = getConstraintRow(k, rawBasisOutputs);
               if (type == AnalysisType.OUTPUT_EFFICIENCY) {
-                cList.add(rawTargetOutputs.get(i).get(k));
+                constraintRow.add(rawTargetOutputs.get(i).get(k));
               }
               double leftHand = 0;
-              for (int l = 0; l < cList.size(); l++) {
+              for (int l = 0; l < constraintRow.size(); l++) {
                 int idx = peers.indexOf(BigInteger.valueOf(l));
                 if (idx > -1) {
-                  double pVal = postProcess(peerValues.get(idx), AnalysisType.OUTPUT_EFFICIENCY, modulus);
-                  double cVal = cList.get(l).doubleValue();
-                  double prod =  pVal * cVal;
+                  double peerValue =
+                      postProcess(peerValues.get(idx), AnalysisType.OUTPUT_EFFICIENCY, modulus);
+                  double constraintValue = constraintRow.get(l).doubleValue();
+                  double prod = peerValue * constraintValue;
                   leftHand += prod;
                 }
               }
@@ -286,7 +290,7 @@ public class DeaSolverTests {
 
     private List<BigInteger> getConstraintRow(int i, List<List<BigInteger>> basisData) {
       ArrayList<BigInteger> constraintRow = new ArrayList<>();
-      for (List<BigInteger> l: basisData) {
+      for (List<BigInteger> l : basisData) {
         constraintRow.add(l.get(i));
       }
       return constraintRow;
