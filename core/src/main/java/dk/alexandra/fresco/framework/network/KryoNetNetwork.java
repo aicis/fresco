@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 public class KryoNetNetwork implements Network {
 
   private List<Server> servers;
+  private boolean connected = false;
 
   // Map per partyId to a list of clients where the length of the list is equal to channelAmount.
   private Map<Integer, List<Client>> clients;
@@ -109,14 +110,15 @@ public class KryoNetNetwork implements Network {
       // Maybe a keep alive message will be offered to the queue. - so we should ignore it.
       if (object instanceof byte[]) {
         byte[] data = (byte[]) object;
+        int fromPartyId = this.connectionIdToPartyId.get(connection.getID());
         if (encryption) {
           try {
-            data = ciphers.get(this.connectionIdToPartyId.get(connection.getID())).decrypt(data);
+            data = ciphers.get(fromPartyId).decrypt(data);
           } catch (IOException e) {
             throw new RuntimeException("IOException occured while decrypting data stream", e);
           }
         }
-        this.queue.get(this.connectionIdToPartyId.get(connection.getID())).offer(data);
+        this.queue.get(fromPartyId).offer(data);
       } else if (object instanceof Integer) {
         // Initial handshake to determine who the remote party is.
         this.connectionIdToPartyId.put(connection.getID(), (Integer) object);
@@ -126,6 +128,9 @@ public class KryoNetNetwork implements Network {
 
   @Override
   public void connect(int timeoutMillis) throws IOException {
+    if (connected) {
+      return;
+    }
     final Semaphore semaphore = new Semaphore(-((conf.noOfParties() - 1) * channelAmount - 1));
     for (int j = 0; j < channelAmount; j++) {
       Server server = this.servers.get(j);
@@ -199,6 +204,7 @@ public class KryoNetNetwork implements Network {
     }
     try {
       semaphore.acquire();
+      connected = true;
     } catch (InterruptedException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -250,7 +256,7 @@ public class KryoNetNetwork implements Network {
         }
       }
     }
-
+    connected = false;
   }
 
   private static class Registrator {

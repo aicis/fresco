@@ -28,7 +28,6 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.bool.BooleanHelper;
@@ -51,18 +50,16 @@ public class BinaryDebugTests {
 
         @Override
         public void test() throws Exception {
-          Application<Void, ProtocolBuilderBinary> app =
-              producer -> producer.seq(seq -> {
-                List<DRes<SBool>> toPrint =
-                    BooleanHelper.known(new Boolean[] {true, false, false, true}, seq.binary());
-                return () -> toPrint;
-              }).seq((seq, inputs) -> {
-                seq.debug().openAndPrint("test", inputs, stream);
-                return null;
-              });
+          Application<Void, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
+            List<DRes<SBool>> toPrint =
+                BooleanHelper.known(new Boolean[] {true, false, false, true}, seq.binary());
+            return () -> toPrint;
+          }).seq((seq, inputs) -> {
+            seq.debug().openAndPrint("test", inputs, stream);
+            return null;
+          });
 
-          secureComputationEngine.runApplication(app,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          runApplication(app);
 
           String output = bytes.toString("UTF-8");
 

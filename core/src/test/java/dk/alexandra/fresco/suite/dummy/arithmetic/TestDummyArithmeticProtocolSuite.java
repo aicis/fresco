@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
-import dk.alexandra.fresco.lib.arithmetic.ComparisonTests;
 import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
 import dk.alexandra.fresco.lib.arithmetic.ParallelAndSequenceTests.TestSumAndProduct;
 import dk.alexandra.fresco.lib.arithmetic.SearchingTests;
@@ -17,6 +16,7 @@ import dk.alexandra.fresco.lib.collections.permute.PermuteRows;
 import dk.alexandra.fresco.lib.collections.permute.PermuteRowsTests;
 import dk.alexandra.fresco.lib.collections.relational.LeakyAggregationTests;
 import dk.alexandra.fresco.lib.collections.shuffle.ShuffleRowsTests;
+import dk.alexandra.fresco.lib.compare.CompareTests;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelectTests;
 import dk.alexandra.fresco.lib.conditional.ConditionalSwapNeighborsTests;
 import dk.alexandra.fresco.lib.conditional.ConditionalSwapRowsTests;
@@ -37,6 +37,7 @@ import dk.alexandra.fresco.lib.statistics.CreditRaterTest;
 import dk.alexandra.fresco.lib.statistics.DeaSolver.AnalysisType;
 import dk.alexandra.fresco.lib.statistics.DeaSolverTests.RandomDataDeaTest;
 import dk.alexandra.fresco.lib.statistics.DeaSolverTests.TestDeaFixed1;
+import dk.alexandra.fresco.logging.PerformanceLogger;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import org.junit.Test;
@@ -59,79 +60,79 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_AddPublicValue_Sequential() throws Exception {
     runTest(new BasicArithmeticTests.TestAddPublicValue<>(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, 2);
+        NetworkingStrategy.KRYONET, 1);
   }
 
   @Test
   public void test_KnownSInt_Sequential() throws Exception {
     runTest(new BasicArithmeticTests.TestKnownSInt<>(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, 2);
+        NetworkingStrategy.KRYONET, 1);
   }
 
   @Test
   public void test_MultAndAdd_Sequential() throws Exception {
     runTest(new BasicArithmeticTests.TestSimpleMultAndAdd<>(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, 2);
+        NetworkingStrategy.KRYONET, 1);
   }
 
   @Test
   public void testSumAndOutputSequential() throws Exception {
     runTest(new BasicArithmeticTests.TestSumAndMult<>(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, 2);
+        NetworkingStrategy.KRYONET, 1);
   }
 
   @Test
   public void testSumAndProduct() throws Exception {
     runTest(new TestSumAndProduct<>(), EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET,
-        2);
+        1);
   }
 
   @Test
   public void test_MinInfFrac_Sequential() throws Exception {
     runTest(new BasicArithmeticTests.TestMinInfFrac<>(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, 2);
+        NetworkingStrategy.KRYONET, 1);
   }
 
   @Test
   public void test_MinInfFrac_SequentialBatched() throws Exception {
     runTest(new BasicArithmeticTests.TestMinInfFrac<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        NetworkingStrategy.KRYONET, 2);
+        NetworkingStrategy.KRYONET, 1);
   }
 
   @Test
   public void test_compareLT_Sequential() throws Exception {
-    runTest(new ComparisonTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, 2);
+    runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 1);
   }
 
   @Test
   public void test_compareEQ_Sequential() throws Exception {
-    runTest(new ComparisonTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, 2);
+    runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 1);
   }
 
   @Test
   public void test_isSorted() throws Exception {
     runTest(new SortingTests.TestIsSorted<>(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, 2);
+        NetworkingStrategy.KRYONET, 1);
   }
 
   @Test
   public void test_compareAndSwap() throws Exception {
     runTest(new SortingTests.TestCompareAndSwap<>(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, 2);
+        NetworkingStrategy.KRYONET, 1);
   }
 
   @Test
   public void test_Sort() throws Exception {
     runTest(new SortingTests.TestSort<>(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, 2);
+        NetworkingStrategy.KRYONET, 1);
   }
 
   @Test
   public void test_Big_Sort() throws Exception {
     runTest(new SortingTests.TestBigSort<>(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, 2);
+        NetworkingStrategy.KRYONET, 1);
   }
 
   // Statistics
@@ -292,7 +293,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_Test_Is_Sorted() throws Exception {
     runTest(new SearchingTests.TestIsSorted<>(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, 2);
+        NetworkingStrategy.KRYONET, 1);
   }
 
   @Test
@@ -361,13 +362,13 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_MiMC_DifferentPlainTexts() throws Exception {
     runTest(new MiMCTests.TestMiMCDifferentPlainTexts<>(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, 2);
+        NetworkingStrategy.KRYONET, 1);
   }
 
   @Test
   public void test_MiMC_EncSameEnc() throws Exception {
     runTest(new MiMCTests.TestMiMCEncSameEnc<>(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, 2);
+        NetworkingStrategy.KRYONET, 1);
   }
 
   @Test
@@ -375,7 +376,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     BigInteger mod = new BigInteger(
         "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557");
     runTest(new MiMCTests.TestMiMCEncDec<>(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, 2, mod);
+        NetworkingStrategy.KRYONET, 1, mod, null);
   }
 
   @Test
@@ -383,7 +384,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     BigInteger mod = new BigInteger(
         "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557");
     runTest(new MiMCTests.TestMiMCEncDecFixedRounds<>(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, 2, mod);
+        NetworkingStrategy.KRYONET, 1, mod, null);
   }
 
   @Test
@@ -391,7 +392,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     BigInteger mod = new BigInteger(
         "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557");
     runTest(new MiMCTests.TestMiMCEncryptsDeterministically<>(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, 2, mod);
+        NetworkingStrategy.KRYONET, 1, mod, null);
   }
 
   // lib.list
@@ -425,7 +426,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_Bit_Length() throws Exception {
     runTest(new BinaryOperationsTests.TestBitLength<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        NetworkingStrategy.KRYONET, 2);
+        NetworkingStrategy.KRYONET, 1);
   }
 
   // Math tests
@@ -433,19 +434,19 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_euclidian_division() throws Exception {
     runTest(new DivisionTests.TestEuclidianDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        NetworkingStrategy.KRYONET, 2);
+        NetworkingStrategy.KRYONET, 1);
   }
 
   @Test
   public void test_euclidian_division_large_divisor() throws Exception {
     runTest(new DivisionTests.TestEuclidianDivisionLargeDivisor<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 2);
+        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET, 1);
   }
 
   @Test
   public void test_ss_division() throws Exception {
     runTest(new DivisionTests.TestSecretSharedDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        NetworkingStrategy.KRYONET, 2);
+        NetworkingStrategy.KRYONET, 1);
   }
 
   @Test
@@ -527,7 +528,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
         NetworkingStrategy.KRYONET, 3);
   }
 
-
   @Test
   public void test_Exiting_Variable_No_Mean_2_parties() throws Exception {
     runTest(new StatisticsTests.TestStatisticsNoMean<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
@@ -544,5 +544,26 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   public void test_debug_tools() throws Exception {
     runTest(new ArithmeticDebugTests.TestArithmeticOpenAndPrint<>(), EvaluationStrategy.SEQUENTIAL,
         NetworkingStrategy.KRYONET, 2);
+  }
+
+  @Test
+  public void test_performance_logger() throws Exception {
+    BigInteger mod = new BigInteger(
+        "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
+    runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 2, mod, PerformanceLogger.Flag.ALL_OPTS);
+    for(Integer pId : DummyArithmeticBuilderFactory.performanceLoggers.keySet()) {
+      for(PerformanceLogger pl : DummyArithmeticBuilderFactory.performanceLoggers.get(pId)) {
+        pl.printPerformanceLog(pId);
+      }
+    }
+  }
+  
+  @Test
+  public void test_performance_logger_network() throws Exception {
+    BigInteger mod = new BigInteger(
+        "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
+    runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET, 2, mod, PerformanceLogger.Flag.ALL_OPTS);
   }
 }
