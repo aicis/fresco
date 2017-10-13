@@ -2,7 +2,9 @@ package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.DefaultPreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
+import dk.alexandra.fresco.framework.builder.numeric.PreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
@@ -20,6 +22,7 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownRight;
 import java.math.BigInteger;
+import java.util.List;
 
 class SpdzBuilder implements BuilderFactoryNumeric {
 
@@ -35,6 +38,17 @@ class SpdzBuilder implements BuilderFactoryNumeric {
     return spdzFactory;
   }
 
+  @Override
+  public PreprocessedValues createPreprocessedValues(ProtocolBuilderNumeric protocolBuilder) {
+    return new DefaultPreprocessedValues(protocolBuilder) {      
+      @Override
+      public DRes<List<DRes<SInt>>> getExponentiationPipe(int pipeLength) {
+        SpdzExponentiationPipeProtocol spdzExpPipeProtocol = new SpdzExponentiationPipeProtocol(pipeLength);
+        return protocolBuilder.append(spdzExpPipeProtocol);
+      }
+    };
+  }
+  
   @Override
   public Numeric createNumeric(ProtocolBuilderNumeric protocolBuilder) {
     return new Numeric() {
@@ -116,11 +130,6 @@ class SpdzBuilder implements BuilderFactoryNumeric {
       public DRes<BigInteger> open(DRes<SInt> secretShare, int outputParty) {
         SpdzOutputSingleProtocol openProtocol = new SpdzOutputSingleProtocol(secretShare, outputParty);
         return protocolBuilder.append(openProtocol);
-      }
-
-      @Override
-      public DRes<SInt[]> getExponentiationPipe() {
-        return protocolBuilder.append(new SpdzExponentiationPipeProtocol());
       }
     };
   }
