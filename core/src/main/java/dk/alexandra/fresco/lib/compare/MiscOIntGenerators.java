@@ -27,8 +27,9 @@
 package dk.alexandra.fresco.lib.compare;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -41,14 +42,14 @@ import java.util.Map;
 public class MiscOIntGenerators {
 
   private Map<Integer, BigInteger[]> coefficientsOfPolynomiums;
-  private LinkedList<BigInteger> twoPowersList;
+  private List<BigInteger> twoPowersList;
   private BigInteger modulus;
 
   public MiscOIntGenerators(BigInteger modulus) {
     coefficientsOfPolynomiums = new HashMap<>();
 
     this.modulus = modulus;
-    twoPowersList = new LinkedList<>();
+    twoPowersList = new ArrayList<>(1);
     twoPowersList.add(BigInteger.ONE);
   }
 
@@ -140,12 +141,16 @@ public class MiscOIntGenerators {
 
 
   public List<BigInteger> getTwoPowersList(int length) {
-    if (length > twoPowersList.size()) {
-      BigInteger currentValue = twoPowersList.getLast();
-      while (length > twoPowersList.size()) {
+    int currentLength = twoPowersList.size();
+    if (length > currentLength) {
+      ArrayList<BigInteger> newTwoPowersList = new ArrayList<>(length);
+      newTwoPowersList.addAll(twoPowersList);
+      BigInteger currentValue = newTwoPowersList.get(currentLength - 1);
+      while (length > newTwoPowersList.size()) {
         currentValue = currentValue.shiftLeft(1);
-        twoPowersList.add(currentValue);
+        newTwoPowersList.add(currentValue);
       }
+      twoPowersList = Collections.unmodifiableList(newTwoPowersList);
     }
     return twoPowersList.subList(0, length);
   }
