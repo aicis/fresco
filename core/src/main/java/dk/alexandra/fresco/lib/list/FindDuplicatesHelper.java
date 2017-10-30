@@ -7,7 +7,7 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 
 /**
- * @author mortenvchristiansen
+ * Helper class for the find duplicates functionality.
  */
 public class FindDuplicatesHelper {
 

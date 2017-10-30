@@ -9,6 +9,9 @@ import dk.alexandra.fresco.lib.collections.Matrix;
 import java.math.BigInteger;
 import java.util.List;
 
+/**
+ * Interface for operations on collections. This also includes opening and closing values. 
+ */
 public interface Collections extends ComputationDirectory {
 
   // I/O

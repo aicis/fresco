@@ -7,13 +7,11 @@ import java.util.Random;
 
 /**
  * Instances of this class represents binary matrices, eg. 0-1 matrices.
- * 
+ * <p>
  * Note that this implementation is optimized for reading columns, and it uses a
  * {@link BitSet} for the underlying representation of the entries in the
  * matrix.
- * 
- * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
- *
+ * </p>
  */
 public class BinaryMatrix {
 

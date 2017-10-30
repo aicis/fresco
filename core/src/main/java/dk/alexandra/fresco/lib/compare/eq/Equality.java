@@ -1,29 +1,3 @@
-/*
- * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
- *
- * This file is part of the FRESCO project.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
- * and Bouncy Castle. Please see these projects for any further licensing issues.
- */
 package dk.alexandra.fresco.lib.compare.eq;
 
 import dk.alexandra.fresco.framework.DRes;
@@ -32,29 +6,34 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 
 /**
- * Implements an equality protocol -- given inputs x, y set output to x==y
+ * Implements an equality protocol -- given inputs x, y set output to x==y.
  *
- * @author ttoft
  */
 public class Equality implements Computation<SInt, ProtocolBuilderNumeric> {
 
   // params
   private final int bitLength;
-  private final DRes<SInt> x;
-  private final DRes<SInt> y;
+  private final DRes<SInt> left;
+  private final DRes<SInt> right;
 
-
+  /**
+   * Constructs an instance of the Equality computation.
+   * 
+   * @param bitLength The maximum bit length of the inputs.
+   * @param left The first element to compare.
+   * @param right The second element to compare.
+   */
   public Equality(
-      int bitLength, DRes<SInt> x, DRes<SInt> y) {
+      int bitLength, DRes<SInt> left, DRes<SInt> right) {
     super();
     this.bitLength = bitLength;
-    this.x = x;
-    this.y = y;
+    this.left = left;
+    this.right = right;
   }
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    DRes<SInt> diff = builder.numeric().sub(x, y);
+    DRes<SInt> diff = builder.numeric().sub(left, right);
     return builder.comparison().compareZero(diff, bitLength);
   }
 }

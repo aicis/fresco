@@ -6,6 +6,11 @@ import dk.alexandra.fresco.framework.value.SBool;
 import java.io.PrintStream;
 import java.util.List;
 
+/**
+ * Debugging protocols - Warning: Do not use in production code as most protocols will reveal the
+ * secret values to all parties in order to be able to print them to the developer.
+ *
+ */
 public interface Debug extends ComputationDirectory {
 
   /**

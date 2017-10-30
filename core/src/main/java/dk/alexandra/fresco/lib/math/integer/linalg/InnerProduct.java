@@ -9,6 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.RandomAccess;
 
+/**
+ * Computes the inner product - i.e. <code>Sum(a[0]*b[1], ..., a[n]*b[n])</code> by first computing
+ * all the multiplications in parallel, then summing up.
+ */
 public class InnerProduct implements Computation<SInt, ProtocolBuilderNumeric> {
 
   private final List<DRes<SInt>> aVector;

@@ -9,8 +9,6 @@ import org.slf4j.LoggerFactory;
  * Class for getting performance numbers. Use the EnumSet to indicate which parameters to log. Note
  * that network logging is done on ONLY the data received and used within FRESCO. This means that if
  * the network implementation uses double the bytes to wrap the messages, this will not show.
- * 
- * @author Kasper Damgaard
  *
  */
 public interface PerformanceLogger {

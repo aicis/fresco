@@ -11,7 +11,6 @@ import java.util.List;
 /**
  * Computes the Hamming distance between an array of shared bits and a public value
  *
- * @author ttoft
  */
 public class HammingDistance implements Computation<SInt, ProtocolBuilderNumeric> {
 

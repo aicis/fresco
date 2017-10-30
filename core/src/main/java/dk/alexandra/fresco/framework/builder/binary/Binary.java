@@ -6,23 +6,40 @@ import dk.alexandra.fresco.framework.value.SBool;
 
 /**
  * Interface for the basic operations which any binary protocol suite needs to implement.
- * 
- * @author Kasper Damgaard
  *
  */
 public interface Binary extends ComputationDirectory {
 
+  /**
+   * Creates a secret value from a public value. This is mostly a helper method for making types
+   * match - it should not be used to load actual secret values. Use input for this.
+   * 
+   * @param known The public value to transform.
+   * @return A secret representation of the known value.
+   */
   DRes<SBool> known(boolean known);
 
+  /**
+   * Inputs a secret value to be used in FRESCO protocols. If your party ID is different from the
+   * inputter id, your input will be disregarded.
+   * 
+   * @param in The value to input, or any value if you are not the inputting party.
+   * @param inputter The party which gives input.
+   * @return A deferred result computing a secret share of the given input.
+   */
   DRes<SBool> input(boolean in, int inputter);
 
+  /**
+   * Produces a random bit.
+   * @return A deferred result computing a secret share of a random bit.
+   */
   DRes<SBool> randomBit();
 
   /**
    * Opens (aka. reveals) the given SBool to all parties.
    * 
    * @param toOpen The SInt to open.
-   * @return The value that the SInt represented.
+   * @return A deferred result computing the value that the SInt represented.
    */
   DRes<Boolean> open(DRes<SBool> toOpen);
 
@@ -31,7 +48,7 @@ public interface Binary extends ComputationDirectory {
    * 
    * @param toOpen The SInt to open.
    * @param towardsPartyId The Id of the party who should receive the output.
-   * @return The value that the SInt represented.
+   * @return A deferred result computing the value that the SInt represented.
    */
   DRes<Boolean> open(DRes<SBool> toOpen, int towardsPartyId);
 
@@ -40,7 +57,7 @@ public interface Binary extends ComputationDirectory {
    * 
    * @param left The left AND argument
    * @param right The right AND argument
-   * @return An outgoing wire where the result is stored.
+   * @return A deferred result computing <code>left AND right</code>.
    */
   DRes<SBool> and(DRes<SBool> left, DRes<SBool> right);
 
@@ -49,7 +66,7 @@ public interface Binary extends ComputationDirectory {
    * 
    * @param left Left XOR argument
    * @param right right XOR argument
-   * @return A wire where the result is stored.
+   * @return A deferred result computing <code>left XOR right</code>.
    */
   DRes<SBool> xor(DRes<SBool> left, DRes<SBool> right);
 
@@ -57,7 +74,7 @@ public interface Binary extends ComputationDirectory {
    * Basic NOT operation
    * 
    * @param in The input to be inverted.
-   * @return An outgoing wire where the result is stored.
+   * @return A deferred result computing <code>!in</code>.
    */
   DRes<SBool> not(DRes<SBool> in);
 }

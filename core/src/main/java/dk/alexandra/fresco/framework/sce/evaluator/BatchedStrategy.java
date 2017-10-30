@@ -1,26 +1,3 @@
-/*
- * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
- *
- * This file is part of the FRESCO project.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
- * Please see these projects for any further licensing issues.
- *******************************************************************************/
 package dk.alexandra.fresco.framework.sce.evaluator;
 
 import dk.alexandra.fresco.framework.NativeProtocol;
@@ -42,22 +19,29 @@ import java.util.Set;
  * Protocols. In this strategy a number of Protocols will be evaluated round by round in such a way
  * that the communication of all Protocols is collected and batched together between rounds. More
  * precisely the process is as follows for a batch of Protocols:
- *
+ * <p>
  * 1. Evaluate the next round of all Protocols and collect messages to be sent in this round.
- *
+ * </p>
+ * <p>
  * 2. Send all messages collected in step 1.
- *
+ * </p>
+ * <p>
  * 3. Recieve all messages expected before the next round.
- *
+ * </p>
+ * <p>
  * 4. If there are Protocols that are not done start over at step 1.
- *
+ * </p>
+ * <p>
  * The processing is done is in a sequential manner (i.e. no parallelization).
+ * </p>
  */
-public class BatchedStrategy<ResourcePoolT extends ResourcePool> implements BatchEvaluationStrategy<ResourcePoolT>{
+public class BatchedStrategy<ResourcePoolT extends ResourcePool>
+    implements BatchEvaluationStrategy<ResourcePoolT> {
 
   @Override
   public <sceNetwork extends SCENetwork & SCENetworkSupplier> void processBatch(
-      ProtocolCollection<ResourcePoolT> protocols, ResourcePoolT resourcePool, sceNetwork sceNetwork)
+      ProtocolCollection<ResourcePoolT> protocols, ResourcePoolT resourcePool,
+      sceNetwork sceNetwork)
           throws IOException {
     Network network = resourcePool.getNetwork();
     int round = 0;

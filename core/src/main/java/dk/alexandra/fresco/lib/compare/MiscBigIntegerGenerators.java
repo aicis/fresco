@@ -1,29 +1,3 @@
-/*******************************************************************************
- * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
- *
- * This file is part of the FRESCO project.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
- * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
 package dk.alexandra.fresco.lib.compare;
 
 import java.math.BigInteger;
@@ -35,17 +9,16 @@ import java.util.Map;
 
 
 /**
- * Misc computation on OInts -- results are cached
+ * Misc computation on BigIntegers -- results are cached.
  *
- * @author ttoft
  */
-public class MiscOIntGenerators {
+public class MiscBigIntegerGenerators {
 
   private Map<Integer, BigInteger[]> coefficientsOfPolynomiums;
   private List<BigInteger> twoPowersList;
   private BigInteger modulus;
 
-  public MiscOIntGenerators(BigInteger modulus) {
+  public MiscBigIntegerGenerators(BigInteger modulus) {
     coefficientsOfPolynomiums = new HashMap<>();
 
     this.modulus = modulus;
@@ -139,7 +112,11 @@ public class MiscOIntGenerators {
     return f;
   }
 
-
+  /**
+   * Generates a list of [2^0, 2^1, ..., 2^length]
+   * @param length
+   * @return
+   */
   public List<BigInteger> getTwoPowersList(int length) {
     int currentLength = twoPowersList.size();
     if (length > currentLength) {
@@ -155,6 +132,13 @@ public class MiscOIntGenerators {
     return twoPowersList.subList(0, length);
   }
 
+  /**
+   * Generates the sequence: [value, value^2, value^3, ..., value^maxBitSize-1]
+   * 
+   * @param value The base of the exponentiation sequence
+   * @param maxBitSize The length of the sequence
+   * @return [value, value^2, value^3, ..., value^maxBitSize-1]
+   */
   public BigInteger[] getExpFromOInt(BigInteger value, int maxBitSize) {
     BigInteger[] Ms = new BigInteger[maxBitSize];
     Ms[0] = value;

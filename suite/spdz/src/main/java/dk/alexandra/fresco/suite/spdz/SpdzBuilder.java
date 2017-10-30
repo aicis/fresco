@@ -7,7 +7,7 @@ import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.PreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
+import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocolKnownLeft;
@@ -24,10 +24,13 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownRight;
 import java.math.BigInteger;
 import java.util.List;
 
+/**
+ * Basic native builder for the SPDZ protocol suite. 
+ */
 class SpdzBuilder implements BuilderFactoryNumeric {
 
   private BasicNumericContext spdzFactory;
-  private MiscOIntGenerators miscOIntGenerators;
+  private MiscBigIntegerGenerators miscOIntGenerators;
 
   SpdzBuilder(BasicNumericContext spdzFactory) {
     this.spdzFactory = spdzFactory;
@@ -135,9 +138,9 @@ class SpdzBuilder implements BuilderFactoryNumeric {
   }
 
   @Override
-  public MiscOIntGenerators getBigIntegerHelper() {
+  public MiscBigIntegerGenerators getBigIntegerHelper() {
     if (miscOIntGenerators == null) {
-      miscOIntGenerators = new MiscOIntGenerators(spdzFactory.getModulus());
+      miscOIntGenerators = new MiscBigIntegerGenerators(spdzFactory.getModulus());
     }
     return miscOIntGenerators;
   }

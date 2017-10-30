@@ -17,7 +17,6 @@ import java.math.BigInteger;
  * number of bits to the left. To get the right result we just need to shift
  * back again.
  *
- * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
 public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
 
@@ -50,57 +49,56 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
     BigInteger modulus = basicNumericContext.getModulus();
     BigInteger modulusHalf = modulus.divide(BigInteger.valueOf(2));
     /*
-     * We use the fact that if 2^{N+l} \leq m * d \leq 2^{N+l} + 2^l, then
-		 * floor(x/d) = floor(x * m >> N+l) for all x of length <= N (see Thm
-		 * 4.2 of "Division by Invariant Integers using Multiplication" by
-		 * Granlund and Montgomery).
-		 * 
-		 * TODO: Note that if the dividend is nonnegative, the sign
-		 * considerations can be omitted, giving a significant speed-up.
-		 */
+     * We use the fact that if 2^{N+l} \leq m * d \leq 2^{N+l} + 2^l, then floor(x/d) = floor(x * m
+     * >> N+l) for all x of length <= N (see Thm 4.2 of
+     * "Division by Invariant Integers using Multiplication" by Granlund and Montgomery).
+     * 
+     * TODO: Note that if the dividend is nonnegative, the sign considerations can be omitted,
+     * giving a significant speed-up.
+     */
 
     Numeric numeric = builder.numeric();
     /*
      * Numbers larger than half the field size is considered to be negative.
-		 * 
-		 * TODO: This should be handled differently because it will not
-		 * necessarily work with another arithmetic protocol suite.
-		 */
+     * 
+     * TODO: This should be handled differently because it will not necessarily work with another
+     * arithmetic protocol suite.
+     */
     BigInteger signedDivisor = convertRepresentation(modulus, modulusHalf, divisor);
     int divisorSign = signedDivisor.signum();
     BigInteger divisorAbs = signedDivisor.abs();
 
-		/*
-     * The quotient will have bit length < 2 * maxBitLength, and this has to
-		 * be shifted maxBitLength + divisorBitLength. So in total we need 3 *
-		 * maxBitLength + divisorBitLength to be representable.
-		 */
+    /*
+     * The quotient will have bit length < 2 * maxBitLength, and this has to be shifted maxBitLength
+     * + divisorBitLength. So in total we need 3 * maxBitLength + divisorBitLength to be
+     * representable.
+     */
     int maxBitLength =
         (builder.getBasicNumericContext().getMaxBitLength() - divisorAbs.bitLength()) / 3;
     int shifts = maxBitLength + divisorAbs.bitLength();
 
-		/*
+    /*
      * Compute the sign of the dividend
-		 */
+     */
     DRes<SInt> dividendSign = builder.comparison().sign(dividend);
     DRes<SInt> dividendAbs = numeric.mult(dividend, dividendSign);
 
-		/*
-     * We need m * d \geq 2^{N+l}, so we add one to the result of the
-		 * division to ensure that this is indeed the case.
-		 */
+    /*
+     * We need m * d \geq 2^{N+l}, so we add one to the result of the division to ensure that this
+     * is indeed the case.
+     */
     BigInteger m = BigInteger.ONE.shiftLeft(shifts).divide(divisorAbs).add(BigInteger.ONE);
     DRes<SInt> quotientAbs = numeric.mult(m, dividendAbs);
 
-		/*
-     * Now quotientAbs is the result shifted SHIFTS bits to the left, so we
-		 * shift it back to get the result in absolute value, q.
-		 */
+    /*
+     * Now quotientAbs is the result shifted SHIFTS bits to the left, so we shift it back to get the
+     * result in absolute value, q.
+     */
     DRes<SInt> q = builder.advancedNumeric().rightShift(quotientAbs, shifts);
 
-		/*
+    /*
      * Adjust the sign of the result.
-		 */
+     */
     BigInteger oInt = BigInteger.valueOf(divisorSign);
     DRes<SInt> sign = numeric.mult(oInt, dividendSign);
     return numeric.mult(q, sign);

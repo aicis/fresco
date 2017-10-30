@@ -7,10 +7,8 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * This class contains misc. helper methods for {@link java.util.BitSet}s used
- * throughout the TinyOT implementation.
- * 
- * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
+ * This class contains misc. helper methods for {@link java.util.BitSet}s used throughout the
+ * TinyTables implementation, but could be useful for other protocol suites.
  *
  */
 public class BitSetUtils {

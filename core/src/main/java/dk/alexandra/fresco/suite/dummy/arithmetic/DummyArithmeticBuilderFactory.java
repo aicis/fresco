@@ -8,7 +8,7 @@ import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
+import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.logging.PerformanceLogger;
 import dk.alexandra.fresco.logging.arithmetic.ComparisonLoggerDecorator;
@@ -32,12 +32,16 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
    */
   public static final ConcurrentMap<Integer, List<PerformanceLogger>> performanceLoggers =
       new ConcurrentHashMap<>();
-
   private BasicNumericContext factory;
-  private MiscOIntGenerators mog;
+  private MiscBigIntegerGenerators mog;
   private ComparisonLoggerDecorator compDecorator;
   private NumericLoggingDecorator numericDecorator;
 
+  /**
+   * Creates a dummy arithmetic builder factory which creates basic numeric operations
+   * 
+   * @param factory The numeric context we work within. 
+   */
   public DummyArithmeticBuilderFactory(BasicNumericContext factory) {
     super();
     this.factory = factory;
@@ -200,7 +204,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
       }
     };
     
-    if(numericDecorator == null) {
+    if (numericDecorator == null) {
       numericDecorator = new NumericLoggingDecorator(numeric);
       performanceLoggers.get(factory.getMyId()).add(numericDecorator);      
     } else {
@@ -210,9 +214,9 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
   }
 
   @Override
-  public MiscOIntGenerators getBigIntegerHelper() {
+  public MiscBigIntegerGenerators getBigIntegerHelper() {
     if (mog == null) {
-      mog = new MiscOIntGenerators(factory.getModulus());
+      mog = new MiscBigIntegerGenerators(factory.getModulus());
     }
     return mog;
   }
