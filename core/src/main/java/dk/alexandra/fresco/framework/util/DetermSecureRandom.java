@@ -25,25 +25,31 @@ public class DetermSecureRandom extends SecureRandom {
   private int amount;
 
   /**
-   * Detministic secure random means that given a seed, it is deterministic what the output becomes
-   * next time. This differs from Java's original SecureRandom in that if you give a seed to this,
-   * it merely adds it to the entropy.
-   * 
-   * @param amount is the amount of bytes used from each iteration of the hash-function. The
-   *        hashfunction returns 32 bytes, so setting amount to e.g. 10 reduces the security to 22
+   * Deterministic secure random means that given a seed, it is deterministic what the output
+   * becomes next time. This differs from Java's original SecureRandom in that if you give a seed to
+   * this, it merely adds it to the entropy.
+   *
+   * @param amount is the amount of bytes used from each iteration of the hash-function. The hash
+   *        function returns 32 bytes, so setting amount to e.g. 10 reduces the security to 22
    *        bytes.
    * @param seed The initial seed to use. This implicitly calls {@link #setSeed(byte[])} with this
    *        argument.
-   * @throws MPCException if the algorithm is not found.
+   * @throws MPCException if the SHA hash algorithm is not found.
+   * @throws IllegalArgumentException if <code>amount</code> is negative is above 32.
    */
-  public DetermSecureRandom(int amount, byte[] seed) throws MPCException {
+  public DetermSecureRandom(int amount, byte[] seed) {
+    this(amount, seed, "SHA");
+  }
+
+  protected DetermSecureRandom(int amount, byte[] seed, String algorithm) {
     try {
-      md = MessageDigest.getInstance("SHA");
+      md = MessageDigest.getInstance(algorithm);
     } catch (NoSuchAlgorithmException e) {
-      throw new MPCException("Error while instantiating DetermSecureRandom", e);
+      throw new MPCException("The algorithm " + algorithm + " was not found");
     }
-    if (amount >= md.getDigestLength()) {
-      throw new MPCException("amount is not allowed to surpass the length of the digest");
+    if (amount >= md.getDigestLength() || amount < 1) {
+      throw new IllegalArgumentException(
+          "Amount set to " + amount + " but must be between 1 and " + md.getDigestLength());
     }
     this.amount = amount;
     setSeed(seed);
@@ -53,8 +59,8 @@ public class DetermSecureRandom extends SecureRandom {
    * Convenience constructor. It does the same as a call to {@link #DetermSecureRandom(int, byte[])}
    * with the parameters (1, new byte[]{0x00}) would do.
    */
-  public DetermSecureRandom() throws MPCException {
-    this(1, new byte[] {0x00});
+  public DetermSecureRandom() {
+    this(1, new byte[] { 0x00 });
   }
 
   @Override
@@ -75,17 +81,9 @@ public class DetermSecureRandom extends SecureRandom {
     }
   }
 
-  /*
-   * old version without parameter amount public synchronized void nextBytes(byte[] bytes) { byte[]
-   * res = null; this.md.update(this.seed); for (int i = 0; i < bytes.length; i++) { res =
-   * this.md.digest(); bytes[i] = res[0]; this.md.reset(); // ? this.md.update(res); } this.seed =
-   * res; // ? }
-   */
-
+  @Override
   public void setSeed(byte[] seed) {
     this.md.reset();
     this.seed = seed;
   }
-
-
 }
