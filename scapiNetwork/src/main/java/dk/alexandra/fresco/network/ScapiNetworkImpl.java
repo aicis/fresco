@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.Base64;
 import edu.biu.scapi.comm.AuthenticatedChannel;
 import edu.biu.scapi.comm.Channel;
 import edu.biu.scapi.comm.EncryptedChannel;
@@ -75,6 +74,7 @@ public class ScapiNetworkImpl implements Network {
   // TODO: Include player to integer map to indicate
   // how many channels are wanted to each player.
   // Implement this also for send to self queues.
+  @Override
   public void connect(int timeoutMillis) throws IOException {
     if (connected) {
       return;
@@ -155,7 +155,7 @@ public class ScapiNetworkImpl implements Network {
   private AuthenticatedChannel getAuthenticatedChannel(PlainChannel channel,
       String base64EncodedSSKey) throws SecurityLevelException, InvalidKeyException {
     Mac mac = new ScCbcMacPrepending(new BcAES());
-    byte[] aesFixedKey = Base64.decodeFromString(base64EncodedSSKey);
+    byte[] aesFixedKey = java.util.Base64.getDecoder().decode(base64EncodedSSKey);
     SecretKey key = new SecretKeySpec(aesFixedKey, "AES");
     mac.setKey(key);
     AuthenticatedChannel authedChannel = new AuthenticatedChannel(channel, mac);
@@ -164,7 +164,7 @@ public class ScapiNetworkImpl implements Network {
 
   private EncryptedChannel getSecureChannel(PlainChannel ch, String base64EncodedSSKey)
       throws InvalidKeyException, SecurityLevelException {
-    byte[] aesFixedKey = Base64.decodeFromString(base64EncodedSSKey);
+    byte[] aesFixedKey = java.util.Base64.getDecoder().decode(base64EncodedSSKey);
     SecretKey aesKey = new SecretKeySpec(aesFixedKey, "AES");
     AES encryptAes = new BcAES();
     encryptAes.setKey(aesKey);
@@ -181,6 +181,7 @@ public class ScapiNetworkImpl implements Network {
   /**
    * Close all channels to other parties.
    */
+  @Override
   public void close() throws IOException {
     if (connections != null) {
       for (Map<String, Channel> m : connections.values()) {
