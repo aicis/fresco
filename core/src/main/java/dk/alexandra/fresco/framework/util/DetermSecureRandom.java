@@ -49,7 +49,7 @@ public class DetermSecureRandom extends SecureRandom {
     }
     if (amount >= md.getDigestLength() || amount < 1) {
       throw new IllegalArgumentException(
-          "Amount set to " + amount + " but must be between 1 and " + md.getDigestLength());
+          "Amount was set to " + amount + " but must be between 1 and " + md.getDigestLength());
     }
     this.amount = amount;
     setSeed(seed);
