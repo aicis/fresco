@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.network.Network;
-import edu.biu.scapi.comm.AuthenticatedChannel;
 import edu.biu.scapi.comm.Channel;
 import edu.biu.scapi.comm.EncryptedChannel;
 import edu.biu.scapi.comm.PlainChannel;
@@ -15,7 +14,6 @@ import edu.biu.scapi.comm.twoPartyComm.SocketPartyData;
 import edu.biu.scapi.exceptions.SecurityLevelException;
 import edu.biu.scapi.midLayer.symmetricCrypto.encryption.ScCTREncRandomIV;
 import edu.biu.scapi.midLayer.symmetricCrypto.encryption.ScEncryptThenMac;
-import edu.biu.scapi.midLayer.symmetricCrypto.mac.Mac;
 import edu.biu.scapi.midLayer.symmetricCrypto.mac.ScCbcMacPrepending;
 import edu.biu.scapi.primitives.prf.AES;
 import edu.biu.scapi.primitives.prf.bc.BcAES;
@@ -147,19 +145,6 @@ public class ScapiNetworkImpl implements Network {
       }
     }
     connected = true;
-  }
-
-  // We currently either use plain channels or auth+enc channels. Future
-  // version may allow only auth.
-  @SuppressWarnings("unused")
-  private AuthenticatedChannel getAuthenticatedChannel(PlainChannel channel,
-      String base64EncodedSSKey) throws SecurityLevelException, InvalidKeyException {
-    Mac mac = new ScCbcMacPrepending(new BcAES());
-    byte[] aesFixedKey = java.util.Base64.getDecoder().decode(base64EncodedSSKey);
-    SecretKey key = new SecretKeySpec(aesFixedKey, "AES");
-    mac.setKey(key);
-    AuthenticatedChannel authedChannel = new AuthenticatedChannel(channel, mac);
-    return authedChannel;
   }
 
   private EncryptedChannel getSecureChannel(PlainChannel ch, String base64EncodedSSKey)
