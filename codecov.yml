@@ -11,6 +11,11 @@ coverage:
       default:
         url: "https://webhooks.gitter.im/e/26fb31b10380d1eda3b0"
         threshold: 1%
+  status:
+    patch:
+      default:
+        target: 100%
+        only_pulls: true
 
   status:
     project: yes
