@@ -25,3 +25,6 @@ target/
 
 # Spdz
 suite/spdz/spdz/
+
+# PMD
+*.pmd
