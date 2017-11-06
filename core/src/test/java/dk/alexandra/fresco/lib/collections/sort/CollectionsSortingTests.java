@@ -7,7 +7,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.Binary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.util.ByteArithmetic;
+import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.util.ArrayList;
@@ -37,10 +37,10 @@ public class CollectionsSortingTests {
         @Override
         public void test() throws Exception {
 
-          List<Boolean> rawLeftKey = Arrays.asList(ByteArithmetic.toBoolean("49"));
-          List<Boolean> rawLeftValue = Arrays.asList(ByteArithmetic.toBoolean("00"));
-          List<Boolean> rawRightKey = Arrays.asList(ByteArithmetic.toBoolean("ff"));
-          List<Boolean> rawRightValue = Arrays.asList(ByteArithmetic.toBoolean("ee"));
+          List<Boolean> rawLeftKey = Arrays.asList(ByteAndBitConverter.toBoolean("49"));
+          List<Boolean> rawLeftValue = Arrays.asList(ByteAndBitConverter.toBoolean("00"));
+          List<Boolean> rawRightKey = Arrays.asList(ByteAndBitConverter.toBoolean("ff"));
+          List<Boolean> rawRightValue = Arrays.asList(ByteAndBitConverter.toBoolean("ee"));
 
           Application<List<Pair<List<Boolean>, List<Boolean>>>, ProtocolBuilderBinary> app =
               builder -> {
@@ -92,13 +92,13 @@ public class CollectionsSortingTests {
 
           List<Pair<List<Boolean>, List<Boolean>>> result = runApplication(app);
 
-          Assert.assertEquals("ff", ByteArithmetic.toHex(result.get(0).getFirst()));
+          Assert.assertEquals("ff", ByteAndBitConverter.toHex(result.get(0).getFirst()));
 
-          Assert.assertEquals("ee", ByteArithmetic.toHex(result.get(0).getSecond()));
+          Assert.assertEquals("ee", ByteAndBitConverter.toHex(result.get(0).getSecond()));
 
-          Assert.assertEquals("49", ByteArithmetic.toHex(result.get(1).getFirst()));
+          Assert.assertEquals("49", ByteAndBitConverter.toHex(result.get(1).getFirst()));
 
-          Assert.assertEquals("00", ByteArithmetic.toHex(result.get(1).getSecond()));
+          Assert.assertEquals("00", ByteAndBitConverter.toHex(result.get(1).getSecond()));
         }
       };
     }
@@ -115,14 +115,14 @@ public class CollectionsSortingTests {
         @Override
         public void test() throws Exception {
 
-          Boolean[] left11 = ByteArithmetic.toBoolean("01");
-          Boolean[] left12 = ByteArithmetic.toBoolean("08");
-          Boolean[] left21 = ByteArithmetic.toBoolean("03");
-          Boolean[] left22 = ByteArithmetic.toBoolean("07");
-          Boolean[] left31 = ByteArithmetic.toBoolean("00");
-          Boolean[] left32 = ByteArithmetic.toBoolean("06");
-          Boolean[] left41 = ByteArithmetic.toBoolean("02");
-          Boolean[] left42 = ByteArithmetic.toBoolean("05");
+          Boolean[] left11 = ByteAndBitConverter.toBoolean("01");
+          Boolean[] left12 = ByteAndBitConverter.toBoolean("08");
+          Boolean[] left21 = ByteAndBitConverter.toBoolean("03");
+          Boolean[] left22 = ByteAndBitConverter.toBoolean("07");
+          Boolean[] left31 = ByteAndBitConverter.toBoolean("00");
+          Boolean[] left32 = ByteAndBitConverter.toBoolean("06");
+          Boolean[] left41 = ByteAndBitConverter.toBoolean("02");
+          Boolean[] left42 = ByteAndBitConverter.toBoolean("05");
 
           Application<List<Pair<List<Boolean>, List<Boolean>>>, ProtocolBuilderBinary> app =
               new Application<List<Pair<List<Boolean>, List<Boolean>>>, ProtocolBuilderBinary>() {

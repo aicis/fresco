@@ -25,7 +25,6 @@ public class InputSumExample {
       // I do not input
       inputApp = new InputApplication(inputs.length);
     }
-
     SumAndOutputApplication app = new SumAndOutputApplication(inputApp);
 
     resourcePool.getNetwork().connect(10000);
@@ -44,14 +43,15 @@ public class InputSumExample {
     util.parse(args);
 
     ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric> psConf =
-        (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) util.getProtocolSuite();
+        util.getProtocolSuite();
 
     SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce =
-        new SecureComputationEngineImpl<ResourcePoolT, ProtocolBuilderNumeric>(psConf,
+        new SecureComputationEngineImpl<>(psConf,
             util.getEvaluator());
 
     ResourcePoolT resourcePool = util.getResourcePool();
     runApplication(sce, resourcePool);
+    sce.shutdownSCE();
   }
 
 }
