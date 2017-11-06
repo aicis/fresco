@@ -15,7 +15,7 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.framework.util.ByteArithmetic;
+import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.framework.util.DetermSecureRandom;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanProtocolSuite;
@@ -182,10 +182,10 @@ public class SetIntersectionDemo {
                 Boolean[] key = null;
                 int[] inputList = null;
                 if (conf.getMyId() == 2) {
-                  key = ByteArithmetic.toBoolean("00112233445566778899aabbccddeeff"); // 128-bit key
+                  key = ByteAndBitConverter.toBoolean("00112233445566778899aabbccddeeff"); // 128-bit key
                   inputList = new int[] {2, 66, 112, 1123};
                 } else if (conf.getMyId() == 1) {
-                  key = ByteArithmetic.toBoolean("000102030405060708090a0b0c0d0e0f"); // 128-bit key
+                  key = ByteAndBitConverter.toBoolean("000102030405060708090a0b0c0d0e0f"); // 128-bit key
                   inputList = new int[] {1, 3, 66, 1123};
                 }
 
@@ -200,7 +200,7 @@ public class SetIntersectionDemo {
                   for (int i = 0; i < psiResult.get(0).size(); i++) {
                     actualBoolean[j][i] = psiResult.get(j).get(i);
                   }
-                  String actual = ByteArithmetic.toHex(actualBoolean[j]);
+                  String actual = ByteAndBitConverter.toHex(actualBoolean[j]);
                   result[j] = actual;
                 }
               }

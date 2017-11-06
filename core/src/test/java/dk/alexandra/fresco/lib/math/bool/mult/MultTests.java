@@ -7,7 +7,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.AdvancedBinary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.util.ByteArithmetic;
+import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,8 +27,8 @@ public class MultTests {
     public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
-        List<Boolean> rawFirst = Arrays.asList(ByteArithmetic.toBoolean("11ff"));
-        List<Boolean> rawSecond = Arrays.asList(ByteArithmetic.toBoolean("22"));
+        List<Boolean> rawFirst = Arrays.asList(ByteAndBitConverter.toBoolean("11ff"));
+        List<Boolean> rawSecond = Arrays.asList(ByteAndBitConverter.toBoolean("22"));
 
         final String expected = "0263de";
 
@@ -59,7 +59,7 @@ public class MultTests {
           };
           List<Boolean> outputs = runApplication(app);
 
-          Assert.assertThat(ByteArithmetic.toHex(outputs), Is.is(expected));
+          Assert.assertThat(ByteAndBitConverter.toHex(outputs), Is.is(expected));
 
           Assert.assertThat(outputs.size(), Is.is(rawFirst.size() + rawSecond.size()));
 
