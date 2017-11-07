@@ -31,6 +31,7 @@ import dk.alexandra.fresco.lib.bool.ComparisonBooleanTests;
 import dk.alexandra.fresco.lib.collections.sort.CollectionsSortingTests;
 import dk.alexandra.fresco.lib.compare.CompareTests;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
+import dk.alexandra.fresco.lib.crypto.BadBristolCryptoTests;
 import dk.alexandra.fresco.lib.debug.BinaryDebugTests;
 import dk.alexandra.fresco.lib.field.bool.generic.FieldBoolTests;
 import dk.alexandra.fresco.lib.math.bool.add.AddTests;
@@ -166,6 +167,54 @@ public class TestDummyProtocolSuite<ResourcePoolT extends ResourcePool>
         NetworkingStrategy.KRYONET);
   }
 
+  @Test
+  public void test_Bristol_Errors_XOR() throws Exception {
+    runTest(new BadBristolCryptoTests.XorTest1<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET);
+    runTest(new BadBristolCryptoTests.XorTest2<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET);
+    runTest(new BadBristolCryptoTests.XorTest3<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET);
+    runTest(new BadBristolCryptoTests.XorTest4<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET);
+    runTest(new BadBristolCryptoTests.XorTest5<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET);
+  }
+
+  @Test
+  public void test_Bristol_Errors_AND() throws Exception {
+    runTest(new BadBristolCryptoTests.AndTest1<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET);
+    runTest(new BadBristolCryptoTests.AndTest2<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET);
+    runTest(new BadBristolCryptoTests.AndTest3<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET);
+    runTest(new BadBristolCryptoTests.AndTest4<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET);
+    runTest(new BadBristolCryptoTests.AndTest5<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET);
+  }
+  
+  @Test
+  public void test_Bristol_Errors_INV() throws Exception {
+    runTest(new BadBristolCryptoTests.InvTest1<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET);
+    runTest(new BadBristolCryptoTests.InvTest2<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET);
+    runTest(new BadBristolCryptoTests.InvTest3<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET);
+    runTest(new BadBristolCryptoTests.InvTest4<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET);
+  }
+
+  @Test
+  public void test_Bristol_Errors_NOSUCHOPERATION() throws Exception {
+    runTest(new BadBristolCryptoTests.BadOperationTest<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET);
+    runTest(new BadBristolCryptoTests.NoCircuitTest<ResourcePoolT>(), EvaluationStrategy.SEQUENTIAL,
+        NetworkingStrategy.KRYONET);
+  }
+  
   @Test
   public void test_basic_logic_all_in_one() throws Exception {
     runTest(new BasicBooleanTests.TestBasicProtocols<ResourcePoolT>(true),

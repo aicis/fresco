@@ -40,19 +40,6 @@ public class ByteArithmetic {
     return (byte) (x ^ y);
   }
 
-
-  /**
-   * It is NOT OK if y=res.
-   */
-  public static void mult(byte x, byte[] y, byte[] res) {
-    for (int i = 0; i < y.length; i++) {
-      res[i] = 0;
-      if (x == 1) {
-        res[i] ^= y[i]; // TODO: why the XOR?
-      }
-    }
-  }
-
   public static byte not(byte value) {
     if (value == 0) {
       return 1;

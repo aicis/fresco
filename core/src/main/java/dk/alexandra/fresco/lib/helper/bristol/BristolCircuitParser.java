@@ -105,10 +105,6 @@ public class BristolCircuitParser implements
 
   }
 
-  public void close() {
-    this.lines.close();
-  }
-
 
   /**
    * Convert one line of text file to the corresponding basic boolean gate.
@@ -134,8 +130,7 @@ public class BristolCircuitParser implements
     // System.out.println("IN: " + Arrays.toString(in));
     // System.out.println("OUT: " + Arrays.toString(out));
 
-    switch (type) {
-      case "XOR":
+    if("XOR".equals(type)) {    
         if (in.length != 2 || out.length != 1) {
           throw new IOException("Wrong circuit format for XOR");
         }
@@ -163,7 +158,9 @@ public class BristolCircuitParser implements
         outWireXor = builder.binary().xor(leftInWireXor, rightInWireXor);
         this.wires.put(out[0], outWireXor);
         return;
-      case "AND":
+    }
+    if("AND".equals(type)){
+
         if (in.length != 2 || out.length != 1) {
           throw new IOException("Wrong circuit format for AND");
         }
@@ -189,7 +186,8 @@ public class BristolCircuitParser implements
         outWireAnd = builder.binary().and(leftInWireAnd, rightInWireAnd);
         this.wires.put(out[0], outWireAnd);
         return;
-      case "INV":
+    }
+    if("INV".equals(type)) {
         if (in.length != 1 || out.length != 1) {
           throw new IOException("Wrong circuit format for INV");
         }
@@ -204,9 +202,8 @@ public class BristolCircuitParser implements
         this.wires.put(out[0], outWireNot);
 
         return;
-      default:
-        throw new MPCException("Unknown gate type: " + type);
     }
+    throw new MPCException("Unknown gate type: " + type);
   }
 
   private static final class IterationState implements DRes<IterationState> {
@@ -239,6 +236,7 @@ public class BristolCircuitParser implements
       try {
         parseLine(line, seq);
       } catch (IOException e) {
+        this.lines.close();
         throw new MPCException("Could not parse the line '" + line + "'", e);
       }
       return state;
@@ -247,19 +245,9 @@ public class BristolCircuitParser implements
       for (int i = 0; i < this.no_output; i++) {
         output.add(this.wires.get(this.no_wires - this.no_output + i).out());
       }
+      this.lines.close();
       return () -> output;
     });
-  }
-
-  /**
-   * @return Total no of gates in circuit.
-   */
-  public int getNoOfGates() {
-    return this.no_gates;
-  }
-
-  public int getNoOfWires() {
-    return this.no_wires;
   }
 
   public static BristolCircuitParser readCircuitDescription(String path,
