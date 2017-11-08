@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.tools.mascot.ot;
+package dk.alexandra.fresco.tools.ot.base;
 
 import dk.alexandra.fresco.framework.util.Pair;
 import java.util.List;

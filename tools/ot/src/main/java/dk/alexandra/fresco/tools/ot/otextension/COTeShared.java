@@ -1,39 +1,40 @@
-package dk.alexandra.fresco.tools.mascot.cope;
+package dk.alexandra.fresco.tools.ot.otextension;
 
 import java.math.BigInteger;
 import java.util.Random;
 
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.tools.mascot.utils.DummyPRF;
-import dk.alexandra.fresco.tools.mascot.utils.PRF;
 import dk.alexandra.fresco.tools.ot.base.DummyOTBatch;
 import dk.alexandra.fresco.tools.ot.base.OTBatch;
 
-public class COPEShared {
-
-  protected BigInteger modulus;
-  protected int kBitLength;
+/**
+ * Superclass containing the common variables and methods 
+ * for the sender and receiver parties of correlated OT with errors 
+ * @author jot2re
+ *
+ */
+public class COTeShared {
+  // Constructor arguments
   protected int otherID;
+  protected int kBitLength;
   protected int lambdaSecurityParam;
-  protected BigInteger counter;
   protected Random rand;
-  protected OTBatch<BigInteger> ot;
-  protected boolean initialized;
-  protected PRF prf;
   protected Network network;
-  
-  public COPEShared(int otherID, int kBitLength, int lambdaSecurityParam, Random rand,
-      Network network, BigInteger prime) {
+  // Internal state variables
+  protected boolean initialized;
+  protected OTBatch<BigInteger> ot;
+
+  public COTeShared(int otherID, int kBitLength, int lambdaSecurityParam, Random rand, 
+      Network network) {
     super();
+    if (kBitLength < 1 | lambdaSecurityParam < 1 | rand == null
+        | network == null)
+      throw new IllegalArgumentException("Illegal constructor parameters");
     this.otherID = otherID;
     this.kBitLength = kBitLength;
     this.lambdaSecurityParam = lambdaSecurityParam;
-    this.counter = BigInteger.valueOf(0);
     this.rand = rand;
     this.ot = new DummyOTBatch(otherID, network);
-    this.initialized = false;
-    this.prf = new DummyPRF();
-    this.modulus = prime;
     this.network = network;
   }
 
@@ -67,6 +68,14 @@ public class COPEShared {
 
   public void setRand(Random rand) {
     this.rand = rand;
+  }
+
+  public Network getNetwork() {
+    return network;
+  }
+
+  public void setNetwork(Network network) {
+    this.network = network;
   }
 
 }

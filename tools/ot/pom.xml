@@ -11,10 +11,10 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
+  <artifactId>ot</artifactId>
   <groupId>dk.alexandra.fresco</groupId>
-  <artifactId>mascot</artifactId>
   <packaging>jar</packaging>
-  <name>mascot</name>
+  <name>ot</name>
 
   <dependencies>
     
@@ -32,11 +32,6 @@
       <scope>test</scope>
     </dependency>
 
-    <dependency>
-    	<groupId>dk.alexandra.fresco</groupId>
-    	<artifactId>ot</artifactId>
-    	<version>${fresco-version}</version>
-    </dependency>
   </dependencies>
   
   <build>
@@ -59,13 +54,13 @@
           <appendAssemblyId>false</appendAssemblyId>
           <archive>
         <manifest>
-          <mainClass>dk.alexandra.fresco.tools.mascot.Mascot</mainClass>
+          <mainClass>dk.alexandra.fresco.tools.ot.OTMain</mainClass>
         </manifest>
           </archive>
           <descriptorRefs>
         <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>
-          <finalName>fresco-tools-mascot</finalName>
+          <finalName>fresco-tools-ot</finalName>
         </configuration>
         <phase>package</phase>
         <goals>
@@ -76,4 +71,5 @@
       </plugin>
     </plugins>
   </build>
+  <version>0.2-SNAPSHOT</version>
 </project>
