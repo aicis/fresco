@@ -9,45 +9,33 @@ import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.tools.mascot.BaseProtocol;
 import dk.alexandra.fresco.tools.mascot.cope.COPE;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.utils.Sampler;
 import dk.alexandra.fresco.tools.mascot.utils.Sharer;
+import dk.alexandra.fresco.tools.mascot.utils.sample.DummySampler;
+import dk.alexandra.fresco.tools.mascot.utils.sample.Sampler;
 
-public class ShareGen {
+public class ShareGen extends BaseProtocol {
 
-  // TODO: probably just want ResourcePool
-  protected BigInteger modulus;
-  protected int kBitLength;
-  protected Integer myID;
-  protected List<Integer> partyIDs;
   protected int lambdaSecurityParam;
-  protected Network network;
-  protected Map<Integer, COPE> copeProtocols;
   protected boolean initialized;
   protected FieldElement macKeyShare;
-  protected Random rand;
   protected Sampler sampler;
   protected Sharer sharer;
-  protected ExecutorService executor;
+  protected Map<Integer, COPE> copeProtocols;
 
   public ShareGen(BigInteger modulus, int kBitLength, Integer myID, List<Integer> partyIDs,
-      int lambdaSecurityParam, Network network, Random rand) {
-    super();
-    this.modulus = modulus;
-    this.kBitLength = kBitLength;
-    this.myID = myID;
-    this.partyIDs = partyIDs;
+      int lambdaSecurityParam, Network network, Random rand, ExecutorService executor) {
+    super(partyIDs, myID, modulus, kBitLength, network, executor, rand);
     this.lambdaSecurityParam = lambdaSecurityParam;
-    this.network = network;
-    this.rand = rand;
-    this.sampler = new Sampler(rand);
+    this.sampler = new DummySampler(rand);
     this.sharer = new Sharer(rand);
     this.macKeyShare = new FieldElement(new BigInteger(kBitLength, rand), modulus, kBitLength);
     this.copeProtocols = new HashMap<>();
@@ -58,7 +46,6 @@ public class ShareGen {
         this.copeProtocols.put(partyID, cope);
       }
     }
-    this.executor = Executors.newCachedThreadPool();
     this.initialized = false;
   }
 
@@ -81,6 +68,20 @@ public class ShareGen {
     }
   }
 
+  private List<FieldElement> getTValues(List<List<FieldElement>> tValuesPerParty, int numElements) {
+    // TODO: clean up
+    List<FieldElement> tValues = new ArrayList<>();
+    for (int i = 0; i < numElements; i++) {
+      tValues.add(new FieldElement(0, modulus, kBitLength));
+    }
+    for (List<FieldElement> perParty : tValuesPerParty) {
+      for (int i = 0; i < perParty.size(); i++) {
+        tValues.set(i, tValues.get(i).add(perParty.get(i)));
+      }
+    }
+    return tValues;
+  }
+
   public FieldElement input(FieldElement value) {
     FieldElement x0 = sampler.sample(modulus, kBitLength);
     List<FieldElement> values = Arrays.asList(x0, value);
@@ -94,23 +95,61 @@ public class ShareGen {
     for (COPE cope : copeProtocols.values()) {
       tValuesPerParty.add(cope.getInputter().extend(values));
     }
-    List<FieldElement> tValues = new ArrayList<>();
-    for (int i = 0; i < numElements; i++) {
-      tValues.add(new FieldElement(0, modulus, kBitLength));
-    }
-    for (List<FieldElement> perParty : tValuesPerParty) {
-      for (int i = 0; i < perParty.size(); i++) {
-        tValues.set(i, tValues.get(i).add(perParty.get(i)));
-      }
-    }
-    System.out.println(tValues);
+    List<FieldElement> tValues = getTValues(tValuesPerParty, numElements);
+    List<FieldElement> subMacShares = IntStream.range(0, numElements)
+        .mapToObj(idx -> values.get(idx).multiply(macKeyShare).add(tValues.get(idx)))
+        .collect(Collectors.toList());
+
+    List<FieldElement> maskingVector = sampler.jointSample(modulus, kBitLength, numElements);
     
+    FieldElement macShare = IntStream.range(0, numElements)
+        .mapToObj(idx -> maskingVector.get(idx).multiply(subMacShares.get(idx)))
+        .reduce(new FieldElement(BigInteger.ZERO, modulus, kBitLength),
+            (left, right) -> (left.add(right)));
+    
+    FieldElement y = IntStream.range(0, numElements)
+        .mapToObj(idx -> maskingVector.get(idx).multiply(values.get(idx)))
+        .reduce(new FieldElement(BigInteger.ZERO, modulus, kBitLength),
+            (left, right) -> (left.add(right)));
+    
+    // FieldElement macShare = macShares.get(0);
+    // try {
+    // BigInteger raw = new BigInteger(network.receive(0, 2));
+    // FieldElement otherMacShare = new FieldElement(raw, modulus, kBitLength);
+    // BigInteger rawKey = new BigInteger(network.receive(0, 2));
+    // FieldElement otherKeyShare = new FieldElement(rawKey, modulus, kBitLength);
+    //
+    // FieldElement mac = sharer.additiveRecombine(Arrays.asList(macShare, otherMacShare));
+    // FieldElement key = sharer.additiveRecombine(Arrays.asList(macKeyShare, otherKeyShare));
+    //
+    // System.out.println(mac);
+    // System.out.println(key.multiply(x0));
+    //
+    // } catch (IOException e) {
+    // // TODO Auto-generated catch block
+    // e.printStackTrace();
+    // }
+
     return null;
   }
 
   public FieldElement input(Integer inputter) {
-    List<FieldElement> qValues = copeProtocols.get(inputter).getSigner().extend(2);
-    System.out.println(qValues);
+    int numElements = 2;
+    
+    List<FieldElement> subMacShares = copeProtocols.get(inputter).getSigner().extend(2);
+    List<FieldElement> maskingVector = sampler.jointSample(modulus, kBitLength, numElements);
+    
+    FieldElement macShare = IntStream.range(0, numElements)
+        .mapToObj(idx -> maskingVector.get(idx).multiply(subMacShares.get(idx)))
+        .reduce(new FieldElement(BigInteger.ZERO, modulus, kBitLength),
+            (left, right) -> (left.add(right)));
+    // try {
+    // network.send(0, 1, macShares.get(0).toByteArray());
+    // network.send(0, 1, macKeyShare.toByteArray());
+    // } catch (IOException e) {
+    // // TODO Auto-generated catch block
+    // e.printStackTrace();
+    // }
     return null;
   }
 
