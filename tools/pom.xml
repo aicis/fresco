@@ -12,5 +12,6 @@
   
   <modules>
     <module>fuelstation</module>
+    <module>mascot</module>
   </modules>
 </project>
