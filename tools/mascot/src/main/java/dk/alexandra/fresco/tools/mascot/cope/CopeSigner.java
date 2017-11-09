@@ -8,12 +8,12 @@ import java.util.Random;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 
-public class COPESigner extends COPEShared {
+public class CopeSigner extends CopeShared {
 
   private List<BigInteger> chosenSeeds;
   private FieldElement macKeyShare;
 
-  public COPESigner(int otherID, int kBitLength, int lambdaSecurityParam, Random rand,
+  public CopeSigner(int otherID, int kBitLength, int lambdaSecurityParam, Random rand,
       FieldElement macKeyShare, Network network, BigInteger prime) {
     super(otherID, kBitLength, lambdaSecurityParam, rand, network, prime);
     this.chosenSeeds = new ArrayList<>();

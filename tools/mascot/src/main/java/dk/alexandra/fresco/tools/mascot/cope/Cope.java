@@ -7,28 +7,28 @@ import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
-public class COPE {
+public class Cope {
 
   protected Integer myID;
   protected Integer otherID;
-  protected COPEInputter inputter;
-  protected COPESigner signer;
+  protected CopeInputter inputter;
+  protected CopeSigner signer;
 
-  public COPE(int myID, int otherID, int kBitLength, int lambdaSecurityParam, Random rand,
+  public Cope(int myID, int otherID, int kBitLength, int lambdaSecurityParam, Random rand,
       FieldElement macKeyShare, Network network, BigInteger prime) {
     this.myID = myID;
     this.otherID = otherID;
     this.inputter =
-        new COPEInputter(otherID, kBitLength, lambdaSecurityParam, rand, network, prime);
+        new CopeInputter(otherID, kBitLength, lambdaSecurityParam, rand, network, prime);
     this.signer =
-        new COPESigner(otherID, kBitLength, lambdaSecurityParam, rand, macKeyShare, network, prime);
+        new CopeSigner(otherID, kBitLength, lambdaSecurityParam, rand, macKeyShare, network, prime);
   }
 
-  public COPEInputter getInputter() {
+  public CopeInputter getInputter() {
     return inputter;
   }
 
-  public COPESigner getSigner() {
+  public CopeSigner getSigner() {
     return signer;
   }
 

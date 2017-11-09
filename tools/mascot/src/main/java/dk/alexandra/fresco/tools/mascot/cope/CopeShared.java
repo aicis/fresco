@@ -9,7 +9,7 @@ import dk.alexandra.fresco.tools.mascot.utils.PRF;
 import dk.alexandra.fresco.tools.ot.base.DummyOTBatch;
 import dk.alexandra.fresco.tools.ot.base.OTBatch;
 
-public class COPEShared {
+public class CopeShared {
 
   protected BigInteger modulus;
   protected int kBitLength;
@@ -22,7 +22,7 @@ public class COPEShared {
   protected PRF prf;
   protected Network network;
   
-  public COPEShared(int otherID, int kBitLength, int lambdaSecurityParam, Random rand,
+  public CopeShared(int otherID, int kBitLength, int lambdaSecurityParam, Random rand,
       Network network, BigInteger prime) {
     super();
     this.otherID = otherID;

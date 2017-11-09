@@ -16,7 +16,7 @@ public class BaseProtocol {
   protected Network network;
   protected ExecutorService executor;
   protected Random rand;
-  
+
   public BaseProtocol(List<Integer> partyIDs, Integer myID, BigInteger modulus, int kBitLength,
       Network network, ExecutorService executor, Random rand) {
     super();
@@ -28,5 +28,5 @@ public class BaseProtocol {
     this.executor = executor;
     this.rand = rand;
   }
-  
+
 }

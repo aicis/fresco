@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.tools.mascot.BaseProtocol;
-import dk.alexandra.fresco.tools.mascot.cope.COPE;
+import dk.alexandra.fresco.tools.mascot.cope.Cope;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.utils.Sharer;
 import dk.alexandra.fresco.tools.mascot.utils.sample.DummySampler;
@@ -29,7 +29,7 @@ public class ShareGen extends BaseProtocol {
   protected FieldElement macKeyShare;
   protected Sampler sampler;
   protected Sharer sharer;
-  protected Map<Integer, COPE> copeProtocols;
+  protected Map<Integer, Cope> copeProtocols;
 
   public ShareGen(BigInteger modulus, int kBitLength, Integer myID, List<Integer> partyIDs,
       int lambdaSecurityParam, Network network, Random rand, ExecutorService executor) {
@@ -41,7 +41,7 @@ public class ShareGen extends BaseProtocol {
     this.copeProtocols = new HashMap<>();
     for (Integer partyID : partyIDs) {
       if (!myID.equals(partyID)) {
-        COPE cope = new COPE(myID, partyID, kBitLength, lambdaSecurityParam, rand, macKeyShare,
+        Cope cope = new Cope(myID, partyID, kBitLength, lambdaSecurityParam, rand, macKeyShare,
             network, modulus);
         this.copeProtocols.put(partyID, cope);
       }
@@ -53,7 +53,7 @@ public class ShareGen extends BaseProtocol {
     if (initialized) {
       throw new IllegalStateException("Already initialized");
     }
-    Stream<COPE> copeStream = copeProtocols.values().stream();
+    Stream<Cope> copeStream = copeProtocols.values().stream();
     CompletableFuture.allOf(copeStream.map(cope -> cope.initializeAsynch(executor))
         .toArray(i -> new CompletableFuture[i])).join();
     this.initialized = true;
@@ -92,7 +92,7 @@ public class ShareGen extends BaseProtocol {
 
     // TODO: wrap this
     List<List<FieldElement>> tValuesPerParty = new ArrayList<>();
-    for (COPE cope : copeProtocols.values()) {
+    for (Cope cope : copeProtocols.values()) {
       tValuesPerParty.add(cope.getInputter().extend(values));
     }
     List<FieldElement> tValues = getTValues(tValuesPerParty, numElements);

@@ -11,11 +11,11 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 
-public class COPEInputter extends COPEShared {
+public class CopeInputter extends CopeShared {
 
   private List<Pair<BigInteger, BigInteger>> seeds;
 
-  public COPEInputter(int otherID, int kBitLength, int lambdaSecurityParam, Random rand,
+  public CopeInputter(int otherID, int kBitLength, int lambdaSecurityParam, Random rand,
       Network network, BigInteger prime) {
     super(otherID, kBitLength, lambdaSecurityParam, rand, network, prime);
     this.seeds = new ArrayList<>();
