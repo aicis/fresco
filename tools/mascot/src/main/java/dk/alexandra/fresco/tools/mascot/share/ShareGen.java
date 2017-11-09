@@ -15,14 +15,14 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.tools.mascot.BaseProtocol;
+import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.cope.Cope;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.utils.Sharer;
 import dk.alexandra.fresco.tools.mascot.utils.sample.DummySampler;
 import dk.alexandra.fresco.tools.mascot.utils.sample.Sampler;
 
-public class ShareGen extends BaseProtocol {
+public class ShareGen extends MultiPartyProtocol {
 
   protected int lambdaSecurityParam;
   protected boolean initialized;
@@ -31,19 +31,19 @@ public class ShareGen extends BaseProtocol {
   protected Sharer sharer;
   protected Map<Integer, Cope> copeProtocols;
 
-  public ShareGen(BigInteger modulus, int kBitLength, Integer myID, List<Integer> partyIDs,
+  public ShareGen(BigInteger modulus, int kBitLength, Integer myId, List<Integer> partyIds,
       int lambdaSecurityParam, Network network, Random rand, ExecutorService executor) {
-    super(partyIDs, myID, modulus, kBitLength, network, executor, rand);
+    super(myId, partyIds, modulus, kBitLength, network, executor, rand);
     this.lambdaSecurityParam = lambdaSecurityParam;
     this.sampler = new DummySampler(rand);
     this.sharer = new Sharer(rand);
     this.macKeyShare = new FieldElement(new BigInteger(kBitLength, rand), modulus, kBitLength);
     this.copeProtocols = new HashMap<>();
-    for (Integer partyID : partyIDs) {
-      if (!myID.equals(partyID)) {
-        Cope cope = new Cope(myID, partyID, kBitLength, lambdaSecurityParam, rand, macKeyShare,
-            network, modulus);
-        this.copeProtocols.put(partyID, cope);
+    for (Integer partyId : partyIds) {
+      if (!myId.equals(partyId)) {
+        Cope cope = new Cope(myId, partyId, kBitLength, lambdaSecurityParam, rand, macKeyShare,
+            network, executor, modulus);
+        this.copeProtocols.put(partyId, cope);
       }
     }
     this.initialized = false;
@@ -88,7 +88,7 @@ public class ShareGen extends BaseProtocol {
     int numElements = values.size();
 
     List<List<FieldElement>> shares = values.stream()
-        .map(x -> sharer.additiveShare(x, partyIDs.size())).collect(Collectors.toList());
+        .map(x -> sharer.additiveShare(x, partyIds.size())).collect(Collectors.toList());
 
     // TODO: wrap this
     List<List<FieldElement>> tValuesPerParty = new ArrayList<>();
@@ -101,55 +101,30 @@ public class ShareGen extends BaseProtocol {
         .collect(Collectors.toList());
 
     List<FieldElement> maskingVector = sampler.jointSample(modulus, kBitLength, numElements);
-    
+
     FieldElement macShare = IntStream.range(0, numElements)
         .mapToObj(idx -> maskingVector.get(idx).multiply(subMacShares.get(idx)))
         .reduce(new FieldElement(BigInteger.ZERO, modulus, kBitLength),
             (left, right) -> (left.add(right)));
-    
+
     FieldElement y = IntStream.range(0, numElements)
         .mapToObj(idx -> maskingVector.get(idx).multiply(values.get(idx)))
         .reduce(new FieldElement(BigInteger.ZERO, modulus, kBitLength),
             (left, right) -> (left.add(right)));
-    
-    // FieldElement macShare = macShares.get(0);
-    // try {
-    // BigInteger raw = new BigInteger(network.receive(0, 2));
-    // FieldElement otherMacShare = new FieldElement(raw, modulus, kBitLength);
-    // BigInteger rawKey = new BigInteger(network.receive(0, 2));
-    // FieldElement otherKeyShare = new FieldElement(rawKey, modulus, kBitLength);
-    //
-    // FieldElement mac = sharer.additiveRecombine(Arrays.asList(macShare, otherMacShare));
-    // FieldElement key = sharer.additiveRecombine(Arrays.asList(macKeyShare, otherKeyShare));
-    //
-    // System.out.println(mac);
-    // System.out.println(key.multiply(x0));
-    //
-    // } catch (IOException e) {
-    // // TODO Auto-generated catch block
-    // e.printStackTrace();
-    // }
 
     return null;
   }
 
   public FieldElement input(Integer inputter) {
     int numElements = 2;
-    
+
     List<FieldElement> subMacShares = copeProtocols.get(inputter).getSigner().extend(2);
     List<FieldElement> maskingVector = sampler.jointSample(modulus, kBitLength, numElements);
-    
+
     FieldElement macShare = IntStream.range(0, numElements)
         .mapToObj(idx -> maskingVector.get(idx).multiply(subMacShares.get(idx)))
         .reduce(new FieldElement(BigInteger.ZERO, modulus, kBitLength),
             (left, right) -> (left.add(right)));
-    // try {
-    // network.send(0, 1, macShares.get(0).toByteArray());
-    // network.send(0, 1, macKeyShare.toByteArray());
-    // } catch (IOException e) {
-    // // TODO Auto-generated catch block
-    // e.printStackTrace();
-    // }
     return null;
   }
 

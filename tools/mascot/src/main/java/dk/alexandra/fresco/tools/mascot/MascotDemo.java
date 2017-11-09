@@ -44,7 +44,7 @@ public class MascotDemo {
     BigInteger modulus = BigInteger.valueOf(997);
     int kBitLength = 10;
     int lambdaSecurityParam = 12;
-    Random rand = new Random(42);
+    Random rand = new Random(1);
     ExecutorService executor = Executors.newCachedThreadPool();
     ShareGen shareGen = new ShareGen(modulus, kBitLength, 2, Arrays.asList(1, 2),
         lambdaSecurityParam, network, rand, executor);

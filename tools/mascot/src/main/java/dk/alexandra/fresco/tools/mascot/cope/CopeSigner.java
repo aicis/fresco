@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
@@ -13,11 +14,12 @@ public class CopeSigner extends CopeShared {
   private List<BigInteger> chosenSeeds;
   private FieldElement macKeyShare;
 
-  public CopeSigner(int otherID, int kBitLength, int lambdaSecurityParam, Random rand,
-      FieldElement macKeyShare, Network network, BigInteger prime) {
-    super(otherID, kBitLength, lambdaSecurityParam, rand, network, prime);
-    this.chosenSeeds = new ArrayList<>();
+  public CopeSigner(Integer myId, Integer otherId, int kBitLength, int lambdaSecurityParam,
+      Random rand, Network network, ExecutorService executor, BigInteger modulus,
+      FieldElement macKeyShare) {
+    super(myId, otherId, kBitLength, lambdaSecurityParam, rand, network, executor, modulus);
     this.macKeyShare = macKeyShare;
+    this.chosenSeeds = new ArrayList<>();
   }
 
   public void initialize() {
@@ -34,7 +36,7 @@ public class CopeSigner extends CopeShared {
     // TODO: batch receive
     try {
       for (int k = 0; k < kBitLength; k++) {
-        BigInteger raw = new BigInteger(network.receive(0, otherID));
+        BigInteger raw = new BigInteger(network.receive(0, otherId));
         uValues.add(new FieldElement(raw, modulus, kBitLength));
       }
     } catch (Exception e) {

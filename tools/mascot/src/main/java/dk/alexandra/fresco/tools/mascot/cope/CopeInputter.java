@@ -5,6 +5,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 import dk.alexandra.fresco.framework.network.Network;
@@ -15,9 +16,9 @@ public class CopeInputter extends CopeShared {
 
   private List<Pair<BigInteger, BigInteger>> seeds;
 
-  public CopeInputter(int otherID, int kBitLength, int lambdaSecurityParam, Random rand,
-      Network network, BigInteger prime) {
-    super(otherID, kBitLength, lambdaSecurityParam, rand, network, prime);
+  public CopeInputter(Integer myId, Integer otherId, int kBitLength, int lambdaSecurityParam,
+      Random rand, Network network, ExecutorService executor, BigInteger modulus) {
+    super(myId, otherId, kBitLength, lambdaSecurityParam, rand, network, executor, modulus);
     this.seeds = new ArrayList<>();
   }
 
@@ -54,7 +55,7 @@ public class CopeInputter extends CopeShared {
     // TODO: need batch-send
     try {
       for (FieldElement uValue : uValues) {
-        network.send(0, getOtherID(), uValue.toByteArray());
+        network.send(0, otherId, uValue.toByteArray());
       }
     } catch (IOException e) {
       System.out.println("Broke while sending");
@@ -64,11 +65,11 @@ public class CopeInputter extends CopeShared {
     List<FieldElement> tZeroValues =
         tValues.parallelStream().map(seedPair -> seedPair.getFirst()).collect(Collectors.toList());
     FieldElement productShare = FieldElement.recombine(tZeroValues, modulus, kBitLength);
-    
+
     counter = counter.add(BigInteger.ONE);
     return productShare.negate();
   }
-  
+
   public List<FieldElement> extend(List<FieldElement> inputElements) {
     List<FieldElement> shares = new ArrayList<>();
     for (FieldElement inputElement : inputElements) {

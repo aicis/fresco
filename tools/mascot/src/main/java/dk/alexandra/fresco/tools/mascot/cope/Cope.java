@@ -1,27 +1,25 @@
 package dk.alexandra.fresco.tools.mascot.cope;
 
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.framework.network.Network;
 import java.math.BigInteger;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 
 public class Cope {
 
-  protected Integer myID;
-  protected Integer otherID;
   protected CopeInputter inputter;
   protected CopeSigner signer;
 
-  public Cope(int myID, int otherID, int kBitLength, int lambdaSecurityParam, Random rand,
-      FieldElement macKeyShare, Network network, BigInteger prime) {
-    this.myID = myID;
-    this.otherID = otherID;
-    this.inputter =
-        new CopeInputter(otherID, kBitLength, lambdaSecurityParam, rand, network, prime);
-    this.signer =
-        new CopeSigner(otherID, kBitLength, lambdaSecurityParam, rand, macKeyShare, network, prime);
+  public Cope(Integer myId, Integer otherId, int kBitLength, int lambdaSecurityParam, Random rand,
+      FieldElement macKeyShare, Network network, ExecutorService executor, BigInteger modulus) {
+    this.inputter = new CopeInputter(myId, otherId, kBitLength, lambdaSecurityParam, rand, network,
+        executor, modulus);
+    this.signer = new CopeSigner(myId, otherId, kBitLength, lambdaSecurityParam, rand, network,
+        executor, modulus, macKeyShare);
   }
 
   public CopeInputter getInputter() {
@@ -34,7 +32,7 @@ public class Cope {
 
   public void initialize() {
     // Could also run this in separate threads
-    if (myID < otherID) {
+    if (this.inputter.getMyId() < this.inputter.getOtherId()) {
       inputter.initialize();
       signer.initialize();
     } else {
