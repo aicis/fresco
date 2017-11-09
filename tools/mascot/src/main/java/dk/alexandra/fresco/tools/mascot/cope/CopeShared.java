@@ -4,8 +4,8 @@ import java.math.BigInteger;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.tools.mascot.TwoPartyProtocol;
+import dk.alexandra.fresco.tools.mascot.net.ExtendedNetwork;
 import dk.alexandra.fresco.tools.mascot.utils.DummyPRF;
 import dk.alexandra.fresco.tools.mascot.utils.PRF;
 import dk.alexandra.fresco.tools.ot.base.DummyOTBatch;
@@ -20,7 +20,7 @@ public class CopeShared extends TwoPartyProtocol {
   protected PRF prf;
 
   public CopeShared(Integer myId, Integer otherId, int kBitLength, int lambdaSecurityParam, Random rand,
-      Network network, ExecutorService executor, BigInteger modulus) {
+      ExtendedNetwork network, ExecutorService executor, BigInteger modulus) {
     super(myId, otherId, modulus, kBitLength, network, executor, rand);
     this.lambdaSecurityParam = lambdaSecurityParam;
     this.counter = BigInteger.valueOf(0);

@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutorService;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.net.ExtendedNetwork;
 
 public class Cope {
 
@@ -15,7 +16,7 @@ public class Cope {
   protected CopeSigner signer;
 
   public Cope(Integer myId, Integer otherId, int kBitLength, int lambdaSecurityParam, Random rand,
-      FieldElement macKeyShare, Network network, ExecutorService executor, BigInteger modulus) {
+      FieldElement macKeyShare, ExtendedNetwork network, ExecutorService executor, BigInteger modulus) {
     this.inputter = new CopeInputter(myId, otherId, kBitLength, lambdaSecurityParam, rand, network,
         executor, modulus);
     this.signer = new CopeSigner(myId, otherId, kBitLength, lambdaSecurityParam, rand, network,

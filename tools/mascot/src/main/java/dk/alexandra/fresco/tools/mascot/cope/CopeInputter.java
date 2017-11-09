@@ -8,16 +8,16 @@ import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.net.ExtendedNetwork;
 
 public class CopeInputter extends CopeShared {
 
   private List<Pair<BigInteger, BigInteger>> seeds;
 
   public CopeInputter(Integer myId, Integer otherId, int kBitLength, int lambdaSecurityParam,
-      Random rand, Network network, ExecutorService executor, BigInteger modulus) {
+      Random rand, ExtendedNetwork network, ExecutorService executor, BigInteger modulus) {
     super(myId, otherId, kBitLength, lambdaSecurityParam, rand, network, executor, modulus);
     this.seeds = new ArrayList<>();
   }

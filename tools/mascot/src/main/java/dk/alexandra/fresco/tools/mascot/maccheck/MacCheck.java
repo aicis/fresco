@@ -1,9 +1,11 @@
 package dk.alexandra.fresco.tools.mascot.maccheck;
 
+import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 
 public interface MacCheck {
 
-  public boolean check(FieldElement opened, FieldElement macKeyShare, FieldElement macShare);
+  public void check(FieldElement opened, FieldElement macKeyShare, FieldElement macShare)
+      throws MPCException;
 
 }

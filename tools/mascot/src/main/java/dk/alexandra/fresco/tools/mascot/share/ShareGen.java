@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.tools.mascot.share;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,10 +15,12 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.cope.Cope;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.maccheck.DummyMacCheck;
+import dk.alexandra.fresco.tools.mascot.maccheck.MacCheck;
+import dk.alexandra.fresco.tools.mascot.net.ExtendedNetwork;
 import dk.alexandra.fresco.tools.mascot.utils.Sharer;
 import dk.alexandra.fresco.tools.mascot.utils.sample.DummySampler;
 import dk.alexandra.fresco.tools.mascot.utils.sample.Sampler;
@@ -30,9 +33,10 @@ public class ShareGen extends MultiPartyProtocol {
   protected Sampler sampler;
   protected Sharer sharer;
   protected Map<Integer, Cope> copeProtocols;
+  protected MacCheck macCheckProtocol;
 
   public ShareGen(BigInteger modulus, int kBitLength, Integer myId, List<Integer> partyIds,
-      int lambdaSecurityParam, Network network, Random rand, ExecutorService executor) {
+      int lambdaSecurityParam, ExtendedNetwork network, Random rand, ExecutorService executor) {
     super(myId, partyIds, modulus, kBitLength, network, executor, rand);
     this.lambdaSecurityParam = lambdaSecurityParam;
     this.sampler = new DummySampler(rand);
@@ -46,6 +50,8 @@ public class ShareGen extends MultiPartyProtocol {
         this.copeProtocols.put(partyId, cope);
       }
     }
+    this.macCheckProtocol =
+        new DummyMacCheck(myId, partyIds, modulus, kBitLength, network, executor, rand);
     this.initialized = false;
   }
 
@@ -82,13 +88,10 @@ public class ShareGen extends MultiPartyProtocol {
     return tValues;
   }
 
-  public FieldElement input(FieldElement value) {
+  public FieldElement input(FieldElement value) throws IOException {
     FieldElement x0 = sampler.sample(modulus, kBitLength);
     List<FieldElement> values = Arrays.asList(x0, value);
     int numElements = values.size();
-
-    List<List<FieldElement>> shares = values.stream()
-        .map(x -> sharer.additiveShare(x, partyIds.size())).collect(Collectors.toList());
 
     // TODO: wrap this
     List<List<FieldElement>> tValuesPerParty = new ArrayList<>();
@@ -112,11 +115,24 @@ public class ShareGen extends MultiPartyProtocol {
         .reduce(new FieldElement(BigInteger.ZERO, modulus, kBitLength),
             (left, right) -> (left.add(right)));
 
+    network.sendToAll(y.toByteArray());
+
+    macCheckProtocol.check(y, macKeyShare, macShare);
+    List<FieldElement> shares = sharer.additiveShare(value, partyIds.size());
+    FieldElement share = shares.get(0);
+    
+    for (Integer partyId : partyIds) {
+      if (!myId.equals(partyId)) {
+        network.send(0, partyId, shares.get(partyId - 1).toByteArray());
+      }
+    }
+    
+    System.out.println(share);
     return null;
   }
 
-  public FieldElement input(Integer inputter) {
-    int numElements = 2;
+  public FieldElement input(Integer inputter) throws IOException {
+    int numElements = 2; // one real input and one dummy element
 
     List<FieldElement> subMacShares = copeProtocols.get(inputter).getSigner().extend(2);
     List<FieldElement> maskingVector = sampler.jointSample(modulus, kBitLength, numElements);
@@ -125,6 +141,15 @@ public class ShareGen extends MultiPartyProtocol {
         .mapToObj(idx -> maskingVector.get(idx).multiply(subMacShares.get(idx)))
         .reduce(new FieldElement(BigInteger.ZERO, modulus, kBitLength),
             (left, right) -> (left.add(right)));
+
+    BigInteger rawY = new BigInteger(network.receive(0, inputter));
+    FieldElement y = new FieldElement(rawY, modulus, kBitLength);
+
+    macCheckProtocol.check(y, macKeyShare, macShare);
+    BigInteger rawShare = new BigInteger(network.receive(0, inputter));
+    FieldElement share = new FieldElement(rawShare, modulus, kBitLength);
+    System.out.println(share);
+//    FieldElement realMacShare = subMacShares
     return null;
   }
 

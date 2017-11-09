@@ -5,17 +5,18 @@ import java.util.Random;
 import java.util.concurrent.ExecutorService;
 
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.tools.mascot.net.ExtendedNetwork;
 
 public class BaseProtocol {
 
   protected Integer myId;
   protected BigInteger modulus;
   protected int kBitLength;
-  protected Network network;
+  protected ExtendedNetwork network;
   protected ExecutorService executor;
   protected Random rand;
 
-  public BaseProtocol(Integer myId, BigInteger modulus, int kBitLength, Network network,
+  public BaseProtocol(Integer myId, BigInteger modulus, int kBitLength, ExtendedNetwork network,
       ExecutorService executor, Random rand) {
     super();
     this.myId = myId;
