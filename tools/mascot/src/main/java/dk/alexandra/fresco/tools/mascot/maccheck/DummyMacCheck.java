@@ -29,8 +29,7 @@ public class DummyMacCheck extends MultiPartyProtocol implements MacCheck {
         network.sendToAll(sigma.toByteArray());
       } else {
         try {
-          BigInteger raw = new BigInteger(network.receive(0, partyId));
-          sigmas.add(new FieldElement(raw, modulus, kBitLength));
+          sigmas.add(new FieldElement(network.receive(0, partyId), modulus, kBitLength));
         } catch (IOException e) {
           // TODO Auto-generated catch block
           e.printStackTrace();

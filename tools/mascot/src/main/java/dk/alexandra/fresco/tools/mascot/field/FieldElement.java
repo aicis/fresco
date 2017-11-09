@@ -4,8 +4,9 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.function.BinaryOperator;
 
-public class FieldElement {
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 
+public class FieldElement {
   private BigInteger value;
   private BigInteger modulus;
   private int bitLength;
@@ -18,6 +19,12 @@ public class FieldElement {
 
   public FieldElement(int value, BigInteger modulus, int bitLength) {
     this.value = BigInteger.valueOf(value);
+    this.modulus = modulus;
+    this.bitLength = bitLength;
+  }
+
+  public FieldElement(byte[] value, BigInteger modulus, int bitLength) {
+    this.value = new BigInteger(value);
     this.modulus = modulus;
     this.bitLength = bitLength;
   }
@@ -139,4 +146,9 @@ public class FieldElement {
     return bitLength;
   }
 
+  public static SpdzElement toSpdzElement(FieldElement share, FieldElement macShare) {
+    // TODO: check that modulus and bit length are same
+    BigInteger modulus = share.modulus;
+    return new SpdzElement(share.toBigInteger(), macShare.toBigInteger(), modulus);
+  }
 }

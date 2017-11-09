@@ -12,8 +12,7 @@ import java.util.concurrent.Executors;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
-import dk.alexandra.fresco.framework.network.KryoNetNetwork;
-import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.net.ExtendedKryoNetNetworkImpl;
 import dk.alexandra.fresco.tools.mascot.net.ExtendedNetwork;
@@ -36,7 +35,8 @@ public class MascotDemo {
         lambdaSecurityParam, network, rand, executor);
     shareGen.initialize();
     FieldElement input = new FieldElement(123, modulus, kBitLength);
-    shareGen.input(input);
+    SpdzElement res = shareGen.input(input);
+    System.out.println(res);
     System.out.println("done");
     shareGen.shutdown();
     network.close();
@@ -55,7 +55,8 @@ public class MascotDemo {
     ShareGen shareGen = new ShareGen(modulus, kBitLength, 2, Arrays.asList(1, 2),
         lambdaSecurityParam, network, rand, executor);
     shareGen.initialize();
-    shareGen.input(1);
+    SpdzElement res = shareGen.input(1);
+    System.out.println(res);
     System.out.println("done");
     shareGen.shutdown();
     network.close();

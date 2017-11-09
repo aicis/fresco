@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.cope.Cope;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
@@ -88,7 +89,7 @@ public class ShareGen extends MultiPartyProtocol {
     return tValues;
   }
 
-  public FieldElement input(FieldElement value) throws IOException {
+  public SpdzElement input(FieldElement value) throws IOException {
     FieldElement x0 = sampler.sample(modulus, kBitLength);
     List<FieldElement> values = Arrays.asList(x0, value);
     int numElements = values.size();
@@ -105,7 +106,7 @@ public class ShareGen extends MultiPartyProtocol {
 
     List<FieldElement> maskingVector = sampler.jointSample(modulus, kBitLength, numElements);
 
-    FieldElement macShare = IntStream.range(0, numElements)
+    FieldElement maskedMacShare = IntStream.range(0, numElements)
         .mapToObj(idx -> maskingVector.get(idx).multiply(subMacShares.get(idx)))
         .reduce(new FieldElement(BigInteger.ZERO, modulus, kBitLength),
             (left, right) -> (left.add(right)));
@@ -116,41 +117,39 @@ public class ShareGen extends MultiPartyProtocol {
             (left, right) -> (left.add(right)));
 
     network.sendToAll(y.toByteArray());
+    // TODO: handle mac failure
+    macCheckProtocol.check(y, macKeyShare, maskedMacShare);
 
-    macCheckProtocol.check(y, macKeyShare, macShare);
     List<FieldElement> shares = sharer.additiveShare(value, partyIds.size());
-    FieldElement share = shares.get(0);
-    
+
     for (Integer partyId : partyIds) {
       if (!myId.equals(partyId)) {
         network.send(0, partyId, shares.get(partyId - 1).toByteArray());
       }
     }
-    
-    System.out.println(share);
-    return null;
+
+    FieldElement share = shares.get(0);
+    FieldElement macShare = subMacShares.get(1);
+    return FieldElement.toSpdzElement(share, macShare);
   }
 
-  public FieldElement input(Integer inputter) throws IOException {
+  public SpdzElement input(Integer inputter) throws IOException {
     int numElements = 2; // one real input and one dummy element
 
     List<FieldElement> subMacShares = copeProtocols.get(inputter).getSigner().extend(2);
     List<FieldElement> maskingVector = sampler.jointSample(modulus, kBitLength, numElements);
 
-    FieldElement macShare = IntStream.range(0, numElements)
+    FieldElement maksedMacShare = IntStream.range(0, numElements)
         .mapToObj(idx -> maskingVector.get(idx).multiply(subMacShares.get(idx)))
         .reduce(new FieldElement(BigInteger.ZERO, modulus, kBitLength),
             (left, right) -> (left.add(right)));
 
-    BigInteger rawY = new BigInteger(network.receive(0, inputter));
-    FieldElement y = new FieldElement(rawY, modulus, kBitLength);
-
-    macCheckProtocol.check(y, macKeyShare, macShare);
-    BigInteger rawShare = new BigInteger(network.receive(0, inputter));
-    FieldElement share = new FieldElement(rawShare, modulus, kBitLength);
-    System.out.println(share);
-//    FieldElement realMacShare = subMacShares
-    return null;
+    FieldElement y = new FieldElement(network.receive(0, inputter), modulus, kBitLength);
+    // TODO: handle mac failure
+    macCheckProtocol.check(y, macKeyShare, maksedMacShare);
+    FieldElement share = new FieldElement(network.receive(0, inputter), modulus, kBitLength);
+    FieldElement macShare = subMacShares.get(1);
+    return FieldElement.toSpdzElement(share, macShare);
   }
 
 }
