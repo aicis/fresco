@@ -26,12 +26,14 @@ public class DummyROTBatch implements ROTBatch<BigInteger> {
   }
 
   @Override
-  public List<BigInteger> receive(List<Boolean> choiceBits) {
+  public List<BigInteger> receive(BigInteger choiceBits, int numBits) {
     List<BigInteger> choiceMessages = new ArrayList<>();
-    for (Boolean choiceBit : choiceBits) {
-      choiceMessages.add(dummyROT.receive(choiceBit));
+    for (int b = 0; b < numBits; b++) {
+      choiceMessages.add(dummyROT.receive(choiceBits.testBit(b)));
     }
     return choiceMessages;
   }
+
+  
 
 }

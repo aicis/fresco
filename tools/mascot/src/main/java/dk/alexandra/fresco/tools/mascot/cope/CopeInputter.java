@@ -26,6 +26,7 @@ public class CopeInputter extends CopeShared {
     if (initialized) {
       throw new IllegalStateException("Already initialized");
     }
+    // TODO: this could just be a ROT
     for (int i = 0; i < kBitLength; i++) {
       BigInteger seedZero = new BigInteger(lambdaSecurityParam, rand);
       BigInteger seedFirst = new BigInteger(lambdaSecurityParam, rand);

@@ -152,4 +152,20 @@ public class ShareGen extends MultiPartyProtocol {
     return FieldElement.toSpdzElement(share, macShare);
   }
 
+  public SpdzElement linearComb(List<SpdzElement> shares, List<FieldElement> scalars,
+      FieldElement constant) {
+    SpdzElement combined = IntStream.range(0, shares.size())
+        .mapToObj(idx -> shares.get(idx).multiply(scalars.get(idx).toBigInteger()))
+        .reduce((l, r) -> l.add(r)).get();
+
+    FieldElement macOnConstant = constant.multiply(macKeyShare);
+    SpdzElement constantWithMac =
+        new SpdzElement(constant.toBigInteger(), macOnConstant.toBigInteger(), modulus);
+
+    combined.add(constantWithMac, myId);
+    return combined;
+  }
+
+  
+  
 }
