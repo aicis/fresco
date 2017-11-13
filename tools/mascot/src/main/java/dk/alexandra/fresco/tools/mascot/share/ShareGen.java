@@ -165,7 +165,5 @@ public class ShareGen extends MultiPartyProtocol {
     combined.add(constantWithMac, myId);
     return combined;
   }
-
-  
-  
+ 
 }

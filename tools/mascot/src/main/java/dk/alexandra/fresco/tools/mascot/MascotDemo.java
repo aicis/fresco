@@ -20,6 +20,7 @@ import dk.alexandra.fresco.tools.mascot.mult.MultiplyRight;
 import dk.alexandra.fresco.tools.mascot.net.ExtendedKryoNetNetworkImpl;
 import dk.alexandra.fresco.tools.mascot.net.ExtendedNetwork;
 import dk.alexandra.fresco.tools.mascot.share.ShareGen;
+import dk.alexandra.fresco.tools.mascot.triple.TripleGen;
 
 
 public class MascotDemo {
@@ -56,7 +57,6 @@ public class MascotDemo {
     ExtendedNetwork network = new ExtendedKryoNetNetworkImpl(executor, pid, Arrays.asList(1, 2));
     network.init(getNetworkConfiguration(pid), 1);
     network.connect(5000);
-    System.out.println("here");
     BigInteger modulus = BigInteger.valueOf(997);
     int kBitLength = 10;
     int lambdaSecurityParam = 10;
@@ -69,6 +69,74 @@ public class MascotDemo {
     for (FieldElement myShare : myShares) {
       network.send(0, 1, myShare.toByteArray());
     }
+    System.out.println("done");
+  }
+
+  public void runPartyOneTriple(Integer pid) throws IOException {
+    ExecutorService executor = Executors.newCachedThreadPool();
+    List<Integer> parties = Arrays.asList(1, 2);
+    ExtendedNetwork network = new ExtendedKryoNetNetworkImpl(executor, pid, parties);
+    network.init(getNetworkConfiguration(pid), 1);
+    network.connect(5000);
+    System.out.println("Connected");
+
+    BigInteger modulus = BigInteger.valueOf(997);
+    int kBitLength = 10;
+    int lambdaSecurityParam = 10;
+    int numLeftFactors = 3;
+    Random rand = new Random(42);
+
+    TripleGen tripleGen = new TripleGen(pid, parties, modulus, kBitLength, lambdaSecurityParam,
+        numLeftFactors, network, executor, rand);
+
+    FieldElement leftFactor1 = new FieldElement(12, modulus, kBitLength);
+    FieldElement leftFactor2 = new FieldElement(9, modulus, kBitLength);
+    FieldElement leftFactor3 = new FieldElement(5, modulus, kBitLength);
+    List<FieldElement> leftFactors = Arrays.asList(leftFactor1, leftFactor2, leftFactor3);
+    FieldElement rightFactor = new FieldElement(3, modulus, kBitLength);
+    List<FieldElement> productShares = tripleGen.multiply(leftFactors, rightFactor);
+    System.out.println(productShares);
+
+    for (FieldElement productShare : productShares) {
+      FieldElement otherProductShare = new FieldElement(network.receive(0, 2), modulus, kBitLength);
+      System.out.println(otherProductShare.add(productShare));
+    }
+
+    System.out.println("done");
+  }
+
+  public void runPartyTwoTriple(int pid) throws IOException {
+    ExecutorService executor = Executors.newCachedThreadPool();
+    List<Integer> parties = Arrays.asList(1, 2);
+    ExtendedNetwork network = new ExtendedKryoNetNetworkImpl(executor, pid, parties);
+    network.init(getNetworkConfiguration(pid), 1);
+    network.connect(5000);
+    System.out.println("Connected");
+
+    BigInteger modulus = BigInteger.valueOf(997);
+    int kBitLength = 10;
+    int lambdaSecurityParam = 10;
+    int numLeftFactors = 3;
+    Random rand = new Random(42);
+
+    TripleGen tripleGen = new TripleGen(pid, parties, modulus, kBitLength, lambdaSecurityParam,
+        numLeftFactors, network, executor, rand);
+
+
+    FieldElement leftFactor1 = new FieldElement(1, modulus, kBitLength);
+    FieldElement leftFactor2 = new FieldElement(2, modulus, kBitLength);
+    FieldElement leftFactor3 = new FieldElement(3, modulus, kBitLength);
+    List<FieldElement> leftFactors = Arrays.asList(leftFactor1, leftFactor2, leftFactor3);
+
+    FieldElement rightFactor = new FieldElement(10, modulus, kBitLength);
+    List<FieldElement> productShares = tripleGen.multiply(leftFactors, rightFactor);
+
+    System.out.println(productShares);
+
+    for (FieldElement productShare : productShares) {
+      network.send(0, 1, productShare.toByteArray());
+    }
+
     System.out.println("done");
   }
 
@@ -117,9 +185,9 @@ public class MascotDemo {
     int pid = Integer.parseInt(args[0]);
     try {
       if (pid == 1) {
-        new MascotDemo().runPartyOneMult(1);
+        new MascotDemo().runPartyOneTriple(1);
       } else {
-        new MascotDemo().runPartyTwoMult(2);
+        new MascotDemo().runPartyTwoTriple(2);
       }
     } catch (Exception e) {
       System.out.println("Failed to run: " + e);

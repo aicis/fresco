@@ -24,8 +24,6 @@ public class MultiplyRight extends MultiplyShared {
   protected List<Pair<BigInteger, BigInteger>> generateSeeds() {
     // TODO: the ROTs should be batched into one
     List<Pair<BigInteger, BigInteger>> seeds = new ArrayList<>();
-    System.out.println("numLeftFactors " + numLeftFactors);
-    System.out.println("kBitLength " + kBitLength);
     for (int r = 0; r < numLeftFactors; r++) {
       seeds.addAll(rot.send(kBitLength));
     }
