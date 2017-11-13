@@ -1,10 +1,9 @@
 package dk.alexandra.fresco.framework.util;
 
-
-import org.junit.Test;
-import dk.alexandra.fresco.framework.MPCException;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+import dk.alexandra.fresco.framework.MPCException;
 import java.util.Arrays;
 
 public class TestDetermSecureRandom {
