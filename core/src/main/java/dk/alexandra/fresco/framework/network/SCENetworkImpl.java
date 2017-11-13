@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class SCENetworkImpl implements SCENetwork, SCENetworkSupplier {
+public class SCENetworkImpl implements SCENetwork {
 
   private int noOfParties;
 

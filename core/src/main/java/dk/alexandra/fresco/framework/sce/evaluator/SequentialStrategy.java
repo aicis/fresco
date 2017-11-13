@@ -1,23 +1,23 @@
 package dk.alexandra.fresco.framework.sce.evaluator;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.NativeProtocol.EvaluationStatus;
-import dk.alexandra.fresco.framework.ProtocolCollection;
-import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.network.SCENetworkSupplier;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SequentialStrategy<ResourcePoolT extends ResourcePool> implements BatchEvaluationStrategy<ResourcePoolT>{
+import dk.alexandra.fresco.framework.NativeProtocol;
+import dk.alexandra.fresco.framework.NativeProtocol.EvaluationStatus;
+import dk.alexandra.fresco.framework.ProtocolCollection;
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+
+public class SequentialStrategy<ResourcePoolT extends ResourcePool>
+    implements BatchEvaluationStrategy<ResourcePoolT> {
 
   @Override
-  public <SceNetwork extends SCENetwork & SCENetworkSupplier> void processBatch(
-      ProtocolCollection<ResourcePoolT> protocols, ResourcePoolT resourcePool, SceNetwork sceNetwork)
-          throws IOException {
+  public void processBatch(ProtocolCollection<ResourcePoolT> protocols, ResourcePoolT resourcePool,
+      SCENetwork sceNetwork) throws IOException {
     Network network = resourcePool.getNetwork();
     for (NativeProtocol<?, ResourcePoolT> protocol : protocols) {
       int round = 0;
