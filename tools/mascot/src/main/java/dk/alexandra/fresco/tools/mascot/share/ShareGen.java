@@ -51,6 +51,7 @@ public class ShareGen extends MultiPartyProtocol {
         this.copeProtocols.put(partyId, cope);
       }
     }
+    System.out.println("copeProtocols.size() " + copeProtocols.size());
     this.macCheckProtocol =
         new DummyMacCheck(myId, partyIds, modulus, kBitLength, network, executor, rand);
     this.initialized = false;
@@ -90,6 +91,7 @@ public class ShareGen extends MultiPartyProtocol {
   }
 
   public SpdzElement input(FieldElement value) throws IOException {
+    // TODO: throw if not initialized
     FieldElement x0 = sampler.sample(modulus, kBitLength);
     List<FieldElement> values = Arrays.asList(x0, value);
     int numElements = values.size();
@@ -97,6 +99,7 @@ public class ShareGen extends MultiPartyProtocol {
     // TODO: wrap this
     List<List<FieldElement>> tValuesPerParty = new ArrayList<>();
     for (Cope cope : copeProtocols.values()) {
+      System.out.println(cope.getInputter().getMyId());
       tValuesPerParty.add(cope.getInputter().extend(values));
     }
     List<FieldElement> tValues = getTValues(tValuesPerParty, numElements);
@@ -128,7 +131,7 @@ public class ShareGen extends MultiPartyProtocol {
       }
     }
 
-    FieldElement share = shares.get(0);
+    FieldElement share = shares.get(myId - 1);
     FieldElement macShare = subMacShares.get(1);
     return FieldElement.toSpdzElement(share, macShare);
   }

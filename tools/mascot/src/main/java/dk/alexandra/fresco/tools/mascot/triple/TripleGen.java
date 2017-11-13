@@ -2,11 +2,15 @@ package dk.alexandra.fresco.tools.mascot.triple;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeft;
@@ -21,15 +25,26 @@ public class TripleGen extends MultiPartyProtocol {
   protected int numTriplesSecParam;
   protected ShareGen shareGen;
   protected Sampler sampler;
+  protected boolean initialized;
 
   public TripleGen(Integer myId, List<Integer> partyIds, BigInteger modulus, int kBitLength,
       int lambdaSecurityParam, int numTriplesSecParam, ExtendedNetwork network,
       ExecutorService executor, Random rand) {
     super(myId, partyIds, modulus, kBitLength, network, executor, rand);
     this.numTriplesSecParam = numTriplesSecParam;
+    // TODO: lambdaSecurityParam should be different than kBitLenght
     this.shareGen = new ShareGen(modulus, kBitLength, myId, partyIds, lambdaSecurityParam, network,
         rand, executor);
     this.sampler = new DummySampler(rand);
+    this.initialized = false;
+  }
+
+  public void initialize() {
+    if (initialized) {
+      throw new IllegalStateException("Already initialized");
+    }
+    this.shareGen.initialize();
+    this.initialized = true;
   }
 
   public List<FieldElement> multiply(List<FieldElement> leftFactorCandidates,
@@ -66,20 +81,51 @@ public class TripleGen extends MultiPartyProtocol {
     return productCandidates;
   }
 
-  public Combined combine(List<FieldElement> leftFactors, FieldElement rightFactor,
+  public Combined<FieldElement> combine(List<FieldElement> leftFactors, FieldElement rightFactor,
       List<FieldElement> products) {
     List<FieldElement> r = sampler.jointSample(modulus, kBitLength, numTriplesSecParam);
     List<FieldElement> rHat = sampler.jointSample(modulus, kBitLength, numTriplesSecParam);
-    
+
     FieldElement a = FieldElement.innerProduct(leftFactors, r);
     FieldElement aHat = FieldElement.innerProduct(leftFactors, rHat);
     FieldElement c = FieldElement.innerProduct(products, r);
     FieldElement cHat = FieldElement.innerProduct(products, rHat);
-    
-    return new Combined(a, rightFactor, c, aHat, cHat);
+
+    return new Combined<>(a, rightFactor, c, aHat, cHat);
   }
 
-  public List<FieldElement> triple() throws IOException {
+  public Combined<SpdzElement> authenticate(Combined<FieldElement> combined) throws IOException {
+    // TODO: parallelize
+    List<List<SpdzElement>> subShares = new ArrayList<>();
+    for (int i = 0; i < 5; i++) {
+      subShares.add(new ArrayList<>());
+    }
+    for (Integer partyId : partyIds) {
+      if (partyId.equals(myId)) {
+        List<FieldElement> els = combined.toOrderedList();
+        for (int i = 0; i < els.size(); i++) {
+          subShares.get(i).add(shareGen.input(els.get(i)));
+        }
+      } else {
+        for (int i = 0; i < subShares.size(); i++) {
+          subShares.get(i).add(shareGen.input(partyId));
+        }
+      }
+    }
+    System.out.println(subShares);
+    List<SpdzElement> shares =
+        subShares.stream().map(shareList -> shareList.stream().reduce((l, r) -> l.add(r)).get())
+            .collect(Collectors.toList());
+    return new Combined<>(shares);
+  }
+
+  public SpdzTriple sacrifice(Combined<SpdzElement> authenticated) {
+    // TODO
+    return new SpdzTriple(authenticated.a, authenticated.b, authenticated.c);
+  }
+
+  public SpdzTriple triple() throws IOException {
+    // TODO: throw if not initialized
     List<FieldElement> leftFactorCandidates =
         sampler.sample(modulus, kBitLength, numTriplesSecParam);
 
@@ -87,18 +133,24 @@ public class TripleGen extends MultiPartyProtocol {
 
     List<FieldElement> productCandidates = multiply(leftFactorCandidates, rightFactor);
 
-    return productCandidates;
+    Combined<FieldElement> combined = combine(leftFactorCandidates, rightFactor, productCandidates);
+    System.out.println("combined " + combined);
+    
+    Combined<SpdzElement> authenticated = authenticate(combined);
+
+    SpdzTriple triple = sacrifice(authenticated);
+
+    return triple;
   }
 
-  private class Combined {
-    FieldElement a;
-    FieldElement b;
-    FieldElement c;
-    FieldElement aHat;
-    FieldElement cHat;
+  private class Combined<T> {
+    T a;
+    T b;
+    T c;
+    T aHat;
+    T cHat;
 
-    public Combined(FieldElement a, FieldElement b, FieldElement c, FieldElement aHat,
-        FieldElement cHat) {
+    public Combined(T a, T b, T c, T aHat, T cHat) {
       super();
       this.a = a;
       this.b = b;
@@ -106,6 +158,27 @@ public class TripleGen extends MultiPartyProtocol {
       this.aHat = aHat;
       this.cHat = cHat;
     }
+
+    public Combined(List<T> ordered) {
+      super();
+      // TODO: throw if incorrect size
+      this.a = ordered.get(0);
+      this.b = ordered.get(1);
+      this.c = ordered.get(2);
+      this.aHat = ordered.get(3);
+      this.cHat = ordered.get(4);
+    }
+
+    List<T> toOrderedList() {
+      return Arrays.asList(a, b, c, aHat, cHat);
+    }
+
+    @Override
+    public String toString() {
+      return "Combined [a=" + a + ", b=" + b + ", c=" + c + ", aHat=" + aHat + ", cHat=" + cHat
+          + "]";
+    }
+    
   }
 
 }

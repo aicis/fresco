@@ -14,6 +14,7 @@ import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeft;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyRight;
@@ -84,6 +85,60 @@ public class MascotDemo {
     int kBitLength = 10;
     int lambdaSecurityParam = 10;
     int numLeftFactors = 3;
+    Random rand = new Random(1);
+
+    TripleGen tripleGen = new TripleGen(pid, parties, modulus, kBitLength, lambdaSecurityParam,
+        numLeftFactors, network, executor, rand);
+    tripleGen.initialize();
+    SpdzTriple triple = tripleGen.triple();
+    FieldElement otherA = new FieldElement(network.receive(0, 2), modulus, kBitLength);
+    FieldElement otherB = new FieldElement(network.receive(0, 2), modulus, kBitLength);
+    FieldElement otherC = new FieldElement(network.receive(0, 2), modulus, kBitLength);
+    FieldElement a = new FieldElement(triple.getA().getShare(), modulus, kBitLength).add(otherA);
+    FieldElement b = new FieldElement(triple.getB().getShare(), modulus, kBitLength).add(otherB);
+    FieldElement c = new FieldElement(triple.getC().getShare(), modulus, kBitLength).add(otherC);
+    System.out.println(a);
+    System.out.println(b);
+    System.out.println(c);
+    System.out.println("done");
+  }
+
+  public void runPartyTwoTriple(int pid) throws IOException {
+    ExecutorService executor = Executors.newCachedThreadPool();
+    List<Integer> parties = Arrays.asList(1, 2);
+    ExtendedNetwork network = new ExtendedKryoNetNetworkImpl(executor, pid, parties);
+    network.init(getNetworkConfiguration(pid), 1);
+    network.connect(5000);
+    System.out.println("Connected");
+
+    BigInteger modulus = BigInteger.valueOf(997);
+    int kBitLength = 10;
+    int lambdaSecurityParam = 10;
+    int numLeftFactors = 3;
+    Random rand = new Random(42);
+
+    TripleGen tripleGen = new TripleGen(pid, parties, modulus, kBitLength, lambdaSecurityParam,
+        numLeftFactors, network, executor, rand);
+    tripleGen.initialize();
+    SpdzTriple triple = tripleGen.triple();
+    network.send(0, 1, triple.getA().getShare().toByteArray());
+    network.send(0, 1, triple.getB().getShare().toByteArray());
+    network.send(0, 1, triple.getC().getShare().toByteArray());
+    System.out.println("done");
+  }
+  
+  public void runPartyOneTripleMultiply(Integer pid) throws IOException {
+    ExecutorService executor = Executors.newCachedThreadPool();
+    List<Integer> parties = Arrays.asList(1, 2);
+    ExtendedNetwork network = new ExtendedKryoNetNetworkImpl(executor, pid, parties);
+    network.init(getNetworkConfiguration(pid), 1);
+    network.connect(5000);
+    System.out.println("Connected");
+
+    BigInteger modulus = BigInteger.valueOf(997);
+    int kBitLength = 10;
+    int lambdaSecurityParam = 10;
+    int numLeftFactors = 3;
     Random rand = new Random(42);
 
     TripleGen tripleGen = new TripleGen(pid, parties, modulus, kBitLength, lambdaSecurityParam,
@@ -105,7 +160,7 @@ public class MascotDemo {
     System.out.println("done");
   }
 
-  public void runPartyTwoTriple(int pid) throws IOException {
+  public void runPartyTwoTripleMultiply(int pid) throws IOException {
     ExecutorService executor = Executors.newCachedThreadPool();
     List<Integer> parties = Arrays.asList(1, 2);
     ExtendedNetwork network = new ExtendedKryoNetNetworkImpl(executor, pid, parties);
@@ -121,7 +176,6 @@ public class MascotDemo {
 
     TripleGen tripleGen = new TripleGen(pid, parties, modulus, kBitLength, lambdaSecurityParam,
         numLeftFactors, network, executor, rand);
-
 
     FieldElement leftFactor1 = new FieldElement(1, modulus, kBitLength);
     FieldElement leftFactor2 = new FieldElement(2, modulus, kBitLength);
@@ -153,9 +207,11 @@ public class MascotDemo {
     ShareGen shareGen = new ShareGen(modulus, kBitLength, 1, Arrays.asList(1, 2),
         lambdaSecurityParam, network, rand, executor);
     shareGen.initialize();
-    FieldElement input = new FieldElement(123, modulus, kBitLength);
-    SpdzElement res = shareGen.input(input);
-    System.out.println(res);
+//    FieldElement input = new FieldElement(123, modulus, kBitLength);
+//    SpdzElement res = shareGen.input(input);
+//    System.out.println(res);
+    SpdzElement otherRes = shareGen.input(2);
+    System.out.println(otherRes);
     System.out.println("done");
     shareGen.shutdown();
     network.close();
@@ -174,8 +230,9 @@ public class MascotDemo {
     ShareGen shareGen = new ShareGen(modulus, kBitLength, 2, Arrays.asList(1, 2),
         lambdaSecurityParam, network, rand, executor);
     shareGen.initialize();
-    SpdzElement res = shareGen.input(1);
-    System.out.println(res);
+    FieldElement input = new FieldElement(123, modulus, kBitLength);
+    SpdzElement otherRes = shareGen.input(input);
+    System.out.println(otherRes);
     System.out.println("done");
     shareGen.shutdown();
     network.close();
