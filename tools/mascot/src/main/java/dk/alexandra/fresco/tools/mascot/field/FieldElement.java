@@ -3,6 +3,7 @@ package dk.alexandra.fresco.tools.mascot.field;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.function.BinaryOperator;
+import java.util.stream.IntStream;
 
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 
@@ -27,26 +28,6 @@ public class FieldElement {
     this.value = new BigInteger(value);
     this.modulus = modulus;
     this.bitLength = bitLength;
-  }
-
-  public static FieldElement recombine(FieldElement generator, List<FieldElement> elements) {
-    // TODO: optimize
-    BigInteger modulus = generator.modulus;
-    int bitLength = generator.bitLength;
-    FieldElement accumulator = new FieldElement(BigInteger.ZERO, modulus, bitLength);
-    int power = 0;
-    for (FieldElement element : elements) {
-      // TODO: do we need/ want modular exponentiation?
-      accumulator = accumulator.add(generator.pow(power).multiply(element));
-      power++;
-    }
-    return accumulator;
-  }
-
-  public static FieldElement recombine(List<FieldElement> elements, BigInteger modulus,
-      int bitLength) {
-    FieldElement generator = new FieldElement(BigInteger.valueOf(2), modulus, bitLength);
-    return FieldElement.recombine(generator, elements);
   }
 
   private FieldElement binaryOp(BinaryOperator<BigInteger> op, FieldElement left,
@@ -151,4 +132,33 @@ public class FieldElement {
     BigInteger modulus = share.modulus;
     return new SpdzElement(share.toBigInteger(), macShare.toBigInteger(), modulus);
   }
+  
+  public static FieldElement recombine(FieldElement generator, List<FieldElement> elements) {
+    // TODO: optimize
+    // TODO: user innerProduct
+    BigInteger modulus = generator.modulus;
+    int bitLength = generator.bitLength;
+    FieldElement accumulator = new FieldElement(BigInteger.ZERO, modulus, bitLength);
+    int power = 0;
+    for (FieldElement element : elements) {
+      // TODO: do we need/ want modular exponentiation?
+      accumulator = accumulator.add(generator.pow(power).multiply(element));
+      power++;
+    }
+    return accumulator;
+  }
+
+  public static FieldElement recombine(List<FieldElement> elements, BigInteger modulus,
+      int bitLength) {
+    FieldElement generator = new FieldElement(BigInteger.valueOf(2), modulus, bitLength);
+    return FieldElement.recombine(generator, elements);
+  }
+  
+  public static FieldElement innerProduct(List<FieldElement> left, List<FieldElement> right) {
+    // TODO: throw is unequal lengths
+    return IntStream.range(0, left.size())
+      .mapToObj(idx -> left.get(idx).multiply(right.get(idx)))
+      .reduce((l, r) -> l.add(r)).get();
+  }
+  
 }

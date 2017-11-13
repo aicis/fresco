@@ -32,31 +32,6 @@ public class TripleGen extends MultiPartyProtocol {
     this.sampler = new DummySampler(rand);
   }
 
-  // public List<FieldElement> singleMultRound(Integer leftParty, Integer rightParty,
-  // List<FieldElement> leftFactorCandidates, FieldElement rightFactor) throws IOException {
-  // // TODO: clean up
-  // MultiplyLeft multLeft = new MultiplyLeft(leftParty, rightParty, kBitLength, kBitLength,
-  // numTriplesSecParam, rand, network, executor, modulus);
-  // MultiplyRight multRight = new MultiplyRight(leftParty, rightParty, kBitLength, kBitLength,
-  // numTriplesSecParam, rand, network, executor, modulus);
-  //
-  // if (leftParty < rightParty) {
-  // List<FieldElement> rightToLeft = multRight.multiply(rightFactor);
-  // List<FieldElement> leftToRight = multLeft.multiply(leftFactorCandidates);
-  //
-  // return IntStream.range(0, numTriplesSecParam)
-  // .mapToObj(idx -> leftToRight.get(idx).add(rightToLeft.get(idx)))
-  // .collect(Collectors.toList());
-  // } else {
-  // List<FieldElement> leftToRight = multLeft.multiply(leftFactorCandidates);
-  // List<FieldElement> rightToLeft = multRight.multiply(rightFactor);
-  //
-  // return IntStream.range(0, numTriplesSecParam)
-  // .mapToObj(idx -> leftToRight.get(idx).add(rightToLeft.get(idx)))
-  // .collect(Collectors.toList());
-  // }
-  // }
-
   public List<FieldElement> multiply(List<FieldElement> leftFactorCandidates,
       FieldElement rightFactor) throws IOException {
     List<FieldElement> productCandidates = leftFactorCandidates.stream()
@@ -91,15 +66,46 @@ public class TripleGen extends MultiPartyProtocol {
     return productCandidates;
   }
 
+  public Combined combine(List<FieldElement> leftFactors, FieldElement rightFactor,
+      List<FieldElement> products) {
+    List<FieldElement> r = sampler.jointSample(modulus, kBitLength, numTriplesSecParam);
+    List<FieldElement> rHat = sampler.jointSample(modulus, kBitLength, numTriplesSecParam);
+    
+    FieldElement a = FieldElement.innerProduct(leftFactors, r);
+    FieldElement aHat = FieldElement.innerProduct(leftFactors, rHat);
+    FieldElement c = FieldElement.innerProduct(products, r);
+    FieldElement cHat = FieldElement.innerProduct(products, rHat);
+    
+    return new Combined(a, rightFactor, c, aHat, cHat);
+  }
+
   public List<FieldElement> triple() throws IOException {
     List<FieldElement> leftFactorCandidates =
         sampler.sample(modulus, kBitLength, numTriplesSecParam);
-    
+
     FieldElement rightFactor = sampler.sample(modulus, kBitLength);
 
     List<FieldElement> productCandidates = multiply(leftFactorCandidates, rightFactor);
 
     return productCandidates;
+  }
+
+  private class Combined {
+    FieldElement a;
+    FieldElement b;
+    FieldElement c;
+    FieldElement aHat;
+    FieldElement cHat;
+
+    public Combined(FieldElement a, FieldElement b, FieldElement c, FieldElement aHat,
+        FieldElement cHat) {
+      super();
+      this.a = a;
+      this.b = b;
+      this.c = c;
+      this.aHat = aHat;
+      this.cHat = cHat;
+    }
   }
 
 }
