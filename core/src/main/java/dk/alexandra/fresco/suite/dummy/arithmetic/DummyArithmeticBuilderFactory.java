@@ -2,38 +2,74 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.Comparison;
+import dk.alexandra.fresco.framework.builder.numeric.DefaultComparison;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.SCENetwork;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.MiscOIntGenerators;
+import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
+import dk.alexandra.fresco.logging.PerformanceLogger;
+import dk.alexandra.fresco.logging.arithmetic.ComparisonLoggerDecorator;
+import dk.alexandra.fresco.logging.arithmetic.NumericLoggingDecorator;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
- * A {@link BuilderFactoryNumeric} implementation for the Dummy Arithmetic suite.
+ * A {@link BuilderFactoryNumeric} implementation for the Dummy Arithmetic suite. This class has
+ * built-in support for logging the amount of different operations (i.e. protocols) that the
+ * application asks for.
  *
  */
 public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
 
-  private static final int EXP_PIPE_LENGTH = 201;
+  /**
+   * Map from party ID to performance loggers. 
+   */
+  public static final ConcurrentMap<Integer, List<PerformanceLogger>> performanceLoggers =
+      new ConcurrentHashMap<>();
   private BasicNumericContext factory;
-  private MiscOIntGenerators mog;
+  private MiscBigIntegerGenerators mog;
+  private ComparisonLoggerDecorator compDecorator;
+  private NumericLoggingDecorator numericDecorator;
 
+  /**
+   * Creates a dummy arithmetic builder factory which creates basic numeric operations
+   * 
+   * @param factory The numeric context we work within. 
+   */
   public DummyArithmeticBuilderFactory(BasicNumericContext factory) {
     super();
     this.factory = factory;
+    performanceLoggers.put(factory.getMyId(), new ArrayList<>());
   }
 
+  @Override
+  public Comparison createComparison(ProtocolBuilderNumeric builder) {
+    Comparison comp = new DefaultComparison(this, builder);
+    if (compDecorator == null) {
+      compDecorator = new ComparisonLoggerDecorator(comp);
+      
+      performanceLoggers.get(factory.getMyId()).add(compDecorator);  
+    } else {
+      compDecorator.setDelegate(comp);  
+    }
+    
+    return compDecorator;
+  }
+  
   @Override
   public BasicNumericContext getBasicNumericContext() {
-    return factory;
+    return factory; 
   }
 
   @Override
-  public Numeric createNumeric(ProtocolBuilderNumeric builder) {
-
-    return new Numeric() {
+  public Numeric createNumeric(ProtocolBuilderNumeric builder) {    
+    Numeric numeric = new Numeric() {
 
       @Override
       public DRes<SInt> sub(DRes<SInt> a, BigInteger b) {
@@ -155,31 +191,6 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
       }
 
       @Override
-      public DRes<SInt[]> getExponentiationPipe() {
-        // TODO: fix how to set exponentiation pipe length
-        DummyArithmeticNativeProtocol<SInt[]> c = new DummyArithmeticNativeProtocol<SInt[]>() {
-
-          DummyArithmeticSInt[] pipe;
-
-          @Override
-          public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool resourcePool,
-              SCENetwork network) {
-            pipe = new DummyArithmeticSInt[EXP_PIPE_LENGTH];
-            for (int i = 0; i < pipe.length; i++) {
-              pipe[i] = new DummyArithmeticSInt(1);
-            }
-            return EvaluationStatus.IS_DONE;
-          }
-
-          @Override
-          public SInt[] out() {
-            return pipe;
-          }
-        };
-        return builder.append(c);
-      }
-
-      @Override
       public DRes<SInt> add(BigInteger a, DRes<SInt> b) {
         DummyArithmeticAddProtocol c =
             new DummyArithmeticAddProtocol(() -> new DummyArithmeticSInt(a), b);
@@ -192,12 +203,20 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
         return builder.append(c);
       }
     };
+    
+    if (numericDecorator == null) {
+      numericDecorator = new NumericLoggingDecorator(numeric);
+      performanceLoggers.get(factory.getMyId()).add(numericDecorator);      
+    } else {
+      numericDecorator.setDelegate(numeric);
+    }    
+    return numericDecorator;
   }
 
   @Override
-  public MiscOIntGenerators getBigIntegerHelper() {
+  public MiscBigIntegerGenerators getBigIntegerHelper() {
     if (mog == null) {
-      mog = new MiscOIntGenerators(factory.getModulus());
+      mog = new MiscBigIntegerGenerators(factory.getModulus());
     }
     return mog;
   }

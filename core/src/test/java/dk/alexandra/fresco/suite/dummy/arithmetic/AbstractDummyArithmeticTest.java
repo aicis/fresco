@@ -1,40 +1,31 @@
-/*******************************************************************************
- * Copyright (c) 2017 FRESCO (http://github.com/aicis/fresco).
- *
- * This file is part of the FRESCO project.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
- * Please see these projects for any further licensing issues.
- *******************************************************************************/
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
+import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
-import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.framework.util.DetermSecureRandom;
+import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
+import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
+import dk.alexandra.fresco.logging.PerformanceLogger;
+import dk.alexandra.fresco.logging.SCELoggingDecorator;
+import dk.alexandra.fresco.logging.PerformanceLogger.Flag;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * Abstract class which handles a lot of boiler plate testing code. This makes running a single test
@@ -42,16 +33,25 @@ import java.util.Map;
  */
 public abstract class AbstractDummyArithmeticTest {
 
-  protected void runTest(TestThreadRunner.TestThreadFactory f, EvaluationStrategy evalStrategy,
-      NetworkingStrategy network, int noOfParties) throws Exception {
+  /**
+   * Runs test with default modulus and no performance logging. i.e. standard test setup.
+   */
+  protected void runTest(
+      TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
+      EvaluationStrategy evalStrategy, NetworkingStrategy strategy, int noOfParties)
+          throws Exception {
     BigInteger mod = new BigInteger(
         "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
-    runTest(f, evalStrategy, network, noOfParties, mod);
+    runTest(f, evalStrategy, strategy, noOfParties, mod, null);
   }
-  
-  protected void runTest(TestThreadRunner.TestThreadFactory f, EvaluationStrategy evalStrategy,
-      NetworkingStrategy network, int noOfParties, BigInteger mod) throws Exception {
 
+  /**
+   * Runs test with all parameters free. Only the starting port of 9000 is chosen by default.
+   */
+  protected void runTest(
+      TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
+      EvaluationStrategy evalStrategy, NetworkingStrategy networkStrategy, int noOfParties,
+      BigInteger mod, EnumSet<Flag> performanceLoggerFlags) throws Exception {
     List<Integer> ports = new ArrayList<Integer>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * (noOfParties - 1));
@@ -59,23 +59,51 @@ public abstract class AbstractDummyArithmeticTest {
 
     Map<Integer, NetworkConfiguration> netConf =
         TestConfiguration.getNetworkConfigurations(noOfParties, ports);
-    Map<Integer, TestThreadRunner.TestThreadConfiguration> conf =
-        new HashMap<Integer, TestThreadRunner.TestThreadConfiguration>();
+    Map<Integer, TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>> conf =
+        new HashMap<Integer, TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>>();
+    List<PerformanceLogger> pls = new ArrayList<>();
     for (int playerId : netConf.keySet()) {
-      TestThreadRunner.TestThreadConfiguration ttc = new TestThreadRunner.TestThreadConfiguration();
-      ttc.netConf = netConf.get(playerId);
+
+      NetworkConfiguration partyNetConf = netConf.get(playerId);
 
       DummyArithmeticProtocolSuite ps = new DummyArithmeticProtocolSuite(mod, 200);
 
-      boolean useSecureConnection = false; // No tests of secure
-      // connection
-      // here.
+      BatchEvaluationStrategy<DummyArithmeticResourcePool> batchEvaluationStrategy =
+          EvaluationStrategy.fromEnum(evalStrategy);
+      if (performanceLoggerFlags != null && performanceLoggerFlags.contains(Flag.LOG_NATIVE_BATCH)) {
+        batchEvaluationStrategy =
+            new BatchEvaluationLoggingDecorator<>(batchEvaluationStrategy);
+        pls.add((PerformanceLogger) batchEvaluationStrategy);
+      }
+      ProtocolEvaluator<DummyArithmeticResourcePool, ProtocolBuilderNumeric> evaluator =
+          new BatchedProtocolEvaluator<>(batchEvaluationStrategy);
+      Network network = new KryoNetNetwork();      
+      if(performanceLoggerFlags != null && performanceLoggerFlags.contains(Flag.LOG_NETWORK)) {
+        network = new NetworkLoggingDecorator(network);
+        pls.add((PerformanceLogger) network);
+      }
+      network.init(partyNetConf, 1);
+      
+      DummyArithmeticResourcePool rp = new DummyArithmeticResourcePoolImpl(playerId, noOfParties,
+          network, new Random(0), new DetermSecureRandom(), mod);
+      
+      SecureComputationEngine<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce =
+          new SecureComputationEngineImpl<>(ps, evaluator);
+      if(performanceLoggerFlags != null && performanceLoggerFlags.contains(Flag.LOG_RUNTIME)) {
+        sce = new SCELoggingDecorator<>(sce, ps);
+        pls.add((PerformanceLogger) sce);
+      }
 
-      ProtocolEvaluator evaluator = EvaluationStrategy.fromEnum(evalStrategy);
-      ttc.sceConf = new TestSCEConfiguration(ps, network, evaluator, ttc.netConf,
-          useSecureConnection);
+      TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
+          new TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>(
+              sce, rp);
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
+    int id = 1;
+    for(PerformanceLogger pl : pls) {
+      pl.printPerformanceLog(id++);
+      pl.reset();
+    }
   }
 }

@@ -1,4 +1,5 @@
-<project>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <groupId>dk.alexandra.fresco</groupId>
     <artifactId>master-pom</artifactId>
@@ -15,11 +16,17 @@
       <artifactId>spdz</artifactId>
       <version>${fresco-version}</version>
     </dependency>
-
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>
       <artifactId>tinytables</artifactId>
       <version>${fresco-version}</version>
+    </dependency>
+
+    <!-- Logging should work also for running demos -->
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.2.3</version>
     </dependency>
 
     <!-- Test dependencies -->

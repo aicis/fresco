@@ -42,19 +42,5 @@ public interface SpdzResourcePool extends ResourcePool {
    */
   MessageDigest getMessageDigest();
 
-  /**
-   * Call to set the current state of the resource pool.
-   *
-   * @param outputProtocolInBatch true to indicate current batch has an output protocol.
-   */
-  void setOutputProtocolInBatch(boolean outputProtocolInBatch);
-
-  /**
-   * Is true if there was an output protocol.
-   *
-   * @return true if output
-   */
-  boolean isOutputProtocolInBatch();
-
   BigInteger convertRepresentation(BigInteger b);
 }

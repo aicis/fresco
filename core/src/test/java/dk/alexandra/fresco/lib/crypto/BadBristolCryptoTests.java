@@ -23,68 +23,37 @@
  *******************************************************************************/
 package dk.alexandra.fresco.lib.crypto;
 
-import static org.junit.Assert.assertTrue;
-
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.lib.bool.BooleanHelper;
 import dk.alexandra.fresco.lib.helper.bristol.BristolCircuitParser;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import org.hamcrest.core.Is;
 import org.junit.Assert;
-import org.junit.Test;
 
 /**
- * Some generic tests for basic crypto primitives a la AES and SHA1.
- *
- * Can be used to test any protocol suite that supports BasicLogicFactory.
+ * Tests for invalid circuits
+ * 
  */
 public class BadBristolCryptoTests {
 
-  /**
-   * Convert hex string to boolean array.
-   *
-   * // 1 --> true, 0 --> false
-   */
-  private static Boolean[] toBoolean(String hex) throws IllegalArgumentException {
-    if (hex.length() % 2 != 0) {
-      throw new IllegalArgumentException("Illegal hex string");
-    }
-    Boolean[] res = new Boolean[hex.length() * 4];
-    for (int i = 0; i < hex.length() / 2; i++) {
-      String sub = hex.substring(2 * i, 2 * i + 2);
-      int value = Integer.parseInt(sub, 16);
-      int numOfBits = 8;
-      for (int j = 0; j < numOfBits; j++) {
-        boolean val = (value & 1 << j) != 0;
-        res[8 * i + (numOfBits - j - 1)] = val;
-      }
-    }
-    return res;
-  }
 
   public static class XorTest1<ResourcePoolT extends ResourcePool>
-  extends TestThreadFactory {
+    extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public XorTest1() {
     }
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         @Override
@@ -101,8 +70,7 @@ public class BadBristolCryptoTests {
                 return l;
               });
               try{
-                secureComputationEngine.runApplication(multApp,
-                    ResourcePoolCreator.createResourcePool(conf.sceConf));
+                runApplication(multApp);
                 Assert.fail();
               } catch(RuntimeException e) {
                 Assert.assertEquals(e.getCause().getClass(), MPCException.class);
@@ -114,13 +82,13 @@ public class BadBristolCryptoTests {
   }
 
   public static class XorTest2<ResourcePoolT extends ResourcePool>
-  extends TestThreadFactory {
+    extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public XorTest2() {
     }
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         @Override
@@ -137,8 +105,7 @@ public class BadBristolCryptoTests {
                 return l;
               });
               try{
-                secureComputationEngine.runApplication(multApp,
-                    ResourcePoolCreator.createResourcePool(conf.sceConf));
+                runApplication(multApp);
                 Assert.fail();
               } catch(RuntimeException e) {
                 Assert.assertEquals(e.getCause().getClass(), MPCException.class);
@@ -150,13 +117,13 @@ public class BadBristolCryptoTests {
   }
 
   public static class XorTest3<ResourcePoolT extends ResourcePool>
-  extends TestThreadFactory {
+    extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public XorTest3() {
     }
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         @Override
@@ -173,8 +140,7 @@ public class BadBristolCryptoTests {
                 return l;
               });
               try{
-                secureComputationEngine.runApplication(multApp,
-                    ResourcePoolCreator.createResourcePool(conf.sceConf));
+                runApplication(multApp);
                 Assert.fail();
               } catch(RuntimeException e) {
                 e.printStackTrace();
@@ -187,13 +153,13 @@ public class BadBristolCryptoTests {
   }
 
   public static class XorTest4<ResourcePoolT extends ResourcePool>
-  extends TestThreadFactory {
+    extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public XorTest4() {
     }
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         @Override
@@ -210,8 +176,7 @@ public class BadBristolCryptoTests {
                 return l;
               });
               try{
-                secureComputationEngine.runApplication(multApp,
-                    ResourcePoolCreator.createResourcePool(conf.sceConf));
+                runApplication(multApp);
                 Assert.fail();
               } catch(RuntimeException e) {
                 e.printStackTrace();
@@ -225,13 +190,13 @@ public class BadBristolCryptoTests {
 
 
   public static class XorTest5<ResourcePoolT extends ResourcePool>
-  extends TestThreadFactory {
+    extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public XorTest5() {
     }
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         @Override
@@ -248,8 +213,7 @@ public class BadBristolCryptoTests {
                 return l;
               });
               try{
-                secureComputationEngine.runApplication(multApp,
-                    ResourcePoolCreator.createResourcePool(conf.sceConf));
+                runApplication(multApp);
                 Assert.fail();
               } catch(RuntimeException e) {
                 Assert.assertEquals(e.getCause().getClass(), MPCException.class);
@@ -261,13 +225,13 @@ public class BadBristolCryptoTests {
 
   
   public static class AndTest1<ResourcePoolT extends ResourcePool>
-  extends TestThreadFactory {
+    extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public AndTest1() {
     }
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         @Override
@@ -284,8 +248,7 @@ public class BadBristolCryptoTests {
                 return l;
               });
               try{
-                secureComputationEngine.runApplication(multApp,
-                    ResourcePoolCreator.createResourcePool(conf.sceConf));
+                runApplication(multApp);
                 Assert.fail();
               } catch(RuntimeException e) {
                 Assert.assertEquals(e.getCause().getClass(), MPCException.class);
@@ -296,13 +259,13 @@ public class BadBristolCryptoTests {
   }
 
   public static class AndTest2<ResourcePoolT extends ResourcePool>
-  extends TestThreadFactory {
+    extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public AndTest2() {
     }
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         @Override
@@ -319,8 +282,7 @@ public class BadBristolCryptoTests {
                 return l;
               });
               try{
-                secureComputationEngine.runApplication(multApp,
-                    ResourcePoolCreator.createResourcePool(conf.sceConf));
+                runApplication(multApp);
                 Assert.fail();
               } catch(RuntimeException e) {
                 Assert.assertEquals(e.getCause().getClass(), MPCException.class);
@@ -331,13 +293,13 @@ public class BadBristolCryptoTests {
   }
 
   public static class AndTest3<ResourcePoolT extends ResourcePool>
-  extends TestThreadFactory {
+    extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public AndTest3() {
     }
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         @Override
@@ -354,8 +316,7 @@ public class BadBristolCryptoTests {
                 return l;
               });
               try{
-                secureComputationEngine.runApplication(multApp,
-                    ResourcePoolCreator.createResourcePool(conf.sceConf));
+                runApplication(multApp);
                 Assert.fail();
               } catch(RuntimeException e) {
                 Assert.assertEquals(e.getCause().getClass(), MPCException.class);
@@ -366,13 +327,13 @@ public class BadBristolCryptoTests {
   }
 
   public static class AndTest4<ResourcePoolT extends ResourcePool>
-  extends TestThreadFactory {
+    extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public AndTest4() {
     }
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         @Override
@@ -389,8 +350,7 @@ public class BadBristolCryptoTests {
                 return l;
               });
               try{
-                secureComputationEngine.runApplication(multApp,
-                    ResourcePoolCreator.createResourcePool(conf.sceConf));
+                runApplication(multApp);
                 Assert.fail();
               } catch(RuntimeException e) {
                 Assert.assertEquals(e.getCause().getClass(), MPCException.class);
@@ -402,13 +362,13 @@ public class BadBristolCryptoTests {
 
 
   public static class AndTest5<ResourcePoolT extends ResourcePool>
-  extends TestThreadFactory {
+    extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public AndTest5() {
     }
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         @Override
@@ -425,8 +385,7 @@ public class BadBristolCryptoTests {
                 return l;
               });
               try{
-                secureComputationEngine.runApplication(multApp,
-                    ResourcePoolCreator.createResourcePool(conf.sceConf));
+                runApplication(multApp);
                 Assert.fail();
               } catch(RuntimeException e) {
                 Assert.assertEquals(e.getCause().getClass(), MPCException.class);
@@ -437,13 +396,13 @@ public class BadBristolCryptoTests {
   }
 
   public static class InvTest1<ResourcePoolT extends ResourcePool>
-  extends TestThreadFactory {
+    extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public InvTest1() {
     }
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         @Override
@@ -460,8 +419,7 @@ public class BadBristolCryptoTests {
                 return l;
               });
               try{
-                secureComputationEngine.runApplication(multApp,
-                    ResourcePoolCreator.createResourcePool(conf.sceConf));
+                runApplication(multApp);
                 Assert.fail();
               } catch(RuntimeException e) {
                 Assert.assertEquals(e.getCause().getClass(), MPCException.class);
@@ -472,13 +430,13 @@ public class BadBristolCryptoTests {
   }
 
   public static class InvTest2<ResourcePoolT extends ResourcePool>
-  extends TestThreadFactory {
+    extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public InvTest2() {
     }
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         @Override
@@ -495,8 +453,7 @@ public class BadBristolCryptoTests {
                 return l;
               });
               try{
-                secureComputationEngine.runApplication(multApp,
-                    ResourcePoolCreator.createResourcePool(conf.sceConf));
+                runApplication(multApp);
                 Assert.fail();
               } catch(RuntimeException e) {
                 Assert.assertEquals(e.getCause().getClass(), MPCException.class);
@@ -507,13 +464,13 @@ public class BadBristolCryptoTests {
   }
 
   public static class InvTest3<ResourcePoolT extends ResourcePool>
-  extends TestThreadFactory {
+    extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public InvTest3() {
     }
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         @Override
@@ -530,8 +487,7 @@ public class BadBristolCryptoTests {
                 return l;
               });
               try{
-                secureComputationEngine.runApplication(multApp,
-                    ResourcePoolCreator.createResourcePool(conf.sceConf));
+                runApplication(multApp);
                 Assert.fail();
               } catch(RuntimeException e) {
                 Assert.assertEquals(e.getCause().getClass(), MPCException.class);
@@ -543,13 +499,13 @@ public class BadBristolCryptoTests {
 
 
   public static class InvTest4<ResourcePoolT extends ResourcePool>
-  extends TestThreadFactory {
+    extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public InvTest4() {
     }
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         @Override
@@ -566,8 +522,7 @@ public class BadBristolCryptoTests {
                 return l;
               });
               try{
-                secureComputationEngine.runApplication(multApp,
-                    ResourcePoolCreator.createResourcePool(conf.sceConf));
+                runApplication(multApp);
                 Assert.fail();
               } catch(RuntimeException e) {
                 Assert.assertEquals(e.getCause().getClass(), MPCException.class);
@@ -578,13 +533,13 @@ public class BadBristolCryptoTests {
   }
 
   public static class NoCircuitTest<ResourcePoolT extends ResourcePool>
-  extends TestThreadFactory {
+    extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public NoCircuitTest() {
     }
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         @Override
@@ -601,8 +556,7 @@ public class BadBristolCryptoTests {
                 return l;
               });
               try{
-                secureComputationEngine.runApplication(multApp,
-                    ResourcePoolCreator.createResourcePool(conf.sceConf));
+                runApplication(multApp);
                 Assert.fail();
               } catch(RuntimeException e) {
                 Assert.assertEquals(e.getCause().getClass(), MPCException.class);
@@ -613,13 +567,13 @@ public class BadBristolCryptoTests {
   }
   
   public static class BadOperationTest<ResourcePoolT extends ResourcePool>
-  extends TestThreadFactory {
+    extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public BadOperationTest() {
     }
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         @Override
@@ -640,8 +594,7 @@ public class BadBristolCryptoTests {
                 return l;
               });
               try{
-                secureComputationEngine.runApplication(multApp,
-                    ResourcePoolCreator.createResourcePool(conf.sceConf));
+                runApplication(multApp);
                 Assert.fail();
               } catch(RuntimeException e) {
                 e.printStackTrace();

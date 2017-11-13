@@ -1,26 +1,3 @@
-/*
- * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
- *
- * This file is part of the FRESCO project.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
- * Please see these projects for any further licensing issues.
- *******************************************************************************/
 package dk.alexandra.fresco.lib.crypto;
 
 import static org.junit.Assert.assertTrue;
@@ -30,7 +7,6 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.bool.BooleanHelper;
@@ -86,7 +62,7 @@ public class BristolCryptoTests {
    * TODO: Include more FIPS test vectors.
    */
   public static class AesTest<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     private boolean doAsserts;
 
@@ -95,7 +71,7 @@ public class BristolCryptoTests {
     }
 
     @Override
-    public TestThread next() {
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
         // This is just some fixed test vectors for AES in ECB mode that was
@@ -109,8 +85,7 @@ public class BristolCryptoTests {
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> multApp =
               producer -> producer.seq(seq -> {
-            List<DRes<SBool>> plainText =
-                BooleanHelper.known(toBoolean(plainVec), seq.binary());
+            List<DRes<SBool>> plainText = BooleanHelper.known(toBoolean(plainVec), seq.binary());
             List<DRes<SBool>> key = BooleanHelper.known(toBoolean(keyVec[0]), seq.binary());
             List<List<DRes<SBool>>> inputs = new ArrayList<>();
             inputs.add(plainText);
@@ -125,11 +100,10 @@ public class BristolCryptoTests {
               outputs.add(seq.binary().open(() -> boo));
             }
             return () -> outputs;
-          }).seq((seq,
-              output) -> () -> output.stream().map(DRes::out).collect(Collectors.toList()));
+          }).seq(
+              (seq, output) -> () -> output.stream().map(DRes::out).collect(Collectors.toList()));
 
-          List<Boolean> res = secureComputationEngine.runApplication(multApp,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Boolean> res = runApplication(multApp);
           Boolean[] expected = toBoolean(cipherVec[0]);
           Boolean[] actual = new Boolean[res.size()];
           for (int i = 0; i < res.size(); i++) {
@@ -151,7 +125,7 @@ public class BristolCryptoTests {
    * TODO: Include all three test vectors.
    */
   public static class Sha1Test<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     private boolean doAsserts;
 
@@ -176,8 +150,7 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, ProtocolBuilderBinary> multApp =
-              producer -> producer.seq(seq -> {
+          Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
             List<DRes<SBool>> input1 = BooleanHelper.known(toBoolean(ins[0]), seq.binary());
             // List<Computation<SBool>> input2 = seq.binary().known(toBoolean(ins[1]));
             // List<Computation<SBool>> input3 = seq.binary().known(toBoolean(ins[2]));
@@ -217,8 +190,7 @@ public class BristolCryptoTests {
             // return () -> result;
           });
 
-          List<Boolean> res = secureComputationEngine.runApplication(multApp,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Boolean> res = runApplication(app);
           Boolean[][] expected = new Boolean[1][];
           Boolean[][] actuals = new Boolean[1][res.size()];
           for (int count = 0; count < 1; count++) {
@@ -242,7 +214,7 @@ public class BristolCryptoTests {
    * TODO: Include all three test vectors.
    */
   public static class Sha256Test<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     private boolean doAsserts;
 
@@ -261,20 +233,19 @@ public class BristolCryptoTests {
         String in1 =
             "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
         String out1 = "da5698be17b9b46962335799779fbeca8ce5d491c0d26243bafef9ea1837a9d8";
-        String in2 =
-            "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f";
-        String out2 = "fc99a2df88f42a7a7bb9d18033cdc6a20256755f9d5b9a5044a9cc315abe84a7";
-        String in3 =
-            "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
-        String out3 = "ef0c748df4da50a8d6c43c013edc3ce76c9d9fa9a1458ade56eb86c0a64492d2";
-        String in4 =
-            "243f6a8885a308d313198a2e03707344a4093822299f31d0082efa98ec4e6c89452821e638d01377be5466cf34e90c6cc0ac29b7c97c50dd3f84d5b5b5470917";
-        String out4 = "cf0ae4eb67d38ffeb94068984b22abde4e92bc548d14585e48dca8882d7b09ce";
+        // String in2 =
+        // "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f";
+        // String out2 = "fc99a2df88f42a7a7bb9d18033cdc6a20256755f9d5b9a5044a9cc315abe84a7";
+        // String in3 =
+        // "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+        // String out3 = "ef0c748df4da50a8d6c43c013edc3ce76c9d9fa9a1458ade56eb86c0a64492d2";
+        // String in4 =
+        // "243f6a8885a308d313198a2e03707344a4093822299f31d0082efa98ec4e6c89452821e638d01377be5466cf34e90c6cc0ac29b7c97c50dd3f84d5b5b5470917";
+        // String out4 = "cf0ae4eb67d38ffeb94068984b22abde4e92bc548d14585e48dca8882d7b09ce";
 
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, ProtocolBuilderBinary> multApp =
-              producer -> producer.seq(seq -> {
+          Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
             List<DRes<SBool>> input1 = BooleanHelper.known(toBoolean(in1), seq.binary());
             List<List<DRes<SBool>>> inputs = new ArrayList<>();
             inputs.add(input1);
@@ -288,11 +259,10 @@ public class BristolCryptoTests {
               outputs.add(seq.binary().open(boo));
             }
             return () -> outputs;
-          }).seq((seq,
-              output) -> () -> output.stream().map(DRes::out).collect(Collectors.toList()));
+          }).seq(
+              (seq, output) -> () -> output.stream().map(DRes::out).collect(Collectors.toList()));
 
-          List<Boolean> res = secureComputationEngine.runApplication(multApp,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Boolean> res = runApplication(app);
           Boolean[] expected = toBoolean(out1);
           Boolean[] actual = new Boolean[res.size()];
           for (int i = 0; i < res.size(); i++) {
@@ -313,7 +283,7 @@ public class BristolCryptoTests {
    * TODO: Include all three test vectors.
    */
   public static class MD5Test<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     private boolean doAsserts;
 
@@ -332,20 +302,19 @@ public class BristolCryptoTests {
         String in1 =
             "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
         String out1 = "ac1d1f03d08ea56eb767ab1f91773174";
-        String in2 =
-            "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f";
-        String out2 = "cad94491c9e401d9385bfc721ef55f62";
-        String in3 =
-            "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
-        String out3 = "b487195651913e494b55c6bddf405c01";
-        String in4 =
-            "243f6a8885a308d313198a2e03707344a4093822299f31d0082efa98ec4e6c89452821e638d01377be5466cf34e90c6cc0ac29b7c97c50dd3f84d5b5b5470917";
-        String out4 = "3715f568f422db75cc8d65e11764ff01";
+        // String in2 =
+        // "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f";
+        // String out2 = "cad94491c9e401d9385bfc721ef55f62";
+        // String in3 =
+        // "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+        // String out3 = "b487195651913e494b55c6bddf405c01";
+        // String in4 =
+        // "243f6a8885a308d313198a2e03707344a4093822299f31d0082efa98ec4e6c89452821e638d01377be5466cf34e90c6cc0ac29b7c97c50dd3f84d5b5b5470917";
+        // String out4 = "3715f568f422db75cc8d65e11764ff01";
 
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, ProtocolBuilderBinary> multApp =
-              producer -> producer.seq(seq -> {
+          Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
             List<DRes<SBool>> input1 = BooleanHelper.known(toBoolean(in1), seq.binary());
             List<List<DRes<SBool>>> inputs = new ArrayList<>();
             inputs.add(input1);
@@ -359,11 +328,10 @@ public class BristolCryptoTests {
               outputs.add(seq.binary().open(boo));
             }
             return () -> outputs;
-          }).seq((seq,
-              output) -> () -> output.stream().map(DRes::out).collect(Collectors.toList()));
+          }).seq(
+              (seq, output) -> () -> output.stream().map(DRes::out).collect(Collectors.toList()));
 
-          List<Boolean> res = secureComputationEngine.runApplication(multApp,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Boolean> res = runApplication(app);
           Boolean[] expected = toBoolean(out1);
           Boolean[] actual = new Boolean[res.size()];
           for (int i = 0; i < res.size(); i++) {
@@ -385,7 +353,7 @@ public class BristolCryptoTests {
    * before it is correct.
    */
   public static class Mult32x32Test<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     private boolean doAsserts;
 
@@ -403,8 +371,7 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, ProtocolBuilderBinary> multApp =
-              producer -> producer.seq(seq -> {
+          Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
             List<DRes<SBool>> in1 = BooleanHelper.known(toBoolean(inv1), seq.binary());
             List<DRes<SBool>> in2 = BooleanHelper.known(toBoolean(inv2), seq.binary());
             List<List<DRes<SBool>>> inputs = new ArrayList<>();
@@ -420,11 +387,10 @@ public class BristolCryptoTests {
               outputs.add(seq.binary().open(() -> boo));
             }
             return () -> outputs;
-          }).seq((seq,
-              output) -> () -> output.stream().map(DRes::out).collect(Collectors.toList()));
+          }).seq(
+              (seq, output) -> () -> output.stream().map(DRes::out).collect(Collectors.toList()));
 
-          List<Boolean> res = secureComputationEngine.runApplication(multApp,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Boolean> res = runApplication(app);
           Boolean[] expected = toBoolean(outv);
           Boolean[] actual = new Boolean[res.size()];
           actual[0] = false;
@@ -447,7 +413,7 @@ public class BristolCryptoTests {
    * https://dl.dropboxusercontent.com/u/25980826/des.test
    */
   public static class DesTest<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     private boolean doAsserts;
 
@@ -465,12 +431,9 @@ public class BristolCryptoTests {
 
         @Override
         public void test() throws Exception {
-          Application<List<Boolean>, ProtocolBuilderBinary> multApp =
-              producer -> producer.seq(seq -> {
-            List<DRes<SBool>> plainText =
-                BooleanHelper.known(toBoolean(plainV), seq.binary());
-            List<DRes<SBool>> keyMaterial =
-                BooleanHelper.known(toBoolean(keyV), seq.binary());
+          Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
+            List<DRes<SBool>> plainText = BooleanHelper.known(toBoolean(plainV), seq.binary());
+            List<DRes<SBool>> keyMaterial = BooleanHelper.known(toBoolean(keyV), seq.binary());
             List<List<DRes<SBool>>> inputs = new ArrayList<>();
             inputs.add(plainText);
             inputs.add(keyMaterial);
@@ -484,11 +447,10 @@ public class BristolCryptoTests {
               outputs.add(seq.binary().open(() -> boo));
             }
             return () -> outputs;
-          }).seq((seq,
-              output) -> () -> output.stream().map(DRes::out).collect(Collectors.toList()));
+          }).seq(
+              (seq, output) -> () -> output.stream().map(DRes::out).collect(Collectors.toList()));
 
-          List<Boolean> res = secureComputationEngine.runApplication(multApp,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Boolean> res = runApplication(app);
           Boolean[] expected = toBoolean(cipherV);
           Boolean[] actual = new Boolean[res.size()];
           for (int i = 0; i < res.size(); i++) {

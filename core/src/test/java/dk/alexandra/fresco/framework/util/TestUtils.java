@@ -9,24 +9,6 @@ import org.junit.Test;
 public class TestUtils {
 
   @Test
-  public void testBasic() {
-    long beforeTime = System.nanoTime();
-    Timing timing = new Timing();
-    timing.start();
-    long whenStartedTime = System.nanoTime();
-    try{
-      Thread.sleep(200);
-    } catch(Exception ignored) {
-    }
-    long beforeStoppedTime = System.nanoTime();
-    long stopped = timing.stop();
-    long afterTime = System.nanoTime();
-    Assert.assertTrue(timing.getTimeInNanos() <= afterTime-beforeTime);
-    Assert.assertTrue(timing.getTimeInNanos() >= beforeStoppedTime-whenStartedTime);
-    Assert.assertThat(stopped, Is.is(timing.getTimeInNanos()));
-  }
-
-  @Test
   public void testToHex() {
     Assert.assertThat(ByteArithmetic.toHex(new boolean[]{false, false, false, false, false, false, false, false}), Is.is("00"));
     Assert.assertThat(ByteArithmetic.toHex(new boolean[]{true, true, true, true, true, true, true, true}), Is.is("ff"));

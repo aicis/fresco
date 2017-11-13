@@ -1,7 +1,10 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.conditional.ConditionalSelect;
+import dk.alexandra.fresco.lib.conditional.SwapIf;
 import dk.alexandra.fresco.lib.conversion.IntegerToBitsByShift;
 import dk.alexandra.fresco.lib.math.integer.ProductSIntList;
 import dk.alexandra.fresco.lib.math.integer.SumSIntList;
@@ -22,6 +25,11 @@ import dk.alexandra.fresco.lib.math.integer.sqrt.SquareRoot;
 import java.math.BigInteger;
 import java.util.List;
 
+/**
+ * Default way of producing the protocols within the interface. This default class can be
+ * overwritten when implementing {@link BuilderFactoryNumeric} if the protocol suite has a better
+ * and more efficient way of constructing the protocols.
+ */
 public class DefaultAdvancedNumeric implements AdvancedNumeric {
 
   private final BuilderFactoryNumeric factoryNumeric;
@@ -90,13 +98,13 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
 
 
   @Override
-  public DRes<SInt> dot(List<DRes<SInt>> aVector,
+  public DRes<SInt> innerProduct(List<DRes<SInt>> aVector,
       List<DRes<SInt>> bVector) {
     return builder.seq(new InnerProduct(aVector, bVector));
   }
 
   @Override
-  public DRes<SInt> openDot(List<BigInteger> aVector, List<DRes<SInt>> bVector) {
+  public DRes<SInt> innerProductWithPublicPart(List<BigInteger> aVector, List<DRes<SInt>> bVector) {
     return builder.seq(new InnerProductOpen(aVector, bVector));
   }
 
@@ -149,5 +157,16 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
   @Override
   public DRes<SInt> invert(DRes<SInt> x) {
     return builder.seq(new Inversion(x));
+  }
+
+  @Override
+  public DRes<SInt> condSelect(DRes<SInt> condition, DRes<SInt> left, DRes<SInt> right) {
+    return builder.seq(new ConditionalSelect(condition, left, right));
+  }
+
+  @Override
+  public DRes<Pair<DRes<SInt>, DRes<SInt>>> swapIf(DRes<SInt> condition, DRes<SInt> left,
+      DRes<SInt> right) {
+    return builder.par(new SwapIf(condition, left, right));
   }
 }

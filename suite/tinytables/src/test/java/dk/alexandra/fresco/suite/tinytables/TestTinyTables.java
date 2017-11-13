@@ -1,26 +1,3 @@
-/*
- * Copyright (c) 2016 FRESCO (http://github.com/aicis/fresco).
- *
- * This file is part of the FRESCO project.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
- * Please see these projects for any further licensing issues.
- *******************************************************************************/
 package dk.alexandra.fresco.suite.tinytables;
 
 import dk.alexandra.fresco.IntegrationTest;
@@ -31,10 +8,14 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.network.NetworkingStrategy;
-import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
+import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
+import dk.alexandra.fresco.framework.util.DetermSecureRandom;
 import dk.alexandra.fresco.lib.bool.BasicBooleanTests;
 import dk.alexandra.fresco.lib.bool.ComparisonBooleanTests;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
@@ -53,6 +34,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,8 +42,8 @@ import org.junit.experimental.categories.Category;
 
 public class TestTinyTables {
 
-  private void runTest(TestThreadFactory f, EvaluationStrategy evalStrategy, boolean preprocessing,
-      String name) throws Exception {
+  private void runTest(TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f,
+      EvaluationStrategy evalStrategy, boolean preprocessing, String name) throws Exception {
     int noPlayers = 2;
     // Since SCAPI currently does not work with ports > 9999 we use fixed
     // ports
@@ -73,14 +55,11 @@ public class TestTinyTables {
 
     Map<Integer, NetworkConfiguration> netConf =
         TestConfiguration.getNetworkConfigurations(noPlayers, ports);
-    Map<Integer, TestThreadConfiguration> conf = new HashMap<>();
+    Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
+        new HashMap<>();
 
     for (int playerId : netConf.keySet()) {
-      TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
-          new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>();
-      ttc.netConf = netConf.get(playerId);
-
-      ProtocolEvaluator<ResourcePoolImpl> evaluator;
+      ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator;
 
       ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> suite;
       File tinyTablesFile = new File(getFilenameForTest(playerId, name));
@@ -89,11 +68,16 @@ public class TestTinyTables {
       } else {
         suite = new TinyTablesProtocolSuite(playerId, tinyTablesFile);
       }
-
-      evaluator = EvaluationStrategy.fromEnum(evalStrategy);
-
-      ttc.sceConf = new TestSCEConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(suite,
-          NetworkingStrategy.KRYONET, evaluator, ttc.netConf, false);
+      Network network = new KryoNetNetwork();
+      network.init(netConf.get(playerId), 1);
+      BatchEvaluationStrategy<ResourcePoolImpl> batchStrat = EvaluationStrategy.fromEnum(evalStrategy);
+      evaluator = new BatchedProtocolEvaluator<>(batchStrat);
+      ResourcePoolImpl rp = new ResourcePoolImpl(playerId, noPlayers, network, new Random(),
+          new DetermSecureRandom());
+      TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
+          new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(
+              new SecureComputationEngineImpl<>(suite, evaluator),
+              rp);
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);

@@ -1,37 +1,9 @@
-/*******************************************************************************
- * Copyright (c) 2015 FRESCO (http://github.com/aicis/fresco).
- *
- * This file is part of the FRESCO project.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
- * Please see these projects for any further licensing issues.
- *******************************************************************************/
 package dk.alexandra.fresco.framework;
 
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
-import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
-import dk.alexandra.fresco.framework.sce.SCEFactory;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
-import dk.alexandra.fresco.framework.sce.configuration.TestSCEConfiguration;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
@@ -58,31 +30,24 @@ public class TestThreadRunner {
 
     Throwable teardownException;
 
-    protected SecureComputationEngine<ResourcePoolT, Builder> secureComputationEngine;
-
     void setConfiguration(TestThreadConfiguration<ResourcePoolT, Builder> conf) {
       this.conf = conf;
     }
 
     protected <OutputT> OutputT runApplication(Application<OutputT, Builder> app)
         throws IOException {
-      ResourcePoolT resourcePool = ResourcePoolCreator.createResourcePool(conf.sceConf);
-      return secureComputationEngine.runApplication(app, resourcePool);
+      conf.resourcePool.getNetwork().connect(10000);
+      return conf.sce.runApplication(app, conf.resourcePool);
     }
 
     @Override
     public String toString() {
-      return "TestThread(" + this.conf.netConf.getMyId() + ")";
+      return "TestThread(" + this.conf.getMyId() + ")";
     }
 
     @Override
     public void run() {
       try {
-        if (conf.sceConf != null) {
-          ProtocolSuite<ResourcePoolT, Builder> suite = conf.sceConf.getSuite();
-          secureComputationEngine =
-              SCEFactory.getSCEFromConfiguration(suite, conf.sceConf.getEvaluator());
-        }
         setUp();
         runTest();
       } catch (Throwable e) {
@@ -109,10 +74,10 @@ public class TestThreadRunner {
     }
 
     private void runTearDown() {
-      try {
-        if (secureComputationEngine != null) {
-          // Shut down SCE resources - does not include the resource pool.
-          secureComputationEngine.shutdownSCE();
+      try {        
+        // Shut down SCE resources - does not include the resource pool.
+        if(conf.sce != null) {
+          conf.sce.shutdownSCE();
         }
         tearDown();
         finished = true;
@@ -141,35 +106,41 @@ public class TestThreadRunner {
    */
   public static class TestThreadConfiguration<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> {
 
-    public NetworkConfiguration netConf;
-    public TestSCEConfiguration<ResourcePoolT, Builder> sceConf;
+    public final SecureComputationEngine<ResourcePoolT, Builder> sce;
+    public final ResourcePoolT resourcePool;
 
     public int getMyId() {
-      return this.netConf.getMyId();
+      return this.resourcePool.getMyId();
+    }
+
+    public TestThreadConfiguration(SecureComputationEngine<ResourcePoolT, Builder> sce, ResourcePoolT resourcePool) {
+      super();
+      this.sce = sce;
+      this.resourcePool = resourcePool;
     }
   }
 
 
-  public abstract static class TestThreadFactory {
+  public abstract static class TestThreadFactory<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> {
 
-    public abstract TestThread next();
+    public abstract TestThread<ResourcePoolT, Builder> next();
   }
 
-  public static void run(TestThreadFactory f, Map<Integer, TestThreadConfiguration> confs) {
+  public static <ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> void run(
+      TestThreadFactory<ResourcePoolT, Builder> f,
+      Map<Integer, TestThreadConfiguration<ResourcePoolT, Builder>> confs) {
     int randSeed = 3457878;
     run(f, confs, randSeed);
   }
 
-  private static void run(TestThreadFactory f, Map<Integer, TestThreadConfiguration> confs,
-      int randSeed) throws TestFrameworkException {
-    // TODO: Rather use thread container from util.concurrent?
+  private static <ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> void run(
+      TestThreadFactory<ResourcePoolT, Builder> f,
+      Map<Integer, TestThreadConfiguration<ResourcePoolT, Builder>> confs, int randSeed)
+          throws TestFrameworkException {
+    final Set<TestThread<ResourcePoolT, Builder>> threads = new HashSet<>();
 
-    final Set<TestThread> threads = new HashSet<>();
-    final int n = confs.size();
-
-    for (int i = 0; i < n; i++) {
-      TestThreadConfiguration<?, ?> c = confs.get(i + 1);
-      TestThread t = f.next();
+    for (TestThreadConfiguration<ResourcePoolT, Builder> c : confs.values()) {
+      TestThread<ResourcePoolT, Builder> t = f.next();
       t.setConfiguration(c);
       threads.add(t);
     }
@@ -179,7 +150,7 @@ public class TestThreadRunner {
     }
 
     try {
-      for (TestThread t : threads) {
+      for (TestThread<ResourcePoolT, Builder> t : threads) {
         try {
           t.join(MAX_WAIT_FOR_THREAD);
         } catch (InterruptedException e) {
@@ -202,29 +173,25 @@ public class TestThreadRunner {
       // propagate up
       throw e;
     } finally {
-      closeNetworks();
+      closeNetworks(confs);
     }
   }
 
-  private static void closeNetworks() {
+  private static <ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> void closeNetworks(
+      Map<Integer, TestThreadConfiguration<ResourcePoolT, Builder>> confs) {
     // Cleanup - shut down network in manually. All tests should use the NetworkCreator
     // in order for this to work, or manage the network themselves.
-    Map<Integer, ResourcePool> rps = ResourcePoolCreator.getCurrentResourcePools();
-    for (int id : rps.keySet()) {
-      Network network = rps.get(id).getNetwork();
-      try {
-        network.close();
-      } catch (IOException e) {
-        // Cannot do anything about this.
+
+    for (int id : confs.keySet()) {
+      ResourcePoolT rp = confs.get(id).resourcePool;
+      if (rp != null) {
+        Network network = rp.getNetwork();
+        try {
+          network.close();
+        } catch (IOException e) {
+          // Cannot do anything about this.
+        }
       }
-    }
-    rps.clear();
-    // allow the sockets to become available again.
-    try {
-      Thread.sleep(10);
-    } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
     }
   }
 }

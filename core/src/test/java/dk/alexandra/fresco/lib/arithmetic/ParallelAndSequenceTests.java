@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -19,15 +18,14 @@ import org.junit.Assert;
  * Tests which ensures that the SecureComputationEngine's parallel and sequential evaluations of
  * application works.
  *
- * @author Kasper Damgaard
  */
 public class ParallelAndSequenceTests {
 
   private static final Integer[] inputAsArray = {1, 2, 3, 4, 5, 6, 7, 8, 9};
 
   // TODO Split these tests into two
-  public static class TestSumAndProduct<ResourcePoolT extends ResourcePool> extends
-      TestThreadFactory {
+  public static class TestSumAndProduct<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -37,9 +35,8 @@ public class ParallelAndSequenceTests {
           TestApplicationSum sumApp = new ParallelAndSequenceTests().new TestApplicationSum();
           TestApplicationMult multApp = new ParallelAndSequenceTests().new TestApplicationMult();
 
-          ResourcePoolT resourcePool = ResourcePoolCreator.createResourcePool(conf.sceConf);
-          BigInteger sum = secureComputationEngine.runApplication(sumApp, resourcePool);
-          BigInteger mult = secureComputationEngine.runApplication(multApp, resourcePool);
+          BigInteger sum = runApplication(sumApp);
+          BigInteger mult = runApplication(multApp);
 
           Assert.assertEquals(BigInteger.valueOf(1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9), sum);
           Assert.assertEquals(BigInteger.valueOf(1 * 2 * 3 * 4 * 5 * 6 * 7 * 8 * 9), mult);

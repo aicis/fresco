@@ -1,34 +1,9 @@
-/*
- * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
- *
- * This file is part of the FRESCO project.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
- * Please see these projects for any further licensing issues.
- *******************************************************************************/
 package dk.alexandra.fresco.network;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.Base64;
-import edu.biu.scapi.comm.AuthenticatedChannel;
 import edu.biu.scapi.comm.Channel;
 import edu.biu.scapi.comm.EncryptedChannel;
 import edu.biu.scapi.comm.PlainChannel;
@@ -39,7 +14,6 @@ import edu.biu.scapi.comm.twoPartyComm.SocketPartyData;
 import edu.biu.scapi.exceptions.SecurityLevelException;
 import edu.biu.scapi.midLayer.symmetricCrypto.encryption.ScCTREncRandomIV;
 import edu.biu.scapi.midLayer.symmetricCrypto.encryption.ScEncryptThenMac;
-import edu.biu.scapi.midLayer.symmetricCrypto.mac.Mac;
 import edu.biu.scapi.midLayer.symmetricCrypto.mac.ScCbcMacPrepending;
 import edu.biu.scapi.primitives.prf.AES;
 import edu.biu.scapi.primitives.prf.bc.BcAES;
@@ -69,6 +43,7 @@ import org.slf4j.LoggerFactory;
 public class ScapiNetworkImpl implements Network {
 
   private NetworkConfiguration conf;
+  private boolean connected = false;
 
   // Unless explicitly named, SCAPI channels are named with
   // strings "0", "1", etc.
@@ -97,7 +72,11 @@ public class ScapiNetworkImpl implements Network {
   // TODO: Include player to integer map to indicate
   // how many channels are wanted to each player.
   // Implement this also for send to self queues.
+  @Override
   public void connect(int timeoutMillis) throws IOException {
+    if (connected) {
+      return;
+    }
     // Convert FRESCO configuration to SCAPI configuration.
     List<PartyData> parties = new LinkedList<>();
     idToPartyData = new HashMap<>();
@@ -165,25 +144,12 @@ public class ScapiNetworkImpl implements Network {
         }
       }
     }
-
-  }
-
-  // We currently either use plain channels or auth+enc channels. Future
-  // version may allow only auth.
-  @SuppressWarnings("unused")
-  private AuthenticatedChannel getAuthenticatedChannel(PlainChannel channel,
-      String base64EncodedSSKey) throws SecurityLevelException, InvalidKeyException {
-    Mac mac = new ScCbcMacPrepending(new BcAES());
-    byte[] aesFixedKey = Base64.decodeFromString(base64EncodedSSKey);
-    SecretKey key = new SecretKeySpec(aesFixedKey, "AES");
-    mac.setKey(key);
-    AuthenticatedChannel authedChannel = new AuthenticatedChannel(channel, mac);
-    return authedChannel;
+    connected = true;
   }
 
   private EncryptedChannel getSecureChannel(PlainChannel ch, String base64EncodedSSKey)
       throws InvalidKeyException, SecurityLevelException {
-    byte[] aesFixedKey = Base64.decodeFromString(base64EncodedSSKey);
+    byte[] aesFixedKey = java.util.Base64.getDecoder().decode(base64EncodedSSKey);
     SecretKey aesKey = new SecretKeySpec(aesFixedKey, "AES");
     AES encryptAes = new BcAES();
     encryptAes.setKey(aesKey);
@@ -200,6 +166,7 @@ public class ScapiNetworkImpl implements Network {
   /**
    * Close all channels to other parties.
    */
+  @Override
   public void close() throws IOException {
     if (connections != null) {
       for (Map<String, Channel> m : connections.values()) {
@@ -208,6 +175,7 @@ public class ScapiNetworkImpl implements Network {
         }
       }
     }
+    connected = false;
   }
 
   /**

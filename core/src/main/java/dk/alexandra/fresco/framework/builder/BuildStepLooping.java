@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import java.util.function.Predicate;
 
@@ -61,7 +62,8 @@ class BuildStepLooping<BuilderT extends ProtocolBuilderImpl<BuilderT>, InputT>
     }
 
     @Override
-    public void getNextProtocols(ProtocolCollection protocolCollection) {
+    public <ResourcePoolT extends ResourcePool> void getNextProtocols(
+        ProtocolCollection<ResourcePoolT> protocolCollection) {
       currentProducer.getNextProtocols(protocolCollection);
     }
 

@@ -5,6 +5,13 @@ import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.util.List;
 
+/**
+ * Protocols for various cryptographic primitives. At least for the default implementation
+ * {@link DefaultBristolCrypto}, all protocols are described in text by the university of Bristol
+ * and interpreted by FRESCO internally. Protocol suites may have a more efficient way of producing
+ * the various protocols and can override the default implementation when implementing
+ * {@link BuilderFactoryBinary}.
+ */
 public interface BristolCrypto extends ComputationDirectory {
 
   /**

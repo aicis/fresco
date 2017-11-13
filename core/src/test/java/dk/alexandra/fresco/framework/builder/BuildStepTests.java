@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.dummy.arithmetic.AbstractDummyArithmeticTest;
@@ -25,7 +24,7 @@ public class BuildStepTests extends AbstractDummyArithmeticTest {
    * @param <ResourcePoolT>
    */
   private class TestWhileLoop<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     protected final int numIterations;
     protected final List<Integer> expected;
@@ -47,17 +46,16 @@ public class BuildStepTests extends AbstractDummyArithmeticTest {
               return new IterationState(0, new ArrayList<>());
             }).whileLoop(
                 // iterate
-                (state) -> state.round < numIterations,
+                (state) -> state.round < numIterations, 
                 (seq, state) -> {
                   List<Integer> roundsSoFar = state.rounds;
                   roundsSoFar.add(state.round);
                   return new IterationState(state.round + 1, roundsSoFar);
-                }).seq((seq, state) -> {
-                  return () -> state.rounds;
-                });
+            }).seq((seq, state) -> {
+              return () -> state.rounds;
+            });
           };
-          List<Integer> actual = secureComputationEngine.runApplication(testApplication,
-              ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Integer> actual = runApplication(testApplication);
           Assert.assertEquals(expected, actual);
         }
       };

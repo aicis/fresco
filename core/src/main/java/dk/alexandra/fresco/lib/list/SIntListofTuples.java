@@ -6,15 +6,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author mortenvchristiansen
+ * Container for a tuple of data points and the duplicate indicators.
  */ 
 public class SIntListofTuples {
 
   private List<List<DRes<SInt>>> theData = new ArrayList<>();
-  private List<DRes<SInt>> duplicate_p = new ArrayList<>();
+  private List<DRes<SInt>> duplicateP = new ArrayList<>();
 
   /**
-   * id is first element in tuple
+   * id is first element in tuple.
    */ 
   public final int rowWidth;
 
@@ -27,7 +27,7 @@ public class SIntListofTuples {
       throw new RuntimeException("Row width wrong. Should be " + rowWidth);
     }
     theData.add(row);
-    duplicate_p.add(falseValue);
+    duplicateP.add(falseValue);
     return this;
   }
 
@@ -40,11 +40,11 @@ public class SIntListofTuples {
   }
 
   public void setDuplicate(int index, DRes<SInt> value) {
-    duplicate_p.set(index, value);
+    duplicateP.set(index, value);
   }
 
   public DRes<SInt> getDuplicate(int index) {
-    return duplicate_p.get(index);
+    return duplicateP.get(index);
   }
 
   public int size() {

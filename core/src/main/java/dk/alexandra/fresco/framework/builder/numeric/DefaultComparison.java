@@ -7,12 +7,17 @@ import dk.alexandra.fresco.lib.compare.gt.LessThanOrEquals;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTest;
 import java.math.BigInteger;
 
+/**
+ * Default way of producing the protocols within the interface. This default class can be
+ * overwritten when implementing {@link BuilderFactoryNumeric} if the protocol suite has a better
+ * and more efficient way of constructing the protocols.
+ */
 public class DefaultComparison implements Comparison {
 
   private final BuilderFactoryNumeric factoryNumeric;
   private final ProtocolBuilderNumeric builder;
 
-  protected DefaultComparison(BuilderFactoryNumeric factoryNumeric,
+  public DefaultComparison(BuilderFactoryNumeric factoryNumeric,
       ProtocolBuilderNumeric builder) {
     this.factoryNumeric = factoryNumeric;
     this.builder = builder;
@@ -48,11 +53,12 @@ public class DefaultComparison implements Comparison {
             x, y));
   }
 
+  @Override
   public DRes<SInt> sign(DRes<SInt> x) {
     Numeric input = builder.numeric();
     // TODO create a compareLeqOrEqZero on comparison builder
     DRes<SInt> compare =
-        compareLEQ(input.known(BigInteger.valueOf(0)), x);
+        compareLEQ(input.known(BigInteger.ZERO), x);
     BigInteger oInt = BigInteger.valueOf(2);
     Numeric numericBuilder = builder.numeric();
     DRes<SInt> twice = numericBuilder.mult(oInt, compare);

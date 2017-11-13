@@ -1,30 +1,6 @@
-/*
- * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
- *
- * This file is part of the FRESCO project.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
- * Please see these projects for any further licensing issues.
- *******************************************************************************/
 package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.demo.cli.CmdLineUtil;
-import dk.alexandra.fresco.demo.helpers.ResourcePoolHelper;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.binary.Binary;
@@ -32,9 +8,10 @@ import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.framework.util.ByteArithmetic;
+import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -75,12 +52,6 @@ import org.apache.commons.cli.ParseException;
  */
 public class AESDemo implements Application<List<Boolean>, ProtocolBuilderBinary> {
 
-  /**
-   * Applications can be uploaded to fresco dynamically and are therefore Serializable's. This means
-   * that each application must have a unique serialVersionUID.
-   */
-
-
   private Boolean[] in;
   private int id;
 
@@ -99,7 +70,7 @@ public class AESDemo implements Application<List<Boolean>, ProtocolBuilderBinary
    * TestAESDemo and runs the TestAESDemo on the SCE.
    */
   public static void main(String[] args) {
-    CmdLineUtil util = new CmdLineUtil();
+    CmdLineUtil<ResourcePoolImpl, ProtocolBuilderBinary> util = new CmdLineUtil<>();
     Boolean[] input = null;
     try {
 
@@ -122,7 +93,7 @@ public class AESDemo implements Application<List<Boolean>, ProtocolBuilderBinary
             throw new IllegalArgumentException(
                 "bad input hex string: must be hex string of length " + INPUT_LENGTH);
           }
-          input = ByteArithmetic.toBoolean(cmd.getOptionValue("in"));
+          input = ByteAndBitConverter.toBoolean(cmd.getOptionValue("in"));
         }
       } else {
         if (cmd.hasOption("in")) {
@@ -146,15 +117,19 @@ public class AESDemo implements Application<List<Boolean>, ProtocolBuilderBinary
             util.getEvaluator());
 
     List<Boolean> aesResult = null;
+    ResourcePoolImpl resourcePool = util.getResourcePool();
     try {
-      ResourcePoolImpl resourcePool = ResourcePoolHelper.createResourcePool(ps,
-          util.getNetworkStrategy(), util.getNetworkConfiguration());
+      resourcePool.getNetwork().connect(10000);
       aesResult = sce.runApplication(aes, resourcePool);
     } catch (Exception e) {
       System.out.println("Error while doing MPC: " + e.getMessage());
       System.exit(-1);
     } finally {
-      ResourcePoolHelper.shutdown();
+      try {
+        resourcePool.getNetwork().close();
+      } catch (IOException e) {
+        // Nothing to do
+      }
     }
 
     // Print result.
@@ -162,7 +137,7 @@ public class AESDemo implements Application<List<Boolean>, ProtocolBuilderBinary
     for (int i = 0; i < BLOCK_SIZE; i++) {
       res[i] = aesResult.get(i);
     }
-    System.out.println("The resulting ciphertext is: " + ByteArithmetic.toHex(res));
+    System.out.println("The resulting ciphertext is: " + ByteAndBitConverter.toHex(res));
 
   }
 

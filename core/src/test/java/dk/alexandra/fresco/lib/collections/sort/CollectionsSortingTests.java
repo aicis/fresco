@@ -1,26 +1,3 @@
-/*
- * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
- *
- * This file is part of the FRESCO project.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
- * Please see these projects for any further licensing issues.
- *******************************************************************************/
 package dk.alexandra.fresco.lib.collections.sort;
 
 import dk.alexandra.fresco.framework.Application;
@@ -29,9 +6,8 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.Binary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
-import dk.alexandra.fresco.framework.network.ResourcePoolCreator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.util.ByteArithmetic;
+import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.util.ArrayList;
@@ -50,7 +26,7 @@ import org.junit.Assert;
 public class CollectionsSortingTests {
 
   public static class TestKeyedCompareAndSwap<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public TestKeyedCompareAndSwap() {}
 
@@ -61,10 +37,10 @@ public class CollectionsSortingTests {
         @Override
         public void test() throws Exception {
 
-          List<Boolean> rawLeftKey = Arrays.asList(ByteArithmetic.toBoolean("49"));
-          List<Boolean> rawLeftValue = Arrays.asList(ByteArithmetic.toBoolean("00"));
-          List<Boolean> rawRightKey = Arrays.asList(ByteArithmetic.toBoolean("ff"));
-          List<Boolean> rawRightValue = Arrays.asList(ByteArithmetic.toBoolean("ee"));
+          List<Boolean> rawLeftKey = Arrays.asList(ByteAndBitConverter.toBoolean("49"));
+          List<Boolean> rawLeftValue = Arrays.asList(ByteAndBitConverter.toBoolean("00"));
+          List<Boolean> rawRightKey = Arrays.asList(ByteAndBitConverter.toBoolean("ff"));
+          List<Boolean> rawRightValue = Arrays.asList(ByteAndBitConverter.toBoolean("ee"));
 
           Application<List<Pair<List<Boolean>, List<Boolean>>>, ProtocolBuilderBinary> app =
               builder -> {
@@ -84,8 +60,7 @@ public class CollectionsSortingTests {
               return seq.advancedBinary().keyedCompareAndSwap(new Pair<>(leftKey, leftValue),
                   new Pair<>(rightKey, rightValue));
             }).seq((seq, data) -> {
-              List<Pair<List<DRes<Boolean>>, List<DRes<Boolean>>>> open =
-                  new ArrayList<>();
+              List<Pair<List<DRes<Boolean>>, List<DRes<Boolean>>>> open = new ArrayList<>();
 
               for (Pair<List<DRes<SBool>>, List<DRes<SBool>>> o : data) {
 
@@ -94,8 +69,7 @@ public class CollectionsSortingTests {
                 List<DRes<Boolean>> second =
                     o.getSecond().stream().map(seq.binary()::open).collect(Collectors.toList());
 
-                Pair<List<DRes<Boolean>>, List<DRes<Boolean>>> pair =
-                    new Pair<>(first, second);
+                Pair<List<DRes<Boolean>>, List<DRes<Boolean>>> pair = new Pair<>(first, second);
                 open.add(pair);
               }
               return () -> open;
@@ -116,23 +90,22 @@ public class CollectionsSortingTests {
             });
           };
 
-          List<Pair<List<Boolean>, List<Boolean>>> result = secureComputationEngine
-              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Pair<List<Boolean>, List<Boolean>>> result = runApplication(app);
 
-          Assert.assertEquals("ff", ByteArithmetic.toHex(result.get(0).getFirst()));
+          Assert.assertEquals("ff", ByteAndBitConverter.toHex(result.get(0).getFirst()));
 
-          Assert.assertEquals("ee", ByteArithmetic.toHex(result.get(0).getSecond()));
+          Assert.assertEquals("ee", ByteAndBitConverter.toHex(result.get(0).getSecond()));
 
-          Assert.assertEquals("49", ByteArithmetic.toHex(result.get(1).getFirst()));
+          Assert.assertEquals("49", ByteAndBitConverter.toHex(result.get(1).getFirst()));
 
-          Assert.assertEquals("00", ByteArithmetic.toHex(result.get(1).getSecond()));
+          Assert.assertEquals("00", ByteAndBitConverter.toHex(result.get(1).getSecond()));
         }
       };
     }
   }
 
   public static class TestOddEvenMerge<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     public TestOddEvenMerge() {}
 
@@ -142,14 +115,14 @@ public class CollectionsSortingTests {
         @Override
         public void test() throws Exception {
 
-          Boolean[] left11 = ByteArithmetic.toBoolean("01");
-          Boolean[] left12 = ByteArithmetic.toBoolean("08");
-          Boolean[] left21 = ByteArithmetic.toBoolean("03");
-          Boolean[] left22 = ByteArithmetic.toBoolean("07");
-          Boolean[] left31 = ByteArithmetic.toBoolean("00");
-          Boolean[] left32 = ByteArithmetic.toBoolean("06");
-          Boolean[] left41 = ByteArithmetic.toBoolean("02");
-          Boolean[] left42 = ByteArithmetic.toBoolean("05");
+          Boolean[] left11 = ByteAndBitConverter.toBoolean("01");
+          Boolean[] left12 = ByteAndBitConverter.toBoolean("08");
+          Boolean[] left21 = ByteAndBitConverter.toBoolean("03");
+          Boolean[] left22 = ByteAndBitConverter.toBoolean("07");
+          Boolean[] left31 = ByteAndBitConverter.toBoolean("00");
+          Boolean[] left32 = ByteAndBitConverter.toBoolean("06");
+          Boolean[] left41 = ByteAndBitConverter.toBoolean("02");
+          Boolean[] left42 = ByteAndBitConverter.toBoolean("05");
 
           Application<List<Pair<List<Boolean>, List<Boolean>>>, ProtocolBuilderBinary> app =
               new Application<List<Pair<List<Boolean>, List<Boolean>>>, ProtocolBuilderBinary>() {
@@ -177,25 +150,19 @@ public class CollectionsSortingTests {
                 List<DRes<SBool>> l42 =
                     Arrays.asList(left42).stream().map(builder::known).collect(Collectors.toList());
 
-                List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> unSorted =
-                    new ArrayList<>();
+                List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>> unSorted = new ArrayList<>();
 
-                unSorted
-                    .add(new Pair<>(l11, l12));
-                unSorted
-                    .add(new Pair<>(l21, l22));
-                unSorted
-                    .add(new Pair<>(l31, l32));
-                unSorted
-                    .add(new Pair<>(l41, l42));
+                unSorted.add(new Pair<>(l11, l12));
+                unSorted.add(new Pair<>(l21, l22));
+                unSorted.add(new Pair<>(l31, l32));
+                unSorted.add(new Pair<>(l41, l42));
 
                 DRes<List<Pair<List<DRes<SBool>>, List<DRes<SBool>>>>> sorted =
                     new OddEvenMerge(unSorted).buildComputation(seq);
                 return sorted;
               }).seq((seq, sorted) -> {
                 Binary builder = seq.binary();
-                List<Pair<List<DRes<Boolean>>, List<DRes<Boolean>>>> opened =
-                    new ArrayList<>();
+                List<Pair<List<DRes<Boolean>>, List<DRes<Boolean>>>> opened = new ArrayList<>();
                 for (Pair<List<DRes<SBool>>, List<DRes<SBool>>> p : sorted) {
                   List<DRes<Boolean>> oKeys = new ArrayList<>();
                   for (DRes<SBool> key : p.getFirst()) {
@@ -221,8 +188,7 @@ public class CollectionsSortingTests {
 
           };
 
-          List<Pair<List<Boolean>, List<Boolean>>> results = secureComputationEngine
-              .runApplication(app, ResourcePoolCreator.createResourcePool(conf.sceConf));
+          List<Pair<List<Boolean>, List<Boolean>>> results = runApplication(app);
 
           Assert.assertEquals(Arrays.asList(left21), results.get(0).getFirst());
           Assert.assertEquals(Arrays.asList(left22), results.get(0).getSecond());

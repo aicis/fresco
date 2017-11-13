@@ -1,35 +1,9 @@
-/*
- * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
- *
- * This file is part of the FRESCO project.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL,
- * and Bouncy Castle. Please see these projects for any further licensing issues.
- *******************************************************************************/
 package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.statistics.DEASolver.AnalysisType;
+import dk.alexandra.fresco.lib.statistics.DeaSolver.AnalysisType;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +34,7 @@ public class RandomDataDeaTest {
   @Test
   public void testConsistentData() {
     try {
-      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues,
+      new DeaSolver(DeaSolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues,
           inputBasis,
           outputBasis);
     } catch (MPCException e) {
@@ -73,7 +47,7 @@ public class RandomDataDeaTest {
     inputBasis.add(new ArrayList<>());
 
     try {
-      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues,
+      new DeaSolver(DeaSolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues,
           inputBasis,
           outputBasis);
       Assert.fail("Inconsistent data should not be accepted");
@@ -87,7 +61,7 @@ public class RandomDataDeaTest {
     inputValues.add(new ArrayList<>());
 
     try {
-      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues,
+      new DeaSolver(DeaSolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues,
           inputBasis,
           outputBasis);
       Assert.fail("Inconsistent data should not be accepted");
@@ -103,7 +77,7 @@ public class RandomDataDeaTest {
     inputBasis.get(0).add(new DummyArithmeticSInt(null));
     
     try{
-      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
+      new DeaSolver(DeaSolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
       Assert.fail("Inconsistent data should not be accepted");
     } catch (MPCException e) {
       Assert.assertThat(e.getMessage(), Is.is("Inconsistent dataset / query data"));
@@ -117,7 +91,7 @@ public class RandomDataDeaTest {
     outputBasis.get(0).add(new DummyArithmeticSInt(null));
     
     try{
-      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
+      new DeaSolver(DeaSolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
       Assert.fail("Inconsistent data should not be accepted");
     } catch (MPCException e) {
       Assert.assertThat(e.getMessage(), Is.is("Inconsistent dataset / query data"));
@@ -137,7 +111,7 @@ public class RandomDataDeaTest {
     inputBasis.get(1).add(new DummyArithmeticSInt(null));
     
     try{
-      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
+      new DeaSolver(DeaSolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
       Assert.fail("Inconsistent data should not be accepted");
     } catch (MPCException e) {
       Assert.assertThat(e.getMessage(), Is.is("Inconsistent dataset / query data"));
@@ -157,7 +131,7 @@ public class RandomDataDeaTest {
     outputBasis.get(1).add(new DummySInt());
 
     try {
-      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues,
+      new DeaSolver(DeaSolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues,
           inputBasis,
           outputBasis);
       Assert.fail("Inconsistent data should not be accepted");
@@ -175,7 +149,7 @@ public class RandomDataDeaTest {
     outputValues.get(0).add(new DummyArithmeticSInt(null));
     
     try{
-      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
+      new DeaSolver(DeaSolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
       Assert.fail("Inconsistent data should not be accepted");
     } catch (MPCException e) {
       Assert.assertThat(e.getMessage(), Is.is("Inconsistent dataset / query data"));
@@ -195,7 +169,7 @@ public class RandomDataDeaTest {
     outputValues.get(0).add(new DummyArithmeticSInt(null));
     inputValues.get(0).add(new DummyArithmeticSInt(null));
     try{
-      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
+      new DeaSolver(DeaSolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
       Assert.fail("Empty data should not be accepted");
     } catch(Exception e) {
     //  Assert.assertThat(e.getMessage(), Is.is("Empty dataset / query data"));
@@ -215,7 +189,7 @@ public class RandomDataDeaTest {
     outputBasis.get(0).add(new DummyArithmeticSInt(null));
     inputBasis.get(0).add(new DummyArithmeticSInt(null));
     try{
-      new DEASolver(DEASolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
+      new DeaSolver(DeaSolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis, outputBasis);
       Assert.fail("Empty data should not be accepted");
     } catch(Exception e) {
       //Assert.assertThat(e.getMessage(), Is.is("Empty dataset / query data"));
@@ -224,7 +198,7 @@ public class RandomDataDeaTest {
   
   @Test
   public void testAnalysisType() {
-    Assert.assertThat(DEASolver.AnalysisType.INPUT_EFFICIENCY.toString(), Is.is("INPUT_EFFICIENCY"));
-    Assert.assertThat(DEASolver.AnalysisType.valueOf("INPUT_EFFICIENCY"), Is.is(AnalysisType.INPUT_EFFICIENCY));
+    Assert.assertThat(DeaSolver.AnalysisType.INPUT_EFFICIENCY.toString(), Is.is("INPUT_EFFICIENCY"));
+    Assert.assertThat(DeaSolver.AnalysisType.valueOf("INPUT_EFFICIENCY"), Is.is(AnalysisType.INPUT_EFFICIENCY));
   }
 }

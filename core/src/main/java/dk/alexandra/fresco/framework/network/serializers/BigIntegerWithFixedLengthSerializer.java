@@ -6,8 +6,6 @@ import java.nio.ByteBuffer;
 /**
  * Serializes {@link BigInteger} to byte arrays using knowledge about the length
  * of the BigInteger.
- *
- * @author Kasper Damgaard
  */
 public class BigIntegerWithFixedLengthSerializer implements BigIntegerSerializer {
 
@@ -28,6 +26,11 @@ public class BigIntegerWithFixedLengthSerializer implements BigIntegerSerializer
 
     return bytes;
   }
+  
+  @Override
+  public byte[] toBytes(BigInteger bigInteger) {
+    return toBytes(bigInteger, byteLength);
+  }
 
   /**
    * Deserializes to a BigInteger from the assumption that the given
@@ -44,6 +47,11 @@ public class BigIntegerWithFixedLengthSerializer implements BigIntegerSerializer
     return new BigInteger(content);
   }
 
+  @Override
+  public BigInteger toBigInteger(ByteBuffer byteBuffer) {
+    return toBigInteger(byteBuffer, byteLength);
+  }
+  
   /**
    * Creates a new instance that adhere to the interface.
    *
@@ -52,14 +60,5 @@ public class BigIntegerWithFixedLengthSerializer implements BigIntegerSerializer
   public BigIntegerWithFixedLengthSerializer(int byteLength) {
     this.byteLength = byteLength;
   }
-
-  @Override
-  public byte[] toBytes(BigInteger bigInteger) {
-    return toBytes(bigInteger, byteLength);
-  }
-
-  @Override
-  public BigInteger toBigInteger(ByteBuffer byteBuffer) {
-    return toBigInteger(byteBuffer, byteLength);
-  }
+  
 }

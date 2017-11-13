@@ -1,51 +1,51 @@
-/*
- * Copyright (c) 2015, 2016 FRESCO (http://github.com/aicis/fresco).
- *
- * This file is part of the FRESCO project.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
- * Please see these projects for any further licensing issues.
- *******************************************************************************/
 package dk.alexandra.fresco.demo.cli;
 
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
+import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
+import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.NetworkingStrategy;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.sce.evaluator.SequentialEvaluator;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
+import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
+import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
+import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
+import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
+import dk.alexandra.fresco.logging.SCELoggingDecorator;
+import dk.alexandra.fresco.logging.PerformanceLogger.Flag;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
+import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
 import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import java.io.File;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -62,7 +62,7 @@ import org.slf4j.LoggerFactory;
  * A set of default configurations are used when parameters are not specified at runtime.
  * </p>
  */
-public class CmdLineUtil {
+public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> {
 
   private final static Logger logger = LoggerFactory.getLogger(CmdLineUtil.class);
 
@@ -70,8 +70,12 @@ public class CmdLineUtil {
   private Options appOptions;
   private CommandLine cmd;
   private NetworkConfiguration networkConfiguration;
-  private ProtocolSuite<?, ?> protocolSuite;
-  private ProtocolEvaluator<?> evaluator;
+  private Network network;
+  private EnumSet<Flag> flags;
+  private ProtocolSuite<ResourcePoolT, Builder> protocolSuite;
+  private ProtocolEvaluator<ResourcePoolT, Builder> evaluator;
+  private ResourcePoolT resourcePool;
+  private SecureComputationEngine<ResourcePoolT, Builder> sce;
 
   public CmdLineUtil() {
     this.appOptions = new Options();
@@ -82,18 +86,34 @@ public class CmdLineUtil {
     return this.networkConfiguration;
   }
 
+  public Network getNetwork() {
+    return this.network;
+  }
+
+  public ResourcePoolT getResourcePool() {
+    return resourcePool;
+  }
+
+  public EnumSet<Flag> getPerformanceLoggerFlags() {
+    return flags;
+  }
+
   public NetworkingStrategy getNetworkStrategy() {
     return NetworkingStrategy.KRYONET;
   }
 
-  public ProtocolEvaluator getEvaluator() {
+  public ProtocolEvaluator<ResourcePoolT, Builder> getEvaluator() {
     return evaluator;
   }
 
-  public ProtocolSuite getProtocolSuite() {
+  public ProtocolSuite<ResourcePoolT, Builder> getProtocolSuite() {
     return this.protocolSuite;
   }
 
+  public SecureComputationEngine<ResourcePoolT, Builder> getSCE() {
+    return this.sce;
+  }
+  
   /**
    * Adds standard options.
    *
@@ -110,7 +130,7 @@ public class CmdLineUtil {
 
     options.addOption(Option.builder("s")
         .desc("The name of the protocol suite to use. Must be one of these: "
-            + getSupportedProtocolSuites() + ". " + "The default value is: bgw")
+            + getSupportedProtocolSuites())
         .longOpt("suite").required(true).hasArg().build());
 
     options.addOption(Option.builder("p")
@@ -137,6 +157,9 @@ public class CmdLineUtil {
         .desc("Used to set properties of protocol suite and other customizable components.")
         .required(false).hasArg().numberOfArgs(2).valueSeparator().build());
 
+    options.addOption(
+        Option.builder("l").desc("Informs FRESCO that performance logging should be triggered")
+            .required(false).hasArg(false).build());
     return options;
   }
 
@@ -212,14 +235,18 @@ public class CmdLineUtil {
           + " but this id is not present in the list of parties " + parties.keySet());
     }
 
-    if (this.cmd.hasOption("e")) {
-      try {
-        this.evaluator = EvaluationStrategy.fromString(this.cmd.getOptionValue("e"));
-      } catch (ConfigurationException e) {
-        throw new ParseException("Invalid evaluation strategy: " + this.cmd.getOptionValue("e"));
+    if (this.cmd.hasOption("l")) {
+      this.flags = Flag.ALL_OPTS;
+    }
+
+    try {
+      BatchEvaluationStrategy<ResourcePoolT> batchEvalStrat = EvaluationStrategy.fromString(this.cmd.getOptionValue("e", EvaluationStrategy.SEQUENTIAL.name()));
+      if(this.flags != null) {
+        batchEvalStrat = new BatchEvaluationLoggingDecorator<>(batchEvalStrat);
       }
-    } else {
-      this.evaluator = new SequentialEvaluator();
+      this.evaluator = new BatchedProtocolEvaluator<>(batchEvalStrat);
+    } catch (ConfigurationException e) {
+      throw new ParseException("Invalid evaluation strategy: " + this.cmd.getOptionValue("e"));
     }
 
     if (this.cmd.hasOption("b")) {
@@ -236,6 +263,12 @@ public class CmdLineUtil {
     logger.info("Evaluation strategy: " + evaluator);
 
     this.networkConfiguration = new NetworkConfigurationImpl(myId, parties);
+    this.network = new KryoNetNetwork();
+    if (flags != null) {
+      this.network = new NetworkLoggingDecorator(network);
+    }
+    this.network.init(networkConfiguration, 1);
+
   }
 
   /**
@@ -245,6 +278,7 @@ public class CmdLineUtil {
     this.appOptions.addOption(option);
   }
 
+  @SuppressWarnings("unchecked")
   public CommandLine parse(String[] args) {
     try {
       CommandLineParser parser = new DefaultParser();
@@ -270,20 +304,47 @@ public class CmdLineUtil {
       String protocolSuiteName = ((String) this.cmd.getParsedOptionValue("s")).toLowerCase();
       switch (protocolSuiteName) {
         case "dummybool":
-          this.protocolSuite = new DummyBooleanProtocolSuite();
+          this.protocolSuite =
+              (ProtocolSuite<ResourcePoolT, Builder>) new DummyBooleanProtocolSuite();
+          this.resourcePool =
+              (ResourcePoolT) new ResourcePoolImpl(this.networkConfiguration.getMyId(),
+                  this.networkConfiguration.noOfParties(), network, new Random(),
+                  new SecureRandom());
           break;
         case "dummyarithmetic":
-          this.protocolSuite = dummyArithmeticFromCmdLine(cmd);
+          this.protocolSuite =
+              (ProtocolSuite<ResourcePoolT, Builder>) dummyArithmeticFromCmdLine(cmd);
+          Properties p = cmd.getOptionProperties("D");
+          BigInteger mod = new BigInteger(p.getProperty("modulus",
+              "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329"));
+          this.resourcePool = (ResourcePoolT) new DummyArithmeticResourcePoolImpl(
+              this.networkConfiguration.getMyId(), this.networkConfiguration.noOfParties(), network,
+              new Random(), new SecureRandom(), mod);
           break;
         case "spdz":
-          this.protocolSuite = SpdzConfigurationFromCmdLine(cmd);
+          this.protocolSuite =
+              (ProtocolSuite<ResourcePoolT, Builder>) SpdzConfigurationFromCmdLine(cmd);
+          this.resourcePool =
+              (ResourcePoolT) createSpdzResourcePool(this.networkConfiguration.getMyId(),
+                  this.networkConfiguration.noOfParties(), network, new Random(),
+                  new SecureRandom(), cmd);
           break;
         case "tinytablesprepro":
           this.protocolSuite =
-              tinyTablesPreProFromCmdLine(cmd, this.networkConfiguration.getMyId());
+              (ProtocolSuite<ResourcePoolT, Builder>) tinyTablesPreProFromCmdLine(cmd,
+                  this.networkConfiguration.getMyId());
+          this.resourcePool =
+              (ResourcePoolT) new ResourcePoolImpl(this.networkConfiguration.getMyId(),
+                  this.networkConfiguration.noOfParties(), network, new Random(),
+                  new SecureRandom());
           break;
         case "tinytables":
-          this.protocolSuite = tinyTablesFromCmdLine(cmd, this.networkConfiguration.getMyId());
+          this.protocolSuite = (ProtocolSuite<ResourcePoolT, Builder>) tinyTablesFromCmdLine(cmd,
+              this.networkConfiguration.getMyId());
+          this.resourcePool =
+              (ResourcePoolT) new ResourcePoolImpl(this.networkConfiguration.getMyId(),
+                  this.networkConfiguration.noOfParties(), network, new Random(),
+                  new SecureRandom());
           break;
         default:
           throw new ParseException("Unknown protocol suite: " + protocolSuiteName);
@@ -294,6 +355,12 @@ public class CmdLineUtil {
       displayHelp();
       System.exit(-1); // TODO: Consider moving to top level.
     }
+    
+    this.sce = new SecureComputationEngineImpl<>(protocolSuite, evaluator);
+    if(flags != null) {
+      this.sce = new SCELoggingDecorator<>(sce, protocolSuite);
+    }
+    
     return this.cmd;
   }
 
@@ -312,11 +379,30 @@ public class CmdLineUtil {
     if (maxBitLength < 2) {
       throw new RuntimeException("spdz.maxBitLength must be > 1");
     }
+    return new SpdzProtocolSuite(maxBitLength);
+  }
 
+  private SpdzResourcePool createSpdzResourcePool(int myId, int size, Network network, Random rand,
+      SecureRandom secRand, CommandLine cmd) {
+    Properties p = cmd.getOptionProperties("D");
     final String fuelStationBaseUrl = p.getProperty("spdz.fuelStationBaseUrl", null);
     String strat = p.getProperty("spdz.preprocessingStrategy");
     final PreprocessingStrategy strategy = PreprocessingStrategy.fromString(strat);
-    return new SpdzProtocolSuite(maxBitLength, strategy, fuelStationBaseUrl);
+    SpdzStorage store;
+    switch (strategy) {
+      case DUMMY:
+        store = new SpdzStorageDummyImpl(myId, size);
+        break;
+      case STATIC:
+        store = new SpdzStorageImpl(0, size, myId,
+            new FilebasedStreamedStorageImpl(new InMemoryStorage()));
+        break;
+      case FUELSTATION:
+        store = new SpdzStorageImpl(0, size, myId, fuelStationBaseUrl);
+      default:
+        throw new ConfigurationException("Unkonwn preprocessing strategy: " + strategy);
+    }
+    return new SpdzResourcePoolImpl(myId, size, network, rand, secRand, store);
   }
 
   private static ProtocolSuite<?, ?> tinyTablesPreProFromCmdLine(CommandLine cmd, int myId)
