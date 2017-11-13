@@ -1,5 +1,13 @@
 package dk.alexandra.fresco.suite.spdz;
 
+import java.io.File;
+import java.io.Serializable;
+import java.math.BigInteger;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
@@ -7,12 +15,6 @@ import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.exceptions.NoMoreElementsException;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
-import java.io.File;
-import java.io.Serializable;
-import java.math.BigInteger;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 
 public class TestStorage {
 

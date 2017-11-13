@@ -1,10 +1,11 @@
 package dk.alexandra.fresco.tools.ot.base;
 
-import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.Pair;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.Pair;
 
 public class DummyOTBatch implements OTBatch<BigInteger> {
 

@@ -27,6 +27,14 @@ public class TestCOTe {
 
   /**** POSITIVE TESTS ****/
   @Test
+  public void testGetBit() {
+    byte[] byteArray = new byte[] { (byte) 0x54, (byte) 0x04 };
+    assertEquals(true, COTeSender.getBit(byteArray, 13));
+    byteArray = new byte[] { (byte) 0xFF, (byte) 0xFB };
+    assertEquals(false, COTeSender.getBit(byteArray, 13));
+  }
+
+  @Test
   public void testMakeMonoVal() {
     byte[] zeroArray = dummyReceiver.makeMonoVal(false, 5);
     for (int i = 0; i < 5; i++) {
@@ -41,43 +49,16 @@ public class TestCOTe {
     }
   }
 
-  @Test
-  public void testXor() {
-    byte[] arr1 = {(byte) 0x00, (byte) 0x02, (byte) 0xFF};
-    byte[] arr2 = {(byte) 0xF0, (byte) 0x02, (byte) 0xF0};
-    byte[] res = COTeShared.xor(arr1, arr2);
-    assertEquals(res[0], (byte) 0xF0);
-    assertEquals(res[1], (byte) 0x00);
-    assertEquals(res[2], (byte) 0x0F);
-  }
-
-  @Test
-  public void testXorList() {
-    byte[] arr1 = { (byte) 0x00, (byte) 0x02, (byte) 0xFF };
-    byte[] arr2 = { (byte) 0xF0, (byte) 0x02, (byte) 0xF0 };
-    List<byte[]> list1 = new ArrayList<>(2);
-    List<byte[]> list2 = new ArrayList<>(2);
-    list1.add(arr1);
-    list1.add(arr2);
-    list2.add(arr2);
-    list2.add(arr1);
-    List<byte[]> res = COTeShared.xor(list1, list2);
-    assertEquals(res.get(0)[0], (byte) 0xF0);
-    assertEquals(res.get(0)[1], (byte) 0x00);
-    assertEquals(res.get(0)[2], (byte) 0x0F);
-    assertEquals(res.get(1)[0], (byte) 0xF0);
-    assertEquals(res.get(1)[1], (byte) 0x00);
-    assertEquals(res.get(1)[2], (byte) 0x0F);
-  }
-
   /**** NEGATIVE TESTS ****/
   @Test
   public void testIllegalInit() {
     Random rand = new Random();
     Network network = new KryoNetNetwork();
+    COTeSender badSender;
+    COTeReceiver badReceiver;
     boolean thrown = false;
     try {
-      COTeSender badSender = new COTeSender(0, 0, 80, rand, network);
+      badSender = new COTeSender(0, 128, 80, null, network);
     } catch (IllegalArgumentException e) {
       assertEquals("Illegal constructor parameters", e.getMessage());
       thrown = true;
@@ -85,7 +66,14 @@ public class TestCOTe {
     assertEquals(thrown, true);
     thrown = false;
     try {
-      COTeReceiver badReceiver = new COTeReceiver(0, 128, 0, rand, network);
+      badReceiver = new COTeReceiver(0, 128, 80, rand, null);
+    } catch (IllegalArgumentException e) {
+      assertEquals("Illegal constructor parameters", e.getMessage());
+      thrown = true;
+    }
+    thrown = false;
+    try {
+      badSender = new COTeSender(0, 0, 80, rand, network);
     } catch (IllegalArgumentException e) {
       assertEquals("Illegal constructor parameters", e.getMessage());
       thrown = true;
@@ -93,7 +81,7 @@ public class TestCOTe {
     assertEquals(thrown, true);
     thrown = false;
     try {
-      COTeSender badSender = new COTeSender(0, 128, 80, null, network);
+      badReceiver = new COTeReceiver(0, 128, 0, rand, network);
     } catch (IllegalArgumentException e) {
       assertEquals("Illegal constructor parameters", e.getMessage());
       thrown = true;
@@ -101,14 +89,15 @@ public class TestCOTe {
     assertEquals(thrown, true);
     thrown = false;
     try {
-      COTeReceiver badReceiver = new COTeReceiver(0, 128, 80, rand, null);
+      badSender = new COTeSender(0, 127, 80, rand, network);
     } catch (IllegalArgumentException e) {
-      assertEquals("Illegal constructor parameters", e.getMessage());
+      assertEquals("Computational security parameter must be divisible by 8",
+          e.getMessage());
       thrown = true;
     }
     assertEquals(thrown, true);
   }
-
+  
   @Test
   public void testIllegalXor() {
     byte[] arr1 = new byte[34];
@@ -117,7 +106,7 @@ public class TestCOTe {
     try {
       COTeShared.xor(arr1, arr2);
     } catch (IllegalArgumentException e) {
-      assertEquals("The byte arrays are not of equal lengh", e.getMessage());
+      assertEquals("The byte arrays are not of equal length", e.getMessage());
       thrown = true;
     }
     assertEquals(thrown, true);
@@ -146,9 +135,10 @@ public class TestCOTe {
     try {
       COTeShared.xor(list1, list2);
     } catch (IllegalArgumentException e) {
-      assertEquals("The byte arrays are not of equal lengh", e.getMessage());
+      assertEquals("The byte arrays are not of equal length", e.getMessage());
       thrown = true;
     }
     assertEquals(thrown, true);
   }
+
 }

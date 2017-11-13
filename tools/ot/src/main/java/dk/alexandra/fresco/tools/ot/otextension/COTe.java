@@ -23,9 +23,9 @@ public class COTe {
    * @param network The network instance
    */
   public COTe(int otherID, int kBitLength, int lambdaSecurityParam, Random rand, Network network) {
-    this.sender = new COTeSender(lambdaSecurityParam, lambdaSecurityParam,
+    this.sender = new COTeSender(otherID, kBitLength,
         lambdaSecurityParam, rand, network);
-    this.receiver = new COTeReceiver(lambdaSecurityParam, lambdaSecurityParam,
+    this.receiver = new COTeReceiver(otherID, kBitLength,
         lambdaSecurityParam, rand, network);
   }
 
