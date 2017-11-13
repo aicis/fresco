@@ -112,16 +112,22 @@ public class TripleGen extends MultiPartyProtocol {
         }
       }
     }
-    System.out.println(subShares);
     List<SpdzElement> shares =
         subShares.stream().map(shareList -> shareList.stream().reduce((l, r) -> l.add(r)).get())
             .collect(Collectors.toList());
     return new Combined<>(shares);
   }
 
-  public SpdzTriple sacrifice(Combined<SpdzElement> authenticated) {
-    // TODO
-    return new SpdzTriple(authenticated.a, authenticated.b, authenticated.c);
+  public SpdzTriple sacrifice(Combined<SpdzElement> auth) throws IOException {
+    FieldElement mask = sampler.jointSample(modulus, kBitLength);
+    SpdzElement rho = auth.a.multiply(mask.toBigInteger()).subtract(auth.aHat);
+    FieldElement rhoOpen = shareGen.open(rho);
+    SpdzElement sigma = auth.c.multiply(mask.toBigInteger()).subtract(auth.cHat)
+        .subtract(auth.b.multiply(rhoOpen.toBigInteger()));
+    // technically no need to include zero element
+    shareGen.check(Arrays.asList(rho, sigma),
+        Arrays.asList(rhoOpen, new FieldElement(0, modulus, kBitLength)));
+    return new SpdzTriple(auth.a, auth.b, auth.c);
   }
 
   public SpdzTriple triple() throws IOException {
@@ -134,8 +140,7 @@ public class TripleGen extends MultiPartyProtocol {
     List<FieldElement> productCandidates = multiply(leftFactorCandidates, rightFactor);
 
     Combined<FieldElement> combined = combine(leftFactorCandidates, rightFactor, productCandidates);
-    System.out.println("combined " + combined);
-    
+
     Combined<SpdzElement> authenticated = authenticate(combined);
 
     SpdzTriple triple = sacrifice(authenticated);
@@ -178,7 +183,5 @@ public class TripleGen extends MultiPartyProtocol {
       return "Combined [a=" + a + ", b=" + b + ", c=" + c + ", aHat=" + aHat + ", cHat=" + cHat
           + "]";
     }
-    
   }
-
 }

@@ -51,7 +51,6 @@ public class ShareGen extends MultiPartyProtocol {
         this.copeProtocols.put(partyId, cope);
       }
     }
-    System.out.println("copeProtocols.size() " + copeProtocols.size());
     this.macCheckProtocol =
         new DummyMacCheck(myId, partyIds, modulus, kBitLength, network, executor, rand);
     this.initialized = false;
@@ -99,7 +98,6 @@ public class ShareGen extends MultiPartyProtocol {
     // TODO: wrap this
     List<List<FieldElement>> tValuesPerParty = new ArrayList<>();
     for (Cope cope : copeProtocols.values()) {
-      System.out.println(cope.getInputter().getMyId());
       tValuesPerParty.add(cope.getInputter().extend(values));
     }
     List<FieldElement> tValues = getTValues(tValuesPerParty, numElements);
@@ -168,5 +166,31 @@ public class ShareGen extends MultiPartyProtocol {
     combined.add(constantWithMac, myId);
     return combined;
   }
- 
+
+  public FieldElement open(SpdzElement share) throws IOException {
+    List<FieldElement> shares = new ArrayList<>();
+    // TODO: parallelize receive
+    for (Integer partyId : partyIds) {
+      if (partyId.equals(myId)) {
+        shares.add(new FieldElement(share.getShare(), modulus, kBitLength));
+        network.sendToAll(share.getShare().toByteArray());
+      } else {
+        byte[] received = network.receive(0, partyId);
+        shares.add(new FieldElement(received, modulus, kBitLength));
+      }
+    }
+    return sharer.additiveRecombine(shares);
+  }
+
+  public void check(List<SpdzElement> sharesWithMacs, List<FieldElement> openValues) {
+    // TODO: mask vector not always necessary
+    List<FieldElement> maskVector = sampler.jointSample(modulus, kBitLength, sharesWithMacs.size());    
+    List<FieldElement> macsOnly = sharesWithMacs.stream()
+        .map(share -> new FieldElement(share.getMac(), modulus, kBitLength))
+        .collect(Collectors.toList());
+    FieldElement maskedMac = FieldElement.innerProduct(maskVector, macsOnly);
+    FieldElement maskedValue = FieldElement.innerProduct(maskVector, openValues);
+    macCheckProtocol.check(maskedValue, macKeyShare, maskedMac);
+  }
+
 }
