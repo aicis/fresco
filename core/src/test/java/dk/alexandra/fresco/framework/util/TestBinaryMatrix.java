@@ -6,14 +6,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
-
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Random;
 
-import org.hamcrest.core.Is;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class TestBinaryMatrix {

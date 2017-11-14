@@ -59,7 +59,6 @@ public class BristolCircuitParser implements
     this.no_gates = Integer.parseInt(meta[0]);
     this.no_wires = Integer.parseInt(meta[1]);
     meta = linesIter.next().split(" \\s*");
-    // System.out.println("Read: " + Arrays.toString(meta));
     this.no_input1 = Integer.parseInt(meta[0]);
     this.no_input2 = Integer.parseInt(meta[1]);
     this.no_output = Integer.parseInt(meta[2]);
@@ -89,7 +88,6 @@ public class BristolCircuitParser implements
    * Returns null if any input of circuit is not currently present in wires map.
    */
   private void parseLine(String line, ProtocolBuilderBinary builder) throws IOException {
-    // System.out.println("Parsing line: \"" + line + "\"");
     String[] tokens = line.split(" \\s*");
     int no_input = Integer.parseInt(tokens[0]);
     int no_output = Integer.parseInt(tokens[1]);
@@ -103,84 +101,59 @@ public class BristolCircuitParser implements
     }
     String type = tokens[2 + no_input + no_output];
 
-    // System.out.println("TYPE: " + type);
-    // System.out.println("IN: " + Arrays.toString(in));
-    // System.out.println("OUT: " + Arrays.toString(out));
+    if("XOR".equals(type)) {
+      if (in.length != 2 || out.length != 1) {
+        throw new IOException("Wrong circuit format for XOR");
+      }
+      DRes<SBool> leftInWireXor = wires.get(in[0]);
+      DRes<SBool> rightInWireXor = wires.get(in[1]);
+      DRes<SBool> outWireXor = wires.get(out[0]);
 
-    if("XOR".equals(type)) {    
-        if (in.length != 2 || out.length != 1) {
-          throw new IOException("Wrong circuit format for XOR");
-        }
-        DRes<SBool> leftInWireXor = wires.get(in[0]);
-        DRes<SBool> rightInWireXor = wires.get(in[1]);
-        DRes<SBool> outWireXor = wires.get(out[0]);
+      // If some input wire is not ready we have reached a gate that depends on
+      // output that is not yet ready, aka first gate of next batch.
+      if (leftInWireXor == null) {
+        throw new MPCException("xor: LEFT input wire " + in[0] + " was null");
+      }
+      if (rightInWireXor == null) {
+        throw new MPCException("xor: RIGHT input wire " + in[1] + " was null");
+      }
 
-        // If some input wire is not ready we have reached a gate that depends on
-        // output that is not yet ready, aka first gate of next batch.
-        if (leftInWireXor == null) {
-          throw new MPCException("xor: LEFT input wire " + in[0] + " was null");
-        }
-        if (rightInWireXor == null) {
-          throw new MPCException("xor: RIGHT input wire " + in[1] + " was null");
-        }
+      outWireXor = builder.binary().xor(leftInWireXor, rightInWireXor);
+      this.wires.put(out[0], outWireXor);
+      
+    } else if("AND".equals(type)) {
+      if (in.length != 2 || out.length != 1) {
+        throw new IOException("Wrong circuit format for AND");
+      }
+      DRes<SBool> leftInWireAnd = wires.get(in[0]);
+      DRes<SBool> rightInWireAnd = wires.get(in[1]);
+      DRes<SBool> outWireAnd = wires.get(out[0]);
 
-        // if (!leftInWireXor.isReady()) {
-        // System.out.println("XOR: LEFT in wire " + in[0] + " is not ready");
-        // return null;
-        // }
-        // if (!rightInWireXor.isReady()) {
-        // System.out.println("XOR: RIGHT in wire " + in[0] + " is not ready");
-        // return null;
-        // }
-        outWireXor = builder.binary().xor(leftInWireXor, rightInWireXor);
-        this.wires.put(out[0], outWireXor);
-        return;
-    }
-    if("AND".equals(type)){
+      if (leftInWireAnd == null) {
+        throw new MPCException("and LEFT input " + in[0] + " was not set");
+      }
+      if (rightInWireAnd == null) {
+        throw new MPCException("and RIGHT input " + in[1] + " was not set");
+      }
 
-        if (in.length != 2 || out.length != 1) {
-          throw new IOException("Wrong circuit format for AND");
-        }
-        DRes<SBool> leftInWireAnd = wires.get(in[0]);
-        DRes<SBool> rightInWireAnd = wires.get(in[1]);
-        DRes<SBool> outWireAnd = wires.get(out[0]);
-
-        if (leftInWireAnd == null) {
-          throw new MPCException("and LEFT input " + in[0] + " was not set");
-        }
-        if (rightInWireAnd == null) {
-          throw new MPCException("and RIGHT input " + in[1] + " was not set");
-        }
-
-        // if (!leftInWireAnd.isReady()) {
-        // System.out.println("and LEFT input " + in[0] + " was not ready");
-        // return null;
-        // }
-        // if (!rightInWireAnd.isReady()) {
-        // System.out.println("and RIGHT input " + in[1] + " was not ready");
-        // return null;
-        // }
-        outWireAnd = builder.binary().and(leftInWireAnd, rightInWireAnd);
-        this.wires.put(out[0], outWireAnd);
-        return;
-    }
-    if("INV".equals(type)) {
-        if (in.length != 1 || out.length != 1) {
-          throw new IOException("Wrong circuit format for INV");
-        }
-        DRes<SBool> inWireNot = wires.get(in[0]);
-        DRes<SBool> outWireNot = wires.get(out[0]);
-
-        if (inWireNot == null) {
-          throw new MPCException("NOT input " + in[0] + " was not set");
-        }
-
-        outWireNot = builder.binary().not(inWireNot);
-        this.wires.put(out[0], outWireNot);
-
-        return;
-    }
+      outWireAnd = builder.binary().and(leftInWireAnd, rightInWireAnd);
+      this.wires.put(out[0], outWireAnd);
+      return;
+    } else if("INV".equals(type)) {
+      if (in.length != 1 || out.length != 1) {
+        throw new IOException("Wrong circuit format for INV");
+      }
+      DRes<SBool> inWireNot = wires.get(in[0]);
+      DRes<SBool> outWireNot = wires.get(out[0]);
+      if (inWireNot == null) {
+        throw new MPCException("NOT input " + in[0] + " was not set");
+      }
+      outWireNot = builder.binary().not(inWireNot);
+      this.wires.put(out[0], outWireNot);
+      return;
+    } else {
     throw new MPCException("Unknown gate type: " + type);
+    }
   }
 
   private static final class IterationState implements DRes<IterationState> {
