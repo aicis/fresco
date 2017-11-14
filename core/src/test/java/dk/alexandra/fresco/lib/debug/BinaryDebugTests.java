@@ -16,7 +16,7 @@ import org.junit.Assert;
 public class BinaryDebugTests {
 
   public static class TestBinaryOpenAndPrint<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
+    extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
@@ -27,22 +27,51 @@ public class BinaryDebugTests {
 
         @Override
         public void test() throws Exception {
+
+
           Application<Void, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
             List<DRes<SBool>> toPrint =
                 BooleanHelper.known(new Boolean[] {true, false, false, true}, seq.binary());
             return () -> toPrint;
           }).seq((seq, inputs) -> {
             seq.debug().openAndPrint("test", inputs, stream);
+            seq.debug().marker("test", stream);
             return null;
           });
-
+          
+          
           runApplication(app);
-
           String output = bytes.toString("UTF-8");
 
-          Assert.assertEquals("test\n1001\n", output.replace("\r", ""));
+          Assert.assertEquals("test\n1001\ntest\n", output.replace("\r", ""));
         }
       };
     }
   }
+
+  public static class TestBinaryDebugToNullStream<ResourcePoolT extends ResourcePool>
+    extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
+
+        @Override
+        public void test() throws Exception {
+          Application<Void, ProtocolBuilderBinary> app =
+              producer -> producer.seq(seq -> {
+                List<DRes<SBool>> toPrint =
+                    BooleanHelper.known(new Boolean[] {true, false, false, true}, seq.binary());
+                return () -> toPrint;
+              }).seq((seq, inputs) -> {
+                seq.debug().openAndPrint("test", inputs);
+                seq.debug().marker("test");
+                return null;
+              });
+              runApplication(app);
+        }
+      };
+    }
+  }
+
 }
