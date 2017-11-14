@@ -6,24 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 
 public class TestCOTe {
-
-  private COTeSender dummySender;
-  private COTeReceiver dummyReceiver;
-
-  @Before
-  public void init() {
-    Random rand = new Random();
-    Network network = new KryoNetNetwork();
-    dummySender = new COTeSender(0, 128, 80, rand, network);
-    dummyReceiver = new COTeReceiver(1, 128, 80, rand, network);
-  }
 
   /**** POSITIVE TESTS ****/
   @Test
@@ -32,21 +20,6 @@ public class TestCOTe {
     assertEquals(true, COTeSender.getBit(byteArray, 13));
     byteArray = new byte[] { (byte) 0xFF, (byte) 0xFB };
     assertEquals(false, COTeSender.getBit(byteArray, 13));
-  }
-
-  @Test
-  public void testMakeMonoVal() {
-    byte[] zeroArray = dummyReceiver.makeMonoVal(false, 5);
-    for (int i = 0; i < 5; i++) {
-      assertEquals(0, zeroArray[i]);
-    }
-    byte[] oneArray = dummyReceiver.makeMonoVal(true, 5);
-    for (int i = 0; i < 5; i++) {
-      // Test that each bit in the byte is 1
-      for (int j = 0; j < 8; j++) {
-        assertEquals(1, (oneArray[i] >> j) & 0x01);
-      }
-    }
   }
 
   /**** NEGATIVE TESTS ****/

@@ -135,17 +135,65 @@ public class TestTranspose {
   }
 
   @Test
-  public void testFullTranspose() {
+  public void testSquareTranspose() {
     List<byte[]> input = getSquareMatrix();
-    Transpose.transpose(input);
+    List<byte[]> res = Transpose.transpose(input);
     for (int i = 0; i < 8; i++)
-      assertEquals((byte) 0x81, input.get(i)[0]);
+      assertEquals((byte) 0x81, res.get(i)[0]);
     for (int i = 0; i < 8; i++)
-      assertEquals((byte) 0x7E, input.get(i)[1]);
+      assertEquals((byte) 0x7E, res.get(i)[1]);
     for (int i = 0; i < 8; i++)
-      assertEquals((byte) 0x81, input.get(i + 8)[0]);
+      assertEquals((byte) 0x81, res.get(i + 8)[0]);
     for (int i = 0; i < 8; i++)
-      assertEquals((byte) 0x7E, input.get(i + 8)[1]);
+      assertEquals((byte) 0x7E, res.get(i + 8)[1]);
+  }
+  
+  // Transpose a wide matrix (more columns, than rows)
+  @Test
+  public void testWideTranspose() {
+    List<byte[]> input = new ArrayList<>(
+        Arrays.asList(
+            new byte[] { (byte) 0xFF, (byte) 0x00 },
+            new byte[] { (byte) 0x00, (byte) 0xFF },
+            new byte[] { (byte) 0x00, (byte) 0xFF },
+            new byte[] { (byte) 0x00, (byte) 0xFF },
+            new byte[] { (byte) 0x00, (byte) 0xFF },
+            new byte[] { (byte) 0x00, (byte) 0xFF },
+            new byte[] { (byte) 0x00, (byte) 0xFF },
+            new byte[] { (byte) 0xFF, (byte) 0x00 }));
+    List<byte[]> res = Transpose.transpose(input);
+    for (int i = 0; i < 8; i++)
+      assertEquals((byte) 0x81, res.get(i)[0]);
+    for (int i = 0; i < 8; i++)
+      assertEquals((byte) 0x7E, res.get(8 + i)[0]);
+  }
+  
+  // Transpose a high matrix (more rows, than columns)
+  @Test
+  public void testTallTranspose() {
+    List<byte[]> input = new ArrayList<>(
+        Arrays.asList(
+            new byte[] { (byte) 0xFF },
+            new byte[] { (byte) 0x00 },
+            new byte[] { (byte) 0x00 },
+            new byte[] { (byte) 0x00 },
+            new byte[] { (byte) 0x00 },
+            new byte[] { (byte) 0x00 },
+            new byte[] { (byte) 0x00 },
+            new byte[] { (byte) 0xFF },
+            new byte[] { (byte) 0x00 },
+            new byte[] { (byte) 0xFF },
+            new byte[] { (byte) 0xFF },
+            new byte[] { (byte) 0xFF },
+            new byte[] { (byte) 0xFF },
+            new byte[] { (byte) 0xFF },
+            new byte[] { (byte) 0xFF },
+            new byte[] { (byte) 0x00 }));
+    List<byte[]> res = Transpose.transpose(input);
+    for (int i = 0; i < 8; i++)
+      assertEquals((byte) 0x81, res.get(i)[0]);
+    for (int i = 0; i < 8; i++)
+      assertEquals((byte) 0x7E, res.get(i)[1]);
   }
 
   @Test
@@ -256,19 +304,19 @@ public class TestTranspose {
     assertEquals(true, thrown);
   }
 
-  @Test
-  public void testNotSquare() {
-    boolean thrown;
-    List<byte[]> matrix = getSquareMatrix();
-    for (int i = 0; i < 8; i++)
-      matrix.remove(0);
-    thrown = false;
-    try {
-      Transpose.doSanityCheck(matrix);
-    } catch (IllegalArgumentException e) {
-      assertEquals("The matrix is not square", e.getMessage());
-      thrown = true;
-    }
-    assertEquals(true, thrown);
-  }
+  // @Test
+  // public void testNotSquare() {
+  // boolean thrown;
+  // List<byte[]> matrix = getSquareMatrix();
+  // for (int i = 0; i < 8; i++)
+  // matrix.remove(0);
+  // thrown = false;
+  // try {
+  // Transpose.doSanityCheck(matrix);
+  // } catch (IllegalArgumentException e) {
+  // assertEquals("The matrix is not square", e.getMessage());
+  // thrown = true;
+  // }
+  // assertEquals(true, thrown);
+  // }
 }

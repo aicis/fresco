@@ -110,8 +110,7 @@ public class COTeSender extends COTeShared {
       }
     }
     // Complete tilt-your-head by transposing the message "matrix"
-    Transpose.transpose(tVec);
-    return tVec;
+    return Transpose.transpose(tVec);
   }
 
 }

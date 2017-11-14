@@ -68,66 +68,21 @@ public class COTeReceiver extends COTeShared {
     List<byte[]> tVecZero = new ArrayList<>(kBitLength);
     // u vector
     List<byte[]> uVec = new ArrayList<>(kBitLength);
-    // Make monochrome vectors
-    List<byte[]> monoVec = makeMonoVec(randomChoices);
     for (int i = 0; i < kBitLength; i++) {
       // Expand the seed OTs using a prg
       byte[] tZero = new byte[bytesNeeded];
-      byte[] tFirst = new byte[bytesNeeded];
+      byte[] tOne = new byte[bytesNeeded];
       prgs.get(i).getFirst().nextBytes(tZero);
-      prgs.get(i).getSecond().nextBytes(tFirst);
+      prgs.get(i).getSecond().nextBytes(tOne);
       tVecZero.add(tZero);
-      // Compute the u vector, i.e. tZero XOR tFirst XOR MonoVal
+      // Compute the u vector, i.e. tZero XOR tFirst XOR randomChoices
       // Note that this is an in-place call and thus tFirst gets modified
-      xor(tFirst, tZero);
-      xor(tFirst, monoVec.get(i));
-      uVec.add(tFirst);
+      xor(tOne, tZero);
+      xor(tOne, randomChoices);
+      uVec.add(tOne);
     }
     sendList(uVec);
     // Complete tilt-your-head by transposing the message "matrix"
-    Transpose.transpose(tVecZero);
-    return tVecZero;
-  }
-
-  /**
-   * Construct the monochrome matrix, including the necessary transposition.
-   * 
-   * @param randomChoices
-   *          The random choices which the matrix must be based on
-   * @return The matrix based on the transposition of the random monochrome
-   *         vectors
-   */
-  protected List<byte[]> makeMonoVec(byte[] randomChoices) {
-    List<byte[]> monoVec = new ArrayList<>(randomChoices.length * 8);
-    for (int i = 0; i < randomChoices.length * 8; i++) {
-      byte[] monoVal = makeMonoVal(getBit(randomChoices, i), kBitLength / 8);
-      monoVec.add(monoVal);
-    }
-    Transpose.transpose(monoVec);
-    return monoVec;
-  }
-
-  /**
-   * Makes a monochrome byte array of "size" bytes, based on the boolean "bit"
-   * 
-   * @param bit
-   *          Boolean to base monochrome vector on
-   * @param size
-   *          The amount of bytes in the result vector
-   * @return Monochrome byte array
-   */
-  // The method is protected instead of private to allow testing
-  protected static byte[] makeMonoVal(boolean bit, int size) {
-    byte[] res = new byte[size];
-    if (bit == true) {
-      for (int i = 0; i < size; i++) {
-        // Since byte is a signed value represented using two's complement -1
-        // will assign it to the all 1 bit string
-        res[i] = (byte) 0xFF;
-      }
-    }
-    // else the array will contain all 0 bits as this is the default value of
-    // the primitive type byte
-    return res;
+    return Transpose.transpose(tVecZero);
   }
 }

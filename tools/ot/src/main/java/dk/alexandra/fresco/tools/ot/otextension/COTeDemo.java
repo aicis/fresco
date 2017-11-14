@@ -18,7 +18,7 @@ public class COTeDemo<ResourcePoolT extends ResourcePool> {
   private int timeout = 50;
   private int kBitLength = 128;
   private int lambdaSecurityParam = 40;
-  private int amountOfOTs = 128;
+  private int amountOfOTs = 1024;
 
   public void runPartyOne(int pid)
       throws IOException, NoSuchAlgorithmException {
