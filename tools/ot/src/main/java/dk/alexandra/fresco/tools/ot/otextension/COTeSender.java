@@ -105,8 +105,9 @@ public class COTeSender extends COTeShared {
     // Compute the q vector based on the random choices from the seed OTs, i.e
     // qVec = otChoices AND uVec XOR tVec
     for (int i = 0; i < kBitLength; i++) {
-      if (getBit(otChoices, i) == true)
+      if (getBit(otChoices, i) == true) {
         xor(tVec.get(i), uVec.get(i));
+      }
     }
     // Complete tilt-your-head by transposing the message "matrix"
     Transpose.transpose(tVec);

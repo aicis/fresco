@@ -16,9 +16,9 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 
 public class COTeDemo<ResourcePoolT extends ResourcePool> {
   private int timeout = 50;
-  private int kBitLength = 8;
+  private int kBitLength = 128;
   private int lambdaSecurityParam = 40;
-  private int amountOfOTs = 8;
+  private int amountOfOTs = 128;
 
   public void runPartyOne(int pid)
       throws IOException, NoSuchAlgorithmException {
