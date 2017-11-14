@@ -2,6 +2,8 @@ package dk.alexandra.fresco.framework.network;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Network towards the protocols. This does not expose the real network, and
@@ -67,5 +69,32 @@ public interface SCENetwork {
 	 * everyone next round.
 	 */
 	void expectInputFromAll();
+		
+	//Methods used by the internal FRESCO evaluators. 
+	//Should not be called by protocols
+	
+	/**
+	 * Sets the inputs for the current round. Called when received. 
+	 * @param inputForThisRound The inputs given this round.
+	 */
+	public void setInput(Map<Integer, ByteBuffer> inputForThisRound);
+	
+	/**
+	 * Returns a map from target party ID to the output which should be send to the target.  
+	 * @return A mapping determining output to parties this round. 
+	 */
+	public Map<Integer, byte[]> getOutputFromThisRound();
+
+	/**
+	 * Gets a set indicating whom we expect to receive data from next round. 
+	 * @return A set of party IDs. 
+	 */
+	public Set<Integer> getExpectedInputForNextRound();
+
+	/**
+	 * Clears the internal maps to ensure that the returned values next round is
+	 * correct.
+	 */
+	public void nextRound();
 
 }
