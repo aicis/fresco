@@ -1,16 +1,14 @@
 package dk.alexandra.fresco.framework.sce.resources;
 
-import java.io.Serializable;
-
-import org.hamcrest.core.Is;
-import org.junit.Assert;
-import org.junit.Test;
-
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.exceptions.NoMoreElementsException;
+import java.io.Serializable;
+import org.hamcrest.core.Is;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class TestFilebasedStreamStorage {
 

@@ -1,10 +1,9 @@
 package dk.alexandra.fresco.lib.math.bool.add;
 
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.value.SBool;
 import java.util.ArrayList;
 import java.util.List;
-import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.framework.DRes;
-
 import org.junit.Assert;
 import org.junit.Test;
 

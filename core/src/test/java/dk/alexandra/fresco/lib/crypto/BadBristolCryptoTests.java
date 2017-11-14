@@ -32,7 +32,6 @@ import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.lib.helper.bristol.BristolCircuitParser;
-
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.util.ArrayList;

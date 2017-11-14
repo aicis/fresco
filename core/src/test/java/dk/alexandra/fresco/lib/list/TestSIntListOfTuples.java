@@ -1,12 +1,10 @@
 package dk.alexandra.fresco.lib.list;
 
-import java.util.ArrayList;
-
-import org.junit.Assert;
-import org.junit.Test;
-
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.util.ArrayList;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class TestSIntListOfTuples {
 

@@ -2,7 +2,6 @@ package dk.alexandra.fresco.framework.crypto;
 
 import java.io.IOException;
 import java.util.Random;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -20,7 +19,4 @@ public class TestAES {
 		dec = aes2.decrypt(enc);
 		Assert.assertArrayEquals(data, dec);
 	}
-	
-	
-	
 }
