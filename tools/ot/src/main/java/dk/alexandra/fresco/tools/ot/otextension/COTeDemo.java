@@ -15,7 +15,7 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 
 public class COTeDemo<ResourcePoolT extends ResourcePool> {
-  private int timeout = 50;
+  private int timeout = 5000;
   private int kBitLength = 128;
   private int lambdaSecurityParam = 40;
   private int amountOfOTs = 1024;

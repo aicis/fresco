@@ -43,10 +43,21 @@ public class TestTranspose {
   }
 
   @Test
-  public void testBigSquareMatrix() {
+  public void testBigMatrix() {
     boolean thrown = false;
     List<byte[]> matrix = new ArrayList<>(128);
     for (int i = 0; i < 128; i++) {
+      matrix.add(new byte[1024 / 8]);
+    }
+    try {
+      Transpose.doSanityCheck(matrix);
+    } catch (Exception e) {
+      thrown = true;
+    }
+    assertEquals(false, thrown);
+    thrown = false;
+    matrix = new ArrayList<>(1024);
+    for (int i = 0; i < 1024; i++) {
       matrix.add(new byte[128 / 8]);
     }
     try {
@@ -64,18 +75,23 @@ public class TestTranspose {
      * 1 1 1 1 1 1 1 1, 0xFF 
      * 0 0 0 0 0 0 0 0, 0x00 
      * 0 0 0 0 0 0 0 0, 0x00 
-     * 0 0 0 0 0 0 0 0, 0x00 
+     * 0 0 0 0 0 0 0 1, 0x01 
      * 0 0 0 0 0 0 0 0, 0x00 
      * 0 0 0 0 0 0 0 0, 0x00
      * 0 0 0 0 0 0 0 0, 0x00
      * 1 1 1 1 1 1 1 1, 0xFF
      */
     List<byte[]> input = new ArrayList<>(
-        Arrays.asList(new byte[] { (byte) 0xFF }, new byte[] { (byte) 0x00 },
-            new byte[] { (byte) 0x00 }, new byte[] { (byte) 0x00 },
-            new byte[] { (byte) 0x00 }, new byte[] { (byte) 0x00 },
-            new byte[] { (byte) 0x00 }, new byte[] { (byte) 0xFF }));
-    Transpose.transposeByteBlock(input, 0, 0);
+        Arrays.asList(
+            new byte[] { (byte) 0xFF }, 
+            new byte[] { (byte) 0x00 },
+            new byte[] { (byte) 0x00 }, 
+            new byte[] { (byte) 0x01 },
+            new byte[] { (byte) 0x00 }, 
+            new byte[] { (byte) 0x00 },
+            new byte[] { (byte) 0x00 }, 
+            new byte[] { (byte) 0xFF }));
+    Transpose.transposeByteBlock(input, 0, 0); 
     /**
      * Verify that the result is 
      * 1 0 0 0 0 0 0 1 0x81
@@ -85,11 +101,12 @@ public class TestTranspose {
      * 1 0 0 0 0 0 0 1 0x81 
      * 1 0 0 0 0 0 0 1 0x81 
      * 1 0 0 0 0 0 0 1 0x81 
-     * 1 0 0 0 0 0 0 1 0x81
+     * 1 0 0 1 0 0 0 1 0x91
      */
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 7; i++) {
       assertEquals((byte) 0x81, input.get(i)[0]);
     }
+    assertEquals((byte) 0x91, input.get(7)[0]);
   }
 
   @Test
@@ -303,20 +320,4 @@ public class TestTranspose {
     }
     assertEquals(true, thrown);
   }
-
-  // @Test
-  // public void testNotSquare() {
-  // boolean thrown;
-  // List<byte[]> matrix = getSquareMatrix();
-  // for (int i = 0; i < 8; i++)
-  // matrix.remove(0);
-  // thrown = false;
-  // try {
-  // Transpose.doSanityCheck(matrix);
-  // } catch (IllegalArgumentException e) {
-  // assertEquals("The matrix is not square", e.getMessage());
-  // thrown = true;
-  // }
-  // assertEquals(true, thrown);
-  // }
 }

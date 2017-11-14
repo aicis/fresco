@@ -30,15 +30,9 @@ public class Transpose {
       columns = minDim;
     }
     // Allocate result matrix
-    List<byte[]> res = new ArrayList<>(rows);
-    for (int i = 0; i < rows; i++) {
-      res.add(new byte[columns / 8]);
-    }
+    List<byte[]> res = initializeMatrix(rows, columns);
     // Allocate temporary matrix
-    List<byte[]> currentSquare = new ArrayList<>(minDim);
-    for (int i = 0; i < minDim; i++) {
-      currentSquare.add(new byte[minDim / 8]);
-    }
+    List<byte[]> currentSquare = initializeMatrix(minDim, minDim);
     // Process all squares of minDim x minDim
     for (int i = 0; i < maxDim / minDim; i++) {
       // Copy current block into "currentSquare"
@@ -68,22 +62,6 @@ public class Transpose {
     return res;
   }
 
-  // /**
-  // * Transposes, in-place, a square matrix represent in row-major as a list of
-  // * byte arrays.
-  // *
-  // * @param input
-  // * The square matrix to transpose
-  // */
-  // public static void transposeSquare(List<byte[]> input) {
-  // // Ensure the input is formed as needed by Eklundh
-  // doSanityCheck(input);
-  // // Transpose blocks of 8 bits using the trivial algorithm
-  // transposeAllByteBlocks(input);
-  // // Do Eklundh to complete the transposing
-  // doEklundh(input);
-  // }
-
   /**
    * Complete the Eklundh algorithm for transposing with initial blocks of 8
    * bits. That is, assuming all blocks of 8 bits have already been transposed
@@ -99,8 +77,7 @@ public class Transpose {
     for (int blockSize = 1; blockSize <= byteColumns / 2; blockSize = blockSize
         * 2) {
       for (int i = 0; i < rows; i = i + 2 * 8 * blockSize) {
-        for (int j = 0; j < byteColumns; j = j
-            + 2 * blockSize) {
+        for (int j = 0; j < byteColumns; j = j + 2 * blockSize) {
           // swap the blocks
           swap(input, i, j, blockSize);
         }
@@ -152,10 +129,6 @@ public class Transpose {
       throw new IllegalArgumentException(
           "The amount columns in the matrix is not 8*2^x for some x > 1");
     }
-    // Multiply by 8 because there are 8 bits in a byte
-//    int columns = input.get(0).length * 8;
-    // if (rows != columns)
-    // throw new IllegalArgumentException("The matrix is not square");
     // Check that all columns are of equal length
     for (int i = 1; i < rows; i++) {
       if (input.get(0).length != input.get(i).length)
@@ -163,6 +136,12 @@ public class Transpose {
     }
   }
 
+  /**
+   * Transpose all 8 bit squares in a square matrix, in-place
+   * 
+   * @param input
+   *          The input
+   */
   protected static void transposeAllByteBlocks(List<byte[]> input) {
     // Start by transposing one byte and 8 rows at a time using the trivial
     // O(n^2) algorithm
@@ -218,5 +197,23 @@ public class Transpose {
     input.get(rowOffset + 5)[columnOffset / 8] = newRow5;
     input.get(rowOffset + 6)[columnOffset / 8] = newRow6;
     input.get(rowOffset + 7)[columnOffset / 8] = newRow7;
+  }
+
+  /**
+   * Allocate a matrix in row-major form, as a list of byte arrays
+   * 
+   * @param rows
+   *          Rows in the matrix
+   * @param columns
+   *          columns in the matrix
+   * @return The constructed matrix
+   */
+  private static List<byte[]> initializeMatrix(int rows, int columns) {
+    List<byte[]> res = new ArrayList<>(rows);
+    for (int i = 0; i < rows; i++) {
+      // A byte is always 8 bits
+      res.add(new byte[columns / 8]);
+    }
+    return res;
   }
 }
