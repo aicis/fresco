@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.framework.network.serializers;
 
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -15,16 +14,14 @@ public class TestSerializers {
     BigInteger mod = new BigInteger("1298376217321832134223");
 
     BigInteger b = new BigInteger("1298376217321832");
-    int modulusSize = mod.toByteArray().length;
-    byte[] bytes = BigIntegerWithFixedLengthSerializer.toBytes(b, modulusSize);
-    ByteBuffer buf = ByteBuffer.wrap(bytes);
-    BigInteger bb = BigIntegerWithFixedLengthSerializer.toBigInteger(buf, modulusSize);
+    BigIntegerWithFixedLengthSerializer serializer = new BigIntegerWithFixedLengthSerializer(20);
+    byte[] bytes = serializer.toBytes(b);
+    BigInteger bb = serializer.toBigInteger(bytes);
     Assert.assertEquals(b, bb);
 
     b = BigInteger.ZERO;
-    bytes = BigIntegerWithFixedLengthSerializer.toBytes(b, modulusSize);
-    buf = ByteBuffer.wrap(bytes);
-    bb = BigIntegerWithFixedLengthSerializer.toBigInteger(buf, modulusSize);
+    bytes = serializer.toBytes(b);
+    bb = serializer.toBigInteger(bytes);
     Assert.assertEquals(b, bb);
   }
 

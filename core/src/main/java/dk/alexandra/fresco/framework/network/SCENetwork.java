@@ -3,9 +3,11 @@ package dk.alexandra.fresco.framework.network;
 import java.util.List;
 
 /**
- * Network towards the protocols. This does not expose the real network, and
- * sending has no effect on the TCP layer. A higher level should handle the
- * input/output (typically the evaluator)
+ * Network towards the protocols and the evalutors, this interface bridges the raw network
+ * with the evaluators, so evaluators can behave nice on the network.
+ * This interface holds the possibility to wrap the communication and batch
+ * communication after each round. This interface  also includes a slightly more friendly interface
+ * for the native protocols.
  */
 public interface SCENetwork extends Network {
 
@@ -18,18 +20,14 @@ public interface SCENetwork extends Network {
   List<byte[]> receiveFromAll();
 
   /**
-   * Queues up a value to be send to all parties (yourself included). Values
-   * are not send by TCP by calling this method, but queued up for the higher
-   * layer to send later.
+   * Queues up a value to be send to all parties (yourself included).
    *
    * @param data The value to send to all parties
    */
   void sendToAll(byte[] data);
 
   /**
-   * Clears the internal maps to ensure that the returned values next round is
-   * correct.
+   * Flushes the internal buffers and sends the (remaining) pieces over the wire.
    */
-  void flushBuffer();
-
+  void flush();
 }

@@ -14,10 +14,7 @@ public abstract class SpdzNativeProtocol<OutputT> implements
 
   byte[] sendBroadcastValidation(MessageDigest dig, SCENetwork network, BigInteger b) {
     dig.update(b.toByteArray());
-    byte[] digest = dig.digest();
-    dig.reset();
-    network.sendToAll(digest);
-    return digest;
+    return sendAndReset(dig, network);
   }
 
   byte[] sendBroadcastValidation(MessageDigest dig, SCENetwork network,
@@ -25,6 +22,10 @@ public abstract class SpdzNativeProtocol<OutputT> implements
     for (BigInteger b : bs) {
       dig.update(b.toByteArray());
     }
+    return sendAndReset(dig, network);
+  }
+
+  private byte[] sendAndReset(MessageDigest dig, SCENetwork network) {
     byte[] digest = dig.digest();
     dig.reset();
     network.sendToAll(digest);
@@ -36,7 +37,8 @@ public abstract class SpdzNativeProtocol<OutputT> implements
     boolean validated = true;
     List<byte[]> digests = network.receiveFromAll();
     for (byte[] d : digests) {
-      validated = validated && Arrays.equals(d, digest);
+      boolean equals = Arrays.equals(d, digest);
+      validated = validated && equals;
     }
     return validated;
   }

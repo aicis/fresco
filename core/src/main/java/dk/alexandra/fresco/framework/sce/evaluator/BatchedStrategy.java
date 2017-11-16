@@ -42,7 +42,7 @@ public class BatchedStrategy<ResourcePoolT extends ResourcePool>
     int round = 0;
     while (protocols.size() > 0) {
       evaluateCurrentRound(protocols, sceNetwork, resourcePool, network, round);
-      sceNetwork.flushBuffer();
+      sceNetwork.flush();
       round++;
     }
   }

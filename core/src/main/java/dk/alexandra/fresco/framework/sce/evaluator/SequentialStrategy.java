@@ -23,7 +23,7 @@ public class SequentialStrategy<ResourcePoolT extends ResourcePool> implements
       do {
         status = protocol.evaluate(round, resourcePool, sceNetwork);
         // send phase
-        sceNetwork.flushBuffer();
+        sceNetwork.flush();
         round++;
       } while (status.equals(EvaluationStatus.HAS_MORE_ROUNDS));
     }

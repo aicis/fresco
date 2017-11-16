@@ -118,16 +118,16 @@ public class BasicArithmeticTests {
         public void test() throws Exception {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app =
               producer -> producer.par(par -> {
-            Numeric numeric = par.numeric();
-            List<DRes<SInt>> result =
-                openInputs.stream().map(numeric::known).collect(Collectors.toList());
-            return () -> result;
-          }).par((par, closed) -> {
-            Numeric numeric = par.numeric();
-            List<DRes<BigInteger>> result =
-                closed.stream().map(numeric::open).collect(Collectors.toList());
-            return () -> result.stream().map(DRes::out).collect(Collectors.toList());
-          });
+                Numeric numeric = par.numeric();
+                List<DRes<SInt>> result =
+                    openInputs.stream().map(numeric::known).collect(Collectors.toList());
+                return () -> result;
+              }).par((par, closed) -> {
+                Numeric numeric = par.numeric();
+                List<DRes<BigInteger>> result =
+                    closed.stream().map(numeric::open).collect(Collectors.toList());
+                return () -> result.stream().map(DRes::out).collect(Collectors.toList());
+              });
           List<BigInteger> output = runApplication(app);
 
           Assert.assertEquals(openInputs, output);
@@ -212,32 +212,32 @@ public class BasicArithmeticTests {
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       BigInteger first = BigInteger.valueOf(10);
       BigInteger second = BigInteger.valueOf(5);
+      final int REPS = 20000;
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-        private static final int REPS = 20000;
 
         @Override
         public void test() throws Exception {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app =
               producer -> producer.par(par -> {
-            Numeric numeric = par.numeric();
-            DRes<SInt> firstClosed = numeric.known(first);
-            DRes<SInt> secondClosed = numeric.known(second);
-            return Pair.lazy(firstClosed, secondClosed);
-          }).par((par, pair) -> {
-            DRes<SInt> firstClosed = pair.getFirst();
-            DRes<SInt> secondClosed = pair.getSecond();
-            Numeric numeric = par.numeric();
-            ArrayList<DRes<SInt>> computations = new ArrayList<>();
-            for (int i = 0; i < REPS; i++) {
-              computations.add(numeric.mult(firstClosed, secondClosed));
-            }
-            return () -> computations;
-          }).seq((seq, computations) -> {
-            Numeric numeric = seq.numeric();
-            List<DRes<BigInteger>> opened =
-                computations.stream().map(numeric::open).collect(Collectors.toList());
-            return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
-          });
+                Numeric numeric = par.numeric();
+                DRes<SInt> firstClosed = numeric.known(first);
+                DRes<SInt> secondClosed = numeric.known(second);
+                return Pair.lazy(firstClosed, secondClosed);
+              }).par((par, pair) -> {
+                DRes<SInt> firstClosed = pair.getFirst();
+                DRes<SInt> secondClosed = pair.getSecond();
+                Numeric numeric = par.numeric();
+                ArrayList<DRes<SInt>> computations = new ArrayList<>();
+                for (int i = 0; i < REPS; i++) {
+                  computations.add(numeric.mult(firstClosed, secondClosed));
+                }
+                return () -> computations;
+              }).seq((seq, computations) -> {
+                Numeric numeric = seq.numeric();
+                List<DRes<BigInteger>> opened =
+                    computations.stream().map(numeric::open).collect(Collectors.toList());
+                return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
+              });
           List<BigInteger> output = runApplication(app);
 
           BigInteger multiply = first.multiply(second);
@@ -321,30 +321,30 @@ public class BasicArithmeticTests {
           final int numberOfComputations = 1000;
           Application<List<BigInteger>, ProtocolBuilderNumeric> app =
               producer -> producer.par(par -> {
-            Numeric numeric = par.numeric();
-            DRes<SInt> firstClosed = numeric.known(first);
-            DRes<SInt> secondClosed = numeric.known(second);
-            return Pair.lazy(firstClosed, secondClosed);
-          }).par((par, pair) -> {
-            DRes<SInt> firstClosed = pair.getFirst();
-            DRes<SInt> secondClosed = pair.getSecond();
-            Numeric numeric1 = par.numeric();
-            ArrayList<DRes<SInt>> computations = new ArrayList<>();
-            for (int i = 0; i < numberOfComputations; i++) {
-              if (i % 2 == 0) {
-                computations.add(numeric1.mult(firstClosed, secondClosed));
-              } else {
-                computations.add(numeric1.add(firstClosed, secondClosed));
-              }
+                Numeric numeric = par.numeric();
+                DRes<SInt> firstClosed = numeric.known(first);
+                DRes<SInt> secondClosed = numeric.known(second);
+                return Pair.lazy(firstClosed, secondClosed);
+              }).par((par, pair) -> {
+                DRes<SInt> firstClosed = pair.getFirst();
+                DRes<SInt> secondClosed = pair.getSecond();
+                Numeric numeric1 = par.numeric();
+                ArrayList<DRes<SInt>> computations = new ArrayList<>();
+                for (int i = 0; i < numberOfComputations; i++) {
+                  if (i % 2 == 0) {
+                    computations.add(numeric1.mult(firstClosed, secondClosed));
+                  } else {
+                    computations.add(numeric1.add(firstClosed, secondClosed));
+                  }
 
-            }
-            return () -> computations;
-          }).seq((seq, computations) -> {
-            Numeric numeric1 = seq.numeric();
-            List<DRes<BigInteger>> opened =
-                computations.stream().map(numeric1::open).collect(Collectors.toList());
-            return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
-          });
+                }
+                return () -> computations;
+              }).seq((seq, computations) -> {
+                Numeric numeric1 = seq.numeric();
+                List<DRes<BigInteger>> opened =
+                    computations.stream().map(numeric1::open).collect(Collectors.toList());
+                return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
+              });
           List<BigInteger> output = runApplication(app);
 
           BigInteger multiply = first.multiply(second);
