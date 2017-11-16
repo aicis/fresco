@@ -11,14 +11,6 @@ import org.junit.Test;
 public class TestSerializers {
 
   @Test
-  public void testBigIntegerSerializer() {
-    BigInteger b = new BigInteger("12983762173218321342");
-    byte[] bytes = BigIntegerSerializerStream.toBytes(b);
-    BigInteger bb = BigIntegerSerializerStream.toBigInteger(bytes);
-    Assert.assertEquals(b, bb);
-  }
-
-  @Test
   public void testBigIntegerWithFixedLengthSerializer() {
     BigInteger mod = new BigInteger("1298376217321832134223");
 
@@ -34,15 +26,6 @@ public class TestSerializers {
     buf = ByteBuffer.wrap(bytes);
     bb = BigIntegerWithFixedLengthSerializer.toBigInteger(buf, modulusSize);
     Assert.assertEquals(b, bb);
-  }
-
-  @Test
-  public void testByteArrayHelper() {
-    BigInteger b = new BigInteger("12983762173218321342");
-    byte[] bytes = b.toByteArray();
-    byte[] res = ByteArrayHelper.addSize(bytes);
-    byte[] bb = ByteArrayHelper.getByteObject(ByteBuffer.wrap(res));
-    Assert.assertArrayEquals(bytes, bb);
   }
 
   @Test

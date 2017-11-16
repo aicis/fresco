@@ -2,7 +2,6 @@ package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.network.serializers.ByteArrayHelper;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -17,7 +16,7 @@ public abstract class SpdzNativeProtocol<OutputT> implements
     dig.update(b.toByteArray());
     byte[] digest = dig.digest();
     dig.reset();
-    network.sendToAll(ByteArrayHelper.addSize(digest));
+    network.sendToAll(digest);
     return digest;
   }
 
@@ -28,7 +27,7 @@ public abstract class SpdzNativeProtocol<OutputT> implements
     }
     byte[] digest = dig.digest();
     dig.reset();
-    network.sendToAll(ByteArrayHelper.addSize(digest));
+    network.sendToAll(digest);
     return digest;
   }
 

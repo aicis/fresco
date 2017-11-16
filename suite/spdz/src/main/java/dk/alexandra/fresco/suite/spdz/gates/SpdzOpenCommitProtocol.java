@@ -2,13 +2,12 @@ package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializerStream;
+import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,33 +36,31 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigI
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       SCENetwork network) {
     int players = spdzResourcePool.getNoOfParties();
+    BigIntegerSerializer serializer = spdzResourcePool.getSerializer();
     switch (round) {
       case 0: // Send your opening to all players
         BigInteger value = this.commitment.getValue();
+        network.sendToAll(serializer.toBytes(value));
         BigInteger randomness = this.commitment.getRandomness();
-        BigInteger[] opening = new BigInteger[]{value, randomness};
-        network.sendToAll(BigIntegerSerializerStream.toBytes(opening));
+        network.sendToAll(serializer.toBytes(randomness));
         break;
       case 1: // Receive openings from all parties and check they are valid
-        List<byte[]> buffers = network.receiveFromAll();
-        Map<Integer, BigInteger[]> openings = new HashMap<>();
-        for (int i = 0; i < buffers.size(); i++) {
-          opening = BigIntegerSerializerStream.toBigIntegers(buffers.get(i));
-          openings.put(i + 1, opening);
-        }
+        List<byte[]> values = network.receiveFromAll();
+        List<byte[]> randomnesses = network.receiveFromAll();
 
         openingValidated = true;
-        BigInteger[] broadcastMessages = new BigInteger[2 * openings.size()];
-        for (int i : openings.keySet()) {
-          BigInteger[] open = openings.get(i);
-          BigInteger com = commitments.get(i);
+        BigInteger[] broadcastMessages = new BigInteger[2 * players];
+        for (int i = 0; i < players; i++) {
+          BigInteger com = commitments.get(i + 1);
+          BigInteger open0 = serializer.toBigInteger(values.get(i));
+          BigInteger open1 = serializer.toBigInteger(randomnesses.get(i));
           boolean validate = checkCommitment(
               spdzResourcePool, com,
-              open[0], open[1]);
+              open0, open1);
           openingValidated = openingValidated && validate;
-          ss.put(i, open[0]);
-          broadcastMessages[(i - 1) * 2] = open[0];
-          broadcastMessages[(i - 1) * 2 + 1] = open[1];
+          ss.put(i, open0);
+          broadcastMessages[i * 2] = open0;
+          broadcastMessages[i * 2 + 1] = open1;
         }
         if (players < 3) {
           if (!openingValidated) {

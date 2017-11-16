@@ -11,61 +11,60 @@ import java.util.Map;
 
 public class SpdzCommitProtocol extends SpdzNativeProtocol<Void> {
 
-	private SpdzCommitment commitment;
-	private Map<Integer, BigInteger> comms;
-	private boolean done = false;
-	private byte[] broadcastDigest;
+  private SpdzCommitment commitment;
+  private Map<Integer, BigInteger> comms;
+  private boolean done = false;
+  private byte[] broadcastDigest;
 
-	public SpdzCommitProtocol(SpdzCommitment commitment,
-			Map<Integer, BigInteger> comms) {
-		this.commitment = commitment;
-		this.comms = comms;
-	}
+  public SpdzCommitProtocol(SpdzCommitment commitment,
+      Map<Integer, BigInteger> comms) {
+    this.commitment = commitment;
+    this.comms = comms;
+  }
 
-	@Override
-	public Void out() {
-		return null;
-	}
+  @Override
+  public Void out() {
+    return null;
+  }
 
-	@Override
-	public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
-			SCENetwork network) {
-		int players = spdzResourcePool.getNoOfParties();
-		BigIntegerSerializer serializer = spdzResourcePool.getSerializer();
-		switch (round) {
-		case 0:
-			network.sendToAll(serializer
-					.toBytes(commitment.getCommitment(spdzResourcePool.getModulus())));
-			break;
-		case 1:
-      List<byte[]> commitments = network.receiveFromAll();
-      for (int i = 0; i < commitments.size(); i++) {
-        comms.put(i + 1, serializer.toBigInteger(commitments.get(i)));
-      }
-			if (players < 3) {
-				done = true;
-			} else {
-				broadcastDigest = sendBroadcastValidation(
-						spdzResourcePool.getMessageDigest(), network, comms.values()
-				);
-			}
-			break;
-		case 2:
-			boolean validated = receiveBroadcastValidation(network,
-					broadcastDigest);
-			if (!validated) {
-				throw new MPCException(
-						"Broadcast of commitments was not validated. Abort protocol.");
-			}
-			done = true;
-			break;
-		default:
-			throw new MPCException("No further rounds.");
-		}
-		if (done) {
-			return EvaluationStatus.IS_DONE;
-		} else {
-			return EvaluationStatus.HAS_MORE_ROUNDS;
-		}
-	}
+  @Override
+  public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
+      SCENetwork network) {
+    int players = spdzResourcePool.getNoOfParties();
+    BigIntegerSerializer serializer = spdzResourcePool.getSerializer();
+    switch (round) {
+      case 0:
+        network.sendToAll(serializer
+            .toBytes(commitment.getCommitment(spdzResourcePool.getModulus())));
+        break;
+      case 1:
+        List<byte[]> commitments = network.receiveFromAll();
+        for (int i = 0; i < commitments.size(); i++) {
+          comms.put(i + 1, serializer.toBigInteger(commitments.get(i)));
+        }
+        if (players < 3) {
+          done = true;
+        } else {
+          broadcastDigest = sendBroadcastValidation(
+              spdzResourcePool.getMessageDigest(), network, comms.values()
+          );
+        }
+        break;
+      case 2:
+        boolean validated = receiveBroadcastValidation(network, broadcastDigest);
+        if (!validated) {
+          throw new MPCException(
+              "Broadcast of commitments was not validated. Abort protocol.");
+        }
+        done = true;
+        break;
+      default:
+        throw new MPCException("No further rounds.");
+    }
+    if (done) {
+      return EvaluationStatus.IS_DONE;
+    } else {
+      return EvaluationStatus.HAS_MORE_ROUNDS;
+    }
+  }
 }
