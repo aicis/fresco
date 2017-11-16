@@ -50,7 +50,7 @@ public class TestScapiNetworkLayer {
     // here instead of relying on ephemeral ports which are often > 9999.
     List<Integer> ports = new ArrayList<>(n);
     for (int i = 1; i <= n; i++) {
-      ports.add(9000 + i);
+      ports.add(9100 + i);
     }
     Map<Integer, NetworkConfiguration> netConf =
         TestConfiguration.getNetworkConfigurations(n, ports);

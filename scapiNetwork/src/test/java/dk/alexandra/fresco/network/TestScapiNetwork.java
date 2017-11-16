@@ -36,7 +36,7 @@ public class TestScapiNetwork {
     // here instead of relying on ephemeral ports which are often > 9999.
     List<Integer> ports = new ArrayList<>(n);
     for (int i = 1; i <= n; i++) {
-      ports.add(9000 + i);
+      ports.add(9100 + i);
     }
     Map<Integer, NetworkConfiguration> netConf =
         TestConfiguration.getNetworkConfigurations(n, ports);
@@ -49,7 +49,7 @@ public class TestScapiNetwork {
     // here instead of relying on ephemeral ports which are often > 9999.
     List<Integer> ports = new ArrayList<>(2);
     for (int i = 1; i <= 2; i++) {
-      ports.add(9000 + i);
+      ports.add(9100 + i);
     }
     Map<Integer, NetworkConfiguration> netConfs = new HashMap<>(2);
     for (int i = 0; i < 2; i++) {
