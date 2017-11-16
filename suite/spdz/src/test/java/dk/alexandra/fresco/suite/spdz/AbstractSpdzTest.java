@@ -20,7 +20,7 @@ import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger;
 import dk.alexandra.fresco.logging.PerformanceLogger.Flag;
-import dk.alexandra.fresco.logging.SCELoggingDecorator;
+import dk.alexandra.fresco.logging.SecureComputationEngineLoggingDecorator;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
@@ -86,7 +86,7 @@ public abstract class AbstractSpdzTest {
       SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(protocolSuite, evaluator);
       if (performanceloggerFlags != null && performanceloggerFlags.contains(Flag.LOG_RUNTIME)) {
-        sce = new SCELoggingDecorator<>(sce, protocolSuite);
+        sce = new SecureComputationEngineLoggingDecorator<>(sce, protocolSuite);
         pls.get(playerId).add((PerformanceLogger) sce);
       }
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =

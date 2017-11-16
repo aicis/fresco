@@ -21,7 +21,7 @@ import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger.Flag;
-import dk.alexandra.fresco.logging.SCELoggingDecorator;
+import dk.alexandra.fresco.logging.SecureComputationEngineLoggingDecorator;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
@@ -362,7 +362,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
 
     this.sce = new SecureComputationEngineImpl<>(protocolSuite, evaluator);
     if (flags != null) {
-      this.sce = new SCELoggingDecorator<>(sce, protocolSuite);
+      this.sce = new SecureComputationEngineLoggingDecorator<>(sce, protocolSuite);
     }
 
     return this.cmd;

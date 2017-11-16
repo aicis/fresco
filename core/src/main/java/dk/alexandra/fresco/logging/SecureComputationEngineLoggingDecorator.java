@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 
-public class SCELoggingDecorator<
+public class SecureComputationEngineLoggingDecorator<
   ResourcePoolT extends ResourcePool, 
   Builder extends ProtocolBuilder
   >  
@@ -19,7 +19,8 @@ public class SCELoggingDecorator<
   private String protocolSuiteName;
   private List<RuntimeInfo> runtimeLogger = new ArrayList<>();
 
-  public SCELoggingDecorator(SecureComputationEngine<ResourcePoolT, Builder> sce,
+  public SecureComputationEngineLoggingDecorator(
+      SecureComputationEngine<ResourcePoolT, Builder> sce,
       ProtocolSuite<ResourcePoolT, Builder> suite) {
     this.delegate = sce;    
     this.protocolSuiteName = suite.getClass().getName();

@@ -17,7 +17,7 @@ import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger;
 import dk.alexandra.fresco.logging.PerformanceLogger.Flag;
-import dk.alexandra.fresco.logging.SCELoggingDecorator;
+import dk.alexandra.fresco.logging.SecureComputationEngineLoggingDecorator;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -89,7 +89,7 @@ public abstract class AbstractDummyArithmeticTest {
       SecureComputationEngine<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(ps, evaluator);
       if (performanceLoggerFlags != null && performanceLoggerFlags.contains(Flag.LOG_RUNTIME)) {
-        sce = new SCELoggingDecorator<>(sce, ps);
+        sce = new SecureComputationEngineLoggingDecorator<>(sce, ps);
         pls.add((PerformanceLogger) sce);
       }
 

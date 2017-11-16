@@ -18,7 +18,7 @@ import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger;
 import dk.alexandra.fresco.logging.PerformanceLogger.Flag;
-import dk.alexandra.fresco.logging.SCELoggingDecorator;
+import dk.alexandra.fresco.logging.SecureComputationEngineLoggingDecorator;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -80,7 +80,7 @@ public abstract class AbstractDummyBooleanTest {
       SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce = new SecureComputationEngineImpl<>(
           ps, evaluator);
       if (performanceFlags != null && performanceFlags.contains(Flag.LOG_RUNTIME)) {
-        sce = new SCELoggingDecorator<>(sce, ps);
+        sce = new SecureComputationEngineLoggingDecorator<>(sce, ps);
         pls.get(playerId).add((PerformanceLogger) sce);
       }
       TestThreadRunner.TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
