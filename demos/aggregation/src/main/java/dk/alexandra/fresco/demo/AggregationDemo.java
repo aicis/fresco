@@ -122,8 +122,7 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
         new SecureComputationEngineImpl<>(suite, sequentialEvaluator);
 
     // Create resource pool
-    KryoNetNetwork network = new KryoNetNetwork();
-    network.init(getNetworkConfiguration(pid));
+    KryoNetNetwork network = new KryoNetNetwork(getNetworkConfiguration(pid));
     SpdzStorage store = new SpdzStorageDummyImpl(pid, getNetworkConfiguration(pid).noOfParties());
     SpdzResourcePool rp = new SpdzResourcePoolImpl(pid, getNetworkConfiguration(pid).noOfParties(),
         network, new Random(), new DetermSecureRandom(), store);

@@ -54,8 +54,7 @@ public class TestAESDemo {
           new TestThreadConfiguration<>(
               sce,
               () -> {
-                KryoNetNetwork network = new KryoNetNetwork();
-                network.init(netConf.get(playerId));
+                KryoNetNetwork network = new KryoNetNetwork(netConf.get(playerId));
                 return new ResourcePoolImpl(playerId, noPlayers, network,
                     new Random(), new DetermSecureRandom());
               });

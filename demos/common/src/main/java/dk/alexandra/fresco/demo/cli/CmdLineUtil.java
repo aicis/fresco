@@ -266,9 +266,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     logger.info("Evaluation strategy: " + evaluator);
 
     this.networkConfiguration = new NetworkConfigurationImpl(myId, parties);
-    KryoNetNetwork network = new KryoNetNetwork();
-    network.init(networkConfiguration);
-    this.network = network;
+    this.network = new KryoNetNetwork(networkConfiguration);
     if (flags != null) {
       this.network = new NetworkLoggingDecorator(this.network);
     }

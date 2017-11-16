@@ -74,8 +74,7 @@ public class TestTinyTables {
           new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite, evaluator),
               () -> {
-                KryoNetNetwork network = new KryoNetNetwork();
-                network.init(netConf.get(playerId));
+                KryoNetNetwork network = new KryoNetNetwork(netConf.get(playerId));
                 return new ResourcePoolImpl(playerId, noPlayers, network, new Random(),
                     new DetermSecureRandom());
               });

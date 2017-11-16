@@ -60,8 +60,7 @@ public class TestDistanceDemo {
           new TestThreadRunner.TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(protocolSuite, evaluator),
               () -> {
-                KryoNetNetwork network = new KryoNetNetwork();
-                network.init(netConf.get(playerId));
+                KryoNetNetwork network = new KryoNetNetwork(netConf.get(playerId));
                 return createResourcePool(playerId, noOfParties, network, new Random(),
                     new DetermSecureRandom(), PreprocessingStrategy.DUMMY);
               });

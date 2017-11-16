@@ -54,8 +54,7 @@ public class TestAggregation {
           new TestThreadConfiguration<>(
               sce,
               () -> {
-                KryoNetNetwork network = new KryoNetNetwork();
-                network.init(netConf.get(i));
+                KryoNetNetwork network = new KryoNetNetwork(netConf.get(i));
                 return new SpdzResourcePoolImpl(i, n, network, new Random(),
                     new DetermSecureRandom(), store);
               });
@@ -81,8 +80,6 @@ public class TestAggregation {
               }
             };
           }
-
-          ;
         };
     runTest(f, 2);
   }

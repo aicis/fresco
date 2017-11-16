@@ -79,8 +79,7 @@ public class TestInputSumExample {
 
   private static Network createNetwork(
       NetworkConfiguration networkConfiguration) {
-    KryoNetNetwork kryoNetNetwork = new KryoNetNetwork();
-    kryoNetNetwork.init(networkConfiguration);
+    KryoNetNetwork kryoNetNetwork = new KryoNetNetwork(networkConfiguration);
     return kryoNetNetwork;
   }
 

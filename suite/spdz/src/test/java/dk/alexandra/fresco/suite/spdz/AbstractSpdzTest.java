@@ -75,14 +75,6 @@ public abstract class AbstractSpdzTest {
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
           new BatchedProtocolEvaluator<>(batchEvalStrat);
 
-      Network network;
-      KryoNetNetwork kryoNetwork = new KryoNetNetwork();
-      if (performanceloggerFlags != null && performanceloggerFlags.contains(Flag.LOG_NETWORK)) {
-        network = new NetworkLoggingDecorator(kryoNetwork);
-        pls.get(playerId).add((PerformanceLogger) network);
-      } else {
-        network = kryoNetwork;
-      }
       SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(protocolSuite, evaluator);
       if (performanceloggerFlags != null && performanceloggerFlags.contains(Flag.LOG_RUNTIME)) {
@@ -93,7 +85,15 @@ public abstract class AbstractSpdzTest {
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,
               () -> {
-                kryoNetwork.init(netConf.get(playerId));
+                Network network;
+                KryoNetNetwork kryoNetwork = new KryoNetNetwork(netConf.get(playerId));
+                if (performanceloggerFlags != null && performanceloggerFlags
+                    .contains(Flag.LOG_NETWORK)) {
+                  network = new NetworkLoggingDecorator(kryoNetwork);
+                  pls.get(playerId).add((PerformanceLogger) network);
+                } else {
+                  network = kryoNetwork;
+                }
                 return createResourcePool(playerId, noOfParties, network, new Random(),
                     new DetermSecureRandom(), preProStrat);
               });

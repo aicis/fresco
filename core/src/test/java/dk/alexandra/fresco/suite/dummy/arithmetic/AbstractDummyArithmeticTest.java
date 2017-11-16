@@ -77,14 +77,6 @@ public abstract class AbstractDummyArithmeticTest {
       }
       ProtocolEvaluator<DummyArithmeticResourcePool, ProtocolBuilderNumeric> evaluator =
           new BatchedProtocolEvaluator<>(batchEvaluationStrategy);
-      Network network;
-      KryoNetNetwork kryoNetwork = new KryoNetNetwork();
-      if (performanceLoggerFlags != null && performanceLoggerFlags.contains(Flag.LOG_NETWORK)) {
-        network = new NetworkLoggingDecorator(kryoNetwork);
-        pls.add((PerformanceLogger) network);
-      } else {
-        network = kryoNetwork;
-      }
 
       SecureComputationEngine<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(ps, evaluator);
@@ -96,7 +88,15 @@ public abstract class AbstractDummyArithmeticTest {
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               sce, () -> {
-            kryoNetwork.init(partyNetConf);
+            Network network;
+            KryoNetNetwork kryoNetwork = new KryoNetNetwork(partyNetConf);
+            if (performanceLoggerFlags != null && performanceLoggerFlags
+                .contains(Flag.LOG_NETWORK)) {
+              network = new NetworkLoggingDecorator(kryoNetwork);
+              pls.add((PerformanceLogger) network);
+            } else {
+              network = kryoNetwork;
+            }
             return new DummyArithmeticResourcePoolImpl(playerId,
                 noOfParties,
                 network, new Random(0), new DetermSecureRandom(), mod);

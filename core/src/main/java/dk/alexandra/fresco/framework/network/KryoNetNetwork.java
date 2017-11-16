@@ -42,11 +42,8 @@ public class KryoNetNetwork implements Network, Closeable {
   private boolean encryption;
   private Logger logger = LoggerFactory.getLogger(KryoNetNetwork.class);
 
-  public KryoNetNetwork() {
+  public KryoNetNetwork(NetworkConfiguration conf) {
     Log.set(Log.LEVEL_ERROR);
-  }
-
-  public void init(NetworkConfiguration conf) {
     this.conf = conf;
     this.channelAmount = 1;
     this.clients = new HashMap<>();

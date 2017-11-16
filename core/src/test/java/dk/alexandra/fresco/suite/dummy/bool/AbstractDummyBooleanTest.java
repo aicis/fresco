@@ -68,15 +68,6 @@ public abstract class AbstractDummyBooleanTest {
       ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
           new BatchedProtocolEvaluator<>(strat);
 
-      Network network;
-      KryoNetNetwork kryoNetwork = new KryoNetNetwork();
-      if (performanceFlags != null && performanceFlags.contains(Flag.LOG_NETWORK)) {
-        network = new NetworkLoggingDecorator(kryoNetwork);
-        pls.get(playerId).add((PerformanceLogger) network);
-      } else {
-        network = kryoNetwork;
-      }
-
       SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce = new SecureComputationEngineImpl<>(
           ps, evaluator);
       if (performanceFlags != null && performanceFlags.contains(Flag.LOG_RUNTIME)) {
@@ -86,7 +77,14 @@ public abstract class AbstractDummyBooleanTest {
       TestThreadRunner.TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> {
-                kryoNetwork.init(partyNetConf);
+                Network network;
+                KryoNetNetwork kryoNetwork = new KryoNetNetwork(partyNetConf);
+                if (performanceFlags != null && performanceFlags.contains(Flag.LOG_NETWORK)) {
+                  network = new NetworkLoggingDecorator(kryoNetwork);
+                  pls.get(playerId).add((PerformanceLogger) network);
+                } else {
+                  network = kryoNetwork;
+                }
                 return new ResourcePoolImpl(playerId, noOfParties, network, new Random(),
                     new DetermSecureRandom());
               });
