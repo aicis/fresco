@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.Before;
@@ -42,15 +43,16 @@ import org.junit.Test;
  */
 public class TestScapiNetworkLayer {
 
-  private static Map<Integer, NetworkConfiguration> netConfs = new HashMap<>();
+  private Map<Integer, NetworkConfiguration> netConfs = new HashMap<>();
 
-  private static void runTest(
+  private void runTest(
       TestThreadFactory<ResourcePoolImpl, ProtocolBuilderNumeric> test, int n) {
     // Since SCAPI currently does not work with ports > 9999 we use fixed ports
     // here instead of relying on ephemeral ports which are often > 9999.
     List<Integer> ports = new ArrayList<>(n);
+    int random = new Random().nextInt(500);
     for (int i = 1; i <= n; i++) {
-      ports.add(9100 + i);
+      ports.add(9100 + i + random);
     }
     Map<Integer, NetworkConfiguration> netConf =
         TestConfiguration.getNetworkConfigurations(n, ports);
@@ -94,8 +96,9 @@ public class TestScapiNetworkLayer {
     TwoPartyCommunicationSetup commSetup = new SocketCommunicationSetup(me, other);
     // Call the prepareForCommnication function to establish one connection
     // within 2000000 milliseconds.
-    Map<String, Channel> connections = commSetup.prepareForCommunication(1, 2000000);
-    return (PlainChannel) connections.values().toArray()[0];
+    Map<String, Channel> connections = commSetup.prepareForCommunication(1, 20000);
+    Object[] objects = connections.values().toArray();
+    return (PlainChannel) objects[0];
   }
 
 
