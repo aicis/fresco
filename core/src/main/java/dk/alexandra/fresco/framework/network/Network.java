@@ -1,8 +1,9 @@
 package dk.alexandra.fresco.framework.network;
 
 /**
- * Network that allows sending and receiving of bytes between the parties of an MPC computation.
- * Simple implementations will just transfer bytes over the wire.
+ * Network that allows sending and receiving of bytes between the parties of a MPC computation.
+ * Simple implementations will just transfer bytes over the wire, one message at a time, however
+ * arbitrary complicated buffering mechanism can be implemented.
  */
 public interface Network {
 

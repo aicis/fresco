@@ -3,10 +3,15 @@ package dk.alexandra.fresco.framework.network;
 import java.util.List;
 
 /**
- * Network towards the protocols and the evalutors, this interface bridges the raw network
- * with the evaluators, so evaluators can behave nice on the network.
- * This interface holds the possibility to wrap the communication and batch
- * communication after each round. This interface  also includes a slightly more friendly interface
+ * Network towards the protocols and the evaluators, this interface bridges the raw network
+ * with the evaluators. The responsibility for this interface is to make the
+ * communication on the network batched and hence throttled so evaluators behave nice
+ * on the network.
+ * <br/>
+ * This interface would be the natural spot to wrap the communication and batch
+ * communication after each round.
+ * <br/>
+ * This interface  also includes a slightly more friendly interface
  * for the native protocols.
  */
 public interface SceNetwork extends Network {
