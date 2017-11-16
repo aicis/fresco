@@ -25,7 +25,6 @@ public class InputSumExample {
       // I do not input
       inputApp = new InputApplication(inputs.length);
     }
-
     SumAndOutputApplication app = new SumAndOutputApplication(inputApp);
 
     BigInteger result = sce.runApplication(app, resourcePool);
@@ -49,6 +48,7 @@ public class InputSumExample {
     ResourcePoolT resourcePool = util.getResourcePool();
     runApplication(sce, resourcePool);
     util.close();
+    sce.shutdownSCE();
   }
 
 }

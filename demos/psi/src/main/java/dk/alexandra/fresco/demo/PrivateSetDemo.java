@@ -9,7 +9,7 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.framework.util.ByteArithmetic;
+import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
@@ -113,7 +113,7 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
             throw new IllegalArgumentException(
                 "bad key hex string: must be hex string of length " + INPUT_LENGTH);
           }
-          key = ByteArithmetic.toBoolean(cmd.getOptionValue("key"));
+          key = ByteAndBitConverter.toBoolean(cmd.getOptionValue("key"));
 
           for (Option o : cmd.getOptions()) {
             System.out.println("option: " + o.getValue());
@@ -157,7 +157,7 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
       for (int i = 0; i < BLOCK_SIZE; i++) {
         res[j][i] = psiResult.get(j).get(i);
       }
-      System.out.println("result(" + j + "): " + ByteArithmetic.toHex(res[j]));
+      System.out.println("result(" + j + "): " + ByteAndBitConverter.toHex(res[j]));
     }
     util.close();
 
@@ -206,7 +206,7 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
       // Handle input lists
       int offset = this.inSet.length;
       for (int i = 0; i < offset; i++) {
-        BitSet bits = ByteArithmetic.intToBitSet(this.inSet[i]);
+        BitSet bits = ByteAndBitConverter.intToBitSet(this.inSet[i]);
         set1.add(new ArrayList<>());
         set2.add(new ArrayList<>());
         for (int j = 0; j < BLOCK_SIZE; j++) {

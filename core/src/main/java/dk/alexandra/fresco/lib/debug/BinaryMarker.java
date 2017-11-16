@@ -17,11 +17,7 @@ public class BinaryMarker implements Computation<Void, ProtocolBuilderBinary> {
 
   public BinaryMarker(String message, PrintStream output) {
     this.message = message;
-    if (output != null) {
-      this.output = output;
-    } else {
-      this.output = System.out;
-    }
+    this.output = output;
   }
 
   @Override

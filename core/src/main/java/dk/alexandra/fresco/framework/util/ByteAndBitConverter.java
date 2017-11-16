@@ -4,41 +4,19 @@ import java.util.BitSet;
 import java.util.List;
 
 /**
- * Class for operating on bytes. Can also convert between a byte array and a hex string. 
+ * Class for converting.
  */
-public class ByteArithmetic {
+public class ByteAndBitConverter {
 
   // This is supposed to be a "static class", ie no instantiation
-  private ByteArithmetic() {}
+  private ByteAndBitConverter() {}
 
   /**
-   * @return x XOR y
+   * Converts an int to its bit representation.
+   *
+   * @param i an integer
+   * @return bit representation of i as {@link BitSet}
    */
-  public static byte xor(byte x, byte y) {
-    return (byte) (x ^ y);
-  }
-
-
-  /**
-   * It is NOT OK if y=res.
-   */
-  public static void mult(byte x, byte[] y, byte[] res) {
-    for (int i = 0; i < y.length; i++) {
-      res[i] = 0;
-      if (x == 1) {
-        res[i] ^= y[i]; // TODO: why the XOR?
-      }
-    }
-  }
-
-  public static byte not(byte value) {
-    if (value == 0) {
-      return 1;
-    } else {
-      return 0;
-    }
-  }
-
   public static BitSet intToBitSet(int i) {
     BitSet bs = new BitSet(Integer.SIZE);
     for (int k = 0; k < Integer.SIZE; k++) {
@@ -49,16 +27,14 @@ public class ByteArithmetic {
     return bs;
   }
 
-
   /**
-   * Convert hex string to boolean array. 1 --> true, 0 --> false
-   * 
+   * Convert hex string to boolean array. 1 --> true, 0 --> false.
    */
   public static Boolean[] toBoolean(String hex) throws IllegalArgumentException {
-    if (hex.length() % 2 != 0)
+    if (hex.length() % 2 != 0) {
       throw new IllegalArgumentException("Illegal hex string");
+    }
     Boolean[] res = new Boolean[hex.length() * 4]; // 8
-    // System.out.println("Lenght: " + hex.length());
     for (int i = 0; i < hex.length() / 2; i++) {
       String sub = hex.substring(2 * i, 2 * i + 2);
       int value = Integer.parseInt(sub, 16);
@@ -72,8 +48,8 @@ public class ByteArithmetic {
   }
 
   /**
-   * Convert boolean array to hex string. true --> 1, false --> 0
-   * 
+   * Convert boolean array to hex string. Converts <code>true</code> to <code>1</code> and
+   * <code>false</code> to <code>0</code>.
    */
   public static String toHex(boolean[] bits) {
     StringBuilder hex = new StringBuilder();
@@ -95,7 +71,6 @@ public class ByteArithmetic {
       String digit = bin.substring(i * 4, i * 4 + 4);
       Integer dec = Integer.parseInt(digit, 2);
       String hexStr = Integer.toHexString(dec);
-      // System.out.println("Digit -> " + digit + " --> " + dec + " --> " + hexStr);
       hex.append(hexStr);
     }
     if (hex.length() % 2 != 0) {
@@ -109,7 +84,7 @@ public class ByteArithmetic {
     return toHex(convertArray(bitArray));
   }
 
-  public static boolean[] convertArray(Boolean[] in) {
+  private static boolean[] convertArray(Boolean[] in) {
     boolean[] output = new boolean[in.length];
     for (int i = 0; i < in.length; i++) {
       output[i] = in[i].booleanValue();

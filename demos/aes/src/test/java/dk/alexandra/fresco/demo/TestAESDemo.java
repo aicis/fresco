@@ -14,7 +14,7 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.framework.util.ByteArithmetic;
+import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.framework.util.DetermSecureRandom;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanProtocolSuite;
@@ -74,10 +74,10 @@ public class TestAESDemo {
                 Boolean[] input = null;
                 if (conf.getMyId() == 2) {
                   // 128-bit AES plaintext block
-                  input = ByteArithmetic.toBoolean("00112233445566778899aabbccddeeff");
+                  input = ByteAndBitConverter.toBoolean("00112233445566778899aabbccddeeff");
                 } else if (conf.getMyId() == 1) {
                   // 128-bit key
-                  input = ByteArithmetic.toBoolean("000102030405060708090a0b0c0d0e0f");
+                  input = ByteAndBitConverter.toBoolean("000102030405060708090a0b0c0d0e0f");
                 }
 
                 AESDemo app = new AESDemo(conf.getMyId(), input);
@@ -91,7 +91,7 @@ public class TestAESDemo {
                 for (Boolean b : aesResult) {
                   actualBoolean[i++] = b;
                 }
-                String actual = ByteArithmetic.toHex(actualBoolean);
+                String actual = ByteAndBitConverter.toHex(actualBoolean);
                 Assert.assertEquals(expected, actual);
 
               }

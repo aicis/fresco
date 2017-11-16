@@ -7,7 +7,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.AdvancedBinary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.util.ByteArithmetic;
+import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,7 +27,7 @@ public class LogTests {
     public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
 
-        List<Boolean> rawFirst = Arrays.asList(ByteArithmetic.toBoolean("ff"));
+        List<Boolean> rawFirst = Arrays.asList(ByteAndBitConverter.toBoolean("ff"));
 
         final String expected = "08";
 
@@ -55,7 +55,7 @@ public class LogTests {
 
           List<Boolean> outputs = runApplication(app);
 
-          Assert.assertThat(ByteArithmetic.toHex(outputs), Is.is(expected));
+          Assert.assertThat(ByteAndBitConverter.toHex(outputs), Is.is(expected));
 
         }
       };

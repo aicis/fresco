@@ -9,7 +9,7 @@ import dk.alexandra.fresco.framework.builder.numeric.Comparison;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.util.ByteArithmetic;
+import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -32,8 +32,8 @@ public class CompareTests {
       return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
         @Override
         public void test() throws Exception {
-          List<Boolean> rawLeft = Arrays.asList(ByteArithmetic.toBoolean("ee"));
-          List<Boolean> rawRight = Arrays.asList(ByteArithmetic.toBoolean("00"));
+          List<Boolean> rawLeft = Arrays.asList(ByteAndBitConverter.toBoolean("ee"));
+          List<Boolean> rawRight = Arrays.asList(ByteAndBitConverter.toBoolean("00"));
 
 
           Application<List<List<Boolean>>, ProtocolBuilderBinary> app =
@@ -65,8 +65,8 @@ public class CompareTests {
 
           List<List<Boolean>> res = runApplication(app);
 
-          Assert.assertEquals("00", ByteArithmetic.toHex(res.get(0)));
-          Assert.assertEquals("ee", ByteArithmetic.toHex(res.get(1)));
+          Assert.assertEquals("00", ByteAndBitConverter.toHex(res.get(0)));
+          Assert.assertEquals("ee", ByteAndBitConverter.toHex(res.get(1)));
         }
       };
     }

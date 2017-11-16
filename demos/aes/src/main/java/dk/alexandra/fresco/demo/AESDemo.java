@@ -8,7 +8,7 @@ import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.framework.util.ByteArithmetic;
+import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
@@ -93,7 +93,7 @@ public class AESDemo implements Application<List<Boolean>, ProtocolBuilderBinary
             throw new IllegalArgumentException(
                 "bad input hex string: must be hex string of length " + INPUT_LENGTH);
           }
-          input = ByteArithmetic.toBoolean(cmd.getOptionValue("in"));
+          input = ByteAndBitConverter.toBoolean(cmd.getOptionValue("in"));
         }
       } else {
         if (cmd.hasOption("in")) {
@@ -130,7 +130,7 @@ public class AESDemo implements Application<List<Boolean>, ProtocolBuilderBinary
     for (int i = 0; i < BLOCK_SIZE; i++) {
       res[i] = aesResult.get(i);
     }
-    System.out.println("The resulting ciphertext is: " + ByteArithmetic.toHex(res));
+    System.out.println("The resulting ciphertext is: " + ByteAndBitConverter.toHex(res));
 
   }
 

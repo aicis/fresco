@@ -9,19 +9,15 @@ import java.io.PrintStream;
  * When evaluated, prints out the message from the constructor.
  *
  */
-public class Marker implements Computation<Void, ProtocolBuilderNumeric> {
+public class NumericMarker implements Computation<Void, ProtocolBuilderNumeric> {
 
   private final String message;
   private final PrintStream output;
 
 
-  public Marker(String message, PrintStream output) {
+  public NumericMarker(String message, PrintStream output) {
     this.message = message;
-    if (output != null) {
-      this.output = output;
-    } else {
-      this.output = System.out;
-    }
+    this.output = output;
   }
 
   @Override
