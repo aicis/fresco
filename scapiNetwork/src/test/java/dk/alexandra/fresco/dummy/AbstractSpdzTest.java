@@ -69,14 +69,6 @@ public abstract class AbstractSpdzTest {
       }
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
           new BatchedProtocolEvaluator<>(batchStrat);
-      Network network;
-      ScapiNetworkImpl scapiNetwork = new ScapiNetworkImpl();
-      if (performanceLoggerFlags != null && performanceLoggerFlags.contains(Flag.LOG_NETWORK)) {
-        network = new NetworkLoggingDecorator(scapiNetwork);
-        pls.get(playerId).add((PerformanceLogger) network);
-      } else {
-        network = scapiNetwork;
-      }
 
       SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(protocolSuite, evaluator);
@@ -89,8 +81,16 @@ public abstract class AbstractSpdzTest {
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,
               () -> {
-                scapiNetwork.init(netConf.get(playerId), 1);
-                scapiNetwork.connect(10000);
+                Network network;
+                ScapiNetworkImpl scapiNetwork = new ScapiNetworkImpl(
+                    netConf.get(playerId), 10000);
+                if (performanceLoggerFlags != null && performanceLoggerFlags
+                    .contains(Flag.LOG_NETWORK)) {
+                  network = new NetworkLoggingDecorator(scapiNetwork);
+                  pls.get(playerId).add((PerformanceLogger) network);
+                } else {
+                  network = scapiNetwork;
+                }
                 return createResourcePool(playerId, noOfParties, network, new Random(),
                     new DetermSecureRandom(), PreprocessingStrategy.DUMMY);
               });

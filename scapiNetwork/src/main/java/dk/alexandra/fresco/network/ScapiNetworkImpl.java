@@ -45,7 +45,6 @@ import org.slf4j.LoggerFactory;
 public class ScapiNetworkImpl implements Network, Closeable {
 
   private NetworkConfiguration conf;
-  private boolean connected = false;
 
   // Unless explicitly named, SCAPI channels are named with
   // strings "0", "1", etc.
@@ -57,25 +56,11 @@ public class ScapiNetworkImpl implements Network, Closeable {
   private Map<Integer, BlockingQueue<Serializable>> queues;
   private static Logger logger = LoggerFactory.getLogger(ScapiNetworkImpl.class);
 
-  public ScapiNetworkImpl() {
-  }
+  public ScapiNetworkImpl(
+      NetworkConfiguration networkConfiguration, int timeoutMillis) {
+    this.channelAmount = 1;
+    this.conf = networkConfiguration;
 
-  /**
-   * @param conf - The configuration with info about whom to connect to.
-   * @param channelAmount The amount of channels each player needs to each other.
-   */
-  public void init(NetworkConfiguration conf, int channelAmount) {
-    this.channelAmount = channelAmount;
-    this.conf = conf;
-  }
-
-  // TODO: Include player to integer map to indicate
-  // how many channels are wanted to each player.
-  // Implement this also for send to self queues.
-  public void connect(int timeoutMillis) {
-    if (connected) {
-      return;
-    }
     // Convert FRESCO configuration to SCAPI configuration.
     List<PartyData> parties = new LinkedList<>();
     idToPartyData = new HashMap<>();
@@ -148,7 +133,6 @@ public class ScapiNetworkImpl implements Network, Closeable {
         }
       }
     }
-    connected = true;
   }
 
   private EncryptedChannel getSecureChannel(PlainChannel ch, String base64EncodedSSKey)
@@ -179,7 +163,6 @@ public class ScapiNetworkImpl implements Network, Closeable {
         }
       }
     }
-    connected = false;
   }
 
   public void send(int channel, Map<Integer, byte[]> output) throws IOException {

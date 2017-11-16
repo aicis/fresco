@@ -57,11 +57,12 @@ public class TestScapiNetworkLayer {
     Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     for (int i : netConf.keySet()) {
-      ScapiNetworkImpl network = new ScapiNetworkImpl();
-      network.init(netConf.get(i), 1);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderNumeric> ttc =
           new TestThreadConfiguration<>(null,
-              () -> new ResourcePoolImpl(i, n, network, null, null));
+              () -> {
+                ScapiNetworkImpl network = new ScapiNetworkImpl(netConf.get(i), 10000);
+                return new ResourcePoolImpl(i, n, network, null, null);
+              });
       conf.put(i, ttc);
       netConfs.put(i, netConf.get(i));
     }
