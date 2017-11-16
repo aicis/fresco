@@ -3,7 +3,7 @@ package dk.alexandra.fresco.suite.tinytables.prepro;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
-import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.SceNetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.BitVector;
@@ -121,7 +121,7 @@ public class TinyTablesPreproProtocolSuite
     return new DummyRoundSynchronization<ResourcePoolImpl>() {
       @Override
       public void finishedBatch(int gatesEvaluated, ResourcePoolImpl resourcePool,
-          SCENetwork sceNetwork) throws MPCException {
+          SceNetwork sceNetwork) throws MPCException {
         /*
          * When 1000 AND gates needs to be processed, we do it.
          */
@@ -131,7 +131,7 @@ public class TinyTablesPreproProtocolSuite
       }
 
       @Override
-      public void finishedEval(ResourcePoolImpl resourcePool, SCENetwork sceNetwork) {
+      public void finishedEval(ResourcePoolImpl resourcePool, SceNetwork sceNetwork) {
         calculateTinyTablesForUnprocessedANDGates();
         tinyTablesTripleProvider.close();
         /*

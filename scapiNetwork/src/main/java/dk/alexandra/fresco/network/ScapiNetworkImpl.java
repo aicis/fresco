@@ -23,6 +23,7 @@ import edu.biu.scapi.primitives.prf.bc.BcAES;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.InvalidKeyException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -73,7 +74,7 @@ public class ScapiNetworkImpl implements Network {
   // TODO: Include player to integer map to indicate
   // how many channels are wanted to each player.
   // Implement this also for send to self queues.
-  public void connect(int timeoutMillis) throws IOException {
+  public void connect(int timeoutMillis) {
     if (connected) {
       return;
     }
@@ -85,7 +86,12 @@ public class ScapiNetworkImpl implements Network {
     for (int id = 1; id <= conf.noOfParties(); id++) {
       Party frescoParty = conf.getParty(id);
       String iadrStr = frescoParty.getHostname();
-      InetAddress iadr = InetAddress.getByName(iadrStr);
+      InetAddress iadr = null;
+      try {
+        iadr = InetAddress.getByName(iadrStr);
+      } catch (UnknownHostException e) {
+        throw new RuntimeException("Cannot find party with adress=" + iadrStr);
+      }
       int port = frescoParty.getPort();
       SocketPartyData scapyParty = new SocketPartyData(iadr, port);
       parties.add(scapyParty);
@@ -116,7 +122,7 @@ public class ScapiNetworkImpl implements Network {
     try {
       connections = commSetup.prepareForCommunication(connectionsPerParty, timeoutMillis);
     } catch (TimeoutException e) {
-      throw new IOException(e);
+      throw new RuntimeException(e);
     }
 
     // Enable secure (auth + encrypted) channels if a key is specified.

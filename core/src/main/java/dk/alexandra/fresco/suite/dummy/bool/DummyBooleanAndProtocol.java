@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.dummy.bool;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.SceNetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
 
@@ -30,7 +30,7 @@ public class DummyBooleanAndProtocol extends DummyBooleanNativeProtocol<SBool> {
   }
 
   @Override
-  public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
+  public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SceNetwork network) {
 
     out = new DummyBooleanSBool();
     this.out.setValue(

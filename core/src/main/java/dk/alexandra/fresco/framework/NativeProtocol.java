@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.framework;
 
-import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.SceNetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 
 /**
@@ -31,6 +31,6 @@ public interface NativeProtocol<OutputT, ResourcePoolT extends ResourcePool> ext
    * @return HAS_MORE_ROUNDS if there are more rounds, i.e., if evaluate needs to be called again,
    *         IS_DONE if this is the last round.
    */
-  EvaluationStatus evaluate(int round, ResourcePoolT resourcePool, SCENetwork network);
+  EvaluationStatus evaluate(int round, ResourcePoolT resourcePool, SceNetwork network);
 
 }

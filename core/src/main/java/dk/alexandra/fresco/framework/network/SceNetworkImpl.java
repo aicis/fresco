@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.framework.network;
 
+import dk.alexandra.fresco.framework.MPCException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
@@ -10,14 +11,14 @@ import java.util.Map;
 /**
  * Default implementation that postpones every bit of communication until the end of the round.
  */
-public class SCENetworkImpl implements SCENetwork {
+public class SceNetworkImpl implements SceNetwork {
 
   private int noOfParties;
   private final Network network;
   private Map<Integer, ByteArrayOutputStream> output;
   private Map<Integer, ByteArrayInputStream> input;
 
-  public SCENetworkImpl(int noOfParties, Network network) {
+  public SceNetworkImpl(int noOfParties, Network network) {
     this.noOfParties = noOfParties;
     this.network = network;
     this.output = new HashMap<>();
@@ -53,6 +54,10 @@ public class SCENetworkImpl implements SCENetwork {
   public void send(int id, byte[] data) {
     ByteArrayOutputStream buffer = this.output
         .computeIfAbsent(id, (i) -> new ByteArrayOutputStream());
+    if (data.length > Byte.MAX_VALUE) {
+      throw new MPCException(
+          "Current implementation only supports small packages, data.length=" + data.length);
+    }
     buffer.write(data.length);
     buffer.write(data, 0, data.length);
   }

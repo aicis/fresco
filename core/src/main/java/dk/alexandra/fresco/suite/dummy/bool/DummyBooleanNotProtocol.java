@@ -1,14 +1,13 @@
 package dk.alexandra.fresco.suite.dummy.bool;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.SceNetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
 
 /**
  * Implements logical NOT for the Dummy Boolean protocol suite, where all operations are done in the
  * clear.
- *
  */
 public class DummyBooleanNotProtocol extends DummyBooleanNativeProtocol<SBool> {
 
@@ -17,7 +16,7 @@ public class DummyBooleanNotProtocol extends DummyBooleanNativeProtocol<SBool> {
 
   /**
    * Constructs a protocol to NOT the result of a computation.
-   * 
+   *
    * @param operand the operand
    */
   public DummyBooleanNotProtocol(DRes<SBool> operand) {
@@ -27,10 +26,10 @@ public class DummyBooleanNotProtocol extends DummyBooleanNativeProtocol<SBool> {
   }
 
   @Override
-  public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
+  public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SceNetwork network) {
 
-    out = new DummyBooleanSBool();
-    this.out.setValue(!((DummyBooleanSBool) operand.out()).getValue());
+    DummyBooleanSBool input = (DummyBooleanSBool) operand.out();
+    this.out = new DummyBooleanSBool(!input.getValue());
     return EvaluationStatus.IS_DONE;
   }
 

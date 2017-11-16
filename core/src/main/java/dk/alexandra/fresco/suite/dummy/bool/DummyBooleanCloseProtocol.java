@@ -1,8 +1,7 @@
 package dk.alexandra.fresco.suite.dummy.bool;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.SceNetwork;
 import dk.alexandra.fresco.framework.network.serializers.BooleanSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -27,20 +26,16 @@ public class DummyBooleanCloseProtocol extends DummyBooleanNativeProtocol<SBool>
   }
 
   @Override
-  public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
-    switch (round) {
-      case 0:
-        if (resourcePool.getMyId() == sender) {
-          network.sendToAll(new byte[]{BooleanSerializer.toBytes(input.out())});
-        }
-        return EvaluationStatus.HAS_MORE_ROUNDS;
-      case 1:
-        boolean r = BooleanSerializer.fromBytes(network.receive(sender)[0]);
-        this.output = new DummyBooleanSBool();
-        this.output.setValue(r);
-        return EvaluationStatus.IS_DONE;
-      default:
-        throw new MPCException("Bad round: " + round);
+  public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SceNetwork network) {
+    if (round == 0) {
+      if (resourcePool.getMyId() == sender) {
+        network.sendToAll(new byte[]{BooleanSerializer.toBytes(input.out())});
+      }
+      return EvaluationStatus.HAS_MORE_ROUNDS;
+    } else {
+      boolean r = BooleanSerializer.fromBytes(network.receive(sender)[0]);
+      this.output = new DummyBooleanSBool(r);
+      return EvaluationStatus.IS_DONE;
     }
   }
 

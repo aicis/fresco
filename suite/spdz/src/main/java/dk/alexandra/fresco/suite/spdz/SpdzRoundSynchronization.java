@@ -1,8 +1,8 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.ProtocolCollection;
-import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.network.SCENetworkImpl;
+import dk.alexandra.fresco.framework.network.SceNetwork;
+import dk.alexandra.fresco.framework.network.SceNetworkImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.ProtocolCollectionList;
@@ -23,7 +23,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
   private boolean doMacCheck = false;
 
   private void doMACCheck(SpdzResourcePool resourcePool,
-      SCENetworkImpl sceNetwork) throws IOException {
+      SceNetworkImpl sceNetwork) throws IOException {
     SpdzStorage storage = resourcePool.getStore();
     int batchSize = 128;
 
@@ -43,17 +43,17 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
   }
 
   @Override
-  public void finishedEval(SpdzResourcePool resourcePool, SCENetwork sceNetwork)
+  public void finishedEval(SpdzResourcePool resourcePool, SceNetwork sceNetwork)
       throws IOException {
-    doMACCheck(resourcePool, (SCENetworkImpl)sceNetwork);
+    doMACCheck(resourcePool, (SceNetworkImpl) sceNetwork);
   }
 
   @Override
   public void finishedBatch(int gatesEvaluated, SpdzResourcePool resourcePool,
-      SCENetwork sceNetwork) throws IOException {
+      SceNetwork sceNetwork) throws IOException {
     this.gatesEvaluated += gatesEvaluated;
     if (this.gatesEvaluated > macCheckThreshold || doMacCheck) {
-      doMACCheck(resourcePool, (SCENetworkImpl) sceNetwork);
+      doMACCheck(resourcePool, (SceNetworkImpl) sceNetwork);
       doMacCheck = false;
       this.gatesEvaluated = 0;
     }
@@ -70,7 +70,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
       }
     });
     if (doMacCheck) {
-      SCENetworkImpl sceNetwork = new SCENetworkImpl(resourcePool.getNoOfParties(),
+      SceNetworkImpl sceNetwork = new SceNetworkImpl(resourcePool.getNoOfParties(),
           resourcePool.getNetwork());
       doMACCheck(resourcePool, sceNetwork);
     }

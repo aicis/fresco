@@ -7,7 +7,7 @@ import dk.alexandra.fresco.framework.builder.binary.Comparison;
 import dk.alexandra.fresco.framework.builder.binary.DefaultComparison;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.SceNetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.logging.PerformanceLogger;
@@ -70,7 +70,7 @@ public class DummyBooleanBuilderFactory implements BuilderFactoryBinary, Perform
 
           @Override
           public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
-              SCENetwork network) {
+              SceNetwork network) {
             bit = new DummyBooleanSBool(resourcePool.getRandom().nextBoolean());
             return EvaluationStatus.IS_DONE;
           }

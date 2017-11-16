@@ -2,7 +2,7 @@ package dk.alexandra.fresco.logging;
 
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
-import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.SceNetwork;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.io.IOException;
@@ -25,7 +25,7 @@ public class BatchEvaluationLoggingDecorator<
 
   @Override
   public void processBatch(
-      ProtocolCollection<ResourcePoolT> protocols, ResourcePoolT resourcePool, SCENetwork network)
+      ProtocolCollection<ResourcePoolT> protocols, ResourcePoolT resourcePool, SceNetwork network)
           throws IOException {
     int size = protocols.size();
     this.counter++;

@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
-import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.SceNetwork;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
@@ -30,7 +30,7 @@ public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
   public EvaluationStatus evaluate(
       int round,
       SpdzResourcePool spdzResourcePool,
-      SCENetwork network) {
+      SceNetwork network) {
     sValue = new SpdzSInt(createKnownSpdzElement(spdzResourcePool, value));
     return EvaluationStatus.IS_DONE;
   }

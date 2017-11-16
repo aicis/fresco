@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.NativeProtocol;
-import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.SceNetwork;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -12,12 +12,12 @@ import java.util.List;
 public abstract class SpdzNativeProtocol<OutputT> implements
     NativeProtocol<OutputT, SpdzResourcePool> {
 
-  byte[] sendBroadcastValidation(MessageDigest dig, SCENetwork network, BigInteger b) {
+  byte[] sendBroadcastValidation(MessageDigest dig, SceNetwork network, BigInteger b) {
     dig.update(b.toByteArray());
     return sendAndReset(dig, network);
   }
 
-  byte[] sendBroadcastValidation(MessageDigest dig, SCENetwork network,
+  byte[] sendBroadcastValidation(MessageDigest dig, SceNetwork network,
       Collection<BigInteger> bs) {
     for (BigInteger b : bs) {
       dig.update(b.toByteArray());
@@ -25,14 +25,14 @@ public abstract class SpdzNativeProtocol<OutputT> implements
     return sendAndReset(dig, network);
   }
 
-  private byte[] sendAndReset(MessageDigest dig, SCENetwork network) {
+  private byte[] sendAndReset(MessageDigest dig, SceNetwork network) {
     byte[] digest = dig.digest();
     dig.reset();
     network.sendToAll(digest);
     return digest;
   }
 
-  boolean receiveBroadcastValidation(SCENetwork network, byte[] digest) {
+  boolean receiveBroadcastValidation(SceNetwork network, byte[] digest) {
     //TODO: should we check that we get messages from all players?
     boolean validated = true;
     List<byte[]> digests = network.receiveFromAll();

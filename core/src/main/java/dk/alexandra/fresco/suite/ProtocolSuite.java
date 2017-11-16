@@ -3,7 +3,7 @@ package dk.alexandra.fresco.suite;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
-import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.SceNetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.io.IOException;
 
@@ -48,14 +48,14 @@ public interface ProtocolSuite<ResourcePoolT extends ResourcePool, Builder exten
      * @param resourcePool The resource pool used
      * @param sceNetwork the internal network used during the batch evaluation.
      */
-    void finishedBatch(int gatesEvaluated, ResourcePoolT resourcePool, SCENetwork sceNetwork)
+    void finishedBatch(int gatesEvaluated, ResourcePoolT resourcePool, SceNetwork sceNetwork)
         throws IOException;
 
     /**
      * Let the protocol suite know that the evaluation has reached it's end. Runtime can then do
      * cleanup or resume background activities if needed.
      */
-    void finishedEval(ResourcePoolT resourcePool, SCENetwork sceNetwork) throws IOException;
+    void finishedEval(ResourcePoolT resourcePool, SceNetwork sceNetwork) throws IOException;
   }
 
   /**
@@ -72,12 +72,12 @@ public interface ProtocolSuite<ResourcePoolT extends ResourcePool, Builder exten
     
     @Override
     public void finishedBatch(
-        int gatesEvaluated, ResourcePoolT resourcePool, SCENetwork sceNetwork) {
+        int gatesEvaluated, ResourcePoolT resourcePool, SceNetwork sceNetwork) {
       
     }
 
     @Override
-    public void finishedEval(ResourcePoolT resourcePool, SCENetwork sceNetwork) {
+    public void finishedEval(ResourcePoolT resourcePool, SceNetwork sceNetwork) {
 
     }
 

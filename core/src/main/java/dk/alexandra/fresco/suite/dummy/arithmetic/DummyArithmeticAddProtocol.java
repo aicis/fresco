@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.SceNetwork;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
@@ -29,7 +29,7 @@ public class DummyArithmeticAddProtocol extends DummyArithmeticNativeProtocol<SI
 
   @Override
   public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool resourcePool,
-      SCENetwork network) {
+      SceNetwork network) {
     BigInteger mod = resourcePool.getModulus();
     BigInteger l = ((DummyArithmeticSInt) left.out()).getValue();
     BigInteger r = ((DummyArithmeticSInt) right.out()).getValue();

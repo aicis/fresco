@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
-import dk.alexandra.fresco.framework.network.SCENetworkImpl;
+import dk.alexandra.fresco.framework.network.SceNetworkImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
@@ -60,7 +60,7 @@ public class BatchedProtocolEvaluator<
     int totalBatches = 0;
     int zeroBatches = 0;
 
-    SCENetworkImpl sceNetwork = createSceNetwork(resourcePool);
+    SceNetworkImpl sceNetwork = createSceNetwork(resourcePool);
     ProtocolSuite.RoundSynchronization<ResourcePoolT> roundSynchronization =
         protocolSuite.createRoundSynchronization();
     do {
@@ -93,7 +93,7 @@ public class BatchedProtocolEvaluator<
     roundSynchronization.finishedEval(resourcePool, sceNetwork);
   }
 
-  private SCENetworkImpl createSceNetwork(ResourcePool resourcePool) {
-    return new SCENetworkImpl(resourcePool.getNoOfParties(), resourcePool.getNetwork());
+  private SceNetworkImpl createSceNetwork(ResourcePool resourcePool) {
+    return new SceNetworkImpl(resourcePool.getNoOfParties(), resourcePool.getNetwork());
   }
 }

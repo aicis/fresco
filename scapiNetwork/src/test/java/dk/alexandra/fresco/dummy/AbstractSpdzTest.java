@@ -90,6 +90,7 @@ public abstract class AbstractSpdzTest {
               sce,
               () -> {
                 scapiNetwork.init(netConf.get(playerId), 1);
+                scapiNetwork.connect(10000);
                 return createResourcePool(playerId, noOfParties, network, new Random(),
                     new DetermSecureRandom(), PreprocessingStrategy.DUMMY);
               });

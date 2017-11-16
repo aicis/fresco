@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.framework.sce.evaluator;
 
 import dk.alexandra.fresco.framework.ProtocolCollection;
-import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.SceNetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.io.IOException;
 
@@ -20,6 +20,6 @@ public interface BatchEvaluationStrategy<ResourcePoolT extends ResourcePool> {
    */
   void processBatch(
       ProtocolCollection<ResourcePoolT> protocols, ResourcePoolT resourcePool,
-      SCENetwork sceNetwork)
+      SceNetwork sceNetwork)
       throws IOException;
 }

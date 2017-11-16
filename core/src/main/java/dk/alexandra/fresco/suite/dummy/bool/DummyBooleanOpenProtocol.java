@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.dummy.bool;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.SceNetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
 
@@ -18,9 +18,9 @@ public class DummyBooleanOpenProtocol extends DummyBooleanNativeProtocol<Boolean
 	
   /**
    * Constructs a native protocol to open a closed boolean to all players.
-   * 
-   * @param c a computation supplying the {@link SBool} to open
-   */
+   *
+	 * @param in a computation supplying the {@link SBool} to open
+	 */
 	DummyBooleanOpenProtocol(DRes<SBool> in) {
 	  open = null;
 		closed = in;
@@ -42,7 +42,7 @@ public class DummyBooleanOpenProtocol extends DummyBooleanNativeProtocol<Boolean
 	
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
-			SCENetwork network) {
+			SceNetwork network) {
 		boolean openToAll = target == -1;
 		if (resourcePool.getMyId() == target || openToAll) {
 		  this.open = ((DummyBooleanSBool) this.closed.out()).getValue();

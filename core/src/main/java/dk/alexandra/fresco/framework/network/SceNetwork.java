@@ -9,7 +9,7 @@ import java.util.List;
  * communication after each round. This interface  also includes a slightly more friendly interface
  * for the native protocols.
  */
-public interface SCENetwork extends Network {
+public interface SceNetwork extends Network {
 
   /**
    * Retrieves input from all players (including yourself)
