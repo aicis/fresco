@@ -28,6 +28,14 @@ public class TestScapiNetwork {
   private abstract static class ThreadWithFixture
       extends TestThread<ResourcePoolImpl, ProtocolBuilderNumeric> {
 
+    protected ScapiNetworkImpl network;
+    protected int timeoutMillis = 10000;
+
+    @Override
+    public void setUp() {
+      network = (ScapiNetworkImpl) this.conf.getResourcePool().getNetwork();
+    }
+
   }
 
   private static void runTest(TestThreadFactory<ResourcePoolImpl, ProtocolBuilderNumeric> test,
@@ -40,7 +48,19 @@ public class TestScapiNetwork {
     }
     Map<Integer, NetworkConfiguration> netConf =
         TestConfiguration.getNetworkConfigurations(n, ports);
-    TestThreadRunner.run(test, createConfigurations(n, netConf));
+    Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderNumeric>> conf =
+        new HashMap<>();
+    for (int i : netConf.keySet()) {
+      ScapiNetworkImpl network = new ScapiNetworkImpl();
+      network.init(netConf.get(i), 1);
+      TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderNumeric> ttc =
+          new TestThreadConfiguration<>(null,
+              () -> {
+                return new ResourcePoolImpl(i, n, network, null, null);
+              });
+      conf.put(i, ttc);
+    }
+    TestThreadRunner.run(test, conf);
   }
 
   private static void runTestSecureCommunication(
@@ -82,10 +102,11 @@ public class TestScapiNetwork {
     Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     for (int i : netConf.keySet()) {
+      ScapiNetworkImpl network = new ScapiNetworkImpl();
+      network.init(netConf.get(i), 1);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderNumeric> ttc =
           new TestThreadConfiguration<>(null,
               () -> {
-                ScapiNetworkImpl network = new ScapiNetworkImpl(netConf.get(i), 10000);
                 return new ResourcePoolImpl(i, n, network, null, null);
               });
       conf.put(i, ttc);
@@ -101,8 +122,8 @@ public class TestScapiNetwork {
           return new ThreadWithFixture() {
             @Override
             public void test() throws Exception {
-              // dummy operation to ensure netowrk is running
-              conf.getResourcePool();
+              network.connect(timeoutMillis);
+              network.close();
             }
           };
         }
@@ -144,12 +165,14 @@ public class TestScapiNetwork {
             return new ThreadWithFixture() {
               @Override
               public void test() throws Exception {
+                network.connect(timeoutMillis);
                 if (conf.getMyId() == 1) {
                   byte[] received = conf.getResourcePool().getNetwork().receive(2);
                   assertTrue(Arrays.equals(data, received));
                 } else if (conf.getMyId() == 2) {
                   conf.getResourcePool().getNetwork().send(1, data);
                 }
+                network.close();
               }
             };
           }
@@ -167,12 +190,13 @@ public class TestScapiNetwork {
             return new ThreadWithFixture() {
               @Override
               public void test() throws Exception {
-                Network network = conf.getResourcePool().getNetwork();
+                network.connect(timeoutMillis);
                 if (conf.getMyId() == 1) {
                   network.send(1, data);
                   byte[] received = network.receive(1);
                   assertTrue(Arrays.equals(data, received));
                 }
+                network.close();
               }
             };
           }
@@ -190,7 +214,7 @@ public class TestScapiNetwork {
             return new ThreadWithFixture() {
               @Override
               public void test() throws Exception {
-                Network network = conf.getResourcePool().getNetwork();
+                network.connect(timeoutMillis);
                 if (conf.getMyId() == 1) {
                   boolean exception = false;
                   try {
@@ -220,7 +244,7 @@ public class TestScapiNetwork {
             return new ThreadWithFixture() {
               @Override
               public void test() throws Exception {
-                Network network = conf.getResourcePool().getNetwork();
+                network.connect(timeoutMillis);
                 if (conf.getMyId() == 1) {
                   network.send(2, data2);
                   byte[] received = network.receive(2);
@@ -230,6 +254,7 @@ public class TestScapiNetwork {
                   byte[] received = network.receive(1);
                   assertTrue(Arrays.equals(data2, received));
                 }
+                network.close();
               }
             };
           }

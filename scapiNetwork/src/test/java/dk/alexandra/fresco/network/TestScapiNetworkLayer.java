@@ -31,7 +31,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.Before;
@@ -50,21 +49,19 @@ public class TestScapiNetworkLayer {
     // Since SCAPI currently does not work with ports > 9999 we use fixed ports
     // here instead of relying on ephemeral ports which are often > 9999.
     List<Integer> ports = new ArrayList<>(n);
-    int random = new Random().nextInt(500);
     for (int i = 1; i <= n; i++) {
-      ports.add(9100 + i + random);
+      ports.add(9000 + i);
     }
     Map<Integer, NetworkConfiguration> netConf =
         TestConfiguration.getNetworkConfigurations(n, ports);
     Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     for (int i : netConf.keySet()) {
+      ScapiNetworkImpl network = new ScapiNetworkImpl();
+      network.init(netConf.get(i), 1);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderNumeric> ttc =
           new TestThreadConfiguration<>(null,
-              () -> {
-                ScapiNetworkImpl network = new ScapiNetworkImpl(netConf.get(i), 10000);
-                return new ResourcePoolImpl(i, n, network, null, null);
-              });
+              () -> new ResourcePoolImpl(i, n, network, null, null));
       conf.put(i, ttc);
       netConfs.put(i, netConf.get(i));
     }
@@ -96,9 +93,8 @@ public class TestScapiNetworkLayer {
     TwoPartyCommunicationSetup commSetup = new SocketCommunicationSetup(me, other);
     // Call the prepareForCommnication function to establish one connection
     // within 2000000 milliseconds.
-    Map<String, Channel> connections = commSetup.prepareForCommunication(1, 20000);
-    Object[] objects = connections.values().toArray();
-    return (PlainChannel) objects[0];
+    Map<String, Channel> connections = commSetup.prepareForCommunication(1, 2000000);
+    return (PlainChannel) connections.values().toArray()[0];
   }
 
 

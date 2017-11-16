@@ -82,8 +82,9 @@ public abstract class AbstractSpdzTest {
               sce,
               () -> {
                 Network network;
-                ScapiNetworkImpl scapiNetwork = new ScapiNetworkImpl(
-                    netConf.get(playerId), 10000);
+                ScapiNetworkImpl scapiNetwork = new ScapiNetworkImpl();
+                scapiNetwork.init(netConf.get(playerId), 1);
+                scapiNetwork.connect(10000);
                 if (performanceLoggerFlags != null && performanceLoggerFlags
                     .contains(Flag.LOG_NETWORK)) {
                   network = new NetworkLoggingDecorator(scapiNetwork);
