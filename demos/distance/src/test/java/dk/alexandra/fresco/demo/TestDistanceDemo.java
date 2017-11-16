@@ -16,7 +16,6 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.util.DetermSecureRandom;
-import dk.alexandra.fresco.logging.PerformanceLogger;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
@@ -52,7 +51,6 @@ public class TestDistanceDemo {
         TestConfiguration.getNetworkConfigurations(noOfParties, ports);
     Map<Integer, TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
-    List<PerformanceLogger> pls = new ArrayList<>();
     for (int playerId : netConf.keySet()) {
       SpdzProtocolSuite protocolSuite = new SpdzProtocolSuite(150);
 

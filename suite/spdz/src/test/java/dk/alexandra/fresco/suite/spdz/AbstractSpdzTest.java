@@ -107,7 +107,7 @@ public abstract class AbstractSpdzTest {
     }
   }
 
-  private SpdzResourcePool createResourcePool(int myId, int size, Network network, Random rand,
+  static SpdzResourcePool createResourcePool(int myId, int size, Network network, Random rand,
       SecureRandom secRand, PreprocessingStrategy preproStrat) {
     SpdzStorage store;
     switch (preproStrat) {
