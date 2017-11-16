@@ -16,10 +16,10 @@ public interface BigIntegerSerializer {
   byte[] toBytes(BigInteger bigInteger);
 
   /**
-   * Reads a single BigInteger from a ByteBuffer (stream).
+   * Reads a single BigInteger from a byte array.
    *
-   * @param byteBuffer the data
+   * @param bytes the data
    * @return the converted big integer.
    */
-  BigInteger toBigInteger(byte[] byteBuffer);
+  BigInteger toBigInteger(byte[] bytes);
 }

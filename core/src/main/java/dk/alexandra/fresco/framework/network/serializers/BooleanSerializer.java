@@ -17,11 +17,10 @@ public class BooleanSerializer {
   }
 
   /**
-   * Deserializes a boolean from a single byte. Note that this will increase
-   * the the pointer in the ByteBuffer by one.
+   * De-serializes a boolean from a single byte.
    *
-   * @param b The ByteBuffer containting the serialized boolean.
-   * @return The deserialized boolean.
+   * @param b The byte containing the serialized boolean.
+   * @return The de-serialized boolean.
    */
   public static boolean fromBytes(byte b) {
     return b == 0x01;
