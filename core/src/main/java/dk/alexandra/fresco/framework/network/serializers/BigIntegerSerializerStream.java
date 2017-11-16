@@ -3,7 +3,6 @@ package dk.alexandra.fresco.framework.network.serializers;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
 
 public class BigIntegerSerializerStream {
 
@@ -14,14 +13,11 @@ public class BigIntegerSerializerStream {
    * maximum 524288 bits.
    *
    * @param b The BigInteger to serialize.
-   * @return A byte array which can be deserialized by {@link #toBigInteger(ByteBuffer)}.
+   * @return A byte array which can be deserialized by {@link #toBigInteger(byte[])}.
    */
   public static byte[] toBytes(BigInteger b) {
     byte[] bytes = b.toByteArray();
-    ByteBuffer buf = ByteBuffer.allocate(2 + bytes.length);
-    buf.putShort((short) bytes.length);
-    buf.put(bytes);
-    return buf.array();
+    return bytes;
   }
 
   /**
@@ -52,11 +48,8 @@ public class BigIntegerSerializerStream {
    * @param buffer the ByteBuffer container pointing at the position where the size is located.
    * @return The deserialized BigInteger.
    */
-  static BigInteger toBigInteger(ByteBuffer buffer) {
-    short size = buffer.getShort();
-    byte[] content = new byte[size];
-    buffer.get(content);
-    return new BigInteger(content);
+  static BigInteger toBigInteger(byte[] buffer) {
+    return new BigInteger(buffer);
   }
 
   /**
@@ -66,7 +59,7 @@ public class BigIntegerSerializerStream {
    * @param buffer The ByteBuffer containing the serialized bytes.
    * @return An array of size {@code amount} containing deserialized BigIntegers.
    */
-  public static BigInteger[] toBigIntegers(ByteBuffer buffer) {
+  public static BigInteger[] toBigIntegers(byte[] buffer) {
     BigInteger[] res = new BigInteger[2];
     for (int i = 0; i < 2; i++) {
       res[i] = toBigInteger(buffer);

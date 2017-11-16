@@ -8,7 +8,6 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
@@ -37,7 +36,7 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
 
   /**
    * Generates mock input data.
-   * 
+   *
    * @return mock input matrix
    */
   public Matrix<BigInteger> readInputs() {
@@ -72,7 +71,7 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
 
   /**
    * Executes application.
-   * 
+   *
    * @param sce the execution environment
    * @param rp resource pool
    */
@@ -96,24 +95,17 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
       return () -> new MatrixUtils().unwrapMatrix(opened);
     };
     // Run application and get result
-    try {
-      rp.getNetwork().connect(10000);
-      Matrix<BigInteger> result = sce.runApplication(aggApp, rp);
-      writeOutputs(result);
-      sce.shutdownSCE();
-      rp.getNetwork().close();
-    } catch (IOException e) {
-      // Nothing to do about this
-      e.printStackTrace();
-    }
+    Matrix<BigInteger> result = sce.runApplication(aggApp, rp);
+    writeOutputs(result);
+    sce.shutdownSCE();
   }
 
   /**
    * Main.
-   * 
+   *
    * @param args must include player ID
    */
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
     // My player ID
     int pid = Integer.parseInt(args[0]);
 
@@ -130,8 +122,8 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
         new SecureComputationEngineImpl<>(suite, sequentialEvaluator);
 
     // Create resource pool
-    Network network = new KryoNetNetwork();
-    network.init(getNetworkConfiguration(pid), 1);
+    KryoNetNetwork network = new KryoNetNetwork();
+    network.init(getNetworkConfiguration(pid));
     SpdzStorage store = new SpdzStorageDummyImpl(pid, getNetworkConfiguration(pid).noOfParties());
     SpdzResourcePool rp = new SpdzResourcePoolImpl(pid, getNetworkConfiguration(pid).noOfParties(),
         network, new Random(), new DetermSecureRandom(), store);
@@ -139,6 +131,7 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
     // Instatiate our demo and run
     AggregationDemo<SpdzResourcePool> demo = new AggregationDemo<>();
     demo.runApplication(sce, rp);
+    network.close();
   }
 
   private static NetworkConfiguration getNetworkConfiguration(int pid) {

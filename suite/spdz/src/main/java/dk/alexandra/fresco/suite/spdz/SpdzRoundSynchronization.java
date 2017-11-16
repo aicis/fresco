@@ -70,7 +70,8 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
       }
     });
     if (doMacCheck) {
-      SCENetworkImpl sceNetwork = new SCENetworkImpl(resourcePool.getNoOfParties());
+      SCENetworkImpl sceNetwork = new SCENetworkImpl(resourcePool.getNoOfParties(),
+          resourcePool.getNetwork());
       doMACCheck(resourcePool, sceNetwork);
     }
   }

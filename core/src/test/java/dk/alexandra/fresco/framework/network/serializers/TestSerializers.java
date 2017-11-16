@@ -7,7 +7,6 @@ import org.junit.Test;
 
 /**
  * Tests that the Serializers works as expected.
- *
  */
 public class TestSerializers {
 
@@ -15,8 +14,7 @@ public class TestSerializers {
   public void testBigIntegerSerializer() {
     BigInteger b = new BigInteger("12983762173218321342");
     byte[] bytes = BigIntegerSerializerStream.toBytes(b);
-    ByteBuffer buf = ByteBuffer.wrap(bytes);
-    BigInteger bb = BigIntegerSerializerStream.toBigInteger(buf);
+    BigInteger bb = BigIntegerSerializerStream.toBigInteger(bytes);
     Assert.assertEquals(b, bb);
   }
 
@@ -50,13 +48,13 @@ public class TestSerializers {
   @Test
   public void testBooleanSerializer() {
     boolean b = true;
-    byte[] bytes = BooleanSerializer.toBytes(b);
-    boolean bb = BooleanSerializer.fromBytes(ByteBuffer.wrap(bytes));
+    byte bytes = BooleanSerializer.toBytes(b);
+    boolean bb = BooleanSerializer.fromBytes(bytes);
     Assert.assertEquals(b, bb);
 
     b = false;
     bytes = BooleanSerializer.toBytes(b);
-    bb = BooleanSerializer.fromBytes(ByteBuffer.wrap(bytes));
+    bb = BooleanSerializer.fromBytes(bytes);
     Assert.assertEquals(b, bb);
   }
 }

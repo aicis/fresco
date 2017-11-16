@@ -9,7 +9,6 @@ import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesSBool;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,9 +22,8 @@ import java.util.List;
  * player such that each player can add this to the masked input <i>e = b + r</i> to get the
  * unmasked output <i>b</i>.
  * </p>
- * 
- * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  *
+ * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
 public class TinyTablesOpenToAllProtocol extends TinyTablesProtocol<Boolean> {
 
@@ -51,14 +49,13 @@ public class TinyTablesOpenToAllProtocol extends TinyTablesProtocol<Boolean> {
     switch (round) {
       case 0:
         TinyTablesElement myR = ps.getStorage().getMaskShare(id);
-        network.sendToAll(BooleanSerializer.toBytes(myR.getShare()));
-        network.expectInputFromAll();
+        network.sendToAll(new byte[]{BooleanSerializer.toBytes(myR.getShare())});
         return EvaluationStatus.HAS_MORE_ROUNDS;
       case 1:
-        List<ByteBuffer> buffers = network.receiveFromAll();
+        List<byte[]> buffers = network.receiveFromAll();
         List<TinyTablesElement> maskShares = new ArrayList<>();
-        for (ByteBuffer buffer : buffers) {
-          maskShares.add(new TinyTablesElement(BooleanSerializer.fromBytes(buffer)));
+        for (byte[] buffer : buffers) {
+          maskShares.add(new TinyTablesElement(BooleanSerializer.fromBytes(buffer[0])));
         }
         boolean mask = TinyTablesElement.open(maskShares);
         this.opened = ((TinyTablesSBool) toOpen.out()).getValue().getShare() ^ mask;

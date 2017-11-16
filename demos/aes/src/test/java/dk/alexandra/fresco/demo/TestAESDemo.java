@@ -9,7 +9,6 @@ import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
@@ -19,6 +18,7 @@ import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.framework.util.DetermSecureRandom;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanProtocolSuite;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +35,7 @@ public class TestAESDemo {
     int noPlayers = 2;
     // Since SCAPI currently does not work with ports > 9999 we use fixed ports
     // here instead of relying on ephemeral ports which are often > 9999.
-    List<Integer> ports = new ArrayList<Integer>(noPlayers);
+    List<Integer> ports = new ArrayList<>(noPlayers);
     for (int i = 1; i <= noPlayers; i++) {
       ports.add(9000 + i * 10);
     }
@@ -48,16 +48,17 @@ public class TestAESDemo {
           new DummyBooleanProtocolSuite();
       ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
           new BatchedProtocolEvaluator<>(new SequentialStrategy<>());
-      Network network = new KryoNetNetwork();
-      network.init(netConf.get(playerId), 1);
-      ResourcePoolImpl resourcePool = new ResourcePoolImpl(playerId, noPlayers, network,
-          new Random(), new DetermSecureRandom());
-      SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce = 
+      SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce =
           new SecureComputationEngineImpl<>(suite, evaluator);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
-          new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(
+          new TestThreadConfiguration<>(
               sce,
-              resourcePool);
+              () -> {
+                KryoNetNetwork network = new KryoNetNetwork();
+                network.init(netConf.get(playerId));
+                return new ResourcePoolImpl(playerId, noPlayers, network,
+                    new Random(), new DetermSecureRandom());
+              });
       conf.put(playerId, ttc);
     }
 
@@ -103,21 +104,25 @@ public class TestAESDemo {
 
   @Test
   public void testAESCmdLine() throws Exception {
-    Runnable p1 = new Runnable() {
-      
-      @Override
-      public void run() {
-        AESDemo.main(new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s", "dummyBool",  "-in" ,"000102030405060708090a0b0c0d0e0f"});
+    Runnable p1 = () -> {
+      try {
+        AESDemo.main(
+            new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s",
+                "dummyBool", "-in", "000102030405060708090a0b0c0d0e0f"});
+      } catch (IOException e) {
+        throw new RuntimeException("Error", e);
       }
     };
-    
-    Runnable p2 = new Runnable() {
-      
-      @Override
-      public void run() {
-        AESDemo.main(new String[]{"-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s", "dummyBool",  "-in" ,"00112233445566778899aabbccddeeff"});
+
+    Runnable p2 = () -> {
+      try {
+        AESDemo.main(
+            new String[]{"-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s",
+                "dummyBool", "-in", "00112233445566778899aabbccddeeff"});
+      } catch (IOException e) {
+        throw new RuntimeException("Error", e);
       }
-    }; 
+    };
     Thread t1 = new Thread(p1);
     Thread t2 = new Thread(p2);
     t1.start();

@@ -17,7 +17,7 @@ public class InputSumExample {
     InputApplication inputApp;
 
     int myId = resourcePool.getMyId();
-    int[] inputs = new int[] {1, 2, 3, 7, 8, 12, 15, 17};
+    int[] inputs = new int[]{1, 2, 3, 7, 8, 12, 15, 17};
     if (myId == 1) {
       // I input
       inputApp = new InputApplication(inputs);
@@ -28,9 +28,7 @@ public class InputSumExample {
 
     SumAndOutputApplication app = new SumAndOutputApplication(inputApp);
 
-    resourcePool.getNetwork().connect(10000);
     BigInteger result = sce.runApplication(app, resourcePool);
-    resourcePool.getNetwork().close();
     int sum = 0;
     for (int i : inputs) {
       sum += i;
@@ -43,15 +41,14 @@ public class InputSumExample {
 
     util.parse(args);
 
-    ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric> psConf =
-        (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) util.getProtocolSuite();
+    ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric> psConf = util.getProtocolSuite();
 
     SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce =
-        new SecureComputationEngineImpl<ResourcePoolT, ProtocolBuilderNumeric>(psConf,
-            util.getEvaluator());
+        new SecureComputationEngineImpl<>(psConf, util.getEvaluator());
 
     ResourcePoolT resourcePool = util.getResourcePool();
     runApplication(sce, resourcePool);
+    util.close();
   }
 
 }

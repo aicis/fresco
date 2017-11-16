@@ -41,7 +41,6 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SInt> {
 
         network.sendToAll(serializer.toBytes(epsilon.getShare()));
         network.sendToAll(serializer.toBytes(delta.getShare()));
-        network.expectInputFromAll();
         return EvaluationStatus.HAS_MORE_ROUNDS;
       case 1:
         BigInteger[] epsilonShares = new BigInteger[noOfPlayers];

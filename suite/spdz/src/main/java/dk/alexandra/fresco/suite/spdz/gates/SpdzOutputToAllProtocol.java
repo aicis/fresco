@@ -9,7 +9,6 @@ import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
 import java.util.List;
 
 public class SpdzOutputToAllProtocol extends SpdzNativeProtocol<BigInteger>
@@ -32,12 +31,11 @@ public class SpdzOutputToAllProtocol extends SpdzNativeProtocol<BigInteger>
       case 0:
         SpdzSInt out = (SpdzSInt) in.out();
         network.sendToAll(serializer.toBytes(out.value.getShare()));
-        network.expectInputFromAll();
         return EvaluationStatus.HAS_MORE_ROUNDS;
       case 1:
-        List<ByteBuffer> shares = network.receiveFromAll();
+        List<byte[]> shares = network.receiveFromAll();
         BigInteger openedVal = BigInteger.valueOf(0);
-        for (ByteBuffer buffer : shares) {
+        for (byte[] buffer : shares) {
           openedVal = openedVal.add(serializer.toBigInteger(buffer));
         }
         openedVal = openedVal.mod(spdzResourcePool.getModulus());

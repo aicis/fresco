@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.ParallelAndSequenceTests.TestSumAndProduct;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
@@ -18,6 +17,6 @@ public class TestParallelAndSequenceEval extends AbstractSpdzTest{
 	@Test
   public void testSumAndProduct() throws Exception {
     runTest(new TestSumAndProduct<>(), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
-	}
+        PreprocessingStrategy.DUMMY, 2);
+  }
 }

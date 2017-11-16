@@ -1,13 +1,13 @@
 package dk.alexandra.fresco.logging;
 
-import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class NetworkLoggingDecorator implements Network, PerformanceLogger  {
+public class NetworkLoggingDecorator implements Network, PerformanceLogger, Closeable {
 
   private Network delegate;
   private ConcurrentMap<Integer, Pair<Integer, Integer>> networkLogger = new ConcurrentHashMap<>();
@@ -19,8 +19,8 @@ public class NetworkLoggingDecorator implements Network, PerformanceLogger  {
   }
 
   @Override
-  public byte[] receive(int channelId, int partyId) throws IOException {
-    byte[] res = this.delegate.receive(channelId, partyId);
+  public byte[] receive(int partyId) {
+    byte[] res = this.delegate.receive(partyId);
     int noBytes = res.length;
     if (!networkLogger.containsKey(partyId)) {
       networkLogger.put(partyId, new Pair<>(1, noBytes));
@@ -39,28 +39,13 @@ public class NetworkLoggingDecorator implements Network, PerformanceLogger  {
   }
 
   @Override
-  public void init(NetworkConfiguration conf, int channelAmount) {
-    this.delegate.init(conf, channelAmount);
-  }
-
-  @Override
-  public void connect(int timeoutMillis) throws IOException {
-    this.delegate.connect(timeoutMillis);
-  }
-
-  @Override
-  public void send(int channelId, int partyId, byte[] data) throws IOException {
-    this.delegate.send(channelId, partyId, data);
-  }
-
-  @Override
-  public void close() throws IOException {
-    this.delegate.close();
+  public void send(int partyId, byte[] data) {
+    this.delegate.send(partyId, data);
   }
 
   @Override
   public void printPerformanceLog(int myId) {
-    log.info("=== P"+myId+": Network logged - results ===");
+    log.info("=== P" + myId + ": Network logged - results ===");
     if (networkLogger.isEmpty()) {
       log.info("No network activity logged");
     } else {
@@ -86,5 +71,12 @@ public class NetworkLoggingDecorator implements Network, PerformanceLogger  {
     networkLogger.clear();
     minBytesReceived = Integer.MAX_VALUE;
     maxBytesReceived = 0;
+  }
+
+  @Override
+  public void close() throws IOException {
+    if (delegate instanceof Closeable) {
+      ((Closeable) delegate).close();
+    }
   }
 }

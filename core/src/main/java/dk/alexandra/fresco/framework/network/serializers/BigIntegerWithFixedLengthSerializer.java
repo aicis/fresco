@@ -17,7 +17,7 @@ public class BigIntegerWithFixedLengthSerializer implements BigIntegerSerializer
    * numbers >= 0. Negative numbers will be interpreted as positive.
    *
    * @param b The BigInteger to serialize.
-   * @return A byte array which can be deserialized by {@link #toBigInteger(ByteBuffer)}.
+   * @return A byte array which can be deserialized by {@link #toBigInteger(byte[])}.
    */
   public static byte[] toBytes(BigInteger b, int lengthInBytes) {
     byte[] bytes = new byte[lengthInBytes];
@@ -26,7 +26,7 @@ public class BigIntegerWithFixedLengthSerializer implements BigIntegerSerializer
 
     return bytes;
   }
-  
+
   @Override
   public byte[] toBytes(BigInteger bigInteger) {
     return toBytes(bigInteger, byteLength);
@@ -48,10 +48,10 @@ public class BigIntegerWithFixedLengthSerializer implements BigIntegerSerializer
   }
 
   @Override
-  public BigInteger toBigInteger(ByteBuffer byteBuffer) {
-    return toBigInteger(byteBuffer, byteLength);
+  public BigInteger toBigInteger(byte[] bytes) {
+    return new BigInteger(bytes);
   }
-  
+
   /**
    * Creates a new instance that adhere to the interface.
    *
@@ -60,5 +60,5 @@ public class BigIntegerWithFixedLengthSerializer implements BigIntegerSerializer
   public BigIntegerWithFixedLengthSerializer(int byteLength) {
     this.byteLength = byteLength;
   }
-  
+
 }

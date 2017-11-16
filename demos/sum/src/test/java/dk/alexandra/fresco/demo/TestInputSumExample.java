@@ -27,13 +27,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.Supplier;
 import org.junit.Test;
 
 public class TestInputSumExample {
 
   @SuppressWarnings("unchecked")
   private static <ResourcePoolT extends ResourcePool> void runTest(
-      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> test, boolean dummy, int n) {
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> test, boolean dummy, int n)
+      throws Exception {
     // Since SCAPI currently does not work with ports > 9999 we use fixed ports
     // here instead of relying on ephemeral ports which are often > 9999.
     List<Integer> ports = new ArrayList<>(n);
@@ -46,24 +48,26 @@ public class TestInputSumExample {
         new HashMap<>();
     for (int i : netConf.keySet()) {
       ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric> suite;
-      ResourcePoolT resourcePool = null;
-      Network network = new KryoNetNetwork();
-      network.init(netConf.get(i), 1);
+
+      Supplier<ResourcePoolT> resourcePool;
       if (dummy) {
         BigInteger mod = new BigInteger(
             "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
         suite =
             (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new DummyArithmeticProtocolSuite(
                 mod, 150);
-        resourcePool = (ResourcePoolT) new DummyArithmeticResourcePoolImpl(i, n, network,
+        resourcePool = () -> (ResourcePoolT) new DummyArithmeticResourcePoolImpl(i, n,
+            createNetwork(netConf.get(i)),
             new Random(), new DetermSecureRandom(), mod);
       } else {
         suite = (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new SpdzProtocolSuite(150);
-        resourcePool = (ResourcePoolT) new SpdzResourcePoolImpl(i, n, network, new Random(),
+        resourcePool = () -> (ResourcePoolT) new SpdzResourcePoolImpl(i, n,
+            createNetwork(netConf.get(i)),
+            new Random(),
             new DetermSecureRandom(), new SpdzStorageDummyImpl(i, n));
-      }      
+      }
       TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> ttc =
-          new TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric>(
+          new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite,
                   new BatchedProtocolEvaluator<>(new BatchedStrategy<>())),
               resourcePool);
@@ -71,6 +75,13 @@ public class TestInputSumExample {
     }
     TestThreadRunner.run(test, conf);
 
+  }
+
+  private static Network createNetwork(
+      NetworkConfiguration networkConfiguration) {
+    KryoNetNetwork kryoNetNetwork = new KryoNetNetwork();
+    kryoNetNetwork.init(networkConfiguration);
+    return kryoNetNetwork;
   }
 
   @Test
@@ -82,12 +93,10 @@ public class TestInputSumExample {
             return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
               @Override
               public void test() throws Exception {
-                InputSumExample.runApplication(conf.sce, conf.resourcePool);
+                InputSumExample.runApplication(conf.sce, conf.getResourcePool());
               }
             };
           }
-
-      ;
         };
     runTest(f, false, 3);
   }
@@ -101,41 +110,35 @@ public class TestInputSumExample {
             return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
               @Override
               public void test() throws Exception {
-                InputSumExample.runApplication(conf.sce, conf.resourcePool);
+                InputSumExample.runApplication(conf.sce, conf.getResourcePool());
               }
             };
           }
-
-      ;
         };
     runTest(f, true, 3);
   }
-  
+
   @Test
   public void testInputCmdLine() throws Exception {
-    Runnable p1 = new Runnable() {
-      
-      @Override
-      public void run() {
-        try {
-          InputSumExample.main(new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s", "dummyArithmetic"});
-        } catch (IOException e) {
-          System.exit(-1);
-        }
+    Runnable p1 = () -> {
+      try {
+        InputSumExample.main(
+            new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s",
+                "dummyArithmetic"});
+      } catch (IOException e) {
+        System.exit(-1);
       }
     };
-    
-    Runnable p2 = new Runnable() {
-      
-      @Override
-      public void run() {
-        try {
-          InputSumExample.main(new String[]{"-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s", "dummyArithmetic"});
-        } catch (IOException e) {
-          System.exit(-1);
-        }
+
+    Runnable p2 = () -> {
+      try {
+        InputSumExample.main(
+            new String[]{"-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s",
+                "dummyArithmetic"});
+      } catch (IOException e) {
+        System.exit(-1);
       }
-    }; 
+    };
     Thread t1 = new Thread(p1);
     Thread t2 = new Thread(p2);
     t1.start();

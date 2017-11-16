@@ -94,6 +94,6 @@ public class BatchedProtocolEvaluator<
   }
 
   private SCENetworkImpl createSceNetwork(ResourcePool resourcePool) {
-    return new SCENetworkImpl(resourcePool.getNoOfParties());
+    return new SCENetworkImpl(resourcePool.getNoOfParties(), resourcePool.getNetwork());
   }
 }

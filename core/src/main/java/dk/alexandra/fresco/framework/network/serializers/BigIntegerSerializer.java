@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.framework.network.serializers;
 
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
 
 /**
  * Serializer for big integers.
@@ -22,5 +21,5 @@ public interface BigIntegerSerializer {
    * @param byteBuffer the data
    * @return the converted big integer.
    */
-  BigInteger toBigInteger(ByteBuffer byteBuffer);
+  BigInteger toBigInteger(byte[] byteBuffer);
 }

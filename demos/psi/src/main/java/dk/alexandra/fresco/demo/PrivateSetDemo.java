@@ -12,6 +12,7 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.ByteArithmetic;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
@@ -81,7 +82,7 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
    * arguments. Based on the command line arguments it configures the SCE, instantiates the
    * PrivateSetDemo and runs the PrivateSetDemo on the SCE.
    */
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
     CmdLineUtil<ResourcePoolImpl, ProtocolBuilderBinary> util = new CmdLineUtil<>();
     NetworkConfiguration networkConfiguration = null;
     Boolean[] key = null;
@@ -137,15 +138,13 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
     PrivateSetDemo privateSetDemo = new PrivateSetDemo(networkConfiguration.getMyId(), key, inputs);
     ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> psConf = util.getProtocolSuite();
     SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce =
-        new SecureComputationEngineImpl<ResourcePoolImpl, ProtocolBuilderBinary>(psConf,
+        new SecureComputationEngineImpl<>(psConf,
             util.getEvaluator());
 
     List<List<Boolean>> psiResult = null;
     try {
       ResourcePoolImpl resourcePool = util.getResourcePool();
-      resourcePool.getNetwork().connect(10000);
       psiResult = sce.runApplication(privateSetDemo, resourcePool);
-      resourcePool.getNetwork().close();
     } catch (Exception e) {
       System.out.println("Error while doing MPC: " + e.getMessage());
       System.exit(-1);
@@ -160,6 +159,7 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
       }
       System.out.println("result(" + j + "): " + ByteArithmetic.toHex(res[j]));
     }
+    util.close();
 
   }
 

@@ -24,6 +24,7 @@ import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ import org.junit.Test;
 
 public class TestDistanceDemo {
 
-  protected List<PerformanceLogger> runTest(
+  protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, int noOfParties) throws Exception {
     // Since SCAPI currently does not work with ports > 9999 we use fixed
@@ -57,18 +58,18 @@ public class TestDistanceDemo {
 
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
           new BatchedProtocolEvaluator<>(EvaluationStrategy.fromEnum(evalStrategy));
-      Network network = new KryoNetNetwork();
-      network.init(netConf.get(playerId), 1);
-      SpdzResourcePool rp = createResourcePool(playerId, noOfParties, network, new Random(),
-          new DetermSecureRandom(), PreprocessingStrategy.DUMMY);
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
-          new TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>(
+          new TestThreadRunner.TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(protocolSuite, evaluator),
-              rp);
+              () -> {
+                KryoNetNetwork network = new KryoNetNetwork();
+                network.init(netConf.get(playerId));
+                return createResourcePool(playerId, noOfParties, network, new Random(),
+                    new DetermSecureRandom(), PreprocessingStrategy.DUMMY);
+              });
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
-    return pls;
   }
 
   private SpdzResourcePool createResourcePool(int myId, int size, Network network, Random rand,
@@ -114,29 +115,31 @@ public class TestDistanceDemo {
               }
             };
           }
-
-      ;
         };
     runTest(f, EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
-  
+
   @Test
-  public void testDistanceFromCmdLine() throws Exception{ 
-    Runnable p1 = new Runnable() {
-      
-      @Override
-      public void run() {
-        DistanceDemo.main(new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s", "dummyArithmetic",  "-x" ,"10", "-y", "10"});
+  public void testDistanceFromCmdLine() throws Exception {
+    Runnable p1 = () -> {
+      try {
+        DistanceDemo.main(
+            new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s",
+                "dummyArithmetic", "-x", "10", "-y", "10"});
+      } catch (IOException e) {
+        throw new RuntimeException("Communication error");
       }
     };
-    
-    Runnable p2 = new Runnable() {
-      
-      @Override
-      public void run() {
-        DistanceDemo.main(new String[]{"-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s", "dummyArithmetic",  "-x" ,"20", "-y", "15"});
+
+    Runnable p2 = () -> {
+      try {
+        DistanceDemo.main(
+            new String[]{"-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s",
+                "dummyArithmetic", "-x", "20", "-y", "15"});
+      } catch (IOException e) {
+        throw new RuntimeException("Communication error");
       }
-    }; 
+    };
     Thread t1 = new Thread(p1);
     Thread t2 = new Thread(p2);
     t1.start();

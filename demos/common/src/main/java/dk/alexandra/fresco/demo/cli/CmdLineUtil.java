@@ -20,8 +20,8 @@ import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStor
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
-import dk.alexandra.fresco.logging.SCELoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger.Flag;
+import dk.alexandra.fresco.logging.SCELoggingDecorator;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
@@ -35,7 +35,9 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
+import java.io.Closeable;
 import java.io.File;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -113,7 +115,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
   public SecureComputationEngine<ResourcePoolT, Builder> getSCE() {
     return this.sce;
   }
-  
+
   /**
    * Adds standard options.
    *
@@ -240,8 +242,9 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     }
 
     try {
-      BatchEvaluationStrategy<ResourcePoolT> batchEvalStrat = EvaluationStrategy.fromString(this.cmd.getOptionValue("e", EvaluationStrategy.SEQUENTIAL.name()));
-      if(this.flags != null) {
+      BatchEvaluationStrategy<ResourcePoolT> batchEvalStrat = EvaluationStrategy
+          .fromString(this.cmd.getOptionValue("e", EvaluationStrategy.SEQUENTIAL.name()));
+      if (this.flags != null) {
         batchEvalStrat = new BatchEvaluationLoggingDecorator<>(batchEvalStrat);
       }
       this.evaluator = new BatchedProtocolEvaluator<>(batchEvalStrat);
@@ -263,11 +266,12 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     logger.info("Evaluation strategy: " + evaluator);
 
     this.networkConfiguration = new NetworkConfigurationImpl(myId, parties);
-    this.network = new KryoNetNetwork();
+    KryoNetNetwork network = new KryoNetNetwork();
+    network.init(networkConfiguration);
+    this.network = network;
     if (flags != null) {
-      this.network = new NetworkLoggingDecorator(network);
+      this.network = new NetworkLoggingDecorator(this.network);
     }
-    this.network.init(networkConfiguration, 1);
 
   }
 
@@ -355,12 +359,12 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
       displayHelp();
       System.exit(-1); // TODO: Consider moving to top level.
     }
-    
+
     this.sce = new SecureComputationEngineImpl<>(protocolSuite, evaluator);
-    if(flags != null) {
+    if (flags != null) {
       this.sce = new SCELoggingDecorator<>(sce, protocolSuite);
     }
-    
+
     return this.cmd;
   }
 
@@ -399,6 +403,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
         break;
       case FUELSTATION:
         store = new SpdzStorageImpl(0, size, myId, fuelStationBaseUrl);
+        break;
       default:
         throw new ConfigurationException("Unkonwn preprocessing strategy: " + strategy);
     }
@@ -431,4 +436,9 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     formatter.printHelp("Application specific options are:", this.appOptions);
   }
 
+  public void close() throws IOException {
+    if (getNetwork() instanceof Closeable) {
+      ((Closeable) getNetwork()).close();
+    }
+  }
 }

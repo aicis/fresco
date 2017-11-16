@@ -19,9 +19,8 @@ import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproClo
  * preprocessing phase (see {@link TinyTablesPreproCloseProtocol}, the inputter picked a random mask
  * <i>r</i>. Now, he sends the masked value <i>e = b + r</i> to the other player.
  * </p>
- * 
- * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  *
+ * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
 public class TinyTablesCloseProtocol extends TinyTablesProtocol<SBool> {
 
@@ -36,13 +35,6 @@ public class TinyTablesCloseProtocol extends TinyTablesProtocol<SBool> {
     this.in = in;
   }
 
-  public TinyTablesCloseProtocol(int id, int inputter, Boolean in, SBool out) {
-    this.id = id;
-    this.inputter = inputter;
-    this.in = in;
-    this.out = (TinyTablesSBool) out;
-  }
-
   @Override
   public EvaluationStatus evaluate(int round, ResourcePoolImpl resourcePool, SCENetwork network) {
     TinyTablesProtocolSuite ps = TinyTablesProtocolSuite.getInstance(resourcePool.getMyId());
@@ -53,14 +45,13 @@ public class TinyTablesCloseProtocol extends TinyTablesProtocol<SBool> {
           TinyTablesElement r = ps.getStorage().getMaskShare(id);
           TinyTablesElement e = new TinyTablesElement(this.in ^ r.getShare());
           out.setValue(e);
-          network.sendToAll(BooleanSerializer.toBytes(e.getShare()));
+          network.sendToAll(new byte[]{BooleanSerializer.toBytes(e.getShare())});
         }
-        network.expectInputFromPlayer(this.inputter);
         return EvaluationStatus.HAS_MORE_ROUNDS;
 
       case 1:
         TinyTablesElement share =
-            new TinyTablesElement(BooleanSerializer.fromBytes(network.receive(this.inputter)));
+            new TinyTablesElement(BooleanSerializer.fromBytes(network.receive(this.inputter)[0]));
         out.setValue(share);
         return EvaluationStatus.IS_DONE;
 

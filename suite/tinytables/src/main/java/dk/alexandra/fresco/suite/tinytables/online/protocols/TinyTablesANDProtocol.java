@@ -10,7 +10,6 @@ import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTable;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesSBool;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,14 +42,7 @@ public class TinyTablesANDProtocol extends TinyTablesProtocol<SBool> {
     this.id = id;
     this.inLeft = inLeft;
     this.inRight = inRight;
-  }
-
-  public TinyTablesANDProtocol(int id, DRes<SBool> inLeft, DRes<SBool> inRight,
-      SBool out) {
-    this.id = id;
-    this.inLeft = inLeft;
-    this.inRight = inRight;
-    this.out = (TinyTablesSBool) out;
+    this.out = new TinyTablesSBool();
   }
 
   @Override
@@ -66,14 +58,13 @@ public class TinyTablesANDProtocol extends TinyTablesProtocol<SBool> {
         TinyTablesElement myShare = tinyTable.getValue(((TinyTablesSBool) inLeft.out()).getValue(),
             ((TinyTablesSBool) inRight.out()).getValue());
 
-        network.expectInputFromAll();
-        network.sendToAll(BooleanSerializer.toBytes(myShare.getShare()));
+        network.sendToAll(new byte[]{BooleanSerializer.toBytes(myShare.getShare())});
         return EvaluationStatus.HAS_MORE_ROUNDS;
       case 1:
-        List<ByteBuffer> buffers = network.receiveFromAll();
+        List<byte[]> buffers = network.receiveFromAll();
         List<TinyTablesElement> shares = new ArrayList<>();
-        for (ByteBuffer buffer : buffers) {
-          shares.add(new TinyTablesElement(BooleanSerializer.fromBytes(buffer)));
+        for (byte[] bytes : buffers) {
+          shares.add(new TinyTablesElement(BooleanSerializer.fromBytes(bytes[0])));
         }
         boolean open = TinyTablesElement.open(shares);
         this.out = (out == null) ? new TinyTablesSBool() : out;

@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializerStr
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -44,10 +43,9 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigI
         BigInteger randomness = this.commitment.getRandomness();
         BigInteger[] opening = new BigInteger[]{value, randomness};
         network.sendToAll(BigIntegerSerializerStream.toBytes(opening));
-        network.expectInputFromAll();
         break;
       case 1: // Receive openings from all parties and check they are valid
-        List<ByteBuffer> buffers = network.receiveFromAll();
+        List<byte[]> buffers = network.receiveFromAll();
         Map<Integer, BigInteger[]> openings = new HashMap<>();
         for (int i = 0; i < buffers.size(); i++) {
           opening = BigIntegerSerializerStream.toBigIntegers(buffers.get(i));
@@ -76,7 +74,6 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigI
           digest = sendBroadcastValidation(
               spdzResourcePool.getMessageDigest(),
               network, Arrays.asList(broadcastMessages));
-          network.expectInputFromAll();
         }
         break;
       case 2: // If more than three players check if openings where

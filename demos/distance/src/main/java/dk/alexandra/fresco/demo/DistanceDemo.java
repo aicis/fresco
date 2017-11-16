@@ -10,6 +10,7 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.io.IOException;
 import java.math.BigInteger;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -59,7 +60,7 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
         .seq((seq, product) -> seq.numeric().open(product));
   }
 
-  public static <ResourcePoolT extends ResourcePool> void main(String[] args) {
+  public static <ResourcePoolT extends ResourcePool> void main(String[] args) throws IOException {
     CmdLineUtil<ResourcePoolT, ProtocolBuilderNumeric> cmdUtil = new CmdLineUtil<>();
     NetworkConfiguration networkConfiguration = null;
     int x, y;
@@ -95,9 +96,7 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
     SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce = cmdUtil.getSCE();
     try {
       ResourcePoolT resourcePool = cmdUtil.getResourcePool();
-      resourcePool.getNetwork().connect(10000);
       BigInteger bigInteger = sce.runApplication(distDemo, resourcePool);
-      resourcePool.getNetwork().close();
       double dist = Math.sqrt(bigInteger.doubleValue());
       log.info("Distance between party 1 and 2 is: " + dist);
     } catch (Exception e) {
@@ -105,6 +104,7 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
       e.printStackTrace();
       System.exit(-1);
     } finally {
+      cmdUtil.close();
       sce.shutdownSCE();
     }
   }

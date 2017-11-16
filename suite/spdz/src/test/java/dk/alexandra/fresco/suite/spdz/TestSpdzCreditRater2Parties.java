@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.IntegrationTest;
-import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.statistics.CreditRaterTest;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
@@ -40,30 +39,30 @@ public class TestSpdzCreditRater2Parties extends AbstractSpdzTest {
     scores = new int[1][];
     scores[0] = new int[] {10, 13, 15};
     runTest(new CreditRaterTest.TestCreditRater<>(values, intervals, scores),
-        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
 
     values = new int[] {10};
     runTest(new CreditRaterTest.TestCreditRater<>(values, intervals, scores),
-        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
     values = new int[] {100};
     runTest(new CreditRaterTest.TestCreditRater<>(values, intervals, scores),
-        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
     values = new int[] {500};
     runTest(new CreditRaterTest.TestCreditRater<>(values, intervals, scores),
-        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
     values = new int[] {1000};
     runTest(new CreditRaterTest.TestCreditRater<>(values, intervals, scores),
-        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
 
     intervals[0] = new int[] {1000};
     scores[0] = new int[] {10, 20};
     runTest(new CreditRaterTest.TestCreditRater<>(values, intervals, scores),
-        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
 
     values = new int[] {101, 440, 442};
@@ -76,7 +75,7 @@ public class TestSpdzCreditRater2Parties extends AbstractSpdzTest {
     scores[1] = new int[] {1, 3, 21};
     scores[2] = new int[] {16, 15, 11};
     runTest(new CreditRaterTest.TestCreditRater<>(values, intervals, scores),
-        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
 
   }
@@ -85,7 +84,7 @@ public class TestSpdzCreditRater2Parties extends AbstractSpdzTest {
   @Test
   public void test_CreditRater_2_Sequential_batched_dummy() throws Exception {
     runTest(new CreditRaterTest.TestCreditRater<>(values, intervals, scores),
-        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
   }
 
@@ -96,7 +95,7 @@ public class TestSpdzCreditRater2Parties extends AbstractSpdzTest {
   @Test
   public void test_CreditRater_2_Sequential_dummy() throws Exception {
     runTest(new CreditRaterTest.TestCreditRater<>(values, intervals, scores),
-        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+        EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2);
   }
 
 }

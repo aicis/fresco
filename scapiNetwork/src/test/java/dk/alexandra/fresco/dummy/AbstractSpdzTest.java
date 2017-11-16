@@ -1,26 +1,3 @@
-/*******************************************************************************
- * Copyright (c) 2017 FRESCO (http://github.com/aicis/fresco).
- *
- * This file is part of the FRESCO project.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- * associated documentation files (the "Software"), to deal in the Software without restriction,
- * including without limitation the rights to use, copy, modify, merge, publish, distribute,
- * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or
- * substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
- * Please see these projects for any further licensing issues.
- *******************************************************************************/
 package dk.alexandra.fresco.dummy;
 
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
@@ -41,8 +18,8 @@ import dk.alexandra.fresco.framework.util.DetermSecureRandom;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger;
-import dk.alexandra.fresco.logging.SCELoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger.Flag;
+import dk.alexandra.fresco.logging.SCELoggingDecorator;
 import dk.alexandra.fresco.network.ScapiNetworkImpl;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
@@ -68,7 +45,7 @@ public abstract class AbstractSpdzTest {
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, int noOfParties, EnumSet<Flag> performanceLoggerFlags)
-          throws Exception {
+      throws Exception {
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * (noOfParties - 1));
@@ -83,38 +60,44 @@ public abstract class AbstractSpdzTest {
       pls.put(playerId, new ArrayList<>());
       SpdzProtocolSuite protocolSuite = new SpdzProtocolSuite(150);
 
-      BatchEvaluationStrategy<SpdzResourcePool> batchStrat = EvaluationStrategy.fromEnum(evalStrategy);
-      if(performanceLoggerFlags != null && performanceLoggerFlags.contains(Flag.LOG_NATIVE_BATCH)) {
+      BatchEvaluationStrategy<SpdzResourcePool> batchStrat = EvaluationStrategy
+          .fromEnum(evalStrategy);
+      if (performanceLoggerFlags != null && performanceLoggerFlags
+          .contains(Flag.LOG_NATIVE_BATCH)) {
         batchStrat = new BatchEvaluationLoggingDecorator<>(batchStrat);
         pls.get(playerId).add((PerformanceLogger) batchStrat);
       }
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
           new BatchedProtocolEvaluator<>(batchStrat);
-      Network network = new ScapiNetworkImpl();
-      network.init(netConf.get(playerId), 1);      
+      Network network;
+      ScapiNetworkImpl scapiNetwork = new ScapiNetworkImpl();
       if (performanceLoggerFlags != null && performanceLoggerFlags.contains(Flag.LOG_NETWORK)) {
-        network = new NetworkLoggingDecorator(network);
+        network = new NetworkLoggingDecorator(scapiNetwork);
         pls.get(playerId).add((PerformanceLogger) network);
+      } else {
+        network = scapiNetwork;
       }
-      
-      SpdzResourcePool rp = createResourcePool(playerId, noOfParties, network, new Random(),
-          new DetermSecureRandom(), PreprocessingStrategy.DUMMY);
-      SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce = 
+
+      SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(protocolSuite, evaluator);
-      if(performanceLoggerFlags != null && performanceLoggerFlags.contains(Flag.LOG_RUNTIME)) {
+      if (performanceLoggerFlags != null && performanceLoggerFlags.contains(Flag.LOG_RUNTIME)) {
         sce = new SCELoggingDecorator<>(sce, protocolSuite);
         pls.get(playerId).add((PerformanceLogger) sce);
       }
-      
+
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
-          new TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>(
+          new TestThreadRunner.TestThreadConfiguration<>(
               sce,
-              rp);
+              () -> {
+                scapiNetwork.init(netConf.get(playerId), 1);
+                return createResourcePool(playerId, noOfParties, network, new Random(),
+                    new DetermSecureRandom(), PreprocessingStrategy.DUMMY);
+              });
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
-    for(Integer pId : pls.keySet()) {
-      for(PerformanceLogger pl : pls.get(pId)) {
+    for (Integer pId : pls.keySet()) {
+      for (PerformanceLogger pl : pls.get(pId)) {
         pl.printPerformanceLog(pId);
       }
     }

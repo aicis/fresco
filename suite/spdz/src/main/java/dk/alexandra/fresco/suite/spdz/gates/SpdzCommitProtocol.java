@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Map;
 
@@ -37,20 +36,18 @@ public class SpdzCommitProtocol extends SpdzNativeProtocol<Void> {
 		case 0:
 			network.sendToAll(serializer
 					.toBytes(commitment.getCommitment(spdzResourcePool.getModulus())));
-			network.expectInputFromAll();
 			break;
 		case 1:
-			List<ByteBuffer> commitments = network.receiveFromAll();
-			for (int i = 0; i < commitments.size(); i++) {
-				comms.put(i + 1, serializer.toBigInteger(commitments.get(i)));
-			}
+      List<byte[]> commitments = network.receiveFromAll();
+      for (int i = 0; i < commitments.size(); i++) {
+        comms.put(i + 1, serializer.toBigInteger(commitments.get(i)));
+      }
 			if (players < 3) {
 				done = true;
 			} else {
 				broadcastDigest = sendBroadcastValidation(
 						spdzResourcePool.getMessageDigest(), network, comms.values()
 				);
-				network.expectInputFromAll();
 			}
 			break;
 		case 2:
