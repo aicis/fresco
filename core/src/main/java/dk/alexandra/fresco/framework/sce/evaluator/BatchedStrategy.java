@@ -4,9 +4,7 @@ import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.NativeProtocol.EvaluationStatus;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.SceNetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import java.io.IOException;
 import java.util.Iterator;
 
 /**
@@ -36,20 +34,18 @@ public class BatchedStrategy<ResourcePoolT extends ResourcePool>
   @Override
   public void processBatch(
       ProtocolCollection<ResourcePoolT> protocols, ResourcePoolT resourcePool,
-      SceNetwork sceNetwork)
-      throws IOException {
-    Network network = resourcePool.getNetwork();
+      SceNetwork sceNetwork) {
     int round = 0;
     while (protocols.size() > 0) {
-      evaluateCurrentRound(protocols, sceNetwork, resourcePool, network, round);
+      evaluateCurrentRound(protocols, sceNetwork, resourcePool, round);
       sceNetwork.flush();
       round++;
     }
   }
 
   private void evaluateCurrentRound(
-      ProtocolCollection<ResourcePoolT> protocols, SceNetwork sceNetwork,
-      ResourcePoolT rp, Network network, int round) throws IOException {
+      ProtocolCollection<ResourcePoolT> protocols, Network sceNetwork,
+      ResourcePoolT rp, int round) {
     Iterator<NativeProtocol<?, ResourcePoolT>> iterator = protocols.iterator();
     while (iterator.hasNext()) {
       NativeProtocol<?, ResourcePoolT> protocol = iterator.next();

@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.dummy.bool;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.network.SceNetwork;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
 
@@ -28,7 +28,7 @@ public class DummyBooleanXorProtocol extends DummyBooleanNativeProtocol<SBool> {
   }
 
   @Override
-  public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SceNetwork network) {
+  public EvaluationStatus evaluate(int round, ResourcePool resourcePool, Network network) {
     Boolean leftValue = ((DummyBooleanSBool) left.out()).getValue();
     Boolean rightValue = ((DummyBooleanSBool) right.out()).getValue();
     boolean value = leftValue ^ rightValue;

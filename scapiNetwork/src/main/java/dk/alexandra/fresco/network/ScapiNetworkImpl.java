@@ -235,4 +235,9 @@ public class ScapiNetworkImpl implements Network, Closeable {
     }
   }
 
+  @Override
+  public int getNoOfParties() {
+    return conf.noOfParties();
+  }
+
 }

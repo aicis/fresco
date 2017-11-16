@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.framework.network;
 
 import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.sce.evaluator.SceNetwork;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,16 +9,15 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SceNetworkImplTest {
+public class SceNetworkTest {
 
-  private SceNetworkImpl sceNetwork;
-  private DummyNetwork network;
+  private SceNetwork sceNetwork;
   private Map<Integer, byte[]> transmissions = new HashMap<>();
 
   @Before
   public void setUp() throws Exception {
     DummyNetwork network = new DummyNetwork();
-    sceNetwork = new SceNetworkImpl(3, network);
+    sceNetwork = new SceNetwork(3, network);
   }
 
   @Test
@@ -97,6 +97,11 @@ public class SceNetworkImplTest {
     @Override
     public byte[] receive(int partyId) {
       return transmissions.get(partyId);
+    }
+
+    @Override
+    public int getNoOfParties() {
+      return 3;
     }
   }
 }

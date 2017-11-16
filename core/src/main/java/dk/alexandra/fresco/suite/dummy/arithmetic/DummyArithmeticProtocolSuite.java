@@ -3,10 +3,8 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.SceNetwork;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.ProtocolSuite;
-import java.io.IOException;
 import java.math.BigInteger;
 
 
@@ -38,18 +36,16 @@ public class DummyArithmeticProtocolSuite
     return new RoundSynchronization<DummyArithmeticResourcePool>() {
 
       @Override
-      public void finishedBatch(int gatesEvaluated, DummyArithmeticResourcePool resourcePool,
-          SceNetwork sceNetwork) throws IOException {
+      public void finishedBatch(int gatesEvaluated, DummyArithmeticResourcePool resourcePool) {
       }
 
       @Override
-      public void finishedEval(DummyArithmeticResourcePool resourcePool, SceNetwork sceNetwork)
-          throws IOException {
+      public void finishedEval(DummyArithmeticResourcePool resourcePool) {
       }
 
       @Override
       public void beforeBatch(ProtocolCollection<DummyArithmeticResourcePool> protocols,
-          DummyArithmeticResourcePool resourcePool) throws IOException {
+          DummyArithmeticResourcePool resourcePool) {
 
       }
     };

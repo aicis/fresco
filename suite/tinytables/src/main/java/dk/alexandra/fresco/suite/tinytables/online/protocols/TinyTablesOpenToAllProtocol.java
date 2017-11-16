@@ -2,7 +2,7 @@ package dk.alexandra.fresco.suite.tinytables.online.protocols;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.network.SceNetwork;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.BooleanSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -38,7 +38,7 @@ public class TinyTablesOpenToAllProtocol extends TinyTablesProtocol<Boolean> {
   }
 
   @Override
-  public EvaluationStatus evaluate(int round, ResourcePoolImpl resourcePool, SceNetwork network) {
+  public EvaluationStatus evaluate(int round, ResourcePoolImpl resourcePool, Network network) {
     TinyTablesProtocolSuite ps = TinyTablesProtocolSuite.getInstance(resourcePool.getMyId());
 
     /*

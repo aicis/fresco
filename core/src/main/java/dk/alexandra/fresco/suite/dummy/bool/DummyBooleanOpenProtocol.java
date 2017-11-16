@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.dummy.bool;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.network.SceNetwork;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
 
@@ -42,7 +42,7 @@ public class DummyBooleanOpenProtocol extends DummyBooleanNativeProtocol<Boolean
 	
 	@Override
 	public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
-			SceNetwork network) {
+			Network network) {
 		boolean openToAll = target == -1;
 		if (resourcePool.getMyId() == target || openToAll) {
 		  this.open = ((DummyBooleanSBool) this.closed.out()).getValue();

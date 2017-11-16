@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.network.SceNetwork;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
@@ -30,7 +30,7 @@ public class DummyArithmeticOpenProtocol extends DummyArithmeticNativeProtocol<B
 
   @Override
   public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool resourcePool,
-      SceNetwork network) {
+      Network network) {
     if (resourcePool.getMyId() == target) {
       this.open = ((DummyArithmeticSInt) this.closed.out()).getValue();
     } else {

@@ -60,7 +60,8 @@ public abstract class AbstractDummyBooleanTest {
 
       DummyBooleanProtocolSuite ps = new DummyBooleanProtocolSuite();
 
-      BatchEvaluationStrategy<ResourcePoolImpl> strat = EvaluationStrategy.fromEnum(evalStrategy);
+      BatchEvaluationStrategy<ResourcePoolImpl> strat =
+          EvaluationStrategy.fromEnum(evalStrategy);
       if (performanceFlags != null && performanceFlags.contains(Flag.LOG_NATIVE_BATCH)) {
         strat = new BatchEvaluationLoggingDecorator<>(strat);
         pls.get(playerId).add((PerformanceLogger) strat);

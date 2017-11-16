@@ -239,6 +239,11 @@ public class KryoNetNetwork implements Network, Closeable {
   }
 
   @Override
+  public int getNoOfParties() {
+    return conf.noOfParties();
+  }
+
+  @Override
   public void close() throws IOException {
     logger.debug("Shutting down KryoNet network");
 

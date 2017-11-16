@@ -39,6 +39,11 @@ public class NetworkLoggingDecorator implements Network, PerformanceLogger, Clos
   }
 
   @Override
+  public int getNoOfParties() {
+    return delegate.getNoOfParties();
+  }
+
+  @Override
   public void send(int partyId, byte[] data) {
     this.delegate.send(partyId, data);
   }
