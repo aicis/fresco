@@ -17,6 +17,7 @@ import edu.biu.scapi.midLayer.symmetricCrypto.encryption.ScEncryptThenMac;
 import edu.biu.scapi.midLayer.symmetricCrypto.mac.ScCbcMacPrepending;
 import edu.biu.scapi.primitives.prf.AES;
 import edu.biu.scapi.primitives.prf.bc.BcAES;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetAddress;
@@ -41,7 +42,7 @@ import org.slf4j.LoggerFactory;
  *
  * For now it only uses non-encrypted socket-based communication.
  */
-public class ScapiNetworkImpl implements Network {
+public class ScapiNetworkImpl implements Network, Closeable {
 
   private NetworkConfiguration conf;
   private boolean connected = false;
@@ -71,7 +72,6 @@ public class ScapiNetworkImpl implements Network {
   // TODO: Include player to integer map to indicate
   // how many channels are wanted to each player.
   // Implement this also for send to self queues.
-  @Override
   public void connect(int timeoutMillis) {
     if (connected) {
       return;
@@ -84,7 +84,7 @@ public class ScapiNetworkImpl implements Network {
     for (int id = 1; id <= conf.noOfParties(); id++) {
       Party frescoParty = conf.getParty(id);
       String iadrStr = frescoParty.getHostname();
-      InetAddress iadr = null;
+      InetAddress iadr;
       try {
         iadr = InetAddress.getByName(iadrStr);
       } catch (UnknownHostException e) {

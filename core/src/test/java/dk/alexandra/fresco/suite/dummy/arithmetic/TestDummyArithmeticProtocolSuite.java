@@ -312,7 +312,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   public void test_permute_rows_non_power_of_two() throws Throwable {
     ArrayList<ArrayList<DRes<SInt>>> fakeRows = new ArrayList<>();
     Matrix<DRes<SInt>> fakeMatrix = new Matrix<>(3, 2, fakeRows);
-    new PermuteRows(() -> fakeMatrix, new int[] {}, 1, true).buildComputation(null);
+    new PermuteRows(() -> fakeMatrix, new int[]{}, 1, true).buildComputation(null);
   }
 
   @Test
@@ -448,12 +448,11 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(new DivisionTests.TestSecretSharedDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         1);
   }
-  
+
   @Test
   public void test_Modulus() throws Exception {
-    runTest(new AdvancedNumericTests.TestModulus<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        NetworkingStrategy.KRYONET, 2);
-  }  
+    runTest(new AdvancedNumericTests.TestModulus<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
+  }
 
   @Test
   public void test_Exponentiation() throws Exception {
@@ -558,13 +557,13 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
         "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
     runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
         2, mod, PerformanceLogger.Flag.ALL_OPTS);
-    for(Integer pId : DummyArithmeticBuilderFactory.performanceLoggers.keySet()) {
-      for(PerformanceLogger pl : DummyArithmeticBuilderFactory.performanceLoggers.get(pId)) {
+    for (Integer pId : DummyArithmeticBuilderFactory.performanceLoggers.keySet()) {
+      for (PerformanceLogger pl : DummyArithmeticBuilderFactory.performanceLoggers.get(pId)) {
         pl.printPerformanceLog(pId);
       }
     }
   }
-  
+
   @Test
   public void test_performance_logger_network() throws Exception {
     BigInteger mod = new BigInteger(
