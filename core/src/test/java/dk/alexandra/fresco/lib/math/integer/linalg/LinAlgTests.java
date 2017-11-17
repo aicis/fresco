@@ -35,8 +35,6 @@ public class LinAlgTests {
 
             List<DRes<SInt>> input1 = data1.stream().map(BigInteger::valueOf)
                 .map(sIntFactory::known).collect(Collectors.toList());
-            // LinkedList<Computation<SInt>> bleh = new LinkedList(input1);
-            System.out.println(input1);
             List<DRes<SInt>> input2 = data2.stream().map(BigInteger::valueOf)
                 .map(sIntFactory::known).collect(Collectors.toList());
             DRes<SInt> min = builder.seq(new InnerProduct(input1, input2));

@@ -4,6 +4,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BigIntegerSerializerStream {
 
@@ -60,17 +62,17 @@ public class BigIntegerSerializerStream {
   }
 
   /**
-   * Deserializes into the given {@code amount} of BigIntegers. This method
+   * Deserializes into a number of BigIntegers. This method
    * assumes the serialization was done using {@link #toBytes(BigInteger[])}.
    *
    * @param buffer The ByteBuffer containing the serialized bytes.
    * @return An array of size {@code amount} containing deserialized BigIntegers.
    */
   public static BigInteger[] toBigIntegers(ByteBuffer buffer) {
-    BigInteger[] res = new BigInteger[2];
-    for (int i = 0; i < 2; i++) {
-      res[i] = toBigInteger(buffer);
+    List<BigInteger> res = new ArrayList<BigInteger>();
+    while(buffer.remaining() >0) {
+      res.add(toBigInteger(buffer));
     }
-    return res;
+    return res.toArray(new BigInteger[0]);
   }
 }

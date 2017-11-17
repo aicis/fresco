@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.debug.ArithmeticOpenAndPrint;
-import dk.alexandra.fresco.lib.debug.Marker;
+import dk.alexandra.fresco.lib.debug.NumericMarker;
 import java.io.PrintStream;
 import java.util.List;
 
@@ -38,7 +38,7 @@ public class DefaultDebug implements Debug {
 
   @Override
   public void marker(String message, PrintStream stream) {
-    builder.seq(new Marker(message, stream));
+    builder.seq(new NumericMarker(message, stream));
   }
 
 }
