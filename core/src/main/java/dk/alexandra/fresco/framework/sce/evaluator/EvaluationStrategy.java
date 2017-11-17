@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.framework.sce.evaluator;
 
-import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 
 public enum EvaluationStrategy {
@@ -22,7 +21,7 @@ public enum EvaluationStrategy {
   BatchEvaluationStrategy<ResourcePoolT> getStrategy();
 
   public static <ResourcePoolT extends ResourcePool>
-  BatchEvaluationStrategy<ResourcePoolT> fromString(String evalStr) throws ConfigurationException {
+  BatchEvaluationStrategy<ResourcePoolT> fromString(String evalStr) {
     EvaluationStrategy evalStrategy = EvaluationStrategy.valueOf(evalStr.toUpperCase());
     return evalStrategy.getStrategy();
   }
