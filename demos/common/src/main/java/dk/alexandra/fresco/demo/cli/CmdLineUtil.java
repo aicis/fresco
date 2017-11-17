@@ -369,7 +369,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     return this.cmd;
   }
 
-  private static ProtocolSuite<?, ?> dummyArithmeticFromCmdLine(CommandLine cmd) {
+  private ProtocolSuite<?, ?> dummyArithmeticFromCmdLine(CommandLine cmd) {
     Properties p = cmd.getOptionProperties("D");
     BigInteger mod = new BigInteger(p.getProperty("modulus",
         "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329"));
@@ -377,7 +377,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     return new DummyArithmeticProtocolSuite(mod, maxBitLength);
   }
 
-  private static ProtocolSuite<?, ?> SpdzConfigurationFromCmdLine(CommandLine cmd) {
+  private ProtocolSuite<?, ?> SpdzConfigurationFromCmdLine(CommandLine cmd) {
     Properties p = cmd.getOptionProperties("D");
     // TODO: Figure out a meaningful default for the below
     final int maxBitLength = Integer.parseInt(p.getProperty("spdz.maxBitLength", "64"));
@@ -411,7 +411,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     return new SpdzResourcePoolImpl(myId, size, rand, secRand, store);
   }
 
-  private static ProtocolSuite<?, ?> tinyTablesPreProFromCmdLine(CommandLine cmd, int myId)
+  private ProtocolSuite<?, ?> tinyTablesPreProFromCmdLine(CommandLine cmd, int myId)
       throws ParseException, IllegalArgumentException {
 
     Properties p = cmd.getOptionProperties("D");
@@ -420,7 +420,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     return new TinyTablesPreproProtocolSuite(myId, new File(tinyTablesFilePath));
   }
 
-  private static ProtocolSuite<?, ?> tinyTablesFromCmdLine(CommandLine cmd, int myId)
+  private ProtocolSuite<?, ?> tinyTablesFromCmdLine(CommandLine cmd, int myId)
       throws ParseException, IllegalArgumentException {
 
     Properties p = cmd.getOptionProperties("D");
