@@ -38,18 +38,14 @@ public class BatchEvaluationLoggingDecorator<ResourcePoolT extends ResourcePool>
   @Override
   public void printPerformanceLog(int myId) {
     log.info("=== P" + myId + ": Native protocols per batch metrics ===");
-    if (counter == 0) {
-      log.info("No batches were recorded");
-    } else {
-      log.info("Total amount of batches reached: " + counter);
-      log.info("Total amount of native protocols evaluated: " + noNativeProtocols);
-      log.info("minimum amount of native protocols evaluated in a single batch: "
-          + minNoNativeProtocolsPerBatch);
-      log.info("maximum amount of native protocols evaluated in a single batch: "
-          + maxNoNativeProtocolsPerBatch);
-      double avg = noNativeProtocols / (double) counter;
-      log.info("Average amount of native protocols evaluated per batch: " + df.format(avg));
-    }
+    log.info("Total amount of batches reached: " + counter);
+    log.info("Total amount of native protocols evaluated: " + noNativeProtocols);
+    log.info("minimum amount of native protocols evaluated in a single batch: "
+        + minNoNativeProtocolsPerBatch);
+    log.info("maximum amount of native protocols evaluated in a single batch: "
+        + maxNoNativeProtocolsPerBatch);
+    double avg = noNativeProtocols / (double) counter;
+    log.info("Average amount of native protocols evaluated per batch: " + df.format(avg));
   }
 
   @Override
