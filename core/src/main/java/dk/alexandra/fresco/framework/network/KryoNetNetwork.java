@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 public class KryoNetNetwork implements Network, Closeable {
 
   private List<Server> servers;
-  private boolean connected = false;
 
   // Map per partyId to a list of clients where the length of the list is equal to channelAmount.
   private Map<Integer, List<Client>> clients;
@@ -87,7 +86,7 @@ public class KryoNetNetwork implements Network, Closeable {
       }
     }
     try {
-      connect(10000);
+      connect();
     } catch (IOException e) {
       throw new MPCException("Cannot connect to other party", e);
     }
@@ -124,35 +123,14 @@ public class KryoNetNetwork implements Network, Closeable {
     }
   }
 
-  public void connect(int timeoutMillis) throws IOException {
-    if (connected) {
-      return;
-    }
+  private void connect() throws IOException {
     final Semaphore semaphore = new Semaphore(-((conf.noOfParties() - 1) * channelAmount - 1));
     for (int j = 0; j < channelAmount; j++) {
       Server server = this.servers.get(j);
-      boolean serverBound = false;
       int port = conf.getMe().getPort() + j;
       logger.debug("P" + conf.getMyId() + ": Trying to bind to " + port);
-      final int maxTries = 10;
-      int tries = 0;
-      while (!serverBound) {
-        try {
-          server.bind(port);
-          server.start();
-          serverBound = true;
-        } catch (IOException e) {
-          try {
-            if (tries > maxTries) {
-              throw e;
-            }
-            tries++;
-            Thread.sleep(500);
-          } catch (InterruptedException e1) {
-            throw e;
-          }
-        }
-      }
+      server.bind(port);
+      server.start();
 
       server.addListener(new NaiveListener(queues.get(j)));
     }
@@ -201,10 +179,8 @@ public class KryoNetNetwork implements Network, Closeable {
     }
     try {
       semaphore.acquire();
-      connected = true;
     } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      throw new IOException("Interrupted during wait for connect", e);
     }
   }
 
@@ -262,7 +238,6 @@ public class KryoNetNetwork implements Network, Closeable {
         }
       }
     }
-    connected = false;
   }
 
   private static class Registrator {
