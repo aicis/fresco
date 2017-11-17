@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.framework.configuration;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Party;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,16 +16,9 @@ public class NetworkConfigurationImpl implements NetworkConfiguration {
 		this.parties = parties;
 	}
 
-	public void add(int id, String host, int port) {
-		Party p = new Party(id, host, port);
-		parties.put(id, p);
-	}
 
 	@Override
 	public Party getParty(int id) {
-		if (!parties.containsKey(id)) {
-			throw new MPCException("No party with id " + id);
-		}
 		return parties.get(id);
 	}
 
