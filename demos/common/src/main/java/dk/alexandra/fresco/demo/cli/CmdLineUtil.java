@@ -241,22 +241,9 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
       this.flags = Flag.ALL_OPTS;
     }
 
-    try {
-      BatchEvaluationStrategy<ResourcePoolT> batchEvalStrat = EvaluationStrategy
-          .fromString(this.cmd.getOptionValue("e", EvaluationStrategy.SEQUENTIAL.name()));
-      if (this.flags != null) {
-        batchEvalStrat = new BatchEvaluationLoggingDecorator<>(batchEvalStrat);
-      }
-      int maxBatchSize = getMaxBatchSize();
-      this.evaluator = new BatchedProtocolEvaluator<>(batchEvalStrat, protocolSuite, maxBatchSize);
-    } catch (ConfigurationException e) {
-      throw new ParseException("Invalid evaluation strategy: " + this.cmd.getOptionValue("e"));
-    }
-
     logger.info("Player id          : " + myId);
     logger.info("NativeProtocol suite     : " + suite);
     logger.info("Players            : " + parties);
-    logger.info("Evaluation strategy: " + evaluator);
 
     this.networkConfiguration = new NetworkConfigurationImpl(myId, parties);
     this.network = new KryoNetNetwork(networkConfiguration);
@@ -354,6 +341,18 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
           break;
         default:
           throw new ParseException("Unknown protocol suite: " + protocolSuiteName);
+      }
+      try {
+        BatchEvaluationStrategy<ResourcePoolT> batchEvalStrat = EvaluationStrategy
+            .fromString(this.cmd.getOptionValue("e", EvaluationStrategy.SEQUENTIAL.name()));
+        if (this.flags != null) {
+          batchEvalStrat = new BatchEvaluationLoggingDecorator<>(batchEvalStrat);
+        }
+        int maxBatchSize = getMaxBatchSize();
+        this.evaluator = new BatchedProtocolEvaluator<>(batchEvalStrat, protocolSuite,
+            maxBatchSize);
+      } catch (ConfigurationException e) {
+        throw new ParseException("Invalid evaluation strategy: " + this.cmd.getOptionValue("e"));
       }
     } catch (ParseException e) {
       System.out.println("Error while parsing arguments: " + e.getLocalizedMessage());
