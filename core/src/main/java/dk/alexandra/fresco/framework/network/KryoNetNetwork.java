@@ -92,6 +92,37 @@ public class KryoNetNetwork implements Network, Closeable {
     }
   }
 
+  private static class ClientConnectThread extends Thread {
+
+    private final Client client;
+    private final String hostname;
+    private final int port;
+
+    public ClientConnectThread(Client client, String hostname, int port) {
+      super("Connect");
+      this.client = client;
+      this.hostname = hostname;
+      this.port = port;
+    }
+
+    public void run() {
+      boolean success = false;
+      while (!success) {
+        try {
+          client.connect(2000, hostname, port);
+          // Server communication after connection can go here, or in Listener#connected().
+          success = true;
+        } catch (IOException ex) {
+          try {
+            sleep(500);
+          } catch (InterruptedException e) {
+            throw new RuntimeException("Thread got interrupted while trying to reconnect.");
+          }
+        }
+      }
+    }
+  }
+
   private class NaiveListener extends Listener {
 
     private Map<Integer, BlockingQueue<byte[]>> queue;
@@ -154,24 +185,7 @@ public class KryoNetNetwork implements Network, Closeable {
 
           String hostname = conf.getParty(i).getHostname();
           int port = conf.getParty(i).getPort() + j;
-          Thread clientThread = new Thread("Connect") {
-            public void run() {
-              boolean success = false;
-              while (!success) {
-                try {
-                  client.connect(2000, hostname, port);
-                  // Server communication after connection can go here, or in Listener#connected().
-                  success = true;
-                } catch (IOException ex) {
-                  try {
-                    sleep(500);
-                  } catch (InterruptedException e) {
-                    throw new RuntimeException("Thread got interrupted while trying to reconnect.");
-                  }
-                }
-              }
-            }
-          };
+          Thread clientThread = new ClientConnectThread(client, hostname, port);
           clientThread.start();
           clientThreads.add(clientThread);
         }
