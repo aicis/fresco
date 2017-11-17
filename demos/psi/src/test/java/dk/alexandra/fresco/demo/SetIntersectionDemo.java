@@ -56,15 +56,13 @@ public class SetIntersectionDemo {
 
       // The rest is generic configuration as well
       ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
-          new BatchedProtocolEvaluator<>(new BatchedStrategy<>());
+          new BatchedProtocolEvaluator<>(new BatchedStrategy<>(), suite);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite, evaluator),
-              () -> {
-                KryoNetNetwork network = new KryoNetNetwork(netConf.get(playerId));
-                return new ResourcePoolImpl(playerId, noPlayers, network,
-                    new Random(), new DetermSecureRandom());
-              });
+              () -> new ResourcePoolImpl(playerId, noPlayers,
+                  new Random(), new DetermSecureRandom()),
+              () -> new KryoNetNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }
     String[] result = this.setIntersectionDemo(conf);
@@ -96,15 +94,13 @@ public class SetIntersectionDemo {
 
       // More generic configuration
       ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
-          new BatchedProtocolEvaluator<>(new BatchedStrategy<>());
+          new BatchedProtocolEvaluator<>(new BatchedStrategy<>(), suite);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite, evaluator),
-              () -> {
-                KryoNetNetwork network = new KryoNetNetwork(netConf.get(playerId));
-                return new ResourcePoolImpl(playerId, noPlayers, network,
-                    new Random(), new DetermSecureRandom());
-              });
+              () -> new ResourcePoolImpl(playerId, noPlayers,
+                  new Random(), new DetermSecureRandom()),
+              () -> new KryoNetNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }
 
@@ -124,15 +120,13 @@ public class SetIntersectionDemo {
                 playerId);
 
         ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
-            new BatchedProtocolEvaluator<>(new BatchedStrategy<>());
+            new BatchedProtocolEvaluator<>(new BatchedStrategy<>(), suite);
         TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
             new TestThreadConfiguration<>(
                 new SecureComputationEngineImpl<>(suite, evaluator),
-                () -> {
-                  KryoNetNetwork network = new KryoNetNetwork(secondConf.get(playerId));
-                  return new ResourcePoolImpl(playerId, noPlayers, network,
-                      new Random(), new DetermSecureRandom());
-                });
+                () -> new ResourcePoolImpl(playerId, noPlayers,
+                    new Random(), new DetermSecureRandom()),
+                () -> new KryoNetNetwork(secondConf.get(playerId)));
         conf.put(playerId, ttc);
       }
 
@@ -184,10 +178,12 @@ public class SetIntersectionDemo {
                 Boolean[] key = null;
                 int[] inputList = null;
                 if (conf.getMyId() == 2) {
-                  key = ByteAndBitConverter.toBoolean("00112233445566778899aabbccddeeff"); // 128-bit key
+                  key = ByteAndBitConverter
+                      .toBoolean("00112233445566778899aabbccddeeff"); // 128-bit key
                   inputList = new int[]{2, 66, 112, 1123};
                 } else if (conf.getMyId() == 1) {
-                  key = ByteAndBitConverter.toBoolean("000102030405060708090a0b0c0d0e0f"); // 128-bit key
+                  key = ByteAndBitConverter
+                      .toBoolean("000102030405060708090a0b0c0d0e0f"); // 128-bit key
                   inputList = new int[]{1, 3, 66, 1123};
                 }
 

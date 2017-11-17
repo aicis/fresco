@@ -17,5 +17,6 @@ public interface BatchEvaluationStrategy<ResourcePoolT extends ResourcePool> {
    * @param network the Network used for the evaluation process.
    */
   void processBatch(
-      ProtocolCollection<ResourcePoolT> protocols, ResourcePoolT resourcePool, SceNetwork network);
+      ProtocolCollection<ResourcePoolT> protocols, ResourcePoolT resourcePool,
+      NetworkBatchDecorator network);
 }

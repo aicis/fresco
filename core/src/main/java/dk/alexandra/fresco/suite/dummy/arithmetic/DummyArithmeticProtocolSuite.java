@@ -3,6 +3,7 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.math.BigInteger;
@@ -25,7 +26,8 @@ public class DummyArithmeticProtocolSuite
   }
 
   @Override
-  public BuilderFactory<ProtocolBuilderNumeric> init(DummyArithmeticResourcePool resourcePool) {
+  public BuilderFactory<ProtocolBuilderNumeric> init(DummyArithmeticResourcePool resourcePool,
+      Network network) {
     BasicNumericContext basicNumericContext =
         new BasicNumericContext(maxBitLength, modulus, resourcePool);
     return new DummyArithmeticBuilderFactory(basicNumericContext);
@@ -36,16 +38,17 @@ public class DummyArithmeticProtocolSuite
     return new RoundSynchronization<DummyArithmeticResourcePool>() {
 
       @Override
-      public void finishedBatch(int gatesEvaluated, DummyArithmeticResourcePool resourcePool) {
+      public void finishedBatch(int gatesEvaluated, DummyArithmeticResourcePool resourcePool,
+          Network network) {
       }
 
       @Override
-      public void finishedEval(DummyArithmeticResourcePool resourcePool) {
+      public void finishedEval(DummyArithmeticResourcePool resourcePool, Network network) {
       }
 
       @Override
       public void beforeBatch(ProtocolCollection<DummyArithmeticResourcePool> protocols,
-          DummyArithmeticResourcePool resourcePool) {
+          DummyArithmeticResourcePool resourcePool, Network network) {
 
       }
     };

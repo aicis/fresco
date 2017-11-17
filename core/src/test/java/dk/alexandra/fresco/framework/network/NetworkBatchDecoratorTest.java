@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.framework.network;
 
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.sce.evaluator.SceNetwork;
+import dk.alexandra.fresco.framework.sce.evaluator.NetworkBatchDecorator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,23 +9,23 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SceNetworkTest {
+public class NetworkBatchDecoratorTest {
 
-  private SceNetwork sceNetwork;
+  private NetworkBatchDecorator networkBatchDecorator;
   private Map<Integer, byte[]> transmissions = new HashMap<>();
 
   @Before
   public void setUp() throws Exception {
     DummyNetwork network = new DummyNetwork();
-    sceNetwork = new SceNetwork(3, network);
+    networkBatchDecorator = new NetworkBatchDecorator(3, network);
   }
 
   @Test
   public void receive() throws Exception {
     transmissions.put(1, new byte[]{4, 2, 2, 23, 3, 42});
     transmissions.put(2, new byte[]{0});
-    Assert.assertArrayEquals(new byte[]{2, 2, 23, 3}, sceNetwork.receive(1));
-    Assert.assertArrayEquals(new byte[]{}, sceNetwork.receive(2));
+    Assert.assertArrayEquals(new byte[]{2, 2, 23, 3}, networkBatchDecorator.receive(1));
+    Assert.assertArrayEquals(new byte[]{}, networkBatchDecorator.receive(2));
   }
 
   @Test
@@ -33,7 +33,7 @@ public class SceNetworkTest {
     transmissions.put(1, new byte[]{4, 2, 2, 23, 3, 42});
     transmissions.put(2, new byte[]{4, 2, 2, 23, 3, 42});
     transmissions.put(3, new byte[]{4, 2, 2, 23, 3, 42});
-    List<byte[]> receiveAll = sceNetwork.receiveFromAll();
+    List<byte[]> receiveAll = networkBatchDecorator.receiveFromAll();
     for (byte[] receive : receiveAll) {
       Assert.assertArrayEquals(new byte[]{2, 2, 23, 3}, receive);
     }
@@ -43,22 +43,22 @@ public class SceNetworkTest {
   public void receiveFromAllNoData() throws Exception {
     transmissions.put(1, new byte[]{4, 2, 2, 23, 3, 42});
     transmissions.put(2, new byte[]{4, 2, 2, 23, 3, 42});
-    sceNetwork.receiveFromAll();
+    networkBatchDecorator.receiveFromAll();
   }
 
   @Test
   public void send() throws Exception {
-    sceNetwork.send(1, new byte[]{123});
+    networkBatchDecorator.send(1, new byte[]{123});
     Assert.assertTrue(transmissions.isEmpty());
-    sceNetwork.flush();
+    networkBatchDecorator.flush();
     Assert.assertEquals(1, transmissions.size());
     Assert.assertArrayEquals(new byte[]{1, 123}, transmissions.get(1));
   }
 
   @Test
   public void sendToAll() throws Exception {
-    sceNetwork.sendToAll(new byte[]{123});
-    sceNetwork.flush();
+    networkBatchDecorator.sendToAll(new byte[]{123});
+    networkBatchDecorator.flush();
     Assert.assertEquals(3, transmissions.size());
     Assert.assertArrayEquals(new byte[]{1, 123}, transmissions.get(1));
     Assert.assertArrayEquals(new byte[]{1, 123}, transmissions.get(2));
@@ -67,7 +67,7 @@ public class SceNetworkTest {
 
   @Test(expected = MPCException.class)
   public void errorOnBigPackets() throws Exception {
-    sceNetwork.sendToAll(
+    networkBatchDecorator.sendToAll(
         new byte[]{
             123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
             123, 123, 123, 123, 123, 123, 123, 123, 123, 123,

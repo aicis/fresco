@@ -247,17 +247,10 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
       if (this.flags != null) {
         batchEvalStrat = new BatchEvaluationLoggingDecorator<>(batchEvalStrat);
       }
-      this.evaluator = new BatchedProtocolEvaluator<>(batchEvalStrat);
+      int maxBatchSize = getMaxBatchSize();
+      this.evaluator = new BatchedProtocolEvaluator<>(batchEvalStrat, protocolSuite, maxBatchSize);
     } catch (ConfigurationException e) {
       throw new ParseException("Invalid evaluation strategy: " + this.cmd.getOptionValue("e"));
-    }
-
-    if (this.cmd.hasOption("b")) {
-      try {
-        evaluator.setMaxBatchSize(Integer.parseInt(this.cmd.getOptionValue("b")));
-      } catch (Exception e) {
-        throw new ParseException("");
-      }
     }
 
     logger.info("Player id          : " + myId);
@@ -270,7 +263,18 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     if (flags != null) {
       this.network = new NetworkLoggingDecorator(this.network);
     }
+  }
 
+  private int getMaxBatchSize() throws ParseException {
+    int maxBatchSize = 4096;
+    if (this.cmd.hasOption("b")) {
+      try {
+        maxBatchSize = Integer.parseInt(this.cmd.getOptionValue("b"));
+      } catch (Exception e) {
+        throw new ParseException("");
+      }
+    }
+    return maxBatchSize;
   }
 
   /**
@@ -310,7 +314,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
               (ProtocolSuite<ResourcePoolT, Builder>) new DummyBooleanProtocolSuite();
           this.resourcePool =
               (ResourcePoolT) new ResourcePoolImpl(this.networkConfiguration.getMyId(),
-                  this.networkConfiguration.noOfParties(), network, new Random(),
+                  this.networkConfiguration.noOfParties(), new Random(),
                   new SecureRandom());
           break;
         case "dummyarithmetic":
@@ -320,7 +324,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
           BigInteger mod = new BigInteger(p.getProperty("modulus",
               "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329"));
           this.resourcePool = (ResourcePoolT) new DummyArithmeticResourcePoolImpl(
-              this.networkConfiguration.getMyId(), this.networkConfiguration.noOfParties(), network,
+              this.networkConfiguration.getMyId(), this.networkConfiguration.noOfParties(),
               new Random(), new SecureRandom(), mod);
           break;
         case "spdz":
@@ -337,7 +341,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
                   this.networkConfiguration.getMyId());
           this.resourcePool =
               (ResourcePoolT) new ResourcePoolImpl(this.networkConfiguration.getMyId(),
-                  this.networkConfiguration.noOfParties(), network, new Random(),
+                  this.networkConfiguration.noOfParties(), new Random(),
                   new SecureRandom());
           break;
         case "tinytables":
@@ -345,7 +349,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
               this.networkConfiguration.getMyId());
           this.resourcePool =
               (ResourcePoolT) new ResourcePoolImpl(this.networkConfiguration.getMyId(),
-                  this.networkConfiguration.noOfParties(), network, new Random(),
+                  this.networkConfiguration.noOfParties(), new Random(),
                   new SecureRandom());
           break;
         default:
@@ -405,7 +409,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
       default:
         throw new ConfigurationException("Unkonwn preprocessing strategy: " + strategy);
     }
-    return new SpdzResourcePoolImpl(myId, size, network, rand, secRand, store);
+    return new SpdzResourcePoolImpl(myId, size, rand, secRand, store);
   }
 
   private static ProtocolSuite<?, ?> tinyTablesPreProFromCmdLine(CommandLine cmd, int myId)

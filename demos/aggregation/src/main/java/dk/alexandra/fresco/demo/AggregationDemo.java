@@ -8,6 +8,7 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
@@ -76,7 +77,7 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
    * @param rp resource pool
    */
   public void runApplication(SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce,
-      ResourcePoolT rp) {
+      ResourcePoolT rp, Network network) {
     int groupByIdx = 0;
     int aggIdx = 1;
     // Create application we are going run
@@ -95,7 +96,7 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
       return () -> new MatrixUtils().unwrapMatrix(opened);
     };
     // Run application and get result
-    Matrix<BigInteger> result = sce.runApplication(aggApp, rp);
+    Matrix<BigInteger> result = sce.runApplication(aggApp, rp, network);
     writeOutputs(result);
     sce.shutdownSCE();
   }
@@ -109,28 +110,28 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
     // My player ID
     int pid = Integer.parseInt(args[0]);
 
-    // Define circuit evaluation strategy
-    ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> sequentialEvaluator =
-        new BatchedProtocolEvaluator<>(new SequentialStrategy<>());
-    sequentialEvaluator.setMaxBatchSize(4096);
-
     // Create SPDZ protocol suite
     ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> suite = new SpdzProtocolSuite(150);
+
+    // Define circuit evaluation strategy
+    ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> sequentialEvaluator =
+        new BatchedProtocolEvaluator<>(new SequentialStrategy<>(), suite);
 
     // Instantiate execution environment
     SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =
         new SecureComputationEngineImpl<>(suite, sequentialEvaluator);
 
     // Create resource pool
-    KryoNetNetwork network = new KryoNetNetwork(getNetworkConfiguration(pid));
-    SpdzStorage store = new SpdzStorageDummyImpl(pid, getNetworkConfiguration(pid).noOfParties());
-    SpdzResourcePool rp = new SpdzResourcePoolImpl(pid, getNetworkConfiguration(pid).noOfParties(),
-        network, new Random(), new DetermSecureRandom(), store);
+    try (KryoNetNetwork network = new KryoNetNetwork(getNetworkConfiguration(pid))) {
+      SpdzStorage store = new SpdzStorageDummyImpl(pid, getNetworkConfiguration(pid).noOfParties());
+      SpdzResourcePool rp = new SpdzResourcePoolImpl(pid,
+          getNetworkConfiguration(pid).noOfParties(),
+          new Random(), new DetermSecureRandom(), store);
 
-    // Instatiate our demo and run
-    AggregationDemo<SpdzResourcePool> demo = new AggregationDemo<>();
-    demo.runApplication(sce, rp);
-    network.close();
+      // Instatiate our demo and run
+      AggregationDemo<SpdzResourcePool> demo = new AggregationDemo<>();
+      demo.runApplication(sce, rp, network);
+    }
   }
 
   private static NetworkConfiguration getNetworkConfiguration(int pid) {

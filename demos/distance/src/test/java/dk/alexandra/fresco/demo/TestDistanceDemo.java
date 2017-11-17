@@ -9,7 +9,6 @@ import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
@@ -55,21 +54,19 @@ public class TestDistanceDemo {
       SpdzProtocolSuite protocolSuite = new SpdzProtocolSuite(150);
 
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
-          new BatchedProtocolEvaluator<>(EvaluationStrategy.fromEnum(evalStrategy));
+          new BatchedProtocolEvaluator<>(EvaluationStrategy.fromEnum(evalStrategy), protocolSuite);
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(protocolSuite, evaluator),
-              () -> {
-                KryoNetNetwork network = new KryoNetNetwork(netConf.get(playerId));
-                return createResourcePool(playerId, noOfParties, network, new Random(),
-                    new DetermSecureRandom(), PreprocessingStrategy.DUMMY);
-              });
+              () -> createResourcePool(playerId, noOfParties, new Random(),
+                  new DetermSecureRandom(), PreprocessingStrategy.DUMMY),
+              () -> new KryoNetNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
   }
 
-  private SpdzResourcePool createResourcePool(int myId, int size, Network network, Random rand,
+  private SpdzResourcePool createResourcePool(int myId, int size, Random rand,
       SecureRandom secRand, PreprocessingStrategy preproStrat) {
     SpdzStorage store;
     switch (preproStrat) {
@@ -83,7 +80,7 @@ public class TestDistanceDemo {
       default:
         throw new ConfigurationException("Unkonwn preprocessing strategy: " + preproStrat);
     }
-    return new SpdzResourcePoolImpl(myId, size, network, rand, secRand, store);
+    return new SpdzResourcePoolImpl(myId, size, rand, secRand, store);
   }
 
   @Test

@@ -33,7 +33,7 @@ public class TestScapiNetwork {
 
     @Override
     public void setUp() {
-      network = (ScapiNetworkImpl) this.conf.getResourcePool().getNetwork();
+      network = (ScapiNetworkImpl) this.conf.getNetwork();
     }
 
   }
@@ -55,9 +55,7 @@ public class TestScapiNetwork {
       network.init(netConf.get(i), 1);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderNumeric> ttc =
           new TestThreadConfiguration<>(null,
-              () -> {
-                return new ResourcePoolImpl(i, n, network, null, null);
-              });
+              () -> new ResourcePoolImpl(i, n, null, null), () -> network);
       conf.put(i, ttc);
     }
     TestThreadRunner.run(test, conf);
@@ -88,7 +86,7 @@ public class TestScapiNetwork {
     TestThreadRunner.run(test, configurations);
     for (TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderNumeric> networkConfiguration : configurations
         .values()) {
-      Network network = networkConfiguration.getResourcePool().getNetwork();
+      Network network = networkConfiguration.getNetwork();
       if (network instanceof Closeable) {
         ((Closeable) network).close();
       }
@@ -106,9 +104,7 @@ public class TestScapiNetwork {
       network.init(netConf.get(i), 1);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderNumeric> ttc =
           new TestThreadConfiguration<>(null,
-              () -> {
-                return new ResourcePoolImpl(i, n, network, null, null);
-              });
+              () -> new ResourcePoolImpl(i, n, null, null), () -> network);
       conf.put(i, ttc);
     }
     return conf;
@@ -167,10 +163,10 @@ public class TestScapiNetwork {
               public void test() throws Exception {
                 network.connect(timeoutMillis);
                 if (conf.getMyId() == 1) {
-                  byte[] received = conf.getResourcePool().getNetwork().receive(2);
+                  byte[] received = conf.getNetwork().receive(2);
                   assertTrue(Arrays.equals(data, received));
                 } else if (conf.getMyId() == 2) {
-                  conf.getResourcePool().getNetwork().send(1, data);
+                  conf.getNetwork().send(1, data);
                 }
                 network.close();
               }

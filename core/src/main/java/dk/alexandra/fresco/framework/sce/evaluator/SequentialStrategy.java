@@ -11,14 +11,14 @@ public class SequentialStrategy<ResourcePoolT extends ResourcePool> implements
   @Override
   public void processBatch(
       ProtocolCollection<ResourcePoolT> protocols, ResourcePoolT resourcePool,
-      SceNetwork sceNetwork) {
+      NetworkBatchDecorator networkBatchDecorator) {
     for (NativeProtocol<?, ResourcePoolT> protocol : protocols) {
       int round = 0;
       EvaluationStatus status;
       do {
-        status = protocol.evaluate(round, resourcePool, sceNetwork);
+        status = protocol.evaluate(round, resourcePool, networkBatchDecorator);
         // send phase
-        sceNetwork.flush();
+        networkBatchDecorator.flush();
         round++;
       } while (status.equals(EvaluationStatus.HAS_MORE_ROUNDS));
     }

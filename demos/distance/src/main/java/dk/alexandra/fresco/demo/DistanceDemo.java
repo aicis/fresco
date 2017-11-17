@@ -96,7 +96,7 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
     SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce = cmdUtil.getSCE();
     try {
       ResourcePoolT resourcePool = cmdUtil.getResourcePool();
-      BigInteger bigInteger = sce.runApplication(distDemo, resourcePool);
+      BigInteger bigInteger = sce.runApplication(distDemo, resourcePool, cmdUtil.getNetwork());
       double dist = Math.sqrt(bigInteger.doubleValue());
       log.info("Distance between party 1 and 2 is: " + dist);
     } catch (Exception e) {

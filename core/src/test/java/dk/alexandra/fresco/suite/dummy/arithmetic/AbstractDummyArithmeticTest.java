@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
@@ -76,7 +75,7 @@ public abstract class AbstractDummyArithmeticTest {
         pls.add((PerformanceLogger) batchEvaluationStrategy);
       }
       ProtocolEvaluator<DummyArithmeticResourcePool, ProtocolBuilderNumeric> evaluator =
-          new BatchedProtocolEvaluator<>(batchEvaluationStrategy);
+          new BatchedProtocolEvaluator<>(batchEvaluationStrategy, ps);
 
       SecureComputationEngine<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(ps, evaluator);
@@ -87,20 +86,20 @@ public abstract class AbstractDummyArithmeticTest {
 
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
-              sce, () -> {
-            Network network;
-            KryoNetNetwork kryoNetwork = new KryoNetNetwork(partyNetConf);
-            if (performanceLoggerFlags != null && performanceLoggerFlags
-                .contains(Flag.LOG_NETWORK)) {
-              network = new NetworkLoggingDecorator(kryoNetwork);
-              pls.add((PerformanceLogger) network);
-            } else {
-              network = kryoNetwork;
-            }
-            return new DummyArithmeticResourcePoolImpl(playerId,
-                noOfParties,
-                network, new Random(0), new DetermSecureRandom(), mod);
-          });
+              sce,
+              () -> new DummyArithmeticResourcePoolImpl(playerId,
+                  noOfParties, new Random(0), new DetermSecureRandom(), mod),
+              () -> {
+                KryoNetNetwork kryoNetwork = new KryoNetNetwork(partyNetConf);
+                if (performanceLoggerFlags != null
+                    && performanceLoggerFlags.contains(Flag.LOG_NETWORK)) {
+                  NetworkLoggingDecorator network = new NetworkLoggingDecorator(kryoNetwork);
+                  pls.add(network);
+                  return network;
+                } else {
+                  return kryoNetwork;
+                }
+              });
       conf.put(playerId, ttc);
     }
 

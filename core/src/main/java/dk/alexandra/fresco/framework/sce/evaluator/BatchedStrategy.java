@@ -34,11 +34,11 @@ public class BatchedStrategy<ResourcePoolT extends ResourcePool>
   @Override
   public void processBatch(
       ProtocolCollection<ResourcePoolT> protocols, ResourcePoolT resourcePool,
-      SceNetwork sceNetwork) {
+      NetworkBatchDecorator networkBatchDecorator) {
     int round = 0;
     while (protocols.size() > 0) {
-      evaluateCurrentRound(protocols, sceNetwork, resourcePool, round);
-      sceNetwork.flush();
+      evaluateCurrentRound(protocols, networkBatchDecorator, resourcePool, round);
+      networkBatchDecorator.flush();
       round++;
     }
   }

@@ -47,17 +47,15 @@ public class TestAESDemo {
       ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> suite =
           new DummyBooleanProtocolSuite();
       ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
-          new BatchedProtocolEvaluator<>(new SequentialStrategy<>());
+          new BatchedProtocolEvaluator<>(new SequentialStrategy<>(), suite);
       SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce =
           new SecureComputationEngineImpl<>(suite, evaluator);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<>(
               sce,
-              () -> {
-                KryoNetNetwork network = new KryoNetNetwork(netConf.get(playerId));
-                return new ResourcePoolImpl(playerId, noPlayers, network,
-                    new Random(), new DetermSecureRandom());
-              });
+              () -> new ResourcePoolImpl(playerId, noPlayers,
+                  new Random(), new DetermSecureRandom()),
+              () -> new KryoNetNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }
 

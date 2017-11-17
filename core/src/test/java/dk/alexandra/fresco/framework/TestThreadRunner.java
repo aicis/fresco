@@ -38,7 +38,7 @@ public class TestThreadRunner {
 
     protected <OutputT> OutputT runApplication(Application<OutputT, Builder> app)
         throws IOException {
-      return conf.sce.runApplication(app, conf.getResourcePool());
+      return conf.sce.runApplication(app, conf.getResourcePool(), conf.getNetwork());
     }
 
     @Override
@@ -108,8 +108,10 @@ public class TestThreadRunner {
   public static class TestThreadConfiguration<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> {
 
     public final SecureComputationEngine<ResourcePoolT, Builder> sce;
-    private Supplier<ResourcePoolT> resourcePoolSupplier;
+    private final Supplier<ResourcePoolT> resourcePoolSupplier;
+    private final Supplier<Network> networkSupplier;
     private ResourcePoolT resourcePool;
+    private Network network;
 
     public int getMyId() {
       return this.getResourcePool().getMyId();
@@ -118,16 +120,24 @@ public class TestThreadRunner {
     public ResourcePoolT getResourcePool() {
       if (resourcePool == null) {
         resourcePool = resourcePoolSupplier.get();
-        logger.info("Resource pool ready");
       }
       return resourcePool;
     }
 
     public TestThreadConfiguration(SecureComputationEngine<ResourcePoolT, Builder> sce,
-        Supplier<ResourcePoolT> resourcePoolSupplier) {
+        Supplier<ResourcePoolT> resourcePoolSupplier,
+        Supplier<Network> networkSupplier) {
       super();
       this.sce = sce;
       this.resourcePoolSupplier = resourcePoolSupplier;
+      this.networkSupplier = networkSupplier;
+    }
+
+    public Network getNetwork() {
+      if (network == null) {
+        network = networkSupplier.get();
+      }
+      return network;
     }
   }
 
@@ -191,9 +201,8 @@ public class TestThreadRunner {
     // in order for this to work, or manage the network themselves.
 
     for (int id : confs.keySet()) {
-      ResourcePoolT rp = confs.get(id).resourcePool;
-      if (rp != null) {
-        Network network = rp.getNetwork();
+      Network network = confs.get(id).network;
+      if (network != null) {
         if (network instanceof Closeable) {
           try {
             ((Closeable) network).close();

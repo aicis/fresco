@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
@@ -68,7 +67,7 @@ public abstract class AbstractSpdzTest {
         pls.get(playerId).add((PerformanceLogger) batchStrat);
       }
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
-          new BatchedProtocolEvaluator<>(batchStrat);
+          new BatchedProtocolEvaluator<>(batchStrat, protocolSuite);
 
       SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(protocolSuite, evaluator);
@@ -80,21 +79,22 @@ public abstract class AbstractSpdzTest {
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,
+              () -> createResourcePool(playerId, noOfParties, new Random(),
+                  new DetermSecureRandom(), PreprocessingStrategy.DUMMY),
               () -> {
-                Network network;
                 ScapiNetworkImpl scapiNetwork = new ScapiNetworkImpl();
                 scapiNetwork.init(netConf.get(playerId), 1);
                 scapiNetwork.connect(10000);
                 if (performanceLoggerFlags != null && performanceLoggerFlags
                     .contains(Flag.LOG_NETWORK)) {
-                  network = new NetworkLoggingDecorator(scapiNetwork);
-                  pls.get(playerId).add((PerformanceLogger) network);
+                  NetworkLoggingDecorator network = new NetworkLoggingDecorator(scapiNetwork);
+                  pls.get(playerId).add(network);
+                  return network;
                 } else {
-                  network = scapiNetwork;
+                  return scapiNetwork;
                 }
-                return createResourcePool(playerId, noOfParties, network, new Random(),
-                    new DetermSecureRandom(), PreprocessingStrategy.DUMMY);
               });
+
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
@@ -105,7 +105,7 @@ public abstract class AbstractSpdzTest {
     }
   }
 
-  private SpdzResourcePool createResourcePool(int myId, int size, Network network, Random rand,
+  private SpdzResourcePool createResourcePool(int myId, int size, Random rand,
       SecureRandom secRand, PreprocessingStrategy preproStrat) {
     SpdzStorage store;
     switch (preproStrat) {
@@ -119,6 +119,6 @@ public abstract class AbstractSpdzTest {
       default:
         throw new ConfigurationException("Unkonwn preprocessing strategy: " + preproStrat);
     }
-    return new SpdzResourcePoolImpl(myId, size, network, rand, secRand, store);
+    return new SpdzResourcePoolImpl(myId, size, rand, secRand, store);
   }
 }

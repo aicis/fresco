@@ -69,15 +69,14 @@ public class TestTinyTables {
       }
       BatchEvaluationStrategy<ResourcePoolImpl> batchStrat = EvaluationStrategy
           .fromEnum(evalStrategy);
-      evaluator = new BatchedProtocolEvaluator<>(batchStrat);
+      evaluator = new BatchedProtocolEvaluator<>(batchStrat, suite);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite, evaluator),
-              () -> {
-                KryoNetNetwork network = new KryoNetNetwork(netConf.get(playerId));
-                return new ResourcePoolImpl(playerId, noPlayers, network, new Random(),
-                    new DetermSecureRandom());
-              });
+              () -> new ResourcePoolImpl(playerId, noPlayers,
+                  new Random(), new DetermSecureRandom()),
+              () -> new KryoNetNetwork(netConf.get(playerId))
+          );
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);

@@ -2,6 +2,7 @@ package dk.alexandra.fresco.logging;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
@@ -28,9 +29,9 @@ public class SecureComputationEngineLoggingDecorator<
 
   @Override
   public <OutputT> OutputT runApplication(Application<OutputT, Builder> application,
-      ResourcePoolT resources) {
+      ResourcePoolT resources, Network network) {
     long then = System.currentTimeMillis();
-    OutputT res = this.delegate.runApplication(application, resources);
+    OutputT res = this.delegate.runApplication(application, resources, network);
     long now = System.currentTimeMillis();
     long timeSpend = now - then;
     this.runtimeLogger.add(new RuntimeInfo(application, timeSpend, protocolSuiteName));
@@ -39,10 +40,10 @@ public class SecureComputationEngineLoggingDecorator<
 
   @Override
   public <OutputT> Future<OutputT> startApplication(Application<OutputT, Builder> application,
-      ResourcePoolT resources) {
+      ResourcePoolT resources, Network network) {
     // TODO: If applications are started this way, no running time logging is applied. We need to
     // inject a decorator future which logs the timing before handing over the result.
-    return this.delegate.startApplication(application, resources);
+    return this.delegate.startApplication(application, resources, network);
   }
 
   @Override

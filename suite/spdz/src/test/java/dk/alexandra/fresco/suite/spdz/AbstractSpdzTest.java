@@ -7,7 +7,6 @@ import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
@@ -73,7 +72,7 @@ public abstract class AbstractSpdzTest {
         pls.get(playerId).add((PerformanceLogger) batchEvalStrat);
       }
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
-          new BatchedProtocolEvaluator<>(batchEvalStrat);
+          new BatchedProtocolEvaluator<>(batchEvalStrat, protocolSuite);
 
       SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(protocolSuite, evaluator);
@@ -84,18 +83,18 @@ public abstract class AbstractSpdzTest {
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,
+              () -> createResourcePool(playerId, noOfParties, new Random(),
+                  new DetermSecureRandom(), preProStrat),
               () -> {
-                Network network;
                 KryoNetNetwork kryoNetwork = new KryoNetNetwork(netConf.get(playerId));
-                if (performanceloggerFlags != null && performanceloggerFlags
-                    .contains(Flag.LOG_NETWORK)) {
-                  network = new NetworkLoggingDecorator(kryoNetwork);
-                  pls.get(playerId).add((PerformanceLogger) network);
+                if (performanceloggerFlags != null
+                    && performanceloggerFlags.contains(Flag.LOG_NETWORK)) {
+                  NetworkLoggingDecorator network = new NetworkLoggingDecorator(kryoNetwork);
+                  pls.get(playerId).add(network);
+                  return network;
                 } else {
-                  network = kryoNetwork;
+                  return kryoNetwork;
                 }
-                return createResourcePool(playerId, noOfParties, network, new Random(),
-                    new DetermSecureRandom(), preProStrat);
               });
       conf.put(playerId, ttc);
     }
@@ -107,7 +106,7 @@ public abstract class AbstractSpdzTest {
     }
   }
 
-  static SpdzResourcePool createResourcePool(int myId, int size, Network network, Random rand,
+  static SpdzResourcePool createResourcePool(int myId, int size, Random rand,
       SecureRandom secRand, PreprocessingStrategy preproStrat) {
     SpdzStorage store;
     switch (preproStrat) {
@@ -121,6 +120,6 @@ public abstract class AbstractSpdzTest {
       default:
         throw new ConfigurationException("Unkonwn preprocessing strategy: " + preproStrat);
     }
-    return new SpdzResourcePoolImpl(myId, size, network, rand, secRand, store);
+    return new SpdzResourcePoolImpl(myId, size, rand, secRand, store);
   }
 }

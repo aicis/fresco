@@ -67,7 +67,7 @@ public abstract class AbstractDummyBooleanTest {
         pls.get(playerId).add((PerformanceLogger) strat);
       }
       ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
-          new BatchedProtocolEvaluator<>(strat);
+          new BatchedProtocolEvaluator<>(strat, ps);
 
       SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce = new SecureComputationEngineImpl<>(
           ps, evaluator);
@@ -77,6 +77,8 @@ public abstract class AbstractDummyBooleanTest {
       }
       TestThreadRunner.TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
+              () -> new ResourcePoolImpl(playerId, noOfParties, new Random(),
+                  new DetermSecureRandom()),
               () -> {
                 Network network;
                 KryoNetNetwork kryoNetwork = new KryoNetNetwork(partyNetConf);
@@ -86,8 +88,7 @@ public abstract class AbstractDummyBooleanTest {
                 } else {
                   network = kryoNetwork;
                 }
-                return new ResourcePoolImpl(playerId, noOfParties, network, new Random(),
-                    new DetermSecureRandom());
+                return network;
               });
       conf.put(playerId, ttc);
     }

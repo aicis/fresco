@@ -47,17 +47,14 @@ public class TestAggregation {
       ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> suite = new SpdzProtocolSuite(150);
       SpdzStorage store = new SpdzStorageDummyImpl(i, n);
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
-          new BatchedProtocolEvaluator<>(new SequentialStrategy<>());
+          new BatchedProtocolEvaluator<>(new SequentialStrategy<>(), suite);
       SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(suite, evaluator);
       TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadConfiguration<>(
               sce,
-              () -> {
-                KryoNetNetwork network = new KryoNetNetwork(netConf.get(i));
-                return new SpdzResourcePoolImpl(i, n, network, new Random(),
-                    new DetermSecureRandom(), store);
-              });
+              () -> new SpdzResourcePoolImpl(i, n, new Random(), new DetermSecureRandom(), store),
+              () -> new KryoNetNetwork(netConf.get(i)));
       conf.put(i, ttc);
     }
     TestThreadRunner.run(test, conf);
@@ -76,7 +73,7 @@ public class TestAggregation {
               public void test() throws Exception {
                 // Create application we are going run
                 AggregationDemo<SpdzResourcePool> app = new AggregationDemo<>();
-                app.runApplication(conf.sce, conf.getResourcePool());
+                app.runApplication(conf.sce, conf.getResourcePool(), conf.getNetwork());
               }
             };
           }

@@ -2,6 +2,7 @@ package dk.alexandra.fresco.framework.sce;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.util.concurrent.Future;
 
@@ -20,10 +21,11 @@ public interface SecureComputationEngine<ResourcePoolT extends ResourcePool, Bui
    * Executes an application based on the current configuration.
    *
    * @param application The application to evaluate.
+   * @param network the network to run the computations on
    */
   <OutputT> OutputT runApplication(
       Application<OutputT, Builder> application,
-      ResourcePoolT resources);
+      ResourcePoolT resources, Network network);
 
   /**
    * Executes an application based on the current SCEConfiguration. If the SecureComputationEngine
@@ -34,11 +36,12 @@ public interface SecureComputationEngine<ResourcePoolT extends ResourcePool, Bui
    * need to be allocated resources (the resource pool) and allowed for parallel work.
    *
    * @param application The application to evaluate.
+   * @param network the network to run the computations on
    * @return the future holding the result
    */
   <OutputT> Future<OutputT> startApplication(
       Application<OutputT, Builder> application,
-      ResourcePoolT resources);
+      ResourcePoolT resources, Network network);
 
 
   /**

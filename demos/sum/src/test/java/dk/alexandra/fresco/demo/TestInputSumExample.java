@@ -57,20 +57,18 @@ public class TestInputSumExample {
             (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new DummyArithmeticProtocolSuite(
                 mod, 150);
         resourcePool = () -> (ResourcePoolT) new DummyArithmeticResourcePoolImpl(i, n,
-            createNetwork(netConf.get(i)),
             new Random(), new DetermSecureRandom(), mod);
       } else {
         suite = (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new SpdzProtocolSuite(150);
         resourcePool = () -> (ResourcePoolT) new SpdzResourcePoolImpl(i, n,
-            createNetwork(netConf.get(i)),
             new Random(),
             new DetermSecureRandom(), new SpdzStorageDummyImpl(i, n));
       }
       TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> ttc =
           new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite,
-                  new BatchedProtocolEvaluator<>(new BatchedStrategy<>())),
-              resourcePool);
+                  new BatchedProtocolEvaluator<>(new BatchedStrategy<>(), suite)),
+              resourcePool, () -> createNetwork(netConf.get(i)));
       conf.put(i, ttc);
     }
     TestThreadRunner.run(test, conf);
@@ -92,7 +90,7 @@ public class TestInputSumExample {
             return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
               @Override
               public void test() throws Exception {
-                InputSumExample.runApplication(conf.sce, conf.getResourcePool());
+                InputSumExample.runApplication(conf.sce, conf.getResourcePool(), conf.getNetwork());
               }
             };
           }
@@ -109,7 +107,7 @@ public class TestInputSumExample {
             return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
               @Override
               public void test() throws Exception {
-                InputSumExample.runApplication(conf.sce, conf.getResourcePool());
+                InputSumExample.runApplication(conf.sce, conf.getResourcePool(), conf.getNetwork());
               }
             };
           }

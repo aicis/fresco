@@ -64,17 +64,14 @@ public class ITSpdzFuelstationTest {
       ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> suite = new SpdzProtocolSuite(150);
 
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
-          new BatchedProtocolEvaluator<>(EvaluationStrategy.fromEnum(evalStrategy));
+          new BatchedProtocolEvaluator<>(EvaluationStrategy.fromEnum(evalStrategy), suite);
       SpdzStorage store = new SpdzStorageImpl(0, noOfParties, playerId, "http://localhost:" + port);
       TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite, evaluator),
-              () -> {
-                KryoNetNetwork network = new KryoNetNetwork(netConf.get(playerId));
-                return new SpdzResourcePoolImpl(playerId, noOfParties, network,
-                    new Random(),
-                    new DetermSecureRandom(), store);
-              });
+              () -> new SpdzResourcePoolImpl(playerId, noOfParties,
+                  new Random(), new DetermSecureRandom(), store),
+              () -> new KryoNetNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);

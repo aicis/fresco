@@ -119,7 +119,7 @@ public class AESDemo implements Application<List<Boolean>, ProtocolBuilderBinary
     List<Boolean> aesResult = null;
     ResourcePoolImpl resourcePool = util.getResourcePool();
     try {
-      aesResult = sce.runApplication(aes, resourcePool);
+      aesResult = sce.runApplication(aes, resourcePool, util.getNetwork());
     } catch (Exception e) {
       System.out.println("Error while doing MPC: " + e.getMessage());
       System.exit(-1);
