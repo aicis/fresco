@@ -12,6 +12,7 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
@@ -62,9 +63,9 @@ import org.apache.commons.cli.ParseException;
  */
 public class PrivateSetDemo implements Application<List<List<Boolean>>, ProtocolBuilderBinary> {
 
-  private Boolean[] inKey;
-  private int[] inSet;
-  private int id;
+  private final Boolean[] inKey;
+  private final int[] inSet;
+  private final int id;
 
   private final static int BLOCK_SIZE = 128; // 128 bit AES
   private final static int INPUT_LENGTH = 32; // chars for defining 128 bit in hex
@@ -81,7 +82,7 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
    * arguments. Based on the command line arguments it configures the SCE, instantiates the
    * PrivateSetDemo and runs the PrivateSetDemo on the SCE.
    */
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
     CmdLineUtil<ResourcePoolImpl, ProtocolBuilderBinary> util = new CmdLineUtil<>();
     NetworkConfiguration networkConfiguration = null;
     Boolean[] key = null;
@@ -137,15 +138,13 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
     PrivateSetDemo privateSetDemo = new PrivateSetDemo(networkConfiguration.getMyId(), key, inputs);
     ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> psConf = util.getProtocolSuite();
     SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce =
-        new SecureComputationEngineImpl<ResourcePoolImpl, ProtocolBuilderBinary>(psConf,
+        new SecureComputationEngineImpl<>(psConf,
             util.getEvaluator());
 
     List<List<Boolean>> psiResult = null;
     try {
       ResourcePoolImpl resourcePool = util.getResourcePool();
-      resourcePool.getNetwork().connect(10000);
-      psiResult = sce.runApplication(privateSetDemo, resourcePool);
-      resourcePool.getNetwork().close();
+      psiResult = sce.runApplication(privateSetDemo, resourcePool, util.getNetwork());
     } catch (Exception e) {
       System.out.println("Error while doing MPC: " + e.getMessage());
       System.exit(-1);
@@ -160,6 +159,7 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
       }
       System.out.println("result(" + j + "): " + ByteAndBitConverter.toHex(res[j]));
     }
+    util.close();
 
   }
 
@@ -251,12 +251,12 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
 
   private static class PSIInputs implements DRes<PSIInputs> {
 
-    private List<List<DRes<SBool>>> set1, set2;
-    private List<DRes<SBool>> commonKey;
+    private final List<List<DRes<SBool>>> set1;
+    private final List<List<DRes<SBool>>> set2;
+    private final List<DRes<SBool>> commonKey;
 
     public PSIInputs(List<List<DRes<SBool>>> set1, List<List<DRes<SBool>>> set2,
         List<DRes<SBool>> commonKey) {
-      super();
       this.set1 = set1;
       this.set2 = set2;
       this.commonKey = commonKey;

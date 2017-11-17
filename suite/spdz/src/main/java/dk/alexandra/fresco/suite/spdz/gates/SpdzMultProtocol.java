@@ -2,7 +2,7 @@ package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
@@ -28,7 +28,7 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SInt> {
 
   @Override
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
-      SCENetwork network) {
+      Network network) {
     SpdzStorage store = spdzResourcePool.getStore();
     int noOfPlayers = spdzResourcePool.getNoOfParties();
     BigIntegerSerializer serializer = spdzResourcePool.getSerializer();
@@ -41,7 +41,6 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SInt> {
 
         network.sendToAll(serializer.toBytes(epsilon.getShare()));
         network.sendToAll(serializer.toBytes(delta.getShare()));
-        network.expectInputFromAll();
         return EvaluationStatus.HAS_MORE_ROUNDS;
       case 1:
         BigInteger[] epsilonShares = new BigInteger[noOfPlayers];

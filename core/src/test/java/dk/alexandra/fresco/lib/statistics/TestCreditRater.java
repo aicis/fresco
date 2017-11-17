@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import org.hamcrest.core.Is;
@@ -18,7 +19,7 @@ public class TestCreditRater {
     List<List<DRes<SInt>>> intervals = new ArrayList<>();
     List<List<DRes<SInt>>> scores = new ArrayList<>();
 
-    values.add(new DummyArithmeticSInt(null));
+    values.add(new DummyArithmeticSInt(BigInteger.ONE));
     intervals.add(new ArrayList<>());
     scores.add(new ArrayList<>());
 
@@ -37,7 +38,7 @@ public class TestCreditRater {
       Assert.assertThat(e.getMessage(), Is.is("Inconsistent data"));
     }
 
-    values.add(new DummyArithmeticSInt(null));
+    values.add(new DummyArithmeticSInt(BigInteger.ONE));
     try{
       new CreditRater(values, intervals, scores);
       Assert.fail("Inconsistent data should not be accepted");

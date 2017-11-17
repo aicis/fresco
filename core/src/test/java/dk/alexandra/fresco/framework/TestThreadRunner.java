@@ -4,10 +4,12 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,13 +38,12 @@ public class TestThreadRunner {
 
     protected <OutputT> OutputT runApplication(Application<OutputT, Builder> app)
         throws IOException {
-      conf.resourcePool.getNetwork().connect(10000);
-      return conf.sce.runApplication(app, conf.resourcePool);
+      return conf.sce.runApplication(app, conf.getResourcePool(), conf.getNetwork());
     }
 
     @Override
     public String toString() {
-      return "TestThread(" + this.conf.getMyId() + ")";
+      return "TestThread(" + this.conf.resourcePool + ")";
     }
 
     @Override
@@ -74,9 +75,9 @@ public class TestThreadRunner {
     }
 
     private void runTearDown() {
-      try {        
+      try {
         // Shut down SCE resources - does not include the resource pool.
-        if(conf.sce != null) {
+        if (conf.sce != null) {
           conf.sce.shutdownSCE();
         }
         tearDown();
@@ -107,16 +108,36 @@ public class TestThreadRunner {
   public static class TestThreadConfiguration<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> {
 
     public final SecureComputationEngine<ResourcePoolT, Builder> sce;
-    public final ResourcePoolT resourcePool;
+    private final Supplier<ResourcePoolT> resourcePoolSupplier;
+    private final Supplier<Network> networkSupplier;
+    private ResourcePoolT resourcePool;
+    private Network network;
 
     public int getMyId() {
-      return this.resourcePool.getMyId();
+      return this.getResourcePool().getMyId();
     }
 
-    public TestThreadConfiguration(SecureComputationEngine<ResourcePoolT, Builder> sce, ResourcePoolT resourcePool) {
+    public ResourcePoolT getResourcePool() {
+      if (resourcePool == null) {
+        resourcePool = resourcePoolSupplier.get();
+      }
+      return resourcePool;
+    }
+
+    public TestThreadConfiguration(SecureComputationEngine<ResourcePoolT, Builder> sce,
+        Supplier<ResourcePoolT> resourcePoolSupplier,
+        Supplier<Network> networkSupplier) {
       super();
       this.sce = sce;
-      this.resourcePool = resourcePool;
+      this.resourcePoolSupplier = resourcePoolSupplier;
+      this.networkSupplier = networkSupplier;
+    }
+
+    public Network getNetwork() {
+      if (network == null) {
+        network = networkSupplier.get();
+      }
+      return network;
     }
   }
 
@@ -136,7 +157,7 @@ public class TestThreadRunner {
   private static <ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> void run(
       TestThreadFactory<ResourcePoolT, Builder> f,
       Map<Integer, TestThreadConfiguration<ResourcePoolT, Builder>> confs, int randSeed)
-          throws TestFrameworkException {
+      throws TestFrameworkException {
     final Set<TestThread<ResourcePoolT, Builder>> threads = new HashSet<>();
 
     for (TestThreadConfiguration<ResourcePoolT, Builder> c : confs.values()) {
@@ -169,9 +190,6 @@ public class TestThreadRunner {
           throw new TestFrameworkException(t + " threw exception in teardown (see stderr)");
         }
       }
-    } catch (Exception e) {
-      // propagate up
-      throw e;
     } finally {
       closeNetworks(confs);
     }
@@ -183,13 +201,14 @@ public class TestThreadRunner {
     // in order for this to work, or manage the network themselves.
 
     for (int id : confs.keySet()) {
-      ResourcePoolT rp = confs.get(id).resourcePool;
-      if (rp != null) {
-        Network network = rp.getNetwork();
-        try {
-          network.close();
-        } catch (IOException e) {
-          // Cannot do anything about this.
+      Network network = confs.get(id).network;
+      if (network != null) {
+        if (network instanceof Closeable) {
+          try {
+            ((Closeable) network).close();
+          } catch (IOException e) {
+            // Cannot do anything about this.
+          }
         }
       }
     }

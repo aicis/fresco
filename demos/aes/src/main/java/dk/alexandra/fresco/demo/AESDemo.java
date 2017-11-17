@@ -69,7 +69,7 @@ public class AESDemo implements Application<List<Boolean>, ProtocolBuilderBinary
    * arguments. Based on the command line arguments it configures the SCE, instantiates the
    * TestAESDemo and runs the TestAESDemo on the SCE.
    */
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
     CmdLineUtil<ResourcePoolImpl, ProtocolBuilderBinary> util = new CmdLineUtil<>();
     Boolean[] input = null;
     try {
@@ -111,27 +111,20 @@ public class AESDemo implements Application<List<Boolean>, ProtocolBuilderBinary
     // Do the secure computation using config from property files.
     AESDemo aes = new AESDemo(util.getNetworkConfiguration().getMyId(), input);
     ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> ps =
-        (ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary>) util.getProtocolSuite();
+        util.getProtocolSuite();
     SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce =
-        new SecureComputationEngineImpl<ResourcePoolImpl, ProtocolBuilderBinary>(ps,
+        new SecureComputationEngineImpl<>(ps,
             util.getEvaluator());
 
     List<Boolean> aesResult = null;
     ResourcePoolImpl resourcePool = util.getResourcePool();
     try {
-      resourcePool.getNetwork().connect(10000);
-      aesResult = sce.runApplication(aes, resourcePool);
+      aesResult = sce.runApplication(aes, resourcePool, util.getNetwork());
     } catch (Exception e) {
       System.out.println("Error while doing MPC: " + e.getMessage());
       System.exit(-1);
-    } finally {
-      try {
-        resourcePool.getNetwork().close();
-      } catch (IOException e) {
-        // Nothing to do
-      }
     }
-
+    util.close();
     // Print result.
     boolean[] res = new boolean[BLOCK_SIZE];
     for (int i = 0; i < BLOCK_SIZE; i++) {
@@ -167,9 +160,7 @@ public class AESDemo implements Application<List<Boolean>, ProtocolBuilderBinary
         outs.add(seq.binary().open(toOpen));
       }
       return () -> outs;
-    }).seq((seq, opened) -> {
-      return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
-    });
+    }).seq((seq, opened) -> () -> opened.stream().map(DRes::out).collect(Collectors.toList()));
   }
 
 

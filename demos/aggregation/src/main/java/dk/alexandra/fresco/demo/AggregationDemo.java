@@ -37,7 +37,7 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
 
   /**
    * Generates mock input data.
-   * 
+   *
    * @return mock input matrix
    */
   public Matrix<BigInteger> readInputs() {
@@ -72,12 +72,12 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
 
   /**
    * Executes application.
-   * 
+   *
    * @param sce the execution environment
    * @param rp resource pool
    */
   public void runApplication(SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce,
-      ResourcePoolT rp) {
+      ResourcePoolT rp, Network network) {
     int groupByIdx = 0;
     int aggIdx = 1;
     // Create application we are going run
@@ -96,49 +96,42 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
       return () -> new MatrixUtils().unwrapMatrix(opened);
     };
     // Run application and get result
-    try {
-      rp.getNetwork().connect(10000);
-      Matrix<BigInteger> result = sce.runApplication(aggApp, rp);
-      writeOutputs(result);
-      sce.shutdownSCE();
-      rp.getNetwork().close();
-    } catch (IOException e) {
-      // Nothing to do about this
-      e.printStackTrace();
-    }
+    Matrix<BigInteger> result = sce.runApplication(aggApp, rp, network);
+    writeOutputs(result);
+    sce.shutdownSCE();
   }
 
   /**
    * Main.
-   * 
+   *
    * @param args must include player ID
    */
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
     // My player ID
     int pid = Integer.parseInt(args[0]);
 
-    // Define circuit evaluation strategy
-    ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> sequentialEvaluator =
-        new BatchedProtocolEvaluator<>(new SequentialStrategy<>());
-    sequentialEvaluator.setMaxBatchSize(4096);
-
     // Create SPDZ protocol suite
     ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> suite = new SpdzProtocolSuite(150);
+
+    // Define circuit evaluation strategy
+    ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> sequentialEvaluator =
+        new BatchedProtocolEvaluator<>(new SequentialStrategy<>(), suite);
 
     // Instantiate execution environment
     SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =
         new SecureComputationEngineImpl<>(suite, sequentialEvaluator);
 
     // Create resource pool
-    Network network = new KryoNetNetwork();
-    network.init(getNetworkConfiguration(pid), 1);
-    SpdzStorage store = new SpdzStorageDummyImpl(pid, getNetworkConfiguration(pid).noOfParties());
-    SpdzResourcePool rp = new SpdzResourcePoolImpl(pid, getNetworkConfiguration(pid).noOfParties(),
-        network, new Random(), new DetermSecureRandom(), store);
+    try (KryoNetNetwork network = new KryoNetNetwork(getNetworkConfiguration(pid))) {
+      SpdzStorage store = new SpdzStorageDummyImpl(pid, getNetworkConfiguration(pid).noOfParties());
+      SpdzResourcePool rp = new SpdzResourcePoolImpl(pid,
+          getNetworkConfiguration(pid).noOfParties(),
+          new Random(), new DetermSecureRandom(), store);
 
-    // Instatiate our demo and run
-    AggregationDemo<SpdzResourcePool> demo = new AggregationDemo<>();
-    demo.runApplication(sce, rp);
+      // Instatiate our demo and run
+      AggregationDemo<SpdzResourcePool> demo = new AggregationDemo<>();
+      demo.runApplication(sce, rp, network);
+    }
   }
 
   private static NetworkConfiguration getNetworkConfiguration(int pid) {

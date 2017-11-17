@@ -10,7 +10,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import edu.biu.scapi.comm.AuthenticatedChannel;
 import edu.biu.scapi.comm.Channel;
@@ -40,17 +39,16 @@ import org.junit.Test;
 
 /**
  * Test some basic functionality of SCAPI network layer, independently of fresco.
- * 
  */
 public class TestScapiNetworkLayer {
 
-  private static Map<Integer, NetworkConfiguration> netConfs = new HashMap<>(); 
+  private Map<Integer, NetworkConfiguration> netConfs = new HashMap<>();
 
-  private static void runTest(
+  private void runTest(
       TestThreadFactory<ResourcePoolImpl, ProtocolBuilderNumeric> test, int n) {
     // Since SCAPI currently does not work with ports > 9999 we use fixed ports
     // here instead of relying on ephemeral ports which are often > 9999.
-    List<Integer> ports = new ArrayList<Integer>(n);
+    List<Integer> ports = new ArrayList<>(n);
     for (int i = 1; i <= n; i++) {
       ports.add(9000 + i);
     }
@@ -59,18 +57,18 @@ public class TestScapiNetworkLayer {
     Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     for (int i : netConf.keySet()) {
-      Network network = new ScapiNetworkImpl();
+      ScapiNetworkImpl network = new ScapiNetworkImpl();
       network.init(netConf.get(i), 1);
-      ResourcePoolImpl rp = new ResourcePoolImpl(i, n, network, null, null);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderNumeric> ttc =
-          new TestThreadConfiguration<>(null, rp);
+          new TestThreadConfiguration<>(null,
+              () -> new ResourcePoolImpl(i, n, null, null), () -> network);
       conf.put(i, ttc);
       netConfs.put(i, netConf.get(i));
     }
     TestThreadRunner.run(test, conf);
 
   }
-  
+
   @Before
   public void clear() {
     netConfs.clear();
@@ -85,7 +83,7 @@ public class TestScapiNetworkLayer {
     // Instead, we use a secretKey that has already been agreed upon by both
     /// parties:
     byte[] aesFixedKey =
-        new byte[] {-61, -19, 106, -97, 106, 40, 52, -64, -115, -19, -87, -67, 98, 102, 16, 21};
+        new byte[]{-61, -19, 106, -97, 106, 40, 52, -64, -115, -19, -87, -67, 98, 102, 16, 21};
     SecretKey key = new SecretKeySpec(aesFixedKey, "AES");
     mac.setKey(key);
     return new AuthenticatedChannel(ch, mac);
@@ -102,7 +100,7 @@ public class TestScapiNetworkLayer {
 
   private EncryptedChannel getSecureChannel(PlainChannel ch) throws Exception {
     byte[] aesFixedKey =
-        new byte[] {-61, -19, 106, -97, 106, 40, 52, -64, -115, -19, -87, -67, 98, 102, 16, 21};
+        new byte[]{-61, -19, 106, -97, 106, 40, 52, -64, -115, -19, -87, -67, 98, 102, 16, 21};
     SecretKey aesKey = new SecretKeySpec(aesFixedKey, "AES");
     AES encryptAes = new BcAES();
     encryptAes.setKey(aesKey);
@@ -118,7 +116,7 @@ public class TestScapiNetworkLayer {
 
   @Test
   public void testPlainSocketChannel() throws Exception {
-    final byte[] data = new byte[] {-61, -19, 106, -9 - 67, 98, 102, 16, 21};
+    final byte[] data = new byte[]{-61, -19, 106, -9 - 67, 98, 102, 16, 21};
     final TestThreadFactory<ResourcePoolImpl, ProtocolBuilderNumeric> test =
         new TestThreadFactory<ResourcePoolImpl, ProtocolBuilderNumeric>() {
           @Override
@@ -149,7 +147,7 @@ public class TestScapiNetworkLayer {
 
   @Test
   public void testAuthenticatedSocketChannel() throws Exception {
-    final byte[] data = new byte[] {-61, -19, 106, -9 - 67, 98, 102, 16, 21};
+    final byte[] data = new byte[]{-61, -19, 106, -9 - 67, 98, 102, 16, 21};
     final TestThreadFactory<ResourcePoolImpl, ProtocolBuilderNumeric> test =
         new TestThreadFactory<ResourcePoolImpl, ProtocolBuilderNumeric>() {
           @Override
@@ -179,10 +177,9 @@ public class TestScapiNetworkLayer {
   }
 
 
-
   @Test
   public void testSecureSocketChannel() throws Exception {
-    final byte[] data = new byte[] {-61, -19, 106, -9 - 67, 98, 102, 16, 21};
+    final byte[] data = new byte[]{-61, -19, 106, -9 - 67, 98, 102, 16, 21};
     final TestThreadFactory<ResourcePoolImpl, ProtocolBuilderNumeric> test =
         new TestThreadFactory<ResourcePoolImpl, ProtocolBuilderNumeric>() {
           @Override
