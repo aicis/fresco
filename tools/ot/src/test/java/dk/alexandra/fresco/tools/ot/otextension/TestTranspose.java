@@ -30,7 +30,7 @@ public class TestTranspose {
             new byte[] { (byte) 0x00, (byte) 0x00 }));
   }
 
-  /**** POSITIVE TESTS ****/
+  /**** POSITIVE TESTS. ****/
   @Test
   public void testSquareMatrix() {
     boolean thrown = false;
@@ -113,14 +113,18 @@ public class TestTranspose {
   public void testTransposeFourByteBlocks() {
     List<byte[]> input = getSquareMatrix();
     Transpose.transposeAllByteBlocks(input);
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < 8; i++) {
       assertEquals((byte) 0x81, input.get(i)[0]);
-    for (int i = 0; i < 8; i++)
+    }
+    for (int i = 0; i < 8; i++) {
       assertEquals((byte) 0x81, input.get(i)[1]);
-    for (int i = 0; i < 8; i++)
+    }
+    for (int i = 0; i < 8; i++) {
       assertEquals((byte) 0x7E, input.get(i + 8)[0]);
-    for (int i = 0; i < 8; i++)
+    }
+    for (int i = 0; i < 8; i++) {
       assertEquals((byte) 0x7E, input.get(i + 8)[1]);
+    }
   }
 
   @Test
@@ -146,23 +150,29 @@ public class TestTranspose {
             new byte[] { (byte) 0x00, (byte) 0xFF },
             new byte[] { (byte) 0xFF, (byte) 0x00 }));
 
-    for (int i = 0; i < 16; i++)
-      for (int j = 0; j < 2; j++)
+    for (int i = 0; i < 16; i++) {
+      for (int j = 0; j < 2; j++) {
         assertEquals(referenceMatrix.get(i)[j], input.get(i)[j]);
+      }
+    }
   }
 
   @Test
   public void testSquareTranspose() {
     List<byte[]> input = getSquareMatrix();
     List<byte[]> res = Transpose.transpose(input);
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < 8; i++) {
       assertEquals((byte) 0x81, res.get(i)[0]);
-    for (int i = 0; i < 8; i++)
+    }
+    for (int i = 0; i < 8; i++) {
       assertEquals((byte) 0x7E, res.get(i)[1]);
-    for (int i = 0; i < 8; i++)
+    }
+    for (int i = 0; i < 8; i++) {
       assertEquals((byte) 0x81, res.get(i + 8)[0]);
-    for (int i = 0; i < 8; i++)
+    }
+    for (int i = 0; i < 8; i++) {
       assertEquals((byte) 0x7E, res.get(i + 8)[1]);
+    }
   }
   
   // Transpose a wide matrix (more columns, than rows)
@@ -179,10 +189,12 @@ public class TestTranspose {
             new byte[] { (byte) 0x00, (byte) 0xFF },
             new byte[] { (byte) 0xFF, (byte) 0x00 }));
     List<byte[]> res = Transpose.transpose(input);
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < 8; i++) {
       assertEquals((byte) 0x81, res.get(i)[0]);
-    for (int i = 0; i < 8; i++)
+    }
+    for (int i = 0; i < 8; i++) {
       assertEquals((byte) 0x7E, res.get(8 + i)[0]);
+    }
   }
   
   // Transpose a high matrix (more rows, than columns)
@@ -207,17 +219,19 @@ public class TestTranspose {
             new byte[] { (byte) 0xFF },
             new byte[] { (byte) 0x00 }));
     List<byte[]> res = Transpose.transpose(input);
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < 8; i++) {
       assertEquals((byte) 0x81, res.get(i)[0]);
-    for (int i = 0; i < 8; i++)
+    }
+    for (int i = 0; i < 8; i++) {
       assertEquals((byte) 0x7E, res.get(i)[1]);
+    }
   }
 
   @Test
   public void testXor() {
     byte[] arr1 = { (byte) 0x00, (byte) 0x02, (byte) 0xFF };
     byte[] arr2 = { (byte) 0xF0, (byte) 0x02, (byte) 0xF0 };
-    COTeShared.xor(arr1, arr2);
+    CoteShared.xor(arr1, arr2);
     assertEquals((byte) 0xF0, arr1[0]);
     assertEquals((byte) 0x00, arr1[1]);
     assertEquals((byte) 0x0F, arr1[2]);
@@ -233,7 +247,7 @@ public class TestTranspose {
     list1.add(arr2);
     list2.add(arr2.clone());
     list2.add(arr1.clone());
-    COTeShared.xor(list1, list2);
+    CoteShared.xor(list1, list2);
     assertEquals((byte) 0xF0, list1.get(0)[0]);
     assertEquals((byte) 0x00, list1.get(0)[1]);
     assertEquals((byte) 0x0F, list1.get(0)[2]);
@@ -242,7 +256,7 @@ public class TestTranspose {
     assertEquals((byte) 0x0F, list1.get(1)[2]);
   }
 
-  /**** NEGATIVE TESTS ****/
+  /**** NEGATIVE TESTS. ****/
   @Test
   public void testWrongAmountOfRows() {
     boolean thrown;

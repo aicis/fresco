@@ -18,7 +18,8 @@ public class Transpose {
     int minDim = Math.min(input.get(0).length * 8, input.size());
     int maxDim = Math.max(input.get(0).length * 8, input.size());
     // Allocate the new matrix
-    int rows, columns;
+    int rows;
+    int columns;
     // Check if the matrix is tall
     if (minDim == input.get(0).length * 8) {
       // Then the new matrix will be wide
@@ -52,10 +53,11 @@ public class Transpose {
       // Put "currentSqaure" into its correct position in "res"
       for (int j = 0; j < minDim; j++) {
         for (int k = 0; k < minDim / 8; k++) {
-          if (minDim == input.get(0).length * 8)
+          if (minDim == input.get(0).length * 8) {
             res.get(j)[i * (minDim / 8) + k] = currentSquare.get(j)[k];
-          else
+          } else {
             res.get(i * minDim + j)[k] = currentSquare.get(j)[k];
+          }
         }
       }
     }
@@ -119,8 +121,8 @@ public class Transpose {
     int rows = input.size();
     // Check if the amount of rows is 8*2^x for some x
     if ((rows % 8 != 0) || // Check 8 | rows
-        (((rows / 8) & ((rows / 8) - 1)) != 0)) { // Verify that the msb is 1
-                                                  // and all other bits are 0
+        (((rows / 8) & ((rows / 8) - 1)) != 0)) {
+      // Verify that the msb is 1 and all other bits are 0
       throw new IllegalArgumentException(
           "The amount rows in the matrix is not 8*2^x for some x > 1");
     }
@@ -131,13 +133,14 @@ public class Transpose {
     }
     // Check that all columns are of equal length
     for (int i = 1; i < rows; i++) {
-      if (input.get(0).length != input.get(i).length)
+      if (input.get(0).length != input.get(i).length) {
         throw new IllegalArgumentException("Not all rows are of equal length");
+      }
     }
   }
 
   /**
-   * Transpose all 8 bit squares in a square matrix, in-place
+   * Transpose all 8 bit squares in a square matrix, in-place.
    * 
    * @param input
    *          The input
@@ -154,7 +157,7 @@ public class Transpose {
 
   /**
    * Transposes 8x8 bit blocks of a row-major matrix, at positions "rowOffset",
-   * "columnOffset"
+   * "columnOffset".
    * 
    * @param input
    *          The matrix to transpose
@@ -168,7 +171,7 @@ public class Transpose {
     /**
      * By having 8 variables we hope that the JVM will only access the main
      * memory per iteration, to read a byte, rather than both reading and
-     * writing to 8 bytes at different places in main memory
+     * writing to 8 bytes at different places in main memory.
      */
     byte newRow0 = 0, newRow1 = 0, newRow2 = 0, newRow3 = 0, newRow4 = 0,
         newRow5 = 0, newRow6 = 0, newRow7 = 0;
@@ -200,7 +203,7 @@ public class Transpose {
   }
 
   /**
-   * Allocate a matrix in row-major form, as a list of byte arrays
+   * Allocate a matrix in row-major form, as a list of byte arrays.
    * 
    * @param rows
    *          Rows in the matrix

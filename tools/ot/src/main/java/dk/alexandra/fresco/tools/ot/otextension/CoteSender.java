@@ -16,7 +16,7 @@ import dk.alexandra.fresco.framework.network.Network;
  * @author jot2re
  *
  */
-public class COTeSender extends COTeShared {
+public class CoteSender extends CoteShared {
 
   // The prgs based on the seeds learned from OT
   private List<SecureRandom> prgs;
@@ -26,9 +26,9 @@ public class COTeSender extends COTeShared {
   /**
    * Construct a sending party for an instance of the correlated OT protocol.
    * 
-   * @param otherID
+   * @param otherId
    *          The ID of the receiving party
-   * @param kBitLength
+   * @param kbitLength
    *          Computational security parameter. Must be a positive number
    *          divisible by 8
    * @param lambdaSecurityParam
@@ -39,11 +39,11 @@ public class COTeSender extends COTeShared {
    * @param network
    *          The network interface. Must not be null and must be initialized.
    */
-  public COTeSender(int otherID, int kBitLength, int lambdaSecurityParam,
+  public CoteSender(int otherId, int kbitLength, int lambdaSecurityParam,
       Random rand, Network network) {
-    super(otherID, kBitLength, lambdaSecurityParam, rand, network);
-    this.otChoices = new byte[kBitLength / 8];
-    this.prgs = new ArrayList<>(kBitLength);
+    super(otherId, kbitLength, lambdaSecurityParam, rand, network);
+    this.otChoices = new byte[kbitLength / 8];
+    this.prgs = new ArrayList<>(kbitLength);
   }
 
   /**
@@ -51,6 +51,7 @@ public class COTeSender extends COTeShared {
    * called once as it completes extensive seed OTs.
    * 
    * @throws NoSuchAlgorithmException
+   *           Thrown if the PRG algorithm used does not exist
    */
   public void initialize() throws NoSuchAlgorithmException {
     if (initialized) {
@@ -58,7 +59,7 @@ public class COTeSender extends COTeShared {
     }
     rand.nextBytes(otChoices);
     // Complete the seed OTs acting as the receiver (NOT the sender)
-    for (int i = 0; i < kBitLength; i++) {
+    for (int i = 0; i < kbitLength; i++) {
       BigInteger message = ot.receive(getBit(otChoices, i));
       // Initialize the PRGs with the random messages
       SecureRandom prg = SecureRandom.getInstance("SHA1PRNG");
@@ -69,7 +70,7 @@ public class COTeSender extends COTeShared {
   }
 
   /**
-   * Returns a clone of the random bit choices used for OT
+   * Returns a clone of the random bit choices used for OT.
    * 
    * @return A clone of the OT choices
    */
@@ -94,23 +95,23 @@ public class COTeSender extends COTeShared {
     // Compute how many bytes we need for "size" OTs by dividing "size" by 8
     // (the amount of bits in the primitive type; byte), rounding up
     int bytesNeeded = size / 8;
-    List<byte[]> tVec = new ArrayList<>(kBitLength);
-    for (int i = 0; i < kBitLength; i++) {
+    List<byte[]> tvec = new ArrayList<>(kbitLength);
+    for (int i = 0; i < kbitLength; i++) {
       // Expand the message learned from the seed OTs using a PRG
-      byte[] tVal = new byte[bytesNeeded];
-      prgs.get(i).nextBytes(tVal);
-      tVec.add(tVal);
+      byte[] tval = new byte[bytesNeeded];
+      prgs.get(i).nextBytes(tval);
+      tvec.add(tval);
     }
-    List<byte[]> uVec = receiveList(kBitLength);
+    List<byte[]> uvec = receiveList(kbitLength);
     // Compute the q vector based on the random choices from the seed OTs, i.e
     // qVec = otChoices AND uVec XOR tVec
-    for (int i = 0; i < kBitLength; i++) {
+    for (int i = 0; i < kbitLength; i++) {
       if (getBit(otChoices, i) == true) {
-        xor(tVec.get(i), uVec.get(i));
+        xor(tvec.get(i), uvec.get(i));
       }
     }
     // Complete tilt-your-head by transposing the message "matrix"
-    return Transpose.transpose(tVec);
+    return Transpose.transpose(tvec);
   }
 
 }

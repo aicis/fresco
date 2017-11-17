@@ -10,16 +10,16 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.tools.ot.base.DummyOT;
 import dk.alexandra.fresco.tools.ot.base.OT;
 
-/**
+/** 
  * Superclass containing the common variables and methods 
- * for the sender and receiver parties of correlated OT with errors 
+ * for the sender and receiver parties of correlated OT with errors.
  * @author jot2re
  *
  */
-public class COTeShared {
+public class CoteShared {
   // Constructor arguments
-  protected int otherID;
-  protected int kBitLength;
+  protected int otherId;
+  protected int kbitLength;
   protected int lambdaSecurityParam;
   protected Random rand;
   protected Network network;
@@ -27,37 +27,53 @@ public class COTeShared {
   protected boolean initialized;
   protected OT<BigInteger> ot;
 
-  public COTeShared(int otherID, int kBitLength, int lambdaSecurityParam, Random rand, 
+  /**
+   * Constructs a correlated OT extension with errors super-class.
+   * 
+   * @param otherId
+   *          ID of the other party to execute with
+   * @param kbitLength
+   *          The computational security parameter
+   * @param lambdaSecurityParam
+   *          The statistical security parameter
+   * @param rand
+   *          The current party's cryptographically secure randomness generator
+   * @param network
+   *          The network object used to communicate with the other party
+   */
+  public CoteShared(int otherId, int kbitLength, int lambdaSecurityParam, Random rand, 
       Network network) {
     super();
-    if (kBitLength < 1 | lambdaSecurityParam < 1 | rand == null
-        | network == null)
+    if (kbitLength < 1 || lambdaSecurityParam < 1
+        || rand == null | network == null) {
       throw new IllegalArgumentException("Illegal constructor parameters");
-    if (kBitLength % 8 != 0)
+    }
+    if (kbitLength % 8 != 0) {
       throw new IllegalArgumentException(
           "Computational security parameter must be divisible by 8");
-    this.otherID = otherID;
-    this.kBitLength = kBitLength;
+    }
+    this.otherId = otherId;
+    this.kbitLength = kbitLength;
     this.lambdaSecurityParam = lambdaSecurityParam;
     this.rand = rand;
-    this.ot = new DummyOT(otherID, network);
+    this.ot = new DummyOT(otherId, network);
     this.network = network;
   }
 
-  public int getOtherID() {
-    return otherID;
+  public int getOtherId() {
+    return otherId;
   }
 
-  public void setOtherID(int otherID) {
-    this.otherID = otherID;
+  public void setOtherId(int otherId) {
+    this.otherId = otherId;
   }
 
   public int getkBitLength() {
-    return kBitLength;
+    return kbitLength;
   }
 
-  public void setkBitLength(int kBitLength) {
-    this.kBitLength = kBitLength;
+  public void setkBitLength(int kbitLength) {
+    this.kbitLength = kbitLength;
   }
 
   public int getLambdaSecurityParam() {
@@ -85,7 +101,8 @@ public class COTeShared {
   }
 
   /**
-   * Returns the "bit" number bit, reading from left-to-right, from a byte array
+   * Returns the "bit" number bit, reading from left-to-right, from a byte
+   * array.
    * 
    * @param input
    *          The arrays of which to retrieve a bit
@@ -95,14 +112,16 @@ public class COTeShared {
    *         "input"
    */
   protected static boolean getBit(byte[] input, int bit) {
-    if (bit < 0)
+    if (bit < 0) {
       throw new IllegalAccessError("Bit index must be 0 or positive.");
+    }
     // Get the byte with the "bit"'th bit, and shift it to the left-most
     // position of the byte
     byte currentByte = (byte) (input[bit / 8] >>> (7 - (bit % 8)));
     boolean choiceBit = false;
-    if ((currentByte & 1) == 1)
+    if ((currentByte & 1) == 1) {
       choiceBit = true;
+    }
     return choiceBit;
   }
 
@@ -120,8 +139,9 @@ public class COTeShared {
    */
   protected static void xor(List<byte[]> vector1,
       List<byte[]> vector2) {
-    if (vector1.size() != vector2.size())
+    if (vector1.size() != vector2.size()) {
       throw new IllegalArgumentException("The vectors are not of equal length");
+    }
     for (int i = 0; i < vector1.size(); i++) {
       xor(vector1.get(i), vector2.get(i));
     }
@@ -140,9 +160,10 @@ public class COTeShared {
    */
   protected static void xor(byte[] arr1, byte[] arr2) {
     int bytesNeeded = arr1.length;
-    if (bytesNeeded != arr2.length)
+    if (bytesNeeded != arr2.length) {
       throw new IllegalArgumentException(
           "The byte arrays are not of equal length");
+    }
     for (int i = 0; i < bytesNeeded; i++) {
       // Compute the XOR (addition in GF2) of arr1 and arr2
       arr1[i] ^= arr2[i];
@@ -150,7 +171,7 @@ public class COTeShared {
   }
 
   /**
-   * Sends a list of byte arrays to the default (0) channel
+   * Sends a list of byte arrays to the default (0) channel.
    * 
    * @param vector
    *          Vector to send
@@ -159,7 +180,7 @@ public class COTeShared {
   protected boolean sendList(List<byte[]> vector) {
     try {
       for (byte[] currentArr : vector) {
-        network.send(0, otherID, currentArr);
+        network.send(0, otherId, currentArr);
       }
     } catch (IOException e) {
       System.out.println("Broke while sending " + e);
@@ -181,7 +202,7 @@ public class COTeShared {
     List<byte[]> vector = new ArrayList<>(size);
     try {
       for (int i = 0; i < size; i++) {
-        byte[] currentArr = network.receive(0, otherID);
+        byte[] currentArr = network.receive(0, otherId);
         vector.add(currentArr);
       }
     } catch (IOException e) {
