@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.dummy.bool;
 
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.lib.bool.BasicBooleanTests;
 import dk.alexandra.fresco.lib.bool.ComparisonBooleanTests;
 import dk.alexandra.fresco.lib.collections.sort.CollectionsSortingTests;
@@ -43,10 +42,13 @@ public class TestDummyProtocolSuite extends AbstractDummyBooleanTest {
 
   @Test
   public void test_OR() throws Exception {
-    runTest(new FieldBoolTests.TestOrFromXorAnd<ResourcePoolImpl>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED);
-    runTest(new FieldBoolTests.TestOrFromCopyConst<ResourcePoolImpl>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED);
+    runTest(new FieldBoolTests.TestOrFromXorAnd<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+    runTest(new FieldBoolTests.TestOrFromCopyConst<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
+  public void testOpen() throws Exception {
+    runTest(new FieldBoolTests.TestOpen<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
@@ -139,7 +141,7 @@ public class TestDummyProtocolSuite extends AbstractDummyBooleanTest {
     runTest(new BadBristolCryptoTests.AndTest4<>(), EvaluationStrategy.SEQUENTIAL);
     runTest(new BadBristolCryptoTests.AndTest5<>(), EvaluationStrategy.SEQUENTIAL);
   }
-  
+
   @Test
   public void test_Bristol_Errors_INV() throws Exception {
     runTest(new BadBristolCryptoTests.InvTest1<>(), EvaluationStrategy.SEQUENTIAL);
@@ -153,7 +155,7 @@ public class TestDummyProtocolSuite extends AbstractDummyBooleanTest {
     runTest(new BadBristolCryptoTests.BadOperationTest<>(), EvaluationStrategy.SEQUENTIAL);
     runTest(new BadBristolCryptoTests.NoCircuitTest<>(), EvaluationStrategy.SEQUENTIAL);
   }
-  
+
   @Test
   public void test_basic_logic_all_in_one() throws Exception {
     runTest(new BasicBooleanTests.TestBasicProtocols<>(true), EvaluationStrategy.SEQUENTIAL);
