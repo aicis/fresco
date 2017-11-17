@@ -19,10 +19,4 @@ public enum EvaluationStrategy {
 
   public abstract <ResourcePoolT extends ResourcePool>
   BatchEvaluationStrategy<ResourcePoolT> getStrategy();
-
-  public static <ResourcePoolT extends ResourcePool>
-  BatchEvaluationStrategy<ResourcePoolT> fromString(String evalStr) {
-    EvaluationStrategy evalStrategy = EvaluationStrategy.valueOf(evalStr.toUpperCase());
-    return evalStrategy.getStrategy();
-  }
 }
