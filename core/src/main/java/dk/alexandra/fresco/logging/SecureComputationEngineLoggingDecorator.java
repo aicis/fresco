@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.concurrent.Future;
 
 public class SecureComputationEngineLoggingDecorator<
-  ResourcePoolT extends ResourcePool, 
-  Builder extends ProtocolBuilder
-  >  
-  implements SecureComputationEngine<ResourcePoolT, Builder>, PerformanceLogger {
+    ResourcePoolT extends ResourcePool,
+    Builder extends ProtocolBuilder
+    >
+    implements SecureComputationEngine<ResourcePoolT, Builder>, PerformanceLogger {
 
   private SecureComputationEngine<ResourcePoolT, Builder> delegate;
   private String protocolSuiteName;
@@ -23,7 +23,7 @@ public class SecureComputationEngineLoggingDecorator<
   public SecureComputationEngineLoggingDecorator(
       SecureComputationEngine<ResourcePoolT, Builder> sce,
       ProtocolSuite<ResourcePoolT, Builder> suite) {
-    this.delegate = sce;    
+    this.delegate = sce;
     this.protocolSuiteName = suite.getClass().getName();
   }
 
@@ -58,7 +58,7 @@ public class SecureComputationEngineLoggingDecorator<
 
   @Override
   public void printPerformanceLog(int myId) {
-    log.info("=== P"+myId+": Running times for applications ===");
+    log.info("=== P" + myId + ": Running times for applications ===");
     if (this.runtimeLogger.isEmpty()) {
       log.info("No applications were run, or they have not completed yet.");
     }
@@ -68,14 +68,14 @@ public class SecureComputationEngineLoggingDecorator<
           "The application " + info.app.getClass().getName() + " took " + info.timeSpend + "ms.");
     }
   }
-  
+
   private class RuntimeInfo {
+
     public Application<?, ?> app;
     public long timeSpend;
     public String protocolSuite;
 
-    public RuntimeInfo(Application<?, ?> app, long timeSpend,
-        String protocolSuite) {
+    public RuntimeInfo(Application<?, ?> app, long timeSpend, String protocolSuite) {
       super();
       this.app = app;
       this.timeSpend = timeSpend;
