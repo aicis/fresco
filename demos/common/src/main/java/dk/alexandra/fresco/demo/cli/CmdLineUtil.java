@@ -15,39 +15,19 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
-import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger.Flag;
 import dk.alexandra.fresco.logging.SecureComputationEngineLoggingDecorator;
 import dk.alexandra.fresco.suite.ProtocolSuite;
-import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
-import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
-import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
-import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
-import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
-import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
-import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import java.io.Closeable;
-import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
-import java.util.Random;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -123,7 +103,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
    *
    * For instance, options for setting player id and protocol suite.
    */
-  private static Options buildStandardOptions() {
+  private Options buildStandardOptions() {
     Options options = new Options();
 
     options.addOption(
@@ -132,7 +112,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
 
     options.addOption(Option.builder("s")
         .desc("The name of the protocol suite to use. Must be one of these: "
-            + getSupportedProtocolSuites())
+            + CmdLineProtocolSuite.getSupportedProtocolSuites())
         .longOpt("suite").required(true).hasArg().build());
 
     options.addOption(Option.builder("p")
@@ -165,11 +145,6 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     return options;
   }
 
-  private static String getSupportedProtocolSuites() {
-    String[] strings = {"dummybool", "dummyarithmetic", "spdz", "tinytables", "tinytablesprepro"};
-    return Arrays.toString(strings);
-  }
-
   private int parseNonzeroInt(String optionId) throws ParseException {
     int res;
     String opStr = this.cmd.getOptionValue(optionId);
@@ -199,7 +174,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     final Map<Integer, Party> parties = new HashMap<>();
     final String suite = (String) suiteObj;
 
-    if (!getSupportedProtocolSuites().contains(suite.toLowerCase())) {
+    if (!CmdLineProtocolSuite.getSupportedProtocolSuites().contains(suite.toLowerCase())) {
       throw new ParseException("Unknown protocol suite: " + suite);
     }
 
@@ -295,53 +270,12 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
 
       validateStandardOptions();
       String protocolSuiteName = ((String) this.cmd.getParsedOptionValue("s")).toLowerCase();
-      switch (protocolSuiteName) {
-        case "dummybool":
-          this.protocolSuite =
-              (ProtocolSuite<ResourcePoolT, Builder>) new DummyBooleanProtocolSuite();
-          this.resourcePool =
-              (ResourcePoolT) new ResourcePoolImpl(this.networkConfiguration.getMyId(),
-                  this.networkConfiguration.noOfParties(), new Random(),
-                  new SecureRandom());
-          break;
-        case "dummyarithmetic":
-          this.protocolSuite =
-              (ProtocolSuite<ResourcePoolT, Builder>) dummyArithmeticFromCmdLine(cmd);
-          Properties p = cmd.getOptionProperties("D");
-          BigInteger mod = new BigInteger(p.getProperty("modulus",
-              "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329"));
-          this.resourcePool = (ResourcePoolT) new DummyArithmeticResourcePoolImpl(
-              this.networkConfiguration.getMyId(), this.networkConfiguration.noOfParties(),
-              new Random(), new SecureRandom(), mod);
-          break;
-        case "spdz":
-          this.protocolSuite =
-              (ProtocolSuite<ResourcePoolT, Builder>) SpdzConfigurationFromCmdLine(cmd);
-          this.resourcePool =
-              (ResourcePoolT) createSpdzResourcePool(this.networkConfiguration.getMyId(),
-                  this.networkConfiguration.noOfParties(), network, new Random(),
-                  new SecureRandom(), cmd);
-          break;
-        case "tinytablesprepro":
-          this.protocolSuite =
-              (ProtocolSuite<ResourcePoolT, Builder>) tinyTablesPreProFromCmdLine(cmd,
-                  this.networkConfiguration.getMyId());
-          this.resourcePool =
-              (ResourcePoolT) new ResourcePoolImpl(this.networkConfiguration.getMyId(),
-                  this.networkConfiguration.noOfParties(), new Random(),
-                  new SecureRandom());
-          break;
-        case "tinytables":
-          this.protocolSuite = (ProtocolSuite<ResourcePoolT, Builder>) tinyTablesFromCmdLine(cmd,
-              this.networkConfiguration.getMyId());
-          this.resourcePool =
-              (ResourcePoolT) new ResourcePoolImpl(this.networkConfiguration.getMyId(),
-                  this.networkConfiguration.noOfParties(), new Random(),
-                  new SecureRandom());
-          break;
-        default:
-          throw new ParseException("Unknown protocol suite: " + protocolSuiteName);
-      }
+      CmdLineProtocolSuite protocolSuiteParser = new CmdLineProtocolSuite(protocolSuiteName,
+          cmd.getOptionProperties("D"), this.networkConfiguration.getMyId(),
+          this.networkConfiguration.noOfParties());
+      protocolSuite = (ProtocolSuite<ResourcePoolT, Builder>)
+          protocolSuiteParser.getProtocolSuite();
+      resourcePool = (ResourcePoolT) protocolSuiteParser.getResourcePool();
       try {
         BatchEvaluationStrategy<ResourcePoolT> batchEvalStrat = EvaluationStrategy
             .fromString(this.cmd.getOptionValue("e", EvaluationStrategy.SEQUENTIAL.name()));
@@ -367,66 +301,6 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     }
 
     return this.cmd;
-  }
-
-  private ProtocolSuite<?, ?> dummyArithmeticFromCmdLine(CommandLine cmd) {
-    Properties p = cmd.getOptionProperties("D");
-    BigInteger mod = new BigInteger(p.getProperty("modulus",
-        "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329"));
-    int maxBitLength = Integer.parseInt(p.getProperty("maxbitlength", "150"));
-    return new DummyArithmeticProtocolSuite(mod, maxBitLength);
-  }
-
-  private ProtocolSuite<?, ?> SpdzConfigurationFromCmdLine(CommandLine cmd) {
-    Properties p = cmd.getOptionProperties("D");
-    // TODO: Figure out a meaningful default for the below
-    final int maxBitLength = Integer.parseInt(p.getProperty("spdz.maxBitLength", "64"));
-    if (maxBitLength < 2) {
-      throw new RuntimeException("spdz.maxBitLength must be > 1");
-    }
-    return new SpdzProtocolSuite(maxBitLength);
-  }
-
-  private SpdzResourcePool createSpdzResourcePool(int myId, int size, Network network, Random rand,
-      SecureRandom secRand, CommandLine cmd) {
-    Properties p = cmd.getOptionProperties("D");
-    final String fuelStationBaseUrl = p.getProperty("spdz.fuelStationBaseUrl", null);
-    String strat = p.getProperty("spdz.preprocessingStrategy");
-    final PreprocessingStrategy strategy = PreprocessingStrategy.fromString(strat);
-    SpdzStorage store;
-    switch (strategy) {
-      case DUMMY:
-        store = new SpdzStorageDummyImpl(myId, size);
-        break;
-      case STATIC:
-        store = new SpdzStorageImpl(0, size, myId,
-            new FilebasedStreamedStorageImpl(new InMemoryStorage()));
-        break;
-      case FUELSTATION:
-        store = new SpdzStorageImpl(0, size, myId, fuelStationBaseUrl);
-        break;
-      default:
-        throw new ConfigurationException("Unkonwn preprocessing strategy: " + strategy);
-    }
-    return new SpdzResourcePoolImpl(myId, size, rand, secRand, store);
-  }
-
-  private ProtocolSuite<?, ?> tinyTablesPreProFromCmdLine(CommandLine cmd, int myId)
-      throws ParseException, IllegalArgumentException {
-
-    Properties p = cmd.getOptionProperties("D");
-    String tinytablesFileOption = "tinytables.file";
-    String tinyTablesFilePath = p.getProperty(tinytablesFileOption, "tinytables");
-    return new TinyTablesPreproProtocolSuite(myId, new File(tinyTablesFilePath));
-  }
-
-  private ProtocolSuite<?, ?> tinyTablesFromCmdLine(CommandLine cmd, int myId)
-      throws ParseException, IllegalArgumentException {
-
-    Properties p = cmd.getOptionProperties("D");
-    String tinytablesFileOption = "tinytables.file";
-    String tinyTablesFilePath = p.getProperty(tinytablesFileOption, "tinytables");
-    return new TinyTablesProtocolSuite(myId, new File(tinyTablesFilePath));
   }
 
   public void displayHelp() {
