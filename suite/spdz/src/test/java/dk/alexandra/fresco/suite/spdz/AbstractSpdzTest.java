@@ -1,9 +1,10 @@
 package dk.alexandra.fresco.suite.spdz;
 
+import static dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy.DUMMY;
+
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
@@ -64,8 +65,8 @@ public abstract class AbstractSpdzTest {
       pls.put(playerId, new ArrayList<>());
       SpdzProtocolSuite protocolSuite = new SpdzProtocolSuite(150);
 
-      BatchEvaluationStrategy<SpdzResourcePool> batchEvalStrat = EvaluationStrategy
-          .fromEnum(evalStrategy);
+      BatchEvaluationStrategy<SpdzResourcePool> batchEvalStrat = evalStrategy.getStrategy();
+
       if (performanceloggerFlags != null && performanceloggerFlags
           .contains(Flag.LOG_NATIVE_BATCH)) {
         batchEvalStrat = new BatchEvaluationLoggingDecorator<>(batchEvalStrat);
@@ -109,16 +110,12 @@ public abstract class AbstractSpdzTest {
   static SpdzResourcePool createResourcePool(int myId, int size, Random rand,
       SecureRandom secRand, PreprocessingStrategy preproStrat) {
     SpdzStorage store;
-    switch (preproStrat) {
-      case DUMMY:
-        store = new SpdzStorageDummyImpl(myId, size);
-        break;
-      case STATIC:
-        store = new SpdzStorageImpl(0, size, myId,
-            new FilebasedStreamedStorageImpl(new InMemoryStorage()));
-        break;
-      default:
-        throw new ConfigurationException("Unkonwn preprocessing strategy: " + preproStrat);
+    if (preproStrat == DUMMY) {
+      store = new SpdzStorageDummyImpl(myId, size);
+    } else {
+      //case STATIC:
+      store = new SpdzStorageImpl(0, size, myId,
+          new FilebasedStreamedStorageImpl(new InMemoryStorage()));
     }
     return new SpdzResourcePoolImpl(myId, size, rand, secRand, store);
   }

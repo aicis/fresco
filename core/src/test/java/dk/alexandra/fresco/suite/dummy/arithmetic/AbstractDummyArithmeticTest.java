@@ -67,7 +67,7 @@ public abstract class AbstractDummyArithmeticTest {
       DummyArithmeticProtocolSuite ps = new DummyArithmeticProtocolSuite(mod, 200);
 
       BatchEvaluationStrategy<DummyArithmeticResourcePool> batchEvaluationStrategy =
-          EvaluationStrategy.fromEnum(evalStrategy);
+          evalStrategy.getStrategy();
       if (performanceLoggerFlags != null && performanceLoggerFlags
           .contains(Flag.LOG_NATIVE_BATCH)) {
         batchEvaluationStrategy =

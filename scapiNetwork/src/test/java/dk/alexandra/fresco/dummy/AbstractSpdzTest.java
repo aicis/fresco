@@ -3,7 +3,6 @@ package dk.alexandra.fresco.dummy;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
@@ -11,8 +10,6 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
-import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.util.DetermSecureRandom;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
@@ -23,10 +20,7 @@ import dk.alexandra.fresco.network.ScapiNetworkImpl;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
-import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -59,8 +53,7 @@ public abstract class AbstractSpdzTest {
       pls.put(playerId, new ArrayList<>());
       SpdzProtocolSuite protocolSuite = new SpdzProtocolSuite(150);
 
-      BatchEvaluationStrategy<SpdzResourcePool> batchStrat = EvaluationStrategy
-          .fromEnum(evalStrategy);
+      BatchEvaluationStrategy<SpdzResourcePool> batchStrat = evalStrategy.getStrategy();
       if (performanceLoggerFlags != null && performanceLoggerFlags
           .contains(Flag.LOG_NATIVE_BATCH)) {
         batchStrat = new BatchEvaluationLoggingDecorator<>(batchStrat);
@@ -80,7 +73,7 @@ public abstract class AbstractSpdzTest {
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,
               () -> createResourcePool(playerId, noOfParties, new Random(),
-                  new DetermSecureRandom(), PreprocessingStrategy.DUMMY),
+                  new DetermSecureRandom()),
               () -> {
                 ScapiNetworkImpl scapiNetwork = new ScapiNetworkImpl();
                 scapiNetwork.init(netConf.get(playerId), 1);
@@ -106,19 +99,8 @@ public abstract class AbstractSpdzTest {
   }
 
   private SpdzResourcePool createResourcePool(int myId, int size, Random rand,
-      SecureRandom secRand, PreprocessingStrategy preproStrat) {
-    SpdzStorage store;
-    switch (preproStrat) {
-      case DUMMY:
-        store = new SpdzStorageDummyImpl(myId, size);
-        break;
-      case STATIC:
-        store = new SpdzStorageImpl(0, size, myId,
-            new FilebasedStreamedStorageImpl(new InMemoryStorage()));
-        break;
-      default:
-        throw new ConfigurationException("Unkonwn preprocessing strategy: " + preproStrat);
-    }
+      SecureRandom secRand) {
+    SpdzStorageDummyImpl store = new SpdzStorageDummyImpl(myId, size);
     return new SpdzResourcePoolImpl(myId, size, rand, secRand, store);
   }
 }
