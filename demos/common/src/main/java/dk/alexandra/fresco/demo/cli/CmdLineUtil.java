@@ -8,7 +8,6 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
@@ -74,14 +73,6 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
 
   public ResourcePoolT getResourcePool() {
     return resourcePool;
-  }
-
-  public EnumSet<Flag> getPerformanceLoggerFlags() {
-    return flags;
-  }
-
-  public NetworkingStrategy getNetworkStrategy() {
-    return NetworkingStrategy.KRYONET;
   }
 
   public ProtocolEvaluator<ResourcePoolT, Builder> getEvaluator() {

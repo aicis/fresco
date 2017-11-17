@@ -25,8 +25,6 @@ import java.util.Arrays;
 import java.util.Properties;
 import java.util.Random;
 import org.apache.commons.cli.ParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Utility for reading all configuration from command line.
@@ -35,8 +33,6 @@ import org.slf4j.LoggerFactory;
  * </p>
  */
 public class CmdLineProtocolSuite {
-
-  private final static Logger logger = LoggerFactory.getLogger(CmdLineProtocolSuite.class);
 
   private ProtocolSuite<?, ?> protocolSuite;
   private ResourcePool resourcePool;
