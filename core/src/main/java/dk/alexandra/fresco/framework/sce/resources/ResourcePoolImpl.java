@@ -8,10 +8,10 @@ import java.util.Random;
  */
 public class ResourcePoolImpl implements ResourcePool {
 
-  private int myId;
-  private int noOfPlayers;
-  protected Random random;
-  private SecureRandom secRand;
+  private final int myId;
+  private final int noOfPlayers;
+  private final Random random;
+  private final SecureRandom secRand;
 
   /**
    * Creates an instance of the default implementation of a resource pool. This contains the basic

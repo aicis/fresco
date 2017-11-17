@@ -63,9 +63,9 @@ import org.apache.commons.cli.ParseException;
  */
 public class PrivateSetDemo implements Application<List<List<Boolean>>, ProtocolBuilderBinary> {
 
-  private Boolean[] inKey;
-  private int[] inSet;
-  private int id;
+  private final Boolean[] inKey;
+  private final int[] inSet;
+  private final int id;
 
   private final static int BLOCK_SIZE = 128; // 128 bit AES
   private final static int INPUT_LENGTH = 32; // chars for defining 128 bit in hex
@@ -251,12 +251,12 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
 
   private static class PSIInputs implements DRes<PSIInputs> {
 
-    private List<List<DRes<SBool>>> set1, set2;
-    private List<DRes<SBool>> commonKey;
+    private final List<List<DRes<SBool>>> set1;
+    private final List<List<DRes<SBool>>> set2;
+    private final List<DRes<SBool>> commonKey;
 
     public PSIInputs(List<List<DRes<SBool>>> set1, List<List<DRes<SBool>>> set2,
         List<DRes<SBool>> commonKey) {
-      super();
       this.set1 = set1;
       this.set2 = set2;
       this.commonKey = commonKey;
