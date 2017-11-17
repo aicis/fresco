@@ -14,7 +14,9 @@ public class SequentialProtocolProducerTest {
     sequentialProtocolProducer
         .append(new SingleProtocolProducer<>(new DummyBooleanNotProtocol(null)));
     String toString = sequentialProtocolProducer.toString();
-    Assert.assertThat(toString, StringContains.containsString("1"));
+    Assert.assertThat(toString, StringContains.containsString("SequentialProtocolProducer"));
+    Assert.assertThat(toString, StringContains.containsString("SingleProtocolProducer"));
+    Assert.assertThat(toString, StringContains.containsString("DummyBooleanNotProtocol"));
     Assert.assertThat(sequentialProtocolProducer.toString(), Is.is(toString));
   }
 
