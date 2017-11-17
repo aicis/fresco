@@ -34,8 +34,10 @@ import org.apache.commons.cli.ParseException;
  */
 public class CmdLineProtocolSuite {
 
-  private ProtocolSuite<?, ?> protocolSuite;
-  private ResourcePool resourcePool;
+  private final int myId;
+  private final int noOfPlayers;
+  private final ProtocolSuite<?, ?> protocolSuite;
+  private final ResourcePool resourcePool;
 
   static String getSupportedProtocolSuites() {
     String[] strings = {"dummybool", "dummyarithmetic", "spdz", "tinytables", "tinytablesprepro"};
@@ -45,45 +47,38 @@ public class CmdLineProtocolSuite {
 
   @SuppressWarnings("unchecked")
   public CmdLineProtocolSuite(String protocolSuiteName, Properties properties, int myId,
-      int noOfPlayers)
-      throws ParseException {
+      int noOfPlayers) throws ParseException {
+    this.myId = myId;
+    this.noOfPlayers = noOfPlayers;
     switch (protocolSuiteName) {
       case "dummybool":
-        this.protocolSuite =
-            new DummyBooleanProtocolSuite();
+        this.protocolSuite = new DummyBooleanProtocolSuite();
         this.resourcePool =
-            new ResourcePoolImpl(myId, noOfPlayers,
-                new Random(), new SecureRandom());
+            new ResourcePoolImpl(myId, noOfPlayers, new Random(), new SecureRandom());
         break;
       case "dummyarithmetic":
-        this.protocolSuite =
-            dummyArithmeticFromCmdLine(properties);
+        this.protocolSuite = dummyArithmeticFromCmdLine(properties);
         BigInteger mod = new BigInteger(properties.getProperty("modulus",
             "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329"));
-        this.resourcePool = new DummyArithmeticResourcePoolImpl(
-            myId, noOfPlayers,
-            new Random(), new SecureRandom(), mod);
+        this.resourcePool =
+            new DummyArithmeticResourcePoolImpl(
+                myId, noOfPlayers,
+                new Random(), new SecureRandom(), mod);
         break;
       case "spdz":
-        this.protocolSuite =
-            SpdzConfigurationFromCmdLine(properties);
+        this.protocolSuite = SpdzConfigurationFromCmdLine(properties);
         this.resourcePool =
-            createSpdzResourcePool(myId, noOfPlayers, new Random(),
-                new SecureRandom(), properties);
+            createSpdzResourcePool(new Random(), new SecureRandom(), properties);
         break;
       case "tinytablesprepro":
-        this.protocolSuite =
-            tinyTablesPreProFromCmdLine(myId, properties);
+        this.protocolSuite = tinyTablesPreProFromCmdLine(properties);
         this.resourcePool =
-            new ResourcePoolImpl(myId, noOfPlayers, new Random(),
-                new SecureRandom());
+            new ResourcePoolImpl(myId, noOfPlayers, new Random(), new SecureRandom());
         break;
       case "tinytables":
-        this.protocolSuite = tinyTablesFromCmdLine(myId,
-            properties);
+        this.protocolSuite = tinyTablesFromCmdLine(properties);
         this.resourcePool =
-            new ResourcePoolImpl(myId, noOfPlayers, new Random(),
-                new SecureRandom());
+            new ResourcePoolImpl(myId, noOfPlayers, new Random(), new SecureRandom());
         break;
       default:
         throw new ParseException("Unknown protocol suite: " + protocolSuiteName);
@@ -120,7 +115,7 @@ public class CmdLineProtocolSuite {
     return properties;
   }
 
-  private SpdzResourcePool createSpdzResourcePool(int myId, int size, Random rand,
+  private SpdzResourcePool createSpdzResourcePool(Random rand,
       SecureRandom secRand, Properties properties) {
     final String fuelStationBaseUrl = properties.getProperty("spdz.fuelStationBaseUrl", null);
     String strat = properties.getProperty("spdz.preprocessingStrategy");
@@ -128,29 +123,29 @@ public class CmdLineProtocolSuite {
     SpdzStorage store;
     switch (strategy) {
       case DUMMY:
-        store = new SpdzStorageDummyImpl(myId, size);
+        store = new SpdzStorageDummyImpl(myId, noOfPlayers);
         break;
       case STATIC:
-        store = new SpdzStorageImpl(0, size, myId,
+        store = new SpdzStorageImpl(0, noOfPlayers, myId,
             new FilebasedStreamedStorageImpl(new InMemoryStorage()));
         break;
       case FUELSTATION:
-        store = new SpdzStorageImpl(0, size, myId, fuelStationBaseUrl);
+        store = new SpdzStorageImpl(0, noOfPlayers, myId, fuelStationBaseUrl);
         break;
       default:
         throw new ConfigurationException("Unkonwn preprocessing strategy: " + strategy);
     }
-    return new SpdzResourcePoolImpl(myId, size, rand, secRand, store);
+    return new SpdzResourcePoolImpl(myId, noOfPlayers, rand, secRand, store);
   }
 
-  private ProtocolSuite<?, ?> tinyTablesPreProFromCmdLine(int myId, Properties properties)
+  private ProtocolSuite<?, ?> tinyTablesPreProFromCmdLine(Properties properties)
       throws ParseException, IllegalArgumentException {
     String tinytablesFileOption = "tinytables.file";
     String tinyTablesFilePath = properties.getProperty(tinytablesFileOption, "tinytables");
     return new TinyTablesPreproProtocolSuite(myId, new File(tinyTablesFilePath));
   }
 
-  private ProtocolSuite<?, ?> tinyTablesFromCmdLine(int myId, Properties properties)
+  private ProtocolSuite<?, ?> tinyTablesFromCmdLine(Properties properties)
       throws ParseException, IllegalArgumentException {
 
     String tinytablesFileOption = "tinytables.file";
