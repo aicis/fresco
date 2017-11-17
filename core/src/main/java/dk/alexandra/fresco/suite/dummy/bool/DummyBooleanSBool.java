@@ -13,7 +13,7 @@ import dk.alexandra.fresco.framework.value.SBool;
  */
 public class DummyBooleanSBool implements SBool {
 
-  private boolean value;
+  private final boolean value;
 
   /**
    * Constructs an SBool with a given value.
@@ -31,15 +31,6 @@ public class DummyBooleanSBool implements SBool {
    */
   public Boolean getValue() {
     return value;
-  }
-
-  /**
-   * Sets the value of this SBool.
-   * 
-   * @param value the value to set.
-   */
-  public void setValue(Boolean value) {
-    this.value = value;
   }
 
   @Override
