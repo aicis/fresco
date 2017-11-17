@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.framework.sce.evaluator;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
@@ -74,10 +73,12 @@ public class BatchedProtocolEvaluator<
       } else {
         zeroBatches = 0;
       }
+/*
       if (zeroBatches > MAX_EMPTY_BATCHES_IN_A_ROW) {
         throw new MPCException("Number of empty batches in a row reached "
             + MAX_EMPTY_BATCHES_IN_A_ROW + "; probably there is a bug in your protocol producer.");
       }
+*/
       roundSynchronization.finishedBatch(size, resourcePool, network);
     } while (protocolProducer.hasNextProtocols());
 
