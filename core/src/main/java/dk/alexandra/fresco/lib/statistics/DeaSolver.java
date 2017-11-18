@@ -203,11 +203,9 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
             newState.add(peersFromZero);
             newState.add(state.get(1));
             return () -> newState;
-          }).seq((seq, state) -> {
-            return Pair.lazy(new Pair<>(state.get(0), state.get(1)),
-                new OptimalValue(lpOutput.updateMatrix, lpOutput.tableau, lpOutput.pivot)
-                    .buildComputation(seq));
-          });
+          }).seq((seq, state) -> Pair.lazy(new Pair<>(state.get(0), state.get(1)),
+              new OptimalValue(lpOutput.updateMatrix, lpOutput.tableau, lpOutput.pivot)
+                  .buildComputation(seq)));
         })));
       }
       return () -> result;
@@ -248,13 +246,17 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
     }
     for (int i = 0; i < noOfSolvers; i++) {
       if (type == AnalysisType.INPUT_EFFICIENCY) {
-        prefixes.add(DEAInputEfficiencyPrefixBuilder.build(
-            Collections.unmodifiableList(basisInputs), Collections.unmodifiableList(basisOutputs),
-            targetInputs.get(i), targetOutputs.get(i), builder));
+        prefixes.add(
+            builder.seq(new DEAInputEfficiencyPrefixBuilder(
+                Collections.unmodifiableList(basisInputs),
+                Collections.unmodifiableList(basisOutputs),
+                targetInputs.get(i), targetOutputs.get(i))));
       } else {
-        prefixes.add(DEAPrefixBuilderMaximize.build(Collections.unmodifiableList(basisInputs),
-            Collections.unmodifiableList(basisOutputs), targetInputs.get(i), targetOutputs.get(i),
-            builder));
+        prefixes.add(
+            builder.seq(new DEAPrefixBuilderMaximize(
+                Collections.unmodifiableList(basisInputs),
+                Collections.unmodifiableList(basisOutputs),
+                targetInputs.get(i), targetOutputs.get(i))));
       }
     }
     return prefixes;

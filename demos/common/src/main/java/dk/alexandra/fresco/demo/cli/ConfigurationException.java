@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.framework.configuration;
+package dk.alexandra.fresco.demo.cli;
 
 /**
  * Exception which notifies of FRESCO configuration mistake.

@@ -233,7 +233,7 @@ public class MinInfFrac implements Computation<MinInfOutput, ProtocolBuilderNume
     }
   }
 
-  private static class IterationState implements DRes<IterationState> {
+  private static class IterationState {
 
     private final List<Frac> fs;
     private final int layer;
@@ -241,11 +241,6 @@ public class MinInfFrac implements Computation<MinInfOutput, ProtocolBuilderNume
     private IterationState(List<Frac> fs, int layer) {
       this.fs = fs;
       this.layer = layer;
-    }
-
-    @Override
-    public IterationState out() {
-      return this;
     }
   }
 }

@@ -64,7 +64,7 @@ public class ITSpdzFuelstationTest {
       ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> suite = new SpdzProtocolSuite(150);
 
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
-          new BatchedProtocolEvaluator<>(EvaluationStrategy.fromEnum(evalStrategy), suite);
+          new BatchedProtocolEvaluator<>(evalStrategy.getStrategy(), suite);
       SpdzStorage store = new SpdzStorageImpl(0, noOfParties, playerId, "http://localhost:" + port);
       TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadConfiguration<>(

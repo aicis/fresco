@@ -3,7 +3,6 @@ package dk.alexandra.fresco.demo.cli;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
-import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
@@ -268,8 +267,8 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
           protocolSuiteParser.getProtocolSuite();
       resourcePool = (ResourcePoolT) protocolSuiteParser.getResourcePool();
       try {
-        BatchEvaluationStrategy<ResourcePoolT> batchEvalStrat = EvaluationStrategy
-            .fromString(this.cmd.getOptionValue("e", EvaluationStrategy.SEQUENTIAL.name()));
+        BatchEvaluationStrategy<ResourcePoolT> batchEvalStrat = evaluationStrategyFromString(
+            this.cmd.getOptionValue("e", EvaluationStrategy.SEQUENTIAL.name()));
         if (this.flags != null) {
           batchEvalStrat = new BatchEvaluationLoggingDecorator<>(batchEvalStrat);
         }
@@ -292,6 +291,11 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     }
 
     return this.cmd;
+  }
+
+  private BatchEvaluationStrategy<ResourcePoolT> evaluationStrategyFromString(String evalStr) {
+    EvaluationStrategy evalStrategy = EvaluationStrategy.valueOf(evalStr.toUpperCase());
+    return evalStrategy.getStrategy();
   }
 
   public void displayHelp() {

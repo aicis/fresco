@@ -67,8 +67,7 @@ public class TestTinyTables {
       } else {
         suite = new TinyTablesProtocolSuite(playerId, tinyTablesFile);
       }
-      BatchEvaluationStrategy<ResourcePoolImpl> batchStrat = EvaluationStrategy
-          .fromEnum(evalStrategy);
+      BatchEvaluationStrategy<ResourcePoolImpl> batchStrat = evalStrategy.getStrategy();
       evaluator = new BatchedProtocolEvaluator<>(batchStrat, suite);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<>(

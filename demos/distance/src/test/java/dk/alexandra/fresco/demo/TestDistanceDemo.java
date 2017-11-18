@@ -5,23 +5,18 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.configuration.ConfigurationException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
-import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.util.DetermSecureRandom;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
-import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -54,12 +49,12 @@ public class TestDistanceDemo {
       SpdzProtocolSuite protocolSuite = new SpdzProtocolSuite(150);
 
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
-          new BatchedProtocolEvaluator<>(EvaluationStrategy.fromEnum(evalStrategy), protocolSuite);
+          new BatchedProtocolEvaluator<>(evalStrategy.getStrategy(), protocolSuite);
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(protocolSuite, evaluator),
               () -> createResourcePool(playerId, noOfParties, new Random(),
-                  new DetermSecureRandom(), PreprocessingStrategy.DUMMY),
+                  new DetermSecureRandom()),
               () -> new KryoNetNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }
@@ -67,19 +62,9 @@ public class TestDistanceDemo {
   }
 
   private SpdzResourcePool createResourcePool(int myId, int size, Random rand,
-      SecureRandom secRand, PreprocessingStrategy preproStrat) {
+      SecureRandom secRand) {
     SpdzStorage store;
-    switch (preproStrat) {
-      case DUMMY:
-        store = new SpdzStorageDummyImpl(myId, size);
-        break;
-      case STATIC:
-        store = new SpdzStorageImpl(0, size, myId,
-            new FilebasedStreamedStorageImpl(new InMemoryStorage()));
-        break;
-      default:
-        throw new ConfigurationException("Unkonwn preprocessing strategy: " + preproStrat);
-    }
+    store = new SpdzStorageDummyImpl(myId, size);
     return new SpdzResourcePoolImpl(myId, size, rand, secRand, store);
   }
 
