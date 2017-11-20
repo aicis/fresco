@@ -15,7 +15,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class BuildStepTests extends AbstractDummyArithmeticTest {
+public class TestBuildStep extends AbstractDummyArithmeticTest {
 
   /**
    * 
@@ -77,6 +77,7 @@ public class BuildStepTests extends AbstractDummyArithmeticTest {
 
   @Test
   public void test_while_no_iteration() throws Exception {
+    System.out.println("Testing no iteration");
     runTest(new TestWhileLoop<>(0, Collections.emptyList()), EvaluationStrategy.SEQUENTIAL,
         1);
   }
