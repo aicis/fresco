@@ -125,7 +125,7 @@ public class ShareGen extends MultiPartyProtocol {
 
     for (Integer partyId : partyIds) {
       if (!myId.equals(partyId)) {
-        network.send(0, partyId, shares.get(partyId - 1).toByteArray());
+        network.send(partyId, shares.get(partyId - 1).toByteArray());
       }
     }
 
@@ -145,10 +145,10 @@ public class ShareGen extends MultiPartyProtocol {
         .reduce(new FieldElement(BigInteger.ZERO, modulus, kBitLength),
             (left, right) -> (left.add(right)));
 
-    FieldElement y = new FieldElement(network.receive(0, inputter), modulus, kBitLength);
+    FieldElement y = new FieldElement(network.receive(inputter), modulus, kBitLength);
     // TODO: handle mac failure
     macCheckProtocol.check(y, macKeyShare, maksedMacShare);
-    FieldElement share = new FieldElement(network.receive(0, inputter), modulus, kBitLength);
+    FieldElement share = new FieldElement(network.receive(inputter), modulus, kBitLength);
     FieldElement macShare = subMacShares.get(1);
     return FieldElement.toSpdzElement(share, macShare);
   }
@@ -175,7 +175,7 @@ public class ShareGen extends MultiPartyProtocol {
         shares.add(new FieldElement(share.getShare(), modulus, kBitLength));
         network.sendToAll(share.getShare().toByteArray());
       } else {
-        byte[] received = network.receive(0, partyId);
+        byte[] received = network.receive(partyId);
         shares.add(new FieldElement(received, modulus, kBitLength));
       }
     }

@@ -34,7 +34,7 @@ public class MultiplyLeft extends MultiplyShared {
     // TODO: need batch-receive
     List<FieldElement> diffs = new ArrayList<>();
     for (int d = 0; d < numDiffs; d++) {
-      diffs.add(new FieldElement(network.receive(0, otherId), modulus, kBitLength));
+      diffs.add(new FieldElement(network.receive(otherId), modulus, kBitLength));
     }
     return diffs;
   }

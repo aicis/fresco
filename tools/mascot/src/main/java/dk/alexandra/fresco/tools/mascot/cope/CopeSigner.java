@@ -36,7 +36,7 @@ public class CopeSigner extends CopeShared {
     // TODO: batch receive
     try {
       for (int k = 0; k < kBitLength; k++) {
-        BigInteger raw = new BigInteger(network.receive(0, otherId));
+        BigInteger raw = new BigInteger(network.receive(otherId));
         uValues.add(new FieldElement(raw, modulus, kBitLength));
       }
     } catch (Exception e) {

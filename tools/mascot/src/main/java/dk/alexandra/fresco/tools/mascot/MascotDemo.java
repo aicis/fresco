@@ -28,9 +28,8 @@ public class MascotDemo {
 
   public void runPartyOneMult(Integer pid) throws IOException {
     ExecutorService executor = Executors.newCachedThreadPool();
-    ExtendedNetwork network = new ExtendedKryoNetNetworkImpl(executor, pid, Arrays.asList(1, 2));
-    network.init(getNetworkConfiguration(pid), 1);
-    network.connect(5000);
+    ExtendedNetwork network = new ExtendedKryoNetNetworkImpl(executor, pid, Arrays.asList(1, 2),
+        getNetworkConfiguration(pid));
     System.out.println("Connected");
     BigInteger modulus = BigInteger.valueOf(997);
     int kBitLength = 10;
@@ -47,7 +46,7 @@ public class MascotDemo {
     List<FieldElement> myShares = mult.multiply(inputs);
     System.out.println(myShares);
     for (FieldElement myShare : myShares) {
-      FieldElement otherShare = new FieldElement(network.receive(0, 2), modulus, kBitLength);
+      FieldElement otherShare = new FieldElement(network.receive(2), modulus, kBitLength);
       System.out.println("Recombined " + myShare.add(otherShare));
     }
     System.out.println("done");
@@ -55,9 +54,8 @@ public class MascotDemo {
 
   public void runPartyTwoMult(int pid) throws IOException {
     ExecutorService executor = Executors.newCachedThreadPool();
-    ExtendedNetwork network = new ExtendedKryoNetNetworkImpl(executor, pid, Arrays.asList(1, 2));
-    network.init(getNetworkConfiguration(pid), 1);
-    network.connect(5000);
+    ExtendedNetwork network = new ExtendedKryoNetNetworkImpl(executor, pid, Arrays.asList(1, 2),
+        getNetworkConfiguration(pid));
     BigInteger modulus = BigInteger.valueOf(997);
     int kBitLength = 10;
     int lambdaSecurityParam = 10;
@@ -68,7 +66,7 @@ public class MascotDemo {
     FieldElement input = new FieldElement(7, modulus, kBitLength);
     List<FieldElement> myShares = mult.multiply(input);
     for (FieldElement myShare : myShares) {
-      network.send(0, 1, myShare.toByteArray());
+      network.send(1, myShare.toByteArray());
     }
     System.out.println("done");
   }
@@ -76,9 +74,8 @@ public class MascotDemo {
   public void runPartyOneTriple(Integer pid) throws IOException {
     ExecutorService executor = Executors.newCachedThreadPool();
     List<Integer> parties = Arrays.asList(1, 2);
-    ExtendedNetwork network = new ExtendedKryoNetNetworkImpl(executor, pid, parties);
-    network.init(getNetworkConfiguration(pid), 1);
-    network.connect(5000);
+    ExtendedNetwork network = new ExtendedKryoNetNetworkImpl(executor, pid, Arrays.asList(1, 2),
+        getNetworkConfiguration(pid));
     System.out.println("Connected");
 
     BigInteger modulus = BigInteger.valueOf(997);
@@ -91,9 +88,9 @@ public class MascotDemo {
         numLeftFactors, network, executor, rand);
     tripleGen.initialize();
     SpdzTriple triple = tripleGen.triple();
-    FieldElement otherA = new FieldElement(network.receive(0, 2), modulus, kBitLength);
-    FieldElement otherB = new FieldElement(network.receive(0, 2), modulus, kBitLength);
-    FieldElement otherC = new FieldElement(network.receive(0, 2), modulus, kBitLength);
+    FieldElement otherA = new FieldElement(network.receive(2), modulus, kBitLength);
+    FieldElement otherB = new FieldElement(network.receive(2), modulus, kBitLength);
+    FieldElement otherC = new FieldElement(network.receive(2), modulus, kBitLength);
     FieldElement a = new FieldElement(triple.getA().getShare(), modulus, kBitLength).add(otherA);
     FieldElement b = new FieldElement(triple.getB().getShare(), modulus, kBitLength).add(otherB);
     FieldElement c = new FieldElement(triple.getC().getShare(), modulus, kBitLength).add(otherC);
@@ -106,9 +103,8 @@ public class MascotDemo {
   public void runPartyTwoTriple(int pid) throws IOException {
     ExecutorService executor = Executors.newCachedThreadPool();
     List<Integer> parties = Arrays.asList(1, 2);
-    ExtendedNetwork network = new ExtendedKryoNetNetworkImpl(executor, pid, parties);
-    network.init(getNetworkConfiguration(pid), 1);
-    network.connect(5000);
+    ExtendedNetwork network = new ExtendedKryoNetNetworkImpl(executor, pid, Arrays.asList(1, 2),
+        getNetworkConfiguration(pid));
     System.out.println("Connected");
 
     BigInteger modulus = BigInteger.valueOf(997);
@@ -121,18 +117,17 @@ public class MascotDemo {
         numLeftFactors, network, executor, rand);
     tripleGen.initialize();
     SpdzTriple triple = tripleGen.triple();
-    network.send(0, 1, triple.getA().getShare().toByteArray());
-    network.send(0, 1, triple.getB().getShare().toByteArray());
-    network.send(0, 1, triple.getC().getShare().toByteArray());
+    network.send(1, triple.getA().getShare().toByteArray());
+    network.send(1, triple.getB().getShare().toByteArray());
+    network.send(1, triple.getC().getShare().toByteArray());
     System.out.println("done");
   }
-  
+
   public void runPartyOneTripleMultiply(Integer pid) throws IOException {
     ExecutorService executor = Executors.newCachedThreadPool();
     List<Integer> parties = Arrays.asList(1, 2);
-    ExtendedNetwork network = new ExtendedKryoNetNetworkImpl(executor, pid, parties);
-    network.init(getNetworkConfiguration(pid), 1);
-    network.connect(5000);
+    ExtendedNetwork network = new ExtendedKryoNetNetworkImpl(executor, pid, Arrays.asList(1, 2),
+        getNetworkConfiguration(pid));
     System.out.println("Connected");
 
     BigInteger modulus = BigInteger.valueOf(997);
@@ -153,7 +148,7 @@ public class MascotDemo {
     System.out.println(productShares);
 
     for (FieldElement productShare : productShares) {
-      FieldElement otherProductShare = new FieldElement(network.receive(0, 2), modulus, kBitLength);
+      FieldElement otherProductShare = new FieldElement(network.receive(2), modulus, kBitLength);
       System.out.println(otherProductShare.add(productShare));
     }
 
@@ -163,9 +158,8 @@ public class MascotDemo {
   public void runPartyTwoTripleMultiply(int pid) throws IOException {
     ExecutorService executor = Executors.newCachedThreadPool();
     List<Integer> parties = Arrays.asList(1, 2);
-    ExtendedNetwork network = new ExtendedKryoNetNetworkImpl(executor, pid, parties);
-    network.init(getNetworkConfiguration(pid), 1);
-    network.connect(5000);
+    ExtendedNetwork network = new ExtendedKryoNetNetworkImpl(executor, pid, Arrays.asList(1, 2),
+        getNetworkConfiguration(pid));
     System.out.println("Connected");
 
     BigInteger modulus = BigInteger.valueOf(997);
@@ -188,7 +182,7 @@ public class MascotDemo {
     System.out.println(productShares);
 
     for (FieldElement productShare : productShares) {
-      network.send(0, 1, productShare.toByteArray());
+      network.send(1, productShare.toByteArray());
     }
 
     System.out.println("done");
@@ -196,9 +190,8 @@ public class MascotDemo {
 
   public void runPartyOne(Integer pid) throws IOException {
     ExecutorService executor = Executors.newCachedThreadPool();
-    ExtendedNetwork network = new ExtendedKryoNetNetworkImpl(executor, pid, Arrays.asList(1, 2));
-    network.init(getNetworkConfiguration(pid), 1);
-    network.connect(5000);
+    ExtendedNetwork network = new ExtendedKryoNetNetworkImpl(executor, pid, Arrays.asList(1, 2),
+        getNetworkConfiguration(pid));
     System.out.println("Connected");
     BigInteger modulus = BigInteger.valueOf(997);
     int kBitLength = 10;
@@ -207,21 +200,19 @@ public class MascotDemo {
     ShareGen shareGen = new ShareGen(modulus, kBitLength, 1, Arrays.asList(1, 2),
         lambdaSecurityParam, network, rand, executor);
     shareGen.initialize();
-//    FieldElement input = new FieldElement(123, modulus, kBitLength);
-//    SpdzElement res = shareGen.input(input);
-//    System.out.println(res);
+    // FieldElement input = new FieldElement(123, modulus, kBitLength);
+    // SpdzElement res = shareGen.input(input);
+    // System.out.println(res);
     SpdzElement otherRes = shareGen.input(2);
     System.out.println(otherRes);
     System.out.println("done");
     shareGen.shutdown();
-    network.close();
   }
 
   public void runPartyTwo(int pid) throws IOException {
     ExecutorService executor = Executors.newCachedThreadPool();
-    ExtendedNetwork network = new ExtendedKryoNetNetworkImpl(executor, pid, Arrays.asList(1, 2));
-    network.init(getNetworkConfiguration(pid), 1);
-    network.connect(5000);
+    ExtendedNetwork network = new ExtendedKryoNetNetworkImpl(executor, pid, Arrays.asList(1, 2),
+        getNetworkConfiguration(pid));
     System.out.println("Connected");
     BigInteger modulus = BigInteger.valueOf(997);
     int kBitLength = 10;
@@ -235,16 +226,15 @@ public class MascotDemo {
     System.out.println(otherRes);
     System.out.println("done");
     shareGen.shutdown();
-    network.close();
   }
 
   public static void main(String[] args) {
     int pid = Integer.parseInt(args[0]);
     try {
       if (pid == 1) {
-        new MascotDemo().runPartyOneTriple(1);
+        new MascotDemo().runPartyOne(1);
       } else {
-        new MascotDemo().runPartyTwoTriple(2);
+        new MascotDemo().runPartyTwo(2);
       }
     } catch (Exception e) {
       System.out.println("Failed to run: " + e);

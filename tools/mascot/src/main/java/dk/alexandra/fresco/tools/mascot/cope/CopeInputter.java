@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.mascot.cope;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,14 +52,8 @@ public class CopeInputter extends CopeShared {
       return tPair.getFirst().subtract(tPair.getSecond()).add(inputElement);
     }).collect(Collectors.toList());
 
-    // TODO: need batch-send
-    try {
-      for (FieldElement uValue : uValues) {
-        network.send(0, otherId, uValue.toByteArray());
-      }
-    } catch (IOException e) {
-      System.out.println("Broke while sending");
-      return null;
+    for (FieldElement uValue : uValues) {
+      network.send(otherId, uValue.toByteArray());
     }
 
     List<FieldElement> tZeroValues =

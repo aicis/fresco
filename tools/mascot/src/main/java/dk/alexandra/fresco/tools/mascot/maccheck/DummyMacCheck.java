@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.mascot.maccheck;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,12 +27,7 @@ public class DummyMacCheck extends MultiPartyProtocol implements MacCheck {
       if (myId.equals(partyId)) {
         network.sendToAll(sigma.toByteArray());
       } else {
-        try {
-          sigmas.add(new FieldElement(network.receive(0, partyId), modulus, kBitLength));
-        } catch (IOException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
+        sigmas.add(new FieldElement(network.receive(partyId), modulus, kBitLength));
       }
     }
     sigmas.add(sigma);

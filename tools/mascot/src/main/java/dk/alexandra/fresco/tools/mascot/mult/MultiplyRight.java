@@ -41,7 +41,7 @@ public class MultiplyRight extends MultiplyShared {
   protected void sendDiffs(List<FieldElement> diffs) throws IOException {
     // TODO: need batch-send
     for (FieldElement diff : diffs) {
-      network.send(0, otherId, diff.toByteArray());
+      network.send(otherId, diff.toByteArray());
     }
   }
 
