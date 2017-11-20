@@ -24,8 +24,10 @@ import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
+import dk.alexandra.fresco.suite.spdz.storage.DataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
+import dk.alexandra.fresco.suite.spdz.storage.rest.DataRestSupplierImpl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -68,7 +70,8 @@ public class ITSpdzFuelstationTest {
           new BatchedProtocolEvaluator<>(EvaluationStrategy.fromEnum(evalStrategy));
       Network network = new KryoNetNetwork();
       network.init(netConf.get(playerId), 1);
-      SpdzStorage store = new SpdzStorageImpl(0, noOfParties, playerId, "http://localhost:" + port);
+      DataSupplier supplier = new DataRestSupplierImpl(playerId, noOfParties, "http://localhost:" + port, 0);
+      SpdzStorage store = new SpdzStorageImpl(supplier);
       SpdzResourcePool rp = new SpdzResourcePoolImpl(playerId, noOfParties, network, new Random(),
           new DetermSecureRandom(), store);
       TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =

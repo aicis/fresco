@@ -41,16 +41,20 @@ import dk.alexandra.fresco.framework.util.DetermSecureRandom;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger;
-import dk.alexandra.fresco.logging.SCELoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger.Flag;
+import dk.alexandra.fresco.logging.SCELoggingDecorator;
 import dk.alexandra.fresco.network.ScapiNetworkImpl;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
+import dk.alexandra.fresco.suite.spdz.storage.DataSupplier;
+import dk.alexandra.fresco.suite.spdz.storage.DataSupplierImpl;
+import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageConstants;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -121,19 +125,23 @@ public abstract class AbstractSpdzTest {
   }
 
   private SpdzResourcePool createResourcePool(int myId, int size, Network network, Random rand,
-      SecureRandom secRand, PreprocessingStrategy preproStrat) {
-    SpdzStorage store;
+      SecureRandom secRand, PreprocessingStrategy preproStrat) throws NoSuchAlgorithmException {
+    DataSupplier supplier;
     switch (preproStrat) {
       case DUMMY:
-        store = new SpdzStorageDummyImpl(myId, size);
+        supplier = new DummyDataSupplierImpl(myId, size);
         break;
       case STATIC:
-        store = new SpdzStorageImpl(0, size, myId,
-            new FilebasedStreamedStorageImpl(new InMemoryStorage()));
+        int noOfThreadsUsed = 1;        
+        String storageName =
+            SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
+            + "_";
+        supplier = new DataSupplierImpl(new FilebasedStreamedStorageImpl(new InMemoryStorage()), storageName, size);        
         break;
       default:
         throw new ConfigurationException("Unkonwn preprocessing strategy: " + preproStrat);
     }
+    SpdzStorage store = new SpdzStorageImpl(supplier);
     return new SpdzResourcePoolImpl(myId, size, network, rand, secRand, store);
   }
 }

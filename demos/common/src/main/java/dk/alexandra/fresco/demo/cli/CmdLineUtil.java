@@ -20,8 +20,8 @@ import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStor
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
-import dk.alexandra.fresco.logging.SCELoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger.Flag;
+import dk.alexandra.fresco.logging.SCELoggingDecorator;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
@@ -30,8 +30,11 @@ import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
+import dk.alexandra.fresco.suite.spdz.storage.DataSupplier;
+import dk.alexandra.fresco.suite.spdz.storage.DataSupplierImpl;
+import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageConstants;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
@@ -39,6 +42,7 @@ import java.io.File;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -324,10 +328,15 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
         case "spdz":
           this.protocolSuite =
               (ProtocolSuite<ResourcePoolT, Builder>) SpdzConfigurationFromCmdLine(cmd);
-          this.resourcePool =
-              (ResourcePoolT) createSpdzResourcePool(this.networkConfiguration.getMyId(),
-                  this.networkConfiguration.noOfParties(), network, new Random(),
-                  new SecureRandom(), cmd);
+          try {
+            this.resourcePool =
+                (ResourcePoolT) createSpdzResourcePool(this.networkConfiguration.getMyId(),
+                    this.networkConfiguration.noOfParties(), network, new Random(),
+                    new SecureRandom(), cmd);
+          } catch (NoSuchAlgorithmException e) {
+            logger.error("Running the protocol suite SPDZ requires that your system supports the hash function needed by SPDZ. See the exception for more details:", e);
+            throw new RuntimeException("Failed to initialize the Spdz Resource pool.", e);
+          }
           break;
         case "tinytablesprepro":
           this.protocolSuite =
@@ -383,25 +392,36 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
   }
 
   private SpdzResourcePool createSpdzResourcePool(int myId, int size, Network network, Random rand,
-      SecureRandom secRand, CommandLine cmd) {
+      SecureRandom secRand, CommandLine cmd) throws NoSuchAlgorithmException {
     Properties p = cmd.getOptionProperties("D");
-    final String fuelStationBaseUrl = p.getProperty("spdz.fuelStationBaseUrl", null);
     String strat = p.getProperty("spdz.preprocessingStrategy");
-    final PreprocessingStrategy strategy = PreprocessingStrategy.fromString(strat);
-    SpdzStorage store;
+    PreprocessingStrategy strategy = null;
+    switch(strat.toUpperCase()) {
+    case "DUMMY":
+      strategy = PreprocessingStrategy.DUMMY;
+      break;
+    case "STATIC":
+      strategy = PreprocessingStrategy.STATIC;
+      break;
+    default:
+      throw new IllegalArgumentException("Unkown strategy "+strategy+". Should be one of the following: "+Arrays.toString(PreprocessingStrategy.values()));
+    }    
+    DataSupplier supplier;
     switch (strategy) {
       case DUMMY:
-        store = new SpdzStorageDummyImpl(myId, size);
+        supplier = new DummyDataSupplierImpl(myId, size);
         break;
       case STATIC:
-        store = new SpdzStorageImpl(0, size, myId,
-            new FilebasedStreamedStorageImpl(new InMemoryStorage()));
-        break;
-      case FUELSTATION:
-        store = new SpdzStorageImpl(0, size, myId, fuelStationBaseUrl);
+        int noOfThreadsUsed = 1;        
+        String storageName =
+            SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
+            + "_";
+        supplier = new DataSupplierImpl(new FilebasedStreamedStorageImpl(new InMemoryStorage()), storageName, size);        
+        break;      
       default:
         throw new ConfigurationException("Unkonwn preprocessing strategy: " + strategy);
     }
+    SpdzStorage store = new SpdzStorageImpl(supplier);
     return new SpdzResourcePoolImpl(myId, size, network, rand, secRand, store);
   }
 

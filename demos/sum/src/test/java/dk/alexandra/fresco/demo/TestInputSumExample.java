@@ -19,9 +19,11 @@ import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
+import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +35,7 @@ public class TestInputSumExample {
 
   @SuppressWarnings("unchecked")
   private static <ResourcePoolT extends ResourcePool> void runTest(
-      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> test, boolean dummy, int n) {
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> test, boolean dummy, int n) throws NoSuchAlgorithmException {
     // Since SCAPI currently does not work with ports > 9999 we use fixed ports
     // here instead of relying on ephemeral ports which are often > 9999.
     List<Integer> ports = new ArrayList<>(n);
@@ -60,7 +62,7 @@ public class TestInputSumExample {
       } else {
         suite = (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new SpdzProtocolSuite(150);
         resourcePool = (ResourcePoolT) new SpdzResourcePoolImpl(i, n, network, new Random(),
-            new DetermSecureRandom(), new SpdzStorageDummyImpl(i, n));
+            new DetermSecureRandom(), new SpdzStorageImpl(new DummyDataSupplierImpl(i, n)));
       }      
       TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> ttc =
           new TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric>(

@@ -20,19 +20,22 @@ import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
+import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class TestAggregation {
 
   private static void runTest(TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> test,
-      int n) {
+      int n) throws NoSuchAlgorithmException {
     // Since SCAPI currently does not work with ports > 9999 we use fixed ports
     // here instead of relying on ephemeral ports which are often > 9999.
     List<Integer> ports = new ArrayList<Integer>(n);
@@ -47,7 +50,7 @@ public class TestAggregation {
       ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> suite = new SpdzProtocolSuite(150);
       Network network = new KryoNetNetwork();
       network.init(netConf.get(i), 1);
-      SpdzStorage store = new SpdzStorageDummyImpl(i, n);
+      SpdzStorage store = new SpdzStorageImpl(new DummyDataSupplierImpl(i, n));
       SpdzResourcePool rp =
           new SpdzResourcePoolImpl(i, n, network, new Random(), new DetermSecureRandom(), store);
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
@@ -91,7 +94,12 @@ public class TestAggregation {
       
       @Override
       public void run() {
-        AggregationDemo.main(new String[]{"1", "-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s", "dummyArithmetic"});
+        try {
+          AggregationDemo.main(new String[]{"1", "-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s", "dummyArithmetic"});
+        } catch (NoSuchAlgorithmException e) {
+          e.printStackTrace();
+          Assert.fail();
+        }
       }
     };
     
@@ -99,7 +107,12 @@ public class TestAggregation {
       
       @Override
       public void run() {
-        AggregationDemo.main(new String[]{"2", "-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s", "dummyArithmetic"});
+        try {
+          AggregationDemo.main(new String[]{"2", "-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s", "dummyArithmetic"});
+        } catch (NoSuchAlgorithmException e) {          
+          e.printStackTrace();
+          Assert.fail();
+        }
       }
     }; 
     Thread t1 = new Thread(p1);

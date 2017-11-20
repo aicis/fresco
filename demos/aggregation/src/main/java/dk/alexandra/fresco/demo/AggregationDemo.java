@@ -22,10 +22,12 @@ import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
+import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -112,8 +114,9 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
    * Main.
    * 
    * @param args must include player ID
+   * @throws NoSuchAlgorithmException If your system does not support the hash function needed by SPDZ
    */
-  public static void main(String[] args) {
+  public static void main(String[] args) throws NoSuchAlgorithmException {
     // My player ID
     int pid = Integer.parseInt(args[0]);
 
@@ -132,7 +135,7 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
     // Create resource pool
     Network network = new KryoNetNetwork();
     network.init(getNetworkConfiguration(pid), 1);
-    SpdzStorage store = new SpdzStorageDummyImpl(pid, getNetworkConfiguration(pid).noOfParties());
+    SpdzStorage store = new SpdzStorageImpl(new DummyDataSupplierImpl(pid, getNetworkConfiguration(pid).noOfParties()));
     SpdzResourcePool rp = new SpdzResourcePoolImpl(pid, getNetworkConfiguration(pid).noOfParties(),
         network, new Random(), new DetermSecureRandom(), store);
 

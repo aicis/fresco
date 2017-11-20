@@ -86,8 +86,8 @@ public class CompareTests {
         public void test() throws Exception {
           Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app = builder -> {
             Numeric input = builder.numeric();
-            DRes<SInt> x = input.known(BigInteger.valueOf(3));
-            DRes<SInt> y = input.known(BigInteger.valueOf(5));
+            DRes<SInt> x = input.input(BigInteger.valueOf(3), 1);
+            DRes<SInt> y = input.input(BigInteger.valueOf(5), 1);
             Comparison comparison = builder.comparison();
             DRes<SInt> compResult1 = comparison.compareLEQ(x, y);
             DRes<SInt> compResult2 = comparison.compareLEQ(y, x);
