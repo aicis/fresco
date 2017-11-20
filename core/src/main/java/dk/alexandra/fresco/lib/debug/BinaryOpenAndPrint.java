@@ -51,7 +51,7 @@ public class BinaryOpenAndPrint implements
         }
       }
       seq.debug().marker(sb.toString(), output);
-      return () -> null;
+      return null;
     });
   }
 }

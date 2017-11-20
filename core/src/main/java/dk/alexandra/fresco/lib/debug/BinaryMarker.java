@@ -24,7 +24,7 @@ public class BinaryMarker implements Computation<Void, ProtocolBuilderBinary> {
   public DRes<Void> buildComputation(ProtocolBuilderBinary builder) {
     return builder.seq(seq -> {
       output.println(message);
-      return () -> null;
+      return null;
     });
   }
 }

@@ -69,7 +69,7 @@ class BuildStepLooping<BuilderT extends ProtocolBuilderImpl<BuilderT>, InputT>
 
     private void next() {
       while (!isDone && !currentProducer.hasNextProtocols()) {
-        updateToNextProducer(currentResult.out());
+        updateToNextProducer(out());
       }
     }
 

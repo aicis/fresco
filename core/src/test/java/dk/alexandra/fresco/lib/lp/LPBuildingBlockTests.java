@@ -47,7 +47,7 @@ public class LPBuildingBlockTests {
             toArrayList(numeric, b), toArrayList(numeric, f), numeric.known(BigInteger.ZERO));
         sUpdateMatrix = new Matrix<>(updateMatrix.getHeight(), updateMatrix.getWidth(),
             (i) -> toArrayList(numeric, updateMatrix.getRow(i)));
-        return () -> null;
+        return null;
       });
     }
 
@@ -355,7 +355,7 @@ public class LPBuildingBlockTests {
               public DRes<List<BigInteger>> buildComputation(ProtocolBuilderNumeric builder) {
                 mod = builder.getBasicNumericContext().getModulus();
                 // setupRandom(10, 10, builder);
-                return () -> null;
+                return null;
               }
             };
             List<BigInteger> outputs = runApplication(app);

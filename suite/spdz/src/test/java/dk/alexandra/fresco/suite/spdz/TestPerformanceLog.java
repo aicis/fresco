@@ -6,7 +6,7 @@ import dk.alexandra.fresco.logging.PerformanceLogger.Flag;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import org.junit.Test;
 
-public class PerformanceLogTests extends AbstractSpdzTest {
+public class TestPerformanceLog extends AbstractSpdzTest {
 
   @Test
   public void test_log_network() throws Exception {
