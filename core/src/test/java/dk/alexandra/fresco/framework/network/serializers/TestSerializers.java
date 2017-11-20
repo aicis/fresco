@@ -26,6 +26,11 @@ public class TestSerializers {
   }
 
   @Test
+  public void constructor() throws Exception {
+    new BooleanSerializer();
+  }
+
+  @Test
   public void testBooleanSerializer() {
     boolean b = true;
     byte bytes = BooleanSerializer.toBytes(b);
