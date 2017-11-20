@@ -9,7 +9,6 @@ import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
@@ -68,16 +67,15 @@ public class TestTinyTables {
       } else {
         suite = new TinyTablesProtocolSuite(playerId, tinyTablesFile);
       }
-      Network network = new KryoNetNetwork();
-      network.init(netConf.get(playerId), 1);
-      BatchEvaluationStrategy<ResourcePoolImpl> batchStrat = EvaluationStrategy.fromEnum(evalStrategy);
-      evaluator = new BatchedProtocolEvaluator<>(batchStrat);
-      ResourcePoolImpl rp = new ResourcePoolImpl(playerId, noPlayers, network, new Random(),
-          new DetermSecureRandom());
+      BatchEvaluationStrategy<ResourcePoolImpl> batchStrat = evalStrategy.getStrategy();
+      evaluator = new BatchedProtocolEvaluator<>(batchStrat, suite);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
-          new TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>(
+          new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite, evaluator),
-              rp);
+              () -> new ResourcePoolImpl(playerId, noPlayers,
+                  new Random(), new DetermSecureRandom()),
+              () -> new KryoNetNetwork(netConf.get(playerId))
+          );
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
@@ -149,41 +147,41 @@ public class TestTinyTables {
 
   @Test
   public void testInput() throws Exception {
-    runTest(new BasicBooleanTests.TestInput<ResourcePoolImpl>(false), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicBooleanTests.TestInput<>(false), EvaluationStrategy.SEQUENTIAL,
         true, "testInput");
-    runTest(new BasicBooleanTests.TestInput<ResourcePoolImpl>(true), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicBooleanTests.TestInput<>(true), EvaluationStrategy.SEQUENTIAL,
         false, "testInput");
   }
 
   @Test
   public void testXOR() throws Exception {
-    runTest(new BasicBooleanTests.TestXOR<ResourcePoolImpl>(false), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicBooleanTests.TestXOR<>(false), EvaluationStrategy.SEQUENTIAL,
         true, "testXOR");
-    runTest(new BasicBooleanTests.TestXOR<ResourcePoolImpl>(true), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicBooleanTests.TestXOR<>(true), EvaluationStrategy.SEQUENTIAL,
         false, "testXOR");
   }
 
   @Test
   public void testAND() throws Exception {
-    runTest(new BasicBooleanTests.TestAND<ResourcePoolImpl>(false), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicBooleanTests.TestAND<>(false), EvaluationStrategy.SEQUENTIAL,
         true, "testAND");
-    runTest(new BasicBooleanTests.TestAND<ResourcePoolImpl>(true), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicBooleanTests.TestAND<>(true), EvaluationStrategy.SEQUENTIAL,
         false, "testAND");
   }
 
   @Test
   public void testNOT() throws Exception {
-    runTest(new BasicBooleanTests.TestNOT<ResourcePoolImpl>(false), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicBooleanTests.TestNOT<>(false), EvaluationStrategy.SEQUENTIAL,
         true, "testNOT");
-    runTest(new BasicBooleanTests.TestNOT<ResourcePoolImpl>(true), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicBooleanTests.TestNOT<>(true), EvaluationStrategy.SEQUENTIAL,
         false, "testNOT");
   }
 
   @Test
   public void testBasicProtocols() throws Exception {
-    runTest(new BasicBooleanTests.TestBasicProtocols<ResourcePoolImpl>(false),
+    runTest(new BasicBooleanTests.TestBasicProtocols<>(false),
         EvaluationStrategy.SEQUENTIAL, true, "testBasicProtocols");
-    runTest(new BasicBooleanTests.TestBasicProtocols<ResourcePoolImpl>(true),
+    runTest(new BasicBooleanTests.TestBasicProtocols<>(true),
         EvaluationStrategy.SEQUENTIAL, false, "testBasicProtocols");
   }
 
@@ -192,45 +190,45 @@ public class TestTinyTables {
   @Category(IntegrationTest.class)
   @Test
   public void testMult() throws Exception {
-    runTest(new BristolCryptoTests.Mult32x32Test<ResourcePoolImpl>(false),
+    runTest(new BristolCryptoTests.Mult32x32Test<>(false),
         EvaluationStrategy.SEQUENTIAL, true, "testMult32x32");
-    runTest(new BristolCryptoTests.Mult32x32Test<ResourcePoolImpl>(true),
+    runTest(new BristolCryptoTests.Mult32x32Test<>(true),
         EvaluationStrategy.SEQUENTIAL, false, "testMult32x32");
   }
 
   @Category(IntegrationTest.class)
   @Test
   public void testAES() throws Exception {
-    runTest(new BristolCryptoTests.AesTest<ResourcePoolImpl>(false), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BristolCryptoTests.AesTest<>(false), EvaluationStrategy.SEQUENTIAL,
         true, "testAES");
-    runTest(new BristolCryptoTests.AesTest<ResourcePoolImpl>(true), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BristolCryptoTests.AesTest<>(true), EvaluationStrategy.SEQUENTIAL,
         false, "testAES");
   }
 
   @Category(IntegrationTest.class)
   @Test
   public void test_DES() throws Exception {
-    runTest(new BristolCryptoTests.DesTest<ResourcePoolImpl>(false), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BristolCryptoTests.DesTest<>(false), EvaluationStrategy.SEQUENTIAL,
         true, "testDES");
-    runTest(new BristolCryptoTests.DesTest<ResourcePoolImpl>(true), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BristolCryptoTests.DesTest<>(true), EvaluationStrategy.SEQUENTIAL,
         false, "testDES");
   }
 
   @Category(IntegrationTest.class)
   @Test
   public void test_SHA1() throws Exception {
-    runTest(new BristolCryptoTests.Sha1Test<ResourcePoolImpl>(false), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BristolCryptoTests.Sha1Test<>(false), EvaluationStrategy.SEQUENTIAL,
         true, "testSHA1");
-    runTest(new BristolCryptoTests.Sha1Test<ResourcePoolImpl>(true), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BristolCryptoTests.Sha1Test<>(true), EvaluationStrategy.SEQUENTIAL,
         false, "testSHA1");
   }
 
   @Category(IntegrationTest.class)
   @Test
   public void test_SHA256() throws Exception {
-    runTest(new BristolCryptoTests.Sha256Test<ResourcePoolImpl>(false),
+    runTest(new BristolCryptoTests.Sha256Test<>(false),
         EvaluationStrategy.SEQUENTIAL, true, "testSHA256");
-    runTest(new BristolCryptoTests.Sha256Test<ResourcePoolImpl>(true),
+    runTest(new BristolCryptoTests.Sha256Test<>(true),
         EvaluationStrategy.SEQUENTIAL, false, "testSHA256");
   }
 
@@ -238,25 +236,25 @@ public class TestTinyTables {
 
   @Test
   public void test_Binary_Adder() throws Exception {
-    runTest(new AddTests.TestFullAdder<ResourcePoolImpl>(false),
+    runTest(new AddTests.TestFullAdder<>(false),
         EvaluationStrategy.SEQUENTIAL_BATCHED, true, "testAdder");
-    runTest(new AddTests.TestFullAdder<ResourcePoolImpl>(true),
+    runTest(new AddTests.TestFullAdder<>(true),
         EvaluationStrategy.SEQUENTIAL_BATCHED, false, "testAdder");
   }
 
   @Test
   public void test_comparison() throws Exception {
-    runTest(new ComparisonBooleanTests.TestGreaterThan<ResourcePoolImpl>(false),
+    runTest(new ComparisonBooleanTests.TestGreaterThan<>(false),
         EvaluationStrategy.SEQUENTIAL, true, "testGT");
-    runTest(new ComparisonBooleanTests.TestGreaterThan<ResourcePoolImpl>(true),
+    runTest(new ComparisonBooleanTests.TestGreaterThan<>(true),
         EvaluationStrategy.SEQUENTIAL, false, "testGT");
   }
 
   @Test
   public void test_equality() throws Exception {
-    runTest(new ComparisonBooleanTests.TestEquality<ResourcePoolImpl>(false),
+    runTest(new ComparisonBooleanTests.TestEquality<>(false),
         EvaluationStrategy.SEQUENTIAL, true, "testEQ");
-    runTest(new ComparisonBooleanTests.TestEquality<ResourcePoolImpl>(true),
+    runTest(new ComparisonBooleanTests.TestEquality<>(true),
         EvaluationStrategy.SEQUENTIAL, false, "testEQ");
   }
 }

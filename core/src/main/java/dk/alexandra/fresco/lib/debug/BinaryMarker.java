@@ -17,18 +17,14 @@ public class BinaryMarker implements Computation<Void, ProtocolBuilderBinary> {
 
   public BinaryMarker(String message, PrintStream output) {
     this.message = message;
-    if (output != null) {
-      this.output = output;
-    } else {
-      this.output = System.out;
-    }
+    this.output = output;
   }
 
   @Override
   public DRes<Void> buildComputation(ProtocolBuilderBinary builder) {
     return builder.seq(seq -> {
       output.println(message);
-      return () -> null;
+      return null;
     });
   }
 }

@@ -72,7 +72,7 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
       return parSubSequential.numeric().sub(sub, inputs.getSecond().getFirst());
     }, (parSubSequential, inputs) -> {
       if (!calculateRemainders) {
-        return () -> null;
+        return null;
       } else {
         // We also need to calculate the remainder, aka. the bit
         // we throw away in the shift:

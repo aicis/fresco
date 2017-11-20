@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -23,22 +24,34 @@ import java.util.List;
  * result of the Simplex solver in order to get the correct result.
  * </p>
  */
-public class DEAInputEfficiencyPrefixBuilder {
+public class DEAInputEfficiencyPrefixBuilder implements
+    Computation<SimpleLPPrefix, ProtocolBuilderNumeric> {
 
-  public static DRes<SimpleLPPrefix> build(
+  private final List<List<DRes<SInt>>> basisInputs;
+  private final List<List<DRes<SInt>>> basisOutputs;
+  private final List<DRes<SInt>> targetInputs;
+  private final List<DRes<SInt>> targetOutputs;
+
+  public DEAInputEfficiencyPrefixBuilder(
       List<List<DRes<SInt>>> basisInputs, List<List<DRes<SInt>>> basisOutputs,
-      List<DRes<SInt>> targetInputs, List<DRes<SInt>> targetOutputs,
-      ProtocolBuilderNumeric builder
-  ) {
+      List<DRes<SInt>> targetInputs, List<DRes<SInt>> targetOutputs) {
+    this.basisInputs = basisInputs;
+    this.basisOutputs = basisOutputs;
+    this.targetInputs = targetInputs;
+    this.targetOutputs = targetOutputs;
+  }
+
+  @Override
+  public DRes<SimpleLPPrefix> buildComputation(ProtocolBuilderNumeric builder) {
     Numeric numeric = builder.numeric();
     int inputs = targetInputs.size();
     int outputs = targetOutputs.size();
     int dbSize = basisInputs.get(0).size();
     int constraints = inputs + outputs + 1;
-    // One "theta" variable, i.e., the variable to optimize 
+    // One "theta" variable, i.e., the variable to optimize
     // One variable "lambda" variable for each basis entry
     // One slack variable for each constraint
-    // One artificial variable for each and greater than constraint (outputs) 
+    // One artificial variable for each and greater than constraint (outputs)
     int variables = 1 + dbSize + constraints + outputs;
     // 2 should be safe as the optimal value is no larger than 1
     int bigM = 2;
@@ -141,7 +154,7 @@ public class DEAInputEfficiencyPrefixBuilder {
             DRes<SInt> scaled = seq.numeric().mult(sBigM, c.get(finalL).get(k));
             f.set(k, seq.numeric().add(scaled, f.get(k)));
           }
-          return () -> null;
+          return null;
         });
       }
       ArrayList<DRes<SInt>> basis = new ArrayList<>(constraints);
@@ -150,27 +163,9 @@ public class DEAInputEfficiencyPrefixBuilder {
       }
       LPTableau tab = new LPTableau(new Matrix<>(constraints, variables, c), b, f, z);
       Matrix<DRes<SInt>> updateMatrix = new Matrix<>(
-          constraints + 1, constraints + 1, getIdentity(constraints + 1, one, zero));
+          constraints + 1, constraints + 1,
+          DEAPrefixBuilderMaximize.getIdentity(constraints + 1, one, zero));
       return () -> new SimpleLPPrefix(updateMatrix, tab, one, basis);
     });
   }
-
-  private static ArrayList<ArrayList<DRes<SInt>>> getIdentity(int dimension,
-      DRes<SInt> one,
-      DRes<SInt> zero) {
-    ArrayList<ArrayList<DRes<SInt>>> identity = new ArrayList<>(dimension);
-    for (int i = 0; i < dimension; i++) {
-      ArrayList<DRes<SInt>> row = new ArrayList<>();
-      for (int j = 0; j < dimension; j++) {
-        if (i == j) {
-          row.add(one);
-        } else {
-          row.add(zero);
-        }
-      }
-      identity.add(row);
-    }
-    return identity;
-  }
-
 }

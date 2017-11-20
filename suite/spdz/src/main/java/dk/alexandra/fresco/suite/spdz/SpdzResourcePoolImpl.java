@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
@@ -20,9 +19,9 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
   private BigInteger modulusHalf;
   private SpdzStorage store;
 
-  public SpdzResourcePoolImpl(int myId, int noOfPlayers, Network network, Random random,
+  public SpdzResourcePoolImpl(int myId, int noOfPlayers, Random random,
       SecureRandom secRand, SpdzStorage store) throws NoSuchAlgorithmException {
-    super(myId, noOfPlayers, network, random, secRand);
+    super(myId, noOfPlayers, random, secRand);
 
     this.store = store;
 

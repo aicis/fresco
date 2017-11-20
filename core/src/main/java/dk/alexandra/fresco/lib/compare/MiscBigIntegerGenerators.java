@@ -41,7 +41,7 @@ public class MiscBigIntegerGenerators {
       // Generate a new set of OInts and store them...
       result = new BigInteger[l + 1];
 
-      BigInteger[] coefficients = constructPolynomial(l, 1);
+      BigInteger[] coefficients = constructPolynomial(l);
       for (int i = 0; i <= l; i++) {
         result[i] = coefficients[coefficients.length - 1 - i];
       }
@@ -53,20 +53,18 @@ public class MiscBigIntegerGenerators {
 
   /**
    * Returns the coefficients of a polynomial of degree <i>l</i> such that
-   * <i>f(m) = 1</i> and <i>f(n) = 0</i> for <i>1 &le; n &le; l+1</i> and <i>n
-   * &ne; m</i> in <i>Z<sub>p</sub></i>. The first element in the array is the
+   * <i>f(1) = 1</i> and <i>f(n) = 0</i> for <i>1 &le; n &le; l+1</i> and <i>n
+   * &ne; 1</i> in <i>Z<sub>p</sub></i>. The first element in the array is the
    * coefficient of the term with the highest degree, eg. degree <i>l</i>.
    *
    * @param l The desired degree of <i>f</i>
-   * @param m The only non-zero integer point for <i>f</i> in the range <i>1,2,...,l+1</i>.
    */
-  private BigInteger[] constructPolynomial(int l, int m) {
-
+  private BigInteger[] constructPolynomial(int l) {
 		/*
      * Let f_i be the polynoimial which is the product of the first i of
-		 * (x-1), (x-2), ..., (x-(m-1)), (x-(m+1)), ..., (x-(l+1)). Then f_0 = 1
-		 * and f_i = (x-k) f_{i-1} where k = i if i < m and k = i+1 if i >= m.
-		 * Note that we are interested in calculating f(x) = f_l(x) / f_l(m).
+		 * (x-1), (x-2), ..., (x), (x-2), ..., (x-(l+1)). Then f_0 = 1
+		 * and f_i = (x-k) f_{i-1} where k = i if i < 1 and k = i+1 if i >= 1.
+		 * Note that we are interested in calculating f(x) = f_l(x) / f_l(1).
 		 *
 		 * If we let f_ij denote the j'th coefficient of f_i we have the
 		 * recurrence relations:
@@ -90,9 +88,7 @@ public class MiscBigIntegerGenerators {
 
     for (int i = 1; i <= l; i++) {
       int k = i;
-      if (i >= m) {
-        k++;
-      }
+      k++;
 
       // Apply recurrence relation
       f[i] = f[i - 1].multiply(BigInteger.valueOf(-k)).mod(modulus);
@@ -100,7 +96,7 @@ public class MiscBigIntegerGenerators {
         f[j] = f[j].subtract(BigInteger.valueOf(k).multiply(f[j - 1]).mod(modulus)).mod(modulus);
       }
 
-      fm = fm.multiply(BigInteger.valueOf(m - k)).mod(modulus);
+      fm = fm.multiply(BigInteger.valueOf(1 - k)).mod(modulus);
     }
 
     // Scale all coefficients of f_l by f_l(m)^{-1}.

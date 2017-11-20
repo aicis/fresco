@@ -10,7 +10,6 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
@@ -23,22 +22,20 @@ import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class TestAggregation {
 
   private static void runTest(TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> test,
-      int n) throws NoSuchAlgorithmException {
-    // Since SCAPI currently does not work with ports > 9999 we use fixed ports
-    // here instead of relying on ephemeral ports which are often > 9999.
-    List<Integer> ports = new ArrayList<Integer>(n);
+      int n) throws Exception {
+    List<Integer> ports = new ArrayList<>(n);
     for (int i = 1; i <= n; i++) {
       ports.add(9000 + i * 10);
     }
@@ -47,23 +44,23 @@ public class TestAggregation {
     Map<Integer, TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     for (int i : netConf.keySet()) {
-      ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> suite = new SpdzProtocolSuite(150);
-      Network network = new KryoNetNetwork();
-      network.init(netConf.get(i), 1);
+      ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> suite = new SpdzProtocolSuite(150);      
       SpdzStorage store = new SpdzStorageImpl(new DummyDataSupplierImpl(i, n));
       SpdzResourcePool rp =
-          new SpdzResourcePoolImpl(i, n, network, new Random(), new DetermSecureRandom(), store);
+          new SpdzResourcePoolImpl(i, n, new Random(), new DetermSecureRandom(), store);
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
-          new BatchedProtocolEvaluator<>(new SequentialStrategy<>());
-      SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce = 
+          new BatchedProtocolEvaluator<>(new SequentialStrategy<>(), suite);
+      SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(suite, evaluator);
       TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadConfiguration<>(
               sce,
-              rp);
+              () -> rp,
+              () -> new KryoNetNetwork(netConf.get(i)));
       conf.put(i, ttc);
     }
     TestThreadRunner.run(test, conf);
+
 
   }
 
@@ -78,43 +75,35 @@ public class TestAggregation {
               public void test() throws Exception {
                 // Create application we are going run
                 AggregationDemo<SpdzResourcePool> app = new AggregationDemo<>();
-                app.runApplication(conf.sce, conf.resourcePool);
+                app.runApplication(conf.sce, conf.getResourcePool(), conf.getNetwork());
               }
             };
           }
-
-      ;
         };
     runTest(f, 2);
   }
-  
+
   @Test
   public void testAggregationCmdLine() throws Exception {
-    Runnable p1 = new Runnable() {
-      
-      @Override
-      public void run() {
-        try {
-          AggregationDemo.main(new String[]{"1", "-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s", "dummyArithmetic"});
-        } catch (NoSuchAlgorithmException e) {
-          e.printStackTrace();
-          Assert.fail();
-        }
+    Runnable p1 = () -> {
+      try {
+        AggregationDemo.main(
+            new String[]{"1", "-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s",
+                "dummyArithmetic"});
+      } catch (IOException | NoSuchAlgorithmException e) {
+        throw new RuntimeException("Error", e);
       }
     };
-    
-    Runnable p2 = new Runnable() {
-      
-      @Override
-      public void run() {
-        try {
-          AggregationDemo.main(new String[]{"2", "-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s", "dummyArithmetic"});
-        } catch (NoSuchAlgorithmException e) {          
-          e.printStackTrace();
-          Assert.fail();
-        }
+
+    Runnable p2 = () -> {
+      try {
+        AggregationDemo.main(
+            new String[]{"2", "-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s",
+                "dummyArithmetic"});
+      } catch (IOException | NoSuchAlgorithmException e) {
+        throw new RuntimeException("Error", e);
       }
-    }; 
+    };
     Thread t1 = new Thread(p1);
     Thread t2 = new Thread(p2);
     t1.start();

@@ -2,7 +2,7 @@ package dk.alexandra.fresco.suite.tinytables.online.protocols;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesSBool;
@@ -55,7 +55,7 @@ public class TinyTablesXORProtocol extends TinyTablesProtocol<SBool> {
   }
 
   @Override
-  public EvaluationStatus evaluate(int round, ResourcePoolImpl resourcePool, SCENetwork network) {
+  public EvaluationStatus evaluate(int round, ResourcePoolImpl resourcePool, Network network) {
     if (round == 0) {
       // Free XOR
       out = (out == null) ? new TinyTablesSBool() : out;

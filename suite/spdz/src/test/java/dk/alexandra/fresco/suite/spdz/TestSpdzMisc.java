@@ -36,13 +36,13 @@ public class TestSpdzMisc {
   @Test(expected=MPCException.class)
   public void testResourcePoolStoreNotInitialized() throws NoSuchAlgorithmException {
     SpdzStorage store = new SpdzStorageImpl(new DataSupplierImpl(new FilebasedStreamedStorageImpl(new InMemoryStorage()), "null", 2));
-    new SpdzResourcePoolImpl(1, 2, null, null, null, store);
+    new SpdzResourcePoolImpl(1, 2, null, null, store);
   }
   
   @Test(expected=MPCException.class)
   public void testSpdzExponentiationPipeProtocolExpPipeFailedLength() throws NoSuchAlgorithmException {
     SpdzStorage store = new SpdzStorageImpl(new DummyDataSupplierImpl(1, 2));
-    SpdzResourcePool rp = new SpdzResourcePoolImpl(1, 2, null, null, null, store);
+    SpdzResourcePool rp = new SpdzResourcePoolImpl(1, 2, null, null, store);
     SpdzExponentiationPipeProtocol pro = new SpdzExponentiationPipeProtocol(Util.EXP_PIPE_SIZE);
     pro.evaluate(0, rp, null);
   }

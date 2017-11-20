@@ -4,15 +4,8 @@ import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.NativeProtocol.EvaluationStatus;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.SCENetwork;
-import dk.alexandra.fresco.framework.network.SCENetworkSupplier;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * This class implements the core of a general batched communication strategy for evaluating
@@ -39,22 +32,20 @@ public class BatchedStrategy<ResourcePoolT extends ResourcePool>
     implements BatchEvaluationStrategy<ResourcePoolT> {
 
   @Override
-  public <sceNetwork extends SCENetwork & SCENetworkSupplier> void processBatch(
+  public void processBatch(
       ProtocolCollection<ResourcePoolT> protocols, ResourcePoolT resourcePool,
-      sceNetwork sceNetwork)
-          throws IOException {
-    Network network = resourcePool.getNetwork();
+      NetworkBatchDecorator networkBatchDecorator) {
     int round = 0;
     while (protocols.size() > 0) {
-      evaluateCurrentRound(protocols, sceNetwork, 0, resourcePool, network, round);
-
+      evaluateCurrentRound(protocols, networkBatchDecorator, resourcePool, round);
+      networkBatchDecorator.flush();
       round++;
     }
-  }  
+  }
 
   private void evaluateCurrentRound(
-      ProtocolCollection<ResourcePoolT> protocols, SCENetwork sceNetwork, int channel,
-      ResourcePoolT rp, Network network, int round) throws IOException {
+      ProtocolCollection<ResourcePoolT> protocols, Network sceNetwork,
+      ResourcePoolT rp, int round) {
     Iterator<NativeProtocol<?, ResourcePoolT>> iterator = protocols.iterator();
     while (iterator.hasNext()) {
       NativeProtocol<?, ResourcePoolT> protocol = iterator.next();
@@ -62,27 +53,6 @@ public class BatchedStrategy<ResourcePoolT extends ResourcePool>
       if (status.equals(EvaluationStatus.IS_DONE)) {
         iterator.remove();
       }
-    }
-    if (sceNetwork instanceof SCENetworkSupplier) {
-      // Send/Receive data for this round if SCENetwork is a supplier
-      SCENetworkSupplier sceNetworkSupplier = (SCENetworkSupplier) sceNetwork;
-      Map<Integer, ByteBuffer> inputs = new HashMap<>();
-
-      // Send data
-      Map<Integer, byte[]> output = sceNetworkSupplier.getOutputFromThisRound();
-      for (Map.Entry<Integer, byte[]> e : output.entrySet()) {
-        network.send(channel, e.getKey(), e.getValue());
-      }
-
-      // receive data
-      Set<Integer> expected = sceNetworkSupplier.getExpectedInputForNextRound();
-      for (int i : expected) {
-        byte[] data = network.receive(channel, i);
-        inputs.put(i, ByteBuffer.wrap(data));
-      }
-
-      sceNetworkSupplier.setInput(inputs);
-      sceNetworkSupplier.nextRound();
     }
   }
 }

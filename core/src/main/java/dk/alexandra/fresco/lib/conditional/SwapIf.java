@@ -21,12 +21,6 @@ public class SwapIf
     this.right = right;
   }
 
-  public SwapIf(DRes<SInt> swapper, Pair<DRes<SInt>, DRes<SInt>> pair) {
-    this.swapper = swapper;
-    this.left = pair.getFirst();
-    this.right = pair.getSecond();
-  }
-
   @Override
   public DRes<Pair<DRes<SInt>, DRes<SInt>>> buildComputation(ProtocolBuilderNumeric builder) {
     DRes<SInt> updatedA = builder.advancedNumeric().condSelect(swapper, right, left);

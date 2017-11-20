@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
@@ -89,7 +88,7 @@ public class TestStorage extends AbstractSpdzTest{
       InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()),
           2, noOfThreads, 1, 100, 10000, 10);
       runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
-          NetworkingStrategy.KRYONET, PreprocessingStrategy.STATIC, 2);
+          PreprocessingStrategy.STATIC, 2);
     } catch (Exception e) {
       throw e.getCause().getCause();
     } finally {
@@ -104,7 +103,7 @@ public class TestStorage extends AbstractSpdzTest{
       InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()),
           2, noOfThreads, 1000, 1, 10000, 10);
       runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
-          NetworkingStrategy.KRYONET, PreprocessingStrategy.STATIC, 2);
+          PreprocessingStrategy.STATIC, 2);
     } catch (Exception e) {
       throw e.getCause().getCause();
     } finally {
@@ -119,7 +118,7 @@ public class TestStorage extends AbstractSpdzTest{
       InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()),
           2, noOfThreads, 1000, 10, 1, 10);
       runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
-          NetworkingStrategy.KRYONET, PreprocessingStrategy.STATIC, 2);
+          PreprocessingStrategy.STATIC, 2);
     } catch (Exception e) {
       throw e.getCause().getCause();
     } finally {
@@ -134,7 +133,7 @@ public class TestStorage extends AbstractSpdzTest{
       InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()),
           2, noOfThreads, 1000, 10, 10000, 1);
       runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
-          NetworkingStrategy.KRYONET, PreprocessingStrategy.STATIC, 2);
+          PreprocessingStrategy.STATIC, 2);
     } catch (Exception e) {
       throw e.getCause().getCause();
     } finally {

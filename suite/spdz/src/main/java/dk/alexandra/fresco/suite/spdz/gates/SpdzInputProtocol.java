@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
@@ -27,7 +27,7 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
 
   @Override
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
-      SCENetwork network) {
+      Network network) {
     int myId = spdzResourcePool.getMyId();
     BigInteger modulus = spdzResourcePool.getModulus();
     SpdzStorage storage = spdzResourcePool.getStore();
@@ -40,14 +40,12 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
           bcValue = bcValue.mod(modulus);
           network.sendToAll(serializer.toBytes(bcValue));
         }
-        network.expectInputFromPlayer(inputter);
         return EvaluationStatus.HAS_MORE_ROUNDS;
       case 1:
         this.value_masked = serializer.toBigInteger(network.receive(inputter));
         this.digest = sendBroadcastValidation(
             spdzResourcePool.getMessageDigest(), network,
             value_masked);
-        network.expectInputFromAll();
         return EvaluationStatus.HAS_MORE_ROUNDS;
       case 2:
         boolean validated = receiveBroadcastValidation(network, digest);

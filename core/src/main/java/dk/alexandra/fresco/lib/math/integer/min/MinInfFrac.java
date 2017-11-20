@@ -98,7 +98,7 @@ public class MinInfFrac implements Computation<MinInfOutput, ProtocolBuilderNume
                   int finalI = i;
                   tmpFs.set(i,
                       par.seq((innerSeq) -> innerSeq.seq(seq1 ->
-                              () -> null
+                              null
                           ).pairInPar(
                           (seq11, ignored) -> seq11
                               .numeric().mult(fs.get(finalI * 2).n, fs.get(finalI * 2 + 1).d),
@@ -133,7 +133,7 @@ public class MinInfFrac implements Computation<MinInfOutput, ProtocolBuilderNume
                       )
                   );
                 }
-                return () -> null;
+                return null;
               });
 
               if (fs.size() % 2 == 1) {
@@ -152,13 +152,13 @@ public class MinInfFrac implements Computation<MinInfOutput, ProtocolBuilderNume
 
                       cs.set(finalI * 2, c);
                       cs.set(finalI * 2 + 1, notC);
-                      return () -> null;
+                      return null;
                     });
                   }
                   if (cs.size() % 2 == 1) {
                     cs.set(cs.size() - 1, one);
                   }
-                  return () -> null;
+                  return null;
                 });
               } else {
                 seq.par((par) -> {
@@ -176,12 +176,12 @@ public class MinInfFrac implements Computation<MinInfOutput, ProtocolBuilderNume
                         for (int j = finalI * offset + offset / 2; j < limit; j++) {
                           cs.set(j, innerPar.numeric().mult(notC, cs.get(j)));
                         }
-                        return () -> null;
+                        return null;
                       });
-                      return () -> null;
+                      return null;
                     });
                   }
-                  return () -> null;
+                  return null;
                 });
               }
 
@@ -233,7 +233,7 @@ public class MinInfFrac implements Computation<MinInfOutput, ProtocolBuilderNume
     }
   }
 
-  private static class IterationState implements DRes<IterationState> {
+  private static class IterationState {
 
     private final List<Frac> fs;
     private final int layer;
@@ -241,11 +241,6 @@ public class MinInfFrac implements Computation<MinInfOutput, ProtocolBuilderNume
     private IterationState(List<Frac> fs, int layer) {
       this.fs = fs;
       this.layer = layer;
-    }
-
-    @Override
-    public IterationState out() {
-      return this;
     }
   }
 }

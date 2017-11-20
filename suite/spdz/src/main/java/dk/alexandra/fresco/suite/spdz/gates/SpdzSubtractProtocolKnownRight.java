@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
@@ -26,7 +26,7 @@ public class SpdzSubtractProtocolKnownRight extends SpdzNativeProtocol<SInt> {
 
   @Override
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
-      SCENetwork network) {
+      Network network) {
     SpdzSInt left = (SpdzSInt) this.left.out();
     SpdzElement knownSpdzElement =
         SpdzKnownSIntProtocol.createKnownSpdzElement(spdzResourcePool, right);

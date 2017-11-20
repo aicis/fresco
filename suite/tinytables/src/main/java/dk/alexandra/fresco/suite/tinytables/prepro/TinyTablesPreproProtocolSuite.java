@@ -1,9 +1,8 @@
 package dk.alexandra.fresco.suite.tinytables.prepro;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
-import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.BitVector;
@@ -76,7 +75,6 @@ public class TinyTablesPreproProtocolSuite
   private File tinyTablesFile;
   private TinyTablesTripleProvider tinyTablesTripleProvider;
   private List<TinyTablesPreproANDProtocol> unprocessedAndGates;
-  private ResourcePool resourcePool;
   private static volatile Map<Integer, TinyTablesPreproProtocolSuite> instances =
       Collections.synchronizedMap(new HashMap<>());
 
@@ -91,10 +89,11 @@ public class TinyTablesPreproProtocolSuite
   }
 
   @Override
-  public BuilderFactory<ProtocolBuilderBinary> init(ResourcePoolImpl resourcePool) {
-    OTFactory otFactory = new SemiHonestOTExtensionFactory(resourcePool.getNetwork(),
-        resourcePool.getMyId(), 128, new BaseOTFactory(resourcePool.getNetwork(),
-            resourcePool.getMyId(), resourcePool.getSecureRandom()),
+  public BuilderFactory<ProtocolBuilderBinary> init(
+      ResourcePoolImpl resourcePool, Network network) {
+    OTFactory otFactory = new SemiHonestOTExtensionFactory(network,
+        resourcePool.getMyId(), 128, new BaseOTFactory(network,
+        resourcePool.getMyId(), resourcePool.getSecureRandom()),
         resourcePool.getSecureRandom());
 
     this.tinyTablesTripleProvider =
@@ -104,7 +103,6 @@ public class TinyTablesPreproProtocolSuite
     this.unprocessedAndGates =
         Collections.synchronizedList(new ArrayList<TinyTablesPreproANDProtocol>());
 
-    this.resourcePool = resourcePool;
     return new TinyTablesPreproBuilderFactory();
   }
 
@@ -121,18 +119,18 @@ public class TinyTablesPreproProtocolSuite
     return new DummyRoundSynchronization<ResourcePoolImpl>() {
       @Override
       public void finishedBatch(int gatesEvaluated, ResourcePoolImpl resourcePool,
-          SCENetwork sceNetwork) throws MPCException {
+          Network network) {
         /*
          * When 1000 AND gates needs to be processed, we do it.
          */
         if (TinyTablesPreproProtocolSuite.this.unprocessedAndGates.size() > 1000) {
-          calculateTinyTablesForUnprocessedANDGates();
+          calculateTinyTablesForUnprocessedANDGates(resourcePool, network);
         }
       }
 
       @Override
-      public void finishedEval(ResourcePoolImpl resourcePool, SCENetwork sceNetwork) {
-        calculateTinyTablesForUnprocessedANDGates();
+      public void finishedEval(ResourcePoolImpl resourcePool, Network network) {
+        calculateTinyTablesForUnprocessedANDGates(resourcePool, network);
         tinyTablesTripleProvider.close();
         /*
          * Store the TinyTables to a file.
@@ -149,67 +147,63 @@ public class TinyTablesPreproProtocolSuite
     };
   }
 
-  private void calculateTinyTablesForUnprocessedANDGates() {
-    try {
-      int unprocessedGates = this.unprocessedAndGates.size();
+  private void calculateTinyTablesForUnprocessedANDGates(
+      ResourcePool resourcePool, Network network) {
+    int unprocessedGates = this.unprocessedAndGates.size();
 
       /*
        * Sort the unprocessed gates to make sure that the players process them in the same order.
        */
-      this.unprocessedAndGates.sort(Comparator.comparingInt(TinyTablesPreproProtocol::getId));
+    this.unprocessedAndGates.sort(Comparator.comparingInt(TinyTablesPreproProtocol::getId));
 
-      // Two bits per gate
-      TinyTablesElementVector shares = new TinyTablesElementVector(unprocessedGates * 2);
-      List<TinyTablesTriple> usedTriples = new ArrayList<>();
-      for (int i = 0; i < unprocessedGates; i++) {
-        TinyTablesPreproANDProtocol gate = this.unprocessedAndGates.get(i);
-        TinyTablesTriple triple = this.tinyTablesTripleProvider.getNextTriple();
-        usedTriples.add(triple);
+    // Two bits per gate
+    TinyTablesElementVector shares = new TinyTablesElementVector(unprocessedGates * 2);
+    List<TinyTablesTriple> usedTriples = new ArrayList<>();
+    for (int i = 0; i < unprocessedGates; i++) {
+      TinyTablesPreproANDProtocol gate = this.unprocessedAndGates.get(i);
+      TinyTablesTriple triple = this.tinyTablesTripleProvider.getNextTriple();
+      usedTriples.add(triple);
 
         /*
          * Calculate temp values e, d for multiplication. These should be opened before calling
          * finalize.
          */
-        Pair<TinyTablesElement, TinyTablesElement> msg =
-            gate.getInRight().getValue().multiply(gate.getInLeft().getValue(), triple);
+      Pair<TinyTablesElement, TinyTablesElement> msg =
+          gate.getInRight().getValue().multiply(gate.getInLeft().getValue(), triple);
 
-        shares.setShare(2 * i, msg.getFirst().getShare());
-        shares.setShare(2 * i + 1, msg.getSecond().getShare());
-      }
-
-      byte[] size = ByteBuffer.allocate(2).putShort((short) shares.getSize()).array();
-      // send
-      this.resourcePool.getNetwork().send(0, Util.otherPlayerId(resourcePool.getMyId()), size);
-      this.resourcePool.getNetwork().send(0, Util.otherPlayerId(resourcePool.getMyId()),
-          shares.payload());
-
-      // receive
-      size = this.resourcePool.getNetwork().receive(0, Util.otherPlayerId(resourcePool.getMyId()));
-      short length = ByteBuffer.wrap(size).getShort();
-      byte[] data =
-          this.resourcePool.getNetwork().receive(0, Util.otherPlayerId(resourcePool.getMyId()));
-      TinyTablesElementVector otherShares = new TinyTablesElementVector(data, length);
-
-      BitVector open = TinyTablesElementVector.open(shares, otherShares);
-
-      for (int i = 0; i < unprocessedGates; i++) {
-        TinyTablesPreproANDProtocol gate = this.unprocessedAndGates.get(i);
-        boolean e = open.get(2 * i);
-        boolean d = open.get(2 * i + 1);
-
-        TinyTablesElement product = TinyTablesElement.finalizeMultiplication(e, d,
-            usedTriples.get(i), this.resourcePool.getMyId());
-
-        TinyTable tinyTable = gate.calculateTinyTable(this.resourcePool.getMyId(), product);
-
-        this.storage.storeTinyTable(gate.getId(), tinyTable);
-      }
-
-      this.unprocessedAndGates.clear();
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      shares.setShare(2 * i, msg.getFirst().getShare());
+      shares.setShare(2 * i + 1, msg.getSecond().getShare());
     }
+
+    byte[] size = ByteBuffer.allocate(2).putShort((short) shares.getSize()).array();
+    // send
+    network.send(Util.otherPlayerId(resourcePool.getMyId()), size);
+    network.send(Util.otherPlayerId(resourcePool.getMyId()),
+        shares.payload());
+
+    // receive
+    size = network.receive(Util.otherPlayerId(resourcePool.getMyId()));
+    short length = ByteBuffer.wrap(size).getShort();
+    byte[] data =
+        network.receive(Util.otherPlayerId(resourcePool.getMyId()));
+    TinyTablesElementVector otherShares = new TinyTablesElementVector(data, length);
+
+    BitVector open = TinyTablesElementVector.open(shares, otherShares);
+
+    for (int i = 0; i < unprocessedGates; i++) {
+      TinyTablesPreproANDProtocol gate = this.unprocessedAndGates.get(i);
+      boolean e = open.get(2 * i);
+      boolean d = open.get(2 * i + 1);
+
+      TinyTablesElement product = TinyTablesElement.finalizeMultiplication(e, d,
+          usedTriples.get(i), resourcePool.getMyId());
+
+      TinyTable tinyTable = gate.calculateTinyTable(resourcePool.getMyId(), product);
+
+      this.storage.storeTinyTable(gate.getId(), tinyTable);
+    }
+
+    this.unprocessedAndGates.clear();
   }
 
   private void storeTinyTables(TinyTablesStorage tinyTablesStorage, File file) throws IOException {

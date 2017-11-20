@@ -17,7 +17,7 @@ public class DefaultDebug implements Debug {
 
   @Override
   public void openAndPrint(String label, List<DRes<SBool>> toPrint) {
-    builder.seq(new BinaryOpenAndPrint(label, toPrint, System.out));
+    openAndPrint(label, toPrint, System.out);
   }
 
   @Override
@@ -27,7 +27,7 @@ public class DefaultDebug implements Debug {
 
   @Override
   public void marker(String message) {
-    builder.seq(new BinaryMarker(message, System.out));
+    marker(message, System.out);
   }
 
   @Override

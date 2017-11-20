@@ -3,12 +3,11 @@ package dk.alexandra.fresco.framework.sce;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
-import java.io.IOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -22,7 +21,6 @@ import org.slf4j.LoggerFactory;
 /**
  * Secure Computation Engine - responsible for having the overview of things and setting everything
  * up, e.g., based on properties.
- *
  */
 public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder>
     implements SecureComputationEngine<ResourcePoolT, Builder> {
@@ -38,16 +36,14 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Bui
   public SecureComputationEngineImpl(ProtocolSuite<ResourcePoolT, Builder> protocolSuite,
       ProtocolEvaluator<ResourcePoolT, Builder> evaluator) {
     this.protocolSuite = protocolSuite;
-
-    this.setup = false;
-
     this.evaluator = evaluator;
+    this.setup = false;
   }
 
   @Override
   public <OutputT> OutputT runApplication(Application<OutputT, Builder> application,
-      ResourcePoolT resourcePool) {
-    Future<OutputT> future = startApplication(application, resourcePool);
+      ResourcePoolT resourcePool, Network network) {
+    Future<OutputT> future = startApplication(application, resourcePool, network);
     try {
       return future.get(10, TimeUnit.MINUTES);
     } catch (InterruptedException | TimeoutException e) {
@@ -58,32 +54,28 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Bui
   }
 
   public <OutputT> Future<OutputT> startApplication(Application<OutputT, Builder> application,
-      ResourcePoolT resourcePool) {
+      ResourcePoolT resourcePool, Network network) {
     setup();
-    Callable<OutputT> callable = () -> evalApplication(application, resourcePool).out();
+    Callable<OutputT> callable = () -> evalApplication(application, resourcePool, network).out();
     return executorService.submit(callable);
   }
 
   private <OutputT> DRes<OutputT> evalApplication(Application<OutputT, Builder> application,
-      ResourcePoolT resourcePool) throws Exception {
+      ResourcePoolT resourcePool, Network network) throws Exception {
     logger.info(
         "Running application: " + application + " using protocol suite: " + this.protocolSuite);
-    try {
-      BuilderFactory<Builder> protocolFactory = this.protocolSuite.init(resourcePool);
-      Builder builder = protocolFactory.createSequential();
-      DRes<OutputT> output = application.buildComputation(builder);
+    BuilderFactory<Builder> protocolFactory = this.protocolSuite.init(resourcePool, network);
+    Builder builder = protocolFactory.createSequential();
+    DRes<OutputT> output = application.buildComputation(builder);
 
-      long then = System.currentTimeMillis();
-      this.evaluator.eval(builder.build(), resourcePool);
-      long now = System.currentTimeMillis();
-      long timeSpend = now - then;
-      logger
-          .info("The application " + application + " finished evaluation in " + timeSpend + " ms.");
-      application.close();
-      return output;
-    } catch (IOException e) {
-      throw new MPCException("Could not run application " + application + " due to errors", e);
-    }
+    long then = System.currentTimeMillis();
+    this.evaluator.eval(builder.build(), resourcePool, network);
+    long now = System.currentTimeMillis();
+    long timeSpend = now - then;
+    logger.info(
+        "The application " + application + " finished evaluation in " + timeSpend + " ms.");
+    application.close();
+    return output;
   }
 
   @Override
@@ -96,7 +88,6 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Bui
       thread.setDaemon(true);
       return thread;
     });
-    this.evaluator.setProtocolInvocation(this.protocolSuite);
     this.setup = true;
   }
 

@@ -340,6 +340,4 @@ public class TestBinaryMatrix {
     BinaryMatrix binaryMatrix5 = new BinaryMatrix(8, 1);
     assertNotEquals(binaryMatrix1, binaryMatrix5);
   }
-
-
 }

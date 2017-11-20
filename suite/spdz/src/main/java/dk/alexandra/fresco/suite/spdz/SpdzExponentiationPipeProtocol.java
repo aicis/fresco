@@ -2,7 +2,7 @@ package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzNativeProtocol;
 import java.util.LinkedList;
@@ -18,7 +18,7 @@ public class SpdzExponentiationPipeProtocol extends SpdzNativeProtocol<List<DRes
   }
   
   @Override
-  public EvaluationStatus evaluate(int round, SpdzResourcePool resourcePool, SCENetwork network) {
+  public EvaluationStatus evaluate(int round, SpdzResourcePool resourcePool, Network network) {
     SInt[] pipe = resourcePool.getStore().getSupplier().getNextExpPipe();
     if(pipe.length < pipeLength+1) {
       throw new MPCException(

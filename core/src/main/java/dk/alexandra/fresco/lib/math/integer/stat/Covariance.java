@@ -40,7 +40,7 @@ public class Covariance implements Computation<SInt, ProtocolBuilderNumeric> {
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    return builder.seq((seq) -> () -> null
+    return builder.seq((seq) -> null
     ).pairInPar(
         (seq, ignored) -> {
           if (mean1 == null) {

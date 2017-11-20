@@ -13,21 +13,14 @@ import dk.alexandra.fresco.framework.value.SBool;
  */
 public class DummyBooleanSBool implements SBool {
 
-  private Boolean value;
-
-  /**
-   * Constructs an SBool with value <code>null</code>.
-   */
-  public DummyBooleanSBool() {
-    this.value = null;
-  }
+  private final boolean value;
 
   /**
    * Constructs an SBool with a given value.
    * 
    * @param value the given value
    */
-  public DummyBooleanSBool(Boolean value) {
+  public DummyBooleanSBool(boolean value) {
     this.value = value;
   }
 
@@ -38,15 +31,6 @@ public class DummyBooleanSBool implements SBool {
    */
   public Boolean getValue() {
     return value;
-  }
-
-  /**
-   * Sets the value of this SBool.
-   * 
-   * @param value the value to set.
-   */
-  public void setValue(Boolean value) {
-    this.value = value;
   }
 
   @Override
@@ -60,19 +44,21 @@ public class DummyBooleanSBool implements SBool {
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (this == obj)
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
-    if (obj == null)
+    }
+    if (o == null || getClass() != o.getClass()) {
       return false;
-    if (getClass() != obj.getClass())
-      return false;
-    DummyBooleanSBool other = (DummyBooleanSBool) obj;
-    if (value == null) {
-      if (other.value != null)
-        return false;
-    } else if (!value.equals(other.value))
-      return false;
-    return true;
+    }
+
+    DummyBooleanSBool that = (DummyBooleanSBool) o;
+
+    return value == that.value;
+  }
+
+  @Override
+  public int hashCode() {
+    return (value ? 1 : 0);
   }
 }

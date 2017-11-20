@@ -1,5 +1,11 @@
 package dk.alexandra.fresco.lib.collections.relational;
 
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.collections.Matrix;
+import dk.alexandra.fresco.lib.crypto.mimc.MiMCEncryption;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,18 +13,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.Computation;
-import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.collections.Matrix;
-import dk.alexandra.fresco.lib.crypto.mimc.MiMCEncryption;
-
 public class MiMCAggregation implements Computation<Matrix<DRes<SInt>>, ProtocolBuilderNumeric> {
 
-  final private DRes<Matrix<DRes<SInt>>> values;
-  final private int groupColIdx;
-  final private int aggColIdx;
+  private final DRes<Matrix<DRes<SInt>>> values;
+  private final int groupColIdx;
+  private final int aggColIdx;
 
   public MiMCAggregation(DRes<Matrix<DRes<SInt>>> values, int groupColIdx, int aggColIdx) {
     super();
@@ -93,12 +92,11 @@ public class MiMCAggregation implements Computation<Matrix<DRes<SInt>>, Protocol
 
   private class Triple<K, V, C> {
 
-    private K key;
-    private V value;
-    private C cipher;
+    private final K key;
+    private final V value;
+    private final C cipher;
 
     public Triple(K key, V value, C cipher) {
-      super();
       this.key = key;
       this.value = value;
       this.cipher = cipher;

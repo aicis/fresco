@@ -10,6 +10,7 @@ import com.esotericsoftware.minlog.Log;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.crypto.AES;
+import java.io.Closeable;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -22,10 +23,9 @@ import java.util.concurrent.Semaphore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class KryoNetNetwork implements Network {
+public class KryoNetNetwork implements Network, Closeable {
 
   private List<Server> servers;
-  private boolean connected = false;
 
   // Map per partyId to a list of clients where the length of the list is equal to channelAmount.
   private Map<Integer, List<Client>> clients;
@@ -41,17 +41,10 @@ public class KryoNetNetwork implements Network {
   private boolean encryption;
   private Logger logger = LoggerFactory.getLogger(KryoNetNetwork.class);
 
-  public KryoNetNetwork() {
+  public KryoNetNetwork(NetworkConfiguration conf) {
     Log.set(Log.LEVEL_ERROR);
-  }
-
-  @Override
-  public void init(NetworkConfiguration conf, int channelAmount) {
-    if (channelAmount < 1) {
-      throw new IllegalArgumentException("The number of channels must be at least 1");
-    }
     this.conf = conf;
-    this.channelAmount = channelAmount;
+    this.channelAmount = 1;
     this.clients = new HashMap<>();
     this.clientThreads = new ArrayList<>();
     this.servers = new ArrayList<>();
@@ -92,7 +85,42 @@ public class KryoNetNetwork implements Network {
         this.queues.get(j).put(i, new ArrayBlockingQueue<>(1000));
       }
     }
+    try {
+      connect();
+    } catch (IOException e) {
+      throw new MPCException("Cannot connect to other party", e);
+    }
+  }
 
+  private static class ClientConnectThread extends Thread {
+
+    private final Client client;
+    private final String hostname;
+    private final int port;
+
+    public ClientConnectThread(Client client, String hostname, int port) {
+      super("Connect");
+      this.client = client;
+      this.hostname = hostname;
+      this.port = port;
+    }
+
+    public void run() {
+      boolean success = false;
+      while (!success) {
+        try {
+          client.connect(2000, hostname, port);
+          // Server communication after connection can go here, or in Listener#connected().
+          success = true;
+        } catch (IOException ex) {
+          try {
+            sleep(500);
+          } catch (InterruptedException e) {
+            throw new RuntimeException("Thread got interrupted while trying to reconnect.");
+          }
+        }
+      }
+    }
   }
 
   private class NaiveListener extends Listener {
@@ -126,36 +154,14 @@ public class KryoNetNetwork implements Network {
     }
   }
 
-  @Override
-  public void connect(int timeoutMillis) throws IOException {
-    if (connected) {
-      return;
-    }
+  private void connect() throws IOException {
     final Semaphore semaphore = new Semaphore(-((conf.noOfParties() - 1) * channelAmount - 1));
     for (int j = 0; j < channelAmount; j++) {
       Server server = this.servers.get(j);
-      boolean serverBound = false;
       int port = conf.getMe().getPort() + j;
       logger.debug("P" + conf.getMyId() + ": Trying to bind to " + port);
-      final int maxTries = 10;
-      int tries = 0;
-      while (!serverBound) {
-        try {
-          server.bind(port);
-          server.start();
-          serverBound = true;
-        } catch (IOException e) {
-          try {
-            if (tries > maxTries) {
-              throw e;
-            }
-            tries++;
-            Thread.sleep(500);
-          } catch (InterruptedException e1) {
-            throw e;
-          }
-        }
-      }
+      server.bind(port);
+      server.start();
 
       server.addListener(new NaiveListener(queues.get(j)));
     }
@@ -179,24 +185,7 @@ public class KryoNetNetwork implements Network {
 
           String hostname = conf.getParty(i).getHostname();
           int port = conf.getParty(i).getPort() + j;
-          Thread clientThread = new Thread("Connect") {
-            public void run() {
-              boolean success = false;
-              while (!success) {
-                try {
-                  client.connect(2000, hostname, port);
-                  // Server communication after connection can go here, or in Listener#connected().
-                  success = true;
-                } catch (IOException ex) {
-                  try {
-                    sleep(500);
-                  } catch (InterruptedException e) {
-                    throw new RuntimeException("Thread got interrupted while trying to reconnect.");
-                  }
-                }
-              }
-            }
-          };
+          Thread clientThread = new ClientConnectThread(client, hostname, port);
           clientThread.start();
           clientThreads.add(clientThread);
         }
@@ -204,37 +193,44 @@ public class KryoNetNetwork implements Network {
     }
     try {
       semaphore.acquire();
-      connected = true;
     } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      throw new IOException("Interrupted during wait for connect", e);
     }
   }
 
   @Override
-  public void send(int channel, int partyId, byte[] data) throws IOException {
+  public void send(int partyId, byte[] data) {
     if (this.conf.getMyId() == partyId) {
       try {
-        this.queues.get(channel).get(partyId).put(data);
+        this.queues.get(0).get(partyId).put(data);
       } catch (InterruptedException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
       }
     } else {
       if (encryption) {
-        data = this.ciphers.get(partyId).encrypt(data);
+        try {
+          data = this.ciphers.get(partyId).encrypt(data);
+        } catch (IOException e) {
+          throw new MPCException("Cannot encrypt data before sending them", e);
+        }
       }
-      this.clients.get(partyId).get(channel).sendTCP(data);
+      this.clients.get(partyId).get(0).sendTCP(data);
     }
   }
 
   @Override
-  public byte[] receive(int channel, int partyId) throws IOException {
+  public byte[] receive(int partyId) {
     try {
-      return this.queues.get(channel).get(partyId).take();
+      return this.queues.get(0).get(partyId).take();
     } catch (InterruptedException e) {
       throw new MPCException("receive got interrupted");
     }
+  }
+
+  @Override
+  public int getNoOfParties() {
+    return conf.noOfParties();
   }
 
   @Override
@@ -256,7 +252,6 @@ public class KryoNetNetwork implements Network {
         }
       }
     }
-    connected = false;
   }
 
   private static class Registrator {
