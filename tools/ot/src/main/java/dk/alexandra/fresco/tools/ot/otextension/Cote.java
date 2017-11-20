@@ -1,10 +1,9 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
+import dk.alexandra.fresco.framework.network.Network;
 import java.util.Random;
 
-import dk.alexandra.fresco.framework.network.Network;
-
-/**
+/** 
  * Container class for a protocol instance of correlated OT extension with errors.
  * @author jot2re
  *
