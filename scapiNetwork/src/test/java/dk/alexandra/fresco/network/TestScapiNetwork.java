@@ -74,8 +74,7 @@ public class TestScapiNetwork {
       Map<Integer, Party> partyMap = new HashMap<>();
       int id = 1;
       for (int port : ports) {
-        Party party = new Party(id, "localhost", port);
-        party.setSecretSharedKey("MDEyMzQ1Njc4OWFiY2RlZg==");
+        Party party = new Party(id, "localhost", port, "MDEyMzQ1Njc4OWFiY2RlZg==");
         partyMap.put(id, party);
         id++;
       }
