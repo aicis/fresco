@@ -66,11 +66,6 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
   }
 
   @Override
-  public String toString() {
-    return "SpdzInputGate(" + input + ", " + out + ")";
-  }
-
-  @Override
   public SpdzSInt out() {
     return out;
   }

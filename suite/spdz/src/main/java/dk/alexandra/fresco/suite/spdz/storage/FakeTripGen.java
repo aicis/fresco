@@ -14,9 +14,11 @@ import java.io.ObjectOutputStream;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -34,6 +36,7 @@ public class FakeTripGen {
 
 	private static BigInteger mod, alpha;
 	private static Random rand;
+	private static boolean randKeyPresent = false;
 	private static int size;
 	private static int numberOfTriples;
 	private static int numberOfParties;
@@ -60,7 +63,7 @@ public class FakeTripGen {
 	 *            the element to be converted.
 	 * @return a byte representation of the element.
 	 */
-	public static ByteBuffer elementToBytes(SpdzElement element) {
+	public static ByteBuffer elementToBytes(SpdzElement element, int size) {
 		BigInteger share = element.getShare();
 		byte[] shareBytes = share.toByteArray();
 		BigInteger mac = element.getMac();
@@ -100,7 +103,7 @@ public class FakeTripGen {
 	 *            a BigInteger.
 	 * @return a byte representation.
 	 */
-	public static ByteBuffer bigIntToBytes(BigInteger b) {
+	public static ByteBuffer bigIntToBytes(BigInteger b, int size) {
 		byte[] bBytes = b.toByteArray();
 		byte[] bytes = new byte[size];
 		if (bBytes.length > size) {
@@ -488,43 +491,42 @@ public class FakeTripGen {
 	 * 
 	 * @param args
 	 *            arguments to the offline data generator
+	 * @throws IOException If something goes wrong during writing to disk.
 	 */
-	public static void main(String[] args) {
-		if (handleArgs(args)) {
-			// rand = new SecureRandom();
-			rand = new Random(0);
-			alpha = sample();
-			size = 0;
-			byte[] bytes = mod.toByteArray();
+	public static void main(String[] args) throws IOException {
+	  if (handleArgs(args)) {
+	    if(randKeyPresent) {
+	      rand = new Random(0);
+	    } else {
+	      rand = new SecureRandom();
+	    }
+	    alpha = sample();
+	    size = 0;
+	    byte[] bytes = mod.toByteArray();
 
-			if (bytes[0] == 0) {
-				size = mod.toByteArray().length - 1;
-			} else {
-				size = mod.toByteArray().length;
-			}
+	    if (bytes[0] == 0) {
+	      size = mod.toByteArray().length - 1;
+	    } else {
+	      size = mod.toByteArray().length;
+	    }
 
-			bytes = null;
-			try {
-				System.out.println("START EXP");
-				writeExp();
-				System.out.println("DONE EXP");
-				System.out.println("START TRIPLES");
-				writeTriples();
-				System.out.println("DONE TRIPLES");
-				System.out.println("START INPUTS");
-				writeInputs();
-				System.out.println("DONE INPUTS");
-				System.out.println("START BITS");
-				writeBits();
-				System.out.println("DONE BITS");
-				System.out.println("START GLOBAL");
-				writeGlobal();
-				System.out.println("DONE GLOBAL");
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+	    bytes = null;
+	    System.out.println("START EXP");
+	    writeExp();
+	    System.out.println("DONE EXP");
+	    System.out.println("START TRIPLES");
+	    writeTriples();
+	    System.out.println("DONE TRIPLES");
+	    System.out.println("START INPUTS");
+	    writeInputs();
+	    System.out.println("DONE INPUTS");
+	    System.out.println("START BITS");
+	    writeBits();
+	    System.out.println("DONE BITS");
+	    System.out.println("START GLOBAL");
+	    writeGlobal();
+	    System.out.println("DONE GLOBAL");
+	  }
 	}
 
 	/**
@@ -550,15 +552,17 @@ public class FakeTripGen {
 		boolean expPresent = false;
 		String dirKey = "-d=";
 		boolean dirPresent = false;
+		String randKey = "-r=";
+		
 		String usage = "Please give the following arguments: " + primeKey
 				+ "[modulus] " + tripKey + "[#triples] " + inputKey
 				+ "[#inputs (per player)] " + bitKey + "[#bits] " + expKey
 				+ "[#exp pipes] " + partiesKey + "[#parties] " + dirKey
-				+ "[directory (to store files)]";
+				+ "[directory (to store files)] "+randKey+"[optional. If present, insecure random is used. Secure o/w]";
 		for (String arg : args) {
 			if (arg.length() < 4) {
-				System.err.println("Malformed argument \"" + arg + "\". "
-						+ usage);
+				throw new IllegalArgumentException("Malformed argument \"" + arg + "\". "
+                    + usage);
 			}
 			String key = arg.substring(0, 3);
 			String value = arg.substring(3);
@@ -590,8 +594,10 @@ public class FakeTripGen {
 				globalFilename = value + globalFilename;
 				expPipeFilename = value + expPipeFilename;
 				dirPresent = true;
+			} else if(key.equals(randKey)){
+			  randKeyPresent = true;
 			} else {
-				System.err.println("Unrecognized argument \"" + arg + "\"."
+			  throw new IllegalArgumentException("Unrecognized argument \"" + arg + "\"."
 						+ usage);
 			}
 		}
@@ -727,9 +733,9 @@ public class FakeTripGen {
 				Iterator<FileChannel> itFC = channels.iterator();
 				while (itE.hasNext() && itFC.hasNext()) {
 					FileChannel fc = itFC.next();
-					fc.write(elementToBytes(itE.next()));
+					fc.write(elementToBytes(itE.next(), size));
 					if (fc.equals(selfChannel)) {
-						fc.write(bigIntToBytes(mask));
+						fc.write(bigIntToBytes(mask, size));
 					}
 				}
 			}
@@ -811,7 +817,7 @@ public class FakeTripGen {
 		Iterator<SpdzElement> eIt = elements.iterator();
 		Iterator<FileChannel> cIt = channels.iterator();
 		while (eIt.hasNext() && cIt.hasNext()) {
-			cIt.next().write(elementToBytes(eIt.next()));
+			cIt.next().write(elementToBytes(eIt.next(), size));
 		}
 	}
 
@@ -866,5 +872,17 @@ public class FakeTripGen {
 		} else {
 			return result;
 		}
+	}
+	
+	public static void cleanup() throws IOException {
+	  for(int i = 0; i < numberOfParties; i++) {
+	    Files.deleteIfExists(Paths.get(bitsFilename+i));	    
+	    Files.deleteIfExists(Paths.get(expPipeFilename+i));
+	    Files.deleteIfExists(Paths.get(triplesFilename+i));
+	    Files.deleteIfExists(Paths.get(globalFilename+i));
+	    for(int j = 0; j < numberOfParties; j++) {
+	      Files.deleteIfExists(Paths.get(inputsFilename+i+"-"+j));
+	    }
+	  }
 	}
 }

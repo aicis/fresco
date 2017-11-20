@@ -9,7 +9,6 @@ public class SpdzCommitment {
 	private BigInteger value;
 	private BigInteger randomness;
 	private Random rand;
-	private BigInteger commitment;
 	private MessageDigest H;
 
 	public SpdzCommitment(MessageDigest H, BigInteger value, Random rand){
@@ -19,14 +18,10 @@ public class SpdzCommitment {
 	}
 
 	public BigInteger getCommitment(BigInteger modulus) {
-		if (this.commitment != null){
-			return this.commitment;
-		}
 		H.update(value.toByteArray());
 		this.randomness = new BigInteger(modulus.bitLength(), rand);
 		H.update(this.randomness.toByteArray());
-		this.commitment = new BigInteger(H.digest()).mod(modulus);
-		return this.commitment;
+		return new BigInteger(H.digest()).mod(modulus);
 	}
 
 	public BigInteger getValue(){
@@ -39,6 +34,6 @@ public class SpdzCommitment {
 
 	@Override
 	public String toString(){
-		return "SpdzCommitment[v:"+this.value+", r:"+this.randomness+", comm:"+this.commitment+"]";
+		return "SpdzCommitment[v:"+this.value+", r:"+this.randomness+"]";
 	}
 }

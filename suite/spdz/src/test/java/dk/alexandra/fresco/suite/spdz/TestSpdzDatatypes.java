@@ -1,0 +1,87 @@
+package dk.alexandra.fresco.suite.spdz;
+
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
+import java.math.BigInteger;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class TestSpdzDatatypes {
+
+  SpdzElement elm_empty = new SpdzElement();
+  SpdzElement elm1 = new SpdzElement(BigInteger.ONE, BigInteger.ONE, BigInteger.TEN);
+  SpdzElement elm2 = new SpdzElement(BigInteger.ONE, BigInteger.ONE, BigInteger.TEN);
+  SpdzElement elmDiff1 = new SpdzElement(BigInteger.ZERO, BigInteger.ONE, BigInteger.TEN);
+  
+  @Test
+  public void testElementClass() {
+    Assert.assertEquals(elm1, elm1);    
+    Assert.assertEquals(elm1, elm2);
+    Assert.assertNotEquals(elm_empty, elm2);
+    Assert.assertNotEquals(elm_empty.hashCode(), elm2.hashCode());
+    Assert.assertEquals("spdz(1, 1)", elm1.toString());
+    byte[] bytes = new byte[2];    
+    bytes[0] = BigInteger.ZERO.toByteArray()[0];
+    bytes[1] = BigInteger.ONE.toByteArray()[0];
+    SpdzElement elm3 = new SpdzElement(bytes, BigInteger.TEN, BigInteger.TEN.toByteArray().length);
+    Assert.assertNotEquals(elm2, elm3);
+    Assert.assertNotEquals(elm2, new SpdzElement(BigInteger.ONE, BigInteger.ZERO, BigInteger.TEN));
+    Assert.assertNotEquals(elm2, "");
+    Assert.assertNotEquals(elm2, null);    
+  }
+  
+  @Test
+  public void testTripleClass() {    
+    SpdzTriple trip_empty = new SpdzTriple();
+    SpdzTriple trip1 = new SpdzTriple(elm1, elm1, elm1);
+    SpdzTriple trip2 = new SpdzTriple(elm1, elm1, elm1);
+    SpdzTriple trip3 = new SpdzTriple(elm_empty, elm1, elm1);
+    SpdzTriple tripANull = new SpdzTriple(null, elm1, elm1);
+    SpdzTriple tripBNull = new SpdzTriple(elm1, null, elm1);
+    SpdzTriple tripCNull = new SpdzTriple(elm1, elm1, null);
+    Assert.assertEquals(trip1, trip2);
+    Assert.assertNotEquals(trip1, trip3);
+    Assert.assertNotEquals(trip1, null);
+    Assert.assertNotEquals(trip1, "");
+    Assert.assertNotEquals(trip1, trip_empty);
+    Assert.assertNotEquals(tripANull, trip1);
+    Assert.assertNotEquals(tripBNull, trip1);
+    Assert.assertNotEquals(tripCNull, trip1);
+    Assert.assertNotEquals(trip1.hashCode(), tripBNull.hashCode());
+    Assert.assertNotEquals(tripANull.hashCode(), tripCNull.hashCode());
+    Assert.assertEquals("SpdzTriple [a=spdz(1, 1), b=spdz(1, 1), c=spdz(1, 1)]", trip1.toString());    
+  }
+  
+  @Test
+  public void testSpdzSInt() {
+    SpdzSInt i_empty = new SpdzSInt();
+    SpdzSInt i_empty2 = new SpdzSInt();
+    SpdzSInt i1 = new SpdzSInt(elm1);
+    SpdzSInt i2 = new SpdzSInt(elm2);
+    SpdzSInt i3 = new SpdzSInt(elmDiff1);
+    Assert.assertEquals(i1, i1);
+    Assert.assertEquals(i1, i2);
+    Assert.assertEquals(i_empty, i_empty2);
+    Assert.assertNotEquals(i_empty, i2);
+    Assert.assertNotEquals(i1, null);
+    Assert.assertNotEquals(i1, "");
+    Assert.assertNotEquals(i1, i3);
+    Assert.assertEquals("SpdzSInt(spdz(1, 1))", i1.toString());
+  }
+  
+  @Test
+  public void testInputMask() {
+    SpdzInputMask mask = new SpdzInputMask(null);
+    Assert.assertEquals("SpdzInputMask [mask=null, realValue=null]",mask.toString());
+  }
+  
+  @Test
+  public void testCommitment() {
+    SpdzCommitment comm = new SpdzCommitment(null, null, null);
+    Assert.assertEquals("SpdzCommitment[v:null, r:null]", comm.toString());
+    
+  }
+}
