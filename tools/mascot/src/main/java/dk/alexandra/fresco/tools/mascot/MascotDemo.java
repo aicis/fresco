@@ -96,6 +96,7 @@ public class MascotDemo {
     FieldElement c = new FieldElement(triple.getC().getShare(), modulus, kBitLength).add(otherC);
     System.out.println(a);
     System.out.println(b);
+    System.out.println(a.multiply(b));
     System.out.println(c);
     System.out.println("done");
   }
@@ -232,9 +233,9 @@ public class MascotDemo {
     int pid = Integer.parseInt(args[0]);
     try {
       if (pid == 1) {
-        new MascotDemo().runPartyOne(1);
+        new MascotDemo().runPartyOneTriple(1);
       } else {
-        new MascotDemo().runPartyTwo(2);
+        new MascotDemo().runPartyTwoTriple(2);
       }
     } catch (Exception e) {
       System.out.println("Failed to run: " + e);
