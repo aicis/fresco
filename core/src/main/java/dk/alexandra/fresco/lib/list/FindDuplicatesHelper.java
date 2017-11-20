@@ -38,7 +38,7 @@ public class FindDuplicatesHelper {
           list1.setDuplicate(finalI,
               or(seq, list1.getDuplicate(finalI), equals));
         }
-        return () -> null;
+        return null;
       });
     }
   }

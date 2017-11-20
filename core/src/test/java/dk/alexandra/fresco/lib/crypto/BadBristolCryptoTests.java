@@ -96,7 +96,7 @@ public class BadBristolCryptoTests {
               producer -> producer.seq(seq -> {
                 List<DRes<SBool>> inp1 = new ArrayList<>();
                 List<DRes<SBool>> inp2 = new ArrayList<>();
-                inp1.add(() -> null);
+                inp1.add(null);
                 inp2.add(null);
 
                 DRes<List<SBool>> l = seq.seq(BristolCircuitParser
@@ -131,7 +131,7 @@ public class BadBristolCryptoTests {
               producer -> producer.seq(seq -> {
                 List<DRes<SBool>> inp1 = new ArrayList<>();
                 List<DRes<SBool>> inp2 = new ArrayList<>();
-                inp1.add(() -> null);
+                inp1.add(null);
                 inp2.add(null);
 
                 DRes<List<SBool>> l = seq.seq(BristolCircuitParser
@@ -167,7 +167,7 @@ public class BadBristolCryptoTests {
               producer -> producer.seq(seq -> {
                 List<DRes<SBool>> inp1 = new ArrayList<>();
                 List<DRes<SBool>> inp2 = new ArrayList<>();
-                inp1.add(() -> null);
+                inp1.add(null);
                 inp2.add(null);
 
                 DRes<List<SBool>> l = seq.seq(BristolCircuitParser
@@ -204,7 +204,7 @@ public class BadBristolCryptoTests {
               producer -> producer.seq(seq -> {
                 List<DRes<SBool>> inp1 = new ArrayList<>();
                 List<DRes<SBool>> inp2 = new ArrayList<>();
-                inp1.add(() -> null);
+                inp1.add(null);
                 inp2.add(null);
 
                 DRes<List<SBool>> l = seq.seq(BristolCircuitParser
@@ -273,7 +273,7 @@ public class BadBristolCryptoTests {
               producer -> producer.seq(seq -> {
                 List<DRes<SBool>> inp1 = new ArrayList<>();
                 List<DRes<SBool>> inp2 = new ArrayList<>();
-                inp1.add(() -> null);
+                inp1.add(null);
                 inp2.add(null);
 
                 DRes<List<SBool>> l = seq.seq(BristolCircuitParser
@@ -307,7 +307,7 @@ public class BadBristolCryptoTests {
               producer -> producer.seq(seq -> {
                 List<DRes<SBool>> inp1 = new ArrayList<>();
                 List<DRes<SBool>> inp2 = new ArrayList<>();
-                inp1.add(() -> null);
+                inp1.add(null);
                 inp2.add(null);
 
                 DRes<List<SBool>> l = seq.seq(BristolCircuitParser
@@ -341,7 +341,7 @@ public class BadBristolCryptoTests {
               producer -> producer.seq(seq -> {
                 List<DRes<SBool>> inp1 = new ArrayList<>();
                 List<DRes<SBool>> inp2 = new ArrayList<>();
-                inp1.add(() -> null);
+                inp1.add(null);
                 inp2.add(null);
 
                 DRes<List<SBool>> l = seq.seq(BristolCircuitParser
@@ -376,7 +376,7 @@ public class BadBristolCryptoTests {
               producer -> producer.seq(seq -> {
                 List<DRes<SBool>> inp1 = new ArrayList<>();
                 List<DRes<SBool>> inp2 = new ArrayList<>();
-                inp1.add(() -> null);
+                inp1.add(null);
                 inp2.add(null);
 
                 DRes<List<SBool>> l = seq.seq(BristolCircuitParser
@@ -444,7 +444,7 @@ public class BadBristolCryptoTests {
               producer -> producer.seq(seq -> {
                 List<DRes<SBool>> inp1 = new ArrayList<>();
                 List<DRes<SBool>> inp2 = new ArrayList<>();
-                inp1.add(() -> null);
+                inp1.add(null);
                 inp2.add(null);
 
                 DRes<List<SBool>> l = seq.seq(BristolCircuitParser
@@ -478,7 +478,7 @@ public class BadBristolCryptoTests {
               producer -> producer.seq(seq -> {
                 List<DRes<SBool>> inp1 = new ArrayList<>();
                 List<DRes<SBool>> inp2 = new ArrayList<>();
-                inp1.add(() -> null);
+                inp1.add(null);
                 inp2.add(null);
 
                 DRes<List<SBool>> l = seq.seq(BristolCircuitParser
@@ -513,7 +513,7 @@ public class BadBristolCryptoTests {
               producer -> producer.seq(seq -> {
                 List<DRes<SBool>> inp1 = new ArrayList<>();
                 List<DRes<SBool>> inp2 = new ArrayList<>();
-                inp1.add(() -> null);
+                inp1.add(null);
                 inp2.add(null);
 
                 DRes<List<SBool>> l = seq.seq(BristolCircuitParser
@@ -547,7 +547,7 @@ public class BadBristolCryptoTests {
               producer -> producer.seq(seq -> {
                 List<DRes<SBool>> inp1 = new ArrayList<>();
                 List<DRes<SBool>> inp2 = new ArrayList<>();
-                inp1.add(() -> null);
+                inp1.add(null);
                 inp2.add(null);
 
                 DRes<List<SBool>> l = seq.seq(BristolCircuitParser
@@ -581,7 +581,7 @@ public class BadBristolCryptoTests {
               producer -> producer.seq(seq -> {
                 List<DRes<SBool>> inp1 = new ArrayList<>();
                 List<DRes<SBool>> inp2 = new ArrayList<>();
-                inp1.add(() -> null);
+                inp1.add(null);
                 inp2.add(null);
 
                 String circuit = "1 4\n1 1 1\n\n2 2 0 1 2 3 BAD";

@@ -28,13 +28,17 @@ public class SequentialProtocolProducer implements ProtocolProducer, ProtocolPro
       ProtocolCollection<ResourcePoolT> protocolCollection) {
     if (currentProducer == null) {
       currentProducer = inline();
-      // Since the contract is to call has next in order to check in advance, we know that
-      // current producer has more protocols
+      if (currentProducer == null) {
+        return;
+      }
     }
     currentProducer.getNextProtocols(protocolCollection);
   }
 
   private ProtocolProducer inline() {
+    if (protocolProducers.isEmpty()) {
+      return null;
+    }
     ProtocolProducer current = protocolProducers.getFirst();
     if (current instanceof LazyProtocolProducerDecorator) {
       protocolProducers.removeFirst();
