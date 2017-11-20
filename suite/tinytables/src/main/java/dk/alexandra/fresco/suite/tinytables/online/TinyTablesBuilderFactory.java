@@ -75,8 +75,7 @@ public class TinyTablesBuilderFactory implements BuilderFactoryBinary {
 
       @Override
       public DRes<SBool> and(DRes<SBool> left, DRes<SBool> right) {
-        SBool out = new TinyTablesSBool();
-        TinyTablesANDProtocol p = new TinyTablesANDProtocol(getNextId(), left, right, out);
+        TinyTablesANDProtocol p = new TinyTablesANDProtocol(getNextId(), left, right);
         builder.append(p);
         return p;
       }

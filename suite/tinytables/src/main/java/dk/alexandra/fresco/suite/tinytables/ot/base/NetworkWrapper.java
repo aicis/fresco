@@ -13,46 +13,45 @@ import java.io.Serializable;
 /**
  * This class wraps an instance of {@link Network} (in the FRESCO sense) as an
  * instance of {@link Channel} (as in SCAPI).
- * 
- * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  *
+ * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
 public class NetworkWrapper implements Channel {
 
-	private Network network;
-	private int myId;
+  private Network network;
+  private int myId;
 
-	public NetworkWrapper(Network network, int myId) {
-		this.network = network;
-		this.myId = myId;
-	}
+  public NetworkWrapper(Network network, int myId) {
+    this.network = network;
+    this.myId = myId;
+  }
 
-	@Override
-	public void close() {
+  @Override
+  public void close() {
 
-	}
+  }
 
-	@Override
-	public boolean isClosed() {
-		return false;
-	}
+  @Override
+  public boolean isClosed() {
+    return false;
+  }
 
-	@Override
-	public Serializable receive() throws ClassNotFoundException, IOException {
-		byte[] data = network.receive(0, Util.otherPlayerId(myId));
-		ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
-		return (Serializable) ois.readObject();
-	}
+  @Override
+  public Serializable receive() throws ClassNotFoundException, IOException {
+    byte[] data = network.receive(Util.otherPlayerId(myId));
+    ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
+    return (Serializable) ois.readObject();
+  }
 
-	@Override
-	public void send(Serializable otInputs) throws IOException {		
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		ObjectOutputStream oos = new ObjectOutputStream(bos);
-		oos.writeObject(otInputs);
-		oos.flush();
-		oos.close();
-		byte[] toSend = bos.toByteArray();
-		network.send(0, Util.otherPlayerId(myId), toSend);
-	}
+  @Override
+  public void send(Serializable otInputs) throws IOException {
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    ObjectOutputStream oos = new ObjectOutputStream(bos);
+    oos.writeObject(otInputs);
+    oos.flush();
+    oos.close();
+    byte[] toSend = bos.toByteArray();
+    network.send(Util.otherPlayerId(myId), toSend);
+  }
 
 }

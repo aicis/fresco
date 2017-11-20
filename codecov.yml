@@ -5,21 +5,27 @@ codecov:
 coverage:
   precision: 2
   round: down
-  range: "70...100"
+  range: "50...100"
   notify:
     gitter:
       default:
         url: "https://webhooks.gitter.im/e/26fb31b10380d1eda3b0"
         threshold: 1%
+  
   status:
+    
+    # Require the overall project coverage not to decrease
+    project:
+      default:
+        enabled: yes
+        target: auto
+    # Require the patch to be fully covered
     patch:
       default:
+        enabled: yes
         target: 100%
         only_pulls: true
-
-  status:
-    project: yes
-    patch: yes
+    
     changes: no
 
 parsers:

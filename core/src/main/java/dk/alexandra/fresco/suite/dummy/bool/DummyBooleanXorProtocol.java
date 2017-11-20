@@ -1,14 +1,13 @@
 package dk.alexandra.fresco.suite.dummy.bool;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
 
 /**
  * Implements logical XOR for the Dummy Boolean protocol suite, where all operations are done in the
  * clear.
- *
  */
 public class DummyBooleanXorProtocol extends DummyBooleanNativeProtocol<SBool> {
 
@@ -18,7 +17,7 @@ public class DummyBooleanXorProtocol extends DummyBooleanNativeProtocol<SBool> {
 
   /**
    * Constructs a protocol to XOR the result of two computations.
-   * 
+   *
    * @param left the left operand
    * @param right the right operand
    */
@@ -26,14 +25,14 @@ public class DummyBooleanXorProtocol extends DummyBooleanNativeProtocol<SBool> {
     super();
     this.left = left;
     this.right = right;
-    this.out = null;
   }
 
   @Override
-  public EvaluationStatus evaluate(int round, ResourcePool resourcePool, SCENetwork network) {
-    out = new DummyBooleanSBool();
-    this.out.setValue(
-        ((DummyBooleanSBool) left.out()).getValue() ^ ((DummyBooleanSBool) right.out()).getValue());
+  public EvaluationStatus evaluate(int round, ResourcePool resourcePool, Network network) {
+    Boolean leftValue = ((DummyBooleanSBool) left.out()).getValue();
+    Boolean rightValue = ((DummyBooleanSBool) right.out()).getValue();
+    boolean value = leftValue ^ rightValue;
+    out = new DummyBooleanSBool(value);
     return EvaluationStatus.IS_DONE;
   }
 

@@ -18,7 +18,7 @@ import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger;
 import dk.alexandra.fresco.logging.PerformanceLogger.Flag;
-import dk.alexandra.fresco.logging.SCELoggingDecorator;
+import dk.alexandra.fresco.logging.SecureComputationEngineLoggingDecorator;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -37,14 +37,14 @@ public abstract class AbstractDummyBooleanTest {
       EvaluationStrategy evalStrategy) throws Exception {
     runTest(f, evalStrategy, null);
   }
-  
+
   protected void runTest(
       TestThreadRunner.TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f,
-      EvaluationStrategy evalStrategy, EnumSet<Flag> performanceFlags) throws Exception {    
-  
+      EvaluationStrategy evalStrategy, EnumSet<Flag> performanceFlags) throws Exception {
+
     // The dummy protocol suite has the nice property that it can be run by just one player.
     int noOfParties = 1;
-    List<Integer> ports = new ArrayList<Integer>(noOfParties);
+    List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * (noOfParties - 1));
     }
@@ -52,7 +52,7 @@ public abstract class AbstractDummyBooleanTest {
     Map<Integer, NetworkConfiguration> netConf =
         TestConfiguration.getNetworkConfigurations(noOfParties, ports);
     Map<Integer, TestThreadRunner.TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
-        new HashMap<Integer, TestThreadRunner.TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>>();
+        new HashMap<>();
     Map<Integer, List<PerformanceLogger>> pls = new HashMap<>();
     for (int playerId : netConf.keySet()) {
       pls.put(playerId, new ArrayList<>());
@@ -60,37 +60,40 @@ public abstract class AbstractDummyBooleanTest {
 
       DummyBooleanProtocolSuite ps = new DummyBooleanProtocolSuite();
 
-      BatchEvaluationStrategy<ResourcePoolImpl> strat = EvaluationStrategy.fromEnum(evalStrategy);
-      if(performanceFlags != null && performanceFlags.contains(Flag.LOG_NATIVE_BATCH)) {
+      BatchEvaluationStrategy<ResourcePoolImpl> strat = evalStrategy.getStrategy();
+      if (performanceFlags != null && performanceFlags.contains(Flag.LOG_NATIVE_BATCH)) {
         strat = new BatchEvaluationLoggingDecorator<>(strat);
         pls.get(playerId).add((PerformanceLogger) strat);
       }
-      ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator = 
-          new BatchedProtocolEvaluator<>(strat);
-      
-      
-      Network network = new KryoNetNetwork();
-      if(performanceFlags != null && performanceFlags.contains(Flag.LOG_NETWORK)) {
-        network = new NetworkLoggingDecorator(network);
-        pls.get(playerId).add((PerformanceLogger) network);
-      }
-      network.init(partyNetConf, 1);
-      
-      ResourcePoolImpl rp = new ResourcePoolImpl(playerId, noOfParties, network, new Random(),
-          new DetermSecureRandom());
-      
-      SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce = new SecureComputationEngineImpl<>(ps, evaluator);
-      if(performanceFlags != null && performanceFlags.contains(Flag.LOG_RUNTIME)) {
-        sce = new SCELoggingDecorator<>(sce, ps);
+      ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
+          new BatchedProtocolEvaluator<>(strat, ps);
+
+      SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce = new SecureComputationEngineImpl<>(
+          ps, evaluator);
+      if (performanceFlags != null && performanceFlags.contains(Flag.LOG_RUNTIME)) {
+        sce = new SecureComputationEngineLoggingDecorator<>(sce, ps);
         pls.get(playerId).add((PerformanceLogger) sce);
       }
       TestThreadRunner.TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
-          new TestThreadRunner.TestThreadConfiguration<>(sce, rp);
+          new TestThreadRunner.TestThreadConfiguration<>(sce,
+              () -> new ResourcePoolImpl(playerId, noOfParties, new Random(),
+                  new DetermSecureRandom()),
+              () -> {
+                Network network;
+                KryoNetNetwork kryoNetwork = new KryoNetNetwork(partyNetConf);
+                if (performanceFlags != null && performanceFlags.contains(Flag.LOG_NETWORK)) {
+                  network = new NetworkLoggingDecorator(kryoNetwork);
+                  pls.get(playerId).add((PerformanceLogger) network);
+                } else {
+                  network = kryoNetwork;
+                }
+                return network;
+              });
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
-    for(Integer pId : pls.keySet()) {
-      for(PerformanceLogger pl : pls.get(pId)) {
+    for (Integer pId : pls.keySet()) {
+      for (PerformanceLogger pl : pls.get(pId)) {
         pl.printPerformanceLog(pId);
         pl.reset();
       }

@@ -32,9 +32,7 @@ public class PolynomialEvaluator implements Computation<SInt, ProtocolBuilderNum
 
     for (int i = degree - 2; i >= 0; i--) {
       tmp = builder.numeric().mult(tmp, x);
-      if (p.getCoefficient(i) != null) {
-        tmp = builder.numeric().add(tmp, p.getCoefficient(i));
-      }
+      tmp = builder.numeric().add(tmp, p.getCoefficient(i));
     }
 
     return tmp;

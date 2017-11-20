@@ -2,6 +2,7 @@ package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.demo.cli.CmdLineUtil;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -13,11 +14,11 @@ public class InputSumExample {
 
   public static <ResourcePoolT extends ResourcePool> void runApplication(
       SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce,
-      ResourcePoolT resourcePool) throws IOException {
+      ResourcePoolT resourcePool, Network network) throws IOException {
     InputApplication inputApp;
 
     int myId = resourcePool.getMyId();
-    int[] inputs = new int[] {1, 2, 3, 7, 8, 12, 15, 17};
+    int[] inputs = new int[]{1, 2, 3, 7, 8, 12, 15, 17};
     if (myId == 1) {
       // I input
       inputApp = new InputApplication(inputs);
@@ -27,9 +28,7 @@ public class InputSumExample {
     }
     SumAndOutputApplication app = new SumAndOutputApplication(inputApp);
 
-    resourcePool.getNetwork().connect(10000);
-    BigInteger result = sce.runApplication(app, resourcePool);
-    resourcePool.getNetwork().close();
+    BigInteger result = sce.runApplication(app, resourcePool, network);
     int sum = 0;
     for (int i : inputs) {
       sum += i;
@@ -42,15 +41,14 @@ public class InputSumExample {
 
     util.parse(args);
 
-    ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric> psConf =
-        util.getProtocolSuite();
+    ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric> psConf = util.getProtocolSuite();
 
     SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce =
-        new SecureComputationEngineImpl<>(psConf,
-            util.getEvaluator());
+        new SecureComputationEngineImpl<>(psConf, util.getEvaluator());
 
     ResourcePoolT resourcePool = util.getResourcePool();
-    runApplication(sce, resourcePool);
+    runApplication(sce, resourcePool, util.getNetwork());
+    util.close();
     sce.shutdownSCE();
   }
 

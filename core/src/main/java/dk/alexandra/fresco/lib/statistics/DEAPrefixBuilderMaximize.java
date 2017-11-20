@@ -2,6 +2,7 @@ package dk.alexandra.fresco.lib.statistics;
 
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -21,17 +22,30 @@ import java.util.stream.Collectors;
  * these SInts. Note that we use the words "output" and "input" in terms of the
  * DEA instance. I.e. in the way the economists use these words.
  */
-public class DEAPrefixBuilderMaximize {
+public class DEAPrefixBuilderMaximize implements
+    Computation<SimpleLPPrefix, ProtocolBuilderNumeric> {
+
+  private final List<List<DRes<SInt>>> basisInputs;
+  private final List<List<DRes<SInt>>> basisOutputs;
+  private final List<DRes<SInt>> targetInputs;
+  private final List<DRes<SInt>> targetOutputs;
+
+  public DEAPrefixBuilderMaximize(
+      List<List<DRes<SInt>>> basisInputs, List<List<DRes<SInt>>> basisOutputs,
+      List<DRes<SInt>> targetInputs, List<DRes<SInt>> targetOutputs) {
+    this.basisInputs = basisInputs;
+    this.basisOutputs = basisOutputs;
+    this.targetInputs = targetInputs;
+    this.targetOutputs = targetOutputs;
+  }
 
   // A value no benchmarking result should be larger than. Note the benchmarking results are of the form
   // \theta = "the factor a farmer can do better than he currently does" and thus is not necessarily upper bounded.
   private static final int BENCHMARKING_BIG_M = 1000;
 
-  public static DRes<SimpleLPPrefix> build(
-      List<List<DRes<SInt>>> basisInputs, List<List<DRes<SInt>>> basisOutputs,
-      List<DRes<SInt>> targetInputs, List<DRes<SInt>> targetOutputs,
-      ProtocolBuilderNumeric builder
-  ) {
+
+  @Override
+  public DRes<SimpleLPPrefix> buildComputation(ProtocolBuilderNumeric builder) {
     DRes<SInt> zero = builder.numeric().known(BigInteger.ZERO);
     DRes<SInt> one = builder.numeric().known(BigInteger.ONE);
     /*
@@ -94,7 +108,6 @@ public class DEAPrefixBuilderMaximize {
     });
   }
 
-
   static ArrayList<ArrayList<DRes<SInt>>> getIdentity(int dimension, DRes<SInt> one,
       DRes<SInt> zero) {
     ArrayList<ArrayList<DRes<SInt>>> identity = new ArrayList<>(dimension);
@@ -112,7 +125,7 @@ public class DEAPrefixBuilderMaximize {
     return identity;
   }
 
-  private static List<List<DRes<SInt>>> addTargetToList(
+  private List<List<DRes<SInt>>> addTargetToList(
       List<List<DRes<SInt>>> basisOutputs,
       List<DRes<SInt>> targetOutputs) {
     ListIterator<List<DRes<SInt>>> basisIt = basisOutputs.listIterator();
@@ -129,7 +142,7 @@ public class DEAPrefixBuilderMaximize {
     return newBasis;
   }
 
-  private static ArrayList<DRes<SInt>> fVector(int size, int lambdas,
+  private ArrayList<DRes<SInt>> fVector(int size, int lambdas,
       ProtocolBuilderNumeric builder,
       DRes<SInt> zero) {
     Numeric numeric = builder.numeric();
@@ -154,7 +167,7 @@ public class DEAPrefixBuilderMaximize {
   }
 
 
-  private static ArrayList<DRes<SInt>> bVector(int size,
+  private ArrayList<DRes<SInt>> bVector(int size,
       List<DRes<SInt>> targetInputs,
       DRes<SInt> zero,
       DRes<SInt> one) {
@@ -169,7 +182,7 @@ public class DEAPrefixBuilderMaximize {
     return B;
   }
 
-  private static ArrayList<DRes<SInt>> inputRow(List<DRes<SInt>> vflInputs,
+  private ArrayList<DRes<SInt>> inputRow(List<DRes<SInt>> vflInputs,
       ArrayList<DRes<SInt>> slackVariables,
       DRes<SInt> zero) {
     ArrayList<DRes<SInt>> row = new ArrayList<>(
@@ -180,7 +193,7 @@ public class DEAPrefixBuilderMaximize {
     return row;
   }
 
-  private static ArrayList<DRes<SInt>> outputRow(List<DRes<SInt>> vflOutputs,
+  private ArrayList<DRes<SInt>> outputRow(List<DRes<SInt>> vflOutputs,
       DRes<SInt> bankOutput,
       ArrayList<DRes<SInt>> slackVariables) {
     ArrayList<DRes<SInt>> row = new ArrayList<>(
@@ -191,7 +204,7 @@ public class DEAPrefixBuilderMaximize {
     return row;
   }
 
-  private static ArrayList<DRes<SInt>> lambdaRow(int lambdas,
+  private ArrayList<DRes<SInt>> lambdaRow(int lambdas,
       ArrayList<DRes<SInt>> slackVariables,
       DRes<SInt> zero,
       DRes<SInt> one) {

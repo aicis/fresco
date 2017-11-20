@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.AdvancedNumericTests;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationTests.TestExponentiation;
@@ -29,7 +28,7 @@ public class TestSpdzAdvancedNumeric extends AbstractSpdzTest {
 
   private void test_Division(int numerator, int denominator) throws Exception {
     runTest(new AdvancedNumericTests.TestDivision<>(numerator, denominator),
-        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+        EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
@@ -51,26 +50,26 @@ public class TestSpdzAdvancedNumeric extends AbstractSpdzTest {
 
   private void test_DivisionWithKnownDenominator(int numerator, int denominator) throws Exception {
     runTest(new AdvancedNumericTests.TestDivisionWithKnownDenominator<>(numerator, denominator),
-        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+        EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_Modulus() throws Exception {
     runTest(new AdvancedNumericTests.TestModulus<>(),
-        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, PreprocessingStrategy.DUMMY, 2);
+        EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_exponentiation() throws Exception {
     runTest(new TestExponentiation<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_polynomial() throws Exception {
     runTest(new TestPolynomialEvaluator<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED, NetworkingStrategy.KRYONET,
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
   }
 }

@@ -5,12 +5,12 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.NetworkingStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.dummy.arithmetic.AbstractDummyArithmeticTest;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
@@ -40,21 +40,18 @@ public class BuildStepTests extends AbstractDummyArithmeticTest {
         @Override
         public void test() throws Exception {
           // define functionality to be tested
-          Application<List<Integer>, ProtocolBuilderNumeric> testApplication = root -> {
-            return root.seq(seq -> {
-              // initiate loop
-              return new IterationState(0, new ArrayList<>());
-            }).whileLoop(
-                // iterate
-                (state) -> state.round < numIterations, 
-                (seq, state) -> {
-                  List<Integer> roundsSoFar = state.rounds;
-                  roundsSoFar.add(state.round);
-                  return new IterationState(state.round + 1, roundsSoFar);
-            }).seq((seq, state) -> {
-              return () -> state.rounds;
-            });
-          };
+          Application<List<Integer>, ProtocolBuilderNumeric> testApplication = root -> root
+              .seq(seq -> {
+                // initiate loop
+                return new IterationState(0, new ArrayList<>());
+              }).whileLoop(
+                  // iterate
+                  (state) -> state.round < numIterations,
+                  (seq, state) -> {
+                    List<Integer> roundsSoFar = state.rounds;
+                    roundsSoFar.add(state.round);
+                    return new IterationState(state.round + 1, roundsSoFar);
+                  }).seq((seq, state) -> () -> state.rounds);
           List<Integer> actual = runApplication(testApplication);
           Assert.assertEquals(expected, actual);
         }
@@ -80,19 +77,19 @@ public class BuildStepTests extends AbstractDummyArithmeticTest {
 
   @Test
   public void test_while_no_iteration() throws Exception {
-    runTest(new TestWhileLoop<>(0, Arrays.asList()), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, 1);
+    runTest(new TestWhileLoop<>(0, Collections.emptyList()), EvaluationStrategy.SEQUENTIAL,
+        1);
   }
 
   @Test
   public void test_while_single_iteration() throws Exception {
-    runTest(new TestWhileLoop<>(1, Arrays.asList(0)), EvaluationStrategy.SEQUENTIAL,
-        NetworkingStrategy.KRYONET, 1);
+    runTest(new TestWhileLoop<>(1, Collections.singletonList(0)), EvaluationStrategy.SEQUENTIAL,
+        1);
   }
 
   @Test
   public void test_while_multiple_iterations() throws Exception {
     runTest(new TestWhileLoop<>(10, Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)),
-        EvaluationStrategy.SEQUENTIAL, NetworkingStrategy.KRYONET, 1);
+        EvaluationStrategy.SEQUENTIAL, 1);
   }
 }

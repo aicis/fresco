@@ -14,6 +14,8 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -31,44 +33,44 @@ public class TestScapiNetwork {
 
     @Override
     public void setUp() {
-      network = (ScapiNetworkImpl) this.conf.resourcePool.getNetwork();
+      network = (ScapiNetworkImpl) this.conf.getNetwork();
     }
 
   }
 
   private static void runTest(TestThreadFactory<ResourcePoolImpl, ProtocolBuilderNumeric> test,
-      int n, int noOfChannels) {
+      int n) {
     // Since SCAPI currently does not work with ports > 9999 we use fixed ports
     // here instead of relying on ephemeral ports which are often > 9999.
     List<Integer> ports = new ArrayList<>(n);
     for (int i = 1; i <= n; i++) {
-      ports.add(9000 + i);
+      ports.add(9100 + i);
     }
     Map<Integer, NetworkConfiguration> netConf =
         TestConfiguration.getNetworkConfigurations(n, ports);
     Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     for (int i : netConf.keySet()) {
-      Network network = new ScapiNetworkImpl();
-      network.init(netConf.get(i), noOfChannels);
-      ResourcePoolImpl rp = new ResourcePoolImpl(i, n, network, null, null);
+      ScapiNetworkImpl network = new ScapiNetworkImpl();
+      network.init(netConf.get(i), 1);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderNumeric> ttc =
-          new TestThreadConfiguration<>(null, rp);
+          new TestThreadConfiguration<>(null,
+              () -> new ResourcePoolImpl(i, n, null, null), () -> network);
       conf.put(i, ttc);
     }
     TestThreadRunner.run(test, conf);
   }
 
-  private static void runTestSecureCommunication(TestThreadFactory<ResourcePoolImpl, ProtocolBuilderNumeric> test,
-      int n, int noOfChannels) {
+  private static void runTestSecureCommunication(
+      TestThreadFactory<ResourcePoolImpl, ProtocolBuilderNumeric> test) throws IOException {
     // Since SCAPI currently does not work with ports > 9999 we use fixed ports
     // here instead of relying on ephemeral ports which are often > 9999.
-    List<Integer> ports = new ArrayList<>(n);
-    for (int i = 1; i <= n; i++) {
-      ports.add(9000 + i);
+    List<Integer> ports = new ArrayList<>(2);
+    for (int i = 1; i <= 2; i++) {
+      ports.add(9100 + i);
     }
-    Map<Integer, NetworkConfiguration> netConfs = new HashMap<>(n);
-    for (int i = 0; i < n; i++) {
+    Map<Integer, NetworkConfiguration> netConfs = new HashMap<>(2);
+    for (int i = 0; i < 2; i++) {
       Map<Integer, Party> partyMap = new HashMap<>();
       int id = 1;
       for (int port : ports) {
@@ -79,18 +81,33 @@ public class TestScapiNetwork {
       }
       netConfs.put(i + 1, new NetworkConfigurationImpl(i + 1, partyMap));
     }
+    Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderNumeric>> configurations =
+        createConfigurations(2, netConfs);
+    TestThreadRunner.run(test, configurations);
+    for (TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderNumeric> networkConfiguration : configurations
+        .values()) {
+      Network network = networkConfiguration.getNetwork();
+      if (network instanceof Closeable) {
+        ((Closeable) network).close();
+      }
+    }
+  }
 
+  private static Map<
+      Integer,
+      TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderNumeric>> createConfigurations(
+      int n, Map<Integer, NetworkConfiguration> netConf) {
     Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
-    for (int i : netConfs.keySet()) {
-      Network network = new ScapiNetworkImpl();
-      network.init(netConfs.get(i), noOfChannels);
-      ResourcePoolImpl rp = new ResourcePoolImpl(i, n, network, null, null);
+    for (int i : netConf.keySet()) {
+      ScapiNetworkImpl network = new ScapiNetworkImpl();
+      network.init(netConf.get(i), 1);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderNumeric> ttc =
-          new TestThreadConfiguration<>(null, rp);
+          new TestThreadConfiguration<>(null,
+              () -> new ResourcePoolImpl(i, n, null, null), () -> network);
       conf.put(i, ttc);
     }
-    TestThreadRunner.run(test, conf);
+    return conf;
   }
 
 
@@ -108,36 +125,35 @@ public class TestScapiNetwork {
         }
       };
 
-
-
   @Test
   public void testCanConnect_2() throws Exception {
-    runTest(test, 2, 1);
+    runTest(test, 2);
   }
 
   @Test
   public void testCanConnect_3() throws Exception {
-    runTest(test, 3, 1);
+    runTest(test, 3);
   }
 
   @Test
   public void testCanConnect_7() throws Exception {
-    runTest(test, 7, 1);
+    runTest(test, 7);
   }
+
 
   @Test
   public void testConnectTwice() throws Exception {
-    runTest(test, 2 ,1);
+    runTest(test, 2);
   }
 
   @Test
   public void testConnectSecure() throws Exception {
-    runTestSecureCommunication(test, 2 ,1);
+    runTestSecureCommunication(test);
   }
 
   @Test
   public void testPlayerTwoCanSendBytesToPlayerOne() throws Exception {
-    final byte[] data = new byte[] { 0x42, 0xf, 0x00, 0x23, 0x15 };
+    final byte[] data = new byte[]{0x42, 0xf, 0x00, 0x23, 0x15};
     final TestThreadFactory<ResourcePoolImpl, ProtocolBuilderNumeric> test =
         new TestThreadFactory<ResourcePoolImpl, ProtocolBuilderNumeric>() {
           @Override
@@ -147,22 +163,22 @@ public class TestScapiNetwork {
               public void test() throws Exception {
                 network.connect(timeoutMillis);
                 if (conf.getMyId() == 1) {
-                  byte[] received = network.receive(2);
+                  byte[] received = conf.getNetwork().receive(2);
                   assertTrue(Arrays.equals(data, received));
                 } else if (conf.getMyId() == 2) {
-                  network.send(1, data);
+                  conf.getNetwork().send(1, data);
                 }
                 network.close();
               }
             };
           }
         };
-    runTest(test, 3, 1);
+    runTest(test, 3);
   }
-  
+
   @Test
   public void testSelfSend() throws Exception {
-    final byte[] data = new byte[] { 0x42, 0xf, 0x00, 0x23, 0x15 };
+    final byte[] data = new byte[]{0x42, 0xf, 0x00, 0x23, 0x15};
     final TestThreadFactory<ResourcePoolImpl, ProtocolBuilderNumeric> test =
         new TestThreadFactory<ResourcePoolImpl, ProtocolBuilderNumeric>() {
           @Override
@@ -181,12 +197,12 @@ public class TestScapiNetwork {
             };
           }
         };
-    runTest(test, 3, 1);
+    runTest(test, 3);
   }
-  
+
   @Test
   public void testSendToNonParty() throws Exception {
-    final byte[] data = new byte[] { 0x42, 0xf, 0x00, 0x23, 0x15 };
+    final byte[] data = new byte[]{0x42, 0xf, 0x00, 0x23, 0x15};
     final TestThreadFactory<ResourcePoolImpl, ProtocolBuilderNumeric> test =
         new TestThreadFactory<ResourcePoolImpl, ProtocolBuilderNumeric>() {
           @Override
@@ -204,19 +220,19 @@ public class TestScapiNetwork {
                   }
                   assertTrue(exception);
                 }
-                network.close();
               }
             };
           }
         };
-    runTest(test, 3, 1);
+    runTest(test, 3);
+
   }
-  
+
   @Test
   public void testCanUseDifferentChannels() throws Exception {
 
-    final byte[] data1 = new byte[] { 0x42, 0xf, 0x00, 0x23, 0x15 };
-    final byte[] data2 = new byte[] { 0x34, 0x2, 0x00, 0x1, 0x22 };
+    final byte[] data1 = new byte[]{0x42, 0xf, 0x00, 0x23, 0x15};
+    final byte[] data2 = new byte[]{0x34, 0x2, 0x00, 0x1, 0x22};
     final TestThreadFactory<ResourcePoolImpl, ProtocolBuilderNumeric> test =
         new TestThreadFactory<ResourcePoolImpl, ProtocolBuilderNumeric>() {
           @Override
@@ -226,12 +242,12 @@ public class TestScapiNetwork {
               public void test() throws Exception {
                 network.connect(timeoutMillis);
                 if (conf.getMyId() == 1) {
-                  network.send(0, 2, data2);
-                  byte[] received = network.receive(1, 2);
+                  network.send(2, data2);
+                  byte[] received = network.receive(2);
                   assertTrue(Arrays.equals(data1, received));
                 } else if (conf.getMyId() == 2) {
-                  network.send(1, 1, data1);
-                  byte[] received = network.receive(0, 1);
+                  network.send(1, data1);
+                  byte[] received = network.receive(1);
                   assertTrue(Arrays.equals(data2, received));
                 }
                 network.close();
@@ -239,6 +255,6 @@ public class TestScapiNetwork {
             };
           }
         };
-    runTest(test, 3, 2);
+    runTest(test, 3);
   }
 }

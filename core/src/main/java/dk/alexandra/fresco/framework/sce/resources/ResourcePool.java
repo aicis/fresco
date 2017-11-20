@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.framework.sce.resources;
 
-import dk.alexandra.fresco.framework.network.Network;
 import java.security.SecureRandom;
 import java.util.Random;
 
@@ -20,13 +19,6 @@ public interface ResourcePool {
    * Returns the number of players.
    */
   int getNoOfParties();
-
-  /**
-   * Returns the raw network in case the protocol suite needs access to this.
-   * It should not be used for the individual protocols, but rather only for
-   * doing some work before or after an application evaluation.
-   */
-  Network getNetwork();
 
   /**
    * Returns the randomness generator of the system. Use this for getting

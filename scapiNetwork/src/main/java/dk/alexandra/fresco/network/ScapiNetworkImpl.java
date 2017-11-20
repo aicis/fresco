@@ -17,9 +17,11 @@ import edu.biu.scapi.midLayer.symmetricCrypto.encryption.ScEncryptThenMac;
 import edu.biu.scapi.midLayer.symmetricCrypto.mac.ScCbcMacPrepending;
 import edu.biu.scapi.primitives.prf.AES;
 import edu.biu.scapi.primitives.prf.bc.BcAES;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.InvalidKeyException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,15 +42,13 @@ import org.slf4j.LoggerFactory;
  *
  * For now it only uses non-encrypted socket-based communication.
  */
-public class ScapiNetworkImpl implements Network {
+public class ScapiNetworkImpl implements Network, Closeable {
 
   private NetworkConfiguration conf;
   private boolean connected = false;
 
   // Unless explicitly named, SCAPI channels are named with
   // strings "0", "1", etc.
-  private int defaultChannel = 0;
-
   private Map<PartyData, Map<String, Channel>> connections;
   private Map<Integer, PartyData> idToPartyData;
   private int channelAmount;
@@ -57,13 +57,13 @@ public class ScapiNetworkImpl implements Network {
   private Map<Integer, BlockingQueue<Serializable>> queues;
   private static Logger logger = LoggerFactory.getLogger(ScapiNetworkImpl.class);
 
-  public ScapiNetworkImpl() {}
+  public ScapiNetworkImpl() {
+  }
 
   /**
    * @param conf - The configuration with info about whom to connect to.
    * @param channelAmount The amount of channels each player needs to each other.
    */
-  @Override
   public void init(NetworkConfiguration conf, int channelAmount) {
     this.channelAmount = channelAmount;
     this.conf = conf;
@@ -72,8 +72,7 @@ public class ScapiNetworkImpl implements Network {
   // TODO: Include player to integer map to indicate
   // how many channels are wanted to each player.
   // Implement this also for send to self queues.
-  @Override
-  public void connect(int timeoutMillis) throws IOException {
+  public void connect(int timeoutMillis) {
     if (connected) {
       return;
     }
@@ -85,7 +84,12 @@ public class ScapiNetworkImpl implements Network {
     for (int id = 1; id <= conf.noOfParties(); id++) {
       Party frescoParty = conf.getParty(id);
       String iadrStr = frescoParty.getHostname();
-      InetAddress iadr = InetAddress.getByName(iadrStr);
+      InetAddress iadr;
+      try {
+        iadr = InetAddress.getByName(iadrStr);
+      } catch (UnknownHostException e) {
+        throw new RuntimeException("Cannot find party with adress=" + iadrStr);
+      }
       int port = frescoParty.getPort();
       SocketPartyData scapyParty = new SocketPartyData(iadr, port);
       parties.add(scapyParty);
@@ -116,7 +120,7 @@ public class ScapiNetworkImpl implements Network {
     try {
       connections = commSetup.prepareForCommunication(connectionsPerParty, timeoutMillis);
     } catch (TimeoutException e) {
-      throw new IOException(e);
+      throw new RuntimeException(e);
     }
 
     // Enable secure (auth + encrypted) channels if a key is specified.
@@ -144,7 +148,6 @@ public class ScapiNetworkImpl implements Network {
         }
       }
     }
-    connected = true;
   }
 
   private EncryptedChannel getSecureChannel(PlainChannel ch, String base64EncodedSSKey)
@@ -178,34 +181,9 @@ public class ScapiNetworkImpl implements Network {
     connected = false;
   }
 
-  /**
-   * Send using default channel (0).
-   *
-   * TODO: When writing to TCP socket, does message always (1) get send eventually, or (2) does it
-   * risk getting buffered indefinitely (until explicitly calling flush/close)?
-   *
-   * TODO: There is also potential deadlock with TCP if both parties send large buffers to each
-   * other simultaneously.
-   *
-   * @param receiverId Non-negative id of player to receive data.
-   */
-  public void send(int receiverId, byte[] data) throws IOException {
-    send(defaultChannel, receiverId, data);
-  }
-
-
-  /**
-   * Receive data using default channel (0).
-   *
-   * @param id Non-negative id of player from which to receive data.
-   */
-  public byte[] receive(int id) throws IOException {
-    return receive(defaultChannel, id);
-  }
-
   public void send(int channel, Map<Integer, byte[]> output) throws IOException {
     for (int playerId : output.keySet()) {
-      this.send(channel, playerId, output.get(playerId));
+      this.send(playerId, output.get(playerId));
     }
   }
 
@@ -214,7 +192,7 @@ public class ScapiNetworkImpl implements Network {
     // TODO: Maybe use threading for each player
     Map<Integer, Serializable> res = new HashMap<>();
     for (int i : expectedInputForNextRound) {
-      byte[] r = this.receive(channel, i);
+      byte[] r = this.receive(i);
       res.put(i, r);
     }
     return res;
@@ -224,10 +202,11 @@ public class ScapiNetworkImpl implements Network {
     return this.conf.getMyId();
   }
 
+
   @Override
-  public void send(int channel, int partyId, byte[] data) throws IOException {
+  public void send(int partyId, byte[] data) {
     if (partyId == this.conf.getMyId()) {
-      this.queues.get(channel).add(data);
+      this.queues.get(0).add(data);
       return;
     }
     if (!idToPartyData.containsKey(partyId)) {
@@ -235,35 +214,46 @@ public class ScapiNetworkImpl implements Network {
     }
     PartyData receiver = idToPartyData.get(partyId);
     Map<String, Channel> channels = connections.get(receiver);
-    Channel c = channels.get("" + channel);
-    c.send(data);
+    Channel c = channels.get("" + 0);
+    try {
+      c.send(data);
+    } catch (IOException e) {
+      throw new MPCException("Cannot send", e);
+    }
   }
 
   @Override
-  public byte[] receive(int channel, int partyId) throws IOException {
+  public byte[] receive(int partyId) {
     if (partyId == this.conf.getMyId()) {
-      byte[] res = (byte[]) this.queues.get(channel).poll();
+      byte[] res = (byte[]) this.queues.get(0).poll();
       if (res == null) {
-        throw new MPCException("Self(" + partyId + ") have not send anything on channel " + channel
+        throw new MPCException("Self(" + partyId + ") have not send anything on channel " + 0
             + "before receive was called.");
       }
       return res;
     } else {
       PartyData receiver = idToPartyData.get(partyId);
       Map<String, Channel> channels = connections.get(receiver);
-      Channel c = channels.get("" + channel);
+      Channel c = channels.get("" + 0);
       if (c == null) {
-        throw new MPCException("Trying to send via channel " + channel
+        throw new MPCException("Trying to send via channel " + 0
             + ", but this network was initiated with only " + this.channelAmount + " channels.");
       }
-      byte[] res = null;
+      byte[] res;
       try {
         res = (byte[]) c.receive();
       } catch (ClassNotFoundException e) {
         throw new RuntimeException("Weird class not found exception, sry. ", e);
+      } catch (IOException e) {
+        throw new MPCException("Cannot receive", e);
       }
       return res;
     }
+  }
+
+  @Override
+  public int getNoOfParties() {
+    return conf.noOfParties();
   }
 
 }

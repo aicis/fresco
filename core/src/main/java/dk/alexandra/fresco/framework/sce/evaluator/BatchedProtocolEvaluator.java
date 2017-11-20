@@ -1,13 +1,11 @@
 package dk.alexandra.fresco.framework.sce.evaluator;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
-import dk.alexandra.fresco.framework.network.SCENetworkImpl;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
-import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,47 +18,41 @@ import org.slf4j.LoggerFactory;
  * @param <Builder> The builder type used
  */
 public class BatchedProtocolEvaluator<
-  ResourcePoolT extends ResourcePool, 
-  Builder extends ProtocolBuilder
-  >
+    ResourcePoolT extends ResourcePool,
+    Builder extends ProtocolBuilder
+    >
     implements ProtocolEvaluator<ResourcePoolT, Builder> {
 
   private Logger logger = LoggerFactory.getLogger(BatchedProtocolEvaluator.class);
-  private int maxBatchSize;
   private static final int MAX_EMPTY_BATCHES_IN_A_ROW = 10;
 
-  private ProtocolSuite<ResourcePoolT, ?> protocolSuite;
-  private BatchEvaluationStrategy<ResourcePoolT> batchEvaluator;
+  private final BatchEvaluationStrategy<ResourcePoolT> batchEvaluator;
+  private final ProtocolSuite<ResourcePoolT, ?> protocolSuite;
+  private final int maxBatchSize;
 
-  public BatchedProtocolEvaluator(BatchEvaluationStrategy<ResourcePoolT> batchEvaluator) {
+  public BatchedProtocolEvaluator(
+      BatchEvaluationStrategy<ResourcePoolT> batchEvaluator,
+      ProtocolSuite<ResourcePoolT, ?> protocolSuite) {
+    this(batchEvaluator, protocolSuite, 4096);
+  }
+
+  public BatchedProtocolEvaluator(
+      BatchEvaluationStrategy<ResourcePoolT> batchEvaluator,
+      ProtocolSuite<ResourcePoolT, ?> protocolSuite, int maxBatchSize) {
     this.batchEvaluator = batchEvaluator;
-    this.maxBatchSize = 4096;
-  }
-
-  @Override
-  public void setProtocolInvocation(ProtocolSuite<ResourcePoolT, Builder> pii) {
-    this.protocolSuite = pii;
-  }
-
-  /**
-   * Sets the maximum amount of gates evaluated in each batch.
-   *
-   * @param maxBatchSize the maximum batch size.
-   */
-  @Override
-  public void setMaxBatchSize(int maxBatchSize) {
     this.maxBatchSize = maxBatchSize;
+    this.protocolSuite = protocolSuite;
   }
 
   @Override
-  public void eval(ProtocolProducer protocolProducer, ResourcePoolT resourcePool)
-      throws IOException {
+  public void eval(ProtocolProducer protocolProducer, ResourcePoolT resourcePool,
+      Network network) {
     int batch = 0;
     int totalProtocols = 0;
     int totalBatches = 0;
     int zeroBatches = 0;
 
-    SCENetworkImpl sceNetwork = createSceNetwork(resourcePool);
+    NetworkBatchDecorator networkBatchDecorator = createSceNetwork(resourcePool, network);
     ProtocolSuite.RoundSynchronization<ResourcePoolT> roundSynchronization =
         protocolSuite.createRoundSynchronization();
     do {
@@ -68,8 +60,8 @@ public class BatchedProtocolEvaluator<
       protocolProducer.getNextProtocols(protocols);
       int size = protocols.size();
 
-      roundSynchronization.beforeBatch(protocols, resourcePool);
-      batchEvaluator.processBatch(protocols, resourcePool, sceNetwork);
+      roundSynchronization.beforeBatch(protocols, resourcePool, network);
+      batchEvaluator.processBatch(protocols, resourcePool, networkBatchDecorator);
       logger.trace("Done evaluating batch: " + batch++ + " with " + size + " native protocols");
       if (size == 0) {
         logger.debug("Batch " + batch + " is empty");
@@ -81,19 +73,21 @@ public class BatchedProtocolEvaluator<
       } else {
         zeroBatches = 0;
       }
+/*
       if (zeroBatches > MAX_EMPTY_BATCHES_IN_A_ROW) {
         throw new MPCException("Number of empty batches in a row reached "
             + MAX_EMPTY_BATCHES_IN_A_ROW + "; probably there is a bug in your protocol producer.");
       }
-      roundSynchronization.finishedBatch(size, resourcePool, sceNetwork);
+*/
+      roundSynchronization.finishedBatch(size, resourcePool, network);
     } while (protocolProducer.hasNextProtocols());
 
     logger.debug("Evaluator done. Evaluated a total of " + totalProtocols
         + " native protocols in " + totalBatches + " batches.");
-    roundSynchronization.finishedEval(resourcePool, sceNetwork);
+    roundSynchronization.finishedEval(resourcePool, network);
   }
 
-  private SCENetworkImpl createSceNetwork(ResourcePool resourcePool) {
-    return new SCENetworkImpl(resourcePool.getNoOfParties());
+  private NetworkBatchDecorator createSceNetwork(ResourcePool resourcePool, Network network) {
+    return new NetworkBatchDecorator(resourcePool.getNoOfParties(), network);
   }
 }

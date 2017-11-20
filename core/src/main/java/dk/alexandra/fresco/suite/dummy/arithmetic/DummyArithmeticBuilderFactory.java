@@ -6,7 +6,7 @@ import dk.alexandra.fresco.framework.builder.numeric.Comparison;
 import dk.alexandra.fresco.framework.builder.numeric.DefaultComparison;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.SCENetwork;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
@@ -99,7 +99,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
 
           @Override
           public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool resourcePool,
-              SCENetwork network) {
+              Network network) {
             BigInteger r;
             do {
               r = new BigInteger(factory.getModulus().bitLength(), resourcePool.getRandom());
@@ -124,7 +124,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
 
           @Override
           public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool resourcePool,
-              SCENetwork network) {
+              Network network) {
             bit = new DummyArithmeticSInt(BigInteger.valueOf(resourcePool.getRandom().nextInt(2)));
             return EvaluationStatus.IS_DONE;
           }
@@ -170,7 +170,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
 
           @Override
           public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool resourcePool,
-              SCENetwork network) {
+              Network network) {
             val = new DummyArithmeticSInt(value);
             return EvaluationStatus.IS_DONE;
           }

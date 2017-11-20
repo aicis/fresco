@@ -1,11 +1,11 @@
 package dk.alexandra.fresco.suite.dummy.bool;
 
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.lib.bool.BasicBooleanTests;
 import dk.alexandra.fresco.lib.bool.ComparisonBooleanTests;
 import dk.alexandra.fresco.lib.collections.sort.CollectionsSortingTests;
 import dk.alexandra.fresco.lib.compare.CompareTests;
+import dk.alexandra.fresco.lib.crypto.BadBristolCryptoTests;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
 import dk.alexandra.fresco.lib.debug.BinaryDebugTests;
 import dk.alexandra.fresco.lib.field.bool.generic.FieldBoolTests;
@@ -42,10 +42,13 @@ public class TestDummyProtocolSuite extends AbstractDummyBooleanTest {
 
   @Test
   public void test_OR() throws Exception {
-    runTest(new FieldBoolTests.TestOrFromXorAnd<ResourcePoolImpl>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED);
-    runTest(new FieldBoolTests.TestOrFromCopyConst<ResourcePoolImpl>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED);
+    runTest(new FieldBoolTests.TestOrFromXorAnd<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+    runTest(new FieldBoolTests.TestOrFromCopyConst<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
+  public void testOpen() throws Exception {
+    runTest(new FieldBoolTests.TestOpen<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
@@ -122,6 +125,38 @@ public class TestDummyProtocolSuite extends AbstractDummyBooleanTest {
   }
 
   @Test
+  public void test_Bristol_Errors_XOR() throws Exception {
+    runTest(new BadBristolCryptoTests.XorTest1<>(), EvaluationStrategy.SEQUENTIAL);
+    runTest(new BadBristolCryptoTests.XorTest2<>(), EvaluationStrategy.SEQUENTIAL);
+    runTest(new BadBristolCryptoTests.XorTest3<>(), EvaluationStrategy.SEQUENTIAL);
+    runTest(new BadBristolCryptoTests.XorTest4<>(), EvaluationStrategy.SEQUENTIAL);
+    runTest(new BadBristolCryptoTests.XorTest5<>(), EvaluationStrategy.SEQUENTIAL);
+  }
+
+  @Test
+  public void test_Bristol_Errors_AND() throws Exception {
+    runTest(new BadBristolCryptoTests.AndTest1<>(), EvaluationStrategy.SEQUENTIAL);
+    runTest(new BadBristolCryptoTests.AndTest2<>(), EvaluationStrategy.SEQUENTIAL);
+    runTest(new BadBristolCryptoTests.AndTest3<>(), EvaluationStrategy.SEQUENTIAL);
+    runTest(new BadBristolCryptoTests.AndTest4<>(), EvaluationStrategy.SEQUENTIAL);
+    runTest(new BadBristolCryptoTests.AndTest5<>(), EvaluationStrategy.SEQUENTIAL);
+  }
+
+  @Test
+  public void test_Bristol_Errors_INV() throws Exception {
+    runTest(new BadBristolCryptoTests.InvTest1<>(), EvaluationStrategy.SEQUENTIAL);
+    runTest(new BadBristolCryptoTests.InvTest2<>(), EvaluationStrategy.SEQUENTIAL);
+    runTest(new BadBristolCryptoTests.InvTest3<>(), EvaluationStrategy.SEQUENTIAL);
+    runTest(new BadBristolCryptoTests.InvTest4<>(), EvaluationStrategy.SEQUENTIAL);
+  }
+
+  @Test
+  public void test_Bristol_Errors_NOSUCHOPERATION() throws Exception {
+    runTest(new BadBristolCryptoTests.BadOperationTest<>(), EvaluationStrategy.SEQUENTIAL);
+    runTest(new BadBristolCryptoTests.NoCircuitTest<>(), EvaluationStrategy.SEQUENTIAL);
+  }
+
+  @Test
   public void test_basic_logic_all_in_one() throws Exception {
     runTest(new BasicBooleanTests.TestBasicProtocols<>(true), EvaluationStrategy.SEQUENTIAL);
   }
@@ -158,11 +193,17 @@ public class TestDummyProtocolSuite extends AbstractDummyBooleanTest {
     runTest(new CompareTests.CompareAndSwapTest<>(), EvaluationStrategy.SEQUENTIAL);
   }
 
+
   @Test
   public void test_Debug_Marker() throws Exception {
     runTest(new BinaryDebugTests.TestBinaryOpenAndPrint<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
+  @Test
+  public void test_Debug_OpenAndPrintSysout() throws Exception {
+    runTest(new BinaryDebugTests.TestBinaryDebugToNullStream<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
 
   @Test
   public void test_Binary_Log_Nice() throws Exception {
