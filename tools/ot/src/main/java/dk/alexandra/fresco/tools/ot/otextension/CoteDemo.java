@@ -24,7 +24,6 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
  *          The FRESCO resource pool used for the execution
  */
 public class CoteDemo<ResourcePoolT extends ResourcePool> {
-  private int timeout = 5000;
   private int kbitLength = 128;
   private int lambdaSecurityParam = 40;
   private int amountOfOTs = 1024;
@@ -41,9 +40,7 @@ public class CoteDemo<ResourcePoolT extends ResourcePool> {
    */
   public void runPartyOne(int pid)
       throws IOException, NoSuchAlgorithmException {
-    Network network = new KryoNetNetwork();
-    network.init(getNetworkConfiguration(pid), 1);
-    network.connect(timeout);
+    Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected receiver");
     Random rand = new Random(42);
     Cote cote = new Cote(2, kbitLength, lambdaSecurityParam, rand, network);
@@ -75,9 +72,7 @@ public class CoteDemo<ResourcePoolT extends ResourcePool> {
    */
   public void runPartyTwo(int pid)
       throws IOException, NoSuchAlgorithmException {
-    Network network = new KryoNetNetwork();
-    network.init(getNetworkConfiguration(pid), 1);
-    network.connect(timeout);
+    Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected sender");
     Random rand = new Random(420);
     Cote cote = new Cote(1, kbitLength, lambdaSecurityParam, rand, network);

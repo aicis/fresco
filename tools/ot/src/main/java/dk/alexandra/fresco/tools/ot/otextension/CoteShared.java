@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -178,13 +177,8 @@ public class CoteShared {
    * @return Returns true if the transmission was successful
    */
   protected boolean sendList(List<byte[]> vector) {
-    try {
-      for (byte[] currentArr : vector) {
-        network.send(0, otherId, currentArr);
-      }
-    } catch (IOException e) {
-      System.out.println("Broke while sending " + e);
-      return false;
+    for (byte[] currentArr : vector) {
+      network.send(otherId, currentArr);
     }
     return true;
   }
@@ -200,14 +194,9 @@ public class CoteShared {
    */
   protected List<byte[]> receiveList(int size) {
     List<byte[]> vector = new ArrayList<>(size);
-    try {
-      for (int i = 0; i < size; i++) {
-        byte[] currentArr = network.receive(0, otherId);
-        vector.add(currentArr);
-      }
-    } catch (IOException e) {
-      System.out.println("Broke while sending " + e);
-      return null;
+    for (int i = 0; i < size; i++) {
+      byte[] currentArr = network.receive(otherId);
+      vector.add(currentArr);
     }
     return vector;
   }
