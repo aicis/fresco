@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
-import dk.alexandra.fresco.tools.mascot.cope.Cope;
+import dk.alexandra.fresco.tools.mascot.cope.CopeBiDirectional;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.maccheck.DummyMacCheck;
 import dk.alexandra.fresco.tools.mascot.maccheck.MacCheck;
@@ -33,7 +33,7 @@ public class ShareGen extends MultiPartyProtocol {
   protected FieldElement macKeyShare;
   protected Sampler sampler;
   protected Sharer sharer;
-  protected Map<Integer, Cope> copeProtocols;
+  protected Map<Integer, CopeBiDirectional> copeProtocols;
   protected MacCheck macCheckProtocol;
 
   public ShareGen(BigInteger modulus, int kBitLength, Integer myId, List<Integer> partyIds,
@@ -46,7 +46,7 @@ public class ShareGen extends MultiPartyProtocol {
     this.copeProtocols = new HashMap<>();
     for (Integer partyId : partyIds) {
       if (!myId.equals(partyId)) {
-        Cope cope = new Cope(myId, partyId, kBitLength, lambdaSecurityParam, rand, macKeyShare,
+        CopeBiDirectional cope = new CopeBiDirectional(myId, partyId, kBitLength, lambdaSecurityParam, rand, macKeyShare,
             network, executor, modulus);
         this.copeProtocols.put(partyId, cope);
       }
@@ -60,7 +60,7 @@ public class ShareGen extends MultiPartyProtocol {
     if (initialized) {
       throw new IllegalStateException("Already initialized");
     }
-    Stream<Cope> copeStream = copeProtocols.values().stream();
+    Stream<CopeBiDirectional> copeStream = copeProtocols.values().stream();
     CompletableFuture.allOf(copeStream.map(cope -> cope.initializeAsynch(executor))
         .toArray(i -> new CompletableFuture[i])).join();
     this.initialized = true;
@@ -97,8 +97,8 @@ public class ShareGen extends MultiPartyProtocol {
 
     // TODO: wrap this
     List<List<FieldElement>> tValuesPerParty = new ArrayList<>();
-    for (Cope cope : copeProtocols.values()) {
-      tValuesPerParty.add(cope.getInputter().extend(values));
+    for (CopeBiDirectional cope : copeProtocols.values()) {
+      tValuesPerParty.add(cope.inputterExtend(values));
     }
     List<FieldElement> tValues = getTValues(tValuesPerParty, numElements);
     List<FieldElement> subMacShares = IntStream.range(0, numElements)
@@ -137,17 +137,17 @@ public class ShareGen extends MultiPartyProtocol {
   public SpdzElement input(Integer inputter) throws IOException {
     int numElements = 2; // one real input and one dummy element
 
-    List<FieldElement> subMacShares = copeProtocols.get(inputter).getSigner().extend(2);
+    List<FieldElement> subMacShares = copeProtocols.get(inputter).signerExtend(2);
     List<FieldElement> maskingVector = sampler.jointSample(modulus, kBitLength, numElements);
 
-    FieldElement maksedMacShare = IntStream.range(0, numElements)
+    FieldElement maskedMacShare = IntStream.range(0, numElements)
         .mapToObj(idx -> maskingVector.get(idx).multiply(subMacShares.get(idx)))
         .reduce(new FieldElement(BigInteger.ZERO, modulus, kBitLength),
             (left, right) -> (left.add(right)));
 
     FieldElement y = new FieldElement(network.receive(inputter), modulus, kBitLength);
     // TODO: handle mac failure
-    macCheckProtocol.check(y, macKeyShare, maksedMacShare);
+    macCheckProtocol.check(y, macKeyShare, maskedMacShare);
     FieldElement share = new FieldElement(network.receive(inputter), modulus, kBitLength);
     FieldElement macShare = subMacShares.get(1);
     return FieldElement.toSpdzElement(share, macShare);

@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.tools.mascot.cope;
 
 import java.math.BigInteger;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -9,12 +10,12 @@ import java.util.concurrent.ExecutorService;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.net.ExtendedNetwork;
 
-public class Cope {
+public class CopeBiDirectional {
 
   protected CopeInputter inputter;
   protected CopeSigner signer;
 
-  public Cope(Integer myId, Integer otherId, int kBitLength, int lambdaSecurityParam, Random rand,
+  public CopeBiDirectional(Integer myId, Integer otherId, int kBitLength, int lambdaSecurityParam, Random rand,
       FieldElement macKeyShare, ExtendedNetwork network, ExecutorService executor, BigInteger modulus) {
     this.inputter = new CopeInputter(myId, otherId, kBitLength, lambdaSecurityParam, rand, network,
         executor, modulus);
@@ -22,15 +23,23 @@ public class Cope {
         executor, modulus, macKeyShare);
   }
 
-  public CopeInputter getInputter() {
-    return inputter;
+  public FieldElement inputterExtend(FieldElement inputElement) {
+    return inputter.extend(inputElement);
   }
-
-  public CopeSigner getSigner() {
-    return signer;
+  
+  public List<FieldElement> inputterExtend(List<FieldElement> inputElements) {
+    return inputter.extend(inputElements);
   }
-
-  public void initialize() {
+  
+  public FieldElement signerExtend() {
+    return signer.extend();
+  }
+  
+  public List<FieldElement> signerExtend(int numInputs) {
+    return signer.extend(numInputs);
+  }
+  
+  public void initializeBoth() {
     // Could also run this in separate threads
     if (this.inputter.getMyId() < this.inputter.getOtherId()) {
       inputter.initialize();
@@ -42,7 +51,7 @@ public class Cope {
   }
 
   public CompletableFuture<Void> initializeAsynch(Executor executor) {
-    return CompletableFuture.runAsync(() -> initialize(), executor);
+    return CompletableFuture.runAsync(() -> initializeBoth(), executor);
   }
 
 }

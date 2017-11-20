@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.mascot.mult;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +29,7 @@ public class MultiplyLeft extends MultiplyShared {
     return seeds;
   }
 
-  protected List<FieldElement> receiveDiffs(int numDiffs) throws IOException {
+  protected List<FieldElement> receiveDiffs(int numDiffs) {
     // TODO: need batch-receive
     List<FieldElement> diffs = new ArrayList<>();
     for (int d = 0; d < numDiffs; d++) {
@@ -39,7 +38,7 @@ public class MultiplyLeft extends MultiplyShared {
     return diffs;
   }
 
-  public List<FieldElement> multiply(List<FieldElement> leftFactors) throws IOException {
+  public List<FieldElement> multiply(List<FieldElement> leftFactors) {
     List<BigInteger> seeds = generateSeeds(leftFactors);
     List<FieldElement> seedElements = seeds.stream()
         .map(seed -> new FieldElement(seed, modulus, kBitLength)).collect(Collectors.toList());

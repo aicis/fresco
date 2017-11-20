@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.mascot.mult;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,14 +37,14 @@ public class MultiplyRight extends MultiplyShared {
     return diffs;
   }
 
-  protected void sendDiffs(List<FieldElement> diffs) throws IOException {
+  protected void sendDiffs(List<FieldElement> diffs) {
     // TODO: need batch-send
     for (FieldElement diff : diffs) {
       network.send(otherId, diff.toByteArray());
     }
   }
 
-  public List<FieldElement> multiply(FieldElement rightFactor) throws IOException {
+  public List<FieldElement> multiply(FieldElement rightFactor) {
     // TODO: clean up
     List<Pair<BigInteger, BigInteger>> seeds = generateSeeds();
     // TODO: could do diffs in one pass
