@@ -18,14 +18,14 @@ public class SpdzCommitment {
     this.H = H;
   }
 
-  public void computeCommitment(BigInteger modulus) {
+  public BigInteger computeCommitment(BigInteger modulus) {
+    if(this.commitment != null) {
+      return this.commitment;
+    }
     H.update(value.toByteArray());
     this.randomness = new BigInteger(modulus.bitLength(), rand);
     H.update(this.randomness.toByteArray());
     this.commitment = new BigInteger(H.digest()).mod(modulus);
-  }
-
-  public BigInteger getCommitment() {
     return this.commitment;
   }
 

@@ -6,6 +6,9 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Random;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -92,9 +95,13 @@ public class TestSpdzDatatypes {
   }
   
   @Test
-  public void testCommitmentToString() {
+  public void testCommitment() throws NoSuchAlgorithmException {
     SpdzCommitment comm = new SpdzCommitment(null, null, null);
     Assert.assertEquals("SpdzCommitment[v:null, r:null, commitment:null]", comm.toString());
-    
+    MessageDigest H = MessageDigest.getInstance("SHA-256");
+    SpdzCommitment c = new SpdzCommitment(H, BigInteger.ONE, new Random(0));
+    BigInteger c1 = c.computeCommitment(BigInteger.TEN);
+    BigInteger c2 = c.computeCommitment(BigInteger.TEN);
+    Assert.assertEquals(c1, c2);
   }
 }

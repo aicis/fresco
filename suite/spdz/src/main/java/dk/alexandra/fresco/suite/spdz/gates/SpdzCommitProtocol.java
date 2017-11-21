@@ -34,9 +34,8 @@ public class SpdzCommitProtocol extends SpdzNativeProtocol<Void> {
     BigIntegerSerializer serializer = spdzResourcePool.getSerializer();
     switch (round) {
       case 0:
-        commitment.computeCommitment(spdzResourcePool.getModulus());
         network.sendToAll(serializer
-            .toBytes(commitment.getCommitment()));
+            .toBytes(commitment.computeCommitment(spdzResourcePool.getModulus())));
         break;
       case 1:
         List<byte[]> commitments = network.receiveFromAll();
