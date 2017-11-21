@@ -19,7 +19,8 @@ import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
+import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -60,9 +61,15 @@ public class TestInputSumExample {
             new Random(), new DetermSecureRandom(), mod);
       } else {
         suite = (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new SpdzProtocolSuite(150);
-        resourcePool = () -> (ResourcePoolT) new SpdzResourcePoolImpl(i, n,
-            new Random(),
-            new DetermSecureRandom(), new SpdzStorageDummyImpl(i, n));
+        resourcePool = () -> {
+          try {
+            return (ResourcePoolT) new SpdzResourcePoolImpl(i, n,
+                new Random(),
+                new DetermSecureRandom(), new SpdzStorageImpl(new DummyDataSupplierImpl(i, n)));
+          } catch (Exception e) {
+            throw new RuntimeException("Your system does not support the necessary hash function.", e);
+          } 
+        };
       }
       TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> ttc =
           new TestThreadConfiguration<>(

@@ -22,9 +22,13 @@ import dk.alexandra.fresco.logging.PerformanceLogger;
 import dk.alexandra.fresco.logging.PerformanceLogger.Flag;
 import dk.alexandra.fresco.logging.SecureComputationEngineLoggingDecorator;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
+import dk.alexandra.fresco.suite.spdz.storage.DataSupplier;
+import dk.alexandra.fresco.suite.spdz.storage.DataSupplierImpl;
+import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageConstants;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -107,16 +111,24 @@ public abstract class AbstractSpdzTest {
     }
   }
 
-  static SpdzResourcePool createResourcePool(int myId, int size, Random rand,
+  private SpdzResourcePool createResourcePool(int myId, int size, Random rand,
       SecureRandom secRand, PreprocessingStrategy preproStrat) {
-    SpdzStorage store;
-    if (preproStrat == DUMMY) {
-      store = new SpdzStorageDummyImpl(myId, size);
+    DataSupplier supplier;
+    if (preproStrat == DUMMY) {      
+      supplier = new DummyDataSupplierImpl(myId, size);
     } else {
-      //case STATIC:
-      store = new SpdzStorageImpl(0, size, myId,
-          new FilebasedStreamedStorageImpl(new InMemoryStorage()));
+      // case STATIC:
+      int noOfThreadsUsed = 1;        
+      String storageName =
+          SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
+          + "_";
+      supplier = new DataSupplierImpl(new FilebasedStreamedStorageImpl(new InMemoryStorage()), storageName, size);                
     }
-    return new SpdzResourcePoolImpl(myId, size, rand, secRand, store);
+    SpdzStorage store = new SpdzStorageImpl(supplier);
+    try {
+      return new SpdzResourcePoolImpl(myId, size, rand, secRand, store);
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException("Your system does not have the necessary hash function avaiable.", e);
+    }
   }
 }

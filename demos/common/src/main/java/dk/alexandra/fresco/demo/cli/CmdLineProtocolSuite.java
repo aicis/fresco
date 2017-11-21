@@ -12,13 +12,17 @@ import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
+import dk.alexandra.fresco.suite.spdz.storage.DataSupplier;
+import dk.alexandra.fresco.suite.spdz.storage.DataSupplierImpl;
+import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageConstants;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import java.io.File;
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Properties;
@@ -43,8 +47,6 @@ public class CmdLineProtocolSuite {
     return Arrays.toString(strings);
   }
 
-
-  @SuppressWarnings("unchecked")
   public CmdLineProtocolSuite(String protocolSuiteName, Properties properties, int myId,
       int noOfPlayers) throws ParseException {
     this.myId = myId;
@@ -116,25 +118,29 @@ public class CmdLineProtocolSuite {
 
   private SpdzResourcePool createSpdzResourcePool(Random rand,
       SecureRandom secRand, Properties properties) {
-    final String fuelStationBaseUrl = properties.getProperty("spdz.fuelStationBaseUrl", null);
     String strat = properties.getProperty("spdz.preprocessingStrategy");
-    final PreprocessingStrategy strategy = PreprocessingStrategy.fromString(strat);
-    SpdzStorage store;
+    final PreprocessingStrategy strategy = PreprocessingStrategy.valueOf(strat);
+    DataSupplier supplier;
     switch (strategy) {
       case DUMMY:
-        store = new SpdzStorageDummyImpl(myId, noOfPlayers);
+        supplier = new DummyDataSupplierImpl(myId, noOfPlayers);        
         break;
       case STATIC:
-        store = new SpdzStorageImpl(0, noOfPlayers, myId,
-            new FilebasedStreamedStorageImpl(new InMemoryStorage()));
-        break;
-      case FUELSTATION:
-        store = new SpdzStorageImpl(0, noOfPlayers, myId, fuelStationBaseUrl);
-        break;
+        int noOfThreadsUsed = 1;        
+        String storageName =
+            SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
+            + "_";
+        supplier = new DataSupplierImpl(new FilebasedStreamedStorageImpl(new InMemoryStorage()), storageName, noOfPlayers);        
+        break;      
       default:
         throw new ConfigurationException("Unkonwn preprocessing strategy: " + strategy);
     }
-    return new SpdzResourcePoolImpl(myId, noOfPlayers, rand, secRand, store);
+    SpdzStorage store = new SpdzStorageImpl(supplier);
+    try {
+      return new SpdzResourcePoolImpl(myId, noOfPlayers, rand, secRand, store);
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException("Your system does not support the necessary hash function.", e);
+    }
   }
 
   private ProtocolSuite<?, ?> tinyTablesPreProFromCmdLine(Properties properties)

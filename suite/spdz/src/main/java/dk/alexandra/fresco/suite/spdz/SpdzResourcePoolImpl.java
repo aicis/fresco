@@ -10,12 +10,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Random;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResourcePool {
 
-  private final static Logger logger = LoggerFactory.getLogger(SpdzResourcePoolImpl.class);
   private MessageDigest messageDigest;
   private int modulusSize;
   private BigInteger modulus;
@@ -23,17 +20,12 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
   private SpdzStorage store;
 
   public SpdzResourcePoolImpl(int myId, int noOfPlayers, Random random,
-      SecureRandom secRand, SpdzStorage store) {
+      SecureRandom secRand, SpdzStorage store) throws NoSuchAlgorithmException {
     super(myId, noOfPlayers, random, secRand);
 
     this.store = store;
 
-    try {
-      messageDigest = MessageDigest.getInstance("SHA-256");
-    } catch (NoSuchAlgorithmException e) {
-      logger.warn("SHA-256 not supported as digest on this system. Might not influence "
-          + "computation if your chosen SCPS does not depend on a hash function.");
-    }
+    messageDigest = MessageDigest.getInstance("SHA-256");
 
     try {
       this.store.getSSK();

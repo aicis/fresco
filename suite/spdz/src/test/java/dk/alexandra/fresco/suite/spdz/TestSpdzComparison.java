@@ -8,6 +8,7 @@ import dk.alexandra.fresco.lib.compare.CompareTests;
 import dk.alexandra.fresco.lib.list.EliminateDuplicatesTests.TestFindDuplicatesOne;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -28,6 +29,9 @@ public class TestSpdzComparison extends AbstractSpdzTest {
           2, noOfThreads, 1000, 100, 10000, 100);
       runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
           PreprocessingStrategy.STATIC, 2);
+    } catch (Exception e) {
+      //Should not fail
+      Assert.fail();
     } finally {
       InitializeStorage.cleanup();
     }

@@ -20,7 +20,9 @@ import dk.alexandra.fresco.network.ScapiNetworkImpl;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
+import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -100,7 +102,11 @@ public abstract class AbstractSpdzTest {
 
   private SpdzResourcePool createResourcePool(int myId, int size, Random rand,
       SecureRandom secRand) {
-    SpdzStorageDummyImpl store = new SpdzStorageDummyImpl(myId, size);
-    return new SpdzResourcePoolImpl(myId, size, rand, secRand, store);
+    SpdzStorageImpl store = new SpdzStorageImpl(new DummyDataSupplierImpl(myId, size));
+    try {
+      return new SpdzResourcePoolImpl(myId, size, rand, secRand, store);
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException("Your system does not support the necessary hash function.", e);
+    }
   }
 }

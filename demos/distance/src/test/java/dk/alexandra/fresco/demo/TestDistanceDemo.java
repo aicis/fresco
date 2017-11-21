@@ -15,10 +15,12 @@ import dk.alexandra.fresco.framework.util.DetermSecureRandom;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
+import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,8 +66,12 @@ public class TestDistanceDemo {
   private SpdzResourcePool createResourcePool(int myId, int size, Random rand,
       SecureRandom secRand) {
     SpdzStorage store;
-    store = new SpdzStorageDummyImpl(myId, size);
-    return new SpdzResourcePoolImpl(myId, size, rand, secRand, store);
+    store = new SpdzStorageImpl(new DummyDataSupplierImpl(myId, size));
+    try {
+      return new SpdzResourcePoolImpl(myId, size, rand, secRand, store);
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException("Your system does not support the necessary hash function.", e);
+    }
   }
 
   @Test

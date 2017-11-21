@@ -22,10 +22,12 @@ import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
+import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -105,8 +107,9 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
    * Main.
    *
    * @param args must include player ID
+   * @throws NoSuchAlgorithmException If your system does not support the hash function needed by SPDZ
    */
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
     // My player ID
     int pid = Integer.parseInt(args[0]);
 
@@ -123,11 +126,9 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
 
     // Create resource pool
     try (KryoNetNetwork network = new KryoNetNetwork(getNetworkConfiguration(pid))) {
-      SpdzStorage store = new SpdzStorageDummyImpl(pid, getNetworkConfiguration(pid).noOfParties());
-      SpdzResourcePool rp = new SpdzResourcePoolImpl(pid,
-          getNetworkConfiguration(pid).noOfParties(),
-          new Random(), new DetermSecureRandom(), store);
-
+    SpdzStorage store = new SpdzStorageImpl(new DummyDataSupplierImpl(pid, getNetworkConfiguration(pid).noOfParties()));
+    SpdzResourcePool rp = new SpdzResourcePoolImpl(pid, getNetworkConfiguration(pid).noOfParties(),
+        new Random(), new DetermSecureRandom(), store);
       // Instatiate our demo and run
       AggregationDemo<SpdzResourcePool> demo = new AggregationDemo<>();
       demo.runApplication(sce, rp, network);
