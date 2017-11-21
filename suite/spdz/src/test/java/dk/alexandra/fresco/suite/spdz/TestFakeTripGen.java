@@ -187,10 +187,18 @@ public class TestFakeTripGen {
   @Test
   public void testMain() throws IOException {
     FakeTripGen
-        .main(new String[] {"-m=187263", "-t=10", "-i=10", "-b=100", "-e=1", "-p=2", "-d=."});
-    
+        .main(new String[] {"-m=187263", "-t=10", "-i=10", "-b=100", "-e=1", "-p=2", "-d=."});    
+    try {
+      FakeTripGen.cleanup();
+    } catch (IOException e) {
+      Assert.fail(e.getMessage());
+    }
+  }
+  
+  @Test
+  public void testMainSpecialMod() throws Exception{
     //This test is for a valid modulus where the byte representation contains all 0 in the first byte. 
-    FakeTripGen.main(new String[] {"-m=131", "-t=10", "-i=10", "-b=100", "-e=1", "-p=2", "-d=."});
+    FakeTripGen.main(new String[] {"-m=131", "-t=10", "-i=10", "-b=100", "-e=1", "-p=2", "-d=.", "-r=true"});
     try {
       FakeTripGen.cleanup();
     } catch (IOException e) {
