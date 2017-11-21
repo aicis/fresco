@@ -6,9 +6,9 @@ import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.suite.spdz.storage.DataSupplierImpl;
 import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
+import dk.alexandra.fresco.suite.spdz.storage.FakeTripGen;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
-import dk.alexandra.fresco.suite.spdz.utils.Util;
 import java.security.NoSuchAlgorithmException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -18,12 +18,6 @@ import org.junit.Test;
  *
  */
 public class TestSpdzMisc {
-
-  @Test
-  public void testUtil() {
-    Util util = new Util();
-    Assert.assertNotNull(util);
-  }
   
   @Test
   public void testPreproStrat() {
@@ -43,7 +37,7 @@ public class TestSpdzMisc {
   public void testSpdzExponentiationPipeProtocolExpPipeFailedLength() throws NoSuchAlgorithmException {
     SpdzStorage store = new SpdzStorageImpl(new DummyDataSupplierImpl(1, 2));
     SpdzResourcePool rp = new SpdzResourcePoolImpl(1, 2, null, null, store);
-    SpdzExponentiationPipeProtocol pro = new SpdzExponentiationPipeProtocol(Util.EXP_PIPE_SIZE);
+    SpdzExponentiationPipeProtocol pro = new SpdzExponentiationPipeProtocol(FakeTripGen.EXP_PIPE_SIZE);
     pro.evaluate(0, rp, null);
   }
 }
