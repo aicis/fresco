@@ -60,8 +60,9 @@ public class CoteSender extends CoteShared {
     rand.nextBytes(otChoices);
     // Complete the seed OTs acting as the receiver (NOT the sender)
     for (int i = 0; i < kbitLength; i++) {
-      BigInteger message = ot.receive(getBit(otChoices, i));
+      BigInteger message = ot.receive(Helper.getBit(otChoices, i));
       // Initialize the PRGs with the random messages
+      // TODO should be changed to something that uses SHA-256
       SecureRandom prg = SecureRandom.getInstance("SHA1PRNG");
       prg.setSeed(message.toByteArray());
       prgs.add(prg);
@@ -106,8 +107,8 @@ public class CoteSender extends CoteShared {
     // Compute the q vector based on the random choices from the seed OTs, i.e
     // qVec = otChoices AND uVec XOR tVec
     for (int i = 0; i < kbitLength; i++) {
-      if (getBit(otChoices, i) == true) {
-        xor(tvec.get(i), uvec.get(i));
+      if (Helper.getBit(otChoices, i) == true) {
+        Helper.xor(tvec.get(i), uvec.get(i));
       }
     }
     // Complete tilt-your-head by transposing the message "matrix"

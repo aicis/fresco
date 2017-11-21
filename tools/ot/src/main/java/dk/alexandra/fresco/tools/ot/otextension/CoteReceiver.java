@@ -84,7 +84,7 @@ public class CoteReceiver extends CoteShared {
       throw new IllegalStateException("Not initialized");
     }
     // Compute how many bytes we need for "size" OTs by dividing "size" by 8
-    // (the amount of bits in the primitive type; byte), rounding up
+    // (the amount of bits in the primitive type; byte)
     int bytesNeeded = size / 8;
     // Use prgs to expand the seeds
     List<byte[]> tvecZero = new ArrayList<>(kbitLength);
@@ -99,8 +99,8 @@ public class CoteReceiver extends CoteShared {
       tvecZero.add(tzero);
       // Compute the u vector, i.e. tZero XOR tFirst XOR randomChoices
       // Note that this is an in-place call and thus tFirst gets modified
-      xor(tone, tzero);
-      xor(tone, randomChoices);
+      Helper.xor(tone, tzero);
+      Helper.xor(tone, randomChoices);
       uvec.add(tone);
     }
     sendList(uvec);
