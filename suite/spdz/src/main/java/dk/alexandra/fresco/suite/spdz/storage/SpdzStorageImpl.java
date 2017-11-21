@@ -26,36 +26,6 @@ public class SpdzStorageImpl implements SpdzStorage {
     opened_values = new LinkedList<>();
     closed_values = new LinkedList<>();
   }
-//  
-//  /**
-//   * @param storageId The unique id of the storage. This could e.g. be the threadId of the thread
-//   * that will use this storage object
-//   * @param noOfParties party number
-//   * @param myId my party id
-//   * @param streamedStorage spdz store
-//   */
-//  public SpdzStorageImpl(int storageId, int noOfParties, int myId,
-//      StreamedStorage streamedStorage) {
-//    int noOfThreadsUsed = 1;
-//
-//    String storageName =
-//        SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + storageId
-//            + "_";
-//
-//    opened_values = new LinkedList<>();
-//    closed_values = new LinkedList<>();
-//
-//    this.supplier = new DataSupplierImpl(streamedStorage, storageName, noOfParties);
-//  }
-//
-//  public SpdzStorageImpl(int storageId, int noOfParties, int myId,
-//      String fuelStationBaseUrl) {
-//
-//    opened_values = new LinkedList<>();
-//    closed_values = new LinkedList<>();
-//
-//    this.supplier = new DataRestSupplierImpl(myId, noOfParties, fuelStationBaseUrl, storageId);
-//  }
 
   @Override
   public void shutdown() {

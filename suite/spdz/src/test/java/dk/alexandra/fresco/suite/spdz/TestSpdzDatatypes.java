@@ -17,7 +17,7 @@ public class TestSpdzDatatypes {
   SpdzElement elmDiff1 = new SpdzElement(BigInteger.ZERO, BigInteger.ONE, BigInteger.TEN);
   
   @Test
-  public void testElementClass() {
+  public void testElementEquals() {
     Assert.assertEquals(elm1, elm1);    
     Assert.assertEquals(elm1, elm2);
     Assert.assertNotEquals(elm_empty, elm2);
@@ -47,7 +47,7 @@ public class TestSpdzDatatypes {
   }
   
   @Test
-  public void testTripleClass() {    
+  public void testTripleEquals() {    
     SpdzTriple trip_empty = new SpdzTriple();
     SpdzTriple trip1 = new SpdzTriple(elm1, elm1, elm1);
     SpdzTriple trip2 = new SpdzTriple(elm1, elm1, elm1);
@@ -69,7 +69,7 @@ public class TestSpdzDatatypes {
   }
   
   @Test
-  public void testSpdzSInt() {
+  public void testSpdzSIntEquals() {
     SpdzSInt i_empty = new SpdzSInt();
     SpdzSInt i_empty2 = new SpdzSInt();
     SpdzSInt i1 = new SpdzSInt(elm1);
@@ -86,15 +86,15 @@ public class TestSpdzDatatypes {
   }
   
   @Test
-  public void testInputMask() {
+  public void testInputMaskEquals() {
     SpdzInputMask mask = new SpdzInputMask(null);
     Assert.assertEquals("SpdzInputMask [mask=null, realValue=null]",mask.toString());
   }
   
   @Test
-  public void testCommitment() {
+  public void testCommitmentToString() {
     SpdzCommitment comm = new SpdzCommitment(null, null, null);
-    Assert.assertEquals("SpdzCommitment[v:null, r:null]", comm.toString());
+    Assert.assertEquals("SpdzCommitment[v:null, r:null, commitment:null]", comm.toString());
     
   }
 }

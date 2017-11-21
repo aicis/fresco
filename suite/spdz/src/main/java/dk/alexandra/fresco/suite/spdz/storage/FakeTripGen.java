@@ -221,7 +221,7 @@ public class FakeTripGen {
 	 */
 	public static List<List<SpdzInputMask[]>> generateInputMasks(int amount,
 			int noOfParties, BigInteger modulus, BigInteger alpha) {
-		FakeTripGen.rand = new Random();
+		FakeTripGen.rand = new Random(0);
 		FakeTripGen.alpha = alpha;
 		FakeTripGen.mod = modulus;
 
@@ -266,7 +266,7 @@ public class FakeTripGen {
 	 */
 	public static List<SpdzInputMask[]> generateInputMasks(int amount, int towardsPartyId,
 			int noOfParties, BigInteger modulus, BigInteger alpha) {
-		FakeTripGen.rand = new Random();
+		FakeTripGen.rand = new Random(0);
 		FakeTripGen.alpha = alpha;
 		FakeTripGen.mod = modulus;
 
@@ -395,7 +395,7 @@ public class FakeTripGen {
 	 */
 	public static List<SpdzSInt[][]> generateExpPipes(int amount, int noOfParties,
 			BigInteger modulus, BigInteger alpha) {
-		FakeTripGen.rand = new Random();
+		FakeTripGen.rand = new Random(0);
 		FakeTripGen.alpha = alpha;
 		FakeTripGen.mod = modulus;
 

@@ -74,6 +74,13 @@ public class TestStorage extends AbstractSpdzTest{
     Assert.assertEquals(o1, o2);
   }
   
+  /**
+   * Tests that we successfully can initialize the InMemory version of the storage with spdz
+   * preprocessed data. Cannot currently easily be used within an actual MPC test since we now only
+   * support a streamed version.
+   * 
+   * @throws Exception If something fails
+   */
   @Test
   public void testInitInMemoryStorage() throws Exception {
     InitializeStorage.initStorage(new Storage[] {new InMemoryStorage()},
