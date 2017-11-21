@@ -31,6 +31,19 @@ public class TestSpdzDatatypes {
     Assert.assertNotEquals(elm2, new SpdzElement(BigInteger.ONE, BigInteger.ZERO, BigInteger.TEN));
     Assert.assertNotEquals(elm2, "");
     Assert.assertNotEquals(elm2, null);    
+    
+    SpdzElement modNull1 = new SpdzElement(BigInteger.ONE, BigInteger.ONE, null);
+    SpdzElement modNull2 = new SpdzElement(BigInteger.ONE, BigInteger.ONE, null);
+    Assert.assertEquals(modNull1, modNull2);
+    Assert.assertNotEquals(modNull1, elm1);
+    
+    SpdzElement modDiff = new SpdzElement(BigInteger.ONE, BigInteger.ONE, BigInteger.ONE);
+    Assert.assertNotEquals(modDiff, elm1);
+    
+    SpdzElement shareNull1 = new SpdzElement(null, BigInteger.ONE, BigInteger.TEN);
+    SpdzElement shareNull2 = new SpdzElement(null, BigInteger.ONE, BigInteger.TEN);
+    Assert.assertEquals(shareNull1, shareNull2);
+    Assert.assertNotEquals(shareNull1, elm1);
   }
   
   @Test

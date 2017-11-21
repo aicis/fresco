@@ -158,8 +158,7 @@ public class TestFakeTripGen {
 	}
 	
 	@Test()
-    public void testMain() throws IOException {
-      FakeTripGen.main(new String[] {"-m=187263", "-t=10", "-i=10", "-b=100", "-e=1", "-p=2", "-d=.", "-r=true"});
+    public void testMain() throws IOException {      
       FakeTripGen.main(new String[] {"-m=187263", "-t=10", "-i=10", "-b=100", "-e=1", "-p=2", "-d=."});
       FakeTripGen.main(new String[] {"-m=129", "-t=10", "-i=10", "-b=100", "-e=1", "-p=2", "-d=."});
       try {
@@ -168,4 +167,14 @@ public class TestFakeTripGen {
         Assert.fail(e.getMessage());
       }
     }
+	
+	@Test
+	public void testMainInsecureRandom() throws IOException {
+	  FakeTripGen.main(new String[] {"-m=187263", "-t=10", "-i=10", "-b=100", "-e=1", "-p=2", "-d=.", "-r=true"});
+	  try {
+        FakeTripGen.cleanup();
+      } catch (IOException e) {
+        Assert.fail(e.getMessage());
+      }
+	}
 }
