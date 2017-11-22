@@ -90,6 +90,10 @@ public class CoteSender extends CoteShared {
       throw new IllegalArgumentException(
           "The amount of OTs must be a positive integer");
     }
+    if (size % 8 != 0) {
+      throw new IllegalArgumentException(
+          "The amount of OTs must be a positive integer divisize by 8");
+    }
     if (!initialized) {
       throw new IllegalStateException("Not initialized");
     }

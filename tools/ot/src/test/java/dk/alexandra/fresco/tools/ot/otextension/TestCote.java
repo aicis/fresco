@@ -4,11 +4,35 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Random;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import dk.alexandra.fresco.framework.network.Network;
 
 public class TestCote {
+  private Cote cote;
+
+  @Before
+  public void setup() {
+    Random rand = new Random();
+    // fake network
+    Network network = new Network() {
+      @Override
+      public void send(int partyId, byte[] data) {
+      }
+
+      @Override
+      public byte[] receive(int partyId) {
+        return null;
+      }
+
+      @Override
+      public int getNoOfParties() {
+        return 0;
+      }
+    };
+    this.cote = new Cote(2, 128, 40, rand, network);
+  }
 
   /**** POSITIVE TESTS. ****/
 
@@ -74,4 +98,66 @@ public class TestCote {
     assertEquals(thrown, true);
   }
 
+  @Test
+  public void testNotInitialized() {
+    boolean thrown = false;
+    try {
+      cote.getSender().extend(128);
+    } catch (IllegalStateException e) {
+      assertEquals("Not initialized", e.getMessage());
+      thrown = true;
+    }
+    assertEquals(true, thrown);
+    thrown = false;
+    try {
+      byte[] randomness = new byte[128 / 8];
+      cote.getReceiver().extend(randomness, 128);
+    } catch (IllegalStateException e) {
+      assertEquals("Not initialized", e.getMessage());
+      thrown = true;
+    }
+    assertEquals(true, thrown);
+  }
+
+  @Test
+  public void testIllegalExtend() {
+    boolean thrown = false;
+    try {
+      cote.getSender().extend(127);
+    } catch (IllegalArgumentException e) {
+      assertEquals("The amount of OTs must be a positive integer divisize by 8",
+          e.getMessage());
+      thrown = true;
+    }
+    assertEquals(true, thrown);
+    thrown = false;
+    try {
+      byte[] randomness = new byte[128 / 8];
+      cote.getReceiver().extend(randomness, 127);
+    } catch (IllegalArgumentException e) {
+      assertEquals("The amount of OTs must be a positive integer divisize by 8",
+          e.getMessage());
+      thrown = true;
+    }
+    assertEquals(true, thrown);
+    thrown = false;
+    try {
+      cote.getSender().extend(-1);
+    } catch (IllegalArgumentException e) {
+      assertEquals("The amount of OTs must be a positive integer",
+          e.getMessage());
+      thrown = true;
+    }
+    assertEquals(true, thrown);
+    thrown = false;
+    try {
+      byte[] randomness = new byte[128 / 8];
+      cote.getReceiver().extend(randomness, 0);
+    } catch (IllegalArgumentException e) {
+      assertEquals("The amount of OTs must be a positive integer",
+          e.getMessage());
+      thrown = true;
+    }
+    assertEquals(true, thrown);
+  }
 }

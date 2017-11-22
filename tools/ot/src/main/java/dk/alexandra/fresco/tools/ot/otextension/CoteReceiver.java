@@ -76,7 +76,7 @@ public class CoteReceiver extends CoteShared {
       throw new IllegalArgumentException(
           "The amount of OTs must be a positive integer");
     }
-    if (randomChoices.length != size / 8) {
+    if (randomChoices.length * 8 != size) {
       throw new IllegalArgumentException(
           "The amount of OTs must be a positive integer divisize by 8");
     }
