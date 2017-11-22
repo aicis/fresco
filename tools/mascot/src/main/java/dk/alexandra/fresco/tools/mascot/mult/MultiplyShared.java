@@ -1,27 +1,21 @@
 package dk.alexandra.fresco.tools.mascot.mult;
 
 import java.math.BigInteger;
-import java.util.Random;
-import java.util.concurrent.ExecutorService;
 
+import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.TwoPartyProtocol;
-import dk.alexandra.fresco.tools.mascot.net.ExtendedNetwork;
 import dk.alexandra.fresco.tools.ot.base.DummyROTBatch;
 import dk.alexandra.fresco.tools.ot.base.ROTBatch;
 
 public class MultiplyShared extends TwoPartyProtocol {
 
-  protected int lambdaSecurityParam;
-  protected int numLeftFactors;
   protected ROTBatch<BigInteger> rot;
+  protected int numLeftFactors;
 
-  public MultiplyShared(Integer myId, Integer otherId, int kBitLength, int lambdaSecurityParam,
-      int numLeftFactors, Random rand, ExtendedNetwork network, ExecutorService executor,
-      BigInteger modulus) {
-    super(myId, otherId, modulus, kBitLength, network, executor, rand);
-    this.lambdaSecurityParam = lambdaSecurityParam;
+  public MultiplyShared(MascotContext ctx, Integer otherId, int numLeftFactors) {
+    super(ctx, otherId);
     this.numLeftFactors = numLeftFactors;
-    this.rot = new DummyROTBatch(otherId, network, rand, kBitLength);
+    this.rot = new DummyROTBatch(otherId, ctx.getNetwork(), ctx.getRand(), ctx.getkBitLength());
   }
-
+  
 }

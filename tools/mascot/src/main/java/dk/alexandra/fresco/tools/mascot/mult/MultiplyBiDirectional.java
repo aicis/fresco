@@ -1,25 +1,18 @@
 package dk.alexandra.fresco.tools.mascot.mult;
 
-import java.math.BigInteger;
 import java.util.List;
-import java.util.Random;
-import java.util.concurrent.ExecutorService;
 
+import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.net.ExtendedNetwork;
 
 public class MultiplyBiDirectional {
 
   protected MultiplyLeft left;
   protected MultiplyRight right;
-
-  public MultiplyBiDirectional(Integer myId, Integer otherId, int kBitLength,
-      int lambdaSecurityParam, int numLeftFactors, Random rand, ExtendedNetwork network,
-      ExecutorService executor, BigInteger modulus) {
-    left = new MultiplyLeft(myId, otherId, kBitLength, lambdaSecurityParam, numLeftFactors, rand,
-        network, executor, modulus);
-    right = new MultiplyRight(myId, otherId, kBitLength, lambdaSecurityParam, numLeftFactors, rand,
-        network, executor, modulus);
+  
+  public MultiplyBiDirectional(MascotContext ctx, Integer otherId, int numLeftFactors) {
+    this.left = new MultiplyLeft(ctx, otherId, numLeftFactors);
+    this.right = new MultiplyRight(ctx, otherId, numLeftFactors);
   }
 
   public Integer getOtherId() {
