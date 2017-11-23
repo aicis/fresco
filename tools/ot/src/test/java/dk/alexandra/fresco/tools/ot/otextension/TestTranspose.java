@@ -227,35 +227,6 @@ public class TestTranspose {
     }
   }
 
-  @Test
-  public void testXor() {
-    byte[] arr1 = { (byte) 0x00, (byte) 0x02, (byte) 0xFF };
-    byte[] arr2 = { (byte) 0xF0, (byte) 0x02, (byte) 0xF0 };
-    Helper.xor(arr1, arr2);
-    assertEquals((byte) 0xF0, arr1[0]);
-    assertEquals((byte) 0x00, arr1[1]);
-    assertEquals((byte) 0x0F, arr1[2]);
-  }
-
-  @Test
-  public void testXorList() {
-    byte[] arr1 = { (byte) 0x00, (byte) 0x02, (byte) 0xFF };
-    byte[] arr2 = { (byte) 0xF0, (byte) 0x02, (byte) 0xF0 };
-    List<byte[]> list1 = new ArrayList<>(2);
-    List<byte[]> list2 = new ArrayList<>(2);
-    list1.add(arr1);
-    list1.add(arr2);
-    list2.add(arr2.clone());
-    list2.add(arr1.clone());
-    Helper.xor(list1, list2);
-    assertEquals((byte) 0xF0, list1.get(0)[0]);
-    assertEquals((byte) 0x00, list1.get(0)[1]);
-    assertEquals((byte) 0x0F, list1.get(0)[2]);
-    assertEquals((byte) 0xF0, list1.get(1)[0]);
-    assertEquals((byte) 0x00, list1.get(1)[1]);
-    assertEquals((byte) 0x0F, list1.get(1)[2]);
-  }
-
   /**** NEGATIVE TESTS. ****/
   @Test
   public void testWrongAmountOfRows() {

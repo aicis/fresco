@@ -1,7 +1,8 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import dk.alexandra.fresco.framework.network.Network;
 import java.util.Random;
+
+import dk.alexandra.fresco.framework.network.Network;
 
 /** 
  * Container class for a protocol instance of correlated OT extension with errors.
@@ -17,6 +18,8 @@ public class Cote {
    * Constructs a new correlated OT with errors protocol and initializes the
    * internal sender and receiver objects.
    * 
+   * @param myId
+   *          The unique ID of the calling party
    * @param otherId
    *          The unique ID of the other party (not the calling party)
    *          participating in the protocol
@@ -29,10 +32,11 @@ public class Cote {
    * @param network
    *          The network instance
    */
-  public Cote(int otherId, int kbitLength, int lambdaSecurityParam, Random rand, Network network) {
-    this.sender = new CoteSender(otherId, kbitLength,
+  public Cote(int myId, int otherId, int kbitLength, int lambdaSecurityParam,
+      Random rand, Network network) {
+    this.sender = new CoteSender(myId, otherId, kbitLength,
         lambdaSecurityParam, rand, network);
-    this.receiver = new CoteReceiver(otherId, kbitLength,
+    this.receiver = new CoteReceiver(myId, otherId, kbitLength,
         lambdaSecurityParam, rand, network);
   }
 
