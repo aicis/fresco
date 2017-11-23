@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import dk.alexandra.fresco.framework.util.BitVector;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 
@@ -14,11 +15,11 @@ public class MultiplyLeft extends MultiplyShared {
     super(ctx, otherId, numLeftFactors);
   }
 
-  protected List<BigInteger> generateSeeds(List<FieldElement> leftFactors) {
+  protected List<BitVector> generateSeeds(List<FieldElement> leftFactors) {
     // TODO: the ROTs should be batched into one
-    List<BigInteger> seeds = new ArrayList<>();
+    List<BitVector> seeds = new ArrayList<>();
     for (FieldElement factor : leftFactors) {
-      List<BigInteger> temp = rot.receive(factor.toBigInteger(), ctx.getkBitLength());
+      List<BitVector> temp = rot.receive(factor.toBigInteger(), ctx.getkBitLength());
       seeds.addAll(temp);
     }
     return seeds;

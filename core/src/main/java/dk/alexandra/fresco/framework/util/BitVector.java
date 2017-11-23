@@ -1,6 +1,8 @@
 package dk.alexandra.fresco.framework.util;
 
+import java.math.BigInteger;
 import java.util.BitSet;
+import java.util.Random;
 
 /**
  * Class for representing a vector of bits. Uses {@link BitSet} to hold the vector.
@@ -45,6 +47,17 @@ public class BitVector {
     }
     this.size = size;
     this.bits = new BitSet(size);
+  }
+  
+  /**
+   * Creates a random BitVector using source of randomness.
+   *
+   * @param size size of the vector
+   * @param rand source of randomness
+   */
+  public BitVector(int size, Random rand) {
+    // TODO: revisit this
+    this(new BigInteger(size, rand).toByteArray(), size);
   }
 
   public int getSize() {
