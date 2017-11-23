@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.tools.ot.otextension;
+package dk.alexandra.fresco.framework.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Random;
 
-public class Helper {
+public class ByteArrayHelper {
   
   /**
    * Returns the "bit" number bit, reading from left-to-right, from a byte array.

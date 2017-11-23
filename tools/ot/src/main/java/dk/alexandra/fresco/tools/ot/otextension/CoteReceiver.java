@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Random;
 
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.framework.util.Pair;
 
 public class CoteReceiver extends CoteShared {
@@ -102,8 +103,8 @@ public class CoteReceiver extends CoteShared {
       tvecZero.add(tzero);
       // Compute the u vector, i.e. tZero XOR tFirst XOR randomChoices
       // Note that this is an in-place call and thus tFirst gets modified
-      Helper.xor(tone, tzero);
-      Helper.xor(tone, randomChoices);
+      ByteArrayHelper.xor(tone, tzero);
+      ByteArrayHelper.xor(tone, randomChoices);
       uvec.add(tone);
     }
     sendList(uvec);
