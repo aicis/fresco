@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -8,11 +7,12 @@ import java.util.List;
 import java.util.Random;
 
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.BitVector;
 import dk.alexandra.fresco.framework.util.Pair;
 
 public class CoteReceiver extends CoteShared {
   // Random messages used for the seed OTs
-  private List<Pair<BigInteger, BigInteger>> seeds;
+  private List<Pair<BitVector, BitVector>> seeds;
   private List<Pair<SecureRandom, SecureRandom>> prgs;
 
   /**
@@ -52,15 +52,15 @@ public class CoteReceiver extends CoteShared {
     }
     // Complete the seed OTs acting as the sender (NOT the receiver)
     for (int i = 0; i < kbitLength; i++) {
-      BigInteger seedZero = new BigInteger(kbitLength, rand);
-      BigInteger seedFirst = new BigInteger(kbitLength, rand);
+      BitVector seedZero = new BitVector(kbitLength, rand);
+      BitVector seedFirst = new BitVector(kbitLength, rand);
       ot.send(seedZero, seedFirst);
       seeds.add(new Pair<>(seedZero, seedFirst));
       // Initialize the PRGs with the random messages
       SecureRandom prgZero = SecureRandom.getInstance("SHA1PRNG");
-      prgZero.setSeed(seedZero.toByteArray());
+      prgZero.setSeed(seedZero.asByteArr());
       SecureRandom prgFirst = SecureRandom.getInstance("SHA1PRNG");
-      prgFirst.setSeed(seedFirst.toByteArray());
+      prgFirst.setSeed(seedFirst.asByteArr());
       prgs.add(new Pair<>(prgZero, prgFirst));
     }
     initialized = true;
@@ -69,17 +69,15 @@ public class CoteReceiver extends CoteShared {
   /**
    * Constructs a new batch of correlated OTs with errors.
    * 
-   * @param size
-   *          Amount of OTs to construct
    * @return A list of pairs consisting of the bit choices, followed by the
    *         received messages
    */
-  public List<byte[]> extend(byte[] randomChoices, int size) {
-    if (size < 1) {
+  public List<BitVector> extend(BitVector randomChoices) {
+    if (randomChoices.getSize() < 1) {
       throw new IllegalArgumentException(
           "The amount of OTs must be a positive integer");
     }
-    if (randomChoices.length * 8 != size) {
+    if (randomChoices.getSize() % 8 != 0) {
       throw new IllegalArgumentException(
           "The amount of OTs must be a positive integer divisize by 8");
     }
@@ -88,22 +86,23 @@ public class CoteReceiver extends CoteShared {
     }
     // Compute how many bytes we need for "size" OTs by dividing "size" by 8
     // (the amount of bits in the primitive type; byte)
-    int bytesNeeded = size / 8;
+    int bytesNeeded = randomChoices.getSize() / 8;
     // Use prgs to expand the seeds
-    List<byte[]> tvecZero = new ArrayList<>(kbitLength);
+    List<BitVector> tvecZero = new ArrayList<>(kbitLength);
     // u vector
-    List<byte[]> uvec = new ArrayList<>(kbitLength);
+    List<BitVector> uvec = new ArrayList<>(kbitLength);
     for (int i = 0; i < kbitLength; i++) {
       // Expand the seed OTs using a prg
-      byte[] tzero = new byte[bytesNeeded];
-      byte[] tone = new byte[bytesNeeded];
-      prgs.get(i).getFirst().nextBytes(tzero);
-      prgs.get(i).getSecond().nextBytes(tone);
+      byte[] byteBuffer = new byte[bytesNeeded];
+      prgs.get(i).getFirst().nextBytes(byteBuffer);
+      BitVector tzero = new BitVector(byteBuffer, randomChoices.getSize());
       tvecZero.add(tzero);
+      prgs.get(i).getSecond().nextBytes(byteBuffer);
       // Compute the u vector, i.e. tZero XOR tFirst XOR randomChoices
       // Note that this is an in-place call and thus tFirst gets modified
-      Helper.xor(tone, tzero);
-      Helper.xor(tone, randomChoices);
+      BitVector tone = new BitVector(byteBuffer, randomChoices.getSize());
+      tone.xor(tzero);
+      tone.xor(randomChoices);
       uvec.add(tone);
     }
     sendList(uvec);

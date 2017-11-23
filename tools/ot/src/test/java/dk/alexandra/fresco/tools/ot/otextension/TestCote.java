@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.BitVector;
 
 public class TestCote {
   private Cote cote;
@@ -111,7 +112,7 @@ public class TestCote {
     thrown = false;
     try {
       byte[] randomness = new byte[128 / 8];
-      cote.getReceiver().extend(randomness, 128);
+      cote.getReceiver().extend(new BitVector(randomness, 128));
     } catch (IllegalStateException e) {
       assertEquals("Not initialized", e.getMessage());
       thrown = true;
@@ -132,16 +133,6 @@ public class TestCote {
     assertEquals(true, thrown);
     thrown = false;
     try {
-      byte[] randomness = new byte[128 / 8];
-      cote.getReceiver().extend(randomness, 127);
-    } catch (IllegalArgumentException e) {
-      assertEquals("The amount of OTs must be a positive integer divisize by 8",
-          e.getMessage());
-      thrown = true;
-    }
-    assertEquals(true, thrown);
-    thrown = false;
-    try {
       cote.getSender().extend(-1);
     } catch (IllegalArgumentException e) {
       assertEquals("The amount of OTs must be a positive integer",
@@ -151,8 +142,7 @@ public class TestCote {
     assertEquals(true, thrown);
     thrown = false;
     try {
-      byte[] randomness = new byte[128 / 8];
-      cote.getReceiver().extend(randomness, 0);
+      cote.getSender().extend(0);
     } catch (IllegalArgumentException e) {
       assertEquals("The amount of OTs must be a positive integer",
           e.getMessage());
