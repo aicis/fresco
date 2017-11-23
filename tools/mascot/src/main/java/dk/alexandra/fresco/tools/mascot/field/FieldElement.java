@@ -13,12 +13,6 @@ public class FieldElement {
   private BigInteger modulus;
   private int bitLength;
 
-  public FieldElement(BitVector bits, BigInteger modulus) {
-    this.value = new BigInteger(bits.asByteArr());
-    this.modulus = modulus;
-    this.bitLength = bits.getSize();
-  }
-  
   public FieldElement(BigInteger value, BigInteger modulus, int bitLength) {
     this.value = value;
     this.modulus = modulus;
