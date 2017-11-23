@@ -43,7 +43,7 @@ public class CoteDemo<ResourcePoolT extends ResourcePool> {
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected receiver");
     Random rand = new Random(42);
-    Cote cote = new Cote(2, kbitLength, lambdaSecurityParam, rand, network);
+    Cote cote = new Cote(1, 2, kbitLength, lambdaSecurityParam, rand, network);
     CoteReceiver coteRec = cote.getReceiver();
     coteRec.initialize();
     byte[] otChoices = new byte[amountOfOTs / 8];
@@ -75,7 +75,7 @@ public class CoteDemo<ResourcePoolT extends ResourcePool> {
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected sender");
     Random rand = new Random(420);
-    Cote cote = new Cote(1, kbitLength, lambdaSecurityParam, rand, network);
+    Cote cote = new Cote(2, 1, kbitLength, lambdaSecurityParam, rand, network);
     CoteSender coteSnd = cote.getSender();
     coteSnd.initialize();
     List<byte[]> q = coteSnd.extend(amountOfOTs);

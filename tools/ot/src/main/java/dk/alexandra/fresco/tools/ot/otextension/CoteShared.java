@@ -17,6 +17,7 @@ import dk.alexandra.fresco.tools.ot.base.OT;
  */
 public class CoteShared {
   // Constructor arguments
+  protected int myId;
   protected int otherId;
   protected int kbitLength;
   protected int lambdaSecurityParam;
@@ -29,6 +30,8 @@ public class CoteShared {
   /**
    * Constructs a correlated OT extension with errors super-class.
    * 
+   * @param myId
+   *          The ID of the calling party
    * @param otherId
    *          ID of the other party to execute with
    * @param kbitLength
@@ -40,7 +43,7 @@ public class CoteShared {
    * @param network
    *          The network object used to communicate with the other party
    */
-  public CoteShared(int otherId, int kbitLength, int lambdaSecurityParam, Random rand, 
+  public CoteShared(int myId, int otherId, int kbitLength, int lambdaSecurityParam, Random rand, 
       Network network) {
     super();
     if (kbitLength < 1 || lambdaSecurityParam < 1
@@ -51,12 +54,21 @@ public class CoteShared {
       throw new IllegalArgumentException(
           "Computational security parameter must be divisible by 8");
     }
+    this.myId = myId;
     this.otherId = otherId;
     this.kbitLength = kbitLength;
     this.lambdaSecurityParam = lambdaSecurityParam;
     this.rand = rand;
     this.ot = new DummyOT(otherId, network);
     this.network = network;
+  }
+
+  public int getMyId() {
+    return myId;
+  }
+
+  public void setMyId(int myId) {
+    this.myId = myId;
   }
 
   public int getOtherId() {

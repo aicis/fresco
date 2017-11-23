@@ -18,6 +18,8 @@ public class CoteReceiver extends CoteShared {
   /**
    * Constructs a correlated OT extension with errors receiver instance.
    * 
+   * @param myId
+   *          The ID of the calling party
    * @param otherId
    *          ID of the other party to execute with
    * @param kbitLength
@@ -29,9 +31,10 @@ public class CoteReceiver extends CoteShared {
    * @param network
    *          The network object used to communicate with the other party
    */
-  public CoteReceiver(int otherId, int kbitLength, int lambdaSecurityParam,
+  public CoteReceiver(int myId, int otherId, int kbitLength,
+      int lambdaSecurityParam,
       Random rand, Network network) {
-    super(otherId, kbitLength, lambdaSecurityParam, rand, network);
+    super(myId, otherId, kbitLength, lambdaSecurityParam, rand, network);
     this.seeds = new ArrayList<>(kbitLength);
     this.prgs = new ArrayList<>(kbitLength);
   }

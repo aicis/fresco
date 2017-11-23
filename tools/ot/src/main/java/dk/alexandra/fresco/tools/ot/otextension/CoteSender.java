@@ -39,9 +39,10 @@ public class CoteSender extends CoteShared {
    * @param network
    *          The network interface. Must not be null and must be initialized.
    */
-  public CoteSender(int otherId, int kbitLength, int lambdaSecurityParam,
+  public CoteSender(int myId, int otherId, int kbitLength,
+      int lambdaSecurityParam,
       Random rand, Network network) {
-    super(otherId, kbitLength, lambdaSecurityParam, rand, network);
+    super(myId, otherId, kbitLength, lambdaSecurityParam, rand, network);
     this.otChoices = new byte[kbitLength / 8];
     this.prgs = new ArrayList<>(kbitLength);
   }

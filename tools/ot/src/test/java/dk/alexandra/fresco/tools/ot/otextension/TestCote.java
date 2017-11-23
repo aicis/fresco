@@ -31,7 +31,7 @@ public class TestCote {
         return 0;
       }
     };
-    this.cote = new Cote(2, 128, 40, rand, network);
+    this.cote = new Cote(1, 2, 128, 40, rand, network);
   }
 
   /**** POSITIVE TESTS. ****/
@@ -59,7 +59,7 @@ public class TestCote {
     CoteReceiver badReceiver;
     boolean thrown = false;
     try {
-      badSender = new CoteSender(0, 128, 80, null, network);
+      badSender = new CoteSender(1, 2, 128, 80, null, network);
     } catch (IllegalArgumentException e) {
       assertEquals("Illegal constructor parameters", e.getMessage());
       thrown = true;
@@ -67,22 +67,14 @@ public class TestCote {
     assertEquals(thrown, true);
     thrown = false;
     try {
-      badReceiver = new CoteReceiver(0, 128, 80, rand, null);
+      badReceiver = new CoteReceiver(1, 2, 128, 80, rand, null);
     } catch (IllegalArgumentException e) {
       assertEquals("Illegal constructor parameters", e.getMessage());
       thrown = true;
     }
     thrown = false;
     try {
-      badSender = new CoteSender(0, 0, 80, rand, network);
-    } catch (IllegalArgumentException e) {
-      assertEquals("Illegal constructor parameters", e.getMessage());
-      thrown = true;
-    }
-    assertEquals(thrown, true);
-    thrown = false;
-    try {
-      badReceiver = new CoteReceiver(0, 128, 0, rand, network);
+      badSender = new CoteSender(1, 2, 0, 80, rand, network);
     } catch (IllegalArgumentException e) {
       assertEquals("Illegal constructor parameters", e.getMessage());
       thrown = true;
@@ -90,7 +82,15 @@ public class TestCote {
     assertEquals(thrown, true);
     thrown = false;
     try {
-      badSender = new CoteSender(0, 127, 80, rand, network);
+      badReceiver = new CoteReceiver(1, 2, 128, 0, rand, network);
+    } catch (IllegalArgumentException e) {
+      assertEquals("Illegal constructor parameters", e.getMessage());
+      thrown = true;
+    }
+    assertEquals(thrown, true);
+    thrown = false;
+    try {
+      badSender = new CoteSender(1, 2, 127, 80, rand, network);
     } catch (IllegalArgumentException e) {
       assertEquals("Computational security parameter must be divisible by 8", e.getMessage());
       thrown = true;
