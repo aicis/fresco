@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.tools.mascot.mult;
 
-import java.math.BigInteger;
-
+import dk.alexandra.fresco.framework.util.BitVector;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.TwoPartyProtocol;
 import dk.alexandra.fresco.tools.ot.base.DummyRotBatch;
@@ -9,7 +8,7 @@ import dk.alexandra.fresco.tools.ot.base.RotBatch;
 
 public class MultiplyShared extends TwoPartyProtocol {
 
-  protected RotBatch<BigInteger> rot;
+  protected RotBatch<BitVector> rot;
   protected int numLeftFactors;
 
   public MultiplyShared(MascotContext ctx, Integer otherId, int numLeftFactors) {

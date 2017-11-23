@@ -19,7 +19,7 @@ public class MultiplyLeft extends MultiplyShared {
     // TODO: the ROTs should be batched into one
     List<BitVector> seeds = new ArrayList<>();
     for (FieldElement factor : leftFactors) {
-      List<BitVector> temp = rot.receive(factor.toBigInteger(), ctx.getkBitLength());
+      List<BitVector> temp = rot.receive(factor.toBitVector(), ctx.getkBitLength());
       seeds.addAll(temp);
     }
     return seeds;
@@ -36,9 +36,12 @@ public class MultiplyLeft extends MultiplyShared {
   }
 
   public List<FieldElement> multiply(List<FieldElement> leftFactors) {
-    List<BigInteger> seeds = generateSeeds(leftFactors);
+    BigInteger modulus = ctx.getModulus();
+    int modBitLength = ctx.getkBitLength();
+    
+    List<BitVector> seeds = generateSeeds(leftFactors);
     List<FieldElement> seedElements =
-        seeds.stream().map(seed -> new FieldElement(seed, ctx.getModulus(), ctx.getkBitLength()))
+        seeds.stream().map(seed -> new FieldElement(seed, modulus))
             .collect(Collectors.toList());
     List<FieldElement> diffs = receiveDiffs(seeds.size());
     // TODO: clean up
@@ -46,7 +49,7 @@ public class MultiplyLeft extends MultiplyShared {
     int absIdx = 0;
     for (FieldElement leftFactor : leftFactors) {
       List<FieldElement> qValues = new ArrayList<>();
-      for (int k = 0; k < ctx.getkBitLength(); k++) {
+      for (int k = 0; k < modBitLength; k++) {
         FieldElement seedElement = seedElements.get(absIdx);
         boolean bit = leftFactor.getBit(k);
         FieldElement qValue = diffs.get(absIdx).select(bit).add(seedElement);

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.BinaryOperator;
 import java.util.stream.IntStream;
 
+import dk.alexandra.fresco.framework.util.BitVector;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 
 public class FieldElement {
@@ -12,6 +13,12 @@ public class FieldElement {
   private BigInteger modulus;
   private int bitLength;
 
+  public FieldElement(BitVector bits, BigInteger modulus) {
+    this.value = new BigInteger(bits.asByteArr());
+    this.modulus = modulus;
+    this.bitLength = bits.getSize();
+  }
+  
   public FieldElement(BigInteger value, BigInteger modulus, int bitLength) {
     this.value = value;
     this.modulus = modulus;
@@ -74,6 +81,10 @@ public class FieldElement {
   public BigInteger toBigInteger() {
     return this.value;
   }
+  
+  public BitVector toBitVector() {
+    return new BitVector(value.toByteArray(), bitLength);
+  }
 
   public boolean getBit(int bitIndex) {
     return value.testBit(bitIndex);
@@ -123,7 +134,7 @@ public class FieldElement {
     return true;
   }
 
-  public int getBitLenght() {
+  public int getBitLength() {
     return bitLength;
   }
 
@@ -135,7 +146,7 @@ public class FieldElement {
   
   public static FieldElement recombine(FieldElement generator, List<FieldElement> elements) {
     // TODO: optimize
-    // TODO: user innerProduct
+    // TODO: use innerProduct
     BigInteger modulus = generator.modulus;
     int bitLength = generator.bitLength;
     FieldElement accumulator = new FieldElement(BigInteger.ZERO, modulus, bitLength);

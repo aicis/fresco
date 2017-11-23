@@ -48,7 +48,7 @@ public class BitVector {
     this.size = size;
     this.bits = new BitSet(size);
   }
-  
+
   /**
    * Creates a random BitVector using source of randomness.
    *
@@ -69,6 +69,25 @@ public class BitVector {
     return this.bits.get(index);
   }
 
+  /**
+   * Creates new BitVector containing specified range of bits of this BitVector.
+   * 
+   * @param from
+   * @param to
+   * @return
+   */
+  public BitVector get(int from, int to) {
+    rangeCheck(from);
+    rangeCheck(to);
+    int length = to - from;
+    if (length < 0) {
+      throw new IndexOutOfBoundsException(
+          "From index is smaller than to index. From: " + from + " to: " + to);
+    }
+    BitSet subrange = bits.get(from, to);
+    return new BitVector(subrange.toByteArray(), length);
+  }
+
   public void set(int index, boolean value) {
     rangeCheck(index);
     this.bits.set(index, value);
@@ -84,6 +103,7 @@ public class BitVector {
 
   /**
    * Updates this BitVector to be the XOR with an other BitVector.
+   * 
    * @param other the other BitVector
    * @throws IllegalArgumentException if the two BitVectors are not of equal size
    */
@@ -100,6 +120,16 @@ public class BitVector {
           "Cannot access index " + i + " on vector of size " + this.size);
     }
 
+  }
+
+  public static BitVector concat(BitVector... bitVectors) {
+    for (BitVector bitVector : bitVectors) {
+      if (bitVector.getSize() % 8 != 0) {
+        throw new IllegalArgumentException(
+            "Only support concatenation of bit vectors of length divisible by 8");
+      }
+    }
+    return null;
   }
 
 }
