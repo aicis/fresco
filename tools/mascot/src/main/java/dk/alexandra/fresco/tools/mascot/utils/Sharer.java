@@ -17,7 +17,7 @@ public class Sharer {
 
   public List<FieldElement> additiveShare(FieldElement input, int numShares) {
     BigInteger modulus = input.getModulus();
-    int bitLength = input.getBitLenght();
+    int bitLength = input.getBitLength();
     List<FieldElement> shares = sampler.sample(modulus, bitLength, numShares - 1);
     FieldElement sumShares = shares.stream().reduce(
         new FieldElement(BigInteger.ZERO, modulus, bitLength), (left, right) -> (left.add(right)));
@@ -33,7 +33,7 @@ public class Sharer {
     }
     FieldElement first = shares.get(0);
     BigInteger modulus = first.getModulus();
-    int bitLength = first.getBitLenght();
+    int bitLength = first.getBitLength();
     return shares.stream().reduce(new FieldElement(BigInteger.ZERO, modulus, bitLength),
         (left, right) -> (left.add(right)));
   }

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import dk.alexandra.fresco.framework.util.BitVector;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
@@ -15,9 +16,9 @@ public class MultiplyRight extends MultiplyShared {
     super(ctx, otherId, numLeftFactors);
   }
 
-  protected List<Pair<BigInteger, BigInteger>> generateSeeds() {
+  protected List<Pair<BitVector, BitVector>> generateSeeds() {
     // TODO: the ROTs should be batched into one
-    List<Pair<BigInteger, BigInteger>> seeds = new ArrayList<>();
+    List<Pair<BitVector, BitVector>> seeds = new ArrayList<>();
     for (int r = 0; r < numLeftFactors; r++) {
       seeds.addAll(rot.send(ctx.getkBitLength()));
     }
@@ -43,11 +44,11 @@ public class MultiplyRight extends MultiplyShared {
     BigInteger modulus = ctx.getModulus();
     int modBitLength = ctx.getkBitLength();
     // TODO: clean up
-    List<Pair<BigInteger, BigInteger>> seeds = generateSeeds();
+    List<Pair<BitVector, BitVector>> seeds = generateSeeds();
     // TODO: could do diffs in one pass
     List<Pair<FieldElement, FieldElement>> qValues = seeds.stream()
-        .map(pair -> new Pair<>(new FieldElement(pair.getFirst(), modulus, modBitLength),
-            new FieldElement(pair.getSecond(), modulus, modBitLength)))
+        .map(pair -> new Pair<>(new FieldElement(pair.getFirst(), modulus),
+            new FieldElement(pair.getSecond(), modulus)))
         .collect(Collectors.toList());
     List<FieldElement> diffs = computeDiffs(qValues, rightFactor);
     sendDiffs(diffs);
