@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Random;
 
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.BitVector;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 
@@ -28,10 +27,10 @@ public class DummyRotBatch implements RotBatch<StrictBitVector> {
   }
 
   @Override
-  public List<StrictBitVector> receive(BitVector choiceBits, int numBits) {
+  public List<StrictBitVector> receive(StrictBitVector choiceBits, int numBits) {
     List<StrictBitVector> choiceMessages = new ArrayList<>();
     for (int b = 0; b < numBits; b++) {
-      choiceMessages.add(dummyRot.receive(choiceBits.get(b)));
+      choiceMessages.add(dummyRot.receive(choiceBits.getBit(b)));
     }
     return choiceMessages;
   }

@@ -1,34 +1,35 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BinaryOperator;
 import java.util.stream.IntStream;
 
-import dk.alexandra.fresco.framework.util.BitVector;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 
 public class FieldElement {
+  
   private BigInteger value;
   private BigInteger modulus;
   private int bitLength;
 
   public FieldElement(BigInteger value, BigInteger modulus, int bitLength) {
+    if (bitLength % 8 != 0) {
+      throw new IllegalArgumentException("Bit length must be multiple of 8");
+    }
     this.value = value;
     this.modulus = modulus;
     this.bitLength = bitLength;
   }
 
-  public FieldElement(int value, BigInteger modulus, int bitLength) {
-    this.value = BigInteger.valueOf(value);
-    this.modulus = modulus;
-    this.bitLength = bitLength;
+  public FieldElement(long value, BigInteger modulus, int bitLength) {
+    this(BigInteger.valueOf(value), modulus, bitLength);
   }
 
   public FieldElement(byte[] value, BigInteger modulus, int bitLength) {
-    this.value = new BigInteger(value);
-    this.modulus = modulus;
-    this.bitLength = bitLength;
+    this(new BigInteger(value), modulus, bitLength);
   }
 
   private FieldElement binaryOp(BinaryOperator<BigInteger> op, FieldElement left,
@@ -67,19 +68,19 @@ public class FieldElement {
     return this.modulus;
   }
 
-  public byte[] toByteArray() {
-    // TODO: bit length?
-    return value.toByteArray();
-  }
-
   public BigInteger toBigInteger() {
     return this.value;
   }
   
-  public BitVector toBitVector() {
-    return new BitVector(value.toByteArray(), bitLength);
+  public byte[] toByteArray() {
+    byte[] array = value.toByteArray();
+    return Arrays.copyOfRange(array, 0, bitLength / 8);
   }
-
+  
+  public StrictBitVector toBitVector() {
+    return new StrictBitVector(toByteArray(), bitLength);
+  }
+  
   public boolean getBit(int bitIndex) {
     return value.testBit(bitIndex);
   }
