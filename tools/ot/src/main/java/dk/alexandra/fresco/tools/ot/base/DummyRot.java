@@ -3,12 +3,12 @@ package dk.alexandra.fresco.tools.ot.base;
 import java.util.Random;
 
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.BitVector;
 import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
 
-public class DummyRot implements Rot<BitVector> {
+public class DummyRot implements Rot<StrictBitVector> {
 
-  private Ot<BitVector> dummyOt;
+  private Ot<StrictBitVector> dummyOt;
   private int messageBitLength;
   private Random rand;
 
@@ -20,14 +20,14 @@ public class DummyRot implements Rot<BitVector> {
   }
 
   @Override
-  public BitVector receive(Boolean choiceBit) {
+  public StrictBitVector receive(Boolean choiceBit) {
     return this.dummyOt.receive(choiceBit);
   }
 
   @Override
-  public Pair<BitVector, BitVector> send() {
-    BitVector messageZero = new BitVector(this.messageBitLength, this.rand);
-    BitVector messageOne = new BitVector(this.messageBitLength, this.rand);
+  public Pair<StrictBitVector, StrictBitVector> send() {
+    StrictBitVector messageZero = new StrictBitVector(this.messageBitLength, this.rand);
+    StrictBitVector messageOne = new StrictBitVector(this.messageBitLength, this.rand);
     this.dummyOt.send(messageZero, messageOne);
     return new Pair<>(messageZero, messageOne);
   }

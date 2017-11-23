@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.tools.ot.otextension;
+package dk.alexandra.fresco.framework.util;
 
 import static org.junit.Assert.assertEquals;
 
@@ -9,43 +9,45 @@ import java.util.List;
 
 import org.junit.Test;
 
-public class TestHelper {
+import dk.alexandra.fresco.framework.util.ByteArrayHelper;
+
+public class TestByteArrayHelper {
 
   /**** POSITIVE TESTS. ****/
   @Test
   public void testGetBit() {
     byte[] byteArray = new byte[] { (byte) 0x54, (byte) 0x04 };
-    assertEquals(true, Helper.getBit(byteArray, 13));
+    assertEquals(true, ByteArrayHelper.getBit(byteArray, 13));
     byteArray = new byte[] { (byte) 0xFF, (byte) 0xFB };
-    assertEquals(false, Helper.getBit(byteArray, 13));
+    assertEquals(false, ByteArrayHelper.getBit(byteArray, 13));
   }
 
   @Test
   public void testSetBit() {
     // Set a true bit to false
     byte[] byteArray = new byte[] { (byte) 0x54, (byte) 0x04 };
-    Helper.setBit(byteArray, 13, false);
+    ByteArrayHelper.setBit(byteArray, 13, false);
     byte[] expected = new byte[] { (byte) 0x54, (byte) 0x00 };
     for (int i = 0; i < byteArray.length; i++) {
       assertEquals(expected[i], byteArray[i]);
     }
     // Set a false bit to true
     byteArray = new byte[] { (byte) 0x54, (byte) 0x04 };
-    Helper.setBit(byteArray, 15, true);
+    ByteArrayHelper.setBit(byteArray, 15, true);
     expected = new byte[] { (byte) 0x54, (byte) 0x05 };
     for (int i = 0; i < byteArray.length; i++) {
       assertEquals(expected[i], byteArray[i]);
     }
     // Set a false bit to false
     byteArray = new byte[] { (byte) 0x54, (byte) 0x04 };
-    Helper.setBit(byteArray, 2, false);
+    ByteArrayHelper.setBit(byteArray, 2, false);
     expected = new byte[] { (byte) 0x54, (byte) 0x04 };
     for (int i = 0; i < byteArray.length; i++) {
       assertEquals(expected[i], byteArray[i]);
     }
     // Set a true bit to true
     byteArray = new byte[] { (byte) 0x54, (byte) 0x04 };
-    Helper.setBit(byteArray, 3, true);
+    ByteArrayHelper.setBit(byteArray, 3, true);
     expected = new byte[] { (byte) 0x54, (byte) 0x04 };
     for (int i = 0; i < byteArray.length; i++) {
       assertEquals(expected[i], byteArray[i]);
@@ -56,7 +58,7 @@ public class TestHelper {
   public void testXor() {
     byte[] arr1 = { (byte) 0x00, (byte) 0x02, (byte) 0xFF };
     byte[] arr2 = { (byte) 0xF0, (byte) 0x02, (byte) 0xF0 };
-    Helper.xor(arr1, arr2);
+    ByteArrayHelper.xor(arr1, arr2);
     assertEquals((byte) 0xF0, arr1[0]);
     assertEquals((byte) 0x00, arr1[1]);
     assertEquals((byte) 0x0F, arr1[2]);
@@ -72,7 +74,7 @@ public class TestHelper {
     list1.add(arr2);
     list2.add(arr2.clone());
     list2.add(arr1.clone());
-    Helper.xor(list1, list2);
+    ByteArrayHelper.xor(list1, list2);
     assertEquals((byte) 0xF0, list1.get(0)[0]);
     assertEquals((byte) 0x00, list1.get(0)[1]);
     assertEquals((byte) 0x0F, list1.get(0)[2]);
@@ -84,8 +86,8 @@ public class TestHelper {
   @Test
   public void testSerialization() throws IOException, ClassNotFoundException {
     BigInteger bigInt = new BigInteger("543584330850486485473235");
-    byte[] serializedInt = Helper.serialize(bigInt);
-    BigInteger deserializedInt = (BigInteger) Helper.deserialize(serializedInt);
+    byte[] serializedInt = ByteArrayHelper.serialize(bigInt);
+    BigInteger deserializedInt = (BigInteger) ByteArrayHelper.deserialize(serializedInt);
     assertEquals(bigInt.toString(), deserializedInt.toString());
   }
 
@@ -93,7 +95,7 @@ public class TestHelper {
   public void testShiftArray() {
     byte[] input = new byte[] { (byte) 0x80, (byte) 0x01 };
     byte[] output = new byte[4];
-    Helper.shiftArray(input, output, 1);
+    ByteArrayHelper.shiftArray(input, output, 1);
     byte[] expected = new byte[] { (byte) 0x40, (byte) 0x00, (byte) 0x80,
         (byte) 0x00 };
     for (int i = 0; i < 4; i++) {
@@ -105,7 +107,7 @@ public class TestHelper {
   public void testShiftArray2() {
     byte[] input = new byte[] { (byte) 0x80, (byte) 0x01 };
     byte[] output = new byte[4];
-    Helper.shiftArray(input, output, 8);
+    ByteArrayHelper.shiftArray(input, output, 8);
     byte[] expected = new byte[] { (byte) 0x00, (byte) 0x80, (byte) 0x01,
         (byte) 0x00 };
     for (int i = 0; i < 4; i++) {
@@ -117,7 +119,7 @@ public class TestHelper {
   public void testShiftArray3() {
     byte[] input = new byte[] { (byte) 0x80, (byte) 0x01 };
     byte[] output = new byte[4];
-    Helper.shiftArray(input, output, 15);
+    ByteArrayHelper.shiftArray(input, output, 15);
     byte[] expected = new byte[] { (byte) 0x00, (byte) 0x01, (byte) 0x00,
         (byte) 0x02 };
     for (int i = 0; i < 4; i++) {
@@ -132,7 +134,7 @@ public class TestHelper {
     byte[] arr2 = new byte[35];
     boolean thrown = false;
     try {
-      Helper.xor(arr1, arr2);
+      ByteArrayHelper.xor(arr1, arr2);
     } catch (IllegalArgumentException e) {
       assertEquals("The byte arrays are not of equal length", e.getMessage());
       thrown = true;
@@ -151,7 +153,7 @@ public class TestHelper {
     list2.add(new byte[1]);
     boolean thrown = false;
     try {
-      Helper.xor(list1, list2);
+      ByteArrayHelper.xor(list1, list2);
     } catch (IllegalArgumentException e) {
       assertEquals("The vectors are not of equal length", e.getMessage());
       thrown = true;
@@ -161,7 +163,7 @@ public class TestHelper {
     thrown = false;
     list1.add(new byte[2]);
     try {
-      Helper.xor(list1, list2);
+      ByteArrayHelper.xor(list1, list2);
     } catch (IllegalArgumentException e) {
       assertEquals("The byte arrays are not of equal length", e.getMessage());
       thrown = true;

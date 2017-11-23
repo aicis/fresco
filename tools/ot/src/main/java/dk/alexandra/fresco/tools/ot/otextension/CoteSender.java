@@ -7,7 +7,11 @@ import java.util.List;
 import java.util.Random;
 
 import dk.alexandra.fresco.framework.network.Network;
+<<<<<<< HEAD
 import dk.alexandra.fresco.framework.util.BitVector;
+=======
+import dk.alexandra.fresco.framework.util.ByteArrayHelper;
+>>>>>>> a0f8e15e64a90914b7a03bae311031a8fca4fee3
 
 /**
  * Protocol class for the party acting as the sender in an correlated OT with
@@ -64,7 +68,11 @@ public class CoteSender extends CoteShared {
     this.otChoices = new BitVector(randomChoices, kbitLength);
     // Complete the seed OTs acting as the receiver (NOT the sender)
     for (int i = 0; i < kbitLength; i++) {
+<<<<<<< HEAD
       BitVector message = ot.receive(otChoices.get(i));
+=======
+      BigInteger message = ot.receive(ByteArrayHelper.getBit(otChoices, i));
+>>>>>>> a0f8e15e64a90914b7a03bae311031a8fca4fee3
       // Initialize the PRGs with the random messages
       // TODO should be changed to something that uses SHA-256
       SecureRandom prg = SecureRandom.getInstance("SHA1PRNG");
@@ -118,8 +126,8 @@ public class CoteSender extends CoteShared {
     // Compute the q vector based on the random choices from the seed OTs, i.e
     // qVec = otChoices AND uVec XOR tVec
     for (int i = 0; i < kbitLength; i++) {
-      if (otChoices.get(i) == true) {
-        tvec.get(i).xor(uvec.get(i));
+      if (ByteArrayHelper.getBit(otChoices, i) == true) {
+        ByteArrayHelper.xor(tvec.get(i), uvec.get(i));
       }
     }
     // Complete tilt-your-head by transposing the message "matrix"

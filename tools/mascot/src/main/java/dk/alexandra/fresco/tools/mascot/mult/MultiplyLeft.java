@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import dk.alexandra.fresco.framework.util.BitVector;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 
@@ -15,11 +15,11 @@ public class MultiplyLeft extends MultiplyShared {
     super(ctx, otherId, numLeftFactors);
   }
 
-  protected List<BitVector> generateSeeds(List<FieldElement> leftFactors) {
+  protected List<StrictBitVector> generateSeeds(List<FieldElement> leftFactors) {
     // TODO: the ROTs should be batched into one
-    List<BitVector> seeds = new ArrayList<>();
+    List<StrictBitVector> seeds = new ArrayList<>();
     for (FieldElement factor : leftFactors) {
-      List<BitVector> temp = rot.receive(factor.toBitVector(), ctx.getkBitLength());
+      List<StrictBitVector> temp = rot.receive(factor.toBitVector(), ctx.getkBitLength());
       seeds.addAll(temp);
     }
     return seeds;
@@ -39,9 +39,9 @@ public class MultiplyLeft extends MultiplyShared {
     BigInteger modulus = ctx.getModulus();
     int modBitLength = ctx.getkBitLength();
     
-    List<BitVector> seeds = generateSeeds(leftFactors);
+    List<StrictBitVector> seeds = generateSeeds(leftFactors);
     List<FieldElement> seedElements =
-        seeds.stream().map(seed -> new FieldElement(seed, modulus))
+        seeds.stream().map(seed -> new FieldElement(seed.toByteArray(), modulus, ctx.getkBitLength()))
             .collect(Collectors.toList());
     List<FieldElement> diffs = receiveDiffs(seeds.size());
     // TODO: clean up
