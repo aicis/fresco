@@ -27,9 +27,9 @@ public class DummyRotBatch implements RotBatch<StrictBitVector> {
   }
 
   @Override
-  public List<StrictBitVector> receive(StrictBitVector choiceBits, int numBits) {
+  public List<StrictBitVector> receive(StrictBitVector choiceBits) {
     List<StrictBitVector> choiceMessages = new ArrayList<>();
-    for (int b = 0; b < numBits; b++) {
+    for (int b = 0; b < choiceBits.getSize(); b++) {
       choiceMessages.add(dummyRot.receive(choiceBits.getBit(b)));
     }
     return choiceMessages;

@@ -16,51 +16,90 @@ public class MultiplyRight extends MultiplyShared {
     super(ctx, otherId, numLeftFactors);
   }
 
-  protected List<Pair<StrictBitVector, StrictBitVector>> generateSeeds() {
-    // TODO: the ROTs should be batched into one
-    List<Pair<StrictBitVector, StrictBitVector>> seeds = new ArrayList<>();
-    for (int r = 0; r < numLeftFactors; r++) {
-      seeds.addAll(rot.send(ctx.getkBitLength()));
-    }
+  List<Pair<StrictBitVector, StrictBitVector>> generateSeeds(int numMults) {
+    // perform rots for each bit, for each left factor, for each multiplication
+    int numRots = ctx.getkBitLength() * numLeftFactors * numMults;
+    List<Pair<StrictBitVector, StrictBitVector>> seeds = rot.send(numRots);
     return seeds;
   }
+  
+  FieldElement computeDiff(Pair<FieldElement, FieldElement> feSeedPair, FieldElement factor) {
+    FieldElement left = feSeedPair.getFirst();
+    FieldElement right = feSeedPair.getSecond();
+    FieldElement diff = left.subtract(right).add(factor);
+    return diff;
+  }
 
-  protected List<FieldElement> computeDiffs(List<Pair<FieldElement, FieldElement>> qValues,
-      FieldElement rightFactor) {
-    List<FieldElement> diffs = qValues.stream().map((qPair) -> {
-      return qPair.getFirst().subtract(qPair.getSecond()).add(rightFactor);
-    }).collect(Collectors.toList());
+  List<FieldElement> computeDiffs(List<Pair<FieldElement, FieldElement>> feSeedPairs,
+      List<FieldElement> rightFactors) {
+    List<FieldElement> diffs = new ArrayList<>(feSeedPairs.size());
+    int modBitLength = ctx.getkBitLength();
+    int rightFactorIdx = 0;
+    int seedPairIdx = 0;
+    for (Pair<FieldElement, FieldElement> feSeedPair : feSeedPairs) {
+      FieldElement rightFactor = rightFactors.get(rightFactorIdx);
+      FieldElement diff = computeDiff(feSeedPair, rightFactor);
+      diffs.add(diff);
+      seedPairIdx++;
+      rightFactorIdx = seedPairIdx / (numLeftFactors * modBitLength);
+    }
     return diffs;
   }
 
-  protected void sendDiffs(List<FieldElement> diffs) {
+  void sendDiffs(List<FieldElement> diffs) {
     // TODO: need batch-send
     for (FieldElement diff : diffs) {
       ctx.getNetwork().send(otherId, diff.toByteArray());
     }
   }
-
-  public List<FieldElement> multiply(FieldElement rightFactor) {
+  
+  List<List<FieldElement>> computeProductShares(List<FieldElement> feZeroSeeds,
+      int numRightFactors) {
     BigInteger modulus = ctx.getModulus();
     int modBitLength = ctx.getkBitLength();
-    // TODO: clean up
-    List<Pair<StrictBitVector, StrictBitVector>> seeds = generateSeeds();
-    // TODO: could do diffs in one pass
-    List<Pair<FieldElement, FieldElement>> qValues = seeds.stream()
-        .map(pair -> new Pair<>(
-            new FieldElement(pair.getFirst().toByteArray(), modulus, modBitLength),
-            new FieldElement(pair.getSecond().toByteArray(), modulus, modBitLength)))
-        .collect(Collectors.toList());
-    List<FieldElement> diffs = computeDiffs(qValues, rightFactor);
-    sendDiffs(diffs);
-    List<FieldElement> zeroSeeds =
-        qValues.stream().map(seedPair -> seedPair.getFirst()).collect(Collectors.toList());
-    List<FieldElement> productShares = new ArrayList<>();
-    for (int i = 0; i < numLeftFactors; i++) {
-      List<FieldElement> subFactors = zeroSeeds.subList(i * modBitLength, (i + 1) * modBitLength);
-      FieldElement recombined = FieldElement.recombine(subFactors, modulus, modBitLength);
-      productShares.add(recombined.negate());
+    List<List<FieldElement>> productShares = new ArrayList<>(numRightFactors);
+    for (int rightFactIdx = 0; rightFactIdx < numRightFactors; rightFactIdx++) {
+      List<FieldElement> resultGroup = new ArrayList<>(numLeftFactors);
+      for (int leftFactIdx = 0; leftFactIdx < numLeftFactors; leftFactIdx++) {
+        int from = leftFactIdx * rightFactIdx * modBitLength;
+        int to = (leftFactIdx * rightFactIdx + 1) * modBitLength;
+        List<FieldElement> subFactors = feZeroSeeds.subList(from, to);
+        FieldElement recombined = FieldElement.recombine(subFactors, modulus, modBitLength);
+        resultGroup.add(recombined.negate());
+      }
+      productShares.add(resultGroup);
     }
+    return productShares;
+  }
+
+  public List<List<FieldElement>> multiply(List<FieldElement> rightFactors) {
+    // we need the modulus and the bit length of the modulus
+    BigInteger modulus = ctx.getModulus();
+    int modBitLength = ctx.getkBitLength();
+    
+    // generate seeds pairs which we will use to compute diffs
+    List<Pair<StrictBitVector, StrictBitVector>> seedPairs = generateSeeds(rightFactors.size());
+    
+    // convert seeds pairs to field elements so we can compute on them
+    List<Pair<FieldElement, FieldElement>> feSeedPairs = seedPairs.stream()
+        .map(pair -> new Pair<>(
+          new FieldElement(pair.getFirst().toByteArray(), modulus, modBitLength),
+          new FieldElement(pair.getSecond().toByteArray(), modulus, modBitLength)))
+        .collect(Collectors.toList());
+    
+    // compute q0 - q1 + b for each seed pair
+    List<FieldElement> diffs = computeDiffs(feSeedPairs, rightFactors);
+    
+    // send diffs over to other party
+    sendDiffs(diffs);
+    
+    // get zero index seeds
+    List<FieldElement> feZeroSeeds = feSeedPairs.stream()
+        .map(feSeedPair -> feSeedPair.getFirst())
+        .collect(Collectors.toList());
+    
+    // compute product shares
+    List<List<FieldElement>> productShares = computeProductShares(feZeroSeeds, rightFactors.size());
     return productShares;
   }
 

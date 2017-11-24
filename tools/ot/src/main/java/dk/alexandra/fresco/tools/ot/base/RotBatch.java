@@ -8,6 +8,6 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 public interface RotBatch<T> {
 
   public List<Pair<T, T>> send(int numMessages);
-  public List<T> receive(StrictBitVector choiceBits, int numBits);
+  public List<T> receive(StrictBitVector choiceBits);
   
 }

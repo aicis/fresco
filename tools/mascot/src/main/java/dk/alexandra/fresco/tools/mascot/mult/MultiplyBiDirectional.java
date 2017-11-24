@@ -19,11 +19,11 @@ public class MultiplyBiDirectional {
     return left.getOtherId();
   }
   
-  public List<FieldElement> multiplyLeft(List<FieldElement> leftFactors) {
+  public List<List<FieldElement>> multiplyLeft(List<List<FieldElement>> leftFactors) {
     return left.multiply(leftFactors);
   }
 
-  public List<FieldElement> multiplyRight(FieldElement rightFactor) {
+  public List<List<FieldElement>> multiplyRight(List<FieldElement> rightFactor) {
     return right.multiply(rightFactor);
   }
 

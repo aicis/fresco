@@ -62,7 +62,8 @@ public class StrictBitVector {
    */
   public boolean getBit(int bit) {
     rangeCheck(bit);
-    return ByteArrayHelper.getBit(bits, bit);
+    int reverse = size - 1 - bit;
+    return ByteArrayHelper.getBit(bits, reverse);
   }
 
   public void setBit(int index, boolean value) {

@@ -25,6 +25,7 @@ public class FieldElement {
     this(new BigInteger(value), new BigInteger(modulus), bitLength);
   }
 
+  // TODO: make sure we treat these as unsigned
   public FieldElement(long value, BigInteger modulus, int bitLength) {
     this(BigInteger.valueOf(value), modulus, bitLength);
   }
@@ -34,7 +35,11 @@ public class FieldElement {
   }
 
   public FieldElement(byte[] value, BigInteger modulus, int bitLength) {
-    this(new BigInteger(value), modulus, bitLength);
+    this(new BigInteger(1, value), modulus, bitLength);
+  }
+  
+  public FieldElement(byte[] value, String modulus, int bitLength) {
+    this(new BigInteger(1, value), new BigInteger(modulus), bitLength);
   }
 
   private FieldElement binaryOp(BinaryOperator<BigInteger> op, FieldElement left,

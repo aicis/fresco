@@ -15,17 +15,29 @@ public class MultiplyLeft extends MultiplyShared {
     super(ctx, otherId, numLeftFactors);
   }
 
-  protected List<StrictBitVector> generateSeeds(List<FieldElement> leftFactors) {
-    // TODO: the ROTs should be batched into one
-    List<StrictBitVector> seeds = new ArrayList<>();
-    for (FieldElement factor : leftFactors) {
-      List<StrictBitVector> temp = rot.receive(factor.toBitVector(), ctx.getkBitLength());
-      seeds.addAll(temp);
-    }
+  /**
+   * Converts field elements to bit vectors and returns concatenation.
+   * 
+   * @param elements field elements to pack
+   * @return
+   */
+  private StrictBitVector pack(List<List<FieldElement>> elements) {
+    StrictBitVector[] bitVecs = elements.stream()
+        .flatMap(fel -> fel.stream())
+        .map(fe -> fe.toBitVector())
+        .toArray(size -> new StrictBitVector[size]);
+    return StrictBitVector.concat(bitVecs);
+  }
+
+  List<StrictBitVector> generateSeeds(List<List<FieldElement>> leftFactors) {
+    // pack the left factor candidates into bit vector so we can process them in one Rot
+    StrictBitVector packedFactors = pack(leftFactors);
+    // use rot to get choice seeds
+    List<StrictBitVector> seeds = rot.receive(packedFactors);
     return seeds;
   }
 
-  protected List<FieldElement> receiveDiffs(int numDiffs) {
+  List<FieldElement> receiveDiffs(int numDiffs) {
     // TODO: need batch-receive
     List<FieldElement> diffs = new ArrayList<>();
     for (int d = 0; d < numDiffs; d++) {
@@ -34,30 +46,56 @@ public class MultiplyLeft extends MultiplyShared {
     }
     return diffs;
   }
-
-  public List<FieldElement> multiply(List<FieldElement> leftFactors) {
+  
+  List<List<FieldElement>> computeProductShares(List<List<FieldElement>> leftFactors,
+      List<FieldElement> feSeeds, List<FieldElement> diffs) {
+    // we need modulus and bit length
     BigInteger modulus = ctx.getModulus();
     int modBitLength = ctx.getkBitLength();
     
-    List<StrictBitVector> seeds = generateSeeds(leftFactors);
-    List<FieldElement> seedElements =
-        seeds.stream().map(seed -> new FieldElement(seed.toByteArray(), modulus, ctx.getkBitLength()))
-            .collect(Collectors.toList());
-    List<FieldElement> diffs = receiveDiffs(seeds.size());
-    // TODO: clean up
-    List<FieldElement> productShares = new ArrayList<>();
-    int absIdx = 0;
-    for (FieldElement leftFactor : leftFactors) {
-      List<FieldElement> qValues = new ArrayList<>();
-      for (int k = 0; k < modBitLength; k++) {
-        FieldElement seedElement = seedElements.get(absIdx);
-        boolean bit = leftFactor.getBit(k);
-        FieldElement qValue = diffs.get(absIdx).select(bit).add(seedElement);
-        qValues.add(qValue);
-        absIdx++;
+    List<List<FieldElement>> result = new ArrayList<>(leftFactors.size());
+    
+    int diffIdx = 0;
+    for (List<FieldElement> leftFactorGroup : leftFactors) {
+      List<FieldElement> resultGroup = new ArrayList<>(leftFactorGroup.size());
+      for (FieldElement leftFactor : leftFactorGroup) {
+        List<FieldElement> summands = new ArrayList<>(modBitLength);
+        for (int b = 0; b < modBitLength; b++) {
+          FieldElement feSeed = feSeeds.get(diffIdx);
+          FieldElement diff = diffs.get(diffIdx);
+          boolean bit = leftFactor.getBit(b);
+          FieldElement summand = diff.select(bit).add(feSeed);
+          summands.add(summand);
+          diffIdx++;
+        }
+        FieldElement productShare = FieldElement.recombine(summands, modulus, modBitLength);
+        resultGroup.add(productShare);
       }
-      productShares.add(FieldElement.recombine(qValues, ctx.getModulus(), ctx.getkBitLength()));
+      result.add(resultGroup);
     }
+
+    return result;
+  }
+
+  // should be list of lists
+  public List<List<FieldElement>> multiply(List<List<FieldElement>> leftFactors) {
+    // we need the modulus and the bit length of the modulus
+    BigInteger modulus = ctx.getModulus();
+    int modBitLength = ctx.getkBitLength();
+
+    // generate seeds to use for multiplication
+    List<StrictBitVector> seeds = generateSeeds(leftFactors);
+    
+    // convert each seed to field element
+    List<FieldElement> feSeeds = seeds.stream()
+        .map(seed -> new FieldElement(seed.toByteArray(), modulus, modBitLength))
+        .collect(Collectors.toList());
+
+    // get diffs from other party
+    List<FieldElement> diffs = receiveDiffs(seeds.size());
+    
+    // compute our shares of the product
+    List<List<FieldElement>> productShares = computeProductShares(leftFactors, feSeeds, diffs);    
     return productShares;
   }
 

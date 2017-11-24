@@ -41,11 +41,14 @@ public class MascotContext {
   public static MascotContext defaultContext(Integer myId, List<Integer> partyIds) {
     ExecutorService executor = Executors.newCachedThreadPool();
     Network network = new KryoNetNetwork(defaultNetworkConfiguration(myId, partyIds));
-    BigInteger modulus = BigInteger.valueOf(997);
-    int kBitLength = 10;
-    int lambdaSecurityParam = 10;
+//    BigInteger modulus = new BigInteger("340282366920938463463374607431768211297");
+    BigInteger modulus = new BigInteger("65521");
+//    int modBitLength = 128;
+    int modBitLength = 16;
+//    int lambdaSecurityParam = 128;
+    int lambdaSecurityParam = 16;
     Random rand = new Random(42);
-    return new MascotContext(myId, partyIds, modulus, kBitLength, lambdaSecurityParam, network,
+    return new MascotContext(myId, partyIds, modulus, modBitLength, lambdaSecurityParam, network,
         executor, rand);
   }
 

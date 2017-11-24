@@ -37,6 +37,14 @@ public class TestFieldElement {
     assertEquals(expected, actual);
   }
   
+  @Test
+  public void testConvertToBitVectorAndBack() {
+    FieldElement el = new FieldElement("777", "65521", 16);
+    StrictBitVector bv = el.toBitVector();
+    FieldElement actual = new FieldElement(bv.toByteArray(), "65521", 16);
+    assertEquals(el, actual);
+  }
+  
   // Negative tests
 
 }
