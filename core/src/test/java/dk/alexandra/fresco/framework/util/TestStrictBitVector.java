@@ -106,7 +106,7 @@ public class TestStrictBitVector {
   @Test
   public void testConstructIncorrectSize() {
     boolean thrown = false;
-    byte[] bits = {(byte) 0xFF, (byte) 0x01, (byte) 0x00,};
+    byte[] bits = {(byte) 0xFF, (byte) 0x01, (byte) 0x00};
     try {
       new StrictBitVector(bits, 11);
     } catch (IllegalArgumentException e) {
@@ -119,7 +119,7 @@ public class TestStrictBitVector {
   @Test
   public void testConstructInconsistentSize() {
     boolean thrown = false;
-    byte[] bits = {(byte) 0xFF, (byte) 0x01, (byte) 0x00,};
+    byte[] bits = {(byte) 0xFF, (byte) 0x01, (byte) 0x00};
     try {
       new StrictBitVector(bits, 4 * 8);
     } catch (IllegalArgumentException e) {

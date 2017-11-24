@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
 import java.math.BigInteger;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.BinaryOperator;
 import java.util.stream.IntStream;
@@ -10,24 +9,22 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 
 public class FieldElement {
-  
+
   private BigInteger value;
   private BigInteger modulus;
   private int bitLength;
 
   public FieldElement(BigInteger value, BigInteger modulus, int bitLength) {
-    if (bitLength % 8 != 0) {
-      throw new IllegalArgumentException("Bit length must be multiple of 8");
-    }
+    sanityCheck(value, modulus, bitLength);
     this.value = value;
     this.modulus = modulus;
     this.bitLength = bitLength;
   }
-  
+
   public FieldElement(String value, String modulus, int bitLength) {
     this(new BigInteger(value), new BigInteger(modulus), bitLength);
   }
-  
+
   public FieldElement(long value, BigInteger modulus, int bitLength) {
     this(BigInteger.valueOf(value), modulus, bitLength);
   }
@@ -35,7 +32,7 @@ public class FieldElement {
   public FieldElement(int value, BigInteger modulus, int bitLength) {
     this(BigInteger.valueOf(value), modulus, bitLength);
   }
-  
+
   public FieldElement(byte[] value, BigInteger modulus, int bitLength) {
     this(new BigInteger(value), modulus, bitLength);
   }
@@ -43,8 +40,8 @@ public class FieldElement {
   private FieldElement binaryOp(BinaryOperator<BigInteger> op, FieldElement left,
       FieldElement right) {
     // TODO: check that modulus and size are same
-    return new FieldElement(op.apply(left.toBigInteger(), right.toBigInteger()).mod(modulus), this.modulus,
-        this.bitLength);
+    return new FieldElement(op.apply(left.toBigInteger(), right.toBigInteger()).mod(modulus),
+        this.modulus, this.bitLength);
   }
 
   public FieldElement pow(int exponent) {
@@ -75,17 +72,22 @@ public class FieldElement {
   public BigInteger toBigInteger() {
     return this.value;
   }
-  
+
   public byte[] toByteArray() {
+    int byteLength = bitLength / 8;
+    byte[] res = new byte[byteLength];
     byte[] array = value.toByteArray();
-    System.out.println(Arrays.toString(array));
-    return Arrays.copyOfRange(array, 0, bitLength / 8);
+    int arrayStart = array.length > byteLength ? array.length - byteLength : 0;
+    int resStart = array.length > byteLength ? 0 : byteLength - array.length;
+    int len = Math.min(byteLength, array.length);
+    System.arraycopy(array, arrayStart, res, resStart, len);
+    return res;
   }
-  
+
   public StrictBitVector toBitVector() {
     return new StrictBitVector(toByteArray(), bitLength);
   }
-  
+
   public boolean getBit(int bitIndex) {
     return value.testBit(bitIndex);
   }
@@ -143,7 +145,7 @@ public class FieldElement {
     BigInteger modulus = share.modulus;
     return new SpdzElement(share.toBigInteger(), macShare.toBigInteger(), modulus);
   }
-  
+
   public static FieldElement recombine(FieldElement generator, List<FieldElement> elements) {
     // TODO: optimize
     // TODO: use innerProduct
@@ -164,12 +166,27 @@ public class FieldElement {
     FieldElement generator = new FieldElement(BigInteger.valueOf(2), modulus, bitLength);
     return FieldElement.recombine(generator, elements);
   }
-  
+
   public static FieldElement innerProduct(List<FieldElement> left, List<FieldElement> right) {
     // TODO: throw is unequal lengths
-    return IntStream.range(0, left.size())
-      .mapToObj(idx -> left.get(idx).multiply(right.get(idx)))
-      .reduce((l, r) -> l.add(r)).get();
+    return IntStream.range(0, left.size()).mapToObj(idx -> left.get(idx).multiply(right.get(idx)))
+        .reduce((l, r) -> l.add(r)).get();
   }
-  
+
+  private void sanityCheck(BigInteger value, BigInteger modulus, int bitLength) {
+    if (bitLength % 8 != 0) {
+      throw new IllegalArgumentException("Bit length must be multiple of 8");
+    } else if (value.signum() == -1) {
+      throw new IllegalArgumentException("Cannot have negative value");
+    } else if (modulus.signum() == -1) {
+      throw new IllegalArgumentException("Cannot have negative modulus");
+    } else if (modulus.bitLength() != bitLength) {
+      throw new IllegalArgumentException("Modulus bit length must match bit length");
+    } else if (value.bitLength() > bitLength) {
+      throw new IllegalArgumentException("Value bit length must be less or equal to bit length");
+    } else if (value.compareTo(modulus) != -1) {
+      throw new IllegalArgumentException("Value must be smaller than modulus");
+    }
+  }
+
 }

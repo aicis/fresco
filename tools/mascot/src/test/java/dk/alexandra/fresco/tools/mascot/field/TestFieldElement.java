@@ -23,7 +23,7 @@ public class TestFieldElement {
   public void testConvertToBitVectorMultipleBytesSmall() {
     FieldElement el = new FieldElement("11", "65521", 16);
     StrictBitVector actual = el.toBitVector();
-    byte[] expectedBits = {(byte) 0xB, (byte) 0x0};
+    byte[] expectedBits = {(byte) 0x0, (byte) 0xB};
     StrictBitVector expected = new StrictBitVector(expectedBits, expectedBits.length * 8);
     assertEquals(expected, actual);
   }
@@ -37,7 +37,6 @@ public class TestFieldElement {
     assertEquals(expected, actual);
   }
   
-
   // Negative tests
 
 }
