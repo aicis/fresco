@@ -8,28 +8,28 @@ import java.util.List;
 
 import org.junit.Test;
 
-import dk.alexandra.fresco.framework.util.BitVector;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
 
 public class TestTranspose {
-  private static List<BitVector> getSquareMatrix() {
+  private static List<StrictBitVector> getSquareMatrix() {
     return new ArrayList<>(
         Arrays.asList(
-            new BitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16),
-            new BitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16),
-            new BitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
-            new BitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
-            new BitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
-            new BitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
-            new BitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
-            new BitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16)));
+            new StrictBitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
+            new StrictBitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16),
+            new StrictBitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16),
+            new StrictBitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16),
+            new StrictBitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16),
+            new StrictBitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16),
+            new StrictBitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16),
+            new StrictBitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
+            new StrictBitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16),
+            new StrictBitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
+            new StrictBitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
+            new StrictBitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
+            new StrictBitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
+            new StrictBitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
+            new StrictBitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
+            new StrictBitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16)));
   }
 
   private static List<byte[]> getSquareByteMatrix() {
@@ -67,9 +67,9 @@ public class TestTranspose {
   @Test
   public void testBigMatrix() {
     boolean thrown = false;
-    List<BitVector> matrix = new ArrayList<>(128);
+    List<StrictBitVector> matrix = new ArrayList<>(128);
     for (int i = 0; i < 128; i++) {
-      matrix.add(new BitVector(1024));
+      matrix.add(new StrictBitVector(1024));
     }
     try {
       Transpose.doSanityCheck(matrix);
@@ -80,7 +80,7 @@ public class TestTranspose {
     thrown = false;
     matrix = new ArrayList<>(1024);
     for (int i = 0; i < 1024; i++) {
-      matrix.add(new BitVector(128));
+      matrix.add(new StrictBitVector(128));
     }
     try {
       Transpose.doSanityCheck(matrix);
@@ -181,8 +181,8 @@ public class TestTranspose {
 
   @Test
   public void testSquareTranspose() {
-    List<BitVector> input = getSquareMatrix();
-    List<BitVector> res = Transpose.transpose(input);
+    List<StrictBitVector> input = getSquareMatrix();
+    List<StrictBitVector> res = Transpose.transpose(input);
     for (int i = 0; i < 8; i++) {
       assertEquals((byte) 0x81, res.get(i).asByteArr()[0]);
       assertEquals((byte) 0x7E, res.get(i).asByteArr()[1]);
@@ -196,17 +196,17 @@ public class TestTranspose {
   // Transpose a wide matrix (more columns, than rows)
   @Test
   public void testWideTranspose() {
-    List<BitVector> input = new ArrayList<>(
+    List<StrictBitVector> input = new ArrayList<>(
         Arrays.asList(
-            new BitVector(new byte[] { (byte) 0xFF, (byte) 0x00 }, 16),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0xFF }, 16),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0xFF }, 16),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0xFF }, 16),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0xFF }, 16),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0xFF }, 16),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0xFF }, 16),
-            new BitVector(new byte[] { (byte) 0xFF, (byte) 0x00 }, 16)));
-    List<BitVector> res = Transpose.transpose(input);
+            new StrictBitVector(new byte[] { (byte) 0xFF, (byte) 0x00 }, 16),
+            new StrictBitVector(new byte[] { (byte) 0x00, (byte) 0xFF }, 16),
+            new StrictBitVector(new byte[] { (byte) 0x00, (byte) 0xFF }, 16),
+            new StrictBitVector(new byte[] { (byte) 0x00, (byte) 0xFF }, 16),
+            new StrictBitVector(new byte[] { (byte) 0x00, (byte) 0xFF }, 16),
+            new StrictBitVector(new byte[] { (byte) 0x00, (byte) 0xFF }, 16),
+            new StrictBitVector(new byte[] { (byte) 0x00, (byte) 0xFF }, 16),
+            new StrictBitVector(new byte[] { (byte) 0xFF, (byte) 0x00 }, 16)));
+    List<StrictBitVector> res = Transpose.transpose(input);
     for (int i = 0; i < 8; i++) {
       assertEquals((byte) 0x81, res.get(i).asByteArr()[0]);
     }
@@ -218,25 +218,25 @@ public class TestTranspose {
   // Transpose a high matrix (more rows, than columns)
   @Test
   public void testTallTranspose() {
-    List<BitVector> input = new ArrayList<>(
+    List<StrictBitVector> input = new ArrayList<>(
         Arrays.asList(
-            new BitVector(new byte[] { (byte) 0xFF }, 8),
-            new BitVector(new byte[] { (byte) 0x00 }, 8),
-            new BitVector(new byte[] { (byte) 0x00 }, 8),
-            new BitVector(new byte[] { (byte) 0x00 }, 8),
-            new BitVector(new byte[] { (byte) 0x00 }, 8),
-            new BitVector(new byte[] { (byte) 0x00 }, 8),
-            new BitVector(new byte[] { (byte) 0x00 }, 8),
-            new BitVector(new byte[] { (byte) 0xFF }, 8),
-            new BitVector(new byte[] { (byte) 0x00 }, 8),
-            new BitVector(new byte[] { (byte) 0xFF }, 8),
-            new BitVector(new byte[] { (byte) 0xFF }, 8),
-            new BitVector(new byte[] { (byte) 0xFF }, 8),
-            new BitVector(new byte[] { (byte) 0xFF }, 8),
-            new BitVector(new byte[] { (byte) 0xFF }, 8),
-            new BitVector(new byte[] { (byte) 0xFF }, 8),
-            new BitVector(new byte[] { (byte) 0x00 }, 8)));
-    List<BitVector> res = Transpose.transpose(input);
+            new StrictBitVector(new byte[] { (byte) 0xFF }, 8),
+            new StrictBitVector(new byte[] { (byte) 0x00 }, 8),
+            new StrictBitVector(new byte[] { (byte) 0x00 }, 8),
+            new StrictBitVector(new byte[] { (byte) 0x00 }, 8),
+            new StrictBitVector(new byte[] { (byte) 0x00 }, 8),
+            new StrictBitVector(new byte[] { (byte) 0x00 }, 8),
+            new StrictBitVector(new byte[] { (byte) 0x00 }, 8),
+            new StrictBitVector(new byte[] { (byte) 0xFF }, 8),
+            new StrictBitVector(new byte[] { (byte) 0x00 }, 8),
+            new StrictBitVector(new byte[] { (byte) 0xFF }, 8),
+            new StrictBitVector(new byte[] { (byte) 0xFF }, 8),
+            new StrictBitVector(new byte[] { (byte) 0xFF }, 8),
+            new StrictBitVector(new byte[] { (byte) 0xFF }, 8),
+            new StrictBitVector(new byte[] { (byte) 0xFF }, 8),
+            new StrictBitVector(new byte[] { (byte) 0xFF }, 8),
+            new StrictBitVector(new byte[] { (byte) 0x00 }, 8)));
+    List<StrictBitVector> res = Transpose.transpose(input);
     for (int i = 0; i < 8; i++) {
       assertEquals((byte) 0x81, res.get(i).asByteArr()[0]);
     }
@@ -249,7 +249,7 @@ public class TestTranspose {
   @Test
   public void testWrongAmountOfRows() {
     boolean thrown;
-    List<BitVector> matrix = getSquareMatrix();
+    List<StrictBitVector> matrix = getSquareMatrix();
     matrix.remove(0);
     thrown = false;
     try {
@@ -265,40 +265,40 @@ public class TestTranspose {
   @Test
   public void testWrongAmountOfColumns() {
     boolean thrown;
-    List<BitVector> matrix = new ArrayList<>(
+    List<StrictBitVector> matrix = new ArrayList<>(
         Arrays.asList(
-            new BitVector(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF },
-                24),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0xFF },
-                24),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0xFF },
-                24),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0xFF },
-                24),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0xFF },
-                24),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0xFF },
-                24),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0xFF },
-                24),
-            new BitVector(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF },
-                24),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0xFF },
-                24),
-            new BitVector(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF },
-                24),
-            new BitVector(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF },
-                24),
-            new BitVector(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF },
-                24),
-            new BitVector(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF },
-                24),
-            new BitVector(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF },
-                24),
-            new BitVector(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF },
-                24),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0xFF },
-                24)));
+            new StrictBitVector(
+                new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }, 24),
+            new StrictBitVector(
+                new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0xFF }, 24),
+            new StrictBitVector(
+                new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0xFF }, 24),
+            new StrictBitVector(
+                new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0xFF }, 24),
+            new StrictBitVector(
+                new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0xFF }, 24),
+            new StrictBitVector(
+                new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0xFF }, 24),
+            new StrictBitVector(
+                new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0xFF }, 24),
+            new StrictBitVector(
+                new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }, 24),
+            new StrictBitVector(
+                new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0xFF }, 24),
+            new StrictBitVector(
+                new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }, 24),
+            new StrictBitVector(
+                new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }, 24),
+            new StrictBitVector(
+                new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }, 24),
+            new StrictBitVector(
+                new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }, 24),
+            new StrictBitVector(
+                new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }, 24),
+            new StrictBitVector(
+                new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }, 24),
+            new StrictBitVector(
+                new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0xFF }, 24)));
     thrown = false;
     try {
       Transpose.doSanityCheck(matrix);
@@ -314,25 +314,25 @@ public class TestTranspose {
   @Test
   public void testNonEqualColumns() {
     boolean thrown;
-    List<BitVector> matrix = new ArrayList<>(
+    List<StrictBitVector> matrix = new ArrayList<>(
         Arrays.asList(
-            new BitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16),
-            new BitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16),
-            new BitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
-            new BitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
-            new BitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
-            new BitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
-            new BitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
-            new BitVector(new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF },
-                24),
-            new BitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16)));
+            new StrictBitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
+            new StrictBitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16),
+            new StrictBitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16),
+            new StrictBitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16),
+            new StrictBitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16),
+            new StrictBitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16),
+            new StrictBitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16),
+            new StrictBitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
+            new StrictBitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16),
+            new StrictBitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
+            new StrictBitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
+            new StrictBitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
+            new StrictBitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
+            new StrictBitVector(new byte[] { (byte) 0xFF, (byte) 0xFF }, 16),
+            new StrictBitVector(
+                new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF }, 24),
+            new StrictBitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16)));
     thrown = false;
     try {
       Transpose.doSanityCheck(matrix);

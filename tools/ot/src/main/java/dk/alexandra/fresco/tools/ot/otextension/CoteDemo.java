@@ -13,7 +13,7 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.util.BitVector;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
 
 /**
  * Demo class to execute a light instance of the correlated OT extension with
@@ -49,7 +49,8 @@ public class CoteDemo<ResourcePoolT extends ResourcePool> {
     coteRec.initialize();
     byte[] otChoices = new byte[amountOfOTs / 8];
     rand.nextBytes(otChoices);
-    List<BitVector> t = coteRec.extend(new BitVector(otChoices, amountOfOTs));
+    List<StrictBitVector> t = coteRec
+        .extend(new StrictBitVector(otChoices, amountOfOTs));
     System.out.println("done receiver");
     // network.close();
     for (int i = 0; i < amountOfOTs; i++) {
@@ -80,10 +81,10 @@ public class CoteDemo<ResourcePoolT extends ResourcePool> {
     Cote cote = new Cote(2, 1, kbitLength, lambdaSecurityParam, rand, network);
     CoteSender coteSnd = cote.getSender();
     coteSnd.initialize();
-    List<BitVector> q = coteSnd.extend(amountOfOTs);
+    List<StrictBitVector> q = coteSnd.extend(amountOfOTs);
     System.out.println("done sender");
     // network.close();
-    BitVector delta = coteSnd.getDelta();
+    StrictBitVector delta = coteSnd.getDelta();
     System.out.print("Delta: ");
     byte[] output = delta.asByteArr();
     for (byte current : output) {

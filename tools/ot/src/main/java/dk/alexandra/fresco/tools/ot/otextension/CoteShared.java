@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Random;
 
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.BitVector;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 
@@ -25,7 +25,7 @@ public class CoteShared {
   protected Network network;
   // Internal state variables
   protected boolean initialized;
-  protected Ot<BitVector> ot;
+  protected Ot<StrictBitVector> ot;
 
   /**
    * Constructs a correlated OT extension with errors super-class.
@@ -112,21 +112,21 @@ public class CoteShared {
   }
 
   /**
-   * Sends a list of byte arrays to the default (0) channel.
+   * Sends a list of StrictBitVectors to the default (0) channel.
    * 
    * @param vector
    *          Vector to send
    * @return Returns true if the transmission was successful
    */
-  protected boolean sendList(List<BitVector> vector) {
-    for (BitVector currentArr : vector) {
+  protected boolean sendList(List<StrictBitVector> vector) {
+    for (StrictBitVector currentArr : vector) {
       network.send(otherId, currentArr.asByteArr());
     }
     return true;
   }
 
   /**
-   * Receives a list of byte arrays from the default (0) channel
+   * Receives a list of StrictBitVectors from the default (0) channel
    * 
    * @param vector
    *          Vector to receive
@@ -134,11 +134,12 @@ public class CoteShared {
    *          Amount of elements in vector to receive
    * @return The list of received elements, or null in case an error occurred.
    */
-  protected List<BitVector> receiveList(int size) {
-    List<BitVector> vector = new ArrayList<>(size);
+  protected List<StrictBitVector> receiveList(int size) {
+    List<StrictBitVector> vector = new ArrayList<>(size);
     for (int i = 0; i < size; i++) {
       byte[] byteBuffer = network.receive(otherId);
-      BitVector currentArr = new BitVector(byteBuffer, byteBuffer.length * 8);
+      StrictBitVector currentArr = new StrictBitVector(byteBuffer,
+          byteBuffer.length * 8);
       vector.add(currentArr);
     }
     return vector;

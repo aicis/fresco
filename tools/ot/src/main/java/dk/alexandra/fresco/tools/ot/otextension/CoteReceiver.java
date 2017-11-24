@@ -7,16 +7,12 @@ import java.util.List;
 import java.util.Random;
 
 import dk.alexandra.fresco.framework.network.Network;
-<<<<<<< HEAD
-import dk.alexandra.fresco.framework.util.BitVector;
-=======
-import dk.alexandra.fresco.framework.util.ByteArrayHelper;
->>>>>>> a0f8e15e64a90914b7a03bae311031a8fca4fee3
 import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
 
 public class CoteReceiver extends CoteShared {
   // Random messages used for the seed OTs
-  private List<Pair<BitVector, BitVector>> seeds;
+  private List<Pair<StrictBitVector, StrictBitVector>> seeds;
   private List<Pair<SecureRandom, SecureRandom>> prgs;
 
   /**
@@ -56,8 +52,8 @@ public class CoteReceiver extends CoteShared {
     }
     // Complete the seed OTs acting as the sender (NOT the receiver)
     for (int i = 0; i < kbitLength; i++) {
-      BitVector seedZero = new BitVector(kbitLength, rand);
-      BitVector seedFirst = new BitVector(kbitLength, rand);
+      StrictBitVector seedZero = new StrictBitVector(kbitLength, rand);
+      StrictBitVector seedFirst = new StrictBitVector(kbitLength, rand);
       ot.send(seedZero, seedFirst);
       seeds.add(new Pair<>(seedZero, seedFirst));
       // Initialize the PRGs with the random messages
@@ -76,7 +72,7 @@ public class CoteReceiver extends CoteShared {
    * @return A list of pairs consisting of the bit choices, followed by the
    *         received messages
    */
-  public List<BitVector> extend(BitVector randomChoices) {
+  public List<StrictBitVector> extend(StrictBitVector randomChoices) {
     if (randomChoices.getSize() < 1) {
       throw new IllegalArgumentException(
           "The amount of OTs must be a positive integer");
@@ -92,21 +88,24 @@ public class CoteReceiver extends CoteShared {
     // (the amount of bits in the primitive type; byte)
     int bytesNeeded = randomChoices.getSize() / 8;
     // Use prgs to expand the seeds
-    List<BitVector> tvecZero = new ArrayList<>(kbitLength);
+    List<StrictBitVector> tvecZero = new ArrayList<>(kbitLength);
     // u vector
-    List<BitVector> uvec = new ArrayList<>(kbitLength);
+    List<StrictBitVector> uvec = new ArrayList<>(kbitLength);
     for (int i = 0; i < kbitLength; i++) {
       // Expand the seed OTs using a prg
       byte[] byteBuffer = new byte[bytesNeeded];
       prgs.get(i).getFirst().nextBytes(byteBuffer);
-      BitVector tzero = new BitVector(byteBuffer, randomChoices.getSize());
+      StrictBitVector tzero = new StrictBitVector(byteBuffer,
+          randomChoices.getSize());
       tvecZero.add(tzero);
+      byteBuffer = new byte[bytesNeeded];
       prgs.get(i).getSecond().nextBytes(byteBuffer);
       // Compute the u vector, i.e. tZero XOR tFirst XOR randomChoices
       // Note that this is an in-place call and thus tFirst gets modified
-      BitVector tone = new BitVector(byteBuffer, randomChoices.getSize());
-      ByteArrayHelper.xor(tone, tzero);
-      ByteArrayHelper.xor(tone, randomChoices);
+      StrictBitVector tone = new StrictBitVector(byteBuffer,
+          randomChoices.getSize());
+      tone.xor(tzero);
+      tone.xor(randomChoices);
       uvec.add(tone);
     }
     sendList(uvec);

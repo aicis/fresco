@@ -3,7 +3,8 @@ package dk.alexandra.fresco.tools.ot.otextension;
 import java.util.ArrayList;
 import java.util.List;
 
-import dk.alexandra.fresco.framework.util.BitVector;
+import dk.alexandra.fresco.framework.util.ByteArrayHelper;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
 
 public class Transpose {
 
@@ -14,7 +15,7 @@ public class Transpose {
    * @param input
    *          The matrix to transpose
    */
-  public static List<BitVector> transpose(List<BitVector> input) {
+  public static List<StrictBitVector> transpose(List<StrictBitVector> input) {
     // Ensure the is correctly formed
     doSanityCheck(input);
     int minDim = Math.min(input.get(0).getSize(), input.size());
@@ -33,7 +34,7 @@ public class Transpose {
       columns = minDim;
     }
     // Allocate result matrix
-    List<BitVector> res = initializeMatrix(rows, columns);
+    List<StrictBitVector> res = initializeMatrix(rows, columns);
     // Allocate temporary matrix
     List<byte[]> currentSquare = initializeByteMatrix(minDim, minDim);
     // Process all squares of minDim x minDim
@@ -42,11 +43,11 @@ public class Transpose {
       for (int j = 0; j < minDim; j++) {
         for (int k = 0; k < minDim; k++) {
           if (minDim == input.get(0).getSize()) {
-            Helper.setBit(currentSquare.get(j), k,
-                input.get(i * minDim + j).get(k));
+            ByteArrayHelper.setBit(currentSquare.get(j), k,
+                input.get(i * minDim + j).getBit(k));
           } else {
-            Helper.setBit(currentSquare.get(j), k,
-                input.get(j).get(i * minDim + k));
+            ByteArrayHelper.setBit(currentSquare.get(j), k,
+                input.get(j).getBit(i * minDim + k));
           }
         }
       }
@@ -58,11 +59,11 @@ public class Transpose {
       for (int j = 0; j < minDim; j++) {
         for (int k = 0; k < minDim; k++) {
           if (minDim == input.get(0).getSize()) {
-            res.get(j).set(i * minDim + k,
-                Helper.getBit(currentSquare.get(j), k));
+            res.get(j).setBit(i * minDim + k,
+                ByteArrayHelper.getBit(currentSquare.get(j), k));
           } else {
-            res.get(i * minDim + j).set(k,
-                Helper.getBit(currentSquare.get(j), k));
+            res.get(i * minDim + j).setBit(k,
+                ByteArrayHelper.getBit(currentSquare.get(j), k));
           }
         }
       }
@@ -123,7 +124,7 @@ public class Transpose {
    * @param input
    *          The matrix to check
    */
-  protected static void doSanityCheck(List<BitVector> input) {
+  protected static void doSanityCheck(List<StrictBitVector> input) {
     int rows = input.size();
     // Check if the amount of rows is 8*2^x for some x
     if ((rows % 8 != 0) || // Check 8 | rows
@@ -217,11 +218,11 @@ public class Transpose {
    *          columns in the matrix
    * @return The constructed matrix
    */
-  private static List<BitVector> initializeMatrix(int rows, int columns) {
-    List<BitVector> res = new ArrayList<>(rows);
+  private static List<StrictBitVector> initializeMatrix(int rows, int columns) {
+    List<StrictBitVector> res = new ArrayList<>(rows);
     for (int i = 0; i < rows; i++) {
       // A byte is always 8 bits
-      res.add(new BitVector(columns));
+      res.add(new StrictBitVector(columns));
     }
     return res;
   }
