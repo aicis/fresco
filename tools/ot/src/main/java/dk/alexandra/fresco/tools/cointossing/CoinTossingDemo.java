@@ -11,6 +11,7 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.commitment.FailedCommitmentException;
 import dk.alexandra.fresco.tools.commitment.MaliciousCommitmentException;
 
@@ -55,10 +56,11 @@ public class CoinTossingDemo {
     Random rand = new Random(42);
     CoinTossing ct = new CoinTossing(myId, otherId, kbitLength, rand, network);
     ct.initialize();
-    byte[] bits = ct.toss(amountOfBits);
+    StrictBitVector bits = ct.toss(amountOfBits);
+    byte[] bytes = bits.toByteArray();
     System.out.println("done party " + myId);
     for (int j = 0; j < (kbitLength + 8 - 1) / 8; j++) {
-      System.out.print(String.format("%02x ", bits[j]));
+      System.out.print(String.format("%02x ", bytes[j]));
     }
     System.out.println();
   }

@@ -64,7 +64,7 @@ public class CoteSender extends CoteShared {
       // Initialize the PRGs with the random messages
       // TODO should be changed to something that uses SHA-256
       SecureRandom prg = SecureRandom.getInstance("SHA1PRNG");
-      prg.setSeed(message.asByteArr());
+      prg.setSeed(message.toByteArray());
       prgs.add(prg);
     }
     initialized = true;
@@ -78,7 +78,7 @@ public class CoteSender extends CoteShared {
   public StrictBitVector getDelta() {
     // Return a new copy to avoid issues in case the caller modifies the bit
     // vector
-    return new StrictBitVector(otChoices.asByteArr(), kbitLength);
+    return new StrictBitVector(otChoices.toByteArray(), kbitLength);
   }
 
   /**

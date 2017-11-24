@@ -184,12 +184,12 @@ public class TestTranspose {
     List<StrictBitVector> input = getSquareMatrix();
     List<StrictBitVector> res = Transpose.transpose(input);
     for (int i = 0; i < 8; i++) {
-      assertEquals((byte) 0x81, res.get(i).asByteArr()[0]);
-      assertEquals((byte) 0x7E, res.get(i).asByteArr()[1]);
+      assertEquals((byte) 0x81, res.get(i).toByteArray()[0]);
+      assertEquals((byte) 0x7E, res.get(i).toByteArray()[1]);
     }
     for (int i = 0; i < 8; i++) {
-      assertEquals((byte) 0x81, res.get(i + 8).asByteArr()[0]);
-      assertEquals((byte) 0x7E, res.get(i + 8).asByteArr()[1]);
+      assertEquals((byte) 0x81, res.get(i + 8).toByteArray()[0]);
+      assertEquals((byte) 0x7E, res.get(i + 8).toByteArray()[1]);
     }
   }
   
@@ -208,10 +208,10 @@ public class TestTranspose {
             new StrictBitVector(new byte[] { (byte) 0xFF, (byte) 0x00 }, 16)));
     List<StrictBitVector> res = Transpose.transpose(input);
     for (int i = 0; i < 8; i++) {
-      assertEquals((byte) 0x81, res.get(i).asByteArr()[0]);
+      assertEquals((byte) 0x81, res.get(i).toByteArray()[0]);
     }
     for (int i = 0; i < 8; i++) {
-      assertEquals((byte) 0x7E, res.get(8 + i).asByteArr()[0]);
+      assertEquals((byte) 0x7E, res.get(8 + i).toByteArray()[0]);
     }
   }
   
@@ -238,10 +238,10 @@ public class TestTranspose {
             new StrictBitVector(new byte[] { (byte) 0x00 }, 8)));
     List<StrictBitVector> res = Transpose.transpose(input);
     for (int i = 0; i < 8; i++) {
-      assertEquals((byte) 0x81, res.get(i).asByteArr()[0]);
+      assertEquals((byte) 0x81, res.get(i).toByteArray()[0]);
     }
     for (int i = 0; i < 8; i++) {
-      assertEquals((byte) 0x7E, res.get(i).asByteArr()[1]);
+      assertEquals((byte) 0x7E, res.get(i).toByteArray()[1]);
     }
   }
 

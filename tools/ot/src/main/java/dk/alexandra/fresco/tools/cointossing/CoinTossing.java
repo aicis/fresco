@@ -8,6 +8,7 @@ import java.util.Random;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.commitment.Commitment;
 import dk.alexandra.fresco.tools.commitment.FailedCommitmentException;
 import dk.alexandra.fresco.tools.commitment.MaliciousCommitmentException;
@@ -114,7 +115,7 @@ public class CoinTossing {
    *          The amount of random bits needed
    * @return The byte array consisting of uniformly random sampled bytes.
    */
-  public byte[] toss(int size) {
+  public StrictBitVector toss(int size) {
     if (size < 1) {
       throw new IllegalArgumentException("At least one coin must be tossed.");
     }
@@ -123,7 +124,7 @@ public class CoinTossing {
     }
     byte[] res = new byte[(size + 8 - 1) / 8];
     prg.nextBytes(res);
-    return res;
+    return new StrictBitVector(res, size);
   }
 
   /**

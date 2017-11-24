@@ -120,7 +120,7 @@ public class CoteShared {
    */
   protected boolean sendList(List<StrictBitVector> vector) {
     for (StrictBitVector currentArr : vector) {
-      network.send(otherId, currentArr.asByteArr());
+      network.send(otherId, currentArr.toByteArray());
     }
     return true;
   }

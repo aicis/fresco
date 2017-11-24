@@ -55,7 +55,7 @@ public class CoteDemo<ResourcePoolT extends ResourcePool> {
     // network.close();
     for (int i = 0; i < amountOfOTs; i++) {
       System.out.print(i + ": ");
-      byte[] output = t.get(i).asByteArr();
+      byte[] output = t.get(i).toByteArray();
       for (byte current : output) {
         System.out.print(String.format("%02x ", current));
       }
@@ -86,14 +86,14 @@ public class CoteDemo<ResourcePoolT extends ResourcePool> {
     // network.close();
     StrictBitVector delta = coteSnd.getDelta();
     System.out.print("Delta: ");
-    byte[] output = delta.asByteArr();
+    byte[] output = delta.toByteArray();
     for (byte current : output) {
       System.out.print(String.format("%02x ", current));
     }
     System.out.println();
     for (int i = 0; i < amountOfOTs; i++) {
       System.out.print(i + ": ");
-      output = q.get(i).asByteArr();
+      output = q.get(i).toByteArray();
       for (byte current : output) {
         System.out.print(String.format("%02x ", current));
       }

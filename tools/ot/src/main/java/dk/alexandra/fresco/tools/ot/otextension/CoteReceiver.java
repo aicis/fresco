@@ -58,9 +58,9 @@ public class CoteReceiver extends CoteShared {
       seeds.add(new Pair<>(seedZero, seedFirst));
       // Initialize the PRGs with the random messages
       SecureRandom prgZero = SecureRandom.getInstance("SHA1PRNG");
-      prgZero.setSeed(seedZero.asByteArr());
+      prgZero.setSeed(seedZero.toByteArray());
       SecureRandom prgFirst = SecureRandom.getInstance("SHA1PRNG");
-      prgFirst.setSeed(seedFirst.asByteArr());
+      prgFirst.setSeed(seedFirst.toByteArray());
       prgs.add(new Pair<>(prgZero, prgFirst));
     }
     initialized = true;
