@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -8,12 +7,12 @@ import java.util.List;
 import java.util.Random;
 
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
 
 public class CoteReceiver extends CoteShared {
   // Random messages used for the seed OTs
-  private List<Pair<BigInteger, BigInteger>> seeds;
+  private List<Pair<StrictBitVector, StrictBitVector>> seeds;
   private List<Pair<SecureRandom, SecureRandom>> prgs;
 
   /**
@@ -53,15 +52,15 @@ public class CoteReceiver extends CoteShared {
     }
     // Complete the seed OTs acting as the sender (NOT the receiver)
     for (int i = 0; i < kbitLength; i++) {
-      BigInteger seedZero = new BigInteger(kbitLength, rand);
-      BigInteger seedFirst = new BigInteger(kbitLength, rand);
+      StrictBitVector seedZero = new StrictBitVector(kbitLength, rand);
+      StrictBitVector seedFirst = new StrictBitVector(kbitLength, rand);
       ot.send(seedZero, seedFirst);
       seeds.add(new Pair<>(seedZero, seedFirst));
       // Initialize the PRGs with the random messages
       SecureRandom prgZero = SecureRandom.getInstance("SHA1PRNG");
-      prgZero.setSeed(seedZero.toByteArray());
+      prgZero.setSeed(seedZero.asByteArr());
       SecureRandom prgFirst = SecureRandom.getInstance("SHA1PRNG");
-      prgFirst.setSeed(seedFirst.toByteArray());
+      prgFirst.setSeed(seedFirst.asByteArr());
       prgs.add(new Pair<>(prgZero, prgFirst));
     }
     initialized = true;
@@ -70,17 +69,15 @@ public class CoteReceiver extends CoteShared {
   /**
    * Constructs a new batch of correlated OTs with errors.
    * 
-   * @param size
-   *          Amount of OTs to construct
    * @return A list of pairs consisting of the bit choices, followed by the
    *         received messages
    */
-  public List<byte[]> extend(byte[] randomChoices, int size) {
-    if (size < 1) {
+  public List<StrictBitVector> extend(StrictBitVector randomChoices) {
+    if (randomChoices.getSize() < 1) {
       throw new IllegalArgumentException(
           "The amount of OTs must be a positive integer");
     }
-    if (randomChoices.length * 8 != size) {
+    if (randomChoices.getSize() % 8 != 0) {
       throw new IllegalArgumentException(
           "The amount of OTs must be a positive integer divisize by 8");
     }
@@ -89,22 +86,26 @@ public class CoteReceiver extends CoteShared {
     }
     // Compute how many bytes we need for "size" OTs by dividing "size" by 8
     // (the amount of bits in the primitive type; byte)
-    int bytesNeeded = size / 8;
+    int bytesNeeded = randomChoices.getSize() / 8;
     // Use prgs to expand the seeds
-    List<byte[]> tvecZero = new ArrayList<>(kbitLength);
+    List<StrictBitVector> tvecZero = new ArrayList<>(kbitLength);
     // u vector
-    List<byte[]> uvec = new ArrayList<>(kbitLength);
+    List<StrictBitVector> uvec = new ArrayList<>(kbitLength);
     for (int i = 0; i < kbitLength; i++) {
       // Expand the seed OTs using a prg
-      byte[] tzero = new byte[bytesNeeded];
-      byte[] tone = new byte[bytesNeeded];
-      prgs.get(i).getFirst().nextBytes(tzero);
-      prgs.get(i).getSecond().nextBytes(tone);
+      byte[] byteBuffer = new byte[bytesNeeded];
+      prgs.get(i).getFirst().nextBytes(byteBuffer);
+      StrictBitVector tzero = new StrictBitVector(byteBuffer,
+          randomChoices.getSize());
       tvecZero.add(tzero);
+      byteBuffer = new byte[bytesNeeded];
+      prgs.get(i).getSecond().nextBytes(byteBuffer);
       // Compute the u vector, i.e. tZero XOR tFirst XOR randomChoices
       // Note that this is an in-place call and thus tFirst gets modified
-      ByteArrayHelper.xor(tone, tzero);
-      ByteArrayHelper.xor(tone, randomChoices);
+      StrictBitVector tone = new StrictBitVector(byteBuffer,
+          randomChoices.getSize());
+      tone.xor(tzero);
+      tone.xor(randomChoices);
       uvec.add(tone);
     }
     sendList(uvec);

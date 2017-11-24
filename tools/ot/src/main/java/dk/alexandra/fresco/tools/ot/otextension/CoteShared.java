@@ -1,13 +1,13 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.tools.ot.base.DummyOT;
-import dk.alexandra.fresco.tools.ot.base.OT;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.ot.base.DummyOt;
+import dk.alexandra.fresco.tools.ot.base.Ot;
 
 /** 
  * Superclass containing the common variables and methods 
@@ -25,7 +25,7 @@ public class CoteShared {
   protected Network network;
   // Internal state variables
   protected boolean initialized;
-  protected OT<BigInteger> ot;
+  protected Ot<StrictBitVector> ot;
 
   /**
    * Constructs a correlated OT extension with errors super-class.
@@ -59,7 +59,7 @@ public class CoteShared {
     this.kbitLength = kbitLength;
     this.lambdaSecurityParam = lambdaSecurityParam;
     this.rand = rand;
-    this.ot = new DummyOT(otherId, network);
+    this.ot = new DummyOt(otherId, kbitLength, network);
     this.network = network;
   }
 
@@ -112,21 +112,21 @@ public class CoteShared {
   }
 
   /**
-   * Sends a list of byte arrays to the default (0) channel.
+   * Sends a list of StrictBitVectors to the default (0) channel.
    * 
    * @param vector
    *          Vector to send
    * @return Returns true if the transmission was successful
    */
-  protected boolean sendList(List<byte[]> vector) {
-    for (byte[] currentArr : vector) {
-      network.send(otherId, currentArr);
+  protected boolean sendList(List<StrictBitVector> vector) {
+    for (StrictBitVector currentArr : vector) {
+      network.send(otherId, currentArr.asByteArr());
     }
     return true;
   }
 
   /**
-   * Receives a list of byte arrays from the default (0) channel
+   * Receives a list of StrictBitVectors from the default (0) channel
    * 
    * @param vector
    *          Vector to receive
@@ -134,10 +134,12 @@ public class CoteShared {
    *          Amount of elements in vector to receive
    * @return The list of received elements, or null in case an error occurred.
    */
-  protected List<byte[]> receiveList(int size) {
-    List<byte[]> vector = new ArrayList<>(size);
+  protected List<StrictBitVector> receiveList(int size) {
+    List<StrictBitVector> vector = new ArrayList<>(size);
     for (int i = 0; i < size; i++) {
-      byte[] currentArr = network.receive(otherId);
+      byte[] byteBuffer = network.receive(otherId);
+      StrictBitVector currentArr = new StrictBitVector(byteBuffer,
+          byteBuffer.length * 8);
       vector.add(currentArr);
     }
     return vector;

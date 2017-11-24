@@ -78,7 +78,8 @@ public class BitVector {
    */
   public BitVector get(int from, int to) {
     rangeCheck(from);
-    rangeCheck(to);
+    // What is returned excludes the to index
+    rangeCheck(to - 1);
     int length = to - from;
     if (length < 0) {
       throw new IndexOutOfBoundsException(

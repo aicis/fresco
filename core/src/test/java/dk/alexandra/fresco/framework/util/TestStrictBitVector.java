@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.framework.util;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Random;
@@ -13,8 +14,8 @@ public class TestStrictBitVector {
   @Test
   public void testConstructCorrectSize() {
     byte[] bits = {(byte) 0xFF, (byte) 0x01, (byte) 0x00};
-    StrictBitVector bv = new StrictBitVector(bits, 3 * 8);
-    assertEquals(bits, bv.toByteArray());
+    StrictBitVector bv = new StrictBitVector(bits, bits.length * 8);
+    assertArrayEquals(bits, bv.toByteArray());
   }
 
   @Test

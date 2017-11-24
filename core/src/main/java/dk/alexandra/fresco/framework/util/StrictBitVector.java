@@ -9,6 +9,24 @@ public class StrictBitVector {
   private int size;
 
   /**
+   * Creates a StrictBitVector with all entries set to zero.
+   *
+   * @param size
+   *          size of the vector
+   */
+  public StrictBitVector(int size) {
+    if (size < 0) {
+      throw new IllegalArgumentException(
+          "Size of vector must not be negative but was " + size);
+    }
+    if (size % 8 != 0) {
+      throw new IllegalArgumentException("Size must be multiple of 8");
+    }
+    this.size = size;
+    this.bits = new byte[size / 8];
+  }
+
+  /**
    * Constructs new strict bit vector.
    * 
    * @param bits raw bytes
@@ -21,7 +39,7 @@ public class StrictBitVector {
     if ((bits.length * 8) != size) {
       throw new IllegalArgumentException("Size does not match byte array bit length");
     }
-    this.bits = bits;
+    this.bits = bits.clone();
     this.size = size;
   }
 
@@ -47,12 +65,17 @@ public class StrictBitVector {
     return ByteArrayHelper.getBit(bits, bit);
   }
 
+  public void setBit(int index, boolean value) {
+    rangeCheck(index);
+    ByteArrayHelper.setBit(bits, index, value);
+  }
+
   public int getSize() {
     return size;
   }
 
   public byte[] toByteArray() {
-    return bits;
+    return bits.clone();
   }
 
   /**
@@ -115,4 +138,19 @@ public class StrictBitVector {
     return "StrictBitVector [bits=" + Arrays.toString(bits) + "]";
   }
   
+  /**
+   * Updates this StrictBitVector to be the XOR with an other StrictBitVector.
+   * 
+   * @param other
+   *          the other StrictBitVector
+   * @throws IllegalArgumentException
+   *           if the two BitVectors are not of equal size
+   */
+  public void xor(StrictBitVector other) {
+    if (other.getSize() != this.getSize()) {
+      throw new IllegalArgumentException("Vectors does not have same size");
+    }
+    ByteArrayHelper.xor(bits, other.bits);
+  }
+
 }
