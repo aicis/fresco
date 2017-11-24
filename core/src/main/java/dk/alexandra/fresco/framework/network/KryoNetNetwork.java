@@ -1,18 +1,7 @@
 package dk.alexandra.fresco.framework.network;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryonet.Client;
-import com.esotericsoftware.kryonet.Connection;
-import com.esotericsoftware.kryonet.EndPoint;
-import com.esotericsoftware.kryonet.Listener;
-import com.esotericsoftware.kryonet.Server;
-import com.esotericsoftware.minlog.Log;
-import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.crypto.AES;
 import java.io.Closeable;
 import java.io.IOException;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,8 +9,20 @@ import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Semaphore;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryonet.Client;
+import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.EndPoint;
+import com.esotericsoftware.kryonet.Listener;
+import com.esotericsoftware.kryonet.Server;
+import com.esotericsoftware.minlog.Log;
+
+import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 
 public class KryoNetNetwork implements Network, Closeable {
 
@@ -32,14 +33,11 @@ public class KryoNetNetwork implements Network, Closeable {
   private List<Thread> clientThreads;
   private NetworkConfiguration conf;
 
-  private Map<Integer, AES> ciphers;
-
   // List is as long as channelAmount and contains a map for each partyId to a queue
   private List<Map<Integer, BlockingQueue<byte[]>>> queues;
   private int channelAmount;
 
-  private boolean encryption;
-  private Logger logger = LoggerFactory.getLogger(KryoNetNetwork.class);
+  private static final Logger logger = LoggerFactory.getLogger(KryoNetNetwork.class);
 
   public KryoNetNetwork(NetworkConfiguration conf) {
     Log.set(Log.LEVEL_ERROR);
@@ -50,15 +48,13 @@ public class KryoNetNetwork implements Network, Closeable {
     this.servers = new ArrayList<>();
     this.queues = new ArrayList<>();
 
-    this.ciphers = new HashMap<>();
-
     // TODO: How to reason about the upper boundries of what can be send in a single round?
     int writeBufferSize = 1048576;
     int objectBufferSize = writeBufferSize;
 
     for (int j = 0; j < channelAmount; j++) {
       Server server = new Server(1024, objectBufferSize);
-      Registrator.register(server);
+      register(server);
       this.servers.add(server);
       this.queues.add(new HashMap<>());
     }
@@ -68,16 +64,16 @@ public class KryoNetNetwork implements Network, Closeable {
         this.clients.put(i, new ArrayList<>());
         for (int j = 0; j < channelAmount; j++) {
           Client client = new Client(writeBufferSize, 1024);
-          Registrator.register(client);
+          register(client);
           clients.get(i).add(client);
         }
 
         String secretSharedKey = conf.getParty(i).getSecretSharedKey();
         if (secretSharedKey != null) {
-          this.ciphers.put(i, new AES(secretSharedKey, writeBufferSize, new SecureRandom()));
-          this.encryption = true;
           logger.warn("Encrypted channel towards Party " + i
-              + " enabled - but the channel might be insecure due to not fully tested and checked use of AES.");
+              + " should have been enabled, but the KryoNet network implementation does "
+              + "not yet support this feature. If important, use the ScapiNetwork implementation, "
+              + "or use a VPN connection between parties.");
         }
       }
 
@@ -97,26 +93,40 @@ public class KryoNetNetwork implements Network, Closeable {
     private final Client client;
     private final String hostname;
     private final int port;
+    private final Semaphore semaphore;
 
-    public ClientConnectThread(Client client, String hostname, int port) {
+    public ClientConnectThread(Client client, String hostname, int port, Semaphore semaphore) {
       super("Connect");
       this.client = client;
       this.hostname = hostname;
       this.port = port;
+      this.semaphore = semaphore;
     }
 
     public void run() {
       boolean success = false;
+      int maxRetries = 30;
+      int retries = 0;
       while (!success) {
         try {
+          retries++;
           client.connect(2000, hostname, port);
           // Server communication after connection can go here, or in Listener#connected().
           success = true;
         } catch (IOException ex) {
+          if(retries >= maxRetries) {
+            //release to inform that this thread is done trying to connect            
+            logger.error("Could not connect to other party within 30 retries of half a second seconds each.");
+            this.semaphore.release();
+            break;
+          }
           try {
             sleep(500);
           } catch (InterruptedException e) {
-            throw new RuntimeException("Thread got interrupted while trying to reconnect.");
+            //release to inform that this thread is done trying to connect            
+            logger.error("Thread got interrupted while trying to reconnect.");
+            this.semaphore.release();
+            break;
           }
         }
       }
@@ -138,14 +148,7 @@ public class KryoNetNetwork implements Network, Closeable {
       // Maybe a keep alive message will be offered to the queue. - so we should ignore it.
       if (object instanceof byte[]) {
         byte[] data = (byte[]) object;
-        int fromPartyId = this.connectionIdToPartyId.get(connection.getID());
-        if (encryption) {
-          try {
-            data = ciphers.get(fromPartyId).decrypt(data);
-          } catch (IOException e) {
-            throw new RuntimeException("IOException occured while decrypting data stream", e);
-          }
-        }
+        int fromPartyId = this.connectionIdToPartyId.get(connection.getID());        
         this.queue.get(fromPartyId).offer(data);
       } else if (object instanceof Integer) {
         // Initial handshake to determine who the remote party is.
@@ -156,6 +159,7 @@ public class KryoNetNetwork implements Network, Closeable {
 
   private void connect() throws IOException {
     final Semaphore semaphore = new Semaphore(-((conf.noOfParties() - 1) * channelAmount - 1));
+    final List<Boolean> successes = new ArrayList<>();
     for (int j = 0; j < channelAmount; j++) {
       Server server = this.servers.get(j);
       int port = conf.getMe().getPort() + j;
@@ -176,8 +180,8 @@ public class KryoNetNetwork implements Network, Closeable {
             @Override
             public void connected(Connection connection) {
               connection.sendTCP(conf.getMyId());
-              semaphore.release();
-
+              successes.add(true);
+              semaphore.release();              
             }
           });
 
@@ -185,7 +189,7 @@ public class KryoNetNetwork implements Network, Closeable {
 
           String hostname = conf.getParty(i).getHostname();
           int port = conf.getParty(i).getPort() + j;
-          Thread clientThread = new ClientConnectThread(client, hostname, port);
+          Thread clientThread = new ClientConnectThread(client, hostname, port, semaphore);
           clientThread.start();
           clientThreads.add(clientThread);
         }
@@ -193,7 +197,13 @@ public class KryoNetNetwork implements Network, Closeable {
     }
     try {
       semaphore.acquire();
+      if (successes.size() < (conf.noOfParties()-1)*channelAmount){
+        throw new IOException("Could not successfully connect to all parties.");
+      }
     } catch (InterruptedException e) {
+      for(Thread t : clientThreads){
+        t.interrupt();
+      }
       throw new IOException("Interrupted during wait for connect", e);
     }
   }
@@ -204,17 +214,9 @@ public class KryoNetNetwork implements Network, Closeable {
       try {
         this.queues.get(0).get(partyId).put(data);
       } catch (InterruptedException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        throw new MPCException("Send got interrupted");
       }
-    } else {
-      if (encryption) {
-        try {
-          data = this.ciphers.get(partyId).encrypt(data);
-        } catch (IOException e) {
-          throw new MPCException("Cannot encrypt data before sending them", e);
-        }
-      }
+    } else {      
       this.clients.get(partyId).get(0).sendTCP(data);
     }
   }
@@ -254,12 +256,9 @@ public class KryoNetNetwork implements Network, Closeable {
     }
   }
 
-  private static class Registrator {
-
-    public static void register(EndPoint endpoint) {
-      Kryo kryo = endpoint.getKryo();
-      kryo.register(byte[].class);
-      kryo.register(Integer.class);
-    }
+  private static void register(EndPoint endpoint) {
+    Kryo kryo = endpoint.getKryo();
+    kryo.register(byte[].class);
+    kryo.register(Integer.class);
   }
 }
