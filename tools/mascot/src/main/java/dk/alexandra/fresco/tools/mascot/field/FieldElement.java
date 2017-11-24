@@ -23,11 +23,19 @@ public class FieldElement {
     this.modulus = modulus;
     this.bitLength = bitLength;
   }
-
+  
+  public FieldElement(String value, String modulus, int bitLength) {
+    this(new BigInteger(value), new BigInteger(modulus), bitLength);
+  }
+  
   public FieldElement(long value, BigInteger modulus, int bitLength) {
     this(BigInteger.valueOf(value), modulus, bitLength);
   }
 
+  public FieldElement(int value, BigInteger modulus, int bitLength) {
+    this(BigInteger.valueOf(value), modulus, bitLength);
+  }
+  
   public FieldElement(byte[] value, BigInteger modulus, int bitLength) {
     this(new BigInteger(value), modulus, bitLength);
   }
@@ -35,7 +43,7 @@ public class FieldElement {
   private FieldElement binaryOp(BinaryOperator<BigInteger> op, FieldElement left,
       FieldElement right) {
     // TODO: check that modulus and size are same
-    return new FieldElement(op.apply(left.getValue(), right.getValue()).mod(modulus), this.modulus,
+    return new FieldElement(op.apply(left.toBigInteger(), right.toBigInteger()).mod(modulus), this.modulus,
         this.bitLength);
   }
 
@@ -60,10 +68,6 @@ public class FieldElement {
         bitLength);
   }
 
-  BigInteger getValue() {
-    return this.value;
-  }
-
   public BigInteger getModulus() {
     return this.modulus;
   }
@@ -74,6 +78,7 @@ public class FieldElement {
   
   public byte[] toByteArray() {
     byte[] array = value.toByteArray();
+    System.out.println(Arrays.toString(array));
     return Arrays.copyOfRange(array, 0, bitLength / 8);
   }
   

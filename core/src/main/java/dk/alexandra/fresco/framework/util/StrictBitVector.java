@@ -110,4 +110,9 @@ public class StrictBitVector {
     return true;
   }
 
+  @Override
+  public String toString() {
+    return "StrictBitVector [bits=" + Arrays.toString(bits) + "]";
+  }
+  
 }
