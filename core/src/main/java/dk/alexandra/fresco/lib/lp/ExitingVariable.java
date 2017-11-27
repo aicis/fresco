@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.lib.lp;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Comparison;
@@ -29,32 +28,13 @@ public class ExitingVariable implements
   private final List<DRes<SInt>> enteringIndex;
   private final List<DRes<SInt>> basis;
 
-  ExitingVariable(
-      LPTableau tableau, Matrix<DRes<SInt>> updateMatrix,
-      List<DRes<SInt>> enteringIndex,
-      List<DRes<SInt>> basis) {
+  protected ExitingVariable(LPTableau tableau, Matrix<DRes<SInt>> updateMatrix,
+      List<DRes<SInt>> enteringIndex, List<DRes<SInt>> basis) {
     this.basis = basis;
-    if (checkDimensions(tableau, updateMatrix, enteringIndex)) {
-      this.tableau = tableau;
-      this.updateMatrix = updateMatrix;
-      this.enteringIndex = enteringIndex;
-
-    } else {
-      throw new MPCException("Dimensions of inputs does not match");
-    }
+    this.tableau = tableau;
+    this.updateMatrix = updateMatrix;
+    this.enteringIndex = enteringIndex;
   }
-
-  private boolean checkDimensions(LPTableau tableau, Matrix<DRes<SInt>> updateMatrix,
-      List<DRes<SInt>> enteringIndex) {
-    int updateHeight = updateMatrix.getHeight();
-    int updateWidth = updateMatrix.getWidth();
-    int tableauHeight = tableau.getC().getHeight() + 1;
-    int tableauWidth = tableau.getC().getWidth() + 1;
-    return (updateHeight == updateWidth &&
-        updateHeight == tableauHeight &&
-        enteringIndex.size() == tableauWidth - 1);
-  }
-
 
   @Override
   public DRes<ExitingVariableOutput> buildComputation(ProtocolBuilderNumeric builder) {
