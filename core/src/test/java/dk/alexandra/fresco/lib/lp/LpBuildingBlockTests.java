@@ -24,11 +24,10 @@ import java.util.stream.Collectors;
 
 public class LpBuildingBlockTests {
 
-  private abstract static class LPTester<OutputT>
+  private abstract static class LpTester<OutputT>
       implements Application<OutputT, ProtocolBuilderNumeric> {
 
     Random rand = new Random(42);
-    BigInteger mod;
     Matrix<BigInteger> updateMatrix;
     Matrix<BigInteger> constraints;
     ArrayList<BigInteger> b;
@@ -66,7 +65,7 @@ public class LpBuildingBlockTests {
     }
   }
 
-  private abstract static class EnteringVariableTester extends LPTester<List<BigInteger>> {
+  private abstract static class EnteringVariableTester extends LpTester<List<BigInteger>> {
 
     private int expectedIndex;
 
@@ -108,7 +107,7 @@ public class LpBuildingBlockTests {
 
   }
 
-  private abstract static class BlandEnteringVariableTester extends LPTester<List<BigInteger>> {
+  private abstract static class BlandEnteringVariableTester extends LpTester<List<BigInteger>> {
 
     private int expectedIndex;
 
@@ -148,7 +147,7 @@ public class LpBuildingBlockTests {
     }
   }
 
-  private abstract static class LpTabluauTester extends LPTester<Object> {
+  private abstract static class LpTabluauTester extends LpTester<Object> {
 
     void setup(ProtocolBuilderNumeric builder, PrintStream ps) {
       updateMatrix = new Matrix<>(5, 5, i -> {
@@ -178,7 +177,7 @@ public class LpBuildingBlockTests {
     }
   }
 
-  private abstract static class LpSolverTester extends LPTester<BigInteger> {
+  private abstract static class LpSolverTester extends LpTester<BigInteger> {
 
     BigInteger expectedOptimal;
 
@@ -244,7 +243,7 @@ public class LpBuildingBlockTests {
     }
   }
 
-  private abstract static class LpSolverDebugTester extends LPTester<BigInteger> {
+  private abstract static class LpSolverDebugTester extends LpTester<BigInteger> {
 
     DRes<BigInteger> setup(ProtocolBuilderNumeric builder, LPSolver.PivotRule rule) {
       /*
@@ -312,15 +311,6 @@ public class LpBuildingBlockTests {
     }
   }
 
-
-  private abstract static class ExitingVariableTester extends LPTester<List<BigInteger>> {
-
-    // result = (result.add(a[i].multiply(b[i]))).mod(mod);
-    // }
-    // return result;
-    // }
-  }
-
   public static class TestLpTableuDebug<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
@@ -344,13 +334,14 @@ public class LpBuildingBlockTests {
             }
           };
           runApplication(app);
-          String output = bytes.toString("UTF-8");
-          System.out.println(output);
-          assertTrue(output
-              .contains("C: \n" + "0, 0, 0, \n" + "1, 1, 1, \n" + "2, 2, 2, \n" + "3, 3, 3,"));
-          assertTrue(output.contains("B: \n" + "10, 10, 10, 10,"));
-          assertTrue(output.contains("F: \n" + "0, 2, 3,"));
-          assertTrue(output.contains("z: \n" + "0"));
+          String debugOutput = bytes.toString("UTF-8");
+          assertDebugInfoContains(debugOutput, "C", "0, 0, 0, \n" 
+              + "1, 1, 1, \n" 
+              + "2, 2, 2, \n" 
+              + "3, 3, 3,");
+          assertDebugInfoContains(debugOutput, "B", "10, 10, 10, 10,");
+          assertDebugInfoContains(debugOutput, "F", "0, 2, 3,");
+          assertDebugInfoContains(debugOutput, "z", "0");
         }
       };
     }
@@ -408,20 +399,22 @@ public class LpBuildingBlockTests {
             PrintStream stdout = System.out;
             System.setOut(new PrintStream(out));
             runApplication(app);
-            String s = out.toString();
+            String debugOutput = out.toString();
             System.setOut(stdout);
-            System.out.println(s);
-            s.replaceAll("\r", "");
-            assertTrue(s.contains("C:"));
-            assertTrue(s.contains(
-                "C: \n" + "1, 0, 0, 1, 0, 0, \n" + "0, 1, 0, 0, 1, 0, \n" + "0, 0, 1, 0, 0, 1,"));
-            assertTrue(s.contains("B: \n" + "1, 2, 3, "));
-            assertTrue(s.contains("F: \n" + "-1, -1, -1, 0, 0, 0, "));
-            assertTrue(s.contains("z: \n" + "0"));
-            assertTrue(s.contains("Basis [1]: \n" + "4, 5, 6,"));
-            assertTrue(s.contains("Basis [4]: \n" + "1, 2, 3,"));
-            assertTrue(s.contains("Update Matrix [1]: \n" + "1, 0, 0, 0, \n" + "0, 1, 0, 0, \n"
-                + "0, 0, 1, 0, \n" + "0, 0, 0, 1, "));
+            System.out.println(debugOutput);
+            debugOutput.replaceAll("\r", "");
+            assertDebugInfoContains(debugOutput, "C", "1, 0, 0, 1, 0, 0, \n" 
+                + "0, 1, 0, 0, 1, 0, \n" 
+                + "0, 0, 1, 0, 0, 1,");
+            assertDebugInfoContains(debugOutput, "B", "1, 2, 3, ");
+            assertDebugInfoContains(debugOutput, "F", "-1, -1, -1, 0, 0, 0, ");
+            assertDebugInfoContains(debugOutput, "z", "0");
+            assertDebugInfoContains(debugOutput, "Basis [1]", "4, 5, 6,");
+            assertDebugInfoContains(debugOutput, "Basis [4]", "1, 2, 3,");
+            assertDebugInfoContains(debugOutput, "Update Matrix [1]", "1, 0, 0, 0, \n" 
+                + "0, 1, 0, 0, \n"
+                + "0, 0, 1, 0, \n" 
+                + "0, 0, 0, 1, ");
           } else {
             runApplication(app);
           }
@@ -446,7 +439,6 @@ public class LpBuildingBlockTests {
 
             @Override
             public DRes<List<BigInteger>> buildComputation(ProtocolBuilderNumeric builder) {
-              mod = builder.getBasicNumericContext().getModulus();
               return setup(builder);
             }
           };
@@ -486,7 +478,6 @@ public class LpBuildingBlockTests {
 
             @Override
             public DRes<List<BigInteger>> buildComputation(ProtocolBuilderNumeric builder) {
-              mod = builder.getBasicNumericContext().getModulus();
               return setup(builder);
             }
           };
@@ -510,43 +501,16 @@ public class LpBuildingBlockTests {
     }    
   }
   
-  public static class TestExitingVariable<ResourcePoolT extends ResourcePool>
-  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
-
-    public TestExitingVariable() {}
-
-    @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-
-        @Override
-        public void test() throws Exception {
-          ExitingVariableTester app = new ExitingVariableTester() {
-
-            @Override 
-            public DRes<List<BigInteger>> buildComputation(ProtocolBuilderNumeric builder) {
-              mod = builder.getBasicNumericContext().getModulus();
-              // setupRandom(10, 10, builder);
-              return null;
-            }
-          };
-          List<BigInteger> outputs = runApplication(app);
-          int actualIndex = 0;
-          int sum = 0;
-          BigInteger zero = BigInteger.ZERO;
-          BigInteger one = BigInteger.ONE;
-          for (BigInteger b : outputs) {
-            if (b.compareTo(zero) == 0) {
-              actualIndex = (sum < 1) ? actualIndex + 1 : actualIndex;
-            } else {
-              assertEquals(one, b);
-              sum++;
-            }
-          }
-          assertEquals(1, sum);
-          // Assert.assertEquals(app.getExpextedIndex(), actualIndex);
-        }
-      };
-    }
-}
+  /**
+   * Convenience method to assert that debug output should contain a given key/value pair.
+   *  
+   * @param output the debug output
+   * @param key the key
+   * @param value the value
+   */
+  private static void assertDebugInfoContains(String output, String key, String value) {
+    assertTrue(output.contains(key + ": \n" + value));
+  }
+  
+  
 }
