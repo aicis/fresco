@@ -1,178 +1,116 @@
 package dk.alexandra.fresco.lib.lp;
 
-public class TestLPBuildingBlocks {
-/*
-  @Test
-  public void testMatrix(){
-    Matrix<String> matrix = new Matrix<String>(new String[3][3]);
-    matrix.getIthRow(0)[0] = "00";
-    matrix.getIthRow(0)[1] = "01";
-    matrix.getIthRow(0)[2] = "02";
-    matrix.getIthRow(1)[0] = "10";
-    matrix.getIthRow(1)[1] = "11";
-    matrix.getIthRow(1)[2] = "12";
-    matrix.getIthRow(2)[0] = "20";
-    matrix.getIthRow(2)[1] = "21";
-    matrix.getIthRow(2)[2] = "22";
-    Assert.assertThat(matrix.getHeight(), Is.is(3));
-    Assert.assertThat(matrix.getWidth(), Is.is(3));
-    Assert.assertThat(matrix.getElement(1, 2), Is.is("12"));
-    try{
-      String[] col = new String[2];
-      matrix.getIthColumn(2, col);
-      Assert.fail("Column and placeholder are not of similar length and should fail");
-    } catch(RuntimeException e){
-    }
-    String[] col = new String[3];
-    
-    Assert.assertThat(matrix.getIthColumn(2, col), Is.is(new String[]{"02", "12", "22"}));
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.collections.Matrix;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import org.junit.Test;
+
+public class TestLpBuildingBlocks {
+  
+  @Test
+  public void testMatrix() {
+    Matrix<String> matrix = new Matrix<String>(3, 3, (i) -> {
+      ArrayList<String> row = new ArrayList<>(3);
+      row.add(i + "0");
+      row.add(i + "1");
+      row.add(i + "2");
+      return row;
+    });
+    assertThat(matrix.getHeight(), is(3));
+    assertThat(matrix.getWidth(), is(3));
+    assertThat(matrix.getRow(1).get(2), is("12"));
+    List<String> col = Arrays.asList("02", "12", "22");
+    assertThat(matrix.getColumn(2), is(col));
     String toString = matrix.toString();
-    String expected = "[00, 01, 02]\n"
-                    + "[10, 11, 12]\n"
-                    + "[20, 21, 22]\n";
-    Assert.assertThat(toString, Is.is(expected));
+    assertTrue(toString.contains("matrix"));
+    assertTrue(toString.contains("00, 01, 02"));
+    assertTrue(toString.contains("10, 11, 12"));
+    assertTrue(toString.contains("20, 21, 22"));    
   }
   
-  @Test(expected=IllegalArgumentException.class)
-  public void testLPTableuBadDimensions1(){
-    Matrix<SInt> matrix = new Matrix<>(new SInt[4][3]);
+  @Test(expected = IllegalArgumentException.class)
+  public void testLpTableuBadDimensions1() {
+    Matrix<DRes<SInt>> matrix = new Matrix<>(4, 3, i -> {
+      ArrayList<DRes<SInt>> row = new ArrayList<>(3);
+      row.addAll(Arrays.asList(null, null, null));
+      return row;
+    });
+    ArrayList<DRes<SInt>> vector = new ArrayList<>(4);
+    vector.addAll(Arrays.asList(null, null, null, null));
+    DRes<SInt> z = null;    
+    new LPTableau(matrix, vector, vector, z);
+    fail("Should not be reachable");
+  } 
+  
+  @Test(expected = IllegalArgumentException.class)
+  public void testLpTableuBadDimensions2() {
+    Matrix<DRes<SInt>> matrix = new Matrix<>(4, 3, i -> {
+      ArrayList<DRes<SInt>> row = new ArrayList<>(3);
+      row.addAll(Arrays.asList(null, null, null));
+      return row;
+    });
+    ArrayList<DRes<SInt>> vector = new ArrayList<>(3);
+    vector.addAll(Arrays.asList(null, null, null));
+    DRes<SInt> z = null;    
+    new LPTableau(matrix, vector, vector, z);
+    fail("Should not be reachable");
+  } 
+  
+  @Test(expected = IllegalArgumentException.class)
+  public void testLpTableuBadDimensions3() {
+    Matrix<DRes<SInt>> matrix = new Matrix<>(4, 3, i -> {
+      ArrayList<DRes<SInt>> row = new ArrayList<>(3);
+      row.addAll(Arrays.asList(null, null, null));
+      return row;
+    });
+    ArrayList<DRes<SInt>> vector = new ArrayList<>(5);
+    vector.addAll(Arrays.asList(null, null, null, null, null));
+    ArrayList<DRes<SInt>> vector2 = new ArrayList<>(5);
+    vector2.addAll(Arrays.asList(null, null, null, null, null));
+    DRes<SInt> z = null;    
+    new LPTableau(matrix, vector, vector2, z);
+    fail("Should not be reachable");
+  }
     
-    new LPTableau(matrix, new SInt[4], new SInt[4], null);
-    Assert.fail("Should not be reachable");
-  }  
-
-  @Test(expected=IllegalArgumentException.class)
-  public void testLPTableuBadDimensions2(){
-    Matrix<SInt> matrix = new Matrix<>(new SInt[4][3]);
-    
-    new LPTableau(matrix, new SInt[3], new SInt[3], null);
-    Assert.fail("Should not be reachable");
+  @Test(expected = IllegalArgumentException.class)
+  public void testLpSolverBadDimensions1() {
+    Matrix<DRes<SInt>> matrix = new Matrix<>(4, 3, i -> {
+      ArrayList<DRes<SInt>> row = new ArrayList<>(3);
+      row.addAll(Arrays.asList(null, null, null));
+      return row;
+    });
+    ArrayList<DRes<SInt>> b = new ArrayList<>(4);
+    b.addAll(Arrays.asList(null, null, null, null));
+    ArrayList<DRes<SInt>> f = new ArrayList<>(3);
+    f.addAll(Arrays.asList(null, null, null));
+    DRes<SInt> z = null;    
+    LPTableau tab = new LPTableau(matrix, b, f, z);
+    new LPSolver(LPSolver.PivotRule.DANZIG, tab, matrix, null, null);
+    fail("Should not be reachable");
   }
   
-  @Test(expected=IllegalArgumentException.class)
-  public void testLPTableuBadDimensions3(){
-    Matrix<SInt> matrix = new Matrix<>(new SInt[4][3]);
-    
-    new LPTableau(matrix, new SInt[3], new SInt[4], null);
-    Assert.fail("Should not be reachable");
+  @Test(expected = IllegalArgumentException.class)
+  public void testLpSolverBadDimensions2() {
+    Matrix<DRes<SInt>> matrix = new Matrix<>(4, 4, i -> {
+      ArrayList<DRes<SInt>> row = new ArrayList<>(4);
+      row.addAll(Arrays.asList(null, null, null, null));
+      return row;
+    });
+    ArrayList<DRes<SInt>> b = new ArrayList<>(4);
+    b.addAll(Arrays.asList(null, null, null, null));
+    ArrayList<DRes<SInt>> f = new ArrayList<>(4);
+    f.addAll(Arrays.asList(null, null, null, null));
+    DRes<SInt> z = null;    
+    LPTableau tab = new LPTableau(matrix, b, f, z);
+    new LPSolver(LPSolver.PivotRule.DANZIG, tab, matrix, null, null);
+    fail("Should not be reachable");
   }
-  
-  @Test(expected=IllegalArgumentException.class)
-  public void testLPSolverProtocolBadDimensions1(){
-    Matrix<SInt> matrix = new Matrix<>(new SInt[4][3]);
-    new LPSolverProtocol(null, matrix, null, null, null, null);
-    Assert.fail("Should not be reachable");
-  }
-  
-  @Test(expected=IllegalArgumentException.class)
-  public void testLPSolverProtocolBadDimensions2(){
-    Matrix<SInt> matrix = new Matrix<>(new SInt[4][4]);
-    LPTableau tableau = new LPTableau(matrix, new SInt[4], new SInt[4], null);
-    new LPSolverProtocol(tableau, matrix, null, null, null, null);
-    Assert.fail("Should not be reachable");
-  }
-
-  @Test(expected=IllegalArgumentException.class)
-  public void testEnteringVariableProtocolBadDimensions1(){
-    Matrix<SInt> matrix = new Matrix<>(new SInt[4][3]);
-    new EnteringVariableProtocol(null, matrix, null, null, null, null);
-    Assert.fail("Should not be reachable");
-  }
-  
-  @Test(expected=IllegalArgumentException.class)
-  public void testEnteringVariableProtocolBadDimensions2(){
-    Matrix<SInt> matrix = new Matrix<>(new SInt[4][4]);
-    LPTableau tableau = new LPTableau(matrix, new SInt[4], new SInt[4], null);
-    new EnteringVariableProtocol(tableau, matrix, null, null, null, null);
-    Assert.fail("Should not be reachable");
-  }
-
-  @Test(expected=IllegalArgumentException.class)
-  public void testEnteringVariableProtocolBadDimensions3(){
-    Matrix<SInt> matrix = new Matrix<>(new SInt[4][4]);
-    Matrix<SInt> matrixTable = new Matrix<>(new SInt[3][3]);
-    LPTableau tableau = new LPTableau(matrixTable, new SInt[3], new SInt[3], null);
-    new EnteringVariableProtocol(tableau, matrix, new SInt[5], null, null, null);
-    Assert.fail("Should not be reachable");
-  }
-
-  @Test(expected=IllegalArgumentException.class)
-  public void testBlandEnteringVariableProtocolBadDimensions1(){
-    Matrix<SInt> matrix = new Matrix<>(new SInt[4][3]);
-    new BlandEnteringVariableProtocol(null, matrix, null, null, null, null);
-    Assert.fail("Should not be reachable");
-  }
-  
-  @Test(expected=IllegalArgumentException.class)
-  public void testBlandEnteringVariableProtocolBadDimensions2(){
-    Matrix<SInt> matrix = new Matrix<>(new SInt[4][4]);
-    LPTableau tableau = new LPTableau(matrix, new SInt[4], new SInt[4], null);
-    new BlandEnteringVariable(tableau, matrix, null, null, null, null);
-    Assert.fail("Should not be reachable");
-  }
-
-  @Test(expected=IllegalArgumentException.class)
-  public void testBlandEnteringVariableProtocolBadDimensions3(){
-    Matrix<SInt> matrix = new Matrix<>(new SInt[4][4]);
-    Matrix<SInt> matrixTable = new Matrix<>(new SInt[3][3]);
-    LPTableau tableau = new LPTableau(matrixTable, new SInt[3], new SInt[3], null);
-    new BlandEnteringVariableProtocol(tableau, matrix, new SInt[5], null, null, null);
-    Assert.fail("Should not be reachable");
-  }
-  
-  @Test(expected=IllegalArgumentException.class)
-  public void testExitingVariableProtocolBadDimensions1(){
-    Matrix<SInt> matrix = new Matrix<>(new SInt[4][3]);
-    new ExitingVariableProtocol(null, matrix, null, null, null, null, null, null);
-    Assert.fail("Should not be reachable");
-  }
-  
-  @Test(expected=IllegalArgumentException.class)
-  public void testExitingVariableProtocolBadDimensions2(){
-    Matrix<SInt> matrix = new Matrix<>(new SInt[4][4]);
-    LPTableau tableau = new LPTableau(matrix, new SInt[4], new SInt[4], null);
-    new ExitingVariableProtocol(tableau, matrix, null, null, null, null, null, null);
-    Assert.fail("Should not be reachable");
-  }
-
-  @Test(expected=IllegalArgumentException.class)
-  public void testExitingVariableProtocolBadDimensions3(){
-    Matrix<SInt> matrix = new Matrix<>(new SInt[4][4]);
-    Matrix<SInt> matrixTable = new Matrix<>(new SInt[3][3]);
-    LPTableau tableau = new LPTableau(matrixTable, new SInt[3], new SInt[3], null);
-    new ExitingVariableProtocol(tableau, matrix, new SInt[5], null, null, null, null, null);
-    Assert.fail("Should not be reachable");
-  }
-  
-  @Test(expected=IllegalArgumentException.class)
-  public void testExitingVariableProtocolBadDimensions4(){
-    Matrix<SInt> matrix = new Matrix<>(new SInt[4][4]);
-    Matrix<SInt> matrixTable = new Matrix<>(new SInt[3][3]);
-    LPTableau tableau = new LPTableau(matrixTable, new SInt[3], new SInt[3], null);
-    new ExitingVariableProtocol(tableau, matrix, new SInt[3], new SInt[5], null, null, null, null);
-    Assert.fail("Should not be reachable");
-  }
-  @Test(expected=IllegalArgumentException.class)
-  public void testExitingVariableProtocolBadDimensions5(){
-    Matrix<SInt> matrix = new Matrix<>(new SInt[4][4]);
-    Matrix<SInt> matrixTable = new Matrix<>(new SInt[3][3]);
-    LPTableau tableau = new LPTableau(matrixTable, new SInt[3], new SInt[3], null);
-    new ExitingVariableProtocol(tableau, matrix, new SInt[3], new SInt[3], new SInt[3], null, null, null);
-    Assert.fail("Should not be reachable");
-  }
-  
-  @Test
-  public void testSimpleLPPrefix() {
-    Matrix<SInt> m = new Matrix<SInt>(new SInt[4][4]);
-    LPTableau tableau = new LPTableau(m, new SInt[4], new SInt[4], null);
-    SInt pivot = new DummyArithmeticSInt(25);
-    
-    SInt[] basis = new SInt[]{new DummyArithmeticSInt(1), new DummyArithmeticSInt(2), new DummyArithmeticSInt(3)};
-    
-    SimpleLPPrefix prefix = new SimpleLPPrefix(m, tableau, pivot, basis, null);
-    
-    Assert.assertThat(prefix.getBasis().length, Is.is(3));
-    Assert.assertThat(((DummyArithmeticSInt)prefix.getBasis()[1]).getValue(), Is.is(BigInteger.valueOf(2)));
-  }*/
 }
