@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
-
+import java.io.PrintStream;
 import java.util.ArrayList;
 
 public class LPTableau {
@@ -45,10 +45,16 @@ public class LPTableau {
     return z;
   }
 
-  public void toString(ProtocolBuilderNumeric builder) {
-    builder.debug().openAndPrint("C: ", C, System.out);
-    builder.debug().openAndPrint("B: ", B, System.out);
-    builder.debug().openAndPrint("F: ", F, System.out);
-    builder.debug().openAndPrint("z: ", z, System.out);
+  /**
+   * Opens and outputs the plaintext values of this tableau for debugging.
+   * 
+   * @param builder a builder to provide the open and print functionality
+   * @param ps a PrintStream on which to print the debugging information
+   */
+  public void debugInfo(ProtocolBuilderNumeric builder, PrintStream ps) {
+    builder.debug().openAndPrint("C: ", C, ps);
+    builder.debug().openAndPrint("B: ", B, ps);
+    builder.debug().openAndPrint("F: ", F, ps);
+    builder.debug().openAndPrint("z: ", z, ps);
   }
 }
