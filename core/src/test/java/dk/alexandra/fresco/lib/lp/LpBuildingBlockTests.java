@@ -299,7 +299,7 @@ public class LpBuildingBlockTests {
             pivot, initialBasis) {
           
           @Override
-          protected boolean getDebuggable() {
+          protected boolean isDebug() {
             return true;
           }
         };
@@ -315,54 +315,6 @@ public class LpBuildingBlockTests {
 
   private abstract static class ExitingVariableTester extends LPTester<List<BigInteger>> {
 
-    int exitingIdx;
-
-    @SuppressWarnings("unused")
-    private int exitingIndex(int enteringIndex) {
-      // TODO Fix this test case
-      // BigInteger[] updatedColumn = new BigInteger[b.length];
-      // BigInteger[] updatedB = new BigInteger[b.length];
-      // BigInteger[] column = new BigInteger[b.length];
-      // column = constraints.getIthColumn(enteringIndex, column);
-      // for (int i = 0; i < b.length; i++) {
-      // updatedB[i] = innerProduct(b, updateMatrix.getIthRow(i));
-      // updatedColumn[i] = innerProduct(column, updateMatrix.getIthRow(i));
-      // }
-      // int exitingIndex = 0;
-      // BigInteger half = mod.divide(BigInteger.valueOf(2));
-      // BigInteger minNominator = null;
-      // BigInteger minDenominator = null;
-      // for (int i = 0; i < updatedB.length; i++) {
-      // boolean nonPos = updatedColumn[i].compareTo(half) > 0;
-      // nonPos = nonPos || updatedColumn[i].compareTo(BigInteger.ZERO) == 0;
-      // if (!nonPos) {
-      // if (minNominator == null) {
-      // minNominator = updatedB[i];
-      // minDenominator = updatedColumn[i];
-      // exitingIndex = i;
-      // } else {
-      // BigInteger leftHand = minNominator.multiply(updatedColumn[i]);
-      // BigInteger rightHand = minDenominator.multiply(updatedB[i]);
-      // BigInteger diff = leftHand.subtract(rightHand).mod(mod);
-      // diff = diff.compareTo(half) > 0 ? diff.subtract(mod) : diff;
-      // if (diff.compareTo(BigInteger.ZERO) > 0) {
-      // minNominator = updatedB[i];
-      // minDenominator = updatedColumn[i];
-      // exitingIndex = i;
-      // }
-      // }
-      // }
-      // }
-      // return exitingIndex;
-      return 0;
-    }
-
-    // private BigInteger innerProduct(BigInteger[] a, BigInteger[] b) {
-    // if (a.length > b.length) {
-    // throw new RuntimeException("b vector too short");
-    // }
-    // BigInteger result = BigInteger.valueOf(0);
-    // for (int i = 0; i < a.length; i++) {
     // result = (result.add(a[i].multiply(b[i]))).mod(mod);
     // }
     // return result;
@@ -555,48 +507,46 @@ public class LpBuildingBlockTests {
           assertEquals(app.getExpextedIndex(), actualIndex);
         }
       };
-    }
-
-
-    public static class TestExitingVariable<ResourcePoolT extends ResourcePool>
-        extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
-
-      public TestExitingVariable() {}
-
-      @Override
-      public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-        return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-
-          @Override
-          public void test() throws Exception {
-            ExitingVariableTester app = new ExitingVariableTester() {
-
-
-              @Override
-              public DRes<List<BigInteger>> buildComputation(ProtocolBuilderNumeric builder) {
-                mod = builder.getBasicNumericContext().getModulus();
-                // setupRandom(10, 10, builder);
-                return null;
-              }
-            };
-            List<BigInteger> outputs = runApplication(app);
-            int actualIndex = 0;
-            int sum = 0;
-            BigInteger zero = BigInteger.ZERO;
-            BigInteger one = BigInteger.ONE;
-            for (BigInteger b : outputs) {
-              if (b.compareTo(zero) == 0) {
-                actualIndex = (sum < 1) ? actualIndex + 1 : actualIndex;
-              } else {
-                assertEquals(one, b);
-                sum++;
-              }
-            }
-            assertEquals(1, sum);
-            // Assert.assertEquals(app.getExpextedIndex(), actualIndex);
-          }
-        };
-      }
-    }
+    }    
   }
+  
+  public static class TestExitingVariable<ResourcePoolT extends ResourcePool>
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    public TestExitingVariable() {}
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() throws Exception {
+          ExitingVariableTester app = new ExitingVariableTester() {
+
+            @Override 
+            public DRes<List<BigInteger>> buildComputation(ProtocolBuilderNumeric builder) {
+              mod = builder.getBasicNumericContext().getModulus();
+              // setupRandom(10, 10, builder);
+              return null;
+            }
+          };
+          List<BigInteger> outputs = runApplication(app);
+          int actualIndex = 0;
+          int sum = 0;
+          BigInteger zero = BigInteger.ZERO;
+          BigInteger one = BigInteger.ONE;
+          for (BigInteger b : outputs) {
+            if (b.compareTo(zero) == 0) {
+              actualIndex = (sum < 1) ? actualIndex + 1 : actualIndex;
+            } else {
+              assertEquals(one, b);
+              sum++;
+            }
+          }
+          assertEquals(1, sum);
+          // Assert.assertEquals(app.getExpextedIndex(), actualIndex);
+        }
+      };
+    }
+}
 }

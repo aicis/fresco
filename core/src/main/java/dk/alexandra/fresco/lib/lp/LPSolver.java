@@ -96,7 +96,7 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
       return () -> initialState;
     }).whileLoop(state -> !state.terminated(), (seq, state) -> {
       iterations++;
-      if (getDebuggable()) {
+      if (isDebug()) {
         debugInfo(seq, state);
       }
       return seq.seq((inner) -> {
@@ -213,7 +213,14 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
         });
   }
   
-  protected boolean getDebuggable() {
+  /**
+   * Indicates if debug information should be opened and written. 
+   * 
+   * This is meant to be possible to override in debugging classes, but 
+   * should always return false in non-debugging versions of this class.
+   * @return true if this is a debugging class, false otherwise
+   */
+  protected boolean isDebug() {
     return false;
   }
 
