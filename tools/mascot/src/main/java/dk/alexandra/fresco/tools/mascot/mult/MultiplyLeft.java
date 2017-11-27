@@ -26,11 +26,10 @@ public class MultiplyLeft extends MultiplyShared {
         .flatMap(fel -> fel.stream())
         .map(fe -> fe.toBitVector())
         .toArray(size -> new StrictBitVector[size]);
-    return StrictBitVector.concat(bitVecs);
+    return StrictBitVector.concat(true, bitVecs);
   }
 
   List<StrictBitVector> generateSeeds(List<List<FieldElement>> leftFactors) {
-    // pack the left factor candidates into bit vector so we can process them in one Rot
     StrictBitVector packedFactors = pack(leftFactors);
     // use rot to get choice seeds
     List<StrictBitVector> seeds = rot.receive(packedFactors);
@@ -77,7 +76,6 @@ public class MultiplyLeft extends MultiplyShared {
     return result;
   }
 
-  // should be list of lists
   public List<List<FieldElement>> multiply(List<List<FieldElement>> leftFactors) {
     // we need the modulus and the bit length of the modulus
     BigInteger modulus = ctx.getModulus();

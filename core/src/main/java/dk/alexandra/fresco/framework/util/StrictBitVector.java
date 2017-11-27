@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.framework.util;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Random;
 
 public class StrictBitVector {
@@ -116,10 +117,14 @@ public class StrictBitVector {
   /**
    * Concatenates bit vectors into one bit vector.
    * 
+   * @param reverse
    * @param bitVectors
    * @return
    */
-  public static StrictBitVector concat(StrictBitVector... bitVectors) {
+  public static StrictBitVector concat(boolean reverse, StrictBitVector... bitVectors) {
+    if (reverse) {
+      Collections.reverse(Arrays.asList(bitVectors));
+    }
     // compute length of result byte array and number of bits
     int combinedByteLength = 0;
     int combinedBitLength = 0;
@@ -136,7 +141,11 @@ public class StrictBitVector {
     }
     return new StrictBitVector(combined, combinedBitLength);
   }
-
+  
+  public static StrictBitVector concat(StrictBitVector... bitVectors) {
+    return concat(false, bitVectors);
+  }
+  
   private void rangeCheck(int bit) {
     if (bit < 0 || bit >= this.size) {
       throw new IndexOutOfBoundsException("Index out of bounds");
@@ -168,6 +177,14 @@ public class StrictBitVector {
     return true;
   }
 
+  public String asBinaryString() {
+    String binStr = "";
+    for (int b = 0; b < size; b++) {
+      binStr += getBit(b) ? "1" : "0";
+    }
+    return binStr;
+  }
+  
   @Override
   public String toString() {
     return "StrictBitVector [bits=" + Arrays.toString(bits) + "]";

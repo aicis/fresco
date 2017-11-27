@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Random;
 
 public class ByteArrayHelper {
-  
+
   /**
    * Returns the "bit" number bit, reading from left-to-right, from a byte array.
    * 
@@ -40,15 +40,15 @@ public class ByteArrayHelper {
     }
     if (choice == true) {
       // We read bits from left to right, hence the 7 - x.
-      // Put a 1 in the correct position of a 
-      // zero-byte and OR it into the correct byte to ensure that the position 
+      // Put a 1 in the correct position of a
+      // zero-byte and OR it into the correct byte to ensure that the position
       // becomes 1 no matter whether it is currently set or not.
       input[index / 8] |= ((byte) 0x01) << (7 - (index % 8));
     } else {
-      // Construct an all 1-byte, then construct a byte like above, where only 
-      // the correct position is set to 1. We XOR these bytes to get a byte 
-      // which is all 1's except in the correct position. We AND this into the 
-      // correct byte to ensure that only the correct positions gets set to 0. 
+      // Construct an all 1-byte, then construct a byte like above, where only
+      // the correct position is set to 1. We XOR these bytes to get a byte
+      // which is all 1's except in the correct position. We AND this into the
+      // correct byte to ensure that only the correct positions gets set to 0.
       input[index / 8] &= 0xFF ^ ((byte) 0x01) << (7 - (index % 8));
     }
   }
@@ -96,14 +96,13 @@ public class ByteArrayHelper {
     }
   }
 
+
   /**
    * Serialize a serializable value
    * 
-   * @param val
-   *          The value to serialize
+   * @param val The value to serialize
    * @return The serialized value
-   * @throws IOException
-   *           Thrown if an internal error occurs.
+   * @throws IOException Thrown if an internal error occurs.
    */
   public static byte[] serialize(Serializable val) throws IOException {
     ByteArrayOutputStream bos = null;
@@ -121,16 +120,12 @@ public class ByteArrayHelper {
   /**
    * Deserialize a serializable value
    * 
-   * @param val
-   *          The value to deserialize
+   * @param val The value to deserialize
    * @return The deserialized object
-   * @throws IOException
-   *           Thrown if an internal error occurs.
-   * @throws ClassNotFoundException
-   *           Thrown if an internal error occurs.
+   * @throws IOException Thrown if an internal error occurs.
+   * @throws ClassNotFoundException Thrown if an internal error occurs.
    */
-  public static Serializable deserialize(byte[] val)
-      throws IOException, ClassNotFoundException {
+  public static Serializable deserialize(byte[] val) throws IOException, ClassNotFoundException {
     ByteArrayInputStream bis = null;
     ObjectInput in = null;
     try {
@@ -142,11 +137,11 @@ public class ByteArrayHelper {
       in.close();
     }
   }
-  
+
   public static byte[] randomByteArray(int size, Random rand) {
     byte[] array = new byte[size];
     rand.nextBytes(array);
     return array;
   }
-  
+
 }

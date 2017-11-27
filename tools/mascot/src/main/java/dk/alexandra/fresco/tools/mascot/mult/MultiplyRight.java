@@ -22,7 +22,7 @@ public class MultiplyRight extends MultiplyShared {
     List<Pair<StrictBitVector, StrictBitVector>> seeds = rot.send(numRots);
     return seeds;
   }
-  
+
   FieldElement computeDiff(Pair<FieldElement, FieldElement> feSeedPair, FieldElement factor) {
     FieldElement left = feSeedPair.getFirst();
     FieldElement right = feSeedPair.getSecond();
@@ -52,17 +52,18 @@ public class MultiplyRight extends MultiplyShared {
       ctx.getNetwork().send(otherId, diff.toByteArray());
     }
   }
-  
+
   List<List<FieldElement>> computeProductShares(List<FieldElement> feZeroSeeds,
       int numRightFactors) {
     BigInteger modulus = ctx.getModulus();
     int modBitLength = ctx.getkBitLength();
+    int groupBitLength = numLeftFactors * modBitLength;
     List<List<FieldElement>> productShares = new ArrayList<>(numRightFactors);
     for (int rightFactIdx = 0; rightFactIdx < numRightFactors; rightFactIdx++) {
       List<FieldElement> resultGroup = new ArrayList<>(numLeftFactors);
       for (int leftFactIdx = 0; leftFactIdx < numLeftFactors; leftFactIdx++) {
-        int from = leftFactIdx * rightFactIdx * modBitLength;
-        int to = (leftFactIdx * rightFactIdx + 1) * modBitLength;
+        int from = rightFactIdx * groupBitLength + leftFactIdx * modBitLength;
+        int to = rightFactIdx * groupBitLength + (leftFactIdx + 1) * modBitLength;
         List<FieldElement> subFactors = feZeroSeeds.subList(from, to);
         FieldElement recombined = FieldElement.recombine(subFactors, modulus, modBitLength);
         resultGroup.add(recombined.negate());
@@ -76,28 +77,27 @@ public class MultiplyRight extends MultiplyShared {
     // we need the modulus and the bit length of the modulus
     BigInteger modulus = ctx.getModulus();
     int modBitLength = ctx.getkBitLength();
-    
+
     // generate seeds pairs which we will use to compute diffs
     List<Pair<StrictBitVector, StrictBitVector>> seedPairs = generateSeeds(rightFactors.size());
     
     // convert seeds pairs to field elements so we can compute on them
     List<Pair<FieldElement, FieldElement>> feSeedPairs = seedPairs.stream()
         .map(pair -> new Pair<>(
-          new FieldElement(pair.getFirst().toByteArray(), modulus, modBitLength),
-          new FieldElement(pair.getSecond().toByteArray(), modulus, modBitLength)))
+            new FieldElement(pair.getFirst().toByteArray(), modulus, modBitLength),
+            new FieldElement(pair.getSecond().toByteArray(), modulus, modBitLength)))
         .collect(Collectors.toList());
-    
+
     // compute q0 - q1 + b for each seed pair
     List<FieldElement> diffs = computeDiffs(feSeedPairs, rightFactors);
-    
+
     // send diffs over to other party
     sendDiffs(diffs);
-    
+
     // get zero index seeds
-    List<FieldElement> feZeroSeeds = feSeedPairs.stream()
-        .map(feSeedPair -> feSeedPair.getFirst())
-        .collect(Collectors.toList());
-    
+    List<FieldElement> feZeroSeeds =
+        feSeedPairs.stream().map(feSeedPair -> feSeedPair.getFirst()).collect(Collectors.toList());
+
     // compute product shares
     List<List<FieldElement>> productShares = computeProductShares(feZeroSeeds, rightFactors.size());
     return productShares;
