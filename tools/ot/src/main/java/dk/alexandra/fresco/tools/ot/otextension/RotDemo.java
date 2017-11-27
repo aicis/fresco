@@ -22,7 +22,7 @@ import dk.alexandra.fresco.tools.commitment.MaliciousCommitmentException;
 public class RotDemo<ResourcePoolT extends ResourcePool> {
   private int kbitLength = 128;
   private int lambdaSecurityParam = 40;
-  private int amountOfOTs = 1024;
+  private int amountOfOTs = 88;
 
   /**
    * Run the receiving party.
@@ -92,14 +92,14 @@ public class RotDemo<ResourcePoolT extends ResourcePool> {
     System.out.println("done sender");
     // network.close();
     for (int i = 0; i < amountOfOTs; i++) {
-      System.out.print(i + ": ");
+      System.out.println(i + ": ");
       byte[] outputZero = vpairs.getFirst().get(i).toByteArray();
       System.out.println("0-choice: ");
       for (byte current : outputZero) {
         System.out.print(String.format("%02x ", current));
       }
-      byte[] outputOne = vpairs.getFirst().get(i).toByteArray();
-      System.out.println("1-choice: ");
+      byte[] outputOne = vpairs.getSecond().get(i).toByteArray();
+      System.out.println("\n1-choice: ");
       for (byte current : outputOne) {
         System.out.print(String.format("%02x ", current));
       }

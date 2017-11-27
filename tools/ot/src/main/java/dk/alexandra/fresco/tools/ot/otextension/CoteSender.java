@@ -60,7 +60,7 @@ public class CoteSender extends CoteShared {
     this.otChoices = new StrictBitVector(kbitLength, rand);
     // Complete the seed OTs acting as the receiver (NOT the sender)
     for (int i = 0; i < kbitLength; i++) {
-      StrictBitVector message = ot.receive(otChoices.getBit(i));
+      StrictBitVector message = ot.receive(otChoices.getBit(i, false));
       // Initialize the PRGs with the random messages
       // TODO should be changed to something that uses SHA-256
       SecureRandom prg = SecureRandom.getInstance("SHA1PRNG");
@@ -114,7 +114,7 @@ public class CoteSender extends CoteShared {
     // Compute the q vector based on the random choices from the seed OTs, i.e
     // qVec = otChoices AND uVec XOR tVec
     for (int i = 0; i < kbitLength; i++) {
-      if (otChoices.getBit(i) == true) {
+      if (otChoices.getBit(i, false) == true) {
         tvec.get(i).xor(uvec.get(i));
       }
     }

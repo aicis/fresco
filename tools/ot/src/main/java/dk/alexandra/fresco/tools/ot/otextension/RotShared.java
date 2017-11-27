@@ -11,17 +11,10 @@ public class RotShared {
   // Internal state variables
   protected CoteShared cote;
   protected CoinTossing ct;
+  protected boolean initialized = false;
 
   RotShared(CoteShared cote) {
     super();
-    if (cote.kbitLength < 1 || cote.lambdaSecurityParam < 1
-        || cote.rand == null | cote.network == null) {
-      throw new IllegalArgumentException("Illegal constructor parameters");
-    }
-    if (cote.kbitLength % 8 != 0) {
-      throw new IllegalArgumentException(
-          "Computational security parameter must be divisible by 8");
-    }
     this.cote = cote;
     this.ct = new CoinTossing(cote.myId, cote.otherId, cote.kbitLength,
         cote.rand, cote.network);
@@ -67,9 +60,10 @@ public class RotShared {
     cote.setNetwork(network);
   }
 
-  protected StrictBitVector computePolyLinearCombination(
+  protected static StrictBitVector computePolyLinearCombination(
       List<StrictBitVector> chiVec, List<StrictBitVector> tvec) {
-    StrictBitVector res = new StrictBitVector(2 * cote.kbitLength);
+    StrictBitVector res = new StrictBitVector(
+        chiVec.get(0).getSize() + tvec.get(0).getSize());
     for (int i = 0; i < chiVec.size(); i++) {
       StrictBitVector temp = multiplyWithoutReduction(chiVec.get(i),
           tvec.get(i));
@@ -78,12 +72,12 @@ public class RotShared {
     return res;
   }
 
-  protected StrictBitVector multiplyWithoutReduction(StrictBitVector a,
+  protected static StrictBitVector multiplyWithoutReduction(StrictBitVector a,
       StrictBitVector b) {
     StrictBitVector res = new StrictBitVector(a.getSize() + b.getSize());
     for (int i = 0; i < a.getSize(); i++) {
       // Note that this is not constant time!
-      if (a.getBit(i) == true) {
+      if (a.getBit(i, false) == true) {
         StrictBitVector temp = shiftArray(b, i, a.getSize() + b.getSize());
         res.xor(temp);
       }
@@ -91,14 +85,15 @@ public class RotShared {
     return res;
   }
 
-  private StrictBitVector shiftArray(StrictBitVector in, int pos, int maxSize) {
-    if (in.getSize() + pos < maxSize) {
+  private static StrictBitVector shiftArray(StrictBitVector in, int pos,
+      int maxSize) {
+    if (in.getSize() + pos > maxSize) {
       throw new IllegalArgumentException(
           "The new vector is too small for the shift");
     }
     StrictBitVector res = new StrictBitVector(maxSize);
     for (int i = 0; i < in.getSize(); i++) {
-      res.setBit(i + pos, in.getBit(i));
+      res.setBit(i + pos, in.getBit(i, false), false);
     }
     return res;
   }

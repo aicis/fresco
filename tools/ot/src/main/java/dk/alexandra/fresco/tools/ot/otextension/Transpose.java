@@ -44,10 +44,10 @@ public class Transpose {
         for (int k = 0; k < minDim; k++) {
           if (minDim == input.get(0).getSize()) {
             ByteArrayHelper.setBit(currentSquare.get(j), k,
-                input.get(i * minDim + j).getBit(k));
+                input.get(i * minDim + j).getBit(k, false));
           } else {
             ByteArrayHelper.setBit(currentSquare.get(j), k,
-                input.get(j).getBit(i * minDim + k));
+                input.get(j).getBit(i * minDim + k, false));
           }
         }
       }
@@ -60,10 +60,10 @@ public class Transpose {
         for (int k = 0; k < minDim; k++) {
           if (minDim == input.get(0).getSize()) {
             res.get(j).setBit(i * minDim + k,
-                ByteArrayHelper.getBit(currentSquare.get(j), k));
+                ByteArrayHelper.getBit(currentSquare.get(j), k), false);
           } else {
             res.get(i * minDim + j).setBit(k,
-                ByteArrayHelper.getBit(currentSquare.get(j), k));
+                ByteArrayHelper.getBit(currentSquare.get(j), k), false);
           }
         }
       }
