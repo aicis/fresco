@@ -101,6 +101,68 @@ public class TestStrictBitVector {
     assertEquals(expected, actual);
   }
 
+  @Test
+  public void testGetBitBigEndian() {
+    int bitLen = 72;
+    byte[] bits = new byte[bitLen / 8];
+    for (int b = 0; b < bits.length; b++) {
+      bits[b] = (byte) b;
+    }
+    StrictBitVector bv = new StrictBitVector(bits, bitLen);
+    // string for readability
+    String actual = "";
+    for (int b = 0; b < bitLen; b++) {
+      actual += bv.getBit(b) ? "1" : "0";
+    }
+    String expected = "000100001110000001100000101000000010000011000000010000001000000000000000";
+    assertEquals(expected, actual);
+  }
+  
+  @Test
+  public void testGetBitLittleEndian() {
+    int bitLen = 72;
+    byte[] bits = new byte[bitLen / 8];
+    for (int b = 0; b < bits.length; b++) {
+      bits[b] = (byte) b;
+    }
+    StrictBitVector bv = new StrictBitVector(bits, bitLen);
+    // string for readability
+    String actual = "";
+    for (int b = 0; b < bitLen; b++) {
+      actual += bv.getBit(b, false) ? "1" : "0";
+    }
+    String expected = "000000000000000100000010000000110000010000000101000001100000011100001000";
+    assertEquals(expected, actual);
+  }
+  
+  @Test
+  public void testSetBitBigEndian() {
+    int bitLen = 16;
+    byte[] bits = new byte[bitLen / 8];
+    StrictBitVector bv = new StrictBitVector(bits, bitLen);
+    bv.setBit(2, true);
+    bv.setBit(11, true);
+    byte[] actual = bv.toByteArray();
+    // 15  14  13  12  11        ...       2 1 0
+    // 0   0   0   0   1   0 0 0 0 0 0 0 0 1 0 0
+    byte[] expected = new byte[]{(byte) 0x08, (byte) 0x04};
+    assertArrayEquals(expected, actual);
+  }
+
+  @Test
+  public void testSetBitLittleEndian() {
+    int bitLen = 16;
+    byte[] bits = new byte[bitLen / 8];
+    StrictBitVector bv = new StrictBitVector(bits, bitLen);
+    bv.setBit(2, true, false);
+    bv.setBit(11, true, false);
+    byte[] actual = bv.toByteArray();
+    // 15  14  13  12  11  10  9 8 7 6 5 4 3 2 1 0
+    // 0   0   1   0   0   0   0 0 0 0 0 1 0 0 0 0
+    byte[] expected = new byte[]{(byte) 0x20, (byte) 0x10};
+    assertArrayEquals(expected, actual);
+  }
+  
   // Negative tests
 
   @Test
