@@ -1,5 +1,14 @@
 package dk.alexandra.fresco.framework.network;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryonet.Client;
+import com.esotericsoftware.kryonet.Connection;
+import com.esotericsoftware.kryonet.EndPoint;
+import com.esotericsoftware.kryonet.Listener;
+import com.esotericsoftware.kryonet.Server;
+import com.esotericsoftware.minlog.Log;
+import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,20 +18,8 @@ import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Semaphore;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryonet.Client;
-import com.esotericsoftware.kryonet.Connection;
-import com.esotericsoftware.kryonet.EndPoint;
-import com.esotericsoftware.kryonet.Listener;
-import com.esotericsoftware.kryonet.Server;
-import com.esotericsoftware.minlog.Log;
-
-import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 
 public class KryoNetNetwork implements Network, Closeable {
 
@@ -39,6 +36,13 @@ public class KryoNetNetwork implements Network, Closeable {
 
   private static final Logger logger = LoggerFactory.getLogger(KryoNetNetwork.class);
 
+  /**
+   * Creates a KryoNet network from the given configuration. Calling the constructor will
+   * immediately trigger an attempt at connecting to the other parties.
+   * 
+   * @param conf The configuration informing the network of the number of parties and where to
+   *        connect to them.
+   */
   public KryoNetNetwork(NetworkConfiguration conf) {
     Log.set(Log.LEVEL_ERROR);
     this.conf = conf;
@@ -114,9 +118,10 @@ public class KryoNetNetwork implements Network, Closeable {
           // Server communication after connection can go here, or in Listener#connected().
           success = true;
         } catch (IOException ex) {
-          if(retries >= maxRetries) {
+          if (retries >= maxRetries) {
             //release to inform that this thread is done trying to connect            
-            logger.error("Could not connect to other party within 30 retries of half a second seconds each.");
+            logger.error(
+                "Could not connect to other party within 30 retries of half a second each.");
             this.semaphore.release();
             break;
           }
@@ -197,11 +202,11 @@ public class KryoNetNetwork implements Network, Closeable {
     }
     try {
       semaphore.acquire();
-      if (successes.size() < (conf.noOfParties()-1)*channelAmount){
+      if (successes.size() < (conf.noOfParties() - 1) * channelAmount) {
         throw new IOException("Could not successfully connect to all parties.");
       }
     } catch (InterruptedException e) {
-      for(Thread t : clientThreads){
+      for (Thread t : clientThreads) {
         t.interrupt();
       }
       throw new IOException("Interrupted during wait for connect", e);
