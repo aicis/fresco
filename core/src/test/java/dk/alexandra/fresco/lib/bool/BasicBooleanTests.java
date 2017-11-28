@@ -47,6 +47,39 @@ public class BasicBooleanTests {
     }
   }
 
+  public static class TestInputDifferentSender<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
+
+    private boolean doAsserts;
+
+    public TestInputDifferentSender(boolean doAsserts) {
+      this.doAsserts = doAsserts;
+    }
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
+        @Override
+        public void test() throws Exception {
+          Application<Boolean, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
+            DRes<SBool> in = seq.binary().input(true, 2);
+            DRes<Boolean> open = seq.binary().open(in);
+            return open;
+          }).seq((seq, out) -> {
+            return () -> out;
+          });
+
+          boolean output = runApplication(app);
+
+          if (doAsserts) {
+            Assert.assertEquals(true, output);
+          }
+        }
+      };
+    }
+  }  
+
+
   public static class TestXOR<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
