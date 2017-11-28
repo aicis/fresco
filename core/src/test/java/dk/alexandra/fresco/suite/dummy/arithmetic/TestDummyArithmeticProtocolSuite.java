@@ -598,4 +598,11 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL,
         2, mod, PerformanceLogger.Flag.ALL_OPTS);
   }
+  
+  @Test
+  public void test_exponentiation_pipe_preprocessed() throws Exception {
+    runTest(new dk.alexandra.fresco.framework.builder.numeric.ExponentiationPipeTests.TestPreprocessedValues<>(), EvaluationStrategy.SEQUENTIAL,
+        1);
+  }
+  
 }
