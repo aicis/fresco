@@ -3,7 +3,6 @@ package dk.alexandra.fresco.framework.sce.resources.storage;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.sce.resources.storage.exceptions.NoMoreElementsException;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -27,7 +26,7 @@ public class FilebasedStreamedStorageImpl implements StreamedStorage {
   /**
    * Creates an instance of the file based streamed storage. For non-streamable object, the given
    * internal storage is used.
-   * 
+   *
    * @param internalStorage The storage used for non-streamable objects
    */
   public FilebasedStreamedStorageImpl(Storage internalStorage) {
@@ -41,71 +40,44 @@ public class FilebasedStreamedStorageImpl implements StreamedStorage {
   public <T extends Serializable> T getNext(String name) throws NoMoreElementsException {
     if (!oiss.containsKey(name)) {
       FileInputStream fis;
+      ObjectInputStream ois;
       try {
         fis = new FileInputStream(name);
-      } catch (FileNotFoundException e) {
-        throw new MPCException("File with filename '" + name + "' not found.");
-      }
-      ObjectInputStream ois = null;
-      try {
         ois = new ObjectInputStream(fis);
       } catch (IOException e) {
-        e.printStackTrace();
-        if (fis != null) {
-          try {
-            fis.close();
-          } catch (IOException e1) {
-            //Ignore
-          }
-        }
-        throw new MPCException("IOException: " + e.getMessage());
+        throw new MPCException("IOException accessing store name: " + name, e);
       }
       oiss.put(name, ois);
     }
     try {
       return (T) oiss.get(name).readObject();
     } catch (ClassNotFoundException e) {
-      e.printStackTrace();
-      throw new MPCException("Class not found: " + e.getMessage());
+      throw new MPCException("Class not found", e);
     } catch (IOException e) {
       logger.error("IO-Exception. Could not read object from: " + name
           + ". This is most likely because there are no more elements available.");
       throw new NoMoreElementsException(
           "IOException - most likely because there are no more elements available.", e);
     }
-
   }
 
   @Override
   public boolean putNext(String name, Serializable o) {
     if (!ooss.containsKey(name)) {
       FileOutputStream fos;
+      ObjectOutputStream oos;
       try {
         fos = new FileOutputStream(name);
-      } catch (FileNotFoundException e) {
-        throw new MPCException("File with filename '" + name + "' not found.");
-      }
-      ObjectOutputStream oos = null;
-      try {
         oos = new ObjectOutputStream(fos);
       } catch (IOException e) {
-        e.printStackTrace();
-        if (fos != null) {
-          try {
-            fos.close();
-          } catch (IOException e1) {
-            //Ignore
-          }
-        }
-        throw new MPCException("IOException: " + e.getMessage());
+        throw new MPCException("IOException accessing store name: " + name, e);
       }
       ooss.put(name, oos);
     }
     try {
       ooss.get(name).writeObject(o);
     } catch (IOException e) {
-      e.printStackTrace();
-      throw new MPCException("IOException: " + e.getMessage());
+      throw new MPCException("IOException writing to store name " + name, e);
     }
     return true;
   }
@@ -116,7 +88,7 @@ public class FilebasedStreamedStorageImpl implements StreamedStorage {
       try {
         ois.close();
       } catch (IOException e) {
-        //Do nothing - nothing can be done
+        // Do nothing - nothing can be done
       }
     }
 
@@ -124,7 +96,7 @@ public class FilebasedStreamedStorageImpl implements StreamedStorage {
       try {
         oos.close();
       } catch (IOException e) {
-        //Do nothing - nothing can be done
+        // Do nothing - nothing can be done
       }
     }
   }
