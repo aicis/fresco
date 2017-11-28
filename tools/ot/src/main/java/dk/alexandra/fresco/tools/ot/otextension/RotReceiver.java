@@ -1,9 +1,5 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.nio.ByteBuffer;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.List;
 
 import dk.alexandra.fresco.framework.util.StrictBitVector;
@@ -21,7 +17,7 @@ public class RotReceiver extends RotShared {
   }
 
   public void initialize()
-      throws NoSuchAlgorithmException, MaliciousCommitmentException,
+      throws FailedOtExtensionException, MaliciousCommitmentException,
       FailedCommitmentException, FailedCoinTossingException {
     receiver.initialize();
     ct.initialize();
@@ -29,49 +25,46 @@ public class RotReceiver extends RotShared {
   }
 
   public List<StrictBitVector> extend(StrictBitVector choices)
-      throws NoSuchAlgorithmException {
-    if (!initialized) {
-      throw new IllegalStateException("Not initialized");
-    }
+      throws FailedOtExtensionException {
     int ellPrime = choices.getSize() + getKbitLength()
         + getLambdaSecurityParam();
     // Extend the choices with random choices for padding
     StrictBitVector paddingChoices = new StrictBitVector(
         getKbitLength() + getLambdaSecurityParam(), getRand());
-
     StrictBitVector extendedChoices = StrictBitVector.concat(choices,
         paddingChoices);
-    List<StrictBitVector> chiVec = new ArrayList<>(ellPrime);
-    for (int i = 0; i < ellPrime; i++) {
-      StrictBitVector currentChi = ct.toss(getKbitLength());
-      chiVec.add(currentChi);
-    }
     List<StrictBitVector> tvec = receiver.extend(extendedChoices);
+    List<StrictBitVector> chiVec = getChallenges(ellPrime);
     StrictBitVector xval = computeBitLinearCombination(extendedChoices, chiVec);
-    StrictBitVector tval = computePolyLinearCombination(chiVec, tvec);
-    receiver.network.send(receiver.otherId, xval.toByteArray());
-    receiver.network.send(receiver.otherId, tval.toByteArray());
-    List<StrictBitVector> vvec = new ArrayList<>(choices.getSize());
-    MessageDigest digest = MessageDigest.getInstance("SHA-256");
-    // Size of an int is always 4 bytes in java
-    ByteBuffer indexBuffer = ByteBuffer.allocate(4 + digest.getDigestLength());
-    byte[] hash;
-    for (int i = 0; i < choices.getSize(); i++) {
-      indexBuffer.clear();
-      indexBuffer.putInt(i);
-      indexBuffer.put(tvec.get(i).toByteArray());
-      hash = digest.digest(indexBuffer.array());
-      vvec.add(new StrictBitVector(hash, 256));
-    }
+    getNetwork().send(getOtherId(), xval.toByteArray());
+    StrictBitVector tval = computeInnerProduct(chiVec, tvec);
+    getNetwork().send(getOtherId(), tval.toByteArray());
+    List<StrictBitVector> vvec = hashBitVector(tvec, choices.getSize());
     return vvec;
   }
 
-  protected StrictBitVector computeBitLinearCombination(StrictBitVector xvec,
-      List<StrictBitVector> chiVec) {
-    StrictBitVector res = new StrictBitVector(chiVec.get(0).getSize());
-    for (int i = 0; i < xvec.getSize(); i++) {
-      if (xvec.getBit(i, false) == true) {
-        res.xor(chiVec.get(i));
+  /**
+   * Computes the sum of element in a list based on a vector if indicator
+   * variables. The sum will be based on Galois addition in the binary extension
+   * field of the individual elements of the list. That is, through an XOR
+   * operation.
+   * <p>
+   * All elements of the list MUST have equal size! And both the list and vector
+   * of indicator bits MUST contain an equal amount of entries!
+   * </p>
+   * 
+   * @param indicators
+   *          The vector of indicator bits
+   * @param list
+   *          The input list, with all elements of equal size
+   * @return The inner product represented as a StrictBitVector
+   */
+  protected StrictBitVector computeBitLinearCombination(StrictBitVector indicators,
+      List<StrictBitVector> list) {
+    StrictBitVector res = new StrictBitVector(list.get(0).getSize());
+    for (int i = 0; i < indicators.getSize(); i++) {
+      if (indicators.getBit(i, false) == true) {
+        res.xor(list.get(i));
       }
     }
     return res;

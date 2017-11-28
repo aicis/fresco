@@ -9,9 +9,10 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 
-/** 
- * Superclass containing the common variables and methods 
- * for the sender and receiver parties of correlated OT with errors.
+/**
+ * Superclass containing the common variables and methods for the sender and
+ * receiver parties of correlated OT with errors.
+ * 
  * @author jot2re
  *
  */
@@ -67,59 +68,35 @@ public class CoteShared {
     return myId;
   }
 
-  public void setMyId(int myId) {
-    this.myId = myId;
-  }
-
   public int getOtherId() {
     return otherId;
-  }
-
-  public void setOtherId(int otherId) {
-    this.otherId = otherId;
   }
 
   public int getkBitLength() {
     return kbitLength;
   }
 
-  public void setkBitLength(int kbitLength) {
-    this.kbitLength = kbitLength;
-  }
-
   public int getLambdaSecurityParam() {
     return lambdaSecurityParam;
-  }
-
-  public void setLambdaSecurityParam(int lambdaSecurityParam) {
-    this.lambdaSecurityParam = lambdaSecurityParam;
   }
 
   public Random getRand() {
     return rand;
   }
 
-  public void setRand(Random rand) {
-    this.rand = rand;
-  }
-
   public Network getNetwork() {
     return network;
-  }
-
-  public void setNetwork(Network network) {
-    this.network = network;
   }
 
   /**
    * Sends a list of StrictBitVectors to the default (0) channel.
    * 
-   * @param vector
-   *          Vector to send
+   * @param list
+   *          List to send
    * @return Returns true if the transmission was successful
    */
-  protected boolean sendList(List<StrictBitVector> vector) {
-    for (StrictBitVector currentArr : vector) {
+  protected boolean sendList(List<StrictBitVector> list) {
+    for (StrictBitVector currentArr : list) {
       network.send(otherId, currentArr.toByteArray());
     }
     return true;
@@ -128,20 +105,18 @@ public class CoteShared {
   /**
    * Receives a list of StrictBitVectors from the default (0) channel
    * 
-   * @param vector
-   *          Vector to receive
    * @param size
    *          Amount of elements in vector to receive
    * @return The list of received elements, or null in case an error occurred.
    */
   protected List<StrictBitVector> receiveList(int size) {
-    List<StrictBitVector> vector = new ArrayList<>(size);
+    List<StrictBitVector> list = new ArrayList<>(size);
     for (int i = 0; i < size; i++) {
       byte[] byteBuffer = network.receive(otherId);
       StrictBitVector currentArr = new StrictBitVector(byteBuffer,
           byteBuffer.length * 8);
-      vector.add(currentArr);
+      list.add(currentArr);
     }
-    return vector;
+    return list;
   }
 }

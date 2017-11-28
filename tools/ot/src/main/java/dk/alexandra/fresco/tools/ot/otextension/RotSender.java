@@ -1,9 +1,5 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.nio.ByteBuffer;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.List;
 
 import dk.alexandra.fresco.framework.util.Pair;
@@ -12,67 +8,109 @@ import dk.alexandra.fresco.tools.cointossing.FailedCoinTossingException;
 import dk.alexandra.fresco.tools.commitment.FailedCommitmentException;
 import dk.alexandra.fresco.tools.commitment.MaliciousCommitmentException;
 
+/**
+ * Protocol class for the party acting as the sender in a random OT extension.
+ * 
+ * @author jot2re
+ *
+ */
 public class RotSender extends RotShared {
-
+  // The correlated OT with errors sender that this object will use
   private CoteSender sender;
 
+  /**
+   * Construct a sending party for an instance of the random OT extension
+   * protocol.
+   * 
+   * @param snd
+   *          The correlated OT with error sender this protocol will use
+   */
   public RotSender(CoteSender snd) {
     super(snd);
     sender = snd;
   }
 
+  /**
+   * Initialize the random OT extension. This must only be done once.
+   * 
+   * @throws MaliciousCommitmentException
+   *           Thrown if cheating occurs in commitments during initialization
+   * @throws FailedCommitmentException
+   *           Thrown if something, non-malicious, goes wrong in the commitments
+   *           during initialization
+   * @throws FailedCoinTossingException
+   *           Thrown if something, non-malicious, goes wrong in the
+   *           coin-tossing protocol during initialization
+   * @throws FailedOtExtensionException
+   *           Thrown if something, non-malicious, goes wrong in the
+   *           initialization of the underlying correlated OT during
+   *           initialization
+   */
   public void initialize()
-      throws NoSuchAlgorithmException, MaliciousCommitmentException,
-      FailedCommitmentException, FailedCoinTossingException {
-    sender.initialize();
+      throws MaliciousCommitmentException, FailedCommitmentException,
+      FailedCoinTossingException, FailedOtExtensionException {
+    if (initialized) {
+      throw new IllegalStateException("Already initialized");
+    }
+    if (sender.initialized == false) {
+      sender.initialize();
+    }
     ct.initialize();
     initialized = true;
   }
 
+  /**
+   * Constructs a new batch of random OTs.
+   * 
+   * @param size
+   *          The amount of random OTs to construct
+   * @return A pair of lists of StrictBitVectors. First list consists of the
+   *         choice-zero messages. Second list consists of the choice-one
+   *         messages
+   * @throws MaliciousOtExtensionException
+   *           Thrown if cheating occurs
+   * @throws FailedOtExtensionException
+   *           Thrown if something, non-malicious, goes wrong
+   */
   public Pair<List<StrictBitVector>, List<StrictBitVector>> extend(int size)
-      throws MaliciousOtExtensionException, NoSuchAlgorithmException {
+      throws MaliciousOtExtensionException, FailedOtExtensionException {
     if (!initialized) {
       throw new IllegalStateException("Not initialized");
     }
     int ellPrime = size + getKbitLength() + getLambdaSecurityParam();
-    List<StrictBitVector> chiVec = new ArrayList<>(ellPrime);
-    for (int i = 0; i < ellPrime; i++) {
-      StrictBitVector currentChi = ct.toss(getKbitLength());
-      chiVec.add(currentChi);
-    }
-    List<StrictBitVector> qvec = sender.extend(ellPrime);
-    StrictBitVector qval = computePolyLinearCombination(chiVec, qvec);
-    byte[] xvalbytes = sender.network.receive(sender.otherId);
-    byte[] tvalbytes = sender.network.receive(sender.otherId);
-    StrictBitVector xval = new StrictBitVector(xvalbytes, sender.kbitLength);
-    StrictBitVector tval = new StrictBitVector(tvalbytes,
-        2 * sender.kbitLength);
-    StrictBitVector tprime = multiplyWithoutReduction(sender.getDelta(), xval);
-    tprime.xor(qval);
-    if (tprime.equals(tval) == false) {
+    // Construct a sufficient amount correlated OTs with errors
+    List<StrictBitVector> qlist = sender.extend(ellPrime);
+    // Agree on a random challenge for each of the correlated OTs with errors
+    List<StrictBitVector> chiList = getChallenges(ellPrime);
+    // Retrieve the correlation from the correlated OTs with errors
+    StrictBitVector delta = sender.getDelta();
+    // Compute the linear combination of the correlated OTs with errors and the
+    // random challenges
+    StrictBitVector qvec = computeInnerProduct(chiList, qlist);
+    // Retrieve the receivers parts of the correlation check challenge
+    byte[] xvecBytes = getNetwork().receive(getOtherId());
+    byte[] tvecBytes = getNetwork().receive(getOtherId());
+    StrictBitVector xvec = new StrictBitVector(xvecBytes, getKbitLength());
+    StrictBitVector tvec = new StrictBitVector(tvecBytes, 2 * getKbitLength());
+    // Compute the challenge vector based on the receivers send values
+    StrictBitVector tvecToCompare = multiplyWithoutReduction(delta, xvec);
+    tvecToCompare.xor(qvec);
+    // Ensure that the receiver has been honest by verifying its challenge
+    if (tvecToCompare.equals(tvec) == false) {
       throw new MaliciousOtExtensionException("Correlation check failed");
     }
-    List<StrictBitVector> vvecZero = new ArrayList<>(size);
-    List<StrictBitVector> vvecOne = new ArrayList<>(size);
+    // Remove the correlated of the first "size" messages by hashing for
+    // choice-zero
+    List<StrictBitVector> vvecZero = hashBitVector(qlist, size);
+    // XOR the correlated into all the values from the underlying correlated OT
+    // with error to compute the choice-one message
+    for (int i = 0; i < size; i++) {
+      qlist.get(i).xor(delta);
+    }
+    // Remove the correlated for the choice-one as well
+    List<StrictBitVector> vvecOne = hashBitVector(qlist, size);
     Pair<List<StrictBitVector>, List<StrictBitVector>> res = new Pair<List<StrictBitVector>, List<StrictBitVector>>(
         vvecZero, vvecOne);
-    MessageDigest digest = MessageDigest.getInstance("SHA-256");
-    // Size of an int is always 4 bytes in java
-    ByteBuffer indexBuffer = ByteBuffer.allocate(4 + digest.getDigestLength());
-    byte[] hash;
-    for (int i = 0; i < size; i++) {
-      indexBuffer.clear();
-      indexBuffer.putInt(i);
-      indexBuffer.put(qvec.get(i).toByteArray());
-      hash = digest.digest(indexBuffer.array());
-      vvecZero.add(new StrictBitVector(hash, 256));
-      indexBuffer.clear();
-      indexBuffer.putInt(i);
-      qvec.get(i).xor(sender.getDelta());
-      indexBuffer.put(qvec.get(i).toByteArray());
-      hash = digest.digest(indexBuffer.array());
-      vvecOne.add(new StrictBitVector(hash, 256));
-    }
     return res;
   }
 }

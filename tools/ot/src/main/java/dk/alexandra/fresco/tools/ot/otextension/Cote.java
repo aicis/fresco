@@ -34,8 +34,8 @@ public class Cote {
    */
   public Cote(int myId, int otherId, int kbitLength, int lambdaSecurityParam,
       Random rand, Network network) {
-    this.sender = new CoteSender(myId, otherId, kbitLength,
-        lambdaSecurityParam, rand, network);
+    this.sender = new CoteSender(myId, otherId, kbitLength, lambdaSecurityParam,
+        rand, network);
     this.receiver = new CoteReceiver(myId, otherId, kbitLength,
         lambdaSecurityParam, rand, network);
   }

@@ -46,7 +46,7 @@ public class CoteReceiver extends CoteShared {
    * @throws NoSuchAlgorithmException
    *           Thrown if the underlying PRG algorithm does not exist.
    */
-  public void initialize() throws NoSuchAlgorithmException {
+  public void initialize() throws FailedOtExtensionException {
     if (initialized) {
       throw new IllegalStateException("Already initialized");
     }
@@ -57,9 +57,18 @@ public class CoteReceiver extends CoteShared {
       ot.send(seedZero, seedFirst);
       seeds.add(new Pair<>(seedZero, seedFirst));
       // Initialize the PRGs with the random messages
-      SecureRandom prgZero = SecureRandom.getInstance("SHA1PRNG");
+      SecureRandom prgZero = null;
+      SecureRandom prgFirst = null;
+      try {
+        prgZero = SecureRandom.getInstance("SHA1PRNG");
+        prgFirst = SecureRandom.getInstance("SHA1PRNG");
+      } catch (NoSuchAlgorithmException e) {
+        throw new FailedOtExtensionException(
+            "Random OT extension failed. No malicious behaviour detected. "
+                + "Failure was caused by the following internal error: "
+                + e.getMessage());
+      }
       prgZero.setSeed(seedZero.toByteArray());
-      SecureRandom prgFirst = SecureRandom.getInstance("SHA1PRNG");
       prgFirst.setSeed(seedFirst.toByteArray());
       prgs.add(new Pair<>(prgZero, prgFirst));
     }

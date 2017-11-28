@@ -36,11 +36,12 @@ public class RotDemo<ResourcePoolT extends ResourcePool> {
    * @throws FailedCoinTossingException
    * @throws FailedCommitmentException
    * @throws MaliciousCommitmentException
+   * @throws FailedOtExtensionException
    */
   public void runPartyOne(int pid)
-      throws IOException, NoSuchAlgorithmException,
+      throws IOException, 
       MaliciousCommitmentException, FailedCommitmentException,
-      FailedCoinTossingException {
+      FailedCoinTossingException, FailedOtExtensionException {
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected receiver");
     Random rand = new Random(42);
@@ -78,7 +79,7 @@ public class RotDemo<ResourcePoolT extends ResourcePool> {
    * @throws MaliciousOtExtensionException
    */
   public void runPartyTwo(int pid)
-      throws IOException, NoSuchAlgorithmException,
+      throws IOException, FailedOtExtensionException,
       MaliciousCommitmentException, FailedCommitmentException,
       FailedCoinTossingException, MaliciousOtExtensionException {
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));

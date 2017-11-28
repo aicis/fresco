@@ -40,7 +40,7 @@ public class CoteDemo<ResourcePoolT extends ResourcePool> {
    *           Thrown in case the underlying PRG algorithm used does not exist
    */
   public void runPartyOne(int pid)
-      throws IOException, NoSuchAlgorithmException {
+      throws IOException, FailedOtExtensionException {
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected receiver");
     Random rand = new Random(42);
@@ -74,7 +74,7 @@ public class CoteDemo<ResourcePoolT extends ResourcePool> {
    *           Thrown in case the underlying PRG algorithm used does not exist
    */
   public void runPartyTwo(int pid)
-      throws IOException, NoSuchAlgorithmException {
+      throws IOException, FailedOtExtensionException {
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected sender");
     Random rand = new Random(420);

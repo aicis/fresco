@@ -2,7 +2,6 @@ package dk.alexandra.fresco.tools.ot.otextension;
 
 import static org.junit.Assert.assertEquals;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -167,7 +166,7 @@ public class TestRot {
   /**** NEGATIVE TESTS. ****/
   @Test
   public void testIllegalExtend()
-      throws MaliciousOtExtensionException, NoSuchAlgorithmException {
+      throws MaliciousOtExtensionException, FailedOtExtensionException {
     boolean thrown = false;
     try {
       rot.getSender().extend(88);
