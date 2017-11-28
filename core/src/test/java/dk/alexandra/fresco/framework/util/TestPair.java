@@ -22,7 +22,6 @@ public class TestPair {
     assertEquals(5, pair.getSecond().intValue());
   }
 
-  @SuppressWarnings("unlikely-arg-type")
   @Test
   public void testEqualsAndHashCode() {
     Pair<String, Integer> pair1 = new Pair<>("Foo", 5);

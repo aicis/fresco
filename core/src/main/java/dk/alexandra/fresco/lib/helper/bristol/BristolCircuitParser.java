@@ -38,7 +38,6 @@ public class BristolCircuitParser implements
   private List<DRes<SBool>> in2;
 
   // Some meta data.
-  private int no_gates;
   private int no_wires;
   private int no_input1;
   private int no_input2;
@@ -56,7 +55,6 @@ public class BristolCircuitParser implements
 
     // Read first line; this is meta data.
     String[] meta = linesIter.next().split(" \\s*");
-    this.no_gates = Integer.parseInt(meta[0]);
     this.no_wires = Integer.parseInt(meta[1]);
     meta = linesIter.next().split(" \\s*");
     this.no_input1 = Integer.parseInt(meta[0]);
