@@ -16,36 +16,58 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Secure Computation Engine - responsible for having the overview of things and setting everything
  * up, e.g., based on properties.
  */
-public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder>
-    implements SecureComputationEngine<ResourcePoolT, Builder> {
+public class SecureComputationEngineImpl
+    <ResourcePoolT extends ResourcePool, BuilderT extends ProtocolBuilder>
+    implements SecureComputationEngine<ResourcePoolT, BuilderT> {
 
-  private ProtocolEvaluator<ResourcePoolT, Builder> evaluator;
+  private ProtocolEvaluator<ResourcePoolT, BuilderT> evaluator;
   private ExecutorService executorService;
   private boolean setup;
-  private ProtocolSuite<ResourcePoolT, Builder> protocolSuite;
+  private ProtocolSuite<ResourcePoolT, BuilderT> protocolSuite;
   private static final AtomicInteger threadCounter = new AtomicInteger(1);
-  private final static org.slf4j.Logger logger =
-      LoggerFactory.getLogger(SecureComputationEngineImpl.class);
+  private static final Logger logger = LoggerFactory.getLogger(SecureComputationEngineImpl.class);
+  private long timeOutValue = TimeUnit.NANOSECONDS.convert(10, TimeUnit.MINUTES);
 
-  public SecureComputationEngineImpl(ProtocolSuite<ResourcePoolT, Builder> protocolSuite,
-      ProtocolEvaluator<ResourcePoolT, Builder> evaluator) {
+  /**
+   * Creates a new {@link SecureCompatationEngineImpl}.
+   *
+   * @param protocolSuite the {@link ProtocolSuite} to use to evaluate the secure computation
+   * @param evaluator the {@link ProtocolEvaluator} to run secure evaluation.
+   */
+  public SecureComputationEngineImpl(ProtocolSuite<ResourcePoolT, BuilderT> protocolSuite,
+      ProtocolEvaluator<ResourcePoolT, BuilderT> evaluator) {
     this.protocolSuite = protocolSuite;
     this.evaluator = evaluator;
     this.setup = false;
   }
 
+  /**
+   * Sets the time out limit for waiting for output from running applications.
+   *
+   * <p>
+   * Defaults to a value of 10 minutes.
+   * </p>
+   *
+   * @param value value of the limit
+   * @param unit the time unit of the limit
+   */
+  public void setRunTimeout(int value, TimeUnit unit) {
+    timeOutValue = TimeUnit.NANOSECONDS.convert(value, unit);
+  }
+
   @Override
-  public <OutputT> OutputT runApplication(Application<OutputT, Builder> application,
+  public <OutputT> OutputT runApplication(Application<OutputT, BuilderT> application,
       ResourcePoolT resourcePool, Network network) {
     Future<OutputT> future = startApplication(application, resourcePool, network);
     try {
-      return future.get(10, TimeUnit.MINUTES);
+      return future.get(timeOutValue, TimeUnit.NANOSECONDS);
     } catch (InterruptedException | TimeoutException e) {
       throw new RuntimeException("Internal error in waiting", e);
     } catch (ExecutionException e) {
@@ -54,42 +76,39 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Bui
   }
 
   @Override
-  public <OutputT> Future<OutputT> startApplication(Application<OutputT, Builder> application,
+  public <OutputT> Future<OutputT> startApplication(Application<OutputT, BuilderT> application,
       ResourcePoolT resourcePool, Network network) {
     setup();
     Callable<OutputT> callable = () -> evalApplication(application, resourcePool, network).out();
     return executorService.submit(callable);
   }
 
-  private <OutputT> DRes<OutputT> evalApplication(Application<OutputT, Builder> application,
+  private <OutputT> DRes<OutputT> evalApplication(Application<OutputT, BuilderT> application,
       ResourcePoolT resourcePool, Network network) throws Exception {
     logger.info(
         "Running application: " + application + " using protocol suite: " + this.protocolSuite);
-    BuilderFactory<Builder> protocolFactory = this.protocolSuite.init(resourcePool, network);
-    Builder builder = protocolFactory.createSequential();
+    BuilderFactory<BuilderT> protocolFactory = this.protocolSuite.init(resourcePool, network);
+    BuilderT builder = protocolFactory.createSequential();
     DRes<OutputT> output = application.buildComputation(builder);
-
     long then = System.currentTimeMillis();
     this.evaluator.eval(builder.build(), resourcePool, network);
     long now = System.currentTimeMillis();
-    long timeSpend = now - then;
-    logger.info(
-        "The application " + application + " finished evaluation in " + timeSpend + " ms.");
+    long timeSpent = now - then;
+    logger.info("The application {} finished evaluation in {} ms.", application, timeSpent);
     application.close();
     return output;
   }
 
   @Override
   public synchronized void setup() {
-    if (this.setup) {
-      return;
+    if (!this.setup) {
+      this.executorService = Executors.newCachedThreadPool(r -> {
+        Thread thread = new Thread(r, "SCE-" + threadCounter.getAndIncrement());
+        thread.setDaemon(true);
+        return thread;
+      });
+      this.setup = true;
     }
-    this.executorService = Executors.newCachedThreadPool(r -> {
-      Thread thread = new Thread(r, "SCE-" + threadCounter.getAndIncrement());
-      thread.setDaemon(true);
-      return thread;
-    });
-    this.setup = true;
   }
 
   @Override
