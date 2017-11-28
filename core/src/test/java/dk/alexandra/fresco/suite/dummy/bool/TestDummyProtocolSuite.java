@@ -27,9 +27,11 @@ public class TestDummyProtocolSuite extends AbstractDummyBooleanTest {
   @Test
   public void test_basic_logic() throws Exception {
     runTest(new BasicBooleanTests.TestInput<>(true), EvaluationStrategy.SEQUENTIAL);
+    runTest(new BasicBooleanTests.TestInputDifferentSender<>(true), EvaluationStrategy.SEQUENTIAL, null, 2);
     runTest(new BasicBooleanTests.TestXOR<>(true), EvaluationStrategy.SEQUENTIAL);
     runTest(new BasicBooleanTests.TestAND<>(true), EvaluationStrategy.SEQUENTIAL);
     runTest(new BasicBooleanTests.TestNOT<>(true), EvaluationStrategy.SEQUENTIAL);
+    runTest(new BasicBooleanTests.TestRandomBit<>(true), EvaluationStrategy.SEQUENTIAL);
   }
 
   // lib.field.bool.generic
