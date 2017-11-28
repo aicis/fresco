@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.arithmetic.AdvancedNumericTests;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
-import dk.alexandra.fresco.lib.arithmetic.ExponentiationPipeTests;
 import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
 import dk.alexandra.fresco.lib.arithmetic.ParallelAndSequenceTests.TestSumAndProduct;
 import dk.alexandra.fresco.lib.arithmetic.SearchingTests;
@@ -602,7 +601,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   
   @Test
   public void test_exponentiation_pipe_preprocessed() throws Exception {
-    runTest(new ExponentiationPipeTests.TestPreprocessedValues<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new dk.alexandra.fresco.framework.builder.numeric.ExponentiationPipeTests.TestPreprocessedValues<>(), EvaluationStrategy.SEQUENTIAL,
         1);
   }
   
