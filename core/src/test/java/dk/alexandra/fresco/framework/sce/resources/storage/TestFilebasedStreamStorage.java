@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.framework.sce.resources;
+package dk.alexandra.fresco.framework.sce.resources.storage;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
