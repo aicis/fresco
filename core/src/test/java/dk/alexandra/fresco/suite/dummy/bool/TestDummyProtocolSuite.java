@@ -100,6 +100,11 @@ public class TestDummyProtocolSuite extends AbstractDummyBooleanTest {
   }
 
   @Test
+  public void test_AES_Multi_Sequential() throws Exception {
+    runTest(new BristolCryptoTests.MultiAesTest<>(true), EvaluationStrategy.SEQUENTIAL);
+  }
+  
+  @Test
   public void test_AES_SequentialBatched() throws Exception {
     runTest(new BristolCryptoTests.AesTest<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
