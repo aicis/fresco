@@ -225,19 +225,10 @@ public class BristolCryptoTests {
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
             List<DRes<SBool>> input1 = BooleanHelper.known(toBoolean(ins[0]), seq.binary());
-            // List<Computation<SBool>> input2 = seq.binary().known(toBoolean(ins[1]));
-            // List<Computation<SBool>> input3 = seq.binary().known(toBoolean(ins[2]));
             List<List<DRes<SBool>>> inputs = new ArrayList<>();
             inputs.add(input1);
-            // inputs.add(input2);
-            // inputs.add(input3);
             return () -> inputs;
           }).seq((seq, inputs) -> {
-            // List<Computation<List<SBool>>> list = new ArrayList<>();
-            // list.add(seq.bristol().getSHA1Circuit(inputs.get(0)));
-            // list.add(seq.bristol().getSHA1Circuit(inputs.get(1)));
-            // list.add(seq.bristol().getSHA1Circuit(inputs.get(2)));
-
             DRes<List<SBool>> list = seq.bristol().SHA1(inputs.get(0));
             return list;
           }).seq((seq, res) -> {
@@ -245,22 +236,9 @@ public class BristolCryptoTests {
             for (SBool boo : res) {
               outputs.add(seq.binary().open(boo));
             }
-            // List<List<Computation<Boolean>>> outputs = new ArrayList<>();
-            // for (Computation<List<SBool>> elm : res) {
-            // List<Computation<Boolean>> outList = new ArrayList<>();
-            // for (SBool boo : elm.out()) {
-            // outList.add(seq.binary().open(() -> boo));
-            // }
-            // outputs.add(outList);
-            // }
             return () -> outputs;
           }).seq((seq, output) -> {
-            // List<List<Boolean>> result = new ArrayList<>();
-            // for (List<Computation<Boolean>> o : output) {
-            // result.add(o.stream().map(Computation::out).collect(Collectors.toList()));
-            // }
             return () -> output.stream().map(DRes::out).collect(Collectors.toList());
-            // return () -> result;
           });
 
           List<Boolean> res = runApplication(app);
