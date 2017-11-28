@@ -15,8 +15,12 @@ public class MultiplyRight extends MultiplyShared {
   public MultiplyRight(MascotContext ctx, Integer otherId, int numLeftFactors) {
     super(ctx, otherId, numLeftFactors);
   }
+  
+  public MultiplyRight(MascotContext ctx, Integer otherId) {
+    this(ctx, otherId, 1);
+  }
 
-  List<Pair<StrictBitVector, StrictBitVector>> generateSeeds(int numMults) {
+  public List<Pair<StrictBitVector, StrictBitVector>> generateSeeds(int numMults) {
     // perform rots for each bit, for each left factor, for each multiplication
     int numRots = ctx.getkBitLength() * numLeftFactors * numMults;
     List<Pair<StrictBitVector, StrictBitVector>> seeds = rot.send(numRots);
@@ -30,7 +34,7 @@ public class MultiplyRight extends MultiplyShared {
     return diff;
   }
 
-  List<FieldElement> computeDiffs(List<Pair<FieldElement, FieldElement>> feSeedPairs,
+  public List<FieldElement> computeDiffs(List<Pair<FieldElement, FieldElement>> feSeedPairs,
       List<FieldElement> rightFactors) {
     List<FieldElement> diffs = new ArrayList<>(feSeedPairs.size());
     int modBitLength = ctx.getkBitLength();
@@ -46,14 +50,14 @@ public class MultiplyRight extends MultiplyShared {
     return diffs;
   }
 
-  void sendDiffs(List<FieldElement> diffs) {
+  public void sendDiffs(List<FieldElement> diffs) {
     // TODO: need batch-send
     for (FieldElement diff : diffs) {
       ctx.getNetwork().send(otherId, diff.toByteArray());
     }
   }
 
-  List<List<FieldElement>> computeProductShares(List<FieldElement> feZeroSeeds,
+  public List<List<FieldElement>> computeProductShares(List<FieldElement> feZeroSeeds,
       int numRightFactors) {
     BigInteger modulus = ctx.getModulus();
     int modBitLength = ctx.getkBitLength();
@@ -99,8 +103,7 @@ public class MultiplyRight extends MultiplyShared {
         feSeedPairs.stream().map(feSeedPair -> feSeedPair.getFirst()).collect(Collectors.toList());
 
     // compute product shares
-    List<List<FieldElement>> productShares = computeProductShares(feZeroSeeds, rightFactors.size());
-    return productShares;
+    return computeProductShares(feZeroSeeds, rightFactors.size());
   }
 
 }

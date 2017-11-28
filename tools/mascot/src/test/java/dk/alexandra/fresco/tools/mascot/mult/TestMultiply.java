@@ -3,7 +3,6 @@ package dk.alexandra.fresco.tools.mascot.mult;
 import static org.junit.Assert.assertEquals;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.TestRuntime;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 
@@ -32,25 +32,6 @@ public class TestMultiply {
   public void teardownRuntime() {
     testRuntime.shutdown();
     testRuntime = null;
-  }
-
-  private List<FieldElement> generateSingleRow(int[] factors, BigInteger modulus,
-      int modBitLength) {
-    return Arrays.stream(factors).mapToObj(val -> new FieldElement(val, modulus, modBitLength))
-        .collect(Collectors.toList());
-  }
-
-  private List<List<FieldElement>> generateLeftInput(int[][] rows, BigInteger modulus,
-      int modBitLength) {
-    int numMults = rows.length;
-    List<List<FieldElement>> input = new ArrayList<>(numMults);
-    for (int[] leftFactorRow : rows) {
-      List<FieldElement> row =
-          Arrays.stream(leftFactorRow).mapToObj(val -> new FieldElement(val, modulus, modBitLength))
-              .collect(Collectors.toList());
-      input.add(row);
-    }
-    return input;
   }
 
   private List<List<FieldElement>> runLeftMult(MascotContext ctx, Integer otherId,
@@ -90,7 +71,8 @@ public class TestMultiply {
       Callable<List<List<FieldElement>>> partyOneTask =
           () -> runLeftMult(partyOneCtx, 2, leftInputs);
       Callable<List<List<FieldElement>>> partyTwoTask =
-          () -> runRightMult(partyTwoCtx, 1, rightInputs, leftInputs.get(0).size());
+          () -> runRightMult(partyTwoCtx, 1, rightInputs, leftInputs.get(0)
+              .size());
 
       // run tasks and get ordered list of results
       List<List<List<FieldElement>>> results =
@@ -100,8 +82,10 @@ public class TestMultiply {
       List<List<FieldElement>> leftResults = results.get(0);
       List<List<FieldElement>> rightResults = results.get(1);
 
-      FieldElement left = leftResults.get(0).get(0);
-      FieldElement right = rightResults.get(0).get(0);
+      FieldElement left = leftResults.get(0)
+          .get(0);
+      FieldElement right = rightResults.get(0)
+          .get(0);
 
       FieldElement actual = left.add(right);
       FieldElement expected = leftInput.multiply(rightInput);
@@ -144,21 +128,25 @@ public class TestMultiply {
       Callable<List<List<FieldElement>>> partyOneTask =
           () -> runLeftMult(partyOneCtx, 2, leftInputs);
       Callable<List<List<FieldElement>>> partyTwoTask =
-          () -> runRightMult(partyTwoCtx, 1, rightInputs, leftInputs.get(0).size());
+          () -> runRightMult(partyTwoCtx, 1, rightInputs, leftInputs.get(0)
+              .size());
 
       // run tasks and get ordered list of results
       List<List<List<FieldElement>>> results =
           testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
 
       // get per party results
-      List<FieldElement> leftResults = results.get(0).get(0);
-      List<FieldElement> rightResults = results.get(1).get(0);
+      List<FieldElement> leftResults = results.get(0)
+          .get(0);
+      List<FieldElement> rightResults = results.get(1)
+          .get(0);
 
       List<FieldElement> expected = Arrays.asList(leftInputOne.multiply(rightInput),
           leftInputTwo.multiply(rightInput), leftInputThree.multiply(rightInput));
-      List<FieldElement> actual =
-          IntStream.range(0, 3).mapToObj(idx -> leftResults.get(idx).add(rightResults.get(idx)))
-              .collect(Collectors.toList());
+      List<FieldElement> actual = IntStream.range(0, 3)
+          .mapToObj(idx -> leftResults.get(idx)
+              .add(rightResults.get(idx)))
+          .collect(Collectors.toList());
       assertEquals(expected, actual);
     } catch (Exception e) {
       // TODO: handle exception
@@ -183,16 +171,19 @@ public class TestMultiply {
 
       // left parties input
       int[][] leftRows = {{70}, {12}, {123}};
-      List<List<FieldElement>> leftInputs = generateLeftInput(leftRows, modulus, modBitLength);
+      List<List<FieldElement>> leftInputs =
+          MascotTestUtils.generateLeftInput(leftRows, modulus, modBitLength);
       // right party input
       int[] rightRows = {1, 2, 3};
-      List<FieldElement> rightInputs = generateSingleRow(rightRows, modulus, modBitLength);
+      List<FieldElement> rightInputs =
+          MascotTestUtils.generateSingleRow(rightRows, modulus, modBitLength);
 
       // define task each party will run
       Callable<List<List<FieldElement>>> partyOneTask =
           () -> runLeftMult(partyOneCtx, 2, leftInputs);
       Callable<List<List<FieldElement>>> partyTwoTask =
-          () -> runRightMult(partyTwoCtx, 1, rightInputs, leftInputs.get(0).size());
+          () -> runRightMult(partyTwoCtx, 1, rightInputs, leftInputs.get(0)
+              .size());
 
       // run tasks and get ordered list of results
       List<List<List<FieldElement>>> results =
@@ -200,17 +191,20 @@ public class TestMultiply {
 
       // get per party results
       List<List<FieldElement>> leftResults = results.get(0);
-      List<FieldElement> leftResultFlat =
-          leftResults.stream().flatMap(l -> l.stream()).collect(Collectors.toList());
+      List<FieldElement> leftResultFlat = leftResults.stream()
+          .flatMap(l -> l.stream())
+          .collect(Collectors.toList());
       List<List<FieldElement>> rightResults = results.get(1);
-      List<FieldElement> rightResultFlat =
-          rightResults.stream().flatMap(l -> l.stream()).collect(Collectors.toList());
+      List<FieldElement> rightResultFlat = rightResults.stream()
+          .flatMap(l -> l.stream())
+          .collect(Collectors.toList());
 
       // expected result is pair-wise products
       int[] prods = {70 * 1, 12 * 2, 123 * 3};
-      List<FieldElement> expected = generateSingleRow(prods, modulus, modBitLength);
+      List<FieldElement> expected = MascotTestUtils.generateSingleRow(prods, modulus, modBitLength);
       List<FieldElement> actual = IntStream.range(0, 3)
-          .mapToObj(idx -> leftResultFlat.get(idx).add(rightResultFlat.get(idx)))
+          .mapToObj(idx -> leftResultFlat.get(idx)
+              .add(rightResultFlat.get(idx)))
           .collect(Collectors.toList());
 
       assertEquals(expected, actual);
@@ -237,16 +231,19 @@ public class TestMultiply {
 
       // left parties input
       int[][] leftRows = {{70, 71, 72}, {12, 13, 14}, {123, 124, 125}};
-      List<List<FieldElement>> leftInputs = generateLeftInput(leftRows, modulus, modBitLength);
+      List<List<FieldElement>> leftInputs =
+          MascotTestUtils.generateLeftInput(leftRows, modulus, modBitLength);
       // right party input
       int[] rightRows = {1, 2, 3};
-      List<FieldElement> rightInputs = generateSingleRow(rightRows, modulus, modBitLength);
+      List<FieldElement> rightInputs =
+          MascotTestUtils.generateSingleRow(rightRows, modulus, modBitLength);
 
       // define task each party will run
       Callable<List<List<FieldElement>>> partyOneTask =
           () -> runLeftMult(partyOneCtx, 2, leftInputs);
       Callable<List<List<FieldElement>>> partyTwoTask =
-          () -> runRightMult(partyTwoCtx, 1, rightInputs, leftInputs.get(0).size());
+          () -> runRightMult(partyTwoCtx, 1, rightInputs, leftInputs.get(0)
+              .size());
 
       // run tasks and get ordered list of results
       List<List<List<FieldElement>>> results =
@@ -254,19 +251,22 @@ public class TestMultiply {
 
       // get per party results
       List<List<FieldElement>> leftResults = results.get(0);
-      List<FieldElement> leftResultFlat =
-          leftResults.stream().flatMap(l -> l.stream()).collect(Collectors.toList());
+      List<FieldElement> leftResultFlat = leftResults.stream()
+          .flatMap(l -> l.stream())
+          .collect(Collectors.toList());
       List<List<FieldElement>> rightResults = results.get(1);
-      List<FieldElement> rightResultFlat =
-          rightResults.stream().flatMap(l -> l.stream()).collect(Collectors.toList());
+      List<FieldElement> rightResultFlat = rightResults.stream()
+          .flatMap(l -> l.stream())
+          .collect(Collectors.toList());
 
       // TODO: should have assertions on results dimensions
 
       // expected result is pair-wise products
       int[] prods = {70 * 1, 71 * 1, 72 * 1, 12 * 2, 13 * 2, 14 * 2, 123 * 3, 124 * 3, 125 * 3};
-      List<FieldElement> expected = generateSingleRow(prods, modulus, modBitLength);
-      List<FieldElement> actual = IntStream.range(0, 9)
-          .mapToObj(idx -> leftResultFlat.get(idx).add(rightResultFlat.get(idx)))
+      List<FieldElement> expected = MascotTestUtils.generateSingleRow(prods, modulus, modBitLength);
+      List<FieldElement> actual = IntStream.range(0, expected.size())
+          .mapToObj(idx -> leftResultFlat.get(idx)
+              .add(rightResultFlat.get(idx)))
           .collect(Collectors.toList());
 
       assertEquals(expected, actual);
@@ -307,21 +307,25 @@ public class TestMultiply {
       Callable<List<List<FieldElement>>> partyOneTask =
           () -> runLeftMult(partyTwoCtx, 1, leftInputs);
       Callable<List<List<FieldElement>>> partyTwoTask =
-          () -> runRightMult(partyOneCtx, 2, rightInputs, leftInputs.get(0).size());
+          () -> runRightMult(partyOneCtx, 2, rightInputs, leftInputs.get(0)
+              .size());
 
       // run tasks and get ordered list of results
       List<List<List<FieldElement>>> results =
           testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
 
       // get per party results
-      List<FieldElement> leftResults = results.get(0).get(0);
-      List<FieldElement> rightResults = results.get(1).get(0);
+      List<FieldElement> leftResults = results.get(0)
+          .get(0);
+      List<FieldElement> rightResults = results.get(1)
+          .get(0);
 
       List<FieldElement> expected = Arrays.asList(leftInputOne.multiply(rightInput),
           leftInputTwo.multiply(rightInput), leftInputThree.multiply(rightInput));
-      List<FieldElement> actual =
-          IntStream.range(0, 3).mapToObj(idx -> leftResults.get(idx).add(rightResults.get(idx)))
-              .collect(Collectors.toList());
+      List<FieldElement> actual = IntStream.range(0, 3)
+          .mapToObj(idx -> leftResults.get(idx)
+              .add(rightResults.get(idx)))
+          .collect(Collectors.toList());
       assertEquals(expected, actual);
     } catch (Exception e) {
       // TODO: handle exception
@@ -330,4 +334,9 @@ public class TestMultiply {
     }
   }
 
+  @Test
+  public void multipleSequentialMults() {
+    // TODO
+  }
+  
 }

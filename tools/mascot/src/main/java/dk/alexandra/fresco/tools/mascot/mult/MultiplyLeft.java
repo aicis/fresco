@@ -2,6 +2,7 @@ package dk.alexandra.fresco.tools.mascot.mult;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,6 +14,10 @@ public class MultiplyLeft extends MultiplyShared {
 
   public MultiplyLeft(MascotContext ctx, Integer otherId, int numLeftFactors) {
     super(ctx, otherId, numLeftFactors);
+  }
+  
+  public MultiplyLeft(MascotContext ctx, Integer otherId) {
+    this(ctx, otherId, 1);
   }
 
   /**
@@ -29,14 +34,18 @@ public class MultiplyLeft extends MultiplyShared {
     return StrictBitVector.concat(true, bitVecs);
   }
 
-  List<StrictBitVector> generateSeeds(List<List<FieldElement>> leftFactors) {
+  public List<StrictBitVector> generateSeeds(List<List<FieldElement>> leftFactors) {
     StrictBitVector packedFactors = pack(leftFactors);
     // use rot to get choice seeds
     List<StrictBitVector> seeds = rot.receive(packedFactors);
     return seeds;
   }
+  
+  public List<StrictBitVector> generateSeeds(FieldElement leftFactor) {
+    return generateSeeds(Arrays.asList(Arrays.asList(leftFactor)));
+  }
 
-  List<FieldElement> receiveDiffs(int numDiffs) {
+  public List<FieldElement> receiveDiffs(int numDiffs) {
     // TODO: need batch-receive
     List<FieldElement> diffs = new ArrayList<>();
     for (int d = 0; d < numDiffs; d++) {
@@ -46,7 +55,7 @@ public class MultiplyLeft extends MultiplyShared {
     return diffs;
   }
   
-  List<List<FieldElement>> computeProductShares(List<List<FieldElement>> leftFactors,
+  public List<List<FieldElement>> computeProductShares(List<List<FieldElement>> leftFactors,
       List<FieldElement> feSeeds, List<FieldElement> diffs) {
     // we need modulus and bit length
     BigInteger modulus = ctx.getModulus();
@@ -75,6 +84,11 @@ public class MultiplyLeft extends MultiplyShared {
 
     return result;
   }
+  
+  public List<List<FieldElement>> computeProductShares(FieldElement leftFactor,
+      List<FieldElement> feSeeds, List<FieldElement> diffs) {
+    return computeProductShares(Arrays.asList(Arrays.asList(leftFactor)), feSeeds, diffs);
+  }
 
   public List<List<FieldElement>> multiply(List<List<FieldElement>> leftFactors) {
     // we need the modulus and the bit length of the modulus
@@ -92,9 +106,8 @@ public class MultiplyLeft extends MultiplyShared {
     // get diffs from other party
     List<FieldElement> diffs = receiveDiffs(seeds.size());
     
-    // compute our shares of the product
-    List<List<FieldElement>> productShares = computeProductShares(leftFactors, feSeeds, diffs);    
-    return productShares;
+    // compute our shares of the product and return
+    return computeProductShares(leftFactors, feSeeds, diffs);    
   }
 
 }
