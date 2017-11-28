@@ -27,6 +27,9 @@ public class TestSecureComputationEngineImpl {
 
   private SecureComputationEngineImpl<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce;
 
+  /**
+   * Sets up an SCE with the dummy arithmetic suite.
+   */
   @Before
   public void setup() {
     DummyArithmeticProtocolSuite suite =
@@ -97,6 +100,9 @@ public class TestSecureComputationEngineImpl {
     fail("Should not be reachable");
   }
 
+  /**
+   * Shuts down the SCE.
+   */
   @After
   public void tearDown() {
     sce.shutdownSCE();
