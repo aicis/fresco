@@ -37,7 +37,7 @@ public class FieldElement {
   public FieldElement(byte[] value, BigInteger modulus, int bitLength) {
     this(new BigInteger(1, value), modulus, bitLength);
   }
-  
+
   public FieldElement(byte[] value, String modulus, int bitLength) {
     this(new BigInteger(1, value), new BigInteger(modulus), bitLength);
   }
@@ -45,12 +45,13 @@ public class FieldElement {
   private FieldElement binaryOp(BinaryOperator<BigInteger> op, FieldElement left,
       FieldElement right) {
     // TODO: check that modulus and size are same
-    return new FieldElement(op.apply(left.toBigInteger(), right.toBigInteger()).mod(modulus),
-        this.modulus, this.bitLength);
+    return new FieldElement(op.apply(left.toBigInteger(), right.toBigInteger())
+        .mod(modulus), this.modulus, this.bitLength);
   }
 
   public FieldElement pow(int exponent) {
-    return new FieldElement(this.value.pow(exponent).mod(modulus), modulus, bitLength);
+    return new FieldElement(this.value.pow(exponent)
+        .mod(modulus), modulus, bitLength);
   }
 
   public FieldElement add(FieldElement other) {
@@ -66,8 +67,8 @@ public class FieldElement {
   }
 
   public FieldElement negate() {
-    return new FieldElement(value.multiply(BigInteger.valueOf(-1)).mod(modulus), modulus,
-        bitLength);
+    return new FieldElement(value.multiply(BigInteger.valueOf(-1))
+        .mod(modulus), modulus, bitLength);
   }
 
   public BigInteger getModulus() {
@@ -160,7 +161,8 @@ public class FieldElement {
     int power = 0;
     for (FieldElement element : elements) {
       // TODO: do we need/ want modular exponentiation?
-      accumulator = accumulator.add(generator.pow(power).multiply(element));
+      accumulator = accumulator.add(generator.pow(power)
+          .multiply(element));
       power++;
     }
     return accumulator;
@@ -174,8 +176,18 @@ public class FieldElement {
 
   public static FieldElement innerProduct(List<FieldElement> left, List<FieldElement> right) {
     // TODO: throw is unequal lengths
-    return IntStream.range(0, left.size()).mapToObj(idx -> left.get(idx).multiply(right.get(idx)))
-        .reduce((l, r) -> l.add(r)).get();
+    return IntStream.range(0, left.size())
+        .mapToObj(idx -> left.get(idx)
+            .multiply(right.get(idx)))
+        .reduce((l, r) -> l.add(r))
+        .get();
+  }
+
+  public static FieldElement sum(List<FieldElement> summands) {
+    // TODO: only need to do one modular reduction
+    return summands.stream()
+        .reduce((l, r) -> l.add(r))
+        .get();
   }
 
   private void sanityCheck(BigInteger value, BigInteger modulus, int bitLength) {
@@ -193,7 +205,7 @@ public class FieldElement {
       throw new IllegalArgumentException("Value must be smaller than modulus");
     }
   }
-  
-  
+
+
 
 }

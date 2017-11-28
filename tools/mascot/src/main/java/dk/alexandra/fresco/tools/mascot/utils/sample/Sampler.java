@@ -15,5 +15,4 @@ public interface Sampler {
 
   public List<FieldElement> jointSample(BigInteger modulus, int bitLength, int numSamples);
 
-  
 }

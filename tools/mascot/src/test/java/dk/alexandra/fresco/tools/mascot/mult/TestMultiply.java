@@ -30,8 +30,10 @@ public class TestMultiply {
 
   @After
   public void teardownRuntime() {
-    testRuntime.shutdown();
-    testRuntime = null;
+    if (testRuntime != null && testRuntime.isExecutorInitialized()) {      
+      testRuntime.shutdown();
+      testRuntime = null;
+    }
   }
 
   private List<List<FieldElement>> runLeftMult(MascotContext ctx, Integer otherId,
@@ -338,5 +340,5 @@ public class TestMultiply {
   public void multipleSequentialMults() {
     // TODO
   }
-  
+
 }

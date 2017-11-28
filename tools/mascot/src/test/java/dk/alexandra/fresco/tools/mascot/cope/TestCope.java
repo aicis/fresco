@@ -30,8 +30,10 @@ public class TestCope {
 
   @After
   public void teardownRuntime() {
-    testRuntime.shutdown();
-    testRuntime = null;
+    if (testRuntime != null && testRuntime.isExecutorInitialized()) {      
+      testRuntime.shutdown();
+      testRuntime = null;
+    }
   }
 
   private List<FieldElement> runSigner(MascotContext ctx, Integer otherId, FieldElement macKeyShare,

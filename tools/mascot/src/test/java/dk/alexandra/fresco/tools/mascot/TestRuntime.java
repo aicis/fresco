@@ -42,7 +42,7 @@ public class TestRuntime {
    */
   public void shutdown() {
     if (!executorInitialized) {
-      throw new IllegalStateException("Executor not initialized, nothing to shutd down.");
+      throw new IllegalStateException("Executor not initialized, nothing to shut down.");
     }
     executorInitialized = false;
     try {
@@ -162,6 +162,10 @@ public class TestRuntime {
   private Pair<Integer, MascotContext> initializeContext(Integer myId, List<Integer> partyIds) {
     MascotContext ctx = MascotContext.defaultContext(myId, new LinkedList<>(partyIds));
     return new Pair<>(myId, ctx);
+  }
+  
+  public boolean isExecutorInitialized() {
+    return executorInitialized;
   }
 
 }
