@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.lib.lp;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Comparison;
@@ -19,23 +18,9 @@ public class BlandEnteringVariable
   private final LPTableau tableau;
   private final Matrix<DRes<SInt>> updateMatrix;
 
-  public BlandEnteringVariable(LPTableau tableau,
-      Matrix<DRes<SInt>> updateMatrix) {
-    if (checkDimensions(tableau, updateMatrix)) {
-      this.updateMatrix = updateMatrix;
-      this.tableau = tableau;
-    } else {
-      throw new MPCException("Dimensions of inputs do not match");
-    }
-  }
-
-  private boolean checkDimensions(LPTableau tableau, Matrix<DRes<SInt>> updateMatrix) {
-    int updateHeight = updateMatrix.getHeight();
-    int updateWidth = updateMatrix.getWidth();
-    int tableauHeight = tableau.getC().getHeight() + 1;
-    // int tableauWidth = tableau.getC().getWidth() + 1;
-    return (updateHeight == updateWidth && updateHeight == tableauHeight);
-        /*&& enteringIndex.length == tableauWidth - 1*/
+  protected BlandEnteringVariable(LPTableau tableau, Matrix<DRes<SInt>> updateMatrix) {
+    this.updateMatrix = updateMatrix;
+    this.tableau = tableau;
   }
 
   @Override
@@ -96,9 +81,9 @@ public class BlandEnteringVariable
           }
           return () -> enteringIndex;
         })).seq((seq, enteringIndex) -> {
-      DRes<SInt> terminationSum = seq.advancedNumeric().sum(enteringIndex);
-      DRes<SInt> termination = seq.numeric().sub(one, terminationSum);
-      return () -> new Pair<>(enteringIndex, termination.out());
-    });
+          DRes<SInt> terminationSum = seq.advancedNumeric().sum(enteringIndex);
+          DRes<SInt> termination = seq.numeric().sub(one, terminationSum);
+          return () -> new Pair<>(enteringIndex, termination.out());
+        });
   }
 }

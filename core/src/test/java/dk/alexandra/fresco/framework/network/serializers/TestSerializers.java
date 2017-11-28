@@ -11,8 +11,6 @@ public class TestSerializers {
 
   @Test
   public void testBigIntegerWithFixedLengthSerializer() {
-    BigInteger mod = new BigInteger("1298376217321832134223");
-
     BigInteger b = new BigInteger("1298376217321832");
     BigIntegerWithFixedLengthSerializer serializer = new BigIntegerWithFixedLengthSerializer(20);
     byte[] bytes = serializer.toBytes(b);

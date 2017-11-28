@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.lib.lp;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -19,26 +18,15 @@ public class EnteringVariable
   private final Matrix<DRes<SInt>> updateMatrix;
 
   /**
+   * Creates an entering variable computation.
+   * 
    * @param tableau an (m + 1)x(n + m + 1) tableau
    * @param updateMatrix an (m + 1)x(m + 1) update matrix, multiplying the tableau on the left with
    */
-  public EnteringVariable(LPTableau tableau, Matrix<DRes<SInt>> updateMatrix) {
-    if (checkDimensions(tableau, updateMatrix)) {
-      this.updateMatrix = updateMatrix;
-      this.tableau = tableau;
-    } else {
-      throw new MPCException("Dimensions of inputs do not match");
-    }
+  protected EnteringVariable(LPTableau tableau, Matrix<DRes<SInt>> updateMatrix) {
+    this.updateMatrix = updateMatrix;
+    this.tableau = tableau;
   }
-
-  private boolean checkDimensions(LPTableau tableau,
-      Matrix<DRes<SInt>> updateMatrix) {
-    int updateHeight = updateMatrix.getHeight();
-    int updateWidth = updateMatrix.getWidth();
-    int tableauHeight = tableau.getC().getHeight() + 1;
-    return (updateHeight == updateWidth && updateHeight == tableauHeight);
-  }
-
 
   @Override
   public DRes<Pair<List<DRes<SInt>>, SInt>> buildComputation(

@@ -23,7 +23,8 @@ import dk.alexandra.fresco.lib.conditional.ConditionalSwapRowsTests;
 import dk.alexandra.fresco.lib.conditional.SwapIfTests;
 import dk.alexandra.fresco.lib.debug.ArithmeticDebugTests;
 import dk.alexandra.fresco.lib.list.EliminateDuplicatesTests;
-import dk.alexandra.fresco.lib.lp.LPBuildingBlockTests;
+import dk.alexandra.fresco.lib.lp.LpBuildingBlockTests;
+import dk.alexandra.fresco.lib.lp.LPSolver;
 import dk.alexandra.fresco.lib.math.integer.binary.BinaryOperationsTests;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationTests;
@@ -405,15 +406,41 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   // lib.lp
   @Test
   public void test_LPSolverEntering() throws Exception {
-    runTest(new LPBuildingBlockTests.TestEnteringVariable<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new LpBuildingBlockTests.TestEnteringVariable<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
 
   @Test
   public void test_LPSolverBlandEntering() throws Exception {
-    runTest(new LPBuildingBlockTests.TestBlandEnteringVariable<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new LpBuildingBlockTests.TestBlandEnteringVariable<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
+  
+  @Test
+  public void test_LpTableauDebug() throws Exception {
+    runTest(new LpBuildingBlockTests.TestLpTableuDebug<>(), EvaluationStrategy.SEQUENTIAL,
+        2);
+  }
+  
+  @Test
+  public void test_LpSolverDanzig() throws Exception {
+    runTest(new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.DANZIG), EvaluationStrategy.SEQUENTIAL,
+        2);
+  }
+  
+  @Test
+  public void test_LpSolverBland() throws Exception {
+    runTest(new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.BLAND), EvaluationStrategy.SEQUENTIAL,
+        2);
+  }
+  
+  @Test
+  public void test_LpSolverDebug() throws Exception {
+    runTest(new LpBuildingBlockTests.TestLpSolverDebug<>(), EvaluationStrategy.SEQUENTIAL,
+        2);
+  }
+  
+  
 
 
   // lib.math.integer.binary
