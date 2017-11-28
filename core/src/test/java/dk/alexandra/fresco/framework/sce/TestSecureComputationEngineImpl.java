@@ -17,6 +17,7 @@ import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePool;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.time.Duration;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
@@ -95,7 +96,7 @@ public class TestSecureComputationEngineImpl {
         };
     DummyArithmeticResourcePool rp = new DummyArithmeticResourcePoolImpl(0, 1, new Random(),
         new SecureRandom(), BigInteger.valueOf(101));
-    sce.setRunTimeout(1, TimeUnit.NANOSECONDS);
+    sce.setRunTimeout(Duration.ofNanos(1));
     sce.runApplication(app, rp, null);
     fail("Should not be reachable");
   }

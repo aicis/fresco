@@ -8,6 +8,7 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
+import java.time.Duration;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -33,7 +34,7 @@ public class SecureComputationEngineImpl
   private ProtocolSuite<ResourcePoolT, BuilderT> protocolSuite;
   private static final AtomicInteger threadCounter = new AtomicInteger(1);
   private static final Logger logger = LoggerFactory.getLogger(SecureComputationEngineImpl.class);
-  private long timeOutValue = TimeUnit.NANOSECONDS.convert(10, TimeUnit.MINUTES);
+  private Duration timeOut = Duration.ofMinutes(10);
 
   /**
    * Creates a new {@link SecureCompatationEngineImpl}.
@@ -49,17 +50,16 @@ public class SecureComputationEngineImpl
   }
 
   /**
-   * Sets the time out limit for waiting for output from running applications.
+   * Sets the time out duration for waiting for output from running applications.
    *
    * <p>
    * Defaults to a value of 10 minutes.
    * </p>
    *
-   * @param value value of the limit
-   * @param unit the time unit of the limit
+   * @param timeOut the new time out duration
    */
-  public void setRunTimeout(int value, TimeUnit unit) {
-    timeOutValue = TimeUnit.NANOSECONDS.convert(value, unit);
+  public void setRunTimeout(Duration timeOut) {
+    this.timeOut = timeOut;
   }
 
   @Override
@@ -67,7 +67,7 @@ public class SecureComputationEngineImpl
       ResourcePoolT resourcePool, Network network) {
     Future<OutputT> future = startApplication(application, resourcePool, network);
     try {
-      return future.get(timeOutValue, TimeUnit.NANOSECONDS);
+      return future.get(timeOut.toNanos(), TimeUnit.NANOSECONDS);
     } catch (InterruptedException | TimeoutException e) {
       throw new RuntimeException("Internal error in waiting", e);
     } catch (ExecutionException e) {
