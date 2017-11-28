@@ -58,7 +58,7 @@ public class RotSender extends RotShared {
         vvecZero, vvecOne);
     MessageDigest digest = MessageDigest.getInstance("SHA-256");
     // Size of an int is always 4 bytes in java
-    ByteBuffer indexBuffer = ByteBuffer.allocate(4 + (getKbitLength() / 8));
+    ByteBuffer indexBuffer = ByteBuffer.allocate(4 + digest.getDigestLength());
     byte[] hash;
     for (int i = 0; i < size; i++) {
       indexBuffer.clear();

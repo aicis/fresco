@@ -54,7 +54,7 @@ public class RotReceiver extends RotShared {
     List<StrictBitVector> vvec = new ArrayList<>(choices.getSize());
     MessageDigest digest = MessageDigest.getInstance("SHA-256");
     // Size of an int is always 4 bytes in java
-    ByteBuffer indexBuffer = ByteBuffer.allocate(4 + (getKbitLength() / 8));
+    ByteBuffer indexBuffer = ByteBuffer.allocate(4 + digest.getDigestLength());
     byte[] hash;
     for (int i = 0; i < choices.getSize(); i++) {
       indexBuffer.clear();
@@ -68,7 +68,7 @@ public class RotReceiver extends RotShared {
 
   protected StrictBitVector computeBitLinearCombination(StrictBitVector xvec,
       List<StrictBitVector> chiVec) {
-    StrictBitVector res = new StrictBitVector(getKbitLength());
+    StrictBitVector res = new StrictBitVector(chiVec.get(0).getSize());
     for (int i = 0; i < xvec.getSize(); i++) {
       if (xvec.getBit(i, false) == true) {
         res.xor(chiVec.get(i));

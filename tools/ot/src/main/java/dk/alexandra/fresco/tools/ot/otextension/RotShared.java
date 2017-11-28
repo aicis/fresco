@@ -87,10 +87,6 @@ public class RotShared {
 
   private static StrictBitVector shiftArray(StrictBitVector in, int pos,
       int maxSize) {
-    if (in.getSize() + pos > maxSize) {
-      throw new IllegalArgumentException(
-          "The new vector is too small for the shift");
-    }
     StrictBitVector res = new StrictBitVector(maxSize);
     for (int i = 0; i < in.getSize(); i++) {
       res.setBit(i + pos, in.getBit(i, false), false);
