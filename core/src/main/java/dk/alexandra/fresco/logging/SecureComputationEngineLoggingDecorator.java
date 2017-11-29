@@ -30,17 +30,6 @@ public class SecureComputationEngineLoggingDecorator<
 
   @Override
   public <OutputT> OutputT runApplication(Application<OutputT, BuilderT> application,
-      ResourcePoolT resources, Network network) {
-    long then = System.currentTimeMillis();
-    OutputT res = this.delegate.runApplication(application, resources, network);
-    long now = System.currentTimeMillis();
-    long timeSpend = now - then;
-    this.runtimeLogger.add(new RuntimeInfo(application, timeSpend, protocolSuiteName));
-    return res;
-  }
-
-  @Override
-  public <OutputT> OutputT runApplication(Application<OutputT, BuilderT> application,
       ResourcePoolT resources, Network network, Duration timeout) {
     long then = System.currentTimeMillis();
     OutputT res = this.delegate.runApplication(application, resources, network, timeout);
