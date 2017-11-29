@@ -2,11 +2,13 @@ package dk.alexandra.fresco.tools.mascot;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -18,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import dk.alexandra.fresco.framework.util.Pair;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class TestRuntime {
 
@@ -110,18 +111,6 @@ public class TestRuntime {
    * 
    * Currently assumes that all parties receive the same type of output.
    * 
-   * @param tasks
-   * @return
-   */
-  public <T> Map<Integer, T> runPerPartyTasks(Map<Integer, Callable<T>> tasks) {
-    throw new NotImplementedException();
-  }
-
-  /**
-   * Runs the task defined for each party.
-   * 
-   * Currently assumes that all parties receive the same type of output.
-   * 
    * This method assumes that tasks are ordered by party.
    * 
    * @param tasks
@@ -131,25 +120,30 @@ public class TestRuntime {
     if (!executorInitialized) {
       throw new IllegalStateException("Executor not initialized yet");
     }
-    List<Future<T>> results;
     try {
-      results = executor.invokeAll(tasks);
+      List<Future<T>> results = executor.invokeAll(tasks, 5l, TimeUnit.SECONDS);
       // this is a bit of a mess...
-      List<T> unwrappedResults = results.stream().map(future -> {
-        try {
-          return future.get();
-        } catch (InterruptedException | ExecutionException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
-        return null;
-      }).collect(Collectors.toList());
+      List<T> unwrappedResults = results.stream()
+          .map(future -> {
+            try {
+              return future.get();
+            } catch (CancellationException e) {
+              System.err.println("Task cancelled due to time-out");
+              e.printStackTrace();
+            } catch (Exception e) {
+              System.err.println("Exception while executing task");
+              e.printStackTrace();
+            }
+            return null;
+          })
+          .collect(Collectors.toList());
       return unwrappedResults;
-    } catch (InterruptedException e) {
+    } catch (Exception e) {
       // TODO Auto-generated catch block
+      System.err.println("Task execution failed");
       e.printStackTrace();
     }
-    return null;
+    return new ArrayList<>();
   }
 
   /**
@@ -163,7 +157,12 @@ public class TestRuntime {
     MascotContext ctx = MascotContext.defaultContext(myId, new LinkedList<>(partyIds));
     return new Pair<>(myId, ctx);
   }
-  
+
+  /**
+   * Check if executor has been initialized.
+   * 
+   * @return
+   */
   public boolean isExecutorInitialized() {
     return executorInitialized;
   }
