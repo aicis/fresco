@@ -1,7 +1,8 @@
 package dk.alexandra.fresco.tools.mascot.elgen;
 
+import static org.junit.Assert.assertEquals;
+
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.TestRuntime;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
@@ -30,20 +32,18 @@ public class TestElGen {
     testRuntime = null;
   }
 
-  private List<FieldElement> runInputter(MascotContext ctx, FieldElement macKeyShare,
+  private List<SpdzElement> runInputter(MascotContext ctx, FieldElement macKeyShare,
       List<FieldElement> inputs) throws Exception {
     ElGen elGen = new ElGen(ctx, macKeyShare);
     elGen.initialize();
-    elGen.input(inputs);
-    return new ArrayList<>();
+    return elGen.input(inputs);
   }
 
-  private List<FieldElement> runOther(MascotContext ctx, Integer inputterId,
+  private List<SpdzElement> runOther(MascotContext ctx, Integer inputterId,
       FieldElement macKeyShare, int numInputs) {
     ElGen elGen = new ElGen(ctx, macKeyShare);
     elGen.initialize();
-    elGen.input(inputterId, numInputs);
-    return new ArrayList<>();
+    return elGen.input(inputterId, numInputs);
   }
 
   @Test
@@ -57,6 +57,8 @@ public class TestElGen {
       MascotContext partyOneCtx = contexts.get(1);
       MascotContext partyTwoCtx = contexts.get(2);
 
+      BigInteger modulus = partyOneCtx.getModulus();
+      
       // left party mac key share
       FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"),
           partyOneCtx.getModulus(), partyOneCtx.getkBitLength());
@@ -71,13 +73,29 @@ public class TestElGen {
       List<FieldElement> inputs = Arrays.asList(input);
 
       // define task each party will run
-      Callable<List<FieldElement>> partyOneTask =
+      Callable<List<SpdzElement>> partyOneTask =
           () -> runInputter(partyOneCtx, macKeyShareOne, inputs);
-      Callable<List<FieldElement>> partyTwoTask = () -> runOther(partyTwoCtx, 1, macKeyShareTwo, 1);
+      Callable<List<SpdzElement>> partyTwoTask = () -> runOther(partyTwoCtx, 1, macKeyShareTwo, 1);
 
       // run tasks and get ordered list of results
-      List<List<FieldElement>> results =
+      List<List<SpdzElement>> results =
           testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
+
+      // retrieve per-party results
+      List<SpdzElement> leftShares = results.get(0);
+      SpdzElement leftShare = leftShares.get(0);
+      List<SpdzElement> rightShares = results.get(1);
+      SpdzElement rightShare = rightShares.get(0);
+      
+      BigInteger expectedRecomb = BigInteger.valueOf(7);
+      BigInteger expectedMacRecomb = macKeyShareOne.add(macKeyShareTwo)
+          .multiply(input)
+          .toBigInteger();
+      // bit of a shortcut
+      SpdzElement expected = new SpdzElement(expectedRecomb, expectedMacRecomb, modulus);
+      SpdzElement actual = leftShare.add(rightShare);
+
+      assertEquals(expected, actual);
     } catch (Exception e) {
       // TODO: handle exception
       e.printStackTrace();
@@ -114,15 +132,15 @@ public class TestElGen {
       List<FieldElement> inputs = Arrays.asList(input);
 
       // define task each party will run
-      Callable<List<FieldElement>> partyOneTask =
+      Callable<List<SpdzElement>> partyOneTask =
           () -> runInputter(partyOneCtx, macKeyShareOne, inputs);
-      Callable<List<FieldElement>> partyTwoTask = () -> runOther(partyTwoCtx, 1, macKeyShareTwo, 1);
-      Callable<List<FieldElement>> partyThreeTask =
+      Callable<List<SpdzElement>> partyTwoTask = () -> runOther(partyTwoCtx, 1, macKeyShareTwo, 1);
+      Callable<List<SpdzElement>> partyThreeTask =
           () -> runOther(partyThreeCtx, 1, macKeyShareThree, 1);
 
 
       // run tasks and get ordered list of results
-      List<List<FieldElement>> results =
+      List<List<SpdzElement>> results =
           testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask, partyThreeTask));
     } catch (Exception e) {
       // TODO: handle exception

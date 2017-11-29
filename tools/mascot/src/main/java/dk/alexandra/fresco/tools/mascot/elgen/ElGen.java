@@ -56,7 +56,7 @@ public class ElGen extends BaseProtocol {
     if (initialized) {
       throw new IllegalStateException("Already initialized");
     }
-    // TODO: should run these in parallel
+    // TODO run these in parallel
     // this will dead-lock if the order of initialization is switched, since cope signers block on
     // receiving in current network implementation
 
@@ -115,27 +115,70 @@ public class ElGen extends BaseProtocol {
   void runMacCheck(FieldElement value, List<FieldElement> masks, List<FieldElement> macs) {
     // mask and combine macs
     FieldElement maskedMac = FieldElement.sum(mask(macs, masks));
-    
+
     // perform mac-check on open masked value
     try {
       macChecker.check(value, macKeyShare, maskedMac);
     } catch (MPCException e) {
-      // TODO: handle 
+      // TODO handle
       throw e;
     }
   }
 
-  void secretShare(List<FieldElement> values, int numShares) {
+  void sendShares(Integer partyId, List<FieldElement> shares) {
+    Network network = ctx.getNetwork();
+    // TODO batch send
+    for (FieldElement share : shares) {
+      network.send(partyId, share.toByteArray());
+    }
+  }
+
+  List<FieldElement> secretShare(List<FieldElement> values, int numShares) {
     List<List<FieldElement>> allShares = values.stream()
         .map(value -> sharer.additiveShare(value, numShares))
         .collect(Collectors.toList());
     List<List<FieldElement>> byParty = ElGenUtils.transpose(allShares);
-    
-    for (List<FieldElement> shares : allShares) {
-      
+    for (Integer partyId : ctx.getPartyIds()) {
+      // send shares to everyone but self
+      if (!partyId.equals(ctx.getMyId())) {
+        // assume party ids go from 1...n
+        List<FieldElement> shares = byParty.get(partyId - 1);
+        sendShares(partyId, shares);
+      }
     }
+    // return own shares
+    return byParty.get(ctx.getMyId() - 1);
   }
-  
+
+  List<FieldElement> receiveShares(Integer inputterId, int numElements) {
+    BigInteger modulus = ctx.getModulus();
+    int modBitLength = ctx.getkBitLength();
+    Network network = ctx.getNetwork();
+
+    // TODO batch receive
+    List<FieldElement> receivedShares = new ArrayList<>(numElements);
+    for (int s = 0; s < numElements; s++) {
+      FieldElement received = new FieldElement(network.receive(inputterId), modulus, modBitLength);
+      receivedShares.add(received);
+    }
+
+    return receivedShares;
+  }
+
+  List<SpdzElement> toSpdzElements(List<FieldElement> shares, List<FieldElement> macs) {
+    if (shares.size() != macs.size()) {
+      throw new IllegalArgumentException("Number of shares must equal number of mac shares");
+    }
+    final BigInteger modulus = ctx.getModulus();
+    Stream<SpdzElement> spdzElements = IntStream.range(0, shares.size())
+        .mapToObj(idx -> {
+          FieldElement share = shares.get(idx);
+          FieldElement mac = macs.get(idx);
+          return new SpdzElement(share.toBigInteger(), mac.toBigInteger(), modulus);
+        });
+    return spdzElements.collect(Collectors.toList());
+  }
+
   public List<SpdzElement> input(List<FieldElement> values) {
     // can't input before initializing
     if (!initialized) {
@@ -148,6 +191,7 @@ public class ElGen extends BaseProtocol {
     BigInteger modulus = ctx.getModulus();
     int modBitLength = ctx.getkBitLength();
     Network network = ctx.getNetwork();
+    List<Integer> partyIds = ctx.getPartyIds();
 
     // add extra random element which will later be used to mask inputs
     FieldElement extraElement = sampler.sample(modulus, modBitLength);
@@ -167,11 +211,15 @@ public class ElGen extends BaseProtocol {
 
     // perform mac-check on opened value (will throw if mac check fails)
     runMacCheck(maskedValue, masks, macs);
-    
+
     // inputter secret-shares input values (note that we exclude dummy element)
-    
-    
-    return null;
+    List<FieldElement> toSecretShare = values.subList(0, values.size() - 1);
+    List<FieldElement> shares = secretShare(toSecretShare, partyIds.size());
+
+    // combine shares and mac shares to spdz elements (exclude mac for dummy element)
+    List<FieldElement> nonDummyMacs = macs.subList(0, shares.size());
+    List<SpdzElement> spdzElements = toSpdzElements(shares, nonDummyMacs);
+    return spdzElements;
   }
 
   public List<SpdzElement> input(Integer inputterId, int numInputs) {
@@ -197,7 +245,13 @@ public class ElGen extends BaseProtocol {
     // perform mac-check on opened value
     runMacCheck(maskedValue, masks, macs);
 
-    return null;
+    // receive shares from inputter
+    List<FieldElement> shares = receiveShares(inputterId, numInputs);
+
+    // combine shares and mac shares to spdz elements (exclude mac for dummy element)
+    List<FieldElement> nonDummyMacs = macs.subList(0, numInputs);
+    List<SpdzElement> spdzElements = toSpdzElements(shares, nonDummyMacs);
+    return spdzElements;
   }
 
 }
