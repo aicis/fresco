@@ -57,11 +57,12 @@ public class SetIntersectionDemo {
       // The rest is generic configuration as well
       ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
           new BatchedProtocolEvaluator<>(new BatchedStrategy<>(), suite);
+      DetermSecureRandom secRand = new DetermSecureRandom();
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite, evaluator),
               () -> new ResourcePoolImpl(playerId, noPlayers,
-                  new Random(), new DetermSecureRandom()),
+                  new Random(), secRand),
               () -> new KryoNetNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }
@@ -95,11 +96,12 @@ public class SetIntersectionDemo {
       // More generic configuration
       ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
           new BatchedProtocolEvaluator<>(new BatchedStrategy<>(), suite);
+      DetermSecureRandom secRand = new DetermSecureRandom();
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite, evaluator),
               () -> new ResourcePoolImpl(playerId, noPlayers,
-                  new Random(), new DetermSecureRandom()),
+                  new Random(), secRand),
               () -> new KryoNetNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }
@@ -121,11 +123,12 @@ public class SetIntersectionDemo {
 
         ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
             new BatchedProtocolEvaluator<>(new BatchedStrategy<>(), suite);
+        DetermSecureRandom secRand = new DetermSecureRandom();
         TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
             new TestThreadConfiguration<>(
                 new SecureComputationEngineImpl<>(suite, evaluator),
                 () -> new ResourcePoolImpl(playerId, noPlayers,
-                    new Random(), new DetermSecureRandom()),
+                    new Random(), secRand),
                 () -> new KryoNetNetwork(secondConf.get(playerId)));
         conf.put(playerId, ttc);
       }

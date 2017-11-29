@@ -82,10 +82,12 @@ public abstract class AbstractDummyBooleanTest {
         sce = new SecureComputationEngineLoggingDecorator<>(sce, ps);
         pls.get(playerId).add((PerformanceLogger) sce);
       }
+      
+      DetermSecureRandom secRand = new DetermSecureRandom();
       TestThreadRunner.TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new ResourcePoolImpl(playerId, noOfParties, new Random(),
-                  new DetermSecureRandom()),
+                  secRand),
               () -> {
                 Network network;
                 KryoNetNetwork kryoNetwork = new KryoNetNetwork(partyNetConf);

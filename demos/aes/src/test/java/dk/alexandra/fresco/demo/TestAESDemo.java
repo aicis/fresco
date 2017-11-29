@@ -50,11 +50,12 @@ public class TestAESDemo {
           new BatchedProtocolEvaluator<>(new SequentialStrategy<>(), suite);
       SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce =
           new SecureComputationEngineImpl<>(suite, evaluator);
+      DetermSecureRandom secRand = new DetermSecureRandom();
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<>(
               sce,
               () -> new ResourcePoolImpl(playerId, noPlayers,
-                  new Random(), new DetermSecureRandom()),
+                  new Random(), secRand),
               () -> new KryoNetNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }

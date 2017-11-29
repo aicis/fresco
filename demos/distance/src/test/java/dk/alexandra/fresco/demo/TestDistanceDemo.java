@@ -52,11 +52,13 @@ public class TestDistanceDemo {
 
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
           new BatchedProtocolEvaluator<>(evalStrategy.getStrategy(), protocolSuite);
+      
+      DetermSecureRandom secRand = new DetermSecureRandom();
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(protocolSuite, evaluator),
               () -> createResourcePool(playerId, noOfParties, new Random(),
-                  new DetermSecureRandom()),
+                  secRand),
               () -> new KryoNetNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }

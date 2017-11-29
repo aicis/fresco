@@ -71,11 +71,12 @@ public abstract class AbstractSpdzTest {
         pls.get(playerId).add((PerformanceLogger) sce);
       }
 
+      DetermSecureRandom secRand = new DetermSecureRandom();
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,
               () -> createResourcePool(playerId, noOfParties, new Random(),
-                  new DetermSecureRandom()),
+                  secRand),
               () -> {
                 ScapiNetworkImpl scapiNetwork = new ScapiNetworkImpl();
                 scapiNetwork.init(netConf.get(playerId), 1);

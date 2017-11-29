@@ -57,8 +57,9 @@ public class TestInputSumExample {
         suite =
             (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new DummyArithmeticProtocolSuite(
                 mod, 150);
+        DetermSecureRandom secRand = new DetermSecureRandom();
         resourcePool = () -> (ResourcePoolT) new DummyArithmeticResourcePoolImpl(i, n,
-            new Random(), new DetermSecureRandom(), mod);
+            new Random(), secRand, mod);
       } else {
         suite = (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new SpdzProtocolSuite(150);
         resourcePool = () -> {

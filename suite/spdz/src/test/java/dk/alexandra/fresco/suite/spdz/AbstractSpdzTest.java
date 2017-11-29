@@ -85,11 +85,12 @@ public abstract class AbstractSpdzTest {
         sce = new SecureComputationEngineLoggingDecorator<>(sce, protocolSuite);
         pls.get(playerId).add((PerformanceLogger) sce);
       }
+      DetermSecureRandom secRand = new DetermSecureRandom();
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,
               () -> createResourcePool(playerId, noOfParties, new Random(),
-                  new DetermSecureRandom(), preProStrat),
+                  secRand, preProStrat),
               () -> {
                 KryoNetNetwork kryoNetwork = new KryoNetNetwork(netConf.get(playerId));
                 if (performanceloggerFlags != null

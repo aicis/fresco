@@ -84,11 +84,12 @@ public abstract class AbstractDummyArithmeticTest {
         pls.add((PerformanceLogger) sce);
       }
 
+      DetermSecureRandom secRand = new DetermSecureRandom();
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  noOfParties, new Random(0), new DetermSecureRandom(), mod),
+                  noOfParties, new Random(0), secRand, mod),
               () -> {
                 KryoNetNetwork kryoNetwork = new KryoNetNetwork(partyNetConf);
                 if (performanceLoggerFlags != null
