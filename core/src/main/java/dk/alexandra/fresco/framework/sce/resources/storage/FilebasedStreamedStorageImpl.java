@@ -30,9 +30,23 @@ public class FilebasedStreamedStorageImpl implements StreamedStorage {
    * @param internalStorage The storage used for non-streamable objects
    */
   public FilebasedStreamedStorageImpl(Storage internalStorage) {
+    this(internalStorage, new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
+  }
+
+  /**
+   * Creates an instance of the file based streamed storage. For non-streamable object, the given
+   * internal storage is used.
+   *
+   * @param internalStorage The storage used for non-streamable objects
+   * @param inputs a map from store names to input streams reading from the named store
+   * @param inputs a map from store names to output streams writing to the named store
+   */
+  protected FilebasedStreamedStorageImpl(Storage internalStorage,
+      ConcurrentHashMap<String, ObjectInputStream> inputs,
+      ConcurrentHashMap<String, ObjectOutputStream> outputs) {
     this.storage = internalStorage;
-    oiss = new ConcurrentHashMap<>();
-    ooss = new ConcurrentHashMap<>();
+    oiss = inputs;
+    ooss = outputs;
   }
 
   @SuppressWarnings("unchecked")
