@@ -10,31 +10,14 @@ import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
-import dk.alexandra.fresco.tools.mascot.TestRuntime;
+import dk.alexandra.fresco.tools.mascot.NetworkedTest;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 
-public class TestMultiply {
-
-  private TestRuntime testRuntime;
-
-  @Before
-  public void initializeRuntime() {
-    testRuntime = new TestRuntime();
-  }
-
-  @After
-  public void teardownRuntime() {
-    if (testRuntime != null && testRuntime.isExecutorInitialized()) {      
-      testRuntime.shutdown();
-      testRuntime = null;
-    }
-  }
+public class TestMultiply extends NetworkedTest {
 
   private List<List<FieldElement>> runLeftMult(MascotContext ctx, Integer otherId,
       List<List<FieldElement>> inputs) {
