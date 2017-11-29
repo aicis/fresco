@@ -101,16 +101,16 @@ public class RotSender extends RotShared {
     }
     // Remove the correlated of the first "size" messages by hashing for
     // choice-zero
-    List<StrictBitVector> vvecZero = hashBitVector(qlist, size);
+    List<StrictBitVector> vlistZero = hashBitVector(qlist, size);
     // XOR the correlated into all the values from the underlying correlated OT
     // with error to compute the choice-one message
     for (int i = 0; i < size; i++) {
       qlist.get(i).xor(delta);
     }
     // Remove the correlated for the choice-one as well
-    List<StrictBitVector> vvecOne = hashBitVector(qlist, size);
+    List<StrictBitVector> vlistOne = hashBitVector(qlist, size);
     Pair<List<StrictBitVector>, List<StrictBitVector>> res = new Pair<List<StrictBitVector>, List<StrictBitVector>>(
-        vvecZero, vvecOne);
+        vlistZero, vlistOne);
     return res;
   }
 }

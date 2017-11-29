@@ -1,5 +1,7 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -118,5 +120,30 @@ public class CoteShared {
       list.add(currentArr);
     }
     return list;
+  }
+
+  /**
+   * Construct a PRG based on a StrictBitVector seed.
+   * 
+   * @param seed
+   *          The seed to use in the PRG
+   * @return A new PRG based on the seed
+   * @throws FailedOtExtensionException
+   *           Thrown in case the underlying PRG algorithm does not exist
+   */
+  protected static SecureRandom makePrg(StrictBitVector seed)
+      throws FailedOtExtensionException {
+    SecureRandom res = null;
+    try {
+      // TODO should be changed to something that uses SHA-256
+      res = SecureRandom.getInstance("SHA1PRNG");
+    } catch (NoSuchAlgorithmException e) {
+      throw new FailedOtExtensionException(
+          "Random OT extension failed. No malicious behaviour detected. "
+              + "Failure was caused by the following internal error: "
+              + e.getMessage());
+    }
+    res.setSeed(seed.toByteArray());
+    return res;
   }
 }

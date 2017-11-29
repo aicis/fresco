@@ -10,6 +10,13 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 
+/**
+ * Protocol class for the party acting as the receiver in an correlated OT with
+ * errors extension.
+ * 
+ * @author jot2re
+ *
+ */
 public class CoteReceiver extends CoteShared {
   // Random messages used for the seed OTs
   private List<Pair<StrictBitVector, StrictBitVector>> seeds;
@@ -51,25 +58,14 @@ public class CoteReceiver extends CoteShared {
       throw new IllegalStateException("Already initialized");
     }
     // Complete the seed OTs acting as the sender (NOT the receiver)
-    for (int i = 0; i < kbitLength; i++) {
-      StrictBitVector seedZero = new StrictBitVector(kbitLength, rand);
-      StrictBitVector seedFirst = new StrictBitVector(kbitLength, rand);
+    for (int i = 0; i < getkBitLength(); i++) {
+      StrictBitVector seedZero = new StrictBitVector(getkBitLength(), getRand());
+      StrictBitVector seedFirst = new StrictBitVector(getkBitLength(), getRand());
       ot.send(seedZero, seedFirst);
       seeds.add(new Pair<>(seedZero, seedFirst));
       // Initialize the PRGs with the random messages
-      SecureRandom prgZero = null;
-      SecureRandom prgFirst = null;
-      try {
-        prgZero = SecureRandom.getInstance("SHA1PRNG");
-        prgFirst = SecureRandom.getInstance("SHA1PRNG");
-      } catch (NoSuchAlgorithmException e) {
-        throw new FailedOtExtensionException(
-            "Random OT extension failed. No malicious behaviour detected. "
-                + "Failure was caused by the following internal error: "
-                + e.getMessage());
-      }
-      prgZero.setSeed(seedZero.toByteArray());
-      prgFirst.setSeed(seedFirst.toByteArray());
+      SecureRandom prgZero = makePrg(seedZero);
+      SecureRandom prgFirst = makePrg(seedFirst);
       prgs.add(new Pair<>(prgZero, prgFirst));
     }
     initialized = true;
@@ -78,15 +74,18 @@ public class CoteReceiver extends CoteShared {
   /**
    * Constructs a new batch of correlated OTs with errors.
    * 
+   * @param choices
+   *          The receivers random choices for this extension. This MUST have
+   *          size 8*2^x for some x >=0.
    * @return A list of pairs consisting of the bit choices, followed by the
    *         received messages
    */
-  public List<StrictBitVector> extend(StrictBitVector randomChoices) {
-    if (randomChoices.getSize() < 1) {
+  public List<StrictBitVector> extend(StrictBitVector choices) {
+    if (choices.getSize() < 1) {
       throw new IllegalArgumentException(
           "The amount of OTs must be a positive integer");
     }
-    if (randomChoices.getSize() % 8 != 0) {
+    if (choices.getSize() % 8 != 0) {
       throw new IllegalArgumentException(
           "The amount of OTs must be a positive integer divisize by 8");
     }
@@ -95,30 +94,29 @@ public class CoteReceiver extends CoteShared {
     }
     // Compute how many bytes we need for "size" OTs by dividing "size" by 8
     // (the amount of bits in the primitive type; byte)
-    int bytesNeeded = randomChoices.getSize() / 8;
+    int bytesNeeded = choices.getSize() / 8;
     // Use prgs to expand the seeds
-    List<StrictBitVector> tvecZero = new ArrayList<>(kbitLength);
-    // u vector
-    List<StrictBitVector> uvec = new ArrayList<>(kbitLength);
-    for (int i = 0; i < kbitLength; i++) {
-      // Expand the seed OTs using a prg
+    List<StrictBitVector> tlistZero = new ArrayList<>(getkBitLength());
+    List<StrictBitVector> ulist = new ArrayList<>(getkBitLength());
+    for (int i = 0; i < getkBitLength(); i++) {
+      // Expand the seed OTs using a prg and store the result in tlistZero
       byte[] byteBuffer = new byte[bytesNeeded];
       prgs.get(i).getFirst().nextBytes(byteBuffer);
       StrictBitVector tzero = new StrictBitVector(byteBuffer,
-          randomChoices.getSize());
-      tvecZero.add(tzero);
+          choices.getSize());
+      tlistZero.add(tzero);
       byteBuffer = new byte[bytesNeeded];
       prgs.get(i).getSecond().nextBytes(byteBuffer);
-      // Compute the u vector, i.e. tZero XOR tFirst XOR randomChoices
-      // Note that this is an in-place call and thus tFirst gets modified
+      // Compute the u list, i.e. tzero XOR tone XOR randomChoices
+      // Note that this is an in-place call and thus tone gets modified
       StrictBitVector tone = new StrictBitVector(byteBuffer,
-          randomChoices.getSize());
+          choices.getSize());
       tone.xor(tzero);
-      tone.xor(randomChoices);
-      uvec.add(tone);
+      tone.xor(choices);
+      ulist.add(tone);
     }
-    sendList(uvec);
+    sendList(ulist);
     // Complete tilt-your-head by transposing the message "matrix"
-    return Transpose.transpose(tvecZero);
+    return Transpose.transpose(tlistZero);
   }
 }
