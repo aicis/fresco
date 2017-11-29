@@ -8,7 +8,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,8 +19,8 @@ import org.slf4j.LoggerFactory;
  */
 public class FilebasedStreamedStorageImpl implements StreamedStorage {
 
-  private ConcurrentHashMap<String, ObjectInputStream> oiss;
-  private ConcurrentHashMap<String, ObjectOutputStream> ooss;
+  private Map<String, ObjectInputStream> oiss;
+  private Map<String, ObjectOutputStream> ooss;
   private Storage storage;
   private static final Logger logger = LoggerFactory.getLogger(FilebasedStreamedStorageImpl.class);
 
@@ -30,7 +31,7 @@ public class FilebasedStreamedStorageImpl implements StreamedStorage {
    * @param internalStorage The storage used for non-streamable objects
    */
   public FilebasedStreamedStorageImpl(Storage internalStorage) {
-    this(internalStorage, new ConcurrentHashMap<>(), new ConcurrentHashMap<>());
+    this(internalStorage, new HashMap<>(), new HashMap<>());
   }
 
   /**
@@ -42,8 +43,8 @@ public class FilebasedStreamedStorageImpl implements StreamedStorage {
    * @param inputs a map from store names to output streams writing to the named store
    */
   protected FilebasedStreamedStorageImpl(Storage internalStorage,
-      ConcurrentHashMap<String, ObjectInputStream> inputs,
-      ConcurrentHashMap<String, ObjectOutputStream> outputs) {
+      Map<String, ObjectInputStream> inputs,
+      Map<String, ObjectOutputStream> outputs) {
     this.storage = internalStorage;
     oiss = inputs;
     ooss = outputs;

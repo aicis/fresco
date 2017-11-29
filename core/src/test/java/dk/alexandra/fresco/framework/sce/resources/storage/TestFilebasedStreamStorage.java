@@ -13,6 +13,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import org.hamcrest.core.Is;
 import org.junit.AfterClass;
@@ -129,8 +130,8 @@ public class TestFilebasedStreamStorage {
 
   @Test
   public void testNoIoExceptionOnClose() {
-    ConcurrentHashMap<String, ObjectInputStream> inputs = new ConcurrentHashMap<>();
-    ConcurrentHashMap<String, ObjectOutputStream> outputs = new ConcurrentHashMap<>();
+    HashMap<String, ObjectInputStream> inputs = new HashMap<>();
+    HashMap<String, ObjectOutputStream> outputs = new HashMap<>();
     try {
       FileOutputStream fos = new FileOutputStream("foo");
       ObjectOutputStream oos = new ObjectOutputStream(fos) {
