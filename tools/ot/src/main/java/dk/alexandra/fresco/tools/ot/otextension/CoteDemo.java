@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
@@ -34,13 +33,11 @@ public class CoteDemo<ResourcePoolT extends ResourcePool> {
    * 
    * @param pid
    *          The PID of the receiving party
-   * @throws IOException
-   *           Thrown in case of network issues
-   * @throws NoSuchAlgorithmException
+   * @throws FailedOtExtensionException
    *           Thrown in case the underlying PRG algorithm used does not exist
    */
   public void runPartyOne(int pid)
-      throws IOException, FailedOtExtensionException {
+      throws FailedOtExtensionException {
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected receiver");
     Random rand = new Random(42);
@@ -52,7 +49,6 @@ public class CoteDemo<ResourcePoolT extends ResourcePool> {
     List<StrictBitVector> t = coteRec
         .extend(new StrictBitVector(otChoices, amountOfOTs));
     System.out.println("done receiver");
-    // network.close();
     for (int i = 0; i < amountOfOTs; i++) {
       System.out.print(i + ": ");
       byte[] output = t.get(i).toByteArray();
@@ -68,13 +64,11 @@ public class CoteDemo<ResourcePoolT extends ResourcePool> {
    * 
    * @param pid
    *          The PID of the sending party
-   * @throws IOException
-   *           Thrown in case of network issues
    * @throws NoSuchAlgorithmException
    *           Thrown in case the underlying PRG algorithm used does not exist
    */
   public void runPartyTwo(int pid)
-      throws IOException, FailedOtExtensionException {
+      throws FailedOtExtensionException {
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected sender");
     Random rand = new Random(420);
@@ -83,7 +77,6 @@ public class CoteDemo<ResourcePoolT extends ResourcePool> {
     coteSnd.initialize();
     List<StrictBitVector> q = coteSnd.extend(amountOfOTs);
     System.out.println("done sender");
-    // network.close();
     StrictBitVector delta = coteSnd.getDelta();
     System.out.print("Delta: ");
     byte[] output = delta.toByteArray();

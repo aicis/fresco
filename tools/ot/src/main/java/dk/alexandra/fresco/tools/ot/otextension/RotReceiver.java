@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import dk.alexandra.fresco.framework.util.StrictBitVector;
@@ -7,23 +8,59 @@ import dk.alexandra.fresco.tools.cointossing.FailedCoinTossingException;
 import dk.alexandra.fresco.tools.commitment.FailedCommitmentException;
 import dk.alexandra.fresco.tools.commitment.MaliciousCommitmentException;
 
+/**
+ * Protocol class for the party acting as the receiver in an random OT
+ * extension.
+ * 
+ * @author jot2re
+ *
+ */
 public class RotReceiver extends RotShared {
 
   private CoteReceiver receiver;
 
+  /**
+   * Construct a receiving party for an instance of the random OT extension
+   * protocol.
+   * 
+   * @param rec
+   *          The correlated OT with error receiver this protocol will use
+   */
   public RotReceiver(CoteReceiver rec) {
     super(rec);
     this.receiver = rec;
   }
 
+  /**
+   * Initializes the random OT extension by initializing the underlying
+   * correlated OT with errors and coin tossing functionalities. This should
+   * only be done once for a given sender/receiver pair.
+   * 
+   * @throws NoSuchAlgorithmException
+   *           Thrown if the underlying PRG algorithm does not exist.
+   */
   public void initialize()
       throws FailedOtExtensionException, MaliciousCommitmentException,
       FailedCommitmentException, FailedCoinTossingException {
-    receiver.initialize();
+    if (initialized) {
+      throw new IllegalStateException("Already initialized");
+    }
+    if (initialized == false) {
+      receiver.initialize();
+    }
     ct.initialize();
     initialized = true;
   }
 
+  /**
+   * Constructs a new batch of random OTs.
+   * 
+   * @param choices
+   *          The receivers choices for this extension. This MUST have size
+   *          8*2^x-kbitLength-getLambdaSecurityParam for some x >=0.
+   * @return A list of pairs consisting of the bit choices, followed by the
+   *         received messages
+   */
   public List<StrictBitVector> extend(StrictBitVector choices)
       throws FailedOtExtensionException {
     int ellPrime = choices.getSize() + getKbitLength()
@@ -33,13 +70,17 @@ public class RotReceiver extends RotShared {
         getKbitLength() + getLambdaSecurityParam(), getRand());
     StrictBitVector extendedChoices = StrictBitVector.concat(choices,
         paddingChoices);
-    List<StrictBitVector> tvec = receiver.extend(extendedChoices);
-    List<StrictBitVector> chiVec = getChallenges(ellPrime);
-    StrictBitVector xval = computeBitLinearCombination(extendedChoices, chiVec);
-    getNetwork().send(getOtherId(), xval.toByteArray());
-    StrictBitVector tval = computeInnerProduct(chiVec, tvec);
-    getNetwork().send(getOtherId(), tval.toByteArray());
-    List<StrictBitVector> vvec = hashBitVector(tvec, choices.getSize());
+    // Use the choices along with the random padding uses for correlated OT with
+    // errors
+    List<StrictBitVector> tlist = receiver.extend(extendedChoices);
+    // Agree on challenges for linear combination test
+    List<StrictBitVector> chiList = getChallenges(ellPrime);
+    StrictBitVector xvec = computeBitLinearCombination(extendedChoices, chiList);
+    getNetwork().send(getOtherId(), xvec.toByteArray());
+    StrictBitVector tvec = computeInnerProduct(chiList, tlist);
+    getNetwork().send(getOtherId(), tvec.toByteArray());
+    // Remove the correlation of the OTs by hashing
+    List<StrictBitVector> vvec = hashBitVector(tlist, choices.getSize());
     return vvec;
   }
 

@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,17 +61,7 @@ public class CoteSender extends CoteShared {
     for (int i = 0; i < getkBitLength(); i++) {
       StrictBitVector message = ot.receive(otChoices.getBit(i, false));
       // Initialize the PRGs with the random messages
-      // TODO should be changed to something that uses SHA-256
-      SecureRandom prg = null;
-      try {
-        prg = SecureRandom.getInstance("SHA1PRNG");
-      } catch (NoSuchAlgorithmException e) {
-        throw new FailedOtExtensionException(
-            "Random OT extension failed. No malicious behaviour detected. "
-                + "Failure was caused by the following internal error: "
-                + e.getMessage());
-      }
-      prg.setSeed(message.toByteArray());
+      SecureRandom prg = makePrg(message);
       prgs.add(prg);
     }
     initialized = true;
@@ -112,18 +101,18 @@ public class CoteSender extends CoteShared {
     int bytesNeeded = size / 8;
     byte[] byteBuffer = new byte[bytesNeeded];
     List<StrictBitVector> tlist = new ArrayList<>(getkBitLength());
-    for (int i = 0; i < kbitLength; i++) {
+    for (int i = 0; i < getkBitLength(); i++) {
       // Expand the message learned from the seed OTs using a PRG
       prgs.get(i).nextBytes(byteBuffer);
       StrictBitVector tvec = new StrictBitVector(byteBuffer, size);
       tlist.add(tvec);
     }
-    List<StrictBitVector> uvec = receiveList(kbitLength);
-    // Compute the q vector based on the random choices from the seed OTs, i.e
-    // qVec = otChoices AND uVec XOR tVec
-    for (int i = 0; i < kbitLength; i++) {
+    List<StrictBitVector> ulist = receiveList(getkBitLength());
+    // Update tlist based on the random choices from the seed OTs, i.e
+    // tlist[i] := (otChoicesp[i] AND ulist[i]) XOR tlist[i]
+    for (int i = 0; i < getkBitLength(); i++) {
       if (otChoices.getBit(i, false) == true) {
-        tlist.get(i).xor(uvec.get(i));
+        tlist.get(i).xor(ulist.get(i));
       }
     }
     // Complete tilt-your-head by transposing the message "matrix"

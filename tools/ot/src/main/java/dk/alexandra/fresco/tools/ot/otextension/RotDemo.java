@@ -1,7 +1,5 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,9 +17,20 @@ import dk.alexandra.fresco.tools.cointossing.FailedCoinTossingException;
 import dk.alexandra.fresco.tools.commitment.FailedCommitmentException;
 import dk.alexandra.fresco.tools.commitment.MaliciousCommitmentException;
 
+/**
+ * Demo class for execute a light instance of random OT extension.
+ * 
+ * @author jot2re
+ *
+ * @param <ResourcePoolT>
+ *          The FRESCO resource pool used for the execution
+ */
 public class RotDemo<ResourcePoolT extends ResourcePool> {
+  // Computational security parameter
   private int kbitLength = 128;
+  // Statistical security parameter
   private int lambdaSecurityParam = 40;
+  // Amount of random OTs to construct
   private int amountOfOTs = 88;
 
   /**
@@ -29,18 +38,18 @@ public class RotDemo<ResourcePoolT extends ResourcePool> {
    * 
    * @param pid
    *          The PID of the receiving party
-   * @throws IOException
-   *           Thrown in case of network issues
-   * @throws NoSuchAlgorithmException
-   *           Thrown in case the underlying PRG algorithm used does not exist
    * @throws FailedCoinTossingException
+   *           Thrown in case something, non-malicious, goes wrong in the coin
    * @throws FailedCommitmentException
+   *           Thrown in case something, non-malicious, goes wrong in the
+   *           commitment protocol. tossing protocol.
    * @throws MaliciousCommitmentException
+   *           Thrown in case the other party actively tries to cheat.
    * @throws FailedOtExtensionException
+   *           Thrown in case something, non-malicious, goes wrong.
    */
   public void runPartyOne(int pid)
-      throws IOException, 
-      MaliciousCommitmentException, FailedCommitmentException,
+      throws MaliciousCommitmentException, FailedCommitmentException,
       FailedCoinTossingException, FailedOtExtensionException {
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected receiver");
@@ -53,7 +62,6 @@ public class RotDemo<ResourcePoolT extends ResourcePool> {
     List<StrictBitVector> vvec = rotRec
         .extend(new StrictBitVector(otChoices, amountOfOTs));
     System.out.println("done receiver");
-    // network.close();
     for (int i = 0; i < amountOfOTs; i++) {
       System.out.print(i + ": ");
       byte[] output = vvec.get(i).toByteArray();
@@ -69,17 +77,21 @@ public class RotDemo<ResourcePoolT extends ResourcePool> {
    * 
    * @param pid
    *          The PID of the sending party
-   * @throws IOException
-   *           Thrown in case of network issues
-   * @throws NoSuchAlgorithmException
-   *           Thrown in case the underlying PRG algorithm used does not exist
    * @throws FailedCoinTossingException
+   *           Thrown in case something, non-malicious, goes wrong in the coin
    * @throws FailedCommitmentException
+   *           Thrown in case something, non-malicious, goes wrong in the
+   *           commitment protocol. tossing protocol.
+   * @throws FailedOtExtensionException
+   *           Thrown in case something, non-malicious, goes wrong.
    * @throws MaliciousCommitmentException
+   *           Thrown in case the other party actively tries to cheat in the
+   *           commitments.
    * @throws MaliciousOtExtensionException
+   *           Thrown in case the other party actively tries to cheat.
    */
   public void runPartyTwo(int pid)
-      throws IOException, FailedOtExtensionException,
+      throws FailedOtExtensionException,
       MaliciousCommitmentException, FailedCommitmentException,
       FailedCoinTossingException, MaliciousOtExtensionException {
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
@@ -91,7 +103,6 @@ public class RotDemo<ResourcePoolT extends ResourcePool> {
     Pair<List<StrictBitVector>, List<StrictBitVector>> vpairs = rotSnd
         .extend(amountOfOTs);
     System.out.println("done sender");
-    // network.close();
     for (int i = 0; i < amountOfOTs; i++) {
       System.out.println(i + ": ");
       byte[] outputZero = vpairs.getFirst().get(i).toByteArray();

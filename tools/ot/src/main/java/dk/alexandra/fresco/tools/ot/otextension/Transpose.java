@@ -6,6 +6,14 @@ import java.util.List;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 
+/**
+ * Class used to do bit transposition using Ekhlunds method. Transposition is
+ * carried out in on a row-major matrix represented as a list (rows) of bit
+ * vectors.
+ * 
+ * @author jot2re
+ *
+ */
 public class Transpose {
 
   /**
