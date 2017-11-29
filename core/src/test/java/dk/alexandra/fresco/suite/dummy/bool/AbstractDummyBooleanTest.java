@@ -44,6 +44,14 @@ public abstract class AbstractDummyBooleanTest {
 
     // The dummy protocol suite has the nice property that it can be run by just one player.
     int noOfParties = 1;
+    runTest(f, evalStrategy,performanceFlags, noOfParties);
+    
+  }
+  
+  protected void runTest(
+      TestThreadRunner.TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f,
+      EvaluationStrategy evalStrategy, EnumSet<Flag> performanceFlags, int noOfParties) throws Exception {
+
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * (noOfParties - 1));

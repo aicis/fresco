@@ -27,9 +27,11 @@ public class TestDummyProtocolSuite extends AbstractDummyBooleanTest {
   @Test
   public void test_basic_logic() throws Exception {
     runTest(new BasicBooleanTests.TestInput<>(true), EvaluationStrategy.SEQUENTIAL);
+    runTest(new BasicBooleanTests.TestInputDifferentSender<>(true), EvaluationStrategy.SEQUENTIAL, null, 2);
     runTest(new BasicBooleanTests.TestXOR<>(true), EvaluationStrategy.SEQUENTIAL);
     runTest(new BasicBooleanTests.TestAND<>(true), EvaluationStrategy.SEQUENTIAL);
     runTest(new BasicBooleanTests.TestNOT<>(true), EvaluationStrategy.SEQUENTIAL);
+    runTest(new BasicBooleanTests.TestRandomBit<>(true), EvaluationStrategy.SEQUENTIAL);
   }
 
   // lib.field.bool.generic
@@ -99,6 +101,11 @@ public class TestDummyProtocolSuite extends AbstractDummyBooleanTest {
     runTest(new BristolCryptoTests.AesTest<>(true), EvaluationStrategy.SEQUENTIAL);
   }
 
+  @Test
+  public void test_AES_Multi_Sequential() throws Exception {
+    runTest(new BristolCryptoTests.MultiAesTest<>(true), EvaluationStrategy.SEQUENTIAL);
+  }
+  
   @Test
   public void test_AES_SequentialBatched() throws Exception {
     runTest(new BristolCryptoTests.AesTest<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED);
