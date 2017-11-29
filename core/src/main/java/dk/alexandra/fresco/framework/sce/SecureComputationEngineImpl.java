@@ -34,7 +34,6 @@ public class SecureComputationEngineImpl
   private ProtocolSuite<ResourcePoolT, BuilderT> protocolSuite;
   private static final AtomicInteger threadCounter = new AtomicInteger(1);
   private static final Logger logger = LoggerFactory.getLogger(SecureComputationEngineImpl.class);
-  private Duration timeOut = Duration.ofMinutes(10);
 
   /**
    * Creates a new {@link SecureCompatationEngineImpl}.
@@ -49,25 +48,12 @@ public class SecureComputationEngineImpl
     this.setup = false;
   }
 
-  /**
-   * Sets the time out duration for waiting for output from running applications.
-   *
-   * <p>
-   * Defaults to a value of 10 minutes.
-   * </p>
-   *
-   * @param timeOut the new time out duration
-   */
-  public void setRunTimeout(Duration timeOut) {
-    this.timeOut = timeOut;
-  }
-
   @Override
   public <OutputT> OutputT runApplication(Application<OutputT, BuilderT> application,
-      ResourcePoolT resourcePool, Network network) {
+      ResourcePoolT resourcePool, Network network, Duration timeout) {
     Future<OutputT> future = startApplication(application, resourcePool, network);
     try {
-      return future.get(timeOut.toNanos(), TimeUnit.NANOSECONDS);
+      return future.get(timeout.toNanos(), TimeUnit.NANOSECONDS);
     } catch (InterruptedException | TimeoutException e) {
       throw new RuntimeException("Internal error in waiting", e);
     } catch (ExecutionException e) {

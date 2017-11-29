@@ -96,8 +96,7 @@ public class TestSecureComputationEngineImpl {
         };
     DummyArithmeticResourcePool rp = new DummyArithmeticResourcePoolImpl(0, 1, new Random(),
         new SecureRandom(), BigInteger.valueOf(101));
-    sce.setRunTimeout(Duration.ofNanos(1));
-    sce.runApplication(app, rp, null);
+    sce.runApplication(app, rp, null, Duration.ofNanos(1));
     fail("Should not be reachable");
   }
 
