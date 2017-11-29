@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.binary.Binary;
 import dk.alexandra.fresco.framework.builder.binary.BuilderFactoryBinary;
 import dk.alexandra.fresco.framework.builder.binary.Comparison;
-import dk.alexandra.fresco.framework.builder.binary.DefaultComparison;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.network.Network;
@@ -37,7 +36,8 @@ public class DummyBooleanBuilderFactory implements BuilderFactoryBinary, Perform
 
   @Override
   public Comparison createComparison(ProtocolBuilderBinary builder) {
-    Comparison comp = new DefaultComparison(builder);
+    Comparison comp = BuilderFactoryBinary.super.createComparison(builder);
+
     if (compDecorator == null) {
       compDecorator = new BinaryComparisonLoggingDecorator(comp);
     } else {
