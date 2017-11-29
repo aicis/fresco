@@ -1,5 +1,7 @@
 package dk.alexandra.fresco.tools.mascot.triple;
 
+import static org.junit.Assert.assertEquals;
+
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
@@ -71,7 +73,13 @@ public class TestTripleGen extends NetworkedTest {
       // wow much list amaze
       List<List<List<FieldElement>>> results =
           testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
-      System.out.println(results);
+      FieldElement left = results.get(0).get(0).get(0);
+      FieldElement right = results.get(1).get(0).get(0);
+      
+      // (12 + 123) * (11 + 2222) % 65521
+      FieldElement expected = new FieldElement(39371, modulus, modBitLength);
+      FieldElement actual = left.add(right);
+      assertEquals(expected, actual);
     } catch (Exception e) {
       // TODO: handle exception
       e.printStackTrace();

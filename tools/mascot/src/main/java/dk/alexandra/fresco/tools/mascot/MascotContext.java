@@ -47,7 +47,7 @@ public class MascotContext {
     int modBitLength = 16;
 //    int lambdaSecurityParam = 128;
     int lambdaSecurityParam = 16;
-    Random rand = new Random(42);
+    Random rand = new Random(myId);
     return new MascotContext(myId, partyIds, modulus, modBitLength, lambdaSecurityParam, network,
         executor, rand);
   }

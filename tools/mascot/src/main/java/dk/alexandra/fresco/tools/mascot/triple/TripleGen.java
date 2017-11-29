@@ -1,7 +1,11 @@
 package dk.alexandra.fresco.tools.mascot.triple;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import dk.alexandra.fresco.tools.mascot.BaseProtocol;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
@@ -31,7 +35,7 @@ public class TripleGen extends BaseProtocol {
     Integer myId = ctx.getMyId();
     List<Integer> partyIds = ctx.getPartyIds();
     for (Integer partyId : partyIds) {
-      if (myId.equals(partyId)) {
+      if (!myId.equals(partyId)) {
         rightMultipliers.add(new MultiplyRight(ctx, partyId, numLeftFactors));
         leftMultipliers.add(new MultiplyLeft(ctx, partyId, numLeftFactors));
       }
@@ -51,17 +55,80 @@ public class TripleGen extends BaseProtocol {
     this.initialized = true;
   }
 
+  // probably overdid it with streams here...
+  private List<FieldElement> pairWiseAdd(List<FieldElement> group, List<FieldElement> otherGroup) {
+    if (group.size() != otherGroup.size()) {
+      throw new IllegalArgumentException("Groups must be same size");
+    }
+    Stream<FieldElement> feStream = IntStream.range(0, group.size())
+        .mapToObj(idx -> {
+          FieldElement el = group.get(idx);
+          FieldElement otherEl = otherGroup.get(idx);
+          return el.add(otherEl);
+        });
+    return feStream.collect(Collectors.toList());
+  }
+
+  private List<List<FieldElement>> pairWiseAddRows(List<List<FieldElement>> row,
+      List<List<FieldElement>> otherRow) {
+    if (row.size() != otherRow.size()) {
+      throw new IllegalArgumentException("Rows must be same size");
+    }
+    List<List<FieldElement>> rowStreams = IntStream.range(0, row.size())
+        .mapToObj(idx -> {
+          List<FieldElement> group = row.get(idx);
+          List<FieldElement> otherGroup = otherRow.get(idx);
+          return pairWiseAdd(group, otherGroup);
+        })
+        .collect(Collectors.toList());
+    return rowStreams;
+  }
+
+  private List<List<FieldElement>> pairWiseAdd(List<List<List<FieldElement>>> rows) {
+    return rows.stream()
+        .reduce((top, bottom) -> {
+          return pairWiseAddRows(top, bottom);
+        })
+        .get();
+  }
+
+  private List<FieldElement> scalarMultiply(List<FieldElement> leftFactors,
+      FieldElement rightFactor) {
+    return leftFactors.stream()
+        .map(lf -> lf.multiply(rightFactor))
+        .collect(Collectors.toList());
+  }
+
+  private List<List<FieldElement>> pairWiseMultiply(List<List<FieldElement>> leftFactorGroups,
+      List<FieldElement> rightFactors) {
+    if (leftFactorGroups.size() != rightFactors.size()) {
+      throw new IllegalArgumentException("Rows must be same size");
+    }
+    return IntStream.range(0, leftFactorGroups.size())
+        .mapToObj(idx -> {
+          List<FieldElement> lfg = leftFactorGroups.get(idx);
+          FieldElement rf = rightFactors.get(idx);
+          return scalarMultiply(lfg, rf);
+        })
+        .collect(Collectors.toList());
+  }
+
   public List<List<FieldElement>> multiply(List<List<FieldElement>> leftFactorGroups,
       List<FieldElement> rightFactors) {
     // TODO should parallelize
-    // multiply-left receives and blocks, so run mult-right first
+    // TODO make factor group a class
+    List<List<List<FieldElement>>> subFactors = new ArrayList<>();
+    // left-mult blocks on receive, so run right mults first
     for (MultiplyRight rightMultiplier : rightMultipliers) {
-      rightMultiplier.multiply(rightFactors);
+      subFactors.add(rightMultiplier.multiply(rightFactors));
     }
     for (MultiplyLeft leftMultiplier : leftMultipliers) {
-      leftMultiplier.multiply(leftFactorGroups);
+      subFactors.add(leftMultiplier.multiply(leftFactorGroups));
     }
-    return null;
+    List<List<FieldElement>> localSubFactors = pairWiseMultiply(leftFactorGroups, rightFactors);
+    subFactors.add(localSubFactors);
+    List<List<FieldElement>> productShares = pairWiseAdd(subFactors);
+    return productShares;
   }
 
   public void triple(int numTriples) {
