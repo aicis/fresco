@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.tools.mascot.elgen;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -30,17 +31,19 @@ public class TestElGen {
   }
 
   private List<FieldElement> runInputter(MascotContext ctx, FieldElement macKeyShare,
-      List<FieldElement> inputs) {
+      List<FieldElement> inputs) throws Exception {
     ElGen elGen = new ElGen(ctx, macKeyShare);
     elGen.initialize();
-    return null;
+    elGen.input(inputs);
+    return new ArrayList<>();
   }
 
   private List<FieldElement> runOther(MascotContext ctx, Integer inputterId,
       FieldElement macKeyShare, int numInputs) {
     ElGen elGen = new ElGen(ctx, macKeyShare);
     elGen.initialize();
-    return null;
+    elGen.input(inputterId, numInputs);
+    return new ArrayList<>();
   }
 
   @Test
@@ -114,9 +117,10 @@ public class TestElGen {
       Callable<List<FieldElement>> partyOneTask =
           () -> runInputter(partyOneCtx, macKeyShareOne, inputs);
       Callable<List<FieldElement>> partyTwoTask = () -> runOther(partyTwoCtx, 1, macKeyShareTwo, 1);
-      Callable<List<FieldElement>> partyThreeTask = () -> runOther(partyThreeCtx, 1, macKeyShareThree, 1);
+      Callable<List<FieldElement>> partyThreeTask =
+          () -> runOther(partyThreeCtx, 1, macKeyShareThree, 1);
 
-      
+
       // run tasks and get ordered list of results
       List<List<FieldElement>> results =
           testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask, partyThreeTask));

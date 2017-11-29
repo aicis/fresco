@@ -7,8 +7,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.tools.mascot.BaseProtocol;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
@@ -93,24 +96,107 @@ public class ElGen extends BaseProtocol {
     List<FieldElement> selfMacced = selfMac(values);
     List<List<FieldElement>> maccedByAll = otherPartiesMac(values);
     maccedByAll.add(selfMacced);
-    return null;
+    return combineIntoMacShares(maccedByAll);
   }
 
+  List<FieldElement> mask(List<FieldElement> values, List<FieldElement> masks) {
+    if (values.size() != masks.size()) {
+      throw new IllegalArgumentException("Number of values must equal number of masks");
+    }
+    return IntStream.range(0, values.size())
+        .mapToObj(idx -> {
+          FieldElement value = values.get(idx);
+          FieldElement mask = masks.get(idx);
+          return value.multiply(mask);
+        })
+        .collect(Collectors.toList());
+  }
+
+  void runMacCheck(FieldElement value, List<FieldElement> masks, List<FieldElement> macs) {
+    // mask and combine macs
+    FieldElement maskedMac = FieldElement.sum(mask(macs, masks));
+    
+    // perform mac-check on open masked value
+    try {
+      macChecker.check(value, macKeyShare, maskedMac);
+    } catch (MPCException e) {
+      // TODO: handle 
+      throw e;
+    }
+  }
+
+  void secretShare(List<FieldElement> values, int numShares) {
+    List<List<FieldElement>> allShares = values.stream()
+        .map(value -> sharer.additiveShare(value, numShares))
+        .collect(Collectors.toList());
+    List<List<FieldElement>> byParty = ElGenUtils.transpose(allShares);
+    
+    for (List<FieldElement> shares : allShares) {
+      
+    }
+  }
+  
   public List<SpdzElement> input(List<FieldElement> values) {
     // can't input before initializing
     if (!initialized) {
       throw new IllegalStateException("Need to initialize first");
     }
+
+    // make sure we can add elements to list etc
+    values = new ArrayList<>(values);
+
     BigInteger modulus = ctx.getModulus();
     int modBitLength = ctx.getkBitLength();
+    Network network = ctx.getNetwork();
 
     // add extra random element which will later be used to mask inputs
     FieldElement extraElement = sampler.sample(modulus, modBitLength);
-    values.add(0, extraElement);
+    values.add(extraElement);
 
     // compute per element mac share
     List<FieldElement> macs = macValues(values);
+
+    // generate masks for values and macs
+    List<FieldElement> masks = sampler.jointSample(modulus, modBitLength, values.size());
+
+    // mask and combine values
+    FieldElement maskedValue = FieldElement.sum(mask(values, masks));
+
+    // send masked value to all other parties
+    network.sendToAll(maskedValue.toByteArray());
+
+    // perform mac-check on opened value (will throw if mac check fails)
+    runMacCheck(maskedValue, masks, macs);
     
+    // inputter secret-shares input values (note that we exclude dummy element)
+    
+    
+    return null;
+  }
+
+  public List<SpdzElement> input(Integer inputterId, int numInputs) {
+    // can't input before initializing
+    if (!initialized) {
+      throw new IllegalStateException("Need to initialize first");
+    }
+
+    BigInteger modulus = ctx.getModulus();
+    int modBitLength = ctx.getkBitLength();
+    Network network = ctx.getNetwork();
+
+    // receive per-element mac shares
+    CopeSigner copeSigner = copeSigners.get(inputterId);
+    List<FieldElement> macs = copeSigner.extend(numInputs + 1);
+
+    // generate masks for macs
+    List<FieldElement> masks = sampler.jointSample(modulus, modBitLength, numInputs + 1);
+
+    // receive masked value we will use in mac-check
+    FieldElement maskedValue = new FieldElement(network.receive(inputterId), modulus, modBitLength);
+
+    // perform mac-check on opened value
+    runMacCheck(maskedValue, masks, macs);
+
     return null;
   }
 
