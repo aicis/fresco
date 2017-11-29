@@ -3,7 +3,6 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Comparison;
-import dk.alexandra.fresco.framework.builder.numeric.DefaultComparison;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
@@ -50,7 +49,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
 
   @Override
   public Comparison createComparison(ProtocolBuilderNumeric builder) {
-    Comparison comp = new DefaultComparison(this, builder);
+    Comparison comp = BuilderFactoryNumeric.super.createComparison(builder);
     if (compDecorator == null) {
       compDecorator = new ComparisonLoggerDecorator(comp);
       
