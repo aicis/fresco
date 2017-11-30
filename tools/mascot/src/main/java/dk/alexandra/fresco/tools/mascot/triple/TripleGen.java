@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import dk.alexandra.fresco.tools.mascot.BaseProtocol;
-import dk.alexandra.fresco.tools.mascot.FieldElementGroup;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.elgen.ElGen;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
@@ -60,7 +59,7 @@ public class TripleGen extends BaseProtocol {
   }
 
   // probably overdid it with streams here...
-  
+
 
   List<List<FieldElement>> multiply(List<List<FieldElement>> leftFactorGroups,
       List<FieldElement> rightFactors) {
@@ -74,22 +73,23 @@ public class TripleGen extends BaseProtocol {
     for (MultiplyLeft leftMultiplier : leftMultipliers) {
       subFactors.add(leftMultiplier.multiply(leftFactorGroups));
     }
-    List<List<FieldElement>> localSubFactors = BatchArithmetic.pairWiseMultiply(leftFactorGroups, rightFactors);
+    List<List<FieldElement>> localSubFactors =
+        BatchArithmetic.pairWiseMultiply(leftFactorGroups, rightFactors);
     subFactors.add(localSubFactors);
     List<List<FieldElement>> productShares = BatchArithmetic.pairWiseAdd(subFactors);
     return productShares;
   }
 
-  TripleCandidate singleCombine(List<FieldElement> leftFactorGroup, FieldElement rightFactor,
+  UnauthenticatedCand singleCombine(List<FieldElement> leftFactorGroup, FieldElement rightFactor,
       List<FieldElement> productGroup, List<FieldElement> masks, List<FieldElement> masksSac) {
     FieldElement left = FieldElement.innerProduct(leftFactorGroup, masks);
     FieldElement prod = FieldElement.innerProduct(productGroup, masks);
     FieldElement leftSac = FieldElement.innerProduct(leftFactorGroup, masksSac);
     FieldElement prodSac = FieldElement.innerProduct(productGroup, masksSac);
-    return new TripleCandidate(left, rightFactor, prod, leftSac, prodSac);
+    return new UnauthenticatedCand(left, rightFactor, prod, leftSac, prodSac);
   }
 
-  List<TripleCandidate> combine(List<List<FieldElement>> leftFactorGroups,
+  List<UnauthenticatedCand> combine(List<List<FieldElement>> leftFactorGroups,
       List<FieldElement> rightFactors, List<List<FieldElement>> productGroups) {
     BigInteger modulus = ctx.getModulus();
     int modBitLength = ctx.getkBitLength();
@@ -100,7 +100,7 @@ public class TripleGen extends BaseProtocol {
     List<List<FieldElement>> sacrificeMasks =
         sampler.jointSampleGroups(modulus, modBitLength, numGroups, numLeftFactors);
 
-    List<TripleCandidate> candidates = IntStream.range(0, productGroups.size())
+    List<UnauthenticatedCand> candidates = IntStream.range(0, productGroups.size())
         .mapToObj(idx -> {
           List<FieldElement> lfg = leftFactorGroups.get(idx);
           FieldElement r = rightFactors.get(idx);
@@ -114,25 +114,39 @@ public class TripleGen extends BaseProtocol {
     return candidates;
   }
 
-  List<TripleCandidate> authenticate(List<TripleCandidate> candidates) {
+  List<AuthenticatedCand> partition(List<AuthenticatedElement> list, int partSize) {
+    // each group always consists of five elements
+    if (list.size() % partSize != 0) {
+      throw new IllegalArgumentException("Size of list must be multiple of partition size");
+    }
+    int numParts = list.size() / partSize;
+    return IntStream.range(0, numParts)
+        .mapToObj(idx -> {
+          List<AuthenticatedElement> batch = list.subList(idx * partSize, (idx + 1) * partSize);
+          return new AuthenticatedCand(batch);
+        })
+        .collect(Collectors.toList());
+  }
+
+  List<AuthenticatedCand> authenticate(List<UnauthenticatedCand> candidates) {
     List<Integer> partyIds = ctx.getPartyIds();
     Integer myId = ctx.getMyId();
-    
+
     List<FieldElement> flatInputs = candidates.stream()
         .flatMap(c -> c.stream())
         .collect(Collectors.toList());
 
-    List<List<AuthenticatedElement>> allShares = new ArrayList<>();
-    List<AuthenticatedElement> myShares = elGen.input(flatInputs);
-    allShares.add(myShares);
+    List<List<AuthenticatedElement>> shares = new ArrayList<>();
     for (Integer partyId : partyIds) {
-      if (!myId.equals(partyId)) {
-        List<AuthenticatedElement> otherShares = elGen.input(partyId, flatInputs.size());
-        allShares.add(otherShares);
+      if (myId.equals(partyId)) {
+        shares.add(elGen.input(flatInputs));
+      } else {
+        shares.add(elGen.input(partyId, flatInputs.size()));
       }
     }
 
-    return null;
+    List<AuthenticatedElement> combined = BatchArithmetic.pairWiseAddRows(shares);
+    return partition(combined, 5);
   }
 
   public void triple(int numTriples) {
@@ -154,37 +168,63 @@ public class TripleGen extends BaseProtocol {
     List<List<FieldElement>> productGroups = multiply(leftFactorGroups, rightFactors);
 
     // combine into unauthenticated triple candidates
-    List<TripleCandidate> candidates = combine(leftFactorGroups, rightFactors, productGroups);
-    System.out.println(candidates);
+    List<UnauthenticatedCand> candidates = combine(leftFactorGroups, rightFactors, productGroups);
+
+    // use el-gen to input candidates and combine them to the authenticated candidates
+    List<AuthenticatedCand> authenticated = authenticate(candidates);
+    System.out.println(authenticated);
   }
 
-  private class TripleCandidate extends FieldElementGroup {
+  // TODO hack hack hack
+  private class TripleCandidate<T> extends ArrayList<T> {
     /**
      * 
      */
     private static final long serialVersionUID = -4917636316948291312L;
 
-    FieldElement a;
-    FieldElement b;
-    FieldElement c;
-    FieldElement aHat;
-    FieldElement cHat;
-
-    TripleCandidate(FieldElement a, FieldElement b, FieldElement c, FieldElement aHat,
-        FieldElement cHat) {
+    TripleCandidate(T a, T b, T c, T aHat, T cHat) {
       super(Arrays.asList(a, b, c, aHat, cHat));
-      this.a = a;
-      this.b = b;
-      this.c = c;
-      this.aHat = aHat;
-      this.cHat = cHat;
+    }
+
+    TripleCandidate(List<T> ordered) {
+      this(ordered.get(0), ordered.get(1), ordered.get(2), ordered.get(3), ordered.get(4));
     }
 
     @Override
     public String toString() {
-      return "Combined [a=" + a + ", b=" + b + ", c=" + c + ", aHat=" + aHat + ", cHat=" + cHat
-          + "]";
+      return "Combined [a=" + get(0) + ", b=" + get(1) + ", c=" + get(2) + ", aHat=" + get(3)
+          + ", cHat=" + get(4) + "]";
     }
+  }
+
+  private class UnauthenticatedCand extends TripleCandidate<FieldElement> {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -1971365645502905443L;
+
+    UnauthenticatedCand(FieldElement a, FieldElement b, FieldElement c, FieldElement aHat,
+        FieldElement cHat) {
+      super(a, b, c, aHat, cHat);
+    }
+  }
+
+  private class AuthenticatedCand extends TripleCandidate<AuthenticatedElement> {
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -7482720772166931426L;
+
+    AuthenticatedCand(AuthenticatedElement a, AuthenticatedElement b, AuthenticatedElement c,
+        AuthenticatedElement aHat, AuthenticatedElement cHat) {
+      super(a, b, c, aHat, cHat);
+    }
+
+    public AuthenticatedCand(List<AuthenticatedElement> ordered) {
+      super(ordered);
+    }
+
   }
 
 }

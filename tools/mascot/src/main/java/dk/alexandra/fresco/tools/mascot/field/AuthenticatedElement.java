@@ -8,11 +8,11 @@ import dk.alexandra.fresco.tools.mascot.ArithmeticElement;
 public class AuthenticatedElement implements ArithmeticElement<AuthenticatedElement> {
 
   SpdzElement spdzElement;
-  
+
   public AuthenticatedElement(FieldElement share, FieldElement mac, BigInteger modulus) {
     this.spdzElement = new SpdzElement(share.toBigInteger(), mac.toBigInteger(), modulus);
   }
-  
+
   public AuthenticatedElement(SpdzElement spdzElement) {
     this.spdzElement = spdzElement;
   }
@@ -51,6 +51,11 @@ public class AuthenticatedElement implements ArithmeticElement<AuthenticatedElem
     } else if (!spdzElement.equals(other.spdzElement))
       return false;
     return true;
+  }
+
+  @Override
+  public String toString() {
+    return "AuthenticatedElement [spdzElement=" + spdzElement + "]";
   }
 
 }

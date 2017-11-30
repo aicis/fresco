@@ -9,7 +9,7 @@ import dk.alexandra.fresco.tools.mascot.ArithmeticElement;
 
 public class BatchArithmetic {
 
-  public static <T extends ArithmeticElement<T>> List<T> pairWiseAdd(List<T> group,
+  public static <T extends ArithmeticElement<T>> List<T> addGroups(List<T> group,
       List<T> otherGroup) {
     if (group.size() != otherGroup.size()) {
       throw new IllegalArgumentException("Groups must be same size");
@@ -23,7 +23,7 @@ public class BatchArithmetic {
     return feStream.collect(Collectors.toList());
   }
 
-  public static <T extends ArithmeticElement<T>> List<List<T>> pairWiseAddRows(List<List<T>> row,
+  public static <T extends ArithmeticElement<T>> List<List<T>> addRows(List<List<T>> row,
       List<List<T>> otherRow) {
     if (row.size() != otherRow.size()) {
       throw new IllegalArgumentException("Rows must be same size");
@@ -32,7 +32,7 @@ public class BatchArithmetic {
         .mapToObj(idx -> {
           List<T> group = row.get(idx);
           List<T> otherGroup = otherRow.get(idx);
-          return pairWiseAdd(group, otherGroup);
+          return addGroups(group, otherGroup);
         })
         .collect(Collectors.toList());
     return rowStreams;
@@ -42,7 +42,15 @@ public class BatchArithmetic {
       List<List<List<T>>> rows) {
     return rows.stream()
         .reduce((top, bottom) -> {
-          return pairWiseAddRows(top, bottom);
+          return addRows(top, bottom);
+        })
+        .get();
+  }
+
+  public static <T extends ArithmeticElement<T>> List<T> pairWiseAddRows(List<List<T>> rows) {
+    return rows.stream()
+        .reduce((top, bottom) -> {
+          return addGroups(top, bottom);
         })
         .get();
   }

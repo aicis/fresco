@@ -207,7 +207,7 @@ public class TestTripleGen extends NetworkedTest {
   private List<FieldElement> combineRight(List<List<FieldElement>> rightFactors) {
     return rightFactors.stream()
         .reduce((top, bottom) -> {
-          return BatchArithmetic.pairWiseAdd(top, bottom);
+          return BatchArithmetic.addGroups(top, bottom);
         })
         .get();
   }
