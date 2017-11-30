@@ -36,7 +36,7 @@ public class TestDetermSecureRandom {
     assertFalse(Arrays.equals(bsBeforeSeed, bsAfterSeed));
   }
   
-  @Test(expected=NoSuchAlgorithmException.class)
+  @Test(expected = NoSuchAlgorithmException.class)
   public void testNonExistingAlgorithm() throws NoSuchAlgorithmException {
     new DetermSecureRandom(new byte[]{0x01}, "Bla");        
   }

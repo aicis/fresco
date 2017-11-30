@@ -1,8 +1,6 @@
 package dk.alexandra.fresco.framework.util;
 
 import dk.alexandra.fresco.framework.MPCException;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -24,6 +22,10 @@ import javax.crypto.spec.SecretKeySpec;
  * </p>
  * <p>
  * Note that DetermSecureRandom is not threadsafe.
+ * </p>
+ * <p>
+ * Note also that reseeding (calling {@link #setSeed(byte[])}) should occur at least every 2^42
+ * calls to {@link #nextBytes(byte[])} to be secure. No signal will be send about this.
  * </p>
  */
 public class DetermSecureRandom extends SecureRandom {
@@ -84,17 +86,17 @@ public class DetermSecureRandom extends SecureRandom {
 
   @Override
   public synchronized void nextBytes(byte[] bytes) {
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    while (bos.size() < bytes.length) {
+    int pos = 0;
+    while (pos < bytes.length) {
       this.val = this.mac.doFinal(this.val);
-      try {
-        bos.write(this.val);
-      } catch (IOException e) {
-        throw new MPCException(
-            "Somehow could not utilize the ByteArrayOutputStream. Should never happen", e);
+      int length = val.length;
+      //Ensure that we don't break boundries
+      if (length > bytes.length - pos) {
+        length = bytes.length - pos;
       }
+      System.arraycopy(val, 0, bytes, pos, length);
+      pos += length;
     }
-    System.arraycopy(bos.toByteArray(), 0, bytes, 0, bytes.length);
     update(null);
     // If we at some point want to introduce an indicator that a reseed should happen, we need to
     // have a reseedCounter counted here. The reseed interval is 2^48 as per the NIST details.
