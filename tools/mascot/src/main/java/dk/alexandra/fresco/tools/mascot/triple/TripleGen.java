@@ -56,7 +56,7 @@ public class TripleGen extends BaseProtocol {
   }
 
   // probably overdid it with streams here...
-  private List<FieldElement> pairWiseAdd(List<FieldElement> group, List<FieldElement> otherGroup) {
+  static List<FieldElement> pairWiseAdd(List<FieldElement> group, List<FieldElement> otherGroup) {
     if (group.size() != otherGroup.size()) {
       throw new IllegalArgumentException("Groups must be same size");
     }
@@ -69,7 +69,7 @@ public class TripleGen extends BaseProtocol {
     return feStream.collect(Collectors.toList());
   }
 
-  private List<List<FieldElement>> pairWiseAddRows(List<List<FieldElement>> row,
+  static List<List<FieldElement>> pairWiseAddRows(List<List<FieldElement>> row,
       List<List<FieldElement>> otherRow) {
     if (row.size() != otherRow.size()) {
       throw new IllegalArgumentException("Rows must be same size");
@@ -84,7 +84,7 @@ public class TripleGen extends BaseProtocol {
     return rowStreams;
   }
 
-  private List<List<FieldElement>> pairWiseAdd(List<List<List<FieldElement>>> rows) {
+  static List<List<FieldElement>> pairWiseAdd(List<List<List<FieldElement>>> rows) {
     return rows.stream()
         .reduce((top, bottom) -> {
           return pairWiseAddRows(top, bottom);
@@ -92,14 +92,14 @@ public class TripleGen extends BaseProtocol {
         .get();
   }
 
-  private List<FieldElement> scalarMultiply(List<FieldElement> leftFactors,
+  static List<FieldElement> scalarMultiply(List<FieldElement> leftFactors,
       FieldElement rightFactor) {
     return leftFactors.stream()
         .map(lf -> lf.multiply(rightFactor))
         .collect(Collectors.toList());
   }
 
-  private List<List<FieldElement>> pairWiseMultiply(List<List<FieldElement>> leftFactorGroups,
+  static List<List<FieldElement>> pairWiseMultiply(List<List<FieldElement>> leftFactorGroups,
       List<FieldElement> rightFactors) {
     if (leftFactorGroups.size() != rightFactors.size()) {
       throw new IllegalArgumentException("Rows must be same size");
