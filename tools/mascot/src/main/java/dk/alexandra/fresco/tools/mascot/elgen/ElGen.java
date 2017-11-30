@@ -12,11 +12,11 @@ import java.util.stream.Stream;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.tools.mascot.BaseProtocol;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.cope.CopeInputter;
 import dk.alexandra.fresco.tools.mascot.cope.CopeSigner;
+import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.maccheck.MacCheck;
 import dk.alexandra.fresco.tools.mascot.utils.Sharer;
@@ -165,21 +165,21 @@ public class ElGen extends BaseProtocol {
     return receivedShares;
   }
 
-  List<SpdzElement> toSpdzElements(List<FieldElement> shares, List<FieldElement> macs) {
+  List<AuthenticatedElement> toAuthenticatedElements(List<FieldElement> shares, List<FieldElement> macs) {
     if (shares.size() != macs.size()) {
       throw new IllegalArgumentException("Number of shares must equal number of mac shares");
     }
     final BigInteger modulus = ctx.getModulus();
-    Stream<SpdzElement> spdzElements = IntStream.range(0, shares.size())
+    Stream<AuthenticatedElement> spdzElements = IntStream.range(0, shares.size())
         .mapToObj(idx -> {
           FieldElement share = shares.get(idx);
           FieldElement mac = macs.get(idx);
-          return new SpdzElement(share.toBigInteger(), mac.toBigInteger(), modulus);
+          return new AuthenticatedElement(share, mac, modulus);
         });
     return spdzElements.collect(Collectors.toList());
   }
 
-  public List<SpdzElement> input(List<FieldElement> values) {
+  public List<AuthenticatedElement> input(List<FieldElement> values) {
     // can't input before initializing
     if (!initialized) {
       throw new IllegalStateException("Need to initialize first");
@@ -218,11 +218,11 @@ public class ElGen extends BaseProtocol {
 
     // combine shares and mac shares to spdz elements (exclude mac for dummy element)
     List<FieldElement> nonDummyMacs = macs.subList(0, shares.size());
-    List<SpdzElement> spdzElements = toSpdzElements(shares, nonDummyMacs);
+    List<AuthenticatedElement> spdzElements = toAuthenticatedElements(shares, nonDummyMacs);
     return spdzElements;
   }
 
-  public List<SpdzElement> input(Integer inputterId, int numInputs) {
+  public List<AuthenticatedElement> input(Integer inputterId, int numInputs) {
     // can't input before initializing
     if (!initialized) {
       throw new IllegalStateException("Need to initialize first");
@@ -250,7 +250,7 @@ public class ElGen extends BaseProtocol {
 
     // combine shares and mac shares to spdz elements (exclude mac for dummy element)
     List<FieldElement> nonDummyMacs = macs.subList(0, numInputs);
-    List<SpdzElement> spdzElements = toSpdzElements(shares, nonDummyMacs);
+    List<AuthenticatedElement> spdzElements = toAuthenticatedElements(shares, nonDummyMacs);
     return spdzElements;
   }
 

@@ -14,6 +14,7 @@ import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.utils.BatchArithmetic;
 
 public class TestTripleGen extends NetworkedTest {
 
@@ -34,7 +35,7 @@ public class TestTripleGen extends NetworkedTest {
     tripleGen.triple(numTriples);
     return null;
   }
-  
+
   @Test
   public void testTwoPartiesSingleMult() throws Exception {
     try {
@@ -144,14 +145,18 @@ public class TestTripleGen extends NetworkedTest {
 
       List<List<List<FieldElement>>> results =
           testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
-      
-      // we expected that for each input pair of factors the result is (a1 + a2 + ...) * (b1 + b2 + ...)
-      List<List<FieldElement>> expectedLeftFactors = TripleGen.pairWiseAdd(Arrays.asList(leftFactorsOne, leftFactorsTwo));
-      List<FieldElement> expectedRightFactors = combineRight(Arrays.asList(rightFactorsOne, rightFactorsTwo));
-      List<List<FieldElement>> expected = TripleGen.pairWiseMultiply(expectedLeftFactors, expectedRightFactors);
-      
+
+      // we expected that for each input pair of factors the result is (a1 + a2 + ...) * (b1 + b2 +
+      // ...)
+      List<List<FieldElement>> expectedLeftFactors =
+          BatchArithmetic.pairWiseAdd(Arrays.asList(leftFactorsOne, leftFactorsTwo));
+      List<FieldElement> expectedRightFactors =
+          combineRight(Arrays.asList(rightFactorsOne, rightFactorsTwo));
+      List<List<FieldElement>> expected =
+          BatchArithmetic.pairWiseMultiply(expectedLeftFactors, expectedRightFactors);
+
       // actual results, recombined
-      List<List<FieldElement>> actual = TripleGen.pairWiseAdd(results);
+      List<List<FieldElement>> actual = BatchArithmetic.pairWiseAdd(results);
       assertEquals(expected, actual);
     } catch (Exception e) {
       // TODO: handle exception
@@ -196,14 +201,15 @@ public class TestTripleGen extends NetworkedTest {
       throw new Exception("test failed");
     }
   }
-  
+
   // helpers
-  
+
   private List<FieldElement> combineRight(List<List<FieldElement>> rightFactors) {
     return rightFactors.stream()
         .reduce((top, bottom) -> {
-          return TripleGen.pairWiseAdd(top, bottom);
-        }).get();
+          return BatchArithmetic.pairWiseAdd(top, bottom);
+        })
+        .get();
   }
 
 }

@@ -7,8 +7,9 @@ import java.util.stream.IntStream;
 
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
+import dk.alexandra.fresco.tools.mascot.ArithmeticElement;
 
-public class FieldElement {
+public class FieldElement implements ArithmeticElement<FieldElement> {
 
   private BigInteger value;
   private BigInteger modulus;

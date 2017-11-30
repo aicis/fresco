@@ -13,48 +13,48 @@ import java.util.stream.Stream;
 
 import org.junit.Test;
 
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
+import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 
 public class TestElGen extends NetworkedTest {
 
-  private List<SpdzElement> runInputterMultipleRounds(MascotContext ctx, FieldElement macKeyShare,
+  private List<AuthenticatedElement> runInputterMultipleRounds(MascotContext ctx, FieldElement macKeyShare,
       List<List<FieldElement>> inputs) throws Exception {
     ElGen elGen = new ElGen(ctx, macKeyShare);
     elGen.initialize();
     int perRoundInputs = inputs.get(0)
         .size();
-    List<SpdzElement> elements = new ArrayList<>(perRoundInputs * inputs.size());
+    List<AuthenticatedElement> elements = new ArrayList<>(perRoundInputs * inputs.size());
     for (List<FieldElement> roundInput : inputs) {
-      List<SpdzElement> thisRoundResult = elGen.input(roundInput);
+      List<AuthenticatedElement> thisRoundResult = elGen.input(roundInput);
       elements.addAll(thisRoundResult);
     }
     return elements;
   }
 
-  private List<SpdzElement> runOtherMultipleRounds(MascotContext ctx, Integer inputterId,
+  private List<AuthenticatedElement> runOtherMultipleRounds(MascotContext ctx, Integer inputterId,
       FieldElement macKeyShare, int numInputsPerRound, int numRounds) {
     ElGen elGen = new ElGen(ctx, macKeyShare);
     elGen.initialize();
-    List<SpdzElement> elements = new ArrayList<>(numInputsPerRound * numRounds);
+    List<AuthenticatedElement> elements = new ArrayList<>(numInputsPerRound * numRounds);
     for (int r = 0; r < numRounds; r++) {
-      List<SpdzElement> thisRoundResult = elGen.input(inputterId, numInputsPerRound);
+      List<AuthenticatedElement> thisRoundResult = elGen.input(inputterId, numInputsPerRound);
       elements.addAll(thisRoundResult);
     }
     return elements;
   }
 
-  private List<SpdzElement> runInputter(MascotContext ctx, FieldElement macKeyShare,
+  private List<AuthenticatedElement> runInputter(MascotContext ctx, FieldElement macKeyShare,
       List<FieldElement> inputs) throws Exception {
     ElGen elGen = new ElGen(ctx, macKeyShare);
     elGen.initialize();
     return elGen.input(inputs);
   }
 
-  private List<SpdzElement> runOther(MascotContext ctx, Integer inputterId,
+  private List<AuthenticatedElement> runOther(MascotContext ctx, Integer inputterId,
       FieldElement macKeyShare, int numInputs) {
     ElGen elGen = new ElGen(ctx, macKeyShare);
     elGen.initialize();
@@ -73,6 +73,7 @@ public class TestElGen extends NetworkedTest {
       MascotContext partyTwoCtx = contexts.get(2);
 
       BigInteger modulus = partyOneCtx.getModulus();
+      int modBitLength = partyOneCtx.getkBitLength();
 
       // left party mac key share
       FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"),
@@ -88,26 +89,26 @@ public class TestElGen extends NetworkedTest {
       List<FieldElement> inputs = Arrays.asList(input);
 
       // define task each party will run
-      Callable<List<SpdzElement>> partyOneTask =
+      Callable<List<AuthenticatedElement>> partyOneTask =
           () -> runInputter(partyOneCtx, macKeyShareOne, inputs);
-      Callable<List<SpdzElement>> partyTwoTask =
+      Callable<List<AuthenticatedElement>> partyTwoTask =
           () -> runOther(partyTwoCtx, 1, macKeyShareTwo, inputs.size());
 
       // run tasks and get ordered list of results
-      List<List<SpdzElement>> results =
+      List<List<AuthenticatedElement>> results =
           testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
 
       // retrieve per-party results
-      List<SpdzElement> leftShares = results.get(0);
-      SpdzElement leftShare = leftShares.get(0);
-      List<SpdzElement> rightShares = results.get(1);
-      SpdzElement rightShare = rightShares.get(0);
+      List<AuthenticatedElement> leftShares = results.get(0);
+      AuthenticatedElement leftShare = leftShares.get(0);
+      List<AuthenticatedElement> rightShares = results.get(1);
+      AuthenticatedElement rightShare = rightShares.get(0);
 
-      BigInteger expectedRecomb = BigInteger.valueOf(7);
-      BigInteger expectedMacRecomb = BigInteger.valueOf(1608); // (keyShareA + keyShareB) * input
+      FieldElement expectedRecomb = new FieldElement(7, modulus, modBitLength);
+      FieldElement expectedMacRecomb = new FieldElement(1608, modulus, modBitLength); // (keyShareA + keyShareB) * input
       // bit of a shortcut
-      SpdzElement expected = new SpdzElement(expectedRecomb, expectedMacRecomb, modulus);
-      SpdzElement actual = leftShare.add(rightShare);
+      AuthenticatedElement expected = new AuthenticatedElement(expectedRecomb, expectedMacRecomb, modulus);
+      AuthenticatedElement actual = leftShare.add(rightShare);
 
       assertEquals(expected, actual);
     } catch (Exception e) {
@@ -129,6 +130,7 @@ public class TestElGen extends NetworkedTest {
       MascotContext partyTwoCtx = contexts.get(2);
 
       BigInteger modulus = partyOneCtx.getModulus();
+      int modBitLength = partyOneCtx.getkBitLength();
 
       // left party mac key share
       FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"),
@@ -144,26 +146,26 @@ public class TestElGen extends NetworkedTest {
       List<FieldElement> inputs = Arrays.asList(input);
 
       // define task each party will run
-      Callable<List<SpdzElement>> partyOneTask =
+      Callable<List<AuthenticatedElement>> partyOneTask =
           () -> runInputter(partyTwoCtx, macKeyShareOne, inputs);
-      Callable<List<SpdzElement>> partyTwoTask =
+      Callable<List<AuthenticatedElement>> partyTwoTask =
           () -> runOther(partyOneCtx, 2, macKeyShareTwo, inputs.size());
 
       // run tasks and get ordered list of results
-      List<List<SpdzElement>> results =
+      List<List<AuthenticatedElement>> results =
           testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
 
       // retrieve per-party results
-      List<SpdzElement> leftShares = results.get(0);
-      SpdzElement leftShare = leftShares.get(0);
-      List<SpdzElement> rightShares = results.get(1);
-      SpdzElement rightShare = rightShares.get(0);
+      List<AuthenticatedElement> leftShares = results.get(0);
+      AuthenticatedElement leftShare = leftShares.get(0);
+      List<AuthenticatedElement> rightShares = results.get(1);
+      AuthenticatedElement rightShare = rightShares.get(0);
 
-      BigInteger expectedRecomb = BigInteger.valueOf(7);
-      BigInteger expectedMacRecomb = BigInteger.valueOf(1608); // (keyShareA + keyShareB) * input
+      FieldElement expectedRecomb = new FieldElement(7, modulus, modBitLength);
+      FieldElement expectedMacRecomb = new FieldElement(1608, modulus, modBitLength); // (keyShareA + keyShareB) * input
       // bit of a shortcut
-      SpdzElement expected = new SpdzElement(expectedRecomb, expectedMacRecomb, modulus);
-      SpdzElement actual = leftShare.add(rightShare);
+      AuthenticatedElement expected = new AuthenticatedElement(expectedRecomb, expectedMacRecomb, modulus);
+      AuthenticatedElement actual = leftShare.add(rightShare);
 
       assertEquals(expected, actual);
     } catch (Exception e) {
@@ -203,19 +205,19 @@ public class TestElGen extends NetworkedTest {
       List<FieldElement> inputs = Arrays.asList(input);
 
       // define task each party will run
-      Callable<List<SpdzElement>> partyOneTask =
+      Callable<List<AuthenticatedElement>> partyOneTask =
           () -> runInputter(partyOneCtx, macKeyShareOne, inputs);
-      Callable<List<SpdzElement>> partyTwoTask = () -> runOther(partyTwoCtx, 1, macKeyShareTwo, 1);
-      Callable<List<SpdzElement>> partyThreeTask =
+      Callable<List<AuthenticatedElement>> partyTwoTask = () -> runOther(partyTwoCtx, 1, macKeyShareTwo, 1);
+      Callable<List<AuthenticatedElement>> partyThreeTask =
           () -> runOther(partyThreeCtx, 1, macKeyShareThree, 1);
 
       // run tasks and get ordered list of results
-      List<List<SpdzElement>> results =
+      List<List<AuthenticatedElement>> results =
           testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask, partyThreeTask));
-      List<SpdzElement> actual = computeActual(results);
+      List<AuthenticatedElement> actual = computeActual(results);
       List<FieldElement> macKeyShares =
           Arrays.asList(macKeyShareOne, macKeyShareTwo, macKeyShareThree);
-      List<SpdzElement> expected = computeExpected(inputs, macKeyShares, modulus);
+      List<AuthenticatedElement> expected = computeExpected(inputs, macKeyShares, modulus);
 
       assertEquals(expected, actual);
     } catch (Exception e) {
@@ -250,18 +252,18 @@ public class TestElGen extends NetworkedTest {
           MascotTestUtils.generateSingleRow(inputArr, modulus, modBitLength);
 
       // define task each party will run
-      Callable<List<SpdzElement>> partyOneTask =
+      Callable<List<AuthenticatedElement>> partyOneTask =
           () -> runInputter(partyOneCtx, macKeyShareOne, inputs);
-      Callable<List<SpdzElement>> partyTwoTask =
+      Callable<List<AuthenticatedElement>> partyTwoTask =
           () -> runOther(partyTwoCtx, 1, macKeyShareTwo, inputs.size());
 
       // run tasks and get ordered list of results
-      List<List<SpdzElement>> results =
+      List<List<AuthenticatedElement>> results =
           testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
 
-      List<SpdzElement> actual = computeActual(results);
+      List<AuthenticatedElement> actual = computeActual(results);
       List<FieldElement> macKeyShares = Arrays.asList(macKeyShareOne, macKeyShareTwo);
-      List<SpdzElement> expected = computeExpected(inputs, macKeyShares, modulus);
+      List<AuthenticatedElement> expected = computeExpected(inputs, macKeyShares, modulus);
 
       assertEquals(expected, actual);
     } catch (Exception e) {
@@ -299,21 +301,21 @@ public class TestElGen extends NetworkedTest {
       int numRounds = inputs.size();
 
       // define task each party will run
-      Callable<List<SpdzElement>> partyOneTask =
+      Callable<List<AuthenticatedElement>> partyOneTask =
           () -> runInputterMultipleRounds(partyOneCtx, macKeyShareOne, inputs);
-      Callable<List<SpdzElement>> partyTwoTask = () -> runOtherMultipleRounds(partyTwoCtx, 1,
+      Callable<List<AuthenticatedElement>> partyTwoTask = () -> runOtherMultipleRounds(partyTwoCtx, 1,
           macKeyShareTwo, numInputsPerRound, numRounds);
       
       // run tasks and get ordered list of results
-      List<List<SpdzElement>> results =
+      List<List<AuthenticatedElement>> results =
           testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
 
-      List<SpdzElement> actual = computeActual(results);
+      List<AuthenticatedElement> actual = computeActual(results);
       List<FieldElement> macKeyShares = Arrays.asList(macKeyShareOne, macKeyShareTwo);
       List<FieldElement> flatInputs = inputs.stream()
           .flatMap(l -> l.stream())
           .collect(Collectors.toList());
-      List<SpdzElement> expected = computeExpected(flatInputs, macKeyShares, modulus);
+      List<AuthenticatedElement> expected = computeExpected(flatInputs, macKeyShares, modulus);
 
       assertEquals(expected, actual);
     } catch (Exception e) {
@@ -325,29 +327,27 @@ public class TestElGen extends NetworkedTest {
 
   // util methods
 
-  private List<SpdzElement> computeExpected(List<FieldElement> inputs,
+  private List<AuthenticatedElement> computeExpected(List<FieldElement> inputs,
       List<FieldElement> macKeyShares, BigInteger modulus) {
     FieldElement macKey = FieldElement.sum(macKeyShares);
-    Stream<SpdzElement> expected = inputs.stream()
+    Stream<AuthenticatedElement> expected = inputs.stream()
         .map(fe -> {
-          BigInteger share = fe.toBigInteger();
-          BigInteger mac = fe.multiply(macKey)
-              .toBigInteger();
-          return new SpdzElement(share, mac, modulus);
+          FieldElement mac = fe.multiply(macKey);
+          return new AuthenticatedElement(fe, mac, modulus);
         });
     return expected.collect(Collectors.toList());
   }
 
-  private SpdzElement sum(List<SpdzElement> summands) {
+  private AuthenticatedElement sum(List<AuthenticatedElement> summands) {
     return summands.stream()
         .reduce((l, r) -> l.add(r))
         .get();
   }
 
-  private List<SpdzElement> computeActual(List<List<SpdzElement>> sharesPerParty) {
+  private List<AuthenticatedElement> computeActual(List<List<AuthenticatedElement>> sharesPerParty) {
     // TODO debatable...
-    List<List<SpdzElement>> perValue = ElGenUtils.naiveTranspose(sharesPerParty);
-    List<SpdzElement> actual = perValue.stream()
+    List<List<AuthenticatedElement>> perValue = ElGenUtils.naiveTranspose(sharesPerParty);
+    List<AuthenticatedElement> actual = perValue.stream()
         .map(shares -> sum(shares))
         .collect(Collectors.toList());
     return actual;

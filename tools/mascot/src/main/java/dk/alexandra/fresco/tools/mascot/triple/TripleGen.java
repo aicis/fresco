@@ -7,14 +7,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import dk.alexandra.fresco.tools.mascot.BaseProtocol;
+import dk.alexandra.fresco.tools.mascot.FieldElementGroup;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.elgen.ElGen;
+import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeft;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyRight;
+import dk.alexandra.fresco.tools.mascot.utils.BatchArithmetic;
 import dk.alexandra.fresco.tools.mascot.utils.sample.DummySampler;
 import dk.alexandra.fresco.tools.mascot.utils.sample.Sampler;
 
@@ -58,62 +60,7 @@ public class TripleGen extends BaseProtocol {
   }
 
   // probably overdid it with streams here...
-  static List<FieldElement> pairWiseAdd(List<FieldElement> group, List<FieldElement> otherGroup) {
-    if (group.size() != otherGroup.size()) {
-      throw new IllegalArgumentException("Groups must be same size");
-    }
-    Stream<FieldElement> feStream = IntStream.range(0, group.size())
-        .mapToObj(idx -> {
-          FieldElement el = group.get(idx);
-          FieldElement otherEl = otherGroup.get(idx);
-          return el.add(otherEl);
-        });
-    return feStream.collect(Collectors.toList());
-  }
-
-  static List<List<FieldElement>> pairWiseAddRows(List<List<FieldElement>> row,
-      List<List<FieldElement>> otherRow) {
-    if (row.size() != otherRow.size()) {
-      throw new IllegalArgumentException("Rows must be same size");
-    }
-    List<List<FieldElement>> rowStreams = IntStream.range(0, row.size())
-        .mapToObj(idx -> {
-          List<FieldElement> group = row.get(idx);
-          List<FieldElement> otherGroup = otherRow.get(idx);
-          return pairWiseAdd(group, otherGroup);
-        })
-        .collect(Collectors.toList());
-    return rowStreams;
-  }
-
-  static List<List<FieldElement>> pairWiseAdd(List<List<List<FieldElement>>> rows) {
-    return rows.stream()
-        .reduce((top, bottom) -> {
-          return pairWiseAddRows(top, bottom);
-        })
-        .get();
-  }
-
-  static List<FieldElement> scalarMultiply(List<FieldElement> leftFactors,
-      FieldElement rightFactor) {
-    return leftFactors.stream()
-        .map(lf -> lf.multiply(rightFactor))
-        .collect(Collectors.toList());
-  }
-
-  static List<List<FieldElement>> pairWiseMultiply(List<List<FieldElement>> leftFactorGroups,
-      List<FieldElement> rightFactors) {
-    if (leftFactorGroups.size() != rightFactors.size()) {
-      throw new IllegalArgumentException("Rows must be same size");
-    }
-    return IntStream.range(0, leftFactorGroups.size())
-        .mapToObj(idx -> {
-          List<FieldElement> lfg = leftFactorGroups.get(idx);
-          FieldElement rf = rightFactors.get(idx);
-          return scalarMultiply(lfg, rf);
-        })
-        .collect(Collectors.toList());
-  }
+  
 
   List<List<FieldElement>> multiply(List<List<FieldElement>> leftFactorGroups,
       List<FieldElement> rightFactors) {
@@ -127,23 +74,22 @@ public class TripleGen extends BaseProtocol {
     for (MultiplyLeft leftMultiplier : leftMultipliers) {
       subFactors.add(leftMultiplier.multiply(leftFactorGroups));
     }
-    List<List<FieldElement>> localSubFactors = pairWiseMultiply(leftFactorGroups, rightFactors);
+    List<List<FieldElement>> localSubFactors = BatchArithmetic.pairWiseMultiply(leftFactorGroups, rightFactors);
     subFactors.add(localSubFactors);
-    List<List<FieldElement>> productShares = pairWiseAdd(subFactors);
+    List<List<FieldElement>> productShares = BatchArithmetic.pairWiseAdd(subFactors);
     return productShares;
   }
 
-  TripleCandidate<FieldElement> singleCombine(List<FieldElement> leftFactorGroup,
-      FieldElement rightFactor, List<FieldElement> productGroup, List<FieldElement> masks,
-      List<FieldElement> masksSac) {
+  TripleCandidate singleCombine(List<FieldElement> leftFactorGroup, FieldElement rightFactor,
+      List<FieldElement> productGroup, List<FieldElement> masks, List<FieldElement> masksSac) {
     FieldElement left = FieldElement.innerProduct(leftFactorGroup, masks);
     FieldElement prod = FieldElement.innerProduct(productGroup, masks);
     FieldElement leftSac = FieldElement.innerProduct(leftFactorGroup, masksSac);
     FieldElement prodSac = FieldElement.innerProduct(productGroup, masksSac);
-    return new TripleCandidate<FieldElement>(left, rightFactor, prod, leftSac, prodSac);
+    return new TripleCandidate(left, rightFactor, prod, leftSac, prodSac);
   }
 
-  List<TripleCandidate<FieldElement>> combine(List<List<FieldElement>> leftFactorGroups,
+  List<TripleCandidate> combine(List<List<FieldElement>> leftFactorGroups,
       List<FieldElement> rightFactors, List<List<FieldElement>> productGroups) {
     BigInteger modulus = ctx.getModulus();
     int modBitLength = ctx.getkBitLength();
@@ -154,7 +100,7 @@ public class TripleGen extends BaseProtocol {
     List<List<FieldElement>> sacrificeMasks =
         sampler.jointSampleGroups(modulus, modBitLength, numGroups, numLeftFactors);
 
-    List<TripleCandidate<FieldElement>> candidates = IntStream.range(0, productGroups.size())
+    List<TripleCandidate> candidates = IntStream.range(0, productGroups.size())
         .mapToObj(idx -> {
           List<FieldElement> lfg = leftFactorGroups.get(idx);
           FieldElement r = rightFactors.get(idx);
@@ -166,6 +112,27 @@ public class TripleGen extends BaseProtocol {
         .collect(Collectors.toList());
 
     return candidates;
+  }
+
+  List<TripleCandidate> authenticate(List<TripleCandidate> candidates) {
+    List<Integer> partyIds = ctx.getPartyIds();
+    Integer myId = ctx.getMyId();
+    
+    List<FieldElement> flatInputs = candidates.stream()
+        .flatMap(c -> c.stream())
+        .collect(Collectors.toList());
+
+    List<List<AuthenticatedElement>> allShares = new ArrayList<>();
+    List<AuthenticatedElement> myShares = elGen.input(flatInputs);
+    allShares.add(myShares);
+    for (Integer partyId : partyIds) {
+      if (!myId.equals(partyId)) {
+        List<AuthenticatedElement> otherShares = elGen.input(partyId, flatInputs.size());
+        allShares.add(otherShares);
+      }
+    }
+
+    return null;
   }
 
   public void triple(int numTriples) {
@@ -187,39 +154,30 @@ public class TripleGen extends BaseProtocol {
     List<List<FieldElement>> productGroups = multiply(leftFactorGroups, rightFactors);
 
     // combine into unauthenticated triple candidates
-    List<TripleCandidate<FieldElement>> candidates = combine(leftFactorGroups, rightFactors, productGroups);
+    List<TripleCandidate> candidates = combine(leftFactorGroups, rightFactors, productGroups);
     System.out.println(candidates);
   }
 
-  private class TripleCandidate<T> {
-    T a;
-    T b;
-    T c;
-    T aHat;
-    T cHat;
+  private class TripleCandidate extends FieldElementGroup {
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -4917636316948291312L;
 
-    TripleCandidate(T a, T b, T c, T aHat, T cHat) {
-      super();
+    FieldElement a;
+    FieldElement b;
+    FieldElement c;
+    FieldElement aHat;
+    FieldElement cHat;
+
+    TripleCandidate(FieldElement a, FieldElement b, FieldElement c, FieldElement aHat,
+        FieldElement cHat) {
+      super(Arrays.asList(a, b, c, aHat, cHat));
       this.a = a;
       this.b = b;
       this.c = c;
       this.aHat = aHat;
       this.cHat = cHat;
-    }
-
-    TripleCandidate(List<T> ordered) {
-      if (ordered.size() != 5) {
-        throw new IllegalArgumentException("Triple candidate must have exactly 5 elements");
-      }
-      this.a = ordered.get(0);
-      this.b = ordered.get(1);
-      this.c = ordered.get(2);
-      this.aHat = ordered.get(3);
-      this.cHat = ordered.get(4);
-    }
-
-    List<T> asOrderedList() {
-      return Arrays.asList(a, b, c, aHat, cHat);
     }
 
     @Override
