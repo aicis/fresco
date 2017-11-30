@@ -6,32 +6,33 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 
 public class SecureComputationEngineLoggingDecorator<
     ResourcePoolT extends ResourcePool,
-    Builder extends ProtocolBuilder
+    BuilderT extends ProtocolBuilder
     >
-    implements SecureComputationEngine<ResourcePoolT, Builder>, PerformanceLogger {
+    implements SecureComputationEngine<ResourcePoolT, BuilderT>, PerformanceLogger {
 
-  private SecureComputationEngine<ResourcePoolT, Builder> delegate;
+  private SecureComputationEngine<ResourcePoolT, BuilderT> delegate;
   private String protocolSuiteName;
   private List<RuntimeInfo> runtimeLogger = new ArrayList<>();
 
   public SecureComputationEngineLoggingDecorator(
-      SecureComputationEngine<ResourcePoolT, Builder> sce,
-      ProtocolSuite<ResourcePoolT, Builder> suite) {
+      SecureComputationEngine<ResourcePoolT, BuilderT> sce,
+      ProtocolSuite<ResourcePoolT, BuilderT> suite) {
     this.delegate = sce;
     this.protocolSuiteName = suite.getClass().getName();
   }
 
   @Override
-  public <OutputT> OutputT runApplication(Application<OutputT, Builder> application,
-      ResourcePoolT resources, Network network) {
+  public <OutputT> OutputT runApplication(Application<OutputT, BuilderT> application,
+      ResourcePoolT resources, Network network, Duration timeout) {
     long then = System.currentTimeMillis();
-    OutputT res = this.delegate.runApplication(application, resources, network);
+    OutputT res = this.delegate.runApplication(application, resources, network, timeout);
     long now = System.currentTimeMillis();
     long timeSpend = now - then;
     this.runtimeLogger.add(new RuntimeInfo(application, timeSpend, protocolSuiteName));
@@ -39,7 +40,7 @@ public class SecureComputationEngineLoggingDecorator<
   }
 
   @Override
-  public <OutputT> Future<OutputT> startApplication(Application<OutputT, Builder> application,
+  public <OutputT> Future<OutputT> startApplication(Application<OutputT, BuilderT> application,
       ResourcePoolT resources, Network network) {
     // TODO: If applications are started this way, no running time logging is applied. We need to
     // inject a decorator future which logs the timing before handing over the result.
