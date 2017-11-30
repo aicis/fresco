@@ -165,16 +165,18 @@ public class ElGen extends BaseProtocol {
     return receivedShares;
   }
 
-  List<AuthenticatedElement> toAuthenticatedElements(List<FieldElement> shares, List<FieldElement> macs) {
+  List<AuthenticatedElement> toAuthenticatedElements(List<FieldElement> shares,
+      List<FieldElement> macs) {
     if (shares.size() != macs.size()) {
       throw new IllegalArgumentException("Number of shares must equal number of mac shares");
     }
-    final BigInteger modulus = ctx.getModulus();
+    BigInteger modulus = ctx.getModulus();
+    int modBitLength = ctx.getkBitLength();
     Stream<AuthenticatedElement> spdzElements = IntStream.range(0, shares.size())
         .mapToObj(idx -> {
           FieldElement share = shares.get(idx);
           FieldElement mac = macs.get(idx);
-          return new AuthenticatedElement(share, mac, modulus);
+          return new AuthenticatedElement(share, mac, modulus, modBitLength);
         });
     return spdzElements.collect(Collectors.toList());
   }
@@ -254,4 +256,49 @@ public class ElGen extends BaseProtocol {
     return spdzElements;
   }
 
+  public void check(List<AuthenticatedElement> sharesWithMacs, List<FieldElement> openValues) {
+    // TODO: mask vector not always necessary
+//    BigInteger modulus = ctx.getModulus();
+//    int modBitLength = ctx.getkBitLength();
+//    List<FieldElement> maskVector =
+//        sampler.jointSample(modulus, modBitLength, sharesWithMacs.size());
+    // TODO make sure we don't need to remask vectors
+    List<FieldElement> macsOnly = sharesWithMacs.stream()
+        .map(share -> share.getMac())
+        .collect(Collectors.toList());
+    FieldElement maskedMac = FieldElement.sum(macsOnly);
+    FieldElement maskedValue = FieldElement.sum(openValues);
+    macChecker.check(maskedValue, macKeyShare, maskedMac);
+  }
+
+  public FieldElement open(AuthenticatedElement closed) {
+    List<Integer> partyIds = ctx.getPartyIds();
+    Integer myId = ctx.getMyId();
+    Network network = ctx.getNetwork();
+    BigInteger modulus = ctx.getModulus();
+    int modBitLength = ctx.getkBitLength();
+    
+    List<FieldElement> shares = new ArrayList<>(partyIds.size());
+    for (Integer partyId : partyIds) {
+       if (myId.equals(partyId)) {
+         FieldElement share = closed.getShare();
+         shares.add(share);
+         network.sendToAll(share.toByteArray());
+       } else {
+         FieldElement share = new FieldElement(network.receive(partyId), modulus, modBitLength);
+         shares.add(share);
+       }
+    }
+    return sharer.additiveRecombine(shares);
+  }
+  
+  public List<FieldElement> open(List<AuthenticatedElement> closed) {
+    // TODO batch
+    List<FieldElement> opened = new ArrayList<>();
+    for (AuthenticatedElement c : closed) {
+      opened.add(open(c));
+    }
+    return opened;
+  }
+  
 }
