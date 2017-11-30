@@ -131,7 +131,7 @@ public class CoteShared {
    * @throws FailedOtExtensionException
    *           Thrown in case the underlying PRG algorithm does not exist
    */
-  protected static SecureRandom makePrg(StrictBitVector seed)
+  protected SecureRandom makePrg(StrictBitVector seed)
       throws FailedOtExtensionException {
     SecureRandom res = null;
     try {

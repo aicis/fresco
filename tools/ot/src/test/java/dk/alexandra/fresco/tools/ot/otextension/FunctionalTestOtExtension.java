@@ -183,6 +183,11 @@ public class FunctionalTestOtExtension {
       // Check the messages are not 0-strings
       assertNotEquals(zeroVec, zeroMessages.get(i));
       assertNotEquals(zeroVec, messages.get(i));
+      // Check that they are not all equal
+      if (i > 0) {
+        assertNotEquals(zeroMessages.get(i - 1), zeroMessages.get(i));
+        assertNotEquals(messages.get(i - 1), messages.get(i));
+      }
     }
   }
 
@@ -279,6 +284,12 @@ public class FunctionalTestOtExtension {
       assertNotEquals(zeroVec, messages.get(i));
       // Check that the two messages are not the same
       assertNotEquals(zeroMessages.get(i), oneMessages.get(i));
+      // Check that they are not all equal
+      if (i > 0) {
+        assertNotEquals(zeroMessages.get(i - 1), zeroMessages.get(i));
+        assertNotEquals(oneMessages.get(i - 1), oneMessages.get(i));
+        assertNotEquals(messages.get(i - 1), messages.get(i));
+      }
     }
   }
 

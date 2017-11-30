@@ -7,6 +7,8 @@ import java.util.Random;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.ot.base.FailedOtException;
+import dk.alexandra.fresco.tools.ot.base.MaliciousOtException;
 
 /**
  * Protocol class for the party acting as the sender in an correlated OT with
@@ -51,18 +53,29 @@ public class CoteSender extends CoteShared {
    * 
    * @throws FailedOtExtensionException
    *           Thrown if the PRG algorithm used does not exist
+   * @throws MaliciousOtExtensionException
+   *           Thrown in case the other party cheats in the seed OTs
    */
-  public void initialize() throws FailedOtExtensionException {
+  public void initialize()
+      throws FailedOtExtensionException, MaliciousOtExtensionException {
     if (initialized) {
       throw new IllegalStateException("Already initialized");
     }
-    this.otChoices = new StrictBitVector(getkBitLength(), getRand());
-    // Complete the seed OTs acting as the receiver (NOT the sender)
-    for (int i = 0; i < getkBitLength(); i++) {
-      StrictBitVector message = ot.receive(otChoices.getBit(i, false));
-      // Initialize the PRGs with the random messages
-      SecureRandom prg = makePrg(message);
-      prgs.add(prg);
+    try {
+      this.otChoices = new StrictBitVector(getkBitLength(), getRand());
+      // Complete the seed OTs acting as the receiver (NOT the sender)
+      for (int i = 0; i < getkBitLength(); i++) {
+        StrictBitVector message = ot.receive(otChoices.getBit(i, false));
+        // Initialize the PRGs with the random messages
+        SecureRandom prg = makePrg(message);
+        prgs.add(prg);
+      }
+    } catch (FailedOtException e) {
+      throw new FailedOtExtensionException(
+          "A failure happened in the seed OTs: " + e.getMessage());
+    } catch (MaliciousOtException e) {
+      throw new MaliciousOtExtensionException(
+          "The other party tried to cheat in the seed OTs: " + e.getMessage());
     }
     initialized = true;
   }

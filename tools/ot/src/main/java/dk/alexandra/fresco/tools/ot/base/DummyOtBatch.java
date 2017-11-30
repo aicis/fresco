@@ -18,14 +18,16 @@ public class DummyOtBatch implements OtBatch<StrictBitVector> {
   }
 
   @Override
-  public void send(List<Pair<StrictBitVector, StrictBitVector>> messagePairs) {
+  public void send(List<Pair<StrictBitVector, StrictBitVector>> messagePairs)
+      throws MaliciousOtException, FailedOtException {
     for (Pair<StrictBitVector, StrictBitVector> pair : messagePairs) {
       dummyOt.send(pair.getFirst(), pair.getSecond());
     }
   }
 
   @Override
-  public List<StrictBitVector> receive(BigInteger choiceBits, int numBits) {
+  public List<StrictBitVector> receive(BigInteger choiceBits, int numBits)
+      throws MaliciousOtException, FailedOtException {
     List<StrictBitVector> choiceMessages = new ArrayList<>();
     for (int b = 0; b < numBits; b++) {
       choiceMessages.add(dummyOt.receive(choiceBits.testBit(b)));

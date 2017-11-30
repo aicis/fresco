@@ -45,10 +45,13 @@ public class RotSender extends RotShared {
    *           Thrown if something, non-malicious, goes wrong in the
    *           initialization of the underlying correlated OT during
    *           initialization
+   * @throws MaliciousOtExtensionException
+   *           Thrown if cheating occurred
    */
   public void initialize()
       throws MaliciousCommitmentException, FailedCommitmentException,
-      FailedCoinTossingException, FailedOtExtensionException {
+      FailedCoinTossingException, FailedOtExtensionException,
+      MaliciousOtExtensionException {
     if (initialized) {
       throw new IllegalStateException("Already initialized");
     }

@@ -7,7 +7,10 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 
 public interface RotBatch<T> {
 
-  public List<Pair<T, T>> send(int numMessages);
-  public List<T> receive(StrictBitVector choiceBits);
+  public List<Pair<T, T>> send(int numMessages)
+      throws MaliciousOtException, FailedOtException;
+
+  public List<T> receive(StrictBitVector choiceBits)
+      throws MaliciousOtException, FailedOtException;
   
 }

@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
+import java.math.BigInteger;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -11,21 +11,14 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.cointossing.FailedCoinTossingException;
 import dk.alexandra.fresco.tools.commitment.FailedCommitmentException;
 import dk.alexandra.fresco.tools.commitment.MaliciousCommitmentException;
+import dk.alexandra.fresco.tools.ot.base.FailedOtException;
+import dk.alexandra.fresco.tools.ot.base.MaliciousOtException;
+import dk.alexandra.fresco.tools.ot.base.Ot;
 
-/**
- * Demo class for execute a light instance of random OT extension.
- * 
- * @author jot2re
- *
- * @param <ResourcePoolT>
- *          The FRESCO resource pool used for the execution
- */
-public class RotDemo<ResourcePoolT extends ResourcePool> {
+public class BristolOtDemo<ResourcePoolT extends ResourcePool> {
   // Computational security parameter
   private int kbitLength = 128;
   // Statistical security parameter
@@ -49,29 +42,25 @@ public class RotDemo<ResourcePoolT extends ResourcePool> {
    *           Thrown in case something, non-malicious, goes wrong.
    * @throws MaliciousOtExtensionException
    *           Thrown if cheating occurred
+   * @throws FailedOtException
+   * @throws MaliciousOtException
    */
-  public void runPartyOne(int pid)
-      throws MaliciousCommitmentException, FailedCommitmentException,
-      FailedCoinTossingException, FailedOtExtensionException, MaliciousOtExtensionException {
+  public void runPartyOne(int pid) throws MaliciousCommitmentException,
+      FailedCommitmentException, FailedCoinTossingException,
+      FailedOtExtensionException, MaliciousOtExtensionException,
+      MaliciousOtException, FailedOtException {
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected receiver");
-    Random rand = new Random(42);
-    Rot rot = new Rot(1, 2, kbitLength, lambdaSecurityParam, rand, network);
-    RotReceiver rotRec = rot.getReceiver();
-    rotRec.initialize();
-    byte[] otChoices = new byte[amountOfOTs / 8];
-    rand.nextBytes(otChoices);
-    List<StrictBitVector> vvec = rotRec
-        .extend(new StrictBitVector(otChoices, amountOfOTs));
-    System.out.println("done receiver");
+    Random rand = new Random(424242);
+    Ot<BigInteger> ot = new BristolOt<>(1, 2, kbitLength,
+        lambdaSecurityParam, rand, network, amountOfOTs);
     for (int i = 0; i < amountOfOTs; i++) {
-      System.out.print(i + ": ");
-      byte[] output = vvec.get(i).toByteArray();
-      for (byte current : output) {
-        System.out.print(String.format("%02x ", current));
-      }
-      System.out.println();
+      boolean choice = rand.nextBoolean();
+      System.out.print("Choice " + choice + ": ");
+      BigInteger res = ot.receive(choice);
+      System.out.println(res);
     }
+    System.out.println("done receiver");
   }
 
   /**
@@ -91,34 +80,26 @@ public class RotDemo<ResourcePoolT extends ResourcePool> {
    *           commitments.
    * @throws MaliciousOtExtensionException
    *           Thrown in case the other party actively tries to cheat.
+   * @throws FailedOtException
+   * @throws MaliciousOtException
    */
-  public void runPartyTwo(int pid)
-      throws FailedOtExtensionException,
+  public void runPartyTwo(int pid) throws FailedOtExtensionException,
       MaliciousCommitmentException, FailedCommitmentException,
-      FailedCoinTossingException, MaliciousOtExtensionException {
+      FailedCoinTossingException, MaliciousOtExtensionException,
+      MaliciousOtException, FailedOtException {
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected sender");
-    Random rand = new Random(420);
-    Rot rot = new Rot(2, 1, kbitLength, lambdaSecurityParam, rand, network);
-    RotSender rotSnd = rot.getSender();
-    rotSnd.initialize();
-    Pair<List<StrictBitVector>, List<StrictBitVector>> vpairs = rotSnd
-        .extend(amountOfOTs);
-    System.out.println("done sender");
+    Random rand = new Random(420420);
+    Ot<BigInteger> ot = new BristolOt<>(1, 2, kbitLength, lambdaSecurityParam,
+        rand, network, amountOfOTs);
     for (int i = 0; i < amountOfOTs; i++) {
-      System.out.println(i + ": ");
-      byte[] outputZero = vpairs.getFirst().get(i).toByteArray();
-      System.out.println("0-choice: ");
-      for (byte current : outputZero) {
-        System.out.print(String.format("%02x ", current));
-      }
-      byte[] outputOne = vpairs.getSecond().get(i).toByteArray();
-      System.out.println("\n1-choice: ");
-      for (byte current : outputOne) {
-        System.out.print(String.format("%02x ", current));
-      }
-      System.out.println();
+      BigInteger msgZero = new BigInteger(512, rand);
+      BigInteger msgOne = new BigInteger(512, rand);
+      System.out.println("Message 0: " + msgZero);
+      System.out.println("Message 1: " + msgOne);
+      ot.send(msgZero, msgOne);
     }
+    System.out.println("done sender");
   }
 
   /**
@@ -131,9 +112,9 @@ public class RotDemo<ResourcePoolT extends ResourcePool> {
     int pid = Integer.parseInt(args[0]);
     try {
       if (pid == 1) {
-        new RotDemo<>().runPartyOne(pid);
+        new BristolOtDemo<>().runPartyOne(pid);
       } else {
-        new RotDemo<>().runPartyTwo(pid);
+        new BristolOtDemo<>().runPartyTwo(pid);
       }
     } catch (Exception e) {
       System.out.println("Failed to connect: " + e);

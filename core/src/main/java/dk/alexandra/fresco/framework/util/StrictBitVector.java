@@ -1,11 +1,13 @@
 package dk.alexandra.fresco.framework.util;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
 
-public class StrictBitVector {
+public class StrictBitVector implements Serializable {
 
+  private static final long serialVersionUID = 2876595135347820647L;
   private byte[] bits;
   private int size;
 

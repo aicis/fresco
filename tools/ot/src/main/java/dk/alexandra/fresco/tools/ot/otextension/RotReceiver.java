@@ -36,12 +36,15 @@ public class RotReceiver extends RotShared {
    * correlated OT with errors and coin tossing functionalities. This should
    * only be done once for a given sender/receiver pair.
    * 
+   * @throws MaliciousOtExtensionException
+   *           Thrown if cheating occurred
    * @throws NoSuchAlgorithmException
    *           Thrown if the underlying PRG algorithm does not exist.
    */
   public void initialize()
       throws FailedOtExtensionException, MaliciousCommitmentException,
-      FailedCommitmentException, FailedCoinTossingException {
+      FailedCommitmentException, FailedCoinTossingException,
+      MaliciousOtExtensionException {
     if (initialized) {
       throw new IllegalStateException("Already initialized");
     }
