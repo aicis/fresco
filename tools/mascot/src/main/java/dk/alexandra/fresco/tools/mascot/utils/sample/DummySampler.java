@@ -4,11 +4,12 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 
 public class DummySampler implements Sampler {
-
   Random rand;
   Random jointRandom;
 
@@ -48,6 +49,26 @@ public class DummySampler implements Sampler {
       samples.add(jointSample(modulus, bitLength));
     }
     return samples;
+  }
+
+  @Override
+  public List<List<FieldElement>> sampleGroups(BigInteger modulus, int modBitLength, int numGroups,
+      int groupSize) {
+    return IntStream.range(0, numGroups)
+        .mapToObj(idx -> {
+          return sample(modulus, modBitLength, groupSize);
+        })
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public List<List<FieldElement>> jointSampleGroups(BigInteger modulus, int modBitLength,
+      int numGroups, int groupSize) {
+    return IntStream.range(0, numGroups)
+        .mapToObj(idx -> {
+          return jointSample(modulus, modBitLength, groupSize);
+        })
+        .collect(Collectors.toList());
   }
 
 }

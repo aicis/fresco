@@ -27,6 +27,14 @@ public class TestTripleGen extends NetworkedTest {
     return productGroups;
   }
 
+  private List<List<FieldElement>> runSinglePartyTriple(MascotContext ctx, FieldElement macKeyShare,
+      int numLeftFactors, int numTriples) throws Exception {
+    TripleGen tripleGen = new TripleGen(ctx, macKeyShare, numLeftFactors);
+    tripleGen.initialize();
+    tripleGen.triple(numTriples);
+    return null;
+  }
+  
   @Test
   public void testTwoPartiesSingleMult() throws Exception {
     try {
@@ -152,6 +160,43 @@ public class TestTripleGen extends NetworkedTest {
     }
   }
 
+  @Test
+  public void testTwoPartiesSingleTriple() throws Exception {
+    try {
+      // define parties
+      List<Integer> partyIds = Arrays.asList(1, 2);
+      // set up runtime environment and get contexts
+      Map<Integer, MascotContext> contexts = testRuntime.initializeContexts(partyIds);
+
+      MascotContext partyOneCtx = contexts.get(1);
+      MascotContext partyTwoCtx = contexts.get(2);
+
+      BigInteger modulus = partyOneCtx.getModulus();
+      int modBitLength = partyOneCtx.getkBitLength();
+
+      // left party mac key share
+      FieldElement macKeyShareOne =
+          new FieldElement(new BigInteger("11231"), modulus, modBitLength);
+
+      // right party mac key share
+      FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), modulus, modBitLength);
+
+      // define task each party will run
+      Callable<List<List<FieldElement>>> partyOneTask =
+          () -> runSinglePartyTriple(partyOneCtx, macKeyShareOne, 3, 1);
+      Callable<List<List<FieldElement>>> partyTwoTask =
+          () -> runSinglePartyTriple(partyTwoCtx, macKeyShareTwo, 3, 1);
+
+      List<List<List<FieldElement>>> results =
+          testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
+      System.out.println(results);
+    } catch (Exception e) {
+      // TODO: handle exception
+      e.printStackTrace();
+      throw new Exception("test failed");
+    }
+  }
+  
   // helpers
   
   private List<FieldElement> combineRight(List<List<FieldElement>> rightFactors) {

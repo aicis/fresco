@@ -1,6 +1,8 @@
 package dk.alexandra.fresco.tools.mascot.triple;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -113,7 +115,7 @@ public class TripleGen extends BaseProtocol {
         .collect(Collectors.toList());
   }
 
-  public List<List<FieldElement>> multiply(List<List<FieldElement>> leftFactorGroups,
+  List<List<FieldElement>> multiply(List<List<FieldElement>> leftFactorGroups,
       List<FieldElement> rightFactors) {
     // TODO should parallelize
     // TODO make factor group a class
@@ -131,10 +133,99 @@ public class TripleGen extends BaseProtocol {
     return productShares;
   }
 
+  TripleCandidate<FieldElement> singleCombine(List<FieldElement> leftFactorGroup,
+      FieldElement rightFactor, List<FieldElement> productGroup, List<FieldElement> masks,
+      List<FieldElement> masksSac) {
+    FieldElement left = FieldElement.innerProduct(leftFactorGroup, masks);
+    FieldElement prod = FieldElement.innerProduct(productGroup, masks);
+    FieldElement leftSac = FieldElement.innerProduct(leftFactorGroup, masksSac);
+    FieldElement prodSac = FieldElement.innerProduct(productGroup, masksSac);
+    return new TripleCandidate<FieldElement>(left, rightFactor, prod, leftSac, prodSac);
+  }
+
+  List<TripleCandidate<FieldElement>> combine(List<List<FieldElement>> leftFactorGroups,
+      List<FieldElement> rightFactors, List<List<FieldElement>> productGroups) {
+    BigInteger modulus = ctx.getModulus();
+    int modBitLength = ctx.getkBitLength();
+    int numGroups = productGroups.size();
+
+    List<List<FieldElement>> masks =
+        sampler.jointSampleGroups(modulus, modBitLength, numGroups, numLeftFactors);
+    List<List<FieldElement>> sacrificeMasks =
+        sampler.jointSampleGroups(modulus, modBitLength, numGroups, numLeftFactors);
+
+    List<TripleCandidate<FieldElement>> candidates = IntStream.range(0, productGroups.size())
+        .mapToObj(idx -> {
+          List<FieldElement> lfg = leftFactorGroups.get(idx);
+          FieldElement r = rightFactors.get(idx);
+          List<FieldElement> pg = productGroups.get(idx);
+          List<FieldElement> m = masks.get(idx);
+          List<FieldElement> ms = sacrificeMasks.get(idx);
+          return singleCombine(lfg, r, pg, m, ms);
+        })
+        .collect(Collectors.toList());
+
+    return candidates;
+  }
+
   public void triple(int numTriples) {
     // can't generate triples before initializing
     if (!initialized) {
       throw new IllegalStateException("Need to initialize first");
+    }
+
+    BigInteger modulus = ctx.getModulus();
+    int modBitLength = ctx.getkBitLength();
+
+    // generate random left factor groups
+    List<List<FieldElement>> leftFactorGroups =
+        sampler.sampleGroups(modulus, modBitLength, numTriples, numLeftFactors);
+    // generate random right factors
+    List<FieldElement> rightFactors = sampler.sample(modulus, modBitLength, numTriples);
+
+    // compute product groups
+    List<List<FieldElement>> productGroups = multiply(leftFactorGroups, rightFactors);
+
+    // combine into unauthenticated triple candidates
+    List<TripleCandidate<FieldElement>> candidates = combine(leftFactorGroups, rightFactors, productGroups);
+    System.out.println(candidates);
+  }
+
+  private class TripleCandidate<T> {
+    T a;
+    T b;
+    T c;
+    T aHat;
+    T cHat;
+
+    TripleCandidate(T a, T b, T c, T aHat, T cHat) {
+      super();
+      this.a = a;
+      this.b = b;
+      this.c = c;
+      this.aHat = aHat;
+      this.cHat = cHat;
+    }
+
+    TripleCandidate(List<T> ordered) {
+      if (ordered.size() != 5) {
+        throw new IllegalArgumentException("Triple candidate must have exactly 5 elements");
+      }
+      this.a = ordered.get(0);
+      this.b = ordered.get(1);
+      this.c = ordered.get(2);
+      this.aHat = ordered.get(3);
+      this.cHat = ordered.get(4);
+    }
+
+    List<T> asOrderedList() {
+      return Arrays.asList(a, b, c, aHat, cHat);
+    }
+
+    @Override
+    public String toString() {
+      return "Combined [a=" + a + ", b=" + b + ", c=" + c + ", aHat=" + aHat + ", cHat=" + cHat
+          + "]";
     }
   }
 
