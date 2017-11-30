@@ -45,7 +45,7 @@ public class RotReceiver extends RotShared {
     if (initialized) {
       throw new IllegalStateException("Already initialized");
     }
-    if (initialized == false) {
+    if (receiver.initialized == false) {
       receiver.initialize();
     }
     ct.initialize();
