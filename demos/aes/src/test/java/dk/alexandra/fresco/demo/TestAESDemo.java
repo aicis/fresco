@@ -15,10 +15,11 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
-import dk.alexandra.fresco.framework.util.DetermSecureRandom;
+import dk.alexandra.fresco.framework.util.HMacDRBG;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanProtocolSuite;
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,12 +51,11 @@ public class TestAESDemo {
           new BatchedProtocolEvaluator<>(new SequentialStrategy<>(), suite);
       SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce =
           new SecureComputationEngineImpl<>(suite, evaluator);
-      DetermSecureRandom secRand = new DetermSecureRandom();
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<>(
               sce,
               () -> new ResourcePoolImpl(playerId, noPlayers,
-                  new Random(), secRand),
+                  new Random(), new SecureRandom()),
               () -> new KryoNetNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }

@@ -13,7 +13,7 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.util.DetermSecureRandom;
+import dk.alexandra.fresco.framework.util.HMacDRBG;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
@@ -23,6 +23,7 @@ import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -57,16 +58,15 @@ public class TestInputSumExample {
         suite =
             (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new DummyArithmeticProtocolSuite(
                 mod, 150);
-        DetermSecureRandom secRand = new DetermSecureRandom();
         resourcePool = () -> (ResourcePoolT) new DummyArithmeticResourcePoolImpl(i, n,
-            new Random(), secRand, mod);
+            new Random(), new SecureRandom(), mod);
       } else {
         suite = (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new SpdzProtocolSuite(150);
         resourcePool = () -> {
           try {
             return (ResourcePoolT) new SpdzResourcePoolImpl(i, n,
                 new Random(),
-                new DetermSecureRandom(), new SpdzStorageImpl(new DummyDataSupplierImpl(i, n)));
+                new SecureRandom(), new SpdzStorageImpl(new DummyDataSupplierImpl(i, n)));
           } catch (Exception e) {
             throw new RuntimeException("Your system does not support the necessary hash function.", e);
           } 

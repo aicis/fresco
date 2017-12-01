@@ -3,34 +3,25 @@ package dk.alexandra.fresco.framework.util;
 import dk.alexandra.fresco.framework.MPCException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
+import java.util.function.Supplier;
 import javax.crypto.Mac;
+import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * This class implements the HMAC-DRBG as specified in
+ * This class implements the HMac-DRBG (HMac-Deterministic Random Bit Generator) as specified in
  * https://csrc.nist.gov/publications/detail/sp/800-90a/rev-1/final
  * 
  * <p>
- * Java's SecureRandom is not 'deterministic' in the sense that calls to setSeed (at least using
- * some crypto providers) only adds to the initial seed, that is taken from system state when
- * SecureRandom was created.
- * </p>
- * <p>
- * Often, in our protocols, we need a SecureRandom that can be seeded 'determinitically', e.g. in
- * the sense that two instances created with the same seed yields the same sequence of random bytes.
- * </p>
- * <p>
- * Note that DetermSecureRandom is not threadsafe.
+ * Note that this class is not threadsafe.
  * </p>
  * <p>
  * Note also that reseeding (calling {@link #setSeed(byte[])}) should occur at least every 2^42
  * calls to {@link #nextBytes(byte[])} to be secure. No signal will be send about this.
  * </p>
  */
-public class DetermSecureRandom extends SecureRandom {
+public class HMacDRBG implements DeterministicSecureRandom {
 
-  private static final long serialVersionUID = 1L;
   private static final String DEFAULT_ALGORITHM = "HmacSHA256";
   private final String algorithm;
   private Mac mac = null;
@@ -45,7 +36,7 @@ public class DetermSecureRandom extends SecureRandom {
    * @throws NoSuchAlgorithmException If the default SHA-256 hash function is not found on the
    *         system.
    */
-  public DetermSecureRandom() throws NoSuchAlgorithmException {
+  public HMacDRBG() throws NoSuchAlgorithmException {
     this(new byte[] {0x00});
   }
 
@@ -56,7 +47,7 @@ public class DetermSecureRandom extends SecureRandom {
    * @throws NoSuchAlgorithmException If the default SHA-256 hash function is not found on the
    *         system.
    */
-  public DetermSecureRandom(byte[] seed) throws NoSuchAlgorithmException {
+  public HMacDRBG(byte[] seed) throws NoSuchAlgorithmException {
     this(seed, DEFAULT_ALGORITHM);
   }
 
@@ -70,7 +61,7 @@ public class DetermSecureRandom extends SecureRandom {
    * @param algorithm The algorithm to be used as the HMac hash function. Default is HMacSHA256.
    * @throws NoSuchAlgorithmException If the <code>algorithm</code> is not found on the system.
    */
-  public DetermSecureRandom(byte[] seed, String algorithm) throws NoSuchAlgorithmException {
+  public HMacDRBG(byte[] seed, String algorithm) throws NoSuchAlgorithmException {
     this.algorithm = algorithm;
     this.mac = Mac.getInstance(algorithm);
     this.key = new byte[64];
@@ -90,7 +81,7 @@ public class DetermSecureRandom extends SecureRandom {
     while (pos < bytes.length) {
       this.val = this.mac.doFinal(this.val);
       int length = val.length;
-      //Ensure that we don't break boundries
+      // Ensure that we don't break boundries
       if (length > bytes.length - pos) {
         length = bytes.length - pos;
       }
@@ -120,12 +111,16 @@ public class DetermSecureRandom extends SecureRandom {
 
   private void initializeMac(byte[] key) {
     try {
-      this.mac.init(new SecretKeySpec(key, this.algorithm));
+      this.mac.init(createKey(() -> new SecretKeySpec(key, DEFAULT_ALGORITHM)));
     } catch (InvalidKeyException e) {
       throw new MPCException("Key could not be generated from given data", e);
     }
   }
 
+  protected SecretKey createKey(Supplier<SecretKey> keySupplier) {
+    return keySupplier.get();
+  }
+  
   @Override
   public void setSeed(byte[] seed) {
     update(seed);

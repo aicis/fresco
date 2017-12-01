@@ -14,7 +14,7 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.util.DetermSecureRandom;
+import dk.alexandra.fresco.framework.util.HMacDRBG;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.collections.MatrixUtils;
@@ -28,6 +28,7 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -128,7 +129,7 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
     try (KryoNetNetwork network = new KryoNetNetwork(getNetworkConfiguration(pid))) {
     SpdzStorage store = new SpdzStorageImpl(new DummyDataSupplierImpl(pid, getNetworkConfiguration(pid).noOfParties()));
     SpdzResourcePool rp = new SpdzResourcePoolImpl(pid, getNetworkConfiguration(pid).noOfParties(),
-        new Random(), new DetermSecureRandom(), store);
+        new Random(), new SecureRandom(), store);
       // Instatiate our demo and run
       AggregationDemo<SpdzResourcePool> demo = new AggregationDemo<>();
       demo.runApplication(sce, rp, network);

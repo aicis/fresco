@@ -15,7 +15,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.util.DetermSecureRandom;
+import dk.alexandra.fresco.framework.util.HMacDRBG;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger;
@@ -85,12 +85,11 @@ public abstract class AbstractSpdzTest {
         sce = new SecureComputationEngineLoggingDecorator<>(sce, protocolSuite);
         pls.get(playerId).add((PerformanceLogger) sce);
       }
-      DetermSecureRandom secRand = new DetermSecureRandom();
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,
               () -> createResourcePool(playerId, noOfParties, new Random(),
-                  secRand, preProStrat),
+                  new SecureRandom(), preProStrat),
               () -> {
                 KryoNetNetwork kryoNetwork = new KryoNetNetwork(netConf.get(playerId));
                 if (performanceloggerFlags != null

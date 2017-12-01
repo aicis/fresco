@@ -11,7 +11,7 @@ import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.util.DetermSecureRandom;
+import dk.alexandra.fresco.framework.util.HMacDRBG;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
@@ -53,12 +53,11 @@ public class TestDistanceDemo {
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
           new BatchedProtocolEvaluator<>(evalStrategy.getStrategy(), protocolSuite);
       
-      DetermSecureRandom secRand = new DetermSecureRandom();
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(protocolSuite, evaluator),
               () -> createResourcePool(playerId, noOfParties, new Random(),
-                  secRand),
+                  new SecureRandom()),
               () -> new KryoNetNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }

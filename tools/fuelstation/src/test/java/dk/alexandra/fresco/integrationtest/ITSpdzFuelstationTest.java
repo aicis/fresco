@@ -13,7 +13,7 @@ import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.util.DetermSecureRandom;
+import dk.alexandra.fresco.framework.util.HMacDRBG;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests;
@@ -27,6 +27,7 @@ import dk.alexandra.fresco.suite.spdz.storage.DataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import dk.alexandra.fresco.suite.spdz.storage.rest.DataRestSupplierImpl;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -75,7 +76,7 @@ public class ITSpdzFuelstationTest {
               () -> {
                 try {
                   return new SpdzResourcePoolImpl(playerId, noOfParties,
-                    new Random(), new DetermSecureRandom(), store);
+                    new Random(), new SecureRandom(), store);
                 } catch (Exception e) {
                   throw new RuntimeException("Your system does not support the necessary hash function.", e);
                 }

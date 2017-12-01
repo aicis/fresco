@@ -13,12 +13,13 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.framework.util.DetermSecureRandom;
+import dk.alexandra.fresco.framework.util.HMacDRBG;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger;
 import dk.alexandra.fresco.logging.PerformanceLogger.Flag;
 import dk.alexandra.fresco.logging.SecureComputationEngineLoggingDecorator;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -83,11 +84,10 @@ public abstract class AbstractDummyBooleanTest {
         pls.get(playerId).add((PerformanceLogger) sce);
       }
       
-      DetermSecureRandom secRand = new DetermSecureRandom();
       TestThreadRunner.TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new ResourcePoolImpl(playerId, noOfParties, new Random(),
-                  secRand),
+                  new SecureRandom()),
               () -> {
                 Network network;
                 KryoNetNetwork kryoNetwork = new KryoNetNetwork(partyNetConf);
