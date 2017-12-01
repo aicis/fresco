@@ -18,7 +18,7 @@ package dk.alexandra.fresco.framework.util;
  * refer to the individual implementations.
  * </p>
  */
-public interface DeterministicSecureRandom {
+public interface DeterministicRandomBitGenerator {
 
   /**
    * Has the same functionality as {@link java.security.SecureRandom#nextBytes(byte[])}

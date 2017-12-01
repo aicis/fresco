@@ -20,7 +20,7 @@ import javax.crypto.spec.SecretKeySpec;
  * calls to {@link #nextBytes(byte[])} to be secure. No signal will be send about this.
  * </p>
  */
-public class HMacDRBG implements DeterministicSecureRandom {
+public class HmacDeterministicRandomBitGeneratorImpl implements DeterministicRandomBitGenerator {
 
   private static final String DEFAULT_ALGORITHM = "HmacSHA256";
   private final String algorithm;
@@ -36,7 +36,7 @@ public class HMacDRBG implements DeterministicSecureRandom {
    * @throws NoSuchAlgorithmException If the default SHA-256 hash function is not found on the
    *         system.
    */
-  public HMacDRBG() throws NoSuchAlgorithmException {
+  public HmacDeterministicRandomBitGeneratorImpl() throws NoSuchAlgorithmException {
     this(new byte[] {0x00});
   }
 
@@ -47,7 +47,7 @@ public class HMacDRBG implements DeterministicSecureRandom {
    * @throws NoSuchAlgorithmException If the default SHA-256 hash function is not found on the
    *         system.
    */
-  public HMacDRBG(byte[] seed) throws NoSuchAlgorithmException {
+  public HmacDeterministicRandomBitGeneratorImpl(byte[] seed) throws NoSuchAlgorithmException {
     this(seed, DEFAULT_ALGORITHM);
   }
 
@@ -61,7 +61,8 @@ public class HMacDRBG implements DeterministicSecureRandom {
    * @param algorithm The algorithm to be used as the HMac hash function. Default is HMacSHA256.
    * @throws NoSuchAlgorithmException If the <code>algorithm</code> is not found on the system.
    */
-  public HMacDRBG(byte[] seed, String algorithm) throws NoSuchAlgorithmException {
+  public HmacDeterministicRandomBitGeneratorImpl(byte[] seed, String algorithm)
+      throws NoSuchAlgorithmException {
     this.algorithm = algorithm;
     this.mac = Mac.getInstance(algorithm);
     this.key = new byte[64];
@@ -111,16 +112,16 @@ public class HMacDRBG implements DeterministicSecureRandom {
 
   private void initializeMac(byte[] key) {
     try {
-      this.mac.init(createKey(() -> new SecretKeySpec(key, DEFAULT_ALGORITHM)));
+      this.mac.init(getSafeKey(() -> new SecretKeySpec(key, algorithm)));
     } catch (InvalidKeyException e) {
       throw new MPCException("Key could not be generated from given data", e);
     }
   }
 
-  protected SecretKey createKey(Supplier<SecretKey> keySupplier) {
+  protected SecretKey getSafeKey(Supplier<SecretKey> keySupplier) {
     return keySupplier.get();
   }
-  
+
   @Override
   public void setSeed(byte[] seed) {
     update(seed);

@@ -14,10 +14,12 @@ public class TestDetermSecureRandom {
 
   @Test
   public void testNextBytes() throws NoSuchAlgorithmException {
-    byte[] bytes = new byte[] { 0x10, 0x09, 0x01 };
-    HMacDRBG rand1 = new HMacDRBG(bytes);
-    HMacDRBG rand2 = new HMacDRBG(bytes);
-    HMacDRBG rand3 = new HMacDRBG();
+    byte[] bytes = new byte[] {0x10, 0x09, 0x01};
+    HmacDeterministicRandomBitGeneratorImpl rand1 =
+        new HmacDeterministicRandomBitGeneratorImpl(bytes);
+    HmacDeterministicRandomBitGeneratorImpl rand2 =
+        new HmacDeterministicRandomBitGeneratorImpl(bytes);
+    HmacDeterministicRandomBitGeneratorImpl rand3 = new HmacDeterministicRandomBitGeneratorImpl();
     byte[] randBytes1 = new byte[10];
     byte[] randBytes2 = new byte[10];
     byte[] randBytes3 = new byte[10];
@@ -27,62 +29,65 @@ public class TestDetermSecureRandom {
     assertArrayEquals(randBytes1, randBytes2);
     assertFalse(Arrays.equals(randBytes1, randBytes3));
   }
-  
+
   @Test
   public void testSetSeed() throws NoSuchAlgorithmException {
-    HMacDRBG rand1 = new HMacDRBG();    
+    HmacDeterministicRandomBitGeneratorImpl rand1 = new HmacDeterministicRandomBitGeneratorImpl();
     byte[] bsBeforeSeed = new byte[10];
     byte[] bsAfterSeed = new byte[10];
     rand1.nextBytes(bsBeforeSeed);
-    rand1.setSeed(new byte[]{0x04, 0x06});
+    rand1.setSeed(new byte[] {0x04, 0x06});
     rand1.nextBytes(bsAfterSeed);
     assertFalse(Arrays.equals(bsBeforeSeed, bsAfterSeed));
   }
-  
+
   @Test(expected = NoSuchAlgorithmException.class)
   public void testNonExistingAlgorithm() throws NoSuchAlgorithmException {
-    new HMacDRBG(new byte[]{0x01}, "Bla");        
+    new HmacDeterministicRandomBitGeneratorImpl(new byte[] {0x01}, "Bla");
   }
-  
+
   @Test(expected = MPCException.class)
   public void testInvalidKey() throws NoSuchAlgorithmException {
-    HMacDRBG m = new HMacDRBGFakeKeySpec();
+    HmacDeterministicRandomBitGeneratorImpl m = new HmacDrbgFakeKeySpec();
     byte[] randBytes1 = new byte[10];
     m.nextBytes(randBytes1);
   }
   
   @Test
   public void testLargeAmount() throws NoSuchAlgorithmException {
-    byte[] bytes = new byte[] { 0x10, 0x09, 0x01 };
-    HMacDRBG rand1 = new HMacDRBG(bytes);
-    HMacDRBG rand2 = new HMacDRBG(bytes);  
+    byte[] bytes = new byte[] {0x10, 0x09, 0x01};
+    HmacDeterministicRandomBitGeneratorImpl rand1 =
+        new HmacDeterministicRandomBitGeneratorImpl(bytes);
+    HmacDeterministicRandomBitGeneratorImpl rand2 =
+        new HmacDeterministicRandomBitGeneratorImpl(bytes);
     byte[] randBytes1 = new byte[1000000];
     byte[] randBytes2 = new byte[1000000];
     rand1.nextBytes(randBytes1);
     rand2.nextBytes(randBytes2);
     assertArrayEquals(randBytes1, randBytes2);
   }
-  
-  private class HMacDRBGFakeKeySpec extends HMacDRBG {
 
-    public HMacDRBGFakeKeySpec() throws NoSuchAlgorithmException {
+  private class HmacDrbgFakeKeySpec extends HmacDeterministicRandomBitGeneratorImpl {
+
+    public HmacDrbgFakeKeySpec() throws NoSuchAlgorithmException {
       super();
     }
-   
+
     @Override
-    protected SecretKey createKey(Supplier<SecretKey> keySupplier){
+    protected SecretKey getSafeKey(Supplier<SecretKey> keySupplier) {
       SecretKey key = new SecretKey() {
-        
+        private static final long serialVersionUID = 1L;
+
         @Override
         public String getFormat() {
           return "Fake";
         }
-        
+
         @Override
         public byte[] getEncoded() {
-          return new byte[]{0x00};
+          return new byte[] {0x00};
         }
-        
+
         @Override
         public String getAlgorithm() {
           return "Fake";
