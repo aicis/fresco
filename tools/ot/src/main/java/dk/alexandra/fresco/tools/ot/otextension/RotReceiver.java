@@ -9,8 +9,8 @@ import dk.alexandra.fresco.tools.commitment.FailedCommitmentException;
 import dk.alexandra.fresco.tools.commitment.MaliciousCommitmentException;
 
 /**
- * Protocol class for the party acting as the receiver in an random OT
- * extension.
+ * Protocol class for the party acting as the receiver in an random OT extension
+ * following the Bristol 2015 OT extension.
  * 
  * @author jot2re
  *

@@ -43,7 +43,9 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> {
    * @throws MaliciousOtExtensionException
    *           Thrown if cheating occurred
    * @throws FailedOtException
+   *           Thrown in case something, non-malicious, goes wrong
    * @throws MaliciousOtException
+   *           Thrown if cheating occurred
    */
   public void runPartyOne(int pid) throws MaliciousCommitmentException,
       FailedCommitmentException, FailedCoinTossingException,
@@ -81,7 +83,9 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> {
    * @throws MaliciousOtExtensionException
    *           Thrown in case the other party actively tries to cheat.
    * @throws FailedOtException
+   *           Thrown in case something, non-malicious, goes wrong
    * @throws MaliciousOtException
+   *           Thrown if cheating occurred
    */
   public void runPartyTwo(int pid) throws FailedOtExtensionException,
       MaliciousCommitmentException, FailedCommitmentException,
@@ -93,6 +97,7 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> {
     Ot<BigInteger> ot = new BristolOt<>(2, 1, kbitLength, lambdaSecurityParam,
         rand, network, amountOfOTs);
     for (int i = 0; i < amountOfOTs; i++) {
+      // We send random 512 bit integers
       BigInteger msgZero = new BigInteger(512, rand);
       BigInteger msgOne = new BigInteger(512, rand);
       System.out.println("Message 0: " + msgZero);

@@ -15,7 +15,7 @@ public class Cote {
   protected CoteReceiver receiver;
 
   /**
-   * Constructs a new correlated OT with errors protocol and initializes the
+   * Constructs a new correlated OT with errors protocol and constructs the
    * internal sender and receiver objects.
    * 
    * @param myId

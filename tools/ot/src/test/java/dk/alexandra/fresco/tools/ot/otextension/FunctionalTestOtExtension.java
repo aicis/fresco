@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -25,11 +26,14 @@ import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.ot.base.FailedOtException;
+import dk.alexandra.fresco.tools.ot.base.MaliciousOtException;
+import dk.alexandra.fresco.tools.ot.base.Ot;
 
 public class FunctionalTestOtExtension {
   private TestRuntime testRuntime;
-  private CoteSender coteSender;
-  private CoteReceiver coteReceiver;
+  private Cote coteSender;
+  private Cote coteReceiver;
 
   /**
    * Initializes the test runtime and constructs a Cote Sender and a Cote
@@ -44,8 +48,8 @@ public class FunctionalTestOtExtension {
     // run tasks and get ordered list of results
     List<Cote> results = testRuntime
         .runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
-    coteSender = results.get(0).getSender();
-    coteReceiver = results.get(1).getReceiver();
+    coteSender = results.get(0);
+    coteReceiver = results.get(1);
   }
 
   /**
@@ -56,8 +60,8 @@ public class FunctionalTestOtExtension {
    */
   @After
   public void shutdown() throws IOException {
-    ((Closeable) coteSender.getNetwork()).close();
-    ((Closeable) coteReceiver.getNetwork()).close();
+    ((Closeable) coteSender.getSender().getNetwork()).close();
+    ((Closeable) coteReceiver.getReceiver().getNetwork()).close();
     testRuntime.shutdown();
   }
 
@@ -98,7 +102,7 @@ public class FunctionalTestOtExtension {
 
   private Exception initCoteSender() {
     try {
-      coteSender.initialize();
+      coteSender.getSender().initialize();
     } catch (Exception e) {
       return e;
     }
@@ -107,7 +111,7 @@ public class FunctionalTestOtExtension {
 
   private Exception initCoteReceiver() {
     try {
-      coteReceiver.initialize();
+      coteReceiver.getReceiver().initialize();
     } catch (Exception e) {
       return e;
     }
@@ -115,16 +119,16 @@ public class FunctionalTestOtExtension {
   }
 
   private Pair<List<StrictBitVector>, StrictBitVector> extendCoteSender(int size) {
-    List<StrictBitVector> zeroMessages = coteSender.extend(size);
+    List<StrictBitVector> zeroMessages = coteSender.getSender().extend(size);
     Pair<List<StrictBitVector>, StrictBitVector> resPair = new Pair<>(
-        zeroMessages, coteSender.getDelta());
+        zeroMessages, coteSender.getSender().getDelta());
     return resPair;
   }
 
   private Pair<List<StrictBitVector>, StrictBitVector> extendCoteReceiver(
       StrictBitVector choices)
       throws FailedOtExtensionException, IOException {
-    List<StrictBitVector> messages = coteReceiver.extend(choices);
+    List<StrictBitVector> messages = coteReceiver.getReceiver().extend(choices);
     // The return type of the extend method for sender and receiver must be the
     // same for the test to work, which is why we return null for the second
     // element.
@@ -170,13 +174,16 @@ public class FunctionalTestOtExtension {
       assertTrue(zeroMessages.get(i).equals(messages.get(i)));
     }
     // Do a sanity check of the values
-    StrictBitVector zeroVec = new StrictBitVector(coteSender.getkBitLength());
+    StrictBitVector zeroVec = new StrictBitVector(
+        coteSender.getSender().getkBitLength());
     // Check that delta is not a 0-string
-    assertNotEquals(new StrictBitVector(coteSender.getkBitLength()), delta);
+    assertNotEquals(new StrictBitVector(coteSender.getSender().getkBitLength()),
+        delta);
     // Check that choices are not the 0-string
     assertNotEquals(new StrictBitVector(extendSize), choices);
     // Check the length the values
-    assertEquals(coteSender.getkBitLength(), coteReceiver.getkBitLength());
+    assertEquals(coteSender.getSender().getkBitLength(),
+        coteReceiver.getReceiver().getkBitLength());
     assertEquals(extendSize, zeroMessages.size());
     assertEquals(extendSize, messages.size());
     for (int i = 0; i < extendSize; i++) {
@@ -230,15 +237,15 @@ public class FunctionalTestOtExtension {
   }
 
   /**
-   * Verify that we can initialize the parties in Cote.
+   * Verify that we can initialize the parties in Rot.
    */
   @Test
   public void testRot() {
     int extendSize = 1880; // = 2048 - 128 - 40, where computational security is
-                          // 128 and statistical security is 40
-    RotSender rotSender = new RotSender(coteSender);
+    // 128 and statistical security is 40
+    RotSender rotSender = new RotSender(coteSender.getSender());
     Callable<Exception> partyOneInit = () -> initRotSender(rotSender);
-    RotReceiver rotReceiver = new RotReceiver(coteReceiver);
+    RotReceiver rotReceiver = new RotReceiver(coteReceiver.getReceiver());
     Callable<Exception> partyTwoInit = () -> initRotReceiver(rotReceiver);
     // run tasks and get ordered list of results
     List<Exception> initResults = testRuntime
@@ -270,11 +277,13 @@ public class FunctionalTestOtExtension {
       }
     }
     // Do a sanity check of the values
-    StrictBitVector zeroVec = new StrictBitVector(coteSender.getkBitLength());
+    StrictBitVector zeroVec = new StrictBitVector(
+        coteSender.getSender().getkBitLength());
     // Check that choices are not the 0-string
     assertNotEquals(new StrictBitVector(extendSize), choices);
     // Check the length the values
-    assertEquals(coteSender.getkBitLength(), coteReceiver.getkBitLength());
+    assertEquals(coteSender.getSender().getkBitLength(),
+        coteReceiver.getReceiver().getkBitLength());
     assertEquals(extendSize, zeroMessages.size());
     assertEquals(extendSize, messages.size());
     for (int i = 0; i < extendSize; i++) {
@@ -289,6 +298,59 @@ public class FunctionalTestOtExtension {
         assertNotEquals(zeroMessages.get(i - 1), zeroMessages.get(i));
         assertNotEquals(oneMessages.get(i - 1), oneMessages.get(i));
         assertNotEquals(messages.get(i - 1), messages.get(i));
+      }
+    }
+  }
+
+  private BigInteger bristolOtSend(Ot<BigInteger> otSender,
+      BigInteger msgZero, BigInteger msgOne)
+      throws MaliciousOtException, FailedOtException {
+    otSender.send(msgZero, msgOne);
+    // Return null since we need to return a BigInteger to get the test
+    // framework to work
+    return null;
+  }
+
+  private BigInteger bristolOtReceive(Ot<BigInteger> otReceiver, boolean choice)
+      throws MaliciousOtException, FailedOtException {
+    BigInteger message = otReceiver.receive(choice);
+    return message;
+  }
+
+  /**
+   * Verify that we can initialize the parties in OT.
+   */
+  @Test
+  public void testBristolOt() {
+    int batchSize = 856; // = 1024 - 128 - 40, where computational security is
+    // 128 and statistical security is 40
+    // We execute more OTs than the batchSize to ensure that an automatic
+    // extension will take place once preprocessed OTs run out
+    int iterations = 900;
+    // Construct a BristolOT based on the coteSender and coteReceiver
+    Rot rotSender = new Rot(coteSender);
+    Rot rotReceiver = new Rot(coteReceiver);
+    Ot<BigInteger> bristolOtSender = new BristolOt<BigInteger>(rotSender,
+        batchSize);
+    Ot<BigInteger> bristolOtReceiver = new BristolOt<BigInteger>(rotReceiver,
+        batchSize);
+    Random rand = new Random(540);
+    for (int i = 0; i < iterations; i++) {
+      BigInteger msgZero = new BigInteger(1024, rand);
+      BigInteger msgOne = new BigInteger(1024, rand);
+      boolean choice = rand.nextBoolean();
+      Callable<BigInteger> partyOneOt = () -> bristolOtSend(bristolOtSender,
+          msgZero, msgOne);
+      Callable<BigInteger> partyTwoOt = () -> bristolOtReceive(
+          bristolOtReceiver, choice);
+      // run tasks and get ordered list of results
+      List<BigInteger> extendResults = testRuntime
+          .runPerPartyTasks(Arrays.asList(partyOneOt, partyTwoOt));
+      BigInteger receiverResult = extendResults.get(1);
+      if (choice == false) {
+        assertTrue(msgZero.equals(receiverResult));
+      } else {
+        assertTrue(msgOne.equals(receiverResult));
       }
     }
   }
@@ -324,9 +386,9 @@ public class FunctionalTestOtExtension {
     for (Exception current : results) {
       assertNull(current);
     }
-    RotSender rotSender = new RotSender(coteSender);
+    RotSender rotSender = new RotSender(coteSender.getSender());
     Callable<Exception> partyOneRotInit = () -> initRotSender(rotSender);
-    RotReceiver rotReceiver = new RotReceiver(coteReceiver);
+    RotReceiver rotReceiver = new RotReceiver(coteReceiver.getReceiver());
     Callable<Exception> partyTwoRotInit = () -> initRotReceiver(rotReceiver);
     results = testRuntime
         .runPerPartyTasks(Arrays.asList(partyOneRotInit, partyTwoRotInit));
@@ -340,5 +402,46 @@ public class FunctionalTestOtExtension {
     for (Exception current : results) {
       assertEquals("Already initialized", current.getMessage());
     }
+  }
+  
+  @Test
+  public void testCheatingInCote() {
+    // int extendSize = 1024;
+    // Callable<Exception> partyOneInit = () -> initCoteSender();
+    // Callable<Exception> partyTwoInit = () -> initCoteReceiver();
+    // // run tasks and get ordered list of results
+    // List<Exception> initResults = testRuntime
+    // .runPerPartyTasks(Arrays.asList(partyOneInit, partyTwoInit));
+    // // Verify that no exception was thrown in init
+    // for (Exception current : initResults) {
+    // assertNull(current);
+    // }
+    // Callable<Pair<List<StrictBitVector>, StrictBitVector>> partyOneExtend =
+    // () -> extendCoteSender(
+    // extendSize);
+    // StrictBitVector choices = new StrictBitVector(extendSize, new
+    // Random(540));
+    // Callable<Pair<List<StrictBitVector>, StrictBitVector>> partyTwoExtend =
+    // () -> extendCoteReceiver(
+    // choices);
+    // // run tasks and get ordered list of results
+    // List<Pair<List<StrictBitVector>, StrictBitVector>> extendResults =
+    // testRuntime
+    // .runPerPartyTasks(Arrays.asList(partyOneExtend, partyTwoExtend));
+    // Pair<List<StrictBitVector>, StrictBitVector> senderResults =
+    // extendResults
+    // .get(0);
+    // List<StrictBitVector> zeroMessages = senderResults.getFirst();
+    // StrictBitVector delta = senderResults.getSecond();
+    // Pair<List<StrictBitVector>, StrictBitVector> receiverResults =
+    // extendResults
+    // .get(1);
+    // List<StrictBitVector> messages = receiverResults.getFirst();
+    // for (int i = 0; i < choices.getSize(); i++) {
+    // if (choices.getBit(i, false) == true) {
+    // zeroMessages.get(i).xor(delta);
+    // }
+    // assertTrue(zeroMessages.get(i).equals(messages.get(i)));
+    // }
   }
 }

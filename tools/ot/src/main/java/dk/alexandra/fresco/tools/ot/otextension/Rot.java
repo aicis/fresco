@@ -27,7 +27,7 @@ public class Rot {
   }
 
   /**
-   * Constructs a new random OT protocol and initializes the internal sender and
+   * Constructs a new random OT protocol and constructs the internal sender and
    * receiver objects.
    * 
    * @param myId

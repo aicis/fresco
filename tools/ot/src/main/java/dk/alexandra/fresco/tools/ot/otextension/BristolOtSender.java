@@ -2,6 +2,7 @@ package dk.alexandra.fresco.tools.ot.otextension;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.List;
 
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
@@ -40,7 +41,7 @@ public class BristolOtSender extends BristolOtShared {
       MaliciousCommitmentException, FailedCommitmentException,
       FailedCoinTossingException {
     if (messageZero.length != messageOne.length) {
-      throw new IllegalArgumentException("Messages must have equal length");
+      // throw new IllegalArgumentException("Messages must have equal length");
     }
     if (initialized == false) {
       initialize();
@@ -57,32 +58,30 @@ public class BristolOtSender extends BristolOtShared {
       throws FailedOtExtensionException {
     StrictBitVector randomZero = randomMessages.getFirst().get(offset);
     StrictBitVector randomOne = randomMessages.getSecond().get(offset);
+    int maxLength = Math.max(messageZero.length, messageOne.length);
     byte[] switchBit = getNetwork().receive(getOtherId());
     if (switchBit[0] == 0x00) {
-      sendAdjustedMessage(messageZero, randomZero.toByteArray());
-      sendAdjustedMessage(messageOne, randomOne.toByteArray());
+      sendAdjustedMessage(messageZero, maxLength, randomZero.toByteArray());
+      sendAdjustedMessage(messageOne, maxLength, randomOne.toByteArray());
     } else {
-      sendAdjustedMessage(messageOne, randomZero.toByteArray());
-      sendAdjustedMessage(messageZero, randomOne.toByteArray());
+      sendAdjustedMessage(messageOne, maxLength, randomZero.toByteArray());
+      sendAdjustedMessage(messageZero, maxLength, randomOne.toByteArray());
     }
   }
 
-  private void sendAdjustedMessage(byte[] realMessage,
+  private void sendAdjustedMessage(byte[] realMessage, int maxLength,
       byte[] randomMessage) throws FailedOtExtensionException {
     byte[] toSend;
-    if (realMessage.length < randomMessage.length) {
-      toSend = randomMessage;
-    } else {
-      try {
-        SecureRandom rand = SecureRandom.getInstance("SHA1PRNG");
-        rand.setSeed(randomMessage);
-        toSend = new byte[realMessage.length];
-        rand.nextBytes(toSend);
-      } catch (NoSuchAlgorithmException e) {
-        throw new FailedOtExtensionException(e.getMessage());
-      }
+    try {
+      SecureRandom rand = SecureRandom.getInstance("SHA1PRNG");
+      rand.setSeed(randomMessage);
+      toSend = new byte[maxLength];
+      rand.nextBytes(toSend);
+    } catch (NoSuchAlgorithmException e) {
+      throw new FailedOtExtensionException(e.getMessage());
     }
-    ByteArrayHelper.xor(toSend, realMessage);
+    byte[] paddedMessage = Arrays.copyOf(realMessage, maxLength);
+    ByteArrayHelper.xor(toSend, paddedMessage);
     getNetwork().send(getOtherId(), toSend);
   }
 }
