@@ -87,7 +87,7 @@ public class BristolOtReceiver extends BristolOtShared {
       try {
         SecureRandom rand = SecureRandom.getInstance("SHA1PRNG");
         rand.setSeed(randomMessage);
-        byte[] randomness = new byte[randomMessage.length];
+        byte[] randomness = new byte[adjustment.length];
         rand.nextBytes(randomness);
         ByteArrayHelper.xor(adjustment, randomness);
       } catch (NoSuchAlgorithmException e) {

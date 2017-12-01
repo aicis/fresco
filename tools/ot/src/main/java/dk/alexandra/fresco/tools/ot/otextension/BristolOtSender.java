@@ -76,7 +76,7 @@ public class BristolOtSender extends BristolOtShared {
       try {
         SecureRandom rand = SecureRandom.getInstance("SHA1PRNG");
         rand.setSeed(randomMessage);
-        toSend = new byte[randomMessage.length];
+        toSend = new byte[realMessage.length];
         rand.nextBytes(toSend);
       } catch (NoSuchAlgorithmException e) {
         throw new FailedOtExtensionException(e.getMessage());

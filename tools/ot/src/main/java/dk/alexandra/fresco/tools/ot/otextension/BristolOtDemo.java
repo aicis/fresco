@@ -90,7 +90,7 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> {
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected sender");
     Random rand = new Random(420420);
-    Ot<BigInteger> ot = new BristolOt<>(1, 2, kbitLength, lambdaSecurityParam,
+    Ot<BigInteger> ot = new BristolOt<>(2, 1, kbitLength, lambdaSecurityParam,
         rand, network, amountOfOTs);
     for (int i = 0; i < amountOfOTs; i++) {
       BigInteger msgZero = new BigInteger(512, rand);
