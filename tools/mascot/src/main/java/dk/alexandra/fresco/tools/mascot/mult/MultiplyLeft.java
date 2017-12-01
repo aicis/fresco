@@ -17,7 +17,7 @@ public class MultiplyLeft extends MultiplyShared {
   public MultiplyLeft(MascotContext ctx, Integer otherId, int numLeftFactors) {
     super(ctx, otherId, numLeftFactors);
   }
-  
+
   public MultiplyLeft(MascotContext ctx, Integer otherId) {
     this(ctx, otherId, 1);
   }
@@ -48,7 +48,7 @@ public class MultiplyLeft extends MultiplyShared {
     }
     return seeds;
   }
-  
+
   public List<StrictBitVector> generateSeeds(FieldElement leftFactor) {
     return generateSeeds(Arrays.asList(Arrays.asList(leftFactor)));
   }
@@ -57,20 +57,20 @@ public class MultiplyLeft extends MultiplyShared {
     // TODO: need batch-receive
     List<FieldElement> diffs = new ArrayList<>();
     for (int d = 0; d < numDiffs; d++) {
-      diffs.add(new FieldElement(ctx.getNetwork().receive(otherId), ctx.getModulus(),
-          ctx.getkBitLength()));
+      diffs.add(new FieldElement(ctx.getNetwork()
+          .receive(otherId), ctx.getModulus(), ctx.getkBitLength()));
     }
     return diffs;
   }
-  
+
   public List<List<FieldElement>> computeProductShares(List<List<FieldElement>> leftFactors,
       List<FieldElement> feSeeds, List<FieldElement> diffs) {
     // we need modulus and bit length
     BigInteger modulus = ctx.getModulus();
     int modBitLength = ctx.getkBitLength();
-    
+
     List<List<FieldElement>> result = new ArrayList<>(leftFactors.size());
-    
+
     int diffIdx = 0;
     for (List<FieldElement> leftFactorGroup : leftFactors) {
       List<FieldElement> resultGroup = new ArrayList<>(leftFactorGroup.size());
@@ -80,7 +80,8 @@ public class MultiplyLeft extends MultiplyShared {
           FieldElement feSeed = feSeeds.get(diffIdx);
           FieldElement diff = diffs.get(diffIdx);
           boolean bit = leftFactor.getBit(b);
-          FieldElement summand = diff.select(bit).add(feSeed);
+          FieldElement summand = diff.select(bit)
+              .add(feSeed);
           summands.add(summand);
           diffIdx++;
         }
@@ -92,7 +93,7 @@ public class MultiplyLeft extends MultiplyShared {
 
     return result;
   }
-  
+
   public List<List<FieldElement>> computeProductShares(FieldElement leftFactor,
       List<FieldElement> feSeeds, List<FieldElement> diffs) {
     return computeProductShares(Arrays.asList(Arrays.asList(leftFactor)), feSeeds, diffs);
@@ -113,9 +114,9 @@ public class MultiplyLeft extends MultiplyShared {
 
     // get diffs from other party
     List<FieldElement> diffs = receiveDiffs(seeds.size());
-    
+
     // compute our shares of the product and return
-    return computeProductShares(leftFactors, feSeeds, diffs);    
+    return computeProductShares(leftFactors, feSeeds, diffs);
   }
 
 }

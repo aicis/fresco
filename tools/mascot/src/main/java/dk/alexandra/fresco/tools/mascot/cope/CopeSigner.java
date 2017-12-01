@@ -11,10 +11,12 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeft;
+import dk.alexandra.fresco.tools.mascot.utils.DummyPrg;
+import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 
 public class CopeSigner extends CopeShared {
 
-  private List<StrictBitVector> chosenSeeds;
+  private List<FieldElementPrg> prgs;
   private FieldElement macKeyShare;
   private MultiplyLeft multiplier;
 
@@ -28,31 +30,33 @@ public class CopeSigner extends CopeShared {
     super(ctx, otherId);
     this.macKeyShare = macKeyShare;
     this.multiplier = new MultiplyLeft(ctx, otherId);
-    this.chosenSeeds = new ArrayList<>();
+    this.prgs = new ArrayList<>();
   }
 
   public void initialize() {
     if (initialized) {
       throw new IllegalStateException("Already initialized");
     }
-    chosenSeeds = multiplier.generateSeeds(macKeyShare);
+    List<StrictBitVector> seeds = multiplier.generateSeeds(macKeyShare);
+    seedPrgs(seeds);
     initialized = true;
   }
+  
+  private void seedPrgs(List<StrictBitVector> seeds) {
+    for (StrictBitVector seed : seeds) {
+      prgs.add(new DummyPrg(seed));
+    }
+  }
 
-  List<FieldElement> generateMasks(int numInputs) {
-    BigInteger modulus = ctx.getModulus();
-    int modBitLength = ctx.getkBitLength();
-    // for each input pair, we use our prf to get the next set of masks
-    // each input requires a counter increment
+  List<FieldElement> generateMasks(int numInputs, BigInteger modulus, int modBitLength) {
+    // for each input pair, we use our prgs to get the next set of masks
     List<FieldElement> masks = new ArrayList<>();
     for (int i = 0; i < numInputs; i++) {
       // generate masks for single input
-      List<FieldElement> singleInputMasks = chosenSeeds.stream()
-          .map(seed -> prf.evaluate(seed, prfCounter, modulus, modBitLength))
+      List<FieldElement> singleInputMasks = prgs.stream()
+          .map(prg -> prg.getNext(modulus, modBitLength))
           .collect(Collectors.toList());
       masks.addAll(singleInputMasks);
-      // increment prf counter
-      prfCounter = prfCounter.add(BigInteger.ONE);
     }
     return masks;
   }
@@ -63,11 +67,14 @@ public class CopeSigner extends CopeShared {
       throw new IllegalStateException("Cannot call extend before initializing");
     }
 
+    BigInteger modulus = ctx.getModulus();
+    int modBitLength = ctx.getkBitLength();
+    
     // compute chosen masks
-    List<FieldElement> chosenMasks = generateMasks(numInputs);
+    List<FieldElement> chosenMasks = generateMasks(numInputs, modulus, modBitLength);
 
     // get diffs from other party
-    List<FieldElement> diffs = multiplier.receiveDiffs(numInputs * chosenSeeds.size());
+    List<FieldElement> diffs = multiplier.receiveDiffs(numInputs * prgs.size());
 
     // use mac share for each input
     List<FieldElement> macKeyShares = IntStream.range(0, numInputs)

@@ -13,6 +13,7 @@ import org.junit.Test;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
+import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import dk.alexandra.fresco.tools.mascot.utils.BatchArithmetic;
@@ -35,6 +36,24 @@ public class TestTripleGen extends NetworkedTest {
     tripleGen.initialize();
     List<MultTriple> triples = tripleGen.triple(numTriples);
     return triples;
+  }
+  
+  private void checkTriple(MultTriple triple, FieldElement macKey) {
+    AuthenticatedElement left = triple.getLeft();
+    AuthenticatedElement right = triple.getRight();
+    AuthenticatedElement product = triple.getProduct();
+    
+    // check values
+    FieldElement leftValue = left.getShare();
+    FieldElement rightValue = right.getShare();
+    FieldElement productValue = product.getShare();
+    assertEquals(leftValue.multiply(rightValue), productValue);
+    
+    // check macs
+    FieldElement leftMac = left.getMac();
+    FieldElement rightMac = right.getMac();
+    FieldElement productMac = product.getMac();
+    assertEquals(leftMac.multiply(rightMac), productMac.multiply(macKey));
   }
 
   @Test
@@ -165,9 +184,8 @@ public class TestTripleGen extends NetworkedTest {
       throw new Exception("test failed");
     }
   }
-
-  @Test
-  public void testTwoPartiesSingleTriple() throws Exception {
+ 
+  public void testTwoPartiesTriple(int numTriples) throws Exception {
     try {
       // define parties
       List<Integer> partyIds = Arrays.asList(1, 2);
@@ -189,21 +207,15 @@ public class TestTripleGen extends NetworkedTest {
 
       // define task each party will run
       Callable<List<MultTriple>> partyOneTask =
-          () -> runSinglePartyTriple(partyOneCtx, macKeyShareOne, 3, 1);
+          () -> runSinglePartyTriple(partyOneCtx, macKeyShareOne, 3, numTriples);
       Callable<List<MultTriple>> partyTwoTask =
-          () -> runSinglePartyTriple(partyTwoCtx, macKeyShareTwo, 3, 1);
+          () -> runSinglePartyTriple(partyTwoCtx, macKeyShareTwo, 3, numTriples);
 
       List<List<MultTriple>> results =
           testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
       List<MultTriple> combined = BatchArithmetic.pairWiseAddRows(results);
-      for (MultTriple multTriple : combined) {
-        FieldElement leftValue = multTriple.getLeft()
-            .getShare();
-        FieldElement rightValue = multTriple.getRight()
-            .getShare();
-        FieldElement productValue = multTriple.getProduct()
-            .getShare();
-        assertEquals(leftValue.multiply(rightValue), productValue);
+      for (MultTriple triple : combined) {
+        checkTriple(triple, FieldElement.sum(Arrays.asList(macKeyShareOne, macKeyShareTwo)));
       }
     } catch (Exception e) {
       // TODO: handle exception
@@ -212,6 +224,16 @@ public class TestTripleGen extends NetworkedTest {
     }
   }
 
+  @Test
+  public void testTwoPartiesSingleTriple() throws Exception {
+    testTwoPartiesTriple(1);
+  }
+  
+//  @Test
+//  public void testTwoPartiesMultipleTriple() throws Exception {
+//    testTwoPartiesTriple(6);
+//  }
+  
   // helpers
 
   private List<FieldElement> combineRight(List<List<FieldElement>> rightFactors) {

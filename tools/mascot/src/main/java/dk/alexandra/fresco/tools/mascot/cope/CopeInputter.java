@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import dk.alexandra.fresco.framework.util.Pair;
@@ -11,15 +12,19 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyRight;
+import dk.alexandra.fresco.tools.mascot.utils.DummyPrg;
+import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 
 public class CopeInputter extends CopeShared {
 
-  private List<Pair<StrictBitVector, StrictBitVector>> seeds;
+  private List<FieldElementPrg> leftPrgs;
+  private List<FieldElementPrg> rightPrgs;
   private MultiplyRight multiplier;
 
   public CopeInputter(MascotContext ctx, Integer otherId) {
     super(ctx, otherId);
-    this.seeds = new ArrayList<>();
+    this.leftPrgs = new ArrayList<>();
+    this.rightPrgs = new ArrayList<>();
     this.multiplier = new MultiplyRight(ctx, otherId);
   }
 
@@ -27,18 +32,25 @@ public class CopeInputter extends CopeShared {
     if (initialized) {
       throw new IllegalStateException("Already initialized");
     }
-    seeds = multiplier.generateSeeds(1);
+    List<Pair<StrictBitVector, StrictBitVector>> seeds = multiplier.generateSeeds(1);
+    seedPrgs(seeds);
     initialized = true;
   }
 
-  List<Pair<FieldElement, FieldElement>> generateMaskPairs(BigInteger prfCounter,
-      BigInteger modulus, int modBitLength) {
-    Stream<Pair<FieldElement, FieldElement>> maskStream = seeds.stream()
-        .map((seedPair) -> {
-          FieldElement t0 =
-              this.prf.evaluate(seedPair.getFirst(), prfCounter, modulus, modBitLength);
-          FieldElement t1 =
-              this.prf.evaluate(seedPair.getSecond(), prfCounter, modulus, modBitLength);
+  private void seedPrgs(List<Pair<StrictBitVector, StrictBitVector>> seeds) {
+    for (Pair<StrictBitVector, StrictBitVector> seedPair : seeds) {
+      this.leftPrgs.add(new DummyPrg(seedPair.getFirst()));
+      this.rightPrgs.add(new DummyPrg(seedPair.getSecond()));
+    }
+  }
+
+  List<Pair<FieldElement, FieldElement>> generateMaskPairs(BigInteger modulus, int modBitLength) {
+    Stream<Pair<FieldElement, FieldElement>> maskStream = IntStream.range(0, leftPrgs.size())
+        .mapToObj(idx -> {
+          FieldElement t0 = this.leftPrgs.get(idx)
+              .getNext(modulus, modBitLength);
+          FieldElement t1 = this.rightPrgs.get(idx)
+              .getNext(modulus, modBitLength);
           return new Pair<>(t0, t1);
         });
     return maskStream.collect(Collectors.toList());
@@ -52,9 +64,7 @@ public class CopeInputter extends CopeShared {
     List<Pair<FieldElement, FieldElement>> maskPairs = new ArrayList<>();
     for (int i = 0; i < numInputs; i++) {
       // generate masks for single input
-      maskPairs.addAll(generateMaskPairs(prfCounter, modulus, modBitLength));
-      // increment prf counter
-      prfCounter = prfCounter.add(BigInteger.ONE);
+      maskPairs.addAll(generateMaskPairs(modulus, modBitLength));
     }
     return maskPairs;
   }
@@ -82,7 +92,7 @@ public class CopeInputter extends CopeShared {
     // compute product shares
     List<List<FieldElement>> wrappedProductShares =
         multiplier.computeProductShares(feZeroSeeds, inputElements.size());
-    
+
     // return unwrapped product shares
     return wrappedProductShares.stream()
         .flatMap(l -> l.stream())
