@@ -14,6 +14,7 @@ import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import dk.alexandra.fresco.tools.mascot.utils.BatchArithmetic;
 
 public class TestTripleGen extends NetworkedTest {
@@ -28,12 +29,12 @@ public class TestTripleGen extends NetworkedTest {
     return productGroups;
   }
 
-  private List<List<FieldElement>> runSinglePartyTriple(MascotContext ctx, FieldElement macKeyShare,
+  private List<MultTriple> runSinglePartyTriple(MascotContext ctx, FieldElement macKeyShare,
       int numLeftFactors, int numTriples) throws Exception {
     TripleGen tripleGen = new TripleGen(ctx, macKeyShare, numLeftFactors);
     tripleGen.initialize();
-    tripleGen.triple(numTriples);
-    return null;
+    List<MultTriple> triples = tripleGen.triple(numTriples);
+    return triples;
   }
 
   @Test
@@ -187,14 +188,23 @@ public class TestTripleGen extends NetworkedTest {
       FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), modulus, modBitLength);
 
       // define task each party will run
-      Callable<List<List<FieldElement>>> partyOneTask =
+      Callable<List<MultTriple>> partyOneTask =
           () -> runSinglePartyTriple(partyOneCtx, macKeyShareOne, 3, 1);
-      Callable<List<List<FieldElement>>> partyTwoTask =
+      Callable<List<MultTriple>> partyTwoTask =
           () -> runSinglePartyTriple(partyTwoCtx, macKeyShareTwo, 3, 1);
 
-      List<List<List<FieldElement>>> results =
+      List<List<MultTriple>> results =
           testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
-      System.out.println(results);
+      List<MultTriple> combined = BatchArithmetic.pairWiseAddRows(results);
+      for (MultTriple multTriple : combined) {
+        FieldElement leftValue = multTriple.getLeft()
+            .getShare();
+        FieldElement rightValue = multTriple.getRight()
+            .getShare();
+        FieldElement productValue = multTriple.getProduct()
+            .getShare();
+        assertEquals(leftValue.multiply(rightValue), productValue);
+      }
     } catch (Exception e) {
       // TODO: handle exception
       e.printStackTrace();

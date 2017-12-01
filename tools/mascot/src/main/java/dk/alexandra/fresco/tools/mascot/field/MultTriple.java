@@ -1,6 +1,8 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
-public class MultTriple {
+import dk.alexandra.fresco.tools.mascot.ArithmeticElement;
+
+public class MultTriple implements ArithmeticElement<MultTriple> {
 
   private AuthenticatedElement left;
   private AuthenticatedElement right;
@@ -66,6 +68,19 @@ public class MultTriple {
   @Override
   public String toString() {
     return "MultTriple [left=" + left + ", right=" + right + ", product=" + product + "]";
+  }
+
+  @Override
+  public MultTriple add(MultTriple other) {
+    AuthenticatedElement leftSum = left.add(other.left);
+    AuthenticatedElement rightSum = right.add(other.right);
+    AuthenticatedElement productSum = product.add(other.product);
+    return new MultTriple(leftSum, rightSum, productSum);
+  }
+
+  @Override
+  public MultTriple multiply(MultTriple other) {
+    throw new UnsupportedOperationException();
   }
 
 }

@@ -9,6 +9,8 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.ot.base.FailedOtException;
+import dk.alexandra.fresco.tools.ot.base.MaliciousOtException;
 
 public class MultiplyRight extends MultiplyShared {
 
@@ -23,7 +25,13 @@ public class MultiplyRight extends MultiplyShared {
   public List<Pair<StrictBitVector, StrictBitVector>> generateSeeds(int numMults) {
     // perform rots for each bit, for each left factor, for each multiplication
     int numRots = ctx.getkBitLength() * numLeftFactors * numMults;
-    List<Pair<StrictBitVector, StrictBitVector>> seeds = rot.send(numRots);
+    List<Pair<StrictBitVector, StrictBitVector>> seeds = new ArrayList<>();
+    try {
+      seeds = rot.send(numRots);
+    } catch (MaliciousOtException | FailedOtException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     return seeds;
   }
 

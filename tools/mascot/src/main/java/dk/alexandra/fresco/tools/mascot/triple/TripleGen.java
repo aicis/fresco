@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.tools.mascot.BaseProtocol;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.elgen.ElGen;
@@ -146,34 +147,66 @@ public class TripleGen extends BaseProtocol {
     List<AuthenticatedElement> combined = BatchArithmetic.pairWiseAddRows(shares);
     return partition(combined, 5);
   }
-  
-  List<MultTriple> sacrifice(List<AuthenticatedCand> candidates) {
-    BigInteger modulus = ctx.getModulus();
-    int modBitLength = ctx.getkBitLength();
-    
-    List<FieldElement> masks = sampler.jointSample(modulus, modBitLength, candidates.size());
+
+  List<AuthenticatedElement> computeRhos(List<AuthenticatedCand> candidates,
+      List<FieldElement> masks) {
     List<AuthenticatedElement> rhos = IntStream.range(0, candidates.size())
         .mapToObj(idx -> {
           AuthenticatedCand cand = candidates.get(idx);
           FieldElement mask = masks.get(idx);
-          return cand.getRho(mask); 
+          return cand.computeRho(mask);
         })
         .collect(Collectors.toList());
-    List<FieldElement> openRhos = elGen.open(rhos);
+    return rhos;
+  }
+
+  List<AuthenticatedElement> computeSigmas(List<AuthenticatedCand> candidates,
+      List<FieldElement> masks, List<FieldElement> openRhos) {
     List<AuthenticatedElement> sigmas = IntStream.range(0, candidates.size())
         .mapToObj(idx -> {
           AuthenticatedCand cand = candidates.get(idx);
           FieldElement mask = masks.get(idx);
           FieldElement openRho = openRhos.get(idx);
-          return cand.getSigma(openRho, mask);
+          return cand.computeSigma(openRho, mask);
         })
         .collect(Collectors.toList());
-    sigmas.addAll(rhos);
-    elGen.check(sigmas, openRhos);
-    return null;
+    return sigmas;
   }
 
-  public void triple(int numTriples) {
+  List<MultTriple> toMultTriples(List<AuthenticatedCand> candidates) {
+    return candidates.stream()
+        .map(cand -> cand.toTriple())
+        .collect(Collectors.toList());
+  }
+
+  List<MultTriple> sacrifice(List<AuthenticatedCand> candidates) {
+    BigInteger modulus = ctx.getModulus();
+    int modBitLength = ctx.getkBitLength();
+
+    List<FieldElement> masks = sampler.jointSample(modulus, modBitLength, candidates.size());
+
+    // compute masked values we will open and use in mac-check
+    List<AuthenticatedElement> rhos = computeRhos(candidates, masks);
+
+    // open masked values
+    List<FieldElement> openRhos = elGen.open(rhos);
+
+    // compute macs
+    List<AuthenticatedElement> sigmas = computeSigmas(candidates, masks, openRhos);
+
+    // put rhos and sigmas together
+    sigmas.addAll(rhos);
+
+    // run mac-check
+    try {
+      elGen.check(sigmas, openRhos);
+    } catch (MPCException e) {
+      // TODO handle
+    }
+    return toMultTriples(candidates);
+  }
+
+  public List<MultTriple> triple(int numTriples) {
     // can't generate triples before initializing
     if (!initialized) {
       throw new IllegalStateException("Need to initialize first");
@@ -196,8 +229,11 @@ public class TripleGen extends BaseProtocol {
 
     // use el-gen to input candidates and combine them to the authenticated candidates
     List<AuthenticatedCand> authenticated = authenticate(candidates);
-    System.out.println(authenticated);
-    sacrifice(authenticated);
+
+    // for each candidate, run sacrifice and get valid triple
+    List<MultTriple> triples = sacrifice(authenticated);
+
+    return triples;
   }
 
   // TODO hack hack hack
@@ -212,7 +248,7 @@ public class TripleGen extends BaseProtocol {
     T c;
     T aHat;
     T cHat;
-    
+
     TripleCandidate(T a, T b, T c, T aHat, T cHat) {
       super(Arrays.asList(a, b, c, aHat, cHat));
       this.a = a;
@@ -259,16 +295,21 @@ public class TripleGen extends BaseProtocol {
     public AuthenticatedCand(List<AuthenticatedElement> ordered) {
       super(ordered);
     }
-    
-    public AuthenticatedElement getRho(FieldElement mask) {
-      return a.multiply(mask).subtract(aHat);
+
+    public AuthenticatedElement computeRho(FieldElement mask) {
+      return a.multiply(mask)
+          .subtract(aHat);
     }
-    
-    public AuthenticatedElement getSigma(FieldElement openRho, FieldElement mask) {
-      return c.multiply(mask).subtract(cHat).subtract(b.multiply(openRho));
+
+    public AuthenticatedElement computeSigma(FieldElement openRho, FieldElement mask) {
+      return c.multiply(mask)
+          .subtract(cHat)
+          .subtract(b.multiply(openRho));
+    }
+
+    public MultTriple toTriple() {
+      return new MultTriple(a, b, c);
     }
     
   }
-  
-
 }

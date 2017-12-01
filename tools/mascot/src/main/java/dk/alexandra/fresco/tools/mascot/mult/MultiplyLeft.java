@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.ot.base.FailedOtException;
+import dk.alexandra.fresco.tools.ot.base.MaliciousOtException;
 
 public class MultiplyLeft extends MultiplyShared {
 
@@ -37,7 +39,13 @@ public class MultiplyLeft extends MultiplyShared {
   public List<StrictBitVector> generateSeeds(List<List<FieldElement>> leftFactors) {
     StrictBitVector packedFactors = pack(leftFactors);
     // use rot to get choice seeds
-    List<StrictBitVector> seeds = rot.receive(packedFactors);
+    List<StrictBitVector> seeds = new ArrayList<>();
+    try {
+      seeds = rot.receive(packedFactors);
+    } catch (MaliciousOtException | FailedOtException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     return seeds;
   }
   
