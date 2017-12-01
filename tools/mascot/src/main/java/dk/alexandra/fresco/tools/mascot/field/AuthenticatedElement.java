@@ -8,24 +8,41 @@ import dk.alexandra.fresco.tools.mascot.ArithmeticElement;
 public class AuthenticatedElement implements ArithmeticElement<AuthenticatedElement> {
 
   SpdzElement spdzElement;
+  BigInteger modulus;
+  int modBitLength;
 
-  public AuthenticatedElement(FieldElement share, FieldElement mac, BigInteger modulus) {
+  public AuthenticatedElement(FieldElement share, FieldElement mac, BigInteger modulus,
+      int modBitLength) {
     this.spdzElement = new SpdzElement(share.toBigInteger(), mac.toBigInteger(), modulus);
+    this.modulus = modulus;
+    this.modBitLength = modBitLength;
   }
 
-  public AuthenticatedElement(SpdzElement spdzElement) {
+  public AuthenticatedElement(SpdzElement spdzElement, BigInteger modulus, int modBitLength) {
     this.spdzElement = spdzElement;
+    this.modulus = modulus;
+    this.modBitLength = modBitLength;
   }
 
   @Override
   public AuthenticatedElement add(AuthenticatedElement other) {
     SpdzElement sum = spdzElement.add(other.spdzElement);
-    return new AuthenticatedElement(sum);
+    return new AuthenticatedElement(sum, modulus, modBitLength);
+  }
+
+  public AuthenticatedElement subtract(AuthenticatedElement other) {
+    SpdzElement sum = spdzElement.subtract(other.spdzElement);
+    return new AuthenticatedElement(sum, modulus, modBitLength);
   }
 
   @Override
   public AuthenticatedElement multiply(AuthenticatedElement other) {
     throw new UnsupportedOperationException();
+  }
+
+  public AuthenticatedElement multiply(FieldElement constant) {
+    SpdzElement mult = spdzElement.multiply(constant.toBigInteger());
+    return new AuthenticatedElement(mult, modulus, modBitLength);
   }
 
   @Override
@@ -56,6 +73,14 @@ public class AuthenticatedElement implements ArithmeticElement<AuthenticatedElem
   @Override
   public String toString() {
     return "AuthenticatedElement [spdzElement=" + spdzElement + "]";
+  }
+
+  public FieldElement getMac() {
+    return new FieldElement(spdzElement.getMac(), modulus, modBitLength);
+  }
+
+  public FieldElement getShare() {
+    return new FieldElement(spdzElement.getShare(), modulus, modBitLength);
   }
 
 }

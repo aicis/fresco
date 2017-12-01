@@ -13,6 +13,7 @@ import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.elgen.ElGen;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeft;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyRight;
 import dk.alexandra.fresco.tools.mascot.utils.BatchArithmetic;
@@ -57,9 +58,6 @@ public class TripleGen extends BaseProtocol {
     elGen.initialize();
     this.initialized = true;
   }
-
-  // probably overdid it with streams here...
-
 
   List<List<FieldElement>> multiply(List<List<FieldElement>> leftFactorGroups,
       List<FieldElement> rightFactors) {
@@ -148,6 +146,32 @@ public class TripleGen extends BaseProtocol {
     List<AuthenticatedElement> combined = BatchArithmetic.pairWiseAddRows(shares);
     return partition(combined, 5);
   }
+  
+  List<MultTriple> sacrifice(List<AuthenticatedCand> candidates) {
+    BigInteger modulus = ctx.getModulus();
+    int modBitLength = ctx.getkBitLength();
+    
+    List<FieldElement> masks = sampler.jointSample(modulus, modBitLength, candidates.size());
+    List<AuthenticatedElement> rhos = IntStream.range(0, candidates.size())
+        .mapToObj(idx -> {
+          AuthenticatedCand cand = candidates.get(idx);
+          FieldElement mask = masks.get(idx);
+          return cand.getRho(mask); 
+        })
+        .collect(Collectors.toList());
+    List<FieldElement> openRhos = elGen.open(rhos);
+    List<AuthenticatedElement> sigmas = IntStream.range(0, candidates.size())
+        .mapToObj(idx -> {
+          AuthenticatedCand cand = candidates.get(idx);
+          FieldElement mask = masks.get(idx);
+          FieldElement openRho = openRhos.get(idx);
+          return cand.getSigma(openRho, mask);
+        })
+        .collect(Collectors.toList());
+    sigmas.addAll(rhos);
+    elGen.check(sigmas, openRhos);
+    return null;
+  }
 
   public void triple(int numTriples) {
     // can't generate triples before initializing
@@ -173,6 +197,7 @@ public class TripleGen extends BaseProtocol {
     // use el-gen to input candidates and combine them to the authenticated candidates
     List<AuthenticatedCand> authenticated = authenticate(candidates);
     System.out.println(authenticated);
+    sacrifice(authenticated);
   }
 
   // TODO hack hack hack
@@ -182,8 +207,19 @@ public class TripleGen extends BaseProtocol {
      */
     private static final long serialVersionUID = -4917636316948291312L;
 
+    T a;
+    T b;
+    T c;
+    T aHat;
+    T cHat;
+    
     TripleCandidate(T a, T b, T c, T aHat, T cHat) {
       super(Arrays.asList(a, b, c, aHat, cHat));
+      this.a = a;
+      this.b = b;
+      this.c = c;
+      this.aHat = aHat;
+      this.cHat = cHat;
     }
 
     TripleCandidate(List<T> ordered) {
@@ -210,7 +246,6 @@ public class TripleGen extends BaseProtocol {
   }
 
   private class AuthenticatedCand extends TripleCandidate<AuthenticatedElement> {
-
     /**
      * 
      */
@@ -224,7 +259,16 @@ public class TripleGen extends BaseProtocol {
     public AuthenticatedCand(List<AuthenticatedElement> ordered) {
       super(ordered);
     }
-
+    
+    public AuthenticatedElement getRho(FieldElement mask) {
+      return a.multiply(mask).subtract(aHat);
+    }
+    
+    public AuthenticatedElement getSigma(FieldElement openRho, FieldElement mask) {
+      return c.multiply(mask).subtract(cHat).subtract(b.multiply(openRho));
+    }
+    
   }
+  
 
 }
