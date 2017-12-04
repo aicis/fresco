@@ -23,8 +23,8 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
   private boolean doMacCheck = false;
   private final SecureRandom secRand;
 
-  public SpdzRoundSynchronization(SecureRandom rand) {
-    this.secRand = rand;
+  public SpdzRoundSynchronization() {
+    this.secRand = new SecureRandom();
   }
   
   private void doMACCheck(SpdzResourcePool resourcePool, Network network) {

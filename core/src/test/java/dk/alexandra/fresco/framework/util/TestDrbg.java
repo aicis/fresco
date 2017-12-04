@@ -6,7 +6,10 @@ import static org.junit.Assert.assertFalse;
 import dk.alexandra.fresco.framework.MPCException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.function.Supplier;
+import javax.crypto.Mac;
 import javax.crypto.SecretKey;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class TestDrbg {
@@ -32,8 +35,18 @@ public class TestDrbg {
   @Test
   public void testDifferentAlgorithm() throws NoSuchAlgorithmException {
     byte[] bytes = new byte[]{0x10, 0x09, 0x01};
-    HmacDrbg rand1 = new HmacDrbg(bytes);
-    HmacDrbg rand2 = new HmacDrbg("HmacSHA512", bytes);
+    HmacDrbg rand1 = new HmacDrbg(bytes);    
+    HmacDrbg rand2 = new HmacDrbg(new Supplier<Mac>() {
+      
+      @Override
+      public Mac get() {
+        try {
+          return Mac.getInstance("HmacSHA512");
+        } catch (NoSuchAlgorithmException e) {
+          return null;
+        }
+      }
+    }, bytes);
     byte[] randBytes1 = new byte[10];
     byte[] randBytes2 = new byte[10];
     rand1.nextBytes(randBytes1);
@@ -41,9 +54,16 @@ public class TestDrbg {
     assertFalse(Arrays.equals(randBytes1, randBytes2));
   }
 
-  @Test(expected = NoSuchAlgorithmException.class)
+  @Test
   public void testNonExistingAlgorithm() throws NoSuchAlgorithmException {
-    new HmacDrbg("Bla", new byte[]{0x01});
+    String defaultAlg = HmacDrbg.DEFAULT_ALGORITHM;  
+    HmacDrbg.DEFAULT_ALGORITHM = "BLA";
+    try {
+      new HmacDrbg();
+      Assert.fail();
+    } catch (NoSuchAlgorithmException ex) {
+      HmacDrbg.DEFAULT_ALGORITHM = defaultAlg;
+    }
   }
 
   @Test(expected = MPCException.class)
@@ -73,7 +93,7 @@ public class TestDrbg {
 
   @Test(expected = MPCException.class)
   public void testReseedException() throws NoSuchAlgorithmException {
-    HmacDrbg m = new HmacDrbg(new byte[]{0x01}, new byte[]{0x02});
+    HmacDrbg m = new HmacDrbg(new byte[]{0x01});
     m.reseedCounter = HmacDrbg.MAX_RESEED_COUNT - 1;
     double max = 2;
     for (double i = 0; i < max; i++) {
@@ -90,7 +110,11 @@ public class TestDrbg {
     for (double i = 0; i < 2; i++) {
       m.nextBytes(randBytes1);
     }
-    m.nextBytes(randBytes1);
+    //New seed is now used. Reset again
+    m.reseedCounter = HmacDrbg.MAX_RESEED_COUNT - 1;
+    for (double i = 0; i < 2; i++) {
+      m.nextBytes(randBytes1);
+    }
   }
 
   @Test
