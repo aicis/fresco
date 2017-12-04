@@ -82,7 +82,7 @@ public class KryoNetNetwork implements Network, Closeable {
       }
 
       for (int j = 0; j < channelAmount; j++) {
-        this.queues.get(j).put(i, new ArrayBlockingQueue<>(1000));
+        this.queues.get(j).put(i, new ArrayBlockingQueue<>(10000));
       }
     }
     try {

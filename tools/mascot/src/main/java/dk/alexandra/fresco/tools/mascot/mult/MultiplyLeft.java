@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.utils.DummyPrg;
 import dk.alexandra.fresco.tools.ot.base.FailedOtException;
 import dk.alexandra.fresco.tools.ot.base.MaliciousOtException;
 
@@ -98,6 +99,13 @@ public class MultiplyLeft extends MultiplyShared {
       List<FieldElement> feSeeds, List<FieldElement> diffs) {
     return computeProductShares(Arrays.asList(Arrays.asList(leftFactor)), feSeeds, diffs);
   }
+  
+  List<FieldElement> seedsToFieldElements(List<StrictBitVector> seeds, BigInteger modulus, int modBitLength) {
+    // TODO there should be a better way to do this
+    return seeds.stream().map(seed -> {
+      return new DummyPrg(seed).getNext(modulus, modBitLength);
+    }).collect(Collectors.toList());
+  }
 
   public List<List<FieldElement>> multiply(List<List<FieldElement>> leftFactors) {
     // we need the modulus and the bit length of the modulus
@@ -108,9 +116,7 @@ public class MultiplyLeft extends MultiplyShared {
     List<StrictBitVector> seeds = generateSeeds(leftFactors);
     
     // convert each seed to field element
-    List<FieldElement> feSeeds = seeds.stream()
-        .map(seed -> new FieldElement(seed.toByteArray(), modulus, modBitLength))
-        .collect(Collectors.toList());
+    List<FieldElement> feSeeds = seedsToFieldElements(seeds, modulus, modBitLength);
 
     // get diffs from other party
     List<FieldElement> diffs = receiveDiffs(seeds.size());

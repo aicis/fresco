@@ -121,7 +121,7 @@ public class TestRuntime {
       throw new IllegalStateException("Executor not initialized yet");
     }
     try {
-      List<Future<T>> results = executor.invokeAll(tasks, 5l, TimeUnit.SECONDS);
+      List<Future<T>> results = executor.invokeAll(tasks, 20l, TimeUnit.SECONDS);
       // this is a bit of a mess...
       List<T> unwrappedResults = results.stream()
           .map(future -> {

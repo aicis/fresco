@@ -229,10 +229,10 @@ public class TestTripleGen extends NetworkedTest {
     testTwoPartiesTriple(1);
   }
   
-//  @Test
-//  public void testTwoPartiesMultipleTriple() throws Exception {
-//    testTwoPartiesTriple(6);
-//  }
+  @Test
+  public void testTwoPartiesMultipleTriple() throws Exception {
+    testTwoPartiesTriple(10);
+  }
   
   // helpers
 

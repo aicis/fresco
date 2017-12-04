@@ -9,6 +9,7 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.utils.DummyPrg;
 import dk.alexandra.fresco.tools.ot.base.FailedOtException;
 import dk.alexandra.fresco.tools.ot.base.MaliciousOtException;
 
@@ -85,6 +86,15 @@ public class MultiplyRight extends MultiplyShared {
     return productShares;
   }
 
+  List<Pair<FieldElement, FieldElement>> seedsToFieldElements(List<Pair<StrictBitVector, StrictBitVector>> seedPairs, BigInteger modulus, int modBitLength) {
+    // TODO there should be a better way to do this
+    return seedPairs.stream().map(pair -> {
+      FieldElement t0 = new DummyPrg(pair.getFirst()).getNext(modulus, modBitLength);
+      FieldElement t1 = new DummyPrg(pair.getSecond()).getNext(modulus, modBitLength);
+      return new Pair<>(t0, t1);
+    }).collect(Collectors.toList());
+  }
+  
   public List<List<FieldElement>> multiply(List<FieldElement> rightFactors) {
     // we need the modulus and the bit length of the modulus
     BigInteger modulus = ctx.getModulus();
@@ -94,11 +104,7 @@ public class MultiplyRight extends MultiplyShared {
     List<Pair<StrictBitVector, StrictBitVector>> seedPairs = generateSeeds(rightFactors.size());
     
     // convert seeds pairs to field elements so we can compute on them
-    List<Pair<FieldElement, FieldElement>> feSeedPairs = seedPairs.stream()
-        .map(pair -> new Pair<>(
-            new FieldElement(pair.getFirst().toByteArray(), modulus, modBitLength),
-            new FieldElement(pair.getSecond().toByteArray(), modulus, modBitLength)))
-        .collect(Collectors.toList());
+    List<Pair<FieldElement, FieldElement>> feSeedPairs = seedsToFieldElements(seedPairs, modulus, modBitLength);
 
     // compute q0 - q1 + b for each seed pair
     List<FieldElement> diffs = computeDiffs(feSeedPairs, rightFactors);
