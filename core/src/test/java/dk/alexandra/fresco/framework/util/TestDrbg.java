@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 import javax.crypto.SecretKey;
 import org.junit.Test;
 
-public class TestDetermSecureRandom {
+public class TestDrbg {
 
   @Test
   public void testNextBytes() throws NoSuchAlgorithmException {
