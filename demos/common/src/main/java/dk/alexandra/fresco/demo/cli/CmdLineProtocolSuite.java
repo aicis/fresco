@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.util.HmacDeterministicRandomBitGeneratorImpl;
+import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
@@ -54,7 +54,7 @@ public class CmdLineProtocolSuite {
       case "dummybool":
         this.protocolSuite = new DummyBooleanProtocolSuite();
         this.resourcePool =
-            new ResourcePoolImpl(myId, noOfPlayers, new HmacDeterministicRandomBitGeneratorImpl());
+            new ResourcePoolImpl(myId, noOfPlayers, new HmacDrbg());
         break;
       case "dummyarithmetic":
         this.protocolSuite = dummyArithmeticFromCmdLine(properties);
@@ -63,7 +63,7 @@ public class CmdLineProtocolSuite {
         this.resourcePool =
             new DummyArithmeticResourcePoolImpl(
                 myId, noOfPlayers,
-                new HmacDeterministicRandomBitGeneratorImpl(), mod);
+                new HmacDrbg(), mod);
         break;
       case "spdz":
         this.protocolSuite = SpdzConfigurationFromCmdLine(properties);
@@ -73,12 +73,12 @@ public class CmdLineProtocolSuite {
       case "tinytablesprepro":
         this.protocolSuite = tinyTablesPreProFromCmdLine(properties);
         this.resourcePool =
-            new ResourcePoolImpl(myId, noOfPlayers, new HmacDeterministicRandomBitGeneratorImpl());
+            new ResourcePoolImpl(myId, noOfPlayers, new HmacDrbg());
         break;
       case "tinytables":
         this.protocolSuite = tinyTablesFromCmdLine(properties);
         this.resourcePool =
-            new ResourcePoolImpl(myId, noOfPlayers, new HmacDeterministicRandomBitGeneratorImpl());
+            new ResourcePoolImpl(myId, noOfPlayers, new HmacDrbg());
         break;
       default:
         throw new ParseException("Unknown protocol suite: " + protocolSuiteName);
@@ -135,7 +135,7 @@ public class CmdLineProtocolSuite {
     }
     SpdzStorage store = new SpdzStorageImpl(supplier);
     try {
-      return new SpdzResourcePoolImpl(myId, noOfPlayers, new HmacDeterministicRandomBitGeneratorImpl(), store);
+      return new SpdzResourcePoolImpl(myId, noOfPlayers, new HmacDrbg(), store);
     } catch (NoSuchAlgorithmException e) {
       throw new RuntimeException("Your system does not support the necessary hash function.", e);
     }

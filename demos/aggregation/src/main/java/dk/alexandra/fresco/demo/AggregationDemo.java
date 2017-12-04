@@ -14,7 +14,7 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.util.HmacDeterministicRandomBitGeneratorImpl;
+import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.collections.MatrixUtils;
@@ -127,7 +127,7 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
     try (KryoNetNetwork network = new KryoNetNetwork(getNetworkConfiguration(pid))) {
     SpdzStorage store = new SpdzStorageImpl(new DummyDataSupplierImpl(pid, getNetworkConfiguration(pid).noOfParties()));
     SpdzResourcePool rp = new SpdzResourcePoolImpl(pid, getNetworkConfiguration(pid).noOfParties(),
-        new HmacDeterministicRandomBitGeneratorImpl(), store);
+        new HmacDrbg(), store);
       // Instatiate our demo and run
       AggregationDemo<SpdzResourcePool> demo = new AggregationDemo<>();
       demo.runApplication(sce, rp, network);

@@ -14,8 +14,8 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.framework.util.DeterministicRandomBitGenerator;
-import dk.alexandra.fresco.framework.util.HmacDeterministicRandomBitGeneratorImpl;
+import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger;
@@ -85,7 +85,7 @@ public abstract class AbstractDummyBooleanTest {
         pls.get(playerId).add((PerformanceLogger) sce);
       }
 
-      DeterministicRandomBitGenerator drbg = new HmacDeterministicRandomBitGeneratorImpl();
+      Drbg drbg = new HmacDrbg();
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new ResourcePoolImpl(playerId, noOfParties, drbg), () -> {

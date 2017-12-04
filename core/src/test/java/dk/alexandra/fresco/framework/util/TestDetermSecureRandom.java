@@ -15,11 +15,11 @@ public class TestDetermSecureRandom {
   @Test
   public void testNextBytes() throws NoSuchAlgorithmException {
     byte[] bytes = new byte[] {0x10, 0x09, 0x01};
-    HmacDeterministicRandomBitGeneratorImpl rand1 =
-        new HmacDeterministicRandomBitGeneratorImpl(bytes);
-    HmacDeterministicRandomBitGeneratorImpl rand2 =
-        new HmacDeterministicRandomBitGeneratorImpl(bytes);
-    HmacDeterministicRandomBitGeneratorImpl rand3 = new HmacDeterministicRandomBitGeneratorImpl();
+    HmacDrbg rand1 =
+        new HmacDrbg(bytes);
+    HmacDrbg rand2 =
+        new HmacDrbg(bytes);
+    HmacDrbg rand3 = new HmacDrbg();
     byte[] randBytes1 = new byte[10];
     byte[] randBytes2 = new byte[10];
     byte[] randBytes3 = new byte[10];
@@ -32,19 +32,19 @@ public class TestDetermSecureRandom {
 
   @Test(expected = NoSuchAlgorithmException.class)
   public void testNonExistingAlgorithm() throws NoSuchAlgorithmException {
-    new HmacDeterministicRandomBitGeneratorImpl("Bla", new byte[] {0x01});
+    new HmacDrbg("Bla", new byte[] {0x01});
   }
 
   @Test(expected = MPCException.class)
   public void testInvalidKey() throws NoSuchAlgorithmException {
-    HmacDeterministicRandomBitGeneratorImpl m = new HmacDrbgFakeKeySpec();
+    HmacDrbg m = new HmacDrbgFakeKeySpec();
     byte[] randBytes1 = new byte[10];
     m.nextBytes(randBytes1);
   }
   
   @Test(expected = MPCException.class)
   public void testReseedException() throws NoSuchAlgorithmException {
-    HmacDeterministicRandomBitGeneratorImpl m = new HmacDrbgLowReseedCount();
+    HmacDrbg m = new HmacDrbgLowReseedCount();
     double max = 12;
     for (double i = 0; i < max; i++) {
       byte[] randBytes1 = new byte[0];
@@ -54,7 +54,7 @@ public class TestDetermSecureRandom {
   
   @Test(expected = MPCException.class)
   public void testReseedException2() throws NoSuchAlgorithmException {
-    HmacDeterministicRandomBitGeneratorImpl m =
+    HmacDrbg m =
         new HmacDrbgLowReseedCount(new byte[] {0x01}, new byte[] {0x02});
     double max = 10;
     byte[] randBytes1 = new byte[0];
@@ -67,10 +67,10 @@ public class TestDetermSecureRandom {
   @Test
   public void testLargeAmount() throws NoSuchAlgorithmException {
     byte[] bytes = new byte[] {0x10, 0x09, 0x01};
-    HmacDeterministicRandomBitGeneratorImpl rand1 =
-        new HmacDeterministicRandomBitGeneratorImpl(bytes);
-    HmacDeterministicRandomBitGeneratorImpl rand2 =
-        new HmacDeterministicRandomBitGeneratorImpl(bytes);
+    HmacDrbg rand1 =
+        new HmacDrbg(bytes);
+    HmacDrbg rand2 =
+        new HmacDrbg(bytes);
     byte[] randBytes1 = new byte[1000000];
     byte[] randBytes2 = new byte[1000000];
     rand1.nextBytes(randBytes1);
@@ -78,7 +78,7 @@ public class TestDetermSecureRandom {
     assertArrayEquals(randBytes1, randBytes2);
   }
 
-  private class HmacDrbgLowReseedCount extends HmacDeterministicRandomBitGeneratorImpl {
+  private class HmacDrbgLowReseedCount extends HmacDrbg {
 
     public HmacDrbgLowReseedCount(byte[]...bs) throws NoSuchAlgorithmException {      
       super(bs);
@@ -86,7 +86,7 @@ public class TestDetermSecureRandom {
     }
   }
   
-  private class HmacDrbgFakeKeySpec extends HmacDeterministicRandomBitGeneratorImpl {
+  private class HmacDrbgFakeKeySpec extends HmacDrbg {
 
     public HmacDrbgFakeKeySpec() throws NoSuchAlgorithmException {      
       super();

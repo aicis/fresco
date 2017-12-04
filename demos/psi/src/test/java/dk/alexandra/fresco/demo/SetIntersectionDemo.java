@@ -15,8 +15,8 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
-import dk.alexandra.fresco.framework.util.DeterministicRandomBitGenerator;
-import dk.alexandra.fresco.framework.util.HmacDeterministicRandomBitGeneratorImpl;
+import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
@@ -55,7 +55,7 @@ public class SetIntersectionDemo {
           new DummyBooleanProtocolSuite();
 
       // The rest is generic configuration as well
-      DeterministicRandomBitGenerator drbg = new HmacDeterministicRandomBitGeneratorImpl();
+      Drbg drbg = new HmacDrbg();
       ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
           new BatchedProtocolEvaluator<>(new BatchedStrategy<>(), suite);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
@@ -93,7 +93,7 @@ public class SetIntersectionDemo {
               9000 + playerId, playerId);
 
       // More generic configuration
-      DeterministicRandomBitGenerator drbg = new HmacDeterministicRandomBitGeneratorImpl();
+      Drbg drbg = new HmacDrbg();
       ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
           new BatchedProtocolEvaluator<>(new BatchedStrategy<>(), suite);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
@@ -119,7 +119,7 @@ public class SetIntersectionDemo {
             (ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary>) getTinyTablesProtocolSuite(
                 playerId);
 
-        DeterministicRandomBitGenerator drbg = new HmacDeterministicRandomBitGeneratorImpl();
+        Drbg drbg = new HmacDrbg();
         ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
             new BatchedProtocolEvaluator<>(new BatchedStrategy<>(), suite);
         TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =

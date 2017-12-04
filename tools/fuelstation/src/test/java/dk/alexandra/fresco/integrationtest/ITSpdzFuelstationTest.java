@@ -13,8 +13,8 @@ import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.util.DeterministicRandomBitGenerator;
-import dk.alexandra.fresco.framework.util.HmacDeterministicRandomBitGeneratorImpl;
+import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests;
@@ -69,7 +69,7 @@ public class ITSpdzFuelstationTest {
           new BatchedProtocolEvaluator<>(evalStrategy.getStrategy(), suite);
       DataSupplier supplier = new DataRestSupplierImpl(playerId, noOfParties, "http://localhost:" + port, 0);
       SpdzStorage store = new SpdzStorageImpl(supplier);
-      DeterministicRandomBitGenerator drbg = new HmacDeterministicRandomBitGeneratorImpl();
+      Drbg drbg = new HmacDrbg();
       TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite, evaluator),

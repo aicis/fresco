@@ -11,7 +11,7 @@ import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialStrategy;
-import dk.alexandra.fresco.framework.util.HmacDeterministicRandomBitGeneratorImpl;
+import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePool;
@@ -59,7 +59,7 @@ public class TestSecureComputationEngineImpl {
           }
         };
     DummyArithmeticResourcePool rp = new DummyArithmeticResourcePoolImpl(0, 1,
-        new HmacDeterministicRandomBitGeneratorImpl(), BigInteger.valueOf(101));
+        new HmacDrbg(), BigInteger.valueOf(101));
 
     BigInteger b = sce.runApplication(app, rp, null);
     assertThat(b, is(BigInteger.valueOf(20)));
@@ -76,7 +76,7 @@ public class TestSecureComputationEngineImpl {
           }
         };
     DummyArithmeticResourcePool rp = new DummyArithmeticResourcePoolImpl(0, 1,
-        new HmacDeterministicRandomBitGeneratorImpl(), BigInteger.valueOf(101));
+        new HmacDrbg(), BigInteger.valueOf(101));
     sce.runApplication(app, rp, null);
     fail("Should not be reachable");
   }
@@ -94,7 +94,7 @@ public class TestSecureComputationEngineImpl {
           }
         };
     DummyArithmeticResourcePool rp = new DummyArithmeticResourcePoolImpl(0, 1,
-        new HmacDeterministicRandomBitGeneratorImpl(), BigInteger.valueOf(101));
+        new HmacDrbg(), BigInteger.valueOf(101));
     sce.runApplication(app, rp, null, Duration.ofNanos(1));
     fail("Should not be reachable");
   }

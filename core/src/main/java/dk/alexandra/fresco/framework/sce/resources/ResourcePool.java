@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.framework.sce.resources;
 
-import dk.alexandra.fresco.framework.util.DeterministicRandomBitGenerator;
+import dk.alexandra.fresco.framework.util.Drbg;
 
 /**
  * The ResourcePool gives the protocol suites and their native protocols access to whatever is
@@ -27,6 +27,6 @@ public interface ResourcePool {
    * 
    * @return An instance of a DRBG.
    */
-  DeterministicRandomBitGenerator getRandomGenerator();
+  Drbg getRandomGenerator();
 
 }

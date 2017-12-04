@@ -25,10 +25,10 @@ import org.slf4j.LoggerFactory;
  * calls to {@link #nextBytes(byte[])} to be secure. No signal will be send about this.
  * </p>
  */
-public class HmacDeterministicRandomBitGeneratorImpl implements DeterministicRandomBitGenerator {
+public class HmacDrbg implements Drbg {
 
   private final Logger logger =
-      LoggerFactory.getLogger(HmacDeterministicRandomBitGeneratorImpl.class);
+      LoggerFactory.getLogger(HmacDrbg.class);
   private static final String DEFAULT_ALGORITHM = "HmacSHA256";
   private final String algorithm;
   private Mac mac = null;
@@ -47,7 +47,7 @@ public class HmacDeterministicRandomBitGeneratorImpl implements DeterministicRan
    * @throws NoSuchAlgorithmException If the default HmacSHA256 hash function is not found on the
    *         system.
    */
-  public HmacDeterministicRandomBitGeneratorImpl(byte[]... seeds) throws NoSuchAlgorithmException {
+  public HmacDrbg(byte[]... seeds) throws NoSuchAlgorithmException {
     this(DEFAULT_ALGORITHM, seeds);
   }
 
@@ -62,7 +62,7 @@ public class HmacDeterministicRandomBitGeneratorImpl implements DeterministicRan
    * @param algorithm The algorithm to be used as the HMac hash function. Default is HMacSHA256.
    * @throws NoSuchAlgorithmException If the <code>algorithm</code> is not found on the system.
    */
-  public HmacDeterministicRandomBitGeneratorImpl(String algorithm, byte[]... seeds)
+  public HmacDrbg(String algorithm, byte[]... seeds)
       throws NoSuchAlgorithmException {
     this.algorithm = algorithm;
     this.seeds = new ArrayList<byte[]>();

@@ -14,8 +14,8 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.framework.util.DeterministicRandomBitGenerator;
-import dk.alexandra.fresco.framework.util.HmacDeterministicRandomBitGeneratorImpl;
+import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.lib.bool.BasicBooleanTests;
 import dk.alexandra.fresco.lib.bool.ComparisonBooleanTests;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
@@ -69,7 +69,7 @@ public class TestTinyTables {
       }
       BatchEvaluationStrategy<ResourcePoolImpl> batchStrat = evalStrategy.getStrategy();
       evaluator = new BatchedProtocolEvaluator<>(batchStrat, suite);
-      DeterministicRandomBitGenerator drbg = new HmacDeterministicRandomBitGeneratorImpl();
+      Drbg drbg = new HmacDrbg();
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite, evaluator),

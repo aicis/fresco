@@ -11,7 +11,7 @@ import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.util.HmacDeterministicRandomBitGeneratorImpl;
+import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
@@ -65,7 +65,7 @@ public class TestDistanceDemo {
     SpdzStorage store;
     store = new SpdzStorageImpl(new DummyDataSupplierImpl(myId, size));
     try {
-      return new SpdzResourcePoolImpl(myId, size, new HmacDeterministicRandomBitGeneratorImpl(), store);
+      return new SpdzResourcePoolImpl(myId, size, new HmacDrbg(), store);
     } catch (NoSuchAlgorithmException e) {
       throw new RuntimeException("Your system does not support the necessary hash function.", e);
     }

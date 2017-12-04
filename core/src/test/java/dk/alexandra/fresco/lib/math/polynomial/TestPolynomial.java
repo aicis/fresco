@@ -3,7 +3,7 @@ package dk.alexandra.fresco.lib.math.polynomial;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
-import dk.alexandra.fresco.framework.util.HmacDeterministicRandomBitGeneratorImpl;
+import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticBuilderFactory;
@@ -23,7 +23,7 @@ public class TestPolynomial {
   public void testPolynomial() throws NoSuchAlgorithmException {
     BasicNumericContext dummyFact =
         new BasicNumericContext(8, BigInteger.valueOf(1001), new DummyArithmeticResourcePoolImpl(1,
-            1, new HmacDeterministicRandomBitGeneratorImpl(), BigInteger.ONE));
+            1, new HmacDrbg(), BigInteger.ONE));
     BuilderFactoryNumeric builderFactory = new DummyArithmeticBuilderFactory(dummyFact);
     Numeric numeric = builderFactory.createNumeric(builderFactory.createSequential());
 

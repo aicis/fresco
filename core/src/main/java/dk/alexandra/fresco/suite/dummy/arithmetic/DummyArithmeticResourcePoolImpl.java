@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.framework.util.DeterministicRandomBitGenerator;
+import dk.alexandra.fresco.framework.util.Drbg;
 import java.math.BigInteger;
 
 /**
@@ -26,7 +26,7 @@ public class DummyArithmeticResourcePoolImpl extends ResourcePoolImpl
    * @param modulus the modulus
    */
   public DummyArithmeticResourcePoolImpl(int myId, int noOfPlayers,
-      DeterministicRandomBitGenerator drbg, BigInteger modulus) {
+      Drbg drbg, BigInteger modulus) {
     super(myId, noOfPlayers, drbg);
     this.modulus = modulus;
     this.modulusSize = modulus.toByteArray().length;

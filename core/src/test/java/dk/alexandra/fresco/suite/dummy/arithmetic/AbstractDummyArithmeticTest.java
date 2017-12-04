@@ -11,8 +11,8 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.util.DeterministicRandomBitGenerator;
-import dk.alexandra.fresco.framework.util.HmacDeterministicRandomBitGeneratorImpl;
+import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger;
@@ -84,7 +84,7 @@ public abstract class AbstractDummyArithmeticTest {
         pls.add((PerformanceLogger) sce);
       }
 
-      DeterministicRandomBitGenerator drbg = new HmacDeterministicRandomBitGeneratorImpl();
+      Drbg drbg = new HmacDrbg();
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,
