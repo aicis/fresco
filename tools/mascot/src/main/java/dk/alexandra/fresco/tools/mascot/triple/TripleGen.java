@@ -66,22 +66,6 @@ public class TripleGen extends BaseProtocol {
     // TODO make factor group a class
     List<List<List<FieldElement>>> subFactors = new ArrayList<>();
     // left-mult blocks on receive, so run right mults first
-//    if (ctx.getMyId() == 1) {
-//      System.out.println("here " + ctx.getMyId());
-//      subFactors.add(rightMultipliers.get(0).multiply(rightFactors));
-//      subFactors.add(leftMultipliers.get(0).multiply(leftFactorGroups));              
-//    } else {
-//      System.out.println("there " + ctx.getMyId());
-//      subFactors.add(leftMultipliers.get(0).multiply(leftFactorGroups));
-//      subFactors.add(rightMultipliers.get(0).multiply(rightFactors));
-//    }
-//    for (Integer partyId : ctx.getPartyIds()) {
-//      if (partyId < ctx.getMyId()) {
-//      } else {
-//        subFactors.add(leftMultipliers.get(partyId - 1).multiply(leftFactorGroups));
-//        subFactors.add(rightMultipliers.get(partyId - 1).multiply(rightFactors));
-//      }
-//    }
     for (MultiplyRight rightMultiplier : rightMultipliers) {
       subFactors.add(rightMultiplier.multiply(rightFactors));
     }
@@ -153,7 +137,6 @@ public class TripleGen extends BaseProtocol {
 
     List<List<AuthenticatedElement>> shares = new ArrayList<>();
     for (Integer partyId : partyIds) {
-      System.out.println("myId " + myId + " partyId " + partyId);
       if (myId.equals(partyId)) {
         shares.add(elGen.input(flatInputs));
       } else {

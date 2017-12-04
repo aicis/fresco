@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.utils.DummyPrg;
 import dk.alexandra.fresco.tools.ot.base.FailedOtException;
 import dk.alexandra.fresco.tools.ot.base.MaliciousOtException;
@@ -55,12 +56,8 @@ public class MultiplyLeft extends MultiplyShared {
   }
 
   public List<FieldElement> receiveDiffs(int numDiffs) {
-    // TODO: need batch-receive
-    List<FieldElement> diffs = new ArrayList<>();
-    for (int d = 0; d < numDiffs; d++) {
-      diffs.add(new FieldElement(ctx.getNetwork()
-          .receive(otherId), ctx.getModulus(), ctx.getkBitLength()));
-    }
+    byte[] raw = ctx.getNetwork().receive(otherId);
+    List<FieldElement> diffs = FieldElementSerializer.deserializeList(raw);
     return diffs;
   }
 

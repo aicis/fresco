@@ -17,7 +17,9 @@ import dk.alexandra.fresco.tools.mascot.cope.CopeInputter;
 import dk.alexandra.fresco.tools.mascot.cope.CopeSigner;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.maccheck.MacCheck;
+import dk.alexandra.fresco.tools.mascot.utils.BatchArithmetic;
 import dk.alexandra.fresco.tools.mascot.utils.Sharer;
 import dk.alexandra.fresco.tools.mascot.utils.sample.DummySampler;
 import dk.alexandra.fresco.tools.mascot.utils.sample.Sampler;
@@ -125,10 +127,7 @@ public class ElGen extends BaseProtocol {
 
   void sendShares(Integer partyId, List<FieldElement> shares) {
     Network network = ctx.getNetwork();
-    // TODO batch send
-    for (FieldElement share : shares) {
-      network.send(partyId, share.toByteArray());
-    }
+    network.send(partyId, FieldElementSerializer.serialize(shares));
   }
 
   List<FieldElement> secretShare(List<FieldElement> values, int numShares) {
@@ -149,17 +148,9 @@ public class ElGen extends BaseProtocol {
   }
 
   List<FieldElement> receiveShares(Integer inputterId, int numElements) {
-    BigInteger modulus = ctx.getModulus();
-    int modBitLength = ctx.getkBitLength();
     Network network = ctx.getNetwork();
-
-    // TODO batch receive
-    List<FieldElement> receivedShares = new ArrayList<>(numElements);
-    for (int s = 0; s < numElements; s++) {
-      FieldElement received = new FieldElement(network.receive(inputterId), modulus, modBitLength);
-      receivedShares.add(received);
-    }
-
+    List<FieldElement> receivedShares =
+        FieldElementSerializer.deserializeList(network.receive(inputterId));
     return receivedShares;
   }
 
@@ -256,17 +247,17 @@ public class ElGen extends BaseProtocol {
 
   public void check(List<AuthenticatedElement> sharesWithMacs, List<FieldElement> openValues) {
     // TODO: mask vector not always necessary
-//    BigInteger modulus = ctx.getModulus();
-//    int modBitLength = ctx.getkBitLength();
-//    List<FieldElement> maskVector =
-//        sampler.jointSample(modulus, modBitLength, sharesWithMacs.size());
+    // BigInteger modulus = ctx.getModulus();
+    // int modBitLength = ctx.getkBitLength();
+    // List<FieldElement> maskVector =
+    // sampler.jointSample(modulus, modBitLength, sharesWithMacs.size());
     // TODO make sure we don't need to remask vectors
     List<FieldElement> macsOnly = sharesWithMacs.stream()
         .map(share -> share.getMac())
         .collect(Collectors.toList());
     FieldElement maskedMac = FieldElement.sum(macsOnly);
     FieldElement maskedValue = FieldElement.sum(openValues);
-    try {      
+    try {
       macChecker.check(maskedValue, macKeyShare, maskedMac);
     } catch (Exception e) {
       // TODO: handle exception
@@ -274,34 +265,29 @@ public class ElGen extends BaseProtocol {
     }
   }
 
-  public FieldElement open(AuthenticatedElement closed) {
+  public List<FieldElement> open(List<AuthenticatedElement> closed) {
     List<Integer> partyIds = ctx.getPartyIds();
     Integer myId = ctx.getMyId();
     Network network = ctx.getNetwork();
-    BigInteger modulus = ctx.getModulus();
-    int modBitLength = ctx.getkBitLength();
-    
-    List<FieldElement> shares = new ArrayList<>(partyIds.size());
+    // all shares
+    List<List<FieldElement>> shares = new ArrayList<>();
+    // get shares from authenticated elements
+    List<FieldElement> ownShares = closed.stream()
+        .map(el -> el.getShare())
+        .collect(Collectors.toList());
+    // send own shares to others
+    network.sendToAll(FieldElementSerializer.serialize(ownShares));
+    // receive shares from others
     for (Integer partyId : partyIds) {
-       if (myId.equals(partyId)) {
-         FieldElement share = closed.getShare();
-         shares.add(share);
-         network.sendToAll(share.toByteArray());
-       } else {
-         FieldElement share = new FieldElement(network.receive(partyId), modulus, modBitLength);
-         shares.add(share);
-       }
+      if (!myId.equals(partyId)) {
+        byte[] raw = network.receive(partyId);
+        shares.add(FieldElementSerializer.deserializeList(raw));
+      } else {
+        shares.add(ownShares);
+      }
     }
-    return sharer.additiveRecombine(shares);
+    // recombine
+    return BatchArithmetic.pairWiseAddRows(shares);
   }
-  
-  public List<FieldElement> open(List<AuthenticatedElement> closed) {
-    // TODO batch
-    List<FieldElement> opened = new ArrayList<>();
-    for (AuthenticatedElement c : closed) {
-      opened.add(open(c));
-    }
-    return opened;
-  }
-  
+
 }

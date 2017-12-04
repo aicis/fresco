@@ -231,7 +231,7 @@ public class TestTripleGen extends NetworkedTest {
   
   @Test
   public void testTwoPartiesMultipleTriple() throws Exception {
-    testTwoPartiesTriple(10);
+    testTwoPartiesTriple(100);
   }
   
   // helpers

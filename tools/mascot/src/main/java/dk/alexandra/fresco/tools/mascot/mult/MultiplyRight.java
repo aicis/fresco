@@ -5,10 +5,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.utils.DummyPrg;
 import dk.alexandra.fresco.tools.ot.base.FailedOtException;
 import dk.alexandra.fresco.tools.ot.base.MaliciousOtException;
@@ -18,7 +20,7 @@ public class MultiplyRight extends MultiplyShared {
   public MultiplyRight(MascotContext ctx, Integer otherId, int numLeftFactors) {
     super(ctx, otherId, numLeftFactors);
   }
-  
+
   public MultiplyRight(MascotContext ctx, Integer otherId) {
     this(ctx, otherId, 1);
   }
@@ -39,7 +41,8 @@ public class MultiplyRight extends MultiplyShared {
   FieldElement computeDiff(Pair<FieldElement, FieldElement> feSeedPair, FieldElement factor) {
     FieldElement left = feSeedPair.getFirst();
     FieldElement right = feSeedPair.getSecond();
-    FieldElement diff = left.subtract(right).add(factor);
+    FieldElement diff = left.subtract(right)
+        .add(factor);
     return diff;
   }
 
@@ -60,10 +63,8 @@ public class MultiplyRight extends MultiplyShared {
   }
 
   public void sendDiffs(List<FieldElement> diffs) {
-    // TODO: need batch-send
-    for (FieldElement diff : diffs) {
-      ctx.getNetwork().send(otherId, diff.toByteArray());
-    }
+    Network network = ctx.getNetwork();
+    network.send(otherId, FieldElementSerializer.serialize(diffs));
   }
 
   public List<List<FieldElement>> computeProductShares(List<FieldElement> feZeroSeeds,
@@ -86,15 +87,19 @@ public class MultiplyRight extends MultiplyShared {
     return productShares;
   }
 
-  List<Pair<FieldElement, FieldElement>> seedsToFieldElements(List<Pair<StrictBitVector, StrictBitVector>> seedPairs, BigInteger modulus, int modBitLength) {
+  List<Pair<FieldElement, FieldElement>> seedsToFieldElements(
+      List<Pair<StrictBitVector, StrictBitVector>> seedPairs, BigInteger modulus,
+      int modBitLength) {
     // TODO there should be a better way to do this
-    return seedPairs.stream().map(pair -> {
-      FieldElement t0 = new DummyPrg(pair.getFirst()).getNext(modulus, modBitLength);
-      FieldElement t1 = new DummyPrg(pair.getSecond()).getNext(modulus, modBitLength);
-      return new Pair<>(t0, t1);
-    }).collect(Collectors.toList());
+    return seedPairs.stream()
+        .map(pair -> {
+          FieldElement t0 = new DummyPrg(pair.getFirst()).getNext(modulus, modBitLength);
+          FieldElement t1 = new DummyPrg(pair.getSecond()).getNext(modulus, modBitLength);
+          return new Pair<>(t0, t1);
+        })
+        .collect(Collectors.toList());
   }
-  
+
   public List<List<FieldElement>> multiply(List<FieldElement> rightFactors) {
     // we need the modulus and the bit length of the modulus
     BigInteger modulus = ctx.getModulus();
@@ -102,9 +107,10 @@ public class MultiplyRight extends MultiplyShared {
 
     // generate seeds pairs which we will use to compute diffs
     List<Pair<StrictBitVector, StrictBitVector>> seedPairs = generateSeeds(rightFactors.size());
-    
+
     // convert seeds pairs to field elements so we can compute on them
-    List<Pair<FieldElement, FieldElement>> feSeedPairs = seedsToFieldElements(seedPairs, modulus, modBitLength);
+    List<Pair<FieldElement, FieldElement>> feSeedPairs =
+        seedsToFieldElements(seedPairs, modulus, modBitLength);
 
     // compute q0 - q1 + b for each seed pair
     List<FieldElement> diffs = computeDiffs(feSeedPairs, rightFactors);
@@ -113,8 +119,9 @@ public class MultiplyRight extends MultiplyShared {
     sendDiffs(diffs);
 
     // get zero index seeds
-    List<FieldElement> feZeroSeeds =
-        feSeedPairs.stream().map(feSeedPair -> feSeedPair.getFirst()).collect(Collectors.toList());
+    List<FieldElement> feZeroSeeds = feSeedPairs.stream()
+        .map(feSeedPair -> feSeedPair.getFirst())
+        .collect(Collectors.toList());
 
     // compute product shares
     return computeProductShares(feZeroSeeds, rightFactors.size());

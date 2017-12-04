@@ -18,7 +18,7 @@ import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 
 public class TestMacCheck extends NetworkedTest {
 
-  // TODO as part of new testing framework, rethink how to test for exceptions
+  // TODO as part of new testing framework, re-think how to test for exceptions
   private Pair<Boolean, Exception> runSinglePartyMacCheck(MascotContext ctx, FieldElement opened,
       FieldElement macKeyShare, FieldElement macShare) throws Exception {
     MacCheck macChecker = new MacCheck(ctx);

@@ -51,6 +51,7 @@ public class CopeSigner extends CopeShared {
   List<FieldElement> generateMasks(int numInputs, BigInteger modulus, int modBitLength) {
     // for each input pair, we use our prgs to get the next set of masks
     List<FieldElement> masks = new ArrayList<>();
+    // generate mask for each input
     for (int i = 0; i < numInputs; i++) {
       // generate masks for single input
       List<FieldElement> singleInputMasks = prgs.stream()
