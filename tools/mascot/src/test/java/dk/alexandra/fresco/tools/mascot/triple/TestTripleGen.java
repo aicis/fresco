@@ -3,6 +3,7 @@ package dk.alexandra.fresco.tools.mascot.triple;
 import static org.junit.Assert.assertEquals;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -37,18 +38,18 @@ public class TestTripleGen extends NetworkedTest {
     List<MultTriple> triples = tripleGen.triple(numTriples);
     return triples;
   }
-  
+
   private void checkTriple(MultTriple triple, FieldElement macKey) {
     AuthenticatedElement left = triple.getLeft();
     AuthenticatedElement right = triple.getRight();
     AuthenticatedElement product = triple.getProduct();
-    
+
     // check values
     FieldElement leftValue = left.getShare();
     FieldElement rightValue = right.getShare();
     FieldElement productValue = product.getShare();
     assertEquals(leftValue.multiply(rightValue), productValue);
-    
+
     // check macs
     FieldElement leftMac = left.getMac();
     FieldElement rightMac = right.getMac();
@@ -184,38 +185,33 @@ public class TestTripleGen extends NetworkedTest {
       throw new Exception("test failed");
     }
   }
- 
-  public void testTwoPartiesTriple(int numTriples) throws Exception {
+
+  public void testThreePartiesTriple(List<FieldElement> macKeyShares, int numTriples,
+      BigInteger modulus, int modBitLength) throws Exception {
     try {
-      // define parties
-      List<Integer> partyIds = Arrays.asList(1, 2);
+      // define parties, one per mac key shares
+      List<Integer> partyIds = new ArrayList<>(macKeyShares.size());
+      for (int pid = 1; pid <= macKeyShares.size(); pid++) {
+        partyIds.add(pid);
+      }
+
       // set up runtime environment and get contexts
       Map<Integer, MascotContext> contexts = testRuntime.initializeContexts(partyIds);
 
-      MascotContext partyOneCtx = contexts.get(1);
-      MascotContext partyTwoCtx = contexts.get(2);
+      // define per party task with params
+      List<Callable<List<MultTriple>>> tasks = new ArrayList<>();
+      for (int pid = 1; pid <= macKeyShares.size(); pid++) {
+        MascotContext partyCtx = contexts.get(pid);
+        FieldElement macKeyShare = macKeyShares.get(pid - 1);
+        Callable<List<MultTriple>> partyTask =
+            () -> runSinglePartyTriple(partyCtx, macKeyShare, 3, numTriples);
+        tasks.add(partyTask);
+      }
 
-      BigInteger modulus = partyOneCtx.getModulus();
-      int modBitLength = partyOneCtx.getkBitLength();
-
-      // left party mac key share
-      FieldElement macKeyShareOne =
-          new FieldElement(new BigInteger("11231"), modulus, modBitLength);
-
-      // right party mac key share
-      FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), modulus, modBitLength);
-
-      // define task each party will run
-      Callable<List<MultTriple>> partyOneTask =
-          () -> runSinglePartyTriple(partyOneCtx, macKeyShareOne, 3, numTriples);
-      Callable<List<MultTriple>> partyTwoTask =
-          () -> runSinglePartyTriple(partyTwoCtx, macKeyShareTwo, 3, numTriples);
-
-      List<List<MultTriple>> results =
-          testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
+      List<List<MultTriple>> results = testRuntime.runPerPartyTasks(tasks);
       List<MultTriple> combined = BatchArithmetic.pairWiseAddRows(results);
       for (MultTriple triple : combined) {
-        checkTriple(triple, FieldElement.sum(Arrays.asList(macKeyShareOne, macKeyShareTwo)));
+        checkTriple(triple, FieldElement.sum(macKeyShares));
       }
     } catch (Exception e) {
       // TODO: handle exception
@@ -226,14 +222,35 @@ public class TestTripleGen extends NetworkedTest {
 
   @Test
   public void testTwoPartiesSingleTriple() throws Exception {
-    testTwoPartiesTriple(1);
+    BigInteger modulus = new BigInteger("65521");
+    int modBitLength = 16;
+    FieldElement macKeyShareOne = new FieldElement(11231, modulus, modBitLength);
+    FieldElement macKeyShareTwo = new FieldElement(7719, modulus, modBitLength);
+    testThreePartiesTriple(Arrays.asList(macKeyShareOne, macKeyShareTwo), 1, modulus,
+        modBitLength);
   }
-  
+
   @Test
   public void testTwoPartiesMultipleTriple() throws Exception {
-    testTwoPartiesTriple(100);
+    BigInteger modulus = new BigInteger("65521");
+    int modBitLength = 16;
+    FieldElement macKeyShareOne = new FieldElement(11231, modulus, modBitLength);
+    FieldElement macKeyShareTwo = new FieldElement(7719, modulus, modBitLength);
+    testThreePartiesTriple(Arrays.asList(macKeyShareOne, macKeyShareTwo), 10, modulus,
+        modBitLength);
   }
-  
+
+  @Test
+  public void testThreePartiesSingleTriple() throws Exception {
+    BigInteger modulus = new BigInteger("65521");
+    int modBitLength = 16;
+    FieldElement macKeyShareOne = new FieldElement(11231, modulus, modBitLength);
+    FieldElement macKeyShareTwo = new FieldElement(7719, modulus, modBitLength);
+    FieldElement macKeyShareThree = new FieldElement(4444, modulus, modBitLength);
+    testThreePartiesTriple(Arrays.asList(macKeyShareOne, macKeyShareTwo, macKeyShareThree), 1,
+        modulus, modBitLength);
+  }
+
   // helpers
 
   private List<FieldElement> combineRight(List<List<FieldElement>> rightFactors) {
