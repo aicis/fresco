@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.tools.mascot.BaseProtocol;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
@@ -115,13 +114,12 @@ public class ElGen extends BaseProtocol {
   void runMacCheck(FieldElement value, List<FieldElement> masks, List<FieldElement> macs) {
     // mask and combine macs
     FieldElement maskedMac = FieldElement.sum(mask(macs, masks));
-
     // perform mac-check on open masked value
     try {
       macChecker.check(value, macKeyShare, maskedMac);
-    } catch (MPCException e) {
+    } catch (Exception e) {
       // TODO handle
-      throw e;
+      e.printStackTrace();
     }
   }
 
@@ -268,7 +266,12 @@ public class ElGen extends BaseProtocol {
         .collect(Collectors.toList());
     FieldElement maskedMac = FieldElement.sum(macsOnly);
     FieldElement maskedValue = FieldElement.sum(openValues);
-    macChecker.check(maskedValue, macKeyShare, maskedMac);
+    try {      
+      macChecker.check(maskedValue, macKeyShare, maskedMac);
+    } catch (Exception e) {
+      // TODO: handle exception
+      e.printStackTrace();
+    }
   }
 
   public FieldElement open(AuthenticatedElement closed) {

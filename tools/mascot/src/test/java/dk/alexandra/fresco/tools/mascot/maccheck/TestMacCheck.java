@@ -20,11 +20,11 @@ public class TestMacCheck extends NetworkedTest {
 
   // TODO as part of new testing framework, rethink how to test for exceptions
   private Pair<Boolean, Exception> runSinglePartyMacCheck(MascotContext ctx, FieldElement opened,
-      FieldElement macShare, FieldElement macKeyShare) throws Exception {
+      FieldElement macKeyShare, FieldElement macShare) throws Exception {
     MacCheck macChecker = new MacCheck(ctx);
     boolean thrown = false;
     Exception exception = null;
-    try {      
+    try {
       macChecker.check(opened, macKeyShare, macShare);
     } catch (MPCException e) {
       exception = e;
@@ -57,18 +57,16 @@ public class TestMacCheck extends NetworkedTest {
       FieldElement openedTwo = new FieldElement(42, modulus, modBitLength);
       FieldElement macShareTwo = new FieldElement(5204, modulus, modBitLength);
 
-      // the above passes the mac check since 4444 + 5204 = (11231 + 7719) * 42
-
       // define task each party will run
       Callable<Pair<Boolean, Exception>> partyOneTask =
-          () -> runSinglePartyMacCheck(partyOneCtx, openedOne, macShareOne, macKeyShareOne);
+          () -> runSinglePartyMacCheck(partyOneCtx, openedOne, macKeyShareOne, macShareOne);
       Callable<Pair<Boolean, Exception>> partyTwoTask =
-          () -> runSinglePartyMacCheck(partyTwoCtx, openedTwo, macShareTwo, macKeyShareTwo);
+          () -> runSinglePartyMacCheck(partyTwoCtx, openedTwo, macKeyShareTwo, macShareTwo);
 
       List<Pair<Boolean, Exception>> results =
           testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
-      
-      // for a valid mac-check we expect not exceptions
+
+      // the above mac check fails since 4444 + 5204 = (11231 + 7719) * 42
       for (Pair<Boolean, Exception> res : results) {
         assertEquals(res.getFirst(), false);
       }
@@ -78,7 +76,7 @@ public class TestMacCheck extends NetworkedTest {
       throw new Exception("test failed");
     }
   }
-  
+
   @Test
   public void testTwoPartiesInvalidMacCheck() throws Exception {
     try {
@@ -106,15 +104,14 @@ public class TestMacCheck extends NetworkedTest {
 
       // define task each party will run
       Callable<Pair<Boolean, Exception>> partyOneTask =
-          () -> runSinglePartyMacCheck(partyOneCtx, openedOne, macShareOne, macKeyShareOne);
+          () -> runSinglePartyMacCheck(partyOneCtx, openedOne, macKeyShareOne, macShareOne);
       Callable<Pair<Boolean, Exception>> partyTwoTask =
-          () -> runSinglePartyMacCheck(partyTwoCtx, openedTwo, macShareTwo, macKeyShareTwo);
+          () -> runSinglePartyMacCheck(partyTwoCtx, openedTwo, macKeyShareTwo, macShareTwo);
 
       List<Pair<Boolean, Exception>> results =
           testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
 
       // the above mac check fails since 4442 + 5204 != (11231 + 7719) * 42
-      
       for (Pair<Boolean, Exception> res : results) {
         boolean didThrow = res.getFirst();
         Exception exception = res.getSecond();

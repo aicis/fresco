@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.function.BinaryOperator;
@@ -9,8 +10,12 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.tools.mascot.ArithmeticElement;
 
-public class FieldElement implements ArithmeticElement<FieldElement> {
+public class FieldElement implements ArithmeticElement<FieldElement>, Serializable {
 
+  /**
+   * 
+   */
+  private static final long serialVersionUID = 616090818218953860L;
   private BigInteger value;
   private BigInteger modulus;
   private int bitLength;
