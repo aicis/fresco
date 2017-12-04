@@ -6,7 +6,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Supplier;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -16,7 +15,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This class implements the HMac-DRBG (HMac-Deterministic Random Bit Generator) as specified in
  * https://csrc.nist.gov/publications/detail/sp/800-90a/rev-1/final
- * 
+ *
  * <p>
  * Note that this class is not threadsafe.
  * </p>
@@ -34,18 +33,20 @@ public class HmacDrbg implements Drbg {
   private Mac mac = null;
   private byte[] val = null; // value - internally used
   private byte[] key = null; // key material
-  private double reseedCounter;
+  long reseedCounter;
   private List<byte[]> seeds;
-  protected static double MAX_RESEED_COUNT = Math.pow(2, 48);
+  static final long MAX_RESEED_COUNT = (long) Math.pow(2, 48);
 
   /**
    * Start with a seed list and the default algorithm. See
    * {@link #HmacDeterministicRandomBitGeneratorImpl(String, byte[]...)} for further info.
-   * 
-   * @param seeds The seeds used. If empty, the default 0 seed will be used. NB: This should happen
-   *        only during testing as this is highly insecure.
-   * @throws NoSuchAlgorithmException If the default HmacSHA256 hash function is not found on the
-   *         system.
+   *
+   * @param seeds The seeds used. If empty, the default 0 seed will be used. NB: This should
+   *     happen
+   *     only during testing as this is highly insecure.
+   * @throws NoSuchAlgorithmException If the default HmacSHA256 hash function is not found on
+   *     the
+   *     system.
    */
   public HmacDrbg(byte[]... seeds) throws NoSuchAlgorithmException {
     this(DEFAULT_ALGORITHM, seeds);
@@ -56,9 +57,10 @@ public class HmacDrbg implements Drbg {
    * becomes next time. This differs from Java's original SecureRandom in that if you give a seed to
    * this, it merely adds it to the entropy.
    *
-   * @param seeds The seeds to use. Often a single seed will be more than enough as you can perform
-   *        the {@link #nextBytes(byte[])} operation 2^48 times before the security guarantee does
-   *        not hold and an exception will be thrown.
+   * @param seeds The seeds to use. Often a single seed will be more than enough as you can
+   *     perform
+   *     the {@link #nextBytes(byte[])} operation 2^48 times before the security guarantee does
+   *     not hold and an exception will be thrown.
    * @param algorithm The algorithm to be used as the HMac hash function. Default is HMacSHA256.
    * @throws NoSuchAlgorithmException If the <code>algorithm</code> is not found on the system.
    */
@@ -70,7 +72,7 @@ public class HmacDrbg implements Drbg {
     if (this.seeds.size() < 1) {
       logger.warn("DRBG initialized with no seeds. Using the very insecure 0 seed. "
           + "Should only be used during testing");
-      this.seeds.add(new byte[] {0x00});
+      this.seeds.add(new byte[]{0x00});
     }
     this.mac = Mac.getInstance(algorithm);
     this.key = new byte[64];
@@ -110,29 +112,29 @@ public class HmacDrbg implements Drbg {
 
   private void update(byte[] providedData) {
     this.mac.update(val);
-    this.key = this.mac.doFinal(new byte[] {0x00});
+    this.key = this.mac.doFinal(new byte[]{0x00});
     initializeMac(this.key);
     this.val = this.mac.doFinal(this.val);
     if (providedData == null) {
       return;
     }
     this.mac.update(this.val);
-    this.mac.update(new byte[] {0x01});
+    this.mac.update(new byte[]{0x01});
     this.key = this.mac.doFinal(providedData);
     initializeMac(this.key);
     this.val = mac.doFinal(this.val);
   }
 
   private void initializeMac(byte[] key) {
+    safeInitialize(new SecretKeySpec(key, algorithm));
+  }
+
+  void safeInitialize(SecretKey secretKeySpec) {
     try {
-      this.mac.init(getSafeKey(() -> new SecretKeySpec(key, algorithm)));
+      mac.init(secretKeySpec);
     } catch (InvalidKeyException e) {
       throw new MPCException("Key could not be generated from given data", e);
     }
-  }
-
-  protected SecretKey getSafeKey(Supplier<SecretKey> keySupplier) {
-    return keySupplier.get();
   }
 
   private void setSeed(byte[] seed) {
