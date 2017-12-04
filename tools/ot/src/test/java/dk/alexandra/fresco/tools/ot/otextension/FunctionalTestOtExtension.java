@@ -9,9 +9,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.Callable;
 
@@ -19,9 +17,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import dk.alexandra.fresco.framework.Party;
-import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
@@ -64,28 +59,10 @@ public class FunctionalTestOtExtension {
     testRuntime.shutdown();
   }
 
-  /**
-   * Returns a default network configuration.
-   * 
-   * @param myId
-   *          The calling party's network ID
-   * @param partyIds
-   *          The IDs of all parties
-   * @return The network configuration
-   */
-  public static NetworkConfiguration defaultNetworkConfiguration(Integer myId,
-      List<Integer> partyIds) {
-    Map<Integer, Party> parties = new HashMap<>();
-    for (Integer partyId : partyIds) {
-      parties.put(partyId, new Party(partyId, "localhost", 8000 + partyId));
-    }
-    return new NetworkConfigurationImpl(myId, parties);
-  }
-
   private Cote setupCoteSender()
       throws FailedOtExtensionException, IOException {
     Network network = new CheatingNetwork(
-        defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
+        TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     Random rand = new Random(42);
     Cote cote = new Cote(1, 2, 128, 40, rand, network);
     return cote;
@@ -93,7 +70,7 @@ public class FunctionalTestOtExtension {
 
   private Cote setupCoteReceiver() throws FailedOtExtensionException, IOException {
     Network network = new CheatingNetwork(
-        defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
+        TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     Random rand = new Random(420);
     Cote cote = new Cote(2, 1, 128, 40, rand, network);
     return cote;
@@ -431,10 +408,13 @@ public class FunctionalTestOtExtension {
     Callable<Pair<List<StrictBitVector>, List<StrictBitVector>>> partyOneExtend = () -> extendRotSender(
         rotSender, extendSize);
     StrictBitVector choices = new StrictBitVector(extendSize, new Random(540));
-    // The next message sent is in correlated OT extension, this should make the
-    // correlation check fail
+    // The next kbitLength messages sent are in correlated OT extension, this
+    // should make the correlation check fail. Flipping a bit makes the
+    // correlation check fail with 0.5 probability, up to the random choices of
+    // the sender
+    int corruptUVecPos = 2;
     ((CheatingNetwork) coteReceiver.getReceiver().getNetwork())
-        .cheatInNextMessage(1);
+        .cheatInNextMessage(corruptUVecPos);
     Callable<Pair<List<StrictBitVector>, List<StrictBitVector>>> partyTwoExtend = () -> extendRotReceiver(
         rotReceiver, choices);
     // run tasks and get ordered list of results
@@ -451,5 +431,9 @@ public class FunctionalTestOtExtension {
         "Correlation check failed");
     // Check that the receiver did not throw an exception
     assertTrue(!(castedRes.get(1) instanceof MaliciousOtExtensionException));
+    // Check that the sender had choice bit 1 in position 2. This means that we
+    // expect the correlation check to fail
+    assertEquals(true,
+        coteSender.getSender().getDelta().getBit(corruptUVecPos, false));
   }
 }

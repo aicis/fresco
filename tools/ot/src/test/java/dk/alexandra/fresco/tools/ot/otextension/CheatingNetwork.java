@@ -13,6 +13,8 @@ import dk.alexandra.fresco.framework.network.KryoNetNetwork;
  */
 public class CheatingNetwork extends KryoNetNetwork {
   private int cheatByteNo;
+  private int messageNo;
+  private int counter = 0;
   private boolean cheat = false;
 
   public CheatingNetwork(NetworkConfiguration conf) {
@@ -26,16 +28,19 @@ public class CheatingNetwork extends KryoNetNetwork {
    *          The byte number in the next message to flip a bit in
    */
   public void cheatInNextMessage(int byteNo) {
-    cheatByteNo = byteNo;
+    messageNo = byteNo;
     cheat = true;
+    counter = 0;
   }
 
   @Override
   public void send(int partyId, byte[] data) {
-    if (cheat == true) {
+    if (cheat == true && counter == messageNo) {
       // Flip a bit by XOR'ing with 1 in bit position 2
-      data[cheatByteNo] ^= (byte) 0x02;
+      data[0] ^= (byte) 0x02;
+      cheat = false;
     }
     super.send(partyId, data);
+    counter++;
   }
 }

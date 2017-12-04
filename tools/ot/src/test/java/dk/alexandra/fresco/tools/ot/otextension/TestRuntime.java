@@ -1,7 +1,9 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -10,6 +12,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import dk.alexandra.fresco.framework.Party;
+import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 
 public class TestRuntime {
   private ExecutorService executor;
@@ -30,6 +36,24 @@ public class TestRuntime {
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
+  }
+
+  /**
+   * Returns a default network configuration.
+   * 
+   * @param myId
+   *          The calling party's network ID
+   * @param partyIds
+   *          The IDs of all parties
+   * @return The network configuration
+   */
+  public static NetworkConfiguration defaultNetworkConfiguration(Integer myId,
+      List<Integer> partyIds) {
+    Map<Integer, Party> parties = new HashMap<>();
+    for (Integer partyId : partyIds) {
+      parties.put(partyId, new Party(partyId, "localhost", 8000 + partyId));
+    }
+    return new NetworkConfigurationImpl(myId, parties);
   }
 
   /**

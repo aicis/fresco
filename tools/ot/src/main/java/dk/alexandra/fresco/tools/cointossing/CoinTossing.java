@@ -67,6 +67,15 @@ public class CoinTossing {
   }
 
   /**
+   * Returns the underlying network
+   * 
+   * @return Returns the underlying network
+   */
+  public Network getNetwork() {
+    return this.network;
+  }
+
+  /**
    * Initialize the coin-tossing functionality by making the parties agree on a
    * seed.
    * 
@@ -86,6 +95,8 @@ public class CoinTossing {
       throw new IllegalStateException("Already initialized");
     }
     try {
+      // Make space for a seed by allocating as many bytes as needed for
+      // kbitLength
       byte[] seed = new byte[(kbitLength + 8 - 1) / 8];
       rand.nextBytes(seed);
       byte[] otherSeed = exchangeSeeds(seed);

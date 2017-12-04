@@ -23,7 +23,7 @@ import dk.alexandra.fresco.tools.commitment.MaliciousCommitmentException;
  */
 public class CoinTossingDemo {
   private int kbitLength = 128;
-  private int amountOfBits = 1024;
+  private int amountOfBits = 6666;
 
   /**
    * Run one of the parties.
