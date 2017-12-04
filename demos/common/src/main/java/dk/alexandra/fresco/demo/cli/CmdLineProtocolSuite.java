@@ -61,9 +61,7 @@ public class CmdLineProtocolSuite {
         BigInteger mod = new BigInteger(properties.getProperty("modulus",
             "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329"));
         this.resourcePool =
-            new DummyArithmeticResourcePoolImpl(
-                myId, noOfPlayers,
-                new HmacDrbg(), mod);
+            new DummyArithmeticResourcePoolImpl(myId, noOfPlayers, mod);
         break;
       case "spdz":
         this.protocolSuite = SpdzConfigurationFromCmdLine(properties);
