@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -42,7 +43,8 @@ public class TestRuntime {
    */
   public <T> List<T> runPerPartyTasks(List<Callable<T>> tasks) {
     try {
-      List<Future<T>> results = executor.invokeAll(tasks, 5L, TimeUnit.SECONDS);
+      List<Future<T>> results = executor.invokeAll(tasks, 5L,
+          TimeUnit.SECONDS);
       // this is a bit of a mess...
       List<T> unwrappedResults = results.stream().map(future -> {
         try {
@@ -50,14 +52,18 @@ public class TestRuntime {
         } catch (CancellationException e) {
           System.err.println("Task cancelled due to time-out");
           e.printStackTrace();
-        } catch (Exception e) {
-          System.err.println("Exception while executing task");
+        } catch (InterruptedException e) {
+          System.err.println("Task execution failed");
           e.printStackTrace();
-        }
+        } catch (ExecutionException e) {
+          // This is very ugly, but we want to be able to receive the checked
+          // exceptions thrown
+          return (T) e.getCause();
+        } 
         return null;
       }).collect(Collectors.toList());
       return unwrappedResults;
-    } catch (Exception e) {
+    } catch (InterruptedException e) {
       System.err.println("Task execution failed");
       e.printStackTrace();
     }

@@ -22,7 +22,6 @@ import org.junit.Test;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
-import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
@@ -85,7 +84,7 @@ public class FunctionalTestOtExtension {
 
   private Cote setupCoteSender()
       throws FailedOtExtensionException, IOException {
-    Network network = new KryoNetNetwork(
+    Network network = new CheatingNetwork(
         defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     Random rand = new Random(42);
     Cote cote = new Cote(1, 2, 128, 40, rand, network);
@@ -93,7 +92,7 @@ public class FunctionalTestOtExtension {
   }
 
   private Cote setupCoteReceiver() throws FailedOtExtensionException, IOException {
-    Network network = new KryoNetNetwork(
+    Network network = new CheatingNetwork(
         defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     Random rand = new Random(420);
     Cote cote = new Cote(2, 1, 128, 40, rand, network);
@@ -136,6 +135,8 @@ public class FunctionalTestOtExtension {
         null);
     return resPair;
   }
+  
+  /***** POSITIVE TESTS. *****/
 
   /**
    * Verify that we can initialize the parties in Cote.
@@ -354,6 +355,8 @@ public class FunctionalTestOtExtension {
       }
     }
   }
+  
+  /***** NEGATIVE TESTS. *****/
 
   /**
    * Verify that initialization can only take place once.
@@ -403,45 +406,50 @@ public class FunctionalTestOtExtension {
       assertEquals("Already initialized", current.getMessage());
     }
   }
-  
+
+  /**
+   * Test that a receiver who flips a bit its message from correlated OT with
+   * errors results in a failure of the correlation test. This is not meant to
+   * capture the best possible cheating strategy, but more as a sanity checks
+   * that the proper checks are in place.
+   */
   @Test
-  public void testCheatingInCote() {
-    // int extendSize = 1024;
-    // Callable<Exception> partyOneInit = () -> initCoteSender();
-    // Callable<Exception> partyTwoInit = () -> initCoteReceiver();
-    // // run tasks and get ordered list of results
-    // List<Exception> initResults = testRuntime
-    // .runPerPartyTasks(Arrays.asList(partyOneInit, partyTwoInit));
-    // // Verify that no exception was thrown in init
-    // for (Exception current : initResults) {
-    // assertNull(current);
-    // }
-    // Callable<Pair<List<StrictBitVector>, StrictBitVector>> partyOneExtend =
-    // () -> extendCoteSender(
-    // extendSize);
-    // StrictBitVector choices = new StrictBitVector(extendSize, new
-    // Random(540));
-    // Callable<Pair<List<StrictBitVector>, StrictBitVector>> partyTwoExtend =
-    // () -> extendCoteReceiver(
-    // choices);
-    // // run tasks and get ordered list of results
-    // List<Pair<List<StrictBitVector>, StrictBitVector>> extendResults =
-    // testRuntime
-    // .runPerPartyTasks(Arrays.asList(partyOneExtend, partyTwoExtend));
-    // Pair<List<StrictBitVector>, StrictBitVector> senderResults =
-    // extendResults
-    // .get(0);
-    // List<StrictBitVector> zeroMessages = senderResults.getFirst();
-    // StrictBitVector delta = senderResults.getSecond();
-    // Pair<List<StrictBitVector>, StrictBitVector> receiverResults =
-    // extendResults
-    // .get(1);
-    // List<StrictBitVector> messages = receiverResults.getFirst();
-    // for (int i = 0; i < choices.getSize(); i++) {
-    // if (choices.getBit(i, false) == true) {
-    // zeroMessages.get(i).xor(delta);
-    // }
-    // assertTrue(zeroMessages.get(i).equals(messages.get(i)));
-    // }
+  public void testCheatingInRot() {
+    int extendSize = 1880; // = 2048 - 128 - 40, where computational security is
+    // 128 and statistical security is 40
+    RotSender rotSender = new RotSender(coteSender.getSender());
+    Callable<Exception> partyOneInit = () -> initRotSender(rotSender);
+    RotReceiver rotReceiver = new RotReceiver(coteReceiver.getReceiver());
+    Callable<Exception> partyTwoInit = () -> initRotReceiver(rotReceiver);
+    // run tasks and get ordered list of results
+    List<Exception> initResults = testRuntime
+        .runPerPartyTasks(Arrays.asList(partyOneInit, partyTwoInit));
+    // Verify that no exception was thrown in init
+    for (Exception current : initResults) {
+      assertNull(current);
+    }
+    Callable<Pair<List<StrictBitVector>, List<StrictBitVector>>> partyOneExtend = () -> extendRotSender(
+        rotSender, extendSize);
+    StrictBitVector choices = new StrictBitVector(extendSize, new Random(540));
+    // The next message sent is in correlated OT extension, this should make the
+    // correlation check fail
+    ((CheatingNetwork) coteReceiver.getReceiver().getNetwork())
+        .cheatInNextMessage(1);
+    Callable<Pair<List<StrictBitVector>, List<StrictBitVector>>> partyTwoExtend = () -> extendRotReceiver(
+        rotReceiver, choices);
+    // run tasks and get ordered list of results
+    Object extendResults = testRuntime
+        .runPerPartyTasks(Arrays.asList(partyOneExtend, partyTwoExtend));
+    // Cast the result as a list of Objects since they will have difference
+    // types (an Exception and a Pair)
+    @SuppressWarnings("unchecked")
+    List<Object> castedRes = (List<Object>) extendResults;
+    // Verify that the thrown exception is as expected
+    assertTrue(castedRes.get(0) instanceof MaliciousOtExtensionException);
+    assertEquals(
+        ((MaliciousOtExtensionException) castedRes.get(0)).getMessage(),
+        "Correlation check failed");
+    // Check that the receiver did not throw an exception
+    assertTrue(!(castedRes.get(1) instanceof MaliciousOtExtensionException));
   }
 }

@@ -26,7 +26,7 @@ public class RotShared {
 
   /**
    * Constructs a random OT extension super-class using an underlying correlated
-   * OT with errors class.
+   * OT with errors object.
    * 
    * @param cote
    *          The underlying correlated OT with errors

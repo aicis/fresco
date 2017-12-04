@@ -28,6 +28,7 @@ public class BristolOtReceiver extends BristolOtShared {
   private List<StrictBitVector> randomMessages;
   // The random choices from the batched random 1-out-of-2 OTs
   private StrictBitVector choices;
+  // Index of the current random OT to use
   private int offset = -1;
 
   public BristolOtReceiver(RotReceiver rotReceiver, int batchSize) {
@@ -90,7 +91,7 @@ public class BristolOtReceiver extends BristolOtShared {
       MaliciousOtException, NoSuchAlgorithmException,
       MaliciousCommitmentException, FailedCommitmentException,
       FailedCoinTossingException, MaliciousOtExtensionException {
-    // Initialize the underlying functionalities
+    // Initialize the underlying functionalities if needed
     if (initialized == false) {
       initialize();
     }
