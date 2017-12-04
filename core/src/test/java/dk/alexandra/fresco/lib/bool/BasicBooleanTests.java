@@ -216,7 +216,6 @@ public class BasicBooleanTests {
         @Override
         public void test() throws Exception {
           Application<Boolean, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
-            this.conf.getResourcePool().getRandom().setSeed(0);
             DRes<SBool> in = seq.binary().randomBit();
             DRes<Boolean> open = seq.binary().open(in);
             return open;

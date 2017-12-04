@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
+import dk.alexandra.fresco.framework.util.HmacDeterministicRandomBitGeneratorImpl;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
@@ -23,10 +24,8 @@ import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite
 import java.io.File;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Properties;
-import java.util.Random;
 import org.apache.commons.cli.ParseException;
 
 /**
@@ -48,14 +47,14 @@ public class CmdLineProtocolSuite {
   }
 
   public CmdLineProtocolSuite(String protocolSuiteName, Properties properties, int myId,
-      int noOfPlayers) throws ParseException {
+      int noOfPlayers) throws ParseException, NoSuchAlgorithmException {
     this.myId = myId;
     this.noOfPlayers = noOfPlayers;
     switch (protocolSuiteName) {
       case "dummybool":
         this.protocolSuite = new DummyBooleanProtocolSuite();
         this.resourcePool =
-            new ResourcePoolImpl(myId, noOfPlayers, new Random(), new SecureRandom());
+            new ResourcePoolImpl(myId, noOfPlayers, new HmacDeterministicRandomBitGeneratorImpl());
         break;
       case "dummyarithmetic":
         this.protocolSuite = dummyArithmeticFromCmdLine(properties);
@@ -64,22 +63,22 @@ public class CmdLineProtocolSuite {
         this.resourcePool =
             new DummyArithmeticResourcePoolImpl(
                 myId, noOfPlayers,
-                new Random(), new SecureRandom(), mod);
+                new HmacDeterministicRandomBitGeneratorImpl(), mod);
         break;
       case "spdz":
         this.protocolSuite = SpdzConfigurationFromCmdLine(properties);
         this.resourcePool =
-            createSpdzResourcePool(new Random(), new SecureRandom(), properties);
+            createSpdzResourcePool(properties);
         break;
       case "tinytablesprepro":
         this.protocolSuite = tinyTablesPreProFromCmdLine(properties);
         this.resourcePool =
-            new ResourcePoolImpl(myId, noOfPlayers, new Random(), new SecureRandom());
+            new ResourcePoolImpl(myId, noOfPlayers, new HmacDeterministicRandomBitGeneratorImpl());
         break;
       case "tinytables":
         this.protocolSuite = tinyTablesFromCmdLine(properties);
         this.resourcePool =
-            new ResourcePoolImpl(myId, noOfPlayers, new Random(), new SecureRandom());
+            new ResourcePoolImpl(myId, noOfPlayers, new HmacDeterministicRandomBitGeneratorImpl());
         break;
       default:
         throw new ParseException("Unknown protocol suite: " + protocolSuiteName);
@@ -116,8 +115,7 @@ public class CmdLineProtocolSuite {
     return properties;
   }
 
-  private SpdzResourcePool createSpdzResourcePool(Random rand,
-      SecureRandom secRand, Properties properties) {
+  private SpdzResourcePool createSpdzResourcePool(Properties properties) {
     String strat = properties.getProperty("spdz.preprocessingStrategy");
     final PreprocessingStrategy strategy = PreprocessingStrategy.valueOf(strat);
     DataSupplier supplier;
@@ -137,7 +135,7 @@ public class CmdLineProtocolSuite {
     }
     SpdzStorage store = new SpdzStorageImpl(supplier);
     try {
-      return new SpdzResourcePoolImpl(myId, noOfPlayers, rand, secRand, store);
+      return new SpdzResourcePoolImpl(myId, noOfPlayers, new HmacDeterministicRandomBitGeneratorImpl(), store);
     } catch (NoSuchAlgorithmException e) {
       throw new RuntimeException("Your system does not support the necessary hash function.", e);
     }

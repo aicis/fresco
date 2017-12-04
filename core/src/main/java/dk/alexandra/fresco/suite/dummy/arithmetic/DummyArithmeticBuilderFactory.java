@@ -15,6 +15,7 @@ import dk.alexandra.fresco.logging.arithmetic.NumericLoggingDecorator;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -35,6 +36,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
   private MiscBigIntegerGenerators mog;
   private ComparisonLoggerDecorator compDecorator;
   private NumericLoggingDecorator numericDecorator;
+  private Random rand;
 
   /**
    * Creates a dummy arithmetic builder factory which creates basic numeric operations
@@ -44,6 +46,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
   public DummyArithmeticBuilderFactory(BasicNumericContext factory) {
     super();
     this.factory = factory;
+    this.rand = new Random(0);
     performanceLoggers.put(factory.getMyId(), new ArrayList<>());
   }
 
@@ -101,7 +104,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
               Network network) {
             BigInteger r;
             do {
-              r = new BigInteger(factory.getModulus().bitLength(), resourcePool.getRandom());
+              r = new BigInteger(factory.getModulus().bitLength(), rand);
             } while (r.compareTo(factory.getModulus()) >= 0);
             elm = new DummyArithmeticSInt(r);
             return EvaluationStatus.IS_DONE;
@@ -124,7 +127,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
           @Override
           public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool resourcePool,
               Network network) {
-            bit = new DummyArithmeticSInt(BigInteger.valueOf(resourcePool.getRandom().nextInt(2)));
+            bit = new DummyArithmeticSInt(BigInteger.valueOf(rand.nextInt(2)));
             return EvaluationStatus.IS_DONE;
           }
 

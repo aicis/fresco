@@ -3,10 +3,15 @@ package dk.alexandra.fresco.framework.util;
 import dk.alexandra.fresco.framework.MPCException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.Supplier;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class implements the HMac-DRBG (HMac-Deterministic Random Bit Generator) as specified in
@@ -22,33 +27,28 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class HmacDeterministicRandomBitGeneratorImpl implements DeterministicRandomBitGenerator {
 
+  private final Logger logger =
+      LoggerFactory.getLogger(HmacDeterministicRandomBitGeneratorImpl.class);
   private static final String DEFAULT_ALGORITHM = "HmacSHA256";
   private final String algorithm;
   private Mac mac = null;
   private byte[] val = null; // value - internally used
   private byte[] key = null; // key material
+  private double reseedCounter;
+  private List<byte[]> seeds;
+  protected static double MAX_RESEED_COUNT = Math.pow(2, 48);
 
   /**
-   * Convenience constructor. It calls {@link #DetermSecureRandom(byte[], String)} with the
-   * parameters (new byte[]{0x00}, "HmacSHA256"). Note that the seed will be 0, and the security is
-   * virtually non-existent at this point until the class is reseeded.
+   * Start with a seed list and the default algorithm. See
+   * {@link #HmacDeterministicRandomBitGeneratorImpl(String, byte[]...)} for further info.
    * 
-   * @throws NoSuchAlgorithmException If the default SHA-256 hash function is not found on the
+   * @param seeds The seeds used. If empty, the default 0 seed will be used. NB: This should happen
+   *        only during testing as this is highly insecure.
+   * @throws NoSuchAlgorithmException If the default HmacSHA256 hash function is not found on the
    *         system.
    */
-  public HmacDeterministicRandomBitGeneratorImpl() throws NoSuchAlgorithmException {
-    this(new byte[] {0x00});
-  }
-
-  /**
-   * Start with a seed and the default algorithm.
-   * 
-   * @param seed The starting seed
-   * @throws NoSuchAlgorithmException If the default SHA-256 hash function is not found on the
-   *         system.
-   */
-  public HmacDeterministicRandomBitGeneratorImpl(byte[] seed) throws NoSuchAlgorithmException {
-    this(seed, DEFAULT_ALGORITHM);
+  public HmacDeterministicRandomBitGeneratorImpl(byte[]... seeds) throws NoSuchAlgorithmException {
+    this(DEFAULT_ALGORITHM, seeds);
   }
 
   /**
@@ -56,14 +56,22 @@ public class HmacDeterministicRandomBitGeneratorImpl implements DeterministicRan
    * becomes next time. This differs from Java's original SecureRandom in that if you give a seed to
    * this, it merely adds it to the entropy.
    *
-   * @param seed The initial seed to use. This implicitly calls {@link #setSeed(byte[])} with this
-   *        argument.
+   * @param seeds The seeds to use. Often a single seed will be more than enough as you can perform
+   *        the {@link #nextBytes(byte[])} operation 2^48 times before the security guarantee does
+   *        not hold and an exception will be thrown.
    * @param algorithm The algorithm to be used as the HMac hash function. Default is HMacSHA256.
    * @throws NoSuchAlgorithmException If the <code>algorithm</code> is not found on the system.
    */
-  public HmacDeterministicRandomBitGeneratorImpl(byte[] seed, String algorithm)
+  public HmacDeterministicRandomBitGeneratorImpl(String algorithm, byte[]... seeds)
       throws NoSuchAlgorithmException {
     this.algorithm = algorithm;
+    this.seeds = new ArrayList<byte[]>();
+    Collections.addAll(this.seeds, seeds);
+    if (this.seeds.size() < 1) {
+      logger.warn("DRBG initialized with no seeds. Using the very insecure 0 seed. "
+          + "Should only be used during testing");
+      this.seeds.add(new byte[] {0x00});
+    }
     this.mac = Mac.getInstance(algorithm);
     this.key = new byte[64];
     this.val = new byte[64];
@@ -71,10 +79,8 @@ public class HmacDeterministicRandomBitGeneratorImpl implements DeterministicRan
       this.val[i] = 1;
     }
     initializeMac(this.key);
-    setSeed(seed);
+    setSeed(this.seeds.remove(0));
   }
-
-
 
   @Override
   public synchronized void nextBytes(byte[] bytes) {
@@ -92,7 +98,14 @@ public class HmacDeterministicRandomBitGeneratorImpl implements DeterministicRan
     update(null);
     // If we at some point want to introduce an indicator that a reseed should happen, we need to
     // have a reseedCounter counted here. The reseed interval is 2^48 as per the NIST details.
-    // reseed_counter++;
+    this.reseedCounter++;
+    if (this.reseedCounter >= MAX_RESEED_COUNT) {
+      if (this.seeds.isEmpty()) {
+        throw new MPCException("No more seeds available. Security guarantees no longer holds. "
+            + "Please restart the application using more seeds to continue beyond this point.");
+      }
+      setSeed(this.seeds.remove(0));
+    }
   }
 
   private void update(byte[] providedData) {
@@ -122,8 +135,7 @@ public class HmacDeterministicRandomBitGeneratorImpl implements DeterministicRan
     return keySupplier.get();
   }
 
-  @Override
-  public void setSeed(byte[] seed) {
+  private void setSeed(byte[] seed) {
     update(seed);
   }
 }

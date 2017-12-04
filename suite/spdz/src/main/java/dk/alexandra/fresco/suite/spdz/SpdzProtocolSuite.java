@@ -5,13 +5,16 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.ProtocolSuite;
+import java.security.SecureRandom;
 
 public class SpdzProtocolSuite implements ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> {
 
   private final int maxBitLength;
+  private final SecureRandom secRand;
 
   public SpdzProtocolSuite(int maxBitLength) {
     this.maxBitLength = maxBitLength;
+    secRand = new SecureRandom();
   }
 
   @Override
@@ -24,7 +27,7 @@ public class SpdzProtocolSuite implements ProtocolSuite<SpdzResourcePool, Protoc
 
   @Override
   public RoundSynchronization<SpdzResourcePool> createRoundSynchronization() {
-    return new SpdzRoundSynchronization();
+    return new SpdzRoundSynchronization(secRand);
   }
 
 }

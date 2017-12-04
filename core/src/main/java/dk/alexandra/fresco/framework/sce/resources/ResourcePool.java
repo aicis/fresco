@@ -1,17 +1,16 @@
 package dk.alexandra.fresco.framework.sce.resources;
 
-import java.security.SecureRandom;
-import java.util.Random;
+import dk.alexandra.fresco.framework.util.DeterministicRandomBitGenerator;
 
 /**
  * The ResourcePool gives the protocol suites and their native protocols access to whatever is
  * within a Resource pool. A basic implementation contains the methods seen here, but often protocol
- * suites would extend this. 
+ * suites would extend this.
  */
 public interface ResourcePool {
 
   /**
-   * Returns the id of the party
+   * Returns the id of the party.
    */
   int getMyId();
 
@@ -21,15 +20,13 @@ public interface ResourcePool {
   int getNoOfParties();
 
   /**
-   * Returns the randomness generator of the system. Use this for getting
-   * random data that does not need to be cryptographically secure.
+   * The DRBG is useful for protocols which needs a form of shared randomness which is not
+   * completely insecure. This generator will provide exactly that. Note that if the generator is
+   * not already seeded within the constructor, the seeding must be done before use to ensure secure
+   * randomness.
+   * 
+   * @return An instance of a DRBG.
    */
-  Random getRandom();
-
-  /**
-   * Returns the secure version of the randomness generator of the system. Use
-   * where the randomness needs to be cryptographically secure.
-   */
-  SecureRandom getSecureRandom();
+  DeterministicRandomBitGenerator getRandomGenerator();
 
 }

@@ -14,6 +14,8 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
+import dk.alexandra.fresco.framework.util.DeterministicRandomBitGenerator;
+import dk.alexandra.fresco.framework.util.HmacDeterministicRandomBitGeneratorImpl;
 import dk.alexandra.fresco.lib.bool.BasicBooleanTests;
 import dk.alexandra.fresco.lib.bool.ComparisonBooleanTests;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
@@ -28,12 +30,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,11 +69,12 @@ public class TestTinyTables {
       }
       BatchEvaluationStrategy<ResourcePoolImpl> batchStrat = evalStrategy.getStrategy();
       evaluator = new BatchedProtocolEvaluator<>(batchStrat, suite);
+      DeterministicRandomBitGenerator drbg = new HmacDeterministicRandomBitGeneratorImpl();
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite, evaluator),
               () -> new ResourcePoolImpl(playerId, noPlayers,
-                  new Random(), new SecureRandom()),
+                  drbg),
               () -> new KryoNetNetwork(netConf.get(playerId))
           );
       conf.put(playerId, ttc);

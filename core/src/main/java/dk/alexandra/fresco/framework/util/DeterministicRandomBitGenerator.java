@@ -26,12 +26,4 @@ public interface DeterministicRandomBitGenerator {
    * @param bytes The byte array which will be overwritten with random data.
    */
   public void nextBytes(byte[] bytes);
-
-  /**
-   * Sets the seed used for generating randomness. If parties need to agree on the randomness
-   * output, then the seed must be identical for all parties.
-   * 
-   * @param seed The initial randomness.
-   */
-  public void setSeed(byte[] seed);
 }

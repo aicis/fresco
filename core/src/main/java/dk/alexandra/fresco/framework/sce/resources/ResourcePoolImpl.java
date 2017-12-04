@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.framework.sce.resources;
 
-import java.security.SecureRandom;
-import java.util.Random;
+import dk.alexandra.fresco.framework.util.DeterministicRandomBitGenerator;
 
 /**
  * Container for resources needed by runtimes (protocol suites).
@@ -10,8 +9,7 @@ public class ResourcePoolImpl implements ResourcePool {
 
   private final int myId;
   private final int noOfPlayers;
-  private final Random random;
-  private final SecureRandom secRand;
+  private final DeterministicRandomBitGenerator drbg;
 
   /**
    * Creates an instance of the default implementation of a resource pool. This contains the basic
@@ -19,24 +17,12 @@ public class ResourcePoolImpl implements ResourcePool {
    *
    * @param myId The ID of the MPC party.
    * @param noOfPlayers The amount of parties within the MPC computation.
-   * @param random The random source to use.
-   * @param secRand The secure random source to use.
+   * @param drbg The DRBG providing shared randomness.
    */
-  public ResourcePoolImpl(int myId, int noOfPlayers, Random random, SecureRandom secRand) {
+  public ResourcePoolImpl(int myId, int noOfPlayers, DeterministicRandomBitGenerator drbg) {
     this.myId = myId;
     this.noOfPlayers = noOfPlayers;
-    this.random = random;
-    this.secRand = secRand;
-  }
-
-  @Override
-  public Random getRandom() {
-    return this.random;
-  }
-
-  @Override
-  public SecureRandom getSecureRandom() {
-    return this.secRand;
+    this.drbg = drbg;
   }
 
   @Override
@@ -47,6 +33,11 @@ public class ResourcePoolImpl implements ResourcePool {
   @Override
   public int getNoOfParties() {
     return this.noOfPlayers;
+  }
+
+  @Override
+  public DeterministicRandomBitGenerator getRandomGenerator() {
+    return this.drbg;
   }
 
 }

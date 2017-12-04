@@ -30,26 +30,37 @@ public class TestDetermSecureRandom {
     assertFalse(Arrays.equals(randBytes1, randBytes3));
   }
 
-  @Test
-  public void testSetSeed() throws NoSuchAlgorithmException {
-    HmacDeterministicRandomBitGeneratorImpl rand1 = new HmacDeterministicRandomBitGeneratorImpl();
-    byte[] bsBeforeSeed = new byte[10];
-    byte[] bsAfterSeed = new byte[10];
-    rand1.nextBytes(bsBeforeSeed);
-    rand1.setSeed(new byte[] {0x04, 0x06});
-    rand1.nextBytes(bsAfterSeed);
-    assertFalse(Arrays.equals(bsBeforeSeed, bsAfterSeed));
-  }
-
   @Test(expected = NoSuchAlgorithmException.class)
   public void testNonExistingAlgorithm() throws NoSuchAlgorithmException {
-    new HmacDeterministicRandomBitGeneratorImpl(new byte[] {0x01}, "Bla");
+    new HmacDeterministicRandomBitGeneratorImpl("Bla", new byte[] {0x01});
   }
 
   @Test(expected = MPCException.class)
   public void testInvalidKey() throws NoSuchAlgorithmException {
     HmacDeterministicRandomBitGeneratorImpl m = new HmacDrbgFakeKeySpec();
     byte[] randBytes1 = new byte[10];
+    m.nextBytes(randBytes1);
+  }
+  
+  @Test(expected = MPCException.class)
+  public void testReseedException() throws NoSuchAlgorithmException {
+    HmacDeterministicRandomBitGeneratorImpl m = new HmacDrbgLowReseedCount();
+    double max = 12;
+    for (double i = 0; i < max; i++) {
+      byte[] randBytes1 = new byte[0];
+      m.nextBytes(randBytes1);
+    }
+  }
+  
+  @Test(expected = MPCException.class)
+  public void testReseedException2() throws NoSuchAlgorithmException {
+    HmacDeterministicRandomBitGeneratorImpl m =
+        new HmacDrbgLowReseedCount(new byte[] {0x01}, new byte[] {0x02});
+    double max = 10;
+    byte[] randBytes1 = new byte[0];
+    for (double i = 0; i < max * 2; i++) {
+      m.nextBytes(randBytes1);
+    }
     m.nextBytes(randBytes1);
   }
   
@@ -67,9 +78,17 @@ public class TestDetermSecureRandom {
     assertArrayEquals(randBytes1, randBytes2);
   }
 
+  private class HmacDrbgLowReseedCount extends HmacDeterministicRandomBitGeneratorImpl {
+
+    public HmacDrbgLowReseedCount(byte[]...bs) throws NoSuchAlgorithmException {      
+      super(bs);
+      MAX_RESEED_COUNT = 10;
+    }
+  }
+  
   private class HmacDrbgFakeKeySpec extends HmacDeterministicRandomBitGeneratorImpl {
 
-    public HmacDrbgFakeKeySpec() throws NoSuchAlgorithmException {
+    public HmacDrbgFakeKeySpec() throws NoSuchAlgorithmException {      
       super();
     }
 

@@ -4,9 +4,8 @@ import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
+import dk.alexandra.fresco.framework.util.DeterministicRandomBitGenerator;
 import java.math.BigInteger;
-import java.security.SecureRandom;
-import java.util.Random;
 
 /**
  * Implements the resource pool needed for the Dummy Arithmetic suite.
@@ -23,13 +22,12 @@ public class DummyArithmeticResourcePoolImpl extends ResourcePoolImpl
    * 
    * @param myId id of this party
    * @param noOfPlayers number of parties in the participating
-   * @param random a random generator
-   * @param secRand a secure random generator
+   * @param drbg The DRBG used.
    * @param modulus the modulus
    */
-  public DummyArithmeticResourcePoolImpl(int myId, int noOfPlayers, Random random,
-      SecureRandom secRand, BigInteger modulus) {
-    super(myId, noOfPlayers, random, secRand);
+  public DummyArithmeticResourcePoolImpl(int myId, int noOfPlayers,
+      DeterministicRandomBitGenerator drbg, BigInteger modulus) {
+    super(myId, noOfPlayers, drbg);
     this.modulus = modulus;
     this.modulusSize = modulus.toByteArray().length;
   }

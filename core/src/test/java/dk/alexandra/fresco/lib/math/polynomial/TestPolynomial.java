@@ -3,15 +3,15 @@ package dk.alexandra.fresco.lib.math.polynomial;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
+import dk.alexandra.fresco.framework.util.HmacDeterministicRandomBitGeneratorImpl;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticBuilderFactory;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
 import java.math.BigInteger;
-import java.security.SecureRandom;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
 import org.hamcrest.core.Is;
 import org.junit.Assert;
@@ -20,10 +20,10 @@ import org.junit.Test;
 public class TestPolynomial {
 
   @Test(expected = IndexOutOfBoundsException.class)
-  public void testPolynomial() {
+  public void testPolynomial() throws NoSuchAlgorithmException {
     BasicNumericContext dummyFact =
         new BasicNumericContext(8, BigInteger.valueOf(1001), new DummyArithmeticResourcePoolImpl(1,
-            1, new Random(), new SecureRandom(), BigInteger.ONE));
+            1, new HmacDeterministicRandomBitGeneratorImpl(), BigInteger.ONE));
     BuilderFactoryNumeric builderFactory = new DummyArithmeticBuilderFactory(dummyFact);
     Numeric numeric = builderFactory.createNumeric(builderFactory.createSequential());
 

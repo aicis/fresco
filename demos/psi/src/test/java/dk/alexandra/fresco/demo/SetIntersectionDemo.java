@@ -15,18 +15,18 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
+import dk.alexandra.fresco.framework.util.DeterministicRandomBitGenerator;
+import dk.alexandra.fresco.framework.util.HmacDeterministicRandomBitGeneratorImpl;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import java.io.File;
 import java.io.IOException;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -55,13 +55,13 @@ public class SetIntersectionDemo {
           new DummyBooleanProtocolSuite();
 
       // The rest is generic configuration as well
+      DeterministicRandomBitGenerator drbg = new HmacDeterministicRandomBitGeneratorImpl();
       ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
           new BatchedProtocolEvaluator<>(new BatchedStrategy<>(), suite);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite, evaluator),
-              () -> new ResourcePoolImpl(playerId, noPlayers,
-                  new Random(), new SecureRandom()),
+              () -> new ResourcePoolImpl(playerId, noPlayers, drbg),
               () -> new KryoNetNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }
@@ -93,13 +93,13 @@ public class SetIntersectionDemo {
               9000 + playerId, playerId);
 
       // More generic configuration
+      DeterministicRandomBitGenerator drbg = new HmacDeterministicRandomBitGeneratorImpl();
       ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
           new BatchedProtocolEvaluator<>(new BatchedStrategy<>(), suite);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite, evaluator),
-              () -> new ResourcePoolImpl(playerId, noPlayers,
-                  new Random(), new SecureRandom()),
+              () -> new ResourcePoolImpl(playerId, noPlayers, drbg),
               () -> new KryoNetNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }
@@ -119,13 +119,13 @@ public class SetIntersectionDemo {
             (ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary>) getTinyTablesProtocolSuite(
                 playerId);
 
+        DeterministicRandomBitGenerator drbg = new HmacDeterministicRandomBitGeneratorImpl();
         ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
             new BatchedProtocolEvaluator<>(new BatchedStrategy<>(), suite);
         TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
             new TestThreadConfiguration<>(
                 new SecureComputationEngineImpl<>(suite, evaluator),
-                () -> new ResourcePoolImpl(playerId, noPlayers,
-                    new Random(), new SecureRandom()),
+                () -> new ResourcePoolImpl(playerId, noPlayers, drbg),
                 () -> new KryoNetNetwork(secondConf.get(playerId)));
         conf.put(playerId, ttc);
       }

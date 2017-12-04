@@ -11,6 +11,7 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.framework.util.DeterministicRandomBitGenerator;
 import dk.alexandra.fresco.framework.util.HmacDeterministicRandomBitGeneratorImpl;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
@@ -18,13 +19,11 @@ import dk.alexandra.fresco.logging.PerformanceLogger;
 import dk.alexandra.fresco.logging.PerformanceLogger.Flag;
 import dk.alexandra.fresco.logging.SecureComputationEngineLoggingDecorator;
 import java.math.BigInteger;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 /**
  * Abstract class which handles a lot of boiler plate testing code. This makes running a single test
@@ -85,11 +84,12 @@ public abstract class AbstractDummyArithmeticTest {
         pls.add((PerformanceLogger) sce);
       }
 
+      DeterministicRandomBitGenerator drbg = new HmacDeterministicRandomBitGeneratorImpl();
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  noOfParties, new Random(0), new SecureRandom(), mod),
+                  noOfParties, drbg, mod),
               () -> {
                 KryoNetNetwork kryoNetwork = new KryoNetNetwork(partyNetConf);
                 if (performanceLoggerFlags != null
