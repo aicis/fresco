@@ -20,10 +20,10 @@ public interface ResourcePool {
   int getNoOfParties();
 
   /**
-   * The DRBG is useful for protocols which needs a form of shared randomness which is not
-   * completely insecure. This generator will provide exactly that. Note that if the generator is
-   * not already seeded within the constructor, the seeding must be done before use to ensure secure
-   * randomness.
+   * The DRBG is useful for protocols which needs a form of shared randomness where the random bytes
+   * are not easily guessed by an adversary. This generator will provide exactly that. For explicit
+   * security guarantees, we refer to implementations of
+   * {@link dk.alexandra.fresco.framework.util.Drbg}.
    * 
    * @return An instance of a DRBG.
    */

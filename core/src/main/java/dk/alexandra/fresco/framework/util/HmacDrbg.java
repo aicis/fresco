@@ -90,7 +90,7 @@ public class HmacDrbg implements Drbg {
     while (pos < bytes.length) {
       this.val = this.mac.doFinal(this.val);
       int length = val.length;
-      // Ensure that we don't break boundries
+      // Ensure that we don't break boundaries
       if (length > bytes.length - pos) {
         length = bytes.length - pos;
       }
@@ -98,8 +98,6 @@ public class HmacDrbg implements Drbg {
       pos += length;
     }
     update(null);
-    // If we at some point want to introduce an indicator that a reseed should happen, we need to
-    // have a reseedCounter counted here. The reseed interval is 2^48 as per the NIST details.
     this.reseedCounter++;
     if (this.reseedCounter >= MAX_RESEED_COUNT) {
       if (this.seeds.isEmpty()) {

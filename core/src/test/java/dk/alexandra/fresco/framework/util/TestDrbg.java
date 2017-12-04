@@ -28,6 +28,18 @@ public class TestDrbg {
     assertArrayEquals(randBytes1, randBytes2);
     assertFalse(Arrays.equals(randBytes1, randBytes3));
   }
+  
+  @Test
+  public void testDifferentAlgorithm() throws NoSuchAlgorithmException {
+    byte[] bytes = new byte[]{0x10, 0x09, 0x01};
+    HmacDrbg rand1 = new HmacDrbg(bytes);
+    HmacDrbg rand2 = new HmacDrbg("HmacSHA512", bytes);
+    byte[] randBytes1 = new byte[10];
+    byte[] randBytes2 = new byte[10];
+    rand1.nextBytes(randBytes1);
+    rand2.nextBytes(randBytes2);
+    assertFalse(Arrays.equals(randBytes1, randBytes2));
+  }
 
   @Test(expected = NoSuchAlgorithmException.class)
   public void testNonExistingAlgorithm() throws NoSuchAlgorithmException {
@@ -62,7 +74,6 @@ public class TestDrbg {
   @Test(expected = MPCException.class)
   public void testReseedException() throws NoSuchAlgorithmException {
     HmacDrbg m = new HmacDrbg(new byte[]{0x01}, new byte[]{0x02});
-    ;
     m.reseedCounter = HmacDrbg.MAX_RESEED_COUNT - 1;
     double max = 2;
     for (double i = 0; i < max; i++) {
