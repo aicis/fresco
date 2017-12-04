@@ -36,9 +36,11 @@ public class MacCheck extends BaseProtocol {
       }
     }
     sigmas.add(sigma);
-    FieldElement zero = new FieldElement(0, modulus, modBitLength);
+    
     FieldElement sigmaSum = sigmas.stream()
-        .reduce(zero, (left, right) -> left.add(right));
+        .reduce((left, right) -> left.add(right)).get();
+    
+    FieldElement zero = new FieldElement(0, modulus, modBitLength);
     if (!zero.equals(sigmaSum)) {
       throw new MPCException("Mac check failed!");
     }

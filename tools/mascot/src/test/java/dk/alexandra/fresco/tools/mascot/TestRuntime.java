@@ -28,11 +28,13 @@ public class TestRuntime {
   private Map<Integer, MascotContext> contexts;
   private ExecutorService executor;
   private boolean executorInitialized;
+  private long timeout;
 
   public TestRuntime() {
     this.contexts = new HashMap<>();
     this.executor = null;
     this.executorInitialized = false;
+    this.timeout = 5l;
   }
 
   /**
@@ -121,7 +123,7 @@ public class TestRuntime {
       throw new IllegalStateException("Executor not initialized yet");
     }
     try {
-      List<Future<T>> results = executor.invokeAll(tasks, 20l, TimeUnit.SECONDS);
+      List<Future<T>> results = executor.invokeAll(tasks, timeout, TimeUnit.SECONDS);
       // this is a bit of a mess...
       List<T> unwrappedResults = results.stream()
           .map(future -> {
