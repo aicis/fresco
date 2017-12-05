@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.binary.Binary;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.logging.PerformanceLogger;
+import org.slf4j.Logger;
 
 public class BinaryLoggingDecorator implements PerformanceLogger, Binary {
 
@@ -60,7 +61,7 @@ public class BinaryLoggingDecorator implements PerformanceLogger, Binary {
   }
 
   @Override
-  public void printPerformanceLog(int myId) {
+  public void printToLog(Logger log, int myId) {
     log.info("=== Basic binary operations logged - results ===");
     log.info("Xors: " + this.xorCount);
     log.info("Ands: "+ this.andCount);

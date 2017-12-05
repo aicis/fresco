@@ -23,9 +23,18 @@ public interface PerformanceLogger {
   }
 
   /**
-   * Prints any performance numbers picked up.
+   * Prints any performance numbers picked up using the
+   * default logger.
    */
-  public abstract void printPerformanceLog(int myId);
+  public default void printPerformanceLog(int myId) {
+    printToLog(PerformanceLogger.log, myId);
+  }
+  
+  /**
+   * Prints any performance numbers picked up using the
+   * specified logger. 
+   */
+  public void printToLog(Logger log, int myId);
   
   /**
    * Resets any counters/maps/lists used. 

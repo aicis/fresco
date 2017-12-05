@@ -12,7 +12,6 @@ import dk.alexandra.fresco.lib.field.bool.generic.FieldBoolTests;
 import dk.alexandra.fresco.lib.math.bool.add.AddTests;
 import dk.alexandra.fresco.lib.math.bool.log.LogTests;
 import dk.alexandra.fresco.lib.math.bool.mult.MultTests;
-import dk.alexandra.fresco.logging.PerformanceLogger.Flag;
 import org.junit.Test;
 
 
@@ -215,13 +214,5 @@ public class TestDummyProtocolSuite extends AbstractDummyBooleanTest {
   @Test
   public void test_Binary_Log_Nice() throws Exception {
     runTest(new LogTests.TestLogNice<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
-  }
-
-  @Test
-  public void test_Logging() throws Exception {
-    runTest(new CollectionsSortingTests.TestKeyedCompareAndSwap<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED, Flag.ALL_OPTS);
-    DummyBooleanBuilderFactory.loggerInstance.printPerformanceLog(1);
-    DummyBooleanBuilderFactory.loggerInstance.reset();
   }
 }

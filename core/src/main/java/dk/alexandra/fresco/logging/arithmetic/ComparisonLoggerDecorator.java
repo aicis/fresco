@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.Comparison;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.logging.PerformanceLogger;
+import org.slf4j.Logger;
 
 public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger {
 
@@ -55,7 +56,7 @@ public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger 
   }
 
   @Override
-  public void printPerformanceLog(int myId) {
+  public void printToLog(Logger log, int myId) {
     log.info("=== P"+myId+": Comparison operations logged - results ===");
     log.info("EQ: " + this.eqCount);
     log.info("LEQ: " + this.leqCount);

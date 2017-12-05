@@ -12,6 +12,10 @@ import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.logging.PerformanceLogger;
 import dk.alexandra.fresco.logging.binary.BinaryComparisonLoggingDecorator;
 import dk.alexandra.fresco.logging.binary.BinaryLoggingDecorator;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * A {@link BuilderFactoryNumeric} implementation for the Dummy Boolean suite. This class has
@@ -19,19 +23,19 @@ import dk.alexandra.fresco.logging.binary.BinaryLoggingDecorator;
  * application asks for.
  *
  */
-public class DummyBooleanBuilderFactory implements BuilderFactoryBinary, PerformanceLogger {
+public class DummyBooleanBuilderFactory implements BuilderFactoryBinary {
 
-  // Static variable which holds an instance of this class. This class cannot be reached reasonably
-  // in other ways. Make sure not to overwrite this variable, or logging data will potentially be
-  // lost.
-  public static DummyBooleanBuilderFactory loggerInstance;
+  public static final ConcurrentMap<Integer, List<PerformanceLogger>> performanceLoggers =
+      new ConcurrentHashMap<>();
   
+  private int myId;
   private BinaryComparisonLoggingDecorator compDecorator;
   private BinaryLoggingDecorator binaryDecorator;
 
 
-  public DummyBooleanBuilderFactory() {
-    loggerInstance = this;
+  public DummyBooleanBuilderFactory(int myId) {
+    this.myId = myId;
+    performanceLoggers.putIfAbsent(myId, new ArrayList<PerformanceLogger>());
   }
 
   @Override
@@ -40,6 +44,7 @@ public class DummyBooleanBuilderFactory implements BuilderFactoryBinary, Perform
 
     if (compDecorator == null) {
       compDecorator = new BinaryComparisonLoggingDecorator(comp);
+      performanceLoggers.get(myId).add(compDecorator);
     } else {
       compDecorator.setDelegate(comp);
     }
@@ -121,23 +126,10 @@ public class DummyBooleanBuilderFactory implements BuilderFactoryBinary, Perform
     };
     if (binaryDecorator == null) {
       binaryDecorator = new BinaryLoggingDecorator(binary);
+      performanceLoggers.get(myId).add(binaryDecorator);
     } else {
       binaryDecorator.setDelegate(binary);
     }
     return binaryDecorator;
   }
-
-  @Override
-  public void printPerformanceLog(int myId) {
-    binaryDecorator.printPerformanceLog(myId);
-    compDecorator.printPerformanceLog(myId);
-  }
-
-  @Override
-  public void reset() {
-    binaryDecorator.reset();
-    compDecorator.reset();
-  }
-
-
 }

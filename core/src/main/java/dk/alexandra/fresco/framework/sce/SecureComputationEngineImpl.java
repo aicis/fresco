@@ -26,7 +26,7 @@ public class SecureComputationEngineImpl<ResourcePoolT extends ResourcePool, Bui
     implements SecureComputationEngine<ResourcePoolT, Builder> {
 
   private ProtocolEvaluator<ResourcePoolT, Builder> evaluator;
-  private ExecutorService executorService;
+  public ExecutorService executorService;
   private boolean setup;
   private ProtocolSuite<ResourcePoolT, Builder> protocolSuite;
   private static final AtomicInteger threadCounter = new AtomicInteger(1);

@@ -5,6 +5,7 @@ import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.logging.PerformanceLogger;
 import java.math.BigInteger;
+import org.slf4j.Logger;
 
 public class NumericLoggingDecorator implements Numeric, PerformanceLogger {
 
@@ -91,7 +92,7 @@ public class NumericLoggingDecorator implements Numeric, PerformanceLogger {
   }
 
   @Override
-  public void printPerformanceLog(int myId) {
+  public void printToLog(Logger log, int myId) {
     log.info("=== P" + myId + ": Basic numeric operations logged - results ===");
     log.info("Multiplications: " + this.multCount);
     log.info("Additions: " + this.addCount);

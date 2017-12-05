@@ -4,11 +4,14 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
+import org.slf4j.Logger;
 
 public class SecureComputationEngineLoggingDecorator<
     ResourcePoolT extends ResourcePool,
@@ -16,14 +19,14 @@ public class SecureComputationEngineLoggingDecorator<
     >
     implements SecureComputationEngine<ResourcePoolT, Builder>, PerformanceLogger {
 
-  private SecureComputationEngine<ResourcePoolT, Builder> delegate;
+  private SecureComputationEngineImpl<ResourcePoolT, Builder> delegate;
   private String protocolSuiteName;
   private List<RuntimeInfo> runtimeLogger = new ArrayList<>();
 
   public SecureComputationEngineLoggingDecorator(
       SecureComputationEngine<ResourcePoolT, Builder> sce,
       ProtocolSuite<ResourcePoolT, Builder> suite) {
-    this.delegate = sce;
+    this.delegate = (SecureComputationEngineImpl<ResourcePoolT, Builder>)sce;
     this.protocolSuiteName = suite.getClass().getName();
   }
 
@@ -41,9 +44,17 @@ public class SecureComputationEngineLoggingDecorator<
   @Override
   public <OutputT> Future<OutputT> startApplication(Application<OutputT, Builder> application,
       ResourcePoolT resources, Network network) {
-    // TODO: If applications are started this way, no running time logging is applied. We need to
-    // inject a decorator future which logs the timing before handing over the result.
-    return this.delegate.startApplication(application, resources, network);
+    setup();
+    Callable<OutputT> callable = () -> {
+      long then = System.currentTimeMillis();
+      Future<OutputT> del = this.delegate.startApplication(application, resources, network);
+      long now = System.currentTimeMillis();
+      long timeSpend = now - then;
+      this.runtimeLogger.add(new RuntimeInfo(application, timeSpend, protocolSuiteName));
+      return del.get();
+    };
+    return this.delegate.executorService.submit(callable);
+    
   }
 
   @Override
@@ -57,7 +68,7 @@ public class SecureComputationEngineLoggingDecorator<
   }
 
   @Override
-  public void printPerformanceLog(int myId) {
+  public void printToLog(Logger log, int myId) {
     log.info("=== P" + myId + ": Running times for applications ===");
     if (this.runtimeLogger.isEmpty()) {
       log.info("No applications were run, or they have not completed yet.");

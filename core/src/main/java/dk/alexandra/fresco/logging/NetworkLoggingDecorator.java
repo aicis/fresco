@@ -5,6 +5,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
 
 public class NetworkLoggingDecorator implements Network, PerformanceLogger, Closeable {
 
@@ -36,9 +37,9 @@ public class NetworkLoggingDecorator implements Network, PerformanceLogger, Clos
   public void send(int partyId, byte[] data) {
     this.delegate.send(partyId, data);
   }
-
+   
   @Override
-  public void printPerformanceLog(int myId) {
+  public void printToLog(Logger log, int myId) {
     log.info("=== P" + myId + ": Network logged - results ===");
     long totalNoBytes = 0;
     int noNetworkBatches = 0;
@@ -51,7 +52,7 @@ public class NetworkLoggingDecorator implements Network, PerformanceLogger, Clos
     log.info("Received data " + noNetworkBatches + " times in total (including from ourselves)");
     log.info("Total amount of bytes received: " + totalNoBytes);
     log.info("Minimum amount of bytes received: " + minBytesReceived);
-    log.info("maximum amount of bytes received: " + maxBytesReceived);
+    log.info("Maximum amount of bytes received: " + maxBytesReceived);
     double avg = totalNoBytes / (double) noNetworkBatches;
     log.info("Average amount of bytes received: " + df.format(avg));
   }
@@ -80,4 +81,5 @@ public class NetworkLoggingDecorator implements Network, PerformanceLogger, Clos
       this.noBytes += noBytes;
     }
   }
+
 }

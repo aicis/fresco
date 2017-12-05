@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.NetworkBatchDecorator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import org.slf4j.Logger;
 
 public class BatchEvaluationLoggingDecorator<ResourcePoolT extends ResourcePool>
     implements BatchEvaluationStrategy<ResourcePoolT>, PerformanceLogger {
@@ -36,7 +37,7 @@ public class BatchEvaluationLoggingDecorator<ResourcePoolT extends ResourcePool>
   }
 
   @Override
-  public void printPerformanceLog(int myId) {
+  public void printToLog(Logger log, int myId) {
     log.info("=== P" + myId + ": Native protocols per batch metrics ===");
     log.info("Total amount of batches reached: " + counter);
     log.info("Total amount of native protocols evaluated: " + noNativeProtocols);
