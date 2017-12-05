@@ -12,23 +12,24 @@ public class DummyRotBatch implements RotBatch<StrictBitVector> {
 
   private Rot<StrictBitVector> dummyRot;
 
-  public DummyRotBatch(int otherID, Network network, Random rand, int bitLength) {
+  public DummyRotBatch(int otherID, Network network, Random rand) {
     super();
-    this.dummyRot = new DummyRot(otherID, network, rand, bitLength);
+    this.dummyRot = new DummyRot(otherID, network, rand);
   }
 
   @Override
-  public List<Pair<StrictBitVector, StrictBitVector>> send(int numMessages)
-      throws MaliciousOtException, FailedOtException {
+  public List<Pair<StrictBitVector, StrictBitVector>> send(int numMessages,
+      int size) throws MaliciousOtException, FailedOtException {
     List<Pair<StrictBitVector, StrictBitVector>> messagePairs = new ArrayList<>();
     for (int i = 0; i < numMessages; i++) {
-      messagePairs.add(dummyRot.send());
+      messagePairs.add(dummyRot.send(size));
     }
     return messagePairs;
   }
 
   @Override
-  public List<StrictBitVector> receive(StrictBitVector choiceBits)
+  public List<StrictBitVector> receive(StrictBitVector choiceBits,
+      int messageSize)
       throws MaliciousOtException, FailedOtException {
     List<StrictBitVector> choiceMessages = new ArrayList<>();
     for (int b = 0; b < choiceBits.getSize(); b++) {

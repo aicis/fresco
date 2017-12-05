@@ -1,14 +1,9 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
-import dk.alexandra.fresco.framework.Party;
-import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -23,9 +18,7 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
  * @param <ResourcePoolT>
  *          The FRESCO resource pool used for the execution
  */
-public class CoteDemo<ResourcePoolT extends ResourcePool> {
-  private int kbitLength = 128;
-  private int lambdaSecurityParam = 40;
+public class CoteDemo<ResourcePoolT extends ResourcePool> extends Demo {
   private int amountOfOTs = 1024;
 
   /**
@@ -43,7 +36,8 @@ public class CoteDemo<ResourcePoolT extends ResourcePool> {
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected receiver");
     Random rand = new Random(42);
-    Cote cote = new Cote(1, 2, kbitLength, lambdaSecurityParam, rand, network);
+    Cote cote = new Cote(1, 2, getKbitLength(), getLambdaSecurityParam(), rand,
+        network);
     CoteReceiver coteRec = cote.getReceiver();
     coteRec.initialize();
     byte[] otChoices = new byte[amountOfOTs / 8];
@@ -76,7 +70,8 @@ public class CoteDemo<ResourcePoolT extends ResourcePool> {
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected sender");
     Random rand = new Random(420);
-    Cote cote = new Cote(2, 1, kbitLength, lambdaSecurityParam, rand, network);
+    Cote cote = new Cote(2, 1, getKbitLength(), getLambdaSecurityParam(), rand,
+        network);
     CoteSender coteSnd = cote.getSender();
     coteSnd.initialize();
     List<StrictBitVector> q = coteSnd.extend(amountOfOTs);
@@ -116,12 +111,5 @@ public class CoteDemo<ResourcePoolT extends ResourcePool> {
       System.out.println("Failed to connect: " + e);
       e.printStackTrace(System.out);
     }
-  }
-
-  private static NetworkConfiguration getNetworkConfiguration(int pid) {
-    Map<Integer, Party> parties = new HashMap<>();
-    parties.put(1, new Party(1, "localhost", 8001));
-    parties.put(2, new Party(2, "localhost", 8002));
-    return new NetworkConfigurationImpl(pid, parties);
   }
 }

@@ -67,7 +67,7 @@ public class CoinTossing {
   }
 
   /**
-   * Returns the underlying network
+   * Returns the underlying network.
    * 
    * @return Returns the underlying network
    */

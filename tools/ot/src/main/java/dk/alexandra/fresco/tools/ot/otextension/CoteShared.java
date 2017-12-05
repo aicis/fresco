@@ -62,7 +62,7 @@ public class CoteShared {
     this.kbitLength = kbitLength;
     this.lambdaSecurityParam = lambdaSecurityParam;
     this.rand = rand;
-    this.ot = new DummyOt(otherId, kbitLength, network);
+    this.ot = new DummyOt(otherId, network);
     this.network = network;
   }
 

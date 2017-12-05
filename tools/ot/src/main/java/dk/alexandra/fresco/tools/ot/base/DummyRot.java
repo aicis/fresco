@@ -9,14 +9,12 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 public class DummyRot implements Rot<StrictBitVector> {
 
   private Ot<StrictBitVector> dummyOt;
-  private int messageBitLength;
   private Random rand;
 
-  public DummyRot(int otherId, Network network, Random rand, int bitLength) {
+  public DummyRot(int otherId, Network network, Random rand) {
     super();
     this.rand = rand;
-    this.messageBitLength = bitLength;
-    this.dummyOt = new DummyOt(otherId, messageBitLength, network);
+    this.dummyOt = new DummyOt(otherId, network);
   }
 
   @Override
@@ -26,10 +24,10 @@ public class DummyRot implements Rot<StrictBitVector> {
   }
 
   @Override
-  public Pair<StrictBitVector, StrictBitVector> send()
+  public Pair<StrictBitVector, StrictBitVector> send(int size)
       throws MaliciousOtException, FailedOtException {
-    StrictBitVector messageZero = new StrictBitVector(this.messageBitLength, this.rand);
-    StrictBitVector messageOne = new StrictBitVector(this.messageBitLength, this.rand);
+    StrictBitVector messageZero = new StrictBitVector(size, this.rand);
+    StrictBitVector messageOne = new StrictBitVector(size, this.rand);
     this.dummyOt.send(messageZero, messageOne);
     return new Pair<>(messageZero, messageOne);
   }

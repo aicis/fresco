@@ -1,13 +1,8 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
-import dk.alexandra.fresco.framework.Party;
-import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -25,11 +20,7 @@ import dk.alexandra.fresco.tools.commitment.MaliciousCommitmentException;
  * @param <ResourcePoolT>
  *          The FRESCO resource pool used for the execution
  */
-public class RotDemo<ResourcePoolT extends ResourcePool> {
-  // Computational security parameter
-  private int kbitLength = 128;
-  // Statistical security parameter
-  private int lambdaSecurityParam = 40;
+public class RotDemo<ResourcePoolT extends ResourcePool> extends Demo {
   // Amount of random OTs to construct
   private int amountOfOTs = 88;
 
@@ -56,7 +47,8 @@ public class RotDemo<ResourcePoolT extends ResourcePool> {
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected receiver");
     Random rand = new Random(42);
-    Rot rot = new Rot(1, 2, kbitLength, lambdaSecurityParam, rand, network);
+    Rot rot = new Rot(1, 2, getKbitLength(), getLambdaSecurityParam(), rand,
+        network);
     RotReceiver rotRec = rot.getReceiver();
     rotRec.initialize();
     byte[] otChoices = new byte[amountOfOTs / 8];
@@ -99,7 +91,8 @@ public class RotDemo<ResourcePoolT extends ResourcePool> {
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected sender");
     Random rand = new Random(420);
-    Rot rot = new Rot(2, 1, kbitLength, lambdaSecurityParam, rand, network);
+    Rot rot = new Rot(2, 1, getKbitLength(), getLambdaSecurityParam(), rand,
+        network);
     RotSender rotSnd = rot.getSender();
     rotSnd.initialize();
     Pair<List<StrictBitVector>, List<StrictBitVector>> vpairs = rotSnd
@@ -141,10 +134,4 @@ public class RotDemo<ResourcePoolT extends ResourcePool> {
     }
   }
 
-  private static NetworkConfiguration getNetworkConfiguration(int pid) {
-    Map<Integer, Party> parties = new HashMap<>();
-    parties.put(1, new Party(1, "localhost", 8001));
-    parties.put(2, new Party(2, "localhost", 8002));
-    return new NetworkConfigurationImpl(pid, parties);
-  }
 }

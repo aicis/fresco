@@ -12,9 +12,9 @@ public class DummyOtBatch implements OtBatch<StrictBitVector> {
 
   private Ot<StrictBitVector> dummyOt;
 
-  public DummyOtBatch(Integer otherId, int messageBitLength, Network network) {
+  public DummyOtBatch(Integer otherId, Network network) {
     super();
-    this.dummyOt = new DummyOt(otherId, messageBitLength, network);
+    this.dummyOt = new DummyOt(otherId, network);
   }
 
   @Override
