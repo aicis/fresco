@@ -2,6 +2,7 @@ package dk.alexandra.fresco.tools.mascot.field;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -73,7 +74,9 @@ public class FieldElementCollectionUtils {
    * @return
    */
   public static FieldElement innerProduct(List<FieldElement> left, List<FieldElement> right) {
-    // TODO: throw is unequal lengths
+    if (left.size() != right.size()) {
+      throw new IllegalArgumentException("Lists must have same size");
+    }
     return IntStream.range(0, left.size())
         .mapToObj(idx -> left.get(idx)
             .multiply(right.get(idx)))
@@ -105,6 +108,11 @@ public class FieldElementCollectionUtils {
       }
     }
     return stretched;
+  }
+  
+  public static List<FieldElement> padWith(List<FieldElement> elements, FieldElement pad, int numPads) {
+    elements.addAll(Collections.nCopies(numPads, pad));
+    return elements;
   }
   
 }

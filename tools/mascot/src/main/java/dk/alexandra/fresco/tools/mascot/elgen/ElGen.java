@@ -58,9 +58,7 @@ public class ElGen extends BaseProtocol {
     if (initialized) {
       throw new IllegalStateException("Already initialized");
     }
-    // TODO run these in parallel
-    // this will dead-lock if the order of initialization is switched, since cope signers block on
-    // receiving in current network implementation
+    // TODO parallelize
 
     // initialize cope inputters
     for (CopeInputter copeInputter : copeInputters) {
@@ -246,20 +244,23 @@ public class ElGen extends BaseProtocol {
     return spdzElements;
   }
 
+  /**
+   * Runs mac-check on opened values.
+   * 
+   * @param sharesWithMacs
+   * @param openValues
+   */
   public void check(List<AuthenticatedElement> sharesWithMacs, List<FieldElement> openValues) {
-    // TODO: mask vector not always necessary
-    // BigInteger modulus = ctx.getModulus();
-    // int modBitLength = ctx.getkBitLength();
-    // List<FieldElement> maskVector =
-    // sampler.jointSample(modulus, modBitLength, sharesWithMacs.size());
-    // TODO make sure we don't need to remask vectors
-    List<FieldElement> macsOnly = sharesWithMacs.stream()
+    BigInteger modulus = ctx.getModulus();
+    int modBitLength = ctx.getkBitLength();
+    List<FieldElement> masks = sampler.jointSample(modulus, modBitLength, sharesWithMacs.size());
+    List<FieldElement> macs = sharesWithMacs.stream()
         .map(share -> share.getMac())
         .collect(Collectors.toList());
-    FieldElement maskedMac = CollectionUtils.sum(macsOnly);
-    FieldElement maskedValue = CollectionUtils.sum(openValues);
+    FieldElement mac = FieldElementCollectionUtils.innerProduct(macs, masks);
+    FieldElement open = FieldElementCollectionUtils.innerProduct(openValues, masks);
     try {
-      macChecker.check(maskedValue, macKeyShare, maskedMac);
+      macChecker.check(open, macKeyShare, mac);
     } catch (Exception e) {
       // TODO: handle exception
       e.printStackTrace();

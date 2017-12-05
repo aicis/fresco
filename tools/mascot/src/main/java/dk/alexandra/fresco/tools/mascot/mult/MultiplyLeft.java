@@ -43,7 +43,7 @@ public class MultiplyLeft extends MultiplyShared {
     // use rot to get choice seeds
     List<StrictBitVector> seeds = new ArrayList<>();
     try {
-      seeds = rot.receive(packedFactors);
+      seeds = rot.receive(packedFactors, ctx.getkBitLength());
     } catch (MaliciousOtException | FailedOtException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();

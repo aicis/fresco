@@ -31,7 +31,7 @@ public class MultiplyRight extends MultiplyShared {
     int numRots = ctx.getkBitLength() * numLeftFactors * numMults;
     List<Pair<StrictBitVector, StrictBitVector>> seeds = new ArrayList<>();
     try {
-      seeds = rot.send(numRots);
+      seeds = rot.send(numRots, ctx.getkBitLength());
     } catch (MaliciousOtException | FailedOtException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();

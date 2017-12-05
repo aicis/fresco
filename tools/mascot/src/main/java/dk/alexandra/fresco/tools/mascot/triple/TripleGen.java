@@ -204,14 +204,21 @@ public class TripleGen extends BaseProtocol {
     List<AuthenticatedElement> sigmas = computeSigmas(candidates, masks, openRhos);
 
     // put rhos and sigmas together
-    sigmas.addAll(rhos);
+    rhos.addAll(sigmas);
+
+    // pad open rhos with zeroes, one for each sigma
+    FieldElementCollectionUtils.padWith(openRhos, new FieldElement(0, modulus, modBitLength),
+        sigmas.size());
 
     // run mac-check
     try {
-      elGen.check(sigmas, openRhos);
+      // TODO check if we can avoid re-masking
+      elGen.check(rhos, openRhos);
     } catch (MPCException e) {
       // TODO handle
+      System.out.println("here");
       e.printStackTrace();
+      throw e;
     }
     return toMultTriples(candidates);
   }

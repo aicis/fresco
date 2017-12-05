@@ -14,7 +14,7 @@ public class MultiplyShared extends TwoPartyProtocol {
   public MultiplyShared(MascotContext ctx, Integer otherId, int numLeftFactors) {
     super(ctx, otherId);
     this.numLeftFactors = numLeftFactors;
-    this.rot = new DummyRotBatch(otherId, ctx.getNetwork(), ctx.getRand(), ctx.getkBitLength());
+    this.rot = new DummyRotBatch(otherId, ctx.getNetwork(), ctx.getRand());
   }
   
 }
