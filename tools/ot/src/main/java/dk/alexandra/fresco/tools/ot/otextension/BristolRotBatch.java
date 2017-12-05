@@ -3,6 +3,7 @@ package dk.alexandra.fresco.tools.ot.otextension;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -78,10 +79,11 @@ public class BristolRotBatch implements RotBatch<StrictBitVector> {
       if (sender.initialized == false) {
         sender.initialize();
       }
-
       List<Pair<StrictBitVector, StrictBitVector>> res = new ArrayList<>(numMessages);
+      int amountToPreprocess = computeExtensionSize(numMessages, sender.getKbitLength(),
+          sender.getLambdaSecurityParam());
       Pair<List<StrictBitVector>, List<StrictBitVector>> messages = sender
-          .extend(numMessages);
+          .extend(amountToPreprocess);
       List<StrictBitVector> rawZeroMessages = messages.getFirst();
       List<StrictBitVector> rawOneMessages = messages.getSecond();
       for (int i = 0; i < numMessages; i++) {
@@ -120,9 +122,17 @@ public class BristolRotBatch implements RotBatch<StrictBitVector> {
       if (receiver.initialized == false) {
         receiver.initialize();
       }
-
       List<StrictBitVector> res = new ArrayList<>(choiceBits.getSize());
-      List<StrictBitVector> messages = receiver.extend(choiceBits);
+      // Find how many OTs we need to preprocess
+      int amountToPreprocess = computeExtensionSize(choiceBits.getSize(),
+          receiver.getKbitLength(), receiver.getLambdaSecurityParam());
+      // Construct a new choice-bit vector of the original choices, padded with
+      // 0 choices if needed
+      byte[] extraByteChoices = Arrays.copyOf(choiceBits.toByteArray(),
+          amountToPreprocess / 8);
+      StrictBitVector extraChoices = new StrictBitVector(extraByteChoices,
+          amountToPreprocess);
+      List<StrictBitVector> messages = receiver.extend(extraChoices);
       for (int i = 0; i < choiceBits.getSize(); i++) {
         StrictBitVector newMessage = computeRandomMessage(messages.get(i),
             sizeOfEachMessage);
@@ -145,6 +155,41 @@ public class BristolRotBatch implements RotBatch<StrictBitVector> {
       throw new FailedOtException(
           "Cheating occured in the OT extension: " + e.getMessage());
     }
+  }
+
+  /**
+   * Compute the minimal amount of OTs we have to preprocess in order to be sure
+   * to get "minSiz", <i>usable</i> OTs. This is not trivial since
+   * kbitLength+lambdaParam amount of OTs must be sacrificed in the underlying
+   * process.
+   * 
+   * @param minSize
+   *          The amount of usable OTs we wish to have in the end
+   * @param kbitLength
+   *          The computational security parameter
+   * @param lambdaParam
+   *          The statistical security parameter
+   * @return The amount of OTs that must be extended such that the transposition
+   *         algorithm in correlated OT with errors work.
+   */
+  public static int computeExtensionSize(int minSize, int kbitLength,
+      int lambdaParam) {
+    // Increase the amount of OTs if needed, to ensure that the result is of the
+    // from 8*2^x for x > 1. I.e. s.t. that "minSize" >= 16
+    int newNum = Math.max(minSize, 16);
+    // Compute the number which will be passed on to the transposition algorithm
+    newNum = minSize + kbitLength + lambdaParam;
+    // Check if "newNum" is a two power, this is done by checking if all bits,
+    // besides the msb, is 0 and only msb is 1
+    if ((newNum & (newNum - 1)) != 0) {
+      // Compute the 2 exponent needed for the total amount of OTs (some of
+      // which must be sacrificed)
+      int exponent = (int) Math.ceil(Math.log(newNum) / Math.log(2));
+      // Finally compute the amount of usable OTs to get from the call to the
+      // underlying ROT functionality
+      return (1 << exponent) - kbitLength - lambdaParam;
+    }
+    return newNum - kbitLength - lambdaParam;
   }
 
   /**

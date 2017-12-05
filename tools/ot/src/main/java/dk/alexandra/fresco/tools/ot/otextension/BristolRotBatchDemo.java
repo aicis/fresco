@@ -18,7 +18,7 @@ import dk.alexandra.fresco.tools.ot.base.RotBatch;
 public class BristolRotBatchDemo<ResourcePoolT extends ResourcePool>
     extends Demo {
   // Amount of random OTs to construct
-  private int amountOfOTs = 88;
+  private int amountOfOTs = 128;
   // The amount of bits in each message
   private int messageSize = 2048;
 
