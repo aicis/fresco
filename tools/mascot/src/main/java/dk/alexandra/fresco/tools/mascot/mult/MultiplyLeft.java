@@ -43,35 +43,29 @@ public class MultiplyLeft extends MultiplyShared {
     // use rot to get choice seeds
     List<StrictBitVector> seeds = new ArrayList<>();
     try {
-      seeds = rot.receive(packedFactors, ctx.getkBitLength());
+      seeds = rot.receive(packedFactors, modBitLength);
     } catch (MaliciousOtException | FailedOtException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
     return seeds;
   }
-  
-  public List<StrictBitVector> generateSeeds(FieldElement leftFactors) {
-    return generateSeeds(Arrays.asList(leftFactors));
+
+  public List<StrictBitVector> generateSeeds(FieldElement leftFactor) {
+    return generateSeeds(Arrays.asList(leftFactor));
   }
 
   public List<FieldElement> receiveDiffs(int numDiffs) {
-    byte[] raw = ctx.getNetwork()
-        .receive(otherId);
+    byte[] raw = network.receive(otherId);
     List<FieldElement> diffs = FieldElementSerializer.deserializeList(raw);
     return diffs;
   }
 
   public List<FieldElement> computeProductShares(List<FieldElement> leftFactors,
       List<FieldElement> feSeeds, List<FieldElement> diffs) {
-    // we need modulus and bit length
-    BigInteger modulus = ctx.getModulus();
-    int modBitLength = ctx.getkBitLength();
-
     List<FieldElement> result = new ArrayList<>(leftFactors.size());
 
     int diffIdx = 0;
-
     for (FieldElement leftFactor : leftFactors) {
       List<FieldElement> summands = new ArrayList<>(modBitLength);
       for (int b = 0; b < modBitLength; b++) {
@@ -83,7 +77,8 @@ public class MultiplyLeft extends MultiplyShared {
         summands.add(summand);
         diffIdx++;
       }
-      FieldElement productShare = FieldElementCollectionUtils.recombine(summands, modulus, modBitLength);
+      FieldElement productShare =
+          FieldElementCollectionUtils.recombine(summands, modulus, modBitLength);
       result.add(productShare);
     }
 
@@ -101,10 +96,6 @@ public class MultiplyLeft extends MultiplyShared {
   }
 
   public List<FieldElement> multiply(List<FieldElement> leftFactors) {
-    // we need the modulus and the bit length of the modulus
-    BigInteger modulus = ctx.getModulus();
-    int modBitLength = ctx.getkBitLength();
-
     // generate seeds to use for multiplication
     List<StrictBitVector> seeds = generateSeeds(leftFactors);
 

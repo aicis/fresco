@@ -16,5 +16,5 @@ public class MultiplyShared extends TwoPartyProtocol {
     this.numLeftFactors = numLeftFactors;
     this.rot = new DummyRotBatch(otherId, ctx.getNetwork(), ctx.getRand());
   }
-  
+
 }

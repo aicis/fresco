@@ -8,15 +8,15 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 
-public class FieldElement implements Addable<FieldElement>, Serializable {
+public final class FieldElement implements Addable<FieldElement>, Serializable {
 
   /**
    * 
    */
   private static final long serialVersionUID = 616090818218953860L;
-  BigInteger value;
-  BigInteger modulus;
-  int bitLength;
+  final BigInteger value;
+  final BigInteger modulus;
+  final int bitLength;
 
   public FieldElement(BigInteger value, BigInteger modulus, int bitLength) {
     sanityCheck(value, modulus, bitLength);
@@ -30,7 +30,7 @@ public class FieldElement implements Addable<FieldElement>, Serializable {
     this.modulus = other.modulus;
     this.bitLength = other.bitLength;
   }
-  
+
   public FieldElement(String value, String modulus, int bitLength) {
     this(new BigInteger(value), new BigInteger(modulus), bitLength);
   }

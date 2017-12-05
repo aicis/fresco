@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
@@ -28,10 +27,10 @@ public class MultiplyRight extends MultiplyShared {
 
   public List<Pair<StrictBitVector, StrictBitVector>> generateSeeds(int numMults) {
     // perform rots for each bit, for each left factor, for each multiplication
-    int numRots = ctx.getkBitLength() * numLeftFactors * numMults;
+    int numRots = modBitLength * numLeftFactors * numMults;
     List<Pair<StrictBitVector, StrictBitVector>> seeds = new ArrayList<>();
     try {
-      seeds = rot.send(numRots, ctx.getkBitLength());
+      seeds = rot.send(numRots, modBitLength);
     } catch (MaliciousOtException | FailedOtException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -50,7 +49,6 @@ public class MultiplyRight extends MultiplyShared {
   public List<FieldElement> computeDiffs(List<Pair<FieldElement, FieldElement>> feSeedPairs,
       List<FieldElement> rightFactors) {
     List<FieldElement> diffs = new ArrayList<>(feSeedPairs.size());
-    int modBitLength = ctx.getkBitLength();
     int rightFactorIdx = 0;
     int seedPairIdx = 0;
     for (Pair<FieldElement, FieldElement> feSeedPair : feSeedPairs) {
@@ -64,14 +62,11 @@ public class MultiplyRight extends MultiplyShared {
   }
 
   public void sendDiffs(List<FieldElement> diffs) {
-    Network network = ctx.getNetwork();
     network.send(otherId, FieldElementSerializer.serialize(diffs));
   }
 
   public List<FieldElement> computeProductShares(List<FieldElement> feZeroSeeds,
       int numRightFactors) {
-    BigInteger modulus = ctx.getModulus();
-    int modBitLength = ctx.getkBitLength();
     int groupBitLength = numLeftFactors * modBitLength;
     List<FieldElement> productShares = new ArrayList<>(numRightFactors);
     for (int rightFactIdx = 0; rightFactIdx < numRightFactors; rightFactIdx++) {
@@ -100,10 +95,6 @@ public class MultiplyRight extends MultiplyShared {
   }
 
   public List<FieldElement> multiply(List<FieldElement> rightFactors) {
-    // we need the modulus and the bit length of the modulus
-    BigInteger modulus = ctx.getModulus();
-    int modBitLength = ctx.getkBitLength();
-
     // generate seeds pairs which we will use to compute diffs
     List<Pair<StrictBitVector, StrictBitVector>> seedPairs = generateSeeds(rightFactors.size());
 

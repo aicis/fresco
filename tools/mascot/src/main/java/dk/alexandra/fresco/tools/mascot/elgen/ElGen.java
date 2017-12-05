@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.mascot.elgen;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -10,9 +9,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.tools.mascot.BaseProtocol;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
 import dk.alexandra.fresco.tools.mascot.cope.CopeInputter;
 import dk.alexandra.fresco.tools.mascot.cope.CopeSigner;
@@ -25,7 +23,7 @@ import dk.alexandra.fresco.tools.mascot.utils.Sharer;
 import dk.alexandra.fresco.tools.mascot.utils.sample.DummySampler;
 import dk.alexandra.fresco.tools.mascot.utils.sample.Sampler;
 
-public class ElGen extends BaseProtocol {
+public class ElGen extends MultiPartyProtocol {
 
   private MacCheck macChecker;
   private FieldElement macKeyShare;
@@ -125,7 +123,6 @@ public class ElGen extends BaseProtocol {
   }
 
   void sendShares(Integer partyId, List<FieldElement> shares) {
-    Network network = ctx.getNetwork();
     network.send(partyId, FieldElementSerializer.serialize(shares));
   }
 
@@ -134,20 +131,19 @@ public class ElGen extends BaseProtocol {
         .map(value -> sharer.additiveShare(value, numShares))
         .collect(Collectors.toList());
     List<List<FieldElement>> byParty = FieldElementCollectionUtils.transpose(allShares);
-    for (Integer partyId : ctx.getPartyIds()) {
+    for (Integer partyId : partyIds) {
       // send shares to everyone but self
-      if (!partyId.equals(ctx.getMyId())) {
+      if (!partyId.equals(myId)) {
         // assume party ids go from 1...n
         List<FieldElement> shares = byParty.get(partyId - 1);
         sendShares(partyId, shares);
       }
     }
     // return own shares
-    return byParty.get(ctx.getMyId() - 1);
+    return byParty.get(myId - 1);
   }
 
   List<FieldElement> receiveShares(Integer inputterId, int numElements) {
-    Network network = ctx.getNetwork();
     List<FieldElement> receivedShares =
         FieldElementSerializer.deserializeList(network.receive(inputterId));
     return receivedShares;
@@ -158,8 +154,6 @@ public class ElGen extends BaseProtocol {
     if (shares.size() != macs.size()) {
       throw new IllegalArgumentException("Number of shares must equal number of mac shares");
     }
-    BigInteger modulus = ctx.getModulus();
-    int modBitLength = ctx.getkBitLength();
     Stream<AuthenticatedElement> spdzElements = IntStream.range(0, shares.size())
         .mapToObj(idx -> {
           FieldElement share = shares.get(idx);
@@ -177,11 +171,6 @@ public class ElGen extends BaseProtocol {
 
     // make sure we can add elements to list etc
     values = new ArrayList<>(values);
-
-    BigInteger modulus = ctx.getModulus();
-    int modBitLength = ctx.getkBitLength();
-    Network network = ctx.getNetwork();
-    List<Integer> partyIds = ctx.getPartyIds();
 
     // add extra random element which will later be used to mask inputs
     FieldElement extraElement = sampler.sample(modulus, modBitLength);
@@ -218,10 +207,6 @@ public class ElGen extends BaseProtocol {
       throw new IllegalStateException("Need to initialize first");
     }
 
-    BigInteger modulus = ctx.getModulus();
-    int modBitLength = ctx.getkBitLength();
-    Network network = ctx.getNetwork();
-
     // receive per-element mac shares
     CopeSigner copeSigner = copeSigners.get(inputterId);
     List<FieldElement> macs = copeSigner.extend(numInputs + 1);
@@ -251,8 +236,6 @@ public class ElGen extends BaseProtocol {
    * @param openValues
    */
   public void check(List<AuthenticatedElement> sharesWithMacs, List<FieldElement> openValues) {
-    BigInteger modulus = ctx.getModulus();
-    int modBitLength = ctx.getkBitLength();
     List<FieldElement> masks = sampler.jointSample(modulus, modBitLength, sharesWithMacs.size());
     List<FieldElement> macs = sharesWithMacs.stream()
         .map(share -> share.getMac())
@@ -268,9 +251,6 @@ public class ElGen extends BaseProtocol {
   }
 
   public List<FieldElement> open(List<AuthenticatedElement> closed) {
-    List<Integer> partyIds = ctx.getPartyIds();
-    Integer myId = ctx.getMyId();
-    Network network = ctx.getNetwork();
     // all shares
     List<List<FieldElement>> shares = new ArrayList<>();
     // get shares from authenticated elements

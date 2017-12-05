@@ -2,7 +2,6 @@ package dk.alexandra.fresco.tools.mascot.maccheck;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,16 +9,15 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.tools.commitment.Commitment;
 import dk.alexandra.fresco.tools.commitment.FailedCommitmentException;
 import dk.alexandra.fresco.tools.commitment.MaliciousCommitmentException;
-import dk.alexandra.fresco.tools.mascot.BaseProtocol;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 
-public class MacCheck extends BaseProtocol {
+public class MacCheck extends MultiPartyProtocol {
 
   public MacCheck(MascotContext ctx) {
     super(ctx);
@@ -27,9 +25,6 @@ public class MacCheck extends BaseProtocol {
 
   List<Commitment> distributeCommitments(Commitment comm)
       throws IOException, ClassNotFoundException {
-    List<Integer> partyIds = ctx.getPartyIds();
-    Integer myId = ctx.getMyId();
-    Network network = ctx.getNetwork();
     // all commitments
     List<Commitment> comms = new ArrayList<>();
     comms.add(comm);
@@ -47,9 +42,6 @@ public class MacCheck extends BaseProtocol {
 
   List<Serializable> distributeOpenings(Serializable opening, List<Commitment> comms)
       throws IOException, ClassNotFoundException {
-    List<Integer> partyIds = ctx.getPartyIds();
-    Integer myId = ctx.getMyId();
-    Network network = ctx.getNetwork();
     // all openings
     List<Serializable> openings = new ArrayList<>();
     openings.add(opening);
@@ -83,9 +75,6 @@ public class MacCheck extends BaseProtocol {
 
   public void check(FieldElement opened, FieldElement macKeyShare, FieldElement macShare)
       throws MPCException, IOException, ClassNotFoundException, FailedCommitmentException {
-    BigInteger modulus = ctx.getModulus();
-    int modBitLength = ctx.getkBitLength();
-
     // we will check that all sigmas together add up to 0
     FieldElement sigma = macShare.subtract(opened.multiply(macKeyShare));
 

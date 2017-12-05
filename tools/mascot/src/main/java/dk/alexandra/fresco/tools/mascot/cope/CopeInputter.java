@@ -57,8 +57,6 @@ public class CopeInputter extends CopeShared {
   }
 
   List<Pair<FieldElement, FieldElement>> generateMaskPairs(int numInputs) {
-    BigInteger modulus = ctx.getModulus();
-    int modBitLength = ctx.getkBitLength();
     // for each input pair, we use our prf to get the next set of masks
     // each input requires a counter increment
     List<Pair<FieldElement, FieldElement>> maskPairs = new ArrayList<>();

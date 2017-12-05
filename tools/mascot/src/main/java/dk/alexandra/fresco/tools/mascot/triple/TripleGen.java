@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.mascot.triple;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -10,8 +9,8 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.tools.mascot.BaseProtocol;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
 import dk.alexandra.fresco.tools.mascot.elgen.ElGen;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
@@ -23,7 +22,7 @@ import dk.alexandra.fresco.tools.mascot.mult.MultiplyRight;
 import dk.alexandra.fresco.tools.mascot.utils.sample.DummySampler;
 import dk.alexandra.fresco.tools.mascot.utils.sample.Sampler;
 
-public class TripleGen extends BaseProtocol {
+public class TripleGen extends MultiPartyProtocol {
 
   private ElGen elGen;
   private List<MultiplyRight> rightMultipliers;
@@ -39,8 +38,6 @@ public class TripleGen extends BaseProtocol {
     this.elGen = new ElGen(ctx, macKeyShare);
     this.leftMultipliers = new LinkedList<>();
     this.rightMultipliers = new LinkedList<>();
-    Integer myId = ctx.getMyId();
-    List<Integer> partyIds = ctx.getPartyIds();
     for (Integer partyId : partyIds) {
       if (!myId.equals(partyId)) {
         // TODO explain
@@ -102,8 +99,6 @@ public class TripleGen extends BaseProtocol {
   }
 
   List<UnauthCand> combine(List<UnauthTriple> triples) {
-    BigInteger modulus = ctx.getModulus();
-    int modBitLength = ctx.getkBitLength();
     int numTriples = triples.size();
 
     List<List<FieldElement>> masks =
@@ -138,9 +133,6 @@ public class TripleGen extends BaseProtocol {
   }
 
   List<AuthCand> authenticate(List<UnauthCand> candidates) {
-    List<Integer> partyIds = ctx.getPartyIds();
-    Integer myId = ctx.getMyId();
-
     List<FieldElement> flatInputs = candidates.stream()
         .flatMap(c -> c.stream())
         .collect(Collectors.toList());
@@ -189,9 +181,6 @@ public class TripleGen extends BaseProtocol {
   }
 
   List<MultTriple> sacrifice(List<AuthCand> candidates) {
-    BigInteger modulus = ctx.getModulus();
-    int modBitLength = ctx.getkBitLength();
-
     List<FieldElement> masks = sampler.jointSample(modulus, modBitLength, candidates.size());
 
     // compute masked values we will open and use in mac-check
@@ -228,9 +217,6 @@ public class TripleGen extends BaseProtocol {
     if (!initialized) {
       throw new IllegalStateException("Need to initialize first");
     }
-
-    BigInteger modulus = ctx.getModulus();
-    int modBitLength = ctx.getkBitLength();
 
     // generate random left factor groups
     List<FieldElement> leftFactorGroups =
