@@ -9,6 +9,9 @@ import java.util.Random;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.cointossing.FailedCoinTossingException;
+import dk.alexandra.fresco.tools.commitment.FailedCommitmentException;
+import dk.alexandra.fresco.tools.commitment.MaliciousCommitmentException;
 import dk.alexandra.fresco.tools.ot.base.FailedOtException;
 import dk.alexandra.fresco.tools.ot.base.MaliciousOtException;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
@@ -71,6 +74,11 @@ public class BristolRotBatch implements RotBatch<StrictBitVector> {
   public List<Pair<StrictBitVector, StrictBitVector>> send(int numMessages, int sizeOfEachMessage)
       throws MaliciousOtException, FailedOtException {
     try {
+      // Initialize the underlying functionalities if needed
+      if (sender.initialized == false) {
+        sender.initialize();
+      }
+
       List<Pair<StrictBitVector, StrictBitVector>> res = new ArrayList<>(numMessages);
       Pair<List<StrictBitVector>, List<StrictBitVector>> messages = sender
           .extend(numMessages);
@@ -89,16 +97,30 @@ public class BristolRotBatch implements RotBatch<StrictBitVector> {
     } catch (MaliciousOtExtensionException e) {
       throw new MaliciousOtException(
           "Cheating occured in the underlying OT extension: " + e.getMessage());
+    } catch (MaliciousCommitmentException e) {
+      throw new MaliciousOtException(
+          "Cheating occured in the underlying commitments: " + e.getMessage());
     } catch (FailedOtExtensionException | NoSuchAlgorithmException e) {
       throw new FailedOtException(
           "The underlying OT extension failed: " + e.getMessage());
+    } catch (FailedCommitmentException e) {
+      throw new FailedOtException(
+          "The underlying commitments failed: " + e.getMessage());
+    } catch (FailedCoinTossingException e) {
+      throw new FailedOtException(
+          "The underlying coin-tossing failed: " + e.getMessage());
     }
   }
 
   @Override
-  public List<StrictBitVector> receive(StrictBitVector choiceBits, int sizeOfEachMessage)
-      throws MaliciousOtException, FailedOtException {
+  public List<StrictBitVector> receive(StrictBitVector choiceBits,
+      int sizeOfEachMessage) throws MaliciousOtException, FailedOtException {
     try {
+      // Initialize the underlying functionalities if needed
+      if (receiver.initialized == false) {
+        receiver.initialize();
+      }
+
       List<StrictBitVector> res = new ArrayList<>(choiceBits.getSize());
       List<StrictBitVector> messages = receiver.extend(choiceBits);
       for (int i = 0; i < choiceBits.getSize(); i++) {
@@ -110,6 +132,18 @@ public class BristolRotBatch implements RotBatch<StrictBitVector> {
     } catch (FailedOtExtensionException | NoSuchAlgorithmException e) {
       throw new FailedOtException(
           "The underlying OT extension failed: " + e.getMessage());
+    } catch (MaliciousCommitmentException e) {
+      throw new FailedOtException(
+          "Cheating occured in the underlying commitments: " + e.getMessage());
+    } catch (FailedCommitmentException e) {
+      throw new FailedOtException(
+          "The underlying commitments failed: " + e.getMessage());
+    } catch (FailedCoinTossingException e) {
+      throw new FailedOtException(
+          "The underlying coin-tossing failed: " + e.getMessage());
+    } catch (MaliciousOtExtensionException e) {
+      throw new FailedOtException(
+          "Cheating occured in the OT extension: " + e.getMessage());
     }
   }
 
