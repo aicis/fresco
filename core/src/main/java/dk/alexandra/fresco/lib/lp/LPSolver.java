@@ -156,7 +156,7 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
           state.basis = basis;
           // // Copy the resulting new update matrix to overwrite the current
           state.prevPivot = state.pivot;
-          return () -> state;
+          return state;
         });
   }
 
