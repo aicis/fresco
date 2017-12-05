@@ -4,7 +4,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.FailedOtException;
@@ -35,6 +37,32 @@ public class BristolRotBatch implements RotBatch<StrictBitVector> {
    *          The random OT protocol to use internally
    */
   public BristolRotBatch(Rot rot) {
+    this.sender = rot.getSender();
+    this.receiver = rot.getReceiver();
+  }
+
+  /**
+   * Constructs a new random batch OT protocol and constructs the internal sender and
+   * receiver objects.
+   * 
+   * @param myId
+   *          The unique ID of the calling party
+   * @param otherId
+   *          The unique ID of the other party (not the calling party)
+   *          participating in the protocol
+   * @param kbitLength
+   *          The computational security parameter
+   * @param lambdaSecurityParam
+   *          The statistical security parameter
+   * @param rand
+   *          Object used for randomness generation
+   * @param network
+   *          The network instance
+   */
+  public BristolRotBatch(int myId, int otherId, int kbitLength,
+      int lambdaSecurityParam, Random rand, Network network) {
+    Rot rot = new Rot(myId, otherId, kbitLength, lambdaSecurityParam, rand,
+        network);
     this.sender = rot.getSender();
     this.receiver = rot.getReceiver();
   }
