@@ -8,12 +8,21 @@ import static org.junit.Assert.fail;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
+import dk.alexandra.fresco.lib.lp.LPSolver.PivotRule;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.hamcrest.core.Is;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class TestLpBuildingBlocks {
+  
+  @Test
+  public void testEnums(){
+    Assert.assertThat(PivotRule.valueOf("BLAND"), Is.is(PivotRule.BLAND));
+    Assert.assertThat(PivotRule.valueOf("DANZIG"), Is.is(PivotRule.DANZIG));
+  }
   
   @Test
   public void testMatrix() {
