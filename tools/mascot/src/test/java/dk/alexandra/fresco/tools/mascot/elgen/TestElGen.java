@@ -16,6 +16,7 @@ import org.junit.Test;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
+import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 
@@ -341,7 +342,7 @@ public class TestElGen extends NetworkedTest {
 
   private List<AuthenticatedElement> computeExpected(List<FieldElement> inputs,
       List<FieldElement> macKeyShares, BigInteger modulus, int modBitLength) {
-    FieldElement macKey = FieldElement.sum(macKeyShares);
+    FieldElement macKey = CollectionUtils.sum(macKeyShares);
     Stream<AuthenticatedElement> expected = inputs.stream()
         .map(fe -> {
           FieldElement mac = fe.multiply(macKey);
@@ -359,7 +360,7 @@ public class TestElGen extends NetworkedTest {
   private List<AuthenticatedElement> computeActual(
       List<List<AuthenticatedElement>> sharesPerParty) {
     // TODO debatable...
-    List<List<AuthenticatedElement>> perValue = ElGenUtils.naiveTranspose(sharesPerParty);
+    List<List<AuthenticatedElement>> perValue = CollectionUtils.transpose(sharesPerParty);
     List<AuthenticatedElement> actual = perValue.stream()
         .map(shares -> sum(shares))
         .collect(Collectors.toList());

@@ -10,6 +10,7 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.utils.DummyPrg;
 import dk.alexandra.fresco.tools.ot.base.FailedOtException;
@@ -78,7 +79,7 @@ public class MultiplyRight extends MultiplyShared {
         int from = rightFactIdx * groupBitLength + leftFactIdx * modBitLength;
         int to = rightFactIdx * groupBitLength + (leftFactIdx + 1) * modBitLength;
         List<FieldElement> subFactors = feZeroSeeds.subList(from, to);
-        FieldElement recombined = FieldElement.recombine(subFactors, modulus, modBitLength);
+        FieldElement recombined = FieldElementCollectionUtils.recombine(subFactors, modulus, modBitLength);
         productShares.add(recombined.negate());
       }
     }

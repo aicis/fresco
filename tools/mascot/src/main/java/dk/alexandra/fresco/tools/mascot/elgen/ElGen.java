@@ -13,13 +13,14 @@ import java.util.stream.Stream;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.tools.mascot.BaseProtocol;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
 import dk.alexandra.fresco.tools.mascot.cope.CopeInputter;
 import dk.alexandra.fresco.tools.mascot.cope.CopeSigner;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.maccheck.MacCheck;
-import dk.alexandra.fresco.tools.mascot.utils.BatchArithmetic;
 import dk.alexandra.fresco.tools.mascot.utils.Sharer;
 import dk.alexandra.fresco.tools.mascot.utils.sample.DummySampler;
 import dk.alexandra.fresco.tools.mascot.utils.sample.Sampler;
@@ -87,9 +88,9 @@ public class ElGen extends BaseProtocol {
   }
 
   List<FieldElement> combineIntoMacShares(List<List<FieldElement>> singedByAll) {
-    List<List<FieldElement>> tilted = ElGenUtils.transpose(singedByAll);
+    List<List<FieldElement>> tilted = FieldElementCollectionUtils.transpose(singedByAll);
     Stream<FieldElement> combinedMacs = tilted.stream()
-        .map(l -> FieldElement.sum(l));
+        .map(l -> CollectionUtils.sum(l));
     return combinedMacs.collect(Collectors.toList());
   }
 
@@ -115,7 +116,7 @@ public class ElGen extends BaseProtocol {
 
   void runMacCheck(FieldElement value, List<FieldElement> masks, List<FieldElement> macs) {
     // mask and combine macs
-    FieldElement maskedMac = FieldElement.sum(mask(macs, masks));
+    FieldElement maskedMac = CollectionUtils.sum(mask(macs, masks));
     // perform mac-check on open masked value
     try {
       macChecker.check(value, macKeyShare, maskedMac);
@@ -134,7 +135,7 @@ public class ElGen extends BaseProtocol {
     List<List<FieldElement>> allShares = values.stream()
         .map(value -> sharer.additiveShare(value, numShares))
         .collect(Collectors.toList());
-    List<List<FieldElement>> byParty = ElGenUtils.transpose(allShares);
+    List<List<FieldElement>> byParty = FieldElementCollectionUtils.transpose(allShares);
     for (Integer partyId : ctx.getPartyIds()) {
       // send shares to everyone but self
       if (!partyId.equals(ctx.getMyId())) {
@@ -195,7 +196,7 @@ public class ElGen extends BaseProtocol {
     List<FieldElement> masks = sampler.jointSample(modulus, modBitLength, values.size());
 
     // mask and combine values
-    FieldElement maskedValue = FieldElement.sum(mask(values, masks));
+    FieldElement maskedValue = CollectionUtils.sum(mask(values, masks));
 
     // send masked value to all other parties
     network.sendToAll(maskedValue.toByteArray());
@@ -255,8 +256,8 @@ public class ElGen extends BaseProtocol {
     List<FieldElement> macsOnly = sharesWithMacs.stream()
         .map(share -> share.getMac())
         .collect(Collectors.toList());
-    FieldElement maskedMac = FieldElement.sum(macsOnly);
-    FieldElement maskedValue = FieldElement.sum(openValues);
+    FieldElement maskedMac = CollectionUtils.sum(macsOnly);
+    FieldElement maskedValue = CollectionUtils.sum(openValues);
     try {
       macChecker.check(maskedValue, macKeyShare, maskedMac);
     } catch (Exception e) {
@@ -287,7 +288,7 @@ public class ElGen extends BaseProtocol {
       }
     }
     // recombine
-    return BatchArithmetic.pairWiseSum(shares);
+    return CollectionUtils.pairWiseSum(shares);
   }
 
 }

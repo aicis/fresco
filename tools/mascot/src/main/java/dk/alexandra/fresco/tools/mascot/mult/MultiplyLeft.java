@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.utils.DummyPrg;
 import dk.alexandra.fresco.tools.ot.base.FailedOtException;
@@ -82,7 +83,7 @@ public class MultiplyLeft extends MultiplyShared {
         summands.add(summand);
         diffIdx++;
       }
-      FieldElement productShare = FieldElement.recombine(summands, modulus, modBitLength);
+      FieldElement productShare = FieldElementCollectionUtils.recombine(summands, modulus, modBitLength);
       result.add(productShare);
     }
 

@@ -3,9 +3,9 @@ package dk.alexandra.fresco.tools.mascot.field;
 import java.math.BigInteger;
 
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
-import dk.alexandra.fresco.tools.mascot.ArithmeticElement;
+import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 
-public class AuthenticatedElement implements ArithmeticElement<AuthenticatedElement> {
+public class AuthenticatedElement implements Addable<AuthenticatedElement> {
 
   SpdzElement spdzElement;
   BigInteger modulus;
@@ -33,11 +33,6 @@ public class AuthenticatedElement implements ArithmeticElement<AuthenticatedElem
   public AuthenticatedElement subtract(AuthenticatedElement other) {
     SpdzElement sum = spdzElement.subtract(other.spdzElement);
     return new AuthenticatedElement(sum, modulus, modBitLength);
-  }
-
-  @Override
-  public AuthenticatedElement multiply(AuthenticatedElement other) {
-    throw new UnsupportedOperationException();
   }
 
   public AuthenticatedElement multiply(FieldElement constant) {

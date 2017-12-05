@@ -2,23 +2,21 @@ package dk.alexandra.fresco.tools.mascot.field;
 
 import java.io.Serializable;
 import java.math.BigInteger;
-import java.util.List;
 import java.util.function.BinaryOperator;
-import java.util.stream.IntStream;
 
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
-import dk.alexandra.fresco.tools.mascot.ArithmeticElement;
+import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 
-public class FieldElement implements ArithmeticElement<FieldElement>, Serializable {
+public class FieldElement implements Addable<FieldElement>, Serializable {
 
   /**
    * 
    */
   private static final long serialVersionUID = 616090818218953860L;
-  private BigInteger value;
-  private BigInteger modulus;
-  private int bitLength;
+  BigInteger value;
+  BigInteger modulus;
+  int bitLength;
 
   public FieldElement(BigInteger value, BigInteger modulus, int bitLength) {
     sanityCheck(value, modulus, bitLength);
@@ -162,44 +160,6 @@ public class FieldElement implements ArithmeticElement<FieldElement>, Serializab
     // TODO: check that modulus and bit length are same
     BigInteger modulus = share.modulus;
     return new SpdzElement(share.toBigInteger(), macShare.toBigInteger(), modulus);
-  }
-
-  public static FieldElement recombine(FieldElement generator, List<FieldElement> elements) {
-    // TODO: optimize
-    // TODO: use innerProduct
-    BigInteger modulus = generator.modulus;
-    int bitLength = generator.bitLength;
-    FieldElement accumulator = new FieldElement(BigInteger.ZERO, modulus, bitLength);
-    int power = 0;
-    for (FieldElement element : elements) {
-      // TODO: do we need/ want modular exponentiation?
-      accumulator = accumulator.add(generator.pow(power)
-          .multiply(element));
-      power++;
-    }
-    return accumulator;
-  }
-
-  public static FieldElement recombine(List<FieldElement> elements, BigInteger modulus,
-      int bitLength) {
-    FieldElement generator = new FieldElement(BigInteger.valueOf(2), modulus, bitLength);
-    return FieldElement.recombine(generator, elements);
-  }
-
-  public static FieldElement innerProduct(List<FieldElement> left, List<FieldElement> right) {
-    // TODO: throw is unequal lengths
-    return IntStream.range(0, left.size())
-        .mapToObj(idx -> left.get(idx)
-            .multiply(right.get(idx)))
-        .reduce((l, r) -> l.add(r))
-        .get();
-  }
-
-  public static FieldElement sum(List<FieldElement> summands) {
-    // TODO: only need to do one modular reduction
-    return summands.stream()
-        .reduce((l, r) -> l.add(r))
-        .get();
   }
 
   private void sanityCheck(BigInteger value, BigInteger modulus, int bitLength) {

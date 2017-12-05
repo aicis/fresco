@@ -14,10 +14,11 @@ import org.junit.Test;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
+import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
-import dk.alexandra.fresco.tools.mascot.utils.BatchArithmetic;
 
 public class TestTripleGen extends NetworkedTest {
 
@@ -165,15 +166,15 @@ public class TestTripleGen extends NetworkedTest {
 
       // for each input pair of factors the result is (a1 + a2 + ...) * (b1 + b2 + ...)
       List<FieldElement> expectedLeftFactors =
-          BatchArithmetic.pairWiseSum(Arrays.asList(leftFactorsOne, leftFactorsTwo));
-      List<FieldElement> expectedRightFactors = BatchArithmetic.stretch(
-          BatchArithmetic.pairWiseSum(Arrays.asList(rightFactorsOne, rightFactorsTwo)), 3);
+          CollectionUtils.pairWiseSum(Arrays.asList(leftFactorsOne, leftFactorsTwo));
+      List<FieldElement> expectedRightFactors = FieldElementCollectionUtils.stretch(
+          CollectionUtils.pairWiseSum(Arrays.asList(rightFactorsOne, rightFactorsTwo)), 3);
 
       List<FieldElement> expected =
-          BatchArithmetic.pairWiseMultiply(expectedLeftFactors, expectedRightFactors);
+          FieldElementCollectionUtils.pairWiseMultiply(expectedLeftFactors, expectedRightFactors);
 
       // actual results, recombined
-      List<FieldElement> actual = BatchArithmetic.pairWiseSum(results);
+      List<FieldElement> actual = CollectionUtils.pairWiseSum(results);
       assertEquals(expected, actual);
     } catch (Exception e) {
       // TODO: handle exception
@@ -205,9 +206,9 @@ public class TestTripleGen extends NetworkedTest {
       }
 
       List<List<MultTriple>> results = testRuntime.runPerPartyTasks(tasks);
-      List<MultTriple> combined = BatchArithmetic.pairWiseSum(results);
+      List<MultTriple> combined = CollectionUtils.pairWiseSum(results);
       for (MultTriple triple : combined) {
-        checkTriple(triple, FieldElement.sum(macKeyShares));
+        checkTriple(triple, CollectionUtils.sum(macKeyShares));
       }
     } catch (Exception e) {
       // TODO: handle exception

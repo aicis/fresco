@@ -12,13 +12,14 @@ import java.util.stream.Stream;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.tools.mascot.BaseProtocol;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
 import dk.alexandra.fresco.tools.mascot.elgen.ElGen;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeft;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyRight;
-import dk.alexandra.fresco.tools.mascot.utils.BatchArithmetic;
 import dk.alexandra.fresco.tools.mascot.utils.sample.DummySampler;
 import dk.alexandra.fresco.tools.mascot.utils.sample.Sampler;
 
@@ -77,9 +78,10 @@ public class TripleGen extends BaseProtocol {
   List<FieldElement> multiply(List<FieldElement> leftFactorGroups,
       List<FieldElement> rightFactors) {
     // "stretch" right factors, so we have one right factor for each left factor
-    List<FieldElement> stretched = BatchArithmetic.stretch(rightFactors, numLeftFactors);
+    List<FieldElement> stretched =
+        FieldElementCollectionUtils.stretch(rightFactors, numLeftFactors);
 
-    // for each value we will have two sub-factors per other party
+    // for each value we will have two sub-factors for each other party
     List<List<FieldElement>> subFactors = new ArrayList<>();
     // left-mult blocks on receive, so run right mults first
     for (MultiplyRight rightMultiplier : rightMultipliers) {
@@ -91,11 +93,11 @@ public class TripleGen extends BaseProtocol {
 
     // own part of the product
     List<FieldElement> localSubFactors =
-        BatchArithmetic.pairWiseMultiply(leftFactorGroups, stretched);
+        FieldElementCollectionUtils.pairWiseMultiply(leftFactorGroups, stretched);
     subFactors.add(localSubFactors);
 
     // combine all sub-factors into product shares
-    List<FieldElement> productShares = BatchArithmetic.pairWiseSum(subFactors);
+    List<FieldElement> productShares = CollectionUtils.pairWiseSum(subFactors);
     return productShares;
   }
 
@@ -152,7 +154,7 @@ public class TripleGen extends BaseProtocol {
       }
     }
 
-    List<AuthenticatedElement> combined = BatchArithmetic.pairWiseSum(shares);
+    List<AuthenticatedElement> combined = CollectionUtils.pairWiseSum(shares);
     return toAuthenticatedCand(combined, 5);
   }
 
@@ -264,16 +266,16 @@ public class TripleGen extends BaseProtocol {
     }
 
     UnauthCand toCandidate(List<FieldElement> masks, List<FieldElement> sacrificeMasks) {
-      FieldElement left = FieldElement.innerProduct(leftFactors, masks);
-      FieldElement prod = FieldElement.innerProduct(product, masks);
-      FieldElement leftSac = FieldElement.innerProduct(leftFactors, sacrificeMasks);
-      FieldElement prodSac = FieldElement.innerProduct(product, sacrificeMasks);
+      FieldElement left = FieldElementCollectionUtils.innerProduct(leftFactors, masks);
+      FieldElement prod = FieldElementCollectionUtils.innerProduct(product, masks);
+      FieldElement leftSac = FieldElementCollectionUtils.innerProduct(leftFactors, sacrificeMasks);
+      FieldElement prodSac = FieldElementCollectionUtils.innerProduct(product, sacrificeMasks);
       return new UnauthCand(left, rightFactor, prod, leftSac, prodSac);
     }
   }
 
   private class TripleCandidate<T> {
-    
+
     T a;
     T b;
     T c;
