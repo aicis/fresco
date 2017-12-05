@@ -20,6 +20,7 @@ import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.maccheck.MacCheck;
 import dk.alexandra.fresco.tools.mascot.utils.Sharer;
+import dk.alexandra.fresco.tools.mascot.utils.sample.DummyJointSampler;
 import dk.alexandra.fresco.tools.mascot.utils.sample.DummySampler;
 import dk.alexandra.fresco.tools.mascot.utils.sample.Sampler;
 
@@ -28,7 +29,8 @@ public class ElGen extends MultiPartyProtocol {
   private MacCheck macChecker;
   private FieldElement macKeyShare;
   private boolean initialized;
-  private Sampler sampler;
+  private Sampler localSampler;
+  private Sampler jointSampler;
   private Sharer sharer;
   private Map<Integer, CopeSigner> copeSigners;
   private List<CopeInputter> copeInputters;
@@ -37,8 +39,9 @@ public class ElGen extends MultiPartyProtocol {
     super(ctx);
     this.macChecker = new MacCheck(ctx);
     this.macKeyShare = macKeyShare;
-    this.sampler = new DummySampler(ctx.getRand());
-    this.sharer = new Sharer(sampler);
+    this.localSampler = new DummySampler(ctx.getRand());
+    this.jointSampler = new DummyJointSampler();
+    this.sharer = new Sharer(localSampler);
     this.copeSigners = new HashMap<>();
     this.copeInputters = new LinkedList<>();
     for (Integer partyId : ctx.getPartyIds()) {
@@ -173,14 +176,14 @@ public class ElGen extends MultiPartyProtocol {
     values = new ArrayList<>(values);
 
     // add extra random element which will later be used to mask inputs
-    FieldElement extraElement = sampler.sample(modulus, modBitLength);
+    FieldElement extraElement = localSampler.sample(modulus, modBitLength);
     values.add(extraElement);
 
     // compute per element mac share
     List<FieldElement> macs = macValues(values);
 
     // generate masks for values and macs
-    List<FieldElement> masks = sampler.jointSample(modulus, modBitLength, values.size());
+    List<FieldElement> masks = jointSampler.sample(modulus, modBitLength, values.size());
 
     // mask and combine values
     FieldElement maskedValue = CollectionUtils.sum(mask(values, masks));
@@ -212,7 +215,7 @@ public class ElGen extends MultiPartyProtocol {
     List<FieldElement> macs = copeSigner.extend(numInputs + 1);
 
     // generate masks for macs
-    List<FieldElement> masks = sampler.jointSample(modulus, modBitLength, numInputs + 1);
+    List<FieldElement> masks = jointSampler.sample(modulus, modBitLength, numInputs + 1);
 
     // receive masked value we will use in mac-check
     FieldElement maskedValue = new FieldElement(network.receive(inputterId), modulus, modBitLength);
@@ -236,7 +239,7 @@ public class ElGen extends MultiPartyProtocol {
    * @param openValues
    */
   public void check(List<AuthenticatedElement> sharesWithMacs, List<FieldElement> openValues) {
-    List<FieldElement> masks = sampler.jointSample(modulus, modBitLength, sharesWithMacs.size());
+    List<FieldElement> masks = jointSampler.sample(modulus, modBitLength, sharesWithMacs.size());
     List<FieldElement> macs = sharesWithMacs.stream()
         .map(share -> share.getMac())
         .collect(Collectors.toList());
