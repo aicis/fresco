@@ -287,7 +287,7 @@ public class ElGen extends BaseProtocol {
       }
     }
     // recombine
-    return BatchArithmetic.pairWiseAddRows(shares);
+    return BatchArithmetic.pairWiseSum(shares);
   }
 
 }

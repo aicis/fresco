@@ -43,8 +43,8 @@ public class TripleGen extends BaseProtocol {
     for (Integer partyId : partyIds) {
       if (!myId.equals(partyId)) {
         // TODO explain
-        rightMultipliers.add(new MultiplyRight(ctx, partyId, 1));
-        leftMultipliers.add(new MultiplyLeft(ctx, partyId, 1));
+        rightMultipliers.add(new MultiplyRight(ctx, partyId));
+        leftMultipliers.add(new MultiplyLeft(ctx, partyId));
       }
     }
     this.sampler = new DummySampler(ctx.getRand());
@@ -95,7 +95,7 @@ public class TripleGen extends BaseProtocol {
     subFactors.add(localSubFactors);
 
     // combine all sub-factors into product shares
-    List<FieldElement> productShares = BatchArithmetic.pairWiseAddRows(subFactors);
+    List<FieldElement> productShares = BatchArithmetic.pairWiseSum(subFactors);
     return productShares;
   }
 
@@ -122,7 +122,7 @@ public class TripleGen extends BaseProtocol {
     return candidates;
   }
 
-  List<AuthCand> partition(List<AuthenticatedElement> list, int partSize) {
+  List<AuthCand> toAuthenticatedCand(List<AuthenticatedElement> list, int partSize) {
     if (list.size() % partSize != 0) {
       throw new IllegalArgumentException("Size of list must be multiple of partition size");
     }
@@ -152,8 +152,8 @@ public class TripleGen extends BaseProtocol {
       }
     }
 
-    List<AuthenticatedElement> combined = BatchArithmetic.pairWiseAddRows(shares);
-    return partition(combined, 5);
+    List<AuthenticatedElement> combined = BatchArithmetic.pairWiseSum(shares);
+    return toAuthenticatedCand(combined, 5);
   }
 
   List<AuthenticatedElement> computeRhos(List<AuthCand> candidates, List<FieldElement> masks) {
@@ -272,11 +272,8 @@ public class TripleGen extends BaseProtocol {
     }
   }
 
-  // TODO hack hack hack
-  private class TripleCandidate<T> extends ArrayList<T> {
-
-    private static final long serialVersionUID = -4917636316948291312L;
-
+  private class TripleCandidate<T> {
+    
     T a;
     T b;
     T c;
@@ -284,7 +281,6 @@ public class TripleGen extends BaseProtocol {
     T cHat;
 
     TripleCandidate(T a, T b, T c, T aHat, T cHat) {
-      super(Arrays.asList(a, b, c, aHat, cHat));
       this.a = a;
       this.b = b;
       this.c = c;
@@ -296,28 +292,29 @@ public class TripleGen extends BaseProtocol {
       this(ordered.get(0), ordered.get(1), ordered.get(2), ordered.get(3), ordered.get(4));
     }
 
+    Stream<T> stream() {
+      return Arrays.asList(a, b, c, aHat, cHat)
+          .stream();
+    }
+
     @Override
     public String toString() {
-      return "Combined [a=" + get(0) + ", b=" + get(1) + ", c=" + get(2) + ", aHat=" + get(3)
-          + ", cHat=" + get(4) + "]";
+      return "TripleCandidate [a=" + a + ", b=" + b + ", c=" + c + ", aHat=" + aHat + ", cHat="
+          + cHat + "]";
     }
+
   }
 
   private class UnauthCand extends TripleCandidate<FieldElement> {
-    /**
-     * 
-     */
-    private static final long serialVersionUID = -1971365645502905443L;
 
     UnauthCand(FieldElement a, FieldElement b, FieldElement c, FieldElement aHat,
         FieldElement cHat) {
       super(a, b, c, aHat, cHat);
     }
+
   }
 
   private class AuthCand extends TripleCandidate<AuthenticatedElement> {
-
-    private static final long serialVersionUID = -7482720772166931426L;
 
     AuthCand(AuthenticatedElement a, AuthenticatedElement b, AuthenticatedElement c,
         AuthenticatedElement aHat, AuthenticatedElement cHat) {

@@ -165,15 +165,15 @@ public class TestTripleGen extends NetworkedTest {
 
       // for each input pair of factors the result is (a1 + a2 + ...) * (b1 + b2 + ...)
       List<FieldElement> expectedLeftFactors =
-          BatchArithmetic.pairWiseAddRows(Arrays.asList(leftFactorsOne, leftFactorsTwo));
+          BatchArithmetic.pairWiseSum(Arrays.asList(leftFactorsOne, leftFactorsTwo));
       List<FieldElement> expectedRightFactors = BatchArithmetic.stretch(
-          BatchArithmetic.pairWiseAddRows(Arrays.asList(rightFactorsOne, rightFactorsTwo)), 3);
+          BatchArithmetic.pairWiseSum(Arrays.asList(rightFactorsOne, rightFactorsTwo)), 3);
 
       List<FieldElement> expected =
           BatchArithmetic.pairWiseMultiply(expectedLeftFactors, expectedRightFactors);
 
       // actual results, recombined
-      List<FieldElement> actual = BatchArithmetic.pairWiseAddRows(results);
+      List<FieldElement> actual = BatchArithmetic.pairWiseSum(results);
       assertEquals(expected, actual);
     } catch (Exception e) {
       // TODO: handle exception
@@ -205,7 +205,7 @@ public class TestTripleGen extends NetworkedTest {
       }
 
       List<List<MultTriple>> results = testRuntime.runPerPartyTasks(tasks);
-      List<MultTriple> combined = BatchArithmetic.pairWiseAddRows(results);
+      List<MultTriple> combined = BatchArithmetic.pairWiseSum(results);
       for (MultTriple triple : combined) {
         checkTriple(triple, FieldElement.sum(macKeyShares));
       }
