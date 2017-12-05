@@ -3,7 +3,6 @@ package dk.alexandra.fresco.framework.util;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
 
-import dk.alexandra.fresco.framework.MPCException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.function.Supplier;
@@ -12,7 +11,7 @@ import javax.crypto.SecretKey;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestDrbg {
+public class TestHmacDrbg {
 
   @Test
   public void testNextBytes() throws NoSuchAlgorithmException {
@@ -66,7 +65,7 @@ public class TestDrbg {
     }
   }
 
-  @Test(expected = MPCException.class)
+  @Test(expected = IllegalStateException.class)
   public void testInvalidKey() throws NoSuchAlgorithmException {
     HmacDrbg m = new HmacDrbg();
     m.safeInitialize(new SecretKey() {
@@ -91,7 +90,7 @@ public class TestDrbg {
     m.nextBytes(randBytes1);
   }
 
-  @Test(expected = MPCException.class)
+  @Test(expected = IllegalStateException.class)
   public void testReseedException() throws NoSuchAlgorithmException {
     HmacDrbg m = new HmacDrbg(new byte[]{0x01});
     m.reseedCounter = HmacDrbg.MAX_RESEED_COUNT - 1;
@@ -102,7 +101,7 @@ public class TestDrbg {
     }
   }
 
-  @Test(expected = MPCException.class)
+  @Test(expected = IllegalStateException.class)
   public void testReseedException2() throws NoSuchAlgorithmException {
     HmacDrbg m = new HmacDrbg(new byte[]{0x01}, new byte[]{0x02});
     m.reseedCounter = HmacDrbg.MAX_RESEED_COUNT - 1;

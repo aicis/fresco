@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.framework.util;
 
-import dk.alexandra.fresco.framework.MPCException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -20,10 +19,6 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Note that this class is not threadsafe.
  * </p>
- * <p>
- * Note also that reseeding (calling {@link #setSeed(byte[])}) should occur at least every 2^42
- * calls to {@link #nextBytes(byte[])} to be secure. No signal will be send about this.
- * </p>
  */
 public class HmacDrbg implements Drbg {
 
@@ -38,8 +33,8 @@ public class HmacDrbg implements Drbg {
   static final long MAX_RESEED_COUNT = (long) Math.pow(2, 48);
 
   /**
-   * Start with a seed list and the default algorithm. See
-   * {@link #HmacDeterministicRandomBitGeneratorImpl(String, byte[]...)} for further info.
+   * Creates an instance of {@link Drbg} which uses the HMac to generate pseudo-random bytes in a
+   * streaming fashion using the default algorithm of HmacSHA256.
    *
    * @param seeds The seeds used. If empty, the default 0 seed will be used. NB: This should happen
    *        only during testing as this is highly insecure.
@@ -51,13 +46,14 @@ public class HmacDrbg implements Drbg {
   }
 
   /**
-   * Deterministic secure random means that given a seed, it is deterministic what the output
-   * becomes next time. This differs from Java's original SecureRandom in that if you give a seed to
-   * this, it merely adds it to the entropy.
+   * Creates an instance of {@link Drbg} which uses the HMac to generate pseudo-random bytes in a
+   * streaming fashion.
    *
    * @param seeds The seeds to use. Often a single seed will be more than enough as you can perform
    *        the {@link #nextBytes(byte[])} operation 2^48 times before the security guarantee does
-   *        not hold and an exception will be thrown.
+   *        not hold and an exception will be thrown. If you expect further calls, add multiple
+   *        seeds using this constructor. NB: If no seeds are provided, the highly insecure 0 seed
+   *        will be used. This should only be used in a test environment.
    * @param macSupplier The Mac to be used as the HMac hash function. Default is HMacSHA256. If
    *        null, this implementation will use the default value.
    * @throws NoSuchAlgorithmException If the <code>algorithm</code> is not found on the system.
@@ -102,8 +98,9 @@ public class HmacDrbg implements Drbg {
     this.reseedCounter++;
     if (this.reseedCounter >= MAX_RESEED_COUNT) {
       if (this.seeds.isEmpty()) {
-        throw new MPCException("No more seeds available. Security guarantees no longer holds. "
-            + "Please restart the application using more seeds to continue beyond this point.");
+        throw new IllegalStateException(
+            "No more seeds available. Security guarantees no longer holds. "
+                + "Please restart the application using more seeds to continue beyond this point.");
       }
       setSeed(this.seeds.remove(0));
     }
@@ -132,7 +129,7 @@ public class HmacDrbg implements Drbg {
     try {
       mac.init(secretKeySpec);
     } catch (InvalidKeyException e) {
-      throw new MPCException("Key could not be generated from given data", e);
+      throw new IllegalStateException("Key could not be generated from given data", e);
     }
   }
 
