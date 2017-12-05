@@ -30,7 +30,7 @@ public class HmacDrbg implements Drbg {
   private byte[] key = null; // key material
   long reseedCounter;
   private List<byte[]> seeds;
-  static final long MAX_RESEED_COUNT = (long) Math.pow(2, 48);
+  static final long MAX_RESEED_COUNT = 1L << 48; //2^48
 
   /**
    * Creates an instance of {@link Drbg} which uses the HMac to generate pseudo-random bytes in a
@@ -41,7 +41,7 @@ public class HmacDrbg implements Drbg {
    * @throws NoSuchAlgorithmException If the default HmacSHA256 hash function is not found on the
    *         system.
    */
-  public HmacDrbg(byte[]... seeds) throws NoSuchAlgorithmException {
+  public HmacDrbg(byte[]... seeds) throws NoSuchAlgorithmException {    
     this(null, seeds);
   }
 
