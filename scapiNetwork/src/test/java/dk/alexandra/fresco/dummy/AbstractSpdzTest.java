@@ -10,7 +10,7 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.util.DetermSecureRandom;
+import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger;
@@ -23,13 +23,11 @@ import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 /**
  * Abstract class which handles a lot of boiler plate testing code. This makes running a single test
@@ -74,8 +72,7 @@ public abstract class AbstractSpdzTest {
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,
-              () -> createResourcePool(playerId, noOfParties, new Random(),
-                  new DetermSecureRandom()),
+              () -> createResourcePool(playerId, noOfParties),
               () -> {
                 ScapiNetworkImpl scapiNetwork = new ScapiNetworkImpl();
                 scapiNetwork.init(netConf.get(playerId), 1);
@@ -100,11 +97,10 @@ public abstract class AbstractSpdzTest {
     }
   }
 
-  private SpdzResourcePool createResourcePool(int myId, int size, Random rand,
-      SecureRandom secRand) {
+  private SpdzResourcePool createResourcePool(int myId, int size) {
     SpdzStorageImpl store = new SpdzStorageImpl(new DummyDataSupplierImpl(myId, size));
     try {
-      return new SpdzResourcePoolImpl(myId, size, rand, secRand, store);
+      return new SpdzResourcePoolImpl(myId, size, new HmacDrbg(), store);
     } catch (NoSuchAlgorithmException e) {
       throw new RuntimeException("Your system does not support the necessary hash function.", e);
     }

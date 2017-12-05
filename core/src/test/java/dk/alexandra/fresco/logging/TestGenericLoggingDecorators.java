@@ -17,7 +17,8 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.util.DetermSecureRandom;
+import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SqrtTests;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
@@ -28,7 +29,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.stream.Collectors;
 import org.hamcrest.core.Is;
 import org.junit.Assert;
@@ -73,10 +73,11 @@ public class TestGenericLoggingDecorators {
       decoratedLoggers.add(decoratedSce);
       decoratedSce.printToLog(pls.get(playerId), playerId);
       
+      Drbg drbg = new HmacDrbg();
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(decoratedSce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  netConf.keySet().size(), new Random(0), new DetermSecureRandom(), mod),
+                  netConf.keySet().size(), drbg, mod),
               () -> {
                 return new KryoNetNetwork(partyNetConf);
               });
@@ -130,10 +131,11 @@ public class TestGenericLoggingDecorators {
       decoratedLoggers.add(decoratedSce);
       decoratedSce.printToLog(pls.get(playerId), playerId);
       
+      Drbg drbg = new HmacDrbg();
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(decoratedSce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  netConf.keySet().size(), new Random(0), new DetermSecureRandom(), mod),
+                  netConf.keySet().size(), drbg, mod),
               () -> {
                 return new KryoNetNetwork(partyNetConf);
               });
@@ -186,10 +188,11 @@ public class TestGenericLoggingDecorators {
       SecureComputationEngine<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce 
           = new SecureComputationEngineImpl<>(ps, evaluator);
       
+      Drbg drbg = new HmacDrbg();
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  netConf.keySet().size(), new Random(0), new DetermSecureRandom(), mod),
+                  netConf.keySet().size(), drbg, mod),
               () -> {
                 NetworkLoggingDecorator network = new NetworkLoggingDecorator(new KryoNetNetwork(partyNetConf));
                 decoratedLoggers.add(network);
@@ -263,10 +266,11 @@ public class TestGenericLoggingDecorators {
       SecureComputationEngine<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce 
           = new SecureComputationEngineImpl<>(ps, evaluator);
       
+      Drbg drbg = new HmacDrbg();
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  netConf.keySet().size(), new Random(0), new DetermSecureRandom(), mod),
+                  netConf.keySet().size(), drbg, mod),
               () -> {
                 return new KryoNetNetwork(partyNetConf);
               });

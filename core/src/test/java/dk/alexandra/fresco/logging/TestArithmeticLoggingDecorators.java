@@ -11,7 +11,8 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.util.DetermSecureRandom;
+import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SqrtTests;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticBuilderFactory;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
@@ -57,11 +58,12 @@ public class TestArithmeticLoggingDecorators {
           = new BatchedProtocolEvaluator<>(strat, ps);
       SecureComputationEngine<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce 
           = new SecureComputationEngineImpl<>(ps, evaluator);
-      
+
+      Drbg drbg = new HmacDrbg();
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  noOfParties, new Random(0), new DetermSecureRandom(), mod),
+                  noOfParties, drbg, mod),
               () -> {
                 return new KryoNetNetwork(partyNetConf);
               });
@@ -122,10 +124,11 @@ public class TestArithmeticLoggingDecorators {
       SecureComputationEngine<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce 
           = new SecureComputationEngineImpl<>(ps, evaluator);
       
+      Drbg drbg = new HmacDrbg();
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  noOfParties, new Random(0), new DetermSecureRandom(), mod),
+                  noOfParties, drbg, mod),
               () -> {
                 return new KryoNetNetwork(partyNetConf);
               });

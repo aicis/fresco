@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.Random;
 
 /**
  * A {@link BuilderFactoryNumeric} implementation for the Dummy Boolean suite. This class has
@@ -31,11 +32,12 @@ public class DummyBooleanBuilderFactory implements BuilderFactoryBinary {
   private int myId;
   private BinaryComparisonLoggingDecorator compDecorator;
   private BinaryLoggingDecorator binaryDecorator;
-
+  private final Random rand;
 
   public DummyBooleanBuilderFactory(int myId) {
     this.myId = myId;
     performanceLoggers.putIfAbsent(myId, new ArrayList<PerformanceLogger>());
+    this.rand = new Random(0);
   }
 
   @Override
@@ -76,7 +78,7 @@ public class DummyBooleanBuilderFactory implements BuilderFactoryBinary {
           @Override
           public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
               Network network) {
-            bit = new DummyBooleanSBool(resourcePool.getRandom().nextBoolean());
+            bit = new DummyBooleanSBool(rand.nextBoolean());
             return EvaluationStatus.IS_DONE;
           }
 

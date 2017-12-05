@@ -12,7 +12,8 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.framework.util.DetermSecureRandom;
+import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.lib.bool.ComparisonBooleanTests;
 import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanBuilderFactory;
 import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanProtocolSuite;
@@ -54,11 +55,10 @@ public class TestBinaryLoggingDecorators {
           new BatchedProtocolEvaluator<>(strat, ps);
       SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce = new SecureComputationEngineImpl<>(
           ps, evaluator);
-      
+      Drbg drbg = new HmacDrbg();
       TestThreadRunner.TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
-              () -> new ResourcePoolImpl(playerId, noOfParties, new Random(),
-                  new DetermSecureRandom()),
+              () -> new ResourcePoolImpl(playerId, noOfParties, drbg),
               () -> {
                 return new KryoNetNetwork(partyNetConf);
               });
@@ -113,11 +113,11 @@ public class TestBinaryLoggingDecorators {
           new BatchedProtocolEvaluator<>(strat, ps);
       SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce = new SecureComputationEngineImpl<>(
           ps, evaluator);
-
+      
+      Drbg drbg = new HmacDrbg();
       TestThreadRunner.TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
-              () -> new ResourcePoolImpl(playerId, noOfParties, new Random(),
-                  new DetermSecureRandom()),
+              () -> new ResourcePoolImpl(playerId, noOfParties, drbg),
               () -> {
                 return new KryoNetNetwork(partyNetConf);
               });
