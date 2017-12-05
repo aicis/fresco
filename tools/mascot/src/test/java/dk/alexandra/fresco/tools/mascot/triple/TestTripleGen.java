@@ -21,13 +21,12 @@ import dk.alexandra.fresco.tools.mascot.utils.BatchArithmetic;
 
 public class TestTripleGen extends NetworkedTest {
 
-  private List<List<FieldElement>> runSinglePartyMult(MascotContext ctx, FieldElement macKeyShare,
-      List<List<FieldElement>> leftFactorGroups, List<FieldElement> rightFactors) throws Exception {
-    int numLeftFactors = leftFactorGroups.get(0)
-        .size();
+  private List<FieldElement> runSinglePartyMult(MascotContext ctx, FieldElement macKeyShare,
+      List<FieldElement> leftFactorGroups, List<FieldElement> rightFactors) throws Exception {
+    int numLeftFactors = leftFactorGroups.size() / rightFactors.size();
     TripleGen tripleGen = new TripleGen(ctx, macKeyShare, numLeftFactors);
     tripleGen.initialize();
-    List<List<FieldElement>> productGroups = tripleGen.multiply(leftFactorGroups, rightFactors);
+    List<FieldElement> productGroups = tripleGen.multiply(leftFactorGroups, rightFactors);
     return productGroups;
   }
 
@@ -79,35 +78,32 @@ public class TestTripleGen extends NetworkedTest {
       FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), modulus, modBitLength);
 
       // party one input
-      int[][] leftArrOne = {{12}};
-      List<List<FieldElement>> leftFactorsOne =
-          MascotTestUtils.generateLeftInput(leftArrOne, modulus, modBitLength);
+      int[] leftArrOne = {12};
+      List<FieldElement> leftFactorsOne =
+          MascotTestUtils.generateSingleRow(leftArrOne, modulus, modBitLength);
       int[] rightArrOne = {11};
       List<FieldElement> rightFactorsOne =
           MascotTestUtils.generateSingleRow(rightArrOne, modulus, modBitLength);
 
       // party two input
-      int[][] leftArrTwo = {{123}};
-      List<List<FieldElement>> leftFactorsTwo =
-          MascotTestUtils.generateLeftInput(leftArrTwo, modulus, modBitLength);
+      int[] leftArrTwo = {123};
+      List<FieldElement> leftFactorsTwo =
+          MascotTestUtils.generateSingleRow(leftArrTwo, modulus, modBitLength);
       int[] rightArrTwo = {2222};
       List<FieldElement> rightFactorsTwo =
           MascotTestUtils.generateSingleRow(rightArrTwo, modulus, modBitLength);
 
       // define task each party will run
-      Callable<List<List<FieldElement>>> partyOneTask =
+      Callable<List<FieldElement>> partyOneTask =
           () -> runSinglePartyMult(partyOneCtx, macKeyShareOne, leftFactorsOne, rightFactorsOne);
-      Callable<List<List<FieldElement>>> partyTwoTask =
+      Callable<List<FieldElement>> partyTwoTask =
           () -> runSinglePartyMult(partyTwoCtx, macKeyShareTwo, leftFactorsTwo, rightFactorsTwo);
 
-      // wow much list amaze
-      List<List<List<FieldElement>>> results =
+      List<List<FieldElement>> results =
           testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
       FieldElement left = results.get(0)
-          .get(0)
           .get(0);
       FieldElement right = results.get(1)
-          .get(0)
           .get(0);
 
       // (12 + 123) * (11 + 2222) % 65521
@@ -143,41 +139,41 @@ public class TestTripleGen extends NetworkedTest {
       FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), modulus, modBitLength);
 
       // party one input
-      int[][] leftArrOne = {{1, 2, 3}, {4, 5, 6}};
-      List<List<FieldElement>> leftFactorsOne =
-          MascotTestUtils.generateLeftInput(leftArrOne, modulus, modBitLength);
+      int[] leftArrOne = {1, 2, 3, 4, 5, 6};
+      List<FieldElement> leftFactorsOne =
+          MascotTestUtils.generateSingleRow(leftArrOne, modulus, modBitLength);
       int[] rightArrOne = {7, 8};
       List<FieldElement> rightFactorsOne =
           MascotTestUtils.generateSingleRow(rightArrOne, modulus, modBitLength);
 
       // party two input
-      int[][] leftArrTwo = {{9, 10, 11}, {12, 13, 14}};
-      List<List<FieldElement>> leftFactorsTwo =
-          MascotTestUtils.generateLeftInput(leftArrTwo, modulus, modBitLength);
+      int[] leftArrTwo = {9, 10, 11, 12, 13, 14};
+      List<FieldElement> leftFactorsTwo =
+          MascotTestUtils.generateSingleRow(leftArrTwo, modulus, modBitLength);
       int[] rightArrTwo = {15, 16};
       List<FieldElement> rightFactorsTwo =
           MascotTestUtils.generateSingleRow(rightArrTwo, modulus, modBitLength);
 
       // define task each party will run
-      Callable<List<List<FieldElement>>> partyOneTask =
+      Callable<List<FieldElement>> partyOneTask =
           () -> runSinglePartyMult(partyOneCtx, macKeyShareOne, leftFactorsOne, rightFactorsOne);
-      Callable<List<List<FieldElement>>> partyTwoTask =
+      Callable<List<FieldElement>> partyTwoTask =
           () -> runSinglePartyMult(partyTwoCtx, macKeyShareTwo, leftFactorsTwo, rightFactorsTwo);
 
-      List<List<List<FieldElement>>> results =
+      List<List<FieldElement>> results =
           testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
 
-      // we expected that for each input pair of factors the result is (a1 + a2 + ...) * (b1 + b2 +
-      // ...)
-      List<List<FieldElement>> expectedLeftFactors =
-          BatchArithmetic.pairWiseAdd(Arrays.asList(leftFactorsOne, leftFactorsTwo));
-      List<FieldElement> expectedRightFactors =
-          combineRight(Arrays.asList(rightFactorsOne, rightFactorsTwo));
-      List<List<FieldElement>> expected =
+      // for each input pair of factors the result is (a1 + a2 + ...) * (b1 + b2 + ...)
+      List<FieldElement> expectedLeftFactors =
+          BatchArithmetic.pairWiseAddRows(Arrays.asList(leftFactorsOne, leftFactorsTwo));
+      List<FieldElement> expectedRightFactors = BatchArithmetic.stretch(
+          BatchArithmetic.pairWiseAddRows(Arrays.asList(rightFactorsOne, rightFactorsTwo)), 3);
+
+      List<FieldElement> expected =
           BatchArithmetic.pairWiseMultiply(expectedLeftFactors, expectedRightFactors);
 
       // actual results, recombined
-      List<List<FieldElement>> actual = BatchArithmetic.pairWiseAdd(results);
+      List<FieldElement> actual = BatchArithmetic.pairWiseAddRows(results);
       assertEquals(expected, actual);
     } catch (Exception e) {
       // TODO: handle exception
@@ -186,7 +182,7 @@ public class TestTripleGen extends NetworkedTest {
     }
   }
 
-  public void testThreePartiesTriple(List<FieldElement> macKeyShares, int numTriples,
+  public void testMultiplePartiesTriple(List<FieldElement> macKeyShares, int numTriples,
       BigInteger modulus, int modBitLength) throws Exception {
     try {
       // define parties, one per mac key shares
@@ -226,7 +222,7 @@ public class TestTripleGen extends NetworkedTest {
     int modBitLength = 16;
     FieldElement macKeyShareOne = new FieldElement(11231, modulus, modBitLength);
     FieldElement macKeyShareTwo = new FieldElement(7719, modulus, modBitLength);
-    testThreePartiesTriple(Arrays.asList(macKeyShareOne, macKeyShareTwo), 1, modulus,
+    testMultiplePartiesTriple(Arrays.asList(macKeyShareOne, macKeyShareTwo), 1, modulus,
         modBitLength);
   }
 
@@ -236,7 +232,7 @@ public class TestTripleGen extends NetworkedTest {
     int modBitLength = 16;
     FieldElement macKeyShareOne = new FieldElement(11231, modulus, modBitLength);
     FieldElement macKeyShareTwo = new FieldElement(7719, modulus, modBitLength);
-    testThreePartiesTriple(Arrays.asList(macKeyShareOne, macKeyShareTwo), 10, modulus,
+    testMultiplePartiesTriple(Arrays.asList(macKeyShareOne, macKeyShareTwo), 10, modulus,
         modBitLength);
   }
 
@@ -247,18 +243,19 @@ public class TestTripleGen extends NetworkedTest {
     FieldElement macKeyShareOne = new FieldElement(11231, modulus, modBitLength);
     FieldElement macKeyShareTwo = new FieldElement(7719, modulus, modBitLength);
     FieldElement macKeyShareThree = new FieldElement(4444, modulus, modBitLength);
-    testThreePartiesTriple(Arrays.asList(macKeyShareOne, macKeyShareTwo, macKeyShareThree), 1,
+    testMultiplePartiesTriple(Arrays.asList(macKeyShareOne, macKeyShareTwo, macKeyShareThree), 1,
         modulus, modBitLength);
   }
 
-  // helpers
-
-  private List<FieldElement> combineRight(List<List<FieldElement>> rightFactors) {
-    return rightFactors.stream()
-        .reduce((top, bottom) -> {
-          return BatchArithmetic.addGroups(top, bottom);
-        })
-        .get();
+  @Test
+  public void testThreePartiesMultTriple() throws Exception {
+    BigInteger modulus = new BigInteger("65521");
+    int modBitLength = 16;
+    FieldElement macKeyShareOne = new FieldElement(11231, modulus, modBitLength);
+    FieldElement macKeyShareTwo = new FieldElement(7719, modulus, modBitLength);
+    FieldElement macKeyShareThree = new FieldElement(4444, modulus, modBitLength);
+    testMultiplePartiesTriple(Arrays.asList(macKeyShareOne, macKeyShareTwo, macKeyShareThree), 3,
+        modulus, modBitLength);
   }
 
 }

@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.tools.mascot.BaseProtocol;
@@ -41,8 +42,9 @@ public class TripleGen extends BaseProtocol {
     List<Integer> partyIds = ctx.getPartyIds();
     for (Integer partyId : partyIds) {
       if (!myId.equals(partyId)) {
-        rightMultipliers.add(new MultiplyRight(ctx, partyId, numLeftFactors));
-        leftMultipliers.add(new MultiplyLeft(ctx, partyId, numLeftFactors));
+        // TODO explain
+        rightMultipliers.add(new MultiplyRight(ctx, partyId, 1));
+        leftMultipliers.add(new MultiplyLeft(ctx, partyId, 1));
       }
     }
     this.sampler = new DummySampler(ctx.getRand());
@@ -60,61 +62,67 @@ public class TripleGen extends BaseProtocol {
     this.initialized = true;
   }
 
-  List<List<FieldElement>> multiply(List<List<FieldElement>> leftFactorGroups,
+  List<UnauthTriple> toUnauthTriple(List<FieldElement> left, List<FieldElement> right,
+      List<FieldElement> prods) {
+    Stream<UnauthTriple> stream = IntStream.range(0, right.size())
+        .mapToObj(idx -> {
+          int groupStart = idx * numLeftFactors;
+          int groupEnd = (idx + 1) * numLeftFactors;
+          return new UnauthTriple(left.subList(groupStart, groupEnd), right.get(idx),
+              prods.subList(groupStart, groupEnd));
+        });
+    return stream.collect(Collectors.toList());
+  }
+
+  List<FieldElement> multiply(List<FieldElement> leftFactorGroups,
       List<FieldElement> rightFactors) {
-    // TODO should parallelize
-    // TODO make factor group a class
-    List<List<List<FieldElement>>> subFactors = new ArrayList<>();
+    // "stretch" right factors, so we have one right factor for each left factor
+    List<FieldElement> stretched = BatchArithmetic.stretch(rightFactors, numLeftFactors);
+
+    // for each value we will have two sub-factors per other party
+    List<List<FieldElement>> subFactors = new ArrayList<>();
     // left-mult blocks on receive, so run right mults first
     for (MultiplyRight rightMultiplier : rightMultipliers) {
-      subFactors.add(rightMultiplier.multiply(rightFactors));
+      subFactors.add(rightMultiplier.multiply(stretched));
     }
     for (MultiplyLeft leftMultiplier : leftMultipliers) {
       subFactors.add(leftMultiplier.multiply(leftFactorGroups));
     }
-    List<List<FieldElement>> localSubFactors =
-        BatchArithmetic.pairWiseMultiply(leftFactorGroups, rightFactors);
+
+    // own part of the product
+    List<FieldElement> localSubFactors =
+        BatchArithmetic.pairWiseMultiply(leftFactorGroups, stretched);
     subFactors.add(localSubFactors);
-    List<List<FieldElement>> productShares = BatchArithmetic.pairWiseAdd(subFactors);
+
+    // combine all sub-factors into product shares
+    List<FieldElement> productShares = BatchArithmetic.pairWiseAddRows(subFactors);
     return productShares;
   }
 
-  UnauthenticatedCand singleCombine(List<FieldElement> leftFactorGroup, FieldElement rightFactor,
-      List<FieldElement> productGroup, List<FieldElement> masks, List<FieldElement> masksSac) {
-    FieldElement left = FieldElement.innerProduct(leftFactorGroup, masks);
-    FieldElement prod = FieldElement.innerProduct(productGroup, masks);
-    FieldElement leftSac = FieldElement.innerProduct(leftFactorGroup, masksSac);
-    FieldElement prodSac = FieldElement.innerProduct(productGroup, masksSac);
-    return new UnauthenticatedCand(left, rightFactor, prod, leftSac, prodSac);
-  }
-
-  List<UnauthenticatedCand> combine(List<List<FieldElement>> leftFactorGroups,
-      List<FieldElement> rightFactors, List<List<FieldElement>> productGroups) {
+  List<UnauthCand> combine(List<UnauthTriple> triples) {
     BigInteger modulus = ctx.getModulus();
     int modBitLength = ctx.getkBitLength();
-    int numGroups = productGroups.size();
+    int numTriples = triples.size();
 
     List<List<FieldElement>> masks =
-        sampler.jointSampleGroups(modulus, modBitLength, numGroups, numLeftFactors);
-    List<List<FieldElement>> sacrificeMasks =
-        sampler.jointSampleGroups(modulus, modBitLength, numGroups, numLeftFactors);
+        sampler.jointSampleGroups(modulus, modBitLength, numTriples, numLeftFactors);
 
-    List<UnauthenticatedCand> candidates = IntStream.range(0, productGroups.size())
+    List<List<FieldElement>> sacrificeMasks =
+        sampler.jointSampleGroups(modulus, modBitLength, numTriples, numLeftFactors);
+
+    List<UnauthCand> candidates = IntStream.range(0, numTriples)
         .mapToObj(idx -> {
-          List<FieldElement> lfg = leftFactorGroups.get(idx);
-          FieldElement r = rightFactors.get(idx);
-          List<FieldElement> pg = productGroups.get(idx);
+          UnauthTriple triple = triples.get(idx);
           List<FieldElement> m = masks.get(idx);
           List<FieldElement> ms = sacrificeMasks.get(idx);
-          return singleCombine(lfg, r, pg, m, ms);
+          return triple.toCandidate(m, ms);
         })
         .collect(Collectors.toList());
 
     return candidates;
   }
 
-  List<AuthenticatedCand> partition(List<AuthenticatedElement> list, int partSize) {
-    // each group always consists of five elements
+  List<AuthCand> partition(List<AuthenticatedElement> list, int partSize) {
     if (list.size() % partSize != 0) {
       throw new IllegalArgumentException("Size of list must be multiple of partition size");
     }
@@ -122,12 +130,12 @@ public class TripleGen extends BaseProtocol {
     return IntStream.range(0, numParts)
         .mapToObj(idx -> {
           List<AuthenticatedElement> batch = list.subList(idx * partSize, (idx + 1) * partSize);
-          return new AuthenticatedCand(batch);
+          return new AuthCand(batch);
         })
         .collect(Collectors.toList());
   }
 
-  List<AuthenticatedCand> authenticate(List<UnauthenticatedCand> candidates) {
+  List<AuthCand> authenticate(List<UnauthCand> candidates) {
     List<Integer> partyIds = ctx.getPartyIds();
     Integer myId = ctx.getMyId();
 
@@ -148,11 +156,10 @@ public class TripleGen extends BaseProtocol {
     return partition(combined, 5);
   }
 
-  List<AuthenticatedElement> computeRhos(List<AuthenticatedCand> candidates,
-      List<FieldElement> masks) {
+  List<AuthenticatedElement> computeRhos(List<AuthCand> candidates, List<FieldElement> masks) {
     List<AuthenticatedElement> rhos = IntStream.range(0, candidates.size())
         .mapToObj(idx -> {
-          AuthenticatedCand cand = candidates.get(idx);
+          AuthCand cand = candidates.get(idx);
           FieldElement mask = masks.get(idx);
           return cand.computeRho(mask);
         })
@@ -160,11 +167,11 @@ public class TripleGen extends BaseProtocol {
     return rhos;
   }
 
-  List<AuthenticatedElement> computeSigmas(List<AuthenticatedCand> candidates,
-      List<FieldElement> masks, List<FieldElement> openRhos) {
+  List<AuthenticatedElement> computeSigmas(List<AuthCand> candidates, List<FieldElement> masks,
+      List<FieldElement> openRhos) {
     List<AuthenticatedElement> sigmas = IntStream.range(0, candidates.size())
         .mapToObj(idx -> {
-          AuthenticatedCand cand = candidates.get(idx);
+          AuthCand cand = candidates.get(idx);
           FieldElement mask = masks.get(idx);
           FieldElement openRho = openRhos.get(idx);
           return cand.computeSigma(openRho, mask);
@@ -173,13 +180,13 @@ public class TripleGen extends BaseProtocol {
     return sigmas;
   }
 
-  List<MultTriple> toMultTriples(List<AuthenticatedCand> candidates) {
+  List<MultTriple> toMultTriples(List<AuthCand> candidates) {
     return candidates.stream()
         .map(cand -> cand.toTriple())
         .collect(Collectors.toList());
   }
 
-  List<MultTriple> sacrifice(List<AuthenticatedCand> candidates) {
+  List<MultTriple> sacrifice(List<AuthCand> candidates) {
     BigInteger modulus = ctx.getModulus();
     int modBitLength = ctx.getkBitLength();
 
@@ -202,6 +209,7 @@ public class TripleGen extends BaseProtocol {
       elGen.check(sigmas, openRhos);
     } catch (MPCException e) {
       // TODO handle
+      e.printStackTrace();
     }
     return toMultTriples(candidates);
   }
@@ -214,33 +222,59 @@ public class TripleGen extends BaseProtocol {
 
     BigInteger modulus = ctx.getModulus();
     int modBitLength = ctx.getkBitLength();
-    
+
     // generate random left factor groups
-    List<List<FieldElement>> leftFactorGroups =
-        sampler.sampleGroups(modulus, modBitLength, numTriples, numLeftFactors);
+    List<FieldElement> leftFactorGroups =
+        sampler.sample(modulus, modBitLength, numTriples * numLeftFactors);
+
     // generate random right factors
     List<FieldElement> rightFactors = sampler.sample(modulus, modBitLength, numTriples);
 
     // compute product groups
-    List<List<FieldElement>> productGroups = multiply(leftFactorGroups, rightFactors);
+    List<FieldElement> productGroups = multiply(leftFactorGroups, rightFactors);
 
-    // combine into unauthenticated triple candidates
-    List<UnauthenticatedCand> candidates = combine(leftFactorGroups, rightFactors, productGroups);
+    // combine into unauthenticated triples
+    List<UnauthTriple> unauthTriples =
+        toUnauthTriple(leftFactorGroups, rightFactors, productGroups);
+
+    // combine unauthenticated triples into unauthenticated triple candidates
+    List<UnauthCand> candidates = combine(unauthTriples);
 
     // use el-gen to input candidates and combine them to the authenticated candidates
-    List<AuthenticatedCand> authenticated = authenticate(candidates);
+    List<AuthCand> authenticated = authenticate(candidates);
 
     // for each candidate, run sacrifice and get valid triple
     List<MultTriple> triples = sacrifice(authenticated);
 
+    // return valid triples
     return triples;
+  }
+
+  private class UnauthTriple {
+    List<FieldElement> leftFactors;
+    FieldElement rightFactor;
+    List<FieldElement> product;
+
+    public UnauthTriple(List<FieldElement> leftFactors, FieldElement rightFactor,
+        List<FieldElement> product) {
+      super();
+      this.leftFactors = leftFactors;
+      this.rightFactor = rightFactor;
+      this.product = product;
+    }
+
+    UnauthCand toCandidate(List<FieldElement> masks, List<FieldElement> sacrificeMasks) {
+      FieldElement left = FieldElement.innerProduct(leftFactors, masks);
+      FieldElement prod = FieldElement.innerProduct(product, masks);
+      FieldElement leftSac = FieldElement.innerProduct(leftFactors, sacrificeMasks);
+      FieldElement prodSac = FieldElement.innerProduct(product, sacrificeMasks);
+      return new UnauthCand(left, rightFactor, prod, leftSac, prodSac);
+    }
   }
 
   // TODO hack hack hack
   private class TripleCandidate<T> extends ArrayList<T> {
-    /**
-     * 
-     */
+
     private static final long serialVersionUID = -4917636316948291312L;
 
     T a;
@@ -269,30 +303,28 @@ public class TripleGen extends BaseProtocol {
     }
   }
 
-  private class UnauthenticatedCand extends TripleCandidate<FieldElement> {
+  private class UnauthCand extends TripleCandidate<FieldElement> {
     /**
      * 
      */
     private static final long serialVersionUID = -1971365645502905443L;
 
-    UnauthenticatedCand(FieldElement a, FieldElement b, FieldElement c, FieldElement aHat,
+    UnauthCand(FieldElement a, FieldElement b, FieldElement c, FieldElement aHat,
         FieldElement cHat) {
       super(a, b, c, aHat, cHat);
     }
   }
 
-  private class AuthenticatedCand extends TripleCandidate<AuthenticatedElement> {
-    /**
-     * 
-     */
+  private class AuthCand extends TripleCandidate<AuthenticatedElement> {
+
     private static final long serialVersionUID = -7482720772166931426L;
 
-    AuthenticatedCand(AuthenticatedElement a, AuthenticatedElement b, AuthenticatedElement c,
+    AuthCand(AuthenticatedElement a, AuthenticatedElement b, AuthenticatedElement c,
         AuthenticatedElement aHat, AuthenticatedElement cHat) {
       super(a, b, c, aHat, cHat);
     }
 
-    public AuthenticatedCand(List<AuthenticatedElement> ordered) {
+    public AuthCand(List<AuthenticatedElement> ordered) {
       super(ordered);
     }
 
@@ -310,6 +342,6 @@ public class TripleGen extends BaseProtocol {
     public MultTriple toTriple() {
       return new MultTriple(a, b, c);
     }
-    
+
   }
 }

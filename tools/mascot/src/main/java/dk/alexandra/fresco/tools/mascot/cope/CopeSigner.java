@@ -2,7 +2,6 @@ package dk.alexandra.fresco.tools.mascot.cope;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -83,13 +82,10 @@ public class CopeSigner extends CopeShared {
         .collect(Collectors.toList());
     
     // compute product shares
-    List<List<FieldElement>> wrappedProductShares =
-        multiplier.computeProductShares(Arrays.asList(macKeyShares), chosenMasks, diffs);
+    List<FieldElement> productShares =
+        multiplier.computeProductShares(macKeyShares, chosenMasks, diffs);
     
-    // return unwrapped product shares
-    return wrappedProductShares.stream()
-        .flatMap(l -> l.stream())
-        .collect(Collectors.toList());
+    return productShares;
   }
 
 }

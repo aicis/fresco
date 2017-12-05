@@ -67,22 +67,20 @@ public class MultiplyRight extends MultiplyShared {
     network.send(otherId, FieldElementSerializer.serialize(diffs));
   }
 
-  public List<List<FieldElement>> computeProductShares(List<FieldElement> feZeroSeeds,
+  public List<FieldElement> computeProductShares(List<FieldElement> feZeroSeeds,
       int numRightFactors) {
     BigInteger modulus = ctx.getModulus();
     int modBitLength = ctx.getkBitLength();
     int groupBitLength = numLeftFactors * modBitLength;
-    List<List<FieldElement>> productShares = new ArrayList<>(numRightFactors);
+    List<FieldElement> productShares = new ArrayList<>(numRightFactors);
     for (int rightFactIdx = 0; rightFactIdx < numRightFactors; rightFactIdx++) {
-      List<FieldElement> resultGroup = new ArrayList<>(numLeftFactors);
       for (int leftFactIdx = 0; leftFactIdx < numLeftFactors; leftFactIdx++) {
         int from = rightFactIdx * groupBitLength + leftFactIdx * modBitLength;
         int to = rightFactIdx * groupBitLength + (leftFactIdx + 1) * modBitLength;
         List<FieldElement> subFactors = feZeroSeeds.subList(from, to);
         FieldElement recombined = FieldElement.recombine(subFactors, modulus, modBitLength);
-        resultGroup.add(recombined.negate());
+        productShares.add(recombined.negate());
       }
-      productShares.add(resultGroup);
     }
     return productShares;
   }
@@ -100,7 +98,7 @@ public class MultiplyRight extends MultiplyShared {
         .collect(Collectors.toList());
   }
 
-  public List<List<FieldElement>> multiply(List<FieldElement> rightFactors) {
+  public List<FieldElement> multiply(List<FieldElement> rightFactors) {
     // we need the modulus and the bit length of the modulus
     BigInteger modulus = ctx.getModulus();
     int modBitLength = ctx.getkBitLength();

@@ -90,13 +90,10 @@ public class CopeInputter extends CopeShared {
         .collect(Collectors.toList());
 
     // compute product shares
-    List<List<FieldElement>> wrappedProductShares =
+    List<FieldElement> productShares =
         multiplier.computeProductShares(feZeroSeeds, inputElements.size());
 
-    // return unwrapped product shares
-    return wrappedProductShares.stream()
-        .flatMap(l -> l.stream())
-        .collect(Collectors.toList());
+    return productShares;
   }
 
 }

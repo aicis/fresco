@@ -19,13 +19,13 @@ import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 
 public class TestMultiply extends NetworkedTest {
 
-  private List<List<FieldElement>> runLeftMult(MascotContext ctx, Integer otherId,
-      List<List<FieldElement>> inputs) {
+  private List<FieldElement> runLeftMult(MascotContext ctx, Integer otherId,
+      List<FieldElement> inputs) {
     MultiplyLeft mult = new MultiplyLeft(ctx, otherId, inputs.size());
     return mult.multiply(inputs);
   }
 
-  private List<List<FieldElement>> runRightMult(MascotContext ctx, Integer otherId,
+  private List<FieldElement> runRightMult(MascotContext ctx, Integer otherId,
       List<FieldElement> inputs, int numLeftFactors) {
     MultiplyRight mult = new MultiplyRight(ctx, otherId, numLeftFactors);
     return mult.multiply(inputs);
@@ -45,7 +45,7 @@ public class TestMultiply extends NetworkedTest {
       // left parties input (can be multiple)
       FieldElement leftInput =
           new FieldElement(12, partyOneCtx.getModulus(), partyOneCtx.getkBitLength());
-      List<List<FieldElement>> leftInputs = Arrays.asList(Arrays.asList(leftInput));
+      List<FieldElement> leftInputs = Arrays.asList(leftInput);
 
       // single right party input element
       FieldElement rightInput =
@@ -53,24 +53,21 @@ public class TestMultiply extends NetworkedTest {
       List<FieldElement> rightInputs = Arrays.asList(rightInput);
 
       // define task each party will run
-      Callable<List<List<FieldElement>>> partyOneTask =
+      Callable<List<FieldElement>> partyOneTask =
           () -> runLeftMult(partyOneCtx, 2, leftInputs);
-      Callable<List<List<FieldElement>>> partyTwoTask =
-          () -> runRightMult(partyTwoCtx, 1, rightInputs, leftInputs.get(0)
-              .size());
+      Callable<List<FieldElement>> partyTwoTask =
+          () -> runRightMult(partyTwoCtx, 1, rightInputs, 1);
 
       // run tasks and get ordered list of results
-      List<List<List<FieldElement>>> results =
+      List<List<FieldElement>> results =
           testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
 
       // get per party results
-      List<List<FieldElement>> leftResults = results.get(0);
-      List<List<FieldElement>> rightResults = results.get(1);
+      List<FieldElement> leftResults = results.get(0);
+      List<FieldElement> rightResults = results.get(1);
 
-      FieldElement left = leftResults.get(0)
-          .get(0);
-      FieldElement right = rightResults.get(0)
-          .get(0);
+      FieldElement left = leftResults.get(0);
+      FieldElement right = rightResults.get(0);
 
       FieldElement actual = left.add(right);
       FieldElement expected = leftInput.multiply(rightInput);
@@ -101,8 +98,8 @@ public class TestMultiply extends NetworkedTest {
           new FieldElement(12, partyOneCtx.getModulus(), partyOneCtx.getkBitLength());
       FieldElement leftInputThree =
           new FieldElement(123, partyOneCtx.getModulus(), partyOneCtx.getkBitLength());
-      List<List<FieldElement>> leftInputs =
-          Arrays.asList(Arrays.asList(leftInputOne, leftInputTwo, leftInputThree));
+      List<FieldElement> leftInputs =
+          Arrays.asList(leftInputOne, leftInputTwo, leftInputThree);
 
       // single right party input element
       FieldElement rightInput =
@@ -110,21 +107,18 @@ public class TestMultiply extends NetworkedTest {
       List<FieldElement> rightInputs = Arrays.asList(rightInput);
 
       // define task each party will run
-      Callable<List<List<FieldElement>>> partyOneTask =
+      Callable<List<FieldElement>> partyOneTask =
           () -> runLeftMult(partyOneCtx, 2, leftInputs);
-      Callable<List<List<FieldElement>>> partyTwoTask =
-          () -> runRightMult(partyTwoCtx, 1, rightInputs, leftInputs.get(0)
-              .size());
+      Callable<List<FieldElement>> partyTwoTask =
+          () -> runRightMult(partyTwoCtx, 1, rightInputs, 3);
 
       // run tasks and get ordered list of results
-      List<List<List<FieldElement>>> results =
+      List<List<FieldElement>> results =
           testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
 
       // get per party results
-      List<FieldElement> leftResults = results.get(0)
-          .get(0);
-      List<FieldElement> rightResults = results.get(1)
-          .get(0);
+      List<FieldElement> leftResults = results.get(0);
+      List<FieldElement> rightResults = results.get(1);
 
       List<FieldElement> expected = Arrays.asList(leftInputOne.multiply(rightInput),
           leftInputTwo.multiply(rightInput), leftInputThree.multiply(rightInput));
@@ -155,41 +149,34 @@ public class TestMultiply extends NetworkedTest {
       int modBitLength = partyOneCtx.getkBitLength();
 
       // left parties input
-      int[][] leftRows = {{70}, {12}, {123}};
-      List<List<FieldElement>> leftInputs =
-          MascotTestUtils.generateLeftInput(leftRows, modulus, modBitLength);
+      int[] leftRows = {70, 12, 123};
+      List<FieldElement> leftInputs =
+          MascotTestUtils.generateSingleRow(leftRows, modulus, modBitLength);
       // right party input
       int[] rightRows = {1, 2, 3};
       List<FieldElement> rightInputs =
           MascotTestUtils.generateSingleRow(rightRows, modulus, modBitLength);
 
       // define task each party will run
-      Callable<List<List<FieldElement>>> partyOneTask =
+      Callable<List<FieldElement>> partyOneTask =
           () -> runLeftMult(partyOneCtx, 2, leftInputs);
-      Callable<List<List<FieldElement>>> partyTwoTask =
-          () -> runRightMult(partyTwoCtx, 1, rightInputs, leftInputs.get(0)
-              .size());
+      Callable<List<FieldElement>> partyTwoTask =
+          () -> runRightMult(partyTwoCtx, 1, rightInputs, 1);
 
       // run tasks and get ordered list of results
-      List<List<List<FieldElement>>> results =
+      List<List<FieldElement>> results =
           testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
 
       // get per party results
-      List<List<FieldElement>> leftResults = results.get(0);
-      List<FieldElement> leftResultFlat = leftResults.stream()
-          .flatMap(l -> l.stream())
-          .collect(Collectors.toList());
-      List<List<FieldElement>> rightResults = results.get(1);
-      List<FieldElement> rightResultFlat = rightResults.stream()
-          .flatMap(l -> l.stream())
-          .collect(Collectors.toList());
-
+      List<FieldElement> leftResults = results.get(0);
+      List<FieldElement> rightResults = results.get(1);
+      
       // expected result is pair-wise products
       int[] prods = {70 * 1, 12 * 2, 123 * 3};
       List<FieldElement> expected = MascotTestUtils.generateSingleRow(prods, modulus, modBitLength);
       List<FieldElement> actual = IntStream.range(0, 3)
-          .mapToObj(idx -> leftResultFlat.get(idx)
-              .add(rightResultFlat.get(idx)))
+          .mapToObj(idx -> leftResults.get(idx)
+              .add(rightResults.get(idx)))
           .collect(Collectors.toList());
 
       assertEquals(expected, actual);
@@ -215,34 +202,27 @@ public class TestMultiply extends NetworkedTest {
       int modBitLength = partyOneCtx.getkBitLength();
 
       // left parties input
-      int[][] leftRows = {{70, 71, 72}, {12, 13, 14}, {123, 124, 125}};
-      List<List<FieldElement>> leftInputs =
-          MascotTestUtils.generateLeftInput(leftRows, modulus, modBitLength);
+      int[] leftRows = {70, 71, 72, 12, 13, 14, 123, 124, 125};
+      List<FieldElement> leftInputs =
+          MascotTestUtils.generateSingleRow(leftRows, modulus, modBitLength);
       // right party input
       int[] rightRows = {1, 2, 3};
       List<FieldElement> rightInputs =
           MascotTestUtils.generateSingleRow(rightRows, modulus, modBitLength);
 
       // define task each party will run
-      Callable<List<List<FieldElement>>> partyOneTask =
+      Callable<List<FieldElement>> partyOneTask =
           () -> runLeftMult(partyOneCtx, 2, leftInputs);
-      Callable<List<List<FieldElement>>> partyTwoTask =
-          () -> runRightMult(partyTwoCtx, 1, rightInputs, leftInputs.get(0)
-              .size());
+      Callable<List<FieldElement>> partyTwoTask =
+          () -> runRightMult(partyTwoCtx, 1, rightInputs, 3);
 
       // run tasks and get ordered list of results
-      List<List<List<FieldElement>>> results =
+      List<List<FieldElement>> results =
           testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
 
       // get per party results
-      List<List<FieldElement>> leftResults = results.get(0);
-      List<FieldElement> leftResultFlat = leftResults.stream()
-          .flatMap(l -> l.stream())
-          .collect(Collectors.toList());
-      List<List<FieldElement>> rightResults = results.get(1);
-      List<FieldElement> rightResultFlat = rightResults.stream()
-          .flatMap(l -> l.stream())
-          .collect(Collectors.toList());
+      List<FieldElement> leftResults = results.get(0);
+      List<FieldElement> rightResults = results.get(1);
 
       // TODO: should have assertions on results dimensions
 
@@ -250,8 +230,8 @@ public class TestMultiply extends NetworkedTest {
       int[] prods = {70 * 1, 71 * 1, 72 * 1, 12 * 2, 13 * 2, 14 * 2, 123 * 3, 124 * 3, 125 * 3};
       List<FieldElement> expected = MascotTestUtils.generateSingleRow(prods, modulus, modBitLength);
       List<FieldElement> actual = IntStream.range(0, expected.size())
-          .mapToObj(idx -> leftResultFlat.get(idx)
-              .add(rightResultFlat.get(idx)))
+          .mapToObj(idx -> leftResults.get(idx)
+              .add(rightResults.get(idx)))
           .collect(Collectors.toList());
 
       assertEquals(expected, actual);
@@ -280,8 +260,8 @@ public class TestMultiply extends NetworkedTest {
           new FieldElement(12, partyOneCtx.getModulus(), partyOneCtx.getkBitLength());
       FieldElement leftInputThree =
           new FieldElement(123, partyOneCtx.getModulus(), partyOneCtx.getkBitLength());
-      List<List<FieldElement>> leftInputs =
-          Arrays.asList(Arrays.asList(leftInputOne, leftInputTwo, leftInputThree));
+      List<FieldElement> leftInputs =
+          Arrays.asList(leftInputOne, leftInputTwo, leftInputThree);
 
       // single right party input element
       FieldElement rightInput =
@@ -289,21 +269,18 @@ public class TestMultiply extends NetworkedTest {
       List<FieldElement> rightInputs = Arrays.asList(rightInput);
 
       // roles are flipped
-      Callable<List<List<FieldElement>>> partyOneTask =
+      Callable<List<FieldElement>> partyOneTask =
           () -> runLeftMult(partyTwoCtx, 1, leftInputs);
-      Callable<List<List<FieldElement>>> partyTwoTask =
-          () -> runRightMult(partyOneCtx, 2, rightInputs, leftInputs.get(0)
-              .size());
+      Callable<List<FieldElement>> partyTwoTask =
+          () -> runRightMult(partyOneCtx, 2, rightInputs, 3);
 
       // run tasks and get ordered list of results
-      List<List<List<FieldElement>>> results =
+      List<List<FieldElement>> results =
           testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
 
       // get per party results
-      List<FieldElement> leftResults = results.get(0)
-          .get(0);
-      List<FieldElement> rightResults = results.get(1)
-          .get(0);
+      List<FieldElement> leftResults = results.get(0);
+      List<FieldElement> rightResults = results.get(1);
 
       List<FieldElement> expected = Arrays.asList(leftInputOne.multiply(rightInput),
           leftInputTwo.multiply(rightInput), leftInputThree.multiply(rightInput));
@@ -318,10 +295,10 @@ public class TestMultiply extends NetworkedTest {
       throw new Exception("test failed");
     }
   }
-
-  @Test
-  public void multipleSequentialMults() {
-    // TODO
-  }
+//
+//  @Test
+//  public void multipleSequentialMults() {
+//    // TODO
+//  }
 
 }

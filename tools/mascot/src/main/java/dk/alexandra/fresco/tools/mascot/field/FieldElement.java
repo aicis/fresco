@@ -27,6 +27,12 @@ public class FieldElement implements ArithmeticElement<FieldElement>, Serializab
     this.bitLength = bitLength;
   }
 
+  public FieldElement(FieldElement other) {
+    this.value = other.value;
+    this.modulus = other.modulus;
+    this.bitLength = other.bitLength;
+  }
+  
   public FieldElement(String value, String modulus, int bitLength) {
     this(new BigInteger(value), new BigInteger(modulus), bitLength);
   }
