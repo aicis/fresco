@@ -15,7 +15,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.util.DetermSecureRandom;
+import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger;
@@ -89,7 +89,7 @@ public abstract class AbstractSpdzTest {
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,
               () -> createResourcePool(playerId, noOfParties, new Random(),
-                  new DetermSecureRandom(), preProStrat),
+                  new SecureRandom(), preProStrat),
               () -> {
                 KryoNetNetwork kryoNetwork = new KryoNetNetwork(netConf.get(playerId));
                 if (performanceloggerFlags != null
@@ -126,7 +126,7 @@ public abstract class AbstractSpdzTest {
     }
     SpdzStorage store = new SpdzStorageImpl(supplier);
     try {
-      return new SpdzResourcePoolImpl(myId, size, rand, secRand, store);
+      return new SpdzResourcePoolImpl(myId, size, new HmacDrbg(), store);
     } catch (NoSuchAlgorithmException e) {
       throw new RuntimeException("Your system does not have the necessary hash function avaiable.", e);
     }

@@ -11,7 +11,7 @@ import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.util.DetermSecureRandom;
+import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
@@ -21,12 +21,10 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -52,23 +50,22 @@ public class TestDistanceDemo {
 
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
           new BatchedProtocolEvaluator<>(evalStrategy.getStrategy(), protocolSuite);
+      
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(protocolSuite, evaluator),
-              () -> createResourcePool(playerId, noOfParties, new Random(),
-                  new DetermSecureRandom()),
+              () -> createResourcePool(playerId, noOfParties),
               () -> new KryoNetNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
   }
 
-  private SpdzResourcePool createResourcePool(int myId, int size, Random rand,
-      SecureRandom secRand) {
+  private SpdzResourcePool createResourcePool(int myId, int size) {
     SpdzStorage store;
     store = new SpdzStorageImpl(new DummyDataSupplierImpl(myId, size));
     try {
-      return new SpdzResourcePoolImpl(myId, size, rand, secRand, store);
+      return new SpdzResourcePoolImpl(myId, size, new HmacDrbg(), store);
     } catch (NoSuchAlgorithmException e) {
       throw new RuntimeException("Your system does not support the necessary hash function.", e);
     }

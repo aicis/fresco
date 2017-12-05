@@ -12,6 +12,7 @@ import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.logging.PerformanceLogger;
 import dk.alexandra.fresco.logging.binary.BinaryComparisonLoggingDecorator;
 import dk.alexandra.fresco.logging.binary.BinaryLoggingDecorator;
+import java.util.Random;
 
 /**
  * A {@link BuilderFactoryNumeric} implementation for the Dummy Boolean suite. This class has
@@ -28,10 +29,11 @@ public class DummyBooleanBuilderFactory implements BuilderFactoryBinary, Perform
   
   private BinaryComparisonLoggingDecorator compDecorator;
   private BinaryLoggingDecorator binaryDecorator;
-
+  private final Random rand;
 
   public DummyBooleanBuilderFactory() {
     loggerInstance = this;
+    this.rand = new Random(0);
   }
 
   @Override
@@ -71,7 +73,7 @@ public class DummyBooleanBuilderFactory implements BuilderFactoryBinary, Perform
           @Override
           public EvaluationStatus evaluate(int round, ResourcePool resourcePool,
               Network network) {
-            bit = new DummyBooleanSBool(resourcePool.getRandom().nextBoolean());
+            bit = new DummyBooleanSBool(rand.nextBoolean());
             return EvaluationStatus.IS_DONE;
           }
 

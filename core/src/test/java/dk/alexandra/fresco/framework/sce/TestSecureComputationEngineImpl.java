@@ -16,10 +16,8 @@ import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePool;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
 import java.math.BigInteger;
-import java.security.SecureRandom;
+import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,7 +46,7 @@ public class TestSecureComputationEngineImpl {
   }
 
   @Test
-  public void testRunApplication() {
+  public void testRunApplication() throws NoSuchAlgorithmException {
     Application<BigInteger, ProtocolBuilderNumeric> app =
         new Application<BigInteger, ProtocolBuilderNumeric>() {
 
@@ -59,15 +57,15 @@ public class TestSecureComputationEngineImpl {
             return builder.numeric().open(builder.numeric().add(a, b));
           }
         };
-    DummyArithmeticResourcePool rp = new DummyArithmeticResourcePoolImpl(0, 1, new Random(),
-        new SecureRandom(), BigInteger.valueOf(101));
+    DummyArithmeticResourcePool rp =
+        new DummyArithmeticResourcePoolImpl(0, 1, BigInteger.valueOf(101));
 
     BigInteger b = sce.runApplication(app, rp, null);
     assertThat(b, is(BigInteger.valueOf(20)));
   }
 
   @Test(expected = RuntimeException.class)
-  public void testRunApplicationAppThrows() {
+  public void testRunApplicationAppThrows() throws NoSuchAlgorithmException {
     Application<Object, ProtocolBuilderNumeric> app =
         new Application<Object, ProtocolBuilderNumeric>() {
 
@@ -76,14 +74,14 @@ public class TestSecureComputationEngineImpl {
             throw new RuntimeException();
           }
         };
-    DummyArithmeticResourcePool rp = new DummyArithmeticResourcePoolImpl(0, 1, new Random(),
-        new SecureRandom(), BigInteger.valueOf(101));
+    DummyArithmeticResourcePool rp =
+        new DummyArithmeticResourcePoolImpl(0, 1, BigInteger.valueOf(101));
     sce.runApplication(app, rp, null);
     fail("Should not be reachable");
   }
 
   @Test(expected = RuntimeException.class)
-  public void testRunApplicationAppTimesOut() {
+  public void testRunApplicationAppTimesOut() throws NoSuchAlgorithmException {
     Application<Object, ProtocolBuilderNumeric> app =
         new Application<Object, ProtocolBuilderNumeric>() {
 
@@ -94,8 +92,8 @@ public class TestSecureComputationEngineImpl {
             }
           }
         };
-    DummyArithmeticResourcePool rp = new DummyArithmeticResourcePoolImpl(0, 1, new Random(),
-        new SecureRandom(), BigInteger.valueOf(101));
+    DummyArithmeticResourcePool rp =
+        new DummyArithmeticResourcePoolImpl(0, 1, BigInteger.valueOf(101));
     sce.runApplication(app, rp, null, Duration.ofNanos(1));
     fail("Should not be reachable");
   }

@@ -22,6 +22,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -279,10 +280,13 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
         throw new ParseException("Invalid evaluation strategy: " + this.cmd.getOptionValue("e"));
       }
     } catch (ParseException e) {
-      System.out.println("Error while parsing arguments: " + e.getLocalizedMessage());
-      System.out.println();
+      System.err.println("Error while parsing arguments: " + e.getLocalizedMessage());
+      System.err.println();
       displayHelp();
       System.exit(-1); // TODO: Consider moving to top level.
+    } catch (NoSuchAlgorithmException ex) {
+      System.err.println("Could not instantiate the Deterministic Random Bit Generator due to " + ex.getLocalizedMessage());
+      ex.printStackTrace();
     }
 
     this.sce = new SecureComputationEngineImpl<>(protocolSuite, evaluator);
