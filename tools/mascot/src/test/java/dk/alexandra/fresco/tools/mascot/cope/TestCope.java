@@ -20,7 +20,7 @@ import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 public class TestCope extends NetworkedTest {
 
   private List<FieldElement> runSigner(MascotContext ctx, Integer otherId, FieldElement macKeyShare,
-      int numExtends) {
+      int numExtends) throws MaliciousCopeException, FailedCopeException {
     CopeSigner signer = new CopeSigner(ctx, otherId, macKeyShare);
     signer.initialize();
     List<FieldElement> shares = signer.extend(numExtends);
@@ -28,7 +28,7 @@ public class TestCope extends NetworkedTest {
   }
 
   private List<FieldElement> runInputter(MascotContext ctx, Integer otherId,
-      List<FieldElement> inputs) {
+      List<FieldElement> inputs) throws MaliciousCopeException, FailedCopeException {
     CopeInputter inputter = new CopeInputter(ctx, otherId);
     inputter.initialize();
     List<FieldElement> shares = inputter.extend(inputs);

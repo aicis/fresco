@@ -9,15 +9,18 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
 import dk.alexandra.fresco.tools.mascot.elgen.ElGen;
+import dk.alexandra.fresco.tools.mascot.elgen.FailedElGenException;
+import dk.alexandra.fresco.tools.mascot.elgen.MaliciousElGenException;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
+import dk.alexandra.fresco.tools.mascot.mult.FailedMultException;
+import dk.alexandra.fresco.tools.mascot.mult.MaliciousMultException;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeft;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyRight;
 import dk.alexandra.fresco.tools.mascot.utils.sample.DummyJointSampler;
@@ -32,7 +35,6 @@ public class TripleGen extends MultiPartyProtocol {
   private Sampler localSampler;
   private Sampler jointSampler;
   private int numLeftFactors;
-  // TODO move this into parent class/ interface?
   private boolean initialized;
 
   public TripleGen(MascotContext ctx, FieldElement macKeyShare, int numLeftFactors) {
@@ -52,14 +54,20 @@ public class TripleGen extends MultiPartyProtocol {
     this.initialized = false;
   }
 
-  public void initialize() {
+  public void initialize() throws MaliciousTripleGenException, FailedTripleGenException {
     // shouldn't initialize again
     if (initialized) {
       throw new IllegalStateException("Already initialized");
     }
     // initialize el gen
-    elGen.initialize();
-    this.initialized = true;
+    try {
+      elGen.initialize();
+      this.initialized = true;
+    } catch (MaliciousElGenException e) {
+      throw new MaliciousTripleGenException("Malicious exception during initialization", e);
+    } catch (FailedElGenException e) {
+      throw new FailedTripleGenException("Non-malicious exception during initialization", e);
+    }
   }
 
   List<UnauthTriple> toUnauthTriple(List<FieldElement> left, List<FieldElement> right,
@@ -74,8 +82,8 @@ public class TripleGen extends MultiPartyProtocol {
     return stream.collect(Collectors.toList());
   }
 
-  List<FieldElement> multiply(List<FieldElement> leftFactorGroups,
-      List<FieldElement> rightFactors) {
+  List<FieldElement> multiply(List<FieldElement> leftFactorGroups, List<FieldElement> rightFactors)
+      throws MaliciousTripleGenException, FailedTripleGenException {
     // "stretch" right factors, so we have one right factor for each left factor
     List<FieldElement> stretched =
         FieldElementCollectionUtils.stretch(rightFactors, numLeftFactors);
@@ -83,18 +91,27 @@ public class TripleGen extends MultiPartyProtocol {
     // for each value we will have two sub-factors for each other party
     List<List<FieldElement>> subFactors = new ArrayList<>();
 
-    // TODO parallelize
-    for (Integer partyId : partyIds) {
-      if (!myId.equals(partyId)) {
-        if (myId < partyId) {
-          subFactors.add(rightMultipliers.get(partyId).multiply(stretched));
-          subFactors.add(leftMultipliers.get(partyId).multiply(leftFactorGroups));
-        } else {
-          subFactors.add(leftMultipliers.get(partyId).multiply(leftFactorGroups));
-          subFactors.add(rightMultipliers.get(partyId).multiply(stretched));
+    try {
+      // TODO parallelize
+      for (Integer partyId : partyIds) {
+        if (!myId.equals(partyId)) {
+          MultiplyLeft leftMult = leftMultipliers.get(partyId);
+          MultiplyRight rightMult = rightMultipliers.get(partyId);
+          if (myId < partyId) {
+            subFactors.add(rightMult.multiply(stretched));
+            subFactors.add(leftMult.multiply(leftFactorGroups));
+          } else {
+            subFactors.add(leftMult.multiply(leftFactorGroups));
+            subFactors.add(rightMult.multiply(stretched));
+          }
         }
       }
+    } catch (MaliciousMultException e) {
+      throw new MaliciousTripleGenException("Malicious exception during multiplication", e);
+    } catch (FailedMultException e) {
+      throw new FailedTripleGenException("Non-malicious exception during multiplication", e);
     }
+
 
     // own part of the product
     List<FieldElement> localSubFactors =
@@ -140,18 +157,25 @@ public class TripleGen extends MultiPartyProtocol {
         .collect(Collectors.toList());
   }
 
-  List<AuthCand> authenticate(List<UnauthCand> candidates) {
+  List<AuthCand> authenticate(List<UnauthCand> candidates)
+      throws MaliciousTripleGenException, FailedTripleGenException {
     List<FieldElement> flatInputs = candidates.stream()
         .flatMap(c -> c.stream())
         .collect(Collectors.toList());
 
     List<List<AuthenticatedElement>> shares = new ArrayList<>();
-    for (Integer partyId : partyIds) {
-      if (myId.equals(partyId)) {
-        shares.add(elGen.input(flatInputs));
-      } else {
-        shares.add(elGen.input(partyId, flatInputs.size()));
+    try {
+      for (Integer partyId : partyIds) {
+        if (myId.equals(partyId)) {
+          shares.add(elGen.input(flatInputs));
+        } else {
+          shares.add(elGen.input(partyId, flatInputs.size()));
+        }
       }
+    } catch (MaliciousElGenException e) {
+      throw new MaliciousTripleGenException("Malicious exception during authentication", e);
+    } catch (FailedElGenException e) {
+      throw new FailedTripleGenException("Non-malicious exception during authentication", e);
     }
 
     List<AuthenticatedElement> combined = CollectionUtils.pairWiseSum(shares);
@@ -188,7 +212,8 @@ public class TripleGen extends MultiPartyProtocol {
         .collect(Collectors.toList());
   }
 
-  List<MultTriple> sacrifice(List<AuthCand> candidates) {
+  List<MultTriple> sacrifice(List<AuthCand> candidates)
+      throws MaliciousTripleGenException, FailedTripleGenException {
     List<FieldElement> masks = jointSampler.sample(modulus, modBitLength, candidates.size());
 
     // compute masked values we will open and use in mac-check
@@ -204,23 +229,25 @@ public class TripleGen extends MultiPartyProtocol {
     rhos.addAll(sigmas);
 
     // pad open rhos with zeroes, one for each sigma
-    List<FieldElement> paddedRhos = FieldElementCollectionUtils.padWith(openRhos, new FieldElement(0, modulus, modBitLength),
-        sigmas.size());
+    List<FieldElement> paddedRhos = FieldElementCollectionUtils.padWith(openRhos,
+        new FieldElement(0, modulus, modBitLength), sigmas.size());
 
-    // run mac-check
     try {
+      // run mac-check
       // TODO check if we can avoid re-masking
       elGen.check(rhos, paddedRhos);
-    } catch (MPCException e) {
-      // TODO handle
-      System.out.println("here");
-      e.printStackTrace();
-      throw e;
+    } catch (MaliciousElGenException e) {
+      throw new MaliciousTripleGenException("Malicious exception during sacrifice", e);
+    } catch (FailedElGenException e) {
+      throw new FailedTripleGenException("Non-malicious exception during sacrifice", e);
     }
+
+    // convert candidates to valid triples and return
     return toMultTriples(candidates);
   }
 
-  public List<MultTriple> triple(int numTriples) {
+  public List<MultTriple> triple(int numTriples)
+      throws MaliciousTripleGenException, FailedTripleGenException {
     // can't generate triples before initializing
     if (!initialized) {
       throw new IllegalStateException("Need to initialize first");

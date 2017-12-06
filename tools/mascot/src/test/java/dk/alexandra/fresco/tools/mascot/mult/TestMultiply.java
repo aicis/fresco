@@ -23,13 +23,13 @@ import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
 public class TestMultiply extends NetworkedTest {
 
   private List<FieldElement> runLeftMult(MascotContext ctx, Integer otherId,
-      List<FieldElement> inputs) {
+      List<FieldElement> inputs) throws MaliciousMultException, FailedMultException {
     MultiplyLeft mult = new MultiplyLeft(ctx, otherId, inputs.size());
     return mult.multiply(inputs);
   }
 
   private List<FieldElement> runRightMult(MascotContext ctx, Integer otherId,
-      List<FieldElement> inputs, int numLeftFactors) {
+      List<FieldElement> inputs, int numLeftFactors) throws MaliciousMultException, FailedMultException {
     MultiplyRight mult = new MultiplyRight(ctx, otherId, numLeftFactors);
     return mult.multiply(inputs);
   }

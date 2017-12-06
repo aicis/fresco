@@ -13,11 +13,15 @@ import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
 import dk.alexandra.fresco.tools.mascot.cope.CopeInputter;
 import dk.alexandra.fresco.tools.mascot.cope.CopeSigner;
+import dk.alexandra.fresco.tools.mascot.cope.FailedCopeException;
+import dk.alexandra.fresco.tools.mascot.cope.MaliciousCopeException;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
+import dk.alexandra.fresco.tools.mascot.maccheck.FailedMacCheckException;
 import dk.alexandra.fresco.tools.mascot.maccheck.MacCheck;
+import dk.alexandra.fresco.tools.mascot.maccheck.MaliciousMacCheckException;
 import dk.alexandra.fresco.tools.mascot.utils.Sharer;
 import dk.alexandra.fresco.tools.mascot.utils.sample.DummyJointSampler;
 import dk.alexandra.fresco.tools.mascot.utils.sample.DummySampler;
@@ -52,25 +56,33 @@ public class ElGen extends MultiPartyProtocol {
     this.initialized = false;
   }
 
-  public void initialize() {
+  public void initialize() throws MaliciousElGenException, FailedElGenException {
     // shouldn't initialize again
     if (initialized) {
       throw new IllegalStateException("Already initialized");
     }
 
-    // TODO parallelize
-    for (Integer partyId : partyIds) {
-      if (!myId.equals(partyId)) {
-        if (myId < partyId) {
-          copeInputters.get(partyId).initialize();
-          copeSigners.get(partyId).initialize();
-        } else {
-          copeSigners.get(partyId).initialize();
-          copeInputters.get(partyId).initialize();
+    try {
+      // TODO parallelize
+      for (Integer partyId : partyIds) {
+        if (!myId.equals(partyId)) {
+          CopeInputter copeInputter = copeInputters.get(partyId);
+          CopeSigner copeSigner = copeSigners.get(partyId);
+          if (myId < partyId) {
+            copeInputter.initialize();
+            copeSigner.initialize();
+          } else {
+            copeSigner.initialize();
+            copeInputter.initialize();
+          }
         }
       }
+      this.initialized = true;
+    } catch (MaliciousCopeException e) {
+      throw new MaliciousElGenException("Malicious failure during initialization", e);
+    } catch (FailedCopeException e) {
+      throw new FailedElGenException("Non-malicious failure during initialization", e);
     }
-    this.initialized = true;
   }
 
   List<List<FieldElement>> otherPartiesMac(List<FieldElement> values) {
@@ -100,31 +112,6 @@ public class ElGen extends MultiPartyProtocol {
     List<List<FieldElement>> maccedByAll = otherPartiesMac(values);
     maccedByAll.add(selfMacced);
     return combineIntoMacShares(maccedByAll);
-  }
-
-  List<FieldElement> mask(List<FieldElement> values, List<FieldElement> masks) {
-    if (values.size() != masks.size()) {
-      throw new IllegalArgumentException("Number of values must equal number of masks");
-    }
-    return IntStream.range(0, values.size())
-        .mapToObj(idx -> {
-          FieldElement value = values.get(idx);
-          FieldElement mask = masks.get(idx);
-          return value.multiply(mask);
-        })
-        .collect(Collectors.toList());
-  }
-
-  void runMacCheck(FieldElement value, List<FieldElement> masks, List<FieldElement> macs) {
-    // mask and combine macs
-    FieldElement maskedMac = CollectionUtils.sum(mask(macs, masks));
-    // perform mac-check on open masked value
-    try {
-      macChecker.check(value, macKeyShare, maskedMac);
-    } catch (Exception e) {
-      // TODO handle
-      e.printStackTrace();
-    }
   }
 
   void sendShares(Integer partyId, List<FieldElement> shares) {
@@ -168,7 +155,16 @@ public class ElGen extends MultiPartyProtocol {
     return spdzElements.collect(Collectors.toList());
   }
 
-  public List<AuthenticatedElement> input(List<FieldElement> values) {
+  /**
+   * Inputs field elements. 
+   * 
+   * @param values
+   * @return
+   * @throws MaliciousElGenException
+   * @throws FailedElGenException
+   */
+  public List<AuthenticatedElement> input(List<FieldElement> values)
+      throws MaliciousElGenException, FailedElGenException {
     // can't input before initializing
     if (!initialized) {
       throw new IllegalStateException("Need to initialize first");
@@ -188,7 +184,7 @@ public class ElGen extends MultiPartyProtocol {
     List<FieldElement> masks = jointSampler.sample(modulus, modBitLength, values.size());
 
     // mask and combine values
-    FieldElement maskedValue = CollectionUtils.sum(mask(values, masks));
+    FieldElement maskedValue = FieldElementCollectionUtils.innerProduct(values, masks);
 
     // send masked value to all other parties
     network.sendToAll(maskedValue.toByteArray());
@@ -206,7 +202,8 @@ public class ElGen extends MultiPartyProtocol {
     return spdzElements;
   }
 
-  public List<AuthenticatedElement> input(Integer inputterId, int numInputs) {
+  public List<AuthenticatedElement> input(Integer inputterId, int numInputs)
+      throws MaliciousElGenException, FailedElGenException {
     // can't input before initializing
     if (!initialized) {
       throw new IllegalStateException("Need to initialize first");
@@ -234,27 +231,47 @@ public class ElGen extends MultiPartyProtocol {
     return spdzElements;
   }
 
+  void runMacCheck(FieldElement value, List<FieldElement> masks, List<FieldElement> macs)
+      throws MaliciousElGenException, FailedElGenException {
+    // mask and combine macs
+    FieldElement maskedMac = FieldElementCollectionUtils.innerProduct(macs, masks);
+    // perform mac-check on open masked value
+    try {
+      macChecker.check(value, macKeyShare, maskedMac);
+    } catch (MaliciousMacCheckException e) {
+      throw new MaliciousElGenException("Malicious exception during mac-check", e);
+    } catch (FailedMacCheckException e) {
+      throw new FailedElGenException("Non-malicious exception during mac-check", e);
+    }
+  }
+
   /**
    * Runs mac-check on opened values.
    * 
    * @param sharesWithMacs
    * @param openValues
+   * @throws FailedElGenException
+   * @throws MaliciousElGenException
    */
-  public void check(List<AuthenticatedElement> sharesWithMacs, List<FieldElement> openValues) {
+  public void check(List<AuthenticatedElement> sharesWithMacs, List<FieldElement> openValues)
+      throws MaliciousElGenException, FailedElGenException {
+    // will use this to mask macs 
     List<FieldElement> masks = jointSampler.sample(modulus, modBitLength, sharesWithMacs.size());
+    // only need macs
     List<FieldElement> macs = sharesWithMacs.stream()
         .map(share -> share.getMac())
         .collect(Collectors.toList());
-    FieldElement mac = FieldElementCollectionUtils.innerProduct(macs, masks);
+    // apply masks to open element so that it matches the macs when we mask them
     FieldElement open = FieldElementCollectionUtils.innerProduct(openValues, masks);
-    try {
-      macChecker.check(open, macKeyShare, mac);
-    } catch (Exception e) {
-      // TODO: handle exception
-      e.printStackTrace();
-    }
+    runMacCheck(open, masks, macs);
   }
 
+  /**
+   * Opens secret elements (distributes shares among all parties and recombines).
+   * 
+   * @param closed
+   * @return
+   */
   public List<FieldElement> open(List<AuthenticatedElement> closed) {
     // all shares
     List<List<FieldElement>> shares = new ArrayList<>();

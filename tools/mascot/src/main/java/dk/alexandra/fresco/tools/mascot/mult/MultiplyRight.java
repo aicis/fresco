@@ -25,15 +25,17 @@ public class MultiplyRight extends MultiplyShared {
     this(ctx, otherId, 1);
   }
 
-  public List<Pair<StrictBitVector, StrictBitVector>> generateSeeds(int numMults) {
+  public List<Pair<StrictBitVector, StrictBitVector>> generateSeeds(int numMults)
+      throws MaliciousMultException, FailedMultException {
     // perform rots for each bit, for each left factor, for each multiplication
     int numRots = modBitLength * numLeftFactors * numMults;
     List<Pair<StrictBitVector, StrictBitVector>> seeds = new ArrayList<>();
     try {
       seeds = rot.send(numRots, modBitLength);
-    } catch (MaliciousOtException | FailedOtException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+    } catch (MaliciousOtException e) {
+      throw new MaliciousMultException("Malicious exception seed generation", e);
+    } catch (FailedOtException e) {
+      throw new FailedMultException("Non-malicious exception seed generation", e);
     }
     return seeds;
   }
@@ -74,7 +76,8 @@ public class MultiplyRight extends MultiplyShared {
         int from = rightFactIdx * groupBitLength + leftFactIdx * modBitLength;
         int to = rightFactIdx * groupBitLength + (leftFactIdx + 1) * modBitLength;
         List<FieldElement> subFactors = feZeroSeeds.subList(from, to);
-        FieldElement recombined = FieldElementCollectionUtils.recombine(subFactors, modulus, modBitLength);
+        FieldElement recombined =
+            FieldElementCollectionUtils.recombine(subFactors, modulus, modBitLength);
         productShares.add(recombined.negate());
       }
     }
@@ -94,7 +97,8 @@ public class MultiplyRight extends MultiplyShared {
         .collect(Collectors.toList());
   }
 
-  public List<FieldElement> multiply(List<FieldElement> rightFactors) {
+  public List<FieldElement> multiply(List<FieldElement> rightFactors)
+      throws MaliciousMultException, FailedMultException {
     // generate seeds pairs which we will use to compute diffs
     List<Pair<StrictBitVector, StrictBitVector>> seedPairs = generateSeeds(rightFactors.size());
 

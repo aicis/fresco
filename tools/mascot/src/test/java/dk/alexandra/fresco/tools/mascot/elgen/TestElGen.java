@@ -37,7 +37,8 @@ public class TestElGen extends NetworkedTest {
   }
 
   private List<AuthenticatedElement> runOtherMultipleRounds(MascotContext ctx, Integer inputterId,
-      FieldElement macKeyShare, int numInputsPerRound, int numRounds) {
+      FieldElement macKeyShare, int numInputsPerRound, int numRounds)
+      throws MaliciousElGenException, FailedElGenException {
     ElGen elGen = new ElGen(ctx, macKeyShare);
     elGen.initialize();
     List<AuthenticatedElement> elements = new ArrayList<>(numInputsPerRound * numRounds);
@@ -56,7 +57,8 @@ public class TestElGen extends NetworkedTest {
   }
 
   private List<AuthenticatedElement> runOther(MascotContext ctx, Integer inputterId,
-      FieldElement macKeyShare, int numInputs) {
+      FieldElement macKeyShare, int numInputs)
+      throws MaliciousElGenException, FailedElGenException {
     ElGen elGen = new ElGen(ctx, macKeyShare);
     elGen.initialize();
     return elGen.input(inputterId, numInputs);
@@ -224,7 +226,7 @@ public class TestElGen extends NetworkedTest {
       // run tasks and get ordered list of results
       List<List<AuthenticatedElement>> results =
           testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask, partyThreeTask));
-      List<AuthenticatedElement> actual = computeActual(results);
+      List<AuthenticatedElement> actual = CollectionUtils.pairWiseSum(results);
       List<FieldElement> macKeyShares =
           Arrays.asList(macKeyShareOne, macKeyShareTwo, macKeyShareThree);
       List<AuthenticatedElement> expected =
@@ -272,7 +274,7 @@ public class TestElGen extends NetworkedTest {
       List<List<AuthenticatedElement>> results =
           testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
 
-      List<AuthenticatedElement> actual = computeActual(results);
+      List<AuthenticatedElement> actual = CollectionUtils.pairWiseSum(results);
       List<FieldElement> macKeyShares = Arrays.asList(macKeyShareOne, macKeyShareTwo);
       List<AuthenticatedElement> expected =
           computeExpected(inputs, macKeyShares, modulus, modBitLength);
@@ -322,7 +324,7 @@ public class TestElGen extends NetworkedTest {
       List<List<AuthenticatedElement>> results =
           testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
 
-      List<AuthenticatedElement> actual = computeActual(results);
+      List<AuthenticatedElement> actual = CollectionUtils.pairWiseSum(results);
       List<FieldElement> macKeyShares = Arrays.asList(macKeyShareOne, macKeyShareTwo);
       List<FieldElement> flatInputs = inputs.stream()
           .flatMap(l -> l.stream())
@@ -349,22 +351,6 @@ public class TestElGen extends NetworkedTest {
           return new AuthenticatedElement(fe, mac, modulus, modBitLength);
         });
     return expected.collect(Collectors.toList());
-  }
-
-  private AuthenticatedElement sum(List<AuthenticatedElement> summands) {
-    return summands.stream()
-        .reduce((l, r) -> l.add(r))
-        .get();
-  }
-
-  private List<AuthenticatedElement> computeActual(
-      List<List<AuthenticatedElement>> sharesPerParty) {
-    // TODO debatable...
-    List<List<AuthenticatedElement>> perValue = CollectionUtils.transpose(sharesPerParty);
-    List<AuthenticatedElement> actual = perValue.stream()
-        .map(shares -> sum(shares))
-        .collect(Collectors.toList());
-    return actual;
   }
 
 }

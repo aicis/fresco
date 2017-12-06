@@ -10,7 +10,6 @@ import java.util.concurrent.Callable;
 
 import org.junit.Test;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
@@ -26,7 +25,7 @@ public class TestMacCheck extends NetworkedTest {
     Exception exception = null;
     try {
       macChecker.check(opened, macKeyShare, macShare);
-    } catch (MPCException e) {
+    } catch (MaliciousMacCheckException e) {
       exception = e;
       thrown = true;
     }
@@ -116,8 +115,8 @@ public class TestMacCheck extends NetworkedTest {
         boolean didThrow = res.getFirst();
         Exception exception = res.getSecond();
         assertEquals(didThrow, true);
-        assertEquals(exception.getClass(), MPCException.class);
-        assertEquals(exception.getMessage(), "Mac check failed!");
+        assertEquals(exception.getClass(), MaliciousMacCheckException.class);
+        assertEquals(exception.getMessage(), "Malicious mac forging detected");
       }
     } catch (Exception e) {
       // TODO: handle exception

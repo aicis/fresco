@@ -11,6 +11,8 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.mult.FailedMultException;
+import dk.alexandra.fresco.tools.mascot.mult.MaliciousMultException;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyRight;
 import dk.alexandra.fresco.tools.mascot.utils.DummyPrg;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
@@ -28,13 +30,19 @@ public class CopeInputter extends CopeShared {
     this.multiplier = new MultiplyRight(ctx, otherId);
   }
 
-  public void initialize() {
+  public void initialize() throws MaliciousCopeException, FailedCopeException {
     if (initialized) {
       throw new IllegalStateException("Already initialized");
     }
-    List<Pair<StrictBitVector, StrictBitVector>> seeds = multiplier.generateSeeds(1);
-    seedPrgs(seeds);
-    initialized = true;
+    try {
+      List<Pair<StrictBitVector, StrictBitVector>> seeds = multiplier.generateSeeds(1);
+      seedPrgs(seeds);
+      initialized = true;
+    } catch (MaliciousMultException e) {
+      throw new MaliciousCopeException("Malicious failure during initialization", e);
+    } catch (FailedMultException e) {
+      throw new FailedCopeException("Non-malicious failure during initialization", e);
+    }
   }
 
   private void seedPrgs(List<Pair<StrictBitVector, StrictBitVector>> seeds) {

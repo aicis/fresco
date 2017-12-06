@@ -26,7 +26,7 @@ public class MultiplyLeft extends MultiplyShared {
   }
 
   /**
-   * Converts field elements to bit vectors and returns concatenation.
+   * Converts field elements to bit vectors and concatenates the result.
    * 
    * @param elements field elements to pack
    * @return
@@ -38,20 +38,23 @@ public class MultiplyLeft extends MultiplyShared {
     return StrictBitVector.concat(true, bitVecs);
   }
 
-  public List<StrictBitVector> generateSeeds(List<FieldElement> leftFactors) {
+  public List<StrictBitVector> generateSeeds(List<FieldElement> leftFactors)
+      throws MaliciousMultException, FailedMultException {
     StrictBitVector packedFactors = pack(leftFactors);
     // use rot to get choice seeds
     List<StrictBitVector> seeds = new ArrayList<>();
     try {
       seeds = rot.receive(packedFactors, modBitLength);
-    } catch (MaliciousOtException | FailedOtException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+    } catch (MaliciousOtException e) {
+      throw new MaliciousMultException("Malicious exception seed generation", e);
+    } catch (FailedOtException e) {
+      throw new FailedMultException("Non-malicious exception seed generation", e);
     }
     return seeds;
   }
 
-  public List<StrictBitVector> generateSeeds(FieldElement leftFactor) {
+  public List<StrictBitVector> generateSeeds(FieldElement leftFactor)
+      throws MaliciousMultException, FailedMultException {
     return generateSeeds(Arrays.asList(leftFactor));
   }
 
@@ -95,7 +98,8 @@ public class MultiplyLeft extends MultiplyShared {
         .collect(Collectors.toList());
   }
 
-  public List<FieldElement> multiply(List<FieldElement> leftFactors) {
+  public List<FieldElement> multiply(List<FieldElement> leftFactors)
+      throws MaliciousMultException, FailedMultException {
     // generate seeds to use for multiplication
     List<StrictBitVector> seeds = generateSeeds(leftFactors);
 

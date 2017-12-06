@@ -5,16 +5,14 @@ import java.io.Serializable;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.tools.commitment.Commitment;
 import dk.alexandra.fresco.tools.commitment.FailedCommitmentException;
 import dk.alexandra.fresco.tools.commitment.MaliciousCommitmentException;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
+import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 
 public class MacCheck extends MultiPartyProtocol {
@@ -23,6 +21,14 @@ public class MacCheck extends MultiPartyProtocol {
     super(ctx);
   }
 
+  /**
+   * Sends own commitment to others and receives others' commitments.
+   * 
+   * @param comm own commitment
+   * @return
+   * @throws IOException
+   * @throws ClassNotFoundException
+   */
   List<Commitment> distributeCommitments(Commitment comm)
       throws IOException, ClassNotFoundException {
     // all commitments
@@ -40,7 +46,15 @@ public class MacCheck extends MultiPartyProtocol {
     return comms;
   }
 
-  List<Serializable> distributeOpenings(Serializable opening, List<Commitment> comms)
+  /**
+   * Sends own opening info to others and receives others' opening info.
+   * 
+   * @param opening own opening info
+   * @return
+   * @throws IOException
+   * @throws ClassNotFoundException
+   */
+  List<Serializable> distributeOpenings(Serializable opening)
       throws IOException, ClassNotFoundException {
     // all openings
     List<Serializable> openings = new ArrayList<>();
@@ -57,50 +71,85 @@ public class MacCheck extends MultiPartyProtocol {
     return openings;
   }
 
-  List<FieldElement> open(List<Commitment> comms, List<Serializable> openings) {
-    return IntStream.range(0, comms.size())
-        .mapToObj(idx -> {
-          Commitment comm = comms.get(idx);
-          Serializable opening = openings.get(idx);
-          try {
-            return (FieldElement) comm.open(opening);
-          } catch (MaliciousCommitmentException | FailedCommitmentException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return null;
-          }
-        })
-        .collect(Collectors.toList());
+  /**
+   * Attempts to open commitments using opening info.
+   * 
+   * @param comms
+   * @param openings
+   * @return
+   * @throws MaliciousMacCheckException
+   * @throws FailedMacCheckException
+   */
+  List<FieldElement> open(List<Commitment> comms, List<Serializable> openings)
+      throws MaliciousMacCheckException, FailedMacCheckException {
+    if (comms.size() != openings.size()) {
+      throw new IllegalArgumentException("Lists must be same size");
+    }
+    List<FieldElement> result = new ArrayList<>(comms.size());
+    try {
+      for (int i = 0; i < comms.size(); i++) {
+        Commitment comm = comms.get(i);
+        Serializable opening = openings.get(i);
+        FieldElement fe;
+        fe = (FieldElement) comm.open(opening);
+        result.add(fe);
+      }
+    } catch (MaliciousCommitmentException e) {
+      throw new MaliciousMacCheckException("Malicious exception while opening commitments", e);
+    } catch (FailedCommitmentException e) {
+      throw new FailedMacCheckException("Non-malicious exception while opening commitments", e);
+    }
+    return result;
   }
 
+  /**
+   * Runs mac-check on open value. <b> Conceptually, computes that (macShare0 + ... + macShareN) =
+   * (open) * (keyShare0 + ... + keyShareN)
+   * 
+   * @param opened
+   * @param macKeyShare
+   * @param macShare
+   * @throws MaliciousMacCheckException
+   * @throws FailedMacCheckException
+   */
   public void check(FieldElement opened, FieldElement macKeyShare, FieldElement macShare)
-      throws MPCException, IOException, ClassNotFoundException, FailedCommitmentException {
+      throws MaliciousMacCheckException, FailedMacCheckException {
     // we will check that all sigmas together add up to 0
     FieldElement sigma = macShare.subtract(opened.multiply(macKeyShare));
 
     // commit to sigma
     Commitment ownComm = new Commitment(modBitLength);
-    Serializable ownOpening = ownComm.commit(new SecureRandom(), sigma);
 
-    // all parties commit
-    List<Commitment> comms = distributeCommitments(ownComm);
+    Serializable ownOpening;
+    try {
+      ownOpening = ownComm.commit(new SecureRandom(), sigma);
+    } catch (FailedCommitmentException e) {
+      throw new FailedMacCheckException("Non-malicious failure during initial commit", e);
+    }
 
-    // all parties send opening info
-    List<Serializable> openings = distributeOpenings(ownOpening, comms);
+    List<Commitment> comms = null;
+    List<Serializable> openings = null;
+    try {
+      // all parties commit
+      comms = distributeCommitments(ownComm);
+      // all parties send opening info
+      openings = distributeOpenings(ownOpening);
+    } catch (ClassNotFoundException | IOException e) {
+      throw new FailedMacCheckException("Non-malicious failure during distribution phase", e);
+    }
 
     // open commitments using received opening info
     List<FieldElement> sigmas = open(comms, openings);
 
     // add up all sigmas
-    FieldElement sigmaSum = sigmas.stream()
-        .reduce((left, right) -> left.add(right))
-        .get();
+    FieldElement sigmaSum = CollectionUtils.sum(sigmas);
 
     // sum of sigmas must be 0
     FieldElement zero = new FieldElement(0, modulus, modBitLength);
     if (!zero.equals(sigmaSum)) {
-      throw new MPCException("Mac check failed!");
+      throw new MaliciousMacCheckException("Malicious mac forging detected");
     }
+
   }
 
 }
