@@ -278,7 +278,7 @@ public class TestTripleGen extends NetworkedTest {
     int modBitLength = 16;
     FieldElement macKeyShareOne = new FieldElement(11231, modulus, modBitLength);
     FieldElement macKeyShareTwo = new FieldElement(7719, modulus, modBitLength);
-    testMultiplePartiesTriple(Arrays.asList(macKeyShareOne, macKeyShareTwo), 10, modulus,
+    testMultiplePartiesTriple(Arrays.asList(macKeyShareOne, macKeyShareTwo), 100, modulus,
         modBitLength);
   }
 

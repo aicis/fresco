@@ -2,8 +2,9 @@ package dk.alexandra.fresco.tools.mascot.triple;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -26,8 +27,8 @@ import dk.alexandra.fresco.tools.mascot.utils.sample.Sampler;
 public class TripleGen extends MultiPartyProtocol {
 
   private ElGen elGen;
-  private List<MultiplyRight> rightMultipliers;
-  private List<MultiplyLeft> leftMultipliers;
+  private Map<Integer, MultiplyRight> rightMultipliers;
+  private Map<Integer, MultiplyLeft> leftMultipliers;
   private Sampler localSampler;
   private Sampler jointSampler;
   private int numLeftFactors;
@@ -37,12 +38,12 @@ public class TripleGen extends MultiPartyProtocol {
   public TripleGen(MascotContext ctx, FieldElement macKeyShare, int numLeftFactors) {
     super(ctx);
     this.elGen = new ElGen(ctx, macKeyShare);
-    this.leftMultipliers = new LinkedList<>();
-    this.rightMultipliers = new LinkedList<>();
+    this.leftMultipliers = new HashMap<>();
+    this.rightMultipliers = new HashMap<>();
     for (Integer partyId : partyIds) {
       if (!myId.equals(partyId)) {
-        rightMultipliers.add(new MultiplyRight(ctx, partyId));
-        leftMultipliers.add(new MultiplyLeft(ctx, partyId));
+        rightMultipliers.put(partyId, new MultiplyRight(ctx, partyId));
+        leftMultipliers.put(partyId, new MultiplyLeft(ctx, partyId));
       }
     }
     this.localSampler = new DummySampler(ctx.getRand());
@@ -81,12 +82,18 @@ public class TripleGen extends MultiPartyProtocol {
 
     // for each value we will have two sub-factors for each other party
     List<List<FieldElement>> subFactors = new ArrayList<>();
-    // left-mult blocks on receive, so run right mults first
-    for (MultiplyRight rightMultiplier : rightMultipliers) {
-      subFactors.add(rightMultiplier.multiply(stretched));
-    }
-    for (MultiplyLeft leftMultiplier : leftMultipliers) {
-      subFactors.add(leftMultiplier.multiply(leftFactorGroups));
+
+    // TODO parallelize
+    for (Integer partyId : partyIds) {
+      if (!myId.equals(partyId)) {
+        if (myId < partyId) {
+          subFactors.add(rightMultipliers.get(partyId).multiply(stretched));
+          subFactors.add(leftMultipliers.get(partyId).multiply(leftFactorGroups));
+        } else {
+          subFactors.add(leftMultipliers.get(partyId).multiply(leftFactorGroups));
+          subFactors.add(rightMultipliers.get(partyId).multiply(stretched));
+        }
+      }
     }
 
     // own part of the product

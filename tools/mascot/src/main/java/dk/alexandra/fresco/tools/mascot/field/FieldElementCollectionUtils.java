@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
 
@@ -23,15 +24,26 @@ public class FieldElementCollectionUtils {
     if (leftFactors.size() != rightFactors.size()) {
       throw new IllegalArgumentException("Rows must be same size");
     }
+    return pairWiseMultiplyStream(leftFactors, rightFactors).collect(Collectors.toList());
+  }
+
+  /**
+   * 
+   * 
+   * @param leftFactors
+   * @param rightFactors
+   * @return
+   */
+  static Stream<FieldElement> pairWiseMultiplyStream(List<FieldElement> leftFactors,
+      List<FieldElement> rightFactors) {
     return IntStream.range(0, leftFactors.size())
         .mapToObj(idx -> {
           FieldElement l = leftFactors.get(idx);
           FieldElement r = rightFactors.get(idx);
           return l.multiply(r);
-        })
-        .collect(Collectors.toList());
+        });
   }
-  
+
   /**
    * 
    * @param generator
@@ -77,13 +89,9 @@ public class FieldElementCollectionUtils {
     if (left.size() != right.size()) {
       throw new IllegalArgumentException("Lists must have same size");
     }
-    return IntStream.range(0, left.size())
-        .mapToObj(idx -> left.get(idx)
-            .multiply(right.get(idx)))
-        .reduce((l, r) -> l.add(r))
-        .get();
+    return CollectionUtils.sum(pairWiseMultiplyStream(left, right));
   }
-  
+
   /**
    * 
    * @param mat
@@ -93,7 +101,7 @@ public class FieldElementCollectionUtils {
     // TODO: switch to doing fast transpose
     return CollectionUtils.transpose(mat);
   }
-  
+
   /**
    * 
    * @param elements
@@ -109,10 +117,11 @@ public class FieldElementCollectionUtils {
     }
     return stretched;
   }
-  
-  public static List<FieldElement> padWith(List<FieldElement> elements, FieldElement pad, int numPads) {
+
+  public static List<FieldElement> padWith(List<FieldElement> elements, FieldElement pad,
+      int numPads) {
     elements.addAll(Collections.nCopies(numPads, pad));
     return elements;
   }
-  
+
 }

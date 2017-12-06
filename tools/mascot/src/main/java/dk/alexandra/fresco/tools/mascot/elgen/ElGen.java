@@ -2,7 +2,6 @@ package dk.alexandra.fresco.tools.mascot.elgen;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -33,7 +32,7 @@ public class ElGen extends MultiPartyProtocol {
   private Sampler jointSampler;
   private Sharer sharer;
   private Map<Integer, CopeSigner> copeSigners;
-  private List<CopeInputter> copeInputters;
+  private Map<Integer, CopeInputter> copeInputters;
 
   public ElGen(MascotContext ctx, FieldElement macKeyShare) {
     super(ctx);
@@ -43,12 +42,11 @@ public class ElGen extends MultiPartyProtocol {
     this.jointSampler = new DummyJointSampler();
     this.sharer = new Sharer(localSampler);
     this.copeSigners = new HashMap<>();
-    this.copeInputters = new LinkedList<>();
-    for (Integer partyId : ctx.getPartyIds()) {
-      if (!ctx.getMyId()
-          .equals(partyId)) {
+    this.copeInputters = new HashMap<>();
+    for (Integer partyId : partyIds) {
+      if (!myId.equals(partyId)) {
         copeSigners.put(partyId, new CopeSigner(ctx, partyId, this.macKeyShare));
-        copeInputters.add(new CopeInputter(ctx, partyId));
+        copeInputters.put(partyId, new CopeInputter(ctx, partyId));
       }
     }
     this.initialized = false;
@@ -59,22 +57,26 @@ public class ElGen extends MultiPartyProtocol {
     if (initialized) {
       throw new IllegalStateException("Already initialized");
     }
-    // TODO parallelize
 
-    // initialize cope inputters
-    for (CopeInputter copeInputter : copeInputters) {
-      copeInputter.initialize();
-    }
-    // initialize cope signers
-    for (CopeSigner copeSigner : copeSigners.values()) {
-      copeSigner.initialize();
+    // TODO parallelize
+    for (Integer partyId : partyIds) {
+      if (!myId.equals(partyId)) {
+        if (myId < partyId) {
+          copeInputters.get(partyId).initialize();
+          copeSigners.get(partyId).initialize();
+        } else {
+          copeSigners.get(partyId).initialize();
+          copeInputters.get(partyId).initialize();
+        }
+      }
     }
     this.initialized = true;
   }
 
   List<List<FieldElement>> otherPartiesMac(List<FieldElement> values) {
     List<List<FieldElement>> perPartySignatures = new ArrayList<>();
-    for (CopeInputter copeInputter : copeInputters) {
+    // TODO parallelize
+    for (CopeInputter copeInputter : copeInputters.values()) {
       perPartySignatures.add(copeInputter.extend(values));
     }
     return perPartySignatures;
