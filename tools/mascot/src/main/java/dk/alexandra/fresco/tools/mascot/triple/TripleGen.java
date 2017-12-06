@@ -204,13 +204,13 @@ public class TripleGen extends MultiPartyProtocol {
     rhos.addAll(sigmas);
 
     // pad open rhos with zeroes, one for each sigma
-    FieldElementCollectionUtils.padWith(openRhos, new FieldElement(0, modulus, modBitLength),
+    List<FieldElement> paddedRhos = FieldElementCollectionUtils.padWith(openRhos, new FieldElement(0, modulus, modBitLength),
         sigmas.size());
 
     // run mac-check
     try {
       // TODO check if we can avoid re-masking
-      elGen.check(rhos, openRhos);
+      elGen.check(rhos, paddedRhos);
     } catch (MPCException e) {
       // TODO handle
       System.out.println("here");
