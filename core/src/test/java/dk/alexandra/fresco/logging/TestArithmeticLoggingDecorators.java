@@ -78,12 +78,14 @@ public class TestArithmeticLoggingDecorators {
       
       ListLogger testLogger = new ListLogger();
       pl.get(0).printToLog(testLogger, pId);
+      String expectedOutput = pl.get(0).makeLogString(pId);
       Map<String, Object> loggedValues = pl.get(0).getLoggedValues(pId);
       Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_ADD), Is.is((long)5719386));
       Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_MULT), Is.is((long)15996));
       Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_SUB), Is.is((long)46416));
       Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_BIT), Is.is((long)5669220));
       Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_RAND), Is.is((long)960));
+      Assert.assertThat(testLogger.getData().get(0), Is.is(expectedOutput));
       
       pl.get(0).reset();
       pl.get(0).printToLog(testLogger, pId);
@@ -93,19 +95,8 @@ public class TestArithmeticLoggingDecorators {
       Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_SUB), Is.is((long)0));
       Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_BIT), Is.is((long)0));
       Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_RAND), Is.is((long)0));
-      
-      Assert.assertTrue(testLogger.getData().get(0).contains("Basic numeric operations logged - results ==="));
-      Assert.assertTrue(testLogger.getData().get(1).contains("Multiplications: 15996"));
-      Assert.assertTrue(testLogger.getData().get(2).contains("Additions: 5719386"));
-      Assert.assertTrue(testLogger.getData().get(3).contains("Subtractions: 46416"));
-      Assert.assertTrue(testLogger.getData().get(4).contains("Random bits fetched: 5669220"));
-      Assert.assertTrue(testLogger.getData().get(5).contains("Random elements fetched: 960"));
-      
-      Assert.assertTrue(testLogger.getData().get(7).contains("Multiplications: 0"));
-      Assert.assertTrue(testLogger.getData().get(8).contains("Additions: 0"));
-      Assert.assertTrue(testLogger.getData().get(9).contains("Subtractions: 0"));
-      Assert.assertTrue(testLogger.getData().get(10).contains("Random bits fetched: 0"));
-      Assert.assertTrue(testLogger.getData().get(11).contains("Random elements fetched: 0"));
+      String expectedOutputEmpty = pl.get(0).makeLogString(pId);
+      Assert.assertThat(testLogger.getData().get(1), Is.is(expectedOutputEmpty));
     }
   }
   
@@ -157,12 +148,14 @@ public class TestArithmeticLoggingDecorators {
       ListLogger testLogger = new ListLogger();
 
       pl.get(1).printToLog(testLogger, pId);
+      String expectedOutput = pl.get(1).makeLogString(pId);
       Map<String, Object> loggedValues = pl.get(1).getLoggedValues(pId);
       Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_EQ), Is.is((long)0));
       Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_LEQ), Is.is((long)0));
       Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_SIGN), Is.is((long)60));
       Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_COMP0), Is.is((long)480));
-
+      Assert.assertThat(testLogger.getData().get(0), Is.is(expectedOutput));
+      
       pl.get(1).reset();
       pl.get(1).printToLog(testLogger, pId);
       loggedValues = pl.get(1).getLoggedValues(pId);
@@ -170,17 +163,9 @@ public class TestArithmeticLoggingDecorators {
       Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_LEQ), Is.is((long)0));
       Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_SIGN), Is.is((long)0));
       Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_COMP0), Is.is((long)0));
+      String expectedOutputEmpty = pl.get(1).makeLogString(pId);
+      Assert.assertThat(testLogger.getData().get(1), Is.is(expectedOutputEmpty));
       
-      Assert.assertTrue(testLogger.getData().get(0).contains("Comparison operations logged - results ==="));
-      Assert.assertTrue(testLogger.getData().get(1).contains("EQ: 0"));
-      Assert.assertTrue(testLogger.getData().get(2).contains("LEQ: 0"));
-      Assert.assertTrue(testLogger.getData().get(3).contains("Compute sign: 60"));
-      Assert.assertTrue(testLogger.getData().get(4).contains("Compare to 0: 480"));
-      
-      Assert.assertTrue(testLogger.getData().get(6).contains("EQ: 0"));
-      Assert.assertTrue(testLogger.getData().get(7).contains("LEQ: 0"));
-      Assert.assertTrue(testLogger.getData().get(8).contains("Compute sign: 0"));
-      Assert.assertTrue(testLogger.getData().get(9).contains("Compare to 0: 0"));
     }
   }
 }

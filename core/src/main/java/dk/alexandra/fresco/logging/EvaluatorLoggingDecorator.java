@@ -17,8 +17,8 @@ public class EvaluatorLoggingDecorator<
     >
     implements ProtocolEvaluator<ResourcePoolT, Builder>, PerformanceLogger{
 
-  public static final String ID = "PARTY_ID";
-  public static final String SCE_RUNNINGTIMES = "RUNNING_TIMES";
+  public static final String ID = "My ID";
+  public static final String SCE_RUNNINGTIMES = "Evaluation times";
   
   private ProtocolEvaluator<ResourcePoolT, Builder> delegate;
   private List<Long> runtimeLogger = new ArrayList<>();
@@ -29,15 +29,7 @@ public class EvaluatorLoggingDecorator<
   
   @Override
   public void printToLog(Logger log, int myId) {
-    log.info("=== P" + myId + ": Running times for evaluations ===");
-    if (this.runtimeLogger.isEmpty()) {
-      log.info("No applications were run, or they have not completed yet.");
-    }
-    int i = 1;
-    for (Long runningtime : this.runtimeLogger) {
-      log.info("Application "+i+" took "+runningtime + "ms to complete.");
-      i++;
-    }
+    log.info(makeLogString(myId));
   }
 
   @Override

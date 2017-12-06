@@ -37,9 +37,7 @@ public class BinaryComparisonLoggingDecorator implements PerformanceLogger, Comp
 
   @Override
   public void printToLog(Logger log, int myId) {
-    log.info("=== Binary comparison operations logged - results ===");
-    log.info("Greater than: " + this.gtCount);
-    log.info("Equals: " + this.eqCount);
+    log.info(makeLogString(myId));
   }
 
   @Override

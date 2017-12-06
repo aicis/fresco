@@ -68,10 +68,7 @@ public class BinaryLoggingDecorator implements PerformanceLogger, Binary {
 
   @Override
   public void printToLog(Logger log, int myId) {
-    log.info("=== Basic binary operations logged - results ===");
-    log.info("Xors: " + this.xorCount);
-    log.info("Ands: "+ this.andCount);
-    log.info("Random bits: " + this.randBitCount);
+    log.info(makeLogString(myId));
   }
 
   @Override

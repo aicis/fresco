@@ -65,11 +65,7 @@ public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger 
 
   @Override
   public void printToLog(Logger log, int myId) {
-    log.info("=== P"+myId+": Comparison operations logged - results ===");
-    log.info("EQ: " + this.eqCount);
-    log.info("LEQ: " + this.leqCount);
-    log.info("Compute sign: " + this.signCount);
-    log.info("Compare to 0: " + this.comp0Count);
+    log.info(makeLogString(myId));
   }
 
   @Override

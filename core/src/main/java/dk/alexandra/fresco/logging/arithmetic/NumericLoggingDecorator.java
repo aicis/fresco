@@ -101,12 +101,7 @@ public class NumericLoggingDecorator implements Numeric, PerformanceLogger {
 
   @Override
   public void printToLog(Logger log, int myId) {
-    log.info("=== P" + myId + ": Basic numeric operations logged - results ===");
-    log.info("Multiplications: " + this.multCount);
-    log.info("Additions: " + this.addCount);
-    log.info("Subtractions: " + this.subCount);
-    log.info("Random bits fetched: " + this.bitCount);
-    log.info("Random elements fetched: " + this.randElmCount);
+    log.info(makeLogString(myId));
   }
 
   @Override

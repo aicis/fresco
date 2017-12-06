@@ -46,6 +46,7 @@ public class TestGenericLoggingDecorators {
     Assert.assertThat(PerformanceLogger.Flag.valueOf("LOG_NATIVE_BATCH"), Is.is(PerformanceLogger.Flag.LOG_NATIVE_BATCH));
   }
   
+  @SuppressWarnings("unchecked")
   @Test
   public void testEvaluatorLoggingDecorator() throws Exception {
     TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f
@@ -85,26 +86,26 @@ public class TestGenericLoggingDecorators {
     TestThreadRunner.run(f, conf);
 
     for (Integer pId : pls.keySet()) {
-     
-      decoratedLoggers.get(0).printToLog(pls.get(pId), pId);
-      Map<String, Object> loggedValues = decoratedLoggers.get(0).getLoggedValues(pId);
-      
+      PerformanceLogger performanceLogger = decoratedLoggers.get(0);
+      performanceLogger.printPerformanceLog(pId);
+      performanceLogger.printToLog(pls.get(pId), pId);
+      String expectedOutput = performanceLogger.makeLogString(pId);
+      Assert.assertThat(pls.get(pId).getData().get(0), Is.is(expectedOutput));
+
+      Map<String, Object> loggedValues = performanceLogger.getLoggedValues(pId);
       List<Long> runningTimes = (List<Long>)loggedValues.get(EvaluatorLoggingDecorator.SCE_RUNNINGTIMES);
       Assert.assertTrue(runningTimes.get(0) > 0);
-      Assert.assertTrue(pls.get(pId).getData().get(0).contains("Running times for evaluations ==="));
-      Assert.assertTrue(pls.get(pId).getData().get(1).contains("Application 1 took"));
     }
-    
     for (Integer pId : pls.keySet()) {
-      PerformanceLogger pl = decoratedLoggers.get(0);
-      pl.reset();
-      pl.printToLog(pls.get(pId), pId);
-      Assert.assertTrue(((List)pl.getLoggedValues(pId).get(EvaluatorLoggingDecorator.SCE_RUNNINGTIMES)).size() == 0);
-      Assert.assertTrue(pls.get(pId).getData().get(3).contains("No applications were run, or they have not completed yet."));
+      PerformanceLogger performanceLogger = decoratedLoggers.get(0);
+      performanceLogger.reset();
+      performanceLogger.printToLog(pls.get(pId), pId);
+      Assert.assertThat(pls.get(pId).getData().get(1), Is.is(performanceLogger.makeLogString(pId)));
+      Map<String, Object> loggedValues = performanceLogger.getLoggedValues(pId);
+      List<Long> runningTimes = (List<Long>)loggedValues.get(EvaluatorLoggingDecorator.SCE_RUNNINGTIMES);
+      Assert.assertTrue(runningTimes.size() == 0);
     }
   }  
-  
-
 
   @SuppressWarnings("unchecked")
   @Test
@@ -163,9 +164,14 @@ public class TestGenericLoggingDecorators {
       performanceLogger.reset();
       performanceLogger.printToLog(pls.get(pId), pId);
       Assert.assertThat(pls.get(pId).getData().get(1), Is.is(performanceLogger.makeLogString(pId)));
+      Map<String, Object> loggedValues = performanceLogger.getLoggedValues(pId);
+      Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), Is.is((long)0));
+      Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BATCHES), Is.is(0));
+      Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_MAX_BYTES), Is.is(0));
+      Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_MIN_BYTES), Is.is(Integer.MAX_VALUE));
+      Assert.assertTrue(((Map<Integer, Integer>)loggedValues.get(NetworkLoggingDecorator.NETWORK_PARTY_BYTES)).isEmpty());
     }
   }
-  
   
   @Test
   public void testBatchEvaluationLoggingDecorator() throws Exception {
@@ -191,7 +197,6 @@ public class TestGenericLoggingDecorators {
       BatchEvaluationLoggingDecorator<DummyArithmeticResourcePool> decoratedStrat =
           new BatchEvaluationLoggingDecorator<>(strat);
       decoratedLoggers.add(decoratedStrat);
-      decoratedStrat.printToLog(pls.get(playerId), playerId);
       
       ProtocolEvaluator<DummyArithmeticResourcePool, ProtocolBuilderNumeric> evaluator 
           = new BatchedProtocolEvaluator<>(decoratedStrat, ps);
@@ -211,41 +216,27 @@ public class TestGenericLoggingDecorators {
     TestThreadRunner.run(f, conf);
 
     for (Integer pId : pls.keySet()) {
-      Assert.assertTrue(pls.get(pId).getData().get(0).contains("Native protocols per batch metrics ==="));
-      Assert.assertTrue(pls.get(pId).getData().get(1).contains("Total amount of batches reached: 0"));
-      Assert.assertTrue(pls.get(pId).getData().get(2).contains("Total amount of native protocols evaluated: 0"));
-      Assert.assertTrue(pls.get(pId).getData().get(3).contains("minimum amount of native protocols evaluated in a single batch: 2147483647"));
-      Assert.assertTrue(pls.get(pId).getData().get(4).contains("maximum amount of native protocols evaluated in a single batch: 0"));
-      Assert.assertTrue(pls.get(pId).getData().get(5).contains("Average amount of native protocols evaluated per batch"));
-      
-      decoratedLoggers.get(0).printToLog(pls.get(pId), pId);
-      Map<String, Object> loggedValues = decoratedLoggers.get(0).getLoggedValues(pId);
+      PerformanceLogger performanceLogger = decoratedLoggers.get(0);
+      performanceLogger.printToLog(pls.get(pId), pId);
+      String expectedOutput = performanceLogger.makeLogString(pId);
+      Assert.assertThat(pls.get(pId).getData().get(0), Is.is(expectedOutput));
+
+      Map<String, Object> loggedValues = performanceLogger.getLoggedValues(pId);
       Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_COUNTER), Is.is(3496361));
       Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_NATIVE_PROTOCOLS), Is.is(17275821));
       Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MIN_PROTOCOLS), Is.is(1));
       Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MAX_PROTOCOLS), Is.is(520));
-      Assert.assertTrue(pls.get(pId).getData().get(7).contains("Total amount of batches reached: 3496361"));
-      Assert.assertTrue(pls.get(pId).getData().get(8).contains("Total amount of native protocols evaluated: 17275821"));
-      Assert.assertTrue(pls.get(pId).getData().get(9).contains("minimum amount of native protocols evaluated in a single batch: 1"));
-      Assert.assertTrue(pls.get(pId).getData().get(10).contains("maximum amount of native protocols evaluated in a single batch: 520"));
-      Assert.assertTrue(pls.get(pId).getData().get(11).contains("Average amount of native protocols evaluated per batch: 4.94"));
     }
-    
     for (Integer pId : pls.keySet()) {
-      PerformanceLogger pl = decoratedLoggers.get(0);
-      pl.reset();
-      pl.printToLog(pls.get(pId), pId);
-      Map<String, Object> loggedValues = decoratedLoggers.get(0).getLoggedValues(pId);
+      PerformanceLogger performanceLogger = decoratedLoggers.get(0);
+      performanceLogger.reset();
+      performanceLogger.printToLog(pls.get(pId), pId);
+      Assert.assertThat(pls.get(pId).getData().get(1), Is.is(performanceLogger.makeLogString(pId)));
+      Map<String, Object> loggedValues = performanceLogger.getLoggedValues(pId);
       Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_COUNTER), Is.is(0));
       Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_NATIVE_PROTOCOLS), Is.is(0));
       Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MIN_PROTOCOLS), Is.is(Integer.MAX_VALUE));
       Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MAX_PROTOCOLS), Is.is(0));
-
-      Assert.assertTrue(pls.get(pId).getData().get(13).contains("Total amount of batches reached: 0"));
-      Assert.assertTrue(pls.get(pId).getData().get(14).contains("Total amount of native protocols evaluated: 0"));
-      Assert.assertTrue(pls.get(pId).getData().get(15).contains("minimum amount of native protocols evaluated in a single batch: 2147483647"));
-      Assert.assertTrue(pls.get(pId).getData().get(16).contains("maximum amount of native protocols evaluated in a single batch: 0"));
-      Assert.assertTrue(pls.get(pId).getData().get(17).contains("Average amount of native protocols evaluated per batch"));
     }
   }
   
