@@ -47,8 +47,8 @@ public class CopeInputter extends CopeShared {
 
   private void seedPrgs(List<Pair<StrictBitVector, StrictBitVector>> seeds) {
     for (Pair<StrictBitVector, StrictBitVector> seedPair : seeds) {
-      this.leftPrgs.add(new DummyPrg(seedPair.getFirst()));
-      this.rightPrgs.add(new DummyPrg(seedPair.getSecond()));
+      this.leftPrgs.add(new DummyPrg(seedPair.getFirst(), modulus, modBitLength));
+      this.rightPrgs.add(new DummyPrg(seedPair.getSecond(), modulus, modBitLength));
     }
   }
 

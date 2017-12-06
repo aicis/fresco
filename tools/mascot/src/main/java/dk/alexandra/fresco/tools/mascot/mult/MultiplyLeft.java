@@ -3,6 +3,7 @@ package dk.alexandra.fresco.tools.mascot.mult;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,6 +39,14 @@ public class MultiplyLeft extends MultiplyShared {
     return StrictBitVector.concat(true, bitVecs);
   }
 
+  /**
+   * Uses left factors as choice bits to receive seeds to prgs.
+   * 
+   * @param leftFactors
+   * @return
+   * @throws MaliciousMultException
+   * @throws FailedMultException
+   */
   public List<StrictBitVector> generateSeeds(List<FieldElement> leftFactors)
       throws MaliciousMultException, FailedMultException {
     StrictBitVector packedFactors = pack(leftFactors);
@@ -45,14 +54,24 @@ public class MultiplyLeft extends MultiplyShared {
     List<StrictBitVector> seeds = new ArrayList<>();
     try {
       seeds = rot.receive(packedFactors, modBitLength);
+      // TODO temporary fix until big-endianness issue is resolved
+      Collections.reverse(seeds);
     } catch (MaliciousOtException e) {
-      throw new MaliciousMultException("Malicious exception seed generation", e);
+      throw new MaliciousMultException("Malicious exception during seed generation", e);
     } catch (FailedOtException e) {
-      throw new FailedMultException("Non-malicious exception seed generation", e);
+      throw new FailedMultException("Non-malicious exception during seed generation", e);
     }
     return seeds;
   }
 
+  /**
+   * {@link #generateSeeds}
+   * 
+   * @param leftFactor
+   * @return
+   * @throws MaliciousMultException
+   * @throws FailedMultException
+   */
   public List<StrictBitVector> generateSeeds(FieldElement leftFactor)
       throws MaliciousMultException, FailedMultException {
     return generateSeeds(Arrays.asList(leftFactor));
@@ -67,7 +86,6 @@ public class MultiplyLeft extends MultiplyShared {
   public List<FieldElement> computeProductShares(List<FieldElement> leftFactors,
       List<FieldElement> feSeeds, List<FieldElement> diffs) {
     List<FieldElement> result = new ArrayList<>(leftFactors.size());
-
     int diffIdx = 0;
     for (FieldElement leftFactor : leftFactors) {
       List<FieldElement> summands = new ArrayList<>(modBitLength);
@@ -84,7 +102,6 @@ public class MultiplyLeft extends MultiplyShared {
           FieldElementCollectionUtils.recombine(summands, modulus, modBitLength);
       result.add(productShare);
     }
-
     return result;
   }
 
@@ -93,7 +110,7 @@ public class MultiplyLeft extends MultiplyShared {
     // TODO there should be a better way to do this
     return seeds.stream()
         .map(seed -> {
-          return new DummyPrg(seed).getNext(modulus, modBitLength);
+          return new DummyPrg(seed, modulus, modBitLength).getNext(modulus, modBitLength);
         })
         .collect(Collectors.toList());
   }

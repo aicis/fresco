@@ -51,7 +51,7 @@ public class CopeSigner extends CopeShared {
 
   private void seedPrgs(List<StrictBitVector> seeds) {
     for (StrictBitVector seed : seeds) {
-      prgs.add(new DummyPrg(seed));
+      prgs.add(new DummyPrg(seed, modulus, modBitLength));
     }
   }
 

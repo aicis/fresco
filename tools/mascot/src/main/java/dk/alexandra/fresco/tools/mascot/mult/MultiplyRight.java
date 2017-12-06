@@ -2,6 +2,7 @@ package dk.alexandra.fresco.tools.mascot.mult;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,6 +33,8 @@ public class MultiplyRight extends MultiplyShared {
     List<Pair<StrictBitVector, StrictBitVector>> seeds = new ArrayList<>();
     try {
       seeds = rot.send(numRots, modBitLength);
+      // TODO temporary fix until big-endianness issue is resolved
+      Collections.reverse(seeds);
     } catch (MaliciousOtException e) {
       throw new MaliciousMultException("Malicious exception seed generation", e);
     } catch (FailedOtException e) {
@@ -90,8 +93,10 @@ public class MultiplyRight extends MultiplyShared {
     // TODO there should be a better way to do this
     return seedPairs.stream()
         .map(pair -> {
-          FieldElement t0 = new DummyPrg(pair.getFirst()).getNext(modulus, modBitLength);
-          FieldElement t1 = new DummyPrg(pair.getSecond()).getNext(modulus, modBitLength);
+          FieldElement t0 =
+              new DummyPrg(pair.getFirst(), modulus, modBitLength).getNext(modulus, modBitLength);
+          FieldElement t1 =
+              new DummyPrg(pair.getSecond(), modulus, modBitLength).getNext(modulus, modBitLength);
           return new Pair<>(t0, t1);
         })
         .collect(Collectors.toList());
