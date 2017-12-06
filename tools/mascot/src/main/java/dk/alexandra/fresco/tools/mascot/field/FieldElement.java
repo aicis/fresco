@@ -31,6 +31,10 @@ public final class FieldElement implements Addable<FieldElement>, Serializable {
     this.bitLength = other.bitLength;
   }
 
+  public FieldElement(String value, BigInteger modulus, int bitLength) {
+    this(new BigInteger(value), modulus, bitLength);
+  }
+  
   public FieldElement(String value, String modulus, int bitLength) {
     this(new BigInteger(value), new BigInteger(modulus), bitLength);
   }

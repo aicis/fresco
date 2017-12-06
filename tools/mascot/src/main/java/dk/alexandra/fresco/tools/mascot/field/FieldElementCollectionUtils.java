@@ -17,22 +17,22 @@ public class FieldElementCollectionUtils {
    * 
    * @param leftFactors
    * @param rightFactors
-   * @return
+   * @return list of result
    */
   public static List<FieldElement> pairWiseMultiply(List<FieldElement> leftFactors,
       List<FieldElement> rightFactors) {
     if (leftFactors.size() != rightFactors.size()) {
-      throw new IllegalArgumentException("Rows must be same size");
+      throw new IllegalArgumentException("Lists must be same size");
     }
     return pairWiseMultiplyStream(leftFactors, rightFactors).collect(Collectors.toList());
   }
 
   /**
-   * 
+   * Multiplies two lists of field elements, pair-wise.
    * 
    * @param leftFactors
    * @param rightFactors
-   * @return
+   * @return stream of result
    */
   static Stream<FieldElement> pairWiseMultiplyStream(List<FieldElement> leftFactors,
       List<FieldElement> rightFactors) {
@@ -45,41 +45,7 @@ public class FieldElementCollectionUtils {
   }
 
   /**
-   * 
-   * @param generator
-   * @param elements
-   * @return
-   */
-  public static FieldElement recombine(FieldElement generator, List<FieldElement> elements) {
-    // TODO: optimize
-    // TODO: use innerProduct
-    BigInteger modulus = generator.modulus;
-    int bitLength = generator.bitLength;
-    FieldElement accumulator = new FieldElement(BigInteger.ZERO, modulus, bitLength);
-    int power = 0;
-    for (FieldElement element : elements) {
-      // TODO: do we need/ want modular exponentiation?
-      accumulator = accumulator.add(generator.pow(power)
-          .multiply(element));
-      power++;
-    }
-    return accumulator;
-  }
-
-  /**
-   * 
-   * @param elements
-   * @param modulus
-   * @param bitLength
-   * @return
-   */
-  public static FieldElement recombine(List<FieldElement> elements, BigInteger modulus,
-      int bitLength) {
-    FieldElement generator = new FieldElement(BigInteger.valueOf(2), modulus, bitLength);
-    return recombine(generator, elements);
-  }
-
-  /**
+   * Computes inner product of two lists of field elements.
    * 
    * @param left
    * @param right
@@ -93,6 +59,23 @@ public class FieldElementCollectionUtils {
   }
 
   /**
+   * Computes inner product of elements and powers of twos. <b> e0 * 2**0 + e1 * 2**1 + ... + e(n -
+   * 1) * 2**(n - 1)
+   * 
+   * @param elements
+   * @return
+   */
+  public static FieldElement recombine(List<FieldElement> elements, BigInteger modulus,
+      int modBitLength) {
+    if (elements.size() > modBitLength) {
+      throw new IllegalArgumentException("Number of elements cannot exceed bit-length");
+    }
+    List<FieldElement> generators = FieldElementGeneratorCache.getGenerators(modulus, modBitLength);
+    return innerProduct(elements, generators.subList(0, elements.size()));
+  }
+
+  /**
+   * Transposes matrix of field elements.
    * 
    * @param mat
    * @return
@@ -103,6 +86,7 @@ public class FieldElementCollectionUtils {
   }
 
   /**
+   * Duplicates each element stretchBy times.
    * 
    * @param elements
    * @param stretchBy
@@ -118,10 +102,19 @@ public class FieldElementCollectionUtils {
     return stretched;
   }
 
-  public static List<FieldElement> padWith(List<FieldElement> elements, FieldElement pad,
+  /**
+   * Appends padding elements to end of list numPads times.
+   * 
+   * @param elements
+   * @param padElement
+   * @param numPads
+   * @return
+   */
+  public static List<FieldElement> padWith(List<FieldElement> elements, FieldElement padElement,
       int numPads) {
-    elements.addAll(Collections.nCopies(numPads, pad));
-    return elements;
+    List<FieldElement> copy = new ArrayList<>(elements);
+    copy.addAll(Collections.nCopies(numPads, padElement));
+    return copy;
   }
 
 }
