@@ -15,18 +15,6 @@ public class Rot {
   protected RotReceiver receiver;
 
   /**
-   * Constructs a new random OT protocol using an already constructed correlated
-   * OT with errors protocol.
-   * 
-   * @param cote
-   *          The correlated OT with errors protocol to use
-   */
-  public Rot(Cote cote) {
-    this.sender = new RotSender(cote.getSender());
-    this.receiver = new RotReceiver(cote.getReceiver());
-  }
-
-  /**
    * Constructs a new random OT protocol and constructs the internal sender and
    * receiver objects.
    * 

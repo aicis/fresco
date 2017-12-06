@@ -50,11 +50,8 @@ public class BristolRotBatchDemo<ResourcePoolT extends ResourcePool>
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected receiver");
     Random rand = new Random(424242);
-    Rot rot = new Rot(1, 2, getKbitLength(), getLambdaSecurityParam(), rand,
-        network);
-    RotReceiver rotRec = rot.getReceiver();
-    rotRec.initialize();
-    RotBatch<StrictBitVector> ot = new BristolRotBatch(rot);
+    RotBatch<StrictBitVector> ot = new BristolRotBatch(1, 2, getKbitLength(),
+        getLambdaSecurityParam(), rand, network);
     StrictBitVector choices = new StrictBitVector(amountOfOTs, rand);
     List<StrictBitVector> messages = ot.receive(choices, messageSize);
     for (int i = 0; i < amountOfOTs; i++) {
@@ -95,11 +92,8 @@ public class BristolRotBatchDemo<ResourcePoolT extends ResourcePool>
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected sender");
     Random rand = new Random(420420);
-    Rot rot = new Rot(2, 1, getKbitLength(), getLambdaSecurityParam(), rand,
-        network);
-    RotSender rotSnd = rot.getSender();
-    rotSnd.initialize();
-    RotBatch<StrictBitVector> ot = new BristolRotBatch(rot);
+    RotBatch<StrictBitVector> ot = new BristolRotBatch(2, 1, getKbitLength(),
+        getLambdaSecurityParam(), rand, network);
     List<Pair<StrictBitVector, StrictBitVector>> messages = ot.send(amountOfOTs,
         messageSize);
     for (int i = 0; i < amountOfOTs; i++) {

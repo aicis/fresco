@@ -67,7 +67,7 @@ public class TestRuntime {
    */
   public <T> List<T> runPerPartyTasks(List<Callable<T>> tasks) {
     try {
-      List<Future<T>> results = executor.invokeAll(tasks, 5L,
+      List<Future<T>> results = executor.invokeAll(tasks, 1000L,
           TimeUnit.SECONDS);
       // this is a bit of a mess...
       List<T> unwrappedResults = results.stream().map(future -> {

@@ -25,18 +25,6 @@ public class BristolOt<T extends Serializable> implements Ot<T> {
   protected BristolOtReceiver receiver;
 
   /**
-   * Constructs a new OT protocol using an already constructed random OT
-   * extension protocol.
-   * 
-   * @param rot
-   *          The random OT protocol to use internally
-   */
-  public BristolOt(Rot rot, int batchSize) {
-    this.sender = new BristolOtSender(rot.getSender(), batchSize);
-    this.receiver = new BristolOtReceiver(rot.getReceiver(), batchSize);
-  }
-
-  /**
    * Constructs a new OT protocol and constructs the internal sender and
    * receiver objects.
    * 

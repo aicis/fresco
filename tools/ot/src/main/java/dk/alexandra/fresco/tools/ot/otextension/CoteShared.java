@@ -57,6 +57,10 @@ public class CoteShared {
       throw new IllegalArgumentException(
           "Computational security parameter must be divisible by 8");
     }
+    if (lambdaSecurityParam % 8 != 0) {
+      throw new IllegalArgumentException(
+          "Statistical security parameter must be divisible by 8");
+    }
     this.myId = myId;
     this.otherId = otherId;
     this.kbitLength = kbitLength;

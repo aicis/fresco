@@ -34,18 +34,6 @@ public class BristolRotBatch implements RotBatch<StrictBitVector> {
   protected RotReceiver receiver;
 
   /**
-   * Constructs a new batched random OT protocol using an already constructed random OT
-   * extension protocol.
-   * 
-   * @param rot
-   *          The random OT protocol to use internally
-   */
-  public BristolRotBatch(Rot rot) {
-    this.sender = rot.getSender();
-    this.receiver = rot.getReceiver();
-  }
-
-  /**
    * Constructs a new random batch OT protocol and constructs the internal sender and
    * receiver objects.
    * 

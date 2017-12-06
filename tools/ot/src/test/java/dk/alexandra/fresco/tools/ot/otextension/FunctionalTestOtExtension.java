@@ -7,7 +7,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -20,14 +19,13 @@ import org.junit.Test;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.ot.base.FailedOtException;
-import dk.alexandra.fresco.tools.ot.base.MaliciousOtException;
-import dk.alexandra.fresco.tools.ot.base.Ot;
 
 public class FunctionalTestOtExtension {
   private TestRuntime testRuntime;
   private Cote coteSender;
   private Cote coteReceiver;
+  private int kbitLength = 256;
+  private int lambdaBitLength = 64;
 
   /**
    * Initializes the test runtime and constructs a Cote Sender and a Cote
@@ -64,7 +62,7 @@ public class FunctionalTestOtExtension {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     Random rand = new Random(42);
-    Cote cote = new Cote(1, 2, 128, 40, rand, network);
+    Cote cote = new Cote(1, 2, kbitLength, lambdaBitLength, rand, network);
     return cote;
   }
 
@@ -72,7 +70,7 @@ public class FunctionalTestOtExtension {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     Random rand = new Random(420);
-    Cote cote = new Cote(2, 1, 128, 40, rand, network);
+    Cote cote = new Cote(2, 1, kbitLength, lambdaBitLength, rand, network);
     return cote;
   }
 
@@ -112,7 +110,7 @@ public class FunctionalTestOtExtension {
         null);
     return resPair;
   }
-  
+
   /***** POSITIVE TESTS. *****/
 
   /**
@@ -219,8 +217,7 @@ public class FunctionalTestOtExtension {
    */
   @Test
   public void testRot() {
-    int extendSize = 1880; // = 2048 - 128 - 40, where computational security is
-    // 128 and statistical security is 40
+    int extendSize = 2048 - kbitLength - lambdaBitLength;
     RotSender rotSender = new RotSender(coteSender.getSender());
     Callable<Exception> partyOneInit = () -> initRotSender(rotSender);
     RotReceiver rotReceiver = new RotReceiver(coteReceiver.getReceiver());
@@ -280,59 +277,6 @@ public class FunctionalTestOtExtension {
     }
   }
 
-  private BigInteger bristolOtSend(Ot<BigInteger> otSender,
-      BigInteger msgZero, BigInteger msgOne)
-      throws MaliciousOtException, FailedOtException {
-    otSender.send(msgZero, msgOne);
-    // Return null since we need to return a BigInteger to get the test
-    // framework to work
-    return null;
-  }
-
-  private BigInteger bristolOtReceive(Ot<BigInteger> otReceiver, boolean choice)
-      throws MaliciousOtException, FailedOtException {
-    BigInteger message = otReceiver.receive(choice);
-    return message;
-  }
-
-  /**
-   * Verify that we can initialize the parties in OT.
-   */
-  @Test
-  public void testBristolOt() {
-    int batchSize = 856; // = 1024 - 128 - 40, where computational security is
-    // 128 and statistical security is 40
-    // We execute more OTs than the batchSize to ensure that an automatic
-    // extension will take place once preprocessed OTs run out
-    int iterations = 900;
-    // Construct a BristolOT based on the coteSender and coteReceiver
-    Rot rotSender = new Rot(coteSender);
-    Rot rotReceiver = new Rot(coteReceiver);
-    Ot<BigInteger> bristolOtSender = new BristolOt<BigInteger>(rotSender,
-        batchSize);
-    Ot<BigInteger> bristolOtReceiver = new BristolOt<BigInteger>(rotReceiver,
-        batchSize);
-    Random rand = new Random(540);
-    for (int i = 0; i < iterations; i++) {
-      BigInteger msgZero = new BigInteger(1024, rand);
-      BigInteger msgOne = new BigInteger(1024, rand);
-      boolean choice = rand.nextBoolean();
-      Callable<BigInteger> partyOneOt = () -> bristolOtSend(bristolOtSender,
-          msgZero, msgOne);
-      Callable<BigInteger> partyTwoOt = () -> bristolOtReceive(
-          bristolOtReceiver, choice);
-      // run tasks and get ordered list of results
-      List<BigInteger> extendResults = testRuntime
-          .runPerPartyTasks(Arrays.asList(partyOneOt, partyTwoOt));
-      BigInteger receiverResult = extendResults.get(1);
-      if (choice == false) {
-        assertTrue(msgZero.equals(receiverResult));
-      } else {
-        assertTrue(msgOne.equals(receiverResult));
-      }
-    }
-  }
-  
   /***** NEGATIVE TESTS. *****/
 
   /**
@@ -392,8 +336,7 @@ public class FunctionalTestOtExtension {
    */
   @Test
   public void testCheatingInRot() {
-    int extendSize = 1880; // = 2048 - 128 - 40, where computational security is
-    // 128 and statistical security is 40
+    int extendSize = 2048 - kbitLength - lambdaBitLength;
     RotSender rotSender = new RotSender(coteSender.getSender());
     Callable<Exception> partyOneInit = () -> initRotSender(rotSender);
     RotReceiver rotReceiver = new RotReceiver(coteReceiver.getReceiver());

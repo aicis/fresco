@@ -97,6 +97,15 @@ public class TestCote {
       thrown = true;
     }
     assertEquals(thrown, true);
+    thrown = false;
+    try {
+      badSender = new CoteSender(1, 2, 128, 60, rand, network);
+    } catch (IllegalArgumentException e) {
+      assertEquals("Statistical security parameter must be divisible by 8",
+          e.getMessage());
+      thrown = true;
+    }
+    assertEquals(thrown, true);
   }
 
   @Test
