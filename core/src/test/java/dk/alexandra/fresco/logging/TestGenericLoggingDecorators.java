@@ -106,6 +106,7 @@ public class TestGenericLoggingDecorators {
   
 
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testNetworkLoggingDecorator() throws Exception {
     
@@ -138,7 +139,6 @@ public class TestGenericLoggingDecorators {
               () -> {
                 NetworkLoggingDecorator network = new NetworkLoggingDecorator(new KryoNetNetwork(partyNetConf));
                 decoratedLoggers.add(network);
-                network.printToLog(pls.get(playerId), playerId);
                 return network;
               });
       conf.put(playerId, ttc);
@@ -146,45 +146,23 @@ public class TestGenericLoggingDecorators {
     TestThreadRunner.run(f, conf);
 
     for (Integer pId : pls.keySet()) {
-      Assert.assertTrue(pls.get(pId).getData().get(0).contains("Network logged - results ==="));
-      Assert.assertTrue(pls.get(pId).getData().get(1).contains("Received data 0 times in total (including from ourselves)"));
-      Assert.assertTrue(pls.get(pId).getData().get(2).contains("Total amount of bytes received: 0"));
-      Assert.assertTrue(pls.get(pId).getData().get(3).contains("Minimum amount of bytes received: 2147483647"));
-      Assert.assertTrue(pls.get(pId).getData().get(4).contains("Maximum amount of bytes received: 0"));
-      Assert.assertTrue(pls.get(pId).getData().get(5).contains("Average amount of bytes received:"));
+      PerformanceLogger performanceLogger = decoratedLoggers.get(0);
+      performanceLogger.printToLog(pls.get(pId), pId);
+      String expectedOutput = performanceLogger.makeLogString(pId);
+      Assert.assertThat(pls.get(pId).getData().get(0), Is.is(expectedOutput));
 
-      decoratedLoggers.get(0).printToLog(pls.get(pId), pId);
-      Map<String, Object> loggedValues = decoratedLoggers.get(0).getLoggedValues(pId);
+      Map<String, Object> loggedValues = performanceLogger.getLoggedValues(pId);
       Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), Is.is((long)396));
       Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BATCHES), Is.is(6));
       Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_MAX_BYTES), Is.is(66));
       Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_MIN_BYTES), Is.is(66));
       Assert.assertThat(((Map<Integer, Integer>)loggedValues.get(NetworkLoggingDecorator.NETWORK_PARTY_BYTES)).get(1), Is.is(396));
-
-      Assert.assertTrue(pls.get(pId).getData().get(7).contains("Received 396 bytes from party 1"));
-      Assert.assertTrue(pls.get(pId).getData().get(8).contains("Received data 6 times in total (including from ourselves)"));
-      Assert.assertTrue(pls.get(pId).getData().get(9).contains("Total amount of bytes received: 396"));
-      Assert.assertTrue(pls.get(pId).getData().get(10).contains("Minimum amount of bytes received: 66"));
-      Assert.assertTrue(pls.get(pId).getData().get(11).contains("Maximum amount of bytes received: 66"));
-      Assert.assertTrue(pls.get(pId).getData().get(12).contains("Average amount of bytes received: 66.00"));
     }
-    
     for (Integer pId : pls.keySet()) {
-      PerformanceLogger pl = decoratedLoggers.get(0);
-      pl.reset();
-      pl.printToLog(pls.get(pId), pId);
-    
-      Map<String, Object> loggedValues = decoratedLoggers.get(0).getLoggedValues(pId);
-      Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), Is.is((long)0));
-      Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BATCHES), Is.is(0));
-      Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_MAX_BYTES), Is.is(0));
-      Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_MIN_BYTES), Is.is(Integer.MAX_VALUE));
-      Assert.assertThat(((Map<Integer, Integer>)loggedValues.get(NetworkLoggingDecorator.NETWORK_PARTY_BYTES)).size(), Is.is(0));      
-      Assert.assertTrue(pls.get(pId).getData().get(14).contains("Received data 0 times in total (including from ourselves)"));
-      Assert.assertTrue(pls.get(pId).getData().get(15).contains("Total amount of bytes received: 0"));
-      Assert.assertTrue(pls.get(pId).getData().get(16).contains("Minimum amount of bytes received: 2147483647"));
-      Assert.assertTrue(pls.get(pId).getData().get(17).contains("Maximum amount of bytes received: 0"));
-      Assert.assertTrue(pls.get(pId).getData().get(18).contains("Average amount of bytes received:"));
+      PerformanceLogger performanceLogger = decoratedLoggers.get(0);
+      performanceLogger.reset();
+      performanceLogger.printToLog(pls.get(pId), pId);
+      Assert.assertThat(pls.get(pId).getData().get(1), Is.is(performanceLogger.makeLogString(pId)));
     }
   }
   

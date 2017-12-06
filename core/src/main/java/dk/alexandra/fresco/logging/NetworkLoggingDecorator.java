@@ -9,12 +9,12 @@ import org.slf4j.Logger;
 
 public class NetworkLoggingDecorator implements Network, PerformanceLogger, Closeable {
 
-  public static final String ID = "PARTY_ID";
-  public static final String NETWORK_PARTY_BYTES = "PARTY_BYTES_MAPPING";
-  public static final String NETWORK_TOTAL_BYTES = "TOTAL_BYTES_RECEIVED";
-  public static final String NETWORK_TOTAL_BATCHES = "TOTAL_BATCHES_RECEIVED";
-  public static final String NETWORK_MAX_BYTES = "MAX_BYTES";
-  public static final String NETWORK_MIN_BYTES = "MIN_BYTES";
+  public static final String ID = "My ID";
+  public static final String NETWORK_PARTY_BYTES = "Amount of bytes received pr. party";
+  public static final String NETWORK_TOTAL_BYTES = "Total amount of bytes received";
+  public static final String NETWORK_TOTAL_BATCHES = "Total amount of batches received";
+  public static final String NETWORK_MAX_BYTES = "Maximum amount of bytes received";
+  public static final String NETWORK_MIN_BYTES = "Minimum amount of bytes received";
 
   private Network delegate;
   private Map<Integer, PartyStats> partyStatsMap = new HashMap<>();
@@ -47,21 +47,7 @@ public class NetworkLoggingDecorator implements Network, PerformanceLogger, Clos
    
   @Override
   public void printToLog(Logger log, int myId) {
-    log.info("=== P" + myId + ": Network logged - results ===");
-    long totalNoBytes = 0;
-    int noNetworkBatches = 0;
-    for (Integer partyId : partyStatsMap.keySet()) {
-      PartyStats partyStats = partyStatsMap.get(partyId);
-      log.info("Received " + partyStats.noBytes + " bytes from party " + partyId);
-      totalNoBytes += partyStats.noBytes;
-      noNetworkBatches += partyStats.count;
-    }
-    log.info("Received data " + noNetworkBatches + " times in total (including from ourselves)");
-    log.info("Total amount of bytes received: " + totalNoBytes);
-    log.info("Minimum amount of bytes received: " + minBytesReceived);
-    log.info("Maximum amount of bytes received: " + maxBytesReceived);
-    double avg = totalNoBytes / (double) noNetworkBatches;
-    log.info("Average amount of bytes received: " + df.format(avg));
+    log.info(makeLogString(myId));
   }
 
   @Override
@@ -79,7 +65,6 @@ public class NetworkLoggingDecorator implements Network, PerformanceLogger, Clos
   }
 
   private class PartyStats {
-
     private int count;
     private int noBytes;
 
@@ -108,8 +93,6 @@ public class NetworkLoggingDecorator implements Network, PerformanceLogger, Clos
     values.put(NETWORK_TOTAL_BATCHES, noNetworkBatches);
     values.put(NETWORK_MAX_BYTES, this.maxBytesReceived);
     values.put(NETWORK_MIN_BYTES, this.minBytesReceived);
-    
-    
     return values;
   }
 

@@ -3,6 +3,7 @@ package dk.alexandra.fresco.logging;
 import java.text.DecimalFormat;
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,4 +48,15 @@ public interface PerformanceLogger {
    * of the returned map is context dependent. 
    */
   public abstract Map<String, Object> getLoggedValues(int myId);
+  
+  /**
+   * Make a generic log string from the logged values. 
+   */
+  public default String makeLogString(int myId){
+    String s = "Logger for "+this.getClass().getName()+": ";
+    for (Entry<String, Object> e : getLoggedValues(myId).entrySet()) {
+      s += "["+e.getKey().toString() + ": " + e.getValue().toString()+"]";
+    }
+    return s;
+  }
 }
