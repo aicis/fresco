@@ -2,6 +2,7 @@ package dk.alexandra.fresco.logging;
 
 import java.text.DecimalFormat;
 import java.util.EnumSet;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +18,7 @@ public interface PerformanceLogger {
   public DecimalFormat df = new DecimalFormat("#.00");
   
   public enum Flag {
-    LOG_NETWORK, LOG_RUNTIME, LOG_NATIVE_BATCH;
+    LOG_NETWORK, LOG_EVALUATOR, LOG_NATIVE_BATCH;
 
     public static final EnumSet<Flag> ALL_OPTS = EnumSet.allOf(Flag.class);
   }
@@ -41,4 +42,9 @@ public interface PerformanceLogger {
    */
   public abstract void reset();    
   
+  /**
+   * Produce a key-value map of logged values. The content
+   * of the returned map is context dependent. 
+   */
+  public abstract Map<String, Object> getLoggedValues(int myId);
 }

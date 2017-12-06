@@ -4,10 +4,16 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.binary.Binary;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.logging.PerformanceLogger;
+import java.util.HashMap;
+import java.util.Map;
 import org.slf4j.Logger;
 
 public class BinaryLoggingDecorator implements PerformanceLogger, Binary {
 
+  public static final String ID = "PARTY_ID";
+  public static final String BINARY_BASIC_XOR = "XOR_COUNT";
+  public static final String BINARY_BASIC_AND = "AND_COUNT";
+  public static final String BINARY_BASIC_RANDOM = "RANDOM_BIT_COUNT";
   private int xorCount;
   private int andCount;
   private int randBitCount;
@@ -76,6 +82,15 @@ public class BinaryLoggingDecorator implements PerformanceLogger, Binary {
 
   public void setDelegate(Binary binary) {
     this.delegate = binary;
+  }
+
+  @Override
+  public Map<String, Object> getLoggedValues(int myId) {
+    Map<String, Object> values = new HashMap<>();
+    values.put(BINARY_BASIC_XOR, this.xorCount);
+    values.put(BINARY_BASIC_AND, this.andCount);
+    values.put(BINARY_BASIC_RANDOM, this.randBitCount);
+    return values;
   }
 
 }

@@ -9,6 +9,13 @@ import org.slf4j.Logger;
 
 public class NetworkLoggingDecorator implements Network, PerformanceLogger, Closeable {
 
+  public static final String ID = "PARTY_ID";
+  public static final String NETWORK_PARTY_BYTES = "PARTY_BYTES_MAPPING";
+  public static final String NETWORK_TOTAL_BYTES = "TOTAL_BYTES_RECEIVED";
+  public static final String NETWORK_TOTAL_BATCHES = "TOTAL_BATCHES_RECEIVED";
+  public static final String NETWORK_MAX_BYTES = "MAX_BYTES";
+  public static final String NETWORK_MIN_BYTES = "MIN_BYTES";
+
   private Network delegate;
   private Map<Integer, PartyStats> partyStatsMap = new HashMap<>();
   private int minBytesReceived = Integer.MAX_VALUE;
@@ -80,6 +87,30 @@ public class NetworkLoggingDecorator implements Network, PerformanceLogger, Clos
       this.count++;
       this.noBytes += noBytes;
     }
+  }
+
+  @Override
+  public Map<String, Object> getLoggedValues(int myId) {
+    Map<String, Object> values = new HashMap<>();
+    values.put(ID, myId);
+    
+    long totalNoBytes = 0;
+    int noNetworkBatches = 0;
+    Map<Integer, Integer> partyBytes = new HashMap<>();
+    for (Integer partyId : partyStatsMap.keySet()) {
+      PartyStats partyStats = partyStatsMap.get(partyId);
+      partyBytes.put(partyId, partyStats.noBytes);
+      totalNoBytes += partyStats.noBytes;
+      noNetworkBatches += partyStats.count;
+    }
+    values.put(NETWORK_PARTY_BYTES, partyBytes);
+    values.put(NETWORK_TOTAL_BYTES, totalNoBytes);
+    values.put(NETWORK_TOTAL_BATCHES, noNetworkBatches);
+    values.put(NETWORK_MAX_BYTES, this.maxBytesReceived);
+    values.put(NETWORK_MIN_BYTES, this.minBytesReceived);
+    
+    
+    return values;
   }
 
 }

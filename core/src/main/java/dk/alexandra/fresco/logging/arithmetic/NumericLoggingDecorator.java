@@ -5,10 +5,18 @@ import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.logging.PerformanceLogger;
 import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Map;
 import org.slf4j.Logger;
 
 public class NumericLoggingDecorator implements Numeric, PerformanceLogger {
 
+  public static final String ID = "PARTY_ID";
+  public static final String ARITHMETIC_BASIC_MULT = "MULT_COUNT"; 
+  public static final String ARITHMETIC_BASIC_ADD = "ADD_COUNT";
+  public static final String ARITHMETIC_BASIC_SUB = "SUB_COUNT";
+  public static final String ARITHMETIC_BASIC_BIT = "BIT_COUNT";
+  public static final String ARITHMETIC_BASIC_RAND = "RANDOM_ELEMENT_COUNT";
   private Numeric delegate;
   private long addCount;
   private long subCount;
@@ -112,6 +120,18 @@ public class NumericLoggingDecorator implements Numeric, PerformanceLogger {
 
   public void setDelegate(Numeric numeric) {
     this.delegate = numeric;
+  }
+
+  @Override
+  public Map<String, Object> getLoggedValues(int myId) {
+    Map<String, Object> values = new HashMap<>();
+    values.put(ID, myId);
+    values.put(ARITHMETIC_BASIC_MULT, this.multCount);
+    values.put(ARITHMETIC_BASIC_ADD, this.addCount);
+    values.put(ARITHMETIC_BASIC_SUB, this.subCount);
+    values.put(ARITHMETIC_BASIC_BIT, this.bitCount);
+    values.put(ARITHMETIC_BASIC_RAND, this.randElmCount);
+    return values;
   }
 
 }

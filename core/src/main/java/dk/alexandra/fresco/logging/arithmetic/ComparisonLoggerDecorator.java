@@ -4,9 +4,17 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.Comparison;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.logging.PerformanceLogger;
+import java.util.HashMap;
+import java.util.Map;
 import org.slf4j.Logger;
 
 public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger {
+
+  public static final String ID = "PARTY_ID";
+  public static final String ARITHMETIC_COMPARISON_COMP0 = "COMP0_COUNT";
+  public static final String ARITHMETIC_COMPARISON_LEQ = "LEQ_COUNT";
+  public static final String ARITHMETIC_COMPARISON_SIGN = "SIGN_COUNT";
+  public static final String ARITHMETIC_COMPARISON_EQ = "EQ_COUNT";
 
   private Comparison delegate;
   private long eqCount;
@@ -74,6 +82,17 @@ public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger 
 
   public void setDelegate(Comparison comp) {
     this.delegate = comp;
+  }
+
+  @Override
+  public Map<String, Object> getLoggedValues(int myId) {
+    Map<String, Object> values = new HashMap<>();
+    values.put(ID, myId);
+    values.put(ARITHMETIC_COMPARISON_EQ, this.eqCount);
+    values.put(ARITHMETIC_COMPARISON_LEQ, this.leqCount);
+    values.put(ARITHMETIC_COMPARISON_SIGN, this.signCount);
+    values.put(ARITHMETIC_COMPARISON_COMP0, this.comp0Count);
+    return values;
   }
 
 }

@@ -14,10 +14,10 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
+import dk.alexandra.fresco.logging.EvaluatorLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger;
 import dk.alexandra.fresco.logging.PerformanceLogger.Flag;
-import dk.alexandra.fresco.logging.SecureComputationEngineLoggingDecorator;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -76,14 +76,14 @@ public abstract class AbstractDummyArithmeticTest {
       }
       ProtocolEvaluator<DummyArithmeticResourcePool, ProtocolBuilderNumeric> evaluator =
           new BatchedProtocolEvaluator<>(batchEvaluationStrategy, ps);
-
+      if (performanceLoggerFlags != null && performanceLoggerFlags.contains(Flag.LOG_EVALUATOR)) {
+        evaluator = new EvaluatorLoggingDecorator<>(evaluator);
+        pls.add((PerformanceLogger) evaluator);
+      }
+      
       SecureComputationEngine<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(ps, evaluator);
-      if (performanceLoggerFlags != null && performanceLoggerFlags.contains(Flag.LOG_RUNTIME)) {
-        sce = new SecureComputationEngineLoggingDecorator<>(sce, ps);
-        pls.add((PerformanceLogger) sce);
-      }
-
+      
       Drbg drbg = new HmacDrbg();
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(

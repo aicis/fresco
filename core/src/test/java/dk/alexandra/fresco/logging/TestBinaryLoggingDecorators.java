@@ -15,13 +15,15 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.lib.bool.ComparisonBooleanTests;
+import dk.alexandra.fresco.logging.binary.BinaryComparisonLoggingDecorator;
+import dk.alexandra.fresco.logging.binary.BinaryLoggingDecorator;
 import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanBuilderFactory;
 import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanProtocolSuite;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
+import org.hamcrest.core.Is;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -71,13 +73,18 @@ public class TestBinaryLoggingDecorators {
 
       ListLogger testLogger = new ListLogger();
       pl.get(1).printToLog(testLogger, pId);
-      pl.get(1).reset();
-      pl.get(1).printToLog(testLogger, pId);
-    
+      Map<String, Object> loggedValues = pl.get(1).getLoggedValues(pId);
+      Assert.assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_GT), Is.is(2));
+      Assert.assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_EQ), Is.is(0));
       Assert.assertTrue(testLogger.getData().get(0).contains("=== Binary comparison operations logged - results ==="));
       Assert.assertTrue(testLogger.getData().get(1).contains("Greater than: 2"));
       Assert.assertTrue(testLogger.getData().get(2).contains("Equals: 0"));
-      
+
+      pl.get(1).reset();
+      pl.get(1).printToLog(testLogger, pId);
+      loggedValues = pl.get(1).getLoggedValues(pId);
+      Assert.assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_GT), Is.is(0));
+      Assert.assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_EQ), Is.is(0));
       Assert.assertTrue(testLogger.getData().get(4).contains("Greater than: 0"));
       Assert.assertTrue(testLogger.getData().get(5).contains("Equals: 0"));
     }
@@ -130,14 +137,21 @@ public class TestBinaryLoggingDecorators {
 
       ListLogger testLogger = new ListLogger();
       pl.get(0).printToLog(testLogger, pId);
-      pl.get(0).reset();
-      pl.get(0).printToLog(testLogger, pId);
-
+      Map<String, Object> loggedValues = pl.get(0).getLoggedValues(pId);
+      Assert.assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_XOR), Is.is(26));
+      Assert.assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_AND), Is.is(10));
+      Assert.assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_RANDOM), Is.is(0));
       Assert.assertTrue(testLogger.getData().get(0).contains("=== Basic binary operations logged - results ==="));
       Assert.assertTrue(testLogger.getData().get(1).contains("Xors: 26"));
       Assert.assertTrue(testLogger.getData().get(2).contains("Ands: 10"));
       Assert.assertTrue(testLogger.getData().get(3).contains("Random bits: 0"));
-
+      
+      pl.get(0).reset();
+      pl.get(0).printToLog(testLogger, pId);
+      loggedValues = pl.get(0).getLoggedValues(pId);
+      Assert.assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_XOR), Is.is(0));
+      Assert.assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_AND), Is.is(0));
+      Assert.assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_RANDOM), Is.is(0));
       Assert.assertTrue(testLogger.getData().get(5).contains("Xors: 0"));
       Assert.assertTrue(testLogger.getData().get(6).contains("Ands: 0"));
       Assert.assertTrue(testLogger.getData().get(7).contains("Random bits: 0"));
