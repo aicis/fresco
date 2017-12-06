@@ -13,7 +13,8 @@ import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.util.DetermSecureRandom;
+import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests;
@@ -31,7 +32,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
@@ -69,13 +69,14 @@ public class ITSpdzFuelstationTest {
           new BatchedProtocolEvaluator<>(evalStrategy.getStrategy(), suite);
       DataSupplier supplier = new DataRestSupplierImpl(playerId, noOfParties, "http://localhost:" + port, 0);
       SpdzStorage store = new SpdzStorageImpl(supplier);
+      Drbg drbg = new HmacDrbg();
       TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite, evaluator),
               () -> {
                 try {
                   return new SpdzResourcePoolImpl(playerId, noOfParties,
-                    new Random(), new DetermSecureRandom(), store);
+                    drbg, store);
                 } catch (Exception e) {
                   throw new RuntimeException("Your system does not support the necessary hash function.", e);
                 }

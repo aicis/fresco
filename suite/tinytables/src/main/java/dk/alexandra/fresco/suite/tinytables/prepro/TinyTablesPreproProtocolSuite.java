@@ -29,6 +29,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -75,6 +76,7 @@ public class TinyTablesPreproProtocolSuite
   private File tinyTablesFile;
   private TinyTablesTripleProvider tinyTablesTripleProvider;
   private List<TinyTablesPreproANDProtocol> unprocessedAndGates;
+  private final SecureRandom secRand;
   private static volatile Map<Integer, TinyTablesPreproProtocolSuite> instances =
       Collections.synchronizedMap(new HashMap<>());
 
@@ -83,22 +85,27 @@ public class TinyTablesPreproProtocolSuite
   }
 
   public TinyTablesPreproProtocolSuite(int id, File tinyTablesFile) {
+    this.secRand = new SecureRandom();
     this.storage = TinyTablesStorageImpl.getInstance(id);
     this.tinyTablesFile = tinyTablesFile;
     instances.put(id, this);
   }
 
+  public SecureRandom getSecureRandom() {
+    return secRand;
+  }
+  
   @Override
   public BuilderFactory<ProtocolBuilderBinary> init(
       ResourcePoolImpl resourcePool, Network network) {
     OTFactory otFactory = new SemiHonestOTExtensionFactory(network,
         resourcePool.getMyId(), 128, new BaseOTFactory(network,
-        resourcePool.getMyId(), resourcePool.getSecureRandom()),
-        resourcePool.getSecureRandom());
+        resourcePool.getMyId(), secRand),
+        secRand);
 
     this.tinyTablesTripleProvider =
         new BatchTinyTablesTripleProvider(new TinyTablesTripleGenerator(resourcePool.getMyId(),
-            resourcePool.getSecureRandom(), otFactory), 1500);
+            secRand, otFactory), 1500);
 
     this.unprocessedAndGates =
         Collections.synchronizedList(new ArrayList<TinyTablesPreproANDProtocol>());

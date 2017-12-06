@@ -4,19 +4,18 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import java.security.SecureRandom;
-import java.util.Random;
+import dk.alexandra.fresco.framework.util.HmacDrbg;
+import java.security.NoSuchAlgorithmException;
 import org.junit.Test;
 
 public class TestResourcePoolImpl {
 
   @Test
-  public void testResourcePoolImpl() {
-    ResourcePoolImpl rp = new ResourcePoolImpl(0, 1, new Random(), new SecureRandom());
+  public void testResourcePoolImpl() throws NoSuchAlgorithmException {
+    ResourcePoolImpl rp = new ResourcePoolImpl(0, 1, new HmacDrbg());
     assertThat(rp.getMyId(), is(0));
     assertThat(rp.getNoOfParties(), is(1));
-    assertThat(rp.getRandom(), instanceOf(Random.class));
-    assertThat(rp.getSecureRandom(), instanceOf(SecureRandom.class));
+    assertThat(rp.getRandomGenerator(), instanceOf(HmacDrbg.class));
   }
 
 }
