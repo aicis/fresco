@@ -12,9 +12,11 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
+import dk.alexandra.fresco.logging.DefaultPerformancePrinter;
 import dk.alexandra.fresco.logging.EvaluatorLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger;
+import dk.alexandra.fresco.logging.PerformancePrinter;
 import dk.alexandra.fresco.network.ScapiNetworkImpl;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
@@ -88,8 +90,9 @@ public abstract class AbstractSpdzTest {
     }
     TestThreadRunner.run(f, conf);
     for (Integer pId : pls.keySet()) {
+      PerformancePrinter printer = new DefaultPerformancePrinter();
       for (PerformanceLogger pl : pls.get(pId)) {
-        pl.printPerformanceLog(pId);
+        printer.printPerformanceLog(pl, pId);
       }
     }
   }

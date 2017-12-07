@@ -14,9 +14,11 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
+import dk.alexandra.fresco.logging.DefaultPerformancePrinter;
 import dk.alexandra.fresco.logging.EvaluatorLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger;
+import dk.alexandra.fresco.logging.PerformancePrinter;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -103,8 +105,9 @@ public abstract class AbstractDummyArithmeticTest {
 
     TestThreadRunner.run(f, conf);
     int id = 1;
+    PerformancePrinter printer = new DefaultPerformancePrinter();
     for (PerformanceLogger pl : pls) {
-      pl.printPerformanceLog(id++);
+      printer.printPerformanceLog(pl, id++);
       pl.reset();
     }
   }

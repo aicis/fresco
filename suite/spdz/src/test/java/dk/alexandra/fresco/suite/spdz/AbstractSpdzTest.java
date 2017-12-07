@@ -17,9 +17,11 @@ import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStor
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
+import dk.alexandra.fresco.logging.DefaultPerformancePrinter;
 import dk.alexandra.fresco.logging.EvaluatorLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger;
+import dk.alexandra.fresco.logging.PerformancePrinter;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.suite.spdz.storage.DataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.DataSupplierImpl;
@@ -102,8 +104,9 @@ public abstract class AbstractSpdzTest {
     }
     TestThreadRunner.run(f, conf);
     for (Integer pId : pls.keySet()) {
+      PerformancePrinter printer = new DefaultPerformancePrinter();
       for (PerformanceLogger pl : pls.get(pId)) {
-        pl.printPerformanceLog(pId);
+        printer.printPerformanceLog(pl, pId);
       }
     }
   }

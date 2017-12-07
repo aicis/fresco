@@ -12,16 +12,6 @@ import org.slf4j.LoggerFactory;
  *
  */
 public interface PerformanceLogger {
-
-  public Logger log = LoggerFactory.getLogger(PerformanceLogger.class);
-  
-  /**
-   * Prints any performance numbers picked up using the
-   * default logger.
-   */
-  public default void printPerformanceLog(int myId){
-    log.info(makeLogString(myId));
-  }
   
   /**
    * Resets any counters/maps/lists used. 

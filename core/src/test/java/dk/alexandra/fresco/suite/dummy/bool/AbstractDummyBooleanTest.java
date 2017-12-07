@@ -17,11 +17,12 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
+import dk.alexandra.fresco.logging.DefaultPerformancePrinter;
 import dk.alexandra.fresco.logging.EvaluatorLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger;
+import dk.alexandra.fresco.logging.PerformancePrinter;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -105,8 +106,9 @@ public abstract class AbstractDummyBooleanTest {
     }
     TestThreadRunner.run(f, conf);
     for (Integer id : pls.keySet()) {
+      PerformancePrinter printer = new DefaultPerformancePrinter();
       for (PerformanceLogger pl : pls.get(id)) {
-        pl.printPerformanceLog(id);
+        printer.printPerformanceLog(pl, id);
         pl.reset();
       }
     }

@@ -38,7 +38,9 @@ import dk.alexandra.fresco.lib.statistics.CreditRaterTest;
 import dk.alexandra.fresco.lib.statistics.DeaSolver.AnalysisType;
 import dk.alexandra.fresco.lib.statistics.DeaSolverTests.RandomDataDeaTest;
 import dk.alexandra.fresco.lib.statistics.DeaSolverTests.TestDeaFixed1;
+import dk.alexandra.fresco.logging.DefaultPerformancePrinter;
 import dk.alexandra.fresco.logging.PerformanceLogger;
+import dk.alexandra.fresco.logging.PerformancePrinter;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import org.junit.Test;
@@ -585,8 +587,9 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
         2, mod, true);
     for (Integer pId : DummyArithmeticBuilderFactory.performanceLoggers.keySet()) {
+      PerformancePrinter printer = new DefaultPerformancePrinter();
       for (PerformanceLogger pl : DummyArithmeticBuilderFactory.performanceLoggers.get(pId)) {
-        pl.printPerformanceLog(pId);
+        printer.printPerformanceLog(pl, pId);
       }
     }
   }
