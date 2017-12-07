@@ -14,9 +14,9 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
+import dk.alexandra.fresco.logging.EvaluatorLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger.Flag;
-import dk.alexandra.fresco.logging.SecureComputationEngineLoggingDecorator;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.Closeable;
 import java.io.IOException;
@@ -289,10 +289,11 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
       ex.printStackTrace();
     }
 
-    this.sce = new SecureComputationEngineImpl<>(protocolSuite, evaluator);
     if (flags != null) {
-      this.sce = new SecureComputationEngineLoggingDecorator<>(sce, protocolSuite);
+      evaluator = new EvaluatorLoggingDecorator<>(evaluator);
     }
+    this.sce = new SecureComputationEngineImpl<>(protocolSuite, evaluator);
+    
 
     return this.cmd;
   }
