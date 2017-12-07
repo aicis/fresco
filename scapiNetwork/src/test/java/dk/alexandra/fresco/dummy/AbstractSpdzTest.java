@@ -12,10 +12,9 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
+import dk.alexandra.fresco.logging.EvaluatorLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger;
-import dk.alexandra.fresco.logging.PerformanceLogger.Flag;
-import dk.alexandra.fresco.logging.SecureComputationEngineLoggingDecorator;
 import dk.alexandra.fresco.network.ScapiNetworkImpl;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
@@ -37,8 +36,7 @@ public abstract class AbstractSpdzTest {
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
-      EvaluationStrategy evalStrategy, int noOfParties, EnumSet<Flag> performanceLoggerFlags)
-      throws Exception {
+      EvaluationStrategy evalStrategy, int noOfParties, boolean logPerformance) {
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * (noOfParties - 1));
@@ -54,20 +52,20 @@ public abstract class AbstractSpdzTest {
       SpdzProtocolSuite protocolSuite = new SpdzProtocolSuite(150);
 
       BatchEvaluationStrategy<SpdzResourcePool> batchStrat = evalStrategy.getStrategy();
-      if (performanceLoggerFlags != null && performanceLoggerFlags
-          .contains(Flag.LOG_NATIVE_BATCH)) {
+      if (logPerformance) {
         batchStrat = new BatchEvaluationLoggingDecorator<>(batchStrat);
         pls.get(playerId).add((PerformanceLogger) batchStrat);
       }
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
           new BatchedProtocolEvaluator<>(batchStrat, protocolSuite);
 
+      if (logPerformance) {
+        evaluator = new EvaluatorLoggingDecorator<>(evaluator);
+        pls.get(playerId).add((PerformanceLogger) evaluator);
+      }
+
       SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(protocolSuite, evaluator);
-      if (performanceLoggerFlags != null && performanceLoggerFlags.contains(Flag.LOG_RUNTIME)) {
-        sce = new SecureComputationEngineLoggingDecorator<>(sce, protocolSuite);
-        pls.get(playerId).add((PerformanceLogger) sce);
-      }
 
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
@@ -77,8 +75,7 @@ public abstract class AbstractSpdzTest {
                 ScapiNetworkImpl scapiNetwork = new ScapiNetworkImpl();
                 scapiNetwork.init(netConf.get(playerId), 1);
                 scapiNetwork.connect(10000);
-                if (performanceLoggerFlags != null && performanceLoggerFlags
-                    .contains(Flag.LOG_NETWORK)) {
+                if (logPerformance) {
                   NetworkLoggingDecorator network = new NetworkLoggingDecorator(scapiNetwork);
                   pls.get(playerId).add(network);
                   return network;
