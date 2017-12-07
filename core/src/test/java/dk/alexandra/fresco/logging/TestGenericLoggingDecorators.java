@@ -1,12 +1,7 @@
 package dk.alexandra.fresco.logging;
 
-import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
-import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
@@ -16,10 +11,10 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
-import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
+import dk.alexandra.fresco.lib.compare.CompareTests;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SqrtTests;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePool;
@@ -29,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.hamcrest.core.Is;
 import org.junit.Assert;
 import org.junit.Test;
@@ -50,7 +44,7 @@ public class TestGenericLoggingDecorators {
   @Test
   public void testEvaluatorLoggingDecorator() throws Exception {
     TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f
-        = new SqrtTests.TestSquareRoot<>();
+        = new CompareTests.TestCompareEQ<>();
 
     EvaluationStrategy evalStrategy = EvaluationStrategy.SEQUENTIAL; 
     Map<Integer, NetworkConfiguration> netConf = getNetConf();
@@ -104,7 +98,7 @@ public class TestGenericLoggingDecorators {
   public void testNetworkLoggingDecorator() throws Exception {
     
     TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f
-        = new SqrtTests.TestSquareRoot<>();
+        = new CompareTests.TestCompareLT<>();
 
     EvaluationStrategy evalStrategy = EvaluationStrategy.SEQUENTIAL; 
     Map<Integer, NetworkConfiguration> netConf = getNetConf();
@@ -140,11 +134,11 @@ public class TestGenericLoggingDecorators {
       PerformanceLogger performanceLogger = decoratedLoggers.get(0);
 
       Map<String, Object> loggedValues = performanceLogger.getLoggedValues(pId);
-      Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), Is.is((long)396));
-      Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BATCHES), Is.is(6));
+      Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), Is.is((long)132));
+      Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BATCHES), Is.is(2));
       Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_MAX_BYTES), Is.is(66));
       Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_MIN_BYTES), Is.is(66));
-      Assert.assertThat(((Map<Integer, Integer>)loggedValues.get(NetworkLoggingDecorator.NETWORK_PARTY_BYTES)).get(1), Is.is(396));
+      Assert.assertThat(((Map<Integer, Integer>)loggedValues.get(NetworkLoggingDecorator.NETWORK_PARTY_BYTES)).get(1), Is.is(132));
     }
     for (Integer pId : netConf.keySet()) {
       PerformanceLogger performanceLogger = decoratedLoggers.get(0);
@@ -163,7 +157,7 @@ public class TestGenericLoggingDecorators {
   public void testBatchEvaluationLoggingDecorator() throws Exception {
     
     TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f
-        = new SqrtTests.TestSquareRoot<>();
+        = new BasicArithmeticTests.TestSumAndMult<>();
 
     EvaluationStrategy evalStrategy = EvaluationStrategy.SEQUENTIAL; 
 
@@ -202,10 +196,10 @@ public class TestGenericLoggingDecorators {
     for (Integer pId : netConf.keySet()) {
       PerformanceLogger performanceLogger = decoratedLoggers.get(0);
       Map<String, Object> loggedValues = performanceLogger.getLoggedValues(pId);
-      Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_COUNTER), Is.is(3496361));
-      Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_NATIVE_PROTOCOLS), Is.is(17275821));
+      Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_COUNTER), Is.is(8));
+      Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_NATIVE_PROTOCOLS), Is.is(43));
       Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MIN_PROTOCOLS), Is.is(1));
-      Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MAX_PROTOCOLS), Is.is(520));
+      Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MAX_PROTOCOLS), Is.is(21));
     }
     for (Integer pId : netConf.keySet()) {
       PerformanceLogger performanceLogger = decoratedLoggers.get(0);

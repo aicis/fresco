@@ -13,7 +13,8 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
-import dk.alexandra.fresco.lib.math.integer.sqrt.SqrtTests;
+import dk.alexandra.fresco.lib.compare.CompareTests;
+import dk.alexandra.fresco.lib.conditional.ConditionalSelectTests;
 import dk.alexandra.fresco.logging.arithmetic.ComparisonLoggerDecorator;
 import dk.alexandra.fresco.logging.arithmetic.NumericLoggingDecorator;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticBuilderFactory;
@@ -33,8 +34,9 @@ public class TestArithmeticLoggingDecorators {
 
   @Test
   public void testNumericLoggingDecorator() throws Exception {
+    //Test a single conditional select (1 mult and 1 sub (consisting of 1 add)).
     TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f
-      = new SqrtTests.TestSquareRoot<>();
+      = ConditionalSelectTests.testSelectLeft();
     
     int noOfParties = 2;
     EvaluationStrategy evalStrategy = EvaluationStrategy.SEQUENTIAL; 
@@ -77,11 +79,11 @@ public class TestArithmeticLoggingDecorators {
       List<PerformanceLogger> pl = DummyArithmeticBuilderFactory.performanceLoggers.get(pId);
       
       Map<String, Object> loggedValues = pl.get(0).getLoggedValues(pId);
-      Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_ADD), Is.is((long)5719386));
-      Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_MULT), Is.is((long)15996));
-      Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_SUB), Is.is((long)46416));
-      Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_BIT), Is.is((long)5669220));
-      Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_RAND), Is.is((long)960));
+      Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_ADD), Is.is((long)1));
+      Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_MULT), Is.is((long)1));
+      Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_SUB), Is.is((long)1));
+      Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_BIT), Is.is((long)0));
+      Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_RAND), Is.is((long)0));
       
       pl.get(0).reset();
       loggedValues = pl.get(0).getLoggedValues(pId);
@@ -96,7 +98,7 @@ public class TestArithmeticLoggingDecorators {
   @Test
   public void testComparisonLoggingDecorator() throws Exception {
     TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f
-      = new SqrtTests.TestSquareRoot<>();
+      = new CompareTests.TestCompareEQ<>();
     
     int noOfParties = 2;
     EvaluationStrategy evalStrategy = EvaluationStrategy.SEQUENTIAL; 
@@ -139,10 +141,10 @@ public class TestArithmeticLoggingDecorators {
       List<PerformanceLogger> pl = DummyArithmeticBuilderFactory.performanceLoggers.get(pId);
     
       Map<String, Object> loggedValues = pl.get(1).getLoggedValues(pId);
-      Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_EQ), Is.is((long)0));
+      Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_EQ), Is.is((long)2));
       Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_LEQ), Is.is((long)0));
-      Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_SIGN), Is.is((long)60));
-      Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_COMP0), Is.is((long)480));
+      Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_SIGN), Is.is((long)0));
+      Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_COMP0), Is.is((long)2));
       
       pl.get(1).reset();
       loggedValues = pl.get(1).getLoggedValues(pId);

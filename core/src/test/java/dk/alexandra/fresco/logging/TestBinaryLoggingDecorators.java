@@ -29,6 +29,14 @@ import org.junit.Test;
 
 public class TestBinaryLoggingDecorators {
 
+  //Tests that a < b and b !< a for some 5-bit a and b
+  private final int bitLength = 5;
+  private final int amountOfGTs = 2*1;  
+  private final int amountOfEQsInTest = 0;
+  private final int amountOfANDsInTest = amountOfGTs*bitLength;
+  private final int amountOfXORsInTest = amountOfGTs*(1+ (bitLength-1)*3);
+
+  
   @Test
   public void testBinaryComparisonLoggingDecorator() throws Exception {
     
@@ -72,8 +80,8 @@ public class TestBinaryLoggingDecorators {
       List<PerformanceLogger> pl = DummyBooleanBuilderFactory.performanceLoggers.get(pId);
 
       Map<String, Object> loggedValues = pl.get(1).getLoggedValues(pId);
-      Assert.assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_GT), Is.is(2));
-      Assert.assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_EQ), Is.is(0));
+      Assert.assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_GT), Is.is(amountOfGTs)); 
+      Assert.assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_EQ), Is.is(amountOfEQsInTest));
 
       pl.get(1).reset();
       loggedValues = pl.get(1).getLoggedValues(pId);
@@ -126,8 +134,8 @@ public class TestBinaryLoggingDecorators {
       List<PerformanceLogger> pl = DummyBooleanBuilderFactory.performanceLoggers.get(pId);
 
       Map<String, Object> loggedValues = pl.get(0).getLoggedValues(pId);
-      Assert.assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_XOR), Is.is(26));
-      Assert.assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_AND), Is.is(10));
+      Assert.assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_XOR), Is.is(amountOfXORsInTest));
+      Assert.assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_AND), Is.is(amountOfANDsInTest));
       Assert.assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_RANDOM), Is.is(0));
       
       pl.get(0).reset();
