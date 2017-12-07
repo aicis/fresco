@@ -1,12 +1,7 @@
 package dk.alexandra.fresco.tools.mascot.mult;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
+import dk.alexandra.fresco.framework.FailedException;
+import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
@@ -15,6 +10,11 @@ import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.utils.DummyPrg;
 import dk.alexandra.fresco.tools.ot.base.FailedOtException;
 import dk.alexandra.fresco.tools.ot.base.MaliciousOtException;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class MultiplyLeft extends MultiplyShared {
 
@@ -28,40 +28,28 @@ public class MultiplyLeft extends MultiplyShared {
 
   /**
    * Uses left factors as choice bits to receive seeds to prgs.
-   * 
-   * @param leftFactors
-   * @return
-   * @throws MaliciousMultException
-   * @throws FailedMultException
    */
-  public List<StrictBitVector> generateSeeds(List<FieldElement> leftFactors)
-      throws MaliciousMultException, FailedMultException {
+  public List<StrictBitVector> generateSeeds(List<FieldElement> leftFactors) {
     StrictBitVector packedFactors = FieldElementCollectionUtils.pack(leftFactors);
     // use rot to get choice seeds
-    List<StrictBitVector> seeds = new ArrayList<>();
+    List<StrictBitVector> seeds;
     try {
       seeds = rot.receive(packedFactors, modBitLength);
-      // TODO temporary fix until big-endianness issue is resolved
-      Collections.reverse(seeds);
     } catch (MaliciousOtException e) {
-      throw new MaliciousMultException("Malicious exception during seed generation", e);
+      throw new MaliciousException("rethrown, will be removed with better exception handling", e);
     } catch (FailedOtException e) {
-      throw new FailedMultException("Non-malicious exception during seed generation", e);
+      throw new FailedException("rethrown, will be removed with better exception handling", e);
     }
+    // TODO temporary fix until big-endianness issue is resolved
+    Collections.reverse(seeds);
     return seeds;
   }
 
   /**
    * {@link #generateSeeds}
-   * 
-   * @param leftFactor
-   * @return
-   * @throws MaliciousMultException
-   * @throws FailedMultException
    */
-  public List<StrictBitVector> generateSeeds(FieldElement leftFactor)
-      throws MaliciousMultException, FailedMultException {
-    return generateSeeds(Arrays.asList(leftFactor));
+  public List<StrictBitVector> generateSeeds(FieldElement leftFactor) {
+    return generateSeeds(Collections.singletonList(leftFactor));
   }
 
   public List<FieldElement> receiveDiffs(int numDiffs) {
@@ -102,8 +90,7 @@ public class MultiplyLeft extends MultiplyShared {
         .collect(Collectors.toList());
   }
 
-  public List<FieldElement> multiply(List<FieldElement> leftFactors)
-      throws MaliciousMultException, FailedMultException {
+  public List<FieldElement> multiply(List<FieldElement> leftFactors) {
     // generate seeds to use for multiplication
     List<StrictBitVector> seeds = generateSeeds(leftFactors);
 

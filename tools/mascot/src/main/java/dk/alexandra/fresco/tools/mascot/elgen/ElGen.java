@@ -1,5 +1,21 @@
 package dk.alexandra.fresco.tools.mascot.elgen;
 
+import dk.alexandra.fresco.framework.FailedException;
+import dk.alexandra.fresco.framework.MaliciousException;
+import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
+import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
+import dk.alexandra.fresco.tools.mascot.cope.CopeInputter;
+import dk.alexandra.fresco.tools.mascot.cope.CopeSigner;
+import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
+import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
+import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
+import dk.alexandra.fresco.tools.mascot.maccheck.MacCheck;
+import dk.alexandra.fresco.tools.mascot.utils.Sharer;
+import dk.alexandra.fresco.tools.mascot.utils.sample.DummyJointSampler;
+import dk.alexandra.fresco.tools.mascot.utils.sample.DummySampler;
+import dk.alexandra.fresco.tools.mascot.utils.sample.Sampler;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,25 +23,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
-import dk.alexandra.fresco.tools.mascot.MascotContext;
-import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
-import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
-import dk.alexandra.fresco.tools.mascot.cope.CopeInputter;
-import dk.alexandra.fresco.tools.mascot.cope.CopeSigner;
-import dk.alexandra.fresco.tools.mascot.cope.FailedCopeException;
-import dk.alexandra.fresco.tools.mascot.cope.MaliciousCopeException;
-import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
-import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
-import dk.alexandra.fresco.tools.mascot.maccheck.FailedMacCheckException;
-import dk.alexandra.fresco.tools.mascot.maccheck.MacCheck;
-import dk.alexandra.fresco.tools.mascot.maccheck.MaliciousMacCheckException;
-import dk.alexandra.fresco.tools.mascot.utils.Sharer;
-import dk.alexandra.fresco.tools.mascot.utils.sample.DummyJointSampler;
-import dk.alexandra.fresco.tools.mascot.utils.sample.DummySampler;
-import dk.alexandra.fresco.tools.mascot.utils.sample.Sampler;
 
 public class ElGen extends MultiPartyProtocol {
 
@@ -56,33 +53,27 @@ public class ElGen extends MultiPartyProtocol {
     this.initialized = false;
   }
 
-  public void initialize() throws MaliciousElGenException, FailedElGenException {
+  public void initialize() {
     // shouldn't initialize again
     if (initialized) {
       throw new IllegalStateException("Already initialized");
     }
 
-    try {
-      // TODO parallelize
-      for (Integer partyId : partyIds) {
-        if (!myId.equals(partyId)) {
-          CopeInputter copeInputter = copeInputters.get(partyId);
-          CopeSigner copeSigner = copeSigners.get(partyId);
-          if (myId < partyId) {
-            copeInputter.initialize();
-            copeSigner.initialize();
-          } else {
-            copeSigner.initialize();
-            copeInputter.initialize();
-          }
+    // TODO parallelize
+    for (Integer partyId : partyIds) {
+      if (!myId.equals(partyId)) {
+        CopeInputter copeInputter = copeInputters.get(partyId);
+        CopeSigner copeSigner = copeSigners.get(partyId);
+        if (myId < partyId) {
+          copeInputter.initialize();
+          copeSigner.initialize();
+        } else {
+          copeSigner.initialize();
+          copeInputter.initialize();
         }
       }
-      this.initialized = true;
-    } catch (MaliciousCopeException e) {
-      throw new MaliciousElGenException("Malicious failure during initialization", e);
-    } catch (FailedCopeException e) {
-      throw new FailedElGenException("Non-malicious failure during initialization", e);
     }
+    this.initialized = true;
   }
 
   List<List<FieldElement>> otherPartiesMac(List<FieldElement> values) {
@@ -103,7 +94,7 @@ public class ElGen extends MultiPartyProtocol {
   List<FieldElement> combineIntoMacShares(List<List<FieldElement>> singedByAll) {
     List<List<FieldElement>> tilted = FieldElementCollectionUtils.transpose(singedByAll);
     Stream<FieldElement> combinedMacs = tilted.stream()
-        .map(l -> CollectionUtils.sum(l));
+        .map(CollectionUtils::sum);
     return combinedMacs.collect(Collectors.toList());
   }
 
@@ -135,7 +126,7 @@ public class ElGen extends MultiPartyProtocol {
     return byParty.get(myId - 1);
   }
 
-  List<FieldElement> receiveShares(Integer inputterId, int numElements) {
+  List<FieldElement> receiveShares(Integer inputterId) {
     List<FieldElement> receivedShares =
         FieldElementSerializer.deserializeList(network.receive(inputterId));
     return receivedShares;
@@ -156,15 +147,10 @@ public class ElGen extends MultiPartyProtocol {
   }
 
   /**
-   * Inputs field elements. 
-   * 
-   * @param values
-   * @return
-   * @throws MaliciousElGenException
-   * @throws FailedElGenException
+   * Inputs field elements.
    */
   public List<AuthenticatedElement> input(List<FieldElement> values)
-      throws MaliciousElGenException, FailedElGenException {
+      throws MaliciousException, FailedException {
     // can't input before initializing
     if (!initialized) {
       throw new IllegalStateException("Need to initialize first");
@@ -202,8 +188,7 @@ public class ElGen extends MultiPartyProtocol {
     return spdzElements;
   }
 
-  public List<AuthenticatedElement> input(Integer inputterId, int numInputs)
-      throws MaliciousElGenException, FailedElGenException {
+  public List<AuthenticatedElement> input(Integer inputterId, int numInputs) {
     // can't input before initializing
     if (!initialized) {
       throw new IllegalStateException("Need to initialize first");
@@ -223,7 +208,7 @@ public class ElGen extends MultiPartyProtocol {
     runMacCheck(maskedValue, masks, macs);
 
     // receive shares from inputter
-    List<FieldElement> shares = receiveShares(inputterId, numInputs);
+    List<FieldElement> shares = receiveShares(inputterId);
 
     // combine shares and mac shares to spdz elements (exclude mac for dummy element)
     List<FieldElement> nonDummyMacs = macs.subList(0, numInputs);
@@ -231,35 +216,23 @@ public class ElGen extends MultiPartyProtocol {
     return spdzElements;
   }
 
-  void runMacCheck(FieldElement value, List<FieldElement> masks, List<FieldElement> macs)
-      throws MaliciousElGenException, FailedElGenException {
+  void runMacCheck(FieldElement value, List<FieldElement> masks, List<FieldElement> macs) {
     // mask and combine macs
     FieldElement maskedMac = FieldElementCollectionUtils.innerProduct(macs, masks);
     // perform mac-check on open masked value
-    try {
       macChecker.check(value, macKeyShare, maskedMac);
-    } catch (MaliciousMacCheckException e) {
-      throw new MaliciousElGenException("Malicious exception during mac-check", e);
-    } catch (FailedMacCheckException e) {
-      throw new FailedElGenException("Non-malicious exception during mac-check", e);
-    }
   }
 
   /**
    * Runs mac-check on opened values.
-   * 
-   * @param sharesWithMacs
-   * @param openValues
-   * @throws FailedElGenException
-   * @throws MaliciousElGenException
    */
   public void check(List<AuthenticatedElement> sharesWithMacs, List<FieldElement> openValues)
-      throws MaliciousElGenException, FailedElGenException {
+      throws MaliciousException, FailedException {
     // will use this to mask macs 
     List<FieldElement> masks = jointSampler.sample(modulus, modBitLength, sharesWithMacs.size());
     // only need macs
     List<FieldElement> macs = sharesWithMacs.stream()
-        .map(share -> share.getMac())
+        .map(AuthenticatedElement::getMac)
         .collect(Collectors.toList());
     // apply masks to open element so that it matches the macs when we mask them
     FieldElement open = FieldElementCollectionUtils.innerProduct(openValues, masks);
@@ -268,16 +241,13 @@ public class ElGen extends MultiPartyProtocol {
 
   /**
    * Opens secret elements (distributes shares among all parties and recombines).
-   * 
-   * @param closed
-   * @return
    */
   public List<FieldElement> open(List<AuthenticatedElement> closed) {
     // all shares
     List<List<FieldElement>> shares = new ArrayList<>();
     // get shares from authenticated elements
     List<FieldElement> ownShares = closed.stream()
-        .map(el -> el.getShare())
+        .map(AuthenticatedElement::getShare)
         .collect(Collectors.toList());
     // send own shares to others
     network.sendToAll(FieldElementSerializer.serialize(ownShares));

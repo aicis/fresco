@@ -1,21 +1,18 @@
 package dk.alexandra.fresco.tools.mascot.cope;
 
+import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.mult.MultiplyRight;
+import dk.alexandra.fresco.tools.mascot.utils.DummyPrg;
+import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
-import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.MascotContext;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.mult.FailedMultException;
-import dk.alexandra.fresco.tools.mascot.mult.MaliciousMultException;
-import dk.alexandra.fresco.tools.mascot.mult.MultiplyRight;
-import dk.alexandra.fresco.tools.mascot.utils.DummyPrg;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 
 public class CopeInputter extends CopeShared {
 
@@ -30,19 +27,13 @@ public class CopeInputter extends CopeShared {
     this.multiplier = new MultiplyRight(ctx, otherId);
   }
 
-  public void initialize() throws MaliciousCopeException, FailedCopeException {
+  public void initialize() {
     if (initialized) {
       throw new IllegalStateException("Already initialized");
     }
-    try {
       List<Pair<StrictBitVector, StrictBitVector>> seeds = multiplier.generateSeeds(1);
       seedPrgs(seeds);
       initialized = true;
-    } catch (MaliciousMultException e) {
-      throw new MaliciousCopeException("Malicious failure during initialization", e);
-    } catch (FailedMultException e) {
-      throw new FailedCopeException("Non-malicious failure during initialization", e);
-    }
   }
 
   private void seedPrgs(List<Pair<StrictBitVector, StrictBitVector>> seeds) {

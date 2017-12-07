@@ -2,18 +2,17 @@ package dk.alexandra.fresco.tools.mascot.maccheck;
 
 import static org.junit.Assert.assertEquals;
 
+import dk.alexandra.fresco.framework.MaliciousException;
+import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.tools.mascot.NetworkedTest;
+import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-
 import org.junit.Test;
-
-import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.tools.mascot.MascotContext;
-import dk.alexandra.fresco.tools.mascot.NetworkedTest;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 
 public class TestMacCheck extends NetworkedTest {
 
@@ -25,7 +24,7 @@ public class TestMacCheck extends NetworkedTest {
     Exception exception = null;
     try {
       macChecker.check(opened, macKeyShare, macShare);
-    } catch (MaliciousMacCheckException e) {
+    } catch (MaliciousException e) {
       exception = e;
       thrown = true;
     }
@@ -115,7 +114,7 @@ public class TestMacCheck extends NetworkedTest {
         boolean didThrow = res.getFirst();
         Exception exception = res.getSecond();
         assertEquals(didThrow, true);
-        assertEquals(exception.getClass(), MaliciousMacCheckException.class);
+        assertEquals(exception.getClass(), MaliciousException.class);
         assertEquals(exception.getMessage(), "Malicious mac forging detected");
       }
     } catch (Exception e) {

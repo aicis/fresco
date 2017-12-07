@@ -2,17 +2,9 @@ package dk.alexandra.fresco.tools.mascot.cope;
 
 import static org.junit.Assert.assertEquals;
 
-import java.lang.reflect.Field;
-import java.util.List;
-
-import org.junit.Test;
-
-import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.mock.MockMascotContext;
-import dk.alexandra.fresco.tools.mascot.mult.FailedMultException;
-import dk.alexandra.fresco.tools.mascot.mult.MaliciousMultException;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyRight;
+import java.lang.reflect.Field;
 
 public class TestCopeInputter {
 
@@ -38,31 +30,4 @@ public class TestCopeInputter {
     assertEquals(actual.getClass(), expectedClass);
     assertEquals(actual.getMessage(), expectedMessage);
   }
-
-  @Test
-  public void testFailedInputterInit() throws Exception {
-    MultiplyRight mockMultiplier = new MultiplyRight(new MockMascotContext(), 1) {
-      @Override
-      public List<Pair<StrictBitVector, StrictBitVector>> generateSeeds(int numMults)
-          throws MaliciousMultException, FailedMultException {
-        throw new FailedMultException();
-      }
-    };
-    String expectedMessage = "Non-malicious failure during initialization";
-    copeInputterExceptionTest(mockMultiplier, expectedMessage, FailedCopeException.class);
-  }
-
-  @Test
-  public void testMaliciousInputterInit() throws Exception {
-    MultiplyRight mockMultiplier = new MultiplyRight(new MockMascotContext(), 1) {
-      @Override
-      public List<Pair<StrictBitVector, StrictBitVector>> generateSeeds(int numMults)
-          throws MaliciousMultException, FailedMultException {
-        throw new MaliciousMultException();
-      }
-    };
-    String expectedMessage = "Malicious failure during initialization";
-    copeInputterExceptionTest(mockMultiplier, expectedMessage, MaliciousCopeException.class);
-  }
-
 }

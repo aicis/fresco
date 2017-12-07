@@ -2,23 +2,22 @@ package dk.alexandra.fresco.tools.mascot.elgen;
 
 import static org.junit.Assert.assertEquals;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.junit.Test;
-
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
 import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.junit.Test;
 
 public class TestElGen extends NetworkedTest {
 
@@ -37,8 +36,7 @@ public class TestElGen extends NetworkedTest {
   }
 
   private List<AuthenticatedElement> runOtherMultipleRounds(MascotContext ctx, Integer inputterId,
-      FieldElement macKeyShare, int numInputsPerRound, int numRounds)
-      throws MaliciousElGenException, FailedElGenException {
+      FieldElement macKeyShare, int numInputsPerRound, int numRounds) {
     ElGen elGen = new ElGen(ctx, macKeyShare);
     elGen.initialize();
     List<AuthenticatedElement> elements = new ArrayList<>(numInputsPerRound * numRounds);
@@ -57,8 +55,7 @@ public class TestElGen extends NetworkedTest {
   }
 
   private List<AuthenticatedElement> runOther(MascotContext ctx, Integer inputterId,
-      FieldElement macKeyShare, int numInputs)
-      throws MaliciousElGenException, FailedElGenException {
+      FieldElement macKeyShare, int numInputs) {
     ElGen elGen = new ElGen(ctx, macKeyShare);
     elGen.initialize();
     return elGen.input(inputterId, numInputs);
@@ -89,7 +86,7 @@ public class TestElGen extends NetworkedTest {
       // single right party input element
       FieldElement input =
           new FieldElement(7, partyOneCtx.getModulus(), partyTwoCtx.getkBitLength());
-      List<FieldElement> inputs = Arrays.asList(input);
+      List<FieldElement> inputs = Collections.singletonList(input);
 
       // define task each party will run
       Callable<List<AuthenticatedElement>> partyOneTask =
@@ -109,9 +106,9 @@ public class TestElGen extends NetworkedTest {
 
       FieldElement expectedRecomb = new FieldElement(7, modulus, modBitLength);
       FieldElement expectedMacRecomb = new FieldElement(1608, modulus, modBitLength); // (keyShareA
-                                                                                      // +
-                                                                                      // keyShareB)
-                                                                                      // * input
+      // +
+      // keyShareB)
+      // * input
       // bit of a shortcut
       AuthenticatedElement expected =
           new AuthenticatedElement(expectedRecomb, expectedMacRecomb, modulus, modBitLength);
@@ -150,7 +147,7 @@ public class TestElGen extends NetworkedTest {
       // single right party input element
       FieldElement input =
           new FieldElement(7, partyOneCtx.getModulus(), partyTwoCtx.getkBitLength());
-      List<FieldElement> inputs = Arrays.asList(input);
+      List<FieldElement> inputs = Collections.singletonList(input);
 
       // define task each party will run
       Callable<List<AuthenticatedElement>> partyOneTask =
@@ -170,9 +167,9 @@ public class TestElGen extends NetworkedTest {
 
       FieldElement expectedRecomb = new FieldElement(7, modulus, modBitLength);
       FieldElement expectedMacRecomb = new FieldElement(1608, modulus, modBitLength); // (keyShareA
-                                                                                      // +
-                                                                                      // keyShareB)
-                                                                                      // * input
+      // +
+      // keyShareB)
+      // * input
       // bit of a shortcut
       AuthenticatedElement expected =
           new AuthenticatedElement(expectedRecomb, expectedMacRecomb, modulus, modBitLength);
@@ -210,10 +207,9 @@ public class TestElGen extends NetworkedTest {
       FieldElement macKeyShareThree =
           new FieldElement(new BigInteger("40401"), modulus, modBitLength);
 
-
       // single right party input element
       FieldElement input = new FieldElement(7, modulus, modBitLength);
-      List<FieldElement> inputs = Arrays.asList(input);
+      List<FieldElement> inputs = Collections.singletonList(input);
 
       // define task each party will run
       Callable<List<AuthenticatedElement>> partyOneTask =

@@ -2,25 +2,24 @@ package dk.alexandra.fresco.tools.mascot.cope;
 
 import static org.junit.Assert.assertEquals;
 
+import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
+import dk.alexandra.fresco.tools.mascot.NetworkedTest;
+import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
 import org.junit.Test;
-
-import dk.alexandra.fresco.tools.mascot.MascotContext;
-import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
-import dk.alexandra.fresco.tools.mascot.NetworkedTest;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 
 public class TestCope extends NetworkedTest {
 
   private List<FieldElement> runSigner(MascotContext ctx, Integer otherId, FieldElement macKeyShare,
-      int numExtends) throws MaliciousCopeException, FailedCopeException {
+      int numExtends) {
     CopeSigner signer = new CopeSigner(ctx, otherId, macKeyShare);
     signer.initialize();
     List<FieldElement> shares = signer.extend(numExtends);
@@ -28,7 +27,7 @@ public class TestCope extends NetworkedTest {
   }
 
   private List<FieldElement> runInputter(MascotContext ctx, Integer otherId,
-      List<FieldElement> inputs) throws MaliciousCopeException, FailedCopeException {
+      List<FieldElement> inputs) {
     CopeInputter inputter = new CopeInputter(ctx, otherId);
     inputter.initialize();
     List<FieldElement> shares = inputter.extend(inputs);
@@ -53,7 +52,7 @@ public class TestCope extends NetworkedTest {
       // single right party input element
       FieldElement input =
           new FieldElement(7, partyOneCtx.getModulus(), partyTwoCtx.getkBitLength());
-      List<FieldElement> inputs = Arrays.asList(input);
+      List<FieldElement> inputs = Collections.singletonList(input);
 
       // define task each party will run
       Callable<List<FieldElement>> partyOneTask = () -> runSigner(partyOneCtx, 2, macKeyShare, 1);

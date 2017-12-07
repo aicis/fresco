@@ -2,6 +2,12 @@ package dk.alexandra.fresco.tools.mascot.mult;
 
 import static org.junit.Assert.assertEquals;
 
+import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
+import dk.alexandra.fresco.tools.mascot.NetworkedTest;
+import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
+import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,26 +16,18 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
 import org.junit.Test;
-
-import dk.alexandra.fresco.tools.mascot.MascotContext;
-import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
-import dk.alexandra.fresco.tools.mascot.NetworkedTest;
-import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
 
 public class TestMultiply extends NetworkedTest {
 
   private List<FieldElement> runLeftMult(MascotContext ctx, Integer otherId,
-      List<FieldElement> inputs) throws MaliciousMultException, FailedMultException {
+      List<FieldElement> inputs) {
     MultiplyLeft mult = new MultiplyLeft(ctx, otherId, inputs.size());
     return mult.multiply(inputs);
   }
 
   private List<FieldElement> runRightMult(MascotContext ctx, Integer otherId,
-      List<FieldElement> inputs, int numLeftFactors) throws MaliciousMultException, FailedMultException {
+      List<FieldElement> inputs, int numLeftFactors) {
     MultiplyRight mult = new MultiplyRight(ctx, otherId, numLeftFactors);
     return mult.multiply(inputs);
   }
