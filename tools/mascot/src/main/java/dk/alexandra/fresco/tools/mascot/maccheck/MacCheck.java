@@ -100,7 +100,7 @@ public class MacCheck extends MultiPartyProtocol {
     try {
       ownOpening = ownComm.commit(new SecureRandom(), sigma);
     } catch (FailedCommitmentException e) {
-      throw new FailedException("Non-malicious failure during initial commit", e);
+      throw new FailedException(e);
     }
 
     List<Commitment> comms;
@@ -111,7 +111,7 @@ public class MacCheck extends MultiPartyProtocol {
       // all parties send opening info
       openings = distributeOpenings(ownOpening);
     } catch (ClassNotFoundException | IOException e) {
-      throw new FailedException("Non-malicious failure during distribution phase", e);
+      throw new FailedException("Serialization problem", e);
     }
 
     // open commitments using received opening info
@@ -119,7 +119,7 @@ public class MacCheck extends MultiPartyProtocol {
     try {
       sigmas = open(comms, openings);
     } catch (FailedCommitmentException e) {
-      throw new FailedException("redundant rethrow - wil be removed", e);
+      throw new FailedException(e);
     } catch (MaliciousCommitmentException e) {
       throw new MaliciousException(e);
     }

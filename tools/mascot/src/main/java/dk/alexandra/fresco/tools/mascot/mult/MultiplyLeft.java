@@ -38,7 +38,7 @@ public class MultiplyLeft extends MultiplyShared {
     } catch (MaliciousOtException e) {
       throw new MaliciousException(e);
     } catch (FailedOtException e) {
-      throw new FailedException("rethrown, will be removed with better exception handling", e);
+      throw new FailedException(e);
     }
     // TODO temporary fix until big-endianness issue is resolved
     Collections.reverse(seeds);
