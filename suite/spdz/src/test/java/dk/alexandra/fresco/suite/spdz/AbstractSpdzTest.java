@@ -17,10 +17,10 @@ import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStor
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
+import dk.alexandra.fresco.logging.EvaluatorLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger;
 import dk.alexandra.fresco.logging.PerformanceLogger.Flag;
-import dk.alexandra.fresco.logging.SecureComputationEngineLoggingDecorator;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.suite.spdz.storage.DataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.DataSupplierImpl;
@@ -78,13 +78,14 @@ public abstract class AbstractSpdzTest {
       }
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
           new BatchedProtocolEvaluator<>(batchEvalStrat, protocolSuite);
-
+      if (performanceloggerFlags != null && performanceloggerFlags.contains(Flag.LOG_EVALUATOR)) {
+        evaluator = new EvaluatorLoggingDecorator<>(evaluator);
+        pls.get(playerId).add((PerformanceLogger) evaluator);
+      }
+      
       SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(protocolSuite, evaluator);
-      if (performanceloggerFlags != null && performanceloggerFlags.contains(Flag.LOG_RUNTIME)) {
-        sce = new SecureComputationEngineLoggingDecorator<>(sce, protocolSuite);
-        pls.get(playerId).add((PerformanceLogger) sce);
-      }
+      
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,
