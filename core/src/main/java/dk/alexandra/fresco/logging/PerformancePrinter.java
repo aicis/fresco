@@ -7,5 +7,4 @@ public interface PerformancePrinter {
    * given PerformanceLogger.
    */
   public void printPerformanceLog(PerformanceLogger logger, int myId);
-  
 }

@@ -32,7 +32,6 @@ public class TestGenericLoggingDecorators {
   private final BigInteger mod 
     = new BigInteger("6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
   
-  @SuppressWarnings("unchecked")
   @Test
   public void testEvaluatorLoggingDecorator() throws Exception {
     TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f
@@ -72,20 +71,18 @@ public class TestGenericLoggingDecorators {
     for (Integer pId : netConf.keySet()) {
       PerformanceLogger performanceLogger = decoratedLoggers.get(0);
 
-      Map<String, Object> loggedValues = performanceLogger.getLoggedValues(pId);
-      List<Long> runningTimes = (List<Long>)loggedValues.get(EvaluatorLoggingDecorator.SCE_RUNNINGTIMES);
-      Assert.assertTrue(runningTimes.get(0) > 0);
+      Map<String, Long> loggedValues = performanceLogger.getLoggedValues(pId);
+      long runningTime = loggedValues.get(EvaluatorLoggingDecorator.SCE_RUNNINGTIMES+0);
+      Assert.assertTrue(runningTime > 0);
     }
     for (Integer pId : netConf.keySet()) {
       PerformanceLogger performanceLogger = decoratedLoggers.get(0);
       performanceLogger.reset();
-      Map<String, Object> loggedValues = performanceLogger.getLoggedValues(pId);
-      List<Long> runningTimes = (List<Long>)loggedValues.get(EvaluatorLoggingDecorator.SCE_RUNNINGTIMES);
-      Assert.assertTrue(runningTimes.size() == 0);
+      Map<String, Long> loggedValues = performanceLogger.getLoggedValues(pId);
+      Assert.assertTrue(loggedValues.size() == 1);
     }
   }  
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testNetworkLoggingDecorator() throws Exception {
     
@@ -125,23 +122,23 @@ public class TestGenericLoggingDecorators {
     for (Integer pId : netConf.keySet()) {
       PerformanceLogger performanceLogger = decoratedLoggers.get(0);
 
-      Map<String, Object> loggedValues = performanceLogger.getLoggedValues(pId);
+      Map<String, Long> loggedValues = performanceLogger.getLoggedValues(pId);
       Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), Is.is((long)132));
-      Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BATCHES), Is.is(2));
-      Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_MAX_BYTES), Is.is(66));
-      Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_MIN_BYTES), Is.is(66));
-      Assert.assertThat(((Map<Integer, Integer>)loggedValues.get(NetworkLoggingDecorator.NETWORK_PARTY_BYTES)).get(1), Is.is(132));
+      Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BATCHES), Is.is((long)2));
+      Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_MAX_BYTES), Is.is((long)66));
+      Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_MIN_BYTES), Is.is((long)66));
+      Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_PARTY_BYTES+"_1"), Is.is((long)132));
     }
     for (Integer pId : netConf.keySet()) {
       PerformanceLogger performanceLogger = decoratedLoggers.get(0);
       performanceLogger.reset();
 
-      Map<String, Object> loggedValues = performanceLogger.getLoggedValues(pId);
+      Map<String, Long> loggedValues = performanceLogger.getLoggedValues(pId);
       Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), Is.is((long)0));
-      Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BATCHES), Is.is(0));
-      Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_MAX_BYTES), Is.is(0));
-      Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_MIN_BYTES), Is.is(Integer.MAX_VALUE));
-      Assert.assertTrue(((Map<Integer, Integer>)loggedValues.get(NetworkLoggingDecorator.NETWORK_PARTY_BYTES)).isEmpty());
+      Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BATCHES), Is.is((long)0));
+      Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_MAX_BYTES), Is.is((long)0));
+      Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_MIN_BYTES), Is.is((long)Integer.MAX_VALUE));
+      Assert.assertThat(loggedValues.size(), Is.is(5));
     }
   }
   
@@ -187,20 +184,20 @@ public class TestGenericLoggingDecorators {
 
     for (Integer pId : netConf.keySet()) {
       PerformanceLogger performanceLogger = decoratedLoggers.get(0);
-      Map<String, Object> loggedValues = performanceLogger.getLoggedValues(pId);
-      Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_COUNTER), Is.is(8));
-      Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_NATIVE_PROTOCOLS), Is.is(43));
-      Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MIN_PROTOCOLS), Is.is(1));
-      Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MAX_PROTOCOLS), Is.is(21));
+      Map<String, Long> loggedValues = performanceLogger.getLoggedValues(pId);
+      Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_COUNTER), Is.is((long)8));
+      Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_NATIVE_PROTOCOLS), Is.is((long)43));
+      Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MIN_PROTOCOLS), Is.is((long)1));
+      Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MAX_PROTOCOLS), Is.is((long)21));
     }
     for (Integer pId : netConf.keySet()) {
       PerformanceLogger performanceLogger = decoratedLoggers.get(0);
       performanceLogger.reset();
-      Map<String, Object> loggedValues = performanceLogger.getLoggedValues(pId);
-      Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_COUNTER), Is.is(0));
-      Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_NATIVE_PROTOCOLS), Is.is(0));
-      Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MIN_PROTOCOLS), Is.is(Integer.MAX_VALUE));
-      Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MAX_PROTOCOLS), Is.is(0));
+      Map<String, Long> loggedValues = performanceLogger.getLoggedValues(pId);
+      Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_COUNTER), Is.is((long)0));
+      Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_NATIVE_PROTOCOLS), Is.is((long)0));
+      Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MIN_PROTOCOLS), Is.is((long)Integer.MAX_VALUE));
+      Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MAX_PROTOCOLS), Is.is((long)0));
     }
   }
   

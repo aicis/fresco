@@ -17,10 +17,10 @@ public class BatchEvaluationLoggingDecorator<ResourcePoolT extends ResourcePool>
   public static final String BATCH_MAX_PROTOCOLS = "MAX_AMOUNT_PER_BATCH";
   
   private BatchEvaluationStrategy<ResourcePoolT> delegate;
-  private int counter = 0;
-  private int noNativeProtocols = 0;
-  private int minNoNativeProtocolsPerBatch = Integer.MAX_VALUE;
-  private int maxNoNativeProtocolsPerBatch = 0;
+  private long counter = 0;
+  private long noNativeProtocols = 0;
+  private long minNoNativeProtocolsPerBatch = Integer.MAX_VALUE;
+  private long maxNoNativeProtocolsPerBatch = 0;
 
   public BatchEvaluationLoggingDecorator(
       BatchEvaluationStrategy<ResourcePoolT> batchEvaluation) {
@@ -52,9 +52,9 @@ public class BatchEvaluationLoggingDecorator<ResourcePoolT extends ResourcePool>
   }
 
   @Override
-  public Map<String, Object> getLoggedValues(int myId) {
-    Map<String, Object> values = new HashMap<>();
-    values.put(ID, myId);
+  public Map<String, Long> getLoggedValues(int myId) {
+    Map<String, Long> values = new HashMap<>();
+    values.put(ID, (long)myId);
     values.put(BATCH_COUNTER, counter);
     values.put(BATCH_NATIVE_PROTOCOLS, noNativeProtocols);
     values.put(BATCH_MIN_PROTOCOLS, minNoNativeProtocolsPerBatch);

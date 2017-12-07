@@ -15,8 +15,8 @@ public class BinaryComparisonLoggingDecorator implements PerformanceLogger, Comp
   public static final String BINARY_COMPARISON_GT = "GT_COUNT";
 
   private Comparison delegate;
-  private int gtCount;
-  private int eqCount;
+  private long gtCount;
+  private long eqCount;
   
   public BinaryComparisonLoggingDecorator(Comparison delegate) {
     this.delegate = delegate;
@@ -45,9 +45,9 @@ public class BinaryComparisonLoggingDecorator implements PerformanceLogger, Comp
   }
 
   @Override
-  public Map<String, Object> getLoggedValues(int myId) {
-    Map<String, Object> values = new HashMap<>();
-    values.put(ID, myId);
+  public Map<String, Long> getLoggedValues(int myId) {
+    Map<String, Long> values = new HashMap<>();
+    values.put(ID, (long)myId);
     values.put(BINARY_COMPARISON_EQ, this.eqCount);
     values.put(BINARY_COMPARISON_GT, this.gtCount);
     return values;

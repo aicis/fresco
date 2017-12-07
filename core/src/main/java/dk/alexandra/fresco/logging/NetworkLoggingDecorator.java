@@ -17,8 +17,8 @@ public class NetworkLoggingDecorator implements Network, PerformanceLogger, Clos
 
   private Network delegate;
   private Map<Integer, PartyStats> partyStatsMap = new HashMap<>();
-  private int minBytesReceived = Integer.MAX_VALUE;
-  private int maxBytesReceived = 0;
+  private long minBytesReceived = Integer.MAX_VALUE;
+  private long maxBytesReceived = 0;
 
   public NetworkLoggingDecorator(Network network) {
     this.delegate = network;
@@ -59,8 +59,8 @@ public class NetworkLoggingDecorator implements Network, PerformanceLogger, Clos
   }
 
   private class PartyStats {
-    private int count;
-    private int noBytes;
+    private long count;
+    private long noBytes;
 
     public void recordTransmission(int noBytes) {
       this.count++;
@@ -69,20 +69,18 @@ public class NetworkLoggingDecorator implements Network, PerformanceLogger, Clos
   }
 
   @Override
-  public Map<String, Object> getLoggedValues(int myId) {
-    Map<String, Object> values = new HashMap<>();
-    values.put(ID, myId);
+  public Map<String, Long> getLoggedValues(int myId) {
+    Map<String, Long> values = new HashMap<>();
+    values.put(ID, (long)myId);
     
     long totalNoBytes = 0;
-    int noNetworkBatches = 0;
-    Map<Integer, Integer> partyBytes = new HashMap<>();
+    long noNetworkBatches = 0;
     for (Integer partyId : partyStatsMap.keySet()) {
       PartyStats partyStats = partyStatsMap.get(partyId);
-      partyBytes.put(partyId, partyStats.noBytes);
+      values.put(NETWORK_PARTY_BYTES+"_"+partyId, partyStats.noBytes);
       totalNoBytes += partyStats.noBytes;
       noNetworkBatches += partyStats.count;
     }
-    values.put(NETWORK_PARTY_BYTES, partyBytes);
     values.put(NETWORK_TOTAL_BYTES, totalNoBytes);
     values.put(NETWORK_TOTAL_BATCHES, noNetworkBatches);
     values.put(NETWORK_MAX_BYTES, this.maxBytesReceived);

@@ -1,9 +1,6 @@
 package dk.alexandra.fresco.logging;
 
 import java.util.Map;
-import java.util.Map.Entry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Class for getting performance numbers. Use the EnumSet to indicate which parameters to log. Note
@@ -16,22 +13,12 @@ public interface PerformanceLogger {
   /**
    * Resets any counters/maps/lists used. 
    */
-  public abstract void reset();    
+  public void reset();    
   
   /**
    * Produce a key-value map of logged values. The content
    * of the returned map is context dependent. 
    */
-  public abstract Map<String, Object> getLoggedValues(int myId);
-  
-  /**
-   * Make a generic log string from the logged values. 
-   */
-  public default String makeLogString(int myId){
-    String s = "Logger for "+this.getClass().getName()+": ";
-    for (Entry<String, Object> e : getLoggedValues(myId).entrySet()) {
-      s += "["+e.getKey().toString() + ": " + e.getValue().toString()+"]";
-    }
-    return s;
-  }
+  public Map<String, Long> getLoggedValues(int myId);
+
 }

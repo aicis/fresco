@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.logging;
 
+import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,8 +10,10 @@ public class DefaultPerformancePrinter implements PerformancePrinter {
   
   @Override
   public void printPerformanceLog(PerformanceLogger logger, int myId) {
-    String output = logger.makeLogString(myId);
-    log.info(output);
+    String s = "Logger for "+this.getClass().getName()+": ";
+    for (Entry<String, Long> e : logger.getLoggedValues(myId).entrySet()) {
+      s += "["+e.getKey().toString() + ": " + e.getValue().toString()+"]";
+    }
+    log.info(s);
   }
-
 }

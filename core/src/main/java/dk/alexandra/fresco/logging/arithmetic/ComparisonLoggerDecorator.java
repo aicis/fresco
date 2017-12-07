@@ -75,9 +75,9 @@ public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger 
   }
 
   @Override
-  public Map<String, Object> getLoggedValues(int myId) {
-    Map<String, Object> values = new HashMap<>();
-    values.put(ID, myId);
+  public Map<String, Long> getLoggedValues(int myId) {
+    Map<String, Long> values = new HashMap<>();
+    values.put(ID, (long)myId);
     values.put(ARITHMETIC_COMPARISON_EQ, this.eqCount);
     values.put(ARITHMETIC_COMPARISON_LEQ, this.leqCount);
     values.put(ARITHMETIC_COMPARISON_SIGN, this.signCount);

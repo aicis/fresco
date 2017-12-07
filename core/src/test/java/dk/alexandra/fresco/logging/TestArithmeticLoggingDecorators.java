@@ -78,7 +78,7 @@ public class TestArithmeticLoggingDecorators {
     for(Integer pId: netConf.keySet()) {
       List<PerformanceLogger> pl = DummyArithmeticBuilderFactory.performanceLoggers.get(pId);
       
-      Map<String, Object> loggedValues = pl.get(0).getLoggedValues(pId);
+      Map<String, Long> loggedValues = pl.get(0).getLoggedValues(pId);
       Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_ADD), Is.is((long)1));
       Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_MULT), Is.is((long)1));
       Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_SUB), Is.is((long)1));
@@ -140,7 +140,7 @@ public class TestArithmeticLoggingDecorators {
     for(Integer pId: netConf.keySet()) {
       List<PerformanceLogger> pl = DummyArithmeticBuilderFactory.performanceLoggers.get(pId);
     
-      Map<String, Object> loggedValues = pl.get(1).getLoggedValues(pId);
+      Map<String, Long> loggedValues = pl.get(1).getLoggedValues(pId);
       Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_EQ), Is.is((long)2));
       Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_LEQ), Is.is((long)0));
       Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_SIGN), Is.is((long)0));
