@@ -22,11 +22,10 @@ public class MascotContext {
   int kBitLength;
   int lambdaSecurityParam;
   Network network;
-  ExecutorService executor;
   Random rand;
 
   public MascotContext(Integer myId, List<Integer> partyIds, BigInteger modulus, int kBitLength,
-      int lambdaSecurityParameter, Network network, ExecutorService executor, Random rand) {
+      int lambdaSecurityParameter, Network network, Random rand) {
     super();
     this.myId = myId;
     this.partyIds = partyIds;
@@ -34,22 +33,21 @@ public class MascotContext {
     this.kBitLength = kBitLength;
     this.lambdaSecurityParam = lambdaSecurityParameter;
     this.network = network;
-    this.executor = executor;
     this.rand = rand;
   }
 
   public static MascotContext defaultContext(Integer myId, List<Integer> partyIds) {
     ExecutorService executor = Executors.newCachedThreadPool();
     Network network = new KryoNetNetwork(defaultNetworkConfiguration(myId, partyIds));
-//    BigInteger modulus = new BigInteger("340282366920938463463374607431768211297");
+    // BigInteger modulus = new BigInteger("340282366920938463463374607431768211297");
     BigInteger modulus = new BigInteger("65521");
-//    int modBitLength = 128;
+    // int modBitLength = 128;
     int modBitLength = 16;
-//    int lambdaSecurityParam = 128;
+    // int lambdaSecurityParam = 128;
     int lambdaSecurityParam = 16;
     Random rand = new Random(myId);
     return new MascotContext(myId, partyIds, modulus, modBitLength, lambdaSecurityParam, network,
-        executor, rand);
+        rand);
   }
 
   public Integer getMyId() {
@@ -98,14 +96,6 @@ public class MascotContext {
 
   public void setNetwork(Network network) {
     this.network = network;
-  }
-
-  public ExecutorService getExecutor() {
-    return executor;
-  }
-
-  public void setExecutor(ExecutorService executor) {
-    this.executor = executor;
   }
 
   public Random getRand() {
