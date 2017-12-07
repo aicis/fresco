@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
@@ -37,7 +35,6 @@ public class MascotContext {
   }
 
   public static MascotContext defaultContext(Integer myId, List<Integer> partyIds) {
-    ExecutorService executor = Executors.newCachedThreadPool();
     Network network = new KryoNetNetwork(defaultNetworkConfiguration(myId, partyIds));
     // BigInteger modulus = new BigInteger("340282366920938463463374607431768211297");
     BigInteger modulus = new BigInteger("65521");

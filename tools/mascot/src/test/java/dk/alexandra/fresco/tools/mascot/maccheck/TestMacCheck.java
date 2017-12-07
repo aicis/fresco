@@ -2,17 +2,17 @@ package dk.alexandra.fresco.tools.mascot.maccheck;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.Callable;
+
+import org.junit.Test;
+
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import org.junit.Test;
 
 public class TestMacCheck extends NetworkedTest {
 
@@ -31,97 +31,138 @@ public class TestMacCheck extends NetworkedTest {
     return new Pair<>(thrown, exception);
   }
 
-  @Test
-  public void testTwoPartiesValidMacCheck() throws Exception {
-    try {
-      // define parties
-      List<Integer> partyIds = Arrays.asList(1, 2);
-      // set up runtime environment and get contexts
-      Map<Integer, MascotContext> contexts = testRuntime.initializeContexts(partyIds);
+  public void maliciousPartyOne(FieldElement opened, FieldElement macKeyShare,
+      FieldElement macShare) {
+    // two parties run this
+    initContexts(Arrays.asList(1, 2));
 
-      MascotContext partyOneCtx = contexts.get(1);
-      MascotContext partyTwoCtx = contexts.get(2);
+    // the "honest" party inputs consistent values
+    FieldElement openedCorrect = new FieldElement(42, modulus, modBitLength);
+    FieldElement macKeyShareCorrect = new FieldElement(7719, modulus, modBitLength);
+    FieldElement macShareCorrect = new FieldElement(5204, modulus, modBitLength);
 
-      BigInteger modulus = partyOneCtx.getModulus();
-      int modBitLength = partyOneCtx.getkBitLength();
+    // define task each party will run
+    Callable<Pair<Boolean, Exception>> partyOneTask =
+        () -> runSinglePartyMacCheck(contexts.get(1), opened, macKeyShare, macShare);
+    Callable<Pair<Boolean, Exception>> partyTwoTask = () -> runSinglePartyMacCheck(contexts.get(2),
+        openedCorrect, macKeyShareCorrect, macShareCorrect);
 
-      // left party inputs
-      FieldElement macKeyShareOne = new FieldElement(11231, modulus, modBitLength);
-      FieldElement openedOne = new FieldElement(42, modulus, modBitLength);
-      FieldElement macShareOne = new FieldElement(4444, modulus, modBitLength);
+    List<Pair<Boolean, Exception>> results =
+        testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
 
-      // right party inputs
-      FieldElement macKeyShareTwo = new FieldElement(7719, modulus, modBitLength);
-      FieldElement openedTwo = new FieldElement(42, modulus, modBitLength);
-      FieldElement macShareTwo = new FieldElement(5204, modulus, modBitLength);
+    for (Pair<Boolean, Exception> res : results) {
+      boolean didThrow = res.getFirst();
+      Exception exception = res.getSecond();
+      assertEquals(didThrow, true);
+      assertEquals(exception.getClass(), MaliciousException.class);
+      assertEquals(exception.getMessage(), "Malicious mac forging detected");
+    }
+  }
 
-      // define task each party will run
-      Callable<Pair<Boolean, Exception>> partyOneTask =
-          () -> runSinglePartyMacCheck(partyOneCtx, openedOne, macKeyShareOne, macShareOne);
-      Callable<Pair<Boolean, Exception>> partyTwoTask =
-          () -> runSinglePartyMacCheck(partyTwoCtx, openedTwo, macKeyShareTwo, macShareTwo);
+  public void maliciousPartyTwo(FieldElement opened, FieldElement macKeyShare,
+      FieldElement macShare) {
+    // two parties run this
+    initContexts(Arrays.asList(1, 2));
 
-      List<Pair<Boolean, Exception>> results =
-          testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
+    // the "honest" party inputs consistent values
+    FieldElement openedCorrect = new FieldElement(42, modulus, modBitLength);
+    FieldElement macKeyShareCorrect = new FieldElement(11231, modulus, modBitLength);
+    FieldElement macShareCorrect = new FieldElement(4444, modulus, modBitLength);
 
-      // the above mac check fails since 4444 + 5204 = (11231 + 7719) * 42
-      for (Pair<Boolean, Exception> res : results) {
-        assertEquals(res.getFirst(), false);
-      }
-    } catch (Exception e) {
-      // TODO: handle exception
-      e.printStackTrace();
-      throw new Exception("test failed");
+    // define task each party will run
+    Callable<Pair<Boolean, Exception>> partyOneTask = () -> runSinglePartyMacCheck(contexts.get(1),
+        openedCorrect, macKeyShareCorrect, macShareCorrect);
+    Callable<Pair<Boolean, Exception>> partyTwoTask =
+        () -> runSinglePartyMacCheck(contexts.get(2), opened, macKeyShare, macShare);
+
+    List<Pair<Boolean, Exception>> results =
+        testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
+
+    for (Pair<Boolean, Exception> res : results) {
+      boolean didThrow = res.getFirst();
+      Exception exception = res.getSecond();
+      assertEquals(didThrow, true);
+      assertEquals(exception.getClass(), MaliciousException.class);
+      assertEquals(exception.getMessage(), "Malicious mac forging detected");
     }
   }
 
   @Test
-  public void testTwoPartiesInvalidMacCheck() throws Exception {
-    try {
-      // define parties
-      List<Integer> partyIds = Arrays.asList(1, 2);
-      // set up runtime environment and get contexts
-      Map<Integer, MascotContext> contexts = testRuntime.initializeContexts(partyIds);
+  public void testTwoPartiesValidMacCheck() {
+    // two parties run this
+    initContexts(Arrays.asList(1, 2));
 
-      MascotContext partyOneCtx = contexts.get(1);
-      MascotContext partyTwoCtx = contexts.get(2);
+    // left party inputs
+    FieldElement macKeyShareOne = new FieldElement(11231, modulus, modBitLength);
+    FieldElement openedOne = new FieldElement(42, modulus, modBitLength);
+    FieldElement macShareOne = new FieldElement(4444, modulus, modBitLength);
 
-      BigInteger modulus = partyOneCtx.getModulus();
-      int modBitLength = partyOneCtx.getkBitLength();
+    // right party inputs
+    FieldElement macKeyShareTwo = new FieldElement(7719, modulus, modBitLength);
+    FieldElement openedTwo = new FieldElement(42, modulus, modBitLength);
+    FieldElement macShareTwo = new FieldElement(5204, modulus, modBitLength);
 
-      // left party inputs
-      FieldElement macKeyShareOne = new FieldElement(11231, modulus, modBitLength);
-      FieldElement openedOne = new FieldElement(42, modulus, modBitLength);
-      FieldElement macShareOne = new FieldElement(4442, modulus, modBitLength);
+    // define task each party will run
+    Callable<Pair<Boolean, Exception>> partyOneTask =
+        () -> runSinglePartyMacCheck(contexts.get(1), openedOne, macKeyShareOne, macShareOne);
+    Callable<Pair<Boolean, Exception>> partyTwoTask =
+        () -> runSinglePartyMacCheck(contexts.get(2), openedTwo, macKeyShareTwo, macShareTwo);
 
-      // right party inputs
-      FieldElement macKeyShareTwo = new FieldElement(7719, modulus, modBitLength);
-      FieldElement openedTwo = new FieldElement(42, modulus, modBitLength);
-      FieldElement macShareTwo = new FieldElement(5204, modulus, modBitLength);
+    List<Pair<Boolean, Exception>> results =
+        testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
 
-
-      // define task each party will run
-      Callable<Pair<Boolean, Exception>> partyOneTask =
-          () -> runSinglePartyMacCheck(partyOneCtx, openedOne, macKeyShareOne, macShareOne);
-      Callable<Pair<Boolean, Exception>> partyTwoTask =
-          () -> runSinglePartyMacCheck(partyTwoCtx, openedTwo, macKeyShareTwo, macShareTwo);
-
-      List<Pair<Boolean, Exception>> results =
-          testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
-
-      // the above mac check fails since 4442 + 5204 != (11231 + 7719) * 42
-      for (Pair<Boolean, Exception> res : results) {
-        boolean didThrow = res.getFirst();
-        Exception exception = res.getSecond();
-        assertEquals(didThrow, true);
-        assertEquals(exception.getClass(), MaliciousException.class);
-        assertEquals(exception.getMessage(), "Malicious mac forging detected");
-      }
-    } catch (Exception e) {
-      // TODO: handle exception
-      e.printStackTrace();
-      throw new Exception("test failed");
+    // the above mac check fails since 4444 + 5204 = (11231 + 7719) * 42
+    for (Pair<Boolean, Exception> res : results) {
+      assertEquals(res.getFirst(), false);
     }
+  }
+
+  @Test
+  public void testPartyOneTampersWithOpened() {
+    FieldElement opened = new FieldElement(41, modulus, modBitLength); // tamper
+    FieldElement macKeyShare = new FieldElement(11231, modulus, modBitLength);
+    FieldElement macShare = new FieldElement(4444, modulus, modBitLength);
+    maliciousPartyOne(opened, macKeyShare, macShare);
+  }
+
+  @Test
+  public void testPartyOneTampersWithMacKeyShare() {
+    FieldElement opened = new FieldElement(42, modulus, modBitLength);
+    FieldElement macKeyShare = new FieldElement(11031, modulus, modBitLength); // tamper
+    FieldElement macShare = new FieldElement(4444, modulus, modBitLength);
+    maliciousPartyOne(opened, macKeyShare, macShare);
+  }
+
+  @Test
+  public void testPartyOneTampersWithMacShare() {
+    FieldElement opened = new FieldElement(42, modulus, modBitLength);
+    FieldElement macKeyShare = new FieldElement(11231, modulus, modBitLength);
+    FieldElement macShare = new FieldElement(4442, modulus, modBitLength); // tamper
+    maliciousPartyOne(opened, macKeyShare, macShare);
+  }
+
+  @Test
+  public void testPartyTwoTampersWithOpened() {
+    FieldElement opened = new FieldElement(41, modulus, modBitLength); // tamper
+    FieldElement macKeyShare = new FieldElement(7719, modulus, modBitLength);
+    FieldElement macShare = new FieldElement(5204, modulus, modBitLength);
+    maliciousPartyTwo(opened, macKeyShare, macShare);
+  }
+
+  @Test
+  public void testPartyTwoTampersWithMacKeyShare() {
+    FieldElement opened = new FieldElement(42, modulus, modBitLength);
+    FieldElement macKeyShare = new FieldElement(77, modulus, modBitLength); // tamper
+    FieldElement macShare = new FieldElement(5204, modulus, modBitLength);
+    maliciousPartyTwo(opened, macKeyShare, macShare);
+  }
+
+  @Test
+  public void testPartyTwoTampersWithMacShare() {
+    FieldElement opened = new FieldElement(42, modulus, modBitLength);
+    FieldElement macKeyShare = new FieldElement(7719, modulus, modBitLength);
+    FieldElement macShare = new FieldElement(4204, modulus, modBitLength); // tamper
+    maliciousPartyTwo(opened, macKeyShare, macShare);
   }
 
 }
