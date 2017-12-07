@@ -15,7 +15,6 @@ import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.compare.CompareTests;
-import dk.alexandra.fresco.lib.math.integer.sqrt.SqrtTests;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePool;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
@@ -32,13 +31,6 @@ public class TestGenericLoggingDecorators {
 
   private final BigInteger mod 
     = new BigInteger("6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
-
-  @Test
-  public void testPerformanceLoggerEnums(){
-    Assert.assertThat(PerformanceLogger.Flag.valueOf("LOG_EVALUATOR"), Is.is(PerformanceLogger.Flag.LOG_EVALUATOR));
-    Assert.assertThat(PerformanceLogger.Flag.valueOf("LOG_NETWORK"), Is.is(PerformanceLogger.Flag.LOG_NETWORK));
-    Assert.assertThat(PerformanceLogger.Flag.valueOf("LOG_NATIVE_BATCH"), Is.is(PerformanceLogger.Flag.LOG_NATIVE_BATCH));
-  }
   
   @SuppressWarnings("unchecked")
   @Test

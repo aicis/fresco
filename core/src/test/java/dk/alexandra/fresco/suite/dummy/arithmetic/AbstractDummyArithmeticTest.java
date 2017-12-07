@@ -17,7 +17,6 @@ import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.EvaluatorLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger;
-import dk.alexandra.fresco.logging.PerformanceLogger.Flag;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -40,7 +39,7 @@ public abstract class AbstractDummyArithmeticTest {
       throws Exception {
     BigInteger mod = new BigInteger(
         "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
-    runTest(f, evalStrategy, noOfParties, mod, null);
+    runTest(f, evalStrategy, noOfParties, mod, false);
   }
 
   /**
@@ -49,7 +48,7 @@ public abstract class AbstractDummyArithmeticTest {
   protected void runTest(
       TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, int noOfParties,
-      BigInteger mod, EnumSet<Flag> performanceLoggerFlags) throws Exception {
+      BigInteger mod, boolean logPerformance) throws Exception {
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * (noOfParties - 1));
@@ -68,15 +67,14 @@ public abstract class AbstractDummyArithmeticTest {
 
       BatchEvaluationStrategy<DummyArithmeticResourcePool> batchEvaluationStrategy =
           evalStrategy.getStrategy();
-      if (performanceLoggerFlags != null && performanceLoggerFlags
-          .contains(Flag.LOG_NATIVE_BATCH)) {
+      if (logPerformance) {
         batchEvaluationStrategy =
             new BatchEvaluationLoggingDecorator<>(batchEvaluationStrategy);
         pls.add((PerformanceLogger) batchEvaluationStrategy);
       }
       ProtocolEvaluator<DummyArithmeticResourcePool, ProtocolBuilderNumeric> evaluator =
           new BatchedProtocolEvaluator<>(batchEvaluationStrategy, ps);
-      if (performanceLoggerFlags != null && performanceLoggerFlags.contains(Flag.LOG_EVALUATOR)) {
+      if (logPerformance) {
         evaluator = new EvaluatorLoggingDecorator<>(evaluator);
         pls.add((PerformanceLogger) evaluator);
       }
@@ -92,8 +90,7 @@ public abstract class AbstractDummyArithmeticTest {
                   noOfParties, drbg, mod),
               () -> {
                 KryoNetNetwork kryoNetwork = new KryoNetNetwork(partyNetConf);
-                if (performanceLoggerFlags != null
-                    && performanceLoggerFlags.contains(Flag.LOG_NETWORK)) {
+                if (logPerformance) {
                   NetworkLoggingDecorator network = new NetworkLoggingDecorator(kryoNetwork);
                   pls.add(network);
                   return network;

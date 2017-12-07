@@ -16,7 +16,6 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.EvaluatorLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
-import dk.alexandra.fresco.logging.PerformanceLogger.Flag;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.Closeable;
 import java.io.IOException;
@@ -24,7 +23,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.cli.CommandLine;
@@ -52,7 +50,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
   private CommandLine cmd;
   private NetworkConfiguration networkConfiguration;
   private Network network;
-  private EnumSet<Flag> flags;
+  private boolean logPerformance;
   private ProtocolSuite<ResourcePoolT, Builder> protocolSuite;
   private ProtocolEvaluator<ResourcePoolT, Builder> evaluator;
   private ResourcePoolT resourcePool;
@@ -204,7 +202,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     }
 
     if (this.cmd.hasOption("l")) {
-      this.flags = Flag.ALL_OPTS;
+      this.logPerformance = true;
     }
 
     logger.info("Player id          : " + myId);
@@ -213,7 +211,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
 
     this.networkConfiguration = new NetworkConfigurationImpl(myId, parties);
     this.network = new KryoNetNetwork(networkConfiguration);
-    if (flags != null) {
+    if (logPerformance) {
       this.network = new NetworkLoggingDecorator(this.network);
     }
   }
@@ -270,7 +268,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
       try {
         BatchEvaluationStrategy<ResourcePoolT> batchEvalStrat = evaluationStrategyFromString(
             this.cmd.getOptionValue("e", EvaluationStrategy.SEQUENTIAL.name()));
-        if (this.flags != null) {
+        if (logPerformance) {
           batchEvalStrat = new BatchEvaluationLoggingDecorator<>(batchEvalStrat);
         }
         int maxBatchSize = getMaxBatchSize();
@@ -289,7 +287,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
       ex.printStackTrace();
     }
 
-    if (flags != null) {
+    if (logPerformance) {
       evaluator = new EvaluatorLoggingDecorator<>(evaluator);
     }
     this.sce = new SecureComputationEngineImpl<>(protocolSuite, evaluator);
