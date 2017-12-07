@@ -121,7 +121,7 @@ public class MacCheck extends MultiPartyProtocol {
     } catch (FailedCommitmentException e) {
       throw new FailedException("redundant rethrow - wil be removed", e);
     } catch (MaliciousCommitmentException e) {
-      throw new MaliciousException("redundant rethrow - wil be removed", e);
+      throw new MaliciousException(e);
     }
 
     // add up all sigmas

@@ -34,7 +34,7 @@ public class MultiplyRight extends MultiplyShared {
     try {
       seeds = rot.send(numRots, modBitLength);
     } catch (MaliciousOtException e) {
-      throw new MaliciousException("rethrown, will be removed with better exception handling", e);
+      throw new MaliciousException(e);
     } catch (FailedOtException e) {
       throw new FailedException("rethrown, will be removed with better exception handling", e);
     }

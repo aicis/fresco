@@ -2,8 +2,9 @@ package dk.alexandra.fresco.framework;
 
 public class MaliciousException extends MPCException {
 
-  public MaliciousException(String message, Exception cause) {
-    super(message, cause);
+  @Deprecated
+  public MaliciousException(Exception cause) {
+    super("redundant rethrow - wil be removed", cause);
   }
 
   public MaliciousException(String message) {
