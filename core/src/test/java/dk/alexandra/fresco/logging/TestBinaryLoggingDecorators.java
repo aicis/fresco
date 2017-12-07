@@ -71,21 +71,14 @@ public class TestBinaryLoggingDecorators {
     for(Integer pId: netConf.keySet()) {
       List<PerformanceLogger> pl = DummyBooleanBuilderFactory.performanceLoggers.get(pId);
 
-      ListLogger testLogger = new ListLogger();
-      pl.get(1).printToLog(testLogger, pId);
-      String expectedOutput = pl.get(1).makeLogString(pId);
       Map<String, Object> loggedValues = pl.get(1).getLoggedValues(pId);
       Assert.assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_GT), Is.is(2));
       Assert.assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_EQ), Is.is(0));
-      Assert.assertThat(testLogger.getData().get(0), Is.is(expectedOutput));
 
       pl.get(1).reset();
-      pl.get(1).printToLog(testLogger, pId);
       loggedValues = pl.get(1).getLoggedValues(pId);
       Assert.assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_GT), Is.is(0));
       Assert.assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_EQ), Is.is(0));
-      String expectedOutputEmpty = pl.get(1).makeLogString(pId);
-      Assert.assertThat(testLogger.getData().get(1), Is.is(expectedOutputEmpty));
     }
   }
   
@@ -132,23 +125,16 @@ public class TestBinaryLoggingDecorators {
     for(Integer pId: netConf.keySet()) {
       List<PerformanceLogger> pl = DummyBooleanBuilderFactory.performanceLoggers.get(pId);
 
-      ListLogger testLogger = new ListLogger();
-      pl.get(0).printToLog(testLogger, pId);
-      String expectedOutput = pl.get(0).makeLogString(pId);
-      Assert.assertThat(testLogger.getData().get(0), Is.is(expectedOutput));
       Map<String, Object> loggedValues = pl.get(0).getLoggedValues(pId);
       Assert.assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_XOR), Is.is(26));
       Assert.assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_AND), Is.is(10));
       Assert.assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_RANDOM), Is.is(0));
       
       pl.get(0).reset();
-      pl.get(0).printToLog(testLogger, pId);
       loggedValues = pl.get(0).getLoggedValues(pId);
       Assert.assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_XOR), Is.is(0));
       Assert.assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_AND), Is.is(0));
       Assert.assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_RANDOM), Is.is(0));
-      String expectedOutputEmpty = pl.get(0).makeLogString(pId);
-      Assert.assertThat(testLogger.getData().get(1), Is.is(expectedOutputEmpty));
     }
   }
 }

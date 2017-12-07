@@ -50,17 +50,15 @@ public class TestGenericLoggingDecorators {
   @Test
   public void testEvaluatorLoggingDecorator() throws Exception {
     TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f
-        = new TestSquareRootStartApplication<>();
+        = new SqrtTests.TestSquareRoot<>();
 
     EvaluationStrategy evalStrategy = EvaluationStrategy.SEQUENTIAL; 
     Map<Integer, NetworkConfiguration> netConf = getNetConf();
     Map<Integer, TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
 
-    Map<Integer, ListLogger> pls = new HashMap<>();
     List<PerformanceLogger> decoratedLoggers = new ArrayList<>();
     for (int playerId : netConf.keySet()) {
-      pls.put(playerId, new ListLogger());
       NetworkConfiguration partyNetConf = netConf.get(playerId);
       
       DummyArithmeticProtocolSuite ps = new DummyArithmeticProtocolSuite(mod, 200);
@@ -85,22 +83,16 @@ public class TestGenericLoggingDecorators {
     }
     TestThreadRunner.run(f, conf);
 
-    for (Integer pId : pls.keySet()) {
+    for (Integer pId : netConf.keySet()) {
       PerformanceLogger performanceLogger = decoratedLoggers.get(0);
-      performanceLogger.printPerformanceLog(pId);
-      performanceLogger.printToLog(pls.get(pId), pId);
-      String expectedOutput = performanceLogger.makeLogString(pId);
-      Assert.assertThat(pls.get(pId).getData().get(0), Is.is(expectedOutput));
 
       Map<String, Object> loggedValues = performanceLogger.getLoggedValues(pId);
       List<Long> runningTimes = (List<Long>)loggedValues.get(EvaluatorLoggingDecorator.SCE_RUNNINGTIMES);
       Assert.assertTrue(runningTimes.get(0) > 0);
     }
-    for (Integer pId : pls.keySet()) {
+    for (Integer pId : netConf.keySet()) {
       PerformanceLogger performanceLogger = decoratedLoggers.get(0);
       performanceLogger.reset();
-      performanceLogger.printToLog(pls.get(pId), pId);
-      Assert.assertThat(pls.get(pId).getData().get(1), Is.is(performanceLogger.makeLogString(pId)));
       Map<String, Object> loggedValues = performanceLogger.getLoggedValues(pId);
       List<Long> runningTimes = (List<Long>)loggedValues.get(EvaluatorLoggingDecorator.SCE_RUNNINGTIMES);
       Assert.assertTrue(runningTimes.size() == 0);
@@ -119,10 +111,8 @@ public class TestGenericLoggingDecorators {
     Map<Integer, TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
 
-    Map<Integer, ListLogger> pls = new HashMap<>();
     List<PerformanceLogger> decoratedLoggers = new ArrayList<>();
     for (int playerId : netConf.keySet()) {
-      pls.put(playerId, new ListLogger());
       NetworkConfiguration partyNetConf = netConf.get(playerId);
       
       DummyArithmeticProtocolSuite ps = new DummyArithmeticProtocolSuite(mod, 200);
@@ -146,11 +136,8 @@ public class TestGenericLoggingDecorators {
     }
     TestThreadRunner.run(f, conf);
 
-    for (Integer pId : pls.keySet()) {
+    for (Integer pId : netConf.keySet()) {
       PerformanceLogger performanceLogger = decoratedLoggers.get(0);
-      performanceLogger.printToLog(pls.get(pId), pId);
-      String expectedOutput = performanceLogger.makeLogString(pId);
-      Assert.assertThat(pls.get(pId).getData().get(0), Is.is(expectedOutput));
 
       Map<String, Object> loggedValues = performanceLogger.getLoggedValues(pId);
       Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), Is.is((long)396));
@@ -159,11 +146,10 @@ public class TestGenericLoggingDecorators {
       Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_MIN_BYTES), Is.is(66));
       Assert.assertThat(((Map<Integer, Integer>)loggedValues.get(NetworkLoggingDecorator.NETWORK_PARTY_BYTES)).get(1), Is.is(396));
     }
-    for (Integer pId : pls.keySet()) {
+    for (Integer pId : netConf.keySet()) {
       PerformanceLogger performanceLogger = decoratedLoggers.get(0);
       performanceLogger.reset();
-      performanceLogger.printToLog(pls.get(pId), pId);
-      Assert.assertThat(pls.get(pId).getData().get(1), Is.is(performanceLogger.makeLogString(pId)));
+
       Map<String, Object> loggedValues = performanceLogger.getLoggedValues(pId);
       Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), Is.is((long)0));
       Assert.assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BATCHES), Is.is(0));
@@ -186,10 +172,8 @@ public class TestGenericLoggingDecorators {
     Map<Integer, TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
 
-    Map<Integer, ListLogger> pls = new HashMap<>();
     List<PerformanceLogger> decoratedLoggers = new ArrayList<>();
     for (int playerId : netConf.keySet()) {
-      pls.put(playerId, new ListLogger());
       NetworkConfiguration partyNetConf = netConf.get(playerId);
       
       DummyArithmeticProtocolSuite ps = new DummyArithmeticProtocolSuite(mod, 200);
@@ -215,23 +199,17 @@ public class TestGenericLoggingDecorators {
     }
     TestThreadRunner.run(f, conf);
 
-    for (Integer pId : pls.keySet()) {
+    for (Integer pId : netConf.keySet()) {
       PerformanceLogger performanceLogger = decoratedLoggers.get(0);
-      performanceLogger.printToLog(pls.get(pId), pId);
-      String expectedOutput = performanceLogger.makeLogString(pId);
-      Assert.assertThat(pls.get(pId).getData().get(0), Is.is(expectedOutput));
-
       Map<String, Object> loggedValues = performanceLogger.getLoggedValues(pId);
       Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_COUNTER), Is.is(3496361));
       Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_NATIVE_PROTOCOLS), Is.is(17275821));
       Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MIN_PROTOCOLS), Is.is(1));
       Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MAX_PROTOCOLS), Is.is(520));
     }
-    for (Integer pId : pls.keySet()) {
+    for (Integer pId : netConf.keySet()) {
       PerformanceLogger performanceLogger = decoratedLoggers.get(0);
       performanceLogger.reset();
-      performanceLogger.printToLog(pls.get(pId), pId);
-      Assert.assertThat(pls.get(pId).getData().get(1), Is.is(performanceLogger.makeLogString(pId)));
       Map<String, Object> loggedValues = performanceLogger.getLoggedValues(pId);
       Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_COUNTER), Is.is(0));
       Assert.assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_NATIVE_PROTOCOLS), Is.is(0));
@@ -248,54 +226,4 @@ public class TestGenericLoggingDecorators {
     }
     return TestConfiguration.getNetworkConfigurations(noOfParties, ports);
   }
-  
-  
-  public static class TestSquareRootStartApplication<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
-
-    @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      
-      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-
-        private final int maxBitLength = 32;
-        private final BigInteger[] x = new BigInteger[] {BigInteger.valueOf(1234),
-            BigInteger.valueOf(12345), BigInteger.valueOf(123456), BigInteger.valueOf(1234567),
-            BigInteger.valueOf(12345678), BigInteger.valueOf(123456789)};
-        private final int n = x.length;
-
-        @Override
-        protected <OutputT> OutputT runApplication(Application<OutputT, ProtocolBuilderNumeric> app) {
-          try {
-            return conf.sce.startApplication(app, conf.getResourcePool(), conf.getNetwork()).get();
-          } catch (Exception e) {
-            e.printStackTrace();
-          }
-          return null;
-        }
-
-        @Override
-        public void test() throws Exception {
-          Application<List<BigInteger>, ProtocolBuilderNumeric> app = builder -> {
-            Numeric numBuilder = builder.numeric();
-
-            List<DRes<BigInteger>> results = new ArrayList<>(n);
-
-            for (BigInteger input : x) {
-              DRes<SInt> actualInput = numBuilder.input(input, 1);
-              DRes<SInt> result = builder.advancedNumeric().sqrt(actualInput, maxBitLength);
-              DRes<BigInteger> openResult = builder.numeric().open(result);
-              results.add(openResult);
-            }
-            return () -> results.stream().map(DRes::out).collect(Collectors.toList());
-          };
-
-          List<BigInteger> results = runApplication(app);
-          Assert.assertEquals(n, results.size());
-          // We are not really interested in the result, only the running time
-        }
-      };
-    }
-  }
-
 }

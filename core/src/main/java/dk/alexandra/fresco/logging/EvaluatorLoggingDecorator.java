@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
 
 public class EvaluatorLoggingDecorator<
     ResourcePoolT extends ResourcePool,
@@ -25,11 +24,6 @@ public class EvaluatorLoggingDecorator<
   
   public EvaluatorLoggingDecorator(ProtocolEvaluator<ResourcePoolT, Builder> delegate) {
     this.delegate = delegate;
-  }
-  
-  @Override
-  public void printToLog(Logger log, int myId) {
-    log.info(makeLogString(myId));
   }
 
   @Override

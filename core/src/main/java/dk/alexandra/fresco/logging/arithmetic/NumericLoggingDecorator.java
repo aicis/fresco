@@ -7,7 +7,6 @@ import dk.alexandra.fresco.logging.PerformanceLogger;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
-import org.slf4j.Logger;
 
 public class NumericLoggingDecorator implements Numeric, PerformanceLogger {
 
@@ -97,11 +96,6 @@ public class NumericLoggingDecorator implements Numeric, PerformanceLogger {
   @Override
   public DRes<BigInteger> open(DRes<SInt> secretShare, int outputParty) {
     return this.delegate.open(secretShare, outputParty);
-  }
-
-  @Override
-  public void printToLog(Logger log, int myId) {
-    log.info(makeLogString(myId));
   }
 
   @Override

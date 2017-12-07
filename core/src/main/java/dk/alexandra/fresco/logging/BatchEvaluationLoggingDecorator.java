@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.sce.evaluator.NetworkBatchDecorator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.util.HashMap;
 import java.util.Map;
-import org.slf4j.Logger;
 
 public class BatchEvaluationLoggingDecorator<ResourcePoolT extends ResourcePool>
     implements BatchEvaluationStrategy<ResourcePoolT>, PerformanceLogger {
@@ -42,11 +41,6 @@ public class BatchEvaluationLoggingDecorator<ResourcePoolT extends ResourcePool>
       maxNoNativeProtocolsPerBatch = size;
     }
     delegate.processBatch(protocols, resourcePool, network);
-  }
-
-  @Override
-  public void printToLog(Logger log, int myId) {
-    log.info(makeLogString(myId));
   }
 
   @Override

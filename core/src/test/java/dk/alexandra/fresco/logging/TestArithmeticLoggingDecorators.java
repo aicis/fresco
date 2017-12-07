@@ -76,27 +76,20 @@ public class TestArithmeticLoggingDecorators {
     for(Integer pId: netConf.keySet()) {
       List<PerformanceLogger> pl = DummyArithmeticBuilderFactory.performanceLoggers.get(pId);
       
-      ListLogger testLogger = new ListLogger();
-      pl.get(0).printToLog(testLogger, pId);
-      String expectedOutput = pl.get(0).makeLogString(pId);
       Map<String, Object> loggedValues = pl.get(0).getLoggedValues(pId);
       Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_ADD), Is.is((long)5719386));
       Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_MULT), Is.is((long)15996));
       Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_SUB), Is.is((long)46416));
       Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_BIT), Is.is((long)5669220));
       Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_RAND), Is.is((long)960));
-      Assert.assertThat(testLogger.getData().get(0), Is.is(expectedOutput));
       
       pl.get(0).reset();
-      pl.get(0).printToLog(testLogger, pId);
       loggedValues = pl.get(0).getLoggedValues(pId);
       Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_ADD), Is.is((long)0));
       Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_MULT), Is.is((long)0));
       Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_SUB), Is.is((long)0));
       Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_BIT), Is.is((long)0));
       Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_RAND), Is.is((long)0));
-      String expectedOutputEmpty = pl.get(0).makeLogString(pId);
-      Assert.assertThat(testLogger.getData().get(1), Is.is(expectedOutputEmpty));
     }
   }
   
@@ -145,27 +138,18 @@ public class TestArithmeticLoggingDecorators {
     for(Integer pId: netConf.keySet()) {
       List<PerformanceLogger> pl = DummyArithmeticBuilderFactory.performanceLoggers.get(pId);
     
-      ListLogger testLogger = new ListLogger();
-
-      pl.get(1).printToLog(testLogger, pId);
-      String expectedOutput = pl.get(1).makeLogString(pId);
       Map<String, Object> loggedValues = pl.get(1).getLoggedValues(pId);
       Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_EQ), Is.is((long)0));
       Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_LEQ), Is.is((long)0));
       Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_SIGN), Is.is((long)60));
       Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_COMP0), Is.is((long)480));
-      Assert.assertThat(testLogger.getData().get(0), Is.is(expectedOutput));
       
       pl.get(1).reset();
-      pl.get(1).printToLog(testLogger, pId);
       loggedValues = pl.get(1).getLoggedValues(pId);
       Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_EQ), Is.is((long)0));
       Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_LEQ), Is.is((long)0));
       Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_SIGN), Is.is((long)0));
       Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_COMP0), Is.is((long)0));
-      String expectedOutputEmpty = pl.get(1).makeLogString(pId);
-      Assert.assertThat(testLogger.getData().get(1), Is.is(expectedOutputEmpty));
-      
     }
   }
 }

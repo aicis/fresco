@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.logging.PerformanceLogger;
 import java.util.HashMap;
 import java.util.Map;
-import org.slf4j.Logger;
 
 public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger {
 
@@ -61,11 +60,6 @@ public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger 
   public DRes<SInt> compareZero(DRes<SInt> x, int bitLength) {
     comp0Count++;
     return this.delegate.compareZero(x, bitLength);
-  }
-
-  @Override
-  public void printToLog(Logger log, int myId) {
-    log.info(makeLogString(myId));
   }
 
   @Override

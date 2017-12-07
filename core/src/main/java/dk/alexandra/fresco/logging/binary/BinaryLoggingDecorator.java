@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.logging.PerformanceLogger;
 import java.util.HashMap;
 import java.util.Map;
-import org.slf4j.Logger;
 
 public class BinaryLoggingDecorator implements PerformanceLogger, Binary {
 
@@ -64,11 +63,6 @@ public class BinaryLoggingDecorator implements PerformanceLogger, Binary {
   @Override
   public DRes<SBool> not(DRes<SBool> in) {
     return this.delegate.not(in);
-  }
-
-  @Override
-  public void printToLog(Logger log, int myId) {
-    log.info(makeLogString(myId));
   }
 
   @Override

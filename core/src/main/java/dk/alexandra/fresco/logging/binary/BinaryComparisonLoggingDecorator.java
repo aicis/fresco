@@ -7,7 +7,6 @@ import dk.alexandra.fresco.logging.PerformanceLogger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
 
 public class BinaryComparisonLoggingDecorator implements PerformanceLogger, Comparison {
 
@@ -33,11 +32,6 @@ public class BinaryComparisonLoggingDecorator implements PerformanceLogger, Comp
   public DRes<SBool> equal(List<DRes<SBool>> inLeft, List<DRes<SBool>> inRight) {
     this.eqCount++;
     return this.delegate.equal(inLeft, inRight);
-  }
-
-  @Override
-  public void printToLog(Logger log, int myId) {
-    log.info(makeLogString(myId));
   }
 
   @Override

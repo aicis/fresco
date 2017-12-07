@@ -5,7 +5,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.slf4j.Logger;
 
 public class NetworkLoggingDecorator implements Network, PerformanceLogger, Closeable {
 
@@ -43,11 +42,6 @@ public class NetworkLoggingDecorator implements Network, PerformanceLogger, Clos
   @Override
   public void send(int partyId, byte[] data) {
     this.delegate.send(partyId, data);
-  }
-   
-  @Override
-  public void printToLog(Logger log, int myId) {
-    log.info(makeLogString(myId));
   }
 
   @Override
