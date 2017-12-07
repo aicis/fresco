@@ -29,7 +29,7 @@ public class SecureComputationEngineImpl
     implements SecureComputationEngine<ResourcePoolT, BuilderT> {
 
   private ProtocolEvaluator<ResourcePoolT, BuilderT> evaluator;
-  public ExecutorService executorService;
+  private ExecutorService executorService;
   private boolean setup;
   private ProtocolSuite<ResourcePoolT, BuilderT> protocolSuite;
   private static final AtomicInteger threadCounter = new AtomicInteger(1);
