@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 
 public class TestFieldElementCollectionUtils {
@@ -14,11 +15,13 @@ public class TestFieldElementCollectionUtils {
   static final BigInteger modulus = new BigInteger("65521");
   static final int modBitLength = 16;
   static final int[] leftArr = {1, 2, 3, 4};
-  static final List<FieldElement> left = MascotTestUtils.generateSingleRow(leftArr, modulus, modBitLength);
+  static final List<FieldElement> left =
+      MascotTestUtils.generateSingleRow(leftArr, modulus, modBitLength);
   static final int[] rightArr = {5, 6, 7, 8};
-  static final List<FieldElement> right = MascotTestUtils.generateSingleRow(rightArr, modulus, modBitLength);
+  static final List<FieldElement> right =
+      MascotTestUtils.generateSingleRow(rightArr, modulus, modBitLength);
 
-  
+
   @Test
   public void testPairWiseMultiply() {
     int[] expectedArr = {5, 12, 21, 32};
@@ -52,19 +55,21 @@ public class TestFieldElementCollectionUtils {
     FieldElement actual = FieldElementCollectionUtils.recombine(left, missingMod, missingLength);
     assertEquals(new FieldElement(49, missingMod, missingLength), actual);
   }
-  
+
   @Test
   public void testStretch() {
     int[] expectedArr = {1, 1, 2, 2, 3, 3, 4, 4};
-    List<FieldElement> expected = MascotTestUtils.generateSingleRow(expectedArr, modulus, modBitLength);
+    List<FieldElement> expected =
+        MascotTestUtils.generateSingleRow(expectedArr, modulus, modBitLength);
     List<FieldElement> actual = FieldElementCollectionUtils.stretch(left, 2);
     assertEquals(expected, actual);
   }
-  
+
   @Test
   public void testPadWith() {
     int[] expectedArr = {1, 2, 3, 4, 0, 0};
-    List<FieldElement> expected = MascotTestUtils.generateSingleRow(expectedArr, modulus, modBitLength);
+    List<FieldElement> expected =
+        MascotTestUtils.generateSingleRow(expectedArr, modulus, modBitLength);
     FieldElement pad = new FieldElement(0, modulus, modBitLength);
     List<FieldElement> actual = FieldElementCollectionUtils.padWith(left, pad, 2);
     assertEquals(expected, actual);
@@ -99,6 +104,14 @@ public class TestFieldElementCollectionUtils {
       thrown = true;
     }
     assertEquals(thrown, true);
+  }
+
+  @Test
+  public void testPack() {
+    StrictBitVector actual = FieldElementCollectionUtils.pack(left);
+    byte[] expectedBytes = {0x00, 0x04, 0x00, 0x03, 0x00, 0x02, 0x00, 0x01};
+    StrictBitVector expected = new StrictBitVector(expectedBytes, modBitLength * left.size());
+    assertEquals(expected, actual);
   }
 
 }

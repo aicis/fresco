@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
 
 public class FieldElementCollectionUtils {
@@ -115,6 +116,19 @@ public class FieldElementCollectionUtils {
     List<FieldElement> copy = new ArrayList<>(elements);
     copy.addAll(Collections.nCopies(numPads, padElement));
     return copy;
+  }
+
+  /**
+   * Converts field elements to bit vectors and concatenates the result.
+   * 
+   * @param elements field elements to pack
+   * @return
+   */
+  public static StrictBitVector pack(List<FieldElement> elements) {
+    StrictBitVector[] bitVecs = elements.stream()
+        .map(fe -> fe.toBitVector())
+        .toArray(size -> new StrictBitVector[size]);
+    return StrictBitVector.concat(true, bitVecs);
   }
 
 }

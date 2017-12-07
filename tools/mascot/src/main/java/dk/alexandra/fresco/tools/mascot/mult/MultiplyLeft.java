@@ -27,19 +27,6 @@ public class MultiplyLeft extends MultiplyShared {
   }
 
   /**
-   * Converts field elements to bit vectors and concatenates the result.
-   * 
-   * @param elements field elements to pack
-   * @return
-   */
-  private StrictBitVector pack(List<FieldElement> elements) {
-    StrictBitVector[] bitVecs = elements.stream()
-        .map(fe -> fe.toBitVector())
-        .toArray(size -> new StrictBitVector[size]);
-    return StrictBitVector.concat(true, bitVecs);
-  }
-
-  /**
    * Uses left factors as choice bits to receive seeds to prgs.
    * 
    * @param leftFactors
@@ -49,7 +36,7 @@ public class MultiplyLeft extends MultiplyShared {
    */
   public List<StrictBitVector> generateSeeds(List<FieldElement> leftFactors)
       throws MaliciousMultException, FailedMultException {
-    StrictBitVector packedFactors = pack(leftFactors);
+    StrictBitVector packedFactors = FieldElementCollectionUtils.pack(leftFactors);
     // use rot to get choice seeds
     List<StrictBitVector> seeds = new ArrayList<>();
     try {

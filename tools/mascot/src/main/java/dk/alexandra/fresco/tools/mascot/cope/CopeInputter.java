@@ -66,7 +66,6 @@ public class CopeInputter extends CopeShared {
 
   List<Pair<FieldElement, FieldElement>> generateMaskPairs(int numInputs) {
     // for each input pair, we use our prf to get the next set of masks
-    // each input requires a counter increment
     List<Pair<FieldElement, FieldElement>> maskPairs = new ArrayList<>();
     for (int i = 0; i < numInputs; i++) {
       // generate masks for single input
