@@ -1,5 +1,11 @@
 package dk.alexandra.fresco.tools.mascot.maccheck;
 
+import java.io.IOException;
+import java.io.Serializable;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
+
 import dk.alexandra.fresco.framework.FailedException;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
@@ -10,11 +16,6 @@ import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import java.io.IOException;
-import java.io.Serializable;
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MacCheck extends MultiPartyProtocol {
 
