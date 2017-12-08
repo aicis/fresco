@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.framework.sce;
 
 import dk.alexandra.fresco.framework.Application;
+import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -22,10 +23,11 @@ public interface SecureComputationEngine<ResourcePoolT extends ResourcePool, Bui
    *
    * @param application The application to evaluate.
    * @param network the network to run the computations on
+   * @throws MaliciousException if a party has acted in a manner that appears malicious
    */
   <OutputT> OutputT runApplication(
       Application<OutputT, Builder> application,
-      ResourcePoolT resources, Network network);
+      ResourcePoolT resources, Network network) throws MaliciousException;
 
   /**
    * Executes an application based on the current SCEConfiguration. If the SecureComputationEngine
@@ -37,7 +39,7 @@ public interface SecureComputationEngine<ResourcePoolT extends ResourcePool, Bui
    *
    * @param application The application to evaluate.
    * @param network the network to run the computations on
-   * @return the future holding the result
+   * @return the future holding the result, they may throw a MaliciousException
    */
   <OutputT> Future<OutputT> startApplication(
       Application<OutputT, Builder> application,
