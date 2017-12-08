@@ -2,13 +2,17 @@ package dk.alexandra.fresco.framework.util;
 
 import java.security.GeneralSecurityException;
 import javax.crypto.Cipher;
+import javax.crypto.ShortBufferException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+/**
+ * Implementation of a DRBG using AES in counter mode.
+ */
 public class AesCtrDrbg implements Drbg {
 
-  private final Cipher cipher;
-  private static final long RESEED_LIMIT = 1L << 45;
+  private Cipher cipher;
+  private static final long RESEED_LIMIT = 1L << 48;
   private static final int UPDATE_LIMIT = 1 << 16;
   private int generatedBytes;
   private int reseedCounter;
@@ -16,61 +20,107 @@ public class AesCtrDrbg implements Drbg {
   /**
    * Creates a new DRBG based on AES in counter mode.
    *
-   * @param seed the seed for the DRBG. This must be a valid AES-128 key (i.e., must be 16 bytes
+   * @param seed the seed for the DRBG. This must be a valid AES-128 key (i.e., must be 32 bytes
    *        long)
+   * @throws IllegelArgumentException if seed is not of the correct length (32 bytes)
    */
-  public AesCtrDrbg(byte[] seed) throws GeneralSecurityException {
+  public AesCtrDrbg(byte[] seed) {
     if (seed.length != 32) {
-      throw new RuntimeException(
+      throw new IllegalArgumentException(
           "Seed must be exactly 32 bytes, but the given seed is " + seed.length + " bytes long");
-    }    
-    this.cipher = Cipher.getInstance("AES/CTR/NoPadding");
-    SecretKeySpec spec = new SecretKeySpec(seed, 0, 16, "AES");
-    IvParameterSpec iv = new IvParameterSpec(seed, 16, seed.length);
-    this.cipher.init(Cipher.ENCRYPT_MODE, spec, iv);
+    }
+    byte[] key = new byte[16];
+    byte[] iv = new byte[16];
+    System.arraycopy(seed, 0, key, 0, 16);
+    System.arraycopy(seed, 16, iv, 0, 16);
+    this.cipher = initCipher(key, iv);
     reseedCounter = 0;
     generatedBytes = 0;
   }
 
   @Override
   public void nextBytes(byte[] bytes) {
-    nextBytes(bytes, 0);
+    if (bytes.length <= UPDATE_LIMIT) {
+      nextBytesBounded(new byte[bytes.length], bytes);
+    } else {
+      int offset = 0;
+      byte[] temp = new byte[UPDATE_LIMIT];
+      byte[] zeroes = new byte[temp.length];
+      while (bytes.length - offset > UPDATE_LIMIT) {
+        nextBytesBounded(zeroes, temp);
+        System.arraycopy(temp, 0, bytes, offset, temp.length);
+        offset += UPDATE_LIMIT;
+      }
+      temp = new byte[bytes.length - offset];
+      zeroes = new byte[bytes.length - offset];
+      nextBytesBounded(zeroes, temp);
+      System.arraycopy(temp, 0, bytes, offset, temp.length);
+    }
   }
 
-  private void nextBytes(byte[] bytes, int offset) {
-    int length = bytes.length - offset;
-    length = length > UPDATE_LIMIT ? UPDATE_LIMIT : length;
-    if (generatedBytes + length > UPDATE_LIMIT) {
+  /**
+   * Generates enough pseudo-random bytes to fill a given array.
+   * <p>
+   * Note: this method is unsafe the sense that it expects two array of equal size at most
+   * {@Value UPDATE_LIMIT} and does not check for this.
+   * </p>
+   *
+   * @param zeroes an array of zero bytes of length equal to output array.
+   * @param output an array of size at most {@Value UPDATE_LIMIT} which will be filled with pseudo
+   *        random bytes.
+   */
+  void nextBytesBounded(byte[] zeroes, byte[] output) {
+    if (generatedBytes + output.length > UPDATE_LIMIT) {
       update();
     }
     try {
-      this.cipher.update(new byte[bytes.length], offset, length, bytes);
-      generatedBytes += length;
-      offset += length;
-    } catch (GeneralSecurityException e) {
-      throw new RuntimeException("Exception generating bits", e);
+      this.cipher.update(zeroes, 0, zeroes.length, output);
+    } catch (ShortBufferException e) {
+      throw new IllegalArgumentException("Exception generating bits", e);
     }
-    if (offset == bytes.length) {
-      nextBytes(bytes, offset);
+    generatedBytes += output.length;
+  }
+
+  /**
+   * Initializes an AES cipher with a given key and iv.
+   *
+   * @param key the key
+   * @param iv the iv
+   * @param c the cipher
+   */
+  Cipher initCipher(byte[] key, byte[] iv) {
+    SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
+    IvParameterSpec ivSpec = new IvParameterSpec(iv);
+    try {
+      Cipher c = Cipher.getInstance("AES/CTR/NoPadding");
+      c.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
+      return c;
+    } catch (GeneralSecurityException e) {
+      throw new IllegalArgumentException("Exception initilizing cipher", e);
     }
   }
 
+  /**
+   * Increment the reseed counter of this DRBG.
+   */
+  void incrementReseedCounter(long increment) {
+    if (increment < 0) {
+      throw new IllegalArgumentException("Negative increment.");
+    }
+    if (reseedCounter + increment > RESEED_LIMIT) {
+      throw new IllegalStateException(
+          "Exceeded limit on generation requests. " + "A DRBG with a fresh seed should be used.");
+    }
+    reseedCounter += increment;
+  }
+
   private void update() {
+    incrementReseedCounter(1);
+    generatedBytes = 0;
     byte[] key = new byte[16];
     byte[] iv = new byte[16];
-    reseedCounter++;
-    if (reseedCounter > RESEED_LIMIT) {
-      throw new RuntimeException("Exceeded ");
-    }
-    try {
-      this.cipher.update(iv, 0, iv.length, iv);
-      this.cipher.update(key, 0, key.length, key);
-      SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
-      IvParameterSpec ivSpec = new IvParameterSpec(iv);
-      this.cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
-    } catch (GeneralSecurityException e) {
-      throw new RuntimeException("Exception updating state", e);
-    }
-    generatedBytes = 0;
+    nextBytes(iv);
+    nextBytes(key);
+    this.cipher = initCipher(key, iv);
   }
 }
