@@ -17,12 +17,12 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
+import dk.alexandra.fresco.logging.DefaultPerformancePrinter;
+import dk.alexandra.fresco.logging.EvaluatorLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger;
-import dk.alexandra.fresco.logging.PerformanceLogger.Flag;
-import dk.alexandra.fresco.logging.SecureComputationEngineLoggingDecorator;
+import dk.alexandra.fresco.logging.PerformancePrinter;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,22 +36,22 @@ public abstract class AbstractDummyBooleanTest {
   protected void runTest(
       TestThreadRunner.TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f,
       EvaluationStrategy evalStrategy) throws Exception {
-    runTest(f, evalStrategy, null);
+    runTest(f, evalStrategy, false);
   }
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f,
-      EvaluationStrategy evalStrategy, EnumSet<Flag> performanceFlags) throws Exception {
+      EvaluationStrategy evalStrategy, boolean logPerformance) throws Exception {
 
     // The dummy protocol suite has the nice property that it can be run by just one player.
     int noOfParties = 1;
-    runTest(f, evalStrategy, performanceFlags, noOfParties);
+    runTest(f, evalStrategy, logPerformance, noOfParties);
 
   }
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f,
-      EvaluationStrategy evalStrategy, EnumSet<Flag> performanceFlags, int noOfParties)
+      EvaluationStrategy evalStrategy, boolean logPerformance, int noOfParties)
           throws Exception {
 
     List<Integer> ports = new ArrayList<>(noOfParties);
@@ -71,19 +71,22 @@ public abstract class AbstractDummyBooleanTest {
       DummyBooleanProtocolSuite ps = new DummyBooleanProtocolSuite();
 
       BatchEvaluationStrategy<ResourcePoolImpl> strat = evalStrategy.getStrategy();
-      if (performanceFlags != null && performanceFlags.contains(Flag.LOG_NATIVE_BATCH)) {
+      if (logPerformance) {
         strat = new BatchEvaluationLoggingDecorator<>(strat);
         pls.get(playerId).add((PerformanceLogger) strat);
       }
+      
       ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
           new BatchedProtocolEvaluator<>(strat, ps);
-
+      if (logPerformance) {
+        evaluator = new EvaluatorLoggingDecorator<>(evaluator);
+        pls.get(playerId).add((PerformanceLogger) evaluator);
+      }
+      
       SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce =
           new SecureComputationEngineImpl<>(ps, evaluator);
-      if (performanceFlags != null && performanceFlags.contains(Flag.LOG_RUNTIME)) {
-        sce = new SecureComputationEngineLoggingDecorator<>(sce, ps);
-        pls.get(playerId).add((PerformanceLogger) sce);
-      }
+
+       
 
       Drbg drbg = new HmacDrbg();
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
@@ -91,7 +94,7 @@ public abstract class AbstractDummyBooleanTest {
               () -> new ResourcePoolImpl(playerId, noOfParties, drbg), () -> {
             Network network;
             KryoNetNetwork kryoNetwork = new KryoNetNetwork(partyNetConf);
-            if (performanceFlags != null && performanceFlags.contains(Flag.LOG_NETWORK)) {
+            if (logPerformance) {
               network = new NetworkLoggingDecorator(kryoNetwork);
               pls.get(playerId).add((PerformanceLogger) network);
             } else {
@@ -103,8 +106,9 @@ public abstract class AbstractDummyBooleanTest {
     }
     TestThreadRunner.run(f, conf);
     for (Integer id : pls.keySet()) {
+      PerformancePrinter printer = new DefaultPerformancePrinter();
       for (PerformanceLogger pl : pls.get(id)) {
-        pl.printPerformanceLog(id);
+        printer.printPerformanceLog(pl, id);
         pl.reset();
       }
     }

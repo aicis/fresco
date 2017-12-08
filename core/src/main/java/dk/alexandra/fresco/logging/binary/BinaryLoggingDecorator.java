@@ -4,12 +4,18 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.binary.Binary;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.logging.PerformanceLogger;
+import java.util.HashMap;
+import java.util.Map;
 
 public class BinaryLoggingDecorator implements PerformanceLogger, Binary {
 
-  private int xorCount;
-  private int andCount;
-  private int randBitCount;
+  public static final String ID = "PARTY_ID";
+  public static final String BINARY_BASIC_XOR = "XOR_COUNT";
+  public static final String BINARY_BASIC_AND = "AND_COUNT";
+  public static final String BINARY_BASIC_RANDOM = "RANDOM_BIT_COUNT";
+  private long xorCount;
+  private long andCount;
+  private long randBitCount;
   private Binary delegate;
   
   public BinaryLoggingDecorator(Binary delegate) {
@@ -60,14 +66,6 @@ public class BinaryLoggingDecorator implements PerformanceLogger, Binary {
   }
 
   @Override
-  public void printPerformanceLog(int myId) {
-    log.info("=== Basic binary operations logged - results ===");
-    log.info("Xors: " + this.xorCount);
-    log.info("Ands: "+ this.andCount);
-    log.info("Random bits: " + this.randBitCount);
-  }
-
-  @Override
   public void reset() {
     this.andCount = 0;
     this.xorCount = 0;
@@ -75,6 +73,16 @@ public class BinaryLoggingDecorator implements PerformanceLogger, Binary {
 
   public void setDelegate(Binary binary) {
     this.delegate = binary;
+  }
+
+  @Override
+  public Map<String, Long> getLoggedValues(int myId) {
+    Map<String, Long> values = new HashMap<>();
+    values.put(ID, (long)myId);
+    values.put(BINARY_BASIC_XOR, this.xorCount);
+    values.put(BINARY_BASIC_AND, this.andCount);
+    values.put(BINARY_BASIC_RANDOM, this.randBitCount);
+    return values;
   }
 
 }
