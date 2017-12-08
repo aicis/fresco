@@ -11,6 +11,7 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 
 public class MascotContext {
 
@@ -21,6 +22,7 @@ public class MascotContext {
   int lambdaSecurityParam;
   Network network;
   Random rand;
+  FieldElementSerializer feSerializer;
 
   public MascotContext(Integer myId, List<Integer> partyIds, BigInteger modulus, int kBitLength,
       int lambdaSecurityParameter, Network network, Random rand) {
@@ -32,6 +34,7 @@ public class MascotContext {
     this.lambdaSecurityParam = lambdaSecurityParameter;
     this.network = network;
     this.rand = rand;
+    this.feSerializer = new FieldElementSerializer(modulus, kBitLength);
   }
 
   public static MascotContext defaultContext(Integer myId, List<Integer> partyIds) {
@@ -51,58 +54,34 @@ public class MascotContext {
     return myId;
   }
 
-  public void setMyId(Integer myId) {
-    this.myId = myId;
-  }
-
   public List<Integer> getPartyIds() {
     return partyIds;
-  }
-
-  public void setPartyIds(List<Integer> partyIds) {
-    this.partyIds = partyIds;
   }
 
   public BigInteger getModulus() {
     return modulus;
   }
 
-  public void setModulus(BigInteger modulus) {
-    this.modulus = modulus;
-  }
-
   public int getkBitLength() {
     return kBitLength;
-  }
-
-  public void setkBitLength(int kBitLength) {
-    this.kBitLength = kBitLength;
   }
 
   public int getLambdaSecurityParam() {
     return lambdaSecurityParam;
   }
 
-  public void setLambdaSecurityParam(int lambdaSecurityParam) {
-    this.lambdaSecurityParam = lambdaSecurityParam;
-  }
-
   public Network getNetwork() {
     return network;
-  }
-
-  public void setNetwork(Network network) {
-    this.network = network;
   }
 
   public Random getRand() {
     return rand;
   }
 
-  public void setRand(Random rand) {
-    this.rand = rand;
+  public FieldElementSerializer getFeSerializer() {
+    return feSerializer;
   }
-
+  
   private static NetworkConfiguration defaultNetworkConfiguration(Integer myId,
       List<Integer> partyIds) {
     Map<Integer, Party> parties = new HashMap<>();

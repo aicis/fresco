@@ -1,20 +1,20 @@
 package dk.alexandra.fresco.tools.mascot.mult;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import dk.alexandra.fresco.framework.FailedException;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
-import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.utils.DummyPrg;
 import dk.alexandra.fresco.tools.ot.base.FailedOtException;
 import dk.alexandra.fresco.tools.ot.base.MaliciousOtException;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class MultiplyLeft extends MultiplyShared {
 
@@ -54,7 +54,7 @@ public class MultiplyLeft extends MultiplyShared {
 
   public List<FieldElement> receiveDiffs(int numDiffs) {
     byte[] raw = network.receive(otherId);
-    List<FieldElement> diffs = FieldElementSerializer.deserializeList(raw);
+    List<FieldElement> diffs = feSerializer.deserializeList(raw);
     return diffs;
   }
 
