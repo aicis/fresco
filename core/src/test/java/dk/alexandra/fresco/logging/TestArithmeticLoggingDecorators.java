@@ -1,5 +1,8 @@
 package dk.alexandra.fresco.logging;
 
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -26,8 +29,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.hamcrest.core.Is;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class TestArithmeticLoggingDecorators {
@@ -79,19 +80,19 @@ public class TestArithmeticLoggingDecorators {
       List<PerformanceLogger> pl = DummyArithmeticBuilderFactory.performanceLoggers.get(pId);
       
       Map<String, Long> loggedValues = pl.get(0).getLoggedValues(pId);
-      Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_ADD), Is.is((long)1));
-      Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_MULT), Is.is((long)1));
-      Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_SUB), Is.is((long)1));
-      Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_BIT), Is.is((long)0));
-      Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_RAND), Is.is((long)0));
+      assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_ADD), is((long)1));
+      assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_MULT), is((long)1));
+      assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_SUB), is((long)1));
+      assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_BIT), is((long)0));
+      assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_RAND), is((long)0));
       
       pl.get(0).reset();
       loggedValues = pl.get(0).getLoggedValues(pId);
-      Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_ADD), Is.is((long)0));
-      Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_MULT), Is.is((long)0));
-      Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_SUB), Is.is((long)0));
-      Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_BIT), Is.is((long)0));
-      Assert.assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_RAND), Is.is((long)0));
+      assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_ADD), is((long)0));
+      assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_MULT), is((long)0));
+      assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_SUB), is((long)0));
+      assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_BIT), is((long)0));
+      assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_RAND), is((long)0));
     }
   }
   
@@ -141,17 +142,17 @@ public class TestArithmeticLoggingDecorators {
       List<PerformanceLogger> pl = DummyArithmeticBuilderFactory.performanceLoggers.get(pId);
     
       Map<String, Long> loggedValues = pl.get(1).getLoggedValues(pId);
-      Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_EQ), Is.is((long)2));
-      Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_LEQ), Is.is((long)0));
-      Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_SIGN), Is.is((long)0));
-      Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_COMP0), Is.is((long)2));
+      assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_EQ), is((long)2));
+      assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_LEQ), is((long)0));
+      assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_SIGN), is((long)0));
+      assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_COMP0), is((long)2));
       
       pl.get(1).reset();
       loggedValues = pl.get(1).getLoggedValues(pId);
-      Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_EQ), Is.is((long)0));
-      Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_LEQ), Is.is((long)0));
-      Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_SIGN), Is.is((long)0));
-      Assert.assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_COMP0), Is.is((long)0));
+      assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_EQ), is((long)0));
+      assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_LEQ), is((long)0));
+      assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_SIGN), is((long)0));
+      assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_COMP0), is((long)0));
     }
   }
 }

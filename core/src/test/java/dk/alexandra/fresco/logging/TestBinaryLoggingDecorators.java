@@ -1,5 +1,8 @@
 package dk.alexandra.fresco.logging;
 
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
@@ -23,8 +26,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.hamcrest.core.Is;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class TestBinaryLoggingDecorators {
@@ -80,13 +81,13 @@ public class TestBinaryLoggingDecorators {
       List<PerformanceLogger> pl = DummyBooleanBuilderFactory.performanceLoggers.get(pId);
 
       Map<String, Long> loggedValues = pl.get(1).getLoggedValues(pId);
-      Assert.assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_GT), Is.is(amountOfGTs)); 
-      Assert.assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_EQ), Is.is(amountOfEQsInTest));
+      assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_GT), is(amountOfGTs)); 
+      assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_EQ), is(amountOfEQsInTest));
 
       pl.get(1).reset();
       loggedValues = pl.get(1).getLoggedValues(pId);
-      Assert.assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_GT), Is.is((long)0));
-      Assert.assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_EQ), Is.is((long)0));
+      assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_GT), is((long)0));
+      assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_EQ), is((long)0));
     }
   }
   
@@ -134,15 +135,15 @@ public class TestBinaryLoggingDecorators {
       List<PerformanceLogger> pl = DummyBooleanBuilderFactory.performanceLoggers.get(pId);
 
       Map<String, Long> loggedValues = pl.get(0).getLoggedValues(pId);
-      Assert.assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_XOR), Is.is(amountOfXORsInTest));
-      Assert.assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_AND), Is.is(amountOfANDsInTest));
-      Assert.assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_RANDOM), Is.is((long)0));
+      assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_XOR), is(amountOfXORsInTest));
+      assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_AND), is(amountOfANDsInTest));
+      assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_RANDOM), is((long)0));
       
       pl.get(0).reset();
       loggedValues = pl.get(0).getLoggedValues(pId);
-      Assert.assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_XOR), Is.is((long)0));
-      Assert.assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_AND), Is.is((long)0));
-      Assert.assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_RANDOM), Is.is((long)0));
+      assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_XOR), is((long)0));
+      assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_AND), is((long)0));
+      assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_RANDOM), is((long)0));
     }
   }
 }
