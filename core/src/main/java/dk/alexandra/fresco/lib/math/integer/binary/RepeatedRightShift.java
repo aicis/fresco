@@ -81,9 +81,6 @@ public class RepeatedRightShift implements
     private DRes<R> closure;
 
     public void setComputation(DRes<R> computation) {
-      if (this.closure != null) {
-        throw new IllegalStateException("Only allowed once");
-      }
       this.closure = computation;
     }
 
