@@ -13,7 +13,7 @@ public final class FieldElement implements Addable<FieldElement>, Serializable {
   /**
    * 
    */
-  private static final long serialVersionUID = 616090818218953860L;
+  private static final long serialVersionUID = 1L;
   final BigInteger value;
   final BigInteger modulus;
   final int bitLength;

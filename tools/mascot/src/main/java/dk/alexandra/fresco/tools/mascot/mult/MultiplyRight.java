@@ -13,7 +13,6 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
-import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.utils.DummyPrg;
 import dk.alexandra.fresco.tools.ot.base.FailedOtException;
 import dk.alexandra.fresco.tools.ot.base.MaliciousOtException;
@@ -68,7 +67,7 @@ public class MultiplyRight extends MultiplyShared {
   }
 
   public void sendDiffs(List<FieldElement> diffs) {
-    network.send(otherId, FieldElementSerializer.serialize(diffs, modulus, modBitLength));
+    network.send(otherId, feSerializer.serialize(diffs));
   }
 
   public List<FieldElement> computeProductShares(List<FieldElement> feZeroSeeds,

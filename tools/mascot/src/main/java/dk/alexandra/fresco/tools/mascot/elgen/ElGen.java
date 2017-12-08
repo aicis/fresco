@@ -1,5 +1,13 @@
 package dk.alexandra.fresco.tools.mascot.elgen;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
 import dk.alexandra.fresco.framework.FailedException;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
@@ -10,19 +18,11 @@ import dk.alexandra.fresco.tools.mascot.cope.CopeSigner;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
-import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.maccheck.MacCheck;
 import dk.alexandra.fresco.tools.mascot.utils.Sharer;
 import dk.alexandra.fresco.tools.mascot.utils.sample.DummyJointSampler;
 import dk.alexandra.fresco.tools.mascot.utils.sample.DummySampler;
 import dk.alexandra.fresco.tools.mascot.utils.sample.Sampler;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class ElGen extends MultiPartyProtocol {
 
@@ -106,7 +106,7 @@ public class ElGen extends MultiPartyProtocol {
   }
 
   void sendShares(Integer partyId, List<FieldElement> shares) {
-    network.send(partyId, FieldElementSerializer.serialize(shares, modulus, modBitLength));
+    network.send(partyId, feSerializer.serialize(shares));
   }
 
   List<FieldElement> secretShare(List<FieldElement> values, int numShares) {
@@ -128,7 +128,7 @@ public class ElGen extends MultiPartyProtocol {
 
   List<FieldElement> receiveShares(Integer inputterId) {
     List<FieldElement> receivedShares =
-        FieldElementSerializer.deserializeList(network.receive(inputterId), modulus, modBitLength);
+        feSerializer.deserializeList(network.receive(inputterId));
     return receivedShares;
   }
 
@@ -250,12 +250,12 @@ public class ElGen extends MultiPartyProtocol {
         .map(AuthenticatedElement::getShare)
         .collect(Collectors.toList());
     // send own shares to others
-    network.sendToAll(FieldElementSerializer.serialize(ownShares, modulus, modBitLength));
+    network.sendToAll(feSerializer.serialize(ownShares));
     // receive shares from others
     for (Integer partyId : partyIds) {
       if (!myId.equals(partyId)) {
         byte[] raw = network.receive(partyId);
-        shares.add(FieldElementSerializer.deserializeList(raw, modulus, modBitLength));
+        shares.add(feSerializer.deserializeList(raw));
       } else {
         shares.add(ownShares);
       }

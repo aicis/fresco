@@ -45,6 +45,7 @@ public class Broadcast extends MultiPartyProtocol {
   }
   
   byte[] broadcast(List<StrictBitVector> messages) {
+    StrictBitVector ownDigest = sendBroadcastValidation(messages);
     return null;
   }
 
