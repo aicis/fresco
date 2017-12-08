@@ -27,6 +27,12 @@ public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger 
   }
 
   @Override
+  public DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y) {
+    eqCount++;
+    return this.delegate.equals(x, y);
+  }
+  
+  @Override
   public DRes<SInt> equals(int bitLength, DRes<SInt> x, DRes<SInt> y) {
     eqCount++;
     return this.delegate.equals(x, y);
@@ -42,12 +48,6 @@ public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger 
   public DRes<SInt> compareLEQLong(DRes<SInt> x1, DRes<SInt> x2) {
     leqCount++;
     return this.delegate.compareLEQLong(x1, x2);
-  }
-
-  @Override
-  public DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y) {
-    eqCount++;
-    return this.delegate.equals(x, y);
   }
 
   @Override

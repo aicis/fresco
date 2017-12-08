@@ -77,7 +77,7 @@ public class NetworkLoggingDecorator implements Network, PerformanceLogger, Clos
     long noNetworkBatches = 0;
     for (Integer partyId : partyStatsMap.keySet()) {
       PartyStats partyStats = partyStatsMap.get(partyId);
-      values.put(NETWORK_PARTY_BYTES+"_"+partyId, partyStats.noBytes);
+      values.put(NETWORK_PARTY_BYTES + "_" + partyId, partyStats.noBytes);
       totalNoBytes += partyStats.noBytes;
       noNetworkBatches += partyStats.count;
     }
