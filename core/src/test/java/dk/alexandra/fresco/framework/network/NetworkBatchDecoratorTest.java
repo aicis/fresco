@@ -22,10 +22,11 @@ public class NetworkBatchDecoratorTest {
 
   @Test
   public void receive() throws Exception {
-    transmissions.put(1, new byte[]{4, 2, 2, 23, 3, 42});
+    transmissions.put(1, new byte[]{4, 2, 2, 23, 3, 3, 22, 0, 0});
     transmissions.put(2, new byte[]{0});
     Assert.assertArrayEquals(new byte[]{2, 2, 23, 3}, networkBatchDecorator.receive(1));
     Assert.assertArrayEquals(new byte[]{}, networkBatchDecorator.receive(2));
+    Assert.assertArrayEquals(new byte[]{22, 0, 0}, networkBatchDecorator.receive(1));
   }
 
   @Test
