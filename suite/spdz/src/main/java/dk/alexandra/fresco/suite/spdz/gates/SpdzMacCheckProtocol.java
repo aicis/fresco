@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -111,7 +112,7 @@ public class SpdzMacCheckProtocol implements ProtocolProducer {
         }
         deltaSum = deltaSum.mod(modulus);
         if (!deltaSum.equals(BigInteger.ZERO)) {
-          throw new MPCException(
+          throw new MaliciousException(
               "The sum of delta's was not 0. Someone was corrupting something amongst " + as.size()
                   + " macs. Sum was " + deltaSum.toString() + " Aborting!");
         }
