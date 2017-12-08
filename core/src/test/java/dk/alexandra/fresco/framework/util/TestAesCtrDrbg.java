@@ -2,7 +2,6 @@ package dk.alexandra.fresco.framework.util;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.Random;
@@ -16,20 +15,16 @@ public class TestAesCtrDrbg {
     byte[] seed = new byte[32];
     rand.nextBytes(seed);
     new AesCtrDrbg(seed);
+  }
 
-    try {
-      new AesCtrDrbg(new byte[33]);
-      fail("Constructor fail to throw exception on too long seed");
-    } catch (IllegalArgumentException e) {
-      // Success
-    }
+  @Test(expected = IllegalArgumentException.class)
+  public void testAesCtrDrbgLongSeed() {
+    new AesCtrDrbg(new byte[33]);
+  }
 
-    try {
+  @Test(expected = IllegalArgumentException.class)
+  public void testAesCtrDrbgShortSeed() {
       new AesCtrDrbg(new byte[1]);
-      fail("Constructor fail to throw exception on too short seed");
-    } catch (RuntimeException f) {
-      // Do nothing
-    }
   }
 
   @Test
@@ -38,12 +33,7 @@ public class TestAesCtrDrbg {
     byte[] seed = new byte[32];
     rand.nextBytes(seed);
     AesCtrDrbg drbg = new AesCtrDrbg(seed);
-    try {
-      drbg.initCipher(new byte[16], new byte[16]);
-    } catch (Exception e) {
-      e.printStackTrace();
-      fail("initCipher threw unexcepted exception");
-    }
+    drbg.initCipher(new byte[16], new byte[16]);
   }
 
   @Test(expected = IllegalArgumentException.class)
