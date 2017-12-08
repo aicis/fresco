@@ -7,13 +7,13 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * Implementation of a DRBG using AES in counter mode.
+ * Implementation of a deterministic random bit generator (DRBG) using AES in counter mode.
  */
 public class AesCtrDrbg implements Drbg {
 
-  private Cipher cipher;
   private static final long RESEED_LIMIT = 1L << 48;
   private static final int UPDATE_LIMIT = 1 << 16;
+  private Cipher cipher;
   private int generatedBytes;
   private int reseedCounter;
 
