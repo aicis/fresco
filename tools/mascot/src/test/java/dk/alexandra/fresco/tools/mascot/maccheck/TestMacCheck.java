@@ -14,6 +14,7 @@ import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 
+// TODO generalize to many parties
 public class TestMacCheck extends NetworkedTest {
 
   // TODO as part of new testing framework, re-think how to test for exceptions
@@ -87,6 +88,38 @@ public class TestMacCheck extends NetworkedTest {
     }
   }
 
+  public void maliciousPartyThree(FieldElement opened, FieldElement macKeyShare,
+      FieldElement macShare) {
+    initContexts(Arrays.asList(1, 2, 3));
+
+    FieldElement openedOne = new FieldElement(42, modulus, modBitLength);
+    FieldElement macKeyShareOne = new FieldElement(11231, modulus, modBitLength);
+    FieldElement macShareOne = new FieldElement(4444, modulus, modBitLength);
+
+    FieldElement openedTwo = new FieldElement(42, modulus, modBitLength);
+    FieldElement macKeyShareTwo = new FieldElement(7719, modulus, modBitLength);
+    FieldElement macShareTwo = new FieldElement(5204, modulus, modBitLength);
+
+    // define task each party will run
+    Callable<Pair<Boolean, Exception>> partyOneTask =
+        () -> runSinglePartyMacCheck(contexts.get(1), openedOne, macKeyShareOne, macShareOne);
+    Callable<Pair<Boolean, Exception>> partyTwoTask =
+        () -> runSinglePartyMacCheck(contexts.get(2), openedTwo, macKeyShareTwo, macShareTwo);
+    Callable<Pair<Boolean, Exception>> partyThreeTask =
+        () -> runSinglePartyMacCheck(contexts.get(3), opened, macKeyShare, macShare);
+
+    List<Pair<Boolean, Exception>> results =
+        testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask, partyThreeTask));
+
+    for (Pair<Boolean, Exception> res : results) {
+      boolean didThrow = res.getFirst();
+      Exception exception = res.getSecond();
+      assertEquals(didThrow, true);
+      assertEquals(exception.getClass(), MaliciousException.class);
+      assertEquals(exception.getMessage(), "Malicious mac forging detected");
+    }
+  }
+
   @Test
   public void testTwoPartiesValidMacCheck() {
     // two parties run this
@@ -112,6 +145,39 @@ public class TestMacCheck extends NetworkedTest {
         testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
 
     // the above mac check fails since 4444 + 5204 = (11231 + 7719) * 42
+    for (Pair<Boolean, Exception> res : results) {
+      assertEquals(res.getFirst(), false);
+    }
+  }
+
+  @Test
+  public void testThreePartyValidMacCheck() {
+    initContexts(Arrays.asList(1, 2, 3));
+
+    FieldElement openedOne = new FieldElement(42, modulus, modBitLength);
+    FieldElement macKeyShareOne = new FieldElement(11231, modulus, modBitLength);
+    FieldElement macShareOne = new FieldElement(4444, modulus, modBitLength);
+
+    FieldElement openedTwo = new FieldElement(42, modulus, modBitLength);
+    FieldElement macKeyShareTwo = new FieldElement(7719, modulus, modBitLength);
+    FieldElement macShareTwo = new FieldElement(5204, modulus, modBitLength);
+
+    FieldElement openedThree = new FieldElement(42, modulus, modBitLength);
+    FieldElement macKeyShareThree = new FieldElement(1, modulus, modBitLength);
+    FieldElement macShareThree = new FieldElement(42, modulus, modBitLength);
+
+    // define task each party will run
+    Callable<Pair<Boolean, Exception>> partyOneTask =
+        () -> runSinglePartyMacCheck(contexts.get(1), openedOne, macKeyShareOne, macShareOne);
+    Callable<Pair<Boolean, Exception>> partyTwoTask =
+        () -> runSinglePartyMacCheck(contexts.get(2), openedTwo, macKeyShareTwo, macShareTwo);
+    Callable<Pair<Boolean, Exception>> partyThreeTask =
+        () -> runSinglePartyMacCheck(contexts.get(3), openedThree, macKeyShareThree, macShareThree);
+
+    List<Pair<Boolean, Exception>> results =
+        testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask, partyThreeTask));
+
+    // the above mac check fails since 4444 + 5204 + 42 = (11231 + 7719 + 1) * 42
     for (Pair<Boolean, Exception> res : results) {
       assertEquals(res.getFirst(), false);
     }
@@ -163,6 +229,30 @@ public class TestMacCheck extends NetworkedTest {
     FieldElement macKeyShare = new FieldElement(7719, modulus, modBitLength);
     FieldElement macShare = new FieldElement(4204, modulus, modBitLength); // tamper
     maliciousPartyTwo(opened, macKeyShare, macShare);
+  }
+
+  @Test
+  public void testPartyThreeTampersWithOpened() {
+    FieldElement opened = new FieldElement(41, modulus, modBitLength); // tamper
+    FieldElement macKeyShare = new FieldElement(1, modulus, modBitLength);
+    FieldElement macShare = new FieldElement(42, modulus, modBitLength);
+    maliciousPartyThree(opened, macKeyShare, macShare);
+  }
+
+  @Test
+  public void testPartyThreeTampersWithMacKeyShare() {
+    FieldElement opened = new FieldElement(42, modulus, modBitLength);
+    FieldElement macKeyShare = new FieldElement(3, modulus, modBitLength); // tamper
+    FieldElement macShare = new FieldElement(42, modulus, modBitLength);
+    maliciousPartyThree(opened, macKeyShare, macShare);
+  }
+
+  @Test
+  public void testPartyThreeTampersWithMacShare() {
+    FieldElement opened = new FieldElement(42, modulus, modBitLength);
+    FieldElement macKeyShare = new FieldElement(1, modulus, modBitLength);
+    FieldElement macShare = new FieldElement(34, modulus, modBitLength); // tamper
+    maliciousPartyThree(opened, macKeyShare, macShare);
   }
 
 }

@@ -11,6 +11,7 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.tools.commitment.CommitmentSerializer;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 
 public class MascotContext {
@@ -23,6 +24,7 @@ public class MascotContext {
   Network network;
   Random rand;
   FieldElementSerializer feSerializer;
+  CommitmentSerializer commSerializer;
 
   public MascotContext(Integer myId, List<Integer> partyIds, BigInteger modulus, int kBitLength,
       int lambdaSecurityParameter, Network network, Random rand) {
@@ -35,6 +37,7 @@ public class MascotContext {
     this.network = network;
     this.rand = rand;
     this.feSerializer = new FieldElementSerializer(modulus, kBitLength);
+    this.commSerializer = new CommitmentSerializer();
   }
 
   public static MascotContext defaultContext(Integer myId, List<Integer> partyIds) {
@@ -81,7 +84,11 @@ public class MascotContext {
   public FieldElementSerializer getFeSerializer() {
     return feSerializer;
   }
-  
+
+  public CommitmentSerializer getCommSerializer() {
+    return commSerializer;
+  }
+
   private static NetworkConfiguration defaultNetworkConfiguration(Integer myId,
       List<Integer> partyIds) {
     Map<Integer, Party> parties = new HashMap<>();

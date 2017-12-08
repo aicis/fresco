@@ -127,8 +127,7 @@ public class ElGen extends MultiPartyProtocol {
   }
 
   List<FieldElement> receiveShares(Integer inputterId) {
-    List<FieldElement> receivedShares =
-        feSerializer.deserializeList(network.receive(inputterId));
+    List<FieldElement> receivedShares = feSerializer.deserializeList(network.receive(inputterId));
     return receivedShares;
   }
 
@@ -174,6 +173,8 @@ public class ElGen extends MultiPartyProtocol {
 
     // send masked value to all other parties
     network.sendToAll(maskedValue.toByteArray());
+    // so that we can use receiveFromAll correctly later
+    network.receive(myId);
 
     // perform mac-check on opened value (will throw if mac check fails)
     runMacCheck(maskedValue, masks, macs);
@@ -241,25 +242,24 @@ public class ElGen extends MultiPartyProtocol {
 
   /**
    * Opens secret elements (distributes shares among all parties and recombines).
+   * 
+   * @param closed
+   * @return
    */
   public List<FieldElement> open(List<AuthenticatedElement> closed) {
-    // all shares
-    List<List<FieldElement>> shares = new ArrayList<>();
     // get shares from authenticated elements
     List<FieldElement> ownShares = closed.stream()
         .map(AuthenticatedElement::getShare)
         .collect(Collectors.toList());
     // send own shares to others
     network.sendToAll(feSerializer.serialize(ownShares));
-    // receive shares from others
-    for (Integer partyId : partyIds) {
-      if (!myId.equals(partyId)) {
-        byte[] raw = network.receive(partyId);
-        shares.add(feSerializer.deserializeList(raw));
-      } else {
-        shares.add(ownShares);
-      }
-    }
+    // receive others' shares
+    List<byte[]> rawShares = network.receiveFromAll();
+    // TODO parsing belongs somewhere else
+    // parse
+    List<List<FieldElement>> shares = rawShares.stream()
+        .map(raw -> feSerializer.deserializeList(raw))
+        .collect(Collectors.toList());
     // recombine
     return CollectionUtils.pairWiseSum(shares);
   }

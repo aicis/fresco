@@ -58,4 +58,22 @@ public class TestFieldElementSerializer {
     assertEquals(elements, actual);
   }
 
+  // Negative tests
+  
+  @Test
+  public void testSerializeWrongModulus() {
+    int[] arr = {1, 42, 123, 111};
+    List<FieldElement> elements = MascotTestUtils.generateSingleRow(arr, new BigInteger("251"), 8);
+    boolean thrown = false;
+    String message = "";
+    try {
+      serializer.serialize(elements);
+    } catch (IllegalArgumentException e) {
+      message = e.getMessage();
+      thrown = true;
+    }
+    assertEquals(true, thrown);
+    assertEquals("All elements must have same modulus and bit-length", message);
+  }
+  
 }

@@ -168,6 +168,8 @@ public class Commitment implements Serializable {
     return (Commitment) ByteArrayHelper.deserialize(serializedComm);
   }
 
+  // TODO OpenInfo should be public class with its own serializer
+  
   /**
    * Internal class representing the data needed to open a commitment.
    * 

@@ -122,19 +122,20 @@ public class ByteArrayHelper {
    * 
    * @param val The value to deserialize
    * @return The deserialized object
-   * @throws IOException Thrown if an internal error occurs.
-   * @throws ClassNotFoundException Thrown if an internal error occurs.
    */
-  public static Serializable deserialize(byte[] val) throws IOException, ClassNotFoundException {
-    ByteArrayInputStream bis = null;
-    ObjectInput in = null;
+  @Deprecated
+  public static Serializable deserialize(byte[] val) {
     try {
+      ByteArrayInputStream bis = null;
+      ObjectInput in = null;
       bis = new ByteArrayInputStream(val);
       in = new ObjectInputStream(bis);
-      return (Serializable) in.readObject();
-    } finally {
+      Serializable obj = (Serializable) in.readObject();
       bis.close();
       in.close();
+      return obj;
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
   }
 

@@ -92,7 +92,7 @@ public class BristolOt<T extends Serializable> implements Ot<T> {
     } catch (MaliciousOtException
         | MaliciousCommitmentException | MaliciousOtExtensionException e) {
       throw new MaliciousOtException(e.getMessage());
-    } catch (ClassNotFoundException | IOException | NoSuchAlgorithmException
+    } catch (NoSuchAlgorithmException
         | FailedOtExtensionException | FailedCommitmentException
         | FailedCoinTossingException e) {
       throw new FailedOtException(e.getMessage());

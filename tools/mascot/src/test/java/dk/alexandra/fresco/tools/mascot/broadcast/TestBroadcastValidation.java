@@ -115,5 +115,36 @@ public class TestBroadcastValidation extends NetworkedTest {
       assertEquals(exception.getMessage(), "Broadcast validation failed");
     }
   }
+  
+  @Test
+  public void testThreePartiesBroadcastDifferentOrder() {
+    // three parties run this
+    initContexts(Arrays.asList(1, 2, 3));
+
+    // messages
+    List<byte[]> messages =
+        Arrays.asList(new byte[] {0x00, 0x01}, new byte[] {0x02}, new byte[] {0x03});
+    List<byte[]> badMessages =
+        Arrays.asList(new byte[] {0x00, 0x01}, new byte[] {0x03}, new byte[] {0x02});
+
+    // define task each party will run
+    Callable<Pair<Boolean, Exception>> partyOneTask =
+        () -> runSinglePartyBroadcastValidation(contexts.get(1), messages);
+    Callable<Pair<Boolean, Exception>> partyTwoTask =
+        () -> runSinglePartyBroadcastValidation(contexts.get(2), badMessages);
+    Callable<Pair<Boolean, Exception>> partyThreeTask =
+        () -> runSinglePartyBroadcastValidation(contexts.get(3), messages);
+
+    List<Pair<Boolean, Exception>> results =
+        testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask, partyThreeTask));
+
+    for (Pair<Boolean, Exception> res : results) {
+      boolean didThrow = res.getFirst();
+      Exception exception = res.getSecond();
+      assertEquals(didThrow, true);
+      assertEquals(exception.getClass(), MaliciousException.class);
+      assertEquals(exception.getMessage(), "Broadcast validation failed");
+    }
+  }
 
 }
