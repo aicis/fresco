@@ -63,8 +63,6 @@ public class SqrtTests {
             boolean isCorrect = expected.equals(result);
 
             Assert.assertFalse(shouldBeCorrect && !isCorrect);
-
-            System.out.println("sqrt(" + x[i] + ") = " + result + ", expected " + expected + ".");
             Assert.assertTrue(isCorrect);
           }
         }

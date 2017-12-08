@@ -38,7 +38,9 @@ import dk.alexandra.fresco.lib.statistics.CreditRaterTest;
 import dk.alexandra.fresco.lib.statistics.DeaSolver.AnalysisType;
 import dk.alexandra.fresco.lib.statistics.DeaSolverTests.RandomDataDeaTest;
 import dk.alexandra.fresco.lib.statistics.DeaSolverTests.TestDeaFixed1;
+import dk.alexandra.fresco.logging.DefaultPerformancePrinter;
 import dk.alexandra.fresco.logging.PerformanceLogger;
+import dk.alexandra.fresco.logging.PerformancePrinter;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import org.junit.Test;
@@ -377,7 +379,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     BigInteger mod = new BigInteger(
         "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557");
     runTest(new MiMCTests.TestMiMCEncDec<>(), EvaluationStrategy.SEQUENTIAL,
-        1, mod, null);
+        1, mod, false);
   }
 
   @Test
@@ -385,7 +387,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     BigInteger mod = new BigInteger(
         "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557");
     runTest(new MiMCTests.TestMiMCEncDecFixedRounds<>(), EvaluationStrategy.SEQUENTIAL,
-        1, mod, null);
+        1, mod, false);
   }
 
   @Test
@@ -393,7 +395,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     BigInteger mod = new BigInteger(
         "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557");
     runTest(new MiMCTests.TestMiMCEncryptsDeterministically<>(), EvaluationStrategy.SEQUENTIAL,
-        1, mod, null);
+        1, mod, false);
   }
 
   // lib.list
@@ -583,20 +585,13 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     BigInteger mod = new BigInteger(
         "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
     runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
-        2, mod, PerformanceLogger.Flag.ALL_OPTS);
+        2, mod, true);
     for (Integer pId : DummyArithmeticBuilderFactory.performanceLoggers.keySet()) {
+      PerformancePrinter printer = new DefaultPerformancePrinter();
       for (PerformanceLogger pl : DummyArithmeticBuilderFactory.performanceLoggers.get(pId)) {
-        pl.printPerformanceLog(pId);
+        printer.printPerformanceLog(pl, pId);
       }
     }
-  }
-
-  @Test
-  public void test_performance_logger_network() throws Exception {
-    BigInteger mod = new BigInteger(
-        "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
-    runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL,
-        2, mod, PerformanceLogger.Flag.ALL_OPTS);
   }
   
   @Test
