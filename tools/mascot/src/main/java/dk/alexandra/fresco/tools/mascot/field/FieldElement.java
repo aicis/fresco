@@ -34,7 +34,7 @@ public final class FieldElement implements Addable<FieldElement>, Serializable {
   public FieldElement(String value, BigInteger modulus, int bitLength) {
     this(new BigInteger(value), modulus, bitLength);
   }
-  
+
   public FieldElement(String value, String modulus, int bitLength) {
     this(new BigInteger(value), new BigInteger(modulus), bitLength);
   }
@@ -181,7 +181,5 @@ public final class FieldElement implements Addable<FieldElement>, Serializable {
       throw new IllegalArgumentException("Value must be smaller than modulus");
     }
   }
-
-
 
 }

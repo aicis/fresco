@@ -1,5 +1,11 @@
 package dk.alexandra.fresco.tools.mascot.mult;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import dk.alexandra.fresco.framework.FailedException;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -11,11 +17,6 @@ import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.utils.DummyPrg;
 import dk.alexandra.fresco.tools.ot.base.FailedOtException;
 import dk.alexandra.fresco.tools.ot.base.MaliciousOtException;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class MultiplyRight extends MultiplyShared {
 
@@ -67,7 +68,7 @@ public class MultiplyRight extends MultiplyShared {
   }
 
   public void sendDiffs(List<FieldElement> diffs) {
-    network.send(otherId, FieldElementSerializer.serialize(diffs));
+    network.send(otherId, FieldElementSerializer.serialize(diffs, modulus, modBitLength));
   }
 
   public List<FieldElement> computeProductShares(List<FieldElement> feZeroSeeds,

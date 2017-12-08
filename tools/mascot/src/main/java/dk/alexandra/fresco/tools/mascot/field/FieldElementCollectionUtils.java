@@ -2,6 +2,7 @@ package dk.alexandra.fresco.tools.mascot.field;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -122,13 +123,62 @@ public class FieldElementCollectionUtils {
    * Converts field elements to bit vectors and concatenates the result.
    * 
    * @param elements field elements to pack
+   * @param reverse indicator whether to reverse the order of bytes
    * @return
    */
-  public static StrictBitVector pack(List<FieldElement> elements) {
+  public static StrictBitVector pack(List<FieldElement> elements, boolean reverse) {
     StrictBitVector[] bitVecs = elements.stream()
         .map(fe -> fe.toBitVector())
         .toArray(size -> new StrictBitVector[size]);
-    return StrictBitVector.concat(true, bitVecs);
+    return StrictBitVector.concat(reverse, bitVecs);
+  }
+
+  /**
+   * {@link FieldElementCollectionUtils#pack(List, boolean)} with reversal.
+   * 
+   * @param elements
+   * @return
+   */
+  public static StrictBitVector pack(List<FieldElement> elements) {
+    return pack(elements, true);
+  }
+
+  /**
+   * Unpacks a bit string into a list of field elements.
+   * 
+   * @param packed
+   * @param modulus
+   * @param modBitLength
+   * @return
+   */
+  public static List<FieldElement> unpack(byte[] packed, BigInteger modulus, int modBitLength) {
+    int packedBitLength = packed.length * 8;
+    if (packedBitLength % modBitLength != 0) {
+      throw new IllegalArgumentException(
+          "Packed bit length must be multiple of single element bit length");
+    }
+    int numElements = packedBitLength / modBitLength;
+    int byteLength = modBitLength / 8;
+    List<FieldElement> unpacked = new ArrayList<>(numElements);
+    for (int i = 0; i < numElements; i++) {
+      byte[] b = Arrays.copyOfRange(packed, i * byteLength, (i + 1) * byteLength);
+      FieldElement el = new FieldElement(b, modulus, modBitLength);
+      unpacked.add(el);
+    }
+    return unpacked;
+  }
+
+  /**
+   * {@link #unpack(byte[], BigInteger, int)}
+   * 
+   * @param packed
+   * @param modulus
+   * @param modBitLength
+   * @return
+   */
+  public static List<FieldElement> unpack(StrictBitVector packed, BigInteger modulus,
+      int modBitLength) {
+    return unpack(packed.toByteArray(), modulus, modBitLength);
   }
 
 }

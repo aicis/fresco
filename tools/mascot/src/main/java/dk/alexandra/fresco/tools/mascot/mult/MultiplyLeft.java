@@ -54,7 +54,7 @@ public class MultiplyLeft extends MultiplyShared {
 
   public List<FieldElement> receiveDiffs(int numDiffs) {
     byte[] raw = network.receive(otherId);
-    List<FieldElement> diffs = FieldElementSerializer.deserializeList(raw);
+    List<FieldElement> diffs = FieldElementSerializer.deserializeList(raw, modulus, modBitLength);
     return diffs;
   }
 

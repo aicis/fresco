@@ -86,7 +86,7 @@ public class MacCheck extends MultiPartyProtocol {
   }
 
   /**
-   * Runs mac-check on open value. <b> Conceptually, computes that (macShare0 + ... + macShareN) =
+   * Runs mac-check on open value. <br> Conceptually, computes that (macShare0 + ... + macShareN) =
    * (open) * (keyShare0 + ... + keyShareN)
    */
   public void check(FieldElement opened, FieldElement macKeyShare, FieldElement macShare) {

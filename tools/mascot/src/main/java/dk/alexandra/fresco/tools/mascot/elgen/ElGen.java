@@ -106,7 +106,7 @@ public class ElGen extends MultiPartyProtocol {
   }
 
   void sendShares(Integer partyId, List<FieldElement> shares) {
-    network.send(partyId, FieldElementSerializer.serialize(shares));
+    network.send(partyId, FieldElementSerializer.serialize(shares, modulus, modBitLength));
   }
 
   List<FieldElement> secretShare(List<FieldElement> values, int numShares) {
@@ -128,7 +128,7 @@ public class ElGen extends MultiPartyProtocol {
 
   List<FieldElement> receiveShares(Integer inputterId) {
     List<FieldElement> receivedShares =
-        FieldElementSerializer.deserializeList(network.receive(inputterId));
+        FieldElementSerializer.deserializeList(network.receive(inputterId), modulus, modBitLength);
     return receivedShares;
   }
 
@@ -220,7 +220,7 @@ public class ElGen extends MultiPartyProtocol {
     // mask and combine macs
     FieldElement maskedMac = FieldElementCollectionUtils.innerProduct(macs, masks);
     // perform mac-check on open masked value
-      macChecker.check(value, macKeyShare, maskedMac);
+    macChecker.check(value, macKeyShare, maskedMac);
   }
 
   /**
@@ -228,7 +228,7 @@ public class ElGen extends MultiPartyProtocol {
    */
   public void check(List<AuthenticatedElement> sharesWithMacs, List<FieldElement> openValues)
       throws MaliciousException, FailedException {
-    // will use this to mask macs 
+    // will use this to mask macs
     List<FieldElement> masks = jointSampler.sample(modulus, modBitLength, sharesWithMacs.size());
     // only need macs
     List<FieldElement> macs = sharesWithMacs.stream()
@@ -250,12 +250,12 @@ public class ElGen extends MultiPartyProtocol {
         .map(AuthenticatedElement::getShare)
         .collect(Collectors.toList());
     // send own shares to others
-    network.sendToAll(FieldElementSerializer.serialize(ownShares));
+    network.sendToAll(FieldElementSerializer.serialize(ownShares, modulus, modBitLength));
     // receive shares from others
     for (Integer partyId : partyIds) {
       if (!myId.equals(partyId)) {
         byte[] raw = network.receive(partyId);
-        shares.add(FieldElementSerializer.deserializeList(raw));
+        shares.add(FieldElementSerializer.deserializeList(raw, modulus, modBitLength));
       } else {
         shares.add(ownShares);
       }
