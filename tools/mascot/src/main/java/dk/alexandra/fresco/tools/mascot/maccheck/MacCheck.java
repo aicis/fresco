@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 import dk.alexandra.fresco.framework.FailedException;
 import dk.alexandra.fresco.framework.MaliciousException;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.tools.commitment.Commitment;
 import dk.alexandra.fresco.tools.commitment.CommitmentSerializer;
@@ -23,7 +24,8 @@ import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 
 public class MacCheck extends MultiPartyProtocol {
 
-  protected CommitmentSerializer commSerializer;
+  CommitmentSerializer commSerializer;
+  Network broadcaster;
 
   /**
    * Constructs new mac checker.
@@ -35,7 +37,10 @@ public class MacCheck extends MultiPartyProtocol {
     this.commSerializer = new CommitmentSerializer();
     // for more than two parties, we need to use broadcast
     if (partyIds.size() > 2) {
-      this.network = new BroadcastingNetworkDecorator(network, new BroadcastValidation(ctx));
+      this.broadcaster = new BroadcastingNetworkDecorator(network, new BroadcastValidation(ctx));
+    } else {
+      // if we have two parties or less we can just use the regular network
+      this.broadcaster = this.network;
     }
   }
 
@@ -47,9 +52,9 @@ public class MacCheck extends MultiPartyProtocol {
   List<Commitment> distributeCommitments(Commitment comm)
       throws IOException, ClassNotFoundException {
     // broadcast own commitment
-    network.sendToAll(ByteArrayHelper.serialize(comm));
+    broadcaster.sendToAll(ByteArrayHelper.serialize(comm));
     // receive other parties' commitments from broadcast
-    List<byte[]> rawComms = network.receiveFromAll();
+    List<byte[]> rawComms = broadcaster.receiveFromAll();
     // parse
     List<Commitment> comms = rawComms.stream()
         .map(raw -> commSerializer.deserialize(raw))
@@ -64,7 +69,7 @@ public class MacCheck extends MultiPartyProtocol {
    */
   List<Serializable> distributeOpenings(Serializable opening)
       throws IOException, ClassNotFoundException {
-    // broadcast own opening info
+    // send (over regular network) own opening info
     network.sendToAll(ByteArrayHelper.serialize(opening));
     // receive opening info from others
     List<byte[]> rawOpenings = network.receiveFromAll();
@@ -156,5 +161,4 @@ public class MacCheck extends MultiPartyProtocol {
       throw new MaliciousException("Malicious mac forging detected");
     }
   }
-  
 }
