@@ -10,7 +10,7 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
-import dk.alexandra.fresco.tools.mascot.utils.DummyPrg;
+import dk.alexandra.fresco.tools.mascot.utils.PaddingPrg;
 
 public class MultiplyLeft extends MultiplyShared {
 
@@ -75,7 +75,7 @@ public class MultiplyLeft extends MultiplyShared {
     // TODO there should be a better way to do this
     return seeds.stream()
         .map(seed -> {
-          return new DummyPrg(seed, modulus, modBitLength).getNext(modulus, modBitLength);
+          return new PaddingPrg(seed).getNext(modulus, modBitLength);
         })
         .collect(Collectors.toList());
   }

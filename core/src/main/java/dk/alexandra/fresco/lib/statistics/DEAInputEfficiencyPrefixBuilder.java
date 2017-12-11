@@ -154,7 +154,7 @@ public class DEAInputEfficiencyPrefixBuilder implements
             DRes<SInt> scaled = seq.numeric().mult(sBigM, c.get(finalL).get(k));
             f.set(k, seq.numeric().add(scaled, f.get(k)));
           }
-          return () -> null;
+          return null;
         });
       }
       ArrayList<DRes<SInt>> basis = new ArrayList<>(constraints);

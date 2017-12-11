@@ -23,7 +23,7 @@ public class DummyBooleanProtocolSuite
   @Override
   public BuilderFactory<ProtocolBuilderBinary> init(ResourcePoolImpl resourcePool,
       Network network) {
-    BuilderFactory<ProtocolBuilderBinary> b = new DummyBooleanBuilderFactory();
+    BuilderFactory<ProtocolBuilderBinary> b = new DummyBooleanBuilderFactory(resourcePool.getMyId());
     return b;
   }
 

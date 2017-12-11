@@ -55,7 +55,7 @@ public class TestScapiNetwork {
       network.init(netConf.get(i), 1);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderNumeric> ttc =
           new TestThreadConfiguration<>(null,
-              () -> new ResourcePoolImpl(i, n, null, null), () -> network);
+              () -> new ResourcePoolImpl(i, n, null), () -> network);
       conf.put(i, ttc);
     }
     TestThreadRunner.run(test, conf);
@@ -74,8 +74,7 @@ public class TestScapiNetwork {
       Map<Integer, Party> partyMap = new HashMap<>();
       int id = 1;
       for (int port : ports) {
-        Party party = new Party(id, "localhost", port);
-        party.setSecretSharedKey("MDEyMzQ1Njc4OWFiY2RlZg==");
+        Party party = new Party(id, "localhost", port, "MDEyMzQ1Njc4OWFiY2RlZg==");
         partyMap.put(id, party);
         id++;
       }
@@ -104,7 +103,7 @@ public class TestScapiNetwork {
       network.init(netConf.get(i), 1);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderNumeric> ttc =
           new TestThreadConfiguration<>(null,
-              () -> new ResourcePoolImpl(i, n, null, null), () -> network);
+              () -> new ResourcePoolImpl(i, n, null), () -> network);
       conf.put(i, ttc);
     }
     return conf;

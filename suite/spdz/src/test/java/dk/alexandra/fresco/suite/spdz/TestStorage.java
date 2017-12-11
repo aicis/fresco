@@ -1,22 +1,25 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import java.io.File;
-import java.io.Serializable;
-import java.math.BigInteger;
-
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
+import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.exceptions.NoMoreElementsException;
+import dk.alexandra.fresco.lib.compare.CompareTests;
+import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
+import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
+import java.io.File;
+import java.io.Serializable;
+import java.math.BigInteger;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-public class TestStorage {
+public class TestStorage extends AbstractSpdzTest{
 
   private BigInteger modulus;
 
@@ -69,5 +72,79 @@ public class TestStorage {
 
     BigInteger o2 = storage.getObject("test", "key");
     Assert.assertEquals(o1, o2);
+  }
+  
+  /**
+   * Tests that we successfully can initialize the InMemory version of the storage with spdz
+   * preprocessed data. Cannot currently easily be used within an actual MPC test since we now only
+   * support a streamed version.
+   * 
+   * @throws Exception If something fails
+   */
+  @Test
+  public void testInitInMemoryStorage() throws Exception {
+    InitializeStorage.initStorage(new Storage[] {new InMemoryStorage()},
+        2, 10, 10, 100, 10);          
+  }
+  
+
+  @Test(expected = MPCException.class)
+  public void testMissingTriple() throws Throwable {
+    int noOfThreads = 1;
+    try {
+      InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()),
+          2, noOfThreads, 1, 100, 10000, 10);
+      runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
+          PreprocessingStrategy.STATIC, 2);
+    } catch (Exception e) {
+      throw e.getCause().getCause();
+    } finally {
+      InitializeStorage.cleanup();
+    }
+  }
+  
+  @Test(expected = MPCException.class)
+  public void testMissingInput() throws Throwable {
+    int noOfThreads = 1;
+    try {
+      InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()),
+          2, noOfThreads, 1000, 1, 10000, 10);
+      runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
+          PreprocessingStrategy.STATIC, 2);
+    } catch (Exception e) {
+      throw e.getCause().getCause();
+    } finally {
+      InitializeStorage.cleanup();
+    }
+  }
+  
+  @Test(expected = MPCException.class)
+  public void testMissingBit() throws Throwable {
+    int noOfThreads = 1;
+    try {
+      InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()),
+          2, noOfThreads, 1000, 10, 1, 10);
+      runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
+          PreprocessingStrategy.STATIC, 2);
+    } catch (Exception e) {
+      throw e.getCause().getCause();
+    } finally {
+      InitializeStorage.cleanup();
+    }
+  }
+  
+  @Test(expected = MPCException.class)
+  public void testMissingExpPipe() throws Throwable {
+    int noOfThreads = 1;
+    try {
+      InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()),
+          2, noOfThreads, 1000, 10, 10000, 1);
+      runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
+          PreprocessingStrategy.STATIC, 2);
+    } catch (Exception e) {
+      throw e.getCause().getCause();
+    } finally {
+      InitializeStorage.cleanup();
+    }
   }
 }

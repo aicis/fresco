@@ -118,6 +118,79 @@ public class BristolCryptoTests {
     }
   }
 
+  /*
+   * Test for multiple invocations of bristol() in a single Protocolbuilder
+   */
+  public static class MultiAesTest<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
+
+    private boolean doAsserts;
+
+    public MultiAesTest(boolean doAsserts) {
+      this.doAsserts = doAsserts;
+    }
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
+
+        // This is just some fixed test vectors for AES in ECB mode that was
+        // found somewhere on the net, i.e., this is some known plaintexts and
+        // corresponding cipher texts that can be used for testing.
+        final String[] keyVec = new String[] {"000102030405060708090a0b0c0d0e0f"};
+        final String plainVec = "00112233445566778899aabbccddeeff";
+        final String plainVec2 = "ffeeddccbbaa99887766554433221100";
+        final String[] cipherVec = new String[] {"69c4e0d86a7b0430d8cdb78070b4c55a", "1b872378795f4ffd772855fc87ca964d"};
+
+        @Override
+        public void test() throws Exception {
+          Application<List<Boolean>, ProtocolBuilderBinary> multApp =
+              producer -> producer.seq(seq -> {
+                List<DRes<SBool>> plainText = BooleanHelper.known(toBoolean(plainVec), seq.binary());
+                List<DRes<SBool>> plainText2 = BooleanHelper.known(toBoolean(plainVec2), seq.binary());
+                List<DRes<SBool>> key = BooleanHelper.known(toBoolean(keyVec[0]), seq.binary());
+                List<List<DRes<SBool>>> inputs = new ArrayList<>();
+                inputs.add(plainText);
+                inputs.add(plainText2);
+                inputs.add(key);
+                return () -> inputs;
+              }).seq((seq, inputs) -> {
+                List<DRes<List<SBool>>> ciphers = new ArrayList<>();
+                DRes<List<SBool>> l = seq.bristol().AES(inputs.get(0), inputs.get(2));
+                DRes<List<SBool>> l2 = seq.bristol().AES(inputs.get(1), inputs.get(2));
+                ciphers.add(l);
+                ciphers.add(l2);
+                return () -> ciphers;
+              }).seq((seq, res) -> {
+                List<DRes<Boolean>> outputs = new ArrayList<>();
+                for (SBool boo : res.get(0).out()) {
+                  outputs.add(seq.binary().open(() -> boo));
+                }
+                for (SBool boo : res.get(1).out()) {
+                  outputs.add(seq.binary().open(() -> boo));
+                }
+                return () -> outputs;
+              }).seq(
+                  (seq, output) -> () -> output.stream().map(DRes::out).collect(Collectors.toList()));
+
+              List<Boolean> res = runApplication(multApp);
+              Boolean[] expected = toBoolean(cipherVec[0]);
+              Boolean[] expected2 = toBoolean(cipherVec[1]);
+              Boolean[] actual = new Boolean[res.size()/2];
+              Boolean[] actual2 = new Boolean[res.size()/2];
+              for (int i = 0; i < res.size()/2; i++) {
+                actual[i] = res.get(i);
+                actual2[i] = res.get(i+(res.size()/2));
+              }
+
+              if (doAsserts) {
+                Assert.assertArrayEquals(expected, actual);
+                Assert.assertArrayEquals(expected2, actual2);
+              }
+        }
+      };
+    }
+  }
 
   /**
    * Testing SHA-1 compression function.
@@ -152,19 +225,10 @@ public class BristolCryptoTests {
         public void test() throws Exception {
           Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.seq(seq -> {
             List<DRes<SBool>> input1 = BooleanHelper.known(toBoolean(ins[0]), seq.binary());
-            // List<Computation<SBool>> input2 = seq.binary().known(toBoolean(ins[1]));
-            // List<Computation<SBool>> input3 = seq.binary().known(toBoolean(ins[2]));
             List<List<DRes<SBool>>> inputs = new ArrayList<>();
             inputs.add(input1);
-            // inputs.add(input2);
-            // inputs.add(input3);
             return () -> inputs;
           }).seq((seq, inputs) -> {
-            // List<Computation<List<SBool>>> list = new ArrayList<>();
-            // list.add(seq.bristol().getSHA1Circuit(inputs.get(0)));
-            // list.add(seq.bristol().getSHA1Circuit(inputs.get(1)));
-            // list.add(seq.bristol().getSHA1Circuit(inputs.get(2)));
-
             DRes<List<SBool>> list = seq.bristol().SHA1(inputs.get(0));
             return list;
           }).seq((seq, res) -> {
@@ -172,22 +236,9 @@ public class BristolCryptoTests {
             for (SBool boo : res) {
               outputs.add(seq.binary().open(boo));
             }
-            // List<List<Computation<Boolean>>> outputs = new ArrayList<>();
-            // for (Computation<List<SBool>> elm : res) {
-            // List<Computation<Boolean>> outList = new ArrayList<>();
-            // for (SBool boo : elm.out()) {
-            // outList.add(seq.binary().open(() -> boo));
-            // }
-            // outputs.add(outList);
-            // }
             return () -> outputs;
           }).seq((seq, output) -> {
-            // List<List<Boolean>> result = new ArrayList<>();
-            // for (List<Computation<Boolean>> o : output) {
-            // result.add(o.stream().map(Computation::out).collect(Collectors.toList()));
-            // }
             return () -> output.stream().map(DRes::out).collect(Collectors.toList());
-            // return () -> result;
           });
 
           List<Boolean> res = runApplication(app);

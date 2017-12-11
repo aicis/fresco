@@ -4,15 +4,23 @@ import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.NetworkBatchDecorator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import java.util.HashMap;
+import java.util.Map;
 
 public class BatchEvaluationLoggingDecorator<ResourcePoolT extends ResourcePool>
     implements BatchEvaluationStrategy<ResourcePoolT>, PerformanceLogger {
-
+  
+  public static final String ID = "PARTY_ID";
+  public static final String BATCH_COUNTER = "AMOUNT_OF_BATCHES";
+  public static final String BATCH_NATIVE_PROTOCOLS = "TOTAL_AMOUNT";
+  public static final String BATCH_MIN_PROTOCOLS = "MIN_AMOUNT_PER_BATCH";
+  public static final String BATCH_MAX_PROTOCOLS = "MAX_AMOUNT_PER_BATCH";
+  
   private BatchEvaluationStrategy<ResourcePoolT> delegate;
-  private int counter = 0;
-  private int noNativeProtocols = 0;
-  private int minNoNativeProtocolsPerBatch = Integer.MAX_VALUE;
-  private int maxNoNativeProtocolsPerBatch = 0;
+  private long counter = 0;
+  private long noNativeProtocols = 0;
+  private long minNoNativeProtocolsPerBatch = Integer.MAX_VALUE;
+  private long maxNoNativeProtocolsPerBatch = 0;
 
   public BatchEvaluationLoggingDecorator(
       BatchEvaluationStrategy<ResourcePoolT> batchEvaluation) {
@@ -36,24 +44,22 @@ public class BatchEvaluationLoggingDecorator<ResourcePoolT extends ResourcePool>
   }
 
   @Override
-  public void printPerformanceLog(int myId) {
-    log.info("=== P" + myId + ": Native protocols per batch metrics ===");
-    log.info("Total amount of batches reached: " + counter);
-    log.info("Total amount of native protocols evaluated: " + noNativeProtocols);
-    log.info("minimum amount of native protocols evaluated in a single batch: "
-        + minNoNativeProtocolsPerBatch);
-    log.info("maximum amount of native protocols evaluated in a single batch: "
-        + maxNoNativeProtocolsPerBatch);
-    double avg = noNativeProtocols / (double) counter;
-    log.info("Average amount of native protocols evaluated per batch: " + df.format(avg));
-  }
-
-  @Override
   public void reset() {
     counter = 0;
     noNativeProtocols = 0;
     minNoNativeProtocolsPerBatch = Integer.MAX_VALUE;
     maxNoNativeProtocolsPerBatch = 0;
+  }
+
+  @Override
+  public Map<String, Long> getLoggedValues(int myId) {
+    Map<String, Long> values = new HashMap<>();
+    values.put(ID, (long)myId);
+    values.put(BATCH_COUNTER, counter);
+    values.put(BATCH_NATIVE_PROTOCOLS, noNativeProtocols);
+    values.put(BATCH_MIN_PROTOCOLS, minNoNativeProtocolsPerBatch);
+    values.put(BATCH_MAX_PROTOCOLS, maxNoNativeProtocolsPerBatch);
+    return values;
   }
 
 

@@ -4,20 +4,19 @@ import java.math.BigInteger;
 import java.util.List;
 
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.utils.sample.Sampler;
 
 public class Sharer {
 
-  private Sampler sampler;
+  private FieldElementPrg sampler;
 
-  public Sharer(Sampler sampler) {
+  public Sharer(FieldElementPrg sampler) {
     this.sampler = sampler;
   }
 
   public List<FieldElement> additiveShare(FieldElement input, int numShares) {
     BigInteger modulus = input.getModulus();
     int bitLength = input.getBitLength();
-    List<FieldElement> shares = sampler.sample(modulus, bitLength, numShares - 1);
+    List<FieldElement> shares = sampler.getNext(modulus, bitLength, numShares - 1);
     FieldElement sumShares = shares.stream()
         .reduce(new FieldElement(BigInteger.ZERO, modulus, bitLength),
             (left, right) -> (left.add(right)));

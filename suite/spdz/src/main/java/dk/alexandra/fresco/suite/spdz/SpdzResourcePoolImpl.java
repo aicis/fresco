@@ -4,36 +4,27 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Random;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResourcePool {
 
-  private final static Logger logger = LoggerFactory.getLogger(SpdzResourcePoolImpl.class);
   private MessageDigest messageDigest;
   private int modulusSize;
   private BigInteger modulus;
   private BigInteger modulusHalf;
   private SpdzStorage store;
 
-  public SpdzResourcePoolImpl(int myId, int noOfPlayers, Random random,
-      SecureRandom secRand, SpdzStorage store) {
-    super(myId, noOfPlayers, random, secRand);
+  public SpdzResourcePoolImpl(int myId, int noOfPlayers, Drbg drbg,
+      SpdzStorage store) throws NoSuchAlgorithmException {
+    super(myId, noOfPlayers, drbg);
 
     this.store = store;
 
-    try {
-      messageDigest = MessageDigest.getInstance("SHA-256");
-    } catch (NoSuchAlgorithmException e) {
-      logger.warn("SHA-256 not supported as digest on this system. Might not influence "
-          + "computation if your chosen SCPS does not depend on a hash function.");
-    }
+    messageDigest = MessageDigest.getInstance("SHA-256");
 
     try {
       this.store.getSSK();

@@ -11,7 +11,7 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
-import dk.alexandra.fresco.tools.mascot.utils.DummyPrg;
+import dk.alexandra.fresco.tools.mascot.utils.PaddingPrg;
 
 public class MultiplyRight extends MultiplyShared {
 
@@ -83,10 +83,8 @@ public class MultiplyRight extends MultiplyShared {
     // TODO there should be a better way to do this
     return seedPairs.stream()
         .map(pair -> {
-          FieldElement t0 =
-              new DummyPrg(pair.getFirst(), modulus, modBitLength).getNext(modulus, modBitLength);
-          FieldElement t1 =
-              new DummyPrg(pair.getSecond(), modulus, modBitLength).getNext(modulus, modBitLength);
+          FieldElement t0 = new PaddingPrg(pair.getFirst()).getNext(modulus, modBitLength);
+          FieldElement t1 = new PaddingPrg(pair.getSecond()).getNext(modulus, modBitLength);
           return new Pair<>(t0, t1);
         })
         .collect(Collectors.toList());

@@ -29,7 +29,13 @@ class BuildStepSingle<BuilderT extends ProtocolBuilderImpl<BuilderT>, OutputT, I
     if (next != null) {
       SequentialProtocolProducer protocolProducer = new SequentialProtocolProducer(
           builder.build(),
-          new LazyProtocolProducerDecorator(() -> next.createProducer(output.out(), factory))
+          new LazyProtocolProducerDecorator(() -> {
+            OutputT out = null;
+            if (output != null) {
+              out = output.out();
+            }
+            return next.createProducer(out, factory);
+          })
       );
       return new Pair<>(protocolProducer, null);
     } else {

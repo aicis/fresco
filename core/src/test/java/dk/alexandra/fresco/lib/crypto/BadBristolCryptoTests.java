@@ -222,7 +222,7 @@ public class BadBristolCryptoTests {
     }
   }
 
-  
+
   public static class AndTest1<ResourcePoolT extends ResourcePool>
     extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
@@ -564,7 +564,7 @@ public class BadBristolCryptoTests {
       };
     }
   }
-  
+
   public static class BadOperationTest<ResourcePoolT extends ResourcePool>
     extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
