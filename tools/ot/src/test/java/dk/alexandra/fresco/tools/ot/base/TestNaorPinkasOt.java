@@ -20,7 +20,7 @@ import org.junit.Test;
 import dk.alexandra.fresco.framework.network.Network;
 
 public class TestNaorPinkasOt {
-  private NaorPinkasOT<BigInteger> ot;
+  private NaorPinkasOT ot;
 
   public static final BigInteger DhGvalue = new BigInteger(
       "1817929693051677794042418360119535939035448877384059423016092223723589389"
@@ -64,7 +64,7 @@ public class TestNaorPinkasOt {
       }
     };
     DHParameterSpec params = new DHParameterSpec(DhPvalue, DhGvalue);
-    this.ot = new NaorPinkasOT<BigInteger>(1, 2, rand, network, params);
+    this.ot = new NaorPinkasOT(1, 2, rand, network, params);
   }
 
 

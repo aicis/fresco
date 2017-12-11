@@ -1,10 +1,10 @@
 package dk.alexandra.fresco.tools.ot.base;
 
-import java.io.Serializable;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
 
-public interface Ot<T extends Serializable> {
+public interface Ot {
 
-  public void send(T messageZero, T messageOne);
+  public void send(StrictBitVector messageZero, StrictBitVector messageOne);
 
-  public T receive(Boolean choiceBit);
+  public StrictBitVector receive(Boolean choiceBit);
 }

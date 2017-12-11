@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import dk.alexandra.fresco.framework.FailedException;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
@@ -118,7 +117,7 @@ public class MacCheck extends MultiPartyProtocol {
     FieldElement sigma = macShare.subtract(opened.multiply(macKeyShare));
 
     // commit to sigma
-    Commitment ownComm = new Commitment(modBitLength);
+    Commitment ownComm = new Commitment();
 
     Serializable ownOpening;
     ownOpening = ownComm.commit(new SecureRandom(), sigma);

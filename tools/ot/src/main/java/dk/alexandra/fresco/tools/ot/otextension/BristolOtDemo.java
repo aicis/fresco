@@ -1,11 +1,11 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.math.BigInteger;
 import java.util.Random;
 
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 
 public class BristolOtDemo<ResourcePoolT extends ResourcePool> extends Demo {
@@ -22,12 +22,12 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> extends Demo {
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected receiver");
     Random rand = new Random(424242);
-    Ot<BigInteger> ot = new BristolOt<>(1, 2, getKbitLength(),
+    Ot ot = new BristolOt(1, 2, getKbitLength(),
         getLambdaSecurityParam(), rand, network, amountOfOTs);
     for (int i = 0; i < amountOfOTs; i++) {
       boolean choice = rand.nextBoolean();
       System.out.print("Choice " + choice + ": ");
-      BigInteger res = ot.receive(choice);
+      StrictBitVector res = ot.receive(choice);
       System.out.println(res);
     }
     System.out.println("done receiver");
@@ -43,13 +43,12 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> extends Demo {
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected sender");
     Random rand = new Random(420420);
-    Ot<BigInteger> ot = new BristolOt<>(2, 1, getKbitLength(),
-        getLambdaSecurityParam(),
+    Ot ot = new BristolOt(2, 1, getKbitLength(), getLambdaSecurityParam(),
         rand, network, amountOfOTs);
     for (int i = 0; i < amountOfOTs; i++) {
-      // We send random 512 bit integers
-      BigInteger msgZero = new BigInteger(512, rand);
-      BigInteger msgOne = new BigInteger(512, rand);
+      // We send random 512 bit bitstrings
+      StrictBitVector msgZero = new StrictBitVector(512, rand);
+      StrictBitVector msgOne = new StrictBitVector(512, rand);
       System.out.println("Message 0: " + msgZero);
       System.out.println("Message 1: " + msgOne);
       ot.send(msgZero, msgOne);

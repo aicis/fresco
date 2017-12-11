@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -48,19 +47,21 @@ public class FunctionalTestBristolOt {
     testRuntime.shutdown();
   }
 
-  private List<Pair<BigInteger, BigInteger>> bristolOtSend(int iterations,
+  private List<Pair<StrictBitVector, StrictBitVector>> bristolOtSend(
+      int iterations,
       int batchSize) throws IOException {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     Random rand = new Random(42);
-    Ot<BigInteger> otSender = new BristolOt<BigInteger>(1, 2, kbitLength,
-        lambdaBitLength, rand, network, batchSize);
-    List<Pair<BigInteger, BigInteger>> messages = new ArrayList<>(iterations);
+    Ot otSender = new BristolOt(1, 2, kbitLength, lambdaBitLength, rand,
+        network, batchSize);
+    List<Pair<StrictBitVector, StrictBitVector>> messages = new ArrayList<>(
+        iterations);
     for (int i = 0; i < iterations; i++) {
-      BigInteger msgZero = new BigInteger(messageLength, rand);
-      BigInteger msgOne = new BigInteger(messageLength, rand);
+      StrictBitVector msgZero = new StrictBitVector(messageLength, rand);
+      StrictBitVector msgOne = new StrictBitVector(messageLength, rand);
       otSender.send(msgZero, msgOne);
-      Pair<BigInteger, BigInteger> currentPair = new Pair<BigInteger, BigInteger>(
+      Pair<StrictBitVector, StrictBitVector> currentPair = new Pair<StrictBitVector, StrictBitVector>(
           msgZero, msgOne);
       messages.add(currentPair);
     }
@@ -68,16 +69,16 @@ public class FunctionalTestBristolOt {
     return messages;
   }
 
-  private List<BigInteger> bristolOtReceive(StrictBitVector choices,
+  private List<StrictBitVector> bristolOtReceive(StrictBitVector choices,
       int batchSize) throws IOException {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     Random rand = new Random(420);
-    Ot<BigInteger> otReceiver = new BristolOt<BigInteger>(2, 1, kbitLength,
+    Ot otReceiver = new BristolOt(2, 1, kbitLength,
         lambdaBitLength, rand, network, batchSize);
-    List<BigInteger> messages = new ArrayList<>(choices.getSize());
+    List<StrictBitVector> messages = new ArrayList<>(choices.getSize());
     for (int i = 0; i < choices.getSize(); i++) {
-      BigInteger message = otReceiver.receive(choices.getBit(i, false));
+      StrictBitVector message = otReceiver.receive(choices.getBit(i, false));
       messages.add(message);
     }
     ((Closeable) network).close();
@@ -102,19 +103,23 @@ public class FunctionalTestBristolOt {
     List<List<?>> extendResults = testRuntime
         .runPerPartyTasks(Arrays.asList(partyOneOt, partyTwoOt));
     for (int i = 0; i < iterations; i++) {
-      Pair<BigInteger, BigInteger> senderResult = (Pair<BigInteger, BigInteger>) extendResults
+      Pair<StrictBitVector, StrictBitVector> senderResult = (Pair<StrictBitVector, StrictBitVector>) extendResults
           .get(0).get(i);
-      BigInteger receiverResult = (BigInteger) extendResults.get(1).get(i);
+      StrictBitVector receiverResult = (StrictBitVector) extendResults.get(1)
+          .get(i);
       if (choices.getBit(i, false) == false) {
         assertTrue(senderResult.getFirst().equals(receiverResult));
       } else {
         assertTrue(senderResult.getSecond().equals(receiverResult));
       }
       // Check the messages are not 0-strings
-      BigInteger zeroInt = new BigInteger("0");
-      assertNotEquals(zeroInt, senderResult.getFirst());
-      assertNotEquals(zeroInt, senderResult.getSecond());
-      assertNotEquals(zeroInt, receiverResult);
+      StrictBitVector zeroVec = new StrictBitVector(messageLength);
+      assertEquals(zeroVec.getSize(), senderResult.getFirst().getSize());
+      assertEquals(zeroVec.getSize(), senderResult.getSecond().getSize());
+      assertNotEquals(zeroVec, senderResult.getFirst());
+      assertNotEquals(zeroVec, senderResult.getSecond());
+      assertEquals(zeroVec.getSize(), receiverResult.getSize());
+      assertNotEquals(zeroVec, receiverResult);
       // Check that the two messages are not the same
       assertNotEquals(senderResult.getFirst(), senderResult.getSecond());
       // Check that they are not all equal

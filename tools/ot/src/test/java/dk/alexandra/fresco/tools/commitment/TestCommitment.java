@@ -1,8 +1,8 @@
 package dk.alexandra.fresco.tools.commitment;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Random;
 
@@ -18,16 +18,24 @@ public class TestCommitment {
   @Before
   public void setup() {
     rand = new Random(42);
-    comm = new Commitment(128);
+    comm = new Commitment();
   }
 
   /**** POSITIVE TESTS. ****/
   @Test
   public void testHonestExecution() {
     byte[] msg = { (byte) 0x12, (byte) 0x42 };
-    Serializable openInfo = comm.commit(rand, msg);
-    byte[] res = (byte[]) comm.open(openInfo);
-    assertEquals(res, msg);
+    byte[] openInfo = comm.commit(rand, msg);
+    byte[] res = comm.open(openInfo);
+    assertArrayEquals(res, msg);
+  }
+
+  @Test
+  public void testEmptyMessage() {
+    byte[] msg = {};
+    byte[] openInfo = comm.commit(rand, msg);
+    byte[] res = comm.open(openInfo);
+    assertArrayEquals(res, msg);
   }
 
   /****
@@ -40,18 +48,9 @@ public class TestCommitment {
     Commitment comm;
     boolean thrown = false;
     try {
-      // Security parameter must be at least 1
-      comm = new Commitment(0);
-    } catch (IllegalArgumentException e) {
-      assertEquals("Illegal constructor parameters", e.getMessage());
-      thrown = true;
-    }
-    assertEquals(thrown, true);
-    thrown = false;
-    try {
       // Randomness generator must not be null
-      Boolean val = true;
-      comm = new Commitment(2);
+      byte[] val = new byte[] { 0x01 };
+      comm = new Commitment();
       comm.commit(null, val);
     } catch (NullPointerException e) {
       thrown = true;
@@ -62,18 +61,18 @@ public class TestCommitment {
   @Test
   public void testAlreadyCommitted() {
     String firstMsg = "First!";
-    Serializable openInfo = comm.commit(rand, firstMsg);
+    byte[] openInfo = comm.commit(rand, firstMsg.getBytes());
     String secondMsg = "Me, me, me!";
     boolean thrown = false;
     try {
-      comm.commit(rand, secondMsg);
+      comm.commit(rand, secondMsg.getBytes());
     } catch (IllegalStateException e) {
       assertEquals("Already committed", e.getMessage());
       thrown = true;
     }
     assertEquals(true, thrown);
     // Check we can still open correctly
-    String res = (String) comm.open(openInfo);
+    String res = new String(comm.open(openInfo));
     assertEquals(firstMsg, res);
   }
 
@@ -82,7 +81,7 @@ public class TestCommitment {
     boolean thrown = false;
     String firstMsg = "First!";
     try {
-      comm.open(firstMsg);
+      comm.open(firstMsg.getBytes());
     } catch (IllegalStateException e) {
       assertEquals("No commitment to open", e.getMessage());
       thrown = true;
@@ -91,16 +90,36 @@ public class TestCommitment {
   }
 
   @Test
-  public void testBadOpening() {
+  public void testTooSmallOpening() {
     BigInteger bigInt = new BigInteger("15646534687420546");
-    comm.commit(rand, bigInt);
+    comm.commit(rand, bigInt.toByteArray());
     boolean thrown = false;
     try {
       // The message itself is not enough to open the commitment
-      comm.open(bigInt);
+      comm.open(bigInt.toByteArray());
     } catch (MaliciousException e) {
-      assertEquals(
-          "The object given to the open method is not a proper commitment opening object.",
+      assertEquals("The opening info is too small to be a commitment.",
+          e.getMessage());
+      thrown = true;
+    }
+    assertEquals(true, thrown);
+  }
+
+  @Test
+  public void testBadOpening() {
+    BigInteger bigInt = new BigInteger(
+        "1564653468742054656526586400808453435874240857403407808403368744803453123"
+            + "1564653468742054656526586400808453435874240857403407808403368744803453123"
+            + "1564653468742054656526586400808453435874240857403407808403368744803453123"
+            + "1564653468742054656526586400808453435874240857403407808403368744803453123"
+            + "1564653468742054656526586400808453435874240857403407808403368744803453123");
+    comm.commit(rand, bigInt.toByteArray());
+    boolean thrown = false;
+    try {
+      // The message itself is not enough to open the commitment
+      comm.open(bigInt.toByteArray());
+    } catch (MaliciousException e) {
+      assertEquals("The opening info does not match the commitment.",
           e.getMessage());
       thrown = true;
     }
@@ -108,9 +127,9 @@ public class TestCommitment {
     thrown = false;
     try {
       // Try to open using the opening info of another commitment
-      Commitment comm2 = new Commitment(128);
+      Commitment comm2 = new Commitment();
       BigInteger bigInt2 = new BigInteger("424242424242424242");
-      Serializable openInfo2 = comm2.commit(rand, bigInt2);
+      byte[] openInfo2 = comm2.commit(rand, bigInt2.toByteArray());
       comm.open(openInfo2);
     } catch (MaliciousException e) {
       assertEquals(
