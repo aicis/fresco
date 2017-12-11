@@ -62,11 +62,11 @@ public class AesCtrDrbg implements Drbg {
    * Generates enough pseudo-random bytes to fill a given array.
    * <p>
    * Note: this method is unsafe the sense that it expects two array of equal size at most
-   * {@Value UPDATE_LIMIT} and does not check for this.
+   * {@value #UPDATE_LIMIT} and does not check for this.
    * </p>
    *
    * @param zeroes an array of zero bytes of length equal to output array.
-   * @param output an array of size at most {@Value UPDATE_LIMIT} which will be filled with pseudo
+   * @param output an array of size at most {@value #UPDATE_LIMIT} which will be filled with pseudo
    *        random bytes.
    */
   void nextBytesBounded(byte[] zeroes, byte[] output) {
