@@ -32,9 +32,9 @@ public class EvaluatorLoggingDecorator<
   }
 
   @Override
-  public Map<String, Long> getLoggedValues(int myId) {
+  public Map<String, Long> getLoggedValues(int partyId) {
     Map<String, Long> values = new HashMap<>();
-    values.put(ID, (long)myId);
+    values.put(ID, (long) partyId);
     for (int i = 0; i < runtimeLogger.size(); i++) {
       values.put(SCE_RUNNINGTIMES + i, runtimeLogger.get(i));
     }

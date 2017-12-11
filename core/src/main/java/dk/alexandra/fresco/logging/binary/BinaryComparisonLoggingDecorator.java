@@ -45,9 +45,9 @@ public class BinaryComparisonLoggingDecorator implements PerformanceLogger, Comp
   }
 
   @Override
-  public Map<String, Long> getLoggedValues(int myId) {
+  public Map<String, Long> getLoggedValues(int partyId) {
     Map<String, Long> values = new HashMap<>();
-    values.put(ID, (long)myId);
+    values.put(ID, (long) partyId);
     values.put(BINARY_COMPARISON_EQ, this.eqCount);
     values.put(BINARY_COMPARISON_GT, this.gtCount);
     return values;

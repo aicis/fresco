@@ -76,9 +76,9 @@ public class BinaryLoggingDecorator implements PerformanceLogger, Binary {
   }
 
   @Override
-  public Map<String, Long> getLoggedValues(int myId) {
+  public Map<String, Long> getLoggedValues(int partyId) {
     Map<String, Long> values = new HashMap<>();
-    values.put(ID, (long)myId);
+    values.put(ID, (long) partyId);
     values.put(BINARY_BASIC_XOR, this.xorCount);
     values.put(BINARY_BASIC_AND, this.andCount);
     values.put(BINARY_BASIC_RANDOM, this.randBitCount);

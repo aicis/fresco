@@ -52,9 +52,9 @@ public class BatchEvaluationLoggingDecorator<ResourcePoolT extends ResourcePool>
   }
 
   @Override
-  public Map<String, Long> getLoggedValues(int myId) {
+  public Map<String, Long> getLoggedValues(int partyId) {
     Map<String, Long> values = new HashMap<>();
-    values.put(ID, (long)myId);
+    values.put(ID, (long) partyId);
     values.put(BATCH_COUNTER, counter);
     values.put(BATCH_NATIVE_PROTOCOLS, noNativeProtocols);
     values.put(BATCH_MIN_PROTOCOLS, minNoNativeProtocolsPerBatch);

@@ -112,9 +112,9 @@ public class NumericLoggingDecorator implements Numeric, PerformanceLogger {
   }
 
   @Override
-  public Map<String, Long> getLoggedValues(int myId) {
+  public Map<String, Long> getLoggedValues(int partyId) {
     Map<String, Long> values = new HashMap<>();
-    values.put(ID, (long)myId);
+    values.put(ID, (long) partyId);
     values.put(ARITHMETIC_BASIC_MULT, this.multCount);
     values.put(ARITHMETIC_BASIC_ADD, this.addCount);
     values.put(ARITHMETIC_BASIC_SUB, this.subCount);
