@@ -15,19 +15,23 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.util.DetermSecureRandom;
+import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
+import dk.alexandra.fresco.logging.DefaultPerformancePrinter;
+import dk.alexandra.fresco.logging.EvaluatorLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger;
-import dk.alexandra.fresco.logging.PerformanceLogger.Flag;
-import dk.alexandra.fresco.logging.SecureComputationEngineLoggingDecorator;
+import dk.alexandra.fresco.logging.PerformancePrinter;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
+import dk.alexandra.fresco.suite.spdz.storage.DataSupplier;
+import dk.alexandra.fresco.suite.spdz.storage.DataSupplierImpl;
+import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageConstants;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,13 +47,13 @@ public abstract class AbstractSpdzTest {
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy,
       PreprocessingStrategy preProStrat, int noOfParties) throws Exception {
-    runTest(f, evalStrategy, preProStrat, noOfParties, null);
+    runTest(f, evalStrategy, preProStrat, noOfParties, false);
   }
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy,
-      PreprocessingStrategy preProStrat, int noOfParties, EnumSet<Flag> performanceloggerFlags)
+      PreprocessingStrategy preProStrat, int noOfParties, boolean logPerformance)
       throws Exception {
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
@@ -67,29 +71,28 @@ public abstract class AbstractSpdzTest {
 
       BatchEvaluationStrategy<SpdzResourcePool> batchEvalStrat = evalStrategy.getStrategy();
 
-      if (performanceloggerFlags != null && performanceloggerFlags
-          .contains(Flag.LOG_NATIVE_BATCH)) {
+      if (logPerformance) {
         batchEvalStrat = new BatchEvaluationLoggingDecorator<>(batchEvalStrat);
         pls.get(playerId).add((PerformanceLogger) batchEvalStrat);
       }
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
           new BatchedProtocolEvaluator<>(batchEvalStrat, protocolSuite);
-
+      if (logPerformance) {
+        evaluator = new EvaluatorLoggingDecorator<>(evaluator);
+        pls.get(playerId).add((PerformanceLogger) evaluator);
+      }
+      
       SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(protocolSuite, evaluator);
-      if (performanceloggerFlags != null && performanceloggerFlags.contains(Flag.LOG_RUNTIME)) {
-        sce = new SecureComputationEngineLoggingDecorator<>(sce, protocolSuite);
-        pls.get(playerId).add((PerformanceLogger) sce);
-      }
+      
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,
               () -> createResourcePool(playerId, noOfParties, new Random(),
-                  new DetermSecureRandom(), preProStrat),
+                  new SecureRandom(), preProStrat),
               () -> {
                 KryoNetNetwork kryoNetwork = new KryoNetNetwork(netConf.get(playerId));
-                if (performanceloggerFlags != null
-                    && performanceloggerFlags.contains(Flag.LOG_NETWORK)) {
+                if (logPerformance) {
                   NetworkLoggingDecorator network = new NetworkLoggingDecorator(kryoNetwork);
                   pls.get(playerId).add(network);
                   return network;
@@ -101,22 +104,31 @@ public abstract class AbstractSpdzTest {
     }
     TestThreadRunner.run(f, conf);
     for (Integer pId : pls.keySet()) {
+      PerformancePrinter printer = new DefaultPerformancePrinter();
       for (PerformanceLogger pl : pls.get(pId)) {
-        pl.printPerformanceLog(pId);
+        printer.printPerformanceLog(pl, pId);
       }
     }
   }
 
-  static SpdzResourcePool createResourcePool(int myId, int size, Random rand,
+  private SpdzResourcePool createResourcePool(int myId, int size, Random rand,
       SecureRandom secRand, PreprocessingStrategy preproStrat) {
-    SpdzStorage store;
-    if (preproStrat == DUMMY) {
-      store = new SpdzStorageDummyImpl(myId, size);
+    DataSupplier supplier;
+    if (preproStrat == DUMMY) {      
+      supplier = new DummyDataSupplierImpl(myId, size);
     } else {
-      //case STATIC:
-      store = new SpdzStorageImpl(0, size, myId,
-          new FilebasedStreamedStorageImpl(new InMemoryStorage()));
+      // case STATIC:
+      int noOfThreadsUsed = 1;        
+      String storageName =
+          SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
+          + "_";
+      supplier = new DataSupplierImpl(new FilebasedStreamedStorageImpl(new InMemoryStorage()), storageName, size);                
     }
-    return new SpdzResourcePoolImpl(myId, size, rand, secRand, store);
+    SpdzStorage store = new SpdzStorageImpl(supplier);
+    try {
+      return new SpdzResourcePoolImpl(myId, size, new HmacDrbg(), store);
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException("Your system does not have the necessary hash function avaiable.", e);
+    }
   }
 }

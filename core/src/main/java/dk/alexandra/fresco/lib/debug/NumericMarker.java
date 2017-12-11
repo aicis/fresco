@@ -24,7 +24,7 @@ public class NumericMarker implements Computation<Void, ProtocolBuilderNumeric> 
   public DRes<Void> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq(seq -> {
       output.println(message);
-      return () -> null;
+      return null;
     });
   }
 }

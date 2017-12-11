@@ -35,7 +35,7 @@ public class SpdzCommitProtocol extends SpdzNativeProtocol<Void> {
     switch (round) {
       case 0:
         network.sendToAll(serializer
-            .toBytes(commitment.getCommitment(spdzResourcePool.getModulus())));
+            .toBytes(commitment.computeCommitment(spdzResourcePool.getModulus())));
         break;
       case 1:
         List<byte[]> commitments = network.receiveFromAll();

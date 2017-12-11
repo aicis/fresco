@@ -1,9 +1,6 @@
 package dk.alexandra.fresco.logging;
 
-import java.text.DecimalFormat;
-import java.util.EnumSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Map;
 
 /**
  * Class for getting performance numbers. Use the EnumSet to indicate which parameters to log. Note
@@ -12,24 +9,16 @@ import org.slf4j.LoggerFactory;
  *
  */
 public interface PerformanceLogger {
-
-  public Logger log = LoggerFactory.getLogger(PerformanceLogger.class);
-  public DecimalFormat df = new DecimalFormat("#.00");
-  
-  public enum Flag {
-    LOG_NETWORK, LOG_RUNTIME, LOG_NATIVE_BATCH;
-
-    public static final EnumSet<Flag> ALL_OPTS = EnumSet.allOf(Flag.class);
-  }
-
-  /**
-   * Prints any performance numbers picked up.
-   */
-  public abstract void printPerformanceLog(int myId);
   
   /**
    * Resets any counters/maps/lists used. 
    */
-  public abstract void reset();    
+  public void reset();    
   
+  /**
+   * Produce a key-value map of logged values. The content
+   * of the returned map is context dependent. 
+   */
+  public Map<String, Long> getLoggedValues(int myId);
+
 }

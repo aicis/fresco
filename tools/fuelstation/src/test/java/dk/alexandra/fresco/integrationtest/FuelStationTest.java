@@ -9,7 +9,7 @@ import dk.alexandra.fresco.services.DummyDataGenerator;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
-import dk.alexandra.fresco.suite.spdz.utils.Util;
+import dk.alexandra.fresco.suite.spdz.storage.FakeTripGen;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -168,7 +168,7 @@ public class FuelStationTest {
 
     byte[] bs = content.getContentAsByteArray();
     ByteArrayInputStream bis = new ByteArrayInputStream(bs);
-    SpdzElement[] exp1 = new SpdzElement[Util.EXP_PIPE_SIZE];
+    SpdzElement[] exp1 = new SpdzElement[FakeTripGen.EXP_PIPE_SIZE];
     for (int i = 0; i < exp1.length; i++) {
       byte[] elm = new byte[mod.toByteArray().length * 2];
       bis.read(elm);
@@ -182,7 +182,7 @@ public class FuelStationTest {
 
     bs = content.getContentAsByteArray();
     bis = new ByteArrayInputStream(bs);
-    SpdzElement[] exp2 = new SpdzElement[Util.EXP_PIPE_SIZE];
+    SpdzElement[] exp2 = new SpdzElement[FakeTripGen.EXP_PIPE_SIZE];
     for (int i = 0; i < exp2.length; i++) {
       byte[] elm = new byte[mod.toByteArray().length * 2];
       bis.read(elm);

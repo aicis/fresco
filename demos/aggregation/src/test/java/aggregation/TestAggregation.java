@@ -14,27 +14,26 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialStrategy;
-import dk.alexandra.fresco.framework.util.DetermSecureRandom;
+import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
+import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import org.junit.Test;
 
 public class TestAggregation {
 
   private static void runTest(TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> test,
       int n) throws Exception {
-    // Since SCAPI currently does not work with ports > 9999 we use fixed ports
-    // here instead of relying on ephemeral ports which are often > 9999.
     List<Integer> ports = new ArrayList<>(n);
     for (int i = 1; i <= n; i++) {
       ports.add(9000 + i * 10);
@@ -44,8 +43,10 @@ public class TestAggregation {
     Map<Integer, TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     for (int i : netConf.keySet()) {
-      ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> suite = new SpdzProtocolSuite(150);
-      SpdzStorage store = new SpdzStorageDummyImpl(i, n);
+      ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> suite = new SpdzProtocolSuite(150);      
+      SpdzStorage store = new SpdzStorageImpl(new DummyDataSupplierImpl(i, n));
+      SpdzResourcePool rp =
+          new SpdzResourcePoolImpl(i, n, new HmacDrbg(), store);
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
           new BatchedProtocolEvaluator<>(new SequentialStrategy<>(), suite);
       SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =
@@ -53,7 +54,7 @@ public class TestAggregation {
       TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadConfiguration<>(
               sce,
-              () -> new SpdzResourcePoolImpl(i, n, new Random(), new DetermSecureRandom(), store),
+              () -> rp,
               () -> new KryoNetNetwork(netConf.get(i)));
       conf.put(i, ttc);
     }
@@ -88,7 +89,7 @@ public class TestAggregation {
         AggregationDemo.main(
             new String[]{"1", "-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s",
                 "dummyArithmetic"});
-      } catch (IOException e) {
+      } catch (IOException | NoSuchAlgorithmException e) {
         throw new RuntimeException("Error", e);
       }
     };
@@ -98,7 +99,7 @@ public class TestAggregation {
         AggregationDemo.main(
             new String[]{"2", "-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s",
                 "dummyArithmetic"});
-      } catch (IOException e) {
+      } catch (IOException | NoSuchAlgorithmException e) {
         throw new RuntimeException("Error", e);
       }
     };

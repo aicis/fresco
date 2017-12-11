@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
-import dk.alexandra.fresco.suite.spdz.utils.Util;
+import dk.alexandra.fresco.suite.spdz.storage.FakeTripGen;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -143,7 +143,7 @@ public class RetrieverThread extends Thread {
                     break;
                   case EXP:
                     for (int i = 0; i < amount; i++) {
-                      SpdzElement[] exp = new SpdzElement[Util.EXP_PIPE_SIZE];
+                      SpdzElement[] exp = new SpdzElement[FakeTripGen.EXP_PIPE_SIZE];
                       for (int inx = 0; inx < exp.length; inx++) {
                         elm = readData(instream, elmSize);
                         exp[inx] = new SpdzElement(elm, modulus, modulusSize);

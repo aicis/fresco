@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
+import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
@@ -12,17 +13,19 @@ import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
+import dk.alexandra.fresco.suite.spdz.storage.DataSupplier;
+import dk.alexandra.fresco.suite.spdz.storage.DataSupplierImpl;
+import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDummyImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageConstants;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import java.io.File;
 import java.math.BigInteger;
-import java.security.SecureRandom;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Properties;
-import java.util.Random;
 import org.apache.commons.cli.ParseException;
 
 /**
@@ -43,41 +46,37 @@ public class CmdLineProtocolSuite {
     return Arrays.toString(strings);
   }
 
-
-  @SuppressWarnings("unchecked")
   public CmdLineProtocolSuite(String protocolSuiteName, Properties properties, int myId,
-      int noOfPlayers) throws ParseException {
+      int noOfPlayers) throws ParseException, NoSuchAlgorithmException {
     this.myId = myId;
     this.noOfPlayers = noOfPlayers;
     switch (protocolSuiteName) {
       case "dummybool":
         this.protocolSuite = new DummyBooleanProtocolSuite();
         this.resourcePool =
-            new ResourcePoolImpl(myId, noOfPlayers, new Random(), new SecureRandom());
+            new ResourcePoolImpl(myId, noOfPlayers, new HmacDrbg());
         break;
       case "dummyarithmetic":
         this.protocolSuite = dummyArithmeticFromCmdLine(properties);
         BigInteger mod = new BigInteger(properties.getProperty("modulus",
             "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329"));
         this.resourcePool =
-            new DummyArithmeticResourcePoolImpl(
-                myId, noOfPlayers,
-                new Random(), new SecureRandom(), mod);
+            new DummyArithmeticResourcePoolImpl(myId, noOfPlayers, mod);
         break;
       case "spdz":
         this.protocolSuite = SpdzConfigurationFromCmdLine(properties);
         this.resourcePool =
-            createSpdzResourcePool(new Random(), new SecureRandom(), properties);
+            createSpdzResourcePool(properties);
         break;
       case "tinytablesprepro":
         this.protocolSuite = tinyTablesPreProFromCmdLine(properties);
         this.resourcePool =
-            new ResourcePoolImpl(myId, noOfPlayers, new Random(), new SecureRandom());
+            new ResourcePoolImpl(myId, noOfPlayers, new HmacDrbg());
         break;
       case "tinytables":
         this.protocolSuite = tinyTablesFromCmdLine(properties);
         this.resourcePool =
-            new ResourcePoolImpl(myId, noOfPlayers, new Random(), new SecureRandom());
+            new ResourcePoolImpl(myId, noOfPlayers, new HmacDrbg());
         break;
       default:
         throw new ParseException("Unknown protocol suite: " + protocolSuiteName);
@@ -114,27 +113,30 @@ public class CmdLineProtocolSuite {
     return properties;
   }
 
-  private SpdzResourcePool createSpdzResourcePool(Random rand,
-      SecureRandom secRand, Properties properties) {
-    final String fuelStationBaseUrl = properties.getProperty("spdz.fuelStationBaseUrl", null);
+  private SpdzResourcePool createSpdzResourcePool(Properties properties) {
     String strat = properties.getProperty("spdz.preprocessingStrategy");
-    final PreprocessingStrategy strategy = PreprocessingStrategy.fromString(strat);
-    SpdzStorage store;
+    final PreprocessingStrategy strategy = PreprocessingStrategy.valueOf(strat);
+    DataSupplier supplier;
     switch (strategy) {
       case DUMMY:
-        store = new SpdzStorageDummyImpl(myId, noOfPlayers);
+        supplier = new DummyDataSupplierImpl(myId, noOfPlayers);        
         break;
       case STATIC:
-        store = new SpdzStorageImpl(0, noOfPlayers, myId,
-            new FilebasedStreamedStorageImpl(new InMemoryStorage()));
-        break;
-      case FUELSTATION:
-        store = new SpdzStorageImpl(0, noOfPlayers, myId, fuelStationBaseUrl);
-        break;
+        int noOfThreadsUsed = 1;        
+        String storageName =
+            SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
+            + "_";
+        supplier = new DataSupplierImpl(new FilebasedStreamedStorageImpl(new InMemoryStorage()), storageName, noOfPlayers);        
+        break;      
       default:
         throw new ConfigurationException("Unkonwn preprocessing strategy: " + strategy);
     }
-    return new SpdzResourcePoolImpl(myId, noOfPlayers, rand, secRand, store);
+    SpdzStorage store = new SpdzStorageImpl(supplier);
+    try {
+      return new SpdzResourcePoolImpl(myId, noOfPlayers, new HmacDrbg(), store);
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException("Your system does not support the necessary hash function.", e);
+    }
   }
 
   private ProtocolSuite<?, ?> tinyTablesPreProFromCmdLine(Properties properties)

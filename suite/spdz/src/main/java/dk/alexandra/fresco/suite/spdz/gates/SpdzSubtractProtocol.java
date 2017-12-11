@@ -18,11 +18,6 @@ public class SpdzSubtractProtocol extends SpdzNativeProtocol<SInt> {
   }
 
   @Override
-  public String toString() {
-    return "SpdzSubtractGate(" + left + ", " + right + ", " + out + ")";
-  }
-
-  @Override
   public SpdzSInt out() {
     return out;
   }

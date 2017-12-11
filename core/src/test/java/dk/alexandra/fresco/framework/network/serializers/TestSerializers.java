@@ -11,8 +11,6 @@ public class TestSerializers {
 
   @Test
   public void testBigIntegerWithFixedLengthSerializer() {
-    BigInteger mod = new BigInteger("1298376217321832134223");
-
     BigInteger b = new BigInteger("1298376217321832");
     BigIntegerWithFixedLengthSerializer serializer = new BigIntegerWithFixedLengthSerializer(20);
     byte[] bytes = serializer.toBytes(b);
@@ -23,6 +21,11 @@ public class TestSerializers {
     bytes = serializer.toBytes(b);
     bb = serializer.toBigInteger(bytes);
     Assert.assertEquals(b, bb);
+  }
+
+  @Test
+  public void constructor() throws Exception {
+    new BooleanSerializer();
   }
 
   @Test

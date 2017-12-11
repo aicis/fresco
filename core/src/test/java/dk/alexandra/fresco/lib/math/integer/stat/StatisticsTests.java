@@ -81,7 +81,7 @@ public class StatisticsTests {
                 }
               }
               outputCovarianceMatix = openCovarianceMatrix;
-              return () -> null;
+              return null;
             });
           };
           runApplication(app);
@@ -179,7 +179,7 @@ public class StatisticsTests {
                 }
               }
               outputCovarianceMatix = openCovarianceMatrix;
-              return () -> null;
+              return null;
             });
           };
 

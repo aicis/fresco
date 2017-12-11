@@ -1,8 +1,9 @@
 package dk.alexandra.fresco.logging;
 
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+
 import dk.alexandra.fresco.framework.network.Network;
-import org.hamcrest.core.Is;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class NetworkLoggingDecoratorTest {
@@ -25,7 +26,7 @@ public class NetworkLoggingDecoratorTest {
         return 22;
       }
     });
-    Assert.assertThat(networkLoggingDecorator.getNoOfParties(), Is.is(22));
+    assertThat(networkLoggingDecorator.getNoOfParties(), is(22));
     // This should be a nil operation since my network does not implement closeable
     networkLoggingDecorator.close();
   }
