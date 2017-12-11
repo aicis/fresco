@@ -1,14 +1,17 @@
 package dk.alexandra.fresco.tools.mascot.elgen;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import dk.alexandra.fresco.framework.MaliciousException;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
@@ -18,18 +21,17 @@ import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
 import dk.alexandra.fresco.tools.mascot.maccheck.MacCheck;
+import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
+import dk.alexandra.fresco.tools.mascot.utils.PaddingPrg;
 import dk.alexandra.fresco.tools.mascot.utils.Sharer;
-import dk.alexandra.fresco.tools.mascot.utils.sample.DummyJointSampler;
-import dk.alexandra.fresco.tools.mascot.utils.sample.DummySampler;
-import dk.alexandra.fresco.tools.mascot.utils.sample.Sampler;
 
 public class ElGen extends MultiPartyProtocol {
 
   private MacCheck macChecker;
   private FieldElement macKeyShare;
   private boolean initialized;
-  private Sampler localSampler;
-  private Sampler jointSampler;
+  private FieldElementPrg localSampler;
+  private FieldElementPrg jointSampler;
   private Sharer sharer;
   private Map<Integer, CopeSigner> copeSigners;
   private Map<Integer, CopeInputter> copeInputters;
@@ -38,8 +40,11 @@ public class ElGen extends MultiPartyProtocol {
     super(ctx);
     this.macChecker = new MacCheck(ctx);
     this.macKeyShare = macKeyShare;
-    this.localSampler = new DummySampler(ctx.getRand());
-    this.jointSampler = new DummyJointSampler();
+    this.localSampler =
+        new PaddingPrg(new StrictBitVector(modBitLength, new SecureRandom()));
+    // TODO
+    this.jointSampler = 
+        new PaddingPrg(new StrictBitVector(modBitLength, new Random(1)));
     this.sharer = new Sharer(localSampler);
     this.copeSigners = new HashMap<>();
     this.copeInputters = new HashMap<>();
@@ -147,8 +152,7 @@ public class ElGen extends MultiPartyProtocol {
   /**
    * Inputs field elements.
    */
-  public List<AuthenticatedElement> input(List<FieldElement> values)
-      throws MaliciousException {
+  public List<AuthenticatedElement> input(List<FieldElement> values) throws MaliciousException {
     // can't input before initializing
     if (!initialized) {
       throw new IllegalStateException("Need to initialize first");
@@ -158,14 +162,14 @@ public class ElGen extends MultiPartyProtocol {
     values = new ArrayList<>(values);
 
     // add extra random element which will later be used to mask inputs
-    FieldElement extraElement = localSampler.sample(modulus, modBitLength);
+    FieldElement extraElement = localSampler.getNext(modulus, modBitLength);
     values.add(extraElement);
 
     // compute per element mac share
     List<FieldElement> macs = macValues(values);
 
     // generate masks for values and macs
-    List<FieldElement> masks = jointSampler.sample(modulus, modBitLength, values.size());
+    List<FieldElement> masks = jointSampler.getNext(modulus, modBitLength, values.size());
 
     // mask and combine values
     FieldElement maskedValue = FieldElementCollectionUtils.innerProduct(values, masks);
@@ -199,7 +203,7 @@ public class ElGen extends MultiPartyProtocol {
     List<FieldElement> macs = copeSigner.extend(numInputs + 1);
 
     // generate masks for macs
-    List<FieldElement> masks = jointSampler.sample(modulus, modBitLength, numInputs + 1);
+    List<FieldElement> masks = jointSampler.getNext(modulus, modBitLength, numInputs + 1);
 
     // receive masked value we will use in mac-check
     FieldElement maskedValue = new FieldElement(network.receive(inputterId), modulus, modBitLength);
@@ -229,7 +233,7 @@ public class ElGen extends MultiPartyProtocol {
   public void check(List<AuthenticatedElement> sharesWithMacs, List<FieldElement> openValues)
       throws MaliciousException {
     // will use this to mask macs
-    List<FieldElement> masks = jointSampler.sample(modulus, modBitLength, sharesWithMacs.size());
+    List<FieldElement> masks = jointSampler.getNext(modulus, modBitLength, sharesWithMacs.size());
     // only need macs
     List<FieldElement> macs = sharesWithMacs.stream()
         .map(AuthenticatedElement::getMac)
