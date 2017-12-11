@@ -1,16 +1,17 @@
 package dk.alexandra.fresco.tools.mascot.cope;
 
-import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.MascotContext;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeft;
-import dk.alexandra.fresco.tools.mascot.utils.DummyPrg;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeft;
+import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
+import dk.alexandra.fresco.tools.mascot.utils.PaddingPrg;
 
 public class CopeSigner extends CopeShared {
 
@@ -42,7 +43,7 @@ public class CopeSigner extends CopeShared {
 
   private void seedPrgs(List<StrictBitVector> seeds) {
     for (StrictBitVector seed : seeds) {
-      prgs.add(new DummyPrg(seed, modulus, modBitLength));
+      prgs.add(new PaddingPrg(seed));
     }
   }
 

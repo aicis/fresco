@@ -1,18 +1,19 @@
 package dk.alexandra.fresco.tools.mascot.cope;
 
-import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.MascotContext;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.mult.MultiplyRight;
-import dk.alexandra.fresco.tools.mascot.utils.DummyPrg;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+
+import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.mult.MultiplyRight;
+import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
+import dk.alexandra.fresco.tools.mascot.utils.PaddingPrg;
 
 public class CopeInputter extends CopeShared {
 
@@ -38,8 +39,8 @@ public class CopeInputter extends CopeShared {
 
   private void seedPrgs(List<Pair<StrictBitVector, StrictBitVector>> seeds) {
     for (Pair<StrictBitVector, StrictBitVector> seedPair : seeds) {
-      this.leftPrgs.add(new DummyPrg(seedPair.getFirst(), modulus, modBitLength));
-      this.rightPrgs.add(new DummyPrg(seedPair.getSecond(), modulus, modBitLength));
+      this.leftPrgs.add(new PaddingPrg(seedPair.getFirst()));
+      this.rightPrgs.add(new PaddingPrg(seedPair.getSecond()));
     }
   }
 
