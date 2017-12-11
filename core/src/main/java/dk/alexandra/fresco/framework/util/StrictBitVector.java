@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
 
+// TODO get rid of size as a parameter?
 public class StrictBitVector implements Serializable {
 
   private static final long serialVersionUID = 2876595135347820647L;

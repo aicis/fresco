@@ -26,8 +26,7 @@ public class MultiplyRight extends MultiplyShared {
   public List<Pair<StrictBitVector, StrictBitVector>> generateSeeds(int numMults) {
     // perform rots for each bit, for each left factor, for each multiplication
     int numRots = modBitLength * numLeftFactors * numMults;
-    List<Pair<StrictBitVector, StrictBitVector>> seeds = new ArrayList<>();
-    seeds = rot.send(numRots, modBitLength);
+    List<Pair<StrictBitVector, StrictBitVector>> seeds = rot.send(numRots, modBitLength);
     // TODO temporary fix until big-endianness issue is resolved
     Collections.reverse(seeds);
     return seeds;

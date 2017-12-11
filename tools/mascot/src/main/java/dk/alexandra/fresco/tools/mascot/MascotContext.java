@@ -11,11 +11,12 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.serializers.StrictBitVectorSerializer;
 import dk.alexandra.fresco.tools.commitment.CommitmentSerializer;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 
 public class MascotContext {
-
+  // TODO this getting very cluttered
   Integer myId;
   List<Integer> partyIds;
   BigInteger modulus;
@@ -24,6 +25,7 @@ public class MascotContext {
   Network network;
   Random rand;
   FieldElementSerializer feSerializer;
+  StrictBitVectorSerializer sbvSerializer;
   CommitmentSerializer commSerializer;
 
   public MascotContext(Integer myId, List<Integer> partyIds, BigInteger modulus, int kBitLength,
@@ -38,6 +40,7 @@ public class MascotContext {
     this.rand = rand;
     this.feSerializer = new FieldElementSerializer(modulus, kBitLength);
     this.commSerializer = new CommitmentSerializer();
+    this.sbvSerializer = new StrictBitVectorSerializer();
   }
 
   public static MascotContext defaultContext(Integer myId, List<Integer> partyIds) {
@@ -87,6 +90,10 @@ public class MascotContext {
 
   public CommitmentSerializer getCommSerializer() {
     return commSerializer;
+  }
+
+  public StrictBitVectorSerializer getSbvSerializer() {
+    return sbvSerializer;
   }
 
   private static NetworkConfiguration defaultNetworkConfiguration(Integer myId,

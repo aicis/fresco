@@ -5,6 +5,7 @@ import java.math.BigInteger;
 /**
  * Serializer for big integers.
  */
+@Deprecated()
 public interface BigIntegerSerializer {
 
   /**
