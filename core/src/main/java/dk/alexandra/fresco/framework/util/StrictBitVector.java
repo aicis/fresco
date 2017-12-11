@@ -1,33 +1,15 @@
 package dk.alexandra.fresco.framework.util;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Random;
 
 // TODO get rid of size as a parameter?
-public class StrictBitVector implements Serializable {
+public class StrictBitVector {
 
-  private static final long serialVersionUID = 2876595135347820647L;
   private byte[] bits;
   private int size;
-
-  /**
-   * Creates a StrictBitVector with all entries set to zero.
-   *
-   * @param size size of the vector
-   */
-  public StrictBitVector(int size) {
-    if (size < 0) {
-      throw new IllegalArgumentException("Size of vector must not be negative but was " + size);
-    }
-    if (size % 8 != 0) {
-      throw new IllegalArgumentException("Size must be multiple of 8");
-    }
-    this.size = size;
-    this.bits = new byte[size / 8];
-  }
-
+  
   /**
    * Constructs new strict bit vector.
    * 
@@ -43,6 +25,22 @@ public class StrictBitVector implements Serializable {
     }
     this.bits = bits.clone();
     this.size = size;
+  }
+  
+  /**
+   * Creates a StrictBitVector with all entries set to zero.
+   *
+   * @param size size of the vector
+   */
+  public StrictBitVector(int size) {
+    if (size < 0) {
+      throw new IllegalArgumentException("Size of vector must not be negative but was " + size);
+    }
+    if (size % 8 != 0) {
+      throw new IllegalArgumentException("Size must be multiple of 8");
+    }
+    this.size = size;
+    this.bits = new byte[size / 8];
   }
 
   /**
