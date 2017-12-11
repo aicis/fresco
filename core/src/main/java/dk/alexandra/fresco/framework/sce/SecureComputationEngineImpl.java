@@ -36,7 +36,7 @@ public class SecureComputationEngineImpl
   private static final Logger logger = LoggerFactory.getLogger(SecureComputationEngineImpl.class);
 
   /**
-   * Creates a new {@link SecureCompatationEngineImpl}.
+   * Creates a new {@link SecureComputationEngineImpl}.
    *
    * @param protocolSuite the {@link ProtocolSuite} to use to evaluate the secure computation
    * @param evaluator the {@link ProtocolEvaluator} to run secure evaluation.
