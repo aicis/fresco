@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.Closeable;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidParameterSpecException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,7 +29,7 @@ import dk.alexandra.fresco.tools.ot.otextension.TestRuntime;
 public class FunctionalTestNaorPinkas {
   private TestRuntime testRuntime;
   private int messageLength = 1024;
-  private DHParameterSpec params;
+  private DHParameterSpec staticParams;
 
   /**
    * Initializes the test runtime and constructs a Cote Sender and a Cote
@@ -37,7 +38,7 @@ public class FunctionalTestNaorPinkas {
   @Before
   public void initializeRuntime() {
     this.testRuntime = new TestRuntime();
-    params = new DHParameterSpec(TestNaorPinkasOt.DhPvalue,
+    staticParams = new DHParameterSpec(TestNaorPinkasOt.DhPvalue,
         TestNaorPinkasOt.DhGvalue);
   }
 
@@ -53,12 +54,13 @@ public class FunctionalTestNaorPinkas {
   }
 
   private List<Pair<StrictBitVector, StrictBitVector>> otSend(int iterations)
-      throws IOException, NoSuchAlgorithmException {
+      throws IOException, NoSuchAlgorithmException,
+      InvalidParameterSpecException {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     try {
       Random rand = new Random(42);
-      Ot otSender = new NaorPinkasOT(1, 2, rand, network, params);
+      Ot otSender = new NaorPinkasOT(1, 2, rand, network);
       List<Pair<StrictBitVector, StrictBitVector>> messages = new ArrayList<>(
           iterations);
       for (int i = 0; i < iterations; i++) {
@@ -76,12 +78,13 @@ public class FunctionalTestNaorPinkas {
   }
 
   private List<StrictBitVector> otReceive(StrictBitVector choices)
-      throws IOException, NoSuchAlgorithmException {
+      throws IOException, NoSuchAlgorithmException,
+      InvalidParameterSpecException {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     try {
       Random rand = new Random(420);
-      Ot otReceiver = new NaorPinkasOT(2, 1, rand, network, params);
+      Ot otReceiver = new NaorPinkasOT(2, 1, rand, network);
       List<StrictBitVector> messages = new ArrayList<>(choices.getSize());
       for (int i = 0; i < choices.getSize(); i++) {
         StrictBitVector message = otReceiver.receive(choices.getBit(i, false));
@@ -152,7 +155,7 @@ public class FunctionalTestNaorPinkas {
         TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     try {
       Random rand = new Random(42);
-      Ot otSender = new NaorPinkasOT(1, 2, rand, network, params);
+      Ot otSender = new NaorPinkasOT(1, 2, rand, network, staticParams);
       StrictBitVector msgZero = new StrictBitVector(messageLength, rand);
       StrictBitVector msgOne = new StrictBitVector(messageLength, rand);
       // Send a wrong random value c, than what is actually used
@@ -173,7 +176,7 @@ public class FunctionalTestNaorPinkas {
         TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     try {
       Random rand = new Random(420);
-      Ot otReceiver = new NaorPinkasOT(2, 1, rand, network, params);
+      Ot otReceiver = new NaorPinkasOT(2, 1, rand, network, staticParams);
       StrictBitVector message = otReceiver.receive(choice);
       List<StrictBitVector> messageList = new ArrayList<>(1);
       messageList.add(message);

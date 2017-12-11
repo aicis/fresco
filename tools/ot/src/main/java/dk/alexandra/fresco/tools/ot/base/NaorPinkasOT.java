@@ -56,10 +56,6 @@ public class NaorPinkasOT implements Ot
     this.params = params;
   }
 
-  public Network getNetwork() {
-    return network;
-  }
-
   public DHParameterSpec getDhParams() {
     return params;
   }
@@ -224,7 +220,7 @@ public class NaorPinkasOT implements Ot
    * 
    * @return The computed Diffie-Hellman parameters
    */
-  public DHParameterSpec computeSecureDhParams() {
+  private DHParameterSpec computeSecureDhParams() {
     try {
       // Do coin-tossing to agree on a random seed of "kbitLength" bits
       CoinTossing ct = new CoinTossing(myId, otherId,
