@@ -11,6 +11,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Random;
 
+import dk.alexandra.fresco.framework.MPCException;
+
 public class ByteArrayHelper {
 
   /**
@@ -102,9 +104,8 @@ public class ByteArrayHelper {
    * 
    * @param val The value to serialize
    * @return The serialized value
-   * @throws IOException Thrown if an internal error occurs.
    */
-  public static byte[] serialize(Serializable val) throws IOException {
+  public static byte[] serialize(Serializable val) {
     ByteArrayOutputStream bos = null;
     try {
       bos = new ByteArrayOutputStream();
@@ -112,8 +113,14 @@ public class ByteArrayHelper {
       out.writeObject(val);
       out.flush();
       return bos.toByteArray();
+    } catch (IOException e) {
+      throw new MPCException("Could not serialize the object.");
     } finally {
-      bos.close();
+      try {
+        bos.close();
+      } catch (IOException e) {
+        throw new MPCException("Cloud not close the stream.");
+      }
     }
   }
 

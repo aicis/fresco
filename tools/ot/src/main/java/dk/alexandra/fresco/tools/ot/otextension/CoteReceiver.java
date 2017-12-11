@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,8 +8,6 @@ import java.util.Random;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.ot.base.FailedOtException;
-import dk.alexandra.fresco.tools.ot.base.MaliciousOtException;
 
 /**
  * Protocol class for the party acting as the receiver in an correlated OT with
@@ -51,37 +48,23 @@ public class CoteReceiver extends CoteShared {
   /**
    * Initializes the correlated OT extension with errors by running true seed
    * OTs. This should only be done once for a given sender/receiver pair.
-   * 
-   * @throws MaliciousOtExtensionException
-   *           Thrown in case the other party cheats in the seed OTs
-   * @throws NoSuchAlgorithmException
-   *           Thrown if the underlying PRG algorithm does not exist.
    */
-  public void initialize()
-      throws FailedOtExtensionException, MaliciousOtExtensionException {
+  public void initialize() {
     if (initialized) {
       throw new IllegalStateException("Already initialized");
     }
-    try {
-      // Complete the seed OTs acting as the sender (NOT the receiver)
-      for (int i = 0; i < getkBitLength(); i++) {
-        StrictBitVector seedZero = new StrictBitVector(getkBitLength(),
-            getRand());
-        StrictBitVector seedFirst = new StrictBitVector(getkBitLength(),
-            getRand());
-        ot.send(seedZero, seedFirst);
-        seeds.add(new Pair<>(seedZero, seedFirst));
-        // Initialize the PRGs with the random messages
-        SecureRandom prgZero = makePrg(seedZero);
-        SecureRandom prgFirst = makePrg(seedFirst);
-        prgs.add(new Pair<>(prgZero, prgFirst));
-      }
-    } catch (FailedOtException e) {
-      throw new FailedOtExtensionException(
-          "A failure happened in the seed OTs: " + e.getMessage());
-    } catch (MaliciousOtException e) {
-      throw new MaliciousOtExtensionException(
-          "The other party tried to cheat in the seed OTs: " + e.getMessage());
+    // Complete the seed OTs acting as the sender (NOT the receiver)
+    for (int i = 0; i < getkBitLength(); i++) {
+      StrictBitVector seedZero = new StrictBitVector(getkBitLength(),
+          getRand());
+      StrictBitVector seedFirst = new StrictBitVector(getkBitLength(),
+          getRand());
+      ot.send(seedZero, seedFirst);
+      seeds.add(new Pair<>(seedZero, seedFirst));
+      // Initialize the PRGs with the random messages
+      SecureRandom prgZero = makePrg(seedZero);
+      SecureRandom prgFirst = makePrg(seedFirst);
+      prgs.add(new Pair<>(prgZero, prgFirst));
     }
     initialized = true;
   }

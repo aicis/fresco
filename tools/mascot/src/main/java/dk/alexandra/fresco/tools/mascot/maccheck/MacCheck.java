@@ -12,8 +12,6 @@ import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.tools.commitment.Commitment;
 import dk.alexandra.fresco.tools.commitment.CommitmentSerializer;
-import dk.alexandra.fresco.tools.commitment.FailedCommitmentException;
-import dk.alexandra.fresco.tools.commitment.MaliciousCommitmentException;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
@@ -82,16 +80,8 @@ public class MacCheck extends MultiPartyProtocol {
       Commitment comm = comms.get(i);
       Serializable opening = openings.get(i);
       FieldElement fe;
-      try {
-        fe = (FieldElement) comm.open(opening);
-        result.add(fe);
-      } catch (MaliciousCommitmentException e) {
-        // TODO
-        throw new MaliciousException(e);
-      } catch (FailedCommitmentException e) {
-        // TODO
-        throw new RuntimeException(e);
-      }
+      fe = (FieldElement) comm.open(opening);
+      result.add(fe);
     }
     return result;
   }
@@ -109,11 +99,7 @@ public class MacCheck extends MultiPartyProtocol {
     Commitment ownComm = new Commitment(modBitLength);
 
     Serializable ownOpening;
-    try {
-      ownOpening = ownComm.commit(new SecureRandom(), sigma);
-    } catch (FailedCommitmentException e) {
-      throw new FailedException(e);
-    }
+    ownOpening = ownComm.commit(new SecureRandom(), sigma);
 
     List<Commitment> comms;
     List<Serializable> openings;

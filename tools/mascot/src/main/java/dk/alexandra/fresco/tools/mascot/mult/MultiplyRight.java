@@ -6,16 +6,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import dk.alexandra.fresco.framework.FailedException;
-import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
 import dk.alexandra.fresco.tools.mascot.utils.DummyPrg;
-import dk.alexandra.fresco.tools.ot.base.FailedOtException;
-import dk.alexandra.fresco.tools.ot.base.MaliciousOtException;
 
 public class MultiplyRight extends MultiplyShared {
 
@@ -31,13 +27,7 @@ public class MultiplyRight extends MultiplyShared {
     // perform rots for each bit, for each left factor, for each multiplication
     int numRots = modBitLength * numLeftFactors * numMults;
     List<Pair<StrictBitVector, StrictBitVector>> seeds = new ArrayList<>();
-    try {
-      seeds = rot.send(numRots, modBitLength);
-    } catch (MaliciousOtException e) {
-      throw new MaliciousException(e);
-    } catch (FailedOtException e) {
-      throw new FailedException("rethrown, will be removed with better exception handling", e);
-    }
+    seeds = rot.send(numRots, modBitLength);
     // TODO temporary fix until big-endianness issue is resolved
     Collections.reverse(seeds);
     return seeds;

@@ -2,11 +2,9 @@ package dk.alexandra.fresco.tools.ot.otextension;
 
 import java.util.List;
 
+import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.cointossing.FailedCoinTossingException;
-import dk.alexandra.fresco.tools.commitment.FailedCommitmentException;
-import dk.alexandra.fresco.tools.commitment.MaliciousCommitmentException;
 
 /**
  * Protocol class for the party acting as the sender in a random OT extension.
@@ -48,10 +46,7 @@ public class RotSender extends RotShared {
    * @throws MaliciousOtExtensionException
    *           Thrown if cheating occurred
    */
-  public void initialize()
-      throws MaliciousCommitmentException, FailedCommitmentException,
-      FailedCoinTossingException, FailedOtExtensionException,
-      MaliciousOtExtensionException {
+  public void initialize() {
     if (initialized) {
       throw new IllegalStateException("Already initialized");
     }
@@ -75,8 +70,7 @@ public class RotSender extends RotShared {
    * @throws FailedOtExtensionException
    *           Thrown if something, non-malicious, goes wrong
    */
-  public Pair<List<StrictBitVector>, List<StrictBitVector>> extend(int size)
-      throws MaliciousOtExtensionException, FailedOtExtensionException {
+  public Pair<List<StrictBitVector>, List<StrictBitVector>> extend(int size) {
     if (!initialized) {
       throw new IllegalStateException("Not initialized");
     }
@@ -100,7 +94,8 @@ public class RotSender extends RotShared {
     tvecToCompare.xor(qvec);
     // Ensure that the receiver has been honest by verifying its challenge
     if (tvecToCompare.equals(tvec) == false) {
-      throw new MaliciousOtExtensionException("Correlation check failed");
+      throw new MaliciousException(
+          "Correlation check failed for the sender in the random OT extension");
     }
     // Remove the correlated of the first "size" messages by hashing for
     // choice-zero

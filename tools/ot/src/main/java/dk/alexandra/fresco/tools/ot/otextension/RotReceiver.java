@@ -1,12 +1,8 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.cointossing.FailedCoinTossingException;
-import dk.alexandra.fresco.tools.commitment.FailedCommitmentException;
-import dk.alexandra.fresco.tools.commitment.MaliciousCommitmentException;
 
 /**
  * Protocol class for the party acting as the receiver in an random OT extension
@@ -35,16 +31,8 @@ public class RotReceiver extends RotShared {
    * Initializes the random OT extension by initializing the underlying
    * correlated OT with errors and coin tossing functionalities. This should
    * only be done once for a given sender/receiver pair.
-   * 
-   * @throws MaliciousOtExtensionException
-   *           Thrown if cheating occurred
-   * @throws NoSuchAlgorithmException
-   *           Thrown if the underlying PRG algorithm does not exist.
    */
-  public void initialize()
-      throws FailedOtExtensionException, MaliciousCommitmentException,
-      FailedCommitmentException, FailedCoinTossingException,
-      MaliciousOtExtensionException {
+  public void initialize() {
     if (initialized) {
       throw new IllegalStateException("Already initialized");
     }
@@ -64,8 +52,7 @@ public class RotReceiver extends RotShared {
    * @return A list of pairs consisting of the bit choices, followed by the
    *         received messages
    */
-  public List<StrictBitVector> extend(StrictBitVector choices)
-      throws FailedOtExtensionException {
+  public List<StrictBitVector> extend(StrictBitVector choices) {
     int ellPrime = choices.getSize() + getKbitLength()
         + getLambdaSecurityParam();
     // Extend the choices with random choices for padding

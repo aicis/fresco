@@ -18,14 +18,12 @@ public class DummyRot implements Rot<StrictBitVector> {
   }
 
   @Override
-  public StrictBitVector receive(Boolean choiceBit)
-      throws MaliciousOtException, FailedOtException {
+  public StrictBitVector receive(Boolean choiceBit) {
     return this.dummyOt.receive(choiceBit);
   }
 
   @Override
-  public Pair<StrictBitVector, StrictBitVector> send(int size)
-      throws MaliciousOtException, FailedOtException {
+  public Pair<StrictBitVector, StrictBitVector> send(int size) {
     StrictBitVector messageZero = new StrictBitVector(size, this.rand);
     StrictBitVector messageOne = new StrictBitVector(size, this.rand);
     this.dummyOt.send(messageZero, messageOne);

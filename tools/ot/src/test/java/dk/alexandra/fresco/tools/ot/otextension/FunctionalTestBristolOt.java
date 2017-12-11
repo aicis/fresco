@@ -20,14 +20,13 @@ import org.junit.Test;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.ot.base.FailedOtException;
-import dk.alexandra.fresco.tools.ot.base.MaliciousOtException;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 
-public class FunctionalTestBristolRotBatch {
+public class FunctionalTestBristolOt {
   private TestRuntime testRuntime;
   private int kbitLength = 256;
   private int lambdaBitLength = 64;
+  private int messageLength = 1024;
 
   /**
    * Initializes the test runtime and constructs a Cote Sender and a Cote
@@ -50,8 +49,7 @@ public class FunctionalTestBristolRotBatch {
   }
 
   private List<Pair<BigInteger, BigInteger>> bristolOtSend(int iterations,
-      int batchSize)
-      throws MaliciousOtException, FailedOtException, IOException {
+      int batchSize) throws IOException {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     Random rand = new Random(42);
@@ -59,8 +57,8 @@ public class FunctionalTestBristolRotBatch {
         lambdaBitLength, rand, network, batchSize);
     List<Pair<BigInteger, BigInteger>> messages = new ArrayList<>(iterations);
     for (int i = 0; i < iterations; i++) {
-      BigInteger msgZero = new BigInteger(1024, rand);
-      BigInteger msgOne = new BigInteger(1024, rand);
+      BigInteger msgZero = new BigInteger(messageLength, rand);
+      BigInteger msgOne = new BigInteger(messageLength, rand);
       otSender.send(msgZero, msgOne);
       Pair<BigInteger, BigInteger> currentPair = new Pair<BigInteger, BigInteger>(
           msgZero, msgOne);
@@ -71,8 +69,7 @@ public class FunctionalTestBristolRotBatch {
   }
 
   private List<BigInteger> bristolOtReceive(StrictBitVector choices,
-      int batchSize)
-      throws MaliciousOtException, FailedOtException, IOException {
+      int batchSize) throws IOException {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     Random rand = new Random(420);
@@ -88,7 +85,7 @@ public class FunctionalTestBristolRotBatch {
   }
 
   /**
-   * Verify that we can initialize the parties in OT.
+   * Verify that we can execute the OT.
    */
   @SuppressWarnings("unchecked")
   @Test
@@ -136,8 +133,7 @@ public class FunctionalTestBristolRotBatch {
   }
 
   private List<Pair<StrictBitVector, StrictBitVector>> bristolRotBatchSend(
-      int batchSize, int messageSize)
-      throws MaliciousOtException, FailedOtException, IOException {
+      int batchSize, int messageSize) throws IOException {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     Random rand = new Random(42);
@@ -150,8 +146,7 @@ public class FunctionalTestBristolRotBatch {
   }
 
   private List<StrictBitVector> bristolRotBatchReceive(StrictBitVector choices,
-      int messageSize)
-      throws MaliciousOtException, FailedOtException, IOException {
+      int messageSize) throws IOException {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     Random rand = new Random(420);

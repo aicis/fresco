@@ -165,8 +165,7 @@ public class TestRot {
 
   /**** NEGATIVE TESTS. ****/
   @Test
-  public void testIllegalExtend()
-      throws MaliciousOtExtensionException, FailedOtExtensionException {
+  public void testIllegalExtend() {
     boolean thrown = false;
     try {
       rot.getSender().extend(88);

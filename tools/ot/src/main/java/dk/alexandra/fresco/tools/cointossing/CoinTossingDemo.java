@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.tools.cointossing;
 
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -12,8 +11,6 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.commitment.FailedCommitmentException;
-import dk.alexandra.fresco.tools.commitment.MaliciousCommitmentException;
 
 /**
  * Runs a demo session of the coin-tossing and commitment functionality.
@@ -34,23 +31,8 @@ public class CoinTossingDemo {
    *          The PID of the other party.
    * @throws IOException
    *           Thrown in case of network issues
-   * @throws NoSuchAlgorithmException
-   *           Thrown in case the underlying PRG algorithm used does not exist
-   * @throws MaliciousCommitmentException
-   *           The opening info received to a commitment does not match the
-   *           commitment. This is only thrown in case a party is running
-   *           maliciously.
-   * @throws FailedCoinTossingException
-   *           Something went wrong internally with the coin tossing. This is
-   *           *not* an indication of malicious behavior.
-   * @throws FailedCommitmentException
-   *           Something went wrong internally with a commitment. This is *not*
-   *           an indication of malicious behavior.
-   * 
    */
-  public void run(int myId, int otherId)
-      throws IOException, NoSuchAlgorithmException, FailedCoinTossingException,
-      MaliciousCommitmentException, FailedCommitmentException {
+  public void run(int myId, int otherId) {
     Network network = new KryoNetNetwork(getNetworkConfiguration(myId));
     System.out.println("Connected party " + myId);
     Random rand = new Random(42);

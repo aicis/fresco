@@ -9,6 +9,8 @@ import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
 
+import dk.alexandra.fresco.framework.MaliciousException;
+
 public class TestCommitment {
   Commitment comm;
   Random rand;
@@ -21,8 +23,7 @@ public class TestCommitment {
 
   /**** POSITIVE TESTS. ****/
   @Test
-  public void testHonestExecution()
-      throws MaliciousCommitmentException, FailedCommitmentException {
+  public void testHonestExecution() {
     byte[] msg = { (byte) 0x12, (byte) 0x42 };
     Serializable openInfo = comm.commit(rand, msg);
     byte[] res = (byte[]) comm.open(openInfo);
@@ -35,7 +36,7 @@ public class TestCommitment {
    * @throws FailedCommitmentException
    ****/
   @Test
-  public void testIllegalInit() throws FailedCommitmentException {
+  public void testIllegalInit() {
     Commitment comm;
     boolean thrown = false;
     try {
@@ -59,8 +60,7 @@ public class TestCommitment {
   }
 
   @Test
-  public void testAlreadyCommitted()
-      throws MaliciousCommitmentException, FailedCommitmentException {
+  public void testAlreadyCommitted() {
     String firstMsg = "First!";
     Serializable openInfo = comm.commit(rand, firstMsg);
     String secondMsg = "Me, me, me!";
@@ -78,8 +78,7 @@ public class TestCommitment {
   }
 
   @Test
-  public void testNoCommitmentMade()
-      throws MaliciousCommitmentException, FailedCommitmentException {
+  public void testNoCommitmentMade() {
     boolean thrown = false;
     String firstMsg = "First!";
     try {
@@ -92,14 +91,14 @@ public class TestCommitment {
   }
 
   @Test
-  public void testBadOpening() throws FailedCommitmentException {
+  public void testBadOpening() {
     BigInteger bigInt = new BigInteger("15646534687420546");
     comm.commit(rand, bigInt);
     boolean thrown = false;
     try {
       // The message itself is not enough to open the commitment
       comm.open(bigInt);
-    } catch (MaliciousCommitmentException e) {
+    } catch (MaliciousException e) {
       assertEquals(
           "The object given to the open method is not a proper commitment opening object.",
           e.getMessage());
@@ -113,9 +112,9 @@ public class TestCommitment {
       BigInteger bigInt2 = new BigInteger("424242424242424242");
       Serializable openInfo2 = comm2.commit(rand, bigInt2);
       comm.open(openInfo2);
-    } catch (MaliciousCommitmentException e) {
+    } catch (MaliciousException e) {
       assertEquals(
-          "Opening does not match commitment.", e.getMessage());
+          "The opening info does not match the commitment.", e.getMessage());
       thrown = true;
     }
     assertEquals(true, thrown);

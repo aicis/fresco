@@ -7,14 +7,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.cointossing.FailedCoinTossingException;
-import dk.alexandra.fresco.tools.commitment.FailedCommitmentException;
-import dk.alexandra.fresco.tools.commitment.MaliciousCommitmentException;
-import dk.alexandra.fresco.tools.ot.base.FailedOtException;
-import dk.alexandra.fresco.tools.ot.base.MaliciousOtException;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 
 /**
@@ -60,89 +56,56 @@ public class BristolRotBatch implements RotBatch<StrictBitVector> {
   }
 
   @Override
-  public List<Pair<StrictBitVector, StrictBitVector>> send(int numMessages, int sizeOfEachMessage)
-      throws MaliciousOtException, FailedOtException {
-    try {
-      // Initialize the underlying functionalities if needed
-      if (sender.initialized == false) {
-        sender.initialize();
-      }
-      List<Pair<StrictBitVector, StrictBitVector>> res = new ArrayList<>(numMessages);
-      int amountToPreprocess = computeExtensionSize(numMessages, sender.getKbitLength(),
-          sender.getLambdaSecurityParam());
-      Pair<List<StrictBitVector>, List<StrictBitVector>> messages = sender
-          .extend(amountToPreprocess);
-      List<StrictBitVector> rawZeroMessages = messages.getFirst();
-      List<StrictBitVector> rawOneMessages = messages.getSecond();
-      for (int i = 0; i < numMessages; i++) {
-        StrictBitVector zeroMessage = computeRandomMessage(
-            rawZeroMessages.get(i), sizeOfEachMessage);
-        StrictBitVector oneMessage = computeRandomMessage(rawOneMessages.get(i),
-            sizeOfEachMessage);
-        Pair<StrictBitVector, StrictBitVector> currentPair = new Pair<>(
-            zeroMessage, oneMessage);
-        res.add(currentPair);
-      }
-      return res;
-    } catch (MaliciousOtExtensionException e) {
-      throw new MaliciousOtException(
-          "Cheating occured in the underlying OT extension: " + e.getMessage());
-    } catch (MaliciousCommitmentException e) {
-      throw new MaliciousOtException(
-          "Cheating occured in the underlying commitments: " + e.getMessage());
-    } catch (FailedOtExtensionException | NoSuchAlgorithmException e) {
-      throw new FailedOtException(
-          "The underlying OT extension failed: " + e.getMessage());
-    } catch (FailedCommitmentException e) {
-      throw new FailedOtException(
-          "The underlying commitments failed: " + e.getMessage());
-    } catch (FailedCoinTossingException e) {
-      throw new FailedOtException(
-          "The underlying coin-tossing failed: " + e.getMessage());
+  public List<Pair<StrictBitVector, StrictBitVector>> send(int numMessages,
+      int sizeOfEachMessage) {
+    // Initialize the underlying functionalities if needed
+    if (sender.initialized == false) {
+      sender.initialize();
     }
+    List<Pair<StrictBitVector, StrictBitVector>> res = new ArrayList<>(
+        numMessages);
+    int amountToPreprocess = computeExtensionSize(numMessages,
+        sender.getKbitLength(), sender.getLambdaSecurityParam());
+    Pair<List<StrictBitVector>, List<StrictBitVector>> messages = sender
+        .extend(amountToPreprocess);
+    List<StrictBitVector> rawZeroMessages = messages.getFirst();
+    List<StrictBitVector> rawOneMessages = messages.getSecond();
+    for (int i = 0; i < numMessages; i++) {
+      StrictBitVector zeroMessage = computeRandomMessage(rawZeroMessages.get(i),
+          sizeOfEachMessage);
+      StrictBitVector oneMessage = computeRandomMessage(rawOneMessages.get(i),
+          sizeOfEachMessage);
+      Pair<StrictBitVector, StrictBitVector> currentPair = new Pair<>(
+          zeroMessage, oneMessage);
+      res.add(currentPair);
+    }
+    return res;
   }
 
   @Override
   public List<StrictBitVector> receive(StrictBitVector choiceBits,
-      int sizeOfEachMessage) throws MaliciousOtException, FailedOtException {
-    try {
-      // Initialize the underlying functionalities if needed
-      if (receiver.initialized == false) {
-        receiver.initialize();
-      }
-      List<StrictBitVector> res = new ArrayList<>(choiceBits.getSize());
-      // Find how many OTs we need to preprocess
-      int amountToPreprocess = computeExtensionSize(choiceBits.getSize(),
-          receiver.getKbitLength(), receiver.getLambdaSecurityParam());
-      // Construct a new choice-bit vector of the original choices, padded with
-      // 0 choices if needed
-      byte[] extraByteChoices = Arrays.copyOf(choiceBits.toByteArray(),
-          amountToPreprocess / 8);
-      StrictBitVector extraChoices = new StrictBitVector(extraByteChoices,
-          amountToPreprocess);
-      List<StrictBitVector> messages = receiver.extend(extraChoices);
-      for (int i = 0; i < choiceBits.getSize(); i++) {
-        StrictBitVector newMessage = computeRandomMessage(messages.get(i),
-            sizeOfEachMessage);
-        res.add(newMessage);
-      }
-      return res;
-    } catch (FailedOtExtensionException | NoSuchAlgorithmException e) {
-      throw new FailedOtException(
-          "The underlying OT extension failed: " + e.getMessage());
-    } catch (MaliciousCommitmentException e) {
-      throw new FailedOtException(
-          "Cheating occured in the underlying commitments: " + e.getMessage());
-    } catch (FailedCommitmentException e) {
-      throw new FailedOtException(
-          "The underlying commitments failed: " + e.getMessage());
-    } catch (FailedCoinTossingException e) {
-      throw new FailedOtException(
-          "The underlying coin-tossing failed: " + e.getMessage());
-    } catch (MaliciousOtExtensionException e) {
-      throw new FailedOtException(
-          "Cheating occured in the OT extension: " + e.getMessage());
+      int sizeOfEachMessage) {
+    // Initialize the underlying functionalities if needed
+    if (receiver.initialized == false) {
+      receiver.initialize();
     }
+    List<StrictBitVector> res = new ArrayList<>(choiceBits.getSize());
+    // Find how many OTs we need to preprocess
+    int amountToPreprocess = computeExtensionSize(choiceBits.getSize(),
+        receiver.getKbitLength(), receiver.getLambdaSecurityParam());
+    // Construct a new choice-bit vector of the original choices, padded with
+    // 0 choices if needed
+    byte[] extraByteChoices = Arrays.copyOf(choiceBits.toByteArray(),
+        amountToPreprocess / 8);
+    StrictBitVector extraChoices = new StrictBitVector(extraByteChoices,
+        amountToPreprocess);
+    List<StrictBitVector> messages = receiver.extend(extraChoices);
+    for (int i = 0; i < choiceBits.getSize(); i++) {
+      StrictBitVector newMessage = computeRandomMessage(messages.get(i),
+          sizeOfEachMessage);
+      res.add(newMessage);
+    }
+    return res;
   }
 
   /**
@@ -189,15 +152,19 @@ public class BristolRotBatch implements RotBatch<StrictBitVector> {
    * @param sizeOfMessage
    *          Size in bits of the message to construct
    * @return A random messages generated using a PRG
-   * 
-   * @throws NoSuchAlgorithmException
-   *           Thrown if the underlying PRG algorithm does not exist
    */
   private StrictBitVector computeRandomMessage(StrictBitVector seed,
-      int sizeOfMessage) throws NoSuchAlgorithmException {
+      int sizeOfMessage) {
     // TODO change to SHA-256
-    SecureRandom rand = SecureRandom.getInstance("SHA1PRNG");
-    rand.setSeed(seed.toByteArray());
-    return new StrictBitVector(sizeOfMessage, rand);
+    try {
+      SecureRandom rand = SecureRandom.getInstance("SHA1PRNG");
+      rand.setSeed(seed.toByteArray());
+      return new StrictBitVector(sizeOfMessage, rand);
+    } catch (NoSuchAlgorithmException e) {
+      throw new MPCException(
+          "Something, non-malicious, went wrong during the sending/receiving of"
+              + " the Bristol random OT extension.",
+          e);
+    }
   }
 }

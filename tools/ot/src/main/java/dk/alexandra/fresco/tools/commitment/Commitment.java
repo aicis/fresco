@@ -1,12 +1,13 @@
 package dk.alexandra.fresco.tools.commitment;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Random;
 
+import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 
@@ -54,11 +55,8 @@ public class Commitment implements Serializable {
    * @param value
    *          The element to commit to
    * @return The opening information needed to open the commitment
-   * @throws FailedCommitmentException
-   *           Gets thrown if something internally, *not* malicious, goes wrong.
    */
-  public Serializable commit(Random rand, Serializable value)
-      throws FailedCommitmentException {
+  public Serializable commit(Random rand, Serializable value) {
     if (commitmentVal != null) {
       throw new IllegalStateException("Already committed");
     }
@@ -75,14 +73,8 @@ public class Commitment implements Serializable {
    * @param open
    *          The data needed to open this given commitment
    * @return The value that was committed to
-   * @throws MaliciousCommitmentException
-   *           Exception is thrown if the opening information does not match
-   *           this commitment
-   * @throws FailedCommitmentException
-   *           Exception is thrown if something, *not* malicious, goes wrong.
    */
-  public Serializable open(Serializable open)
-      throws MaliciousCommitmentException, FailedCommitmentException {
+  public Serializable open(Serializable open) {
     if (commitmentVal == null) {
       throw new IllegalStateException("No commitment to open");
     }
@@ -92,11 +84,11 @@ public class Commitment implements Serializable {
       if (Arrays.equals(digest, commitmentVal)) {
         return openInfo.value;
       } else {
-        throw new MaliciousCommitmentException(
-            "Opening does not match commitment.");
+        throw new MaliciousException(
+            "The opening info does not match the commitment.");
       }
     } catch (ClassCastException e) {
-      throw new MaliciousCommitmentException(
+      throw new MaliciousException(
           "The object given to the open method is not a proper commitment opening object.");
     }
   }
@@ -109,11 +101,8 @@ public class Commitment implements Serializable {
    * @param value
    *          The value to commit to.
    * @return The digest as a byte array
-   * @throws FailedCommitmentException
-   *           Thrown if an internal, non-malicious, error occurs.
    */
-  private byte[] computeDigest(byte[] randomness, Serializable value)
-      throws FailedCommitmentException {
+  private byte[] computeDigest(byte[] randomness, Serializable value) {
     try {
       byte[] valBytes = ByteArrayHelper.serialize(value);
       // Construct an array to contain the byte to hash
@@ -123,11 +112,9 @@ public class Commitment implements Serializable {
           randomness.length);
       MessageDigest digest = MessageDigest.getInstance("SHA-256");
       return digest.digest(valBytes);
-    } catch (IOException | NoSuchAlgorithmException e) {
-      throw new FailedCommitmentException(
-          "Commitment failed. No malicious behaviour detected. "
-              + "Failure was caused by the following internal error: "
-              + e.getMessage());
+    } catch (NoSuchAlgorithmException e) {
+      throw new MPCException(
+          "Commitment failed. No malicious behaviour detected.", e);
     }
   }
 
@@ -140,11 +127,9 @@ public class Commitment implements Serializable {
    *          The network to send the commitment over
    * @param comm
    *          The commitment to send
-   * @throws IOException
-   *           An internal, non-malicious, error occurred.
    */
   public static void sendCommitment(Commitment comm, int otherId,
-      Network network) throws IOException {
+      Network network) {
     byte[] serializedComm = ByteArrayHelper.serialize(comm);
     network.send(otherId, serializedComm);
   }
@@ -157,19 +142,14 @@ public class Commitment implements Serializable {
    * @param network
    *          The network to send the commitment over
    * @return The deserialized commitment
-   * @throws IOException
-   *           An internal, non-malicious, error occurred.
-   * @throws ClassNotFoundException
-   *           An internal, non-malicious, error occurred.
    */
-  public static Commitment receiveCommitment(int otherId, Network network)
-      throws IOException, ClassNotFoundException {
+  public static Commitment receiveCommitment(int otherId, Network network) {
     byte[] serializedComm = network.receive(otherId);
     return (Commitment) ByteArrayHelper.deserialize(serializedComm);
   }
 
   // TODO OpenInfo should be public class with its own serializer
-  
+
   /**
    * Internal class representing the data needed to open a commitment.
    * 

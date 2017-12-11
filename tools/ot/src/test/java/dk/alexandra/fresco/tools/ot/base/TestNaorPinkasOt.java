@@ -3,6 +3,7 @@ package dk.alexandra.fresco.tools.ot.base;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -19,7 +20,7 @@ import org.junit.Test;
 import dk.alexandra.fresco.framework.network.Network;
 
 public class TestNaorPinkasOt {
-  private NaorPinkasOT ot;
+  private NaorPinkasOT<BigInteger> ot;
 
   public static final BigInteger DhGvalue = new BigInteger(
       "1817929693051677794042418360119535939035448877384059423016092223723589389"
@@ -44,8 +45,7 @@ public class TestNaorPinkasOt {
 
   @Before
   public void setup()
-      throws NoSuchAlgorithmException, MaliciousOtException, FailedOtException,
-      InvalidParameterSpecException {
+      throws NoSuchAlgorithmException, InvalidParameterSpecException {
     Random rand = new Random(424242);
     // fake network
     Network network = new Network() {
@@ -64,8 +64,9 @@ public class TestNaorPinkasOt {
       }
     };
     DHParameterSpec params = new DHParameterSpec(DhPvalue, DhGvalue);
-    this.ot = new NaorPinkasOT(1, 2, rand, network, params);
+    this.ot = new NaorPinkasOT<BigInteger>(1, 2, rand, network, params);
   }
+
 
   /**** POSITIVE TESTS. ****/
   @Test
@@ -105,12 +106,42 @@ public class TestNaorPinkasOt {
   @Test
   public void testPadMessage()
       throws NoSuchAlgorithmException, IOException, ClassNotFoundException {
-    String message = "This is the message which we would like to pad using a seed";
+    byte[] message = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+        0x08 };
     byte[] seed = new byte[] { 0x42 };
     byte[] paddedMessage = ot.padMessage(message, 10001, seed);
-    String unpaddedMessage = (String) ot.unpadMessage(paddedMessage, seed);
-    assertEquals(message, unpaddedMessage);
+    byte[] unpaddedMessage = ot.unpadMessage(paddedMessage, seed);
+    byte[] messageWithZeros = Arrays.copyOf(message, 10001);
+    assertArrayEquals(messageWithZeros, unpaddedMessage);
   }
 
   /**** NEGATIVE TESTS. ****/
+  @Test
+  public void testFailedEncDec() throws NoSuchAlgorithmException {
+    BigInteger privateKey = ot.sampleGroupElement();
+    BigInteger publicKey = ot.getDhParams().getG().modPow(privateKey,
+        ot.getDhParams().getP());
+    // We are statically using SHA-256 and thus have 256 bit digests
+    byte[] message = new byte[256 / 8];
+    BigInteger cipher = ot.encryptMessage(publicKey, message);
+    // Sanity check that the byte array gets initialized, i.e. is not the
+    // 0-array
+    assertFalse(Arrays.equals(new byte[256 / 8], message));
+    message[(256 / 8) - 1] ^= 0x01;
+    byte[] decryptedMessage = ot.decryptMessage(cipher, privateKey);
+    assertFalse(Arrays.equals(message, decryptedMessage));
+  }
+
+  @Test
+  public void testFailedPadMessage()
+      throws NoSuchAlgorithmException, IOException, ClassNotFoundException {
+    byte[] message = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+        0x08 };
+    byte[] seed = new byte[] { 0x42 };
+    byte[] paddedMessage = ot.padMessage(message, 10001, seed);
+    paddedMessage[10000] ^= 0x01;
+    byte[] unpaddedMessage = ot.unpadMessage(paddedMessage, seed);
+    byte[] messageWithZeros = Arrays.copyOf(message, 10001);
+    assertTrue(!Arrays.equals(messageWithZeros, unpaddedMessage));
+  }
 }

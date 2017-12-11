@@ -4,12 +4,10 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.List;
 
+import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.cointossing.FailedCoinTossingException;
-import dk.alexandra.fresco.tools.commitment.FailedCommitmentException;
-import dk.alexandra.fresco.tools.commitment.MaliciousCommitmentException;
-import dk.alexandra.fresco.tools.ot.base.MaliciousOtException;
 
 /**
  * Protocol class for the party acting as the receiver in an OT extension. The
@@ -38,23 +36,8 @@ public class BristolOtReceiver extends BristolOtShared {
 
   /**
    * Initializes the underlying random OT functionality, if needed.
-   * 
-   * @throws FailedOtExtensionException
-   *           Thrown if something, non-malicious, went wrong
-   * @throws MaliciousCommitmentException
-   *           Thrown if cheating occurred in the underlying commitments
-   * @throws FailedCommitmentException
-   *           Thrown if something, non-malicious, went wrong in the underlying
-   *           commitments
-   * @throws FailedCoinTossingException
-   *           Thrown if something, non-malicious, went wrong in the underlying
-   *           coin-tossing
-   * @throws MaliciousOtExtensionException
-   *           Thrown if cheating occurred
    */
-  public void initialize() throws FailedOtExtensionException,
-      MaliciousCommitmentException, FailedCommitmentException,
-      FailedCoinTossingException, MaliciousOtExtensionException {
+  public void initialize() {
     if (initialized) {
       throw new IllegalStateException("Already initialized");
     }
@@ -70,27 +53,10 @@ public class BristolOtReceiver extends BristolOtShared {
    * @param choiceBit
    *          Choice-bit. False for message 0, true for message 1.
    * @return The serialized message from the OT
-   * @throws FailedOtExtensionException
-   *           Thrown if something, non-malicious, went wrong
-   * @throws MaliciousOtException
-   *           Thrown if cheating occurred
    * @throws NoSuchAlgorithmException
    *           Thrown if the underlying PRG algorithm does not exist.
-   * @throws MaliciousCommitmentException
-   *           Thrown if cheating occurred in the underlying commitments
-   * @throws FailedCommitmentException
-   *           Thrown if something, non-malicious, went wrong in the underlying
-   *           commitments
-   * @throws FailedCoinTossingException
-   *           Thrown if something, non-malicious, went wrong in the underlying
-   *           coin-tossing
-   * @throws MaliciousOtExtensionException
-   *           Thrown if cheating occurred
    */
-  public byte[] receive(Boolean choiceBit) throws FailedOtExtensionException,
-      MaliciousOtException, NoSuchAlgorithmException,
-      MaliciousCommitmentException, FailedCommitmentException,
-      FailedCoinTossingException, MaliciousOtExtensionException {
+  public byte[] receive(Boolean choiceBit) throws NoSuchAlgorithmException {
     // Initialize the underlying functionalities if needed
     if (initialized == false) {
       initialize();
@@ -107,8 +73,7 @@ public class BristolOtReceiver extends BristolOtShared {
     return res;
   }
 
-  private byte[] doActualReceive(Boolean choiceBit)
-      throws MaliciousOtException, FailedOtExtensionException {
+  private byte[] doActualReceive(Boolean choiceBit) {
     // Notify the sender if it should switch the 0 and 1 messages around (s.t.
     // the random choice bit in the preprocessed random OTs matches the true
     // choice bit
@@ -117,7 +82,7 @@ public class BristolOtReceiver extends BristolOtShared {
     byte[] zeroAdjustment = getNetwork().receive(getOtherId());
     byte[] oneAdjustment = getNetwork().receive(getOtherId());
     if (zeroAdjustment.length != oneAdjustment.length) {
-      throw new MaliciousOtException(
+      throw new MaliciousException(
           "Sender gave adjustment messages of different length.");
     }
     byte[] adjustment;
@@ -141,8 +106,7 @@ public class BristolOtReceiver extends BristolOtShared {
     getNetwork().send(getOtherId(), switchBit);
   }
 
-  private void adjustMessage(byte[] adjustment)
-      throws FailedOtExtensionException {
+  private void adjustMessage(byte[] adjustment) {
     // Retrieve the random preprocessed message
     byte[] randomMessage = randomMessages.get(offset).toByteArray();
     try {
@@ -155,7 +119,9 @@ public class BristolOtReceiver extends BristolOtShared {
       // Use XOR to unpad the received message
       ByteArrayHelper.xor(adjustment, randomness);
     } catch (NoSuchAlgorithmException e) {
-      throw new FailedOtExtensionException(e.getMessage());
+      throw new MPCException(
+          "Something, non-malicious, went wrong when receiving a Bristol OT.",
+          e);
     }
   }
 }

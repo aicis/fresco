@@ -19,7 +19,7 @@ public class DummyRotBatch implements RotBatch<StrictBitVector> {
 
   @Override
   public List<Pair<StrictBitVector, StrictBitVector>> send(int numMessages,
-      int size) throws MaliciousOtException, FailedOtException {
+      int size) {
     List<Pair<StrictBitVector, StrictBitVector>> messagePairs = new ArrayList<>();
     for (int i = 0; i < numMessages; i++) {
       messagePairs.add(dummyRot.send(size));
@@ -29,8 +29,7 @@ public class DummyRotBatch implements RotBatch<StrictBitVector> {
 
   @Override
   public List<StrictBitVector> receive(StrictBitVector choiceBits,
-      int messageSize)
-      throws MaliciousOtException, FailedOtException {
+      int messageSize) {
     List<StrictBitVector> choiceMessages = new ArrayList<>();
     for (int b = 0; b < choiceBits.getSize(); b++) {
       choiceMessages.add(dummyRot.receive(choiceBits.getBit(b)));

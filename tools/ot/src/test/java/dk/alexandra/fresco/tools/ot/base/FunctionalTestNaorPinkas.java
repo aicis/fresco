@@ -28,10 +28,7 @@ import dk.alexandra.fresco.tools.ot.otextension.TestRuntime;
 
 public class FunctionalTestNaorPinkas {
   private TestRuntime testRuntime;
-  private NaorPinkasOT sender;
-  private NaorPinkasOT receiver;
-  private int kbitLength = 256;
-  private int lambdaBitLength = 64;
+  private int messageLength = 1024;
   private DHParameterSpec params;
 
   /**
@@ -56,57 +53,61 @@ public class FunctionalTestNaorPinkas {
     testRuntime.shutdown();
   }
 
-  private List<Pair<BigInteger, BigInteger>> otSend(int iterations,
-      int batchSize) throws MaliciousOtException, FailedOtException,
-      IOException, NoSuchAlgorithmException {
+  private List<Pair<BigInteger, BigInteger>> otSend(int iterations)
+      throws IOException, NoSuchAlgorithmException {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
-    Random rand = new Random(42);
-    Ot<BigInteger> otSender = new NaorPinkasOT<BigInteger>(1, 2, rand, network);
-    List<Pair<BigInteger, BigInteger>> messages = new ArrayList<>(iterations);
-    for (int i = 0; i < iterations; i++) {
-      BigInteger msgZero = new BigInteger(1024, rand);
-      BigInteger msgOne = new BigInteger(1024, rand);
-      otSender.send(msgZero, msgOne);
-      Pair<BigInteger, BigInteger> currentPair = new Pair<BigInteger, BigInteger>(
-          msgZero, msgOne);
-      messages.add(currentPair);
+    try {
+      Random rand = new Random(42);
+      Ot<BigInteger> otSender = new NaorPinkasOT<BigInteger>(1, 2, rand, network,
+          params);
+      List<Pair<BigInteger, BigInteger>> messages = new ArrayList<>(iterations);
+      for (int i = 0; i < iterations; i++) {
+        BigInteger msgZero = new BigInteger(messageLength, rand);
+        BigInteger msgOne = new BigInteger(messageLength, rand);
+        otSender.send(msgZero, msgOne);
+        Pair<BigInteger, BigInteger> currentPair = new Pair<BigInteger, BigInteger>(
+            msgZero, msgOne);
+        messages.add(currentPair);
+      }
+      return messages;
+    } finally {
+      ((Closeable) network).close();
     }
-    ((Closeable) network).close();
-    return messages;
   }
 
-  private List<BigInteger> otReceive(StrictBitVector choices, int batchSize)
-      throws MaliciousOtException, FailedOtException, IOException,
-      NoSuchAlgorithmException {
+  private List<BigInteger> otReceive(StrictBitVector choices)
+      throws IOException, NoSuchAlgorithmException {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
-    Random rand = new Random(420);
-    Ot<BigInteger> otReceiver = new NaorPinkasOT<BigInteger>(2, 1, rand,
-        network);
-    List<BigInteger> messages = new ArrayList<>(choices.getSize());
-    for (int i = 0; i < choices.getSize(); i++) {
-      BigInteger message = otReceiver.receive(choices.getBit(i, false));
-      messages.add(message);
+    try {
+      Random rand = new Random(420);
+      Ot<BigInteger> otReceiver = new NaorPinkasOT<BigInteger>(2, 1, rand,
+          network, params);
+      List<BigInteger> messages = new ArrayList<>(choices.getSize());
+      for (int i = 0; i < choices.getSize(); i++) {
+        BigInteger message = otReceiver.receive(choices.getBit(i, false));
+        messages.add(message);
+      }
+      return messages;
+    } finally {
+      ((Closeable) network).close();
     }
-    ((Closeable) network).close();
-    return messages;
   }
 
   /**
-   * Verify that we can initialize the parties in OT.
+   * Verify that we can execute the OT.
    */
   @SuppressWarnings("unchecked")
   @Test
-  public void testBristolOt() {
-    int batchSize = 1024 - kbitLength - lambdaBitLength;
+  public void testNaorPinkasOt() {
     // We execute more OTs than the batchSize to ensure that an automatic
     // extension will take place once preprocessed OTs run out
-    int iterations = 5;
+    int iterations = 160;
     Random rand = new Random(540);
     StrictBitVector choices = new StrictBitVector(iterations, rand);
-    Callable<List<?>> partyOneOt = () -> otSend(iterations, batchSize);
-    Callable<List<?>> partyTwoOt = () -> otReceive(choices, batchSize);
+    Callable<List<?>> partyOneOt = () -> otSend(iterations);
+    Callable<List<?>> partyTwoOt = () -> otReceive(choices);
     // run tasks and get ordered list of results
     List<List<?>> extendResults = testRuntime
         .runPerPartyTasks(Arrays.asList(partyOneOt, partyTwoOt));
@@ -140,5 +141,65 @@ public class FunctionalTestNaorPinkas {
     // Check the length the values
     assertEquals(iterations, extendResults.get(0).size());
     assertEquals(iterations, extendResults.get(1).size());
+  }
+
+  /***** NEGATIVE TESTS. *****/
+  private List<BigInteger> otSendCheat()
+      throws IOException, NoSuchAlgorithmException {
+    Network network = new CheatingNetwork(
+        TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
+    try {
+      Random rand = new Random(42);
+      Ot<BigInteger> otSender = new NaorPinkasOT<BigInteger>(1, 2, rand,
+          network, params);
+      BigInteger msgZero = new BigInteger(messageLength, rand);
+      BigInteger msgOne = new BigInteger(messageLength, rand);
+      // Send a wrong random value c, than what is actually used
+      ((CheatingNetwork) network).cheatInNextMessage(0, 100);
+      otSender.send(msgZero, msgOne);
+      List<BigInteger> messages = new ArrayList<>(2);
+      messages.add(msgZero);
+      messages.add(msgOne);
+      return messages;
+    } finally {
+      ((Closeable) network).close();
+    }
+  }
+
+  private List<BigInteger> otReceiveCheat(boolean choice)
+      throws IOException, NoSuchAlgorithmException {
+    Network network = new CheatingNetwork(
+        TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
+    try {
+      Random rand = new Random(420);
+      Ot<BigInteger> otReceiver = new NaorPinkasOT<BigInteger>(2, 1, rand,
+          network, params);
+      BigInteger message = otReceiver.receive(choice);
+
+      List<BigInteger> messageList = new ArrayList<>(1);
+      messageList.add(message);
+      return messageList;
+    } finally {
+      ((Closeable) network).close();
+    }
+  }
+
+  /**
+   * Test that a receiver who flips a bit its message results in a malicious
+   * exception being thrown. This is not meant to capture the best possible
+   * cheating strategy, but more as a sanity checks that the proper checks are
+   * in place.
+   */
+  @Test
+  public void testCheatingInNaorPinkasOt() {
+    boolean choice = true;
+    Callable<List<BigInteger>> partyOneInit = () -> otSendCheat();
+    Callable<List<BigInteger>> partyTwoInit = () -> otReceiveCheat(choice);
+    // run tasks and get ordered list of results
+    List<List<BigInteger>> results = testRuntime
+        .runPerPartyTasks(Arrays.asList(partyOneInit, partyTwoInit));
+    assertTrue(results.get(0) instanceof List<?>);
+    assertTrue(results.get(1) instanceof Exception);
+    // TODO Finish once serialization has been moved to direct bytes and not
   }
 }

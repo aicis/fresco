@@ -16,6 +16,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
@@ -57,8 +58,7 @@ public class FunctionalTestOtExtension {
     testRuntime.shutdown();
   }
 
-  private Cote setupCoteSender()
-      throws FailedOtExtensionException, IOException {
+  private Cote setupCoteSender() throws IOException {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     Random rand = new Random(42);
@@ -66,7 +66,7 @@ public class FunctionalTestOtExtension {
     return cote;
   }
 
-  private Cote setupCoteReceiver() throws FailedOtExtensionException, IOException {
+  private Cote setupCoteReceiver() throws IOException {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     Random rand = new Random(420);
@@ -100,8 +100,7 @@ public class FunctionalTestOtExtension {
   }
 
   private Pair<List<StrictBitVector>, StrictBitVector> extendCoteReceiver(
-      StrictBitVector choices)
-      throws FailedOtExtensionException, IOException {
+      StrictBitVector choices) throws IOException {
     List<StrictBitVector> messages = coteReceiver.getReceiver().extend(choices);
     // The return type of the extend method for sender and receiver must be the
     // same for the test to work, which is why we return null for the second
@@ -193,16 +192,14 @@ public class FunctionalTestOtExtension {
   }
 
   private Pair<List<StrictBitVector>, List<StrictBitVector>> extendRotSender(
-      RotSender rotSender, int size)
-      throws MaliciousOtExtensionException, FailedOtExtensionException {
+      RotSender rotSender, int size) {
     Pair<List<StrictBitVector>, List<StrictBitVector>> messages = rotSender
         .extend(size);
     return messages;
   }
 
   private Pair<List<StrictBitVector>, List<StrictBitVector>> extendRotReceiver(
-      RotReceiver rotReceiver, StrictBitVector choices)
-      throws FailedOtExtensionException, IOException {
+      RotReceiver rotReceiver, StrictBitVector choices) throws IOException {
     List<StrictBitVector> messages = rotReceiver.extend(choices);
     // The return type of the extend method for sender and receiver must be the
     // same for the test to work, which is why we return null for the second
@@ -357,7 +354,7 @@ public class FunctionalTestOtExtension {
     // the sender
     int corruptUVecPos = 2;
     ((CheatingNetwork) coteReceiver.getReceiver().getNetwork())
-        .cheatInNextMessage(corruptUVecPos);
+        .cheatInNextMessage(corruptUVecPos, 0);
     Callable<Pair<List<StrictBitVector>, List<StrictBitVector>>> partyTwoExtend = () -> extendRotReceiver(
         rotReceiver, choices);
     // run tasks and get ordered list of results
@@ -368,12 +365,12 @@ public class FunctionalTestOtExtension {
     @SuppressWarnings("unchecked")
     List<Object> castedRes = (List<Object>) extendResults;
     // Verify that the thrown exception is as expected
-    assertTrue(castedRes.get(0) instanceof MaliciousOtExtensionException);
+    assertTrue(castedRes.get(0) instanceof MaliciousException);
     assertEquals(
-        ((MaliciousOtExtensionException) castedRes.get(0)).getMessage(),
-        "Correlation check failed");
+        ((MaliciousException) castedRes.get(0)).getMessage(),
+        "Correlation check failed for the sender in the random OT extension");
     // Check that the receiver did not throw an exception
-    assertTrue(!(castedRes.get(1) instanceof MaliciousOtExtensionException));
+    assertTrue(!(castedRes.get(1) instanceof MaliciousException));
     // Check that the sender had choice bit 1 in position 2. This means that we
     // expect the correlation check to fail
     assertEquals(true,

@@ -1,17 +1,15 @@
 package dk.alexandra.fresco.tools.cointossing;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Random;
 
+import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.commitment.Commitment;
-import dk.alexandra.fresco.tools.commitment.FailedCommitmentException;
-import dk.alexandra.fresco.tools.commitment.MaliciousCommitmentException;
 
 /**
  * Class implementing two-party coin-tossing. That is, agreement on a random
@@ -78,19 +76,8 @@ public class CoinTossing {
   /**
    * Initialize the coin-tossing functionality by making the parties agree on a
    * seed.
-   * 
-   * @throws FailedCoinTossingException
-   *           An internal, non-malicious, error occurred.
-   * @throws MaliciousCommitmentException
-   *           The other party acted maliciously in the underlying commitment
-   *           protocol.
-   * @throws FailedCommitmentException
-   *           An internal, non-malicious, error occurred in the underlying
-   *           commitment protocol.
    */
-  public void initialize()
-      throws MaliciousCommitmentException, FailedCommitmentException,
-      FailedCoinTossingException {
+  public void initialize() {
     if (initialized) {
       throw new IllegalStateException("Already initialized");
     }
@@ -105,16 +92,9 @@ public class CoinTossing {
       this.prg = SecureRandom.getInstance("SHA1PRNG");
       prg.setSeed(seed);
       initialized = true;
-    } catch (IOException e) {
-      throw new FailedCoinTossingException(
-          "Coin-tossing failed. No malicious behaviour detected. "
-              + "Failure was caused by the following communication error: "
-              + e.getMessage());
-    } catch (NoSuchAlgorithmException | ClassNotFoundException e) {
-      throw new FailedCoinTossingException(
-          "Coin-tossing failed. No malicious behaviour detected. "
-              + "Failure was caused by the following internal error: "
-              + e.getMessage());
+    } catch (NoSuchAlgorithmException e) {
+      throw new MPCException(
+          "Coin-tossing failed. No malicious behaviour detected. ", e);
     }
   }
 
@@ -144,23 +124,8 @@ public class CoinTossing {
    * @param seed
    *          The current party's seed
    * @return The other party's seed
-   * @throws MaliciousCommitmentException
-   *           The other party acted maliciously in the underlying commitment
-   *           protocol.
-   * @throws IOException
-   *           An internal, non-malicious, error occurred.
-   * @throws NoSuchAlgorithmException
-   *           An internal, non-malicious, error occurred.
-   * @throws ClassNotFoundException
-   *           An internal, non-malicious, error occurred.
-   * @throws FailedCommitmentException
-   *           An internal, non-malicious, error occurred in the underlying
-   *           commitment protocol.
    */
-  private byte[] exchangeSeeds(byte[] seed)
-      throws MaliciousCommitmentException, IOException,
-      NoSuchAlgorithmException, ClassNotFoundException,
-      FailedCommitmentException {
+  private byte[] exchangeSeeds(byte[] seed) {
     // Let the party with the smallest id be the party receiving a commitment
     if (myId < otherId) {
       Commitment comm = Commitment.receiveCommitment(otherId, network);

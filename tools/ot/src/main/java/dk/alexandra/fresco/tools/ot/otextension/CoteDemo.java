@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Random;
 
@@ -26,13 +25,8 @@ public class CoteDemo<ResourcePoolT extends ResourcePool> extends Demo {
    * 
    * @param pid
    *          The PID of the receiving party
-   * @throws FailedOtExtensionException
-   *           Thrown in case the underlying PRG algorithm used does not exist
-   * @throws MaliciousOtExtensionException
-   *           Thrown if cheating occurred
    */
-  public void runPartyOne(int pid)
-      throws FailedOtExtensionException, MaliciousOtExtensionException {
+  public void runPartyOne(int pid) {
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected receiver");
     Random rand = new Random(42);
@@ -60,13 +54,8 @@ public class CoteDemo<ResourcePoolT extends ResourcePool> extends Demo {
    * 
    * @param pid
    *          The PID of the sending party
-   * @throws MaliciousOtExtensionException
-   *           Thrown if cheating occurred
-   * @throws NoSuchAlgorithmException
-   *           Thrown in case the underlying PRG algorithm used does not exist
    */
-  public void runPartyTwo(int pid)
-      throws FailedOtExtensionException, MaliciousOtExtensionException {
+  public void runPartyTwo(int pid) {
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected sender");
     Random rand = new Random(420);

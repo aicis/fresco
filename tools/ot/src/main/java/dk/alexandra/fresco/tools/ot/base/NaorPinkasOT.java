@@ -14,16 +14,15 @@ import java.util.Random;
 
 import javax.crypto.spec.DHParameterSpec;
 
+import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
-import dk.alexandra.fresco.tools.cointossing.FailedCoinTossingException;
-import dk.alexandra.fresco.tools.commitment.FailedCommitmentException;
-import dk.alexandra.fresco.tools.commitment.MaliciousCommitmentException;
 
-public class NaorPinkasOT implements Ot<Serializable>
+public class NaorPinkasOT<T extends Serializable> implements Ot<T>
 {
   private int myId;
   private int otherId;
@@ -39,7 +38,7 @@ public class NaorPinkasOT implements Ot<Serializable>
   private static final int diffieHellmanSize = 2048;
 
   public NaorPinkasOT(int myId, int otherId, Random rand, Network network)
-      throws NoSuchAlgorithmException, MaliciousOtException, FailedOtException {
+      throws NoSuchAlgorithmException {
     this.myId = myId;
     this.otherId = otherId;
     this.rand = rand;
@@ -49,8 +48,7 @@ public class NaorPinkasOT implements Ot<Serializable>
   }
 
   public NaorPinkasOT(int myId, int otherId, Random rand, Network network,
-      DHParameterSpec params)
-      throws NoSuchAlgorithmException, MaliciousOtException, FailedOtException {
+      DHParameterSpec params) throws NoSuchAlgorithmException {
     this.myId = myId;
     this.otherId = otherId;
     this.rand = rand;
@@ -59,13 +57,16 @@ public class NaorPinkasOT implements Ot<Serializable>
     this.params = params;
   }
 
+  public Network getNetwork() {
+    return network;
+  }
+
   public DHParameterSpec getDhParams() {
     return params;
   }
 
   @Override
-  public void send(Serializable messageZero, Serializable messageOne)
-      throws MaliciousOtException, FailedOtException {
+  public void send(T messageZero, T messageOne) {
     try {
       if (params == null) {
         computeSecureDhParams();
@@ -82,19 +83,15 @@ public class NaorPinkasOT implements Ot<Serializable>
       network.send(otherId, encryptedZeroMessage);
       network.send(otherId, encryptedOneMessage);
     } catch (IOException | NoSuchAlgorithmException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      throw new MPCException(
+          "Something, non-malicious, went wrong when sending the Naor-Pinaks OT.",
+          e);
     }
   }
 
-  protected byte[] padMessage(Serializable message, int maxSize,
+  protected byte[] padMessage(byte[] message, int maxSize,
       byte[] seed) throws IOException, NoSuchAlgorithmException {
-    byte[] serializedMessage = ByteArrayHelper.serialize(message);
-    if (serializedMessage.length > maxSize) {
-      throw new IllegalArgumentException(
-          "Max size of the message to pad is not big enough");
-    }
-    byte[] maxLengthMessage = Arrays.copyOf(serializedMessage, maxSize);
+    byte[] maxLengthMessage = Arrays.copyOf(message, maxSize);
     SecureRandom prg = SecureRandom.getInstance(prgAlgorithm);
     prg.setSeed(seed);
     byte[] encryptedMessage = new byte[maxSize];
@@ -103,19 +100,18 @@ public class NaorPinkasOT implements Ot<Serializable>
     return encryptedMessage;
   }
 
-  protected Serializable unpadMessage(byte[] paddedMessage, byte[] seed)
+  protected byte[] unpadMessage(byte[] paddedMessage, byte[] seed)
       throws IOException, NoSuchAlgorithmException, ClassNotFoundException {
     SecureRandom prg = SecureRandom.getInstance(prgAlgorithm);
     prg.setSeed(seed);
     byte[] message = new byte[paddedMessage.length];
     prg.nextBytes(message);
     ByteArrayHelper.xor(message, paddedMessage);
-    return ByteArrayHelper.deserialize(message);
+    return message;
   }
 
   @Override
-  public Serializable receive(Boolean choiceBit)
-      throws MaliciousOtException, FailedOtException {
+  public T receive(Boolean choiceBit) {
     try {
       if (params == null) {
         computeSecureDhParams();
@@ -124,23 +120,24 @@ public class NaorPinkasOT implements Ot<Serializable>
       byte[] encryptedZeroMessage = network.receive(otherId);
       byte[] encryptedOneMessage = network.receive(otherId);
       if (encryptedZeroMessage.length != encryptedOneMessage.length) {
-        throw new MaliciousOtException(
-            "The length of the two choice messages are not equal");
+        throw new MaliciousException(
+            "The length of the two choice messages is not equal");
       }
+      byte[] unpaddedMessage;
       if (choiceBit == false) {
-        return unpadMessage(encryptedZeroMessage, seed);
+        unpaddedMessage = unpadMessage(encryptedZeroMessage, seed);
       } else {
-        return unpadMessage(encryptedOneMessage, seed);
+        unpaddedMessage = unpadMessage(encryptedOneMessage, seed);
       }
+      return (T) ByteArrayHelper.deserialize(unpaddedMessage);
     } catch (NoSuchAlgorithmException | ClassNotFoundException
         | IOException e) {
-      throw new FailedOtException(
-          "Something non-malicious went wrong during the OT.");
+      throw new MPCException(
+          "Something non-malicious went wrong during the OT.", e);
     }
   }
 
-  private Pair<byte[], byte[]> sendBytesOt()
-      throws MaliciousOtException, FailedOtException, NoSuchAlgorithmException {
+  private Pair<byte[], byte[]> sendBytesOt() throws NoSuchAlgorithmException {
     // Pick random element c
     BigInteger c = sampleGroupElement();
     network.send(otherId, c.toByteArray());
@@ -158,7 +155,7 @@ public class NaorPinkasOT implements Ot<Serializable>
   }
 
   private byte[] receiveByteOt(Boolean choiceBit)
-      throws MaliciousOtException, FailedOtException, NoSuchAlgorithmException {
+      throws NoSuchAlgorithmException {
     BigInteger c = new BigInteger(network.receive(otherId));
     // Pick random element privateKey
     BigInteger privateKey = sampleGroupElement();
@@ -229,14 +226,8 @@ public class NaorPinkasOT implements Ot<Serializable>
    * stored internally and used to compute the OT.
    * 
    * @return The computed Diffie-Hellman parameters
-   * @throws MaliciousOtException
-   *           Thrown if the other party tries to cheat in the underlying
-   *           commitment
-   * @throws FailedOtException
-   *           Thrown if something, non-malicious, went wrong.
    */
-  public DHParameterSpec computeSecureDhParams()
-      throws MaliciousOtException, FailedOtException {
+  public DHParameterSpec computeSecureDhParams() {
     try {
       // Do coin-tossing to agree on a random seed of "kbitLength" bits
       CoinTossing ct = new CoinTossing(myId, otherId,
@@ -244,14 +235,9 @@ public class NaorPinkasOT implements Ot<Serializable>
       ct.initialize();
       StrictBitVector seed = ct.toss(hashFunction.getDigestLength() * 8);
       return computeDhParams(seed.toByteArray());
-    } catch (MaliciousCommitmentException e) {
-      throw new MaliciousOtException(
-          "The other party tried to cheat in a commmitment used in the "
-              + "generatinon of Diffie-Hellman parameters: " + e.getMessage());
-    } catch (FailedCommitmentException | FailedCoinTossingException
-        | NoSuchAlgorithmException | InvalidParameterSpecException e) {
-      throw new FailedOtException("Something, non-malicious, went wrong when "
-          + "agreeing on the Diffie-Hellman parameters: " + e.getMessage());
+    } catch (NoSuchAlgorithmException | InvalidParameterSpecException e) {
+      throw new MPCException("Something, non-malicious, went wrong when "
+          + "agreeing on the Diffie-Hellman parameters.", e);
     }
   }
 

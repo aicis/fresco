@@ -8,9 +8,6 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.cointossing.FailedCoinTossingException;
-import dk.alexandra.fresco.tools.commitment.FailedCommitmentException;
-import dk.alexandra.fresco.tools.commitment.MaliciousCommitmentException;
 
 /**
  * Demo class for execute a light instance of random OT extension.
@@ -41,9 +38,7 @@ public class RotDemo<ResourcePoolT extends ResourcePool> extends Demo {
    * @throws MaliciousOtExtensionException
    *           Thrown if cheating occurred
    */
-  public void runPartyOne(int pid)
-      throws MaliciousCommitmentException, FailedCommitmentException,
-      FailedCoinTossingException, FailedOtExtensionException, MaliciousOtExtensionException {
+  public void runPartyOne(int pid) {
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected receiver");
     Random rand = new Random(42);
@@ -71,23 +66,8 @@ public class RotDemo<ResourcePoolT extends ResourcePool> extends Demo {
    * 
    * @param pid
    *          The PID of the sending party
-   * @throws FailedCoinTossingException
-   *           Thrown in case something, non-malicious, goes wrong in the coin
-   * @throws FailedCommitmentException
-   *           Thrown in case something, non-malicious, goes wrong in the
-   *           commitment protocol. tossing protocol.
-   * @throws FailedOtExtensionException
-   *           Thrown in case something, non-malicious, goes wrong.
-   * @throws MaliciousCommitmentException
-   *           Thrown in case the other party actively tries to cheat in the
-   *           commitments.
-   * @throws MaliciousOtExtensionException
-   *           Thrown in case the other party actively tries to cheat.
    */
-  public void runPartyTwo(int pid)
-      throws FailedOtExtensionException,
-      MaliciousCommitmentException, FailedCommitmentException,
-      FailedCoinTossingException, MaliciousOtExtensionException {
+  public void runPartyTwo(int pid) {
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected sender");
     Random rand = new Random(420);

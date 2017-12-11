@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
@@ -151,20 +152,15 @@ public class RotShared {
    *          equal to the amount of elements in the list.
    * @return A list containing the hashed StrictBitVector as StrictBitVector
    *         objects
-   * @throws FailedOtExtensionException
-   *           Is thrown if the internal implementation of SHA-256 does not
-   *           exist.
    */
   protected static List<StrictBitVector> hashBitVector(
-      List<StrictBitVector> input, int size) throws FailedOtExtensionException {
+      List<StrictBitVector> input, int size) {
     MessageDigest digest = null;
     try {
       digest = MessageDigest.getInstance("SHA-256");
     } catch (NoSuchAlgorithmException e) {
-      throw new FailedOtExtensionException(
-          "Random OT extension failed. No malicious behaviour detected. "
-              + "Failure was caused by the following internal error: "
-              + e.getMessage());
+      throw new MPCException(
+          "Random OT extension failed. No malicious behaviour detected.", e);
     }
     List<StrictBitVector> res = new ArrayList<>(size);
     // Allocate a buffer to contain the index of the value to hash along with

@@ -1,17 +1,12 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
+import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
-import dk.alexandra.fresco.tools.cointossing.FailedCoinTossingException;
-import dk.alexandra.fresco.tools.commitment.FailedCommitmentException;
-import dk.alexandra.fresco.tools.commitment.MaliciousCommitmentException;
-import dk.alexandra.fresco.tools.ot.base.FailedOtException;
-import dk.alexandra.fresco.tools.ot.base.MaliciousOtException;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 
 /**
@@ -63,18 +58,10 @@ public class BristolOt<T extends Serializable> implements Ot<T> {
    *          the one-choice message
    */
   @Override
-  public void send(T messageZero, T messageOne)
-      throws MaliciousOtException, FailedOtException {
-    try {
-      byte[] messageZeroBytes = ByteArrayHelper.serialize(messageZero);
-      byte[] messageOneBytes = ByteArrayHelper.serialize(messageOne);
-      sender.send(messageZeroBytes, messageOneBytes);
-    } catch (MaliciousOtExtensionException | MaliciousCommitmentException  e) {
-      throw new MaliciousOtException(e.getMessage());
-    } catch (FailedOtExtensionException | FailedCommitmentException
-        | FailedCoinTossingException | IOException e) {
-      throw new FailedOtException(e.getMessage());
-    }
+  public void send(T messageZero, T messageOne) {
+    byte[] messageZeroBytes = ByteArrayHelper.serialize(messageZero);
+    byte[] messageOneBytes = ByteArrayHelper.serialize(messageOne);
+    sender.send(messageZeroBytes, messageOneBytes);
   }
 
   /**
@@ -86,17 +73,13 @@ public class BristolOt<T extends Serializable> implements Ot<T> {
    */
   @SuppressWarnings("unchecked")
   @Override
-  public T receive(Boolean choiceBit) throws MaliciousOtException, FailedOtException {
+  public T receive(Boolean choiceBit) {
     try {
       return (T) ByteArrayHelper.deserialize(receiver.receive(choiceBit));
-    } catch (MaliciousOtException
-        | MaliciousCommitmentException | MaliciousOtExtensionException e) {
-      throw new MaliciousOtException(e.getMessage());
-    } catch (NoSuchAlgorithmException
-        | FailedOtExtensionException | FailedCommitmentException
-        | FailedCoinTossingException e) {
-      throw new FailedOtException(e.getMessage());
+    } catch (NoSuchAlgorithmException e) {
+      throw new MPCException(
+          "Something, non-malicious, went wrong when receiving a Bristol OT.",
+          e);
     }
   }
-
 }

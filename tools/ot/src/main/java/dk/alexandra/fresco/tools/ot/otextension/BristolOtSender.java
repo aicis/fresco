@@ -5,12 +5,10 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
 
+import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.cointossing.FailedCoinTossingException;
-import dk.alexandra.fresco.tools.commitment.FailedCommitmentException;
-import dk.alexandra.fresco.tools.commitment.MaliciousCommitmentException;
 
 /**
  * Protocol class for the party acting as the sender in an OT extension. The
@@ -37,24 +35,8 @@ public class BristolOtSender extends BristolOtShared {
 
   /**
    * Initializes the underlying random OT functionality, if needed.
-   * 
-   * @throws FailedOtExtensionException
-   *           Thrown if something, non-malicious, went wrong
-   * @throws MaliciousCommitmentException
-   *           Thrown if cheating occurred in the underlying commitments
-   * @throws FailedCommitmentException
-   *           Thrown if something, non-malicious, went wrong in the underlying
-   *           commitments
-   * @throws FailedCoinTossingException
-   *           Thrown if something, non-malicious, went wrong in the underlying
-   *           coin-tossing
-   * @throws MaliciousOtExtensionException
-   *           Thrown if cheating occurred
    */
-  public void initialize()
-      throws MaliciousCommitmentException, FailedCommitmentException,
-      FailedCoinTossingException, FailedOtExtensionException,
-      MaliciousOtExtensionException {
+  public void initialize() {
     if (initialized) {
       throw new IllegalStateException("Already initialized");
     }
@@ -71,23 +53,8 @@ public class BristolOtSender extends BristolOtShared {
    *          The message to send for choice zero
    * @param messageOne
    *          The message to send for choice one
-   * @throws FailedOtExtensionException
-   *           Thrown if something, non-malicious, went wrong
-   * @throws MaliciousCommitmentException
-   *           Thrown if cheating occurred in the underlying commitments
-   * @throws FailedCommitmentException
-   *           Thrown if something, non-malicious, went wrong in the underlying
-   *           commitments
-   * @throws FailedCoinTossingException
-   *           Thrown if something, non-malicious, went wrong in the underlying
-   *           coin-tossing
-   * @throws MaliciousOtExtensionException
-   *           Thrown if cheating occurred
    */
-  public void send(byte[] messageZero, byte[] messageOne)
-      throws MaliciousOtExtensionException, FailedOtExtensionException,
-      MaliciousCommitmentException, FailedCommitmentException,
-      FailedCoinTossingException {
+  public void send(byte[] messageZero, byte[] messageOne) {
     // Initialize the underlying functionalities if needed
     if (initialized == false) {
       initialize();
@@ -102,8 +69,7 @@ public class BristolOtSender extends BristolOtShared {
     offset++;
   }
 
-  private void doActualSend(byte[] messageZero, byte[] messageOne)
-      throws FailedOtExtensionException {
+  private void doActualSend(byte[] messageZero, byte[] messageOne) {
     // Find the correct preprocessed random OT messages
     StrictBitVector randomZero = randomMessages.getFirst().get(offset);
     StrictBitVector randomOne = randomMessages.getSecond().get(offset);
@@ -122,7 +88,7 @@ public class BristolOtSender extends BristolOtShared {
   }
 
   private void sendAdjustedMessage(byte[] realMessage, int maxLength,
-      byte[] randomMessage) throws FailedOtExtensionException {
+      byte[] randomMessage) {
     byte[] toSend;
     try {
       // Use the random message as a a seed for a PRG
@@ -133,7 +99,8 @@ public class BristolOtSender extends BristolOtShared {
       // send
       rand.nextBytes(toSend);
     } catch (NoSuchAlgorithmException e) {
-      throw new FailedOtExtensionException(e.getMessage());
+      throw new MPCException(
+          "Something, non-malicious went wrong when sending a Bristol OT", e);
     }
     byte[] paddedMessage = Arrays.copyOf(realMessage, maxLength);
     // XOR the pseudorandom string onto the message
