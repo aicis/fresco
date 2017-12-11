@@ -156,7 +156,7 @@ public class FunctionalTestNaorPinkas {
       StrictBitVector msgZero = new StrictBitVector(messageLength, rand);
       StrictBitVector msgOne = new StrictBitVector(messageLength, rand);
       // Send a wrong random value c, than what is actually used
-      ((CheatingNetwork) network).cheatInNextMessage(0, 100);
+      ((CheatingNetwork) network).cheatInNextMessage(0, 0);
       otSender.send(msgZero, msgOne);
       List<StrictBitVector> messages = new ArrayList<>(2);
       messages.add(msgZero);
@@ -184,10 +184,10 @@ public class FunctionalTestNaorPinkas {
   }
 
   /**
-   * Test that a receiver who flips a bit its message results in a malicious
-   * exception being thrown. This is not meant to capture the best possible
-   * cheating strategy, but more as a sanity checks that the proper checks are
-   * in place.
+   * Test that a sender who flips a bit in its random choice results in
+   * different messages being sent. This is not meant to capture the best
+   * possible cheating strategy, but more as a sanity checks that the proper
+   * checks are in place.
    */
   @Test
   public void testCheatingInNaorPinkasOt() {
@@ -197,8 +197,9 @@ public class FunctionalTestNaorPinkas {
     // run tasks and get ordered list of results
     List<List<StrictBitVector>> results = testRuntime
         .runPerPartyTasks(Arrays.asList(partyOneInit, partyTwoInit));
-    assertTrue(results.get(0) instanceof List<?>);
-    assertTrue(results.get(1) instanceof Exception);
-    // TODO Finish once serialization has been moved to direct bytes and not
+    List<StrictBitVector> senderResults = results.get(0);
+    StrictBitVector receiverResult = results.get(1).get(0);
+    assertNotEquals(senderResults.get(0), receiverResult);
+    assertNotEquals(senderResults.get(1), receiverResult);
   }
 }
