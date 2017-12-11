@@ -23,8 +23,8 @@ import dk.alexandra.fresco.lib.conditional.ConditionalSwapRowsTests;
 import dk.alexandra.fresco.lib.conditional.SwapIfTests;
 import dk.alexandra.fresco.lib.debug.ArithmeticDebugTests;
 import dk.alexandra.fresco.lib.list.EliminateDuplicatesTests;
-import dk.alexandra.fresco.lib.lp.LpBuildingBlockTests;
 import dk.alexandra.fresco.lib.lp.LPSolver;
+import dk.alexandra.fresco.lib.lp.LpBuildingBlockTests;
 import dk.alexandra.fresco.lib.math.integer.binary.BinaryOperationsTests;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationTests;
@@ -38,9 +38,6 @@ import dk.alexandra.fresco.lib.statistics.CreditRaterTest;
 import dk.alexandra.fresco.lib.statistics.DeaSolver.AnalysisType;
 import dk.alexandra.fresco.lib.statistics.DeaSolverTests.RandomDataDeaTest;
 import dk.alexandra.fresco.lib.statistics.DeaSolverTests.TestDeaFixed1;
-import dk.alexandra.fresco.logging.DefaultPerformancePrinter;
-import dk.alexandra.fresco.logging.PerformanceLogger;
-import dk.alexandra.fresco.logging.PerformancePrinter;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import org.junit.Test;
@@ -417,32 +414,32 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(new LpBuildingBlockTests.TestBlandEnteringVariable<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
-  
+
   @Test
   public void test_LpTableauDebug() throws Exception {
     runTest(new LpBuildingBlockTests.TestLpTableuDebug<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
-  
+
   @Test
   public void test_LpSolverDanzig() throws Exception {
-    runTest(new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.DANZIG), EvaluationStrategy.SEQUENTIAL,
+    runTest(new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.DANZIG),
+        EvaluationStrategy.SEQUENTIAL,
         2);
   }
-  
+
   @Test
   public void test_LpSolverBland() throws Exception {
-    runTest(new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.BLAND), EvaluationStrategy.SEQUENTIAL,
+    runTest(new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.BLAND),
+        EvaluationStrategy.SEQUENTIAL,
         2);
   }
-  
+
   @Test
   public void test_LpSolverDebug() throws Exception {
     runTest(new LpBuildingBlockTests.TestLpSolverDebug<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
-  
-  
 
 
   // lib.math.integer.binary
@@ -586,18 +583,14 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
         "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
     runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
         2, mod, true);
-    for (Integer pId : DummyArithmeticBuilderFactory.performanceLoggers.keySet()) {
-      PerformancePrinter printer = new DefaultPerformancePrinter();
-      for (PerformanceLogger pl : DummyArithmeticBuilderFactory.performanceLoggers.get(pId)) {
-        printer.printPerformanceLog(pl, pId);
-      }
-    }
   }
-  
+
   @Test
   public void test_exponentiation_pipe_preprocessed() throws Exception {
-    runTest(new dk.alexandra.fresco.framework.builder.numeric.ExponentiationPipeTests.TestPreprocessedValues<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(
+        new dk.alexandra.fresco.framework.builder.numeric.ExponentiationPipeTests.TestPreprocessedValues<>(),
+        EvaluationStrategy.SEQUENTIAL,
         1);
   }
-  
+
 }
