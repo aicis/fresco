@@ -1,13 +1,11 @@
 package dk.alexandra.fresco.tools.mascot.maccheck;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import dk.alexandra.fresco.framework.FailedException;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
@@ -47,8 +45,7 @@ public class MacCheck extends MultiPartyProtocol {
    *
    * @param comm own commitment
    */
-  List<Commitment> distributeCommitments(Commitment comm)
-      throws IOException, ClassNotFoundException {
+  List<Commitment> distributeCommitments(Commitment comm) {
     // broadcast own commitment
     broadcaster.sendToAll(ByteArrayHelper.serialize(comm));
     // receive other parties' commitments from broadcast
@@ -65,8 +62,7 @@ public class MacCheck extends MultiPartyProtocol {
    *
    * @param opening own opening info
    */
-  List<Serializable> distributeOpenings(Serializable opening)
-      throws IOException, ClassNotFoundException {
+  List<Serializable> distributeOpenings(Serializable opening) {
     // send (over regular network) own opening info
     network.sendToAll(ByteArrayHelper.serialize(opening));
     // receive opening info from others
@@ -125,14 +121,10 @@ public class MacCheck extends MultiPartyProtocol {
 
     List<Commitment> comms;
     List<Serializable> openings;
-    try {
-      // all parties commit
-      comms = distributeCommitments(ownComm);
-      // all parties send opening info
-      openings = distributeOpenings(ownOpening);
-    } catch (ClassNotFoundException | IOException e) {
-      throw new RuntimeException("Serialization problem", e);
-    }
+    // all parties commit
+    comms = distributeCommitments(ownComm);
+    // all parties send opening info
+    openings = distributeOpenings(ownOpening);
 
     // open commitments using received opening info
     List<FieldElement> sigmas;

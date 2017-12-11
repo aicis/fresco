@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import dk.alexandra.fresco.framework.FailedException;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
@@ -149,7 +148,7 @@ public class ElGen extends MultiPartyProtocol {
    * Inputs field elements.
    */
   public List<AuthenticatedElement> input(List<FieldElement> values)
-      throws MaliciousException, FailedException {
+      throws MaliciousException {
     // can't input before initializing
     if (!initialized) {
       throw new IllegalStateException("Need to initialize first");
@@ -228,7 +227,7 @@ public class ElGen extends MultiPartyProtocol {
    * Runs mac-check on opened values.
    */
   public void check(List<AuthenticatedElement> sharesWithMacs, List<FieldElement> openValues)
-      throws MaliciousException, FailedException {
+      throws MaliciousException {
     // will use this to mask macs
     List<FieldElement> masks = jointSampler.sample(modulus, modBitLength, sharesWithMacs.size());
     // only need macs

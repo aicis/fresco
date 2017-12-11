@@ -1,6 +1,13 @@
 package dk.alexandra.fresco.tools.mascot.triple;
 
-import dk.alexandra.fresco.framework.FailedException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
@@ -15,13 +22,6 @@ import dk.alexandra.fresco.tools.mascot.mult.MultiplyRight;
 import dk.alexandra.fresco.tools.mascot.utils.sample.DummyJointSampler;
 import dk.alexandra.fresco.tools.mascot.utils.sample.DummySampler;
 import dk.alexandra.fresco.tools.mascot.utils.sample.Sampler;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class TripleGen extends MultiPartyProtocol {
 
@@ -50,14 +50,14 @@ public class TripleGen extends MultiPartyProtocol {
     this.initialized = false;
   }
 
-  public void initialize() throws MaliciousException, FailedException {
+  public void initialize() throws MaliciousException {
     // shouldn't initialize again
     if (initialized) {
       throw new IllegalStateException("Already initialized");
     }
     // initialize el gen
-      elGen.initialize();
-      this.initialized = true;
+    elGen.initialize();
+    this.initialized = true;
   }
 
   List<UnauthTriple> toUnauthTriple(List<FieldElement> left, List<FieldElement> right,
@@ -73,7 +73,7 @@ public class TripleGen extends MultiPartyProtocol {
   }
 
   List<FieldElement> multiply(List<FieldElement> leftFactorGroups, List<FieldElement> rightFactors)
-      throws MaliciousException, FailedException {
+      throws MaliciousException {
     // "stretch" right factors, so we have one right factor for each left factor
     List<FieldElement> stretched =
         FieldElementCollectionUtils.stretch(rightFactors, numLeftFactors);
@@ -140,8 +140,7 @@ public class TripleGen extends MultiPartyProtocol {
         .collect(Collectors.toList());
   }
 
-  List<AuthCand> authenticate(List<UnauthCand> candidates)
-      throws MaliciousException, FailedException {
+  List<AuthCand> authenticate(List<UnauthCand> candidates) throws MaliciousException {
     List<FieldElement> flatInputs = candidates.stream()
         .flatMap(TripleCandidate::stream)
         .collect(Collectors.toList());
@@ -208,16 +207,15 @@ public class TripleGen extends MultiPartyProtocol {
     List<FieldElement> paddedRhos = FieldElementCollectionUtils.padWith(openRhos,
         new FieldElement(0, modulus, modBitLength), sigmas.size());
 
-      // run mac-check
-      // TODO check if we can avoid re-masking
-      elGen.check(rhos, paddedRhos);
+    // run mac-check
+    // TODO check if we can avoid re-masking
+    elGen.check(rhos, paddedRhos);
 
     // convert candidates to valid triples and return
     return toMultTriples(candidates);
   }
 
-  public List<MultTriple> triple(int numTriples)
-      throws MaliciousException, FailedException {
+  public List<MultTriple> triple(int numTriples) throws MaliciousException {
     // can't generate triples before initializing
     if (!initialized) {
       throw new IllegalStateException("Need to initialize first");
