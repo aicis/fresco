@@ -75,43 +75,28 @@ public class TestFieldElementCollectionUtils {
     assertEquals(expected, actual);
   }
 
-  // negative tests
-
-  @Test
-  public void testInnerProductDifferentSizes() {
-    int[] rightArr = {5, 6, 7};
-    List<FieldElement> right = MascotTestUtils.generateSingleRow(rightArr, modulus, modBitLength);
-
-    boolean thrown = false;
-    try {
-      FieldElementCollectionUtils.innerProduct(left, right);
-    } catch (IllegalArgumentException e) {
-      assertEquals("Lists must have same size", e.getMessage());
-      thrown = true;
-    }
-    assertEquals(thrown, true);
-  }
-
-  @Test
-  public void testRecombineIncorrectSize() {
-    int[] leftArr = new int[17];
-    List<FieldElement> left = MascotTestUtils.generateSingleRow(leftArr, modulus, modBitLength);
-    boolean thrown = false;
-    try {
-      FieldElementCollectionUtils.recombine(left, modulus, modBitLength);
-    } catch (IllegalArgumentException e) {
-      assertEquals("Number of elements cannot exceed bit-length", e.getMessage());
-      thrown = true;
-    }
-    assertEquals(thrown, true);
-  }
-
   @Test
   public void testPack() {
     StrictBitVector actual = FieldElementCollectionUtils.pack(left);
     byte[] expectedBytes = {0x00, 0x04, 0x00, 0x03, 0x00, 0x02, 0x00, 0x01};
     StrictBitVector expected = new StrictBitVector(expectedBytes, modBitLength * left.size());
     assertEquals(expected, actual);
+  }
+
+  // negative tests
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testInnerProductDifferentSizes() {
+    int[] rightArr = {5, 6, 7};
+    List<FieldElement> right = MascotTestUtils.generateSingleRow(rightArr, modulus, modBitLength);
+    FieldElementCollectionUtils.innerProduct(left, right);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testRecombineIncorrectSize() {
+    int[] leftArr = new int[17];
+    List<FieldElement> left = MascotTestUtils.generateSingleRow(leftArr, modulus, modBitLength);
+    FieldElementCollectionUtils.recombine(left, modulus, modBitLength);
   }
 
 }
