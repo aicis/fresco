@@ -29,53 +29,32 @@ public class TestBroadcastingNetworkDecorator {
     assertEquals(3, validBroadcastNetwork.getNoOfParties());
   }
 
-  @Test
+  @Test(expected = IllegalArgumentException.class)
   public void testConstructForLessThanThree() {
-    boolean thrown = false;
-    try {
-      new BroadcastingNetworkDecorator(new Network() {
-        @Override
-        public void send(int partyId, byte[] data) {}
+    new BroadcastingNetworkDecorator(new Network() {
+      @Override
+      public void send(int partyId, byte[] data) {}
 
-        @Override
-        public byte[] receive(int partyId) {
-          return null;
-        }
+      @Override
+      public byte[] receive(int partyId) {
+        return null;
+      }
 
-        @Override
-        public int getNoOfParties() {
-          return 2;
-        }
-      }, null);
-    } catch (IllegalArgumentException e) {
-      assertEquals("Broadcast only needed for three or more parties", e.getMessage());
-      thrown = true;
-    }
-    assertEquals(thrown, true);
+      @Override
+      public int getNoOfParties() {
+        return 2;
+      }
+    }, null);
   }
 
-  @Test
+  @Test(expected = UnsupportedOperationException.class)
   public void testSendUnsupported() {
-    boolean thrown = false;
-    try {
-      validBroadcastNetwork.send(1, null);
-    } catch (UnsupportedOperationException e) {
-      assertEquals("Broadcast network can only send to all", e.getMessage());
-      thrown = true;
-    }
-    assertEquals(thrown, true);
+    validBroadcastNetwork.send(1, null);
   }
 
-  @Test
+  @Test(expected = UnsupportedOperationException.class)
   public void testReceiveUnsupported() {
-    boolean thrown = false;
-    try {
-      validBroadcastNetwork.receive(1);
-    } catch (UnsupportedOperationException e) {
-      assertEquals("Broadcast network can only receive from all", e.getMessage());
-      thrown = true;
-    }
-    assertEquals(thrown, true);
+    validBroadcastNetwork.receive(1);
   }
 
 }
