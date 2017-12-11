@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.mascot.commit;
 
-import java.io.Serializable;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +7,6 @@ import java.util.stream.Collectors;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.SecureSerializer;
-import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.tools.commitment.Commitment;
 import dk.alexandra.fresco.tools.commitment.CommitmentSerializer;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
@@ -43,7 +41,7 @@ public class CommitmentBasedProtocol<T> extends MultiPartyProtocol {
    */
   protected List<Commitment> distributeCommitments(Commitment comm) {
     // broadcast own commitment
-    broadcaster.sendToAll(ByteArrayHelper.serialize(comm));
+    broadcaster.sendToAll(commSerializer.serialize(comm));
     // receive other parties' commitments from broadcast
     List<byte[]> rawComms = broadcaster.receiveFromAll();
     // parse
@@ -58,15 +56,11 @@ public class CommitmentBasedProtocol<T> extends MultiPartyProtocol {
    *
    * @param opening own opening info
    */
-  protected List<Serializable> distributeOpenings(Serializable opening) {
+  protected List<byte[]> distributeOpenings(byte[] opening) {
     // send (over regular network) own opening info
-    network.sendToAll(ByteArrayHelper.serialize(opening));
+    network.sendToAll(opening);
     // receive opening info from others
-    List<byte[]> rawOpenings = network.receiveFromAll();
-    // parse
-    List<Serializable> openings = rawOpenings.stream()
-        .map(raw -> ByteArrayHelper.deserialize(raw))
-        .collect(Collectors.toList());
+    List<byte[]> openings = network.receiveFromAll();
     return openings;
   }
 
@@ -79,36 +73,32 @@ public class CommitmentBasedProtocol<T> extends MultiPartyProtocol {
    * @throws FailedCommitmentException
    * @throws MaliciousCommitmentException
    */
-  protected List<T> open(List<Commitment> comms, List<Serializable> openings) {
+  protected List<T> open(List<Commitment> comms, List<byte[]> openings) {
     if (comms.size() != openings.size()) {
       throw new IllegalArgumentException("Lists must be same size");
     }
     List<T> result = new ArrayList<>(comms.size());
     for (int i = 0; i < comms.size(); i++) {
       Commitment comm = comms.get(i);
-      Serializable opening = openings.get(i);
-      // T el = serializer.deserialize(comm.open(opening));
-      // this will go away as soon as commitments are fixed
-      T fe = (T) comm.open(opening);
-      result.add(fe);
+      byte[] opening = openings.get(i);
+      T el = serializer.deserialize(comm.open(opening));
+      result.add(el);
     }
     return result;
   }
 
   protected List<T> allCommit(T value) {
     // commit to sigma
-    Commitment ownComm = new Commitment(modBitLength);
+    Commitment ownComm = new Commitment();
 
-    // TODO this will go away once serialization is fixed
-    Serializable ownOpening = ownComm.commit(new SecureRandom(), (Serializable) value);
     // commit to value locally
-    // Serializable ownOpening = ownComm.commit(new SecureRandom(), serializer.serialize(value));
+    byte[] ownOpening = ownComm.commit(new SecureRandom(), serializer.serialize(value));
 
     // all parties commit
     List<Commitment> comms = distributeCommitments(ownComm);;
 
     // all parties send opening info
-    List<Serializable> openings = distributeOpenings(ownOpening);
+    List<byte[]> openings = distributeOpenings(ownOpening);
 
     // open commitments using received opening info
     return open(comms, openings);

@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.tools.ot.base;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.math.BigInteger;
 import java.security.AlgorithmParameterGenerator;
 import java.security.AlgorithmParameters;
@@ -22,7 +21,7 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
 
-public class NaorPinkasOT<T extends Serializable> implements Ot<T>
+public class NaorPinkasOT implements Ot
 {
   private int myId;
   private int otherId;
@@ -66,20 +65,18 @@ public class NaorPinkasOT<T extends Serializable> implements Ot<T>
   }
 
   @Override
-  public void send(T messageZero, T messageOne) {
+  public void send(StrictBitVector messageZero, StrictBitVector messageOne) {
     try {
       if (params == null) {
         computeSecureDhParams();
       }
-      byte[] serializedMessageZero = ByteArrayHelper.serialize(messageZero);
-      byte[] serializedMessageOne = ByteArrayHelper.serialize(messageOne);
-      int maxByteLength = Math.max(serializedMessageZero.length,
-          serializedMessageOne.length);
+      int maxBitLength = Math.max(messageZero.getSize(), messageOne.getSize());
       Pair<byte[], byte[]> seedMessages = sendBytesOt();
-      byte[] encryptedZeroMessage = padMessage(serializedMessageZero,
-          maxByteLength, seedMessages.getFirst());
-      byte[] encryptedOneMessage = padMessage(serializedMessageOne,
-          maxByteLength, seedMessages.getSecond());
+      // We divide the length with 8 to get the byte length
+      byte[] encryptedZeroMessage = padMessage(messageZero.toByteArray(),
+          maxBitLength / 8, seedMessages.getFirst());
+      byte[] encryptedOneMessage = padMessage(messageOne.toByteArray(),
+          maxBitLength / 8, seedMessages.getSecond());
       network.send(otherId, encryptedZeroMessage);
       network.send(otherId, encryptedOneMessage);
     } catch (IOException | NoSuchAlgorithmException e) {
@@ -111,7 +108,7 @@ public class NaorPinkasOT<T extends Serializable> implements Ot<T>
   }
 
   @Override
-  public T receive(Boolean choiceBit) {
+  public StrictBitVector receive(Boolean choiceBit) {
     try {
       if (params == null) {
         computeSecureDhParams();
@@ -129,7 +126,7 @@ public class NaorPinkasOT<T extends Serializable> implements Ot<T>
       } else {
         unpaddedMessage = unpadMessage(encryptedOneMessage, seed);
       }
-      return (T) ByteArrayHelper.deserialize(unpaddedMessage);
+      return new StrictBitVector(unpaddedMessage, 8 * unpaddedMessage.length);
     } catch (NoSuchAlgorithmException | ClassNotFoundException
         | IOException e) {
       throw new MPCException(

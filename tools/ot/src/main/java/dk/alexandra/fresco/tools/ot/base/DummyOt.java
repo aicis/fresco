@@ -3,7 +3,7 @@ package dk.alexandra.fresco.tools.ot.base;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 
-public class DummyOt implements Ot<StrictBitVector> {
+public class DummyOt implements Ot {
 
   private Integer otherId;
   Network network;

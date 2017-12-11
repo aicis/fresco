@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.cointossing;
 
-import java.io.Serializable;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Random;
@@ -131,13 +130,13 @@ public class CoinTossing {
       Commitment comm = Commitment.receiveCommitment(otherId, network);
       network.send(otherId, seed);
       byte[] opening = network.receive(otherId);
-      return (byte[]) comm.open(ByteArrayHelper.deserialize(opening));
+      return comm.open(opening);
     } else {
-      Commitment comm = new Commitment(kbitLength);
-      Serializable openInfo = comm.commit(rand, seed);
+      Commitment comm = new Commitment();
+      byte[] openInfo = comm.commit(rand, seed);
       Commitment.sendCommitment(comm, otherId, network);
       byte[] otherSeed = network.receive(otherId);
-      network.send(otherId, ByteArrayHelper.serialize(openInfo));
+      network.send(otherId, openInfo);
       return otherSeed;
     }
   }

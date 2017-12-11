@@ -1,12 +1,11 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.io.Serializable;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.ByteArrayHelper;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 
 /**
@@ -15,7 +14,7 @@ import dk.alexandra.fresco.tools.ot.base.Ot;
  * @author jot2re
  *
  */
-public class BristolOt<T extends Serializable> implements Ot<T> {
+public class BristolOt implements Ot {
   protected BristolOtSender sender;
   protected BristolOtReceiver receiver;
 
@@ -58,10 +57,8 @@ public class BristolOt<T extends Serializable> implements Ot<T> {
    *          the one-choice message
    */
   @Override
-  public void send(T messageZero, T messageOne) {
-    byte[] messageZeroBytes = ByteArrayHelper.serialize(messageZero);
-    byte[] messageOneBytes = ByteArrayHelper.serialize(messageOne);
-    sender.send(messageZeroBytes, messageOneBytes);
+  public void send(StrictBitVector messageZero, StrictBitVector messageOne) {
+    sender.send(messageZero.toByteArray(), messageOne.toByteArray());
   }
 
   /**
@@ -71,11 +68,11 @@ public class BristolOt<T extends Serializable> implements Ot<T> {
    *          The bit representing choice of message. False represents 0 and
    *          true represents 1.
    */
-  @SuppressWarnings("unchecked")
   @Override
-  public T receive(Boolean choiceBit) {
+  public StrictBitVector receive(Boolean choiceBit) {
     try {
-      return (T) ByteArrayHelper.deserialize(receiver.receive(choiceBit));
+      byte[] res = receiver.receive(choiceBit);
+      return new StrictBitVector(res, 8 * res.length);
     } catch (NoSuchAlgorithmException e) {
       throw new MPCException(
           "Something, non-malicious, went wrong when receiving a Bristol OT.",

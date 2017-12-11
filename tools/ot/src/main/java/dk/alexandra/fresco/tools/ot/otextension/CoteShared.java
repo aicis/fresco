@@ -29,7 +29,7 @@ public class CoteShared {
   protected Network network;
   // Internal state variables
   protected boolean initialized;
-  protected Ot<StrictBitVector> ot;
+  protected Ot ot;
 
   /**
    * Constructs a correlated OT extension with errors super-class.

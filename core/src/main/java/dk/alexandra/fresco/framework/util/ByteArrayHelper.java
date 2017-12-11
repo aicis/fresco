@@ -105,6 +105,7 @@ public class ByteArrayHelper {
    * @param val The value to serialize
    * @return The serialized value
    */
+  @Deprecated
   public static byte[] serialize(Serializable val) {
     ByteArrayOutputStream bos = null;
     try {

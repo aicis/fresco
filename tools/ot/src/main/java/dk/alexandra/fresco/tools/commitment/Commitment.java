@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.commitment;
 
-import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -9,7 +8,6 @@ import java.util.Random;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 
 /**
  * Class representing a hash-based commitment. Secure assuming that SHA-256 is a
@@ -25,25 +23,18 @@ import dk.alexandra.fresco.framework.util.ByteArrayHelper;
  * @author jot2re
  *
  */
-public class Commitment implements Serializable {
+public class Commitment {
 
-  private static final long serialVersionUID = 1L;
+  public static final String hashAlgorithm = "SHA-256";
+  // The length of the hash digest along with the randomness used
+  public static final int digestLength = 32; // 256 / 8 bytes
   // The actual value representing the commitment
-  private byte[] commitmentVal = null;
-  // The computational security parameter
-  private int kbitLength;
+  protected byte[] commitmentVal = null;
 
   /**
    * Constructs a new commitment, not yet committed to any value.
-   * 
-   * @param kbitLength
-   *          The computational security parameter.
    */
-  public Commitment(int kbitLength) {
-    if (kbitLength < 1) {
-      throw new IllegalArgumentException("Illegal constructor parameters");
-    }
-    this.kbitLength = kbitLength;
+  public Commitment() {
   }
 
   /**
@@ -56,62 +47,61 @@ public class Commitment implements Serializable {
    *          The element to commit to
    * @return The opening information needed to open the commitment
    */
-  public Serializable commit(Random rand, Serializable value) {
+  public byte[] commit(Random rand, byte[] value) {
     if (commitmentVal != null) {
       throw new IllegalStateException("Already committed");
     }
     // Sample a sufficient amount of random bits
-    byte[] randomness = new byte[kbitLength / 8];
+    byte[] randomness = new byte[digestLength];
     rand.nextBytes(randomness);
-    commitmentVal = computeDigest(randomness, value);
-    return new OpenInfo(randomness, value);
+    try {
+      // Construct an array to contain the byte to hash
+      byte[] openingInfo = new byte[value.length + randomness.length];
+      System.arraycopy(value, 0, openingInfo, 0, value.length);
+      System.arraycopy(randomness, 0, openingInfo, value.length,
+          randomness.length);
+      MessageDigest digest = MessageDigest.getInstance(hashAlgorithm);
+      commitmentVal = digest.digest(value);
+      return openingInfo;
+    } catch (NoSuchAlgorithmException e) {
+      throw new MPCException(
+          "Commitment failed. No malicious behaviour detected.", e);
+    }
   }
 
   /**
    * Opens a committed object.
    * 
-   * @param open
+   * @param openingInfo
    *          The data needed to open this given commitment
    * @return The value that was committed to
    */
-  public Serializable open(Serializable open) {
+  public byte[] open(byte[] openingInfo) {
     if (commitmentVal == null) {
       throw new IllegalStateException("No commitment to open");
     }
+    if (openingInfo.length < digestLength) {
+      throw new MaliciousException(
+          "The opening info is too small to be a commitment.");
+    }
+    // Extract the randomness and the value committed to from the openingInfo
+    // The value comes first
+    byte[] value = new byte[openingInfo.length - digestLength];
+    System.arraycopy(openingInfo, 0, value, 0, openingInfo.length - digestLength);
+    // The randomness comes at the end
+    byte[] randomness = new byte[digestLength];
+    System.arraycopy(openingInfo, value.length, randomness, 0, digestLength);
+    // Hash the opening info and verify that it mathces the value stored in
+    // "commitmentValue"
     try {
-      OpenInfo openInfo = (OpenInfo) open;
-      byte[] digest = computeDigest(openInfo.randomness, openInfo.value);
-      if (Arrays.equals(digest, commitmentVal)) {
-        return openInfo.value;
+      MessageDigest digest = MessageDigest.getInstance(hashAlgorithm);
+      byte[] digestValue = digest.digest(value);
+      if (Arrays.equals(digestValue, commitmentVal)) {
+        return value;
       } else {
         throw new MaliciousException(
             "The opening info does not match the commitment.");
       }
-    } catch (ClassCastException e) {
-      throw new MaliciousException(
-          "The object given to the open method is not a proper commitment opening object.");
-    }
-  }
-
-  /**
-   * Computes a hash digest of "value" concatenated with "randomness".
-   * 
-   * @param randomness
-   *          The randomness used to ensure the hiding property
-   * @param value
-   *          The value to commit to.
-   * @return The digest as a byte array
-   */
-  private byte[] computeDigest(byte[] randomness, Serializable value) {
-    try {
-      byte[] valBytes = ByteArrayHelper.serialize(value);
-      // Construct an array to contain the byte to hash
-      byte[] toHash = new byte[valBytes.length + randomness.length];
-      System.arraycopy(valBytes, 0, toHash, 0, valBytes.length);
-      System.arraycopy(randomness, 0, toHash, valBytes.length,
-          randomness.length);
-      MessageDigest digest = MessageDigest.getInstance("SHA-256");
-      return digest.digest(valBytes);
     } catch (NoSuchAlgorithmException e) {
       throw new MPCException(
           "Commitment failed. No malicious behaviour detected.", e);
@@ -130,7 +120,8 @@ public class Commitment implements Serializable {
    */
   public static void sendCommitment(Commitment comm, int otherId,
       Network network) {
-    byte[] serializedComm = ByteArrayHelper.serialize(comm);
+    CommitmentSerializer serializer = new CommitmentSerializer();
+    byte[] serializedComm = serializer.serialize(comm);
     network.send(otherId, serializedComm);
   }
 
@@ -145,26 +136,7 @@ public class Commitment implements Serializable {
    */
   public static Commitment receiveCommitment(int otherId, Network network) {
     byte[] serializedComm = network.receive(otherId);
-    return (Commitment) ByteArrayHelper.deserialize(serializedComm);
-  }
-
-  // TODO OpenInfo should be public class with its own serializer
-
-  /**
-   * Internal class representing the data needed to open a commitment.
-   * 
-   * @author jot2re
-   *
-   */
-  private class OpenInfo implements Serializable {
-    private static final long serialVersionUID = -5212255616479757356L;
-
-    private Serializable value;
-    private byte[] randomness;
-
-    public OpenInfo(byte[] randomness, Serializable value) {
-      this.value = value;
-      this.randomness = randomness;
-    }
+    CommitmentSerializer serializer = new CommitmentSerializer();
+    return serializer.deserialize(serializedComm);
   }
 }
