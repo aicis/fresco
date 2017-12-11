@@ -24,6 +24,7 @@ import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePool;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,7 +97,7 @@ public class TestGenericLoggingDecorators {
     Map<Integer, TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
 
-    List<PerformanceLogger> decoratedLoggers = new ArrayList<>();
+    List<PerformanceLogger> decoratedLoggers = Collections.synchronizedList(new ArrayList<>());
     for (int playerId : netConf.keySet()) {
       NetworkConfiguration partyNetConf = netConf.get(playerId);
       
