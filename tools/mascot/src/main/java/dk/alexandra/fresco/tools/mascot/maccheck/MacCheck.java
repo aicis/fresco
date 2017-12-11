@@ -17,15 +17,26 @@ import dk.alexandra.fresco.tools.commitment.MaliciousCommitmentException;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
+import dk.alexandra.fresco.tools.mascot.broadcast.BroadcastValidation;
+import dk.alexandra.fresco.tools.mascot.broadcast.BroadcastingNetworkDecorator;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 
 public class MacCheck extends MultiPartyProtocol {
 
   protected CommitmentSerializer commSerializer;
 
+  /**
+   * Constructs new mac checker.
+   * 
+   * @param ctx
+   */
   public MacCheck(MascotContext ctx) {
     super(ctx);
     this.commSerializer = new CommitmentSerializer();
+    // for more than two parties, we need to use broadcast
+    if (partyIds.size() > 2) {
+      this.network = new BroadcastingNetworkDecorator(network, new BroadcastValidation(ctx));
+    }
   }
 
   /**
@@ -35,9 +46,9 @@ public class MacCheck extends MultiPartyProtocol {
    */
   List<Commitment> distributeCommitments(Commitment comm)
       throws IOException, ClassNotFoundException {
-    // send own commitment
+    // broadcast own commitment
     network.sendToAll(ByteArrayHelper.serialize(comm));
-    // receive other parties' commitments
+    // receive other parties' commitments from broadcast
     List<byte[]> rawComms = network.receiveFromAll();
     // parse
     List<Commitment> comms = rawComms.stream()
@@ -53,7 +64,7 @@ public class MacCheck extends MultiPartyProtocol {
    */
   List<Serializable> distributeOpenings(Serializable opening)
       throws IOException, ClassNotFoundException {
-    // send own opening info
+    // broadcast own opening info
     network.sendToAll(ByteArrayHelper.serialize(opening));
     // receive opening info from others
     List<byte[]> rawOpenings = network.receiveFromAll();
@@ -100,6 +111,12 @@ public class MacCheck extends MultiPartyProtocol {
    * Runs mac-check on open value. <br>
    * Conceptually, computes that (macShare0 + ... + macShareN) = (open) * (keyShare0 + ... +
    * keyShareN)
+   * 
+   * @param opened the opened element to validate
+   * @param macKeyShare this party's share of the mac key
+   * @param macShare this party's share of the mac
+   * @return
+   * @throws MaliciousException if mac-check fails
    */
   public void check(FieldElement opened, FieldElement macKeyShare, FieldElement macShare) {
     // we will check that all sigmas together add up to 0
@@ -123,7 +140,7 @@ public class MacCheck extends MultiPartyProtocol {
       // all parties send opening info
       openings = distributeOpenings(ownOpening);
     } catch (ClassNotFoundException | IOException e) {
-      throw new FailedException("Serialization problem", e);
+      throw new RuntimeException("Serialization problem", e);
     }
 
     // open commitments using received opening info
@@ -139,4 +156,5 @@ public class MacCheck extends MultiPartyProtocol {
       throw new MaliciousException("Malicious mac forging detected");
     }
   }
+  
 }
