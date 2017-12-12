@@ -26,7 +26,7 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
         () -> MessageDigest.getInstance("SHA-256"),
         "Configuration error, SHA-256 is needed for Spdz");
 
-    // To make sure we are propoerly initialized, may throw runtime exceptions if not
+    // To make sure we are properly initialized, may throw runtime exceptions if not
     store.getSSK();
 
     // Initialize various fields global to the computation.
