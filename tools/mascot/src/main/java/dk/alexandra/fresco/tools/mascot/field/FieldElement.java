@@ -4,7 +4,6 @@ import java.math.BigInteger;
 import java.util.function.BinaryOperator;
 
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 
 public final class FieldElement implements Addable<FieldElement> {
@@ -153,12 +152,6 @@ public final class FieldElement implements Addable<FieldElement> {
 
   public int getBitLength() {
     return bitLength;
-  }
-
-  public static SpdzElement toSpdzElement(FieldElement share, FieldElement macShare) {
-    // TODO: check that modulus and bit length are same
-    BigInteger modulus = share.modulus;
-    return new SpdzElement(share.toBigInteger(), macShare.toBigInteger(), modulus);
   }
 
   private void sanityCheck(BigInteger value, BigInteger modulus, int bitLength) {

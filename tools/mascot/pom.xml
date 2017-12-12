@@ -24,11 +24,6 @@
       <version>${fresco-version}</version>
     </dependency>
     
-    <dependency>
-      <groupId>dk.alexandra.fresco</groupId>
-      <artifactId>spdz</artifactId>
-      <version>${fresco-version}</version>
-    </dependency>
 
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>

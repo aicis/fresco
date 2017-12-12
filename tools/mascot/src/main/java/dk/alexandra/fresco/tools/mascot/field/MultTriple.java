@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 
 public class MultTriple implements Addable<MultTriple> {
@@ -27,10 +26,6 @@ public class MultTriple implements Addable<MultTriple> {
 
   public AuthenticatedElement getProduct() {
     return product;
-  }
-
-  public SpdzTriple toSpdzTriple() {
-    return new SpdzTriple(left.toSpdzElement(), right.toSpdzElement(), product.toSpdzElement());
   }
 
   @Override

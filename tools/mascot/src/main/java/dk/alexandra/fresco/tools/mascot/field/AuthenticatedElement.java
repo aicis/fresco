@@ -2,49 +2,55 @@ package dk.alexandra.fresco.tools.mascot.field;
 
 import java.math.BigInteger;
 
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 
 public class AuthenticatedElement implements Addable<AuthenticatedElement> {
 
-  SpdzElement spdzElement;
+  FieldElement share;
+  FieldElement mac;
   BigInteger modulus;
   int modBitLength;
 
   public AuthenticatedElement(FieldElement share, FieldElement mac, BigInteger modulus,
       int modBitLength) {
-    this.spdzElement = new SpdzElement(share.toBigInteger(), mac.toBigInteger(), modulus);
-    this.modulus = modulus;
-    this.modBitLength = modBitLength;
-  }
-
-  public AuthenticatedElement(SpdzElement spdzElement, BigInteger modulus, int modBitLength) {
-    this.spdzElement = spdzElement;
+    this.share = share;
+    this.mac = mac;
     this.modulus = modulus;
     this.modBitLength = modBitLength;
   }
 
   @Override
   public AuthenticatedElement add(AuthenticatedElement other) {
-    SpdzElement sum = spdzElement.add(other.spdzElement);
-    return new AuthenticatedElement(sum, modulus, modBitLength);
+    return new AuthenticatedElement(share.add(other.share), mac.add(other.mac), modulus,
+        modBitLength);
   }
 
   public AuthenticatedElement subtract(AuthenticatedElement other) {
-    SpdzElement sum = spdzElement.subtract(other.spdzElement);
-    return new AuthenticatedElement(sum, modulus, modBitLength);
+    return new AuthenticatedElement(share.subtract(other.share), mac.subtract(other.mac), modulus,
+        modBitLength);
   }
 
   public AuthenticatedElement multiply(FieldElement constant) {
-    SpdzElement mult = spdzElement.multiply(constant.toBigInteger());
-    return new AuthenticatedElement(mult, modulus, modBitLength);
+    return new AuthenticatedElement(share.multiply(constant), mac.multiply(constant), modulus,
+        modBitLength);
+  }
+
+  public FieldElement getMac() {
+    return mac;
+  }
+
+  public FieldElement getShare() {
+    return share;
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((spdzElement == null) ? 0 : spdzElement.hashCode());
+    result = prime * result + ((mac == null) ? 0 : mac.hashCode());
+    result = prime * result + modBitLength;
+    result = prime * result + ((modulus == null) ? 0 : modulus.hashCode());
+    result = prime * result + ((share == null) ? 0 : share.hashCode());
     return result;
   }
 
@@ -57,29 +63,30 @@ public class AuthenticatedElement implements Addable<AuthenticatedElement> {
     if (getClass() != obj.getClass())
       return false;
     AuthenticatedElement other = (AuthenticatedElement) obj;
-    if (spdzElement == null) {
-      if (other.spdzElement != null)
+    if (mac == null) {
+      if (other.mac != null)
         return false;
-    } else if (!spdzElement.equals(other.spdzElement))
+    } else if (!mac.equals(other.mac))
+      return false;
+    if (modBitLength != other.modBitLength)
+      return false;
+    if (modulus == null) {
+      if (other.modulus != null)
+        return false;
+    } else if (!modulus.equals(other.modulus))
+      return false;
+    if (share == null) {
+      if (other.share != null)
+        return false;
+    } else if (!share.equals(other.share))
       return false;
     return true;
   }
 
   @Override
   public String toString() {
-    return "AuthenticatedElement [spdzElement=" + spdzElement + "]";
-  }
-
-  public FieldElement getMac() {
-    return new FieldElement(spdzElement.getMac(), modulus, modBitLength);
-  }
-
-  public FieldElement getShare() {
-    return new FieldElement(spdzElement.getShare(), modulus, modBitLength);
-  }
-
-  public SpdzElement toSpdzElement() {
-    return spdzElement;
+    return "AuthenticatedElement [share=" + share + ", mac=" + mac + ", modulus=" + modulus
+        + ", modBitLength=" + modBitLength + "]";
   }
 
 }
