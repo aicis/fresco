@@ -1,14 +1,13 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResourcePool {
 
@@ -18,19 +17,18 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
   private BigInteger modulusHalf;
   private SpdzStorage store;
 
-  public SpdzResourcePoolImpl(int myId, int noOfPlayers, Drbg drbg,
-      SpdzStorage store) throws NoSuchAlgorithmException {
+  public SpdzResourcePoolImpl(int myId, int noOfPlayers, Drbg drbg, SpdzStorage store) {
     super(myId, noOfPlayers, drbg);
 
     this.store = store;
 
-    messageDigest = MessageDigest.getInstance("SHA-256");
+    messageDigest = ExceptionConverter.safe(
+        () -> MessageDigest.getInstance("SHA-256"),
+        "Configuration error, SHA-256 is needed for Spdz");
 
-    try {
-      this.store.getSSK();
-    } catch (MPCException e) {
-      throw new MPCException("No preprocessed data found for SPDZ - aborting.", e);
-    }
+    ExceptionConverter.safe(
+        store::getSSK,
+        "No preprocessed data found for SPDZ - aborting.");
 
     // Initialize various fields global to the computation.
     this.modulus = store.getSupplier().getModulus();

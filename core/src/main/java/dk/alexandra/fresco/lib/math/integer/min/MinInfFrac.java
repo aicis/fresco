@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.lib.math.integer.min;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -41,7 +40,7 @@ public class MinInfFrac implements Computation<MinInfOutput, ProtocolBuilderNume
    * @param ns input - a list of numerators
    * @param ds input - a list of denominators
    * @param infs input - a list of infinity indicators (should be a 0/1 value, 1 indicating
-   * infinity)
+   *     infinity)
    */
   public MinInfFrac(
       List<DRes<SInt>> ns,
@@ -56,7 +55,7 @@ public class MinInfFrac implements Computation<MinInfOutput, ProtocolBuilderNume
         fs.add(new Frac(nsIterator.next(), dsIterator.next(), infsIterator.next()));
       }
     } else {
-      throw new MPCException("Sizes of input arrays does not match");
+      throw new IllegalArgumentException("Sizes of input arrays does not match");
     }
   }
 
