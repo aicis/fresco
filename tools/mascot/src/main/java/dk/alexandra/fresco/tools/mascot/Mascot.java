@@ -18,7 +18,7 @@ public class Mascot {
   TripleGen tripleGen;
   ElGen elGen;
 
-  public Mascot(MascotResourcePool resourcePool, FieldElement macKeyShare, Network network) {
+  public Mascot(MascotResourcePool resourcePool, Network network, FieldElement macKeyShare) {
     // agree on joint seed
     StrictBitVector jointSeed = new CoinTossingMpc(resourcePool, network).generateJointSeed(resourcePool.getPrgSeedLength());
     FieldElementPrg jointSampler = new PaddingPrg(jointSeed);
@@ -42,6 +42,5 @@ public class Mascot {
   public List<AuthenticatedElement> getElements(Integer inputterId, int numElements) {
     return elGen.input(inputterId, numElements);
   }
-  
 
 }
