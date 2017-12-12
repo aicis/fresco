@@ -8,7 +8,6 @@ import java.util.Map;
 
 public class NetworkLoggingDecorator implements Network, PerformanceLogger, Closeable {
 
-  public static final String ID = "My ID";
   public static final String NETWORK_PARTY_BYTES = "Amount of bytes received pr. party";
   public static final String NETWORK_TOTAL_BYTES = "Total amount of bytes received";
   public static final String NETWORK_TOTAL_BATCHES = "Total amount of batches received";
@@ -69,9 +68,8 @@ public class NetworkLoggingDecorator implements Network, PerformanceLogger, Clos
   }
 
   @Override
-  public Map<String, Long> getLoggedValues(int myId) {
+  public Map<String, Long> getLoggedValues() {
     Map<String, Long> values = new HashMap<>();
-    values.put(ID, (long)myId);
     
     long totalNoBytes = 0;
     long noNetworkBatches = 0;

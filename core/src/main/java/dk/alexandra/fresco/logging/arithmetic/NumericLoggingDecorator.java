@@ -10,7 +10,6 @@ import java.util.Map;
 
 public class NumericLoggingDecorator implements Numeric, PerformanceLogger {
 
-  public static final String ID = "PARTY_ID";
   public static final String ARITHMETIC_BASIC_MULT = "MULT_COUNT"; 
   public static final String ARITHMETIC_BASIC_ADD = "ADD_COUNT";
   public static final String ARITHMETIC_BASIC_SUB = "SUB_COUNT";
@@ -107,14 +106,9 @@ public class NumericLoggingDecorator implements Numeric, PerformanceLogger {
     this.randElmCount = 0;
   }
 
-  public void setDelegate(Numeric numeric) {
-    this.delegate = numeric;
-  }
-
   @Override
-  public Map<String, Long> getLoggedValues(int partyId) {
+  public Map<String, Long> getLoggedValues() {
     Map<String, Long> values = new HashMap<>();
-    values.put(ID, (long) partyId);
     values.put(ARITHMETIC_BASIC_MULT, this.multCount);
     values.put(ARITHMETIC_BASIC_ADD, this.addCount);
     values.put(ARITHMETIC_BASIC_SUB, this.subCount);

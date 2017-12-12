@@ -53,7 +53,8 @@ public class TestNumericSuiteLoggingDecorators {
     BigInteger mod = new BigInteger(
         "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
 
-    Map<Integer, NumericSuiteLogging> performanceLoggers = new HashMap<>();
+    Map<Integer, NumericSuiteLogging<DummyArithmeticResourcePool>> performanceLoggers 
+      = new HashMap<>();
 
     for (int playerId : netConf.keySet()) {
       NetworkConfiguration partyNetConf = netConf.get(playerId);
@@ -82,7 +83,7 @@ public class TestNumericSuiteLoggingDecorators {
     for (Integer pId : netConf.keySet()) {
       PerformanceLogger pl = performanceLoggers.get(pId);
 
-      Map<String, Long> loggedValues = pl.getLoggedValues(pId);
+      Map<String, Long> loggedValues = pl.getLoggedValues();
       assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_ADD), is((long) 1));
       assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_MULT), is((long) 1));
       assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_SUB), is((long) 1));
@@ -90,7 +91,7 @@ public class TestNumericSuiteLoggingDecorators {
       assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_RAND), is((long) 0));
 
       pl.reset();
-      loggedValues = pl.getLoggedValues(pId);
+      loggedValues = pl.getLoggedValues();
       assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_ADD), is((long) 0));
       assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_MULT), is((long) 0));
       assertThat(loggedValues.get(NumericLoggingDecorator.ARITHMETIC_BASIC_SUB), is((long) 0));
@@ -119,7 +120,8 @@ public class TestNumericSuiteLoggingDecorators {
     BigInteger mod = new BigInteger(
         "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
 
-    Map<Integer, NumericSuiteLogging> performanceLoggers = new HashMap<>();
+    Map<Integer, NumericSuiteLogging<DummyArithmeticResourcePool>> performanceLoggers 
+      = new HashMap<>();
 
     for (int playerId : netConf.keySet()) {
       NetworkConfiguration partyNetConf = netConf.get(playerId);
@@ -148,9 +150,9 @@ public class TestNumericSuiteLoggingDecorators {
 
     for (Integer partyId : netConf.keySet()) {
       PerformanceLogger logger = performanceLoggers.get(partyId);
-      new DefaultPerformancePrinter().printPerformanceLog(logger, partyId);
+      new DefaultPerformancePrinter().printPerformanceLog(logger);
 
-      Map<String, Long> loggedValues = logger.getLoggedValues(partyId);
+      Map<String, Long> loggedValues = logger.getLoggedValues();
       assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_EQ),
           is((long) 2));
       assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_LEQ),
@@ -161,7 +163,7 @@ public class TestNumericSuiteLoggingDecorators {
           is((long) 2));
 
       logger.reset();
-      loggedValues = logger.getLoggedValues(partyId);
+      loggedValues = logger.getLoggedValues();
       assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_EQ),
           is((long) 0));
       assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_LEQ),

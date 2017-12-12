@@ -17,11 +17,13 @@ import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.DefaultPerformancePrinter;
 import dk.alexandra.fresco.logging.EvaluatorLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
+import dk.alexandra.fresco.logging.NumericSuiteLogging;
 import dk.alexandra.fresco.logging.PerformanceLogger;
+import dk.alexandra.fresco.logging.PerformanceLoggerCountingAggregate;
 import dk.alexandra.fresco.logging.PerformancePrinter;
+import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +34,8 @@ import java.util.Map;
  */
 public abstract class AbstractDummyArithmeticTest {
 
+  protected Map<Integer, List<PerformanceLogger>> performanceLoggers = new HashMap<>();
+  
   /**
    * Runs test with default modulus and no performance logging. i.e. standard test setup.
    */
@@ -60,25 +64,30 @@ public abstract class AbstractDummyArithmeticTest {
         TestConfiguration.getNetworkConfigurations(noOfParties, ports);
     Map<Integer, TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
-    List<PerformanceLogger> pls = new ArrayList<>();
     for (int playerId : netConf.keySet()) {
-
+      PerformanceLoggerCountingAggregate aggregate 
+        = new PerformanceLoggerCountingAggregate();
+      
       NetworkConfiguration partyNetConf = netConf.get(playerId);
 
-      DummyArithmeticProtocolSuite ps = new DummyArithmeticProtocolSuite(mod, 200);
-
+      ProtocolSuiteNumeric<DummyArithmeticResourcePool> ps = new DummyArithmeticProtocolSuite(mod, 200);
+      if(logPerformance){
+        ps = new NumericSuiteLogging<>(ps);
+        aggregate.add((PerformanceLogger)ps);
+      }
+      
       BatchEvaluationStrategy<DummyArithmeticResourcePool> batchEvaluationStrategy =
           evalStrategy.getStrategy();
       if (logPerformance) {
         batchEvaluationStrategy =
             new BatchEvaluationLoggingDecorator<>(batchEvaluationStrategy);
-        pls.add((PerformanceLogger) batchEvaluationStrategy);
+        aggregate.add((PerformanceLogger) batchEvaluationStrategy);
       }
       ProtocolEvaluator<DummyArithmeticResourcePool, ProtocolBuilderNumeric> evaluator =
           new BatchedProtocolEvaluator<>(batchEvaluationStrategy, ps);
       if (logPerformance) {
         evaluator = new EvaluatorLoggingDecorator<>(evaluator);
-        pls.add((PerformanceLogger) evaluator);
+        aggregate.add((PerformanceLogger) evaluator);
       }
       
       SecureComputationEngine<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce =
@@ -94,21 +103,25 @@ public abstract class AbstractDummyArithmeticTest {
                 KryoNetNetwork kryoNetwork = new KryoNetNetwork(partyNetConf);
                 if (logPerformance) {
                   NetworkLoggingDecorator network = new NetworkLoggingDecorator(kryoNetwork);
-                  pls.add(network);
+                  aggregate.add(network);
                   return network;
                 } else {
                   return kryoNetwork;
                 }
               });
+      
       conf.put(playerId, ttc);
+      performanceLoggers.putIfAbsent(playerId, new ArrayList<>());
+      performanceLoggers.get(playerId).add(aggregate);
     }
 
     TestThreadRunner.run(f, conf);
-    int id = 1;
-    PerformancePrinter printer = new DefaultPerformancePrinter();
-    for (PerformanceLogger pl : pls) {
-      printer.printPerformanceLog(pl, id++);
-      pl.reset();
+    for (Integer id : conf.keySet()) {
+      PerformancePrinter printer = new DefaultPerformancePrinter();
+      for (PerformanceLogger pl : performanceLoggers.get(id)) {
+        printer.printPerformanceLog(pl);
+      }
     }
+
   }
 }

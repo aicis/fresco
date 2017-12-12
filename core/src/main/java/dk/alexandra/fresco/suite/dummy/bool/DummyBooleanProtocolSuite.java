@@ -1,10 +1,9 @@
 package dk.alexandra.fresco.suite.dummy.bool;
 
-import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
+import dk.alexandra.fresco.framework.builder.binary.BuilderFactoryBinary;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.suite.ProtocolSuite;
+import dk.alexandra.fresco.suite.ProtocolSuiteBinary;
 
 
 /**
@@ -13,7 +12,7 @@ import dk.alexandra.fresco.suite.ProtocolSuite;
  * <b>NB: Do NOT use in production!</b>
  */
 public class DummyBooleanProtocolSuite
-    implements ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> {
+    implements ProtocolSuiteBinary<ResourcePoolImpl> {
 
   @Override
   public RoundSynchronization<ResourcePoolImpl> createRoundSynchronization() {
@@ -21,9 +20,9 @@ public class DummyBooleanProtocolSuite
   }
 
   @Override
-  public BuilderFactory<ProtocolBuilderBinary> init(ResourcePoolImpl resourcePool,
+  public BuilderFactoryBinary init(ResourcePoolImpl resourcePool,
       Network network) {
-    BuilderFactory<ProtocolBuilderBinary> b = new DummyBooleanBuilderFactory(resourcePool.getMyId());
+    BuilderFactoryBinary b = new DummyBooleanBuilderFactory();
     return b;
   }
 

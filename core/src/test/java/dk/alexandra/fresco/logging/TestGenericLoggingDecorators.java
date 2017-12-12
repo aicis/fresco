@@ -71,19 +71,14 @@ public class TestGenericLoggingDecorators {
     }
     TestThreadRunner.run(f, conf);
 
-    for (Integer pId : netConf.keySet()) {
-      PerformanceLogger performanceLogger = decoratedLoggers.get(0);
+    PerformanceLogger performanceLogger = decoratedLoggers.get(0);
 
-      Map<String, Long> loggedValues = performanceLogger.getLoggedValues(pId);
-      long runningTime = loggedValues.get(EvaluatorLoggingDecorator.SCE_RUNNINGTIMES+0);
-      assertTrue(runningTime > 0);
-    }
-    for (Integer pId : netConf.keySet()) {
-      PerformanceLogger performanceLogger = decoratedLoggers.get(0);
-      performanceLogger.reset();
-      Map<String, Long> loggedValues = performanceLogger.getLoggedValues(pId);
-      assertTrue(loggedValues.size() == 1);
-    }
+    Map<String, Long> loggedValues = performanceLogger.getLoggedValues();
+    long runningTime = loggedValues.get(EvaluatorLoggingDecorator.SCE_RUNNINGTIMES+0);
+    assertTrue(runningTime > 0);
+    performanceLogger.reset();
+    loggedValues = performanceLogger.getLoggedValues();
+    assertTrue(loggedValues.size() == 0);
   }  
 
   @Test
@@ -122,27 +117,22 @@ public class TestGenericLoggingDecorators {
     }
     TestThreadRunner.run(f, conf);
 
-    for (Integer pId : netConf.keySet()) {
-      PerformanceLogger performanceLogger = decoratedLoggers.get(0);
+    PerformanceLogger performanceLogger = decoratedLoggers.get(0);
 
-      Map<String, Long> loggedValues = performanceLogger.getLoggedValues(pId);
-      assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), is((long)132));
-      assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BATCHES), is((long)2));
-      assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_MAX_BYTES), is((long)66));
-      assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_MIN_BYTES), is((long)66));
-      assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_PARTY_BYTES+"_1"), is((long)132));
-    }
-    for (Integer pId : netConf.keySet()) {
-      PerformanceLogger performanceLogger = decoratedLoggers.get(0);
-      performanceLogger.reset();
+    Map<String, Long> loggedValues = performanceLogger.getLoggedValues();
+    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), is((long)132));
+    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BATCHES), is((long)2));
+    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_MAX_BYTES), is((long)66));
+    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_MIN_BYTES), is((long)66));
+    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_PARTY_BYTES+"_1"), is((long)132));
+    performanceLogger.reset();
 
-      Map<String, Long> loggedValues = performanceLogger.getLoggedValues(pId);
-      assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), is((long)0));
-      assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BATCHES), is((long)0));
-      assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_MAX_BYTES), is((long)0));
-      assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_MIN_BYTES), is((long)Integer.MAX_VALUE));
-      assertThat(loggedValues.size(), is(5));
-    }
+    loggedValues = performanceLogger.getLoggedValues();
+    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), is((long)0));
+    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BATCHES), is((long)0));
+    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_MAX_BYTES), is((long)0));
+    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_MIN_BYTES), is((long)Integer.MAX_VALUE));
+    assertThat(loggedValues.size(), is(4));
   }
   
   @Test
@@ -185,25 +175,21 @@ public class TestGenericLoggingDecorators {
     }
     TestThreadRunner.run(f, conf);
 
-    for (Integer pId : netConf.keySet()) {
-      PerformanceLogger performanceLogger = decoratedLoggers.get(0);
-      Map<String, Long> loggedValues = performanceLogger.getLoggedValues(pId);
-      assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_COUNTER), is((long)8));
-      assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_NATIVE_PROTOCOLS), is((long)43));
-      assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MIN_PROTOCOLS), is((long)1));
-      assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MAX_PROTOCOLS), is((long)21));
-    }
-    for (Integer pId : netConf.keySet()) {
-      PerformanceLogger performanceLogger = decoratedLoggers.get(0);
-      performanceLogger.reset();
-      Map<String, Long> loggedValues = performanceLogger.getLoggedValues(pId);
-      assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_COUNTER), is((long)0));
-      assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_NATIVE_PROTOCOLS), is((long)0));
-      assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MIN_PROTOCOLS), is((long)Integer.MAX_VALUE));
-      assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MAX_PROTOCOLS), is((long)0));
-    }
+    PerformanceLogger performanceLogger = decoratedLoggers.get(0);
+    Map<String, Long> loggedValues = performanceLogger.getLoggedValues();
+    assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_COUNTER), is((long)8));
+    assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_NATIVE_PROTOCOLS), is((long)43));
+    assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MIN_PROTOCOLS), is((long)1));
+    assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MAX_PROTOCOLS), is((long)21));
+
+    performanceLogger.reset();
+    loggedValues = performanceLogger.getLoggedValues();
+    assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_COUNTER), is((long)0));
+    assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_NATIVE_PROTOCOLS), is((long)0));
+    assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MIN_PROTOCOLS), is((long)Integer.MAX_VALUE));
+    assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MAX_PROTOCOLS), is((long)0));
   }
-  
+
   private Map<Integer, NetworkConfiguration> getNetConf() {
     int noOfParties = 2;
     List<Integer> ports = new ArrayList<>(noOfParties);

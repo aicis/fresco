@@ -1,5 +1,8 @@
 package dk.alexandra.fresco.suite.dummy.bool;
 
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.bool.BasicBooleanTests;
 import dk.alexandra.fresco.lib.bool.ComparisonBooleanTests;
@@ -12,6 +15,8 @@ import dk.alexandra.fresco.lib.field.bool.generic.FieldBoolTests;
 import dk.alexandra.fresco.lib.math.bool.add.AddTests;
 import dk.alexandra.fresco.lib.math.bool.log.LogTests;
 import dk.alexandra.fresco.lib.math.bool.mult.MultTests;
+import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
+import dk.alexandra.fresco.logging.binary.BinaryLoggingDecorator;
 import org.junit.Test;
 
 
@@ -25,12 +30,16 @@ public class TestDummyProtocolSuite extends AbstractDummyBooleanTest {
   // Basic tests for boolean suites
   @Test
   public void test_basic_logic() throws Exception {
-    runTest(new BasicBooleanTests.TestInput<>(true), EvaluationStrategy.SEQUENTIAL);
-    runTest(new BasicBooleanTests.TestInputDifferentSender<>(true), EvaluationStrategy.SEQUENTIAL, false, 2);
-    runTest(new BasicBooleanTests.TestXOR<>(true), EvaluationStrategy.SEQUENTIAL);
-    runTest(new BasicBooleanTests.TestAND<>(true), EvaluationStrategy.SEQUENTIAL);
-    runTest(new BasicBooleanTests.TestNOT<>(true), EvaluationStrategy.SEQUENTIAL);
-    runTest(new BasicBooleanTests.TestRandomBit<>(true), EvaluationStrategy.SEQUENTIAL);
+    runTest(new BasicBooleanTests.TestInput<>(true), EvaluationStrategy.SEQUENTIAL, true);
+    runTest(new BasicBooleanTests.TestInputDifferentSender<>(true), EvaluationStrategy.SEQUENTIAL, true, 2);
+    runTest(new BasicBooleanTests.TestXOR<>(true), EvaluationStrategy.SEQUENTIAL, true);
+    runTest(new BasicBooleanTests.TestAND<>(true), EvaluationStrategy.SEQUENTIAL, true);
+    runTest(new BasicBooleanTests.TestNOT<>(true), EvaluationStrategy.SEQUENTIAL, true);
+    runTest(new BasicBooleanTests.TestRandomBit<>(true), EvaluationStrategy.SEQUENTIAL, true);
+    
+    assertThat(performanceLoggers.get(1).get(2).getLoggedValues().get(BinaryLoggingDecorator.BINARY_BASIC_XOR), is((long)4));
+    assertThat(performanceLoggers.get(1).get(3).getLoggedValues().get(BinaryLoggingDecorator.BINARY_BASIC_AND), is((long)4));
+    assertThat(performanceLoggers.get(1).get(5).getLoggedValues().get(BinaryLoggingDecorator.BINARY_BASIC_RANDOM), is((long)1));
   }
 
   // lib.field.bool.generic
@@ -49,7 +58,8 @@ public class TestDummyProtocolSuite extends AbstractDummyBooleanTest {
 
   @Test
   public void testOpen() throws Exception {
-    runTest(new FieldBoolTests.TestOpen<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+    runTest(new FieldBoolTests.TestOpen<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, true);
+    assertThat(performanceLoggers.get(1).get(0).getLoggedValues().get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), is((long)4));
   }
 
   @Test

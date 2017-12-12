@@ -21,10 +21,10 @@ public class PerformanceLoggerCountingAggregate implements PerformanceLogger {
   }
 
   @Override
-  public Map<String, Long> getLoggedValues(int partyId) {
+  public Map<String, Long> getLoggedValues() {
     Map<String, Long> result = new HashMap<>();
     for (PerformanceLogger performanceLogger : performanceLoggers) {
-      Map<String, Long> loggedValues = performanceLogger.getLoggedValues(partyId);
+      Map<String, Long> loggedValues = performanceLogger.getLoggedValues();
       for (String key : loggedValues.keySet()) {
         result.merge(key, loggedValues.get(key), (left, right) -> left + right);
       }

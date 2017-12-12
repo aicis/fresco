@@ -16,7 +16,6 @@ public class EvaluatorLoggingDecorator<
     >
     implements ProtocolEvaluator<ResourcePoolT, Builder>, PerformanceLogger {
 
-  public static final String ID = "My ID";
   public static final String SCE_RUNNINGTIMES = "Evaluation time for evaluator ";
   
   private ProtocolEvaluator<ResourcePoolT, Builder> delegate;
@@ -32,9 +31,8 @@ public class EvaluatorLoggingDecorator<
   }
 
   @Override
-  public Map<String, Long> getLoggedValues(int partyId) {
+  public Map<String, Long> getLoggedValues() {
     Map<String, Long> values = new HashMap<>();
-    values.put(ID, (long) partyId);
     for (int i = 0; i < runtimeLogger.size(); i++) {
       values.put(SCE_RUNNINGTIMES + i, runtimeLogger.get(i));
     }

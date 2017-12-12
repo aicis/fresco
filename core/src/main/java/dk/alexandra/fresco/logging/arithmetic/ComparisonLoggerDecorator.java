@@ -9,7 +9,6 @@ import java.util.Map;
 
 public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger {
 
-  public static final String ID = "PARTY_ID";
   public static final String ARITHMETIC_COMPARISON_COMP0 = "COMP0_COUNT";
   public static final String ARITHMETIC_COMPARISON_LEQ = "LEQ_COUNT";
   public static final String ARITHMETIC_COMPARISON_SIGN = "SIGN_COUNT";
@@ -70,14 +69,9 @@ public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger 
     comp0Count = 0;
   }
 
-  public void setDelegate(Comparison comp) {
-    this.delegate = comp;
-  }
-
   @Override
-  public Map<String, Long> getLoggedValues(int partyId) {
+  public Map<String, Long> getLoggedValues() {
     Map<String, Long> values = new HashMap<>();
-    values.put(ID, (long) partyId);
     values.put(ARITHMETIC_COMPARISON_EQ, this.eqCount);
     values.put(ARITHMETIC_COMPARISON_LEQ, this.leqCount);
     values.put(ARITHMETIC_COMPARISON_SIGN, this.signCount);

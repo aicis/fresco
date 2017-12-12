@@ -20,8 +20,11 @@ import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.DefaultPerformancePrinter;
 import dk.alexandra.fresco.logging.EvaluatorLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
+import dk.alexandra.fresco.logging.NumericSuiteLogging;
 import dk.alexandra.fresco.logging.PerformanceLogger;
+import dk.alexandra.fresco.logging.PerformanceLoggerCountingAggregate;
 import dk.alexandra.fresco.logging.PerformancePrinter;
+import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.suite.spdz.storage.DataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.DataSupplierImpl;
@@ -43,6 +46,8 @@ import java.util.Random;
  */
 public abstract class AbstractSpdzTest {
 
+  protected Map<Integer, List<PerformanceLogger>> performanceLoggers = new HashMap<>();
+  
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy,
@@ -64,22 +69,26 @@ public abstract class AbstractSpdzTest {
         TestConfiguration.getNetworkConfigurations(noOfParties, ports);
     Map<Integer, TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
-    Map<Integer, List<PerformanceLogger>> pls = new HashMap<>();
     for (int playerId : netConf.keySet()) {
-      pls.put(playerId, new ArrayList<>());
-      SpdzProtocolSuite protocolSuite = new SpdzProtocolSuite(150);
-
+      PerformanceLoggerCountingAggregate aggregate 
+        = new PerformanceLoggerCountingAggregate();
+    
+      ProtocolSuiteNumeric<SpdzResourcePool> protocolSuite = new SpdzProtocolSuite(150);
+      if(logPerformance){
+        protocolSuite = new NumericSuiteLogging<>(protocolSuite);
+        aggregate.add((PerformanceLogger)protocolSuite);
+      }
       BatchEvaluationStrategy<SpdzResourcePool> batchEvalStrat = evalStrategy.getStrategy();
 
       if (logPerformance) {
         batchEvalStrat = new BatchEvaluationLoggingDecorator<>(batchEvalStrat);
-        pls.get(playerId).add((PerformanceLogger) batchEvalStrat);
+        aggregate.add((PerformanceLogger) batchEvalStrat);
       }
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
           new BatchedProtocolEvaluator<>(batchEvalStrat, protocolSuite);
       if (logPerformance) {
         evaluator = new EvaluatorLoggingDecorator<>(evaluator);
-        pls.get(playerId).add((PerformanceLogger) evaluator);
+        aggregate.add((PerformanceLogger) evaluator);
       }
       
       SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =
@@ -94,19 +103,21 @@ public abstract class AbstractSpdzTest {
                 KryoNetNetwork kryoNetwork = new KryoNetNetwork(netConf.get(playerId));
                 if (logPerformance) {
                   NetworkLoggingDecorator network = new NetworkLoggingDecorator(kryoNetwork);
-                  pls.get(playerId).add(network);
+                  aggregate.add(network);
                   return network;
                 } else {
                   return kryoNetwork;
                 }
               });
       conf.put(playerId, ttc);
+      performanceLoggers.putIfAbsent(playerId, new ArrayList<>());
+      performanceLoggers.get(playerId).add(aggregate);
     }
     TestThreadRunner.run(f, conf);
-    for (Integer pId : pls.keySet()) {
+    for (Integer pId :conf.keySet()) {
       PerformancePrinter printer = new DefaultPerformancePrinter();
-      for (PerformanceLogger pl : pls.get(pId)) {
-        printer.printPerformanceLog(pl, pId);
+      for (PerformanceLogger pl : performanceLoggers.get(pId)) {
+        printer.printPerformanceLog(pl);
       }
     }
   }

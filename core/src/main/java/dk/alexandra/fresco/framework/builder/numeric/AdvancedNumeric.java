@@ -111,20 +111,20 @@ public interface AdvancedNumeric extends ComputationDirectory {
   /**
    * Computes the inner product between two vectors.
    * 
-   * @param aVector The first vector
-   * @param bVector The second vector
+   * @param vectorA The first vector
+   * @param vectorB The second vector
    * @return A deferred result computing the inner product of the two given vectors
    */
-  DRes<SInt> innerProduct(List<DRes<SInt>> aVector, List<DRes<SInt>> bVector);
+  DRes<SInt> innerProduct(List<DRes<SInt>> vectorA, List<DRes<SInt>> vectorB);
 
   /**
    * Computes the inner product between a public vector and a secret vector. 
    * 
-   * @param aVector The public vector
-   * @param bVector The secret vector
+   * @param vectorA The public vector
+   * @param vectorB The secret vector
    * @return A deferred result computing the inner product of the two given vectors
    */
-  DRes<SInt> innerProductWithPublicPart(List<BigInteger> aVector, List<DRes<SInt>> bVector);
+  DRes<SInt> innerProductWithPublicPart(List<BigInteger> vectorA, List<DRes<SInt>> vectorB);
 
   /**
    * Creates a string of random bits.

@@ -10,7 +10,6 @@ import java.util.Map;
 public class BatchEvaluationLoggingDecorator<ResourcePoolT extends ResourcePool>
     implements BatchEvaluationStrategy<ResourcePoolT>, PerformanceLogger {
   
-  public static final String ID = "PARTY_ID";
   public static final String BATCH_COUNTER = "AMOUNT_OF_BATCHES";
   public static final String BATCH_NATIVE_PROTOCOLS = "TOTAL_AMOUNT";
   public static final String BATCH_MIN_PROTOCOLS = "MIN_AMOUNT_PER_BATCH";
@@ -52,9 +51,8 @@ public class BatchEvaluationLoggingDecorator<ResourcePoolT extends ResourcePool>
   }
 
   @Override
-  public Map<String, Long> getLoggedValues(int partyId) {
+  public Map<String, Long> getLoggedValues() {
     Map<String, Long> values = new HashMap<>();
-    values.put(ID, (long) partyId);
     values.put(BATCH_COUNTER, counter);
     values.put(BATCH_NATIVE_PROTOCOLS, noNativeProtocols);
     values.put(BATCH_MIN_PROTOCOLS, minNoNativeProtocolsPerBatch);

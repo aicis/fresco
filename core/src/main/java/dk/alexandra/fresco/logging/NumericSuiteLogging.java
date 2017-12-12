@@ -2,9 +2,7 @@ package dk.alexandra.fresco.logging;
 
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.numeric.Collections;
 import dk.alexandra.fresco.framework.builder.numeric.Comparison;
-import dk.alexandra.fresco.framework.builder.numeric.Debug;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.PreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -78,19 +76,8 @@ public class NumericSuiteLogging<ResourcePoolT extends ResourcePool>
       }
 
       @Override
-      public Collections createCollections(ProtocolBuilderNumeric builder) {
-        return delegateFactory.createCollections(builder);
-      }
-
-      @Override
       public PreprocessedValues createPreprocessedValues(ProtocolBuilderNumeric builder) {
         return delegateFactory.createPreprocessedValues(builder);
-      }
-
-      @Override
-      public Debug createDebug(
-          ProtocolBuilderNumeric builder) {
-        return delegateFactory.createDebug(builder);
       }
     };
   }
@@ -106,7 +93,7 @@ public class NumericSuiteLogging<ResourcePoolT extends ResourcePool>
   }
 
   @Override
-  public Map<String, Long> getLoggedValues(int partyId) {
-    return aggregate.getLoggedValues(partyId);
+  public Map<String, Long> getLoggedValues() {
+    return aggregate.getLoggedValues();
   }
 }
