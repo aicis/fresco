@@ -4,7 +4,6 @@ import static dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy
 
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
-import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
@@ -31,12 +30,10 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageConstants;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 /**
  * Abstract class which handles a lot of boiler plate testing code. This makes running a single test
@@ -45,14 +42,14 @@ import java.util.Random;
 public abstract class AbstractSpdzTest {
 
   protected void runTest(
-      TestThreadRunner.TestThreadFactory<NumericResourcePool, ProtocolBuilderNumeric> f,
+      TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy,
       PreprocessingStrategy preProStrat, int noOfParties) throws Exception {
     runTest(f, evalStrategy, preProStrat, noOfParties, false);
   }
 
   protected void runTest(
-      TestThreadRunner.TestThreadFactory<NumericResourcePool, ProtocolBuilderNumeric> f,
+      TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy,
       PreprocessingStrategy preProStrat, int noOfParties, boolean logPerformance)
       throws Exception {
@@ -63,34 +60,33 @@ public abstract class AbstractSpdzTest {
 
     Map<Integer, NetworkConfiguration> netConf =
         TestConfiguration.getNetworkConfigurations(noOfParties, ports);
-    Map<Integer, TestThreadRunner.TestThreadConfiguration<NumericResourcePool, ProtocolBuilderNumeric>> conf =
+    Map<Integer, TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     Map<Integer, List<PerformanceLogger>> pls = new HashMap<>();
     for (int playerId : netConf.keySet()) {
       pls.put(playerId, new ArrayList<>());
       SpdzProtocolSuite protocolSuite = new SpdzProtocolSuite(150);
 
-      BatchEvaluationStrategy<NumericResourcePool> batchEvalStrat = evalStrategy.getStrategy();
+      BatchEvaluationStrategy<SpdzResourcePool> batchEvalStrat = evalStrategy.getStrategy();
 
       if (logPerformance) {
         batchEvalStrat = new BatchEvaluationLoggingDecorator<>(batchEvalStrat);
         pls.get(playerId).add((PerformanceLogger) batchEvalStrat);
       }
-      ProtocolEvaluator<NumericResourcePool, ProtocolBuilderNumeric> evaluator =
+      ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
           new BatchedProtocolEvaluator<>(batchEvalStrat, protocolSuite);
       if (logPerformance) {
         evaluator = new EvaluatorLoggingDecorator<>(evaluator);
         pls.get(playerId).add((PerformanceLogger) evaluator);
       }
 
-      SecureComputationEngine<NumericResourcePool, ProtocolBuilderNumeric> sce =
+      SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(protocolSuite, evaluator);
 
-      TestThreadRunner.TestThreadConfiguration<NumericResourcePool, ProtocolBuilderNumeric> ttc =
+      TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,
-              () -> createResourcePool(playerId, noOfParties, new Random(),
-                  new SecureRandom(), preProStrat),
+              () -> createResourcePool(playerId, noOfParties, preProStrat),
               () -> {
                 KryoNetNetwork kryoNetwork = new KryoNetNetwork(netConf.get(playerId));
                 if (logPerformance) {
@@ -112,24 +108,26 @@ public abstract class AbstractSpdzTest {
     }
   }
 
-  private NumericResourcePool createResourcePool(int myId, int size, Random rand,
-      SecureRandom secRand, PreprocessingStrategy preproStrat) {
+  private SpdzResourcePool createResourcePool(int myId, int size,
+      PreprocessingStrategy preproStrat) {
     DataSupplier supplier;
-    if (preproStrat == DUMMY) {      
+    if (preproStrat == DUMMY) {
       supplier = new DummyDataSupplierImpl(myId, size);
     } else {
       // case STATIC:
-      int noOfThreadsUsed = 1;        
+      int noOfThreadsUsed = 1;
       String storageName =
           SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
-          + "_";
-      supplier = new DataSupplierImpl(new FilebasedStreamedStorageImpl(new InMemoryStorage()), storageName, size);                
+              + "_";
+      supplier = new DataSupplierImpl(new FilebasedStreamedStorageImpl(new InMemoryStorage()),
+          storageName, size);
     }
     SpdzStorage store = new SpdzStorageImpl(supplier);
     try {
       return new SpdzResourcePoolImpl(myId, size, new HmacDrbg(), store);
     } catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException("Your system does not have the necessary hash function avaiable.", e);
+      throw new RuntimeException("Your system does not have the necessary hash function avaiable.",
+          e);
     }
   }
 }
