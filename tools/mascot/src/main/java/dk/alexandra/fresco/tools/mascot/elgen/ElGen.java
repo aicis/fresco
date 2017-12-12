@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
@@ -40,11 +39,9 @@ public class ElGen extends MultiPartyProtocol {
     super(ctx);
     this.macChecker = new MacCheck(ctx);
     this.macKeyShare = macKeyShare;
-    this.localSampler =
-        new PaddingPrg(new StrictBitVector(modBitLength, new SecureRandom()));
+    this.localSampler = new PaddingPrg(new StrictBitVector(modBitLength, new SecureRandom()));
     // TODO
-    this.jointSampler = 
-        new PaddingPrg(new StrictBitVector(modBitLength, new Random(1)));
+    this.jointSampler = new PaddingPrg(new StrictBitVector(modBitLength, new Random(1)));
     this.sharer = new Sharer(localSampler);
     this.copeSigners = new HashMap<>();
     this.copeInputters = new HashMap<>();
@@ -95,18 +92,11 @@ public class ElGen extends MultiPartyProtocol {
         .collect(Collectors.toList());
   }
 
-  List<FieldElement> combineIntoMacShares(List<List<FieldElement>> singedByAll) {
-    List<List<FieldElement>> tilted = FieldElementCollectionUtils.transpose(singedByAll);
-    Stream<FieldElement> combinedMacs = tilted.stream()
-        .map(CollectionUtils::sum);
-    return combinedMacs.collect(Collectors.toList());
-  }
-
   List<FieldElement> macValues(List<FieldElement> values) {
     List<FieldElement> selfMacced = selfMac(values);
     List<List<FieldElement>> maccedByAll = otherPartiesMac(values);
     maccedByAll.add(selfMacced);
-    return combineIntoMacShares(maccedByAll);
+    return CollectionUtils.pairWiseSum(maccedByAll);
   }
 
   void sendShares(Integer partyId, List<FieldElement> shares) {
@@ -152,7 +142,7 @@ public class ElGen extends MultiPartyProtocol {
   /**
    * Inputs field elements.
    */
-  public List<AuthenticatedElement> input(List<FieldElement> values) throws MaliciousException {
+  public List<AuthenticatedElement> input(List<FieldElement> values) {
     // can't input before initializing
     if (!initialized) {
       throw new IllegalStateException("Need to initialize first");
@@ -230,8 +220,7 @@ public class ElGen extends MultiPartyProtocol {
   /**
    * Runs mac-check on opened values.
    */
-  public void check(List<AuthenticatedElement> sharesWithMacs, List<FieldElement> openValues)
-      throws MaliciousException {
+  public void check(List<AuthenticatedElement> sharesWithMacs, List<FieldElement> openValues) {
     // will use this to mask macs
     List<FieldElement> masks = jointSampler.getNext(modulus, modBitLength, sharesWithMacs.size());
     // only need macs

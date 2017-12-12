@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
@@ -54,7 +53,7 @@ public class TripleGen extends MultiPartyProtocol {
     this.initialized = false;
   }
 
-  public void initialize() throws MaliciousException {
+  public void initialize() {
     // shouldn't initialize again
     if (initialized) {
       throw new IllegalStateException("Already initialized");
@@ -76,8 +75,8 @@ public class TripleGen extends MultiPartyProtocol {
     return stream.collect(Collectors.toList());
   }
 
-  List<FieldElement> multiply(List<FieldElement> leftFactorGroups, List<FieldElement> rightFactors)
-      throws MaliciousException {
+  List<FieldElement> multiply(List<FieldElement> leftFactorGroups,
+      List<FieldElement> rightFactors) {
     // "stretch" right factors, so we have one right factor for each left factor
     List<FieldElement> stretched =
         FieldElementCollectionUtils.stretch(rightFactors, numLeftFactors);
@@ -144,7 +143,7 @@ public class TripleGen extends MultiPartyProtocol {
         .collect(Collectors.toList());
   }
 
-  List<AuthCand> authenticate(List<UnauthCand> candidates) throws MaliciousException {
+  List<AuthCand> authenticate(List<UnauthCand> candidates) {
     List<FieldElement> flatInputs = candidates.stream()
         .flatMap(TripleCandidate::stream)
         .collect(Collectors.toList());
@@ -219,7 +218,7 @@ public class TripleGen extends MultiPartyProtocol {
     return toMultTriples(candidates);
   }
 
-  public List<MultTriple> triple(int numTriples) throws MaliciousException {
+  public List<MultTriple> triple(int numTriples) {
     // can't generate triples before initializing
     if (!initialized) {
       throw new IllegalStateException("Need to initialize first");
