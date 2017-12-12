@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
+import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
@@ -113,14 +114,14 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
     int pid = Integer.parseInt(args[0]);
 
     // Create SPDZ protocol suite
-    ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> suite = new SpdzProtocolSuite(150);
+    ProtocolSuite<NumericResourcePool, ProtocolBuilderNumeric> suite = new SpdzProtocolSuite(150);
 
     // Define circuit evaluation strategy
-    ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> sequentialEvaluator =
+    ProtocolEvaluator<NumericResourcePool, ProtocolBuilderNumeric> sequentialEvaluator =
         new BatchedProtocolEvaluator<>(new SequentialStrategy<>(), suite);
 
     // Instantiate execution environment
-    SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =
+    SecureComputationEngine<NumericResourcePool, ProtocolBuilderNumeric> sce =
         new SecureComputationEngineImpl<>(suite, sequentialEvaluator);
 
     // Create resource pool
@@ -129,7 +130,7 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
     SpdzResourcePool rp = new SpdzResourcePoolImpl(pid, getNetworkConfiguration(pid).noOfParties(),
         new HmacDrbg(), store);
       // Instatiate our demo and run
-      AggregationDemo<SpdzResourcePool> demo = new AggregationDemo<>();
+      AggregationDemo<NumericResourcePool> demo = new AggregationDemo<>();
       demo.runApplication(sce, rp, network);
     }
   }

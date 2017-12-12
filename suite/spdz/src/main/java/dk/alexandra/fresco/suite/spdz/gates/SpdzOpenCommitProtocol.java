@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
@@ -91,13 +92,13 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigI
     }
   }
 
-  private boolean checkCommitment(SpdzResourcePool spdzResourcePool, BigInteger commitment,
+  private boolean checkCommitment(NumericResourcePool numericResourcePool, BigInteger commitment,
       BigInteger value, BigInteger randomness) {
-    MessageDigest messageDigest = spdzResourcePool.getMessageDigest();
+    MessageDigest messageDigest = numericResourcePool.getMessageDigest();
     messageDigest.update(value.toByteArray());
     messageDigest.update(randomness.toByteArray());
     BigInteger testSubject = new BigInteger(messageDigest.digest())
-        .mod(spdzResourcePool.getModulus());
+        .mod(numericResourcePool.getModulus());
     return commitment.equals(testSubject);
   }
 }

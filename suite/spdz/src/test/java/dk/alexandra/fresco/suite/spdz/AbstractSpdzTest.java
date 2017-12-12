@@ -4,6 +4,7 @@ import static dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy
 
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
+import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
@@ -44,14 +45,14 @@ import java.util.Random;
 public abstract class AbstractSpdzTest {
 
   protected void runTest(
-      TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
+      TestThreadRunner.TestThreadFactory<NumericResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy,
       PreprocessingStrategy preProStrat, int noOfParties) throws Exception {
     runTest(f, evalStrategy, preProStrat, noOfParties, false);
   }
 
   protected void runTest(
-      TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
+      TestThreadRunner.TestThreadFactory<NumericResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy,
       PreprocessingStrategy preProStrat, int noOfParties, boolean logPerformance)
       throws Exception {
@@ -62,30 +63,30 @@ public abstract class AbstractSpdzTest {
 
     Map<Integer, NetworkConfiguration> netConf =
         TestConfiguration.getNetworkConfigurations(noOfParties, ports);
-    Map<Integer, TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>> conf =
+    Map<Integer, TestThreadRunner.TestThreadConfiguration<NumericResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     Map<Integer, List<PerformanceLogger>> pls = new HashMap<>();
     for (int playerId : netConf.keySet()) {
       pls.put(playerId, new ArrayList<>());
       SpdzProtocolSuite protocolSuite = new SpdzProtocolSuite(150);
 
-      BatchEvaluationStrategy<SpdzResourcePool> batchEvalStrat = evalStrategy.getStrategy();
+      BatchEvaluationStrategy<NumericResourcePool> batchEvalStrat = evalStrategy.getStrategy();
 
       if (logPerformance) {
         batchEvalStrat = new BatchEvaluationLoggingDecorator<>(batchEvalStrat);
         pls.get(playerId).add((PerformanceLogger) batchEvalStrat);
       }
-      ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
+      ProtocolEvaluator<NumericResourcePool, ProtocolBuilderNumeric> evaluator =
           new BatchedProtocolEvaluator<>(batchEvalStrat, protocolSuite);
       if (logPerformance) {
         evaluator = new EvaluatorLoggingDecorator<>(evaluator);
         pls.get(playerId).add((PerformanceLogger) evaluator);
       }
-      
-      SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =
+
+      SecureComputationEngine<NumericResourcePool, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(protocolSuite, evaluator);
-      
-      TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
+
+      TestThreadRunner.TestThreadConfiguration<NumericResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,
               () -> createResourcePool(playerId, noOfParties, new Random(),
@@ -111,7 +112,7 @@ public abstract class AbstractSpdzTest {
     }
   }
 
-  private SpdzResourcePool createResourcePool(int myId, int size, Random rand,
+  private NumericResourcePool createResourcePool(int myId, int size, Random rand,
       SecureRandom secRand, PreprocessingStrategy preproStrat) {
     DataSupplier supplier;
     if (preproStrat == DUMMY) {      

@@ -4,6 +4,7 @@ import java.math.BigInteger;
 
 /**
  * Serializer for big integers.
+ * @deprecated See {@link SecureSerializer}
  */
 @Deprecated()
 public interface BigIntegerSerializer {

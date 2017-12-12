@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.ProtocolCollection;
+import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
@@ -41,10 +42,10 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
           resourcePool.getMessageDigest(), storage, null, resourcePool.getModulus());
 
       do {
-        ProtocolCollectionList<SpdzResourcePool> protocolCollectionList =
+        ProtocolCollectionList<NumericResourcePool> protocolCollectionList =
             new ProtocolCollectionList<>(batchSize);
         macCheck.getNextProtocols(protocolCollectionList);
-        BatchEvaluationStrategy<SpdzResourcePool> batchStrat = new BatchedStrategy<>();
+        BatchEvaluationStrategy<NumericResourcePool> batchStrat = new BatchedStrategy<>();
         batchStrat.processBatch(protocolCollectionList, resourcePool, networkBatchDecorator);
       } while (macCheck.hasNextProtocols());
     }
@@ -67,7 +68,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
 
   @Override
   public void beforeBatch(
-      ProtocolCollection<SpdzResourcePool> protocols, SpdzResourcePool resourcePool,
+      ProtocolCollection<NumericResourcePool> protocols, SpdzResourcePool resourcePool,
       Network network) {
     // If an output gate resides within the next batch, we need to do a MAC check on all previous
     // gates which lead to this output gate.
