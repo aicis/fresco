@@ -9,6 +9,7 @@ import com.esotericsoftware.kryonet.Server;
 import com.esotericsoftware.minlog.Log;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,9 +40,9 @@ public class KryoNetNetwork implements Network, Closeable {
   /**
    * Creates a KryoNet network from the given configuration. Calling the constructor will
    * immediately trigger an attempt at connecting to the other parties.
-   * 
+   *
    * @param conf The configuration informing the network of the number of parties and where to
-   *        connect to them.
+   *     connect to them.
    */
   public KryoNetNetwork(NetworkConfiguration conf) {
     Log.set(Log.LEVEL_ERROR);
@@ -153,7 +154,7 @@ public class KryoNetNetwork implements Network, Closeable {
       // Maybe a keep alive message will be offered to the queue. - so we should ignore it.
       if (object instanceof byte[]) {
         byte[] data = (byte[]) object;
-        int fromPartyId = this.connectionIdToPartyId.get(connection.getID());        
+        int fromPartyId = this.connectionIdToPartyId.get(connection.getID());
         this.queue.get(fromPartyId).offer(data);
       } else if (object instanceof Integer) {
         // Initial handshake to determine who the remote party is.
@@ -186,7 +187,7 @@ public class KryoNetNetwork implements Network, Closeable {
             public void connected(Connection connection) {
               connection.sendTCP(conf.getMyId());
               successes.add(true);
-              semaphore.release();              
+              semaphore.release();
             }
           });
 
@@ -216,23 +217,22 @@ public class KryoNetNetwork implements Network, Closeable {
   @Override
   public void send(int partyId, byte[] data) {
     if (this.conf.getMyId() == partyId) {
-      try {
-        this.queues.get(0).get(partyId).put(data);
-      } catch (InterruptedException e) {
-        throw new MPCException("Send got interrupted");
-      }
-    } else {      
+      ExceptionConverter.safe(
+          () -> {
+            this.queues.get(0).get(partyId).put(data);
+            return null;
+          },
+          "Send got interrupted");
+    } else {
       this.clients.get(partyId).get(0).sendTCP(data);
     }
   }
 
   @Override
   public byte[] receive(int partyId) {
-    try {
-      return this.queues.get(0).get(partyId).take();
-    } catch (InterruptedException e) {
-      throw new MPCException("receive got interrupted");
-    }
+    return ExceptionConverter.safe(
+        () -> this.queues.get(0).get(partyId).take(),
+        "Receive got interrupted");
   }
 
   @Override

@@ -259,7 +259,6 @@ public class DataRestSupplierImpl implements DataSupplier{
 		return new SpdzSInt(this.getNextTriple().getA());
 	}
 
-	@Override
 	public void shutdown() {
 		for(RetrieverThread t : threads) {
 			t.stopThread();

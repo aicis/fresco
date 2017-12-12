@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.framework.network;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.sce.evaluator.NetworkBatchDecorator;
 import java.util.HashMap;
 import java.util.List;
@@ -66,7 +65,7 @@ public class NetworkBatchDecoratorTest {
     Assert.assertArrayEquals(new byte[]{1, 123}, transmissions.get(3));
   }
 
-  @Test(expected = MPCException.class)
+  @Test(expected = RuntimeException.class)
   public void errorOnBigPackets() throws Exception {
     networkBatchDecorator.sendToAll(
         new byte[]{
