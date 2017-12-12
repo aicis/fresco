@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
@@ -24,7 +23,7 @@ public class SpdzProtocolSuite implements ProtocolSuite<SpdzResourcePool, Protoc
   }
 
   @Override
-  public RoundSynchronization<NumericResourcePool> createRoundSynchronization() {
+  public RoundSynchronization<SpdzResourcePool> createRoundSynchronization() {
     return new SpdzRoundSynchronization();
   }
 

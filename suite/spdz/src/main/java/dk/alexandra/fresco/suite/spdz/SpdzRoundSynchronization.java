@@ -68,7 +68,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
 
   @Override
   public void beforeBatch(
-      ProtocolCollection<NumericResourcePool> protocols, SpdzResourcePool resourcePool,
+      ProtocolCollection<SpdzResourcePool> protocols, SpdzResourcePool resourcePool,
       Network network) {
     // If an output gate resides within the next batch, we need to do a MAC check on all previous
     // gates which lead to this output gate.
