@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -14,6 +13,7 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
+import dk.alexandra.fresco.tools.mascot.cointossing.CoinTossingMpc;
 import dk.alexandra.fresco.tools.mascot.elgen.ElGen;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
@@ -27,6 +27,7 @@ import dk.alexandra.fresco.tools.mascot.utils.PaddingPrg;
 public class TripleGen extends MultiPartyProtocol {
 
   private ElGen elGen;
+  private CoinTossingMpc coinTosser;
   private Map<Integer, MultiplyRight> rightMultipliers;
   private Map<Integer, MultiplyLeft> leftMultipliers;
   private FieldElementPrg localSampler;
@@ -36,7 +37,7 @@ public class TripleGen extends MultiPartyProtocol {
 
   public TripleGen(MascotContext ctx, FieldElement macKeyShare, int numLeftFactors) {
     super(ctx);
-    this.elGen = new ElGen(ctx, macKeyShare);
+    this.coinTosser = new CoinTossingMpc(ctx);
     this.leftMultipliers = new HashMap<>();
     this.rightMultipliers = new HashMap<>();
     for (Integer partyId : partyIds) {
@@ -47,8 +48,9 @@ public class TripleGen extends MultiPartyProtocol {
     }
     this.localSampler =
         new PaddingPrg(new StrictBitVector(ctx.getkBitLength(), new SecureRandom()));
-    // TODO
-    this.jointSampler = new PaddingPrg(new StrictBitVector(ctx.getkBitLength(), new Random(1)));
+    // TODO not sure this belongs here
+    this.jointSampler = new PaddingPrg(coinTosser.generateJointSeed(prgSeedLength));
+    this.elGen = new ElGen(ctx, macKeyShare, localSampler, jointSampler);
     this.numLeftFactors = numLeftFactors;
     this.initialized = false;
   }
@@ -60,7 +62,7 @@ public class TripleGen extends MultiPartyProtocol {
     }
     // initialize el gen
     elGen.initialize();
-    this.initialized = true;
+    initialized = true;
   }
 
   List<UnauthTriple> toUnauthTriple(List<FieldElement> left, List<FieldElement> right,

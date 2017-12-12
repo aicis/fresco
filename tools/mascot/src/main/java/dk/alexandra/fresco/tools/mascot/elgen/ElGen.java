@@ -1,16 +1,13 @@
 package dk.alexandra.fresco.tools.mascot.elgen;
 
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
@@ -21,7 +18,6 @@ import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
 import dk.alexandra.fresco.tools.mascot.maccheck.MacCheck;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
-import dk.alexandra.fresco.tools.mascot.utils.PaddingPrg;
 import dk.alexandra.fresco.tools.mascot.utils.Sharer;
 
 public class ElGen extends MultiPartyProtocol {
@@ -35,13 +31,13 @@ public class ElGen extends MultiPartyProtocol {
   private Map<Integer, CopeSigner> copeSigners;
   private Map<Integer, CopeInputter> copeInputters;
 
-  public ElGen(MascotContext ctx, FieldElement macKeyShare) {
+  public ElGen(MascotContext ctx, FieldElement macKeyShare, FieldElementPrg localSampler,
+      FieldElementPrg jointSampler) {
     super(ctx);
     this.macChecker = new MacCheck(ctx);
     this.macKeyShare = macKeyShare;
-    this.localSampler = new PaddingPrg(new StrictBitVector(modBitLength, new SecureRandom()));
-    // TODO
-    this.jointSampler = new PaddingPrg(new StrictBitVector(modBitLength, new Random(1)));
+    this.localSampler = localSampler;
+    this.jointSampler = jointSampler;
     this.sharer = new Sharer(localSampler);
     this.copeSigners = new HashMap<>();
     this.copeInputters = new HashMap<>();
@@ -99,10 +95,6 @@ public class ElGen extends MultiPartyProtocol {
     return CollectionUtils.pairWiseSum(maccedByAll);
   }
 
-  void sendShares(Integer partyId, List<FieldElement> shares) {
-    network.send(partyId, feSerializer.serialize(shares));
-  }
-
   List<FieldElement> secretShare(List<FieldElement> values, int numShares) {
     List<List<FieldElement>> allShares = values.stream()
         .map(value -> sharer.additiveShare(value, numShares))
@@ -113,16 +105,11 @@ public class ElGen extends MultiPartyProtocol {
       if (!partyId.equals(myId)) {
         // assume party ids go from 1...n
         List<FieldElement> shares = byParty.get(partyId - 1);
-        sendShares(partyId, shares);
+        network.send(partyId, feSerializer.serialize(shares));
       }
     }
     // return own shares
     return byParty.get(myId - 1);
-  }
-
-  List<FieldElement> receiveShares(Integer inputterId) {
-    List<FieldElement> receivedShares = feSerializer.deserializeList(network.receive(inputterId));
-    return receivedShares;
   }
 
   List<AuthenticatedElement> toAuthenticatedElements(List<FieldElement> shares,
@@ -202,7 +189,7 @@ public class ElGen extends MultiPartyProtocol {
     runMacCheck(maskedValue, masks, macs);
 
     // receive shares from inputter
-    List<FieldElement> shares = receiveShares(inputterId);
+    List<FieldElement> shares = feSerializer.deserializeList(network.receive(inputterId));
 
     // combine shares and mac shares to spdz elements (exclude mac for dummy element)
     List<FieldElement> nonDummyMacs = macs.subList(0, numInputs);

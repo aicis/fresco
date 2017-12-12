@@ -17,25 +17,32 @@ import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 
 public class MascotContext {
   // TODO this getting very cluttered
+  // party info
   Integer myId;
   List<Integer> partyIds;
+  // security parameters
   BigInteger modulus;
   int kBitLength;
   int lambdaSecurityParam;
+  int prgSeedLength;
+  // "resources"
   Network network;
   Random rand;
+  // should prgs go here?
+  // serializer resources
   FieldElementSerializer feSerializer;
   StrictBitVectorSerializer sbvSerializer;
   CommitmentSerializer commSerializer;
 
   public MascotContext(Integer myId, List<Integer> partyIds, BigInteger modulus, int kBitLength,
-      int lambdaSecurityParameter, Network network, Random rand) {
+      int lambdaSecurityParameter, int prgSeedLength, Network network, Random rand) {
     super();
     this.myId = myId;
     this.partyIds = partyIds;
     this.modulus = modulus;
     this.kBitLength = kBitLength;
     this.lambdaSecurityParam = lambdaSecurityParameter;
+    this.prgSeedLength = prgSeedLength;
     this.network = network;
     this.rand = rand;
     this.feSerializer = new FieldElementSerializer(modulus, kBitLength);
@@ -51,9 +58,10 @@ public class MascotContext {
     int modBitLength = 16;
     // int lambdaSecurityParam = 128;
     int lambdaSecurityParam = 16;
+    int prgSeedLength = 256;
     Random rand = new Random(myId);
-    return new MascotContext(myId, partyIds, modulus, modBitLength, lambdaSecurityParam, network,
-        rand);
+    return new MascotContext(myId, partyIds, modulus, modBitLength, lambdaSecurityParam,
+        prgSeedLength, network, rand);
   }
 
   public Integer getMyId() {
@@ -94,6 +102,10 @@ public class MascotContext {
 
   public StrictBitVectorSerializer getSbvSerializer() {
     return sbvSerializer;
+  }
+
+  public int getPrgSeedLength() {
+    return prgSeedLength;
   }
 
   private static NetworkConfiguration defaultNetworkConfiguration(Integer myId,

@@ -7,24 +7,32 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.Test;
 
+import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
 import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
+import dk.alexandra.fresco.tools.mascot.utils.PaddingPrg;
 
 public class TestElGen extends NetworkedTest {
 
   private List<AuthenticatedElement> runInputterMultipleRounds(MascotContext ctx,
       FieldElement macKeyShare, List<List<FieldElement>> inputs) {
-    ElGen elGen = new ElGen(ctx, macKeyShare);
+    FieldElementPrg localSampler =
+        new PaddingPrg(new StrictBitVector(ctx.getPrgSeedLength(), ctx.getRand()));
+    FieldElementPrg jointSampler =
+        new PaddingPrg(new StrictBitVector(ctx.getPrgSeedLength(), new Random(1)));
+    ElGen elGen = new ElGen(ctx, macKeyShare, localSampler, jointSampler);
     elGen.initialize();
     int perRoundInputs = inputs.get(0)
         .size();
@@ -38,7 +46,11 @@ public class TestElGen extends NetworkedTest {
 
   private List<AuthenticatedElement> runOtherMultipleRounds(MascotContext ctx, Integer inputterId,
       FieldElement macKeyShare, int numInputsPerRound, int numRounds) {
-    ElGen elGen = new ElGen(ctx, macKeyShare);
+    FieldElementPrg localSampler =
+        new PaddingPrg(new StrictBitVector(ctx.getPrgSeedLength(), ctx.getRand()));
+    FieldElementPrg jointSampler =
+        new PaddingPrg(new StrictBitVector(ctx.getPrgSeedLength(), new Random(1)));
+    ElGen elGen = new ElGen(ctx, macKeyShare, localSampler, jointSampler);
     elGen.initialize();
     List<AuthenticatedElement> elements = new ArrayList<>(numInputsPerRound * numRounds);
     for (int r = 0; r < numRounds; r++) {
@@ -50,14 +62,22 @@ public class TestElGen extends NetworkedTest {
 
   private List<AuthenticatedElement> runInputter(MascotContext ctx, FieldElement macKeyShare,
       List<FieldElement> inputs) {
-    ElGen elGen = new ElGen(ctx, macKeyShare);
+    FieldElementPrg localSampler =
+        new PaddingPrg(new StrictBitVector(ctx.getPrgSeedLength(), ctx.getRand()));
+    FieldElementPrg jointSampler =
+        new PaddingPrg(new StrictBitVector(ctx.getPrgSeedLength(), new Random(1)));
+    ElGen elGen = new ElGen(ctx, macKeyShare, localSampler, jointSampler);
     elGen.initialize();
     return elGen.input(inputs);
   }
 
   private List<AuthenticatedElement> runOther(MascotContext ctx, Integer inputterId,
       FieldElement macKeyShare, int numInputs) {
-    ElGen elGen = new ElGen(ctx, macKeyShare);
+    FieldElementPrg localSampler =
+        new PaddingPrg(new StrictBitVector(ctx.getPrgSeedLength(), ctx.getRand()));
+    FieldElementPrg jointSampler =
+        new PaddingPrg(new StrictBitVector(ctx.getPrgSeedLength(), new Random(1)));
+    ElGen elGen = new ElGen(ctx, macKeyShare, localSampler, jointSampler);
     elGen.initialize();
     return elGen.input(inputterId, numInputs);
   }
