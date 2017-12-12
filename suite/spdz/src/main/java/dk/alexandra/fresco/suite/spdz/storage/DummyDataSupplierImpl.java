@@ -5390,9 +5390,4 @@ public class DummyDataSupplierImpl implements DataSupplier {
   public SpdzSInt getNextRandomFieldElement() {
     return new SpdzSInt(this.getNextTriple().getA());
   }
-
-  @Override
-  public void shutdown() {
-
-  }
 }
