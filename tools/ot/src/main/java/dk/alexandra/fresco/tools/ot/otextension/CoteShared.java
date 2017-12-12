@@ -29,6 +29,7 @@ public class CoteShared {
   protected Network network;
   // Internal state variables
   protected boolean initialized;
+  protected final String prgAlgorithm;
   protected Ot ot;
 
   /**
@@ -69,6 +70,8 @@ public class CoteShared {
     this.rand = rand;
     this.ot = new DummyOt(otherId, network);
     this.network = network;
+    // TODO should be changed to something that uses SHA-256
+    this.prgAlgorithm = "SHA1PRNG";
   }
 
   public int getMyId() {
@@ -137,8 +140,7 @@ public class CoteShared {
   protected SecureRandom makePrg(StrictBitVector seed) {
     SecureRandom res = null;
     try {
-      // TODO should be changed to something that uses SHA-256
-      res = SecureRandom.getInstance("SHA1PRNG");
+      res = SecureRandom.getInstance(prgAlgorithm);
     } catch (NoSuchAlgorithmException e) {
       throw new MPCException(
           "Random OT extension failed. No malicious behaviour detected.", e);

@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -16,6 +17,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.otextension.CheatingNetwork;
@@ -209,6 +211,25 @@ public class TestCoinTossing {
       ctOne.toss(0);
     } catch (IllegalArgumentException e) {
       assertEquals("At least one coin must be tossed.", e.getMessage());
+      thrown = true;
+    }
+    assertEquals(true, thrown);
+  }
+
+  @Test
+  public void testWrongAlgorithm()
+      throws NoSuchFieldException, SecurityException, IllegalArgumentException,
+      IllegalAccessException {
+    Field algorithm = ctOne.getClass().getDeclaredField("prgAlgorithm");
+    // Remove private
+    algorithm.setAccessible(true);
+    algorithm.set(ctOne, "something");
+    boolean thrown = false;
+    try {
+      ctOne.initialize();
+    } catch (MPCException e) {
+      assertEquals("Coin-tossing failed. No malicious behaviour detected.",
+          e.getMessage());
       thrown = true;
     }
     assertEquals(true, thrown);

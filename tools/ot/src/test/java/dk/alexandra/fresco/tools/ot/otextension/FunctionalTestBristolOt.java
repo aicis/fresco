@@ -6,6 +6,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -162,7 +165,7 @@ public class FunctionalTestBristolOt {
     ((Closeable) network).close();
     return messages;
   }
-  
+
   @SuppressWarnings("unchecked")
   @Test
   public void testBristolRot() {
@@ -241,5 +244,126 @@ public class FunctionalTestBristolOt {
 
     res = BristolRotBatch.computeExtensionSize(2, 8, 8);
     assertEquals(16, res);
+  }
+
+  @Test
+  public void testNoSuchAlgorithmBatch()
+      throws IllegalAccessException,
+      IllegalArgumentException, NoSuchMethodException, SecurityException,
+      NoSuchFieldException {
+    Network network = new Network() {
+      @Override
+      public void send(int partyId, byte[] data) {
+      }
+
+      @Override
+      public byte[] receive(int partyId) {
+        return null;
+      }
+
+      @Override
+      public int getNoOfParties() {
+        return 0;
+      }
+    };
+    BristolRotBatch ot = new BristolRotBatch(1, 2, kbitLength, lambdaBitLength,
+        new Random(42), network);
+    Field algorithm = ot.getClass().getDeclaredField("prgAlgorithm");
+    // Remove private
+    algorithm.setAccessible(true);
+    // Test receiver
+    algorithm.set(ot, "something");
+    Method method = ot.getClass().getDeclaredMethod(
+        "computeRandomMessage", StrictBitVector.class, int.class);
+    method.setAccessible(true);
+    boolean thrown = false;
+    try {
+      method.invoke(ot, new StrictBitVector(8), 8);
+    } catch (InvocationTargetException e) {
+      assertEquals(
+          "Something, non-malicious, went wrong during the sending/receiving of "
+              + "the Bristol random OT extension.",
+          e.getTargetException().getMessage());
+      thrown = true;
+    }
+    assertTrue(thrown);
+  }
+
+  @Test
+  public void testNoSuchAlgorithm()
+      throws NoSuchFieldException, SecurityException, IllegalArgumentException,
+      IllegalAccessException, NoSuchMethodException {
+    Network network = new Network() {
+      @Override
+      public void send(int partyId, byte[] data) {
+      }
+
+      @Override
+      public byte[] receive(int partyId) {
+        return null;
+      }
+
+      @Override
+      public int getNoOfParties() {
+        return 0;
+      }
+    };
+    BristolOt ot = new BristolOt(1, 2, kbitLength, lambdaBitLength,
+        new Random(42), network, 1024);
+    Field algorithm = BristolOtShared.class.getDeclaredField("prgAlgorithm");
+    // Remove private
+    algorithm.setAccessible(true);
+    // Test receiver
+    algorithm.set(ot.receiver, "something");
+    Method method = ot.receiver.getClass().getDeclaredMethod("adjustMessage",
+        byte[].class);
+    method.setAccessible(true);
+    boolean thrown = false;
+    try {
+      method.invoke(ot.receiver, new byte[] { 0x42 });
+    } catch (InvocationTargetException e) {
+      assertEquals(
+          "Something, non-malicious, went wrong when receiving a Bristol OT.",
+          e.getTargetException().getMessage());
+      thrown = true;
+    }
+    assertTrue(thrown);
+  }
+
+  @Test
+  public void testMaliciousException()
+      throws NoSuchMethodException, SecurityException, IllegalAccessException,
+      IllegalArgumentException {
+    Network network = new Network() {
+      @Override
+      public void send(int partyId, byte[] data) {
+      }
+
+      @Override
+      public byte[] receive(int partyId) {
+        return null;
+      }
+
+      @Override
+      public int getNoOfParties() {
+        return 0;
+      }
+    };
+    BristolOt ot = new BristolOt(1, 2, kbitLength, lambdaBitLength,
+        new Random(42), network, 1024);
+    Method method = ot.receiver.getClass().getDeclaredMethod("doActualReceive",
+        byte[].class, byte[].class);
+    method.setAccessible(true);
+    boolean thrown = false;
+    try {
+      method.invoke(ot.receiver, new byte[] { 0x42 },
+          new byte[] { 0x42, 0x43 });
+    } catch (InvocationTargetException e) {
+      assertEquals(
+          "Sender gave adjustment messages of different length.",
+          e.getTargetException().getMessage());
+      thrown = true;
+    }
+    assertTrue(thrown);
   }
 }

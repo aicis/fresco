@@ -1,7 +1,11 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Random;
 
 import org.junit.Before;
@@ -130,7 +134,7 @@ public class TestCote {
   }
 
   @Test
-  public void testIllegalExtend() {
+  public void testIllegalExtendSender() {
     boolean thrown = false;
     try {
       cote.getSender().extend(127);
@@ -158,5 +162,59 @@ public class TestCote {
       thrown = true;
     }
     assertEquals(true, thrown);
+  }
+
+  @Test
+  public void testIllegalExtendReceiver() {
+    boolean thrown = false;
+    try {
+      StrictBitVector choices = new StrictBitVector(0);
+      cote.getReceiver().extend(choices);
+    } catch (IllegalArgumentException e) {
+      assertEquals("The amount of OTs must be a positive integer",
+          e.getMessage());
+      thrown = true;
+    }
+    assertEquals(true, thrown);
+  }
+
+  @Test
+  public void testNoSuchAlgorithm()
+      throws NoSuchFieldException, SecurityException, IllegalArgumentException,
+      IllegalAccessException, NoSuchMethodException {
+    Network network = new Network() {
+      @Override
+      public void send(int partyId, byte[] data) {
+      }
+
+      @Override
+      public byte[] receive(int partyId) {
+        return null;
+      }
+
+      @Override
+      public int getNoOfParties() {
+        return 0;
+      }
+    };
+    Cote ot = new Cote(1, 2, 128, 40, new Random(42), network);
+    Field algorithm = CoteShared.class.getDeclaredField("prgAlgorithm");
+    // Remove private
+    algorithm.setAccessible(true);
+    // Test receiver
+    algorithm.set(ot.getReceiver(), "something");
+    Method method = ot.getReceiver().getClass().getSuperclass()
+        .getDeclaredMethod("makePrg", StrictBitVector.class);
+    method.setAccessible(true);
+    boolean thrown = false;
+    try {
+      method.invoke(ot.getReceiver(), new StrictBitVector(8));
+    } catch (InvocationTargetException e) {
+      assertEquals(
+          "Random OT extension failed. No malicious behaviour detected.",
+          e.getTargetException().getMessage());
+      thrown = true;
+    }
+    assertTrue(thrown);
   }
 }

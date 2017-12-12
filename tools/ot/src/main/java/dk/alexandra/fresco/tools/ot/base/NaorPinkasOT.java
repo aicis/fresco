@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.ot.base;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.security.AlgorithmParameterGenerator;
 import java.security.AlgorithmParameters;
@@ -29,25 +28,23 @@ public class NaorPinkasOT implements Ot
   private Random rand;
   private MessageDigest hashFunction;
 
-  private static final String hashAlgorithm = "SHA-256";
+  private final String hashAlgorithm;
   // TODO should be made to use SHA-256
-  private static final String prgAlgorithm = "SHA1PRNG";
+  private final String prgAlgorithm;
   // The public Diffie-Hellman parameters
-  private final DHParameterSpec params;
-  private static final int diffieHellmanSize = 2048;
+  private final int diffieHellmanSize;
+  private DHParameterSpec params;
 
-  public NaorPinkasOT(int myId, int otherId, Random rand, Network network)
-      throws NoSuchAlgorithmException {
-    this.myId = myId;
-    this.otherId = otherId;
-    this.rand = rand;
-    this.network = network;
-    this.hashFunction = MessageDigest.getInstance(hashAlgorithm);
-    this.params = computeSecureDhParams();
+  public NaorPinkasOT(int myId, int otherId, Random rand, Network network) throws NoSuchAlgorithmException {
+    this(myId, otherId, rand, network, null);
+    setDhParams(computeSecureDhParams());
   }
 
   public NaorPinkasOT(int myId, int otherId, Random rand, Network network,
       DHParameterSpec params) throws NoSuchAlgorithmException {
+    this.hashAlgorithm = "SHA-256";
+    this.prgAlgorithm = "SHA1PRNG";
+    this.diffieHellmanSize = 2048;
     this.myId = myId;
     this.otherId = otherId;
     this.rand = rand;
@@ -60,77 +57,78 @@ public class NaorPinkasOT implements Ot
     return params;
   }
 
+  public void setDhParams(DHParameterSpec newParams) {
+    this.params = newParams;
+  }
+
   @Override
   public void send(StrictBitVector messageZero, StrictBitVector messageOne) {
-    try {
-      if (params == null) {
-        computeSecureDhParams();
-      }
-      int maxBitLength = Math.max(messageZero.getSize(), messageOne.getSize());
-      Pair<byte[], byte[]> seedMessages = sendBytesOt();
-      // We divide the length with 8 to get the byte length
-      byte[] encryptedZeroMessage = padMessage(messageZero.toByteArray(),
-          maxBitLength / 8, seedMessages.getFirst());
-      byte[] encryptedOneMessage = padMessage(messageOne.toByteArray(),
-          maxBitLength / 8, seedMessages.getSecond());
-      network.send(otherId, encryptedZeroMessage);
-      network.send(otherId, encryptedOneMessage);
-    } catch (IOException | NoSuchAlgorithmException e) {
-      throw new MPCException(
-          "Something, non-malicious, went wrong when sending the Naor-Pinaks OT.",
-          e);
-    }
+    int maxBitLength = Math.max(messageZero.getSize(), messageOne.getSize());
+    Pair<byte[], byte[]> seedMessages = sendBytesOt();
+    // We divide the length with 8 to get the byte length
+    byte[] encryptedZeroMessage = padMessage(messageZero.toByteArray(),
+        maxBitLength / 8, seedMessages.getFirst());
+    byte[] encryptedOneMessage = padMessage(messageOne.toByteArray(),
+        maxBitLength / 8, seedMessages.getSecond());
+    network.send(otherId, encryptedZeroMessage);
+    network.send(otherId, encryptedOneMessage);
   }
 
   protected byte[] padMessage(byte[] message, int maxSize,
-      byte[] seed) throws IOException, NoSuchAlgorithmException {
-    byte[] maxLengthMessage = Arrays.copyOf(message, maxSize);
-    SecureRandom prg = SecureRandom.getInstance(prgAlgorithm);
-    prg.setSeed(seed);
-    byte[] encryptedMessage = new byte[maxSize];
-    prg.nextBytes(encryptedMessage);
-    ByteArrayHelper.xor(encryptedMessage, maxLengthMessage);
-    return encryptedMessage;
-  }
-
-  protected byte[] unpadMessage(byte[] paddedMessage, byte[] seed)
-      throws IOException, NoSuchAlgorithmException, ClassNotFoundException {
-    SecureRandom prg = SecureRandom.getInstance(prgAlgorithm);
-    prg.setSeed(seed);
-    byte[] message = new byte[paddedMessage.length];
-    prg.nextBytes(message);
-    ByteArrayHelper.xor(message, paddedMessage);
-    return message;
-  }
-
-  @Override
-  public StrictBitVector receive(Boolean choiceBit) {
+      byte[] seed) {
     try {
-      if (params == null) {
-        computeSecureDhParams();
-      }
-      byte[] seed = receiveByteOt(choiceBit);
-      byte[] encryptedZeroMessage = network.receive(otherId);
-      byte[] encryptedOneMessage = network.receive(otherId);
-      if (encryptedZeroMessage.length != encryptedOneMessage.length) {
-        throw new MaliciousException(
-            "The length of the two choice messages is not equal");
-      }
-      byte[] unpaddedMessage;
-      if (choiceBit == false) {
-        unpaddedMessage = unpadMessage(encryptedZeroMessage, seed);
-      } else {
-        unpaddedMessage = unpadMessage(encryptedOneMessage, seed);
-      }
-      return new StrictBitVector(unpaddedMessage, 8 * unpaddedMessage.length);
-    } catch (NoSuchAlgorithmException | ClassNotFoundException
-        | IOException e) {
+      byte[] maxLengthMessage = Arrays.copyOf(message, maxSize);
+      SecureRandom prg = SecureRandom.getInstance(prgAlgorithm);
+      prg.setSeed(seed);
+      byte[] encryptedMessage = new byte[maxSize];
+      prg.nextBytes(encryptedMessage);
+      ByteArrayHelper.xor(encryptedMessage, maxLengthMessage);
+      return encryptedMessage;
+    } catch (NoSuchAlgorithmException e) {
       throw new MPCException(
           "Something non-malicious went wrong during the OT.", e);
     }
   }
 
-  private Pair<byte[], byte[]> sendBytesOt() throws NoSuchAlgorithmException {
+  protected byte[] unpadMessage(byte[] paddedMessage, byte[] seed) {
+    try {
+      SecureRandom prg = SecureRandom.getInstance(prgAlgorithm);
+      prg.setSeed(seed);
+      byte[] message = new byte[paddedMessage.length];
+      prg.nextBytes(message);
+      ByteArrayHelper.xor(message, paddedMessage);
+      return message;
+    } catch (NoSuchAlgorithmException e) {
+      throw new MPCException(
+          "Something non-malicious went wrong during the OT.", e);
+    }
+  }
+
+  @Override
+  public StrictBitVector receive(Boolean choiceBit) {
+    byte[] seed = receiveByteOt(choiceBit);
+    byte[] encryptedZeroMessage = network.receive(otherId);
+    byte[] encryptedOneMessage = network.receive(otherId);
+    return recoverTrueMessage(encryptedZeroMessage, encryptedOneMessage, seed,
+        choiceBit);
+  }
+
+  protected StrictBitVector recoverTrueMessage(byte[] encryptedZeroMessage,
+      byte[] encryptedOneMessage, byte[] seed, boolean choiceBit) {
+    if (encryptedZeroMessage.length != encryptedOneMessage.length) {
+      throw new MaliciousException(
+          "The length of the two choice messages is not equal");
+    }
+    byte[] unpaddedMessage;
+    if (choiceBit == false) {
+      unpaddedMessage = unpadMessage(encryptedZeroMessage, seed);
+    } else {
+      unpaddedMessage = unpadMessage(encryptedOneMessage, seed);
+    }
+    return new StrictBitVector(unpaddedMessage, 8 * unpaddedMessage.length);
+  }
+
+  private Pair<byte[], byte[]> sendBytesOt() {
     // Pick random element c
     BigInteger c = sampleGroupElement();
     network.send(otherId, c.toByteArray());
@@ -147,8 +145,7 @@ public class NaorPinkasOT implements Ot
     return new Pair<byte[], byte[]>(messageZero, messageOne);
   }
 
-  private byte[] receiveByteOt(Boolean choiceBit)
-      throws NoSuchAlgorithmException {
+  private byte[] receiveByteOt(Boolean choiceBit) {
     BigInteger c = new BigInteger(network.receive(otherId));
     // Pick random element privateKey
     BigInteger privateKey = sampleGroupElement();
@@ -174,7 +171,7 @@ public class NaorPinkasOT implements Ot
   }
 
   protected BigInteger encryptMessage(BigInteger publicKey,
-      byte[] message) throws NoSuchAlgorithmException {
+      byte[] message) {
     // Pick random element r
     BigInteger r = sampleGroupElement();
     // Compute encryption:
@@ -190,8 +187,7 @@ public class NaorPinkasOT implements Ot
     return encryption;
   }
 
-  protected byte[] decryptMessage(BigInteger cipher, BigInteger privateKey)
-      throws NoSuchAlgorithmException {
+  protected byte[] decryptMessage(BigInteger cipher, BigInteger privateKey) {
     BigInteger toHash = cipher.modPow(privateKey, params.getP());
     return hashFunction.digest(toHash.toByteArray());
   }
@@ -245,7 +241,7 @@ public class NaorPinkasOT implements Ot
    * @throws InvalidParameterSpecException
    *           Thrown if an error occurs with the Diffie-Hellman parameter class
    */
-  public static DHParameterSpec computeDhParams(byte[] seed)
+  private DHParameterSpec computeDhParams(byte[] seed)
       throws NoSuchAlgorithmException, InvalidParameterSpecException {
     // Make a parameter generator for Diffie-Hellman parameters
     AlgorithmParameterGenerator paramGen = AlgorithmParameterGenerator

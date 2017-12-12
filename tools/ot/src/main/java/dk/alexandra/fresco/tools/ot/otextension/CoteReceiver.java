@@ -74,7 +74,7 @@ public class CoteReceiver extends CoteShared {
    * 
    * @param choices
    *          The receivers random choices for this extension. This MUST have
-   *          size 8*2^x for some x >=0.
+   *          size 2^x for some x >=3.
    * @return A list of pairs consisting of the bit choices, followed by the
    *         received messages
    */
@@ -82,10 +82,6 @@ public class CoteReceiver extends CoteShared {
     if (choices.getSize() < 1) {
       throw new IllegalArgumentException(
           "The amount of OTs must be a positive integer");
-    }
-    if (choices.getSize() % 8 != 0) {
-      throw new IllegalArgumentException(
-          "The amount of OTs must be a positive integer divisize by 8");
     }
     if (!initialized) {
       throw new IllegalStateException("Not initialized");

@@ -1,7 +1,11 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -185,5 +189,45 @@ public class TestRot {
       thrown = true;
     }
     assertEquals(true, thrown);
+  }
+
+  @Test
+  public void testNoSuchAlgorithm()
+      throws NoSuchFieldException, SecurityException, IllegalArgumentException,
+      IllegalAccessException, NoSuchMethodException {
+    Network network = new Network() {
+      @Override
+      public void send(int partyId, byte[] data) {
+      }
+
+      @Override
+      public byte[] receive(int partyId) {
+        return null;
+      }
+
+      @Override
+      public int getNoOfParties() {
+        return 0;
+      }
+    };
+    Rot ot = new Rot(1, 2, 128, 40, new Random(42), network);
+    Field algorithm = RotShared.class.getDeclaredField("hashAlgorithm");
+    // Remove private
+    algorithm.setAccessible(true);
+    // Test receiver
+    algorithm.set(ot.getReceiver(), "something");
+    Method method = ot.getReceiver().getClass().getSuperclass()
+        .getDeclaredMethod("hashBitVector", List.class, int.class);
+    method.setAccessible(true);
+    boolean thrown = false;
+    try {
+      method.invoke(ot.getReceiver(), new ArrayList<StrictBitVector>(), 8);
+    } catch (InvocationTargetException e) {
+      assertEquals(
+          "Random OT extension failed. No malicious behaviour detected.",
+          e.getTargetException().getMessage());
+      thrown = true;
+    }
+    assertTrue(thrown);
   }
 }

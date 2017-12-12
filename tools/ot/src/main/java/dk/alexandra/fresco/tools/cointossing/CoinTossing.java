@@ -31,6 +31,7 @@ public class CoinTossing {
   private Network network;
   private boolean initialized = false;
   private SecureRandom prg;
+  private final String prgAlgorithm;
 
   /**
    * Constructs a coin-tossing protocol between two parties.
@@ -61,6 +62,7 @@ public class CoinTossing {
     this.kbitLength = kbitLength;
     this.rand = rand;
     this.network = network;
+    this.prgAlgorithm = "SHA1PRNG";
   }
 
   /**
@@ -81,19 +83,18 @@ public class CoinTossing {
       throw new IllegalStateException("Already initialized");
     }
     try {
+      this.prg = SecureRandom.getInstance(prgAlgorithm);
       // Make space for a seed by allocating as many bytes as needed for
       // kbitLength
       byte[] seed = new byte[(kbitLength + 8 - 1) / 8];
       rand.nextBytes(seed);
       byte[] otherSeed = exchangeSeeds(seed);
       ByteArrayHelper.xor(seed, otherSeed);
-      // TODO should be changed to something that uses SHA-256
-      this.prg = SecureRandom.getInstance("SHA1PRNG");
       prg.setSeed(seed);
       initialized = true;
     } catch (NoSuchAlgorithmException e) {
       throw new MPCException(
-          "Coin-tossing failed. No malicious behaviour detected. ", e);
+          "Coin-tossing failed. No malicious behaviour detected.", e);
     }
   }
 

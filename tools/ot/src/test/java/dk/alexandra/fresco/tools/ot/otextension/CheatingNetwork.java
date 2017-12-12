@@ -46,4 +46,9 @@ public class CheatingNetwork extends KryoNetNetwork {
     super.send(partyId, data);
     counter++;
   }
+
+  @Override
+  public byte[] receive(int partyId) {
+    return super.receive(partyId);
+  }
 }

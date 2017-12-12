@@ -92,7 +92,7 @@ public class BristolOtSender extends BristolOtShared {
     byte[] toSend;
     try {
       // Use the random message as a a seed for a PRG
-      SecureRandom rand = SecureRandom.getInstance("SHA1PRNG");
+      SecureRandom rand = SecureRandom.getInstance(prgAlgorithm);
       rand.setSeed(randomMessage);
       toSend = new byte[maxLength];
       // Use this to make a pseudorandom string the length of the message to
@@ -100,7 +100,7 @@ public class BristolOtSender extends BristolOtShared {
       rand.nextBytes(toSend);
     } catch (NoSuchAlgorithmException e) {
       throw new MPCException(
-          "Something, non-malicious went wrong when sending a Bristol OT", e);
+          "Something, non-malicious, went wrong when sending a Bristol OT", e);
     }
     byte[] paddedMessage = Arrays.copyOf(realMessage, maxLength);
     // XOR the pseudorandom string onto the message

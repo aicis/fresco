@@ -28,6 +28,7 @@ import dk.alexandra.fresco.tools.ot.base.RotBatch;
 public class BristolRotBatch implements RotBatch<StrictBitVector> {
   protected RotSender sender;
   protected RotReceiver receiver;
+  protected final String prgAlgorithm;
 
   /**
    * Constructs a new random batch OT protocol and constructs the internal sender and
@@ -53,6 +54,7 @@ public class BristolRotBatch implements RotBatch<StrictBitVector> {
         network);
     this.sender = rot.getSender();
     this.receiver = rot.getReceiver();
+    this.prgAlgorithm = "SHA1PRNG"; // TODO change to SHA-256
   }
 
   @Override
@@ -155,9 +157,8 @@ public class BristolRotBatch implements RotBatch<StrictBitVector> {
    */
   private StrictBitVector computeRandomMessage(StrictBitVector seed,
       int sizeOfMessage) {
-    // TODO change to SHA-256
     try {
-      SecureRandom rand = SecureRandom.getInstance("SHA1PRNG");
+      SecureRandom rand = SecureRandom.getInstance(prgAlgorithm);
       rand.setSeed(seed.toByteArray());
       return new StrictBitVector(sizeOfMessage, rand);
     } catch (NoSuchAlgorithmException e) {

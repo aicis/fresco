@@ -24,6 +24,7 @@ public class RotShared {
   protected CoteShared cote;
   protected CoinTossing ct;
   protected boolean initialized = false;
+  protected final String hashAlgorithm;
 
   /**
    * Constructs a random OT extension super-class using an underlying correlated
@@ -37,6 +38,7 @@ public class RotShared {
     this.cote = cote;
     this.ct = new CoinTossing(cote.getMyId(), cote.getOtherId(),
         cote.getkBitLength(), cote.getRand(), cote.getNetwork());
+    this.hashAlgorithm = "SHA-256";
   }
 
   public int getOtherId() {
@@ -126,7 +128,7 @@ public class RotShared {
    * @param pos
    *          The amount of positions to shift
    * @param maxSize
-   *          The size of the shifted bitvetor. Must be at least the length of
+   *          The size of the shifted bitvector. Must be at least the length of
    *          "in" plus "pos"
    * @return A new bitvector containing "in", shifted "pos" positions
    */
@@ -153,11 +155,11 @@ public class RotShared {
    * @return A list containing the hashed StrictBitVector as StrictBitVector
    *         objects
    */
-  protected static List<StrictBitVector> hashBitVector(
-      List<StrictBitVector> input, int size) {
+  protected List<StrictBitVector> hashBitVector(List<StrictBitVector> input,
+      int size) {
     MessageDigest digest = null;
     try {
-      digest = MessageDigest.getInstance("SHA-256");
+      digest = MessageDigest.getInstance(hashAlgorithm);
     } catch (NoSuchAlgorithmException e) {
       throw new MPCException(
           "Random OT extension failed. No malicious behaviour detected.", e);

@@ -260,6 +260,20 @@ public class TestTranspose {
       thrown = true;
     }
     assertEquals(true, thrown);
+    matrix = new ArrayList<>();
+    // Notice 24 is a product of 8, but not a 2 power
+    for (int i = 0; i < 24; i++) {
+      matrix.add(new StrictBitVector(24));
+    }
+    thrown = false;
+    try {
+      Transpose.transpose(matrix);
+    } catch (IllegalArgumentException e) {
+      assertEquals("The amount rows in the matrix is not 8*2^x for some x > 1",
+          e.getMessage());
+      thrown = true;
+    }
+    assertEquals(true, thrown);
   }
 
   @Test

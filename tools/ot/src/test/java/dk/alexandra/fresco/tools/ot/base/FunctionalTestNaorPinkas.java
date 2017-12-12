@@ -150,7 +150,8 @@ public class FunctionalTestNaorPinkas {
 
   /***** NEGATIVE TESTS. *****/
   private List<StrictBitVector> otSendCheat()
-      throws IOException, NoSuchAlgorithmException {
+      throws IOException, NoSuchAlgorithmException, NoSuchFieldException,
+      SecurityException, IllegalArgumentException, IllegalAccessException {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     try {
@@ -171,7 +172,8 @@ public class FunctionalTestNaorPinkas {
   }
 
   private List<StrictBitVector> otReceiveCheat(boolean choice)
-      throws IOException, NoSuchAlgorithmException {
+      throws IOException, NoSuchAlgorithmException, NoSuchFieldException,
+      SecurityException, IllegalArgumentException, IllegalAccessException {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     try {

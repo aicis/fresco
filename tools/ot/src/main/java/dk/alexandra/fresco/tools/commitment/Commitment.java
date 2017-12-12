@@ -30,11 +30,18 @@ public class Commitment {
   public static final int digestLength = 32; // 256 / 8 bytes
   // The actual value representing the commitment
   protected byte[] commitmentVal = null;
+  private final MessageDigest digest;
 
   /**
    * Constructs a new commitment, not yet committed to any value.
    */
   public Commitment() {
+    try {
+      digest = MessageDigest.getInstance(hashAlgorithm);
+    } catch (NoSuchAlgorithmException e) {
+      throw new MPCException(
+          "Commitment failed. No malicious behaviour detected.", e);
+    }
   }
 
   /**
@@ -54,19 +61,13 @@ public class Commitment {
     // Sample a sufficient amount of random bits
     byte[] randomness = new byte[digestLength];
     rand.nextBytes(randomness);
-    try {
-      // Construct an array to contain the byte to hash
-      byte[] openingInfo = new byte[value.length + randomness.length];
-      System.arraycopy(value, 0, openingInfo, 0, value.length);
-      System.arraycopy(randomness, 0, openingInfo, value.length,
-          randomness.length);
-      MessageDigest digest = MessageDigest.getInstance(hashAlgorithm);
-      commitmentVal = digest.digest(value);
-      return openingInfo;
-    } catch (NoSuchAlgorithmException e) {
-      throw new MPCException(
-          "Commitment failed. No malicious behaviour detected.", e);
-    }
+    // Construct an array to contain the byte to hash
+    byte[] openingInfo = new byte[value.length + randomness.length];
+    System.arraycopy(value, 0, openingInfo, 0, value.length);
+    System.arraycopy(randomness, 0, openingInfo, value.length,
+        randomness.length);
+    commitmentVal = digest.digest(value);
+    return openingInfo;
   }
 
   /**
@@ -91,20 +92,14 @@ public class Commitment {
     // The randomness comes at the end
     byte[] randomness = new byte[digestLength];
     System.arraycopy(openingInfo, value.length, randomness, 0, digestLength);
-    // Hash the opening info and verify that it mathces the value stored in
+    // Hash the opening info and verify that it matches the value stored in
     // "commitmentValue"
-    try {
-      MessageDigest digest = MessageDigest.getInstance(hashAlgorithm);
-      byte[] digestValue = digest.digest(value);
-      if (Arrays.equals(digestValue, commitmentVal)) {
-        return value;
-      } else {
-        throw new MaliciousException(
-            "The opening info does not match the commitment.");
-      }
-    } catch (NoSuchAlgorithmException e) {
-      throw new MPCException(
-          "Commitment failed. No malicious behaviour detected.", e);
+    byte[] digestValue = digest.digest(value);
+    if (Arrays.equals(digestValue, commitmentVal)) {
+      return value;
+    } else {
+      throw new MaliciousException(
+          "The opening info does not match the commitment.");
     }
   }
 
