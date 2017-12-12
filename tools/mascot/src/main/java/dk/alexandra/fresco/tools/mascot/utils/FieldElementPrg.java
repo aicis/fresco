@@ -41,7 +41,7 @@ public interface FieldElementPrg {
    * @param numSamples
    * @return
    */
-  default List<List<FieldElement>> sample(BigInteger modulus, int modBitLength, int numGroups,
+  default List<List<FieldElement>> getNext(BigInteger modulus, int modBitLength, int numGroups,
       int groupSize) {
     List<List<FieldElement>> sampled = new ArrayList<>(numGroups);
     for (int i = 0; i < numGroups; i++) {

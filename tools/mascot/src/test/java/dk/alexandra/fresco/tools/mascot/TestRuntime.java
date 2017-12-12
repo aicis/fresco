@@ -156,7 +156,7 @@ public class TestRuntime {
    * @return
    */
   private Pair<Integer, MascotContext> initializeContext(Integer myId, List<Integer> partyIds) {
-    MascotContext ctx = MascotContext.defaultContext(myId, new LinkedList<>(partyIds));
+    MascotContext ctx = MascotContext.defaultTestingContext(myId, new LinkedList<>(partyIds));
     return new Pair<>(myId, ctx);
   }
 

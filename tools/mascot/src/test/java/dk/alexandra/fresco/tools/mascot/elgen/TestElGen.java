@@ -28,11 +28,9 @@ public class TestElGen extends NetworkedTest {
 
   private List<AuthenticatedElement> runInputterMultipleRounds(MascotContext ctx,
       FieldElement macKeyShare, List<List<FieldElement>> inputs) {
-    FieldElementPrg localSampler =
-        new PaddingPrg(new StrictBitVector(ctx.getPrgSeedLength(), ctx.getRand()));
     FieldElementPrg jointSampler =
         new PaddingPrg(new StrictBitVector(ctx.getPrgSeedLength(), new Random(1)));
-    ElGen elGen = new ElGen(ctx, macKeyShare, localSampler, jointSampler);
+    ElGen elGen = new ElGen(ctx, macKeyShare, jointSampler);
     elGen.initialize();
     int perRoundInputs = inputs.get(0)
         .size();
@@ -46,11 +44,9 @@ public class TestElGen extends NetworkedTest {
 
   private List<AuthenticatedElement> runOtherMultipleRounds(MascotContext ctx, Integer inputterId,
       FieldElement macKeyShare, int numInputsPerRound, int numRounds) {
-    FieldElementPrg localSampler =
-        new PaddingPrg(new StrictBitVector(ctx.getPrgSeedLength(), ctx.getRand()));
     FieldElementPrg jointSampler =
         new PaddingPrg(new StrictBitVector(ctx.getPrgSeedLength(), new Random(1)));
-    ElGen elGen = new ElGen(ctx, macKeyShare, localSampler, jointSampler);
+    ElGen elGen = new ElGen(ctx, macKeyShare, jointSampler);
     elGen.initialize();
     List<AuthenticatedElement> elements = new ArrayList<>(numInputsPerRound * numRounds);
     for (int r = 0; r < numRounds; r++) {
@@ -62,22 +58,18 @@ public class TestElGen extends NetworkedTest {
 
   private List<AuthenticatedElement> runInputter(MascotContext ctx, FieldElement macKeyShare,
       List<FieldElement> inputs) {
-    FieldElementPrg localSampler =
-        new PaddingPrg(new StrictBitVector(ctx.getPrgSeedLength(), ctx.getRand()));
     FieldElementPrg jointSampler =
         new PaddingPrg(new StrictBitVector(ctx.getPrgSeedLength(), new Random(1)));
-    ElGen elGen = new ElGen(ctx, macKeyShare, localSampler, jointSampler);
+    ElGen elGen = new ElGen(ctx, macKeyShare, jointSampler);
     elGen.initialize();
     return elGen.input(inputs);
   }
 
   private List<AuthenticatedElement> runOther(MascotContext ctx, Integer inputterId,
       FieldElement macKeyShare, int numInputs) {
-    FieldElementPrg localSampler =
-        new PaddingPrg(new StrictBitVector(ctx.getPrgSeedLength(), ctx.getRand()));
     FieldElementPrg jointSampler =
         new PaddingPrg(new StrictBitVector(ctx.getPrgSeedLength(), new Random(1)));
-    ElGen elGen = new ElGen(ctx, macKeyShare, localSampler, jointSampler);
+    ElGen elGen = new ElGen(ctx, macKeyShare, jointSampler);
     elGen.initialize();
     return elGen.input(inputterId, numInputs);
   }

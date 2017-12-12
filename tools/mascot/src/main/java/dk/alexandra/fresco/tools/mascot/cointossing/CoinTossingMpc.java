@@ -43,12 +43,11 @@ public class CoinTossingMpc extends CommitmentBasedProtocol<StrictBitVector> {
    */
   public StrictBitVector generateJointSeed(int bitLengthSeed) {
     // generate own seed
-    StrictBitVector ownSeed = new StrictBitVector(bitLengthSeed, rand);
-    return generateJointSeed(ownSeed);
+    return generateJointSeed(new StrictBitVector(bitLengthSeed, rand));
   }
 
   /**
-   * Distribute seeds and recombine into single seed to create joint seed.
+   * Distribute seeds and combine into single, joint seed.
    * 
    * @param byteLength the length of the seed to be generated
    * @return

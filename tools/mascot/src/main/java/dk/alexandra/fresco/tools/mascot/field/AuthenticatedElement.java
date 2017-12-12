@@ -78,4 +78,8 @@ public class AuthenticatedElement implements Addable<AuthenticatedElement> {
     return new FieldElement(spdzElement.getShare(), modulus, modBitLength);
   }
 
+  public SpdzElement toSpdzElement() {
+    return spdzElement;
+  }
+
 }

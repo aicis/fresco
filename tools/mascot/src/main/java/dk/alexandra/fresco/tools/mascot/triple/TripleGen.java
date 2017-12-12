@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.mascot.triple;
 
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,7 +8,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotContext;
 import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
@@ -46,12 +44,27 @@ public class TripleGen extends MultiPartyProtocol {
         leftMultipliers.put(partyId, new MultiplyLeft(ctx, partyId));
       }
     }
-    this.localSampler =
-        new PaddingPrg(new StrictBitVector(ctx.getkBitLength(), new SecureRandom()));
-    // TODO not sure this belongs here
+    this.localSampler = ctx.getLocalSampler();
     this.jointSampler = new PaddingPrg(coinTosser.generateJointSeed(prgSeedLength));
-    this.elGen = new ElGen(ctx, macKeyShare, localSampler, jointSampler);
+    this.elGen = new ElGen(ctx, macKeyShare, jointSampler);
     this.numLeftFactors = numLeftFactors;
+    this.initialized = false;
+  }
+  
+  public TripleGen(MascotContext ctx, ElGen elGen, FieldElementPrg jointSampler) {
+    super(ctx);
+    this.numLeftFactors = ctx.getNumLeftFactors();
+    this.leftMultipliers = new HashMap<>();
+    this.rightMultipliers = new HashMap<>();
+    for (Integer partyId : partyIds) {
+      if (!myId.equals(partyId)) {
+        rightMultipliers.put(partyId, new MultiplyRight(ctx, partyId));
+        leftMultipliers.put(partyId, new MultiplyLeft(ctx, partyId));
+      }
+    }
+    this.elGen = elGen;
+    this.localSampler = ctx.getLocalSampler();
+    this.jointSampler = jointSampler;
     this.initialized = false;
   }
 
@@ -115,10 +128,10 @@ public class TripleGen extends MultiPartyProtocol {
     int numTriples = triples.size();
 
     List<List<FieldElement>> masks =
-        jointSampler.sample(modulus, modBitLength, numTriples, numLeftFactors);
+        jointSampler.getNext(modulus, modBitLength, numTriples, numLeftFactors);
 
     List<List<FieldElement>> sacrificeMasks =
-        jointSampler.sample(modulus, modBitLength, numTriples, numLeftFactors);
+        jointSampler.getNext(modulus, modBitLength, numTriples, numLeftFactors);
 
     List<UnauthCand> candidates = IntStream.range(0, numTriples)
         .mapToObj(idx -> {
@@ -252,7 +265,7 @@ public class TripleGen extends MultiPartyProtocol {
     // return valid triples
     return triples;
   }
-
+  
   private class UnauthTriple {
 
     List<FieldElement> leftFactors;

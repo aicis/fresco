@@ -31,12 +31,12 @@ public class ElGen extends MultiPartyProtocol {
   private Map<Integer, CopeSigner> copeSigners;
   private Map<Integer, CopeInputter> copeInputters;
 
-  public ElGen(MascotContext ctx, FieldElement macKeyShare, FieldElementPrg localSampler,
+  public ElGen(MascotContext ctx, FieldElement macKeyShare,
       FieldElementPrg jointSampler) {
     super(ctx);
     this.macChecker = new MacCheck(ctx);
     this.macKeyShare = macKeyShare;
-    this.localSampler = localSampler;
+    this.localSampler = ctx.getLocalSampler();
     this.jointSampler = jointSampler;
     this.sharer = new Sharer(localSampler);
     this.copeSigners = new HashMap<>();
