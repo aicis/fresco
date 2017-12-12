@@ -53,10 +53,8 @@ public class BristolOtReceiver extends BristolOtShared {
    * @param choiceBit
    *          Choice-bit. False for message 0, true for message 1.
    * @return The serialized message from the OT
-   * @throws NoSuchAlgorithmException
-   *           Thrown if the underlying PRG algorithm does not exist.
    */
-  public byte[] receive(Boolean choiceBit) throws NoSuchAlgorithmException {
+  public byte[] receive(Boolean choiceBit) {
     // Initialize the underlying functionalities if needed
     if (initialized == false) {
       initialize();
@@ -68,12 +66,6 @@ public class BristolOtReceiver extends BristolOtShared {
       randomMessages = receiver.extend(choices);
       offset = 0;
     }
-    byte[] res = doActualReceive(choiceBit);
-    offset++;
-    return res;
-  }
-
-  private byte[] doActualReceive(Boolean choiceBit) {
     // Notify the sender if it should switch the 0 and 1 messages around (s.t.
     // the random choice bit in the preprocessed random OTs matches the true
     // choice bit
@@ -81,6 +73,12 @@ public class BristolOtReceiver extends BristolOtShared {
     // Receive the serialized adjusted messages
     byte[] zeroAdjustment = getNetwork().receive(getOtherId());
     byte[] oneAdjustment = getNetwork().receive(getOtherId());
+    byte[] res = doActualReceive(zeroAdjustment, oneAdjustment);
+    offset++;
+    return res;
+  }
+
+  private byte[] doActualReceive(byte[] zeroAdjustment, byte[] oneAdjustment) {
     if (zeroAdjustment.length != oneAdjustment.length) {
       throw new MaliciousException(
           "Sender gave adjustment messages of different length.");
@@ -107,11 +105,11 @@ public class BristolOtReceiver extends BristolOtShared {
   }
 
   private void adjustMessage(byte[] adjustment) {
-    // Retrieve the random preprocessed message
-    byte[] randomMessage = randomMessages.get(offset).toByteArray();
     try {
       // Use the random message as the seed to a PRG
-      SecureRandom rand = SecureRandom.getInstance("SHA1PRNG");
+      SecureRandom rand = SecureRandom.getInstance(prgAlgorithm);
+      // Retrieve the random preprocessed message
+      byte[] randomMessage = randomMessages.get(offset).toByteArray();
       rand.setSeed(randomMessage);
       byte[] randomness = new byte[adjustment.length];
       // Expand the seed to the length of the received message from the sender

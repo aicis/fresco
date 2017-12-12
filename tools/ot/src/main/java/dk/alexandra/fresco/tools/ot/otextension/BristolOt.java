@@ -1,9 +1,7 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.Ot;
@@ -70,13 +68,7 @@ public class BristolOt implements Ot {
    */
   @Override
   public StrictBitVector receive(Boolean choiceBit) {
-    try {
-      byte[] res = receiver.receive(choiceBit);
-      return new StrictBitVector(res, 8 * res.length);
-    } catch (NoSuchAlgorithmException e) {
-      throw new MPCException(
-          "Something, non-malicious, went wrong when receiving a Bristol OT.",
-          e);
-    }
+    byte[] res = receiver.receive(choiceBit);
+    return new StrictBitVector(res, 8 * res.length);
   }
 }

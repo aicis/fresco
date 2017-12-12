@@ -15,6 +15,7 @@ public class BristolOtShared {
   protected RotShared rot;
   protected boolean initialized = false;
   protected int batchSize;
+  protected final String prgAlgorithm;
 
   /**
    * Constructs a Bristol OT extension super-class using an underlying random OT
@@ -29,6 +30,7 @@ public class BristolOtShared {
     super();
     this.rot = rot;
     this.batchSize = batchSize;
+    this.prgAlgorithm = "SHA1PRNG";
   }
 
   public int getOtherId() {

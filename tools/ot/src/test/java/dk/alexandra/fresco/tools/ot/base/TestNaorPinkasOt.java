@@ -6,8 +6,14 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigInteger;
+import java.security.AlgorithmParameterGenerator;
+import java.security.AlgorithmParameters;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.spec.InvalidParameterSpecException;
 import java.util.Arrays;
 import java.util.Random;
@@ -17,6 +23,8 @@ import javax.crypto.spec.DHParameterSpec;
 import org.junit.Before;
 import org.junit.Test;
 
+import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;
 
 public class TestNaorPinkasOt {
@@ -83,10 +91,17 @@ public class TestNaorPinkasOt {
   @Test
   public void testStabilityOfDhParams()
       throws NoSuchAlgorithmException, InvalidParameterSpecException {
-    DHParameterSpec newParams = NaorPinkasOT
-        .computeDhParams(new byte[] { 0x42 });
-    assertEquals(DhGvalue, newParams.getG());
-    assertEquals(DhPvalue, newParams.getP());
+    // Make a parameter generator for Diffie-Hellman parameters
+    AlgorithmParameterGenerator paramGen = AlgorithmParameterGenerator
+        .getInstance("DH");
+    SecureRandom commonRand = SecureRandom.getInstance("SHA1PRNG");
+    commonRand.setSeed(new byte[] { 0x42 });
+    // Construct DH parameters of a 2048 bit group based on the common seed
+    paramGen.init(2048, commonRand);
+    AlgorithmParameters params = paramGen.generateParameters();
+    DHParameterSpec newSpec = params.getParameterSpec(DHParameterSpec.class);
+    assertEquals(DhGvalue, newSpec.getG());
+    assertEquals(DhPvalue, newSpec.getP());
   }
 
   @Test
@@ -143,5 +158,54 @@ public class TestNaorPinkasOt {
     byte[] unpaddedMessage = ot.unpadMessage(paddedMessage, seed);
     byte[] messageWithZeros = Arrays.copyOf(message, 10001);
     assertTrue(!Arrays.equals(messageWithZeros, unpaddedMessage));
+  }
+
+  @Test
+  public void testNoSuchAlgorithm() throws NoSuchFieldException,
+      SecurityException, IllegalArgumentException, IllegalAccessException {
+    Field algorithm = NaorPinkasOT.class.getDeclaredField("prgAlgorithm");
+    // Remove private
+    algorithm.setAccessible(true);
+    algorithm.set(ot, "something");
+    // Test "padMessage"
+    boolean thrown = false;
+    try {
+      ot.padMessage(new byte[] { 0x42 }, 8, new byte[] { 0x42 });
+    } catch (MPCException e) {
+      assertEquals("Something non-malicious went wrong during the OT.",
+          e.getMessage());
+      thrown = true;
+    }
+    assertTrue(thrown);
+    // Test "unpadMessage"
+    thrown = false;
+    try {
+      ot.unpadMessage(new byte[] { 0x42 }, new byte[] { 0x42 });
+    } catch (MPCException e) {
+      assertEquals("Something non-malicious went wrong during the OT.",
+          e.getMessage());
+      thrown = true;
+    }
+    assertTrue(thrown);
+  }
+
+  @Test
+  public void testUnequalLengthMessages() throws NoSuchFieldException,
+      SecurityException, IllegalArgumentException, IllegalAccessException,
+      NoSuchMethodException, InvocationTargetException {
+    Method method = ot.getClass().getDeclaredMethod("recoverTrueMessage",
+        byte[].class, byte[].class, byte[].class, boolean.class);
+    // Remove private
+    method.setAccessible(true);
+    boolean thrown = false;
+    try {
+      method.invoke(ot, new byte[] { 0x42, 0x42 }, new byte[] { 0x42 },
+          new byte[] { 0x42 }, true);
+    } catch (InvocationTargetException e) {
+      assertEquals("The length of the two choice messages is not equal",
+          e.getTargetException().getMessage());
+      thrown = true;
+    }
+    assertTrue(thrown);
   }
 }
