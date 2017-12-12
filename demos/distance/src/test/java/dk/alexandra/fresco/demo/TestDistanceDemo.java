@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
@@ -14,6 +13,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
@@ -31,7 +31,7 @@ import org.junit.Test;
 public class TestDistanceDemo {
 
   protected void runTest(
-      TestThreadRunner.TestThreadFactory<NumericResourcePool, ProtocolBuilderNumeric> f,
+      TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, int noOfParties) throws Exception {
     // Since SCAPI currently does not work with ports > 9999 we use fixed
     // ports
@@ -43,15 +43,15 @@ public class TestDistanceDemo {
 
     Map<Integer, NetworkConfiguration> netConf =
         TestConfiguration.getNetworkConfigurations(noOfParties, ports);
-    Map<Integer, TestThreadRunner.TestThreadConfiguration<NumericResourcePool, ProtocolBuilderNumeric>> conf =
+    Map<Integer, TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     for (int playerId : netConf.keySet()) {
       SpdzProtocolSuite protocolSuite = new SpdzProtocolSuite(150);
 
-      ProtocolEvaluator<NumericResourcePool, ProtocolBuilderNumeric> evaluator =
+      ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
           new BatchedProtocolEvaluator<>(evalStrategy.getStrategy(), protocolSuite);
 
-      TestThreadRunner.TestThreadConfiguration<NumericResourcePool, ProtocolBuilderNumeric> ttc =
+      TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(protocolSuite, evaluator),
               () -> createResourcePool(playerId, noOfParties),
@@ -61,7 +61,7 @@ public class TestDistanceDemo {
     TestThreadRunner.run(f, conf);
   }
 
-  private NumericResourcePool createResourcePool(int myId, int size) {
+  private SpdzResourcePool createResourcePool(int myId, int size) {
     SpdzStorage store;
     store = new SpdzStorageImpl(new DummyDataSupplierImpl(myId, size));
     try {
@@ -73,11 +73,11 @@ public class TestDistanceDemo {
 
   @Test
   public void testDistance() throws Exception {
-    final TestThreadFactory<NumericResourcePool, ProtocolBuilderNumeric> f =
-        new TestThreadFactory<NumericResourcePool, ProtocolBuilderNumeric>() {
+    final TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f =
+        new TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric>() {
           @Override
-          public TestThread<NumericResourcePool, ProtocolBuilderNumeric> next() {
-            return new TestThread<NumericResourcePool, ProtocolBuilderNumeric>() {
+          public TestThread<SpdzResourcePool, ProtocolBuilderNumeric> next() {
+            return new TestThread<SpdzResourcePool, ProtocolBuilderNumeric>() {
               @Override
               public void test() throws Exception {
                 int x, y;

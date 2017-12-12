@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
@@ -23,6 +22,7 @@ import dk.alexandra.fresco.lib.statistics.DeaSolver;
 import dk.alexandra.fresco.lib.statistics.DeaSolverTests.RandomDataDeaTest;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.storage.DataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
@@ -47,7 +47,7 @@ public class ITSpdzFuelstationTest {
   @LocalServerPort
   private int port;
 
-  private void runTest(TestThreadFactory<NumericResourcePool, ProtocolBuilderNumeric> f,
+  private void runTest(TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, int noOfParties) throws Exception {
 
     // Since SCAPI currently does not work with ports > 9999 we use fixed
@@ -60,25 +60,27 @@ public class ITSpdzFuelstationTest {
 
     Map<Integer, NetworkConfiguration> netConf =
         TestConfiguration.getNetworkConfigurations(noOfParties, ports);
-    Map<Integer, TestThreadConfiguration<NumericResourcePool, ProtocolBuilderNumeric>> conf =
+    Map<Integer, TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     for (int playerId : netConf.keySet()) {
-      ProtocolSuite<NumericResourcePool, ProtocolBuilderNumeric> suite = new SpdzProtocolSuite(150);
+      ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> suite = new SpdzProtocolSuite(150);
 
-      ProtocolEvaluator<NumericResourcePool, ProtocolBuilderNumeric> evaluator =
+      ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
           new BatchedProtocolEvaluator<>(evalStrategy.getStrategy(), suite);
-      DataSupplier supplier = new DataRestSupplierImpl(playerId, noOfParties, "http://localhost:" + port, 0);
+      DataSupplier supplier = new DataRestSupplierImpl(playerId, noOfParties,
+          "http://localhost:" + port, 0);
       SpdzStorage store = new SpdzStorageImpl(supplier);
       Drbg drbg = new HmacDrbg();
-      TestThreadConfiguration<NumericResourcePool, ProtocolBuilderNumeric> ttc =
+      TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite, evaluator),
               () -> {
                 try {
                   return new SpdzResourcePoolImpl(playerId, noOfParties,
-                    drbg, store);
+                      drbg, store);
                 } catch (Exception e) {
-                  throw new RuntimeException("Your system does not support the necessary hash function.", e);
+                  throw new RuntimeException(
+                      "Your system does not support the necessary hash function.", e);
                 }
               },
               () -> new KryoNetNetwork(netConf.get(playerId)));
