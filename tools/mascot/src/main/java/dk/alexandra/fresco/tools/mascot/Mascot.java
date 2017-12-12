@@ -2,6 +2,7 @@ package dk.alexandra.fresco.tools.mascot;
 
 import java.util.List;
 
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.cointossing.CoinTossingMpc;
 import dk.alexandra.fresco.tools.mascot.elgen.ElGen;
@@ -17,16 +18,12 @@ public class Mascot {
   TripleGen tripleGen;
   ElGen elGen;
 
-  public Mascot(MascotContext ctx) {
+  public Mascot(MascotResourcePool resourcePool, FieldElement macKeyShare, Network network) {
     // agree on joint seed
-    StrictBitVector jointSeed = new CoinTossingMpc(ctx).generateJointSeed(ctx.getPrgSeedLength());
+    StrictBitVector jointSeed = new CoinTossingMpc(resourcePool, network).generateJointSeed(resourcePool.getPrgSeedLength());
     FieldElementPrg jointSampler = new PaddingPrg(jointSeed);
-    this.elGen = new ElGen(ctx, ctx.getMacKeyShare(), jointSampler);
-    this.tripleGen = new TripleGen(ctx, elGen, jointSampler);
-  }
-
-  public Mascot(Integer myId, List<Integer> partyIds) {
-    this(MascotContext.defaultContext(myId, partyIds));
+    this.elGen = new ElGen(resourcePool, network, macKeyShare, jointSampler);
+    this.tripleGen = new TripleGen(resourcePool, network, elGen, jointSampler);
   }
 
   public void initialize() {
@@ -45,5 +42,6 @@ public class Mascot {
   public List<AuthenticatedElement> getElements(Integer inputterId, int numElements) {
     return elGen.input(inputterId, numElements);
   }
+  
 
 }

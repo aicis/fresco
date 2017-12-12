@@ -11,7 +11,7 @@ import java.util.stream.IntStream;
 
 import org.junit.Test;
 
-import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.tools.mascot.MascotTestContext;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
 import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
@@ -20,15 +20,17 @@ import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
 
 public class TestMultiply extends NetworkedTest {
 
-  private List<FieldElement> runLeftMult(MascotContext ctx, Integer otherId,
+  private List<FieldElement> runLeftMult(MascotTestContext ctx, Integer otherId,
       List<FieldElement> inputs) {
-    MultiplyLeft mult = new MultiplyLeft(ctx, otherId, inputs.size());
+    MultiplyLeft mult =
+        new MultiplyLeft(ctx.getResourcePool(), ctx.getNetwork(), otherId, inputs.size());
     return mult.multiply(inputs);
   }
 
-  private List<FieldElement> runRightMult(MascotContext ctx, Integer otherId,
+  private List<FieldElement> runRightMult(MascotTestContext ctx, Integer otherId,
       List<FieldElement> inputs, int numLeftFactors) {
-    MultiplyRight mult = new MultiplyRight(ctx, otherId, numLeftFactors);
+    MultiplyRight mult =
+        new MultiplyRight(ctx.getResourcePool(), ctx.getNetwork(), otherId, numLeftFactors);
     return mult.multiply(inputs);
   }
 

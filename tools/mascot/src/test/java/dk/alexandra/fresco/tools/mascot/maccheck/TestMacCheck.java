@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.tools.mascot.MascotTestContext;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 
@@ -18,9 +18,9 @@ import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 public class TestMacCheck extends NetworkedTest {
 
   // TODO as part of new testing framework, re-think how to test for exceptions
-  private Pair<Boolean, Exception> runSinglePartyMacCheck(MascotContext ctx, FieldElement opened,
-      FieldElement macKeyShare, FieldElement macShare) throws Exception {
-    MacCheck macChecker = new MacCheck(ctx);
+  private Pair<Boolean, Exception> runSinglePartyMacCheck(MascotTestContext ctx,
+      FieldElement opened, FieldElement macKeyShare, FieldElement macShare) throws Exception {
+    MacCheck macChecker = new MacCheck(ctx.getResourcePool(), ctx.getNetwork());
     boolean thrown = false;
     Exception exception = null;
     try {

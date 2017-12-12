@@ -10,14 +10,16 @@ import org.junit.Test;
 
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.tools.mascot.MascotTestContext;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
 
+// TODO cannot connect to other party failure
 public class TestBroadcastValidation extends NetworkedTest {
 
-  private Pair<Boolean, Exception> runSinglePartyBroadcastValidation(MascotContext ctx,
+  private Pair<Boolean, Exception> runSinglePartyBroadcastValidation(MascotTestContext ctx,
       List<byte[]> messages) throws Exception {
-    BroadcastValidation validator = new BroadcastValidation(ctx);
+    BroadcastValidation validator =
+        new BroadcastValidation(ctx.getResourcePool(), ctx.getNetwork());
     boolean thrown = false;
     Exception exception = null;
     try {
@@ -115,7 +117,7 @@ public class TestBroadcastValidation extends NetworkedTest {
       assertEquals(exception.getMessage(), "Broadcast validation failed");
     }
   }
-  
+
   @Test
   public void testThreePartiesBroadcastDifferentOrder() {
     // three parties run this

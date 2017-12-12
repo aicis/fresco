@@ -7,9 +7,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyRight;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
@@ -21,20 +22,20 @@ public class CopeInputter extends CopeShared {
   private List<FieldElementPrg> rightPrgs;
   private MultiplyRight multiplier;
 
-  public CopeInputter(MascotContext ctx, Integer otherId) {
-    super(ctx, otherId);
+  public CopeInputter(MascotResourcePool resourcePool, Network network, Integer otherId) {
+    super(resourcePool, network, otherId);
     this.leftPrgs = new ArrayList<>();
     this.rightPrgs = new ArrayList<>();
-    this.multiplier = new MultiplyRight(ctx, otherId);
+    this.multiplier = new MultiplyRight(resourcePool, network,otherId);
   }
 
   public void initialize() {
     if (initialized) {
       throw new IllegalStateException("Already initialized");
     }
-      List<Pair<StrictBitVector, StrictBitVector>> seeds = multiplier.generateSeeds(1);
-      seedPrgs(seeds);
-      initialized = true;
+    List<Pair<StrictBitVector, StrictBitVector>> seeds = multiplier.generateSeeds(1);
+    seedPrgs(seeds);
+    initialized = true;
   }
 
   private void seedPrgs(List<Pair<StrictBitVector, StrictBitVector>> seeds) {
@@ -61,7 +62,7 @@ public class CopeInputter extends CopeShared {
     List<Pair<FieldElement, FieldElement>> maskPairs = new ArrayList<>();
     for (int i = 0; i < numInputs; i++) {
       // generate masks for single input
-      maskPairs.addAll(generateMaskPairs(modulus, modBitLength));
+      maskPairs.addAll(generateMaskPairs(getModulus(), getModBitLength()));
     }
     return maskPairs;
   }

@@ -43,6 +43,13 @@ public interface MascotResourcePool extends NumericResourcePool {
   int getNumLeftFactors();
 
   /**
+   * Gets bit length of seed used to underlying prg.
+   * 
+   * @return prg seed bit length
+   */
+  int getPrgSeedLength();
+
+  /**
    * Gets PRG for generating random field elements locally (for this party only).
    * 
    * @return PRG

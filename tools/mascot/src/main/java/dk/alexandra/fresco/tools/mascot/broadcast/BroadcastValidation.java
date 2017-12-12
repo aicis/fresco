@@ -1,25 +1,22 @@
 package dk.alexandra.fresco.tools.mascot.broadcast;
 
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
 
 import dk.alexandra.fresco.framework.MaliciousException;
-import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
 
 public class BroadcastValidation extends MultiPartyProtocol {
 
-  private MessageDigest messageDigest;
+  public BroadcastValidation(MascotResourcePool resourcePool, Network network) {
+    super(resourcePool, network);
+  }
 
-  public BroadcastValidation(MascotContext ctx) {
-    super(ctx);
-    try {
-      this.messageDigest = MessageDigest.getInstance("SHA-256");
-    } catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException(e);
-    }
+  MessageDigest getMessageDigest() {
+    return resourcePool.getMessageDigest();
   }
 
   /**
@@ -30,10 +27,10 @@ public class BroadcastValidation extends MultiPartyProtocol {
    */
   byte[] computeDigest(List<byte[]> messages) {
     for (byte[] message : messages) {
-      messageDigest.update(message);
+      getMessageDigest().update(message);
     }
-    byte[] digest = messageDigest.digest();
-    messageDigest.reset();
+    byte[] digest = getMessageDigest().digest();
+    getMessageDigest().reset();
     return digest;
   }
 

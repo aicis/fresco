@@ -5,12 +5,16 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.List;
+import java.util.Random;
 
+import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
 import dk.alexandra.fresco.framework.network.serializers.StrictBitVectorSerializer;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.commitment.CommitmentSerializer;
+import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.utils.PaddingPrg;
@@ -22,6 +26,7 @@ public class MascotResourcePoolImpl implements MascotResourcePool {
   BigInteger modulus;
   int modBitLength;
   int lambdaSecurityParam;
+  int prgSeedLength;
   int numLeftFactors;
   FieldElementPrg localSampler;
   FieldElementSerializer fieldElementSerializer;
@@ -38,6 +43,7 @@ public class MascotResourcePoolImpl implements MascotResourcePool {
     this.modBitLength = modBitLength;
     this.lambdaSecurityParam = lambdaSecurityParam;
     this.numLeftFactors = numLeftFactors;
+    this.prgSeedLength = prgSeedLength;
     this.localSampler = new PaddingPrg(new StrictBitVector(prgSeedLength, new SecureRandom()));
     this.fieldElementSerializer = new FieldElementSerializer(modulus, modBitLength);
     this.strictBitVectorSerializer = new StrictBitVectorSerializer();
@@ -123,6 +129,11 @@ public class MascotResourcePoolImpl implements MascotResourcePool {
   @Override
   public Drbg getRandomGenerator() {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int getPrgSeedLength() {
+    return prgSeedLength;
   }
 
 }

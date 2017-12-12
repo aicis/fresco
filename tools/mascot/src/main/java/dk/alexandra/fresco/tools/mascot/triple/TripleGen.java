@@ -8,7 +8,9 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
 import dk.alexandra.fresco.tools.mascot.cointossing.CoinTossingMpc;
@@ -25,7 +27,6 @@ import dk.alexandra.fresco.tools.mascot.utils.PaddingPrg;
 public class TripleGen extends MultiPartyProtocol {
 
   private ElGen elGen;
-  private CoinTossingMpc coinTosser;
   private Map<Integer, MultiplyRight> rightMultipliers;
   private Map<Integer, MultiplyLeft> leftMultipliers;
   private FieldElementPrg localSampler;
@@ -33,38 +34,41 @@ public class TripleGen extends MultiPartyProtocol {
   private int numLeftFactors;
   private boolean initialized;
 
-  public TripleGen(MascotContext ctx, FieldElement macKeyShare, int numLeftFactors) {
-    super(ctx);
-    this.coinTosser = new CoinTossingMpc(ctx);
+  public TripleGen(MascotResourcePool resourcePool, Network network, ElGen elGen,
+      FieldElementPrg jointSampler) {
+    super(resourcePool, network);
+    this.numLeftFactors = resourcePool.getNumLeftFactors();
     this.leftMultipliers = new HashMap<>();
     this.rightMultipliers = new HashMap<>();
-    for (Integer partyId : partyIds) {
-      if (!myId.equals(partyId)) {
-        rightMultipliers.put(partyId, new MultiplyRight(ctx, partyId));
-        leftMultipliers.put(partyId, new MultiplyLeft(ctx, partyId));
-      }
-    }
-    this.localSampler = ctx.getLocalSampler();
-    this.jointSampler = new PaddingPrg(coinTosser.generateJointSeed(prgSeedLength));
-    this.elGen = new ElGen(ctx, macKeyShare, jointSampler);
-    this.numLeftFactors = numLeftFactors;
-    this.initialized = false;
-  }
-  
-  public TripleGen(MascotContext ctx, ElGen elGen, FieldElementPrg jointSampler) {
-    super(ctx);
-    this.numLeftFactors = ctx.getNumLeftFactors();
-    this.leftMultipliers = new HashMap<>();
-    this.rightMultipliers = new HashMap<>();
-    for (Integer partyId : partyIds) {
-      if (!myId.equals(partyId)) {
-        rightMultipliers.put(partyId, new MultiplyRight(ctx, partyId));
-        leftMultipliers.put(partyId, new MultiplyLeft(ctx, partyId));
+    for (Integer partyId : getPartyIds()) {
+      if (!partyId.equals(getMyId())) {
+        rightMultipliers.put(partyId, new MultiplyRight(resourcePool, network, partyId));
+        leftMultipliers.put(partyId, new MultiplyLeft(resourcePool, network, partyId));
       }
     }
     this.elGen = elGen;
-    this.localSampler = ctx.getLocalSampler();
+    this.localSampler = resourcePool.getLocalSampler();
     this.jointSampler = jointSampler;
+    this.initialized = false;
+  }
+
+  // TODO this needs to go
+  TripleGen(MascotResourcePool resourcePool, Network network, FieldElement macKeyShare, int numLeftFactors) {
+    super(resourcePool, network);
+    this.numLeftFactors = numLeftFactors;
+    this.leftMultipliers = new HashMap<>();
+    this.rightMultipliers = new HashMap<>();
+    for (Integer partyId : getPartyIds()) {
+      if (!partyId.equals(getMyId())) {
+        rightMultipliers.put(partyId, new MultiplyRight(resourcePool, network, partyId));
+        leftMultipliers.put(partyId, new MultiplyLeft(resourcePool, network, partyId));
+      }
+    }
+    StrictBitVector jointSeed = new CoinTossingMpc(resourcePool, network)
+        .generateJointSeed(resourcePool.getPrgSeedLength());
+    this.jointSampler = new PaddingPrg(jointSeed);
+    this.elGen = new ElGen(resourcePool, network, macKeyShare, jointSampler);
+    this.localSampler = resourcePool.getLocalSampler();
     this.initialized = false;
   }
 
@@ -100,11 +104,11 @@ public class TripleGen extends MultiPartyProtocol {
     List<List<FieldElement>> subFactors = new ArrayList<>();
 
     // TODO parallelize
-    for (Integer partyId : partyIds) {
-      if (!myId.equals(partyId)) {
+    for (Integer partyId : getPartyIds()) {
+      if (!partyId.equals(getMyId())) {
         MultiplyLeft leftMult = leftMultipliers.get(partyId);
         MultiplyRight rightMult = rightMultipliers.get(partyId);
-        if (myId < partyId) {
+        if (getMyId() < partyId) {
           subFactors.add(rightMult.multiply(stretched));
           subFactors.add(leftMult.multiply(leftFactorGroups));
         } else {
@@ -128,10 +132,10 @@ public class TripleGen extends MultiPartyProtocol {
     int numTriples = triples.size();
 
     List<List<FieldElement>> masks =
-        jointSampler.getNext(modulus, modBitLength, numTriples, numLeftFactors);
+        jointSampler.getNext(getModulus(), getModBitLength(), numTriples, numLeftFactors);
 
     List<List<FieldElement>> sacrificeMasks =
-        jointSampler.getNext(modulus, modBitLength, numTriples, numLeftFactors);
+        jointSampler.getNext(getModulus(), getModBitLength(), numTriples, numLeftFactors);
 
     List<UnauthCand> candidates = IntStream.range(0, numTriples)
         .mapToObj(idx -> {
@@ -164,8 +168,8 @@ public class TripleGen extends MultiPartyProtocol {
         .collect(Collectors.toList());
 
     List<List<AuthenticatedElement>> shares = new ArrayList<>();
-    for (Integer partyId : partyIds) {
-      if (myId.equals(partyId)) {
+    for (Integer partyId : getPartyIds()) {
+      if (partyId.equals(getMyId())) {
         shares.add(elGen.input(flatInputs));
       } else {
         shares.add(elGen.input(partyId, flatInputs.size()));
@@ -207,7 +211,8 @@ public class TripleGen extends MultiPartyProtocol {
   }
 
   List<MultTriple> sacrifice(List<AuthCand> candidates) {
-    List<FieldElement> masks = jointSampler.getNext(modulus, modBitLength, candidates.size());
+    List<FieldElement> masks =
+        jointSampler.getNext(getModulus(), getModBitLength(), candidates.size());
 
     // compute masked values we will open and use in mac-check
     List<AuthenticatedElement> rhos = computeRhos(candidates, masks);
@@ -223,7 +228,7 @@ public class TripleGen extends MultiPartyProtocol {
 
     // pad open rhos with zeroes, one for each sigma
     List<FieldElement> paddedRhos = FieldElementCollectionUtils.padWith(openRhos,
-        new FieldElement(0, modulus, modBitLength), sigmas.size());
+        new FieldElement(0, getModulus(), getModBitLength()), sigmas.size());
 
     // run mac-check
     // TODO check if we can avoid re-masking
@@ -241,10 +246,11 @@ public class TripleGen extends MultiPartyProtocol {
 
     // generate random left factor groups
     List<FieldElement> leftFactorGroups =
-        localSampler.getNext(modulus, modBitLength, numTriples * numLeftFactors);
+        localSampler.getNext(getModulus(), getModBitLength(), numTriples * numLeftFactors);
 
     // generate random right factors
-    List<FieldElement> rightFactors = localSampler.getNext(modulus, modBitLength, numTriples);
+    List<FieldElement> rightFactors =
+        localSampler.getNext(getModulus(), getModBitLength(), numTriples);
 
     // compute product groups
     List<FieldElement> productGroups = multiply(leftFactorGroups, rightFactors);
@@ -265,7 +271,7 @@ public class TripleGen extends MultiPartyProtocol {
     // return valid triples
     return triples;
   }
-  
+
   private class UnauthTriple {
 
     List<FieldElement> leftFactors;

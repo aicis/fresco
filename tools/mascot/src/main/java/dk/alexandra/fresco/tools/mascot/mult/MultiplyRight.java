@@ -6,27 +6,29 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
 import dk.alexandra.fresco.tools.mascot.utils.PaddingPrg;
 
 public class MultiplyRight extends MultiplyShared {
 
-  public MultiplyRight(MascotContext ctx, Integer otherId, int numLeftFactors) {
-    super(ctx, otherId, numLeftFactors);
+  public MultiplyRight(MascotResourcePool resourcePool, Network network, Integer otherId,
+      int numLeftFactors) {
+    super(resourcePool, network, otherId, numLeftFactors);
   }
 
-  public MultiplyRight(MascotContext ctx, Integer otherId) {
-    this(ctx, otherId, 1);
+  public MultiplyRight(MascotResourcePool resourcePool, Network network, Integer otherId) {
+    this(resourcePool, network, otherId, 1);
   }
 
   public List<Pair<StrictBitVector, StrictBitVector>> generateSeeds(int numMults) {
     // perform rots for each bit, for each left factor, for each multiplication
-    int numRots = modBitLength * numLeftFactors * numMults;
-    List<Pair<StrictBitVector, StrictBitVector>> seeds = rot.send(numRots, modBitLength);
+    int numRots = getModBitLength() * numLeftFactors * numMults;
+    List<Pair<StrictBitVector, StrictBitVector>> seeds = rot.send(numRots, getModBitLength());
     // TODO temporary fix until big-endianness issue is resolved
     Collections.reverse(seeds);
     return seeds;
@@ -50,26 +52,26 @@ public class MultiplyRight extends MultiplyShared {
       FieldElement diff = computeDiff(feSeedPair, rightFactor);
       diffs.add(diff);
       seedPairIdx++;
-      rightFactorIdx = seedPairIdx / (numLeftFactors * modBitLength);
+      rightFactorIdx = seedPairIdx / (numLeftFactors * getModBitLength());
     }
     return diffs;
   }
 
   public void sendDiffs(List<FieldElement> diffs) {
-    network.send(otherId, feSerializer.serialize(diffs));
+    network.send(otherId, getFieldElementSerializer().serialize(diffs));
   }
 
   public List<FieldElement> computeProductShares(List<FieldElement> feZeroSeeds,
       int numRightFactors) {
-    int groupBitLength = numLeftFactors * modBitLength;
+    int groupBitLength = numLeftFactors * getModBitLength();
     List<FieldElement> productShares = new ArrayList<>(numRightFactors);
     for (int rightFactIdx = 0; rightFactIdx < numRightFactors; rightFactIdx++) {
       for (int leftFactIdx = 0; leftFactIdx < numLeftFactors; leftFactIdx++) {
-        int from = rightFactIdx * groupBitLength + leftFactIdx * modBitLength;
-        int to = rightFactIdx * groupBitLength + (leftFactIdx + 1) * modBitLength;
+        int from = rightFactIdx * groupBitLength + leftFactIdx * getModBitLength();
+        int to = rightFactIdx * groupBitLength + (leftFactIdx + 1) * getModBitLength();
         List<FieldElement> subFactors = feZeroSeeds.subList(from, to);
         FieldElement recombined =
-            FieldElementCollectionUtils.recombine(subFactors, modulus, modBitLength);
+            FieldElementCollectionUtils.recombine(subFactors, getModulus(), getModBitLength());
         productShares.add(recombined.negate());
       }
     }
@@ -95,7 +97,7 @@ public class MultiplyRight extends MultiplyShared {
 
     // convert seeds pairs to field elements so we can compute on them
     List<Pair<FieldElement, FieldElement>> feSeedPairs =
-        seedsToFieldElements(seedPairs, modulus, modBitLength);
+        seedsToFieldElements(seedPairs, getModulus(), getModBitLength());
 
     // compute q0 - q1 + b for each seed pair
     List<FieldElement> diffs = computeDiffs(feSeedPairs, rightFactors);

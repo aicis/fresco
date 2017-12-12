@@ -2,13 +2,16 @@ package dk.alexandra.fresco.tools.mascot;
 
 import java.util.List;
 
-public class MultiPartyProtocol extends BaseProtocol {
+import dk.alexandra.fresco.framework.network.Network;
 
-  protected List<Integer> partyIds;
+public class MultiPartyProtocol extends BaseProtocol {
   
-  public MultiPartyProtocol(MascotContext ctx) {
-    super(ctx);
-    partyIds = ctx.getPartyIds();
+  public MultiPartyProtocol(MascotResourcePool resourcePool, Network network) {
+    super(resourcePool, network);
+  }
+
+  public List<Integer> getPartyIds() {
+    return resourcePool.getPartyIds();
   }
 
 }

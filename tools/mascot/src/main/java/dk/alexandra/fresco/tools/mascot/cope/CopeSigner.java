@@ -6,8 +6,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeft;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
@@ -21,14 +22,15 @@ public class CopeSigner extends CopeShared {
 
   /**
    * 
-   * @param ctx
+   * @param resourcePool
    * @param otherId
    * @param macKeyShare
    */
-  public CopeSigner(MascotContext ctx, Integer otherId, FieldElement macKeyShare) {
-    super(ctx, otherId);
+  public CopeSigner(MascotResourcePool resourcePool, Network network, Integer otherId,
+      FieldElement macKeyShare) {
+    super(resourcePool, network, otherId);
     this.macKeyShare = macKeyShare;
-    this.multiplier = new MultiplyLeft(ctx, otherId);
+    this.multiplier = new MultiplyLeft(resourcePool, network, otherId);
     this.prgs = new ArrayList<>();
   }
 
@@ -36,9 +38,9 @@ public class CopeSigner extends CopeShared {
     if (initialized) {
       throw new IllegalStateException("Already initialized");
     }
-      List<StrictBitVector> seeds = multiplier.generateSeeds(macKeyShare);
-      seedPrgs(seeds);
-      initialized = true;
+    List<StrictBitVector> seeds = multiplier.generateSeeds(macKeyShare);
+    seedPrgs(seeds);
+    initialized = true;
   }
 
   private void seedPrgs(List<StrictBitVector> seeds) {
@@ -68,7 +70,7 @@ public class CopeSigner extends CopeShared {
     }
 
     // compute chosen masks
-    List<FieldElement> chosenMasks = generateMasks(numInputs, modulus, modBitLength);
+    List<FieldElement> chosenMasks = generateMasks(numInputs, getModulus(), getModBitLength());
 
     // get diffs from other party
     List<FieldElement> diffs = multiplier.receiveDiffs(numInputs * prgs.size());

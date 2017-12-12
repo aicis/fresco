@@ -6,20 +6,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
 import dk.alexandra.fresco.tools.mascot.utils.PaddingPrg;
 
 public class MultiplyLeft extends MultiplyShared {
 
-  public MultiplyLeft(MascotContext ctx, Integer otherId, int numLeftFactors) {
-    super(ctx, otherId, numLeftFactors);
+  public MultiplyLeft(MascotResourcePool resourcePool, Network network, Integer otherId, int numLeftFactors) {
+    super(resourcePool, network, otherId, numLeftFactors);
   }
 
-  public MultiplyLeft(MascotContext ctx, Integer otherId) {
-    this(ctx, otherId, 1);
+  public MultiplyLeft(MascotResourcePool resourcePool, Network network, Integer otherId) {
+    this(resourcePool, network, otherId, 1);
   }
 
   /**
@@ -28,7 +29,7 @@ public class MultiplyLeft extends MultiplyShared {
   public List<StrictBitVector> generateSeeds(List<FieldElement> leftFactors) {
     StrictBitVector packedFactors = FieldElementCollectionUtils.pack(leftFactors);
     // use rot to get choice seeds
-    List<StrictBitVector> seeds = rot.receive(packedFactors, modBitLength);
+    List<StrictBitVector> seeds = rot.receive(packedFactors, getModBitLength());
     // TODO temporary fix until big-endianness issue is resolved
     Collections.reverse(seeds);
     return seeds;
@@ -43,7 +44,7 @@ public class MultiplyLeft extends MultiplyShared {
 
   public List<FieldElement> receiveDiffs(int numDiffs) {
     byte[] raw = network.receive(otherId);
-    List<FieldElement> diffs = feSerializer.deserializeList(raw);
+    List<FieldElement> diffs = getFieldElementSerializer().deserializeList(raw);
     return diffs;
   }
 
@@ -52,8 +53,8 @@ public class MultiplyLeft extends MultiplyShared {
     List<FieldElement> result = new ArrayList<>(leftFactors.size());
     int diffIdx = 0;
     for (FieldElement leftFactor : leftFactors) {
-      List<FieldElement> summands = new ArrayList<>(modBitLength);
-      for (int b = 0; b < modBitLength; b++) {
+      List<FieldElement> summands = new ArrayList<>(getModBitLength());
+      for (int b = 0; b < getModBitLength(); b++) {
         FieldElement feSeed = feSeeds.get(diffIdx);
         FieldElement diff = diffs.get(diffIdx);
         boolean bit = leftFactor.getBit(b);
@@ -63,7 +64,7 @@ public class MultiplyLeft extends MultiplyShared {
         diffIdx++;
       }
       FieldElement productShare =
-          FieldElementCollectionUtils.recombine(summands, modulus, modBitLength);
+          FieldElementCollectionUtils.recombine(summands, getModulus(), getModBitLength());
       result.add(productShare);
     }
     return result;
@@ -84,7 +85,7 @@ public class MultiplyLeft extends MultiplyShared {
     List<StrictBitVector> seeds = generateSeeds(leftFactors);
 
     // convert each seed to field element
-    List<FieldElement> feSeeds = seedsToFieldElements(seeds, modulus, modBitLength);
+    List<FieldElement> feSeeds = seedsToFieldElements(seeds, getModulus(), getModBitLength());
 
     // get diffs from other party
     List<FieldElement> diffs = receiveDiffs(seeds.size());

@@ -1,14 +1,15 @@
 package dk.alexandra.fresco.tools.mascot.cope;
 
-import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.TwoPartyProtocol;
 
 public class CopeShared extends TwoPartyProtocol {
 
   protected boolean initialized;
 
-  public CopeShared(MascotContext ctx, Integer otherId) {
-    super(ctx, otherId);
+  public CopeShared(MascotResourcePool resourcePool, Network network, Integer otherId) {
+    super(resourcePool, network, otherId);
     this.initialized = false;
   }
 

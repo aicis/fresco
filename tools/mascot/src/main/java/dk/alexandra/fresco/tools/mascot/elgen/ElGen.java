@@ -8,7 +8,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
 import dk.alexandra.fresco.tools.mascot.cope.CopeInputter;
@@ -31,20 +32,20 @@ public class ElGen extends MultiPartyProtocol {
   private Map<Integer, CopeSigner> copeSigners;
   private Map<Integer, CopeInputter> copeInputters;
 
-  public ElGen(MascotContext ctx, FieldElement macKeyShare,
+  public ElGen(MascotResourcePool resourcePool, Network network, FieldElement macKeyShare,
       FieldElementPrg jointSampler) {
-    super(ctx);
-    this.macChecker = new MacCheck(ctx);
+    super(resourcePool, network);
+    this.macChecker = new MacCheck(resourcePool, network);
     this.macKeyShare = macKeyShare;
-    this.localSampler = ctx.getLocalSampler();
+    this.localSampler = resourcePool.getLocalSampler();
     this.jointSampler = jointSampler;
     this.sharer = new Sharer(localSampler);
     this.copeSigners = new HashMap<>();
     this.copeInputters = new HashMap<>();
-    for (Integer partyId : partyIds) {
-      if (!myId.equals(partyId)) {
-        copeSigners.put(partyId, new CopeSigner(ctx, partyId, this.macKeyShare));
-        copeInputters.put(partyId, new CopeInputter(ctx, partyId));
+    for (Integer partyId : getPartyIds()) {
+      if (getMyId() != partyId) {
+        copeSigners.put(partyId, new CopeSigner(resourcePool, network, partyId, this.macKeyShare));
+        copeInputters.put(partyId, new CopeInputter(resourcePool, network, partyId));
       }
     }
     this.initialized = false;
@@ -57,11 +58,11 @@ public class ElGen extends MultiPartyProtocol {
     }
 
     // TODO parallelize
-    for (Integer partyId : partyIds) {
-      if (!myId.equals(partyId)) {
+    for (Integer partyId : getPartyIds()) {
+      if (getMyId() != partyId) {
         CopeInputter copeInputter = copeInputters.get(partyId);
         CopeSigner copeSigner = copeSigners.get(partyId);
-        if (myId < partyId) {
+        if (getMyId() < partyId) {
           copeInputter.initialize();
           copeSigner.initialize();
         } else {
@@ -100,16 +101,16 @@ public class ElGen extends MultiPartyProtocol {
         .map(value -> sharer.additiveShare(value, numShares))
         .collect(Collectors.toList());
     List<List<FieldElement>> byParty = FieldElementCollectionUtils.transpose(allShares);
-    for (Integer partyId : partyIds) {
+    for (Integer partyId : getPartyIds()) {
       // send shares to everyone but self
-      if (!partyId.equals(myId)) {
+      if (!partyId.equals(getMyId())) {
         // assume party ids go from 1...n
         List<FieldElement> shares = byParty.get(partyId - 1);
-        network.send(partyId, feSerializer.serialize(shares));
+        network.send(partyId, getFieldElementSerializer().serialize(shares));
       }
     }
     // return own shares
-    return byParty.get(myId - 1);
+    return byParty.get(getMyId() - 1);
   }
 
   List<AuthenticatedElement> toAuthenticatedElements(List<FieldElement> shares,
@@ -121,7 +122,7 @@ public class ElGen extends MultiPartyProtocol {
         .mapToObj(idx -> {
           FieldElement share = shares.get(idx);
           FieldElement mac = macs.get(idx);
-          return new AuthenticatedElement(share, mac, modulus, modBitLength);
+          return new AuthenticatedElement(share, mac, getModulus(), getModBitLength());
         });
     return spdzElements.collect(Collectors.toList());
   }
@@ -139,14 +140,14 @@ public class ElGen extends MultiPartyProtocol {
     values = new ArrayList<>(values);
 
     // add extra random element which will later be used to mask inputs
-    FieldElement extraElement = localSampler.getNext(modulus, modBitLength);
+    FieldElement extraElement = localSampler.getNext(getModulus(), getModBitLength());
     values.add(extraElement);
 
     // compute per element mac share
     List<FieldElement> macs = macValues(values);
 
     // generate masks for values and macs
-    List<FieldElement> masks = jointSampler.getNext(modulus, modBitLength, values.size());
+    List<FieldElement> masks = jointSampler.getNext(getModulus(), getModBitLength(), values.size());
 
     // mask and combine values
     FieldElement maskedValue = FieldElementCollectionUtils.innerProduct(values, masks);
@@ -154,14 +155,14 @@ public class ElGen extends MultiPartyProtocol {
     // send masked value to all other parties
     network.sendToAll(maskedValue.toByteArray());
     // so that we can use receiveFromAll correctly later
-    network.receive(myId);
+    network.receive(getMyId());
 
     // perform mac-check on opened value (will throw if mac check fails)
     runMacCheck(maskedValue, masks, macs);
 
     // inputter secret-shares input values (note that we exclude dummy element)
     List<FieldElement> toSecretShare = values.subList(0, values.size() - 1);
-    List<FieldElement> shares = secretShare(toSecretShare, partyIds.size());
+    List<FieldElement> shares = secretShare(toSecretShare, getPartyIds().size());
 
     // combine shares and mac shares to spdz elements (exclude mac for dummy element)
     List<FieldElement> nonDummyMacs = macs.subList(0, shares.size());
@@ -180,16 +181,16 @@ public class ElGen extends MultiPartyProtocol {
     List<FieldElement> macs = copeSigner.extend(numInputs + 1);
 
     // generate masks for macs
-    List<FieldElement> masks = jointSampler.getNext(modulus, modBitLength, numInputs + 1);
+    List<FieldElement> masks = jointSampler.getNext(getModulus(), getModBitLength(), numInputs + 1);
 
     // receive masked value we will use in mac-check
-    FieldElement maskedValue = new FieldElement(network.receive(inputterId), modulus, modBitLength);
+    FieldElement maskedValue = getFieldElementSerializer().deserialize(network.receive(inputterId));
 
     // perform mac-check on opened value
     runMacCheck(maskedValue, masks, macs);
 
     // receive shares from inputter
-    List<FieldElement> shares = feSerializer.deserializeList(network.receive(inputterId));
+    List<FieldElement> shares = getFieldElementSerializer().deserializeList(network.receive(inputterId));
 
     // combine shares and mac shares to spdz elements (exclude mac for dummy element)
     List<FieldElement> nonDummyMacs = macs.subList(0, numInputs);
@@ -209,7 +210,7 @@ public class ElGen extends MultiPartyProtocol {
    */
   public void check(List<AuthenticatedElement> sharesWithMacs, List<FieldElement> openValues) {
     // will use this to mask macs
-    List<FieldElement> masks = jointSampler.getNext(modulus, modBitLength, sharesWithMacs.size());
+    List<FieldElement> masks = jointSampler.getNext(getModulus(), getModBitLength(), sharesWithMacs.size());
     // only need macs
     List<FieldElement> macs = sharesWithMacs.stream()
         .map(AuthenticatedElement::getMac)
@@ -231,13 +232,13 @@ public class ElGen extends MultiPartyProtocol {
         .map(AuthenticatedElement::getShare)
         .collect(Collectors.toList());
     // send own shares to others
-    network.sendToAll(feSerializer.serialize(ownShares));
+    network.sendToAll(getFieldElementSerializer().serialize(ownShares));
     // receive others' shares
     List<byte[]> rawShares = network.receiveFromAll();
     // TODO parsing belongs somewhere else
     // parse
     List<List<FieldElement>> shares = rawShares.stream()
-        .map(raw -> feSerializer.deserializeList(raw))
+        .map(raw -> getFieldElementSerializer().deserializeList(raw))
         .collect(Collectors.toList());
     // recombine
     return CollectionUtils.pairWiseSum(shares);

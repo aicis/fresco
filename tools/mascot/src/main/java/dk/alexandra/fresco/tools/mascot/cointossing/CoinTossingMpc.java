@@ -1,10 +1,12 @@
 package dk.alexandra.fresco.tools.mascot.cointossing;
 
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Random;
 
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.commit.CommitmentBasedProtocol;
 
 public class CoinTossingMpc extends CommitmentBasedProtocol<StrictBitVector> {
@@ -14,11 +16,11 @@ public class CoinTossingMpc extends CommitmentBasedProtocol<StrictBitVector> {
   /**
    * Creates new coin-tossing protocol.
    * 
-   * @param ctx
+   * @param resourcePool
    */
-  public CoinTossingMpc(MascotContext ctx) {
-    super(ctx, ctx.getSbvSerializer());
-    this.rand = ctx.getRand();
+  public CoinTossingMpc(MascotResourcePool resourcePool, Network network) {
+    super(resourcePool, network, resourcePool.getStrictBitVectorSerializer());
+    this.rand = new SecureRandom();
   }
 
   /**

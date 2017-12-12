@@ -9,7 +9,7 @@ import org.junit.Before;
 
 public abstract class NetworkedTest {
   protected TestRuntime testRuntime;
-  protected Map<Integer, MascotContext> contexts;
+  protected Map<Integer, MascotTestContext> contexts;
   
   // maskot parameters
   protected BigInteger modulus;

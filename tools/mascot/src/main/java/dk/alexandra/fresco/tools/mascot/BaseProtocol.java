@@ -7,23 +7,36 @@ import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 
 public class BaseProtocol {
 
-  protected Integer myId;
-  protected Network network;
-  protected BigInteger modulus;
-  protected int modBitLength;
-  protected int lambdaSecurityParam;
-  protected int prgSeedLength;
-  protected FieldElementSerializer feSerializer;
+  protected final MascotResourcePool resourcePool;
+  protected final Network network;
   
-  public BaseProtocol(MascotContext ctx) {
-    super();
-    this.myId = ctx.getMyId();
-    this.network = ctx.getNetwork();
-    this.modulus = ctx.getModulus();
-    this.modBitLength = ctx.getkBitLength();
-    this.lambdaSecurityParam = ctx.getLambdaSecurityParam();
-    this.prgSeedLength = ctx.getPrgSeedLength();
-    this.feSerializer = ctx.getFeSerializer();
+  public BaseProtocol(MascotResourcePool resourcePool, Network network) {
+    this.resourcePool = resourcePool;
+    this.network = network;
+  }
+
+  public MascotResourcePool getResourcePool() {
+    return resourcePool;
+  }
+
+  public int getMyId() {
+    return resourcePool.getMyId();
+  }
+
+  public BigInteger getModulus() {
+    return resourcePool.getModulus();
+  }
+
+  public int getModBitLength() {
+    return resourcePool.getModBitLength();
+  }
+
+  public int getLambdaSecurityParam() {
+    return resourcePool.getLambdaSecurityParam();
+  }
+
+  public FieldElementSerializer getFieldElementSerializer() {
+    return resourcePool.getFieldElementSerializer();
   }
   
 }

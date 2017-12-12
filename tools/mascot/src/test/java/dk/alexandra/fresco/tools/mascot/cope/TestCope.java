@@ -12,24 +12,25 @@ import java.util.stream.IntStream;
 
 import org.junit.Test;
 
-import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.tools.mascot.MascotTestContext;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 
 public class TestCope extends NetworkedTest {
 
-  private List<FieldElement> runSigner(MascotContext ctx, Integer otherId, FieldElement macKeyShare,
-      int numExtends) {
-    CopeSigner signer = new CopeSigner(ctx, otherId, macKeyShare);
+  private List<FieldElement> runSigner(MascotTestContext ctx, Integer otherId,
+      FieldElement macKeyShare, int numExtends) {
+    CopeSigner signer =
+        new CopeSigner(ctx.getResourcePool(), ctx.getNetwork(), otherId, macKeyShare);
     signer.initialize();
     List<FieldElement> shares = signer.extend(numExtends);
     return shares;
   }
 
-  private List<FieldElement> runInputter(MascotContext ctx, Integer otherId,
+  private List<FieldElement> runInputter(MascotTestContext ctx, Integer otherId,
       List<FieldElement> inputs) {
-    CopeInputter inputter = new CopeInputter(ctx, otherId);
+    CopeInputter inputter = new CopeInputter(ctx.getResourcePool(), ctx.getNetwork(), otherId);
     inputter.initialize();
     List<FieldElement> shares = inputter.extend(inputs);
     return shares;

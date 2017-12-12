@@ -11,7 +11,7 @@ import java.util.concurrent.Callable;
 
 import org.junit.Test;
 
-import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.tools.mascot.MascotTestContext;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
 import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
@@ -22,26 +22,29 @@ import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 
 public class TestTripleGen extends NetworkedTest {
 
-  private List<FieldElement> runSinglePartyMult(MascotContext ctx, FieldElement macKeyShare,
+  private List<FieldElement> runSinglePartyMult(MascotTestContext ctx, FieldElement macKeyShare,
       List<FieldElement> leftFactorGroups, List<FieldElement> rightFactors) {
     int numLeftFactors = leftFactorGroups.size() / rightFactors.size();
-    TripleGen tripleGen = new TripleGen(ctx, macKeyShare, numLeftFactors);
+    TripleGen tripleGen =
+        new TripleGen(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare, numLeftFactors);
     tripleGen.initialize();
     List<FieldElement> productGroups = tripleGen.multiply(leftFactorGroups, rightFactors);
     return productGroups;
   }
 
-  private List<MultTriple> runSinglePartyTriple(MascotContext ctx, FieldElement macKeyShare,
+  private List<MultTriple> runSinglePartyTriple(MascotTestContext ctx, FieldElement macKeyShare,
       int numLeftFactors, int numTriples) {
-    TripleGen tripleGen = new TripleGen(ctx, macKeyShare, numLeftFactors);
+    TripleGen tripleGen =
+        new TripleGen(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare, numLeftFactors);
     tripleGen.initialize();
     List<MultTriple> triples = tripleGen.triple(numTriples);
     return triples;
   }
 
-  private List<MultTriple> runSinglePartyTripleRepeated(MascotContext ctx, FieldElement macKeyShare,
-      int numLeftFactors, int numTriples, int numIterations) {
-    TripleGen tripleGen = new TripleGen(ctx, macKeyShare, numLeftFactors);
+  private List<MultTriple> runSinglePartyTripleRepeated(MascotTestContext ctx,
+      FieldElement macKeyShare, int numLeftFactors, int numTriples, int numIterations) {
+    TripleGen tripleGen =
+        new TripleGen(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare, numLeftFactors);
     tripleGen.initialize();
     List<MultTriple> triples = new ArrayList<>();
     for (int r = 0; r < numIterations; r++) {
@@ -173,12 +176,12 @@ public class TestTripleGen extends NetworkedTest {
     }
 
     // set up runtime environment and get contexts
-    Map<Integer, MascotContext> contexts = testRuntime.initializeContexts(partyIds);
+    Map<Integer, MascotTestContext> contexts = testRuntime.initializeContexts(partyIds);
 
     // define per party task with params
     List<Callable<List<MultTriple>>> tasks = new ArrayList<>();
     for (int pid = 1; pid <= macKeyShares.size(); pid++) {
-      MascotContext partyCtx = contexts.get(pid);
+      MascotTestContext partyCtx = contexts.get(pid);
       FieldElement macKeyShare = macKeyShares.get(pid - 1);
       Callable<List<MultTriple>> partyTask =
           () -> runSinglePartyTriple(partyCtx, macKeyShare, 3, numTriples);
@@ -201,12 +204,12 @@ public class TestTripleGen extends NetworkedTest {
     }
 
     // set up runtime environment and get contexts
-    Map<Integer, MascotContext> contexts = testRuntime.initializeContexts(partyIds);
+    Map<Integer, MascotTestContext> contexts = testRuntime.initializeContexts(partyIds);
 
     // define per party task with params
     List<Callable<List<MultTriple>>> tasks = new ArrayList<>();
     for (int pid = 1; pid <= macKeyShares.size(); pid++) {
-      MascotContext partyCtx = contexts.get(pid);
+      MascotTestContext partyCtx = contexts.get(pid);
       FieldElement macKeyShare = macKeyShares.get(pid - 1);
       Callable<List<MultTriple>> partyTask =
           () -> runSinglePartyTripleRepeated(partyCtx, macKeyShare, 3, numTriples, numIterations);

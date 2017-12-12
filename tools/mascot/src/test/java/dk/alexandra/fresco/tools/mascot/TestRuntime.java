@@ -25,7 +25,7 @@ public class TestRuntime {
 
   private final static Logger logger = LoggerFactory.getLogger(TestRuntime.class);
 
-  private Map<Integer, MascotContext> contexts;
+  private Map<Integer, MascotTestContext> contexts;
   private ExecutorService executor;
   private boolean executorInitialized;
   private long timeout;
@@ -49,7 +49,7 @@ public class TestRuntime {
     }
     executorInitialized = false;
     try {
-      for (MascotContext context : contexts.values()) {
+      for (MascotTestContext context : contexts.values()) {
         ((Closeable) context.getNetwork()).close();
       }
     } catch (IOException e) {
@@ -86,15 +86,15 @@ public class TestRuntime {
    * @param partyIds The parties
    * @return
    */
-  public Map<Integer, MascotContext> initializeContexts(List<Integer> partyIds) {
+  public Map<Integer, MascotTestContext> initializeContexts(List<Integer> partyIds) {
     initalizeExecutor(partyIds.size());
     try {
-      List<Callable<Pair<Integer, MascotContext>>> initializationTasks = new LinkedList<>();
+      List<Callable<Pair<Integer, MascotTestContext>>> initializationTasks = new LinkedList<>();
       for (Integer partyId : partyIds) {
         initializationTasks.add(() -> initializeContext(partyId, partyIds));
       }
-      for (Future<Pair<Integer, MascotContext>> pair : executor.invokeAll(initializationTasks)) {
-        Pair<Integer, MascotContext> unwrapped = pair.get();
+      for (Future<Pair<Integer, MascotTestContext>> pair : executor.invokeAll(initializationTasks)) {
+        Pair<Integer, MascotTestContext> unwrapped = pair.get();
         contexts.put(unwrapped.getFirst(), unwrapped.getSecond());
       }
       return contexts;
@@ -155,8 +155,8 @@ public class TestRuntime {
    * @param partyIds
    * @return
    */
-  private Pair<Integer, MascotContext> initializeContext(Integer myId, List<Integer> partyIds) {
-    MascotContext ctx = MascotContext.defaultTestingContext(myId, new LinkedList<>(partyIds));
+  private Pair<Integer, MascotTestContext> initializeContext(Integer myId, List<Integer> partyIds) {
+    MascotTestContext ctx = new MascotTestContext(myId, new LinkedList<>(partyIds));
     return new Pair<>(myId, ctx);
   }
 

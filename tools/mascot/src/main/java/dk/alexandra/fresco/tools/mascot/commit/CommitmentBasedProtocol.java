@@ -9,7 +9,7 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.SecureSerializer;
 import dk.alexandra.fresco.tools.commitment.Commitment;
 import dk.alexandra.fresco.tools.commitment.CommitmentSerializer;
-import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.broadcast.BroadcastValidation;
 import dk.alexandra.fresco.tools.mascot.broadcast.BroadcastingNetworkDecorator;
@@ -21,13 +21,15 @@ public class CommitmentBasedProtocol<T> extends MultiPartyProtocol {
   SecureSerializer<T> serializer;
   Network broadcaster;
 
-  public CommitmentBasedProtocol(MascotContext ctx, SecureSerializer<T> serializer) {
-    super(ctx);
+  public CommitmentBasedProtocol(MascotResourcePool resourcePool, Network network,
+      SecureSerializer<T> serializer) {
+    super(resourcePool, network);
     this.commSerializer = new CommitmentSerializer();
     this.serializer = serializer;
     // for more than two parties, we need to use broadcast
-    if (partyIds.size() > 2) {
-      this.broadcaster = new BroadcastingNetworkDecorator(network, new BroadcastValidation(ctx));
+    if (resourcePool.getNoOfParties() > 2) {
+      this.broadcaster =
+          new BroadcastingNetworkDecorator(network, new BroadcastValidation(resourcePool, network));
     } else {
       // if we have two parties or less we can just use the regular network
       this.broadcaster = this.network;

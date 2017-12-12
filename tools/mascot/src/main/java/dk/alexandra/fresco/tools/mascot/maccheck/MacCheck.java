@@ -3,7 +3,8 @@ package dk.alexandra.fresco.tools.mascot.maccheck;
 import java.util.List;
 
 import dk.alexandra.fresco.framework.MaliciousException;
-import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
 import dk.alexandra.fresco.tools.mascot.commit.CommitmentBasedProtocol;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
@@ -13,10 +14,10 @@ public class MacCheck extends CommitmentBasedProtocol<FieldElement> {
   /**
    * Constructs new mac checker.
    * 
-   * @param ctx
+   * @param resourcePool
    */
-  public MacCheck(MascotContext ctx) {
-    super(ctx, ctx.getFeSerializer());
+  public MacCheck(MascotResourcePool resourcePool, Network network) {
+    super(resourcePool, network, resourcePool.getFieldElementSerializer());
   }
 
   /**
@@ -39,7 +40,7 @@ public class MacCheck extends CommitmentBasedProtocol<FieldElement> {
     FieldElement sigmaSum = CollectionUtils.sum(sigmas);
 
     // sum of sigmas must be 0
-    FieldElement zero = new FieldElement(0, modulus, modBitLength);
+    FieldElement zero = new FieldElement(0, getModulus(), getModBitLength());
     if (!zero.equals(sigmaSum)) {
       throw new MaliciousException("Malicious mac forging detected");
     }

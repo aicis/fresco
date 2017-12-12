@@ -9,13 +9,13 @@ import java.util.concurrent.Callable;
 import org.junit.Test;
 
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.MascotContext;
+import dk.alexandra.fresco.tools.mascot.MascotTestContext;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
 
 public class TestCoinTossingMpc extends NetworkedTest {
 
-  public StrictBitVector singlePartyCoinTossing(MascotContext ctx, StrictBitVector ownSeed) {
-    CoinTossingMpc coinTosser = new CoinTossingMpc(ctx);
+  public StrictBitVector singlePartyCoinTossing(MascotTestContext ctx, StrictBitVector ownSeed) {
+    CoinTossingMpc coinTosser = new CoinTossingMpc(ctx.getResourcePool(), ctx.getNetwork());
     return coinTosser.generateJointSeed(ownSeed);
   }
 
