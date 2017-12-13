@@ -1,13 +1,5 @@
 package dk.alexandra.fresco.tools.mascot.triple;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
@@ -23,6 +15,13 @@ import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeft;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyRight;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.utils.PaddingPrg;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class TripleGeneration extends MultiPartyProtocol {
 
@@ -196,7 +195,7 @@ public class TripleGeneration extends MultiPartyProtocol {
 
   List<MultTriple> toMultTriples(List<AuthCand> candidates) {
     return candidates.stream()
-        .map(cand -> cand.toTriple())
+        .map(AuthCand::toTriple)
         .collect(Collectors.toList());
   }
 
@@ -231,6 +230,7 @@ public class TripleGeneration extends MultiPartyProtocol {
   public List<MultTriple> triple(int numTriples) {
     // can't generate triples before initializing
     if (!initialized) {
+      // TODO why not initialize in the constructor then?
       throw new IllegalStateException("Need to initialize first");
     }
 
