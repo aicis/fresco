@@ -32,10 +32,10 @@ public class MultiplyLeft extends MultiplyShared {
   /**
    * Uses left factors as choice bits to receive seeds to prgs.
    */
-  public List<StrictBitVector> generateSeeds(List<FieldElement> leftFactors) {
+  public List<StrictBitVector> generateSeeds(List<FieldElement> leftFactors, int seedLength) {
     StrictBitVector packedFactors = FieldElementCollectionUtils.pack(leftFactors);
     // use rot to get choice seeds
-    List<StrictBitVector> seeds = rot.receive(packedFactors, getModBitLength());
+    List<StrictBitVector> seeds = rot.receive(packedFactors, seedLength);
     // TODO temporary fix until big-endianness issue is resolved
     Collections.reverse(seeds);
     return seeds;
@@ -44,8 +44,8 @@ public class MultiplyLeft extends MultiplyShared {
   /**
    * {@link #generateSeeds}
    */
-  public List<StrictBitVector> generateSeeds(FieldElement leftFactor) {
-    return generateSeeds(Collections.singletonList(leftFactor));
+  public List<StrictBitVector> generateSeeds(FieldElement leftFactor, int seedLength) {
+    return generateSeeds(Collections.singletonList(leftFactor), seedLength);
   }
 
   public List<FieldElement> receiveDiffs(int numDiffs) {
@@ -88,7 +88,7 @@ public class MultiplyLeft extends MultiplyShared {
 
   public List<FieldElement> multiply(List<FieldElement> leftFactors) {
     // generate seeds to use for multiplication
-    List<StrictBitVector> seeds = generateSeeds(leftFactors);
+    List<StrictBitVector> seeds = generateSeeds(leftFactors, getModBitLength());
 
     // convert each seed to field element
     List<FieldElement> feSeeds = seedsToFieldElements(seeds, getModulus(), getModBitLength());

@@ -30,11 +30,11 @@ public class MultiplyRight extends MultiplyShared {
     super.initialize();
     // TODO: need a way to initialize rot
   }
-  
-  public List<Pair<StrictBitVector, StrictBitVector>> generateSeeds(int numMults) {
+
+  public List<Pair<StrictBitVector, StrictBitVector>> generateSeeds(int numMults, int seedLength) {
     // perform rots for each bit, for each left factor, for each multiplication
     int numRots = getModBitLength() * numLeftFactors * numMults;
-    List<Pair<StrictBitVector, StrictBitVector>> seeds = rot.send(numRots, getModBitLength());
+    List<Pair<StrictBitVector, StrictBitVector>> seeds = rot.send(numRots, seedLength);
     // TODO temporary fix until big-endianness issue is resolved
     Collections.reverse(seeds);
     return seeds;
@@ -99,7 +99,8 @@ public class MultiplyRight extends MultiplyShared {
 
   public List<FieldElement> multiply(List<FieldElement> rightFactors) {
     // generate seeds pairs which we will use to compute diffs
-    List<Pair<StrictBitVector, StrictBitVector>> seedPairs = generateSeeds(rightFactors.size());
+    List<Pair<StrictBitVector, StrictBitVector>> seedPairs =
+        generateSeeds(rightFactors.size(), getModBitLength());
 
     // convert seeds pairs to field elements so we can compute on them
     List<Pair<FieldElement, FieldElement>> feSeedPairs =

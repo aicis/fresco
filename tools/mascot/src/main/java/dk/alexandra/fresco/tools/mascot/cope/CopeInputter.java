@@ -26,13 +26,14 @@ public class CopeInputter extends CopeShared {
     super(resourcePool, network, otherId);
     this.leftPrgs = new ArrayList<>();
     this.rightPrgs = new ArrayList<>();
-    this.multiplier = new MultiplyRight(resourcePool, network,otherId);
+    this.multiplier = new MultiplyRight(resourcePool, network, otherId);
   }
 
   @Override
   public void initialize() {
     super.initialize();
-    List<Pair<StrictBitVector, StrictBitVector>> seeds = multiplier.generateSeeds(1);
+    List<Pair<StrictBitVector, StrictBitVector>> seeds =
+        multiplier.generateSeeds(1, getLambdaSecurityParam());
     seedPrgs(seeds);
   }
 

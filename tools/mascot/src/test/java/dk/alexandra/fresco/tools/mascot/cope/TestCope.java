@@ -63,8 +63,8 @@ public class TestCope extends NetworkedTest {
     assertEquals(expected, actual);
   }
 
-  @Test
-  public void testBatchedExtend() {
+  public void testBatchedExtend(int lambdaSecurityParam) {
+    this.lambdaSecurity = lambdaSecurityParam;
     initContexts(Arrays.asList(1, 2));
 
     // left parties input (can be multiple)
@@ -101,8 +101,13 @@ public class TestCope extends NetworkedTest {
   }
 
   @Test
+  public void testEqualSecParamAndBitLength() {
+    testBatchedExtend(this.lambdaSecurity);
+  }
+  
+  @Test
   public void testUnequalSecParamAndBitLength() {
-    // TODO
+    testBatchedExtend(24);
   }
 
 }

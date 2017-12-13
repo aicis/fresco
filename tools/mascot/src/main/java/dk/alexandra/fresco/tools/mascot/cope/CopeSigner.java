@@ -36,7 +36,7 @@ public class CopeSigner extends CopeShared {
 
   public void initialize() {
     super.initialize();
-    List<StrictBitVector> seeds = multiplier.generateSeeds(macKeyShare);
+    List<StrictBitVector> seeds = multiplier.generateSeeds(macKeyShare, getLambdaSecurityParam());
     seedPrgs(seeds);
   }
 
