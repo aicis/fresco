@@ -45,24 +45,8 @@ public class TripleGeneration extends MultiPartyProtocol {
 
   TripleGeneration(MascotResourcePool resourcePool, Network network, FieldElementPrg jointSampler,
       FieldElement macKeyShare) {
-    super(resourcePool, network);
-    this.leftMultipliers = new HashMap<>();
-    this.rightMultipliers = new HashMap<>();
-    for (Integer partyId : getPartyIds()) {
-      if (!partyId.equals(getMyId())) {
-        rightMultipliers.put(partyId, new MultiplyRight(resourcePool, network, partyId));
-        leftMultipliers.put(partyId, new MultiplyLeft(resourcePool, network, partyId));
-      }
-    }
-    this.jointSampler = jointSampler;
-    this.elementGeneration =
-        new ElementGeneration(resourcePool, network, macKeyShare, jointSampler);
-  }
-
-  @Override
-  public void initialize() {
-    super.initialize();
-    elementGeneration.initialize();
+    this(resourcePool, network,
+        new ElementGeneration(resourcePool, network, macKeyShare, jointSampler), jointSampler);
   }
 
   List<UnauthTriple> toUnauthTriple(List<FieldElement> left, List<FieldElement> right,
@@ -222,8 +206,6 @@ public class TripleGeneration extends MultiPartyProtocol {
   }
 
   public List<MultTriple> triple(int numTriples) {
-    initializeIfNeeded();
-
     // generate random left factor groups
     List<FieldElement> leftFactorGroups = getLocalSampler().getNext(getModulus(), getModBitLength(),
         numTriples * getNumCandidatesPerTriple());

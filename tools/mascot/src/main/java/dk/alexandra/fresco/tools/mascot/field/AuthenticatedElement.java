@@ -42,6 +42,10 @@ public class AuthenticatedElement implements Addable<AuthenticatedElement> {
   public FieldElement getShare() {
     return share;
   }
+  
+  public BigInteger getModulus() {
+    return modulus;
+  }
 
   @Override
   public int hashCode() {

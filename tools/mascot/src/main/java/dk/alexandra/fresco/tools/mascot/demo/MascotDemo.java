@@ -35,7 +35,7 @@ public class MascotDemo {
 
   public void run() {
     long startTime = System.currentTimeMillis();
-    List<MultTriple> triples = mascot.getTriples(100);
+    List<MultTriple> triples = mascot.getTriples(256);
     long endTime = System.currentTimeMillis();
     System.out.println("Generated " + triples.size() + " triples in " + (endTime - startTime) + " ms");
     try {

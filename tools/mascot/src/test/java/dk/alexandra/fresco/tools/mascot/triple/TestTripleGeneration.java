@@ -33,7 +33,6 @@ public class TestTripleGeneration extends NetworkedTest {
       List<FieldElement> leftFactorGroups, List<FieldElement> rightFactors) {
     TripleGeneration tripleGen = new TripleGeneration(ctx.getResourcePool(), ctx.getNetwork(),
         getJointPrg(ctx.getPrgSeedLength()), macKeyShare);
-    tripleGen.initialize();
     return tripleGen.multiply(leftFactorGroups, rightFactors);
   }
 

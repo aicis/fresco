@@ -6,16 +6,14 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 
-public class BaseProtocol implements Initializable {
+public class BaseProtocol {
 
   protected final MascotResourcePool resourcePool;
   protected final Network network;
-  protected boolean initialized;
 
   public BaseProtocol(MascotResourcePool resourcePool, Network network) {
     this.resourcePool = resourcePool;
     this.network = network;
-    this.initialized = false;
   }
 
   public MascotResourcePool getResourcePool() {
@@ -41,20 +39,9 @@ public class BaseProtocol implements Initializable {
   public FieldElementSerializer getFieldElementSerializer() {
     return resourcePool.getFieldElementSerializer();
   }
-  
+
   public FieldElementPrg getLocalSampler() {
     return resourcePool.getLocalSampler();
-  }
-
-  @Override
-  public boolean isInitialized() {
-    return initialized;
-  }
-
-  @Override
-  public void initialize() {
-    throwIfInitialized();
-    initialized = true;
   }
 
 }
