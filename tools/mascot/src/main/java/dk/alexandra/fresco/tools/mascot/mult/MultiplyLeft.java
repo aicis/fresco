@@ -48,7 +48,6 @@ public class MultiplyLeft extends MultiplyShared {
    * @return list of seeds to prgs
    */
   public List<StrictBitVector> generateSeeds(List<FieldElement> leftFactors, int seedLength) {
-    System.out.println(seedLength);
     StrictBitVector packedFactors = FieldElementCollectionUtils.pack(leftFactors);
     // use rot to get choice seeds
     List<StrictBitVector> seeds = rot.receive(packedFactors, seedLength);
