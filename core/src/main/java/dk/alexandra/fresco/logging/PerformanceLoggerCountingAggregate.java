@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Creates a new aggregater of the performance counters.
+ * An aggregator of {@link PerformanceLogger}s.
  */
 public class PerformanceLoggerCountingAggregate implements PerformanceLogger {
 

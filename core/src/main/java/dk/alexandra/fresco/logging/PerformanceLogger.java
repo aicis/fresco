@@ -3,20 +3,17 @@ package dk.alexandra.fresco.logging;
 import java.util.Map;
 
 /**
- * Class for getting performance numbers. Note
- * that network logging is done on ONLY the data received and used within FRESCO. This means that if
- * the network implementation uses double the bytes to wrap the messages, this will not show.
+ * Interface for loggers recording performance metrics.
  */
 public interface PerformanceLogger {
 
   /**
-   * Resets any counters/maps/lists used.
+   * Resets any logged values.
    */
   public void reset();
 
   /**
-   * Produce a key-value map of logged values. The content
-   * of the returned map is context dependent.
+   * Produces a map from a named metric to the values logged for that metric.
    */
   public Map<String, Long> getLoggedValues();
 
