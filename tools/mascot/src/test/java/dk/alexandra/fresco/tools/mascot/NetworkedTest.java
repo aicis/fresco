@@ -14,7 +14,7 @@ public abstract class NetworkedTest {
   // maskot parameters
   protected BigInteger modulus;
   protected int modBitLength;
-  protected int lambdaSecurity;
+  protected int lambdaSecurityParam;
   protected int numLeftFactors;
   protected int prgSeedLength;
 
@@ -23,7 +23,7 @@ public abstract class NetworkedTest {
     super();
     this.modulus = modulus;
     this.modBitLength = modBitLength;
-    this.lambdaSecurity = lambdaSecurity;
+    this.lambdaSecurityParam = lambdaSecurity;
     this.numLeftFactors = numLeftFactors;
     this.prgSeedLength = prgSeedLength;
   }
@@ -33,7 +33,7 @@ public abstract class NetworkedTest {
   }
 
   public void initContexts(List<Integer> partyIds) {
-    contexts = testRuntime.initializeContexts(partyIds, modulus, modBitLength, lambdaSecurity,
+    contexts = testRuntime.initializeContexts(partyIds, modulus, modBitLength, lambdaSecurityParam,
         numLeftFactors, prgSeedLength);
   }
 

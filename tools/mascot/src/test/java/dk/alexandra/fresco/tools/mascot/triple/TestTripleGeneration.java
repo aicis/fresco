@@ -23,7 +23,7 @@ import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.utils.PaddingPrg;
 
-public class TestTripleGen extends NetworkedTest {
+public class TestTripleGeneration extends NetworkedTest {
 
   private FieldElementPrg getJointPrg(int prgSeedLength) {
     return new PaddingPrg(new StrictBitVector(prgSeedLength, new Random(1)));

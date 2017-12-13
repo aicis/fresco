@@ -24,7 +24,7 @@ import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.utils.PaddingPrg;
 
-public class TestElGen extends NetworkedTest {
+public class TestElementGeneration extends NetworkedTest {
 
   private List<AuthenticatedElement> runInputterMultipleRounds(MascotTestContext ctx,
       FieldElement macKeyShare, List<List<FieldElement>> inputs) {
@@ -237,7 +237,7 @@ public class TestElGen extends NetworkedTest {
     // inputs
     int[][] inputArr = {{70}, {12}, {123}};
     List<List<FieldElement>> inputs =
-        MascotTestUtils.generateLeftInput(inputArr, modulus, modBitLength);
+        MascotTestUtils.generateMatrix(inputArr, modulus, modBitLength);
     int numInputsPerRound = inputs.get(0)
         .size();
     int numRounds = inputs.size();

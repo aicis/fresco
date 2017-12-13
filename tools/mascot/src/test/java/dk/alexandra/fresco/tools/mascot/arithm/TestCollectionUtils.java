@@ -17,11 +17,11 @@ public class TestCollectionUtils {
   public void testTranspose() {
     int[][] rows = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}, {10, 11, 12}};
     List<List<FieldElement>> mat =
-        MascotTestUtils.generateLeftInput(rows, new BigInteger("251"), 8);
+        MascotTestUtils.generateMatrix(rows, new BigInteger("251"), 8);
 
     int[][] actualRows = {{1, 4, 7, 10}, {2, 5, 8, 11}, {3, 6, 9, 12}};
     List<List<FieldElement>> expected =
-        MascotTestUtils.generateLeftInput(actualRows, new BigInteger("251"), 8);
+        MascotTestUtils.generateMatrix(actualRows, new BigInteger("251"), 8);
     List<List<FieldElement>> actual = CollectionUtils.transpose(mat);
     assertEquals(expected, actual);
   }

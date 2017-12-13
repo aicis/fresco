@@ -219,7 +219,7 @@ public class TestMultiply extends NetworkedTest {
 
   public void testManyMults(int numMults, int lambdaSecurityParam) {
     // two parties run this
-    this.lambdaSecurity = lambdaSecurityParam; // change lambda security
+    this.lambdaSecurityParam = lambdaSecurityParam; // change lambda security
     initContexts(Arrays.asList(1, 2));
     // left parties input
     List<FieldElement> leftInputs = new ArrayList<>(numMults);
@@ -247,7 +247,7 @@ public class TestMultiply extends NetworkedTest {
 
   @Test
   public void testManyMults() {
-    testManyMults(2, lambdaSecurity);
+    testManyMults(2, lambdaSecurityParam);
   }
 
   @Test

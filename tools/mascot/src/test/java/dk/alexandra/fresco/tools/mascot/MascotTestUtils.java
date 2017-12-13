@@ -16,7 +16,7 @@ public class MascotTestUtils {
         .collect(Collectors.toList());
   }
 
-  public static List<List<FieldElement>> generateLeftInput(int[][] rows, BigInteger modulus,
+  public static List<List<FieldElement>> generateMatrix(int[][] rows, BigInteger modulus,
       int modBitLength) {
     int numMults = rows.length;
     List<List<FieldElement>> input = new ArrayList<>(numMults);
