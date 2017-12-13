@@ -1,22 +1,22 @@
 package dk.alexandra.fresco.tools.mascot;
 
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.util.List;
+
 import dk.alexandra.fresco.framework.network.serializers.SecureSerializer;
 import dk.alexandra.fresco.framework.network.serializers.StrictBitVectorSerializer;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.commitment.CommitmentSerializer;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
-import dk.alexandra.fresco.tools.mascot.utils.PaddingPrg;
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.List;
+import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
 
-public class MascotResourcePoolImpl implements MascotResourcePool {
+public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotResourcePool {
 
-  Integer myId;
   List<Integer> partyIds;
   BigInteger modulus;
   int modBitLength;
@@ -29,26 +29,21 @@ public class MascotResourcePoolImpl implements MascotResourcePool {
   CommitmentSerializer commitmentSerializer;
   MessageDigest messageDigest;
 
-  public MascotResourcePoolImpl(Integer myId, List<Integer> partyIds, BigInteger modulus,
+  public MascotResourcePoolImpl(Integer myId, List<Integer> partyIds, Drbg drbg, BigInteger modulus,
       int modBitLength, int lambdaSecurityParam, int prgSeedLength, int numLeftFactors) {
-    super();
-    this.myId = myId;
+    super(myId, partyIds.size(), drbg);
     this.partyIds = partyIds;
     this.modulus = modulus;
     this.modBitLength = modBitLength;
     this.lambdaSecurityParam = lambdaSecurityParam;
     this.numLeftFactors = numLeftFactors;
     this.prgSeedLength = prgSeedLength;
-    this.localSampler = new PaddingPrg(new StrictBitVector(prgSeedLength, new SecureRandom()));
+    this.localSampler = new FieldElementPrgImpl(new StrictBitVector(prgSeedLength, drbg));
     this.fieldElementSerializer = new FieldElementSerializer(modulus, modBitLength);
     this.strictBitVectorSerializer = new StrictBitVectorSerializer();
     this.commitmentSerializer = new CommitmentSerializer();
-    try {
-      this.messageDigest = MessageDigest.getInstance("SHA-256");
-    } catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException(e);
-    }
-
+    this.messageDigest = ExceptionConverter.safe(() -> MessageDigest.getInstance("SHA-256"),
+        "Configuration error, SHA-256 is needed for Spdz");
   }
 
   @Override
@@ -112,18 +107,8 @@ public class MascotResourcePoolImpl implements MascotResourcePool {
   }
 
   @Override
-  public int getMyId() {
-    return myId;
-  }
-
-  @Override
-  public int getNoOfParties() {
-    return partyIds.size();
-  }
-
-  @Override
   public Drbg getRandomGenerator() {
-    throw new UnsupportedOperationException();
+    return drbg;
   }
 
   @Override

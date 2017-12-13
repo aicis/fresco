@@ -6,6 +6,7 @@ import java.util.List;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
@@ -133,7 +134,8 @@ public class CoteShared {
    * @return A new PRG based on the seed
    */
   protected Drbg makePrg(StrictBitVector seed) {
-    Drbg prg = new AesCtrDrbg(seed.toByteArray());
+    // TODO make sure this is okay!
+    Drbg prg = new PaddingAesCtrDrbg(seed.toByteArray(), 256);
     return prg;
   }
 }

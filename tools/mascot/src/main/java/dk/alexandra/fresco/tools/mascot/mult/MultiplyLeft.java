@@ -11,7 +11,7 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
-import dk.alexandra.fresco.tools.mascot.utils.PaddingPrg;
+import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
 
 public class MultiplyLeft extends MultiplyShared {
 
@@ -48,6 +48,7 @@ public class MultiplyLeft extends MultiplyShared {
    * @return list of seeds to prgs
    */
   public List<StrictBitVector> generateSeeds(List<FieldElement> leftFactors, int seedLength) {
+    System.out.println(seedLength);
     StrictBitVector packedFactors = FieldElementCollectionUtils.pack(leftFactors);
     // use rot to get choice seeds
     List<StrictBitVector> seeds = rot.receive(packedFactors, seedLength);
@@ -123,7 +124,7 @@ public class MultiplyLeft extends MultiplyShared {
     // TODO there should be a better way to do this
     return seeds.stream()
         .map(seed -> {
-          return new PaddingPrg(seed).getNext(modulus, modBitLength);
+          return new FieldElementPrgImpl(seed).getNext(modulus, modBitLength);
         })
         .collect(Collectors.toList());
   }

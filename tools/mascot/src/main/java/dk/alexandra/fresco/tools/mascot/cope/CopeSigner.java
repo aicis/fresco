@@ -12,7 +12,7 @@ import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeft;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
-import dk.alexandra.fresco.tools.mascot.utils.PaddingPrg;
+import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
 
 public class CopeSigner extends CopeShared {
 
@@ -39,7 +39,7 @@ public class CopeSigner extends CopeShared {
 
   void seedPrgs(List<StrictBitVector> seeds) {
     for (StrictBitVector seed : seeds) {
-      prgs.add(new PaddingPrg(seed));
+      prgs.add(new FieldElementPrgImpl(seed));
     }
   }
 

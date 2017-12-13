@@ -21,12 +21,12 @@ import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
-import dk.alexandra.fresco.tools.mascot.utils.PaddingPrg;
+import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
 
 public class TestTripleGeneration extends NetworkedTest {
 
   private FieldElementPrg getJointPrg(int prgSeedLength) {
-    return new PaddingPrg(new StrictBitVector(prgSeedLength, new Random(1)));
+    return new FieldElementPrgImpl(new StrictBitVector(prgSeedLength, new Random(1)));
   }
 
   private List<FieldElement> runSinglePartyMult(MascotTestContext ctx, FieldElement macKeyShare,

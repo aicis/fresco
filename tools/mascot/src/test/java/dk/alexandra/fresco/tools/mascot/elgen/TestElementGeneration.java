@@ -22,14 +22,14 @@ import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
-import dk.alexandra.fresco.tools.mascot.utils.PaddingPrg;
+import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
 
 public class TestElementGeneration extends NetworkedTest {
 
   private List<AuthenticatedElement> runInputterMultipleRounds(MascotTestContext ctx,
       FieldElement macKeyShare, List<List<FieldElement>> inputs) {
     FieldElementPrg jointSampler =
-        new PaddingPrg(new StrictBitVector(ctx.getPrgSeedLength(), new Random(1)));
+        new FieldElementPrgImpl(new StrictBitVector(ctx.getPrgSeedLength(), new Random(1)));
     ElementGeneration elGen =
         new ElementGeneration(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare, jointSampler);
     int perRoundInputs = inputs.get(0)
@@ -45,7 +45,7 @@ public class TestElementGeneration extends NetworkedTest {
   private List<AuthenticatedElement> runOtherMultipleRounds(MascotTestContext ctx,
       Integer inputterId, FieldElement macKeyShare, int numInputsPerRound, int numRounds) {
     FieldElementPrg jointSampler =
-        new PaddingPrg(new StrictBitVector(ctx.getPrgSeedLength(), new Random(1)));
+        new FieldElementPrgImpl(new StrictBitVector(ctx.getPrgSeedLength(), new Random(1)));
     ElementGeneration elGen =
         new ElementGeneration(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare, jointSampler);
     List<AuthenticatedElement> elements = new ArrayList<>(numInputsPerRound * numRounds);
@@ -59,7 +59,7 @@ public class TestElementGeneration extends NetworkedTest {
   private List<AuthenticatedElement> runInputter(MascotTestContext ctx, FieldElement macKeyShare,
       List<FieldElement> inputs) {
     FieldElementPrg jointSampler =
-        new PaddingPrg(new StrictBitVector(ctx.getPrgSeedLength(), new Random(1)));
+        new FieldElementPrgImpl(new StrictBitVector(ctx.getPrgSeedLength(), new Random(1)));
     ElementGeneration elGen =
         new ElementGeneration(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare, jointSampler);
     return elGen.input(inputs);
@@ -68,7 +68,7 @@ public class TestElementGeneration extends NetworkedTest {
   private List<AuthenticatedElement> runOther(MascotTestContext ctx, Integer inputterId,
       FieldElement macKeyShare, int numInputs) {
     FieldElementPrg jointSampler =
-        new PaddingPrg(new StrictBitVector(ctx.getPrgSeedLength(), new Random(1)));
+        new FieldElementPrgImpl(new StrictBitVector(ctx.getPrgSeedLength(), new Random(1)));
     ElementGeneration elGen =
         new ElementGeneration(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare, jointSampler);
     return elGen.input(inputterId, numInputs);

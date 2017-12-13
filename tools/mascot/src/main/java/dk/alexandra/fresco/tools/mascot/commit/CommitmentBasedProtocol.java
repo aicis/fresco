@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.mascot.commit;
 
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -94,7 +93,8 @@ public class CommitmentBasedProtocol<T> extends MultiPartyProtocol {
     Commitment ownComm = new Commitment();
 
     // commit to value locally
-    byte[] ownOpening = ownComm.commit(new SecureRandom(), serializer.serialize(value));
+    byte[] ownOpening =
+        ownComm.commit(resourcePool.getRandomGenerator(), serializer.serialize(value));
 
     // all parties commit
     List<Commitment> comms = distributeCommitments(ownComm);;
