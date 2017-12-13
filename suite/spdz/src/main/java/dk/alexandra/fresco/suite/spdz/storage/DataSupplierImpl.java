@@ -148,9 +148,4 @@ public class DataSupplierImpl implements DataSupplier {
     // TODO: We should probably have a random element storage stream 
     return new SpdzSInt(this.getNextTriple().getA());
   }
-
-  @Override
-  public void shutdown() {
-
-  }
 }
