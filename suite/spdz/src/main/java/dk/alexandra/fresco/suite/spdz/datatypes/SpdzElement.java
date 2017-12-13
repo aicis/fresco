@@ -83,8 +83,12 @@ public class SpdzElement implements Serializable{
     return new SpdzElement(rShare, rMac, this.mod);
   }
 
-
   //Utility methods
+  
+  public BigInteger getMod() {
+    return mod;
+  }
+  
   @Override
   public String toString(){
     return "spdz("+share+", "+mac+")";
