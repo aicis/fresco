@@ -38,7 +38,7 @@ import java.util.Map;
  */
 public abstract class AbstractSpdzTest {
 
-  protected Map<Integer, List<PerformanceLogger>> performanceLoggers = new HashMap<>();
+  protected Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
@@ -53,7 +53,7 @@ public abstract class AbstractSpdzTest {
     Map<Integer, TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     for (int playerId : netConf.keySet()) {
-      PerformanceLoggerCountingAggregate aggregate 
+      PerformanceLoggerCountingAggregate aggregate
       = new PerformanceLoggerCountingAggregate();
 
       ProtocolSuiteNumeric<SpdzResourcePool> protocolSuite = new SpdzProtocolSuite(150);
@@ -97,16 +97,12 @@ public abstract class AbstractSpdzTest {
               });
 
       conf.put(playerId, ttc);
-      performanceLoggers.putIfAbsent(playerId, new ArrayList<>());
-      performanceLoggers.get(playerId).add(aggregate);
-
+      performanceLoggers.putIfAbsent(playerId, aggregate);
     }
     TestThreadRunner.run(f, conf);
-    for (Integer pId : conf.keySet()) {
-      PerformancePrinter printer = new DefaultPerformancePrinter();
-      for (PerformanceLogger pl : performanceLoggers.get(pId)) {
-        printer.printPerformanceLog(pl);
-      }
+    PerformancePrinter printer = new DefaultPerformancePrinter();
+    for (PerformanceLogger pl : performanceLoggers.values()) {
+      printer.printPerformanceLog(pl);
     }
   }
 

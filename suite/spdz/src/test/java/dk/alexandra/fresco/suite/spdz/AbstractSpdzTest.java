@@ -46,8 +46,8 @@ import java.util.Random;
  */
 public abstract class AbstractSpdzTest {
 
-  protected Map<Integer, List<PerformanceLogger>> performanceLoggers = new HashMap<>();
-  
+  protected Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
+
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy,
@@ -70,9 +70,9 @@ public abstract class AbstractSpdzTest {
     Map<Integer, TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     for (int playerId : netConf.keySet()) {
-      PerformanceLoggerCountingAggregate aggregate 
+      PerformanceLoggerCountingAggregate aggregate
         = new PerformanceLoggerCountingAggregate();
-    
+
       ProtocolSuiteNumeric<SpdzResourcePool> protocolSuite = new SpdzProtocolSuite(150);
       if(logPerformance){
         protocolSuite = new NumericSuiteLogging<>(protocolSuite);
@@ -90,10 +90,10 @@ public abstract class AbstractSpdzTest {
         evaluator = new EvaluatorLoggingDecorator<>(evaluator);
         aggregate.add((PerformanceLogger) evaluator);
       }
-      
+
       SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(protocolSuite, evaluator);
-      
+
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,
@@ -110,30 +110,27 @@ public abstract class AbstractSpdzTest {
                 }
               });
       conf.put(playerId, ttc);
-      performanceLoggers.putIfAbsent(playerId, new ArrayList<>());
-      performanceLoggers.get(playerId).add(aggregate);
+      performanceLoggers.putIfAbsent(playerId, aggregate);
     }
     TestThreadRunner.run(f, conf);
-    for (Integer pId :conf.keySet()) {
-      PerformancePrinter printer = new DefaultPerformancePrinter();
-      for (PerformanceLogger pl : performanceLoggers.get(pId)) {
-        printer.printPerformanceLog(pl);
-      }
+    PerformancePrinter printer = new DefaultPerformancePrinter();
+    for (PerformanceLogger pl: performanceLoggers.values()) {
+      printer.printPerformanceLog(pl);
     }
   }
 
   private SpdzResourcePool createResourcePool(int myId, int size, Random rand,
       SecureRandom secRand, PreprocessingStrategy preproStrat) {
     DataSupplier supplier;
-    if (preproStrat == DUMMY) {      
+    if (preproStrat == DUMMY) {
       supplier = new DummyDataSupplierImpl(myId, size);
     } else {
       // case STATIC:
-      int noOfThreadsUsed = 1;        
+      int noOfThreadsUsed = 1;
       String storageName =
           SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
           + "_";
-      supplier = new DataSupplierImpl(new FilebasedStreamedStorageImpl(new InMemoryStorage()), storageName, size);                
+      supplier = new DataSupplierImpl(new FilebasedStreamedStorageImpl(new InMemoryStorage()), storageName, size);
     }
     SpdzStorage store = new SpdzStorageImpl(supplier);
     try {

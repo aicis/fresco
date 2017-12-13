@@ -34,8 +34,8 @@ import java.util.Map;
  */
 public abstract class AbstractDummyArithmeticTest {
 
-  protected Map<Integer, List<PerformanceLogger>> performanceLoggers = new HashMap<>();
-  
+  protected Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
+
   /**
    * Runs test with default modulus and no performance logging. i.e. standard test setup.
    */
@@ -65,9 +65,9 @@ public abstract class AbstractDummyArithmeticTest {
     Map<Integer, TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     for (int playerId : netConf.keySet()) {
-      PerformanceLoggerCountingAggregate aggregate 
+      PerformanceLoggerCountingAggregate aggregate
         = new PerformanceLoggerCountingAggregate();
-      
+
       NetworkConfiguration partyNetConf = netConf.get(playerId);
 
       ProtocolSuiteNumeric<DummyArithmeticResourcePool> ps = new DummyArithmeticProtocolSuite(mod, 200);
@@ -75,7 +75,7 @@ public abstract class AbstractDummyArithmeticTest {
         ps = new NumericSuiteLogging<>(ps);
         aggregate.add((PerformanceLogger)ps);
       }
-      
+
       BatchEvaluationStrategy<DummyArithmeticResourcePool> batchEvaluationStrategy =
           evalStrategy.getStrategy();
       if (logPerformance) {
@@ -89,10 +89,10 @@ public abstract class AbstractDummyArithmeticTest {
         evaluator = new EvaluatorLoggingDecorator<>(evaluator);
         aggregate.add((PerformanceLogger) evaluator);
       }
-      
+
       SecureComputationEngine<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(ps, evaluator);
-      
+
       Drbg drbg = new HmacDrbg();
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
@@ -109,19 +109,15 @@ public abstract class AbstractDummyArithmeticTest {
                   return kryoNetwork;
                 }
               });
-      
+
       conf.put(playerId, ttc);
-      performanceLoggers.putIfAbsent(playerId, new ArrayList<>());
-      performanceLoggers.get(playerId).add(aggregate);
+      performanceLoggers.putIfAbsent(playerId, aggregate);
     }
 
     TestThreadRunner.run(f, conf);
-    for (Integer id : conf.keySet()) {
-      PerformancePrinter printer = new DefaultPerformancePrinter();
-      for (PerformanceLogger pl : performanceLoggers.get(id)) {
-        printer.printPerformanceLog(pl);
-      }
+    PerformancePrinter printer = new DefaultPerformancePrinter();
+    for (PerformanceLogger pl : performanceLoggers.values()) {
+      printer.printPerformanceLog(pl);
     }
-
   }
 }
