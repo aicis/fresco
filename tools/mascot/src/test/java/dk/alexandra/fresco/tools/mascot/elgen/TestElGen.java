@@ -30,8 +30,8 @@ public class TestElGen extends NetworkedTest {
       FieldElement macKeyShare, List<List<FieldElement>> inputs) {
     FieldElementPrg jointSampler =
         new PaddingPrg(new StrictBitVector(ctx.getPrgSeedLength(), new Random(1)));
-    ElGen elGen = new ElGen(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare, jointSampler);
-    elGen.initialize();
+    ElementGeneration elGen =
+        new ElementGeneration(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare, jointSampler);
     int perRoundInputs = inputs.get(0)
         .size();
     List<AuthenticatedElement> elements = new ArrayList<>(perRoundInputs * inputs.size());
@@ -46,8 +46,8 @@ public class TestElGen extends NetworkedTest {
       Integer inputterId, FieldElement macKeyShare, int numInputsPerRound, int numRounds) {
     FieldElementPrg jointSampler =
         new PaddingPrg(new StrictBitVector(ctx.getPrgSeedLength(), new Random(1)));
-    ElGen elGen = new ElGen(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare, jointSampler);
-    elGen.initialize();
+    ElementGeneration elGen =
+        new ElementGeneration(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare, jointSampler);
     List<AuthenticatedElement> elements = new ArrayList<>(numInputsPerRound * numRounds);
     for (int r = 0; r < numRounds; r++) {
       List<AuthenticatedElement> thisRoundResult = elGen.input(inputterId, numInputsPerRound);
@@ -60,8 +60,8 @@ public class TestElGen extends NetworkedTest {
       List<FieldElement> inputs) {
     FieldElementPrg jointSampler =
         new PaddingPrg(new StrictBitVector(ctx.getPrgSeedLength(), new Random(1)));
-    ElGen elGen = new ElGen(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare, jointSampler);
-    elGen.initialize();
+    ElementGeneration elGen =
+        new ElementGeneration(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare, jointSampler);
     return elGen.input(inputs);
   }
 
@@ -69,8 +69,8 @@ public class TestElGen extends NetworkedTest {
       FieldElement macKeyShare, int numInputs) {
     FieldElementPrg jointSampler =
         new PaddingPrg(new StrictBitVector(ctx.getPrgSeedLength(), new Random(1)));
-    ElGen elGen = new ElGen(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare, jointSampler);
-    elGen.initialize();
+    ElementGeneration elGen =
+        new ElementGeneration(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare, jointSampler);
     return elGen.input(inputterId, numInputs);
   }
 

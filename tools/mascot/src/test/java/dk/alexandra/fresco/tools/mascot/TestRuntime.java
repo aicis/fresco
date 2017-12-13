@@ -2,6 +2,7 @@ package dk.alexandra.fresco.tools.mascot;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -80,20 +81,28 @@ public class TestRuntime {
   }
 
   /**
-   * Given a ready executor, creates as Mascot context for each party.
+   * Given a ready executor, creates as Mascot test context for each party.
    * 
-   * @param executor The executor that will run each party in a thread
-   * @param partyIds The parties
-   * @return
+   * @param partyIds the parties
+   * @param modulus the modulus
+   * @param modBitLength length of modulus
+   * @param lambdaSecurityParam lambda security
+   * @param numLeftFactors num sacrifice factors
+   * @param prgSeedLength prg seed bit length
+   * @return map of initialized contexts
    */
-  public Map<Integer, MascotTestContext> initializeContexts(List<Integer> partyIds) {
+  public Map<Integer, MascotTestContext> initializeContexts(List<Integer> partyIds,
+      BigInteger modulus, int modBitLength, int lambdaSecurityParam, int numLeftFactors,
+      int prgSeedLength) {
     initalizeExecutor(partyIds.size());
     try {
       List<Callable<Pair<Integer, MascotTestContext>>> initializationTasks = new LinkedList<>();
       for (Integer partyId : partyIds) {
-        initializationTasks.add(() -> initializeContext(partyId, partyIds));
+        initializationTasks.add(() -> initializeContext(partyId, partyIds, modulus, modBitLength,
+            lambdaSecurityParam, numLeftFactors, prgSeedLength));
       }
-      for (Future<Pair<Integer, MascotTestContext>> pair : executor.invokeAll(initializationTasks)) {
+      for (Future<Pair<Integer, MascotTestContext>> pair : executor
+          .invokeAll(initializationTasks)) {
         Pair<Integer, MascotTestContext> unwrapped = pair.get();
         contexts.put(unwrapped.getFirst(), unwrapped.getSecond());
       }
@@ -152,10 +161,17 @@ public class TestRuntime {
    * Initializes a single context for a party.
    * 
    * @param myId
-   * @param partyIds
-   * @return
+   * @param partyIds the parties
+   * @param modulus the modulus
+   * @param modBitLength length of modulus
+   * @param lambdaSecurityParam lambda security
+   * @param numLeftFactors num sacrifice factors
+   * @param prgSeedLength prg seed bit length
+   * @return map of initialized contexts
    */
-  private Pair<Integer, MascotTestContext> initializeContext(Integer myId, List<Integer> partyIds) {
+  private Pair<Integer, MascotTestContext> initializeContext(Integer myId, List<Integer> partyIds,
+      BigInteger modulus, int modBitLength, int lambdaSecurityParam, int numLeftFactors,
+      int prgSeedLength) {
     MascotTestContext ctx = new MascotTestContext(myId, new LinkedList<>(partyIds));
     return new Pair<>(myId, ctx);
   }

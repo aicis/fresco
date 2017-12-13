@@ -21,19 +21,18 @@ import dk.alexandra.fresco.tools.mascot.maccheck.MacCheck;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.utils.Sharer;
 
-public class ElGen extends MultiPartyProtocol {
+public class ElementGeneration extends MultiPartyProtocol {
 
   private MacCheck macChecker;
   private FieldElement macKeyShare;
-  private boolean initialized;
   private FieldElementPrg localSampler;
   private FieldElementPrg jointSampler;
   private Sharer sharer;
   private Map<Integer, CopeSigner> copeSigners;
   private Map<Integer, CopeInputter> copeInputters;
 
-  public ElGen(MascotResourcePool resourcePool, Network network, FieldElement macKeyShare,
-      FieldElementPrg jointSampler) {
+  public ElementGeneration(MascotResourcePool resourcePool, Network network,
+      FieldElement macKeyShare, FieldElementPrg jointSampler) {
     super(resourcePool, network);
     this.macChecker = new MacCheck(resourcePool, network);
     this.macKeyShare = macKeyShare;
@@ -48,15 +47,10 @@ public class ElGen extends MultiPartyProtocol {
         copeInputters.put(partyId, new CopeInputter(resourcePool, network, partyId));
       }
     }
-    this.initialized = false;
   }
 
   public void initialize() {
-    // shouldn't initialize again
-    if (initialized) {
-      throw new IllegalStateException("Already initialized");
-    }
-
+    super.initialize();
     // TODO parallelize
     for (Integer partyId : getPartyIds()) {
       if (getMyId() != partyId) {
@@ -71,7 +65,6 @@ public class ElGen extends MultiPartyProtocol {
         }
       }
     }
-    this.initialized = true;
   }
 
   List<List<FieldElement>> otherPartiesMac(List<FieldElement> values) {
@@ -84,9 +77,7 @@ public class ElGen extends MultiPartyProtocol {
   }
 
   List<FieldElement> selfMac(List<FieldElement> values) {
-    return values.stream()
-        .map(value -> value.multiply(macKeyShare))
-        .collect(Collectors.toList());
+    return FieldElementCollectionUtils.scalarMultiply(values, macKeyShare);
   }
 
   List<FieldElement> macValues(List<FieldElement> values) {
@@ -129,12 +120,10 @@ public class ElGen extends MultiPartyProtocol {
 
   /**
    * Inputs field elements.
+   * 
    */
   public List<AuthenticatedElement> input(List<FieldElement> values) {
-    // can't input before initializing
-    if (!initialized) {
-      throw new IllegalStateException("Need to initialize first");
-    }
+    initializeIfNeeded();
 
     // make sure we can add elements to list etc
     values = new ArrayList<>(values);
@@ -171,10 +160,7 @@ public class ElGen extends MultiPartyProtocol {
   }
 
   public List<AuthenticatedElement> input(Integer inputterId, int numInputs) {
-    // can't input before initializing
-    if (!initialized) {
-      throw new IllegalStateException("Need to initialize first");
-    }
+    initializeIfNeeded();
 
     // receive per-element mac shares
     CopeSigner copeSigner = copeSigners.get(inputterId);
@@ -190,7 +176,8 @@ public class ElGen extends MultiPartyProtocol {
     runMacCheck(maskedValue, masks, macs);
 
     // receive shares from inputter
-    List<FieldElement> shares = getFieldElementSerializer().deserializeList(network.receive(inputterId));
+    List<FieldElement> shares =
+        getFieldElementSerializer().deserializeList(network.receive(inputterId));
 
     // combine shares and mac shares to spdz elements (exclude mac for dummy element)
     List<FieldElement> nonDummyMacs = macs.subList(0, numInputs);
@@ -210,7 +197,8 @@ public class ElGen extends MultiPartyProtocol {
    */
   public void check(List<AuthenticatedElement> sharesWithMacs, List<FieldElement> openValues) {
     // will use this to mask macs
-    List<FieldElement> masks = jointSampler.getNext(getModulus(), getModBitLength(), sharesWithMacs.size());
+    List<FieldElement> masks =
+        jointSampler.getNext(getModulus(), getModBitLength(), sharesWithMacs.size());
     // only need macs
     List<FieldElement> macs = sharesWithMacs.stream()
         .map(AuthenticatedElement::getMac)

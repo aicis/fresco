@@ -17,6 +17,7 @@ public class MultiplyShared extends TwoPartyProtocol {
   public MultiplyShared(MascotResourcePool resourcePool, Network network, Integer otherId, int numLeftFactors) {
     super(resourcePool, network, otherId);
     this.numLeftFactors = numLeftFactors;
+    // TODO is mod bit length the correct parameter here?
     this.rot = new BristolRotBatch(getMyId(), otherId, getModBitLength(), resourcePool.getLambdaSecurityParam(),
         new SecureRandom(), network);
   }

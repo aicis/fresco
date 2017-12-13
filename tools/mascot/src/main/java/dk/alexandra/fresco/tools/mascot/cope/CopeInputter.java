@@ -29,16 +29,14 @@ public class CopeInputter extends CopeShared {
     this.multiplier = new MultiplyRight(resourcePool, network,otherId);
   }
 
+  @Override
   public void initialize() {
-    if (initialized) {
-      throw new IllegalStateException("Already initialized");
-    }
+    super.initialize();
     List<Pair<StrictBitVector, StrictBitVector>> seeds = multiplier.generateSeeds(1);
     seedPrgs(seeds);
-    initialized = true;
   }
 
-  private void seedPrgs(List<Pair<StrictBitVector, StrictBitVector>> seeds) {
+  void seedPrgs(List<Pair<StrictBitVector, StrictBitVector>> seeds) {
     for (Pair<StrictBitVector, StrictBitVector> seedPair : seeds) {
       this.leftPrgs.add(new PaddingPrg(seedPair.getFirst()));
       this.rightPrgs.add(new PaddingPrg(seedPair.getSecond()));
@@ -68,10 +66,7 @@ public class CopeInputter extends CopeShared {
   }
 
   public List<FieldElement> extend(List<FieldElement> inputElements) {
-    // can't extend before we have set up the seeds
-    if (!initialized) {
-      throw new IllegalStateException("Cannot call extend before initializing");
-    }
+    initializeIfNeeded();
 
     // use seeds to generate mask pairs
     List<Pair<FieldElement, FieldElement>> maskPairs = generateMaskPairs(inputElements.size());

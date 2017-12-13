@@ -28,6 +28,19 @@ public class FieldElementCollectionUtils {
     }
     return pairWiseMultiplyStream(leftFactors, rightFactors).collect(Collectors.toList());
   }
+  
+  /**
+   * Multiplies each value in list by scalar.
+   * 
+   * @param values list of factors
+   * @param scalar scalar factor
+   * @return list of products
+   */
+  public static List<FieldElement> scalarMultiply(List<FieldElement> values, FieldElement scalar) {
+    return values.stream()
+        .map(value -> value.multiply(scalar))
+        .collect(Collectors.toList());
+  }
 
   /**
    * Multiplies two lists of field elements, pair-wise.

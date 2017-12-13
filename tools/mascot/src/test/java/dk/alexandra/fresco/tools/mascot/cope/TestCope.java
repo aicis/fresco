@@ -23,7 +23,6 @@ public class TestCope extends NetworkedTest {
       FieldElement macKeyShare, int numExtends) {
     CopeSigner signer =
         new CopeSigner(ctx.getResourcePool(), ctx.getNetwork(), otherId, macKeyShare);
-    signer.initialize();
     List<FieldElement> shares = signer.extend(numExtends);
     return shares;
   }
@@ -31,7 +30,6 @@ public class TestCope extends NetworkedTest {
   private List<FieldElement> runInputter(MascotTestContext ctx, Integer otherId,
       List<FieldElement> inputs) {
     CopeInputter inputter = new CopeInputter(ctx.getResourcePool(), ctx.getNetwork(), otherId);
-    inputter.initialize();
     List<FieldElement> shares = inputter.extend(inputs);
     return shares;
   }

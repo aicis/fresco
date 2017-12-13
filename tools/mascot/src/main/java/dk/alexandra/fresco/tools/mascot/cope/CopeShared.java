@@ -6,11 +6,8 @@ import dk.alexandra.fresco.tools.mascot.TwoPartyProtocol;
 
 public class CopeShared extends TwoPartyProtocol {
 
-  protected boolean initialized;
-
   public CopeShared(MascotResourcePool resourcePool, Network network, Integer otherId) {
     super(resourcePool, network, otherId);
-    this.initialized = false;
   }
 
 }

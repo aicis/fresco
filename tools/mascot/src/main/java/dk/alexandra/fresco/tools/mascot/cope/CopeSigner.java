@@ -35,15 +35,12 @@ public class CopeSigner extends CopeShared {
   }
 
   public void initialize() {
-    if (initialized) {
-      throw new IllegalStateException("Already initialized");
-    }
+    super.initialize();
     List<StrictBitVector> seeds = multiplier.generateSeeds(macKeyShare);
     seedPrgs(seeds);
-    initialized = true;
   }
 
-  private void seedPrgs(List<StrictBitVector> seeds) {
+  void seedPrgs(List<StrictBitVector> seeds) {
     for (StrictBitVector seed : seeds) {
       prgs.add(new PaddingPrg(seed));
     }
@@ -64,10 +61,7 @@ public class CopeSigner extends CopeShared {
   }
 
   public List<FieldElement> extend(int numInputs) {
-    // can't extend before we have set up the seeds
-    if (!initialized) {
-      throw new IllegalStateException("Cannot call extend before initializing");
-    }
+    initializeIfNeeded();
 
     // compute chosen masks
     List<FieldElement> chosenMasks = generateMasks(numInputs, getModulus(), getModBitLength());
@@ -81,10 +75,7 @@ public class CopeSigner extends CopeShared {
         .collect(Collectors.toList());
 
     // compute product shares
-    List<FieldElement> productShares =
-        multiplier.computeProductShares(macKeyShares, chosenMasks, diffs);
-
-    return productShares;
+    return multiplier.computeProductShares(macKeyShares, chosenMasks, diffs);
   }
 
 }
