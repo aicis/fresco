@@ -28,11 +28,6 @@ public class SpdzStorageImpl implements SpdzStorage {
   }
 
   @Override
-  public void shutdown() {
-    this.supplier.shutdown();
-  }
-
-  @Override
   public void reset() {
     opened_values.clear();
     closed_values.clear();
