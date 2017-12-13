@@ -1,6 +1,8 @@
 package dk.alexandra.fresco.framework.network.serializers;
 
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -13,18 +15,29 @@ public class TestSerializers {
   public void testBigIntegerWithFixedLengthSerializer() {
     BigInteger b = new BigInteger("1298376217321832");
     BigIntegerWithFixedLengthSerializer serializer = new BigIntegerWithFixedLengthSerializer(20);
-    byte[] bytes = serializer.toBytes(b);
-    BigInteger bb = serializer.toBigInteger(bytes);
+    byte[] bytes = serializer.serialize(b);
+    BigInteger bb = serializer.deserialize(bytes);
     Assert.assertEquals(b, bb);
 
     b = BigInteger.ZERO;
-    bytes = serializer.toBytes(b);
-    bb = serializer.toBigInteger(bytes);
+    bytes = serializer.serialize(b);
+    bb = serializer.deserialize(bytes);
     Assert.assertEquals(b, bb);
   }
 
   @Test
-  public void constructor() throws Exception {
+  public void testBigIntegerWithFixedLengthSerializerList() {
+    BigInteger b = new BigInteger("1298376217321832");
+    BigIntegerWithFixedLengthSerializer serializer = new BigIntegerWithFixedLengthSerializer(20);
+    byte[] bytes = serializer.serialize(Arrays.asList(b, BigInteger.ZERO, BigInteger.TEN));
+    List<BigInteger> bb = serializer.deserializeList(bytes);
+    Assert.assertEquals(b, bb.get(0));
+    Assert.assertEquals(BigInteger.ZERO, bb.get(1));
+    Assert.assertEquals(BigInteger.TEN, bb.get(2));
+  }
+
+  @Test
+  public void constructor() {
     new BooleanSerializer();
   }
 

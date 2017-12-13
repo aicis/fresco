@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
-import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
+import dk.alexandra.fresco.framework.network.serializers.SecureSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -20,7 +20,7 @@ public interface NumericResourcePool extends ResourcePool {
    *
    * @return the serializer
    */
-  BigIntegerSerializer getSerializer();
+  SecureSerializer<BigInteger> getSerializer();
 
   /**
    * Gets the message digest for this protocol suite invocation.
@@ -35,5 +35,12 @@ public interface NumericResourcePool extends ResourcePool {
    * @param b the unsigned BigInteger
    * @return the signed BigInteger
    */
-  BigInteger convertRepresentation(BigInteger b);
+  default BigInteger convertRepresentation(BigInteger b) {
+    BigInteger modulus = getModulus();
+    BigInteger actual = b.mod(modulus);
+    if (actual.compareTo(modulus.divide(BigInteger.valueOf(2))) > 0) {
+      actual = actual.subtract(modulus);
+    }
+    return actual;
+  }
 }

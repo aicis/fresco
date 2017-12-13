@@ -3,7 +3,7 @@ package dk.alexandra.fresco.suite.spdz.gates;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
+import dk.alexandra.fresco.framework.network.serializers.SecureSerializer;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import java.math.BigInteger;
@@ -37,13 +37,13 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigI
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       Network network) {
     int players = spdzResourcePool.getNoOfParties();
-    BigIntegerSerializer serializer = spdzResourcePool.getSerializer();
+    SecureSerializer<BigInteger> serializer = spdzResourcePool.getSerializer();
     switch (round) {
       case 0: // Send your opening to all players
         BigInteger value = this.commitment.getValue();
-        network.sendToAll(serializer.toBytes(value));
+        network.sendToAll(serializer.serialize(value));
         BigInteger randomness = this.commitment.getRandomness();
-        network.sendToAll(serializer.toBytes(randomness));
+        network.sendToAll(serializer.serialize(randomness));
         break;
       case 1: // Receive openings from all parties and check they are valid
         List<byte[]> values = network.receiveFromAll();
@@ -53,8 +53,8 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigI
         BigInteger[] broadcastMessages = new BigInteger[2 * players];
         for (int i = 0; i < players; i++) {
           BigInteger com = commitments.get(i + 1);
-          BigInteger open0 = serializer.toBigInteger(values.get(i));
-          BigInteger open1 = serializer.toBigInteger(randomnesses.get(i));
+          BigInteger open0 = serializer.deserialize(values.get(i));
+          BigInteger open1 = serializer.deserialize(randomnesses.get(i));
           boolean validate = checkCommitment(
               spdzResourcePool, com,
               open0, open1);

@@ -3,7 +3,7 @@ package dk.alexandra.fresco.suite.spdz.gates;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
+import dk.alexandra.fresco.framework.network.serializers.SecureSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
@@ -31,7 +31,7 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SInt> {
       Network network) {
     SpdzStorage store = spdzResourcePool.getStore();
     int noOfPlayers = spdzResourcePool.getNoOfParties();
-    BigIntegerSerializer serializer = spdzResourcePool.getSerializer();
+    SecureSerializer<BigInteger> serializer = spdzResourcePool.getSerializer();
     switch (round) {
       case 0:
         this.triple = store.getSupplier().getNextTriple();
@@ -39,15 +39,15 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SInt> {
         epsilon = ((SpdzSInt) left.out()).value.subtract(triple.getA());
         delta = ((SpdzSInt) right.out()).value.subtract(triple.getB());
 
-        network.sendToAll(serializer.toBytes(epsilon.getShare()));
-        network.sendToAll(serializer.toBytes(delta.getShare()));
+        network.sendToAll(serializer.serialize(epsilon.getShare()));
+        network.sendToAll(serializer.serialize(delta.getShare()));
         return EvaluationStatus.HAS_MORE_ROUNDS;
       case 1:
         BigInteger[] epsilonShares = new BigInteger[noOfPlayers];
         BigInteger[] deltaShares = new BigInteger[noOfPlayers];
         for (int i = 0; i < noOfPlayers; i++) {
-          epsilonShares[i] = serializer.toBigInteger(network.receive(i + 1));
-          deltaShares[i] = serializer.toBigInteger(network.receive(i + 1));
+          epsilonShares[i] = serializer.deserialize(network.receive(i + 1));
+          deltaShares[i] = serializer.deserialize(network.receive(i + 1));
         }
         SpdzElement res = triple.getC();
         BigInteger e = epsilonShares[0];

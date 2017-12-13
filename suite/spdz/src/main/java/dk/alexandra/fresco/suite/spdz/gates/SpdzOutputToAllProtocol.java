@@ -3,7 +3,7 @@ package dk.alexandra.fresco.suite.spdz.gates;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
+import dk.alexandra.fresco.framework.network.serializers.SecureSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -26,17 +26,17 @@ public class SpdzOutputToAllProtocol extends SpdzNativeProtocol<BigInteger>
       Network network) {
 
     SpdzStorage storage = spdzResourcePool.getStore();
-    BigIntegerSerializer serializer = spdzResourcePool.getSerializer();
+    SecureSerializer<BigInteger> serializer = spdzResourcePool.getSerializer();
     switch (round) {
       case 0:
         SpdzSInt out = (SpdzSInt) in.out();
-        network.sendToAll(serializer.toBytes(out.value.getShare()));
+        network.sendToAll(serializer.serialize(out.value.getShare()));
         return EvaluationStatus.HAS_MORE_ROUNDS;
       case 1:
         List<byte[]> shares = network.receiveFromAll();
         BigInteger openedVal = BigInteger.valueOf(0);
         for (byte[] buffer : shares) {
-          openedVal = openedVal.add(serializer.toBigInteger(buffer));
+          openedVal = openedVal.add(serializer.deserialize(buffer));
         }
         openedVal = openedVal.mod(spdzResourcePool.getModulus());
         storage.addOpenedValue(openedVal);
