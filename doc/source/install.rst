@@ -5,33 +5,22 @@ Installation
 
 FRESCO is designed to run on Linux, Mac OS X, and Windows.
 
+Getting and Building FRESCO from Source
+---------------------------------------
 
-Downloading a Pre-Built FRESCO Release
---------------------------------------
-
-You can download the latest release of FRESCO from :ref:`here
-<releases>`.
-
-
-Installing FRESCO from Source
------------------------------
-
-To install from source, make sure you have installed `git
-<http://git-scm.org>`_, `Java 1.8 <http://java.com>`_, and `Maven
+The prefered way to install FRESCO is by building it from the source. To do this, make sure you have
+installed `git <http://git-scm.org>`_, `Java 8 <http://java.com>`_, and `Maven
 <https://maven.apache.org/>`_. Then run: ::
 
-  $ git clone https://github.com/aicis/fresco/fresco.git
+  $ git clone https://github.com/aicis/fresco.git
   $ cd fresco/core
   $ mvn install
 
-This will download some dependencies, compile the FRESCO core, and runs our
-extensive test suite. If everything works fine Maven installs FRESCO on your
-system and a FRESCO JAR file can now be found in the ``./target`` folder as well
-as in your local maven repository.
+This will download dependencies, compile the FRESCO core, and run the test suite. On a successful
+build Maven should install FRESCO on your system and a FRESCO JAR file can now be found in the
+``./target`` directory as well as in your local maven repository.
 
-FRESCO is split up into several projects in order to better manage
-dependencies. We have the following projects which are all included in your git
-clone you just fetched:
+FRESCO is split up into several projects. The following :
 
 - core
 - suite
@@ -55,4 +44,12 @@ ScapiNetwork is an example of how to create a different network implementation
 and use this instead.
 
 Tools contains projects that either helps the developer or is a standalone tool
-which can help in certain situations. 
+which can help in certain situations.
+ 
+Downloading a Pre-Built FRESCO Release
+--------------------------------------
+
+.. Consider removing this. It is not the recommended way to install anyway.
+
+You can download the latest release of FRESCO from :ref:`here
+<releases>`.

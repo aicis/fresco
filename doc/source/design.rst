@@ -3,7 +3,7 @@ The Design of FRESCO
 ====================
 
 The overall goal of FRESCO is to support rapid and easy prototyping of
-secure computation protocols. In particular, FRESCO decouples
+applications using secure computation. In particular, FRESCO decouples
 applications from protocol suites in order to obtain a *plug-and-play*
 system. To achieve this we apply a couple of nifty *design patterns*:
 
@@ -33,6 +33,9 @@ for building the full DAG of protocols that corresponds to some
 task. But in order to avoid having the full DAG in memory, we require
 that protocols can be requrested from the producer in small, manageble
 *batches*.
+
+.. The below is not true (anymore). A protocol suite is not a consumer
+   it simply provides implementations of native protocols.
 
 A protocol suite acts as a *consumer* of protocols. It knows how to
 evaluate a small set of protocols. The :ref:`SPDZ <SPDZ>` protocol suite, for
@@ -103,29 +106,11 @@ arithmetic. However, you can extend these with your own functionality or even
 create your own builder if need be.
 
 
-Related Open Source Projects
-----------------------------
+Related Projects
+----------------
 
-We are currently aware of the following open source frameworks that
-are more or less related to FRESCO:
-
-* `VIFF <http://viff.dk>`_ is written in Python and licensed under
-  LGPL. It has some of the same ideas as FRESCO, in particular, that
-  applications are decoupled from protocol suites (which are called
-  *runtimes* in VIFF). VIFF is based on the Twisted framework and
-  supports an asynchronous evaluation strategy.
-
-* `SCAPI <http://github.com/cryptobiu/scapi>`_ is written in Java and
-  licensed under MIT as FRESCO. It binds to several C/C++ libraries for
-  efficient cryptographic and number theoretic operations. SCAPI is
-  intended for easy prototyping of many cryptographic protocols,
-  including protocols for secure computing. Compared to SCAPI the FRESCO
-  has more focus on reusing applications across different protocol
-  suites.
-
-If you think something is missing in the above list, send an email to
-fresco@alexandra.dk or send us a pull request with an update as
-described in :ref:`contributing`.
+For a list of projects and resources related to secure computation we refer to the `awesome mpc
+<https://github.com/rdragos/awesome-mpc>`_ project.
 
 
 .. [#foo] A given protocol suite may not support all available

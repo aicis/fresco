@@ -2,35 +2,33 @@
 Introduction
 ============
 
-FRESCO is a FRamework for Efficient Secure COmputation. It is designed
-to make it easy and efficient to write prototypes based on secure
-computation. We hope that it will grow mature enough to be used for
-production systems, too.
+FRESCO is a FRamework for Efficient Secure COmputation. It is designed to make it easy and efficient
+to write prototype applications based on secure computation. We hope that it will grow mature enough
+to be used for production systems, too.
 
 
 What is Secure Computation?
 ---------------------------
 
-Secure computation allows a number of parties to *compute on private
-data*. The classical example is the *millionaires problem*: Two
-millionaires meet on the street and want to decide who is the richest
-of the two, but none of the two is willing to reveal his own
-fortune. If there are no third party, that both millionaires trust,
-this seems like an unsolvable problem.
+Secure computation allows a number of parties to *compute on private data*. The classical example is
+the *millionaires problem*: Two millionaires meet on the street and want to decide who is the
+richest of the two, but none of the two is willing to reveal his own fortune. If there are no third
+party, that both millionaires trust, this seems like an unsolvable problem.
 
-But modern cryptographic techniques make such computations possible,
-without a trusted third party. Many such techniques have been
-developed since the 1980s and new improvements are continuously being
-invented. In FRESCO we call each of these techniques a :term:`protocol
-suite`.
+But modern cryptographic techniques make such computations possible, without a trusted third party.
+Many such techniques have been developed since the 1980s and new improvements are continuously being
+invented. In FRESCO we call each of these techniques a :term:`protocol suite`.
 
-The millionaires problem is just a toy application, but secure
-computation has many important real-world uses. It can, e.g., be used
-to benchmark companies or organizations based on their private
-data. That is, a graph can be computed and revealed to the companies,
-showing how the companies perform relative to each other with respect
-to some parameters, *without* the need for the companies to reveal any
-of their private data.
+.. Below example is not great. Perhaps make a list of uses of FRESCO 
+   Benchmarking/Survey (PRACTICE)
+   Benchmarking/Credit rating (BDbS)
+   ... any thing else?
+
+The millionaires problem is just a toy application, but secure computation has many important
+real-world uses. It can, e.g., be used to benchmark companies or organizations based on their
+private data. That is, a graph can be computed and revealed to the companies, showing how the
+companies perform relative to each other with respect to some parameters, *without* the need for the
+companies to reveal any of their private data.
 
 
 Main Features of FRESCO
