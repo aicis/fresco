@@ -20,12 +20,13 @@ public class Mascot {
 
   public Mascot(MascotResourcePool resourcePool, Network network, FieldElement macKeyShare) {
     // agree on joint seed
-    StrictBitVector jointSeed = new CoinTossingMpc(resourcePool, network).generateJointSeed(resourcePool.getPrgSeedLength());
+    StrictBitVector jointSeed = new CoinTossingMpc(resourcePool, network)
+        .generateJointSeed(resourcePool.getPrgSeedLength());
     FieldElementPrg jointSampler = new PaddingPrg(jointSeed);
-    this.elementGeneration = new ElementGeneration(resourcePool, network, macKeyShare, jointSampler);
-    this.tripleGeneration = new TripleGeneration(resourcePool, network, elementGeneration, jointSampler);
-    // triple generation will also initialize element generation
-    this.tripleGeneration.initialize();
+    this.elementGeneration =
+        new ElementGeneration(resourcePool, network, macKeyShare, jointSampler);
+    this.tripleGeneration =
+        new TripleGeneration(resourcePool, network, elementGeneration, jointSampler);
   }
 
   public List<MultTriple> getTriples(int numTriples) {

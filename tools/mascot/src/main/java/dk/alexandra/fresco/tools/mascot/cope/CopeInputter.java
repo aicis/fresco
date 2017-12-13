@@ -27,14 +27,7 @@ public class CopeInputter extends CopeShared {
     this.leftPrgs = new ArrayList<>();
     this.rightPrgs = new ArrayList<>();
     this.multiplier = new MultiplyRight(resourcePool, network, otherId);
-  }
-
-  @Override
-  public void initialize() {
-    super.initialize();
-    List<Pair<StrictBitVector, StrictBitVector>> seeds =
-        multiplier.generateSeeds(1, getLambdaSecurityParam());
-    seedPrgs(seeds);
+    seedPrgs(multiplier.generateSeeds(1, getLambdaSecurityParam()));
   }
 
   void seedPrgs(List<Pair<StrictBitVector, StrictBitVector>> seeds) {
@@ -67,8 +60,6 @@ public class CopeInputter extends CopeShared {
   }
 
   public List<FieldElement> extend(List<FieldElement> inputElements) {
-    initializeIfNeeded();
-
     // use seeds to generate mask pairs
     List<Pair<FieldElement, FieldElement>> maskPairs = generateMaskPairs(inputElements.size());
 
@@ -89,5 +80,4 @@ public class CopeInputter extends CopeShared {
 
     return productShares;
   }
-
 }

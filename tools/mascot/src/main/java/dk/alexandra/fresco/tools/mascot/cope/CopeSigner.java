@@ -21,8 +21,10 @@ public class CopeSigner extends CopeShared {
   private MultiplyLeft multiplier;
 
   /**
+   * Creates new cope signer.
    * 
    * @param resourcePool
+   * @param network
    * @param otherId
    * @param macKeyShare
    */
@@ -32,12 +34,7 @@ public class CopeSigner extends CopeShared {
     this.macKeyShare = macKeyShare;
     this.multiplier = new MultiplyLeft(resourcePool, network, otherId);
     this.prgs = new ArrayList<>();
-  }
-
-  public void initialize() {
-    super.initialize();
-    List<StrictBitVector> seeds = multiplier.generateSeeds(macKeyShare, getLambdaSecurityParam());
-    seedPrgs(seeds);
+    seedPrgs(multiplier.generateSeeds(macKeyShare, getLambdaSecurityParam()));
   }
 
   void seedPrgs(List<StrictBitVector> seeds) {
@@ -61,8 +58,6 @@ public class CopeSigner extends CopeShared {
   }
 
   public List<FieldElement> extend(int numInputs) {
-    initializeIfNeeded();
-
     // compute chosen masks
     List<FieldElement> chosenMasks = generateMasks(numInputs, getModulus(), getModBitLength());
 

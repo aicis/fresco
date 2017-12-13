@@ -42,25 +42,14 @@ public class ElementGeneration extends MultiPartyProtocol {
     this.copeInputters = new HashMap<>();
     for (Integer partyId : getPartyIds()) {
       if (getMyId() != partyId) {
-        copeSigners.put(partyId, new CopeSigner(resourcePool, network, partyId, this.macKeyShare));
-        copeInputters.put(partyId, new CopeInputter(resourcePool, network, partyId));
-      }
-    }
-  }
-
-  public void initialize() {
-    super.initialize();
-    // TODO parallelize
-    for (Integer partyId : getPartyIds()) {
-      if (getMyId() != partyId) {
-        CopeInputter copeInputter = copeInputters.get(partyId);
-        CopeSigner copeSigner = copeSigners.get(partyId);
+        // TODO parallelize
+        // construction order matters since receive blocks and this is not parallelized
         if (getMyId() < partyId) {
-          copeInputter.initialize();
-          copeSigner.initialize();
+          copeSigners.put(partyId, new CopeSigner(resourcePool, network, partyId, this.macKeyShare));
+          copeInputters.put(partyId, new CopeInputter(resourcePool, network, partyId));
         } else {
-          copeSigner.initialize();
-          copeInputter.initialize();
+          copeInputters.put(partyId, new CopeInputter(resourcePool, network, partyId));
+          copeSigners.put(partyId, new CopeSigner(resourcePool, network, partyId, this.macKeyShare));
         }
       }
     }
@@ -122,8 +111,6 @@ public class ElementGeneration extends MultiPartyProtocol {
    * 
    */
   public List<AuthenticatedElement> input(List<FieldElement> values) {
-    initializeIfNeeded();
-
     // make sure we can add elements to list etc
     values = new ArrayList<>(values);
 
@@ -159,8 +146,6 @@ public class ElementGeneration extends MultiPartyProtocol {
   }
 
   public List<AuthenticatedElement> input(Integer inputterId, int numInputs) {
-    initializeIfNeeded();
-
     // receive per-element mac shares
     CopeSigner copeSigner = copeSigners.get(inputterId);
     List<FieldElement> macs = copeSigner.extend(numInputs + 1);

@@ -23,12 +23,6 @@ public class MultiplyLeft extends MultiplyShared {
     this(resourcePool, network, otherId, 1);
   }
   
-  @Override
-  public void initialize() {
-    super.initialize();
-    // TODO: need a way to initialize rot
-  }
-
   /**
    * Uses left factors as choice bits to receive seeds to prgs.
    */

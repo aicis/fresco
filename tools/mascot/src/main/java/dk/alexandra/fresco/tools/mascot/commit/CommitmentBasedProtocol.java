@@ -34,7 +34,6 @@ public class CommitmentBasedProtocol<T> extends MultiPartyProtocol {
       // if we have two parties or less we can just use the regular network
       this.broadcaster = this.network;
     }
-    super.initialize();
   }
 
   /**

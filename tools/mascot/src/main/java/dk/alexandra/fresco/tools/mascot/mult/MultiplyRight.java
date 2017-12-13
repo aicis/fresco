@@ -25,12 +25,6 @@ public class MultiplyRight extends MultiplyShared {
     this(resourcePool, network, otherId, 1);
   }
 
-  @Override
-  public void initialize() {
-    super.initialize();
-    // TODO: need a way to initialize rot
-  }
-
   public List<Pair<StrictBitVector, StrictBitVector>> generateSeeds(int numMults, int seedLength) {
     // perform rots for each bit, for each left factor, for each multiplication
     int numRots = getModBitLength() * numLeftFactors * numMults;
