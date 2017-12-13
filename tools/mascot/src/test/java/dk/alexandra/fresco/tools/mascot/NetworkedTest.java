@@ -15,26 +15,26 @@ public abstract class NetworkedTest {
   protected BigInteger modulus;
   protected int modBitLength;
   protected int lambdaSecurity;
-  protected int prgSeedLength;
   protected int numLeftFactors;
+  protected int prgSeedLength;
 
-  public NetworkedTest(BigInteger modulus, int modBitLength, int lambdaSecurity, int prgSeedLength,
-      int numLeftFactors) {
+  public NetworkedTest(BigInteger modulus, int modBitLength, int lambdaSecurity, int numLeftFactors,
+      int prgSeedLength) {
     super();
     this.modulus = modulus;
     this.modBitLength = modBitLength;
     this.lambdaSecurity = lambdaSecurity;
-    this.prgSeedLength = prgSeedLength;
     this.numLeftFactors = numLeftFactors;
+    this.prgSeedLength = prgSeedLength;
   }
 
   public NetworkedTest() {
-    this(new BigInteger("65521"), 16, 16, 256, 3);
+    this(new BigInteger("65521"), 16, 16, 3, 256);
   }
 
   public void initContexts(List<Integer> partyIds) {
     contexts = testRuntime.initializeContexts(partyIds, modulus, modBitLength, lambdaSecurity,
-        prgSeedLength, numLeftFactors);
+        numLeftFactors, prgSeedLength);
   }
 
   @Before

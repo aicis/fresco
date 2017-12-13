@@ -21,12 +21,8 @@ public class MascotTestContext {
   MascotResourcePool resourcePool;
   Network network;
 
-  public MascotTestContext(Integer myId, List<Integer> partyIds) {
-    BigInteger modulus = new BigInteger("65521");
-    int modBitLength = 16;
-    int lambdaSecurityParam = 16;
-    int prgSeedLength = 256;
-    int numLeftFactors = 3;
+  public MascotTestContext(Integer myId, List<Integer> partyIds, BigInteger modulus,
+      int modBitLength, int lambdaSecurityParam, int numLeftFactors, int prgSeedLength) {
     this.resourcePool = new MascotResourcePoolImpl(myId, partyIds, modulus, modBitLength,
         lambdaSecurityParam, prgSeedLength, numLeftFactors);
     this.network = new KryoNetNetwork(defaultNetworkConfiguration(myId, partyIds));
@@ -35,7 +31,7 @@ public class MascotTestContext {
   public MascotResourcePool getResourcePool() {
     return resourcePool;
   }
-  
+
   public BigInteger getModulus() {
     return resourcePool.getModulus();
   }

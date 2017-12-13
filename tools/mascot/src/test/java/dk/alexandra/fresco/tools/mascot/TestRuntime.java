@@ -172,7 +172,8 @@ public class TestRuntime {
   private Pair<Integer, MascotTestContext> initializeContext(Integer myId, List<Integer> partyIds,
       BigInteger modulus, int modBitLength, int lambdaSecurityParam, int numLeftFactors,
       int prgSeedLength) {
-    MascotTestContext ctx = new MascotTestContext(myId, new LinkedList<>(partyIds));
+    MascotTestContext ctx = new MascotTestContext(myId, new LinkedList<>(partyIds), modulus,
+        modBitLength, lambdaSecurityParam, numLeftFactors, prgSeedLength);
     return new Pair<>(myId, ctx);
   }
 

@@ -1,11 +1,17 @@
 package dk.alexandra.fresco.tools.mascot.triple;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
-import dk.alexandra.fresco.tools.mascot.cointossing.CoinTossingMpc;
 import dk.alexandra.fresco.tools.mascot.elgen.ElementGeneration;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
@@ -14,14 +20,6 @@ import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeft;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyRight;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
-import dk.alexandra.fresco.tools.mascot.utils.PaddingPrg;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class TripleGeneration extends MultiPartyProtocol {
 
@@ -45,9 +43,8 @@ public class TripleGeneration extends MultiPartyProtocol {
     this.jointSampler = jointSampler;
   }
 
-  // TODO this needs to go
-  TripleGeneration(MascotResourcePool resourcePool, Network network, FieldElement macKeyShare,
-      int numLeftFactors) {
+  TripleGeneration(MascotResourcePool resourcePool, Network network, FieldElementPrg jointSampler,
+      FieldElement macKeyShare) {
     super(resourcePool, network);
     this.leftMultipliers = new HashMap<>();
     this.rightMultipliers = new HashMap<>();
@@ -57,12 +54,9 @@ public class TripleGeneration extends MultiPartyProtocol {
         leftMultipliers.put(partyId, new MultiplyLeft(resourcePool, network, partyId));
       }
     }
-    StrictBitVector jointSeed = new CoinTossingMpc(resourcePool, network)
-        .generateJointSeed(resourcePool.getPrgSeedLength());
-    this.jointSampler = new PaddingPrg(jointSeed);
+    this.jointSampler = jointSampler;
     this.elementGeneration =
         new ElementGeneration(resourcePool, network, macKeyShare, jointSampler);
-    this.initialized = false;
   }
 
   @Override
@@ -228,15 +222,11 @@ public class TripleGeneration extends MultiPartyProtocol {
   }
 
   public List<MultTriple> triple(int numTriples) {
-    // can't generate triples before initializing
-    if (!initialized) {
-      // TODO why not initialize in the constructor then?
-      throw new IllegalStateException("Need to initialize first");
-    }
+    initializeIfNeeded();
 
     // generate random left factor groups
-    List<FieldElement> leftFactorGroups =
-        getLocalSampler().getNext(getModulus(), getModBitLength(), numTriples * getNumLeftFactors());
+    List<FieldElement> leftFactorGroups = getLocalSampler().getNext(getModulus(), getModBitLength(),
+        numTriples * getNumLeftFactors());
 
     // generate random right factors
     List<FieldElement> rightFactors =
