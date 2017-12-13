@@ -15,32 +15,29 @@ import dk.alexandra.fresco.tools.mascot.utils.PaddingPrg;
 
 public class Mascot {
 
-  TripleGeneration tripleGen;
-  ElementGeneration elGen;
+  TripleGeneration tripleGeneration;
+  ElementGeneration elementGeneration;
 
   public Mascot(MascotResourcePool resourcePool, Network network, FieldElement macKeyShare) {
     // agree on joint seed
     StrictBitVector jointSeed = new CoinTossingMpc(resourcePool, network).generateJointSeed(resourcePool.getPrgSeedLength());
     FieldElementPrg jointSampler = new PaddingPrg(jointSeed);
-    this.elGen = new ElementGeneration(resourcePool, network, macKeyShare, jointSampler);
-    this.tripleGen = new TripleGeneration(resourcePool, network, elGen, jointSampler);
-  }
-
-  public void initialize() {
-    // triple-gen will also initialize el-gen
-    this.tripleGen.initialize();
+    this.elementGeneration = new ElementGeneration(resourcePool, network, macKeyShare, jointSampler);
+    this.tripleGeneration = new TripleGeneration(resourcePool, network, elementGeneration, jointSampler);
+    // triple generation will also initialize element generation
+    this.tripleGeneration.initialize();
   }
 
   public List<MultTriple> getTriples(int numTriples) {
-    return tripleGen.triple(numTriples);
+    return tripleGeneration.triple(numTriples);
   }
 
   public List<AuthenticatedElement> getElements(List<FieldElement> rawElements) {
-    return elGen.input(rawElements);
+    return elementGeneration.input(rawElements);
   }
 
   public List<AuthenticatedElement> getElements(Integer inputterId, int numElements) {
-    return elGen.input(inputterId, numElements);
+    return elementGeneration.input(inputterId, numElements);
   }
 
 }

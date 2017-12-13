@@ -31,11 +31,10 @@ public class MascotDemo {
     Network network = new KryoNetNetwork(defaultNetworkConfiguration(myId, partyIds));
     toClose = (Closeable) network;
     mascot = new Mascot(resourcePool, network, macKeyShare);
-    mascot.initialize();
   }
 
   public void run() {
-    List<MultTriple> triples = mascot.getTriples(100);
+    List<MultTriple> triples = mascot.getTriples(10);
     System.out.println(triples.size());
     try {
       toClose.close();
