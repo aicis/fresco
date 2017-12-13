@@ -19,7 +19,6 @@ import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
 import dk.alexandra.fresco.tools.mascot.maccheck.MacCheck;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
-import dk.alexandra.fresco.tools.mascot.utils.Sharer;
 
 public class ElementGeneration extends MultiPartyProtocol {
 
@@ -27,7 +26,7 @@ public class ElementGeneration extends MultiPartyProtocol {
   private FieldElement macKeyShare;
   private FieldElementPrg localSampler;
   private FieldElementPrg jointSampler;
-  private Sharer sharer;
+  private ShareUtils sharer;
   private Map<Integer, CopeSigner> copeSigners;
   private Map<Integer, CopeInputter> copeInputters;
 
@@ -38,7 +37,7 @@ public class ElementGeneration extends MultiPartyProtocol {
     this.macKeyShare = macKeyShare;
     this.localSampler = resourcePool.getLocalSampler();
     this.jointSampler = jointSampler;
-    this.sharer = new Sharer(localSampler);
+    this.sharer = new ShareUtils(localSampler);
     this.copeSigners = new HashMap<>();
     this.copeInputters = new HashMap<>();
     for (Integer partyId : getPartyIds()) {
@@ -89,7 +88,7 @@ public class ElementGeneration extends MultiPartyProtocol {
 
   List<FieldElement> secretShare(List<FieldElement> values, int numShares) {
     List<List<FieldElement>> allShares = values.stream()
-        .map(value -> sharer.additiveShare(value, numShares))
+        .map(value -> sharer.additiveShare(value, numShares, getModulus(), getModBitLength()))
         .collect(Collectors.toList());
     List<List<FieldElement>> byParty = FieldElementCollectionUtils.transpose(allShares);
     for (Integer partyId : getPartyIds()) {
