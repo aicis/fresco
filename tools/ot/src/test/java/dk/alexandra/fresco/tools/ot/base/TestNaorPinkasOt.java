@@ -6,7 +6,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
@@ -16,19 +15,22 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidParameterSpecException;
 import java.util.Arrays;
-import java.util.Random;
 
 import javax.crypto.spec.DHParameterSpec;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.Drng;
+import dk.alexandra.fresco.framework.util.DrngImpl;
+import dk.alexandra.fresco.tools.helper.Constants;
 
 public class TestNaorPinkasOt {
   private NaorPinkasOT ot;
+  private Drng randNum;
 
   public static final BigInteger DhGvalue = new BigInteger(
       "1817929693051677794042418360119535939035448877384059423016092223723589389"
@@ -54,7 +56,8 @@ public class TestNaorPinkasOt {
   @Before
   public void setup()
       throws NoSuchAlgorithmException, InvalidParameterSpecException {
-    Random rand = new Random(424242);
+    Drbg randBit = new AesCtrDrbg(Constants.seedOne);
+    randNum = new DrngImpl(randBit);
     // fake network
     Network network = new Network() {
       @Override
@@ -72,21 +75,11 @@ public class TestNaorPinkasOt {
       }
     };
     DHParameterSpec params = new DHParameterSpec(DhPvalue, DhGvalue);
-    this.ot = new NaorPinkasOT(1, 2, rand, network, params);
+    this.ot = new NaorPinkasOT(1, 2, randBit, network, params);
   }
 
 
   /**** POSITIVE TESTS. ****/
-  @Test
-  public void testSampleGroupElement() {
-    // The specific seed "424242" causes an iteration of the inner loop in the
-    // sampleGroupElement method
-    BigInteger element = ot.sampleGroupElement();
-    int comparison = element.compareTo(ot.getDhParams().getP());
-    // Check that the generated element is less than P
-    assertEquals(-1, comparison);
-  }
-
   // Verify that the generation of the Dh parameters is stable
   @Test
   public void testStabilityOfDhParams()
@@ -106,7 +99,7 @@ public class TestNaorPinkasOt {
 
   @Test
   public void testEncDec() throws NoSuchAlgorithmException {
-    BigInteger privateKey = ot.sampleGroupElement();
+    BigInteger privateKey = randNum.nextBigInteger(ot.getDhParams().getP());
     BigInteger publicKey = ot.getDhParams().getG().modPow(privateKey,
         ot.getDhParams().getP());
     // We are statically using SHA-256 and thus have 256 bit digests
@@ -123,9 +116,9 @@ public class TestNaorPinkasOt {
       throws NoSuchAlgorithmException, IOException, ClassNotFoundException {
     byte[] message = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
         0x08 };
-    byte[] seed = new byte[] { 0x42 };
-    byte[] paddedMessage = ot.padMessage(message, 10001, seed);
-    byte[] unpaddedMessage = ot.unpadMessage(paddedMessage, seed);
+    byte[] paddedMessage = ot.padMessage(message, 10001, Constants.seedThree);
+    byte[] unpaddedMessage = ot.unpadMessage(paddedMessage,
+        Constants.seedThree);
     byte[] messageWithZeros = Arrays.copyOf(message, 10001);
     assertArrayEquals(messageWithZeros, unpaddedMessage);
   }
@@ -133,7 +126,7 @@ public class TestNaorPinkasOt {
   /**** NEGATIVE TESTS. ****/
   @Test
   public void testFailedEncDec() throws NoSuchAlgorithmException {
-    BigInteger privateKey = ot.sampleGroupElement();
+    BigInteger privateKey = randNum.nextBigInteger(ot.getDhParams().getP());
     BigInteger publicKey = ot.getDhParams().getG().modPow(privateKey,
         ot.getDhParams().getP());
     // We are statically using SHA-256 and thus have 256 bit digests
@@ -152,41 +145,12 @@ public class TestNaorPinkasOt {
       throws NoSuchAlgorithmException, IOException, ClassNotFoundException {
     byte[] message = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
         0x08 };
-    byte[] seed = new byte[] { 0x42 };
-    byte[] paddedMessage = ot.padMessage(message, 10001, seed);
+    byte[] paddedMessage = ot.padMessage(message, 10001, Constants.seedThree);
     paddedMessage[10000] ^= 0x01;
-    byte[] unpaddedMessage = ot.unpadMessage(paddedMessage, seed);
+    byte[] unpaddedMessage = ot.unpadMessage(paddedMessage,
+        Constants.seedThree);
     byte[] messageWithZeros = Arrays.copyOf(message, 10001);
     assertTrue(!Arrays.equals(messageWithZeros, unpaddedMessage));
-  }
-
-  @Test
-  public void testNoSuchAlgorithm() throws NoSuchFieldException,
-      SecurityException, IllegalArgumentException, IllegalAccessException {
-    Field algorithm = NaorPinkasOT.class.getDeclaredField("prgAlgorithm");
-    // Remove private
-    algorithm.setAccessible(true);
-    algorithm.set(ot, "something");
-    // Test "padMessage"
-    boolean thrown = false;
-    try {
-      ot.padMessage(new byte[] { 0x42 }, 8, new byte[] { 0x42 });
-    } catch (MPCException e) {
-      assertEquals("Something non-malicious went wrong during the OT.",
-          e.getMessage());
-      thrown = true;
-    }
-    assertTrue(thrown);
-    // Test "unpadMessage"
-    thrown = false;
-    try {
-      ot.unpadMessage(new byte[] { 0x42 }, new byte[] { 0x42 });
-    } catch (MPCException e) {
-      assertEquals("Something non-malicious went wrong during the OT.",
-          e.getMessage());
-      thrown = true;
-    }
-    assertTrue(thrown);
   }
 
   @Test

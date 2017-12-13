@@ -2,22 +2,28 @@ package dk.alexandra.fresco.tools.commitment;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import dk.alexandra.fresco.framework.MaliciousException;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.tools.helper.Constants;
 
 public class TestCommitment {
   Commitment comm;
-  Random rand;
+  Drbg rand;
 
   @Before
   public void setup() {
-    rand = new Random(42);
+    rand = new AesCtrDrbg(Constants.seedOne);
     comm = new Commitment();
   }
 
@@ -36,6 +42,44 @@ public class TestCommitment {
     byte[] openInfo = comm.commit(rand, msg);
     byte[] res = comm.open(openInfo);
     assertArrayEquals(res, msg);
+  }
+
+  @Test
+  public void testSerialization() {
+    byte[] msg1 = new byte[] { 0x42 };
+    comm.commit(rand, msg1);
+    CommitmentSerializer serializer = new CommitmentSerializer();
+    byte[] serializedComm = serializer.serialize(comm);
+    Commitment deserializedComm = serializer.deserialize(serializedComm);
+    assertEquals(comm, deserializedComm);
+  }
+
+  @Test
+  public void testListSerialization() {
+    byte[] msg1 = new byte[] { 0x42 };
+    Commitment comm1 = new Commitment();
+    comm1.commit(rand, msg1);
+    byte[] msg2 = new byte[] { 0x56 };
+    Commitment comm2 = new Commitment();
+    comm2.commit(rand, msg2);
+    List<Commitment> list = new ArrayList<>(2);
+    list.add(comm1);
+    list.add(comm2);
+    CommitmentSerializer serializer = new CommitmentSerializer();
+    byte[] serializedList = serializer.serialize(list);
+    List<Commitment> deserializedList = serializer
+        .deserializeList(serializedList);
+    assertEquals(list, deserializedList);
+  }
+
+  @Test
+  public void testEmptyListSerialization() {
+    List<Commitment> list = new ArrayList<>(0);
+    CommitmentSerializer serializer = new CommitmentSerializer();
+    byte[] serializedList = serializer.serialize(list);
+    List<Commitment> deserializedList = serializer
+        .deserializeList(serializedList);
+    assertEquals(list, deserializedList);
   }
 
   /****
@@ -138,4 +182,58 @@ public class TestCommitment {
     }
     assertEquals(true, thrown);
   }
+
+  @Test
+  public void testNotEqual() {
+    comm.commit(rand, new byte[] { 0x42 });
+    assertFalse(comm.equals(new Commitment()));
+    assertFalse(comm.equals("something"));
+  }
+
+  @Test
+  public void testWrongSerialization() {
+    boolean thrown = false;
+    try {
+      CommitmentSerializer serializer = new CommitmentSerializer();
+      // This is an illegal length of list of serialized commitments, since each
+      // commitment is 32 byte
+      serializer.deserialize(new byte[33]);
+    } catch (IllegalArgumentException e) {
+      assertEquals("The length of the byte array to deserialize is wrong.",
+          e.getMessage());
+      thrown = true;
+    }
+    assertTrue(thrown);
+  }
+
+  @Test
+  public void testWrongSerializationList() {
+    boolean thrown = false;
+    try {
+      CommitmentSerializer serializer = new CommitmentSerializer();
+      // This is an illegal length of list of serialized commitments, since each
+      // commitment is 32 byte
+      serializer.deserializeList(new byte[63]);
+    } catch (IllegalArgumentException e) {
+      assertEquals("The length of the byte array to deserialize is wrong.", e.getMessage());
+      thrown = true;
+    }
+    assertTrue(thrown);
+  }
+
+  // @Test
+  // public void testNoSuchAlgorithm() throws Exception {
+  // Field algorithm = Commitment.class.getDeclaredField("hashAlgorithm");
+  // Constants.setFinalStatic(algorithm, "sdf", Commitment.class);
+  // boolean thrown = false;
+  // try {
+  // comm.commit(rand, Constants.seedOne);
+  // } catch (IllegalArgumentException e) {
+  // assertEquals("The internally used hash function does not exist",
+  // e.getMessage());
+  // thrown = true;
+  // }
+  // assertTrue(thrown);
+  // }
+
 }

@@ -18,8 +18,12 @@ import org.junit.Test;
 
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.helper.Constants;
+import dk.alexandra.fresco.tools.helper.TestRuntime;
 
 public class FunctionalTestOtExtension {
   private TestRuntime testRuntime;
@@ -61,7 +65,7 @@ public class FunctionalTestOtExtension {
   private Cote setupCoteSender() throws IOException {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
-    Random rand = new Random(42);
+    Drbg rand = new AesCtrDrbg(Constants.seedOne);
     Cote cote = new Cote(1, 2, kbitLength, lambdaBitLength, rand, network);
     return cote;
   }
@@ -69,7 +73,7 @@ public class FunctionalTestOtExtension {
   private Cote setupCoteReceiver() throws IOException {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
-    Random rand = new Random(420);
+    Drbg rand = new AesCtrDrbg(Constants.seedTwo);
     Cote cote = new Cote(2, 1, kbitLength, lambdaBitLength, rand, network);
     return cote;
   }
@@ -352,7 +356,7 @@ public class FunctionalTestOtExtension {
     // should make the correlation check fail. Flipping a bit makes the
     // correlation check fail with 0.5 probability, up to the random choices of
     // the sender
-    int corruptUVecPos = 2;
+    int corruptUVecPos = 1;
     ((CheatingNetwork) coteReceiver.getReceiver().getNetwork())
         .cheatInNextMessage(corruptUVecPos, 0);
     Callable<Pair<List<StrictBitVector>, List<StrictBitVector>>> partyTwoExtend = () -> extendRotReceiver(

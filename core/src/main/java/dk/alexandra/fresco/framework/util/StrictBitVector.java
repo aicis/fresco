@@ -44,23 +44,44 @@ public class StrictBitVector {
   }
 
   /**
-   * Constructs new strict bit vector from source of randomness.
+   * Constructs new strict bit vector from a source of randomness.
    * 
-   * @param bits raw bytes
-   * @param rand source of randomness
+   * @param size
+   *          Amount of bits the StrictBitVector should contain
+   * @param rand
+   *          source of randomness
    */
+  @Deprecated
   public StrictBitVector(int size, Random rand) {
     this(ByteArrayHelper.randomByteArray(size / 8, rand), size);
   }
   
   /**
-   * Returns the "bit" number bit, reading from left-to-right, from a byte array.
+   * Constructs new strict bit vector from a secure source of randomness.
    * 
-   * @param input The arrays of which to retrieve a bit
-   * @param bit The index of the bit, counting from 0
-   * @param isBigEndian Indicates whether the underlying byte array should be interpreted as
-   *        big-endian or little-endian
-   * @return Returns the "bit" number bit, reading from left-to-right, from "input"
+   * @param bits
+   *          raw bytes
+   * @param rand
+   *          secure source of randomness
+   */
+  public StrictBitVector(int size, Drbg rand) {
+    this(size);
+    rand.nextBytes(bits);
+  }
+
+  /**
+   * Returns the "bit" number bit, reading from left-to-right, from a byte
+   * array.
+   * 
+   * @param input
+   *          The arrays of which to retrieve a bit
+   * @param bit
+   *          The index of the bit, counting from 0
+   * @param isBigEndian
+   *          Indicates whether the underlying byte array should be interpreted
+   *          as big-endian or little-endian
+   * @return Returns the "bit" number bit, reading from left-to-right, from
+   *         "input"
    */
   public boolean getBit(int bit, boolean isBigEndian) {
     rangeCheck(bit);

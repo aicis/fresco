@@ -1,8 +1,7 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.util.Random;
-
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.Drbg;
 
 /**
  * Superclass containing the common variables and methods for the sender and
@@ -15,7 +14,6 @@ public class BristolOtShared {
   protected RotShared rot;
   protected boolean initialized = false;
   protected int batchSize;
-  protected final String prgAlgorithm;
 
   /**
    * Constructs a Bristol OT extension super-class using an underlying random OT
@@ -30,7 +28,6 @@ public class BristolOtShared {
     super();
     this.rot = rot;
     this.batchSize = batchSize;
-    this.prgAlgorithm = "SHA1PRNG";
   }
 
   public int getOtherId() {
@@ -45,7 +42,7 @@ public class BristolOtShared {
     return rot.getLambdaSecurityParam();
   }
 
-  public Random getRand() {
+  public Drbg getRand() {
     return rot.getRand();
   }
 

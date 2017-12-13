@@ -1,11 +1,12 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
 import java.util.List;
-import java.util.Random;
 
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
@@ -26,10 +27,10 @@ public class BristolRotBatchDemo<ResourcePoolT extends ResourcePool>
   public void runPartyOne(int pid) {
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected receiver");
-    Random rand = new Random(424242);
+    Drbg currentPrg = new AesCtrDrbg(new byte[] { 0x42, 0x42 });
     RotBatch<StrictBitVector> ot = new BristolRotBatch(1, 2, getKbitLength(),
-        getLambdaSecurityParam(), rand, network);
-    StrictBitVector choices = new StrictBitVector(amountOfOTs, rand);
+        getLambdaSecurityParam(), currentPrg, network);
+    StrictBitVector choices = new StrictBitVector(amountOfOTs, currentPrg);
     List<StrictBitVector> messages = ot.receive(choices, messageSize);
     for (int i = 0; i < amountOfOTs; i++) {
       System.out
@@ -49,9 +50,9 @@ public class BristolRotBatchDemo<ResourcePoolT extends ResourcePool>
   public void runPartyTwo(int pid) {
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected sender");
-    Random rand = new Random(420420);
+    Drbg currentPrg = new AesCtrDrbg(new byte[] { 0x42, 0x04 });
     RotBatch<StrictBitVector> ot = new BristolRotBatch(2, 1, getKbitLength(),
-        getLambdaSecurityParam(), rand, network);
+        getLambdaSecurityParam(), currentPrg, network);
     List<Pair<StrictBitVector, StrictBitVector>> messages = ot.send(amountOfOTs,
         messageSize);
     for (int i = 0; i < amountOfOTs; i++) {

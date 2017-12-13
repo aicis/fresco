@@ -1,11 +1,10 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 
@@ -19,7 +18,7 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 public class CoteReceiver extends CoteShared {
   // Random messages used for the seed OTs
   private List<Pair<StrictBitVector, StrictBitVector>> seeds;
-  private List<Pair<SecureRandom, SecureRandom>> prgs;
+  private List<Pair<Drbg, Drbg>> prgs;
 
   /**
    * Constructs a correlated OT extension with errors receiver instance.
@@ -38,8 +37,7 @@ public class CoteReceiver extends CoteShared {
    *          The network object used to communicate with the other party
    */
   public CoteReceiver(int myId, int otherId, int kbitLength,
-      int lambdaSecurityParam,
-      Random rand, Network network) {
+      int lambdaSecurityParam, Drbg rand, Network network) {
     super(myId, otherId, kbitLength, lambdaSecurityParam, rand, network);
     this.seeds = new ArrayList<>(kbitLength);
     this.prgs = new ArrayList<>(kbitLength);
@@ -62,8 +60,8 @@ public class CoteReceiver extends CoteShared {
       ot.send(seedZero, seedFirst);
       seeds.add(new Pair<>(seedZero, seedFirst));
       // Initialize the PRGs with the random messages
-      SecureRandom prgZero = makePrg(seedZero);
-      SecureRandom prgFirst = makePrg(seedFirst);
+      Drbg prgZero = makePrg(seedZero);
+      Drbg prgFirst = makePrg(seedFirst);
       prgs.add(new Pair<>(prgZero, prgFirst));
     }
     initialized = true;

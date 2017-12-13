@@ -3,11 +3,10 @@ package dk.alexandra.fresco.tools.commitment;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.Random;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.Drbg;
 
 /**
  * Class representing a hash-based commitment. Secure assuming that SHA-256 is a
@@ -39,8 +38,8 @@ public class Commitment {
     try {
       digest = MessageDigest.getInstance(hashAlgorithm);
     } catch (NoSuchAlgorithmException e) {
-      throw new MPCException(
-          "Commitment failed. No malicious behaviour detected.", e);
+      throw new IllegalArgumentException(
+          "The internally used hash function does not exist", e);
     }
   }
 
@@ -54,7 +53,7 @@ public class Commitment {
    *          The element to commit to
    * @return The opening information needed to open the commitment
    */
-  public byte[] commit(Random rand, byte[] value) {
+  public byte[] commit(Drbg rand, byte[] value) {
     if (commitmentVal != null) {
       throw new IllegalStateException("Already committed");
     }
@@ -133,5 +132,17 @@ public class Commitment {
     byte[] serializedComm = network.receive(otherId);
     CommitmentSerializer serializer = new CommitmentSerializer();
     return serializer.deserialize(serializedComm);
+  }
+  
+  /**
+   * Commitments are equal if the internal digest is the same.
+   */
+  @Override
+  public boolean equals(Object other) {
+    if (other instanceof Commitment
+        && Arrays.equals(((Commitment) other).commitmentVal, commitmentVal)) {
+      return true;
+    }
+    return false;
   }
 }

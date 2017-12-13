@@ -7,40 +7,41 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.lang.reflect.Field;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.Callable;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.helper.Constants;
+import dk.alexandra.fresco.tools.helper.TestRuntime;
 import dk.alexandra.fresco.tools.ot.otextension.CheatingNetwork;
-import dk.alexandra.fresco.tools.ot.otextension.TestRuntime;
 
 public class TestCoinTossing {
   private CoinTossing ctOne;
   private CoinTossing ctTwo;
   private TestRuntime testRuntime;
 
-  private CoinTossing setupPartyOne() {
+  private CoinTossing setupPartyOne() throws NoSuchAlgorithmException {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
-    Random rand = new Random(42);
-    CoinTossing ct = new CoinTossing(1, 2, 128, rand, network);
+    Drbg rand = new AesCtrDrbg(Constants.seedOne);
+    CoinTossing ct = new CoinTossing(1, 2, rand, network);
     return ct;
   }
 
   private CoinTossing setupPartyTwo() {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
-    Random rand = new Random(420);
-    CoinTossing ct = new CoinTossing(2, 1, 128, rand, network);
+    Drbg rand = new AesCtrDrbg(Constants.seedTwo);
+    CoinTossing ct = new CoinTossing(2, 1, rand, network);
     return ct;
   }
 
@@ -139,7 +140,7 @@ public class TestCoinTossing {
 
   @Test
   public void testIllegalInit() {
-    Random rand = new Random();
+    Drbg rand = new AesCtrDrbg(Constants.seedOne);
     // fake network
     Network network = new Network() {
       @Override
@@ -156,11 +157,10 @@ public class TestCoinTossing {
         return 0;
       }
     };
-
     CoinTossing ct;
     boolean thrown = false;
     try {
-      ct = new CoinTossing(0, 1, 128, null, network);
+      ct = new CoinTossing(0, 1, null, network);
     } catch (IllegalArgumentException e) {
       assertEquals("Illegal constructor parameters", e.getMessage());
       thrown = true;
@@ -168,25 +168,9 @@ public class TestCoinTossing {
     assertEquals(thrown, true);
     thrown = false;
     try {
-      ct = new CoinTossing(0, 1, 128, rand, null);
+      ct = new CoinTossing(0, 1, rand, null);
     } catch (IllegalArgumentException e) {
       assertEquals("Illegal constructor parameters", e.getMessage());
-      thrown = true;
-    }
-    thrown = false;
-    try {
-      ct = new CoinTossing(0, 1, 0, rand, network);
-    } catch (IllegalArgumentException e) {
-      assertEquals("Illegal constructor parameters", e.getMessage());
-      thrown = true;
-    }
-    assertEquals(thrown, true);
-    thrown = false;
-    try {
-      ct = new CoinTossing(0, 1, 67, rand, network);
-    } catch (IllegalArgumentException e) {
-      assertEquals("Computational security parameter must be divisible by 8",
-          e.getMessage());
       thrown = true;
     }
     assertEquals(thrown, true);
@@ -211,25 +195,6 @@ public class TestCoinTossing {
       ctOne.toss(0);
     } catch (IllegalArgumentException e) {
       assertEquals("At least one coin must be tossed.", e.getMessage());
-      thrown = true;
-    }
-    assertEquals(true, thrown);
-  }
-
-  @Test
-  public void testWrongAlgorithm()
-      throws NoSuchFieldException, SecurityException, IllegalArgumentException,
-      IllegalAccessException {
-    Field algorithm = ctOne.getClass().getDeclaredField("prgAlgorithm");
-    // Remove private
-    algorithm.setAccessible(true);
-    algorithm.set(ctOne, "something");
-    boolean thrown = false;
-    try {
-      ctOne.initialize();
-    } catch (MPCException e) {
-      assertEquals("Coin-tossing failed. No malicious behaviour detected.",
-          e.getMessage());
       thrown = true;
     }
     assertEquals(true, thrown);

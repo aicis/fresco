@@ -23,8 +23,10 @@ public interface Drng {
 
   /**
    * Gets the next integer of this DRNG in a given range
-   * @param limit a limit on the value returned
-   * @return an integer in the range <i>0,...,limit</i>
+   * 
+   * @param limit
+   *          a limit on the value returned
+   * @return an integer in the range <i>0,...,limit-1</i>
    */
   BigInteger nextBigInteger(BigInteger limit);
 

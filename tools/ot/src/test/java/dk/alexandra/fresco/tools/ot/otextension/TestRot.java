@@ -9,20 +9,22 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.helper.Constants;
 
 public class TestRot {
   private Rot rot;
 
   @Before
   public void setup() {
-    Random rand = new Random();
+    Drbg rand = new AesCtrDrbg(Constants.seedOne);
     // fake network
     Network network = new Network() {
       @Override
@@ -210,7 +212,8 @@ public class TestRot {
         return 0;
       }
     };
-    Rot ot = new Rot(1, 2, 128, 40, new Random(42), network);
+    Drbg rand = new AesCtrDrbg(Constants.seedOne);
+    Rot ot = new Rot(1, 2, 128, 40, rand, network);
     Field algorithm = RotShared.class.getDeclaredField("hashAlgorithm");
     // Remove private
     algorithm.setAccessible(true);

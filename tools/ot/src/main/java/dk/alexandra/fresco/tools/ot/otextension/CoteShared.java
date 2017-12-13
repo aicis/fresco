@@ -1,13 +1,11 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
@@ -25,11 +23,10 @@ public class CoteShared {
   protected int otherId;
   protected int kbitLength;
   protected int lambdaSecurityParam;
-  protected Random rand;
+  protected Drbg rand;
   protected Network network;
   // Internal state variables
   protected boolean initialized;
-  protected final String prgAlgorithm;
   protected Ot ot;
 
   /**
@@ -48,8 +45,8 @@ public class CoteShared {
    * @param network
    *          The network object used to communicate with the other party
    */
-  public CoteShared(int myId, int otherId, int kbitLength, int lambdaSecurityParam, Random rand, 
-      Network network) {
+  public CoteShared(int myId, int otherId, int kbitLength,
+      int lambdaSecurityParam, Drbg rand, Network network) {
     super();
     if (kbitLength < 1 || lambdaSecurityParam < 1
         || rand == null || network == null) {
@@ -70,8 +67,6 @@ public class CoteShared {
     this.rand = rand;
     this.ot = new DummyOt(otherId, network);
     this.network = network;
-    // TODO should be changed to something that uses SHA-256
-    this.prgAlgorithm = "SHA1PRNG";
   }
 
   public int getMyId() {
@@ -90,7 +85,7 @@ public class CoteShared {
     return lambdaSecurityParam;
   }
 
-  public Random getRand() {
+  public Drbg getRand() {
     return rand;
   }
 
@@ -137,15 +132,8 @@ public class CoteShared {
    *          The seed to use in the PRG
    * @return A new PRG based on the seed
    */
-  protected SecureRandom makePrg(StrictBitVector seed) {
-    SecureRandom res = null;
-    try {
-      res = SecureRandom.getInstance(prgAlgorithm);
-    } catch (NoSuchAlgorithmException e) {
-      throw new MPCException(
-          "Random OT extension failed. No malicious behaviour detected.", e);
-    }
-    res.setSeed(seed.toByteArray());
-    return res;
+  protected Drbg makePrg(StrictBitVector seed) {
+    Drbg prg = new AesCtrDrbg(seed.toByteArray());
+    return prg;
   }
 }

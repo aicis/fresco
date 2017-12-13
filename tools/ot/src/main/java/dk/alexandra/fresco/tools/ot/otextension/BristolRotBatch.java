@@ -1,14 +1,12 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
@@ -49,7 +47,7 @@ public class BristolRotBatch implements RotBatch<StrictBitVector> {
    *          The network instance
    */
   public BristolRotBatch(int myId, int otherId, int kbitLength,
-      int lambdaSecurityParam, Random rand, Network network) {
+      int lambdaSecurityParam, Drbg rand, Network network) {
     Rot rot = new Rot(myId, otherId, kbitLength, lambdaSecurityParam, rand,
         network);
     this.sender = rot.getSender();
@@ -157,15 +155,7 @@ public class BristolRotBatch implements RotBatch<StrictBitVector> {
    */
   private StrictBitVector computeRandomMessage(StrictBitVector seed,
       int sizeOfMessage) {
-    try {
-      SecureRandom rand = SecureRandom.getInstance(prgAlgorithm);
-      rand.setSeed(seed.toByteArray());
-      return new StrictBitVector(sizeOfMessage, rand);
-    } catch (NoSuchAlgorithmException e) {
-      throw new MPCException(
-          "Something, non-malicious, went wrong during the sending/receiving of"
-              + " the Bristol random OT extension.",
-          e);
-    }
+    Drbg rand = new AesCtrDrbg(seed.toByteArray());
+    return new StrictBitVector(sizeOfMessage, rand);
   }
 }
