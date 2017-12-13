@@ -54,7 +54,7 @@ public class KryoNetNetwork implements Network, Closeable {
     this.queues = new ArrayList<>();
 
     // TODO: How to reason about the upper boundries of what can be send in a single round?
-    int writeBufferSize = 1048576;
+    int writeBufferSize = 10485760; // for the original value this overflows even for small mascot batches, i.e. 256
     int objectBufferSize = writeBufferSize;
 
     for (int j = 0; j < channelAmount; j++) {
