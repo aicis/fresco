@@ -22,8 +22,7 @@ public class DummyBooleanProtocolSuite
   @Override
   public BuilderFactoryBinary init(ResourcePoolImpl resourcePool,
       Network network) {
-    BuilderFactoryBinary b = new DummyBooleanBuilderFactory();
-    return b;
+    return new DummyBooleanBuilderFactory();
   }
 
 

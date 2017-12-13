@@ -10,7 +10,6 @@ import java.util.Map;
 
 public class BinaryComparisonLoggingDecorator implements PerformanceLogger, Comparison {
 
-  public static final String ID = "PARTY_ID";
   public static final String BINARY_COMPARISON_EQ = "EQ_COUNT";
   public static final String BINARY_COMPARISON_GT = "GT_COUNT";
 

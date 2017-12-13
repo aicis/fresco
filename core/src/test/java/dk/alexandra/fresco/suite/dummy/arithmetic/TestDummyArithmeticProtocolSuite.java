@@ -4,6 +4,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.ExponentiationPipeTests;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.arithmetic.AdvancedNumericTests;
@@ -65,7 +66,8 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   public void test_OutputToTarget_Sequential() throws Exception {
     runTest(new BasicArithmeticTests.TestOutputToSingleParty<>(), EvaluationStrategy.SEQUENTIAL,
         2, defaultMod, true);
-    assertThat(performanceLoggers.get(1).get(0).getLoggedValues().get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), is((long)0));
+    assertThat(performanceLoggers.get(1).get(0).getLoggedValues()
+        .get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), is((long)0));
   }
 
   @Test
@@ -444,7 +446,8 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
         runTest(new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.BLAND),
         EvaluationStrategy.SEQUENTIAL,
         2, defaultMod, true);
-    assertThat(performanceLoggers.get(1).get(0).getLoggedValues().get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_EQ), is((long)33));    
+    assertThat(performanceLoggers.get(1).get(0).getLoggedValues()
+        .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_EQ), is((long)33));    
   }
 
   @Test
@@ -485,7 +488,8 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   public void test_ss_division() throws Exception {
     runTest(new DivisionTests.TestSecretSharedDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         1, defaultMod, true);
-    assertThat(performanceLoggers.get(1).get(0).getLoggedValues().get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_COMP0), is((long)80));
+    assertThat(performanceLoggers.get(1).get(0).getLoggedValues()
+        .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_COMP0), is((long)80));
   }
 
   @Test
@@ -541,7 +545,8 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   public void test_Minimum_Protocol_2_parties() throws Exception {
     runTest(new MinTests.TestMinimumProtocol<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         2, defaultMod, true);
-    assertThat(performanceLoggers.get(1).get(0).getLoggedValues().get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_LEQ), is((long)10));
+    assertThat(performanceLoggers.get(1).get(0).getLoggedValues()
+        .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_LEQ), is((long)10));
   }
 
   @Test
@@ -596,9 +601,8 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_exponentiation_pipe_preprocessed() throws Exception {
     runTest(
-        new dk.alexandra.fresco.framework.builder.numeric.ExponentiationPipeTests.TestPreprocessedValues<>(),
-        EvaluationStrategy.SEQUENTIAL,
-        1);
+        new ExponentiationPipeTests.TestPreprocessedValues<>(),
+        EvaluationStrategy.SEQUENTIAL, 1);
   }
 
 }

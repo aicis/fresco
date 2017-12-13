@@ -17,7 +17,6 @@ public interface PerformanceLogger {
   /**
    * Produce a key-value map of logged values. The content
    * of the returned map is context dependent.
-   *
    */
   public Map<String, Long> getLoggedValues();
 
