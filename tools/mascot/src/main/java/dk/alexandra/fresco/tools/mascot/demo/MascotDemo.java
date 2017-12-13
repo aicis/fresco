@@ -34,8 +34,10 @@ public class MascotDemo {
   }
 
   public void run() {
-    List<MultTriple> triples = mascot.getTriples(10);
-    System.out.println(triples.size());
+    long startTime = System.currentTimeMillis();
+    List<MultTriple> triples = mascot.getTriples(100);
+    long endTime = System.currentTimeMillis();
+    System.out.println("Generated " + triples.size() + " triples in " + (endTime - startTime) + " ms");
     try {
       toClose.close();
     } catch (IOException e) {

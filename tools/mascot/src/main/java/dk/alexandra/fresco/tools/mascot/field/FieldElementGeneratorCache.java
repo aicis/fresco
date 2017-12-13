@@ -85,13 +85,12 @@ public class FieldElementGeneratorCache {
       new BigInteger("170141183460469231731687303715884105728")};
   private static final HashMap<BigInteger, List<FieldElement>> generators = new HashMap<>();
   static {
-    BigInteger prime = new BigInteger("65521");
-    int modBitLength = 16;
-    List<FieldElement> fePowers = new ArrayList<>(modBitLength);
-    for (int i = 0; i < modBitLength; i++) {
-      fePowers.add(new FieldElement(powers[i], prime, modBitLength));
-    }
-    generators.put(prime, fePowers);
+    BigInteger smallPrime = new BigInteger("65521");
+    int smallBitLength = 16;
+    generators.put(smallPrime, precompute(smallPrime, smallBitLength));
+    BigInteger largePrime = new BigInteger("340282366920938463463374607431768211297");
+    int largeBitLength = 128;
+    generators.put(largePrime, precompute(largePrime, largeBitLength));
   }
 
   static List<FieldElement> precompute(BigInteger modulus, int modBitLength) {
