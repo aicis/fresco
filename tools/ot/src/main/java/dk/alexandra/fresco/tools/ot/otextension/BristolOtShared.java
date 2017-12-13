@@ -34,14 +34,6 @@ public class BristolOtShared {
     return rot.getOtherId();
   }
 
-  public int getKbitLength() {
-    return rot.getKbitLength();
-  }
-
-  public int getLambdaSecurityParam() {
-    return rot.getLambdaSecurityParam();
-  }
-
   public Drbg getRand() {
     return rot.getRand();
   }

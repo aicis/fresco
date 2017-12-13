@@ -24,13 +24,14 @@ public class Constants {
       0x42, 0x42 };
 
   public static void setFinalStatic(Field field, Object newValue,
-      Class<?> classType) throws Exception {
+      Object objectToWorkOn)
+      throws Exception {
     field.setAccessible(true);
 
     Field modifiersField = Field.class.getDeclaredField("modifiers");
     modifiersField.setAccessible(true);
     modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
 
-    field.set(classType, newValue);
+    field.set(objectToWorkOn, newValue);
   }
 }

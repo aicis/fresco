@@ -143,12 +143,15 @@ public class FunctionalTestBristolOt {
   }
 
   private List<Pair<StrictBitVector, StrictBitVector>> bristolRotBatchSend(
-      int batchSize, int messageSize) throws IOException {
+      int batchSize, int messageSize, boolean autoInit) throws IOException {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     Drbg rand = new AesCtrDrbg(Constants.seedOne);
     BristolRotBatch rotBatchSender = new BristolRotBatch(1, 2, kbitLength,
         lambdaBitLength, rand, network);
+    if (autoInit == false) {
+      rotBatchSender.initSender();
+    }
     List<Pair<StrictBitVector, StrictBitVector>> messages = rotBatchSender
         .send(batchSize, messageSize);
     ((Closeable) network).close();
@@ -156,12 +159,15 @@ public class FunctionalTestBristolOt {
   }
 
   private List<StrictBitVector> bristolRotBatchReceive(StrictBitVector choices,
-      int messageSize) throws IOException {
+      int messageSize, boolean autoInit) throws IOException {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     Drbg rand = new AesCtrDrbg(Constants.seedTwo);
     BristolRotBatch rotBatchReceiver = new BristolRotBatch(2, 1, kbitLength,
         lambdaBitLength, rand, network);
+    if (autoInit == false) {
+      rotBatchReceiver.initReceiver();
+    }
     List<StrictBitVector> messages = rotBatchReceiver.receive(choices,
         messageSize);
     ((Closeable) network).close();
@@ -171,14 +177,71 @@ public class FunctionalTestBristolOt {
   @SuppressWarnings("unchecked")
   @Test
   public void testBristolRot() {
+    boolean autoInit = false;
     int extendSize = 1024;
     int messageSize = 2048;
     Callable<List<?>> partyOneExtend = () -> bristolRotBatchSend(extendSize,
-        messageSize);
+        messageSize, autoInit);
     Drbg rand = new AesCtrDrbg(Constants.seedThree);
     StrictBitVector choices = new StrictBitVector(extendSize, rand);
     Callable<List<?>> partyTwoExtend = () -> bristolRotBatchReceive(choices,
-        messageSize);
+        messageSize, autoInit);
+    // run tasks and get ordered list of results
+    List<List<?>> extendResults = testRuntime
+        .runPerPartyTasks(Arrays.asList(partyOneExtend, partyTwoExtend));
+    List<Pair<StrictBitVector, StrictBitVector>> senderResults = (List<Pair<StrictBitVector, StrictBitVector>>) extendResults
+        .get(0);
+    List<StrictBitVector> receiverResults = (List<StrictBitVector>) extendResults
+        .get(1);
+    for (int i = 0; i < choices.getSize(); i++) {
+      Pair<StrictBitVector, StrictBitVector> currentSenderMessages = senderResults
+          .get(i);
+      if (choices.getBit(i, false) == false) {
+        assertTrue(
+            currentSenderMessages.getFirst().equals(receiverResults.get(i)));
+      } else {
+        assertTrue(
+            currentSenderMessages.getSecond().equals(receiverResults.get(i)));
+      }
+    }
+    // Do a sanity check of the values
+    // Check that choices are not the 0-string
+    assertNotEquals(new StrictBitVector(choices.getSize()), choices);
+    // Check the length the values
+    assertEquals(extendSize, senderResults.size());
+    assertEquals(extendSize, receiverResults.size());
+    StrictBitVector zeroVec = new StrictBitVector(messageSize);
+    for (int i = 0; i < extendSize; i++) {
+      // Check the messages are not 0-strings
+      assertNotEquals(zeroVec, senderResults.get(i).getFirst());
+      assertNotEquals(zeroVec, senderResults.get(i).getSecond());
+      assertNotEquals(zeroVec, receiverResults.get(i));
+      // Check that the two messages are not the same
+      assertNotEquals(senderResults.get(i).getFirst(),
+          senderResults.get(i).getSecond());
+      // Check that they are not all equal
+      if (i > 0) {
+        assertNotEquals(senderResults.get(i - 1).getFirst(),
+            senderResults.get(i).getFirst());
+        assertNotEquals(senderResults.get(i - 1).getSecond(),
+            senderResults.get(i).getSecond());
+        assertNotEquals(receiverResults.get(i - 1), receiverResults.get(i));
+      }
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test
+  public void testBristolRotAutoInit() {
+    boolean autoInit = true;
+    int extendSize = 1024;
+    int messageSize = 2048;
+    Callable<List<?>> partyOneExtend = () -> bristolRotBatchSend(extendSize,
+        messageSize, autoInit);
+    Drbg rand = new AesCtrDrbg(Constants.seedThree);
+    StrictBitVector choices = new StrictBitVector(extendSize, rand);
+    Callable<List<?>> partyTwoExtend = () -> bristolRotBatchReceive(choices,
+        messageSize, autoInit);
     // run tasks and get ordered list of results
     List<List<?>> extendResults = testRuntime
         .runPerPartyTasks(Arrays.asList(partyOneExtend, partyTwoExtend));

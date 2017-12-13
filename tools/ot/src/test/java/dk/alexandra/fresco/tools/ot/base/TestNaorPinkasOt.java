@@ -6,6 +6,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
@@ -167,6 +168,28 @@ public class TestNaorPinkasOt {
           new byte[] { 0x42 }, true);
     } catch (InvocationTargetException e) {
       assertEquals("The length of the two choice messages is not equal",
+          e.getTargetException().getMessage());
+      thrown = true;
+    }
+    assertTrue(thrown);
+  }
+
+  @Test
+  public void testNoSuchAlgorithm() throws Exception {
+    // Change the "prgAlgorithm" field to the value "sdf"
+    Field algorithm = NaorPinkasOT.class.getDeclaredField("prgAlgorithm");
+    Constants.setFinalStatic(algorithm, "sdf", ot);
+    boolean thrown = false;
+    try {
+      // Invoke the private method "computeDhParams"
+      Method computeDh = NaorPinkasOT.class.getDeclaredMethod("computeDhParams",
+          byte[].class);
+      computeDh.setAccessible(true);
+      computeDh.invoke(ot, new byte[32]);
+    } catch (InvocationTargetException e) {
+      assertEquals(
+          "Something, non-malicious, went wrong when agreeing on the "
+              + "Diffie-Hellman parameters.",
           e.getTargetException().getMessage());
       thrown = true;
     }

@@ -33,15 +33,10 @@ public class BristolOtSender extends BristolOtShared {
   }
 
   /**
-   * Initializes the underlying random OT functionality, if needed.
+   * Initializes the underlying random OT functionality.
    */
   public void initialize() {
-    if (initialized) {
-      throw new IllegalStateException("Already initialized");
-    }
-    if (sender.initialized == false) {
-      sender.initialize();
-    }
+    sender.initialize();
     initialized = true;
   }
 

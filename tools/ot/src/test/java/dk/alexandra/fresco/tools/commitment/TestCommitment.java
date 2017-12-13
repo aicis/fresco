@@ -224,7 +224,7 @@ public class TestCommitment {
   // @Test
   // public void testNoSuchAlgorithm() throws Exception {
   // Field algorithm = Commitment.class.getDeclaredField("hashAlgorithm");
-  // Constants.setFinalStatic(algorithm, "sdf", Commitment.class);
+  // Constants.setFinalStatic(algorithm, "sdf", comm);
   // boolean thrown = false;
   // try {
   // comm.commit(rand, Constants.seedOne);

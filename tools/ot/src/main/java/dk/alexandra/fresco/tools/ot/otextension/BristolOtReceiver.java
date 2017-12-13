@@ -34,15 +34,10 @@ public class BristolOtReceiver extends BristolOtShared {
   }
 
   /**
-   * Initializes the underlying random OT functionality, if needed.
+   * Initializes the underlying random OT functionality.
    */
   public void initialize() {
-    if (initialized) {
-      throw new IllegalStateException("Already initialized");
-    }
-    if (receiver.initialized == false) {
-      receiver.initialize();
-    }
+    receiver.initialize();
     initialized = true;
   }
 
