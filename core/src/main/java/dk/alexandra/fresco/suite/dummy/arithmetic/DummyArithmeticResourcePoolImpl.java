@@ -1,17 +1,17 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
-import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
+import dk.alexandra.fresco.framework.network.serializers.SecureSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
 import java.math.BigInteger;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
  * Implements the resource pool needed for the Dummy Arithmetic suite.
- *
  */
 public class DummyArithmeticResourcePoolImpl extends ResourcePoolImpl
     implements DummyArithmeticResourcePool {
@@ -23,7 +23,7 @@ public class DummyArithmeticResourcePoolImpl extends ResourcePoolImpl
    * Constructs a new {@link ResourcePool} for the Dummy Arithmetic suite. Uses the default
    * {@link dk.alexandra.fresco.framework.util.Drbg} implementation of
    * {@link dk.alexandra.fresco.framework.util.HmacDrbg}.
-   * 
+   *
    * @param myId id of this party
    * @param noOfPlayers number of parties in the participating
    * @param modulus the modulus
@@ -36,7 +36,7 @@ public class DummyArithmeticResourcePoolImpl extends ResourcePoolImpl
 
   /**
    * Constructs a new {@link ResourcePool} for the Dummy Arithmetic suite.
-   * 
+   *
    * @param myId id of this party
    * @param noOfPlayers number of parties in the participating
    * @param drbg The DRBG used.
@@ -54,8 +54,13 @@ public class DummyArithmeticResourcePoolImpl extends ResourcePoolImpl
   }
 
   @Override
-  public BigIntegerSerializer getSerializer() {
+  public SecureSerializer<BigInteger> getSerializer() {
     return new BigIntegerWithFixedLengthSerializer(modulusSize);
+  }
+
+  @Override
+  public MessageDigest getMessageDigest() {
+    return null;
   }
 
 }
