@@ -1,10 +1,8 @@
 package dk.alexandra.fresco.logging;
 
-import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Comparison;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
-import dk.alexandra.fresco.framework.builder.numeric.PreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -39,9 +37,8 @@ public class NumericSuiteLogging<ResourcePoolT extends ResourcePool>
   @Override
   public BuilderFactoryNumeric init(ResourcePoolT resourcePool,
       Network network) {
-    BuilderFactoryNumeric init = delegateSuite.init(resourcePool, network);
+    final BuilderFactoryNumeric delegateFactory = delegateSuite.init(resourcePool, network);
     return new BuilderFactoryNumeric() {
-      private BuilderFactoryNumeric delegateFactory = init;
 
       @Override
       public BasicNumericContext getBasicNumericContext() {
@@ -67,17 +64,6 @@ public class NumericSuiteLogging<ResourcePoolT extends ResourcePool>
             new ComparisonLoggerDecorator(delegateFactory.createComparison(builder));
         aggregate.add(comparisonLoggerDecorator);
         return comparisonLoggerDecorator;
-      }
-
-      @Override
-      public AdvancedNumeric createAdvancedNumeric(
-          ProtocolBuilderNumeric builder) {
-        return delegateFactory.createAdvancedNumeric(builder);
-      }
-
-      @Override
-      public PreprocessedValues createPreprocessedValues(ProtocolBuilderNumeric builder) {
-        return delegateFactory.createPreprocessedValues(builder);
       }
     };
   }
