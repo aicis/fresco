@@ -40,7 +40,7 @@ public interface MascotResourcePool extends NumericResourcePool {
    * 
    * @return number of factors
    */
-  int getNumLeftFactors();
+  int getNumCandidatesPerTriple();
 
   /**
    * Gets bit length of seed used to underlying prg.

@@ -61,7 +61,7 @@ public class MascotTestContext {
   }
 
   public int getNumLeftFactors() {
-    return resourcePool.getNumLeftFactors();
+    return resourcePool.getNumCandidatesPerTriple();
   }
 
   public int getPrgSeedLength() {

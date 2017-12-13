@@ -69,8 +69,8 @@ public class TripleGeneration extends MultiPartyProtocol {
       List<FieldElement> prods) {
     Stream<UnauthTriple> stream = IntStream.range(0, right.size())
         .mapToObj(idx -> {
-          int groupStart = idx * getNumLeftFactors();
-          int groupEnd = (idx + 1) * getNumLeftFactors();
+          int groupStart = idx * getNumCandidatesPerTriple();
+          int groupEnd = (idx + 1) * getNumCandidatesPerTriple();
           return new UnauthTriple(left.subList(groupStart, groupEnd), right.get(idx),
               prods.subList(groupStart, groupEnd));
         });
@@ -81,7 +81,7 @@ public class TripleGeneration extends MultiPartyProtocol {
       List<FieldElement> rightFactors) {
     // "stretch" right factors, so we have one right factor for each left factor
     List<FieldElement> stretched =
-        FieldElementCollectionUtils.stretch(rightFactors, getNumLeftFactors());
+        FieldElementCollectionUtils.stretch(rightFactors, getNumCandidatesPerTriple());
 
     // for each value we will have two sub-factors for each other party
     List<List<FieldElement>> subFactors = new ArrayList<>();
@@ -114,11 +114,11 @@ public class TripleGeneration extends MultiPartyProtocol {
   List<UnauthCand> combine(List<UnauthTriple> triples) {
     int numTriples = triples.size();
 
-    List<List<FieldElement>> masks =
-        jointSampler.getNext(getModulus(), getModBitLength(), numTriples, getNumLeftFactors());
+    List<List<FieldElement>> masks = jointSampler.getNext(getModulus(), getModBitLength(),
+        numTriples, getNumCandidatesPerTriple());
 
-    List<List<FieldElement>> sacrificeMasks =
-        jointSampler.getNext(getModulus(), getModBitLength(), numTriples, getNumLeftFactors());
+    List<List<FieldElement>> sacrificeMasks = jointSampler.getNext(getModulus(), getModBitLength(),
+        numTriples, getNumCandidatesPerTriple());
 
     List<UnauthCand> candidates = IntStream.range(0, numTriples)
         .mapToObj(idx -> {
@@ -226,7 +226,7 @@ public class TripleGeneration extends MultiPartyProtocol {
 
     // generate random left factor groups
     List<FieldElement> leftFactorGroups = getLocalSampler().getNext(getModulus(), getModBitLength(),
-        numTriples * getNumLeftFactors());
+        numTriples * getNumCandidatesPerTriple());
 
     // generate random right factors
     List<FieldElement> rightFactors =
@@ -252,8 +252,8 @@ public class TripleGeneration extends MultiPartyProtocol {
     return triples;
   }
 
-  private int getNumLeftFactors() {
-    return resourcePool.getNumLeftFactors();
+  private int getNumCandidatesPerTriple() {
+    return resourcePool.getNumCandidatesPerTriple();
   }
 
   private class UnauthTriple {
