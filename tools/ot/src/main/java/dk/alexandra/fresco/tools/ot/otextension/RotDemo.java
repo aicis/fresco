@@ -7,6 +7,7 @@ import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.ot.base.DummyOt;
 
 import java.util.List;
 
@@ -44,7 +45,7 @@ public class RotDemo<ResourcePoolT extends ResourcePool> extends Demo {
     System.out.println("Connected receiver");
     Drbg rand = new AesCtrDrbg(new byte[] { 0x42, 0x42 });
     Rot rot = new Rot(1, 2, getKbitLength(), getLambdaSecurityParam(), rand,
-        network);
+        network, new DummyOt(2, network));
     RotReceiver rotRec = rot.getReceiver();
     rotRec.initialize();
     byte[] otChoices = new byte[amountOfOTs / 8];
@@ -73,7 +74,7 @@ public class RotDemo<ResourcePoolT extends ResourcePool> extends Demo {
     System.out.println("Connected sender");
     Drbg rand = new AesCtrDrbg(new byte[] { 0x42, 0x04 });
     Rot rot = new Rot(2, 1, getKbitLength(), getLambdaSecurityParam(), rand,
-        network);
+        network, new DummyOt(1, network));
     RotSender rotSnd = rot.getSender();
     rotSnd.initialize();
     Pair<List<StrictBitVector>, List<StrictBitVector>> vpairs = rotSnd

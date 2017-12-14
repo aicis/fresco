@@ -32,13 +32,16 @@ public class BristolOt implements Ot {
    *          Object used for randomness generation
    * @param network
    *          The network instance
+   * @param ot
+   *          The OT functionality to use for seed OTs
    * @param batchSize
    *          Size of the OT extension batch the protocol will construct
    */
   public BristolOt(int myId, int otherId, int kbitLength,
-      int lambdaSecurityParam, Drbg rand, Network network, int batchSize) {
+      int lambdaSecurityParam, Drbg rand, Network network, Ot ot,
+      int batchSize) {
     Rot rot = new Rot(myId, otherId, kbitLength, lambdaSecurityParam, rand,
-        network);
+        network, ot);
     RotSender sender = rot.getSender();
     RotReceiver receiver = rot.getReceiver();
     this.sender = new BristolOtSender(sender, batchSize);

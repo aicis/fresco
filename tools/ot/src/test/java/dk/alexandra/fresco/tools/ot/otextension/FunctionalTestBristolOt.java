@@ -11,6 +11,7 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.helper.Constants;
 import dk.alexandra.fresco.tools.helper.TestRuntime;
+import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 
 import java.io.Closeable;
@@ -54,7 +55,7 @@ public class FunctionalTestBristolOt {
         TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     Drbg rand = new AesCtrDrbg(Constants.seedOne);
     Ot otSender = new BristolOt(1, 2, kbitLength, lambdaBitLength, rand, 
-        network, batchSize);
+        network, new DummyOt(2, network), batchSize);
     List<Pair<StrictBitVector, StrictBitVector>> messages = new ArrayList<>(
         iterations);
     for (int i = 0; i < iterations; i++) {
@@ -75,7 +76,7 @@ public class FunctionalTestBristolOt {
         TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     Drbg rand = new AesCtrDrbg(Constants.seedTwo);
     Ot otReceiver = new BristolOt(2, 1, kbitLength, lambdaBitLength, rand,
-        network, batchSize);
+        network, new DummyOt(1, network), batchSize);
     List<StrictBitVector> messages = new ArrayList<>(choices.getSize());
     for (int i = 0; i < choices.getSize(); i++) {
       StrictBitVector message = otReceiver.receive(choices.getBit(i, false));
@@ -147,7 +148,7 @@ public class FunctionalTestBristolOt {
         TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     Drbg rand = new AesCtrDrbg(Constants.seedOne);
     BristolRotBatch rotBatchSender = new BristolRotBatch(1, 2, kbitLength,
-        lambdaBitLength, rand, network);
+        lambdaBitLength, rand, network, new DummyOt(2, network));
     if (autoInit == false) {
       rotBatchSender.initSender();
     }
@@ -163,7 +164,7 @@ public class FunctionalTestBristolOt {
         TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     Drbg rand = new AesCtrDrbg(Constants.seedTwo);
     BristolRotBatch rotBatchReceiver = new BristolRotBatch(2, 1, kbitLength,
-        lambdaBitLength, rand, network);
+        lambdaBitLength, rand, network, new DummyOt(1, network));
     if (autoInit == false) {
       rotBatchReceiver.initReceiver();
     }
@@ -335,7 +336,7 @@ public class FunctionalTestBristolOt {
     };
     Drbg rand = new AesCtrDrbg(Constants.seedOne);
     BristolOt ot = new BristolOt(1, 2, kbitLength, lambdaBitLength, rand,
-        network, 1024);
+        network, new DummyOt(2, network), 1024);
     Method method = ot.receiver.getClass().getDeclaredMethod("doActualReceive",
         byte[].class, byte[].class);
     method.setAccessible(true);

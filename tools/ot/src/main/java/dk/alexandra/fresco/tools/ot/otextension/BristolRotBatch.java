@@ -5,6 +5,7 @@ import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 
 import java.util.ArrayList;
@@ -28,8 +29,8 @@ public class BristolRotBatch implements RotBatch<StrictBitVector> {
   protected RotReceiver receiver;
 
   /**
-   * Constructs a new random batch OT protocol and constructs the internal sender and
-   * receiver objects.
+   * Constructs a new random batch OT protocol and constructs the internal
+   * sender and receiver objects.
    * 
    * @param myId
    *          The unique ID of the calling party
@@ -44,11 +45,13 @@ public class BristolRotBatch implements RotBatch<StrictBitVector> {
    *          Object used for randomness generation
    * @param network
    *          The network instance
+   * @param ot
+   *          The OT functionality to use for seed OTs
    */
   public BristolRotBatch(int myId, int otherId, int kbitLength,
-      int lambdaSecurityParam, Drbg rand, Network network) {
+      int lambdaSecurityParam, Drbg rand, Network network, Ot ot) {
     Rot rot = new Rot(myId, otherId, kbitLength, lambdaSecurityParam, rand,
-        network);
+        network, ot);
     this.sender = rot.getSender();
     this.receiver = rot.getReceiver();
   }

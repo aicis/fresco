@@ -38,7 +38,7 @@ public class Commitment {
   public Commitment() {
     digest = ExceptionConverter.safe(
         () -> MessageDigest.getInstance(HASH_ALGORITHM),
-        "Missing security hash function which is dependent in this library");
+        "Missing secure, hash function which is dependent in this library");
   }
 
   /**

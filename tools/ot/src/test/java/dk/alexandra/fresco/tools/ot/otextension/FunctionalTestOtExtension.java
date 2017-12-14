@@ -13,6 +13,7 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.helper.Constants;
 import dk.alexandra.fresco.tools.helper.TestRuntime;
+import dk.alexandra.fresco.tools.ot.base.DummyOt;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -65,7 +66,8 @@ public class FunctionalTestOtExtension {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     Drbg rand = new AesCtrDrbg(Constants.seedOne);
-    Cote cote = new Cote(1, 2, kbitLength, lambdaBitLength, rand, network);
+    Cote cote = new Cote(1, 2, kbitLength, lambdaBitLength, rand, network,
+        new DummyOt(2, network));
     return cote;
   }
 
@@ -73,7 +75,8 @@ public class FunctionalTestOtExtension {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     Drbg rand = new AesCtrDrbg(Constants.seedTwo);
-    Cote cote = new Cote(2, 1, kbitLength, lambdaBitLength, rand, network);
+    Cote cote = new Cote(2, 1, kbitLength, lambdaBitLength, rand, network,
+        new DummyOt(1, network));
     return cote;
   }
 

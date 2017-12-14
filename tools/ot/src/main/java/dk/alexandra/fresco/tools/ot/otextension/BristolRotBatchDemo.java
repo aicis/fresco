@@ -7,6 +7,7 @@ import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 
 import java.util.List;
@@ -29,7 +30,7 @@ public class BristolRotBatchDemo<ResourcePoolT extends ResourcePool>
     System.out.println("Connected receiver");
     Drbg currentPrg = new AesCtrDrbg(new byte[] { 0x42, 0x42 });
     RotBatch<StrictBitVector> ot = new BristolRotBatch(1, 2, getKbitLength(),
-        getLambdaSecurityParam(), currentPrg, network);
+        getLambdaSecurityParam(), currentPrg, network, new DummyOt(2, network));
     StrictBitVector choices = new StrictBitVector(amountOfOTs, currentPrg);
     List<StrictBitVector> messages = ot.receive(choices, messageSize);
     for (int i = 0; i < amountOfOTs; i++) {
@@ -52,7 +53,7 @@ public class BristolRotBatchDemo<ResourcePoolT extends ResourcePool>
     System.out.println("Connected sender");
     Drbg currentPrg = new AesCtrDrbg(new byte[] { 0x42, 0x04 });
     RotBatch<StrictBitVector> ot = new BristolRotBatch(2, 1, getKbitLength(),
-        getLambdaSecurityParam(), currentPrg, network);
+        getLambdaSecurityParam(), currentPrg, network, new DummyOt(1, network));
     List<Pair<StrictBitVector, StrictBitVector>> messages = ot.send(amountOfOTs,
         messageSize);
     for (int i = 0; i < amountOfOTs; i++) {

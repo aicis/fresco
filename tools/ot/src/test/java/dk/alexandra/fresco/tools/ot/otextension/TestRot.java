@@ -8,6 +8,7 @@ import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.helper.Constants;
+import dk.alexandra.fresco.tools.ot.base.DummyOt;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -44,7 +45,7 @@ public class TestRot {
         return 0;
       }
     };
-    this.rot = new Rot(1, 2, 128, 40, rand, network);
+    this.rot = new Rot(1, 2, 128, 40, rand, network, new DummyOt(2, network));
   }
 
   /**** POSITIVE TESTS. ****/
@@ -216,7 +217,7 @@ public class TestRot {
       }
     };
     Drbg rand = new AesCtrDrbg(Constants.seedOne);
-    Rot ot = new Rot(1, 2, 128, 40, rand, network);
+    Rot ot = new Rot(1, 2, 128, 40, rand, network, new DummyOt(2, network));
     Field algorithm = RotShared.class.getDeclaredField("hashAlgorithm");
     // Remove private
     algorithm.setAccessible(true);

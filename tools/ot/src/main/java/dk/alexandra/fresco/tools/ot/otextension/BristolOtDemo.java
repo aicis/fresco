@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 
 public class BristolOtDemo<ResourcePoolT extends ResourcePool> extends Demo {
@@ -23,7 +24,8 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> extends Demo {
     System.out.println("Connected receiver");
     Drbg rand = new AesCtrDrbg(new byte[] { 0x42, 0x42 });
     Ot ot = new BristolOt(1, 2, getKbitLength(),
-        getLambdaSecurityParam(), rand, network, amountOfOTs);
+        getLambdaSecurityParam(), rand, network, new DummyOt(2, network),
+        amountOfOTs);
     for (int i = 0; i < amountOfOTs; i++) {
       byte[] choiceByte = new byte[1];
       rand.nextBytes(choiceByte);
@@ -51,7 +53,7 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> extends Demo {
     System.out.println("Connected sender");
     Drbg rand = new AesCtrDrbg(new byte[] { 0x42, 0x42 });
     Ot ot = new BristolOt(2, 1, getKbitLength(), getLambdaSecurityParam(),
-        rand, network, amountOfOTs);
+        rand, network, new DummyOt(1, network), amountOfOTs);
     for (int i = 0; i < amountOfOTs; i++) {
       // We send random 512 bit bitstrings
       StrictBitVector msgZero = new StrictBitVector(512, rand);
