@@ -29,7 +29,6 @@ public final class FieldElement implements Addable<FieldElement> {
     this(new BigInteger(value), new BigInteger(modulus), bitLength);
   }
 
-  // TODO: make sure we treat these as unsigned
   public FieldElement(long value, BigInteger modulus, int bitLength) {
     this(BigInteger.valueOf(value), modulus, bitLength);
   }
@@ -40,7 +39,6 @@ public final class FieldElement implements Addable<FieldElement> {
 
   private FieldElement binaryOp(BinaryOperator<BigInteger> op, FieldElement left,
       FieldElement right) {
-    // TODO: check that modulus and size are same
     return new FieldElement(op.apply(left.toBigInteger(), right.toBigInteger())
         .mod(modulus), this.modulus, this.bitLength);
   }

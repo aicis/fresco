@@ -17,7 +17,7 @@ import dk.alexandra.fresco.tools.mascot.NetworkedTest;
 public class TestBroadcastValidation extends NetworkedTest {
 
   private Pair<Boolean, Exception> runSinglePartyBroadcastValidation(MascotTestContext ctx,
-      List<byte[]> messages) throws Exception {
+      List<byte[]> messages) {
     BroadcastValidation validator =
         new BroadcastValidation(ctx.getResourcePool(), ctx.getNetwork());
     boolean thrown = false;

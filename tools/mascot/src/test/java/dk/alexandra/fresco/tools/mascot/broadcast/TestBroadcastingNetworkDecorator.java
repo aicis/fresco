@@ -8,7 +8,7 @@ import dk.alexandra.fresco.framework.network.Network;
 
 public class TestBroadcastingNetworkDecorator {
 
-  final static Network validBroadcastNetwork = new BroadcastingNetworkDecorator(new Network() {
+  private final Network validBroadcastNetwork = new BroadcastingNetworkDecorator(new Network() {
 
     @Override
     public void send(int partyId, byte[] data) {}
@@ -51,9 +51,5 @@ public class TestBroadcastingNetworkDecorator {
   public void testSendUnsupported() {
     validBroadcastNetwork.send(1, null);
   }
-
-  // TODO
-  @Test
-  public void testReceive() {}
 
 }
