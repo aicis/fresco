@@ -11,8 +11,4 @@ public class TwoPartyProtocol extends BaseProtocol {
     this.otherId = otherId;
   }
 
-  public Integer getOtherId() {
-    return otherId;
-  }
-
 }

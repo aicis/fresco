@@ -33,7 +33,7 @@ public class BroadcastingNetworkDecorator implements Network {
   }
 
   /**
-   * Point-to-point networking is not supported for broadcast.
+   * Runs broadcast validation upon receiving messages to ensure consistency.
    */
   @Override
   public byte[] receive(int partyId) {

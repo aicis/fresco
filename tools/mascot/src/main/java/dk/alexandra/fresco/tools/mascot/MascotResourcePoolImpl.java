@@ -111,11 +111,6 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
   }
 
   @Override
-  public BigInteger convertRepresentation(BigInteger b) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public Drbg getRandomGenerator() {
     return drbg;
   }

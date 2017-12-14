@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.tools.mascot.triple;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -15,8 +16,8 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotTestContext;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
+import dk.alexandra.fresco.tools.mascot.TripleValidator;
 import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
-import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
@@ -25,6 +26,8 @@ import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
 
 public class TestTripleGeneration extends NetworkedTest {
 
+  private TripleValidator tripleValidator = new TripleValidator();
+  
   private FieldElementPrg getJointPrg(int prgSeedLength) {
     return new FieldElementPrgImpl(new StrictBitVector(prgSeedLength, new Random(1)));
   }
@@ -52,24 +55,6 @@ public class TestTripleGeneration extends NetworkedTest {
       triples.addAll(tripleGen.triple(numTriples));
     }
     return triples;
-  }
-
-  private void checkTriple(MultTriple triple, FieldElement macKey) {
-    AuthenticatedElement left = triple.getLeft();
-    AuthenticatedElement right = triple.getRight();
-    AuthenticatedElement product = triple.getProduct();
-
-    // check values
-    FieldElement leftValue = left.getShare();
-    FieldElement rightValue = right.getShare();
-    FieldElement productValue = product.getShare();
-    assertEquals(leftValue.multiply(rightValue), productValue);
-
-    // check macs
-    FieldElement leftMac = left.getMac();
-    FieldElement rightMac = right.getMac();
-    FieldElement productMac = product.getMac();
-    assertEquals(leftMac.multiply(rightMac), productMac.multiply(macKey));
   }
 
   @Test
@@ -195,7 +180,8 @@ public class TestTripleGeneration extends NetworkedTest {
     List<List<MultTriple>> results = testRuntime.runPerPartyTasks(tasks);
     List<MultTriple> combined = CollectionUtils.pairWiseSum(results);
     for (MultTriple triple : combined) {
-      checkTriple(triple, CollectionUtils.sum(macKeyShares));
+      assertTrue(tripleValidator.tripleIsValidProduct(triple));
+      assertTrue(tripleValidator.tripleMacIsValid(triple, CollectionUtils.sum(macKeyShares)));
     }
   }
 
@@ -223,7 +209,8 @@ public class TestTripleGeneration extends NetworkedTest {
     List<List<MultTriple>> results = testRuntime.runPerPartyTasks(tasks);
     List<MultTriple> combined = CollectionUtils.pairWiseSum(results);
     for (MultTriple triple : combined) {
-      checkTriple(triple, CollectionUtils.sum(macKeyShares));
+      assertTrue(tripleValidator.tripleIsValidProduct(triple));
+      assertTrue(tripleValidator.tripleMacIsValid(triple, CollectionUtils.sum(macKeyShares)));
     }
   }
 
