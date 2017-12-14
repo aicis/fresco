@@ -22,7 +22,8 @@ public class CheatingNetwork extends KryoNetNetwork {
   }
 
   /**
-   * The class will flip a bit in the "byteNo" byte of the next message sent.
+   * The class will flip a bit in the "byteNo" byte of the "messageNo" next
+   * message sent.
    * 
    * @param messageNo
    *          The cheating will occur in the "messageNo"'th call to network.send
@@ -31,9 +32,9 @@ public class CheatingNetwork extends KryoNetNetwork {
    */
   public void cheatInNextMessage(int messageNo, int byteNo) {
     this.messageNo = messageNo;
-    cheatByteNo = byteNo;
-    cheat = true;
-    counter = 0;
+    this.cheatByteNo = byteNo;
+    this.cheat = true;
+    this.counter = 0;
   }
 
   @Override
@@ -45,10 +46,5 @@ public class CheatingNetwork extends KryoNetNetwork {
     }
     super.send(partyId, data);
     counter++;
-  }
-
-  @Override
-  public byte[] receive(int partyId) {
-    return super.receive(partyId);
   }
 }

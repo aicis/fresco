@@ -2,18 +2,21 @@ package dk.alexandra.fresco.tools.ot.otextension;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.helper.Constants;
 
+import org.junit.Before;
+import org.junit.Test;
+
 public class TestCote {
   private Cote cote;
 
+  /**
+   * Setup a correlated OT functionality.
+   */
   @Before
   public void setup() {
     Drbg rand = new AesCtrDrbg(Constants.seedOne);
@@ -36,8 +39,6 @@ public class TestCote {
     this.cote = new Cote(1, 2, 128, 40, rand, network);
   }
 
-  /**** POSITIVE TESTS. ****/
-
   /**** NEGATIVE TESTS. ****/
   @Test
   public void testIllegalInit() {
@@ -57,11 +58,9 @@ public class TestCote {
         return 0;
       }
     };
-    CoteSender badSender;
-    CoteReceiver badReceiver;
     boolean thrown = false;
     try {
-      badSender = new CoteSender(1, 2, 128, 80, null, network);
+      new CoteSender(1, 2, 128, 80, null, network);
     } catch (IllegalArgumentException e) {
       assertEquals("Illegal constructor parameters", e.getMessage());
       thrown = true;
@@ -69,22 +68,14 @@ public class TestCote {
     assertEquals(thrown, true);
     thrown = false;
     try {
-      badReceiver = new CoteReceiver(1, 2, 128, 80, rand, null);
+      new CoteReceiver(1, 2, 128, 80, rand, null);
     } catch (IllegalArgumentException e) {
       assertEquals("Illegal constructor parameters", e.getMessage());
       thrown = true;
     }
     thrown = false;
     try {
-      badSender = new CoteSender(1, 2, 0, 80, rand, network);
-    } catch (IllegalArgumentException e) {
-      assertEquals("Illegal constructor parameters", e.getMessage());
-      thrown = true;
-    }
-    assertEquals(thrown, true);
-    thrown = false;
-    try {
-      badReceiver = new CoteReceiver(1, 2, 128, 0, rand, network);
+      new CoteSender(1, 2, 0, 80, rand, network);
     } catch (IllegalArgumentException e) {
       assertEquals("Illegal constructor parameters", e.getMessage());
       thrown = true;
@@ -92,7 +83,15 @@ public class TestCote {
     assertEquals(thrown, true);
     thrown = false;
     try {
-      badSender = new CoteSender(1, 2, 127, 80, rand, network);
+      new CoteReceiver(1, 2, 128, 0, rand, network);
+    } catch (IllegalArgumentException e) {
+      assertEquals("Illegal constructor parameters", e.getMessage());
+      thrown = true;
+    }
+    assertEquals(thrown, true);
+    thrown = false;
+    try {
+      new CoteSender(1, 2, 127, 80, rand, network);
     } catch (IllegalArgumentException e) {
       assertEquals("Computational security parameter must be divisible by 8", e.getMessage());
       thrown = true;
@@ -100,7 +99,7 @@ public class TestCote {
     assertEquals(thrown, true);
     thrown = false;
     try {
-      badSender = new CoteSender(1, 2, 128, 60, rand, network);
+      new CoteSender(1, 2, 128, 60, rand, network);
     } catch (IllegalArgumentException e) {
       assertEquals("Statistical security parameter must be divisible by 8",
           e.getMessage());

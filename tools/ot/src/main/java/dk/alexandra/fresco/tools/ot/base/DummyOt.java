@@ -3,10 +3,17 @@ package dk.alexandra.fresco.tools.ot.base;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 
+/**
+ * Implementation for testing and proof-of-concept protocols. This class carries
+ * out an INSECURE OT.
+ * 
+ * @author jot2re
+ *
+ */
 public class DummyOt implements Ot {
 
   private Integer otherId;
-  Network network;
+  private Network network;
 
   /**
    * Construct an insecure dummy OT object based on a real network.

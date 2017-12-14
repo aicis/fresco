@@ -211,20 +211,4 @@ public class TestCommitment {
     }
     assertTrue(thrown);
   }
-
-  // @Test
-  // public void testNoSuchAlgorithm() throws Exception {
-  // Field algorithm = Commitment.class.getDeclaredField("hashAlgorithm");
-  // Constants.setFinalStatic(algorithm, "sdf", Commitment.class);
-  // boolean thrown = false;
-  // try {
-  // Commitment newCom = new Commitment();
-  // } catch (IllegalArgumentException e) {
-  // assertEquals("The internally used hash function does not exist",
-  // e.getMessage());
-  // thrown = true;
-  // }
-  // assertTrue(thrown);
-  // }
-
 }

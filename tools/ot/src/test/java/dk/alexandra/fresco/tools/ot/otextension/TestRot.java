@@ -3,6 +3,12 @@ package dk.alexandra.fresco.tools.ot.otextension;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.helper.Constants;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -13,15 +19,12 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.AesCtrDrbg;
-import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.helper.Constants;
-
 public class TestRot {
   private Rot rot;
 
+  /**
+   * Setup a local Rot instance.
+   */
   @Before
   public void setup() {
     Drbg rand = new AesCtrDrbg(Constants.seedOne);
@@ -118,10 +121,6 @@ public class TestRot {
     // Semantically equal to 1 as we read bits from left to right
     // 1 0 1 0 0 0 0 0
     byte[] bbyte = new byte[] { (byte) 0xA0 };
-    // 0 1 0 0 0 0 0 1, 1 1 1 1 1 1 1 1, 0 0 0 0 0 0 0 0 XOR
-    // 0 0 0 1 0 0 0 0, 0 1 1 1 1 1 1 1, 1 1 0 0 0 0 0 0 =
-    // 0 1 0 1 0 0 0 1, 1 0 0 0 0 0 0 0, 1 1 0 0 0 0 0 0
-    byte[] expectedByte = new byte[] { (byte) 0x51, (byte) 0x80, (byte) 0xC0 };
     StrictBitVector a = new StrictBitVector(abyte, 16);
     StrictBitVector b = new StrictBitVector(bbyte, 8);
     List<StrictBitVector> alist = new ArrayList<StrictBitVector>(2);
@@ -130,6 +129,10 @@ public class TestRot {
     alist.add(b);
     blist.add(b);
     blist.add(a);
+    // 0 1 0 0 0 0 0 1, 1 1 1 1 1 1 1 1, 0 0 0 0 0 0 0 0 XOR
+    // 0 0 0 1 0 0 0 0, 0 1 1 1 1 1 1 1, 1 1 0 0 0 0 0 0 =
+    // 0 1 0 1 0 0 0 1, 1 0 0 0 0 0 0 0, 1 1 0 0 0 0 0 0
+    byte[] expectedByte = new byte[] { (byte) 0x51, (byte) 0x80, (byte) 0xC0 };
     StrictBitVector expected = new StrictBitVector(expectedByte, 24);
     List<StrictBitVector> expectedlist = new ArrayList<>(2);
     expectedlist.add(expected);
