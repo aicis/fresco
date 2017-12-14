@@ -1,19 +1,20 @@
 package dk.alexandra.fresco.tools.mascot.demo;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.tools.mascot.Mascot;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
@@ -37,25 +38,18 @@ public class MascotDemo {
 
   public void run() {
     long startTime = System.currentTimeMillis();
-    List<MultTriple> triples = mascot.getTriples(256);
+    List<MultTriple> triples = mascot.getTriples(1);
     long endTime = System.currentTimeMillis();
-    System.out
-        .println("Generated " + triples.size() + " triples in " + (endTime - startTime) + " ms");
-    try {
+    
+    System.out.println("Generated " + triples.size() + " triples in " + (endTime - startTime) + " ms");
+    Callable<Void> closeTask = () -> {
       toClose.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+      return null;
+    };
+    ExceptionConverter.safe(closeTask, "Failed closing network");
   }
 
-  public static void main(String[] args) {
-    Integer myId = Integer.parseInt(args[0]);
-    List<Integer> partyIds = Arrays.asList(1, 2);
-    new MascotDemo(myId, partyIds).run();
-  }
-
-  // TODO where should this go?
-  private static NetworkConfiguration defaultNetworkConfiguration(Integer myId,
+  private NetworkConfiguration defaultNetworkConfiguration(Integer myId,
       List<Integer> partyIds) {
     Map<Integer, Party> parties = new HashMap<>();
     for (Integer partyId : partyIds) {
@@ -75,6 +69,12 @@ public class MascotDemo {
     return new MascotResourcePoolImpl(myId, partyIds,
         new PaddingAesCtrDrbg(drbgSeed, prgSeedLength), modulus, modBitLength, lambdaSecurityParam,
         prgSeedLength, numLeftFactors);
+  }
+  
+  public static void main(String[] args) {
+    Integer myId = Integer.parseInt(args[0]);
+    List<Integer> partyIds = Arrays.asList(1, 2);
+    new MascotDemo(myId, partyIds).run();
   }
 
 }
