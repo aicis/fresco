@@ -16,9 +16,9 @@ import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
+import dk.alexandra.fresco.tools.mascot.DummyMascotResourcePoolImpl;
 import dk.alexandra.fresco.tools.mascot.Mascot;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
-import dk.alexandra.fresco.tools.mascot.MascotResourcePoolImpl;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 
@@ -37,11 +37,12 @@ public class MascotDemo {
   }
 
   public void run() {
-    long startTime = System.currentTimeMillis();
-    List<MultTriple> triples = mascot.getTriples(32512);
-    long endTime = System.currentTimeMillis();
-    
-    System.out.println("Generated " + triples.size() + " triples in " + (endTime - startTime) + " ms");
+    for (int i = 0; i < 100; i++) {
+      long startTime = System.currentTimeMillis();
+      List<MultTriple> triples = mascot.getTriples(256);
+      long endTime = System.currentTimeMillis();
+      System.out.println("Generated " + triples.size() + " triples in " + (endTime - startTime) + " ms");
+    }
     Callable<Void> closeTask = () -> {
       toClose.close();
       return null;
@@ -49,8 +50,7 @@ public class MascotDemo {
     ExceptionConverter.safe(closeTask, "Failed closing network");
   }
 
-  private NetworkConfiguration defaultNetworkConfiguration(Integer myId,
-      List<Integer> partyIds) {
+  private NetworkConfiguration defaultNetworkConfiguration(Integer myId, List<Integer> partyIds) {
     Map<Integer, Party> parties = new HashMap<>();
     for (Integer partyId : partyIds) {
       parties.put(partyId, new Party(partyId, "localhost", 8005 + partyId));
@@ -65,12 +65,13 @@ public class MascotDemo {
     int prgSeedLength = 256;
     int numLeftFactors = 3;
     byte[] drbgSeed = new byte[prgSeedLength / 8];
+    // TODO change back to secure random and non-dummy
     new Random(myId).nextBytes(drbgSeed);
-    return new MascotResourcePoolImpl(myId, partyIds,
+    return new DummyMascotResourcePoolImpl(myId, partyIds,
         new PaddingAesCtrDrbg(drbgSeed, prgSeedLength), modulus, modBitLength, lambdaSecurityParam,
         prgSeedLength, numLeftFactors);
   }
-  
+
   public static void main(String[] args) {
     Integer myId = Integer.parseInt(args[0]);
     List<Integer> partyIds = Arrays.asList(1, 2);

@@ -3,14 +3,11 @@ package dk.alexandra.fresco.tools.mascot;
 import java.io.Closeable;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -20,6 +17,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.Pair;
 
 public class TestRuntime {
@@ -81,6 +79,25 @@ public class TestRuntime {
   }
 
   /**
+   * Invokes tasks and unwraps futures. <br>
+   * Uses {@link ExceptionConverter#safe(Callable, String)} to convert checked exceptions.
+   * 
+   * @param tasks task to invoke
+   * @return results of tasks
+   */
+  private <T> List<T> safeInvokeAll(List<Callable<T>> tasks) {
+    Callable<List<Future<T>>> runAll = () -> {
+      return executor.invokeAll(tasks, timeout, TimeUnit.SECONDS);
+    };
+    List<Future<T>> futures = ExceptionConverter.safe(runAll, "Invoke all failed");
+    return futures.stream()
+        .map(future -> {
+          return ExceptionConverter.safe(() -> future.get(), "Party task failed");
+        })
+        .collect(Collectors.toList());
+  }
+
+  /**
    * Given a ready executor, creates as Mascot test context for each party.
    * 
    * @param partyIds the parties
@@ -95,20 +112,15 @@ public class TestRuntime {
       BigInteger modulus, int modBitLength, int lambdaSecurityParam, int numLeftFactors,
       int prgSeedLength) {
     initalizeExecutor(partyIds.size());
-    try {
-      List<Callable<Pair<Integer, MascotTestContext>>> initializationTasks = new LinkedList<>();
-      for (Integer partyId : partyIds) {
-        initializationTasks.add(() -> initializeContext(partyId, partyIds, modulus, modBitLength,
-            lambdaSecurityParam, numLeftFactors, prgSeedLength));
-      }
-      for (Future<Pair<Integer, MascotTestContext>> pair : executor.invokeAll(initializationTasks)) {
-        Pair<Integer, MascotTestContext> unwrapped = pair.get();
-        contexts.put(unwrapped.getFirst(), unwrapped.getSecond());
-      }
-      return contexts;
-    } catch (ExecutionException | InterruptedException e) {
-      throw new RuntimeException(e);
+    List<Callable<Pair<Integer, MascotTestContext>>> initializationTasks = new LinkedList<>();
+    for (Integer partyId : partyIds) {
+      initializationTasks.add(() -> initializeContext(partyId, partyIds, modulus, modBitLength,
+          lambdaSecurityParam, numLeftFactors, prgSeedLength));
     }
+    for (Pair<Integer, MascotTestContext> pair : safeInvokeAll(initializationTasks)) {
+      contexts.put(pair.getFirst(), pair.getSecond());
+    }
+    return contexts;
   }
 
   /**
@@ -125,30 +137,7 @@ public class TestRuntime {
     if (!executorInitialized) {
       throw new IllegalStateException("Executor not initialized yet");
     }
-    try {
-      List<Future<T>> results = executor.invokeAll(tasks, timeout, TimeUnit.SECONDS);
-      // this is a bit of a mess...
-      List<T> unwrappedResults = results.stream()
-          .map(future -> {
-            try {
-              return future.get();
-            } catch (CancellationException e) {
-              System.err.println("Task cancelled due to time-out");
-              e.printStackTrace();
-            } catch (Exception e) {
-              System.err.println("Exception while executing task");
-              e.printStackTrace();
-            }
-            return null;
-          })
-          .collect(Collectors.toList());
-      return unwrappedResults;
-    } catch (Exception e) {
-      // TODO Auto-generated catch block
-      System.err.println("Task execution failed");
-      e.printStackTrace();
-    }
-    return new ArrayList<>();
+    return safeInvokeAll(tasks);
   }
 
   /**
