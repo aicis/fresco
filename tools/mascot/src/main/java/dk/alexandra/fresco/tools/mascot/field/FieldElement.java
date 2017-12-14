@@ -25,10 +25,6 @@ public final class FieldElement implements Addable<FieldElement> {
     this.bitLength = other.bitLength;
   }
 
-  public FieldElement(String value, BigInteger modulus, int bitLength) {
-    this(new BigInteger(value), modulus, bitLength);
-  }
-
   public FieldElement(String value, String modulus, int bitLength) {
     this(new BigInteger(value), new BigInteger(modulus), bitLength);
   }
@@ -38,16 +34,8 @@ public final class FieldElement implements Addable<FieldElement> {
     this(BigInteger.valueOf(value), modulus, bitLength);
   }
 
-  public FieldElement(int value, BigInteger modulus, int bitLength) {
-    this(BigInteger.valueOf(value), modulus, bitLength);
-  }
-
   public FieldElement(byte[] value, BigInteger modulus, int bitLength) {
     this(new BigInteger(1, value), modulus, bitLength);
-  }
-
-  public FieldElement(byte[] value, String modulus, int bitLength) {
-    this(new BigInteger(1, value), new BigInteger(modulus), bitLength);
   }
 
   private FieldElement binaryOp(BinaryOperator<BigInteger> op, FieldElement left,
@@ -79,12 +67,16 @@ public final class FieldElement implements Addable<FieldElement> {
         .mod(modulus), modulus, bitLength);
   }
 
-  public BigInteger getModulus() {
-    return this.modulus;
-  }
-
   public BigInteger toBigInteger() {
     return this.value;
+  }
+  
+  public boolean getBit(int bitIndex) {
+    return value.testBit(bitIndex);
+  }
+
+  public FieldElement select(boolean bit) {
+    return bit ? this : new FieldElement(BigInteger.ZERO, modulus, bitLength);
   }
 
   public byte[] toByteArray() {
@@ -102,14 +94,14 @@ public final class FieldElement implements Addable<FieldElement> {
     return new StrictBitVector(toByteArray(), bitLength);
   }
 
-  public boolean getBit(int bitIndex) {
-    return value.testBit(bitIndex);
+  public BigInteger getModulus() {
+    return this.modulus;
   }
-
-  public FieldElement select(boolean bit) {
-    return bit ? this : new FieldElement(BigInteger.ZERO, modulus, bitLength);
+  
+  public int getBitLength() {
+    return bitLength;
   }
-
+  
   @Override
   public String toString() {
     return "FieldElement [value=" + value + ", modulus=" + modulus + ", bitLength=" + bitLength
@@ -150,10 +142,6 @@ public final class FieldElement implements Addable<FieldElement> {
     return true;
   }
 
-  public int getBitLength() {
-    return bitLength;
-  }
-
   private void sanityCheck(BigInteger value, BigInteger modulus, int bitLength) {
     if (bitLength % 8 != 0) {
       throw new IllegalArgumentException("Bit length must be multiple of 8");
@@ -163,8 +151,6 @@ public final class FieldElement implements Addable<FieldElement> {
       throw new IllegalArgumentException("Cannot have negative modulus");
     } else if (modulus.bitLength() != bitLength) {
       throw new IllegalArgumentException("Modulus bit length must match bit length");
-    } else if (value.bitLength() > bitLength) {
-      throw new IllegalArgumentException("Value bit length must be less or equal to bit length");
     } else if (value.compareTo(modulus) != -1) {
       throw new IllegalArgumentException("Value must be smaller than modulus");
     }
