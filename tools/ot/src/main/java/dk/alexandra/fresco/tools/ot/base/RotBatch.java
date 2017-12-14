@@ -1,14 +1,13 @@
 package dk.alexandra.fresco.tools.ot.base;
 
-import java.util.List;
-
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import java.util.List;
 
 public interface RotBatch<T> {
 
-  public List<Pair<T, T>> send(int numMessages, int messageSize);
+  List<Pair<T, T>> send(int numMessages, int messageSize);
 
-  public List<T> receive(StrictBitVector choiceBits, int messageSize);
+  List<T> receive(StrictBitVector choiceBits, int messageSize);
   
 }
