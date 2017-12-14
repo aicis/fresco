@@ -16,10 +16,6 @@ public class BaseProtocol {
     this.network = network;
   }
 
-  public MascotResourcePool getResourcePool() {
-    return resourcePool;
-  }
-
   public int getMyId() {
     return resourcePool.getMyId();
   }

@@ -52,9 +52,8 @@ public class TestBroadcastingNetworkDecorator {
     validBroadcastNetwork.send(1, null);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void testReceiveUnsupported() {
-    validBroadcastNetwork.receive(1);
-  }
+  // TODO
+  @Test
+  public void testReceive() {}
 
 }
