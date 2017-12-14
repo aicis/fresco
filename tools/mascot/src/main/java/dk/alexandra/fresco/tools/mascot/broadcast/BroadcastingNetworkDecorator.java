@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.tools.mascot.broadcast;
 
+import java.util.Arrays;
 import java.util.List;
 
 import dk.alexandra.fresco.framework.network.Network;
@@ -36,7 +37,9 @@ public class BroadcastingNetworkDecorator implements Network {
    */
   @Override
   public byte[] receive(int partyId) {
-    throw new UnsupportedOperationException("Broadcast network can only receive from all");
+    byte[] received = network.receive(partyId);
+    validator.validate(Arrays.asList(received));
+    return received;
   }
 
   @Override

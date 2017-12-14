@@ -43,7 +43,7 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
     this.strictBitVectorSerializer = new StrictBitVectorSerializer();
     this.commitmentSerializer = new CommitmentSerializer();
     this.messageDigest = ExceptionConverter.safe(() -> MessageDigest.getInstance("SHA-256"),
-        "Configuration error, SHA-256 is needed for Spdz");
+        "Configuration error, SHA-256 is needed for Mascot");
   }
 
   @Override
