@@ -84,6 +84,7 @@ public class FieldElementGeneratorCache {
       new BigInteger("85070591730234615865843651857942052864"),
       new BigInteger("170141183460469231731687303715884105728")};
   private static final HashMap<BigInteger, List<FieldElement>> generators = new HashMap<>();
+  
   static {
     BigInteger smallPrime = new BigInteger("65521");
     int smallBitLength = 16;
@@ -105,6 +106,9 @@ public class FieldElementGeneratorCache {
     return generators.containsKey(modulus);
   }
   
+  /**
+   * Returns field element representations of powers of two from 0 to modBitLength.
+   */
   public static List<FieldElement> getGenerators(BigInteger modulus, int modBitLength) {
     if (generators.containsKey(modulus)) {
       return generators.get(modulus);

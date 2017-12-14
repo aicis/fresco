@@ -105,10 +105,8 @@ public class TestElementGeneration extends NetworkedTest {
     AuthenticatedElement rightShare = rightShares.get(0);
 
     FieldElement expectedRecomb = new FieldElement(7, modulus, modBitLength);
-    FieldElement expectedMacRecomb = new FieldElement(1608, modulus, modBitLength); // (keyShareA +
-                                                                                    // keyShareB) *
-                                                                                    // input
-    // bit of a shortcut
+    FieldElement expectedMacRecomb = new FieldElement(1608, modulus, modBitLength);
+    
     AuthenticatedElement expected =
         new AuthenticatedElement(expectedRecomb, expectedMacRecomb, modulus, modBitLength);
     AuthenticatedElement actual = leftShare.add(rightShare);

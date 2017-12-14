@@ -1,14 +1,17 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
+import dk.alexandra.fresco.framework.util.ExceptionConverter;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
 import java.lang.reflect.Field;
 import java.math.BigInteger;
 
 import org.junit.Test;
 
-import dk.alexandra.fresco.framework.util.ExceptionConverter;
-import dk.alexandra.fresco.framework.util.StrictBitVector;
 
 public class TestFieldElement {
 
@@ -24,7 +27,7 @@ public class TestFieldElement {
       return null;
     }, "Reflection broke");
   }
-  
+
   // Positive tests
 
   @Test
@@ -80,13 +83,13 @@ public class TestFieldElement {
   public void testToBigInteger() {
     assertEquals(new BigInteger("22"), new FieldElement(22, modulus, bitLength).toBigInteger());
   }
-  
+
   @Test
   public void testGetBit() {
     assertEquals(false, new FieldElement(22, modulus, bitLength).getBit(0));
     assertEquals(true, new FieldElement(22, modulus, bitLength).getBit(1));
   }
-  
+
   @Test
   public void testSelect() {
     FieldElement el = new FieldElement(22, modulus, bitLength);
@@ -128,14 +131,14 @@ public class TestFieldElement {
     FieldElement actual = new FieldElement(bv.toByteArray(), new BigInteger("65521"), 16);
     assertEquals(el, actual);
   }
-  
+
   @Test
   public void testGetters() {
     FieldElement el = new FieldElement("777", "65521", 16);
     assertEquals(new BigInteger("65521"), el.getModulus());
     assertEquals(16, el.getBitLength());
   }
-  
+
   @Test
   public void testToString() {
     FieldElement el = new FieldElement("777", "65521", 16);
@@ -156,13 +159,13 @@ public class TestFieldElement {
     setField(el, "value", null);
     assertNotEquals(hashAfter, el.hashCode());
   }
-  
+
   @Test
   public void testEquals() {
     FieldElement el = new FieldElement("777", "65521", 16);
     FieldElement same = new FieldElement("777", "65521", 16);
-    FieldElement diff = new FieldElement("77", "65521", 16);
-    FieldElement diffBitLen = new FieldElement("77", "251", 8);
+    final FieldElement diff = new FieldElement("77", "65521", 16);
+    final FieldElement diffBitLen = new FieldElement("77", "251", 8);
     assertTrue(el.equals(el));
     assertTrue(el.equals(same));
     assertFalse(el.equals(diff));
@@ -183,24 +186,24 @@ public class TestFieldElement {
     setField(same, "value", new BigInteger("65521"));
     assertFalse(el.equals(same));
   }
-  
+
   // Negative tests
 
   @Test(expected = IllegalArgumentException.class)
   public void testSanityCheckBitLength() {
     new FieldElement(111, modulus, 7);
   }
-  
+
   @Test(expected = IllegalArgumentException.class)
   public void testSanityCheckNegative() {
     new FieldElement(-111, modulus, 8);
   }
-  
+
   @Test(expected = IllegalArgumentException.class)
   public void testSanityCheckNegativeMod() {
     new FieldElement(111, BigInteger.valueOf(-251), 8);
   }
-  
+
   @Test(expected = IllegalArgumentException.class)
   public void testSanityCheckBitLengthMismatch() {
     new FieldElement(111, BigInteger.valueOf(1111), 8);

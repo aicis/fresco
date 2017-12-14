@@ -1,13 +1,5 @@
 package dk.alexandra.fresco.tools.mascot.triple;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
@@ -20,6 +12,13 @@ import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeft;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyRight;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class TripleGeneration extends MultiPartyProtocol {
 
@@ -28,6 +27,14 @@ public class TripleGeneration extends MultiPartyProtocol {
   private Map<Integer, MultiplyLeft> leftMultipliers;
   private FieldElementPrg jointSampler;
 
+  /**
+   * Creates new triple generation protocol.
+   * 
+   * @param resourcePool {@inheritDoc}
+   * @param network {@inheritDoc}
+   * @param elementGeneration element generation protocol to be used
+   * @param jointSampler field element prg seeded with shared seed
+   */
   public TripleGeneration(MascotResourcePool resourcePool, Network network,
       ElementGeneration elementGeneration, FieldElementPrg jointSampler) {
     super(resourcePool, network);
@@ -51,13 +58,12 @@ public class TripleGeneration extends MultiPartyProtocol {
 
   List<UnauthTriple> toUnauthTriple(List<FieldElement> left, List<FieldElement> right,
       List<FieldElement> prods) {
-    Stream<UnauthTriple> stream = IntStream.range(0, right.size())
-        .mapToObj(idx -> {
-          int groupStart = idx * getNumCandidatesPerTriple();
-          int groupEnd = (idx + 1) * getNumCandidatesPerTriple();
-          return new UnauthTriple(left.subList(groupStart, groupEnd), right.get(idx),
-              prods.subList(groupStart, groupEnd));
-        });
+    Stream<UnauthTriple> stream = IntStream.range(0, right.size()).mapToObj(idx -> {
+      int groupStart = idx * getNumCandidatesPerTriple();
+      int groupEnd = (idx + 1) * getNumCandidatesPerTriple();
+      return new UnauthTriple(left.subList(groupStart, groupEnd), right.get(idx),
+          prods.subList(groupStart, groupEnd));
+    });
     return stream.collect(Collectors.toList());
   }
 
@@ -104,32 +110,27 @@ public class TripleGeneration extends MultiPartyProtocol {
     List<List<FieldElement>> sacrificeMasks = jointSampler.getNext(getModulus(), getModBitLength(),
         numTriples, getNumCandidatesPerTriple());
 
-    List<UnauthCand> candidates = IntStream.range(0, numTriples)
-        .mapToObj(idx -> {
-          UnauthTriple triple = triples.get(idx);
-          List<FieldElement> m = masks.get(idx);
-          List<FieldElement> ms = sacrificeMasks.get(idx);
-          return triple.toCandidate(m, ms);
-        })
-        .collect(Collectors.toList());
+    List<UnauthCand> candidates = IntStream.range(0, numTriples).mapToObj(idx -> {
+      UnauthTriple triple = triples.get(idx);
+      List<FieldElement> m = masks.get(idx);
+      List<FieldElement> ms = sacrificeMasks.get(idx);
+      return triple.toCandidate(m, ms);
+    }).collect(Collectors.toList());
 
     return candidates;
   }
 
   List<AuthCand> toAuthenticatedCand(List<AuthenticatedElement> list, int partSize) {
     int numParts = list.size() / partSize;
-    return IntStream.range(0, numParts)
-        .mapToObj(idx -> {
-          List<AuthenticatedElement> batch = list.subList(idx * partSize, (idx + 1) * partSize);
-          return new AuthCand(batch);
-        })
-        .collect(Collectors.toList());
+    return IntStream.range(0, numParts).mapToObj(idx -> {
+      List<AuthenticatedElement> batch = list.subList(idx * partSize, (idx + 1) * partSize);
+      return new AuthCand(batch);
+    }).collect(Collectors.toList());
   }
 
   List<AuthCand> authenticate(List<UnauthCand> candidates) {
-    List<FieldElement> flatInputs = candidates.stream()
-        .flatMap(TripleCandidate::stream)
-        .collect(Collectors.toList());
+    List<FieldElement> flatInputs =
+        candidates.stream().flatMap(TripleCandidate::stream).collect(Collectors.toList());
 
     List<List<AuthenticatedElement>> shares = new ArrayList<>();
     for (Integer partyId : getPartyIds()) {
@@ -145,33 +146,27 @@ public class TripleGeneration extends MultiPartyProtocol {
   }
 
   List<AuthenticatedElement> computeRhos(List<AuthCand> candidates, List<FieldElement> masks) {
-    List<AuthenticatedElement> rhos = IntStream.range(0, candidates.size())
-        .mapToObj(idx -> {
-          AuthCand cand = candidates.get(idx);
-          FieldElement mask = masks.get(idx);
-          return cand.computeRho(mask);
-        })
-        .collect(Collectors.toList());
+    List<AuthenticatedElement> rhos = IntStream.range(0, candidates.size()).mapToObj(idx -> {
+      AuthCand cand = candidates.get(idx);
+      FieldElement mask = masks.get(idx);
+      return cand.computeRho(mask);
+    }).collect(Collectors.toList());
     return rhos;
   }
 
   List<AuthenticatedElement> computeSigmas(List<AuthCand> candidates, List<FieldElement> masks,
       List<FieldElement> openRhos) {
-    List<AuthenticatedElement> sigmas = IntStream.range(0, candidates.size())
-        .mapToObj(idx -> {
-          AuthCand cand = candidates.get(idx);
-          FieldElement mask = masks.get(idx);
-          FieldElement openRho = openRhos.get(idx);
-          return cand.computeSigma(openRho, mask);
-        })
-        .collect(Collectors.toList());
+    List<AuthenticatedElement> sigmas = IntStream.range(0, candidates.size()).mapToObj(idx -> {
+      AuthCand cand = candidates.get(idx);
+      FieldElement mask = masks.get(idx);
+      FieldElement openRho = openRhos.get(idx);
+      return cand.computeSigma(openRho, mask);
+    }).collect(Collectors.toList());
     return sigmas;
   }
 
   List<MultTriple> toMultTriples(List<AuthCand> candidates) {
-    return candidates.stream()
-        .map(AuthCand::toTriple)
-        .collect(Collectors.toList());
+    return candidates.stream().map(AuthCand::toTriple).collect(Collectors.toList());
   }
 
   List<MultTriple> sacrifice(List<AuthCand> candidates) {
@@ -202,6 +197,12 @@ public class TripleGeneration extends MultiPartyProtocol {
     return toMultTriples(candidates);
   }
 
+  /**
+   * Generates numTriples multiplication triples in a batch.
+   * 
+   * @param numTriples number of triples to generate 
+   * @return valid multiplication triples
+   */
   public List<MultTriple> triple(int numTriples) {
     // generate random left factor groups
     List<FieldElement> leftFactorGroups = getLocalSampler().getNext(getModulus(), getModBitLength(),
@@ -260,18 +261,18 @@ public class TripleGeneration extends MultiPartyProtocol {
 
   private class TripleCandidate<T> {
 
-    T a;
-    T b;
-    T c;
-    T aHat;
-    T cHat;
+    T leftFactor;
+    T rightFactor;
+    T product;
+    T leftFactorHat;
+    T productHat;
 
-    TripleCandidate(T a, T b, T c, T aHat, T cHat) {
-      this.a = a;
-      this.b = b;
-      this.c = c;
-      this.aHat = aHat;
-      this.cHat = cHat;
+    TripleCandidate(T leftFactor, T rightFactor, T product, T leftFactorHat, T productHat) {
+      this.leftFactor = leftFactor;
+      this.rightFactor = rightFactor;
+      this.product = product;
+      this.leftFactorHat = leftFactorHat;
+      this.productHat = productHat;
     }
 
     TripleCandidate(List<T> ordered) {
@@ -279,16 +280,16 @@ public class TripleGeneration extends MultiPartyProtocol {
     }
 
     Stream<T> stream() {
-      return Stream.of(a, b, c, aHat, cHat);
+      return Stream.of(leftFactor, rightFactor, product, leftFactorHat, productHat);
     }
 
   }
 
   private class UnauthCand extends TripleCandidate<FieldElement> {
 
-    UnauthCand(FieldElement a, FieldElement b, FieldElement c, FieldElement aHat,
-        FieldElement cHat) {
-      super(a, b, c, aHat, cHat);
+    UnauthCand(FieldElement leftFactor, FieldElement rightFactor, FieldElement product,
+        FieldElement leftFactorHat, FieldElement productHat) {
+      super(leftFactor, rightFactor, product, leftFactorHat, productHat);
     }
 
   }
@@ -300,18 +301,15 @@ public class TripleGeneration extends MultiPartyProtocol {
     }
 
     public AuthenticatedElement computeRho(FieldElement mask) {
-      return a.multiply(mask)
-          .subtract(aHat);
+      return leftFactor.multiply(mask).subtract(leftFactorHat);
     }
 
     public AuthenticatedElement computeSigma(FieldElement openRho, FieldElement mask) {
-      return c.multiply(mask)
-          .subtract(cHat)
-          .subtract(b.multiply(openRho));
+      return product.multiply(mask).subtract(productHat).subtract(rightFactor.multiply(openRho));
     }
 
     public MultTriple toTriple() {
-      return new MultTriple(a, b, c);
+      return new MultTriple(leftFactor, rightFactor, product);
     }
 
   }

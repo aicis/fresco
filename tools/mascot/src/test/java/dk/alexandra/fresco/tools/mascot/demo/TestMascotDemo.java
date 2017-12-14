@@ -23,8 +23,8 @@ public class TestMascotDemo {
       return null;
     };
     // TODO decide what to do about slow test/ how to speed it up
-//    ExecutorService executor = Executors.newFixedThreadPool(2);
-//    executor.invokeAll(Arrays.asList(partyOne, partyTwo));
+    // ExecutorService executor = Executors.newFixedThreadPool(2);
+    // executor.invokeAll(Arrays.asList(partyOne, partyTwo));
   }
-  
+
 }

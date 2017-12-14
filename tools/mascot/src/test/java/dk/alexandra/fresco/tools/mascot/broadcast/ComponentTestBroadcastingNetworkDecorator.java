@@ -3,6 +3,10 @@ package dk.alexandra.fresco.tools.mascot.broadcast;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import dk.alexandra.fresco.framework.MaliciousException;
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.tools.mascot.MascotTestContext;
+import dk.alexandra.fresco.tools.mascot.NetworkedTest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,14 +16,10 @@ import java.util.concurrent.Callable;
 
 import org.junit.Test;
 
-import dk.alexandra.fresco.framework.MaliciousException;
-import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.tools.mascot.MascotTestContext;
-import dk.alexandra.fresco.tools.mascot.NetworkedTest;
 
 public class ComponentTestBroadcastingNetworkDecorator extends NetworkedTest {
 
-  public byte[] runSender(MascotTestContext ctx, byte[] toSend) {
+  private byte[] runSender(MascotTestContext ctx, byte[] toSend) {
     BroadcastValidation validator =
         new BroadcastValidation(ctx.getResourcePool(), ctx.getNetwork());
     BroadcastingNetworkDecorator broadcaster =
@@ -28,7 +28,7 @@ public class ComponentTestBroadcastingNetworkDecorator extends NetworkedTest {
     return broadcaster.receive(ctx.getMyId());
   }
 
-  public byte[] runReceiver(MascotTestContext ctx, Integer inputterId) {
+  private byte[] runReceiver(MascotTestContext ctx, Integer inputterId) {
     BroadcastValidation validator =
         new BroadcastValidation(ctx.getResourcePool(), ctx.getNetwork());
     BroadcastingNetworkDecorator broadcaster =
@@ -36,7 +36,7 @@ public class ComponentTestBroadcastingNetworkDecorator extends NetworkedTest {
     return broadcaster.receive(inputterId);
   }
 
-  public MaliciousException runIncosistentSender(MascotTestContext ctx,
+  private MaliciousException runIncosistentSender(MascotTestContext ctx,
       Map<Integer, byte[]> toSend) {
     Network network = ctx.getNetwork();
     BroadcastValidation validator =
@@ -55,7 +55,7 @@ public class ComponentTestBroadcastingNetworkDecorator extends NetworkedTest {
     return null;
   }
 
-  public MaliciousException runReceiverAgainstInconsistentSender(MascotTestContext ctx,
+  private MaliciousException runReceiverAgainstInconsistentSender(MascotTestContext ctx,
       Integer inputterId) {
     BroadcastValidation validator =
         new BroadcastValidation(ctx.getResourcePool(), ctx.getNetwork());
@@ -89,7 +89,7 @@ public class ComponentTestBroadcastingNetworkDecorator extends NetworkedTest {
   public void testIncosistentBroadcastSender() {
     initContexts(Arrays.asList(1, 2, 3));
 
-    List<Callable<MaliciousException>> tasks = new ArrayList<>();
+    final List<Callable<MaliciousException>> tasks = new ArrayList<>();
     Map<Integer, byte[]> toSend = new HashMap<>();
     toSend.put(1, new byte[] {0x01, 0x02}); // self-send
     toSend.put(2, new byte[] {0x01, 0x02});
