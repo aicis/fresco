@@ -128,7 +128,7 @@ public class TestGenericLoggingDecorators {
     loggedValues = performanceLogger.getLoggedValues();
     assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), is((long)0));
     assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BATCHES), is((long)0));
-    assertThat(loggedValues.size(), is(4));
+    assertThat(loggedValues.size(), is(2));
   }
   
   @Test
