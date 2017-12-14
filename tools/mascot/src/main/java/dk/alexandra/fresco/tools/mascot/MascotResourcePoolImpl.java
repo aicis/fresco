@@ -1,9 +1,6 @@
 package dk.alexandra.fresco.tools.mascot;
 
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.util.List;
-
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.SecureSerializer;
 import dk.alexandra.fresco.framework.network.serializers.StrictBitVectorSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
@@ -14,6 +11,11 @@ import dk.alexandra.fresco.tools.commitment.CommitmentSerializer;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
+import dk.alexandra.fresco.tools.ot.base.RotBatch;
+import dk.alexandra.fresco.tools.ot.otextension.BristolRotBatch;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.util.List;
 
 public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotResourcePool {
 
@@ -89,6 +91,13 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
   @Override
   public CommitmentSerializer getCommitmentSerializer() {
     return commitmentSerializer;
+  }
+
+  @Override
+  public RotBatch<StrictBitVector> createRot(int otherId, Network network) {
+    return new BristolRotBatch(getMyId(), otherId, getModBitLength(), getLambdaSecurityParam(),
+        getRandomGenerator(), network);
+
   }
 
   @Override
