@@ -27,11 +27,11 @@ public class MascotTestContext {
       int modBitLength, int lambdaSecurityParam, int numLeftFactors, int prgSeedLength) {
     byte[] drbgSeed = new byte[prgSeedLength / 8];
     new Random(myId).nextBytes(drbgSeed);
-    this.resourcePool =
-        new DummyMascotResourcePoolImpl(myId, partyIds, new PaddingAesCtrDrbg(drbgSeed, prgSeedLength),
-            modulus, modBitLength, lambdaSecurityParam, prgSeedLength, numLeftFactors);
+    this.resourcePool = new DummyMascotResourcePoolImpl(myId, partyIds,
+        new PaddingAesCtrDrbg(drbgSeed, prgSeedLength), modulus, modBitLength, lambdaSecurityParam,
+        prgSeedLength, numLeftFactors);
     try {
-      
+
       this.network = new KryoNetNetwork(defaultNetworkConfiguration(myId, partyIds));
     } catch (Exception e) {
       // TODO: handle exception

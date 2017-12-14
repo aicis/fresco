@@ -11,7 +11,8 @@ public class MultiplyShared extends TwoPartyProtocol {
   protected RotBatch<StrictBitVector> rot;
   protected int numLeftFactors;
 
-  public MultiplyShared(MascotResourcePool resourcePool, Network network, Integer otherId, int numLeftFactors) {
+  public MultiplyShared(MascotResourcePool resourcePool, Network network, Integer otherId,
+      int numLeftFactors) {
     super(resourcePool, network, otherId);
     this.numLeftFactors = numLeftFactors;
     this.rot = resourcePool.createRot(otherId, network);

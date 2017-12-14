@@ -29,7 +29,7 @@ public interface MascotResourcePool extends NumericResourcePool {
   int getModBitLength();
 
   /**
-   * Gets OT security parameter num bits (lambda in Mascot paper)
+   * Gets OT security parameter num bits (lambda in Mascot paper).
    * 
    * @return lambda security parameter
    */
@@ -59,26 +59,33 @@ public interface MascotResourcePool extends NumericResourcePool {
   FieldElementPrg getLocalSampler();
 
   /**
-   * Serializer for {@link FieldElement}.
+   * Gets serializer for {@link FieldElement}.
    * 
    * @return serializer
    */
   FieldElementSerializer getFieldElementSerializer();
 
   /**
-   * Serializer for {@link StrictBitVector}
+   * Gets serializer for {@link StrictBitVector}.
    * 
    * @return serializer
    */
   StrictBitVectorSerializer getStrictBitVectorSerializer();
 
   /**
-   * Serializer for {@link Commitment}
+   * Gets serializer for {@link Commitment}.
    * 
    * @return serializer
    */
   CommitmentSerializer getCommitmentSerializer();
 
+  /**
+   * Creates random oblivious transfer protocol to be used.
+   * 
+   * @param otherId other party that participates in protocol
+   * @param network network
+   * @return instance of random oblivious transfer protocol 
+   */
   RotBatch<StrictBitVector> createRot(int otherId,
       Network network);
 }

@@ -45,11 +45,13 @@ public class ElementGeneration extends MultiPartyProtocol {
         // TODO parallelize
         // construction order matters since receive blocks and this is not parallelized
         if (getMyId() < partyId) {
-          copeSigners.put(partyId, new CopeSigner(resourcePool, network, partyId, this.macKeyShare));
+          copeSigners.put(partyId,
+              new CopeSigner(resourcePool, network, partyId, this.macKeyShare));
           copeInputters.put(partyId, new CopeInputter(resourcePool, network, partyId));
         } else {
           copeInputters.put(partyId, new CopeInputter(resourcePool, network, partyId));
-          copeSigners.put(partyId, new CopeSigner(resourcePool, network, partyId, this.macKeyShare));
+          copeSigners.put(partyId,
+              new CopeSigner(resourcePool, network, partyId, this.macKeyShare));
         }
       }
     }
@@ -94,12 +96,11 @@ public class ElementGeneration extends MultiPartyProtocol {
 
   List<AuthenticatedElement> toAuthenticatedElements(List<FieldElement> shares,
       List<FieldElement> macs) {
-    Stream<AuthenticatedElement> spdzElements = IntStream.range(0, shares.size())
-        .mapToObj(idx -> {
-          FieldElement share = shares.get(idx);
-          FieldElement mac = macs.get(idx);
-          return new AuthenticatedElement(share, mac, getModulus(), getModBitLength());
-        });
+    Stream<AuthenticatedElement> spdzElements = IntStream.range(0, shares.size()).mapToObj(idx -> {
+      FieldElement share = shares.get(idx);
+      FieldElement mac = macs.get(idx);
+      return new AuthenticatedElement(share, mac, getModulus(), getModBitLength());
+    });
     return spdzElements.collect(Collectors.toList());
   }
 
@@ -181,9 +182,8 @@ public class ElementGeneration extends MultiPartyProtocol {
     List<FieldElement> masks =
         jointSampler.getNext(getModulus(), getModBitLength(), sharesWithMacs.size());
     // only need macs
-    List<FieldElement> macs = sharesWithMacs.stream()
-        .map(AuthenticatedElement::getMac)
-        .collect(Collectors.toList());
+    List<FieldElement> macs =
+        sharesWithMacs.stream().map(AuthenticatedElement::getMac).collect(Collectors.toList());
     // apply masks to open element so that it matches the macs when we mask them
     FieldElement open = FieldElementCollectionUtils.innerProduct(openValues, masks);
     runMacCheck(open, masks, macs);
@@ -197,9 +197,8 @@ public class ElementGeneration extends MultiPartyProtocol {
    */
   public List<FieldElement> open(List<AuthenticatedElement> closed) {
     // get shares from authenticated elements
-    List<FieldElement> ownShares = closed.stream()
-        .map(AuthenticatedElement::getShare)
-        .collect(Collectors.toList());
+    List<FieldElement> ownShares =
+        closed.stream().map(AuthenticatedElement::getShare).collect(Collectors.toList());
     // send own shares to others
     network.sendToAll(getFieldElementSerializer().serialize(ownShares));
     // receive others' shares
@@ -207,8 +206,7 @@ public class ElementGeneration extends MultiPartyProtocol {
     // TODO parsing belongs somewhere else
     // parse
     List<List<FieldElement>> shares = rawShares.stream()
-        .map(raw -> getFieldElementSerializer().deserializeList(raw))
-        .collect(Collectors.toList());
+        .map(raw -> getFieldElementSerializer().deserializeList(raw)).collect(Collectors.toList());
     // recombine
     return CollectionUtils.pairWiseSum(shares);
   }

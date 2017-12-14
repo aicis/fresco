@@ -37,8 +37,7 @@ public class MultiplyRight extends MultiplyShared {
   FieldElement computeDiff(Pair<FieldElement, FieldElement> feSeedPair, FieldElement factor) {
     FieldElement left = feSeedPair.getFirst();
     FieldElement right = feSeedPair.getSecond();
-    FieldElement diff = left.subtract(right)
-        .add(factor);
+    FieldElement diff = left.subtract(right).add(factor);
     return diff;
   }
 
@@ -82,13 +81,11 @@ public class MultiplyRight extends MultiplyShared {
       List<Pair<StrictBitVector, StrictBitVector>> seedPairs, BigInteger modulus,
       int modBitLength) {
     // TODO there should be a better way to do this
-    return seedPairs.stream()
-        .map(pair -> {
-          FieldElement t0 = new FieldElementPrgImpl(pair.getFirst()).getNext(modulus, modBitLength);
-          FieldElement t1 = new FieldElementPrgImpl(pair.getSecond()).getNext(modulus, modBitLength);
-          return new Pair<>(t0, t1);
-        })
-        .collect(Collectors.toList());
+    return seedPairs.stream().map(pair -> {
+      FieldElement t0 = new FieldElementPrgImpl(pair.getFirst()).getNext(modulus, modBitLength);
+      FieldElement t1 = new FieldElementPrgImpl(pair.getSecond()).getNext(modulus, modBitLength);
+      return new Pair<>(t0, t1);
+    }).collect(Collectors.toList());
   }
 
   public List<FieldElement> multiply(List<FieldElement> rightFactors) {
@@ -107,9 +104,8 @@ public class MultiplyRight extends MultiplyShared {
     sendDiffs(diffs);
 
     // get zero index seeds
-    List<FieldElement> feZeroSeeds = feSeedPairs.stream()
-        .map(Pair::getFirst)
-        .collect(Collectors.toList());
+    List<FieldElement> feZeroSeeds =
+        feSeedPairs.stream().map(Pair::getFirst).collect(Collectors.toList());
 
     // compute product shares
     return computeProductShares(feZeroSeeds, rightFactors.size());

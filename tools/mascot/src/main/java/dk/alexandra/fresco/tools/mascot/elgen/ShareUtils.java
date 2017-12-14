@@ -15,7 +15,8 @@ public class ShareUtils {
     this.sampler = sampler;
   }
 
-  public List<FieldElement> additiveShare(FieldElement input, int numShares, BigInteger modulus, int bitLength) {
+  public List<FieldElement> additiveShare(FieldElement input, int numShares, BigInteger modulus,
+      int bitLength) {
     List<FieldElement> shares = sampler.getNext(modulus, bitLength, numShares - 1);
     FieldElement sumShares = CollectionUtils.sum(shares);
     FieldElement diff = input.subtract(sumShares);
@@ -26,5 +27,5 @@ public class ShareUtils {
   public FieldElement additiveRecombine(List<FieldElement> shares) {
     return CollectionUtils.sum(shares);
   }
-  
+
 }

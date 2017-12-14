@@ -29,8 +29,8 @@ public class MascotDemo {
 
   public MascotDemo(Integer myId, List<Integer> partyIds) {
     MascotResourcePool resourcePool = defaultResourcePool(myId, partyIds);
-    FieldElement macKeyShare = resourcePool.getLocalSampler()
-        .getNext(resourcePool.getModulus(), resourcePool.getModBitLength());
+    FieldElement macKeyShare = resourcePool.getLocalSampler().getNext(resourcePool.getModulus(),
+        resourcePool.getModBitLength());
     Network network = new KryoNetNetwork(defaultNetworkConfiguration(myId, partyIds));
     toClose = (Closeable) network;
     mascot = new Mascot(resourcePool, network, macKeyShare);
@@ -41,7 +41,8 @@ public class MascotDemo {
       long startTime = System.currentTimeMillis();
       List<MultTriple> triples = mascot.getTriples(256);
       long endTime = System.currentTimeMillis();
-      System.out.println("Generated " + triples.size() + " triples in " + (endTime - startTime) + " ms");
+      System.out
+          .println("Generated " + triples.size() + " triples in " + (endTime - startTime) + " ms");
     }
     Callable<Void> closeTask = () -> {
       toClose.close();
