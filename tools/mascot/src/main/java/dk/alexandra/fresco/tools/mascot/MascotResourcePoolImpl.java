@@ -14,10 +14,13 @@ import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
 import dk.alexandra.fresco.tools.ot.base.NaorPinkasOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
+import dk.alexandra.fresco.tools.ot.base.TestNaorPinkasOt;
 import dk.alexandra.fresco.tools.ot.otextension.BristolRotBatch;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.List;
+
+import javax.crypto.spec.DHParameterSpec;
 
 public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotResourcePool {
 
@@ -97,8 +100,10 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
 
   @Override
   public RotBatch<StrictBitVector> createRot(int otherId, Network network) {
+    DHParameterSpec params = new DHParameterSpec(TestNaorPinkasOt.DhPvalue,
+        TestNaorPinkasOt.DhGvalue);
     Ot ot = ExceptionConverter.safe(() -> new NaorPinkasOt(getMyId(), otherId,
-        getRandomGenerator(), network),
+        getRandomGenerator(), network, params),
         "Missing security hash function or PRG, which is dependent in this library");
     return new BristolRotBatch(getMyId(), otherId, getModBitLength(), getLambdaSecurityParam(),
         getRandomGenerator(), network, ot);

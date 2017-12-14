@@ -2,10 +2,10 @@ package dk.alexandra.fresco.tools.mascot;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
-import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
@@ -26,11 +26,19 @@ public class MascotTestContext {
   public MascotTestContext(Integer myId, List<Integer> partyIds, BigInteger modulus,
       int modBitLength, int lambdaSecurityParam, int numLeftFactors, int prgSeedLength) {
     byte[] drbgSeed = new byte[prgSeedLength / 8];
-    new SecureRandom().nextBytes(drbgSeed);
+    new Random(myId).nextBytes(drbgSeed);
     this.resourcePool =
-        new MascotResourcePoolImpl(myId, partyIds, new PaddingAesCtrDrbg(drbgSeed, prgSeedLength),
+        new DummyMascotResourcePoolImpl(myId, partyIds, new PaddingAesCtrDrbg(drbgSeed, prgSeedLength),
             modulus, modBitLength, lambdaSecurityParam, prgSeedLength, numLeftFactors);
-    this.network = new KryoNetNetwork(defaultNetworkConfiguration(myId, partyIds));
+    try {
+      
+      this.network = new KryoNetNetwork(defaultNetworkConfiguration(myId, partyIds));
+    } catch (Exception e) {
+      // TODO: handle exception
+      System.out.println("");
+      e.printStackTrace();
+      throw e;
+    }
   }
 
   public MascotResourcePool getResourcePool() {

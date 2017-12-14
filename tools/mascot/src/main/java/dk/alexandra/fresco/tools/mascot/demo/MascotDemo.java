@@ -2,11 +2,11 @@ package dk.alexandra.fresco.tools.mascot.demo;
 
 import java.io.Closeable;
 import java.math.BigInteger;
-import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.Callable;
 
 import dk.alexandra.fresco.framework.Party;
@@ -38,7 +38,7 @@ public class MascotDemo {
 
   public void run() {
     long startTime = System.currentTimeMillis();
-    List<MultTriple> triples = mascot.getTriples(1);
+    List<MultTriple> triples = mascot.getTriples(32512);
     long endTime = System.currentTimeMillis();
     
     System.out.println("Generated " + triples.size() + " triples in " + (endTime - startTime) + " ms");
@@ -53,7 +53,7 @@ public class MascotDemo {
       List<Integer> partyIds) {
     Map<Integer, Party> parties = new HashMap<>();
     for (Integer partyId : partyIds) {
-      parties.put(partyId, new Party(partyId, "localhost", 8000 + partyId));
+      parties.put(partyId, new Party(partyId, "localhost", 8005 + partyId));
     }
     return new NetworkConfigurationImpl(myId, parties);
   }
@@ -65,7 +65,7 @@ public class MascotDemo {
     int prgSeedLength = 256;
     int numLeftFactors = 3;
     byte[] drbgSeed = new byte[prgSeedLength / 8];
-    new SecureRandom().nextBytes(drbgSeed);
+    new Random(myId).nextBytes(drbgSeed);
     return new MascotResourcePoolImpl(myId, partyIds,
         new PaddingAesCtrDrbg(drbgSeed, prgSeedLength), modulus, modBitLength, lambdaSecurityParam,
         prgSeedLength, numLeftFactors);

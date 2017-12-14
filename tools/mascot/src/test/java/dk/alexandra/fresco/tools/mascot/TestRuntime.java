@@ -101,8 +101,7 @@ public class TestRuntime {
         initializationTasks.add(() -> initializeContext(partyId, partyIds, modulus, modBitLength,
             lambdaSecurityParam, numLeftFactors, prgSeedLength));
       }
-      for (Future<Pair<Integer, MascotTestContext>> pair : executor
-          .invokeAll(initializationTasks)) {
+      for (Future<Pair<Integer, MascotTestContext>> pair : executor.invokeAll(initializationTasks)) {
         Pair<Integer, MascotTestContext> unwrapped = pair.get();
         contexts.put(unwrapped.getFirst(), unwrapped.getSecond());
       }
