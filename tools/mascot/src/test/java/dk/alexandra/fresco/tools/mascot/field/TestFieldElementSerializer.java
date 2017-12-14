@@ -67,4 +67,11 @@ public class TestFieldElementSerializer {
     serializer.serialize(elements);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testDeserializeListInvalidLength() {
+    byte[] serialized = {0x00, 0x01, 0x00, 0x02, 0x00, 0x03, 0x00, 0x04, 0x00};
+    serializer.deserializeList(serialized);
+  }
+
+  
 }

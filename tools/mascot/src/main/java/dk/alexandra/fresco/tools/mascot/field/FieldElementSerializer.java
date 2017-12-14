@@ -52,9 +52,8 @@ public class FieldElementSerializer implements SecureSerializer<FieldElement> {
     }
     // ensure all field elements are in the same field and have same bit length
     for (FieldElement element : elements) {
-      if (!element.getModulus()
-          .equals(modulus) || element.getBitLength() != modBitLength) {
-        throw new IllegalArgumentException("All elements must have same modulus and bit-length");
+      if (!element.getModulus().equals(modulus)) {
+        throw new IllegalArgumentException("All elements must have same modulus");
       }
     }
     byte[] serialized = FieldElementCollectionUtils.pack(elements, false)

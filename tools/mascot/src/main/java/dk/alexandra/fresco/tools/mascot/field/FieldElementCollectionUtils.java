@@ -28,7 +28,7 @@ public class FieldElementCollectionUtils {
     }
     return pairWiseMultiplyStream(leftFactors, rightFactors).collect(Collectors.toList());
   }
-  
+
   /**
    * Multiplies each value in list by scalar.
    * 
@@ -166,7 +166,7 @@ public class FieldElementCollectionUtils {
    */
   public static List<FieldElement> unpack(byte[] packed, BigInteger modulus, int modBitLength) {
     int packedBitLength = packed.length * 8;
-    if (packedBitLength % modBitLength != 0) {
+    if ((packedBitLength % modBitLength) != 0) {
       throw new IllegalArgumentException(
           "Packed bit length must be multiple of single element bit length");
     }
@@ -179,19 +179,6 @@ public class FieldElementCollectionUtils {
       unpacked.add(el);
     }
     return unpacked;
-  }
-
-  /**
-   * {@link #unpack(byte[], BigInteger, int)}
-   * 
-   * @param packed
-   * @param modulus
-   * @param modBitLength
-   * @return
-   */
-  public static List<FieldElement> unpack(StrictBitVector packed, BigInteger modulus,
-      int modBitLength) {
-    return unpack(packed.toByteArray(), modulus, modBitLength);
   }
 
 }

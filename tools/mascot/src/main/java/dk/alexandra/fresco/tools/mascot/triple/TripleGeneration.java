@@ -117,9 +117,6 @@ public class TripleGeneration extends MultiPartyProtocol {
   }
 
   List<AuthCand> toAuthenticatedCand(List<AuthenticatedElement> list, int partSize) {
-    if (list.size() % partSize != 0) {
-      throw new IllegalArgumentException("Size of list must be multiple of partition size");
-    }
     int numParts = list.size() / partSize;
     return IntStream.range(0, numParts)
         .mapToObj(idx -> {
@@ -285,12 +282,6 @@ public class TripleGeneration extends MultiPartyProtocol {
       return Stream.of(a, b, c, aHat, cHat);
     }
 
-    @Override
-    public String toString() {
-      return "TripleCandidate [a=" + a + ", b=" + b + ", c=" + c + ", aHat=" + aHat + ", cHat="
-          + cHat + "]";
-    }
-
   }
 
   private class UnauthCand extends TripleCandidate<FieldElement> {
@@ -303,11 +294,6 @@ public class TripleGeneration extends MultiPartyProtocol {
   }
 
   private class AuthCand extends TripleCandidate<AuthenticatedElement> {
-
-    AuthCand(AuthenticatedElement a, AuthenticatedElement b, AuthenticatedElement c,
-        AuthenticatedElement aHat, AuthenticatedElement cHat) {
-      super(a, b, c, aHat, cHat);
-    }
 
     public AuthCand(List<AuthenticatedElement> ordered) {
       super(ordered);

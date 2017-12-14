@@ -94,9 +94,6 @@ public class ElementGeneration extends MultiPartyProtocol {
 
   List<AuthenticatedElement> toAuthenticatedElements(List<FieldElement> shares,
       List<FieldElement> macs) {
-    if (shares.size() != macs.size()) {
-      throw new IllegalArgumentException("Number of shares must equal number of mac shares");
-    }
     Stream<AuthenticatedElement> spdzElements = IntStream.range(0, shares.size())
         .mapToObj(idx -> {
           FieldElement share = shares.get(idx);

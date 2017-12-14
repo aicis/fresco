@@ -12,13 +12,13 @@ import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 
 public class TestFieldElementCollectionUtils {
 
-  static final BigInteger modulus = new BigInteger("65521");
-  static final int modBitLength = 16;
-  static final int[] leftArr = {1, 2, 3, 4};
-  static final List<FieldElement> left =
+  private final BigInteger modulus = new BigInteger("65521");
+  private final int modBitLength = 16;
+  private final int[] leftArr = {1, 2, 3, 4};
+  private final List<FieldElement> left =
       MascotTestUtils.generateSingleRow(leftArr, modulus, modBitLength);
-  static final int[] rightArr = {5, 6, 7, 8};
-  static final List<FieldElement> right =
+  private final int[] rightArr = {5, 6, 7, 8};
+  private final List<FieldElement> right =
       MascotTestUtils.generateSingleRow(rightArr, modulus, modBitLength);
 
 
@@ -29,6 +29,16 @@ public class TestFieldElementCollectionUtils {
         MascotTestUtils.generateSingleRow(expectedArr, modulus, modBitLength);
 
     List<FieldElement> actual = FieldElementCollectionUtils.pairWiseMultiply(left, right);
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void testScalarMultiply() {
+    int[] expectedArr = {2, 4, 6, 8};
+    List<FieldElement> expected =
+        MascotTestUtils.generateSingleRow(expectedArr, modulus, modBitLength);
+    List<FieldElement> actual = FieldElementCollectionUtils.scalarMultiply(left,
+        new FieldElement(2, modulus, modBitLength));
     assertEquals(expected, actual);
   }
 
@@ -97,6 +107,19 @@ public class TestFieldElementCollectionUtils {
     int[] leftArr = new int[17];
     List<FieldElement> left = MascotTestUtils.generateSingleRow(leftArr, modulus, modBitLength);
     FieldElementCollectionUtils.recombine(left, modulus, modBitLength);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testPairwiseMultiplyIncorrectSize() {
+    int[] leftArr = new int[17];
+    List<FieldElement> left = MascotTestUtils.generateSingleRow(leftArr, modulus, modBitLength);
+    FieldElementCollectionUtils.pairWiseMultiply(left, right);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testUnpackIncorrectSize() {
+    byte[] packed = new byte[17];
+    FieldElementCollectionUtils.unpack(packed, modulus, modBitLength);
   }
 
 }

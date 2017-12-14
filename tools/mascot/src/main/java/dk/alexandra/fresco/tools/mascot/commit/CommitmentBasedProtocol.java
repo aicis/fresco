@@ -16,14 +16,12 @@ import dk.alexandra.fresco.tools.mascot.broadcast.BroadcastingNetworkDecorator;
 // TODO need better name
 public class CommitmentBasedProtocol<T> extends MultiPartyProtocol {
 
-  CommitmentSerializer commSerializer;
   SecureSerializer<T> serializer;
   Network broadcaster;
 
   public CommitmentBasedProtocol(MascotResourcePool resourcePool, Network network,
       SecureSerializer<T> serializer) {
     super(resourcePool, network);
-    this.commSerializer = new CommitmentSerializer();
     this.serializer = serializer;
     // for more than two parties, we need to use broadcast
     if (resourcePool.getNoOfParties() > 2) {
@@ -42,12 +40,12 @@ public class CommitmentBasedProtocol<T> extends MultiPartyProtocol {
    */
   protected List<Commitment> distributeCommitments(Commitment comm) {
     // broadcast own commitment
-    broadcaster.sendToAll(commSerializer.serialize(comm));
+    broadcaster.sendToAll(getCommitmentSerializer().serialize(comm));
     // receive other parties' commitments from broadcast
     List<byte[]> rawComms = broadcaster.receiveFromAll();
     // parse
     List<Commitment> comms = rawComms.stream()
-        .map(raw -> commSerializer.deserialize(raw))
+        .map(raw -> getCommitmentSerializer().deserialize(raw))
         .collect(Collectors.toList());
     return comms;
   }
@@ -104,6 +102,10 @@ public class CommitmentBasedProtocol<T> extends MultiPartyProtocol {
 
     // open commitments using received opening info
     return open(comms, openings);
+  }
+
+  public CommitmentSerializer getCommitmentSerializer() {
+    return resourcePool.getCommitmentSerializer();
   }
 
 }
