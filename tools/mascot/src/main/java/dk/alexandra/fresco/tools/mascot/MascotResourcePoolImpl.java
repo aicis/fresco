@@ -11,6 +11,8 @@ import dk.alexandra.fresco.tools.commitment.CommitmentSerializer;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
+import dk.alexandra.fresco.tools.ot.base.NaorPinkasOt;
+import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import dk.alexandra.fresco.tools.ot.otextension.BristolRotBatch;
 import java.math.BigInteger;
@@ -95,8 +97,11 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
 
   @Override
   public RotBatch<StrictBitVector> createRot(int otherId, Network network) {
+    Ot ot = ExceptionConverter.safe(() -> new NaorPinkasOt(getMyId(), otherId,
+        getRandomGenerator(), network),
+        "Missing security hash function or PRG, which is dependent in this library");
     return new BristolRotBatch(getMyId(), otherId, getModBitLength(), getLambdaSecurityParam(),
-        getRandomGenerator(), network);
+        getRandomGenerator(), network, ot);
 
   }
 

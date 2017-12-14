@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.ot.base.Ot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,10 +36,12 @@ public class CoteReceiver extends CoteShared {
    *          The current party's cryptographically secure randomness generator
    * @param network
    *          The network object used to communicate with the other party
+   * @param ot
+   *          The OT functionality to use for seed OTs
    */
   public CoteReceiver(int myId, int otherId, int kbitLength,
-      int lambdaSecurityParam, Drbg rand, Network network) {
-    super(myId, otherId, kbitLength, lambdaSecurityParam, rand, network);
+      int lambdaSecurityParam, Drbg rand, Network network, Ot ot) {
+    super(myId, otherId, kbitLength, lambdaSecurityParam, rand, network, ot);
     this.seeds = new ArrayList<>(kbitLength);
     this.prgs = new ArrayList<>(kbitLength);
   }

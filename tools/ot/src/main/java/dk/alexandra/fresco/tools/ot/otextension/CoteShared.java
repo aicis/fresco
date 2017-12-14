@@ -44,9 +44,11 @@ public class CoteShared {
    *          The current party's cryptographically secure randomness generator
    * @param network
    *          The network object used to communicate with the other party
+   * @param ot
+   *          The OT functionality to use for seed OTs
    */
   public CoteShared(int myId, int otherId, int kbitLength,
-      int lambdaSecurityParam, Drbg rand, Network network) {
+      int lambdaSecurityParam, Drbg rand, Network network, Ot ot) {
     super();
     if (kbitLength < 1 || lambdaSecurityParam < 1
         || rand == null || network == null) {
@@ -65,7 +67,7 @@ public class CoteShared {
     this.kbitLength = kbitLength;
     this.lambdaSecurityParam = lambdaSecurityParam;
     this.rand = rand;
-    this.ot = new DummyOt(otherId, network);
+    this.ot = ot;
     this.network = network;
   }
 

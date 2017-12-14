@@ -3,6 +3,7 @@ package dk.alexandra.fresco.tools.ot.otextension;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.ot.base.Ot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,10 +36,12 @@ public class CoteSender extends CoteShared {
    *          this party. Must not be null and must be initialized.
    * @param network
    *          The network interface. Must not be null and must be initialized.
+   * @param ot
+   *          The OT functionality to use for seed OTs
    */
   public CoteSender(int myId, int otherId, int kbitLength,
-      int lambdaSecurityParam, Drbg rand, Network network) {
-    super(myId, otherId, kbitLength, lambdaSecurityParam, rand, network);
+      int lambdaSecurityParam, Drbg rand, Network network, Ot ot) {
+    super(myId, otherId, kbitLength, lambdaSecurityParam, rand, network, ot);
     this.prgs = new ArrayList<>(kbitLength);
   }
 

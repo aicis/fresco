@@ -175,10 +175,12 @@ public class TestCommitment {
     assertEquals(true, thrown);
   }
 
+  @SuppressWarnings("unlikely-arg-type")
   @Test
   public void testNotEqual() {
     comm.commit(rand, new byte[] { 0x42 });
     assertFalse(comm.equals(new Commitment()));
+    assertFalse(comm.equals("something"));
   }
 
   @Test
