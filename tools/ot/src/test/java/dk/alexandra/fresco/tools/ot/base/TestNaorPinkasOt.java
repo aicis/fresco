@@ -30,7 +30,7 @@ import dk.alexandra.fresco.framework.util.DrngImpl;
 import dk.alexandra.fresco.tools.helper.Constants;
 
 public class TestNaorPinkasOt {
-  private NaorPinkasOT ot;
+  private NaorPinkasOt ot;
   private Drng randNum;
 
   public static final BigInteger DhGvalue = new BigInteger(
@@ -54,9 +54,16 @@ public class TestNaorPinkasOt {
           + "06594567246898679968677700656495114013774368779648395287433119164167454"
           + "67731166272088057888135437754886129005590419051");
 
+  /**
+   * Construct a NaorPinkasOt instance based on some static Diffie-Hellman
+   * parameters
+   * 
+   * @throws NoSuchAlgorithmException
+   *           The internal randomness generator does not exist.
+   */
   @Before
   public void setup()
-      throws NoSuchAlgorithmException, InvalidParameterSpecException {
+      throws NoSuchAlgorithmException {
     Drbg randBit = new AesCtrDrbg(Constants.seedOne);
     randNum = new DrngImpl(randBit);
     // fake network
@@ -76,7 +83,7 @@ public class TestNaorPinkasOt {
       }
     };
     DHParameterSpec params = new DHParameterSpec(DhPvalue, DhGvalue);
-    this.ot = new NaorPinkasOT(1, 2, randBit, network, params);
+    this.ot = new NaorPinkasOt(1, 2, randBit, network, params);
   }
 
 
@@ -89,6 +96,7 @@ public class TestNaorPinkasOt {
     AlgorithmParameterGenerator paramGen = AlgorithmParameterGenerator
         .getInstance("DH");
     SecureRandom commonRand = SecureRandom.getInstance("SHA1PRNG");
+    // This is the seed used to generate the static parameters
     commonRand.setSeed(new byte[] { 0x42 });
     // Construct DH parameters of a 2048 bit group based on the common seed
     paramGen.init(2048, commonRand);
@@ -177,12 +185,12 @@ public class TestNaorPinkasOt {
   @Test
   public void testNoSuchAlgorithm() throws Exception {
     // Change the "prgAlgorithm" field to the value "sdf"
-    Field algorithm = NaorPinkasOT.class.getDeclaredField("prgAlgorithm");
+    Field algorithm = NaorPinkasOt.class.getDeclaredField("prgAlgorithm");
     Constants.setFinalStatic(algorithm, "sdf", ot);
     boolean thrown = false;
     try {
       // Invoke the private method "computeDhParams"
-      Method computeDh = NaorPinkasOT.class.getDeclaredMethod("computeDhParams",
+      Method computeDh = NaorPinkasOt.class.getDeclaredMethod("computeDhParams",
           byte[].class);
       computeDh.setAccessible(true);
       computeDh.invoke(ot, new byte[32]);

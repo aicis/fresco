@@ -23,7 +23,7 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
 
-public class NaorPinkasOT implements Ot
+public class NaorPinkasOt implements Ot
 {
   private int myId;
   private int otherId;
@@ -37,13 +37,13 @@ public class NaorPinkasOT implements Ot
   private final int diffieHellmanSize;
   private DHParameterSpec params;
 
-  public NaorPinkasOT(int myId, int otherId, Drbg rand, Network network)
+  public NaorPinkasOt(int myId, int otherId, Drbg rand, Network network)
       throws NoSuchAlgorithmException {
     this(myId, otherId, rand, network, null);
     setDhParams(computeSecureDhParams());
   }
 
-  public NaorPinkasOT(int myId, int otherId, Drbg randBit, Network network,
+  public NaorPinkasOt(int myId, int otherId, Drbg randBit, Network network,
       DHParameterSpec params) throws NoSuchAlgorithmException {
     this.hashAlgorithm = "SHA-256";
     // This MUST only be used for the generation of the DH parameters. Where it

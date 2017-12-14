@@ -82,11 +82,7 @@ public class TestCommitment {
     assertEquals(list, deserializedList);
   }
 
-  /****
-   * NEGATIVE TESTS.
-   * 
-   * @throws FailedCommitmentException
-   ****/
+  /**** NEGATIVE TESTS. ****/
   @Test
   public void testIllegalInit() {
     Commitment comm;
@@ -139,7 +135,7 @@ public class TestCommitment {
     comm.commit(rand, bigInt.toByteArray());
     boolean thrown = false;
     try {
-      // The message itself is not enough to open the commitment
+      // The opening must be 32 bytes plus the message length
       comm.open(bigInt.toByteArray());
     } catch (MaliciousException e) {
       assertEquals("The opening info is too small to be a commitment.",
@@ -152,16 +148,12 @@ public class TestCommitment {
   @Test
   public void testBadOpening() {
     BigInteger bigInt = new BigInteger(
-        "1564653468742054656526586400808453435874240857403407808403368744803453123"
-            + "1564653468742054656526586400808453435874240857403407808403368744803453123"
-            + "1564653468742054656526586400808453435874240857403407808403368744803453123"
-            + "1564653468742054656526586400808453435874240857403407808403368744803453123"
-            + "1564653468742054656526586400808453435874240857403407808403368744803453123");
+        "6534687420653468742065346874205565346874206534687420653468742055");
     comm.commit(rand, bigInt.toByteArray());
     boolean thrown = false;
     try {
       // The message itself is not enough to open the commitment
-      comm.open(bigInt.toByteArray());
+      comm.open(new byte[32 + bigInt.toByteArray().length]);
     } catch (MaliciousException e) {
       assertEquals("The opening info does not match the commitment.",
           e.getMessage());
@@ -187,7 +179,6 @@ public class TestCommitment {
   public void testNotEqual() {
     comm.commit(rand, new byte[] { 0x42 });
     assertFalse(comm.equals(new Commitment()));
-    assertFalse(comm.equals("something"));
   }
 
   @Test
@@ -224,10 +215,10 @@ public class TestCommitment {
   // @Test
   // public void testNoSuchAlgorithm() throws Exception {
   // Field algorithm = Commitment.class.getDeclaredField("hashAlgorithm");
-  // Constants.setFinalStatic(algorithm, "sdf", comm);
+  // Constants.setFinalStatic(algorithm, "sdf", Commitment.class);
   // boolean thrown = false;
   // try {
-  // comm.commit(rand, Constants.seedOne);
+  // Commitment newCom = new Commitment();
   // } catch (IllegalArgumentException e) {
   // assertEquals("The internally used hash function does not exist",
   // e.getMessage());

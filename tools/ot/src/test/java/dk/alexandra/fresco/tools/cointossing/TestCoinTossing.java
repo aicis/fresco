@@ -19,6 +19,7 @@ import org.junit.Test;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.helper.Constants;
 import dk.alexandra.fresco.tools.helper.TestRuntime;
@@ -32,7 +33,8 @@ public class TestCoinTossing {
   private CoinTossing setupPartyOne() throws NoSuchAlgorithmException {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
-    Drbg rand = new AesCtrDrbg(Constants.seedOne);
+    // To stress things we use HMAC for one party and AES for another
+    Drbg rand = new HmacDrbg(Constants.seedOne);
     CoinTossing ct = new CoinTossing(1, 2, rand, network);
     return ct;
   }
@@ -64,8 +66,7 @@ public class TestCoinTossing {
   }
 
   /**
-   * Initializes the test runtime and constructs a Cote Sender and a Cote
-   * Receiver.
+   * Initializes the test runtime and constructs two Coin-tossing instances.
    */
   @Before
   public void initializeRuntime() {
@@ -114,12 +115,14 @@ public class TestCoinTossing {
     assertNotEquals(zeroVec, tossOne);
   }
 
-  /**** NEGATIVE TESTS. ****/
   /****
-   * Note that no cheating can occur in the coin tossing itself. If cheating
-   * occurs it must be done in the commitments /** Verify that initialization
-   * can only take place once.
+   * NEGATIVE TESTS. Note that no cheating can occur in the coin tossing itself.
+   * If cheating occurs it must be done in the commitments.
    *****/
+
+  /**
+   * Verify that initialization can only take place once.
+   **/
   @Test
   public void testDoubleInit() {
     Callable<Exception> partyOneTask = () -> initCtOne();
@@ -157,10 +160,9 @@ public class TestCoinTossing {
         return 0;
       }
     };
-    CoinTossing ct;
     boolean thrown = false;
     try {
-      ct = new CoinTossing(0, 1, null, network);
+      new CoinTossing(0, 1, null, network);
     } catch (IllegalArgumentException e) {
       assertEquals("Illegal constructor parameters", e.getMessage());
       thrown = true;
@@ -168,7 +170,7 @@ public class TestCoinTossing {
     assertEquals(thrown, true);
     thrown = false;
     try {
-      ct = new CoinTossing(0, 1, rand, null);
+      new CoinTossing(0, 1, rand, null);
     } catch (IllegalArgumentException e) {
       assertEquals("Illegal constructor parameters", e.getMessage());
       thrown = true;

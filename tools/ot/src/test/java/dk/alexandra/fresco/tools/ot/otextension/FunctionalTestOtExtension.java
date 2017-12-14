@@ -9,7 +9,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.Callable;
 
 import org.junit.After;
@@ -29,7 +28,7 @@ public class FunctionalTestOtExtension {
   private TestRuntime testRuntime;
   private Cote coteSender;
   private Cote coteReceiver;
-  private int kbitLength = 256;
+  private int kbitLength = 128;
   private int lambdaBitLength = 64;
 
   /**
@@ -133,7 +132,8 @@ public class FunctionalTestOtExtension {
     }
     Callable<Pair<List<StrictBitVector>, StrictBitVector>> partyOneExtend = () -> extendCoteSender(
         extendSize);
-    StrictBitVector choices = new StrictBitVector(extendSize, new Random(540));
+    StrictBitVector choices = new StrictBitVector(extendSize,
+        new AesCtrDrbg(Constants.seedThree));
     Callable<Pair<List<StrictBitVector>, StrictBitVector>> partyTwoExtend = () -> extendCoteReceiver(
         choices);
     // run tasks and get ordered list of results
@@ -232,7 +232,8 @@ public class FunctionalTestOtExtension {
     }
     Callable<Pair<List<StrictBitVector>, List<StrictBitVector>>> partyOneExtend = () -> extendRotSender(
         rotSender, extendSize);
-    StrictBitVector choices = new StrictBitVector(extendSize, new Random(540));
+    StrictBitVector choices = new StrictBitVector(extendSize,
+        new AesCtrDrbg(Constants.seedThree));
     Callable<Pair<List<StrictBitVector>, List<StrictBitVector>>> partyTwoExtend = () -> extendRotReceiver(
         rotReceiver, choices);
     // run tasks and get ordered list of results
@@ -351,7 +352,8 @@ public class FunctionalTestOtExtension {
     }
     Callable<Pair<List<StrictBitVector>, List<StrictBitVector>>> partyOneExtend = () -> extendRotSender(
         rotSender, extendSize);
-    StrictBitVector choices = new StrictBitVector(extendSize, new Random(540));
+    StrictBitVector choices = new StrictBitVector(extendSize,
+        new AesCtrDrbg(Constants.seedThree));
     // The next kbitLength messages sent are in correlated OT extension, this
     // should make the correlation check fail. Flipping a bit makes the
     // correlation check fail with 0.5 probability, up to the random choices of

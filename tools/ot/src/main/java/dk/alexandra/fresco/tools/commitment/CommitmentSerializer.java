@@ -17,8 +17,8 @@ public class CommitmentSerializer implements SecureSerializer<Commitment> {
     if (elements.isEmpty()) {
       return new byte[] {};
     }
+    // A serialized commitment only consists of its internal digest
     byte[] commList = new byte[elements.size() * Commitment.digestLength];
-    // ensure all field elements are in the same field and have same bit length
     for (int i = 0; i < elements.size(); i++) {
       System.arraycopy(elements.get(i).commitmentVal, 0, commList,
           i * Commitment.digestLength, Commitment.digestLength);
@@ -46,6 +46,7 @@ public class CommitmentSerializer implements SecureSerializer<Commitment> {
     if (data.length == 0) {
       return new ArrayList<>();
     }
+    // A serialized commitment only consists of its internal digest
     List<Commitment> res = new ArrayList<>(data.length / Commitment.digestLength);
     for (int i = 0; i < data.length / Commitment.digestLength; i++) {
       Commitment comm = new Commitment();
@@ -57,5 +58,4 @@ public class CommitmentSerializer implements SecureSerializer<Commitment> {
     }
     return res;
   }
-
 }

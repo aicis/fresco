@@ -7,7 +7,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.Closeable;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidParameterSpecException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,8 +33,8 @@ public class FunctionalTestNaorPinkas {
   private DHParameterSpec staticParams;
 
   /**
-   * Initializes the test runtime and constructs a Cote Sender and a Cote
-   * Receiver.
+   * Initializes the test runtime and constructs loads preconstructed
+   * Diffe-Hellman parameters.
    */
   @Before
   public void initializeRuntime() {
@@ -45,24 +44,20 @@ public class FunctionalTestNaorPinkas {
   }
 
   /**
-   * Shuts down the network and test runtime.
-   * 
-   * @throws IOException
-   *           Thrown if the network fails to shut down
+   * Shuts down the test runtime.
    */
   @After
-  public void shutdown() throws IOException {
+  public void shutdown() {
     testRuntime.shutdown();
   }
 
   private List<Pair<StrictBitVector, StrictBitVector>> otSend(int iterations)
-      throws IOException, NoSuchAlgorithmException,
-      InvalidParameterSpecException {
+      throws IOException, NoSuchAlgorithmException {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     try {
       Drbg rand = new AesCtrDrbg(Constants.seedOne);
-      Ot otSender = new NaorPinkasOT(1, 2, rand, network);
+      Ot otSender = new NaorPinkasOt(1, 2, rand, network);
       List<Pair<StrictBitVector, StrictBitVector>> messages = new ArrayList<>(
           iterations);
       for (int i = 0; i < iterations; i++) {
@@ -80,13 +75,12 @@ public class FunctionalTestNaorPinkas {
   }
 
   private List<StrictBitVector> otReceive(StrictBitVector choices)
-      throws IOException, NoSuchAlgorithmException,
-      InvalidParameterSpecException {
+      throws IOException, NoSuchAlgorithmException {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     try {
       Drbg rand = new AesCtrDrbg(Constants.seedTwo);
-      Ot otReceiver = new NaorPinkasOT(2, 1, rand, network);
+      Ot otReceiver = new NaorPinkasOt(2, 1, rand, network);
       List<StrictBitVector> messages = new ArrayList<>(choices.getSize());
       for (int i = 0; i < choices.getSize(); i++) {
         StrictBitVector message = otReceiver.receive(choices.getBit(i, false));
@@ -104,8 +98,7 @@ public class FunctionalTestNaorPinkas {
   @SuppressWarnings("unchecked")
   @Test
   public void testNaorPinkasOt() {
-    // We execute more OTs than the batchSize to ensure that an automatic
-    // extension will take place once preprocessed OTs run out
+    // We execute 160 OTs
     int iterations = 160;
     Drbg rand = new AesCtrDrbg(Constants.seedThree);
     StrictBitVector choices = new StrictBitVector(iterations, rand);
@@ -120,11 +113,16 @@ public class FunctionalTestNaorPinkas {
       StrictBitVector receiverResult = (StrictBitVector) extendResults.get(1)
           .get(i);
       if (choices.getBit(i, false) == false) {
+        // Check that the 0 message is the one the receiver got if his choicebit
+        // was 0
         assertTrue(senderResult.getFirst().equals(receiverResult));
       } else {
+        // Check that the 1 message is the one the receiver got if his choicebit
+        // was 1
         assertTrue(senderResult.getSecond().equals(receiverResult));
       }
-      // Check the messages are not 0 vector
+      // Do sanity checks:
+      // Check the messages are not 0 vectors
       StrictBitVector zeroVec = new StrictBitVector(messageLength);
       assertEquals(zeroVec.getSize(), senderResult.getFirst().getSize());
       assertEquals(zeroVec.getSize(), senderResult.getSecond().getSize());
@@ -132,9 +130,9 @@ public class FunctionalTestNaorPinkas {
       assertNotEquals(zeroVec, senderResult.getSecond());
       assertEquals(zeroVec.getSize(), receiverResult.getSize());
       assertNotEquals(zeroVec, receiverResult);
-      // Check that the two messages are not the same
+      // Check that the sender's two messages are not the same
       assertNotEquals(senderResult.getFirst(), senderResult.getSecond());
-      // Check that they are not all equal
+      // Check that all messages are not all equal
       if (i > 0) {
         assertNotEquals(extendResults.get(0).get(i - 1),
             extendResults.get(0).get(i));
@@ -152,13 +150,12 @@ public class FunctionalTestNaorPinkas {
 
   /***** NEGATIVE TESTS. *****/
   private List<StrictBitVector> otSendCheat()
-      throws IOException, NoSuchAlgorithmException, NoSuchFieldException,
-      SecurityException, IllegalArgumentException, IllegalAccessException {
+      throws IOException, NoSuchAlgorithmException {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     try {
       Drbg rand = new AesCtrDrbg(Constants.seedOne);
-      Ot otSender = new NaorPinkasOT(1, 2, rand, network, staticParams);
+      Ot otSender = new NaorPinkasOt(1, 2, rand, network, staticParams);
       StrictBitVector msgZero = new StrictBitVector(messageLength, rand);
       StrictBitVector msgOne = new StrictBitVector(messageLength, rand);
       // Send a wrong random value c, than what is actually used
@@ -174,13 +171,12 @@ public class FunctionalTestNaorPinkas {
   }
 
   private List<StrictBitVector> otReceiveCheat(boolean choice)
-      throws IOException, NoSuchAlgorithmException, NoSuchFieldException,
-      SecurityException, IllegalArgumentException, IllegalAccessException {
+      throws IOException, NoSuchAlgorithmException {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     try {
       Drbg rand = new AesCtrDrbg(Constants.seedTwo);
-      Ot otReceiver = new NaorPinkasOT(2, 1, rand, network, staticParams);
+      Ot otReceiver = new NaorPinkasOt(2, 1, rand, network, staticParams);
       StrictBitVector message = otReceiver.receive(choice);
       List<StrictBitVector> messageList = new ArrayList<>(1);
       messageList.add(message);
@@ -206,6 +202,8 @@ public class FunctionalTestNaorPinkas {
         .runPerPartyTasks(Arrays.asList(partyOneInit, partyTwoInit));
     List<StrictBitVector> senderResults = results.get(0);
     StrictBitVector receiverResult = results.get(1).get(0);
+    // Verify that the Both messages of the sender is different from the message
+    // the receiver got
     assertNotEquals(senderResults.get(0), receiverResult);
     assertNotEquals(senderResults.get(1), receiverResult);
   }

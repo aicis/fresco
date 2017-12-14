@@ -23,6 +23,19 @@ public class Constants {
       0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42,
       0x42, 0x42 };
 
+  /**
+   * Helper method which uses reflection to change a private and final field
+   * variable to a desired value.
+   * 
+   * @param field
+   *          The field of the class to change
+   * @param newValue
+   *          The new value the field should take
+   * @param objectToWorkOn
+   *          The object of which the field should be changed
+   * @throws Exception
+   *           Thrown if something goes wrong
+   */
   public static void setFinalStatic(Field field, Object newValue,
       Object objectToWorkOn)
       throws Exception {

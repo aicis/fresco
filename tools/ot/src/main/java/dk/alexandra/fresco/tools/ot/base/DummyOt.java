@@ -8,6 +8,14 @@ public class DummyOt implements Ot {
   private Integer otherId;
   Network network;
 
+  /**
+   * Construct an insecure dummy OT object based on a real network.
+   * 
+   * @param otherId
+   *          The ID of the other party
+   * @param network
+   *          The network to use
+   */
   public DummyOt(Integer otherId, Network network) {
     super();
     this.otherId = otherId;
