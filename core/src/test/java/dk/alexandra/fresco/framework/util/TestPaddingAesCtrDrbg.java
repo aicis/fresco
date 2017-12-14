@@ -28,6 +28,22 @@ public class TestPaddingAesCtrDrbg {
     assertArrayEquals(seed, actuals);
   }
 
+  @Test
+  public void testNextBytesConsistent() {
+    byte[] seed = new byte[32];
+    new Random().nextBytes(seed);
+
+    byte[] seedCpy = new byte[32];
+    System.arraycopy(seed, 0, seedCpy, 0, 32);
+
+    byte[] actuals = new byte[3];
+    new PaddingAesCtrDrbg(seed, 256).nextBytes(actuals);
+
+    byte[] expecteds = new byte[3];
+    new AesCtrDrbg(seedCpy).nextBytes(expecteds);
+    assertArrayEquals(expecteds, actuals);
+  }
+
   @Test(expected = UnsupportedOperationException.class)
   public void testThrowLongSeed() {
     byte[] seed = new byte[40];
