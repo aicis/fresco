@@ -1,9 +1,8 @@
 package dk.alexandra.fresco.tools.mascot.broadcast;
 
+import dk.alexandra.fresco.framework.network.Network;
 import java.util.Arrays;
 import java.util.List;
-
-import dk.alexandra.fresco.framework.network.Network;
 
 public class BroadcastingNetworkDecorator implements Network {
 

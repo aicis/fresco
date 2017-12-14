@@ -2,13 +2,13 @@ package dk.alexandra.fresco.tools.mascot.field;
 
 import static org.junit.Assert.assertEquals;
 
+import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import java.math.BigInteger;
 import java.util.List;
 
 import org.junit.Test;
 
-import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 
 public class TestFieldElementCollectionUtils {
 

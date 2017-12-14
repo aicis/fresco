@@ -1,8 +1,8 @@
 package dk.alexandra.fresco.tools.mascot;
 
+import dk.alexandra.fresco.framework.network.Network;
 import java.util.List;
 
-import dk.alexandra.fresco.framework.network.Network;
 
 public class MultiPartyProtocol extends BaseProtocol {
   

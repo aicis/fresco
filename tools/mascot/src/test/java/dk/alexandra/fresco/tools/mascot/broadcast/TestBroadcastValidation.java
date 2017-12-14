@@ -2,16 +2,16 @@ package dk.alexandra.fresco.tools.mascot.broadcast;
 
 import static org.junit.Assert.assertEquals;
 
+import dk.alexandra.fresco.framework.MaliciousException;
+import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.tools.mascot.MascotTestContext;
+import dk.alexandra.fresco.tools.mascot.NetworkedTest;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
 
-import dk.alexandra.fresco.framework.MaliciousException;
-import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.tools.mascot.MascotTestContext;
-import dk.alexandra.fresco.tools.mascot.NetworkedTest;
 
 // TODO cannot connect to other party failure
 public class TestBroadcastValidation extends NetworkedTest {

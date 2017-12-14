@@ -1,8 +1,5 @@
 package dk.alexandra.fresco.tools.mascot;
 
-import java.math.BigInteger;
-import java.util.List;
-
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
@@ -10,6 +7,8 @@ import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import dk.alexandra.fresco.tools.ot.otextension.BristolRotBatch;
+import java.math.BigInteger;
+import java.util.List;
 
 public class DummyMascotResourcePoolImpl extends MascotResourcePoolImpl {
 

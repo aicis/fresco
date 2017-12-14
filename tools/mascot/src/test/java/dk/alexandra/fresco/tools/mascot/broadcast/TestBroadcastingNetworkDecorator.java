@@ -2,9 +2,9 @@ package dk.alexandra.fresco.tools.mascot.broadcast;
 
 import static org.junit.Assert.assertEquals;
 
+import dk.alexandra.fresco.framework.network.Network;
 import org.junit.Test;
 
-import dk.alexandra.fresco.framework.network.Network;
 
 public class TestBroadcastingNetworkDecorator {
 

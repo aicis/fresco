@@ -1,10 +1,9 @@
 package dk.alexandra.fresco.tools.mascot;
 
-import java.math.BigInteger;
-
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
+import java.math.BigInteger;
 
 public class BaseProtocol {
 

@@ -1,7 +1,12 @@
 package dk.alexandra.fresco.tools.mascot;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
+import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
+import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -9,11 +14,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
-import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
-import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 
 public class TestMascot extends NetworkedTest {
 

@@ -1,17 +1,16 @@
 package dk.alexandra.fresco.tools.mascot.mult;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class MultiplyLeft extends MultiplyShared {
 
@@ -28,14 +27,6 @@ public class MultiplyLeft extends MultiplyShared {
     super(resourcePool, network, otherId, numLeftFactors);
   }
 
-  /**
-   * {@link MultiplyLeft#MultiplyLeft(MascotResourcePool, Network, Integer, int)} with default left
-   * factor number of 1.
-   * 
-   * @param resourcePool
-   * @param network
-   * @param otherId
-   */
   public MultiplyLeft(MascotResourcePool resourcePool, Network network, Integer otherId) {
     this(resourcePool, network, otherId, 1);
   }
@@ -56,13 +47,6 @@ public class MultiplyLeft extends MultiplyShared {
     return seeds;
   }
 
-  /**
-   * {@link #generateSeeds}.
-   * 
-   * @param leftFactor
-   * @param seedLength
-   * @return
-   */
   public List<StrictBitVector> generateSeeds(FieldElement leftFactor, int seedLength) {
     return generateSeeds(Collections.singletonList(leftFactor), seedLength);
   }
@@ -98,8 +82,7 @@ public class MultiplyLeft extends MultiplyShared {
         FieldElement feSeed = feSeeds.get(diffIdx);
         FieldElement diff = diffs.get(diffIdx);
         boolean bit = leftFactor.getBit(b);
-        FieldElement summand = diff.select(bit)
-            .add(feSeed);
+        FieldElement summand = diff.select(bit).add(feSeed);
         summands.add(summand);
         diffIdx++;
       }
@@ -121,11 +104,9 @@ public class MultiplyLeft extends MultiplyShared {
   List<FieldElement> seedsToFieldElements(List<StrictBitVector> seeds, BigInteger modulus,
       int modBitLength) {
     // TODO there should be a better way to do this
-    return seeds.stream()
-        .map(seed -> {
-          return new FieldElementPrgImpl(seed).getNext(modulus, modBitLength);
-        })
-        .collect(Collectors.toList());
+    return seeds.stream().map(seed -> {
+      return new FieldElementPrgImpl(seed).getNext(modulus, modBitLength);
+    }).collect(Collectors.toList());
   }
 
   /**

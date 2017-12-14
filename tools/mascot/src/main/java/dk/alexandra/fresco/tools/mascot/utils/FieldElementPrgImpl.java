@@ -1,12 +1,12 @@
 package dk.alexandra.fresco.tools.mascot.utils;
 
-import java.math.BigInteger;
-
 import dk.alexandra.fresco.framework.util.Drng;
 import dk.alexandra.fresco.framework.util.DrngImpl;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import java.math.BigInteger;
+
 
 public class FieldElementPrgImpl implements FieldElementPrg {
 

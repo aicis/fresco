@@ -1,20 +1,19 @@
 package dk.alexandra.fresco.tools.mascot.maccheck;
 
-import java.util.List;
-
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
 import dk.alexandra.fresco.tools.mascot.commit.CommitmentBasedProtocol;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import java.util.List;
 
 public class MacCheck extends CommitmentBasedProtocol<FieldElement> {
 
   /**
    * Constructs new mac checker.
    * 
-   * @param resourcePool
+   * @param resourcePool {@inheritDoc}
    */
   public MacCheck(MascotResourcePool resourcePool, Network network) {
     super(resourcePool, network, resourcePool.getFieldElementSerializer());
@@ -27,7 +26,6 @@ public class MacCheck extends CommitmentBasedProtocol<FieldElement> {
    * @param opened the opened element to validate
    * @param macKeyShare this party's share of the mac key
    * @param macShare this party's share of the mac
-   * @return
    * @throws MaliciousException if mac-check fails
    */
   public void check(FieldElement opened, FieldElement macKeyShare, FieldElement macShare) {

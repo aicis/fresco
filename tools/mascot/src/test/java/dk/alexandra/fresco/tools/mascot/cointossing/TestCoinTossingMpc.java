@@ -2,15 +2,14 @@ package dk.alexandra.fresco.tools.mascot.cointossing;
 
 import static org.junit.Assert.assertEquals;
 
+import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.mascot.MascotTestContext;
+import dk.alexandra.fresco.tools.mascot.NetworkedTest;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
-import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.MascotTestContext;
-import dk.alexandra.fresco.tools.mascot.NetworkedTest;
 
 public class TestCoinTossingMpc extends NetworkedTest {
 

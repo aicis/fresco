@@ -2,17 +2,16 @@ package dk.alexandra.fresco.tools.mascot.maccheck;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.Callable;
-
-import org.junit.Test;
-
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.tools.mascot.MascotTestContext;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.Callable;
+
+import org.junit.Test;
 
 // TODO generalize to many parties
 public class TestMacCheck extends NetworkedTest {

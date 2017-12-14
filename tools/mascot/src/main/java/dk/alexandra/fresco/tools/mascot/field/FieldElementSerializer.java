@@ -1,10 +1,10 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
+import dk.alexandra.fresco.framework.network.serializers.SecureSerializer;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import dk.alexandra.fresco.framework.network.serializers.SecureSerializer;
 
 public class FieldElementSerializer implements SecureSerializer<FieldElement> {
 
@@ -19,8 +19,8 @@ public class FieldElementSerializer implements SecureSerializer<FieldElement> {
   /**
    * Deserializes a single field element.
    * 
-   * @param data
-   * @return field element
+   * @param data serialized element
+   * @return deserialized field element
    */
   @Override
   public FieldElement deserialize(byte[] data) {
@@ -30,8 +30,8 @@ public class FieldElementSerializer implements SecureSerializer<FieldElement> {
   /**
    * Serializes a single field element.
    * 
-   * @param obj
-   * @return field element
+   * @param obj field element to serialize
+   * @return serialized field element
    */
   @Override
   public byte[] serialize(FieldElement obj) {
@@ -42,7 +42,7 @@ public class FieldElementSerializer implements SecureSerializer<FieldElement> {
    * Serializes a list of field elements (all elements must be in same field).
    * 
    * @param elements elements to be serialized
-   * @return
+   * @return serialized field elements
    */
   @Override
   public byte[] serialize(List<FieldElement> elements) {
@@ -56,8 +56,7 @@ public class FieldElementSerializer implements SecureSerializer<FieldElement> {
         throw new IllegalArgumentException("All elements must have same modulus");
       }
     }
-    byte[] serialized = FieldElementCollectionUtils.pack(elements, false)
-        .toByteArray();
+    byte[] serialized = FieldElementCollectionUtils.pack(elements, false).toByteArray();
     return serialized;
   }
 
@@ -65,7 +64,7 @@ public class FieldElementSerializer implements SecureSerializer<FieldElement> {
    * Deserializes byte array into list of field elements.
    * 
    * @param data data to be deserialized
-   * @return
+   * @return deserialized field elements
    */
   @Override
   public List<FieldElement> deserializeList(byte[] data) {

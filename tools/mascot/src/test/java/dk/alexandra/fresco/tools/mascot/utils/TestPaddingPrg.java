@@ -3,14 +3,14 @@ package dk.alexandra.fresco.tools.mascot.utils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
+import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Random;
 
 import org.junit.Test;
 
-import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 
 public class TestPaddingPrg {
 

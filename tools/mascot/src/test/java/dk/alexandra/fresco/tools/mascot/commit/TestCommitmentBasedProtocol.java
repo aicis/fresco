@@ -1,12 +1,12 @@
 package dk.alexandra.fresco.tools.mascot.commit;
 
+import dk.alexandra.fresco.framework.network.serializers.StrictBitVectorSerializer;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.mascot.MascotMockSupplier;
 import java.util.Arrays;
 
 import org.junit.Test;
 
-import dk.alexandra.fresco.framework.network.serializers.StrictBitVectorSerializer;
-import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.MascotMockSupplier;
 
 public class TestCommitmentBasedProtocol {
 

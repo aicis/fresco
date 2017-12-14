@@ -1,7 +1,5 @@
 package dk.alexandra.fresco.tools.mascot;
 
-import java.util.List;
-
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.cointossing.CoinTossingMpc;
@@ -12,6 +10,7 @@ import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import dk.alexandra.fresco.tools.mascot.triple.TripleGeneration;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
+import java.util.List;
 
 public class Mascot {
 

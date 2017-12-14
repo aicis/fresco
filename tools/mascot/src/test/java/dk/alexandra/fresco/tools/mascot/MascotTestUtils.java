@@ -2,15 +2,14 @@ package dk.alexandra.fresco.tools.mascot;
 
 import static org.junit.Assert.assertEquals;
 
+import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
+import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 
 public class MascotTestUtils {
   

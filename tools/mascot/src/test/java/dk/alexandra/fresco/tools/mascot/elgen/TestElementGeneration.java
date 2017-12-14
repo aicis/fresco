@@ -2,6 +2,15 @@ package dk.alexandra.fresco.tools.mascot.elgen;
 
 import static org.junit.Assert.assertEquals;
 
+import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.mascot.MascotTestContext;
+import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
+import dk.alexandra.fresco.tools.mascot.NetworkedTest;
+import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
+import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
+import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
+import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,15 +23,6 @@ import java.util.stream.Stream;
 
 import org.junit.Test;
 
-import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.MascotTestContext;
-import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
-import dk.alexandra.fresco.tools.mascot.NetworkedTest;
-import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
-import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
 
 public class TestElementGeneration extends NetworkedTest {
 
