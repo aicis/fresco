@@ -1,5 +1,7 @@
 package dk.alexandra.fresco.tools.mascot;
 
+import dk.alexandra.fresco.framework.util.ExceptionConverter;
+import dk.alexandra.fresco.framework.util.Pair;
 import java.io.Closeable;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -13,36 +15,35 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import dk.alexandra.fresco.framework.util.ExceptionConverter;
-import dk.alexandra.fresco.framework.util.Pair;
 
 public class TestRuntime {
 
-  private final static Logger logger = LoggerFactory.getLogger(TestRuntime.class);
+  private static final Logger logger = LoggerFactory.getLogger(TestRuntime.class);
 
   private Map<Integer, MascotTestContext> contexts;
   private ExecutorService executor;
   private boolean executorInitialized;
   private long timeout;
 
+  /**
+   * Creates new test runtime.
+   */
   public TestRuntime() {
     this.contexts = new HashMap<>();
     this.executor = null;
     this.executorInitialized = false;
-    this.timeout = 5l;
+    this.timeout = 5L;
   }
 
   /**
-   * Closes the networks on the contexts and shuts down the executor. Call this after test.
-   * 
-   * @param executor
-   * @param contexts
+   * Closes the networks on the contexts and shuts down the executor. <br>
+   * Call this after test.
    */
   public void shutdown() {
+    // TODO clean up
     if (!executorInitialized) {
       throw new IllegalStateException("Executor not initialized, nothing to shut down.");
     }
@@ -68,7 +69,6 @@ public class TestRuntime {
    * Creates a new executor service with fixed-size thread pool.
    * 
    * @param numParties number of threads in thread pool (one per party)
-   * @return
    */
   private void initalizeExecutor(int numParties) {
     if (executorInitialized) {
@@ -90,11 +90,9 @@ public class TestRuntime {
       return executor.invokeAll(tasks, timeout, TimeUnit.SECONDS);
     };
     List<Future<T>> futures = ExceptionConverter.safe(runAll, "Invoke all failed");
-    return futures.stream()
-        .map(future -> {
-          return ExceptionConverter.safe(() -> future.get(), "Party task failed");
-        })
-        .collect(Collectors.toList());
+    return futures.stream().map(future -> {
+      return ExceptionConverter.safe(() -> future.get(), "Party task failed");
+    }).collect(Collectors.toList());
   }
 
   /**
@@ -124,14 +122,12 @@ public class TestRuntime {
   }
 
   /**
-   * Runs the task defined for each party.
+   * Runs the task defined for each party. <br>
+   * Currently assumes that all parties receive the same type of output. This method assumes that
+   * tasks are ordered by party.
    * 
-   * Currently assumes that all parties receive the same type of output.
-   * 
-   * This method assumes that tasks are ordered by party.
-   * 
-   * @param tasks
-   * @return
+   * @param tasks tasks to run
+   * @return result of tasks
    */
   public <T> List<T> runPerPartyTasks(List<Callable<T>> tasks) {
     if (!executorInitialized) {
@@ -143,7 +139,7 @@ public class TestRuntime {
   /**
    * Initializes a single context for a party.
    * 
-   * @param myId
+   * @param myId this party's id
    * @param partyIds the parties
    * @param modulus the modulus
    * @param modBitLength length of modulus
@@ -163,7 +159,7 @@ public class TestRuntime {
   /**
    * Check if executor has been initialized.
    * 
-   * @return
+   * @return is initialized
    */
   public boolean isExecutorInitialized() {
     return executorInitialized;

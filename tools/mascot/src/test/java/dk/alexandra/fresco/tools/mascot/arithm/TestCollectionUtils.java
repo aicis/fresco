@@ -2,14 +2,12 @@ package dk.alexandra.fresco.tools.mascot.arithm;
 
 import static org.junit.Assert.assertEquals;
 
+import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
+import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
-
 import org.junit.Test;
-
-import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 
 public class TestCollectionUtils {
 
@@ -70,17 +68,22 @@ public class TestCollectionUtils {
 
     @Override
     public boolean equals(Object obj) {
-      if (this == obj)
+      if (this == obj) {
         return true;
-      if (obj == null)
+      }
+      if (obj == null) {
         return false;
-      if (getClass() != obj.getClass())
+      }
+      if (getClass() != obj.getClass()) {
         return false;
+      }
       MockAddable other = (MockAddable) obj;
-      if (!getOuterType().equals(other.getOuterType()))
+      if (!getOuterType().equals(other.getOuterType())) {
         return false;
-      if (value != other.value)
+      }
+      if (value != other.value) {
         return false;
+      }
       return true;
     }
 

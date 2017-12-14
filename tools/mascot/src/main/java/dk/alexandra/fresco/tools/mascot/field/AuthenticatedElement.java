@@ -1,8 +1,8 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
-import java.math.BigInteger;
-
 import dk.alexandra.fresco.tools.mascot.arithm.Addable;
+
+import java.math.BigInteger;
 
 public class AuthenticatedElement implements Addable<AuthenticatedElement> {
 
@@ -11,6 +11,14 @@ public class AuthenticatedElement implements Addable<AuthenticatedElement> {
   BigInteger modulus;
   int modBitLength;
 
+  /**
+   * Creates new authenticated element.
+   * 
+   * @param share this party's share
+   * @param mac this party's share of the mac
+   * @param modulus modulus of the underlying field elements
+   * @param modBitLength bit length of modulus
+   */
   public AuthenticatedElement(FieldElement share, FieldElement mac, BigInteger modulus,
       int modBitLength) {
     this.share = share;
@@ -60,30 +68,40 @@ public class AuthenticatedElement implements Addable<AuthenticatedElement> {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     AuthenticatedElement other = (AuthenticatedElement) obj;
     if (mac == null) {
-      if (other.mac != null)
+      if (other.mac != null) {
         return false;
-    } else if (!mac.equals(other.mac))
+      }
+    } else if (!mac.equals(other.mac)) {
       return false;
-    if (modBitLength != other.modBitLength)
+    }
+    if (modBitLength != other.modBitLength) {
       return false;
+    }
     if (modulus == null) {
-      if (other.modulus != null)
+      if (other.modulus != null) {
         return false;
-    } else if (!modulus.equals(other.modulus))
+      }
+    } else if (!modulus.equals(other.modulus)) {
       return false;
+    }
     if (share == null) {
-      if (other.share != null)
+      if (other.share != null) {
         return false;
-    } else if (!share.equals(other.share))
+      }
+    } else if (!share.equals(other.share)) {
       return false;
+    }
     return true;
   }
 

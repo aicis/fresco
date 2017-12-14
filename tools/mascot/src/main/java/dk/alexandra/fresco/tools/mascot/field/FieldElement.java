@@ -1,10 +1,10 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
+import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 import java.math.BigInteger;
 import java.util.function.BinaryOperator;
 
-import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 
 public final class FieldElement implements Addable<FieldElement> {
 
@@ -12,6 +12,13 @@ public final class FieldElement implements Addable<FieldElement> {
   final BigInteger modulus;
   final int bitLength;
 
+  /**
+   * Creates new field element.
+   * 
+   * @param value value of element
+   * @param modulus modulus defining field
+   * @param bitLength bit length of modulus
+   */
   public FieldElement(BigInteger value, BigInteger modulus, int bitLength) {
     sanityCheck(value, modulus, bitLength);
     this.value = value;
@@ -20,9 +27,7 @@ public final class FieldElement implements Addable<FieldElement> {
   }
 
   public FieldElement(FieldElement other) {
-    this.value = other.value;
-    this.modulus = other.modulus;
-    this.bitLength = other.bitLength;
+    this(other.value, other.modulus, other.bitLength);
   }
 
   public FieldElement(String value, String modulus, int bitLength) {
@@ -39,13 +44,12 @@ public final class FieldElement implements Addable<FieldElement> {
 
   private FieldElement binaryOp(BinaryOperator<BigInteger> op, FieldElement left,
       FieldElement right) {
-    return new FieldElement(op.apply(left.toBigInteger(), right.toBigInteger())
-        .mod(modulus), this.modulus, this.bitLength);
+    return new FieldElement(op.apply(left.toBigInteger(), right.toBigInteger()).mod(modulus),
+        this.modulus, this.bitLength);
   }
 
   public FieldElement pow(int exponent) {
-    return new FieldElement(this.value.pow(exponent)
-        .mod(modulus), modulus, bitLength);
+    return new FieldElement(this.value.pow(exponent).mod(modulus), modulus, bitLength);
   }
 
   public FieldElement add(FieldElement other) {
@@ -61,14 +65,14 @@ public final class FieldElement implements Addable<FieldElement> {
   }
 
   public FieldElement negate() {
-    return new FieldElement(value.multiply(BigInteger.valueOf(-1))
-        .mod(modulus), modulus, bitLength);
+    return new FieldElement(value.multiply(BigInteger.valueOf(-1)).mod(modulus), modulus,
+        bitLength);
   }
 
   public BigInteger toBigInteger() {
     return this.value;
   }
-  
+
   public boolean getBit(int bitIndex) {
     return value.testBit(bitIndex);
   }
@@ -77,6 +81,12 @@ public final class FieldElement implements Addable<FieldElement> {
     return bit ? this : new FieldElement(BigInteger.ZERO, modulus, bitLength);
   }
 
+  /**
+   * Converts value into byte array. <br>
+   * Result is guaranteed to exactly bitLength / 8 long.
+   * 
+   * @return byte representation of value
+   */
   public byte[] toByteArray() {
     int byteLength = bitLength / 8;
     byte[] res = new byte[byteLength];
@@ -95,11 +105,11 @@ public final class FieldElement implements Addable<FieldElement> {
   public BigInteger getModulus() {
     return this.modulus;
   }
-  
+
   public int getBitLength() {
     return bitLength;
   }
-  
+
   @Override
   public String toString() {
     return "FieldElement [value=" + value + ", modulus=" + modulus + ", bitLength=" + bitLength
@@ -118,25 +128,33 @@ public final class FieldElement implements Addable<FieldElement> {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     FieldElement other = (FieldElement) obj;
-    if (bitLength != other.bitLength)
+    if (bitLength != other.bitLength) {
       return false;
+    }
     if (modulus == null) {
-      if (other.modulus != null)
+      if (other.modulus != null) {
         return false;
-    } else if (!modulus.equals(other.modulus))
+      }
+    } else if (!modulus.equals(other.modulus)) {
       return false;
+    }
     if (value == null) {
-      if (other.value != null)
+      if (other.value != null) {
         return false;
-    } else if (!value.equals(other.value))
+      }
+    } else if (!value.equals(other.value)) {
       return false;
+    }
     return true;
   }
 
