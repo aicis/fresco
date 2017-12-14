@@ -5,6 +5,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.Drng;
+import dk.alexandra.fresco.framework.util.DrngImpl;
+import dk.alexandra.fresco.tools.helper.Constants;
+
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -22,15 +29,12 @@ import javax.crypto.spec.DHParameterSpec;
 import org.junit.Before;
 import org.junit.Test;
 
-import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.AesCtrDrbg;
-import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.Drng;
-import dk.alexandra.fresco.framework.util.DrngImpl;
-import dk.alexandra.fresco.tools.helper.Constants;
-
 public class TestNaorPinkasOt {
   private NaorPinkasOt ot;
+  private Method encryptMessage;
+  private Method decryptMessage;
+  private Method padMessage;
+  private Method unpadMessage;
   private Drng randNum;
 
   public static final BigInteger DhGvalue = new BigInteger(
@@ -60,10 +64,15 @@ public class TestNaorPinkasOt {
    * 
    * @throws NoSuchAlgorithmException
    *           The internal randomness generator does not exist.
+   * @throws SecurityException
+   *           Thrown if it is not possible to change private method visibility
+   * @throws NoSuchMethodException
+   *           Thrown if it is not possible to change private method visibility
    */
   @Before
   public void setup()
-      throws NoSuchAlgorithmException {
+      throws NoSuchAlgorithmException, NoSuchMethodException,
+      SecurityException {
     Drbg randBit = new AesCtrDrbg(Constants.seedOne);
     randNum = new DrngImpl(randBit);
     // fake network
@@ -84,6 +93,19 @@ public class TestNaorPinkasOt {
     };
     DHParameterSpec params = new DHParameterSpec(DhPvalue, DhGvalue);
     this.ot = new NaorPinkasOt(1, 2, randBit, network, params);
+    // Change visibility of private methods so they can be tested
+    this.encryptMessage = NaorPinkasOt.class.getDeclaredMethod("encryptMessage",
+        BigInteger.class, byte[].class);
+    this.encryptMessage.setAccessible(true);
+    this.decryptMessage = NaorPinkasOt.class.getDeclaredMethod("decryptMessage",
+        BigInteger.class, BigInteger.class);
+    this.decryptMessage.setAccessible(true);
+    this.padMessage = NaorPinkasOt.class.getDeclaredMethod("padMessage",
+        byte[].class, int.class, byte[].class);
+    this.padMessage.setAccessible(true);
+    this.unpadMessage = NaorPinkasOt.class.getDeclaredMethod("unpadMessage",
+        byte[].class, byte[].class);
+    this.unpadMessage.setAccessible(true);
   }
 
 
@@ -107,26 +129,33 @@ public class TestNaorPinkasOt {
   }
 
   @Test
-  public void testEncDec() throws NoSuchAlgorithmException {
+  public void testEncDec()
+      throws NoSuchAlgorithmException, IllegalAccessException,
+      IllegalArgumentException, InvocationTargetException {
     BigInteger privateKey = randNum.nextBigInteger(ot.getDhParams().getP());
     BigInteger publicKey = ot.getDhParams().getG().modPow(privateKey,
         ot.getDhParams().getP());
     // We are statically using SHA-256 and thus have 256 bit digests
     byte[] message = new byte[256 / 8];
-    BigInteger cipher = ot.encryptMessage(publicKey, message);
+    BigInteger cipher = (BigInteger) encryptMessage.invoke(ot, publicKey,
+        message);
     // Sanity check that the byte array gets initialized, i.e. is not the 0-array
     assertFalse(Arrays.equals(new byte[256 / 8], message));
-    byte[] decryptedMessage = ot.decryptMessage(cipher, privateKey);
+    byte[] decryptedMessage = (byte[]) decryptMessage.invoke(ot, cipher,
+        privateKey);
     assertArrayEquals(message, decryptedMessage);
   }
 
   @Test
   public void testPadMessage()
-      throws NoSuchAlgorithmException, IOException, ClassNotFoundException {
+      throws NoSuchAlgorithmException, IOException, ClassNotFoundException,
+      IllegalAccessException, IllegalArgumentException,
+      InvocationTargetException {
     byte[] message = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
         0x08 };
-    byte[] paddedMessage = ot.padMessage(message, 10001, Constants.seedThree);
-    byte[] unpaddedMessage = ot.unpadMessage(paddedMessage,
+    byte[] paddedMessage = (byte[]) padMessage.invoke(ot, message, 10001,
+        Constants.seedThree);
+    byte[] unpaddedMessage = (byte[]) unpadMessage.invoke(ot, paddedMessage,
         Constants.seedThree);
     byte[] messageWithZeros = Arrays.copyOf(message, 10001);
     assertArrayEquals(messageWithZeros, unpaddedMessage);
@@ -134,29 +163,36 @@ public class TestNaorPinkasOt {
 
   /**** NEGATIVE TESTS. ****/
   @Test
-  public void testFailedEncDec() throws NoSuchAlgorithmException {
+  public void testFailedEncDec()
+      throws NoSuchAlgorithmException, IllegalAccessException,
+      IllegalArgumentException, InvocationTargetException {
     BigInteger privateKey = randNum.nextBigInteger(ot.getDhParams().getP());
     BigInteger publicKey = ot.getDhParams().getG().modPow(privateKey,
         ot.getDhParams().getP());
     // We are statically using SHA-256 and thus have 256 bit digests
     byte[] message = new byte[256 / 8];
-    BigInteger cipher = ot.encryptMessage(publicKey, message);
+    BigInteger cipher = (BigInteger) encryptMessage.invoke(ot, publicKey,
+        message);
     // Sanity check that the byte array gets initialized, i.e. is not the
     // 0-array
     assertFalse(Arrays.equals(new byte[256 / 8], message));
     message[(256 / 8) - 1] ^= 0x01;
-    byte[] decryptedMessage = ot.decryptMessage(cipher, privateKey);
+    byte[] decryptedMessage = (byte[]) decryptMessage.invoke(ot, cipher,
+        privateKey);
     assertFalse(Arrays.equals(message, decryptedMessage));
   }
 
   @Test
   public void testFailedPadMessage()
-      throws NoSuchAlgorithmException, IOException, ClassNotFoundException {
+      throws NoSuchAlgorithmException, IOException, ClassNotFoundException,
+      IllegalAccessException, IllegalArgumentException,
+      InvocationTargetException {
     byte[] message = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
         0x08 };
-    byte[] paddedMessage = ot.padMessage(message, 10001, Constants.seedThree);
+    byte[] paddedMessage = (byte[]) padMessage.invoke(ot, message, 10001,
+        Constants.seedThree);
     paddedMessage[10000] ^= 0x01;
-    byte[] unpaddedMessage = ot.unpadMessage(paddedMessage,
+    byte[] unpaddedMessage = (byte[]) unpadMessage.invoke(ot, paddedMessage,
         Constants.seedThree);
     byte[] messageWithZeros = Arrays.copyOf(message, 10001);
     assertTrue(!Arrays.equals(messageWithZeros, unpaddedMessage));
@@ -196,8 +232,9 @@ public class TestNaorPinkasOt {
       computeDh.invoke(ot, new byte[32]);
     } catch (InvocationTargetException e) {
       assertEquals(
-          "Something, non-malicious, went wrong when agreeing on the "
-              + "Diffie-Hellman parameters.",
+          "The internally required Diffie-Hellman parameters could not be "
+              + "constructed because the PRG used did not exist or the parameter "
+              + "sizes were not supported by Java",
           e.getTargetException().getMessage());
       thrown = true;
     }

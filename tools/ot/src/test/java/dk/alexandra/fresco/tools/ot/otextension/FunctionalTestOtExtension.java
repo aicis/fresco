@@ -5,6 +5,15 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import dk.alexandra.fresco.framework.MaliciousException;
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.helper.Constants;
+import dk.alexandra.fresco.tools.helper.TestRuntime;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Arrays;
@@ -14,15 +23,6 @@ import java.util.concurrent.Callable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import dk.alexandra.fresco.framework.MaliciousException;
-import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.AesCtrDrbg;
-import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.helper.Constants;
-import dk.alexandra.fresco.tools.helper.TestRuntime;
 
 public class FunctionalTestOtExtension {
   private TestRuntime testRuntime;
@@ -61,7 +61,7 @@ public class FunctionalTestOtExtension {
     testRuntime.shutdown();
   }
 
-  private Cote setupCoteSender() throws IOException {
+  private Cote setupCoteSender() {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     Drbg rand = new AesCtrDrbg(Constants.seedOne);
@@ -69,7 +69,7 @@ public class FunctionalTestOtExtension {
     return cote;
   }
 
-  private Cote setupCoteReceiver() throws IOException {
+  private Cote setupCoteReceiver() {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     Drbg rand = new AesCtrDrbg(Constants.seedTwo);
@@ -130,12 +130,12 @@ public class FunctionalTestOtExtension {
     for (Exception current : initResults) {
       assertNull(current);
     }
-    Callable<Pair<List<StrictBitVector>, StrictBitVector>> partyOneExtend = () -> extendCoteSender(
-        extendSize);
+    Callable<Pair<List<StrictBitVector>, StrictBitVector>> partyOneExtend = 
+        () -> extendCoteSender(extendSize);
     StrictBitVector choices = new StrictBitVector(extendSize,
         new AesCtrDrbg(Constants.seedThree));
-    Callable<Pair<List<StrictBitVector>, StrictBitVector>> partyTwoExtend = () -> extendCoteReceiver(
-        choices);
+    Callable<Pair<List<StrictBitVector>, StrictBitVector>> partyTwoExtend = 
+        () -> extendCoteReceiver(choices);
     // run tasks and get ordered list of results
     List<Pair<List<StrictBitVector>, StrictBitVector>> extendResults = testRuntime
         .runPerPartyTasks(Arrays.asList(partyOneExtend, partyTwoExtend));
@@ -147,12 +147,15 @@ public class FunctionalTestOtExtension {
         .get(1);
     List<StrictBitVector> messages = receiverResults.getFirst();
     for (int i = 0; i < choices.getSize(); i++) {
+      // If the receiver choose the 1-message then XOR delta onto zeroMessage
       if (choices.getBit(i, false) == true) {
         zeroMessages.get(i).xor(delta);
       }
+      // Now verify that the zero message (maybe with delta xor'ed into it) fits
+      // the message the receiver got
       assertTrue(zeroMessages.get(i).equals(messages.get(i)));
     }
-    // Do a sanity check of the values
+    // Do a sanity check of the values:
     StrictBitVector zeroVec = new StrictBitVector(
         coteSender.getSender().getkBitLength());
     // Check that delta is not a 0-string
@@ -230,12 +233,12 @@ public class FunctionalTestOtExtension {
     for (Exception current : initResults) {
       assertNull(current);
     }
-    Callable<Pair<List<StrictBitVector>, List<StrictBitVector>>> partyOneExtend = () -> extendRotSender(
-        rotSender, extendSize);
+    Callable<Pair<List<StrictBitVector>, List<StrictBitVector>>> partyOneExtend = 
+        () -> extendRotSender(rotSender, extendSize);
     StrictBitVector choices = new StrictBitVector(extendSize,
         new AesCtrDrbg(Constants.seedThree));
-    Callable<Pair<List<StrictBitVector>, List<StrictBitVector>>> partyTwoExtend = () -> extendRotReceiver(
-        rotReceiver, choices);
+    Callable<Pair<List<StrictBitVector>, List<StrictBitVector>>> partyTwoExtend = 
+        () -> extendRotReceiver(rotReceiver, choices);
     // run tasks and get ordered list of results
     List<Pair<List<StrictBitVector>, List<StrictBitVector>>> extendResults = testRuntime
         .runPerPartyTasks(Arrays.asList(partyOneExtend, partyTwoExtend));
@@ -247,6 +250,8 @@ public class FunctionalTestOtExtension {
         .get(1);
     List<StrictBitVector> messages = receiverResults.getFirst();
     for (int i = 0; i < choices.getSize(); i++) {
+      // Verify that the receiver got the correct message in accordance with his
+      // choicebit
       if (choices.getBit(i, false) == false) {
         assertTrue(zeroMessages.get(i).equals(messages.get(i)));
       } else {
@@ -288,7 +293,7 @@ public class FunctionalTestOtExtension {
   public void testDoubleInitCote() {
     Callable<Exception> partyOneTask = () -> initCoteSender();
     Callable<Exception> partyTwoTask = () -> initCoteReceiver();
-    // run tasks and get ordered list of results
+    // run tasks and get ordered list of results 
     List<Exception> results = testRuntime
         .runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
     for (Exception current : results) {
@@ -350,19 +355,20 @@ public class FunctionalTestOtExtension {
     for (Exception current : initResults) {
       assertNull(current);
     }
-    Callable<Pair<List<StrictBitVector>, List<StrictBitVector>>> partyOneExtend = () -> extendRotSender(
-        rotSender, extendSize);
+    Callable<Pair<List<StrictBitVector>, List<StrictBitVector>>> partyOneExtend = 
+        () -> extendRotSender(rotSender, extendSize);
     StrictBitVector choices = new StrictBitVector(extendSize,
         new AesCtrDrbg(Constants.seedThree));
-    // The next kbitLength messages sent are in correlated OT extension, this
-    // should make the correlation check fail. Flipping a bit makes the
+    // The next kbitLength messages sent are in correlated OT extension.
+    // Flipping a bit makes the
     // correlation check fail with 0.5 probability, up to the random choices of
-    // the sender
+    // the sender. We have verifies that for the static randomness used by our
+    // tests this happens for choice 1
     int corruptUVecPos = 1;
     ((CheatingNetwork) coteReceiver.getReceiver().getNetwork())
         .cheatInNextMessage(corruptUVecPos, 0);
-    Callable<Pair<List<StrictBitVector>, List<StrictBitVector>>> partyTwoExtend = () -> extendRotReceiver(
-        rotReceiver, choices);
+    Callable<Pair<List<StrictBitVector>, List<StrictBitVector>>> partyTwoExtend = 
+        () -> extendRotReceiver(rotReceiver, choices);
     // run tasks and get ordered list of results
     Object extendResults = testRuntime
         .runPerPartyTasks(Arrays.asList(partyOneExtend, partyTwoExtend));

@@ -4,6 +4,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.helper.Constants;
+import dk.alexandra.fresco.tools.helper.TestRuntime;
+import dk.alexandra.fresco.tools.ot.base.Ot;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -17,24 +26,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.AesCtrDrbg;
-import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.helper.Constants;
-import dk.alexandra.fresco.tools.helper.TestRuntime;
-import dk.alexandra.fresco.tools.ot.base.Ot;
-
 public class FunctionalTestBristolOt {
   private TestRuntime testRuntime;
-  private int kbitLength = 256;
-  private int lambdaBitLength = 64;
+  private int kbitLength = 128;
+  private int lambdaBitLength = 56;
   private int messageLength = 1024;
 
   /**
-   * Initializes the test runtime and constructs a Cote Sender and a Cote
-   * Receiver.
+   * Initializes the test runtime.
    */
   @Before
   public void initializeRuntime() {
@@ -43,22 +42,18 @@ public class FunctionalTestBristolOt {
 
   /**
    * Shuts down the network and test runtime.
-   * 
-   * @throws IOException
-   *           Thrown if the network fails to shut down
    */
   @After
-  public void shutdown() throws IOException {
+  public void shutdown() {
     testRuntime.shutdown();
   }
 
   private List<Pair<StrictBitVector, StrictBitVector>> bristolOtSend(
-      int iterations,
-      int batchSize) throws IOException {
+      int iterations, int batchSize) throws IOException {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     Drbg rand = new AesCtrDrbg(Constants.seedOne);
-    Ot otSender = new BristolOt(1, 2, kbitLength, lambdaBitLength, rand,
+    Ot otSender = new BristolOt(1, 2, kbitLength, lambdaBitLength, rand, 
         network, batchSize);
     List<Pair<StrictBitVector, StrictBitVector>> messages = new ArrayList<>(
         iterations);
@@ -66,8 +61,8 @@ public class FunctionalTestBristolOt {
       StrictBitVector msgZero = new StrictBitVector(messageLength, rand);
       StrictBitVector msgOne = new StrictBitVector(messageLength, rand);
       otSender.send(msgZero, msgOne);
-      Pair<StrictBitVector, StrictBitVector> currentPair = new Pair<StrictBitVector, StrictBitVector>(
-          msgZero, msgOne);
+      Pair<StrictBitVector, StrictBitVector> currentPair = 
+          new Pair<StrictBitVector, StrictBitVector>(msgZero, msgOne);
       messages.add(currentPair);
     }
     ((Closeable) network).close();
@@ -96,6 +91,8 @@ public class FunctionalTestBristolOt {
   @SuppressWarnings("unchecked")
   @Test
   public void testBristolOt() {
+    // The batchsize of the underlying implementation must be a two power minus
+    // kbitLength and lambdaBitLength
     int batchSize = 1024 - kbitLength - lambdaBitLength;
     // We execute more OTs than the batchSize to ensure that an automatic
     // extension will take place once preprocessed OTs run out
@@ -108,15 +105,17 @@ public class FunctionalTestBristolOt {
     List<List<?>> extendResults = testRuntime
         .runPerPartyTasks(Arrays.asList(partyOneOt, partyTwoOt));
     for (int i = 0; i < iterations; i++) {
-      Pair<StrictBitVector, StrictBitVector> senderResult = (Pair<StrictBitVector, StrictBitVector>) extendResults
-          .get(0).get(i);
+      Pair<StrictBitVector, StrictBitVector> senderResult = 
+          (Pair<StrictBitVector, StrictBitVector>) extendResults.get(0).get(i);
       StrictBitVector receiverResult = (StrictBitVector) extendResults.get(1)
           .get(i);
+      // Verify the receiver's result
       if (choices.getBit(i, false) == false) {
         assertTrue(senderResult.getFirst().equals(receiverResult));
       } else {
         assertTrue(senderResult.getSecond().equals(receiverResult));
       }
+      // Sanity checks:
       // Check the messages are not 0-strings
       StrictBitVector zeroVec = new StrictBitVector(messageLength);
       assertEquals(zeroVec.getSize(), senderResult.getFirst().getSize());
@@ -182,6 +181,7 @@ public class FunctionalTestBristolOt {
     int messageSize = 2048;
     Callable<List<?>> partyOneExtend = () -> bristolRotBatchSend(extendSize,
         messageSize, autoInit);
+    // Pick some random choice bits
     Drbg rand = new AesCtrDrbg(Constants.seedThree);
     StrictBitVector choices = new StrictBitVector(extendSize, rand);
     Callable<List<?>> partyTwoExtend = () -> bristolRotBatchReceive(choices,
@@ -189,13 +189,14 @@ public class FunctionalTestBristolOt {
     // run tasks and get ordered list of results
     List<List<?>> extendResults = testRuntime
         .runPerPartyTasks(Arrays.asList(partyOneExtend, partyTwoExtend));
-    List<Pair<StrictBitVector, StrictBitVector>> senderResults = (List<Pair<StrictBitVector, StrictBitVector>>) extendResults
-        .get(0);
+    List<Pair<StrictBitVector, StrictBitVector>> senderResults = 
+        (List<Pair<StrictBitVector, StrictBitVector>>) extendResults.get(0);
     List<StrictBitVector> receiverResults = (List<StrictBitVector>) extendResults
         .get(1);
     for (int i = 0; i < choices.getSize(); i++) {
       Pair<StrictBitVector, StrictBitVector> currentSenderMessages = senderResults
           .get(i);
+      // Check the receiver got the right messages according to his choicebits
       if (choices.getBit(i, false) == false) {
         assertTrue(
             currentSenderMessages.getFirst().equals(receiverResults.get(i)));
@@ -204,7 +205,7 @@ public class FunctionalTestBristolOt {
             currentSenderMessages.getSecond().equals(receiverResults.get(i)));
       }
     }
-    // Do a sanity check of the values
+    // Do a sanity check of the values:
     // Check that choices are not the 0-string
     assertNotEquals(new StrictBitVector(choices.getSize()), choices);
     // Check the length the values
@@ -233,6 +234,7 @@ public class FunctionalTestBristolOt {
   @SuppressWarnings("unchecked")
   @Test
   public void testBristolRotAutoInit() {
+    // Verify that the BristolRot can do auto initialization
     boolean autoInit = true;
     int extendSize = 1024;
     int messageSize = 2048;
@@ -245,8 +247,8 @@ public class FunctionalTestBristolOt {
     // run tasks and get ordered list of results
     List<List<?>> extendResults = testRuntime
         .runPerPartyTasks(Arrays.asList(partyOneExtend, partyTwoExtend));
-    List<Pair<StrictBitVector, StrictBitVector>> senderResults = (List<Pair<StrictBitVector, StrictBitVector>>) extendResults
-        .get(0);
+    List<Pair<StrictBitVector, StrictBitVector>> senderResults = 
+        (List<Pair<StrictBitVector, StrictBitVector>>) extendResults.get(0);
     List<StrictBitVector> receiverResults = (List<StrictBitVector>) extendResults
         .get(1);
     for (int i = 0; i < choices.getSize(); i++) {

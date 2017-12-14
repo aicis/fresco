@@ -2,13 +2,13 @@ package dk.alexandra.fresco.tools.ot.otextension;
 
 import static org.junit.Assert.assertEquals;
 
+import dk.alexandra.fresco.framework.util.StrictBitVector;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
-
-import dk.alexandra.fresco.framework.util.StrictBitVector;
 
 public class TestTranspose {
   private static List<StrictBitVector> getSquareMatrix() {
