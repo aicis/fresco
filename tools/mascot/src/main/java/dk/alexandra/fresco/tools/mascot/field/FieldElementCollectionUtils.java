@@ -1,5 +1,7 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
+import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,17 +11,14 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
-
 public class FieldElementCollectionUtils {
 
   /**
    * Multiplies two lists of field elements, pair-wise.
    * 
-   * @param leftFactors
-   * @param rightFactors
-   * @return list of result
+   * @param leftFactors left factors
+   * @param rightFactors right factors
+   * @return list of products
    */
   public static List<FieldElement> pairWiseMultiply(List<FieldElement> leftFactors,
       List<FieldElement> rightFactors) {
@@ -37,34 +36,31 @@ public class FieldElementCollectionUtils {
    * @return list of products
    */
   public static List<FieldElement> scalarMultiply(List<FieldElement> values, FieldElement scalar) {
-    return values.stream()
-        .map(value -> value.multiply(scalar))
-        .collect(Collectors.toList());
+    return values.stream().map(value -> value.multiply(scalar)).collect(Collectors.toList());
   }
 
   /**
    * Multiplies two lists of field elements, pair-wise.
    * 
-   * @param leftFactors
-   * @param rightFactors
-   * @return stream of result
+   * @param leftFactors left factors
+   * @param rightFactors right factors
+   * @return stream of products
    */
   static Stream<FieldElement> pairWiseMultiplyStream(List<FieldElement> leftFactors,
       List<FieldElement> rightFactors) {
-    return IntStream.range(0, leftFactors.size())
-        .mapToObj(idx -> {
-          FieldElement l = leftFactors.get(idx);
-          FieldElement r = rightFactors.get(idx);
-          return l.multiply(r);
-        });
+    return IntStream.range(0, leftFactors.size()).mapToObj(idx -> {
+      FieldElement l = leftFactors.get(idx);
+      FieldElement r = rightFactors.get(idx);
+      return l.multiply(r);
+    });
   }
 
   /**
    * Computes inner product of two lists of field elements.
    * 
-   * @param left
-   * @param right
-   * @return
+   * @param left left factors
+   * @param right right factors
+   * @return inner product
    */
   public static FieldElement innerProduct(List<FieldElement> left, List<FieldElement> right) {
     if (left.size() != right.size()) {
@@ -74,11 +70,11 @@ public class FieldElementCollectionUtils {
   }
 
   /**
-   * Computes inner product of elements and powers of twos. <b> e0 * 2**0 + e1 * 2**1 + ... + e(n -
-   * 1) * 2**(n - 1)
+   * Computes inner product of elements and powers of twos.<br>
+   * e0 * 2**0 + e1 * 2**1 + ... + e(n - 1) * 2**(n - 1)
    * 
-   * @param elements
-   * @return
+   * @param elements elements to recombine
+   * @return recombined elements
    */
   public static FieldElement recombine(List<FieldElement> elements, BigInteger modulus,
       int modBitLength) {
@@ -90,10 +86,7 @@ public class FieldElementCollectionUtils {
   }
 
   /**
-   * Transposes matrix of field elements.
-   * 
-   * @param mat
-   * @return
+   * {@link CollectionUtils#transpose(List)} on field elements.
    */
   public static List<List<FieldElement>> transpose(List<List<FieldElement>> mat) {
     // TODO: switch to doing fast transpose
@@ -101,11 +94,12 @@ public class FieldElementCollectionUtils {
   }
 
   /**
-   * Duplicates each element stretchBy times.
+   * Duplicates each element stretchBy times. <br>
+   * For instance, stretching [e0, e1, e2] by 2 results in [e0, e0, e1, e1, e3, e3].
    * 
-   * @param elements
-   * @param stretchBy
-   * @return
+   * @param elements elements to be stretched
+   * @param stretchBy number of duplications per element
+   * @return stretched list
    */
   public static List<FieldElement> stretch(List<FieldElement> elements, int stretchBy) {
     List<FieldElement> stretched = new ArrayList<>(elements.size() * stretchBy);
@@ -120,10 +114,10 @@ public class FieldElementCollectionUtils {
   /**
    * Appends padding elements to end of list numPads times.
    * 
-   * @param elements
-   * @param padElement
-   * @param numPads
-   * @return
+   * @param elements elements to pad
+   * @param padElement element to pad with
+   * @param numPads number of times to pad
+   * @return padded list
    */
   public static List<FieldElement> padWith(List<FieldElement> elements, FieldElement padElement,
       int numPads) {
@@ -137,21 +131,14 @@ public class FieldElementCollectionUtils {
    * 
    * @param elements field elements to pack
    * @param reverse indicator whether to reverse the order of bytes
-   * @return
+   * @return concatenated field elements in bit representation
    */
   public static StrictBitVector pack(List<FieldElement> elements, boolean reverse) {
-    StrictBitVector[] bitVecs = elements.stream()
-        .map(fe -> fe.toBitVector())
-        .toArray(size -> new StrictBitVector[size]);
+    StrictBitVector[] bitVecs =
+        elements.stream().map(fe -> fe.toBitVector()).toArray(size -> new StrictBitVector[size]);
     return StrictBitVector.concat(reverse, bitVecs);
   }
 
-  /**
-   * {@link FieldElementCollectionUtils#pack(List, boolean)} with reversal.
-   * 
-   * @param elements
-   * @return
-   */
   public static StrictBitVector pack(List<FieldElement> elements) {
     return pack(elements, true);
   }
@@ -159,10 +146,10 @@ public class FieldElementCollectionUtils {
   /**
    * Unpacks a bit string into a list of field elements.
    * 
-   * @param packed
-   * @param modulus
-   * @param modBitLength
-   * @return
+   * @param packed concatenated bits representing field elements
+   * @param modulus field modulus 
+   * @param modBitLength bit length of modulus
+   * @return field elements 
    */
   public static List<FieldElement> unpack(byte[] packed, BigInteger modulus, int modBitLength) {
     int packedBitLength = packed.length * 8;
