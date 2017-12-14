@@ -32,10 +32,6 @@ public class ElementGeneration extends MultiPartyProtocol {
   /**
    * Creates new element generation protocol.
    * 
-   * @param resourcePool {@inheritDoc}
-   * @param network {@inheritDoc}
-   * @param macKeyShare secret share of the mac key
-   * @param jointSampler field element prg seeded with shared seed
    */
   public ElementGeneration(MascotResourcePool resourcePool, Network network,
       FieldElement macKeyShare, FieldElementPrg jointSampler) {

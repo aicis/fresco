@@ -22,6 +22,9 @@ public class CopeInputter extends CopeShared {
   private List<FieldElementPrg> rightPrgs;
   private MultiplyRight multiplier;
 
+  /**
+   * Create new cope inputter protocol.
+   */
   public CopeInputter(MascotResourcePool resourcePool, Network network, Integer otherId) {
     super(resourcePool, network, otherId);
     this.leftPrgs = new ArrayList<>();
@@ -38,12 +41,10 @@ public class CopeInputter extends CopeShared {
   }
 
   List<Pair<FieldElement, FieldElement>> generateMaskPairs(BigInteger modulus, int modBitLength) {
-    Stream<Pair<FieldElement, FieldElement>> maskStream = IntStream.range(0, leftPrgs.size())
-        .mapToObj(idx -> {
-          FieldElement t0 = this.leftPrgs.get(idx)
-              .getNext(modulus, modBitLength);
-          FieldElement t1 = this.rightPrgs.get(idx)
-              .getNext(modulus, modBitLength);
+    Stream<Pair<FieldElement, FieldElement>> maskStream =
+        IntStream.range(0, leftPrgs.size()).mapToObj(idx -> {
+          FieldElement t0 = this.leftPrgs.get(idx).getNext(modulus, modBitLength);
+          FieldElement t1 = this.rightPrgs.get(idx).getNext(modulus, modBitLength);
           return new Pair<>(t0, t1);
         });
     return maskStream.collect(Collectors.toList());
@@ -59,6 +60,12 @@ public class CopeInputter extends CopeShared {
     return maskPairs;
   }
 
+  /**
+   * Computes shares of products of this party's input elements and other party's mac key share.
+   * 
+   * @param inputElements input field elements
+   * @return shares of products of mac key share and input elements
+   */
   public List<FieldElement> extend(List<FieldElement> inputElements) {
     // use seeds to generate mask pairs
     List<Pair<FieldElement, FieldElement>> maskPairs = generateMaskPairs(inputElements.size());
@@ -70,9 +77,8 @@ public class CopeInputter extends CopeShared {
     multiplier.sendDiffs(diffs);
 
     // get zero index masks
-    List<FieldElement> feZeroSeeds = maskPairs.stream()
-        .map(feSeedPair -> feSeedPair.getFirst())
-        .collect(Collectors.toList());
+    List<FieldElement> feZeroSeeds =
+        maskPairs.stream().map(feSeedPair -> feSeedPair.getFirst()).collect(Collectors.toList());
 
     // compute product shares
     List<FieldElement> productShares =

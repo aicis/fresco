@@ -12,8 +12,6 @@ public class MacCheck extends CommitmentBasedProtocol<FieldElement> {
 
   /**
    * Constructs new mac checker.
-   * 
-   * @param resourcePool {@inheritDoc}
    */
   public MacCheck(MascotResourcePool resourcePool, Network network) {
     super(resourcePool, network, resourcePool.getFieldElementSerializer());

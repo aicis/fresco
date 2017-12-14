@@ -27,7 +27,7 @@ public class MascotDemo {
   private Mascot mascot;
   private Closeable toClose;
 
-  public MascotDemo(Integer myId, List<Integer> partyIds) {
+  MascotDemo(Integer myId, List<Integer> partyIds) {
     MascotResourcePool resourcePool = defaultResourcePool(myId, partyIds);
     FieldElement macKeyShare = resourcePool.getLocalSampler().getNext(resourcePool.getModulus(),
         resourcePool.getModBitLength());
@@ -36,7 +36,7 @@ public class MascotDemo {
     mascot = new Mascot(resourcePool, network, macKeyShare);
   }
 
-  public void run() {
+  void run() {
     for (int i = 0; i < 100; i++) {
       long startTime = System.currentTimeMillis();
       List<MultTriple> triples = mascot.getTriples(256);
@@ -73,6 +73,9 @@ public class MascotDemo {
         prgSeedLength, numLeftFactors);
   }
 
+  /**
+   * Runs demo.
+   */
   public static void main(String[] args) {
     Integer myId = Integer.parseInt(args[0]);
     List<Integer> partyIds = Arrays.asList(1, 2);

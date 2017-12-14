@@ -20,10 +20,6 @@ public class CommitmentBasedProtocol<T> extends MultiPartyProtocol {
 
   /**
    * Creates new {@link CommitmentBasedProtocol}.
-   * 
-   * @param resourcePool {@inheritDoc}
-   * @param network {@inheritDoc}
-   * @param serializer serializer for type of elements we will commit to
    */
   public CommitmentBasedProtocol(MascotResourcePool resourcePool, Network network,
       SecureSerializer<T> serializer) {

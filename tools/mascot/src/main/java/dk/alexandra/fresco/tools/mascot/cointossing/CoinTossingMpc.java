@@ -10,8 +10,6 @@ public class CoinTossingMpc extends CommitmentBasedProtocol<StrictBitVector> {
 
   /**
    * Creates new coin-tossing protocol.
-   * 
-   * @param resourcePool {@inheritDoc}
    */
   public CoinTossingMpc(MascotResourcePool resourcePool, Network network) {
     super(resourcePool, network, resourcePool.getStrictBitVectorSerializer());

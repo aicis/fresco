@@ -36,6 +36,9 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
   CommitmentSerializer commitmentSerializer;
   MessageDigest messageDigest;
 
+  /**
+   * Creates new mascot resource pool.
+   */
   public MascotResourcePoolImpl(Integer myId, List<Integer> partyIds, Drbg drbg, BigInteger modulus,
       int modBitLength, int lambdaSecurityParam, int prgSeedLength, int numLeftFactors) {
     super(myId, partyIds.size(), drbg);

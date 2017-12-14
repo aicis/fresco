@@ -22,10 +22,6 @@ public class CopeSigner extends CopeShared {
   /**
    * Creates new cope signer.
    * 
-   * @param resourcePool {@inheritDoc}
-   * @param network {@inheritDoc}
-   * @param otherId {@inheritDoc}
-   * @param macKeyShare secret share of the mac key
    */
   public CopeSigner(MascotResourcePool resourcePool, Network network, Integer otherId,
       FieldElement macKeyShare) {

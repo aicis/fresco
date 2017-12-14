@@ -62,7 +62,7 @@ public class TestCope extends NetworkedTest {
     assertEquals(expected, actual);
   }
 
-  public void testBatchedExtend(int lambdaSecurityParam) {
+  void testBatchedExtend(int lambdaSecurityParam) {
     this.lambdaSecurityParam = lambdaSecurityParam;
     initContexts(Arrays.asList(1, 2));
 

@@ -29,11 +29,6 @@ public class TripleGeneration extends MultiPartyProtocol {
 
   /**
    * Creates new triple generation protocol.
-   * 
-   * @param resourcePool {@inheritDoc}
-   * @param network {@inheritDoc}
-   * @param elementGeneration element generation protocol to be used
-   * @param jointSampler field element prg seeded with shared seed
    */
   public TripleGeneration(MascotResourcePool resourcePool, Network network,
       ElementGeneration elementGeneration, FieldElementPrg jointSampler) {

@@ -12,12 +12,16 @@ import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
 import java.util.List;
 
-public class Mascot {
+public class Mascot extends MultiPartyProtocol {
 
   TripleGeneration tripleGeneration;
   ElementGeneration elementGeneration;
 
+  /**
+   * Creates new mascot protocol.
+   */
   public Mascot(MascotResourcePool resourcePool, Network network, FieldElement macKeyShare) {
+    super(resourcePool, network);
     // agree on joint seed
     StrictBitVector jointSeed = new CoinTossingMpc(resourcePool, network)
         .generateJointSeed(resourcePool.getPrgSeedLength());

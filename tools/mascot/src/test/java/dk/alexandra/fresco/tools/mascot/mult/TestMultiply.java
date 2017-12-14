@@ -216,7 +216,7 @@ public class TestMultiply extends NetworkedTest {
     assertEquals(expected, actual);
   }
 
-  public void testManyMults(int numMults, int lambdaSecurityParam) {
+  void testManyMults(int numMults, int lambdaSecurityParam) {
     // two parties run this
     this.lambdaSecurityParam = lambdaSecurityParam; // change lambda security
     initContexts(Arrays.asList(1, 2));
