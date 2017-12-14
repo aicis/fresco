@@ -12,24 +12,28 @@ public class CommitmentSerializer implements SecureSerializer<Commitment> {
   }
 
   @Override
-  public Commitment deserialize(byte[] data) {
-    Commitment comm = new Commitment();
-    comm.commitmentVal = data.clone();
-    return comm;
-  }
-
-  @Override
   public byte[] serialize(List<Commitment> elements) {
     if (elements.isEmpty()) {
       return new byte[] {};
     }
     byte[] commList = new byte[elements.size() * Commitment.DIGEST_LENGTH];
     // ensure all field elements are in the same field and have same bit length
-    for (int i = 0; i < commList.length; i++) {
+    for (int i = 0; i < elements.size(); i++) {
       System.arraycopy(elements.get(i).commitmentVal, 0, commList,
           i * Commitment.DIGEST_LENGTH, Commitment.DIGEST_LENGTH);
     }
     return commList;
+  }
+
+  @Override
+  public Commitment deserialize(byte[] data) {
+    if (data.length != Commitment.digestLength) {
+      throw new IllegalArgumentException(
+          "The length of the byte array to deserialize is wrong.");
+    }
+    Commitment comm = new Commitment();
+    comm.commitmentVal = data.clone();
+    return comm;
   }
 
   @Override

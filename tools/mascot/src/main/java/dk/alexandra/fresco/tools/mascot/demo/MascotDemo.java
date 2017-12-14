@@ -3,6 +3,7 @@ package dk.alexandra.fresco.tools.mascot.demo;
 import java.io.Closeable;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +14,7 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.tools.mascot.Mascot;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePoolImpl;
@@ -37,7 +39,8 @@ public class MascotDemo {
     long startTime = System.currentTimeMillis();
     List<MultTriple> triples = mascot.getTriples(256);
     long endTime = System.currentTimeMillis();
-    System.out.println("Generated " + triples.size() + " triples in " + (endTime - startTime) + " ms");
+    System.out
+        .println("Generated " + triples.size() + " triples in " + (endTime - startTime) + " ms");
     try {
       toClose.close();
     } catch (IOException e) {
@@ -67,7 +70,10 @@ public class MascotDemo {
     int lambdaSecurityParam = 128;
     int prgSeedLength = 256;
     int numLeftFactors = 3;
-    return new MascotResourcePoolImpl(myId, partyIds, modulus, modBitLength, lambdaSecurityParam,
+    byte[] drbgSeed = new byte[prgSeedLength / 8];
+    new SecureRandom().nextBytes(drbgSeed);
+    return new MascotResourcePoolImpl(myId, partyIds,
+        new PaddingAesCtrDrbg(drbgSeed, prgSeedLength), modulus, modBitLength, lambdaSecurityParam,
         prgSeedLength, numLeftFactors);
   }
 

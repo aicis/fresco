@@ -107,14 +107,9 @@ public class TestRuntime {
         contexts.put(unwrapped.getFirst(), unwrapped.getSecond());
       }
       return contexts;
-    } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (ExecutionException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+    } catch (ExecutionException | InterruptedException e) {
+      throw new RuntimeException(e);
     }
-    return new HashMap<>();
   }
 
   /**

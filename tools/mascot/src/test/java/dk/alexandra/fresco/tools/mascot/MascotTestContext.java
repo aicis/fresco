@@ -2,6 +2,7 @@ package dk.alexandra.fresco.tools.mascot;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.StrictBitVectorSerializer;
+import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.tools.commitment.CommitmentSerializer;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
@@ -23,8 +25,11 @@ public class MascotTestContext {
 
   public MascotTestContext(Integer myId, List<Integer> partyIds, BigInteger modulus,
       int modBitLength, int lambdaSecurityParam, int numLeftFactors, int prgSeedLength) {
-    this.resourcePool = new MascotResourcePoolImpl(myId, partyIds, modulus, modBitLength,
-        lambdaSecurityParam, prgSeedLength, numLeftFactors);
+    byte[] drbgSeed = new byte[prgSeedLength / 8];
+    new SecureRandom().nextBytes(drbgSeed);
+    this.resourcePool =
+        new MascotResourcePoolImpl(myId, partyIds, new PaddingAesCtrDrbg(drbgSeed, prgSeedLength),
+            modulus, modBitLength, lambdaSecurityParam, prgSeedLength, numLeftFactors);
     this.network = new KryoNetNetwork(defaultNetworkConfiguration(myId, partyIds));
   }
 

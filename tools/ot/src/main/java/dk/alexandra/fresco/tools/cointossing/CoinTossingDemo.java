@@ -1,15 +1,17 @@
 package dk.alexandra.fresco.tools.cointossing;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 
 /**
@@ -19,7 +21,6 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
  *
  */
 public class CoinTossingDemo {
-  private int kbitLength = 128;
   private int amountOfBits = 6666;
 
   /**
@@ -29,19 +30,22 @@ public class CoinTossingDemo {
    *          The PID of the party running this code.
    * @param otherId
    *          The PID of the other party.
+   * @throws NoSuchAlgorithmException
+   *           Thrown if the underlying hash algorithm does not exist
    * @throws IOException
    *           Thrown in case of network issues
    */
-  public void run(int myId, int otherId) {
+  public void run(int myId, int otherId) throws NoSuchAlgorithmException {
     Network network = new KryoNetNetwork(getNetworkConfiguration(myId));
     System.out.println("Connected party " + myId);
-    Random rand = new Random(42);
-    CoinTossing ct = new CoinTossing(myId, otherId, kbitLength, rand, network);
+    Drbg rand = new HmacDrbg(new byte[] { 0x42 });
+    CoinTossing ct = new CoinTossing(myId, otherId, rand, network);
     ct.initialize();
     StrictBitVector bits = ct.toss(amountOfBits);
     byte[] bytes = bits.toByteArray();
     System.out.println("done party " + myId);
-    for (int j = 0; j < (kbitLength + 8 - 1) / 8; j++) {
+    // We just print the first bytes
+    for (int j = 0; j < 32; j++) {
       System.out.print(String.format("%02x ", bytes[j]));
     }
     System.out.println();

@@ -1,12 +1,9 @@
 package dk.alexandra.fresco.tools.cointossing;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Random;
-
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.commitment.Commitment;
 
@@ -26,12 +23,10 @@ import dk.alexandra.fresco.tools.commitment.Commitment;
 public class CoinTossing {
   private int otherId;
   private int myId;
-  private int kbitLength;
-  private Random rand;
+  private Drbg rand;
   private Network network;
   private boolean initialized = false;
-  private SecureRandom prg;
-  private final String prgAlgorithm;
+  private Drbg coinTossingPrg;
 
   /**
    * Constructs a coin-tossing protocol between two parties.
@@ -41,28 +36,19 @@ public class CoinTossing {
    * @param otherId
    *          The unique ID of the other party (not the calling party)
    *          participating in the protocol
-   * @param kbitLength
-   *          The computational security parameter
    * @param rand
    *          Object used for randomness generation
    * @param network
    *          The network instance
    */
-  public CoinTossing(int myId, int otherId, int kbitLength, Random rand,
-      Network network) {
-    if (kbitLength < 1 || rand == null || network == null) {
+  public CoinTossing(int myId, int otherId, Drbg rand, Network network) {
+    if (rand == null || network == null) {
       throw new IllegalArgumentException("Illegal constructor parameters");
-    }
-    if (kbitLength % 8 != 0) {
-      throw new IllegalArgumentException(
-          "Computational security parameter must be divisible by 8");
     }
     this.myId = myId;
     this.otherId = otherId;
-    this.kbitLength = kbitLength;
     this.rand = rand;
     this.network = network;
-    this.prgAlgorithm = "SHA1PRNG";
   }
 
   /**
@@ -82,20 +68,14 @@ public class CoinTossing {
     if (initialized) {
       throw new IllegalStateException("Already initialized");
     }
-    try {
-      this.prg = SecureRandom.getInstance(prgAlgorithm);
-      // Make space for a seed by allocating as many bytes as needed for
-      // kbitLength
-      byte[] seed = new byte[(kbitLength + 8 - 1) / 8];
-      rand.nextBytes(seed);
-      byte[] otherSeed = exchangeSeeds(seed);
-      ByteArrayHelper.xor(seed, otherSeed);
-      prg.setSeed(seed);
-      initialized = true;
-    } catch (NoSuchAlgorithmException e) {
-      throw new MPCException(
-          "Coin-tossing failed. No malicious behaviour detected.", e);
-    }
+    // Make space for a seed by allocating as many bytes as needed, which is
+    // exactly 32 bytes for AesCtrDrbg
+    byte[] seed = new byte[32];
+    rand.nextBytes(seed);
+    byte[] otherSeed = exchangeSeeds(seed);
+    ByteArrayHelper.xor(seed, otherSeed);
+    this.coinTossingPrg = new AesCtrDrbg(seed);
+    initialized = true;
   }
 
   /**
@@ -113,8 +93,9 @@ public class CoinTossing {
     if (!initialized) {
       throw new IllegalStateException("Not initialized");
     }
+    // Construct byte array with enough space by rounding up
     byte[] res = new byte[(size + 8 - 1) / 8];
-    prg.nextBytes(res);
+    coinTossingPrg.nextBytes(res);
     return new StrictBitVector(res, size);
   }
 

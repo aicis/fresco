@@ -1,12 +1,11 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
 
-import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 
@@ -34,15 +33,10 @@ public class BristolOtSender extends BristolOtShared {
   }
 
   /**
-   * Initializes the underlying random OT functionality, if needed.
+   * Initializes the underlying random OT functionality.
    */
   public void initialize() {
-    if (initialized) {
-      throw new IllegalStateException("Already initialized");
-    }
-    if (sender.initialized == false) {
-      sender.initialize();
-    }
+    sender.initialize();
     initialized = true;
   }
 
@@ -89,19 +83,12 @@ public class BristolOtSender extends BristolOtShared {
 
   private void sendAdjustedMessage(byte[] realMessage, int maxLength,
       byte[] randomMessage) {
-    byte[] toSend;
-    try {
-      // Use the random message as a a seed for a PRG
-      SecureRandom rand = SecureRandom.getInstance(prgAlgorithm);
-      rand.setSeed(randomMessage);
-      toSend = new byte[maxLength];
-      // Use this to make a pseudorandom string the length of the message to
-      // send
-      rand.nextBytes(toSend);
-    } catch (NoSuchAlgorithmException e) {
-      throw new MPCException(
-          "Something, non-malicious, went wrong when sending a Bristol OT", e);
-    }
+    byte[] toSend = new byte[maxLength];
+    // Use the random message as a a seed for a PRG
+    Drbg currentPrg = new AesCtrDrbg(randomMessage);
+    // Use this to make a pseudorandom string the length of the message to
+    // send
+    currentPrg.nextBytes(toSend);
     byte[] paddedMessage = Arrays.copyOf(realMessage, maxLength);
     // XOR the pseudorandom string onto the message
     ByteArrayHelper.xor(toSend, paddedMessage);

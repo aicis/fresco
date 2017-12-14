@@ -1,11 +1,12 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
 import java.util.List;
-import java.util.Random;
 
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 
@@ -41,7 +42,7 @@ public class RotDemo<ResourcePoolT extends ResourcePool> extends Demo {
   public void runPartyOne(int pid) {
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected receiver");
-    Random rand = new Random(42);
+    Drbg rand = new AesCtrDrbg(new byte[] { 0x42, 0x42 });
     Rot rot = new Rot(1, 2, getKbitLength(), getLambdaSecurityParam(), rand,
         network);
     RotReceiver rotRec = rot.getReceiver();
@@ -70,7 +71,7 @@ public class RotDemo<ResourcePoolT extends ResourcePool> extends Demo {
   public void runPartyTwo(int pid) {
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected sender");
-    Random rand = new Random(420);
+    Drbg rand = new AesCtrDrbg(new byte[] { 0x42, 0x04 });
     Rot rot = new Rot(2, 1, getKbitLength(), getLambdaSecurityParam(), rand,
         network);
     RotSender rotSnd = rot.getSender();

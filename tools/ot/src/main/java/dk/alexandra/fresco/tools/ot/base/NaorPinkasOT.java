@@ -8,14 +8,17 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidParameterSpecException;
 import java.util.Arrays;
-import java.util.Random;
 
 import javax.crypto.spec.DHParameterSpec;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
+import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.Drng;
+import dk.alexandra.fresco.framework.util.DrngImpl;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
@@ -25,32 +28,37 @@ public class NaorPinkasOT implements Ot
   private int myId;
   private int otherId;
   private Network network;
-  private Random rand;
+  private Drng randNum;
+  private Drbg randBit;
   private MessageDigest hashFunction;
-
   private final String hashAlgorithm;
-  // TODO should be made to use SHA-256
   private final String prgAlgorithm;
   // The public Diffie-Hellman parameters
   private final int diffieHellmanSize;
   private DHParameterSpec params;
 
-  public NaorPinkasOT(int myId, int otherId, Random rand, Network network) throws NoSuchAlgorithmException {
+  public NaorPinkasOT(int myId, int otherId, Drbg rand, Network network)
+      throws NoSuchAlgorithmException {
     this(myId, otherId, rand, network, null);
     setDhParams(computeSecureDhParams());
   }
 
-  public NaorPinkasOT(int myId, int otherId, Random rand, Network network,
+  public NaorPinkasOT(int myId, int otherId, Drbg randBit, Network network,
       DHParameterSpec params) throws NoSuchAlgorithmException {
     this.hashAlgorithm = "SHA-256";
+    // This MUST only be used for the generation of the DH parameters. Where it
+    // is not insecure to use SHA1 as the seed has been picked through secure
+    // coin-tossing. We cannot use our own implementation, since Java requires a
+    // SecureRandom.
     this.prgAlgorithm = "SHA1PRNG";
     this.diffieHellmanSize = 2048;
     this.myId = myId;
     this.otherId = otherId;
-    this.rand = rand;
+    this.randBit = randBit;
     this.network = network;
     this.hashFunction = MessageDigest.getInstance(hashAlgorithm);
     this.params = params;
+    this.randNum = new DrngImpl(randBit);
   }
 
   public DHParameterSpec getDhParams() {
@@ -76,32 +84,20 @@ public class NaorPinkasOT implements Ot
 
   protected byte[] padMessage(byte[] message, int maxSize,
       byte[] seed) {
-    try {
-      byte[] maxLengthMessage = Arrays.copyOf(message, maxSize);
-      SecureRandom prg = SecureRandom.getInstance(prgAlgorithm);
-      prg.setSeed(seed);
-      byte[] encryptedMessage = new byte[maxSize];
-      prg.nextBytes(encryptedMessage);
-      ByteArrayHelper.xor(encryptedMessage, maxLengthMessage);
-      return encryptedMessage;
-    } catch (NoSuchAlgorithmException e) {
-      throw new MPCException(
-          "Something non-malicious went wrong during the OT.", e);
-    }
+    byte[] maxLengthMessage = Arrays.copyOf(message, maxSize);
+    byte[] encryptedMessage = new byte[maxSize];
+    Drbg prg = new AesCtrDrbg(seed);
+    prg.nextBytes(encryptedMessage);
+    ByteArrayHelper.xor(encryptedMessage, maxLengthMessage);
+    return encryptedMessage;
   }
 
   protected byte[] unpadMessage(byte[] paddedMessage, byte[] seed) {
-    try {
-      SecureRandom prg = SecureRandom.getInstance(prgAlgorithm);
-      prg.setSeed(seed);
-      byte[] message = new byte[paddedMessage.length];
-      prg.nextBytes(message);
-      ByteArrayHelper.xor(message, paddedMessage);
-      return message;
-    } catch (NoSuchAlgorithmException e) {
-      throw new MPCException(
-          "Something non-malicious went wrong during the OT.", e);
-    }
+    byte[] message = new byte[paddedMessage.length];
+    Drbg prg = new AesCtrDrbg(seed);
+    prg.nextBytes(message);
+    ByteArrayHelper.xor(message, paddedMessage);
+    return message;
   }
 
   @Override
@@ -130,7 +126,7 @@ public class NaorPinkasOT implements Ot
 
   private Pair<byte[], byte[]> sendBytesOt() {
     // Pick random element c
-    BigInteger c = sampleGroupElement();
+    BigInteger c = randNum.nextBigInteger(params.getP());
     network.send(otherId, c.toByteArray());
     BigInteger publicKeyZero = new BigInteger(network.receive(otherId));
     // keyOne = c / keyZero
@@ -148,7 +144,7 @@ public class NaorPinkasOT implements Ot
   private byte[] receiveByteOt(Boolean choiceBit) {
     BigInteger c = new BigInteger(network.receive(otherId));
     // Pick random element privateKey
-    BigInteger privateKey = sampleGroupElement();
+    BigInteger privateKey = randNum.nextBigInteger(params.getP());
     // publicKeySigma = G^privateKey mod P
     BigInteger publicKeySigma = params.getG().modPow(privateKey, params.getP());
     // publicKeyNotSigma = c / publicKeySigma mod P
@@ -173,7 +169,7 @@ public class NaorPinkasOT implements Ot
   protected BigInteger encryptMessage(BigInteger publicKey,
       byte[] message) {
     // Pick random element r
-    BigInteger r = sampleGroupElement();
+    BigInteger r = randNum.nextBigInteger(params.getP());
     // Compute encryption:
     // encryption = g^r mod P
     BigInteger encryption = params.getG().modPow(r, params.getP());
@@ -193,41 +189,18 @@ public class NaorPinkasOT implements Ot
   }
 
   /**
-   * Sample a uniformly random element in the underlying Diffie-Hellman group.
-   * 
-   * @return A random element
-   */
-  protected BigInteger sampleGroupElement() {
-    // Pick random element "element" of the amount of bits used to generate the
-    // mod P Diffie-Hellman group
-    BigInteger element = new BigInteger(diffieHellmanSize, rand);
-    // Do rejection sampling to ensure that the random element is actually in
-    // the group and not too big
-    //    While element > P
-    while (element.compareTo(params.getP()) != -1) {
-      element = new BigInteger(diffieHellmanSize, rand);
-    }
-    return element;
-  }
-
-  /**
    * Agree on Diffie-Hellman parameters using coin-tossing. The parameters are
    * stored internally and used to compute the OT.
    * 
    * @return The computed Diffie-Hellman parameters
    */
   private DHParameterSpec computeSecureDhParams() {
-    try {
-      // Do coin-tossing to agree on a random seed of "kbitLength" bits
-      CoinTossing ct = new CoinTossing(myId, otherId,
-          hashFunction.getDigestLength() * 8, rand, network);
-      ct.initialize();
-      StrictBitVector seed = ct.toss(hashFunction.getDigestLength() * 8);
-      return computeDhParams(seed.toByteArray());
-    } catch (NoSuchAlgorithmException | InvalidParameterSpecException e) {
-      throw new MPCException("Something, non-malicious, went wrong when "
-          + "agreeing on the Diffie-Hellman parameters.", e);
-    }
+    // Do coin-tossing to agree on a random seed of "kbitLength" bits
+    CoinTossing ct = new CoinTossing(myId, otherId,
+        randBit, network);
+    ct.initialize();
+    StrictBitVector seed = ct.toss(hashFunction.getDigestLength() * 8);
+    return computeDhParams(seed.toByteArray());
   }
 
   /**
@@ -241,16 +214,20 @@ public class NaorPinkasOT implements Ot
    * @throws InvalidParameterSpecException
    *           Thrown if an error occurs with the Diffie-Hellman parameter class
    */
-  private DHParameterSpec computeDhParams(byte[] seed)
-      throws NoSuchAlgorithmException, InvalidParameterSpecException {
-    // Make a parameter generator for Diffie-Hellman parameters
-    AlgorithmParameterGenerator paramGen = AlgorithmParameterGenerator
-        .getInstance("DH");
-    SecureRandom commonRand = SecureRandom.getInstance(prgAlgorithm);
-    commonRand.setSeed(seed);
-    // Construct DH parameters of a 2048 bit group based on the common seed
-    paramGen.init(diffieHellmanSize, commonRand);
-    AlgorithmParameters params = paramGen.generateParameters();
-    return params.getParameterSpec(DHParameterSpec.class);
+  private DHParameterSpec computeDhParams(byte[] seed) {
+    try {
+      // Make a parameter generator for Diffie-Hellman parameters
+      AlgorithmParameterGenerator paramGen = AlgorithmParameterGenerator
+          .getInstance("DH");
+      SecureRandom commonRand = SecureRandom.getInstance(prgAlgorithm);
+      commonRand.setSeed(seed);
+      // Construct DH parameters of a 2048 bit group based on the common seed
+      paramGen.init(diffieHellmanSize, commonRand);
+      AlgorithmParameters params = paramGen.generateParameters();
+      return params.getParameterSpec(DHParameterSpec.class);
+    } catch (NoSuchAlgorithmException | InvalidParameterSpecException e) {
+      throw new MPCException("Something, non-malicious, went wrong when "
+          + "agreeing on the Diffie-Hellman parameters.", e);
+    }
   }
 }

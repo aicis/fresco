@@ -11,7 +11,7 @@ import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import dk.alexandra.fresco.tools.mascot.triple.TripleGeneration;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
-import dk.alexandra.fresco.tools.mascot.utils.PaddingPrg;
+import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
 
 public class Mascot {
 
@@ -22,7 +22,7 @@ public class Mascot {
     // agree on joint seed
     StrictBitVector jointSeed = new CoinTossingMpc(resourcePool, network)
         .generateJointSeed(resourcePool.getPrgSeedLength());
-    FieldElementPrg jointSampler = new PaddingPrg(jointSeed);
+    FieldElementPrg jointSampler = new FieldElementPrgImpl(jointSeed);
     this.elementGeneration =
         new ElementGeneration(resourcePool, network, macKeyShare, jointSampler);
     this.tripleGeneration =

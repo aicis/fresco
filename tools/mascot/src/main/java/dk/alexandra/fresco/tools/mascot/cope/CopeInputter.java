@@ -14,7 +14,7 @@ import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyRight;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
-import dk.alexandra.fresco.tools.mascot.utils.PaddingPrg;
+import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
 
 public class CopeInputter extends CopeShared {
 
@@ -32,8 +32,8 @@ public class CopeInputter extends CopeShared {
 
   void seedPrgs(List<Pair<StrictBitVector, StrictBitVector>> seeds) {
     for (Pair<StrictBitVector, StrictBitVector> seedPair : seeds) {
-      this.leftPrgs.add(new PaddingPrg(seedPair.getFirst()));
-      this.rightPrgs.add(new PaddingPrg(seedPair.getSecond()));
+      this.leftPrgs.add(new FieldElementPrgImpl(seedPair.getFirst()));
+      this.rightPrgs.add(new FieldElementPrgImpl(seedPair.getSecond()));
     }
   }
 

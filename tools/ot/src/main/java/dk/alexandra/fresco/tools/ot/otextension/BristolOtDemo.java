@@ -1,10 +1,10 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.util.Random;
-
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 
@@ -21,11 +21,18 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> extends Demo {
   public void runPartyOne(int pid) {
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected receiver");
-    Random rand = new Random(424242);
+    Drbg rand = new AesCtrDrbg(new byte[] { 0x42, 0x42 });
     Ot ot = new BristolOt(1, 2, getKbitLength(),
         getLambdaSecurityParam(), rand, network, amountOfOTs);
     for (int i = 0; i < amountOfOTs; i++) {
-      boolean choice = rand.nextBoolean();
+      byte[] choiceByte = new byte[1];
+      rand.nextBytes(choiceByte);
+      boolean choice;
+      if (choiceByte[0] <= 127) {
+        choice = false;
+      } else {
+        choice = true;
+      }
       System.out.print("Choice " + choice + ": ");
       StrictBitVector res = ot.receive(choice);
       System.out.println(res);
@@ -42,7 +49,7 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> extends Demo {
   public void runPartyTwo(int pid) {
     Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
     System.out.println("Connected sender");
-    Random rand = new Random(420420);
+    Drbg rand = new AesCtrDrbg(new byte[] { 0x42, 0x42 });
     Ot ot = new BristolOt(2, 1, getKbitLength(), getLambdaSecurityParam(),
         rand, network, amountOfOTs);
     for (int i = 0; i < amountOfOTs; i++) {

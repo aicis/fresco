@@ -11,7 +11,6 @@ import java.security.spec.InvalidParameterSpecException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.Callable;
 
 import javax.crypto.spec.DHParameterSpec;
@@ -21,10 +20,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.helper.Constants;
+import dk.alexandra.fresco.tools.helper.TestRuntime;
 import dk.alexandra.fresco.tools.ot.otextension.CheatingNetwork;
-import dk.alexandra.fresco.tools.ot.otextension.TestRuntime;
 
 public class FunctionalTestNaorPinkas {
   private TestRuntime testRuntime;
@@ -59,7 +61,7 @@ public class FunctionalTestNaorPinkas {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     try {
-      Random rand = new Random(42);
+      Drbg rand = new AesCtrDrbg(Constants.seedOne);
       Ot otSender = new NaorPinkasOT(1, 2, rand, network);
       List<Pair<StrictBitVector, StrictBitVector>> messages = new ArrayList<>(
           iterations);
@@ -83,7 +85,7 @@ public class FunctionalTestNaorPinkas {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     try {
-      Random rand = new Random(420);
+      Drbg rand = new AesCtrDrbg(Constants.seedTwo);
       Ot otReceiver = new NaorPinkasOT(2, 1, rand, network);
       List<StrictBitVector> messages = new ArrayList<>(choices.getSize());
       for (int i = 0; i < choices.getSize(); i++) {
@@ -105,7 +107,7 @@ public class FunctionalTestNaorPinkas {
     // We execute more OTs than the batchSize to ensure that an automatic
     // extension will take place once preprocessed OTs run out
     int iterations = 160;
-    Random rand = new Random(540);
+    Drbg rand = new AesCtrDrbg(Constants.seedThree);
     StrictBitVector choices = new StrictBitVector(iterations, rand);
     Callable<List<?>> partyOneOt = () -> otSend(iterations);
     Callable<List<?>> partyTwoOt = () -> otReceive(choices);
@@ -155,7 +157,7 @@ public class FunctionalTestNaorPinkas {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     try {
-      Random rand = new Random(42);
+      Drbg rand = new AesCtrDrbg(Constants.seedOne);
       Ot otSender = new NaorPinkasOT(1, 2, rand, network, staticParams);
       StrictBitVector msgZero = new StrictBitVector(messageLength, rand);
       StrictBitVector msgOne = new StrictBitVector(messageLength, rand);
@@ -177,7 +179,7 @@ public class FunctionalTestNaorPinkas {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     try {
-      Random rand = new Random(420);
+      Drbg rand = new AesCtrDrbg(Constants.seedTwo);
       Ot otReceiver = new NaorPinkasOT(2, 1, rand, network, staticParams);
       StrictBitVector message = otReceiver.receive(choice);
       List<StrictBitVector> messageList = new ArrayList<>(1);

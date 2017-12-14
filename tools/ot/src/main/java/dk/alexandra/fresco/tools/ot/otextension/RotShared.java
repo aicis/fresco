@@ -5,10 +5,10 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
 
@@ -37,7 +37,7 @@ public class RotShared {
     super();
     this.cote = cote;
     this.ct = new CoinTossing(cote.getMyId(), cote.getOtherId(),
-        cote.getkBitLength(), cote.getRand(), cote.getNetwork());
+        cote.getRand(), cote.getNetwork());
     this.hashAlgorithm = "SHA-256";
   }
 
@@ -53,7 +53,7 @@ public class RotShared {
     return cote.getLambdaSecurityParam();
   }
 
-  public Random getRand() {
+  public Drbg getRand() {
     return cote.getRand();
   }
 

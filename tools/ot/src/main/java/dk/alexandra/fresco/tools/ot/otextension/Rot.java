@@ -1,8 +1,7 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.util.Random;
-
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.Drbg;
 
 /**
  * Container class for a protocol instance of random OT extension.
@@ -33,7 +32,7 @@ public class Rot {
    *          The network instance
    */
   public Rot(int myId, int otherId, int kbitLength, int lambdaSecurityParam,
-      Random rand, Network network) {
+      Drbg rand, Network network) {
     CoteSender sender = new CoteSender(myId, otherId, kbitLength,
         lambdaSecurityParam, rand, network);
     CoteReceiver receiver = new CoteReceiver(myId, otherId, kbitLength,

@@ -2,7 +2,9 @@ package dk.alexandra.fresco.framework.util;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
+import java.util.Arrays;
 import java.util.Random;
 
 import org.junit.Test;
@@ -24,6 +26,17 @@ public class TestStrictBitVector {
     StrictBitVector bv = new StrictBitVector(4 * 8, rand);
     assertEquals(4 * 8, bv.getSize());
     assertEquals(4, bv.toByteArray().length);
+  }
+
+  @Test
+  public void testConstructRandomCorrectSize2() {
+    Drbg rand = new AesCtrDrbg(new byte[] { 0x42 });
+    StrictBitVector bv = new StrictBitVector(4 * 8, rand);
+    assertEquals(4 * 8, bv.getSize());
+    assertEquals(4, bv.toByteArray().length);
+    // Sanity check
+    byte[] zeroArray = new byte[4 * 8];
+    assertFalse(Arrays.equals(zeroArray, bv.toByteArray()));
   }
 
   @Test

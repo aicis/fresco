@@ -1,12 +1,11 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.List;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.MaliciousException;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 
 /**
@@ -35,15 +34,10 @@ public class BristolOtReceiver extends BristolOtShared {
   }
 
   /**
-   * Initializes the underlying random OT functionality, if needed.
+   * Initializes the underlying random OT functionality.
    */
   public void initialize() {
-    if (initialized) {
-      throw new IllegalStateException("Already initialized");
-    }
-    if (receiver.initialized == false) {
-      receiver.initialize();
-    }
+    receiver.initialize();
     initialized = true;
   }
 
@@ -105,21 +99,14 @@ public class BristolOtReceiver extends BristolOtShared {
   }
 
   private void adjustMessage(byte[] adjustment) {
-    try {
-      // Use the random message as the seed to a PRG
-      SecureRandom rand = SecureRandom.getInstance(prgAlgorithm);
-      // Retrieve the random preprocessed message
-      byte[] randomMessage = randomMessages.get(offset).toByteArray();
-      rand.setSeed(randomMessage);
-      byte[] randomness = new byte[adjustment.length];
-      // Expand the seed to the length of the received message from the sender
-      rand.nextBytes(randomness);
-      // Use XOR to unpad the received message
-      ByteArrayHelper.xor(adjustment, randomness);
-    } catch (NoSuchAlgorithmException e) {
-      throw new MPCException(
-          "Something, non-malicious, went wrong when receiving a Bristol OT.",
-          e);
-    }
+    // Retrieve the random preprocessed message
+    byte[] randomMessage = randomMessages.get(offset).toByteArray();
+    // Use the random message as the seed to a PRG
+    Drbg currentPrg = new AesCtrDrbg(randomMessage);
+    byte[] randomness = new byte[adjustment.length];
+    // Expand the seed to the length of the received message from the sender
+    currentPrg.nextBytes(randomness);
+    // Use XOR to unpad the received message
+    ByteArrayHelper.xor(adjustment, randomness);
   }
 }
