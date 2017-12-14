@@ -1,7 +1,5 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.util.List;
-
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -10,6 +8,8 @@ import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
+
+import java.util.List;
 
 public class BristolRotBatchDemo<ResourcePoolT extends ResourcePool>
     extends Demo {

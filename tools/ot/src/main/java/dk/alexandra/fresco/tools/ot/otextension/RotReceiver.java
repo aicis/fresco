@@ -1,8 +1,8 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.util.List;
-
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+
+import java.util.List;
 
 /**
  * Protocol class for the party acting as the receiver in an random OT extension
@@ -78,11 +78,9 @@ public class RotReceiver extends RotShared {
    * Computes the sum of element in a list based on a vector if indicator
    * variables. The sum will be based on Galois addition in the binary extension
    * field of the individual elements of the list. That is, through an XOR
-   * operation.
-   * <p>
+   * operation. <br/>
    * All elements of the list MUST have equal size! And both the list and vector
    * of indicator bits MUST contain an equal amount of entries!
-   * </p>
    * 
    * @param indicators
    *          The vector of indicator bits

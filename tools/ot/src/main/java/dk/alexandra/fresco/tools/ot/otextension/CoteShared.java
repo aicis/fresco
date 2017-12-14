@@ -1,15 +1,14 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Superclass containing the common variables and methods for the sender and

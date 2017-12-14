@@ -1,11 +1,11 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class Demo {
   // Computational security parameter

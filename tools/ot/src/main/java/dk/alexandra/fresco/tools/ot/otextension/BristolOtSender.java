@@ -1,13 +1,13 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.util.Arrays;
-import java.util.List;
-
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Protocol class for the party acting as the sender in an OT extension. The
@@ -27,6 +27,15 @@ public class BristolOtSender extends BristolOtShared {
   // Index of the current random OT to use
   private int offset = -1;
 
+  /**
+   * Initializes the underlying Rot functionality using "rotSender". It will
+   * then construct OTs in batches of "batchSize".
+   * 
+   * @param rotSender
+   *          The underlying receiver object to use
+   * @param batchSize
+   *          The amount of OTs to construct at a time, internally.
+   */
   public BristolOtSender(RotSender rotSender, int batchSize) {
     super(rotSender, batchSize);
     this.sender = rotSender;
@@ -63,6 +72,16 @@ public class BristolOtSender extends BristolOtShared {
     offset++;
   }
 
+  /**
+   * Adjust the random, preprocessed message, to fit the specific messages to
+   * send.
+   * 
+   * @param messageZero
+   *          The actual zero message to send
+   * @param messageOne
+   *          The actual one message to send
+   * @return The actual message
+   */
   private void doActualSend(byte[] messageZero, byte[] messageOne) {
     // Find the correct preprocessed random OT messages
     StrictBitVector randomZero = randomMessages.getFirst().get(offset);

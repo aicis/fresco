@@ -1,13 +1,13 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.util.List;
-
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+
+import java.util.List;
 
 /**
  * Demo class to execute a light instance of the correlated OT extension with

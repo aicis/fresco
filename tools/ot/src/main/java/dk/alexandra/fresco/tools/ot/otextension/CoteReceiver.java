@@ -1,12 +1,12 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Protocol class for the party acting as the receiver in an correlated OT with

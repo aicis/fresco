@@ -1,10 +1,10 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class used to do bit transposition using Ekhlunds method. Transposition is

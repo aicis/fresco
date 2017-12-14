@@ -1,10 +1,10 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.util.List;
-
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+
+import java.util.List;
 
 /**
  * Protocol class for the party acting as the sender in a random OT extension.
@@ -107,8 +107,8 @@ public class RotSender extends RotShared {
     }
     // Remove the correlated for the choice-one as well
     List<StrictBitVector> vlistOne = hashBitVector(qlist, size);
-    Pair<List<StrictBitVector>, List<StrictBitVector>> res = new Pair<List<StrictBitVector>, List<StrictBitVector>>(
-        vlistZero, vlistOne);
+    Pair<List<StrictBitVector>, List<StrictBitVector>> res = 
+        new Pair<List<StrictBitVector>, List<StrictBitVector>>(vlistZero, vlistOne);
     return res;
   }
 }

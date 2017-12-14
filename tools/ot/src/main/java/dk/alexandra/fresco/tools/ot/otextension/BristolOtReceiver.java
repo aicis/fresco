@@ -1,12 +1,12 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.util.List;
-
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+
+import java.util.List;
 
 /**
  * Protocol class for the party acting as the receiver in an OT extension. The
@@ -28,6 +28,15 @@ public class BristolOtReceiver extends BristolOtShared {
   // Index of the current random OT to use
   private int offset = -1;
 
+  /**
+   * Initializes the underlying Rot functionality using "rotReceiver". It will
+   * then construct OTs in batches of "batchSize".
+   * 
+   * @param rotReceiver
+   *          The underlying receiver object to use
+   * @param batchSize
+   *          The amount of OTs to construct at a time, internally.
+   */
   public BristolOtReceiver(RotReceiver rotReceiver, int batchSize) {
     super(rotReceiver, batchSize);
     this.receiver = rotReceiver;
@@ -72,6 +81,16 @@ public class BristolOtReceiver extends BristolOtShared {
     return res;
   }
 
+  /**
+   * Adjust the random, preprocessed message, to fit the specific message sent
+   * by the sender.
+   * 
+   * @param zeroAdjustment
+   *          The adjustment value for the zero message
+   * @param oneAdjustment
+   *          The adjustment value for the one message
+   * @return The actual message
+   */
   private byte[] doActualReceive(byte[] zeroAdjustment, byte[] oneAdjustment) {
     if (zeroAdjustment.length != oneAdjustment.length) {
       throw new MaliciousException(
@@ -87,6 +106,13 @@ public class BristolOtReceiver extends BristolOtShared {
     return adjustment;
   }
 
+  /**
+   * Compute and send a bit indicating whether the sender should switch the zero
+   * and one message around.
+   * 
+   * @param choiceBit
+   *          The actual choice bit of the receiver
+   */
   private void sendSwitchBit(Boolean choiceBit) {
     // Since we can only send a byte array we use 0x00 to indicate a 0-choice
     // and 0x01 to indicate a 1-choice
@@ -106,7 +132,7 @@ public class BristolOtReceiver extends BristolOtShared {
     byte[] randomness = new byte[adjustment.length];
     // Expand the seed to the length of the received message from the sender
     currentPrg.nextBytes(randomness);
-    // Use XOR to unpad the received message
+    // Use XOR to one-time unpad the message
     ByteArrayHelper.xor(adjustment, randomness);
   }
 }
