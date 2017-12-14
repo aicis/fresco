@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.TwoPartyProtocol;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
-import dk.alexandra.fresco.tools.ot.otextension.BristolRotBatch;
 
 public class MultiplyShared extends TwoPartyProtocol {
 
@@ -15,8 +14,8 @@ public class MultiplyShared extends TwoPartyProtocol {
   public MultiplyShared(MascotResourcePool resourcePool, Network network, Integer otherId, int numLeftFactors) {
     super(resourcePool, network, otherId);
     this.numLeftFactors = numLeftFactors;
-    this.rot = new BristolRotBatch(getMyId(), otherId, getModBitLength(), resourcePool.getLambdaSecurityParam(),
-        resourcePool.getRandomGenerator(), network);
+    this.rot = resourcePool.createRot(otherId, network);
+
   }
 
 }

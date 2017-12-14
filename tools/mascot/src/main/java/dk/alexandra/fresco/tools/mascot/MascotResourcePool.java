@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.tools.mascot;
 
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.StrictBitVectorSerializer;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.commitment.Commitment;
@@ -8,6 +9,7 @@ import dk.alexandra.fresco.tools.commitment.CommitmentSerializer;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
+import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import java.util.List;
 
 public interface MascotResourcePool extends NumericResourcePool {
@@ -77,4 +79,6 @@ public interface MascotResourcePool extends NumericResourcePool {
    */
   CommitmentSerializer getCommitmentSerializer();
 
+  RotBatch<StrictBitVector> createRot(int otherId,
+      Network network);
 }
