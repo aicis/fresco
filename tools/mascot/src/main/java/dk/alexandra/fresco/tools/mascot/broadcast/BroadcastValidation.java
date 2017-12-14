@@ -1,13 +1,13 @@
 package dk.alexandra.fresco.tools.mascot.broadcast;
 
-import java.security.MessageDigest;
-import java.util.Arrays;
-import java.util.List;
-
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
+import java.security.MessageDigest;
+import java.util.Arrays;
+import java.util.List;
+
 
 public class BroadcastValidation extends MultiPartyProtocol {
 
@@ -37,8 +37,8 @@ public class BroadcastValidation extends MultiPartyProtocol {
   /**
    * Compares all other digests with own digest and throws if any are not equal.
    * 
-   * @param ownDigest
-   * @param otherDigests
+   * @param ownDigest hash of messages sent
+   * @param otherDigests hashes received from other parties
    */
   void validateDigests(byte[] ownDigest, List<byte[]> otherDigests) {
     for (byte[] otherDigest : otherDigests) {
@@ -51,7 +51,7 @@ public class BroadcastValidation extends MultiPartyProtocol {
   /**
    * Performs broadcast validation on a list of messages.
    * 
-   * @param messages
+   * @param messages messages to validate
    */
   public void validate(List<byte[]> messages) {
     // compute digest

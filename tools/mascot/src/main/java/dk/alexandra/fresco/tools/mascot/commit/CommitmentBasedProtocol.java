@@ -1,9 +1,5 @@
 package dk.alexandra.fresco.tools.mascot.commit;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.SecureSerializer;
 import dk.alexandra.fresco.tools.commitment.Commitment;
@@ -12,6 +8,9 @@ import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.broadcast.BroadcastValidation;
 import dk.alexandra.fresco.tools.mascot.broadcast.BroadcastingNetworkDecorator;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 // TODO need better name
 public class CommitmentBasedProtocol<T> extends MultiPartyProtocol {
@@ -19,6 +18,13 @@ public class CommitmentBasedProtocol<T> extends MultiPartyProtocol {
   SecureSerializer<T> serializer;
   Network broadcaster;
 
+  /**
+   * Creates new {@link CommitmentBasedProtocol}.
+   * 
+   * @param resourcePool {@inheritDoc}
+   * @param network {@inheritDoc}
+   * @param serializer serializer for type of elements we will commit to
+   */
   public CommitmentBasedProtocol(MascotResourcePool resourcePool, Network network,
       SecureSerializer<T> serializer) {
     super(resourcePool, network);
@@ -66,11 +72,9 @@ public class CommitmentBasedProtocol<T> extends MultiPartyProtocol {
   /**
    * Attempts to open commitments using opening info, will throw if opening fails.
    * 
-   * @param comms
-   * @param openings
-   * @return
-   * @throws FailedCommitmentException
-   * @throws MaliciousCommitmentException
+   * @param comms commitments
+   * @param openings opening information
+   * @return values from opened commitments
    */
   protected List<T> open(List<Commitment> comms, List<byte[]> openings) {
     if (comms.size() != openings.size()) {

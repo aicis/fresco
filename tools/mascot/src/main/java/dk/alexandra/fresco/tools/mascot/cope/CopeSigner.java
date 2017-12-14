@@ -1,11 +1,5 @@
 package dk.alexandra.fresco.tools.mascot.cope;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
@@ -13,6 +7,11 @@ import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeft;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class CopeSigner extends CopeShared {
 
@@ -23,10 +22,10 @@ public class CopeSigner extends CopeShared {
   /**
    * Creates new cope signer.
    * 
-   * @param resourcePool
-   * @param network
-   * @param otherId
-   * @param macKeyShare
+   * @param resourcePool {@inheritDoc}
+   * @param network {@inheritDoc}
+   * @param otherId {@inheritDoc}
+   * @param macKeyShare secret share of the mac key
    */
   public CopeSigner(MascotResourcePool resourcePool, Network network, Integer otherId,
       FieldElement macKeyShare) {
@@ -49,14 +48,19 @@ public class CopeSigner extends CopeShared {
     // generate mask for each input
     for (int i = 0; i < numInputs; i++) {
       // generate masks for single input
-      List<FieldElement> singleInputMasks = prgs.stream()
-          .map(prg -> prg.getNext(modulus, modBitLength))
-          .collect(Collectors.toList());
+      List<FieldElement> singleInputMasks =
+          prgs.stream().map(prg -> prg.getNext(modulus, modBitLength)).collect(Collectors.toList());
       masks.addAll(singleInputMasks);
     }
     return masks;
   }
 
+  /**
+   * Computes shares of product of this party's mac key share and other party's inputs.
+   * 
+   * @param numInputs number of other party's inputs
+   * @return shares of product
+   */
   public List<FieldElement> extend(int numInputs) {
     // compute chosen masks
     List<FieldElement> chosenMasks = generateMasks(numInputs, getModulus(), getModBitLength());
@@ -65,9 +69,8 @@ public class CopeSigner extends CopeShared {
     List<FieldElement> diffs = multiplier.receiveDiffs(numInputs * prgs.size());
 
     // use mac share for each input
-    List<FieldElement> macKeyShares = IntStream.range(0, numInputs)
-        .mapToObj(idx -> macKeyShare)
-        .collect(Collectors.toList());
+    List<FieldElement> macKeyShares =
+        IntStream.range(0, numInputs).mapToObj(idx -> macKeyShare).collect(Collectors.toList());
 
     // compute product shares
     return multiplier.computeProductShares(macKeyShares, chosenMasks, diffs);

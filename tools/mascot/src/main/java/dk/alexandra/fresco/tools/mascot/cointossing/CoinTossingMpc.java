@@ -1,18 +1,17 @@
 package dk.alexandra.fresco.tools.mascot.cointossing;
 
-import java.util.List;
-
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.commit.CommitmentBasedProtocol;
+import java.util.List;
 
 public class CoinTossingMpc extends CommitmentBasedProtocol<StrictBitVector> {
 
   /**
    * Creates new coin-tossing protocol.
    * 
-   * @param resourcePool
+   * @param resourcePool {@inheritDoc}
    */
   public CoinTossingMpc(MascotResourcePool resourcePool, Network network) {
     super(resourcePool, network, resourcePool.getStrictBitVectorSerializer());
@@ -21,8 +20,8 @@ public class CoinTossingMpc extends CommitmentBasedProtocol<StrictBitVector> {
   /**
    * Computes all parties seeds into one by xoring.
    * 
-   * @param seeds
-   * @return
+   * @param seeds all parties' seeds
+   * @return shared seed
    */
   StrictBitVector combine(List<StrictBitVector> seeds) {
     StrictBitVector acc = seeds.get(0);
@@ -35,8 +34,8 @@ public class CoinTossingMpc extends CommitmentBasedProtocol<StrictBitVector> {
   /**
    * Generates random seed and calls {@link CoinTossingMpc#generateJointSeed(StrictBitVector)}.
    * 
-   * @param byteLength
-   * @return
+   * @param bitLengthSeed bit length of seed
+   * @return shared seed
    */
   public StrictBitVector generateJointSeed(int bitLengthSeed) {
     // generate own seed
@@ -46,8 +45,8 @@ public class CoinTossingMpc extends CommitmentBasedProtocol<StrictBitVector> {
   /**
    * Distribute seeds and combine into single, joint seed.
    * 
-   * @param byteLength the length of the seed to be generated
-   * @return
+   * @param ownSeed own random seed
+   * @return shared seed
    */
   public StrictBitVector generateJointSeed(StrictBitVector ownSeed) {
     // distribute seeds

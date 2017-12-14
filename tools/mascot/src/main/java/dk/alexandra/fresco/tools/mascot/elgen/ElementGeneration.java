@@ -1,13 +1,5 @@
 package dk.alexandra.fresco.tools.mascot.elgen;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
@@ -19,6 +11,13 @@ import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
 import dk.alexandra.fresco.tools.mascot.maccheck.MacCheck;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class ElementGeneration extends MultiPartyProtocol {
 
@@ -30,6 +29,14 @@ public class ElementGeneration extends MultiPartyProtocol {
   private Map<Integer, CopeSigner> copeSigners;
   private Map<Integer, CopeInputter> copeInputters;
 
+  /**
+   * Creates new element generation protocol.
+   * 
+   * @param resourcePool {@inheritDoc}
+   * @param network {@inheritDoc}
+   * @param macKeyShare secret share of the mac key
+   * @param jointSampler field element prg seeded with shared seed
+   */
   public ElementGeneration(MascotResourcePool resourcePool, Network network,
       FieldElement macKeyShare, FieldElementPrg jointSampler) {
     super(resourcePool, network);
@@ -105,8 +112,11 @@ public class ElementGeneration extends MultiPartyProtocol {
   }
 
   /**
-   * Inputs field elements.
+   * Computes this party's authenticated shares of input. <br>
+   * To be called by input party.
    * 
+   * @param values values to input
+   * @return authenticated shares of inputs
    */
   public List<AuthenticatedElement> input(List<FieldElement> values) {
     // make sure we can add elements to list etc
@@ -143,6 +153,13 @@ public class ElementGeneration extends MultiPartyProtocol {
     return spdzElements;
   }
 
+  /**
+   * Computes this party's authenticated shares of inputter party's inputs.
+   * 
+   * @param inputterId id of inputter
+   * @param numInputs number of inputs
+   * @return authenticated shares of inputs
+   */
   public List<AuthenticatedElement> input(Integer inputterId, int numInputs) {
     // receive per-element mac shares
     CopeSigner copeSigner = copeSigners.get(inputterId);
@@ -192,8 +209,8 @@ public class ElementGeneration extends MultiPartyProtocol {
   /**
    * Opens secret elements (distributes shares among all parties and recombines).
    * 
-   * @param closed
-   * @return
+   * @param closed authenticated elements to open
+   * @return opened value
    */
   public List<FieldElement> open(List<AuthenticatedElement> closed) {
     // get shares from authenticated elements
