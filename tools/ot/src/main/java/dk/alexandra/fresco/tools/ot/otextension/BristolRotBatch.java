@@ -1,13 +1,12 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -170,7 +169,7 @@ public class BristolRotBatch implements RotBatch<StrictBitVector> {
    */
   private StrictBitVector computeRandomMessage(StrictBitVector seed,
       int sizeOfMessage) {
-    Drbg rand = new AesCtrDrbg(seed.toByteArray());
+    Drbg rand = new HmacDrbg(seed.toByteArray());
     return new StrictBitVector(sizeOfMessage, rand);
   }
 }

@@ -41,7 +41,7 @@ public class HmacDrbg implements Drbg {
    * @throws NoSuchAlgorithmException If the default HmacSHA256 hash function is not found on the
    *         system.
    */
-  public HmacDrbg(byte[]... seeds) throws NoSuchAlgorithmException {    
+  public HmacDrbg(byte[]... seeds) {
     this(null, seeds);
   }
 
@@ -58,7 +58,7 @@ public class HmacDrbg implements Drbg {
    *        null, this implementation will use the default value.
    * @throws NoSuchAlgorithmException If the <code>algorithm</code> is not found on the system.
    */
-  public HmacDrbg(Supplier<Mac> macSupplier, byte[]... seeds) throws NoSuchAlgorithmException {
+  public HmacDrbg(Supplier<Mac> macSupplier, byte[]... seeds) {
     this.seeds = new ArrayList<byte[]>();
     Collections.addAll(this.seeds, seeds);
     if (this.seeds.size() < 1) {
@@ -67,7 +67,9 @@ public class HmacDrbg implements Drbg {
       this.seeds.add(new byte[] {0x00});
     }
     if (macSupplier == null) {
-      this.mac = Mac.getInstance(DEFAULT_ALGORITHM);
+      this.mac = ExceptionConverter.safe(
+          () -> Mac.getInstance(DEFAULT_ALGORITHM),
+          "Missing algorithm");
     } else {
       this.mac = macSupplier.get();
     }

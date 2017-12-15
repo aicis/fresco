@@ -21,7 +21,6 @@ public class RotShared {
   protected CoteShared cote;
   protected CoinTossing ct;
   protected boolean initialized = false;
-  protected final String hashAlgorithm;
 
   /**
    * Constructs a random OT extension super-class using an underlying correlated
@@ -35,7 +34,6 @@ public class RotShared {
     this.cote = cote;
     this.ct = new CoinTossing(cote.getMyId(), cote.getOtherId(),
         cote.getRand(), cote.getNetwork());
-    this.hashAlgorithm = "SHA-256";
   }
 
   public int getOtherId() {
