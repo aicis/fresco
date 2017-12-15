@@ -111,7 +111,6 @@ public class RotShared {
     byte[] res = new byte[(avec.getSize() + bvec.getSize()) / 8];
     byte[] avecBytes = avec.toByteArray();
     byte[] bvecBytes = bvec.toByteArray();
-    // TODO automatically do it st we iterate over the smallest length
     for (int i = 0; i < avec.getSize(); i++) {
       // If the i'th bit of avec is 1 then we shift the bvec i positions and xor
       // the shifted bvec into the result vector, res
@@ -130,40 +129,6 @@ public class RotShared {
       }
     }
     return new StrictBitVector(res, avec.getSize() + bvec.getSize());
-  }
-
-  // protected static StrictBitVector multiplyWithoutReduction(
-  // StrictBitVector avec, StrictBitVector bvec) {
-  // StrictBitVector res = new StrictBitVector(avec.getSize() + bvec.getSize());
-  // for (int i = 0; i < avec.getSize(); i++) {
-  // // If the i'th bit of avec is 1 then we shift the bvec i positions and xor
-  // // the shifted bvec into the result vector, res
-  // if (avec.getBit(i, false) == true) {
-  // StrictBitVector temp = new StrictBitVector(
-  // avec.getSize() + bvec.getSize());
-  // shiftArray(bvec, i, temp);
-  // res.xor(temp);
-  // }
-  // }
-  // return res;
-  // }
-
-  /**
-   * Shifts a bitvector "pos" positions by constructing a new StrictBitVector of
-   * capacity "maxSize".
-   * 
-   * @param in
-   *          The bitvector to shift
-   * @param pos
-   *          The amount of positions to shift
-   * @param dest
-   *          The vector which the shifted bit vector should be stored
-   */
-  private static void shiftArray(StrictBitVector in, int pos,
-      StrictBitVector dest) {
-    for (int i = 0; i < in.getSize(); i++) {
-      dest.setBit(i + pos, in.getBit(i, false), false);
-    }
   }
   
   /**
