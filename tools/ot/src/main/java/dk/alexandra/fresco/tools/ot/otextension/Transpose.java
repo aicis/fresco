@@ -182,7 +182,7 @@ public class Transpose {
    */
   protected static void transposeByteBlock(List<byte[]> input, int rowOffset,
       int columnOffset) {
-    /**
+    /*
      * By having 8 variables we hope that the JVM will only access the main
      * memory per iteration, to read a byte, rather than both reading and
      * writing to 8 bytes at different places in main memory.
@@ -197,7 +197,7 @@ public class Transpose {
     byte newRow7 = 0;
     for (int k = 0; k < 8; k++) {
       byte currentRow = input.get(rowOffset + k)[columnOffset / 8];
-      /**
+      /*
        * First extract the bit of position (column) x for row x using AND (&),
        * then shift it to the leftmost position and do an unsigned rightshift to
        * move it into the correct position for the given row. Finally XOR (^)
