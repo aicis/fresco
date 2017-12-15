@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 public class HmacDrbg implements Drbg {
 
   private final Logger logger = LoggerFactory.getLogger(HmacDrbg.class);
-  static String DEFAULT_ALGORITHM = "HmacSHA256";
+  private static final String DEFAULT_ALGORITHM = "HmacSHA256";
   private final String algorithm;
   private Mac mac = null;
   private byte[] val = null; // value - internally used

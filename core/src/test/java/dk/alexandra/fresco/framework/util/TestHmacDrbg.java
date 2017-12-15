@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.function.Supplier;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class TestHmacDrbg {
@@ -51,18 +50,6 @@ public class TestHmacDrbg {
     rand1.nextBytes(randBytes1);
     rand2.nextBytes(randBytes2);
     assertFalse(Arrays.equals(randBytes1, randBytes2));
-  }
-
-  @Test
-  public void testNonExistingAlgorithm() throws NoSuchAlgorithmException {
-    String defaultAlg = HmacDrbg.DEFAULT_ALGORITHM;
-    HmacDrbg.DEFAULT_ALGORITHM = "BLA";
-    try {
-      new HmacDrbg();
-      Assert.fail();
-    } catch (RuntimeException ex) {
-      HmacDrbg.DEFAULT_ALGORITHM = defaultAlg;
-    }
   }
 
   @Test(expected = IllegalStateException.class)
