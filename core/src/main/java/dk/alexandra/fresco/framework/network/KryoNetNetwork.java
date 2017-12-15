@@ -7,7 +7,6 @@ import com.esotericsoftware.kryonet.EndPoint;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 import com.esotericsoftware.minlog.Log;
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import java.io.Closeable;
@@ -18,22 +17,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.Semaphore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class KryoNetNetwork implements Network, Closeable {
 
-  private List<Server> servers;
+  private Server server;
 
-  // Map per partyId to a list of clients where the length of the list is equal to channelAmount.
-  private Map<Integer, List<Client>> clients;
+  // Map per partyId to a client
+  private Map<Integer, Client> clients;
   private List<Thread> clientThreads;
   private NetworkConfiguration conf;
 
-  // List is as long as channelAmount and contains a map for each partyId to a queue
-  private List<Map<Integer, BlockingQueue<byte[]>>> queues;
-  private int channelAmount;
+  // Map for each partyId to a queue
+  private Map<Integer, BlockingQueue<byte[]>> queues;
 
   private static final Logger logger = LoggerFactory.getLogger(KryoNetNetwork.class);
 
@@ -47,31 +46,23 @@ public class KryoNetNetwork implements Network, Closeable {
   public KryoNetNetwork(NetworkConfiguration conf) {
     Log.set(Log.LEVEL_ERROR);
     this.conf = conf;
-    this.channelAmount = 1;
     this.clients = new HashMap<>();
     this.clientThreads = new ArrayList<>();
-    this.servers = new ArrayList<>();
-    this.queues = new ArrayList<>();
+    this.queues = new HashMap<>();
 
     // TODO: How to reason about the upper boundries of what can be send in a single round?
     int writeBufferSize = 1048576;
     int objectBufferSize = writeBufferSize;
 
-    for (int j = 0; j < channelAmount; j++) {
-      Server server = new Server(1024, objectBufferSize);
-      register(server);
-      this.servers.add(server);
-      this.queues.add(new HashMap<>());
-    }
+    this.server = new Server(1024, objectBufferSize);
+    register(this.server);    
 
     for (int i = 1; i <= conf.noOfParties(); i++) {
       if (i != conf.getMyId()) {
-        this.clients.put(i, new ArrayList<>());
-        for (int j = 0; j < channelAmount; j++) {
-          Client client = new Client(writeBufferSize, 1024);
-          register(client);
-          clients.get(i).add(client);
-        }
+        Client client = new Client(writeBufferSize, 1024);
+        register(client);
+        clients.put(i, client);
+        
 
         String secretSharedKey = conf.getParty(i).getSecretSharedKey();
         if (secretSharedKey != null) {
@@ -82,15 +73,15 @@ public class KryoNetNetwork implements Network, Closeable {
         }
       }
 
-      for (int j = 0; j < channelAmount; j++) {
-        this.queues.get(j).put(i, new ArrayBlockingQueue<>(1000));
-      }
+      this.queues.put(i, new ArrayBlockingQueue<>(1000));
     }
-    try {
-      connect();
-    } catch (IOException e) {
-      throw new MPCException("Cannot connect to other party", e);
-    }
+    
+    ExceptionConverter.safe(
+        () -> {
+          connect();
+          return null;
+        },
+        "Failed to connect to all parties");    
   }
 
   private static class ClientConnectThread extends Thread {
@@ -164,48 +155,44 @@ public class KryoNetNetwork implements Network, Closeable {
   }
 
   private void connect() throws IOException {
-    final Semaphore semaphore = new Semaphore(-((conf.noOfParties() - 1) * channelAmount - 1));
-    final List<Boolean> successes = new ArrayList<>();
-    for (int j = 0; j < channelAmount; j++) {
-      Server server = this.servers.get(j);
-      int port = conf.getMe().getPort() + j;
-      logger.debug("P" + conf.getMyId() + ": Trying to bind to " + port);
-      server.bind(port);
-      server.start();
+    final Semaphore semaphore = new Semaphore(-(conf.noOfParties() - 2));
+    final ConcurrentLinkedDeque<Boolean> successes = new ConcurrentLinkedDeque<>();
+    Server server = this.server;
+    int port = conf.getMe().getPort();
+    logger.debug("P" + conf.getMyId() + ": Trying to bind to " + port);
+    server.bind(port);
+    server.start();
 
-      server.addListener(new NaiveListener(queues.get(j)));
-    }
+    server.addListener(new NaiveListener(this.queues));    
 
     for (int i = 1; i <= conf.noOfParties(); i++) {
       if (i != conf.getMyId()) {
-        for (int j = 0; j < channelAmount; j++) {
+        Client client = clients.get(i);
 
-          Client client = clients.get(i).get(j);
+        client.addListener(new Listener() {
+          @Override
+          public void connected(Connection connection) {
+            connection.sendTCP(conf.getMyId());
+            successes.add(true);
+            semaphore.release();
+          }
+        });
 
-          client.addListener(new Listener() {
-            @Override
-            public void connected(Connection connection) {
-              connection.sendTCP(conf.getMyId());
-              successes.add(true);
-              semaphore.release();
-            }
-          });
+        client.start();
 
-          client.start();
-
-          String hostname = conf.getParty(i).getHostname();
-          int port = conf.getParty(i).getPort() + j;
-          Thread clientThread = new ClientConnectThread(client, hostname, port, semaphore);
-          clientThread.start();
-          clientThreads.add(clientThread);
-        }
+        String hostname = conf.getParty(i).getHostname();
+        int clientPort = conf.getParty(i).getPort();
+        Thread clientThread = new ClientConnectThread(client, hostname, clientPort, semaphore);
+        clientThread.start();
+        clientThreads.add(clientThread);
       }
     }
     try {
       semaphore.acquire();
-      if (successes.size() < (conf.noOfParties() - 1) * channelAmount) {
+      if (successes.size() < (conf.noOfParties() - 1)) {
         throw new IOException("Could not successfully connect to all parties.");
       }
+      logger.debug("P" + conf.getMyId() + ": Successfully connected to all parties!");
     } catch (InterruptedException e) {
       for (Thread t : clientThreads) {
         t.interrupt();
@@ -219,19 +206,19 @@ public class KryoNetNetwork implements Network, Closeable {
     if (this.conf.getMyId() == partyId) {
       ExceptionConverter.safe(
           () -> {
-            this.queues.get(0).get(partyId).put(data);
+            this.queues.get(partyId).put(data);
             return null;
           },
           "Send got interrupted");
     } else {
-      this.clients.get(partyId).get(0).sendTCP(data);
+      this.clients.get(partyId).sendTCP(data);
     }
   }
 
   @Override
   public byte[] receive(int partyId) {
     return ExceptionConverter.safe(
-        () -> this.queues.get(0).get(partyId).take(),
+        () -> this.queues.get(partyId).take(),
         "Receive got interrupted");
   }
 
@@ -242,21 +229,23 @@ public class KryoNetNetwork implements Network, Closeable {
 
   @Override
   public void close() throws IOException {
-    logger.debug("Shutting down KryoNet network");
+    logger.debug("P" + conf.getMyId() + ": Shutting down KryoNet network");
 
-    for (int j = 0; j < channelAmount; j++) {
-      this.servers.get(j).stop();
-    }
+    this.server.stop();
 
     for (Thread t : clientThreads) {
       t.interrupt();
+      try {
+        t.join();
+      } catch (InterruptedException e) {
+        logger.error("Got interrupted while waiting for internal threads to shutdown");
+        //Ignore - nothing to do about this
+      }
     }
 
     for (int i = 1; i <= conf.noOfParties(); i++) {
       if (i != conf.getMyId()) {
-        for (int j = 0; j < channelAmount; j++) {
-          this.clients.get(i).get(j).stop();
-        }
+        this.clients.get(i).stop();
       }
     }
   }

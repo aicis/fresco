@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.framework.network;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
@@ -10,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -19,13 +19,13 @@ public class TestKryoNetNetwork {
     try {
       List<Integer> ports = new ArrayList<>();
       List<ServerSocket> socks = new ArrayList<>();
-      for (int i = 0; i < no; i++){
+      for (int i = 0; i < no; i++) {
         ServerSocket sock = new ServerSocket(0);
         int port = sock.getLocalPort();  
         ports.add(port);
         socks.add(sock);
       }
-      for (ServerSocket s : socks){
+      for (ServerSocket s : socks) {
         s.close();
       }
       
@@ -97,14 +97,14 @@ public class TestKryoNetNetwork {
       public void run() {
         NetworkConfiguration conf = new NetworkConfigurationImpl(1, parties);
         KryoNetNetwork network = new KryoNetNetwork(conf);
-        for(int i = 0; i < 1000; i++){
+        for (int i = 0; i < 1000; i++) {
           network.send(1, new byte[]{0x04});
         }
-        try{
+        try {
           network.send(1, new byte[]{0x04});
           Assert.fail("After 1001 messages the queue should be filled up.");
-        } catch(MPCException e){
-          
+        } catch (RuntimeException e) {
+          //ignore
         }
         try {
           network.close();
@@ -120,11 +120,11 @@ public class TestKryoNetNetwork {
       public void run() {
         NetworkConfiguration conf = new NetworkConfigurationImpl(2, parties);
         KryoNetNetwork network = new KryoNetNetwork(conf);
-        try{
+        try {
           network.receive(2);
           Assert.fail("Should not be able to receive anything");
-        } catch(MPCException e){
-          
+        } catch (RuntimeException e) {
+          //ignore
         }
         try {
           network.close();
@@ -161,14 +161,16 @@ public class TestKryoNetNetwork {
       public void run() {
         NetworkConfiguration conf = new NetworkConfigurationImpl(1, parties);
         KryoNetNetwork network = null;
-        try{
+        try {
           network = new KryoNetNetwork(conf);
           Assert.fail("Should not be able to connect");
-        } catch(MPCException e) {
-          
+        } catch (RuntimeException e) {
+          //ignore
         } finally {
           try {
-            network.close();
+            if (network != null) {
+              network.close();
+            }
           } catch (IOException e) {
             Assert.fail("Should be able to close the network");
           }
@@ -197,14 +199,14 @@ public class TestKryoNetNetwork {
       public void run() {
         NetworkConfiguration conf = new NetworkConfigurationImpl(1, parties);
         KryoNetNetwork network = null;
-        try{
+        try {
           network = new KryoNetNetwork(conf);
           Assert.fail("Should not be able to connect");
-        } catch(MPCException e) {
-          
+        } catch (RuntimeException e) { 
+          //ignore
         } finally {
           try {
-            if(network != null) {
+            if (network != null) {
               network.close();
             }
           } catch (IOException e) {
@@ -222,5 +224,64 @@ public class TestKryoNetNetwork {
     } catch (InterruptedException e) {
       Assert.fail("Threads should finish without main getting interrupted");
     }    
+  }
+  
+  @Test
+  public void testPartiesReconnect() {
+    testMultiplePartiesReconnect(2, 100);
+    testMultiplePartiesReconnect(3, 50);
+    testMultiplePartiesReconnect(5, 50);
+  }
+  
+  private void testMultiplePartiesReconnect(int noOfParties, int noOfRetries) {    
+    Map<Integer, Party> parties = new HashMap<>();
+    List<Integer> ports = getFreePorts(noOfParties);
+    for (int i = 1; i <= noOfParties; i++) {
+      parties.put(i, new Party(i, "localhost", ports.get(i - 1)));
+    }    
+    for (int retry = 0; retry < noOfRetries; retry++) {
+      List<Thread> threads = new ArrayList<>();      
+      final List<Exception> exs = new ArrayList<>();
+      final ConcurrentHashMap<Integer, KryoNetNetwork> networks = new ConcurrentHashMap<>();
+      
+      for (int i = 0; i < noOfParties; i++) {
+        final int myId = i + 1;        
+        final Thread t = new Thread(new Runnable() {
+          
+          @Override
+          public void run() {
+            NetworkConfiguration conf = new NetworkConfigurationImpl(myId, parties);            
+            try {
+              KryoNetNetwork network = new KryoNetNetwork(conf);
+              networks.put(myId, network);
+            } catch (RuntimeException e) {
+              exs.add(e);
+              Assert.fail();
+            }            
+          }
+        });
+        threads.add(t);
+        t.start();
+      }
+      
+      for (Thread t : threads) {
+        try {
+          t.join();
+        } catch (InterruptedException e) {
+          Assert.fail("Threads should finish without main getting interrupted");
+        }
+      }
+      if (exs.size() != 0) {
+        Assert.fail("Exception occured while trying to connect: " + exs.get(0).getMessage());
+      }
+      //disconnect again.
+      for (KryoNetNetwork network : networks.values()) {
+        try {
+          network.close();
+        } catch (IOException e) {
+          Assert.fail("Should be able to disconnect again");
+        }
+      }      
+    }
   }
 }
