@@ -4,8 +4,8 @@ import static dk.alexandra.fresco.tools.mascot.MascotTestUtils.wrap;
 import static org.junit.Assert.assertEquals;
 
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.mascot.FieldElementWrapper;
 import java.math.BigInteger;
-
 import org.junit.Test;
 
 public class TestFieldElement {
@@ -31,7 +31,7 @@ public class TestFieldElement {
     FieldElement elOne = new FieldElement(22, modulus, bitLength);
     FieldElement elTwo = new FieldElement(11, modulus, bitLength);
     FieldElement expected = new FieldElement(33, modulus, bitLength);
-    assertEquals(wrap(expected), wrap(elOne.add(elTwo)));
+    FieldElementWrapper.assertEquals(expected, elOne.add(elTwo));
   }
 
   @Test

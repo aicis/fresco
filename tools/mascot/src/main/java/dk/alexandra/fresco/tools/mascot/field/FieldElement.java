@@ -111,6 +111,10 @@ public final class FieldElement implements Addable<FieldElement> {
     return bitLength;
   }
 
+  public BigInteger getValue() {
+    return value;
+  }
+
   @Override
   public String toString() {
     return "FieldElement [value=" + value + ", modulus=" + modulus + ", bitLength=" + bitLength
