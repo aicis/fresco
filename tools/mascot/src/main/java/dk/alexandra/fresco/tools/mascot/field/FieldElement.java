@@ -160,7 +160,7 @@ public final class FieldElement implements Addable<FieldElement> {
       throw new IllegalArgumentException("Cannot have negative modulus");
     } else if (modulus.bitLength() != bitLength) {
       throw new IllegalArgumentException("Modulus bit length must match bit length");
-    } else if (value.compareTo(modulus) < 0) {
+    } else if (value.compareTo(modulus) >= 0) {
       throw new IllegalArgumentException("Value must be smaller than modulus");
     }
   }
