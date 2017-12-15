@@ -20,7 +20,6 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -64,11 +63,7 @@ public class TestDistanceDemo {
   private SpdzResourcePool createResourcePool(int myId, int size) {
     SpdzStorage store;
     store = new SpdzStorageImpl(new DummyDataSupplierImpl(myId, size));
-    try {
-      return new SpdzResourcePoolImpl(myId, size, new HmacDrbg(), store);
-    } catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException("Your system does not support the necessary hash function.", e);
-    }
+    return new SpdzResourcePoolImpl(myId, size, new HmacDrbg(), store);
   }
 
   @Test

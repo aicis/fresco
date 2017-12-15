@@ -132,11 +132,7 @@ public class CmdLineProtocolSuite {
         throw new ConfigurationException("Unkonwn preprocessing strategy: " + strategy);
     }
     SpdzStorage store = new SpdzStorageImpl(supplier);
-    try {
-      return new SpdzResourcePoolImpl(myId, noOfPlayers, new HmacDrbg(), store);
-    } catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException("Your system does not support the necessary hash function.", e);
-    }
+    return new SpdzResourcePoolImpl(myId, noOfPlayers, new HmacDrbg(), store);
   }
 
   private ProtocolSuite<?, ?> tinyTablesPreProFromCmdLine(Properties properties)

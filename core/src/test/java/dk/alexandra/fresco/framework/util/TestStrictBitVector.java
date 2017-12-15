@@ -6,7 +6,6 @@ import static org.junit.Assert.assertFalse;
 
 import java.util.Arrays;
 import java.util.Random;
-
 import org.junit.Test;
 
 public class TestStrictBitVector {
@@ -30,7 +29,7 @@ public class TestStrictBitVector {
 
   @Test
   public void testConstructRandomCorrectSize2() {
-    Drbg rand = new AesCtrDrbg(new byte[] { 0x42 });
+    Drbg rand = new PaddingAesCtrDrbg(new byte[]{0x42}, 32 * 8);
     StrictBitVector bv = new StrictBitVector(4 * 8, rand);
     assertEquals(4 * 8, bv.getSize());
     assertEquals(4, bv.toByteArray().length);
@@ -130,7 +129,7 @@ public class TestStrictBitVector {
     String expected = "000100001110000001100000101000000010000011000000010000001000000000000000";
     assertEquals(expected, actual);
   }
-  
+
   @Test
   public void testGetBitLittleEndian() {
     int bitLen = 72;
@@ -147,7 +146,7 @@ public class TestStrictBitVector {
     String expected = "000000000000000100000010000000110000010000000101000001100000011100001000";
     assertEquals(expected, actual);
   }
-  
+
   @Test
   public void testSetBitBigEndian() {
     int bitLen = 16;
@@ -175,7 +174,7 @@ public class TestStrictBitVector {
     byte[] expected = new byte[]{(byte) 0x20, (byte) 0x10};
     assertArrayEquals(expected, actual);
   }
-  
+
   // Negative tests
 
   @Test

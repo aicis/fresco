@@ -29,7 +29,6 @@ import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageConstants;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -123,11 +122,6 @@ public abstract class AbstractSpdzTest {
           storageName, size);
     }
     SpdzStorage store = new SpdzStorageImpl(supplier);
-    try {
-      return new SpdzResourcePoolImpl(myId, size, new HmacDrbg(), store);
-    } catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException("Your system does not have the necessary hash function avaiable.",
-          e);
-    }
+    return new SpdzResourcePoolImpl(myId, size, new HmacDrbg(), store);
   }
 }

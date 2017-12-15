@@ -24,7 +24,7 @@ public class TestAesCtrDrbg {
 
   @Test(expected = IllegalArgumentException.class)
   public void testAesCtrDrbgShortSeed() {
-      new AesCtrDrbg(new byte[1]);
+    new AesCtrDrbg(new byte[1]);
   }
 
   @Test
@@ -34,12 +34,6 @@ public class TestAesCtrDrbg {
     rand.nextBytes(seed);
     AesCtrDrbg drbg = new AesCtrDrbg(seed);
     drbg.initCipher(new byte[16], new byte[16]);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testInitCipherIllegalArguments() {
-    AesCtrDrbg drbg = new AesCtrDrbg(new byte[32]);
-    drbg.initCipher(new byte[16], new byte[1]);
   }
 
   @Test(expected = IllegalStateException.class)
