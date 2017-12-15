@@ -203,14 +203,14 @@ public class Transpose {
        * move it into the correct position for the given row. Finally XOR (^)
        * the new bit into the current value for the row
        */
-      newRow0 ^= (byte) (((currentRow & 0x80) << 0) >>> k);
-      newRow1 ^= (byte) (((currentRow & 0x40) << 1) >>> k);
-      newRow2 ^= (byte) (((currentRow & 0x20) << 2) >>> k);
-      newRow3 ^= (byte) (((currentRow & 0x10) << 3) >>> k);
-      newRow4 ^= (byte) (((currentRow & 0x08) << 4) >>> k);
-      newRow5 ^= (byte) (((currentRow & 0x04) << 5) >>> k);
-      newRow6 ^= (byte) (((currentRow & 0x02) << 6) >>> k);
-      newRow7 ^= (byte) (((currentRow & 0x01) << 7) >>> k);
+      newRow0 ^= (byte) (((currentRow & 0x80) << 24 + 0) >>> (24 + k));
+      newRow1 ^= (byte) (((currentRow & 0x40) << 24 + 1) >>> (24 + k));
+      newRow2 ^= (byte) (((currentRow & 0x20) << 24 + 2) >>> (24 + k));
+      newRow3 ^= (byte) (((currentRow & 0x10) << 24 + 3) >>> (24 + k));
+      newRow4 ^= (byte) (((currentRow & 0x08) << 24 + 4) >>> (24 + k));
+      newRow5 ^= (byte) (((currentRow & 0x04) << 24 + 5) >>> (24 + k));
+      newRow6 ^= (byte) (((currentRow & 0x02) << 24 + 6) >>> (24 + k));
+      newRow7 ^= (byte) (((currentRow & 0x01) << 24 + 7) >>> (24 + k));
     }
     input.get(rowOffset + 0)[columnOffset / 8] = newRow0;
     input.get(rowOffset + 1)[columnOffset / 8] = newRow1;
