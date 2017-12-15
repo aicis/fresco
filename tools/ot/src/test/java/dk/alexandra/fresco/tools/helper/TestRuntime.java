@@ -1,5 +1,9 @@
 package dk.alexandra.fresco.tools.helper;
 
+import dk.alexandra.fresco.framework.Party;
+import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,10 +16,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import dk.alexandra.fresco.framework.Party;
-import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 
 public class TestRuntime {
   private ExecutorService executor;
@@ -70,6 +70,7 @@ public class TestRuntime {
       List<Future<T>> results = executor.invokeAll(tasks, 1000L,
           TimeUnit.SECONDS);
       // this is a bit of a mess...
+      @SuppressWarnings("unchecked")
       List<T> unwrappedResults = results.stream().map(future -> {
         try {
           return future.get();

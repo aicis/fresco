@@ -5,6 +5,15 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.HmacDrbg;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.helper.Constants;
+import dk.alexandra.fresco.tools.helper.TestRuntime;
+import dk.alexandra.fresco.tools.ot.otextension.CheatingNetwork;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -15,15 +24,6 @@ import java.util.concurrent.Callable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.AesCtrDrbg;
-import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.HmacDrbg;
-import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.helper.Constants;
-import dk.alexandra.fresco.tools.helper.TestRuntime;
-import dk.alexandra.fresco.tools.ot.otextension.CheatingNetwork;
 
 public class TestCoinTossing {
   private CoinTossing ctOne;

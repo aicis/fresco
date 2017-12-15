@@ -4,6 +4,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.helper.Constants;
+import dk.alexandra.fresco.tools.helper.TestRuntime;
+import dk.alexandra.fresco.tools.ot.otextension.CheatingNetwork;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -17,15 +26,6 @@ import javax.crypto.spec.DHParameterSpec;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.AesCtrDrbg;
-import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.helper.Constants;
-import dk.alexandra.fresco.tools.helper.TestRuntime;
-import dk.alexandra.fresco.tools.ot.otextension.CheatingNetwork;
 
 public class FunctionalTestNaorPinkas {
   private TestRuntime testRuntime;
