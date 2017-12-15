@@ -6,10 +6,10 @@ import java.math.BigInteger;
 
 public class AuthenticatedElement implements Addable<AuthenticatedElement> {
 
-  FieldElement share;
-  FieldElement mac;
-  BigInteger modulus;
-  int modBitLength;
+  private final FieldElement share;
+  private final FieldElement mac;
+  private final BigInteger modulus;
+  private final int modBitLength;
 
   /**
    * Creates new authenticated element.
@@ -53,17 +53,6 @@ public class AuthenticatedElement implements Addable<AuthenticatedElement> {
   
   public BigInteger getModulus() {
     return modulus;
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((mac == null) ? 0 : mac.hashCode());
-    result = prime * result + modBitLength;
-    result = prime * result + ((modulus == null) ? 0 : modulus.hashCode());
-    result = prime * result + ((share == null) ? 0 : share.hashCode());
-    return result;
   }
 
   @Override
