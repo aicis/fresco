@@ -32,7 +32,8 @@ public class AesCtrDrbg implements Drbg {
     byte[] iv = new byte[16];
     System.arraycopy(seed, 0, key, 0, 16);
     System.arraycopy(seed, 16, iv, 0, 16);
-    this.cipher = ExceptionConverter.safe(() -> Cipher.getInstance("AES/CTR/NoPadding"),
+    this.cipher = ExceptionConverter.safe(
+        () -> Cipher.getInstance("AES/CTR/NoPadding"),
         "General exception in creating the cipher");
     initCipher(key, iv);
     reseedCounter = 0;
