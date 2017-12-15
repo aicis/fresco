@@ -17,12 +17,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-
+/**
+ * Context for a single party to participate in networked test. Holds a resource pool and network.
+ */
 public class MascotTestContext {
 
   MascotResourcePool resourcePool;
   Network network;
 
+  /**
+   * Creates new test context.
+   */
   public MascotTestContext(Integer myId, List<Integer> partyIds, BigInteger modulus,
       int modBitLength, int lambdaSecurityParam, int numLeftFactors, int prgSeedLength) {
     byte[] drbgSeed = new byte[prgSeedLength / 8];
@@ -30,15 +35,7 @@ public class MascotTestContext {
     this.resourcePool = new DummyMascotResourcePoolImpl(myId, partyIds,
         new PaddingAesCtrDrbg(drbgSeed, prgSeedLength), modulus, modBitLength, lambdaSecurityParam,
         prgSeedLength, numLeftFactors);
-    try {
-
-      this.network = new KryoNetNetwork(defaultNetworkConfiguration(myId, partyIds));
-    } catch (Exception e) {
-      // TODO: handle exception
-      System.out.println("");
-      e.printStackTrace();
-      throw e;
-    }
+    this.network = new KryoNetNetwork(defaultNetworkConfiguration(myId, partyIds));
   }
 
   public MascotResourcePool getResourcePool() {

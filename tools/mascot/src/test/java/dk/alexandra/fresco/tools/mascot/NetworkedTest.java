@@ -18,7 +18,7 @@ public abstract class NetworkedTest {
   protected int numLeftFactors;
   protected int prgSeedLength;
 
-  public NetworkedTest(BigInteger modulus, int modBitLength, int lambdaSecurity, int numLeftFactors,
+  NetworkedTest(BigInteger modulus, int modBitLength, int lambdaSecurity, int numLeftFactors,
       int prgSeedLength) {
     super();
     this.modulus = modulus;

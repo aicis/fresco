@@ -3,6 +3,8 @@ package dk.alexandra.fresco.tools.mascot;
 import java.math.BigInteger;
 import java.util.Arrays;
 
+import org.junit.Test;
+
 public class TestTestRuntime {
 
   // maskot parameters
@@ -12,6 +14,7 @@ public class TestTestRuntime {
   protected int numLeftFactors = 3;
   protected int prgSeedLength = 256;
 
+//  @Test
   public void test() {
     // TODO bug in network connect logic!
     for (int i = 0; i < 100; i++) {

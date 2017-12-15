@@ -24,6 +24,17 @@ public class MultiplyRight extends MultiplyShared {
     this(resourcePool, network, otherId, 1);
   }
 
+  /**
+   * Generate random seed pairs using OT. <br>
+   * The seed pairs are correlated with the multiplication factors of the other party. If the other
+   * party's factors (represented as a bit vector) is 010, this party will receive seed pairs (a0,
+   * a1), (b0, b1), (c0, c1) whereas the other party will receive seeds a0, b1, c0. The parties can
+   * use the resulting seeds to compute the shares of the product of their factors.
+   * 
+   * @param numMults the number of total multiplications
+   * @param seedLength the bit length of the seeds
+   * @return the seed pairs
+   */
   public List<Pair<StrictBitVector, StrictBitVector>> generateSeeds(int numMults, int seedLength) {
     // perform rots for each bit, for each left factor, for each multiplication
     int numRots = getModBitLength() * numLeftFactors * numMults;
@@ -40,6 +51,15 @@ public class MultiplyRight extends MultiplyShared {
     return diff;
   }
 
+  /**
+   * Computes "masked" share of each bit of each of this party's factors. <br>
+   * For each seed pair (q0, q1)_n compute q0 - q1 + bn where bn is the n-th bit of this party's
+   * factor.
+   * 
+   * @param feSeedPairs seed pairs as field elements
+   * @param rightFactors this party's factors
+   * @return masked shares of this party's factor's bits.
+   */
   public List<FieldElement> computeDiffs(List<Pair<FieldElement, FieldElement>> feSeedPairs,
       List<FieldElement> rightFactors) {
     List<FieldElement> diffs = new ArrayList<>(feSeedPairs.size());
@@ -59,6 +79,15 @@ public class MultiplyRight extends MultiplyShared {
     network.send(otherId, getFieldElementSerializer().serialize(diffs));
   }
 
+  /**
+   * Computes this party's shares of the final products. <br>
+   * For each seed pair (q0, q1) this party holds, uses q0 to recombine into field elements
+   * representing the product shares.
+   * 
+   * @param feZeroSeeds the zero choice seeds
+   * @param numRightFactors number of total right factors
+   * @return shares of products
+   */
   public List<FieldElement> computeProductShares(List<FieldElement> feZeroSeeds,
       int numRightFactors) {
     int groupBitLength = numLeftFactors * getModBitLength();
@@ -87,8 +116,15 @@ public class MultiplyRight extends MultiplyShared {
     }).collect(Collectors.toList());
   }
 
+  /**
+   * Computes product shares. <br>
+   * For each right factor r and left factor group of other party (l0, l1, ...), computes secret
+   * shares of products r * l0, r*l1, ... .
+   * 
+   * @param rightFactors this party's factors
+   * @return product shares
+   */
   public List<FieldElement> multiply(List<FieldElement> rightFactors) {
-    // generate seeds pairs which we will use to compute diffs
     List<Pair<StrictBitVector, StrictBitVector>> seedPairs =
         generateSeeds(rightFactors.size(), getModBitLength());
 
