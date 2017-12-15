@@ -12,11 +12,11 @@ import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 
 public class TestRot {
+
   private Rot rot;
 
   /**
@@ -48,12 +48,12 @@ public class TestRot {
   @Test
   public void testMultiplyByZeroWithoutReduction() {
     // 0 1 0 0 0 0 0 1, 1 1 1 1 1 1 1 1
-    byte[] abyte = new byte[] { (byte) 0x41, (byte) 0xFF };
+    byte[] abyte = new byte[]{(byte) 0x41, (byte) 0xFF};
     // Semantically equal to 1 as we read bits from left to right
     // 0 0 0 0 0 0 0 0
-    byte[] bbyte = new byte[] { (byte) 0x00 };
+    byte[] bbyte = new byte[]{(byte) 0x00};
     // 0 0 0 0 0 0 0 0, 0 0 0 0 0 0 0 0
-    byte[] expectedByte = new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0x00 };
+    byte[] expectedByte = new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00};
     StrictBitVector a = new StrictBitVector(abyte, 16);
     StrictBitVector b = new StrictBitVector(bbyte, 8);
     StrictBitVector expected = new StrictBitVector(expectedByte, 24);
@@ -64,12 +64,12 @@ public class TestRot {
   @Test
   public void testMultiplyByOneWithoutReduction() {
     // 0 1 0 0 0 0 0 1, 1 1 1 1 1 1 1 1
-    byte[] abyte = new byte[] { (byte) 0x41, (byte) 0xFF };
+    byte[] abyte = new byte[]{(byte) 0x41, (byte) 0xFF};
     // Semantically equal to 1 as we read bits from left to right
     // 1 0 0 0 0 0 0 0
-    byte[] bbyte = new byte[] { (byte) 0x80 };
+    byte[] bbyte = new byte[]{(byte) 0x80};
     // 0 1 0 0 0 0 0 1, 1 1 1 1 1 1 1 1
-    byte[] expectedByte = new byte[] { (byte) 0x41, (byte) 0xFF, (byte) 0x00 };
+    byte[] expectedByte = new byte[]{(byte) 0x41, (byte) 0xFF, (byte) 0x00};
     StrictBitVector a = new StrictBitVector(abyte, 16);
     StrictBitVector b = new StrictBitVector(bbyte, 8);
     StrictBitVector expected = new StrictBitVector(expectedByte, 24);
@@ -80,12 +80,12 @@ public class TestRot {
   @Test
   public void testMultiplyByFourWithoutReduction() {
     // 0 1 0 0 0 0 0 1, 1 1 1 1 1 1 1 1
-    byte[] abyte = new byte[] { (byte) 0x41, (byte) 0xFF };
+    byte[] abyte = new byte[]{(byte) 0x41, (byte) 0xFF};
     // Semantically equal to 1 as we read bits from left to right
     // 0 0 1 0 0 0 0 0
-    byte[] bbyte = new byte[] { (byte) 0x20 };
+    byte[] bbyte = new byte[]{(byte) 0x20};
     // 0 0 0 1 0 0 0 0, 0 1 1 1 1 1 1 1, 1 1 0 0 0 0 0 0
-    byte[] expectedByte = new byte[] { (byte) 0x10, (byte) 0x7F, (byte) 0xC0 };
+    byte[] expectedByte = new byte[]{(byte) 0x10, (byte) 0x7F, (byte) 0xC0};
     StrictBitVector a = new StrictBitVector(abyte, 16);
     StrictBitVector b = new StrictBitVector(bbyte, 8);
     StrictBitVector expected = new StrictBitVector(expectedByte, 24);
@@ -96,16 +96,16 @@ public class TestRot {
   @Test
   public void testMultiplyWithoutReduction() {
     // 0 1 0 0 0 0 0 1, 1 1 1 1 1 1 1 1
-    byte[] abyte = new byte[] { (byte) 0x41, (byte) 0xFF };
+    byte[] abyte = new byte[]{(byte) 0x41, (byte) 0xFF};
     // Semantically equal to 1 as we read bits from left to right
     // 1 0 1 0 0 0 0 0, 1 0 0 0 0 0 0 0
-    byte[] bbyte = new byte[] { (byte) 0xA0, (byte) 0x80 };
+    byte[] bbyte = new byte[]{(byte) 0xA0, (byte) 0x80};
     // 0 1 0 0 0 0 0 1, 1 1 1 1 1 1 1 1, 0 0 0 0 0 0 0 0, 0 0 0 0 0 0 0 0 XOR
     // 0 0 0 1 0 0 0 0, 0 1 1 1 1 1 1 1, 1 1 0 0 0 0 0 0, 0 0 0 0 0 0 0 0
     // 0 0 0 0 0 0 0 0, 0 1 0 0 0 0 0 1, 1 1 1 1 1 1 1 1, 0 0 0 0 0 0 0 0 =
     // 0 1 0 1 0 0 0 1, 1 1 0 0 0 0 0 1, 0 0 1 1 1 1 1 1, 0 0 0 0 0 0 0 0
-    byte[] expectedByte = new byte[] { (byte) 0x51, (byte) 0xC1, (byte) 0x3F,
-        (byte) 0x00 };
+    byte[] expectedByte = new byte[]{(byte) 0x51, (byte) 0xC1, (byte) 0x3F,
+        (byte) 0x00};
     StrictBitVector a = new StrictBitVector(abyte, 16);
     StrictBitVector b = new StrictBitVector(bbyte, 16);
     StrictBitVector expected = new StrictBitVector(expectedByte, 32);
@@ -116,26 +116,27 @@ public class TestRot {
   @Test
   public void testComputePolyLinearCombination() {
     // 0 1 0 0 0 0 0 1, 1 1 1 1 1 1 1 1
-    byte[] abyte = new byte[] { (byte) 0x41, (byte) 0xFF };
+    byte[] abyte = new byte[]{(byte) 0x41, (byte) 0xFF};
     // Semantically equal to 1 as we read bits from left to right
     // 1 0 1 0 0 0 0 0
-    byte[] bbyte = new byte[] { (byte) 0xA0 };
+    byte[] bbyte = new byte[]{(byte) 0xA0};
     StrictBitVector a = new StrictBitVector(abyte, 16);
     StrictBitVector b = new StrictBitVector(bbyte, 8);
-    List<StrictBitVector> alist = new ArrayList<StrictBitVector>(2);
-    List<StrictBitVector> blist = new ArrayList<StrictBitVector>(2);
-    alist.add(a);
-    alist.add(b);
-    blist.add(b);
-    blist.add(a);
+    List<StrictBitVector> firstList = new ArrayList<StrictBitVector>(2);
+    List<StrictBitVector> secondList = new ArrayList<StrictBitVector>(2);
+    firstList.add(a);
+    firstList.add(b);
+    secondList.add(b);
+    secondList.add(a);
     // 0 1 0 0 0 0 0 1, 1 1 1 1 1 1 1 1, 0 0 0 0 0 0 0 0 XOR
     // 0 0 0 1 0 0 0 0, 0 1 1 1 1 1 1 1, 1 1 0 0 0 0 0 0 =
     // 0 1 0 1 0 0 0 1, 1 0 0 0 0 0 0 0, 1 1 0 0 0 0 0 0
-    byte[] expectedByte = new byte[] { (byte) 0x51, (byte) 0x80, (byte) 0xC0 };
+    byte[] expectedByte = new byte[]{(byte) 0x51, (byte) 0x80, (byte) 0xC0};
     StrictBitVector expected = new StrictBitVector(expectedByte, 24);
-    List<StrictBitVector> expectedlist = new ArrayList<>(2);
-    expectedlist.add(expected);
-    expectedlist.add(expected);
+    // TODO[TOR] This is not used?
+    List<StrictBitVector> expectedList = new ArrayList<>(2);
+    expectedList.add(expected);
+    expectedList.add(expected);
     StrictBitVector res = RotShared.multiplyWithoutReduction(a, b);
     assertEquals(true, expected.equals(res));
   }
@@ -143,9 +144,9 @@ public class TestRot {
   @Test
   public void testComputeBitLinearCombination() {
     // 0 1 0 0 0 0 0 1
-    byte[] abyteOne = new byte[] { (byte) 0x41 };
+    byte[] abyteOne = new byte[]{(byte) 0x41};
     // 0 1 1 1 1 1 1 1
-    byte[] abyteTwo = new byte[] { (byte) 0x7F };
+    byte[] abyteTwo = new byte[]{(byte) 0x7F};
     StrictBitVector zero = new StrictBitVector(8);
     StrictBitVector aone = new StrictBitVector(abyteOne, 8);
     StrictBitVector atwo = new StrictBitVector(abyteTwo, 8);
@@ -153,7 +154,7 @@ public class TestRot {
         Arrays.asList(aone, zero, zero, zero, zero, zero, zero, atwo));
     // Semantically equal to 1 as we read bits from left to right
     // 1 0 0 0 0 0 0 1
-    byte[] bbyte = new byte[] { (byte) 0x89 };
+    byte[] bbyte = new byte[]{(byte) 0x89};
     StrictBitVector b = new StrictBitVector(bbyte, 8);
     // 1 * (0 1 0 0 0 0 0 1) XOR
     // 0 * (0 0 0 0 0 0 0 0) XOR
@@ -164,7 +165,7 @@ public class TestRot {
     // 0 * (0 0 0 0 0 0 0 0) XOR
     // 1 * (0 1 1 1 1 1 1 1 =
     //      0 0 1 1 1 1 1 0
-    byte[] expectedByte = new byte[] { (byte) 0x3E };
+    byte[] expectedByte = new byte[]{(byte) 0x3E};
     StrictBitVector expected = new StrictBitVector(expectedByte, 8);
     StrictBitVector res = rot.getReceiver().computeBitLinearCombination(b,
         alist);
