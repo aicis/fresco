@@ -3,27 +3,28 @@ package dk.alexandra.fresco.tools.mascot.field;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 import java.math.BigInteger;
+import java.util.Objects;
 import java.util.function.BinaryOperator;
 
 
 public final class FieldElement implements Addable<FieldElement> {
 
-  final BigInteger value;
-  final BigInteger modulus;
-  final int bitLength;
+  private final BigInteger value;
+  private final BigInteger modulus;
+  private final int bitLength;
 
   /**
    * Creates new field element.
-   * 
+   *
    * @param value value of element
    * @param modulus modulus defining field
    * @param bitLength bit length of modulus
    */
   public FieldElement(BigInteger value, BigInteger modulus, int bitLength) {
-    sanityCheck(value, modulus, bitLength);
-    this.value = value;
-    this.modulus = modulus;
+    this.value = Objects.requireNonNull(value);
+    this.modulus = Objects.requireNonNull(modulus);
     this.bitLength = bitLength;
+    sanityCheck(value, modulus, bitLength);
   }
 
   public FieldElement(FieldElement other) {
@@ -53,15 +54,15 @@ public final class FieldElement implements Addable<FieldElement> {
   }
 
   public FieldElement add(FieldElement other) {
-    return binaryOp((l, r) -> l.add(r), this, other);
+    return binaryOp(BigInteger::add, this, other);
   }
 
   public FieldElement subtract(FieldElement other) {
-    return binaryOp((l, r) -> l.subtract(r), this, other);
+    return binaryOp(BigInteger::subtract, this, other);
   }
 
   public FieldElement multiply(FieldElement other) {
-    return binaryOp((l, r) -> l.multiply(r), this, other);
+    return binaryOp(BigInteger::multiply, this, other);
   }
 
   public FieldElement negate() {
@@ -84,7 +85,7 @@ public final class FieldElement implements Addable<FieldElement> {
   /**
    * Converts value into byte array. <br>
    * Result is guaranteed to exactly bitLength / 8 long.
-   * 
+   *
    * @return byte representation of value
    */
   public byte[] toByteArray() {
@@ -141,18 +142,10 @@ public final class FieldElement implements Addable<FieldElement> {
     if (bitLength != other.bitLength) {
       return false;
     }
-    if (modulus == null) {
-      if (other.modulus != null) {
-        return false;
-      }
-    } else if (!modulus.equals(other.modulus)) {
+    if (!modulus.equals(other.modulus)) {
       return false;
     }
-    if (value == null) {
-      if (other.value != null) {
-        return false;
-      }
-    } else if (!value.equals(other.value)) {
+    if (!value.equals(other.value)) {
       return false;
     }
     return true;
@@ -167,7 +160,7 @@ public final class FieldElement implements Addable<FieldElement> {
       throw new IllegalArgumentException("Cannot have negative modulus");
     } else if (modulus.bitLength() != bitLength) {
       throw new IllegalArgumentException("Modulus bit length must match bit length");
-    } else if (value.compareTo(modulus) != -1) {
+    } else if (value.compareTo(modulus) < 0) {
       throw new IllegalArgumentException("Value must be smaller than modulus");
     }
   }

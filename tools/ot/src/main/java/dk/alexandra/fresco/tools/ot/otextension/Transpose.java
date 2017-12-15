@@ -2,7 +2,6 @@ package dk.alexandra.fresco.tools.ot.otextension;
 
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -188,8 +187,14 @@ public class Transpose {
      * memory per iteration, to read a byte, rather than both reading and
      * writing to 8 bytes at different places in main memory.
      */
-    byte newRow0 = 0, newRow1 = 0, newRow2 = 0, newRow3 = 0, newRow4 = 0,
-        newRow5 = 0, newRow6 = 0, newRow7 = 0;
+    byte newRow0 = 0;
+    byte newRow1 = 0;
+    byte newRow2 = 0;
+    byte newRow3 = 0;
+    byte newRow4 = 0;
+    byte newRow5 = 0;
+    byte newRow6 = 0;
+    byte newRow7 = 0;
     for (int k = 0; k < 8; k++) {
       byte currentRow = input.get(rowOffset + k)[columnOffset / 8];
       /**
