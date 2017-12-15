@@ -1,22 +1,18 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
-
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Superclass containing the common variables and methods for the sender and
  * receiver parties of random OT extension.
- * 
+ *
  * @author jot2re
  *
  */
@@ -30,7 +26,7 @@ public class RotShared {
   /**
    * Constructs a random OT extension super-class using an underlying correlated
    * OT with errors object.
-   * 
+   *
    * @param cote
    *          The underlying correlated OT with errors
    */
@@ -72,7 +68,7 @@ public class RotShared {
    * All elements of both lists MUST have equal size! And both lists MUST
    * contain an equal amount of entries!
    * </p>
-   * 
+   *
    * @param alist
    *          The first input list, with all elements of equal size
    * @param blist
@@ -99,7 +95,7 @@ public class RotShared {
   /**
    * Computes the Galois product of two bit vectors, without reduction modulo a
    * reduction polynomial.
-   * 
+   *
    * @param avec
    *          The first bit vector
    * @param bvec
@@ -151,7 +147,7 @@ public class RotShared {
   /**
    * Shifts a bitvector "pos" positions by constructing a new StrictBitVector of
    * capacity "maxSize".
-   * 
+   *
    * @param in
    *          The bitvector to shift
    * @param pos
@@ -165,30 +161,25 @@ public class RotShared {
       dest.setBit(i + pos, in.getBit(i, false), false);
     }
   }
-  
+
   /**
    * Compute a SHA-256 digest of elements in a list, concatenated with their
    * index in the list. Only the first "size" elements of the list will be
    * hashed.
-   * 
+   *
    * @param input
    *          The list of StrictBitVector elements to hash. All elements MUST
    *          have same length
    * @param size
    *          The amount of elements of the list, to hash. Must be less than or
    *          equal to the amount of elements in the list.
+   * @param digest
+   *          THe generic digest for hashing
    * @return A list containing the hashed StrictBitVector as StrictBitVector
    *         objects
    */
   protected List<StrictBitVector> hashBitVector(List<StrictBitVector> input,
-      int size) {
-    MessageDigest digest = null;
-    try {
-      digest = MessageDigest.getInstance(hashAlgorithm);
-    } catch (NoSuchAlgorithmException e) {
-      throw new MPCException(
-          "Random OT extension failed. No malicious behaviour detected.", e);
-    }
+      int size, MessageDigest digest) {
     List<StrictBitVector> res = new ArrayList<>(size);
     // Allocate a buffer to contain the index of the value to hash along with
     // the value itself.
@@ -214,7 +205,7 @@ public class RotShared {
    * Agree on a list of "size" coin-tossed elements, represented by
    * StrictBitVectors. Each consisting of bits reflecting the computational
    * security used at initialization of this class
-   * 
+   *
    * @param size
    *          The amount of elements in the resultant list
    * @return The list of coin-tossed elements

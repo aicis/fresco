@@ -1,9 +1,10 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
 import dk.alexandra.fresco.framework.MaliciousException;
+import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-
+import java.security.MessageDigest;
 import java.util.List;
 
 /**
@@ -13,8 +14,10 @@ import java.util.List;
  *
  */
 public class RotSender extends RotShared {
+
+  private final MessageDigest digest;
   // The correlated OT with errors sender that this object will use
-  private CoteSender sender;
+  private final CoteSender sender;
 
   /**
    * Construct a sending party for an instance of the random OT extension
@@ -26,6 +29,10 @@ public class RotSender extends RotShared {
   public RotSender(CoteSender snd) {
     super(snd);
     sender = snd;
+
+    this.digest = ExceptionConverter.safe(
+        () -> MessageDigest.getInstance("SHA-256"),
+        "Cannot load hashing algorithm");
   }
 
   /**
@@ -99,15 +106,15 @@ public class RotSender extends RotShared {
     }
     // Remove the correlated of the first "size" messages by hashing for
     // choice-zero
-    List<StrictBitVector> vlistZero = hashBitVector(qlist, size);
+    List<StrictBitVector> vlistZero = hashBitVector(qlist, size, digest);
     // XOR the correlated into all the values from the underlying correlated OT
     // with error to compute the choice-one message
     for (int i = 0; i < size; i++) {
       qlist.get(i).xor(delta);
     }
     // Remove the correlated for the choice-one as well
-    List<StrictBitVector> vlistOne = hashBitVector(qlist, size);
-    Pair<List<StrictBitVector>, List<StrictBitVector>> res = 
+    List<StrictBitVector> vlistOne = hashBitVector(qlist, size, digest);
+    Pair<List<StrictBitVector>, List<StrictBitVector>> res =
         new Pair<List<StrictBitVector>, List<StrictBitVector>>(vlistZero, vlistOne);
     return res;
   }

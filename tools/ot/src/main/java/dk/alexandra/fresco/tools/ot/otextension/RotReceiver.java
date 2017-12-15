@@ -1,30 +1,35 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
+import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-
+import java.security.MessageDigest;
 import java.util.List;
 
 /**
  * Protocol class for the party acting as the receiver in an random OT extension
  * following the Bristol 2015 OT extension.
- * 
+ *
  * @author jot2re
  *
  */
 public class RotReceiver extends RotShared {
 
-  private CoteReceiver receiver;
+  private final CoteReceiver receiver;
+  private final MessageDigest digest;
 
   /**
    * Construct a receiving party for an instance of the random OT extension
    * protocol.
-   * 
+   *
    * @param rec
    *          The correlated OT with error receiver this protocol will use
    */
   public RotReceiver(CoteReceiver rec) {
     super(rec);
     this.receiver = rec;
+    this.digest = ExceptionConverter.safe(
+        () -> MessageDigest.getInstance("SHA-256"),
+        "Cannot load hashing algorithm");
   }
 
   /**
@@ -45,7 +50,7 @@ public class RotReceiver extends RotShared {
 
   /**
    * Constructs a new batch of random OTs.
-   * 
+   *
    * @param choices
    *          The receivers choices for this extension. This MUST have size
    *          8*2^x-kbitLength-getLambdaSecurityParam for some x >=0.
@@ -70,7 +75,7 @@ public class RotReceiver extends RotShared {
     StrictBitVector tvec = computeInnerProduct(chiList, tlist);
     getNetwork().send(getOtherId(), tvec.toByteArray());
     // Remove the correlation of the OTs by hashing
-    List<StrictBitVector> vvec = hashBitVector(tlist, choices.getSize());
+    List<StrictBitVector> vvec = hashBitVector(tlist, choices.getSize(), digest);
     return vvec;
   }
 
@@ -81,7 +86,7 @@ public class RotReceiver extends RotShared {
    * operation. <br/>
    * All elements of the list MUST have equal size! And both the list and vector
    * of indicator bits MUST contain an equal amount of entries!
-   * 
+   *
    * @param indicators
    *          The vector of indicator bits
    * @param list
