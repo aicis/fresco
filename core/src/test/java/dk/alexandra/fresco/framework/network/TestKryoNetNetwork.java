@@ -190,8 +190,10 @@ public class TestKryoNetNetwork {
   @Test
   public void testKryoNetConnectInterrupt() {
     Map<Integer, Party> parties = new HashMap<>();
+    List<Integer> ports = getFreePorts(2);
     parties.put(1, new Party(1, "localhost", 9000));
-    parties.put(2, new Party(2, "localhost", 9001));    
+    parties.put(2, new Party(2, "localhost", ports.get(1)));
+    List<Exception> exs = new ArrayList<>();
     Thread t1 = new Thread(new Runnable() {
       
       @Override
@@ -202,7 +204,7 @@ public class TestKryoNetNetwork {
           network = new KryoNetNetwork(conf);
           Assert.fail("Should not be able to connect");
         } catch (RuntimeException e) { 
-          //ignore
+          exs.add(e);
         } finally {
           try {
             if (network != null) {
@@ -220,6 +222,12 @@ public class TestKryoNetNetwork {
       t1.join(200);
       t1.interrupt();
       t1.join();
+      if (!exs.isEmpty()) {
+        if (exs.get(0).getCause() != null && !(exs.get(0).getCause() instanceof IOException)) {
+          exs.get(0).printStackTrace();
+          Assert.fail("Exception should not have a cause other than IOException");
+        }
+      }
     } catch (InterruptedException e) {
       Assert.fail("Threads should finish without main getting interrupted");
     }    

@@ -76,12 +76,11 @@ public class KryoNetNetwork implements Network, Closeable {
       this.queues.put(i, new ArrayBlockingQueue<>(1000));
     }
     
-    ExceptionConverter.safe(
-        () -> {
-          connect();
-          return null;
-        },
-        "Failed to connect to all parties");    
+    try {
+      connect();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to connect to all parties", e);
+    }
   }
 
   private static class ClientConnectThread extends Thread {
