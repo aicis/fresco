@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.framework.util;
 
-import java.security.GeneralSecurityException;
 import javax.crypto.Cipher;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.IvParameterSpec;
@@ -21,8 +20,8 @@ public class AesCtrDrbg implements Drbg {
    * Creates a new DRBG based on AES in counter mode.
    *
    * @param seed the seed for the DRBG. This must be a valid AES-128 key (i.e., must be 32 bytes
-   *        long)
-   * @throws IllegelArgumentException if seed is not of the correct length (32 bytes)
+   *     long)
+   * @throws IllegalArgumentException if seed is not of the correct length (32 bytes)
    */
   public AesCtrDrbg(byte[] seed) {
     if (seed.length != 32) {
@@ -33,7 +32,9 @@ public class AesCtrDrbg implements Drbg {
     byte[] iv = new byte[16];
     System.arraycopy(seed, 0, key, 0, 16);
     System.arraycopy(seed, 16, iv, 0, 16);
-    this.cipher = initCipher(key, iv);
+    this.cipher = ExceptionConverter.safe(() -> Cipher.getInstance("AES/CTR/NoPadding"),
+        "General exception in creating the cipher");
+    initCipher(key, iv);
     reseedCounter = 0;
     generatedBytes = 0;
   }
@@ -67,7 +68,7 @@ public class AesCtrDrbg implements Drbg {
    *
    * @param zeroes an array of zero bytes of length equal to output array.
    * @param output an array of size at most {@value #UPDATE_LIMIT} which will be filled with pseudo
-   *        random bytes.
+   *     random bytes.
    */
   void nextBytesBounded(byte[] zeroes, byte[] output) {
     if (generatedBytes + output.length > UPDATE_LIMIT) {
@@ -86,18 +87,14 @@ public class AesCtrDrbg implements Drbg {
    *
    * @param key the key
    * @param iv the iv
-   * @param c the cipher
    */
-  Cipher initCipher(byte[] key, byte[] iv) {
+  void initCipher(byte[] key, byte[] iv) {
     SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
     IvParameterSpec ivSpec = new IvParameterSpec(iv);
-    try {
-      Cipher c = Cipher.getInstance("AES/CTR/NoPadding");
-      c.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
-      return c;
-    } catch (GeneralSecurityException e) {
-      throw new IllegalArgumentException("Exception initilizing cipher", e);
-    }
+    ExceptionConverter.safe(() -> {
+      cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
+      return null;
+    }, "Exception in initializing the cipher");
   }
 
   /**
@@ -121,6 +118,6 @@ public class AesCtrDrbg implements Drbg {
     byte[] iv = new byte[16];
     nextBytes(iv);
     nextBytes(key);
-    this.cipher = initCipher(key, iv);
+    initCipher(key, iv);
   }
 }
