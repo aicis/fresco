@@ -2,6 +2,7 @@ package dk.alexandra.fresco.tools.ot.otextension;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
@@ -105,19 +106,47 @@ public class RotShared {
    *          The second bit vector
    * @return The product represented as a StrictBitVector
    */
-  protected static StrictBitVector multiplyWithoutReduction(StrictBitVector avec,
-      StrictBitVector bvec) {
-    StrictBitVector res = new StrictBitVector(avec.getSize() + bvec.getSize());
+  protected static StrictBitVector multiplyWithoutReduction(
+      StrictBitVector avec, StrictBitVector bvec) {
+    byte[] res = new byte[(avec.getSize() + bvec.getSize()) / 8];
+    byte[] avecBytes = avec.toByteArray();
+    byte[] bvecBytes = bvec.toByteArray();
+    // TODO automatically do it st we iterate over the smallest length
     for (int i = 0; i < avec.getSize(); i++) {
       // If the i'th bit of avec is 1 then we shift the bvec i positions and xor
       // the shifted bvec into the result vector, res
-      if (avec.getBit(i, false) == true) {
-        StrictBitVector temp = shiftArray(bvec, i, avec.getSize() + bvec.getSize());
-        res.xor(temp);
+      byte currentByte = (byte) (avecBytes[i / 8] >> (7 - (i % 8)));
+      if ((currentByte & 1) == 1) {
+        byte start = (byte) ((bvecBytes[0] << 24) >>> (24 + (i % 8)));
+        res[(i / 8) + 0] ^= start;
+        for (int j = 1; j < bvecBytes.length; j++) {
+          byte first = (byte) (bvecBytes[j - 1] << (8 - (i % 8)));
+          byte second = (byte) ((bvecBytes[j] << 24) >>> (24 + (i % 8)));
+          second ^= first;
+          res[(i / 8) + j] ^= second;
+        }
+        byte last = (byte) (bvecBytes[bvecBytes.length - 1] << (8 - (i % 8)));
+        res[(i / 8) + bvecBytes.length] ^= last;
       }
     }
-    return res;
+    return new StrictBitVector(res, avec.getSize() + bvec.getSize());
   }
+
+  // protected static StrictBitVector multiplyWithoutReduction(
+  // StrictBitVector avec, StrictBitVector bvec) {
+  // StrictBitVector res = new StrictBitVector(avec.getSize() + bvec.getSize());
+  // for (int i = 0; i < avec.getSize(); i++) {
+  // // If the i'th bit of avec is 1 then we shift the bvec i positions and xor
+  // // the shifted bvec into the result vector, res
+  // if (avec.getBit(i, false) == true) {
+  // StrictBitVector temp = new StrictBitVector(
+  // avec.getSize() + bvec.getSize());
+  // shiftArray(bvec, i, temp);
+  // res.xor(temp);
+  // }
+  // }
+  // return res;
+  // }
 
   /**
    * Shifts a bitvector "pos" positions by constructing a new StrictBitVector of
@@ -127,18 +156,14 @@ public class RotShared {
    *          The bitvector to shift
    * @param pos
    *          The amount of positions to shift
-   * @param maxSize
-   *          The size of the shifted bitvector. Must be at least the length of
-   *          "in" plus "pos"
-   * @return A new bitvector containing "in", shifted "pos" positions
+   * @param dest
+   *          The vector which the shifted bit vector should be stored
    */
-  private static StrictBitVector shiftArray(StrictBitVector in, int pos,
-      int maxSize) {
-    StrictBitVector res = new StrictBitVector(maxSize);
+  private static void shiftArray(StrictBitVector in, int pos,
+      StrictBitVector dest) {
     for (int i = 0; i < in.getSize(); i++) {
-      res.setBit(i + pos, in.getBit(i, false), false);
+      dest.setBit(i + pos, in.getBit(i, false), false);
     }
-    return res;
   }
   
   /**

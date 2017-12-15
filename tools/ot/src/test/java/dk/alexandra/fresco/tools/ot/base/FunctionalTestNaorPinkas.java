@@ -57,7 +57,7 @@ public class FunctionalTestNaorPinkas {
         TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     try {
       Drbg rand = new AesCtrDrbg(Constants.seedOne);
-      Ot otSender = new NaorPinkasOt(1, 2, rand, network);
+      Ot otSender = new NaorPinkasOt(1, 2, rand, network, staticParams);
       List<Pair<StrictBitVector, StrictBitVector>> messages = new ArrayList<>(
           iterations);
       for (int i = 0; i < iterations; i++) {
@@ -80,7 +80,7 @@ public class FunctionalTestNaorPinkas {
         TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     try {
       Drbg rand = new AesCtrDrbg(Constants.seedTwo);
-      Ot otReceiver = new NaorPinkasOt(2, 1, rand, network);
+      Ot otReceiver = new NaorPinkasOt(2, 1, rand, network, staticParams);
       List<StrictBitVector> messages = new ArrayList<>(choices.getSize());
       for (int i = 0; i < choices.getSize(); i++) {
         StrictBitVector message = otReceiver.receive(choices.getBit(i, false));

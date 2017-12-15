@@ -28,7 +28,7 @@ public class ByteArrayHelper {
     }
     // Get the byte with the "bit"'th bit, and shift it to the left-most
     // position of the byte
-    byte currentByte = (byte) (input[index / 8] >>> (7 - (index % 8)));
+    byte currentByte = (byte) (input[index / 8] >> (7 - (index % 8)));
     boolean choiceBit = false;
     if ((currentByte & 1) == 1) {
       choiceBit = true;

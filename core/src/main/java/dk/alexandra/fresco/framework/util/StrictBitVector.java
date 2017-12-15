@@ -219,9 +219,6 @@ public class StrictBitVector {
    * @throws IllegalArgumentException if the two BitVectors are not of equal size
    */
   public void xor(StrictBitVector other) {
-    if (other.getSize() != this.getSize()) {
-      throw new IllegalArgumentException("Vectors does not have same size");
-    }
     ByteArrayHelper.xor(bits, other.bits);
   }
 

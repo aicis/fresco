@@ -102,15 +102,17 @@ public class TestRot {
     // 0 1 0 0 0 0 0 1, 1 1 1 1 1 1 1 1
     byte[] abyte = new byte[] { (byte) 0x41, (byte) 0xFF };
     // Semantically equal to 1 as we read bits from left to right
-    // 1 0 1 0 0 0 0 0
-    byte[] bbyte = new byte[] { (byte) 0xA0 };
-    // 0 1 0 0 0 0 0 1, 1 1 1 1 1 1 1 1, 0 0 0 0 0 0 0 0 XOR
-    // 0 0 0 1 0 0 0 0, 0 1 1 1 1 1 1 1, 1 1 0 0 0 0 0 0 =
-    // 0 1 0 1 0 0 0 1, 1 0 0 0 0 0 0 0, 1 1 0 0 0 0 0 0
-    byte[] expectedByte = new byte[] { (byte) 0x51, (byte) 0x80, (byte) 0xC0 };
+    // 1 0 1 0 0 0 0 0, 1 0 0 0 0 0 0 0
+    byte[] bbyte = new byte[] { (byte) 0xA0, (byte) 0x80 };
+    // 0 1 0 0 0 0 0 1, 1 1 1 1 1 1 1 1, 0 0 0 0 0 0 0 0, 0 0 0 0 0 0 0 0 XOR
+    // 0 0 0 1 0 0 0 0, 0 1 1 1 1 1 1 1, 1 1 0 0 0 0 0 0, 0 0 0 0 0 0 0 0
+    // 0 0 0 0 0 0 0 0, 0 1 0 0 0 0 0 1, 1 1 1 1 1 1 1 1, 0 0 0 0 0 0 0 0 =
+    // 0 1 0 1 0 0 0 1, 1 1 0 0 0 0 0 1, 0 0 1 1 1 1 1 1, 0 0 0 0 0 0 0 0
+    byte[] expectedByte = new byte[] { (byte) 0x51, (byte) 0xC1, (byte) 0x3F,
+        (byte) 0x00 };
     StrictBitVector a = new StrictBitVector(abyte, 16);
-    StrictBitVector b = new StrictBitVector(bbyte, 8);
-    StrictBitVector expected = new StrictBitVector(expectedByte, 24);
+    StrictBitVector b = new StrictBitVector(bbyte, 16);
+    StrictBitVector expected = new StrictBitVector(expectedByte, 32);
     StrictBitVector res = RotShared.multiplyWithoutReduction(a, b);
     assertEquals(expected, res);
   }
