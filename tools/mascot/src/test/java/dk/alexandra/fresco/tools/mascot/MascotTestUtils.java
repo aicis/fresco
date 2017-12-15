@@ -37,4 +37,18 @@ public class MascotTestUtils {
     return input;
   }
 
+  /**
+   * Wraps field element so we can check equality on it.
+   * 
+   * @param element element to be wrapped
+   * @return wrapped element that has an equals method
+   */
+  public static FieldElementWrapper wrap(FieldElement element) {
+    return new FieldElementWrapper(element);
+  }
+  
+  public static List<FieldElementWrapper> wrap(List<FieldElement> elements) {
+    return elements.stream().map(MascotTestUtils::wrap).collect(Collectors.toList());
+  }
+  
 }

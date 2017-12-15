@@ -128,7 +128,6 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
         "Missing security hash function or PRG, which is dependent in this library");
     return new BristolRotBatch(getMyId(), otherId, getModBitLength(), getLambdaSecurityParam(),
         getRandomGenerator(), network, ot);
-
   }
 
   @Override
