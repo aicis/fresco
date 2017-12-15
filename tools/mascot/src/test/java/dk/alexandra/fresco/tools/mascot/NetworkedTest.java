@@ -42,6 +42,9 @@ public abstract class NetworkedTest {
     testRuntime = new TestRuntime();
   }
 
+  /**
+   * Closes all resources allocated for tests and shuts down test runtime.
+   */
   @After
   public void teardownRuntime() {
     if (testRuntime != null && testRuntime.isExecutorInitialized()) {

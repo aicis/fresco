@@ -20,8 +20,8 @@ public class TestMascotDemo {
       MascotDemo.main(new String[] {"2"});
       return null;
     };
-//    ExecutorService executor = Executors.newFixedThreadPool(2);
-//    executor.invokeAll(Arrays.asList(partyOne, partyTwo));
+    ExecutorService executor = Executors.newFixedThreadPool(2);
+    executor.invokeAll(Arrays.asList(partyOne, partyTwo));
   }
 
 }

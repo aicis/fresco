@@ -31,7 +31,7 @@ public class TestMacCheck extends NetworkedTest {
     return new Pair<>(thrown, exception);
   }
 
-  public void maliciousPartyOne(FieldElement opened, FieldElement macKeyShare,
+  private void maliciousPartyOne(FieldElement opened, FieldElement macKeyShare,
       FieldElement macShare) {
     // two parties run this
     initContexts(Arrays.asList(1, 2));
@@ -59,7 +59,7 @@ public class TestMacCheck extends NetworkedTest {
     }
   }
 
-  public void maliciousPartyTwo(FieldElement opened, FieldElement macKeyShare,
+  private void maliciousPartyTwo(FieldElement opened, FieldElement macKeyShare,
       FieldElement macShare) {
     // two parties run this
     initContexts(Arrays.asList(1, 2));
@@ -87,7 +87,7 @@ public class TestMacCheck extends NetworkedTest {
     }
   }
 
-  public void maliciousPartyThree(FieldElement opened, FieldElement macKeyShare,
+  private void maliciousPartyThree(FieldElement opened, FieldElement macKeyShare,
       FieldElement macShare) {
     initContexts(Arrays.asList(1, 2, 3));
 

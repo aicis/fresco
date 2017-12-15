@@ -155,7 +155,7 @@ public class TestTripleGeneration extends NetworkedTest {
     assertEquals(expected, actual);
   }
 
-  public void testMultiplePartiesTriple(List<FieldElement> macKeyShares, int numTriples,
+  private void testMultiplePartiesTriple(List<FieldElement> macKeyShares, int numTriples,
       BigInteger modulus, int modBitLength) {
     // define parties, one per mac key shares
     List<Integer> partyIds = new ArrayList<>(macKeyShares.size());
@@ -184,7 +184,7 @@ public class TestTripleGeneration extends NetworkedTest {
     }
   }
 
-  public void testMultiplePartiesTripleRepeated(List<FieldElement> macKeyShares, int numTriples,
+  private void testMultiplePartiesTripleRepeated(List<FieldElement> macKeyShares, int numTriples,
       int numIterations, BigInteger modulus, int modBitLength) {
     // define parties, one per mac key shares
     List<Integer> partyIds = new ArrayList<>(macKeyShares.size());
