@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.framework.util;
 
 import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,8 +37,6 @@ public class HmacDrbg implements Drbg {
    *
    * @param seeds The seeds used. If empty, the default 0 seed will be used. NB: This should happen
    *        only during testing as this is highly insecure.
-   * @throws NoSuchAlgorithmException If the default HmacSHA256 hash function is not found on the
-   *         system.
    */
   public HmacDrbg(byte[]... seeds) {
     this(null, seeds);
@@ -56,7 +53,6 @@ public class HmacDrbg implements Drbg {
    *        will be used. This should only be used in a test environment.
    * @param macSupplier The Mac to be used as the HMac hash function. Default is HMacSHA256. If
    *        null, this implementation will use the default value.
-   * @throws NoSuchAlgorithmException If the <code>algorithm</code> is not found on the system.
    */
   public HmacDrbg(Supplier<Mac> macSupplier, byte[]... seeds) {
     this.seeds = new ArrayList<byte[]>();

@@ -30,13 +30,13 @@ public class TestHmacDrbg {
     assertArrayEquals(randBytes1, randBytes2);
     assertFalse(Arrays.equals(randBytes1, randBytes3));
   }
-  
+
   @Test
   public void testDifferentAlgorithm() throws NoSuchAlgorithmException {
     byte[] bytes = new byte[]{0x10, 0x09, 0x01};
-    HmacDrbg rand1 = new HmacDrbg(bytes);    
+    HmacDrbg rand1 = new HmacDrbg(bytes);
     HmacDrbg rand2 = new HmacDrbg(new Supplier<Mac>() {
-      
+
       @Override
       public Mac get() {
         try {
@@ -55,12 +55,12 @@ public class TestHmacDrbg {
 
   @Test
   public void testNonExistingAlgorithm() throws NoSuchAlgorithmException {
-    String defaultAlg = HmacDrbg.DEFAULT_ALGORITHM;  
+    String defaultAlg = HmacDrbg.DEFAULT_ALGORITHM;
     HmacDrbg.DEFAULT_ALGORITHM = "BLA";
     try {
       new HmacDrbg();
       Assert.fail();
-    } catch (NoSuchAlgorithmException ex) {
+    } catch (RuntimeException ex) {
       HmacDrbg.DEFAULT_ALGORITHM = defaultAlg;
     }
   }
