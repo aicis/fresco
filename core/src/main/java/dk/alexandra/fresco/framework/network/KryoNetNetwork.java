@@ -234,13 +234,7 @@ public class KryoNetNetwork implements Network, Closeable {
     this.server.stop();
 
     for (Thread t : clientThreads) {
-      t.interrupt();
-      try {
-        t.join();
-      } catch (InterruptedException e) {
-        logger.error("Got interrupted while waiting for internal threads to shutdown");
-        //Ignore - nothing to do about this
-      }
+      t.interrupt();      
     }
 
     for (int i = 1; i <= conf.noOfParties(); i++) {

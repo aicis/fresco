@@ -190,9 +190,8 @@ public class TestKryoNetNetwork {
   @Test
   public void testKryoNetConnectInterrupt() {
     Map<Integer, Party> parties = new HashMap<>();
-    List<Integer> ports = getFreePorts(2);
-    parties.put(1, new Party(1, "localhost", ports.get(0)));
-    parties.put(2, new Party(2, "localhost", ports.get(1)));    
+    parties.put(1, new Party(1, "localhost", 9000));
+    parties.put(2, new Party(2, "localhost", 9001));    
     Thread t1 = new Thread(new Runnable() {
       
       @Override
@@ -228,14 +227,16 @@ public class TestKryoNetNetwork {
   
   @Test
   public void testPartiesReconnect() {
-    testMultiplePartiesReconnect(2, 100);
-    testMultiplePartiesReconnect(3, 50);
-    testMultiplePartiesReconnect(5, 50);
+    List<Integer> ports = getFreePorts(5);
+    testMultiplePartiesReconnect(2, 100, ports.subList(0, 2));
+    testMultiplePartiesReconnect(3, 50, ports.subList(0, 3));
+    testMultiplePartiesReconnect(5, 50, ports);
   }
   
-  private void testMultiplePartiesReconnect(int noOfParties, int noOfRetries) {    
+  private void testMultiplePartiesReconnect(int noOfParties, int noOfRetries, 
+      List<Integer> ports) {    
     Map<Integer, Party> parties = new HashMap<>();
-    List<Integer> ports = getFreePorts(noOfParties);
+    
     for (int i = 1; i <= noOfParties; i++) {
       parties.put(i, new Party(i, "localhost", ports.get(i - 1)));
     }    
