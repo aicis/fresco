@@ -2,6 +2,7 @@ package dk.alexandra.fresco.tools.mascot.arithm;
 
 import static org.junit.Assert.assertEquals;
 
+import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import java.math.BigInteger;
@@ -20,8 +21,9 @@ public class TestCollectionUtils {
     int[][] actualRows = {{1, 4, 7, 10}, {2, 5, 8, 11}, {3, 6, 9, 12}};
     List<List<FieldElement>> expected =
         MascotTestUtils.generateMatrix(actualRows, new BigInteger("251"), 8);
+    
     List<List<FieldElement>> actual = CollectionUtils.transpose(mat);
-    assertEquals(expected, actual);
+    CustomAsserts.assertMatrixEquals(expected, actual);
   }
 
   @Test

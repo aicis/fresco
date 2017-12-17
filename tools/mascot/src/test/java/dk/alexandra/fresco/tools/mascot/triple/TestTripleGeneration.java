@@ -1,13 +1,10 @@
 package dk.alexandra.fresco.tools.mascot.triple;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import dk.alexandra.fresco.tools.mascot.MascotTestContext;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
-import dk.alexandra.fresco.tools.mascot.TripleValidator;
 import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
@@ -21,12 +18,12 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
 
+import org.hamcrest.collection.IsCollectionWithSize;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class TestTripleGeneration extends NetworkedTest {
 
-  private TripleValidator tripleValidator = new TripleValidator();
-  
   private FieldElementPrg getJointPrg(int prgSeedLength) {
     return new FieldElementPrgImpl(new StrictBitVector(prgSeedLength, new Random(1)));
   }
@@ -61,8 +58,6 @@ public class TestTripleGeneration extends NetworkedTest {
     // configure number of left factors
     this.numLeftFactors = 1;
     initContexts(Arrays.asList(1, 2));
-    System.out.println(contexts.get(1)
-        .getNumLeftFactors());
 
     // left party mac key share
     FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), modulus, modBitLength);
@@ -94,15 +89,13 @@ public class TestTripleGeneration extends NetworkedTest {
 
     List<List<FieldElement>> results =
         testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
-    FieldElement left = results.get(0)
-        .get(0);
-    FieldElement right = results.get(1)
-        .get(0);
+    FieldElement left = results.get(0).get(0);
+    FieldElement right = results.get(1).get(0);
 
     // (12 + 123) * (11 + 2222) % 65521
     FieldElement expected = new FieldElement(39371, modulus, modBitLength);
     FieldElement actual = left.add(right);
-    assertEquals(expected, actual);
+    CustomAsserts.assertEquals(expected, actual);
   }
 
   @Test
@@ -152,7 +145,7 @@ public class TestTripleGeneration extends NetworkedTest {
 
     // actual results, recombined
     List<FieldElement> actual = CollectionUtils.pairWiseSum(results);
-    assertEquals(expected, actual);
+    CustomAsserts.assertEquals(expected, actual);
   }
 
   private void testMultiplePartiesTriple(List<FieldElement> macKeyShares, int numTriples,
@@ -178,9 +171,9 @@ public class TestTripleGeneration extends NetworkedTest {
 
     List<List<MultTriple>> results = testRuntime.runPerPartyTasks(tasks);
     List<MultTriple> combined = CollectionUtils.pairWiseSum(results);
+    Assert.assertThat(combined, IsCollectionWithSize.hasSize(numTriples));
     for (MultTriple triple : combined) {
-      assertTrue(tripleValidator.tripleIsValidProduct(triple));
-      assertTrue(tripleValidator.tripleMacIsValid(triple, CollectionUtils.sum(macKeyShares)));
+      CustomAsserts.assertTripleIsValid(triple, CollectionUtils.sum(macKeyShares));
     }
   }
 
@@ -207,9 +200,9 @@ public class TestTripleGeneration extends NetworkedTest {
 
     List<List<MultTriple>> results = testRuntime.runPerPartyTasks(tasks);
     List<MultTriple> combined = CollectionUtils.pairWiseSum(results);
+    Assert.assertThat(combined, IsCollectionWithSize.hasSize(numTriples * numIterations));
     for (MultTriple triple : combined) {
-      assertTrue(tripleValidator.tripleIsValidProduct(triple));
-      assertTrue(tripleValidator.tripleMacIsValid(triple, CollectionUtils.sum(macKeyShares)));
+      CustomAsserts.assertTripleIsValid(triple, CollectionUtils.sum(macKeyShares));
     }
   }
 

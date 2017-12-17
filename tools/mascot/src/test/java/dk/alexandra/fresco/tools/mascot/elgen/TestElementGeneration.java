@@ -1,16 +1,5 @@
 package dk.alexandra.fresco.tools.mascot.elgen;
 
-import static org.junit.Assert.assertEquals;
-
-import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.MascotTestContext;
-import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
-import dk.alexandra.fresco.tools.mascot.NetworkedTest;
-import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
-import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,6 +12,17 @@ import java.util.stream.Stream;
 
 import org.junit.Test;
 
+import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.mascot.CustomAsserts;
+import dk.alexandra.fresco.tools.mascot.MascotTestContext;
+import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
+import dk.alexandra.fresco.tools.mascot.NetworkedTest;
+import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
+import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
+import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
+import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
+
 
 public class TestElementGeneration extends NetworkedTest {
 
@@ -32,8 +32,7 @@ public class TestElementGeneration extends NetworkedTest {
         new FieldElementPrgImpl(new StrictBitVector(ctx.getPrgSeedLength(), new Random(1)));
     ElementGeneration elGen =
         new ElementGeneration(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare, jointSampler);
-    int perRoundInputs = inputs.get(0)
-        .size();
+    int perRoundInputs = inputs.get(0).size();
     List<AuthenticatedElement> elements = new ArrayList<>(perRoundInputs * inputs.size());
     for (List<FieldElement> roundInput : inputs) {
       List<AuthenticatedElement> thisRoundResult = elGen.input(roundInput);
@@ -106,12 +105,12 @@ public class TestElementGeneration extends NetworkedTest {
 
     FieldElement expectedRecomb = new FieldElement(7, modulus, modBitLength);
     FieldElement expectedMacRecomb = new FieldElement(1608, modulus, modBitLength);
-    
+
     AuthenticatedElement expected =
         new AuthenticatedElement(expectedRecomb, expectedMacRecomb, modulus, modBitLength);
     AuthenticatedElement actual = leftShare.add(rightShare);
 
-    assertEquals(expected, actual);
+    CustomAsserts.assertEquals(expected, actual);
   }
 
   @Test
@@ -152,7 +151,7 @@ public class TestElementGeneration extends NetworkedTest {
         new AuthenticatedElement(expectedRecomb, expectedMacRecomb, modulus, modBitLength);
     AuthenticatedElement actual = leftShare.add(rightShare);
 
-    assertEquals(expected, actual);
+    CustomAsserts.assertEquals(expected, actual);
   }
 
   @Test
@@ -189,7 +188,7 @@ public class TestElementGeneration extends NetworkedTest {
     List<AuthenticatedElement> expected =
         computeExpected(inputs, macKeyShares, modulus, modBitLength);
 
-    assertEquals(expected, actual);
+    CustomAsserts.assertEqualsAuth(expected, actual);
   }
 
   @Test
@@ -220,7 +219,7 @@ public class TestElementGeneration extends NetworkedTest {
     List<AuthenticatedElement> expected =
         computeExpected(inputs, macKeyShares, modulus, modBitLength);
 
-    assertEquals(expected, actual);
+    CustomAsserts.assertEqualsAuth(expected, actual);
   }
 
   @Test
@@ -236,8 +235,7 @@ public class TestElementGeneration extends NetworkedTest {
     int[][] inputArr = {{70}, {12}, {123}};
     List<List<FieldElement>> inputs =
         MascotTestUtils.generateMatrix(inputArr, modulus, modBitLength);
-    int numInputsPerRound = inputs.get(0)
-        .size();
+    int numInputsPerRound = inputs.get(0).size();
     int numRounds = inputs.size();
 
     // define task each party will run
@@ -253,13 +251,12 @@ public class TestElementGeneration extends NetworkedTest {
 
     List<AuthenticatedElement> actual = CollectionUtils.pairWiseSum(results);
     List<FieldElement> macKeyShares = Arrays.asList(macKeyShareOne, macKeyShareTwo);
-    List<FieldElement> flatInputs = inputs.stream()
-        .flatMap(l -> l.stream())
-        .collect(Collectors.toList());
+    List<FieldElement> flatInputs =
+        inputs.stream().flatMap(l -> l.stream()).collect(Collectors.toList());
     List<AuthenticatedElement> expected =
         computeExpected(flatInputs, macKeyShares, modulus, modBitLength);
 
-    assertEquals(expected, actual);
+    CustomAsserts.assertEqualsAuth(expected, actual);
   }
 
   // util methods
@@ -267,11 +264,10 @@ public class TestElementGeneration extends NetworkedTest {
   private List<AuthenticatedElement> computeExpected(List<FieldElement> inputs,
       List<FieldElement> macKeyShares, BigInteger modulus, int modBitLength) {
     FieldElement macKey = CollectionUtils.sum(macKeyShares);
-    Stream<AuthenticatedElement> expected = inputs.stream()
-        .map(fe -> {
-          FieldElement mac = fe.multiply(macKey);
-          return new AuthenticatedElement(fe, mac, modulus, modBitLength);
-        });
+    Stream<AuthenticatedElement> expected = inputs.stream().map(fe -> {
+      FieldElement mac = fe.multiply(macKey);
+      return new AuthenticatedElement(fe, mac, modulus, modBitLength);
+    });
     return expected.collect(Collectors.toList());
   }
 

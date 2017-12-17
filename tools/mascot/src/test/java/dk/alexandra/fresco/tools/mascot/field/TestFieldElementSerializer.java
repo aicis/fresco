@@ -3,6 +3,7 @@ package dk.alexandra.fresco.tools.mascot.field;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ public class TestFieldElementSerializer {
     List<FieldElement> expected =
         MascotTestUtils.generateSingleRow(expectedArr, modulus, modBitLength);
     List<FieldElement> actual = serializer.deserializeList(serialized);
-    assertEquals(expected, actual);
+    CustomAsserts.assertEquals(expected, actual);
   }
 
   @Test
@@ -55,7 +56,7 @@ public class TestFieldElementSerializer {
     int[] arr = {1, 42, 777, 111};
     List<FieldElement> elements = MascotTestUtils.generateSingleRow(arr, modulus, modBitLength);
     List<FieldElement> actual = serializer.deserializeList(serializer.serialize(elements));
-    assertEquals(elements, actual);
+    CustomAsserts.assertEquals(elements, actual);
   }
 
   // Negative tests
@@ -72,6 +73,5 @@ public class TestFieldElementSerializer {
     byte[] serialized = {0x00, 0x01, 0x00, 0x02, 0x00, 0x03, 0x00, 0x04, 0x00};
     serializer.deserializeList(serialized);
   }
-
 
 }

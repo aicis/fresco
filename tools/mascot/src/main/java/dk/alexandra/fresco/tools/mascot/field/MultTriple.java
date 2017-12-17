@@ -36,11 +36,6 @@ public class MultTriple implements Addable<MultTriple> {
   }
 
   @Override
-  public String toString() {
-    return "MultTriple [left=" + left + ", right=" + right + ", product=" + product + "]";
-  }
-
-  @Override
   public MultTriple add(MultTriple other) {
     AuthenticatedElement leftSum = left.add(other.left);
     AuthenticatedElement rightSum = right.add(other.right);

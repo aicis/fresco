@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.tools.mascot.cope;
 
-import static org.junit.Assert.assertEquals;
-
+import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import dk.alexandra.fresco.tools.mascot.MascotTestContext;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
@@ -57,9 +56,8 @@ public class TestCope extends NetworkedTest {
     List<FieldElement> rightResults = results.get(1);
 
     FieldElement expected = macKeyShare.multiply(input);
-    FieldElement actual = leftResults.get(0)
-        .add(rightResults.get(0));
-    assertEquals(expected, actual);
+    FieldElement actual = leftResults.get(0).add(rightResults.get(0));
+    CustomAsserts.assertEquals(expected, actual);
   }
 
   void testBatchedExtend(int lambdaSecurityParam) {
@@ -92,18 +90,17 @@ public class TestCope extends NetworkedTest {
         MascotTestUtils.generateSingleRow(expectedArr, modulus, modBitLength);
 
     List<FieldElement> actual = IntStream.range(0, expected.size())
-        .mapToObj(idx -> leftResults.get(idx)
-            .add(rightResults.get(idx)))
+        .mapToObj(idx -> leftResults.get(idx).add(rightResults.get(idx)))
         .collect(Collectors.toList());
 
-    assertEquals(expected, actual);
+    CustomAsserts.assertEquals(expected, actual);
   }
 
   @Test
   public void testEqualSecParamAndBitLength() {
     testBatchedExtend(this.lambdaSecurityParam);
   }
-  
+
   @Test
   public void testUnequalSecParamAndBitLength() {
     testBatchedExtend(24);

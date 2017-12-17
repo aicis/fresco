@@ -1,11 +1,13 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
-import static dk.alexandra.fresco.tools.mascot.MascotTestUtils.wrap;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.FieldElementWrapper;
+import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import java.math.BigInteger;
+
 import org.junit.Test;
 
 public class TestFieldElement {
@@ -21,9 +23,9 @@ public class TestFieldElement {
     FieldElement elTwo = new FieldElement(11, modulus, bitLength);
     FieldElement elThree = new FieldElement(elTwo);
     FieldElement elFour = new FieldElement("11", "251", bitLength);
-    assertEquals(wrap(elOne), wrap(elTwo));
-    assertEquals(wrap(elOne), wrap(elThree));
-    assertEquals(wrap(elOne), wrap(elFour));
+    CustomAsserts.assertEquals(elOne, elTwo);
+    CustomAsserts.assertEquals(elOne, elThree);
+    CustomAsserts.assertEquals(elOne, elFour);
   }
 
   @Test
@@ -31,14 +33,14 @@ public class TestFieldElement {
     FieldElement elOne = new FieldElement(22, modulus, bitLength);
     FieldElement elTwo = new FieldElement(11, modulus, bitLength);
     FieldElement expected = new FieldElement(33, modulus, bitLength);
-    FieldElementWrapper.assertEquals(expected, elOne.add(elTwo));
+    CustomAsserts.assertEquals(expected, elOne.add(elTwo));
   }
 
   @Test
   public void testPow() {
     FieldElement elOne = new FieldElement(22, modulus, bitLength);
     FieldElement expected = new FieldElement(233, modulus, bitLength);
-    assertEquals(wrap(expected), wrap(elOne.pow(2)));
+    CustomAsserts.assertEquals(expected, elOne.pow(2));
   }
 
   @Test
@@ -46,7 +48,7 @@ public class TestFieldElement {
     FieldElement elOne = new FieldElement(22, modulus, bitLength);
     FieldElement elTwo = new FieldElement(11, modulus, bitLength);
     FieldElement expected = new FieldElement(11, modulus, bitLength);
-    assertEquals(wrap(expected), wrap(elOne.subtract(elTwo)));
+    CustomAsserts.assertEquals(expected, elOne.subtract(elTwo));
   }
 
   @Test
@@ -54,16 +56,24 @@ public class TestFieldElement {
     FieldElement elOne = new FieldElement(22, modulus, bitLength);
     FieldElement elTwo = new FieldElement(11, modulus, bitLength);
     FieldElement expected = new FieldElement(242, modulus, bitLength);
-    assertEquals(wrap(expected), wrap(elOne.multiply(elTwo)));
+    CustomAsserts.assertEquals(expected, elOne.multiply(elTwo));
   }
 
   @Test
   public void testNegate() {
     FieldElement elOne = new FieldElement(22, modulus, bitLength);
     FieldElement expected = new FieldElement(229, modulus, bitLength);
-    assertEquals(wrap(expected), wrap(elOne.negate()));
+    CustomAsserts.assertEquals(expected, elOne.negate());
   }
 
+  @Test
+  public void testIsZero() {
+    FieldElement zero = new FieldElement(0, modulus, bitLength);
+    FieldElement notZero = new FieldElement(1, modulus, bitLength);
+    assertTrue(zero.isZero());
+    assertFalse(notZero.isZero());
+  }
+  
   @Test
   public void testToBigInteger() {
     assertEquals(new BigInteger("22"), new FieldElement(22, modulus, bitLength).toBigInteger());
@@ -78,9 +88,9 @@ public class TestFieldElement {
   @Test
   public void testSelect() {
     FieldElement el = new FieldElement(22, modulus, bitLength);
-    assertEquals(wrap(el), wrap(el.select(true)));
-    assertEquals(wrap(new FieldElement(BigInteger.ZERO, modulus, bitLength)),
-        wrap(el.select(false)));
+    CustomAsserts.assertEquals(el, el.select(true));
+    CustomAsserts.assertEquals(new FieldElement(BigInteger.ZERO, modulus, bitLength),
+        el.select(false));
   }
 
   @Test
@@ -115,7 +125,7 @@ public class TestFieldElement {
     FieldElement el = new FieldElement("777", "65521", 16);
     StrictBitVector bv = el.toBitVector();
     FieldElement actual = new FieldElement(bv.toByteArray(), new BigInteger("65521"), 16);
-    assertEquals(wrap(el), wrap(actual));
+    CustomAsserts.assertEquals(el, actual);
   }
 
   @Test

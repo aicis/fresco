@@ -56,45 +56,6 @@ public class AuthenticatedElement implements Addable<AuthenticatedElement> {
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    AuthenticatedElement other = (AuthenticatedElement) obj;
-    if (mac == null) {
-      if (other.mac != null) {
-        return false;
-      }
-    } else if (!mac.equals(other.mac)) {
-      return false;
-    }
-    if (modBitLength != other.modBitLength) {
-      return false;
-    }
-    if (modulus == null) {
-      if (other.modulus != null) {
-        return false;
-      }
-    } else if (!modulus.equals(other.modulus)) {
-      return false;
-    }
-    if (share == null) {
-      if (other.share != null) {
-        return false;
-      }
-    } else if (!share.equals(other.share)) {
-      return false;
-    }
-    return true;
-  }
-
-  @Override
   public String toString() {
     return "AuthenticatedElement [share=" + share + ", mac=" + mac + ", modulus=" + modulus
         + ", modBitLength=" + modBitLength + "]";

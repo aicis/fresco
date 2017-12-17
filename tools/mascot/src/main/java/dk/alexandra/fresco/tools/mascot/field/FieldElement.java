@@ -6,7 +6,6 @@ import java.math.BigInteger;
 import java.util.Objects;
 import java.util.function.BinaryOperator;
 
-
 public final class FieldElement implements Addable<FieldElement> {
 
   private final BigInteger value;
@@ -82,6 +81,10 @@ public final class FieldElement implements Addable<FieldElement> {
     return bit ? this : new FieldElement(BigInteger.ZERO, modulus, bitLength);
   }
 
+  public boolean isZero() {
+    return value.equals(BigInteger.ZERO);
+  }
+  
   /**
    * Converts value into byte array. <br>
    * Result is guaranteed to exactly bitLength / 8 long.
@@ -119,30 +122,6 @@ public final class FieldElement implements Addable<FieldElement> {
   public String toString() {
     return "FieldElement [value=" + value + ", modulus=" + modulus + ", bitLength=" + bitLength
         + "]";
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    FieldElement other = (FieldElement) obj;
-    if (bitLength != other.bitLength) {
-      return false;
-    }
-    if (!modulus.equals(other.modulus)) {
-      return false;
-    }
-    if (!value.equals(other.value)) {
-      return false;
-    }
-    return true;
   }
 
   private void sanityCheck(BigInteger value, BigInteger modulus, int bitLength) {

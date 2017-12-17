@@ -36,8 +36,7 @@ public class MacCheck extends CommitmentBasedProtocol<FieldElement> {
     FieldElement sigmaSum = CollectionUtils.sum(sigmas);
 
     // sum of sigmas must be 0
-    FieldElement zero = new FieldElement(0, getModulus(), getModBitLength());
-    if (!zero.equals(sigmaSum)) {
+    if (!sigmaSum.isZero()) {
       throw new MaliciousException("Malicious mac forging detected");
     }
   }

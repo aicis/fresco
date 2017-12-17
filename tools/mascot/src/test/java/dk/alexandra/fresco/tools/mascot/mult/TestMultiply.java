@@ -2,6 +2,7 @@ package dk.alexandra.fresco.tools.mascot.mult;
 
 import static org.junit.Assert.assertEquals;
 
+import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import dk.alexandra.fresco.tools.mascot.MascotTestContext;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
@@ -64,7 +65,7 @@ public class TestMultiply extends NetworkedTest {
     FieldElement actual = left.add(right);
     FieldElement expected = leftInput.multiply(rightInput);
 
-    assertEquals(expected, actual);
+    CustomAsserts.assertEquals(expected, actual);
   }
 
   @Test
@@ -96,11 +97,10 @@ public class TestMultiply extends NetworkedTest {
 
     List<FieldElement> expected = Arrays.asList(leftInputOne.multiply(rightInput),
         leftInputTwo.multiply(rightInput), leftInputThree.multiply(rightInput));
-    List<FieldElement> actual = IntStream.range(0, 3)
-        .mapToObj(idx -> leftResults.get(idx)
-            .add(rightResults.get(idx)))
-        .collect(Collectors.toList());
-    assertEquals(expected, actual);
+    List<FieldElement> actual =
+        IntStream.range(0, 3).mapToObj(idx -> leftResults.get(idx).add(rightResults.get(idx)))
+            .collect(Collectors.toList());
+    CustomAsserts.assertEquals(expected, actual);
   }
 
   @Test
@@ -132,12 +132,11 @@ public class TestMultiply extends NetworkedTest {
     // expected result is pair-wise products
     int[] prods = {70 * 1, 12 * 2, 123 * 3};
     List<FieldElement> expected = MascotTestUtils.generateSingleRow(prods, modulus, modBitLength);
-    List<FieldElement> actual = IntStream.range(0, 3)
-        .mapToObj(idx -> leftResults.get(idx)
-            .add(rightResults.get(idx)))
-        .collect(Collectors.toList());
+    List<FieldElement> actual =
+        IntStream.range(0, 3).mapToObj(idx -> leftResults.get(idx).add(rightResults.get(idx)))
+            .collect(Collectors.toList());
 
-    assertEquals(expected, actual);
+    CustomAsserts.assertEquals(expected, actual);
   }
 
   @Test
@@ -167,16 +166,15 @@ public class TestMultiply extends NetworkedTest {
     List<FieldElement> leftResults = results.get(0);
     List<FieldElement> rightResults = results.get(1);
 
-    // TODO: should have assertions on results dimensions
-    // expected result is pair-wise products
     int[] prods = {70 * 1, 71 * 1, 72 * 1, 12 * 2, 13 * 2, 14 * 2, 123 * 3, 124 * 3, 125 * 3};
     List<FieldElement> expected = MascotTestUtils.generateSingleRow(prods, modulus, modBitLength);
+    assertEquals(expected.size(), leftResults.size());
+    assertEquals(expected.size(), rightResults.size());
     List<FieldElement> actual = IntStream.range(0, expected.size())
-        .mapToObj(idx -> leftResults.get(idx)
-            .add(rightResults.get(idx)))
+        .mapToObj(idx -> leftResults.get(idx).add(rightResults.get(idx)))
         .collect(Collectors.toList());
 
-    assertEquals(expected, actual);
+    CustomAsserts.assertEquals(expected, actual);
   }
 
   @Test
@@ -209,11 +207,10 @@ public class TestMultiply extends NetworkedTest {
 
     List<FieldElement> expected = Arrays.asList(leftInputOne.multiply(rightInput),
         leftInputTwo.multiply(rightInput), leftInputThree.multiply(rightInput));
-    List<FieldElement> actual = IntStream.range(0, 3)
-        .mapToObj(idx -> leftResults.get(idx)
-            .add(rightResults.get(idx)))
-        .collect(Collectors.toList());
-    assertEquals(expected, actual);
+    List<FieldElement> actual =
+        IntStream.range(0, 3).mapToObj(idx -> leftResults.get(idx).add(rightResults.get(idx)))
+            .collect(Collectors.toList());
+    CustomAsserts.assertEquals(expected, actual);
   }
 
   void testManyMults(int numMults, int lambdaSecurityParam) {
@@ -241,7 +238,7 @@ public class TestMultiply extends NetworkedTest {
     List<FieldElement> actual = CollectionUtils.pairWiseSum(results);
     List<FieldElement> expected =
         FieldElementCollectionUtils.pairWiseMultiply(leftInputs, rightInputs);
-    assertEquals(expected, actual);
+    CustomAsserts.assertEquals(expected, actual);
   }
 
   @Test
@@ -253,5 +250,5 @@ public class TestMultiply extends NetworkedTest {
   public void testManyMultsLambdaNotEqualModBitLength() {
     testManyMults(2, 24);
   }
-  
+
 }

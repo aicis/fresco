@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.tools.mascot;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
@@ -17,23 +16,22 @@ import org.junit.Test;
 
 public class TestMascot extends NetworkedTest {
 
-  private TripleValidator tripleValidator = new TripleValidator();
   private final FieldElement macKeyShareOne = new FieldElement(11231, modulus, modBitLength);
   private final FieldElement macKeyShareTwo = new FieldElement(7719, modulus, modBitLength);
 
-  
+
   public List<MultTriple> runTripleGen(MascotTestContext ctx, FieldElement macKeyShare,
       int numTriples) {
     Mascot mascot = new Mascot(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare);
     return mascot.getTriples(numTriples);
   }
-  
+
   public List<AuthenticatedElement> runInputter(MascotTestContext ctx, FieldElement macKeyShare,
       List<FieldElement> inputs) {
     Mascot mascot = new Mascot(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare);
     return mascot.getElements(inputs);
   }
-  
+
   public List<AuthenticatedElement> runNonInputter(MascotTestContext ctx, FieldElement macKeyShare,
       Integer inputterId, int numInputs) {
     Mascot mascot = new Mascot(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare);
@@ -55,18 +53,17 @@ public class TestMascot extends NetworkedTest {
     assertEquals(results.get(1).size(), 1);
     List<MultTriple> combined = CollectionUtils.pairWiseSum(results);
     for (MultTriple triple : combined) {
-      assertTrue(tripleValidator.tripleIsValidProduct(triple));
-      assertTrue(tripleValidator.tripleMacIsValid(triple, macKeyShareOne.add(macKeyShareTwo)));
+      CustomAsserts.assertTripleIsValid(triple, macKeyShareOne.add(macKeyShareTwo));
     }
   }
-  
+
   @Test
   public void testGetElements() {
     // set up runtime environment and get contexts
     initContexts(Arrays.asList(1, 2));
 
     FieldElement input = new FieldElement(12345, modulus, modBitLength);
-    
+
     // define per party task with params
     List<Callable<List<AuthenticatedElement>>> tasks = new ArrayList<>();
     tasks.add(() -> runInputter(contexts.get(1), macKeyShareOne, Collections.singletonList(input)));
@@ -78,9 +75,9 @@ public class TestMascot extends NetworkedTest {
     List<AuthenticatedElement> combined = CollectionUtils.pairWiseSum(results);
     FieldElement actualRecombinedValue = combined.get(0).getShare();
     FieldElement actualRecombinedMac = combined.get(0).getMac();
-    assertEquals(input, actualRecombinedValue);
+    CustomAsserts.assertEquals(input, actualRecombinedValue);
     FieldElement expectedMac = input.multiply(macKeyShareOne.add(macKeyShareTwo));
-    assertEquals(expectedMac, actualRecombinedMac);
+    CustomAsserts.assertEquals(expectedMac, actualRecombinedMac);
   }
 
 }

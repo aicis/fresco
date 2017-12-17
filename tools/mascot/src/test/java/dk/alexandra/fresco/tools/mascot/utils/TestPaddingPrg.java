@@ -1,9 +1,11 @@
 package dk.alexandra.fresco.tools.mascot.utils;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -11,7 +13,7 @@ import java.util.Random;
 
 import org.junit.Test;
 
-
+// TODO a test that asserts the that result looks "random" as a sanity check?
 public class TestPaddingPrg {
 
   private final BigInteger modulus = new BigInteger("340282366920938463463374607431768211297");
@@ -36,7 +38,8 @@ public class TestPaddingPrg {
     FieldElementPrg prg = new FieldElementPrgImpl(seed);
     FieldElement elOne = prg.getNext(modulus, modBitLength);
     FieldElement elTwo = prg.getNext(modulus, modBitLength);
-    assertNotEquals(elOne, elTwo);
+    // not equals, without actually using equals
+    assertFalse(elOne.subtract(elTwo).isZero());
   }
 
   @Test
@@ -49,7 +52,7 @@ public class TestPaddingPrg {
     FieldElementPrg prgTwo = new FieldElementPrgImpl(seedOther);
     FieldElement elOne = prgOne.getNext(modulus, modBitLength);
     FieldElement elTwo = prgTwo.getNext(modulus, modBitLength);
-    assertEquals(elOne, elTwo);
+    CustomAsserts.assertEquals(elOne, elTwo);
   }
 
   @Test
@@ -70,7 +73,5 @@ public class TestPaddingPrg {
     FieldElement elTwo = prgTwo.getNext(modulus, modBitLength);
     assertNotEquals(elOne, elTwo);
   }
-
-  // TODO a test that asserts the that result looks "random" as a sanity check?
 
 }

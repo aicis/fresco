@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class FieldElementGeneratorCache {
+public final class FieldElementGeneratorCache {
 
   private static final BigInteger[] powers = {new BigInteger("1"), new BigInteger("2"),
       new BigInteger("4"), new BigInteger("8"), new BigInteger("16"), new BigInteger("32"),
