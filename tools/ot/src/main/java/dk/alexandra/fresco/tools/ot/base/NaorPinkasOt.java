@@ -18,7 +18,6 @@ import java.security.AlgorithmParameters;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.security.spec.InvalidParameterSpecException;
 import java.util.Arrays;
 
 import javax.crypto.spec.DHParameterSpec;
@@ -132,10 +131,12 @@ public class NaorPinkasOt implements Ot {
   }
 
   /**
-   * Make a one-time padding of a "message" using a PRG seeded on "seed".
+   * Make a one-time padding of a {@code message} using a PRG seeded on
+   * {@code seed}.
    * 
    * @param message
    *          The message to one-time pad
+   * 
    * @param maxSize
    *          The size of the resultant ciphertext. MUST be at least the length
    *          of the message itself. If longer, it will be padded with zeros
@@ -154,7 +155,8 @@ public class NaorPinkasOt implements Ot {
   }
 
   /**
-   * Decrypt a one-time padded "paddedMessage" using a PRG seeded on "seed".
+   * Decrypt a one-time padded {@code paddedMessage} using a PRG seeded on
+   * {@code seed}.
    * 
    * @param paddedMessage
    *          The message to one-time pad

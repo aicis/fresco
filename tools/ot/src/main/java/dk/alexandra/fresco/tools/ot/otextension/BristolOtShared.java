@@ -18,7 +18,7 @@ public class BristolOtShared {
 
   /**
    * Constructs a Bristol OT extension super-class using an underlying random OT
-   * object, using this to preprocess batches of "batchSize" random OTs.
+   * object, using this to preprocess batches of {@code batchSize} random OTs.
    * 
    * @param rot
    *          The underlying correlated OT with errors

@@ -126,14 +126,20 @@ public class CoteReceiver extends CoteShared {
    * Sends a list of StrictBitVectors to the default (0) channel.
    * 
    * @param list
-   *          List to send
+   *          List to send, where all elements are required to have the same
+   *          length.
    * @return Returns true if the transmission was successful
    */
   private boolean sendList(List<StrictBitVector> list) {
-    // TODO TKF improve
-    for (StrictBitVector currentArr : list) {
-      getNetwork().send(getOtherId(), currentArr.toByteArray());
+    // Find the amount of bytes needed for each bitvector in the list
+    int elementLength = list.get(0).getSize() / 8;
+    // Allocate space for all elements in the list.
+    byte[] toSend = new byte[(list.get(0).getSize() / 8) * list.size()];
+    for (int i = 0; i < list.size(); i++) {
+      System.arraycopy(list.get(i).toByteArray(), 0, toSend, i * elementLength,
+          elementLength);
     }
+    getNetwork().send(getOtherId(), toSend);
     return true;
   }
 }

@@ -52,11 +52,6 @@ public class CoteSender extends CoteShared {
   /**
    * Initialize the correlated OT with errors extension. This should only be
    * called once as it completes extensive seed OTs.
-   * 
-   * @throws FailedOtExtensionException
-   *           Thrown if the PRG algorithm used does not exist
-   * @throws MaliciousOtExtensionException
-   *           Thrown in case the other party cheats in the seed OTs
    */
   @Override
   public void initialize() {
@@ -131,16 +126,20 @@ public class CoteSender extends CoteShared {
    * Receives a list of StrictBitVectors from the default (0) channel
    * 
    * @param size
-   *          Amount of elements in vector to receive
+   *          Amount of elements in vector to receive. All of which must be of
+   *          equal size.
    * @return The list of received elements, or null in case an error occurred.
    */
   private List<StrictBitVector> receiveList(int size) {
     List<StrictBitVector> list = new ArrayList<>(size);
-    // TODO TKF Improve
+    byte[] byteBuffer = getNetwork().receive(getOtherId());
+    int elementLength = byteBuffer.length / size;
     for (int i = 0; i < size; i++) {
-      byte[] byteBuffer = getNetwork().receive(getOtherId());
-      StrictBitVector currentArr = new StrictBitVector(byteBuffer,
-          byteBuffer.length * 8);
+      byte[] currentVector = new byte[elementLength];
+      System.arraycopy(byteBuffer, i * elementLength, currentVector, 0,
+          elementLength);
+      StrictBitVector currentArr = new StrictBitVector(currentVector,
+          elementLength * 8);
       list.add(currentArr);
     }
     return list;

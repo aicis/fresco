@@ -52,7 +52,7 @@ public class RotReceiver extends RotShared {
    *
    * @param choices
    *          The receivers choices for this extension. This MUST have size
-   *          8*2^x-kbitLength-getLambdaSecurityParam for some x >=0.
+   *          2^x-kbitLength-getLambdaSecurityParam for some x > 3.
    * @return A list of pairs consisting of the bit choices, followed by the
    *         received messages
    */

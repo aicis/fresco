@@ -10,8 +10,8 @@ import java.util.Arrays;
 /**
  * Class representing a hash-based commitment. Secure assuming that SHA-256 is a
  * random oracle. An instantiated object represents a commitment by itself and
- * does *not* contain any secret information. An object gets instantiated by
- * calling the commit command. <br/>
+ * does <b>not</b> contain any secret information. An object gets instantiated
+ * by calling the commit command. <br/>
  * The scheme itself is based on the ROM folklore scheme where the message to
  * commit to is concatenated with a random string and then hashed. The hash
  * digest serves as the commitment itself and the opening is the randomness and

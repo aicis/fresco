@@ -29,8 +29,8 @@ public class BristolOtReceiver extends BristolOtShared {
   private int offset = -1;
 
   /**
-   * Initializes the underlying Rot functionality using "rotReceiver". It will
-   * then construct OTs in batches of "batchSize".
+   * Initializes the underlying Rot functionality using {@code rotReceiver}. It
+   * will then construct OTs in batches of {@code batchSize}.
    * 
    * @param rotReceiver
    *          The underlying receiver object to use

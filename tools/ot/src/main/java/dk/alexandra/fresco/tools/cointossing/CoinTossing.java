@@ -76,8 +76,8 @@ public class CoinTossing {
   }
 
   /**
-   * Constructs a common random string of "size" bits, rounded up to the nearest
-   * factor of 8.
+   * Constructs a common random string of {@code size} bits, rounded up to the
+   * nearest factor of 8.
    * 
    * @param size
    *          The amount of random bits needed

@@ -37,21 +37,6 @@ public class RotSender extends RotShared {
 
   /**
    * Initialize the random OT extension. This must only be done once.
-   * 
-   * @throws MaliciousCommitmentException
-   *           Thrown if cheating occurs in commitments during initialization
-   * @throws FailedCommitmentException
-   *           Thrown if something, non-malicious, goes wrong in the commitments
-   *           during initialization
-   * @throws FailedCoinTossingException
-   *           Thrown if something, non-malicious, goes wrong in the
-   *           coin-tossing protocol during initialization
-   * @throws FailedOtExtensionException
-   *           Thrown if something, non-malicious, goes wrong in the
-   *           initialization of the underlying correlated OT during
-   *           initialization
-   * @throws MaliciousOtExtensionException
-   *           Thrown if cheating occurred
    */
   @Override
   public void initialize() {
@@ -72,10 +57,6 @@ public class RotSender extends RotShared {
    * @return A pair of lists of StrictBitVectors. First list consists of the
    *         choice-zero messages. Second list consists of the choice-one
    *         messages
-   * @throws MaliciousOtExtensionException
-   *           Thrown if cheating occurs
-   * @throws FailedOtExtensionException
-   *           Thrown if something, non-malicious, goes wrong
    */
   public Pair<List<StrictBitVector>, List<StrictBitVector>> extend(int size) {
     if (!isInitialized()) {

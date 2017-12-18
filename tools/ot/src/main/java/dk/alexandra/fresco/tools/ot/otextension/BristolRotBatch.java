@@ -15,8 +15,8 @@ import java.util.List;
 /**
  * Class implementing a batched random OT protocol, allowing the sending and
  * receiving of any type of objects and of any lengths. Use the underlying
- * random OT protocol to construct "numMessages" in a batch. Then use each of
- * these messages as a seed to a PRG and extend them to "sizeOfEachMessage"
+ * random OT protocol to construct random messages in a batch. Then use each of
+ * these messages as a seed to a PRG and extend them to a sufficient amount of
  * bits.
  * 
  * @author jot2re

@@ -136,7 +136,7 @@ public class RotShared {
 
   /**
    * Compute a SHA-256 digest of elements in a list, concatenated with their
-   * index in the list. Only the first "size" elements of the list will be
+   * index in the list. Only the first {@code size} elements of the list will be
    * hashed.
    *
    * @param input
@@ -174,7 +174,7 @@ public class RotShared {
   }
 
   /**
-   * Agree on a list of "size" coin-tossed elements, represented by
+   * Agree on a list of {@code size} coin-tossed elements, represented by
    * StrictBitVectors. Each consisting of bits reflecting the computational
    * security used at initialization of this class
    *
