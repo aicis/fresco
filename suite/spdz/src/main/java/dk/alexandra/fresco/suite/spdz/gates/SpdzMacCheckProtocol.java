@@ -27,17 +27,11 @@ public class SpdzMacCheckProtocol implements ProtocolProducer {
   private Map<Integer, BigInteger> commitments;
   private BigInteger modulus;
 
-  public SpdzMacCheckProtocol(SecureRandom rand, MessageDigest digest, SpdzStorage storage,
-      Map<Integer, BigInteger> commitments, BigInteger modulus) {
+  public SpdzMacCheckProtocol(SecureRandom rand, MessageDigest digest, SpdzStorage storage, BigInteger modulus) {
     this.rand = rand;
     this.digest = digest;
     this.storage = storage;
-    this.commitments = commitments;
-    if (commitments != null) {
-      this.round = 1;
-    } else {
-      this.commitments = new HashMap<>();
-    }
+    this.commitments = new HashMap<>();    
     this.modulus = modulus;
   }
 

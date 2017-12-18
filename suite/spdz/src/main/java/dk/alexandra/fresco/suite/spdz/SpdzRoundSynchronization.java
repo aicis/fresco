@@ -38,7 +38,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
     //Ensure that we have any values to do MAC check on
     if (!storage.getOpenedValues().isEmpty()) {
       SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(secRand,
-          resourcePool.getMessageDigest(), storage, null, resourcePool.getModulus());
+          resourcePool.getMessageDigest(), storage, resourcePool.getModulus());
 
       do {
         ProtocolCollectionList<SpdzResourcePool> protocolCollectionList =
