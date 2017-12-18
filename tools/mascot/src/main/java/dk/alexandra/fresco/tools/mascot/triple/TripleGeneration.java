@@ -7,7 +7,6 @@ import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
 import dk.alexandra.fresco.tools.mascot.elgen.ElementGeneration;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeft;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyRight;
@@ -66,7 +65,7 @@ public class TripleGeneration extends MultiPartyProtocol {
       List<FieldElement> rightFactors) {
     // "stretch" right factors, so we have one right factor for each left factor
     List<FieldElement> stretched =
-        FieldElementCollectionUtils.stretch(rightFactors, getNumCandidatesPerTriple());
+        getFieldElementUtils().stretch(rightFactors, getNumCandidatesPerTriple());
 
     // for each value we will have two sub-factors for each other party
     List<List<FieldElement>> subFactors = new ArrayList<>();
@@ -88,7 +87,7 @@ public class TripleGeneration extends MultiPartyProtocol {
 
     // own part of the product
     List<FieldElement> localSubFactors =
-        FieldElementCollectionUtils.pairWiseMultiply(leftFactorGroups, stretched);
+        getFieldElementUtils().pairWiseMultiply(leftFactorGroups, stretched);
     subFactors.add(localSubFactors);
 
     // combine all sub-factors into product shares
@@ -181,7 +180,7 @@ public class TripleGeneration extends MultiPartyProtocol {
     rhos.addAll(sigmas);
 
     // pad open rhos with zeroes, one for each sigma
-    List<FieldElement> paddedRhos = FieldElementCollectionUtils.padWith(openRhos,
+    List<FieldElement> paddedRhos = getFieldElementUtils().padWith(openRhos,
         new FieldElement(0, getModulus(), getModBitLength()), sigmas.size());
 
     // run mac-check
@@ -195,7 +194,7 @@ public class TripleGeneration extends MultiPartyProtocol {
   /**
    * Generates numTriples multiplication triples in a batch.
    * 
-   * @param numTriples number of triples to generate 
+   * @param numTriples number of triples to generate
    * @return valid multiplication triples
    */
   public List<MultTriple> triple(int numTriples) {
@@ -227,10 +226,6 @@ public class TripleGeneration extends MultiPartyProtocol {
     return triples;
   }
 
-  private int getNumCandidatesPerTriple() {
-    return resourcePool.getNumCandidatesPerTriple();
-  }
-
   private class UnauthTriple {
 
     List<FieldElement> leftFactors;
@@ -246,10 +241,10 @@ public class TripleGeneration extends MultiPartyProtocol {
     }
 
     UnauthCand toCandidate(List<FieldElement> masks, List<FieldElement> sacrificeMasks) {
-      FieldElement left = FieldElementCollectionUtils.innerProduct(leftFactors, masks);
-      FieldElement prod = FieldElementCollectionUtils.innerProduct(product, masks);
-      FieldElement leftSac = FieldElementCollectionUtils.innerProduct(leftFactors, sacrificeMasks);
-      FieldElement prodSac = FieldElementCollectionUtils.innerProduct(product, sacrificeMasks);
+      FieldElement left = getFieldElementUtils().innerProduct(leftFactors, masks);
+      FieldElement prod = getFieldElementUtils().innerProduct(product, masks);
+      FieldElement leftSac = getFieldElementUtils().innerProduct(leftFactors, sacrificeMasks);
+      FieldElement prodSac = getFieldElementUtils().innerProduct(product, sacrificeMasks);
       return new UnauthCand(left, rightFactor, prod, leftSac, prodSac);
     }
   }

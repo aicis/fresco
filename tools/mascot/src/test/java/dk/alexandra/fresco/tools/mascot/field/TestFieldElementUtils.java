@@ -10,10 +10,11 @@ import java.util.List;
 
 import org.junit.Test;
 
-public class TestFieldElementCollectionUtils {
+public class TestFieldElementUtils {
 
   private final BigInteger modulus = new BigInteger("65521");
   private final int modBitLength = 16;
+  private final FieldElementUtils fieldElementUtils = new FieldElementUtils(modulus, modBitLength);
   private final int[] leftArr = {1, 2, 3, 4};
   private final List<FieldElement> left =
       MascotTestUtils.generateSingleRow(leftArr, modulus, modBitLength);
@@ -28,7 +29,7 @@ public class TestFieldElementCollectionUtils {
     List<FieldElement> expected =
         MascotTestUtils.generateSingleRow(expectedArr, modulus, modBitLength);
 
-    List<FieldElement> actual = FieldElementCollectionUtils.pairWiseMultiply(left, right);
+    List<FieldElement> actual = fieldElementUtils.pairWiseMultiply(left, right);
     CustomAsserts.assertEquals(expected, actual);
   }
 
@@ -37,33 +38,22 @@ public class TestFieldElementCollectionUtils {
     int[] expectedArr = {2, 4, 6, 8};
     List<FieldElement> expected =
         MascotTestUtils.generateSingleRow(expectedArr, modulus, modBitLength);
-    List<FieldElement> actual = FieldElementCollectionUtils.scalarMultiply(left,
-        new FieldElement(2, modulus, modBitLength));
+    List<FieldElement> actual =
+        fieldElementUtils.scalarMultiply(left, new FieldElement(2, modulus, modBitLength));
     CustomAsserts.assertEquals(expected, actual);
   }
 
   @Test
   public void testInnerProduct() {
     FieldElement expected = new FieldElement(70, modulus, modBitLength);
-    FieldElement actual = FieldElementCollectionUtils.innerProduct(left, right);
+    FieldElement actual = fieldElementUtils.innerProduct(left, right);
     CustomAsserts.assertEquals(expected, actual);
   }
 
   @Test
-  public void testRecombineCacheHit() {
-    FieldElement actual = FieldElementCollectionUtils.recombine(left, modulus, modBitLength);
+  public void testRecombine() {
+    FieldElement actual = fieldElementUtils.recombine(left);
     CustomAsserts.assertEquals(new FieldElement(49, modulus, modBitLength), actual);
-  }
-
-  @Test
-  public void testRecombineCacheMiss() {
-    BigInteger missingMod = new BigInteger("251");
-    int missingLength = 8;
-    assertEquals(false, FieldElementGeneratorCache.isCached(missingMod));
-    int[] leftArr = {1, 2, 3, 4};
-    List<FieldElement> left = MascotTestUtils.generateSingleRow(leftArr, missingMod, missingLength);
-    FieldElement actual = FieldElementCollectionUtils.recombine(left, missingMod, missingLength);
-    CustomAsserts.assertEquals(new FieldElement(49, missingMod, missingLength), actual);
   }
 
   @Test
@@ -71,7 +61,7 @@ public class TestFieldElementCollectionUtils {
     int[] expectedArr = {1, 1, 2, 2, 3, 3, 4, 4};
     List<FieldElement> expected =
         MascotTestUtils.generateSingleRow(expectedArr, modulus, modBitLength);
-    List<FieldElement> actual = FieldElementCollectionUtils.stretch(left, 2);
+    List<FieldElement> actual = fieldElementUtils.stretch(left, 2);
     CustomAsserts.assertEquals(expected, actual);
   }
 
@@ -81,13 +71,13 @@ public class TestFieldElementCollectionUtils {
     List<FieldElement> expected =
         MascotTestUtils.generateSingleRow(expectedArr, modulus, modBitLength);
     FieldElement pad = new FieldElement(0, modulus, modBitLength);
-    List<FieldElement> actual = FieldElementCollectionUtils.padWith(left, pad, 2);
+    List<FieldElement> actual = fieldElementUtils.padWith(left, pad, 2);
     CustomAsserts.assertEquals(expected, actual);
   }
 
   @Test
   public void testPack() {
-    StrictBitVector actual = FieldElementCollectionUtils.pack(left);
+    StrictBitVector actual = fieldElementUtils.pack(left);
     byte[] expectedBytes = {0x00, 0x04, 0x00, 0x03, 0x00, 0x02, 0x00, 0x01};
     StrictBitVector expected = new StrictBitVector(expectedBytes, modBitLength * left.size());
     assertEquals(expected, actual);
@@ -96,30 +86,39 @@ public class TestFieldElementCollectionUtils {
   // negative tests
 
   @Test(expected = IllegalArgumentException.class)
+  public void testRecombineWrongModulus() {
+    BigInteger missingMod = new BigInteger("251");
+    int missingLength = 8;
+    int[] leftArr = {1, 2, 3, 4};
+    List<FieldElement> left = MascotTestUtils.generateSingleRow(leftArr, missingMod, missingLength);
+    fieldElementUtils.recombine(left);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
   public void testInnerProductDifferentSizes() {
     int[] rightArr = {5, 6, 7};
     List<FieldElement> right = MascotTestUtils.generateSingleRow(rightArr, modulus, modBitLength);
-    FieldElementCollectionUtils.innerProduct(left, right);
+    fieldElementUtils.innerProduct(left, right);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testRecombineIncorrectSize() {
     int[] leftArr = new int[17];
     List<FieldElement> left = MascotTestUtils.generateSingleRow(leftArr, modulus, modBitLength);
-    FieldElementCollectionUtils.recombine(left, modulus, modBitLength);
+    fieldElementUtils.recombine(left);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testPairwiseMultiplyIncorrectSize() {
     int[] leftArr = new int[17];
     List<FieldElement> left = MascotTestUtils.generateSingleRow(leftArr, modulus, modBitLength);
-    FieldElementCollectionUtils.pairWiseMultiply(left, right);
+    fieldElementUtils.pairWiseMultiply(left, right);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testUnpackIncorrectSize() {
     byte[] packed = new byte[17];
-    FieldElementCollectionUtils.unpack(packed, modulus, modBitLength);
+    fieldElementUtils.unpack(packed);
   }
 
 }

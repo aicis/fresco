@@ -11,7 +11,35 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class FieldElementCollectionUtils {
+public class FieldElementUtils {
+
+  private final BigInteger modulus;
+  private final int modBitLength;
+  private final List<FieldElement> generators;
+
+  /**
+   * Creates new {@link FieldElementUtils}.
+   * 
+   * @param modulus modulus for underlying field element operations
+   * @param modBitLength modulus bit length
+   */
+  public FieldElementUtils(BigInteger modulus, int modBitLength) {
+    super();
+    this.modulus = modulus;
+    this.modBitLength = modBitLength;
+    this.generators = precomuteGenerators();
+  }
+
+  private List<FieldElement> precomuteGenerators() {
+    List<FieldElement> generators = new ArrayList<>(modBitLength);
+    BigInteger two = new BigInteger("2");
+    BigInteger current = BigInteger.ONE;
+    for (int i = 0; i < modBitLength; i++) {
+      generators.add(new FieldElement(current, modulus, modBitLength));
+      current = current.multiply(two).mod(modulus);
+    }
+    return generators;
+  }
 
   /**
    * Multiplies two lists of field elements, pair-wise.
@@ -20,7 +48,7 @@ public class FieldElementCollectionUtils {
    * @param rightFactors right factors
    * @return list of products
    */
-  public static List<FieldElement> pairWiseMultiply(List<FieldElement> leftFactors,
+  public List<FieldElement> pairWiseMultiply(List<FieldElement> leftFactors,
       List<FieldElement> rightFactors) {
     if (leftFactors.size() != rightFactors.size()) {
       throw new IllegalArgumentException("Lists must be same size");
@@ -35,7 +63,7 @@ public class FieldElementCollectionUtils {
    * @param scalar scalar factor
    * @return list of products
    */
-  public static List<FieldElement> scalarMultiply(List<FieldElement> values, FieldElement scalar) {
+  public List<FieldElement> scalarMultiply(List<FieldElement> values, FieldElement scalar) {
     return values.stream().map(value -> value.multiply(scalar)).collect(Collectors.toList());
   }
 
@@ -46,7 +74,7 @@ public class FieldElementCollectionUtils {
    * @param rightFactors right factors
    * @return stream of products
    */
-  static Stream<FieldElement> pairWiseMultiplyStream(List<FieldElement> leftFactors,
+  public Stream<FieldElement> pairWiseMultiplyStream(List<FieldElement> leftFactors,
       List<FieldElement> rightFactors) {
     return IntStream.range(0, leftFactors.size()).mapToObj(idx -> {
       FieldElement l = leftFactors.get(idx);
@@ -62,7 +90,7 @@ public class FieldElementCollectionUtils {
    * @param right right factors
    * @return inner product
    */
-  public static FieldElement innerProduct(List<FieldElement> left, List<FieldElement> right) {
+  public FieldElement innerProduct(List<FieldElement> left, List<FieldElement> right) {
     if (left.size() != right.size()) {
       throw new IllegalArgumentException("Lists must have same size");
     }
@@ -72,24 +100,26 @@ public class FieldElementCollectionUtils {
   /**
    * Computes inner product of elements and powers of twos.<br>
    * e0 * 2**0 + e1 * 2**1 + ... + e(n - 1) * 2**(n - 1)
+   * Elements must have same modulus, otherwise we get undefined behaviour.
    * 
    * @param elements elements to recombine
    * @return recombined elements
    */
-  public static FieldElement recombine(List<FieldElement> elements, BigInteger modulus,
-      int modBitLength) {
+  public FieldElement recombine(List<FieldElement> elements) {
     if (elements.size() > modBitLength) {
       throw new IllegalArgumentException("Number of elements cannot exceed bit-length");
     }
-    List<FieldElement> generators = FieldElementGeneratorCache.getGenerators(modulus, modBitLength);
+    BigInteger elementModulus = elements.get(0).getModulus();
+    if (!elementModulus.equals(modulus)) {
+      throw new IllegalArgumentException("Wrong modulus " + elementModulus);
+    }
     return innerProduct(elements, generators.subList(0, elements.size()));
   }
 
   /**
    * {@link CollectionUtils#transpose(List)} on field elements.
    */
-  public static List<List<FieldElement>> transpose(List<List<FieldElement>> mat) {
-    // TODO: switch to doing fast transpose
+  public List<List<FieldElement>> transpose(List<List<FieldElement>> mat) {
     return CollectionUtils.transpose(mat);
   }
 
@@ -101,7 +131,7 @@ public class FieldElementCollectionUtils {
    * @param stretchBy number of duplications per element
    * @return stretched list
    */
-  public static List<FieldElement> stretch(List<FieldElement> elements, int stretchBy) {
+  public List<FieldElement> stretch(List<FieldElement> elements, int stretchBy) {
     List<FieldElement> stretched = new ArrayList<>(elements.size() * stretchBy);
     for (FieldElement element : elements) {
       for (int c = 0; c < stretchBy; c++) {
@@ -119,7 +149,7 @@ public class FieldElementCollectionUtils {
    * @param numPads number of times to pad
    * @return padded list
    */
-  public static List<FieldElement> padWith(List<FieldElement> elements, FieldElement padElement,
+  public List<FieldElement> padWith(List<FieldElement> elements, FieldElement padElement,
       int numPads) {
     List<FieldElement> copy = new ArrayList<>(elements);
     copy.addAll(Collections.nCopies(numPads, padElement));
@@ -133,13 +163,13 @@ public class FieldElementCollectionUtils {
    * @param reverse indicator whether to reverse the order of bytes
    * @return concatenated field elements in bit representation
    */
-  public static StrictBitVector pack(List<FieldElement> elements, boolean reverse) {
+  public StrictBitVector pack(List<FieldElement> elements, boolean reverse) {
     StrictBitVector[] bitVecs =
         elements.stream().map(fe -> fe.toBitVector()).toArray(size -> new StrictBitVector[size]);
     return StrictBitVector.concat(reverse, bitVecs);
   }
 
-  public static StrictBitVector pack(List<FieldElement> elements) {
+  public StrictBitVector pack(List<FieldElement> elements) {
     return pack(elements, true);
   }
 
@@ -147,11 +177,9 @@ public class FieldElementCollectionUtils {
    * Unpacks a bit string into a list of field elements.
    * 
    * @param packed concatenated bits representing field elements
-   * @param modulus field modulus 
-   * @param modBitLength bit length of modulus
-   * @return field elements 
+   * @return field elements
    */
-  public static List<FieldElement> unpack(byte[] packed, BigInteger modulus, int modBitLength) {
+  public List<FieldElement> unpack(byte[] packed) {
     int packedBitLength = packed.length * 8;
     if ((packedBitLength % modBitLength) != 0) {
       throw new IllegalArgumentException(

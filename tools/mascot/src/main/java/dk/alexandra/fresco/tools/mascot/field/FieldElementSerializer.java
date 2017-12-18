@@ -8,12 +8,20 @@ import java.util.List;
 
 public class FieldElementSerializer implements SecureSerializer<FieldElement> {
 
-  BigInteger modulus;
-  int modBitLength;
+  private final BigInteger modulus;
+  private final int modBitLength;
+  private final FieldElementUtils fieldElementUtils;
 
+  /**
+   * Creates new {@link FieldElementSerializer}.
+   * 
+   * @param modulus modulus of field elements
+   * @param modBitLength mod bit length
+   */
   public FieldElementSerializer(BigInteger modulus, int modBitLength) {
     this.modulus = modulus;
     this.modBitLength = modBitLength;
+    this.fieldElementUtils = new FieldElementUtils(modulus, modBitLength);
   }
 
   /**
@@ -56,7 +64,7 @@ public class FieldElementSerializer implements SecureSerializer<FieldElement> {
         throw new IllegalArgumentException("All elements must have same modulus");
       }
     }
-    byte[] serialized = FieldElementCollectionUtils.pack(elements, false).toByteArray();
+    byte[] serialized = fieldElementUtils.pack(elements, false).toByteArray();
     return serialized;
   }
 
@@ -76,7 +84,7 @@ public class FieldElementSerializer implements SecureSerializer<FieldElement> {
       throw new IllegalArgumentException(
           "Length of byte array must be multiple of per element size");
     }
-    return FieldElementCollectionUtils.unpack(data, modulus, modBitLength);
+    return fieldElementUtils.unpack(data);
   }
 
 }

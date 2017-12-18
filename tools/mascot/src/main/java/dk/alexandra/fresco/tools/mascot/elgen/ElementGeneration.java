@@ -8,7 +8,6 @@ import dk.alexandra.fresco.tools.mascot.cope.CopeInputter;
 import dk.alexandra.fresco.tools.mascot.cope.CopeSigner;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
 import dk.alexandra.fresco.tools.mascot.maccheck.MacCheck;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import java.util.ArrayList;
@@ -70,7 +69,7 @@ public class ElementGeneration extends MultiPartyProtocol {
   }
 
   List<FieldElement> selfMac(List<FieldElement> values) {
-    return FieldElementCollectionUtils.scalarMultiply(values, macKeyShare);
+    return getFieldElementUtils().scalarMultiply(values, macKeyShare);
   }
 
   List<FieldElement> macValues(List<FieldElement> values) {
@@ -84,13 +83,13 @@ public class ElementGeneration extends MultiPartyProtocol {
     List<List<FieldElement>> allShares = values.stream()
         .map(value -> sharer.additiveShare(value, numShares, getModulus(), getModBitLength()))
         .collect(Collectors.toList());
-    List<List<FieldElement>> byParty = FieldElementCollectionUtils.transpose(allShares);
+    List<List<FieldElement>> byParty = getFieldElementUtils().transpose(allShares);
     for (Integer partyId : getPartyIds()) {
       // send shares to everyone but self
       if (!partyId.equals(getMyId())) {
         // assume party ids go from 1...n
         List<FieldElement> shares = byParty.get(partyId - 1);
-        network.send(partyId, getFieldElementSerializer().serialize(shares));
+        getNetwork().send(partyId, getFieldElementSerializer().serialize(shares));
       }
     }
     // return own shares
@@ -129,12 +128,12 @@ public class ElementGeneration extends MultiPartyProtocol {
     List<FieldElement> masks = jointSampler.getNext(getModulus(), getModBitLength(), values.size());
 
     // mask and combine values
-    FieldElement maskedValue = FieldElementCollectionUtils.innerProduct(values, masks);
+    FieldElement maskedValue = getFieldElementUtils().innerProduct(values, masks);
 
     // send masked value to all other parties
-    network.sendToAll(maskedValue.toByteArray());
+    getNetwork().sendToAll(maskedValue.toByteArray());
     // so that we can use receiveFromAll correctly later
-    network.receive(getMyId());
+    getNetwork().receive(getMyId());
 
     // perform mac-check on opened value (will throw if mac check fails)
     runMacCheck(maskedValue, masks, macs);
@@ -165,14 +164,15 @@ public class ElementGeneration extends MultiPartyProtocol {
     List<FieldElement> masks = jointSampler.getNext(getModulus(), getModBitLength(), numInputs + 1);
 
     // receive masked value we will use in mac-check
-    FieldElement maskedValue = getFieldElementSerializer().deserialize(network.receive(inputterId));
+    FieldElement maskedValue =
+        getFieldElementSerializer().deserialize(getNetwork().receive(inputterId));
 
     // perform mac-check on opened value
     runMacCheck(maskedValue, masks, macs);
 
     // receive shares from inputter
     List<FieldElement> shares =
-        getFieldElementSerializer().deserializeList(network.receive(inputterId));
+        getFieldElementSerializer().deserializeList(getNetwork().receive(inputterId));
 
     // combine shares and mac shares to spdz elements (exclude mac for dummy element)
     List<FieldElement> nonDummyMacs = macs.subList(0, numInputs);
@@ -182,7 +182,7 @@ public class ElementGeneration extends MultiPartyProtocol {
 
   void runMacCheck(FieldElement value, List<FieldElement> masks, List<FieldElement> macs) {
     // mask and combine macs
-    FieldElement maskedMac = FieldElementCollectionUtils.innerProduct(macs, masks);
+    FieldElement maskedMac = getFieldElementUtils().innerProduct(macs, masks);
     // perform mac-check on open masked value
     macChecker.check(value, macKeyShare, maskedMac);
   }
@@ -198,7 +198,7 @@ public class ElementGeneration extends MultiPartyProtocol {
     List<FieldElement> macs =
         sharesWithMacs.stream().map(AuthenticatedElement::getMac).collect(Collectors.toList());
     // apply masks to open element so that it matches the macs when we mask them
-    FieldElement open = FieldElementCollectionUtils.innerProduct(openValues, masks);
+    FieldElement open = getFieldElementUtils().innerProduct(openValues, masks);
     runMacCheck(open, masks, macs);
   }
 
@@ -213,9 +213,9 @@ public class ElementGeneration extends MultiPartyProtocol {
     List<FieldElement> ownShares =
         closed.stream().map(AuthenticatedElement::getShare).collect(Collectors.toList());
     // send own shares to others
-    network.sendToAll(getFieldElementSerializer().serialize(ownShares));
+    getNetwork().sendToAll(getFieldElementSerializer().serialize(ownShares));
     // receive others' shares
-    List<byte[]> rawShares = network.receiveFromAll();
+    List<byte[]> rawShares = getNetwork().receiveFromAll();
     // TODO parsing belongs somewhere else
     // parse
     List<List<FieldElement>> shares = rawShares.stream()

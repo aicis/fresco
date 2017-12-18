@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -39,7 +38,7 @@ public class MultiplyLeft extends MultiplyShared {
    * @return list of seeds to prgs
    */
   public List<StrictBitVector> generateSeeds(List<FieldElement> leftFactors, int seedLength) {
-    StrictBitVector packedFactors = FieldElementCollectionUtils.pack(leftFactors);
+    StrictBitVector packedFactors = getFieldElementUtils().pack(leftFactors);
     // use rot to get choice seeds
     List<StrictBitVector> seeds = rot.receive(packedFactors, seedLength);
     // TODO temporary fix until big-endianness issue is resolved
@@ -58,7 +57,7 @@ public class MultiplyLeft extends MultiplyShared {
    * @return field elements representing diffs
    */
   public List<FieldElement> receiveDiffs(int numDiffs) {
-    byte[] raw = network.receive(otherId);
+    byte[] raw = getNetwork().receive(otherId);
     List<FieldElement> diffs = getFieldElementSerializer().deserializeList(raw);
     return diffs;
   }
@@ -86,8 +85,7 @@ public class MultiplyLeft extends MultiplyShared {
         summands.add(summand);
         diffIdx++;
       }
-      FieldElement productShare =
-          FieldElementCollectionUtils.recombine(summands, getModulus(), getModBitLength());
+      FieldElement productShare = getFieldElementUtils().recombine(summands);
       result.add(productShare);
     }
     return result;

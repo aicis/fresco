@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -76,7 +75,7 @@ public class MultiplyRight extends MultiplyShared {
   }
 
   public void sendDiffs(List<FieldElement> diffs) {
-    network.send(otherId, getFieldElementSerializer().serialize(diffs));
+    getNetwork().send(otherId, getFieldElementSerializer().serialize(diffs));
   }
 
   /**
@@ -97,8 +96,7 @@ public class MultiplyRight extends MultiplyShared {
         int from = rightFactIdx * groupBitLength + leftFactIdx * getModBitLength();
         int to = rightFactIdx * groupBitLength + (leftFactIdx + 1) * getModBitLength();
         List<FieldElement> subFactors = feZeroSeeds.subList(from, to);
-        FieldElement recombined =
-            FieldElementCollectionUtils.recombine(subFactors, getModulus(), getModBitLength());
+        FieldElement recombined = getFieldElementUtils().recombine(subFactors);
         productShares.add(recombined.negate());
       }
     }

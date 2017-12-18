@@ -7,7 +7,7 @@ import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
 import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
+import dk.alexandra.fresco.tools.mascot.field.FieldElementUtils;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
@@ -134,14 +134,15 @@ public class TestTripleGeneration extends NetworkedTest {
     List<List<FieldElement>> results =
         testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
 
+    FieldElementUtils fieldElementUtils = new FieldElementUtils(modulus, modBitLength);
     // for each input pair of factors the result is (a1 + a2 + ...) * (b1 + b2 + ...)
     List<FieldElement> expectedLeftFactors =
         CollectionUtils.pairWiseSum(Arrays.asList(leftFactorsOne, leftFactorsTwo));
-    List<FieldElement> expectedRightFactors = FieldElementCollectionUtils
+    List<FieldElement> expectedRightFactors = fieldElementUtils
         .stretch(CollectionUtils.pairWiseSum(Arrays.asList(rightFactorsOne, rightFactorsTwo)), 3);
 
     List<FieldElement> expected =
-        FieldElementCollectionUtils.pairWiseMultiply(expectedLeftFactors, expectedRightFactors);
+        fieldElementUtils.pairWiseMultiply(expectedLeftFactors, expectedRightFactors);
 
     // actual results, recombined
     List<FieldElement> actual = CollectionUtils.pairWiseSum(results);

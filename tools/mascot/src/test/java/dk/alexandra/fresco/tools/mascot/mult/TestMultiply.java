@@ -8,7 +8,8 @@ import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
 import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElementCollectionUtils;
+import dk.alexandra.fresco.tools.mascot.field.FieldElementUtils;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -237,7 +238,7 @@ public class TestMultiply extends NetworkedTest {
 
     List<FieldElement> actual = CollectionUtils.pairWiseSum(results);
     List<FieldElement> expected =
-        FieldElementCollectionUtils.pairWiseMultiply(leftInputs, rightInputs);
+        new FieldElementUtils(modulus, modBitLength).pairWiseMultiply(leftInputs, rightInputs);
     CustomAsserts.assertEquals(expected, actual);
   }
 

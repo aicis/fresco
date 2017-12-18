@@ -3,7 +3,6 @@ package dk.alexandra.fresco.tools.mascot.commit;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.SecureSerializer;
 import dk.alexandra.fresco.tools.commitment.Commitment;
-import dk.alexandra.fresco.tools.commitment.CommitmentSerializer;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.broadcast.BroadcastValidation;
@@ -31,7 +30,7 @@ public class CommitmentBasedProtocol<T> extends MultiPartyProtocol {
           new BroadcastingNetworkDecorator(network, new BroadcastValidation(resourcePool, network));
     } else {
       // if we have two parties or less we can just use the regular network
-      this.broadcaster = this.network;
+      this.broadcaster = this.getNetwork();
     }
   }
 
@@ -47,8 +46,7 @@ public class CommitmentBasedProtocol<T> extends MultiPartyProtocol {
     List<byte[]> rawComms = broadcaster.receiveFromAll();
     // parse
     List<Commitment> comms = rawComms.stream()
-        .map(raw -> getCommitmentSerializer().deserialize(raw))
-        .collect(Collectors.toList());
+        .map(raw -> getCommitmentSerializer().deserialize(raw)).collect(Collectors.toList());
     return comms;
   }
 
@@ -59,9 +57,9 @@ public class CommitmentBasedProtocol<T> extends MultiPartyProtocol {
    */
   protected List<byte[]> distributeOpenings(byte[] opening) {
     // send (over regular network) own opening info
-    network.sendToAll(opening);
+    getNetwork().sendToAll(opening);
     // receive opening info from others
-    List<byte[]> openings = network.receiveFromAll();
+    List<byte[]> openings = getNetwork().receiveFromAll();
     return openings;
   }
 
@@ -91,8 +89,7 @@ public class CommitmentBasedProtocol<T> extends MultiPartyProtocol {
     Commitment ownComm = new Commitment();
 
     // commit to value locally
-    byte[] ownOpening =
-        ownComm.commit(resourcePool.getRandomGenerator(), serializer.serialize(value));
+    byte[] ownOpening = ownComm.commit(getRandomGenerator(), serializer.serialize(value));
 
     // all parties commit
     List<Commitment> comms = distributeCommitments(ownComm);;
@@ -102,10 +99,6 @@ public class CommitmentBasedProtocol<T> extends MultiPartyProtocol {
 
     // open commitments using received opening info
     return open(comms, openings);
-  }
-
-  public CommitmentSerializer getCommitmentSerializer() {
-    return resourcePool.getCommitmentSerializer();
   }
 
 }

@@ -15,10 +15,6 @@ public class BroadcastValidation extends MultiPartyProtocol {
     super(resourcePool, network);
   }
 
-  MessageDigest getMessageDigest() {
-    return resourcePool.getMessageDigest();
-  }
-
   /**
    * Computes digest of messages of messages and resets md.
    * 
@@ -57,9 +53,9 @@ public class BroadcastValidation extends MultiPartyProtocol {
     // compute digest
     byte[] digest = computeDigest(messages);
     // send it to others
-    network.sendToAll(digest);
+    getNetwork().sendToAll(digest);
     // receive others' digests
-    List<byte[]> digests = network.receiveFromAll();
+    List<byte[]> digests = getNetwork().receiveFromAll();
     // validate digests
     validateDigests(digest, digests);
   }
