@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +27,6 @@ public class TestKryoNetNetwork {
   /**
    * Checks for exceptions and casts an Assert.fail if any was found
    */
-  @After
   public void check() {
     if (!exceptions.isEmpty()) {
       String messages = "";
@@ -110,6 +108,7 @@ public class TestKryoNetNetwork {
     try {
       t1.join();
       t2.join();
+      check();
     } catch (InterruptedException e) {
       Assert.fail("Threads should finish without main getting interrupted");
     }
@@ -177,6 +176,7 @@ public class TestKryoNetNetwork {
 
       t1.join();
       t2.join();
+      check();
     } catch (InterruptedException e) {
       Assert.fail("Threads should finish without main getting interrupted");
     }
@@ -215,6 +215,7 @@ public class TestKryoNetNetwork {
     try {
       t1.join();
       t1.interrupt();
+      check();
     } catch (InterruptedException e) {
       Assert.fail("Threads should finish without main getting interrupted");
     }
@@ -261,6 +262,7 @@ public class TestKryoNetNetwork {
           Assert.fail("Exception should not have a cause other than IOException");
         }
       }
+      check();
     } catch (InterruptedException e) {
       Assert.fail("Threads should finish without main getting interrupted");
     }
@@ -297,7 +299,7 @@ public class TestKryoNetNetwork {
               networks.put(myId, network);
             } catch (RuntimeException e) {
               exs.add(e);
-              Assert.fail();
+              throw e;
             }
           }
         });
