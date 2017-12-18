@@ -32,35 +32,34 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
     BigInteger modulus = spdzResourcePool.getModulus();
     SpdzStorage storage = spdzResourcePool.getStore();
     BigIntegerSerializer serializer = spdzResourcePool.getSerializer();
-    switch (round) {
-      case 0:
-        this.inputMask = storage.getSupplier().getNextInputMask(this.inputter);
-        if (myId == this.inputter) {
-          BigInteger bcValue = this.input.subtract(this.inputMask.getRealValue());
-          bcValue = bcValue.mod(modulus);
-          network.sendToAll(serializer.toBytes(bcValue));
-        }
-        return EvaluationStatus.HAS_MORE_ROUNDS;
-      case 1:
-        this.value_masked = serializer.toBigInteger(network.receive(inputter));
-        this.digest = sendBroadcastValidation(
-            spdzResourcePool.getMessageDigest(), network,
-            value_masked);
-        return EvaluationStatus.HAS_MORE_ROUNDS;
-      case 2:
-        boolean validated = receiveBroadcastValidation(network, digest);
-        if (!validated) {
-          throw new MPCException("Broadcast digests did not match");
-        }
-        SpdzElement value_masked_elm =
-            new SpdzElement(
-                value_masked,
-                storage.getSSK().multiply(value_masked).mod(modulus),
-                modulus);
-        this.out = new SpdzSInt(this.inputMask.getMask().add(value_masked_elm, myId));
-        return EvaluationStatus.IS_DONE;
+    if(round == 0) {
+      this.inputMask = storage.getSupplier().getNextInputMask(this.inputter);
+      if (myId == this.inputter) {
+        BigInteger bcValue = this.input.subtract(this.inputMask.getRealValue());
+        bcValue = bcValue.mod(modulus);
+        network.sendToAll(serializer.toBytes(bcValue));
+      }
+      return EvaluationStatus.HAS_MORE_ROUNDS;
+    } else if(round == 1) {
+      this.value_masked = serializer.toBigInteger(network.receive(inputter));
+      this.digest = sendBroadcastValidation(
+          spdzResourcePool.getMessageDigest(), network,
+          value_masked);
+      return EvaluationStatus.HAS_MORE_ROUNDS;
+    } else {
+      boolean validated = receiveBroadcastValidation(network, digest);
+      if (!validated) {
+        throw new MPCException("Broadcast digests did not match");
+      }
+      SpdzElement value_masked_elm =
+          new SpdzElement(
+              value_masked,
+              storage.getSSK().multiply(value_masked).mod(modulus),
+              modulus);
+      this.out = new SpdzSInt(this.inputMask.getMask().add(value_masked_elm, myId));
+      return EvaluationStatus.IS_DONE;
     }
-    throw new MPCException("Cannot evaluate rounds larger than 2");
+
   }
 
   @Override

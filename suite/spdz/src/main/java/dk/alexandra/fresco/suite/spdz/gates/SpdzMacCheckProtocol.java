@@ -104,7 +104,7 @@ public class SpdzMacCheckProtocol implements ProtocolProducer {
         pp = new SequentialProtocolProducer(
             new SingleProtocolProducer<>(comm),
             new SingleProtocolProducer<>(open));
-      } else if (round == 2) {
+      } else {
         BigInteger deltaSum = BigInteger.ZERO;
         for (BigInteger d : commitments.values()) {
           deltaSum = deltaSum.add(d);
