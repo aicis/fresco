@@ -6,7 +6,8 @@ import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 
-public interface ProtocolSuite<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> {
+public interface ProtocolSuite<ResourcePoolT extends ResourcePool, 
+    Builder extends ProtocolBuilder> {
 
   /**
    * Initializes the protocol suite by supplying any needed resources to the protocol suite. The

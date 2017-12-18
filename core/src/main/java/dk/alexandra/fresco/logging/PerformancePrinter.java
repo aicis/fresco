@@ -6,5 +6,5 @@ public interface PerformancePrinter {
    * Prints any performance numbers picked up by the 
    * given PerformanceLogger.
    */
-  public void printPerformanceLog(PerformanceLogger logger, int myId);
+  public void printPerformanceLog(PerformanceLogger logger);
 }
