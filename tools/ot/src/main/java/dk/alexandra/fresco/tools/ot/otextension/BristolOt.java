@@ -12,8 +12,8 @@ import dk.alexandra.fresco.tools.ot.base.Ot;
  *
  */
 public class BristolOt implements Ot {
-  protected BristolOtSender sender;
-  protected BristolOtReceiver receiver;
+  private final BristolOtSender sender;
+  private final BristolOtReceiver receiver;
 
   /**
    * Constructs a new OT protocol and constructs the internal sender and

@@ -10,9 +10,8 @@ import dk.alexandra.fresco.tools.ot.base.Ot;
  *
  */
 public class Cote {
-
-  protected CoteSender sender;
-  protected CoteReceiver receiver;
+  private final CoteSender sender;
+  private final CoteReceiver receiver;
 
   /**
    * Constructs a new correlated OT with errors protocol and constructs the

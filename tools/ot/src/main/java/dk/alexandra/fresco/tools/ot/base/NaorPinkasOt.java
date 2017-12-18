@@ -7,6 +7,7 @@ import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Drng;
 import dk.alexandra.fresco.framework.util.DrngImpl;
+import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
@@ -29,16 +30,20 @@ import javax.crypto.spec.DHParameterSpec;
  *
  */
 public class NaorPinkasOt implements Ot {
-  private int myId;
-  private int otherId;
-  private Network network;
-  private Drng randNum;
-  private Drbg randBit;
-  private MessageDigest hashFunction;
-  private final String hashAlgorithm;
-  private final String prgAlgorithm;
-  // The public Diffie-Hellman parameters
-  private final int diffieHellmanSize;
+  private final int myId;
+  private final int otherId;
+  private final Network network;
+  private final Drng randNum;
+  private final Drbg randBit;
+  private final MessageDigest hashDigest;
+  private static final String HASH_ALGORITHM = "SHA-256";
+  /**
+   * The PRG algorithm used internally by Java to generate the Diffie-Hellman
+   * parameters based on some seed. This PRG MUST only be used for this purpose
+   * since SHA1 is insecure in the general case.
+   */
+  private static final String PRG_ALGORITHM = "SHA1PRNG";
+  private static final int DIFFIE_HELLMAN_SIZE = 2048;
   private DHParameterSpec params;
 
   /**
@@ -77,24 +82,16 @@ public class NaorPinkasOt implements Ot {
    *          The underlying network to use
    * @param params
    *          The Diffie-Hellman parameters to use
-   * @throws NoSuchAlgorithmException
-   *           Thrown if the internal hash function which is dependent in this
-   *           library is missing
    */
   public NaorPinkasOt(int myId, int otherId, Drbg randBit, Network network,
-      DHParameterSpec params) throws NoSuchAlgorithmException {
-    this.hashAlgorithm = "SHA-256";
-    // This prg MUST only be used for the generation of the DH parameters. Where
-    // it is not insecure to use SHA1 as the seed has been picked through secure
-    // coin-tossing. We cannot use our own implementation, since Java requires a
-    // SecureRandom.
-    this.prgAlgorithm = "SHA1PRNG";
-    this.diffieHellmanSize = 2048;
+      DHParameterSpec params) {
     this.myId = myId;
     this.otherId = otherId;
     this.randBit = randBit;
     this.network = network;
-    this.hashFunction = MessageDigest.getInstance(hashAlgorithm);
+    this.hashDigest = ExceptionConverter.safe(() -> MessageDigest.getInstance(
+        HASH_ALGORITHM),
+        "Missing secure, hash function which is dependent in this library");
     this.params = params;
     this.randNum = new DrngImpl(randBit);
   }
@@ -216,8 +213,8 @@ public class NaorPinkasOt implements Ot {
     // publicKeyOne = c / keyZero
     BigInteger publicKeyOne = publicKeyZero.modInverse(params.getP())
         .multiply(c);
-    byte[] messageZero = new byte[hashFunction.getDigestLength()];
-    byte[] messageOne = new byte[hashFunction.getDigestLength()];
+    byte[] messageZero = new byte[hashDigest.getDigestLength()];
+    byte[] messageOne = new byte[hashDigest.getDigestLength()];
     BigInteger encZero = encryptMessage(publicKeyZero, messageZero);
     BigInteger encOne = encryptMessage(publicKeyOne, messageOne);
     network.send(otherId, encZero.toByteArray());
@@ -274,8 +271,8 @@ public class NaorPinkasOt implements Ot {
     // toHash = publicKey^r mod P
     BigInteger toHash = publicKey.modPow(r, params.getP());
     // randomMessage = H(toHash)
-    byte[] encB = hashFunction.digest(toHash.toByteArray());
-    for (int i = 0; i < hashFunction.getDigestLength(); i++) {
+    byte[] encB = hashDigest.digest(toHash.toByteArray());
+    for (int i = 0; i < hashDigest.getDigestLength(); i++) {
       message[i] = encB[i];
     }
     return encryption;
@@ -292,7 +289,7 @@ public class NaorPinkasOt implements Ot {
    */
   private byte[] decryptMessage(BigInteger cipher, BigInteger privateKey) {
     BigInteger toHash = cipher.modPow(privateKey, params.getP());
-    return hashFunction.digest(toHash.toByteArray());
+    return hashDigest.digest(toHash.toByteArray());
   }
 
   /**
@@ -306,7 +303,7 @@ public class NaorPinkasOt implements Ot {
     CoinTossing ct = new CoinTossing(myId, otherId,
         randBit, network);
     ct.initialize();
-    StrictBitVector seed = ct.toss(hashFunction.getDigestLength() * 8);
+    StrictBitVector seed = ct.toss(hashDigest.getDigestLength() * 8);
     return computeDhParams(seed.toByteArray());
   }
 
@@ -316,28 +313,21 @@ public class NaorPinkasOt implements Ot {
    * @param seed
    *          The seed used to sample the Diffie-Hellman parameters
    * @return The computed Diffie-Hellman parameters
-   * @throws NoSuchAlgorithmException
-   *           Thrown if the PRG algorithm used does not exist
-   * @throws InvalidParameterSpecException
-   *           Thrown if an error occurs with the Diffie-Hellman parameter class
    */
   private DHParameterSpec computeDhParams(byte[] seed) {
-    try {
-      // Make a parameter generator for Diffie-Hellman parameters
-      AlgorithmParameterGenerator paramGen = AlgorithmParameterGenerator
-          .getInstance("DH");
-      SecureRandom commonRand = SecureRandom.getInstance(prgAlgorithm);
-      commonRand.setSeed(seed);
-      // Construct DH parameters of a 2048 bit group based on the common seed
-      paramGen.init(diffieHellmanSize, commonRand);
-      AlgorithmParameters params = paramGen.generateParameters();
-      return params.getParameterSpec(DHParameterSpec.class);
-    } catch (NoSuchAlgorithmException | InvalidParameterSpecException e) {
-      throw new RuntimeException(
-          "The internally required Diffie-Hellman parameters could not be "
-              + "constructed because the PRG used did not exist or the parameter "
-              + "sizes were not supported by Java",
-          e);
-    }
+    // Make a parameter generator for Diffie-Hellman parameters
+    AlgorithmParameterGenerator paramGen = ExceptionConverter.safe(
+        () -> AlgorithmParameterGenerator.getInstance("DH"),
+        "Missing Java internal parameter generator which is needed in this library");
+    SecureRandom commonRand = ExceptionConverter.safe(() -> SecureRandom
+        .getInstance(PRG_ALGORITHM),
+        "Missing Java internal PRG which is needed in this library");
+    commonRand.setSeed(seed);
+    // Construct DH parameters of a 2048 bit group based on the common seed
+    paramGen.init(DIFFIE_HELLMAN_SIZE, commonRand);
+    AlgorithmParameters params = paramGen.generateParameters();
+    return ExceptionConverter.safe(() -> params.getParameterSpec(
+        DHParameterSpec.class),
+        "Missing Java internal parameter generator which is needed in this library");
   }
 }

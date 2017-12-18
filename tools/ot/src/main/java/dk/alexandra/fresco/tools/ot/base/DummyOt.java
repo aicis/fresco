@@ -12,8 +12,8 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
  */
 public class DummyOt implements Ot {
 
-  private Integer otherId;
-  private Network network;
+  private final int otherId;
+  private final Network network;
 
   /**
    * Construct an insecure dummy OT object based on a real network.
@@ -23,7 +23,7 @@ public class DummyOt implements Ot {
    * @param network
    *          The network to use
    */
-  public DummyOt(Integer otherId, Network network) {
+  public DummyOt(int otherId, Network network) {
     super();
     this.otherId = otherId;
     this.network = network;
@@ -43,5 +43,4 @@ public class DummyOt implements Ot {
     this.network.send(otherId, messageZero.toByteArray());
     this.network.send(otherId, messageOne.toByteArray());
   }
-
 }

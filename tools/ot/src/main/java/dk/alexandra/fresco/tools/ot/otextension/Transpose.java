@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Class used to do bit transposition using Ekhlunds method. Transposition is
+ * Class used to do bit transposition using Eklundhs method. Transposition is
  * carried out in on a row-major matrix represented as a list (rows) of bit
  * vectors.
  * 
@@ -85,7 +85,7 @@ public class Transpose {
    * @param input
    *          The matrix to transpose. Represented in row-major
    */
-  protected static void doEklundh(List<byte[]> input) {
+  private static void doEklundh(List<byte[]> input) {
     int rows = input.size();
     // Multiply by 8 because there are 8 bits in a byte
     int byteColumns = input.get(0).length;
@@ -131,7 +131,7 @@ public class Transpose {
    * @param input
    *          The matrix to check
    */
-  protected static void doSanityCheck(List<StrictBitVector> input) {
+  private static void doSanityCheck(List<StrictBitVector> input) {
     int rows = input.size();
     // Check if the amount of rows is 8*2^x for some x
     if ((rows % 8 != 0) || // Check 8 | rows
@@ -159,7 +159,7 @@ public class Transpose {
    * @param input
    *          The input
    */
-  protected static void transposeAllByteBlocks(List<byte[]> input) {
+  private static void transposeAllByteBlocks(List<byte[]> input) {
     // Start by transposing one byte and 8 rows at a time using the trivial
     // O(n^2) algorithm
     for (int i = 0; i < input.size(); i = i + 8) {
@@ -180,7 +180,7 @@ public class Transpose {
    * @param columnOffset
    *          The column offset
    */
-  protected static void transposeByteBlock(List<byte[]> input, int rowOffset,
+  private static void transposeByteBlock(List<byte[]> input, int rowOffset,
       int columnOffset) {
     /*
      * By having 8 variables we hope that the JVM will only access the main

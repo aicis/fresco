@@ -21,10 +21,10 @@ import dk.alexandra.fresco.tools.commitment.Commitment;
  *
  */
 public class CoinTossing {
-  private int otherId;
-  private int myId;
-  private Drbg rand;
-  private Network network;
+  private final int otherId;
+  private final int myId;
+  private final Drbg rand;
+  private final Network network;
   private boolean initialized = false;
   private Drbg coinTossingPrg;
 
@@ -42,9 +42,6 @@ public class CoinTossing {
    *          The network instance
    */
   public CoinTossing(int myId, int otherId, Drbg rand, Network network) {
-    if (rand == null || network == null) {
-      throw new IllegalArgumentException("Illegal constructor parameters");
-    }
     this.myId = myId;
     this.otherId = otherId;
     this.rand = rand;
@@ -93,7 +90,8 @@ public class CoinTossing {
     if (!initialized) {
       throw new IllegalStateException("Not initialized");
     }
-    // Construct byte array with enough space by rounding up
+    // Construct byte array with enough space by rounding up the amount of bytes
+    // required to store the tosses
     byte[] res = new byte[(size + 8 - 1) / 8];
     coinTossingPrg.nextBytes(res);
     return new StrictBitVector(res, size);

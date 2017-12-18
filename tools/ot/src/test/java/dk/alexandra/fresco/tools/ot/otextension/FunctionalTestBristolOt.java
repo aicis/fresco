@@ -16,6 +16,7 @@ import dk.alexandra.fresco.tools.ot.base.Ot;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -318,7 +319,7 @@ public class FunctionalTestBristolOt {
   @Test
   public void testMaliciousException()
       throws NoSuchMethodException, SecurityException, IllegalAccessException,
-      IllegalArgumentException {
+      IllegalArgumentException, NoSuchFieldException {
     Network network = new Network() {
       @Override
       public void send(int partyId, byte[] data) {
@@ -337,12 +338,14 @@ public class FunctionalTestBristolOt {
     Drbg rand = new AesCtrDrbg(Constants.seedOne);
     BristolOt ot = new BristolOt(1, 2, kbitLength, lambdaBitLength, rand,
         network, new DummyOt(2, network), 1024);
-    Method method = ot.receiver.getClass().getDeclaredMethod("doActualReceive",
-        byte[].class, byte[].class);
+    Field receiver = BristolOt.class.getDeclaredField("receiver");
+    receiver.setAccessible(true);
+    Method method = receiver.get(ot).getClass().getDeclaredMethod(
+        "doActualReceive", byte[].class, byte[].class);
     method.setAccessible(true);
     boolean thrown = false;
     try {
-      method.invoke(ot.receiver, new byte[] { 0x42 },
+      method.invoke(receiver.get(ot), new byte[] { 0x42 },
           new byte[] { 0x42, 0x43 });
     } catch (InvocationTargetException e) {
       assertEquals(

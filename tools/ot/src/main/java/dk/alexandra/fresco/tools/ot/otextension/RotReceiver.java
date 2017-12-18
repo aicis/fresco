@@ -13,7 +13,6 @@ import java.util.List;
  *
  */
 public class RotReceiver extends RotShared {
-
   private final CoteReceiver receiver;
   private final MessageDigest digest;
 
@@ -37,15 +36,15 @@ public class RotReceiver extends RotShared {
    * correlated OT with errors and coin tossing functionalities. This should
    * only be done once for a given sender/receiver pair.
    */
+  @Override
   public void initialize() {
-    if (initialized) {
+    if (isInitialized()) {
       throw new IllegalStateException("Already initialized");
     }
-    if (receiver.initialized == false) {
+    if (!receiver.isInitialized()) {
       receiver.initialize();
     }
-    ct.initialize();
-    initialized = true;
+    super.initialize();
   }
 
   /**
@@ -93,7 +92,8 @@ public class RotReceiver extends RotShared {
    *          The input list, with all elements of equal size
    * @return The inner product represented as a StrictBitVector
    */
-  protected StrictBitVector computeBitLinearCombination(StrictBitVector indicators,
+  private StrictBitVector computeBitLinearCombination(
+      StrictBitVector indicators,
       List<StrictBitVector> list) {
     StrictBitVector res = new StrictBitVector(list.get(0).getSize());
     for (int i = 0; i < indicators.getSize(); i++) {

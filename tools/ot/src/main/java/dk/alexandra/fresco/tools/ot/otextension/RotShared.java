@@ -18,9 +18,9 @@ import java.util.List;
  */
 public class RotShared {
   // Internal state variables
-  protected CoteShared cote;
-  protected CoinTossing ct;
-  protected boolean initialized = false;
+  private final CoteShared cote;
+  private final CoinTossing ct;
+  private boolean initialized = false;
 
   /**
    * Constructs a random OT extension super-class using an underlying correlated
@@ -34,6 +34,15 @@ public class RotShared {
     this.cote = cote;
     this.ct = new CoinTossing(cote.getMyId(), cote.getOtherId(),
         cote.getRand(), cote.getNetwork());
+  }
+
+  public void initialize() {
+    ct.initialize();
+    initialized = true;
+  }
+
+  public boolean isInitialized() {
+    return initialized;
   }
 
   public int getOtherId() {
@@ -100,7 +109,7 @@ public class RotShared {
    *          The second bit vector
    * @return The product represented as a StrictBitVector
    */
-  protected static StrictBitVector multiplyWithoutReduction(
+  private static StrictBitVector multiplyWithoutReduction(
       StrictBitVector avec, StrictBitVector bvec) {
     byte[] res = new byte[(avec.getSize() + bvec.getSize()) / 8];
     byte[] avecBytes = avec.toByteArray();
@@ -137,7 +146,7 @@ public class RotShared {
    *          The amount of elements of the list, to hash. Must be less than or
    *          equal to the amount of elements in the list.
    * @param digest
-   *          THe generic digest for hashing
+   *          The generic digest for hashing
    * @return A list containing the hashed StrictBitVector as StrictBitVector
    *         objects
    */

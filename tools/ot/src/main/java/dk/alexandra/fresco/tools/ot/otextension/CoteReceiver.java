@@ -2,6 +2,7 @@ package dk.alexandra.fresco.tools.ot.otextension;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.Ot;
@@ -20,6 +21,8 @@ public class CoteReceiver extends CoteShared {
   // Random messages used for the seed OTs
   private List<Pair<StrictBitVector, StrictBitVector>> seeds;
   private List<Pair<Drbg, Drbg>> prgs;
+  // The underlying seed OT functionality
+  private final Ot ot;
 
   /**
    * Constructs a correlated OT extension with errors receiver instance.
@@ -41,7 +44,8 @@ public class CoteReceiver extends CoteShared {
    */
   public CoteReceiver(int myId, int otherId, int kbitLength,
       int lambdaSecurityParam, Drbg rand, Network network, Ot ot) {
-    super(myId, otherId, kbitLength, lambdaSecurityParam, rand, network, ot);
+    super(myId, otherId, kbitLength, lambdaSecurityParam, rand, network);
+    this.ot = ot;
     this.seeds = new ArrayList<>(kbitLength);
     this.prgs = new ArrayList<>(kbitLength);
   }
@@ -50,24 +54,26 @@ public class CoteReceiver extends CoteShared {
    * Initializes the correlated OT extension with errors by running true seed
    * OTs. This should only be done once for a given sender/receiver pair.
    */
+  @Override
   public void initialize() {
-    if (initialized) {
+    if (isInitialized()) {
       throw new IllegalStateException("Already initialized");
     }
     // Complete the seed OTs acting as the sender (NOT the receiver)
     for (int i = 0; i < getkBitLength(); i++) {
       StrictBitVector seedZero = new StrictBitVector(getkBitLength(),
           getRand());
-      StrictBitVector seedFirst = new StrictBitVector(getkBitLength(),
+      StrictBitVector seedOne = new StrictBitVector(getkBitLength(),
           getRand());
-      ot.send(seedZero, seedFirst);
-      seeds.add(new Pair<>(seedZero, seedFirst));
+      ot.send(seedZero, seedOne);
+      seeds.add(new Pair<>(seedZero, seedOne));
       // Initialize the PRGs with the random messages
-      Drbg prgZero = makePrg(seedZero);
-      Drbg prgFirst = makePrg(seedFirst);
+      // TODO make sure this is okay!
+      Drbg prgZero = new PaddingAesCtrDrbg(seedZero.toByteArray(), 256);
+      Drbg prgFirst = new PaddingAesCtrDrbg(seedOne.toByteArray(), 256);
       prgs.add(new Pair<>(prgZero, prgFirst));
     }
-    initialized = true;
+    super.initialize();
   }
 
   /**
@@ -84,7 +90,7 @@ public class CoteReceiver extends CoteShared {
       throw new IllegalArgumentException(
           "The amount of OTs must be a positive integer");
     }
-    if (!initialized) {
+    if (!isInitialized()) {
       throw new IllegalStateException("Not initialized");
     }
     // Compute how many bytes we need for "size" OTs by dividing "size" by 8
@@ -113,5 +119,21 @@ public class CoteReceiver extends CoteShared {
     sendList(ulist);
     // Complete tilt-your-head by transposing the message "matrix"
     return Transpose.transpose(tlistZero);
+  }
+
+
+  /**
+   * Sends a list of StrictBitVectors to the default (0) channel.
+   * 
+   * @param list
+   *          List to send
+   * @return Returns true if the transmission was successful
+   */
+  private boolean sendList(List<StrictBitVector> list) {
+    // TODO TKF improve
+    for (StrictBitVector currentArr : list) {
+      getNetwork().send(getOtherId(), currentArr.toByteArray());
+    }
+    return true;
   }
 }

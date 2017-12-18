@@ -4,13 +4,18 @@ import static org.junit.Assert.assertEquals;
 
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Before;
 import org.junit.Test;
 
 public class TestTranspose {
+  private Method doSanityCheck;
+
   private static List<StrictBitVector> getSquareMatrix() {
     return new ArrayList<>(
         Arrays.asList(
@@ -52,12 +57,22 @@ public class TestTranspose {
         new byte[] { (byte) 0x00, (byte) 0x00 }));
   }
 
+  /**
+   * Setup a local Transpose class.
+   */
+  @Before
+  public void setup() throws NoSuchMethodException, SecurityException {
+    doSanityCheck = Transpose.class.getDeclaredMethod("doSanityCheck",
+        List.class);
+    doSanityCheck.setAccessible(true);
+  }
+
   /**** POSITIVE TESTS. ****/
   @Test
   public void testSquareMatrix() {
     boolean thrown = false;
     try {
-      Transpose.doSanityCheck(getSquareMatrix());
+      doSanityCheck.invoke(Transpose.class, getSquareMatrix());
     } catch (Exception e) {
       thrown = true;
     }
@@ -78,7 +93,7 @@ public class TestTranspose {
       matrix.add(new StrictBitVector(1024));
     }
     try {
-      Transpose.doSanityCheck(matrix);
+      doSanityCheck.invoke(Transpose.class, matrix);
     } catch (Exception e) {
       thrown = true;
     }
@@ -89,7 +104,7 @@ public class TestTranspose {
       matrix.add(new StrictBitVector(128));
     }
     try {
-      Transpose.doSanityCheck(matrix);
+      doSanityCheck.invoke(Transpose.class, matrix);
     } catch (Exception e) {
       thrown = true;
     }
@@ -97,7 +112,9 @@ public class TestTranspose {
   }
 
   @Test
-  public void testTransposeOneByteBlock() {
+  public void testTransposeOneByteBlock() throws NoSuchMethodException,
+      IllegalAccessException, IllegalArgumentException,
+      InvocationTargetException {
     /**
      * Construct the following bit matrix 
      * 1 1 1 1 1 1 1 1, 0xFF 
@@ -119,7 +136,10 @@ public class TestTranspose {
             new byte[] { (byte) 0x00 },
             new byte[] { (byte) 0x00 }, 
             new byte[] { (byte) 0xFF }));
-    Transpose.transposeByteBlock(input, 0, 0); 
+    Method transposeByteBlock = Transpose.class.getDeclaredMethod(
+        "transposeByteBlock", List.class, int.class, int.class);
+    transposeByteBlock.setAccessible(true);
+    transposeByteBlock.invoke(Transpose.class, input, 0, 0);
     /**
      * Verify that the result is 
      * 1 0 0 0 0 0 0 1 0x81
@@ -138,9 +158,14 @@ public class TestTranspose {
   }
 
   @Test
-  public void testTransposeFourByteBlocks() {
+  public void testTransposeFourByteBlocks() throws NoSuchMethodException,
+      SecurityException, IllegalAccessException, IllegalArgumentException,
+      InvocationTargetException {
     List<byte[]> input = getSquareByteMatrix();
-    Transpose.transposeAllByteBlocks(input);
+    Method transposeAllByteBlocks = Transpose.class.getDeclaredMethod(
+        "transposeAllByteBlocks", List.class);
+    transposeAllByteBlocks.setAccessible(true);
+    transposeAllByteBlocks.invoke(Transpose.class, input);
     for (int i = 0; i < 8; i++) {
       assertEquals((byte) 0x81, input.get(i)[0]);
     }
@@ -156,9 +181,14 @@ public class TestTranspose {
   }
 
   @Test
-  public void testEklundh() {
+  public void testEklundh() throws NoSuchMethodException, SecurityException,
+      IllegalAccessException, IllegalArgumentException,
+      InvocationTargetException {
     List<byte[]> input = getSquareByteMatrix();
-    Transpose.doEklundh(input);
+    Method doEklundh = Transpose.class.getDeclaredMethod("doEklundh",
+        List.class);
+    doEklundh.setAccessible(true);
+    doEklundh.invoke(Transpose.class, input);
     List<byte[]> referenceMatrix = new ArrayList<>(
         Arrays.asList(
             new byte[] { (byte) 0xFF, (byte) 0x00 },
@@ -283,7 +313,8 @@ public class TestTranspose {
   }
 
   @Test
-  public void testWrongAmountOfColumns() {
+  public void testWrongAmountOfColumns() throws IllegalAccessException,
+      InvocationTargetException {
     boolean thrown;
     List<StrictBitVector> matrix = new ArrayList<>(
         Arrays.asList(
@@ -321,18 +352,19 @@ public class TestTranspose {
                 new byte[] { (byte) 0x00, (byte) 0x00, (byte) 0xFF }, 24)));
     thrown = false;
     try {
-      Transpose.doSanityCheck(matrix);
-    } catch (IllegalArgumentException e) {
+      doSanityCheck.invoke(Transpose.class, matrix);
+    } catch (InvocationTargetException e) {
       assertEquals(
           "The amount columns in the matrix is not 8*2^x for some x > 1",
-          e.getMessage());
+          e.getTargetException().getMessage());
       thrown = true;
     }
     assertEquals(true, thrown);
   }
 
   @Test
-  public void testNonEqualColumns() {
+  public void testNonEqualColumns() throws IllegalAccessException,
+      InvocationTargetException {
     boolean thrown;
     List<StrictBitVector> matrix = new ArrayList<>(
         Arrays.asList(
@@ -355,9 +387,10 @@ public class TestTranspose {
             new StrictBitVector(new byte[] { (byte) 0x00, (byte) 0x00 }, 16)));
     thrown = false;
     try {
-      Transpose.doSanityCheck(matrix);
-    } catch (IllegalArgumentException e) {
-      assertEquals("Not all rows are of equal length", e.getMessage());
+      doSanityCheck.invoke(Transpose.class, matrix);
+    } catch (InvocationTargetException e) {
+      assertEquals("Not all rows are of equal length", e.getTargetException()
+          .getMessage());
       thrown = true;
     }
     assertEquals(true, thrown);

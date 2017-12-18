@@ -11,8 +11,8 @@ import dk.alexandra.fresco.tools.ot.base.Ot;
  *
  */
 public class Rot {
-  protected RotSender sender;
-  protected RotReceiver receiver;
+  private final RotSender sender;
+  private final RotReceiver receiver;
 
   /**
    * Constructs a new random OT protocol and constructs the internal sender and

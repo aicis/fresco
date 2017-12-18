@@ -5,6 +5,7 @@ import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import java.security.MessageDigest;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -14,7 +15,6 @@ import java.util.List;
  *
  */
 public class RotSender extends RotShared {
-
   private final MessageDigest digest;
   // The correlated OT with errors sender that this object will use
   private final CoteSender sender;
@@ -53,15 +53,15 @@ public class RotSender extends RotShared {
    * @throws MaliciousOtExtensionException
    *           Thrown if cheating occurred
    */
+  @Override
   public void initialize() {
-    if (initialized) {
+    if (isInitialized()) {
       throw new IllegalStateException("Already initialized");
     }
-    if (sender.initialized == false) {
+    if (!sender.isInitialized()) {
       sender.initialize();
     }
-    ct.initialize();
-    initialized = true;
+    super.initialize();
   }
 
   /**
@@ -78,7 +78,7 @@ public class RotSender extends RotShared {
    *           Thrown if something, non-malicious, goes wrong
    */
   public Pair<List<StrictBitVector>, List<StrictBitVector>> extend(int size) {
-    if (!initialized) {
+    if (!isInitialized()) {
       throw new IllegalStateException("Not initialized");
     }
     int ellPrime = size + getKbitLength() + getLambdaSecurityParam();
@@ -97,7 +97,8 @@ public class RotSender extends RotShared {
     StrictBitVector xvec = new StrictBitVector(xvecBytes, getKbitLength());
     StrictBitVector tvec = new StrictBitVector(tvecBytes, 2 * getKbitLength());
     // Compute the challenge vector based on the receivers send values
-    StrictBitVector tvecToCompare = multiplyWithoutReduction(delta, xvec);
+    StrictBitVector tvecToCompare = computeInnerProduct(Arrays.asList(delta),
+        Arrays.asList(xvec));
     tvecToCompare.xor(qvec);
     // Ensure that the receiver has been honest by verifying its challenge
     if (tvecToCompare.equals(tvec) == false) {

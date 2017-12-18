@@ -1,9 +1,5 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
@@ -11,6 +7,10 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Class implementing a batched random OT protocol, allowing the sending and
@@ -25,8 +25,8 @@ import dk.alexandra.fresco.tools.ot.base.RotBatch;
  *          The objects to send/receive
  */
 public class BristolRotBatch implements RotBatch<StrictBitVector> {
-  protected RotSender sender;
-  protected RotReceiver receiver;
+  private final RotSender sender;
+  private final RotReceiver receiver;
 
   /**
    * Constructs a new random batch OT protocol and constructs the internal
@@ -74,7 +74,7 @@ public class BristolRotBatch implements RotBatch<StrictBitVector> {
   public List<Pair<StrictBitVector, StrictBitVector>> send(int numMessages,
       int sizeOfEachMessage) {
     // Initialize the underlying functionalities if needed
-    if (sender.initialized == false) {
+    if (!sender.isInitialized()) {
       sender.initialize();
     }
     List<Pair<StrictBitVector, StrictBitVector>> res = new ArrayList<>(
@@ -101,7 +101,7 @@ public class BristolRotBatch implements RotBatch<StrictBitVector> {
   public List<StrictBitVector> receive(StrictBitVector choiceBits,
       int sizeOfEachMessage) {
     // Initialize the underlying functionalities if needed
-    if (receiver.initialized == false) {
+    if (!receiver.isInitialized()) {
       receiver.initialize();
     }
     List<StrictBitVector> res = new ArrayList<>(choiceBits.getSize());

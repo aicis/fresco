@@ -142,43 +142,6 @@ public class TestCoinTossing {
   }
 
   @Test
-  public void testIllegalInit() {
-    Drbg rand = new AesCtrDrbg(Constants.seedOne);
-    // fake network
-    Network network = new Network() {
-      @Override
-      public void send(int partyId, byte[] data) {
-      }
-
-      @Override
-      public byte[] receive(int partyId) {
-        return null;
-      }
-
-      @Override
-      public int getNoOfParties() {
-        return 0;
-      }
-    };
-    boolean thrown = false;
-    try {
-      new CoinTossing(0, 1, null, network);
-    } catch (IllegalArgumentException e) {
-      assertEquals("Illegal constructor parameters", e.getMessage());
-      thrown = true;
-    }
-    assertEquals(thrown, true);
-    thrown = false;
-    try {
-      new CoinTossing(0, 1, rand, null);
-    } catch (IllegalArgumentException e) {
-      assertEquals("Illegal constructor parameters", e.getMessage());
-      thrown = true;
-    }
-    assertEquals(thrown, true);
-  }
-
-  @Test
   public void testNotInitialized() {
     boolean thrown = false;
     try {

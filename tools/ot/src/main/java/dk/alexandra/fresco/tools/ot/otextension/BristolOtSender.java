@@ -21,7 +21,7 @@ import java.util.List;
  */
 public class BristolOtSender extends BristolOtShared {
   // The internal random OT sender functionality used
-  private RotSender sender;
+  private final RotSender sender;
   // The random messages generated in the underlying random OT functionality
   private Pair<List<StrictBitVector>, List<StrictBitVector>> randomMessages;
   // Index of the current random OT to use
@@ -44,9 +44,10 @@ public class BristolOtSender extends BristolOtShared {
   /**
    * Initializes the underlying random OT functionality.
    */
+  @Override
   public void initialize() {
     sender.initialize();
-    initialized = true;
+    super.initialize();
   }
 
   /**
@@ -59,13 +60,13 @@ public class BristolOtSender extends BristolOtShared {
    */
   public void send(byte[] messageZero, byte[] messageOne) {
     // Initialize the underlying functionalities if needed
-    if (initialized == false) {
+    if (!isInitialized()) {
       initialize();
     }
     // Check if there is still an unused random OT stored, if not, execute a
     // random OT extension
-    if (offset < 0 || offset >= batchSize) {
-      randomMessages = sender.extend(batchSize);
+    if (offset < 0 || offset >= getBatchSize()) {
+      randomMessages = sender.extend(getBatchSize());
       offset = 0;
     }
     doActualSend(messageZero, messageOne);

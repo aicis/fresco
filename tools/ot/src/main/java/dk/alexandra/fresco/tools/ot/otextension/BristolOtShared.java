@@ -11,9 +11,10 @@ import dk.alexandra.fresco.framework.util.Drbg;
  *
  */
 public class BristolOtShared {
-  protected RotShared rot;
-  protected boolean initialized = false;
-  protected int batchSize;
+  private final RotShared rot;
+  private final int batchSize;
+  // Indicates whether the underlying Rot functionality has been initialized
+  private boolean initialized = false;
 
   /**
    * Constructs a Bristol OT extension super-class using an underlying random OT
@@ -28,6 +29,18 @@ public class BristolOtShared {
     super();
     this.rot = rot;
     this.batchSize = batchSize;
+  }
+  
+  public void initialize() {
+    initialized = true;
+  }
+
+  public boolean isInitialized() {
+    return initialized;
+  }
+
+  public int getBatchSize() {
+    return batchSize;
   }
 
   public int getOtherId() {

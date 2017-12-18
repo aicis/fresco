@@ -20,7 +20,7 @@ import java.util.List;
  */
 public class BristolOtReceiver extends BristolOtShared {
   // The internal random OT receiver functionality used
-  private RotReceiver receiver;
+  private final RotReceiver receiver;
   // The random messages received from the batched random 1-out-of-2 OTs
   private List<StrictBitVector> randomMessages;
   // The random choices from the batched random 1-out-of-2 OTs
@@ -45,9 +45,10 @@ public class BristolOtReceiver extends BristolOtShared {
   /**
    * Initializes the underlying random OT functionality.
    */
+  @Override
   public void initialize() {
     receiver.initialize();
-    initialized = true;
+    super.initialize();
   }
 
   /**
@@ -59,13 +60,13 @@ public class BristolOtReceiver extends BristolOtShared {
    */
   public byte[] receive(Boolean choiceBit) {
     // Initialize the underlying functionalities if needed
-    if (initialized == false) {
+    if (!isInitialized()) {
       initialize();
     }
     // Check if there is still an unused random OT stored, if not, execute a
     // random OT extension
-    if (offset < 0 || offset >= batchSize) {
-      choices = new StrictBitVector(batchSize, getRand());
+    if (offset < 0 || offset >= getBatchSize()) {
+      choices = new StrictBitVector(getBatchSize(), getRand());
       randomMessages = receiver.extend(choices);
       offset = 0;
     }

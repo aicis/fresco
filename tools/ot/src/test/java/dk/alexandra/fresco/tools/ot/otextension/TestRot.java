@@ -9,6 +9,8 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.helper.Constants;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -18,12 +20,13 @@ import org.junit.Test;
 public class TestRot {
 
   private Rot rot;
+  private Method multiplyWithoutReduction;
 
   /**
    * Setup a local Rot instance.
    */
   @Before
-  public void setup() {
+  public void setup() throws NoSuchMethodException {
     Drbg rand = new AesCtrDrbg(Constants.seedOne);
     // fake network
     Network network = new Network() {
@@ -42,11 +45,17 @@ public class TestRot {
       }
     };
     this.rot = new Rot(1, 2, 128, 40, rand, network, new DummyOt(2, network));
+    multiplyWithoutReduction = RotShared.class.getDeclaredMethod(
+        "multiplyWithoutReduction", StrictBitVector.class,
+        StrictBitVector.class);
+    multiplyWithoutReduction.setAccessible(true);
   }
 
   /**** POSITIVE TESTS. ****/
   @Test
-  public void testMultiplyByZeroWithoutReduction() {
+  public void testMultiplyByZeroWithoutReduction() throws NoSuchMethodException,
+      SecurityException, IllegalAccessException, IllegalArgumentException,
+      InvocationTargetException {
     // 0 1 0 0 0 0 0 1, 1 1 1 1 1 1 1 1
     byte[] abyte = new byte[]{(byte) 0x41, (byte) 0xFF};
     // Semantically equal to 1 as we read bits from left to right
@@ -57,12 +66,14 @@ public class TestRot {
     StrictBitVector a = new StrictBitVector(abyte, 16);
     StrictBitVector b = new StrictBitVector(bbyte, 8);
     StrictBitVector expected = new StrictBitVector(expectedByte, 24);
-    StrictBitVector res = RotShared.multiplyWithoutReduction(a, b);
+    StrictBitVector res = (StrictBitVector) multiplyWithoutReduction.invoke(rot
+        .getReceiver(), a, b);
     assertEquals(expected, res);
   }
 
   @Test
-  public void testMultiplyByOneWithoutReduction() {
+  public void testMultiplyByOneWithoutReduction() throws IllegalAccessException,
+      IllegalArgumentException, InvocationTargetException {
     // 0 1 0 0 0 0 0 1, 1 1 1 1 1 1 1 1
     byte[] abyte = new byte[]{(byte) 0x41, (byte) 0xFF};
     // Semantically equal to 1 as we read bits from left to right
@@ -73,12 +84,15 @@ public class TestRot {
     StrictBitVector a = new StrictBitVector(abyte, 16);
     StrictBitVector b = new StrictBitVector(bbyte, 8);
     StrictBitVector expected = new StrictBitVector(expectedByte, 24);
-    StrictBitVector res = RotShared.multiplyWithoutReduction(a, b);
+    StrictBitVector res = (StrictBitVector) multiplyWithoutReduction.invoke(rot
+        .getReceiver(), a, b);
     assertEquals(expected, res);
   }
 
   @Test
-  public void testMultiplyByFourWithoutReduction() {
+  public void testMultiplyByFourWithoutReduction()
+      throws IllegalAccessException, IllegalArgumentException,
+      InvocationTargetException {
     // 0 1 0 0 0 0 0 1, 1 1 1 1 1 1 1 1
     byte[] abyte = new byte[]{(byte) 0x41, (byte) 0xFF};
     // Semantically equal to 1 as we read bits from left to right
@@ -89,12 +103,14 @@ public class TestRot {
     StrictBitVector a = new StrictBitVector(abyte, 16);
     StrictBitVector b = new StrictBitVector(bbyte, 8);
     StrictBitVector expected = new StrictBitVector(expectedByte, 24);
-    StrictBitVector res = RotShared.multiplyWithoutReduction(a, b);
+    StrictBitVector res = (StrictBitVector) multiplyWithoutReduction.invoke(rot
+        .getReceiver(), a, b);
     assertEquals(expected, res);
   }
 
   @Test
-  public void testMultiplyWithoutReduction() {
+  public void testMultiplyWithoutReduction() throws IllegalAccessException,
+      IllegalArgumentException, InvocationTargetException {
     // 0 1 0 0 0 0 0 1, 1 1 1 1 1 1 1 1
     byte[] abyte = new byte[]{(byte) 0x41, (byte) 0xFF};
     // Semantically equal to 1 as we read bits from left to right
@@ -109,12 +125,14 @@ public class TestRot {
     StrictBitVector a = new StrictBitVector(abyte, 16);
     StrictBitVector b = new StrictBitVector(bbyte, 16);
     StrictBitVector expected = new StrictBitVector(expectedByte, 32);
-    StrictBitVector res = RotShared.multiplyWithoutReduction(a, b);
+    StrictBitVector res = (StrictBitVector) multiplyWithoutReduction.invoke(rot
+        .getReceiver(), a, b);
     assertEquals(expected, res);
   }
 
   @Test
-  public void testComputePolyLinearCombination() {
+  public void testComputePolyLinearCombination() throws IllegalAccessException,
+      IllegalArgumentException, InvocationTargetException {
     // 0 1 0 0 0 0 0 1, 1 1 1 1 1 1 1 1
     byte[] abyte = new byte[]{(byte) 0x41, (byte) 0xFF};
     // Semantically equal to 1 as we read bits from left to right
@@ -137,12 +155,15 @@ public class TestRot {
     List<StrictBitVector> expectedList = new ArrayList<>(2);
     expectedList.add(expected);
     expectedList.add(expected);
-    StrictBitVector res = RotShared.multiplyWithoutReduction(a, b);
+    StrictBitVector res = (StrictBitVector) multiplyWithoutReduction.invoke(rot
+        .getReceiver(), a, b);
     assertEquals(true, expected.equals(res));
   }
 
   @Test
-  public void testComputeBitLinearCombination() {
+  public void testComputeBitLinearCombination() throws NoSuchMethodException,
+      SecurityException, IllegalAccessException, IllegalArgumentException,
+      InvocationTargetException {
     // 0 1 0 0 0 0 0 1
     byte[] abyteOne = new byte[]{(byte) 0x41};
     // 0 1 1 1 1 1 1 1
@@ -167,8 +188,12 @@ public class TestRot {
     //      0 0 1 1 1 1 1 0
     byte[] expectedByte = new byte[]{(byte) 0x3E};
     StrictBitVector expected = new StrictBitVector(expectedByte, 8);
-    StrictBitVector res = rot.getReceiver().computeBitLinearCombination(b,
-        alist);
+    Method computeBitLinearCombination = RotReceiver.class.getDeclaredMethod(
+        "computeBitLinearCombination", StrictBitVector.class,
+        List.class);
+    computeBitLinearCombination.setAccessible(true);
+    StrictBitVector res = (StrictBitVector) computeBitLinearCombination.invoke(
+        rot.getReceiver(), b, alist);
     assertEquals(true, expected.equals(res));
   }
 

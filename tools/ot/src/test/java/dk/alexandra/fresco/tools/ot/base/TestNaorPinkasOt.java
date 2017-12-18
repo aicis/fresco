@@ -217,27 +217,4 @@ public class TestNaorPinkasOt {
     }
     assertTrue(thrown);
   }
-
-  @Test
-  public void testNoSuchAlgorithm() throws Exception {
-    // Change the "prgAlgorithm" field to the value "sdf"
-    Field algorithm = NaorPinkasOt.class.getDeclaredField("prgAlgorithm");
-    Constants.setFinalStatic(algorithm, "sdf", ot);
-    boolean thrown = false;
-    try {
-      // Invoke the private method "computeDhParams"
-      Method computeDh = NaorPinkasOt.class.getDeclaredMethod("computeDhParams",
-          byte[].class);
-      computeDh.setAccessible(true);
-      computeDh.invoke(ot, new byte[32]);
-    } catch (InvocationTargetException e) {
-      assertEquals(
-          "The internally required Diffie-Hellman parameters could not be "
-              + "constructed because the PRG used did not exist or the parameter "
-              + "sizes were not supported by Java",
-          e.getTargetException().getMessage());
-      thrown = true;
-    }
-    assertTrue(thrown);
-  }
 }
