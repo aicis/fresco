@@ -6,9 +6,9 @@ import org.slf4j.LoggerFactory;
 public class DefaultPerformancePrinter implements PerformancePrinter {
 
   @Override
-  public void printPerformanceLog(PerformanceLogger logger, int myId) {
+  public void printPerformanceLog(PerformanceLogger logger) {
     String s = "";
-    for (Entry<String, Long> e : logger.getLoggedValues(myId).entrySet()) {
+    for (Entry<String, Long> e : logger.getLoggedValues().entrySet()) {
       s += "[" + e.getKey().toString() + ": " + e.getValue().toString() + "]";
     }
     LoggerFactory.getLogger(logger.getClass()).info(s);

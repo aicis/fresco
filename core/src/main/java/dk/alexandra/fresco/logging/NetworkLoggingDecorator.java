@@ -8,18 +8,13 @@ import java.util.Map;
 
 public class NetworkLoggingDecorator implements Network, PerformanceLogger, Closeable {
 
-  public static final String ID = "My ID";
   public static final String NETWORK_PARTY_BYTES = "Amount of bytes received pr. party";
   public static final String NETWORK_TOTAL_BYTES = "Total amount of bytes received";
   public static final String NETWORK_TOTAL_BATCHES = "Total amount of batches received";
-  public static final String NETWORK_MAX_BYTES = "Maximum amount of bytes received";
-  public static final String NETWORK_MIN_BYTES = "Minimum amount of bytes received";
 
   private Network delegate;
   private Map<Integer, PartyStats> partyStatsMap = new HashMap<>();
-  private long minBytesReceived = Integer.MAX_VALUE;
-  private long maxBytesReceived = 0;
-
+  
   public NetworkLoggingDecorator(Network network) {
     this.delegate = network;
   }
@@ -29,8 +24,6 @@ public class NetworkLoggingDecorator implements Network, PerformanceLogger, Clos
     byte[] res = this.delegate.receive(partyId);
     int noBytes = res.length;
     partyStatsMap.computeIfAbsent(partyId, (i) -> new PartyStats()).recordTransmission(noBytes);
-    minBytesReceived = Math.min(noBytes, minBytesReceived);
-    maxBytesReceived = Math.max(noBytes, maxBytesReceived);
     return res;
   }
 
@@ -47,8 +40,6 @@ public class NetworkLoggingDecorator implements Network, PerformanceLogger, Clos
   @Override
   public void reset() {
     partyStatsMap.clear();
-    minBytesReceived = Integer.MAX_VALUE;
-    maxBytesReceived = 0;
   }
 
   @Override
@@ -69,9 +60,8 @@ public class NetworkLoggingDecorator implements Network, PerformanceLogger, Clos
   }
 
   @Override
-  public Map<String, Long> getLoggedValues(int myId) {
+  public Map<String, Long> getLoggedValues() {
     Map<String, Long> values = new HashMap<>();
-    values.put(ID, (long)myId);
     
     long totalNoBytes = 0;
     long noNetworkBatches = 0;
@@ -83,8 +73,6 @@ public class NetworkLoggingDecorator implements Network, PerformanceLogger, Clos
     }
     values.put(NETWORK_TOTAL_BYTES, totalNoBytes);
     values.put(NETWORK_TOTAL_BATCHES, noNetworkBatches);
-    values.put(NETWORK_MAX_BYTES, this.maxBytesReceived);
-    values.put(NETWORK_MIN_BYTES, this.minBytesReceived);
     return values;
   }
 

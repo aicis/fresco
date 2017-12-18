@@ -36,7 +36,7 @@ public interface BuilderFactoryBinary extends BuilderFactory<ProtocolBuilderBina
    * Returns a builder which can be helpful while developing a new protocol. Be very careful though,
    * to include this in any production code since the debugging opens values to all parties.
    * 
-   * @param builder
+   * @param builder The ProtocolBuilderBinary to use for constructing protocols
    * @return By default a standard debugger which opens values and prints them.
    */
   default Debug createDebug(ProtocolBuilderBinary builder) {
