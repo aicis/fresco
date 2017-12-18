@@ -1,6 +1,10 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.ExponentiationPipeTests;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.arithmetic.AdvancedNumericTests;
@@ -23,8 +27,8 @@ import dk.alexandra.fresco.lib.conditional.ConditionalSwapRowsTests;
 import dk.alexandra.fresco.lib.conditional.SwapIfTests;
 import dk.alexandra.fresco.lib.debug.ArithmeticDebugTests;
 import dk.alexandra.fresco.lib.list.EliminateDuplicatesTests;
-import dk.alexandra.fresco.lib.lp.LpBuildingBlockTests;
 import dk.alexandra.fresco.lib.lp.LPSolver;
+import dk.alexandra.fresco.lib.lp.LpBuildingBlockTests;
 import dk.alexandra.fresco.lib.math.integer.binary.BinaryOperationsTests;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationTests;
@@ -38,15 +42,19 @@ import dk.alexandra.fresco.lib.statistics.CreditRaterTest;
 import dk.alexandra.fresco.lib.statistics.DeaSolver.AnalysisType;
 import dk.alexandra.fresco.lib.statistics.DeaSolverTests.RandomDataDeaTest;
 import dk.alexandra.fresco.lib.statistics.DeaSolverTests.TestDeaFixed1;
-import dk.alexandra.fresco.logging.DefaultPerformancePrinter;
-import dk.alexandra.fresco.logging.PerformanceLogger;
-import dk.alexandra.fresco.logging.PerformancePrinter;
+import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
+import dk.alexandra.fresco.logging.arithmetic.ComparisonLoggerDecorator;
+import dk.alexandra.fresco.logging.arithmetic.NumericLoggingDecorator;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import org.junit.Test;
 
 
 public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTest {
+  private final BigInteger defaultMod = new BigInteger(
+      "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
+
+
 
   @Test
   public void test_Input_Sequential() throws Exception {
@@ -57,7 +65,9 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_OutputToTarget_Sequential() throws Exception {
     runTest(new BasicArithmeticTests.TestOutputToSingleParty<>(), EvaluationStrategy.SEQUENTIAL,
-        2);
+        2, defaultMod, true);
+    assertThat(performanceLoggers.get(1).getLoggedValues()
+        .get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), is((long)0));
   }
 
   @Test
@@ -417,32 +427,34 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(new LpBuildingBlockTests.TestBlandEnteringVariable<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
-  
+
   @Test
   public void test_LpTableauDebug() throws Exception {
     runTest(new LpBuildingBlockTests.TestLpTableuDebug<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
-  
+
   @Test
   public void test_LpSolverDanzig() throws Exception {
-    runTest(new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.DANZIG), EvaluationStrategy.SEQUENTIAL,
+    runTest(new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.DANZIG),
+        EvaluationStrategy.SEQUENTIAL,
         2);
   }
-  
+
   @Test
   public void test_LpSolverBland() throws Exception {
-    runTest(new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.BLAND), EvaluationStrategy.SEQUENTIAL,
-        2);
+        runTest(new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.BLAND),
+        EvaluationStrategy.SEQUENTIAL,
+        2, defaultMod, true);
+    assertThat(performanceLoggers.get(1).getLoggedValues()
+        .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_EQ), is((long)33));
   }
-  
+
   @Test
   public void test_LpSolverDebug() throws Exception {
     runTest(new LpBuildingBlockTests.TestLpSolverDebug<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
-  
-  
 
 
   // lib.math.integer.binary
@@ -475,7 +487,9 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_ss_division() throws Exception {
     runTest(new DivisionTests.TestSecretSharedDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        1);
+        1, defaultMod, true);
+    assertThat(performanceLoggers.get(1).getLoggedValues()
+        .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_COMP0), is((long)80));
   }
 
   @Test
@@ -486,7 +500,9 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_Exponentiation() throws Exception {
     runTest(new ExponentiationTests.TestExponentiation<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        2);
+        2, defaultMod, true);
+    assertThat(performanceLoggers.get(1).getLoggedValues()
+        .get(NumericLoggingDecorator.ARITHMETIC_BASIC_SUB), is((long)19));
   }
 
 
@@ -529,13 +545,17 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_Minimum_Protocol_2_parties() throws Exception {
     runTest(new MinTests.TestMinimumProtocol<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        2);
+        2, defaultMod, true);
+    assertThat(performanceLoggers.get(1).getLoggedValues()
+        .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_LEQ), is((long)10));
   }
 
   @Test
   public void test_Min_Inf_Frac_2_parties() throws Exception {
     runTest(new MinTests.TestMinInfFraction<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        2);
+        2, defaultMod, true);
+    assertThat(performanceLoggers.get(1).getLoggedValues()
+        .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_LEQ), is((long)10));
   }
 
   @Test
@@ -581,23 +601,10 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
-  public void test_performance_logger() throws Exception {
-    BigInteger mod = new BigInteger(
-        "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
-    runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
-        2, mod, true);
-    for (Integer pId : DummyArithmeticBuilderFactory.performanceLoggers.keySet()) {
-      PerformancePrinter printer = new DefaultPerformancePrinter();
-      for (PerformanceLogger pl : DummyArithmeticBuilderFactory.performanceLoggers.get(pId)) {
-        printer.printPerformanceLog(pl, pId);
-      }
-    }
-  }
-  
-  @Test
   public void test_exponentiation_pipe_preprocessed() throws Exception {
-    runTest(new dk.alexandra.fresco.framework.builder.numeric.ExponentiationPipeTests.TestPreprocessedValues<>(), EvaluationStrategy.SEQUENTIAL,
-        1);
+    runTest(
+        new ExponentiationPipeTests.TestPreprocessedValues<>(),
+        EvaluationStrategy.SEQUENTIAL, 1);
   }
-  
+
 }
