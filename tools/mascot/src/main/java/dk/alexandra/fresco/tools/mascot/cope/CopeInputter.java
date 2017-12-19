@@ -26,9 +26,9 @@ import java.util.stream.Stream;
  */
 public class CopeInputter extends CopeShared {
 
-  private List<FieldElementPrg> leftPrgs;
-  private List<FieldElementPrg> rightPrgs;
-  private MultiplyRight multiplier;
+  private final List<FieldElementPrg> leftPrgs;
+  private final List<FieldElementPrg> rightPrgs;
+  private final MultiplyRight multiplier;
 
   /**
    * Creates new {@link CopeInputter}.

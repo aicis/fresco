@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
  */
 public class CommitmentBasedInput<T> extends BaseProtocol {
 
-  SecureSerializer<T> serializer;
-  Network broadcaster;
+  private final SecureSerializer<T> serializer;
+  private final Network broadcaster;
 
   /**
    * Creates new {@link CommitmentBasedInput}.

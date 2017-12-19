@@ -27,10 +27,10 @@ import java.util.stream.Stream;
  */
 public class TripleGeneration extends BaseProtocol {
 
-  private ElementGeneration elementGeneration;
-  private Map<Integer, MultiplyRight> rightMultipliers;
-  private Map<Integer, MultiplyLeft> leftMultipliers;
-  private FieldElementPrg jointSampler;
+  private final ElementGeneration elementGeneration;
+  private final Map<Integer, MultiplyRight> rightMultipliers;
+  private final Map<Integer, MultiplyLeft> leftMultipliers;
+  private final FieldElementPrg jointSampler;
 
   /**
    * Creates new triple generation protocol.
@@ -232,11 +232,10 @@ public class TripleGeneration extends BaseProtocol {
     return triples;
   }
 
-  private class UnauthTriple {
-
-    List<FieldElement> leftFactors;
-    FieldElement rightFactor;
-    List<FieldElement> product;
+  private final class UnauthTriple {
+    private final List<FieldElement> leftFactors;
+    private final FieldElement rightFactor;
+    private final List<FieldElement> product;
 
     public UnauthTriple(List<FieldElement> leftFactors, FieldElement rightFactor,
         List<FieldElement> product) {
@@ -256,12 +255,11 @@ public class TripleGeneration extends BaseProtocol {
   }
 
   private class TripleCandidate<T> {
-
-    T leftFactor;
-    T rightFactor;
-    T product;
-    T leftFactorHat;
-    T productHat;
+    protected final T leftFactor;
+    protected final T rightFactor;
+    protected final T product;
+    protected final T leftFactorHat;
+    protected final T productHat;
 
     TripleCandidate(T leftFactor, T rightFactor, T product, T leftFactorHat, T productHat) {
       this.leftFactor = leftFactor;
@@ -278,20 +276,16 @@ public class TripleGeneration extends BaseProtocol {
     Stream<T> stream() {
       return Stream.of(leftFactor, rightFactor, product, leftFactorHat, productHat);
     }
-
   }
 
-  private class UnauthCand extends TripleCandidate<FieldElement> {
-
+  private final class UnauthCand extends TripleCandidate<FieldElement> {
     UnauthCand(FieldElement leftFactor, FieldElement rightFactor, FieldElement product,
         FieldElement leftFactorHat, FieldElement productHat) {
       super(leftFactor, rightFactor, product, leftFactorHat, productHat);
     }
-
   }
 
-  private class AuthCand extends TripleCandidate<AuthenticatedElement> {
-
+  private final class AuthCand extends TripleCandidate<AuthenticatedElement> {
     public AuthCand(List<AuthenticatedElement> ordered) {
       super(ordered);
     }
@@ -307,6 +301,6 @@ public class TripleGeneration extends BaseProtocol {
     public MultTriple toTriple() {
       return new MultTriple(leftFactor, rightFactor, product);
     }
-
   }
+  
 }

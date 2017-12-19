@@ -24,9 +24,9 @@ import java.util.stream.IntStream;
  */
 public class CopeSigner extends CopeShared {
 
-  private List<FieldElementPrg> prgs;
-  private FieldElement macKeyShare;
-  private MultiplyLeft multiplier;
+  private final List<FieldElementPrg> prgs;
+  private final FieldElement macKeyShare;
+  private final MultiplyLeft multiplier;
 
   /**
    * Creates new cope signer.

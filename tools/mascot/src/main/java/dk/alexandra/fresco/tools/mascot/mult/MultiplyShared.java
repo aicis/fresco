@@ -8,8 +8,8 @@ import dk.alexandra.fresco.tools.ot.base.RotBatch;
 
 public class MultiplyShared extends TwoPartyProtocol {
 
-  protected RotBatch<StrictBitVector> rot;
-  protected int numLeftFactors;
+  protected final RotBatch<StrictBitVector> rot;
+  protected final int numLeftFactors;
 
   MultiplyShared(MascotResourcePool resourcePool, Network network, Integer otherId,
       int numLeftFactors) {

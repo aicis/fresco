@@ -10,8 +10,8 @@ import java.util.List;
  */
 public class BroadcastingNetworkDecorator implements Network {
 
-  Network network;
-  BroadcastValidation validator;
+  private final Network network;
+  private final BroadcastValidation validator;
 
   /**
    * Decorates a regular network with actively secure broadcast functionality.

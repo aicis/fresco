@@ -4,9 +4,9 @@ import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 
 public class MultTriple implements Addable<MultTriple> {
 
-  private AuthenticatedElement left;
-  private AuthenticatedElement right;
-  private AuthenticatedElement product;
+  private final AuthenticatedElement left;
+  private final AuthenticatedElement right;
+  private final AuthenticatedElement product;
 
   /**
    * Creates new multiplication triple.

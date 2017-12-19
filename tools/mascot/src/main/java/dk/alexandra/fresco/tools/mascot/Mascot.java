@@ -22,8 +22,8 @@ import java.util.List;
  */
 public class Mascot extends BaseProtocol {
 
-  TripleGeneration tripleGeneration;
-  ElementGeneration elementGeneration;
+  private final TripleGeneration tripleGeneration;
+  private final ElementGeneration elementGeneration;
 
   /**
    * Creates new {@link Mascot}.

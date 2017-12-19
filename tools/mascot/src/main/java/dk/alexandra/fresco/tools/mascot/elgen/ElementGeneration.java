@@ -26,13 +26,13 @@ import java.util.stream.Stream;
  */
 public class ElementGeneration extends BaseProtocol {
 
-  private MacCheck macChecker;
-  private FieldElement macKeyShare;
-  private FieldElementPrg localSampler;
-  private FieldElementPrg jointSampler;
-  private Sharer sharer;
-  private Map<Integer, CopeSigner> copeSigners;
-  private Map<Integer, CopeInputter> copeInputters;
+  private final MacCheck macChecker;
+  private final FieldElement macKeyShare;
+  private final FieldElementPrg localSampler;
+  private final FieldElementPrg jointSampler;
+  private final Sharer sharer;
+  private final Map<Integer, CopeSigner> copeSigners;
+  private final Map<Integer, CopeInputter> copeInputters;
 
   /**
    * Creates new {@link ElementGeneration}.
