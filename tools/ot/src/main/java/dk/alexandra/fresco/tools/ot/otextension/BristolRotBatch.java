@@ -18,20 +18,20 @@ import java.util.List;
  * random OT protocol to construct random messages in a batch. Then use each of
  * these messages as a seed to a PRG and extend them to a sufficient amount of
  * bits.
- * 
+ *
  * @author jot2re
  *
  * @param <T>
  *          The objects to send/receive
  */
-public class BristolRotBatch implements RotBatch<StrictBitVector> {
+public class BristolRotBatch implements RotBatch {
   private final RotSender sender;
   private final RotReceiver receiver;
 
   /**
    * Constructs a new random batch OT protocol and constructs the internal
    * sender and receiver objects.
-   * 
+   *
    * @param resources
    *          The common OT extension resource pool
    * @param network
@@ -118,7 +118,7 @@ public class BristolRotBatch implements RotBatch<StrictBitVector> {
    * to get "minSiz", <i>usable</i> OTs. This is not trivial since
    * kbitLength+lambdaParam amount of OTs must be sacrificed in the underlying
    * process.
-   * 
+   *
    * @param minSize
    *          The amount of usable OTs we wish to have in the end
    * @param kbitLength
@@ -151,7 +151,7 @@ public class BristolRotBatch implements RotBatch<StrictBitVector> {
   /**
    * Use "seed" as a seed to a PRG and construct a new messages of
    * "sizeOfMessage" bits using this PRG.
-   * 
+   *
    * @param seed
    *          The seed for the PRG
    * @param sizeOfMessage

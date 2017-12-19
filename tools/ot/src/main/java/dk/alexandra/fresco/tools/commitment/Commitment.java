@@ -120,17 +120,4 @@ public class Commitment {
     CommitmentSerializer serializer = new CommitmentSerializer();
     return serializer.deserialize(serializedComm);
   }
-
-  /**
-   * Commitments are equal if the internal digest is the same.
-   */
-  @Override
-  public boolean equals(Object other) {
-    // TODO move to test
-    if (other instanceof Commitment && Arrays.equals(
-        ((Commitment) other).commitmentVal, commitmentVal)) {
-      return true;
-    }
-    return false;
-  }
 }

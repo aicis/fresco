@@ -125,7 +125,7 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
   }
 
   @Override
-  public RotBatch<StrictBitVector> createRot(int otherId, Network network) {
+  public RotBatch createRot(int otherId, Network network) {
     DHParameterSpec params = new DHParameterSpec(DhPvalue, DhGvalue);
     Ot ot = ExceptionConverter.safe(() -> new NaorPinkasOt(getMyId(), otherId,
         getRandomGenerator(), network, params),

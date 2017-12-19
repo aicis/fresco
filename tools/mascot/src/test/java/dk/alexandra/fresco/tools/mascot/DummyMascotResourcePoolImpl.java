@@ -23,7 +23,7 @@ public class DummyMascotResourcePoolImpl extends MascotResourcePoolImpl {
   }
 
   @Override
-  public RotBatch<StrictBitVector> createRot(int otherId, Network network) {
+  public RotBatch createRot(int otherId, Network network) {
     Ot ot = new DummyOt(otherId, network);
     OtExtensionResourcePool otResources = new OtExtensionResourcePoolImpl(getMyId(), otherId,
         getModBitLength(), getLambdaSecurityParam(), getRandomGenerator());

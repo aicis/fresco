@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.SecureSerializer;
 import dk.alexandra.fresco.framework.network.serializers.StrictBitVectorSerializer;
 import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.commitment.CommitmentSerializer;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
@@ -18,7 +17,7 @@ public class MascotMockSupplier {
 
   /**
    * Creates a mock resource pool with valid parameters to use for exception testing.
-   * 
+   *
    * @return mock mascot resource pool
    */
   public MascotResourcePool getResourcePool() {
@@ -100,7 +99,7 @@ public class MascotMockSupplier {
       }
 
       @Override
-      public RotBatch<StrictBitVector> createRot(int otherId, Network network) {
+      public RotBatch createRot(int otherId, Network network) {
         return null;
       }
     };
@@ -108,7 +107,7 @@ public class MascotMockSupplier {
 
   /**
    * Creates mock network for testing.
-   * 
+   *
    * @return mock network
    */
   public Network getNetwork() {

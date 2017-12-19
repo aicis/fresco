@@ -19,7 +19,7 @@ public class BristolRotBatchDemo<ResourcePoolT extends ResourcePool> {
 
   /**
    * Run the receiving party.
-   * 
+   *
    * @param pid
    *          The PID of the receiving party
    * @throws IOException
@@ -28,7 +28,7 @@ public class BristolRotBatchDemo<ResourcePoolT extends ResourcePool> {
   public void runPartyOne(int pid) throws IOException {
     OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
         lambdaSecurityParam);
-    RotBatch<StrictBitVector> rotBatch = new BristolRotBatch(ctx.getResources(),
+    RotBatch rotBatch = new BristolRotBatch(ctx.getResources(),
         ctx
         .getNetwork(), ctx.getDummyOtInstance());
     StrictBitVector choices = new StrictBitVector(amountOfOTs, ctx.getRand());
@@ -43,7 +43,7 @@ public class BristolRotBatchDemo<ResourcePoolT extends ResourcePool> {
 
   /**
    * Run the sending party.
-   * 
+   *
    * @param pid
    *          The PID of the sending party
    * @throws IOException
@@ -52,7 +52,7 @@ public class BristolRotBatchDemo<ResourcePoolT extends ResourcePool> {
   public void runPartyTwo(int pid) throws IOException {
     OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
         lambdaSecurityParam);
-    RotBatch<StrictBitVector> rotBatch = new BristolRotBatch(ctx.getResources(),
+    RotBatch rotBatch = new BristolRotBatch(ctx.getResources(),
         ctx.getNetwork(), ctx.getDummyOtInstance());
     List<Pair<StrictBitVector, StrictBitVector>> messages = rotBatch.send(
         amountOfOTs, messageSize);
@@ -67,7 +67,7 @@ public class BristolRotBatchDemo<ResourcePoolT extends ResourcePool> {
 
   /**
    * The main function, taking one argument, the PID of the calling party.
-   * 
+   *
    * @param args
    *          Argument list, consisting of only the PID
    */
