@@ -1,8 +1,6 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import java.security.MessageDigest;
 import java.util.List;
 
 /**
@@ -14,7 +12,6 @@ import java.util.List;
  */
 public class RotReceiver extends RotShared {
   private final CoteReceiver receiver;
-  private final MessageDigest digest;
 
   /**
    * Construct a receiving party for an instance of the random OT extension
@@ -26,9 +23,6 @@ public class RotReceiver extends RotShared {
   public RotReceiver(CoteReceiver rec) {
     super(rec);
     this.receiver = rec;
-    this.digest = ExceptionConverter.safe(
-        () -> MessageDigest.getInstance("SHA-256"),
-        "Cannot load hashing algorithm");
   }
 
   /**
@@ -74,7 +68,7 @@ public class RotReceiver extends RotShared {
     StrictBitVector tvec = computeInnerProduct(chiList, tlist);
     getNetwork().send(getOtherId(), tvec.toByteArray());
     // Remove the correlation of the OTs by hashing
-    List<StrictBitVector> vvec = hashBitVector(tlist, choices.getSize(), digest);
+    List<StrictBitVector> vvec = hashBitVector(tlist, choices.getSize());
     return vvec;
   }
 

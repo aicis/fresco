@@ -27,26 +27,17 @@ public class CoteSender extends CoteShared {
   /**
    * Construct a sending party for an instance of the correlated OT protocol.
    * 
-   * @param otherId
-   *          The ID of the receiving party
-   * @param kbitLength
-   *          Computational security parameter. Must be a positive number
-   *          divisible by 8
-   * @param lambdaSecurityParam
-   *          The statistical security parameter. Must be positive.
-   * @param rand
-   *          The cryptographically secure and private randomness generator of
-   *          this party. Must not be null and must be initialized.
+   * @param resources
+   *          The common resource pool needed for OT extension
    * @param network
    *          The network interface. Must not be null and must be initialized.
    * @param ot
    *          The OT functionality to use for seed OTs
    */
-  public CoteSender(int myId, int otherId, int kbitLength,
-      int lambdaSecurityParam, Drbg rand, Network network, Ot ot) {
-    super(myId, otherId, kbitLength, lambdaSecurityParam, rand, network);
+  public CoteSender(OtExtensionResourcePool resources, Network network, Ot ot) {
+    super(resources, network);
     this.ot = ot;
-    this.prgs = new ArrayList<>(kbitLength);
+    this.prgs = new ArrayList<>(resources.getComputationalSecurityParameter());
   }
 
   /**

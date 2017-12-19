@@ -124,7 +124,7 @@ public class TestTranspose {
      * 0 0 0 0 0 0 0 0, 0x00 
      * 0 0 0 0 0 0 0 0, 0x00
      * 0 0 0 0 0 0 0 0, 0x00
-     * 1 1 1 1 1 1 1 1, 0xFF
+     * 1 1 1 1 1 1 1 1, 0xFF.
      */
     List<byte[]> input = new ArrayList<>(
         Arrays.asList(

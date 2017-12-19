@@ -19,35 +19,27 @@ import java.util.List;
  */
 public class CoteReceiver extends CoteShared {
   // Random messages used for the seed OTs
-  private List<Pair<StrictBitVector, StrictBitVector>> seeds;
-  private List<Pair<Drbg, Drbg>> prgs;
+  private final List<Pair<StrictBitVector, StrictBitVector>> seeds;
+  private final List<Pair<Drbg, Drbg>> prgs;
   // The underlying seed OT functionality
   private final Ot ot;
 
   /**
    * Constructs a correlated OT extension with errors receiver instance.
    * 
-   * @param myId
-   *          The ID of the calling party
-   * @param otherId
-   *          ID of the other party to execute with
-   * @param kbitLength
-   *          The computational security parameter
-   * @param lambdaSecurityParam
-   *          The statistical security parameter
-   * @param rand
-   *          The current party's cryptographically secure randomness generator
+   * @param resources
+   *          The common resource pool needed for OT extension
    * @param network
    *          The network object used to communicate with the other party
    * @param ot
    *          The OT functionality to use for seed OTs
    */
-  public CoteReceiver(int myId, int otherId, int kbitLength,
-      int lambdaSecurityParam, Drbg rand, Network network, Ot ot) {
-    super(myId, otherId, kbitLength, lambdaSecurityParam, rand, network);
+  public CoteReceiver(OtExtensionResourcePool resources, Network network,
+      Ot ot) {
+    super(resources, network);
     this.ot = ot;
-    this.seeds = new ArrayList<>(kbitLength);
-    this.prgs = new ArrayList<>(kbitLength);
+    this.seeds = new ArrayList<>(getkBitLength());
+    this.prgs = new ArrayList<>(getkBitLength());
   }
 
   /**

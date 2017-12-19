@@ -1,13 +1,8 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import dk.alexandra.fresco.framework.network.KryoNetNetwork;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.util.AesCtrDrbg;
-import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.ot.base.DummyOt;
 
 import java.util.List;
 
@@ -19,9 +14,11 @@ import java.util.List;
  * @param <ResourcePoolT>
  *          The FRESCO resource pool used for the execution
  */
-public class RotDemo<ResourcePoolT extends ResourcePool> extends Demo {
+public class RotDemo<ResourcePoolT extends ResourcePool> {
   // Amount of random OTs to construct
-  private int amountOfOTs = 88;
+  private final int amountOfOTs = 88;
+  private final int kbitLength = 128;
+  private final int lambdaSecurityParam = 40;
 
   /**
    * Run the receiving party.
@@ -41,15 +38,14 @@ public class RotDemo<ResourcePoolT extends ResourcePool> extends Demo {
    *           Thrown if cheating occurred
    */
   public void runPartyOne(int pid) {
-    Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
-    System.out.println("Connected receiver");
-    Drbg rand = new AesCtrDrbg(new byte[] { 0x42, 0x42 });
-    Rot rot = new Rot(1, 2, getKbitLength(), getLambdaSecurityParam(), rand,
-        network, new DummyOt(2, network));
+    OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
+        lambdaSecurityParam);
+    Rot rot = new Rot(ctx.getResources(), ctx.getNetwork(), ctx
+        .getDummyOtInstance());
     RotReceiver rotRec = rot.getReceiver();
     rotRec.initialize();
     byte[] otChoices = new byte[amountOfOTs / 8];
-    rand.nextBytes(otChoices);
+    ctx.getRand().nextBytes(otChoices);
     List<StrictBitVector> vvec = rotRec
         .extend(new StrictBitVector(otChoices, amountOfOTs));
     System.out.println("done receiver");
@@ -70,11 +66,10 @@ public class RotDemo<ResourcePoolT extends ResourcePool> extends Demo {
    *          The PID of the sending party
    */
   public void runPartyTwo(int pid) {
-    Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
-    System.out.println("Connected sender");
-    Drbg rand = new AesCtrDrbg(new byte[] { 0x42, 0x04 });
-    Rot rot = new Rot(2, 1, getKbitLength(), getLambdaSecurityParam(), rand,
-        network, new DummyOt(1, network));
+    OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
+        lambdaSecurityParam);
+    Rot rot = new Rot(ctx.getResources(), ctx.getNetwork(), ctx
+        .getDummyOtInstance());
     RotSender rotSnd = rot.getSender();
     rotSnd.initialize();
     Pair<List<StrictBitVector>, List<StrictBitVector>> vpairs = rotSnd

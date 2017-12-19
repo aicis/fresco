@@ -15,6 +15,9 @@ import dk.alexandra.fresco.tools.ot.base.NaorPinkasOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import dk.alexandra.fresco.tools.ot.otextension.BristolRotBatch;
+import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePool;
+import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePoolImpl;
+
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.List;
@@ -43,7 +46,7 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
           + "85827844212318499978829377355564689095172787513731965744913645190518423"
           + "06594567246898679968677700656495114013774368779648395287433119164167454"
           + "67731166272088057888135437754886129005590419051");
-  
+
   private List<Integer> partyIds;
   private BigInteger modulus;
   private int modBitLength;
@@ -125,10 +128,11 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
   public RotBatch<StrictBitVector> createRot(int otherId, Network network) {
     DHParameterSpec params = new DHParameterSpec(DhPvalue, DhGvalue);
     Ot ot = ExceptionConverter.safe(() -> new NaorPinkasOt(getMyId(), otherId,
-            getRandomGenerator(), network, params),
+        getRandomGenerator(), network, params),
         "Missing security hash function or PRG, which is dependent in this library");
-    return new BristolRotBatch(getMyId(), otherId, getModBitLength(), getLambdaSecurityParam(),
-        getRandomGenerator(), network, ot);
+    OtExtensionResourcePool otResources = new OtExtensionResourcePoolImpl(getMyId(), otherId,
+        getModBitLength(), getLambdaSecurityParam(), getRandomGenerator());
+    return new BristolRotBatch(otResources, network, ot);
   }
 
   @Override
