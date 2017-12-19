@@ -24,10 +24,10 @@ import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
-import dk.alexandra.fresco.suite.spdz.storage.DataSupplier;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
-import dk.alexandra.fresco.suite.spdz.storage.rest.DataRestSupplierImpl;
+import dk.alexandra.fresco.suite.spdz.storage.rest.SpdzRestDataSupplier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -67,7 +67,7 @@ public class ITSpdzFuelstationTest {
 
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
           new BatchedProtocolEvaluator<>(evalStrategy.getStrategy(), suite);
-      DataSupplier supplier = new DataRestSupplierImpl(playerId, noOfParties,
+      SpdzDataSupplier supplier = new SpdzRestDataSupplier(playerId, noOfParties,
           "http://localhost:" + port, 0);
       SpdzStorage store = new SpdzStorageImpl(supplier);
       Drbg drbg = new HmacDrbg();

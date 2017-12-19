@@ -15,7 +15,7 @@ import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
-import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import java.io.IOException;
@@ -31,7 +31,7 @@ public class TestDistanceDemo {
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
-      EvaluationStrategy evalStrategy, int noOfParties) throws Exception {
+      EvaluationStrategy evalStrategy, int noOfParties) {
     // Since SCAPI currently does not work with ports > 9999 we use fixed
     // ports
     // here instead of relying on ephemeral ports which are often > 9999.
@@ -62,12 +62,12 @@ public class TestDistanceDemo {
 
   private SpdzResourcePool createResourcePool(int myId, int size) {
     SpdzStorage store;
-    store = new SpdzStorageImpl(new DummyDataSupplierImpl(myId, size));
+    store = new SpdzStorageImpl(new SpdzDummyDataSupplier(myId, size));
     return new SpdzResourcePoolImpl(myId, size, new HmacDrbg(), store);
   }
 
   @Test
-  public void testDistance() throws Exception {
+  public void testDistance() {
     final TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f =
         new TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric>() {
           @Override

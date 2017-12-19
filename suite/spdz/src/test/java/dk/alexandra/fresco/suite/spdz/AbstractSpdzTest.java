@@ -23,11 +23,11 @@ import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger;
 import dk.alexandra.fresco.logging.PerformancePrinter;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
-import dk.alexandra.fresco.suite.spdz.storage.DataSupplier;
-import dk.alexandra.fresco.suite.spdz.storage.DataSupplierImpl;
-import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageConstants;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,15 +43,14 @@ public abstract class AbstractSpdzTest {
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy,
-      PreprocessingStrategy preProStrat, int noOfParties) throws Exception {
+      PreprocessingStrategy preProStrat, int noOfParties) {
     runTest(f, evalStrategy, preProStrat, noOfParties, false);
   }
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy,
-      PreprocessingStrategy preProStrat, int noOfParties, boolean logPerformance)
-      throws Exception {
+      PreprocessingStrategy preProStrat, int noOfParties, boolean logPerformance) {
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * (noOfParties - 1));
@@ -109,16 +108,17 @@ public abstract class AbstractSpdzTest {
 
   private SpdzResourcePool createResourcePool(int myId, int size,
       PreprocessingStrategy preproStrat) {
-    DataSupplier supplier;
+    SpdzDataSupplier supplier;
     if (preproStrat == DUMMY) {
-      supplier = new DummyDataSupplierImpl(myId, size);
+      supplier = new SpdzDummyDataSupplier(myId, size);
     } else {
       // case STATIC:
       int noOfThreadsUsed = 1;
       String storageName =
           SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
               + "_";
-      supplier = new DataSupplierImpl(new FilebasedStreamedStorageImpl(new InMemoryStorage()),
+      supplier = new SpdzStorageDataSupplier(
+          new FilebasedStreamedStorageImpl(new InMemoryStorage()),
           storageName, size);
     }
     SpdzStorage store = new SpdzStorageImpl(supplier);

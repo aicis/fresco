@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.storage.rest;
 
 /**
- * Used exclusively for the {@link DataRestSupplierImpl}.
+ * Used exclusively for the {@link SpdzRestDataSupplier}.
  * @author Kasper Damgaard
  *
  */
@@ -14,7 +14,7 @@ public enum Type {
 	
 	private final String restName;
 
-    private Type(String restName) {
+  Type(String restName) {
         this.restName = restName;
     }
 

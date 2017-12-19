@@ -12,7 +12,7 @@ import java.util.Map;
  * Data supplier which should not be used in production. It uses the same pre-generated values for
  * supplying the online phase with data.
  */
-public class DummyDataSupplierImpl implements DataSupplier {
+public class SpdzDummyDataSupplier implements SpdzDataSupplier {
 
   private int myId;
   private int numberOfPlayers;
@@ -29,7 +29,7 @@ public class DummyDataSupplierImpl implements DataSupplier {
   private BigInteger modulus;
   private BigInteger ssk;
 
-  public DummyDataSupplierImpl(int myId, int numberOfPlayers) {
+  public SpdzDummyDataSupplier(int myId, int numberOfPlayers) {
     this.myId = myId;
     this.numberOfPlayers = numberOfPlayers;
 

@@ -5,7 +5,7 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import java.math.BigInteger;
 
-public interface DataSupplier {
+public interface SpdzDataSupplier {
 
 	/**
 	 * Supplies the next triple

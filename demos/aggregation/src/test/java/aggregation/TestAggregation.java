@@ -19,11 +19,10 @@ import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
-import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +32,7 @@ import org.junit.Test;
 public class TestAggregation {
 
   private static void runTest(TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> test,
-      int n) throws Exception {
+      int n) {
     List<Integer> ports = new ArrayList<>(n);
     for (int i = 1; i <= n; i++) {
       ports.add(9000 + i * 10);
@@ -44,7 +43,7 @@ public class TestAggregation {
         new HashMap<>();
     for (int i : netConf.keySet()) {
       ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> suite = new SpdzProtocolSuite(150);
-      SpdzStorage store = new SpdzStorageImpl(new DummyDataSupplierImpl(i, n));
+      SpdzStorage store = new SpdzStorageImpl(new SpdzDummyDataSupplier(i, n));
       SpdzResourcePool rp =
           new SpdzResourcePoolImpl(i, n, new HmacDrbg(), store);
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
@@ -71,7 +70,7 @@ public class TestAggregation {
           public TestThread<SpdzResourcePool, ProtocolBuilderNumeric> next() {
             return new TestThread<SpdzResourcePool, ProtocolBuilderNumeric>() {
               @Override
-              public void test() throws Exception {
+              public void test() {
                 // Create application we are going run
                 AggregationDemo<SpdzResourcePool> app = new AggregationDemo<>();
                 app.runApplication(conf.sce, conf.getResourcePool(), conf.getNetwork());
@@ -89,7 +88,7 @@ public class TestAggregation {
         AggregationDemo.main(
             new String[]{"1", "-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s",
                 "dummyArithmetic"});
-      } catch (IOException | NoSuchAlgorithmException e) {
+      } catch (IOException e) {
         throw new RuntimeException("Error", e);
       }
     };
@@ -99,7 +98,7 @@ public class TestAggregation {
         AggregationDemo.main(
             new String[]{"2", "-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s",
                 "dummyArithmetic"});
-      } catch (IOException | NoSuchAlgorithmException e) {
+      } catch (IOException e) {
         throw new RuntimeException("Error", e);
       }
     };

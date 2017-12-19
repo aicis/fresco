@@ -21,7 +21,7 @@ import dk.alexandra.fresco.network.ScapiNetworkImpl;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
-import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -96,7 +96,7 @@ public abstract class AbstractSpdzTest {
   }
 
   private SpdzResourcePool createResourcePool(int myId, int size) {
-    SpdzStorageImpl store = new SpdzStorageImpl(new DummyDataSupplierImpl(myId, size));
+    SpdzStorageImpl store = new SpdzStorageImpl(new SpdzDummyDataSupplier(myId, size));
     return new SpdzResourcePoolImpl(myId, size, new HmacDrbg(), store);
   }
 }
