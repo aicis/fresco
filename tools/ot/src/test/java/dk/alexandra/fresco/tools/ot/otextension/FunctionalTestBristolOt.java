@@ -30,9 +30,9 @@ import org.junit.Test;
 
 public class FunctionalTestBristolOt {
   private TestRuntime testRuntime;
-  private int kbitLength = 128;
-  private int lambdaBitLength = 56;
-  private int messageLength = 1024;
+  private final int kbitLength = 128;
+  private final int lambdaSecurityParam = 56;
+  private final int messageLength = 1024;
 
   /**
    * Initializes the test runtime.
@@ -52,38 +52,38 @@ public class FunctionalTestBristolOt {
 
   private List<Pair<StrictBitVector, StrictBitVector>> bristolOtSend(
       int iterations, int batchSize) throws IOException {
-    Network network = new CheatingNetwork(
-        TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
-    Drbg rand = new AesCtrDrbg(Constants.seedOne);
-    Ot otSender = new BristolOt(1, 2, kbitLength, lambdaBitLength, rand, 
-        network, new DummyOt(2, network), batchSize);
+    OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
+        lambdaSecurityParam);
+    Ot otSender = new BristolOt(ctx.getResources(), ctx.getNetwork(), ctx
+        .getDummyOtInstance(), batchSize);
     List<Pair<StrictBitVector, StrictBitVector>> messages = new ArrayList<>(
         iterations);
     for (int i = 0; i < iterations; i++) {
-      StrictBitVector msgZero = new StrictBitVector(messageLength, rand);
-      StrictBitVector msgOne = new StrictBitVector(messageLength, rand);
+      StrictBitVector msgZero = new StrictBitVector(messageLength, ctx
+          .getRand());
+      StrictBitVector msgOne = new StrictBitVector(messageLength, ctx
+          .getRand());
       otSender.send(msgZero, msgOne);
       Pair<StrictBitVector, StrictBitVector> currentPair = 
           new Pair<StrictBitVector, StrictBitVector>(msgZero, msgOne);
       messages.add(currentPair);
     }
-    ((Closeable) network).close();
+    ((Closeable) ctx.getNetwork()).close();
     return messages;
   }
 
   private List<StrictBitVector> bristolOtReceive(StrictBitVector choices,
       int batchSize) throws IOException {
-    Network network = new CheatingNetwork(
-        TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
-    Drbg rand = new AesCtrDrbg(Constants.seedTwo);
-    Ot otReceiver = new BristolOt(2, 1, kbitLength, lambdaBitLength, rand,
-        network, new DummyOt(1, network), batchSize);
+    OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
+        lambdaSecurityParam);
+    Ot otReceiver = new BristolOt(ctx.getResources(), ctx.getNetwork(), ctx
+        .getDummyOtInstance(), batchSize);
     List<StrictBitVector> messages = new ArrayList<>(choices.getSize());
     for (int i = 0; i < choices.getSize(); i++) {
       StrictBitVector message = otReceiver.receive(choices.getBit(i, false));
       messages.add(message);
     }
-    ((Closeable) network).close();
+    ((Closeable) ctx.getNetwork()).close();
     return messages;
   }
 
@@ -95,7 +95,7 @@ public class FunctionalTestBristolOt {
   public void testBristolOt() {
     // The batchsize of the underlying implementation must be a two power minus
     // kbitLength and lambdaBitLength
-    int batchSize = 1024 - kbitLength - lambdaBitLength;
+    int batchSize = 1024 - kbitLength - lambdaSecurityParam;
     // We execute more OTs than the batchSize to ensure that an automatic
     // extension will take place once preprocessed OTs run out
     int iterations = 904;
@@ -145,33 +145,31 @@ public class FunctionalTestBristolOt {
 
   private List<Pair<StrictBitVector, StrictBitVector>> bristolRotBatchSend(
       int batchSize, int messageSize, boolean autoInit) throws IOException {
-    Network network = new CheatingNetwork(
-        TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
-    Drbg rand = new AesCtrDrbg(Constants.seedOne);
-    BristolRotBatch rotBatchSender = new BristolRotBatch(1, 2, kbitLength,
-        lambdaBitLength, rand, network, new DummyOt(2, network));
+    OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
+        lambdaSecurityParam);
+    BristolRotBatch rotBatchSender = new BristolRotBatch(ctx.getResources(), ctx
+        .getNetwork(), ctx.getDummyOtInstance());
     if (autoInit == false) {
       rotBatchSender.initSender();
     }
     List<Pair<StrictBitVector, StrictBitVector>> messages = rotBatchSender
         .send(batchSize, messageSize);
-    ((Closeable) network).close();
+    ((Closeable) ctx.getNetwork()).close();
     return messages;
   }
 
   private List<StrictBitVector> bristolRotBatchReceive(StrictBitVector choices,
       int messageSize, boolean autoInit) throws IOException {
-    Network network = new CheatingNetwork(
-        TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
-    Drbg rand = new AesCtrDrbg(Constants.seedTwo);
-    BristolRotBatch rotBatchReceiver = new BristolRotBatch(2, 1, kbitLength,
-        lambdaBitLength, rand, network, new DummyOt(1, network));
+    OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
+        lambdaSecurityParam);
+    BristolRotBatch rotBatchReceiver = new BristolRotBatch(ctx.getResources(),
+        ctx.getNetwork(), ctx.getDummyOtInstance());
     if (autoInit == false) {
       rotBatchReceiver.initReceiver();
     }
     List<StrictBitVector> messages = rotBatchReceiver.receive(choices,
         messageSize);
-    ((Closeable) network).close();
+    ((Closeable) ctx.getNetwork()).close();
     return messages;
   }
 
@@ -336,8 +334,9 @@ public class FunctionalTestBristolOt {
       }
     };
     Drbg rand = new AesCtrDrbg(Constants.seedOne);
-    BristolOt ot = new BristolOt(1, 2, kbitLength, lambdaBitLength, rand,
-        network, new DummyOt(2, network), 1024);
+    BristolOt ot = new BristolOt(new OtExtensionResourcePoolImpl(1, 2,
+        kbitLength, lambdaSecurityParam, rand), network, new DummyOt(2,
+            network), 1024);
     Field receiver = BristolOt.class.getDeclaredField("receiver");
     receiver.setAccessible(true);
     Method method = receiver.get(ot).getClass().getDeclaredMethod(

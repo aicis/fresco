@@ -57,15 +57,15 @@ public class FunctionalTestNaorPinkas {
         TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     try {
       Drbg rand = new AesCtrDrbg(Constants.seedOne);
-      Ot otSender = new NaorPinkasOt(1, 2, rand, network, staticParams);
+      Ot otSender = new NaorPinkasOt(1, 2, rand, network);
       List<Pair<StrictBitVector, StrictBitVector>> messages = new ArrayList<>(
           iterations);
       for (int i = 0; i < iterations; i++) {
         StrictBitVector msgZero = new StrictBitVector(messageLength, rand);
         StrictBitVector msgOne = new StrictBitVector(messageLength, rand);
         otSender.send(msgZero, msgOne);
-        Pair<StrictBitVector, StrictBitVector> currentPair = new Pair<StrictBitVector, StrictBitVector>(
-            msgZero, msgOne);
+        Pair<StrictBitVector, StrictBitVector> currentPair =
+            new Pair<StrictBitVector, StrictBitVector>(msgZero, msgOne);
         messages.add(currentPair);
       }
       return messages;
@@ -80,7 +80,7 @@ public class FunctionalTestNaorPinkas {
         TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     try {
       Drbg rand = new AesCtrDrbg(Constants.seedTwo);
-      Ot otReceiver = new NaorPinkasOt(2, 1, rand, network, staticParams);
+      Ot otReceiver = new NaorPinkasOt(2, 1, rand, network);
       List<StrictBitVector> messages = new ArrayList<>(choices.getSize());
       for (int i = 0; i < choices.getSize(); i++) {
         StrictBitVector message = otReceiver.receive(choices.getBit(i, false));
@@ -108,8 +108,8 @@ public class FunctionalTestNaorPinkas {
     List<List<?>> extendResults = testRuntime
         .runPerPartyTasks(Arrays.asList(partyOneOt, partyTwoOt));
     for (int i = 0; i < iterations; i++) {
-      Pair<StrictBitVector, StrictBitVector> senderResult = (Pair<StrictBitVector, StrictBitVector>) extendResults
-          .get(0).get(i);
+      Pair<StrictBitVector, StrictBitVector> senderResult =
+          (Pair<StrictBitVector, StrictBitVector>) extendResults.get(0).get(i);
       StrictBitVector receiverResult = (StrictBitVector) extendResults.get(1)
           .get(i);
       if (choices.getBit(i, false) == false) {

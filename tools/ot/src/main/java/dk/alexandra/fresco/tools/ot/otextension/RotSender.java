@@ -1,38 +1,31 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
 import dk.alexandra.fresco.framework.MaliciousException;
-import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.List;
 
 /**
  * Protocol class for the party acting as the sender in a random OT extension.
- * 
+ *
  * @author jot2re
  *
  */
 public class RotSender extends RotShared {
-  private final MessageDigest digest;
   // The correlated OT with errors sender that this object will use
   private final CoteSender sender;
 
   /**
    * Construct a sending party for an instance of the random OT extension
    * protocol.
-   * 
+   *
    * @param snd
    *          The correlated OT with error sender this protocol will use
    */
   public RotSender(CoteSender snd) {
     super(snd);
     sender = snd;
-
-    this.digest = ExceptionConverter.safe(
-        () -> MessageDigest.getInstance("SHA-256"),
-        "Cannot load hashing algorithm");
   }
 
   /**
@@ -51,7 +44,7 @@ public class RotSender extends RotShared {
 
   /**
    * Constructs a new batch of random OTs.
-   * 
+   *
    * @param size
    *          The amount of random OTs to construct
    * @return A pair of lists of StrictBitVectors. First list consists of the
@@ -88,14 +81,14 @@ public class RotSender extends RotShared {
     }
     // Remove the correlated of the first "size" messages by hashing for
     // choice-zero
-    List<StrictBitVector> vlistZero = hashBitVector(qlist, size, digest);
+    List<StrictBitVector> vlistZero = hashBitVector(qlist, size);
     // XOR the correlated into all the values from the underlying correlated OT
     // with error to compute the choice-one message
     for (int i = 0; i < size; i++) {
       qlist.get(i).xor(delta);
     }
     // Remove the correlated for the choice-one as well
-    List<StrictBitVector> vlistOne = hashBitVector(qlist, size, digest);
+    List<StrictBitVector> vlistOne = hashBitVector(qlist, size);
     Pair<List<StrictBitVector>, List<StrictBitVector>> res =
         new Pair<List<StrictBitVector>, List<StrictBitVector>>(vlistZero, vlistOne);
     return res;

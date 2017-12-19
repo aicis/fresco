@@ -1,35 +1,38 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import dk.alexandra.fresco.framework.network.KryoNetNetwork;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.util.AesCtrDrbg;
-import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 
-public class BristolOtDemo<ResourcePoolT extends ResourcePool> extends Demo {
+import java.io.Closeable;
+import java.io.IOException;
+
+public class BristolOtDemo<ResourcePoolT extends ResourcePool> {
   // Amount of OTs to construct
-  private int amountOfOTs = 88;
+  private final int amountOfOTs = 88;
+  private final int kbitLength = 128;
+  private final int lambdaSecurityParam = 40;
+  private final int messageSize = 512;
 
   /**
    * Run the receiving party.
    * 
    * @param pid
    *          The PID of the receiving party
+   * @throws IOException
+   *           Thrown if the network cannot close
    */
-  public void runPartyOne(int pid) {
-    Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
-    System.out.println("Connected receiver");
-    Drbg rand = new AesCtrDrbg(new byte[] { 0x42, 0x42 });
-    Ot ot = new BristolOt(1, 2, getKbitLength(),
-        getLambdaSecurityParam(), rand, network, new DummyOt(2, network),
-        amountOfOTs);
+  public void runPartyOne(int pid) throws IOException {
+    OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
+        lambdaSecurityParam);
+    Ot ot = new BristolOt(ctx.getResources(), ctx.getNetwork(), ctx
+        .getDummyOtInstance(), amountOfOTs);
     for (int i = 0; i < amountOfOTs; i++) {
       byte[] choiceByte = new byte[1];
-      rand.nextBytes(choiceByte);
+      ctx.getRand().nextBytes(choiceByte);
       boolean choice;
+      // Interpret the lower half of possible values of a byte as false and the
+      // upper as true
       if (choiceByte[0] <= 127) {
         choice = false;
       } else {
@@ -40,6 +43,7 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> extends Demo {
       System.out.println(res);
     }
     System.out.println("done receiver");
+    ((Closeable) ctx.getNetwork()).close();
   }
 
   /**
@@ -47,22 +51,25 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> extends Demo {
    * 
    * @param pid
    *          The PID of the sending party
+   * @throws IOException
+   *           Thrown if the network cannot close
    */
-  public void runPartyTwo(int pid) {
-    Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
-    System.out.println("Connected sender");
-    Drbg rand = new AesCtrDrbg(new byte[] { 0x42, 0x42 });
-    Ot ot = new BristolOt(2, 1, getKbitLength(), getLambdaSecurityParam(),
-        rand, network, new DummyOt(1, network), amountOfOTs);
+  public void runPartyTwo(int pid) throws IOException {
+    OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
+        lambdaSecurityParam);
+    Ot ot = new BristolOt(ctx.getResources(), ctx.getNetwork(), ctx
+        .getDummyOtInstance(), amountOfOTs);
     for (int i = 0; i < amountOfOTs; i++) {
-      // We send random 512 bit bitstrings
-      StrictBitVector msgZero = new StrictBitVector(512, rand);
-      StrictBitVector msgOne = new StrictBitVector(512, rand);
+      StrictBitVector msgZero = new StrictBitVector(messageSize, ctx
+          .getRand());
+      StrictBitVector msgOne = new StrictBitVector(messageSize, ctx
+          .getRand());
       System.out.println("Message 0: " + msgZero);
       System.out.println("Message 1: " + msgOne);
       ot.send(msgZero, msgOne);
     }
     System.out.println("done sender");
+    ((Closeable) ctx.getNetwork()).close();
   }
 
   /**

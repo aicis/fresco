@@ -44,7 +44,9 @@ public class TestRot {
         return 0;
       }
     };
-    this.rot = new Rot(1, 2, 128, 40, rand, network, new DummyOt(2, network));
+    OtExtensionResourcePool resources = new OtExtensionResourcePoolImpl(1, 2,
+        128, 40, rand);
+    this.rot = new Rot(resources, network, new DummyOt(2, network));
     multiplyWithoutReduction = RotShared.class.getDeclaredMethod(
         "multiplyWithoutReduction", StrictBitVector.class,
         StrictBitVector.class);

@@ -40,7 +40,7 @@ public class TestRuntime {
 
   /**
    * Returns a default network configuration.
-   * 
+   *
    * @param myId
    *          The calling party's network ID
    * @param partyIds
@@ -57,10 +57,9 @@ public class TestRuntime {
   }
 
   /**
-   * Runs the task defined for each party. Currently assumes that all parties
-   * receive the same type of output. This method assumes that tasks are ordered
-   * by party.
-   * 
+   * Runs the task defined for each party. Currently assumes that all parties receive the same type
+   * of output. This method assumes that tasks are ordered by party.
+   *
    * @param tasks
    *          Tasks to complete
    * @return List of the results given by each of the tasks
@@ -84,7 +83,7 @@ public class TestRuntime {
           // This is very ugly, but we want to be able to receive the checked
           // exceptions thrown
           return (T) e.getCause();
-        } 
+        }
         return null;
       }).collect(Collectors.toList());
       return unwrappedResults;

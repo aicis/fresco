@@ -126,8 +126,9 @@ public class Commitment {
    */
   @Override
   public boolean equals(Object other) {
-    if (other instanceof Commitment
-        && Arrays.equals(((Commitment) other).commitmentVal, commitmentVal)) {
+    // TODO move to test
+    if (other instanceof Commitment && Arrays.equals(
+        ((Commitment) other).commitmentVal, commitmentVal)) {
       return true;
     }
     return false;

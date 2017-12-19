@@ -5,17 +5,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import dk.alexandra.fresco.framework.MaliciousException;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.tools.helper.Constants;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import dk.alexandra.fresco.framework.MaliciousException;
-import dk.alexandra.fresco.framework.util.AesCtrDrbg;
-import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.tools.helper.Constants;
 
 public class TestCommitment {
   Commitment comm;

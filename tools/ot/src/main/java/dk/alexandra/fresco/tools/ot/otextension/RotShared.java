@@ -61,6 +61,10 @@ public class RotShared {
     return cote.getRand();
   }
 
+  public MessageDigest getDigest() {
+    return cote.getDigest();
+  }
+
   public Network getNetwork() {
     return cote.getNetwork();
   }
@@ -145,13 +149,10 @@ public class RotShared {
    * @param size
    *          The amount of elements of the list, to hash. Must be less than or
    *          equal to the amount of elements in the list.
-   * @param digest
-   *          The generic digest for hashing
    * @return A list containing the hashed StrictBitVector as StrictBitVector
    *         objects
    */
-  protected List<StrictBitVector> hashBitVector(List<StrictBitVector> input,
-      int size, MessageDigest digest) {
+  protected List<StrictBitVector> hashBitVector(List<StrictBitVector> input, int size) {
     List<StrictBitVector> res = new ArrayList<>(size);
     // Allocate a buffer to contain the index of the value to hash along with
     // the value itself.
@@ -165,7 +166,7 @@ public class RotShared {
       indexBuffer.putInt(i);
       // Move the value to hash into the buffer
       indexBuffer.put(input.get(i).toByteArray());
-      hash = digest.digest(indexBuffer.array());
+      hash = getDigest().digest(indexBuffer.array());
       // Allocate the new bitvector, which contains 256 bits since SHA-256 is
       // used
       res.add(new StrictBitVector(hash, 256));

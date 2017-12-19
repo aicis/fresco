@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 
@@ -19,17 +18,8 @@ public class BristolOt implements Ot {
    * Constructs a new OT protocol and constructs the internal sender and
    * receiver objects.
    * 
-   * @param myId
-   *          The unique ID of the calling party
-   * @param otherId
-   *          The unique ID of the other party (not the calling party)
-   *          participating in the protocol
-   * @param kbitLength
-   *          The computational security parameter
-   * @param lambdaSecurityParam
-   *          The statistical security parameter
-   * @param rand
-   *          Object used for randomness generation
+   * @param resources
+   *          The common OT extension resource pool
    * @param network
    *          The network instance
    * @param ot
@@ -37,11 +27,9 @@ public class BristolOt implements Ot {
    * @param batchSize
    *          Size of the OT extension batch the protocol will construct
    */
-  public BristolOt(int myId, int otherId, int kbitLength,
-      int lambdaSecurityParam, Drbg rand, Network network, Ot ot,
+  public BristolOt(OtExtensionResourcePool resources, Network network, Ot ot,
       int batchSize) {
-    Rot rot = new Rot(myId, otherId, kbitLength, lambdaSecurityParam, rand,
-        network, ot);
+    Rot rot = new Rot(resources, network, ot);
     RotSender sender = rot.getSender();
     RotReceiver receiver = rot.getReceiver();
     this.sender = new BristolOtSender(sender, batchSize);
