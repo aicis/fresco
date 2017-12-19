@@ -45,7 +45,7 @@ public class TestOtExtensionResourcePool {
   /**** POSITIVE TESTS. ****/
   @Test
   public void testConstantAmountOfParties() {
-    OtExtensionResourcePool resources = new OtExtensionResourcePoolImpl(1, 2, 0, 40, rand);
+    OtExtensionResourcePool resources = new OtExtensionResourcePoolImpl(1, 2, 128, 40, rand);
     assertEquals(2, resources.getNoOfParties());
   }
 
