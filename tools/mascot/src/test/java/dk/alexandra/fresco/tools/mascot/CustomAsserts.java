@@ -40,6 +40,22 @@ public class CustomAsserts {
     assertEquals(expected, actual, innerAssert);
   }
 
+  private static <T> void assertEquals(List<T> expected, List<T> actual,
+      Function<Integer, BiConsumer<T, T>> innerAssert) {
+    Assert.assertThat(expected, IsCollectionWithSize.hasSize(actual.size()));
+    for (int i = 0; i < expected.size(); i++) {
+      innerAssert.apply(i).accept(expected.get(i), actual.get(i));
+    }
+  }
+  
+  public static void assertEquals(FieldElement expected, FieldElement actual) {
+    assertEqualsMessaged("", expected, actual);
+  }
+
+  public static void assertEquals(AuthenticatedElement expected, AuthenticatedElement actual) {
+    assertEqualsMessaged("", expected, actual);
+  }
+
   /**
    * Asserts that expected list of field elements is equal to actual.
    * 
@@ -51,22 +67,6 @@ public class CustomAsserts {
     Function<Integer, BiConsumer<AuthenticatedElement, AuthenticatedElement>> innerAssert =
         (idx) -> (l, r) -> assertEqualsMessaged(" - at index " + idx, l, r);
     assertEquals(expected, actual, innerAssert);
-  }
-
-  private static <T> void assertEquals(List<T> expected, List<T> actual,
-      Function<Integer, BiConsumer<T, T>> innerAssert) {
-    Assert.assertThat(expected, IsCollectionWithSize.hasSize(actual.size()));
-    for (int i = 0; i < expected.size(); i++) {
-      innerAssert.apply(i).accept(expected.get(i), actual.get(i));
-    }
-  }
-
-  public static void assertEquals(FieldElement expected, FieldElement actual) {
-    assertEqualsMessaged("", expected, actual);
-  }
-
-  public static void assertEquals(AuthenticatedElement expected, AuthenticatedElement actual) {
-    assertEqualsMessaged("", expected, actual);
   }
 
   /**

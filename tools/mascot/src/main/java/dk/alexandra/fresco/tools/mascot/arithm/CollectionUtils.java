@@ -42,7 +42,7 @@ public class CollectionUtils {
    * @param rows rows to be added up
    * @return sum of rows
    */
-  public static <T extends Addable<T>> List<T> pairWiseSum(List<List<T>> rows) {
+  public static <T extends Addable<T>> List<T> pairwiseSum(List<List<T>> rows) {
     List<List<T>> tilted = transpose(rows);
     List<T> sums = new ArrayList<>(tilted.size());
     for (List<T> row : tilted) {

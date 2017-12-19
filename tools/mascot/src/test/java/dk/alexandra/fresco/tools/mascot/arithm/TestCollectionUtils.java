@@ -12,6 +12,10 @@ import org.junit.Test;
 
 public class TestCollectionUtils {
 
+  // for full coverage
+  @SuppressWarnings("unused")
+  private final CollectionUtils collectionUtils = new CollectionUtils();
+  
   @Test
   public void testTranspose() {
     int[][] rows = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}, {10, 11, 12}};
@@ -43,7 +47,7 @@ public class TestCollectionUtils {
         Arrays.asList(new MockAddable(4), new MockAddable(5), new MockAddable(6));
     List<MockAddable> expected =
         Arrays.asList(new MockAddable(5), new MockAddable(7), new MockAddable(9));
-    List<MockAddable> actual = CollectionUtils.pairWiseSum(Arrays.asList(rowOne, rowTwo));
+    List<MockAddable> actual = CollectionUtils.pairwiseSum(Arrays.asList(rowOne, rowTwo));
     assertEquals(expected, actual);
   }
 

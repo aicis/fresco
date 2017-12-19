@@ -236,7 +236,7 @@ public class TestMultiply extends NetworkedTest {
     List<List<FieldElement>> results =
         testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
 
-    List<FieldElement> actual = CollectionUtils.pairWiseSum(results);
+    List<FieldElement> actual = CollectionUtils.pairwiseSum(results);
     List<FieldElement> expected =
         new FieldElementUtils(modulus, modBitLength).pairWiseMultiply(leftInputs, rightInputs);
     CustomAsserts.assertEquals(expected, actual);

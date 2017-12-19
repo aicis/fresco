@@ -1,8 +1,8 @@
 package dk.alexandra.fresco.tools.mascot.elgen;
 
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.tools.mascot.BaseProtocol;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
-import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
 import dk.alexandra.fresco.tools.mascot.cope.CopeInputter;
 import dk.alexandra.fresco.tools.mascot.cope.CopeSigner;
@@ -18,13 +18,13 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class ElementGeneration extends MultiPartyProtocol {
+public class ElementGeneration extends BaseProtocol {
 
   private MacCheck macChecker;
   private FieldElement macKeyShare;
   private FieldElementPrg localSampler;
   private FieldElementPrg jointSampler;
-  private ShareUtils sharer;
+  private Sharer sharer;
   private Map<Integer, CopeSigner> copeSigners;
   private Map<Integer, CopeInputter> copeInputters;
 
@@ -39,7 +39,7 @@ public class ElementGeneration extends MultiPartyProtocol {
     this.macKeyShare = macKeyShare;
     this.localSampler = resourcePool.getLocalSampler();
     this.jointSampler = jointSampler;
-    this.sharer = new ShareUtils(localSampler);
+    this.sharer = new AdditiveSharer(localSampler, getModulus(), getModBitLength());
     this.copeSigners = new HashMap<>();
     this.copeInputters = new HashMap<>();
     for (Integer partyId : getPartyIds()) {
@@ -76,13 +76,12 @@ public class ElementGeneration extends MultiPartyProtocol {
     List<FieldElement> selfMacced = selfMac(values);
     List<List<FieldElement>> maccedByAll = otherPartiesMac(values);
     maccedByAll.add(selfMacced);
-    return CollectionUtils.pairWiseSum(maccedByAll);
+    return CollectionUtils.pairwiseSum(maccedByAll);
   }
 
   List<FieldElement> secretShare(List<FieldElement> values, int numShares) {
     List<List<FieldElement>> allShares = values.stream()
-        .map(value -> sharer.additiveShare(value, numShares, getModulus(), getModBitLength()))
-        .collect(Collectors.toList());
+        .map(value -> sharer.share(value, numShares)).collect(Collectors.toList());
     List<List<FieldElement>> byParty = getFieldElementUtils().transpose(allShares);
     for (Integer partyId : getPartyIds()) {
       // send shares to everyone but self
@@ -221,7 +220,7 @@ public class ElementGeneration extends MultiPartyProtocol {
     List<List<FieldElement>> shares = rawShares.stream()
         .map(raw -> getFieldElementSerializer().deserializeList(raw)).collect(Collectors.toList());
     // recombine
-    return CollectionUtils.pairWiseSum(shares);
+    return CollectionUtils.pairwiseSum(shares);
   }
 
 }

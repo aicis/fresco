@@ -3,8 +3,8 @@ package dk.alexandra.fresco.tools.mascot.commit;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.SecureSerializer;
 import dk.alexandra.fresco.tools.commitment.Commitment;
+import dk.alexandra.fresco.tools.mascot.BaseProtocol;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
-import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.broadcast.BroadcastValidation;
 import dk.alexandra.fresco.tools.mascot.broadcast.BroadcastingNetworkDecorator;
 import java.util.ArrayList;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 // TODO need better name
-public class CommitmentBasedProtocol<T> extends MultiPartyProtocol {
+public class CommitmentBasedProtocol<T> extends BaseProtocol {
 
   SecureSerializer<T> serializer;
   Network broadcaster;
