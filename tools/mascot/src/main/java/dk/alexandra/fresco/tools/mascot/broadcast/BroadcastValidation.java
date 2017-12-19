@@ -7,6 +7,10 @@ import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Actively-secure protocol for performing hash-based broadcast validation. Allows participating
+ * parties to ensure that a list of messages is consistent across all parties.
+ */
 public class BroadcastValidation extends BaseProtocol {
 
   public BroadcastValidation(MascotResourcePool resourcePool, Network network) {

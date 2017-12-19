@@ -19,6 +19,12 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+/**
+ * Actively-secure protocol for computing authenticated, secret-shared multiplication triples based
+ * on the MASCOT protocol (https://eprint.iacr.org/2016/505.pdf).<br>
+ * In particular, produces random, authenticated, secret-shared triples of the form a, b, c such
+ * that a * b = c.
+ */
 public class TripleGeneration extends BaseProtocol {
 
   private ElementGeneration elementGeneration;

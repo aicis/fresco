@@ -15,7 +15,15 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-
+/**
+ * Actively-secure implementation of the inputter party's side of the Correlated Oblivious Product
+ * Evaluation (COPE) protocol.<br>
+ * COPE allows two parties, the inputter and the signer, where the inputter holds input values e1,
+ * ..., en, and the signer holds single value s to secret-shared result of s * e1, ..., s * en. <br>
+ * This side of the protocol is to be run by the inputter party. For the other side of the protocol,
+ * see {@link CopeSigner}.
+ * 
+ */
 public class CopeInputter extends CopeShared {
 
   private List<FieldElementPrg> leftPrgs;
@@ -23,7 +31,7 @@ public class CopeInputter extends CopeShared {
   private MultiplyRight multiplier;
 
   /**
-   * Create new cope inputter protocol.
+   * Creates new {@link CopeInputter}.
    */
   public CopeInputter(MascotResourcePool resourcePool, Network network, Integer otherId) {
     super(resourcePool, network, otherId);

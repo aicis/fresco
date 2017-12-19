@@ -18,6 +18,12 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+/**
+ * Actively-secure protocol for generating authentication, secret-shared elements based on the
+ * MASCOT protocol (https://eprint.iacr.org/2016/505.pdf). <br>
+ * Allows a single party to secret-share a field element among all parties such that the element is
+ * authenticated via a MAC. The MAC is secret-shared among the parties, as is the MAC key.
+ */
 public class ElementGeneration extends BaseProtocol {
 
   private MacCheck macChecker;
@@ -29,8 +35,7 @@ public class ElementGeneration extends BaseProtocol {
   private Map<Integer, CopeInputter> copeInputters;
 
   /**
-   * Creates new element generation protocol.
-   * 
+   * Creates new {@link ElementGeneration}.
    */
   public ElementGeneration(MascotResourcePool resourcePool, Network network,
       FieldElement macKeyShare, FieldElementPrg jointSampler) {
@@ -80,8 +85,8 @@ public class ElementGeneration extends BaseProtocol {
   }
 
   List<FieldElement> secretShare(List<FieldElement> values, int numShares) {
-    List<List<FieldElement>> allShares = values.stream()
-        .map(value -> sharer.share(value, numShares)).collect(Collectors.toList());
+    List<List<FieldElement>> allShares =
+        values.stream().map(value -> sharer.share(value, numShares)).collect(Collectors.toList());
     List<List<FieldElement>> byParty = getFieldElementUtils().transpose(allShares);
     for (Integer partyId : getPartyIds()) {
       // send shares to everyone but self

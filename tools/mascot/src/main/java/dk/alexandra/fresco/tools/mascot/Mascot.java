@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Implementation of the main MASCOT protocol which can be used for the SPDZ pre-processing phase.
- * <br>
+ * Implementation of the main MASCOT protocol (https://eprint.iacr.org/2016/505.pdf) which can be
+ * used for the SPDZ pre-processing phase. <br>
  * Supports generation of multiplication triples, and random authenticated elements.
  */
 public class Mascot extends BaseProtocol {

@@ -4,6 +4,10 @@ import dk.alexandra.fresco.framework.network.Network;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * A network decorator which provides actively-secure broadcast functionality. Hash-based broadcast
+ * validation is performed on all received messages.
+ */
 public class BroadcastingNetworkDecorator implements Network {
 
   Network network;

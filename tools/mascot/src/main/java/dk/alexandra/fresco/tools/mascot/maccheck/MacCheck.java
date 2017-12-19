@@ -4,11 +4,16 @@ import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
-import dk.alexandra.fresco.tools.mascot.commit.CommitmentBasedProtocol;
+import dk.alexandra.fresco.tools.mascot.commit.CommitmentBasedInput;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import java.util.List;
 
-public class MacCheck extends CommitmentBasedProtocol<FieldElement> {
+/**
+ * Actively-secure protocol for performing a MAC check on a public field element e. <br>
+ * Each party p_i holds a share of the MAC m_i and a share of the MAC key alpha_i. <br>
+ * This protocol validates that e * (alpha_1 + ... + alpha_n) = m_1 + ... + m_n.
+ */
+public class MacCheck extends CommitmentBasedInput<FieldElement> {
 
   /**
    * Constructs new mac checker.

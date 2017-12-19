@@ -14,7 +14,7 @@ public class TestCommitmentBasedProtocol {
 
   @Test(expected = IllegalArgumentException.class)
   public void testOpenOnDifferentSizes() {
-    CommitmentBasedProtocol<StrictBitVector> protocol = new CommitmentBasedProtocol<>(
+    CommitmentBasedInput<StrictBitVector> protocol = new CommitmentBasedInput<>(
         mockSupplier.getResourcePool(), mockSupplier.getNetwork(), new StrictBitVectorSerializer());
     protocol.open(Arrays.asList(null, null), Arrays.asList(new byte[] {}));
   }

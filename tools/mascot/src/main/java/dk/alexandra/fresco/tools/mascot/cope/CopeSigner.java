@@ -13,6 +13,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/**
+ * Actively-secure implementation of the signer party's side of the Correlated Oblivious Product
+ * Evaluation (COPE) protocol.<br>
+ * COPE allows two parties, the inputter and the signer, where the inputter holds input values e1,
+ * ..., en, and the signer holds single value s to secret-shared result of s * e1, ..., s * en. <br>
+ * This side of the protocol is to be run by the signer party. For the other side of the protocol,
+ * see {@link CopeInputter}.
+ * 
+ */
 public class CopeSigner extends CopeShared {
 
   private List<FieldElementPrg> prgs;

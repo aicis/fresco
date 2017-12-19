@@ -11,16 +11,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// TODO need better name
-public class CommitmentBasedProtocol<T> extends BaseProtocol {
+/**
+ * Actively-secure protocol for binding input. Allows each party to distribute a value to the other
+ * parties using commitments.
+ * 
+ * @param <T> type of value to commit to
+ */
+public class CommitmentBasedInput<T> extends BaseProtocol {
 
   SecureSerializer<T> serializer;
   Network broadcaster;
 
   /**
-   * Creates new {@link CommitmentBasedProtocol}.
+   * Creates new {@link CommitmentBasedInput}.
    */
-  public CommitmentBasedProtocol(MascotResourcePool resourcePool, Network network,
+  public CommitmentBasedInput(MascotResourcePool resourcePool, Network network,
       SecureSerializer<T> serializer) {
     super(resourcePool, network);
     this.serializer = serializer;
@@ -84,6 +89,13 @@ public class CommitmentBasedProtocol<T> extends BaseProtocol {
     return result;
   }
 
+  /**
+   * Uses commitments to securely distribute the given value to the other parties and receive their
+   * inputs.
+   * 
+   * @param value value to commit to
+   * @return the other parties' values
+   */
   protected List<T> allCommit(T value) {
     // commit to sigma
     Commitment ownComm = new Commitment();
