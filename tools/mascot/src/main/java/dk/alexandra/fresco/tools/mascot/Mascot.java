@@ -15,6 +15,11 @@ import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implementation of the main MASCOT protocol which can be used for the SPDZ pre-processing phase.
+ * <br>
+ * Supports generation of multiplication triples, and random authenticated elements.
+ */
 public class Mascot extends BaseProtocol {
 
   TripleGeneration tripleGeneration;
@@ -35,14 +40,36 @@ public class Mascot extends BaseProtocol {
         new TripleGeneration(resourcePool, network, elementGeneration, jointSampler);
   }
 
+  /**
+   * Generates a batch of multiplication triples.
+   * 
+   * @param numTriples number of triples in batch
+   * @return multiplication triples
+   */
   public List<MultTriple> getTriples(int numTriples) {
     return tripleGeneration.triple(numTriples);
   }
 
+  /**
+   * Runs the input functionality on a batch of field elements. <br>
+   * Allows a party to turn unauthenticated, private field elements into a secret-shared
+   * authenticated elements. <br>
+   * The party holding the input elements should call this method.
+   * 
+   * @param rawElements field elements to input
+   * @return this party's authenticated shares of the inputs
+   */
   public List<AuthenticatedElement> input(List<FieldElement> rawElements) {
     return elementGeneration.input(rawElements);
   }
 
+  /**
+   * Same as {@link #input(List)} but to be called by non-input parties.
+   * 
+   * @param inputterId the id of the inputter
+   * @param numElements number of input elements
+   * @return this party's authenticated shares of the inputs
+   */
   public List<AuthenticatedElement> input(Integer inputterId, int numElements) {
     return elementGeneration.input(inputterId, numElements);
   }
