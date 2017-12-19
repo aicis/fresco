@@ -21,8 +21,8 @@ import java.util.concurrent.Callable;
 
 public class MascotDemo {
 
-  private Mascot mascot;
-  private Closeable toClose;
+  private final Mascot mascot;
+  private final Closeable toClose;
 
   MascotDemo(Integer myId, List<Integer> partyIds) {
     MascotResourcePool resourcePool = defaultResourcePool(myId, partyIds);
@@ -40,6 +40,7 @@ public class MascotDemo {
       long endTime = System.currentTimeMillis();
       long total = endTime - startTime;
       System.out.println("Generated " + triples.size() + " triples in " + total + " ms");
+      System.out.println(triples);
     }
     Callable<Void> closeTask = () -> {
       toClose.close();
@@ -73,7 +74,7 @@ public class MascotDemo {
   public static void main(String[] args) {
     Integer myId = Integer.parseInt(args[0]);
     List<Integer> partyIds = Arrays.asList(1, 2);
-    new MascotDemo(myId, partyIds).run(1000, 256);
+    new MascotDemo(myId, partyIds).run(1, 2);
   }
 
 }

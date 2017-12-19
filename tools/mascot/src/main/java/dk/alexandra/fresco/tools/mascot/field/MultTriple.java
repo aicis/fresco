@@ -34,6 +34,11 @@ public class MultTriple implements Addable<MultTriple> {
   public AuthenticatedElement getProduct() {
     return product;
   }
+  
+  @Override
+  public String toString() {
+    return "MultTriple [left=" + left + ", right=" + right + ", product=" + product + "]";
+  }
 
   @Override
   public MultTriple add(MultTriple other) {
