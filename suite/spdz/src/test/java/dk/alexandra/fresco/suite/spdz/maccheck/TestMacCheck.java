@@ -1,8 +1,9 @@
-package dk.alexandra.fresco.suite.spdz;
+package dk.alexandra.fresco.suite.spdz.maccheck;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
+import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
@@ -15,6 +16,9 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests.TestSecretSharedDivision;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
+import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
+import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.suite.spdz.storage.DataSupplier;
@@ -38,32 +42,29 @@ public class TestMacCheck {
   public void testMacCorrupt() throws Exception {
     try {
       runTest(new TestSecretSharedDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2, true);
-    } catch(RuntimeException e) {
-      if(e.getCause().getCause() != null && e.getCause().getCause() instanceof MPCException) {
-        
-      } else {
+    } catch (RuntimeException e) {
+      if (e.getCause().getCause() == null 
+          || !(e.getCause().getCause() instanceof MPCException)) {
         Assert.fail();
       }
     }
   }
-  
+
   @Test
   public void testClosedValuesIncorrectSize() throws Exception {
     try {
       runTest(new TestSecretSharedDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2, false);
-    } catch(RuntimeException e) {
-      if(e.getCause().getCause() != null && e.getCause().getCause() instanceof MPCException) {
-        
-      } else {
+    } catch (RuntimeException e) {
+      if (e.getCause().getCause() == null 
+          || !(e.getCause().getCause() instanceof MPCException)) {        
         Assert.fail();
       }
     }
   }
-  
+
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
-      EvaluationStrategy evalStrategy, int noOfParties, boolean corruptMac)
-      throws Exception {
+      EvaluationStrategy evalStrategy, int noOfParties, boolean corruptMac) throws Exception {
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * (noOfParties - 1));
@@ -71,80 +72,78 @@ public class TestMacCheck {
 
     Map<Integer, NetworkConfiguration> netConf =
         TestConfiguration.getNetworkConfigurations(noOfParties, ports);
-    Map<Integer, TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>> conf =
+    Map<Integer, TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     for (int playerId : netConf.keySet()) {
-      ProtocolSuiteNumeric<SpdzResourcePool> protocolSuite = new SpdzProtocolSuite(150);      
+      ProtocolSuiteNumeric<SpdzResourcePool> protocolSuite = new SpdzProtocolSuite(150);
       BatchEvaluationStrategy<SpdzResourcePool> batchEvalStrat = evalStrategy.getStrategy();
-      
+
       ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
           new BatchedProtocolEvaluator<>(batchEvalStrat, protocolSuite);
-      
+
       SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(protocolSuite, evaluator);
-      
+
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
-          new TestThreadRunner.TestThreadConfiguration<>(
-              sce,
-              () -> createResourcePool(playerId, noOfParties, new Random(),
-                  new SecureRandom(), corruptMac),
-              () -> {
-                KryoNetNetwork kryoNetwork = new KryoNetNetwork(netConf.get(playerId));
-                return kryoNetwork;
-              });
+          new TestThreadRunner.TestThreadConfiguration<>(sce, () -> createResourcePool(playerId,
+              noOfParties, new Random(), new SecureRandom(), corruptMac), () -> {
+            KryoNetNetwork kryoNetwork = new KryoNetNetwork(netConf.get(playerId));
+            return kryoNetwork;
+          });
       conf.put(playerId, ttc);
     }
-    TestThreadRunner.run(f, conf);    
+    TestThreadRunner.run(f, conf);
   }
 
-  private SpdzResourcePool createResourcePool(int myId, int size, Random rand,
-      SecureRandom secRand, boolean corruptMac) {
+  private SpdzResourcePool createResourcePool(int myId, int size, Random rand, SecureRandom secRand,
+      boolean corruptMac) {
     DataSupplier supplier;
     if (myId == 1 && corruptMac) {
-      supplier = new DummyMaliciousDataSupplier(myId, size);      
-    } else {      
+      supplier = new DummyMaliciousDataSupplier(myId, size);
+    } else {
       supplier = new DummyDataSupplierImpl(myId, size);
     }
     SpdzStorage store;
-    if(!corruptMac) {
+    if (!corruptMac) {
       store = new MaliciousSpdzStorage(supplier);
     } else {
-      store = new SpdzStorageImpl(supplier);  
+      store = new SpdzStorageImpl(supplier);
     }
-    
+
     try {
       return new SpdzResourcePoolImpl(myId, size, new HmacDrbg(), store);
     } catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException("Your system does not have the necessary hash function avaiable.", e);
+      throw new RuntimeException("Your system does not have the necessary hash function avaiable.",
+          e);
     }
   }
-  
+
   private class MaliciousSpdzStorage extends SpdzStorageImpl {
 
     public MaliciousSpdzStorage(DataSupplier supplier) {
       super(supplier);
     }
-    
+
     @Override
-    public List<SpdzElement> getClosedValues(){
+    public List<SpdzElement> getClosedValues() {
       return new ArrayList<SpdzElement>();
     }
-    
+
   }
-  
-  private class DummyMaliciousDataSupplier extends DummyDataSupplierImpl{
+
+  private class DummyMaliciousDataSupplier extends DummyDataSupplierImpl {
 
     int maliciousCountdown = 10;
-    
+
     public DummyMaliciousDataSupplier(int myId, int numberOfPlayers) {
       super(myId, numberOfPlayers);
     }
-    
+
     @Override
     public SpdzTriple getNextTriple() {
-      maliciousCountdown--;      
-      SpdzTriple trip = super.getNextTriple();      
-      if(maliciousCountdown == 0) {
+      maliciousCountdown--;
+      SpdzTriple trip = super.getNextTriple();
+      if (maliciousCountdown == 0) {
         BigInteger share = trip.getA().getShare();
         share = share.add(BigInteger.ONE);
         SpdzElement newA = new SpdzElement(share, trip.getA().getMac(), getModulus());
@@ -152,6 +151,6 @@ public class TestMacCheck {
       }
       return trip;
     }
-    
+
   }
 }

@@ -27,7 +27,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
     this.secRand = new SecureRandom();
   }
   
-  private void doMACCheck(SpdzResourcePool resourcePool, Network network) {
+  protected void doMacCheck(SpdzResourcePool resourcePool, Network network) {
     NetworkBatchDecorator networkBatchDecorator =
         new NetworkBatchDecorator(
             resourcePool.getNoOfParties(),
@@ -52,14 +52,14 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
 
   @Override
   public void finishedEval(SpdzResourcePool resourcePool, Network network) {
-    doMACCheck(resourcePool, network);
+    doMacCheck(resourcePool, network);
   }
 
   @Override
   public void finishedBatch(int gatesEvaluated, SpdzResourcePool resourcePool, Network network) {
     this.gatesEvaluated += gatesEvaluated;
     if (this.gatesEvaluated > macCheckThreshold || doMacCheck) {
-      doMACCheck(resourcePool, network);
+      doMacCheck(resourcePool, network);
       doMacCheck = false;
       this.gatesEvaluated = 0;
     }
@@ -77,7 +77,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
       }
     });
     if (doMacCheck) {
-      doMACCheck(resourcePool, network);
+      doMacCheck(resourcePool, network);
     }
   }
 }
