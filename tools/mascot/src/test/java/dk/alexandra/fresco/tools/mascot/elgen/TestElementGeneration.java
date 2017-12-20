@@ -5,7 +5,7 @@ import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import dk.alexandra.fresco.tools.mascot.MascotTestContext;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
-import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
+import dk.alexandra.fresco.tools.mascot.arithm.ArithmeticCollectionUtils;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
@@ -179,7 +179,8 @@ public class TestElementGeneration extends NetworkedTest {
     // run tasks and get ordered list of results
     List<List<AuthenticatedElement>> results =
         testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask, partyThreeTask));
-    List<AuthenticatedElement> actual = CollectionUtils.pairwiseSum(results);
+    List<AuthenticatedElement> actual =
+        new ArithmeticCollectionUtils<AuthenticatedElement>().pairwiseSum(results);
     List<FieldElement> macKeyShares =
         Arrays.asList(macKeyShareOne, macKeyShareTwo, macKeyShareThree);
     List<AuthenticatedElement> expected =
@@ -211,7 +212,8 @@ public class TestElementGeneration extends NetworkedTest {
     List<List<AuthenticatedElement>> results =
         testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
 
-    List<AuthenticatedElement> actual = CollectionUtils.pairwiseSum(results);
+    List<AuthenticatedElement> actual =
+        new ArithmeticCollectionUtils<AuthenticatedElement>().pairwiseSum(results);
     List<FieldElement> macKeyShares = Arrays.asList(macKeyShareOne, macKeyShareTwo);
     List<AuthenticatedElement> expected =
         computeExpected(inputs, macKeyShares, modulus, modBitLength);
@@ -246,7 +248,8 @@ public class TestElementGeneration extends NetworkedTest {
     List<List<AuthenticatedElement>> results =
         testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
 
-    List<AuthenticatedElement> actual = CollectionUtils.pairwiseSum(results);
+    List<AuthenticatedElement> actual =
+        new ArithmeticCollectionUtils<AuthenticatedElement>().pairwiseSum(results);
     List<FieldElement> macKeyShares = Arrays.asList(macKeyShareOne, macKeyShareTwo);
     List<FieldElement> flatInputs =
         inputs.stream().flatMap(l -> l.stream()).collect(Collectors.toList());
@@ -260,7 +263,7 @@ public class TestElementGeneration extends NetworkedTest {
 
   private List<AuthenticatedElement> computeExpected(List<FieldElement> inputs,
       List<FieldElement> macKeyShares, BigInteger modulus, int modBitLength) {
-    FieldElement macKey = CollectionUtils.sum(macKeyShares);
+    FieldElement macKey = new ArithmeticCollectionUtils<FieldElement>().sum(macKeyShares);
     Stream<AuthenticatedElement> expected = inputs.stream().map(fe -> {
       FieldElement mac = fe.multiply(macKey);
       return new AuthenticatedElement(fe, mac, modulus, modBitLength);

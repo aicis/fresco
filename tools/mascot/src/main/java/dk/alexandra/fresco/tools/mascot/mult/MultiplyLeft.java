@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -108,9 +107,10 @@ public class MultiplyLeft extends MultiplyShared {
    */
   List<FieldElement> seedsToFieldElements(List<StrictBitVector> seeds, BigInteger modulus,
       int modBitLength) {
-    // TODO there should be a better way to do this
+    // TODO need to check somewhere that the modulus is close enough to 2^modBitLength
     return seeds.stream().map(seed -> {
-      return new FieldElementPrgImpl(seed).getNext(modulus, modBitLength);
+      return new FieldElement(new BigInteger(seed.toByteArray()).mod(modulus), modulus,
+          modBitLength);
     }).collect(Collectors.toList());
   }
 

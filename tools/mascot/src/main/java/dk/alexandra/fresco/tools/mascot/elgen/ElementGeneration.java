@@ -3,7 +3,6 @@ package dk.alexandra.fresco.tools.mascot.elgen;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.tools.mascot.BaseProtocol;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
-import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
 import dk.alexandra.fresco.tools.mascot.cope.CopeInputter;
 import dk.alexandra.fresco.tools.mascot.cope.CopeSigner;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
@@ -81,7 +80,7 @@ public class ElementGeneration extends BaseProtocol {
     List<FieldElement> selfMacced = selfMac(values);
     List<List<FieldElement>> maccedByAll = otherPartiesMac(values);
     maccedByAll.add(selfMacced);
-    return CollectionUtils.pairwiseSum(maccedByAll);
+    return getFieldElementUtils().pairwiseSum(maccedByAll);
   }
 
   List<FieldElement> secretShare(List<FieldElement> values, int numShares) {
@@ -225,7 +224,7 @@ public class ElementGeneration extends BaseProtocol {
     List<List<FieldElement>> shares = rawShares.stream()
         .map(raw -> getFieldElementSerializer().deserializeList(raw)).collect(Collectors.toList());
     // recombine
-    return CollectionUtils.pairwiseSum(shares);
+    return getFieldElementUtils().pairwiseSum(shares);
   }
 
 }

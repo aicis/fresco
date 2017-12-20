@@ -2,7 +2,7 @@ package dk.alexandra.fresco.tools.mascot;
 
 import static org.junit.Assert.assertEquals;
 
-import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
+import dk.alexandra.fresco.tools.mascot.arithm.ArithmeticCollectionUtils;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
@@ -57,7 +57,7 @@ public class TestMascot extends NetworkedTest {
     List<List<MultTriple>> results = testRuntime.runPerPartyTasks(tasks);
     assertEquals(results.get(0).size(), 1);
     assertEquals(results.get(1).size(), 1);
-    List<MultTriple> combined = CollectionUtils.pairwiseSum(results);
+    List<MultTriple> combined = new ArithmeticCollectionUtils<MultTriple>().pairwiseSum(results);
     for (MultTriple triple : combined) {
       CustomAsserts.assertTripleIsValid(triple, macKeyShareOne.add(macKeyShareTwo));
     }
@@ -95,7 +95,8 @@ public class TestMascot extends NetworkedTest {
     List<List<AuthenticatedElement>> results = testRuntime.runPerPartyTasks(tasks);
     assertEquals(results.get(0).size(), 1);
     assertEquals(results.get(1).size(), 1);
-    List<AuthenticatedElement> combined = CollectionUtils.pairwiseSum(results);
+    List<AuthenticatedElement> combined =
+        new ArithmeticCollectionUtils<AuthenticatedElement>().pairwiseSum(results);
     FieldElement actualRecombinedValue = combined.get(0).getShare();
     FieldElement actualRecombinedMac = combined.get(0).getMac();
     CustomAsserts.assertEquals(input, actualRecombinedValue);

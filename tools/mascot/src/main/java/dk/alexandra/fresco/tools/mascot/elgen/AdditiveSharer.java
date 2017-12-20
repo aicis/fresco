@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.tools.mascot.elgen;
 
-import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
+import dk.alexandra.fresco.tools.mascot.arithm.ArithmeticCollectionUtils;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import java.math.BigInteger;
@@ -11,6 +11,7 @@ public class AdditiveSharer implements Sharer {
   private final FieldElementPrg sampler;
   private final BigInteger modulus;
   private final int modBitLength;
+  private final ArithmeticCollectionUtils<FieldElement> arithmeticUtils;
 
   /**
    * Creates new {@link AdditiveSharer}.
@@ -23,12 +24,13 @@ public class AdditiveSharer implements Sharer {
     this.sampler = sampler;
     this.modulus = modulus;
     this.modBitLength = modBitLength;
+    this.arithmeticUtils = new ArithmeticCollectionUtils<>();
   }
 
   @Override
   public List<FieldElement> share(FieldElement input, int numShares) {
     List<FieldElement> shares = sampler.getNext(modulus, modBitLength, numShares - 1);
-    FieldElement sumShares = CollectionUtils.sum(shares);
+    FieldElement sumShares = arithmeticUtils.sum(shares);
     FieldElement diff = input.subtract(sumShares);
     shares.add(diff);
     return shares;
@@ -36,7 +38,7 @@ public class AdditiveSharer implements Sharer {
 
   @Override
   public FieldElement recombine(List<FieldElement> shares) {
-    return CollectionUtils.sum(shares);
+    return arithmeticUtils.sum(shares);
   }
 
 }
