@@ -11,6 +11,7 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import java.io.Closeable;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,33 +37,43 @@ public class KryoNetNetwork implements Network, Closeable {
 
   private static final Logger logger = LoggerFactory.getLogger(KryoNetNetwork.class);
 
+  private static final int BYTE_SERIALIZATION_SIZE = 8;
+  private final int maxSendAmount; // buffer size - serialization of a byte[] object.
+  private final boolean allowMultipleMessages;
+
   /**
    * Creates a KryoNet network from the given configuration. Calling the constructor will
    * immediately trigger an attempt at connecting to the other parties.
    *
    * @param conf The configuration informing the network of the number of parties and where to
-   *     connect to them.
+   *        connect to them.
+   * @param bufferSize The maximum size of messages that we expect through the network.
+   * @param allowMultipleMessages If true, the network can handle arbitrary message sizes, but comes
+   *        with the cost of sending extra information over the wire for each message. If false, a
+   *        buffer overflow exception will occur if one tries to send messages of a larger size than
+   *        <code>bufferSize</code>.
    */
-  public KryoNetNetwork(NetworkConfiguration conf) {
+  public KryoNetNetwork(NetworkConfiguration conf, int bufferSize, boolean allowMultipleMessages) {
     Log.set(Log.LEVEL_ERROR);
+    this.allowMultipleMessages = allowMultipleMessages;
+    this.maxSendAmount = bufferSize - BYTE_SERIALIZATION_SIZE;
     this.conf = conf;
     this.clients = new HashMap<>();
     this.clientThreads = new ArrayList<>();
     this.queues = new HashMap<>();
 
-    // TODO: How to reason about the upper boundries of what can be send in a single round?
-    int writeBufferSize = 1048576;
+    int writeBufferSize = bufferSize;
     int objectBufferSize = writeBufferSize;
 
     this.server = new Server(1024, objectBufferSize);
-    register(this.server);    
+    register(this.server);
 
     for (int i = 1; i <= conf.noOfParties(); i++) {
       if (i != conf.getMyId()) {
         Client client = new Client(writeBufferSize, 1024);
         register(client);
         clients.put(i, client);
-        
+
 
         String secretSharedKey = conf.getParty(i).getSecretSharedKey();
         if (secretSharedKey != null) {
@@ -75,12 +86,25 @@ public class KryoNetNetwork implements Network, Closeable {
 
       this.queues.put(i, new ArrayBlockingQueue<>(1000));
     }
-    
+
     try {
       connect();
     } catch (IOException e) {
       throw new RuntimeException("Failed to connect to all parties", e);
     }
+  }
+
+  /**
+   * Creates a KryoNet network from the given configuration. Calling the constructor will
+   * immediately trigger an attempt at connecting to the other parties. This constructor will use a
+   * default value for the size of messages send over the network (524284). If you want to configure
+   * this yourself, instead use: {@link #KryoNetNetwork(NetworkConfiguration, int, boolean)}.
+   *
+   * @param conf The configuration informing the network of the number of parties and where to
+   *        connect to them.
+   */
+  public KryoNetNetwork(NetworkConfiguration conf) {
+    this(conf, 524284, false);
   }
 
   private static class ClientConnectThread extends Thread {
@@ -98,6 +122,7 @@ public class KryoNetNetwork implements Network, Closeable {
       this.semaphore = semaphore;
     }
 
+    @Override
     public void run() {
       boolean success = false;
       int maxRetries = 30;
@@ -105,22 +130,13 @@ public class KryoNetNetwork implements Network, Closeable {
       while (!success) {
         try {
           retries++;
-          client.connect(2000, hostname, port);
+          client.connect(1000, hostname, port);
           // Server communication after connection can go here, or in Listener#connected().
           success = true;
         } catch (IOException ex) {
           if (retries >= maxRetries) {
-            //release to inform that this thread is done trying to connect            
-            logger.error(
-                "Could not connect to other party within 30 retries of half a second each.");
-            this.semaphore.release();
-            break;
-          }
-          try {
-            sleep(500);
-          } catch (InterruptedException e) {
-            //release to inform that this thread is done trying to connect            
-            logger.error("Thread got interrupted while trying to reconnect.");
+            // release to inform that this thread is done trying to connect
+            logger.error("Could not connect to other party within 30 retries of a second each.");
             this.semaphore.release();
             break;
           }
@@ -131,12 +147,16 @@ public class KryoNetNetwork implements Network, Closeable {
 
   private class NaiveListener extends Listener {
 
-    private Map<Integer, BlockingQueue<byte[]>> queue;
-    private Map<Integer, Integer> connectionIdToPartyId;
+    private final Map<Integer, BlockingQueue<byte[]>> queues;
+    private final Map<Integer, ByteBuffer> temporaryLists;
+    private final Map<Integer, Integer> connectionIdToPartyId;
+    private final Map<Integer, Integer> messagesExpected;
 
     public NaiveListener(Map<Integer, BlockingQueue<byte[]>> queue) {
-      this.queue = queue;
+      this.queues = queue;
+      this.temporaryLists = new HashMap<>();
       this.connectionIdToPartyId = new HashMap<>();
+      this.messagesExpected = new HashMap<>();
     }
 
     @Override
@@ -145,10 +165,36 @@ public class KryoNetNetwork implements Network, Closeable {
       if (object instanceof byte[]) {
         byte[] data = (byte[]) object;
         int fromPartyId = this.connectionIdToPartyId.get(connection.getID());
-        this.queue.get(fromPartyId).offer(data);
+        if (allowMultipleMessages) {
+          Integer expected = messagesExpected.get(fromPartyId);
+          if (expected == null || expected == 0) {
+            // Case where the message fits in a single communication round
+            this.queues.get(fromPartyId).offer(data);
+            return;
+          }
+          // Multiple messages are needed to obtain the original large payload
+          ByteBuffer tmp = this.temporaryLists.get(fromPartyId);
+          tmp.put(data);
+          expected--;
+          messagesExpected.put(fromPartyId, expected);
+          if (expected == 0) {
+            // No more messages expected. Merge what we got so far into one array
+            byte[] dataToReturn = new byte[tmp.capacity() - (maxSendAmount - data.length)];
+            tmp.position(0);
+            tmp.get(dataToReturn);
+            this.queues.get(fromPartyId).offer(dataToReturn);
+          }
+        } else {
+          this.queues.get(fromPartyId).offer(data);
+        }
       } else if (object instanceof Integer) {
-        // Initial handshake to determine who the remote party is.
-        this.connectionIdToPartyId.put(connection.getID(), (Integer) object);
+        int number = (Integer) object;
+        messagesExpected.put(connection.getID(), number);
+        temporaryLists.put(connection.getID(), ByteBuffer.allocate(maxSendAmount * number));
+      } else if (object instanceof Handshake) {
+        Handshake hs = (Handshake) object;
+        int id = hs.id;
+        this.connectionIdToPartyId.put(connection.getID(), id);
       }
     }
   }
@@ -162,7 +208,7 @@ public class KryoNetNetwork implements Network, Closeable {
     server.bind(port);
     server.start();
 
-    server.addListener(new NaiveListener(this.queues));    
+    server.addListener(new NaiveListener(this.queues));
 
     for (int i = 1; i <= conf.noOfParties(); i++) {
       if (i != conf.getMyId()) {
@@ -171,7 +217,9 @@ public class KryoNetNetwork implements Network, Closeable {
         client.addListener(new Listener() {
           @Override
           public void connected(Connection connection) {
-            connection.sendTCP(conf.getMyId());
+            Handshake hs = new Handshake();
+            hs.id = conf.getMyId();
+            connection.sendTCP(hs);
             successes.add(true);
             semaphore.release();
           }
@@ -193,9 +241,7 @@ public class KryoNetNetwork implements Network, Closeable {
       }
       logger.debug("P" + conf.getMyId() + ": Successfully connected to all parties!");
     } catch (InterruptedException e) {
-      for (Thread t : clientThreads) {
-        t.interrupt();
-      }
+      this.close();
       throw new IOException("Interrupted during wait for connect", e);
     }
   }
@@ -203,21 +249,50 @@ public class KryoNetNetwork implements Network, Closeable {
   @Override
   public void send(int partyId, byte[] data) {
     if (this.conf.getMyId() == partyId) {
-      ExceptionConverter.safe(
-          () -> {
-            this.queues.get(partyId).put(data);
-            return null;
-          },
-          "Send got interrupted");
+      ExceptionConverter.safe(() -> {
+        this.queues.get(partyId).put(data);
+        return null;
+      } , "Send got interrupted");
     } else {
-      this.clients.get(partyId).sendTCP(data);
+      if (allowMultipleMessages) {
+        if (data.length > maxSendAmount) {
+          // Will result in a buffer overflow. Splitting data
+          ByteBuffer buffer = ByteBuffer.wrap(data);
+          int bufferAmount = (data.length / this.maxSendAmount);
+          int modRes = data.length % this.maxSendAmount;
+          if (modRes > 0) {
+            bufferAmount++;
+          }
+          this.clients.get(partyId).sendTCP(bufferAmount);
+          byte[][] buffers = new byte[bufferAmount][];
+          for (int i = 0; i < bufferAmount; i++) {
+            if (i == (bufferAmount - 1)) {
+              int size = modRes;
+              if (modRes == 0) {
+                // Corner case
+                size = this.maxSendAmount;
+              }
+              buffers[i] = new byte[size];
+            } else {
+              buffers[i] = new byte[this.maxSendAmount];
+            }
+            buffer.get(buffers[i]);
+            this.clients.get(partyId).sendTCP(buffers[i]);
+            ExceptionConverter.safe(() -> {this.clients.get(partyId).update(0); return null;}, "Failed to update client");
+          }
+        } else {
+          // Only one message is needed
+          this.clients.get(partyId).sendTCP(data);
+        }
+      } else {
+        this.clients.get(partyId).sendTCP(data);
+      }
     }
   }
 
   @Override
   public byte[] receive(int partyId) {
-    return ExceptionConverter.safe(
-        () -> this.queues.get(partyId).take(),
+    return ExceptionConverter.safe(() -> this.queues.get(partyId).take(),
         "Receive got interrupted");
   }
 
@@ -233,7 +308,7 @@ public class KryoNetNetwork implements Network, Closeable {
     this.server.stop();
 
     for (Thread t : clientThreads) {
-      t.interrupt();      
+      t.interrupt();
     }
 
     for (int i = 1; i <= conf.noOfParties(); i++) {
@@ -247,5 +322,14 @@ public class KryoNetNetwork implements Network, Closeable {
     Kryo kryo = endpoint.getKryo();
     kryo.register(byte[].class);
     kryo.register(Integer.class);
+    kryo.register(Handshake.class);
+  }
+
+  /**
+   * Used as an identifier for KryoNet in order to distinguish between integers and handshakes.
+   *
+   */
+  private static class Handshake {
+    public int id;
   }
 }
