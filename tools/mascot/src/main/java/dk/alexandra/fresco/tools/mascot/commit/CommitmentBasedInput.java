@@ -3,24 +3,29 @@ package dk.alexandra.fresco.tools.mascot.commit;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.SecureSerializer;
 import dk.alexandra.fresco.tools.commitment.Commitment;
+import dk.alexandra.fresco.tools.mascot.BaseProtocol;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
-import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.broadcast.BroadcastValidation;
 import dk.alexandra.fresco.tools.mascot.broadcast.BroadcastingNetworkDecorator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// TODO need better name
-public class CommitmentBasedProtocol<T> extends MultiPartyProtocol {
+/**
+ * Actively-secure protocol for binding input. Allows each party to distribute a value to the other
+ * parties using commitments.
+ * 
+ * @param <T> type of value to commit to
+ */
+public class CommitmentBasedInput<T> extends BaseProtocol {
 
-  SecureSerializer<T> serializer;
-  Network broadcaster;
+  private final SecureSerializer<T> serializer;
+  private final Network broadcaster;
 
   /**
-   * Creates new {@link CommitmentBasedProtocol}.
+   * Creates new {@link CommitmentBasedInput}.
    */
-  public CommitmentBasedProtocol(MascotResourcePool resourcePool, Network network,
+  public CommitmentBasedInput(MascotResourcePool resourcePool, Network network,
       SecureSerializer<T> serializer) {
     super(resourcePool, network);
     this.serializer = serializer;
@@ -84,6 +89,13 @@ public class CommitmentBasedProtocol<T> extends MultiPartyProtocol {
     return result;
   }
 
+  /**
+   * Uses commitments to securely distribute the given value to the other parties and receive their
+   * inputs.
+   * 
+   * @param value value to commit to
+   * @return the other parties' values
+   */
   protected List<T> allCommit(T value) {
     // commit to sigma
     Commitment ownComm = new Commitment();

@@ -2,14 +2,16 @@ package dk.alexandra.fresco.tools.mascot.broadcast;
 
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.tools.mascot.BaseProtocol;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
-import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
-import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.List;
 
-
-public class BroadcastValidation extends MultiPartyProtocol {
+/**
+ * Actively-secure protocol for performing hash-based broadcast validation. Allows participating
+ * parties to ensure that a list of messages is consistent across all parties.
+ */
+public class BroadcastValidation extends BaseProtocol {
 
   public BroadcastValidation(MascotResourcePool resourcePool, Network network) {
     super(resourcePool, network);

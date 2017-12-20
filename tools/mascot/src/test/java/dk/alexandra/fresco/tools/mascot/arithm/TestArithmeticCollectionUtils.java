@@ -10,19 +10,20 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 
-public class TestCollectionUtils {
+public class TestArithmeticCollectionUtils {
+
+  private final ArithmeticCollectionUtils<MockAddable> utils = new ArithmeticCollectionUtils<>();
 
   @Test
   public void testTranspose() {
     int[][] rows = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}, {10, 11, 12}};
-    List<List<FieldElement>> mat =
-        MascotTestUtils.generateMatrix(rows, new BigInteger("251"), 8);
+    List<List<FieldElement>> mat = MascotTestUtils.generateMatrix(rows, new BigInteger("251"), 8);
 
     int[][] actualRows = {{1, 4, 7, 10}, {2, 5, 8, 11}, {3, 6, 9, 12}};
     List<List<FieldElement>> expected =
         MascotTestUtils.generateMatrix(actualRows, new BigInteger("251"), 8);
-    
-    List<List<FieldElement>> actual = CollectionUtils.transpose(mat);
+
+    List<List<FieldElement>> actual = new ArithmeticCollectionUtils<FieldElement>().transpose(mat);
     CustomAsserts.assertMatrixEquals(expected, actual);
   }
 
@@ -31,7 +32,7 @@ public class TestCollectionUtils {
     List<MockAddable> summands =
         Arrays.asList(new MockAddable(1), new MockAddable(2), new MockAddable(3));
     MockAddable expected = new MockAddable(6);
-    MockAddable actual = CollectionUtils.sum(summands);
+    MockAddable actual = utils.sum(summands);
     assertEquals(expected, actual);
   }
 
@@ -43,7 +44,7 @@ public class TestCollectionUtils {
         Arrays.asList(new MockAddable(4), new MockAddable(5), new MockAddable(6));
     List<MockAddable> expected =
         Arrays.asList(new MockAddable(5), new MockAddable(7), new MockAddable(9));
-    List<MockAddable> actual = CollectionUtils.pairWiseSum(Arrays.asList(rowOne, rowTwo));
+    List<MockAddable> actual = utils.pairwiseSum(Arrays.asList(rowOne, rowTwo));
     assertEquals(expected, actual);
   }
 
@@ -89,8 +90,8 @@ public class TestCollectionUtils {
       return true;
     }
 
-    private TestCollectionUtils getOuterType() {
-      return TestCollectionUtils.this;
+    private TestArithmeticCollectionUtils getOuterType() {
+      return TestArithmeticCollectionUtils.this;
     }
   }
 

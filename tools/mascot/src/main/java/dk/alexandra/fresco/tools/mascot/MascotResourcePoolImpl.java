@@ -46,18 +46,18 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
           + "85827844212318499978829377355564689095172787513731965744913645190518423"
           + "06594567246898679968677700656495114013774368779648395287433119164167454"
           + "67731166272088057888135437754886129005590419051");
-
-  private List<Integer> partyIds;
-  private BigInteger modulus;
-  private int modBitLength;
-  private int lambdaSecurityParam;
-  private int prgSeedLength;
-  private int numLeftFactors;
-  private FieldElementPrg localSampler;
-  private FieldElementSerializer fieldElementSerializer;
-  private StrictBitVectorSerializer strictBitVectorSerializer;
-  private CommitmentSerializer commitmentSerializer;
-  private MessageDigest messageDigest;
+  
+  private final List<Integer> partyIds;
+  private final BigInteger modulus;
+  private final int modBitLength;
+  private final int lambdaSecurityParam;
+  private final int prgSeedLength;
+  private final int numLeftFactors;
+  private final FieldElementPrg localSampler;
+  private final FieldElementSerializer fieldElementSerializer;
+  private final StrictBitVectorSerializer strictBitVectorSerializer;
+  private final CommitmentSerializer commitmentSerializer;
+  private final MessageDigest messageDigest;
 
   /**
    * Creates new mascot resource pool.

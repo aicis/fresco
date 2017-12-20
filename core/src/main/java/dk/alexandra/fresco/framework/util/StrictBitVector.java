@@ -2,14 +2,13 @@ package dk.alexandra.fresco.framework.util;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Random;
 
-// TODO get rid of size as a parameter?
 public class StrictBitVector {
 
-  private byte[] bits;
-  private int size;
-  
+  private final byte[] bits;
+  // TODO get rid of size as a parameter?
+  private final int size;
+
   /**
    * Constructs new strict bit vector.
    * 
@@ -26,16 +25,13 @@ public class StrictBitVector {
     this.bits = bits.clone();
     this.size = size;
   }
-  
+
   /**
    * Creates a StrictBitVector with all entries set to zero.
    *
    * @param size size of the vector
    */
   public StrictBitVector(int size) {
-    if (size < 0) {
-      throw new IllegalArgumentException("Size of vector must not be negative but was " + size);
-    }
     if (size % 8 != 0) {
       throw new IllegalArgumentException("Size must be multiple of 8");
     }
@@ -44,25 +40,10 @@ public class StrictBitVector {
   }
 
   /**
-   * Constructs new strict bit vector from a source of randomness.
-   * 
-   * @param size
-   *          Amount of bits the StrictBitVector should contain
-   * @param rand
-   *          source of randomness
-   */
-  @Deprecated
-  public StrictBitVector(int size, Random rand) {
-    this(ByteArrayHelper.randomByteArray(size / 8, rand), size);
-  }
-  
-  /**
    * Constructs new strict bit vector from a secure source of randomness.
    * 
-   * @param bits
-   *          raw bytes
-   * @param rand
-   *          secure source of randomness
+   * @param bits raw bytes
+   * @param rand secure source of randomness
    */
   public StrictBitVector(int size, Drbg rand) {
     this(size);
@@ -70,18 +51,13 @@ public class StrictBitVector {
   }
 
   /**
-   * Returns the "bit" number bit, reading from left-to-right, from a byte
-   * array.
+   * Returns the "bit" number bit, reading from left-to-right, from a byte array.
    * 
-   * @param input
-   *          The arrays of which to retrieve a bit
-   * @param bit
-   *          The index of the bit, counting from 0
-   * @param isBigEndian
-   *          Indicates whether the underlying byte array should be interpreted
-   *          as big-endian or little-endian
-   * @return Returns the "bit" number bit, reading from left-to-right, from
-   *         "input"
+   * @param input The arrays of which to retrieve a bit
+   * @param bit The index of the bit, counting from 0
+   * @param isBigEndian Indicates whether the underlying byte array should be interpreted as
+   *        big-endian or little-endian
+   * @return Returns the "bit" number bit, reading from left-to-right, from "input"
    */
   public boolean getBit(int bit, boolean isBigEndian) {
     rangeCheck(bit);
@@ -95,17 +71,16 @@ public class StrictBitVector {
    * @param index index of the bit to be set
    * @param value value to set bit to
    * @param isBigEndian Indicates whether the underlying byte array should be interpreted as
-   *        big-endian or little-endian 
+   *        big-endian or little-endian
    */
   public void setBit(int index, boolean value, boolean isBigEndian) {
     rangeCheck(index);
     int actualIndex = isBigEndian ? size - 1 - index : index;
     ByteArrayHelper.setBit(bits, actualIndex, value);
   }
-  
+
   /**
-   * Returns the "bit" number bit, reading from left-to-right, from a byte array.
-   * <br>
+   * Returns the "bit" number bit, reading from left-to-right, from a byte array. <br>
    * Assumes underlying byte array is big-endian.
    * 
    * @param input The arrays of which to retrieve a bit
@@ -115,10 +90,9 @@ public class StrictBitVector {
   public boolean getBit(int bit) {
     return getBit(bit, true);
   }
-  
+
   /**
-   * Sets the bit at index to value, reading from left-to-right.
-   * <br>
+   * Sets the bit at index to value, reading from left-to-right. <br>
    * Assumes underlying byte array is big-endian.
    * 
    * @param index index of the bit to be set
@@ -163,11 +137,11 @@ public class StrictBitVector {
     }
     return new StrictBitVector(combined, combinedBitLength);
   }
-  
+
   public static StrictBitVector concat(StrictBitVector... bitVectors) {
     return concat(false, bitVectors);
   }
-  
+
   private void rangeCheck(int bit) {
     if (bit < 0 || bit >= this.size) {
       throw new IndexOutOfBoundsException("Index out of bounds");
@@ -206,7 +180,7 @@ public class StrictBitVector {
     }
     return binStr;
   }
-  
+
   @Override
   public String toString() {
     return "StrictBitVector [bits=" + Arrays.toString(bits) + "]";

@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import java.util.Arrays;
-import java.util.Random;
+
 import org.junit.Test;
 
 public class TestStrictBitVector {
@@ -21,15 +21,7 @@ public class TestStrictBitVector {
 
   @Test
   public void testConstructRandomCorrectSize() {
-    Random rand = new Random(42);
-    StrictBitVector bv = new StrictBitVector(4 * 8, rand);
-    assertEquals(4 * 8, bv.getSize());
-    assertEquals(4, bv.toByteArray().length);
-  }
-
-  @Test
-  public void testConstructRandomCorrectSize2() {
-    Drbg rand = new PaddingAesCtrDrbg(new byte[]{0x42}, 32 * 8);
+    Drbg rand = new PaddingAesCtrDrbg(new byte[] {0x42}, 32 * 8);
     StrictBitVector bv = new StrictBitVector(4 * 8, rand);
     assertEquals(4 * 8, bv.getSize());
     assertEquals(4, bv.toByteArray().length);
@@ -50,6 +42,22 @@ public class TestStrictBitVector {
 
     byte[] expectedBits =
         {(byte) 0xFF, (byte) 0x01, (byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x03};
+    StrictBitVector expected = new StrictBitVector(expectedBits, expectedBits.length * 8);
+    assertEquals(expected, actual);
+  }
+
+  @Test
+  public void testConcatReverse() {
+    byte[] bitsOne = {(byte) 0xFF, (byte) 0x01, (byte) 0x00};
+    StrictBitVector bvOne = new StrictBitVector(bitsOne, bitsOne.length * 8);
+
+    byte[] bitsTwo = {(byte) 0x01, (byte) 0x02, (byte) 0x03};
+    StrictBitVector bvTwo = new StrictBitVector(bitsTwo, bitsTwo.length * 8);
+
+    StrictBitVector actual = StrictBitVector.concat(true, bvOne, bvTwo);
+
+    byte[] expectedBits =
+        {(byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0xFF, (byte) 0x01, (byte) 0x00};
     StrictBitVector expected = new StrictBitVector(expectedBits, expectedBits.length * 8);
     assertEquals(expected, actual);
   }
@@ -131,6 +139,18 @@ public class TestStrictBitVector {
   }
 
   @Test
+  public void testXor() {
+    byte[] bitsOne = {(byte) 0x00, (byte) 0x01, (byte) 0x02};
+    StrictBitVector bvOne = new StrictBitVector(bitsOne, 24);
+    byte[] bitsTwo = {(byte) 0x03, (byte) 0x04, (byte) 0x05};
+    StrictBitVector bvTwo = new StrictBitVector(bitsTwo, 24);
+    bvOne.xor(bvTwo);
+    byte[] expectedBytes = {(byte) 0x03, (byte) 0x05, (byte) 0x07};
+    StrictBitVector expected = new StrictBitVector(expectedBytes, 24);
+    assertEquals(expected, bvOne);
+  }
+
+  @Test
   public void testGetBitLittleEndian() {
     int bitLen = 72;
     byte[] bits = new byte[bitLen / 8];
@@ -155,9 +175,9 @@ public class TestStrictBitVector {
     bv.setBit(2, true);
     bv.setBit(11, true);
     byte[] actual = bv.toByteArray();
-    // 15  14  13  12  11        ...       2 1 0
-    // 0   0   0   0   1   0 0 0 0 0 0 0 0 1 0 0
-    byte[] expected = new byte[]{(byte) 0x08, (byte) 0x04};
+    // 15 14 13 12 11 ... 2 1 0
+    // 0 0 0 0 1 0 0 0 0 0 0 0 0 1 0 0
+    byte[] expected = new byte[] {(byte) 0x08, (byte) 0x04};
     assertArrayEquals(expected, actual);
   }
 
@@ -169,51 +189,66 @@ public class TestStrictBitVector {
     bv.setBit(2, true, false);
     bv.setBit(11, true, false);
     byte[] actual = bv.toByteArray();
-    // 15  14  13  12  11  10  9 8 7 6 5 4 3 2 1 0
-    // 0   0   1   0   0   0   0 0 0 0 0 1 0 0 0 0
-    byte[] expected = new byte[]{(byte) 0x20, (byte) 0x10};
+    // 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0
+    // 0 0 1 0 0 0 0 0 0 0 0 1 0 0 0 0
+    byte[] expected = new byte[] {(byte) 0x20, (byte) 0x10};
     assertArrayEquals(expected, actual);
+  }
+
+  @Test
+  public void testAsBinaryString() {
+    int bitLen = 72;
+    byte[] bits = new byte[bitLen / 8];
+    for (int b = 0; b < bits.length; b++) {
+      bits[b] = (byte) b;
+    }
+    StrictBitVector bv = new StrictBitVector(bits, bitLen);
+    String expected = "000100001110000001100000101000000010000011000000010000001000000000000000";
+    assertEquals(expected, bv.asBinaryString());
+  }
+
+  @Test
+  public void testToString() {
+    byte[] bits = {(byte) 0xFF, (byte) 0x01, (byte) 0x00};
+    StrictBitVector bv = new StrictBitVector(bits, bits.length * 8);
+    String expected = "StrictBitVector [bits=[-1, 1, 0]]";
+    assertEquals(expected, bv.toString());
   }
 
   // Negative tests
 
-  @Test
+  @Test(expected = IndexOutOfBoundsException.class)
+  public void testRangeCheck() {
+    byte[] bits = {(byte) 0xFF, (byte) 0x01, (byte) 0x00};
+    StrictBitVector bv = new StrictBitVector(bits, bits.length * 8);
+    bv.getBit(2000);
+  }
+
+  @Test(expected = IndexOutOfBoundsException.class)
+  public void testRangeCheckNegative() {
+    byte[] bits = {(byte) 0xFF, (byte) 0x01, (byte) 0x00};
+    StrictBitVector bv = new StrictBitVector(bits, bits.length * 8);
+    bv.getBit(-1);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
   public void testConstructIncorrectSize() {
-    boolean thrown = false;
     byte[] bits = {(byte) 0xFF, (byte) 0x01, (byte) 0x00};
-    try {
-      new StrictBitVector(bits, 11);
-    } catch (IllegalArgumentException e) {
-      assertEquals("Size must be multiple of 8", e.getMessage());
-      thrown = true;
-    }
-    assertEquals(thrown, true);
+    new StrictBitVector(bits, 11);
   }
 
-  @Test
+  @Test(expected = IllegalArgumentException.class)
   public void testConstructInconsistentSize() {
-    boolean thrown = false;
     byte[] bits = {(byte) 0xFF, (byte) 0x01, (byte) 0x00};
-    try {
-      new StrictBitVector(bits, 4 * 8);
-    } catch (IllegalArgumentException e) {
-      assertEquals("Size does not match byte array bit length", e.getMessage());
-      thrown = true;
-    }
-    assertEquals(thrown, true);
+    new StrictBitVector(bits, 4 * 8);
   }
 
-  @Test
+  @Test(expected = IllegalArgumentException.class)
   public void testConstructRandomIncorrectSize() {
-    boolean thrown = false;
-    try {
-      Random rand = new Random(42);
-      new StrictBitVector(10, rand);
-    } catch (IllegalArgumentException e) {
-      assertEquals("Size must be multiple of 8", e.getMessage());
-      thrown = true;
-    }
-    assertEquals(thrown, true);
+    new StrictBitVector(10, new Drbg() {
+      @Override
+      public void nextBytes(byte[] bytes) {}
+    });
   }
 
 }

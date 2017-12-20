@@ -3,10 +3,13 @@ package dk.alexandra.fresco.tools.mascot.cointossing;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
-import dk.alexandra.fresco.tools.mascot.commit.CommitmentBasedProtocol;
+import dk.alexandra.fresco.tools.mascot.commit.CommitmentBasedInput;
 import java.util.List;
 
-public class CoinTossingMpc extends CommitmentBasedProtocol<StrictBitVector> {
+/**
+ * Actively-secure protocol for agreeing on a common random seed.
+ */
+public class CoinTossingMpc extends CommitmentBasedInput<StrictBitVector> {
 
   /**
    * Creates new coin-tossing protocol.

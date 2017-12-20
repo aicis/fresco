@@ -5,13 +5,19 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Actively-secure two-party protocol for computing the product of two secret inputs. <br>
+ * One input is held by the left party, the other by the right party. The protocol is asymmetric in
+ * the sense that the left party performs a different computation from the right party. This class
+ * implements the functionality of the right party. For the other side, see {@link MultiplyLeft}.
+ * The resulting product is secret-shared among the two parties.
+ */
 public class MultiplyRight extends MultiplyShared {
 
   public MultiplyRight(MascotResourcePool resourcePool, Network network, Integer otherId,
@@ -106,10 +112,12 @@ public class MultiplyRight extends MultiplyShared {
   List<Pair<FieldElement, FieldElement>> seedsToFieldElements(
       List<Pair<StrictBitVector, StrictBitVector>> seedPairs, BigInteger modulus,
       int modBitLength) {
-    // TODO there should be a better way to do this
+    // TODO need to check somewhere that the modulus is close enough to 2^modBitLength
     return seedPairs.stream().map(pair -> {
-      FieldElement t0 = new FieldElementPrgImpl(pair.getFirst()).getNext(modulus, modBitLength);
-      FieldElement t1 = new FieldElementPrgImpl(pair.getSecond()).getNext(modulus, modBitLength);
+      FieldElement t0 = new FieldElement(new BigInteger(pair.getFirst().toByteArray()).mod(modulus),
+          modulus, modBitLength);
+      FieldElement t1 = new FieldElement(
+          new BigInteger(pair.getSecond().toByteArray()).mod(modulus), modulus, modBitLength);
       return new Pair<>(t0, t1);
     }).collect(Collectors.toList());
   }

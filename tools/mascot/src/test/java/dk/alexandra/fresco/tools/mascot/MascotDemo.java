@@ -9,7 +9,6 @@ import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.tools.mascot.Mascot;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
-import dk.alexandra.fresco.tools.mascot.MascotResourcePoolImpl;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import java.io.Closeable;
@@ -22,8 +21,8 @@ import java.util.concurrent.Callable;
 
 public class MascotDemo {
 
-  private Mascot mascot;
-  private Closeable toClose;
+  private final Mascot mascot;
+  private final Closeable toClose;
 
   MascotDemo(Integer myId, List<Integer> partyIds) {
     MascotResourcePool resourcePool = defaultResourcePool(myId, partyIds);
@@ -74,7 +73,7 @@ public class MascotDemo {
   public static void main(String[] args) {
     Integer myId = Integer.parseInt(args[0]);
     List<Integer> partyIds = Arrays.asList(1, 2);
-    new MascotDemo(myId, partyIds).run(1000, 256);
+    new MascotDemo(myId, partyIds).run(10, 1024);
   }
 
 }
