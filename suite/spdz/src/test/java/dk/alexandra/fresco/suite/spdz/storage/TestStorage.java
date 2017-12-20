@@ -37,7 +37,7 @@ public class TestStorage extends AbstractSpdzTest {
       int noOfThreadsUsed = 1;
       int myId = 1;
       String storageName =
-          SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0 + "_";
+          DataSupplierImpl.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0 + "_";
       DataSupplier supplier = new DataSupplierImpl(storage, storageName, 2);
       BigInteger m1 = supplier.getModulus();
       BigInteger m2 = supplier.getModulus();

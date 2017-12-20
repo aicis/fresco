@@ -26,8 +26,23 @@
 
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>core</artifactId>
+      <version>${fresco-version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
       <artifactId>spdz</artifactId>
       <version>${fresco-version}</version>
+    </dependency>
+    
+	<dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>spdz</artifactId>
+      <version>${fresco-version}</version>
+      <type>test-jar</type>
     </dependency>
     
     <dependency>
@@ -47,14 +62,6 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
       <version>1.5.0.RELEASE</version>
-    </dependency>
-
-    <dependency>
-      <groupId>dk.alexandra.fresco</groupId>
-      <artifactId>core</artifactId>
-      <version>${fresco-version}</version>
-      <type>test-jar</type>
-      <scope>test</scope>
     </dependency>
 
     <dependency>
