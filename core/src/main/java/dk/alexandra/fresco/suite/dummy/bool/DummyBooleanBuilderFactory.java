@@ -9,13 +9,6 @@ import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.logging.PerformanceLogger;
-import dk.alexandra.fresco.logging.binary.BinaryComparisonLoggingDecorator;
-import dk.alexandra.fresco.logging.binary.BinaryLoggingDecorator;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.Random;
 
 /**
@@ -26,36 +19,20 @@ import java.util.Random;
  */
 public class DummyBooleanBuilderFactory implements BuilderFactoryBinary {
 
-  public static final ConcurrentMap<Integer, List<PerformanceLogger>> performanceLoggers =
-      new ConcurrentHashMap<>();
-  
-  private int myId;
-  private BinaryComparisonLoggingDecorator compDecorator;
-  private BinaryLoggingDecorator binaryDecorator;
   private final Random rand;
 
-  public DummyBooleanBuilderFactory(int myId) {
-    this.myId = myId;
-    performanceLoggers.putIfAbsent(myId, new ArrayList<PerformanceLogger>());
+  public DummyBooleanBuilderFactory() {
     this.rand = new Random(0);
   }
 
   @Override
   public Comparison createComparison(ProtocolBuilderBinary builder) {
-    Comparison comp = BuilderFactoryBinary.super.createComparison(builder);
-
-    if (compDecorator == null) {
-      compDecorator = new BinaryComparisonLoggingDecorator(comp);
-      performanceLoggers.get(myId).add(compDecorator);
-    } else {
-      compDecorator.setDelegate(comp);
-    }
-    return compDecorator;
+    return BuilderFactoryBinary.super.createComparison(builder);
   }
 
   @Override
   public Binary createBinary(ProtocolBuilderBinary builder) {
-    Binary binary = new Binary() {
+    return new Binary() {
 
       @Override
       public DRes<SBool> known(boolean value) {
@@ -126,12 +103,5 @@ public class DummyBooleanBuilderFactory implements BuilderFactoryBinary {
         return c;
       }
     };
-    if (binaryDecorator == null) {
-      binaryDecorator = new BinaryLoggingDecorator(binary);
-      performanceLoggers.get(myId).add(binaryDecorator);
-    } else {
-      binaryDecorator.setDelegate(binary);
-    }
-    return binaryDecorator;
   }
 }
