@@ -140,6 +140,12 @@ public class KryoNetNetwork implements Network, Closeable {
             this.semaphore.release();
             break;
           }
+          try {
+            Thread.sleep(100);
+          } catch(InterruptedException e) {
+            logger.error("Client connect thread got interrupted");
+            this.semaphore.release();
+          }
         }
       }
     }
