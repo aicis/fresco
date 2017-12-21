@@ -104,7 +104,7 @@ public class SpdzMacCheckProtocol implements ProtocolProducer {
           gamma = gamma.add(rs[index++].multiply(c.getMac())).mod(modulus);
         }
 
-        BigInteger alpha = storage.getSSK();
+        BigInteger alpha = storage.getSecretSharedKey();
         // compute delta_i as: gamma_i - alpha_i*a
         BigInteger delta = gamma.subtract(alpha.multiply(a)).mod(modulus);
         // Commit to delta and open it afterwards

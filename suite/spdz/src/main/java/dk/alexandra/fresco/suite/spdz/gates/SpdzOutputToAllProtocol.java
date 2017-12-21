@@ -26,7 +26,7 @@ public class SpdzOutputToAllProtocol extends SpdzNativeProtocol<BigInteger>
 
     SpdzStorage storage = spdzResourcePool.getStore();
     BigIntegerSerializer serializer = spdzResourcePool.getSerializer();
-    if(round == 0) {
+    if (round == 0) {
       SpdzSInt out = (SpdzSInt) in.out();
       network.sendToAll(serializer.toBytes(out.value.getShare()));
       return EvaluationStatus.HAS_MORE_ROUNDS;

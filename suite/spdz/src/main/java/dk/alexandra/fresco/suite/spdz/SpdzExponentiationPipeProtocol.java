@@ -20,14 +20,14 @@ public class SpdzExponentiationPipeProtocol extends SpdzNativeProtocol<List<DRes
   @Override
   public EvaluationStatus evaluate(int round, SpdzResourcePool resourcePool, Network network) {
     SInt[] pipe = resourcePool.getStore().getSupplier().getNextExpPipe();
-    if(pipe.length < pipeLength+1) {
+    if (pipe.length < pipeLength + 1) {
       throw new MPCException(
-          "Preprocessed exponentiation pipe is not long enough. Create an exp pipe which has the required length of "
-              + (pipeLength + 1)
-              + ", or use the default protocol for generating the exponentiation pipes online");
+          "Preprocessed exponentiation pipe is not long enough."
+          + " Create an exp pipe which has the required length of " + (pipeLength + 1)
+          + ", or use the default protocol for generating the exponentiation pipes online");
     }
     this.result = new LinkedList<>();
-    for(int i = 0; i < pipeLength+1; i++) {
+    for (int i = 0; i < pipeLength + 1; i++) {
       SInt r = pipe[i];
       this.result.add(() -> r);
     }

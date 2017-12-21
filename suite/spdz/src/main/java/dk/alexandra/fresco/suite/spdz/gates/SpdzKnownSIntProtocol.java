@@ -10,10 +10,10 @@ import java.math.BigInteger;
 public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
 
   BigInteger value;
-  private SpdzSInt sValue;
+  private SpdzSInt secretValue;
 
   /**
-   * Creates a gate loading a given value into a given SInt
+   * Creates a gate loading a given value into a given SInt.
    *
    * @param value the value
    */
@@ -23,7 +23,7 @@ public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
 
   @Override
   public SInt out() {
-    return sValue;
+    return secretValue;
   }
 
   @Override
@@ -31,7 +31,7 @@ public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
       int round,
       SpdzResourcePool spdzResourcePool,
       Network network) {
-    sValue = new SpdzSInt(createKnownSpdzElement(spdzResourcePool, value));
+    secretValue = new SpdzSInt(createKnownSpdzElement(spdzResourcePool, value));
     return EvaluationStatus.IS_DONE;
   }
 
@@ -41,7 +41,7 @@ public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
     BigInteger modulus = spdzResourcePool.getModulus();
     BigInteger value = input.mod(modulus);
     SpdzElement elm;
-    BigInteger globalKeyShare = spdzResourcePool.getStore().getSSK();
+    BigInteger globalKeyShare = spdzResourcePool.getStore().getSecretSharedKey();
     if (spdzResourcePool.getMyId() == 1) {
       elm = new SpdzElement(value,
           value.multiply(globalKeyShare).mod(modulus), modulus);

@@ -53,7 +53,7 @@ public class MaliciousSpdzInputProtocol extends SpdzNativeProtocol<SInt> {
         throw new MPCException("Broadcast digests did not match");
       }
       SpdzElement valueMaskedElm = new SpdzElement(valueMasked,
-          storage.getSSK().multiply(valueMasked).mod(modulus), modulus);
+          storage.getSecretSharedKey().multiply(valueMasked).mod(modulus), modulus);
       this.out = new SpdzSInt(this.inputMask.getMask().add(valueMaskedElm, myId));
       return EvaluationStatus.IS_DONE;
     }

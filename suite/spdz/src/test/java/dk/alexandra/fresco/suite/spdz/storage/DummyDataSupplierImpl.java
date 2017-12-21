@@ -107,7 +107,7 @@ public class DummyDataSupplierImpl implements DataSupplier {
   }
 
   @Override
-  public BigInteger getSSK() {
+  public BigInteger getSecretSharedKey() {
     return ssk;
   }
 

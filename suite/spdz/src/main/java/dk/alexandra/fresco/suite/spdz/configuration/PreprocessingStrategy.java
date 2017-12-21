@@ -7,6 +7,6 @@ package dk.alexandra.fresco.suite.spdz.configuration;
  */
 public enum PreprocessingStrategy {
 
-	DUMMY, // Use a dummy approach (e.g. always the same data)
-	STATIC; // Use data already present on the machine it's running on. 
+  DUMMY, // Use a dummy approach (e.g. always the same data)
+  STATIC; // Use data already present on the machine it's running on. 
 }

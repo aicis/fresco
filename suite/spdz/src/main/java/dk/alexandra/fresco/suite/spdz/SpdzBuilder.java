@@ -46,7 +46,8 @@ class SpdzBuilder implements BuilderFactoryNumeric {
     return new DefaultPreprocessedValues(protocolBuilder) {      
       @Override
       public DRes<List<DRes<SInt>>> getExponentiationPipe(int pipeLength) {
-        SpdzExponentiationPipeProtocol spdzExpPipeProtocol = new SpdzExponentiationPipeProtocol(pipeLength);
+        SpdzExponentiationPipeProtocol spdzExpPipeProtocol 
+            = new SpdzExponentiationPipeProtocol(pipeLength);
         return protocolBuilder.append(spdzExpPipeProtocol);
       }
     };
@@ -131,7 +132,8 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public DRes<BigInteger> open(DRes<SInt> secretShare, int outputParty) {
-        SpdzOutputSingleProtocol openProtocol = new SpdzOutputSingleProtocol(secretShare, outputParty);
+        SpdzOutputSingleProtocol openProtocol 
+            = new SpdzOutputSingleProtocol(secretShare, outputParty);
         return protocolBuilder.append(openProtocol);
       }
     };

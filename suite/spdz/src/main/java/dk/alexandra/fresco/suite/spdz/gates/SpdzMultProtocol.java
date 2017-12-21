@@ -17,8 +17,8 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SInt> {
   private DRes<SInt> right;
   private SpdzSInt out;
   private SpdzTriple triple;
-  private SpdzElement epsilon, delta; // my share of the differences [x]-[a]
-  // and [y]-[b].
+  private SpdzElement epsilon;  // my share of the differences [x]-[a]
+  private SpdzElement delta;  // and [y]-[b].
 
   public SpdzMultProtocol(DRes<SInt> left, DRes<SInt> right) {
     this.left = left;
@@ -32,7 +32,7 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SInt> {
     int noOfPlayers = spdzResourcePool.getNoOfParties();
     BigIntegerSerializer serializer = spdzResourcePool.getSerializer();
 
-    if(round == 0) {
+    if (round == 0) {
       this.triple = store.getSupplier().getNextTriple();
 
       epsilon = ((SpdzSInt) left.out()).value.subtract(triple.getA());
@@ -48,7 +48,7 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SInt> {
         epsilonShares[i] = serializer.toBigInteger(network.receive(i + 1));
         deltaShares[i] = serializer.toBigInteger(network.receive(i + 1));
       }
-      SpdzElement res = triple.getC();
+
       BigInteger e = epsilonShares[0];
       BigInteger d = deltaShares[0];
       for (int i = 1; i < epsilonShares.length; i++) {
@@ -59,11 +59,12 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SInt> {
       e = e.mod(modulus);
       d = d.mod(modulus);
 
-      BigInteger eTimesd = e.multiply(d).mod(modulus);
+      BigInteger product = e.multiply(d).mod(modulus);
       SpdzElement ed = new SpdzElement(
-          eTimesd,
-          store.getSSK().multiply(eTimesd).mod(modulus),
+          product,
+          store.getSecretSharedKey().multiply(product).mod(modulus),
           modulus);
+      SpdzElement res = triple.getC();
       res = res.add(triple.getB().multiply(e))
           .add(triple.getA().multiply(d))
           .add(ed, spdzResourcePool.getMyId());

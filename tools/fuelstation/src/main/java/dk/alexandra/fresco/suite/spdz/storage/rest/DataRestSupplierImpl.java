@@ -247,7 +247,7 @@ public class DataRestSupplierImpl implements DataSupplier{
 	}
 
 	@Override
-	public BigInteger getSSK() {
+	public BigInteger getSecretSharedKey() {
 		if(this.alpha == null) {
 			this.alpha = this.getBigInteger("alpha/"+this.myId);
 		}

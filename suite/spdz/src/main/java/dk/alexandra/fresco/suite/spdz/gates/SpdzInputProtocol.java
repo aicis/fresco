@@ -15,7 +15,7 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
 
   private SpdzInputMask inputMask; // is opened by this gate.
   protected BigInteger input;
-  private BigInteger value_masked;
+  private BigInteger valueMasked;
   protected SpdzSInt out;
   private int inputter;
   private byte[] digest;
@@ -32,7 +32,7 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
     BigInteger modulus = spdzResourcePool.getModulus();
     SpdzStorage storage = spdzResourcePool.getStore();
     BigIntegerSerializer serializer = spdzResourcePool.getSerializer();
-    if(round == 0) {
+    if (round == 0) {
       this.inputMask = storage.getSupplier().getNextInputMask(this.inputter);
       if (myId == this.inputter) {
         BigInteger bcValue = this.input.subtract(this.inputMask.getRealValue());
@@ -40,23 +40,23 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
         network.sendToAll(serializer.toBytes(bcValue));
       }
       return EvaluationStatus.HAS_MORE_ROUNDS;
-    } else if(round == 1) {
-      this.value_masked = serializer.toBigInteger(network.receive(inputter));
+    } else if (round == 1) {
+      this.valueMasked = serializer.toBigInteger(network.receive(inputter));
       this.digest = sendBroadcastValidation(
           spdzResourcePool.getMessageDigest(), network,
-          value_masked);
+          valueMasked);
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       boolean validated = receiveBroadcastValidation(network, digest);
       if (!validated) {
         throw new MPCException("Broadcast digests did not match");
       }
-      SpdzElement value_masked_elm =
+      SpdzElement valueMaskedElement =
           new SpdzElement(
-              value_masked,
-              storage.getSSK().multiply(value_masked).mod(modulus),
+              valueMasked,
+              storage.getSecretSharedKey().multiply(valueMasked).mod(modulus),
               modulus);
-      this.out = new SpdzSInt(this.inputMask.getMask().add(value_masked_elm, myId));
+      this.out = new SpdzSInt(this.inputMask.getMask().add(valueMaskedElement, myId));
       return EvaluationStatus.IS_DONE;
     }
 

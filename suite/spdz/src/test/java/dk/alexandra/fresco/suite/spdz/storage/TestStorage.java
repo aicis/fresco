@@ -43,8 +43,8 @@ public class TestStorage extends AbstractSpdzTest {
       BigInteger m2 = supplier.getModulus();
       Assert.assertEquals(m1, m2);
 
-      BigInteger ssk1 = supplier.getSSK();
-      BigInteger ssk2 = supplier.getSSK();
+      BigInteger ssk1 = supplier.getSecretSharedKey();
+      BigInteger ssk2 = supplier.getSecretSharedKey();
       Assert.assertEquals(ssk1, ssk2);
 
       SpdzSInt random = supplier.getNextRandomFieldElement();

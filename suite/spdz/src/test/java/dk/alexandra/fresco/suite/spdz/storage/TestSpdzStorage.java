@@ -18,6 +18,6 @@ public class TestSpdzStorage {
   public void testDataSupplierSskNotFound() {
     DataSupplierImpl supplier =
         new DataSupplierImpl(new FilebasedStreamedStorageImpl(new InMemoryStorage()), "invalid", 2);
-    supplier.getSSK();
+    supplier.getSecretSharedKey();
   }
 }

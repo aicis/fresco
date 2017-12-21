@@ -41,7 +41,7 @@ public class DummyDataGenerator implements DataGenerator {
 
   @Override
   public BigInteger getAlpha(int partyId) {
-    return suppliers.get(partyId).getSSK();
+    return suppliers.get(partyId).getSecretSharedKey();
   }
 
   @Override
