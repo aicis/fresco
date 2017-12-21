@@ -6,6 +6,7 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.EndPoint;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
+import com.esotericsoftware.kryonet.util.TcpIdleSender;
 import com.esotericsoftware.minlog.Log;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
@@ -14,8 +15,10 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -181,6 +184,7 @@ public class KryoNetNetwork implements Network, Closeable {
             return;
           }
           // Multiple messages are needed to obtain the original large payload
+          logger.debug("Received data: " + data.length+". Expected before countdown: " + expected);
           ByteBuffer tmp = this.temporaryLists.get(fromPartyId);
           tmp.put(data);
           expected--;
@@ -274,25 +278,42 @@ public class KryoNetNetwork implements Network, Closeable {
             bufferAmount++;
           }
           this.clients.get(partyId).sendTCP(bufferAmount);
-          byte[][] buffers = new byte[bufferAmount][];
+          Queue<byte[]> buffers = new LinkedList<>();
           for (int i = 0; i < bufferAmount; i++) {
+            byte[] toQueue;
             if (i == (bufferAmount - 1)) {
               int size = modRes;
               if (modRes == 0) {
                 // Corner case
                 size = this.maxSendAmount;
               }
-              buffers[i] = new byte[size];
+              toQueue = new byte[size];
+              buffers.add(toQueue);
             } else {
-              buffers[i] = new byte[this.maxSendAmount];
+              toQueue = new byte[this.maxSendAmount];
+              buffers.add(toQueue);
             }
-            buffer.get(buffers[i]);
-            this.clients.get(partyId).sendTCP(buffers[i]);
-            ExceptionConverter.safe(() -> {
-              this.clients.get(partyId).update(0);
-              return null;
-            } , "Failed to update client");
+            buffer.get(toQueue);
           }
+          Semaphore doneSending = new Semaphore(0);
+          TcpIdleSender sender = new TcpIdleSender() {
+
+            @Override
+            protected Object next() {
+              byte[] toSend = buffers.poll();
+              if(toSend == null) {
+                doneSending.release();
+              } else {
+                logger.debug("P"+conf.getMyId()+": ToSend length: " + toSend.length+". Max length: " + maxSendAmount);
+              }
+              return toSend;
+            }
+          };
+          this.clients.get(partyId).addListener(sender);
+          ExceptionConverter.safe(() -> {
+            doneSending.acquire();
+            return null;
+          } , "Interrupted while sending");
         } else {
           // Only one message is needed
           this.clients.get(partyId).sendTCP(data);
