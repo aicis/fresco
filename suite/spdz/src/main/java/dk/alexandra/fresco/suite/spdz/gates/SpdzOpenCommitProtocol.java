@@ -3,7 +3,7 @@ package dk.alexandra.fresco.suite.spdz.gates;
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.serializers.SecureSerializer;
+import dk.alexandra.fresco.framework.network.serializers.FrescoSerializer;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import java.math.BigInteger;
@@ -37,7 +37,7 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigI
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       Network network) {
     int players = spdzResourcePool.getNoOfParties();
-    SecureSerializer<BigInteger> serializer = spdzResourcePool.getSerializer();
+    FrescoSerializer<BigInteger> serializer = spdzResourcePool.getSerializer();
     switch (round) {
       case 0: // Send your opening to all players
         BigInteger value = this.commitment.getValue();

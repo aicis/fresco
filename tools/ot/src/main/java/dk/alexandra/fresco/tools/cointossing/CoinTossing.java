@@ -3,7 +3,7 @@ package dk.alexandra.fresco.tools.cointossing;
 import dk.alexandra.fresco.commitment.HashBasedCommitment;
 import dk.alexandra.fresco.commitment.HashBasedCommitmentSerializer;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.serializers.SecureSerializer;
+import dk.alexandra.fresco.framework.network.serializers.FrescoSerializer;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.framework.util.Drbg;
@@ -27,7 +27,7 @@ public class CoinTossing {
   private final int myId;
   private final Drbg rand;
   private final Network network;
-  private final SecureSerializer<HashBasedCommitment> serializer;
+  private final FrescoSerializer<HashBasedCommitment> serializer;
   private boolean initialized = false;
   private Drbg coinTossingPrg;
 

@@ -8,7 +8,7 @@ import java.util.List;
  * Serializes {@link BigInteger} to byte arrays using knowledge about the length
  * of the BigInteger.
  */
-public class BigIntegerWithFixedLengthSerializer implements SecureSerializer<BigInteger> {
+public class BigIntegerWithFixedLengthSerializer implements FrescoSerializer<BigInteger> {
 
   private int byteLength;
 

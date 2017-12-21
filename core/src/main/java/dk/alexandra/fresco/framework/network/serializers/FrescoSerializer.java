@@ -8,7 +8,7 @@ import java.util.List;
  *
  * @param <T> the type to serialize.
  */
-public interface SecureSerializer<T> {
+public interface FrescoSerializer<T> {
 
   /**
    * Converts an element of type T to an array of bytes

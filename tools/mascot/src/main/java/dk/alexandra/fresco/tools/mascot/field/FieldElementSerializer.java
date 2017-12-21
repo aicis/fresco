@@ -1,12 +1,12 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
-import dk.alexandra.fresco.framework.network.serializers.SecureSerializer;
+import dk.alexandra.fresco.framework.network.serializers.FrescoSerializer;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class FieldElementSerializer implements SecureSerializer<FieldElement> {
+public class FieldElementSerializer implements FrescoSerializer<FieldElement> {
 
   private final BigInteger modulus;
   private final int modBitLength;

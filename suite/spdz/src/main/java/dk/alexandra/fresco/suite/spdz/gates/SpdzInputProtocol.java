@@ -2,7 +2,7 @@ package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.serializers.SecureSerializer;
+import dk.alexandra.fresco.framework.network.serializers.FrescoSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
@@ -31,7 +31,7 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
     int myId = spdzResourcePool.getMyId();
     BigInteger modulus = spdzResourcePool.getModulus();
     SpdzStorage storage = spdzResourcePool.getStore();
-    SecureSerializer<BigInteger> serializer = spdzResourcePool.getSerializer();
+    FrescoSerializer<BigInteger> serializer = spdzResourcePool.getSerializer();
     switch (round) {
       case 0:
         this.inputMask = storage.getSupplier().getNextInputMask(this.inputter);
