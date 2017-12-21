@@ -47,7 +47,7 @@ public class SpdzTriple implements Serializable {
 
   @Override
   public String toString() {
-    return "SpdzTriple [elementA=" + elementA + ", b=" + elementB + ", c=" + elementC + "]";
+    return "SpdzTriple [elementA=" + elementA + ", elementB=" + elementB + ", elementC=" + elementC + "]";
   }
 
   @Override
