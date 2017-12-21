@@ -5,10 +5,10 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * A network decorator which provides actively-secure broadcast functionality. Hash-based broadcast
+ * A network proxy which provides actively-secure broadcast functionality. Hash-based broadcast
  * validation is performed on all received messages.
  */
-public class BroadcastingNetworkDecorator implements Network {
+public class BroadcastingNetworkProxy implements Network {
 
   private final Network network;
   private final BroadcastValidation validator;
@@ -19,7 +19,7 @@ public class BroadcastingNetworkDecorator implements Network {
    * @param network raw network
    * @param validator the broadcast validation protocol
    */
-  public BroadcastingNetworkDecorator(Network network, BroadcastValidation validator) {
+  public BroadcastingNetworkProxy(Network network, BroadcastValidation validator) {
     if (network.getNoOfParties() < 3) {
       throw new IllegalArgumentException("Broadcast only needed for three or more parties");
     }

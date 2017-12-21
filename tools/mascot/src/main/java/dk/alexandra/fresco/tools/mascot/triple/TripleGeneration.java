@@ -76,7 +76,6 @@ public class TripleGeneration extends BaseProtocol {
     // for each value we will have two sub-factors for each other party
     List<List<FieldElement>> subFactors = new ArrayList<>();
 
-    // TODO parallelize
     for (Integer partyId : getPartyIds()) {
       if (!partyId.equals(getMyId())) {
         MultiplyLeft leftMult = leftMultipliers.get(partyId);

@@ -22,8 +22,8 @@ public class ComponentTestBroadcastingNetworkDecorator extends NetworkedTest {
   private byte[] runSender(MascotTestContext ctx, byte[] toSend) {
     BroadcastValidation validator =
         new BroadcastValidation(ctx.getResourcePool(), ctx.getNetwork());
-    BroadcastingNetworkDecorator broadcaster =
-        new BroadcastingNetworkDecorator(ctx.getNetwork(), validator);
+    BroadcastingNetworkProxy broadcaster =
+        new BroadcastingNetworkProxy(ctx.getNetwork(), validator);
     broadcaster.sendToAll(toSend);
     return broadcaster.receive(ctx.getMyId());
   }
@@ -31,8 +31,8 @@ public class ComponentTestBroadcastingNetworkDecorator extends NetworkedTest {
   private byte[] runReceiver(MascotTestContext ctx, Integer inputterId) {
     BroadcastValidation validator =
         new BroadcastValidation(ctx.getResourcePool(), ctx.getNetwork());
-    BroadcastingNetworkDecorator broadcaster =
-        new BroadcastingNetworkDecorator(ctx.getNetwork(), validator);
+    BroadcastingNetworkProxy broadcaster =
+        new BroadcastingNetworkProxy(ctx.getNetwork(), validator);
     return broadcaster.receive(inputterId);
   }
 
@@ -41,8 +41,8 @@ public class ComponentTestBroadcastingNetworkDecorator extends NetworkedTest {
     Network network = ctx.getNetwork();
     BroadcastValidation validator =
         new BroadcastValidation(ctx.getResourcePool(), ctx.getNetwork());
-    BroadcastingNetworkDecorator broadcaster =
-        new BroadcastingNetworkDecorator(ctx.getNetwork(), validator);
+    BroadcastingNetworkProxy broadcaster =
+        new BroadcastingNetworkProxy(ctx.getNetwork(), validator);
     for (Integer partyId : ctx.getResourcePool()
         .getPartyIds()) {
       network.send(partyId, toSend.get(partyId));
@@ -59,8 +59,8 @@ public class ComponentTestBroadcastingNetworkDecorator extends NetworkedTest {
       Integer inputterId) {
     BroadcastValidation validator =
         new BroadcastValidation(ctx.getResourcePool(), ctx.getNetwork());
-    BroadcastingNetworkDecorator broadcaster =
-        new BroadcastingNetworkDecorator(ctx.getNetwork(), validator);
+    BroadcastingNetworkProxy broadcaster =
+        new BroadcastingNetworkProxy(ctx.getNetwork(), validator);
     try {
       broadcaster.receive(inputterId);
     } catch (MaliciousException e) {

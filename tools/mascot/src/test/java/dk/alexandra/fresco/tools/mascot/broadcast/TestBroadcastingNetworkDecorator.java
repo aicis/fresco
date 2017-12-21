@@ -8,7 +8,7 @@ import org.junit.Test;
 
 public class TestBroadcastingNetworkDecorator {
 
-  private final Network validBroadcastNetwork = new BroadcastingNetworkDecorator(new Network() {
+  private final Network validBroadcastNetwork = new BroadcastingNetworkProxy(new Network() {
 
     @Override
     public void send(int partyId, byte[] data) {}
@@ -31,7 +31,7 @@ public class TestBroadcastingNetworkDecorator {
 
   @Test(expected = IllegalArgumentException.class)
   public void testConstructForLessThanThree() {
-    new BroadcastingNetworkDecorator(new Network() {
+    new BroadcastingNetworkProxy(new Network() {
       @Override
       public void send(int partyId, byte[] data) {}
 

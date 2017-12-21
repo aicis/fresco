@@ -48,7 +48,6 @@ public class ElementGeneration extends BaseProtocol {
     this.copeInputters = new HashMap<>();
     for (Integer partyId : getPartyIds()) {
       if (getMyId() != partyId) {
-        // TODO parallelize
         // construction order matters since receive blocks and this is not parallelized
         if (getMyId() < partyId) {
           copeSigners.put(partyId,
@@ -65,7 +64,6 @@ public class ElementGeneration extends BaseProtocol {
 
   List<List<FieldElement>> otherPartiesMac(List<FieldElement> values) {
     List<List<FieldElement>> perPartySignatures = new ArrayList<>();
-    // TODO parallelize
     for (CopeInputter copeInputter : copeInputters.values()) {
       perPartySignatures.add(copeInputter.extend(values));
     }
@@ -219,7 +217,6 @@ public class ElementGeneration extends BaseProtocol {
     getNetwork().sendToAll(getFieldElementSerializer().serialize(ownShares));
     // receive others' shares
     List<byte[]> rawShares = getNetwork().receiveFromAll();
-    // TODO parsing belongs somewhere else
     // parse
     List<List<FieldElement>> shares = rawShares.stream()
         .map(raw -> getFieldElementSerializer().deserializeList(raw)).collect(Collectors.toList());

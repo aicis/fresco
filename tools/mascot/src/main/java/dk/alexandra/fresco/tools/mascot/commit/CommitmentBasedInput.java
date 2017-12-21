@@ -6,7 +6,7 @@ import dk.alexandra.fresco.commitment.HashBasedCommitment;
 import dk.alexandra.fresco.tools.mascot.BaseProtocol;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.broadcast.BroadcastValidation;
-import dk.alexandra.fresco.tools.mascot.broadcast.BroadcastingNetworkDecorator;
+import dk.alexandra.fresco.tools.mascot.broadcast.BroadcastingNetworkProxy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,7 +32,7 @@ public class CommitmentBasedInput<T> extends BaseProtocol {
     // for more than two parties, we need to use broadcast
     if (resourcePool.getNoOfParties() > 2) {
       this.broadcaster =
-          new BroadcastingNetworkDecorator(network, new BroadcastValidation(resourcePool, network));
+          new BroadcastingNetworkProxy(network, new BroadcastValidation(resourcePool, network));
     } else {
       // if we have two parties or less we can just use the regular network
       this.broadcaster = this.getNetwork();
