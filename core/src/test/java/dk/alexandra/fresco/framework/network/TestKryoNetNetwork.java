@@ -23,24 +23,6 @@ import org.junit.Test;
 public class TestKryoNetNetwork {
 
   private List<Integer> getFreePorts(int no) {
-    // try {
-    // List<Integer> ports = new ArrayList<>();
-    // List<ServerSocket> socks = new ArrayList<>();
-    // for (int i = 0; i < no; i++) {
-    // ServerSocket sock = new ServerSocket(0);
-    // int port = sock.getLocalPort();
-    // ports.add(port);
-    // socks.add(sock);
-    // }
-    // for (ServerSocket s : socks) {
-    // s.close();
-    // }
-    //
-    // return ports;
-    // } catch (IOException e) {
-    // Assert.fail("Could not locate a free port");
-    // return null;
-    // }
     List<Integer> res = new ArrayList<>();
     for (int i = 0; i < no; i++) {
       res.add(9000 + i);
@@ -48,7 +30,7 @@ public class TestKryoNetNetwork {
     return res;
   }
 
-  @Test
+  @Test(timeout = 5000)
   public void testKryoNetSendBytes() {
     System.out.println("STARTING FAILING TEST");
     Map<Integer, Party> parties = new HashMap<>();
@@ -86,13 +68,13 @@ public class TestKryoNetNetwork {
       fail("Failed to close network");
     }
     try {
-      t1.join();
+      t1.join(1000);
     } catch (InterruptedException e) {
       fail("Threads should finish without main getting interrupted");
     }
   }
 
-  @Test
+  @Test(timeout = 5000)
   public void testKryoNetSendBytesAllowMultipleMessages() {
     Map<Integer, Party> parties = new HashMap<>();
     List<Integer> ports = getFreePorts(2);
@@ -135,7 +117,7 @@ public class TestKryoNetNetwork {
    * batch. Finally send two times the max number of bytes in a batch. Then check if the received
    * bytes are the same.
    */
-  @Test
+  @Test(timeout = 10000)
   public void testKryoNetSendHugeAmount() {
     final byte[] toSendAndExpect1 = new byte[3148800];
     final byte[] toSendAndExpect2 = new byte[524280];
@@ -184,7 +166,7 @@ public class TestKryoNetNetwork {
     }
   }
 
-  @Test
+  @Test(timeout = 5000)
   public void testKryoNetSendInterrupt() {
     Map<Integer, Party> parties = new HashMap<>();
     List<Integer> ports = getFreePorts(2);
@@ -234,7 +216,7 @@ public class TestKryoNetNetwork {
   }
 
   @SuppressWarnings("resource")
-  @Test(expected = RuntimeException.class)
+  @Test(expected = RuntimeException.class, timeout = 70000)
   public void testKryoNetConnectTimeout() {
     Map<Integer, Party> parties = new HashMap<>();
     List<Integer> ports = getFreePorts(2);
@@ -245,11 +227,11 @@ public class TestKryoNetNetwork {
     new KryoNetNetwork(conf);
   }
 
-  @Test(expected = IOException.class)
+  @Test(expected = IOException.class, timeout = 5000)
   public void testKryoNetConnectInterrupt() throws IOException {
     Map<Integer, Party> parties = new HashMap<>();
     List<Integer> ports = getFreePorts(2);
-    parties.put(1, new Party(1, "localhost", 9000));
+    parties.put(1, new Party(1, "localhost", ports.get(0)));
     parties.put(2, new Party(2, "localhost", ports.get(1)));
     FutureTask<Object> futureTask = new FutureTask<>(new Callable<Object>() {
 
@@ -276,7 +258,7 @@ public class TestKryoNetNetwork {
     }
   }
 
-  @Test
+  @Test(timeout = 200000)
   public void testPartiesReconnect() {
     List<Integer> ports = getFreePorts(5);
     testMultiplePartiesReconnect(2, 50, ports.subList(0, 2));
