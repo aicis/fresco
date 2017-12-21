@@ -13,6 +13,7 @@ import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import java.io.Closeable;
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -62,9 +63,12 @@ public class MascotDemo {
     int lambdaSecurityParam = 128;
     int prgSeedLength = 256;
     int numLeftFactors = 3;
-    return new DummyMascotResourcePoolImpl(myId, partyIds,
-        new PaddingAesCtrDrbg(new byte[0], prgSeedLength), modulus, modBitLength,
-        lambdaSecurityParam, prgSeedLength, numLeftFactors);
+    // generate random seed for local DRBG
+    byte[] drbgSeed = new byte[prgSeedLength / 8];
+    new SecureRandom().nextBytes(drbgSeed);
+    return new MascotResourcePoolImpl(myId, partyIds,
+        new PaddingAesCtrDrbg(drbgSeed, prgSeedLength), modulus, modBitLength, lambdaSecurityParam,
+        prgSeedLength, numLeftFactors);
   }
 
   /**
