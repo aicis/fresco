@@ -29,7 +29,9 @@ public class MascotDemo {
     MascotResourcePool resourcePool = defaultResourcePool(myId, partyIds);
     FieldElement macKeyShare = resourcePool.getLocalSampler().getNext(resourcePool.getModulus(),
         resourcePool.getModBitLength());
-    Network network = new KryoNetNetwork(defaultNetworkConfiguration(myId, partyIds));
+    int bufferSize = 104856800;
+    Network network =
+        new KryoNetNetwork(defaultNetworkConfiguration(myId, partyIds), bufferSize, false, 15000);
     toClose = (Closeable) network;
     mascot = new Mascot(resourcePool, network, macKeyShare);
   }
