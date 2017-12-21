@@ -46,7 +46,7 @@ public class MultiplyLeft extends MultiplyShared {
   public List<StrictBitVector> generateSeeds(List<FieldElement> leftFactors, int seedLength) {
     StrictBitVector packedFactors = getFieldElementUtils().pack(leftFactors);
     // use rot to get choice seeds
-    List<StrictBitVector> seeds = rot.receive(packedFactors, seedLength);
+    List<StrictBitVector> seeds = getRot().receive(packedFactors, seedLength);
     // TODO temporary fix until big-endianness issue is resolved
     Collections.reverse(seeds);
     return seeds;

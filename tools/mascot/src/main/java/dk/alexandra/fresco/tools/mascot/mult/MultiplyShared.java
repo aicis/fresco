@@ -7,8 +7,8 @@ import dk.alexandra.fresco.tools.ot.base.RotBatch;
 
 public class MultiplyShared extends TwoPartyProtocol {
 
-  protected RotBatch rot;
-  protected int numLeftFactors;
+  private RotBatch rot;
+  private int numLeftFactors;
 
   MultiplyShared(MascotResourcePool resourcePool, Network network, Integer otherId,
       int numLeftFactors) {
@@ -17,4 +17,12 @@ public class MultiplyShared extends TwoPartyProtocol {
     this.rot = resourcePool.createRot(otherId, network);
   }
 
+  public RotBatch getRot() {
+    return rot;
+  }
+
+
+  public int getNumLeftFactors() {
+    return numLeftFactors;
+  }
 }

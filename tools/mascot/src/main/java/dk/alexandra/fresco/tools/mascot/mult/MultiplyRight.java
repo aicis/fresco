@@ -42,8 +42,8 @@ public class MultiplyRight extends MultiplyShared {
    */
   public List<Pair<StrictBitVector, StrictBitVector>> generateSeeds(int numMults, int seedLength) {
     // perform rots for each bit, for each left factor, for each multiplication
-    int numRots = getModBitLength() * numLeftFactors * numMults;
-    List<Pair<StrictBitVector, StrictBitVector>> seeds = rot.send(numRots, seedLength);
+    int numRots = getModBitLength() * getNumLeftFactors() * numMults;
+    List<Pair<StrictBitVector, StrictBitVector>> seeds = getRot().send(numRots, seedLength);
     // TODO temporary fix until big-endianness issue is resolved
     Collections.reverse(seeds);
     return seeds;
@@ -75,7 +75,7 @@ public class MultiplyRight extends MultiplyShared {
       FieldElement diff = computeDiff(feSeedPair, rightFactor);
       diffs.add(diff);
       seedPairIdx++;
-      rightFactorIdx = seedPairIdx / (numLeftFactors * getModBitLength());
+      rightFactorIdx = seedPairIdx / (getNumLeftFactors() * getModBitLength());
     }
     return diffs;
   }
@@ -95,10 +95,10 @@ public class MultiplyRight extends MultiplyShared {
    */
   public List<FieldElement> computeProductShares(List<FieldElement> feZeroSeeds,
       int numRightFactors) {
-    int groupBitLength = numLeftFactors * getModBitLength();
+    int groupBitLength = getNumLeftFactors() * getModBitLength();
     List<FieldElement> productShares = new ArrayList<>(numRightFactors);
     for (int rightFactIdx = 0; rightFactIdx < numRightFactors; rightFactIdx++) {
-      for (int leftFactIdx = 0; leftFactIdx < numLeftFactors; leftFactIdx++) {
+      for (int leftFactIdx = 0; leftFactIdx < getNumLeftFactors(); leftFactIdx++) {
         int from = rightFactIdx * groupBitLength + leftFactIdx * getModBitLength();
         int to = rightFactIdx * groupBitLength + (leftFactIdx + 1) * getModBitLength();
         List<FieldElement> subFactors = feZeroSeeds.subList(from, to);
