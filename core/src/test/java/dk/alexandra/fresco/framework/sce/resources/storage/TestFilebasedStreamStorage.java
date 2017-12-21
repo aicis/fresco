@@ -14,7 +14,6 @@ import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
 import org.hamcrest.core.Is;
 import org.junit.AfterClass;
 import org.junit.Assert;
