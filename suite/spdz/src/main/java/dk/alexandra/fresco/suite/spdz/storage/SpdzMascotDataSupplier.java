@@ -85,7 +85,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   private static FieldElement createRandomSsk(long myId, BigInteger modulus, int maxBitLength,
       int prgSeedLength) {
     StrictBitVector seed = new StrictBitVector(prgSeedLength,
-        new PaddingAesCtrDrbg(new byte[15], 32));
+        new PaddingAesCtrDrbg(new byte[3], 32 * 8));
     FieldElementPrg localSampler = new FieldElementPrgImpl(seed);
     return localSampler.getNext(modulus, maxBitLength);
   }
