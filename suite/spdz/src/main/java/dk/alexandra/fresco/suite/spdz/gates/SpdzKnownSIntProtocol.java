@@ -9,7 +9,7 @@ import java.math.BigInteger;
 
 public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
 
-  BigInteger value;
+  private BigInteger value;
   private SpdzSInt secretValue;
 
   /**
