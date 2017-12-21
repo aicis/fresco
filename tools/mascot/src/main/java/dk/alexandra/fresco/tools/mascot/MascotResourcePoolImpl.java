@@ -18,7 +18,6 @@ import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import dk.alexandra.fresco.tools.ot.otextension.BristolRotBatch;
 import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePool;
 import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePoolImpl;
-
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.List;
@@ -144,11 +143,6 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
   @Override
   public MessageDigest getMessageDigest() {
     return messageDigest;
-  }
-
-  @Override
-  public Drbg getRandomGenerator() {
-    return drbg;
   }
 
   @Override

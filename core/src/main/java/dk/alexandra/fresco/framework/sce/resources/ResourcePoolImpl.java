@@ -9,7 +9,7 @@ public class ResourcePoolImpl implements ResourcePool {
 
   private final int myId;
   private final int noOfPlayers;
-  protected final Drbg drbg;
+  private final Drbg drbg;
 
   /**
    * Creates an instance of the default implementation of a resource pool. This contains the basic
