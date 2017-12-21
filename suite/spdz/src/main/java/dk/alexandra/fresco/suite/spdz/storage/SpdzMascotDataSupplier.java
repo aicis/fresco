@@ -17,10 +17,11 @@ import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import dk.alexandra.fresco.tools.ot.otextension.BristolRotBatch;
+import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePool;
+import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePoolImpl;
 import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.List;
-import java.util.Random;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -83,8 +84,8 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
 
   private static FieldElement createRandomSsk(long myId, BigInteger modulus, int maxBitLength,
       int prgSeedLength) {
-    Random rand = new Random(myId);
-    StrictBitVector seed = new StrictBitVector(prgSeedLength, rand);
+    StrictBitVector seed = new StrictBitVector(prgSeedLength,
+        new PaddingAesCtrDrbg(new byte[15], 32));
     FieldElementPrg localSampler = new FieldElementPrgImpl(seed);
     return localSampler.getNext(modulus, maxBitLength);
   }
@@ -118,10 +119,11 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
         getModulus(), maxBitLength,
         128, prgSeedLength, numLeftFactors) {
       @Override
-      public RotBatch<StrictBitVector> createRot(int otherId, Network network) {
+      public RotBatch createRot(int otherId, Network network) {
         Ot ot = new DummyOt(otherId, network);
-        return new BristolRotBatch(getMyId(), otherId, getModBitLength(), getLambdaSecurityParam(),
-            getRandomGenerator(), network, ot);
+        OtExtensionResourcePool otResources = new OtExtensionResourcePoolImpl(getMyId(), otherId,
+            getModBitLength(), getLambdaSecurityParam(), getRandomGenerator());
+        return new BristolRotBatch(otResources, network, ot);
       }
     }, network, ssk);
   }

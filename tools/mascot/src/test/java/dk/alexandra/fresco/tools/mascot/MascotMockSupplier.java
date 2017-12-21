@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.mascot;
 
-import dk.alexandra.fresco.commitment.Commitment;
 import dk.alexandra.fresco.commitment.HashBasedCommitment;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.SecureSerializer;

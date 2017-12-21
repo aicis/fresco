@@ -14,7 +14,7 @@ public class SpdzProtocolSuite implements ProtocolSuiteNumeric<SpdzResourcePool>
   }
 
   @Override
-  public BuilderFactory<ProtocolBuilderNumeric> init(SpdzResourcePool resourcePool,
+  public BuilderFactoryNumeric init(SpdzResourcePool resourcePool,
       Network network) {
     BasicNumericContext numericContext =
         new BasicNumericContext(maxBitLength, resourcePool.getModulus(),

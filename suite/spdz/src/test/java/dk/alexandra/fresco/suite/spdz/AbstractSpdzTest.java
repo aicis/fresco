@@ -83,10 +83,13 @@ public abstract class AbstractSpdzTest {
     Map<Integer, TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     for (int playerId : netConf.keySet()) {
-      ProtocolSuiteNumeric<SpdzResourcePool> protocolSuite = new SpdzProtocolSuite(150);
-      if(logPerformance){
+      PerformanceLoggerCountingAggregate aggregate
+          = new PerformanceLoggerCountingAggregate();
+
+      ProtocolSuiteNumeric<SpdzResourcePool> protocolSuite = new SpdzProtocolSuite(maxBitLength);
+      if (logPerformance) {
         protocolSuite = new NumericSuiteLogging<>(protocolSuite);
-        aggregate.add((PerformanceLogger)protocolSuite);
+        aggregate.add((PerformanceLogger) protocolSuite);
       }
       BatchEvaluationStrategy<SpdzResourcePool> batchEvalStrat = evalStrategy.getStrategy();
 
@@ -123,7 +126,7 @@ public abstract class AbstractSpdzTest {
     }
     TestThreadRunner.run(f, conf);
     PerformancePrinter printer = new DefaultPerformancePrinter();
-    for (PerformanceLogger pl: performanceLoggers.values()) {
+    for (PerformanceLogger pl : performanceLoggers.values()) {
       printer.printPerformanceLog(pl);
     }
   }
