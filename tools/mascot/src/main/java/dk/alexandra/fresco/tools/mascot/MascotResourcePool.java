@@ -1,11 +1,11 @@
 package dk.alexandra.fresco.tools.mascot;
 
+import dk.alexandra.fresco.commitment.HashBasedCommitment;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.serializers.SecureSerializer;
 import dk.alexandra.fresco.framework.network.serializers.StrictBitVectorSerializer;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.commitment.Commitment;
-import dk.alexandra.fresco.tools.commitment.CommitmentSerializer;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
@@ -77,7 +77,7 @@ public interface MascotResourcePool extends NumericResourcePool {
    *
    * @return serializer
    */
-  CommitmentSerializer getCommitmentSerializer();
+  SecureSerializer<HashBasedCommitment> getCommitmentSerializer();
 
   /**
    * Creates random oblivious transfer protocol to be used.

@@ -1,5 +1,7 @@
 package dk.alexandra.fresco.tools.mascot;
 
+import dk.alexandra.fresco.commitment.HashBasedCommitment;
+import dk.alexandra.fresco.commitment.HashBasedCommitmentSerializer;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.SecureSerializer;
 import dk.alexandra.fresco.framework.network.serializers.StrictBitVectorSerializer;
@@ -7,7 +9,6 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.commitment.CommitmentSerializer;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
@@ -46,7 +47,7 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
           + "85827844212318499978829377355564689095172787513731965744913645190518423"
           + "06594567246898679968677700656495114013774368779648395287433119164167454"
           + "67731166272088057888135437754886129005590419051");
-  
+
   private final List<Integer> partyIds;
   private final BigInteger modulus;
   private final int modBitLength;
@@ -56,7 +57,7 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
   private final FieldElementPrg localSampler;
   private final FieldElementSerializer fieldElementSerializer;
   private final StrictBitVectorSerializer strictBitVectorSerializer;
-  private final CommitmentSerializer commitmentSerializer;
+  private final SecureSerializer<HashBasedCommitment> commitmentSerializer;
   private final MessageDigest messageDigest;
 
   /**
@@ -74,7 +75,7 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
     this.localSampler = new FieldElementPrgImpl(new StrictBitVector(prgSeedLength, drbg));
     this.fieldElementSerializer = new FieldElementSerializer(modulus, modBitLength);
     this.strictBitVectorSerializer = new StrictBitVectorSerializer();
-    this.commitmentSerializer = new CommitmentSerializer();
+    this.commitmentSerializer = new HashBasedCommitmentSerializer();
     this.messageDigest = ExceptionConverter.safe(() -> MessageDigest.getInstance("SHA-256"),
         "Configuration error, SHA-256 is needed for Mascot");
   }
@@ -120,7 +121,7 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
   }
 
   @Override
-  public CommitmentSerializer getCommitmentSerializer() {
+  public SecureSerializer<HashBasedCommitment> getCommitmentSerializer() {
     return commitmentSerializer;
   }
 

@@ -1,10 +1,11 @@
 package dk.alexandra.fresco.tools.mascot;
 
+import dk.alexandra.fresco.commitment.Commitment;
+import dk.alexandra.fresco.commitment.HashBasedCommitment;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.SecureSerializer;
 import dk.alexandra.fresco.framework.network.serializers.StrictBitVectorSerializer;
 import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.tools.commitment.CommitmentSerializer;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
@@ -94,7 +95,7 @@ public class MascotMockSupplier {
       }
 
       @Override
-      public CommitmentSerializer getCommitmentSerializer() {
+      public SecureSerializer<HashBasedCommitment> getCommitmentSerializer() {
         return null;
       }
 

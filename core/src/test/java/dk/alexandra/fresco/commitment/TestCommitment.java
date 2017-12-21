@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.tools.commitment;
+package dk.alexandra.fresco.commitment;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -6,9 +6,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.MaliciousException;
-import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.tools.helper.Constants;
+import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -18,13 +17,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestCommitment {
-  Commitment comm;
+  HashBasedCommitment comm;
   Drbg rand;
 
   @Before
   public void setup() {
-    rand = new AesCtrDrbg(Constants.seedOne);
-    comm = new Commitment();
+    rand = new PaddingAesCtrDrbg(new byte[] { 0x42 }, 256);
+    comm = new HashBasedCommitment();
   }
 
   /**** POSITIVE TESTS. ****/
@@ -48,26 +47,26 @@ public class TestCommitment {
   public void testSerialization() {
     byte[] msg1 = new byte[] { 0x42 };
     comm.commit(rand, msg1);
-    CommitmentSerializer serializer = new CommitmentSerializer();
+    HashBasedCommitmentSerializer serializer = new HashBasedCommitmentSerializer();
     byte[] serializedComm = serializer.serialize(comm);
-    Commitment deserializedComm = serializer.deserialize(serializedComm);
+    HashBasedCommitment deserializedComm = serializer.deserialize(serializedComm);
     assertArrayEquals(comm.commitmentVal, deserializedComm.commitmentVal);
   }
 
   @Test
   public void testListSerialization() {
     byte[] msg1 = new byte[] { 0x42 };
-    Commitment comm1 = new Commitment();
+    HashBasedCommitment comm1 = new HashBasedCommitment();
     comm1.commit(rand, msg1);
     byte[] msg2 = new byte[] { 0x56 };
-    Commitment comm2 = new Commitment();
+    HashBasedCommitment comm2 = new HashBasedCommitment();
     comm2.commit(rand, msg2);
-    List<Commitment> list = new ArrayList<>(2);
+    List<HashBasedCommitment> list = new ArrayList<>(2);
     list.add(comm1);
     list.add(comm2);
-    CommitmentSerializer serializer = new CommitmentSerializer();
+    HashBasedCommitmentSerializer serializer = new HashBasedCommitmentSerializer();
     byte[] serializedList = serializer.serialize(list);
-    List<Commitment> deserializedList = serializer
+    List<HashBasedCommitment> deserializedList = serializer
         .deserializeList(serializedList);
     for (int i = 0; i < deserializedList.size(); i++) {
       assertArrayEquals(list.get(i).commitmentVal, deserializedList.get(i).commitmentVal);
@@ -76,10 +75,10 @@ public class TestCommitment {
 
   @Test
   public void testEmptyListSerialization() {
-    List<Commitment> list = new ArrayList<>(0);
-    CommitmentSerializer serializer = new CommitmentSerializer();
+    List<HashBasedCommitment> list = new ArrayList<>(0);
+    HashBasedCommitmentSerializer serializer = new HashBasedCommitmentSerializer();
     byte[] serializedList = serializer.serialize(list);
-    List<Commitment> deserializedList = serializer
+    List<HashBasedCommitment> deserializedList = serializer
         .deserializeList(serializedList);
     assertEquals(list, deserializedList);
   }
@@ -87,12 +86,12 @@ public class TestCommitment {
   /**** NEGATIVE TESTS. ****/
   @Test
   public void testIllegalInit() {
-    Commitment comm;
+    HashBasedCommitment comm;
     boolean thrown = false;
     try {
       // Randomness generator must not be null
       byte[] val = new byte[] { 0x01 };
-      comm = new Commitment();
+      comm = new HashBasedCommitment();
       comm.commit(null, val);
     } catch (NullPointerException e) {
       thrown = true;
@@ -165,7 +164,7 @@ public class TestCommitment {
     thrown = false;
     try {
       // Try to open using the opening info of another commitment
-      Commitment comm2 = new Commitment();
+      HashBasedCommitment comm2 = new HashBasedCommitment();
       BigInteger bigInt2 = new BigInteger("424242424242424242");
       byte[] openInfo2 = comm2.commit(rand, bigInt2.toByteArray());
       comm.open(openInfo2);
@@ -181,7 +180,7 @@ public class TestCommitment {
   @Test
   public void testNotEqual() {
     comm.commit(rand, new byte[] { 0x42 });
-    assertFalse(comm.equals(new Commitment()));
+    assertFalse(comm.equals(new HashBasedCommitment()));
     assertFalse(comm.equals("something"));
   }
 
@@ -189,7 +188,7 @@ public class TestCommitment {
   public void testWrongSerialization() {
     boolean thrown = false;
     try {
-      CommitmentSerializer serializer = new CommitmentSerializer();
+      HashBasedCommitmentSerializer serializer = new HashBasedCommitmentSerializer();
       // This is an illegal length of list of serialized commitments, since each
       // commitment is 32 byte
       serializer.deserialize(new byte[33]);
@@ -205,7 +204,7 @@ public class TestCommitment {
   public void testWrongSerializationList() {
     boolean thrown = false;
     try {
-      CommitmentSerializer serializer = new CommitmentSerializer();
+      HashBasedCommitmentSerializer serializer = new HashBasedCommitmentSerializer();
       // This is an illegal length of list of serialized commitments, since each
       // commitment is 32 byte
       serializer.deserializeList(new byte[63]);

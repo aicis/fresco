@@ -1,11 +1,13 @@
 package dk.alexandra.fresco.tools.cointossing;
 
+import dk.alexandra.fresco.commitment.HashBasedCommitment;
+import dk.alexandra.fresco.commitment.HashBasedCommitmentSerializer;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.serializers.SecureSerializer;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.commitment.Commitment;
 
 /**
  * Class implementing two-party coin-tossing. That is, agreement on a random
@@ -16,7 +18,7 @@ import dk.alexandra.fresco.tools.commitment.Commitment;
  * party. The first party opens it commitment. The parties computes the XOR of
  * the seeds and uses this as input to a PRG generating an arbitrary long,
  * common string.
- * 
+ *
  * @author jot2re
  *
  */
@@ -25,12 +27,13 @@ public class CoinTossing {
   private final int myId;
   private final Drbg rand;
   private final Network network;
+  private final SecureSerializer<HashBasedCommitment> serializer;
   private boolean initialized = false;
   private Drbg coinTossingPrg;
 
   /**
    * Constructs a coin-tossing protocol between two parties.
-   * 
+   *
    * @param myId
    *          The unique ID of the calling party
    * @param otherId
@@ -46,11 +49,12 @@ public class CoinTossing {
     this.otherId = otherId;
     this.rand = rand;
     this.network = network;
+    this.serializer = new HashBasedCommitmentSerializer();
   }
 
   /**
    * Returns the underlying network.
-   * 
+   *
    * @return Returns the underlying network
    */
   public Network getNetwork() {
@@ -78,7 +82,7 @@ public class CoinTossing {
   /**
    * Constructs a common random string of {@code size} bits, rounded up to the
    * nearest factor of 8.
-   * 
+   *
    * @param size
    *          The amount of random bits needed
    * @return The byte array consisting of uniformly random sampled bytes.
@@ -99,7 +103,7 @@ public class CoinTossing {
 
   /**
    * Exchange the seed with the other party using a commitment protocol.
-   * 
+   *
    * @param seed
    *          The current party's seed
    * @return The other party's seed
@@ -107,14 +111,15 @@ public class CoinTossing {
   private byte[] exchangeSeeds(byte[] seed) {
     // Let the party with the smallest id be the party receiving a commitment
     if (myId < otherId) {
-      Commitment comm = Commitment.receiveCommitment(otherId, network);
+      byte[] serializedComm = network.receive(otherId);
+      HashBasedCommitment comm = serializer.deserialize(serializedComm);
       network.send(otherId, seed);
       byte[] opening = network.receive(otherId);
       return comm.open(opening);
     } else {
-      Commitment comm = new Commitment();
+      HashBasedCommitment comm = new HashBasedCommitment();
       byte[] openInfo = comm.commit(rand, seed);
-      Commitment.sendCommitment(comm, otherId, network);
+      network.send(otherId, serializer.serialize(comm));
       byte[] otherSeed = network.receive(otherId);
       network.send(otherId, openInfo);
       return otherSeed;

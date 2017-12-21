@@ -1,8 +1,9 @@
 package dk.alexandra.fresco.tools.mascot;
 
+import dk.alexandra.fresco.commitment.HashBasedCommitment;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.serializers.SecureSerializer;
 import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.tools.commitment.CommitmentSerializer;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementUtils;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
@@ -18,7 +19,7 @@ public class BaseProtocol {
 
   /**
    * Creates new {@link BaseProtocol}.
-   * 
+   *
    * @param resourcePool mascot resource pool
    * @param network network
    */
@@ -68,14 +69,14 @@ public class BaseProtocol {
     return resourcePool.getRandomGenerator();
   }
 
-  public CommitmentSerializer getCommitmentSerializer() {
+  public SecureSerializer<HashBasedCommitment> getCommitmentSerializer() {
     return resourcePool.getCommitmentSerializer();
   }
 
   public List<Integer> getPartyIds() {
     return resourcePool.getPartyIds();
   }
-  
+
   public int getNumCandidatesPerTriple() {
     return resourcePool.getNumCandidatesPerTriple();
   }
