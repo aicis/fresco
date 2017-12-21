@@ -1,5 +1,7 @@
 package dk.alexandra.fresco.tools.mascot;
 
+import dk.alexandra.fresco.commitment.HashBasedCommitment;
+import dk.alexandra.fresco.commitment.HashBasedCommitmentSerializer;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.SecureSerializer;
 import dk.alexandra.fresco.framework.network.serializers.StrictBitVectorSerializer;
@@ -7,7 +9,6 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.commitment.CommitmentSerializer;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
@@ -15,6 +16,9 @@ import dk.alexandra.fresco.tools.ot.base.NaorPinkasOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import dk.alexandra.fresco.tools.ot.otextension.BristolRotBatch;
+import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePool;
+import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePoolImpl;
+
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.List;
@@ -43,18 +47,18 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
           + "85827844212318499978829377355564689095172787513731965744913645190518423"
           + "06594567246898679968677700656495114013774368779648395287433119164167454"
           + "67731166272088057888135437754886129005590419051");
-  
-  private List<Integer> partyIds;
-  private BigInteger modulus;
-  private int modBitLength;
-  private int lambdaSecurityParam;
-  private int prgSeedLength;
-  private int numLeftFactors;
-  private FieldElementPrg localSampler;
-  private FieldElementSerializer fieldElementSerializer;
-  private StrictBitVectorSerializer strictBitVectorSerializer;
-  private CommitmentSerializer commitmentSerializer;
-  private MessageDigest messageDigest;
+
+  private final List<Integer> partyIds;
+  private final BigInteger modulus;
+  private final int modBitLength;
+  private final int lambdaSecurityParam;
+  private final int prgSeedLength;
+  private final int numLeftFactors;
+  private final FieldElementPrg localSampler;
+  private final FieldElementSerializer fieldElementSerializer;
+  private final StrictBitVectorSerializer strictBitVectorSerializer;
+  private final SecureSerializer<HashBasedCommitment> commitmentSerializer;
+  private final MessageDigest messageDigest;
 
   /**
    * Creates new mascot resource pool.
@@ -71,7 +75,7 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
     this.localSampler = new FieldElementPrgImpl(new StrictBitVector(prgSeedLength, drbg));
     this.fieldElementSerializer = new FieldElementSerializer(modulus, modBitLength);
     this.strictBitVectorSerializer = new StrictBitVectorSerializer();
-    this.commitmentSerializer = new CommitmentSerializer();
+    this.commitmentSerializer = new HashBasedCommitmentSerializer();
     this.messageDigest = ExceptionConverter.safe(() -> MessageDigest.getInstance("SHA-256"),
         "Configuration error, SHA-256 is needed for Mascot");
   }
@@ -117,18 +121,19 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
   }
 
   @Override
-  public CommitmentSerializer getCommitmentSerializer() {
+  public SecureSerializer<HashBasedCommitment> getCommitmentSerializer() {
     return commitmentSerializer;
   }
 
   @Override
-  public RotBatch<StrictBitVector> createRot(int otherId, Network network) {
+  public RotBatch createRot(int otherId, Network network) {
     DHParameterSpec params = new DHParameterSpec(DhPvalue, DhGvalue);
     Ot ot = ExceptionConverter.safe(() -> new NaorPinkasOt(getMyId(), otherId,
-            getRandomGenerator(), network, params),
+        getRandomGenerator(), network, params),
         "Missing security hash function or PRG, which is dependent in this library");
-    return new BristolRotBatch(getMyId(), otherId, getModBitLength(), getLambdaSecurityParam(),
-        getRandomGenerator(), network, ot);
+    OtExtensionResourcePool otResources = new OtExtensionResourcePoolImpl(getMyId(), otherId,
+        getModBitLength(), getLambdaSecurityParam(), getRandomGenerator());
+    return new BristolRotBatch(otResources, network, ot);
   }
 
   @Override

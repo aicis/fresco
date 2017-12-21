@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
+import dk.alexandra.fresco.tools.mascot.arithm.ArithmeticCollectionUtils;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class FieldElementUtils {
+public class FieldElementUtils extends ArithmeticCollectionUtils<FieldElement> {
 
   private final BigInteger modulus;
   private final int modBitLength;
@@ -94,7 +94,7 @@ public class FieldElementUtils {
     if (left.size() != right.size()) {
       throw new IllegalArgumentException("Lists must have same size");
     }
-    return CollectionUtils.sum(pairWiseMultiplyStream(left, right));
+    return sum(pairWiseMultiplyStream(left, right));
   }
 
   /**
@@ -114,13 +114,6 @@ public class FieldElementUtils {
       throw new IllegalArgumentException("Wrong modulus " + elementModulus);
     }
     return innerProduct(elements, generators.subList(0, elements.size()));
-  }
-
-  /**
-   * {@link CollectionUtils#transpose(List)} on field elements.
-   */
-  public List<List<FieldElement>> transpose(List<List<FieldElement>> mat) {
-    return CollectionUtils.transpose(mat);
   }
 
   /**

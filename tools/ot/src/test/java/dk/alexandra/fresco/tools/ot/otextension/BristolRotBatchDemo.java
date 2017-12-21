@@ -1,72 +1,73 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import dk.alexandra.fresco.framework.network.KryoNetNetwork;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.util.AesCtrDrbg;
-import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.List;
 
-public class BristolRotBatchDemo<ResourcePoolT extends ResourcePool>
-    extends Demo {
+public class BristolRotBatchDemo<ResourcePoolT extends ResourcePool> {
   // Amount of random OTs to construct
-  private int amountOfOTs = 128;
+  private final int amountOfOTs = 128;
   // The amount of bits in each message
-  private int messageSize = 2048;
+  private final int messageSize = 2048;
+  private final int kbitLength = 128;
+  private final int lambdaSecurityParam = 40;
 
   /**
    * Run the receiving party.
-   * 
+   *
    * @param pid
    *          The PID of the receiving party
+   * @throws IOException
+   *           Thrown if the network cannot close
    */
-  public void runPartyOne(int pid) {
-    Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
-    System.out.println("Connected receiver");
-    Drbg currentPrg = new AesCtrDrbg(new byte[] { 0x42, 0x42 });
-    RotBatch<StrictBitVector> ot = new BristolRotBatch(1, 2, getKbitLength(),
-        getLambdaSecurityParam(), currentPrg, network, new DummyOt(2, network));
-    StrictBitVector choices = new StrictBitVector(amountOfOTs, currentPrg);
-    List<StrictBitVector> messages = ot.receive(choices, messageSize);
+  public void runPartyOne(int pid) throws IOException {
+    OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
+        lambdaSecurityParam);
+    RotBatch rotBatch = new BristolRotBatch(ctx.getResources(),
+        ctx
+        .getNetwork(), ctx.getDummyOtInstance());
+    StrictBitVector choices = new StrictBitVector(amountOfOTs, ctx.getRand());
+    List<StrictBitVector> messages = rotBatch.receive(choices, messageSize);
     for (int i = 0; i < amountOfOTs; i++) {
-      System.out
-          .println(
-              "Iteration " + i + ", Choice " + choices.getBit(i, false) + ": "
-                  + messages.get(i));
+      System.out.println("Iteration " + i + ", Choice " + choices.getBit(i,
+          false) + ": " + messages.get(i));
     }
     System.out.println("done receiver");
+    ((Closeable) ctx.getNetwork()).close();
   }
 
   /**
    * Run the sending party.
-   * 
+   *
    * @param pid
    *          The PID of the sending party
+   * @throws IOException
+   *           Thrown if the network cannot close
    */
-  public void runPartyTwo(int pid) {
-    Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
-    System.out.println("Connected sender");
-    Drbg currentPrg = new AesCtrDrbg(new byte[] { 0x42, 0x04 });
-    RotBatch<StrictBitVector> ot = new BristolRotBatch(2, 1, getKbitLength(),
-        getLambdaSecurityParam(), currentPrg, network, new DummyOt(1, network));
-    List<Pair<StrictBitVector, StrictBitVector>> messages = ot.send(amountOfOTs,
-        messageSize);
+  public void runPartyTwo(int pid) throws IOException {
+    OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
+        lambdaSecurityParam);
+    RotBatch rotBatch = new BristolRotBatch(ctx.getResources(),
+        ctx.getNetwork(), ctx.getDummyOtInstance());
+    List<Pair<StrictBitVector, StrictBitVector>> messages = rotBatch.send(
+        amountOfOTs, messageSize);
     for (int i = 0; i < amountOfOTs; i++) {
       System.out.println("Iteration " + i);
       System.out.println("Message 0: " + messages.get(i).getFirst());
       System.out.println("Message 1: " + messages.get(i).getSecond());
     }
     System.out.println("done sender");
+    ((Closeable) ctx.getNetwork()).close();
   }
 
   /**
    * The main function, taking one argument, the PID of the calling party.
-   * 
+   *
    * @param args
    *          Argument list, consisting of only the PID
    */

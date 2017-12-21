@@ -4,13 +4,19 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Actively-secure two-party protocol for computing the product of two secret inputs. <br>
+ * One input is held by the left party, the other by the right party. The protocol is asymmetric in
+ * the sense that the left party performs a different computation from the right party. This class
+ * implements the functionality of the left party. For the other side, see {@link MultiplyRight}.
+ * The resulting product is secret-shared among the two parties.
+ */
 public class MultiplyLeft extends MultiplyShared {
 
   /**
@@ -101,9 +107,10 @@ public class MultiplyLeft extends MultiplyShared {
    */
   List<FieldElement> seedsToFieldElements(List<StrictBitVector> seeds, BigInteger modulus,
       int modBitLength) {
-    // TODO there should be a better way to do this
+    // TODO need to check somewhere that the modulus is close enough to 2^modBitLength
     return seeds.stream().map(seed -> {
-      return new FieldElementPrgImpl(seed).getNext(modulus, modBitLength);
+      return new FieldElement(new BigInteger(seed.toByteArray()).mod(modulus), modulus,
+          modBitLength);
     }).collect(Collectors.toList());
   }
 

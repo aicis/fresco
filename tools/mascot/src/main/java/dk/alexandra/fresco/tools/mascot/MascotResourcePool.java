@@ -1,11 +1,11 @@
 package dk.alexandra.fresco.tools.mascot;
 
+import dk.alexandra.fresco.commitment.HashBasedCommitment;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.serializers.SecureSerializer;
 import dk.alexandra.fresco.framework.network.serializers.StrictBitVectorSerializer;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.commitment.Commitment;
-import dk.alexandra.fresco.tools.commitment.CommitmentSerializer;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
@@ -16,21 +16,21 @@ public interface MascotResourcePool extends NumericResourcePool {
 
   /**
    * Gets the party ids.
-   * 
+   *
    * @return party ids
    */
   List<Integer> getPartyIds();
 
   /**
    * Gets bit length of modulus (k security param in Mascot paper).
-   * 
+   *
    * @return modulus bit length
    */
   int getModBitLength();
 
   /**
    * Gets OT security parameter num bits (lambda in Mascot paper).
-   * 
+   *
    * @return lambda security parameter
    */
   int getLambdaSecurityParam();
@@ -39,53 +39,52 @@ public interface MascotResourcePool extends NumericResourcePool {
    * Gets number of factors that go into sacrifice step. <br>
    * For each triple we generate, we will generate and numLeftFactors - 1 triples for a single right
    * factor and sacrifice these to authenticate the triple.
-   * 
+   *
    * @return number of factors
    */
   int getNumCandidatesPerTriple();
 
   /**
    * Gets bit length of seed used to underlying prg.
-   * 
+   *
    * @return prg seed bit length
    */
   int getPrgSeedLength();
 
   /**
    * Gets PRG for generating random field elements locally (for this party only).
-   * 
+   *
    * @return PRG
    */
   FieldElementPrg getLocalSampler();
 
   /**
    * Gets serializer for {@link FieldElement}.
-   * 
+   *
    * @return serializer
    */
   FieldElementSerializer getFieldElementSerializer();
 
   /**
    * Gets serializer for {@link StrictBitVector}.
-   * 
+   *
    * @return serializer
    */
   StrictBitVectorSerializer getStrictBitVectorSerializer();
 
   /**
    * Gets serializer for {@link Commitment}.
-   * 
+   *
    * @return serializer
    */
-  CommitmentSerializer getCommitmentSerializer();
+  SecureSerializer<HashBasedCommitment> getCommitmentSerializer();
 
   /**
    * Creates random oblivious transfer protocol to be used.
-   * 
+   *
    * @param otherId other party that participates in protocol
    * @param network network
-   * @return instance of random oblivious transfer protocol 
+   * @return instance of random oblivious transfer protocol
    */
-  RotBatch<StrictBitVector> createRot(int otherId,
-      Network network);
+  RotBatch createRot(int otherId, Network network);
 }

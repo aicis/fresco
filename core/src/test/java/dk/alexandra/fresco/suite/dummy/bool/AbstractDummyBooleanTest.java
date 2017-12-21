@@ -17,11 +17,14 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
+import dk.alexandra.fresco.logging.BinarySuiteLogging;
 import dk.alexandra.fresco.logging.DefaultPerformancePrinter;
 import dk.alexandra.fresco.logging.EvaluatorLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.PerformanceLogger;
+import dk.alexandra.fresco.logging.PerformanceLoggerCountingAggregate;
 import dk.alexandra.fresco.logging.PerformancePrinter;
+import dk.alexandra.fresco.suite.ProtocolSuiteBinary;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +36,8 @@ import java.util.Map;
  */
 public abstract class AbstractDummyBooleanTest {
 
+  protected Map<Integer, List<PerformanceLogger>> performanceLoggers = new HashMap<>();
+  
   protected void runTest(
       TestThreadRunner.TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f,
       EvaluationStrategy evalStrategy) throws Exception {
@@ -63,24 +68,31 @@ public abstract class AbstractDummyBooleanTest {
         TestConfiguration.getNetworkConfigurations(noOfParties, ports);
     Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
         new HashMap<>();
-    Map<Integer, List<PerformanceLogger>> pls = new HashMap<>();
     for (int playerId : netConf.keySet()) {
-      pls.put(playerId, new ArrayList<>());
+      PerformanceLoggerCountingAggregate aggregate 
+        = new PerformanceLoggerCountingAggregate();
+      
       NetworkConfiguration partyNetConf = netConf.get(playerId);
 
-      DummyBooleanProtocolSuite ps = new DummyBooleanProtocolSuite();
-
+      ProtocolSuiteBinary<ResourcePoolImpl> ps = new DummyBooleanProtocolSuite();
+      if(logPerformance) {
+        BinarySuiteLogging<ResourcePoolImpl> decoratedSuite =
+            new BinarySuiteLogging<>(new DummyBooleanProtocolSuite());
+        aggregate.add(decoratedSuite);
+        ps = decoratedSuite;
+      }
+      
       BatchEvaluationStrategy<ResourcePoolImpl> strat = evalStrategy.getStrategy();
       if (logPerformance) {
         strat = new BatchEvaluationLoggingDecorator<>(strat);
-        pls.get(playerId).add((PerformanceLogger) strat);
+        aggregate.add((PerformanceLogger) strat);
       }
       
       ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
           new BatchedProtocolEvaluator<>(strat, ps);
       if (logPerformance) {
         evaluator = new EvaluatorLoggingDecorator<>(evaluator);
-        pls.get(playerId).add((PerformanceLogger) evaluator);
+        aggregate.add((PerformanceLogger) evaluator);
       }
       
       SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce =
@@ -96,20 +108,21 @@ public abstract class AbstractDummyBooleanTest {
             KryoNetNetwork kryoNetwork = new KryoNetNetwork(partyNetConf);
             if (logPerformance) {
               network = new NetworkLoggingDecorator(kryoNetwork);
-              pls.get(playerId).add((PerformanceLogger) network);
+              aggregate.add((PerformanceLogger) network);
             } else {
               network = kryoNetwork;
             }
             return network;
           });
       conf.put(playerId, ttc);
+      performanceLoggers.putIfAbsent(playerId, new ArrayList<>());
+      performanceLoggers.get(playerId).add(aggregate);
     }
     TestThreadRunner.run(f, conf);
-    for (Integer id : pls.keySet()) {
+    for (Integer id : conf.keySet()) {
       PerformancePrinter printer = new DefaultPerformancePrinter();
-      for (PerformanceLogger pl : pls.get(id)) {
-        printer.printPerformanceLog(pl, id);
-        pl.reset();
+      for (PerformanceLogger pl : performanceLoggers.get(id)) {
+        printer.printPerformanceLog(pl);
       }
     }
   }

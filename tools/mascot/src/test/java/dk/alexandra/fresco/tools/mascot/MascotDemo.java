@@ -9,11 +9,11 @@ import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.tools.mascot.Mascot;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
-import dk.alexandra.fresco.tools.mascot.MascotResourcePoolImpl;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import java.io.Closeable;
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -22,8 +22,8 @@ import java.util.concurrent.Callable;
 
 public class MascotDemo {
 
-  private Mascot mascot;
-  private Closeable toClose;
+  private final Mascot mascot;
+  private final Closeable toClose;
 
   MascotDemo(Integer myId, List<Integer> partyIds) {
     MascotResourcePool resourcePool = defaultResourcePool(myId, partyIds);
@@ -63,9 +63,12 @@ public class MascotDemo {
     int lambdaSecurityParam = 128;
     int prgSeedLength = 256;
     int numLeftFactors = 3;
-    return new DummyMascotResourcePoolImpl(myId, partyIds,
-        new PaddingAesCtrDrbg(new byte[0], prgSeedLength), modulus, modBitLength,
-        lambdaSecurityParam, prgSeedLength, numLeftFactors);
+    // generate random seed for local DRBG
+    byte[] drbgSeed = new byte[prgSeedLength / 8];
+    new SecureRandom().nextBytes(drbgSeed);
+    return new MascotResourcePoolImpl(myId, partyIds,
+        new PaddingAesCtrDrbg(drbgSeed, prgSeedLength), modulus, modBitLength, lambdaSecurityParam,
+        prgSeedLength, numLeftFactors);
   }
 
   /**
@@ -74,7 +77,7 @@ public class MascotDemo {
   public static void main(String[] args) {
     Integer myId = Integer.parseInt(args[0]);
     List<Integer> partyIds = Arrays.asList(1, 2);
-    new MascotDemo(myId, partyIds).run(1000, 256);
+    new MascotDemo(myId, partyIds).run(10, 1024);
   }
 
 }

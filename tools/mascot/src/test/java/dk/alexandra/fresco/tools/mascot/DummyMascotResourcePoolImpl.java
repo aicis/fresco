@@ -7,6 +7,9 @@ import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import dk.alexandra.fresco.tools.ot.otextension.BristolRotBatch;
+import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePool;
+import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePoolImpl;
+
 import java.math.BigInteger;
 import java.util.List;
 
@@ -20,11 +23,12 @@ public class DummyMascotResourcePoolImpl extends MascotResourcePoolImpl {
   }
 
   @Override
-  public RotBatch<StrictBitVector> createRot(int otherId, Network network) {
+  public RotBatch createRot(int otherId, Network network) {
     Ot ot = new DummyOt(otherId, network);
-    return new BristolRotBatch(getMyId(), otherId, getModBitLength(), getLambdaSecurityParam(),
-        getRandomGenerator(), network, ot);
+    OtExtensionResourcePool otResources = new OtExtensionResourcePoolImpl(getMyId(), otherId,
+        getModBitLength(), getLambdaSecurityParam(), getRandomGenerator());
+    return new BristolRotBatch(otResources, network, ot);
 
   }
-  
+
 }

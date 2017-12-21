@@ -6,14 +6,11 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.MaliciousException;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
-import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.helper.Constants;
 import dk.alexandra.fresco.tools.helper.TestRuntime;
-import dk.alexandra.fresco.tools.ot.base.DummyOt;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -30,7 +27,7 @@ public class FunctionalTestOtExtension {
   private Cote coteSender;
   private Cote coteReceiver;
   private int kbitLength = 128;
-  private int lambdaBitLength = 64;
+  private int lambdaSecurityParam = 64;
 
   /**
    * Initializes the test runtime and constructs a Cote Sender and a Cote
@@ -63,20 +60,18 @@ public class FunctionalTestOtExtension {
   }
 
   private Cote setupCoteSender() {
-    Network network = new CheatingNetwork(
-        TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
-    Drbg rand = new AesCtrDrbg(Constants.seedOne);
-    Cote cote = new Cote(1, 2, kbitLength, lambdaBitLength, rand, network,
-        new DummyOt(2, network));
+    OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
+        lambdaSecurityParam);
+    Cote cote = new Cote(ctx.getResources(), ctx.getNetwork(), ctx
+        .getDummyOtInstance());
     return cote;
   }
 
   private Cote setupCoteReceiver() {
-    Network network = new CheatingNetwork(
-        TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
-    Drbg rand = new AesCtrDrbg(Constants.seedTwo);
-    Cote cote = new Cote(2, 1, kbitLength, lambdaBitLength, rand, network,
-        new DummyOt(1, network));
+    OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
+        lambdaSecurityParam);
+    Cote cote = new Cote(ctx.getResources(), ctx.getNetwork(), ctx
+        .getDummyOtInstance());
     return cote;
   }
 
@@ -224,7 +219,7 @@ public class FunctionalTestOtExtension {
    */
   @Test
   public void testRot() {
-    int extendSize = 2048 - kbitLength - lambdaBitLength;
+    int extendSize = 2048 - kbitLength - lambdaSecurityParam;
     RotSender rotSender = new RotSender(coteSender.getSender());
     Callable<Exception> partyOneInit = () -> initRotSender(rotSender);
     RotReceiver rotReceiver = new RotReceiver(coteReceiver.getReceiver());
@@ -346,7 +341,7 @@ public class FunctionalTestOtExtension {
    */
   @Test
   public void testCheatingInRot() {
-    int extendSize = 2048 - kbitLength - lambdaBitLength;
+    int extendSize = 2048 - kbitLength - lambdaSecurityParam;
     RotSender rotSender = new RotSender(coteSender.getSender());
     Callable<Exception> partyOneInit = () -> initRotSender(rotSender);
     RotReceiver rotReceiver = new RotReceiver(coteReceiver.getReceiver());

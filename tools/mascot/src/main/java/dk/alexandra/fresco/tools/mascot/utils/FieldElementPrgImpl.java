@@ -10,7 +10,7 @@ import java.math.BigInteger;
 
 public class FieldElementPrgImpl implements FieldElementPrg {
 
-  Drng drng;
+  private final Drng drng;
 
   /**
    * Creates new FieldElement prg.

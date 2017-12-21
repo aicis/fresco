@@ -1,43 +1,43 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import dk.alexandra.fresco.framework.network.KryoNetNetwork;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.util.AesCtrDrbg;
-import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.ot.base.DummyOt;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.List;
 
 /**
  * Demo class to execute a light instance of the correlated OT extension with
  * errors.
- * 
+ *
  * @author jot2re
  *
  * @param <ResourcePoolT>
  *          The FRESCO resource pool used for the execution
  */
-public class CoteDemo<ResourcePoolT extends ResourcePool> extends Demo {
-  private int amountOfOTs = 1024;
+public class CoteDemo<ResourcePoolT extends ResourcePool> {
+  private final int amountOfOTs = 1024;
+  private final int kbitLength = 128;
+  private final int lambdaSecurityParam = 40;
 
   /**
    * Run the receiving party.
-   * 
+   *
    * @param pid
    *          The PID of the receiving party
+   * @throws IOException
+   *           Thrown if the network cannot close
    */
-  public void runPartyOne(int pid) {
-    Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
-    System.out.println("Connected receiver");
-    Drbg rand = new AesCtrDrbg(new byte[] { 0x42, 0x42 });
-    Cote cote = new Cote(1, 2, getKbitLength(), getLambdaSecurityParam(), rand,
-        network, new DummyOt(2, network));
+  public void runPartyOne(int pid) throws IOException {
+    OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
+        lambdaSecurityParam);
+    Cote cote = new Cote(ctx.getResources(), ctx.getNetwork(), ctx
+        .getDummyOtInstance());
     CoteReceiver coteRec = cote.getReceiver();
     coteRec.initialize();
     byte[] otChoices = new byte[amountOfOTs / 8];
-    rand.nextBytes(otChoices);
+    ctx.getRand().nextBytes(otChoices);
     List<StrictBitVector> t = coteRec
         .extend(new StrictBitVector(otChoices, amountOfOTs));
     System.out.println("done receiver");
@@ -49,20 +49,22 @@ public class CoteDemo<ResourcePoolT extends ResourcePool> extends Demo {
       }
       System.out.println();
     }
+    ((Closeable) ctx.getNetwork()).close();
   }
 
   /**
    * Run the sending party.
-   * 
+   *
    * @param pid
    *          The PID of the sending party
+   * @throws IOException
+   *           Thrown if the network cannot close
    */
-  public void runPartyTwo(int pid) {
-    Network network = new KryoNetNetwork(getNetworkConfiguration(pid));
-    System.out.println("Connected sender");
-    Drbg rand = new AesCtrDrbg(new byte[] { 0x42, 0x04 });
-    Cote cote = new Cote(2, 1, getKbitLength(), getLambdaSecurityParam(), rand,
-        network, new DummyOt(1, network));
+  public void runPartyTwo(int pid) throws IOException {
+    OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
+        lambdaSecurityParam);
+    Cote cote = new Cote(ctx.getResources(), ctx.getNetwork(), ctx
+        .getDummyOtInstance());
     CoteSender coteSnd = cote.getSender();
     coteSnd.initialize();
     List<StrictBitVector> q = coteSnd.extend(amountOfOTs);
@@ -82,11 +84,12 @@ public class CoteDemo<ResourcePoolT extends ResourcePool> extends Demo {
       }
       System.out.println();
     }
+    ((Closeable) ctx.getNetwork()).close();
   }
 
   /**
    * The main function, taking one argument, the PID of the calling party.
-   * 
+   *
    * @param args
    *          Argument list, consisting of only the PID
    */

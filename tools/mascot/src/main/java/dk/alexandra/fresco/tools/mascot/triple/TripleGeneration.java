@@ -1,9 +1,9 @@
 package dk.alexandra.fresco.tools.mascot.triple;
 
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.tools.mascot.BaseProtocol;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
-import dk.alexandra.fresco.tools.mascot.MultiPartyProtocol;
-import dk.alexandra.fresco.tools.mascot.arithm.CollectionUtils;
+import dk.alexandra.fresco.tools.mascot.arithm.ArithmeticCollectionUtils;
 import dk.alexandra.fresco.tools.mascot.elgen.ElementGeneration;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
@@ -19,12 +19,18 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class TripleGeneration extends MultiPartyProtocol {
+/**
+ * Actively-secure protocol for computing authenticated, secret-shared multiplication triples based
+ * on the MASCOT protocol (https://eprint.iacr.org/2016/505.pdf).<br>
+ * In particular, produces random, authenticated, secret-shared triples of the form a, b, c such
+ * that a * b = c.
+ */
+public class TripleGeneration extends BaseProtocol {
 
-  private ElementGeneration elementGeneration;
-  private Map<Integer, MultiplyRight> rightMultipliers;
-  private Map<Integer, MultiplyLeft> leftMultipliers;
-  private FieldElementPrg jointSampler;
+  private final ElementGeneration elementGeneration;
+  private final Map<Integer, MultiplyRight> rightMultipliers;
+  private final Map<Integer, MultiplyLeft> leftMultipliers;
+  private final FieldElementPrg jointSampler;
 
   /**
    * Creates new triple generation protocol.
@@ -91,7 +97,7 @@ public class TripleGeneration extends MultiPartyProtocol {
     subFactors.add(localSubFactors);
 
     // combine all sub-factors into product shares
-    List<FieldElement> productShares = CollectionUtils.pairWiseSum(subFactors);
+    List<FieldElement> productShares = getFieldElementUtils().pairwiseSum(subFactors);
     return productShares;
   }
 
@@ -135,7 +141,8 @@ public class TripleGeneration extends MultiPartyProtocol {
       }
     }
 
-    List<AuthenticatedElement> combined = CollectionUtils.pairWiseSum(shares);
+    List<AuthenticatedElement> combined =
+        new ArithmeticCollectionUtils<AuthenticatedElement>().pairwiseSum(shares);
     return toAuthenticatedCand(combined, 5);
   }
 
@@ -226,11 +233,10 @@ public class TripleGeneration extends MultiPartyProtocol {
     return triples;
   }
 
-  private class UnauthTriple {
-
-    List<FieldElement> leftFactors;
-    FieldElement rightFactor;
-    List<FieldElement> product;
+  private final class UnauthTriple {
+    private final List<FieldElement> leftFactors;
+    private final FieldElement rightFactor;
+    private final List<FieldElement> product;
 
     public UnauthTriple(List<FieldElement> leftFactors, FieldElement rightFactor,
         List<FieldElement> product) {
@@ -250,12 +256,11 @@ public class TripleGeneration extends MultiPartyProtocol {
   }
 
   private class TripleCandidate<T> {
-
-    T leftFactor;
-    T rightFactor;
-    T product;
-    T leftFactorHat;
-    T productHat;
+    protected final T leftFactor;
+    protected final T rightFactor;
+    protected final T product;
+    protected final T leftFactorHat;
+    protected final T productHat;
 
     TripleCandidate(T leftFactor, T rightFactor, T product, T leftFactorHat, T productHat) {
       this.leftFactor = leftFactor;
@@ -272,20 +277,16 @@ public class TripleGeneration extends MultiPartyProtocol {
     Stream<T> stream() {
       return Stream.of(leftFactor, rightFactor, product, leftFactorHat, productHat);
     }
-
   }
 
-  private class UnauthCand extends TripleCandidate<FieldElement> {
-
+  private final class UnauthCand extends TripleCandidate<FieldElement> {
     UnauthCand(FieldElement leftFactor, FieldElement rightFactor, FieldElement product,
         FieldElement leftFactorHat, FieldElement productHat) {
       super(leftFactor, rightFactor, product, leftFactorHat, productHat);
     }
-
   }
 
-  private class AuthCand extends TripleCandidate<AuthenticatedElement> {
-
+  private final class AuthCand extends TripleCandidate<AuthenticatedElement> {
     public AuthCand(List<AuthenticatedElement> ordered) {
       super(ordered);
     }
@@ -301,6 +302,6 @@ public class TripleGeneration extends MultiPartyProtocol {
     public MultTriple toTriple() {
       return new MultTriple(leftFactor, rightFactor, product);
     }
-
   }
+
 }
