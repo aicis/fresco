@@ -5,7 +5,7 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
-import dk.alexandra.fresco.suite.spdz.storage.DataSupplier;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -30,11 +30,11 @@ import org.slf4j.LoggerFactory;
  * @author Kasper Damgaard
  *
  */
-public class DataRestSupplierImpl implements DataSupplier{
+public class SpdzRestDataSupplier implements SpdzDataSupplier {
 
-  private final static Logger logger = LoggerFactory.getLogger(DataRestSupplierImpl.class);
+	private final static Logger logger = LoggerFactory.getLogger(SpdzRestDataSupplier.class);
 
-	//TODO: For now without security - but we need some kind of "login" or 
+	//TODO: For now without security - but we need some kind of "login" or
 	//token based security such that only the parties with access can obtain the different parties shares.
 	//Maybe use certificates and SSL connections instead, but this is harder to test and make work.
 
@@ -46,8 +46,8 @@ public class DataRestSupplierImpl implements DataSupplier{
 	private String restEndPoint;
 	private int myId;
 	private int noOfParties;
-	private int threadId; 
-	
+	private int threadId;
+
 	private BigInteger modulus;
 	private BigInteger alpha;
 
@@ -55,22 +55,22 @@ public class DataRestSupplierImpl implements DataSupplier{
 	private BlockingQueue<SpdzSInt> bits;
 	private BlockingQueue<SpdzSInt[]> exps;
 	private Map<Integer, BlockingQueue<SpdzInputMask>> inputs;
-	
+
 	private final List<RetrieverThread> threads = new ArrayList<>();
 
-	public DataRestSupplierImpl(int myId, int noOfParties, String restEndPoint, int threadId) {		
+	public SpdzRestDataSupplier(int myId, int noOfParties, String restEndPoint, int threadId) {
 		this.myId = myId;
 		this.noOfParties = noOfParties;
 		this.restEndPoint = restEndPoint;
 		this.threadId = threadId;
 		if(!this.restEndPoint.endsWith("/")) {
 			this.restEndPoint += "/";
-		}		
+		}
 		this.restEndPoint += "api/fuel/";
-		
+
 		init();
-	}	
-	
+	}
+
 	private void init() {
 		this.triples = new ArrayBlockingQueue<>(tripleAmount);
 		this.bits = new ArrayBlockingQueue<>(bitAmount);
@@ -133,7 +133,7 @@ public class DataRestSupplierImpl implements DataSupplier{
 	}
 
 	@Override
-	public SpdzTriple getNextTriple() {		
+	public SpdzTriple getNextTriple() {
 		try {
 			boolean print = false;
 			long then = 0;
@@ -169,7 +169,7 @@ public class DataRestSupplierImpl implements DataSupplier{
 				long now = System.currentTimeMillis();
         logger.warn("Exp pipe queue got back online within " + (now - then) + "ms.");
       }
-			
+
 			return exp;
 		} catch (InterruptedException e) {
 			throw new MPCException("Supplier got interrupted before a new exp pipe was made available", e);
@@ -187,7 +187,7 @@ public class DataRestSupplierImpl implements DataSupplier{
 
 	@Override
 	public SpdzSInt getNextBit() {
-		try {			
+		try {
 			return this.bits.take();
 		} catch (InterruptedException e) {
 			throw new MPCException("Supplier got interrupted before a new triple was made available", e);
@@ -197,7 +197,7 @@ public class DataRestSupplierImpl implements DataSupplier{
 	private BigInteger getBigInteger(String endpoint) {
 		BigInteger result = null;
 		CloseableHttpClient httpClient = HttpClients.createDefault();
-		try {			
+		try {
 			HttpGet httpget = new HttpGet(this.restEndPoint + endpoint);
 
       logger.debug("Executing request " + httpget.getRequestLine());
@@ -209,7 +209,7 @@ public class DataRestSupplierImpl implements DataSupplier{
 				public BigInteger handleResponse(
 						final HttpResponse response) throws ClientProtocolException, IOException {
 					int status = response.getStatusLine().getStatusCode();
-					if (status >= 200 && status < 300) {                        
+					if (status >= 200 && status < 300) {
 						BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
 						StringBuffer result = new StringBuffer();
 						String line = "";
@@ -223,7 +223,7 @@ public class DataRestSupplierImpl implements DataSupplier{
 				}
 
 			};
-			result = httpClient.execute(httpget, responseHandler);       
+			result = httpClient.execute(httpget, responseHandler);
 		} catch (ClientProtocolException e) {
 			throw new MPCException("Could not complete the http request", e);
 		} catch (IOException e) {
@@ -232,8 +232,8 @@ public class DataRestSupplierImpl implements DataSupplier{
 			try {
 				httpClient.close();
 			} catch (IOException e) {
-				//silent crashing - nothing to do at this point. 
-			}        	
+				//silent crashing - nothing to do at this point.
+			}
 		}
 		return result;
 	}
@@ -262,35 +262,35 @@ public class DataRestSupplierImpl implements DataSupplier{
 	public void shutdown() {
 		for(RetrieverThread t : threads) {
 			t.stopThread();
-			t.interrupt();			
+			t.interrupt();
 		}
 	}
 
 	/**
-	 * Clears the cache and sends a reset signal to the fuel station. 
+	 * Clears the cache and sends a reset signal to the fuel station.
 	 */
 	public void reset() {
 		for(RetrieverThread t : threads) {
 			t.stopThread();
-			t.interrupt();			
+			t.interrupt();
 		}
-		
+
 		//Only send signal if we're thread 0.
 		if(threadId == 0) {
 			CloseableHttpClient httpClient = HttpClients.createDefault();
-			try {			
+			try {
 				HttpGet httpget = new HttpGet(this.restEndPoint + "/reset/"+myId);
 
         logger.debug("Executing request " + httpget.getRequestLine());
 
         // Create a custom response handler
 				ResponseHandler<Boolean> responseHandler = new ResponseHandler<Boolean>() {
-	
+
 					@Override
 					public Boolean handleResponse(
 							final HttpResponse response) throws ClientProtocolException, IOException {
 						int status = response.getStatusLine().getStatusCode();
-						if (status >= 200 && status < 300) {                        
+						if (status >= 200 && status < 300) {
 							BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
 							StringBuffer result = new StringBuffer();
 							String line = "";
@@ -302,7 +302,7 @@ public class DataRestSupplierImpl implements DataSupplier{
 							throw new ClientProtocolException("Unexpected response status: " + status);
 						}
 					}
-	
+
 				};
 				boolean success = httpClient.execute(httpget, responseHandler);
 				if(!success) {
@@ -316,11 +316,11 @@ public class DataRestSupplierImpl implements DataSupplier{
 				try {
 					httpClient.close();
 				} catch (IOException e) {
-					//silent crashing - nothing to do at this point. 
-				}        	
+					//silent crashing - nothing to do at this point.
+				}
 			}
 		}
-		
+
 		init();
 	}
 

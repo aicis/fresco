@@ -13,11 +13,11 @@ import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
-import dk.alexandra.fresco.suite.spdz.storage.DataSupplier;
-import dk.alexandra.fresco.suite.spdz.storage.DataSupplierImpl;
-import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageConstants;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
@@ -116,17 +116,18 @@ public class CmdLineProtocolSuite {
   private NumericResourcePool createSpdzResourcePool(Properties properties) {
     String strat = properties.getProperty("spdz.preprocessingStrategy");
     final PreprocessingStrategy strategy = PreprocessingStrategy.valueOf(strat);
-    DataSupplier supplier;
+    SpdzDataSupplier supplier;
     switch (strategy) {
       case DUMMY:
-        supplier = new DummyDataSupplierImpl(myId, noOfPlayers);        
+        supplier = new SpdzDummyDataSupplier(myId, noOfPlayers);
         break;
       case STATIC:
         int noOfThreadsUsed = 1;        
         String storageName =
             SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
             + "_";
-        supplier = new DataSupplierImpl(new FilebasedStreamedStorageImpl(new InMemoryStorage()), storageName, noOfPlayers);        
+        supplier = new SpdzStorageDataSupplier(
+            new FilebasedStreamedStorageImpl(new InMemoryStorage()), storageName, noOfPlayers);
         break;      
       default:
         throw new ConfigurationException("Unkonwn preprocessing strategy: " + strategy);
@@ -136,14 +137,14 @@ public class CmdLineProtocolSuite {
   }
 
   private ProtocolSuite<?, ?> tinyTablesPreProFromCmdLine(Properties properties)
-      throws ParseException, IllegalArgumentException {
+      throws IllegalArgumentException {
     String tinytablesFileOption = "tinytables.file";
     String tinyTablesFilePath = properties.getProperty(tinytablesFileOption, "tinytables");
     return new TinyTablesPreproProtocolSuite(myId, new File(tinyTablesFilePath));
   }
 
   private ProtocolSuite<?, ?> tinyTablesFromCmdLine(Properties properties)
-      throws ParseException, IllegalArgumentException {
+      throws IllegalArgumentException {
 
     String tinytablesFileOption = "tinytables.file";
     String tinyTablesFilePath = properties.getProperty(tinytablesFileOption, "tinytables");

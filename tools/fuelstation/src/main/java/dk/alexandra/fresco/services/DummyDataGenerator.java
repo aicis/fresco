@@ -4,7 +4,7 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
-import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
@@ -20,16 +20,16 @@ import org.springframework.stereotype.Component;
 @PropertySource("classpath:prepro.properties")
 public class DummyDataGenerator implements DataGenerator {
 
-  private Map<Integer, DummyDataSupplierImpl> suppliers;
+  private Map<Integer, SpdzDummyDataSupplier> suppliers;
 
   @Value("${noOfPlayers}")
   private int noOfPlayers;
 
   @PostConstruct
   public void init() {
-    suppliers = new HashMap<Integer, DummyDataSupplierImpl>();
+    suppliers = new HashMap<Integer, SpdzDummyDataSupplier>();
     for (int i = 1; i <= noOfPlayers; i++) {
-      DummyDataSupplierImpl supplier = new DummyDataSupplierImpl(i, noOfPlayers);
+      SpdzDummyDataSupplier supplier = new SpdzDummyDataSupplier(i, noOfPlayers);
       suppliers.put(i, supplier);
     }
   }
@@ -45,13 +45,13 @@ public class DummyDataGenerator implements DataGenerator {
   }
 
   @Override
-  public void addTriples(List<SpdzTriple[]> triples, int thread) throws InterruptedException {
+  public void addTriples(List<SpdzTriple[]> triples, int thread) {
     // TODO Auto-generated method stub
 
   }
 
   @Override
-  public SpdzTriple[] getTriples(int amount, int partyId, int thread) throws InterruptedException {
+  public SpdzTriple[] getTriples(int amount, int partyId, int thread) {
     SpdzTriple[] res = new SpdzTriple[amount];
     for (int i = 0; i < amount; i++) {
       res[i] = this.suppliers.get(partyId).getNextTriple();
@@ -60,13 +60,13 @@ public class DummyDataGenerator implements DataGenerator {
   }
 
   @Override
-  public void addBits(List<SpdzSInt[]> bits, int thread) throws InterruptedException {
+  public void addBits(List<SpdzSInt[]> bits, int thread) {
     // TODO Auto-generated method stub
 
   }
 
   @Override
-  public SpdzElement[] getBits(int amount, int partyId, int thread) throws InterruptedException {
+  public SpdzElement[] getBits(int amount, int partyId, int thread) {
     SpdzElement[] res = new SpdzElement[amount];
     for (int i = 0; i < amount; i++) {
       res[i] = this.suppliers.get(partyId).getNextBit().value;
@@ -75,14 +75,13 @@ public class DummyDataGenerator implements DataGenerator {
   }
 
   @Override
-  public void addExpPipes(List<SpdzSInt[][]> expPipes, int thread) throws InterruptedException {
+  public void addExpPipes(List<SpdzSInt[][]> expPipes, int thread) {
     // TODO Auto-generated method stub
 
   }
 
   @Override
-  public SpdzElement[][] getExpPipes(int amount, int partyId, int thread)
-      throws InterruptedException {
+  public SpdzElement[][] getExpPipes(int amount, int partyId, int thread) {
     SpdzElement[][] res = new SpdzElement[amount][];
     for (int i = 0; i < amount; i++) {
       SpdzSInt[] exp = this.suppliers.get(partyId).getNextExpPipe();
@@ -96,15 +95,13 @@ public class DummyDataGenerator implements DataGenerator {
   }
 
   @Override
-  public void addInputMasks(int i, List<SpdzInputMask[]> inpMasks, int thread)
-      throws InterruptedException {
+  public void addInputMasks(int i, List<SpdzInputMask[]> inpMasks, int thread) {
     // TODO Auto-generated method stub
 
   }
 
   @Override
-  public SpdzInputMask[] getInputMasks(int amount, int partyId, int towardsPartyId, int thread)
-      throws InterruptedException {
+  public SpdzInputMask[] getInputMasks(int amount, int partyId, int towardsPartyId, int thread) {
     SpdzInputMask[] res = new SpdzInputMask[amount];
     for (int i = 0; i < amount; i++) {
       res[i] = this.suppliers.get(partyId).getNextInputMask(towardsPartyId);

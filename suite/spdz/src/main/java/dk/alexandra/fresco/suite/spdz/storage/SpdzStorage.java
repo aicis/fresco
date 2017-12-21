@@ -21,7 +21,7 @@ public interface SpdzStorage{
 	 * Gets a data supplier suppling preprocessed data values
 	 * @return a data supplier
 	 */
-	DataSupplier getSupplier();
+	SpdzDataSupplier getSupplier();
 
 	/**
 	 * Adds an opened value

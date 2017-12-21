@@ -1,15 +1,14 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.List;
 
-public class BristolRotBatchDemo<ResourcePoolT extends ResourcePool> {
+public class BristolRotBatchDemo {
+
   // Amount of random OTs to construct
   private final int amountOfOTs = 128;
   // The amount of bits in each message
@@ -20,17 +19,15 @@ public class BristolRotBatchDemo<ResourcePoolT extends ResourcePool> {
   /**
    * Run the receiving party.
    *
-   * @param pid
-   *          The PID of the receiving party
-   * @throws IOException
-   *           Thrown if the network cannot close
+   * @param pid The PID of the receiving party
+   * @throws IOException Thrown if the network cannot close
    */
   public void runPartyOne(int pid) throws IOException {
     OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
         lambdaSecurityParam);
     RotBatch rotBatch = new BristolRotBatch(ctx.getResources(),
         ctx
-        .getNetwork(), ctx.getDummyOtInstance());
+            .getNetwork(), ctx.getDummyOtInstance());
     StrictBitVector choices = new StrictBitVector(amountOfOTs, ctx.getRand());
     List<StrictBitVector> messages = rotBatch.receive(choices, messageSize);
     for (int i = 0; i < amountOfOTs; i++) {
@@ -44,10 +41,8 @@ public class BristolRotBatchDemo<ResourcePoolT extends ResourcePool> {
   /**
    * Run the sending party.
    *
-   * @param pid
-   *          The PID of the sending party
-   * @throws IOException
-   *           Thrown if the network cannot close
+   * @param pid The PID of the sending party
+   * @throws IOException Thrown if the network cannot close
    */
   public void runPartyTwo(int pid) throws IOException {
     OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
@@ -68,16 +63,15 @@ public class BristolRotBatchDemo<ResourcePoolT extends ResourcePool> {
   /**
    * The main function, taking one argument, the PID of the calling party.
    *
-   * @param args
-   *          Argument list, consisting of only the PID
+   * @param args Argument list, consisting of only the PID
    */
   public static void main(String[] args) {
     int pid = Integer.parseInt(args[0]);
     try {
       if (pid == 1) {
-        new BristolRotBatchDemo<>().runPartyOne(pid);
+        new BristolRotBatchDemo().runPartyOne(pid);
       } else {
-        new BristolRotBatchDemo<>().runPartyTwo(pid);
+        new BristolRotBatchDemo().runPartyTwo(pid);
       }
     } catch (Exception e) {
       System.out.println("Failed to connect: " + e);

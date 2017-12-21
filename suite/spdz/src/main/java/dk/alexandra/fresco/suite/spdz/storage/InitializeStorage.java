@@ -2,7 +2,6 @@ package dk.alexandra.fresco.suite.spdz.storage;
 
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
-import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
@@ -164,8 +163,8 @@ public class InitializeStorage {
 
 	/**
 	 * Initializes the storage
-	 * 
-	 * @param streamedStorages
+	 *
+	 * @param storage
 	 *            The storages to initialize (multiple storages are used when
 	 *            using a strategy with multiple threads)
 	 * @param noOfPlayers
@@ -370,9 +369,9 @@ public class InitializeStorage {
 
 	/**
 	 * Does the same as
-	 * {@link #initStreamedStorage(StreamedStorage, int, int, int, int, int, int, BigInteger)}
+	 * {@link #initStreamedStorage(FilebasedStreamedStorageImpl, int, int, int, int, int, int, BigInteger)}
 	 * but where the chosen modulus is chosen for you, and is the same as the
-	 * one found in: {@link DummyDataSupplierImpl}
+	 * one found in: {@link SpdzDummyDataSupplier}
 	 */
 	public static void initStreamedStorage(FilebasedStreamedStorageImpl streamedStorage, int noOfPlayers, int noOfThreads,
 			int noOfTriples, int noOfInputMasks, int noOfBits, int noOfExpPipes) {

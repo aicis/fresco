@@ -19,9 +19,9 @@ import org.slf4j.LoggerFactory;
  * @author Kasper Damgaard
  *
  */
-public class DataSupplierImpl implements DataSupplier {
+public class SpdzStorageDataSupplier implements SpdzDataSupplier {
 
-  private final static Logger logger = LoggerFactory.getLogger(DataSupplierImpl.class);
+  private final static Logger logger = LoggerFactory.getLogger(SpdzStorageDataSupplier.class);
 
   private StreamedStorage storage;
   private String storageName;
@@ -45,7 +45,7 @@ public class DataSupplierImpl implements DataSupplier {
    * @param noOfParties
    *            The number of parties in the computation.
    */
-  public DataSupplierImpl(StreamedStorage storage, String storageName,
+  public SpdzStorageDataSupplier(StreamedStorage storage, String storageName,
       int noOfParties) {
     this.storage = storage;
     this.storageName = storageName;
