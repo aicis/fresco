@@ -23,27 +23,27 @@ import org.junit.Test;
 public class TestKryoNetNetwork {
 
   private List<Integer> getFreePorts(int no) {
-//    try {
-//      List<Integer> ports = new ArrayList<>();
-//      List<ServerSocket> socks = new ArrayList<>();
-//      for (int i = 0; i < no; i++) {
-//        ServerSocket sock = new ServerSocket(0);
-//        int port = sock.getLocalPort();
-//        ports.add(port);
-//        socks.add(sock);
-//      }
-//      for (ServerSocket s : socks) {
-//        s.close();
-//      }
-//
-//      return ports;
-//    } catch (IOException e) {
-//      Assert.fail("Could not locate a free port");
-//      return null;
-//    }
+    // try {
+    // List<Integer> ports = new ArrayList<>();
+    // List<ServerSocket> socks = new ArrayList<>();
+    // for (int i = 0; i < no; i++) {
+    // ServerSocket sock = new ServerSocket(0);
+    // int port = sock.getLocalPort();
+    // ports.add(port);
+    // socks.add(sock);
+    // }
+    // for (ServerSocket s : socks) {
+    // s.close();
+    // }
+    //
+    // return ports;
+    // } catch (IOException e) {
+    // Assert.fail("Could not locate a free port");
+    // return null;
+    // }
     List<Integer> res = new ArrayList<>();
-    for(int i = 0; i < no; i++) {
-      res.add(9000+i);
+    for (int i = 0; i < no; i++) {
+      res.add(9000 + i);
     }
     return res;
   }
@@ -75,7 +75,7 @@ public class TestKryoNetNetwork {
     NetworkConfiguration conf = new NetworkConfigurationImpl(2, parties);
     KryoNetNetwork network = new KryoNetNetwork(conf);
     byte[] arr = network.receive(1);
-    network.send(1, new byte[] {0x00});
+    network.send(1, new byte[] { 0x00 });
     assertArrayEquals(new byte[] { 0x04 }, arr);
     // Also test noOfParties
     int noOfParties = network.getNoOfParties();
