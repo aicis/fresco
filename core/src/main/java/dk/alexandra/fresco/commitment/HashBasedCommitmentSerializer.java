@@ -1,11 +1,11 @@
 package dk.alexandra.fresco.commitment;
 
-import dk.alexandra.fresco.framework.network.serializers.FrescoSerializer;
+import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class HashBasedCommitmentSerializer implements FrescoSerializer<HashBasedCommitment> {
+public class HashBasedCommitmentSerializer implements ByteSerializer<HashBasedCommitment> {
 
   @Override
   public byte[] serialize(HashBasedCommitment comm) {

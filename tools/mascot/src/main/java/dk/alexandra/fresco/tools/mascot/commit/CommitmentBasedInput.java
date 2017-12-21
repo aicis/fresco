@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.tools.mascot.commit;
 
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.serializers.FrescoSerializer;
+import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.commitment.HashBasedCommitment;
 import dk.alexandra.fresco.tools.mascot.BaseProtocol;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
@@ -19,14 +19,14 @@ import java.util.stream.Collectors;
  */
 public class CommitmentBasedInput<T> extends BaseProtocol {
 
-  private final FrescoSerializer<T> serializer;
+  private final ByteSerializer<T> serializer;
   private final Network broadcaster;
 
   /**
    * Creates new {@link CommitmentBasedInput}.
    */
   public CommitmentBasedInput(MascotResourcePool resourcePool, Network network,
-      FrescoSerializer<T> serializer) {
+      ByteSerializer<T> serializer) {
     super(resourcePool, network);
     this.serializer = serializer;
     // for more than two parties, we need to use broadcast

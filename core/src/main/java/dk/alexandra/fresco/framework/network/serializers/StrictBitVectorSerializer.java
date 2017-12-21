@@ -4,7 +4,7 @@ import java.util.List;
 
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 
-public class StrictBitVectorSerializer implements FrescoSerializer<StrictBitVector> {
+public class StrictBitVectorSerializer implements ByteSerializer<StrictBitVector> {
 
   @Override
   public byte[] serialize(StrictBitVector obj) {

@@ -2,7 +2,7 @@ package dk.alexandra.fresco.tools.mascot;
 
 import dk.alexandra.fresco.commitment.HashBasedCommitment;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.serializers.FrescoSerializer;
+import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementUtils;
@@ -69,7 +69,7 @@ public class BaseProtocol {
     return resourcePool.getRandomGenerator();
   }
 
-  public FrescoSerializer<HashBasedCommitment> getCommitmentSerializer() {
+  public ByteSerializer<HashBasedCommitment> getCommitmentSerializer() {
     return resourcePool.getCommitmentSerializer();
   }
 

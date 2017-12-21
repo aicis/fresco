@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
-import dk.alexandra.fresco.framework.network.serializers.FrescoSerializer;
+import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -20,7 +20,7 @@ public interface NumericResourcePool extends ResourcePool {
    *
    * @return the serializer
    */
-  FrescoSerializer<BigInteger> getSerializer();
+  ByteSerializer<BigInteger> getSerializer();
 
   /**
    * Gets the message digest for this protocol suite invocation.
