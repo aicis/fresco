@@ -100,8 +100,6 @@
     <module>core</module>
     <module>suite</module>
     <module>demos</module>
-    <!-- TODO make a collected box of utilities that can serve as a parent for both scapi and-->
-    <!-- TODO fuelstation-->
     <module>scapiNetwork</module>
     <module>tools</module>
   </modules>

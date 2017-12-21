@@ -11,7 +11,6 @@
   <packaging>pom</packaging>
   
   <modules>
-    <module>fuelstation</module>
     <module>mascot</module>
     <module>ot</module>
   </modules>
