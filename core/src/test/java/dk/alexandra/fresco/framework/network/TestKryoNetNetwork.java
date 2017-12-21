@@ -8,7 +8,6 @@ import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,28 +23,34 @@ import org.junit.Test;
 public class TestKryoNetNetwork {
 
   private List<Integer> getFreePorts(int no) {
-    try {
-      List<Integer> ports = new ArrayList<>();
-      List<ServerSocket> socks = new ArrayList<>();
-      for (int i = 0; i < no; i++) {
-        ServerSocket sock = new ServerSocket(0);
-        int port = sock.getLocalPort();
-        ports.add(port);
-        socks.add(sock);
-      }
-      for (ServerSocket s : socks) {
-        s.close();
-      }
-
-      return ports;
-    } catch (IOException e) {
-      Assert.fail("Could not locate a free port");
-      return null;
+//    try {
+//      List<Integer> ports = new ArrayList<>();
+//      List<ServerSocket> socks = new ArrayList<>();
+//      for (int i = 0; i < no; i++) {
+//        ServerSocket sock = new ServerSocket(0);
+//        int port = sock.getLocalPort();
+//        ports.add(port);
+//        socks.add(sock);
+//      }
+//      for (ServerSocket s : socks) {
+//        s.close();
+//      }
+//
+//      return ports;
+//    } catch (IOException e) {
+//      Assert.fail("Could not locate a free port");
+//      return null;
+//    }
+    List<Integer> res = new ArrayList<>();
+    for(int i = 0; i < no; i++) {
+      res.add(9000+i);
     }
+    return res;
   }
 
   @Test
   public void testKryoNetSendBytes() {
+    System.out.println("STARTING FAILING TEST");
     Map<Integer, Party> parties = new HashMap<>();
     List<Integer> ports = getFreePorts(2);
     parties.put(1, new Party(1, "localhost", ports.get(0), "78dbinb27xi1i"));
@@ -57,6 +62,7 @@ public class TestKryoNetNetwork {
         NetworkConfiguration conf = new NetworkConfigurationImpl(1, parties);
         KryoNetNetwork network = new KryoNetNetwork(conf);
         network.send(2, new byte[] { 0x04 });
+        network.receive(2);
         try {
           network.close();
         } catch (IOException e) {
@@ -69,6 +75,7 @@ public class TestKryoNetNetwork {
     NetworkConfiguration conf = new NetworkConfigurationImpl(2, parties);
     KryoNetNetwork network = new KryoNetNetwork(conf);
     byte[] arr = network.receive(1);
+    network.send(1, new byte[] {0x00});
     assertArrayEquals(new byte[] { 0x04 }, arr);
     // Also test noOfParties
     int noOfParties = network.getNoOfParties();

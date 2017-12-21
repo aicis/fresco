@@ -104,7 +104,7 @@ public class KryoNetNetwork implements Network, Closeable {
    *        connect to them.
    */
   public KryoNetNetwork(NetworkConfiguration conf) {
-    this(conf, 524284, false);
+    this(conf, 1048568, false);
   }
 
   private static class ClientConnectThread extends Thread {
@@ -126,6 +126,7 @@ public class KryoNetNetwork implements Network, Closeable {
     public void run() {
       boolean success = false;
       int maxRetries = 30;
+      int sleepTime = 200;
       int retries = 0;
       while (!success) {
         try {
@@ -136,13 +137,14 @@ public class KryoNetNetwork implements Network, Closeable {
         } catch (IOException ex) {
           if (retries >= maxRetries) {
             // release to inform that this thread is done trying to connect
-            logger.error("Could not connect to other party within 30 retries of a second each.");
+            logger.error("Could not connect to other party within "
+                + (sleepTime * maxRetries) / 1000 + " seconds.");
             this.semaphore.release();
             break;
           }
           try {
-            Thread.sleep(100);
-          } catch(InterruptedException e) {
+            Thread.sleep(sleepTime);
+          } catch (InterruptedException e) {
             logger.error("Client connect thread got interrupted");
             this.semaphore.release();
           }
@@ -243,7 +245,9 @@ public class KryoNetNetwork implements Network, Closeable {
     try {
       semaphore.acquire();
       if (successes.size() < (conf.noOfParties() - 1)) {
-        throw new IOException("Could not successfully connect to all parties.");
+        this.close();
+        throw new IOException(
+            "P" + conf.getMyId() + ": Could not successfully connect to all parties.");
       }
       logger.debug("P" + conf.getMyId() + ": Successfully connected to all parties!");
     } catch (InterruptedException e) {
@@ -284,7 +288,10 @@ public class KryoNetNetwork implements Network, Closeable {
             }
             buffer.get(buffers[i]);
             this.clients.get(partyId).sendTCP(buffers[i]);
-            ExceptionConverter.safe(() -> {this.clients.get(partyId).update(0); return null;}, "Failed to update client");
+            ExceptionConverter.safe(() -> {
+              this.clients.get(partyId).update(0);
+              return null;
+            } , "Failed to update client");
           }
         } else {
           // Only one message is needed
