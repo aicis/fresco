@@ -21,6 +21,7 @@ import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -34,6 +35,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   private final int numberOfPlayers;
   private final Supplier<Network> tripleNetwork;
   private final BigInteger modulus;
+  private final Function<Integer, SpdzSInt[]> preprocessedValues;
   private final FieldElement ssk;
 
   private Mascot mascot;
@@ -42,22 +44,49 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   private int maxBitLength;
   private int batchSize;
 
+  public static SpdzMascotDataSupplier createTestSupplier(
+      int myId, int numberOfPlayers, Supplier<Network> tripleNetwork,
+      Function<Integer, SpdzSInt[]> preprocessedValues) {
+    return new SpdzMascotDataSupplier(
+        myId, numberOfPlayers, tripleNetwork,
+        new BigInteger("340282366920938463463374607431768211297"),
+        128, preprocessedValues, 256, 1000);
+  }
+
+
   private SpdzMascotDataSupplier(
-      int myId, int numberOfPlayers, Supplier<Network> tripleNetwork, BigInteger modulus) {
+      int myId, int numberOfPlayers, Supplier<Network> tripleNetwork, BigInteger modulus,
+      int maxBitLength,
+      Function<Integer, SpdzSInt[]> preprocessedValues,
+      int prgSeedLength, int batchSize) {
+    this(myId, numberOfPlayers, tripleNetwork, modulus, maxBitLength, preprocessedValues,
+        prgSeedLength, batchSize,
+        createRandomSsk(myId, modulus, maxBitLength, prgSeedLength));
+  }
+
+  public SpdzMascotDataSupplier(
+      int myId, int numberOfPlayers, Supplier<Network> tripleNetwork, BigInteger modulus,
+      int maxBitLength, Function<Integer, SpdzSInt[]> preprocessedValues, int prgSeedLength,
+      int batchSize,
+      FieldElement ssk) {
     this.myId = myId;
     this.numberOfPlayers = numberOfPlayers;
     this.tripleNetwork = tripleNetwork;
     this.modulus = modulus;
+    this.preprocessedValues = preprocessedValues;
     this.triples = new ArrayDeque<>();
+    this.prgSeedLength = prgSeedLength;
+    this.maxBitLength = maxBitLength;
+    this.batchSize = batchSize;
+    this.ssk = ssk;
+  }
 
-    prgSeedLength = 256;
-    maxBitLength = 128;
-    batchSize = 1000;
-
-    Random rand = new Random((long) myId);
+  private static FieldElement createRandomSsk(long myId, BigInteger modulus, int maxBitLength,
+      int prgSeedLength) {
+    Random rand = new Random(myId);
     StrictBitVector seed = new StrictBitVector(prgSeedLength, rand);
     FieldElementPrg localSampler = new FieldElementPrgImpl(seed);
-    ssk = localSampler.getNext(modulus, maxBitLength);
+    return localSampler.getNext(modulus, maxBitLength);
   }
 
   @Override
@@ -82,6 +111,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
             .collect(Collectors.toList());
 
     int numLeftFactors = 3;
+    Network network = tripleNetwork.get();
     mascot = new Mascot(new MascotResourcePoolImpl(
         myId, partyIds,
         new PaddingAesCtrDrbg(new byte[]{7, 127, -1}, prgSeedLength),
@@ -93,7 +123,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
         return new BristolRotBatch(getMyId(), otherId, getModBitLength(), getLambdaSecurityParam(),
             getRandomGenerator(), network, ot);
       }
-    }, tripleNetwork.get(), ssk);
+    }, network, ssk);
   }
 
   @Override
@@ -112,18 +142,18 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
 
   @Override
   public SpdzSInt[] getNextExpPipe() {
-    return new SpdzSInt[0];
+    return preprocessedValues.apply(maxBitLength);
   }
 
   @Override
   public SpdzInputMask getNextInputMask(int towardPlayerID) {
-    // TODO
-    return null;
+    // TODO Peter Nordholt will fix this
+    return new SpdzDummyDataSupplier(myId, numberOfPlayers).getNextInputMask(towardPlayerID);
   }
 
   @Override
   public SpdzSInt getNextBit() {
     // TODO Nikolaj Volgusjef will fix
-    return null;
+    return new SpdzDummyDataSupplier(myId, numberOfPlayers).getNextBit();
   }
 }
