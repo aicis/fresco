@@ -34,6 +34,7 @@ public class KryoNetNetwork implements Network, Closeable {
   private Map<Integer, Client> clients;
   private List<Thread> clientThreads;
   private NetworkConfiguration conf;
+  private final int timeout;
 
   // Map for each partyId to a queue
   private Map<Integer, BlockingQueue<byte[]>> queues;
@@ -55,12 +56,16 @@ public class KryoNetNetwork implements Network, Closeable {
    *        with the cost of sending extra information over the wire for each message. If false, a
    *        buffer overflow exception will occur if one tries to send messages of a larger size than
    *        <code>bufferSize</code>.
+   * @param timeout Denotes the timeout in milliseconds of when we give up on connecting to other
+   *        parties.
    */
-  public KryoNetNetwork(NetworkConfiguration conf, int bufferSize, boolean allowMultipleMessages) {
+  public KryoNetNetwork(NetworkConfiguration conf, int bufferSize, boolean allowMultipleMessages,
+      int timeout) {
     Log.set(Log.LEVEL_ERROR);
     this.allowMultipleMessages = allowMultipleMessages;
     this.maxSendAmount = bufferSize - BYTE_SERIALIZATION_SIZE;
     this.conf = conf;
+    this.timeout = timeout;
     this.clients = new HashMap<>();
     this.clientThreads = new ArrayList<>();
     this.queues = new HashMap<>();
@@ -100,14 +105,17 @@ public class KryoNetNetwork implements Network, Closeable {
   /**
    * Creates a KryoNet network from the given configuration. Calling the constructor will
    * immediately trigger an attempt at connecting to the other parties. This constructor will use a
-   * default value for the size of messages send over the network (524284). If you want to configure
-   * this yourself, instead use: {@link #KryoNetNetwork(NetworkConfiguration, int, boolean)}.
+   * default value for the size of messages send over the network (524284) and does not allow
+   * sending messages above this size threshold. This gives a slight boost in speed since we don't
+   * have to send the expected number of messages that will appear each time. It also uses a default
+   * timeout of 15 seconds. If you want to configure these yourself, instead use:
+   * {@link #KryoNetNetwork(NetworkConfiguration, int, boolean)}.
    *
    * @param conf The configuration informing the network of the number of parties and where to
    *        connect to them.
    */
   public KryoNetNetwork(NetworkConfiguration conf) {
-    this(conf, 1048568, false);
+    this(conf, 1048568, false, 15000);
   }
 
   private static class ClientConnectThread extends Thread {
@@ -116,20 +124,23 @@ public class KryoNetNetwork implements Network, Closeable {
     private final String hostname;
     private final int port;
     private final Semaphore semaphore;
+    private final int timeout;
 
-    public ClientConnectThread(Client client, String hostname, int port, Semaphore semaphore) {
+    public ClientConnectThread(Client client, String hostname, int port, Semaphore semaphore,
+        int timeout) {
       super("Connect");
       this.client = client;
       this.hostname = hostname;
       this.port = port;
       this.semaphore = semaphore;
+      this.timeout = timeout;
     }
 
     @Override
     public void run() {
       boolean success = false;
-      int maxRetries = 30;
-      int sleepTime = 200;
+      int maxRetries = 10;
+      int sleepTime = this.timeout / maxRetries;
       int retries = 0;
       while (!success) {
         try {
@@ -141,7 +152,7 @@ public class KryoNetNetwork implements Network, Closeable {
           if (retries >= maxRetries) {
             // release to inform that this thread is done trying to connect
             logger.error("Could not connect to other party within "
-                + (sleepTime * maxRetries) / 1000 + " seconds.");
+                + timeout + "ms.");
             this.semaphore.release();
             break;
           }
@@ -184,7 +195,8 @@ public class KryoNetNetwork implements Network, Closeable {
             return;
           }
           // Multiple messages are needed to obtain the original large payload
-          logger.debug("Received data: " + data.length+". Expected before countdown: " + expected);
+          logger
+              .debug("Received data: " + data.length + ". Expected before countdown: " + expected);
           ByteBuffer tmp = this.temporaryLists.get(fromPartyId);
           tmp.put(data);
           expected--;
@@ -241,7 +253,8 @@ public class KryoNetNetwork implements Network, Closeable {
 
         String hostname = conf.getParty(i).getHostname();
         int clientPort = conf.getParty(i).getPort();
-        Thread clientThread = new ClientConnectThread(client, hostname, clientPort, semaphore);
+        Thread clientThread =
+            new ClientConnectThread(client, hostname, clientPort, semaphore, timeout);
         clientThread.start();
         clientThreads.add(clientThread);
       }
@@ -301,10 +314,11 @@ public class KryoNetNetwork implements Network, Closeable {
             @Override
             protected Object next() {
               byte[] toSend = buffers.poll();
-              if(toSend == null) {
+              if (toSend == null) {
                 doneSending.release();
               } else {
-                logger.debug("P"+conf.getMyId()+": ToSend length: " + toSend.length+". Max length: " + maxSendAmount);
+                logger.debug("P" + conf.getMyId() + ": ToSend length: " + toSend.length
+                    + ". Max length: " + maxSendAmount);
               }
               return toSend;
             }

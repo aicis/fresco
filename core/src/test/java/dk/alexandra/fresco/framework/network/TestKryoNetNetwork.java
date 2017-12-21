@@ -85,7 +85,7 @@ public class TestKryoNetNetwork {
       @Override
       public void run() {
         NetworkConfiguration conf = new NetworkConfigurationImpl(1, parties);
-        KryoNetNetwork network = new KryoNetNetwork(conf, 1000, true);
+        KryoNetNetwork network = new KryoNetNetwork(conf, 1000, true, 4000);
         network.send(2, new byte[] { 0x04 });
         try {
           network.close();
@@ -97,7 +97,7 @@ public class TestKryoNetNetwork {
     t1.start();
 
     NetworkConfiguration conf = new NetworkConfigurationImpl(2, parties);
-    KryoNetNetwork network = new KryoNetNetwork(conf, 1000, true);
+    KryoNetNetwork network = new KryoNetNetwork(conf, 1000, true, 4000);
     byte[] arr = network.receive(1);
     assertArrayEquals(new byte[] { 0x04 }, arr);
     try {
@@ -133,7 +133,7 @@ public class TestKryoNetNetwork {
       @Override
       public void run() {
         NetworkConfiguration conf = new NetworkConfigurationImpl(1, parties);
-        KryoNetNetwork network = new KryoNetNetwork(conf, 524288, true);
+        KryoNetNetwork network = new KryoNetNetwork(conf, 524288, true, 4000);
         network.send(2, toSendAndExpect1);
         network.send(2, toSendAndExpect2);
         network.send(2, toSendAndExpect3);
@@ -147,7 +147,7 @@ public class TestKryoNetNetwork {
     t1.start();
 
     NetworkConfiguration conf = new NetworkConfigurationImpl(2, parties);
-    KryoNetNetwork network = new KryoNetNetwork(conf, 524288, true);
+    KryoNetNetwork network = new KryoNetNetwork(conf, 524288, true, 4000);
     byte[] arr1 = network.receive(1);
     byte[] arr2 = network.receive(1);
     byte[] arr3 = network.receive(1);
@@ -224,7 +224,7 @@ public class TestKryoNetNetwork {
     parties.put(2, new Party(2, "localhost", ports.get(1)));
     NetworkConfiguration conf = new NetworkConfigurationImpl(1, parties);
     // This should time out waiting for a connection to a party that is not listening
-    new KryoNetNetwork(conf);
+    new KryoNetNetwork(conf, 1000, false, 1000);
   }
 
   @Test(expected = IOException.class, timeout = 5000)
