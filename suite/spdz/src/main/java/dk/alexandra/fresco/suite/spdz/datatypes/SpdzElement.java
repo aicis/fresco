@@ -25,12 +25,11 @@ public class SpdzElement implements Serializable{
 
   //Communication methods
   public SpdzElement(byte[] data, BigInteger modulus, int modulusSize) {
-    int size = modulusSize;
-    byte[] shareBytes = new byte[size];
-    byte[] macBytes = new byte[size];
+    byte[] shareBytes = new byte[modulusSize];
+    byte[] macBytes = new byte[modulusSize];
     for(int i = 0; i < data.length/2; i++){
       shareBytes[i] = data[i];
-      macBytes[i] = data[size+i];
+      macBytes[i] = data[modulusSize + i];
     }
     this.share = new BigInteger(shareBytes);
     this.mac = new BigInteger(macBytes);
@@ -84,10 +83,6 @@ public class SpdzElement implements Serializable{
   }
 
   //Utility methods
-  
-  public BigInteger getMod() {
-    return mod;
-  }
   
   @Override
   public String toString(){
