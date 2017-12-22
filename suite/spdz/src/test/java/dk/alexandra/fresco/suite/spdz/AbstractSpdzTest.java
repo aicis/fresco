@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Abstract class which handles a lot of boiler plate testing code. This makes running a single test
@@ -127,10 +128,10 @@ public abstract class AbstractSpdzTest {
     }
   }
 
-  DRes<List<DRes<SInt>>> createPipe(int myId, List<Integer> ports, int pipeLength) {
-    KryoNetNetwork pipeNetwork = createExtraNetwork(myId, ports, 667);
-    SpdzMascotDataSupplier trippleSupplier =
-        SpdzMascotDataSupplier.createSimpleSupplier(myId, ports.size(), () -> pipeNetwork, null);
+  DRes<List<DRes<SInt>>> createPipe(
+      int myId, List<Integer> ports, int pipeLength,
+      KryoNetNetwork pipeNetwork, SpdzMascotDataSupplier trippleSupplier) {
+
     ProtocolBuilderNumeric sequential = new SpdzBuilder(
         new BasicNumericContext(128, trippleSupplier.getModulus(), myId, ports.size()))
         .createSequential();
@@ -151,7 +152,23 @@ public abstract class AbstractSpdzTest {
     } else if (preproStrat == MASCOT) {
       supplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, numberOfParties,
           () -> createExtraNetwork(myId, ports, 457),
-          (pipeLength) -> computeSInts(createPipe(myId, ports, pipeLength)));
+          new Function<Integer, SpdzSInt[]>() {
+
+            private SpdzMascotDataSupplier trippleSupplier;
+            private KryoNetNetwork pipeNetwork;
+
+            @Override
+            public SpdzSInt[] apply(Integer pipeLength) {
+              if (pipeNetwork == null) {
+                pipeNetwork = createExtraNetwork(myId, ports, 667);
+                trippleSupplier = SpdzMascotDataSupplier
+                    .createSimpleSupplier(myId, ports.size(), () -> pipeNetwork, null);
+              }
+              DRes<List<DRes<SInt>>> pipe = createPipe(myId, ports, pipeLength, pipeNetwork,
+                  trippleSupplier);
+              return computeSInts(pipe);
+            }
+          });
     } else {
       // case STATIC:
       int noOfThreadsUsed = 1;
