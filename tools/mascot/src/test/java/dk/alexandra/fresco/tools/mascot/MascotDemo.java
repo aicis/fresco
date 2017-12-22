@@ -60,7 +60,7 @@ public class MascotDemo {
   }
 
   MascotResourcePool defaultResourcePool(Integer myId, List<Integer> partyIds) {
-    BigInteger modulus = new BigInteger("340282366920938463463374607431768211297");
+    BigInteger modulus = new BigInteger("340282366920938463463374607431768211283");
     int modBitLength = 128;
     int lambdaSecurityParam = 128;
     int prgSeedLength = 256;
