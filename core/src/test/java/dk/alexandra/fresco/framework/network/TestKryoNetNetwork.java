@@ -32,7 +32,6 @@ public class TestKryoNetNetwork {
 
   @Test(timeout = 5000)
   public void testKryoNetSendBytes() {
-    System.out.println("STARTING FAILING TEST");
     Map<Integer, Party> parties = new HashMap<>();
     List<Integer> ports = getFreePorts(2);
     parties.put(1, new Party(1, "localhost", ports.get(0), "78dbinb27xi1i"));
@@ -87,6 +86,7 @@ public class TestKryoNetNetwork {
         NetworkConfiguration conf = new NetworkConfigurationImpl(1, parties);
         KryoNetNetwork network = new KryoNetNetwork(conf, 1000, true, 4000);
         network.send(2, new byte[] { 0x04 });
+        network.receive(2);
         try {
           network.close();
         } catch (IOException e) {
@@ -99,6 +99,7 @@ public class TestKryoNetNetwork {
     NetworkConfiguration conf = new NetworkConfigurationImpl(2, parties);
     KryoNetNetwork network = new KryoNetNetwork(conf, 1000, true, 4000);
     byte[] arr = network.receive(1);
+    network.send(1, new byte[] {0x00});
     assertArrayEquals(new byte[] { 0x04 }, arr);
     try {
       network.close();
@@ -106,7 +107,7 @@ public class TestKryoNetNetwork {
       fail("Failed to close network");
     }
     try {
-      t1.join();
+      t1.join(1000);
     } catch (InterruptedException e) {
       fail("Threads should finish without main getting interrupted");
     }
