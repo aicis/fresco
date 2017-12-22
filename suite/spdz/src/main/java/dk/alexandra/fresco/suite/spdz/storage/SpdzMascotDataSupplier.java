@@ -21,6 +21,7 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.suite.spdz.preprocessing.MascotFormatConverter;
 import dk.alexandra.fresco.tools.mascot.Mascot;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePoolImpl;
+import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.InputMask;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
@@ -47,6 +48,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   private int prgSeedLength;
   private ArrayDeque<MultTriple> triples;
   private ArrayDeque<InputMask> masks;
+  private ArrayDeque<AuthenticatedElement> randomElements;
   private int maxBitLength;
   private int batchSize;
 
@@ -73,6 +75,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     this.preprocessedValues = preprocessedValues;
     this.triples = new ArrayDeque<>();
     this.masks = new ArrayDeque<>();
+    this.randomElements = new ArrayDeque<>();
     this.prgSeedLength = prgSeedLength;
     this.maxBitLength = maxBitLength;
     this.batchSize = batchSize;
@@ -134,8 +137,13 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
 
   @Override
   public SpdzSInt getNextRandomFieldElement() {
-    // TODO use random element instead
-    return new SpdzSInt(this.getNextTriple().getA());
+    ensureInitialized();
+    if (randomElements.isEmpty()) {
+      logger.info("Getting another random element batch");
+      randomElements.addAll(mascot.getRandomElements(batchSize));
+      logger.info("Got another random element batch");
+    }
+    return new SpdzSInt(MascotFormatConverter.toSpdzElement(randomElements.pop()));
   }
 
   @Override
