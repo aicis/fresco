@@ -20,4 +20,9 @@ public class TestSpdzStorage {
         new DataSupplierImpl(new FilebasedStreamedStorageImpl(new InMemoryStorage()), "invalid", 2);
     supplier.getSecretSharedKey();
   }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testDummyDataSupplierTooManyPlayers() {
+    new DummyDataSupplierImpl(1, 4);
+  }
 }
