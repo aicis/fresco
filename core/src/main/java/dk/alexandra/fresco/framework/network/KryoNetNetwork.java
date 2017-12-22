@@ -195,8 +195,6 @@ public class KryoNetNetwork implements Network, Closeable {
             return;
           }
           // Multiple messages are needed to obtain the original large payload
-          logger
-              .debug("Received data: " + data.length + ". Expected before countdown: " + expected);
           ByteBuffer tmp = this.temporaryLists.get(fromPartyId);
           tmp.put(data);
           expected--;
