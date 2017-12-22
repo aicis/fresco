@@ -29,13 +29,6 @@
       <artifactId>spdz</artifactId>
       <version>${fresco-version}</version>      
     </dependency>
-	<dependency>
-      <groupId>dk.alexandra.fresco</groupId>
-      <artifactId>spdz</artifactId>
-      <version>${fresco-version}</version>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
     <dependency>
       <groupId>scapi</groupId>
       <artifactId>scapi</artifactId>
