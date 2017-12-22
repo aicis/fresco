@@ -7,6 +7,7 @@ import dk.alexandra.fresco.tools.mascot.cointossing.CoinTossingMpc;
 import dk.alexandra.fresco.tools.mascot.elgen.ElementGeneration;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.InputMask;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import dk.alexandra.fresco.tools.mascot.triple.TripleGeneration;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
@@ -14,6 +15,8 @@ import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Implementation of the main MASCOT protocol (https://eprint.iacr.org/2016/505.pdf) which can be
@@ -92,6 +95,27 @@ public class Mascot extends BaseProtocol {
       }
     }
     return new ArithmeticCollectionUtils<AuthenticatedElement>().pairwiseSum(perPartyElements);
+  }
+
+  /**
+   * Generates random input masks.
+   * 
+   * @param maskerId the party that knows the plain mask
+   * @param numMasks number of masks to generate
+   * @return input masks
+   */
+  public List<InputMask> getInputMasks(Integer maskerId, int numMasks) {
+    if (maskerId.equals(getMyId())) {
+      List<FieldElement> randomMasks =
+          getLocalSampler().getNext(getModulus(), getModBitLength(), numMasks);
+      List<AuthenticatedElement> authenticated = input(randomMasks);
+      return IntStream.range(0, numMasks)
+          .mapToObj(idx -> new InputMask(randomMasks.get(idx), authenticated.get(idx)))
+          .collect(Collectors.toList());
+    } else {
+      return input(maskerId, numMasks).stream().map(el -> new InputMask(el))
+          .collect(Collectors.toList());
+    }
   }
 
 }
