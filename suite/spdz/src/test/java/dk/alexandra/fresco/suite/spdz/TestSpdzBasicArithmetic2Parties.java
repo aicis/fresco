@@ -48,6 +48,12 @@ public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
     runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2);
   }
+  
+  @Test
+  public void test_Input_SequentialBatched_Mascot() throws Exception {
+    runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+        PreprocessingStrategy.MASCOT, 2);
+  }
 
   @Test
   public void test_OutputToTarget_Sequential() throws Exception {

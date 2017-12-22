@@ -22,6 +22,7 @@ import dk.alexandra.fresco.suite.spdz.preprocessing.MascotFormatConverter;
 import dk.alexandra.fresco.tools.mascot.Mascot;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePoolImpl;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.InputMask;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
@@ -45,6 +46,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   private Mascot mascot;
   private int prgSeedLength;
   private ArrayDeque<MultTriple> triples;
+  private ArrayDeque<InputMask> masks;
   private int maxBitLength;
   private int batchSize;
 
@@ -70,6 +72,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     this.modulus = modulus;
     this.preprocessedValues = preprocessedValues;
     this.triples = new ArrayDeque<>();
+    this.masks = new ArrayDeque<>();
     this.prgSeedLength = prgSeedLength;
     this.maxBitLength = maxBitLength;
     this.batchSize = batchSize;
@@ -131,6 +134,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
 
   @Override
   public SpdzSInt getNextRandomFieldElement() {
+    // TODO use random element instead
     return new SpdzSInt(this.getNextTriple().getA());
   }
 
@@ -141,8 +145,14 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
 
   @Override
   public SpdzInputMask getNextInputMask(int towardPlayerID) {
-    // TODO Peter Nordholt will fix this
-    return new SpdzDummyDataSupplier(myId, numberOfPlayers).getNextInputMask(towardPlayerID);
+    ensureInitialized();
+    if (masks.isEmpty()) {
+      logger.info("Getting another mask batch");
+      masks.addAll(mascot.getInputMasks(towardPlayerID, batchSize));
+      logger.info("Got another mask batch");
+    }
+    InputMask mask = masks.pop();
+    return MascotFormatConverter.toSpdzInputMask(mask);
   }
 
   @Override
