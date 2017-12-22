@@ -108,15 +108,15 @@ public abstract class AbstractSpdzTest {
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> createResourcePool(playerId, noOfParties, preProStrat, ports), () -> {
-                KryoNetNetwork kryoNetwork = new KryoNetNetwork(netConf.get(playerId));
-                if (logPerformance) {
-                  NetworkLoggingDecorator network = new NetworkLoggingDecorator(kryoNetwork);
-                  aggregate.add(network);
-                  return network;
-                } else {
-                  return kryoNetwork;
-                }
-              });
+            KryoNetNetwork kryoNetwork = new KryoNetNetwork(netConf.get(playerId));
+            if (logPerformance) {
+              NetworkLoggingDecorator network = new NetworkLoggingDecorator(kryoNetwork);
+              aggregate.add(network);
+              return network;
+            } else {
+              return kryoNetwork;
+            }
+          });
       conf.put(playerId, ttc);
       performanceLoggers.putIfAbsent(playerId, aggregate);
     }
@@ -133,7 +133,7 @@ public abstract class AbstractSpdzTest {
         SpdzMascotDataSupplier.createSimpleSupplier(myId, ports.size(), () -> pipeNetwork, null);
     ProtocolBuilderNumeric sequential = new SpdzBuilder(
         new BasicNumericContext(128, trippleSupplier.getModulus(), myId, ports.size()))
-            .createSequential();
+        .createSequential();
     SpdzResourcePoolImpl tripleResourcePool =
         new SpdzResourcePoolImpl(myId, ports.size(), null, new SpdzStorageImpl(trippleSupplier));
 
@@ -151,7 +151,7 @@ public abstract class AbstractSpdzTest {
     } else if (preproStrat == MASCOT) {
       supplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, numberOfParties,
           () -> createExtraNetwork(myId, ports, 457),
-          (pipeLength) -> createPipe(myId, ports, pipeLength).out().toArray(new SpdzSInt[0]));
+          (pipeLength) -> computeSInts(createPipe(myId, ports, pipeLength)));
     } else {
       // case STATIC:
       int noOfThreadsUsed = 1;
@@ -162,6 +162,16 @@ public abstract class AbstractSpdzTest {
     }
     SpdzStorage store = new SpdzStorageImpl(supplier);
     return new SpdzResourcePoolImpl(myId, numberOfParties, new HmacDrbg(), store);
+  }
+
+  private SpdzSInt[] computeSInts(DRes<List<DRes<SInt>>> pipe) {
+    List<DRes<SInt>> out = pipe.out();
+    SpdzSInt[] result = new SpdzSInt[out.size()];
+    for (int i = 0; i < out.size(); i++) {
+      DRes<SInt> sIntResult = out.get(i);
+      result[i] = (SpdzSInt) sIntResult.out();
+    }
+    return result;
   }
 
   private KryoNetNetwork createExtraNetwork(int myId, List<Integer> ports, int portOffset) {
