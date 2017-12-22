@@ -7,7 +7,7 @@ import org.junit.Test;
 
 public class TestSpdzMiMC extends AbstractSpdzTest {
 
-	@Test
+  @Test
   public void test_mimc_same_enc() {
     runTest(new MiMCTests.TestMiMCEncSameEnc<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2);
@@ -33,7 +33,6 @@ public class TestSpdzMiMC extends AbstractSpdzTest {
 
   @Test
   public void testMimcWithMascot() {
-    // TODO This fails (most likely because
     runTest(new MiMCTests.TestMiMCEncDec<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.MASCOT, 2);
   }

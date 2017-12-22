@@ -57,15 +57,14 @@ public abstract class AbstractSpdzTest {
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
-      EvaluationStrategy evalStrategy,
-      PreprocessingStrategy preProStrat, int noOfParties) {
+      EvaluationStrategy evalStrategy, PreprocessingStrategy preProStrat, int noOfParties) {
     runTest(f, evalStrategy, preProStrat, noOfParties, false);
   }
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
-      EvaluationStrategy evalStrategy,
-      PreprocessingStrategy preProStrat, int noOfParties, boolean logPerformance) {
+      EvaluationStrategy evalStrategy, PreprocessingStrategy preProStrat, int noOfParties,
+      boolean logPerformance) {
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * (noOfParties - 1));
@@ -73,7 +72,7 @@ public abstract class AbstractSpdzTest {
 
     int maxBitLength;
     if (preProStrat == MASCOT) {
-      maxBitLength = 128;
+      maxBitLength = 16;
     } else {
       maxBitLength = 150;
     }
@@ -83,8 +82,7 @@ public abstract class AbstractSpdzTest {
     Map<Integer, TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     for (int playerId : netConf.keySet()) {
-      PerformanceLoggerCountingAggregate aggregate
-          = new PerformanceLoggerCountingAggregate();
+      PerformanceLoggerCountingAggregate aggregate = new PerformanceLoggerCountingAggregate();
 
       ProtocolSuiteNumeric<SpdzResourcePool> protocolSuite = new SpdzProtocolSuite(maxBitLength);
       if (logPerformance) {
@@ -108,10 +106,8 @@ public abstract class AbstractSpdzTest {
           new SecureComputationEngineImpl<>(protocolSuite, evaluator);
 
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
-          new TestThreadRunner.TestThreadConfiguration<>(
-              sce,
-              () -> createResourcePool(playerId, noOfParties, preProStrat, ports),
-              () -> {
+          new TestThreadRunner.TestThreadConfiguration<>(sce,
+              () -> createResourcePool(playerId, noOfParties, preProStrat, ports), () -> {
                 KryoNetNetwork kryoNetwork = new KryoNetNetwork(netConf.get(playerId));
                 if (logPerformance) {
                   NetworkLoggingDecorator network = new NetworkLoggingDecorator(kryoNetwork);
@@ -134,16 +130,15 @@ public abstract class AbstractSpdzTest {
   DRes<List<DRes<SInt>>> createPipe(int myId, List<Integer> ports, int pipeLength) {
     KryoNetNetwork pipeNetwork = createExtraNetwork(myId, ports, 667);
     SpdzMascotDataSupplier trippleSupplier =
-        SpdzMascotDataSupplier.createSimpleSupplier(
-            myId, ports.size(), () -> pipeNetwork, null);
+        SpdzMascotDataSupplier.createSimpleSupplier(myId, ports.size(), () -> pipeNetwork, null);
     ProtocolBuilderNumeric sequential = new SpdzBuilder(
         new BasicNumericContext(128, trippleSupplier.getModulus(), myId, ports.size()))
-        .createSequential();
+            .createSequential();
     SpdzResourcePoolImpl tripleResourcePool =
         new SpdzResourcePoolImpl(myId, ports.size(), null, new SpdzStorageImpl(trippleSupplier));
 
-    DRes<List<DRes<SInt>>> exponentiationPipe = new DefaultPreprocessedValues(sequential)
-        .getExponentiationPipe(pipeLength);
+    DRes<List<DRes<SInt>>> exponentiationPipe =
+        new DefaultPreprocessedValues(sequential).getExponentiationPipe(pipeLength);
     evaluate(sequential, tripleResourcePool, pipeNetwork);
     return exponentiationPipe;
   }
@@ -154,19 +149,16 @@ public abstract class AbstractSpdzTest {
     if (preproStrat == DUMMY) {
       supplier = new SpdzDummyDataSupplier(myId, numberOfParties);
     } else if (preproStrat == MASCOT) {
-      supplier = SpdzMascotDataSupplier.createSimpleSupplier(
-          myId, numberOfParties,
+      supplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, numberOfParties,
           () -> createExtraNetwork(myId, ports, 457),
           (pipeLength) -> createPipe(myId, ports, pipeLength).out().toArray(new SpdzSInt[0]));
     } else {
       // case STATIC:
       int noOfThreadsUsed = 1;
       String storageName =
-          SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
-              + "_";
+          SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0 + "_";
       supplier = new SpdzStorageDataSupplier(
-          new FilebasedStreamedStorageImpl(new InMemoryStorage()),
-          storageName, numberOfParties);
+          new FilebasedStreamedStorageImpl(new InMemoryStorage()), storageName, numberOfParties);
     }
     SpdzStorage store = new SpdzStorageImpl(supplier);
     return new SpdzResourcePoolImpl(myId, numberOfParties, new HmacDrbg(), store);
@@ -176,8 +168,8 @@ public abstract class AbstractSpdzTest {
     return new KryoNetNetwork(new MascotNetworkConfiguration(myId, ports, portOffset));
   }
 
-  private void evaluate(ProtocolBuilderNumeric spdzBuilder,
-      SpdzResourcePool tripleResourcePool, Network network) {
+  private void evaluate(ProtocolBuilderNumeric spdzBuilder, SpdzResourcePool tripleResourcePool,
+      Network network) {
     BatchedStrategy<SpdzResourcePool> batchedStrategy = new BatchedStrategy<>();
     SpdzProtocolSuite spdzProtocolSuite = new SpdzProtocolSuite(128);
     BatchedProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> batchedProtocolEvaluator =

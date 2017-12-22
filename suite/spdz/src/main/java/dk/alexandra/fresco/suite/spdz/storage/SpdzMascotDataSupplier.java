@@ -1,8 +1,20 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
+import java.math.BigInteger;
+import java.util.ArrayDeque;
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
@@ -19,15 +31,6 @@ import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import dk.alexandra.fresco.tools.ot.otextension.BristolRotBatch;
 import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePool;
 import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePoolImpl;
-import java.math.BigInteger;
-import java.util.ArrayDeque;
-import java.util.List;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SpdzMascotDataSupplier implements SpdzDataSupplier {
 
@@ -45,31 +48,22 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   private int maxBitLength;
   private int batchSize;
 
-  public static SpdzMascotDataSupplier createSimpleSupplier(
-      int myId, int numberOfPlayers, Supplier<Network> tripleNetwork,
-      Function<Integer, SpdzSInt[]> preprocessedValues) {
-    return new SpdzMascotDataSupplier(
-        myId, numberOfPlayers, tripleNetwork,
-        new BigInteger("340282366920938463463374607431768211297"),
-        128, preprocessedValues, 256, 1000);
+  public static SpdzMascotDataSupplier createSimpleSupplier(int myId, int numberOfPlayers,
+      Supplier<Network> tripleNetwork, Function<Integer, SpdzSInt[]> preprocessedValues) {
+    return new SpdzMascotDataSupplier(myId, numberOfPlayers, tripleNetwork, new BigInteger("65519"),
+        16, preprocessedValues, 256, 1024);
   }
 
-
-  private SpdzMascotDataSupplier(
-      int myId, int numberOfPlayers, Supplier<Network> tripleNetwork, BigInteger modulus,
-      int maxBitLength,
-      Function<Integer, SpdzSInt[]> preprocessedValues,
+  private SpdzMascotDataSupplier(int myId, int numberOfPlayers, Supplier<Network> tripleNetwork,
+      BigInteger modulus, int maxBitLength, Function<Integer, SpdzSInt[]> preprocessedValues,
       int prgSeedLength, int batchSize) {
     this(myId, numberOfPlayers, tripleNetwork, modulus, maxBitLength, preprocessedValues,
-        prgSeedLength, batchSize,
-        createRandomSsk(modulus, maxBitLength, prgSeedLength));
+        prgSeedLength, batchSize, createRandomSsk(myId, modulus, maxBitLength, prgSeedLength));
   }
 
-  public SpdzMascotDataSupplier(
-      int myId, int numberOfPlayers, Supplier<Network> tripleNetwork, BigInteger modulus,
-      int maxBitLength, Function<Integer, SpdzSInt[]> preprocessedValues, int prgSeedLength,
-      int batchSize,
-      FieldElement ssk) {
+  public SpdzMascotDataSupplier(int myId, int numberOfPlayers, Supplier<Network> tripleNetwork,
+      BigInteger modulus, int maxBitLength, Function<Integer, SpdzSInt[]> preprocessedValues,
+      int prgSeedLength, int batchSize, FieldElement ssk) {
     this.myId = myId;
     this.numberOfPlayers = numberOfPlayers;
     this.tripleNetwork = tripleNetwork;
@@ -82,10 +76,12 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     this.ssk = ssk;
   }
 
-  private static FieldElement createRandomSsk(BigInteger modulus, int maxBitLength,
+  private static FieldElement createRandomSsk(int myId, BigInteger modulus, int maxBitLength,
       int prgSeedLength) {
-    StrictBitVector seed = new StrictBitVector(prgSeedLength,
-        new PaddingAesCtrDrbg(new byte[3], 32 * 8));
+    byte[] seedBytes = new byte[32];
+    seedBytes[0] = (byte) myId;
+    StrictBitVector seed =
+        new StrictBitVector(prgSeedLength, new PaddingAesCtrDrbg(seedBytes, 32 * 8));
     FieldElementPrg localSampler = new FieldElementPrgImpl(seed);
     return localSampler.getNext(modulus, maxBitLength);
   }
@@ -102,22 +98,18 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     return MascotFormatConverter.toSpdzTriple(triple);
   }
 
-  private void ensureInitialized() {
+  protected void ensureInitialized() {
     if (mascot != null) {
       return;
     }
     List<Integer> partyIds =
-        IntStream.range(1, numberOfPlayers + 1)
-            .boxed()
-            .collect(Collectors.toList());
+        IntStream.range(1, numberOfPlayers + 1).boxed().collect(Collectors.toList());
 
     int numLeftFactors = 3;
     Network network = tripleNetwork.get();
-    mascot = new Mascot(new MascotResourcePoolImpl(
-        myId, partyIds,
-        new PaddingAesCtrDrbg(new byte[]{7, 127, -1}, prgSeedLength),
-        getModulus(), maxBitLength,
-        128, prgSeedLength, numLeftFactors) {
+    mascot = new Mascot(new MascotResourcePoolImpl(myId, partyIds,
+        new PaddingAesCtrDrbg(new byte[] {7, 127, -1}, prgSeedLength), getModulus(), maxBitLength,
+        maxBitLength, prgSeedLength, numLeftFactors) {
       @Override
       public RotBatch createRot(int otherId, Network network) {
         Ot ot = new DummyOt(otherId, network);
@@ -156,6 +148,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   @Override
   public SpdzSInt getNextBit() {
     // TODO Nikolaj Volgusjef will fix
-    return new SpdzDummyDataSupplier(myId, numberOfPlayers).getNextBit();
+    return new SpdzSInt(new SpdzElement(BigInteger.ZERO, BigInteger.ZERO, getModulus()));
   }
+
 }
