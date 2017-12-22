@@ -134,7 +134,7 @@ public abstract class AbstractSpdzTest {
   DRes<List<DRes<SInt>>> createPipe(int myId, List<Integer> ports, int pipeLength) {
     KryoNetNetwork pipeNetwork = createExtraNetwork(myId, ports, 667);
     SpdzMascotDataSupplier trippleSupplier =
-        SpdzMascotDataSupplier.createTestSupplier(
+        SpdzMascotDataSupplier.createSimpleSupplier(
             myId, ports.size(), () -> pipeNetwork, null);
     ProtocolBuilderNumeric sequential = new SpdzBuilder(
         new BasicNumericContext(128, trippleSupplier.getModulus(), myId, ports.size()))
@@ -154,7 +154,7 @@ public abstract class AbstractSpdzTest {
     if (preproStrat == DUMMY) {
       supplier = new SpdzDummyDataSupplier(myId, numberOfParties);
     } else if (preproStrat == MASCOT) {
-      supplier = SpdzMascotDataSupplier.createTestSupplier(
+      supplier = SpdzMascotDataSupplier.createSimpleSupplier(
           myId, numberOfParties,
           () -> createExtraNetwork(myId, ports, 457),
           (pipeLength) -> createPipe(myId, ports, pipeLength).out().toArray(new SpdzSInt[0]));

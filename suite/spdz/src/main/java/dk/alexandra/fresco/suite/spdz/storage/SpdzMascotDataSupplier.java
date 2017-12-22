@@ -45,7 +45,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   private int maxBitLength;
   private int batchSize;
 
-  public static SpdzMascotDataSupplier createTestSupplier(
+  public static SpdzMascotDataSupplier createSimpleSupplier(
       int myId, int numberOfPlayers, Supplier<Network> tripleNetwork,
       Function<Integer, SpdzSInt[]> preprocessedValues) {
     return new SpdzMascotDataSupplier(
@@ -62,7 +62,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       int prgSeedLength, int batchSize) {
     this(myId, numberOfPlayers, tripleNetwork, modulus, maxBitLength, preprocessedValues,
         prgSeedLength, batchSize,
-        createRandomSsk(myId, modulus, maxBitLength, prgSeedLength));
+        createRandomSsk(modulus, maxBitLength, prgSeedLength));
   }
 
   public SpdzMascotDataSupplier(
@@ -82,7 +82,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     this.ssk = ssk;
   }
 
-  private static FieldElement createRandomSsk(long myId, BigInteger modulus, int maxBitLength,
+  private static FieldElement createRandomSsk(BigInteger modulus, int maxBitLength,
       int prgSeedLength) {
     StrictBitVector seed = new StrictBitVector(prgSeedLength,
         new PaddingAesCtrDrbg(new byte[3], 32 * 8));
