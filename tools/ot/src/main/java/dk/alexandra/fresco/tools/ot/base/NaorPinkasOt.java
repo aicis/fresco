@@ -15,7 +15,6 @@ import java.math.BigInteger;
 import java.security.AlgorithmParameterGenerator;
 import java.security.AlgorithmParameters;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import javax.crypto.spec.DHParameterSpec;
@@ -55,9 +54,6 @@ public class NaorPinkasOt implements Ot {
    *          The calling party's secure randomness generator
    * @param network
    *          The underlying network to use
-   * @throws NoSuchAlgorithmException
-   *           Thrown if the internal hash function which is dependent in this
-   *           library is missing
    */
   public NaorPinkasOt(int myId, int otherId, Drbg rand, Network network) {
     this(myId, otherId, rand, network, null);
