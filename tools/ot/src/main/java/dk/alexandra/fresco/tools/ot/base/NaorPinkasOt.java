@@ -271,9 +271,7 @@ public class NaorPinkasOt implements Ot {
     BigInteger toHash = publicKey.modPow(r, params.getP());
     // randomMessage = H(toHash)
     byte[] encB = hashDigest.digest(toHash.toByteArray());
-    for (int i = 0; i < hashDigest.getDigestLength(); i++) {
-      message[i] = encB[i];
-    }
+    System.arraycopy(encB, 0, message, 0, hashDigest.getDigestLength());
     return encryption;
   }
 
