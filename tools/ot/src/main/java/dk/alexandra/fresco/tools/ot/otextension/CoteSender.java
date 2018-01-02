@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.Ot;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +17,7 @@ import java.util.List;
  */
 public class CoteSender extends CoteShared {
   // The prgs based on the seeds learned from OT
-  private List<Drbg> prgs;
+  private final List<Drbg> prgs;
   // The random messages choices for the random seed OTs
   private StrictBitVector otChoices;
   // The functionality for the underlying seed OTs

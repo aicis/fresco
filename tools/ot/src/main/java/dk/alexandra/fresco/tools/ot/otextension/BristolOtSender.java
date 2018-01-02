@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -81,7 +80,6 @@ public class BristolOtSender extends BristolOtShared {
    *          The actual zero message to send
    * @param messageOne
    *          The actual one message to send
-   * @return The actual message
    */
   private void doActualSend(byte[] messageZero, byte[] messageOne) {
     // Find the correct preprocessed random OT messages

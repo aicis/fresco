@@ -11,7 +11,6 @@ import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
-
 import java.math.BigInteger;
 import java.security.AlgorithmParameterGenerator;
 import java.security.AlgorithmParameters;
@@ -19,7 +18,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
-
 import javax.crypto.spec.DHParameterSpec;
 
 /**
@@ -61,8 +59,7 @@ public class NaorPinkasOt implements Ot {
    *           Thrown if the internal hash function which is dependent in this
    *           library is missing
    */
-  public NaorPinkasOt(int myId, int otherId, Drbg rand, Network network)
-      throws NoSuchAlgorithmException {
+  public NaorPinkasOt(int myId, int otherId, Drbg rand, Network network) {
     this(myId, otherId, rand, network, null);
     setDhParams(computeSecureDhParams());
   }
@@ -221,7 +218,7 @@ public class NaorPinkasOt implements Ot {
     BigInteger encOne = encryptMessage(publicKeyOne, messageOne);
     network.send(otherId, encZero.toByteArray());
     network.send(otherId, encOne.toByteArray());
-    return new Pair<byte[], byte[]>(messageZero, messageOne);
+    return new Pair<>(messageZero, messageOne);
   }
 
   /**

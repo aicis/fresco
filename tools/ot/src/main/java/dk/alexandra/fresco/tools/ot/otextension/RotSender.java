@@ -3,7 +3,7 @@ package dk.alexandra.fresco.tools.ot.otextension;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -71,8 +71,9 @@ public class RotSender extends RotShared {
     StrictBitVector xvec = new StrictBitVector(xvecBytes, getKbitLength());
     StrictBitVector tvec = new StrictBitVector(tvecBytes, 2 * getKbitLength());
     // Compute the challenge vector based on the receivers send values
-    StrictBitVector tvecToCompare = computeInnerProduct(Arrays.asList(delta),
-        Arrays.asList(xvec));
+    StrictBitVector tvecToCompare = computeInnerProduct(
+        Collections.singletonList(delta),
+        Collections.singletonList(xvec));
     tvecToCompare.xor(qvec);
     // Ensure that the receiver has been honest by verifying its challenge
     if (tvecToCompare.equals(tvec) == false) {
@@ -90,7 +91,7 @@ public class RotSender extends RotShared {
     // Remove the correlated for the choice-one as well
     List<StrictBitVector> vlistOne = hashBitVector(qlist, size);
     Pair<List<StrictBitVector>, List<StrictBitVector>> res =
-        new Pair<List<StrictBitVector>, List<StrictBitVector>>(vlistZero, vlistOne);
+        new Pair<>(vlistZero, vlistOne);
     return res;
   }
 }

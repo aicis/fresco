@@ -18,7 +18,7 @@ public interface Ot {
    * @param messageOne
    *          Message one to send
    */
-  public void send(StrictBitVector messageZero, StrictBitVector messageOne);
+  void send(StrictBitVector messageZero, StrictBitVector messageOne);
 
   /**
    * Receive one-out-of-two messages.
@@ -28,5 +28,5 @@ public interface Ot {
    *          and true means message one.
    * @return The message indicated by the choice bit
    */
-  public StrictBitVector receive(Boolean choiceBit);
+  StrictBitVector receive(Boolean choiceBit);
 }

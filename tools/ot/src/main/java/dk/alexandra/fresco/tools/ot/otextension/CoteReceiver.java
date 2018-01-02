@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.Ot;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -120,9 +119,8 @@ public class CoteReceiver extends CoteShared {
    * @param list
    *          List to send, where all elements are required to have the same
    *          length.
-   * @return Returns true if the transmission was successful
    */
-  private boolean sendList(List<StrictBitVector> list) {
+  private void sendList(List<StrictBitVector> list) {
     // Find the amount of bytes needed for each bitvector in the list
     int elementLength = list.get(0).getSize() / 8;
     // Allocate space for all elements in the list.
@@ -132,6 +130,5 @@ public class CoteReceiver extends CoteShared {
           elementLength);
     }
     getNetwork().send(getOtherId(), toSend);
-    return true;
   }
 }
