@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.ProtocolCollection;
-import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
@@ -42,10 +41,10 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
           resourcePool.getMessageDigest(), storage, null, resourcePool.getModulus());
 
       do {
-        ProtocolCollectionList<NumericResourcePool> protocolCollectionList =
+        ProtocolCollectionList<SpdzResourcePool> protocolCollectionList =
             new ProtocolCollectionList<>(batchSize);
         macCheck.getNextProtocols(protocolCollectionList);
-        BatchEvaluationStrategy<NumericResourcePool> batchStrat = new BatchedStrategy<>();
+        BatchEvaluationStrategy<SpdzResourcePool> batchStrat = new BatchedStrategy<>();
         batchStrat.processBatch(protocolCollectionList, resourcePool, networkBatchDecorator);
       } while (macCheck.hasNextProtocols());
     }
