@@ -46,7 +46,7 @@ public class TestAggregation {
       SpdzStorage store = new SpdzStorageImpl(new SpdzDummyDataSupplier(i, n));
       SpdzResourcePool rp =
           new SpdzResourcePoolImpl(i, n, new HmacDrbg(), store);
-      ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
+      ProtocolEvaluator<SpdzResourcePool> evaluator =
           new BatchedProtocolEvaluator<>(new SequentialStrategy<>(), suite);
       SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(suite, evaluator);
@@ -63,7 +63,7 @@ public class TestAggregation {
   }
 
   @Test
-  public void testAggregation() throws Exception {
+  public void testAggregation() {
     final TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f =
         new TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric>() {
           @Override

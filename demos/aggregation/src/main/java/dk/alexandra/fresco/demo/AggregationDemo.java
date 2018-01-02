@@ -114,7 +114,7 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
     ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> suite = new SpdzProtocolSuite(150);
 
     // Define circuit evaluation strategy
-    ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> sequentialEvaluator =
+    ProtocolEvaluator<SpdzResourcePool> sequentialEvaluator =
         new BatchedProtocolEvaluator<>(new SequentialStrategy<>(), suite);
 
     // Instantiate execution environment

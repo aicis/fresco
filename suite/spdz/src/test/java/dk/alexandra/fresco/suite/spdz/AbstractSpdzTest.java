@@ -96,7 +96,7 @@ public abstract class AbstractSpdzTest {
         batchEvalStrat = new BatchEvaluationLoggingDecorator<>(batchEvalStrat);
         aggregate.add((PerformanceLogger) batchEvalStrat);
       }
-      ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
+      ProtocolEvaluator<SpdzResourcePool> evaluator =
           new BatchedProtocolEvaluator<>(batchEvalStrat, protocolSuite);
       if (logPerformance) {
         evaluator = new EvaluatorLoggingDecorator<>(evaluator);
@@ -199,7 +199,7 @@ public abstract class AbstractSpdzTest {
       Network network) {
     BatchedStrategy<SpdzResourcePool> batchedStrategy = new BatchedStrategy<>();
     SpdzProtocolSuite spdzProtocolSuite = new SpdzProtocolSuite(128);
-    BatchedProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> batchedProtocolEvaluator =
+    BatchedProtocolEvaluator<SpdzResourcePool> batchedProtocolEvaluator =
         new BatchedProtocolEvaluator<>(batchedStrategy, spdzProtocolSuite);
     batchedProtocolEvaluator.eval(spdzBuilder.build(), tripleResourcePool, network);
   }

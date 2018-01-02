@@ -41,8 +41,7 @@ public abstract class AbstractDummyArithmeticTest {
    */
   protected void runTest(
       TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
-      EvaluationStrategy evalStrategy, int noOfParties)
-      throws Exception {
+      EvaluationStrategy evalStrategy, int noOfParties) {
     BigInteger mod = new BigInteger(
         "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
     runTest(f, evalStrategy, noOfParties, mod, false);
@@ -54,7 +53,7 @@ public abstract class AbstractDummyArithmeticTest {
   protected void runTest(
       TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, int noOfParties,
-      BigInteger mod, boolean logPerformance) throws Exception {
+      BigInteger mod, boolean logPerformance) {
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * (noOfParties - 1));
@@ -83,7 +82,7 @@ public abstract class AbstractDummyArithmeticTest {
             new BatchEvaluationLoggingDecorator<>(batchEvaluationStrategy);
         aggregate.add((PerformanceLogger) batchEvaluationStrategy);
       }
-      ProtocolEvaluator<DummyArithmeticResourcePool, ProtocolBuilderNumeric> evaluator =
+      ProtocolEvaluator<DummyArithmeticResourcePool> evaluator =
           new BatchedProtocolEvaluator<>(batchEvaluationStrategy, ps);
       if (logPerformance) {
         evaluator = new EvaluatorLoggingDecorator<>(evaluator);

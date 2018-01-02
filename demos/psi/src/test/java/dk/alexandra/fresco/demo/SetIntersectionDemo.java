@@ -38,7 +38,7 @@ public class SetIntersectionDemo {
   private int noPlayers = 2;
 
   @Test
-  public void dummyTest() throws Exception {
+  public void dummyTest() {
     // Generic configuration
     List<Integer> ports = new ArrayList<>(noPlayers);
     for (int i = 1; i <= noPlayers; i++) {
@@ -56,7 +56,7 @@ public class SetIntersectionDemo {
 
       // The rest is generic configuration as well
       Drbg drbg = new HmacDrbg();
-      ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
+      ProtocolEvaluator<ResourcePoolImpl> evaluator =
           new BatchedProtocolEvaluator<>(new BatchedStrategy<>(), suite);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<>(
@@ -76,7 +76,7 @@ public class SetIntersectionDemo {
   @SuppressWarnings("unchecked")
   @Category(IntegrationTest.class)
   @Test
-  public void tinyTablesTest() throws Exception {
+  public void tinyTablesTest() {
     // Generic configuration
     List<Integer> ports = new ArrayList<>(noPlayers);
     for (int i = 1; i <= noPlayers; i++) {
@@ -94,7 +94,7 @@ public class SetIntersectionDemo {
 
       // More generic configuration
       Drbg drbg = new HmacDrbg();
-      ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
+      ProtocolEvaluator<ResourcePoolImpl> evaluator =
           new BatchedProtocolEvaluator<>(new BatchedStrategy<>(), suite);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<>(
@@ -120,7 +120,7 @@ public class SetIntersectionDemo {
                 playerId);
 
         Drbg drbg = new HmacDrbg();
-        ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
+        ProtocolEvaluator<ResourcePoolImpl> evaluator =
             new BatchedProtocolEvaluator<>(new BatchedStrategy<>(), suite);
         TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
             new TestThreadConfiguration<>(
@@ -165,8 +165,7 @@ public class SetIntersectionDemo {
 
 
   public String[] setIntersectionDemo(
-      Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf)
-      throws Exception {
+      Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf) {
     String[] result = new String[8];
     TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f =
         new TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary>() {
@@ -220,8 +219,7 @@ public class SetIntersectionDemo {
     return new File(filename);
   }
 
-  private ProtocolSuite<?, ?> getTinyTablesProtocolSuite(int playerId)
-      throws ClassNotFoundException, IOException {
+  private ProtocolSuite<?, ?> getTinyTablesProtocolSuite(int playerId) {
     TinyTablesProtocolSuite config =
         new TinyTablesProtocolSuite(playerId, getTinyTablesFile(playerId));
     return config;

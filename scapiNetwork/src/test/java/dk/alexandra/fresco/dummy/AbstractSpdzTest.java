@@ -67,7 +67,7 @@ public abstract class AbstractSpdzTest {
         batchStrat = new BatchEvaluationLoggingDecorator<>(batchStrat);
         aggregate.add((PerformanceLogger) batchStrat);
       }
-      ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
+      ProtocolEvaluator<SpdzResourcePool> evaluator =
           new BatchedProtocolEvaluator<>(batchStrat, protocolSuite);
 
       if (logPerformance) {
