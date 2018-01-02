@@ -57,8 +57,8 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
   }
 
   @Override
-  public BigInteger convertRepresentation(BigInteger b) {
-    BigInteger actual = b.mod(modulus);
+  public BigInteger convertRepresentation(BigInteger bigInteger) {
+    BigInteger actual = bigInteger.mod(modulus);
     if (actual.compareTo(modulusHalf) > 0) {
       actual = actual.subtract(modulus);
     }

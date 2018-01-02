@@ -128,7 +128,7 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
   public RotBatch createRot(int otherId, Network network) {
     DHParameterSpec params = new DHParameterSpec(DhPvalue, DhGvalue);
     Ot ot = ExceptionConverter.safe(() -> new NaorPinkasOt(getMyId(), otherId,
-        getRandomGenerator(), network, params),
+            getRandomGenerator(), network, params),
         "Missing security hash function or PRG, which is dependent in this library");
     OtExtensionResourcePool otResources = new OtExtensionResourcePoolImpl(getMyId(), otherId,
         getModBitLength(), getLambdaSecurityParam(), getRandomGenerator());

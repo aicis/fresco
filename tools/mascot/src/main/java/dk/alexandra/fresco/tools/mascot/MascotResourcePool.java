@@ -10,6 +10,7 @@ import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
+import java.security.MessageDigest;
 import java.util.List;
 
 public interface MascotResourcePool extends NumericResourcePool {
@@ -73,11 +74,18 @@ public interface MascotResourcePool extends NumericResourcePool {
   StrictBitVectorSerializer getStrictBitVectorSerializer();
 
   /**
-   * Gets serializer for {@link Commitment}.
+   * Gets serializer for {@link HashBasedCommitment}.
    *
    * @return serializer
    */
   ByteSerializer<HashBasedCommitment> getCommitmentSerializer();
+
+  /**
+   * Gets the message digest for this protocol suite invocation.
+   *
+   * @return the message digest
+   */
+  MessageDigest getMessageDigest();
 
   /**
    * Creates random oblivious transfer protocol to be used.

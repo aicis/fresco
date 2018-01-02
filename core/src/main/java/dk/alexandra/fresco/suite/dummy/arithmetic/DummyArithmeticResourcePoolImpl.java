@@ -7,8 +7,6 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
 import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 /**
  * Implements the resource pool needed for the Dummy Arithmetic suite.
@@ -27,10 +25,8 @@ public class DummyArithmeticResourcePoolImpl extends ResourcePoolImpl
    * @param myId id of this party
    * @param noOfPlayers number of parties in the participating
    * @param modulus the modulus
-   * @throws NoSuchAlgorithmException If the default HMac algorithm is not available on the system.
    */
-  public DummyArithmeticResourcePoolImpl(int myId, int noOfPlayers, BigInteger modulus)
-      throws NoSuchAlgorithmException {
+  public DummyArithmeticResourcePoolImpl(int myId, int noOfPlayers, BigInteger modulus) {
     this(myId, noOfPlayers, new HmacDrbg(), modulus);
   }
 
@@ -57,10 +53,4 @@ public class DummyArithmeticResourcePoolImpl extends ResourcePoolImpl
   public ByteSerializer<BigInteger> getSerializer() {
     return new BigIntegerWithFixedLengthSerializer(modulusSize);
   }
-
-  @Override
-  public MessageDigest getMessageDigest() {
-    return null;
-  }
-
 }
