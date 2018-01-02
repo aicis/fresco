@@ -1,16 +1,5 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
-import java.math.BigInteger;
-import java.util.ArrayDeque;
-import java.util.List;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
@@ -27,12 +16,15 @@ import dk.alexandra.fresco.tools.mascot.field.InputMask;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
-import dk.alexandra.fresco.tools.ot.base.DummyOt;
-import dk.alexandra.fresco.tools.ot.base.Ot;
-import dk.alexandra.fresco.tools.ot.base.RotBatch;
-import dk.alexandra.fresco.tools.ot.otextension.BristolRotBatch;
-import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePool;
-import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePoolImpl;
+import java.math.BigInteger;
+import java.util.ArrayDeque;
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SpdzMascotDataSupplier implements SpdzDataSupplier {
 
@@ -51,6 +43,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   private ArrayDeque<AuthenticatedElement> randomElements;
   private int maxBitLength;
   private int batchSize;
+  private byte[] randomSeed;
 
   public static SpdzMascotDataSupplier createSimpleSupplier(int myId, int numberOfPlayers,
       Supplier<Network> tripleNetwork, Function<Integer, SpdzSInt[]> preprocessedValues) {
@@ -62,12 +55,13 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       BigInteger modulus, int maxBitLength, Function<Integer, SpdzSInt[]> preprocessedValues,
       int prgSeedLength, int batchSize) {
     this(myId, numberOfPlayers, tripleNetwork, modulus, maxBitLength, preprocessedValues,
-        prgSeedLength, batchSize, createRandomSsk(myId, modulus, maxBitLength, prgSeedLength));
+        prgSeedLength, batchSize, createRandomSsk(myId, modulus, maxBitLength, prgSeedLength),
+        new byte[]{7, 127, -1});
   }
 
   public SpdzMascotDataSupplier(int myId, int numberOfPlayers, Supplier<Network> tripleNetwork,
       BigInteger modulus, int maxBitLength, Function<Integer, SpdzSInt[]> preprocessedValues,
-      int prgSeedLength, int batchSize, FieldElement ssk) {
+      int prgSeedLength, int batchSize, FieldElement ssk, byte[] randomSeed) {
     this.myId = myId;
     this.numberOfPlayers = numberOfPlayers;
     this.tripleNetwork = tripleNetwork;
@@ -80,6 +74,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     this.maxBitLength = maxBitLength;
     this.batchSize = batchSize;
     this.ssk = ssk;
+    this.randomSeed = randomSeed;
   }
 
   private static FieldElement createRandomSsk(int myId, BigInteger modulus, int maxBitLength,
@@ -114,16 +109,8 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     int numLeftFactors = 3;
     Network network = tripleNetwork.get();
     mascot = new Mascot(new MascotResourcePoolImpl(myId, partyIds,
-        new PaddingAesCtrDrbg(new byte[] {7, 127, -1}, prgSeedLength), getModulus(), maxBitLength,
-        maxBitLength, prgSeedLength, numLeftFactors) {
-      @Override
-      public RotBatch createRot(int otherId, Network network) {
-        Ot ot = new DummyOt(otherId, network);
-        OtExtensionResourcePool otResources = new OtExtensionResourcePoolImpl(getMyId(), otherId,
-            getModBitLength(), getLambdaSecurityParam(), getRandomGenerator());
-        return new BristolRotBatch(otResources, network, ot);
-      }
-    }, network, ssk);
+        new PaddingAesCtrDrbg(randomSeed, prgSeedLength), getModulus(), maxBitLength,
+        maxBitLength, prgSeedLength, numLeftFactors), network, ssk);
   }
 
   @Override
