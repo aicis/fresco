@@ -7,7 +7,6 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -18,11 +17,6 @@ import java.util.List;
  * random OT protocol to construct random messages in a batch. Then use each of
  * these messages as a seed to a PRG and extend them to a sufficient amount of
  * bits.
- *
- * @author jot2re
- *
- * @param <T>
- *          The objects to send/receive
  */
 public class BristolRotBatch implements RotBatch {
   private final RotSender sender;
@@ -39,8 +33,7 @@ public class BristolRotBatch implements RotBatch {
    * @param ot
    *          The OT functionality to use for seed OTs
    */
-  public BristolRotBatch(OtExtensionResourcePool resources, Network network,
-      Ot ot) {
+  public BristolRotBatch(OtExtensionResourcePool resources, Network network, Ot ot) {
     Rot rot = new Rot(resources, network, ot);
     this.sender = rot.getSender();
     this.receiver = rot.getReceiver();
@@ -63,7 +56,7 @@ public class BristolRotBatch implements RotBatch {
   @Override
   public List<Pair<StrictBitVector, StrictBitVector>> send(int numMessages,
       int sizeOfEachMessage) {
-    // Initialize the underlying functionalities if needed
+    // Initialize the underlying functionality if needed
     if (!sender.isInitialized()) {
       sender.initialize();
     }
@@ -90,7 +83,7 @@ public class BristolRotBatch implements RotBatch {
   @Override
   public List<StrictBitVector> receive(StrictBitVector choiceBits,
       int sizeOfEachMessage) {
-    // Initialize the underlying functionalities if needed
+    // Initialize the underlying functionality if needed
     if (!receiver.isInitialized()) {
       receiver.initialize();
     }
@@ -158,8 +151,7 @@ public class BristolRotBatch implements RotBatch {
    *          Size in bits of the message to construct
    * @return A random messages generated using a PRG
    */
-  private StrictBitVector computeRandomMessage(StrictBitVector seed,
-      int sizeOfMessage) {
+  private StrictBitVector computeRandomMessage(StrictBitVector seed, int sizeOfMessage) {
     Drbg rand = new AesCtrDrbg(seed.toByteArray());
     return new StrictBitVector(sizeOfMessage, rand);
   }
