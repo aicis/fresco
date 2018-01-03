@@ -25,6 +25,26 @@
       <artifactId>core</artifactId>
       <version>${fresco-version}</version>
     </dependency>
+    <dependency>
+      <groupId>scapi</groupId>
+      <artifactId>scapi</artifactId>
+      <!-- Normally version should be e.g. 2.4.0, but we currently use a custom version
+           since we need the most recent changes for authenticated channels to work,
+           see https://github.com/cryptobiu/scapi/issues/71. -->
+      <version>dfc8b2da384d87310c8f755b301bc085b1557671</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-exec</artifactId>
+      <version>1.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcprov-jdk15on</artifactId>
+      <version>1.53</version>
+    </dependency>
+    <!-- Scapi end -->
+
     <!-- TODO Proper handling would imply these utilities to be present in a seperate module -->
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>
