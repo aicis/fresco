@@ -19,6 +19,7 @@ import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import java.math.BigInteger;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -51,7 +52,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       Function<Integer, SpdzSInt[]> preprocessedValues) {
     return new SpdzMascotDataSupplier(myId, numberOfPlayers, tripleNetwork,
         ModulusFinder.findSuitableModulus(modBitLength), modBitLength, preprocessedValues, 256,
-        1024);
+        16);
   }
 
   private SpdzMascotDataSupplier(int myId, int numberOfPlayers, Supplier<Network> tripleNetwork,
@@ -138,7 +139,10 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
 
   @Override
   public SpdzSInt[] getNextExpPipe() {
-    return preprocessedValues.apply(maxBitLength);
+    logger.debug("Getting another exp pipe");
+    SpdzSInt[] pipe = preprocessedValues.apply(maxBitLength);
+    logger.debug("Got another exp pipe");
+    return pipe;
   }
 
   @Override

@@ -19,6 +19,12 @@ public class TestSpdzComparison extends AbstractSpdzTest {
     runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2);
   }
+
+  @Test
+  public void testCompareLTSequentialMascot() throws Exception {
+    runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
+        PreprocessingStrategy.MASCOT, 2, 16);
+  }
   
   @Test
   @Ignore("This is not tested on windows and does not work here")
@@ -44,6 +50,12 @@ public class TestSpdzComparison extends AbstractSpdzTest {
   }
 
   @Test
+  public void testCompareEQSequentialBatchedMascot() throws Exception {
+    runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL,
+        PreprocessingStrategy.MASCOT, 2, 16);
+  }
+
+  @Test
   public void test_isSorted() throws Exception {
     runTest(new SortingTests.TestIsSorted<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2);
@@ -57,6 +69,8 @@ public class TestSpdzComparison extends AbstractSpdzTest {
 
   @Test
   public void test_Sort() throws Exception {
+//    runTest(new SortingTests.TestSort<>(), EvaluationStrategy.SEQUENTIAL,
+//        PreprocessingStrategy.MASCOT, 2, 16);
     runTest(new SortingTests.TestSort<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2);
   }

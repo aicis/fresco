@@ -59,7 +59,7 @@ public class MascotDemo {
   }
 
   MascotResourcePool defaultResourcePool(Integer myId, List<Integer> partyIds) {
-    int modBitLength = 128;
+    int modBitLength = 256;
     BigInteger modulus = ModulusFinder.findSuitableModulus(modBitLength);
     int lambdaSecurityParam = 128;
     int prgSeedLength = 256;

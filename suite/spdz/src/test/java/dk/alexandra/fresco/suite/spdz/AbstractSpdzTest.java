@@ -22,6 +22,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
+import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
@@ -43,6 +44,7 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageConstants;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
+import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -57,6 +59,7 @@ public abstract class AbstractSpdzTest {
 
   protected Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
   private int maxBitLength = 150; // default
+  private List<Closeable> openedNetworks = new ArrayList<>(); // work-around for left-open extra networks
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
@@ -121,6 +124,13 @@ public abstract class AbstractSpdzTest {
     for (PerformanceLogger pl : performanceLoggers.values()) {
       printer.printPerformanceLog(pl);
     }
+    // TODO HACK HACK HACK
+    for (Closeable net : openedNetworks) {
+      ExceptionConverter.safe(() -> {
+        net.close();
+        return null;
+      }, "Failed closing extra network");
+    }
   }
 
   protected void runTest(
@@ -175,9 +185,6 @@ public abstract class AbstractSpdzTest {
                 tripleSupplier = SpdzMascotDataSupplier
                     .createSimpleSupplier(myId, numberOfParties, () -> pipeNetwork, maxBitLength,
                         null);
-                tripleSupplier = SpdzMascotDataSupplier
-                    .createSimpleSupplier(myId, ports.size(), () -> pipeNetwork, maxBitLength,
-                        null);
               }
               DRes<List<DRes<SInt>>> pipe = createPipe(myId, ports, pipeLength, pipeNetwork,
                   tripleSupplier);
@@ -207,7 +214,10 @@ public abstract class AbstractSpdzTest {
   }
 
   private KryoNetNetwork createExtraNetwork(int myId, List<Integer> ports, int portOffset) {
-    return new KryoNetNetwork(new MascotNetworkConfiguration(myId, ports, portOffset));
+    KryoNetNetwork net = new KryoNetNetwork(
+        new MascotNetworkConfiguration(myId, ports, portOffset));
+    openedNetworks.add((Closeable) net);
+    return net;
   }
 
   private void evaluate(ProtocolBuilderNumeric spdzBuilder, SpdzResourcePool tripleResourcePool,
