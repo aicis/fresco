@@ -39,35 +39,29 @@ public class TestRuntime {
   }
 
   /**
-   * Closes the networks on the contexts and shuts down the executor. <br>
-   * Call this after test.
+   * Closes the networks on the contexts and shuts down the executor. <br> Call this after test.
    */
   public void shutdown() {
-    // TODO clean up
     if (!executorInitialized) {
       throw new IllegalStateException("Executor not initialized, nothing to shut down.");
     }
     executorInitialized = false;
-    try {
-      for (MascotTestContext context : contexts.values()) {
+    for (MascotTestContext context : contexts.values()) {
+      ExceptionConverter.safe(() -> {
         ((Closeable) context.getNetwork()).close();
-      }
-    } catch (IOException e) {
-      logger.error("Network shutdown failed");
-      e.printStackTrace();
+        return null;
+      }, "Closing network failed");
     }
     executor.shutdown();
-    try {
+    ExceptionConverter.safe(()-> {
       executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-    } catch (InterruptedException e) {
-      logger.error("Executor shutdown failed");
-      e.printStackTrace();
-    }
+      return null;
+    }, "Executor shutdown failed");
   }
 
   /**
    * Creates a new executor service with fixed-size thread pool.
-   * 
+   *
    * @param numParties number of threads in thread pool (one per party)
    */
   private void initalizeExecutor(int numParties) {
@@ -79,9 +73,9 @@ public class TestRuntime {
   }
 
   /**
-   * Invokes tasks and unwraps futures. <br>
-   * Uses {@link ExceptionConverter#safe(Callable, String)} to convert checked exceptions.
-   * 
+   * Invokes tasks and unwraps futures. <br> Uses {@link ExceptionConverter#safe(Callable, String)}
+   * to convert checked exceptions.
+   *
    * @param tasks task to invoke
    * @return results of tasks
    */
@@ -97,7 +91,7 @@ public class TestRuntime {
 
   /**
    * Given a ready executor, creates as Mascot test context for each party.
-   * 
+   *
    * @param partyIds the parties
    * @param modulus the modulus
    * @param modBitLength length of modulus
@@ -122,10 +116,9 @@ public class TestRuntime {
   }
 
   /**
-   * Runs the task defined for each party. <br>
-   * Currently assumes that all parties receive the same type of output. This method assumes that
-   * tasks are ordered by party.
-   * 
+   * Runs the task defined for each party. <br> Currently assumes that all parties receive the same
+   * type of output. This method assumes that tasks are ordered by party.
+   *
    * @param tasks tasks to run
    * @return result of tasks
    */
@@ -138,7 +131,7 @@ public class TestRuntime {
 
   /**
    * Initializes a single context for a party.
-   * 
+   *
    * @param myId this party's id
    * @param partyIds the parties
    * @param modulus the modulus
@@ -158,7 +151,7 @@ public class TestRuntime {
 
   /**
    * Check if executor has been initialized.
-   * 
+   *
    * @return is initialized
    */
   public boolean isExecutorInitialized() {
