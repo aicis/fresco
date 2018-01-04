@@ -34,6 +34,7 @@ public class TestSpdzMiMC extends AbstractSpdzTest {
   @Test
   public void testMimcWithMascot() {
     runTest(new MiMCTests.TestMiMCEncDec<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        PreprocessingStrategy.MASCOT, 2);
+        PreprocessingStrategy.MASCOT, 2, 16);
   }
+
 }

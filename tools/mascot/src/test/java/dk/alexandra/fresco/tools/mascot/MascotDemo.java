@@ -7,10 +7,9 @@ import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
-import dk.alexandra.fresco.tools.mascot.Mascot;
-import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import java.io.Closeable;
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -60,8 +59,8 @@ public class MascotDemo {
   }
 
   MascotResourcePool defaultResourcePool(Integer myId, List<Integer> partyIds) {
-    BigInteger modulus = new BigInteger("340282366920938463463374607431768211283");
     int modBitLength = 128;
+    BigInteger modulus = ModulusFinder.findSuitableModulus(modBitLength);
     int lambdaSecurityParam = 128;
     int prgSeedLength = 256;
     int numLeftFactors = 3;

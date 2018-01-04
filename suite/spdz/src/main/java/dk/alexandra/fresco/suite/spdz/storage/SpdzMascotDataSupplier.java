@@ -16,6 +16,7 @@ import dk.alexandra.fresco.tools.mascot.field.InputMask;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.List;
@@ -46,9 +47,11 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   private byte[] randomSeed;
 
   public static SpdzMascotDataSupplier createSimpleSupplier(int myId, int numberOfPlayers,
-      Supplier<Network> tripleNetwork, Function<Integer, SpdzSInt[]> preprocessedValues) {
-    return new SpdzMascotDataSupplier(myId, numberOfPlayers, tripleNetwork, new BigInteger("65519"),
-        16, preprocessedValues, 256, 1024);
+      Supplier<Network> tripleNetwork, int modBitLength,
+      Function<Integer, SpdzSInt[]> preprocessedValues) {
+    return new SpdzMascotDataSupplier(myId, numberOfPlayers, tripleNetwork,
+        ModulusFinder.findSuitableModulus(modBitLength), modBitLength, preprocessedValues, 256,
+        1024);
   }
 
   private SpdzMascotDataSupplier(int myId, int numberOfPlayers, Supplier<Network> tripleNetwork,

@@ -3,6 +3,7 @@ package dk.alexandra.fresco.suite.spdz;
 import static dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy.DUMMY;
 import static dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy.MASCOT;
 
+import com.oracle.net.Sdp;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
@@ -55,6 +56,7 @@ import java.util.function.Function;
 public abstract class AbstractSpdzTest {
 
   protected Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
+  private int maxBitLength = 150; // default
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
@@ -69,13 +71,6 @@ public abstract class AbstractSpdzTest {
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * (noOfParties - 1));
-    }
-
-    int maxBitLength;
-    if (preProStrat == MASCOT) {
-      maxBitLength = 16;
-    } else {
-      maxBitLength = 150;
     }
 
     Map<Integer, NetworkConfiguration> netConf =
@@ -128,15 +123,31 @@ public abstract class AbstractSpdzTest {
     }
   }
 
+  protected void runTest(
+      TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
+      EvaluationStrategy evalStrategy, PreprocessingStrategy preProStrat, int noOfParties,
+      boolean logPerformance, int maxBitLength) {
+    this.maxBitLength = maxBitLength;
+    runTest(f, evalStrategy, preProStrat, noOfParties, logPerformance);
+  }
+
+  protected void runTest(
+      TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
+      EvaluationStrategy evalStrategy, PreprocessingStrategy preProStrat, int noOfParties,
+      int maxBitLength) {
+    this.maxBitLength = maxBitLength;
+    runTest(f, evalStrategy, preProStrat, noOfParties, false);
+  }
+
   DRes<List<DRes<SInt>>> createPipe(
       int myId, List<Integer> ports, int pipeLength,
-      KryoNetNetwork pipeNetwork, SpdzMascotDataSupplier trippleSupplier) {
+      KryoNetNetwork pipeNetwork, SpdzMascotDataSupplier tripleSupplier) {
 
     ProtocolBuilderNumeric sequential = new SpdzBuilder(
-        new BasicNumericContext(128, trippleSupplier.getModulus(), myId, ports.size()))
+        new BasicNumericContext(maxBitLength, tripleSupplier.getModulus(), myId, ports.size()))
         .createSequential();
     SpdzResourcePoolImpl tripleResourcePool =
-        new SpdzResourcePoolImpl(myId, ports.size(), null, new SpdzStorageImpl(trippleSupplier));
+        new SpdzResourcePoolImpl(myId, ports.size(), null, new SpdzStorageImpl(tripleSupplier));
 
     DRes<List<DRes<SInt>>> exponentiationPipe =
         new DefaultPreprocessedValues(sequential).getExponentiationPipe(pipeLength);
@@ -151,21 +162,25 @@ public abstract class AbstractSpdzTest {
       supplier = new SpdzDummyDataSupplier(myId, numberOfParties);
     } else if (preproStrat == MASCOT) {
       supplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, numberOfParties,
-          () -> createExtraNetwork(myId, ports, 457),
+          () -> createExtraNetwork(myId, ports, 457), maxBitLength,
           new Function<Integer, SpdzSInt[]>() {
 
-            private SpdzMascotDataSupplier trippleSupplier;
+            private SpdzMascotDataSupplier tripleSupplier;
             private KryoNetNetwork pipeNetwork;
 
             @Override
             public SpdzSInt[] apply(Integer pipeLength) {
               if (pipeNetwork == null) {
                 pipeNetwork = createExtraNetwork(myId, ports, 667);
-                trippleSupplier = SpdzMascotDataSupplier
-                    .createSimpleSupplier(myId, ports.size(), () -> pipeNetwork, null);
+                tripleSupplier = SpdzMascotDataSupplier
+                    .createSimpleSupplier(myId, numberOfParties, () -> pipeNetwork, maxBitLength,
+                        null);
+                tripleSupplier = SpdzMascotDataSupplier
+                    .createSimpleSupplier(myId, ports.size(), () -> pipeNetwork, maxBitLength,
+                        null);
               }
               DRes<List<DRes<SInt>>> pipe = createPipe(myId, ports, pipeLength, pipeNetwork,
-                  trippleSupplier);
+                  tripleSupplier);
               return computeSInts(pipe);
             }
           });
@@ -198,7 +213,7 @@ public abstract class AbstractSpdzTest {
   private void evaluate(ProtocolBuilderNumeric spdzBuilder, SpdzResourcePool tripleResourcePool,
       Network network) {
     BatchedStrategy<SpdzResourcePool> batchedStrategy = new BatchedStrategy<>();
-    SpdzProtocolSuite spdzProtocolSuite = new SpdzProtocolSuite(128);
+    SpdzProtocolSuite spdzProtocolSuite = new SpdzProtocolSuite(maxBitLength);
     BatchedProtocolEvaluator<SpdzResourcePool> batchedProtocolEvaluator =
         new BatchedProtocolEvaluator<>(batchedStrategy, spdzProtocolSuite);
     batchedProtocolEvaluator.eval(spdzBuilder.build(), tripleResourcePool, network);
