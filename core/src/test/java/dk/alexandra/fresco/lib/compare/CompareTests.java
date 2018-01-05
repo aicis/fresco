@@ -172,9 +172,19 @@ public class CompareTests {
             // check (mod / 2 + 2) != 2
             DRes<SInt> compResultFour = comparison
                 .equals(input.known(halfModPlus(modulus, "2")), input.known(new BigInteger("2")));
+            // check -1 == -1
+            DRes<SInt> compResultFive = comparison
+                .equals(input.known(BigInteger.valueOf(-1)), input.known(BigInteger.valueOf(-1)));
+            // check -1 != -2
+            DRes<SInt> compResultSix = comparison
+                .equals(input.known(BigInteger.valueOf(-1)), input.known(BigInteger.valueOf(-2)));
+            // check -1 != 1
+            DRes<SInt> compResultSeven = comparison
+                .equals(input.known(BigInteger.valueOf(-1)), input.known(BigInteger.valueOf(1)));
 
             List<DRes<SInt>> comps = Arrays
-                .asList(compResultOne, compResultTwo, compResultThree, compResultFour);
+                .asList(compResultOne, compResultTwo, compResultThree, compResultFour,
+                    compResultFive, compResultSix, compResultSeven);
             DRes<List<DRes<BigInteger>>> opened = builder.collections().openList(() -> comps);
 
             return builder.seq((seq) -> {
@@ -186,6 +196,9 @@ public class CompareTests {
           Assert.assertEquals(BigInteger.ONE, output.get(1));
           Assert.assertEquals(BigInteger.ZERO, output.get(2));
           Assert.assertEquals(BigInteger.ZERO, output.get(3));
+          Assert.assertEquals(BigInteger.ONE, output.get(4));
+          Assert.assertEquals(BigInteger.ZERO, output.get(5));
+          Assert.assertEquals(BigInteger.ZERO, output.get(6));
         }
       };
     }
