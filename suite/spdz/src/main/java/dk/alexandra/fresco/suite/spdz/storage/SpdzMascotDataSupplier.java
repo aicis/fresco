@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
@@ -16,10 +17,8 @@ import dk.alexandra.fresco.tools.mascot.field.InputMask;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
-import dk.alexandra.fresco.framework.util.ModulusFinder;
 import java.math.BigInteger;
 import java.util.ArrayDeque;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -81,7 +80,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     this.randomSeed = randomSeed;
   }
 
-  private static FieldElement createRandomSsk(int myId, BigInteger modulus, int maxBitLength,
+   static FieldElement createRandomSsk(int myId, BigInteger modulus, int maxBitLength,
       int prgSeedLength) {
     byte[] seedBytes = new byte[32];
     seedBytes[0] = (byte) myId;
