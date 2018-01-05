@@ -21,12 +21,6 @@ public class TestSpdzComparison extends AbstractSpdzTest {
   }
 
   @Test
-  public void testCompareLTSequentialMascot() {
-    runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
-        PreprocessingStrategy.MASCOT, 2, 16);
-  }
-  
-  @Test
   @Ignore("This is not tested on windows and does not work here")
   public void test_compareLT_Sequential_static() throws Exception {
     int noOfThreads = 1;
@@ -50,8 +44,14 @@ public class TestSpdzComparison extends AbstractSpdzTest {
   }
 
   @Test
-  public void testCompareEQSequentialBatchedMascot() {
-    runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL,
+  public void testCompareEQEdgeCasesSequential() {
+    runTest(new CompareTests.TestCompareEQEdgeCases<>(), EvaluationStrategy.SEQUENTIAL,
+        PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
+  public void testCompareEQEdgeCasesSequentialMascot() {
+    runTest(new CompareTests.TestCompareEQEdgeCases<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.MASCOT, 2, 16);
   }
 
@@ -69,8 +69,6 @@ public class TestSpdzComparison extends AbstractSpdzTest {
 
   @Test
   public void test_Sort() {
-//    runTest(new SortingTests.TestSort<>(), EvaluationStrategy.SEQUENTIAL,
-//        PreprocessingStrategy.MASCOT, 2, 16);
     runTest(new SortingTests.TestSort<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2);
   }
@@ -86,4 +84,17 @@ public class TestSpdzComparison extends AbstractSpdzTest {
     runTest(new TestFindDuplicatesOne<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2);
   }
+
+  @Test
+  public void testCompareLTSequentialMascot() {
+    runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
+        PreprocessingStrategy.MASCOT, 2, 16);
+  }
+
+  @Test
+  public void testCompareEQSequentialBatchedMascot() {
+    runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL,
+        PreprocessingStrategy.MASCOT, 2, 16);
+  }
+
 }

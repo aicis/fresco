@@ -25,7 +25,8 @@ public class CompareTests {
   public static class CompareAndSwapTest<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
 
-    public CompareAndSwapTest() {}
+    public CompareAndSwapTest() {
+    }
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
@@ -35,33 +36,32 @@ public class CompareTests {
           List<Boolean> rawLeft = Arrays.asList(ByteAndBitConverter.toBoolean("ee"));
           List<Boolean> rawRight = Arrays.asList(ByteAndBitConverter.toBoolean("00"));
 
-
           Application<List<List<Boolean>>, ProtocolBuilderBinary> app =
               producer -> producer.seq(seq -> {
-            List<DRes<SBool>> left =
-                rawLeft.stream().map(seq.binary()::known).collect(Collectors.toList());
-            List<DRes<SBool>> right =
-                rawRight.stream().map(seq.binary()::known).collect(Collectors.toList());
+                List<DRes<SBool>> left =
+                    rawLeft.stream().map(seq.binary()::known).collect(Collectors.toList());
+                List<DRes<SBool>> right =
+                    rawRight.stream().map(seq.binary()::known).collect(Collectors.toList());
 
-            DRes<List<List<DRes<SBool>>>> compared =
-                new CompareAndSwap(left, right).buildComputation(seq);
-            return compared;
-          }).seq((seq, opened) -> {
-            List<List<DRes<Boolean>>> result = new ArrayList<>();
-            for (List<DRes<SBool>> entry : opened) {
-              result.add(entry.stream().map(DRes::out).map(seq.binary()::open)
-                  .collect(Collectors.toList()));
-            }
+                DRes<List<List<DRes<SBool>>>> compared =
+                    new CompareAndSwap(left, right).buildComputation(seq);
+                return compared;
+              }).seq((seq, opened) -> {
+                List<List<DRes<Boolean>>> result = new ArrayList<>();
+                for (List<DRes<SBool>> entry : opened) {
+                  result.add(entry.stream().map(DRes::out).map(seq.binary()::open)
+                      .collect(Collectors.toList()));
+                }
 
-            return () -> result;
-          }).seq((seq, opened) -> {
-            List<List<Boolean>> result = new ArrayList<>();
-            for (List<DRes<Boolean>> entry : opened) {
-              result.add(entry.stream().map(DRes::out).collect(Collectors.toList()));
-            }
+                return () -> result;
+              }).seq((seq, opened) -> {
+                List<List<Boolean>> result = new ArrayList<>();
+                for (List<DRes<Boolean>> entry : opened) {
+                  result.add(entry.stream().map(DRes::out).collect(Collectors.toList()));
+                }
 
-            return () -> result;
-          });
+                return () -> result;
+              });
 
           List<List<Boolean>> res = runApplication(app);
 
@@ -137,4 +137,71 @@ public class CompareTests {
       };
     }
   }
+
+  public static class TestCompareEQEdgeCases<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    // returns modulus / 2 + added
+    private BigInteger halfModPlus(BigInteger modulus, String added) {
+      return modulus.divide(BigInteger.valueOf(2)).add(new BigInteger(added));
+    }
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() throws Exception {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = builder -> {
+            Numeric input = builder.numeric();
+            Comparison comparison = builder.comparison();
+            BigInteger modulus = builder.getBasicNumericContext().getModulus();
+
+            // check (mod / 2) == (mod / 2)
+            DRes<SInt> compResultOne = comparison
+                .equals(input.known(halfModPlus(modulus, "0")),
+                    input.known(halfModPlus(modulus, "0")));
+            // check (mod / 2 + 1) == (mod / 2 + 1)
+            DRes<SInt> compResultTwo = comparison
+                .equals(input.known(halfModPlus(modulus, "1")),
+                    input.known(halfModPlus(modulus, "1")));
+            // check (mod / 2 + 1) != (mod / 2 + 2)
+            DRes<SInt> compResultThree = comparison
+                .equals(input.known(halfModPlus(modulus, "1")),
+                    input.known(halfModPlus(modulus, "2")));
+            // check (mod / 2 + 2) != 2
+            DRes<SInt> compResultFour = comparison
+                .equals(input.known(halfModPlus(modulus, "2")), input.known(new BigInteger("2")));
+            // check -1 == -1
+            DRes<SInt> compResultFive = comparison
+                .equals(input.known(BigInteger.valueOf(-1)), input.known(BigInteger.valueOf(-1)));
+            // check -1 != -2
+            DRes<SInt> compResultSix = comparison
+                .equals(input.known(BigInteger.valueOf(-1)), input.known(BigInteger.valueOf(-2)));
+            // check -1 != 1
+            DRes<SInt> compResultSeven = comparison
+                .equals(input.known(BigInteger.valueOf(-1)), input.known(BigInteger.valueOf(1)));
+
+            List<DRes<SInt>> comps = Arrays
+                .asList(compResultOne, compResultTwo, compResultThree, compResultFour,
+                    compResultFive, compResultSix, compResultSeven);
+            DRes<List<DRes<BigInteger>>> opened = builder.collections().openList(() -> comps);
+
+            return builder.seq((seq) -> {
+              return () -> opened.out().stream().map(DRes::out).collect(Collectors.toList());
+            });
+          };
+          List<BigInteger> output = runApplication(app);
+          Assert.assertEquals(BigInteger.ONE, output.get(0));
+          Assert.assertEquals(BigInteger.ONE, output.get(1));
+          Assert.assertEquals(BigInteger.ZERO, output.get(2));
+          Assert.assertEquals(BigInteger.ZERO, output.get(3));
+          Assert.assertEquals(BigInteger.ONE, output.get(4));
+          Assert.assertEquals(BigInteger.ZERO, output.get(5));
+          Assert.assertEquals(BigInteger.ZERO, output.get(6));
+        }
+      };
+    }
+  }
+
 }
