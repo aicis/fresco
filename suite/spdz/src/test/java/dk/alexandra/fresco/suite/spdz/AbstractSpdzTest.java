@@ -3,9 +3,7 @@ package dk.alexandra.fresco.suite.spdz;
 import static dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy.DUMMY;
 import static dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy.MASCOT;
 
-import com.oracle.net.Sdp;
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.numeric.DefaultPreprocessedValues;
@@ -22,7 +20,6 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
@@ -44,7 +41,6 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageConstants;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
-import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,7 +55,6 @@ public abstract class AbstractSpdzTest {
 
   protected Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
   private int maxBitLength = 150; // default
-  private List<Closeable> openedNetworks = new ArrayList<>(); // work-around for left-open extra networks
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
@@ -75,6 +70,8 @@ public abstract class AbstractSpdzTest {
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * (noOfParties - 1));
     }
+    KryoNetManager tripleManager = new KryoNetManager(ports);
+    KryoNetManager expPipeManager = new KryoNetManager(ports);
 
     Map<Integer, NetworkConfiguration> netConf =
         TestConfiguration.getNetworkConfigurations(noOfParties, ports);
@@ -106,16 +103,17 @@ public abstract class AbstractSpdzTest {
 
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
-              () -> createResourcePool(playerId, noOfParties, preProStrat, ports), () -> {
-            KryoNetNetwork kryoNetwork = new KryoNetNetwork(netConf.get(playerId));
-            if (logPerformance) {
-              NetworkLoggingDecorator network = new NetworkLoggingDecorator(kryoNetwork);
-              aggregate.add(network);
-              return network;
-            } else {
-              return kryoNetwork;
-            }
-          });
+              () -> createResourcePool(playerId, noOfParties, preProStrat, tripleManager, expPipeManager),
+              () -> {
+                KryoNetNetwork kryoNetwork = new KryoNetNetwork(netConf.get(playerId));
+                if (logPerformance) {
+                  NetworkLoggingDecorator network = new NetworkLoggingDecorator(kryoNetwork);
+                  aggregate.add(network);
+                  return network;
+                } else {
+                  return kryoNetwork;
+                }
+              });
       conf.put(playerId, ttc);
       performanceLoggers.putIfAbsent(playerId, aggregate);
     }
@@ -124,13 +122,8 @@ public abstract class AbstractSpdzTest {
     for (PerformanceLogger pl : performanceLoggers.values()) {
       printer.printPerformanceLog(pl);
     }
-    // TODO HACK HACK HACK
-    for (Closeable net : openedNetworks) {
-      ExceptionConverter.safe(() -> {
-        net.close();
-        return null;
-      }, "Failed closing extra network");
-    }
+    tripleManager.close();
+    expPipeManager.close();
   }
 
   protected void runTest(
@@ -150,14 +143,15 @@ public abstract class AbstractSpdzTest {
   }
 
   DRes<List<DRes<SInt>>> createPipe(
-      int myId, List<Integer> ports, int pipeLength,
-      KryoNetNetwork pipeNetwork, SpdzMascotDataSupplier tripleSupplier) {
+      int myId, int noOfPlayers, int pipeLength,
+      KryoNetNetwork pipeNetwork,
+      SpdzMascotDataSupplier tripleSupplier) {
 
     ProtocolBuilderNumeric sequential = new SpdzBuilder(
-        new BasicNumericContext(maxBitLength, tripleSupplier.getModulus(), myId, ports.size()))
+        new BasicNumericContext(maxBitLength, tripleSupplier.getModulus(), myId, noOfPlayers))
         .createSequential();
     SpdzResourcePoolImpl tripleResourcePool =
-        new SpdzResourcePoolImpl(myId, ports.size(), null, new SpdzStorageImpl(tripleSupplier));
+        new SpdzResourcePoolImpl(myId, noOfPlayers, null, new SpdzStorageImpl(tripleSupplier));
 
     DRes<List<DRes<SInt>>> exponentiationPipe =
         new DefaultPreprocessedValues(sequential).getExponentiationPipe(pipeLength);
@@ -166,13 +160,15 @@ public abstract class AbstractSpdzTest {
   }
 
   private SpdzResourcePool createResourcePool(int myId, int numberOfParties,
-      PreprocessingStrategy preproStrat, List<Integer> ports) {
+      PreprocessingStrategy preProStrat,
+      KryoNetManager tripleGenerator,
+      KryoNetManager expPipeGenerator) {
     SpdzDataSupplier supplier;
-    if (preproStrat == DUMMY) {
+    if (preProStrat == DUMMY) {
       supplier = new SpdzDummyDataSupplier(myId, numberOfParties);
-    } else if (preproStrat == MASCOT) {
+    } else if (preProStrat == MASCOT) {
       supplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, numberOfParties,
-          () -> createExtraNetwork(myId, ports, 457), maxBitLength,
+          () -> tripleGenerator.createExtraNetwork(myId), maxBitLength,
           new Function<Integer, SpdzSInt[]>() {
 
             private SpdzMascotDataSupplier tripleSupplier;
@@ -181,12 +177,14 @@ public abstract class AbstractSpdzTest {
             @Override
             public SpdzSInt[] apply(Integer pipeLength) {
               if (pipeNetwork == null) {
-                pipeNetwork = createExtraNetwork(myId, ports, 667);
+                pipeNetwork = expPipeGenerator.createExtraNetwork(myId);
                 tripleSupplier = SpdzMascotDataSupplier
-                    .createSimpleSupplier(myId, numberOfParties, () -> pipeNetwork, maxBitLength,
+                    .createSimpleSupplier(myId, numberOfParties, () -> pipeNetwork,
+                        maxBitLength,
                         null);
               }
-              DRes<List<DRes<SInt>>> pipe = createPipe(myId, ports, pipeLength, pipeNetwork,
+              DRes<List<DRes<SInt>>> pipe = createPipe(myId, numberOfParties, pipeLength,
+                  pipeNetwork,
                   tripleSupplier);
               return computeSInts(pipe);
             }
@@ -213,13 +211,6 @@ public abstract class AbstractSpdzTest {
     return result;
   }
 
-  private KryoNetNetwork createExtraNetwork(int myId, List<Integer> ports, int portOffset) {
-    KryoNetNetwork net = new KryoNetNetwork(
-        new MascotNetworkConfiguration(myId, ports, portOffset));
-    openedNetworks.add((Closeable) net);
-    return net;
-  }
-
   private void evaluate(ProtocolBuilderNumeric spdzBuilder, SpdzResourcePool tripleResourcePool,
       Network network) {
     BatchedStrategy<SpdzResourcePool> batchedStrategy = new BatchedStrategy<>();
@@ -229,36 +220,4 @@ public abstract class AbstractSpdzTest {
     batchedProtocolEvaluator.eval(spdzBuilder.build(), tripleResourcePool, network);
   }
 
-  private class MascotNetworkConfiguration implements NetworkConfiguration {
-
-    private final int myId;
-    private final List<Integer> usedPorts;
-    private final int portOffset;
-
-    private MascotNetworkConfiguration(int myId, List<Integer> usedPorts, int portOffset) {
-      this.myId = myId;
-      this.usedPorts = usedPorts;
-      this.portOffset = portOffset;
-    }
-
-    @Override
-    public Party getParty(int id) {
-      return new Party(id, "localhost", usedPorts.get(id - 1) + portOffset);
-    }
-
-    @Override
-    public Party getMe() {
-      return getParty(myId);
-    }
-
-    @Override
-    public int getMyId() {
-      return myId;
-    }
-
-    @Override
-    public int noOfParties() {
-      return usedPorts.size();
-    }
-  }
 }
