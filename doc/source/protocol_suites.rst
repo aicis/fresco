@@ -11,14 +11,14 @@ given suite in a real-world application.
 
 The following table gives a rough comparison of the protocol suites.
 
-================== =======  =========== =====================  ========
-Suite	             Parties    Security  Model of Computation   Reactive
-================== =======  =========== =====================  ========
-DUMMY_BOOL         1+	      none        Boolean  	             yes
-DUMMY_ARITHMETIC   1+	      none        Arithmetic 	           yes
-TinyTables         2	      semi-honest Boolean 	             yes
-SPDZ	             2+	      malicious   Arithmetic 	           yes
-================== =======  =========== =====================  ========
+==================  =======  ===========  =====================  ========
+Suite               Parties  Security     Model of Computation   Reactive
+==================  =======  ===========  =====================  ========
+DUMMY_BOOL          1+	     none         Boolean                yes
+DUMMY_ARITHMETIC    1+	     none         Arithmetic             yes
+TinyTables          2        semi-honest  Boolean                yes
+SPDZ                2+       malicious    Arithmetic             yes
+==================  =======  ===========  =====================  ========
 
 Whether to choose a suite that supports arithmetic or Boolean circuits
 depends on your particular application. As a rule of thumb, if your
