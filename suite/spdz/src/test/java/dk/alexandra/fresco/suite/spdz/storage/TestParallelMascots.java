@@ -9,6 +9,7 @@ import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -112,11 +113,20 @@ public class TestParallelMascots {
     invoke(mascotCreators);
   }
 
-  public <T> void invoke(List<Callable<T>> mascotCreators) throws Exception {
-    List<Future<T>> futures = executorService.invokeAll(mascotCreators);
-    for (Future<T> future : futures) {
-      T result = future.get();
-      Assert.assertThat(result, IsNull.notNullValue());
+  private <T> void invoke(List<Callable<T>> mascotCreators) throws Exception {
+    List<Future<T>> futures =
+        mascotCreators.stream().map((task) -> executorService.submit(task))
+            .collect(Collectors.toList());
+    while (!futures.isEmpty()) {
+      for (Iterator<Future<T>> iterator = futures.iterator(); iterator.hasNext(); ) {
+        Future<T> future = iterator.next();
+        if (future.isDone()) {
+          T result = future.get();
+          Assert.assertThat(result, IsNull.notNullValue());
+          iterator.remove();
+        }
+      }
+      Thread.sleep(100);
     }
   }
 }
