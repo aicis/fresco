@@ -3,8 +3,7 @@ Introduction
 ============
 
 FRESCO is a FRamework for Efficient Secure COmputation. It is designed to make it easy and efficient
-to write prototype applications based on secure computation. We hope that it will grow mature enough
-to be used for production systems, too.
+to write prototype applications based on secure computation.
 
 
 What is Secure Computation?
