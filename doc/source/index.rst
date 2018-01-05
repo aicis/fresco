@@ -4,10 +4,15 @@
    contain the root `toctree` directive.
   
 
-Welcome to the Documantation for FRESCO
-=======================================
+FRESCO
+======
 
-.. Add short intro
+FRESCO is a FRamework for Efficient and Secure COmputation, written in Java and licensed under the
+open source MIT license.
+
+The FRESCO source code is available at https://github.com/aicis/fresco.
+
+
 
 Contents:
 ---------
@@ -18,20 +23,6 @@ Contents:
    intro
    install
    quickstart
-   design
    protocol_suites
-   standard_lib
-   releases
    developers
-   glossary
-   license
-   litterature
    todo
-
-
-Indices and tables
-------------------
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
