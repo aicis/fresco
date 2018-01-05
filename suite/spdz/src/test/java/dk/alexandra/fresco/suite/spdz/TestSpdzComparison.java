@@ -15,13 +15,13 @@ import org.junit.Test;
 public class TestSpdzComparison extends AbstractSpdzTest {
 
   @Test
-  public void test_compareLT_Sequential() throws Exception {
+  public void test_compareLT_Sequential() {
     runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void testCompareLTSequentialMascot() throws Exception {
+  public void testCompareLTSequentialMascot() {
     runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.MASCOT, 2, 16);
   }
@@ -44,31 +44,31 @@ public class TestSpdzComparison extends AbstractSpdzTest {
   }
 
   @Test
-  public void test_compareEQ_Sequential() throws Exception {
+  public void test_compareEQ_Sequential() {
     runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void testCompareEQSequentialBatchedMascot() throws Exception {
+  public void testCompareEQSequentialBatchedMascot() {
     runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.MASCOT, 2, 16);
   }
 
   @Test
-  public void test_isSorted() throws Exception {
+  public void test_isSorted() {
     runTest(new SortingTests.TestIsSorted<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_compareAndSwap() throws Exception {
+  public void test_compareAndSwap() {
     runTest(new SortingTests.TestCompareAndSwap<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_Sort() throws Exception {
+  public void test_Sort() {
 //    runTest(new SortingTests.TestSort<>(), EvaluationStrategy.SEQUENTIAL,
 //        PreprocessingStrategy.MASCOT, 2, 16);
     runTest(new SortingTests.TestSort<>(), EvaluationStrategy.SEQUENTIAL,
@@ -76,13 +76,13 @@ public class TestSpdzComparison extends AbstractSpdzTest {
   }
 
   @Test
-  public void test_Big_Sort() throws Exception {
+  public void test_Big_Sort() {
     runTest(new SortingTests.TestBigSort<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_find_duplicates() throws Exception {
+  public void test_find_duplicates() {
     runTest(new TestFindDuplicatesOne<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2);
   }
