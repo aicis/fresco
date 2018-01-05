@@ -11,7 +11,7 @@ public class StrictBitVector {
 
   /**
    * Constructs new strict bit vector.
-   * 
+   *
    * @param bits raw bytes
    * @param size length in bits. must be a multiple of 8 (byte size)
    */
@@ -29,7 +29,7 @@ public class StrictBitVector {
   /**
    * Creates a StrictBitVector with all entries set to zero.
    *
-   * @param size size of the vector
+   * @param size bit size of the vector
    */
   public StrictBitVector(int size) {
     if (size % 8 != 0) {
@@ -41,8 +41,8 @@ public class StrictBitVector {
 
   /**
    * Constructs new strict bit vector from a secure source of randomness.
-   * 
-   * @param bits raw bytes
+   *
+   * @param size the bit size of the vector
    * @param rand secure source of randomness
    */
   public StrictBitVector(int size, Drbg rand) {
@@ -51,23 +51,34 @@ public class StrictBitVector {
   }
 
   /**
-   * Returns the "bit" number bit, reading from left-to-right, from a byte array.
-   * 
-   * @param input The arrays of which to retrieve a bit
-   * @param bit The index of the bit, counting from 0
+   * Returns the but at a given index of this vector.
+   *
+   * @param index The index of the bit, counting from 0
    * @param isBigEndian Indicates whether the underlying byte array should be interpreted as
    *        big-endian or little-endian
-   * @return Returns the "bit" number bit, reading from left-to-right, from "input"
+   * @return Returns the bit at the given index
    */
-  public boolean getBit(int bit, boolean isBigEndian) {
-    rangeCheck(bit);
-    int actualIndex = isBigEndian ? size - 1 - bit : bit;
+  public boolean getBit(int index, boolean isBigEndian) {
+    rangeCheck(index);
+    int actualIndex = isBigEndian ? size - 1 - index : index;
     return ByteArrayHelper.getBit(bits, actualIndex);
   }
 
   /**
+   * Returns the "bit" number bit, reading from left-to-right, from a byte array.
+   * <p>
+   * Assumes underlying byte array is big-endian.
+   * </p>
+   * @param bit The index of the bit, counting from 0
+   * @return Returns the "bit" number bit, reading from left-to-right, from "input"
+   */
+  public boolean getBit(int bit) {
+    return getBit(bit, true);
+  }
+
+  /**
    * Sets the bit at index to value, reading from left-to-right.
-   * 
+   *
    * @param index index of the bit to be set
    * @param value value to set bit to
    * @param isBigEndian Indicates whether the underlying byte array should be interpreted as
@@ -80,21 +91,9 @@ public class StrictBitVector {
   }
 
   /**
-   * Returns the "bit" number bit, reading from left-to-right, from a byte array. <br>
-   * Assumes underlying byte array is big-endian.
-   * 
-   * @param input The arrays of which to retrieve a bit
-   * @param bit The index of the bit, counting from 0
-   * @return Returns the "bit" number bit, reading from left-to-right, from "input"
-   */
-  public boolean getBit(int bit) {
-    return getBit(bit, true);
-  }
-
-  /**
    * Sets the bit at index to value, reading from left-to-right. <br>
    * Assumes underlying byte array is big-endian.
-   * 
+   *
    * @param index index of the bit to be set
    * @param value value to set bit to
    */
@@ -111,24 +110,22 @@ public class StrictBitVector {
   }
 
   /**
-   * Concatenates bit vectors into one bit vector.
-   * 
-   * @param reverse
-   * @param bitVectors
-   * @return
+   * Concatenates bit vectors into a single bit vector.
+   *
+   * @param reverse indicating whether or not to reverse the list before concatenation
+   * @param bitVectors the vectors to concatenate
+   * @return the concatenated vector
    */
   public static StrictBitVector concat(boolean reverse, StrictBitVector... bitVectors) {
     if (reverse) {
       Collections.reverse(Arrays.asList(bitVectors));
     }
     // compute length of result byte array and number of bits
-    int combinedByteLength = 0;
     int combinedBitLength = 0;
     for (StrictBitVector bitVector : bitVectors) {
-      combinedByteLength += bitVector.getSize() / 8;
       combinedBitLength += bitVector.getSize();
     }
-    byte[] combined = new byte[combinedByteLength];
+    byte[] combined = new byte[combinedBitLength / 8];
     int offset = 0;
     for (StrictBitVector bitVector : bitVectors) {
       byte[] rawBytes = bitVector.toByteArray();
@@ -159,20 +156,30 @@ public class StrictBitVector {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj)
+    if (this == obj) {
       return true;
-    if (obj == null)
+    }
+    if (obj == null) {
       return false;
-    if (getClass() != obj.getClass())
+    }
+    if (getClass() != obj.getClass()) {
       return false;
+    }
     StrictBitVector other = (StrictBitVector) obj;
-    if (!Arrays.equals(bits, other.bits))
+    if (!Arrays.equals(bits, other.bits)) {
       return false;
-    if (size != other.size)
+    }
+    if (size != other.size) {
       return false;
+    }
     return true;
   }
 
+  /**
+   * Generates a string representation of this vector.
+   *
+   * @return a string with the binary representation of this vector
+   */
   public String asBinaryString() {
     String binStr = "";
     for (int b = 0; b < size; b++) {
@@ -188,7 +195,7 @@ public class StrictBitVector {
 
   /**
    * Updates this StrictBitVector to be the XOR with an other StrictBitVector.
-   * 
+   *
    * @param other the other StrictBitVector
    * @throws IllegalArgumentException if the two BitVectors are not of equal size
    */

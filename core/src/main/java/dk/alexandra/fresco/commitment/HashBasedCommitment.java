@@ -10,13 +10,14 @@ import java.util.Arrays;
  * Class representing a hash-based commitment. Secure assuming that SHA-256 is a
  * random oracle. An instantiated object represents a commitment by itself and
  * does <b>not</b> contain any secret information. An object gets instantiated
- * by calling the commit command. <br/>
+ * by calling the commit command.
+ * <p>
  * The scheme itself is based on the ROM folklore scheme where the message to
  * commit to is concatenated with a random string and then hashed. The hash
  * digest serves as the commitment itself and the opening is the randomness and
  * the message committed to.
+ * </p>
  *
- * @author jot2re
  */
 public class HashBasedCommitment {
 
@@ -87,8 +88,7 @@ public class HashBasedCommitment {
       // Extract the randomness and the value committed to from the openingInfo
       // The value comes first
       byte[] value = new byte[openingInfo.length - DIGEST_LENGTH];
-      System.arraycopy(openingInfo, 0, value, 0,
-          openingInfo.length - DIGEST_LENGTH);
+      System.arraycopy(openingInfo, 0, value, 0, value.length);
       return value;
     } else {
       throw new MaliciousException("The opening info does not match the commitment.");
