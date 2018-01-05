@@ -15,7 +15,7 @@ public class BigIntegerWithFixedLengthSerializer implements ByteSerializer<BigIn
   /**
    * Creates a new instance that adhere to the interface.
    *
-   * @param byteLength the amount of bytes inteded to be serialized
+   * @param byteLength the amount of bytes intended to be serialized
    */
   public BigIntegerWithFixedLengthSerializer(int byteLength) {
     this.byteLength = byteLength;
@@ -28,11 +28,6 @@ public class BigIntegerWithFixedLengthSerializer implements ByteSerializer<BigIn
   }
 
   @Override
-  public BigInteger deserialize(byte[] data) {
-    return new BigInteger(data);
-  }
-
-  @Override
   public byte[] serialize(List<BigInteger> objs) {
     byte[] bytes = new byte[byteLength * objs.size()];
     int offset = 0;
@@ -41,6 +36,11 @@ public class BigIntegerWithFixedLengthSerializer implements ByteSerializer<BigIn
       offset += byteLength;
     }
     return bytes;
+  }
+
+  @Override
+  public BigInteger deserialize(byte[] data) {
+    return new BigInteger(data);
   }
 
   @Override

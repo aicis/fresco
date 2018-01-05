@@ -48,7 +48,8 @@ public class HashBasedCommitmentSerializer implements ByteSerializer<HashBasedCo
       return new ArrayList<>();
     }
     // A serialized commitment only consists of its internal digest
-    List<HashBasedCommitment> res = new ArrayList<>(data.length / HashBasedCommitment.DIGEST_LENGTH);
+    List<HashBasedCommitment> res = new ArrayList<>(
+        data.length / HashBasedCommitment.DIGEST_LENGTH);
     for (int i = 0; i < data.length / HashBasedCommitment.DIGEST_LENGTH; i++) {
       HashBasedCommitment comm = new HashBasedCommitment();
       byte[] commVal = new byte[HashBasedCommitment.DIGEST_LENGTH];

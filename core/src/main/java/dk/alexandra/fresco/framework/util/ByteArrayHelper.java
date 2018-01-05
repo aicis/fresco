@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.framework.util;
 
+import dk.alexandra.fresco.framework.MPCException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -11,23 +12,19 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Random;
 
-import dk.alexandra.fresco.framework.MPCException;
-
 public class ByteArrayHelper {
 
   /**
-   * Returns the "bit" number bit, reading from left-to-right, from a byte array.
-   * 
-   * @param input The arrays of which to retrieve a bit
-   * @param bit The index of the bit, counting from 0
-   * @return Returns the "bit" number bit, reading from left-to-right, from "input"
+   * Returns the bit at a given index, reading from left-to-right, from a byte array.
+   *
+   * @param input an array from which to retrieve a bit
+   * @param index the index of the bit
+   * @return Returns the bit at the given index, reading from left-to-right
    */
   public static boolean getBit(byte[] input, int index) {
     if (index < 0) {
-      throw new IllegalAccessError("Bit index must be 0 or positive.");
+      throw new IllegalAccessError("Bit index must not be negative.");
     }
-    // Get the byte with the "bit"'th bit, and shift it to the left-most
-    // position of the byte
     byte currentByte = (byte) (input[index / 8] >> (7 - (index % 8)));
     boolean choiceBit = false;
     if ((currentByte & 1) == 1) {
@@ -36,9 +33,16 @@ public class ByteArrayHelper {
     return choiceBit;
   }
 
+  /**
+   * Sets a bit at a given index to a given boolean value.
+   *
+   * @param input an array in which to set a bit
+   * @param index index of the bit to set
+   * @param choice value to set the given bit to
+   */
   public static void setBit(byte[] input, int index, boolean choice) {
     if (index < 0) {
-      throw new IllegalAccessError("Bit index must be 0 or positive.");
+      throw new IllegalAccessError("Bit index must not be negative.");
     }
     if (choice == true) {
       // We read bits from left to right, hence the 7 - x.
@@ -59,10 +63,9 @@ public class ByteArrayHelper {
    * Computes the XOR of each element in a list of byte arrays. This is done in-place in "vector1".
    * If the lists are not of equal length or any of the byte arrays are not of equal size, then an
    * IllegalArgument exception is thrown
-   * 
+   *
    * @param vector1 First input list
    * @param vector2 Second input list
-   * @return A new list which is the XOR of the two input lists
    */
   public static void xor(List<byte[]> vector1, List<byte[]> vector2) {
     if (vector1.size() != vector2.size()) {
@@ -76,10 +79,9 @@ public class ByteArrayHelper {
   /**
    * Computes the XOR of each element in a byte array. This is done in-place in "arr1". If the byte
    * arrays are not of equal size, then an IllegalArgument exception is thrown
-   * 
+   *
    * @param arr1 First byte array
    * @param arr2 Second byte array
-   * @return A new byte array which is the XOR of the two input arrays
    */
   public static void xor(byte[] arr1, byte[] arr2) {
     int bytesNeeded = arr1.length;
@@ -92,6 +94,13 @@ public class ByteArrayHelper {
     }
   }
 
+  /**
+   * Shifts a byte array by a given number of positions.
+   *
+   * @param input the input array
+   * @param output an array in which to store the output
+   * @param positions number of positions to shift
+   */
   public static void shiftArray(byte[] input, byte[] output, int positions) {
     for (int i = 0; i < input.length * 8; i++) {
       setBit(output, positions + i, getBit(input, i));
@@ -100,8 +109,8 @@ public class ByteArrayHelper {
 
 
   /**
-   * Serialize a serializable value
-   * 
+   * Serialize a serializable value.
+   *
    * @param val The value to serialize
    * @return The serialized value
    */
@@ -126,8 +135,8 @@ public class ByteArrayHelper {
   }
 
   /**
-   * Deserialize a serializable value
-   * 
+   * Deserialize a serializable value.
+   *
    * @param val The value to deserialize
    * @return The deserialized object
    */
@@ -147,6 +156,13 @@ public class ByteArrayHelper {
     }
   }
 
+  /**
+   * Generates a random byte array of a given size.
+   *
+   * @param size size of the byte array
+   * @param rand a source of randomness
+   * @return an array of random bytes
+   */
   public static byte[] randomByteArray(int size, Random rand) {
     byte[] array = new byte[size];
     rand.nextBytes(array);
