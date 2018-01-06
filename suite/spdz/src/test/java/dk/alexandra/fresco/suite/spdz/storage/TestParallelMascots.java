@@ -22,6 +22,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestParallelMascots {
 
@@ -34,6 +36,7 @@ public class TestParallelMascots {
   private BigInteger modulus;
   private List<Integer> partyIds;
   private int iterations;
+  private Logger logger = LoggerFactory.getLogger(TestParallelMascots.class);
 
   @Before
   public void setUp() {
@@ -126,7 +129,8 @@ public class TestParallelMascots {
           iterator.remove();
         }
       }
-      Thread.sleep(100);
+      Thread.sleep(1000);
+      logger.info("Testing the remaining " + futures.size() + " futures");
     }
   }
 }
