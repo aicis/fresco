@@ -12,7 +12,10 @@ import java.math.BigInteger;
 
 public class InputSumExample {
 
-  public static <ResourcePoolT extends ResourcePool> void runApplication(
+  public InputSumExample(){
+  }
+  
+  public <ResourcePoolT extends ResourcePool> void runApplication(
       SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce,
       ResourcePoolT resourcePool, Network network) throws IOException {
     InputApplication inputApp;
@@ -47,8 +50,10 @@ public class InputSumExample {
         new SecureComputationEngineImpl<>(psConf, util.getEvaluator());
 
     ResourcePoolT resourcePool = util.getResourcePool();
-    runApplication(sce, resourcePool, util.getNetwork());
-    util.close();
+    util.startNetwork();
+    new InputSumExample().runApplication(sce, resourcePool, util.getNetwork());
+    
+    util.closeNetwork();
     sce.shutdownSCE();
   }
 

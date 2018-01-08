@@ -95,6 +95,7 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
     DistanceDemo distDemo = new DistanceDemo(networkConfiguration.getMyId(), x, y);
     SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce = cmdUtil.getSCE();
     try {
+      cmdUtil.startNetwork();
       ResourcePoolT resourcePool = cmdUtil.getResourcePool();
       BigInteger bigInteger = sce.runApplication(distDemo, resourcePool, cmdUtil.getNetwork());
       double dist = Math.sqrt(bigInteger.doubleValue());
@@ -104,7 +105,7 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
       e.printStackTrace();
       System.exit(-1);
     } finally {
-      cmdUtil.close();
+      cmdUtil.closeNetwork();
       sce.shutdownSCE();
     }
   }

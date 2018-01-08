@@ -143,11 +143,14 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
 
     List<List<Boolean>> psiResult = null;
     try {
+      util.startNetwork();
       ResourcePoolImpl resourcePool = util.getResourcePool();
       psiResult = sce.runApplication(privateSetDemo, resourcePool, util.getNetwork());
     } catch (Exception e) {
       System.out.println("Error while doing MPC: " + e.getMessage());
       System.exit(-1);
+    } finally {
+      util.closeNetwork();
     }
 
     // Print result.
@@ -159,7 +162,7 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
       }
       System.out.println("result(" + j + "): " + ByteAndBitConverter.toHex(res[j]));
     }
-    util.close();
+    util.closeNetwork();
 
   }
 

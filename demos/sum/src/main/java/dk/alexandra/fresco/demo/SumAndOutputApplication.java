@@ -23,7 +23,7 @@ public class SumAndOutputApplication extends DemoNumericApplication<BigInteger> 
 
   @Override
   public DRes<BigInteger> buildComputation(ProtocolBuilderNumeric producer) {
-    return inputApp.createBuildStep(producer).seq((seq, inputs) -> {
+    return producer.seq(inputApp).seq((seq, inputs) -> {
       DRes<SInt> sum = null;
       for (SInt input : inputs) {
         if (sum == null) {

@@ -1,5 +1,7 @@
 package dk.alexandra.fresco.demo;
 
+import static org.junit.Assert.fail;
+
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -129,4 +131,71 @@ public class TestAESDemo {
     t2.join();
   }
 
+  @Test
+  public void testAESCmdLine3Party() throws Exception {
+    Runnable p1 = () -> {
+      try {
+        AESDemo.main(
+            new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082",
+                "-p", "3:localhost:8083", "-s", "dummyBool", "-in", "000102030405060708090a0b0c0d0e0f"});
+      } catch (IOException e) {
+        throw new RuntimeException("Error", e);
+      }
+    };
+
+    Runnable p2 = () -> {
+      try {
+        AESDemo.main(
+            new String[]{"-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082",
+                "-p", "3:localhost:8083", "-s", "dummyBool", "-in", "00112233445566778899aabbccddeeff"});
+      } catch (IOException e) {
+        throw new RuntimeException("Error", e);
+      }
+    };
+    
+    Runnable p3 = () -> {
+      try {
+        AESDemo.main(
+            new String[]{"-i", "3", "-p", "1:localhost:8081", "-p", "2:localhost:8082",
+                "-p", "3:localhost:8083", "-s", "dummyBool"});
+      } catch (IOException e) {
+        throw new RuntimeException("Error", e);
+      }
+    };
+    Thread t1 = new Thread(p1);
+    Thread t2 = new Thread(p2);
+    Thread t3 = new Thread(p3);
+    t1.start();
+    t2.start();
+    t3.start();
+    t1.join();
+    t2.join();
+    t3.join();
+  }
+  
+  @Test(expected=IllegalArgumentException.class)
+  public void testAESCmdLineBadLength() throws Exception {
+    AESDemo.main(
+        new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082", 
+            "-s", "dummyBool", "-in", "000102030405060708090a0b0c0d0"});
+    fail();
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void testAESCmdLineNoInput() throws Exception {
+    AESDemo.main(
+        new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082", 
+            "-s", "dummyBool"});
+    fail();
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void testAESCmdLine3PartyInput() throws Exception {
+    AESDemo.main(
+        new String[]{"-i", "3", "-p", "1:localhost:8081", "-p", "2:localhost:8082", 
+            "-p", "3:localhost:8083", "-s", "dummyBool", "-in", "000102030405060708090a0b0c0d0"});
+    fail();
+  }
+  
+  
 }

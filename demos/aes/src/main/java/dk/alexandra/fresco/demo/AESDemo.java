@@ -7,7 +7,7 @@ import dk.alexandra.fresco.framework.builder.binary.Binary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.suite.ProtocolSuite;
@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.ParseException;
 
 
 /**
@@ -69,62 +68,53 @@ public class AESDemo implements Application<List<Boolean>, ProtocolBuilderBinary
    * arguments. Based on the command line arguments it configures the SCE, instantiates the
    * TestAESDemo and runs the TestAESDemo on the SCE.
    */
-  public static void main(String[] args) throws IOException {
-    CmdLineUtil<ResourcePoolImpl, ProtocolBuilderBinary> util = new CmdLineUtil<>();
+  public static <ResourcePoolT extends ResourcePool> void main(String[] args) throws IOException {
+    CmdLineUtil<ResourcePoolT, ProtocolBuilderBinary> util = new CmdLineUtil<>();
+
+    util.addOption(Option.builder("in")
+        .desc("The input to use for encryption. " + "A " + INPUT_LENGTH
+            + " char hex string. Required for player 1 and 2. "
+            + "For player 1 this is interpreted as the AES key. "
+            + "For player 2 this is interpreted as the plaintext block to encrypt.")
+        .longOpt("input").hasArg().build());
+    
+    CommandLine cmd = util.parse(args);
+    
+    // Get and validate the AES specific input.
     Boolean[] input = null;
-    try {
+    int myId = util.getNetworkConfiguration().getMyId();
+    if (myId == 1 || myId == 2) {
 
-      util.addOption(Option.builder("in")
-          .desc("The input to use for encryption. " + "A " + INPUT_LENGTH
-              + " char hex string. Required for player 1 and 2. "
-              + "For player 1 this is interpreted as the AES key. "
-              + "For player 2 this is interpreted as the plaintext block to encrypt.")
-          .longOpt("input").hasArg().build());
-
-      CommandLine cmd = util.parse(args);
-
-      // Get and validate the AES specific input.
-      int myId = util.getNetworkConfiguration().getMyId();
-      if (myId == 1 || myId == 2) {
-        if (!cmd.hasOption("in")) {
-          throw new ParseException("Player 1 and 2 must submit input");
-        } else {
-          if (cmd.getOptionValue("in").length() != INPUT_LENGTH) {
-            throw new IllegalArgumentException(
-                "bad input hex string: must be hex string of length " + INPUT_LENGTH);
-          }
-          input = ByteAndBitConverter.toBoolean(cmd.getOptionValue("in"));
-        }
+      if (!cmd.hasOption("in")) {
+        throw new IllegalArgumentException("Player 1 and 2 must submit input");
       } else {
-        if (cmd.hasOption("in")) {
-          throw new ParseException("Only player 1 and 2 should submit input");
+        if (cmd.getOptionValue("in").length() != INPUT_LENGTH) {
+          throw new IllegalArgumentException(
+              "bad input hex string: must be hex string of length " + INPUT_LENGTH);
         }
+        input = ByteAndBitConverter.toBoolean(cmd.getOptionValue("in"));
       }
-
-    } catch (ParseException | IllegalArgumentException e) {
-      System.out.println("Error: " + e);
-      System.out.println();
-      util.displayHelp();
-      System.exit(-1);
+    } else {
+      if (cmd.hasOption("in")) {
+        throw new IllegalArgumentException("Only player 1 and 2 should submit input");
+      }
+      input = ByteAndBitConverter.toBoolean("00000000000000000000000000000000");
     }
 
-    // Do the secure computation using config from property files.
+    
+    ProtocolSuite<ResourcePoolT, ProtocolBuilderBinary> psConf = util.getProtocolSuite();
+
+    SecureComputationEngine<ResourcePoolT, ProtocolBuilderBinary> sce =
+        new SecureComputationEngineImpl<>(psConf, util.getEvaluator());
+
+    ResourcePoolT resourcePool = util.getResourcePool();
+    util.startNetwork();
     AESDemo aes = new AESDemo(util.getNetworkConfiguration().getMyId(), input);
-    ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> ps =
-        util.getProtocolSuite();
-    SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce =
-        new SecureComputationEngineImpl<>(ps,
-            util.getEvaluator());
+    List<Boolean> aesResult = sce.runApplication(aes, resourcePool, util.getNetwork());
+    
+    util.closeNetwork();
+    sce.shutdownSCE();
 
-    List<Boolean> aesResult = null;
-    ResourcePoolImpl resourcePool = util.getResourcePool();
-    try {
-      aesResult = sce.runApplication(aes, resourcePool, util.getNetwork());
-    } catch (Exception e) {
-      System.out.println("Error while doing MPC: " + e.getMessage());
-      System.exit(-1);
-    }
-    util.close();
     // Print result.
     boolean[] res = new boolean[BLOCK_SIZE];
     for (int i = 0; i < BLOCK_SIZE; i++) {
@@ -133,7 +123,7 @@ public class AESDemo implements Application<List<Boolean>, ProtocolBuilderBinary
     System.out.println("The resulting ciphertext is: " + ByteAndBitConverter.toHex(res));
 
   }
-
+  
   @Override
   public DRes<List<Boolean>> buildComputation(ProtocolBuilderBinary producer) {
     return producer.seq(seq -> {
