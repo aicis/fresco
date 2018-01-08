@@ -16,7 +16,6 @@ import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageConstants;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
@@ -122,13 +121,13 @@ public class CmdLineProtocolSuite {
         supplier = new SpdzDummyDataSupplier(myId, noOfPlayers);
         break;
       case STATIC:
-        int noOfThreadsUsed = 1;        
+        int noOfThreadsUsed = 1;
         String storageName =
-            SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
+            SpdzStorageDataSupplier.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
             + "_";
         supplier = new SpdzStorageDataSupplier(
             new FilebasedStreamedStorageImpl(new InMemoryStorage()), storageName, noOfPlayers);
-        break;      
+        break;
       default:
         throw new ConfigurationException("Unkonwn preprocessing strategy: " + strategy);
     }

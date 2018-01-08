@@ -4,51 +4,59 @@ import java.io.Serializable;
 
 public class SpdzTriple implements Serializable {
 
-  /**
-   *
-   */
   private static final long serialVersionUID = -4394957717364446774L;
 
-  private final SpdzElement a;
-  private final SpdzElement b;
-  private final SpdzElement c;
+  private final SpdzElement elementA;
+  private final SpdzElement elementB;
+  private final SpdzElement elementC;
 
-  public SpdzTriple(SpdzElement a, SpdzElement b, SpdzElement c) {
-    this.a = a;
-    this.b = b;
-    this.c = c;
+  /**
+   * Construct a new SpdzTriple. The triple contains 3 values A, B and C
+   * such that A * B = C. 
+   * 
+   * @param elementA A
+   * @param elementB B
+   * @param elementC C
+   */
+  public SpdzTriple(SpdzElement elementA, SpdzElement elementB, SpdzElement elementC) {
+    this.elementA = elementA;
+    this.elementB = elementB;
+    this.elementC = elementC;
   }
 
+  /**
+   * Constructor only used to serialization.
+   */
   public SpdzTriple() {
-    this.a = null;
-    this.b = null;
-    this.c = null;
+    this.elementA = null;
+    this.elementB = null;
+    this.elementC = null;
   }
 
   public SpdzElement getA() {
-    return a;
+    return elementA;
   }
 
   public SpdzElement getB() {
-    return b;
+    return elementB;
   }
 
   public SpdzElement getC() {
-    return c;
+    return elementC;
   }
 
   @Override
   public String toString() {
-    return "SpdzTriple [a=" + a + ", b=" + b + ", c=" + c + "]";
+    return "SpdzTriple [elementA=" + elementA + ", elementB=" + elementB + ", elementC=" + elementC + "]";
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + ((a == null) ? 0 : a.hashCode());
-    result = prime * result + ((b == null) ? 0 : b.hashCode());
-    result = prime * result + ((c == null) ? 0 : c.hashCode());
+    result = prime * result + ((elementA == null) ? 0 : elementA.hashCode());
+    result = prime * result + ((elementB == null) ? 0 : elementB.hashCode());
+    result = prime * result + ((elementC == null) ? 0 : elementC.hashCode());
     return result;
   }
 
@@ -64,25 +72,25 @@ public class SpdzTriple implements Serializable {
       return false;
     }
     SpdzTriple other = (SpdzTriple) obj;
-    if (a == null) {
-      if (other.a != null) {
+    if (elementA == null) {
+      if (other.elementA != null) {
         return false;
       }
-    } else if (!a.equals(other.a)) {
+    } else if (!elementA.equals(other.elementA)) {
       return false;
     }
-    if (b == null) {
-      if (other.b != null) {
+    if (elementB == null) {
+      if (other.elementB != null) {
         return false;
       }
-    } else if (!b.equals(other.b)) {
+    } else if (!elementB.equals(other.elementB)) {
       return false;
     }
-    if (c == null) {
-      if (other.c != null) {
+    if (elementC == null) {
+      if (other.elementC != null) {
         return false;
       }
-    } else if (!c.equals(other.c)) {
+    } else if (!elementC.equals(other.elementC)) {
       return false;
     }
     return true;

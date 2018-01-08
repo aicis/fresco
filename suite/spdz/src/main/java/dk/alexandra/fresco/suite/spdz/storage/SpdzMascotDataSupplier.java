@@ -121,7 +121,8 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     return modulus;
   }
 
-  public BigInteger getSSK() {
+  @Override
+  public BigInteger getSecretSharedKey() {
     return this.ssk.toBigInteger();
   }
 
@@ -129,18 +130,18 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   public SpdzSInt getNextRandomFieldElement() {
     ensureInitialized();
     if (randomElements.isEmpty()) {
-      logger.debug("Getting another random element batch");
+      logger.trace("Getting another random element batch");
       randomElements.addAll(mascot.getRandomElements(batchSize));
-      logger.debug("Got another random element batch");
+      logger.trace("Got another random element batch");
     }
     return new SpdzSInt(MascotFormatConverter.toSpdzElement(randomElements.pop()));
   }
 
   @Override
   public SpdzSInt[] getNextExpPipe() {
-    logger.debug("Getting another exp pipe");
+    logger.trace("Getting another exp pipe");
     SpdzSInt[] pipe = preprocessedValues.apply(maxBitLength);
-    logger.debug("Got another exp pipe");
+    logger.trace("Got another exp pipe");
     return pipe;
   }
 
@@ -148,9 +149,9 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   public SpdzInputMask getNextInputMask(int towardPlayerID) {
     ensureInitialized();
     if (masks.isEmpty()) {
-      logger.debug("Getting another mask batch");
+      logger.trace("Getting another mask batch");
       masks.addAll(mascot.getInputMasks(towardPlayerID, batchSize));
-      logger.debug("Got another mask batch");
+      logger.trace("Got another mask batch");
     }
     InputMask mask = masks.pop();
     return MascotFormatConverter.toSpdzInputMask(mask);
