@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
@@ -61,7 +61,7 @@ public class TestMaliciousBehaviour {
           Corrupt.COMMIT_ROUND_1);
       Assert.fail("Should not go well");
     } catch (RuntimeException e) {
-      if (e.getCause().getCause() == null || !(e.getCause().getCause() instanceof MPCException)) {
+      if (e.getCause().getCause() == null || !(e.getCause().getCause() instanceof MaliciousException)) {
         Assert.fail();
       }
     }
@@ -74,7 +74,7 @@ public class TestMaliciousBehaviour {
           Corrupt.OPEN_COMMIT_ROUND_1);
       Assert.fail("Should not go well");
     } catch (RuntimeException e) {
-      if (e.getCause().getCause() == null || !(e.getCause().getCause() instanceof MPCException)) {
+      if (e.getCause().getCause() == null || !(e.getCause().getCause() instanceof MaliciousException)) {
         Assert.fail();
       }
     }
@@ -87,7 +87,7 @@ public class TestMaliciousBehaviour {
           Corrupt.COMMIT_ROUND_2);
       Assert.fail("Should not go well");
     } catch (RuntimeException e) {
-      if (e.getCause().getCause() == null || !(e.getCause().getCause() instanceof MPCException)) {
+      if (e.getCause().getCause() == null || !(e.getCause().getCause() instanceof MaliciousException)) {
         Assert.fail();
       }
     }
@@ -100,7 +100,7 @@ public class TestMaliciousBehaviour {
           Corrupt.OPEN_COMMIT_ROUND_2);
       Assert.fail("Should not go well");
     } catch (RuntimeException e) {
-      if (e.getCause().getCause() == null || !(e.getCause().getCause() instanceof MPCException)) {
+      if (e.getCause().getCause() == null || !(e.getCause().getCause() instanceof MaliciousException)) {
         Assert.fail();
       }
     }
@@ -113,7 +113,7 @@ public class TestMaliciousBehaviour {
           Corrupt.INPUT);
       Assert.fail("Should not go well");
     } catch (RuntimeException e) {
-      if (e.getCause().getCause() == null || !(e.getCause().getCause() instanceof MPCException)) {
+      if (e.getCause().getCause() == null || !(e.getCause().getCause() instanceof MaliciousException)) {
         Assert.fail();
       }
     }

@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.maccheck;
 
-import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
@@ -43,7 +43,7 @@ public class TestMacCheck {
       runTest(new TestSecretSharedDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2, true);
     } catch (RuntimeException e) {
       if (e.getCause().getCause() == null
-          || !(e.getCause().getCause() instanceof MPCException)) {
+          || !(e.getCause().getCause() instanceof MaliciousException)) {
         Assert.fail();
       }
     }
@@ -55,7 +55,7 @@ public class TestMacCheck {
       runTest(new TestSecretSharedDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2, false);
     } catch (RuntimeException e) {
       if (e.getCause().getCause() == null
-          || !(e.getCause().getCause() instanceof MPCException)) {
+          || !(e.getCause().getCause() instanceof MaliciousException)) {
         Assert.fail();
       }
     }

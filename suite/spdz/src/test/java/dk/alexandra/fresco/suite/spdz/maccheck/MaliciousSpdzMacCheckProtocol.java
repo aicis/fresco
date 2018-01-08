@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.maccheck;
 
 import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -67,11 +68,11 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
             new SingleProtocolProducer<>(openComm));
       } else if (round == 1) {
         if (!comm.out()) {
-          throw new MPCException(
+          throw new MaliciousException(
               "Malicious activity detected: Broadcast of commitments was not validated.");
         }
         if (!openComm.out()) {
-          throw new MPCException("Malicious activity detected: Opening commitments failed.");
+          throw new MaliciousException("Malicious activity detected: Opening commitments failed.");
         }
 
         this.as = storage.getOpenedValues();
@@ -123,11 +124,11 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
             new SingleProtocolProducer<>(openComm));
       } else {
         if (!comm.out()) {
-          throw new MPCException(
+          throw new MaliciousException(
               "Malicious activity detected: Broadcast of commitments was not validated.");
         }
         if (!openComm.out()) {
-          throw new MPCException("Malicious activity detected: Opening commitments failed.");
+          throw new MaliciousException("Malicious activity detected: Opening commitments failed.");
         }
         BigInteger deltaSum = BigInteger.ZERO;
         for (BigInteger d : commitments.values()) {
@@ -135,7 +136,7 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
         }
         deltaSum = deltaSum.mod(modulus);
         if (!deltaSum.equals(BigInteger.ZERO)) {
-          throw new MPCException(
+          throw new MaliciousException(
               "The sum of delta's was not 0. Someone was corrupting something amongst " + as.size()
                   + " macs. Sum was " + deltaSum.toString() + " Aborting!");
         }

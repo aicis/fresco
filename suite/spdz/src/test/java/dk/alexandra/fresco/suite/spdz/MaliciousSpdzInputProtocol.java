@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -50,7 +50,7 @@ public class MaliciousSpdzInputProtocol extends SpdzNativeProtocol<SInt> {
     } else {
       boolean validated = receiveMaliciousBroadcastValidation(network, digest);
       if (!validated) {
-        throw new MPCException("Broadcast digests did not match");
+        throw new MaliciousException("Broadcast digests did not match");
       }
       SpdzElement valueMaskedElm = new SpdzElement(valueMasked,
           storage.getSecretSharedKey().multiply(valueMasked).mod(modulus), modulus);

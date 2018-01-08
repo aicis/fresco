@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -33,11 +32,11 @@ public class SpdzMacCheckProtocol implements ProtocolProducer {
   /**
    * Protocol which handles the MAC check internal to SPDZ. If this protocol reaches the end, no
    * malicious activity was detected and the storage is reset.
-   * 
+   *
    * @param rand A secure randomness source
    * @param digest A secure hash used for the commitment scheme
    * @param storage The store containing the half-opened values to be checked
-   * @param modulus The global modulus used.  
+   * @param modulus The global modulus used.
    */
   public SpdzMacCheckProtocol(SecureRandom rand, MessageDigest digest, SpdzStorage storage,
       BigInteger modulus) {
@@ -63,11 +62,11 @@ public class SpdzMacCheckProtocol implements ProtocolProducer {
             new SingleProtocolProducer<>(openComm));
       } else if (round == 1) {
         if (!comm.out()) {
-          throw new MPCException(
+          throw new MaliciousException(
               "Malicious activity detected: Broadcast of commitments was not validated.");
         }
         if (!openComm.out()) {
-          throw new MPCException("Malicious activity detected: Opening commitments failed.");
+          throw new MaliciousException("Malicious activity detected: Opening commitments failed.");
         }
 
         this.as = storage.getOpenedValues();
@@ -96,7 +95,7 @@ public class SpdzMacCheckProtocol implements ProtocolProducer {
         // compute gamma_i as the sum of all MAC's on the opened values times
         // r_j.
         if (closedValues.size() != t) {
-          throw new MPCException("Malicious activity detected: Amount of closed values does not "
+          throw new MaliciousException("Malicious activity detected: Amount of closed values does not "
               + "equal the amount of partially opened values. Aborting!");
         }
         BigInteger gamma = BigInteger.ZERO;
@@ -119,11 +118,11 @@ public class SpdzMacCheckProtocol implements ProtocolProducer {
             new SingleProtocolProducer<>(openComm));
       } else {
         if (!comm.out()) {
-          throw new MPCException(
+          throw new MaliciousException(
               "Malicious activity detected: Broadcast of commitments was not validated.");
         }
         if (!openComm.out()) {
-          throw new MPCException("Malicious activity detected: Opening commitments failed.");
+          throw new MaliciousException("Malicious activity detected: Opening commitments failed.");
         }
         BigInteger deltaSum = BigInteger.ZERO;
         for (BigInteger d : commitments.values()) {
