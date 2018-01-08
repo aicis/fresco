@@ -14,19 +14,26 @@ import java.io.IOException;
 import java.math.BigInteger;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A simple demo computing the distance between two secret points
+ * A simple demo computing the distance between two secret points.
  */
 public class DistanceDemo extends DemoNumericApplication<BigInteger> {
 
   private static Logger log = LoggerFactory.getLogger(DistanceDemo.class);
 
-  private int myId, myX, myY;
+  private int myId;
+  private int myX; 
+  private int myY;
 
+  /**
+   * Construct a new DistanceDemo.
+   * @param id The party id
+   * @param x The x coordinate
+   * @param y The y coordinate
+   */
   public DistanceDemo(int id, int x, int y) {
     this.myId = id;
     this.myX = x;
@@ -38,11 +45,14 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
     return producer.par(par -> {
       // Input points
       Numeric numericIo = par.numeric();
-      DRes<SInt> x1, y1, x2, y2;
-      x1 = (myId == 1) ? numericIo.input(BigInteger.valueOf(myX), 1) : numericIo.input(null, 1);
-      y1 = (myId == 1) ? numericIo.input(BigInteger.valueOf(myY), 1) : numericIo.input(null, 1);
-      x2 = (myId == 2) ? numericIo.input(BigInteger.valueOf(myX), 2) : numericIo.input(null, 2);
-      y2 = (myId == 2) ? numericIo.input(BigInteger.valueOf(myY), 2) : numericIo.input(null, 2);
+      DRes<SInt> x1 = (myId == 1)
+          ? numericIo.input(BigInteger.valueOf(myX), 1) : numericIo.input(null, 1);
+      DRes<SInt> y1 = (myId == 1)
+          ? numericIo.input(BigInteger.valueOf(myY), 1) : numericIo.input(null, 1);
+      DRes<SInt> x2 = (myId == 2)
+          ? numericIo.input(BigInteger.valueOf(myX), 2) : numericIo.input(null, 2);
+      DRes<SInt> y2 = (myId == 2)
+          ? numericIo.input(BigInteger.valueOf(myY), 2) : numericIo.input(null, 2);
       Pair<DRes<SInt>, DRes<SInt>> input1 = new Pair<>(x1, y1);
       Pair<DRes<SInt>, DRes<SInt>> input2 = new Pair<>(x2, y2);
       Pair<Pair<DRes<SInt>, DRes<SInt>>, Pair<DRes<SInt>, DRes<SInt>>> inputs =
@@ -50,63 +60,58 @@ public class DistanceDemo extends DemoNumericApplication<BigInteger> {
       return () -> inputs;
     }).pairInPar((seq, input) -> {
       Numeric numeric = seq.numeric();
-      DRes<SInt> dX = numeric.sub(input.getFirst().getFirst(), input.getSecond().getFirst());
-      return numeric.mult(dX, dX);
+      DRes<SInt> differenceX = numeric.sub(input.getFirst().getFirst(),
+          input.getSecond().getFirst());
+      return numeric.mult(differenceX, differenceX);
     } , (seq, input) -> {
-      Numeric numeric = seq.numeric();
-      DRes<SInt> dY = numeric.sub(input.getFirst().getSecond(), input.getSecond().getSecond());
-      return numeric.mult(dY, dY);
-    }).seq((seq, distances) -> seq.numeric().add(distances.getFirst(), distances.getSecond()))
+        Numeric numeric = seq.numeric();
+        DRes<SInt> differenceY = numeric.sub(input.getFirst().getSecond(),
+            input.getSecond().getSecond());
+        return numeric.mult(differenceY, differenceY);
+      }).seq((seq, distances) -> seq.numeric().add(distances.getFirst(),
+          distances.getSecond()))
         .seq((seq, product) -> seq.numeric().open(product));
   }
 
+  /**
+   * Main method for DistanceDemo.
+   * @param args Arguments for the application
+   * @throws IOException In case of network problems
+   */
   public static <ResourcePoolT extends ResourcePool> void main(String[] args) throws IOException {
     CmdLineUtil<ResourcePoolT, ProtocolBuilderNumeric> cmdUtil = new CmdLineUtil<>();
-    NetworkConfiguration networkConfiguration = null;
-    int x, y;
-    x = y = 0;
-    try {
-      cmdUtil.addOption(Option.builder("x").desc("The integer x coordinate of this party. "
-          + "Note only party 1 and 2 should supply this input.").hasArg().build());
-      cmdUtil.addOption(Option.builder("y").desc("The integer y coordinate of this party. "
-          + "Note only party 1 and 2 should supply this input").hasArg().build());
-      CommandLine cmd = cmdUtil.parse(args);
-      networkConfiguration = cmdUtil.getNetworkConfiguration();
+    int x = 0;
+    int y = 0;
+    cmdUtil.addOption(Option.builder("x").desc("The integer x coordinate of this party. "
+        + "Note only party 1 and 2 should supply this input.").hasArg().build());
+    cmdUtil.addOption(Option.builder("y").desc("The integer y coordinate of this party. "
+        + "Note only party 1 and 2 should supply this input").hasArg().build());
+    CommandLine cmd = cmdUtil.parse(args);
+    NetworkConfiguration networkConfiguration = cmdUtil.getNetworkConfiguration();
 
-      if (networkConfiguration.getMyId() == 1 || networkConfiguration.getMyId() == 2) {
-        if (!cmd.hasOption("x") || !cmd.hasOption("y")) {
-          throw new ParseException("Party 1 and 2 must submit input");
-        } else {
-          x = Integer.parseInt(cmd.getOptionValue("x"));
-          y = Integer.parseInt(cmd.getOptionValue("y"));
-        }
+    if (networkConfiguration.getMyId() == 1 || networkConfiguration.getMyId() == 2) {
+      if (!cmd.hasOption("x") || !cmd.hasOption("y")) {
+        cmdUtil.displayHelp();
+        throw new IllegalArgumentException("Party 1 and 2 must submit input");
       } else {
-        if (cmd.hasOption("x") || cmd.hasOption("y")) {
-          throw new ParseException("Only party 1 and 2 should submit input");
-        }
+        x = Integer.parseInt(cmd.getOptionValue("x"));
+        y = Integer.parseInt(cmd.getOptionValue("y"));
       }
+    } else {
+      if (cmd.hasOption("x") || cmd.hasOption("y")) {
+        throw new IllegalArgumentException("Only party 1 and 2 should submit input");
+      }
+    }
 
-    } catch (ParseException | IllegalArgumentException e) {
-      System.out.println("Error: " + e);
-      System.out.println();
-      cmdUtil.displayHelp();
-      System.exit(-1);
-    }
     DistanceDemo distDemo = new DistanceDemo(networkConfiguration.getMyId(), x, y);
-    SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce = cmdUtil.getSCE();
-    try {
-      cmdUtil.startNetwork();
-      ResourcePoolT resourcePool = cmdUtil.getResourcePool();
-      BigInteger bigInteger = sce.runApplication(distDemo, resourcePool, cmdUtil.getNetwork());
-      double dist = Math.sqrt(bigInteger.doubleValue());
-      log.info("Distance between party 1 and 2 is: " + dist);
-    } catch (Exception e) {
-      log.error("Error while doing MPC: " + e.getMessage());
-      e.printStackTrace();
-      System.exit(-1);
-    } finally {
-      cmdUtil.closeNetwork();
-      sce.shutdownSCE();
-    }
+    SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce = cmdUtil.getSce();
+    cmdUtil.startNetwork();
+    ResourcePoolT resourcePool = cmdUtil.getResourcePool();
+    BigInteger bigInteger = sce.runApplication(distDemo, resourcePool, cmdUtil.getNetwork());
+    double dist = Math.sqrt(bigInteger.doubleValue());
+    log.info("Distance between party 1 and 2 is: " + dist);
+    cmdUtil.closeNetwork();
+    sce.shutdownSCE();
+
   }
 }

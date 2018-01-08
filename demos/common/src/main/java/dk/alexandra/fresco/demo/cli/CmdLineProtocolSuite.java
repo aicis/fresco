@@ -57,11 +57,12 @@ public class CmdLineProtocolSuite {
     } else if (protocolSuiteName.equals("dummyarithmetic")) {
       this.protocolSuite = dummyArithmeticFromCmdLine(properties);
       BigInteger mod = new BigInteger(properties.getProperty("modulus",
-          "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329"));
+          "67039039649712985497870124991238141152738485774711365274259660130265015367064643"
+          + "54255445443244279389455058889493431223951165286470575994074291745908195329"));
       this.resourcePool =
           new DummyArithmeticResourcePoolImpl(myId, noOfPlayers, mod);
     } else if (protocolSuiteName.equals("spdz")) {
-      this.protocolSuite = SpdzConfigurationFromCmdLine(properties);
+      this.protocolSuite = getSpdzProtocolSuite(properties);
       this.resourcePool =
           createSpdzResourcePool(properties);
     } else if (protocolSuiteName.equals("tinytablesprepro")) {
@@ -86,12 +87,13 @@ public class CmdLineProtocolSuite {
 
   private ProtocolSuite<?, ?> dummyArithmeticFromCmdLine(Properties properties) {
     BigInteger mod = new BigInteger(properties.getProperty("modulus",
-        "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329"));
+        "67039039649712985497870124991238141152738485774711365274259660130265015367064643"
+        + "54255445443244279389455058889493431223951165286470575994074291745908195329"));
     int maxBitLength = Integer.parseInt(properties.getProperty("maxbitlength", "150"));
     return new DummyArithmeticProtocolSuite(mod, maxBitLength);
   }
 
-  private ProtocolSuite<?, ?> SpdzConfigurationFromCmdLine(Properties properties) {
+  private ProtocolSuite<?, ?> getSpdzProtocolSuite(Properties properties) {
     Properties p = getProperties(properties);
     // TODO: Figure out a meaningful default for the below
     final int maxBitLength = Integer.parseInt(p.getProperty("spdz.maxBitLength", "64"));
@@ -109,28 +111,29 @@ public class CmdLineProtocolSuite {
     String strat = properties.getProperty("spdz.preprocessingStrategy");
     final PreprocessingStrategy strategy = PreprocessingStrategy.valueOf(strat);
     DataSupplier supplier = null;
-    if (strategy == PreprocessingStrategy.DUMMY){
-        supplier = new DummyDataSupplierImpl(myId, noOfPlayers);        
+    if (strategy == PreprocessingStrategy.DUMMY) {
+      supplier = new DummyDataSupplierImpl(myId, noOfPlayers);        
     }
-    if (strategy == PreprocessingStrategy.STATIC){
+    if (strategy == PreprocessingStrategy.STATIC) {
       String storageName = properties.getProperty("spdz.storage");
       int noOfThreadsUsed = 1;
-     // if(storageName == null) {
-              
-        storageName =
-            SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
-            + "_";
-    //  } else {
-        storageName =
-            "src/test/resources/"+SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
-            + "_";
-//      }
-     // DataSupplierImpl d = new DataSupplierImpl(new FilebasedStreamedStorageImpl(new InMemoryStorage()), "test", 1);
-   //   System.out.println(d.getClass().getClassLoader().getResourceAsStream(storageName));
-      
-      supplier = new DataSupplierImpl(new FilebasedStreamedStorageImpl(new InMemoryStorage()), storageName, noOfPlayers);        
+      // if(storageName == null) {
+
+      storageName =
+          SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
+          + "_";
+      //  } else {
+      storageName =
+          "src/test/resources/" + SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreadsUsed 
+          + "_" + myId + "_" + 0 + "_";
+      //      }
+      // DataSupplierImpl d = new DataSupplierImpl(new FilebasedStreamedStorageImpl(new InMemoryStorage()), "test", 1);
+      //   System.out.println(d.getClass().getClassLoader().getResourceAsStream(storageName));
+
+      supplier = new DataSupplierImpl(new FilebasedStreamedStorageImpl(
+          new InMemoryStorage()), storageName, noOfPlayers);        
     }      
-     
+
     SpdzStorage store = new SpdzStorageImpl(supplier);
     try {
       return new SpdzResourcePoolImpl(myId, noOfPlayers, new HmacDrbg(), store);

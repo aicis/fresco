@@ -42,7 +42,7 @@ public class TestCmdLineUtil {
     assertEquals(2, cmd.getNetworkConfiguration().noOfParties());
     assertTrue(cmd.getProtocolSuite() instanceof DummyBooleanProtocolSuite);
     assertTrue(cmd.getResourcePool() instanceof ResourcePoolImpl);
-    assertTrue(cmd.getSCE() instanceof SecureComputationEngineImpl);
+    assertTrue(cmd.getSce() instanceof SecureComputationEngineImpl);
   }
 
   @Test
@@ -54,7 +54,7 @@ public class TestCmdLineUtil {
     assertEquals(2, cmd.getNetworkConfiguration().noOfParties());
     assertTrue(cmd.getProtocolSuite() instanceof DummyBooleanProtocolSuite);
     assertTrue(cmd.getResourcePool() instanceof ResourcePoolImpl);
-    assertTrue(cmd.getSCE() instanceof SecureComputationEngineImpl);
+    assertTrue(cmd.getSce() instanceof SecureComputationEngineImpl);
   }
 
   @Test
@@ -66,7 +66,7 @@ public class TestCmdLineUtil {
     assertEquals(2, cmd.getNetworkConfiguration().noOfParties());
     assertTrue(cmd.getProtocolSuite() instanceof DummyArithmeticProtocolSuite);
     assertTrue(cmd.getResourcePool() instanceof ResourcePoolImpl);
-    assertTrue(cmd.getSCE() instanceof SecureComputationEngineImpl);
+    assertTrue(cmd.getSce() instanceof SecureComputationEngineImpl);
   }
 
   @Test
@@ -78,7 +78,7 @@ public class TestCmdLineUtil {
     assertEquals(2, cmd.getNetworkConfiguration().noOfParties());
     assertTrue(cmd.getProtocolSuite() instanceof SpdzProtocolSuite);
     assertTrue(cmd.getResourcePool() instanceof ResourcePoolImpl);
-    assertTrue(cmd.getSCE() instanceof SecureComputationEngineImpl);
+    assertTrue(cmd.getSce() instanceof SecureComputationEngineImpl);
   }
 
   @Test(expected=IllegalArgumentException.class)
@@ -97,7 +97,7 @@ public class TestCmdLineUtil {
     assertEquals(2, cmd.getNetworkConfiguration().noOfParties());
     assertTrue(cmd.getProtocolSuite() instanceof SpdzProtocolSuite);
     assertTrue(cmd.getResourcePool() instanceof ResourcePoolImpl);
-    assertTrue(cmd.getSCE() instanceof SecureComputationEngineImpl);
+    assertTrue(cmd.getSce() instanceof SecureComputationEngineImpl);
   }
   
   @Test(expected=IllegalArgumentException.class)
@@ -114,7 +114,7 @@ public class TestCmdLineUtil {
     assertEquals(2, cmd.getNetworkConfiguration().noOfParties());
     assertTrue(cmd.getProtocolSuite() instanceof TinyTablesPreproProtocolSuite);
     assertTrue(cmd.getResourcePool() instanceof ResourcePoolImpl);
-    assertTrue(cmd.getSCE() instanceof SecureComputationEngineImpl);
+    assertTrue(cmd.getSce() instanceof SecureComputationEngineImpl);
   }
 
   @Test
@@ -126,7 +126,7 @@ public class TestCmdLineUtil {
     assertEquals(2, cmd.getNetworkConfiguration().noOfParties());
     assertTrue(cmd.getProtocolSuite() instanceof TinyTablesProtocolSuite);
     assertTrue(cmd.getResourcePool() instanceof ResourcePoolImpl);
-    assertTrue(cmd.getSCE() instanceof SecureComputationEngineImpl);
+    assertTrue(cmd.getSce() instanceof SecureComputationEngineImpl);
   }
 
   @Test(expected=IllegalArgumentException.class)

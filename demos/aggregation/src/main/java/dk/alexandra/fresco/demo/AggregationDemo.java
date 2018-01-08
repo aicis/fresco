@@ -91,9 +91,11 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
    * Main.
    *
    * @param args must include player ID
-   * @throws NoSuchAlgorithmException If your system does not support the hash function needed by SPDZ
+   * @throws NoSuchAlgorithmException If your system does not support
+    the hash function needed by SPDZ
    */
-  public static <ResourcePoolT extends ResourcePool> void main(String[] args) throws IOException, NoSuchAlgorithmException {
+  public static <ResourcePoolT extends ResourcePool> void main(String[] args) throws
+      IOException, NoSuchAlgorithmException {
     
     
     CmdLineUtil<ResourcePoolT, ProtocolBuilderNumeric> util = new CmdLineUtil<>();

@@ -1,5 +1,7 @@
 package dk.alexandra.fresco.demo;
 
+import static org.junit.Assert.fail;
+
 import dk.alexandra.fresco.IntegrationTest;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
@@ -33,7 +35,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 
-public class SetIntersectionDemo {
+public class TestPrivateSetDemo {
 
   private int noPlayers = 2;
 
@@ -257,4 +259,34 @@ public class SetIntersectionDemo {
     t1.join();
     t2.join();
   }
+  
+  @Test(expected=IllegalArgumentException.class)
+  public void testPSICmdLine3Party() throws Exception {
+    PrivateSetDemo.main(new String[]{"-i", "3", "-p", "1:localhost:8081",
+        "-p", "2:localhost:8082", "-p", "3:localhost:8083", "-s", "dummyBool"});
+    fail();
+  }
+  
+  @Test(expected=IllegalArgumentException.class)
+  public void testPSICmdLineBadKeyLength() throws Exception {
+    PrivateSetDemo.main(new String[]{"-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s",
+        "dummyBool", "-in", "2,3,4,6,7,12,14", "-key",
+        "abc123abc123abc123abc123abc123"});
+    fail();
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void testPSICmdLineNoKey() throws Exception {
+    PrivateSetDemo.main(new String[]{"-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s",
+        "dummyBool", "-in", "2,3,4,6,7,12,14"});
+    fail();
+  }
+  
+  @Test(expected=IllegalArgumentException.class)
+  public void testPSICmdLineNoInput() throws Exception {
+    PrivateSetDemo.main(new String[]{"-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s",
+        "dummyBool"});
+    fail();
+  }
+  
 }

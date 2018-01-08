@@ -30,10 +30,10 @@ import org.junit.Assert;
 import org.junit.Test;
 
 
-public class TestAESDemo {
+public class TestAesDemo {
 
   @Test
-  public void testAESDemo() throws Exception {
+  public void testAesDemo() throws Exception {
     int noPlayers = 2;
     // Since SCAPI currently does not work with ports > 9999 we use fixed ports
     // here instead of relying on ephemeral ports which are often > 9999.
@@ -80,7 +80,7 @@ public class TestAESDemo {
                   input = ByteAndBitConverter.toBoolean("000102030405060708090a0b0c0d0e0f");
                 }
 
-                AESDemo app = new AESDemo(conf.getMyId(), input);
+                AesDemo app = new AesDemo(conf.getMyId(), input);
 
                 List<Boolean> aesResult = runApplication(app);
 
@@ -106,7 +106,7 @@ public class TestAESDemo {
   public void testAESCmdLine() throws Exception {
     Runnable p1 = () -> {
       try {
-        AESDemo.main(
+        AesDemo.main(
             new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s",
                 "dummyBool", "-in", "000102030405060708090a0b0c0d0e0f"});
       } catch (IOException e) {
@@ -116,7 +116,7 @@ public class TestAESDemo {
 
     Runnable p2 = () -> {
       try {
-        AESDemo.main(
+        AesDemo.main(
             new String[]{"-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s",
                 "dummyBool", "-in", "00112233445566778899aabbccddeeff"});
       } catch (IOException e) {
@@ -135,7 +135,7 @@ public class TestAESDemo {
   public void testAESCmdLine3Party() throws Exception {
     Runnable p1 = () -> {
       try {
-        AESDemo.main(
+        AesDemo.main(
             new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082",
                 "-p", "3:localhost:8083", "-s", "dummyBool", "-in", "000102030405060708090a0b0c0d0e0f"});
       } catch (IOException e) {
@@ -145,7 +145,7 @@ public class TestAESDemo {
 
     Runnable p2 = () -> {
       try {
-        AESDemo.main(
+        AesDemo.main(
             new String[]{"-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082",
                 "-p", "3:localhost:8083", "-s", "dummyBool", "-in", "00112233445566778899aabbccddeeff"});
       } catch (IOException e) {
@@ -155,7 +155,7 @@ public class TestAESDemo {
     
     Runnable p3 = () -> {
       try {
-        AESDemo.main(
+        AesDemo.main(
             new String[]{"-i", "3", "-p", "1:localhost:8081", "-p", "2:localhost:8082",
                 "-p", "3:localhost:8083", "-s", "dummyBool"});
       } catch (IOException e) {
@@ -175,7 +175,7 @@ public class TestAESDemo {
   
   @Test(expected=IllegalArgumentException.class)
   public void testAESCmdLineBadLength() throws Exception {
-    AESDemo.main(
+    AesDemo.main(
         new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082", 
             "-s", "dummyBool", "-in", "000102030405060708090a0b0c0d0"});
     fail();
@@ -183,7 +183,7 @@ public class TestAESDemo {
 
   @Test(expected=IllegalArgumentException.class)
   public void testAESCmdLineNoInput() throws Exception {
-    AESDemo.main(
+    AesDemo.main(
         new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082", 
             "-s", "dummyBool"});
     fail();
@@ -191,7 +191,7 @@ public class TestAESDemo {
 
   @Test(expected=IllegalArgumentException.class)
   public void testAESCmdLine3PartyInput() throws Exception {
-    AESDemo.main(
+    AesDemo.main(
         new String[]{"-i", "3", "-p", "1:localhost:8081", "-p", "2:localhost:8082", 
             "-p", "3:localhost:8083", "-s", "dummyBool", "-in", "000102030405060708090a0b0c0d0"});
     fail();

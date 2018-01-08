@@ -22,42 +22,42 @@ import org.apache.commons.cli.Option;
 /**
  * This demonstrates how to aggregate generic protocols to form an application.
  *
- * It is designed for two players and requires a protocol suite that supports basic logic
+ * <p>It is designed for two players and requires a protocol suite that supports basic logic
  * operations.
- *
- * Player 1 inputs a secret 128-bit AES key (as a 32 char hex string), player 2 inputs a secret
+ * 
+ * <p>Player 1 inputs a secret 128-bit AES key (as a 32 char hex string), player 2 inputs a secret
  * plaintext (also a 32 char hex string). The output (to both players) is the resulting AES
  * encryption of the plaintext under the given AES key.
- *
- * Suppose we have two players. P2 has the plaintext block 000102030405060708090a0b0c0d0e0f and P1
- * has the key 00112233445566778899aabbccddeeff. They both want to know the ciphertext, i.e., the
- * result of encrypting 000102030405060708090a0b0c0d0e0f under the key
+ * 
+ * <p>Suppose we have two players. P2 has the plaintext block 000102030405060708090a0b0c0d0e0f
+ * and P1 has the key 00112233445566778899aabbccddeeff. They both want to know the ciphertext,
+ * i.e., the result of encrypting 000102030405060708090a0b0c0d0e0f under the key
  * 00112233445566778899aabbccddeeff, but they do not want to reveal the key and the plaintext to
  * each other.
- *
- * The two players can then run this application with these parameters:
- *
- * P1: $ java -jar aes.jar -i1 -s dummy -p1:localhost:9292 -p2:localhost:9994 -in
+ * 
+ * <p>The two players can then run this application with these parameters:
+ * 
+ * <p>P1: $ java -jar aes.jar -i1 -s dummy -p1:localhost:9292 -p2:localhost:9994 -in
  * 000102030405060708090a0b0c0d0e0f
- *
- * P2: $ java -jar aes.jar -i2 -s dummy -p1:localhost:9292 -p2:localhost:9994 -in
+ * 
+ * <p>P2: $ java -jar aes.jar -i2 -s dummy -p1:localhost:9292 -p2:localhost:9994 -in
  * 00112233445566778899aabbccddeeff
- *
- * This results in this output (at both parties):
- *
- * The resulting ciphertext is: 69c4e0d86a7b0430d8cdb78070b4c55a
- *
- * OBS: Using the dummy protocol suite is not secure!
+ * 
+ * <p>This results in this output (at both parties):
+ * 
+ * <p>The resulting ciphertext is: 69c4e0d86a7b0430d8cdb78070b4c55a
+ * 
+ * <p>OBS: Using the dummy protocol suite is not secure!
  */
-public class AESDemo implements Application<List<Boolean>, ProtocolBuilderBinary> {
+public class AesDemo implements Application<List<Boolean>, ProtocolBuilderBinary> {
 
   private Boolean[] in;
   private int id;
 
-  private final static int BLOCK_SIZE = 128; // 128 bit AES
-  private final static int INPUT_LENGTH = 32; // chars for defining 128 bit in hex
+  private static final int BLOCK_SIZE = 128; // 128 bit AES
+  private static final int INPUT_LENGTH = 32; // chars for defining 128 bit in hex
 
-  public AESDemo(int id, Boolean[] in) {
+  public AesDemo(int id, Boolean[] in) {
     this.in = in;
     this.id = id;
   }
@@ -109,7 +109,7 @@ public class AESDemo implements Application<List<Boolean>, ProtocolBuilderBinary
 
     ResourcePoolT resourcePool = util.getResourcePool();
     util.startNetwork();
-    AESDemo aes = new AESDemo(util.getNetworkConfiguration().getMyId(), input);
+    AesDemo aes = new AesDemo(util.getNetworkConfiguration().getMyId(), input);
     List<Boolean> aesResult = sce.runApplication(aes, resourcePool, util.getNetwork());
     
     util.closeNetwork();
