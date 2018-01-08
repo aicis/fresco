@@ -1,17 +1,20 @@
-package dk.alexandra.fresco.suite.spdz.gates;
+package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzNativeProtocol;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.util.Arrays;
+import java.util.List;
 
-public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
+public class MaliciousSpdzInputProtocol extends SpdzNativeProtocol<SInt> {
 
   private SpdzInputMask inputMask; // is opened by this gate.
   protected BigInteger input;
@@ -20,14 +23,13 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
   private int inputter;
   private byte[] digest;
 
-  public SpdzInputProtocol(BigInteger input, int inputter) {
+  public MaliciousSpdzInputProtocol(BigInteger input, int inputter) {
     this.input = input;
     this.inputter = inputter;
   }
 
   @Override
-  public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
-      Network network) {
+  public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool, Network network) {
     int myId = spdzResourcePool.getMyId();
     BigInteger modulus = spdzResourcePool.getModulus();
     SpdzStorage storage = spdzResourcePool.getStore();
@@ -42,21 +44,17 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else if (round == 1) {
       this.valueMasked = serializer.toBigInteger(network.receive(inputter));
-      this.digest = sendBroadcastValidation(
-          spdzResourcePool.getMessageDigest(), network,
+      this.digest = sendMaliciousBroadcastValidation(spdzResourcePool.getMessageDigest(), network,
           valueMasked);
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
-      boolean validated = receiveBroadcastValidation(network, digest);
+      boolean validated = receiveMaliciousBroadcastValidation(network, digest);
       if (!validated) {
         throw new MPCException("Broadcast digests did not match");
       }
-      SpdzElement valueMaskedElement =
-          new SpdzElement(
-              valueMasked,
-              storage.getSecretSharedKey().multiply(valueMasked).mod(modulus),
-              modulus);
-      this.out = new SpdzSInt(this.inputMask.getMask().add(valueMaskedElement, myId));
+      SpdzElement valueMaskedElm = new SpdzElement(valueMasked,
+          storage.getSecretSharedKey().multiply(valueMasked).mod(modulus), modulus);
+      this.out = new SpdzSInt(this.inputMask.getMask().add(valueMaskedElm, myId));
       return EvaluationStatus.IS_DONE;
     }
 
@@ -67,4 +65,27 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
     return out;
   }
 
+  byte[] sendMaliciousBroadcastValidation(MessageDigest dig, Network network, BigInteger b) {
+    dig.update(b.toByteArray());
+    return sendAndReset(dig, network);
+  }
+
+  private byte[] sendAndReset(MessageDigest dig, Network network) {
+    byte[] digest = dig.digest();
+    dig.reset();
+    digest[0] = (byte) 0xFF;
+    network.sendToAll(digest);
+    return digest;
+  }
+
+  private boolean receiveMaliciousBroadcastValidation(Network network, byte[] digest) {
+    // TODO: should we check that we get messages from all players?
+    boolean validated = true;
+    List<byte[]> digests = network.receiveFromAll();
+    for (byte[] d : digests) {
+      boolean equals = Arrays.equals(d, digest);
+      validated = validated && equals;
+    }
+    return validated;
+  }
 }

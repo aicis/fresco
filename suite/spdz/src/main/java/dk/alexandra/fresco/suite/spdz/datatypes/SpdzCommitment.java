@@ -10,22 +10,33 @@ public class SpdzCommitment {
   private BigInteger randomness;
   private BigInteger commitment;
   private Random rand;
-  private MessageDigest H;
+  private MessageDigest hash;
 
-  public SpdzCommitment(MessageDigest H, BigInteger value, Random rand) {
+  /**
+   * Commit to a specific value.
+   * @param hash The hashing algorithm to use
+   * @param value The value to commit to use
+   * @param rand The randomness to use
+   */
+  public SpdzCommitment(MessageDigest hash, BigInteger value, Random rand) {
     this.value = value;
     this.rand = rand;
-    this.H = H;
+    this.hash = hash;
   }
 
+  /**
+   * Compute a commitment. 
+   * @param modulus The modulus to use
+   * @return If a commitment has already been computed, the existing commitment is returned.
+   */
   public BigInteger computeCommitment(BigInteger modulus) {
-    if(this.commitment != null) {
+    if (this.commitment != null) {
       return this.commitment;
     }
-    H.update(value.toByteArray());
+    hash.update(value.toByteArray());
     this.randomness = new BigInteger(modulus.bitLength(), rand);
-    H.update(this.randomness.toByteArray());
-    this.commitment = new BigInteger(H.digest()).mod(modulus);
+    hash.update(this.randomness.toByteArray());
+    this.commitment = new BigInteger(hash.digest()).mod(modulus);
     return this.commitment;
   }
 

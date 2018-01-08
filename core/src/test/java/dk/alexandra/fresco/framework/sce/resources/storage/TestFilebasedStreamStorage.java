@@ -3,7 +3,6 @@ package dk.alexandra.fresco.framework.sce.resources.storage;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.sce.resources.storage.exceptions.NoMoreElementsException;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -14,7 +13,6 @@ import java.io.Serializable;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
 import org.hamcrest.core.Is;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -60,7 +58,7 @@ public class TestFilebasedStreamStorage {
     Assert.assertThat(s, Is.is(myObj));
   }
 
-  @Test(expected = MPCException.class)
+  @Test(expected = NoMoreElementsException.class)
   public void testEmptyFile() throws NoMoreElementsException {
     try {
       (new FileOutputStream("foo")).close();
@@ -71,7 +69,7 @@ public class TestFilebasedStreamStorage {
     fail("Should not be reachable");
   }
 
-  @Test(expected = MPCException.class)
+  @Test(expected = RuntimeException.class)
   public void testWriteAfterClose() throws NoMoreElementsException {
     String myObj1 = "Test1";
     String myObj2 = "Test2";
@@ -93,7 +91,7 @@ public class TestFilebasedStreamStorage {
     return data;
   }
 
-  @Test(expected = MPCException.class)
+  @Test(expected = RuntimeException.class)
   public void testClassNotFound() throws NoMoreElementsException {
     try {
       // A representation of a class we no longer know
@@ -110,19 +108,19 @@ public class TestFilebasedStreamStorage {
     fail("Should not be reachable");
   }
 
-  @Test(expected = MPCException.class)
+  @Test(expected = NoMoreElementsException.class)
   public void testGetNonExisting2() throws NoMoreElementsException {
     storage.getNext("test-obj-2");
     Assert.fail();
   }
 
-  @Test(expected = MPCException.class)
+  @Test(expected = NoMoreElementsException.class)
   public void testGetNonExisting() throws NoMoreElementsException {
     storage.getNext("test-obj-2");
     Assert.fail();
   }
 
-  @Test(expected = MPCException.class)
+  @Test(expected = RuntimeException.class)
   public void testPutBadName() throws NoMoreElementsException {
     storage.putNext("\0", "data");
     Assert.fail();

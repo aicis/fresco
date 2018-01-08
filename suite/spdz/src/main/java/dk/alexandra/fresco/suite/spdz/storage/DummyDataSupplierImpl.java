@@ -14,8 +14,8 @@ import java.util.Map;
  */
 public class DummyDataSupplierImpl implements DataSupplier {
 
-  private int myId;
-  private int numberOfPlayers;
+  private final int myId;
+  private final int numberOfPlayers;
 
   private Map<Integer, SpdzTriple> triples_2party;
   private Map<Integer, SpdzSInt> bits_2party;
@@ -59,41 +59,36 @@ public class DummyDataSupplierImpl implements DataSupplier {
   public SpdzTriple getNextTriple() {
     if (numberOfPlayers == 2) {
       return triples_2party.get(myId);
-    } else if (numberOfPlayers == 3) {
+    } else {
       return triples_3party.get(myId);
     }
-    throw new RuntimeException("Not implemented yet");
   }
 
   @Override
   public SpdzSInt[] getNextExpPipe() {
     if (numberOfPlayers == 2) {
       return this.exp_2party.get(myId);
-    } else if (numberOfPlayers == 3) {
+    } else {
       return this.exp_3party.get(myId);
     }
-    throw new RuntimeException("Not implemented yet");
   }
 
   @Override
   public SpdzInputMask getNextInputMask(int towardPlayerID) {
     if (numberOfPlayers == 2) {
-      SpdzInputMask mask = inputs_2party.get(myId).get(towardPlayerID);
-      return mask;
-    } else if (numberOfPlayers == 3) {
+      return inputs_2party.get(myId).get(towardPlayerID);
+    } else {
       return this.inputs_3party.get(myId).get(towardPlayerID);
     }
-    throw new RuntimeException("Not implemented yet");
   }
 
   @Override
   public SpdzSInt getNextBit() {
     if (numberOfPlayers == 2) {
       return this.bits_2party.get(myId);
-    } else if (numberOfPlayers == 3) {
+    } else {
       return this.bits_3party.get(myId);
     }
-    throw new RuntimeException("Not implemented yet");
   }
 
   @Override
@@ -112,7 +107,7 @@ public class DummyDataSupplierImpl implements DataSupplier {
   }
 
   @Override
-  public BigInteger getSSK() {
+  public BigInteger getSecretSharedKey() {
     return ssk;
   }
 

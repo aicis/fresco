@@ -1,17 +1,12 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.numeric.DefaultPreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
-import dk.alexandra.fresco.framework.builder.numeric.PreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocolKnownLeft;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzInputProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzKnownSIntProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocolKnownLeft;
@@ -22,37 +17,13 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownRight;
 import java.math.BigInteger;
-import java.util.List;
 
-/**
- * Basic native builder for the SPDZ protocol suite. 
- */
-class SpdzBuilder implements BuilderFactoryNumeric {
+public class MaliciousSpdzBuilder extends SpdzBuilder {
 
-  private BasicNumericContext spdzFactory;
-  private MiscBigIntegerGenerators miscOIntGenerators;
-
-  SpdzBuilder(BasicNumericContext spdzFactory) {
-    this.spdzFactory = spdzFactory;
+  MaliciousSpdzBuilder(BasicNumericContext spdzFactory) {
+    super(spdzFactory);
   }
 
-  @Override
-  public BasicNumericContext getBasicNumericContext() {
-    return spdzFactory;
-  }
-
-  @Override
-  public PreprocessedValues createPreprocessedValues(ProtocolBuilderNumeric protocolBuilder) {
-    return new DefaultPreprocessedValues(protocolBuilder) {      
-      @Override
-      public DRes<List<DRes<SInt>>> getExponentiationPipe(int pipeLength) {
-        SpdzExponentiationPipeProtocol spdzExpPipeProtocol 
-            = new SpdzExponentiationPipeProtocol(pipeLength);
-        return protocolBuilder.append(spdzExpPipeProtocol);
-      }
-    };
-  }
-  
   @Override
   public Numeric createNumeric(ProtocolBuilderNumeric protocolBuilder) {
     return new Numeric() {
@@ -120,8 +91,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> input(BigInteger value, int inputParty) {
-        SpdzInputProtocol protocol = new SpdzInputProtocol(value, inputParty);
-        return protocolBuilder.append(protocol);
+        return protocolBuilder.append(new MaliciousSpdzInputProtocol(value, inputParty));
       }
 
       @Override
@@ -132,18 +102,11 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public DRes<BigInteger> open(DRes<SInt> secretShare, int outputParty) {
-        SpdzOutputSingleProtocol openProtocol 
-            = new SpdzOutputSingleProtocol(secretShare, outputParty);
+        SpdzOutputSingleProtocol openProtocol =
+            new SpdzOutputSingleProtocol(secretShare, outputParty);
         return protocolBuilder.append(openProtocol);
       }
     };
   }
 
-  @Override
-  public MiscBigIntegerGenerators getBigIntegerHelper() {
-    if (miscOIntGenerators == null) {
-      miscOIntGenerators = new MiscBigIntegerGenerators(spdzFactory.getModulus());
-    }
-    return miscOIntGenerators;
-  }
 }

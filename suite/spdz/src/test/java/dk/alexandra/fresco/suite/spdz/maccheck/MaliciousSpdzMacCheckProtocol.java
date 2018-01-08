@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.suite.spdz.gates;
+package dk.alexandra.fresco.suite.spdz.maccheck;
 
 import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.ProtocolCollection;
@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SpdzMacCheckProtocol implements ProtocolProducer {
+public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
 
   private SecureRandom rand;
   private MessageDigest digest;
@@ -26,19 +26,24 @@ public class SpdzMacCheckProtocol implements ProtocolProducer {
   private ProtocolProducer pp;
   private Map<Integer, BigInteger> commitments;
   private BigInteger modulus;
-  private SpdzCommitProtocol comm;
-  private SpdzOpenCommitProtocol openComm;
+  private MaliciousSpdzCommitProtocol comm;
+  private MaliciousSpdzOpenCommitProtocol openComm;
+
+  public static boolean corruptCommitRound1 = false;
+  public static boolean corruptOpenCommitRound1 = false;
+  public static boolean corruptCommitRound2 = false;
+  public static boolean corruptOpenCommitRound2 = false;
 
   /**
    * Protocol which handles the MAC check internal to SPDZ. If this protocol reaches the end, no
    * malicious activity was detected and the storage is reset.
-   * 
+   *
    * @param rand A secure randomness source
    * @param digest A secure hash used for the commitment scheme
    * @param storage The store containing the half-opened values to be checked
-   * @param modulus The global modulus used.  
+   * @param modulus The global modulus used.
    */
-  public SpdzMacCheckProtocol(SecureRandom rand, MessageDigest digest, SpdzStorage storage,
+  public MaliciousSpdzMacCheckProtocol(SecureRandom rand, MessageDigest digest, SpdzStorage storage,
       BigInteger modulus) {
     this.rand = rand;
     this.digest = digest;
@@ -55,9 +60,9 @@ public class SpdzMacCheckProtocol implements ProtocolProducer {
         BigInteger s = new BigInteger(modulus.bitLength(), rand).mod(modulus);
         SpdzCommitment commitment = new SpdzCommitment(digest, s, rand);
         Map<Integer, BigInteger> comms = new HashMap<>();
-        comm = new SpdzCommitProtocol(commitment, comms);
-        openComm = new SpdzOpenCommitProtocol(commitment, comms, commitments);
-
+        comm = new MaliciousSpdzCommitProtocol(commitment, comms, corruptCommitRound1);
+        openComm = new MaliciousSpdzOpenCommitProtocol(commitment, comms, commitments,
+            corruptOpenCommitRound1);
         pp = new SequentialProtocolProducer(new SingleProtocolProducer<>(comm),
             new SingleProtocolProducer<>(openComm));
       } else if (round == 1) {
@@ -110,10 +115,10 @@ public class SpdzMacCheckProtocol implements ProtocolProducer {
         // Commit to delta and open it afterwards
         SpdzCommitment commitment = new SpdzCommitment(digest, delta, rand);
         Map<Integer, BigInteger> comms = new HashMap<>();
-        comm = new SpdzCommitProtocol(commitment, comms);
+        comm = new MaliciousSpdzCommitProtocol(commitment, comms, corruptCommitRound2);
         commitments = new HashMap<>();
-        openComm = new SpdzOpenCommitProtocol(commitment, comms, commitments);
-
+        openComm = new MaliciousSpdzOpenCommitProtocol(commitment, comms, commitments,
+            corruptOpenCommitRound2);
         pp = new SequentialProtocolProducer(new SingleProtocolProducer<>(comm),
             new SingleProtocolProducer<>(openComm));
       } else {
