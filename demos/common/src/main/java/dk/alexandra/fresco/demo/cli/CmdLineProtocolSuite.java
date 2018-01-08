@@ -112,27 +112,18 @@ public class CmdLineProtocolSuite {
     final PreprocessingStrategy strategy = PreprocessingStrategy.valueOf(strat);
     DataSupplier supplier = null;
     if (strategy == PreprocessingStrategy.DUMMY) {
-      supplier = new DummyDataSupplierImpl(myId, noOfPlayers);        
+      supplier = new DummyDataSupplierImpl(myId, noOfPlayers);
     }
     if (strategy == PreprocessingStrategy.STATIC) {
       String storageName = properties.getProperty("spdz.storage");
       int noOfThreadsUsed = 1;
-      // if(storageName == null) {
-
       storageName =
           SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
           + "_";
-      //  } else {
-      storageName =
-          "src/test/resources/" + SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreadsUsed 
-          + "_" + myId + "_" + 0 + "_";
-      //      }
-      // DataSupplierImpl d = new DataSupplierImpl(new FilebasedStreamedStorageImpl(new InMemoryStorage()), "test", 1);
-      //   System.out.println(d.getClass().getClassLoader().getResourceAsStream(storageName));
 
       supplier = new DataSupplierImpl(new FilebasedStreamedStorageImpl(
-          new InMemoryStorage()), storageName, noOfPlayers);        
-    }      
+          new InMemoryStorage()), storageName, noOfPlayers);
+    }
 
     SpdzStorage store = new SpdzStorageImpl(supplier);
     try {

@@ -13,6 +13,8 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
+import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
+import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.logging.EvaluatorLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
@@ -20,6 +22,7 @@ import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePool;
 import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
+import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import java.io.IOException;
@@ -28,7 +31,6 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class TestCmdLineUtil {
@@ -85,11 +87,11 @@ public class TestCmdLineUtil {
   public void testSpdzBadBitLength() throws InterruptedException {
     parseAndCloseNetwork(getArgs(1, "spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=DUMMY", "-D", "spdz.maxBitLength=1"));
   }
-  
-  @Ignore
+
   @Test
-  public void testSpdzAritmeticStaticFromCmdLine() throws InterruptedException {
-    CmdLineUtil<SpdzResourcePool, ProtocolBuilderNumeric> cmd = 
+  public void testSpdzAritmeticStaticFromCmdLine() throws InterruptedException, IOException {
+    InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()), 2, 1, 1, 1, 1, 1);
+    CmdLineUtil<SpdzResourcePool, ProtocolBuilderNumeric> cmd =
         parseAndCloseNetwork(getArgs(1, "spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=STATIC"));
     assertTrue(cmd.getNetwork() instanceof KryoNetNetwork);
     assertTrue(cmd.getEvaluator() instanceof BatchedProtocolEvaluator);
@@ -98,8 +100,9 @@ public class TestCmdLineUtil {
     assertTrue(cmd.getProtocolSuite() instanceof SpdzProtocolSuite);
     assertTrue(cmd.getResourcePool() instanceof ResourcePoolImpl);
     assertTrue(cmd.getSce() instanceof SecureComputationEngineImpl);
+    InitializeStorage.cleanup();
   }
-  
+
   @Test(expected=IllegalArgumentException.class)
   public void testSpdzAritmeticBadStrategyFromCmdLine() throws InterruptedException {
     parseAndCloseNetwork(getArgs(1, "spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=NO_STRATEGY"));
@@ -200,7 +203,7 @@ public class TestCmdLineUtil {
   }
 
   //Since network connects immediately, we need it to actually connect to avoid waiting for timeout
-  private <ResourcePoolT extends ResourcePool, 
+  private <ResourcePoolT extends ResourcePool,
   Builder extends ProtocolBuilder> CmdLineUtil<ResourcePoolT, Builder>
   parseAndCloseNetwork(String[] mainArgs) {
 
@@ -248,7 +251,7 @@ public class TestCmdLineUtil {
   }
 
   private void parseIncorrectArgs(String...args) {
-    
+
     @SuppressWarnings("rawtypes")
     CmdLineUtil cmd = new CmdLineUtil<>();
     cmd.parse(args);
