@@ -31,6 +31,6 @@ public class TestSpdzLPSolver2Parties extends AbstractSpdzTest {
   public void test_LPSolver_2_Sequential_batched_mascot() {
     runTest(new LPSolverTests.TestLPSolver<>(PivotRule.DANZIG),
         EvaluationStrategy.SEQUENTIAL_BATCHED,
-        PreprocessingStrategy.MASCOT, 2, 16,16);
+        PreprocessingStrategy.MASCOT, 2, 128,30);
   }
 }
