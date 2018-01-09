@@ -50,12 +50,6 @@ public class TestSpdzComparison extends AbstractSpdzTest {
   }
 
   @Test
-  public void testCompareEQEdgeCasesSequentialMascot() {
-    runTest(new CompareTests.TestCompareEQEdgeCases<>(), EvaluationStrategy.SEQUENTIAL,
-        PreprocessingStrategy.MASCOT, 2, 16);
-  }
-
-  @Test
   public void test_isSorted() {
     runTest(new SortingTests.TestIsSorted<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2);
@@ -88,13 +82,19 @@ public class TestSpdzComparison extends AbstractSpdzTest {
   @Test
   public void testCompareLTSequentialMascot() {
     runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
-        PreprocessingStrategy.MASCOT, 2, 16);
+        PreprocessingStrategy.MASCOT, 2, 64,8);
   }
 
   @Test
   public void testCompareEQSequentialBatchedMascot() {
     runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL,
-        PreprocessingStrategy.MASCOT, 2, 16);
+        PreprocessingStrategy.MASCOT, 2, 16,16);
+  }
+
+  @Test
+  public void testCompareEQEdgeCasesSequentialMascot() {
+    runTest(new CompareTests.TestCompareEQEdgeCases<>(), EvaluationStrategy.SEQUENTIAL,
+        PreprocessingStrategy.MASCOT, 2, 16,16);
   }
 
 }

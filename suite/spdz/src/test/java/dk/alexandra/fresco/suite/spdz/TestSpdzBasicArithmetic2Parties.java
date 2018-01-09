@@ -96,12 +96,12 @@ public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
   @Test
   public void test_Input_SequentialBatched_Mascot() throws Exception {
     runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        PreprocessingStrategy.MASCOT, 2, 16);
+        PreprocessingStrategy.MASCOT, 2, 16,16);
   }
 
   @Test
   public void testOpenWithConversionMascot() throws Exception {
     runTest(new BasicArithmeticTests.TestOpenWithConversion<>(), EvaluationStrategy.SEQUENTIAL,
-        PreprocessingStrategy.MASCOT, 2, 16);
+        PreprocessingStrategy.MASCOT, 2, 16,16);
   }
 }

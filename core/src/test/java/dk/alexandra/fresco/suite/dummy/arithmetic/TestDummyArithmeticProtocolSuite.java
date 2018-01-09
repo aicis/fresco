@@ -125,6 +125,12 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
+  public void test_compareEQEdge_Sequential() throws Exception {
+    runTest(new CompareTests.TestCompareEQEdgeCases<>(), EvaluationStrategy.SEQUENTIAL,
+        1);
+  }
+
+  @Test
   public void test_isSorted() throws Exception {
     runTest(new SortingTests.TestIsSorted<>(), EvaluationStrategy.SEQUENTIAL,
         1);
