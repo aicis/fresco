@@ -15,7 +15,7 @@ public class TestModulusFinder {
 
   @Test(expected = UnsupportedOperationException.class)
   public void testFindSuitableMiss() {
-    ModulusFinder.findSuitableModulus(256);
+    ModulusFinder.findSuitableModulus(1024);
   }
 
   @Test(expected = IllegalArgumentException.class)
