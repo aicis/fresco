@@ -21,6 +21,12 @@ public class TestSpdzComparison extends AbstractSpdzTest {
   }
 
   @Test
+  public void test_compareLTEdge_Sequential() {
+    runTest(new CompareTests.TestCompareLTEdgeCases<>(), EvaluationStrategy.SEQUENTIAL,
+        PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
   @Ignore("This is not tested on windows and does not work here")
   public void test_compareLT_Sequential_static() throws Exception {
     int noOfThreads = 1;
@@ -83,6 +89,12 @@ public class TestSpdzComparison extends AbstractSpdzTest {
   public void testCompareLTSequentialMascot() {
     runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.MASCOT, 2, 64,8);
+  }
+
+  @Test
+  public void testCompareLTEdgeCasesSequentialMascot() {
+    runTest(new CompareTests.TestCompareLTEdgeCases<>(), EvaluationStrategy.SEQUENTIAL,
+        PreprocessingStrategy.MASCOT, 2, 16,8);
   }
 
   @Test
