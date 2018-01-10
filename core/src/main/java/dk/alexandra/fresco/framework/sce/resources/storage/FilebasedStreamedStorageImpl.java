@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.framework.sce.resources.storage;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.sce.resources.storage.exceptions.NoMoreElementsException;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -60,14 +59,15 @@ public class FilebasedStreamedStorageImpl implements StreamedStorage {
         fis = new FileInputStream(name);
         ois = new ObjectInputStream(fis);
       } catch (IOException e) {
-        throw new MPCException("IOException accessing store name: " + name, e);
+        throw new NoMoreElementsException(
+            "IOException accessing store name: " + name + ". Likely the file does not exist", e);
       }
       oiss.put(name, ois);
     }
     try {
       return (T) oiss.get(name).readObject();
     } catch (ClassNotFoundException e) {
-      throw new MPCException("Class not found", e);
+      throw new RuntimeException("Class not found", e);
     } catch (IOException e) {
       logger.error("IO-Exception. Could not read object from: " + name
           + ". This is most likely because there are no more elements available.");
@@ -85,14 +85,14 @@ public class FilebasedStreamedStorageImpl implements StreamedStorage {
         fos = new FileOutputStream(name);
         oos = new ObjectOutputStream(fos);
       } catch (IOException e) {
-        throw new MPCException("IOException accessing store name: " + name, e);
+        throw new RuntimeException("IOException accessing store name: " + name, e);
       }
       ooss.put(name, oos);
     }
     try {
       ooss.get(name).writeObject(o);
     } catch (IOException e) {
-      throw new MPCException("IOException writing to store name " + name, e);
+      throw new RuntimeException("IOException writing to store name " + name, e);
     }
     return true;
   }

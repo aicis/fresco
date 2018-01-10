@@ -30,7 +30,6 @@ import dk.alexandra.fresco.suite.spdz.storage.DataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.DataSupplierImpl;
 import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageConstants;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -128,7 +127,7 @@ public abstract class AbstractSpdzTest {
       // case STATIC:
       int noOfThreadsUsed = 1;
       String storageName =
-          SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
+          DataSupplierImpl.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
           + "_";
       supplier = new DataSupplierImpl(new FilebasedStreamedStorageImpl(new InMemoryStorage()), storageName, size);
     }

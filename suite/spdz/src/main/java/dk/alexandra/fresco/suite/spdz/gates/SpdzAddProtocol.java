@@ -8,7 +8,8 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 
 public class SpdzAddProtocol extends SpdzNativeProtocol<SInt> {
 
-  private DRes<SInt> left, right;
+  private DRes<SInt> left;
+  private DRes<SInt> right;
   private SpdzSInt out;
 
   public SpdzAddProtocol(DRes<SInt> left, DRes<SInt> right) {
