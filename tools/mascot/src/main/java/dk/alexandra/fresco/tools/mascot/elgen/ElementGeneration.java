@@ -48,16 +48,18 @@ public class ElementGeneration extends BaseProtocol {
     this.copeInputters = new HashMap<>();
     for (Integer partyId : getPartyIds()) {
       if (getMyId() != partyId) {
+        CopeSigner signer;
+        CopeInputter inputter;
         // construction order matters since receive blocks and this is not parallelized
         if (getMyId() < partyId) {
-          copeSigners.put(partyId,
-              new CopeSigner(resourcePool, network, partyId, this.macKeyShare));
-          copeInputters.put(partyId, new CopeInputter(resourcePool, network, partyId));
+          signer = new CopeSigner(resourcePool, network, partyId, this.macKeyShare);
+          inputter = new CopeInputter(resourcePool, network, partyId);
         } else {
-          copeInputters.put(partyId, new CopeInputter(resourcePool, network, partyId));
-          copeSigners.put(partyId,
-              new CopeSigner(resourcePool, network, partyId, this.macKeyShare));
+          inputter = new CopeInputter(resourcePool, network, partyId);
+          signer = new CopeSigner(resourcePool, network, partyId, this.macKeyShare);
         }
+        copeInputters.put(partyId, inputter);
+        copeSigners.put(partyId, signer);
       }
     }
   }
@@ -110,7 +112,7 @@ public class ElementGeneration extends BaseProtocol {
   /**
    * Computes this party's authenticated shares of input. <br>
    * To be called by input party.
-   * 
+   *
    * @param values values to input
    * @return authenticated shares of inputs
    */
@@ -151,7 +153,7 @@ public class ElementGeneration extends BaseProtocol {
 
   /**
    * Computes this party's authenticated shares of inputter party's inputs.
-   * 
+   *
    * @param inputterId id of inputter
    * @param numInputs number of inputs
    * @return authenticated shares of inputs
@@ -205,7 +207,7 @@ public class ElementGeneration extends BaseProtocol {
 
   /**
    * Opens secret elements (distributes shares among all parties and recombines).
-   * 
+   *
    * @param closed authenticated elements to open
    * @return opened value
    */

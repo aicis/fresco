@@ -67,10 +67,11 @@ public class TestParallelMascots {
     constructMascot();
   }
 
-  public void constructMascot() throws Exception {
+  private void constructMascot() throws Exception {
     List<Callable<Mascot>> mascotCreators = new ArrayList<>();
 
     for (int i = 0; i < iterations; i++) {
+      @SuppressWarnings("resource")
       KryoNetManager normalManager = new KryoNetManager(ports);
       for (int myId = 1; myId <= noOfParties; myId++) {
 
@@ -94,6 +95,7 @@ public class TestParallelMascots {
     List<Callable<List<MultTriple>>> mascotCreators = new ArrayList<>();
 
     for (int i = 0; i < iterations; i++) {
+      @SuppressWarnings("resource")
       KryoNetManager normalManager = new KryoNetManager(ports);
       for (int myId = 1; myId <= noOfParties; myId++) {
 
@@ -112,7 +114,7 @@ public class TestParallelMascots {
     invoke(mascotCreators);
   }
 
-  public <T> void invoke(List<Callable<T>> mascotCreators) throws Exception {
+  private <T> void invoke(List<Callable<T>> mascotCreators) throws Exception {
     List<Future<T>> futures = executorService.invokeAll(mascotCreators);
     for (Future<T> future : futures) {
       T result = future.get();

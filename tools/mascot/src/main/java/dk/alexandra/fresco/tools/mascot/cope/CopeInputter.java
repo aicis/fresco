@@ -17,12 +17,14 @@ import java.util.stream.Stream;
 
 /**
  * Actively-secure implementation of the inputter party's side of the Correlated Oblivious Product
- * Evaluation (COPE) protocol.<br>
- * COPE allows two parties, the inputter and the signer, where the inputter holds input values e1,
- * ..., en, and the signer holds single value s to secret-shared result of s * e1, ..., s * en. <br>
+ * Evaluation (COPE) protocol.
+ *
+ * <p>COPE allows two parties, the <i>inputter</i> and the <i>signer</i>, where the inputter holds
+ * input values <i>e<sub>1</sub>, ..., e<sub>n</sub></i>, and the signer holds single value <i>s</i>
+ * to secret-shared result of <i>s * e<sub>1</sub>, ..., s * e<sub>n</sub></i>.
  * This side of the protocol is to be run by the inputter party. For the other side of the protocol,
- * see {@link CopeSigner}.
- * 
+ * see {@link CopeSigner}.</p>
+ *
  */
 public class CopeInputter extends CopeShared {
 
@@ -31,7 +33,11 @@ public class CopeInputter extends CopeShared {
   private final MultiplyRight multiplier;
 
   /**
-   * Creates new {@link CopeInputter}.
+   * Creates a new {@link CopeInputter} and initializes the COPE protocol.
+   *
+   * <p>This will run the initialization sub-protocol of COPE using an OT protocol to set up the
+   * PRG seeds used in the <i>Extend</i> sub-protocol.</p>
+   *
    */
   public CopeInputter(MascotResourcePool resourcePool, Network network, Integer otherId) {
     super(resourcePool, network, otherId);
@@ -48,14 +54,26 @@ public class CopeInputter extends CopeShared {
     }
   }
 
-  List<Pair<FieldElement, FieldElement>> generateMaskPairs(BigInteger modulus, int modBitLength) {
-    Stream<Pair<FieldElement, FieldElement>> maskStream =
-        IntStream.range(0, leftPrgs.size()).mapToObj(idx -> {
-          FieldElement t0 = this.leftPrgs.get(idx).getNext(modulus, modBitLength);
-          FieldElement t1 = this.rightPrgs.get(idx).getNext(modulus, modBitLength);
-          return new Pair<>(t0, t1);
-        });
-    return maskStream.collect(Collectors.toList());
+  /**
+   * Computes shares of products of this party's input elements and other party's mac key share.
+   *
+   * @param inputElements input field elements
+   * @return shares of products of mac key share and input elements
+   */
+  public List<FieldElement> extend(List<FieldElement> inputElements) {
+    // use seeds to generate mask pairs
+    List<Pair<FieldElement, FieldElement>> maskPairs = generateMaskPairs(inputElements.size());
+    // compute t0 - t1 + x for each input x for each mask pair
+    List<FieldElement> diffs = multiplier.computeDiffs(maskPairs, inputElements);
+    // send diffs
+    multiplier.sendDiffs(diffs);
+    // get zero index masks
+    List<FieldElement> feZeroSeeds =
+        maskPairs.stream().map(feSeedPair -> feSeedPair.getFirst()).collect(Collectors.toList());
+    // compute product shares
+    List<FieldElement> productShares =
+        multiplier.computeProductShares(feZeroSeeds, inputElements.size());
+    return productShares;
   }
 
   List<Pair<FieldElement, FieldElement>> generateMaskPairs(int numInputs) {
@@ -68,30 +86,14 @@ public class CopeInputter extends CopeShared {
     return maskPairs;
   }
 
-  /**
-   * Computes shares of products of this party's input elements and other party's mac key share.
-   * 
-   * @param inputElements input field elements
-   * @return shares of products of mac key share and input elements
-   */
-  public List<FieldElement> extend(List<FieldElement> inputElements) {
-    // use seeds to generate mask pairs
-    List<Pair<FieldElement, FieldElement>> maskPairs = generateMaskPairs(inputElements.size());
-
-    // compute q0 - q1 + x for each input x for each mask pair
-    List<FieldElement> diffs = multiplier.computeDiffs(maskPairs, inputElements);
-
-    // send diffs
-    multiplier.sendDiffs(diffs);
-
-    // get zero index masks
-    List<FieldElement> feZeroSeeds =
-        maskPairs.stream().map(feSeedPair -> feSeedPair.getFirst()).collect(Collectors.toList());
-
-    // compute product shares
-    List<FieldElement> productShares =
-        multiplier.computeProductShares(feZeroSeeds, inputElements.size());
-
-    return productShares;
+  List<Pair<FieldElement, FieldElement>> generateMaskPairs(BigInteger modulus, int modBitLength) {
+    Stream<Pair<FieldElement, FieldElement>> maskStream =
+        IntStream.range(0, leftPrgs.size()).mapToObj(idx -> {
+          FieldElement t0 = this.leftPrgs.get(idx).getNext(modulus, modBitLength);
+          FieldElement t1 = this.rightPrgs.get(idx).getNext(modulus, modBitLength);
+          return new Pair<>(t0, t1);
+        });
+    return maskStream.collect(Collectors.toList());
   }
+
 }
