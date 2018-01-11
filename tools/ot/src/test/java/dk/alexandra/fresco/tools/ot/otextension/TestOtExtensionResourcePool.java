@@ -5,17 +5,16 @@ import static org.junit.Assert.assertEquals;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.tools.cointossing.CoinTossing;
 import dk.alexandra.fresco.tools.helper.Constants;
-import dk.alexandra.fresco.tools.ot.base.DummyOt;
-import dk.alexandra.fresco.tools.ot.base.Ot;
-
 import org.junit.Before;
 import org.junit.Test;
 
 public class TestOtExtensionResourcePool {
   private Drbg rand;
   private Network network;
-  private BristolSeedOts seedOts;
+  private RotList seedOts;
+  private CoinTossing ct;
 
   /**
    * Setup a correlated OT functionality.
@@ -39,14 +38,15 @@ public class TestOtExtensionResourcePool {
         return 0;
       }
     };
-    Ot ot = new DummyOt(2, network);
-    seedOts = new BristolSeedOts(rand, 128, ot);
+    seedOts = new RotList(rand, 128);
+    ct = new CoinTossing(1, 2, rand, network);
   }
 
   /**** POSITIVE TESTS. ****/
   @Test
   public void testConstantAmountOfParties() {
-    OtExtensionResourcePool resources = new OtExtensionResourcePoolImpl(1, 2, 128, 40, rand);
+    OtExtensionResourcePool resources = new OtExtensionResourcePoolImpl(1, 2,
+        128, 40, 1, rand, ct, seedOts);
     assertEquals(2, resources.getNoOfParties());
   }
 
@@ -55,8 +55,8 @@ public class TestOtExtensionResourcePool {
   public void testIllegalInit() {
     boolean thrown = false;
     try {
-      new CoteSender(new OtExtensionResourcePoolImpl(1, 2, 0, 40, rand),
-          network, seedOts, 1);
+      new CoteSender(new OtExtensionResourcePoolImpl(1, 2, 0, 40, 1, rand, ct,
+          seedOts), network);
     } catch (IllegalArgumentException e) {
       assertEquals("Security parameters must be at least 1 and divisible by 8", e.getMessage());
       thrown = true;
@@ -64,8 +64,8 @@ public class TestOtExtensionResourcePool {
     assertEquals(thrown, true);
     thrown = false;
     try {
-      new CoteReceiver(new OtExtensionResourcePoolImpl(1, 2, 128, 0, rand),
-          network, seedOts, 1);
+      new CoteReceiver(new OtExtensionResourcePoolImpl(1, 2, 128, 0, 1, rand,
+          ct, seedOts), network);
     } catch (IllegalArgumentException e) {
       assertEquals("Security parameters must be at least 1 and divisible by 8", e.getMessage());
       thrown = true;
@@ -73,8 +73,8 @@ public class TestOtExtensionResourcePool {
     assertEquals(thrown, true);
     thrown = false;
     try {
-      new CoteSender(new OtExtensionResourcePoolImpl(1, 2, 127, 40, rand),
-          network, seedOts, 1);
+      new CoteSender(new OtExtensionResourcePoolImpl(1, 2, 127, 40, 1, rand, ct,
+          seedOts), network);
     } catch (IllegalArgumentException e) {
       assertEquals("Security parameters must be at least 1 and divisible by 8", e.getMessage());
       thrown = true;
@@ -82,8 +82,8 @@ public class TestOtExtensionResourcePool {
     assertEquals(thrown, true);
     thrown = false;
     try {
-      new CoteReceiver(new OtExtensionResourcePoolImpl(1, 2, 128, 60, rand),
-          network, seedOts, 1);
+      new CoteReceiver(new OtExtensionResourcePoolImpl(1, 2, 128, 60, 1, rand,
+          ct, seedOts), network);
     } catch (IllegalArgumentException e) {
       assertEquals("Security parameters must be at least 1 and divisible by 8", e.getMessage());
       thrown = true;

@@ -40,13 +40,12 @@ public class RotDemo<ResourcePoolT extends ResourcePool> {
   public void runPartyOne(int pid) {
     OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
         lambdaSecurityParam);
-    ctx.getDummyOtInstance().receive();
-    Rot rot = new Rot(ctx.getResources(), ctx.getNetwork(), ctx
-        .getDummyOtInstance(), 1);
+    // ctx.getDummyOtInstance().receive();
+    Rot rot = new Rot(ctx.createResources(1), ctx.getNetwork());
     RotReceiver rotRec = rot.getReceiver();
     // rotRec.initialize();
     byte[] otChoices = new byte[amountOfOTs / 8];
-    ctx.getRand().nextBytes(otChoices);
+    ctx.createRand(1).nextBytes(otChoices);
     List<StrictBitVector> vvec = rotRec
         .extend(new StrictBitVector(otChoices, amountOfOTs));
     System.out.println("done receiver");
@@ -69,9 +68,8 @@ public class RotDemo<ResourcePoolT extends ResourcePool> {
   public void runPartyTwo(int pid) {
     OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
         lambdaSecurityParam);
-    ctx.getDummyOtInstance().send();
-    Rot rot = new Rot(ctx.getResources(), ctx.getNetwork(), ctx
-        .getDummyOtInstance(), 1);
+//    ctx.getDummyOtInstance().send();
+    Rot rot = new Rot(ctx.createResources(1), ctx.getNetwork());
     RotSender rotSnd = rot.getSender();
     // rotSnd.initialize();
     Pair<List<StrictBitVector>, List<StrictBitVector>> vpairs = rotSnd

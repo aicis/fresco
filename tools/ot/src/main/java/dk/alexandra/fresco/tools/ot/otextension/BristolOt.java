@@ -30,8 +30,8 @@ public class BristolOt implements Ot {
    *          Size of the OT extension batch the protocol will construct
    */
   public BristolOt(OtExtensionResourcePool resources, Network network,
-      BristolSeedOts seedOts, int batchSize, int instanceId) {
-    this.rot = new Rot(resources, network, seedOts, instanceId);
+      int batchSize) {
+    this.rot = new Rot(resources, network);
     this.batchSize = batchSize;
     // RotSender sender = rot.getSender();
     // RotReceiver receiver = rot.getReceiver();

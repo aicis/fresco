@@ -31,15 +31,15 @@ public class CoteReceiver extends CoteShared {
    * @param ot
    *          The OT functionality to use for seed OTs
    */
-  public CoteReceiver(OtExtensionResourcePool resources, Network network,
-      BristolSeedOts seedOts, int instanceId) {
+  public CoteReceiver(OtExtensionResourcePool resources, Network network) {
     super(resources, network);
     // this.seedOts = seedOts;
     // this.seeds = new ArrayList<>(getkBitLength());
     this.prgs = new ArrayList<>(getkBitLength());
-    for (Pair<StrictBitVector, StrictBitVector> pair : seedOts.getSentMessages()) {
-      Drbg prgZero = initPrg(pair.getFirst(), instanceId);
-      Drbg prgFirst = initPrg(pair.getSecond(), instanceId);
+    for (Pair<StrictBitVector, StrictBitVector> pair : resources.getSeedOts()
+        .getSentMessages()) {
+      Drbg prgZero = initPrg(pair.getFirst());
+      Drbg prgFirst = initPrg(pair.getSecond());
       prgs.add(new Pair<>(prgZero, prgFirst));
     }
   }

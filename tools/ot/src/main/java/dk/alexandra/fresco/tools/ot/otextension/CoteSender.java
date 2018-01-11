@@ -31,15 +31,14 @@ public class CoteSender extends CoteShared {
    * @param ot
    *          The OT functionality to use for seed OTs
    */
-  public CoteSender(OtExtensionResourcePool resources, Network network,
-      BristolSeedOts seedOts, int instanceId) {
+  public CoteSender(OtExtensionResourcePool resources, Network network) {
     super(resources, network);
     this.prgs = new ArrayList<>(resources.getComputationalSecurityParameter());
-    for (StrictBitVector message : seedOts.getLearnedMessages()) {
+    for (StrictBitVector message : getSeedOts().getLearnedMessages()) {
       // Initialize the PRGs with the random messages
-      prgs.add(initPrg(message, instanceId));
+      prgs.add(initPrg(message));
     }
-    otChoices = seedOts.getChoices();
+    otChoices = resources.getSeedOts().getChoices();
   }
   //
   // /**

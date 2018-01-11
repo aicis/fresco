@@ -13,8 +13,6 @@ public class Rot {
   private RotReceiver receiver = null;
   private final OtExtensionResourcePool resources;
   private final Network network;
-  private final BristolSeedOts seedOts;
-  private final int instanceId;
 
   /**
    * Constructs a new random OT protocol and constructs the internal sender and
@@ -27,12 +25,9 @@ public class Rot {
    * @param ot
    *          The OT functionality to use for seed OTs
    */
-  public Rot(OtExtensionResourcePool resources, Network network,
-      BristolSeedOts seedOts, int instanceId) {
+  public Rot(OtExtensionResourcePool resources, Network network) {
     this.resources = resources;
     this.network = network;
-    this.seedOts = seedOts;
-    this.instanceId = instanceId;
     // CoteSender sender = new CoteSender(resources, network, seedOts);
     // CoteReceiver receiver = new CoteReceiver(resources, network, seedOts);
     // this.sender = new RotSender(sender);
@@ -46,7 +41,7 @@ public class Rot {
    */
   public RotSender getSender() {
     if (this.sender == null) {
-      CoteSender sender = new CoteSender(resources, network, seedOts, instanceId);
+      CoteSender sender = new CoteSender(resources, network);
       this.sender = new RotSender(sender);
     }
     return sender;
@@ -59,7 +54,7 @@ public class Rot {
    */
   public RotReceiver getReceiver() {
     if (this.receiver == null) {
-      CoteReceiver receiver = new CoteReceiver(resources, network, seedOts, instanceId);
+      CoteReceiver receiver = new CoteReceiver(resources, network);
       this.receiver = new RotReceiver(receiver);
     }
     return receiver;

@@ -62,9 +62,8 @@ public class FunctionalTestOtExtension {
     OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
         lambdaSecurityParam);
     // Remember that in the seed Ots the parties have inverse roles
-    ctx.getDummyOtInstance().receive();
-    Cote cote = new Cote(ctx.getResources(), ctx.getNetwork(), ctx
-        .getDummyOtInstance(), 1);
+    // ctx.getDummyOtInstance().receive();
+    Cote cote = new Cote(ctx.createResources(1), ctx.getNetwork());
     return cote;
   }
 
@@ -72,9 +71,8 @@ public class FunctionalTestOtExtension {
     OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
         lambdaSecurityParam);
     // Remember that in the seed Ots the parties have inverse roles
-    ctx.getDummyOtInstance().send();
-    Cote cote = new Cote(ctx.getResources(), ctx.getNetwork(), ctx
-        .getDummyOtInstance(), 1);
+    // ctx.getDummyOtInstance().send();
+    Cote cote = new Cote(ctx.createResources(1), ctx.getNetwork());
     return cote;
   }
 

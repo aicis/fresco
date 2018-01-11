@@ -8,9 +8,8 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 
-public class BristolSeedOts {
+public class RotList {
   private final int amount;
-  private final Ot ot;
 
   private boolean sent = false;
   private boolean received = false;
@@ -19,9 +18,8 @@ public class BristolSeedOts {
   private final List<StrictBitVector> learnedMessages;
   private final StrictBitVector choices;
 
-  public BristolSeedOts(Drbg rand, int amount, Ot ot) {
+  public RotList(Drbg rand, int amount) {
     this.amount = amount;
-    this.ot = ot;
     sendMessages = new ArrayList<>(amount);
     learnedMessages = new ArrayList<>(amount);
     for (int i = 0; i < amount; i++) {
@@ -32,7 +30,7 @@ public class BristolSeedOts {
     choices = new StrictBitVector(amount, rand);
   }
 
-  public void send() {
+  public void send(Ot ot) {
     if (sent == true) {
       throw new IllegalStateException("Seed OTs have already been sent.");
     }
@@ -42,7 +40,7 @@ public class BristolSeedOts {
     sent = true;
   }
 
-  public void receive() {
+  public void receive(Ot ot) {
     if (received == true) {
       throw new IllegalStateException("Seed OTs have already been received.");
     }

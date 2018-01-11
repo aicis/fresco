@@ -12,8 +12,6 @@ public class Cote {
   private CoteReceiver receiver = null;
   private final OtExtensionResourcePool resources;
   private final Network network;
-  private final BristolSeedOts seedOts;
-  private final int instanceId;
 
   /**
    * Constructs a new correlated OT with errors protocol and constructs the
@@ -26,12 +24,9 @@ public class Cote {
    * @param ot
    *          The OT functionality to use for seed OTs
    */
-  public Cote(OtExtensionResourcePool resources, Network network,
-      BristolSeedOts seedOts, int instanceId) {
+  public Cote(OtExtensionResourcePool resources, Network network) {
     this.resources = resources;
     this.network = network;
-    this.seedOts = seedOts;
-    this.instanceId = instanceId;
   }
 
   /**
@@ -41,7 +36,7 @@ public class Cote {
    */
   public CoteSender getSender() {
     if (sender == null) {
-      this.sender = new CoteSender(resources, network, seedOts, instanceId);
+      this.sender = new CoteSender(resources, network);
     }
     return sender;
   }
@@ -53,7 +48,7 @@ public class Cote {
    */
   public CoteReceiver getReceiver() {
     if (receiver == null) {
-      this.receiver = new CoteReceiver(resources, network, seedOts, instanceId);
+      this.receiver = new CoteReceiver(resources, network);
     }
     return receiver;
   }

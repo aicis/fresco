@@ -25,11 +25,11 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> {
   public void runPartyOne(int pid) throws IOException {
     OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
         lambdaSecurityParam);
-    Ot ot = new BristolOt(ctx.getResources(), ctx.getNetwork(), ctx
-        .getDummyOtInstance(), amountOfOTs, 1);
+    Ot ot = new BristolOt(ctx.createResources(1), ctx.getNetwork(),
+        amountOfOTs);
     for (int i = 0; i < amountOfOTs; i++) {
       byte[] choiceByte = new byte[1];
-      ctx.getRand().nextBytes(choiceByte);
+      ctx.createRand(1).nextBytes(choiceByte);
       boolean choice;
       // Interpret the lower half of possible values of a byte as false and the
       // upper as true
@@ -57,13 +57,13 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> {
   public void runPartyTwo(int pid) throws IOException {
     OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
         lambdaSecurityParam);
-    Ot ot = new BristolOt(ctx.getResources(), ctx.getNetwork(), ctx
-        .getDummyOtInstance(), amountOfOTs, 1);
+    Ot ot = new BristolOt(ctx.createResources(1), ctx.getNetwork(),
+        amountOfOTs);
     for (int i = 0; i < amountOfOTs; i++) {
       StrictBitVector msgZero = new StrictBitVector(messageSize, ctx
-          .getRand());
+          .createRand(1));
       StrictBitVector msgOne = new StrictBitVector(messageSize, ctx
-          .getRand());
+          .createRand(1));
       System.out.println("Message 0: " + msgZero);
       System.out.println("Message 1: " + msgOne);
       ot.send(msgZero, msgOne);

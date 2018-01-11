@@ -69,15 +69,20 @@ public class CoteShared {
     return resources.getDigest();
   }
 
+  public RotList getSeedOts() {
+    return resources.getSeedOts();
+  }
+
   public Network getNetwork() {
     return network;
   }
 
-  protected Drbg initPrg(StrictBitVector originalSeed, int id) {
+
+  protected Drbg initPrg(StrictBitVector originalSeed) {
     // Remember that int is 32 bits, thus 4 bytes
     byte[] seedBytes = originalSeed.toByteArray();
     ByteBuffer idBuffer = ByteBuffer.allocate(seedBytes.length);
-    byte[] idArray = idBuffer.putInt(id).array();
+    byte[] idArray = idBuffer.putInt(resources.getInstanceId()).array();
     ByteArrayHelper.xor(seedBytes, idArray);
     // TODO make sure this is okay!
     return new PaddingAesCtrDrbg(seedBytes, 256);

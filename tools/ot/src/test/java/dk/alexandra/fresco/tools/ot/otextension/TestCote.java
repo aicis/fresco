@@ -8,9 +8,8 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.cointossing.CoinTossing;
 import dk.alexandra.fresco.tools.helper.Constants;
-import dk.alexandra.fresco.tools.ot.base.DummyOt;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,17 +42,17 @@ public class TestCote {
         return 0;
       }
     };
+    CoinTossing ct = new CoinTossing(1, 2, rand, network);
+    RotList seedOts = new RotList(rand, kbitSecurity);
     OtExtensionResourcePool resources = new OtExtensionResourcePoolImpl(1, 2,
-        128, 40, rand);
-    BristolSeedOts seedOts = new BristolSeedOts(rand, kbitSecurity,
-        new DummyOt(2, network));
-    Field sent = BristolSeedOts.class.getDeclaredField("sent");
+        128, 40, 1, rand, ct, seedOts);
+    Field sent = RotList.class.getDeclaredField("sent");
     sent.setAccessible(true);
     sent.set(seedOts, true);
-    Field received = BristolSeedOts.class.getDeclaredField("received");
+    Field received = RotList.class.getDeclaredField("received");
     received.setAccessible(true);
     received.set(seedOts, true);
-    this.cote = new Cote(resources, network, seedOts, 1);
+    this.cote = new Cote(resources, network);
   }
 
   /**** NEGATIVE TESTS. ****/

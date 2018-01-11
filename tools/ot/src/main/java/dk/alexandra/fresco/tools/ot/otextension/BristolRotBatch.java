@@ -33,9 +33,8 @@ public class BristolRotBatch implements RotBatch {
    * @param ot
    *          The OT functionality to use for seed OTs
    */
-  public BristolRotBatch(OtExtensionResourcePool resources, Network network,
-      BristolSeedOts seedOts, int id) {
-    this.rot = new Rot(resources, network, seedOts, id);
+  public BristolRotBatch(OtExtensionResourcePool resources, Network network) {
+    this.rot = new Rot(resources, network);
     // this.sender = rot.getSender();
     // this.receiver = rot.getReceiver();
   }

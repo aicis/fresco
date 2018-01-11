@@ -8,9 +8,6 @@ import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
 import dk.alexandra.fresco.tools.helper.Constants;
-import dk.alexandra.fresco.tools.ot.base.DummyOt;
-import dk.alexandra.fresco.tools.ot.base.Ot;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -49,14 +46,14 @@ public class TestRot {
         return 0;
       }
     };
+    CoinTossing ct = new CoinTossing(1, 2, rand, network);
+    RotList seedOts = new RotList(rand, kbitSecurity);
     OtExtensionResourcePool resources = new OtExtensionResourcePoolImpl(1, 2,
-        128, 40, rand);
-    Ot ot = new DummyOt(2, network);
-    BristolSeedOts seedOts = new BristolSeedOts(rand, kbitSecurity, ot);
-    Field sent = BristolSeedOts.class.getDeclaredField("sent");
+        128, 40, 1, rand, ct, seedOts);
+    Field sent = RotList.class.getDeclaredField("sent");
     sent.setAccessible(true);
     sent.set(seedOts, true);
-    Field received = BristolSeedOts.class.getDeclaredField("received");
+    Field received = RotList.class.getDeclaredField("received");
     received.setAccessible(true);
     received.set(seedOts, true);
     // Field learnedMessages = BristolSeedOts.class.getDeclaredField(
@@ -68,12 +65,11 @@ public class TestRot {
     // if (choi)
     // actualMessages.get(i)
     // }
-    this.rot = new Rot(resources, network, seedOts, 1);
+    this.rot = new Rot(resources, network);
     multiplyWithoutReduction = RotShared.class.getDeclaredMethod(
         "multiplyWithoutReduction", StrictBitVector.class,
         StrictBitVector.class);
     multiplyWithoutReduction.setAccessible(true);
-    CoinTossing ct = new CoinTossing(2, 1, rand, network);
     // ct.initialize();
     // rec = (RotReceiver) new Object();
   }

@@ -14,7 +14,7 @@ import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import dk.alexandra.fresco.tools.ot.otextension.BristolRotBatch;
-import dk.alexandra.fresco.tools.ot.otextension.BristolSeedOts;
+import dk.alexandra.fresco.tools.ot.otextension.RotList;
 import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePool;
 import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePoolImpl;
 import java.math.BigInteger;
@@ -44,7 +44,7 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
           + "85827844212318499978829377355564689095172787513731965744913645190518423"
           + "06594567246898679968677700656495114013774368779648395287433119164167454"
           + "67731166272088057888135437754886129005590419051");
-  private final BristolSeedOts seedOts;
+  private final RotList seedOts;
   private final List<Integer> partyIds;
   private final BigInteger modulus;
   private final int modBitLength;
@@ -61,7 +61,7 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
    * Creates new mascot resource pool.
    */
   public MascotResourcePoolImpl(Integer myId, List<Integer> partyIds, Drbg drbg,
-      BristolSeedOts seedOts, BigInteger modulus,
+      RotList seedOts, BigInteger modulus,
       int modBitLength, int lambdaSecurityParam, int prgSeedLength, int numLeftFactors) {
     super(myId, partyIds.size(), drbg);
     this.partyIds = partyIds;

@@ -53,7 +53,7 @@ public class FunctionalTestBristolOt {
     OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
         lambdaSecurityParam);
     // Remember that the sender/receiver roles are inverted for seed OTs
-    ctx.getDummyOtInstance().receive();
+    // ctx.getDummyOtInstance().receive();
     return ctx;
   }
 
@@ -61,22 +61,24 @@ public class FunctionalTestBristolOt {
     OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
         lambdaSecurityParam);
     // Remember that the sender/receiver roles are inverted for seed OTs
-    ctx.getDummyOtInstance().send();
+    // ctx.getDummyOtInstance().send();
     return ctx;
   }
 
   private List<Pair<StrictBitVector, StrictBitVector>> bristolOtSend(
       OtExtensionTestContext ctx, int iterations, int batchSize)
       throws IOException {
-    Ot otSender = new BristolOt(ctx.getResources(), ctx.getNetwork(), ctx
-        .getDummyOtInstance(), batchSize, 1);
+    Ot otSender = new BristolOt(ctx.createResources(1), ctx.getNetwork(),
+        batchSize);
     List<Pair<StrictBitVector, StrictBitVector>> messages = new ArrayList<>(
         iterations);
+    Drbg rand = ctx.createRand(1);
+    byte[] msgBytes = new byte[messageLength / 8];
     for (int i = 0; i < iterations; i++) {
-      StrictBitVector msgZero = new StrictBitVector(messageLength, ctx
-          .getRand());
-      StrictBitVector msgOne = new StrictBitVector(messageLength, ctx
-          .getRand());
+      rand.nextBytes(msgBytes);
+      StrictBitVector msgZero = new StrictBitVector(msgBytes, messageLength);
+      rand.nextBytes(msgBytes);
+      StrictBitVector msgOne = new StrictBitVector(msgBytes, messageLength);
       otSender.send(msgZero, msgOne);
       Pair<StrictBitVector, StrictBitVector> currentPair =
           new Pair<StrictBitVector, StrictBitVector>(msgZero, msgOne);
@@ -88,8 +90,8 @@ public class FunctionalTestBristolOt {
 
   private List<StrictBitVector> bristolOtReceive(OtExtensionTestContext ctx,
       StrictBitVector choices, int batchSize) throws IOException {
-    Ot otReceiver = new BristolOt(ctx.getResources(), ctx.getNetwork(), ctx
-        .getDummyOtInstance(), batchSize, 1);
+    Ot otReceiver = new BristolOt(ctx.createResources(1), ctx.getNetwork(),
+        batchSize);
     List<StrictBitVector> messages = new ArrayList<>(choices.getSize());
     for (int i = 0; i < choices.getSize(); i++) {
       StrictBitVector message = otReceiver.receive(choices.getBit(i, false));
@@ -169,8 +171,8 @@ public class FunctionalTestBristolOt {
       throws IOException {
     // OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
     // lambdaSecurityParam);
-    BristolRotBatch rotBatchSender = new BristolRotBatch(ctx.getResources(), ctx
-        .getNetwork(), ctx.getDummyOtInstance(), id);
+    BristolRotBatch rotBatchSender = new BristolRotBatch(ctx.createResources(
+        id), ctx.getNetwork());
     // if (autoInit == false) {
     // rotBatchSender.initSender();
     // }
@@ -184,8 +186,8 @@ public class FunctionalTestBristolOt {
       int id) throws IOException {
     // OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
     // lambdaSecurityParam);
-    BristolRotBatch rotBatchReceiver = new BristolRotBatch(ctx.getResources(),
-        ctx.getNetwork(), ctx.getDummyOtInstance(), id);
+    BristolRotBatch rotBatchReceiver = new BristolRotBatch(ctx.createResources(
+        id), ctx.getNetwork());
     // if (autoInit == false) {
     // rotBatchReceiver.initReceiver();
     // }
@@ -351,10 +353,14 @@ public class FunctionalTestBristolOt {
   private Exception bristolOtMaliciousSend(
       OtExtensionTestContext ctx, int iterations, int batchSize)
       throws IOException {
-    BristolOt otSender = new BristolOt(ctx.getResources(), ctx.getNetwork(), ctx
-        .getDummyOtInstance(), batchSize, 1);
-    StrictBitVector msgZero = new StrictBitVector(messageLength, ctx.getRand());
-    StrictBitVector msgOne = new StrictBitVector(messageLength, ctx.getRand());
+    BristolOt otSender = new BristolOt(ctx.createResources(1), ctx.getNetwork(),
+        batchSize);
+    Drbg rand = ctx.createRand(1);
+    byte[] msgBytes = new byte[messageLength / 8];
+    rand.nextBytes(msgBytes);
+    StrictBitVector msgZero = new StrictBitVector(msgBytes, messageLength);
+    rand.nextBytes(msgBytes);
+    StrictBitVector msgOne = new StrictBitVector(msgBytes, messageLength);
     otSender.send(msgZero, msgOne);
     ((Closeable) ctx.getNetwork()).close();
     return null;
@@ -365,9 +371,9 @@ public class FunctionalTestBristolOt {
       throws IOException, NoSuchMethodException, SecurityException,
       IllegalArgumentException, IllegalAccessException,
       InvocationTargetException, NoSuchFieldException {
-    BristolOt otReceiver = new BristolOt(ctx.getResources(), ctx.getNetwork(),
-        ctx.getDummyOtInstance(), batchSize, 1);
-    StrictBitVector message = otReceiver.receive(choices.getBit(0, false));
+    BristolOt otReceiver = new BristolOt(ctx.createResources(1), ctx
+        .getNetwork(), batchSize);
+    otReceiver.receive(choices.getBit(0, false));
     Field receiver = BristolOt.class.getDeclaredField("receiver");
     receiver.setAccessible(true);
     Method method = receiver.get(otReceiver).getClass().getDeclaredMethod(
