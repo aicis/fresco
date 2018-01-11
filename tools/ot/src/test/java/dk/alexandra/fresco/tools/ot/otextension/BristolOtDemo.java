@@ -1,11 +1,13 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.Random;
 
 public class BristolOtDemo<ResourcePoolT extends ResourcePool> {
   // Amount of OTs to construct
@@ -28,16 +30,7 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> {
     Ot ot = new BristolOt(ctx.createResources(1), ctx.getNetwork(),
         amountOfOTs);
     for (int i = 0; i < amountOfOTs; i++) {
-      byte[] choiceByte = new byte[1];
-      ctx.createRand(1).nextBytes(choiceByte);
-      boolean choice;
-      // Interpret the lower half of possible values of a byte as false and the
-      // upper as true
-      if (choiceByte[0] <= 127) {
-        choice = false;
-      } else {
-        choice = true;
-      }
+      boolean choice = (new Random()).nextBoolean();
       System.out.print("Choice " + choice + ": ");
       StrictBitVector res = ot.receive(choice);
       System.out.println(res);
@@ -59,11 +52,10 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> {
         lambdaSecurityParam);
     Ot ot = new BristolOt(ctx.createResources(1), ctx.getNetwork(),
         amountOfOTs);
+    Drbg rand = ctx.createRand(1);
     for (int i = 0; i < amountOfOTs; i++) {
-      StrictBitVector msgZero = new StrictBitVector(messageSize, ctx
-          .createRand(1));
-      StrictBitVector msgOne = new StrictBitVector(messageSize, ctx
-          .createRand(1));
+      StrictBitVector msgZero = new StrictBitVector(messageSize, rand);
+      StrictBitVector msgOne = new StrictBitVector(messageSize, rand);
       System.out.println("Message 0: " + msgZero);
       System.out.println("Message 1: " + msgOne);
       ot.send(msgZero, msgOne);
