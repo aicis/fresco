@@ -1,22 +1,25 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.tools.ot.base.Ot;
 
 /**
  * Container class for a protocol instance of random OT extension.
- * 
+ *
  * @author jot2re
  *
  */
 public class Rot {
-  private final RotSender sender;
-  private final RotReceiver receiver;
+  private RotSender sender = null;
+  private RotReceiver receiver = null;
+  private final OtExtensionResourcePool resources;
+  private final Network network;
+  private final BristolSeedOts seedOts;
+  private final int instanceId;
 
   /**
    * Constructs a new random OT protocol and constructs the internal sender and
    * receiver objects.
-   * 
+   *
    * @param resources
    *          The common resource pool for OT extension
    * @param network
@@ -24,28 +27,41 @@ public class Rot {
    * @param ot
    *          The OT functionality to use for seed OTs
    */
-  public Rot(OtExtensionResourcePool resources, Network network, Ot ot) {
-    CoteSender sender = new CoteSender(resources, network, ot);
-    CoteReceiver receiver = new CoteReceiver(resources, network, ot);
-    this.sender = new RotSender(sender);
-    this.receiver = new RotReceiver(receiver);
+  public Rot(OtExtensionResourcePool resources, Network network,
+      BristolSeedOts seedOts, int instanceId) {
+    this.resources = resources;
+    this.network = network;
+    this.seedOts = seedOts;
+    this.instanceId = instanceId;
+    // CoteSender sender = new CoteSender(resources, network, seedOts);
+    // CoteReceiver receiver = new CoteReceiver(resources, network, seedOts);
+    // this.sender = new RotSender(sender);
+    // this.receiver = new RotReceiver(receiver);
   }
 
   /**
    * Returns the sender object for the protocol.
-   * 
+   *
    * @return Returns the sender object for the protocol
    */
   public RotSender getSender() {
+    if (this.sender == null) {
+      CoteSender sender = new CoteSender(resources, network, seedOts, instanceId);
+      this.sender = new RotSender(sender);
+    }
     return sender;
   }
 
   /**
    * Returns the receiver object for the protocol.
-   * 
+   *
    * @return Returns the receiver object for the protocol
    */
   public RotReceiver getReceiver() {
+    if (this.receiver == null) {
+      CoteReceiver receiver = new CoteReceiver(resources, network, seedOts, instanceId);
+      this.receiver = new RotReceiver(receiver);
+    }
     return receiver;
   }
 }

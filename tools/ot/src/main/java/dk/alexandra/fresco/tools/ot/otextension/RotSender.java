@@ -28,19 +28,19 @@ public class RotSender extends RotShared {
     sender = snd;
   }
 
-  /**
-   * Initialize the random OT extension. This must only be done once.
-   */
-  @Override
-  public void initialize() {
-    if (isInitialized()) {
-      throw new IllegalStateException("Already initialized");
-    }
-    if (!sender.isInitialized()) {
-      sender.initialize();
-    }
-    super.initialize();
-  }
+  // /**
+  // * Initialize the random OT extension. This must only be done once.
+  // */
+  // @Override
+  // public void initialize() {
+  // if (isInitialized()) {
+  // throw new IllegalStateException("Already initialized");
+  // }
+  // if (!sender.isInitialized()) {
+  // sender.initialize();
+  // }
+  // super.initialize();
+  // }
 
   /**
    * Constructs a new batch of random OTs.
@@ -52,9 +52,9 @@ public class RotSender extends RotShared {
    *         messages
    */
   public Pair<List<StrictBitVector>, List<StrictBitVector>> extend(int size) {
-    if (!isInitialized()) {
-      throw new IllegalStateException("Not initialized");
-    }
+    // if (!isInitialized()) {
+    // throw new IllegalStateException("Not initialized");
+    // }
     int ellPrime = size + getKbitLength() + getLambdaSecurityParam();
     // Construct a sufficient amount correlated OTs with errors
     List<StrictBitVector> qlist = sender.extend(ellPrime);

@@ -20,7 +20,7 @@ public class RotShared {
   // Internal state variables
   private final CoteShared cote;
   private final CoinTossing ct;
-  private boolean initialized = false;
+  // private boolean initialized = false;
 
   /**
    * Constructs a random OT extension super-class using an underlying correlated
@@ -34,16 +34,17 @@ public class RotShared {
     this.cote = cote;
     this.ct = new CoinTossing(cote.getMyId(), cote.getOtherId(),
         cote.getRand(), cote.getNetwork());
+    this.ct.initialize();
   }
 
-  public void initialize() {
-    ct.initialize();
-    initialized = true;
-  }
-
-  public boolean isInitialized() {
-    return initialized;
-  }
+  // public void initialize() {
+  // ct.initialize();
+  // initialized = true;
+  // }
+  //
+  // public boolean isInitialized() {
+  // return initialized;
+  // }
 
   public int getOtherId() {
     return cote.getOtherId();

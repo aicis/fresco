@@ -16,7 +16,7 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> {
 
   /**
    * Run the receiving party.
-   * 
+   *
    * @param pid
    *          The PID of the receiving party
    * @throws IOException
@@ -26,7 +26,7 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> {
     OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
         lambdaSecurityParam);
     Ot ot = new BristolOt(ctx.getResources(), ctx.getNetwork(), ctx
-        .getDummyOtInstance(), amountOfOTs);
+        .getDummyOtInstance(), amountOfOTs, 1);
     for (int i = 0; i < amountOfOTs; i++) {
       byte[] choiceByte = new byte[1];
       ctx.getRand().nextBytes(choiceByte);
@@ -48,7 +48,7 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> {
 
   /**
    * Run the sending party.
-   * 
+   *
    * @param pid
    *          The PID of the sending party
    * @throws IOException
@@ -58,7 +58,7 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> {
     OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
         lambdaSecurityParam);
     Ot ot = new BristolOt(ctx.getResources(), ctx.getNetwork(), ctx
-        .getDummyOtInstance(), amountOfOTs);
+        .getDummyOtInstance(), amountOfOTs, 1);
     for (int i = 0; i < amountOfOTs; i++) {
       StrictBitVector msgZero = new StrictBitVector(messageSize, ctx
           .getRand());
@@ -74,7 +74,7 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> {
 
   /**
    * The main function, taking one argument, the PID of the calling party.
-   * 
+   *
    * @param args
    *          Argument list, consisting of only the PID
    */

@@ -6,18 +6,20 @@ import dk.alexandra.fresco.tools.ot.base.Ot;
 
 /**
  * Container class for a protocol instance of Bristol OTs.
- * 
+ *
  * @author jot2re
  *
  */
 public class BristolOt implements Ot {
-  private final BristolOtSender sender;
-  private final BristolOtReceiver receiver;
+  private BristolOtSender sender = null;
+  private BristolOtReceiver receiver = null;
+  private final Rot rot;
+  private final int batchSize;
 
   /**
    * Constructs a new OT protocol and constructs the internal sender and
    * receiver objects.
-   * 
+   *
    * @param resources
    *          The common OT extension resource pool
    * @param network
@@ -27,18 +29,19 @@ public class BristolOt implements Ot {
    * @param batchSize
    *          Size of the OT extension batch the protocol will construct
    */
-  public BristolOt(OtExtensionResourcePool resources, Network network, Ot ot,
-      int batchSize) {
-    Rot rot = new Rot(resources, network, ot);
-    RotSender sender = rot.getSender();
-    RotReceiver receiver = rot.getReceiver();
-    this.sender = new BristolOtSender(sender, batchSize);
-    this.receiver = new BristolOtReceiver(receiver, batchSize);
+  public BristolOt(OtExtensionResourcePool resources, Network network,
+      BristolSeedOts seedOts, int batchSize, int instanceId) {
+    this.rot = new Rot(resources, network, seedOts, instanceId);
+    this.batchSize = batchSize;
+    // RotSender sender = rot.getSender();
+    // RotReceiver receiver = rot.getReceiver();
+    // this.sender = new BristolOtSender(sender, batchSize);
+    // this.receiver = new BristolOtReceiver(receiver, batchSize);
   }
 
   /**
    * Act as sender in a 1-out-of-2 OT.
-   * 
+   *
    * @param messageZero
    *          The zero-choice message
    * @param messageOne
@@ -46,18 +49,26 @@ public class BristolOt implements Ot {
    */
   @Override
   public void send(StrictBitVector messageZero, StrictBitVector messageOne) {
-    sender.send(messageZero.toByteArray(), messageOne.toByteArray());
+    if (this.sender == null) {
+      RotSender sender = rot.getSender();
+      this.sender = new BristolOtSender(sender, batchSize);
+    }
+    this.sender.send(messageZero.toByteArray(), messageOne.toByteArray());
   }
 
   /**
    * Act as receiver in a 1-out-of-2 OT.
-   * 
+   *
    * @param choiceBit
    *          The bit representing choice of message. False represents 0 and
    *          true represents 1.
    */
   @Override
   public StrictBitVector receive(Boolean choiceBit) {
+    if (this.receiver == null) {
+      RotReceiver receiver = rot.getReceiver();
+      this.receiver = new BristolOtReceiver(receiver, batchSize);
+    }
     byte[] res = receiver.receive(choiceBit);
     return new StrictBitVector(res, 8 * res.length);
   }

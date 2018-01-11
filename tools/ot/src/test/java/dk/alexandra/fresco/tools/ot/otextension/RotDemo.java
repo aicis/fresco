@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * Demo class for execute a light instance of random OT extension.
- * 
+ *
  * @author jot2re
  *
  * @param <ResourcePoolT>
@@ -22,7 +22,7 @@ public class RotDemo<ResourcePoolT extends ResourcePool> {
 
   /**
    * Run the receiving party.
-   * 
+   *
    * @param pid
    *          The PID of the receiving party
    * @throws FailedCoinTossingException
@@ -40,10 +40,11 @@ public class RotDemo<ResourcePoolT extends ResourcePool> {
   public void runPartyOne(int pid) {
     OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
         lambdaSecurityParam);
+    ctx.getDummyOtInstance().receive();
     Rot rot = new Rot(ctx.getResources(), ctx.getNetwork(), ctx
-        .getDummyOtInstance());
+        .getDummyOtInstance(), 1);
     RotReceiver rotRec = rot.getReceiver();
-    rotRec.initialize();
+    // rotRec.initialize();
     byte[] otChoices = new byte[amountOfOTs / 8];
     ctx.getRand().nextBytes(otChoices);
     List<StrictBitVector> vvec = rotRec
@@ -61,17 +62,18 @@ public class RotDemo<ResourcePoolT extends ResourcePool> {
 
   /**
    * Run the sending party.
-   * 
+   *
    * @param pid
    *          The PID of the sending party
    */
   public void runPartyTwo(int pid) {
     OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
         lambdaSecurityParam);
+    ctx.getDummyOtInstance().send();
     Rot rot = new Rot(ctx.getResources(), ctx.getNetwork(), ctx
-        .getDummyOtInstance());
+        .getDummyOtInstance(), 1);
     RotSender rotSnd = rot.getSender();
-    rotSnd.initialize();
+    // rotSnd.initialize();
     Pair<List<StrictBitVector>, List<StrictBitVector>> vpairs = rotSnd
         .extend(amountOfOTs);
     System.out.println("done sender");
@@ -93,7 +95,7 @@ public class RotDemo<ResourcePoolT extends ResourcePool> {
 
   /**
    * The main function, taking one argument, the PID of the calling party.
-   * 
+   *
    * @param args
    *          Argument list, consisting of only the PID
    */

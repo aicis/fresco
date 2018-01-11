@@ -15,7 +15,7 @@ import org.junit.Test;
 public class TestOtExtensionResourcePool {
   private Drbg rand;
   private Network network;
-  private Ot ot;
+  private BristolSeedOts seedOts;
 
   /**
    * Setup a correlated OT functionality.
@@ -39,7 +39,8 @@ public class TestOtExtensionResourcePool {
         return 0;
       }
     };
-    ot = new DummyOt(2, network);
+    Ot ot = new DummyOt(2, network);
+    seedOts = new BristolSeedOts(rand, 128, ot);
   }
 
   /**** POSITIVE TESTS. ****/
@@ -55,7 +56,7 @@ public class TestOtExtensionResourcePool {
     boolean thrown = false;
     try {
       new CoteSender(new OtExtensionResourcePoolImpl(1, 2, 0, 40, rand),
-          network, ot);
+          network, seedOts, 1);
     } catch (IllegalArgumentException e) {
       assertEquals("Security parameters must be at least 1 and divisible by 8", e.getMessage());
       thrown = true;
@@ -64,7 +65,7 @@ public class TestOtExtensionResourcePool {
     thrown = false;
     try {
       new CoteReceiver(new OtExtensionResourcePoolImpl(1, 2, 128, 0, rand),
-          network, new DummyOt(2, network));
+          network, seedOts, 1);
     } catch (IllegalArgumentException e) {
       assertEquals("Security parameters must be at least 1 and divisible by 8", e.getMessage());
       thrown = true;
@@ -73,7 +74,7 @@ public class TestOtExtensionResourcePool {
     thrown = false;
     try {
       new CoteSender(new OtExtensionResourcePoolImpl(1, 2, 127, 40, rand),
-          network, new DummyOt(2, network));
+          network, seedOts, 1);
     } catch (IllegalArgumentException e) {
       assertEquals("Security parameters must be at least 1 and divisible by 8", e.getMessage());
       thrown = true;
@@ -82,7 +83,7 @@ public class TestOtExtensionResourcePool {
     thrown = false;
     try {
       new CoteReceiver(new OtExtensionResourcePoolImpl(1, 2, 128, 60, rand),
-          network, new DummyOt(2, network));
+          network, seedOts, 1);
     } catch (IllegalArgumentException e) {
       assertEquals("Security parameters must be at least 1 and divisible by 8", e.getMessage());
       thrown = true;

@@ -14,7 +14,7 @@ import java.util.List;
  * command is called and storing these results internally. When it runs out, it
  * automatically processes a new batch. These random OTs are adjusted to work as
  * chosen bit/message 1-out-of-2 OTs.
- * 
+ *
  * @author jot2re
  *
  */
@@ -31,7 +31,7 @@ public class BristolOtReceiver extends BristolOtShared {
   /**
    * Initializes the underlying Rot functionality using {@code rotReceiver}. It
    * will then construct OTs in batches of {@code batchSize}.
-   * 
+   *
    * @param rotReceiver
    *          The underlying receiver object to use
    * @param batchSize
@@ -42,27 +42,27 @@ public class BristolOtReceiver extends BristolOtShared {
     this.receiver = rotReceiver;
   }
 
-  /**
-   * Initializes the underlying random OT functionality.
-   */
-  @Override
-  public void initialize() {
-    receiver.initialize();
-    super.initialize();
-  }
+  // /**
+  // * Initializes the underlying random OT functionality.
+  // */
+  // @Override
+  // public void initialize() {
+  // receiver.initialize();
+  // super.initialize();
+  // }
 
   /**
    * Receive the serialized message from the current 1-out-of-2 OT.
-   * 
+   *
    * @param choiceBit
    *          Choice-bit. False for message 0, true for message 1.
    * @return The serialized message from the OT
    */
   public byte[] receive(Boolean choiceBit) {
-    // Initialize the underlying functionalities if needed
-    if (!isInitialized()) {
-      initialize();
-    }
+    // // Initialize the underlying functionalities if needed
+    // if (!isInitialized()) {
+    // initialize();
+    // }
     // Check if there is still an unused random OT stored, if not, execute a
     // random OT extension
     if (offset < 0 || offset >= getBatchSize()) {
@@ -85,7 +85,7 @@ public class BristolOtReceiver extends BristolOtShared {
   /**
    * Adjust the random, preprocessed message, to fit the specific message sent
    * by the sender.
-   * 
+   *
    * @param zeroAdjustment
    *          The adjustment value for the zero message
    * @param oneAdjustment
@@ -110,7 +110,7 @@ public class BristolOtReceiver extends BristolOtShared {
   /**
    * Compute and send a bit indicating whether the sender should switch the zero
    * and one message around.
-   * 
+   *
    * @param choiceBit
    *          The actual choice bit of the receiver
    */

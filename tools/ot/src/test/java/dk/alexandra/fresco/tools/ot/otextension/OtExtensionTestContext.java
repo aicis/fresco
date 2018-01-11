@@ -6,14 +6,13 @@ import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.tools.helper.Constants;
 import dk.alexandra.fresco.tools.helper.TestRuntime;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
-import dk.alexandra.fresco.tools.ot.base.Ot;
-
 import java.security.MessageDigest;
 import java.util.Arrays;
 
 public class OtExtensionTestContext {
   private final OtExtensionResourcePool resources;
   private final Network network;
+  private final BristolSeedOts seedOts;
 
   /**
    * Initialize the test context using specific parameters.
@@ -34,6 +33,8 @@ public class OtExtensionTestContext {
         lambdaSecurityParam, rand);
     this.network = new CheatingNetwork(TestRuntime.defaultNetworkConfiguration(myId, Arrays.asList(
         1, 2)));
+    DummyOt dummyOt = new DummyOt(resources.getOtherId(), network);
+    seedOts = new BristolSeedOts(getRand(), getKbitLength(), dummyOt);
   }
 
   public OtExtensionResourcePool getResources() {
@@ -44,8 +45,8 @@ public class OtExtensionTestContext {
     return network;
   }
 
-  public Ot getDummyOtInstance() {
-    return new DummyOt(resources.getOtherId(), network);
+  public BristolSeedOts getDummyOtInstance() {
+    return seedOts;
   }
 
   public int getMyId() {

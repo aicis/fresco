@@ -25,21 +25,21 @@ public class RotReceiver extends RotShared {
     this.receiver = rec;
   }
 
-  /**
-   * Initializes the random OT extension by initializing the underlying
-   * correlated OT with errors and coin tossing functionalities. This should
-   * only be done once for a given sender/receiver pair.
-   */
-  @Override
-  public void initialize() {
-    if (isInitialized()) {
-      throw new IllegalStateException("Already initialized");
-    }
-    if (!receiver.isInitialized()) {
-      receiver.initialize();
-    }
-    super.initialize();
-  }
+  // /**
+  // * Initializes the random OT extension by initializing the underlying
+  // * correlated OT with errors and coin tossing functionalities. This should
+  // * only be done once for a given sender/receiver pair.
+  // */
+  // @Override
+  // public void initialize() {
+  // if (isInitialized()) {
+  // throw new IllegalStateException("Already initialized");
+  // }
+  // if (!receiver.isInitialized()) {
+  // receiver.initialize();
+  // }
+  // super.initialize();
+  // }
 
   /**
    * Constructs a new batch of random OTs.
@@ -86,7 +86,7 @@ public class RotReceiver extends RotShared {
    *          The input list, with all elements of equal size
    * @return The inner product represented as a StrictBitVector
    */
-  private StrictBitVector computeBitLinearCombination(
+  private static StrictBitVector computeBitLinearCombination(
       StrictBitVector indicators,
       List<StrictBitVector> list) {
     StrictBitVector res = new StrictBitVector(list.get(0).getSize());
