@@ -9,6 +9,7 @@ import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -21,6 +22,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestParallelMascots {
 
@@ -33,6 +36,7 @@ public class TestParallelMascots {
   private BigInteger modulus;
   private List<Integer> partyIds;
   private int iterations;
+  private Logger logger = LoggerFactory.getLogger(TestParallelMascots.class);
 
   @Before
   public void setUp() {
@@ -107,7 +111,7 @@ public class TestParallelMascots {
               new PaddingAesCtrDrbg(new byte[]{7, 127, -1}, prgSeedLength), modulus,
               modBitLength, 256, prgSeedLength, numLeftFactors),
               normalManager.createExtraNetwork(finalMyId), randomSsk);
-          return mascot.getTriples(1000);
+          return mascot.getTriples(128);
         });
       }
     }
@@ -115,10 +119,20 @@ public class TestParallelMascots {
   }
 
   private <T> void invoke(List<Callable<T>> mascotCreators) throws Exception {
-    List<Future<T>> futures = executorService.invokeAll(mascotCreators);
-    for (Future<T> future : futures) {
-      T result = future.get();
-      Assert.assertThat(result, IsNull.notNullValue());
+    List<Future<T>> futures =
+        mascotCreators.stream().map((task) -> executorService.submit(task))
+            .collect(Collectors.toList());
+    while (!futures.isEmpty()) {
+      for (Iterator<Future<T>> iterator = futures.iterator(); iterator.hasNext(); ) {
+        Future<T> future = iterator.next();
+        if (future.isDone()) {
+          T result = future.get();
+          Assert.assertThat(result, IsNull.notNullValue());
+          iterator.remove();
+        }
+      }
+      Thread.sleep(1000);
+      logger.info("Testing the remaining " + futures.size() + " futures");
     }
   }
 }

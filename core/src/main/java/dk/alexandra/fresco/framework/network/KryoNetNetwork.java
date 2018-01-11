@@ -92,7 +92,7 @@ public class KryoNetNetwork implements Network, Closeable {
         }
       }
 
-      this.queues.put(i, new ArrayBlockingQueue<>(1000));
+      this.queues.put(i, new ArrayBlockingQueue<>(1000000));
     }
 
     try {

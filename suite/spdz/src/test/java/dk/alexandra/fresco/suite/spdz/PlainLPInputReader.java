@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.suite.spdz.utils.LPInputReader;
+import dk.alexandra.fresco.suite.spdz.utils.LinearProgrammingInputReader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.LinkedList;
 
-public class PlainLPInputReader implements LPInputReader {
+public class PlainLPInputReader implements LinearProgrammingInputReader {
 
   private BigInteger[][] constraintValues;
   private BigInteger[] costValues;

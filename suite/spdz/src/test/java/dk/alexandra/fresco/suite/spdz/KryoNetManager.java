@@ -25,7 +25,7 @@ public class KryoNetManager implements Closeable {
   }
 
   public KryoNetNetwork createExtraNetwork(int myId) {
-    KryoNetNetwork net = new KryoNetNetwork(new TestNetworkConfiguration(myId, ports, portOffset), 12345678, false, 15000);
+    KryoNetNetwork net = new KryoNetNetwork(new TestNetworkConfiguration(myId, ports, portOffset), 10485680, false, 15000);
     openedNetworks.add(net);
     return net;
   }

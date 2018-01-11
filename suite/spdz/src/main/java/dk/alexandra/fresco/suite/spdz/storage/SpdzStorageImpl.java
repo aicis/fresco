@@ -12,8 +12,8 @@ import java.util.List;
  */
 public class SpdzStorageImpl implements SpdzStorage {
 
-  private List<BigInteger> opened_values;
-  private List<SpdzElement> closed_values;
+  private List<BigInteger> openedValues;
+  private List<SpdzElement> closedValues;
 
   private SpdzDataSupplier supplier;
 
@@ -23,14 +23,14 @@ public class SpdzStorageImpl implements SpdzStorage {
    */
   public SpdzStorageImpl(SpdzDataSupplier supplier) {
     this.supplier = supplier;
-    opened_values = new LinkedList<>();
-    closed_values = new LinkedList<>();
+    openedValues = new LinkedList<>();
+    closedValues = new LinkedList<>();
   }
 
   @Override
   public void reset() {
-    opened_values.clear();
-    closed_values.clear();
+    openedValues.clear();
+    closedValues.clear();
   }
 
   @Override
@@ -40,27 +40,27 @@ public class SpdzStorageImpl implements SpdzStorage {
 
   @Override
   public void addOpenedValue(BigInteger val) {
-    opened_values.add(val);
+    openedValues.add(val);
   }
 
   @Override
   public void addClosedValue(SpdzElement elem) {
-    closed_values.add(elem);
+    closedValues.add(elem);
   }
 
   @Override
   public List<BigInteger> getOpenedValues() {
-    return opened_values;
+    return openedValues;
   }
 
   @Override
   public List<SpdzElement> getClosedValues() {
-    return closed_values;
+    return closedValues;
   }
 
   @Override
-  public BigInteger getSSK() {
-    return this.supplier.getSSK();
+  public BigInteger getSecretSharedKey() {
+    return this.supplier.getSecretSharedKey();
   }
 
 }
