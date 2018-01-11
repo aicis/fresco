@@ -12,9 +12,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestRot {
-  // private int kbitSecurity = 128;
-  // private Rot rot;
-  // private RotReceiver rec;
   private Method multiplyWithoutReduction;
 
   /**
@@ -23,34 +20,6 @@ public class TestRot {
   @Before
   public void setup() throws NoSuchMethodException, NoSuchFieldException,
       SecurityException, IllegalArgumentException, IllegalAccessException {
-//    Drbg rand = new AesCtrDrbg(Constants.seedOne);
-//    // fake network
-//    Network network = new Network() {
-//      @Override
-//      public void send(int partyId, byte[] data) {
-//      }
-//
-//      @Override
-//      public byte[] receive(int partyId) {
-//        return null;
-//      }
-//
-//      @Override
-//      public int getNoOfParties() {
-//        return 0;
-//      }
-//    };
-//    CoinTossing ct = new CoinTossing(1, 2, rand, network);
-//    RotList seedOts = new RotList(rand, kbitSecurity);
-//    OtExtensionResourcePool resources = new OtExtensionResourcePoolImpl(1, 2,
-//        128, 40, 1, rand, ct, seedOts);
-//    Field sent = RotList.class.getDeclaredField("sent");
-//    sent.setAccessible(true);
-//    sent.set(seedOts, true);
-//    Field received = RotList.class.getDeclaredField("received");
-//    received.setAccessible(true);
-//    received.set(seedOts, true);
-//    this.rot = new Rot(resources, network);
     multiplyWithoutReduction = RotShared.class.getDeclaredMethod(
         "multiplyWithoutReduction", StrictBitVector.class,
         StrictBitVector.class);
@@ -146,21 +115,11 @@ public class TestRot {
     byte[] bbyte = new byte[]{(byte) 0xA0};
     StrictBitVector a = new StrictBitVector(abyte, 16);
     StrictBitVector b = new StrictBitVector(bbyte, 8);
-    List<StrictBitVector> firstList = new ArrayList<StrictBitVector>(2);
-    List<StrictBitVector> secondList = new ArrayList<StrictBitVector>(2);
-    firstList.add(a);
-    firstList.add(b);
-    secondList.add(b);
-    secondList.add(a);
     // 0 1 0 0 0 0 0 1, 1 1 1 1 1 1 1 1, 0 0 0 0 0 0 0 0 XOR
     // 0 0 0 1 0 0 0 0, 0 1 1 1 1 1 1 1, 1 1 0 0 0 0 0 0 =
     // 0 1 0 1 0 0 0 1, 1 0 0 0 0 0 0 0, 1 1 0 0 0 0 0 0
     byte[] expectedByte = new byte[]{(byte) 0x51, (byte) 0x80, (byte) 0xC0};
     StrictBitVector expected = new StrictBitVector(expectedByte, 24);
-    // TODO[TOR] This is not used?
-    List<StrictBitVector> expectedList = new ArrayList<>(2);
-    expectedList.add(expected);
-    expectedList.add(expected);
     StrictBitVector res = (StrictBitVector) multiplyWithoutReduction.invoke(
         RotReceiver.class, a, b);
     assertEquals(true, expected.equals(res));
@@ -202,28 +161,4 @@ public class TestRot {
         RotReceiver.class, b, alist);
     assertEquals(true, expected.equals(res));
   }
-
-  // /**** NEGATIVE TESTS. ****/
-  // @Test
-  // public void testIllegalExtend() {
-  // boolean thrown = false;
-  // try {
-  // rot.getSender().extend(88);
-  // } catch (IllegalStateException e) {
-  // assertEquals("Not initialized",
-  // e.getMessage());
-  // thrown = true;
-  // }
-  // assertEquals(true, thrown);
-  //
-  // thrown = false;
-  // try {
-  // StrictBitVector choices = new StrictBitVector(88);
-  // rot.getReceiver().extend(choices);
-  // } catch (IllegalStateException e) {
-  // assertEquals("Not initialized", e.getMessage());
-  // thrown = true;
-  // }
-  // assertEquals(true, thrown);
-  // }
 }

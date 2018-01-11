@@ -2,14 +2,14 @@ package dk.alexandra.fresco.tools.ot.otextension;
 
 import static org.junit.Assert.assertEquals;
 
-import java.lang.reflect.Field;
-
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
 import dk.alexandra.fresco.tools.helper.Constants;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
+
+import java.lang.reflect.Field;
 
 import org.junit.Before;
 import org.junit.Test;
