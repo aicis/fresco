@@ -3,6 +3,8 @@ package dk.alexandra.fresco.tools.ot.otextension;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.cointossing.CoinTossing;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -23,8 +25,8 @@ public class RotSender extends RotShared {
    * @param snd
    *          The correlated OT with error sender this protocol will use
    */
-  public RotSender(CoteSender snd) {
-    super(snd);
+  public RotSender(CoteSender snd, CoinTossing ct) {
+    super(snd, ct);
     sender = snd;
   }
 

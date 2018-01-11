@@ -42,7 +42,7 @@ public class Rot {
   public RotSender getSender() {
     if (this.sender == null) {
       CoteSender sender = new CoteSender(resources, network);
-      this.sender = new RotSender(sender);
+      this.sender = new RotSender(sender, resources.getCoinTossing());
     }
     return sender;
   }
@@ -55,7 +55,7 @@ public class Rot {
   public RotReceiver getReceiver() {
     if (this.receiver == null) {
       CoteReceiver receiver = new CoteReceiver(resources, network);
-      this.receiver = new RotReceiver(receiver);
+      this.receiver = new RotReceiver(receiver, resources.getCoinTossing());
     }
     return receiver;
   }

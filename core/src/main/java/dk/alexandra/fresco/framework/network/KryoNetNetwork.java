@@ -277,7 +277,7 @@ public class KryoNetNetwork implements Network, Closeable {
       ExceptionConverter.safe(() -> {
         this.queues.get(partyId).put(data);
         return null;
-      } , "Send got interrupted");
+      } , () -> {this.close(); return null;}, "Send got interrupted");
     } else {
       if (allowMultipleMessages) {
         if (data.length > maxSendAmount) {
@@ -325,7 +325,7 @@ public class KryoNetNetwork implements Network, Closeable {
           ExceptionConverter.safe(() -> {
             doneSending.acquire();
             return null;
-          } , "Interrupted while sending");
+          } , () -> {this.close(); return null;}, "Interrupted while sending");
         } else {
           // Only one message is needed
           this.clients.get(partyId).sendTCP(data);
@@ -348,7 +348,7 @@ public class KryoNetNetwork implements Network, Closeable {
   }
 
   @Override
-  public void close() throws IOException {
+  public void close() {
     logger.debug("P" + conf.getMyId() + ": Shutting down KryoNet network");
 
     this.server.stop();

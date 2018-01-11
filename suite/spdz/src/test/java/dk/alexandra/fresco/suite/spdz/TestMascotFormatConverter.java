@@ -2,16 +2,14 @@ package dk.alexandra.fresco.suite.spdz;
 
 import static org.junit.Assert.assertEquals;
 
-import java.math.BigInteger;
-
-import org.junit.Test;
-
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.suite.spdz.preprocessing.MascotFormatConverter;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
+import java.math.BigInteger;
+import org.junit.Test;
 
 public class TestMascotFormatConverter {
 

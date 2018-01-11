@@ -51,6 +51,7 @@ public class OtExtensionTestContext {
   public OtExtensionResourcePool createResources(int instanceId) {
     Drbg rand = new AesCtrDrbg(Constants.seedOne);
     CoinTossing ct = new CoinTossing(myId, otherId, rand, network);
+    ct.initialize();
     return new OtExtensionResourcePoolImpl(myId, otherId, kbitLength,
         lambdaSecurityParam, instanceId, rand, ct, seedOts);
   }

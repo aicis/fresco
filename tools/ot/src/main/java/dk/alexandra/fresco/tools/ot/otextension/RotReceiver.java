@@ -1,6 +1,8 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.cointossing.CoinTossing;
+
 import java.util.List;
 
 /**
@@ -20,8 +22,8 @@ public class RotReceiver extends RotShared {
    * @param rec
    *          The correlated OT with error receiver this protocol will use
    */
-  public RotReceiver(CoteReceiver rec) {
-    super(rec);
+  public RotReceiver(CoteReceiver rec, CoinTossing ct) {
+    super(rec, ct);
     this.receiver = rec;
   }
 

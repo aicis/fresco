@@ -29,12 +29,10 @@ public class RotShared {
    * @param cote
    *          The underlying correlated OT with errors
    */
-  public RotShared(CoteShared cote) {
+  public RotShared(CoteShared cote, CoinTossing ct) {
     super();
     this.cote = cote;
-    this.ct = new CoinTossing(cote.getMyId(), cote.getOtherId(),
-        cote.getRand(), cote.getNetwork());
-    this.ct.initialize();
+    this.ct = ct;
   }
 
   // public void initialize() {

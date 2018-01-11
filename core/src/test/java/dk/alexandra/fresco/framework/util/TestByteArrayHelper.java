@@ -6,10 +6,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.junit.Test;
-
-import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 
 public class TestByteArrayHelper {
 
@@ -83,6 +80,7 @@ public class TestByteArrayHelper {
     assertEquals((byte) 0x0F, list1.get(1)[2]);
   }
 
+  @SuppressWarnings("deprecation")
   @Test
   public void testSerialization() throws IOException, ClassNotFoundException {
     BigInteger bigInt = new BigInteger("543584330850486485473235");

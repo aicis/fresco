@@ -24,7 +24,9 @@ import org.junit.Test;
 public class FunctionalTestOtExtension {
   private TestRuntime testRuntime;
   private Cote coteSender;
+  private OtExtensionResourcePool senderResources;
   private Cote coteReceiver;
+  private OtExtensionResourcePool receiverResources;
   private int kbitLength = 128;
   private int lambdaSecurityParam = 64;
 
@@ -36,13 +38,15 @@ public class FunctionalTestOtExtension {
   public void initializeRuntime() {
     this.testRuntime = new TestRuntime();
     // define task each party will run
-    Callable<Cote> partyOneTask = () -> setupCoteSender();
-    Callable<Cote> partyTwoTask = () -> setupCoteReceiver();
+    Callable<Pair<Cote, OtExtensionResourcePool>> partyOneTask = () -> setupCoteSender();
+    Callable<Pair<Cote, OtExtensionResourcePool>> partyTwoTask = () -> setupCoteReceiver();
     // run tasks and get ordered list of results
-    List<Cote> results = testRuntime
+    List<Pair<Cote, OtExtensionResourcePool>> results = testRuntime
         .runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
-    coteSender = results.get(0);
-    coteReceiver = results.get(1);
+    coteSender = results.get(0).getFirst();
+    senderResources = results.get(0).getSecond();
+    coteReceiver = results.get(1).getFirst();
+    receiverResources = results.get(1).getSecond();
   }
 
   /**
@@ -58,22 +62,24 @@ public class FunctionalTestOtExtension {
     testRuntime.shutdown();
   }
 
-  private Cote setupCoteSender() {
+  private Pair<Cote, OtExtensionResourcePool> setupCoteSender() {
     OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
         lambdaSecurityParam);
     // Remember that in the seed Ots the parties have inverse roles
     // ctx.getDummyOtInstance().receive();
-    Cote cote = new Cote(ctx.createResources(1), ctx.getNetwork());
-    return cote;
+    OtExtensionResourcePool resources = ctx.createResources(1);
+    Cote cote = new Cote(resources, ctx.getNetwork());
+    return new Pair<>(cote, resources);
   }
 
-  private Cote setupCoteReceiver() {
+  private Pair<Cote, OtExtensionResourcePool> setupCoteReceiver() {
     OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
         lambdaSecurityParam);
     // Remember that in the seed Ots the parties have inverse roles
     // ctx.getDummyOtInstance().send();
-    Cote cote = new Cote(ctx.createResources(1), ctx.getNetwork());
-    return cote;
+    OtExtensionResourcePool resources = ctx.createResources(1);
+    Cote cote = new Cote(resources, ctx.getNetwork());
+    return new Pair<>(cote, resources);
   }
 
   // private Exception initCoteSender() {
@@ -199,7 +205,8 @@ public class FunctionalTestOtExtension {
 
   private Pair<List<StrictBitVector>, List<StrictBitVector>> extendRotSender(
       int size) {
-    RotSender rotSender = new RotSender(coteSender.getSender());
+    RotSender rotSender = new RotSender(coteSender.getSender(),
+        senderResources.getCoinTossing());
     Pair<List<StrictBitVector>, List<StrictBitVector>> messages = rotSender
         .extend(size);
     return messages;
@@ -207,7 +214,8 @@ public class FunctionalTestOtExtension {
 
   private Pair<List<StrictBitVector>, List<StrictBitVector>> extendRotReceiver(
       StrictBitVector choices) throws IOException {
-    RotReceiver rotReceiver = new RotReceiver(coteReceiver.getReceiver());
+    RotReceiver rotReceiver = new RotReceiver(coteReceiver.getReceiver(),
+        receiverResources.getCoinTossing());
     List<StrictBitVector> messages = rotReceiver.extend(choices);
     // The return type of the extend method for sender and receiver must be the
     // same for the test to work, which is why we return null for the second
@@ -365,7 +373,7 @@ public class FunctionalTestOtExtension {
     // correlation check fail with 0.5 probability, up to the random choices of
     // the sender. We have verifies that for the static randomness used by our
     // tests this happens for choice 1
-    int corruptUVecPos = 3;
+    int corruptUVecPos = 1;
     ((CheatingNetwork) coteReceiver.getReceiver().getNetwork())
         .cheatInNextMessage(corruptUVecPos, 0);
     Callable<Pair<List<StrictBitVector>, List<StrictBitVector>>> partyTwoExtend =

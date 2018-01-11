@@ -14,13 +14,15 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
- * Actively-secure implementation of the signer party's side of the Correlated Oblivious Product
- * Evaluation (COPE) protocol.<br>
- * COPE allows two parties, the inputter and the signer, where the inputter holds input values e1,
- * ..., en, and the signer holds single value s to secret-shared result of s * e1, ..., s * en. <br>
+ * Actively-secure implementation of the <i>signer</i> party's side of the Correlated Oblivious
+ * Product Evaluation (COPE) protocol.
+ *
+ * <p>COPE allows two parties, the <i>inputter</i> and the <i>signer</i>, where the inputter holds
+ * input values <i>e<sub>1</sub>, ..., e<sub>n</sub></i>, and the signer holds single value <i>s</i>
+ * to secret-shared result of <i>s * e<sub>1</sub>, ..., s * e<sub>n</sub></i>.
  * This side of the protocol is to be run by the signer party. For the other side of the protocol,
- * see {@link CopeInputter}.
- * 
+ * see {@link CopeInputter}.</p>
+ *
  */
 public class CopeSigner extends CopeShared {
 
@@ -30,7 +32,14 @@ public class CopeSigner extends CopeShared {
 
   /**
    * Creates new cope signer.
-   * 
+   *
+   * <p>This will run the initialization sub-protocol of COPE using an OT protocol to set up the
+   * PRG seeds used in the <i>Extend</i> sub-protocol.</p>
+   *
+   * @param resourcePool The resource pool for the protocol
+   * @param network the network to use for communication
+   * @param otherId the id of the other party
+   * @param macKeyShare this party's share of the mac key
    */
   public CopeSigner(MascotResourcePool resourcePool, Network network, Integer otherId,
       FieldElement macKeyShare) {
@@ -47,6 +56,24 @@ public class CopeSigner extends CopeShared {
     }
   }
 
+  /**
+   * Computes shares of product of this party's mac key share and other party's inputs.
+   *
+   * @param numInputs number of other party's inputs
+   * @return shares of product
+   */
+  public List<FieldElement> extend(int numInputs) {
+    // compute chosen masks
+    List<FieldElement> chosenMasks = generateMasks(numInputs, getModulus(), getModBitLength());
+    // get diffs from other party
+    List<FieldElement> diffs = multiplier.receiveDiffs(numInputs * prgs.size());
+    // use mac share for each input
+    List<FieldElement> macKeyShares =
+        IntStream.range(0, numInputs).mapToObj(idx -> macKeyShare).collect(Collectors.toList());
+    // compute product shares
+    return multiplier.computeProductShares(macKeyShares, chosenMasks, diffs);
+  }
+
   List<FieldElement> generateMasks(int numInputs, BigInteger modulus, int modBitLength) {
     // for each input pair, we use our prgs to get the next set of masks
     List<FieldElement> masks = new ArrayList<>();
@@ -58,27 +85,6 @@ public class CopeSigner extends CopeShared {
       masks.addAll(singleInputMasks);
     }
     return masks;
-  }
-
-  /**
-   * Computes shares of product of this party's mac key share and other party's inputs.
-   * 
-   * @param numInputs number of other party's inputs
-   * @return shares of product
-   */
-  public List<FieldElement> extend(int numInputs) {
-    // compute chosen masks
-    List<FieldElement> chosenMasks = generateMasks(numInputs, getModulus(), getModBitLength());
-
-    // get diffs from other party
-    List<FieldElement> diffs = multiplier.receiveDiffs(numInputs * prgs.size());
-
-    // use mac share for each input
-    List<FieldElement> macKeyShares =
-        IntStream.range(0, numInputs).mapToObj(idx -> macKeyShare).collect(Collectors.toList());
-
-    // compute product shares
-    return multiplier.computeProductShares(macKeyShares, chosenMasks, diffs);
   }
 
 }

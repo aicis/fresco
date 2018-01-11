@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.tools.cointossing.CoinTossing;
 
 import java.security.MessageDigest;
 
@@ -39,4 +40,6 @@ public interface OtExtensionResourcePool extends ResourcePool {
   int getInstanceId();
 
   RotList getSeedOts();
+
+  CoinTossing getCoinTossing();
 }

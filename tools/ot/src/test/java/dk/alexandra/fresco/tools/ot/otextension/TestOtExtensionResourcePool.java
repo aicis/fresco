@@ -2,11 +2,15 @@ package dk.alexandra.fresco.tools.ot.otextension;
 
 import static org.junit.Assert.assertEquals;
 
+import java.lang.reflect.Field;
+
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
 import dk.alexandra.fresco.tools.helper.Constants;
+import dk.alexandra.fresco.tools.ot.base.DummyOt;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -86,6 +90,65 @@ public class TestOtExtensionResourcePool {
           ct, seedOts), network);
     } catch (IllegalArgumentException e) {
       assertEquals("Security parameters must be at least 1 and divisible by 8", e.getMessage());
+      thrown = true;
+    }
+    assertEquals(thrown, true);
+  }
+
+  @Test
+  public void testIllegalRotListSend() throws NoSuchFieldException,
+      SecurityException, IllegalArgumentException, IllegalAccessException {
+    RotList ots = new RotList(new AesCtrDrbg(Constants.seedOne), 128);
+    boolean thrown = false;
+    try {
+      ots.getSentMessages();
+    } catch (IllegalStateException e) {
+      assertEquals("Seed OTs have not been sent yet.", e.getMessage());
+      thrown = true;
+    }
+    assertEquals(thrown, true);
+    thrown = false;
+    Field sent = RotList.class.getDeclaredField("sent");
+    sent.setAccessible(true);
+    sent.set(ots, true);
+    try {
+      ots.send(new DummyOt(2, network));
+    } catch (IllegalStateException e) {
+      assertEquals("Seed OTs have already been sent.", e.getMessage());
+      thrown = true;
+    }
+    assertEquals(thrown, true);
+  }
+
+  @Test
+  public void testIllegalRotListReceive() throws NoSuchFieldException,
+      SecurityException, IllegalArgumentException, IllegalAccessException {
+    RotList ots = new RotList(new AesCtrDrbg(Constants.seedOne), 128);
+    boolean thrown = false;
+    try {
+      ots.getLearnedMessages();
+    } catch (IllegalStateException e) {
+      assertEquals("Seed OTs have not been received yet.", e.getMessage());
+      thrown = true;
+    }
+    assertEquals(thrown, true);
+    thrown = false;
+    try {
+      ots.getChoices();
+    } catch (IllegalStateException e) {
+      assertEquals("Seed OTs have not been received yet.", e.getMessage());
+      thrown = true;
+    }
+    assertEquals(thrown, true);
+
+    Field receive = RotList.class.getDeclaredField("received");
+    receive.setAccessible(true);
+    receive.set(ots, true);
+    thrown = false;
+    try {
+      ots.receive(new DummyOt(2, network));
+    } catch (IllegalStateException e) {
+      assertEquals("Seed OTs have already been received.", e.getMessage());
       thrown = true;
     }
     assertEquals(thrown, true);

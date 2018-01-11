@@ -2,13 +2,7 @@ package dk.alexandra.fresco.tools.ot.otextension;
 
 import static org.junit.Assert.assertEquals;
 
-import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.AesCtrDrbg;
-import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.cointossing.CoinTossing;
-import dk.alexandra.fresco.tools.helper.Constants;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -18,9 +12,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestRot {
-  private int kbitSecurity = 128;
-  private Rot rot;
-  private RotReceiver rec;
+  // private int kbitSecurity = 128;
+  // private Rot rot;
+  // private RotReceiver rec;
   private Method multiplyWithoutReduction;
 
   /**
@@ -29,49 +23,38 @@ public class TestRot {
   @Before
   public void setup() throws NoSuchMethodException, NoSuchFieldException,
       SecurityException, IllegalArgumentException, IllegalAccessException {
-    Drbg rand = new AesCtrDrbg(Constants.seedOne);
-    // fake network
-    Network network = new Network() {
-      @Override
-      public void send(int partyId, byte[] data) {
-      }
-
-      @Override
-      public byte[] receive(int partyId) {
-        return null;
-      }
-
-      @Override
-      public int getNoOfParties() {
-        return 0;
-      }
-    };
-    CoinTossing ct = new CoinTossing(1, 2, rand, network);
-    RotList seedOts = new RotList(rand, kbitSecurity);
-    OtExtensionResourcePool resources = new OtExtensionResourcePoolImpl(1, 2,
-        128, 40, 1, rand, ct, seedOts);
-    Field sent = RotList.class.getDeclaredField("sent");
-    sent.setAccessible(true);
-    sent.set(seedOts, true);
-    Field received = RotList.class.getDeclaredField("received");
-    received.setAccessible(true);
-    received.set(seedOts, true);
-    // Field learnedMessages = BristolSeedOts.class.getDeclaredField(
-    // "learnedMessages");
-    // learnedMessages.setAccessible(true);
-    // List<StrictBitVector> actualMessages = (List<StrictBitVector>) learnedMessages
-    // .get(seedOts);
-    // for (int i = 0; i < kbitSecurity; i++) {
-    // if (choi)
-    // actualMessages.get(i)
-    // }
-    this.rot = new Rot(resources, network);
+//    Drbg rand = new AesCtrDrbg(Constants.seedOne);
+//    // fake network
+//    Network network = new Network() {
+//      @Override
+//      public void send(int partyId, byte[] data) {
+//      }
+//
+//      @Override
+//      public byte[] receive(int partyId) {
+//        return null;
+//      }
+//
+//      @Override
+//      public int getNoOfParties() {
+//        return 0;
+//      }
+//    };
+//    CoinTossing ct = new CoinTossing(1, 2, rand, network);
+//    RotList seedOts = new RotList(rand, kbitSecurity);
+//    OtExtensionResourcePool resources = new OtExtensionResourcePoolImpl(1, 2,
+//        128, 40, 1, rand, ct, seedOts);
+//    Field sent = RotList.class.getDeclaredField("sent");
+//    sent.setAccessible(true);
+//    sent.set(seedOts, true);
+//    Field received = RotList.class.getDeclaredField("received");
+//    received.setAccessible(true);
+//    received.set(seedOts, true);
+//    this.rot = new Rot(resources, network);
     multiplyWithoutReduction = RotShared.class.getDeclaredMethod(
         "multiplyWithoutReduction", StrictBitVector.class,
         StrictBitVector.class);
     multiplyWithoutReduction.setAccessible(true);
-    // ct.initialize();
-    // rec = (RotReceiver) new Object();
   }
 
   /**** POSITIVE TESTS. ****/

@@ -45,9 +45,9 @@ public class CoteShared {
   // return initialized;
   // }
 
-  public int getMyId() {
-    return resources.getMyId();
-  }
+  // public int getMyId() {
+  // return resources.getMyId();
+  // }
 
   public int getOtherId() {
     return resources.getOtherId();

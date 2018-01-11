@@ -52,6 +52,7 @@ public final class FieldElement implements Addable<FieldElement> {
     return new FieldElement(this.value.pow(exponent).mod(modulus), modulus, bitLength);
   }
 
+  @Override
   public FieldElement add(FieldElement other) {
     return binaryOp(BigInteger::add, this, other);
   }
@@ -84,7 +85,7 @@ public final class FieldElement implements Addable<FieldElement> {
   public boolean isZero() {
     return value.equals(BigInteger.ZERO);
   }
-  
+
   /**
    * Converts value into byte array. <br>
    * Result is guaranteed to exactly bitLength / 8 long.

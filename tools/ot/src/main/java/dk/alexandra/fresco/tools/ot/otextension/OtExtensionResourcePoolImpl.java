@@ -118,6 +118,7 @@ public class OtExtensionResourcePoolImpl extends ResourcePoolImpl implements
     return seedOts;
   }
 
+  @Override
   public CoinTossing getCoinTossing() {
     return ct;
   }
