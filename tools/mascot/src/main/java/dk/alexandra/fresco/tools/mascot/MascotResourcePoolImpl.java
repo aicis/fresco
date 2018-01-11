@@ -12,16 +12,14 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
-import dk.alexandra.fresco.tools.ot.base.NaorPinkasOt;
-import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import dk.alexandra.fresco.tools.ot.otextension.BristolRotBatch;
+import dk.alexandra.fresco.tools.ot.otextension.RotList;
 import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePool;
 import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePoolImpl;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.List;
-import javax.crypto.spec.DHParameterSpec;
 
 public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotResourcePool {
 
@@ -46,7 +44,7 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
           + "85827844212318499978829377355564689095172787513731965744913645190518423"
           + "06594567246898679968677700656495114013774368779648395287433119164167454"
           + "67731166272088057888135437754886129005590419051");
-
+  private final RotList seedOts;
   private final List<Integer> partyIds;
   private final BigInteger modulus;
   private final int modBitLength;
@@ -62,10 +60,12 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
   /**
    * Creates new mascot resource pool.
    */
-  public MascotResourcePoolImpl(Integer myId, List<Integer> partyIds, Drbg drbg, BigInteger modulus,
+  public MascotResourcePoolImpl(Integer myId, List<Integer> partyIds, Drbg drbg,
+      RotList seedOts, BigInteger modulus,
       int modBitLength, int lambdaSecurityParam, int prgSeedLength, int numLeftFactors) {
     super(myId, partyIds.size(), drbg);
     this.partyIds = partyIds;
+    this.seedOts = seedOts;
     this.modulus = modulus;
     this.modBitLength = modBitLength;
     this.lambdaSecurityParam = lambdaSecurityParam;
@@ -126,13 +126,13 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
 
   @Override
   public RotBatch createRot(int otherId, Network network) {
-    DHParameterSpec params = new DHParameterSpec(DH_P_VALUE, DH_G_VALUE);
-    Ot ot = ExceptionConverter.safe(() -> new NaorPinkasOt(getMyId(), otherId,
-            getRandomGenerator(), network, params),
-        "Missing security hash function or PRG, which is dependent in this library");
+//    DHParameterSpec params = new DHParameterSpec(DH_P_VALUE, DH_G_VALUE);
+//    Ot ot = ExceptionConverter.safe(() -> new NaorPinkasOt(getMyId(), otherId,
+//            getRandomGenerator(), network, params),
+    // "Missing security hash function or PRG, which is dependent in this library");
     OtExtensionResourcePool otResources = new OtExtensionResourcePoolImpl(getMyId(), otherId,
         getModBitLength(), getLambdaSecurityParam(), getRandomGenerator());
-    return new BristolRotBatch(otResources, network, ot);
+    return new BristolRotBatch(otResources, network, seedOts);
   }
 
   @Override

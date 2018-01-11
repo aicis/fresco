@@ -1,11 +1,13 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.Random;
 
 public class BristolOtDemo<ResourcePoolT extends ResourcePool> {
   // Amount of OTs to construct
@@ -16,7 +18,7 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> {
 
   /**
    * Run the receiving party.
-   * 
+   *
    * @param pid
    *          The PID of the receiving party
    * @throws IOException
@@ -25,19 +27,10 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> {
   public void runPartyOne(int pid) throws IOException {
     OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
         lambdaSecurityParam);
-    Ot ot = new BristolOt(ctx.getResources(), ctx.getNetwork(), ctx
-        .getDummyOtInstance(), amountOfOTs);
+    Ot ot = new BristolOt(ctx.createResources(1), ctx.getNetwork(),
+        amountOfOTs);
     for (int i = 0; i < amountOfOTs; i++) {
-      byte[] choiceByte = new byte[1];
-      ctx.getRand().nextBytes(choiceByte);
-      boolean choice;
-      // Interpret the lower half of possible values of a byte as false and the
-      // upper as true
-      if (choiceByte[0] <= 127) {
-        choice = false;
-      } else {
-        choice = true;
-      }
+      boolean choice = (new Random()).nextBoolean();
       System.out.print("Choice " + choice + ": ");
       StrictBitVector res = ot.receive(choice);
       System.out.println(res);
@@ -48,7 +41,7 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> {
 
   /**
    * Run the sending party.
-   * 
+   *
    * @param pid
    *          The PID of the sending party
    * @throws IOException
@@ -57,13 +50,12 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> {
   public void runPartyTwo(int pid) throws IOException {
     OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
         lambdaSecurityParam);
-    Ot ot = new BristolOt(ctx.getResources(), ctx.getNetwork(), ctx
-        .getDummyOtInstance(), amountOfOTs);
+    Ot ot = new BristolOt(ctx.createResources(1), ctx.getNetwork(),
+        amountOfOTs);
+    Drbg rand = ctx.createRand(1);
     for (int i = 0; i < amountOfOTs; i++) {
-      StrictBitVector msgZero = new StrictBitVector(messageSize, ctx
-          .getRand());
-      StrictBitVector msgOne = new StrictBitVector(messageSize, ctx
-          .getRand());
+      StrictBitVector msgZero = new StrictBitVector(messageSize, rand);
+      StrictBitVector msgOne = new StrictBitVector(messageSize, rand);
       System.out.println("Message 0: " + msgZero);
       System.out.println("Message 1: " + msgOne);
       ot.send(msgZero, msgOne);
@@ -74,7 +66,7 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> {
 
   /**
    * The main function, taking one argument, the PID of the calling party.
-   * 
+   *
    * @param args
    *          Argument list, consisting of only the PID
    */

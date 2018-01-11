@@ -4,11 +4,13 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.List;
 
 /**
  * Demo class for execute a light instance of random OT extension.
- * 
+ *
  * @author jot2re
  *
  * @param <ResourcePoolT>
@@ -22,30 +24,21 @@ public class RotDemo<ResourcePoolT extends ResourcePool> {
 
   /**
    * Run the receiving party.
-   * 
+   *
    * @param pid
    *          The PID of the receiving party
-   * @throws FailedCoinTossingException
-   *           Thrown in case something, non-malicious, goes wrong in the coin
-   * @throws FailedCommitmentException
-   *           Thrown in case something, non-malicious, goes wrong in the
-   *           commitment protocol. tossing protocol.
-   * @throws MaliciousCommitmentException
-   *           Thrown in case the other party actively tries to cheat.
-   * @throws FailedOtExtensionException
-   *           Thrown in case something, non-malicious, goes wrong.
-   * @throws MaliciousOtExtensionException
-   *           Thrown if cheating occurred
+   * @throws IOException
+   *           Thrown in case of a network issue.
    */
-  public void runPartyOne(int pid) {
+  public void runPartyOne(int pid) throws IOException {
     OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
         lambdaSecurityParam);
-    Rot rot = new Rot(ctx.getResources(), ctx.getNetwork(), ctx
-        .getDummyOtInstance());
+    // ctx.getDummyOtInstance().receive();
+    Rot rot = new Rot(ctx.createResources(1), ctx.getNetwork());
     RotReceiver rotRec = rot.getReceiver();
-    rotRec.initialize();
+    // rotRec.initialize();
     byte[] otChoices = new byte[amountOfOTs / 8];
-    ctx.getRand().nextBytes(otChoices);
+    ctx.createRand(1).nextBytes(otChoices);
     List<StrictBitVector> vvec = rotRec
         .extend(new StrictBitVector(otChoices, amountOfOTs));
     System.out.println("done receiver");
@@ -57,21 +50,22 @@ public class RotDemo<ResourcePoolT extends ResourcePool> {
       }
       System.out.println();
     }
+    ((Closeable) ctx.getNetwork()).close();
   }
 
   /**
    * Run the sending party.
-   * 
+   *
    * @param pid
    *          The PID of the sending party
+   * @throws IOException
+   *           Thrown in case of a network issue
    */
-  public void runPartyTwo(int pid) {
+  public void runPartyTwo(int pid) throws IOException {
     OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
         lambdaSecurityParam);
-    Rot rot = new Rot(ctx.getResources(), ctx.getNetwork(), ctx
-        .getDummyOtInstance());
+    Rot rot = new Rot(ctx.createResources(1), ctx.getNetwork());
     RotSender rotSnd = rot.getSender();
-    rotSnd.initialize();
     Pair<List<StrictBitVector>, List<StrictBitVector>> vpairs = rotSnd
         .extend(amountOfOTs);
     System.out.println("done sender");
@@ -89,11 +83,12 @@ public class RotDemo<ResourcePoolT extends ResourcePool> {
       }
       System.out.println();
     }
+    ((Closeable) ctx.getNetwork()).close();
   }
 
   /**
    * The main function, taking one argument, the PID of the calling party.
-   * 
+   *
    * @param args
    *          Argument list, consisting of only the PID
    */
@@ -110,5 +105,4 @@ public class RotDemo<ResourcePoolT extends ResourcePool> {
       e.printStackTrace(System.out);
     }
   }
-
 }

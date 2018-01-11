@@ -2,30 +2,28 @@ package dk.alexandra.fresco.tools.ot.otextension;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.ot.base.Ot;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Protocol class for the party acting as the receiver in an correlated OT with
  * errors extension.
- * 
+ *
  * @author jot2re
  *
  */
 public class CoteReceiver extends CoteShared {
   // Random messages used for the seed OTs
-  private final List<Pair<StrictBitVector, StrictBitVector>> seeds;
+  // private final List<Pair<StrictBitVector, StrictBitVector>> seeds;
   private final List<Pair<Drbg, Drbg>> prgs;
   // The underlying seed OT functionality
-  private final Ot ot;
+  // private final BristolSeedOts seedOts;
 
   /**
    * Constructs a correlated OT extension with errors receiver instance.
-   * 
+   *
    * @param resources
    *          The common resource pool needed for OT extension
    * @param network
@@ -33,43 +31,50 @@ public class CoteReceiver extends CoteShared {
    * @param ot
    *          The OT functionality to use for seed OTs
    */
-  public CoteReceiver(OtExtensionResourcePool resources, Network network,
-      Ot ot) {
+  public CoteReceiver(OtExtensionResourcePool resources, Network network) {
     super(resources, network);
-    this.ot = ot;
-    this.seeds = new ArrayList<>(getkBitLength());
+    // this.seedOts = seedOts;
+    // this.seeds = new ArrayList<>(getkBitLength());
     this.prgs = new ArrayList<>(getkBitLength());
-  }
-
-  /**
-   * Initializes the correlated OT extension with errors by running true seed
-   * OTs. This should only be done once for a given sender/receiver pair.
-   */
-  @Override
-  public void initialize() {
-    if (isInitialized()) {
-      throw new IllegalStateException("Already initialized");
-    }
-    // Complete the seed OTs acting as the sender (NOT the receiver)
-    for (int i = 0; i < getkBitLength(); i++) {
-      StrictBitVector seedZero = new StrictBitVector(getkBitLength(),
-          getRand());
-      StrictBitVector seedOne = new StrictBitVector(getkBitLength(),
-          getRand());
-      ot.send(seedZero, seedOne);
-      seeds.add(new Pair<>(seedZero, seedOne));
-      // Initialize the PRGs with the random messages
-      // TODO make sure this is okay!
-      Drbg prgZero = new PaddingAesCtrDrbg(seedZero.toByteArray(), 256);
-      Drbg prgFirst = new PaddingAesCtrDrbg(seedOne.toByteArray(), 256);
+    for (Pair<StrictBitVector, StrictBitVector> pair : resources.getSeedOts()
+        .getSentMessages()) {
+      Drbg prgZero = initPrg(pair.getFirst());
+      Drbg prgFirst = initPrg(pair.getSecond());
       prgs.add(new Pair<>(prgZero, prgFirst));
     }
-    super.initialize();
   }
+
+//  /**
+//   * Initializes the correlated OT extension with errors by running true seed
+//   * OTs. This should only be done once for a given sender/receiver pair.
+//   */
+//  @Override
+//  public void initialize() {
+//    if (isInitialized()) {
+//      throw new IllegalStateException("Already initialized");
+//    }
+//    // Complete the seed OTs acting as the sender (NOT the receiver)
+//    for (int i = 0; i < getkBitLength(); i++) {
+//      // StrictBitVector seedZero = new StrictBitVector(getkBitLength(),
+//      // getRand());
+//      // StrictBitVector seedOne = new StrictBitVector(getkBitLength(),
+//      // getRand());
+//      // ot.send(seedZero, seedOne);
+//      // seeds.add(new Pair<>(seedZero, seedOne));
+//      // Initialize the PRGs with the random messages
+//      // TODO make sure this is okay!
+//      StrictBitVector seedZero = seedOts.getSentMessages().get(i).getFirst();
+//      StrictBitVector seedOne = seedOts.getSentMessages().get(i).getSecond();
+//      Drbg prgZero = new PaddingAesCtrDrbg(seedZero.toByteArray(), 256);
+//      Drbg prgFirst = new PaddingAesCtrDrbg(seedOne.toByteArray(), 256);
+//      prgs.add(new Pair<>(prgZero, prgFirst));
+//    }
+//    super.initialize();
+//  }
 
   /**
    * Constructs a new batch of correlated OTs with errors.
-   * 
+   *
    * @param choices
    *          The receivers random choices for this extension. This MUST have
    *          size 2^x for some x >=3.
@@ -81,9 +86,9 @@ public class CoteReceiver extends CoteShared {
       throw new IllegalArgumentException(
           "The amount of OTs must be a positive integer");
     }
-    if (!isInitialized()) {
-      throw new IllegalStateException("Not initialized");
-    }
+    // if (!isInitialized()) {
+    // throw new IllegalStateException("Not initialized");
+    // }
     // Compute how many bytes we need for "size" OTs by dividing "size" by 8
     // (the amount of bits in the primitive type; byte)
     int bytesNeeded = choices.getSize() / 8;
@@ -115,7 +120,7 @@ public class CoteReceiver extends CoteShared {
 
   /**
    * Sends a list of StrictBitVectors to the default (0) channel.
-   * 
+   *
    * @param list
    *          List to send, where all elements are required to have the same
    *          length.

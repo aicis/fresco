@@ -2,7 +2,6 @@ package dk.alexandra.fresco.tools.ot.otextension;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.MaliciousException;
@@ -25,7 +24,9 @@ import org.junit.Test;
 public class FunctionalTestOtExtension {
   private TestRuntime testRuntime;
   private Cote coteSender;
+  private OtExtensionResourcePool senderResources;
   private Cote coteReceiver;
+  private OtExtensionResourcePool receiverResources;
   private int kbitLength = 128;
   private int lambdaSecurityParam = 64;
 
@@ -37,18 +38,20 @@ public class FunctionalTestOtExtension {
   public void initializeRuntime() {
     this.testRuntime = new TestRuntime();
     // define task each party will run
-    Callable<Cote> partyOneTask = () -> setupCoteSender();
-    Callable<Cote> partyTwoTask = () -> setupCoteReceiver();
+    Callable<Pair<Cote, OtExtensionResourcePool>> partyOneTask = () -> setupCoteSender();
+    Callable<Pair<Cote, OtExtensionResourcePool>> partyTwoTask = () -> setupCoteReceiver();
     // run tasks and get ordered list of results
-    List<Cote> results = testRuntime
+    List<Pair<Cote, OtExtensionResourcePool>> results = testRuntime
         .runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
-    coteSender = results.get(0);
-    coteReceiver = results.get(1);
+    coteSender = results.get(0).getFirst();
+    senderResources = results.get(0).getSecond();
+    coteReceiver = results.get(1).getFirst();
+    receiverResources = results.get(1).getSecond();
   }
 
   /**
    * Shuts down the network and test runtime.
-   * 
+   *
    * @throws IOException
    *           Thrown if the network fails to shut down
    */
@@ -59,39 +62,43 @@ public class FunctionalTestOtExtension {
     testRuntime.shutdown();
   }
 
-  private Cote setupCoteSender() {
+  private Pair<Cote, OtExtensionResourcePool> setupCoteSender() {
     OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
         lambdaSecurityParam);
-    Cote cote = new Cote(ctx.getResources(), ctx.getNetwork(), ctx
-        .getDummyOtInstance());
-    return cote;
+    // Remember that in the seed Ots the parties have inverse roles
+    // ctx.getDummyOtInstance().receive();
+    OtExtensionResourcePool resources = ctx.createResources(1);
+    Cote cote = new Cote(resources, ctx.getNetwork());
+    return new Pair<>(cote, resources);
   }
 
-  private Cote setupCoteReceiver() {
+  private Pair<Cote, OtExtensionResourcePool> setupCoteReceiver() {
     OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
         lambdaSecurityParam);
-    Cote cote = new Cote(ctx.getResources(), ctx.getNetwork(), ctx
-        .getDummyOtInstance());
-    return cote;
+    // Remember that in the seed Ots the parties have inverse roles
+    // ctx.getDummyOtInstance().send();
+    OtExtensionResourcePool resources = ctx.createResources(1);
+    Cote cote = new Cote(resources, ctx.getNetwork());
+    return new Pair<>(cote, resources);
   }
 
-  private Exception initCoteSender() {
-    try {
-      coteSender.getSender().initialize();
-    } catch (Exception e) {
-      return e;
-    }
-    return null;
-  }
-
-  private Exception initCoteReceiver() {
-    try {
-      coteReceiver.getReceiver().initialize();
-    } catch (Exception e) {
-      return e;
-    }
-    return null;
-  }
+  // private Exception initCoteSender() {
+  // try {
+  // coteSender.getSender().initialize();
+  // } catch (Exception e) {
+  // return e;
+  // }
+  // return null;
+  // }
+  //
+  // private Exception initCoteReceiver() {
+  // try {
+  // coteReceiver.getReceiver().initialize();
+  // } catch (Exception e) {
+  // return e;
+  // }
+  // return null;
+  // }
 
   private Pair<List<StrictBitVector>, StrictBitVector> extendCoteSender(int size) {
     List<StrictBitVector> zeroMessages = coteSender.getSender().extend(size);
@@ -119,20 +126,20 @@ public class FunctionalTestOtExtension {
   @Test
   public void testCote() {
     int extendSize = 1024;
-    Callable<Exception> partyOneInit = () -> initCoteSender();
-    Callable<Exception> partyTwoInit = () -> initCoteReceiver();
-    // run tasks and get ordered list of results
-    List<Exception> initResults = testRuntime
-        .runPerPartyTasks(Arrays.asList(partyOneInit, partyTwoInit));
-    // Verify that no exception was thrown in init
-    for (Exception current : initResults) {
-      assertNull(current);
-    }
-    Callable<Pair<List<StrictBitVector>, StrictBitVector>> partyOneExtend = 
+    // Callable<Exception> partyOneInit = () -> initCoteSender();
+    // Callable<Exception> partyTwoInit = () -> initCoteReceiver();
+    // // run tasks and get ordered list of results
+    // List<Exception> initResults = testRuntime
+    // .runPerPartyTasks(Arrays.asList(partyOneInit, partyTwoInit));
+    // // Verify that no exception was thrown in init
+    // for (Exception current : initResults) {
+    // assertNull(current);
+    // }
+    Callable<Pair<List<StrictBitVector>, StrictBitVector>> partyOneExtend =
         () -> extendCoteSender(extendSize);
     StrictBitVector choices = new StrictBitVector(extendSize,
         new AesCtrDrbg(Constants.seedThree));
-    Callable<Pair<List<StrictBitVector>, StrictBitVector>> partyTwoExtend = 
+    Callable<Pair<List<StrictBitVector>, StrictBitVector>> partyTwoExtend =
         () -> extendCoteReceiver(choices);
     // run tasks and get ordered list of results
     List<Pair<List<StrictBitVector>, StrictBitVector>> extendResults = testRuntime
@@ -177,34 +184,38 @@ public class FunctionalTestOtExtension {
       }
     }
   }
-
-  private Exception initRotSender(RotSender rotSender) {
-    try {
-      rotSender.initialize();
-    } catch (Exception e) {
-      return e;
-    }
-    return null;
-  }
-
-  private Exception initRotReceiver(RotReceiver rotReceiver) {
-    try {
-      rotReceiver.initialize();
-    } catch (Exception e) {
-      return e;
-    }
-    return null;
-  }
+  //
+  // private Exception initRotSender(RotSender rotSender) {
+  // try {
+  // rotSender.initialize();
+  // } catch (Exception e) {
+  // return e;
+  // }
+  // return null;
+  // }
+  //
+  // private Exception initRotReceiver(RotReceiver rotReceiver) {
+  // try {
+  // rotReceiver.initialize();
+  // } catch (Exception e) {
+  // return e;
+  // }
+  // return null;
+  // }
 
   private Pair<List<StrictBitVector>, List<StrictBitVector>> extendRotSender(
-      RotSender rotSender, int size) {
+      int size) {
+    RotSender rotSender = new RotSender(coteSender.getSender(),
+        senderResources.getCoinTossing());
     Pair<List<StrictBitVector>, List<StrictBitVector>> messages = rotSender
         .extend(size);
     return messages;
   }
 
   private Pair<List<StrictBitVector>, List<StrictBitVector>> extendRotReceiver(
-      RotReceiver rotReceiver, StrictBitVector choices) throws IOException {
+      StrictBitVector choices) throws IOException {
+    RotReceiver rotReceiver = new RotReceiver(coteReceiver.getReceiver(),
+        receiverResources.getCoinTossing());
     List<StrictBitVector> messages = rotReceiver.extend(choices);
     // The return type of the extend method for sender and receiver must be the
     // same for the test to work, which is why we return null for the second
@@ -220,23 +231,23 @@ public class FunctionalTestOtExtension {
   @Test
   public void testRot() {
     int extendSize = 2048 - kbitLength - lambdaSecurityParam;
-    RotSender rotSender = new RotSender(coteSender.getSender());
-    Callable<Exception> partyOneInit = () -> initRotSender(rotSender);
-    RotReceiver rotReceiver = new RotReceiver(coteReceiver.getReceiver());
-    Callable<Exception> partyTwoInit = () -> initRotReceiver(rotReceiver);
-    // run tasks and get ordered list of results
-    List<Exception> initResults = testRuntime
-        .runPerPartyTasks(Arrays.asList(partyOneInit, partyTwoInit));
-    // Verify that no exception was thrown in init
-    for (Exception current : initResults) {
-      assertNull(current);
-    }
-    Callable<Pair<List<StrictBitVector>, List<StrictBitVector>>> partyOneExtend = 
-        () -> extendRotSender(rotSender, extendSize);
+    // RotSender rotSender = new RotSender(coteSender.getSender());
+    // Callable<Exception> partyOneInit = () -> initRotSender(rotSender);
+    // RotReceiver rotReceiver = new RotReceiver(coteReceiver.getReceiver());
+    // Callable<Exception> partyTwoInit = () -> initRotReceiver(rotReceiver);
+    // // run tasks and get ordered list of results
+    // List<Exception> initResults = testRuntime
+    // .runPerPartyTasks(Arrays.asList(partyOneInit, partyTwoInit));
+    // // Verify that no exception was thrown in init
+    // for (Exception current : initResults) {
+    // assertNull(current);
+    // }
+    Callable<Pair<List<StrictBitVector>, List<StrictBitVector>>> partyOneExtend =
+        () -> extendRotSender(extendSize);
     StrictBitVector choices = new StrictBitVector(extendSize,
         new AesCtrDrbg(Constants.seedThree));
-    Callable<Pair<List<StrictBitVector>, List<StrictBitVector>>> partyTwoExtend = 
-        () -> extendRotReceiver(rotReceiver, choices);
+    Callable<Pair<List<StrictBitVector>, List<StrictBitVector>>> partyTwoExtend =
+        () -> extendRotReceiver(choices);
     // run tasks and get ordered list of results
     List<Pair<List<StrictBitVector>, List<StrictBitVector>>> extendResults = testRuntime
         .runPerPartyTasks(Arrays.asList(partyOneExtend, partyTwoExtend));
@@ -284,54 +295,54 @@ public class FunctionalTestOtExtension {
 
   /***** NEGATIVE TESTS. *****/
 
-  /**
-   * Verify that initialization can only take place once.
-   */
-  @Test 
-  public void testDoubleInitCote() {
-    Callable<Exception> partyOneTask = () -> initCoteSender();
-    Callable<Exception> partyTwoTask = () -> initCoteReceiver();
-    // run tasks and get ordered list of results 
-    List<Exception> results = testRuntime
-        .runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
-    for (Exception current : results) {
-      assertNull(current);
-    }
-    // Call init twice
-    results = testRuntime
-        .runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
-    for (Exception current : results) {
-      assertEquals("Already initialized", current.getMessage());
-    }
-  }
-
-  @Test
-  public void testDoubleInitRot() {
-    Callable<Exception> partyOneCoteInit = () -> initCoteSender();
-    Callable<Exception> partyTwoCoteInit = () -> initCoteReceiver();
-    // run tasks and get ordered list of results
-    List<Exception> results = testRuntime
-        .runPerPartyTasks(Arrays.asList(partyOneCoteInit, partyTwoCoteInit));
-    for (Exception current : results) {
-      assertNull(current);
-    }
-    RotSender rotSender = new RotSender(coteSender.getSender());
-    Callable<Exception> partyOneRotInit = () -> initRotSender(rotSender);
-    RotReceiver rotReceiver = new RotReceiver(coteReceiver.getReceiver());
-    Callable<Exception> partyTwoRotInit = () -> initRotReceiver(rotReceiver);
-    results = testRuntime
-        .runPerPartyTasks(Arrays.asList(partyOneRotInit, partyTwoRotInit));
-    // Rot still needs to be initialized, in particular the coin tossing
-    for (Exception current : results) {
-      assertNull(current);
-    }
-    // Call init on rot again
-    results = testRuntime
-        .runPerPartyTasks(Arrays.asList(partyOneRotInit, partyTwoRotInit));
-    for (Exception current : results) {
-      assertEquals("Already initialized", current.getMessage());
-    }
-  }
+  // /**
+  // * Verify that initialization can only take place once.
+  // */
+  // @Test
+  // public void testDoubleInitCote() {
+  // Callable<Exception> partyOneTask = () -> initCoteSender();
+  // Callable<Exception> partyTwoTask = () -> initCoteReceiver();
+  // // run tasks and get ordered list of results
+  // List<Exception> results = testRuntime
+  // .runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
+  // for (Exception current : results) {
+  // assertNull(current);
+  // }
+  // // Call init twice
+  // results = testRuntime
+  // .runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
+  // for (Exception current : results) {
+  // assertEquals("Already initialized", current.getMessage());
+  // }
+  // }
+  //
+  // @Test
+  // public void testDoubleInitRot() {
+  // Callable<Exception> partyOneCoteInit = () -> initCoteSender();
+  // Callable<Exception> partyTwoCoteInit = () -> initCoteReceiver();
+  // // run tasks and get ordered list of results
+  // List<Exception> results = testRuntime
+  // .runPerPartyTasks(Arrays.asList(partyOneCoteInit, partyTwoCoteInit));
+  // for (Exception current : results) {
+  // assertNull(current);
+  // }
+  // RotSender rotSender = new RotSender(coteSender.getSender());
+  // Callable<Exception> partyOneRotInit = () -> initRotSender(rotSender);
+  // RotReceiver rotReceiver = new RotReceiver(coteReceiver.getReceiver());
+  // Callable<Exception> partyTwoRotInit = () -> initRotReceiver(rotReceiver);
+  // results = testRuntime
+  // .runPerPartyTasks(Arrays.asList(partyOneRotInit, partyTwoRotInit));
+  // // Rot still needs to be initialized, in particular the coin tossing
+  // for (Exception current : results) {
+  // assertNull(current);
+  // }
+  // // Call init on rot again
+  // results = testRuntime
+  // .runPerPartyTasks(Arrays.asList(partyOneRotInit, partyTwoRotInit));
+  // for (Exception current : results) {
+  // assertEquals("Already initialized", current.getMessage());
+  // }
+  // }
 
   /**
    * Test that a receiver who flips a bit its message from correlated OT with
@@ -342,19 +353,19 @@ public class FunctionalTestOtExtension {
   @Test
   public void testCheatingInRot() {
     int extendSize = 2048 - kbitLength - lambdaSecurityParam;
-    RotSender rotSender = new RotSender(coteSender.getSender());
-    Callable<Exception> partyOneInit = () -> initRotSender(rotSender);
-    RotReceiver rotReceiver = new RotReceiver(coteReceiver.getReceiver());
-    Callable<Exception> partyTwoInit = () -> initRotReceiver(rotReceiver);
-    // run tasks and get ordered list of results
-    List<Exception> initResults = testRuntime
-        .runPerPartyTasks(Arrays.asList(partyOneInit, partyTwoInit));
-    // Verify that no exception was thrown in init
-    for (Exception current : initResults) {
-      assertNull(current);
-    }
-    Callable<Pair<List<StrictBitVector>, List<StrictBitVector>>> partyOneExtend = 
-        () -> extendRotSender(rotSender, extendSize);
+    // RotSender rotSender = new RotSender(coteSender.getSender());
+    // Callable<Exception> partyOneInit = () -> initRotSender(rotSender);
+    // RotReceiver rotReceiver = new RotReceiver(coteReceiver.getReceiver());
+    // Callable<Exception> partyTwoInit = () -> initRotReceiver(rotReceiver);
+    // // run tasks and get ordered list of results
+    // List<Exception> initResults = testRuntime
+    // .runPerPartyTasks(Arrays.asList(partyOneInit, partyTwoInit));
+    // // Verify that no exception was thrown in init
+    // for (Exception current : initResults) {
+    // assertNull(current);
+    // }
+    Callable<Pair<List<StrictBitVector>, List<StrictBitVector>>> partyOneExtend =
+        () -> extendRotSender(extendSize);
     StrictBitVector choices = new StrictBitVector(extendSize,
         new AesCtrDrbg(Constants.seedThree));
     // The next kbitLength messages sent are in correlated OT extension.
@@ -365,8 +376,8 @@ public class FunctionalTestOtExtension {
     int corruptUVecPos = 1;
     ((CheatingNetwork) coteReceiver.getReceiver().getNetwork())
         .cheatInNextMessage(corruptUVecPos, 0);
-    Callable<Pair<List<StrictBitVector>, List<StrictBitVector>>> partyTwoExtend = 
-        () -> extendRotReceiver(rotReceiver, choices);
+    Callable<Pair<List<StrictBitVector>, List<StrictBitVector>>> partyTwoExtend =
+        () -> extendRotReceiver(choices);
     // run tasks and get ordered list of results
     Object extendResults = testRuntime
         .runPerPartyTasks(Arrays.asList(partyOneExtend, partyTwoExtend));
@@ -377,8 +388,8 @@ public class FunctionalTestOtExtension {
     // Verify that the thrown exception is as expected
     assertTrue(castedRes.get(0) instanceof MaliciousException);
     assertEquals(
-        ((MaliciousException) castedRes.get(0)).getMessage(),
-        "Correlation check failed for the sender in the random OT extension");
+        "Correlation check failed for the sender in the random OT extension",
+        ((MaliciousException) castedRes.get(0)).getMessage());
     // Check that the receiver did not throw an exception
     assertTrue(!(castedRes.get(1) instanceof MaliciousException));
     // Check that the sender had choice bit 1 in position 2. This means that we

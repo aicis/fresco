@@ -3,6 +3,8 @@ package dk.alexandra.fresco.tools.ot.otextension;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.cointossing.CoinTossing;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -23,24 +25,24 @@ public class RotSender extends RotShared {
    * @param snd
    *          The correlated OT with error sender this protocol will use
    */
-  public RotSender(CoteSender snd) {
-    super(snd);
+  public RotSender(CoteSender snd, CoinTossing ct) {
+    super(snd, ct);
     sender = snd;
   }
 
-  /**
-   * Initialize the random OT extension. This must only be done once.
-   */
-  @Override
-  public void initialize() {
-    if (isInitialized()) {
-      throw new IllegalStateException("Already initialized");
-    }
-    if (!sender.isInitialized()) {
-      sender.initialize();
-    }
-    super.initialize();
-  }
+  // /**
+  // * Initialize the random OT extension. This must only be done once.
+  // */
+  // @Override
+  // public void initialize() {
+  // if (isInitialized()) {
+  // throw new IllegalStateException("Already initialized");
+  // }
+  // if (!sender.isInitialized()) {
+  // sender.initialize();
+  // }
+  // super.initialize();
+  // }
 
   /**
    * Constructs a new batch of random OTs.
@@ -52,9 +54,9 @@ public class RotSender extends RotShared {
    *         messages
    */
   public Pair<List<StrictBitVector>, List<StrictBitVector>> extend(int size) {
-    if (!isInitialized()) {
-      throw new IllegalStateException("Not initialized");
-    }
+    // if (!isInitialized()) {
+    // throw new IllegalStateException("Not initialized");
+    // }
     int ellPrime = size + getKbitLength() + getLambdaSecurityParam();
     // Construct a sufficient amount correlated OTs with errors
     List<StrictBitVector> qlist = sender.extend(ellPrime);

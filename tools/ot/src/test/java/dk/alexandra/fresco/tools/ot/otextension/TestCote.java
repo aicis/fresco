@@ -6,13 +6,15 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.cointossing.CoinTossing;
 import dk.alexandra.fresco.tools.helper.Constants;
-import dk.alexandra.fresco.tools.ot.base.DummyOt;
 
+import java.lang.reflect.Field;
 import org.junit.Before;
 import org.junit.Test;
 
 public class TestCote {
+  private final int kbitSecurity = 128;
   private Cote cote;
   private Drbg rand;
   private Network network;
@@ -21,7 +23,8 @@ public class TestCote {
    * Setup a correlated OT functionality.
    */
   @Before
-  public void setup() {
+  public void setup() throws NoSuchFieldException, SecurityException,
+      IllegalArgumentException, IllegalAccessException {
     rand = new AesCtrDrbg(Constants.seedOne);
     // fake network
     network = new Network() {
@@ -39,33 +42,20 @@ public class TestCote {
         return 0;
       }
     };
+    RotList seedOts = new RotList(rand, kbitSecurity);
+    Field sent = RotList.class.getDeclaredField("sent");
+    sent.setAccessible(true);
+    sent.set(seedOts, true);
+    Field received = RotList.class.getDeclaredField("received");
+    received.setAccessible(true);
+    received.set(seedOts, true);
+    CoinTossing ct = new CoinTossing(1, 2, rand, network);
     OtExtensionResourcePool resources = new OtExtensionResourcePoolImpl(1, 2,
-        128, 40, rand);
-    this.cote = new Cote(resources, network, new DummyOt(2, network));
+        128, 40, 1, rand, ct, seedOts);
+    this.cote = new Cote(resources, network);
   }
 
   /**** NEGATIVE TESTS. ****/
-  @Test
-  public void testNotInitialized() {
-    boolean thrown = false;
-    try {
-      cote.getSender().extend(128);
-    } catch (IllegalStateException e) {
-      assertEquals("Not initialized", e.getMessage());
-      thrown = true;
-    }
-    assertEquals(true, thrown);
-    thrown = false;
-    try {
-      byte[] randomness = new byte[128 / 8];
-      cote.getReceiver().extend(new StrictBitVector(randomness, 128));
-    } catch (IllegalStateException e) {
-      assertEquals("Not initialized", e.getMessage());
-      thrown = true;
-    }
-    assertEquals(true, thrown);
-  }
-
   @Test
   public void testIllegalExtendSender() {
     boolean thrown = false;

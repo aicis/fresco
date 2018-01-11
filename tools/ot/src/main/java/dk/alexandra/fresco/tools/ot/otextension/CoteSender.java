@@ -2,16 +2,14 @@ package dk.alexandra.fresco.tools.ot.otextension;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.ot.base.Ot;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Protocol class for the party acting as the sender in an correlated OT with
  * errors extension.
- * 
+ *
  * @author jot2re
  *
  */
@@ -20,12 +18,12 @@ public class CoteSender extends CoteShared {
   private final List<Drbg> prgs;
   // The random messages choices for the random seed OTs
   private StrictBitVector otChoices;
-  // The functionality for the underlying seed OTs
-  private final Ot ot;
+  // // The functionality for the underlying seed OTs
+  // private final BristolSeedOts seedOts;
 
   /**
    * Construct a sending party for an instance of the correlated OT protocol.
-   * 
+   *
    * @param resources
    *          The common resource pool needed for OT extension
    * @param network
@@ -33,36 +31,41 @@ public class CoteSender extends CoteShared {
    * @param ot
    *          The OT functionality to use for seed OTs
    */
-  public CoteSender(OtExtensionResourcePool resources, Network network, Ot ot) {
+  public CoteSender(OtExtensionResourcePool resources, Network network) {
     super(resources, network);
-    this.ot = ot;
     this.prgs = new ArrayList<>(resources.getComputationalSecurityParameter());
-  }
-
-  /**
-   * Initialize the correlated OT with errors extension. This should only be
-   * called once as it completes extensive seed OTs.
-   */
-  @Override
-  public void initialize() {
-    if (isInitialized()) {
-      throw new IllegalStateException("Already initialized");
-    }
-    this.otChoices = new StrictBitVector(getkBitLength(), getRand());
-    // Complete the seed OTs acting as the receiver (NOT the sender)
-    for (int i = 0; i < getkBitLength(); i++) {
-      StrictBitVector message = ot.receive(otChoices.getBit(i, false));
+    for (StrictBitVector message : resources.getSeedOts()
+        .getLearnedMessages()) {
       // Initialize the PRGs with the random messages
-      // TODO make sure this is okay!
-      Drbg prg = new PaddingAesCtrDrbg(message.toByteArray(), 256);
-      prgs.add(prg);
+      prgs.add(initPrg(message));
     }
-    super.initialize();
+    otChoices = resources.getSeedOts().getChoices();
   }
+  //
+  // /**
+  // * Initialize the correlated OT with errors extension. This should only be
+  // * called once as it completes extensive seed OTs.
+  // */
+  // @Override
+  // public void initialize() {
+  // if (isInitialized()) {
+  // throw new IllegalStateException("Already initialized");
+  // }
+  // // this.otChoices = new StrictBitVector(getkBitLength(), getRand());
+  // // Complete the seed OTs acting as the receiver (NOT the sender)
+  // for (int i = 0; i < getkBitLength(); i++) {
+  // ot.receive(otChoices.getBit(i, false));
+  // // Initialize the PRGs with the random messages
+  // // TODO make sure this is okay!
+  // Drbg prg = new PaddingAesCtrDrbg(message.toByteArray(), 256);
+  // prgs.add(prg);
+  // }
+  // super.initialize();
+  // }
 
   /**
    * Returns a clone of the random bit choices used for OT.
-   * 
+   *
    * @return A clone of the OT choices
    */
   public StrictBitVector getDelta() {
@@ -73,7 +76,7 @@ public class CoteSender extends CoteShared {
 
   /**
    * Constructs a new batch of correlated OTs with errors.
-   * 
+   *
    * @param size
    *          Amount of OTs to construct
    */
@@ -86,9 +89,9 @@ public class CoteSender extends CoteShared {
       throw new IllegalArgumentException(
           "The amount of OTs must be a positive integer divisize by 8");
     }
-    if (!isInitialized()) {
-      throw new IllegalStateException("Not initialized");
-    }
+    // if (!isInitialized()) {
+    // throw new IllegalStateException("Not initialized");
+    // }
     // Compute how many bytes we need for "size" OTs by dividing "size" by 8
     // (the amount of bits in the primitive type; byte)
     int bytesNeeded = size / 8;
@@ -114,7 +117,7 @@ public class CoteSender extends CoteShared {
 
   /**
    * Receives a list of StrictBitVectors from the default (0) channel
-   * 
+   *
    * @param size
    *          Amount of elements in vector to receive. All of which must be of
    *          equal size.

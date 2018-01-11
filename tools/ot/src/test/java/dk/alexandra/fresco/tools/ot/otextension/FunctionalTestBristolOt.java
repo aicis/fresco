@@ -4,14 +4,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
-import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.helper.Constants;
 import dk.alexandra.fresco.tools.helper.TestRuntime;
-import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 
 import java.io.Closeable;
@@ -33,6 +32,8 @@ public class FunctionalTestBristolOt {
   private final int kbitLength = 128;
   private final int lambdaSecurityParam = 56;
   private final int messageLength = 1024;
+  private OtExtensionTestContext senderContext;
+  private OtExtensionTestContext receiverContext;
 
   /**
    * Initializes the test runtime.
@@ -40,74 +41,98 @@ public class FunctionalTestBristolOt {
   @Before
   public void initializeRuntime() {
     this.testRuntime = new TestRuntime();
+    Callable<OtExtensionTestContext> partyOneInit = () -> bristolInitSender();
+    Callable<OtExtensionTestContext> partyTwoInit = () -> bristolInitReceiver();
+    // run tasks and get ordered list of results
+    List<OtExtensionTestContext> initResults = testRuntime.runPerPartyTasks(
+        Arrays.asList(partyOneInit, partyTwoInit));
+    senderContext = initResults.get(0);
+    receiverContext = initResults.get(1);
   }
 
   /**
    * Shuts down the network and test runtime.
+   *
+   * @throws IOException
    */
   @After
-  public void shutdown() {
+  public void shutdown() throws IOException {
     testRuntime.shutdown();
+    ((Closeable) senderContext.getNetwork()).close();
+    ((Closeable) receiverContext.getNetwork()).close();
+  }
+
+  private OtExtensionTestContext bristolInitSender() {
+    OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
+        lambdaSecurityParam);
+    return ctx;
+  }
+
+  private OtExtensionTestContext bristolInitReceiver() {
+    OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
+        lambdaSecurityParam);
+    return ctx;
   }
 
   private List<Pair<StrictBitVector, StrictBitVector>> bristolOtSend(
-      int iterations, int batchSize) throws IOException {
-    OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
-        lambdaSecurityParam);
-    Ot otSender = new BristolOt(ctx.getResources(), ctx.getNetwork(), ctx
-        .getDummyOtInstance(), batchSize);
+      OtExtensionTestContext ctx, int iterations, int batchSize)
+      throws IOException {
+    Ot otSender = new BristolOt(ctx.createResources(1), ctx.getNetwork(),
+        batchSize);
     List<Pair<StrictBitVector, StrictBitVector>> messages = new ArrayList<>(
         iterations);
+    Drbg rand = ctx.createRand(1);
+    byte[] msgBytes = new byte[messageLength / 8];
     for (int i = 0; i < iterations; i++) {
-      StrictBitVector msgZero = new StrictBitVector(messageLength, ctx
-          .getRand());
-      StrictBitVector msgOne = new StrictBitVector(messageLength, ctx
-          .getRand());
+      rand.nextBytes(msgBytes);
+      StrictBitVector msgZero = new StrictBitVector(msgBytes, messageLength);
+      rand.nextBytes(msgBytes);
+      StrictBitVector msgOne = new StrictBitVector(msgBytes, messageLength);
       otSender.send(msgZero, msgOne);
-      Pair<StrictBitVector, StrictBitVector> currentPair = 
+      Pair<StrictBitVector, StrictBitVector> currentPair =
           new Pair<StrictBitVector, StrictBitVector>(msgZero, msgOne);
       messages.add(currentPair);
     }
-    ((Closeable) ctx.getNetwork()).close();
     return messages;
   }
 
-  private List<StrictBitVector> bristolOtReceive(StrictBitVector choices,
-      int batchSize) throws IOException {
-    OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
-        lambdaSecurityParam);
-    Ot otReceiver = new BristolOt(ctx.getResources(), ctx.getNetwork(), ctx
-        .getDummyOtInstance(), batchSize);
+  private List<StrictBitVector> bristolOtReceive(OtExtensionTestContext ctx,
+      StrictBitVector choices, int batchSize) throws IOException {
+    Ot otReceiver = new BristolOt(ctx.createResources(1), ctx.getNetwork(),
+        batchSize);
     List<StrictBitVector> messages = new ArrayList<>(choices.getSize());
     for (int i = 0; i < choices.getSize(); i++) {
       StrictBitVector message = otReceiver.receive(choices.getBit(i, false));
       messages.add(message);
     }
-    ((Closeable) ctx.getNetwork()).close();
     return messages;
   }
 
   /**
    * Verify that we can execute the OT.
+   *
+   * @throws IOException
    */
   @SuppressWarnings("unchecked")
   @Test
-  public void testBristolOt() {
+  public void testBristolOt() throws IOException {
     // The batchsize of the underlying implementation must be a two power minus
     // kbitLength and lambdaBitLength
     int batchSize = 1024 - kbitLength - lambdaSecurityParam;
     // We execute more OTs than the batchSize to ensure that an automatic
     // extension will take place once preprocessed OTs run out
-    int iterations = 904;
+    int iterations = 1032;
     Drbg rand = new AesCtrDrbg(Constants.seedThree);
     StrictBitVector choices = new StrictBitVector(iterations, rand);
-    Callable<List<?>> partyOneOt = () -> bristolOtSend(iterations, batchSize);
-    Callable<List<?>> partyTwoOt = () -> bristolOtReceive(choices, batchSize);
+    Callable<List<?>> partyOneOt = () -> bristolOtSend(senderContext,
+        iterations, batchSize);
+    Callable<List<?>> partyTwoOt = () -> bristolOtReceive(receiverContext,
+        choices, batchSize);
     // run tasks and get ordered list of results
     List<List<?>> extendResults = testRuntime
         .runPerPartyTasks(Arrays.asList(partyOneOt, partyTwoOt));
     for (int i = 0; i < iterations; i++) {
-      Pair<StrictBitVector, StrictBitVector> senderResult = 
+      Pair<StrictBitVector, StrictBitVector> senderResult =
           (Pair<StrictBitVector, StrictBitVector>) extendResults.get(0).get(i);
       StrictBitVector receiverResult = (StrictBitVector) extendResults.get(1)
           .get(i);
@@ -144,52 +169,52 @@ public class FunctionalTestBristolOt {
   }
 
   private List<Pair<StrictBitVector, StrictBitVector>> bristolRotBatchSend(
-      int batchSize, int messageSize, boolean autoInit) throws IOException {
-    OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
-        lambdaSecurityParam);
-    BristolRotBatch rotBatchSender = new BristolRotBatch(ctx.getResources(), ctx
-        .getNetwork(), ctx.getDummyOtInstance());
-    if (autoInit == false) {
-      rotBatchSender.initSender();
-    }
+      OtExtensionTestContext ctx, int batchSize, int messageSize, int id)
+      throws IOException {
+    // OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
+    // lambdaSecurityParam);
+    BristolRotBatch rotBatchSender = new BristolRotBatch(ctx.createResources(
+        id), ctx.getNetwork());
+    // if (autoInit == false) {
+    // rotBatchSender.initSender();
+    // }
     List<Pair<StrictBitVector, StrictBitVector>> messages = rotBatchSender
         .send(batchSize, messageSize);
-    ((Closeable) ctx.getNetwork()).close();
     return messages;
   }
 
-  private List<StrictBitVector> bristolRotBatchReceive(StrictBitVector choices,
-      int messageSize, boolean autoInit) throws IOException {
-    OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
-        lambdaSecurityParam);
-    BristolRotBatch rotBatchReceiver = new BristolRotBatch(ctx.getResources(),
-        ctx.getNetwork(), ctx.getDummyOtInstance());
-    if (autoInit == false) {
-      rotBatchReceiver.initReceiver();
-    }
+  private List<StrictBitVector> bristolRotBatchReceive(
+      OtExtensionTestContext ctx, StrictBitVector choices, int messageSize,
+      int id) throws IOException {
+    // OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
+    // lambdaSecurityParam);
+    BristolRotBatch rotBatchReceiver = new BristolRotBatch(ctx.createResources(
+        id), ctx.getNetwork());
+    // if (autoInit == false) {
+    // rotBatchReceiver.initReceiver();
+    // }
     List<StrictBitVector> messages = rotBatchReceiver.receive(choices,
         messageSize);
-    ((Closeable) ctx.getNetwork()).close();
     return messages;
   }
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testBristolRot() {
-    boolean autoInit = false;
+  public void testBristolRot() throws IOException {
+    // boolean autoInit = false;
     int extendSize = 1024;
     int messageSize = 2048;
-    Callable<List<?>> partyOneExtend = () -> bristolRotBatchSend(extendSize,
-        messageSize, autoInit);
+    Callable<List<?>> partyOneExtend = () -> bristolRotBatchSend(senderContext,
+        extendSize, messageSize, 1);
     // Pick some random choice bits
     Drbg rand = new AesCtrDrbg(Constants.seedThree);
     StrictBitVector choices = new StrictBitVector(extendSize, rand);
-    Callable<List<?>> partyTwoExtend = () -> bristolRotBatchReceive(choices,
-        messageSize, autoInit);
+    Callable<List<?>> partyTwoExtend = () -> bristolRotBatchReceive(
+        receiverContext, choices, messageSize, 1);
     // run tasks and get ordered list of results
     List<List<?>> extendResults = testRuntime
         .runPerPartyTasks(Arrays.asList(partyOneExtend, partyTwoExtend));
-    List<Pair<StrictBitVector, StrictBitVector>> senderResults = 
+    List<Pair<StrictBitVector, StrictBitVector>> senderResults =
         (List<Pair<StrictBitVector, StrictBitVector>>) extendResults.get(0);
     List<StrictBitVector> receiverResults = (List<StrictBitVector>) extendResults
         .get(1);
@@ -233,59 +258,171 @@ public class FunctionalTestBristolOt {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testBristolRotAutoInit() {
-    // Verify that the BristolRot can do auto initialization
-    boolean autoInit = true;
+  public void testBristolRotReuseSeeds() throws IOException {
+    // // Verify that the BristolRot can do auto initialization
+    // boolean autoInit = true;
     int extendSize = 1024;
     int messageSize = 2048;
-    Callable<List<?>> partyOneExtend = () -> bristolRotBatchSend(extendSize,
-        messageSize, autoInit);
-    Drbg rand = new AesCtrDrbg(Constants.seedThree);
-    StrictBitVector choices = new StrictBitVector(extendSize, rand);
-    Callable<List<?>> partyTwoExtend = () -> bristolRotBatchReceive(choices,
-        messageSize, autoInit);
+    int iterations = 15;
+    StrictBitVector previousChoices = null;
+    List<Pair<StrictBitVector, StrictBitVector>> previousMessages = null;
+    for (int i = 0; i < iterations; i++) {
+      final int sessionId = i;
+      Callable<List<?>> partyOneExtend = () -> bristolRotBatchSend(
+          senderContext, extendSize, messageSize, sessionId);
+      byte[] seed = Constants.seedThree;
+      // Make sure the seed used is unique for each thread
+      seed[0] ^= (byte) i;
+      Drbg rand = new AesCtrDrbg(seed);
+      StrictBitVector choices = new StrictBitVector(extendSize, rand);
+      Callable<List<?>> partyTwoExtend = () -> bristolRotBatchReceive(
+          receiverContext, choices, messageSize, sessionId);
+      // run tasks and get ordered list of results
+      List<List<?>> extendResults = testRuntime.runPerPartyTasks(Arrays.asList(
+          partyOneExtend, partyTwoExtend));
+      List<Pair<StrictBitVector, StrictBitVector>> senderResults = (List<Pair<StrictBitVector, StrictBitVector>>) extendResults
+          .get(0);
+      List<StrictBitVector> receiverResults = (List<StrictBitVector>) extendResults
+          .get(1);
+      // Sanity check:
+      // Ensure that we don't get the same values in each parallel execution
+      if (previousChoices != null) {
+        assertNotEquals(previousChoices, choices);
+      }
+      for (int j = 0; j < choices.getSize(); j++) {
+        Pair<StrictBitVector, StrictBitVector> currentSenderMessages = senderResults
+            .get(j);
+        if (choices.getBit(j, false) == false) {
+          assertTrue(currentSenderMessages.getFirst().equals(receiverResults
+              .get(j)));
+        } else {
+          assertTrue(currentSenderMessages.getSecond().equals(receiverResults
+              .get(j)));
+        }
+        // Ensure that we don't get the same messages in each parallel execution
+        if (previousMessages != null) {
+          assertNotEquals(previousMessages.get(j), currentSenderMessages);
+          // The following check is needed to ensure that the senders messages are actually randomized and
+          // that not only the receiver's choices are randomized, as the receiver's choices affect the order
+          // of each pair of messages
+          assertNotEquals(previousMessages.get(j).getFirst(),
+              currentSenderMessages.getSecond());
+        }
+      }
+      // Do a sanity check of the values
+      // Check that choices are not the 0-string
+      assertNotEquals(new StrictBitVector(choices.getSize()), choices);
+      // Check the length the values
+      assertEquals(extendSize, senderResults.size());
+      assertEquals(extendSize, receiverResults.size());
+      StrictBitVector zeroVec = new StrictBitVector(messageSize);
+      for (int j = 0; j < extendSize; j++) {
+        // Check the messages are not 0-strings
+        assertNotEquals(zeroVec, senderResults.get(j).getFirst());
+        assertNotEquals(zeroVec, senderResults.get(j).getSecond());
+        assertNotEquals(zeroVec, receiverResults.get(j));
+        // Check that the two messages are not the same
+        assertNotEquals(senderResults.get(j).getFirst(), senderResults.get(j)
+            .getSecond());
+        // Check that they are not all equal
+        if (j > 0) {
+          assertNotEquals(senderResults.get(j - 1).getFirst(), senderResults
+              .get(j).getFirst());
+          assertNotEquals(senderResults.get(j - 1).getSecond(), senderResults
+              .get(j).getSecond());
+          assertNotEquals(receiverResults.get(j - 1), receiverResults.get(j));
+        }
+      }
+      previousChoices = choices;
+      previousMessages = senderResults;
+    }
+  }
+
+  private Exception bristolOtMaliciousSend(
+      OtExtensionTestContext ctx, int iterations, int batchSize)
+      throws IOException {
+    BristolOt otSender = new BristolOt(ctx.createResources(1), ctx.getNetwork(),
+        batchSize);
+    Drbg rand = ctx.createRand(1);
+    byte[] msgBytes = new byte[messageLength / 8];
+    rand.nextBytes(msgBytes);
+    StrictBitVector msgZero = new StrictBitVector(msgBytes, messageLength);
+    rand.nextBytes(msgBytes);
+    StrictBitVector msgOne = new StrictBitVector(msgBytes, messageLength);
+    otSender.send(msgZero, msgOne);
+    return null;
+  }
+
+  private Exception bristolOtMaliciousReceive(
+      OtExtensionTestContext ctx, StrictBitVector choices, int batchSize)
+      throws IOException, NoSuchMethodException, SecurityException,
+      IllegalArgumentException, IllegalAccessException,
+      InvocationTargetException, NoSuchFieldException {
+    BristolOt otReceiver = new BristolOt(ctx.createResources(1), ctx
+        .getNetwork(), batchSize);
+    otReceiver.receive(choices.getBit(0, false));
+    Field receiver = BristolOt.class.getDeclaredField("receiver");
+    receiver.setAccessible(true);
+    Method method = receiver.get(otReceiver).getClass().getDeclaredMethod(
+        "doActualReceive", byte[].class, byte[].class);
+    method.setAccessible(true);
+    Exception exception = null;
+    try {
+      method.invoke(receiver.get(otReceiver), new byte[] { 0x42 }, new byte[] {
+        0x42, 0x43 });
+    } catch (Exception e) {
+      exception = e;
+    }
+    return exception;
+  }
+
+  @Test
+  public void testMaliciousException()
+      throws NoSuchMethodException, SecurityException, IllegalAccessException,
+      IllegalArgumentException, NoSuchFieldException {
+    // Network network = new Network() {
+    // @Override
+    // public void send(int partyId, byte[] data) {
+    // }
+    //
+    // @Override
+    // public byte[] receive(int partyId) {
+    // return null;
+    // }
+    //
+    // @Override
+    // public int getNoOfParties() {
+    // return 0;
+    // }
+    // };
+    // Drbg rand = new AesCtrDrbg(Constants.seedOne);
+    // BristolSeedOts seedOts = new BristolSeedOts(rand, kbitLength, new DummyOt(2,
+    // network));
+    // BristolOt ot = new BristolOt(new OtExtensionResourcePoolImpl(1, 2,
+    // kbitLength, lambdaSecurityParam, rand), network, seedOts, 1024, 1);
+    // Field receiver = BristolOt.class.getDeclaredField("receiver");
+    // receiver.setAccessible(true);
+    // Method method = receiver.get(ot).getClass().getDeclaredMethod(
+    // "doActualReceive", byte[].class, byte[].class);
+    // method.setAccessible(true);
+
+    // Rot rot = new Rot(new OtExtensionResourcePoolImpl(1, 2, kbitLength,
+    // lambdaSecurityParam, rand), network, seedOts, 1);
+    // RotReceiver rotReceiver = rot.getReceiver();
+    // BristolOtReceiver botRec = new BristolOtReceiver(rotReceiver, 1024);
+    int batchSize = 1024 - kbitLength - lambdaSecurityParam;
+    StrictBitVector choices = new StrictBitVector(8);
+    Callable<Exception> partyOneOt = () -> bristolOtMaliciousSend(senderContext,
+        8, batchSize);
+    Callable<Exception> partyTwoOt = () -> bristolOtMaliciousReceive(
+        receiverContext, choices, batchSize);
     // run tasks and get ordered list of results
-    List<List<?>> extendResults = testRuntime
-        .runPerPartyTasks(Arrays.asList(partyOneExtend, partyTwoExtend));
-    List<Pair<StrictBitVector, StrictBitVector>> senderResults = 
-        (List<Pair<StrictBitVector, StrictBitVector>>) extendResults.get(0);
-    List<StrictBitVector> receiverResults = (List<StrictBitVector>) extendResults
-        .get(1);
-    for (int i = 0; i < choices.getSize(); i++) {
-      Pair<StrictBitVector, StrictBitVector> currentSenderMessages = senderResults
-          .get(i);
-      if (choices.getBit(i, false) == false) {
-        assertTrue(
-            currentSenderMessages.getFirst().equals(receiverResults.get(i)));
-      } else {
-        assertTrue(
-            currentSenderMessages.getSecond().equals(receiverResults.get(i)));
-      }
-    }
-    // Do a sanity check of the values
-    // Check that choices are not the 0-string
-    assertNotEquals(new StrictBitVector(choices.getSize()), choices);
-    // Check the length the values
-    assertEquals(extendSize, senderResults.size());
-    assertEquals(extendSize, receiverResults.size());
-    StrictBitVector zeroVec = new StrictBitVector(messageSize);
-    for (int i = 0; i < extendSize; i++) {
-      // Check the messages are not 0-strings
-      assertNotEquals(zeroVec, senderResults.get(i).getFirst());
-      assertNotEquals(zeroVec, senderResults.get(i).getSecond());
-      assertNotEquals(zeroVec, receiverResults.get(i));
-      // Check that the two messages are not the same
-      assertNotEquals(senderResults.get(i).getFirst(),
-          senderResults.get(i).getSecond());
-      // Check that they are not all equal
-      if (i > 0) {
-        assertNotEquals(senderResults.get(i - 1).getFirst(),
-            senderResults.get(i).getFirst());
-        assertNotEquals(senderResults.get(i - 1).getSecond(),
-            senderResults.get(i).getSecond());
-        assertNotEquals(receiverResults.get(i - 1), receiverResults.get(i));
-      }
-    }
+    List<Exception> extendResults = testRuntime.runPerPartyTasks(Arrays.asList(
+        partyOneOt, partyTwoOt));
+    assertEquals(MaliciousException.class, extendResults.get(1).getCause()
+        .getClass());
+    assertEquals("Sender gave adjustment messages of different length.",
+        extendResults.get(1).getCause().getMessage());
   }
 
   /**** UNIT TESTS. ****/
@@ -312,46 +449,5 @@ public class FunctionalTestBristolOt {
 
     res = BristolRotBatch.computeExtensionSize(2, 8, 8);
     assertEquals(16, res);
-  }
-
-  @Test
-  public void testMaliciousException()
-      throws NoSuchMethodException, SecurityException, IllegalAccessException,
-      IllegalArgumentException, NoSuchFieldException {
-    Network network = new Network() {
-      @Override
-      public void send(int partyId, byte[] data) {
-      }
-
-      @Override
-      public byte[] receive(int partyId) {
-        return null;
-      }
-
-      @Override
-      public int getNoOfParties() {
-        return 0;
-      }
-    };
-    Drbg rand = new AesCtrDrbg(Constants.seedOne);
-    BristolOt ot = new BristolOt(new OtExtensionResourcePoolImpl(1, 2,
-        kbitLength, lambdaSecurityParam, rand), network, new DummyOt(2,
-            network), 1024);
-    Field receiver = BristolOt.class.getDeclaredField("receiver");
-    receiver.setAccessible(true);
-    Method method = receiver.get(ot).getClass().getDeclaredMethod(
-        "doActualReceive", byte[].class, byte[].class);
-    method.setAccessible(true);
-    boolean thrown = false;
-    try {
-      method.invoke(receiver.get(ot), new byte[] { 0x42 },
-          new byte[] { 0x42, 0x43 });
-    } catch (InvocationTargetException e) {
-      assertEquals(
-          "Sender gave adjustment messages of different length.",
-          e.getTargetException().getMessage());
-      thrown = true;
-    }
-    assertTrue(thrown);
   }
 }
