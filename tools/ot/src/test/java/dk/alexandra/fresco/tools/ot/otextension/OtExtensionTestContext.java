@@ -48,34 +48,34 @@ public class OtExtensionTestContext {
     this.lambdaSecurityParam = lambdaSecurityParam;
   }
 
+  public Network getNetwork() {
+    return network;
+  }
+
+  /**
+   * Creates a new OT extension resource pool based on a specific instance ID and initializes
+   * necessary functionalities. This means it initializes coin tossing using a randomness generator
+   * unique for {@code instanceId}.
+   *
+   * @param instanceId
+   *          The id of the instance we wish to create a resource pool for
+   * @return A new resources pool
+   */
   public OtExtensionResourcePool createResources(int instanceId) {
-    Drbg rand = new AesCtrDrbg(Constants.seedOne);
+    Drbg rand = createRand(instanceId);
     CoinTossing ct = new CoinTossing(myId, otherId, rand, network);
     ct.initialize();
     return new OtExtensionResourcePoolImpl(myId, otherId, kbitLength,
         lambdaSecurityParam, instanceId, rand, ct, seedOts);
   }
 
-  public Network getNetwork() {
-    return network;
-  }
-  //
-  // public int getMyId() {
-  // return resources.getMyId();
-  // }
-  //
-  // public int getOtherId() {
-  // return resources.getOtherId();
-  // }
-  //
-  // public int getLambdaSecurityParam() {
-  // return resources.getLambdaSecurityParam();
-  // }
-  //
-  // public int getKbitLength() {
-  // return resources.getComputationalSecurityParameter();
-  // }
-  //
+  /**
+   * Creates a new randomness generator unique for {@code instanceId}.
+   *
+   * @param instanceId
+   *          The ID which we wish to base the randomness generator on.
+   * @return A new randomness generator unique for {@code instanceId}
+   */
   public Drbg createRand(int instanceId) {
     ByteBuffer idBuffer = ByteBuffer.allocate(Constants.seedOne.length);
     byte[] seedBytes = idBuffer.putInt(instanceId).array();
@@ -83,8 +83,4 @@ public class OtExtensionTestContext {
     // TODO make sure this is okay!
     return new PaddingAesCtrDrbg(seedBytes, 256);
   }
-  //
-  // public MessageDigest getDigest() {
-  // return resources.getDigest();
-  // }
 }

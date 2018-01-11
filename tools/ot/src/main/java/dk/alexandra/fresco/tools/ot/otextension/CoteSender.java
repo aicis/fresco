@@ -34,7 +34,8 @@ public class CoteSender extends CoteShared {
   public CoteSender(OtExtensionResourcePool resources, Network network) {
     super(resources, network);
     this.prgs = new ArrayList<>(resources.getComputationalSecurityParameter());
-    for (StrictBitVector message : getSeedOts().getLearnedMessages()) {
+    for (StrictBitVector message : resources.getSeedOts()
+        .getLearnedMessages()) {
       // Initialize the PRGs with the random messages
       prgs.add(initPrg(message));
     }
