@@ -18,7 +18,7 @@ public class MathUtils {
   public static boolean isQuadraticResidue(BigInteger value, BigInteger modulus) {
     // return n^((p - 1) / 2) == 1
     BigInteger res = value
-        .modPow(modulus.subtract(BigInteger.ONE).divide(TWO), modulus);
+        .modPow(modulus.subtract(BigInteger.ONE).shiftRight(1), modulus);
     return res.equals(BigInteger.ONE);
   }
 
@@ -38,28 +38,27 @@ public class MathUtils {
     }
 
     // find q and s such that (p - 1) = q * 2^s
-    Pair<BigInteger, BigInteger> factors = expressAsProductOfPowerOfTwo(
+    Pair<BigInteger, Integer> factors = expressAsProductOfPowerOfTwo(
         modulus.subtract(BigInteger.ONE));
     BigInteger q = factors.getFirst();
-    // todo s should be an int
-    BigInteger s = factors.getSecond();
+    int s = factors.getSecond();
 
     // find non-quadratic residue for field
     BigInteger z = getNonQuadraticResidue(modulus);
 
-    BigInteger m = s;
+    int m = s;
     BigInteger c = z.modPow(q, modulus);
     BigInteger t = value.modPow(q, modulus);
     BigInteger r = value.modPow(q.add(BigInteger.ONE).divide(TWO), modulus);
 
     while (!t.equals(BigInteger.ONE)) {
-      BigInteger i = BigInteger.ZERO;
+      int i = 0;
       BigInteger power = t;
       while (!power.equals(BigInteger.ONE)) {
         power = power.pow(2).mod(modulus);
-        i = i.add(BigInteger.ONE);
+        i++;
       }
-      BigInteger exp = TWO.modPow(m.subtract(i).subtract(BigInteger.ONE), modulus);
+      BigInteger exp = TWO.pow(m - i - 1).mod(modulus);
       BigInteger b = c.modPow(exp, modulus);
 
       m = i;
@@ -90,13 +89,13 @@ public class MathUtils {
    * @param value input value
    * @return q and s
    */
-  private static Pair<BigInteger, BigInteger> expressAsProductOfPowerOfTwo(BigInteger value) {
+  private static Pair<BigInteger, Integer> expressAsProductOfPowerOfTwo(BigInteger value) {
     BigInteger q = value;
-    BigInteger s = BigInteger.ZERO;
+    int s = 0;
     // keep factoring out 2 until q is not divisible by it anymore
     while (q.mod(TWO).equals(BigInteger.ZERO)) {
-      q = q.divide(TWO);
-      s = s.add(BigInteger.ONE);
+      q = q.shiftRight(1); // divide by 2
+      s++;
     }
     return new Pair<>(q, s);
   }
