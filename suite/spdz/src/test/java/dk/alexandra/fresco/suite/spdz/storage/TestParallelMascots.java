@@ -109,7 +109,7 @@ public class TestParallelMascots {
               new PaddingAesCtrDrbg(new byte[]{7, 127, -1}, prgSeedLength), modulus,
               modBitLength, 256, prgSeedLength, numLeftFactors),
               normalManager.createExtraNetwork(finalMyId), randomSsk);
-          return mascot.getTriples(1000);
+          return mascot.getTriples(128);
         });
       }
     }

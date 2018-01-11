@@ -73,7 +73,8 @@ public class CompareTests {
   }
 
   /**
-   * Compares the two numbers 3 and 5 and checks that 3 < 5. Also checks that 5 is not < 3
+   * Compares the two numbers 3 and 5 and checks that 3 <= 5. Also checks that 5 is not <= 3 and
+   * that 3 <= 3
    */
   public static class TestCompareLT<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
@@ -84,23 +85,26 @@ public class CompareTests {
 
         @Override
         public void test() throws Exception {
-          Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app = builder -> {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = builder -> {
             Numeric input = builder.numeric();
             DRes<SInt> x = input.input(BigInteger.valueOf(3), 1);
             DRes<SInt> y = input.input(BigInteger.valueOf(5), 1);
             Comparison comparison = builder.comparison();
             DRes<SInt> compResult1 = comparison.compareLEQ(x, y);
             DRes<SInt> compResult2 = comparison.compareLEQ(y, x);
+            DRes<SInt> compResult3 = comparison.compareLEQ(x, x);
             Numeric open = builder.numeric();
             DRes<BigInteger> res1;
             DRes<BigInteger> res2;
             res1 = open.open(compResult1);
             res2 = open.open(compResult2);
-            return () -> new Pair<>(res1.out(), res2.out());
+            DRes<BigInteger> res3 = open.open(compResult3);
+            return () -> Arrays.asList(res1.out(), res2.out(), res3.out());
           };
-          Pair<BigInteger, BigInteger> output = runApplication(app);
-          Assert.assertEquals(BigInteger.ONE, output.getFirst());
-          Assert.assertEquals(BigInteger.ZERO, output.getSecond());
+          List<BigInteger> output = runApplication(app);
+          Assert.assertEquals(BigInteger.ONE, output.get(0));
+          Assert.assertEquals(BigInteger.ZERO, output.get(1));
+          Assert.assertEquals(BigInteger.ONE, output.get(2));
         }
       };
     }
@@ -199,6 +203,70 @@ public class CompareTests {
           Assert.assertEquals(BigInteger.ONE, output.get(4));
           Assert.assertEquals(BigInteger.ZERO, output.get(5));
           Assert.assertEquals(BigInteger.ZERO, output.get(6));
+        }
+      };
+    }
+  }
+
+  public static class TestCompareLTEdgeCases<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    // returns 2^maxBitLength - toSubtract
+    private BigInteger maxValMinus(int maxBitLength, String toSubtract) {
+      return BigInteger.valueOf(2).pow(maxBitLength).subtract(new BigInteger(toSubtract));
+    }
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() throws Exception {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = builder -> {
+            Numeric input = builder.numeric();
+            Comparison comparison = builder.comparison();
+            BigInteger modulus = builder.getBasicNumericContext().getModulus();
+            int maxBitLength = builder.getBasicNumericContext().getMaxBitLength();
+
+            List<DRes<SInt>> comps = Arrays.asList(
+                // check MAX <= MAX
+                comparison.compareLEQ(
+                    input.known(maxValMinus(maxBitLength, "0")),
+                    input.known(maxValMinus(maxBitLength, "0"))),
+                // check not MAX <= 1
+                comparison.compareLEQ(
+                    input.known(maxValMinus(maxBitLength, "0")),
+                    input.known(BigInteger.ONE)),
+                // check -3 <= -1
+                comparison.compareLEQ(
+                    input.known(BigInteger.valueOf(-3)),
+                    input.known(BigInteger.valueOf(-1))),
+                // check not -1 <= -3
+                comparison.compareLEQ(
+                    input.known(BigInteger.valueOf(-1)),
+                    input.known(BigInteger.valueOf(-3))),
+                // check -3 <= 0
+                comparison.compareLEQ(
+                    input.known(BigInteger.valueOf(-3)),
+                    input.known(BigInteger.valueOf(0))),
+                // check -3 <= 1
+                comparison.compareLEQ(
+                    input.known(BigInteger.valueOf(-3)),
+                    input.known(BigInteger.valueOf(1)))
+            );
+            DRes<List<DRes<BigInteger>>> opened = builder.collections().openList(() -> comps);
+
+            return builder.seq((seq) -> {
+              return () -> opened.out().stream().map(DRes::out).collect(Collectors.toList());
+            });
+          };
+          List<BigInteger> output = runApplication(app);
+          Assert.assertEquals(BigInteger.ONE, output.get(0));
+          Assert.assertEquals(BigInteger.ZERO, output.get(1));
+          Assert.assertEquals(BigInteger.ONE, output.get(2));
+          Assert.assertEquals(BigInteger.ZERO, output.get(3));
+          Assert.assertEquals(BigInteger.ONE, output.get(4));
+          Assert.assertEquals(BigInteger.ONE, output.get(5));
         }
       };
     }

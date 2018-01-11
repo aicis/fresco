@@ -35,25 +35,36 @@ import java.util.Map;
 public abstract class AbstractDummyArithmeticTest {
 
   protected Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
+  private final BigInteger defaultMod = new BigInteger(
+      "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
+  private final int defaultMaxBitLength = 200;
 
   /**
-   * Runs test with default modulus and no performance logging. i.e. standard test setup.
+   * Runs test with default modulus, max bit length, and no performance logging. i.e. standard test
+   * setup.
    */
   protected void runTest(
       TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, int noOfParties) {
-    BigInteger mod = new BigInteger(
-        "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
-    runTest(f, evalStrategy, noOfParties, mod, false);
+    runTest(f, evalStrategy, noOfParties, defaultMod, defaultMaxBitLength, false);
   }
 
-  /**
-   * Runs test with all parameters free. Only the starting port of 9000 is chosen by default.
-   */
+  protected void runTest(
+      TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
+      EvaluationStrategy evalStrategy, int noOfParties, boolean logPerformance) {
+    runTest(f, evalStrategy, noOfParties, defaultMod, defaultMaxBitLength, logPerformance);
+  }
+
+  protected void runTest(
+      TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
+      EvaluationStrategy evalStrategy, int noOfParties, BigInteger modulus) {
+    runTest(f, evalStrategy, noOfParties, modulus, defaultMaxBitLength, false);
+  }
+
   protected void runTest(
       TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, int noOfParties,
-      BigInteger mod, boolean logPerformance) {
+      BigInteger mod, int maxBitLength, boolean logPerformance) {
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * (noOfParties - 1));
@@ -65,14 +76,15 @@ public abstract class AbstractDummyArithmeticTest {
         new HashMap<>();
     for (int playerId : netConf.keySet()) {
       PerformanceLoggerCountingAggregate aggregate
-        = new PerformanceLoggerCountingAggregate();
+          = new PerformanceLoggerCountingAggregate();
 
       NetworkConfiguration partyNetConf = netConf.get(playerId);
 
-      ProtocolSuiteNumeric<DummyArithmeticResourcePool> ps = new DummyArithmeticProtocolSuite(mod, 200);
-      if(logPerformance){
+      ProtocolSuiteNumeric<DummyArithmeticResourcePool> ps = new DummyArithmeticProtocolSuite(mod,
+          maxBitLength);
+      if (logPerformance) {
         ps = new NumericSuiteLogging<>(ps);
-        aggregate.add((PerformanceLogger)ps);
+        aggregate.add((PerformanceLogger) ps);
       }
 
       BatchEvaluationStrategy<DummyArithmeticResourcePool> batchEvaluationStrategy =

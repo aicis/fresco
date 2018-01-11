@@ -179,7 +179,7 @@ public class TestKryoNetNetwork {
       public void run() {
         NetworkConfiguration conf = new NetworkConfigurationImpl(1, parties);
         KryoNetNetwork network = new KryoNetNetwork(conf);
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 1000000; i++) {
           network.send(1, new byte[] { 0x04 });
         }
         try {

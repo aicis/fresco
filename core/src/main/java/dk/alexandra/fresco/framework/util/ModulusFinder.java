@@ -12,7 +12,10 @@ public class ModulusFinder {
 
   static {
     precomputed.put(16, new BigInteger("65519"));
+    precomputed.put(64, new BigInteger("18446744073709551557"));
     precomputed.put(128, new BigInteger("340282366920938463463374607431768211283"));
+    precomputed.put(256, new BigInteger(
+        "115792089237316195423570985008687907853269984665640564039457584007913129639349"));
   }
 
   private static BigInteger compute(int modBitLength) {

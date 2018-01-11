@@ -53,18 +53,18 @@ import java.util.function.Function;
 public abstract class AbstractSpdzTest {
 
   protected Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
-  private int maxBitLength = 150; // default
-
-  protected void runTest(
-      TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
-      EvaluationStrategy evalStrategy, PreprocessingStrategy preProStrat, int noOfParties) {
-    runTest(f, evalStrategy, preProStrat, noOfParties, false);
-  }
+  // TODO hack hack hack
+  private static final int DEFAULT_MOD_BIT_LENGTH = 512;
+  private static final int DEFAULT_MAX_BIT_LENGTH = 150;
+  private int modBitLength = DEFAULT_MOD_BIT_LENGTH;
+  private int maxBitLength = DEFAULT_MAX_BIT_LENGTH;
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, PreprocessingStrategy preProStrat, int noOfParties,
-      boolean logPerformance) {
+      boolean logPerformance, int modBitLength, int maxBitLength) {
+    this.modBitLength = modBitLength;
+    this.maxBitLength = maxBitLength;
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * (noOfParties - 1));
@@ -102,7 +102,8 @@ public abstract class AbstractSpdzTest {
 
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
-              () -> createResourcePool(playerId, noOfParties, preProStrat, tripleManager, expPipeManager),
+              () -> createResourcePool(playerId, noOfParties, preProStrat, tripleManager,
+                  expPipeManager),
               () -> {
                 KryoNetNetwork kryoNetwork = new KryoNetNetwork(netConf.get(playerId));
                 if (logPerformance) {
@@ -128,17 +129,23 @@ public abstract class AbstractSpdzTest {
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, PreprocessingStrategy preProStrat, int noOfParties,
-      boolean logPerformance, int maxBitLength) {
-    this.maxBitLength = maxBitLength;
-    runTest(f, evalStrategy, preProStrat, noOfParties, logPerformance);
+      boolean logPerformance) {
+    runTest(f, evalStrategy, preProStrat, noOfParties, logPerformance, DEFAULT_MOD_BIT_LENGTH,
+        DEFAULT_MAX_BIT_LENGTH);
+  }
+
+  protected void runTest(
+      TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
+      EvaluationStrategy evalStrategy, PreprocessingStrategy preProStrat, int noOfParties) {
+    runTest(f, evalStrategy, preProStrat, noOfParties, false, DEFAULT_MOD_BIT_LENGTH,
+        DEFAULT_MAX_BIT_LENGTH);
   }
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, PreprocessingStrategy preProStrat, int noOfParties,
-      int maxBitLength) {
-    this.maxBitLength = maxBitLength;
-    runTest(f, evalStrategy, preProStrat, noOfParties, false);
+      int modBitLength, int maxBitLength) {
+    runTest(f, evalStrategy, preProStrat, noOfParties, false, modBitLength, maxBitLength);
   }
 
   DRes<List<DRes<SInt>>> createPipe(
@@ -167,7 +174,7 @@ public abstract class AbstractSpdzTest {
       supplier = new SpdzDummyDataSupplier(myId, numberOfParties);
     } else if (preProStrat == MASCOT) {
       supplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, numberOfParties,
-          () -> tripleGenerator.createExtraNetwork(myId), maxBitLength,
+          () -> tripleGenerator.createExtraNetwork(myId), modBitLength,
           new Function<Integer, SpdzSInt[]>() {
 
             private SpdzMascotDataSupplier tripleSupplier;
@@ -179,7 +186,7 @@ public abstract class AbstractSpdzTest {
                 pipeNetwork = expPipeGenerator.createExtraNetwork(myId);
                 tripleSupplier = SpdzMascotDataSupplier
                     .createSimpleSupplier(myId, numberOfParties, () -> pipeNetwork,
-                        maxBitLength,
+                        modBitLength,
                         null);
               }
               DRes<List<DRes<SInt>>> pipe = createPipe(myId, numberOfParties, pipeLength,
@@ -193,7 +200,7 @@ public abstract class AbstractSpdzTest {
       int noOfThreadsUsed = 1;
       String storageName =
           SpdzStorageDataSupplier.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
-          + "_";
+              + "_";
       supplier = new SpdzStorageDataSupplier(
           new FilebasedStreamedStorageImpl(new InMemoryStorage()), storageName, numberOfParties);
     }
