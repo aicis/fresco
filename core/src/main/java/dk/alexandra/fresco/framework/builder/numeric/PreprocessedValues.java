@@ -20,4 +20,12 @@ public interface PreprocessedValues {
    * @return An array of the form [r^-1, r, r^2, ..., r^pipe_length]
    */
   DRes<List<DRes<SInt>>> getExponentiationPipe(int pipeLength);
+
+  /**
+   * Returns random bit.
+   *
+   * @return random bit
+   */
+  DRes<SInt> getNextBit();
+
 }

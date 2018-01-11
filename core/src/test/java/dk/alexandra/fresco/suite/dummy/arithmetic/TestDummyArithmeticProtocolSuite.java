@@ -5,6 +5,7 @@ import static org.junit.Assert.assertThat;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ExponentiationPipeTests;
+import dk.alexandra.fresco.framework.builder.numeric.TestDefaultPreprocessedValues.TestGetNextBit;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -620,6 +621,13 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   public void test_exponentiation_pipe_preprocessed() throws Exception {
     runTest(
         new ExponentiationPipeTests.TestPreprocessedValues<>(),
+        EvaluationStrategy.SEQUENTIAL, 1);
+  }
+
+  @Test
+  public void testGetNextBit() {
+    runTest(
+        new TestGetNextBit<>(),
         EvaluationStrategy.SEQUENTIAL, 1);
   }
 
