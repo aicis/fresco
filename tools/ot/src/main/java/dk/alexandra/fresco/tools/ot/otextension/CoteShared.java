@@ -7,6 +7,7 @@ import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 
 import java.nio.ByteBuffer;
+import java.security.MessageDigest;
 
 /**
  * Superclass containing the common variables and methods for the sender and
@@ -60,13 +61,13 @@ public class CoteShared {
     return resources.getLambdaSecurityParam();
   }
 
-  // public Drbg getRand() {
-  // return resources.getRandomGenerator();
-  // }
-  //
-  // public MessageDigest getDigest() {
-  // return resources.getDigest();
-  // }
+  public Drbg getRand() {
+    return resources.getRandomGenerator();
+  }
+
+  public MessageDigest getDigest() {
+    return resources.getDigest();
+  }
 
   public Network getNetwork() {
     return network;
