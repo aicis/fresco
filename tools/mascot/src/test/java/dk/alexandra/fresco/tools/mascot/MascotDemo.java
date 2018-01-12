@@ -76,9 +76,9 @@ public class MascotDemo {
     Drbg drbg = new PaddingAesCtrDrbg(drbgSeed, prgSeedLength);
     Map<Integer, RotList> seedOts = new HashMap<>();
     for (Integer otherId : partyIds) {
-      if (otherId == myId) {
-        continue;
-      }
+      // if (otherId == myId) {
+      // continue;
+      // }
       Ot ot = new DummyOt(otherId, network);
       RotList currentSeedOts = new RotList(drbg, prgSeedLength);
       currentSeedOts.send(ot);

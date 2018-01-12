@@ -32,7 +32,7 @@ public class TestMascotResourcePoolImpl {
     RotList seedOts = new RotList(new AesCtrDrbg(new byte[32]), 8);
     seedOts.send(ot);
     seedOts.receive(ot);
-    seedOtsMap.put(1, seedOts);
+    seedOtsMap.put(2, seedOts);
     MascotResourcePool resourcePool = new MascotResourcePoolImpl(1, Collections
         .singletonList(1), 1, new AesCtrDrbg(new byte[32]), seedOtsMap, new BigInteger(
             "251"), 8, 8, 8, 8);

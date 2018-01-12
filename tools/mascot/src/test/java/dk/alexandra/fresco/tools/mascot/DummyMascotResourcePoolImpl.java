@@ -38,7 +38,7 @@ public class DummyMascotResourcePoolImpl extends MascotResourcePoolImpl {
         network);
     ct.initialize();
     OtExtensionResourcePool otResources = new OtExtensionResourcePoolImpl(
-        getMyId(), otherId, getModBitLength(), getLambdaSecurityParam(),
+        getMyId(), otherId, getPrgSeedLength(), getLambdaSecurityParam(),
         getInstanceId(), getRandomGenerator(), ct, seedOts);
     return new BristolRotBatch(otResources, network);
 

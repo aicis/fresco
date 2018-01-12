@@ -145,9 +145,11 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
     }
     CoinTossing ct = new CoinTossing(getMyId(), otherId, getRandomGenerator(),
         network);
-    ct.initialize();
+    // if (getMyId() < otherId) {
+      ct.initialize();
+    // }
     OtExtensionResourcePool otResources = new OtExtensionResourcePoolImpl(getMyId(), otherId,
-        getModBitLength(), getLambdaSecurityParam(), getInstanceId(),
+        getPrgSeedLength(), getLambdaSecurityParam(), getInstanceId(),
         getRandomGenerator(), ct, seedOts.get(otherId));
     return new BristolRotBatch(otResources, network);
   }

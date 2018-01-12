@@ -42,7 +42,8 @@ public class TripleGeneration extends BaseProtocol {
     this.rightMultipliers = new HashMap<>();
     for (Integer partyId : getPartyIds()) {
       if (!partyId.equals(getMyId())) {
-        rightMultipliers.put(partyId, new MultiplyRight(resourcePool, network, partyId));
+        rightMultipliers.put(partyId, new MultiplyRight(resourcePool, network,
+            partyId));
         leftMultipliers.put(partyId, new MultiplyLeft(resourcePool, network, partyId));
       }
     }
@@ -199,7 +200,7 @@ public class TripleGeneration extends BaseProtocol {
 
   /**
    * Generates numTriples multiplication triples in a batch.
-   * 
+   *
    * @param numTriples number of triples to generate
    * @return valid multiplication triples
    */
