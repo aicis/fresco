@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
@@ -43,6 +42,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   private ArrayDeque<MultTriple> triples;
   private ArrayDeque<InputMask> masks;
   private ArrayDeque<AuthenticatedElement> randomElements;
+  private ArrayDeque<AuthenticatedElement> randomBits;
   private int modBitLength;
   private int batchSize;
   private byte[] randomSeed;
@@ -74,6 +74,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     this.triples = new ArrayDeque<>();
     this.masks = new ArrayDeque<>();
     this.randomElements = new ArrayDeque<>();
+    this.randomBits = new ArrayDeque<>();
     this.prgSeedLength = prgSeedLength;
     this.modBitLength = modBitLength;
     this.batchSize = batchSize;
@@ -155,14 +156,18 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       masks.addAll(mascot.getInputMasks(towardPlayerID, batchSize));
       logger.trace("Got another mask batch");
     }
-    InputMask mask = masks.pop();
-    return MascotFormatConverter.toSpdzInputMask(mask);
+    return MascotFormatConverter.toSpdzInputMask(masks.pop());
   }
 
   @Override
   public SpdzSInt getNextBit() {
-    // TODO Nikolaj Volgusjef will fix
-    return new SpdzSInt(new SpdzElement(BigInteger.ZERO, BigInteger.ZERO, getModulus()));
+    ensureInitialized();
+    if (randomBits.isEmpty()) {
+      logger.trace("Getting another bit batch");
+      randomBits.addAll(mascot.getRandomBits(batchSize));
+      logger.trace("Got another bit batch");
+    }
+    return new SpdzSInt(MascotFormatConverter.toSpdzElement(randomBits.pop()));
   }
 
 }
