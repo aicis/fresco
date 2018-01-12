@@ -141,6 +141,23 @@ public class TestFieldElement {
     assertEquals("FieldElement [value=777, modulus=65521, bitLength=16]", el.toString());
   }
 
+  @Test
+  public void testModInverse() {
+    BigInteger raw = new BigInteger("121");
+    FieldElement el = new FieldElement(raw, modulus, bitLength);
+    FieldElement actual = el.modInverse();
+    FieldElement expected = new FieldElement(raw.modInverse(modulus), modulus, bitLength);
+    CustomAsserts.assertEquals(expected, actual);
+  }
+
+  @Test
+  public void testSqrt() {
+    FieldElement el = new FieldElement(123, modulus, bitLength);
+    FieldElement expected = new FieldElement(25, modulus, bitLength);
+    FieldElement actual = el.sqrt();
+    CustomAsserts.assertEquals(expected, actual);
+  }
+
   // Negative tests
 
   @Test(expected = IllegalArgumentException.class)

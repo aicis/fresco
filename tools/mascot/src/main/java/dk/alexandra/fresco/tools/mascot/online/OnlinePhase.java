@@ -52,6 +52,7 @@ public class OnlinePhase extends BaseProtocol {
       epsilons.add(left.subtract(triple.getLeft()));
       deltas.add(right.subtract(triple.getRight()));
     }
+    // TODO do these values need to be checked when online output protocol is invoked?
     List<FieldElement> openEpsilons = elementGeneration.open(epsilons);
     List<FieldElement> openDeltas = elementGeneration.open(deltas);
     List<AuthenticatedElement> products = new ArrayList<>(leftFactors.size());

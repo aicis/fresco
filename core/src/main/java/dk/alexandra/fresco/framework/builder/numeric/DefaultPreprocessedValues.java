@@ -40,26 +40,6 @@ public class DefaultPreprocessedValues implements PreprocessedValues {
         }).seq((seq, state) -> () -> state.value);
   }
 
-//  @Override
-  public DRes<SInt> getNextBit() {
-    return builder.seq(b -> {
-      DRes<SInt> r = b.numeric().randomElement();
-      DRes<SInt> square = b.numeric().mult(r, r);
-      DRes<BigInteger> opened = b.numeric().open(square);
-      return () -> new Pair<>(r, opened);
-    }).seq((seq, pair) -> {
-      Numeric numeric = seq.numeric();
-      BigInteger modulus = seq.getBasicNumericContext().getModulus();
-      DRes<SInt> r = pair.getFirst();
-      BigInteger openedSquare = pair.getSecond().out();
-      BigInteger root = MathUtils.modularSqrt(openedSquare, modulus);
-      BigInteger inverted = root.modInverse(modulus);
-      DRes<SInt> divided = numeric.mult(inverted, r);
-      BigInteger twoInverse = BigInteger.valueOf(2).modInverse(modulus);
-      return numeric.mult(twoInverse, numeric.add(BigInteger.ONE, divided));
-    });
-  }
-
   private static final class IterationState {
 
     private final int round;
