@@ -9,6 +9,7 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.cointossing.CoinTossing;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
@@ -20,6 +21,7 @@ import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePoolImpl;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.List;
+import java.util.Map;
 
 public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotResourcePool {
 
@@ -44,8 +46,9 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
           + "85827844212318499978829377355564689095172787513731965744913645190518423"
           + "06594567246898679968677700656495114013774368779648395287433119164167454"
           + "67731166272088057888135437754886129005590419051");
-  private final RotList seedOts;
+  private final Map<Integer, RotList> seedOts;
   private final List<Integer> partyIds;
+  private final int instanceId;
   private final BigInteger modulus;
   private final int modBitLength;
   private final int lambdaSecurityParam;
@@ -60,11 +63,13 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
   /**
    * Creates new mascot resource pool.
    */
-  public MascotResourcePoolImpl(Integer myId, List<Integer> partyIds, Drbg drbg,
-      RotList seedOts, BigInteger modulus,
-      int modBitLength, int lambdaSecurityParam, int prgSeedLength, int numLeftFactors) {
+  public MascotResourcePoolImpl(Integer myId, List<Integer> partyIds,
+      int instanceId, Drbg drbg, Map<Integer, RotList> seedOts,
+      BigInteger modulus, int modBitLength, int lambdaSecurityParam,
+      int prgSeedLength, int numLeftFactors) {
     super(myId, partyIds.size(), drbg);
     this.partyIds = partyIds;
+    this.instanceId = instanceId;
     this.seedOts = seedOts;
     this.modulus = modulus;
     this.modBitLength = modBitLength;
@@ -87,6 +92,11 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
   @Override
   public BigInteger getModulus() {
     return modulus;
+  }
+
+  @Override
+  public int getInstanceId() {
+    return instanceId;
   }
 
   @Override
@@ -130,9 +140,16 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
 //    Ot ot = ExceptionConverter.safe(() -> new NaorPinkasOt(getMyId(), otherId,
 //            getRandomGenerator(), network, params),
     // "Missing security hash function or PRG, which is dependent in this library");
+    if (getMyId() == otherId) {
+      throw new IllegalArgumentException("Cannot initialize with self");
+    }
+    CoinTossing ct = new CoinTossing(getMyId(), otherId, getRandomGenerator(),
+        network);
+    ct.initialize();
     OtExtensionResourcePool otResources = new OtExtensionResourcePoolImpl(getMyId(), otherId,
-        getModBitLength(), getLambdaSecurityParam(), getRandomGenerator());
-    return new BristolRotBatch(otResources, network, seedOts);
+        getModBitLength(), getLambdaSecurityParam(), getInstanceId(),
+        getRandomGenerator(), ct, seedOts.get(otherId));
+    return new BristolRotBatch(otResources, network);
   }
 
   @Override

@@ -29,13 +29,14 @@ public class MascotTestContext {
   /**
    * Creates new test context.
    */
-  public MascotTestContext(Integer myId, List<Integer> partyIds, BigInteger modulus,
-      int modBitLength, int lambdaSecurityParam, int numLeftFactors, int prgSeedLength) {
+  public MascotTestContext(Integer myId, List<Integer> partyIds, int instanceId,
+      BigInteger modulus, int modBitLength, int lambdaSecurityParam,
+      int numLeftFactors, int prgSeedLength) {
     byte[] drbgSeed = new byte[prgSeedLength / 8];
     new Random(myId).nextBytes(drbgSeed);
     this.resourcePool = new DummyMascotResourcePoolImpl(myId, partyIds,
-        new PaddingAesCtrDrbg(drbgSeed, prgSeedLength), modulus, modBitLength, lambdaSecurityParam,
-        prgSeedLength, numLeftFactors);
+        instanceId, new PaddingAesCtrDrbg(drbgSeed, prgSeedLength), modulus,
+        modBitLength, lambdaSecurityParam, prgSeedLength, numLeftFactors);
     this.network = new KryoNetNetwork(defaultNetworkConfiguration(myId, partyIds));
   }
 

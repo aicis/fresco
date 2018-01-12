@@ -3,7 +3,6 @@ package dk.alexandra.fresco.tools.mascot;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.Pair;
 import java.io.Closeable;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -100,13 +99,15 @@ public class TestRuntime {
    * @param prgSeedLength prg seed bit length
    * @return map of initialized contexts
    */
-  public Map<Integer, MascotTestContext> initializeContexts(List<Integer> partyIds,
-      BigInteger modulus, int modBitLength, int lambdaSecurityParam, int numLeftFactors,
+  public Map<Integer, MascotTestContext> initializeContexts(
+      List<Integer> partyIds, int instanceId, BigInteger modulus,
+      int modBitLength, int lambdaSecurityParam, int numLeftFactors,
       int prgSeedLength) {
     initalizeExecutor(partyIds.size());
     List<Callable<Pair<Integer, MascotTestContext>>> initializationTasks = new LinkedList<>();
     for (Integer partyId : partyIds) {
-      initializationTasks.add(() -> initializeContext(partyId, partyIds, modulus, modBitLength,
+      initializationTasks.add(() -> initializeContext(partyId, partyIds,
+          instanceId, modulus, modBitLength,
           lambdaSecurityParam, numLeftFactors, prgSeedLength));
     }
     for (Pair<Integer, MascotTestContext> pair : safeInvokeAll(initializationTasks)) {
@@ -142,9 +143,10 @@ public class TestRuntime {
    * @return map of initialized contexts
    */
   private Pair<Integer, MascotTestContext> initializeContext(Integer myId, List<Integer> partyIds,
-      BigInteger modulus, int modBitLength, int lambdaSecurityParam, int numLeftFactors,
-      int prgSeedLength) {
-    MascotTestContext ctx = new MascotTestContext(myId, new LinkedList<>(partyIds), modulus,
+      int instanceId, BigInteger modulus, int modBitLength,
+      int lambdaSecurityParam, int numLeftFactors, int prgSeedLength) {
+    MascotTestContext ctx = new MascotTestContext(myId, new LinkedList<>(
+        partyIds), instanceId, modulus,
         modBitLength, lambdaSecurityParam, numLeftFactors, prgSeedLength);
     return new Pair<>(myId, ctx);
   }

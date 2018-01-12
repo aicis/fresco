@@ -33,8 +33,8 @@ public abstract class NetworkedTest {
   }
 
   public void initContexts(List<Integer> partyIds) {
-    contexts = testRuntime.initializeContexts(partyIds, modulus, modBitLength, lambdaSecurityParam,
-        numLeftFactors, prgSeedLength);
+    contexts = testRuntime.initializeContexts(partyIds, 1, modulus,
+        modBitLength, lambdaSecurityParam, numLeftFactors, prgSeedLength);
   }
 
   @Before

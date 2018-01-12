@@ -5,10 +5,14 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
+import dk.alexandra.fresco.tools.ot.base.DummyOt;
+import dk.alexandra.fresco.tools.ot.base.Ot;
+import dk.alexandra.fresco.tools.ot.otextension.RotList;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import java.io.Closeable;
 import java.math.BigInteger;
@@ -25,12 +29,13 @@ public class MascotDemo {
   private final Closeable toClose;
 
   MascotDemo(Integer myId, List<Integer> partyIds) {
-    MascotResourcePool resourcePool = defaultResourcePool(myId, partyIds);
-    FieldElement macKeyShare = resourcePool.getLocalSampler().getNext(resourcePool.getModulus(),
-        resourcePool.getModBitLength());
     int bufferSize = 104856800;
     Network network =
         new KryoNetNetwork(defaultNetworkConfiguration(myId, partyIds), bufferSize, false, 15000);
+    MascotResourcePool resourcePool = defaultResourcePool(myId, partyIds,
+        network);
+    FieldElement macKeyShare = resourcePool.getLocalSampler().getNext(
+        resourcePool.getModulus(), resourcePool.getModBitLength());
     toClose = (Closeable) network;
     mascot = new Mascot(resourcePool, network, macKeyShare);
   }
@@ -58,18 +63,31 @@ public class MascotDemo {
     return new NetworkConfigurationImpl(myId, parties);
   }
 
-  MascotResourcePool defaultResourcePool(Integer myId, List<Integer> partyIds) {
-    int modBitLength = 256;
+  MascotResourcePool defaultResourcePool(Integer myId, List<Integer> partyIds, Network network) {
+    int modBitLength = 16;
     BigInteger modulus = ModulusFinder.findSuitableModulus(modBitLength);
     int lambdaSecurityParam = 128;
     int prgSeedLength = 256;
     int numLeftFactors = 3;
+    int instanceId = 1;
     // generate random seed for local DRBG
     byte[] drbgSeed = new byte[prgSeedLength / 8];
     new SecureRandom().nextBytes(drbgSeed);
-    return new MascotResourcePoolImpl(myId, partyIds,
-        new PaddingAesCtrDrbg(drbgSeed, prgSeedLength), modulus, modBitLength, lambdaSecurityParam,
-        prgSeedLength, numLeftFactors);
+    Drbg drbg = new PaddingAesCtrDrbg(drbgSeed, prgSeedLength);
+    Map<Integer, RotList> seedOts = new HashMap<>();
+    for (Integer otherId : partyIds) {
+      if (otherId == myId) {
+        continue;
+      }
+      Ot ot = new DummyOt(otherId, network);
+      RotList currentSeedOts = new RotList(drbg, prgSeedLength);
+      currentSeedOts.send(ot);
+      currentSeedOts.receive(ot);
+      seedOts.put(otherId, currentSeedOts);
+    }
+    return new MascotResourcePoolImpl(myId, partyIds, instanceId, drbg, seedOts,
+        modulus, modBitLength, lambdaSecurityParam, prgSeedLength,
+        numLeftFactors);
   }
 
   /**
