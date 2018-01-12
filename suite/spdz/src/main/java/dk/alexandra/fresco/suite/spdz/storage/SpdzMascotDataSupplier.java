@@ -19,6 +19,7 @@ import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
 import java.math.BigInteger;
 import java.util.ArrayDeque;
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -80,7 +81,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     this.randomSeed = randomSeed;
   }
 
-   static FieldElement createRandomSsk(int myId, BigInteger modulus, int modBitLength,
+  static FieldElement createRandomSsk(int myId, BigInteger modulus, int modBitLength,
       int prgSeedLength) {
     byte[] seedBytes = new byte[32];
     seedBytes[0] = (byte) myId;
@@ -111,8 +112,9 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
 
     int numLeftFactors = 3;
     Network network = tripleNetwork.get();
-    mascot = new Mascot(new MascotResourcePoolImpl(myId, partyIds,
-        new PaddingAesCtrDrbg(randomSeed, prgSeedLength), getModulus(), modBitLength,
+    mascot = new Mascot(new MascotResourcePoolImpl(myId, partyIds, 1,
+        new PaddingAesCtrDrbg(randomSeed, prgSeedLength), new HashMap<>(), getModulus(),
+        modBitLength,
         modBitLength, prgSeedLength, numLeftFactors), network, ssk);
   }
 

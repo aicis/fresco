@@ -40,7 +40,7 @@ public class DefaultPreprocessedValues implements PreprocessedValues {
         }).seq((seq, state) -> () -> state.value);
   }
 
-  @Override
+//  @Override
   public DRes<SInt> getNextBit() {
     return builder.seq(b -> {
       DRes<SInt> r = b.numeric().randomElement();

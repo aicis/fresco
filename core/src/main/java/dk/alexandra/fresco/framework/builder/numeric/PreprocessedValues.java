@@ -21,11 +21,4 @@ public interface PreprocessedValues {
    */
   DRes<List<DRes<SInt>>> getExponentiationPipe(int pipeLength);
 
-  /**
-   * Returns random bit.
-   *
-   * @return random bit
-   */
-  DRes<SInt> getNextBit();
-
 }
