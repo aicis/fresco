@@ -9,6 +9,7 @@ import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -84,8 +85,8 @@ public class TestParallelMascots {
         int finalMyId = myId;
         mascotCreators.add(() -> {
           int lambdaParam = this.modBitLength;
-          return new Mascot(new MascotResourcePoolImpl(finalMyId, partyIds,
-              new PaddingAesCtrDrbg(new byte[]{12}, prgSeedLength), modulus,
+          return new Mascot(new MascotResourcePoolImpl(finalMyId, partyIds, 1,
+              new PaddingAesCtrDrbg(new byte[]{12}, prgSeedLength), new HashMap<>(), modulus,
               modBitLength, lambdaParam, prgSeedLength, numLeftFactors),
               normalManager.createExtraNetwork(finalMyId), randomSsk);
         });
@@ -107,9 +108,9 @@ public class TestParallelMascots {
             .createRandomSsk(myId, modulus, modBitLength, prgSeedLength);
         int finalMyId = myId;
         mascotCreators.add(() -> {
-          Mascot mascot = new Mascot(new MascotResourcePoolImpl(finalMyId, partyIds,
-              new PaddingAesCtrDrbg(new byte[]{7, 127, -1}, prgSeedLength), modulus,
-              modBitLength, 256, prgSeedLength, numLeftFactors),
+          Mascot mascot = new Mascot(new MascotResourcePoolImpl(finalMyId, partyIds, 1,
+              new PaddingAesCtrDrbg(new byte[]{7, 127, -1}, prgSeedLength), new HashMap<>(),
+              modulus, modBitLength, 256, prgSeedLength, numLeftFactors),
               normalManager.createExtraNetwork(finalMyId), randomSsk);
           return mascot.getTriples(128);
         });
