@@ -5,7 +5,8 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.async.AsyncNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
@@ -100,7 +101,8 @@ public abstract class AbstractDummyArithmeticTest {
               () -> new DummyArithmeticResourcePoolImpl(playerId,
                   noOfParties, drbg, mod),
               () -> {
-                KryoNetNetwork kryoNetwork = new KryoNetNetwork(partyNetConf);
+                //Network kryoNetwork = new KryoNetNetwork(partyNetConf);
+                Network kryoNetwork = new AsyncNetwork(partyNetConf);
                 if (logPerformance) {
                   NetworkLoggingDecorator network = new NetworkLoggingDecorator(kryoNetwork);
                   aggregate.add(network);

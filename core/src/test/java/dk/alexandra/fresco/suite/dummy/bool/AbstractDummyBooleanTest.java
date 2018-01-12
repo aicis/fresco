@@ -6,8 +6,8 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.async.AsyncNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
@@ -37,7 +37,7 @@ import java.util.Map;
 public abstract class AbstractDummyBooleanTest {
 
   protected Map<Integer, List<PerformanceLogger>> performanceLoggers = new HashMap<>();
-  
+
   protected void runTest(
       TestThreadRunner.TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f,
       EvaluationStrategy evalStrategy) throws Exception {
@@ -69,9 +69,9 @@ public abstract class AbstractDummyBooleanTest {
     Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
         new HashMap<>();
     for (int playerId : netConf.keySet()) {
-      PerformanceLoggerCountingAggregate aggregate 
+      PerformanceLoggerCountingAggregate aggregate
         = new PerformanceLoggerCountingAggregate();
-      
+
       NetworkConfiguration partyNetConf = netConf.get(playerId);
 
       ProtocolSuiteBinary<ResourcePoolImpl> ps = new DummyBooleanProtocolSuite();
@@ -81,36 +81,35 @@ public abstract class AbstractDummyBooleanTest {
         aggregate.add(decoratedSuite);
         ps = decoratedSuite;
       }
-      
+
       BatchEvaluationStrategy<ResourcePoolImpl> strat = evalStrategy.getStrategy();
       if (logPerformance) {
         strat = new BatchEvaluationLoggingDecorator<>(strat);
         aggregate.add((PerformanceLogger) strat);
       }
-      
+
       ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
           new BatchedProtocolEvaluator<>(strat, ps);
       if (logPerformance) {
         evaluator = new EvaluatorLoggingDecorator<>(evaluator);
         aggregate.add((PerformanceLogger) evaluator);
       }
-      
+
       SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce =
           new SecureComputationEngineImpl<>(ps, evaluator);
 
-       
+
 
       Drbg drbg = new HmacDrbg();
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new ResourcePoolImpl(playerId, noOfParties, drbg), () -> {
             Network network;
-            KryoNetNetwork kryoNetwork = new KryoNetNetwork(partyNetConf);
+            //network = new KryoNetNetwork(partyNetConf);
+            network = new AsyncNetwork(partyNetConf);
             if (logPerformance) {
-              network = new NetworkLoggingDecorator(kryoNetwork);
+              network = new NetworkLoggingDecorator(network);
               aggregate.add((PerformanceLogger) network);
-            } else {
-              network = kryoNetwork;
             }
             return network;
           });
