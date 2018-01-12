@@ -26,7 +26,7 @@ public class TestBitConverter extends NetworkedTest {
     return new FieldElementPrgImpl(new StrictBitVector(prgSeedLength));
   }
 
-  public List<FieldElement> runConvertBits(MascotTestContext ctx, FieldElement macKeyShare,
+  public List<FieldElement> runConvertToBits(MascotTestContext ctx, FieldElement macKeyShare,
       List<FieldElement> randomValues) {
     FieldElementPrg prg = getJointPrg(ctx.getPrgSeedLength());
     ElementGeneration elementGeneration = new ElementGeneration(ctx.getResourcePool(),
@@ -46,7 +46,7 @@ public class TestBitConverter extends NetworkedTest {
   }
 
   @Test
-  public void testTwoPartiesBatchedMultiply() {
+  public void testTwoPartiesBatchedConvertToBits() {
     initContexts(Arrays.asList(1, 2));
 
     // left party mac key share
@@ -61,9 +61,9 @@ public class TestBitConverter extends NetworkedTest {
 
     // define task each party will run
     Callable<List<FieldElement>> partyOneTask =
-        () -> runConvertBits(contexts.get(1), macKeyShareOne, randomValues);
+        () -> runConvertToBits(contexts.get(1), macKeyShareOne, randomValues);
     Callable<List<FieldElement>> partyTwoTask =
-        () -> runConvertBits(contexts.get(2), macKeyShareTwo, randomValues);
+        () -> runConvertToBits(contexts.get(2), macKeyShareTwo, randomValues);
 
     List<List<FieldElement>> results =
         testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
