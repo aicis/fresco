@@ -13,7 +13,7 @@ public class AuthenticatedElement implements Addable<AuthenticatedElement> {
 
   /**
    * Creates new authenticated element.
-   * 
+   *
    * @param share this party's share
    * @param mac this party's share of the mac
    * @param modulus modulus of the underlying field elements
@@ -33,6 +33,15 @@ public class AuthenticatedElement implements Addable<AuthenticatedElement> {
         modBitLength);
   }
 
+  public AuthenticatedElement add(FieldElement other, int partyId, FieldElement macKeyShare) {
+    FieldElement otherMac = other.multiply(macKeyShare);
+    // only party 1 actually adds value to its share
+    FieldElement value = (partyId == 1) ? other :
+        new FieldElement(BigInteger.ZERO, modulus, modBitLength);
+    AuthenticatedElement wrapped = new AuthenticatedElement(value, otherMac, modulus, modBitLength);
+    return add(wrapped);
+  }
+
   public AuthenticatedElement subtract(AuthenticatedElement other) {
     return new AuthenticatedElement(share.subtract(other.share), mac.subtract(other.mac), modulus,
         modBitLength);
@@ -50,7 +59,7 @@ public class AuthenticatedElement implements Addable<AuthenticatedElement> {
   public FieldElement getShare() {
     return share;
   }
-  
+
   public BigInteger getModulus() {
     return modulus;
   }

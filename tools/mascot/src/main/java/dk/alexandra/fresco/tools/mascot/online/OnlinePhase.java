@@ -1,5 +1,72 @@
 package dk.alexandra.fresco.tools.mascot.online;
 
-public class OnlinePhase {
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.tools.mascot.BaseProtocol;
+import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
+import dk.alexandra.fresco.tools.mascot.elgen.ElementGeneration;
+import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
+import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.MultTriple;
+import dk.alexandra.fresco.tools.mascot.triple.TripleGeneration;
+import java.util.ArrayList;
+import java.util.List;
+
+public class OnlinePhase extends BaseProtocol {
+
+  private final TripleGeneration tripleGeneration;
+  private final ElementGeneration elementGeneration;
+  private final FieldElement macKeyShare;
+
+  /**
+   * Creates new {@link OnlinePhase}.
+   *
+   * @param resourcePool mascot resource pool
+   * @param network network
+   */
+  public OnlinePhase(MascotResourcePool resourcePool,
+      Network network, TripleGeneration tripleGeneration, ElementGeneration elementGeneration,
+      FieldElement macKeyShare) {
+    super(resourcePool, network);
+    this.tripleGeneration = tripleGeneration;
+    this.elementGeneration = elementGeneration;
+    this.macKeyShare = macKeyShare;
+  }
+
+  /**
+   * Performs an "online" multiplication protocol, i.e., computes authenticated products of left and
+   * right factors.
+   *
+   * @param leftFactors left factors
+   * @param rightFactors right factors
+   * @return authenticated products
+   */
+  public List<AuthenticatedElement> multiply(List<AuthenticatedElement> leftFactors,
+      List<AuthenticatedElement> rightFactors) {
+    List<MultTriple> triples = tripleGeneration.triple(leftFactors.size());
+    List<AuthenticatedElement> epsilons = new ArrayList<>(leftFactors.size());
+    List<AuthenticatedElement> deltas = new ArrayList<>(leftFactors.size());
+    for (int i = 0; i < leftFactors.size(); i++) {
+      AuthenticatedElement left = leftFactors.get(i);
+      AuthenticatedElement right = rightFactors.get(i);
+      MultTriple triple = triples.get(i);
+      epsilons.add(left.subtract(triple.getLeft()));
+      deltas.add(right.subtract(triple.getRight()));
+    }
+    List<FieldElement> openEpsilons = elementGeneration.open(epsilons);
+    List<FieldElement> openDeltas = elementGeneration.open(deltas);
+    List<AuthenticatedElement> products = new ArrayList<>(leftFactors.size());
+    for (int i = 0; i < leftFactors.size(); i++) {
+      AuthenticatedElement left = leftFactors.get(i);
+      AuthenticatedElement right = rightFactors.get(i);
+      FieldElement epsilon = openEpsilons.get(i);
+      FieldElement delta = openDeltas.get(i);
+      FieldElement epsilonDeltaProd = epsilon.multiply(delta);
+      // [c] + [a] * epsilon + [b] * delta + epsilon * delta
+      AuthenticatedElement product = triples.get(i).getProduct().add(left.multiply(epsilon))
+          .add(right.multiply(delta)).add(epsilonDeltaProd, getMyId(), macKeyShare);
+      products.add(product);
+    }
+    return products;
+  }
 
 }
