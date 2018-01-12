@@ -1,5 +1,8 @@
 package dk.alexandra.fresco.tools.mascot;
 
+import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
+import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +11,7 @@ import org.junit.After;
 import org.junit.Before;
 
 public abstract class NetworkedTest {
+
   protected TestRuntime testRuntime;
   protected Map<Integer, MascotTestContext> contexts;
 
