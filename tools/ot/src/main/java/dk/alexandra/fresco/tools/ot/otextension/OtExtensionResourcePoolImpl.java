@@ -58,8 +58,14 @@ public class OtExtensionResourcePoolImpl extends ResourcePoolImpl implements
    *          The computational security parameter
    * @param lambdaSecurityParam
    *          The statistical security parameter
+   * @param instanceId
+   *          The instance ID of this specific resource pool instance
    * @param drbg
    *          The randomness generator to be used by the calling party
+   * @param ct
+   *          An instance of a coin tossing protocol to be used with this specific resource pool
+   * @param seedOts
+   *          The seed OTs to be used as the base of the extension
    */
   public OtExtensionResourcePoolImpl(int myId, int otherId,
       int computationalSecurityParam, int lambdaSecurityParam, int instanceId,

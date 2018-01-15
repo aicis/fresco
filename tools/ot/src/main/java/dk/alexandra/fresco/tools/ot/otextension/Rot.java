@@ -22,16 +22,10 @@ public class Rot {
    *          The common resource pool for OT extension
    * @param network
    *          The network instance
-   * @param ot
-   *          The OT functionality to use for seed OTs
    */
   public Rot(OtExtensionResourcePool resources, Network network) {
     this.resources = resources;
     this.network = network;
-    // CoteSender sender = new CoteSender(resources, network, seedOts);
-    // CoteReceiver receiver = new CoteReceiver(resources, network, seedOts);
-    // this.sender = new RotSender(sender);
-    // this.receiver = new RotReceiver(receiver);
   }
 
   /**

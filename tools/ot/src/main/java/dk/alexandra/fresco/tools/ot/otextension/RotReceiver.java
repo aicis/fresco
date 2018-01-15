@@ -16,32 +16,17 @@ public class RotReceiver extends RotShared {
   private final CoteReceiver receiver;
 
   /**
-   * Construct a receiving party for an instance of the random OT extension
-   * protocol.
+   * Construct a receiving party for an instance of the random OT extension protocol.
    *
    * @param rec
    *          The correlated OT with error receiver this protocol will use
+   * @param ct
+   *          The coin tossing instance to use
    */
   public RotReceiver(CoteReceiver rec, CoinTossing ct) {
     super(rec, ct);
     this.receiver = rec;
   }
-
-  // /**
-  // * Initializes the random OT extension by initializing the underlying
-  // * correlated OT with errors and coin tossing functionalities. This should
-  // * only be done once for a given sender/receiver pair.
-  // */
-  // @Override
-  // public void initialize() {
-  // if (isInitialized()) {
-  // throw new IllegalStateException("Already initialized");
-  // }
-  // if (!receiver.isInitialized()) {
-  // receiver.initialize();
-  // }
-  // super.initialize();
-  // }
 
   /**
    * Constructs a new batch of random OTs.

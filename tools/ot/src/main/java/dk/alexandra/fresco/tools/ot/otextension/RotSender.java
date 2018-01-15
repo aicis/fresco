@@ -19,30 +19,17 @@ public class RotSender extends RotShared {
   private final CoteSender sender;
 
   /**
-   * Construct a sending party for an instance of the random OT extension
-   * protocol.
+   * Construct a sending party for an instance of the random OT extension protocol.
    *
    * @param snd
    *          The correlated OT with error sender this protocol will use
+   * @param ct
+   *          The coin tossing instance to use
    */
   public RotSender(CoteSender snd, CoinTossing ct) {
     super(snd, ct);
     sender = snd;
   }
-
-  // /**
-  // * Initialize the random OT extension. This must only be done once.
-  // */
-  // @Override
-  // public void initialize() {
-  // if (isInitialized()) {
-  // throw new IllegalStateException("Already initialized");
-  // }
-  // if (!sender.isInitialized()) {
-  // sender.initialize();
-  // }
-  // super.initialize();
-  // }
 
   /**
    * Constructs a new batch of random OTs.
@@ -54,9 +41,6 @@ public class RotSender extends RotShared {
    *         messages
    */
   public Pair<List<StrictBitVector>, List<StrictBitVector>> extend(int size) {
-    // if (!isInitialized()) {
-    // throw new IllegalStateException("Not initialized");
-    // }
     int ellPrime = size + getKbitLength() + getLambdaSecurityParam();
     // Construct a sufficient amount correlated OTs with errors
     List<StrictBitVector> qlist = sender.extend(ellPrime);

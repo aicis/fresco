@@ -17,11 +17,8 @@ import java.security.MessageDigest;
  *
  */
 public class CoteShared {
-  // Constructor arguments
   private final OtExtensionResourcePool resources;
   private final Network network;
-  // Internal state variables
-  // private boolean initialized = false;
 
   /**
    * Constructs a correlated OT extension with errors super-class.
@@ -37,20 +34,12 @@ public class CoteShared {
     this.network = network;
   }
 
-  // public void initialize() {
-  // initialized = true;
-  // }
-
-  // public boolean isInitialized() {
-  // return initialized;
-  // }
-
-  // public int getMyId() {
-  // return resources.getMyId();
-  // }
-
   public int getOtherId() {
     return resources.getOtherId();
+  }
+
+  public int getInstanceId() {
+    return resources.getInstanceId();
   }
 
   public int getkBitLength() {
@@ -73,7 +62,13 @@ public class CoteShared {
     return network;
   }
 
-
+  /**
+   * Initializes a PRG based on a seed and the internal instance ID.
+   *
+   * @param originalSeed
+   *          The seed to initialize the PRG from
+   * @return The initialized PRG
+   */
   protected Drbg initPrg(StrictBitVector originalSeed) {
     // Remember that int is 32 bits, thus 4 bytes
     byte[] seedBytes = originalSeed.toByteArray();

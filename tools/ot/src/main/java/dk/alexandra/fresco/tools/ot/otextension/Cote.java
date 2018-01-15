@@ -21,8 +21,6 @@ public class Cote {
    *          The common resource pool needed for OT extension
    * @param network
    *          The network instance
-   * @param ot
-   *          The OT functionality to use for seed OTs
    */
   public Cote(OtExtensionResourcePool resources, Network network) {
     this.resources = resources;

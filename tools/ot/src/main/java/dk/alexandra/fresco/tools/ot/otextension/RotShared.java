@@ -17,32 +17,23 @@ import java.util.List;
  *
  */
 public class RotShared {
-  // Internal state variables
   private final CoteShared cote;
   private final CoinTossing ct;
-  // private boolean initialized = false;
 
   /**
-   * Constructs a random OT extension super-class using an underlying correlated
-   * OT with errors object.
+   * Constructs a random OT extension super-class using an underlying correlated OT with errors
+   * object.
    *
    * @param cote
    *          The underlying correlated OT with errors
+   * @param ct
+   *          The coin tossing instance to use
    */
   public RotShared(CoteShared cote, CoinTossing ct) {
     super();
     this.cote = cote;
     this.ct = ct;
   }
-
-  // public void initialize() {
-  // ct.initialize();
-  // initialized = true;
-  // }
-  //
-  // public boolean isInitialized() {
-  // return initialized;
-  // }
 
   public int getOtherId() {
     return cote.getOtherId();
@@ -74,10 +65,9 @@ public class RotShared {
    * field of the individual elements of the lists, but without reducing modulo
    * a reduction polynomial. Thus the inner product is computed purely using
    * shifts and XOR operations.
-   * <p>
+   * <br/>
    * All elements of both lists MUST have equal size! And both lists MUST
    * contain an equal amount of entries!
-   * </p>
    *
    * @param alist
    *          The first input list, with all elements of equal size

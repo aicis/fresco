@@ -30,36 +30,14 @@ public class BristolRotBatch implements RotBatch {
    *          The common OT extension resource pool
    * @param network
    *          The network instance
-   * @param ot
-   *          The OT functionality to use for seed OTs
    */
   public BristolRotBatch(OtExtensionResourcePool resources, Network network) {
     this.rot = new Rot(resources, network);
-    // this.sender = rot.getSender();
-    // this.receiver = rot.getReceiver();
   }
-
-  // /**
-  // * Explicitly initialize the sender.
-  // */
-  // public void initSender() {
-  // sender.initialize();
-  // }
-  //
-  // /**
-  // * Explicitly initialize the receiver.
-  // */
-  // public void initReceiver() {
-  // receiver.initialize();
-  // }
 
   @Override
   public List<Pair<StrictBitVector, StrictBitVector>> send(int numMessages,
       int sizeOfEachMessage) {
-    // Initialize the underlying functionality if needed
-    // if (!sender.isInitialized()) {
-    // sender.initialize();
-    // }
     if (this.sender == null) {
       this.sender = rot.getSender();
     }
@@ -86,10 +64,6 @@ public class BristolRotBatch implements RotBatch {
   @Override
   public List<StrictBitVector> receive(StrictBitVector choiceBits,
       int sizeOfEachMessage) {
-    // // Initialize the underlying functionality if needed
-    // if (!receiver.isInitialized()) {
-    // receiver.initialize();
-    // }
     if (this.receiver == null) {
       this.receiver = rot.getReceiver();
     }

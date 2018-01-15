@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,11 +16,7 @@ import java.util.List;
  *
  */
 public class CoteReceiver extends CoteShared {
-  // Random messages used for the seed OTs
-  // private final List<Pair<StrictBitVector, StrictBitVector>> seeds;
   private final List<Pair<Drbg, Drbg>> prgs;
-  // The underlying seed OT functionality
-  // private final BristolSeedOts seedOts;
 
   /**
    * Constructs a correlated OT extension with errors receiver instance.
@@ -28,13 +25,9 @@ public class CoteReceiver extends CoteShared {
    *          The common resource pool needed for OT extension
    * @param network
    *          The network object used to communicate with the other party
-   * @param ot
-   *          The OT functionality to use for seed OTs
    */
   public CoteReceiver(OtExtensionResourcePool resources, Network network) {
     super(resources, network);
-    // this.seedOts = seedOts;
-    // this.seeds = new ArrayList<>(getkBitLength());
     this.prgs = new ArrayList<>(getkBitLength());
     for (Pair<StrictBitVector, StrictBitVector> pair : resources.getSeedOts()
         .getSentMessages()) {
@@ -43,34 +36,6 @@ public class CoteReceiver extends CoteShared {
       prgs.add(new Pair<>(prgZero, prgFirst));
     }
   }
-
-//  /**
-//   * Initializes the correlated OT extension with errors by running true seed
-//   * OTs. This should only be done once for a given sender/receiver pair.
-//   */
-//  @Override
-//  public void initialize() {
-//    if (isInitialized()) {
-//      throw new IllegalStateException("Already initialized");
-//    }
-//    // Complete the seed OTs acting as the sender (NOT the receiver)
-//    for (int i = 0; i < getkBitLength(); i++) {
-//      // StrictBitVector seedZero = new StrictBitVector(getkBitLength(),
-//      // getRand());
-//      // StrictBitVector seedOne = new StrictBitVector(getkBitLength(),
-//      // getRand());
-//      // ot.send(seedZero, seedOne);
-//      // seeds.add(new Pair<>(seedZero, seedOne));
-//      // Initialize the PRGs with the random messages
-//      // TODO make sure this is okay!
-//      StrictBitVector seedZero = seedOts.getSentMessages().get(i).getFirst();
-//      StrictBitVector seedOne = seedOts.getSentMessages().get(i).getSecond();
-//      Drbg prgZero = new PaddingAesCtrDrbg(seedZero.toByteArray(), 256);
-//      Drbg prgFirst = new PaddingAesCtrDrbg(seedOne.toByteArray(), 256);
-//      prgs.add(new Pair<>(prgZero, prgFirst));
-//    }
-//    super.initialize();
-//  }
 
   /**
    * Constructs a new batch of correlated OTs with errors.
@@ -86,9 +51,6 @@ public class CoteReceiver extends CoteShared {
       throw new IllegalArgumentException(
           "The amount of OTs must be a positive integer");
     }
-    // if (!isInitialized()) {
-    // throw new IllegalStateException("Not initialized");
-    // }
     // Compute how many bytes we need for "size" OTs by dividing "size" by 8
     // (the amount of bits in the primitive type; byte)
     int bytesNeeded = choices.getSize() / 8;
@@ -136,4 +98,5 @@ public class CoteReceiver extends CoteShared {
     }
     getNetwork().send(getOtherId(), toSend);
   }
+  
 }
