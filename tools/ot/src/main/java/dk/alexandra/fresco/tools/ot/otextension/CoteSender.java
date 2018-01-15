@@ -116,11 +116,10 @@ public class CoteSender extends CoteShared {
   }
 
   /**
-   * Receives a list of StrictBitVectors from the default (0) channel
+   * Receives a list of StrictBitVectors from the default (0) channel.
    *
    * @param size
-   *          Amount of elements in vector to receive. All of which must be of
-   *          equal size.
+   *          Amount of elements in vector to receive. All of which must be of equal size.
    * @return The list of received elements, or null in case an error occurred.
    */
   private List<StrictBitVector> receiveList(int size) {

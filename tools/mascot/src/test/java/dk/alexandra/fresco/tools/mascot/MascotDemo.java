@@ -11,6 +11,7 @@ import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
+import dk.alexandra.fresco.tools.ot.base.NaorPinkasOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
@@ -42,6 +43,7 @@ public class MascotDemo {
 
   void run(int numIts, int numTriples) {
     for (int i = 0; i < numIts; i++) {
+      System.out.println("Generating another triple batch.");
       long startTime = System.currentTimeMillis();
       List<MultTriple> triples = mascot.getTriples(numTriples);
       long endTime = System.currentTimeMillis();
@@ -64,7 +66,7 @@ public class MascotDemo {
   }
 
   MascotResourcePool defaultResourcePool(Integer myId, List<Integer> partyIds, Network network) {
-    int modBitLength = 16;
+    int modBitLength = 128;
     BigInteger modulus = ModulusFinder.findSuitableModulus(modBitLength);
     int lambdaSecurityParam = 128;
     int prgSeedLength = 256;
@@ -76,14 +78,13 @@ public class MascotDemo {
     Drbg drbg = new PaddingAesCtrDrbg(drbgSeed, prgSeedLength);
     Map<Integer, RotList> seedOts = new HashMap<>();
     for (Integer otherId : partyIds) {
-      // if (otherId == myId) {
-      // continue;
-      // }
-      Ot ot = new DummyOt(otherId, network);
-      RotList currentSeedOts = new RotList(drbg, prgSeedLength);
-      currentSeedOts.send(ot);
-      currentSeedOts.receive(ot);
-      seedOts.put(otherId, currentSeedOts);
+      if (!otherId.equals(myId)) {
+        Ot ot = new NaorPinkasOt(myId, otherId, drbg, network);
+        RotList currentSeedOts = new RotList(drbg, prgSeedLength);
+        currentSeedOts.send(ot);
+        currentSeedOts.receive(ot);
+        seedOts.put(otherId, currentSeedOts);
+      }
     }
     return new MascotResourcePoolImpl(myId, partyIds, instanceId, drbg, seedOts,
         modulus, modBitLength, lambdaSecurityParam, prgSeedLength,

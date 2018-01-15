@@ -6,7 +6,7 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
-import dk.alexandra.fresco.tools.helper.Constants;
+import dk.alexandra.fresco.tools.helper.TestHelper;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
 
 import java.lang.reflect.Field;
@@ -25,7 +25,7 @@ public class TestOtExtensionResourcePool {
    */
   @Before
   public void setup() {
-    rand = new AesCtrDrbg(Constants.seedOne);
+    rand = new AesCtrDrbg(TestHelper.seedOne);
     // fake network
     network = new Network() {
       @Override
@@ -98,7 +98,7 @@ public class TestOtExtensionResourcePool {
   @Test
   public void testIllegalRotListSend() throws NoSuchFieldException,
       SecurityException, IllegalArgumentException, IllegalAccessException {
-    RotList ots = new RotList(new AesCtrDrbg(Constants.seedOne), 128);
+    RotList ots = new RotList(new AesCtrDrbg(TestHelper.seedOne), 128);
     boolean thrown = false;
     try {
       ots.getSentMessages();
@@ -123,7 +123,7 @@ public class TestOtExtensionResourcePool {
   @Test
   public void testIllegalRotListReceive() throws NoSuchFieldException,
       SecurityException, IllegalArgumentException, IllegalAccessException {
-    RotList ots = new RotList(new AesCtrDrbg(Constants.seedOne), 128);
+    RotList ots = new RotList(new AesCtrDrbg(TestHelper.seedOne), 128);
     boolean thrown = false;
     try {
       ots.getLearnedMessages();
