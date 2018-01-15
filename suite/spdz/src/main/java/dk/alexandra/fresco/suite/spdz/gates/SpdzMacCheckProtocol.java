@@ -12,7 +12,6 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,10 +22,8 @@ public class SpdzMacCheckProtocol implements ProtocolProducer {
   private List<BigInteger> as;
   private SpdzStorage storage;
   private int round = 0;
-  private ProtocolProducer pp;
-  private Map<Integer, BigInteger> commitments;
+  private ProtocolProducer protocolProducer;
   private BigInteger modulus;
-  private SpdzCommitProtocol comm;
   private SpdzOpenCommitProtocol openComm;
 
   /**
@@ -43,36 +40,28 @@ public class SpdzMacCheckProtocol implements ProtocolProducer {
     this.rand = rand;
     this.digest = digest;
     this.storage = storage;
-    this.commitments = new HashMap<>();
     this.modulus = modulus;
   }
 
   @Override
   public <ResourcePoolT extends ResourcePool> void getNextProtocols(
       ProtocolCollection<ResourcePoolT> protocolCollection) {
-    if (pp == null) {
+    if (protocolProducer == null) {
       if (round == 0) {
         BigInteger s = new BigInteger(modulus.bitLength(), rand).mod(modulus);
         SpdzCommitment commitment = new SpdzCommitment(digest, s, rand);
-        Map<Integer, BigInteger> comms = new HashMap<>();
-        comm = new SpdzCommitProtocol(commitment, comms);
-        openComm = new SpdzOpenCommitProtocol(commitment, comms, commitments);
+        SpdzCommitProtocol commitmentProtocol = new SpdzCommitProtocol(commitment);
+        openComm = new SpdzOpenCommitProtocol(commitment, commitmentProtocol);
 
-        pp = new SequentialProtocolProducer(new SingleProtocolProducer<>(comm),
+        protocolProducer = new SequentialProtocolProducer(
+            new SingleProtocolProducer<>(commitmentProtocol),
             new SingleProtocolProducer<>(openComm));
       } else if (round == 1) {
-        if (!comm.out()) {
-          throw new MaliciousException(
-              "Malicious activity detected: Broadcast of commitments was not validated.");
-        }
-        if (!openComm.out()) {
-          throw new MaliciousException("Malicious activity detected: Opening commitments failed.");
-        }
-
         this.as = storage.getOpenedValues();
 
         // Add all s's to get the common random value:
         BigInteger s = BigInteger.ZERO;
+        Map<Integer, BigInteger> commitments = openComm.out();
         for (BigInteger otherS : commitments.values()) {
           s = s.add(otherS);
         }
@@ -95,8 +84,9 @@ public class SpdzMacCheckProtocol implements ProtocolProducer {
         // compute gamma_i as the sum of all MAC's on the opened values times
         // r_j.
         if (closedValues.size() != t) {
-          throw new MaliciousException("Malicious activity detected: Amount of closed values does not "
-              + "equal the amount of partially opened values. Aborting!");
+          throw new MaliciousException(
+              "Malicious activity detected: Amount of closed values does not "
+                  + "equal the amount of partially opened values. Aborting!");
         }
         BigInteger gamma = BigInteger.ZERO;
         index = 0;
@@ -109,22 +99,15 @@ public class SpdzMacCheckProtocol implements ProtocolProducer {
         BigInteger delta = gamma.subtract(alpha.multiply(a)).mod(modulus);
         // Commit to delta and open it afterwards
         SpdzCommitment commitment = new SpdzCommitment(digest, delta, rand);
-        Map<Integer, BigInteger> comms = new HashMap<>();
-        comm = new SpdzCommitProtocol(commitment, comms);
-        commitments = new HashMap<>();
-        openComm = new SpdzOpenCommitProtocol(commitment, comms, commitments);
+        SpdzCommitProtocol commitmentProtocol = new SpdzCommitProtocol(commitment);
+        openComm = new SpdzOpenCommitProtocol(commitment, commitmentProtocol);
 
-        pp = new SequentialProtocolProducer(new SingleProtocolProducer<>(comm),
+        protocolProducer = new SequentialProtocolProducer(
+            new SingleProtocolProducer<>(commitmentProtocol),
             new SingleProtocolProducer<>(openComm));
       } else {
-        if (!comm.out()) {
-          throw new MaliciousException(
-              "Malicious activity detected: Broadcast of commitments was not validated.");
-        }
-        if (!openComm.out()) {
-          throw new MaliciousException("Malicious activity detected: Opening commitments failed.");
-        }
         BigInteger deltaSum = BigInteger.ZERO;
+        Map<Integer, BigInteger> commitments = openComm.out();
         for (BigInteger d : commitments.values()) {
           deltaSum = deltaSum.add(d);
         }
@@ -137,14 +120,14 @@ public class SpdzMacCheckProtocol implements ProtocolProducer {
         // clean up store before returning to evaluating such that we only
         // evaluate the next macs, not those we already checked.
         this.storage.reset();
-        pp = new SequentialProtocolProducer();
+        protocolProducer = new SequentialProtocolProducer();
       }
     }
-    if (pp.hasNextProtocols()) {
-      pp.getNextProtocols(protocolCollection);
+    if (protocolProducer.hasNextProtocols()) {
+      protocolProducer.getNextProtocols(protocolCollection);
     } else {
       round++;
-      pp = null;
+      protocolProducer = null;
     }
   }
 
