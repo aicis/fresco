@@ -105,9 +105,9 @@ public class BristolRotBatch implements RotBatch {
       int lambdaParam) {
     // Increase the amount of OTs if needed, to ensure that the result is of the
     // from 8*2^x for x > 1. I.e. s.t. that "minSize" >= 16
-    int newNum = Math.max(minSize, 16);
+    minSize = Math.max(minSize, 16);
     // Compute the number which will be passed on to the transposition algorithm
-    newNum = minSize + kbitLength + lambdaParam;
+    int newNum = minSize + kbitLength + lambdaParam;
     // Check if "newNum" is a two power, this is done by checking if all bits,
     // besides the msb, is 0 and only msb is 1
     if ((newNum & (newNum - 1)) != 0) {
