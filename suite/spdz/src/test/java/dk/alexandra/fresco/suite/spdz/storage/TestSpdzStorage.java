@@ -7,14 +7,14 @@ import org.junit.Test;
 
 public class TestSpdzStorage {
 
-  @Test(expected = MPCException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testDataSupplierModNotFound() {
     SpdzStorageDataSupplier supplier =
         new SpdzStorageDataSupplier(new FilebasedStreamedStorageImpl(new InMemoryStorage()), "invalid", 2);
     supplier.getModulus();
   }
 
-  @Test(expected = MPCException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testDataSupplierSskNotFound() {
     SpdzStorageDataSupplier supplier =
         new SpdzStorageDataSupplier(new FilebasedStreamedStorageImpl(new InMemoryStorage()), "invalid", 2);
