@@ -94,8 +94,8 @@ public class TestTripleGeneration extends NetworkedTest {
     FieldElement left = results.get(0).get(0);
     FieldElement right = results.get(1).get(0);
 
-    // (12 + 123) * (11 + 2222) % 65521
-    FieldElement expected = new FieldElement(39371, modulus, modBitLength);
+    // (12 + 123) * (11 + 2222) % 65519
+    FieldElement expected = new FieldElement(39379, modulus, modBitLength);
     FieldElement actual = left.add(right);
     CustomAsserts.assertEquals(expected, actual);
   }

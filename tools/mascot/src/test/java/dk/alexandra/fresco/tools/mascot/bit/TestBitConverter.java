@@ -75,7 +75,7 @@ public class TestBitConverter extends NetworkedTest {
 
     // outputs should be bits
     for (FieldElement actualBit : partyOneOutput) {
-      // compute (1 - b) * b, which is 0 iff b is a bit
+      // compute b * (1 - b), which is 0 iff b is a bit
       FieldElement bitCheck = actualBit
           .multiply(new FieldElement(1, modulus, modBitLength).subtract(actualBit));
       assertEquals("Not a bit " + actualBit, true, bitCheck.isZero());

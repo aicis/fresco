@@ -32,7 +32,10 @@ public class BitConverter extends BaseProtocol {
   }
 
   /**
-   * Converts random authenticated elements to random bits.
+   * Converts random authenticated elements to random authenticated bits. <br> Given random element
+   * [r], applies the following protocol: <br> Compute [r^2]. <br> Open to r^2. <br> Compute
+   * sqrt(r^2). <br> Compute [r] / sqrt(r^2). This is guaranteed to be either -1 or 1. <br> Compute
+   * (1 + [r] / sqrt(r^2)) / 2 to convert -1 to 0 and 1 to 1.
    *
    * @param randomElements random elements to convert
    * @return random bits
@@ -44,13 +47,14 @@ public class BitConverter extends BaseProtocol {
     for (int b = 0; b < randomElements.size(); b++) {
       FieldElement square = openSquares.get(b);
       FieldElement root = square.sqrt();
-      FieldElement inverted = root.modInverse();
       AuthenticatedElement randomElement = randomElements.get(b);
-      AuthenticatedElement oneOrNegativeOne = randomElement.multiply(inverted);
-      FieldElement twoInverted = new FieldElement(2, getModulus(), getModBitLength());
+      AuthenticatedElement oneOrNegativeOne =
+          randomElement.multiply(root.modInverse()); // division
+      FieldElement two =
+          new FieldElement(2, getModulus(), getModBitLength());
       FieldElement one = new FieldElement(1, getModulus(), getModBitLength());
       AuthenticatedElement bit = oneOrNegativeOne.add(one, getMyId(), macKeyShare)
-          .multiply(twoInverted);
+          .multiply(two.modInverse());
       bits.add(bit);
     }
     return bits;
