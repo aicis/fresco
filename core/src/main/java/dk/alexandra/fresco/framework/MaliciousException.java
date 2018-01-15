@@ -2,9 +2,9 @@
 package dk.alexandra.fresco.framework;
 
 /**
- * Runtime exception to be thrown if and only if the code verifies that another party has acted
- * maliciously. Thus this should only be thrown when it is indisputable that a party has acted
- * maliciously.
+ * Runtime exception to be thrown if and only if data received from another party does not follow
+ * the protocol specification. By definition this is considered a malicious act. Data received is
+ * not limited to raw data, but also any kind of local processing of raw data.
  */
 public class MaliciousException extends MPCException {
 
