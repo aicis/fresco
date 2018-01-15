@@ -55,8 +55,6 @@ public class TestOnlinePhase extends NetworkedTest {
   public void testTwoPartiesBatchedMultiply() {
     initContexts(Arrays.asList(1, 2));
 
-    System.out.println(modulus);
-
     // left party mac key share
     FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), modulus, modBitLength);
 
@@ -80,7 +78,6 @@ public class TestOnlinePhase extends NetworkedTest {
         testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
     List<FieldElement> partyOneOutput = results.get(0);
     List<FieldElement> partyTwoOutput = results.get(1);
-    System.out.println(partyOneOutput);
 
     // outputs should be same
     CustomAsserts.assertEquals(partyOneOutput, partyTwoOutput);
