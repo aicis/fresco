@@ -1,9 +1,11 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
@@ -16,10 +18,15 @@ import dk.alexandra.fresco.tools.mascot.field.InputMask;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
+import dk.alexandra.fresco.tools.ot.base.DummyOt;
+import dk.alexandra.fresco.tools.ot.base.NaorPinkasOt;
+import dk.alexandra.fresco.tools.ot.base.Ot;
+import dk.alexandra.fresco.tools.ot.otextension.RotList;
 import java.math.BigInteger;
 import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -110,13 +117,29 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     }
     List<Integer> partyIds =
         IntStream.range(1, numberOfPlayers + 1).boxed().collect(Collectors.toList());
-
     int numLeftFactors = 3;
+    Drbg drbg = new PaddingAesCtrDrbg(randomSeed, prgSeedLength);
     Network network = tripleNetwork.get();
-    mascot = new Mascot(new MascotResourcePoolImpl(myId, partyIds, 1,
-        new PaddingAesCtrDrbg(randomSeed, prgSeedLength), new HashMap<>(), getModulus(),
-        modBitLength,
-        modBitLength, prgSeedLength, numLeftFactors), network, ssk);
+
+    Map<Integer, RotList> seedOts = new HashMap<>();
+    for (Integer otherId : partyIds) {
+      if (!otherId.equals(myId)) {
+        Ot ot = new DummyOt(otherId, network);
+        RotList currentSeedOts = new RotList(drbg, prgSeedLength);
+        if (myId < otherId) {
+          currentSeedOts.send(ot);
+          currentSeedOts.receive(ot);
+        } else {
+          currentSeedOts.receive(ot);
+          currentSeedOts.send(ot);
+        }
+        seedOts.put(otherId, currentSeedOts);
+      }
+    }
+    mascot = new Mascot(
+        new MascotResourcePoolImpl(myId, partyIds, 1, drbg, seedOts, getModulus(),
+            modBitLength,
+            modBitLength, prgSeedLength, numLeftFactors), network, ssk);
   }
 
   @Override
@@ -168,6 +191,16 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       logger.trace("Got another bit batch");
     }
     return new SpdzSInt(MascotFormatConverter.toSpdzElement(randomBits.pop()));
+////    System.out.println(bit);
+//    if (myId == 1) {
+//      return new SpdzSInt(
+//          new SpdzElement(BigInteger.ONE, ssk.getValue(),
+//              modulus));
+//    } else {
+//      return new SpdzSInt(
+//          new SpdzElement(BigInteger.ZERO, ssk.getValue(),
+//              modulus));
+//    }
   }
 
 }
