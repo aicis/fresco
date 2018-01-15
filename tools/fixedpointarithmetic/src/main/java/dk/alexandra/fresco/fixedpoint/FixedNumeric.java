@@ -61,28 +61,26 @@ public class FixedNumeric {
     return () ->  
     new SFixed(numeric.add(a.out().getSInt(), b.out().getSInt()));
   }
-  
+
+  public DRes<SFixed> sub(DRes<SFixed> a, DRes<SFixed> b) {
+    return () -> 
+    new SFixed(numeric.sub(a.out().getSInt(), b.out().getSInt()));
+  }
+
+  public DRes<SFixed> sub(BigDecimal a, DRes<SFixed> b) {
+    a = a.setScale(this.precision, RoundingMode.HALF_UP);
+    DRes<SInt> sint = b.out().getSInt();
+    DRes<SInt> input = numeric.sub(a.unscaledValue(), sint);
+    return () ->  new SFixed(input);
+  }
+
+  public DRes<SFixed> sub(DRes<SFixed> a, BigDecimal b) {
+    b = b.setScale(this.precision, RoundingMode.HALF_UP);
+    DRes<SInt> sint = a.out().getSInt();
+    DRes<SInt> input = numeric.sub(sint, b.unscaledValue());
+    return () ->  new SFixed(input);
+  }
 /*
-  @Override
-  public DRes<SInt> sub(DRes<SInt> a, DRes<SInt> b) {
-    SpdzSubtractProtocol spdzSubtractProtocol = new SpdzSubtractProtocol(a, b);
-    return protocolBuilder.append(spdzSubtractProtocol);
-  }
-
-  @Override
-  public DRes<SInt> sub(BigInteger a, DRes<SInt> b) {
-    SpdzSubtractProtocolKnownLeft spdzSubtractProtocolKnownLeft =
-        new SpdzSubtractProtocolKnownLeft(a, b);
-    return protocolBuilder.append(spdzSubtractProtocolKnownLeft);
-  }
-
-  @Override
-  public DRes<SInt> sub(DRes<SInt> a, BigInteger b) {
-    SpdzSubtractProtocolKnownRight spdzSubtractProtocolKnownRight =
-        new SpdzSubtractProtocolKnownRight(a, b);
-    return protocolBuilder.append(spdzSubtractProtocolKnownRight);
-  }
-
   @Override
   public DRes<SFixed> mult(DRes<SFixed> a, DRes<SFixed> b) {
     SpdzMultProtocol spdzMultProtocol = new SpdzMultProtocol(a, b);

@@ -30,6 +30,25 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(new BasicArithmeticTests.TestAddSecret<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
+  
+  @Test
+  public void test_SubtractSecret() throws Exception {
+    runTest(new BasicArithmeticTests.TestSubtractSecret<>(), EvaluationStrategy.SEQUENTIAL,
+        2);
+  }
+  
+  @Test
+  public void test_SubKnown() throws Exception {
+    runTest(new BasicArithmeticTests.TestSubKnown<>(), EvaluationStrategy.SEQUENTIAL,
+        2);
+  }
+  
+  @Test
+  public void test_SubKnown2() throws Exception {
+    runTest(new BasicArithmeticTests.TestSubKnown2<>(), EvaluationStrategy.SEQUENTIAL,
+        2);
+  }
+  
 /*
   @Test
   public void test_OutputToTarget_Sequential() throws Exception {

@@ -119,4 +119,88 @@ public class BasicArithmeticTests {
     }
   }
 
+  public static class TestSubtractSecret<ResourcePoolT extends ResourcePool>
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigDecimal value = BigDecimal.valueOf(10.00100);
+      BigDecimal value2 = BigDecimal.valueOf(20.1);
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
+            //Numeric numeric = producer.numeric();
+
+            FixedNumeric numeric = new FixedNumeric(producer, 5);
+
+            DRes<SFixed> input = numeric.input(value, 1);
+            DRes<SFixed> input2 = numeric.input(value2, 1);
+            DRes<SFixed> sum = numeric.sub(input, input2);
+
+            return numeric.open(sum);
+          };
+          BigDecimal output = runApplication(app);
+
+          Assert.assertEquals(value.subtract(value2).setScale(5, RoundingMode.HALF_UP), output);
+        }
+      };
+    }
+  }
+  
+  public static class TestSubKnown<ResourcePoolT extends ResourcePool>
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigDecimal value = BigDecimal.valueOf(10.00100);
+      BigDecimal value2 = BigDecimal.valueOf(20.1);
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
+            //Numeric numeric = producer.numeric();
+
+            FixedNumeric numeric = new FixedNumeric(producer, 5);
+
+            DRes<SFixed> input = numeric.input(value, 1);
+            DRes<SFixed> sum = numeric.sub(input, value2);
+
+            return numeric.open(sum);
+          };
+          BigDecimal output = runApplication(app);
+
+          Assert.assertEquals(value.subtract(value2).setScale(5, RoundingMode.HALF_UP), output);
+        }
+      };
+    }
+  }
+  
+  public static class TestSubKnown2<ResourcePoolT extends ResourcePool>
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigDecimal value = BigDecimal.valueOf(10.00100);
+      BigDecimal value2 = BigDecimal.valueOf(20.1);
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
+            //Numeric numeric = producer.numeric();
+
+            FixedNumeric numeric = new FixedNumeric(producer, 5);
+
+            DRes<SFixed> input2 = numeric.input(value2, 1);
+            DRes<SFixed> sum = numeric.sub(value, input2);
+
+            return numeric.open(sum);
+          };
+          BigDecimal output = runApplication(app);
+
+          Assert.assertEquals(value.subtract(value2).setScale(5, RoundingMode.HALF_UP), output);
+        }
+      };
+    }
+  }
 }
