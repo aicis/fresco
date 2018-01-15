@@ -251,12 +251,12 @@ public class AsyncNetwork implements Network, Closeable {
     } else {
       this.senderServices.get(partyId).submit(() -> {
         ExceptionConverter.safe(() -> {
-          ByteBuffer buf = ByteBuffer.allocate(4).putInt(data.length);
+          ByteBuffer buf = ByteBuffer.allocate(4+data.length);
+          //set length
+          buf.putInt(data.length);
+          //set data
+          buf.put(data);
           buf.position(0);
-          while (buf.hasRemaining()) {
-            this.clients.get(partyId).write(buf);
-          }
-          buf = ByteBuffer.wrap(data);
           while (buf.hasRemaining()) {
             this.clients.get(partyId).write(buf);
           }
