@@ -1,13 +1,5 @@
 package dk.alexandra.fresco.framework.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.List;
 import java.util.Random;
 
@@ -103,55 +95,6 @@ public class ByteArrayHelper {
   public static void shiftArray(byte[] input, byte[] output, int positions) {
     for (int i = 0; i < input.length * 8; i++) {
       setBit(output, positions + i, getBit(input, i));
-    }
-  }
-
-
-  /**
-   * Serialize a serializable value.
-   *
-   * @param val The value to serialize
-   * @return The serialized value
-   */
-  @Deprecated
-  public static byte[] serialize(Serializable val) {
-    ByteArrayOutputStream bos = null;
-    try {
-      bos = new ByteArrayOutputStream();
-      ObjectOutput out = new ObjectOutputStream(bos);
-      out.writeObject(val);
-      out.flush();
-      return bos.toByteArray();
-    } catch (IOException e) {
-      throw new RuntimeException("Could not serialize the object.", e);
-    } finally {
-      try {
-        bos.close();
-      } catch (IOException e) {
-        throw new RuntimeException("Cloud not close the stream.", e);
-      }
-    }
-  }
-
-  /**
-   * Deserialize a serializable value.
-   *
-   * @param val The value to deserialize
-   * @return The deserialized object
-   */
-  @Deprecated
-  public static Serializable deserialize(byte[] val) {
-    try {
-      ByteArrayInputStream bis = null;
-      ObjectInput in = null;
-      bis = new ByteArrayInputStream(val);
-      in = new ObjectInputStream(bis);
-      Serializable obj = (Serializable) in.readObject();
-      bis.close();
-      in.close();
-      return obj;
-    } catch (Exception e) {
-      throw new RuntimeException(e);
     }
   }
 
