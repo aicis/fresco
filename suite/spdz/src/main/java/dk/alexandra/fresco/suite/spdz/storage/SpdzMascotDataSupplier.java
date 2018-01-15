@@ -1,6 +1,8 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
+import com.sun.org.apache.xpath.internal.operations.Mod;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
@@ -52,27 +54,24 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   private ArrayDeque<AuthenticatedElement> randomBits;
   private int modBitLength;
   private int batchSize;
-  private byte[] randomSeed;
+  private Drbg drbg;
+  private Map<Integer, RotList> seedOts;
 
   public static SpdzMascotDataSupplier createSimpleSupplier(int myId, int numberOfPlayers,
       Supplier<Network> tripleNetwork, int modBitLength,
-      Function<Integer, SpdzSInt[]> preprocessedValues) {
+      Function<Integer, SpdzSInt[]> preprocessedValues,
+      Map<Integer, RotList> seedOts, Drbg drbg) {
+    BigInteger modulus = ModulusFinder.findSuitableModulus(modBitLength);
+    int prgSeedLength = 256;
     return new SpdzMascotDataSupplier(myId, numberOfPlayers, tripleNetwork,
-        ModulusFinder.findSuitableModulus(modBitLength), modBitLength, preprocessedValues, 256,
-        16);
-  }
-
-  private SpdzMascotDataSupplier(int myId, int numberOfPlayers, Supplier<Network> tripleNetwork,
-      BigInteger modulus, int maxBitLength, Function<Integer, SpdzSInt[]> preprocessedValues,
-      int prgSeedLength, int batchSize) {
-    this(myId, numberOfPlayers, tripleNetwork, modulus, maxBitLength, preprocessedValues,
-        prgSeedLength, batchSize, createRandomSsk(myId, modulus, maxBitLength, prgSeedLength),
-        new byte[]{7, 127, -1});
+        modulus, modBitLength, preprocessedValues, prgSeedLength,
+        16, createRandomSsk(myId, modulus, modBitLength, prgSeedLength), seedOts, drbg);
   }
 
   public SpdzMascotDataSupplier(int myId, int numberOfPlayers, Supplier<Network> tripleNetwork,
       BigInteger modulus, int modBitLength, Function<Integer, SpdzSInt[]> preprocessedValues,
-      int prgSeedLength, int batchSize, FieldElement ssk, byte[] randomSeed) {
+      int prgSeedLength, int batchSize, FieldElement ssk, Map<Integer, RotList> seedOts,
+      Drbg drbg) {
     this.myId = myId;
     this.numberOfPlayers = numberOfPlayers;
     this.tripleNetwork = tripleNetwork;
@@ -86,7 +85,8 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     this.modBitLength = modBitLength;
     this.batchSize = batchSize;
     this.ssk = ssk;
-    this.randomSeed = randomSeed;
+    this.seedOts = seedOts;
+    this.drbg = drbg;
   }
 
   static FieldElement createRandomSsk(int myId, BigInteger modulus, int modBitLength,
@@ -118,28 +118,10 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     List<Integer> partyIds =
         IntStream.range(1, numberOfPlayers + 1).boxed().collect(Collectors.toList());
     int numLeftFactors = 3;
-    Drbg drbg = new PaddingAesCtrDrbg(randomSeed, prgSeedLength);
-    Network network = tripleNetwork.get();
-
-    Map<Integer, RotList> seedOts = new HashMap<>();
-    for (Integer otherId : partyIds) {
-      if (myId != otherId) {
-        Ot ot = new DummyOt(otherId, network);
-        RotList currentSeedOts = new RotList(drbg, prgSeedLength);
-        if (myId < otherId) {
-          currentSeedOts.send(ot);
-          currentSeedOts.receive(ot);
-        } else {
-          currentSeedOts.receive(ot);
-          currentSeedOts.send(ot);
-        }
-        seedOts.put(otherId, currentSeedOts);
-      }
-    }
     mascot = new Mascot(
         new MascotResourcePoolImpl(myId, partyIds, 1, drbg, seedOts, getModulus(),
             modBitLength,
-            modBitLength, prgSeedLength, numLeftFactors), network, ssk);
+            modBitLength, prgSeedLength, numLeftFactors), tripleNetwork.get(), ssk);
   }
 
   @Override
