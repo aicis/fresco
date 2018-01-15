@@ -119,7 +119,6 @@ public class FunctionalTestOtExtension {
     List<StrictBitVector> receiverResults = (List<StrictBitVector>) extendResults
         .get(1);
     TestHelper.verifyOts(senderResults, receiverResults, choices);
-
   }
 
   private List<Pair<StrictBitVector, StrictBitVector>> extendRotSender(

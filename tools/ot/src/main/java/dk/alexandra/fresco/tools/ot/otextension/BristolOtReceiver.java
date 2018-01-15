@@ -42,15 +42,6 @@ public class BristolOtReceiver extends BristolOtShared {
     this.receiver = rotReceiver;
   }
 
-  // /**
-  // * Initializes the underlying random OT functionality.
-  // */
-  // @Override
-  // public void initialize() {
-  // receiver.initialize();
-  // super.initialize();
-  // }
-
   /**
    * Receive the serialized message from the current 1-out-of-2 OT.
    *
@@ -59,10 +50,6 @@ public class BristolOtReceiver extends BristolOtShared {
    * @return The serialized message from the OT
    */
   public byte[] receive(Boolean choiceBit) {
-    // // Initialize the underlying functionalities if needed
-    // if (!isInitialized()) {
-    // initialize();
-    // }
     // Check if there is still an unused random OT stored, if not, execute a
     // random OT extension
     if (offset < 0 || offset >= getBatchSize()) {

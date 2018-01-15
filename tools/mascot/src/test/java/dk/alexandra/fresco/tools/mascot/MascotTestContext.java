@@ -17,7 +17,6 @@ import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
 import java.math.BigInteger;
 import java.security.MessageDigest;
-import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,10 +42,18 @@ public class MascotTestContext {
     Drbg drbg = new PaddingAesCtrDrbg(drbgSeed, prgSeedLength);
     Map<Integer, RotList> seedOts = new HashMap<>();
     for (Integer otherId : partyIds) {
+      if (myId == otherId) {
+        continue;
+      }
       Ot ot = new DummyOt(otherId, network);
       RotList currentSeedOts = new RotList(drbg, prgSeedLength);
-      currentSeedOts.send(ot);
-      currentSeedOts.receive(ot);
+      if (myId < otherId) {
+        currentSeedOts.send(ot);
+        currentSeedOts.receive(ot);
+      } else {
+        currentSeedOts.receive(ot);
+        currentSeedOts.send(ot);
+      }
       seedOts.put(otherId, currentSeedOts);
     }
     this.resourcePool = new MascotResourcePoolImpl(myId, partyIds,

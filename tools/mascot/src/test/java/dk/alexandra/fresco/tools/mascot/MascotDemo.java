@@ -10,7 +10,6 @@ import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
-import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.NaorPinkasOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
@@ -81,8 +80,13 @@ public class MascotDemo {
       if (!otherId.equals(myId)) {
         Ot ot = new NaorPinkasOt(myId, otherId, drbg, network);
         RotList currentSeedOts = new RotList(drbg, prgSeedLength);
-        currentSeedOts.send(ot);
-        currentSeedOts.receive(ot);
+        if (myId < otherId) {
+          currentSeedOts.send(ot);
+          currentSeedOts.receive(ot);
+        } else {
+          currentSeedOts.receive(ot);
+          currentSeedOts.send(ot);
+        }
         seedOts.put(otherId, currentSeedOts);
       }
     }
