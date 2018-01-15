@@ -58,9 +58,8 @@ public class TestNaorPinkasOt {
           + "67731166272088057888135437754886129005590419051");
 
   /**
-   * Construct a NaorPinkasOt instance based on some static Diffie-Hellman
-   * parameters
-   * 
+   * Construct a NaorPinkasOt instance based on some static Diffie-Hellman parameters.
+   *
    * @throws NoSuchAlgorithmException
    *           The internal randomness generator does not exist.
    * @throws SecurityException

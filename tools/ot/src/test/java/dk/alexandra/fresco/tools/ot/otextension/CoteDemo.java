@@ -11,8 +11,6 @@ import java.util.List;
  * Demo class to execute a light instance of the correlated OT extension with
  * errors.
  *
- * @author jot2re
- *
  * @param <ResourcePoolT>
  *          The FRESCO resource pool used for the execution
  */

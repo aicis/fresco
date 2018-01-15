@@ -7,9 +7,6 @@ import dk.alexandra.fresco.framework.network.KryoNetNetwork;
  * Wrapper class used for testing to ensure that proper checked exceptions are
  * thrown if a party is trying to cheat. This class intercepts messages send
  * over the network and flips a bit when asked to.
- * 
- * @author jot2re
- *
  */
 public class CheatingNetwork extends KryoNetNetwork {
   private int cheatByteNo;

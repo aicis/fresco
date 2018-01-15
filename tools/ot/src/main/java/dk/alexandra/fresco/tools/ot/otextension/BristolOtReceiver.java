@@ -14,9 +14,6 @@ import java.util.List;
  * command is called and storing these results internally. When it runs out, it
  * automatically processes a new batch. These random OTs are adjusted to work as
  * chosen bit/message 1-out-of-2 OTs.
- *
- * @author jot2re
- *
  */
 public class BristolOtReceiver extends BristolOtShared {
   // The internal random OT receiver functionality used

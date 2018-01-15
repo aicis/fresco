@@ -4,8 +4,6 @@ import dk.alexandra.fresco.framework.network.Network;
 
 /**
  * Container class for a protocol instance of correlated OT extension with errors.
- * @author jot2re
- *
  */
 public class Cote {
   private CoteSender sender = null;

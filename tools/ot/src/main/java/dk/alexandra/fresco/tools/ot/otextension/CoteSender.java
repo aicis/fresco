@@ -10,9 +10,6 @@ import java.util.List;
 /**
  * Protocol class for the party acting as the sender in an correlated OT with
  * errors extension.
- *
- * @author jot2re
- *
  */
 public class CoteSender extends CoteShared {
   // The prgs based on the seeds learned from OT

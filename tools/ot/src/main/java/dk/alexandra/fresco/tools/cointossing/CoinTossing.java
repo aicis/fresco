@@ -19,8 +19,6 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
  * the seeds and uses this as input to a PRG generating an arbitrary long,
  * common string.
  *
- * @author jot2re
- *
  */
 public class CoinTossing {
   private final int otherId;

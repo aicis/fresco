@@ -11,9 +11,6 @@ import java.util.List;
 /**
  * Protocol class for the party acting as the receiver in an correlated OT with
  * errors extension.
- *
- * @author jot2re
- *
  */
 public class CoteReceiver extends CoteShared {
   private final List<Pair<Drbg, Drbg>> prgs;

@@ -8,9 +8,6 @@ import java.util.List;
 /**
  * Protocol class for the party acting as the receiver in an random OT extension
  * following the Bristol 2015 OT extension.
- *
- * @author jot2re
- *
  */
 public class RotReceiver extends RotShared {
   private final CoteReceiver receiver;

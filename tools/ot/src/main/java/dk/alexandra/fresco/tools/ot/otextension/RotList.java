@@ -14,9 +14,6 @@ import java.util.List;
  * <br/>
  * Notice that an instance of this class is only meant to contain a single and static list of OTs.
  * Thus a new instance must be made if one wishes to construct a list of new and random OTs.
- *
- * @author jot2re
- *
  */
 public class RotList {
   private final int amount;

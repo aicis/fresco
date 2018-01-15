@@ -7,8 +7,6 @@ import java.util.List;
 /**
  * Complete a batch of 1-out-of-2 random OTs, where the receiver gets to pick
  * its choice bits.
- *
- * @author jot2re
  */
 public interface RotBatch {
 

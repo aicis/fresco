@@ -6,9 +6,6 @@ import dk.alexandra.fresco.tools.ot.base.Ot;
 
 /**
  * Container class for a protocol instance of Bristol OTs.
- *
- * @author jot2re
- *
  */
 public class BristolOt implements Ot {
   private BristolOtSender sender = null;

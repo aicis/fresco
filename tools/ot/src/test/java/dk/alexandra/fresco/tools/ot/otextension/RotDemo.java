@@ -11,8 +11,6 @@ import java.util.List;
 /**
  * Demo class for execute a light instance of random OT extension.
  *
- * @author jot2re
- *
  * @param <ResourcePoolT>
  *          The FRESCO resource pool used for the execution
  */

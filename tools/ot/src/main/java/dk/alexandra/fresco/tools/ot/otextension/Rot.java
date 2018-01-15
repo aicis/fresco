@@ -4,9 +4,6 @@ import dk.alexandra.fresco.framework.network.Network;
 
 /**
  * Container class for a protocol instance of random OT extension.
- *
- * @author jot2re
- *
  */
 public class Rot {
   private RotSender sender = null;

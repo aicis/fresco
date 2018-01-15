@@ -21,9 +21,6 @@ import javax.crypto.spec.DHParameterSpec;
 
 /**
  * Implementation of the Naor-Pinkas OT.
- * 
- * @author jot2re
- *
  */
 public class NaorPinkasOt implements Ot {
   private final int myId;

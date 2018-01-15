@@ -12,9 +12,6 @@ import java.util.List;
 /**
  * Superclass containing the common variables and methods for the sender and
  * receiver parties of random OT extension.
- *
- * @author jot2re
- *
  */
 public class RotShared {
   private final CoteShared cote;

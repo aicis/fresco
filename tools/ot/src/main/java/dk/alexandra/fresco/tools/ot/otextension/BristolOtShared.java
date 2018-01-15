@@ -6,9 +6,6 @@ import dk.alexandra.fresco.framework.util.Drbg;
 /**
  * Superclass containing the common variables and methods for the sender and
  * receiver parties of a Bristol OT extension.
- *
- * @author jot2re
- *
  */
 public class BristolOtShared {
   private final RotShared rot;

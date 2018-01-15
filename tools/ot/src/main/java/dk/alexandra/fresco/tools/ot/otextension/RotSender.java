@@ -10,9 +10,6 @@ import java.util.List;
 
 /**
  * Protocol class for the party acting as the sender in a random OT extension.
- *
- * @author jot2re
- *
  */
 public class RotSender extends RotShared {
   // The correlated OT with errors sender that this object will use

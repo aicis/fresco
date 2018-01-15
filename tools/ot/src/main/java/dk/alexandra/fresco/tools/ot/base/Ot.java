@@ -4,9 +4,6 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 
 /**
  * Oblivious Transfer interface.
- * 
- * @author jot2re
- *
  */
 public interface Ot {
 

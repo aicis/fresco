@@ -6,9 +6,6 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 /**
  * Implementation for testing and proof-of-concept protocols. This class carries
  * out an INSECURE OT.
- * 
- * @author jot2re
- *
  */
 public class DummyOt implements Ot {
 

@@ -12,9 +12,6 @@ import java.security.MessageDigest;
 /**
  * Superclass containing the common variables and methods for the sender and
  * receiver parties of correlated OT with errors.
- *
- * @author jot2re
- *
  */
 public class CoteShared {
   private final OtExtensionResourcePool resources;
