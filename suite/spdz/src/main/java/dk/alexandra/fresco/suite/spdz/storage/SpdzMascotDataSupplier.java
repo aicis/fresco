@@ -191,16 +191,6 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       logger.trace("Got another bit batch");
     }
     return new SpdzSInt(MascotFormatConverter.toSpdzElement(randomBits.pop()));
-////    System.out.println(bit);
-//    if (myId == 1) {
-//      return new SpdzSInt(
-//          new SpdzElement(BigInteger.ONE, ssk.getValue(),
-//              modulus));
-//    } else {
-//      return new SpdzSInt(
-//          new SpdzElement(BigInteger.ZERO, ssk.getValue(),
-//              modulus));
-//    }
   }
 
 }
