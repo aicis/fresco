@@ -42,7 +42,7 @@ public class MascotTestContext {
     Drbg drbg = new PaddingAesCtrDrbg(drbgSeed, prgSeedLength);
     Map<Integer, RotList> seedOts = new HashMap<>();
     for (Integer otherId : partyIds) {
-      if (myId == otherId) {
+      if (otherId.equals(myId)) {
         continue;
       }
       Ot ot = new DummyOt(otherId, network);
