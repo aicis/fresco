@@ -100,7 +100,7 @@ public class BristolCircuitParser implements
 
     if ("XOR".equals(type)) {
       if (in.length != 2 || out.length != 1) {
-        throw new IOException("Wrong circuit format for XOR");
+        throw new IllegalArgumentException("Wrong circuit format for XOR");
       }
       DRes<SBool> leftInWireXor = wires.get(in[0]);
       DRes<SBool> rightInWireXor = wires.get(in[1]);
@@ -120,7 +120,7 @@ public class BristolCircuitParser implements
 
     } else if ("AND".equals(type)) {
       if (in.length != 2 || out.length != 1) {
-        throw new IOException("Wrong circuit format for AND");
+        throw new IllegalArgumentException("Wrong circuit format for AND");
       }
       DRes<SBool> leftInWireAnd = wires.get(in[0]);
       DRes<SBool> rightInWireAnd = wires.get(in[1]);
