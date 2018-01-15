@@ -42,9 +42,17 @@ public class TripleGeneration extends BaseProtocol {
     this.rightMultipliers = new HashMap<>();
     for (Integer partyId : getPartyIds()) {
       if (!partyId.equals(getMyId())) {
-        rightMultipliers.put(partyId, new MultiplyRight(resourcePool, network,
-            partyId));
-        leftMultipliers.put(partyId, new MultiplyLeft(resourcePool, network, partyId));
+        if (getMyId() < partyId) {
+          rightMultipliers.put(partyId, new MultiplyRight(resourcePool, network,
+              partyId));
+          leftMultipliers.put(partyId, new MultiplyLeft(resourcePool, network,
+              partyId));
+        } else {
+          leftMultipliers.put(partyId, new MultiplyLeft(resourcePool, network,
+              partyId));
+          rightMultipliers.put(partyId, new MultiplyRight(resourcePool, network,
+              partyId));
+        }
       }
     }
     this.elementGeneration = elementGeneration;
