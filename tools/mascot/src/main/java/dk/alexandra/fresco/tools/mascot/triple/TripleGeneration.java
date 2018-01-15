@@ -41,7 +41,7 @@ public class TripleGeneration extends BaseProtocol {
     this.leftMultipliers = new HashMap<>();
     this.rightMultipliers = new HashMap<>();
     for (Integer partyId : getPartyIds()) {
-      if (!partyId.equals(getMyId())) {
+      if (partyId != getMyId()) {
         if (getMyId() < partyId) {
           rightMultipliers.put(partyId, new MultiplyRight(resourcePool, network,
               partyId));
