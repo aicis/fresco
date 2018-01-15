@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.tools.mascot;
 
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
@@ -33,7 +34,7 @@ public abstract class NetworkedTest {
   }
 
   public NetworkedTest() {
-    this(new BigInteger("65521"), 16, 16, 3, 256);
+    this(ModulusFinder.findSuitableModulus(16), 16, 16, 3, 256);
   }
 
   public void initContexts(List<Integer> partyIds) {

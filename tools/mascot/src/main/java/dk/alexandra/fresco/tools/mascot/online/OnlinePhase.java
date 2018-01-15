@@ -43,6 +43,7 @@ public class OnlinePhase extends BaseProtocol {
   public List<AuthenticatedElement> multiply(List<AuthenticatedElement> leftFactors,
       List<AuthenticatedElement> rightFactors) {
     List<MultTriple> triples = tripleGeneration.triple(leftFactors.size());
+    System.out.println(triples);
     List<AuthenticatedElement> epsilons = new ArrayList<>(leftFactors.size());
     List<AuthenticatedElement> deltas = new ArrayList<>(leftFactors.size());
     for (int i = 0; i < leftFactors.size(); i++) {

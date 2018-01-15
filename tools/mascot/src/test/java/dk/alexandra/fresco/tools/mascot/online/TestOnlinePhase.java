@@ -30,9 +30,11 @@ public class TestOnlinePhase extends NetworkedTest {
     FieldElementPrg prg = getJointPrg(ctx.getPrgSeedLength());
     ElementGeneration elementGeneration = new ElementGeneration(ctx.getResourcePool(),
         ctx.getNetwork(), macKeyShare, prg);
-    TripleGeneration tripleGen = new TripleGeneration(ctx.getResourcePool(), ctx.getNetwork(),
+    TripleGeneration tripleGeneration = new TripleGeneration(ctx.getResourcePool(),
+        ctx.getNetwork(),
         elementGeneration, prg);
-    OnlinePhase onlinePhase = new OnlinePhase(ctx.getResourcePool(), ctx.getNetwork(), tripleGen,
+    OnlinePhase onlinePhase = new OnlinePhase(ctx.getResourcePool(), ctx.getNetwork(),
+        tripleGeneration,
         elementGeneration, macKeyShare);
     List<AuthenticatedElement> partyOneInputs;
     List<AuthenticatedElement> partyTwoInputs;
@@ -53,6 +55,8 @@ public class TestOnlinePhase extends NetworkedTest {
   public void testTwoPartiesBatchedMultiply() {
     initContexts(Arrays.asList(1, 2));
 
+    System.out.println(modulus);
+
     // left party mac key share
     FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), modulus, modBitLength);
 
@@ -64,7 +68,7 @@ public class TestOnlinePhase extends NetworkedTest {
         MascotTestUtils.generateSingleRow(new int[]{12, 11, 1, 2}, modulus, modBitLength);
     // party two inputs
     List<FieldElement> partyTwoInputs =
-        MascotTestUtils.generateSingleRow(new int[]{0, 3, 221, 65520}, modulus, modBitLength);
+        MascotTestUtils.generateSingleRow(new int[]{0, 3, 221, 65518}, modulus, modBitLength);
 
     // define task each party will run
     Callable<List<FieldElement>> partyOneTask =
@@ -76,13 +80,14 @@ public class TestOnlinePhase extends NetworkedTest {
         testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
     List<FieldElement> partyOneOutput = results.get(0);
     List<FieldElement> partyTwoOutput = results.get(1);
+    System.out.println(partyOneOutput);
 
     // outputs should be same
     CustomAsserts.assertEquals(partyOneOutput, partyTwoOutput);
 
     // outputs should be correct products
     List<FieldElement> expected = MascotTestUtils
-        .generateSingleRow(new int[]{0, 33, 221, 65519}, modulus, modBitLength);
+        .generateSingleRow(new int[]{0, 33, 221, 65517}, modulus, modBitLength);
     CustomAsserts.assertEquals(expected, partyOneOutput);
   }
 
