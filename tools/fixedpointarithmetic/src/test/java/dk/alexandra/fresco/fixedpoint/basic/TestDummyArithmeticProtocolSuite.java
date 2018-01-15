@@ -2,19 +2,32 @@ package dk.alexandra.fresco.fixedpoint.basic;
 
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.suite.dummy.arithmetic.AbstractDummyArithmeticTest;
-import java.math.BigInteger;
 import org.junit.Test;
 
 
 public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTest {
-  private final BigInteger defaultMod = new BigInteger(
-      "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
-
-
 
   @Test
   public void test_Input_Sequential() throws Exception {
     runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL,
+        2);
+  }
+
+  @Test
+  public void test_Known() throws Exception {
+    runTest(new BasicArithmeticTests.TestKnown<>(), EvaluationStrategy.SEQUENTIAL,
+        2);
+  }
+  
+  @Test
+  public void test_AddKnown() throws Exception {
+    runTest(new BasicArithmeticTests.TestAddKnown<>(), EvaluationStrategy.SEQUENTIAL,
+        2);
+  }
+  
+  @Test
+  public void test_AddSecret() throws Exception {
+    runTest(new BasicArithmeticTests.TestAddSecret<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
 /*
