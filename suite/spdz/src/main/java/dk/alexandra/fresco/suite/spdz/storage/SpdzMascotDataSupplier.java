@@ -123,7 +123,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
 
     Map<Integer, RotList> seedOts = new HashMap<>();
     for (Integer otherId : partyIds) {
-      if (!otherId.equals(myId)) {
+      if (myId != otherId) {
         Ot ot = new DummyOt(otherId, network);
         RotList currentSeedOts = new RotList(drbg, prgSeedLength);
         if (myId < otherId) {

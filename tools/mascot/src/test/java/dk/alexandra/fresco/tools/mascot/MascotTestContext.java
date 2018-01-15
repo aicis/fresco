@@ -42,19 +42,18 @@ public class MascotTestContext {
     Drbg drbg = new PaddingAesCtrDrbg(drbgSeed, prgSeedLength);
     Map<Integer, RotList> seedOts = new HashMap<>();
     for (Integer otherId : partyIds) {
-      if (otherId.equals(myId)) {
-        continue;
+      if (myId != otherId) {
+        Ot ot = new DummyOt(otherId, network);
+        RotList currentSeedOts = new RotList(drbg, prgSeedLength);
+        if (myId < otherId) {
+          currentSeedOts.send(ot);
+          currentSeedOts.receive(ot);
+        } else {
+          currentSeedOts.receive(ot);
+          currentSeedOts.send(ot);
+        }
+        seedOts.put(otherId, currentSeedOts);
       }
-      Ot ot = new DummyOt(otherId, network);
-      RotList currentSeedOts = new RotList(drbg, prgSeedLength);
-      if (myId < otherId) {
-        currentSeedOts.send(ot);
-        currentSeedOts.receive(ot);
-      } else {
-        currentSeedOts.receive(ot);
-        currentSeedOts.send(ot);
-      }
-      seedOts.put(otherId, currentSeedOts);
     }
     this.resourcePool = new MascotResourcePoolImpl(myId, partyIds,
         instanceId, drbg, seedOts, modulus,
