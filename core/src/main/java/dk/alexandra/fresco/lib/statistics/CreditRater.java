@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.Comparison;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
@@ -25,12 +24,11 @@ public class CreditRater implements
   private List<List<DRes<SInt>>> intervalScores;
 
   /**
-   * @throws MPCException if the intervals, values and intervalScores does not have the same length
+   * @throws IllegalArgumentException if the intervals, values and intervalScores does not have the same length
    */
   public CreditRater(
       List<DRes<SInt>> values, List<List<DRes<SInt>>> intervals,
-      List<List<DRes<SInt>>> intervalScores)
-      throws MPCException {
+      List<List<DRes<SInt>>> intervalScores){
     this.values = values;
     this.intervals = intervals;
     this.intervalScores = intervalScores;

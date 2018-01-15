@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
@@ -55,7 +54,7 @@ public class TestStorage extends AbstractSpdzTest {
     }
   }
 
-  @Test(expected = MPCException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testMissingTriple() throws Throwable {
     int noOfThreads = 1;
     try {
@@ -66,11 +65,12 @@ public class TestStorage extends AbstractSpdzTest {
     } catch (Exception e) {
       throw e.getCause().getCause();
     } finally {
-      InitializeStorage.cleanup();
+// TODO Make this work on windows
+//      InitializeStorage.cleanup();
     }
   }
 
-  @Test(expected = MPCException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testMissingInput() throws Throwable {
     int noOfThreads = 1;
     try {
@@ -81,11 +81,12 @@ public class TestStorage extends AbstractSpdzTest {
     } catch (Exception e) {
       throw e.getCause().getCause();
     } finally {
-      InitializeStorage.cleanup();
+// TODO Make this work on windows
+//      InitializeStorage.cleanup();
     }
   }
 
-  @Test(expected = MPCException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testMissingBit() throws Throwable {
     int noOfThreads = 1;
     try {
@@ -96,11 +97,12 @@ public class TestStorage extends AbstractSpdzTest {
     } catch (Exception e) {
       throw e.getCause().getCause();
     } finally {
-      InitializeStorage.cleanup();
+// TODO Make this work on windows
+//      InitializeStorage.cleanup();
     }
   }
 
-  @Test(expected = MPCException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testMissingExpPipe() throws Throwable {
     int noOfThreads = 1;
     try {
@@ -111,7 +113,8 @@ public class TestStorage extends AbstractSpdzTest {
     } catch (Exception e) {
       throw e.getCause().getCause();
     } finally {
-      InitializeStorage.cleanup();
+// TODO Make this work on windows
+//      InitializeStorage.cleanup();
     }
   }
 }

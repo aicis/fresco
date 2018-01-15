@@ -2,7 +2,6 @@ package dk.alexandra.fresco.network;
 
 import static org.junit.Assert.assertTrue;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -214,7 +213,7 @@ public class TestScapiNetwork {
                   boolean exception = false;
                   try {
                     network.send(4, data);
-                  } catch (MPCException e) {
+                  } catch (IllegalArgumentException e) {
                     exception = true;
                   }
                   assertTrue(exception);

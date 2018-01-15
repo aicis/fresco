@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import org.junit.Test;
