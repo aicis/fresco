@@ -43,7 +43,6 @@ public class OnlinePhase extends BaseProtocol {
   public List<AuthenticatedElement> multiply(List<AuthenticatedElement> leftFactors,
       List<AuthenticatedElement> rightFactors) {
     List<MultTriple> triples = tripleGeneration.triple(leftFactors.size());
-    System.out.println(triples);
     List<AuthenticatedElement> epsilons = new ArrayList<>(leftFactors.size());
     List<AuthenticatedElement> deltas = new ArrayList<>(leftFactors.size());
     for (int i = 0; i < leftFactors.size(); i++) {
@@ -58,14 +57,15 @@ public class OnlinePhase extends BaseProtocol {
     List<FieldElement> openDeltas = elementGeneration.open(deltas);
     List<AuthenticatedElement> products = new ArrayList<>(leftFactors.size());
     for (int i = 0; i < leftFactors.size(); i++) {
-      AuthenticatedElement left = leftFactors.get(i);
-      AuthenticatedElement right = rightFactors.get(i);
+      MultTriple triple = triples.get(i);
+      AuthenticatedElement left = triple.getLeft();
+      AuthenticatedElement right = triple.getRight();
       FieldElement epsilon = openEpsilons.get(i);
       FieldElement delta = openDeltas.get(i);
       FieldElement epsilonDeltaProd = epsilon.multiply(delta);
-      // [c] + [a] * epsilon + [b] * delta + epsilon * delta
-      AuthenticatedElement product = triples.get(i).getProduct().add(left.multiply(epsilon))
-          .add(right.multiply(delta)).add(epsilonDeltaProd, getMyId(), macKeyShare);
+      // [c] + epsilon * [b] + delta * [a] + epsilon * delta
+      AuthenticatedElement product = triple.getProduct().add(right.multiply(epsilon))
+          .add(left.multiply(delta)).add(epsilonDeltaProd, getMyId(), macKeyShare);
       products.add(product);
     }
     return products;
