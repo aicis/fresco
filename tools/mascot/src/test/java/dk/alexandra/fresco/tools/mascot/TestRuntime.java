@@ -34,7 +34,7 @@ public class TestRuntime {
     this.contexts = new HashMap<>();
     this.executor = null;
     this.executorInitialized = false;
-    this.timeout = 1000L;
+    this.timeout = 2000L;
   }
 
   /**

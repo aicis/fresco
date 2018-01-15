@@ -7,7 +7,7 @@ import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
-import dk.alexandra.fresco.tools.helper.Constants;
+import dk.alexandra.fresco.tools.helper.TestHelper;
 
 import java.lang.reflect.Field;
 import org.junit.Before;
@@ -25,7 +25,7 @@ public class TestCote {
   @Before
   public void setup() throws NoSuchFieldException, SecurityException,
       IllegalArgumentException, IllegalAccessException {
-    rand = new AesCtrDrbg(Constants.seedOne);
+    rand = new AesCtrDrbg(TestHelper.seedOne);
     // fake network
     network = new Network() {
       @Override
