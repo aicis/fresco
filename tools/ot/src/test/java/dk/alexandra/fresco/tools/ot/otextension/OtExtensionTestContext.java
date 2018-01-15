@@ -40,8 +40,13 @@ public class OtExtensionTestContext {
     DummyOt dummyOt = new DummyOt(otherId, network);
     Drbg rand = new AesCtrDrbg(TestHelper.seedOne);
     this.seedOts = new RotList(rand, kbitLength);
-    this.seedOts.send(dummyOt);
-    this.seedOts.receive(dummyOt);
+    if (myId < otherId) {
+      this.seedOts.send(dummyOt);
+      this.seedOts.receive(dummyOt);
+    } else {
+      this.seedOts.receive(dummyOt);
+      this.seedOts.send(dummyOt);
+    }
     this.myId = myId;
     this.otherId = otherId;
     this.kbitLength = kbitLength;

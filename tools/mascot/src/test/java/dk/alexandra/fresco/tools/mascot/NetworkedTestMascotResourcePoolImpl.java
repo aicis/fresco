@@ -3,14 +3,12 @@ package dk.alexandra.fresco.tools.mascot;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
 import java.math.BigInteger;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +21,13 @@ public class NetworkedTestMascotResourcePoolImpl extends NetworkedTest {
     Map<Integer, RotList> seedOtsMap = new HashMap<>();
     Ot ot = new DummyOt(otherId, ctx.getNetwork());
     RotList seedOts = new RotList(new AesCtrDrbg(new byte[32]), 8);
-    seedOts.send(ot);
-    seedOts.receive(ot);
+    if (ctx.getMyId() < otherId) {
+      seedOts.send(ot);
+      seedOts.receive(ot);
+    } else {
+      seedOts.receive(ot);
+      seedOts.send(ot);
+    }
     seedOtsMap.put(otherId, seedOts);
     MascotResourcePool resourcePool = new MascotResourcePoolImpl(ctx.getMyId(), ctx.getPartyIds(),
         1, new AesCtrDrbg(new byte[32]), seedOtsMap, new BigInteger(
