@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.tinytables.online.protocols;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.BooleanSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
@@ -53,7 +52,7 @@ public class TinyTablesANDProtocol extends TinyTablesProtocol<SBool> {
       case 0:
         TinyTable tinyTable = ps.getStorage().getTinyTable(id);
         if (tinyTable == null) {
-          throw new MPCException("Unable to find TinyTable for gate with id " + id);
+          throw new IllegalArgumentException("Unable to find TinyTable for gate with id " + id);
         }
         TinyTablesElement myShare = tinyTable.getValue(((TinyTablesSBool) inLeft.out()).getValue(),
             ((TinyTablesSBool) inRight.out()).getValue());
@@ -71,7 +70,7 @@ public class TinyTablesANDProtocol extends TinyTablesProtocol<SBool> {
         this.out.setValue(new TinyTablesElement(open));
         return EvaluationStatus.IS_DONE;
       default:
-        throw new MPCException("Cannot evaluate rounds larger than 0");
+        throw new IllegalStateException("Cannot evaluate rounds larger than 0");
     }
   }
 

@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.tinytables.prepro.protocols;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -81,7 +80,7 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol<SBool>
         return EvaluationStatus.IS_DONE;
 
       default:
-        throw new MPCException("Cannot evaluate more than one round");
+        throw new IllegalStateException("Cannot evaluate more than one round");
     }
   }
 

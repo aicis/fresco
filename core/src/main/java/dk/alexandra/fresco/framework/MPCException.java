@@ -11,9 +11,4 @@ public class MPCException extends RuntimeException {
   public MPCException(String msg) {
     super(msg);
   }
-
-  public MPCException(String msg, Exception e) {
-    super(msg, e);
-  }
-
 }

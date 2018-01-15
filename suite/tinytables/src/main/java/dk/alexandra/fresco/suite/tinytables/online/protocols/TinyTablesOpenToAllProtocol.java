@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.tinytables.online.protocols;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.BooleanSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
@@ -61,7 +60,7 @@ public class TinyTablesOpenToAllProtocol extends TinyTablesProtocol<Boolean> {
         this.opened = ((TinyTablesSBool) toOpen.out()).getValue().getShare() ^ mask;
         return EvaluationStatus.IS_DONE;
       default:
-        throw new MPCException("Cannot evaluate rounds larger than 1");
+        throw new IllegalStateException("Cannot evaluate rounds larger than 1");
     }
   }
 

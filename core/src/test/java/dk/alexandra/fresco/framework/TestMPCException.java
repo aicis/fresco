@@ -11,14 +11,5 @@ public class TestMPCException {
     MPCException ex = new MPCException("Message");
     Assert.assertThat(ex.getMessage(), Is.is("Message"));
   }
-
-  @Test
-  public void testMessageAndException() {
-    Exception e = new Exception("Parent");
-    MPCException ex = new MPCException("Message", e);
-    Assert.assertThat(ex.getMessage(), Is.is("Message"));
-    Assert.assertThat(ex.getCause(), Is.is(e));
-  }
-  
 }
 

@@ -52,6 +52,7 @@ public class InitializeStorage {
       }
 
       @Override
+
       public FileVisitResult visitFileFailed(final Path file, final IOException e) {
         return handleException(e);
       }
@@ -170,7 +171,7 @@ public class InitializeStorage {
   /**
    * Initializes the storage
    *
-   * @param streamedStorages The storages to initialize (multiple storages are used when using a
+   * @param storage The storages to initialize (multiple storages are used when using a
    *        strategy with multiple threads)
    * @param noOfPlayers The number of players
    * @param noOfThreads The number of threads used

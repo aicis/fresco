@@ -82,7 +82,7 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
     this.inputDataSet = setInput;
     this.outputDataSet = setOutput;
     if (!consistencyCheck()) {
-      throw new MPCException("Inconsistent dataset / query data");
+      throw new IllegalArgumentException("Inconsistent dataset / query data");
     }
   }
 

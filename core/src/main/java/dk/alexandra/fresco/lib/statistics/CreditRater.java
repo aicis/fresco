@@ -35,7 +35,7 @@ public class CreditRater implements
     this.intervals = intervals;
     this.intervalScores = intervalScores;
     if (!consistencyCheck()) {
-      throw new MPCException("Inconsistent data");
+      throw new IllegalArgumentException("Inconsistent data");
     }
   }
 

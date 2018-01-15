@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.framework.util;
 
-import dk.alexandra.fresco.framework.MPCException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -44,7 +43,7 @@ public class ByteArrayHelper {
     if (index < 0) {
       throw new IllegalAccessError("Bit index must not be negative.");
     }
-    if (choice == true) {
+    if (choice) {
       // We read bits from left to right, hence the 7 - x.
       // Put a 1 in the correct position of a
       // zero-byte and OR it into the correct byte to ensure that the position
@@ -124,12 +123,12 @@ public class ByteArrayHelper {
       out.flush();
       return bos.toByteArray();
     } catch (IOException e) {
-      throw new MPCException("Could not serialize the object.");
+      throw new RuntimeException("Could not serialize the object.", e);
     } finally {
       try {
         bos.close();
       } catch (IOException e) {
-        throw new MPCException("Cloud not close the stream.");
+        throw new RuntimeException("Cloud not close the stream.", e);
       }
     }
   }

@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.tinytables.online.protocols;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -45,7 +44,7 @@ public class TinyTablesNOTProtocol extends TinyTablesProtocol<SBool> {
       this.out.setValue(((TinyTablesSBool) in.out()).getValue().flip());
       return EvaluationStatus.IS_DONE;
     } else {
-      throw new MPCException("Cannot evaluate NOT in round > 0");
+      throw new IllegalStateException("Cannot evaluate NOT in round > 0");
     }
   }
 
