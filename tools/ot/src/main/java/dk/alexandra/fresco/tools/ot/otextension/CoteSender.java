@@ -3,6 +3,7 @@ package dk.alexandra.fresco.tools.ot.otextension;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,8 +19,6 @@ public class CoteSender extends CoteShared {
   private final List<Drbg> prgs;
   // The random messages choices for the random seed OTs
   private StrictBitVector otChoices;
-  // // The functionality for the underlying seed OTs
-  // private final BristolSeedOts seedOts;
 
   /**
    * Construct a sending party for an instance of the correlated OT protocol.
@@ -28,8 +27,6 @@ public class CoteSender extends CoteShared {
    *          The common resource pool needed for OT extension
    * @param network
    *          The network interface. Must not be null and must be initialized.
-   * @param ot
-   *          The OT functionality to use for seed OTs
    */
   public CoteSender(OtExtensionResourcePool resources, Network network) {
     super(resources, network);
@@ -41,27 +38,6 @@ public class CoteSender extends CoteShared {
     }
     otChoices = resources.getSeedOts().getChoices();
   }
-  //
-  // /**
-  // * Initialize the correlated OT with errors extension. This should only be
-  // * called once as it completes extensive seed OTs.
-  // */
-  // @Override
-  // public void initialize() {
-  // if (isInitialized()) {
-  // throw new IllegalStateException("Already initialized");
-  // }
-  // // this.otChoices = new StrictBitVector(getkBitLength(), getRand());
-  // // Complete the seed OTs acting as the receiver (NOT the sender)
-  // for (int i = 0; i < getkBitLength(); i++) {
-  // ot.receive(otChoices.getBit(i, false));
-  // // Initialize the PRGs with the random messages
-  // // TODO make sure this is okay!
-  // Drbg prg = new PaddingAesCtrDrbg(message.toByteArray(), 256);
-  // prgs.add(prg);
-  // }
-  // super.initialize();
-  // }
 
   /**
    * Returns a clone of the random bit choices used for OT.
@@ -89,9 +65,6 @@ public class CoteSender extends CoteShared {
       throw new IllegalArgumentException(
           "The amount of OTs must be a positive integer divisize by 8");
     }
-    // if (!isInitialized()) {
-    // throw new IllegalStateException("Not initialized");
-    // }
     // Compute how many bytes we need for "size" OTs by dividing "size" by 8
     // (the amount of bits in the primitive type; byte)
     int bytesNeeded = size / 8;

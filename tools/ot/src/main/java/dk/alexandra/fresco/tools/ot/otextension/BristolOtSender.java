@@ -40,15 +40,6 @@ public class BristolOtSender extends BristolOtShared {
     this.sender = rotSender;
   }
 
-  // /**
-  // * Initializes the underlying random OT functionality.
-  // */
-  // @Override
-  // public void initialize() {
-  // sender.initialize();
-  // super.initialize();
-  // }
-
   /**
    * Send the serialized message from the current 1-out-of-2 OT.
    *
@@ -58,10 +49,6 @@ public class BristolOtSender extends BristolOtShared {
    *          The message to send for choice one
    */
   public void send(byte[] messageZero, byte[] messageOne) {
-    // // Initialize the underlying functionalities if needed
-    // if (!isInitialized()) {
-    // initialize();
-    // }
     // Check if there is still an unused random OT stored, if not, execute a
     // random OT extension
     if (offset < 0 || offset >= getBatchSize()) {

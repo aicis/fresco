@@ -37,9 +37,24 @@ public interface OtExtensionResourcePool extends ResourcePool {
    */
   MessageDigest getDigest();
 
+  /**
+   * Gets the instance ID of this resource pool.
+   *
+   * @return The instance ID of this resource poo
+   */
   int getInstanceId();
 
+  /**
+   * Gets the seed OTs.
+   *
+   * @return The seed OTs.
+   */
   RotList getSeedOts();
 
+  /**
+   * Gets the coin tossing instance.
+   *
+   * @return The coin tossing instance.
+   */
   CoinTossing getCoinTossing();
 }
