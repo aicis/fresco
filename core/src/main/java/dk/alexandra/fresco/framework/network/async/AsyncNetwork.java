@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
@@ -27,18 +28,19 @@ import org.slf4j.LoggerFactory;
 /**
  * This network functions asynchronously in that sending happens within a thread, meaning that the
  * method returns immediately after calling send. Receiving is blocking, but threads listen for
- * incoming messages and passes them to the blocking queues where the main thread is potentially waiting.
+ * incoming messages and passes them to the blocking queues where the main thread is potentially
+ * waiting.
  */
 public class AsyncNetwork implements Network, Closeable {
 
   private static final Logger logger = LoggerFactory.getLogger(AsyncNetwork.class);
 
-  private ServerSocketChannel server;
-  private Map<Integer, SocketChannel> clients;
-  private Map<Integer, BlockingQueue<byte[]>> queues;
-  private NetworkConfiguration conf;
-  private ExecutorService receiverService;
-  private Map<Integer, ExecutorService> senderServices;
+  ServerSocketChannel server;
+  Map<Integer, SocketChannel> clients;
+  Map<Integer, BlockingQueue<byte[]>> queues;
+  NetworkConfiguration conf;
+  ExecutorService receiverService;
+  Map<Integer, ExecutorService> senderServices;
 
   /**
    * Creates a network with the given configuration and a default timeout of 15 seconds. Calling the
@@ -74,8 +76,9 @@ public class AsyncNetwork implements Network, Closeable {
     try {
       this.server = ServerSocketChannel.open();
       this.server.bind(sock);
+      logger.info("Bound at " + sock);
     } catch (IOException e) {
-      throw new RuntimeException("Failed to bind to "+sock, e);
+      throw new RuntimeException("Failed to bind to " + sock, e);
     }
     for (int i = 1; i <= conf.noOfParties(); i++) {
       this.queues.put(i, new ArrayBlockingQueue<>(1000000));
@@ -160,14 +163,16 @@ public class AsyncNetwork implements Network, Closeable {
 
   private class Handshaker implements Runnable {
     private ServerSocketChannel server;
-    Map<Integer, SocketChannel> partyIdToChannel;
+    private Map<Integer, SocketChannel> partyIdToChannel;
     private Semaphore blocker;
+    private ConcurrentLinkedDeque<Boolean> successes;
 
     public Handshaker(ServerSocketChannel server, Map<Integer, SocketChannel> partyIdToChannel,
-        Semaphore blocker) {
+        Semaphore blocker, ConcurrentLinkedDeque<Boolean> successes) {
       this.server = server;
       this.partyIdToChannel = partyIdToChannel;
       this.blocker = blocker;
+      this.successes = successes;
     }
 
     @Override
@@ -176,25 +181,38 @@ public class AsyncNetwork implements Network, Closeable {
       while (count < getNoOfParties() - 1) {
         try {
           SocketChannel channel = server.accept();
+          channel.configureBlocking(true);
           ByteBuffer buf = ByteBuffer.allocate(1);
           channel.read(buf);
           buf.position(0);
           int id = buf.get();
           partyIdToChannel.put(id, channel);
+          successes.add(true);
           blocker.release();
           count++;
-        } catch(IOException e) {
+        } catch (IOException e) {
           logger.error("IOException occured during handshake", e);
+          count++;
+          successes.add(false);
           blocker.release();
         }
       }
     }
   }
 
-  private void handshake() {
+  /**
+   * Communicate with all parties and obtain their ID. This is required since we use a dual
+   * connection strategy which means all parties serve as both client and server. Server just
+   * accepts incoming connections, and we need to map the connection to a party. Malicious parties
+   * could send an incorrect ID, which would overwrite an honest party. This, however, leads to a
+   * null pointer exception as soon as we try to communicate with a missing partyID. Can still lead
+   * to leaking information. Cannot be fixed without authenticated channels.
+   */
+  void handshake() {
     ConcurrentHashMap<Integer, SocketChannel> partyIdToChannel = new ConcurrentHashMap<>();
     Semaphore blocker = new Semaphore(-getNoOfParties() + 2);
-    Thread t = new Thread(new Handshaker(this.server, partyIdToChannel, blocker));
+    ConcurrentLinkedDeque<Boolean> successes = new ConcurrentLinkedDeque<>();
+    Thread t = new Thread(new Handshaker(this.server, partyIdToChannel, blocker, successes));
     t.start();
     for (SocketChannel channel : this.clients.values()) {
       ByteBuffer id = ByteBuffer.allocate(1);
@@ -205,7 +223,18 @@ public class AsyncNetwork implements Network, Closeable {
     ExceptionConverter.safe(() -> {
       blocker.acquire();
       return null;
-    }, "Blocker got interrupted");
+    } , "Blocker got interrupted");
+    boolean connected = true;
+    for (Boolean succ : successes) {
+      if (!succ) {
+        connected = false;
+      }
+    }
+    if (!connected) {
+      logger.error("Could not connect to all parties");
+      close();
+      throw new RuntimeException("Failed to connect to all parties");
+    }
     logger.info("Connected to all parties. PartyId to channel map: " + partyIdToChannel);
     Enumeration<Integer> keys = partyIdToChannel.keys();
     while (keys.hasMoreElements()) {

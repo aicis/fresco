@@ -8,7 +8,9 @@ import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.nio.channels.ServerSocketChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -197,7 +199,6 @@ public class TestAsyncNetwork {
     } catch (InterruptedException e) {
       fail("Threads should finish without main getting interrupted");
     } catch (ExecutionException e) {
-      e.printStackTrace();
       throw (RuntimeException) e.getCause().getCause();
     }
   }
@@ -278,6 +279,37 @@ public class TestAsyncNetwork {
       for (AsyncNetwork network : networks.values()) {
         network.close();
       }
+    }
+  }
+
+  @SuppressWarnings("resource")
+  @Test(expected = RuntimeException.class, timeout = 5000)
+  public void testHandshakeFail() throws IOException, InterruptedException, ExecutionException {
+    Map<Integer, Party> parties = new HashMap<>();
+    List<Integer> ports = getFreePorts(2);
+    parties.put(1, new Party(1, "localhost", ports.get(0)));
+    parties.put(2, new Party(2, "localhost", ports.get(1)));
+    ServerSocketChannel server = ServerSocketChannel.open();
+    server.bind(new InetSocketAddress("localhost", ports.get(0)));
+    NetworkConfiguration conf = new NetworkConfigurationImpl(2, parties);
+    try {
+      new ClosedEarlyAsyncNetwork(conf, 15000);
+    } catch(RuntimeException e) {
+      server.close();
+      throw e;
+    }
+  }
+
+  private class ClosedEarlyAsyncNetwork extends AsyncNetwork {
+
+    public ClosedEarlyAsyncNetwork(NetworkConfiguration conf, int timeout) {
+      super(conf, timeout);
+    }
+
+    @Override
+    void handshake() {
+      close();
+      super.handshake();
     }
   }
 }
