@@ -47,8 +47,6 @@ public class TestStorage extends AbstractSpdzTest {
 
       supplier.getNextRandomFieldElement();
 
-    } catch (Exception e) {
-      throw e.getCause().getCause();
     } finally {
       InitializeStorage.cleanup();
     }
