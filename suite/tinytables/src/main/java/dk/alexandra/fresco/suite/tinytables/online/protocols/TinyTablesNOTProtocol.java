@@ -19,18 +19,13 @@ import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproNOT
  * <sub>O</sub> = r<sub>u</sub></i>. Now, both players set value of the output wire to be <i>e
  * <sub>O</sub> = !e<sub>u</sub> = !b<sub>u</sub> + r<sub>O</sub></i>.
  * </p>
- * 
- * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  *
+ * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
 public class TinyTablesNOTProtocol extends TinyTablesProtocol<SBool> {
 
   private DRes<SBool> in;
   private TinyTablesSBool out;
-
-  public TinyTablesNOTProtocol(DRes<SBool> in) {
-    this.in = in;
-  }
 
   public TinyTablesNOTProtocol(DRes<SBool> in, SBool out) {
     this.in = in;
@@ -39,13 +34,9 @@ public class TinyTablesNOTProtocol extends TinyTablesProtocol<SBool> {
 
   @Override
   public EvaluationStatus evaluate(int round, ResourcePoolImpl resourcePool, Network network) {
-    if (round == 0) {
-      this.out = (out == null) ? new TinyTablesSBool() : out;
-      this.out.setValue(((TinyTablesSBool) in.out()).getValue().flip());
-      return EvaluationStatus.IS_DONE;
-    } else {
-      throw new IllegalStateException("Cannot evaluate NOT in round > 0");
-    }
+    this.out = (out == null) ? new TinyTablesSBool() : out;
+    this.out.setValue(((TinyTablesSBool) in.out()).getValue().flip());
+    return EvaluationStatus.IS_DONE;
   }
 
   @Override
