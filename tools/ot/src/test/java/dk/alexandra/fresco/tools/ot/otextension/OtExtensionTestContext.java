@@ -86,6 +86,6 @@ public class OtExtensionTestContext {
     byte[] seedBytes = idBuffer.putInt(instanceId).array();
     ByteArrayHelper.xor(seedBytes, TestHelper.seedOne);
     // TODO make sure this is okay!
-    return new PaddingAesCtrDrbg(seedBytes, 256);
+    return new PaddingAesCtrDrbg(seedBytes);
   }
 }

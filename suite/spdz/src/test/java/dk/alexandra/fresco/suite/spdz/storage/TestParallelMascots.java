@@ -106,7 +106,7 @@ public class TestParallelMascots {
     for (int myId = 1; myId <= noOfParties; myId++) {
       int myFinalId = myId;
       Callable<Map<Integer, RotList>> task = () -> perPartySingleSeedOtSetup(myFinalId,
-          new PaddingAesCtrDrbg(new byte[]{12}, prgSeedLength),
+          new PaddingAesCtrDrbg(new byte[]{12}),
           otManager.createExtraNetwork(myFinalId));
       seedOtTasks.add(task);
     }
@@ -127,7 +127,7 @@ public class TestParallelMascots {
         mascotCreators.add(() -> {
           int lambdaParam = this.modBitLength;
           return new Mascot(new MascotResourcePoolImpl(finalMyId, partyIds, iterations,
-              new PaddingAesCtrDrbg(new byte[]{12}, prgSeedLength), seedOt, modulus,
+              new PaddingAesCtrDrbg(new byte[]{12}), seedOt, modulus,
               modBitLength, lambdaParam, prgSeedLength, numLeftFactors),
               normalManager.createExtraNetwork(finalMyId), randomSsk);
         });
@@ -152,7 +152,7 @@ public class TestParallelMascots {
         mascotCreators.add(() -> {
           Mascot mascot = new Mascot(
               new MascotResourcePoolImpl(finalMyId, partyIds, finalInstanceId,
-                  new PaddingAesCtrDrbg(new byte[]{7, 127, -1}, prgSeedLength), seedOt,
+                  new PaddingAesCtrDrbg(new byte[]{7, 127, -1}), seedOt,
                   modulus, modBitLength, 256, prgSeedLength, numLeftFactors),
               normalManager.createExtraNetwork(finalMyId), randomSsk);
           return mascot.getTriples(16);

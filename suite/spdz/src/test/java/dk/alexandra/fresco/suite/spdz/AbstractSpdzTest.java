@@ -178,7 +178,7 @@ public abstract class AbstractSpdzTest {
   private Drbg getDrbg(int myId, int prgSeedLength) {
     byte[] seed = new byte[prgSeedLength / 8];
     new Random(myId).nextBytes(seed);
-    return new PaddingAesCtrDrbg(seed, prgSeedLength);
+    return new PaddingAesCtrDrbg(seed);
   }
 
   private Map<Integer, RotList> getSeedOts(int myId, List<Integer> partyIds, int prgSeedLength,

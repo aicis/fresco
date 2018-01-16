@@ -74,7 +74,7 @@ public class MascotDemo {
     // generate random seed for local DRBG
     byte[] drbgSeed = new byte[prgSeedLength / 8];
     new SecureRandom().nextBytes(drbgSeed);
-    Drbg drbg = new PaddingAesCtrDrbg(drbgSeed, prgSeedLength);
+    Drbg drbg = new PaddingAesCtrDrbg(drbgSeed);
     Map<Integer, RotList> seedOts = new HashMap<>();
     for (Integer otherId : partyIds) {
       if (myId != otherId) {

@@ -18,7 +18,7 @@ public class FieldElementPrgImpl implements FieldElementPrg {
    * @param seed seed to the underlying DRNG.
    */
   public FieldElementPrgImpl(StrictBitVector seed) {
-    this.drng = new DrngImpl(new PaddingAesCtrDrbg(seed.toByteArray(), 256));
+    this.drng = new DrngImpl(new PaddingAesCtrDrbg(seed.toByteArray()));
   }
 
   @Override
