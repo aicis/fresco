@@ -21,9 +21,9 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
- * Implementation of the main MASCOT protocol (https://eprint.iacr.org/2016/505.pdf) which can be
- * used for the SPDZ pre-processing phase. <br> Supports generation of multiplication triples,
- * random authenticated elements, and random authenticated bits.
+ * Implementation of the main MASCOT protocol (<a href="https://eprint.iacr.org/2016/505.pdf">https://eprint.iacr.org/2016/505.pdf</a>)
+ * which can be used for the SPDZ pre-processing phase. <br> Supports generation of multiplication
+ * triples, random authenticated elements, and random authenticated bits.
  */
 public class Mascot extends BaseProtocol {
 

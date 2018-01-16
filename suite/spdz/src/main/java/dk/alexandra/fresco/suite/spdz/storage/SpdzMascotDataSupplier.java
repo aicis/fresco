@@ -29,42 +29,38 @@ import java.util.stream.IntStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A data supplier based on the Mascot protocol. Uses concrete implementation {@link Mascot}.
+ */
 public class SpdzMascotDataSupplier implements SpdzDataSupplier {
 
   private static final Logger logger = LoggerFactory.getLogger(SpdzMascotDataSupplier.class);
   private final int myId;
+  private final int instanceId;
   private final int numberOfPlayers;
   private final Supplier<Network> tripleNetwork;
   private final BigInteger modulus;
   private final Function<Integer, SpdzSInt[]> preprocessedValues;
   private final FieldElement ssk;
 
+  private final ArrayDeque<MultTriple> triples;
+  private final ArrayDeque<InputMask> masks;
+  private final ArrayDeque<AuthenticatedElement> randomElements;
+  private final ArrayDeque<AuthenticatedElement> randomBits;
+  private final int prgSeedLength;
+  private final int modBitLength;
+  private final int batchSize;
+  private final Drbg drbg;
+  private final Map<Integer, RotList> seedOts;
   private Mascot mascot;
-  private int prgSeedLength;
-  private ArrayDeque<MultTriple> triples;
-  private ArrayDeque<InputMask> masks;
-  private ArrayDeque<AuthenticatedElement> randomElements;
-  private ArrayDeque<AuthenticatedElement> randomBits;
-  private int modBitLength;
-  private int batchSize;
-  private Drbg drbg;
-  private Map<Integer, RotList> seedOts;
 
-  public static SpdzMascotDataSupplier createSimpleSupplier(int myId, int numberOfPlayers,
-      Supplier<Network> tripleNetwork, int modBitLength, BigInteger modulus,
-      Function<Integer, SpdzSInt[]> preprocessedValues,
-      Map<Integer, RotList> seedOts, Drbg drbg, FieldElement ssk) {
-    int prgSeedLength = 256;
-    return new SpdzMascotDataSupplier(myId, numberOfPlayers, tripleNetwork, modulus, modBitLength,
-        preprocessedValues, prgSeedLength, 16, ssk, seedOts, drbg);
-  }
-
-  public SpdzMascotDataSupplier(int myId, int numberOfPlayers, Supplier<Network> tripleNetwork,
-      BigInteger modulus, int modBitLength, Function<Integer, SpdzSInt[]> preprocessedValues,
-      int prgSeedLength, int batchSize, FieldElement ssk, Map<Integer, RotList> seedOts,
-      Drbg drbg) {
+  public SpdzMascotDataSupplier(int myId, int numberOfPlayers, int instanceId,
+      Supplier<Network> tripleNetwork, BigInteger modulus, int modBitLength,
+      Function<Integer, SpdzSInt[]> preprocessedValues, int prgSeedLength, int batchSize,
+      FieldElement ssk, Map<Integer, RotList> seedOts, Drbg drbg) {
     this.myId = myId;
     this.numberOfPlayers = numberOfPlayers;
+    this.instanceId = instanceId;
     this.tripleNetwork = tripleNetwork;
     this.modulus = modulus;
     this.preprocessedValues = preprocessedValues;
@@ -80,6 +76,21 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     this.drbg = drbg;
   }
 
+  /**
+   * Creates instance of {@link SpdzMascotDataSupplier}.
+   */
+  public static SpdzMascotDataSupplier createSimpleSupplier(int myId, int numberOfPlayers,
+      Supplier<Network> tripleNetwork, int modBitLength, BigInteger modulus,
+      Function<Integer, SpdzSInt[]> preprocessedValues,
+      Map<Integer, RotList> seedOts, Drbg drbg, FieldElement ssk) {
+    int prgSeedLength = 256;
+    return new SpdzMascotDataSupplier(myId, numberOfPlayers, 1, tripleNetwork, modulus,
+        modBitLength, preprocessedValues, prgSeedLength, 16, ssk, seedOts, drbg);
+  }
+
+  /**
+   * Creates random field element that can be used as the mac key share by the calling party.
+   */
   public static FieldElement createRandomSsk(BigInteger modulus, int modBitLength,
       int prgSeedLength) {
     byte[] seedBytes = new byte[prgSeedLength / 8];
@@ -99,28 +110,6 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     }
     MultTriple triple = triples.pop();
     return MascotFormatConverter.toSpdzTriple(triple);
-  }
-
-  protected void ensureInitialized() {
-    if (mascot != null) {
-      return;
-    }
-    List<Integer> partyIds =
-        IntStream.range(1, numberOfPlayers + 1).boxed().collect(Collectors.toList());
-    int numLeftFactors = 3;
-    mascot = new Mascot(
-        new MascotResourcePoolImpl(myId, partyIds, 1, drbg, seedOts, getModulus(),
-            modBitLength, modBitLength, prgSeedLength, numLeftFactors), tripleNetwork.get(), ssk);
-  }
-
-  @Override
-  public BigInteger getModulus() {
-    return modulus;
-  }
-
-  @Override
-  public BigInteger getSecretSharedKey() {
-    return this.ssk.toBigInteger();
   }
 
   @Override
@@ -162,6 +151,28 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       logger.trace("Got another bit batch");
     }
     return new SpdzSInt(MascotFormatConverter.toSpdzElement(randomBits.pop()));
+  }
+
+  @Override
+  public BigInteger getModulus() {
+    return modulus;
+  }
+
+  @Override
+  public BigInteger getSecretSharedKey() {
+    return this.ssk.toBigInteger();
+  }
+
+  private void ensureInitialized() {
+    if (mascot != null) {
+      return;
+    }
+    List<Integer> partyIds =
+        IntStream.range(1, numberOfPlayers + 1).boxed().collect(Collectors.toList());
+    int numLeftFactors = 3;
+    mascot = new Mascot(
+        new MascotResourcePoolImpl(myId, partyIds, instanceId, drbg, seedOts, getModulus(),
+            modBitLength, modBitLength, prgSeedLength, numLeftFactors), tripleNetwork.get(), ssk);
   }
 
 }

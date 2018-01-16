@@ -107,7 +107,7 @@ public class TestParallelMascots {
     for (int myId = 1; myId <= noOfParties; myId++) {
       int myFinalId = myId;
       Callable<Map<Integer, RotList>> task = () -> perPartySingleSeedOtSetup(myFinalId,
-          new PaddingAesCtrDrbg(new byte[]{12}),
+          getDrbg(),
           otManager.createExtraNetwork(myFinalId));
       seedOtTasks.add(task);
     }
