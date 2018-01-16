@@ -19,10 +19,9 @@ import java.util.stream.IntStream;
  *
  * <p>COPE allows two parties, the <i>inputter</i> and the <i>signer</i>, where the inputter holds
  * input values <i>e<sub>1</sub>, ..., e<sub>n</sub></i>, and the signer holds single value <i>s</i>
- * to secret-shared result of <i>s * e<sub>1</sub>, ..., s * e<sub>n</sub></i>.
- * This side of the protocol is to be run by the signer party. For the other side of the protocol,
- * see {@link CopeInputter}.</p>
- *
+ * to secret-shared result of <i>s * e<sub>1</sub>, ..., s * e<sub>n</sub></i>. This side of the
+ * protocol is to be run by the signer party. For the other side of the protocol, see {@link
+ * CopeInputter}.</p>
  */
 public class CopeSigner extends CopeShared {
 
@@ -33,8 +32,8 @@ public class CopeSigner extends CopeShared {
   /**
    * Creates new cope signer.
    *
-   * <p>This will run the initialization sub-protocol of COPE using an OT protocol to set up the
-   * PRG seeds used in the <i>Extend</i> sub-protocol.</p>
+   * <p>This will run the initialization sub-protocol of COPE using an OT protocol to set up the PRG
+   * seeds used in the <i>Extend</i> sub-protocol.</p>
    *
    * @param resourcePool The resource pool for the protocol
    * @param network the network to use for communication
@@ -65,8 +64,9 @@ public class CopeSigner extends CopeShared {
   public List<FieldElement> extend(int numInputs) {
     // compute chosen masks
     List<FieldElement> chosenMasks = generateMasks(numInputs, getModulus(), getModBitLength());
-    // get diffs from other party
-    List<FieldElement> diffs = multiplier.receiveDiffs(numInputs * prgs.size());
+    // receive diffs from other party
+    List<FieldElement> diffs = getFieldElementSerializer()
+        .deserializeList(getNetwork().receive(otherId));
     // use mac share for each input
     List<FieldElement> macKeyShares =
         IntStream.range(0, numInputs).mapToObj(idx -> macKeyShare).collect(Collectors.toList());

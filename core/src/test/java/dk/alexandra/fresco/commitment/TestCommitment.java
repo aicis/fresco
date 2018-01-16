@@ -22,7 +22,7 @@ public class TestCommitment {
 
   @Before
   public void setup() {
-    rand = new PaddingAesCtrDrbg(new byte[] { 0x42 }, 256);
+    rand = new PaddingAesCtrDrbg(new byte[] { 0x42 });
     comm = new HashBasedCommitment();
   }
 

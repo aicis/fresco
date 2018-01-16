@@ -11,17 +11,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Actively-secure two-party protocol for computing the product of two secret inputs. <br>
- * One input is held by the left party, the other by the right party. The protocol is asymmetric in
- * the sense that the left party performs a different computation from the right party. This class
- * implements the functionality of the left party. For the other side, see {@link MultiplyRight}.
- * The resulting product is secret-shared among the two parties.
+ * Actively-secure two-party protocol for computing the product of two secret inputs. <br> One input
+ * is held by the left party, the other by the right party. The protocol is asymmetric in the sense
+ * that the left party performs a different computation from the right party. This class implements
+ * the functionality of the left party. For the other side, see {@link MultiplyRight}. The resulting
+ * product is secret-shared among the two parties.
  */
 public class MultiplyLeft extends MultiplyShared {
 
   /**
    * Constructs one side of the two-party multiplication protocol.
-   * 
+   *
    * @param resourcePool the resouce pool
    * @param network the network
    * @param otherId the other party's
@@ -38,7 +38,7 @@ public class MultiplyLeft extends MultiplyShared {
 
   /**
    * Uses left factors as choice bits to receive seeds to prgs.
-   * 
+   *
    * @param leftFactors the left side of the multiplication
    * @param seedLength the length of the seeds that the ROT produces
    * @return list of seeds to prgs
@@ -57,21 +57,8 @@ public class MultiplyLeft extends MultiplyShared {
   }
 
   /**
-   * Receives diffs from other party.
-   * 
-   * @param numDiffs number of diffs to receive
-   * @return field elements representing diffs
-   */
-  public List<FieldElement> receiveDiffs(int numDiffs) {
-    byte[] raw = getNetwork().receive(otherId);
-    List<FieldElement> diffs = getFieldElementSerializer().deserializeList(raw);
-    return diffs;
-  }
-
-  /**
-   * Computes this party's shares of the products. <br>
-   * There is a product share per left factor.
-   * 
+   * Computes this party's shares of the products. <br> There is a product share per left factor.
+   *
    * @param leftFactors this party's multiplication factors
    * @param feSeeds seeds as field elements
    * @param diffs the diffs received from other party
@@ -99,7 +86,7 @@ public class MultiplyLeft extends MultiplyShared {
 
   /**
    * Converts each seed to field element using the PRG.
-   * 
+   *
    * @param seeds the seeds represented as bit vectors
    * @param modulus the modulus we are working in
    * @param modBitLength the bit length of the modulus
@@ -108,24 +95,25 @@ public class MultiplyLeft extends MultiplyShared {
   List<FieldElement> seedsToFieldElements(List<StrictBitVector> seeds, BigInteger modulus,
       int modBitLength) {
     // TODO need to check somewhere that the modulus is close enough to 2^modBitLength
-    return seeds.stream().map(seed -> {
-      return new FieldElement(new BigInteger(seed.toByteArray()).mod(modulus), modulus,
-          modBitLength);
-    }).collect(Collectors.toList());
+    return seeds.stream()
+        .map(seed -> new FieldElement(new BigInteger(seed.toByteArray()).mod(modulus), modulus,
+            modBitLength)).collect(Collectors.toList());
   }
 
   /**
-   * Computes shares of product of left factors and right factor held by other party. <br>
-   * If this party holds l0, l1, l2 and other party holds r0, this will compute additive shares of
-   * l0 * r0, l1 * r0, l2 * r0.
-   * 
+   * Computes shares of product of left factors and right factor held by other party. <br> If this
+   * party holds l0, l1, l2 and other party holds r0, this will compute additive shares of l0 * r0,
+   * l1 * r0, l2 * r0.
+   *
    * @param leftFactors this party's factors
    * @return shares of products
    */
   public List<FieldElement> multiply(List<FieldElement> leftFactors) {
     List<StrictBitVector> seeds = generateSeeds(leftFactors, getModBitLength());
     List<FieldElement> feSeeds = seedsToFieldElements(seeds, getModulus(), getModBitLength());
-    List<FieldElement> diffs = receiveDiffs(seeds.size());
+    // receive diffs from other party
+    List<FieldElement> diffs = getFieldElementSerializer()
+        .deserializeList(getNetwork().receive(otherId));
     return computeProductShares(leftFactors, feSeeds, diffs);
   }
 

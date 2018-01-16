@@ -20,7 +20,7 @@ public class TestStrictBitVector {
 
   @Test
   public void testConstructRandomCorrectSize() {
-    Drbg rand = new PaddingAesCtrDrbg(new byte[] { 0x42 }, 32 * 8);
+    Drbg rand = new PaddingAesCtrDrbg(new byte[] { 0x42 });
     StrictBitVector bv = new StrictBitVector(4 * 8, rand);
     assertEquals(4 * 8, bv.getSize());
     assertEquals(4, bv.toByteArray().length);

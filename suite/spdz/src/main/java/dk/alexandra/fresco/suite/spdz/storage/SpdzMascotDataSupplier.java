@@ -94,7 +94,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     byte[] seedBytes = new byte[32];
     seedBytes[0] = (byte) myId;
     StrictBitVector seed =
-        new StrictBitVector(prgSeedLength, new PaddingAesCtrDrbg(seedBytes, 32 * 8));
+        new StrictBitVector(prgSeedLength, new PaddingAesCtrDrbg(seedBytes));
     FieldElementPrg localSampler = new FieldElementPrgImpl(seed);
     return localSampler.getNext(modulus, modBitLength);
   }

@@ -45,22 +45,20 @@ public class TinyTablesOpenToAllProtocol extends TinyTablesProtocol<Boolean> {
      * players, and each player can then calculate the unmasked value as the XOR of the masked value
      * and all the shares of the mask.
      */
-    switch (round) {
-      case 0:
-        TinyTablesElement myR = ps.getStorage().getMaskShare(id);
-        network.sendToAll(new byte[]{BooleanSerializer.toBytes(myR.getShare())});
-        return EvaluationStatus.HAS_MORE_ROUNDS;
-      case 1:
-        List<byte[]> buffers = network.receiveFromAll();
-        List<TinyTablesElement> maskShares = new ArrayList<>();
-        for (byte[] buffer : buffers) {
-          maskShares.add(new TinyTablesElement(BooleanSerializer.fromBytes(buffer[0])));
-        }
-        boolean mask = TinyTablesElement.open(maskShares);
-        this.opened = ((TinyTablesSBool) toOpen.out()).getValue().getShare() ^ mask;
-        return EvaluationStatus.IS_DONE;
-      default:
-        throw new IllegalStateException("Cannot evaluate rounds larger than 1");
+    if (round == 0) {
+      TinyTablesElement myR = ps.getStorage().getMaskShare(id);
+      network.sendToAll(new byte[]{BooleanSerializer.toBytes(myR.getShare())});
+      return EvaluationStatus.HAS_MORE_ROUNDS;
+    } else {
+      // round > 0
+      List<byte[]> buffers = network.receiveFromAll();
+      List<TinyTablesElement> maskShares = new ArrayList<>();
+      for (byte[] buffer : buffers) {
+        maskShares.add(new TinyTablesElement(BooleanSerializer.fromBytes(buffer[0])));
+      }
+      boolean mask = TinyTablesElement.open(maskShares);
+      this.opened = ((TinyTablesSBool) toOpen.out()).getValue().getShare() ^ mask;
+      return EvaluationStatus.IS_DONE;
     }
   }
 

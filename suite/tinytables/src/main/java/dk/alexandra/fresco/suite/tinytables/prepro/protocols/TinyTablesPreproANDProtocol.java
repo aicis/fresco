@@ -60,28 +60,21 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol<SBool>
     TinyTablesPreproProtocolSuite ps =
         TinyTablesPreproProtocolSuite.getInstance(resourcePool.getMyId());
 
-    switch (round) {
-      case 0:
+    /*
+     * Here we only pick the mask of the output wire. The TinyTable is calculated after all AND
+     * gates has been preprocessed.
+     */
+    boolean rO = ps.getSecureRandom().nextBoolean();
+    out = (out == null) ? new TinyTablesPreproSBool() : out;
+    out.setValue(new TinyTablesElement(rO));
 
-        /*
-         * Here we only pick the mask of the output wire. The TinyTable is calculated after all AND
-         * gates has been preprocessed.
-         */
-        boolean rO = ps.getSecureRandom().nextBoolean();
-        out = (out == null) ? new TinyTablesPreproSBool() : out;
-        out.setValue(new TinyTablesElement(rO));
+    /*
+     * We need to finish the processing of this gate after all preprocessing is done (see
+     * calculateTinyTable). To do this, we keep a reference to all AND gates.
+     */
+    ps.addANDGate(this);
 
-        /*
-         * We need to finish the processing of this gate after all preprocessing is done (see
-         * calculateTinyTable). To do this, we keep a reference to all AND gates.
-         */
-        ps.addANDGate(this);
-
-        return EvaluationStatus.IS_DONE;
-
-      default:
-        throw new IllegalStateException("Cannot evaluate more than one round");
-    }
+    return EvaluationStatus.IS_DONE;
   }
 
   /**

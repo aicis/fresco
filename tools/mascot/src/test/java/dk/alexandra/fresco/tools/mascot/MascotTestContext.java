@@ -39,7 +39,7 @@ public class MascotTestContext {
     this.network = new KryoNetNetwork(defaultNetworkConfiguration(myId, partyIds));
     byte[] drbgSeed = new byte[prgSeedLength / 8];
     new Random(myId).nextBytes(drbgSeed);
-    Drbg drbg = new PaddingAesCtrDrbg(drbgSeed, prgSeedLength);
+    Drbg drbg = new PaddingAesCtrDrbg(drbgSeed);
     Map<Integer, RotList> seedOts = new HashMap<>();
     for (Integer otherId : partyIds) {
       if (myId != otherId) {
