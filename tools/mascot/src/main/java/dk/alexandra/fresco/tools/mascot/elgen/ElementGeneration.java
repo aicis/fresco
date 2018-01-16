@@ -19,9 +19,9 @@ import java.util.stream.Stream;
 
 /**
  * Actively-secure protocol for generating authentication, secret-shared elements based on the
- * MASCOT protocol (https://eprint.iacr.org/2016/505.pdf). <br>
- * Allows a single party to secret-share a field element among all parties such that the element is
- * authenticated via a MAC. The MAC is secret-shared among the parties, as is the MAC key.
+ * MASCOT protocol (https://eprint.iacr.org/2016/505.pdf). <br> Allows a single party to
+ * secret-share a field element among all parties such that the element is authenticated via a MAC.
+ * The MAC is secret-shared among the parties, as is the MAC key.
  */
 public class ElementGeneration extends BaseProtocol {
 
@@ -101,28 +101,31 @@ public class ElementGeneration extends BaseProtocol {
 
   List<AuthenticatedElement> toAuthenticatedElements(List<FieldElement> shares,
       List<FieldElement> macs) {
-    Stream<AuthenticatedElement> spdzElements = IntStream.range(0, shares.size()).mapToObj(idx -> {
-      FieldElement share = shares.get(idx);
-      FieldElement mac = macs.get(idx);
-      return new AuthenticatedElement(share, mac, getModulus(), getModBitLength());
-    });
+    Stream<AuthenticatedElement> spdzElements = IntStream.range(0, shares.size())
+        .mapToObj(idx -> {
+          FieldElement share = shares.get(idx);
+          FieldElement mac = macs.get(idx);
+          return new AuthenticatedElement(share, mac, getModulus(), getModBitLength());
+        });
     return spdzElements.collect(Collectors.toList());
   }
 
   /**
-   * Computes this party's authenticated shares of input. <br>
-   * To be called by input party.
+   * Computes this party's authenticated shares of input. <br> To be called by input party.
    *
    * @param values values to input
    * @return authenticated shares of inputs
    */
   public List<AuthenticatedElement> input(List<FieldElement> values) {
-    // make sure we can add elements to list etc
+    // make sure we are working with an array list
     values = new ArrayList<>(values);
 
     // add extra random element which will later be used to mask inputs
     FieldElement extraElement = localSampler.getNext(getModulus(), getModBitLength());
     values.add(extraElement);
+
+    // inputter secret-shares input values
+    List<FieldElement> shares = secretShare(values, getPartyIds().size());
 
     // compute per element mac share
     List<FieldElement> macs = macValues(values);
@@ -141,13 +144,11 @@ public class ElementGeneration extends BaseProtocol {
     // perform mac-check on opened value (will throw if mac check fails)
     runMacCheck(maskedValue, masks, macs);
 
-    // inputter secret-shares input values (note that we exclude dummy element)
-    List<FieldElement> toSecretShare = values.subList(0, values.size() - 1);
-    List<FieldElement> shares = secretShare(toSecretShare, getPartyIds().size());
-
-    // combine shares and mac shares to spdz elements (exclude mac for dummy element)
-    List<FieldElement> nonDummyMacs = macs.subList(0, shares.size());
-    List<AuthenticatedElement> spdzElements = toAuthenticatedElements(shares, nonDummyMacs);
+    // combine shares and mac shares to spdz elements (exclude mac for dummy element and shares)
+    List<FieldElement> nonDummyMacs = macs.subList(0, shares.size() - 1);
+    List<AuthenticatedElement> spdzElements = toAuthenticatedElements(
+        shares.subList(0, shares.size() - 1),
+        nonDummyMacs);
     return spdzElements;
   }
 
@@ -159,6 +160,10 @@ public class ElementGeneration extends BaseProtocol {
    * @return authenticated shares of inputs
    */
   public List<AuthenticatedElement> input(Integer inputterId, int numInputs) {
+    // receive shares from inputter
+    List<FieldElement> shares =
+        getFieldElementSerializer().deserializeList(getNetwork().receive(inputterId));
+
     // receive per-element mac shares
     CopeSigner copeSigner = copeSigners.get(inputterId);
     List<FieldElement> macs = copeSigner.extend(numInputs + 1);
@@ -173,13 +178,11 @@ public class ElementGeneration extends BaseProtocol {
     // perform mac-check on opened value
     runMacCheck(maskedValue, masks, macs);
 
-    // receive shares from inputter
-    List<FieldElement> shares =
-        getFieldElementSerializer().deserializeList(getNetwork().receive(inputterId));
-
     // combine shares and mac shares to spdz elements (exclude mac for dummy element)
     List<FieldElement> nonDummyMacs = macs.subList(0, numInputs);
-    List<AuthenticatedElement> spdzElements = toAuthenticatedElements(shares, nonDummyMacs);
+    List<AuthenticatedElement> spdzElements = toAuthenticatedElements(
+        shares.subList(0, numInputs),
+        nonDummyMacs);
     return spdzElements;
   }
 
