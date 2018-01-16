@@ -113,7 +113,7 @@ public class MultiplyLeft extends MultiplyShared {
     List<FieldElement> feSeeds = seedsToFieldElements(seeds, getModulus(), getModBitLength());
     // receive diffs from other party
     List<FieldElement> diffs = getFieldElementSerializer()
-        .deserializeList(getNetwork().receive(otherId));
+        .deserializeList(getNetwork().receive(getOtherId()));
     return computeProductShares(leftFactors, feSeeds, diffs);
   }
 

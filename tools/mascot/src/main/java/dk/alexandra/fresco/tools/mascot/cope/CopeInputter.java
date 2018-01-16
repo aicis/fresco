@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
+import dk.alexandra.fresco.tools.mascot.TwoPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyRight;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
@@ -25,7 +26,7 @@ import java.util.stream.Stream;
  * protocol is to be run by the inputter party. For the other side of the protocol, see {@link
  * CopeSigner}.</p>
  */
-public class CopeInputter extends CopeShared {
+public class CopeInputter extends TwoPartyProtocol {
 
   private final List<FieldElementPrg> leftPrgs;
   private final List<FieldElementPrg> rightPrgs;
@@ -64,7 +65,7 @@ public class CopeInputter extends CopeShared {
     // compute t0 - t1 + x for each input x for each mask pair
     List<FieldElement> diffs = multiplier.computeDiffs(maskPairs, inputElements);
     // send diffs
-    getNetwork().send(otherId, getFieldElementSerializer().serialize(diffs));
+    getNetwork().send(getOtherId(), getFieldElementSerializer().serialize(diffs));
     // get zero index masks
     List<FieldElement> feZeroSeeds =
         maskPairs.stream().map(feSeedPair -> feSeedPair.getFirst()).collect(Collectors.toList());

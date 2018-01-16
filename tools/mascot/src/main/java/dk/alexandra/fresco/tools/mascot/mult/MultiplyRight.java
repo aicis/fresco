@@ -137,7 +137,7 @@ public class MultiplyRight extends MultiplyShared {
     List<FieldElement> diffs = computeDiffs(feSeedPairs, rightFactors);
 
     // send diffs over to other party
-    getNetwork().send(otherId, getFieldElementSerializer().serialize(diffs));
+    getNetwork().send(getOtherId(), getFieldElementSerializer().serialize(diffs));
 
     // get zero index seeds
     List<FieldElement> feZeroSeeds =
