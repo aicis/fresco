@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+/**
+ * A utility class that provides various arithmetic methods, such as batch addition, over
+ * collections of {@link Addable} instances.
+ */
 public class ArithmeticCollectionUtils<T extends Addable<T>> {
 
   /**
-   * Transposes matrix. <br>
-   * Rows become columns and columns become rows.
-   * 
+   * Transposes matrix. <br> Rows become columns and columns become rows.
+   *
    * @param mat matrix to transpose
    * @return transposed matrix
    */
@@ -37,11 +40,11 @@ public class ArithmeticCollectionUtils<T extends Addable<T>> {
 
   /**
    * Adds up elements in each column.
-   * 
+   *
    * @param rows rows to be added up
    * @return sum of rows
    */
-  public List<T> pairwiseSum(List<List<T>> rows) {
+  public List<T> sumRows(List<List<T>> rows) {
     List<List<T>> tilted = transpose(rows);
     List<T> sums = new ArrayList<>(tilted.size());
     for (List<T> row : tilted) {

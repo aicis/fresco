@@ -105,7 +105,7 @@ public class TripleGeneration extends BaseProtocol {
     subFactors.add(localSubFactors);
 
     // combine all sub-factors into product shares
-    List<FieldElement> productShares = getFieldElementUtils().pairwiseSum(subFactors);
+    List<FieldElement> productShares = getFieldElementUtils().sumRows(subFactors);
     return productShares;
   }
 
@@ -150,7 +150,7 @@ public class TripleGeneration extends BaseProtocol {
     }
 
     List<AuthenticatedElement> combined =
-        new ArithmeticCollectionUtils<AuthenticatedElement>().pairwiseSum(shares);
+        new ArithmeticCollectionUtils<AuthenticatedElement>().sumRows(shares);
     return toAuthenticatedCand(combined, 5);
   }
 

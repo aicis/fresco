@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 /**
  * Actively-secure protocol for generating authentication, secret-shared elements based on the
@@ -185,7 +184,7 @@ public class ElementGeneration extends BaseProtocol {
         .map(getFieldElementSerializer()::deserializeList)
         .collect(Collectors.toList());
     // recombine
-    return getFieldElementUtils().pairwiseSum(shares);
+    return getFieldElementUtils().sumRows(shares);
   }
 
   /**
@@ -197,7 +196,7 @@ public class ElementGeneration extends BaseProtocol {
     List<FieldElement> selfMacced = selfMac(values);
     List<List<FieldElement>> maccedByAll = otherPartiesMac(values);
     maccedByAll.add(selfMacced);
-    return getFieldElementUtils().pairwiseSum(maccedByAll);
+    return getFieldElementUtils().sumRows(maccedByAll);
   }
 
   /**
