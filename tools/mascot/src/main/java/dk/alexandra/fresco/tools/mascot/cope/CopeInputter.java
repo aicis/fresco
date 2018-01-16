@@ -6,7 +6,7 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.TwoPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.mult.MultiplyRight;
+import dk.alexandra.fresco.tools.mascot.mult.MultiplyRightHelper;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
 import java.math.BigInteger;
@@ -30,7 +30,7 @@ public class CopeInputter extends TwoPartyProtocol {
 
   private final List<FieldElementPrg> leftPrgs;
   private final List<FieldElementPrg> rightPrgs;
-  private final MultiplyRight multiplier;
+  private final MultiplyRightHelper multiplier;
 
   /**
    * Creates a new {@link CopeInputter} and initializes the COPE protocol.
@@ -42,7 +42,7 @@ public class CopeInputter extends TwoPartyProtocol {
     super(resourcePool, network, otherId);
     this.leftPrgs = new ArrayList<>();
     this.rightPrgs = new ArrayList<>();
-    this.multiplier = new MultiplyRight(resourcePool, network, otherId);
+    this.multiplier = new MultiplyRightHelper(resourcePool, network, otherId);
     seedPrgs(multiplier.generateSeeds(1, getLambdaSecurityParam()));
   }
 

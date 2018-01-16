@@ -5,7 +5,7 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.TwoPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeft;
+import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeftHelper;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
 import java.math.BigInteger;
@@ -28,7 +28,7 @@ public class CopeSigner extends TwoPartyProtocol {
 
   private final List<FieldElementPrg> prgs;
   private final FieldElement macKeyShare;
-  private final MultiplyLeft multiplier;
+  private final MultiplyLeftHelper multiplier;
 
   /**
    * Creates new cope signer.
@@ -45,7 +45,7 @@ public class CopeSigner extends TwoPartyProtocol {
       FieldElement macKeyShare) {
     super(resourcePool, network, otherId);
     this.macKeyShare = macKeyShare;
-    this.multiplier = new MultiplyLeft(resourcePool, network, otherId);
+    this.multiplier = new MultiplyLeftHelper(resourcePool, network, otherId);
     this.prgs = new ArrayList<>();
     seedPrgs(multiplier.generateSeeds(macKeyShare, getLambdaSecurityParam()));
   }
