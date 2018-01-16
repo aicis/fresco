@@ -38,17 +38,16 @@ public class TinyTablesCloseProtocol extends TinyTablesProtocol<SBool> {
   public EvaluationStatus evaluate(int round, ResourcePoolImpl resourcePool, Network network) {
     TinyTablesProtocolSuite ps = TinyTablesProtocolSuite.getInstance(resourcePool.getMyId());
     if (round == 0) {
-      out = (out == null) ? new TinyTablesSBool() : out;
       if (resourcePool.getMyId() == this.inputter) {
         TinyTablesElement r = ps.getStorage().getMaskShare(id);
         TinyTablesElement e = new TinyTablesElement(this.in ^ r.getShare());
-        out.setValue(e);
         network.sendToAll(new byte[]{BooleanSerializer.toBytes(e.getShare())});
       }
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       TinyTablesElement share =
           new TinyTablesElement(BooleanSerializer.fromBytes(network.receive(this.inputter)[0]));
+      out = new TinyTablesSBool();
       out.setValue(share);
       return EvaluationStatus.IS_DONE;
     }
