@@ -15,6 +15,7 @@ import dk.alexandra.fresco.tools.ot.base.NaorPinkasOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -113,22 +114,38 @@ public class TestParallelMascots {
     return invokeAndReturn(seedOtTasks);
   }
 
+  private Map<Integer, FieldElement> setupMacKeyShares() {
+    Map<Integer, FieldElement> macKeyShares = new HashMap<>();
+    for (int myId = 1; myId <= noOfParties; myId++) {
+      FieldElement ssk = SpdzMascotDataSupplier
+          .createRandomSsk(modulus, modBitLength, prgSeedLength);
+      macKeyShares.put(myId, ssk);
+    }
+    return macKeyShares;
+  }
+
+  private Drbg getDrbg() {
+    byte[] drbgSeed = new byte[prgSeedLength / 8];
+    new SecureRandom().nextBytes(drbgSeed);
+    return new PaddingAesCtrDrbg(drbgSeed);
+  }
+
   private void constructMascot() throws Exception {
     List<Map<Integer, RotList>> seedOts = setupOts();
+    Map<Integer, FieldElement> perPartyMacKeyShares = setupMacKeyShares();
     List<Callable<Mascot>> mascotCreators = new ArrayList<>();
     for (int i = 0; i < iterations; i++) {
       @SuppressWarnings("resource")
       KryoNetManager normalManager = new KryoNetManager(ports);
       for (int myId = 1; myId <= noOfParties; myId++) {
-        FieldElement randomSsk = SpdzMascotDataSupplier
-            .createRandomSsk(myId, modulus, modBitLength, prgSeedLength);
+        FieldElement randomSsk = perPartyMacKeyShares.get(myId);
         int finalMyId = myId;
+        int finalInstanceId = i;
         Map<Integer, RotList> seedOt = seedOts.get(finalMyId - 1);
         mascotCreators.add(() -> {
           int lambdaParam = this.modBitLength;
-          return new Mascot(new MascotResourcePoolImpl(finalMyId, partyIds, iterations,
-              new PaddingAesCtrDrbg(new byte[]{12}), seedOt, modulus,
-              modBitLength, lambdaParam, prgSeedLength, numLeftFactors),
+          return new Mascot(new MascotResourcePoolImpl(finalMyId, partyIds, finalInstanceId,
+              getDrbg(), seedOt, modulus, modBitLength, lambdaParam, prgSeedLength, numLeftFactors),
               normalManager.createExtraNetwork(finalMyId), randomSsk);
         });
       }
@@ -139,21 +156,21 @@ public class TestParallelMascots {
   @Test
   public void testFirstTriples() throws Exception {
     List<Map<Integer, RotList>> seedOts = setupOts();
+    Map<Integer, FieldElement> perPartyMacKeyShares = setupMacKeyShares();
     List<Callable<List<MultTriple>>> mascotCreators = new ArrayList<>();
     for (int i = 0; i < iterations; i++) {
       @SuppressWarnings("resource")
       KryoNetManager normalManager = new KryoNetManager(ports);
       for (int myId = 1; myId <= noOfParties; myId++) {
-        FieldElement randomSsk = SpdzMascotDataSupplier
-            .createRandomSsk(myId, modulus, modBitLength, prgSeedLength);
         int finalMyId = myId;
-        Map<Integer, RotList> seedOt = seedOts.get(finalMyId - 1);
         int finalInstanceId = i;
+        FieldElement randomSsk = perPartyMacKeyShares.get(finalMyId);
+        Map<Integer, RotList> seedOt = seedOts.get(finalMyId - 1);
         mascotCreators.add(() -> {
           Mascot mascot = new Mascot(
               new MascotResourcePoolImpl(finalMyId, partyIds, finalInstanceId,
-                  new PaddingAesCtrDrbg(new byte[]{7, 127, -1}), seedOt,
-                  modulus, modBitLength, 256, prgSeedLength, numLeftFactors),
+                  getDrbg(), seedOt, modulus, modBitLength, 256, prgSeedLength,
+                  numLeftFactors),
               normalManager.createExtraNetwork(finalMyId), randomSsk);
           return mascot.getTriples(16);
         });

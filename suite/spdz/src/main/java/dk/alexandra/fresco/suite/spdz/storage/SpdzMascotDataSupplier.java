@@ -1,13 +1,9 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
-import com.sun.org.apache.xpath.internal.operations.Mod;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
@@ -20,13 +16,10 @@ import dk.alexandra.fresco.tools.mascot.field.InputMask;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
-import dk.alexandra.fresco.tools.ot.base.DummyOt;
-import dk.alexandra.fresco.tools.ot.base.NaorPinkasOt;
-import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.ArrayDeque;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -58,14 +51,12 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   private Map<Integer, RotList> seedOts;
 
   public static SpdzMascotDataSupplier createSimpleSupplier(int myId, int numberOfPlayers,
-      Supplier<Network> tripleNetwork, int modBitLength,
+      Supplier<Network> tripleNetwork, int modBitLength, BigInteger modulus,
       Function<Integer, SpdzSInt[]> preprocessedValues,
-      Map<Integer, RotList> seedOts, Drbg drbg) {
-    BigInteger modulus = ModulusFinder.findSuitableModulus(modBitLength);
+      Map<Integer, RotList> seedOts, Drbg drbg, FieldElement ssk) {
     int prgSeedLength = 256;
-    return new SpdzMascotDataSupplier(myId, numberOfPlayers, tripleNetwork,
-        modulus, modBitLength, preprocessedValues, prgSeedLength,
-        16, createRandomSsk(myId, modulus, modBitLength, prgSeedLength), seedOts, drbg);
+    return new SpdzMascotDataSupplier(myId, numberOfPlayers, tripleNetwork, modulus, modBitLength,
+        preprocessedValues, prgSeedLength, 16, ssk, seedOts, drbg);
   }
 
   public SpdzMascotDataSupplier(int myId, int numberOfPlayers, Supplier<Network> tripleNetwork,
@@ -89,12 +80,11 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     this.drbg = drbg;
   }
 
-  static FieldElement createRandomSsk(int myId, BigInteger modulus, int modBitLength,
+  public static FieldElement createRandomSsk(BigInteger modulus, int modBitLength,
       int prgSeedLength) {
-    byte[] seedBytes = new byte[32];
-    seedBytes[0] = (byte) myId;
-    StrictBitVector seed =
-        new StrictBitVector(prgSeedLength, new PaddingAesCtrDrbg(seedBytes));
+    byte[] seedBytes = new byte[prgSeedLength / 8];
+    new SecureRandom().nextBytes(seedBytes);
+    StrictBitVector seed = new StrictBitVector(prgSeedLength, new PaddingAesCtrDrbg(seedBytes));
     FieldElementPrg localSampler = new FieldElementPrgImpl(seed);
     return localSampler.getNext(modulus, modBitLength);
   }
@@ -120,8 +110,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     int numLeftFactors = 3;
     mascot = new Mascot(
         new MascotResourcePoolImpl(myId, partyIds, 1, drbg, seedOts, getModulus(),
-            modBitLength,
-            modBitLength, prgSeedLength, numLeftFactors), tripleNetwork.get(), ssk);
+            modBitLength, modBitLength, prgSeedLength, numLeftFactors), tripleNetwork.get(), ssk);
   }
 
   @Override

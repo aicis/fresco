@@ -26,7 +26,7 @@ public class TestElementGeneration extends NetworkedTest {
   private List<AuthenticatedElement> runInputterMultipleRounds(MascotTestContext ctx,
       FieldElement macKeyShare, List<List<FieldElement>> inputs) {
     FieldElementPrg jointSampler =
-        new FieldElementPrgImpl(new StrictBitVector(new byte[] { 1, 2, 3 }));
+        new FieldElementPrgImpl(new StrictBitVector(new byte[]{1, 2, 3}));
     ElementGeneration elGen =
         new ElementGeneration(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare, jointSampler);
     int perRoundInputs = inputs.get(0).size();
@@ -41,7 +41,7 @@ public class TestElementGeneration extends NetworkedTest {
   private List<AuthenticatedElement> runOtherMultipleRounds(MascotTestContext ctx,
       Integer inputterId, FieldElement macKeyShare, int numInputsPerRound, int numRounds) {
     FieldElementPrg jointSampler =
-        new FieldElementPrgImpl(new StrictBitVector(new byte[] { 1, 2, 3 }));
+        new FieldElementPrgImpl(new StrictBitVector(new byte[]{1, 2, 3}));
     ElementGeneration elGen =
         new ElementGeneration(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare, jointSampler);
     List<AuthenticatedElement> elements = new ArrayList<>(numInputsPerRound * numRounds);
@@ -55,7 +55,7 @@ public class TestElementGeneration extends NetworkedTest {
   private List<AuthenticatedElement> runInputter(MascotTestContext ctx, FieldElement macKeyShare,
       List<FieldElement> inputs) {
     FieldElementPrg jointSampler =
-        new FieldElementPrgImpl(new StrictBitVector(new byte[] { 1, 2, 3 }));
+        new FieldElementPrgImpl(new StrictBitVector(new byte[]{1, 2, 3}));
     ElementGeneration elGen =
         new ElementGeneration(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare, jointSampler);
     return elGen.input(inputs);
@@ -64,7 +64,7 @@ public class TestElementGeneration extends NetworkedTest {
   private List<AuthenticatedElement> runOther(MascotTestContext ctx, Integer inputterId,
       FieldElement macKeyShare, int numInputs) {
     FieldElementPrg jointSampler =
-        new FieldElementPrgImpl(new StrictBitVector(new byte[] { 1, 2, 3 }));
+        new FieldElementPrgImpl(new StrictBitVector(new byte[]{1, 2, 3}));
     ElementGeneration elGen =
         new ElementGeneration(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare, jointSampler);
     return elGen.input(inputterId, numInputs);

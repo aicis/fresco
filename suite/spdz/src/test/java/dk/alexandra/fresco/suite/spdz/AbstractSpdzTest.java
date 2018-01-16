@@ -22,6 +22,7 @@ import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStor
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
@@ -42,10 +43,12 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzMascotDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
+import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
 import java.awt.RadialGradientPaint;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -213,11 +216,14 @@ public abstract class AbstractSpdzTest {
       List<Integer> partyIds =
           IntStream.range(1, numberOfParties + 1).boxed().collect(Collectors.toList());
       int prgSeedLength = 256;
+      BigInteger modulus = ModulusFinder.findSuitableModulus(modBitLength);
       Drbg drbg = getDrbg(myId, prgSeedLength);
       Map<Integer, RotList> seedOts = getSeedOts(myId, partyIds, prgSeedLength, drbg,
           otGenerator.createExtraNetwork(myId));
+      FieldElement ssk = SpdzMascotDataSupplier
+          .createRandomSsk(modulus, modBitLength, prgSeedLength);
       supplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, numberOfParties,
-          () -> tripleGenerator.createExtraNetwork(myId), modBitLength,
+          () -> tripleGenerator.createExtraNetwork(myId), modBitLength, modulus,
           new Function<Integer, SpdzSInt[]>() {
 
             private SpdzMascotDataSupplier tripleSupplier;
@@ -229,14 +235,14 @@ public abstract class AbstractSpdzTest {
                 pipeNetwork = expPipeGenerator.createExtraNetwork(myId);
                 tripleSupplier = SpdzMascotDataSupplier
                     .createSimpleSupplier(myId, numberOfParties, () -> pipeNetwork,
-                        modBitLength, null, seedOts, drbg);
+                        modBitLength, modulus, null, seedOts, drbg, ssk);
               }
               DRes<List<DRes<SInt>>> pipe = createPipe(myId, numberOfParties, pipeLength,
                   pipeNetwork,
                   tripleSupplier);
               return computeSInts(pipe);
             }
-          }, seedOts, drbg);
+          }, seedOts, drbg, ssk);
     } else {
       // case STATIC:
       int noOfThreadsUsed = 1;
