@@ -4,16 +4,19 @@ import java.util.BitSet;
 
 /**
  * Class for representing a vector of bits. Uses {@link BitSet} to hold the vector.
+ * This class allows the construction of bit vector containing an arbitrary amount
+ * of elements. Specifically the amount of bits does not need to be divisible by 8.
  */
 public class BitVector {
 
-  private BitSet bits;
-  private int size;
+  private final BitSet bits;
+  private final int size;
 
   /**
    * Creates a BitVector from a <code>boolean</code> array.
    *
-   * @param array a <code>boolean</code> array
+   * @param array
+   *          a <code>boolean</code> array
    */
   public BitVector(boolean[] array) {
     this.bits = BitSetUtils.fromArray(array);
@@ -46,10 +49,23 @@ public class BitVector {
     this.size = size;
     this.bits = new BitSet(size);
   }
+
+  /**
+   * Returns the amount of bit contained in this bit vector.
+   *
+   * @return the amount of bit contained in this bit vector
+   */
   public int getSize() {
     return this.size;
   }
 
+  /**
+   * Returns the bit in position {@code index}. Counting from 0.
+   *
+   * @param index
+   *          The index of the bit to retrieve
+   * @return The bit at position {@code index}
+   */
   public boolean get(int index) {
     rangeCheck(index);
     return this.bits.get(index);
@@ -57,10 +73,15 @@ public class BitVector {
 
   /**
    * Creates new BitVector containing specified range of bits of this BitVector.
+   * The bit at position {@code from} (counting from 0) will be included.
+   * The bit at position {@code to} (counting from 0) will be excluded.
    *
    * @param from
+   *          The position of the first bit to include in the range
    * @param to
-   * @return
+   *          The position of the bit AFTER the last bit to include in the range
+   * @return A new {@BitVector} containing the subset of [{@code from}, {@code to}[
+   *          from this bit vector
    */
   public BitVector get(int from, int to) {
     rangeCheck(from);
@@ -75,20 +96,36 @@ public class BitVector {
     return new BitVector(subrange.toByteArray(), length);
   }
 
+  /**
+   * Set the bit in position {@code index} (counting from 0) to {@code value}.
+   *
+   * @param index
+   *          The index of the bit to set
+   * @param value
+   *          The value which the bit at position {@code index} should take.
+   */
   public void set(int index, boolean value) {
     rangeCheck(index);
     this.bits.set(index, value);
   }
 
+  /**
+   * Return the bit vector as a byte array, rounding up to the nearest byte if
+   * necessary. The representation is little-endian.
+   *
+   * @return A byte array with the content of this bit vector
+   */
   public byte[] asByteArr() {
     return bits.toByteArray();
   }
 
   /**
-   * Updates this BitVector to be the XOR with an other BitVector.
+   * Updates this BitVector to be the XOR with another BitVector.
    *
-   * @param other the other BitVector
-   * @throws IllegalArgumentException if the two BitVectors are not of equal size
+   * @param other
+   *          the other BitVector
+   * @throws IllegalArgumentException
+   *           if the two BitVectors are not of equal size
    */
   public void xor(BitVector other) {
     if (other.getSize() != this.getSize()) {
@@ -102,6 +139,5 @@ public class BitVector {
       throw new IndexOutOfBoundsException(
           "Cannot access index " + i + " on vector of size " + this.size);
     }
-
   }
 }
