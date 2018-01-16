@@ -130,11 +130,12 @@ public class ElementGeneration extends BaseProtocol {
     // compute per element mac share
     List<FieldElement> macs = macValues(values);
 
-    // generate masks for values and macs
-    List<FieldElement> masks = jointSampler.getNext(getModulus(), getModBitLength(), values.size());
+    // generate coefficients for values and macs
+    List<FieldElement> coefficients = jointSampler
+        .getNext(getModulus(), getModBitLength(), values.size());
 
     // mask and combine values
-    FieldElement maskedValue = getFieldElementUtils().innerProduct(values, masks);
+    FieldElement maskedValue = getFieldElementUtils().innerProduct(values, coefficients);
 
     // send masked value to all other parties
     getNetwork().sendToAll(getFieldElementSerializer().serialize(maskedValue));
@@ -142,14 +143,15 @@ public class ElementGeneration extends BaseProtocol {
     getNetwork().receive(getMyId());
 
     // perform mac-check on opened value (will throw if mac check fails)
-    runMacCheck(maskedValue, masks, macs);
+    runMacCheck(maskedValue, coefficients, macs);
 
-    // combine shares and mac shares to spdz elements (exclude mac for dummy element and shares)
-    List<FieldElement> nonDummyMacs = macs.subList(0, shares.size() - 1);
-    List<AuthenticatedElement> spdzElements = toAuthenticatedElements(
+    // combine shares and mac shares to authenticated elements
+    // (exclude mac and share of extra element)
+    List<FieldElement> inputElementMacs = macs.subList(0, shares.size() - 1);
+    List<AuthenticatedElement> authenticatedElements = toAuthenticatedElements(
         shares.subList(0, shares.size() - 1),
-        nonDummyMacs);
-    return spdzElements;
+        inputElementMacs);
+    return authenticatedElements;
   }
 
   /**
@@ -168,22 +170,24 @@ public class ElementGeneration extends BaseProtocol {
     CopeSigner copeSigner = copeSigners.get(inputterId);
     List<FieldElement> macs = copeSigner.extend(numInputs + 1);
 
-    // generate masks for macs
-    List<FieldElement> masks = jointSampler.getNext(getModulus(), getModBitLength(), numInputs + 1);
+    // generate coefficients for macs
+    List<FieldElement> coefficients = jointSampler
+        .getNext(getModulus(), getModBitLength(), numInputs + 1);
 
     // receive masked value we will use in mac-check
     FieldElement maskedValue =
         getFieldElementSerializer().deserialize(getNetwork().receive(inputterId));
 
     // perform mac-check on opened value
-    runMacCheck(maskedValue, masks, macs);
+    runMacCheck(maskedValue, coefficients, macs);
 
-    // combine shares and mac shares to spdz elements (exclude mac for dummy element)
-    List<FieldElement> nonDummyMacs = macs.subList(0, numInputs);
-    List<AuthenticatedElement> spdzElements = toAuthenticatedElements(
+    // combine shares and mac shares to authenticated  elements
+    // (exclude mac and share of extra element)
+    List<FieldElement> inputElementMacs = macs.subList(0, numInputs);
+    List<AuthenticatedElement> authenticatedElements = toAuthenticatedElements(
         shares.subList(0, numInputs),
-        nonDummyMacs);
-    return spdzElements;
+        inputElementMacs);
+    return authenticatedElements;
   }
 
   void runMacCheck(FieldElement value, List<FieldElement> masks, List<FieldElement> macs) {
