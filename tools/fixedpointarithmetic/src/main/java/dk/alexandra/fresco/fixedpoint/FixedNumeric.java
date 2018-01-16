@@ -1,99 +1,101 @@
 package dk.alexandra.fresco.fixedpoint;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.numeric.Numeric;
-import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.value.SInt;
-import java.math.BigInteger;
-import java.math.RoundingMode;
+import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import java.math.BigDecimal;
 
-public class FixedNumeric {
+/**
+ * Basic interface for fixed point numeric applications.
+ */
+public interface FixedNumeric extends ComputationDirectory {
 
-  private final int precision;
-  private final ProtocolBuilderNumeric builder;
-  private final Numeric numeric;
+  /**
+   * Adds two secret values and returns the result.
+   * @param a Secret value 1
+   * @param b Secret value 2
+   * @return A deferred result computing a+b
+   */
+  DRes<SFixed> add(DRes<SFixed> a, DRes<SFixed> b);
 
-  public FixedNumeric(ProtocolBuilderNumeric builder, int precision) {
-    super();
-    this.precision = precision;
-    this.builder = builder;
-    this.numeric = builder.numeric();
-  }
+  /**
+   * Adds a secret value with a public value and returns the result.
+   * @param a Public value
+   * @param b Secret value
+   * @return A deferred result computing a+b
+   */
+  DRes<SFixed> add(BigDecimal a, DRes<SFixed> b);
 
+  /**
+   * Subtracts two secret values and returns the result.
+   * @param a Secret value 1
+   * @param b Secret value 2
+   * @return A deferred result computing a-b
+   */
+  DRes<SFixed> sub(DRes<SFixed> a, DRes<SFixed> b);
 
+  /**
+   * Subtracts a public value and a secret value and returns the result.
+   * @param a Public value
+   * @param b Secret value
+   * @return A deferred result computing a-b
+   */
+  DRes<SFixed> sub(BigDecimal a, DRes<SFixed> b);
 
-  public DRes<SFixed> known(BigDecimal value) {
-    value = value.setScale(this.precision, RoundingMode.HALF_UP);
-    DRes<SInt> input = numeric.known(value.unscaledValue());
-    return () ->  
-    new SFixed(input);
-  }
+  /**
+   * Subtracts a secret value and a public value and returns the result.
+   * @param a Secret value
+   * @param b Public value
+   * @return A deferred result computing a-b
+   */
+  DRes<SFixed> sub(DRes<SFixed> a, BigDecimal b);
 
-  public DRes<SFixed> input(BigDecimal value, int inputParty) {
-    value = value.setScale(this.precision, RoundingMode.HALF_UP);
-    DRes<SInt> input = numeric.input(value.unscaledValue(), inputParty);
-    return () ->  new SFixed(input);
-  }
+  /**
+   * Multiplies two secret values and returns the result.
+   * @param a Secret value 1
+   * @param b Secret value 2
+   * @return A deferred result computing a*b
+   */
+  DRes<SFixed> mult(DRes<SFixed> a, DRes<SFixed> b);
 
+  /**
+   * Multiplies a public value onto a secret value and returns the result.
+   * @param a Public value
+   * @param b Secret value
+   * @return A deferred result computing a*b
+   */
+  DRes<SFixed> mult(BigDecimal a, DRes<SFixed> b);
 
-  public DRes<BigDecimal> open(DRes<SFixed> secretShare) {
-    DRes<SInt> sint = secretShare.out().getSInt();
-    DRes<BigInteger> bi = numeric.open(sint);
-    return () -> new BigDecimal(bi.out(), precision);
-  }
+  /**
+   * Creates a known secret value from a public value. This is primarily a helper function in order
+   * to use public values within the FRESCO functions.
+   * 
+   * @param value The public value.
+   * @return A secret value which represents the given public value.
+   */
+  DRes<SFixed> known(BigDecimal value);
 
+  /**
+   * Closes a public value. If the MPC party calling this method is not providing input, just use
+   * null as the input value.
+   * 
+   * @param value The value to input or null if no input should be given.
+   * @param inputParty The ID of the MPC party.
+   * @return The closed input value.
+   */
+  DRes<SFixed> input(BigDecimal value, int inputParty);
 
-  public DRes<BigDecimal> open(DRes<SFixed> secretShare, int outputParty) {
-    DRes<SInt> sint = secretShare.out().getSInt();
-    DRes<BigInteger> bi = numeric.open(sint, outputParty);
-    return () -> new BigDecimal(bi.out(), precision);
-  }
+  /**
+   * Opens a value to all MPC parties.
+   * @param secretShare The value to open.
+   * @return The opened value represented by the closed value.
+   */
+  DRes<BigDecimal> open(DRes<SFixed> secretShare);
 
-  public DRes<SFixed> add(BigDecimal a, DRes<SFixed> b) {
-    a = a.setScale(this.precision, RoundingMode.HALF_UP);
-    DRes<SInt> sint = b.out().getSInt();
-    DRes<SInt> input = numeric.add(a.unscaledValue(), sint);
-    return () ->  new SFixed(input);
-  }
-
-  public DRes<SFixed> add(DRes<SFixed> a, DRes<SFixed> b) {
-    return () ->  
-    new SFixed(numeric.add(a.out().getSInt(), b.out().getSInt()));
-  }
-
-  public DRes<SFixed> sub(DRes<SFixed> a, DRes<SFixed> b) {
-    return () -> 
-    new SFixed(numeric.sub(a.out().getSInt(), b.out().getSInt()));
-  }
-
-  public DRes<SFixed> sub(BigDecimal a, DRes<SFixed> b) {
-    a = a.setScale(this.precision, RoundingMode.HALF_UP);
-    DRes<SInt> sint = b.out().getSInt();
-    DRes<SInt> input = numeric.sub(a.unscaledValue(), sint);
-    return () ->  new SFixed(input);
-  }
-
-  public DRes<SFixed> sub(DRes<SFixed> a, BigDecimal b) {
-    b = b.setScale(this.precision, RoundingMode.HALF_UP);
-    DRes<SInt> sint = a.out().getSInt();
-    DRes<SInt> input = numeric.sub(sint, b.unscaledValue());
-    return () ->  new SFixed(input);
-  }
-/*
-  @Override
-  public DRes<SFixed> mult(DRes<SFixed> a, DRes<SFixed> b) {
-    SpdzMultProtocol spdzMultProtocol = new SpdzMultProtocol(a, b);
-    return protocolBuilder.append(spdzMultProtocol);
-  }
-
-  @Override
-  public DRes<SInt> mult(BigDecimal a, DRes<SFixed> b) {
-    SpdzMultProtocolKnownLeft spdzMultProtocol4 = new SpdzMultProtocolKnownLeft(a, b);
-    return protocolBuilder.append(spdzMultProtocol4);
-
-  }
-*/
-
-  
+  /**
+   * Opens a value to a single given party.
+   * @param secretShare The value to open.
+   * @param outputParty The party to receive the opened value.
+   * @return The opened value if you are the outputParty, or null otherwise.
+   */
+  DRes<BigDecimal> open(DRes<SFixed> secretShare, int outputParty);
 }

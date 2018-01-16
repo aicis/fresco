@@ -14,6 +14,12 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
+  public void test_Open_to_party_Sequential() throws Exception {
+    runTest(new BasicArithmeticTests.TestOpenToParty<>(), EvaluationStrategy.SEQUENTIAL,
+        2);
+  }
+  
+  @Test
   public void test_Known() throws Exception {
     runTest(new BasicArithmeticTests.TestKnown<>(), EvaluationStrategy.SEQUENTIAL,
         2);
@@ -48,44 +54,16 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(new BasicArithmeticTests.TestSubKnown2<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
+
+  @Test
+  public void test_MultSecret() throws Exception {
+    runTest(new BasicArithmeticTests.TestMultSecret<>(), EvaluationStrategy.SEQUENTIAL,
+        2);
+  }
   
-/*
   @Test
-  public void test_OutputToTarget_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestOutputToSingleParty<>(), EvaluationStrategy.SEQUENTIAL,
-        2, defaultMod, true);
-    assertThat(performanceLoggers.get(1).getLoggedValues()
-        .get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), is((long)0));
+  public void test_MultKnown() throws Exception {
+    runTest(new BasicArithmeticTests.TestMultKnown<>(), EvaluationStrategy.SEQUENTIAL,
+        2);
   }
-
-  @Test
-  public void test_AddPublicValue_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestAddPublicValue<>(), EvaluationStrategy.SEQUENTIAL,
-        1);
-  }
-
-  @Test
-  public void test_KnownSInt_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestKnownSInt<>(), EvaluationStrategy.SEQUENTIAL,
-        1);
-  }
-
-  @Test
-  public void test_MultAndAdd_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestSimpleMultAndAdd<>(), EvaluationStrategy.SEQUENTIAL,
-        1);
-  }
-
-  @Test
-  public void testSumAndOutputSequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestSumAndMult<>(), EvaluationStrategy.SEQUENTIAL,
-        1);
-  }
-
-  @Test
-  public void testSumAndProduct() throws Exception {
-    runTest(new TestSumAndProduct<>(), EvaluationStrategy.SEQUENTIAL,
-        1);
-  }
-*/
 }

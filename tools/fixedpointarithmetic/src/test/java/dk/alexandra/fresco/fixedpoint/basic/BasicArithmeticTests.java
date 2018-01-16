@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.fixedpoint.basic;
 
+import dk.alexandra.fresco.fixedpoint.DefaultFixedNumeric;
 import dk.alexandra.fresco.fixedpoint.FixedNumeric;
 import dk.alexandra.fresco.fixedpoint.SFixed;
 import dk.alexandra.fresco.framework.Application;
@@ -24,7 +25,7 @@ public class BasicArithmeticTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            FixedNumeric numeric = new FixedNumeric(producer, 5);
+            FixedNumeric numeric = new DefaultFixedNumeric(producer, 5);
 
             DRes<SFixed> input = numeric.input(value, 1);
 
@@ -38,6 +39,36 @@ public class BasicArithmeticTests {
     }
   }
 
+  public static class TestOpenToParty<ResourcePoolT extends ResourcePool>
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigDecimal value = BigDecimal.valueOf(10.00100);
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
+            FixedNumeric numeric = new DefaultFixedNumeric(producer, 5);
+
+            DRes<SFixed> input = numeric.input(value, 1);
+
+            return numeric.open(input, 1);
+          };
+          BigDecimal output = runApplication(app);
+
+          if (conf.getMyId() == 1) {
+            Assert.assertEquals(value.setScale(5, RoundingMode.HALF_UP), output);
+          } else {
+            Assert.assertNull(output);
+          }
+          
+        }
+      };
+    }
+  }
+
+  
   public static class TestKnown<ResourcePoolT extends ResourcePool>
   extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
@@ -48,7 +79,7 @@ public class BasicArithmeticTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            FixedNumeric numeric = new FixedNumeric(producer, 5);
+            FixedNumeric numeric = new DefaultFixedNumeric(producer, 5);
 
             DRes<SFixed> input = numeric.known(value);
 
@@ -62,8 +93,6 @@ public class BasicArithmeticTests {
     }
   }
 
-
-
   public static class TestAddKnown<ResourcePoolT extends ResourcePool>
   extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
@@ -75,7 +104,7 @@ public class BasicArithmeticTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            FixedNumeric numeric = new FixedNumeric(producer, 5);
+            FixedNumeric numeric = new DefaultFixedNumeric(producer, 5);
 
             DRes<SFixed> input = numeric.input(value, 1);
             DRes<SFixed> sum = numeric.add(value2, input);
@@ -84,7 +113,8 @@ public class BasicArithmeticTests {
           };
           BigDecimal output = runApplication(app);
 
-          Assert.assertEquals(value.add(value2).setScale(5, RoundingMode.HALF_UP), output);
+          Assert.assertEquals(value.add(value2)
+              .setScale(5, RoundingMode.HALF_UP), output);
         }
       };
     }
@@ -101,9 +131,7 @@ public class BasicArithmeticTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            //Numeric numeric = producer.numeric();
-
-            FixedNumeric numeric = new FixedNumeric(producer, 5);
+            FixedNumeric numeric = new DefaultFixedNumeric(producer, 5);
 
             DRes<SFixed> input = numeric.input(value, 1);
             DRes<SFixed> input2 = numeric.input(value2, 1);
@@ -113,7 +141,8 @@ public class BasicArithmeticTests {
           };
           BigDecimal output = runApplication(app);
 
-          Assert.assertEquals(value.add(value2).setScale(5, RoundingMode.HALF_UP), output);
+          Assert.assertEquals(value.add(value2)
+              .setScale(5, RoundingMode.HALF_UP), output);
         }
       };
     }
@@ -130,24 +159,23 @@ public class BasicArithmeticTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            //Numeric numeric = producer.numeric();
-
-            FixedNumeric numeric = new FixedNumeric(producer, 5);
+            FixedNumeric numeric = new DefaultFixedNumeric(producer, 5);
 
             DRes<SFixed> input = numeric.input(value, 1);
             DRes<SFixed> input2 = numeric.input(value2, 1);
-            DRes<SFixed> sum = numeric.sub(input, input2);
+            DRes<SFixed> diff = numeric.sub(input, input2);
 
-            return numeric.open(sum);
+            return numeric.open(diff);
           };
           BigDecimal output = runApplication(app);
 
-          Assert.assertEquals(value.subtract(value2).setScale(5, RoundingMode.HALF_UP), output);
+          Assert.assertEquals(value.subtract(value2)
+              .setScale(5, RoundingMode.HALF_UP), output);
         }
       };
     }
   }
-  
+
   public static class TestSubKnown<ResourcePoolT extends ResourcePool>
   extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
@@ -159,23 +187,22 @@ public class BasicArithmeticTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            //Numeric numeric = producer.numeric();
-
-            FixedNumeric numeric = new FixedNumeric(producer, 5);
+            FixedNumeric numeric = new DefaultFixedNumeric(producer, 5);
 
             DRes<SFixed> input = numeric.input(value, 1);
-            DRes<SFixed> sum = numeric.sub(input, value2);
+            DRes<SFixed> diff = numeric.sub(input, value2);
 
-            return numeric.open(sum);
+            return numeric.open(diff);
           };
           BigDecimal output = runApplication(app);
 
-          Assert.assertEquals(value.subtract(value2).setScale(5, RoundingMode.HALF_UP), output);
+          Assert.assertEquals(value.subtract(value2)
+              .setScale(5, RoundingMode.HALF_UP), output);
         }
       };
     }
   }
-  
+
   public static class TestSubKnown2<ResourcePoolT extends ResourcePool>
   extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
@@ -187,20 +214,72 @@ public class BasicArithmeticTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            //Numeric numeric = producer.numeric();
-
-            FixedNumeric numeric = new FixedNumeric(producer, 5);
+            FixedNumeric numeric = new DefaultFixedNumeric(producer, 5);
 
             DRes<SFixed> input2 = numeric.input(value2, 1);
-            DRes<SFixed> sum = numeric.sub(value, input2);
+            DRes<SFixed> diff = numeric.sub(value, input2);
 
-            return numeric.open(sum);
+            return numeric.open(diff);
           };
           BigDecimal output = runApplication(app);
 
-          Assert.assertEquals(value.subtract(value2).setScale(5, RoundingMode.HALF_UP), output);
+          Assert.assertEquals(value.subtract(value2)
+              .setScale(5, RoundingMode.HALF_UP), output);
         }
       };
     }
   }
+
+  public static class TestMultSecret<ResourcePoolT extends ResourcePool>
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigDecimal value = BigDecimal.valueOf(10.00100);
+      BigDecimal value2 = BigDecimal.valueOf(0.2);
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
+            FixedNumeric numeric = new DefaultFixedNumeric(producer, 5);
+
+            DRes<SFixed> input = numeric.input(value, 1);
+            DRes<SFixed> input2 = numeric.input(value2, 1);
+            DRes<SFixed> product = numeric.mult(input, input2);
+
+            return numeric.open(product);
+          };
+          BigDecimal output = runApplication(app);
+          Assert.assertEquals(value.multiply(value2)
+              .setScale(5, RoundingMode.HALF_UP), output);
+        }
+      };
+    }
+  }
+
+  public static class TestMultKnown<ResourcePoolT extends ResourcePool>
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigDecimal value = BigDecimal.valueOf(10.00100);
+      BigDecimal value2 = BigDecimal.valueOf(0.2);
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
+            FixedNumeric numeric = new DefaultFixedNumeric(producer, 5);
+
+            DRes<SFixed> input2 = numeric.input(value2, 1);
+            DRes<SFixed> product = numeric.mult(value, input2);
+
+            return numeric.open(product);
+          };
+          BigDecimal output = runApplication(app);
+          Assert.assertEquals(value.multiply(value2)
+              .setScale(5, RoundingMode.HALF_UP), output);
+        }
+      };
+    }
+  }  
 }
