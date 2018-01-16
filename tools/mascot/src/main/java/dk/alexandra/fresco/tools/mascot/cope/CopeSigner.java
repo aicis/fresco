@@ -5,7 +5,7 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.TwoPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeft;
+import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeftHelper;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
 import java.math.BigInteger;
@@ -28,7 +28,7 @@ public class CopeSigner extends TwoPartyProtocol {
 
   private final List<FieldElementPrg> prgs;
   private final FieldElement macKeyShare;
-  private final MultiplyLeft multiplier;
+  private final MultiplyLeftHelper multiplier;
 
   /**
    * Creates new cope signer.
@@ -45,15 +45,9 @@ public class CopeSigner extends TwoPartyProtocol {
       FieldElement macKeyShare) {
     super(resourcePool, network, otherId);
     this.macKeyShare = macKeyShare;
-    this.multiplier = new MultiplyLeft(resourcePool, network, otherId);
+    this.multiplier = new MultiplyLeftHelper(resourcePool, network, otherId);
     this.prgs = new ArrayList<>();
     seedPrgs(multiplier.generateSeeds(macKeyShare, getLambdaSecurityParam()));
-  }
-
-  void seedPrgs(List<StrictBitVector> seeds) {
-    for (StrictBitVector seed : seeds) {
-      prgs.add(new FieldElementPrgImpl(seed));
-    }
   }
 
   /**
@@ -75,17 +69,24 @@ public class CopeSigner extends TwoPartyProtocol {
     return multiplier.computeProductShares(macKeyShares, chosenMasks, diffs);
   }
 
-  List<FieldElement> generateMasks(int numInputs, BigInteger modulus, int modBitLength) {
+  private List<FieldElement> generateMasks(int numInputs, BigInteger modulus, int modBitLength) {
     // for each input pair, we use our prgs to get the next set of masks
     List<FieldElement> masks = new ArrayList<>();
     // generate mask for each input
     for (int i = 0; i < numInputs; i++) {
       // generate masks for single input
-      List<FieldElement> singleInputMasks =
-          prgs.stream().map(prg -> prg.getNext(modulus, modBitLength)).collect(Collectors.toList());
+      List<FieldElement> singleInputMasks = prgs.stream()
+          .map(prg -> prg.getNext(modulus, modBitLength))
+          .collect(Collectors.toList());
       masks.addAll(singleInputMasks);
     }
     return masks;
+  }
+
+  private void seedPrgs(List<StrictBitVector> seeds) {
+    for (StrictBitVector seed : seeds) {
+      prgs.add(new FieldElementPrgImpl(seed));
+    }
   }
 
 }
