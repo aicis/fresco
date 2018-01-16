@@ -1,7 +1,5 @@
 package dk.alexandra.fresco.tools.mascot.bit;
 
-import static org.junit.Assert.assertEquals;
-
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import dk.alexandra.fresco.tools.mascot.MascotTestContext;
@@ -75,10 +73,7 @@ public class TestBitConverter extends NetworkedTest {
 
     // outputs should be bits
     for (FieldElement actualBit : partyOneOutput) {
-      // compute b * (1 - b), which is 0 iff b is a bit
-      FieldElement bitCheck = actualBit
-          .multiply(new FieldElement(1, modulus, modBitLength).subtract(actualBit));
-      assertEquals("Not a bit " + actualBit, true, bitCheck.isZero());
+      CustomAsserts.assertFieldElementIsBit(actualBit);
     }
   }
 

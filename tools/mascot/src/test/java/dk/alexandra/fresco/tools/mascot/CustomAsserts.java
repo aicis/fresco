@@ -1,5 +1,7 @@
 package dk.alexandra.fresco.tools.mascot;
 
+import static org.junit.Assert.assertEquals;
+
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
@@ -16,7 +18,7 @@ public class CustomAsserts {
 
   /**
    * Asserts that expected matrix is equal to actual.
-   * 
+   *
    * @param expected expected matrix
    * @param actual actual matrix
    */
@@ -30,7 +32,7 @@ public class CustomAsserts {
 
   /**
    * Asserts that expected list of field elements is equal to actual.
-   * 
+   *
    * @param expected expected list
    * @param actual actual list
    */
@@ -47,7 +49,7 @@ public class CustomAsserts {
       innerAssert.apply(i).accept(expected.get(i), actual.get(i));
     }
   }
-  
+
   public static void assertEquals(FieldElement expected, FieldElement actual) {
     assertEqualsMessaged("", expected, actual);
   }
@@ -58,7 +60,7 @@ public class CustomAsserts {
 
   /**
    * Asserts that expected list of field elements is equal to actual.
-   * 
+   *
    * @param expected expected list
    * @param actual actual list
    */
@@ -71,7 +73,7 @@ public class CustomAsserts {
 
   /**
    * Asserts that expected authenticated element equals actual.
-   * 
+   *
    * @param expected expected authenticated element
    * @param actual actual authenticated element
    */
@@ -85,7 +87,7 @@ public class CustomAsserts {
 
   /**
    * Asserts that expected field element is equal to actual.
-   * 
+   *
    * @param message message if not equal
    * @param expected expected field element
    * @param actual actual field element
@@ -102,7 +104,7 @@ public class CustomAsserts {
 
   /**
    * Asserts that left and right factor are equal to product and that macs are correct.
-   * 
+   *
    * @param triple triple to check
    * @param macKey recombined mac key
    */
@@ -123,6 +125,15 @@ public class CustomAsserts {
     assertEqualsMessaged("Mac check failed for left ", leftValue.multiply(macKey), leftMac);
     assertEqualsMessaged("Mac check failed for right ", rightValue.multiply(macKey), rightMac);
     assertEqualsMessaged("Mac check failed for product", productValue.multiply(macKey), productMac);
+  }
+
+  public static void assertFieldElementIsBit(FieldElement actualBit) {
+    // compute b * (1 - b), which is 0 iff b is a bit
+    FieldElement bitCheck = actualBit
+        .multiply(new FieldElement(1, actualBit.getModulus(), actualBit.getBitLength())
+            .subtract(actualBit));
+    String message = "Not a bit " + actualBit;
+    Assert.assertTrue(message, bitCheck.isZero());
   }
 
 }

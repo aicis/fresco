@@ -27,10 +27,16 @@ public class TestMascot extends NetworkedTest {
     return mascot.getTriples(numTriples);
   }
 
-  private List<AuthenticatedElement> runRandomElementGen(MascotTestContext ctx,
+  private List<AuthenticatedElement> runRandomElementGeneration(MascotTestContext ctx,
       FieldElement macKeyShare, int numElements) {
     Mascot mascot = new Mascot(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare);
     return mascot.getRandomElements(numElements);
+  }
+
+  private List<AuthenticatedElement> runRandomBitGeneration(MascotTestContext ctx,
+      FieldElement macKeyShare, int numBits) {
+    Mascot mascot = new Mascot(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare);
+    return mascot.getRandomBits(numBits);
   }
 
   private List<AuthenticatedElement> runInputter(MascotTestContext ctx, FieldElement macKeyShare,
@@ -77,14 +83,33 @@ public class TestMascot extends NetworkedTest {
 
     // define per party task with params
     List<Callable<List<AuthenticatedElement>>> tasks = new ArrayList<>();
-    tasks.add(() -> runRandomElementGen(contexts.get(1), macKeyShareOne, 1));
-    tasks.add(() -> runRandomElementGen(contexts.get(2), macKeyShareTwo, 1));
+    tasks.add(() -> runRandomElementGeneration(contexts.get(1), macKeyShareOne, 1));
+    tasks.add(() -> runRandomElementGeneration(contexts.get(2), macKeyShareTwo, 1));
 
     List<List<AuthenticatedElement>> results = testRuntime.runPerPartyTasks(tasks);
     assertEquals(results.get(0).size(), 1);
     assertEquals(results.get(1).size(), 1);
 
     // TODO assert that elements are different?
+  }
+
+  @Test
+  public void testRandomBitGen() {
+    // set up runtime environment and get contexts
+    initContexts(Arrays.asList(1, 2));
+
+    // define per party task with params
+    List<Callable<List<AuthenticatedElement>>> tasks = new ArrayList<>();
+    tasks.add(() -> runRandomBitGeneration(contexts.get(1), macKeyShareOne, 1));
+    tasks.add(() -> runRandomBitGeneration(contexts.get(2), macKeyShareTwo, 1));
+
+    List<List<AuthenticatedElement>> results = testRuntime.runPerPartyTasks(tasks);
+    assertEquals(results.get(0).size(), 1);
+    assertEquals(results.get(1).size(), 1);
+
+    AuthenticatedElement bit = results.get(0).get(0).add(results.get(1).get(0));
+    FieldElement actualBit = bit.getShare();
+    CustomAsserts.assertFieldElementIsBit(actualBit);
   }
 
   @Test
