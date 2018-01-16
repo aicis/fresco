@@ -121,7 +121,7 @@ public class RotShared {
         res[(i / 8) + bvecBytes.length] ^= last;
       }
     }
-    return new StrictBitVector(res, avec.getSize() + bvec.getSize());
+    return new StrictBitVector(res);
   }
 
   /**
@@ -155,7 +155,7 @@ public class RotShared {
       hash = getDigest().digest(indexBuffer.array());
       // Allocate the new bitvector, which contains 256 bits since SHA-256 is
       // used
-      res.add(new StrictBitVector(hash, 256));
+      res.add(new StrictBitVector(hash));
     }
     return res;
   }

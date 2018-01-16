@@ -114,7 +114,7 @@ public final class FieldElement implements Addable<FieldElement> {
   }
 
   public StrictBitVector toBitVector() {
-    return new StrictBitVector(toByteArray(), bitLength);
+    return new StrictBitVector(toByteArray());
   }
 
   public BigInteger getModulus() {

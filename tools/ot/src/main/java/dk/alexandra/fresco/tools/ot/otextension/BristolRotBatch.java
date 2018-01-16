@@ -75,8 +75,7 @@ public class BristolRotBatch implements RotBatch {
     // 0 choices if needed
     byte[] extraByteChoices = Arrays.copyOf(choiceBits.toByteArray(),
         amountToPreprocess / 8);
-    StrictBitVector extraChoices = new StrictBitVector(extraByteChoices,
-        amountToPreprocess);
+    StrictBitVector extraChoices = new StrictBitVector(extraByteChoices);
     List<StrictBitVector> messages = receiver.extend(extraChoices);
     for (int i = 0; i < choiceBits.getSize(); i++) {
       StrictBitVector newMessage = computeRandomMessage(messages.get(i),

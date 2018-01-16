@@ -42,7 +42,7 @@ public class NaorPinkasOt implements Ot {
   /**
    * Constructs a Naor-Pinkas OT instance by interactively and securely sampling
    * the underlying Diffie-Hellman parameters.
-   * 
+   *
    * @param myId
    *          The ID of the calling party
    * @param otherId
@@ -60,7 +60,7 @@ public class NaorPinkasOt implements Ot {
   /**
    * Constructs a Naor-Pinkas OT instance using prespecified Diffie-Hellman
    * parameters.
-   * 
+   *
    * @param myId
    *          The ID of the calling party
    * @param otherId
@@ -123,10 +123,10 @@ public class NaorPinkasOt implements Ot {
   /**
    * Make a one-time padding of a {@code message} using a PRG seeded on
    * {@code seed}.
-   * 
+   *
    * @param message
    *          The message to one-time pad
-   * 
+   *
    * @param maxSize
    *          The size of the resultant ciphertext. MUST be at least the length
    *          of the message itself. If longer, it will be padded with zeros
@@ -147,7 +147,7 @@ public class NaorPinkasOt implements Ot {
   /**
    * Decrypt a one-time padded {@code paddedMessage} using a PRG seeded on
    * {@code seed}.
-   * 
+   *
    * @param paddedMessage
    *          The message to one-time pad
    * @param seed
@@ -165,7 +165,7 @@ public class NaorPinkasOt implements Ot {
   /**
    * Receive one-time padded OT messages and remove the pad of the one of the
    * messages chosen in the OT.
-   * 
+   *
    * @param encryptedZeroMessage
    *          The one-time padded zero-message
    * @param encryptedOneMessage
@@ -189,12 +189,12 @@ public class NaorPinkasOt implements Ot {
     } else {
       unpaddedMessage = unpadMessage(encryptedOneMessage, seed);
     }
-    return new StrictBitVector(unpaddedMessage, 8 * unpaddedMessage.length);
+    return new StrictBitVector(unpaddedMessage);
   }
 
   /**
    * Completes the sender's part of the Naor-Pinkas OT.
-   * 
+   *
    * @return The two random messages sent by the sender.
    */
   private Pair<byte[], byte[]> sendBytesOt() {
@@ -216,7 +216,7 @@ public class NaorPinkasOt implements Ot {
 
   /**
    * Completes the receiver's part of the Naor-Pinkas OT.
-   * 
+   *
    * @return The message received
    */
   private byte[] receiveByteOt(Boolean choiceBit) {
@@ -246,7 +246,7 @@ public class NaorPinkasOt implements Ot {
 
   /**
    * Completes the internal Naor-Pinkas encryption.
-   * 
+   *
    * @param publicKey
    *          The public key to encrypt with
    * @param message
@@ -270,7 +270,7 @@ public class NaorPinkasOt implements Ot {
 
   /**
    * Completes the internal Naor-Pinkas decryption.
-   * 
+   *
    * @param cipher
    *          The ciphertext to decrypt
    * @param privateKey
@@ -285,7 +285,7 @@ public class NaorPinkasOt implements Ot {
   /**
    * Agree on Diffie-Hellman parameters using coin-tossing. The parameters are
    * stored internally and used to compute the OT.
-   * 
+   *
    * @return The computed Diffie-Hellman parameters
    */
   private DHParameterSpec computeSecureDhParams() {
@@ -299,7 +299,7 @@ public class NaorPinkasOt implements Ot {
 
   /**
    * Compute Diffie-Hellman parameters based on a seed.
-   * 
+   *
    * @param seed
    *          The seed used to sample the Diffie-Hellman parameters
    * @return The computed Diffie-Hellman parameters

@@ -3,27 +3,27 @@ package dk.alexandra.fresco.framework.util;
 import java.util.Arrays;
 import java.util.Collections;
 
+/**
+ * This class represents a bit vector. Internally the bit vector is represented by a byte array.
+ * This is done to make it easy and fast to carry out internal operations and bit manipulations.
+ * However, this also means that an instance MUST contain an amount of bits which is divisible by 8
+ * since a byte always contains 8 bits.
+ */
 public class StrictBitVector {
 
   private final byte[] bits;
-  // TODO get rid of size as a parameter?
   private final int size;
 
   /**
    * Constructs new strict bit vector.
    *
    * @param bits raw bytes
-   * @param size length in bits. must be a multiple of 8 (byte size)
    */
-  public StrictBitVector(byte[] bits, int size) {
-    if (size % 8 != 0) {
-      throw new IllegalArgumentException("Size must be multiple of 8");
-    }
-    if ((bits.length * 8) != size) {
-      throw new IllegalArgumentException("Size does not match byte array bit length");
-    }
+  public StrictBitVector(byte[] bits) {
     this.bits = bits.clone();
-    this.size = size;
+    // Note that the amount of bits in the bit vector is the amount of bytes in
+    // {@code bits} multiplied
+    this.size = bits.length * 8;
   }
 
   /**
@@ -132,7 +132,7 @@ public class StrictBitVector {
       System.arraycopy(rawBytes, 0, combined, offset, rawBytes.length);
       offset += rawBytes.length;
     }
-    return new StrictBitVector(combined, combinedBitLength);
+    return new StrictBitVector(combined);
   }
 
   public static StrictBitVector concat(StrictBitVector... bitVectors) {

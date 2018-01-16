@@ -58,15 +58,13 @@ public class CoteReceiver extends CoteShared {
       // Expand the seed OTs using a prg and store the result in tlistZero
       byte[] byteBuffer = new byte[bytesNeeded];
       prgs.get(i).getFirst().nextBytes(byteBuffer);
-      StrictBitVector tzero = new StrictBitVector(byteBuffer,
-          choices.getSize());
+      StrictBitVector tzero = new StrictBitVector(byteBuffer);
       tlistZero.add(tzero);
       byteBuffer = new byte[bytesNeeded];
       prgs.get(i).getSecond().nextBytes(byteBuffer);
       // Compute the u list, i.e. tzero XOR tone XOR randomChoices
       // Note that this is an in-place call and thus tone gets modified
-      StrictBitVector tone = new StrictBitVector(byteBuffer,
-          choices.getSize());
+      StrictBitVector tone = new StrictBitVector(byteBuffer);
       tone.xor(tzero);
       tone.xor(choices);
       ulist.add(tone);
@@ -95,5 +93,5 @@ public class CoteReceiver extends CoteShared {
     }
     getNetwork().send(getOtherId(), toSend);
   }
-  
+
 }

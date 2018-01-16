@@ -44,7 +44,7 @@ public class CoteSender extends CoteShared {
   public StrictBitVector getDelta() {
     // Return a new copy to avoid issues in case the caller modifies the bit
     // vector
-    return new StrictBitVector(otChoices.toByteArray(), getkBitLength());
+    return new StrictBitVector(otChoices.toByteArray());
   }
 
   /**
@@ -70,7 +70,7 @@ public class CoteSender extends CoteShared {
     for (int i = 0; i < getkBitLength(); i++) {
       // Expand the message learned from the seed OTs using a PRG
       prgs.get(i).nextBytes(byteBuffer);
-      StrictBitVector tvec = new StrictBitVector(byteBuffer, size);
+      StrictBitVector tvec = new StrictBitVector(byteBuffer);
       tlist.add(tvec);
     }
     List<StrictBitVector> ulist = receiveList(getkBitLength());
@@ -100,8 +100,7 @@ public class CoteSender extends CoteShared {
       byte[] currentVector = new byte[elementLength];
       System.arraycopy(byteBuffer, i * elementLength, currentVector, 0,
           elementLength);
-      StrictBitVector currentArr = new StrictBitVector(currentVector,
-          elementLength * 8);
+      StrictBitVector currentArr = new StrictBitVector(currentVector);
       list.add(currentArr);
     }
     return list;
