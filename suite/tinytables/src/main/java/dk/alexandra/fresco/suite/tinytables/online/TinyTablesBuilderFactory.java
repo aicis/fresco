@@ -55,8 +55,7 @@ public class TinyTablesBuilderFactory implements BuilderFactoryBinary {
 
       @Override
       public DRes<SBool> not(DRes<SBool> in) {
-        SBool out = new TinyTablesSBool();
-        TinyTablesNOTProtocol p = new TinyTablesNOTProtocol(in, out);
+        TinyTablesNOTProtocol p = new TinyTablesNOTProtocol(in);
         builder.append(p);
         return p;
       }

@@ -27,15 +27,13 @@ public class TinyTablesNOTProtocol extends TinyTablesProtocol<SBool> {
   private DRes<SBool> in;
   private TinyTablesSBool out;
 
-  public TinyTablesNOTProtocol(DRes<SBool> in, SBool out) {
+  public TinyTablesNOTProtocol(DRes<SBool> in) {
     this.in = in;
-    this.out = (TinyTablesSBool) out;
   }
 
   @Override
   public EvaluationStatus evaluate(int round, ResourcePoolImpl resourcePool, Network network) {
-    this.out = (out == null) ? new TinyTablesSBool() : out;
-    this.out.setValue(((TinyTablesSBool) in.out()).getValue().flip());
+    this.out = new TinyTablesSBool(((TinyTablesSBool) in.out()).getValue().flip());
     return EvaluationStatus.IS_DONE;
   }
 
