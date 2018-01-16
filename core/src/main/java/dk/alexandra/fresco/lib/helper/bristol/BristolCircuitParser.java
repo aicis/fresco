@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -61,7 +60,7 @@ public class BristolCircuitParser implements
     this.no_output = Integer.parseInt(meta[2]);
     linesIter.next(); // 3rd line is always empty line.
 
-    this.wires = new HashMap<Integer, DRes<SBool>>(no_wires);
+    this.wires = new HashMap<>(no_wires);
     initWires();
   }
 
@@ -84,7 +83,7 @@ public class BristolCircuitParser implements
    *
    * Returns null if any input of circuit is not currently present in wires map.
    */
-  private void parseLine(String line, ProtocolBuilderBinary builder) throws IOException {
+  private void parseLine(String line, ProtocolBuilderBinary builder) {
     String[] tokens = line.split(" \\s*");
     int no_input = Integer.parseInt(tokens[0]);
     int no_output = Integer.parseInt(tokens[1]);
@@ -135,7 +134,6 @@ public class BristolCircuitParser implements
 
       outWireAnd = builder.binary().and(leftInWireAnd, rightInWireAnd);
       this.wires.put(out[0], outWireAnd);
-      return;
     } else if ("INV".equals(type)) {
       if (in.length != 1 || out.length != 1) {
         throw new IllegalArgumentException("Wrong circuit format for INV");
@@ -171,20 +169,15 @@ public class BristolCircuitParser implements
    */
   public DRes<List<SBool>> buildComputation(ProtocolBuilderBinary builder) {
 
-    return builder.seq(seq -> {
-      return new IterationState(this.linesIter);
-    }).whileLoop((state) -> state.it.hasNext(), (seq, state) -> {
+    return builder.seq(seq ->
+        new IterationState(this.linesIter)
+    ).whileLoop((state) -> state.it.hasNext(), (seq, state) -> {
       String line = state.it.next();
       if (line.equals("")) {
         // empty line
         return state;
       }
-      try {
-        parseLine(line, seq);
-      } catch (IOException e) {
-        this.lines.close();
-        throw new RuntimeException("Could not parse the line '" + line + "'", e);
-      }
+      parseLine(line, seq);
       return state;
     }).seq((seq, state) -> {
       List<SBool> output = new ArrayList<>();
