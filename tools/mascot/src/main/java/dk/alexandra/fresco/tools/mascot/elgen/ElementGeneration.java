@@ -137,7 +137,7 @@ public class ElementGeneration extends BaseProtocol {
     FieldElement maskedValue = getFieldElementUtils().innerProduct(values, masks);
 
     // send masked value to all other parties
-    getNetwork().sendToAll(maskedValue.toByteArray());
+    getNetwork().sendToAll(getFieldElementSerializer().serialize(maskedValue));
     // so that we can use receiveFromAll correctly later
     getNetwork().receive(getMyId());
 
