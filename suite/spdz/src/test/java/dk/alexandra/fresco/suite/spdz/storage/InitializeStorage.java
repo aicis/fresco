@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -187,8 +188,10 @@ public class InitializeStorage {
     try {
       // Try get the last thread file. If that fails, we need to
       // generate the files
-      if (storage.getNext(SpdzStorageDataSupplier.STORAGE_NAME_PREFIX + noOfThreads + "_" + 1 + "_" + 0
-          + "_" + SpdzStorageDataSupplier.MODULUS_KEY) != null) {
+      Serializable next = storage
+          .getNext(SpdzStorageDataSupplier.STORAGE_NAME_PREFIX + noOfThreads + "_" + 1 + "_" + 0
+              + "_" + SpdzStorageDataSupplier.MODULUS_KEY);
+      if (next != null) {
         return;
       }
     } catch (Exception e) {

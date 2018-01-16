@@ -45,7 +45,6 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
-import java.awt.RadialGradientPaint;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -243,8 +242,9 @@ public abstract class AbstractSpdzTest {
       String storageName =
           SpdzStorageDataSupplier.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
               + "_";
-      supplier = new SpdzStorageDataSupplier(
-          new FilebasedStreamedStorageImpl(new InMemoryStorage()), storageName, numberOfParties);
+      FilebasedStreamedStorageImpl storage =
+          new FilebasedStreamedStorageImpl(new InMemoryStorage());
+      supplier = new SpdzStorageDataSupplier(storage, storageName, numberOfParties);
     }
     SpdzStorage store = new SpdzStorageImpl(supplier);
     return new SpdzResourcePoolImpl(myId, numberOfParties, new HmacDrbg(), store);
