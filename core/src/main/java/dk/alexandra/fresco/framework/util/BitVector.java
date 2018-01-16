@@ -1,8 +1,6 @@
 package dk.alexandra.fresco.framework.util;
 
-import java.math.BigInteger;
 import java.util.BitSet;
-import java.util.Random;
 
 /**
  * Class for representing a vector of bits. Uses {@link BitSet} to hold the vector.
@@ -48,18 +46,6 @@ public class BitVector {
     this.size = size;
     this.bits = new BitSet(size);
   }
-
-  /**
-   * Creates a random BitVector using source of randomness.
-   *
-   * @param size size of the vector
-   * @param rand source of randomness
-   */
-  public BitVector(int size, Random rand) {
-    // TODO: revisit this
-    this(new BigInteger(size, rand).toByteArray(), size);
-  }
-
   public int getSize() {
     return this.size;
   }
@@ -71,7 +57,7 @@ public class BitVector {
 
   /**
    * Creates new BitVector containing specified range of bits of this BitVector.
-   * 
+   *
    * @param from
    * @param to
    * @return
@@ -98,13 +84,9 @@ public class BitVector {
     return bits.toByteArray();
   }
 
-  public boolean[] asBooleans() {
-    return BitSetUtils.toArray(bits, size);
-  }
-
   /**
    * Updates this BitVector to be the XOR with an other BitVector.
-   * 
+   *
    * @param other the other BitVector
    * @throws IllegalArgumentException if the two BitVectors are not of equal size
    */
@@ -122,15 +104,4 @@ public class BitVector {
     }
 
   }
-
-  public static BitVector concat(BitVector... bitVectors) {
-    for (BitVector bitVector : bitVectors) {
-      if (bitVector.getSize() % 8 != 0) {
-        throw new IllegalArgumentException(
-            "Only support concatenation of bit vectors of length divisible by 8");
-      }
-    }
-    return null;
-  }
-
 }
