@@ -73,6 +73,6 @@ public class CoteShared {
     byte[] idArray = idBuffer.putInt(resources.getInstanceId()).array();
     ByteArrayHelper.xor(seedBytes, idArray);
     // TODO make sure this is okay!
-    return new PaddingAesCtrDrbg(seedBytes, 256);
+    return new PaddingAesCtrDrbg(seedBytes);
   }
 }

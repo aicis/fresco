@@ -133,14 +133,6 @@ public class TestBitVector {
   }
 
   @Test
-  public void testAsBooleans() {
-    boolean[] bs1 = new boolean[] { true, true, true, false, false, true, false, false };
-    BitVector vector = new BitVector(bs1);
-    boolean[] bs2 = vector.asBooleans();
-    assertArrayEquals(bs1, bs2);
-  }
-
-  @Test
   public void testXor() {
     byte[] bytes1 = new byte[] { 0x01, 0x02, 0x03, 0x04 };
     byte[] bytes2 = new byte[] { 0x01, 0x01, 0x01, 0x01 };
