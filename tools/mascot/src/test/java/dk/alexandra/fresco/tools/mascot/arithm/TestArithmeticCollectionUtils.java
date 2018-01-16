@@ -44,7 +44,7 @@ public class TestArithmeticCollectionUtils {
         Arrays.asList(new MockAddable(4), new MockAddable(5), new MockAddable(6));
     List<MockAddable> expected =
         Arrays.asList(new MockAddable(5), new MockAddable(7), new MockAddable(9));
-    List<MockAddable> actual = utils.pairwiseSum(Arrays.asList(rowOne, rowTwo));
+    List<MockAddable> actual = utils.sumRows(Arrays.asList(rowOne, rowTwo));
     assertEquals(expected, actual);
   }
 

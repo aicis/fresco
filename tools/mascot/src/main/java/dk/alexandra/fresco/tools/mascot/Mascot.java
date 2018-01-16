@@ -99,7 +99,7 @@ public class Mascot extends BaseProtocol {
         perPartyElements.add(elementGeneration.input(partyId, numElements));
       }
     }
-    return new ArithmeticCollectionUtils<AuthenticatedElement>().pairwiseSum(perPartyElements);
+    return new ArithmeticCollectionUtils<AuthenticatedElement>().sumRows(perPartyElements);
   }
 
   /**

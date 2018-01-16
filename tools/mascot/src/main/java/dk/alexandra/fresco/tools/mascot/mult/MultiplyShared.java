@@ -28,5 +28,5 @@ public abstract class MultiplyShared extends TwoPartyProtocol {
   public int getNumLeftFactors() {
     return numLeftFactors;
   }
-  
+
 }

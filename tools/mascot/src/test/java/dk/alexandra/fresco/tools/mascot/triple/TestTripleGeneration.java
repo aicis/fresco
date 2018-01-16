@@ -139,15 +139,15 @@ public class TestTripleGeneration extends NetworkedTest {
     FieldElementUtils fieldElementUtils = new FieldElementUtils(modulus, modBitLength);
     // for each input pair of factors the result is (a1 + a2 + ...) * (b1 + b2 + ...)
     List<FieldElement> expectedLeftFactors =
-        arithmeticUtils.pairwiseSum(Arrays.asList(leftFactorsOne, leftFactorsTwo));
+        arithmeticUtils.sumRows(Arrays.asList(leftFactorsOne, leftFactorsTwo));
     List<FieldElement> expectedRightFactors = fieldElementUtils
-        .stretch(arithmeticUtils.pairwiseSum(Arrays.asList(rightFactorsOne, rightFactorsTwo)), 3);
+        .stretch(arithmeticUtils.sumRows(Arrays.asList(rightFactorsOne, rightFactorsTwo)), 3);
 
     List<FieldElement> expected =
         fieldElementUtils.pairWiseMultiply(expectedLeftFactors, expectedRightFactors);
 
     // actual results, recombined
-    List<FieldElement> actual = arithmeticUtils.pairwiseSum(results);
+    List<FieldElement> actual = arithmeticUtils.sumRows(results);
     CustomAsserts.assertEquals(expected, actual);
   }
 
@@ -173,7 +173,7 @@ public class TestTripleGeneration extends NetworkedTest {
     }
 
     List<List<MultTriple>> results = testRuntime.runPerPartyTasks(tasks);
-    List<MultTriple> combined = new ArithmeticCollectionUtils<MultTriple>().pairwiseSum(results);
+    List<MultTriple> combined = new ArithmeticCollectionUtils<MultTriple>().sumRows(results);
     Assert.assertThat(combined, IsCollectionWithSize.hasSize(numTriples));
     for (MultTriple triple : combined) {
       CustomAsserts.assertTripleIsValid(triple, arithmeticUtils.sum(macKeyShares));
@@ -202,7 +202,7 @@ public class TestTripleGeneration extends NetworkedTest {
     }
 
     List<List<MultTriple>> results = testRuntime.runPerPartyTasks(tasks);
-    List<MultTriple> combined = new ArithmeticCollectionUtils<MultTriple>().pairwiseSum(results);
+    List<MultTriple> combined = new ArithmeticCollectionUtils<MultTriple>().sumRows(results);
     Assert.assertThat(combined, IsCollectionWithSize.hasSize(numTriples * numIterations));
     for (MultTriple triple : combined) {
       CustomAsserts.assertTripleIsValid(triple, arithmeticUtils.sum(macKeyShares));
