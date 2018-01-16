@@ -35,8 +35,8 @@ public class DefaultPreprocessedValues implements PreprocessedValues {
           values.add(seq.numeric().mult(last, r));
           return () -> new IterationState(state.round + 1, values);
         }).seq((seq, state) -> {
-      return () -> state.value;
-    });
+          return () -> state.value;
+        });
   }
 
   private static final class IterationState {

@@ -59,7 +59,8 @@ public class Covariance implements Computation<SInt, ProtocolBuilderNumeric> {
     ).par((par, means) -> {
       SInt mean1 = means.getFirst();
       SInt mean2 = means.getSecond();
-      //Implemented using two iterators instead of indexed loop to avoid enforcing RandomAccess lists
+      //Implemented using two iterators instead of
+      //indexed loop to avoid enforcing RandomAccess lists
       Iterator<DRes<SInt>> iterator1 = data1.iterator();
       Iterator<DRes<SInt>> iterator2 = data2.iterator();
       List<DRes<SInt>> terms = new ArrayList<>(data1.size());

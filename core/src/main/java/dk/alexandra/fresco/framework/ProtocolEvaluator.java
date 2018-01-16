@@ -12,7 +12,8 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
  * @param <ResourcePoolT> The type of resource pool
  * @param <Builder> The type of builder this evaluator supports
  */
-public interface ProtocolEvaluator<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> {
+public interface ProtocolEvaluator<ResourcePoolT extends 
+    ResourcePool, Builder extends ProtocolBuilder> {
 
   /**
    * Evaluates all gates produced by a GateProducer.

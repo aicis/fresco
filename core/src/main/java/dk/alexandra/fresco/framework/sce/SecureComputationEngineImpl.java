@@ -75,7 +75,7 @@ public class SecureComputationEngineImpl
         "Running application: " + application + " using protocol suite: " + this.protocolSuite);
     BuilderFactory<BuilderT> protocolFactory = this.protocolSuite.init(resourcePool, network);
     BuilderT builder = protocolFactory.createSequential();
-    DRes<OutputT> output = application.buildComputation(builder);
+    final DRes<OutputT> output = application.buildComputation(builder);
     long then = System.currentTimeMillis();
     this.evaluator.eval(builder.build(), resourcePool, network);
     long now = System.currentTimeMillis();

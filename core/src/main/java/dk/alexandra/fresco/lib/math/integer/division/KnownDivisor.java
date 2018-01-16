@@ -99,8 +99,8 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
     /*
      * Adjust the sign of the result.
      */
-    BigInteger oInt = BigInteger.valueOf(divisorSign);
-    DRes<SInt> sign = numeric.mult(oInt, dividendSign);
+    BigInteger oint = BigInteger.valueOf(divisorSign);
+    DRes<SInt> sign = numeric.mult(oint, dividendSign);
     return numeric.mult(q, sign);
   }
 }

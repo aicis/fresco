@@ -16,7 +16,7 @@ import java.math.BigInteger;
  * <p> The protocol uses <a href= "https://en.wikipedia.org/wiki/Division_algorithm#Goldschmidt_division"
  * >Goldschmidt Division</a> (aka. the 'IBM Method'). </p>
  *
- * Its results approximate regular integer division with n bits, where n is equal to {@link
+ * <p>Its results approximate regular integer division with n bits, where n is equal to {@link
  * BasicNumericContext#getMaxBitLength()} / 4. Just like
  * regular integer division, this division will always truncate the result instead of rounding.
  */
@@ -51,81 +51,82 @@ public class SecretSharedDivisor
     BigInteger two = BigInteger.valueOf(2).shiftLeft(maximumBitLength);
 
     return builder.seq(seq -> Pair.lazy(numerator, denominator)
-    ).pairInPar((seq, pair) -> {
-      // Determine sign of numerator and ensure positive
-      DRes<SInt> numerator = pair.getFirst();
-      DRes<SInt> sign = seq.comparison().sign(numerator);
+        ).pairInPar((seq, pair) -> {
+          // Determine sign of numerator and ensure positive
+          DRes<SInt> numerator = pair.getFirst();
+          DRes<SInt> sign = seq.comparison().sign(numerator);
 
-      return Pair.lazy(sign, seq.numeric().mult(sign, numerator));
-    }, (seq, pair) -> {
-      // Determine sign of denominator and ensure positive
-      DRes<SInt> denominator = pair.getSecond();
-      DRes<SInt> sign = seq.comparison().sign(denominator);
+          return Pair.lazy(sign, seq.numeric().mult(sign, numerator));
+        }, (seq, pair) -> {
+            // Determine sign of denominator and ensure positive
+            DRes<SInt> denominator = pair.getSecond();
+            DRes<SInt> sign = seq.comparison().sign(denominator);
 
-      return Pair.lazy(sign, seq.numeric().mult(sign, denominator));
-    }).seq((seq, pair) -> {
-      DRes<SInt> denominator = pair.getSecond().getSecond();
-      // Determine the actual number of bits in the denominator.
-      DRes<SInt> denominatorBitLength = getBitLength(seq, denominator, maximumBitLength);
-      // Determine the maximum number of bits we can shift the denominator left in order to gain more precision.
-      BigInteger maxBitLength = BigInteger.valueOf(maximumBitLength);
-      DRes<SInt> leftShift = seq.numeric().sub(maxBitLength, denominatorBitLength);
-      DRes<SInt> leftShiftFactor = exp2(seq, leftShift, log2(maximumBitLength));
-      return Pair.lazy(leftShiftFactor, pair);
-      // Left shift numerator and denominator for greater precision.
-      // We're allowed to do this because shifting numerator and denominator by the same amount
-      // doesn't change the outcome of the division.
-    }).pairInPar((seq, pair) -> {
-          DRes<SInt> numeratorSign = pair.getSecond().getFirst().getFirst();
-          DRes<SInt> numerator = pair.getSecond().getFirst().getSecond();
-          DRes<SInt> shiftNumerator = seq.numeric().mult(pair.getFirst(), numerator);
-          return Pair.lazy(numeratorSign, shiftNumerator);
-        },
-        (seq, pair) -> {
-          DRes<SInt> denomintator = pair.getSecond().getSecond().getSecond();
-          DRes<SInt> denomintatorSign = pair.getSecond().getSecond().getFirst();
-          DRes<SInt> shiftedDenominator = seq.numeric().mult(pair.getFirst(), denomintator);
-          return Pair.lazy(denomintatorSign, shiftedDenominator);
-        }
-    ).seq((seq, pair) -> {
-      DRes<Pair<SInt, SInt>> iterationPair = Pair
-          .lazy(pair.getFirst().getSecond().out(), pair.getSecond().getSecond().out());
-      // Goldschmidt iteration
-      for (int i = 0; i < amountOfIterations; i++) {
-        DRes<Pair<SInt, SInt>> finalPair = iterationPair;
-        iterationPair = seq.seq((innerSeq) -> {
-          Pair<SInt, SInt> iteration = finalPair.out();
-          DRes<SInt> d = iteration::getSecond;
-          DRes<SInt> f = innerSeq.numeric().sub(two, d);
-          return Pair.lazy(f, iteration);
-        }).pairInPar((innerSeq, innerPair) -> {
-          Numeric innerNumeric = innerSeq.numeric();
-          DRes<SInt> n = () -> innerPair.getSecond().getFirst();
-          DRes<SInt> f = innerPair.getFirst();
-          return shiftRight(innerSeq, innerNumeric.mult(f, n), maximumBitLength);
-        }, (innerSeq, innerPair) -> {
-          Numeric innerNumeric = innerSeq.numeric();
-          DRes<SInt> d = () -> innerPair.getSecond().getSecond();
-          DRes<SInt> f = innerPair.getFirst();
-          return shiftRight(innerSeq, innerNumeric.mult(f, d), maximumBitLength);
-        });
-      }
-      DRes<Pair<SInt, SInt>> iterationResult = iterationPair;
-      return () -> new Pair<>(
-          iterationResult.out().getFirst(),
-          new Pair<>(pair.getFirst().getFirst(), pair.getSecond().getFirst()));
-    }).seq((seq, pair) -> {
-      DRes<SInt> n = pair::getFirst;
-      Pair<DRes<SInt>, DRes<SInt>> signs = pair.getSecond();
-      Numeric numeric = seq.numeric();
-      // Right shift to remove decimals, rounding last decimal up.
-      n = numeric.add(BigInteger.ONE, n);
-      n = shiftRight(seq, n, maximumBitLength);
-      // Ensure that result has the correct sign
-      n = numeric.mult(n, signs.getFirst());
-      n = numeric.mult(n, signs.getSecond());
-      return n;
-    });
+            return Pair.lazy(sign, seq.numeric().mult(sign, denominator));
+          }).seq((seq, pair) -> {
+            DRes<SInt> denominator = pair.getSecond().getSecond();
+            // Determine the actual number of bits in the denominator.
+            DRes<SInt> denominatorBitLength = getBitLength(seq, denominator, maximumBitLength);
+            // Determine the maximum number of bits we can shift the denominator
+            // left in order to gain more precision.
+            BigInteger maxBitLength = BigInteger.valueOf(maximumBitLength);
+            DRes<SInt> leftShift = seq.numeric().sub(maxBitLength, denominatorBitLength);
+            DRes<SInt> leftShiftFactor = exp2(seq, leftShift, log2(maximumBitLength));
+            return Pair.lazy(leftShiftFactor, pair);
+            // Left shift numerator and denominator for greater precision.
+            // We're allowed to do this because shifting numerator and denominator
+            // by the same amount doesn't change the outcome of the division.
+          }).pairInPar((seq, pair) -> {
+            DRes<SInt> numeratorSign = pair.getSecond().getFirst().getFirst();
+            DRes<SInt> numerator = pair.getSecond().getFirst().getSecond();
+            DRes<SInt> shiftNumerator = seq.numeric().mult(pair.getFirst(), numerator);
+            return Pair.lazy(numeratorSign, shiftNumerator);
+          },
+            (seq, pair) -> {
+              DRes<SInt> denomintator = pair.getSecond().getSecond().getSecond();
+              DRes<SInt> denomintatorSign = pair.getSecond().getSecond().getFirst();
+              DRes<SInt> shiftedDenominator = seq.numeric().mult(pair.getFirst(), denomintator);
+              return Pair.lazy(denomintatorSign, shiftedDenominator);
+            }
+            ).seq((seq, pair) -> {
+              DRes<Pair<SInt, SInt>> iterationPair = Pair
+                  .lazy(pair.getFirst().getSecond().out(), pair.getSecond().getSecond().out());
+              // Goldschmidt iteration
+              for (int i = 0; i < amountOfIterations; i++) {
+                DRes<Pair<SInt, SInt>> finalPair = iterationPair;
+                iterationPair = seq.seq((innerSeq) -> {
+                  Pair<SInt, SInt> iteration = finalPair.out();
+                  DRes<SInt> d = iteration::getSecond;
+                  DRes<SInt> f = innerSeq.numeric().sub(two, d);
+                  return Pair.lazy(f, iteration);
+                }).pairInPar((innerSeq, innerPair) -> {
+                  Numeric innerNumeric = innerSeq.numeric();
+                  DRes<SInt> n = () -> innerPair.getSecond().getFirst();
+                  DRes<SInt> f = innerPair.getFirst();
+                  return shiftRight(innerSeq, innerNumeric.mult(f, n), maximumBitLength);
+                }, (innerSeq, innerPair) -> {
+                    Numeric innerNumeric = innerSeq.numeric();
+                    DRes<SInt> d = () -> innerPair.getSecond().getSecond();
+                    DRes<SInt> f = innerPair.getFirst();
+                    return shiftRight(innerSeq, innerNumeric.mult(f, d), maximumBitLength);
+                  });
+              }
+              DRes<Pair<SInt, SInt>> iterationResult = iterationPair;
+              return () -> new Pair<>(
+                  iterationResult.out().getFirst(),
+                  new Pair<>(pair.getFirst().getFirst(), pair.getSecond().getFirst()));
+            }).seq((seq, pair) -> {
+              DRes<SInt> n = pair::getFirst;
+              Pair<DRes<SInt>, DRes<SInt>> signs = pair.getSecond();
+              Numeric numeric = seq.numeric();
+              // Right shift to remove decimals, rounding last decimal up.
+              n = numeric.add(BigInteger.ONE, n);
+              n = shiftRight(seq, n, maximumBitLength);
+              // Ensure that result has the correct sign
+              n = numeric.mult(n, signs.getFirst());
+              n = numeric.mult(n, signs.getSecond());
+              return n;
+            });
   }
 
   private int log2(int number) {
@@ -144,7 +145,7 @@ public class SecretSharedDivisor
         BigInteger.valueOf(2),
         exponent,
         maxExponentLength
-    );
+        );
   }
 
   private DRes<SInt> shiftRight(ProtocolBuilderNumeric builder, DRes<SInt> input,

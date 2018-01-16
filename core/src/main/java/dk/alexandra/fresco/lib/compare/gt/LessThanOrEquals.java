@@ -46,7 +46,7 @@ public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeri
           List<DRes<SInt>> rBottomBits = bits.subList(0, bitLengthBottom);
           List<BigInteger> twoPowsBottom =
               seq.getBigIntegerHelper().getTwoPowersList(bitLengthBottom);
-          return Pair.lazy(mask.r, seq.advancedNumeric().innerProductWithPublicPart(twoPowsBottom, rBottomBits));
+          return Pair.lazy(mask.random, seq.advancedNumeric().innerProductWithPublicPart(twoPowsBottom, rBottomBits));
         }, (seq, mask) -> {
           List<DRes<SInt>> rTopBits =
               mask.bits.subList(bitLengthBottom, bitLengthBottom + bitLengthTop);

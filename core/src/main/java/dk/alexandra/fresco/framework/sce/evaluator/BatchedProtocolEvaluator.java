@@ -73,12 +73,12 @@ public class BatchedProtocolEvaluator<
       } else {
         zeroBatches = 0;
       }
-/*
+      /*
       if (zeroBatches > MAX_EMPTY_BATCHES_IN_A_ROW) {
         throw new MPCException("Number of empty batches in a row reached "
             + MAX_EMPTY_BATCHES_IN_A_ROW + "; probably there is a bug in your protocol producer.");
       }
-*/
+       */
       roundSynchronization.finishedBatch(size, resourcePool, network);
     } while (protocolProducer.hasNextProtocols());
 

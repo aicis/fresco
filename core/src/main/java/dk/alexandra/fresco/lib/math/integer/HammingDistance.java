@@ -14,25 +14,25 @@ import java.util.List;
  */
 public class HammingDistance implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private final List<DRes<SInt>> aBits;
-  private final BigInteger b;
+  private final List<DRes<SInt>> bits;
+  private final BigInteger publicValue;
 
   public HammingDistance(
-      List<DRes<SInt>> aBits, BigInteger b) {
-    this.aBits = aBits;
-    this.b = b;
+      List<DRes<SInt>> bits, BigInteger publicValue) {
+    this.bits = bits;
+    this.publicValue = publicValue;
   }
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     BigInteger one = BigInteger.ONE;
-    int length = aBits.size();
-    BigInteger m = b;
+    int length = bits.size();
+    BigInteger m = publicValue;
     if (length == 1) {
       if (m.testBit(0)) {
-        return builder.numeric().sub(one, aBits.get(0));
+        return builder.numeric().sub(one, bits.get(0));
       } else {
-        return aBits.get(0);
+        return bits.get(0);
       }
     } else {
       return builder.par((par) -> {
@@ -40,9 +40,9 @@ public class HammingDistance implements Computation<SInt, ProtocolBuilderNumeric
         // for each bit i of m negate r_i if m_i is set
         for (int i = 0; i < length; i++) {
           if (m.testBit(i)) {
-            xor.add(par.numeric().sub(one, aBits.get(i)));
+            xor.add(par.numeric().sub(one, bits.get(i)));
           } else {
-            xor.add(aBits.get(i));
+            xor.add(bits.get(i));
           }
         }
         return () -> xor;
