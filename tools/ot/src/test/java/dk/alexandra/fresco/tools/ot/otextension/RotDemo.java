@@ -38,7 +38,7 @@ public class RotDemo<ResourcePoolT extends ResourcePool> {
     byte[] otChoices = new byte[amountOfOTs / 8];
     ctx.createRand(1).nextBytes(otChoices);
     List<StrictBitVector> vvec = rotRec
-        .extend(new StrictBitVector(otChoices, amountOfOTs));
+        .extend(new StrictBitVector(otChoices));
     System.out.println("done receiver");
     for (int i = 0; i < amountOfOTs; i++) {
       System.out.print(i + ": ");

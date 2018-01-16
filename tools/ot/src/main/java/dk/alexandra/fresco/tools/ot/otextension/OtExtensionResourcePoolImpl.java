@@ -8,7 +8,6 @@ import dk.alexandra.fresco.tools.cointossing.CoinTossing;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 
-
 public class OtExtensionResourcePoolImpl extends ResourcePoolImpl implements
     OtExtensionResourcePool {
   // TODO move somewhere reasonable

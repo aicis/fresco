@@ -73,7 +73,7 @@ public class TestFieldElement {
     assertTrue(zero.isZero());
     assertFalse(notZero.isZero());
   }
-  
+
   @Test
   public void testToBigInteger() {
     assertEquals(new BigInteger("22"), new FieldElement(22, modulus, bitLength).toBigInteger());
@@ -98,7 +98,7 @@ public class TestFieldElement {
     FieldElement el = new FieldElement("11", "251", 8);
     StrictBitVector actual = el.toBitVector();
     byte[] expectedBits = {(byte) 0xB};
-    StrictBitVector expected = new StrictBitVector(expectedBits, expectedBits.length * 8);
+    StrictBitVector expected = new StrictBitVector(expectedBits);
     assertEquals(expected, actual);
   }
 
@@ -107,7 +107,7 @@ public class TestFieldElement {
     FieldElement el = new FieldElement("11", "65521", 16);
     StrictBitVector actual = el.toBitVector();
     byte[] expectedBits = {(byte) 0x0, (byte) 0xB};
-    StrictBitVector expected = new StrictBitVector(expectedBits, expectedBits.length * 8);
+    StrictBitVector expected = new StrictBitVector(expectedBits);
     assertEquals(expected, actual);
   }
 
@@ -116,7 +116,7 @@ public class TestFieldElement {
     FieldElement el = new FieldElement("65520", "65521", 16);
     StrictBitVector actual = el.toBitVector();
     byte[] expectedBits = {(byte) 0xFF, (byte) 0xF0};
-    StrictBitVector expected = new StrictBitVector(expectedBits, expectedBits.length * 8);
+    StrictBitVector expected = new StrictBitVector(expectedBits);
     assertEquals(expected, actual);
   }
 

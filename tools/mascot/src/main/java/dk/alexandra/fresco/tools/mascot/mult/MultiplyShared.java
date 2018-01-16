@@ -5,10 +5,14 @@ import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.TwoPartyProtocol;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 
-public class MultiplyShared extends TwoPartyProtocol {
+/**
+ * Class that stores data and resources common across the two sides of the multiplication protocol,
+ * {@link MultiplyLeft} and {@link MultiplyRight}.
+ */
+public abstract class MultiplyShared extends TwoPartyProtocol {
 
-  private RotBatch rot;
-  private int numLeftFactors;
+  private final RotBatch rot;
+  private final int numLeftFactors;
 
   MultiplyShared(MascotResourcePool resourcePool, Network network, Integer otherId,
       int numLeftFactors) {
@@ -21,8 +25,8 @@ public class MultiplyShared extends TwoPartyProtocol {
     return rot;
   }
 
-
   public int getNumLeftFactors() {
     return numLeftFactors;
   }
+  
 }

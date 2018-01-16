@@ -38,9 +38,9 @@ public class TestRot {
     byte[] bbyte = new byte[]{(byte) 0x00};
     // 0 0 0 0 0 0 0 0, 0 0 0 0 0 0 0 0
     byte[] expectedByte = new byte[]{(byte) 0x00, (byte) 0x00, (byte) 0x00};
-    StrictBitVector a = new StrictBitVector(abyte, 16);
-    StrictBitVector b = new StrictBitVector(bbyte, 8);
-    StrictBitVector expected = new StrictBitVector(expectedByte, 24);
+    StrictBitVector a = new StrictBitVector(abyte);
+    StrictBitVector b = new StrictBitVector(bbyte);
+    StrictBitVector expected = new StrictBitVector(expectedByte);
     StrictBitVector res = (StrictBitVector) multiplyWithoutReduction.invoke(
         RotReceiver.class, a, b);
     assertEquals(expected, res);
@@ -56,9 +56,9 @@ public class TestRot {
     byte[] bbyte = new byte[]{(byte) 0x80};
     // 0 1 0 0 0 0 0 1, 1 1 1 1 1 1 1 1
     byte[] expectedByte = new byte[]{(byte) 0x41, (byte) 0xFF, (byte) 0x00};
-    StrictBitVector a = new StrictBitVector(abyte, 16);
-    StrictBitVector b = new StrictBitVector(bbyte, 8);
-    StrictBitVector expected = new StrictBitVector(expectedByte, 24);
+    StrictBitVector a = new StrictBitVector(abyte);
+    StrictBitVector b = new StrictBitVector(bbyte);
+    StrictBitVector expected = new StrictBitVector(expectedByte);
     StrictBitVector res = (StrictBitVector) multiplyWithoutReduction.invoke(
         RotReceiver.class, a, b);
     assertEquals(expected, res);
@@ -75,9 +75,9 @@ public class TestRot {
     byte[] bbyte = new byte[]{(byte) 0x20};
     // 0 0 0 1 0 0 0 0, 0 1 1 1 1 1 1 1, 1 1 0 0 0 0 0 0
     byte[] expectedByte = new byte[]{(byte) 0x10, (byte) 0x7F, (byte) 0xC0};
-    StrictBitVector a = new StrictBitVector(abyte, 16);
-    StrictBitVector b = new StrictBitVector(bbyte, 8);
-    StrictBitVector expected = new StrictBitVector(expectedByte, 24);
+    StrictBitVector a = new StrictBitVector(abyte);
+    StrictBitVector b = new StrictBitVector(bbyte);
+    StrictBitVector expected = new StrictBitVector(expectedByte);
     StrictBitVector res = (StrictBitVector) multiplyWithoutReduction.invoke(
         RotReceiver.class, a, b);
     assertEquals(expected, res);
@@ -97,9 +97,9 @@ public class TestRot {
     // 0 1 0 1 0 0 0 1, 1 1 0 0 0 0 0 1, 0 0 1 1 1 1 1 1, 0 0 0 0 0 0 0 0
     byte[] expectedByte = new byte[]{(byte) 0x51, (byte) 0xC1, (byte) 0x3F,
         (byte) 0x00};
-    StrictBitVector a = new StrictBitVector(abyte, 16);
-    StrictBitVector b = new StrictBitVector(bbyte, 16);
-    StrictBitVector expected = new StrictBitVector(expectedByte, 32);
+    StrictBitVector a = new StrictBitVector(abyte);
+    StrictBitVector b = new StrictBitVector(bbyte);
+    StrictBitVector expected = new StrictBitVector(expectedByte);
     StrictBitVector res = (StrictBitVector) multiplyWithoutReduction.invoke(
         RotReceiver.class, a, b);
     assertEquals(expected, res);
@@ -113,13 +113,13 @@ public class TestRot {
     // Semantically equal to 1 as we read bits from left to right
     // 1 0 1 0 0 0 0 0
     byte[] bbyte = new byte[]{(byte) 0xA0};
-    StrictBitVector a = new StrictBitVector(abyte, 16);
-    StrictBitVector b = new StrictBitVector(bbyte, 8);
+    StrictBitVector a = new StrictBitVector(abyte);
+    StrictBitVector b = new StrictBitVector(bbyte);
     // 0 1 0 0 0 0 0 1, 1 1 1 1 1 1 1 1, 0 0 0 0 0 0 0 0 XOR
     // 0 0 0 1 0 0 0 0, 0 1 1 1 1 1 1 1, 1 1 0 0 0 0 0 0 =
     // 0 1 0 1 0 0 0 1, 1 0 0 0 0 0 0 0, 1 1 0 0 0 0 0 0
     byte[] expectedByte = new byte[]{(byte) 0x51, (byte) 0x80, (byte) 0xC0};
-    StrictBitVector expected = new StrictBitVector(expectedByte, 24);
+    StrictBitVector expected = new StrictBitVector(expectedByte);
     StrictBitVector res = (StrictBitVector) multiplyWithoutReduction.invoke(
         RotReceiver.class, a, b);
     assertEquals(true, expected.equals(res));
@@ -134,14 +134,14 @@ public class TestRot {
     // 0 1 1 1 1 1 1 1
     byte[] abyteTwo = new byte[]{(byte) 0x7F};
     StrictBitVector zero = new StrictBitVector(8);
-    StrictBitVector aone = new StrictBitVector(abyteOne, 8);
-    StrictBitVector atwo = new StrictBitVector(abyteTwo, 8);
+    StrictBitVector aone = new StrictBitVector(abyteOne);
+    StrictBitVector atwo = new StrictBitVector(abyteTwo);
     List<StrictBitVector> alist = new ArrayList<>(
         Arrays.asList(aone, zero, zero, zero, zero, zero, zero, atwo));
     // Semantically equal to 1 as we read bits from left to right
     // 1 0 0 0 0 0 0 1
     byte[] bbyte = new byte[]{(byte) 0x89};
-    StrictBitVector b = new StrictBitVector(bbyte, 8);
+    StrictBitVector b = new StrictBitVector(bbyte);
     // 1 * (0 1 0 0 0 0 0 1) XOR
     // 0 * (0 0 0 0 0 0 0 0) XOR
     // 0 * (0 0 0 0 0 0 0 0) XOR
@@ -152,7 +152,7 @@ public class TestRot {
     // 1 * (0 1 1 1 1 1 1 1 =
     //      0 0 1 1 1 1 1 0
     byte[] expectedByte = new byte[]{(byte) 0x3E};
-    StrictBitVector expected = new StrictBitVector(expectedByte, 8);
+    StrictBitVector expected = new StrictBitVector(expectedByte);
     Method computeBitLinearCombination = RotReceiver.class.getDeclaredMethod(
         "computeBitLinearCombination", StrictBitVector.class,
         List.class);

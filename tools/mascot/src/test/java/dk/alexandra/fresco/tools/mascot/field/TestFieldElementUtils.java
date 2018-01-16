@@ -79,7 +79,7 @@ public class TestFieldElementUtils {
   public void testPack() {
     StrictBitVector actual = fieldElementUtils.pack(left);
     byte[] expectedBytes = {0x00, 0x04, 0x00, 0x03, 0x00, 0x02, 0x00, 0x01};
-    StrictBitVector expected = new StrictBitVector(expectedBytes, modBitLength * left.size());
+    StrictBitVector expected = new StrictBitVector(expectedBytes);
     assertEquals(expected, actual);
   }
 

@@ -51,8 +51,8 @@ public class RotSender extends RotShared {
     // Retrieve the receivers parts of the correlation check challenge
     byte[] xvecBytes = getNetwork().receive(getOtherId());
     byte[] tvecBytes = getNetwork().receive(getOtherId());
-    StrictBitVector xvec = new StrictBitVector(xvecBytes, getKbitLength());
-    StrictBitVector tvec = new StrictBitVector(tvecBytes, 2 * getKbitLength());
+    StrictBitVector xvec = new StrictBitVector(xvecBytes);
+    StrictBitVector tvec = new StrictBitVector(tvecBytes);
     // Compute the challenge vector based on the receivers send values
     StrictBitVector tvecToCompare = computeInnerProduct(
         Collections.singletonList(delta),

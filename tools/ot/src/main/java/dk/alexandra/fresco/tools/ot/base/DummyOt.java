@@ -14,7 +14,7 @@ public class DummyOt implements Ot {
 
   /**
    * Construct an insecure dummy OT object based on a real network.
-   * 
+   *
    * @param otherId
    *          The ID of the other party
    * @param network
@@ -31,8 +31,8 @@ public class DummyOt implements Ot {
     byte[] messageZeroRaw = this.network.receive(this.otherId);
     byte[] messageOneRaw = this.network.receive(this.otherId);
     return !choiceBit
-        ? new StrictBitVector(messageZeroRaw, messageZeroRaw.length * 8)
-        : new StrictBitVector(messageOneRaw, messageOneRaw.length * 8);
+        ? new StrictBitVector(messageZeroRaw)
+        : new StrictBitVector(messageOneRaw);
   }
 
   @Override

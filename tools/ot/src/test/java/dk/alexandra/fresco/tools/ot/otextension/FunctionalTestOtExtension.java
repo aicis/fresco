@@ -87,7 +87,7 @@ public class FunctionalTestOtExtension {
     List<Pair<StrictBitVector, StrictBitVector>> res = new ArrayList<>(size);
     for (int i = 0; i < size; i++) {
       StrictBitVector oneMessage = new StrictBitVector(zeroMessages.get(i)
-          .toByteArray(), zeroMessages.get(i).getSize());
+          .toByteArray());
       oneMessage.xor(delta);
       Pair<StrictBitVector, StrictBitVector> current = new Pair<>(zeroMessages
           .get(i), oneMessage);

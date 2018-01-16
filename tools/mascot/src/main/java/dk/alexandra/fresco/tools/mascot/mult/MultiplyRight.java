@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
  *
  * <p>One input is held by the left party, the other by the right party. The protocol is asymmetric
  * in the sense that the left party performs a different computation from the right party. This
- * class implements the functionality of the right party. For the other side,
- * see {@link MultiplyLeft}. The resulting product is secret-shared among the two parties.</p>
+ * class implements the functionality of the right party. For the other side, see {@link
+ * MultiplyLeft}. The resulting product is secret-shared among the two parties.</p>
  */
 public class MultiplyRight extends MultiplyShared {
 
@@ -31,13 +31,12 @@ public class MultiplyRight extends MultiplyShared {
   }
 
   /**
-   * Generate random seed pairs using OT. <br>
-   * The seed pairs are correlated with the multiplication factors of the other party. If the other
-   * party's factors (represented as a bit vector) is 010, this party will receive seed pairs
-   * <i>(a<sub>0</sub>, a<sub>1</sub>), (b<sub>0</sub>, b<sub>1</sub>), (c<sub>0</sub>,
-   * c<sub>1</sub>)</i> whereas the other party will receive seeds <i>a<sub>0</sub>, b<sub>1</sub>,
-   * c<sub>0</sub></i>. The parties can use the resulting seeds to compute the shares of the product
-   * of their factors.
+   * Generate random seed pairs using OT. <br> The seed pairs are correlated with the multiplication
+   * factors of the other party. If the other party's factors (represented as a bit vector) is 010,
+   * this party will receive seed pairs <i>(a<sub>0</sub>, a<sub>1</sub>), (b<sub>0</sub>,
+   * b<sub>1</sub>), (c<sub>0</sub>, c<sub>1</sub>)</i> whereas the other party will receive seeds
+   * <i>a<sub>0</sub>, b<sub>1</sub>, c<sub>0</sub></i>. The parties can use the resulting seeds to
+   * compute the shares of the product of their factors.
    *
    * @param numMults the number of total multiplications
    * @param seedLength the bit length of the seeds
@@ -60,9 +59,8 @@ public class MultiplyRight extends MultiplyShared {
   }
 
   /**
-   * Computes "masked" share of each bit of each of this party's factors. <br>
-   * For each seed pair (q0, q1)_n compute q0 - q1 + bn where bn is the n-th bit of this party's
-   * factor.
+   * Computes "masked" share of each bit of each of this party's factors. <br> For each seed pair
+   * (q0, q1)_n compute q0 - q1 + bn where bn is the n-th bit of this party's factor.
    *
    * @param feSeedPairs seed pairs as field elements
    * @param rightFactors this party's factors
@@ -83,14 +81,9 @@ public class MultiplyRight extends MultiplyShared {
     return diffs;
   }
 
-  public void sendDiffs(List<FieldElement> diffs) {
-    getNetwork().send(otherId, getFieldElementSerializer().serialize(diffs));
-  }
-
   /**
-   * Computes this party's shares of the final products. <br>
-   * For each seed pair (q0, q1) this party holds, uses q0 to recombine into field elements
-   * representing the product shares.
+   * Computes this party's shares of the final products. <br> For each seed pair (q0, q1) this party
+   * holds, uses q0 to recombine into field elements representing the product shares.
    *
    * @param feZeroSeeds the zero choice seeds
    * @param numRightFactors number of total right factors
@@ -126,9 +119,8 @@ public class MultiplyRight extends MultiplyShared {
   }
 
   /**
-   * Computes product shares. <br>
-   * For each right factor r and left factor group of other party (l0, l1, ...), computes secret
-   * shares of products r * l0, r*l1, ... .
+   * Computes product shares. <br> For each right factor r and left factor group of other party (l0,
+   * l1, ...), computes secret shares of products r * l0, r*l1, ... .
    *
    * @param rightFactors this party's factors
    * @return product shares
@@ -145,7 +137,7 @@ public class MultiplyRight extends MultiplyShared {
     List<FieldElement> diffs = computeDiffs(feSeedPairs, rightFactors);
 
     // send diffs over to other party
-    sendDiffs(diffs);
+    getNetwork().send(getOtherId(), getFieldElementSerializer().serialize(diffs));
 
     // get zero index seeds
     List<FieldElement> feZeroSeeds =

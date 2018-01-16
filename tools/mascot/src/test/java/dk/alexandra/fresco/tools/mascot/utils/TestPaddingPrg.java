@@ -23,7 +23,7 @@ public class TestPaddingPrg {
   public void testGetNextProducesFieldElement() {
     byte[] seedBytes = new byte[32];
     new Random().nextBytes(seedBytes);
-    StrictBitVector seed = new StrictBitVector(seedBytes, 256);
+    StrictBitVector seed = new StrictBitVector(seedBytes);
     FieldElementPrg prg = new FieldElementPrgImpl(seed);
     FieldElement el = prg.getNext(modulus, modBitLength);
     assertEquals(modulus, el.getModulus());
@@ -34,7 +34,7 @@ public class TestPaddingPrg {
   public void testGetNextProducesDifferentFieldElements() {
     byte[] seedBytes = new byte[32];
     new Random().nextBytes(seedBytes);
-    StrictBitVector seed = new StrictBitVector(seedBytes, 256);
+    StrictBitVector seed = new StrictBitVector(seedBytes);
     FieldElementPrg prg = new FieldElementPrgImpl(seed);
     FieldElement elOne = prg.getNext(modulus, modBitLength);
     FieldElement elTwo = prg.getNext(modulus, modBitLength);
@@ -46,8 +46,8 @@ public class TestPaddingPrg {
   public void testSameSeedsProduceSameFieldElements() {
     byte[] seedBytes = new byte[32];
     new Random().nextBytes(seedBytes);
-    StrictBitVector seed = new StrictBitVector(seedBytes, 256);
-    StrictBitVector seedOther = new StrictBitVector(seedBytes, 256);
+    StrictBitVector seed = new StrictBitVector(seedBytes);
+    StrictBitVector seedOther = new StrictBitVector(seedBytes);
     FieldElementPrg prgOne = new FieldElementPrgImpl(seed);
     FieldElementPrg prgTwo = new FieldElementPrgImpl(seedOther);
     FieldElement elOne = prgOne.getNext(modulus, modBitLength);
@@ -60,13 +60,13 @@ public class TestPaddingPrg {
     byte[] seedBytesOne = new byte[32];
     new Random().nextBytes(seedBytesOne);
     seedBytesOne[0] = (byte) 0x01;
-    StrictBitVector seedOne = new StrictBitVector(seedBytesOne, 256);
+    StrictBitVector seedOne = new StrictBitVector(seedBytesOne);
     FieldElementPrg prgOne = new FieldElementPrgImpl(seedOne);
 
     // make sure other seed is different
     byte[] seedBytesTwo = Arrays.copyOf(seedBytesOne, 32);
     seedBytesTwo[0] = (byte) 0x02;
-    StrictBitVector seedTwo = new StrictBitVector(seedBytesTwo, 256);
+    StrictBitVector seedTwo = new StrictBitVector(seedBytesTwo);
     FieldElementPrg prgTwo = new FieldElementPrgImpl(seedTwo);
 
     FieldElement elOne = prgOne.getNext(modulus, modBitLength);

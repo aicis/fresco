@@ -11,7 +11,10 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.List;
 
-public class BaseProtocol {
+/**
+ * Class that stores data and resources common across all MPC protocols.
+ */
+public abstract class BaseProtocol {
 
   private final MascotResourcePool resourcePool;
   private final Network network;

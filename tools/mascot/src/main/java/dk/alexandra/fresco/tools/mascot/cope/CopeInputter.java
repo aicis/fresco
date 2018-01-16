@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
+import dk.alexandra.fresco.tools.mascot.TwoPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyRight;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
@@ -21,12 +22,11 @@ import java.util.stream.Stream;
  *
  * <p>COPE allows two parties, the <i>inputter</i> and the <i>signer</i>, where the inputter holds
  * input values <i>e<sub>1</sub>, ..., e<sub>n</sub></i>, and the signer holds single value <i>s</i>
- * to secret-shared result of <i>s * e<sub>1</sub>, ..., s * e<sub>n</sub></i>.
- * This side of the protocol is to be run by the inputter party. For the other side of the protocol,
- * see {@link CopeSigner}.</p>
- *
+ * to secret-shared result of <i>s * e<sub>1</sub>, ..., s * e<sub>n</sub></i>. This side of the
+ * protocol is to be run by the inputter party. For the other side of the protocol, see {@link
+ * CopeSigner}.</p>
  */
-public class CopeInputter extends CopeShared {
+public class CopeInputter extends TwoPartyProtocol {
 
   private final List<FieldElementPrg> leftPrgs;
   private final List<FieldElementPrg> rightPrgs;
@@ -35,9 +35,8 @@ public class CopeInputter extends CopeShared {
   /**
    * Creates a new {@link CopeInputter} and initializes the COPE protocol.
    *
-   * <p>This will run the initialization sub-protocol of COPE using an OT protocol to set up the
-   * PRG seeds used in the <i>Extend</i> sub-protocol.</p>
-   *
+   * <p>This will run the initialization sub-protocol of COPE using an OT protocol to set up the PRG
+   * seeds used in the <i>Extend</i> sub-protocol.</p>
    */
   public CopeInputter(MascotResourcePool resourcePool, Network network, Integer otherId) {
     super(resourcePool, network, otherId);
@@ -66,7 +65,7 @@ public class CopeInputter extends CopeShared {
     // compute t0 - t1 + x for each input x for each mask pair
     List<FieldElement> diffs = multiplier.computeDiffs(maskPairs, inputElements);
     // send diffs
-    multiplier.sendDiffs(diffs);
+    getNetwork().send(getOtherId(), getFieldElementSerializer().serialize(diffs));
     // get zero index masks
     List<FieldElement> feZeroSeeds =
         maskPairs.stream().map(feSeedPair -> feSeedPair.getFirst()).collect(Collectors.toList());

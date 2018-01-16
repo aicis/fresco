@@ -84,9 +84,9 @@ public class FunctionalTestBristolOt {
     byte[] msgBytes = new byte[messageLength / 8];
     for (int i = 0; i < iterations; i++) {
       rand.nextBytes(msgBytes);
-      StrictBitVector msgZero = new StrictBitVector(msgBytes, messageLength);
+      StrictBitVector msgZero = new StrictBitVector(msgBytes);
       rand.nextBytes(msgBytes);
-      StrictBitVector msgOne = new StrictBitVector(msgBytes, messageLength);
+      StrictBitVector msgOne = new StrictBitVector(msgBytes);
       otSender.send(msgZero, msgOne);
       Pair<StrictBitVector, StrictBitVector> currentPair =
           new Pair<StrictBitVector, StrictBitVector>(msgZero, msgOne);
@@ -226,9 +226,9 @@ public class FunctionalTestBristolOt {
     Drbg rand = ctx.createRand(1);
     byte[] msgBytes = new byte[messageLength / 8];
     rand.nextBytes(msgBytes);
-    StrictBitVector msgZero = new StrictBitVector(msgBytes, messageLength);
+    StrictBitVector msgZero = new StrictBitVector(msgBytes);
     rand.nextBytes(msgBytes);
-    StrictBitVector msgOne = new StrictBitVector(msgBytes, messageLength);
+    StrictBitVector msgOne = new StrictBitVector(msgBytes);
     otSender.send(msgZero, msgOne);
     return null;
   }

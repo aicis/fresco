@@ -61,6 +61,6 @@ public class BristolOt implements Ot {
       this.receiver = new BristolOtReceiver(receiver, batchSize);
     }
     byte[] res = receiver.receive(choiceBit);
-    return new StrictBitVector(res, 8 * res.length);
+    return new StrictBitVector(res);
   }
 }
