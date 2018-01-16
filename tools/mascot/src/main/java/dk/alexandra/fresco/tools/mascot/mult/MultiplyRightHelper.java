@@ -9,6 +9,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * A helper class for multiplication-based protocols {@link dk.alexandra.fresco.tools.mascot.cope.CopeInputter}
+ * and {@link MultiplyRight}. These two classes share a lot functionality. This functionality is
+ * implemented here.
+ */
 public class MultiplyRightHelper extends MultiplySharedHelper {
 
   public MultiplyRightHelper(MascotResourcePool resourcePool,
@@ -22,12 +27,12 @@ public class MultiplyRightHelper extends MultiplySharedHelper {
   }
 
   /**
-   * Generate random seed pairs using OT. <br> The seed pairs are correlated with the
-   * multiplication factors of the other party. If the other party's factors (represented as a bit
-   * vector) is 010, this party will receive seed pairs <i>(a<sub>0</sub>, a<sub>1</sub>),
-   * (b<sub>0</sub>, b<sub>1</sub>), (c<sub>0</sub>, c<sub>1</sub>)</i> whereas the other party
-   * will receive seeds <i>a<sub>0</sub>, b<sub>1</sub>, c<sub>0</sub></i>. The parties can use
-   * the resulting seeds to compute the shares of the product of their factors.
+   * Generate random seed pairs using OT. <br> The seed pairs are correlated with the multiplication
+   * factors of the other party. If the other party's factors (represented as a bit vector) is 010,
+   * this party will receive seed pairs <i>(a<sub>0</sub>, a<sub>1</sub>), (b<sub>0</sub>,
+   * b<sub>1</sub>), (c<sub>0</sub>, c<sub>1</sub>)</i> whereas the other party will receive seeds
+   * <i>a<sub>0</sub>, b<sub>1</sub>, c<sub>0</sub></i>. The parties can use the resulting seeds to
+   * compute the shares of the product of their factors.
    *
    * @param numMults the number of total multiplications
    * @param seedLength the bit length of the seeds
@@ -75,8 +80,8 @@ public class MultiplyRightHelper extends MultiplySharedHelper {
   }
 
   /**
-   * Computes this party's shares of the final products. <br> For each seed pair (q0, q1) this
-   * party holds, uses q0 to recombine into field elements representing the product shares.
+   * Computes this party's shares of the final products. <br> For each seed pair (q0, q1) this party
+   * holds, uses q0 to recombine into field elements representing the product shares.
    *
    * @param feZeroSeeds the zero choice seeds
    * @param numRightFactors number of total right factors

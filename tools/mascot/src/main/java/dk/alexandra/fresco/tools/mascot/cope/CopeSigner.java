@@ -50,12 +50,6 @@ public class CopeSigner extends TwoPartyProtocol {
     seedPrgs(multiplier.generateSeeds(macKeyShare, getLambdaSecurityParam()));
   }
 
-  void seedPrgs(List<StrictBitVector> seeds) {
-    for (StrictBitVector seed : seeds) {
-      prgs.add(new FieldElementPrgImpl(seed));
-    }
-  }
-
   /**
    * Computes shares of product of this party's mac key share and other party's inputs.
    *
@@ -75,17 +69,24 @@ public class CopeSigner extends TwoPartyProtocol {
     return multiplier.computeProductShares(macKeyShares, chosenMasks, diffs);
   }
 
-  List<FieldElement> generateMasks(int numInputs, BigInteger modulus, int modBitLength) {
+  private List<FieldElement> generateMasks(int numInputs, BigInteger modulus, int modBitLength) {
     // for each input pair, we use our prgs to get the next set of masks
     List<FieldElement> masks = new ArrayList<>();
     // generate mask for each input
     for (int i = 0; i < numInputs; i++) {
       // generate masks for single input
-      List<FieldElement> singleInputMasks =
-          prgs.stream().map(prg -> prg.getNext(modulus, modBitLength)).collect(Collectors.toList());
+      List<FieldElement> singleInputMasks = prgs.stream()
+          .map(prg -> prg.getNext(modulus, modBitLength))
+          .collect(Collectors.toList());
       masks.addAll(singleInputMasks);
     }
     return masks;
+  }
+
+  private void seedPrgs(List<StrictBitVector> seeds) {
+    for (StrictBitVector seed : seeds) {
+      prgs.add(new FieldElementPrgImpl(seed));
+    }
   }
 
 }

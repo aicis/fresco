@@ -46,13 +46,6 @@ public class CopeInputter extends TwoPartyProtocol {
     seedPrgs(multiplier.generateSeeds(1, getLambdaSecurityParam()));
   }
 
-  void seedPrgs(List<Pair<StrictBitVector, StrictBitVector>> seeds) {
-    for (Pair<StrictBitVector, StrictBitVector> seedPair : seeds) {
-      this.leftPrgs.add(new FieldElementPrgImpl(seedPair.getFirst()));
-      this.rightPrgs.add(new FieldElementPrgImpl(seedPair.getSecond()));
-    }
-  }
-
   /**
    * Computes shares of products of this party's input elements and other party's mac key share.
    *
@@ -75,7 +68,7 @@ public class CopeInputter extends TwoPartyProtocol {
     return productShares;
   }
 
-  List<Pair<FieldElement, FieldElement>> generateMaskPairs(int numInputs) {
+  private List<Pair<FieldElement, FieldElement>> generateMaskPairs(int numInputs) {
     // for each input pair, we use our prf to get the next set of masks
     List<Pair<FieldElement, FieldElement>> maskPairs = new ArrayList<>();
     for (int i = 0; i < numInputs; i++) {
@@ -85,7 +78,8 @@ public class CopeInputter extends TwoPartyProtocol {
     return maskPairs;
   }
 
-  List<Pair<FieldElement, FieldElement>> generateMaskPairs(BigInteger modulus, int modBitLength) {
+  private List<Pair<FieldElement, FieldElement>> generateMaskPairs(BigInteger modulus,
+      int modBitLength) {
     Stream<Pair<FieldElement, FieldElement>> maskStream =
         IntStream.range(0, leftPrgs.size()).mapToObj(idx -> {
           FieldElement t0 = this.leftPrgs.get(idx).getNext(modulus, modBitLength);
@@ -93,6 +87,13 @@ public class CopeInputter extends TwoPartyProtocol {
           return new Pair<>(t0, t1);
         });
     return maskStream.collect(Collectors.toList());
+  }
+
+  private void seedPrgs(List<Pair<StrictBitVector, StrictBitVector>> seeds) {
+    for (Pair<StrictBitVector, StrictBitVector> seedPair : seeds) {
+      this.leftPrgs.add(new FieldElementPrgImpl(seedPair.getFirst()));
+      this.rightPrgs.add(new FieldElementPrgImpl(seedPair.getSecond()));
+    }
   }
 
 }

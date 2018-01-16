@@ -8,6 +8,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * A helper class for multiplication-based protocols {@link dk.alexandra.fresco.tools.mascot.cope.CopeSigner}
+ * and {@link MultiplyLeft}. These two classes share a lot functionality. This functionality is
+ * implemented here.
+ */
 public class MultiplyLeftHelper extends MultiplySharedHelper {
 
   public MultiplyLeftHelper(MascotResourcePool resourcePool,
