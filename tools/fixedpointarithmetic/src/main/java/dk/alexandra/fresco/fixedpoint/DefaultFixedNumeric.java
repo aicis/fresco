@@ -119,4 +119,29 @@ public class DefaultFixedNumeric implements FixedNumeric {
       return new SFixed(output);
     };
   }
+
+  @Override
+  public DRes<SFixed> div(DRes<SFixed> a, DRes<SFixed> b) {
+    DRes<SInt> sintA = a.out().getSInt();
+    DRes<SInt> sintB = b.out().getSInt();
+    
+    return () -> {
+      DRes<SInt> scaledA = builder.numeric().mult(BigInteger.TEN.pow(precision), sintA);
+      DRes<SInt> input = builder.advancedNumeric().div(scaledA, sintB);
+      return new SFixed(input);
+    };
+  }
+
+  @Override
+  public DRes<SFixed> div(DRes<SFixed> a, BigDecimal b) {
+    DRes<SInt> sintA = a.out().getSInt();
+    b = b.setScale(this.precision, RoundingMode.HALF_UP);
+    
+    DRes<SInt> input = builder.advancedNumeric().div(
+        builder.numeric().mult(BigInteger.TEN.pow(this.precision), sintA), 
+        b.unscaledValue());
+    return () -> {
+      return new SFixed(input);
+    };
+  }
 }

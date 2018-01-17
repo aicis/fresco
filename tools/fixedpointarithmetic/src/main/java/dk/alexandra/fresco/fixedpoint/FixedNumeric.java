@@ -66,6 +66,22 @@ public interface FixedNumeric extends ComputationDirectory {
   DRes<SFixed> mult(BigDecimal a, DRes<SFixed> b);
 
   /**
+   * Divides two secret values and returns the result.
+   * @param a Secret value 1
+   * @param b Secret value 2
+   * @return A deferred result computing a/b
+   */
+  DRes<SFixed> div(DRes<SFixed> a, DRes<SFixed> b);
+
+  /**
+   * Divides a secret value with a public value and returns the result.
+   * @param a Secret value
+   * @param b Public value
+   * @return A deferred result computing a/b
+   */
+  DRes<SFixed> div(DRes<SFixed> a, BigDecimal b);
+  
+  /**
    * Creates a known secret value from a public value. This is primarily a helper function in order
    * to use public values within the FRESCO functions.
    * 

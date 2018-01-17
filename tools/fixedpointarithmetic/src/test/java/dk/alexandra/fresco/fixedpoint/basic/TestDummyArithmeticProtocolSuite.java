@@ -66,4 +66,16 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(new BasicArithmeticTests.TestMultKnown<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
+
+  @Test
+  public void test_DivisionSecretDivisor() throws Exception {
+    runTest(new BasicArithmeticTests.TestDivisionSecret<>(), EvaluationStrategy.SEQUENTIAL,
+        2);
+  }
+  
+  @Test
+  public void test_DivisionKnownDivisor() throws Exception {
+    runTest(new BasicArithmeticTests.TestDivisionKnownDivisor<>(), EvaluationStrategy.SEQUENTIAL,
+        2);
+  }
 }

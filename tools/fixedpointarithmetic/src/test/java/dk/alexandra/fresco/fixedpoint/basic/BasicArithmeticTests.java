@@ -16,7 +16,7 @@ import org.junit.Assert;
 public class BasicArithmeticTests {
 
   public static class TestInput<ResourcePoolT extends ResourcePool>
-  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -40,7 +40,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestOpenToParty<ResourcePoolT extends ResourcePool>
-  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -70,7 +70,7 @@ public class BasicArithmeticTests {
 
   
   public static class TestKnown<ResourcePoolT extends ResourcePool>
-  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -149,7 +149,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestSubtractSecret<ResourcePoolT extends ResourcePool>
-  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -177,7 +177,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestSubKnown<ResourcePoolT extends ResourcePool>
-  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -231,7 +231,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestMultSecret<ResourcePoolT extends ResourcePool>
-  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -258,7 +258,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestMultKnown<ResourcePoolT extends ResourcePool>
-  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -281,5 +281,59 @@ public class BasicArithmeticTests {
         }
       };
     }
+  }
+  
+  public static class TestDivisionSecret<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigDecimal value = BigDecimal.valueOf(10.00100);
+      BigDecimal value2 = BigDecimal.valueOf(0.2);
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
+            FixedNumeric numeric = new DefaultFixedNumeric(producer, 5);
+
+            DRes<SFixed> input = numeric.input(value, 1);
+            DRes<SFixed> input2 = numeric.input(value2, 1);
+            DRes<SFixed> product = numeric.div(input, input2);
+
+            return numeric.open(product);
+          };
+          BigDecimal output = runApplication(app);
+          Assert.assertEquals(value.divide(value2)
+              .setScale(5, RoundingMode.HALF_UP), output);
+        }
+      };
+    }
+  }
+  
+  public static class TestDivisionKnownDivisor<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigDecimal value = BigDecimal.valueOf(10.00100);
+      BigDecimal value2 = BigDecimal.valueOf(0.2);
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
+            FixedNumeric numeric = new DefaultFixedNumeric(producer, 5);
+
+            DRes<SFixed> input = numeric.input(value, 1);
+            DRes<SFixed> product = numeric.div(input, value2);
+
+            return numeric.open(product);
+          };
+          BigDecimal output = runApplication(app);
+          Assert.assertEquals(value.divide(value2)
+              .setScale(5, RoundingMode.HALF_UP), output);
+        }
+      };
+    }
   }  
+  
 }
