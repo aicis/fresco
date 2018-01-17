@@ -233,7 +233,6 @@ public class TripleGeneration extends BaseProtocol {
         new FieldElement(0, getModulus(), getModBitLength()), sigmas.size());
 
     // run mac-check
-    // TODO check if we can avoid re-masking
     elementGeneration.check(rhos, paddedRhos);
 
     // convert candidates to valid triples and return
