@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 
 /**
  * Actively-secure protocol for computing authenticated, secret-shared multiplication triples based
- * on the MASCOT protocol (https://eprint.iacr.org/2016/505.pdf).
+ * on the MASCOT protocol (<a href="https://eprint.iacr.org/2016/505.pdf">https://eprint.iacr.org/2016/505.pdf</a>).
  *
  * <p>In particular, produces random, authenticated, secret-shared triples of the form a, b, c such
  * that <i>a * b = c</i>. This protocol is refered to as <i>&Pi;<sub>Triple</sub></i> and listed as
@@ -237,6 +237,7 @@ public class TripleGeneration extends BaseProtocol {
   }
 
   private final class UnauthTriple {
+
     private final List<FieldElement> leftFactors;
     private final FieldElement rightFactor;
     private final List<FieldElement> product;
@@ -259,6 +260,7 @@ public class TripleGeneration extends BaseProtocol {
   }
 
   private class TripleCandidate<T> {
+
     protected final T leftFactor;
     protected final T rightFactor;
     protected final T product;
@@ -283,6 +285,7 @@ public class TripleGeneration extends BaseProtocol {
   }
 
   private final class UnauthCand extends TripleCandidate<FieldElement> {
+
     UnauthCand(FieldElement leftFactor, FieldElement rightFactor, FieldElement product,
         FieldElement leftFactorHat, FieldElement productHat) {
       super(leftFactor, rightFactor, product, leftFactorHat, productHat);
@@ -290,6 +293,7 @@ public class TripleGeneration extends BaseProtocol {
   }
 
   private final class AuthCand extends TripleCandidate<AuthenticatedElement> {
+
     public AuthCand(List<AuthenticatedElement> ordered) {
       super(ordered);
     }

@@ -18,9 +18,10 @@ import java.util.stream.IntStream;
 
 /**
  * Actively-secure protocol for generating authentication, secret-shared elements based on the
- * MASCOT protocol (https://eprint.iacr.org/2016/505.pdf). <br> Allows a single party to
- * secret-share a field element among all parties such that the element is authenticated via a MAC.
- * The MAC is secret-shared among the parties, as is the MAC key.
+ * MASCOT protocol (<a href="https://eprint.iacr.org/2016/505.pdf">https://eprint.iacr.org/2016/505.pdf</a>).
+ * <br> Allows a single party to secret-share a field element among all parties such that the
+ * element is authenticated via a MAC. The MAC is secret-shared among the parties, as is the MAC
+ * key.
  */
 public class ElementGeneration extends BaseProtocol {
 
@@ -45,22 +46,7 @@ public class ElementGeneration extends BaseProtocol {
     this.sharer = new AdditiveSharer(localSampler, getModulus(), getModBitLength());
     this.copeSigners = new HashMap<>();
     this.copeInputters = new HashMap<>();
-    for (Integer partyId : getPartyIds()) {
-      if (getMyId() != partyId) {
-        CopeSigner signer;
-        CopeInputter inputter;
-        // construction order matters since receive blocks and this is not parallelized
-        if (getMyId() < partyId) {
-          signer = new CopeSigner(resourcePool, network, partyId, this.macKeyShare);
-          inputter = new CopeInputter(resourcePool, network, partyId);
-        } else {
-          inputter = new CopeInputter(resourcePool, network, partyId);
-          signer = new CopeSigner(resourcePool, network, partyId, this.macKeyShare);
-        }
-        copeInputters.put(partyId, inputter);
-        copeSigners.put(partyId, signer);
-      }
-    }
+    initializeCope(resourcePool, network);
   }
 
   /**
@@ -143,15 +129,12 @@ public class ElementGeneration extends BaseProtocol {
     return authenticatedElements;
   }
 
-  void runMacCheck(FieldElement value, List<FieldElement> masks, List<FieldElement> macs) {
-    // mask and combine macs
-    FieldElement maskedMac = getFieldElementUtils().innerProduct(macs, masks);
-    // perform mac-check on open masked value
-    macChecker.check(value, macKeyShare, maskedMac);
-  }
 
   /**
    * Runs mac-check on opened values.
+   *
+   * @param sharesWithMacs authenticated shares holding mac shares
+   * @param openValues batch of opened, unchecked values
    */
   public void check(List<AuthenticatedElement> sharesWithMacs, List<FieldElement> openValues) {
     // will use this to mask macs
@@ -251,6 +234,44 @@ public class ElementGeneration extends BaseProtocol {
           return new AuthenticatedElement(share, mac, getModulus(), getModBitLength());
         })
         .collect(Collectors.toList());
+  }
+
+  /**
+   * Performs mac check on opened value. The opened value is a linear combination of a batch of
+   * opened values and random coefficients {@code randomCoefficients}.
+   *
+   * @param value a linear combination of a batch of opened values and random coefficients
+   * @param randomCoefficients random coefficients
+   * @param macs mac shares
+   */
+  private void runMacCheck(FieldElement value, List<FieldElement> randomCoefficients,
+      List<FieldElement> macs) {
+    // mask and combine macs
+    FieldElement maskedMac = getFieldElementUtils().innerProduct(macs, randomCoefficients);
+    // perform mac-check on open masked value
+    macChecker.check(value, macKeyShare, maskedMac);
+  }
+
+  /**
+   * Initializes COPE protocols. This corresponds to
+   */
+  private void initializeCope(MascotResourcePool resourcePool, Network network) {
+    for (Integer partyId : getPartyIds()) {
+      if (getMyId() != partyId) {
+        CopeSigner signer;
+        CopeInputter inputter;
+        // construction order matters since receive blocks and this is not parallelized
+        if (getMyId() < partyId) {
+          signer = new CopeSigner(resourcePool, network, partyId, this.macKeyShare);
+          inputter = new CopeInputter(resourcePool, network, partyId);
+        } else {
+          inputter = new CopeInputter(resourcePool, network, partyId);
+          signer = new CopeSigner(resourcePool, network, partyId, this.macKeyShare);
+        }
+        copeInputters.put(partyId, inputter);
+        copeSigners.put(partyId, signer);
+      }
+    }
   }
 
 }
