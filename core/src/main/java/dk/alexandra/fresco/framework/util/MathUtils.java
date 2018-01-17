@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.framework.util;
 
-import dk.alexandra.fresco.framework.builder.binary.Binary;
 import java.math.BigInteger;
 
 public class MathUtils {
