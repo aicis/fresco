@@ -51,6 +51,7 @@ public class ElementGeneration extends BaseProtocol {
 
   /**
    * Computes this party's authenticated shares of input. <br> To be called by input party.
+   * Implements the input party's side of the Input sub-protocol of Protocol 3.
    *
    * @param values values to input
    * @return authenticated shares of inputs
@@ -59,33 +60,32 @@ public class ElementGeneration extends BaseProtocol {
     // make sure we are working with an array list
     values = new ArrayList<>(values);
 
-    // add extra random element which will later be used to mask inputs
+    // add extra random element which will later be used to mask inputs (step 1)
     FieldElement extraElement = localSampler.getNext(getModulus(), getModBitLength());
     values.add(extraElement);
 
-    // inputter secret-shares input values
+    // inputter secret-shares input values (step 2)
     List<FieldElement> shares = secretShare(values, getPartyIds().size());
 
-    // compute per element mac share
+    // compute per element mac share (steps 3, 4, 5)
     List<FieldElement> macs = macValues(values);
 
-    // generate coefficients for values and macs
+    // generate coefficients for values and macs (step 6)
     List<FieldElement> coefficients = jointSampler
         .getNext(getModulus(), getModBitLength(), values.size());
 
-    // mask and combine values
+    // mask and combine values (step 7)
     FieldElement maskedValue = getFieldElementUtils().innerProduct(values, coefficients);
-
     // send masked value to all other parties
     getNetwork().sendToAll(getFieldElementSerializer().serialize(maskedValue));
     // so that we can use receiveFromAll correctly later
     getNetwork().receive(getMyId());
 
-    // perform mac-check on opened value (will throw if mac check fails)
+    // perform mac-check on opened value (will throw if mac check fails) (steps 8 and 9)
     runMacCheck(maskedValue, coefficients, macs);
 
     // combine shares and mac shares to authenticated elements
-    // (exclude mac and share of extra element)
+    // (exclude mac and share of extra element) (step 10)
     List<FieldElement> inputElementMacs = macs.subList(0, shares.size() - 1);
     List<AuthenticatedElement> authenticatedElements = toAuthenticatedElements(
         shares.subList(0, shares.size() - 1),
@@ -94,34 +94,35 @@ public class ElementGeneration extends BaseProtocol {
   }
 
   /**
-   * Computes this party's authenticated shares of inputter party's inputs.
+   * Computes this party's authenticated shares of inputter party's inputs. Implements a non-input
+   * party's side of the Input sub-protocol of Protocol 3.
    *
    * @param inputterId id of inputter
    * @param numInputs number of inputs
    * @return authenticated shares of inputs
    */
   public List<AuthenticatedElement> input(Integer inputterId, int numInputs) {
-    // receive shares from inputter
+    // receive shares from inputter (step 2)
     List<FieldElement> shares =
         getFieldElementSerializer().deserializeList(getNetwork().receive(inputterId));
 
-    // receive per-element mac shares
+    // receive per-element mac shares (steps 3 through 5)
     CopeSigner copeSigner = copeSigners.get(inputterId);
     List<FieldElement> macs = copeSigner.extend(numInputs + 1);
 
-    // generate coefficients for macs
+    // generate coefficients for macs (step 6)
     List<FieldElement> coefficients = jointSampler
         .getNext(getModulus(), getModBitLength(), numInputs + 1);
 
-    // receive masked value we will use in mac-check
+    // receive masked value we will use in mac-check (step 7)
     FieldElement maskedValue =
         getFieldElementSerializer().deserialize(getNetwork().receive(inputterId));
 
-    // perform mac-check on opened value
+    // perform mac-check on opened value (steps 8 through 9)
     runMacCheck(maskedValue, coefficients, macs);
 
     // combine shares and mac shares to authenticated  elements
-    // (exclude mac and share of extra element)
+    // (exclude mac and share of extra element) (step 10)
     List<FieldElement> inputElementMacs = macs.subList(0, numInputs);
     List<AuthenticatedElement> authenticatedElements = toAuthenticatedElements(
         shares.subList(0, numInputs),
@@ -131,7 +132,7 @@ public class ElementGeneration extends BaseProtocol {
 
 
   /**
-   * Runs mac-check on opened values.
+   * Runs mac-check on opened values. Implements Check sub-protocol of Protocol 3.
    *
    * @param sharesWithMacs authenticated shares holding mac shares
    * @param openValues batch of opened, unchecked values
@@ -149,13 +150,14 @@ public class ElementGeneration extends BaseProtocol {
   }
 
   /**
-   * Opens secret elements (distributes shares among all parties and recombines).
+   * Opens secret elements (distributes shares among all parties and recombines). Implements Open
+   * sub-protocol of Protocol 3.
    *
    * @param closed authenticated elements to open
    * @return opened value
    */
   public List<FieldElement> open(List<AuthenticatedElement> closed) {
-    // get shares from authenticated elements
+    // get shares from authenticated elements (step 1)
     List<FieldElement> ownShares =
         closed.stream().map(AuthenticatedElement::getShare).collect(Collectors.toList());
     // send own shares to others
@@ -166,7 +168,7 @@ public class ElementGeneration extends BaseProtocol {
     List<List<FieldElement>> shares = rawShares.stream()
         .map(getFieldElementSerializer()::deserializeList)
         .collect(Collectors.toList());
-    // recombine
+    // recombine (step 2)
     return getFieldElementUtils().sumRows(shares);
   }
 
@@ -253,7 +255,8 @@ public class ElementGeneration extends BaseProtocol {
   }
 
   /**
-   * Initializes COPE protocols. This corresponds to
+   * Initializes COPE protocols. Implements Initialize sub-protocol of Protocol 3 (with the only
+   * difference that the mac key share has already been sampled before this protocol runs).
    */
   private void initializeCope(MascotResourcePool resourcePool, Network network) {
     for (Integer partyId : getPartyIds()) {
