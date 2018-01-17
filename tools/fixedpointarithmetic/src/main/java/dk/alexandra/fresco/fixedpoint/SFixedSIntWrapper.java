@@ -5,7 +5,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 
 public class SFixedSIntWrapper implements SFixed, DRes<SFixedSIntWrapper> {
 
-  private DRes<SInt> value;
+  private final DRes<SInt> value;
 
   public SFixedSIntWrapper(DRes<SInt> value) {
     this.value = value;
