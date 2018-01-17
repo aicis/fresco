@@ -12,12 +12,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Actively-secure two-party protocol for computing the product of two secret inputs.
+ * Right hand side of the actively-secure two-party protocol for computing a secret sharing of a the
+ * scalar product <i><b>c</b>= <b>a</b>b</i> of a vector <i><b>a</b></i> held by the <i>left</i>
+ * party and a factor <i>b</i> held by the <i>right</i> party.
  *
- * <p>One input is held by the left party, the other by the right party. The protocol is asymmetric
- * in the sense that the left party performs a different computation from the right party. This
- * class implements the functionality of the right party. For the other side,
- * see {@link MultiplyLeft}. The resulting product is secret-shared among the two parties.</p>
+ * <p>
+ * This protocol corresponds to steps 1 and 2 of the <i>Multiply</i> sub-protocol of the
+ * <i>&Pi;<sub>Triple</sub></i> protocol of the MASCOT paper. This implementation will batch runs of
+ * a number these protocols. I.e., it will compute the secret sharing of a number of scalar product
+ * in one batch.
+ * </p>
+ * <p>
+ * This class implements the functionality of the right party. For the other side, see
+ * {@link MultiplyLeft}. The resulting scalar product is secret-shared among the two parties.
+ * </p>
  */
 public class MultiplyRight extends MultiplyShared {
 
@@ -31,13 +39,46 @@ public class MultiplyRight extends MultiplyShared {
   }
 
   /**
-   * Generate random seed pairs using OT. <br>
+   * Runs a batch of the multiply protocol with a given set of right hand factors.
+   *
+   * <p>
+   * For each right factor <i>b</i> and left vector of the other party <i><b>a</b> = (a<sub>0</sub>,
+   * a<sub>1</sub>, ...)</i>, the protocol computes secret shares of scalar product
+   * <i><b>a</b>b = (a<sub>0</sub>b, a<sub>1</sub>b, ... </i>).
+   * </p>
+   *
+   * @param rightFactors this party's factors <i>b<sub>0</sub>, b<sub>1</sub> ...</i>
+   * @return shares of the scalar products <i><b>a</b><sub>0</sub>b<sub>0</sub>,
+   * <b>a</b><sub>1</sub>b<sub>1</sub> ... </i>
+   */
+  public List<FieldElement> multiply(List<FieldElement> rightFactors) {
+    List<Pair<StrictBitVector, StrictBitVector>> seedPairs =
+        generateSeeds(rightFactors.size(), getModBitLength());
+    // convert seeds pairs to field elements pairs (q_0, q_1) so we can compute on them
+    List<Pair<FieldElement, FieldElement>> feSeedPairs =
+        seedsToFieldElements(seedPairs, getModulus(), getModBitLength());
+    // compute q0 - q1 + b for each seed pair
+    List<FieldElement> diffs = computeDiffs(feSeedPairs, rightFactors);
+    // send diffs over to other party
+    sendDiffs(diffs);
+    // get zero index seeds
+    List<FieldElement> feZeroSeeds =
+        feSeedPairs.stream().map(Pair::getFirst).collect(Collectors.toList());
+    // compute product shares
+    return computeProductShares(feZeroSeeds, rightFactors.size());
+  }
+
+  /**
+   * Generate random seed pairs using OT.
+   *
+   * <p>
    * The seed pairs are correlated with the multiplication factors of the other party. If the other
    * party's factors (represented as a bit vector) is 010, this party will receive seed pairs
    * <i>(a<sub>0</sub>, a<sub>1</sub>), (b<sub>0</sub>, b<sub>1</sub>), (c<sub>0</sub>,
    * c<sub>1</sub>)</i> whereas the other party will receive seeds <i>a<sub>0</sub>, b<sub>1</sub>,
    * c<sub>0</sub></i>. The parties can use the resulting seeds to compute the shares of the product
    * of their factors.
+   * </p>
    *
    * @param numMults the number of total multiplications
    * @param seedLength the bit length of the seeds
@@ -52,17 +93,16 @@ public class MultiplyRight extends MultiplyShared {
     return seeds;
   }
 
-  FieldElement computeDiff(Pair<FieldElement, FieldElement> feSeedPair, FieldElement factor) {
-    FieldElement left = feSeedPair.getFirst();
-    FieldElement right = feSeedPair.getSecond();
-    FieldElement diff = left.subtract(right).add(factor);
-    return diff;
-  }
+
 
   /**
-   * Computes "masked" share of each bit of each of this party's factors. <br>
-   * For each seed pair (q0, q1)_n compute q0 - q1 + bn where bn is the n-th bit of this party's
-   * factor.
+   * Computes "masked" share of each bit of each of this party's factors.
+   *
+   * <p>
+   * For each seed pair <i>(q<sub>0</sub>, q<sub>1</sub>)<sub>n</sub></i> compute <i>q<sub>0</sub> -
+   * q<sub>1</sub> + b<sub>n</sub></i> where <i>b<sub>n</sub></i> is the <i>n</i>-th factor of this
+   * party's factor.
+   * </p>
    *
    * @param feSeedPairs seed pairs as field elements
    * @param rightFactors this party's factors
@@ -81,6 +121,13 @@ public class MultiplyRight extends MultiplyShared {
       rightFactorIdx = seedPairIdx / (getNumLeftFactors() * getModBitLength());
     }
     return diffs;
+  }
+
+  FieldElement computeDiff(Pair<FieldElement, FieldElement> feSeedPair, FieldElement factor) {
+    FieldElement left = feSeedPair.getFirst();
+    FieldElement right = feSeedPair.getSecond();
+    FieldElement diff = left.subtract(right).add(factor);
+    return diff;
   }
 
   public void sendDiffs(List<FieldElement> diffs) {
@@ -115,44 +162,17 @@ public class MultiplyRight extends MultiplyShared {
   List<Pair<FieldElement, FieldElement>> seedsToFieldElements(
       List<Pair<StrictBitVector, StrictBitVector>> seedPairs, BigInteger modulus,
       int modBitLength) {
-    // TODO need to check somewhere that the modulus is close enough to 2^modBitLength
     return seedPairs.stream().map(pair -> {
-      FieldElement t0 = new FieldElement(new BigInteger(pair.getFirst().toByteArray()).mod(modulus),
-          modulus, modBitLength);
-      FieldElement t1 = new FieldElement(
-          new BigInteger(pair.getSecond().toByteArray()).mod(modulus), modulus, modBitLength);
+      FieldElement t0 = fromBits(pair.getFirst(), modulus, modBitLength);
+      FieldElement t1 = fromBits(pair.getSecond(), modulus, modBitLength);
       return new Pair<>(t0, t1);
     }).collect(Collectors.toList());
   }
 
-  /**
-   * Computes product shares. <br>
-   * For each right factor r and left factor group of other party (l0, l1, ...), computes secret
-   * shares of products r * l0, r*l1, ... .
-   *
-   * @param rightFactors this party's factors
-   * @return product shares
-   */
-  public List<FieldElement> multiply(List<FieldElement> rightFactors) {
-    List<Pair<StrictBitVector, StrictBitVector>> seedPairs =
-        generateSeeds(rightFactors.size(), getModBitLength());
-
-    // convert seeds pairs to field elements so we can compute on them
-    List<Pair<FieldElement, FieldElement>> feSeedPairs =
-        seedsToFieldElements(seedPairs, getModulus(), getModBitLength());
-
-    // compute q0 - q1 + b for each seed pair
-    List<FieldElement> diffs = computeDiffs(feSeedPairs, rightFactors);
-
-    // send diffs over to other party
-    sendDiffs(diffs);
-
-    // get zero index seeds
-    List<FieldElement> feZeroSeeds =
-        feSeedPairs.stream().map(Pair::getFirst).collect(Collectors.toList());
-
-    // compute product shares
-    return computeProductShares(feZeroSeeds, rightFactors.size());
+  private FieldElement fromBits(StrictBitVector vector, BigInteger modulus, int modBitLength) {
+    // TODO need to check somewhere that the modulus is close enough to 2^modBitLength
+    return new FieldElement(new BigInteger(vector.toByteArray()).mod(modulus), modulus,
+        modBitLength);
   }
 
 }

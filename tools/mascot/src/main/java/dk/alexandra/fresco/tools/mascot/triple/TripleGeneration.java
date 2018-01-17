@@ -21,9 +21,11 @@ import java.util.stream.Stream;
 
 /**
  * Actively-secure protocol for computing authenticated, secret-shared multiplication triples based
- * on the MASCOT protocol (https://eprint.iacr.org/2016/505.pdf).<br>
- * In particular, produces random, authenticated, secret-shared triples of the form a, b, c such
- * that a * b = c.
+ * on the MASCOT protocol (https://eprint.iacr.org/2016/505.pdf).
+ *
+ * <p>In particular, produces random, authenticated, secret-shared triples of the form a, b, c such
+ * that <i>a * b = c</i>. This protocol is refered to as <i>&Pi;<sub>Triple</sub></i> and listed as
+ * <i>Protocol 4</i> in the MASCOT paper</p>
  */
 public class TripleGeneration extends BaseProtocol {
 
@@ -54,6 +56,34 @@ public class TripleGeneration extends BaseProtocol {
       FieldElement macKeyShare) {
     this(resourcePool, network,
         new ElementGeneration(resourcePool, network, macKeyShare, jointSampler), jointSampler);
+  }
+
+  /**
+   * Generates numTriples multiplication triples in a batch.
+   *
+   * @param numTriples number of triples to generate
+   * @return valid multiplication triples
+   */
+  public List<MultTriple> triple(int numTriples) {
+    // generate random left factor groups (a)
+    List<FieldElement> leftFactorGroups = getLocalSampler().getNext(getModulus(), getModBitLength(),
+        numTriples * getNumCandidatesPerTriple());
+    // generate random right factors (b)
+    List<FieldElement> rightFactors =
+        getLocalSampler().getNext(getModulus(), getModBitLength(), numTriples);
+    // compute product groups
+    List<FieldElement> productGroups = multiply(leftFactorGroups, rightFactors);
+    // combine into unauthenticated triples
+    List<UnauthTriple> unauthTriples = toUnauthTriple(leftFactorGroups, rightFactors,
+        productGroups);
+    // combine unauthenticated triples into unauthenticated triple candidates
+    List<UnauthCand> candidates = combine(unauthTriples);
+    // use el-gen to input candidates and combine them to the authenticated candidates
+    List<AuthCand> authenticated = authenticate(candidates);
+    // for each candidate, run sacrifice and get valid triple
+    List<MultTriple> triples = sacrifice(authenticated);
+    // return valid triples
+    return triples;
   }
 
   List<UnauthTriple> toUnauthTriple(List<FieldElement> left, List<FieldElement> right,
@@ -195,41 +225,6 @@ public class TripleGeneration extends BaseProtocol {
 
     // convert candidates to valid triples and return
     return toMultTriples(candidates);
-  }
-
-  /**
-   * Generates numTriples multiplication triples in a batch.
-   * 
-   * @param numTriples number of triples to generate
-   * @return valid multiplication triples
-   */
-  public List<MultTriple> triple(int numTriples) {
-    // generate random left factor groups
-    List<FieldElement> leftFactorGroups = getLocalSampler().getNext(getModulus(), getModBitLength(),
-        numTriples * getNumCandidatesPerTriple());
-
-    // generate random right factors
-    List<FieldElement> rightFactors =
-        getLocalSampler().getNext(getModulus(), getModBitLength(), numTriples);
-
-    // compute product groups
-    List<FieldElement> productGroups = multiply(leftFactorGroups, rightFactors);
-
-    // combine into unauthenticated triples
-    List<UnauthTriple> unauthTriples =
-        toUnauthTriple(leftFactorGroups, rightFactors, productGroups);
-
-    // combine unauthenticated triples into unauthenticated triple candidates
-    List<UnauthCand> candidates = combine(unauthTriples);
-
-    // use el-gen to input candidates and combine them to the authenticated candidates
-    List<AuthCand> authenticated = authenticate(candidates);
-
-    // for each candidate, run sacrifice and get valid triple
-    List<MultTriple> triples = sacrifice(authenticated);
-
-    // return valid triples
-    return triples;
   }
 
   private final class UnauthTriple {
