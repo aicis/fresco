@@ -15,4 +15,11 @@ public class TestMascotResourcePoolImpl {
     resourcePool.getSerializer();
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void testCreateRotForSelf() {
+    MascotResourcePool resourcePool = new MascotResourcePoolImpl(1, Collections
+        .singletonList(1), 1, new AesCtrDrbg(new byte[32]), null, null, 0, 0, 0,
+        0);
+    resourcePool.createRot(1, null);
+  }
 }
