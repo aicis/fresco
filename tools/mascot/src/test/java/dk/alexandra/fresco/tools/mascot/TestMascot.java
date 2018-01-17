@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.tools.mascot;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.tools.mascot.arithm.ArithmeticCollectionUtils;
@@ -89,8 +90,10 @@ public class TestMascot extends NetworkedTest {
     List<List<AuthenticatedElement>> results = testRuntime.runPerPartyTasks(tasks);
     assertEquals(results.get(0).size(), 1);
     assertEquals(results.get(1).size(), 1);
-
-    // TODO assert that elements are different?
+    AuthenticatedElement recombined = new ArithmeticCollectionUtils<AuthenticatedElement>()
+        .sumRows(results).get(0);
+    // sanity check
+    assertFalse(recombined.getShare().isZero());
   }
 
   @Test
