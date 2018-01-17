@@ -44,7 +44,7 @@ public class Mascot extends BaseProtocol {
         new ElementGeneration(resourcePool, network, macKeyShare, jointSampler);
     this.tripleGeneration =
         new TripleGeneration(resourcePool, network, elementGeneration, jointSampler);
-    this.bitConverter = new BitConverter(resourcePool, network, elementGeneration,
+    this.bitConverter = new BitConverter(resourcePool, network,
         new OnlinePhase(resourcePool, network, tripleGeneration, elementGeneration,
             macKeyShare), macKeyShare);
   }
