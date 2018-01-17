@@ -3,9 +3,7 @@ package dk.alexandra.fresco.tools.mascot.field;
 import static org.junit.Assert.assertEquals;
 
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
-import java.lang.reflect.Field;
 import java.math.BigInteger;
-
 import org.junit.Test;
 
 public class TestAuthenticatedElement {
