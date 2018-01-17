@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
+import dk.alexandra.fresco.framework.util.MathUtils;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 import java.math.BigInteger;
@@ -70,6 +71,15 @@ public final class FieldElement implements Addable<FieldElement> {
         bitLength);
   }
 
+  public FieldElement modInverse() {
+    return new FieldElement(value.modInverse(modulus), modulus, bitLength);
+  }
+
+  public FieldElement sqrt() {
+    BigInteger rawSqrt = MathUtils.modularSqrt(value, modulus);
+    return new FieldElement(rawSqrt, modulus, bitLength);
+  }
+
   public BigInteger toBigInteger() {
     return this.value;
   }
@@ -104,7 +114,7 @@ public final class FieldElement implements Addable<FieldElement> {
   }
 
   public StrictBitVector toBitVector() {
-    return new StrictBitVector(toByteArray(), bitLength);
+    return new StrictBitVector(toByteArray());
   }
 
   public BigInteger getModulus() {

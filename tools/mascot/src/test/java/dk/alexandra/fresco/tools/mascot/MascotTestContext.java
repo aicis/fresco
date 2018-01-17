@@ -8,9 +8,13 @@ import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.network.serializers.StrictBitVectorSerializer;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
+import dk.alexandra.fresco.tools.ot.base.DummyOt;
+import dk.alexandra.fresco.tools.ot.base.Ot;
+import dk.alexandra.fresco.tools.ot.otextension.RotList;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.HashMap;
@@ -29,14 +33,31 @@ public class MascotTestContext {
   /**
    * Creates new test context.
    */
-  public MascotTestContext(Integer myId, List<Integer> partyIds, BigInteger modulus,
-      int modBitLength, int lambdaSecurityParam, int numLeftFactors, int prgSeedLength) {
+  public MascotTestContext(Integer myId, List<Integer> partyIds, int instanceId,
+      BigInteger modulus, int modBitLength, int lambdaSecurityParam,
+      int numLeftFactors, int prgSeedLength) {
+    this.network = new KryoNetNetwork(defaultNetworkConfiguration(myId, partyIds));
     byte[] drbgSeed = new byte[prgSeedLength / 8];
     new Random(myId).nextBytes(drbgSeed);
-    this.resourcePool = new DummyMascotResourcePoolImpl(myId, partyIds,
-        new PaddingAesCtrDrbg(drbgSeed, prgSeedLength), modulus, modBitLength, lambdaSecurityParam,
-        prgSeedLength, numLeftFactors);
-    this.network = new KryoNetNetwork(defaultNetworkConfiguration(myId, partyIds));
+    Drbg drbg = new PaddingAesCtrDrbg(drbgSeed);
+    Map<Integer, RotList> seedOts = new HashMap<>();
+    for (Integer otherId : partyIds) {
+      if (myId != otherId) {
+        Ot ot = new DummyOt(otherId, network);
+        RotList currentSeedOts = new RotList(drbg, prgSeedLength);
+        if (myId < otherId) {
+          currentSeedOts.send(ot);
+          currentSeedOts.receive(ot);
+        } else {
+          currentSeedOts.receive(ot);
+          currentSeedOts.send(ot);
+        }
+        seedOts.put(otherId, currentSeedOts);
+      }
+    }
+    this.resourcePool = new MascotResourcePoolImpl(myId, partyIds,
+        instanceId, drbg, seedOts, modulus,
+        modBitLength, lambdaSecurityParam, prgSeedLength, numLeftFactors);
   }
 
   public MascotResourcePool getResourcePool() {

@@ -3,12 +3,14 @@ package dk.alexandra.fresco.tools.mascot;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.arithm.ArithmeticCollectionUtils;
+import dk.alexandra.fresco.tools.mascot.bit.BitConverter;
 import dk.alexandra.fresco.tools.mascot.cointossing.CoinTossingMpc;
 import dk.alexandra.fresco.tools.mascot.elgen.ElementGeneration;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.InputMask;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
+import dk.alexandra.fresco.tools.mascot.online.OnlinePhase;
 import dk.alexandra.fresco.tools.mascot.triple.TripleGeneration;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
@@ -19,14 +21,15 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
- * Implementation of the main MASCOT protocol (https://eprint.iacr.org/2016/505.pdf) which can be
- * used for the SPDZ pre-processing phase. <br>
- * Supports generation of multiplication triples, and random authenticated elements.
+ * Implementation of the main MASCOT protocol (<a href="https://eprint.iacr.org/2016/505.pdf">https://eprint.iacr.org/2016/505.pdf</a>)
+ * which can be used for the SPDZ pre-processing phase. <br> Supports generation of multiplication
+ * triples, random authenticated elements, and random authenticated bits.
  */
 public class Mascot extends BaseProtocol {
 
   private final TripleGeneration tripleGeneration;
   private final ElementGeneration elementGeneration;
+  private final BitConverter bitConverter;
 
   /**
    * Creates new {@link Mascot}.
@@ -41,11 +44,14 @@ public class Mascot extends BaseProtocol {
         new ElementGeneration(resourcePool, network, macKeyShare, jointSampler);
     this.tripleGeneration =
         new TripleGeneration(resourcePool, network, elementGeneration, jointSampler);
+    this.bitConverter = new BitConverter(resourcePool, network, elementGeneration,
+        new OnlinePhase(resourcePool, network, tripleGeneration, elementGeneration,
+            macKeyShare), macKeyShare);
   }
 
   /**
    * Generates a batch of multiplication triples.
-   * 
+   *
    * @param numTriples number of triples in batch
    * @return multiplication triples
    */
@@ -54,11 +60,10 @@ public class Mascot extends BaseProtocol {
   }
 
   /**
-   * Runs the input functionality on a batch of field elements. <br>
-   * Allows a party to turn unauthenticated, private field elements into a secret-shared
-   * authenticated elements. <br>
-   * The party holding the input elements should call this method.
-   * 
+   * Runs the input functionality on a batch of field elements. <br> Allows a party to turn
+   * unauthenticated, private field elements into a secret-shared authenticated elements. <br> The
+   * party holding the input elements should call this method.
+   *
    * @param rawElements field elements to input
    * @return this party's authenticated shares of the inputs
    */
@@ -68,7 +73,7 @@ public class Mascot extends BaseProtocol {
 
   /**
    * Same as {@link #input(List)} but to be called by non-input parties.
-   * 
+   *
    * @param inputterId the id of the inputter
    * @param numElements number of input elements
    * @return this party's authenticated shares of the inputs
@@ -79,7 +84,7 @@ public class Mascot extends BaseProtocol {
 
   /**
    * Creates random authenticated elements.
-   * 
+   *
    * @param numElements number of elements to create
    * @return random authenticated elements
    */
@@ -94,12 +99,12 @@ public class Mascot extends BaseProtocol {
         perPartyElements.add(elementGeneration.input(partyId, numElements));
       }
     }
-    return new ArithmeticCollectionUtils<AuthenticatedElement>().pairwiseSum(perPartyElements);
+    return new ArithmeticCollectionUtils<AuthenticatedElement>().sumRows(perPartyElements);
   }
 
   /**
    * Generates random input masks.
-   * 
+   *
    * @param maskerId the party that knows the plain mask
    * @param numMasks number of masks to generate
    * @return input masks
@@ -113,9 +118,19 @@ public class Mascot extends BaseProtocol {
           .mapToObj(idx -> new InputMask(randomMasks.get(idx), authenticated.get(idx)))
           .collect(Collectors.toList());
     } else {
-      return input(maskerId, numMasks).stream().map(el -> new InputMask(el))
+      return input(maskerId, numMasks).stream().map(InputMask::new)
           .collect(Collectors.toList());
     }
+  }
+
+  /**
+   * Generates random bits (as authenticated elements).
+   *
+   * @param numBits number of bits to generate
+   * @return random bits
+   */
+  public List<AuthenticatedElement> getRandomBits(int numBits) {
+    return bitConverter.convertToBits(getRandomElements(numBits));
   }
 
 }

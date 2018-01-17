@@ -3,10 +3,10 @@ package dk.alexandra.fresco.tools.ot.otextension;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
+import dk.alexandra.fresco.tools.cointossing.CoinTossing;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
-
 
 public class OtExtensionResourcePoolImpl extends ResourcePoolImpl implements
     OtExtensionResourcePool {
@@ -41,7 +41,10 @@ public class OtExtensionResourcePoolImpl extends ResourcePoolImpl implements
   private final int otherId;
   private final int computationalSecurityParam;
   private final int lambdaSecurityParam;
+  private final int instanceId;
   private final MessageDigest digest;
+  private final RotList seedOts;
+  private final CoinTossing ct;
 
   /**
    * Constructs an OT extension resource pool.
@@ -54,11 +57,18 @@ public class OtExtensionResourcePoolImpl extends ResourcePoolImpl implements
    *          The computational security parameter
    * @param lambdaSecurityParam
    *          The statistical security parameter
+   * @param instanceId
+   *          The instance ID of this specific resource pool instance
    * @param drbg
    *          The randomness generator to be used by the calling party
+   * @param ct
+   *          An instance of a coin tossing protocol to be used with this specific resource pool
+   * @param seedOts
+   *          The seed OTs to be used as the base of the extension
    */
   public OtExtensionResourcePoolImpl(int myId, int otherId,
-      int computationalSecurityParam, int lambdaSecurityParam, Drbg drbg) {
+      int computationalSecurityParam, int lambdaSecurityParam, int instanceId,
+      Drbg drbg, CoinTossing ct, RotList seedOts) {
     super(myId, 2, drbg);
     if (computationalSecurityParam < 1 || lambdaSecurityParam < 1
         || lambdaSecurityParam % 8 != 0 || computationalSecurityParam
@@ -69,9 +79,12 @@ public class OtExtensionResourcePoolImpl extends ResourcePoolImpl implements
     this.otherId = otherId;
     this.computationalSecurityParam = computationalSecurityParam;
     this.lambdaSecurityParam = lambdaSecurityParam;
+    this.instanceId = instanceId;
     this.digest = ExceptionConverter.safe(() -> MessageDigest
         .getInstance("SHA-256"),
         "Configuration error, SHA-256 is needed for OT extension");
+    this.ct = ct;
+    this.seedOts = seedOts;
   }
 
   @Override
@@ -98,5 +111,20 @@ public class OtExtensionResourcePoolImpl extends ResourcePoolImpl implements
   @Override
   public MessageDigest getDigest() {
     return digest;
+  }
+
+  @Override
+  public int getInstanceId() {
+    return instanceId;
+  }
+
+  @Override
+  public RotList getSeedOts() {
+    return seedOts;
+  }
+
+  @Override
+  public CoinTossing getCoinTossing() {
+    return ct;
   }
 }

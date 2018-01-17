@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.exceptions.NoMoreElementsException;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -17,7 +16,6 @@ import org.slf4j.LoggerFactory;
  * do so.
  *
  * @author Kasper Damgaard
- *
  */
 public class SpdzStorageDataSupplier implements SpdzDataSupplier {
 
@@ -53,12 +51,9 @@ public class SpdzStorageDataSupplier implements SpdzDataSupplier {
    * Creates a new supplier which takes preprocessed data from the native
    * storage object of FRESCO.
    *
-   * @param storage
-   *            The FRESCO native storage object
-   * @param storageName
-   *            The name of the 'database' we should use (e.g. the full filename).
-   * @param noOfParties
-   *            The number of parties in the computation.
+   * @param storage The FRESCO native storage object
+   * @param storageName The name of the 'database' we should use (e.g. the full filename).
+   * @param noOfParties The number of parties in the computation.
    */
   public SpdzStorageDataSupplier(StreamedStorage storage, String storageName,
       int noOfParties) {
@@ -76,10 +71,11 @@ public class SpdzStorageDataSupplier implements SpdzDataSupplier {
     } catch (NoMoreElementsException e) {
       logger.error("Triple no. " + tripleCounter + " was not present in the storage: "
           + storageName + TRIPLE_STORAGE);
-      throw new MPCException("Triple no. " + tripleCounter + " was not present in the storage: "
-          + storageName + TRIPLE_STORAGE, e);
+      throw new IllegalArgumentException(
+          "Triple no. " + tripleCounter + " was not present in the storage: "
+              + storageName + TRIPLE_STORAGE, e);
     }
-    tripleCounter ++;
+    tripleCounter++;
     return trip;
   }
 
@@ -91,10 +87,11 @@ public class SpdzStorageDataSupplier implements SpdzDataSupplier {
     } catch (NoMoreElementsException e) {
       logger.error("expPipe no. " + expPipeCounter + " was not present in the storage: "
           + storageName + EXP_PIPE_STORAGE);
-      throw new MPCException("expPipe no. " + expPipeCounter + " was not present in the storage: "
-          + storageName + EXP_PIPE_STORAGE, e);
+      throw new IllegalArgumentException(
+          "expPipe no. " + expPipeCounter + " was not present in the storage: "
+              + storageName + EXP_PIPE_STORAGE, e);
     }
-    expPipeCounter ++;
+    expPipeCounter++;
     return expPipe;
   }
 
@@ -108,7 +105,7 @@ public class SpdzStorageDataSupplier implements SpdzDataSupplier {
       logger.error("Mask no. " + inputMaskCounters[towardPlayerId - 1] + " towards player "
           + towardPlayerId + " was not present in the storage "
           + (storageName + INPUT_STORAGE + towardPlayerId));
-      throw new MPCException("Mask no. " + inputMaskCounters[towardPlayerId - 1]
+      throw new IllegalArgumentException("Mask no. " + inputMaskCounters[towardPlayerId - 1]
           + " towards player " + towardPlayerId + " was not present in the storage "
           + (storageName + INPUT_STORAGE + towardPlayerId), e);
     }
@@ -124,8 +121,9 @@ public class SpdzStorageDataSupplier implements SpdzDataSupplier {
     } catch (NoMoreElementsException e) {
       logger.warn("Bit no. " + bitCounter + " was not present in the storage: "
           + storageName + BIT_STORAGE);
-      throw new MPCException("Bit no. " + bitCounter + " was not present in the storage: "
-          + storageName + BIT_STORAGE, e);
+      throw new IllegalArgumentException(
+          "Bit no. " + bitCounter + " was not present in the storage: "
+              + storageName + BIT_STORAGE, e);
     }
     bitCounter++;
     return bit;
@@ -140,7 +138,7 @@ public class SpdzStorageDataSupplier implements SpdzDataSupplier {
       this.mod = this.storage.getNext(storageName
           + MODULUS_KEY);
     } catch (NoMoreElementsException e) {
-      throw new MPCException("Modulus was not present in the storage "
+      throw new IllegalArgumentException("Modulus was not present in the storage "
           + storageName + MODULUS_KEY);
     }
     return this.mod;
@@ -155,7 +153,7 @@ public class SpdzStorageDataSupplier implements SpdzDataSupplier {
       this.ssk = this.storage.getNext(storageName
           + SSK_KEY);
     } catch (NoMoreElementsException e) {
-      throw new MPCException("SSK was not present in the storage "
+      throw new IllegalArgumentException("SSK was not present in the storage "
           + storageName + SSK_KEY);
     }
     return this.ssk;

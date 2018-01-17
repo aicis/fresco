@@ -2,18 +2,24 @@ package dk.alexandra.fresco.tools.ot.otextension;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.tools.helper.Constants;
+import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
+import dk.alexandra.fresco.tools.cointossing.CoinTossing;
+import dk.alexandra.fresco.tools.helper.TestHelper;
 import dk.alexandra.fresco.tools.helper.TestRuntime;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
-import dk.alexandra.fresco.tools.ot.base.Ot;
 
-import java.security.MessageDigest;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 public class OtExtensionTestContext {
-  private final OtExtensionResourcePool resources;
   private final Network network;
+  private final int myId;
+  private final int otherId;
+  private final int kbitLength;
+  private final int lambdaSecurityParam;
+  private final RotList seedOts;
 
   /**
    * Initialize the test context using specific parameters.
@@ -29,46 +35,57 @@ public class OtExtensionTestContext {
    */
   public OtExtensionTestContext(int myId, int otherId, int kbitLength,
       int lambdaSecurityParam) {
-    Drbg rand = new AesCtrDrbg(Constants.seedOne);
-    this.resources = new OtExtensionResourcePoolImpl(myId, otherId, kbitLength,
-        lambdaSecurityParam, rand);
-    this.network = new CheatingNetwork(TestRuntime.defaultNetworkConfiguration(myId, Arrays.asList(
-        1, 2)));
-  }
-
-  public OtExtensionResourcePool getResources() {
-    return resources;
+    this.network = new CheatingNetwork(TestRuntime.defaultNetworkConfiguration(
+        myId, Arrays.asList(1, 2)));
+    DummyOt dummyOt = new DummyOt(otherId, network);
+    Drbg rand = new AesCtrDrbg(TestHelper.seedOne);
+    this.seedOts = new RotList(rand, kbitLength);
+    if (myId < otherId) {
+      this.seedOts.send(dummyOt);
+      this.seedOts.receive(dummyOt);
+    } else {
+      this.seedOts.receive(dummyOt);
+      this.seedOts.send(dummyOt);
+    }
+    this.myId = myId;
+    this.otherId = otherId;
+    this.kbitLength = kbitLength;
+    this.lambdaSecurityParam = lambdaSecurityParam;
   }
 
   public Network getNetwork() {
     return network;
   }
 
-  public Ot getDummyOtInstance() {
-    return new DummyOt(resources.getOtherId(), network);
+  /**
+   * Creates a new OT extension resource pool based on a specific instance ID and initializes
+   * necessary functionalities. This means it initializes coin tossing using a randomness generator
+   * unique for {@code instanceId}.
+   *
+   * @param instanceId
+   *          The id of the instance we wish to create a resource pool for
+   * @return A new resources pool
+   */
+  public OtExtensionResourcePool createResources(int instanceId) {
+    Drbg rand = createRand(instanceId);
+    CoinTossing ct = new CoinTossing(myId, otherId, rand, network);
+    ct.initialize();
+    return new OtExtensionResourcePoolImpl(myId, otherId, kbitLength,
+        lambdaSecurityParam, instanceId, rand, ct, seedOts);
   }
 
-  public int getMyId() {
-    return resources.getMyId();
-  }
-
-  public int getOtherId() {
-    return resources.getOtherId();
-  }
-
-  public int getLambdaSecurityParam() {
-    return resources.getLambdaSecurityParam();
-  }
-
-  public int getKbitLength() {
-    return resources.getComputationalSecurityParameter();
-  }
-
-  public Drbg getRand() {
-    return resources.getRandomGenerator();
-  }
-
-  public MessageDigest getDigest() {
-    return resources.getDigest();
+  /**
+   * Creates a new randomness generator unique for {@code instanceId}.
+   *
+   * @param instanceId
+   *          The ID which we wish to base the randomness generator on.
+   * @return A new randomness generator unique for {@code instanceId}
+   */
+  public Drbg createRand(int instanceId) {
+    ByteBuffer idBuffer = ByteBuffer.allocate(TestHelper.seedOne.length);
+    byte[] seedBytes = idBuffer.putInt(instanceId).array();
+    ByteArrayHelper.xor(seedBytes, TestHelper.seedOne);
+    // TODO make sure this is okay!
+    return new PaddingAesCtrDrbg(seedBytes);
   }
 }

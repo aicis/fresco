@@ -43,9 +43,18 @@ public class TripleGeneration extends BaseProtocol {
     this.leftMultipliers = new HashMap<>();
     this.rightMultipliers = new HashMap<>();
     for (Integer partyId : getPartyIds()) {
-      if (!partyId.equals(getMyId())) {
-        rightMultipliers.put(partyId, new MultiplyRight(resourcePool, network, partyId));
-        leftMultipliers.put(partyId, new MultiplyLeft(resourcePool, network, partyId));
+      if (partyId != getMyId()) {
+        if (getMyId() < partyId) {
+          rightMultipliers.put(partyId, new MultiplyRight(resourcePool, network,
+              partyId));
+          leftMultipliers.put(partyId, new MultiplyLeft(resourcePool, network,
+              partyId));
+        } else {
+          leftMultipliers.put(partyId, new MultiplyLeft(resourcePool, network,
+              partyId));
+          rightMultipliers.put(partyId, new MultiplyRight(resourcePool, network,
+              partyId));
+        }
       }
     }
     this.elementGeneration = elementGeneration;
@@ -65,17 +74,17 @@ public class TripleGeneration extends BaseProtocol {
    * @return valid multiplication triples
    */
   public List<MultTriple> triple(int numTriples) {
-    // generate random left factor groups (a)
+    // generate random left factor groups
     List<FieldElement> leftFactorGroups = getLocalSampler().getNext(getModulus(), getModBitLength(),
         numTriples * getNumCandidatesPerTriple());
-    // generate random right factors (b)
+    // generate random right factors
     List<FieldElement> rightFactors =
         getLocalSampler().getNext(getModulus(), getModBitLength(), numTriples);
     // compute product groups
     List<FieldElement> productGroups = multiply(leftFactorGroups, rightFactors);
     // combine into unauthenticated triples
-    List<UnauthTriple> unauthTriples = toUnauthTriple(leftFactorGroups, rightFactors,
-        productGroups);
+    List<UnauthTriple> unauthTriples =
+        toUnauthTriple(leftFactorGroups, rightFactors, productGroups);
     // combine unauthenticated triples into unauthenticated triple candidates
     List<UnauthCand> candidates = combine(unauthTriples);
     // use el-gen to input candidates and combine them to the authenticated candidates
@@ -126,7 +135,7 @@ public class TripleGeneration extends BaseProtocol {
     subFactors.add(localSubFactors);
 
     // combine all sub-factors into product shares
-    List<FieldElement> productShares = getFieldElementUtils().pairwiseSum(subFactors);
+    List<FieldElement> productShares = getFieldElementUtils().sumRows(subFactors);
     return productShares;
   }
 
@@ -171,7 +180,7 @@ public class TripleGeneration extends BaseProtocol {
     }
 
     List<AuthenticatedElement> combined =
-        new ArithmeticCollectionUtils<AuthenticatedElement>().pairwiseSum(shares);
+        new ArithmeticCollectionUtils<AuthenticatedElement>().sumRows(shares);
     return toAuthenticatedCand(combined, 5);
   }
 

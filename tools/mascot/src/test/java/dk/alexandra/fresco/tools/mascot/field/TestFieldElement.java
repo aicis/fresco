@@ -73,7 +73,7 @@ public class TestFieldElement {
     assertTrue(zero.isZero());
     assertFalse(notZero.isZero());
   }
-  
+
   @Test
   public void testToBigInteger() {
     assertEquals(new BigInteger("22"), new FieldElement(22, modulus, bitLength).toBigInteger());
@@ -98,7 +98,7 @@ public class TestFieldElement {
     FieldElement el = new FieldElement("11", "251", 8);
     StrictBitVector actual = el.toBitVector();
     byte[] expectedBits = {(byte) 0xB};
-    StrictBitVector expected = new StrictBitVector(expectedBits, expectedBits.length * 8);
+    StrictBitVector expected = new StrictBitVector(expectedBits);
     assertEquals(expected, actual);
   }
 
@@ -107,7 +107,7 @@ public class TestFieldElement {
     FieldElement el = new FieldElement("11", "65521", 16);
     StrictBitVector actual = el.toBitVector();
     byte[] expectedBits = {(byte) 0x0, (byte) 0xB};
-    StrictBitVector expected = new StrictBitVector(expectedBits, expectedBits.length * 8);
+    StrictBitVector expected = new StrictBitVector(expectedBits);
     assertEquals(expected, actual);
   }
 
@@ -116,7 +116,7 @@ public class TestFieldElement {
     FieldElement el = new FieldElement("65520", "65521", 16);
     StrictBitVector actual = el.toBitVector();
     byte[] expectedBits = {(byte) 0xFF, (byte) 0xF0};
-    StrictBitVector expected = new StrictBitVector(expectedBits, expectedBits.length * 8);
+    StrictBitVector expected = new StrictBitVector(expectedBits);
     assertEquals(expected, actual);
   }
 
@@ -139,6 +139,23 @@ public class TestFieldElement {
   public void testToString() {
     FieldElement el = new FieldElement("777", "65521", 16);
     assertEquals("FieldElement [value=777, modulus=65521, bitLength=16]", el.toString());
+  }
+
+  @Test
+  public void testModInverse() {
+    BigInteger raw = new BigInteger("121");
+    FieldElement el = new FieldElement(raw, modulus, bitLength);
+    FieldElement actual = el.modInverse();
+    FieldElement expected = new FieldElement(raw.modInverse(modulus), modulus, bitLength);
+    CustomAsserts.assertEquals(expected, actual);
+  }
+
+  @Test
+  public void testSqrt() {
+    FieldElement el = new FieldElement(123, modulus, bitLength);
+    FieldElement expected = new FieldElement(25, modulus, bitLength);
+    FieldElement actual = el.sqrt();
+    CustomAsserts.assertEquals(expected, actual);
   }
 
   // Negative tests

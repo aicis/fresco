@@ -9,9 +9,6 @@ import java.util.List;
  * Class used to do bit transposition using Eklundhs method. Transposition is
  * carried out in on a row-major matrix represented as a list (rows) of bit
  * vectors.
- * 
- * @author jot2re
- *
  */
 public class Transpose {
 

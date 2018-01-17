@@ -11,8 +11,6 @@ import java.util.List;
  * Demo class to execute a light instance of the correlated OT extension with
  * errors.
  *
- * @author jot2re
- *
  * @param <ResourcePoolT>
  *          The FRESCO resource pool used for the execution
  */
@@ -32,14 +30,12 @@ public class CoteDemo<ResourcePoolT extends ResourcePool> {
   public void runPartyOne(int pid) throws IOException {
     OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
         lambdaSecurityParam);
-    Cote cote = new Cote(ctx.getResources(), ctx.getNetwork(), ctx
-        .getDummyOtInstance());
+    Cote cote = new Cote(ctx.createResources(1), ctx.getNetwork());
     CoteReceiver coteRec = cote.getReceiver();
-    coteRec.initialize();
     byte[] otChoices = new byte[amountOfOTs / 8];
-    ctx.getRand().nextBytes(otChoices);
+    ctx.createRand(1).nextBytes(otChoices);
     List<StrictBitVector> t = coteRec
-        .extend(new StrictBitVector(otChoices, amountOfOTs));
+        .extend(new StrictBitVector(otChoices));
     System.out.println("done receiver");
     for (int i = 0; i < amountOfOTs; i++) {
       System.out.print(i + ": ");
@@ -63,10 +59,8 @@ public class CoteDemo<ResourcePoolT extends ResourcePool> {
   public void runPartyTwo(int pid) throws IOException {
     OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
         lambdaSecurityParam);
-    Cote cote = new Cote(ctx.getResources(), ctx.getNetwork(), ctx
-        .getDummyOtInstance());
+    Cote cote = new Cote(ctx.createResources(1), ctx.getNetwork());
     CoteSender coteSnd = cote.getSender();
-    coteSnd.initialize();
     List<StrictBitVector> q = coteSnd.extend(amountOfOTs);
     System.out.println("done sender");
     StrictBitVector delta = coteSnd.getDelta();

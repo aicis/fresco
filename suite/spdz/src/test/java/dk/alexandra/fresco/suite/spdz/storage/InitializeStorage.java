@@ -10,6 +10,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -52,6 +53,7 @@ public class InitializeStorage {
       }
 
       @Override
+
       public FileVisitResult visitFileFailed(final Path file, final IOException e) {
         return handleException(e);
       }
@@ -170,7 +172,7 @@ public class InitializeStorage {
   /**
    * Initializes the storage
    *
-   * @param streamedStorages The storages to initialize (multiple storages are used when using a
+   * @param storage The storages to initialize (multiple storages are used when using a
    *        strategy with multiple threads)
    * @param noOfPlayers The number of players
    * @param noOfThreads The number of threads used
@@ -186,8 +188,10 @@ public class InitializeStorage {
     try {
       // Try get the last thread file. If that fails, we need to
       // generate the files
-      if (storage.getNext(SpdzStorageDataSupplier.STORAGE_NAME_PREFIX + noOfThreads + "_" + 1 + "_" + 0
-          + "_" + SpdzStorageDataSupplier.MODULUS_KEY) != null) {
+      Serializable next = storage
+          .getNext(SpdzStorageDataSupplier.STORAGE_NAME_PREFIX + noOfThreads + "_" + 1 + "_" + 0
+              + "_" + SpdzStorageDataSupplier.MODULUS_KEY);
+      if (next != null) {
         return;
       }
     } catch (Exception e) {

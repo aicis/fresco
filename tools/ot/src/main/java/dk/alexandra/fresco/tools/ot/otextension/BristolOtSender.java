@@ -14,9 +14,6 @@ import java.util.List;
  * command is called and storing these results internally. When it runs out, it
  * automatically processes a new batch. These random OTs are adjusted to work as
  * chosen bit/message 1-out-of-2 OTs.
- * 
- * @author jot2re
- *
  */
 public class BristolOtSender extends BristolOtShared {
   // The internal random OT sender functionality used
@@ -29,7 +26,7 @@ public class BristolOtSender extends BristolOtShared {
   /**
    * Initializes the underlying Rot functionality using {@code rotSender}. It
    * will then construct OTs in batches of {@code batchSize}.
-   * 
+   *
    * @param rotSender
    *          The underlying receiver object to use
    * @param batchSize
@@ -41,27 +38,14 @@ public class BristolOtSender extends BristolOtShared {
   }
 
   /**
-   * Initializes the underlying random OT functionality.
-   */
-  @Override
-  public void initialize() {
-    sender.initialize();
-    super.initialize();
-  }
-
-  /**
    * Send the serialized message from the current 1-out-of-2 OT.
-   * 
+   *
    * @param messageZero
    *          The message to send for choice zero
    * @param messageOne
    *          The message to send for choice one
    */
   public void send(byte[] messageZero, byte[] messageOne) {
-    // Initialize the underlying functionalities if needed
-    if (!isInitialized()) {
-      initialize();
-    }
     // Check if there is still an unused random OT stored, if not, execute a
     // random OT extension
     if (offset < 0 || offset >= getBatchSize()) {
@@ -75,7 +59,7 @@ public class BristolOtSender extends BristolOtShared {
   /**
    * Adjust the random, preprocessed message, to fit the specific messages to
    * send.
-   * 
+   *
    * @param messageZero
    *          The actual zero message to send
    * @param messageOne

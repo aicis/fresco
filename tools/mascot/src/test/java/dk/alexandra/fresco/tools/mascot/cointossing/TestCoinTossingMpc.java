@@ -23,9 +23,9 @@ public class TestCoinTossingMpc extends NetworkedTest {
     initContexts(Arrays.asList(1, 2));
 
     StrictBitVector seedOne =
-        new StrictBitVector(new byte[] {(byte) 0x00, (byte) 0x02, (byte) 0xFF}, 24);
+        new StrictBitVector(new byte[] {(byte) 0x00, (byte) 0x02, (byte) 0xFF});
     StrictBitVector seedTwo =
-        new StrictBitVector(new byte[] {(byte) 0xF0, (byte) 0x02, (byte) 0xF0}, 24);
+        new StrictBitVector(new byte[] {(byte) 0xF0, (byte) 0x02, (byte) 0xF0});
 
     Callable<StrictBitVector> partyOneTask = () -> singlePartyCoinTossing(contexts.get(1), seedOne);
     Callable<StrictBitVector> partyTwoTask = () -> singlePartyCoinTossing(contexts.get(2), seedTwo);
@@ -38,7 +38,8 @@ public class TestCoinTossingMpc extends NetworkedTest {
     assertEquals(left, right);
 
     StrictBitVector expected =
-        new StrictBitVector(new byte[] {(byte) 0xF0, (byte) 0x00, (byte) 0x0F}, 24);
+        new StrictBitVector(new byte[] { (byte) 0xF0, (byte) 0x00,
+            (byte) 0x0F });
     assertEquals(expected, left);
   }
 

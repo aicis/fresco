@@ -10,7 +10,7 @@ import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Drng;
 import dk.alexandra.fresco.framework.util.DrngImpl;
-import dk.alexandra.fresco.tools.helper.Constants;
+import dk.alexandra.fresco.tools.helper.TestHelper;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -58,9 +58,8 @@ public class TestNaorPinkasOt {
           + "67731166272088057888135437754886129005590419051");
 
   /**
-   * Construct a NaorPinkasOt instance based on some static Diffie-Hellman
-   * parameters
-   * 
+   * Construct a NaorPinkasOt instance based on some static Diffie-Hellman parameters.
+   *
    * @throws NoSuchAlgorithmException
    *           The internal randomness generator does not exist.
    * @throws SecurityException
@@ -72,7 +71,7 @@ public class TestNaorPinkasOt {
   public void setup()
       throws NoSuchAlgorithmException, NoSuchMethodException,
       SecurityException {
-    Drbg randBit = new AesCtrDrbg(Constants.seedOne);
+    Drbg randBit = new AesCtrDrbg(TestHelper.seedOne);
     randNum = new DrngImpl(randBit);
     // fake network
     Network network = new Network() {
@@ -153,9 +152,9 @@ public class TestNaorPinkasOt {
     byte[] message = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
         0x08 };
     byte[] paddedMessage = (byte[]) padMessage.invoke(ot, message, 10001,
-        Constants.seedThree);
+        TestHelper.seedThree);
     byte[] unpaddedMessage = (byte[]) unpadMessage.invoke(ot, paddedMessage,
-        Constants.seedThree);
+        TestHelper.seedThree);
     byte[] messageWithZeros = Arrays.copyOf(message, 10001);
     assertArrayEquals(messageWithZeros, unpaddedMessage);
   }
@@ -189,10 +188,10 @@ public class TestNaorPinkasOt {
     byte[] message = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
         0x08 };
     byte[] paddedMessage = (byte[]) padMessage.invoke(ot, message, 10001,
-        Constants.seedThree);
+        TestHelper.seedThree);
     paddedMessage[10000] ^= 0x01;
     byte[] unpaddedMessage = (byte[]) unpadMessage.invoke(ot, paddedMessage,
-        Constants.seedThree);
+        TestHelper.seedThree);
     byte[] messageWithZeros = Arrays.copyOf(message, 10001);
     assertTrue(!Arrays.equals(messageWithZeros, unpaddedMessage));
   }

@@ -1,14 +1,5 @@
 package dk.alexandra.fresco.framework.util;
 
-import dk.alexandra.fresco.framework.MPCException;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.List;
 import java.util.Random;
 
@@ -44,7 +35,7 @@ public class ByteArrayHelper {
     if (index < 0) {
       throw new IllegalAccessError("Bit index must not be negative.");
     }
-    if (choice == true) {
+    if (choice) {
       // We read bits from left to right, hence the 7 - x.
       // Put a 1 in the correct position of a
       // zero-byte and OR it into the correct byte to ensure that the position
@@ -104,55 +95,6 @@ public class ByteArrayHelper {
   public static void shiftArray(byte[] input, byte[] output, int positions) {
     for (int i = 0; i < input.length * 8; i++) {
       setBit(output, positions + i, getBit(input, i));
-    }
-  }
-
-
-  /**
-   * Serialize a serializable value.
-   *
-   * @param val The value to serialize
-   * @return The serialized value
-   */
-  @Deprecated
-  public static byte[] serialize(Serializable val) {
-    ByteArrayOutputStream bos = null;
-    try {
-      bos = new ByteArrayOutputStream();
-      ObjectOutput out = new ObjectOutputStream(bos);
-      out.writeObject(val);
-      out.flush();
-      return bos.toByteArray();
-    } catch (IOException e) {
-      throw new MPCException("Could not serialize the object.");
-    } finally {
-      try {
-        bos.close();
-      } catch (IOException e) {
-        throw new MPCException("Cloud not close the stream.");
-      }
-    }
-  }
-
-  /**
-   * Deserialize a serializable value.
-   *
-   * @param val The value to deserialize
-   * @return The deserialized object
-   */
-  @Deprecated
-  public static Serializable deserialize(byte[] val) {
-    try {
-      ByteArrayInputStream bis = null;
-      ObjectInput in = null;
-      bis = new ByteArrayInputStream(val);
-      in = new ObjectInputStream(bis);
-      Serializable obj = (Serializable) in.readObject();
-      bis.close();
-      in.close();
-      return obj;
-    } catch (Exception e) {
-      throw new RuntimeException(e);
     }
   }
 

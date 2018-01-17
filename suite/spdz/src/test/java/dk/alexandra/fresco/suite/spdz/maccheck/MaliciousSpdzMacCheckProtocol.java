@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.suite.spdz.maccheck;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
@@ -100,10 +99,6 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
         List<SpdzElement> closedValues = storage.getClosedValues();
         // compute gamma_i as the sum of all MAC's on the opened values times
         // r_j.
-        if (closedValues.size() != t) {
-          throw new MPCException("Malicious activity detected: Amount of closed values does not "
-              + "equal the amount of partially opened values. Aborting!");
-        }
         BigInteger gamma = BigInteger.ZERO;
         index = 0;
         for (SpdzElement c : closedValues) {

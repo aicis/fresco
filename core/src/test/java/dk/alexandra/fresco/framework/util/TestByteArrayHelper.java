@@ -2,8 +2,6 @@ package dk.alexandra.fresco.framework.util;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
@@ -78,15 +76,6 @@ public class TestByteArrayHelper {
     assertEquals((byte) 0xF0, list1.get(1)[0]);
     assertEquals((byte) 0x00, list1.get(1)[1]);
     assertEquals((byte) 0x0F, list1.get(1)[2]);
-  }
-
-  @SuppressWarnings("deprecation")
-  @Test
-  public void testSerialization() throws IOException, ClassNotFoundException {
-    BigInteger bigInt = new BigInteger("543584330850486485473235");
-    byte[] serializedInt = ByteArrayHelper.serialize(bigInt);
-    BigInteger deserializedInt = (BigInteger) ByteArrayHelper.deserialize(serializedInt);
-    assertEquals(bigInt.toString(), deserializedInt.toString());
   }
 
   @Test

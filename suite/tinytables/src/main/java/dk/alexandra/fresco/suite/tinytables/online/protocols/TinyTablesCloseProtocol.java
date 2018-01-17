@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.suite.tinytables.online.protocols;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.BooleanSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
@@ -38,25 +37,19 @@ public class TinyTablesCloseProtocol extends TinyTablesProtocol<SBool> {
   @Override
   public EvaluationStatus evaluate(int round, ResourcePoolImpl resourcePool, Network network) {
     TinyTablesProtocolSuite ps = TinyTablesProtocolSuite.getInstance(resourcePool.getMyId());
-    switch (round) {
-      case 0:
-        out = (out == null) ? new TinyTablesSBool() : out;
-        if (resourcePool.getMyId() == this.inputter) {
-          TinyTablesElement r = ps.getStorage().getMaskShare(id);
-          TinyTablesElement e = new TinyTablesElement(this.in ^ r.getShare());
-          out.setValue(e);
-          network.sendToAll(new byte[]{BooleanSerializer.toBytes(e.getShare())});
-        }
-        return EvaluationStatus.HAS_MORE_ROUNDS;
-
-      case 1:
-        TinyTablesElement share =
-            new TinyTablesElement(BooleanSerializer.fromBytes(network.receive(this.inputter)[0]));
-        out.setValue(share);
-        return EvaluationStatus.IS_DONE;
-
-      default:
-        throw new MPCException("Cannot evaluate rounds larger than 1");
+    if (round == 0) {
+      if (resourcePool.getMyId() == this.inputter) {
+        TinyTablesElement r = ps.getStorage().getMaskShare(id);
+        TinyTablesElement e = new TinyTablesElement(this.in ^ r.getShare());
+        network.sendToAll(new byte[]{BooleanSerializer.toBytes(e.getShare())});
+      }
+      return EvaluationStatus.HAS_MORE_ROUNDS;
+    } else {
+      TinyTablesElement share =
+          new TinyTablesElement(BooleanSerializer.fromBytes(network.receive(this.inputter)[0]));
+      out = new TinyTablesSBool();
+      out.setValue(share);
+      return EvaluationStatus.IS_DONE;
     }
   }
 

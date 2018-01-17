@@ -18,9 +18,6 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
  * party. The first party opens it commitment. The parties computes the XOR of
  * the seeds and uses this as input to a PRG generating an arbitrary long,
  * common string.
- *
- * @author jot2re
- *
  */
 public class CoinTossing {
   private final int otherId;
@@ -98,7 +95,7 @@ public class CoinTossing {
     // required to store the tosses
     byte[] res = new byte[(size + 8 - 1) / 8];
     coinTossingPrg.nextBytes(res);
-    return new StrictBitVector(res, size);
+    return new StrictBitVector(res);
   }
 
   /**

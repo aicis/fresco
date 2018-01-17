@@ -1,5 +1,9 @@
 package dk.alexandra.fresco.tools.mascot;
 
+import dk.alexandra.fresco.framework.util.ModulusFinder;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
+import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +12,7 @@ import org.junit.After;
 import org.junit.Before;
 
 public abstract class NetworkedTest {
+
   protected TestRuntime testRuntime;
   protected Map<Integer, MascotTestContext> contexts;
 
@@ -29,12 +34,12 @@ public abstract class NetworkedTest {
   }
 
   public NetworkedTest() {
-    this(new BigInteger("65521"), 16, 16, 3, 256);
+    this(ModulusFinder.findSuitableModulus(16), 16, 16, 3, 256);
   }
 
   public void initContexts(List<Integer> partyIds) {
-    contexts = testRuntime.initializeContexts(partyIds, modulus, modBitLength, lambdaSecurityParam,
-        numLeftFactors, prgSeedLength);
+    contexts = testRuntime.initializeContexts(partyIds, 1, modulus,
+        modBitLength, lambdaSecurityParam, numLeftFactors, prgSeedLength);
   }
 
   @Before

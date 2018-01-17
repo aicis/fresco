@@ -7,6 +7,7 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.tools.mascot.MascotTestContext;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -18,7 +19,7 @@ public class TestMacCheck extends NetworkedTest {
 
   // TODO as part of new testing framework, re-think how to test for exceptions
   private Pair<Boolean, Exception> runSinglePartyMacCheck(MascotTestContext ctx,
-      FieldElement opened, FieldElement macKeyShare, FieldElement macShare) throws Exception {
+      FieldElement opened, FieldElement macKeyShare, FieldElement macShare) {
     MacCheck macChecker = new MacCheck(ctx.getResourcePool(), ctx.getNetwork());
     boolean thrown = false;
     Exception exception = null;
@@ -121,6 +122,7 @@ public class TestMacCheck extends NetworkedTest {
 
   @Test
   public void testTwoPartiesValidMacCheck() {
+    modulus = new BigInteger("65521");
     // two parties run this
     initContexts(Arrays.asList(1, 2));
 
@@ -151,6 +153,7 @@ public class TestMacCheck extends NetworkedTest {
 
   @Test
   public void testThreePartyValidMacCheck() {
+    modulus = new BigInteger("65521");
     initContexts(Arrays.asList(1, 2, 3));
 
     FieldElement openedOne = new FieldElement(42, modulus, modBitLength);
@@ -178,7 +181,7 @@ public class TestMacCheck extends NetworkedTest {
 
     // the above mac check fails since 4444 + 5204 + 42 = (11231 + 7719 + 1) * 42
     for (Pair<Boolean, Exception> res : results) {
-      assertEquals(res.getFirst(), false);
+      assertEquals(false, res.getFirst());
     }
   }
 

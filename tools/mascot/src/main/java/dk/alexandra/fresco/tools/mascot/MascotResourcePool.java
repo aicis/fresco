@@ -23,6 +23,15 @@ public interface MascotResourcePool extends NumericResourcePool {
   List<Integer> getPartyIds();
 
   /**
+   * Returns the instance ID which is unique for this particular resource pool object, but only in the
+   * given execution.
+   * 
+   * @return the instance ID of this particular object
+   *
+   */
+  int getInstanceId();
+
+  /**
    * Gets bit length of modulus (k security param in Mascot paper).
    *
    * @return modulus bit length

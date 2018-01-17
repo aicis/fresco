@@ -13,20 +13,17 @@ public class StrictBitVectorSerializer implements ByteSerializer<StrictBitVector
 
   @Override
   public StrictBitVector deserialize(byte[] data) {
-    return new StrictBitVector(data, data.length * 8);
+    return new StrictBitVector(data);
   }
 
   @Override
   public byte[] serialize(List<StrictBitVector> objs) {
-    StrictBitVector combined =
-        StrictBitVector.concat(objs.toArray(new StrictBitVector[objs.size()]));
-    return combined.toByteArray();
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public List<StrictBitVector> deserializeList(byte[] data) {
-    // TODO generalize FieldElement unpack to byte array and use that
-    return null;
+    throw new UnsupportedOperationException();
   }
 
 }

@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.statistics.DeaSolver.AnalysisType;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
@@ -38,7 +37,7 @@ public class RandomDataDeaTest {
       new DeaSolver(DeaSolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues,
           inputBasis,
           outputBasis);
-    } catch (MPCException e) {
+    } catch (IllegalArgumentException e) {
       Assert.fail("Consistent data should be accepted");
     }
   }
@@ -52,7 +51,7 @@ public class RandomDataDeaTest {
           inputBasis,
           outputBasis);
       Assert.fail("Inconsistent data should not be accepted");
-    } catch (MPCException e) {
+    } catch (IllegalArgumentException e) {
       Assert.assertThat(e.getMessage(), Is.is("Inconsistent dataset / query data"));
     }
   }
@@ -66,7 +65,7 @@ public class RandomDataDeaTest {
           inputBasis,
           outputBasis);
       Assert.fail("Inconsistent data should not be accepted");
-    } catch (MPCException e) {
+    } catch (IllegalArgumentException e) {
       Assert.assertThat(e.getMessage(), Is.is("Inconsistent dataset / query data"));
     }
   }
@@ -81,7 +80,7 @@ public class RandomDataDeaTest {
       new DeaSolver(DeaSolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis,
           outputBasis);
       Assert.fail("Inconsistent data should not be accepted");
-    } catch (MPCException e) {
+    } catch (IllegalArgumentException e) {
       Assert.assertThat(e.getMessage(), Is.is("Inconsistent dataset / query data"));
     }
   }
@@ -96,7 +95,7 @@ public class RandomDataDeaTest {
       new DeaSolver(DeaSolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis,
           outputBasis);
       Assert.fail("Inconsistent data should not be accepted");
-    } catch (MPCException e) {
+    } catch (IllegalArgumentException e) {
       Assert.assertThat(e.getMessage(), Is.is("Inconsistent dataset / query data"));
     }
   }
@@ -117,7 +116,7 @@ public class RandomDataDeaTest {
       new DeaSolver(DeaSolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis,
           outputBasis);
       Assert.fail("Inconsistent data should not be accepted");
-    } catch (MPCException e) {
+    } catch (IllegalArgumentException e) {
       Assert.assertThat(e.getMessage(), Is.is("Inconsistent dataset / query data"));
     }
   }
@@ -139,7 +138,7 @@ public class RandomDataDeaTest {
           inputBasis,
           outputBasis);
       Assert.fail("Inconsistent data should not be accepted");
-    } catch (MPCException e) {
+    } catch (IllegalArgumentException e) {
       Assert.assertThat(e.getMessage(), Is.is("Inconsistent dataset / query data"));
     }
   }
@@ -156,7 +155,7 @@ public class RandomDataDeaTest {
       new DeaSolver(DeaSolver.AnalysisType.INPUT_EFFICIENCY, inputValues, outputValues, inputBasis,
           outputBasis);
       Assert.fail("Inconsistent data should not be accepted");
-    } catch (MPCException e) {
+    } catch (IllegalArgumentException e) {
       Assert.assertThat(e.getMessage(), Is.is("Inconsistent dataset / query data"));
     }
   }

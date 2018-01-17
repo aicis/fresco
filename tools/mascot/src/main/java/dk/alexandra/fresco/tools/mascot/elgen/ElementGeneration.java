@@ -15,13 +15,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 /**
  * Actively-secure protocol for generating authentication, secret-shared elements based on the
- * MASCOT protocol (https://eprint.iacr.org/2016/505.pdf). <br>
- * Allows a single party to secret-share a field element among all parties such that the element is
- * authenticated via a MAC. The MAC is secret-shared among the parties, as is the MAC key.
+ * MASCOT protocol (https://eprint.iacr.org/2016/505.pdf). <br> Allows a single party to
+ * secret-share a field element among all parties such that the element is authenticated via a MAC.
+ * The MAC is secret-shared among the parties, as is the MAC key.
  */
 public class ElementGeneration extends BaseProtocol {
 
@@ -64,91 +63,48 @@ public class ElementGeneration extends BaseProtocol {
     }
   }
 
-  List<List<FieldElement>> otherPartiesMac(List<FieldElement> values) {
-    List<List<FieldElement>> perPartySignatures = new ArrayList<>();
-    for (CopeInputter copeInputter : copeInputters.values()) {
-      perPartySignatures.add(copeInputter.extend(values));
-    }
-    return perPartySignatures;
-  }
-
-  List<FieldElement> selfMac(List<FieldElement> values) {
-    return getFieldElementUtils().scalarMultiply(values, macKeyShare);
-  }
-
-  List<FieldElement> macValues(List<FieldElement> values) {
-    List<FieldElement> selfMacced = selfMac(values);
-    List<List<FieldElement>> maccedByAll = otherPartiesMac(values);
-    maccedByAll.add(selfMacced);
-    return getFieldElementUtils().pairwiseSum(maccedByAll);
-  }
-
-  List<FieldElement> secretShare(List<FieldElement> values, int numShares) {
-    List<List<FieldElement>> allShares =
-        values.stream().map(value -> sharer.share(value, numShares)).collect(Collectors.toList());
-    List<List<FieldElement>> byParty = getFieldElementUtils().transpose(allShares);
-    for (Integer partyId : getPartyIds()) {
-      // send shares to everyone but self
-      if (!partyId.equals(getMyId())) {
-        // assume party ids go from 1...n
-        List<FieldElement> shares = byParty.get(partyId - 1);
-        getNetwork().send(partyId, getFieldElementSerializer().serialize(shares));
-      }
-    }
-    // return own shares
-    return byParty.get(getMyId() - 1);
-  }
-
-  List<AuthenticatedElement> toAuthenticatedElements(List<FieldElement> shares,
-      List<FieldElement> macs) {
-    Stream<AuthenticatedElement> spdzElements = IntStream.range(0, shares.size()).mapToObj(idx -> {
-      FieldElement share = shares.get(idx);
-      FieldElement mac = macs.get(idx);
-      return new AuthenticatedElement(share, mac, getModulus(), getModBitLength());
-    });
-    return spdzElements.collect(Collectors.toList());
-  }
-
   /**
-   * Computes this party's authenticated shares of input. <br>
-   * To be called by input party.
+   * Computes this party's authenticated shares of input. <br> To be called by input party.
    *
    * @param values values to input
    * @return authenticated shares of inputs
    */
   public List<AuthenticatedElement> input(List<FieldElement> values) {
-    // make sure we can add elements to list etc
+    // make sure we are working with an array list
     values = new ArrayList<>(values);
 
     // add extra random element which will later be used to mask inputs
     FieldElement extraElement = localSampler.getNext(getModulus(), getModBitLength());
     values.add(extraElement);
 
+    // inputter secret-shares input values
+    List<FieldElement> shares = secretShare(values, getPartyIds().size());
+
     // compute per element mac share
     List<FieldElement> macs = macValues(values);
 
-    // generate masks for values and macs
-    List<FieldElement> masks = jointSampler.getNext(getModulus(), getModBitLength(), values.size());
+    // generate coefficients for values and macs
+    List<FieldElement> coefficients = jointSampler
+        .getNext(getModulus(), getModBitLength(), values.size());
 
     // mask and combine values
-    FieldElement maskedValue = getFieldElementUtils().innerProduct(values, masks);
+    FieldElement maskedValue = getFieldElementUtils().innerProduct(values, coefficients);
 
     // send masked value to all other parties
-    getNetwork().sendToAll(maskedValue.toByteArray());
+    getNetwork().sendToAll(getFieldElementSerializer().serialize(maskedValue));
     // so that we can use receiveFromAll correctly later
     getNetwork().receive(getMyId());
 
     // perform mac-check on opened value (will throw if mac check fails)
-    runMacCheck(maskedValue, masks, macs);
+    runMacCheck(maskedValue, coefficients, macs);
 
-    // inputter secret-shares input values (note that we exclude dummy element)
-    List<FieldElement> toSecretShare = values.subList(0, values.size() - 1);
-    List<FieldElement> shares = secretShare(toSecretShare, getPartyIds().size());
-
-    // combine shares and mac shares to spdz elements (exclude mac for dummy element)
-    List<FieldElement> nonDummyMacs = macs.subList(0, shares.size());
-    List<AuthenticatedElement> spdzElements = toAuthenticatedElements(shares, nonDummyMacs);
-    return spdzElements;
+    // combine shares and mac shares to authenticated elements
+    // (exclude mac and share of extra element)
+    List<FieldElement> inputElementMacs = macs.subList(0, shares.size() - 1);
+    List<AuthenticatedElement> authenticatedElements = toAuthenticatedElements(
+        shares.subList(0, shares.size() - 1),
+        inputElementMacs);
+    return authenticatedElements;
   }
 
   /**
@@ -159,28 +115,32 @@ public class ElementGeneration extends BaseProtocol {
    * @return authenticated shares of inputs
    */
   public List<AuthenticatedElement> input(Integer inputterId, int numInputs) {
+    // receive shares from inputter
+    List<FieldElement> shares =
+        getFieldElementSerializer().deserializeList(getNetwork().receive(inputterId));
+
     // receive per-element mac shares
     CopeSigner copeSigner = copeSigners.get(inputterId);
     List<FieldElement> macs = copeSigner.extend(numInputs + 1);
 
-    // generate masks for macs
-    List<FieldElement> masks = jointSampler.getNext(getModulus(), getModBitLength(), numInputs + 1);
+    // generate coefficients for macs
+    List<FieldElement> coefficients = jointSampler
+        .getNext(getModulus(), getModBitLength(), numInputs + 1);
 
     // receive masked value we will use in mac-check
     FieldElement maskedValue =
         getFieldElementSerializer().deserialize(getNetwork().receive(inputterId));
 
     // perform mac-check on opened value
-    runMacCheck(maskedValue, masks, macs);
+    runMacCheck(maskedValue, coefficients, macs);
 
-    // receive shares from inputter
-    List<FieldElement> shares =
-        getFieldElementSerializer().deserializeList(getNetwork().receive(inputterId));
-
-    // combine shares and mac shares to spdz elements (exclude mac for dummy element)
-    List<FieldElement> nonDummyMacs = macs.subList(0, numInputs);
-    List<AuthenticatedElement> spdzElements = toAuthenticatedElements(shares, nonDummyMacs);
-    return spdzElements;
+    // combine shares and mac shares to authenticated  elements
+    // (exclude mac and share of extra element)
+    List<FieldElement> inputElementMacs = macs.subList(0, numInputs);
+    List<AuthenticatedElement> authenticatedElements = toAuthenticatedElements(
+        shares.subList(0, numInputs),
+        inputElementMacs);
+    return authenticatedElements;
   }
 
   void runMacCheck(FieldElement value, List<FieldElement> masks, List<FieldElement> macs) {
@@ -221,9 +181,76 @@ public class ElementGeneration extends BaseProtocol {
     List<byte[]> rawShares = getNetwork().receiveFromAll();
     // parse
     List<List<FieldElement>> shares = rawShares.stream()
-        .map(raw -> getFieldElementSerializer().deserializeList(raw)).collect(Collectors.toList());
+        .map(getFieldElementSerializer()::deserializeList)
+        .collect(Collectors.toList());
     // recombine
-    return getFieldElementUtils().pairwiseSum(shares);
+    return getFieldElementUtils().sumRows(shares);
+  }
+
+  /**
+   * Computes shares of macs of unauthenticated values.<br> For each unauthenticated value <i>v</i>,
+   * computes <i>[v * (alpha<sub>1</sub> + ... + alpha<sub>n</sub>)]</i> where
+   * <i>alpha<sub>i</sub></i> is party <i>i</i>'s mac key share.
+   */
+  private List<FieldElement> macValues(List<FieldElement> values) {
+    List<FieldElement> selfMacced = selfMac(values);
+    List<List<FieldElement>> maccedByAll = otherPartiesMac(values);
+    maccedByAll.add(selfMacced);
+    return getFieldElementUtils().sumRows(maccedByAll);
+  }
+
+  /**
+   * Uses COPE protocol to multiply unathenticated values with each other party's (i.e., not this
+   * party's) mac key share and get a share of the result.
+   */
+  private List<List<FieldElement>> otherPartiesMac(List<FieldElement> values) {
+    List<List<FieldElement>> perPartySignatures = new ArrayList<>();
+    // note that the order in which this is run does not matter so it's fine to use values().
+    for (CopeInputter copeInputter : copeInputters.values()) {
+      perPartySignatures.add(copeInputter.extend(values));
+    }
+    return perPartySignatures;
+  }
+
+  /**
+   * Multiplies each unauthenticated value by this party's mac key share.
+   */
+  private List<FieldElement> selfMac(List<FieldElement> values) {
+    return getFieldElementUtils().scalarMultiply(values, macKeyShare);
+  }
+
+  /**
+   * Computes additive (unauthenticated) shares of values and distributes the shares across
+   * parties.
+   */
+  private List<FieldElement> secretShare(List<FieldElement> values, int numShares) {
+    List<List<FieldElement>> allShares =
+        values.stream().map(value -> sharer.share(value, numShares)).collect(Collectors.toList());
+    List<List<FieldElement>> byParty = getFieldElementUtils().transpose(allShares);
+    for (Integer partyId : getPartyIds()) {
+      // send shares to everyone but self
+      if (!partyId.equals(getMyId())) {
+        // assume party ids go from 1...n
+        List<FieldElement> shares = byParty.get(partyId - 1);
+        getNetwork().send(partyId, getFieldElementSerializer().serialize(shares));
+      }
+    }
+    // return own shares
+    return byParty.get(getMyId() - 1);
+  }
+
+  /**
+   * "Zips" raw value shares and mac shares into authenticated elements.
+   */
+  private List<AuthenticatedElement> toAuthenticatedElements(List<FieldElement> shares,
+      List<FieldElement> macs) {
+    return IntStream.range(0, shares.size())
+        .mapToObj(idx -> {
+          FieldElement share = shares.get(idx);
+          FieldElement mac = macs.get(idx);
+          return new AuthenticatedElement(share, mac, getModulus(), getModBitLength());
+        })
+        .collect(Collectors.toList());
   }
 
 }

@@ -16,9 +16,6 @@ import java.util.Map;
 
 /**
  * Runs a demo session of the coin-tossing and commitment functionality.
- * 
- * @author jot2re
- *
  */
 public class CoinTossingDemo {
   private int amountOfBits = 6666;

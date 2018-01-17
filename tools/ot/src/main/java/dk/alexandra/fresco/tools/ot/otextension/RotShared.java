@@ -12,37 +12,24 @@ import java.util.List;
 /**
  * Superclass containing the common variables and methods for the sender and
  * receiver parties of random OT extension.
- *
- * @author jot2re
- *
  */
 public class RotShared {
-  // Internal state variables
   private final CoteShared cote;
   private final CoinTossing ct;
-  private boolean initialized = false;
 
   /**
-   * Constructs a random OT extension super-class using an underlying correlated
-   * OT with errors object.
+   * Constructs a random OT extension super-class using an underlying correlated OT with errors
+   * object.
    *
    * @param cote
    *          The underlying correlated OT with errors
+   * @param ct
+   *          The coin tossing instance to use
    */
-  public RotShared(CoteShared cote) {
+  public RotShared(CoteShared cote, CoinTossing ct) {
     super();
     this.cote = cote;
-    this.ct = new CoinTossing(cote.getMyId(), cote.getOtherId(),
-        cote.getRand(), cote.getNetwork());
-  }
-
-  public void initialize() {
-    ct.initialize();
-    initialized = true;
-  }
-
-  public boolean isInitialized() {
-    return initialized;
+    this.ct = ct;
   }
 
   public int getOtherId() {
@@ -75,10 +62,9 @@ public class RotShared {
    * field of the individual elements of the lists, but without reducing modulo
    * a reduction polynomial. Thus the inner product is computed purely using
    * shifts and XOR operations.
-   * <p>
+   * <br/>
    * All elements of both lists MUST have equal size! And both lists MUST
    * contain an equal amount of entries!
-   * </p>
    *
    * @param alist
    *          The first input list, with all elements of equal size
@@ -135,7 +121,7 @@ public class RotShared {
         res[(i / 8) + bvecBytes.length] ^= last;
       }
     }
-    return new StrictBitVector(res, avec.getSize() + bvec.getSize());
+    return new StrictBitVector(res);
   }
 
   /**
@@ -169,7 +155,7 @@ public class RotShared {
       hash = getDigest().digest(indexBuffer.array());
       // Allocate the new bitvector, which contains 256 bits since SHA-256 is
       // used
-      res.add(new StrictBitVector(hash, 256));
+      res.add(new StrictBitVector(hash));
     }
     return res;
   }

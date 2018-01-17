@@ -3,43 +3,29 @@ package dk.alexandra.fresco.tools.ot.otextension;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.cointossing.CoinTossing;
+
 import java.util.Collections;
 import java.util.List;
 
 /**
  * Protocol class for the party acting as the sender in a random OT extension.
- *
- * @author jot2re
- *
  */
 public class RotSender extends RotShared {
   // The correlated OT with errors sender that this object will use
   private final CoteSender sender;
 
   /**
-   * Construct a sending party for an instance of the random OT extension
-   * protocol.
+   * Construct a sending party for an instance of the random OT extension protocol.
    *
    * @param snd
    *          The correlated OT with error sender this protocol will use
+   * @param ct
+   *          The coin tossing instance to use
    */
-  public RotSender(CoteSender snd) {
-    super(snd);
+  public RotSender(CoteSender snd, CoinTossing ct) {
+    super(snd, ct);
     sender = snd;
-  }
-
-  /**
-   * Initialize the random OT extension. This must only be done once.
-   */
-  @Override
-  public void initialize() {
-    if (isInitialized()) {
-      throw new IllegalStateException("Already initialized");
-    }
-    if (!sender.isInitialized()) {
-      sender.initialize();
-    }
-    super.initialize();
   }
 
   /**
@@ -52,9 +38,6 @@ public class RotSender extends RotShared {
    *         messages
    */
   public Pair<List<StrictBitVector>, List<StrictBitVector>> extend(int size) {
-    if (!isInitialized()) {
-      throw new IllegalStateException("Not initialized");
-    }
     int ellPrime = size + getKbitLength() + getLambdaSecurityParam();
     // Construct a sufficient amount correlated OTs with errors
     List<StrictBitVector> qlist = sender.extend(ellPrime);
@@ -68,8 +51,8 @@ public class RotSender extends RotShared {
     // Retrieve the receivers parts of the correlation check challenge
     byte[] xvecBytes = getNetwork().receive(getOtherId());
     byte[] tvecBytes = getNetwork().receive(getOtherId());
-    StrictBitVector xvec = new StrictBitVector(xvecBytes, getKbitLength());
-    StrictBitVector tvec = new StrictBitVector(tvecBytes, 2 * getKbitLength());
+    StrictBitVector xvec = new StrictBitVector(xvecBytes);
+    StrictBitVector tvec = new StrictBitVector(tvecBytes);
     // Compute the challenge vector based on the receivers send values
     StrictBitVector tvecToCompare = computeInnerProduct(
         Collections.singletonList(delta),

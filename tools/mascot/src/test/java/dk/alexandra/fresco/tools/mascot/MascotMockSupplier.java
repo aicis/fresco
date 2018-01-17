@@ -39,6 +39,11 @@ public class MascotMockSupplier {
       }
 
       @Override
+      public int getInstanceId() {
+        return 0;
+      }
+
+      @Override
       public ByteSerializer<BigInteger> getSerializer() {
         return null;
       }

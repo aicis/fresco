@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -71,7 +70,7 @@ public class FakeTripGen {
       if (shareBytes.length == size + 1) {
         System.arraycopy(shareBytes, 1, bytes, 0, size);
       } else {
-        throw new MPCException("This share is too long! Size: " + shareBytes.length);
+        throw new RuntimeException("This share is too long! Size: " + shareBytes.length);
       }
     } else {
       int length = shareBytes.length;
@@ -81,7 +80,7 @@ public class FakeTripGen {
       if (macBytes.length == size + 1) {
         System.arraycopy(macBytes, 1, bytes, size, size);
       } else {
-        throw new MPCException("This share is too long! Size: " + shareBytes.length);
+        throw new RuntimeException("This share is too long! Size: " + shareBytes.length);
       }
     } else {
       int length = macBytes.length;
@@ -104,7 +103,7 @@ public class FakeTripGen {
       if (bBytes.length == size + 1) {
         System.arraycopy(bBytes, 1, bytes, 0, size);
       } else {
-        throw new MPCException("This big integer is too long! Size: " + bBytes.length);
+        throw new IllegalArgumentException("This big integer is too long! Size: " + bBytes.length);
       }
     } else {
       int length = bBytes.length;

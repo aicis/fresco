@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,8 +18,9 @@ import java.util.List;
  * bits.
  */
 public class BristolRotBatch implements RotBatch {
-  private final RotSender sender;
-  private final RotReceiver receiver;
+  private RotSender sender;
+  private RotReceiver receiver;
+  private final Rot rot;
 
   /**
    * Constructs a new random batch OT protocol and constructs the internal
@@ -30,35 +30,16 @@ public class BristolRotBatch implements RotBatch {
    *          The common OT extension resource pool
    * @param network
    *          The network instance
-   * @param ot
-   *          The OT functionality to use for seed OTs
    */
-  public BristolRotBatch(OtExtensionResourcePool resources, Network network, Ot ot) {
-    Rot rot = new Rot(resources, network, ot);
-    this.sender = rot.getSender();
-    this.receiver = rot.getReceiver();
-  }
-
-  /**
-   * Explicitly initialize the sender.
-   */
-  public void initSender() {
-    sender.initialize();
-  }
-
-  /**
-   * Explicitly initialize the receiver.
-   */
-  public void initReceiver() {
-    receiver.initialize();
+  public BristolRotBatch(OtExtensionResourcePool resources, Network network) {
+    this.rot = new Rot(resources, network);
   }
 
   @Override
   public List<Pair<StrictBitVector, StrictBitVector>> send(int numMessages,
       int sizeOfEachMessage) {
-    // Initialize the underlying functionality if needed
-    if (!sender.isInitialized()) {
-      sender.initialize();
+    if (this.sender == null) {
+      this.sender = rot.getSender();
     }
     List<Pair<StrictBitVector, StrictBitVector>> res = new ArrayList<>(
         numMessages);
@@ -83,9 +64,8 @@ public class BristolRotBatch implements RotBatch {
   @Override
   public List<StrictBitVector> receive(StrictBitVector choiceBits,
       int sizeOfEachMessage) {
-    // Initialize the underlying functionality if needed
-    if (!receiver.isInitialized()) {
-      receiver.initialize();
+    if (this.receiver == null) {
+      this.receiver = rot.getReceiver();
     }
     List<StrictBitVector> res = new ArrayList<>(choiceBits.getSize());
     // Find how many OTs we need to preprocess
@@ -95,8 +75,7 @@ public class BristolRotBatch implements RotBatch {
     // 0 choices if needed
     byte[] extraByteChoices = Arrays.copyOf(choiceBits.toByteArray(),
         amountToPreprocess / 8);
-    StrictBitVector extraChoices = new StrictBitVector(extraByteChoices,
-        amountToPreprocess);
+    StrictBitVector extraChoices = new StrictBitVector(extraByteChoices);
     List<StrictBitVector> messages = receiver.extend(extraChoices);
     for (int i = 0; i < choiceBits.getSize(); i++) {
       StrictBitVector newMessage = computeRandomMessage(messages.get(i),
@@ -125,9 +104,9 @@ public class BristolRotBatch implements RotBatch {
       int lambdaParam) {
     // Increase the amount of OTs if needed, to ensure that the result is of the
     // from 8*2^x for x > 1. I.e. s.t. that "minSize" >= 16
-    int newNum = Math.max(minSize, 16);
+    minSize = Math.max(minSize, 16);
     // Compute the number which will be passed on to the transposition algorithm
-    newNum = minSize + kbitLength + lambdaParam;
+    int newNum = minSize + kbitLength + lambdaParam;
     // Check if "newNum" is a two power, this is done by checking if all bits,
     // besides the msb, is 0 and only msb is 1
     if ((newNum & (newNum - 1)) != 0) {

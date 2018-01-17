@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
@@ -33,7 +32,7 @@ public class TestSpdzMisc {
     new SpdzResourcePoolImpl(1, 2, null, store);
   }
 
-  @Test(expected = MPCException.class)
+  @Test(expected = IllegalStateException.class)
   public void testSpdzExponentiationPipeProtocolExpPipeFailedLength() {
     SpdzStorage store = new SpdzStorageImpl(new SpdzDummyDataSupplier(1, 2));
     SpdzResourcePool rp = new SpdzResourcePoolImpl(1, 2, null, store);

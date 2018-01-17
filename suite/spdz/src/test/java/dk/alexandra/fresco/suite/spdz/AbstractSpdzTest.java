@@ -20,7 +20,10 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
+import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
@@ -40,11 +43,19 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzMascotDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
+import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.ot.base.DummyOt;
+import dk.alexandra.fresco.tools.ot.base.Ot;
+import dk.alexandra.fresco.tools.ot.otextension.RotList;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Abstract class which handles a lot of boiler plate testing code. This makes running a single test
@@ -70,6 +81,7 @@ public abstract class AbstractSpdzTest {
       ports.add(9000 + i * (noOfParties - 1));
     }
     KryoNetManager tripleManager = new KryoNetManager(ports);
+    KryoNetManager otManager = new KryoNetManager(ports);
     KryoNetManager expPipeManager = new KryoNetManager(ports);
 
     Map<Integer, NetworkConfiguration> netConf =
@@ -102,7 +114,7 @@ public abstract class AbstractSpdzTest {
 
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
-              () -> createResourcePool(playerId, noOfParties, preProStrat, tripleManager,
+              () -> createResourcePool(playerId, noOfParties, preProStrat, otManager, tripleManager,
                   expPipeManager),
               () -> {
                 KryoNetNetwork kryoNetwork = new KryoNetNetwork(netConf.get(playerId));
@@ -165,16 +177,52 @@ public abstract class AbstractSpdzTest {
     return exponentiationPipe;
   }
 
+  private Drbg getDrbg(int myId, int prgSeedLength) {
+    byte[] seed = new byte[prgSeedLength / 8];
+    new Random(myId).nextBytes(seed);
+    return new PaddingAesCtrDrbg(seed);
+  }
+
+  private Map<Integer, RotList> getSeedOts(int myId, List<Integer> partyIds, int prgSeedLength,
+      Drbg drbg, Network network) {
+    Map<Integer, RotList> seedOts = new HashMap<>();
+    for (Integer otherId : partyIds) {
+      if (myId != otherId) {
+        Ot ot = new DummyOt(otherId, network);
+        RotList currentSeedOts = new RotList(drbg, prgSeedLength);
+        if (myId < otherId) {
+          currentSeedOts.send(ot);
+          currentSeedOts.receive(ot);
+        } else {
+          currentSeedOts.receive(ot);
+          currentSeedOts.send(ot);
+        }
+        seedOts.put(otherId, currentSeedOts);
+      }
+    }
+    return seedOts;
+  }
+
   private SpdzResourcePool createResourcePool(int myId, int numberOfParties,
       PreprocessingStrategy preProStrat,
+      KryoNetManager otGenerator,
       KryoNetManager tripleGenerator,
       KryoNetManager expPipeGenerator) {
     SpdzDataSupplier supplier;
     if (preProStrat == DUMMY) {
       supplier = new SpdzDummyDataSupplier(myId, numberOfParties);
     } else if (preProStrat == MASCOT) {
+      List<Integer> partyIds =
+          IntStream.range(1, numberOfParties + 1).boxed().collect(Collectors.toList());
+      int prgSeedLength = 256;
+      BigInteger modulus = ModulusFinder.findSuitableModulus(modBitLength);
+      Drbg drbg = getDrbg(myId, prgSeedLength);
+      Map<Integer, RotList> seedOts = getSeedOts(myId, partyIds, prgSeedLength, drbg,
+          otGenerator.createExtraNetwork(myId));
+      FieldElement ssk = SpdzMascotDataSupplier
+          .createRandomSsk(modulus, modBitLength, prgSeedLength);
       supplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, numberOfParties,
-          () -> tripleGenerator.createExtraNetwork(myId), modBitLength,
+          () -> tripleGenerator.createExtraNetwork(myId), modBitLength, modulus,
           new Function<Integer, SpdzSInt[]>() {
 
             private SpdzMascotDataSupplier tripleSupplier;
@@ -186,23 +234,23 @@ public abstract class AbstractSpdzTest {
                 pipeNetwork = expPipeGenerator.createExtraNetwork(myId);
                 tripleSupplier = SpdzMascotDataSupplier
                     .createSimpleSupplier(myId, numberOfParties, () -> pipeNetwork,
-                        modBitLength,
-                        null);
+                        modBitLength, modulus, null, seedOts, drbg, ssk);
               }
               DRes<List<DRes<SInt>>> pipe = createPipe(myId, numberOfParties, pipeLength,
                   pipeNetwork,
                   tripleSupplier);
               return computeSInts(pipe);
             }
-          });
+          }, seedOts, drbg, ssk);
     } else {
       // case STATIC:
       int noOfThreadsUsed = 1;
       String storageName =
           SpdzStorageDataSupplier.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
               + "_";
-      supplier = new SpdzStorageDataSupplier(
-          new FilebasedStreamedStorageImpl(new InMemoryStorage()), storageName, numberOfParties);
+      FilebasedStreamedStorageImpl storage =
+          new FilebasedStreamedStorageImpl(new InMemoryStorage());
+      supplier = new SpdzStorageDataSupplier(storage, storageName, numberOfParties);
     }
     SpdzStorage store = new SpdzStorageImpl(supplier);
     return new SpdzResourcePoolImpl(myId, numberOfParties, new HmacDrbg(), store);

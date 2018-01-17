@@ -10,7 +10,7 @@ import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.helper.Constants;
+import dk.alexandra.fresco.tools.helper.TestHelper;
 import dk.alexandra.fresco.tools.helper.TestRuntime;
 import dk.alexandra.fresco.tools.ot.otextension.CheatingNetwork;
 
@@ -34,7 +34,7 @@ public class TestCoinTossing {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     // To stress things we use HMAC for one party and AES for another
-    Drbg rand = new HmacDrbg(Constants.seedOne);
+    Drbg rand = new HmacDrbg(TestHelper.seedOne);
     CoinTossing ct = new CoinTossing(1, 2, rand, network);
     return ct;
   }
@@ -42,7 +42,7 @@ public class TestCoinTossing {
   private CoinTossing setupPartyTwo() {
     Network network = new CheatingNetwork(
         TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
-    Drbg rand = new AesCtrDrbg(Constants.seedTwo);
+    Drbg rand = new AesCtrDrbg(TestHelper.seedTwo);
     CoinTossing ct = new CoinTossing(2, 1, rand, network);
     return ct;
   }

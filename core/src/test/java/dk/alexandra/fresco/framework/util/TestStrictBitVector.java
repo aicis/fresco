@@ -14,13 +14,13 @@ public class TestStrictBitVector {
   @Test
   public void testConstructCorrectSize() {
     byte[] bits = { (byte) 0xFF, (byte) 0x01, (byte) 0x00 };
-    StrictBitVector bv = new StrictBitVector(bits, bits.length * 8);
+    StrictBitVector bv = new StrictBitVector(bits);
     assertArrayEquals(bits, bv.toByteArray());
   }
 
   @Test
   public void testConstructRandomCorrectSize() {
-    Drbg rand = new PaddingAesCtrDrbg(new byte[] { 0x42 }, 32 * 8);
+    Drbg rand = new PaddingAesCtrDrbg(new byte[] { 0x42 });
     StrictBitVector bv = new StrictBitVector(4 * 8, rand);
     assertEquals(4 * 8, bv.getSize());
     assertEquals(4, bv.toByteArray().length);
@@ -32,73 +32,73 @@ public class TestStrictBitVector {
   @Test
   public void testConcatSameSizeBitVectors() {
     byte[] bitsOne = { (byte) 0xFF, (byte) 0x01, (byte) 0x00 };
-    StrictBitVector bvOne = new StrictBitVector(bitsOne, bitsOne.length * 8);
+    StrictBitVector bvOne = new StrictBitVector(bitsOne);
 
     byte[] bitsTwo = { (byte) 0x01, (byte) 0x02, (byte) 0x03 };
-    StrictBitVector bvTwo = new StrictBitVector(bitsTwo, bitsTwo.length * 8);
+    StrictBitVector bvTwo = new StrictBitVector(bitsTwo);
 
     StrictBitVector actual = StrictBitVector.concat(bvOne, bvTwo);
 
     byte[] expectedBits =
         { (byte) 0xFF, (byte) 0x01, (byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x03 };
-    StrictBitVector expected = new StrictBitVector(expectedBits, expectedBits.length * 8);
+    StrictBitVector expected = new StrictBitVector(expectedBits);
     assertEquals(expected, actual);
   }
 
   @Test
   public void testConcatReverse() {
     byte[] bitsOne = { (byte) 0xFF, (byte) 0x01, (byte) 0x00 };
-    StrictBitVector bvOne = new StrictBitVector(bitsOne, bitsOne.length * 8);
+    StrictBitVector bvOne = new StrictBitVector(bitsOne);
 
     byte[] bitsTwo = { (byte) 0x01, (byte) 0x02, (byte) 0x03 };
-    StrictBitVector bvTwo = new StrictBitVector(bitsTwo, bitsTwo.length * 8);
+    StrictBitVector bvTwo = new StrictBitVector(bitsTwo);
 
     StrictBitVector actual = StrictBitVector.concat(true, bvOne, bvTwo);
 
     byte[] expectedBits =
         { (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0xFF, (byte) 0x01, (byte) 0x00 };
-    StrictBitVector expected = new StrictBitVector(expectedBits, expectedBits.length * 8);
+    StrictBitVector expected = new StrictBitVector(expectedBits);
     assertEquals(expected, actual);
   }
 
   @Test
   public void testConcatDifferentSizeBitVectors() {
     byte[] bitsOne = { (byte) 0xFF, (byte) 0x01, (byte) 0x00 };
-    StrictBitVector bvOne = new StrictBitVector(bitsOne, bitsOne.length * 8);
+    StrictBitVector bvOne = new StrictBitVector(bitsOne);
 
     byte[] bitsTwo = { (byte) 0x01, (byte) 0x02 };
-    StrictBitVector bvTwo = new StrictBitVector(bitsTwo, bitsTwo.length * 8);
+    StrictBitVector bvTwo = new StrictBitVector(bitsTwo);
 
     StrictBitVector actual = StrictBitVector.concat(bvOne, bvTwo);
 
     byte[] expectedBits = { (byte) 0xFF, (byte) 0x01, (byte) 0x00, (byte) 0x01, (byte) 0x02 };
-    StrictBitVector expected = new StrictBitVector(expectedBits, expectedBits.length * 8);
+    StrictBitVector expected = new StrictBitVector(expectedBits);
     assertEquals(expected, actual);
   }
 
   @Test
   public void testConcatMultipleBitVectors() {
     byte[] bitsOne = { (byte) 0xFF, (byte) 0x01, (byte) 0x00 };
-    StrictBitVector bvOne = new StrictBitVector(bitsOne, bitsOne.length * 8);
+    StrictBitVector bvOne = new StrictBitVector(bitsOne);
 
     byte[] bitsTwo = { (byte) 0x01, (byte) 0x02 };
-    StrictBitVector bvTwo = new StrictBitVector(bitsTwo, bitsTwo.length * 8);
+    StrictBitVector bvTwo = new StrictBitVector(bitsTwo);
 
     byte[] bitsThree = { (byte) 0x03, (byte) 0x04, (byte) 0x05, (byte) 0x06 };
-    StrictBitVector bvThree = new StrictBitVector(bitsThree, bitsThree.length * 8);
+    StrictBitVector bvThree = new StrictBitVector(bitsThree);
 
     StrictBitVector actual = StrictBitVector.concat(bvOne, bvTwo, bvThree);
 
     byte[] expectedBits = { (byte) 0xFF, (byte) 0x01, (byte) 0x00, (byte) 0x01, (byte) 0x02,
         (byte) 0x03, (byte) 0x04, (byte) 0x05, (byte) 0x06 };
-    StrictBitVector expected = new StrictBitVector(expectedBits, expectedBits.length * 8);
+    StrictBitVector expected = new StrictBitVector(expectedBits);
     assertEquals(expected, actual);
   }
 
   @Test
   public void testConcatSingleBitVector() {
     byte[] bitsOne = { (byte) 0xFF, (byte) 0x01, (byte) 0x00 };
-    StrictBitVector bvOne = new StrictBitVector(bitsOne, bitsOne.length * 8);
+    StrictBitVector bvOne = new StrictBitVector(bitsOne);
 
     StrictBitVector actual = StrictBitVector.concat(bvOne);
 
@@ -108,15 +108,15 @@ public class TestStrictBitVector {
   @Test
   public void testConcatEmptyBitVector() {
     byte[] bitsOne = {};
-    StrictBitVector bvOne = new StrictBitVector(bitsOne, bitsOne.length * 8);
+    StrictBitVector bvOne = new StrictBitVector(bitsOne);
 
     byte[] bitsTwo = { (byte) 0x01, (byte) 0x02 };
-    StrictBitVector bvTwo = new StrictBitVector(bitsTwo, bitsTwo.length * 8);
+    StrictBitVector bvTwo = new StrictBitVector(bitsTwo);
 
     StrictBitVector actual = StrictBitVector.concat(bvOne, bvTwo);
 
     byte[] expectedBits = { (byte) 0x01, (byte) 0x02 };
-    StrictBitVector expected = new StrictBitVector(expectedBits, expectedBits.length * 8);
+    StrictBitVector expected = new StrictBitVector(expectedBits);
     assertEquals(expected, actual);
   }
 
@@ -127,7 +127,7 @@ public class TestStrictBitVector {
     for (int b = 0; b < bits.length; b++) {
       bits[b] = (byte) b;
     }
-    StrictBitVector bv = new StrictBitVector(bits, bitLen);
+    StrictBitVector bv = new StrictBitVector(bits);
     // string for readability
     String actual = "";
     for (int b = 0; b < bitLen; b++) {
@@ -140,12 +140,12 @@ public class TestStrictBitVector {
   @Test
   public void testXor() {
     byte[] bitsOne = { (byte) 0x00, (byte) 0x01, (byte) 0x02 };
-    StrictBitVector bvOne = new StrictBitVector(bitsOne, 24);
+    StrictBitVector bvOne = new StrictBitVector(bitsOne);
     byte[] bitsTwo = { (byte) 0x03, (byte) 0x04, (byte) 0x05 };
-    StrictBitVector bvTwo = new StrictBitVector(bitsTwo, 24);
+    StrictBitVector bvTwo = new StrictBitVector(bitsTwo);
     bvOne.xor(bvTwo);
     byte[] expectedBytes = { (byte) 0x03, (byte) 0x05, (byte) 0x07 };
-    StrictBitVector expected = new StrictBitVector(expectedBytes, 24);
+    StrictBitVector expected = new StrictBitVector(expectedBytes);
     assertEquals(expected, bvOne);
   }
 
@@ -156,7 +156,7 @@ public class TestStrictBitVector {
     for (int b = 0; b < bits.length; b++) {
       bits[b] = (byte) b;
     }
-    StrictBitVector bv = new StrictBitVector(bits, bitLen);
+    StrictBitVector bv = new StrictBitVector(bits);
     // string for readability
     String actual = "";
     for (int b = 0; b < bitLen; b++) {
@@ -170,7 +170,7 @@ public class TestStrictBitVector {
   public void testSetBitBigEndian() {
     int bitLen = 16;
     byte[] bits = new byte[bitLen / 8];
-    StrictBitVector bv = new StrictBitVector(bits, bitLen);
+    StrictBitVector bv = new StrictBitVector(bits);
     bv.setBit(2, true);
     bv.setBit(11, true);
     byte[] actual = bv.toByteArray();
@@ -184,7 +184,7 @@ public class TestStrictBitVector {
   public void testSetBitLittleEndian() {
     int bitLen = 16;
     byte[] bits = new byte[bitLen / 8];
-    StrictBitVector bv = new StrictBitVector(bits, bitLen);
+    StrictBitVector bv = new StrictBitVector(bits);
     bv.setBit(2, true, false);
     bv.setBit(11, true, false);
     byte[] actual = bv.toByteArray();
@@ -201,7 +201,7 @@ public class TestStrictBitVector {
     for (int b = 0; b < bits.length; b++) {
       bits[b] = (byte) b;
     }
-    StrictBitVector bv = new StrictBitVector(bits, bitLen);
+    StrictBitVector bv = new StrictBitVector(bits);
     String expected = "000100001110000001100000101000000010000011000000010000001000000000000000";
     assertEquals(expected, bv.asBinaryString());
   }
@@ -209,7 +209,7 @@ public class TestStrictBitVector {
   @Test
   public void testToString() {
     byte[] bits = { (byte) 0xFF, (byte) 0x01, (byte) 0x00 };
-    StrictBitVector bv = new StrictBitVector(bits, bits.length * 8);
+    StrictBitVector bv = new StrictBitVector(bits);
     String expected = "StrictBitVector [bits=[-1, 1, 0]]";
     assertEquals(expected, bv.toString());
   }
@@ -219,27 +219,15 @@ public class TestStrictBitVector {
   @Test(expected = IndexOutOfBoundsException.class)
   public void testRangeCheck() {
     byte[] bits = { (byte) 0xFF, (byte) 0x01, (byte) 0x00 };
-    StrictBitVector bv = new StrictBitVector(bits, bits.length * 8);
+    StrictBitVector bv = new StrictBitVector(bits);
     bv.getBit(2000);
   }
 
   @Test(expected = IndexOutOfBoundsException.class)
   public void testRangeCheckNegative() {
     byte[] bits = { (byte) 0xFF, (byte) 0x01, (byte) 0x00 };
-    StrictBitVector bv = new StrictBitVector(bits, bits.length * 8);
+    StrictBitVector bv = new StrictBitVector(bits);
     bv.getBit(-1);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testConstructIncorrectSize() {
-    byte[] bits = { (byte) 0xFF, (byte) 0x01, (byte) 0x00 };
-    new StrictBitVector(bits, 11);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void testConstructInconsistentSize() {
-    byte[] bits = { (byte) 0xFF, (byte) 0x01, (byte) 0x00 };
-    new StrictBitVector(bits, 4 * 8);
   }
 
   @Test(expected = IllegalArgumentException.class)

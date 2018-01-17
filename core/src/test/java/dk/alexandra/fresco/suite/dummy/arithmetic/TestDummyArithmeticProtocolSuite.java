@@ -623,5 +623,4 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
         EvaluationStrategy.SEQUENTIAL, 1);
   }
 
-
 }
