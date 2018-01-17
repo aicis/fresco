@@ -1,7 +1,5 @@
 package dk.alexandra.fresco.tools.mascot;
 
-import static org.junit.Assert.assertEquals;
-
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;

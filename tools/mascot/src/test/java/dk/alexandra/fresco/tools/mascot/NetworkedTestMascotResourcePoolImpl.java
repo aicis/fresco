@@ -41,8 +41,8 @@ public class NetworkedTestMascotResourcePoolImpl extends NetworkedTest {
   public void testCreateRot() {
     initContexts(Arrays.asList(1, 2));
 
-    Callable<RotBatch> partyOneTask = () -> {return createRotTask(contexts.get(1), 2);};
-    Callable<RotBatch> partyTwoTask = () -> {return createRotTask(contexts.get(2), 1);};
+    Callable<RotBatch> partyOneTask = () -> createRotTask(contexts.get(1), 2);
+    Callable<RotBatch> partyTwoTask = () -> createRotTask(contexts.get(2), 1);
 
     List<RotBatch> results =
         testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
