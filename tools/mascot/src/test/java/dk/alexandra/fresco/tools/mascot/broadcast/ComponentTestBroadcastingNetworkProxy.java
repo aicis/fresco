@@ -17,7 +17,7 @@ import java.util.concurrent.Callable;
 import org.junit.Test;
 
 
-public class ComponentTestBroadcastingNetworkDecorator extends NetworkedTest {
+public class ComponentTestBroadcastingNetworkProxy extends NetworkedTest {
 
   private byte[] runSender(MascotTestContext ctx, byte[] toSend) {
     BroadcastValidation validator =

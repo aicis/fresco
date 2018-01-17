@@ -6,7 +6,7 @@ import dk.alexandra.fresco.framework.network.Network;
 import org.junit.Test;
 
 
-public class TestBroadcastingNetworkDecorator {
+public class TestBroadcastingNetworkProxy {
 
   private final Network validBroadcastNetwork = new BroadcastingNetworkProxy(new Network() {
 
