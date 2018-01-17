@@ -54,6 +54,22 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   private final Map<Integer, RotList> seedOts;
   private Mascot mascot;
 
+  /**
+   * Creates {@link SpdzMascotDataSupplier}.
+   *
+   * @param myId this party's id
+   * @param numberOfPlayers number of players
+   * @param instanceId identifier used to distinguish parallel instances of Mascot
+   * @param tripleNetwork network supplier for network to be used by Mascot instance
+   * @param modulus field modulus
+   * @param modBitLength bit length of modulus
+   * @param preprocessedValues callback to generate exponentiation pipes
+   * @param prgSeedLength bit length of prg
+   * @param batchSize batch size in which Mascot will generate pre-processed material
+   * @param ssk mac key share
+   * @param seedOts pre-computed base OTs
+   * @param drbg source of randomness
+   */
   public SpdzMascotDataSupplier(int myId, int numberOfPlayers, int instanceId,
       Supplier<Network> tripleNetwork, BigInteger modulus, int modBitLength,
       Function<Integer, SpdzSInt[]> preprocessedValues, int prgSeedLength, int batchSize,

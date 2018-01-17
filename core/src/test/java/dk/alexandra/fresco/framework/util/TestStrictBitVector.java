@@ -3,6 +3,8 @@ package dk.alexandra.fresco.framework.util;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import org.junit.Test;
@@ -212,6 +214,29 @@ public class TestStrictBitVector {
     StrictBitVector bv = new StrictBitVector(bits);
     String expected = "StrictBitVector [bits=[-1, 1, 0]]";
     assertEquals(expected, bv.toString());
+  }
+
+  @Test
+  public void testEquals() {
+    byte[] bits = { (byte) 0xFF, (byte) 0x01, (byte) 0x00 };
+    StrictBitVector bv = new StrictBitVector(bits);
+    byte[] otherBits = { (byte) 0xFF, (byte) 0x01, (byte) 0x00 };
+    StrictBitVector otherBv = new StrictBitVector(otherBits);
+    assertTrue(bv.equals(bv));
+    assertTrue(bv.equals(otherBv));
+    assertFalse(bv.equals(null));
+    assertFalse(bv.equals("Not a bit vector"));
+    assertFalse(bv.equals(new StrictBitVector(new byte[]{})));
+  }
+
+  @Test
+  public void testHashCode() {
+    byte[] bits = { (byte) 0xFF, (byte) 0x01, (byte) 0x00 };
+    StrictBitVector bv = new StrictBitVector(bits);
+    byte[] otherBits = { (byte) 0xFF, (byte) 0x01, (byte) 0x00 };
+    StrictBitVector otherBv = new StrictBitVector(otherBits);
+    assertEquals(bv.hashCode(), otherBv.hashCode());
+    assertNotEquals(bv.hashCode(), new StrictBitVector(new byte[]{0x42}));
   }
 
   // Negative tests
