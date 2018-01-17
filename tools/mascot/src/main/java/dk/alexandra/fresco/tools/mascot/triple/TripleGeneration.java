@@ -42,6 +42,12 @@ public class TripleGeneration extends BaseProtocol {
     super(resourcePool, network);
     this.leftMultipliers = new HashMap<>();
     this.rightMultipliers = new HashMap<>();
+    initializeMultipliers(resourcePool, network);
+    this.elementGeneration = elementGeneration;
+    this.jointSampler = jointSampler;
+  }
+
+  private void initializeMultipliers(MascotResourcePool resourcePool, Network network) {
     for (Integer partyId : getPartyIds()) {
       if (partyId != getMyId()) {
         if (getMyId() < partyId) {
@@ -57,8 +63,6 @@ public class TripleGeneration extends BaseProtocol {
         }
       }
     }
-    this.elementGeneration = elementGeneration;
-    this.jointSampler = jointSampler;
   }
 
   TripleGeneration(MascotResourcePool resourcePool, Network network, FieldElementPrg jointSampler,
@@ -95,7 +99,7 @@ public class TripleGeneration extends BaseProtocol {
     return triples;
   }
 
-  List<UnauthTriple> toUnauthTriple(List<FieldElement> left, List<FieldElement> right,
+  private List<UnauthTriple> toUnauthTriple(List<FieldElement> left, List<FieldElement> right,
       List<FieldElement> prods) {
     Stream<UnauthTriple> stream = IntStream.range(0, right.size()).mapToObj(idx -> {
       int groupStart = idx * getNumCandidatesPerTriple();
@@ -139,7 +143,7 @@ public class TripleGeneration extends BaseProtocol {
     return productShares;
   }
 
-  List<UnauthCand> combine(List<UnauthTriple> triples) {
+  private List<UnauthCand> combine(List<UnauthTriple> triples) {
     int numTriples = triples.size();
 
     List<List<FieldElement>> masks = jointSampler.getNext(getModulus(), getModBitLength(),
@@ -158,7 +162,7 @@ public class TripleGeneration extends BaseProtocol {
     return candidates;
   }
 
-  List<AuthCand> toAuthenticatedCand(List<AuthenticatedElement> list, int partSize) {
+  private List<AuthCand> toAuthenticatedCand(List<AuthenticatedElement> list, int partSize) {
     int numParts = list.size() / partSize;
     return IntStream.range(0, numParts).mapToObj(idx -> {
       List<AuthenticatedElement> batch = list.subList(idx * partSize, (idx + 1) * partSize);
@@ -166,7 +170,7 @@ public class TripleGeneration extends BaseProtocol {
     }).collect(Collectors.toList());
   }
 
-  List<AuthCand> authenticate(List<UnauthCand> candidates) {
+  private List<AuthCand> authenticate(List<UnauthCand> candidates) {
     List<FieldElement> flatInputs =
         candidates.stream().flatMap(TripleCandidate::stream).collect(Collectors.toList());
 
@@ -184,7 +188,7 @@ public class TripleGeneration extends BaseProtocol {
     return toAuthenticatedCand(combined, 5);
   }
 
-  List<AuthenticatedElement> computeRhos(List<AuthCand> candidates, List<FieldElement> masks) {
+  private List<AuthenticatedElement> computeRhos(List<AuthCand> candidates, List<FieldElement> masks) {
     List<AuthenticatedElement> rhos = IntStream.range(0, candidates.size()).mapToObj(idx -> {
       AuthCand cand = candidates.get(idx);
       FieldElement mask = masks.get(idx);
@@ -193,7 +197,7 @@ public class TripleGeneration extends BaseProtocol {
     return rhos;
   }
 
-  List<AuthenticatedElement> computeSigmas(List<AuthCand> candidates, List<FieldElement> masks,
+  private List<AuthenticatedElement> computeSigmas(List<AuthCand> candidates, List<FieldElement> masks,
       List<FieldElement> openRhos) {
     List<AuthenticatedElement> sigmas = IntStream.range(0, candidates.size()).mapToObj(idx -> {
       AuthCand cand = candidates.get(idx);
@@ -204,7 +208,7 @@ public class TripleGeneration extends BaseProtocol {
     return sigmas;
   }
 
-  List<MultTriple> toMultTriples(List<AuthCand> candidates) {
+  private List<MultTriple> toMultTriples(List<AuthCand> candidates) {
     return candidates.stream().map(AuthCand::toTriple).collect(Collectors.toList());
   }
 

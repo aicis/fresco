@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import org.junit.Test;
 
-public class NetworkedTestMascotResourcePoolImpl extends NetworkedTest {
+public class TestNetworkedMascotResourcePoolImpl extends NetworkedTest {
 
   private RotBatch createRotTask(MascotTestContext ctx, int otherId) {
     Map<Integer, RotList> seedOtsMap = new HashMap<>();
