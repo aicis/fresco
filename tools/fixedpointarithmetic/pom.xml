@@ -20,22 +20,6 @@
       <artifactId>core</artifactId>
       <version>${fresco-version}</version>
     </dependency>
-
-    <!-- TODO Proper handling would imply these utilities to be present in a seperate module -->
-    <dependency>
-      <groupId>dk.alexandra.fresco</groupId>
-      <artifactId>core</artifactId>
-      <version>${fresco-version}</version>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <!-- Used for plaintext LP solving -->
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-math3</artifactId>
-      <version>3.5</version>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>
