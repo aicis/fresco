@@ -45,19 +45,12 @@ public class TinyTablesXORProtocol extends TinyTablesProtocol<SBool> {
     this.inRight = inRight;
   }
 
-  public TinyTablesXORProtocol(DRes<SBool> inLeft, DRes<SBool> inRight, SBool out) {
-    super();
-    this.inLeft = inLeft;
-    this.inRight = inRight;
-    this.out = (TinyTablesSBool) out;
-  }
-
   @Override
   public EvaluationStatus evaluate(int round, ResourcePoolImpl resourcePool, Network network) {
     // Free XOR
-    out = (out == null) ? new TinyTablesSBool() : out;
-    this.out.setValue(((TinyTablesSBool) inLeft.out()).getValue()
-        .add(((TinyTablesSBool) inRight.out()).getValue()));
+    TinyTablesSBool left = (TinyTablesSBool) inLeft.out();
+    TinyTablesSBool right = (TinyTablesSBool) inRight.out();
+    this.out = new TinyTablesSBool(left.getValue().add(right.getValue()));
     return EvaluationStatus.IS_DONE;
   }
 

@@ -20,19 +20,17 @@ import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePool;
 import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePoolImpl;
 import java.math.BigInteger;
 import java.security.MessageDigest;
-import java.util.List;
 import java.util.Map;
 
 public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotResourcePool {
 
   private final Map<Integer, RotList> seedOts;
-  private final List<Integer> partyIds;
   private final int instanceId;
   private final BigInteger modulus;
   private final int modBitLength;
   private final int lambdaSecurityParam;
   private final int prgSeedLength;
-  private final int numLeftFactors;
+  private final int numCandidatesPerTriple;
   private final FieldElementPrg localSampler;
   private final FieldElementSerializer fieldElementSerializer;
   private final StrictBitVectorSerializer strictBitVectorSerializer;
@@ -40,20 +38,19 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
   private final MessageDigest messageDigest;
 
   /**
-   * Creates new mascot resource pool.
+   * Creates {@link MascotResourcePoolImpl}.
    */
-  public MascotResourcePoolImpl(Integer myId, List<Integer> partyIds,
+  public MascotResourcePoolImpl(Integer myId, int noOfParties,
       int instanceId, Drbg drbg, Map<Integer, RotList> seedOts,
       BigInteger modulus, int modBitLength, int lambdaSecurityParam,
-      int prgSeedLength, int numLeftFactors) {
-    super(myId, partyIds.size(), drbg);
-    this.partyIds = partyIds;
+      int prgSeedLength, int numCandidatesPerTriple) {
+    super(myId, noOfParties, drbg);
     this.instanceId = instanceId;
     this.seedOts = seedOts;
     this.modulus = modulus;
     this.modBitLength = modBitLength;
     this.lambdaSecurityParam = lambdaSecurityParam;
-    this.numLeftFactors = numLeftFactors;
+    this.numCandidatesPerTriple = numCandidatesPerTriple;
     this.prgSeedLength = prgSeedLength;
     this.localSampler = new FieldElementPrgImpl(new StrictBitVector(prgSeedLength, drbg));
     this.fieldElementSerializer = new FieldElementSerializer(modulus, modBitLength);
@@ -61,11 +58,6 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
     this.commitmentSerializer = new HashBasedCommitmentSerializer();
     this.messageDigest = ExceptionConverter.safe(() -> MessageDigest.getInstance("SHA-256"),
         "Configuration error, SHA-256 is needed for Mascot");
-  }
-
-  @Override
-  public List<Integer> getPartyIds() {
-    return partyIds;
   }
 
   @Override
@@ -90,7 +82,7 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
 
   @Override
   public int getNumCandidatesPerTriple() {
-    return numLeftFactors;
+    return numCandidatesPerTriple;
   }
 
   @Override

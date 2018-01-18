@@ -36,15 +36,14 @@ public class TestNetworkedBroadcastingNetworkProxy extends NetworkedTest {
     return broadcaster.receive(inputterId);
   }
 
-  private MaliciousException runIncosistentSender(MascotTestContext ctx,
+  private MaliciousException runInconsistentSender(MascotTestContext ctx,
       Map<Integer, byte[]> toSend) {
     Network network = ctx.getNetwork();
     BroadcastValidation validator =
         new BroadcastValidation(ctx.getResourcePool(), ctx.getNetwork());
     BroadcastingNetworkProxy broadcaster =
         new BroadcastingNetworkProxy(ctx.getNetwork(), validator);
-    for (Integer partyId : ctx.getResourcePool()
-        .getPartyIds()) {
+    for (int partyId = 1; partyId <= ctx.getNoOfParties(); partyId++) {
       network.send(partyId, toSend.get(partyId));
     }
     try {
@@ -95,7 +94,7 @@ public class TestNetworkedBroadcastingNetworkProxy extends NetworkedTest {
     toSend.put(2, new byte[] {0x01, 0x02});
     toSend.put(3, new byte[] {0x01, 0x03}); // incosistent
 
-    tasks.add(() -> runIncosistentSender(contexts.get(1), toSend));
+    tasks.add(() -> runInconsistentSender(contexts.get(1), toSend));
     tasks.add(() -> runReceiverAgainstInconsistentSender(contexts.get(2), 1));
     tasks.add(() -> runReceiverAgainstInconsistentSender(contexts.get(3), 1));
 

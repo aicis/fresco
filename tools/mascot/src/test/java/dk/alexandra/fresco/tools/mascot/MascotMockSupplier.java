@@ -10,8 +10,6 @@ import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import java.math.BigInteger;
 import java.security.MessageDigest;
-import java.util.Arrays;
-import java.util.List;
 
 public class MascotMockSupplier {
 
@@ -66,11 +64,6 @@ public class MascotMockSupplier {
       @Override
       public int getPrgSeedLength() {
         return 0;
-      }
-
-      @Override
-      public List<Integer> getPartyIds() {
-        return Arrays.asList(1, 2);
       }
 
       @Override

@@ -8,8 +8,6 @@ import dk.alexandra.fresco.tools.mascot.elgen.ElementGeneration;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
-import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeft;
-import dk.alexandra.fresco.tools.mascot.mult.MultiplyRight;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,7 +46,7 @@ public class TripleGeneration extends BaseProtocol {
   }
 
   private void initializeMultipliers(MascotResourcePool resourcePool, Network network) {
-    for (Integer partyId : getPartyIds()) {
+    for (int partyId = 1; partyId <= getNoOfParties(); partyId++) {
       if (partyId != getMyId()) {
         if (getMyId() < partyId) {
           rightMultipliers.put(partyId, new MultiplyRight(resourcePool, network,
@@ -127,8 +125,8 @@ public class TripleGeneration extends BaseProtocol {
     // step 2 of protocol
     // for each value we will have two sub-factors for each other party
     List<List<FieldElement>> subFactors = new ArrayList<>();
-    for (Integer partyId : getPartyIds()) {
-      if (!partyId.equals(getMyId())) {
+    for (int partyId = 1; partyId <= getNoOfParties(); partyId++) {
+      if (partyId != getMyId()) {
         MultiplyLeft leftMult = leftMultipliers.get(partyId);
         MultiplyRight rightMult = rightMultipliers.get(partyId);
         if (getMyId() < partyId) {
@@ -184,8 +182,8 @@ public class TripleGeneration extends BaseProtocol {
         .collect(Collectors.toList());
 
     List<List<AuthenticatedElement>> shares = new ArrayList<>();
-    for (Integer partyId : getPartyIds()) {
-      if (partyId.equals(getMyId())) {
+    for (int partyId = 1; partyId <= getNoOfParties(); partyId++) {
+      if (partyId == getMyId()) {
         shares.add(elementGeneration.input(flatInputs));
       } else {
         shares.add(elementGeneration.input(partyId, flatInputs.size()));

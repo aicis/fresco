@@ -29,8 +29,7 @@ public class TinyTablesBuilderFactory implements BuilderFactoryBinary {
 
       @Override
       public DRes<SBool> xor(DRes<SBool> left, DRes<SBool> right) {
-        SBool out = new TinyTablesSBool();
-        TinyTablesXORProtocol p = new TinyTablesXORProtocol(left, right, out);
+        TinyTablesXORProtocol p = new TinyTablesXORProtocol(left, right);
         builder.append(p);
         return p;
       }

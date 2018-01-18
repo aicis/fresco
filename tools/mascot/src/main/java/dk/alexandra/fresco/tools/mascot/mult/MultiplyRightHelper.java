@@ -10,32 +10,26 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * A helper class for multiplication-based protocols
- * {@link dk.alexandra.fresco.tools.mascot.cope.CopeInputter} and {@link MultiplyRight}. These two
- * classes share a lot functionality. This functionality is implemented here.
+ * A helper class for multiplication-based protocols {@link dk.alexandra.fresco.tools.mascot.cope.CopeInputter}
+ * and the multiplication sub-protocol used by {@link dk.alexandra.fresco.tools.mascot.triple.TripleGeneration}.
+ * These two classes share a lot of functionality. This functionality is implemented here.
  */
 public class MultiplyRightHelper extends MultiplySharedHelper {
 
-  public MultiplyRightHelper(MascotResourcePool resourcePool, Network network, Integer otherId,
-      int numLeftFactors) {
-    super(resourcePool, network, otherId, numLeftFactors);
-  }
-
-  public MultiplyRightHelper(MascotResourcePool resourcePool, Network network, Integer otherId) {
-    super(resourcePool, network, otherId, 1);
+  public MultiplyRightHelper(MascotResourcePool resourcePool,
+      Network network, Integer otherId) {
+    super(resourcePool, network, otherId);
   }
 
   /**
    * Generate random seed pairs using OT.
    *
-   * <p>
-   * The seed pairs are correlated with the multiplication factors of the other party. If the other
-   * party's factors (represented as a bit vector) is 010, this party will receive seed pairs
+   * <p> The seed pairs are correlated with the multiplication factors of the other party. If the
+   * other party's factors (represented as a bit vector) is 010, this party will receive seed pairs
    * <i>(a<sub>0</sub>, a<sub>1</sub>), (b<sub>0</sub>, b<sub>1</sub>), (c<sub>0</sub>,
    * c<sub>1</sub>)</i> whereas the other party will receive seeds <i>a<sub>0</sub>, b<sub>1</sub>,
    * c<sub>0</sub></i>. The parties can use the resulting seeds to compute the shares of the product
-   * of their factors.
-   * </p>
+   * of their factors. </p>
    *
    * @param numMults the number of total multiplications
    * @param seedLength the bit length of the seeds
@@ -43,29 +37,18 @@ public class MultiplyRightHelper extends MultiplySharedHelper {
    */
   public List<Pair<StrictBitVector, StrictBitVector>> generateSeeds(int numMults, int seedLength) {
     // perform rots for each bit, for each left factor, for each multiplication
-    int numRots = getModBitLength() * getNumLeftFactors() * numMults;
+    int numRots = getModBitLength() * numMults;
     List<Pair<StrictBitVector, StrictBitVector>> seeds = getRot().send(numRots, seedLength);
-    // TODO temporary fix until big-endianness issue is resolved
     Collections.reverse(seeds);
     return seeds;
-  }
-
-  public FieldElement computeDiff(Pair<FieldElement, FieldElement> feSeedPair,
-      FieldElement factor) {
-    FieldElement left = feSeedPair.getFirst();
-    FieldElement right = feSeedPair.getSecond();
-    FieldElement diff = left.subtract(right).add(factor);
-    return diff;
   }
 
   /**
    * Computes "masked" share of each bit of each of this party's factors.
    *
-   * <p>
-   * For each seed pair <i>(q<sub>0</sub>, q<sub>1</sub>)<sub>n</sub></i> compute <i>q<sub>0</sub> -
-   * q<sub>1</sub> + b<sub>n</sub></i> where <i>b<sub>n</sub></i> is the <i>n</i>-th factor of this
-   * party's factor.
-   * </p>
+   * <p> For each seed pair <i>(q<sub>0</sub>, q<sub>1</sub>)<sub>n</sub></i> compute
+   * <i>q<sub>0</sub> - q<sub>1</sub> + b<sub>n</sub></i> where <i>b<sub>n</sub></i> is the
+   * <i>n</i>-th factor of this party's factor. </p>
    *
    * @param feSeedPairs seed pairs as field elements
    * @param rightFactors this party's factors
@@ -81,7 +64,7 @@ public class MultiplyRightHelper extends MultiplySharedHelper {
       FieldElement diff = computeDiff(feSeedPair, rightFactor);
       diffs.add(diff);
       seedPairIdx++;
-      rightFactorIdx = seedPairIdx / (getNumLeftFactors() * getModBitLength());
+      rightFactorIdx = seedPairIdx / (getModBitLength());
     }
     return diffs;
   }
@@ -97,17 +80,21 @@ public class MultiplyRightHelper extends MultiplySharedHelper {
    */
   public List<FieldElement> computeProductShares(List<FieldElement> feZeroSeeds,
       int numRightFactors) {
-    int groupBitLength = getNumLeftFactors() * getModBitLength();
     List<FieldElement> productShares = new ArrayList<>(numRightFactors);
     for (int rightFactIdx = 0; rightFactIdx < numRightFactors; rightFactIdx++) {
-      for (int leftFactIdx = 0; leftFactIdx < getNumLeftFactors(); leftFactIdx++) {
-        int from = rightFactIdx * groupBitLength + leftFactIdx * getModBitLength();
-        int to = rightFactIdx * groupBitLength + (leftFactIdx + 1) * getModBitLength();
-        List<FieldElement> subFactors = feZeroSeeds.subList(from, to);
-        FieldElement recombined = getFieldElementUtils().recombine(subFactors);
-        productShares.add(recombined.negate());
-      }
+      int from = rightFactIdx * getModBitLength();
+      int to = (rightFactIdx + 1) * getModBitLength();
+      List<FieldElement> subFactors = feZeroSeeds.subList(from, to);
+      FieldElement recombined = getFieldElementUtils().recombine(subFactors);
+      productShares.add(recombined.negate());
     }
     return productShares;
+  }
+
+  private FieldElement computeDiff(Pair<FieldElement, FieldElement> feSeedPair,
+      FieldElement factor) {
+    FieldElement left = feSeedPair.getFirst();
+    FieldElement right = feSeedPair.getSecond();
+    return left.subtract(right).add(factor);
   }
 }

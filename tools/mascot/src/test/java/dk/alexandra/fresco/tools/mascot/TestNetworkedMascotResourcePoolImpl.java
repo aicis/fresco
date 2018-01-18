@@ -29,7 +29,8 @@ public class TestNetworkedMascotResourcePoolImpl extends NetworkedTest {
       seedOts.send(ot);
     }
     seedOtsMap.put(otherId, seedOts);
-    MascotResourcePool resourcePool = new MascotResourcePoolImpl(ctx.getMyId(), ctx.getPartyIds(),
+    MascotResourcePool resourcePool = new MascotResourcePoolImpl(ctx.getMyId(),
+        ctx.getNoOfParties(),
         1, new AesCtrDrbg(new byte[32]), seedOtsMap, new BigInteger(
         "251"), 8, 8, 8, 8);
     RotBatch rot =

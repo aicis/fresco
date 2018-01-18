@@ -89,9 +89,9 @@ public class Mascot extends BaseProtocol {
    * @return random authenticated elements
    */
   public List<AuthenticatedElement> getRandomElements(int numElements) {
-    List<List<AuthenticatedElement>> perPartyElements = new ArrayList<>(getPartyIds().size());
-    for (Integer partyId : getPartyIds()) {
-      if (partyId.equals(getMyId())) {
+    List<List<AuthenticatedElement>> perPartyElements = new ArrayList<>(getNoOfParties());
+    for (int partyId = 1; partyId <= getNoOfParties(); partyId++) {
+      if (partyId == getMyId()) {
         List<FieldElement> randomElements =
             getLocalSampler().getNext(getModulus(), getModBitLength(), numElements);
         perPartyElements.add(elementGeneration.input(randomElements));
