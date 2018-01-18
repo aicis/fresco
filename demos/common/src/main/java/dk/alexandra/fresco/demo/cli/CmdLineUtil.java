@@ -13,7 +13,6 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.EvaluatorLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
@@ -138,10 +137,13 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
   private int parseNonzeroInt(String optionId) throws ParseException {
     int res;
     String opStr = this.cmd.getOptionValue(optionId);
+    if (opStr == null) {
+      throw new ParseException("No value for option: " + optionId);
+    }
     try {
       res = Integer.parseInt(opStr);
-      if (res < 1) {
-        throw new ParseException(optionId + " must be a positive integer larger than 0");
+      if (res < 0) {
+        throw new ParseException(optionId + " must be a positive integer");
       }
     } catch (NumberFormatException e) {
       throw new ParseException(
@@ -154,6 +156,9 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     int myId;
 
     Object suiteObj = this.cmd.getParsedOptionValue("s");
+    if (suiteObj == null) {
+      throw new ParseException("Cannot parse '" + this.cmd.getOptionValue("s") + "' as a string");
+    }
 
     final Map<Integer, Party> parties = new HashMap<>();
     final String suite = (String) suiteObj;
@@ -163,6 +168,9 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     }
 
     myId = parseNonzeroInt("i");
+    if (myId == 0) {
+      throw new ParseException("Player id must be positive, non-zero integer");
+    }
 
     for (String pStr : this.cmd.getOptionValues("p")) {
       String[] p = pStr.split(":");
@@ -190,7 +198,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     }
     if (!parties.containsKey(myId)) {
       throw new ParseException("This party is given the id " + myId
-          + " but this id is not present in the list of parties: " + parties.keySet());
+          + " but this id is not present in the list of parties " + parties.keySet());
     }
 
     if (this.cmd.hasOption("l")) {
@@ -213,8 +221,8 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     if (this.cmd.hasOption("b")) {
       try {
         maxBatchSize = Integer.parseInt(this.cmd.getOptionValue("b"));
-      } catch (NumberFormatException e) {
-        throw new ParseException("Batch size has to be an integer");
+      } catch (Exception e) {
+        throw new ParseException("");
       }
     }
     return maxBatchSize;
@@ -231,24 +239,23 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
   public CommandLine parse(String[] args) {
     try {
       CommandLineParser parser = new DefaultParser();
-      Option helpOpt = Option.builder("h").desc("Displays this help message").longOpt("help")
-          .required(false).hasArg(false).build();
+      Options helpOpt = new Options();
+      helpOpt.addOption(Option.builder("h").desc("Displays this help message").longOpt("help")
+          .required(false).hasArg(false).build());
 
+      cmd = parser.parse(helpOpt, args, true);
+      if (cmd.hasOption("h")) {
+        displayHelp();
+        System.exit(0);
+      }
       Options allOpts = new Options();
-      allOpts.addOption(helpOpt);
       for (Option o : options.getOptions()) {
         allOpts.addOption(o);
       }
       for (Option o : appOptions.getOptions()) {
         allOpts.addOption(o);
       }
-
       cmd = parser.parse(allOpts, args);
-
-      if (cmd.hasOption("h")) {
-        displayHelp();
-        return null;
-      }
 
       validateStandardOptions();
       String protocolSuiteName = ((String) this.cmd.getParsedOptionValue("s")).toLowerCase();
@@ -258,20 +265,23 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
       protocolSuite = (ProtocolSuite<ResourcePoolT, Builder>)
           protocolSuiteParser.getProtocolSuite();
       resourcePool = (ResourcePoolT) protocolSuiteParser.getResourcePool();
-      BatchEvaluationStrategy<ResourcePoolT> batchEvalStrat = evaluationStrategyFromString(
-          this.cmd.getOptionValue("e", EvaluationStrategy.SEQUENTIAL.name()));
-      if (logPerformance) {
-        batchEvalStrat = new BatchEvaluationLoggingDecorator<>(batchEvalStrat);
+      try {
+        BatchEvaluationStrategy<ResourcePoolT> batchEvalStrat = evaluationStrategyFromString(
+            this.cmd.getOptionValue("e", EvaluationStrategy.SEQUENTIAL.name()));
+        if (logPerformance) {
+          batchEvalStrat = new BatchEvaluationLoggingDecorator<>(batchEvalStrat);
+        }
+        int maxBatchSize = getMaxBatchSize();
+        this.evaluator = new BatchedProtocolEvaluator<>(batchEvalStrat, protocolSuite,
+            maxBatchSize);
+      } catch (ConfigurationException e) {
+        throw new ParseException("Invalid evaluation strategy: " + this.cmd.getOptionValue("e"));
       }
-      int maxBatchSize = getMaxBatchSize();
-      this.evaluator = new BatchedProtocolEvaluator<>(batchEvalStrat, protocolSuite,
-          maxBatchSize);
     } catch (ParseException e) {
-      ExceptionConverter.safe(() -> {close();return null;}, "Failed to close the network");
       System.err.println("Error while parsing arguments: " + e.getLocalizedMessage());
       System.err.println();
       displayHelp();
-      throw new IllegalArgumentException("Error while parsing arguments: " + e.getLocalizedMessage(), e);
+      System.exit(-1); // TODO: Consider moving to top level.
     } catch (NoSuchAlgorithmException ex) {
       System.err.println("Could not instantiate the Deterministic Random Bit Generator due to " + ex.getLocalizedMessage());
       ex.printStackTrace();
@@ -281,7 +291,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
       evaluator = new EvaluatorLoggingDecorator<>(evaluator);
     }
     this.sce = new SecureComputationEngineImpl<>(protocolSuite, evaluator);
-
+    
 
     return this.cmd;
   }
@@ -300,11 +310,8 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
   }
 
   public void close() throws IOException {
-    Network network = getNetwork();
-    if(network != null) {
-      if (network instanceof Closeable) {
-        ((Closeable) network).close();
-      }
+    if (getNetwork() instanceof Closeable) {
+      ((Closeable) getNetwork()).close();
     }
   }
 }
