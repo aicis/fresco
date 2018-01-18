@@ -9,7 +9,6 @@ public class AuthenticatedElement implements Addable<AuthenticatedElement> {
   private final FieldElement share;
   private final FieldElement mac;
   private final BigInteger modulus;
-  private final int modBitLength;
 
   /**
    * Creates new authenticated element.
@@ -22,7 +21,6 @@ public class AuthenticatedElement implements Addable<AuthenticatedElement> {
     this.share = share;
     this.mac = mac;
     this.modulus = modulus;
-    this.modBitLength = modulus.bitLength();
   }
 
   @Override
@@ -61,8 +59,9 @@ public class AuthenticatedElement implements Addable<AuthenticatedElement> {
 
   @Override
   public String toString() {
-    return "AuthenticatedElement [share=" + share + ", mac=" + mac + ", modulus=" + modulus
-        + ", modBitLength=" + modBitLength + "]";
+    return "AuthenticatedElement [" +
+        "share=" + share +
+        ", mac=" + mac +
+        ']';
   }
-
 }

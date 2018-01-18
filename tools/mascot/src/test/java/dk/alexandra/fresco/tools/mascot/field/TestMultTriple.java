@@ -9,7 +9,6 @@ import org.junit.Test;
 public class TestMultTriple {
 
   private final BigInteger modulus = new BigInteger("251");
-  private final int modBitLength = 8;
 
   @Test
   public void testToString() {
@@ -22,14 +21,7 @@ public class TestMultTriple {
         new AuthenticatedElement(new FieldElement(5, modulus),
             new FieldElement(6, modulus), modulus);
     MultTriple triple = new MultTriple(left, right, product);
-    String expected =
-        "MultTriple [left=AuthenticatedElement [share=FieldElement [value=1, modulus=251, "
-            + "bitLength=8], mac=FieldElement [value=2, modulus=251, bitLength=8], "
-            + "modulus=251, modBitLength=8], right=AuthenticatedElement [share=FieldElement "
-            + "[value=3, modulus=251, bitLength=8], mac=FieldElement [value=4, modulus=251,"
-            + " bitLength=8], modulus=251, modBitLength=8], product=AuthenticatedElement "
-            + "[share=FieldElement [value=5, modulus=251, bitLength=8], mac=FieldElement "
-            + "[value=6, modulus=251, bitLength=8], modulus=251, modBitLength=8]]";
+    String expected = "MultTriple [left=AuthenticatedElement [share=FieldElement [value=1, modulus=251, bitLength=8], mac=FieldElement [value=2, modulus=251, bitLength=8]], right=AuthenticatedElement [share=FieldElement [value=3, modulus=251, bitLength=8], mac=FieldElement [value=4, modulus=251, bitLength=8]], product=AuthenticatedElement [share=FieldElement [value=5, modulus=251, bitLength=8], mac=FieldElement [value=6, modulus=251, bitLength=8]]]";
     assertEquals(expected, triple.toString());
   }
 

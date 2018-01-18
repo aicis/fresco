@@ -9,7 +9,6 @@ import org.junit.Test;
 public class TestAuthenticatedElement {
 
   private final BigInteger modulus = new BigInteger("251");
-  private final int modBitLength = 8;
 
   @Test
   public void testToString() {
@@ -18,8 +17,7 @@ public class TestAuthenticatedElement {
             new FieldElement(2, modulus), modulus);
     String expected =
         "AuthenticatedElement [share=FieldElement [value=1, modulus=251, bitLength=8],"
-            + " mac=FieldElement [value=2, modulus=251, bitLength=8], "
-            + "modulus=251, modBitLength=8]";
+            + " mac=FieldElement [value=2, modulus=251, bitLength=8]]";
     assertEquals(expected, element.toString());
   }
 
