@@ -26,16 +26,10 @@ public class MultiplyLeft extends TwoPartyProtocol {
    * @param resourcePool the resouce pool
    * @param network the network
    * @param otherId the other party's
-   * @param numLeftFactors number of left factors per right factor
    */
-  public MultiplyLeft(MascotResourcePool resourcePool, Network network, Integer otherId,
-      int numLeftFactors) {
-    super(resourcePool, network, otherId);
-    multiplyLeftHelper = new MultiplyLeftHelper(resourcePool, network, otherId, numLeftFactors);
-  }
-
   public MultiplyLeft(MascotResourcePool resourcePool, Network network, Integer otherId) {
-    this(resourcePool, network, otherId, 1);
+    super(resourcePool, network, otherId);
+    multiplyLeftHelper = new MultiplyLeftHelper(resourcePool, network, otherId);
   }
 
   /**

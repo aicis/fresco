@@ -30,14 +30,9 @@ public class MultiplyRight extends TwoPartyProtocol {
 
   private final MultiplyRightHelper multiplyRightHelper;
 
-  public MultiplyRight(MascotResourcePool resourcePool, Network network, Integer otherId,
-      int numLeftFactors) {
-    super(resourcePool, network, otherId);
-    multiplyRightHelper = new MultiplyRightHelper(resourcePool, network, otherId, numLeftFactors);
-  }
-
   public MultiplyRight(MascotResourcePool resourcePool, Network network, Integer otherId) {
-    this(resourcePool, network, otherId, 1);
+    super(resourcePool, network, otherId);
+    multiplyRightHelper = new MultiplyRightHelper(resourcePool, network, otherId);
   }
 
   /**
