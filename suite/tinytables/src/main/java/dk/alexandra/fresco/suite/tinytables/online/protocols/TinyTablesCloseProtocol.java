@@ -47,8 +47,7 @@ public class TinyTablesCloseProtocol extends TinyTablesProtocol<SBool> {
     } else {
       TinyTablesElement share =
           new TinyTablesElement(BooleanSerializer.fromBytes(network.receive(this.inputter)[0]));
-      out = new TinyTablesSBool();
-      out.setValue(share);
+      out = new TinyTablesSBool(share);
       return EvaluationStatus.IS_DONE;
     }
   }
