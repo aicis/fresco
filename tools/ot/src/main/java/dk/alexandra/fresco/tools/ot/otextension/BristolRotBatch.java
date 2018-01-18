@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -18,6 +17,7 @@ import java.util.List;
  * bits.
  */
 public class BristolRotBatch implements RotBatch {
+
   private RotSender sender;
   private RotReceiver receiver;
   private final Rot rot;
@@ -26,13 +26,10 @@ public class BristolRotBatch implements RotBatch {
    * Constructs a new random batch OT protocol and constructs the internal
    * sender and receiver objects.
    *
-   * @param resources
-   *          The common OT extension resource pool
-   * @param network
-   *          The network instance
+   * @param randomOtExtension random OT extension
    */
-  public BristolRotBatch(OtExtensionResourcePool resources, Network network) {
-    this.rot = new Rot(resources, network);
+  public BristolRotBatch(Rot randomOtExtension) {
+    this.rot = randomOtExtension;
   }
 
   @Override

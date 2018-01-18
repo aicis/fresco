@@ -11,7 +11,6 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.helper.HelperForTests;
 import dk.alexandra.fresco.tools.helper.RuntimeForTests;
 import dk.alexandra.fresco.tools.ot.base.Ot;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -21,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -135,8 +133,8 @@ public class TestFunctionalBristolOt {
 
   private List<Pair<StrictBitVector, StrictBitVector>> bristolRotBatchSend(
       OtExtensionTestContext ctx, int batchSize, int id) {
-    BristolRotBatch rotBatchSender = new BristolRotBatch(ctx.createResources(
-        id), ctx.getNetwork());
+    BristolRotBatch rotBatchSender = new BristolRotBatch(new Rot(ctx.createResources(
+        id), ctx.getNetwork()));
     List<Pair<StrictBitVector, StrictBitVector>> messages = rotBatchSender
         .send(batchSize, messageLength);
     return messages;
@@ -144,8 +142,8 @@ public class TestFunctionalBristolOt {
 
   private List<StrictBitVector> bristolRotBatchReceive(
       OtExtensionTestContext ctx, StrictBitVector choices, int id) {
-    BristolRotBatch rotBatchReceiver = new BristolRotBatch(ctx.createResources(
-        id), ctx.getNetwork());
+    BristolRotBatch rotBatchReceiver = new BristolRotBatch(new Rot(ctx.createResources(
+        id), ctx.getNetwork()));
     List<StrictBitVector> messages = rotBatchReceiver.receive(choices,
         messageLength);
     return messages;
