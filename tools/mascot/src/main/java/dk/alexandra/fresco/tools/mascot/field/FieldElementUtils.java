@@ -26,10 +26,10 @@ public class FieldElementUtils extends ArithmeticCollectionUtils<FieldElement> {
     super();
     this.modulus = modulus;
     this.modBitLength = modulus.bitLength();
-    this.generators = precomuteGenerators();
+    this.generators = precomputeGenerators();
   }
 
-  private List<FieldElement> precomuteGenerators() {
+  private List<FieldElement> precomputeGenerators() {
     List<FieldElement> generators = new ArrayList<>(modBitLength);
     BigInteger two = new BigInteger("2");
     BigInteger current = BigInteger.ONE;
@@ -53,17 +53,6 @@ public class FieldElementUtils extends ArithmeticCollectionUtils<FieldElement> {
       throw new IllegalArgumentException("Lists must be same size");
     }
     return pairWiseMultiplyStream(leftFactors, rightFactors).collect(Collectors.toList());
-  }
-
-  /**
-   * Multiplies each value in list by scalar.
-   *
-   * @param values list of factors
-   * @param scalar scalar factor
-   * @return list of products
-   */
-  public List<FieldElement> scalarMultiply(List<FieldElement> values, FieldElement scalar) {
-    return values.stream().map(value -> value.multiply(scalar)).collect(Collectors.toList());
   }
 
   /**
@@ -94,6 +83,17 @@ public class FieldElementUtils extends ArithmeticCollectionUtils<FieldElement> {
       throw new IllegalArgumentException("Lists must have same size");
     }
     return sum(pairWiseMultiplyStream(left, right));
+  }
+
+  /**
+   * Multiplies each value in list by scalar.
+   *
+   * @param values list of factors
+   * @param scalar scalar factor
+   * @return list of products
+   */
+  public List<FieldElement> scalarMultiply(List<FieldElement> values, FieldElement scalar) {
+    return values.stream().map(value -> value.multiply(scalar)).collect(Collectors.toList());
   }
 
   /**
