@@ -8,7 +8,7 @@ import dk.alexandra.fresco.tools.mascot.elgen.ElementGeneration;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
+import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -220,7 +220,7 @@ public class TripleGeneration extends BaseProtocol {
     rhos.addAll(sigmas);
     // pad open rhos with zeroes, one for each sigma
     List<FieldElement> paddedRhos = getFieldElementUtils().padWith(openRhos,
-        new FieldElement(0, getModulus(), getModBitLength()), sigmas.size());
+        new FieldElement(0, getModulus()), sigmas.size());
     // run mac-check
     elementGeneration.check(rhos, paddedRhos);
 

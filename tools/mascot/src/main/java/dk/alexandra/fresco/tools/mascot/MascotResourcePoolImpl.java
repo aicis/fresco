@@ -11,8 +11,8 @@ import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
+import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
+import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import dk.alexandra.fresco.tools.ot.otextension.BristolRotBatch;
 import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePool;
@@ -54,7 +54,7 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
     this.numCandidatesPerTriple = numCandidatesPerTriple;
     this.prgSeedLength = prgSeedLength;
     this.localSampler = new FieldElementPrgImpl(new StrictBitVector(prgSeedLength, drbg));
-    this.fieldElementSerializer = new FieldElementSerializer(modulus, modBitLength);
+    this.fieldElementSerializer = new FieldElementSerializer(modulus);
     this.strictBitVectorSerializer = new StrictBitVectorSerializer();
     this.commitmentSerializer = new HashBasedCommitmentSerializer();
     this.messageDigest = ExceptionConverter.safe(() -> MessageDigest.getInstance("SHA-256"),

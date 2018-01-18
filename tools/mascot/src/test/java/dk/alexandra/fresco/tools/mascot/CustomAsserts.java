@@ -92,8 +92,6 @@ public class CustomAsserts {
    */
   private static void assertEqualsMessaged(String message, FieldElement expected,
       FieldElement actual) {
-    Assert.assertThat("Bit length mismatch" + message + " in " + actual, expected.getBitLength(),
-        Is.is(actual.getBitLength()));
     Assert.assertThat("Modulus mismatch" + message + " in " + actual, expected.getModulus(),
         Is.is(actual.getModulus()));
     Assert.assertThat("Value mismatch" + message + " in " + actual, expected.getValue(),
@@ -128,7 +126,7 @@ public class CustomAsserts {
   public static void assertFieldElementIsBit(FieldElement actualBit) {
     // compute b * (1 - b), which is 0 iff b is a bit
     FieldElement bitCheck = actualBit
-        .multiply(new FieldElement(1, actualBit.getModulus(), actualBit.getBitLength())
+        .multiply(new FieldElement(1, actualBit.getModulus())
             .subtract(actualBit));
     String message = "Not a bit " + actualBit;
     Assert.assertTrue(message, bitCheck.isZero());

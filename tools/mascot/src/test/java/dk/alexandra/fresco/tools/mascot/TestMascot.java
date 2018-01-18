@@ -19,8 +19,8 @@ import org.junit.Test;
 
 public class TestMascot extends NetworkedTest {
 
-  private final FieldElement macKeyShareOne = new FieldElement(11231, modulus, modBitLength);
-  private final FieldElement macKeyShareTwo = new FieldElement(7719, modulus, modBitLength);
+  private final FieldElement macKeyShareOne = new FieldElement(11231, modulus);
+  private final FieldElement macKeyShareTwo = new FieldElement(7719, modulus);
 
   private List<MultTriple> runTripleGen(MascotTestContext ctx, FieldElement macKeyShare,
       int numTriples) {
@@ -139,7 +139,7 @@ public class TestMascot extends NetworkedTest {
       assertTrue(right.getOpenValue() == null);
       AuthenticatedElement recombined = left.getMaskShare().add(right.getMaskShare());
       AuthenticatedElement expected = new AuthenticatedElement(left.getOpenValue(),
-          left.getOpenValue().multiply(macKey), modulus, modBitLength);
+          left.getOpenValue().multiply(macKey), modulus);
       CustomAsserts.assertEquals(expected, recombined);
     }
 
@@ -150,7 +150,7 @@ public class TestMascot extends NetworkedTest {
     // set up runtime environment and get contexts
     initContexts(Arrays.asList(1, 2));
 
-    FieldElement input = new FieldElement(12345, modulus, modBitLength);
+    FieldElement input = new FieldElement(12345, modulus);
 
     // define per party task with params
     List<Callable<List<AuthenticatedElement>>> tasks = new ArrayList<>();

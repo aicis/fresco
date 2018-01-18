@@ -12,6 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
+/**
+ * This class contains subset of the online SPDZ protocols. including the online multiplication
+ * protocol. <p>This functionality is needed in the offline for generating random bits as
+ * pre-processed material but may also be used as a light-weight online SPDZ runtime.</p>
+ */
 public class OnlinePhase extends BaseProtocol {
 
   private final TripleGeneration tripleGeneration;

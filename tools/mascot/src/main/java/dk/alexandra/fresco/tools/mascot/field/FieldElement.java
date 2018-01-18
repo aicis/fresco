@@ -18,39 +18,38 @@ public final class FieldElement implements Addable<FieldElement> {
    *
    * @param value value of element
    * @param modulus modulus defining field
-   * @param bitLength bit length of modulus
    */
-  public FieldElement(BigInteger value, BigInteger modulus, int bitLength) {
+  public FieldElement(BigInteger value, BigInteger modulus) {
     this.value = Objects.requireNonNull(value);
     this.modulus = Objects.requireNonNull(modulus);
-    this.bitLength = bitLength;
+    this.bitLength = modulus.bitLength();
     sanityCheck(value, modulus, bitLength);
   }
 
   public FieldElement(FieldElement other) {
-    this(other.value, other.modulus, other.bitLength);
+    this(other.value, other.modulus);
   }
 
-  public FieldElement(String value, String modulus, int bitLength) {
-    this(new BigInteger(value), new BigInteger(modulus), bitLength);
+  public FieldElement(String value, String modulus) {
+    this(new BigInteger(value), new BigInteger(modulus));
   }
 
-  public FieldElement(long value, BigInteger modulus, int bitLength) {
-    this(BigInteger.valueOf(value), modulus, bitLength);
+  public FieldElement(long value, BigInteger modulus) {
+    this(BigInteger.valueOf(value), modulus);
   }
 
-  public FieldElement(byte[] value, BigInteger modulus, int bitLength) {
-    this(new BigInteger(1, value), modulus, bitLength);
+  public FieldElement(byte[] value, BigInteger modulus) {
+    this(new BigInteger(1, value), modulus);
   }
 
   private FieldElement binaryOp(BinaryOperator<BigInteger> op, FieldElement left,
       FieldElement right) {
     return new FieldElement(op.apply(left.toBigInteger(), right.toBigInteger()).mod(modulus),
-        this.modulus, this.bitLength);
+        this.modulus);
   }
 
   public FieldElement pow(int exponent) {
-    return new FieldElement(this.value.pow(exponent).mod(modulus), modulus, bitLength);
+    return new FieldElement(this.value.pow(exponent).mod(modulus), modulus);
   }
 
   @Override
@@ -67,17 +66,16 @@ public final class FieldElement implements Addable<FieldElement> {
   }
 
   public FieldElement negate() {
-    return new FieldElement(value.multiply(BigInteger.valueOf(-1)).mod(modulus), modulus,
-        bitLength);
+    return new FieldElement(value.multiply(BigInteger.valueOf(-1)).mod(modulus), modulus);
   }
 
   public FieldElement modInverse() {
-    return new FieldElement(value.modInverse(modulus), modulus, bitLength);
+    return new FieldElement(value.modInverse(modulus), modulus);
   }
 
   public FieldElement sqrt() {
     BigInteger rawSqrt = MathUtils.modularSqrt(value, modulus);
-    return new FieldElement(rawSqrt, modulus, bitLength);
+    return new FieldElement(rawSqrt, modulus);
   }
 
   public BigInteger toBigInteger() {
@@ -89,7 +87,7 @@ public final class FieldElement implements Addable<FieldElement> {
   }
 
   public FieldElement select(boolean bit) {
-    return bit ? this : new FieldElement(BigInteger.ZERO, modulus, bitLength);
+    return bit ? this : new FieldElement(BigInteger.ZERO, modulus);
   }
 
   public boolean isZero() {
@@ -142,8 +140,6 @@ public final class FieldElement implements Addable<FieldElement> {
       throw new IllegalArgumentException("Cannot have negative value");
     } else if (modulus.signum() == -1) {
       throw new IllegalArgumentException("Cannot have negative modulus");
-    } else if (modulus.bitLength() != bitLength) {
-      throw new IllegalArgumentException("Modulus bit length must match bit length");
     } else if (value.compareTo(modulus) >= 0) {
       throw new IllegalArgumentException("Value must be smaller than modulus");
     }

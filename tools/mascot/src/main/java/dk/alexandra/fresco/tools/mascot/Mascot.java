@@ -12,8 +12,8 @@ import dk.alexandra.fresco.tools.mascot.field.InputMask;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import dk.alexandra.fresco.tools.mascot.online.OnlinePhase;
 import dk.alexandra.fresco.tools.mascot.triple.TripleGeneration;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
+import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
+import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;
 
 import java.util.ArrayList;
 import java.util.List;

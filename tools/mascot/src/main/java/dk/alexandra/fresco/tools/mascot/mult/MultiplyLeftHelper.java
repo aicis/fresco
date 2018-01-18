@@ -41,7 +41,8 @@ public class MultiplyLeftHelper extends MultiplySharedHelper {
   }
 
   /**
-   * Computes this party's shares of the products. <br> There is a product share per left factor.
+   * Computes this party's shares of the products. <br>
+   * There is a product share per left factor.
    *
    * @param leftFactors this party's multiplication factors
    * @param feSeeds seeds as field elements

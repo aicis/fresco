@@ -35,8 +35,7 @@ public class MultiplyRightHelper extends MultiplySharedHelper {
    * @param seedLength the bit length of the seeds
    * @return the seed pairs
    */
-  public List<Pair<StrictBitVector, StrictBitVector>> generateSeeds(int numMults,
-      int seedLength) {
+  public List<Pair<StrictBitVector, StrictBitVector>> generateSeeds(int numMults, int seedLength) {
     // perform rots for each bit, for each left factor, for each multiplication
     int numRots = getModBitLength() * numMults;
     List<Pair<StrictBitVector, StrictBitVector>> seeds = getRot().send(numRots, seedLength);
@@ -71,8 +70,9 @@ public class MultiplyRightHelper extends MultiplySharedHelper {
   }
 
   /**
-   * Computes this party's shares of the final products. <br> For each seed pair (q0, q1) this party
-   * holds, uses q0 to recombine into field elements representing the product shares.
+   * Computes this party's shares of the final products. <br>
+   * For each seed pair (q0, q1) this party holds, uses q0 to recombine into field elements
+   * representing the product shares.
    *
    * @param feZeroSeeds the zero choice seeds
    * @param numRightFactors number of total right factors

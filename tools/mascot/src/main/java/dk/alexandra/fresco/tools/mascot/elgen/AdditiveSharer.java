@@ -2,7 +2,7 @@ package dk.alexandra.fresco.tools.mascot.elgen;
 
 import dk.alexandra.fresco.tools.mascot.arithm.ArithmeticCollectionUtils;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
+import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import java.math.BigInteger;
 import java.util.List;
 

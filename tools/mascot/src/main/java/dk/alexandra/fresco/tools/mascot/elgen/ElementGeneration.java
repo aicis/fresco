@@ -8,7 +8,7 @@ import dk.alexandra.fresco.tools.mascot.cope.CopeSigner;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.maccheck.MacCheck;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
+import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -226,7 +226,7 @@ public class ElementGeneration extends BaseProtocol {
         .mapToObj(idx -> {
           FieldElement share = shares.get(idx);
           FieldElement mac = macs.get(idx);
-          return new AuthenticatedElement(share, mac, getModulus(), getModBitLength());
+          return new AuthenticatedElement(share, mac, getModulus());
         })
         .collect(Collectors.toList());
   }

@@ -22,8 +22,8 @@ public class ArithmeticCollectionUtils<T extends Addable<T>> {
     List<List<T>> transposed = new ArrayList<>(width);
     for (int w = 0; w < width; w++) {
       List<T> newRow = new ArrayList<>(height);
-      for (int h = 0; h < height; h++) {
-        newRow.add(mat.get(h).get(w));
+      for (List<T> aMat : mat) {
+        newRow.add(aMat.get(w));
       }
       transposed.add(newRow);
     }
@@ -31,7 +31,7 @@ public class ArithmeticCollectionUtils<T extends Addable<T>> {
   }
 
   public T sum(Stream<T> summands) {
-    return summands.reduce((l, r) -> l.add(r)).get();
+    return summands.reduce(Addable::add).get();
   }
 
   public T sum(List<T> summands) {

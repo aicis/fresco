@@ -28,10 +28,17 @@ public class BitConverter extends BaseProtocol {
   }
 
   /**
-   * Converts random authenticated elements to random authenticated bits. <br> Given random element
-   * [r], applies the following protocol: <br> Compute [r^2]. <br> Open to r^2. <br> Compute
-   * sqrt(r^2). <br> Compute [r] / sqrt(r^2). This is guaranteed to be either -1 or 1. <br> Compute
-   * (1 + [r] / sqrt(r^2)) / 2 to convert -1 to 0 and 1 to 1.
+   * Converts random authenticated elements to random authenticated bits.
+   * <p>
+   * Given random element <i>[r]</i>, applies the following protocol:
+   * <ol>
+   * <li>Compute <i>[r<sup>2</sup>]</i>.
+   * <li>Open to <i>r<sup>2</sup></i>.
+   * <li>Compute <i>s = &Sqrt;(r<sup>2</sup>)</i>.
+   * <li>Compute <i>[r] / s </i>. This is guaranteed to be either <i>-1</i> or <i>1</i>.
+   * <li>Compute <i>(1 + [r] / s) / 2</i> to convert <i>-1</i> to <i>0</i> and <i>1</i> to <i>1</i>.
+   * </ol>
+   * </p>
    *
    * @param randomElements random elements to convert
    * @return random bits
@@ -48,8 +55,8 @@ public class BitConverter extends BaseProtocol {
       AuthenticatedElement oneOrNegativeOne =
           randomElement.multiply(root.modInverse()); // division
       FieldElement two =
-          new FieldElement(2, getModulus(), getModBitLength());
-      FieldElement one = new FieldElement(1, getModulus(), getModBitLength());
+          new FieldElement(2, getModulus());
+      FieldElement one = new FieldElement(1, getModulus());
       AuthenticatedElement bit = oneOrNegativeOne.add(one, getMyId(), macKeyShare)
           .multiply(two.modInverse());
       bits.add(bit);

@@ -7,6 +7,8 @@ import static org.junit.Assert.assertNotEquals;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
+import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Random;
