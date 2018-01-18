@@ -9,19 +9,18 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * A helper class for multiplication-based protocols {@link dk.alexandra.fresco.tools.mascot.cope.CopeSigner}
- * and {@link MultiplyLeft}. These two classes share a lot functionality. This functionality is
- * implemented here.
+ * A helper class for multiplication-based protocols
+ * {@link dk.alexandra.fresco.tools.mascot.cope.CopeSigner} and {@link MultiplyLeft}. These two
+ * classes share a lot functionality. This functionality is implemented here.
  */
 public class MultiplyLeftHelper extends MultiplySharedHelper {
 
-  public MultiplyLeftHelper(MascotResourcePool resourcePool,
-      Network network, Integer otherId, int numLeftFactors) {
+  public MultiplyLeftHelper(MascotResourcePool resourcePool, Network network, Integer otherId,
+      int numLeftFactors) {
     super(resourcePool, network, otherId, numLeftFactors);
   }
 
-  public MultiplyLeftHelper(MascotResourcePool resourcePool,
-      Network network, Integer otherId) {
+  public MultiplyLeftHelper(MascotResourcePool resourcePool, Network network, Integer otherId) {
     super(resourcePool, network, otherId, 1);
   }
 
@@ -46,7 +45,8 @@ public class MultiplyLeftHelper extends MultiplySharedHelper {
   }
 
   /**
-   * Computes this party's shares of the products. <br> There is a product share per left factor.
+   * Computes this party's shares of the products. <br>
+   * There is a product share per left factor.
    *
    * @param leftFactors this party's multiplication factors
    * @param feSeeds seeds as field elements
@@ -55,10 +55,10 @@ public class MultiplyLeftHelper extends MultiplySharedHelper {
    */
   public List<FieldElement> computeProductShares(List<FieldElement> leftFactors,
       List<FieldElement> feSeeds, List<FieldElement> diffs) {
-    List<FieldElement> result = new ArrayList<FieldElement>(leftFactors.size());
+    List<FieldElement> result = new ArrayList<>(leftFactors.size());
     int diffIdx = 0;
     for (FieldElement leftFactor : leftFactors) {
-      List<FieldElement> summands = new ArrayList<FieldElement>(getModBitLength());
+      List<FieldElement> summands = new ArrayList<>(getModBitLength());
       for (int b = 0; b < getModBitLength(); b++) {
         FieldElement feSeed = feSeeds.get(diffIdx);
         FieldElement diff = diffs.get(diffIdx);

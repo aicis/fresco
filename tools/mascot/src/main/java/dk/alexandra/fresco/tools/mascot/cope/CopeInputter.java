@@ -30,7 +30,7 @@ public class CopeInputter extends TwoPartyProtocol {
 
   private final List<FieldElementPrg> leftPrgs;
   private final List<FieldElementPrg> rightPrgs;
-  private final MultiplyRightHelper multiplier;
+  private final MultiplyRightHelper helper;
 
   /**
    * Creates a new {@link CopeInputter} and initializes the COPE protocol.
@@ -42,8 +42,8 @@ public class CopeInputter extends TwoPartyProtocol {
     super(resourcePool, network, otherId);
     this.leftPrgs = new ArrayList<>();
     this.rightPrgs = new ArrayList<>();
-    this.multiplier = new MultiplyRightHelper(resourcePool, network, otherId);
-    seedPrgs(multiplier.generateSeeds(1, getLambdaSecurityParam()));
+    this.helper = new MultiplyRightHelper(resourcePool, network, otherId);
+    seedPrgs(helper.generateSeeds(1, getLambdaSecurityParam()));
   }
 
   /**
@@ -56,7 +56,7 @@ public class CopeInputter extends TwoPartyProtocol {
     // use seeds to generate mask pairs
     List<Pair<FieldElement, FieldElement>> maskPairs = generateMaskPairs(inputElements.size());
     // compute t0 - t1 + x for each input x for each mask pair
-    List<FieldElement> diffs = multiplier.computeDiffs(maskPairs, inputElements);
+    List<FieldElement> diffs = helper.computeDiffs(maskPairs, inputElements);
     // send diffs
     getNetwork().send(getOtherId(), getFieldElementSerializer().serialize(diffs));
     // get zero index masks
@@ -64,7 +64,7 @@ public class CopeInputter extends TwoPartyProtocol {
         maskPairs.stream().map(feSeedPair -> feSeedPair.getFirst()).collect(Collectors.toList());
     // compute product shares
     List<FieldElement> productShares =
-        multiplier.computeProductShares(feZeroSeeds, inputElements.size());
+        helper.computeProductShares(feZeroSeeds, inputElements.size());
     return productShares;
   }
 

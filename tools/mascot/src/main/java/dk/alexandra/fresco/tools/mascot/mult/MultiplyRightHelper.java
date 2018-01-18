@@ -11,19 +11,17 @@ import java.util.List;
 
 /**
  * A helper class for multiplication-based protocols
- * {@link dk.alexandra.fresco.tools.mascot.cope.CopeInputter}
- * and {@link MultiplyRight}. These two classes share a lot functionality. This functionality is
- * implemented here.
+ * {@link dk.alexandra.fresco.tools.mascot.cope.CopeInputter} and {@link MultiplyRight}. These two
+ * classes share a lot functionality. This functionality is implemented here.
  */
 public class MultiplyRightHelper extends MultiplySharedHelper {
 
-  public MultiplyRightHelper(MascotResourcePool resourcePool,
-      Network network, Integer otherId, int numLeftFactors) {
+  public MultiplyRightHelper(MascotResourcePool resourcePool, Network network, Integer otherId,
+      int numLeftFactors) {
     super(resourcePool, network, otherId, numLeftFactors);
   }
 
-  public MultiplyRightHelper(MascotResourcePool resourcePool,
-      Network network, Integer otherId) {
+  public MultiplyRightHelper(MascotResourcePool resourcePool, Network network, Integer otherId) {
     super(resourcePool, network, otherId, 1);
   }
 
@@ -31,20 +29,19 @@ public class MultiplyRightHelper extends MultiplySharedHelper {
    * Generate random seed pairs using OT.
    *
    * <p>
-   * The seed pairs are correlated with the multiplication
-   * factors of the other party. If the other party's factors (represented as a bit vector) is 010,
-   * this party will receive seed pairs <i>(a<sub>0</sub>, a<sub>1</sub>), (b<sub>0</sub>,
-   * b<sub>1</sub>), (c<sub>0</sub>, c<sub>1</sub>)</i> whereas the other party will receive seeds
-   * <i>a<sub>0</sub>, b<sub>1</sub>, c<sub>0</sub></i>. The parties can use the resulting seeds to
-   * compute the shares of the product of their factors.
+   * The seed pairs are correlated with the multiplication factors of the other party. If the other
+   * party's factors (represented as a bit vector) is 010, this party will receive seed pairs
+   * <i>(a<sub>0</sub>, a<sub>1</sub>), (b<sub>0</sub>, b<sub>1</sub>), (c<sub>0</sub>,
+   * c<sub>1</sub>)</i> whereas the other party will receive seeds <i>a<sub>0</sub>, b<sub>1</sub>,
+   * c<sub>0</sub></i>. The parties can use the resulting seeds to compute the shares of the product
+   * of their factors.
    * </p>
    *
    * @param numMults the number of total multiplications
    * @param seedLength the bit length of the seeds
    * @return the seed pairs
    */
-  public List<Pair<StrictBitVector, StrictBitVector>> generateSeeds(int numMults,
-      int seedLength) {
+  public List<Pair<StrictBitVector, StrictBitVector>> generateSeeds(int numMults, int seedLength) {
     // perform rots for each bit, for each left factor, for each multiplication
     int numRots = getModBitLength() * getNumLeftFactors() * numMults;
     List<Pair<StrictBitVector, StrictBitVector>> seeds = getRot().send(numRots, seedLength);
@@ -90,8 +87,9 @@ public class MultiplyRightHelper extends MultiplySharedHelper {
   }
 
   /**
-   * Computes this party's shares of the final products. <br> For each seed pair (q0, q1) this party
-   * holds, uses q0 to recombine into field elements representing the product shares.
+   * Computes this party's shares of the final products. <br>
+   * For each seed pair (q0, q1) this party holds, uses q0 to recombine into field elements
+   * representing the product shares.
    *
    * @param feZeroSeeds the zero choice seeds
    * @param numRightFactors number of total right factors

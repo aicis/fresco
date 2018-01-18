@@ -11,19 +11,26 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Right hand side of the actively-secure two-party protocol for computing a secret sharing of a the
- * scalar product <i><b>c</b>= <b>a</b>b</i> of a vector <i><b>a</b></i> held by the <i>left</i>
- * party and a factor <i>b</i> held by the <i>right</i> party.
+ * Right hand side of a two-party protocol for computing a secret sharing of a the entry wise
+ * product of vectors <i><b>a</b></i> held by the <i>left</i> party and <i><b>b</b></i> held by the
+ * <i>right</i> party.
  *
  * <p>
- * This protocol corresponds to steps 1 and 2 of the <i>Multiply</i> sub-protocol of the
- * <i>&Pi;<sub>Triple</sub></i> protocol of the MASCOT paper. This implementation will batch runs of
- * a number these protocols. I.e., it will compute the secret sharing of a number of scalar product
- * in one batch.
+ * This protocol is a generalization of step 2 of the <i>Multiply</i> sub-protocol in the
+ * <i>&Pi;<sub>Triple</sub></i> protocol of the MASCOT paper. While step 2 of <i>Multiply</i>
+ * computes a secret sharing of a <i>scalar product</i>, this implementation computes the entry wise
+ * product. To compute a scalar product using this implementation we can let all entries of
+ * <i><b>b</b></i> be equal. This also allows us to compute multiple scalar products in a single
+ * batch letting <i><b>b</b></i> be the concatenation of vectors with equal entries.
+ * </p>
+ * <p>
+ * <b>Note:</b> this class is to be used as a sub-protocol in
+ * {@link dk.alexandra.fresco.tools.mascot.triple.TripleGeneration} and may not be secure if used
+ * outside of the intended context.
  * </p>
  * <p>
  * This class implements the functionality of the right party. For the other side, see
- * {@link MultiplyLeft}. The resulting scalar product is secret-shared among the two parties.
+ * {@link MultiplyLeft}. The resulting entry wise product is secret-shared among the two parties.
  * </p>
  */
 public class MultiplyRight extends TwoPartyProtocol {
@@ -41,17 +48,18 @@ public class MultiplyRight extends TwoPartyProtocol {
   }
 
   /**
-   * Runs a batch of the multiply protocol with a given set of right hand factors.
+   * Runs a batch of the entry wise product protocol with a given of right hand vector.
    *
    * <p>
-   * For each right factor <i>b</i> and left vector of the other party <i><b>a</b> = (a<sub>0</sub>,
-   * a<sub>1</sub>, ...)</i>, the protocol computes secret shares of scalar product
-   * <i><b>a</b>b = (a<sub>0</sub>b, a<sub>1</sub>b, ... </i>).
+   * For right vector <i><b>b</b>= b<sub>0</sub>, b<sub>1</sub>, ...)</i> and left vector of the
+   * other party <i><b>a</b> = (a<sub>0</sub>, a<sub>1</sub>, ...)</i>, the protocol computes secret
+   * shares of entry wise product <i>(a<sub>0</sub>b<sub>0</sub>, a<sub>1</sub>b<sub>1</sub>, ...
+   * </i>).
    * </p>
    *
-   * @param rightFactors this party's factors <i>b<sub>0</sub>, b<sub>1</sub> ...</i>
-   * @return shares of the scalar products <i><b>a</b><sub>0</sub>b<sub>0</sub>,
-   * <b>a</b><sub>1</sub>b<sub>1</sub> ... </i>
+   * @param rightFactors this party's vector <i>b<sub>0</sub>, b<sub>1</sub> ...</i>
+   * @return shares of the products <i>a<sub>0</sub>b<sub>0</sub>, a<sub>1</sub>b<sub>1</sub> ...
+   *         </i>
    */
   public List<FieldElement> multiply(List<FieldElement> rightFactors) {
     List<Pair<StrictBitVector, StrictBitVector>> seedPairs =
