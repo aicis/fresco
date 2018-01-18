@@ -3,6 +3,7 @@ package dk.alexandra.fresco.lib.compare.gt;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -40,9 +41,10 @@ public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeri
 
     final BigInteger one = BigInteger.ONE;
 
-    return builder.seq((seq) -> seq.advancedNumeric().additiveMask(bitLength))
+    return builder.seq((seq) -> seq.advancedNumeric()
+        .additiveMask(bitLength + BuilderFactoryNumeric.MAGIC_SECURE_NUMBER))
         .pairInPar((seq, mask) -> {
-          List<DRes<SInt>> bits = mask.bits;
+          List<DRes<SInt>> bits = mask.bits.subList(0, bitLength);
           List<DRes<SInt>> rBottomBits = bits.subList(0, bitLengthBottom);
           List<BigInteger> twoPowsBottom =
               seq.getBigIntegerHelper().getTwoPowersList(bitLengthBottom);
