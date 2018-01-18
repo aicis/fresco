@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.fixedpoint;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RandomAdditiveMask;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigDecimal;
@@ -134,5 +135,16 @@ public class DefaultFixedNumeric implements FixedNumeric<SFixedSIntWrapper> {
         builder.numeric().mult(BigInteger.TEN.pow(this.precision), sintA),
         b.unscaledValue());
     return new SFixedSIntWrapper(input);
+  }
+  
+  @Override
+  public DRes<SFixedSIntWrapper> random() {
+    DRes<RandomAdditiveMask> random = builder.advancedNumeric().additiveMask(4);
+    /*BigInteger mod = builder.getBasicNumericContext().getModulus().subtract(BigInteger.ONE);
+    DRes<SInt> closedMod = builder.numeric().known(mod);
+    System.out.println("mod : "+mod+" random: "+random);
+    
+    DRes<SInt> divided = builder.advancedNumeric().div(closedMod, random);*/
+    return new SFixedSIntWrapper(()->random.out().r);
   }
 }

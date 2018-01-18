@@ -125,4 +125,11 @@ public interface FixedNumeric<SFixedT extends SFixed> extends ComputationDirecto
    * @return The opened value if you are the outputParty, or null otherwise.
    */
   DRes<BigDecimal> open(DRes<SFixedT> secretShare, int outputParty);
+  
+  /**
+   * Create a random value between 0 and 1.
+   * 
+   * @return The random value 
+   */
+  DRes<SFixedT> random();
 }

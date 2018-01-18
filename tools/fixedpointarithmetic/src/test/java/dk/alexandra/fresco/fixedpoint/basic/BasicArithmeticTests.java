@@ -2,6 +2,7 @@ package dk.alexandra.fresco.fixedpoint.basic;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.fixedpoint.DefaultFixedNumeric;
 import dk.alexandra.fresco.fixedpoint.FixedNumeric;
@@ -69,13 +70,13 @@ public class BasicArithmeticTests {
           } else {
             Assert.assertNull(output);
           }
-          
+
         }
       };
     }
   }
 
-  
+
   public static class TestKnown<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
@@ -101,7 +102,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestAddKnown<ResourcePoolT extends ResourcePool>
-  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -128,7 +129,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestAddSecret<ResourcePoolT extends ResourcePool>
-  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -211,7 +212,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestSubKnown2<ResourcePoolT extends ResourcePool>
-  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -289,7 +290,7 @@ public class BasicArithmeticTests {
       };
     }
   }
-  
+
   public static class TestDivisionSecret<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
@@ -316,7 +317,7 @@ public class BasicArithmeticTests {
       };
     }
   }
-  
+
   public static class TestDivisionKnownDivisor<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
@@ -342,9 +343,9 @@ public class BasicArithmeticTests {
       };
     }
   }  
-  
+
   public static class TestMult<ResourcePoolT extends ResourcePool>
-  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -360,12 +361,12 @@ public class BasicArithmeticTests {
         public void test() throws Exception {
           Application<List<BigDecimal>, ProtocolBuilderNumeric> app = producer -> {
             FixedNumeric numeric = new DefaultFixedNumeric(producer, precision);
-            
+
             List<DRes<SFixed>> closed1 =
                 openInputs.stream().map(numeric::known).collect(Collectors.toList());
             List<DRes<SFixed>> closed2 =
                 openInputs2.stream().map(numeric::known).collect(Collectors.toList());
-            
+
             List<DRes<SFixed>> result = new ArrayList<>();
             for(DRes<SFixed> inputX : closed1) {
               result.add(numeric.mult(inputX, closed2.get(closed1.indexOf(inputX))));
@@ -379,19 +380,132 @@ public class BasicArithmeticTests {
 
           for (BigDecimal openOutput : output) {
             int idx = output.indexOf(openOutput);
-            
+
             BigDecimal a = openInputs.get(idx).setScale(precision, RoundingMode.DOWN); 
             BigDecimal b = openInputs2.get(idx).setScale(precision, RoundingMode.DOWN);
-            System.out.println(a+" * "+b+" = "+output.get(idx));
-            System.out.println("a.un"+a.unscaledValue());
             assertThat(openOutput, 
                 is(a.multiply(b).setScale(precision, RoundingMode.DOWN)));
           }
-
-
         }
       };
     }
   }
 
+  public static class TestAdd<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      final int precision = 3;
+      List<BigDecimal> openInputs =
+          Stream.of(1.223, 222.23, 5.59703, 0.004, 5.90, 6.0, 0.0007, 0.121998, 9.999999)
+          .map(BigDecimal::valueOf).collect(Collectors.toList());
+      List<BigDecimal> openInputs2 =
+          Stream.of(1.000, 1.0000, 0.22211, 100.1, 11.0, .07, 0.0005, 10.00112, 999991.0)
+          .map(BigDecimal::valueOf).collect(Collectors.toList());
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<List<BigDecimal>, ProtocolBuilderNumeric> app = producer -> {
+            FixedNumeric numeric = new DefaultFixedNumeric(producer, precision);
+
+            List<DRes<SFixed>> closed1 =
+                openInputs.stream().map(numeric::known).collect(Collectors.toList());
+            List<DRes<SFixed>> closed2 =
+                openInputs2.stream().map(numeric::known).collect(Collectors.toList());
+
+            List<DRes<SFixed>> result = new ArrayList<>();
+            for(DRes<SFixed> inputX : closed1) {
+              result.add(numeric.add(inputX, closed2.get(closed1.indexOf(inputX))));
+            }
+
+            List<DRes<BigDecimal>> opened =
+                result.stream().map(numeric::open).collect(Collectors.toList());
+            return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
+          };
+          List<BigDecimal> output = runApplication(app);
+
+          for (BigDecimal openOutput : output) {
+            int idx = output.indexOf(openOutput);
+
+            BigDecimal a = openInputs.get(idx).setScale(precision, RoundingMode.DOWN); 
+            BigDecimal b = openInputs2.get(idx).setScale(precision, RoundingMode.DOWN);
+            assertThat(openOutput, 
+                is(a.add(b).setScale(precision, RoundingMode.DOWN)));
+          }
+        }
+      };
+    }
+  }
+
+  public static class TestDiv<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      final int precision = 5;
+      List<BigDecimal> openInputs =
+          Stream.of(1.223, 222.23, 5.59703, 0.004, 5.90, 6.0, 0.00007, 0.121998, 9.999999)
+          .map(BigDecimal::valueOf).collect(Collectors.toList());
+      List<BigDecimal> openInputs2 =
+          Stream.of(1.000, 1.0000, 0.22211, 100.1, 11.0, 0.5, 0.0005, 10.00112, 999991.0)
+          .map(BigDecimal::valueOf).collect(Collectors.toList());
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<List<BigDecimal>, ProtocolBuilderNumeric> app = producer -> {
+            FixedNumeric numeric = new DefaultFixedNumeric(producer, precision);
+
+            List<DRes<SFixed>> closed1 =
+                openInputs.stream().map(numeric::known).collect(Collectors.toList());
+            List<DRes<SFixed>> closed2 =
+                openInputs2.stream().map(numeric::known).collect(Collectors.toList());
+
+            List<DRes<SFixed>> result = new ArrayList<>();
+            for(DRes<SFixed> inputX : closed1) {
+              result.add(numeric.div(inputX, closed2.get(closed1.indexOf(inputX))));
+            }
+
+            List<DRes<BigDecimal>> opened =
+                result.stream().map(numeric::open).collect(Collectors.toList());
+            return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
+          };
+          List<BigDecimal> output = runApplication(app);
+
+          for (BigDecimal openOutput : output) {
+            int idx = output.indexOf(openOutput);
+
+            BigDecimal a = openInputs.get(idx).setScale(precision, RoundingMode.DOWN); 
+            BigDecimal b = openInputs2.get(idx).setScale(precision, RoundingMode.DOWN);
+            assertThat(openOutput, 
+                is(a.divide(b, RoundingMode.DOWN).setScale(precision, RoundingMode.DOWN)));
+          }
+        }
+      };
+    }
+  }
+  
+  public static class TestRandom<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
+            FixedNumeric numeric = new DefaultFixedNumeric(producer, 5);
+
+            DRes<SFixed> value = numeric.random();
+
+            return numeric.open(value);
+          };
+          BigDecimal output = runApplication(app);
+          assertTrue(BigDecimal.ONE.compareTo(output) >= 0);
+          assertTrue(BigDecimal.ZERO.compareTo(output) <= 0);
+        }
+      };
+    }
+  }
 }

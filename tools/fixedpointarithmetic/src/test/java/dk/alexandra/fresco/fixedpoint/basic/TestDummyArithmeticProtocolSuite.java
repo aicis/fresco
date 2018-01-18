@@ -33,7 +33,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   
   @Test
   public void test_AddSecret() throws Exception {
-    runTest(new BasicArithmeticTests.TestAddSecret<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicArithmeticTests.TestAdd<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
   
@@ -57,7 +57,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void test_MultSecret() throws Exception {
-    runTest(new BasicArithmeticTests.TestMultSecret<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicArithmeticTests.TestMult<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
   
@@ -75,13 +75,19 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   
   @Test
   public void test_DivisionSecretDivisor() throws Exception {
-    runTest(new BasicArithmeticTests.TestDivisionSecret<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicArithmeticTests.TestDiv<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
   
   @Test
   public void test_DivisionKnownDivisor() throws Exception {
     runTest(new BasicArithmeticTests.TestDivisionKnownDivisor<>(), EvaluationStrategy.SEQUENTIAL,
+        2);
+  }
+  
+  @Test
+  public void test_RandomElement() throws Exception {
+    runTest(new BasicArithmeticTests.TestRandom<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
 }
