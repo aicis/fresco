@@ -16,11 +16,10 @@ public class FieldElementSerializer implements ByteSerializer<FieldElement> {
    * Creates new {@link FieldElementSerializer}.
    * 
    * @param modulus modulus of field elements
-   * @param modBitLength mod bit length
    */
-  public FieldElementSerializer(BigInteger modulus, int modBitLength) {
+  public FieldElementSerializer(BigInteger modulus) {
     this.modulus = modulus;
-    this.modBitLength = modBitLength;
+    this.modBitLength = modulus.bitLength();
     this.fieldElementUtils = new FieldElementUtils(modulus);
   }
 

@@ -15,7 +15,7 @@ public class TestAuthenticatedElement {
   public void testToString() {
     AuthenticatedElement element =
         new AuthenticatedElement(new FieldElement(1, modulus),
-            new FieldElement(2, modulus), modulus, modBitLength);
+            new FieldElement(2, modulus), modulus);
     String expected =
         "AuthenticatedElement [share=FieldElement [value=1, modulus=251, bitLength=8],"
             + " mac=FieldElement [value=2, modulus=251, bitLength=8], "
@@ -29,18 +29,18 @@ public class TestAuthenticatedElement {
     AuthenticatedElement element = new AuthenticatedElement(
         new FieldElement(2, modulus),
         new FieldElement(222, modulus),
-        modulus, modBitLength);
+        modulus);
     FieldElement publicElement = new FieldElement(44, modulus);
     AuthenticatedElement actualPartyOne = element.add(publicElement, 1, macKeyShare);
     AuthenticatedElement expectedPartyOne = new AuthenticatedElement(
         new FieldElement(46, modulus),
         new FieldElement(86, modulus),
-        modulus, modBitLength);
+        modulus);
     AuthenticatedElement actualPartyTwo = element.add(publicElement, 2, macKeyShare);
     AuthenticatedElement expectedPartyTwo = new AuthenticatedElement(
         new FieldElement(2, modulus),
         new FieldElement(86, modulus),
-        modulus, modBitLength);
+        modulus);
     CustomAsserts.assertEquals(actualPartyOne, expectedPartyOne);
     CustomAsserts.assertEquals(actualPartyTwo, expectedPartyTwo);
   }

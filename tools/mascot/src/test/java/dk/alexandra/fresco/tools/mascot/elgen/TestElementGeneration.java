@@ -105,7 +105,7 @@ public class TestElementGeneration extends NetworkedTest {
         input.multiply(macKeyShareOne.add(macKeyShareTwo)).getValue(), modulus);
 
     AuthenticatedElement expected =
-        new AuthenticatedElement(expectedRecomb, expectedMacRecomb, modulus, modBitLength);
+        new AuthenticatedElement(expectedRecomb, expectedMacRecomb, modulus);
     AuthenticatedElement actual = leftShare.add(rightShare);
 
     CustomAsserts.assertEquals(expected, actual);
@@ -147,7 +147,7 @@ public class TestElementGeneration extends NetworkedTest {
         input.multiply(macKeyShareOne.add(macKeyShareTwo)).getValue(), modulus);
 
     AuthenticatedElement expected =
-        new AuthenticatedElement(expectedRecomb, expectedMacRecomb, modulus, modBitLength);
+        new AuthenticatedElement(expectedRecomb, expectedMacRecomb, modulus);
     AuthenticatedElement actual = leftShare.add(rightShare);
 
     CustomAsserts.assertEquals(expected, actual);
@@ -186,7 +186,7 @@ public class TestElementGeneration extends NetworkedTest {
     List<FieldElement> macKeyShares =
         Arrays.asList(macKeyShareOne, macKeyShareTwo, macKeyShareThree);
     List<AuthenticatedElement> expected =
-        computeExpected(inputs, macKeyShares, modulus, modBitLength);
+        computeExpected(inputs, macKeyShares, modulus);
 
     CustomAsserts.assertEqualsAuth(expected, actual);
   }
@@ -218,7 +218,7 @@ public class TestElementGeneration extends NetworkedTest {
         new ArithmeticCollectionUtils<AuthenticatedElement>().sumRows(results);
     List<FieldElement> macKeyShares = Arrays.asList(macKeyShareOne, macKeyShareTwo);
     List<AuthenticatedElement> expected =
-        computeExpected(inputs, macKeyShares, modulus, modBitLength);
+        computeExpected(inputs, macKeyShares, modulus);
 
     CustomAsserts.assertEqualsAuth(expected, actual);
   }
@@ -256,7 +256,7 @@ public class TestElementGeneration extends NetworkedTest {
     List<FieldElement> flatInputs =
         inputs.stream().flatMap(l -> l.stream()).collect(Collectors.toList());
     List<AuthenticatedElement> expected =
-        computeExpected(flatInputs, macKeyShares, modulus, modBitLength);
+        computeExpected(flatInputs, macKeyShares, modulus);
 
     CustomAsserts.assertEqualsAuth(expected, actual);
   }
@@ -264,11 +264,11 @@ public class TestElementGeneration extends NetworkedTest {
   // util methods
 
   private List<AuthenticatedElement> computeExpected(List<FieldElement> inputs,
-      List<FieldElement> macKeyShares, BigInteger modulus, int modBitLength) {
+      List<FieldElement> macKeyShares, BigInteger modulus) {
     FieldElement macKey = new ArithmeticCollectionUtils<FieldElement>().sum(macKeyShares);
     Stream<AuthenticatedElement> expected = inputs.stream().map(fe -> {
       FieldElement mac = fe.multiply(macKey);
-      return new AuthenticatedElement(fe, mac, modulus, modBitLength);
+      return new AuthenticatedElement(fe, mac, modulus);
     });
     return expected.collect(Collectors.toList());
   }

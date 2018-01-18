@@ -14,13 +14,13 @@ public class TestMultTriple {
   @Test
   public void testToString() {
     AuthenticatedElement left = new AuthenticatedElement(new FieldElement(1, modulus),
-        new FieldElement(2, modulus), modulus, modBitLength);
+        new FieldElement(2, modulus), modulus);
     AuthenticatedElement right =
         new AuthenticatedElement(new FieldElement(3, modulus),
-            new FieldElement(4, modulus), modulus, modBitLength);
+            new FieldElement(4, modulus), modulus);
     AuthenticatedElement product =
         new AuthenticatedElement(new FieldElement(5, modulus),
-            new FieldElement(6, modulus), modulus, modBitLength);
+            new FieldElement(6, modulus), modulus);
     MultTriple triple = new MultTriple(left, right, product);
     String expected =
         "MultTriple [left=AuthenticatedElement [share=FieldElement [value=1, modulus=251, "

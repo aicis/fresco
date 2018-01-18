@@ -16,7 +16,7 @@ public class TestFieldElementSerializer {
   public static BigInteger modulus = new BigInteger("65521");
   public static int modBitLength = 16;
   public static FieldElementSerializer serializer =
-      new FieldElementSerializer(modulus, modBitLength);
+      new FieldElementSerializer(modulus);
 
   @Test
   public void testSerializeList() {

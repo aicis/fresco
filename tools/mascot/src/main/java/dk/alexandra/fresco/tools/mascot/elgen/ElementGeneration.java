@@ -226,7 +226,7 @@ public class ElementGeneration extends BaseProtocol {
         .mapToObj(idx -> {
           FieldElement share = shares.get(idx);
           FieldElement mac = macs.get(idx);
-          return new AuthenticatedElement(share, mac, getModulus(), getModBitLength());
+          return new AuthenticatedElement(share, mac, getModulus());
         })
         .collect(Collectors.toList());
   }

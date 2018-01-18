@@ -139,7 +139,7 @@ public class TestMascot extends NetworkedTest {
       assertTrue(right.getOpenValue() == null);
       AuthenticatedElement recombined = left.getMaskShare().add(right.getMaskShare());
       AuthenticatedElement expected = new AuthenticatedElement(left.getOpenValue(),
-          left.getOpenValue().multiply(macKey), modulus, modBitLength);
+          left.getOpenValue().multiply(macKey), modulus);
       CustomAsserts.assertEquals(expected, recombined);
     }
 

@@ -13,21 +13,20 @@ import org.junit.Test;
 
 public class TestMascotFormatConverter {
 
-  AuthenticatedElement getAuthElement(int shareVal, int macVal, BigInteger modulus, int bitLength) {
+  private AuthenticatedElement getAuthElement(int shareVal, int macVal, BigInteger modulus) {
     FieldElement share = new FieldElement(shareVal, modulus);
     FieldElement mac = new FieldElement(macVal, modulus);
-    return new AuthenticatedElement(share, mac, modulus, bitLength);
+    return new AuthenticatedElement(share, mac, modulus);
   }
 
-  SpdzElement getSpdzElement(int shareVal, int macVal, BigInteger modulus) {
+  private SpdzElement getSpdzElement(int shareVal, int macVal, BigInteger modulus) {
     return new SpdzElement(BigInteger.valueOf(shareVal), BigInteger.valueOf(macVal), modulus);
   }
 
   @Test
   public void convertSingleElement() {
     BigInteger modulus = new BigInteger("340282366920938463463374607431768211297");
-    int bitLength = 128;
-    AuthenticatedElement element = getAuthElement(100, 123, modulus, bitLength);
+    AuthenticatedElement element = getAuthElement(100, 123, modulus);
     SpdzElement expected = getSpdzElement(100, 123, modulus);
     SpdzElement actual = MascotFormatConverter.toSpdzElement(element);
     assertEquals(expected, actual);
@@ -36,10 +35,9 @@ public class TestMascotFormatConverter {
   @Test
   public void convertTriple() {
     BigInteger modulus = new BigInteger("340282366920938463463374607431768211297");
-    int bitLength = 128;
-    AuthenticatedElement left = getAuthElement(1, 2, modulus, bitLength);
-    AuthenticatedElement right = getAuthElement(3, 4, modulus, bitLength);
-    AuthenticatedElement product = getAuthElement(5, 6, modulus, bitLength);
+    AuthenticatedElement left = getAuthElement(1, 2, modulus);
+    AuthenticatedElement right = getAuthElement(3, 4, modulus);
+    AuthenticatedElement product = getAuthElement(5, 6, modulus);
     MultTriple triple = new MultTriple(left, right, product);
     SpdzTriple expected = new SpdzTriple(getSpdzElement(1, 2, modulus),
         getSpdzElement(3, 4, modulus), getSpdzElement(5, 6, modulus));

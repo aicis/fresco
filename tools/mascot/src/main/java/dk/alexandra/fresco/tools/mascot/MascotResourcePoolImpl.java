@@ -54,7 +54,7 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
     this.numCandidatesPerTriple = numCandidatesPerTriple;
     this.prgSeedLength = prgSeedLength;
     this.localSampler = new FieldElementPrgImpl(new StrictBitVector(prgSeedLength, drbg));
-    this.fieldElementSerializer = new FieldElementSerializer(modulus, modBitLength);
+    this.fieldElementSerializer = new FieldElementSerializer(modulus);
     this.strictBitVectorSerializer = new StrictBitVectorSerializer();
     this.commitmentSerializer = new HashBasedCommitmentSerializer();
     this.messageDigest = ExceptionConverter.safe(() -> MessageDigest.getInstance("SHA-256"),
