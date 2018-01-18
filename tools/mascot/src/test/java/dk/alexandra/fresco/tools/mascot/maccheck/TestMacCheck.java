@@ -36,9 +36,9 @@ public class TestMacCheck extends NetworkedTest {
     initContexts(Arrays.asList(1, 2));
 
     // the "honest" party inputs consistent values
-    FieldElement openedCorrect = new FieldElement(42, modulus, modBitLength);
-    FieldElement macKeyShareCorrect = new FieldElement(7719, modulus, modBitLength);
-    FieldElement macShareCorrect = new FieldElement(5204, modulus, modBitLength);
+    FieldElement openedCorrect = new FieldElement(42, modulus);
+    FieldElement macKeyShareCorrect = new FieldElement(7719, modulus);
+    FieldElement macShareCorrect = new FieldElement(5204, modulus);
 
     // define task each party will run
     Callable<Pair<Boolean, Exception>> partyOneTask =
@@ -64,9 +64,9 @@ public class TestMacCheck extends NetworkedTest {
     initContexts(Arrays.asList(1, 2));
 
     // the "honest" party inputs consistent values
-    FieldElement openedCorrect = new FieldElement(42, modulus, modBitLength);
-    FieldElement macKeyShareCorrect = new FieldElement(11231, modulus, modBitLength);
-    FieldElement macShareCorrect = new FieldElement(4444, modulus, modBitLength);
+    FieldElement openedCorrect = new FieldElement(42, modulus);
+    FieldElement macKeyShareCorrect = new FieldElement(11231, modulus);
+    FieldElement macShareCorrect = new FieldElement(4444, modulus);
 
     // define task each party will run
     Callable<Pair<Boolean, Exception>> partyOneTask = () -> runSinglePartyMacCheck(contexts.get(1),
@@ -90,13 +90,13 @@ public class TestMacCheck extends NetworkedTest {
       FieldElement macShare) {
     initContexts(Arrays.asList(1, 2, 3));
 
-    FieldElement openedOne = new FieldElement(42, modulus, modBitLength);
-    FieldElement macKeyShareOne = new FieldElement(11231, modulus, modBitLength);
-    FieldElement macShareOne = new FieldElement(4444, modulus, modBitLength);
+    FieldElement openedOne = new FieldElement(42, modulus);
+    FieldElement macKeyShareOne = new FieldElement(11231, modulus);
+    FieldElement macShareOne = new FieldElement(4444, modulus);
 
-    FieldElement openedTwo = new FieldElement(42, modulus, modBitLength);
-    FieldElement macKeyShareTwo = new FieldElement(7719, modulus, modBitLength);
-    FieldElement macShareTwo = new FieldElement(5204, modulus, modBitLength);
+    FieldElement openedTwo = new FieldElement(42, modulus);
+    FieldElement macKeyShareTwo = new FieldElement(7719, modulus);
+    FieldElement macShareTwo = new FieldElement(5204, modulus);
 
     // define task each party will run
     Callable<Pair<Boolean, Exception>> partyOneTask =
@@ -125,14 +125,14 @@ public class TestMacCheck extends NetworkedTest {
     initContexts(Arrays.asList(1, 2));
 
     // left party inputs
-    FieldElement macKeyShareOne = new FieldElement(11231, modulus, modBitLength);
-    FieldElement openedOne = new FieldElement(42, modulus, modBitLength);
-    FieldElement macShareOne = new FieldElement(4444, modulus, modBitLength);
+    FieldElement macKeyShareOne = new FieldElement(11231, modulus);
+    FieldElement openedOne = new FieldElement(42, modulus);
+    FieldElement macShareOne = new FieldElement(4444, modulus);
 
     // right party inputs
-    FieldElement macKeyShareTwo = new FieldElement(7719, modulus, modBitLength);
-    FieldElement openedTwo = new FieldElement(42, modulus, modBitLength);
-    FieldElement macShareTwo = new FieldElement(5204, modulus, modBitLength);
+    FieldElement macKeyShareTwo = new FieldElement(7719, modulus);
+    FieldElement openedTwo = new FieldElement(42, modulus);
+    FieldElement macShareTwo = new FieldElement(5204, modulus);
 
     // define task each party will run
     Callable<Pair<Boolean, Exception>> partyOneTask =
@@ -154,17 +154,17 @@ public class TestMacCheck extends NetworkedTest {
     modulus = new BigInteger("65521");
     initContexts(Arrays.asList(1, 2, 3));
 
-    FieldElement openedOne = new FieldElement(42, modulus, modBitLength);
-    FieldElement macKeyShareOne = new FieldElement(11231, modulus, modBitLength);
-    FieldElement macShareOne = new FieldElement(4444, modulus, modBitLength);
+    FieldElement openedOne = new FieldElement(42, modulus);
+    FieldElement macKeyShareOne = new FieldElement(11231, modulus);
+    FieldElement macShareOne = new FieldElement(4444, modulus);
 
-    FieldElement openedTwo = new FieldElement(42, modulus, modBitLength);
-    FieldElement macKeyShareTwo = new FieldElement(7719, modulus, modBitLength);
-    FieldElement macShareTwo = new FieldElement(5204, modulus, modBitLength);
+    FieldElement openedTwo = new FieldElement(42, modulus);
+    FieldElement macKeyShareTwo = new FieldElement(7719, modulus);
+    FieldElement macShareTwo = new FieldElement(5204, modulus);
 
-    FieldElement openedThree = new FieldElement(42, modulus, modBitLength);
-    FieldElement macKeyShareThree = new FieldElement(1, modulus, modBitLength);
-    FieldElement macShareThree = new FieldElement(42, modulus, modBitLength);
+    FieldElement openedThree = new FieldElement(42, modulus);
+    FieldElement macKeyShareThree = new FieldElement(1, modulus);
+    FieldElement macShareThree = new FieldElement(42, modulus);
 
     // define task each party will run
     Callable<Pair<Boolean, Exception>> partyOneTask =
@@ -185,73 +185,73 @@ public class TestMacCheck extends NetworkedTest {
 
   @Test
   public void testPartyOneTampersWithOpened() {
-    FieldElement opened = new FieldElement(41, modulus, modBitLength); // tamper
-    FieldElement macKeyShare = new FieldElement(11231, modulus, modBitLength);
-    FieldElement macShare = new FieldElement(4444, modulus, modBitLength);
+    FieldElement opened = new FieldElement(41, modulus); // tamper
+    FieldElement macKeyShare = new FieldElement(11231, modulus);
+    FieldElement macShare = new FieldElement(4444, modulus);
     maliciousPartyOne(opened, macKeyShare, macShare);
   }
 
   @Test
   public void testPartyOneTampersWithMacKeyShare() {
-    FieldElement opened = new FieldElement(42, modulus, modBitLength);
-    FieldElement macKeyShare = new FieldElement(11031, modulus, modBitLength); // tamper
-    FieldElement macShare = new FieldElement(4444, modulus, modBitLength);
+    FieldElement opened = new FieldElement(42, modulus);
+    FieldElement macKeyShare = new FieldElement(11031, modulus); // tamper
+    FieldElement macShare = new FieldElement(4444, modulus);
     maliciousPartyOne(opened, macKeyShare, macShare);
   }
 
   @Test
   public void testPartyOneTampersWithMacShare() {
-    FieldElement opened = new FieldElement(42, modulus, modBitLength);
-    FieldElement macKeyShare = new FieldElement(11231, modulus, modBitLength);
-    FieldElement macShare = new FieldElement(4442, modulus, modBitLength); // tamper
+    FieldElement opened = new FieldElement(42, modulus);
+    FieldElement macKeyShare = new FieldElement(11231, modulus);
+    FieldElement macShare = new FieldElement(4442, modulus); // tamper
     maliciousPartyOne(opened, macKeyShare, macShare);
   }
 
   @Test
   public void testPartyTwoTampersWithOpened() {
-    FieldElement opened = new FieldElement(41, modulus, modBitLength); // tamper
-    FieldElement macKeyShare = new FieldElement(7719, modulus, modBitLength);
-    FieldElement macShare = new FieldElement(5204, modulus, modBitLength);
+    FieldElement opened = new FieldElement(41, modulus); // tamper
+    FieldElement macKeyShare = new FieldElement(7719, modulus);
+    FieldElement macShare = new FieldElement(5204, modulus);
     maliciousPartyTwo(opened, macKeyShare, macShare);
   }
 
   @Test
   public void testPartyTwoTampersWithMacKeyShare() {
-    FieldElement opened = new FieldElement(42, modulus, modBitLength);
-    FieldElement macKeyShare = new FieldElement(77, modulus, modBitLength); // tamper
-    FieldElement macShare = new FieldElement(5204, modulus, modBitLength);
+    FieldElement opened = new FieldElement(42, modulus);
+    FieldElement macKeyShare = new FieldElement(77, modulus); // tamper
+    FieldElement macShare = new FieldElement(5204, modulus);
     maliciousPartyTwo(opened, macKeyShare, macShare);
   }
 
   @Test
   public void testPartyTwoTampersWithMacShare() {
-    FieldElement opened = new FieldElement(42, modulus, modBitLength);
-    FieldElement macKeyShare = new FieldElement(7719, modulus, modBitLength);
-    FieldElement macShare = new FieldElement(4204, modulus, modBitLength); // tamper
+    FieldElement opened = new FieldElement(42, modulus);
+    FieldElement macKeyShare = new FieldElement(7719, modulus);
+    FieldElement macShare = new FieldElement(4204, modulus); // tamper
     maliciousPartyTwo(opened, macKeyShare, macShare);
   }
 
   @Test
   public void testPartyThreeTampersWithOpened() {
-    FieldElement opened = new FieldElement(41, modulus, modBitLength); // tamper
-    FieldElement macKeyShare = new FieldElement(1, modulus, modBitLength);
-    FieldElement macShare = new FieldElement(42, modulus, modBitLength);
+    FieldElement opened = new FieldElement(41, modulus); // tamper
+    FieldElement macKeyShare = new FieldElement(1, modulus);
+    FieldElement macShare = new FieldElement(42, modulus);
     maliciousPartyThree(opened, macKeyShare, macShare);
   }
 
   @Test
   public void testPartyThreeTampersWithMacKeyShare() {
-    FieldElement opened = new FieldElement(42, modulus, modBitLength);
-    FieldElement macKeyShare = new FieldElement(3, modulus, modBitLength); // tamper
-    FieldElement macShare = new FieldElement(42, modulus, modBitLength);
+    FieldElement opened = new FieldElement(42, modulus);
+    FieldElement macKeyShare = new FieldElement(3, modulus); // tamper
+    FieldElement macShare = new FieldElement(42, modulus);
     maliciousPartyThree(opened, macKeyShare, macShare);
   }
 
   @Test
   public void testPartyThreeTampersWithMacShare() {
-    FieldElement opened = new FieldElement(42, modulus, modBitLength);
-    FieldElement macKeyShare = new FieldElement(1, modulus, modBitLength);
-    FieldElement macShare = new FieldElement(34, modulus, modBitLength); // tamper
+    FieldElement opened = new FieldElement(42, modulus);
+    FieldElement macKeyShare = new FieldElement(1, modulus);
+    FieldElement macShare = new FieldElement(34, modulus); // tamper
     maliciousPartyThree(opened, macKeyShare, macShare);
   }
 

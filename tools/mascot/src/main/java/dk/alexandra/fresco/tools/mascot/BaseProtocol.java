@@ -28,7 +28,7 @@ public abstract class BaseProtocol {
   public BaseProtocol(MascotResourcePool resourcePool, Network network) {
     this.resourcePool = resourcePool;
     this.network = network;
-    this.fieldElementUtils = new FieldElementUtils(getModulus(), getModBitLength());
+    this.fieldElementUtils = new FieldElementUtils(getModulus());
   }
 
   public int getMyId() {

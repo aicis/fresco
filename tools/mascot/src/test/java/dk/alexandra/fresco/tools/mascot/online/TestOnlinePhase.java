@@ -54,17 +54,17 @@ public class TestOnlinePhase extends NetworkedTest {
     initContexts(Arrays.asList(1, 2));
 
     // left party mac key share
-    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), modulus, modBitLength);
+    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), modulus);
 
     // right party mac key share
-    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), modulus, modBitLength);
+    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), modulus);
 
     // party one inputs
     List<FieldElement> partyOneInputs =
-        MascotTestUtils.generateSingleRow(new int[]{12, 11, 1, 2}, modulus, modBitLength);
+        MascotTestUtils.generateSingleRow(new int[]{12, 11, 1, 2}, modulus);
     // party two inputs
     List<FieldElement> partyTwoInputs =
-        MascotTestUtils.generateSingleRow(new int[]{0, 3, 221, 65518}, modulus, modBitLength);
+        MascotTestUtils.generateSingleRow(new int[]{0, 3, 221, 65518}, modulus);
 
     // define task each party will run
     Callable<List<FieldElement>> partyOneTask =
@@ -82,7 +82,7 @@ public class TestOnlinePhase extends NetworkedTest {
 
     // outputs should be correct products
     List<FieldElement> expected = MascotTestUtils
-        .generateSingleRow(new int[]{0, 33, 221, 65517}, modulus, modBitLength);
+        .generateSingleRow(new int[]{0, 33, 221, 65517}, modulus);
     CustomAsserts.assertEquals(expected, partyOneOutput);
   }
 

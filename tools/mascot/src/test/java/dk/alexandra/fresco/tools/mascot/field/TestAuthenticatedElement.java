@@ -14,8 +14,8 @@ public class TestAuthenticatedElement {
   @Test
   public void testToString() {
     AuthenticatedElement element =
-        new AuthenticatedElement(new FieldElement(1, modulus, modBitLength),
-            new FieldElement(2, modulus, modBitLength), modulus, modBitLength);
+        new AuthenticatedElement(new FieldElement(1, modulus),
+            new FieldElement(2, modulus), modulus, modBitLength);
     String expected =
         "AuthenticatedElement [share=FieldElement [value=1, modulus=251, bitLength=8],"
             + " mac=FieldElement [value=2, modulus=251, bitLength=8], "
@@ -25,21 +25,21 @@ public class TestAuthenticatedElement {
 
   @Test
   public void testAddPublicFieldElement() {
-    FieldElement macKeyShare = new FieldElement(111, modulus, modBitLength);
+    FieldElement macKeyShare = new FieldElement(111, modulus);
     AuthenticatedElement element = new AuthenticatedElement(
-        new FieldElement(2, modulus, modBitLength),
-        new FieldElement(222, modulus, modBitLength),
+        new FieldElement(2, modulus),
+        new FieldElement(222, modulus),
         modulus, modBitLength);
-    FieldElement publicElement = new FieldElement(44, modulus, modBitLength);
+    FieldElement publicElement = new FieldElement(44, modulus);
     AuthenticatedElement actualPartyOne = element.add(publicElement, 1, macKeyShare);
     AuthenticatedElement expectedPartyOne = new AuthenticatedElement(
-        new FieldElement(46, modulus, modBitLength),
-        new FieldElement(86, modulus, modBitLength),
+        new FieldElement(46, modulus),
+        new FieldElement(86, modulus),
         modulus, modBitLength);
     AuthenticatedElement actualPartyTwo = element.add(publicElement, 2, macKeyShare);
     AuthenticatedElement expectedPartyTwo = new AuthenticatedElement(
-        new FieldElement(2, modulus, modBitLength),
-        new FieldElement(86, modulus, modBitLength),
+        new FieldElement(2, modulus),
+        new FieldElement(86, modulus),
         modulus, modBitLength);
     CustomAsserts.assertEquals(actualPartyOne, expectedPartyOne);
     CustomAsserts.assertEquals(actualPartyTwo, expectedPartyTwo);

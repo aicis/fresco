@@ -14,8 +14,8 @@ import org.junit.Test;
 public class TestMascotFormatConverter {
 
   AuthenticatedElement getAuthElement(int shareVal, int macVal, BigInteger modulus, int bitLength) {
-    FieldElement share = new FieldElement(shareVal, modulus, bitLength);
-    FieldElement mac = new FieldElement(macVal, modulus, bitLength);
+    FieldElement share = new FieldElement(shareVal, modulus);
+    FieldElement mac = new FieldElement(macVal, modulus);
     return new AuthenticatedElement(share, mac, modulus, bitLength);
   }
 

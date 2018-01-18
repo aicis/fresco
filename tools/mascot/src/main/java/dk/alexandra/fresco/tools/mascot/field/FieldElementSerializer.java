@@ -21,7 +21,7 @@ public class FieldElementSerializer implements ByteSerializer<FieldElement> {
   public FieldElementSerializer(BigInteger modulus, int modBitLength) {
     this.modulus = modulus;
     this.modBitLength = modBitLength;
-    this.fieldElementUtils = new FieldElementUtils(modulus, modBitLength);
+    this.fieldElementUtils = new FieldElementUtils(modulus);
   }
 
   /**
@@ -32,7 +32,7 @@ public class FieldElementSerializer implements ByteSerializer<FieldElement> {
    */
   @Override
   public FieldElement deserialize(byte[] data) {
-    return new FieldElement(data, modulus, modBitLength);
+    return new FieldElement(data, modulus);
   }
 
   /**
@@ -64,8 +64,7 @@ public class FieldElementSerializer implements ByteSerializer<FieldElement> {
         throw new IllegalArgumentException("All elements must have same modulus");
       }
     }
-    byte[] serialized = fieldElementUtils.pack(elements, false).toByteArray();
-    return serialized;
+    return fieldElementUtils.pack(elements, false).toByteArray();
   }
 
   /**

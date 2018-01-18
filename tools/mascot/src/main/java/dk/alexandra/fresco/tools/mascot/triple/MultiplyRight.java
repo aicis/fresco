@@ -16,16 +16,12 @@ import java.util.stream.Collectors;
  * scalar product <i><b>c</b>= <b>a</b>b</i> of a vector <i><b>a</b></i> held by the <i>left</i>
  * party and a factor <i>b</i> held by the <i>right</i> party.
  *
- * <p>
- * This protocol corresponds to steps 1 and 2 of the <i>Multiply</i> sub-protocol of the
+ * <p> This protocol corresponds to steps 1 and 2 of the <i>Multiply</i> sub-protocol of the
  * <i>&Pi;<sub>Triple</sub></i> protocol of the MASCOT paper. This implementation will batch runs of
  * a number these protocols. I.e., it will compute the secret sharing of a number of scalar product
- * in one batch.
- * </p>
- * <p>
- * This class implements the functionality of the right party. For the other side, see
- * {@link MultiplyLeft}. The resulting scalar product is secret-shared among the two parties.
- * </p>
+ * in one batch. </p> <p> This class implements the functionality of the right party. For the other
+ * side, see {@link MultiplyLeft}. The resulting scalar product is secret-shared among the two
+ * parties. </p>
  */
 class MultiplyRight extends TwoPartyProtocol {
 
@@ -39,11 +35,9 @@ class MultiplyRight extends TwoPartyProtocol {
   /**
    * Runs a batch of the multiply protocol with a given set of right hand factors.
    *
-   * <p>
-   * For each right factor <i>b</i> and left vector of the other party <i><b>a</b> = (a<sub>0</sub>,
-   * a<sub>1</sub>, ...)</i>, the protocol computes secret shares of scalar product
-   * <i><b>a</b>b = (a<sub>0</sub>b, a<sub>1</sub>b, ... </i>).
-   * </p>
+   * <p> For each right factor <i>b</i> and left vector of the other party <i><b>a</b> =
+   * (a<sub>0</sub>, a<sub>1</sub>, ...)</i>, the protocol computes secret shares of scalar product
+   * <i><b>a</b>b = (a<sub>0</sub>b, a<sub>1</sub>b, ... </i>). </p>
    *
    * @param rightFactors this party's factors <i>b<sub>0</sub>, b<sub>1</sub> ...</i>
    * @return shares of the scalar products <i><b>a</b><sub>0</sub>b<sub>0</sub>,
@@ -54,7 +48,7 @@ class MultiplyRight extends TwoPartyProtocol {
         multiplyRightHelper.generateSeeds(rightFactors.size(), getModBitLength());
     // convert seeds pairs to field elements so we can compute on them
     List<Pair<FieldElement, FieldElement>> feSeedPairs =
-        seedsToFieldElements(seedPairs, getModulus(), getModBitLength());
+        seedsToFieldElements(seedPairs, getModulus());
     // compute q0 - q1 + b for each seed pair
     List<FieldElement> diffs = multiplyRightHelper.computeDiffs(feSeedPairs, rightFactors);
     // send diffs over to other party
@@ -67,19 +61,17 @@ class MultiplyRight extends TwoPartyProtocol {
   }
 
   private List<Pair<FieldElement, FieldElement>> seedsToFieldElements(
-      List<Pair<StrictBitVector, StrictBitVector>> seedPairs, BigInteger modulus,
-      int modBitLength) {
+      List<Pair<StrictBitVector, StrictBitVector>> seedPairs, BigInteger modulus) {
     return seedPairs.stream().map(pair -> {
-      FieldElement t0 = fromBits(pair.getFirst(), modulus, modBitLength);
-      FieldElement t1 = fromBits(pair.getSecond(), modulus, modBitLength);
+      FieldElement t0 = fromBits(pair.getFirst(), modulus);
+      FieldElement t1 = fromBits(pair.getSecond(), modulus);
       return new Pair<>(t0, t1);
     }).collect(Collectors.toList());
   }
 
-  private FieldElement fromBits(StrictBitVector vector, BigInteger modulus, int modBitLength) {
+  private FieldElement fromBits(StrictBitVector vector, BigInteger modulus) {
     // TODO need to check somewhere that the modulus is close enough to 2^modBitLength
-    return new FieldElement(new BigInteger(vector.toByteArray()).mod(modulus), modulus,
-        modBitLength);
+    return new FieldElement(new BigInteger(vector.toByteArray()).mod(modulus), modulus);
   }
 
 }

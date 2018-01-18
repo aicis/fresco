@@ -220,7 +220,7 @@ public class TripleGeneration extends BaseProtocol {
     rhos.addAll(sigmas);
     // pad open rhos with zeroes, one for each sigma
     List<FieldElement> paddedRhos = getFieldElementUtils().padWith(openRhos,
-        new FieldElement(0, getModulus(), getModBitLength()), sigmas.size());
+        new FieldElement(0, getModulus()), sigmas.size());
     // run mac-check
     elementGeneration.check(rhos, paddedRhos);
 

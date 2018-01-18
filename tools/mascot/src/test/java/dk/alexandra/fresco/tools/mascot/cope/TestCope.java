@@ -37,10 +37,10 @@ public class TestCope extends NetworkedTest {
     initContexts(Arrays.asList(1, 2));
 
     // left parties input (can be multiple)
-    FieldElement macKeyShare = new FieldElement(new BigInteger("11231"), modulus, modBitLength);
+    FieldElement macKeyShare = new FieldElement(new BigInteger("11231"), modulus);
 
     // single right party input element
-    FieldElement input = new FieldElement(7, modulus, modBitLength);
+    FieldElement input = new FieldElement(7, modulus);
     List<FieldElement> inputs = Collections.singletonList(input);
 
     // define task each party will run
@@ -65,11 +65,11 @@ public class TestCope extends NetworkedTest {
     initContexts(Arrays.asList(1, 2));
 
     // left parties input (can be multiple)
-    FieldElement macKeyShare = new FieldElement(new BigInteger("11231"), modulus, modBitLength);
+    FieldElement macKeyShare = new FieldElement(new BigInteger("11231"), modulus);
 
     // multiple input elements
     int[] inputArr = {7, 444, 112, 11};
-    List<FieldElement> inputs = MascotTestUtils.generateSingleRow(inputArr, modulus, modBitLength);
+    List<FieldElement> inputs = MascotTestUtils.generateSingleRow(inputArr, modulus);
 
     // define task each party will run
     Callable<List<FieldElement>> partyOneTask =
@@ -87,7 +87,7 @@ public class TestCope extends NetworkedTest {
     int[] expectedArr = {7 * 11231 % modulus.intValue(), 444 * 11231 % modulus.intValue(),
         112 * 11231 % modulus.intValue(), 11 * 11231 % modulus.intValue()};
     List<FieldElement> expected =
-        MascotTestUtils.generateSingleRow(expectedArr, modulus, modBitLength);
+        MascotTestUtils.generateSingleRow(expectedArr, modulus);
 
     List<FieldElement> actual = IntStream.range(0, expected.size())
         .mapToObj(idx -> leftResults.get(idx).add(rightResults.get(idx)))

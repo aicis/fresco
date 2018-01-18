@@ -75,13 +75,13 @@ public class TestElementGeneration extends NetworkedTest {
     // two parties run this
     initContexts(Arrays.asList(1, 2));
     // left party mac key share
-    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), modulus, modBitLength);
+    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), modulus);
 
     // right party mac key share
-    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), modulus, modBitLength);
+    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), modulus);
 
     // single right party input element
-    FieldElement input = new FieldElement(7, modulus, modBitLength);
+    FieldElement input = new FieldElement(7, modulus);
     List<FieldElement> inputs = Collections.singletonList(input);
 
     // define task each party will run
@@ -100,9 +100,9 @@ public class TestElementGeneration extends NetworkedTest {
     List<AuthenticatedElement> rightShares = results.get(1);
     AuthenticatedElement rightShare = rightShares.get(0);
 
-    FieldElement expectedRecomb = new FieldElement(7, modulus, modBitLength);
+    FieldElement expectedRecomb = new FieldElement(7, modulus);
     FieldElement expectedMacRecomb = new FieldElement(
-        input.multiply(macKeyShareOne.add(macKeyShareTwo)).getValue(), modulus, modBitLength);
+        input.multiply(macKeyShareOne.add(macKeyShareTwo)).getValue(), modulus);
 
     AuthenticatedElement expected =
         new AuthenticatedElement(expectedRecomb, expectedMacRecomb, modulus, modBitLength);
@@ -117,13 +117,13 @@ public class TestElementGeneration extends NetworkedTest {
     initContexts(Arrays.asList(1, 2));
 
     // left party mac key share
-    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), modulus, modBitLength);
+    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), modulus);
 
     // right party mac key share
-    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), modulus, modBitLength);
+    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), modulus);
 
     // single right party input element
-    FieldElement input = new FieldElement(7, modulus, modBitLength);
+    FieldElement input = new FieldElement(7, modulus);
     List<FieldElement> inputs = Collections.singletonList(input);
 
     // define task each party will run
@@ -142,9 +142,9 @@ public class TestElementGeneration extends NetworkedTest {
     List<AuthenticatedElement> rightShares = results.get(1);
     AuthenticatedElement rightShare = rightShares.get(0);
 
-    FieldElement expectedRecomb = new FieldElement(7, modulus, modBitLength);
+    FieldElement expectedRecomb = new FieldElement(7, modulus);
     FieldElement expectedMacRecomb = new FieldElement(
-        input.multiply(macKeyShareOne.add(macKeyShareTwo)).getValue(), modulus, modBitLength);
+        input.multiply(macKeyShareOne.add(macKeyShareTwo)).getValue(), modulus);
 
     AuthenticatedElement expected =
         new AuthenticatedElement(expectedRecomb, expectedMacRecomb, modulus, modBitLength);
@@ -159,15 +159,15 @@ public class TestElementGeneration extends NetworkedTest {
     initContexts(Arrays.asList(1, 2, 3));
 
     // party mac key shares
-    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), modulus, modBitLength);
+    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), modulus);
 
-    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), modulus, modBitLength);
+    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), modulus);
 
     FieldElement macKeyShareThree =
-        new FieldElement(new BigInteger("40401"), modulus, modBitLength);
+        new FieldElement(new BigInteger("40401"), modulus);
 
     // single right party input element
-    FieldElement input = new FieldElement(7, modulus, modBitLength);
+    FieldElement input = new FieldElement(7, modulus);
     List<FieldElement> inputs = Collections.singletonList(input);
 
     // define task each party will run
@@ -197,12 +197,12 @@ public class TestElementGeneration extends NetworkedTest {
     initContexts(Arrays.asList(1, 2));
 
     // party mac key shares
-    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), modulus, modBitLength);
-    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), modulus, modBitLength);
+    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), modulus);
+    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), modulus);
 
     // inputs
     int[] inputArr = {7, 444, 112, 11};
-    List<FieldElement> inputs = MascotTestUtils.generateSingleRow(inputArr, modulus, modBitLength);
+    List<FieldElement> inputs = MascotTestUtils.generateSingleRow(inputArr, modulus);
 
     // define task each party will run
     Callable<List<AuthenticatedElement>> partyOneTask =
@@ -229,13 +229,13 @@ public class TestElementGeneration extends NetworkedTest {
     initContexts(Arrays.asList(1, 2));
 
     // party mac key shares
-    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), modulus, modBitLength);
-    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), modulus, modBitLength);
+    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), modulus);
+    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), modulus);
 
     // inputs
     int[][] inputArr = {{70}, {12}, {123}};
     List<List<FieldElement>> inputs =
-        MascotTestUtils.generateMatrix(inputArr, modulus, modBitLength);
+        MascotTestUtils.generateMatrix(inputArr, modulus);
     int numInputsPerRound = inputs.get(0).size();
     int numRounds = inputs.size();
 

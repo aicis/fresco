@@ -38,15 +38,13 @@ class MultiplyLeft extends TwoPartyProtocol {
    *
    * @param seeds the seeds represented as bit vectors
    * @param modulus the modulus we are working in
-   * @param modBitLength the bit length of the modulus
    * @return seeds converted to field elements via PRG
    */
-  private List<FieldElement> seedsToFieldElements(List<StrictBitVector> seeds, BigInteger modulus,
-      int modBitLength) {
+  private List<FieldElement> seedsToFieldElements(List<StrictBitVector> seeds, BigInteger modulus) {
     // TODO need to check somewhere that the modulus is close enough to 2^modBitLength
     return seeds.stream()
-        .map(seed -> new FieldElement(new BigInteger(seed.toByteArray()).mod(modulus), modulus,
-            modBitLength)).collect(Collectors.toList());
+        .map(seed -> new FieldElement(new BigInteger(seed.toByteArray()).mod(modulus), modulus))
+        .collect(Collectors.toList());
   }
 
   /**
@@ -59,7 +57,7 @@ class MultiplyLeft extends TwoPartyProtocol {
    */
   public List<FieldElement> multiply(List<FieldElement> leftFactors) {
     List<StrictBitVector> seeds = multiplyLeftHelper.generateSeeds(leftFactors, getModBitLength());
-    List<FieldElement> feSeeds = seedsToFieldElements(seeds, getModulus(), getModBitLength());
+    List<FieldElement> feSeeds = seedsToFieldElements(seeds, getModulus());
     // receive diffs from other party
     List<FieldElement> diffs = getFieldElementSerializer()
         .deserializeList(getNetwork().receive(getOtherId()));

@@ -23,8 +23,7 @@ public class FieldElementPrgImpl implements FieldElementPrg {
 
   @Override
   public FieldElement getNext(BigInteger modulus) {
-    FieldElement next = new FieldElement(drng.nextBigInteger(modulus), modulus,
-        modulus.bitLength());
+    FieldElement next = new FieldElement(drng.nextBigInteger(modulus), modulus);
     return next;
   }
 

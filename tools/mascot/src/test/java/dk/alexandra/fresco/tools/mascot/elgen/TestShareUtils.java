@@ -21,7 +21,7 @@ public class TestShareUtils {
   
   @Test
   public void testAdditiveShare() {
-    FieldElement input = new FieldElement(BigInteger.ONE, modulus, modBitLength);
+    FieldElement input = new FieldElement(BigInteger.ONE, modulus);
     List<FieldElement> shares = shareUtils.share(input, 2);
     assertEquals(2, shares.size());
     assertNotEquals(shares.get(0), shares.get(1));
@@ -29,7 +29,7 @@ public class TestShareUtils {
   
   @Test
   public void testRecombineReversesShare() {
-    FieldElement input = new FieldElement(BigInteger.ONE, modulus, modBitLength);
+    FieldElement input = new FieldElement(BigInteger.ONE, modulus);
     List<FieldElement> shares = shareUtils.share(input, 3);
     FieldElement actual = shareUtils.recombine(shares);
     CustomAsserts.assertEquals(input, actual);

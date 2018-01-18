@@ -37,7 +37,7 @@ public class AuthenticatedElement implements Addable<AuthenticatedElement> {
     FieldElement otherMac = other.multiply(macKeyShare);
     // only party 1 actually adds value to its share
     FieldElement value = (partyId == 1) ? other :
-        new FieldElement(BigInteger.ZERO, modulus, modBitLength);
+        new FieldElement(BigInteger.ZERO, modulus);
     AuthenticatedElement wrapped = new AuthenticatedElement(value, otherMac, modulus, modBitLength);
     return add(wrapped);
   }

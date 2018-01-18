@@ -21,7 +21,7 @@ public class TestFieldElementSerializer {
   @Test
   public void testSerializeList() {
     int[] arr = {1, 42, 777, 111};
-    List<FieldElement> elements = MascotTestUtils.generateSingleRow(arr, modulus, modBitLength);
+    List<FieldElement> elements = MascotTestUtils.generateSingleRow(arr, modulus);
     byte[] actual = serializer.serialize(elements);
     byte[] expected = {0x00, 0x01, 0x00, 0x2A, 0x03, 0x09, 0x00, 0x6F};
     assertArrayEquals(expected, actual);
@@ -39,7 +39,7 @@ public class TestFieldElementSerializer {
     byte[] serialized = {0x00, 0x01, 0x00, 0x02, 0x00, 0x03, 0x00, 0x04, 0x00, 0x05};
     int[] expectedArr = {1, 2, 3, 4, 5};
     List<FieldElement> expected =
-        MascotTestUtils.generateSingleRow(expectedArr, modulus, modBitLength);
+        MascotTestUtils.generateSingleRow(expectedArr, modulus);
     List<FieldElement> actual = serializer.deserializeList(serialized);
     CustomAsserts.assertEquals(expected, actual);
   }
@@ -54,7 +54,7 @@ public class TestFieldElementSerializer {
   @Test
   public void testSerializeDesirializeList() {
     int[] arr = {1, 42, 777, 111};
-    List<FieldElement> elements = MascotTestUtils.generateSingleRow(arr, modulus, modBitLength);
+    List<FieldElement> elements = MascotTestUtils.generateSingleRow(arr, modulus);
     List<FieldElement> actual = serializer.deserializeList(serializer.serialize(elements));
     CustomAsserts.assertEquals(elements, actual);
   }
@@ -64,7 +64,7 @@ public class TestFieldElementSerializer {
   @Test(expected = IllegalArgumentException.class)
   public void testSerializeWrongModulus() {
     int[] arr = {1, 42, 123, 111};
-    List<FieldElement> elements = MascotTestUtils.generateSingleRow(arr, new BigInteger("251"), 8);
+    List<FieldElement> elements = MascotTestUtils.generateSingleRow(arr, new BigInteger("251"));
     serializer.serialize(elements);
   }
 
