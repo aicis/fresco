@@ -112,7 +112,7 @@ public class TestParallelMascots {
     Map<Integer, FieldElement> macKeyShares = new HashMap<>();
     for (int myId = 1; myId <= noOfParties; myId++) {
       FieldElement ssk = SpdzMascotDataSupplier
-          .createRandomSsk(modulus, modBitLength, prgSeedLength);
+          .createRandomSsk(modulus, prgSeedLength);
       macKeyShares.put(myId, ssk);
     }
     return macKeyShares;

@@ -77,22 +77,17 @@ class MultiplyLeft extends TwoPartyProtocol {
    *
    * @param seeds the seeds represented as bit vectors
    * @param modulus the modulus we are working in
-   * @param modBitLength the bit length of the modulus
    * @return seeds converted to field elements via PRG
    */
-  private List<FieldElement> seedsToFieldElements(List<StrictBitVector> seeds, BigInteger modulus,
-      int modBitLength) {
+  private List<FieldElement> seedsToFieldElements(List<StrictBitVector> seeds, BigInteger modulus) {
     // TODO need to check somewhere that the modulus is close enough to 2^modBitLength
-    return seeds.stream().map(seed -> fromBits(seed, modulus, modBitLength))
+    return seeds.stream().map(seed -> fromBits(seed, modulus))
         .collect(Collectors.toList());
   }
 
-  private FieldElement fromBits(StrictBitVector vector, BigInteger modulus, int modBitLength) {
+  private FieldElement fromBits(StrictBitVector vector, BigInteger modulus) {
     // TODO need to check somewhere that the modulus is close enough to 2^modBitLength
-    return new FieldElement(new BigInteger(vector.toByteArray()).mod(modulus), modulus,
-        modBitLength);
+    return new FieldElement(new BigInteger(vector.toByteArray()).mod(modulus), modulus);
   }
-
-
-
+  
 }

@@ -62,7 +62,7 @@ class MultiplyRight extends TwoPartyProtocol {
         multiplyRightHelper.generateSeeds(rightFactors.size(), getModBitLength());
     // convert seeds pairs to field elements so we can compute on them
     List<Pair<FieldElement, FieldElement>> feSeedPairs =
-        seedsToFieldElements(seedPairs, getModulus(), getModBitLength());
+        seedsToFieldElements(seedPairs, getModulus());
     // compute q0 - q1 + b for each seed pair
     List<FieldElement> diffs = multiplyRightHelper.computeDiffs(feSeedPairs, rightFactors);
     // send diffs over to other party
@@ -75,19 +75,17 @@ class MultiplyRight extends TwoPartyProtocol {
   }
 
   private List<Pair<FieldElement, FieldElement>> seedsToFieldElements(
-      List<Pair<StrictBitVector, StrictBitVector>> seedPairs, BigInteger modulus,
-      int modBitLength) {
+      List<Pair<StrictBitVector, StrictBitVector>> seedPairs, BigInteger modulus) {
     return seedPairs.stream().map(pair -> {
-      FieldElement t0 = fromBits(pair.getFirst(), modulus, modBitLength);
-      FieldElement t1 = fromBits(pair.getSecond(), modulus, modBitLength);
+      FieldElement t0 = fromBits(pair.getFirst(), modulus);
+      FieldElement t1 = fromBits(pair.getSecond(), modulus);
       return new Pair<>(t0, t1);
     }).collect(Collectors.toList());
   }
 
-  private FieldElement fromBits(StrictBitVector vector, BigInteger modulus, int modBitLength) {
+  private FieldElement fromBits(StrictBitVector vector, BigInteger modulus) {
     // TODO need to check somewhere that the modulus is close enough to 2^modBitLength
-    return new FieldElement(new BigInteger(vector.toByteArray()).mod(modulus), modulus,
-        modBitLength);
+    return new FieldElement(new BigInteger(vector.toByteArray()).mod(modulus), modulus);
   }
 
 }

@@ -220,7 +220,7 @@ public abstract class AbstractSpdzTest {
       Map<Integer, RotList> seedOts = getSeedOts(myId, partyIds, prgSeedLength, drbg,
           otGenerator.createExtraNetwork(myId));
       FieldElement ssk = SpdzMascotDataSupplier
-          .createRandomSsk(modulus, modBitLength, prgSeedLength);
+          .createRandomSsk(modulus, prgSeedLength);
       supplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, numberOfParties,
           () -> tripleGenerator.createExtraNetwork(myId), modBitLength, modulus,
           new Function<Integer, SpdzSInt[]>() {

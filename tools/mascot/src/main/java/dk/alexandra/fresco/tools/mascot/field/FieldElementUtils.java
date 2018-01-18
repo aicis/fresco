@@ -19,23 +19,22 @@ public class FieldElementUtils extends ArithmeticCollectionUtils<FieldElement> {
 
   /**
    * Creates new {@link FieldElementUtils}.
-   * 
+   *
    * @param modulus modulus for underlying field element operations
-   * @param modBitLength modulus bit length
    */
-  public FieldElementUtils(BigInteger modulus, int modBitLength) {
+  public FieldElementUtils(BigInteger modulus) {
     super();
     this.modulus = modulus;
-    this.modBitLength = modBitLength;
-    this.generators = precomuteGenerators();
+    this.modBitLength = modulus.bitLength();
+    this.generators = precomputeGenerators();
   }
 
-  private List<FieldElement> precomuteGenerators() {
+  private List<FieldElement> precomputeGenerators() {
     List<FieldElement> generators = new ArrayList<>(modBitLength);
     BigInteger two = new BigInteger("2");
     BigInteger current = BigInteger.ONE;
     for (int i = 0; i < modBitLength; i++) {
-      generators.add(new FieldElement(current, modulus, modBitLength));
+      generators.add(new FieldElement(current, modulus));
       current = current.multiply(two).mod(modulus);
     }
     return generators;
@@ -43,7 +42,7 @@ public class FieldElementUtils extends ArithmeticCollectionUtils<FieldElement> {
 
   /**
    * Multiplies two lists of field elements, pair-wise.
-   * 
+   *
    * @param leftFactors left factors
    * @param rightFactors right factors
    * @return list of products
@@ -57,19 +56,8 @@ public class FieldElementUtils extends ArithmeticCollectionUtils<FieldElement> {
   }
 
   /**
-   * Multiplies each value in list by scalar.
-   * 
-   * @param values list of factors
-   * @param scalar scalar factor
-   * @return list of products
-   */
-  public List<FieldElement> scalarMultiply(List<FieldElement> values, FieldElement scalar) {
-    return values.stream().map(value -> value.multiply(scalar)).collect(Collectors.toList());
-  }
-
-  /**
    * Multiplies two lists of field elements, pair-wise.
-   * 
+   *
    * @param leftFactors left factors
    * @param rightFactors right factors
    * @return stream of products
@@ -85,7 +73,7 @@ public class FieldElementUtils extends ArithmeticCollectionUtils<FieldElement> {
 
   /**
    * Computes inner product of two lists of field elements.
-   * 
+   *
    * @param left left factors
    * @param right right factors
    * @return inner product
@@ -98,10 +86,20 @@ public class FieldElementUtils extends ArithmeticCollectionUtils<FieldElement> {
   }
 
   /**
-   * Computes inner product of elements and powers of twos.<br>
-   * e0 * 2**0 + e1 * 2**1 + ... + e(n - 1) * 2**(n - 1)
-   * Elements must have same modulus, otherwise we get undefined behaviour.
-   * 
+   * Multiplies each value in list by scalar.
+   *
+   * @param values list of factors
+   * @param scalar scalar factor
+   * @return list of products
+   */
+  public List<FieldElement> scalarMultiply(List<FieldElement> values, FieldElement scalar) {
+    return values.stream().map(value -> value.multiply(scalar)).collect(Collectors.toList());
+  }
+
+  /**
+   * Computes inner product of elements and powers of twos.<br> e0 * 2**0 + e1 * 2**1 + ... + e(n -
+   * 1) * 2**(n - 1) Elements must have same modulus, otherwise we get undefined behaviour.
+   *
    * @param elements elements to recombine
    * @return recombined elements
    */
@@ -117,9 +115,9 @@ public class FieldElementUtils extends ArithmeticCollectionUtils<FieldElement> {
   }
 
   /**
-   * Duplicates each element stretchBy times. <br>
-   * For instance, stretching [e0, e1, e2] by 2 results in [e0, e0, e1, e1, e3, e3].
-   * 
+   * Duplicates each element stretchBy times. <br> For instance, stretching [e0, e1, e2] by 2
+   * results in [e0, e0, e1, e1, e3, e3].
+   *
    * @param elements elements to be stretched
    * @param stretchBy number of duplications per element
    * @return stretched list
@@ -136,7 +134,7 @@ public class FieldElementUtils extends ArithmeticCollectionUtils<FieldElement> {
 
   /**
    * Appends padding elements to end of list numPads times.
-   * 
+   *
    * @param elements elements to pad
    * @param padElement element to pad with
    * @param numPads number of times to pad
@@ -151,14 +149,14 @@ public class FieldElementUtils extends ArithmeticCollectionUtils<FieldElement> {
 
   /**
    * Converts field elements to bit vectors and concatenates the result.
-   * 
+   *
    * @param elements field elements to pack
    * @param reverse indicator whether to reverse the order of bytes
    * @return concatenated field elements in bit representation
    */
   public StrictBitVector pack(List<FieldElement> elements, boolean reverse) {
     StrictBitVector[] bitVecs =
-        elements.stream().map(fe -> fe.toBitVector()).toArray(size -> new StrictBitVector[size]);
+        elements.stream().map(FieldElement::toBitVector).toArray(StrictBitVector[]::new);
     return StrictBitVector.concat(reverse, bitVecs);
   }
 
@@ -168,7 +166,7 @@ public class FieldElementUtils extends ArithmeticCollectionUtils<FieldElement> {
 
   /**
    * Unpacks a bit string into a list of field elements.
-   * 
+   *
    * @param packed concatenated bits representing field elements
    * @return field elements
    */
@@ -183,7 +181,7 @@ public class FieldElementUtils extends ArithmeticCollectionUtils<FieldElement> {
     List<FieldElement> unpacked = new ArrayList<>(numElements);
     for (int i = 0; i < numElements; i++) {
       byte[] b = Arrays.copyOfRange(packed, i * byteLength, (i + 1) * byteLength);
-      FieldElement el = new FieldElement(b, modulus, modBitLength);
+      FieldElement el = new FieldElement(b, modulus);
       unpacked.add(el);
     }
     return unpacked;

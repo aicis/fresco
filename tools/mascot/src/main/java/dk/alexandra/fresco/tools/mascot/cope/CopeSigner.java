@@ -6,8 +6,8 @@ import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.TwoPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeftHelper;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
+import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
+import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +76,7 @@ public class CopeSigner extends TwoPartyProtocol {
     for (int i = 0; i < numInputs; i++) {
       // generate masks for single input
       List<FieldElement> singleInputMasks = prgs.stream()
-          .map(prg -> prg.getNext(modulus, modBitLength))
+          .map(prg -> prg.getNext(modulus))
           .collect(Collectors.toList());
       masks.addAll(singleInputMasks);
     }

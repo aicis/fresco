@@ -8,7 +8,7 @@ import dk.alexandra.fresco.framework.network.serializers.StrictBitVectorSerializ
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
+import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import java.security.MessageDigest;
 

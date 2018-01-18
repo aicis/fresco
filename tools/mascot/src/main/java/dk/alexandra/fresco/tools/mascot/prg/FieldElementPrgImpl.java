@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.tools.mascot.utils;
+package dk.alexandra.fresco.tools.mascot.prg;
 
 import dk.alexandra.fresco.framework.util.Drng;
 import dk.alexandra.fresco.framework.util.DrngImpl;
@@ -14,7 +14,7 @@ public class FieldElementPrgImpl implements FieldElementPrg {
 
   /**
    * Creates new FieldElement prg.
-   * 
+   *
    * @param seed seed to the underlying DRNG.
    */
   public FieldElementPrgImpl(StrictBitVector seed) {
@@ -22,8 +22,8 @@ public class FieldElementPrgImpl implements FieldElementPrg {
   }
 
   @Override
-  public FieldElement getNext(BigInteger modulus, int bitLength) {
-    FieldElement next = new FieldElement(drng.nextBigInteger(modulus), modulus, bitLength);
+  public FieldElement getNext(BigInteger modulus) {
+    FieldElement next = new FieldElement(drng.nextBigInteger(modulus), modulus);
     return next;
   }
 

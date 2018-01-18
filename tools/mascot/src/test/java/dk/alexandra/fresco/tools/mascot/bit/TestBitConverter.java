@@ -10,8 +10,8 @@ import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.online.OnlinePhase;
 import dk.alexandra.fresco.tools.mascot.triple.TripleGeneration;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
+import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
+import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
@@ -48,14 +48,14 @@ public class TestBitConverter extends NetworkedTest {
     initContexts(Arrays.asList(1, 2));
 
     // left party mac key share
-    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), modulus, modBitLength);
+    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), modulus);
 
     // right party mac key share
-    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), modulus, modBitLength);
+    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), modulus);
 
     // party one inputs
     List<FieldElement> randomValues =
-        MascotTestUtils.generateSingleRow(new int[]{12, 11, 1, 2}, modulus, modBitLength);
+        MascotTestUtils.generateSingleRow(new int[]{12, 11, 1, 2}, modulus);
 
     // define task each party will run
     Callable<List<FieldElement>> partyOneTask =

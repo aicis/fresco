@@ -10,9 +10,8 @@ import java.util.stream.Collectors;
 
 public class MascotTestUtils {
 
-  public static List<FieldElement> generateSingleRow(int[] factors, BigInteger modulus,
-      int modBitLength) {
-    return Arrays.stream(factors).mapToObj(val -> new FieldElement(val, modulus, modBitLength))
+  public static List<FieldElement> generateSingleRow(int[] factors, BigInteger modulus) {
+    return Arrays.stream(factors).mapToObj(val -> new FieldElement(val, modulus))
         .collect(Collectors.toList());
   }
 
@@ -21,16 +20,14 @@ public class MascotTestUtils {
    * 
    * @param rows integer matrix
    * @param modulus field modulus
-   * @param modBitLength bit length of modulus
    * @return field element matrix
    */
-  public static List<List<FieldElement>> generateMatrix(int[][] rows, BigInteger modulus,
-      int modBitLength) {
+  public static List<List<FieldElement>> generateMatrix(int[][] rows, BigInteger modulus) {
     int numMults = rows.length;
     List<List<FieldElement>> input = new ArrayList<>(numMults);
     for (int[] leftFactorRow : rows) {
       List<FieldElement> row =
-          Arrays.stream(leftFactorRow).mapToObj(val -> new FieldElement(val, modulus, modBitLength))
+          Arrays.stream(leftFactorRow).mapToObj(val -> new FieldElement(val, modulus))
               .collect(Collectors.toList());
       input.add(row);
     }

@@ -52,11 +52,13 @@ public class BitConverter extends BaseProtocol {
       FieldElement square = openSquares.get(b);
       FieldElement root = square.sqrt();
       AuthenticatedElement randomElement = randomElements.get(b);
-      AuthenticatedElement oneOrNegativeOne = randomElement.multiply(root.modInverse()); // division
-      FieldElement two = new FieldElement(2, getModulus(), getModBitLength());
-      FieldElement one = new FieldElement(1, getModulus(), getModBitLength());
-      AuthenticatedElement bit =
-          oneOrNegativeOne.add(one, getMyId(), macKeyShare).multiply(two.modInverse());
+      AuthenticatedElement oneOrNegativeOne =
+          randomElement.multiply(root.modInverse()); // division
+      FieldElement two =
+          new FieldElement(2, getModulus());
+      FieldElement one = new FieldElement(1, getModulus());
+      AuthenticatedElement bit = oneOrNegativeOne.add(one, getMyId(), macKeyShare)
+          .multiply(two.modInverse());
       bits.add(bit);
     }
     return bits;

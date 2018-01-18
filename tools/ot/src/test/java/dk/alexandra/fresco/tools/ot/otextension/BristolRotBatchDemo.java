@@ -25,8 +25,8 @@ public class BristolRotBatchDemo {
   public void runPartyOne(int pid) throws IOException {
     OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
         lambdaSecurityParam);
-    RotBatch rotBatch = new BristolRotBatch(ctx.createResources(1), ctx
-        .getNetwork());
+    RotBatch rotBatch = new BristolRotBatch(new Rot(ctx.createResources(1), ctx
+        .getNetwork()));
     StrictBitVector choices = new StrictBitVector(amountOfOTs, ctx.createRand(
         1));
     List<StrictBitVector> messages = rotBatch.receive(choices, messageSize);
@@ -47,8 +47,8 @@ public class BristolRotBatchDemo {
   public void runPartyTwo(int pid) throws IOException {
     OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
         lambdaSecurityParam);
-    RotBatch rotBatch = new BristolRotBatch(ctx.createResources(1), ctx
-        .getNetwork());
+    RotBatch rotBatch = new BristolRotBatch(new Rot(ctx.createResources(1), ctx
+        .getNetwork()));
     List<Pair<StrictBitVector, StrictBitVector>> messages = rotBatch.send(
         amountOfOTs, messageSize);
     for (int i = 0; i < amountOfOTs; i++) {

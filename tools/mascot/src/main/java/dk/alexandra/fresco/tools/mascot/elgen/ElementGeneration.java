@@ -8,7 +8,7 @@ import dk.alexandra.fresco.tools.mascot.cope.CopeSigner;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.maccheck.MacCheck;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
+import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -61,7 +61,7 @@ public class ElementGeneration extends BaseProtocol {
     values = new ArrayList<>(values);
 
     // add extra random element which will later be used to mask inputs (step 1)
-    FieldElement extraElement = localSampler.getNext(getModulus(), getModBitLength());
+    FieldElement extraElement = localSampler.getNext(getModulus());
     values.add(extraElement);
 
     // inputter secret-shares input values (step 2)
@@ -72,7 +72,7 @@ public class ElementGeneration extends BaseProtocol {
 
     // generate coefficients for values and macs (step 6)
     List<FieldElement> coefficients = jointSampler
-        .getNext(getModulus(), getModBitLength(), values.size());
+        .getNext(getModulus(), values.size());
 
     // mask and combine values (step 7)
     FieldElement maskedValue = getFieldElementUtils().innerProduct(values, coefficients);
@@ -109,7 +109,7 @@ public class ElementGeneration extends BaseProtocol {
 
     // generate coefficients for macs (step 6)
     List<FieldElement> coefficients = jointSampler
-        .getNext(getModulus(), getModBitLength(), numInputs + 1);
+        .getNext(getModulus(),  numInputs + 1);
 
     // receive masked value we will use in mac-check (step 7)
     FieldElement maskedValue =
@@ -134,7 +134,7 @@ public class ElementGeneration extends BaseProtocol {
   public void check(List<AuthenticatedElement> sharesWithMacs, List<FieldElement> openValues) {
     // will use this to mask macs
     List<FieldElement> masks =
-        jointSampler.getNext(getModulus(), getModBitLength(), sharesWithMacs.size());
+        jointSampler.getNext(getModulus(), sharesWithMacs.size());
     // only need macs
     List<FieldElement> macs =
         sharesWithMacs.stream().map(AuthenticatedElement::getMac).collect(Collectors.toList());
@@ -226,7 +226,7 @@ public class ElementGeneration extends BaseProtocol {
         .mapToObj(idx -> {
           FieldElement share = shares.get(idx);
           FieldElement mac = macs.get(idx);
-          return new AuthenticatedElement(share, mac, getModulus(), getModBitLength());
+          return new AuthenticatedElement(share, mac, getModulus());
         })
         .collect(Collectors.toList());
   }

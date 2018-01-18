@@ -12,8 +12,8 @@ import dk.alexandra.fresco.tools.mascot.field.InputMask;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import dk.alexandra.fresco.tools.mascot.online.OnlinePhase;
 import dk.alexandra.fresco.tools.mascot.triple.TripleGeneration;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
+import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
+import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -93,7 +93,7 @@ public class Mascot extends BaseProtocol {
     for (int partyId = 1; partyId <= getNoOfParties(); partyId++) {
       if (partyId == getMyId()) {
         List<FieldElement> randomElements =
-            getLocalSampler().getNext(getModulus(), getModBitLength(), numElements);
+            getLocalSampler().getNext(getModulus(), numElements);
         perPartyElements.add(elementGeneration.input(randomElements));
       } else {
         perPartyElements.add(elementGeneration.input(partyId, numElements));
@@ -112,7 +112,7 @@ public class Mascot extends BaseProtocol {
   public List<InputMask> getInputMasks(Integer maskerId, int numMasks) {
     if (maskerId.equals(getMyId())) {
       List<FieldElement> randomMasks =
-          getLocalSampler().getNext(getModulus(), getModBitLength(), numMasks);
+          getLocalSampler().getNext(getModulus(), numMasks);
       List<AuthenticatedElement> authenticated = input(randomMasks);
       return IntStream.range(0, numMasks)
           .mapToObj(idx -> new InputMask(randomMasks.get(idx), authenticated.get(idx)))

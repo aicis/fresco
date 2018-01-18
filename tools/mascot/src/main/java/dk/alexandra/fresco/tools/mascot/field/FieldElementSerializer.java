@@ -14,41 +14,43 @@ public class FieldElementSerializer implements ByteSerializer<FieldElement> {
 
   /**
    * Creates new {@link FieldElementSerializer}.
-   * 
+   *
    * @param modulus modulus of field elements
-   * @param modBitLength mod bit length
    */
-  public FieldElementSerializer(BigInteger modulus, int modBitLength) {
+  public FieldElementSerializer(BigInteger modulus) {
     this.modulus = modulus;
-    this.modBitLength = modBitLength;
-    this.fieldElementUtils = new FieldElementUtils(modulus, modBitLength);
+    this.modBitLength = modulus.bitLength();
+    this.fieldElementUtils = new FieldElementUtils(modulus);
   }
 
   /**
    * Deserializes a single field element.
-   * 
+   *
    * @param data serialized element
    * @return deserialized field element
    */
   @Override
   public FieldElement deserialize(byte[] data) {
-    return new FieldElement(data, modulus, modBitLength);
+    return new FieldElement(data, modulus);
   }
 
   /**
    * Serializes a single field element.
-   * 
+   *
    * @param obj field element to serialize
    * @return serialized field element
    */
   @Override
   public byte[] serialize(FieldElement obj) {
+    if (!obj.getModulus().equals(modulus)) {
+      throw new IllegalArgumentException("All elements must have same modulus");
+    }
     return obj.toByteArray();
   }
 
   /**
    * Serializes a list of field elements (all elements must be in same field).
-   * 
+   *
    * @param elements elements to be serialized
    * @return serialized field elements
    */
@@ -56,7 +58,7 @@ public class FieldElementSerializer implements ByteSerializer<FieldElement> {
   public byte[] serialize(List<FieldElement> elements) {
     // nothing to do for empty list
     if (elements.isEmpty()) {
-      return new byte[] {};
+      return new byte[]{};
     }
     // ensure all field elements are in the same field and have same bit length
     for (FieldElement element : elements) {
@@ -64,13 +66,12 @@ public class FieldElementSerializer implements ByteSerializer<FieldElement> {
         throw new IllegalArgumentException("All elements must have same modulus");
       }
     }
-    byte[] serialized = fieldElementUtils.pack(elements, false).toByteArray();
-    return serialized;
+    return fieldElementUtils.pack(elements, false).toByteArray();
   }
 
   /**
    * Deserializes byte array into list of field elements.
-   * 
+   *
    * @param data data to be deserialized
    * @return deserialized field elements
    */

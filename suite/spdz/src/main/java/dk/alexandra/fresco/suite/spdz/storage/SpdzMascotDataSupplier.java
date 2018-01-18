@@ -14,8 +14,8 @@ import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.InputMask;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
+import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
+import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -104,13 +104,12 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   /**
    * Creates random field element that can be used as the mac key share by the calling party.
    */
-  public static FieldElement createRandomSsk(BigInteger modulus, int modBitLength,
-      int prgSeedLength) {
+  public static FieldElement createRandomSsk(BigInteger modulus, int prgSeedLength) {
     byte[] seedBytes = new byte[prgSeedLength / 8];
     new SecureRandom().nextBytes(seedBytes);
     StrictBitVector seed = new StrictBitVector(prgSeedLength, new PaddingAesCtrDrbg(seedBytes));
     FieldElementPrg localSampler = new FieldElementPrgImpl(seed);
-    return localSampler.getNext(modulus, modBitLength);
+    return localSampler.getNext(modulus);
   }
 
   @Override
