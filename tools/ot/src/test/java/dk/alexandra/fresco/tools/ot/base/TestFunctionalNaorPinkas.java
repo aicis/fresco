@@ -9,8 +9,8 @@ import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.helper.TestHelper;
-import dk.alexandra.fresco.tools.helper.TestRuntime;
+import dk.alexandra.fresco.tools.helper.HelperForTests;
+import dk.alexandra.fresco.tools.helper.RuntimeForTests;
 import dk.alexandra.fresco.tools.ot.otextension.CheatingNetwork;
 
 import java.io.Closeable;
@@ -27,8 +27,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class FunctionalTestNaorPinkas {
-  private TestRuntime testRuntime;
+public class TestFunctionalNaorPinkas {
+  private RuntimeForTests testRuntime;
   private int messageLength = 1024;
   private DHParameterSpec staticParams;
 
@@ -38,7 +38,7 @@ public class FunctionalTestNaorPinkas {
    */
   @Before
   public void initializeRuntime() {
-    this.testRuntime = new TestRuntime();
+    this.testRuntime = new RuntimeForTests();
     staticParams = new DHParameterSpec(TestNaorPinkasOt.DhPvalue,
         TestNaorPinkasOt.DhGvalue);
   }
@@ -54,9 +54,9 @@ public class FunctionalTestNaorPinkas {
   private List<Pair<StrictBitVector, StrictBitVector>> otSend(int iterations)
       throws IOException, NoSuchAlgorithmException {
     Network network = new CheatingNetwork(
-        TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
+        RuntimeForTests.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     try {
-      Drbg rand = new AesCtrDrbg(TestHelper.seedOne);
+      Drbg rand = new AesCtrDrbg(HelperForTests.seedOne);
       Ot otSender = new NaorPinkasOt(1, 2, rand, network);
       List<Pair<StrictBitVector, StrictBitVector>> messages = new ArrayList<>(
           iterations);
@@ -77,9 +77,9 @@ public class FunctionalTestNaorPinkas {
   private List<StrictBitVector> otReceive(StrictBitVector choices)
       throws IOException, NoSuchAlgorithmException {
     Network network = new CheatingNetwork(
-        TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
+        RuntimeForTests.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     try {
-      Drbg rand = new AesCtrDrbg(TestHelper.seedTwo);
+      Drbg rand = new AesCtrDrbg(HelperForTests.seedTwo);
       Ot otReceiver = new NaorPinkasOt(2, 1, rand, network);
       List<StrictBitVector> messages = new ArrayList<>(choices.getSize());
       for (int i = 0; i < choices.getSize(); i++) {
@@ -100,7 +100,7 @@ public class FunctionalTestNaorPinkas {
   public void testNaorPinkasOt() {
     // We execute 160 OTs
     int iterations = 160;
-    Drbg rand = new AesCtrDrbg(TestHelper.seedThree);
+    Drbg rand = new AesCtrDrbg(HelperForTests.seedThree);
     StrictBitVector choices = new StrictBitVector(iterations, rand);
     Callable<List<?>> partyOneOt = () -> otSend(iterations);
     Callable<List<?>> partyTwoOt = () -> otReceive(choices);
@@ -152,9 +152,9 @@ public class FunctionalTestNaorPinkas {
   private List<StrictBitVector> otSendCheat()
       throws IOException, NoSuchAlgorithmException {
     Network network = new CheatingNetwork(
-        TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
+        RuntimeForTests.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     try {
-      Drbg rand = new AesCtrDrbg(TestHelper.seedOne);
+      Drbg rand = new AesCtrDrbg(HelperForTests.seedOne);
       Ot otSender = new NaorPinkasOt(1, 2, rand, network, staticParams);
       StrictBitVector msgZero = new StrictBitVector(messageLength, rand);
       StrictBitVector msgOne = new StrictBitVector(messageLength, rand);
@@ -173,9 +173,9 @@ public class FunctionalTestNaorPinkas {
   private List<StrictBitVector> otReceiveCheat(boolean choice)
       throws IOException, NoSuchAlgorithmException {
     Network network = new CheatingNetwork(
-        TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
+        RuntimeForTests.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     try {
-      Drbg rand = new AesCtrDrbg(TestHelper.seedTwo);
+      Drbg rand = new AesCtrDrbg(HelperForTests.seedTwo);
       Ot otReceiver = new NaorPinkasOt(2, 1, rand, network, staticParams);
       StrictBitVector message = otReceiver.receive(choice);
       List<StrictBitVector> messageList = new ArrayList<>(1);

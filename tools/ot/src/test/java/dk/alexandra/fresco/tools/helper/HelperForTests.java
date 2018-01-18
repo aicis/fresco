@@ -11,7 +11,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.List;
 
-public class TestHelper {
+public class HelperForTests {
   public static final byte[] seedOne = new byte[] { 0x42, 0x42, 0x42, 0x42,
       0x42,
       0x42,

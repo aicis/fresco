@@ -17,10 +17,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-public class TestRuntime {
+public class RuntimeForTests {
   private ExecutorService executor;
 
-  public TestRuntime() {
+  public RuntimeForTests() {
     this.executor = null;
     executor = Executors.newFixedThreadPool(2);
   }
@@ -66,7 +66,7 @@ public class TestRuntime {
    */
   public <T> List<T> runPerPartyTasks(List<Callable<T>> tasks) {
     try {
-      List<Future<T>> results = executor.invokeAll(tasks, 1000L,
+      List<Future<T>> results = executor.invokeAll(tasks, 60L,
           TimeUnit.SECONDS);
       // this is a bit of a mess...
       @SuppressWarnings("unchecked")
