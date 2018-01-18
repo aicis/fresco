@@ -46,7 +46,7 @@ public class TripleGeneration extends BaseProtocol {
   }
 
   private void initializeMultipliers(MascotResourcePool resourcePool, Network network) {
-    for (Integer partyId : getPartyIds()) {
+    for (int partyId = 1; partyId <= getNoOfParties(); partyId++) {
       if (partyId != getMyId()) {
         if (getMyId() < partyId) {
           rightMultipliers.put(partyId, new MultiplyRight(resourcePool, network,
@@ -79,11 +79,11 @@ public class TripleGeneration extends BaseProtocol {
    */
   public List<MultTriple> triple(int numTriples) {
     // generate random left factor groups
-    List<FieldElement> leftFactorGroups = getLocalSampler().getNext(getModulus(), getModBitLength(),
+    List<FieldElement> leftFactorGroups = getLocalSampler().getNext(getModulus(),
         numTriples * getNumCandidatesPerTriple());
     // generate random right factors
     List<FieldElement> rightFactors =
-        getLocalSampler().getNext(getModulus(), getModBitLength(), numTriples);
+        getLocalSampler().getNext(getModulus(), numTriples);
     // compute product groups
     List<FieldElement> productGroups = multiply(leftFactorGroups, rightFactors);
     // combine into unauthenticated triples
@@ -125,8 +125,8 @@ public class TripleGeneration extends BaseProtocol {
     // step 2 of protocol
     // for each value we will have two sub-factors for each other party
     List<List<FieldElement>> subFactors = new ArrayList<>();
-    for (Integer partyId : getPartyIds()) {
-      if (!partyId.equals(getMyId())) {
+    for (int partyId = 1; partyId <= getNoOfParties(); partyId++) {
+      if (partyId != getMyId()) {
         MultiplyLeft leftMult = leftMultipliers.get(partyId);
         MultiplyRight rightMult = rightMultipliers.get(partyId);
         if (getMyId() < partyId) {
@@ -156,10 +156,10 @@ public class TripleGeneration extends BaseProtocol {
     // step 1 of protocol
     int numTriples = triples.size();
 
-    List<List<FieldElement>> masks = jointSampler.getNext(getModulus(), getModBitLength(),
-        numTriples, getNumCandidatesPerTriple());
+    List<List<FieldElement>> masks = jointSampler
+        .getNext(getModulus(), numTriples, getNumCandidatesPerTriple());
 
-    List<List<FieldElement>> sacrificeMasks = jointSampler.getNext(getModulus(), getModBitLength(),
+    List<List<FieldElement>> sacrificeMasks = jointSampler.getNext(getModulus(),
         numTriples, getNumCandidatesPerTriple());
 
     // step 2 of protocol
@@ -182,8 +182,8 @@ public class TripleGeneration extends BaseProtocol {
         .collect(Collectors.toList());
 
     List<List<AuthenticatedElement>> shares = new ArrayList<>();
-    for (Integer partyId : getPartyIds()) {
-      if (partyId.equals(getMyId())) {
+    for (int partyId = 1; partyId <= getNoOfParties(); partyId++) {
+      if (partyId == getMyId()) {
         shares.add(elementGeneration.input(flatInputs));
       } else {
         shares.add(elementGeneration.input(partyId, flatInputs.size()));
@@ -201,7 +201,7 @@ public class TripleGeneration extends BaseProtocol {
   private List<MultTriple> sacrifice(List<AuthenticatedCandidate> candidates) {
     // step 1 or protocol
     List<FieldElement> randomCoefficients = jointSampler
-        .getNext(getModulus(), getModBitLength(), candidates.size());
+        .getNext(getModulus(), candidates.size());
 
     // step 2
     // compute masked values we will open and use in mac-check

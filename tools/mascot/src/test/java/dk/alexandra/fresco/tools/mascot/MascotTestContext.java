@@ -1,22 +1,16 @@
 package dk.alexandra.fresco.tools.mascot;
 
-import dk.alexandra.fresco.commitment.HashBasedCommitment;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
-import dk.alexandra.fresco.framework.network.serializers.StrictBitVectorSerializer;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
-import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
 import java.math.BigInteger;
-import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +49,7 @@ public class MascotTestContext {
         seedOts.put(otherId, currentSeedOts);
       }
     }
-    this.resourcePool = new MascotResourcePoolImpl(myId, partyIds,
+    this.resourcePool = new MascotResourcePoolImpl(myId, partyIds.size(),
         instanceId, drbg, seedOts, modulus,
         modBitLength, lambdaSecurityParam, prgSeedLength, numLeftFactors);
   }
@@ -72,8 +66,8 @@ public class MascotTestContext {
     return resourcePool.getMyId();
   }
 
-  public List<Integer> getPartyIds() {
-    return resourcePool.getPartyIds();
+  public int getNoOfParties() {
+    return resourcePool.getNoOfParties();
   }
 
   public int getModBitLength() {

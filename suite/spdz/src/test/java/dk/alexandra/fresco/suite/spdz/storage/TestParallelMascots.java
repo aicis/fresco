@@ -11,13 +11,11 @@ import dk.alexandra.fresco.tools.mascot.MascotResourcePoolImpl;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
-import dk.alexandra.fresco.tools.ot.base.NaorPinkasOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -27,13 +25,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import org.hamcrest.core.IsNull;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runners.Parameterized.Parameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +42,6 @@ public class TestParallelMascots {
   private List<Integer> ports;
   private int noOfParties;
   private BigInteger modulus;
-  private List<Integer> partyIds;
   private int iterations;
   private Logger logger = LoggerFactory.getLogger(TestParallelMascots.class);
 
@@ -62,7 +57,6 @@ public class TestParallelMascots {
     numLeftFactors = 3;
     prgSeedLength = 256;
     modulus = ModulusFinder.findSuitableModulus(modBitLength);
-    partyIds = IntStream.range(1, noOfParties + 1).boxed().collect(Collectors.toList());
     iterations = 3;
   }
 
@@ -84,8 +78,8 @@ public class TestParallelMascots {
 
   private Map<Integer, RotList> perPartySingleSeedOtSetup(int myId, Drbg drbg, Network network) {
     Map<Integer, RotList> seedOts = new HashMap<>();
-    for (Integer otherId : partyIds) {
-      if (!otherId.equals(myId)) {
+    for (int otherId = 1; otherId <= noOfParties; otherId++) {
+      if (otherId != myId) {
         Ot ot = new DummyOt(otherId, network);
         RotList currentSeedOts = new RotList(drbg, prgSeedLength);
         if (myId < otherId) {
@@ -118,7 +112,7 @@ public class TestParallelMascots {
     Map<Integer, FieldElement> macKeyShares = new HashMap<>();
     for (int myId = 1; myId <= noOfParties; myId++) {
       FieldElement ssk = SpdzMascotDataSupplier
-          .createRandomSsk(modulus, modBitLength, prgSeedLength);
+          .createRandomSsk(modulus, prgSeedLength);
       macKeyShares.put(myId, ssk);
     }
     return macKeyShares;
@@ -144,7 +138,7 @@ public class TestParallelMascots {
         Map<Integer, RotList> seedOt = seedOts.get(finalMyId - 1);
         mascotCreators.add(() -> {
           int lambdaParam = this.modBitLength;
-          return new Mascot(new MascotResourcePoolImpl(finalMyId, partyIds, finalInstanceId,
+          return new Mascot(new MascotResourcePoolImpl(finalMyId, noOfParties, finalInstanceId,
               getDrbg(), seedOt, modulus, modBitLength, lambdaParam, prgSeedLength, numLeftFactors),
               normalManager.createExtraNetwork(finalMyId), randomSsk);
         });
@@ -168,7 +162,7 @@ public class TestParallelMascots {
         Map<Integer, RotList> seedOt = seedOts.get(finalMyId - 1);
         mascotCreators.add(() -> {
           Mascot mascot = new Mascot(
-              new MascotResourcePoolImpl(finalMyId, partyIds, finalInstanceId,
+              new MascotResourcePoolImpl(finalMyId, noOfParties, finalInstanceId,
                   getDrbg(), seedOt, modulus, modBitLength, 256, prgSeedLength,
                   numLeftFactors),
               normalManager.createExtraNetwork(finalMyId), randomSsk);

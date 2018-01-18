@@ -14,7 +14,7 @@ public class FieldElementPrgImpl implements FieldElementPrg {
 
   /**
    * Creates new FieldElement prg.
-   * 
+   *
    * @param seed seed to the underlying DRNG.
    */
   public FieldElementPrgImpl(StrictBitVector seed) {
@@ -22,8 +22,9 @@ public class FieldElementPrgImpl implements FieldElementPrg {
   }
 
   @Override
-  public FieldElement getNext(BigInteger modulus, int bitLength) {
-    FieldElement next = new FieldElement(drng.nextBigInteger(modulus), modulus, bitLength);
+  public FieldElement getNext(BigInteger modulus) {
+    FieldElement next = new FieldElement(drng.nextBigInteger(modulus), modulus,
+        modulus.bitLength());
     return next;
   }
 

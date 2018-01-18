@@ -20,12 +20,9 @@ import dk.alexandra.fresco.tools.ot.otextension.RotList;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayDeque;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,13 +104,12 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   /**
    * Creates random field element that can be used as the mac key share by the calling party.
    */
-  public static FieldElement createRandomSsk(BigInteger modulus, int modBitLength,
-      int prgSeedLength) {
+  public static FieldElement createRandomSsk(BigInteger modulus, int prgSeedLength) {
     byte[] seedBytes = new byte[prgSeedLength / 8];
     new SecureRandom().nextBytes(seedBytes);
     StrictBitVector seed = new StrictBitVector(prgSeedLength, new PaddingAesCtrDrbg(seedBytes));
     FieldElementPrg localSampler = new FieldElementPrgImpl(seed);
-    return localSampler.getNext(modulus, modBitLength);
+    return localSampler.getNext(modulus);
   }
 
   @Override
@@ -183,11 +179,9 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     if (mascot != null) {
       return;
     }
-    List<Integer> partyIds =
-        IntStream.range(1, numberOfPlayers + 1).boxed().collect(Collectors.toList());
     int numLeftFactors = 3;
     mascot = new Mascot(
-        new MascotResourcePoolImpl(myId, partyIds, instanceId, drbg, seedOts, getModulus(),
+        new MascotResourcePoolImpl(myId, numberOfPlayers, instanceId, drbg, seedOts, getModulus(),
             modBitLength, modBitLength, prgSeedLength, numLeftFactors), tripleNetwork.get(), ssk);
   }
 
