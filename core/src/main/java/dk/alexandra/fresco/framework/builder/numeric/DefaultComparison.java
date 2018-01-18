@@ -14,6 +14,7 @@ import java.math.BigInteger;
  */
 public class DefaultComparison implements Comparison {
 
+  final int MAGIC_SECURE_NUMBER = 60;
   private final BuilderFactoryNumeric factoryNumeric;
   private final ProtocolBuilderNumeric builder;
 
@@ -27,8 +28,7 @@ public class DefaultComparison implements Comparison {
   public DRes<SInt> compareLEQLong(DRes<SInt> x, DRes<SInt> y) {
     int bitLength = factoryNumeric.getBasicNumericContext().getMaxBitLength() * 2;
     LessThanOrEquals leqProtocol = new LessThanOrEquals(
-        bitLength, BuilderFactoryNumeric.MAGIC_SECURE_NUMBER,
-        x, y);
+        bitLength, MAGIC_SECURE_NUMBER, x, y);
     return builder.seq(leqProtocol);
 
   }
@@ -48,9 +48,7 @@ public class DefaultComparison implements Comparison {
   public DRes<SInt> compareLEQ(DRes<SInt> x, DRes<SInt> y) {
     int bitLength = factoryNumeric.getBasicNumericContext().getMaxBitLength();
     return builder.seq(
-        new LessThanOrEquals(
-            bitLength, BuilderFactoryNumeric.MAGIC_SECURE_NUMBER,
-            x, y));
+        new LessThanOrEquals(bitLength, MAGIC_SECURE_NUMBER, x, y));
   }
 
   @Override
@@ -67,7 +65,7 @@ public class DefaultComparison implements Comparison {
 
   @Override
   public DRes<SInt> compareZero(DRes<SInt> x, int bitLength) {
-    return builder.seq(new ZeroTest(bitLength, x));
+    return builder.seq(new ZeroTest(bitLength, x, MAGIC_SECURE_NUMBER));
   }
 
 }

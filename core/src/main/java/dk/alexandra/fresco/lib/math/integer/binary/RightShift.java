@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RightShiftResult;
-import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -17,6 +16,7 @@ import java.util.Collections;
  */
 public class RightShift implements Computation<RightShiftResult, ProtocolBuilderNumeric> {
 
+  private final int securityParameter;
   private final boolean calculateRemainders;
   // Input
   private final DRes<SInt> input;
@@ -28,11 +28,13 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
    * @param input The input.
    * @param calculateRemainders true to also calculate remainder. If false remainders in result will
    *        be null.
+   * @param securityParameter The amount of bits to use for masking  
    */
-  public RightShift(int bitLength, DRes<SInt> input, boolean calculateRemainders) {
+  public RightShift(int bitLength, DRes<SInt> input, boolean calculateRemainders, int securityParameter) {
     this.bitLength = bitLength;
     this.input = input;
     this.calculateRemainders = calculateRemainders;
+    this.securityParameter = securityParameter;
   }
 
   @Override
@@ -40,7 +42,7 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
     return sequential.seq((builder) -> {
       AdvancedNumeric additiveMaskBuilder = builder.advancedNumeric();
       return additiveMaskBuilder
-          .additiveMask(bitLength + BuilderFactoryNumeric.MAGIC_SECURE_NUMBER);
+          .additiveMask(bitLength + securityParameter);
     }).pairInPar((parSubSequential, randomAdditiveMask) -> {
       BigInteger two = BigInteger.valueOf(2);
       Numeric numericBuilder = parSubSequential.numeric();
