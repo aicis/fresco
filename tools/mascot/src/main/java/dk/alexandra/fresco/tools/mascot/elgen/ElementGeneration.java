@@ -11,10 +11,8 @@ import dk.alexandra.fresco.tools.mascot.maccheck.MacCheck;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -89,10 +87,7 @@ public class ElementGeneration extends BaseProtocol {
     // combine shares and mac shares to authenticated elements
     // (exclude mac and share of extra element) (step 10)
     List<FieldElement> inputElementMacs = macs.subList(0, shares.size() - 1);
-    List<AuthenticatedElement> authenticatedElements = toAuthenticatedElements(
-        shares.subList(0, shares.size() - 1),
-        inputElementMacs);
-    return authenticatedElements;
+    return toAuthenticatedElements(shares.subList(0, shares.size() - 1), inputElementMacs);
   }
 
   /**
@@ -126,10 +121,7 @@ public class ElementGeneration extends BaseProtocol {
     // combine shares and mac shares to authenticated  elements
     // (exclude mac and share of extra element) (step 10)
     List<FieldElement> inputElementMacs = macs.subList(0, numInputs);
-    List<AuthenticatedElement> authenticatedElements = toAuthenticatedElements(
-        shares.subList(0, numInputs),
-        inputElementMacs);
-    return authenticatedElements;
+    return toAuthenticatedElements(shares.subList(0, numInputs), inputElementMacs);
   }
 
 
