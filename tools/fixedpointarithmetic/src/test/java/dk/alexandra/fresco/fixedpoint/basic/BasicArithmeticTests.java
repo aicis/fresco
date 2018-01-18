@@ -494,16 +494,24 @@ public class BasicArithmeticTests {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
+          //Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
+          Application<List<BigDecimal>, ProtocolBuilderNumeric> app = producer -> {
             FixedNumeric numeric = new DefaultFixedNumeric(producer, 5);
 
-            DRes<SFixed> value = numeric.random();
-
-            return numeric.open(value);
+            //DRes<SFixed> value = numeric.random();
+            List<DRes<SFixed>> result = new ArrayList<>();
+            for(int i= 0; i< 10; i++) {
+              result.add(numeric.random());
+            }
+            //return numeric.open(value);
+            List<DRes<BigDecimal>> opened =
+                result.stream().map(numeric::open).collect(Collectors.toList());
+            return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
           };
-          BigDecimal output = runApplication(app);
-          assertTrue(BigDecimal.ONE.compareTo(output) >= 0);
-          assertTrue(BigDecimal.ZERO.compareTo(output) <= 0);
+          List<BigDecimal> output = runApplication(app);
+          System.out.println("outp: "+output);
+          //assertTrue(BigDecimal.ONE.compareTo(output) >= 0);
+          //assertTrue(BigDecimal.ZERO.compareTo(output) <= 0);
         }
       };
     }

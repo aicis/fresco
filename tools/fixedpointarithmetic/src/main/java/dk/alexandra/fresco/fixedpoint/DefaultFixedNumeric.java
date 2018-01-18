@@ -139,7 +139,11 @@ public class DefaultFixedNumeric implements FixedNumeric<SFixedSIntWrapper> {
   
   @Override
   public DRes<SFixedSIntWrapper> random() {
-    DRes<RandomAdditiveMask> random = builder.advancedNumeric().additiveMask(4);
+    int scale = (int)Math.pow(10, precision);
+    int scaleSize = (int)Math.ceil((Math.log(scale)/(Math.log(2))));
+    System.out.println("scale: "+scale+" has size: "+scaleSize);
+    
+    DRes<RandomAdditiveMask> random = builder.advancedNumeric().additiveMask(scaleSize);
     /*BigInteger mod = builder.getBasicNumericContext().getModulus().subtract(BigInteger.ONE);
     DRes<SInt> closedMod = builder.numeric().known(mod);
     System.out.println("mod : "+mod+" random: "+random);
