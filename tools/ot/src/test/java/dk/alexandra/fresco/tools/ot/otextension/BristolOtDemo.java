@@ -27,7 +27,7 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> {
     OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
         lambdaSecurityParam);
     Ot ot = new BristolOt(
-        amountOfOTs, new Rot(ctx.createResources(1), ctx.getNetwork()));
+        amountOfOTs, new RotImpl(ctx.createResources(1), ctx.getNetwork()));
     for (int i = 0; i < amountOfOTs; i++) {
       boolean choice = (new Random()).nextBoolean();
       System.out.print("Choice " + choice + ": ");
@@ -50,7 +50,7 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> {
     OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
         lambdaSecurityParam);
     Ot ot = new BristolOt(
-        amountOfOTs, new Rot(ctx.createResources(1), ctx.getNetwork()));
+        amountOfOTs, new RotImpl(ctx.createResources(1), ctx.getNetwork()));
     Drbg rand = ctx.createRand(1);
     for (int i = 0; i < amountOfOTs; i++) {
       StrictBitVector msgZero = new StrictBitVector(messageSize, rand);

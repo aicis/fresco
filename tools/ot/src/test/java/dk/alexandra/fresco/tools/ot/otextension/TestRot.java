@@ -18,9 +18,9 @@ public class TestRot {
    * Setup a local Rot instance.
    */
   @Before
-  public void setup() throws NoSuchMethodException, NoSuchFieldException,
-      SecurityException, IllegalArgumentException, IllegalAccessException {
-    multiplyWithoutReduction = RotShared.class.getDeclaredMethod(
+  public void setup() throws NoSuchMethodException,
+      SecurityException, IllegalArgumentException {
+    multiplyWithoutReduction = RotSharedImpl.class.getDeclaredMethod(
         "multiplyWithoutReduction", StrictBitVector.class,
         StrictBitVector.class);
     multiplyWithoutReduction.setAccessible(true);
@@ -28,7 +28,7 @@ public class TestRot {
 
   /**** POSITIVE TESTS. ****/
   @Test
-  public void testMultiplyByZeroWithoutReduction() throws NoSuchMethodException,
+  public void testMultiplyByZeroWithoutReduction() throws
       SecurityException, IllegalAccessException, IllegalArgumentException,
       InvocationTargetException {
     // 0 1 0 0 0 0 0 1, 1 1 1 1 1 1 1 1
@@ -42,7 +42,7 @@ public class TestRot {
     StrictBitVector b = new StrictBitVector(bbyte);
     StrictBitVector expected = new StrictBitVector(expectedByte);
     StrictBitVector res = (StrictBitVector) multiplyWithoutReduction.invoke(
-        RotReceiver.class, a, b);
+        RotReceiverImpl.class, a, b);
     assertEquals(expected, res);
   }
 
@@ -60,7 +60,7 @@ public class TestRot {
     StrictBitVector b = new StrictBitVector(bbyte);
     StrictBitVector expected = new StrictBitVector(expectedByte);
     StrictBitVector res = (StrictBitVector) multiplyWithoutReduction.invoke(
-        RotReceiver.class, a, b);
+        RotReceiverImpl.class, a, b);
     assertEquals(expected, res);
   }
 
@@ -79,7 +79,7 @@ public class TestRot {
     StrictBitVector b = new StrictBitVector(bbyte);
     StrictBitVector expected = new StrictBitVector(expectedByte);
     StrictBitVector res = (StrictBitVector) multiplyWithoutReduction.invoke(
-        RotReceiver.class, a, b);
+        RotReceiverImpl.class, a, b);
     assertEquals(expected, res);
   }
 
@@ -101,7 +101,7 @@ public class TestRot {
     StrictBitVector b = new StrictBitVector(bbyte);
     StrictBitVector expected = new StrictBitVector(expectedByte);
     StrictBitVector res = (StrictBitVector) multiplyWithoutReduction.invoke(
-        RotReceiver.class, a, b);
+        RotReceiverImpl.class, a, b);
     assertEquals(expected, res);
   }
 
@@ -121,7 +121,7 @@ public class TestRot {
     byte[] expectedByte = new byte[]{(byte) 0x51, (byte) 0x80, (byte) 0xC0};
     StrictBitVector expected = new StrictBitVector(expectedByte);
     StrictBitVector res = (StrictBitVector) multiplyWithoutReduction.invoke(
-        RotReceiver.class, a, b);
+        RotReceiverImpl.class, a, b);
     assertEquals(true, expected.equals(res));
   }
 
@@ -153,12 +153,12 @@ public class TestRot {
     //      0 0 1 1 1 1 1 0
     byte[] expectedByte = new byte[]{(byte) 0x3E};
     StrictBitVector expected = new StrictBitVector(expectedByte);
-    Method computeBitLinearCombination = RotReceiver.class.getDeclaredMethod(
+    Method computeBitLinearCombination = RotReceiverImpl.class.getDeclaredMethod(
         "computeBitLinearCombination", StrictBitVector.class,
         List.class);
     computeBitLinearCombination.setAccessible(true);
     StrictBitVector res = (StrictBitVector) computeBitLinearCombination.invoke(
-        RotReceiver.class, b, alist);
+        RotReceiverImpl.class, b, alist);
     assertEquals(true, expected.equals(res));
   }
 }

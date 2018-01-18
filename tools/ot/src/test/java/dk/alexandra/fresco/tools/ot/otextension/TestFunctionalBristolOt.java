@@ -14,7 +14,6 @@ import dk.alexandra.fresco.tools.ot.base.Ot;
 import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,8 +37,8 @@ public class TestFunctionalBristolOt {
   @Before
   public void initializeRuntime() {
     this.testRuntime = new RuntimeForTests();
-    Callable<OtExtensionTestContext> partyOneInit = () -> bristolInitSender();
-    Callable<OtExtensionTestContext> partyTwoInit = () -> bristolInitReceiver();
+    Callable<OtExtensionTestContext> partyOneInit = this::bristolInitSender;
+    Callable<OtExtensionTestContext> partyTwoInit = this::bristolInitReceiver;
     // run tasks and get ordered list of results
     List<OtExtensionTestContext> initResults = testRuntime.runPerPartyTasks(
         Arrays.asList(partyOneInit, partyTwoInit));
@@ -75,7 +74,7 @@ public class TestFunctionalBristolOt {
   private List<Pair<StrictBitVector, StrictBitVector>> bristolOtSend(
       OtExtensionTestContext ctx, int iterations, int batchSize) {
     Ot otSender = new BristolOt(
-        batchSize, new Rot(ctx.createResources(1), ctx.getNetwork()));
+        batchSize, new RotImpl(ctx.createResources(1), ctx.getNetwork()));
     List<Pair<StrictBitVector, StrictBitVector>> messages = new ArrayList<>(
         iterations);
     Drbg rand = ctx.createRand(1);
@@ -96,7 +95,7 @@ public class TestFunctionalBristolOt {
   private List<StrictBitVector> bristolOtReceive(OtExtensionTestContext ctx,
       StrictBitVector choices, int batchSize) {
     Ot otReceiver = new BristolOt(
-        batchSize, new Rot(ctx.createResources(1), ctx.getNetwork()));
+        batchSize, new RotImpl(ctx.createResources(1), ctx.getNetwork()));
     List<StrictBitVector> messages = new ArrayList<>(choices.getSize());
     for (int i = 0; i < choices.getSize(); i++) {
       StrictBitVector message = otReceiver.receive(choices.getBit(i, false));
@@ -133,7 +132,7 @@ public class TestFunctionalBristolOt {
 
   private List<Pair<StrictBitVector, StrictBitVector>> bristolRotBatchSend(
       OtExtensionTestContext ctx, int batchSize, int id) {
-    BristolRotBatch rotBatchSender = new BristolRotBatch(new Rot(ctx.createResources(
+    BristolRotBatch rotBatchSender = new BristolRotBatch(new RotImpl(ctx.createResources(
         id), ctx.getNetwork()));
     List<Pair<StrictBitVector, StrictBitVector>> messages = rotBatchSender
         .send(batchSize, messageLength);
@@ -142,7 +141,7 @@ public class TestFunctionalBristolOt {
 
   private List<StrictBitVector> bristolRotBatchReceive(
       OtExtensionTestContext ctx, StrictBitVector choices, int id) {
-    BristolRotBatch rotBatchReceiver = new BristolRotBatch(new Rot(ctx.createResources(
+    BristolRotBatch rotBatchReceiver = new BristolRotBatch(new RotImpl(ctx.createResources(
         id), ctx.getNetwork()));
     List<StrictBitVector> messages = rotBatchReceiver.receive(choices,
         messageLength);
@@ -170,7 +169,7 @@ public class TestFunctionalBristolOt {
 
   @SuppressWarnings("unchecked")
   @Test
-  public void testBristolRotReuseSeeds() throws IOException {
+  public void testBristolRotReuseSeeds() {
     // // Verify that the BristolRot can do auto initialization
     int extendSize = 1024;
     int iterations = 15;
@@ -218,9 +217,9 @@ public class TestFunctionalBristolOt {
   }
 
   private Exception bristolOtMaliciousSend(OtExtensionTestContext ctx,
-      int iterations, int batchSize) throws IOException {
+      int iterations, int batchSize) {
     BristolOt otSender = new BristolOt(
-        batchSize, new Rot(ctx.createResources(1), ctx.getNetwork()));
+        batchSize, new RotImpl(ctx.createResources(1), ctx.getNetwork()));
     Drbg rand = ctx.createRand(1);
     byte[] msgBytes = new byte[messageLength / 8];
     rand.nextBytes(msgBytes);
@@ -233,10 +232,10 @@ public class TestFunctionalBristolOt {
 
   private Exception bristolOtMaliciousReceive(
       OtExtensionTestContext ctx, StrictBitVector choices, int batchSize)
-      throws IOException, NoSuchMethodException, SecurityException,
+      throws NoSuchMethodException, SecurityException,
       IllegalArgumentException, IllegalAccessException,
-      InvocationTargetException, NoSuchFieldException {
-    BristolOt otReceiver = new BristolOt(batchSize, new Rot(ctx.createResources(1), ctx
+      NoSuchFieldException {
+    BristolOt otReceiver = new BristolOt(batchSize, new RotImpl(ctx.createResources(1), ctx
         .getNetwork()));
     otReceiver.receive(choices.getBit(0, false));
     Field receiver = BristolOt.class.getDeclaredField("receiver");
@@ -256,8 +255,8 @@ public class TestFunctionalBristolOt {
 
   @Test
   public void testMaliciousException()
-      throws NoSuchMethodException, SecurityException, IllegalAccessException,
-      IllegalArgumentException, NoSuchFieldException {
+      throws SecurityException,
+      IllegalArgumentException {
     int batchSize = 1024 - kbitLength - lambdaSecurityParam;
     StrictBitVector choices = new StrictBitVector(8);
     Callable<Exception> partyOneOt = () -> bristolOtMaliciousSend(senderContext,

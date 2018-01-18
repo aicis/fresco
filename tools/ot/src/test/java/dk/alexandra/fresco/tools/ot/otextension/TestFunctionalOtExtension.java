@@ -9,14 +9,12 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.helper.HelperForTests;
 import dk.alexandra.fresco.tools.helper.RuntimeForTests;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,8 +36,8 @@ public class TestFunctionalOtExtension {
   public void initializeRuntime() {
     this.testRuntime = new RuntimeForTests();
     // define task each party will run
-    Callable<Pair<Cote, OtExtensionResourcePool>> partyOneTask = () -> setupCoteSender();
-    Callable<Pair<Cote, OtExtensionResourcePool>> partyTwoTask = () -> setupCoteReceiver();
+    Callable<Pair<Cote, OtExtensionResourcePool>> partyOneTask = this::setupCoteSender;
+    Callable<Pair<Cote, OtExtensionResourcePool>> partyTwoTask = this::setupCoteReceiver;
     // run tasks and get ordered list of results
     List<Pair<Cote, OtExtensionResourcePool>> results = testRuntime
         .runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
@@ -123,7 +121,7 @@ public class TestFunctionalOtExtension {
 
   private List<Pair<StrictBitVector, StrictBitVector>> extendRotSender(
       int size) {
-    RotSender rotSender = new RotSender(coteSender.getSender(),
+    RotSender rotSender = new RotSenderImpl(coteSender.getSender(),
         senderResources.getCoinTossing());
     Pair<List<StrictBitVector>, List<StrictBitVector>> messages = rotSender
         .extend(size);
@@ -137,7 +135,7 @@ public class TestFunctionalOtExtension {
   }
 
   private List<StrictBitVector> extendRotReceiver(StrictBitVector choices) {
-    RotReceiver rotReceiver = new RotReceiver(coteReceiver.getReceiver(),
+    RotReceiver rotReceiver = new RotReceiverImpl(coteReceiver.getReceiver(),
         receiverResources.getCoinTossing());
     return rotReceiver.extend(choices);
   }

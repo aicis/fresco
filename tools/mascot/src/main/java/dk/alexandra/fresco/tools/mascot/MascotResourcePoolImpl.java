@@ -17,7 +17,7 @@ import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import dk.alexandra.fresco.tools.ot.otextension.BristolRotBatch;
 import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePool;
 import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePoolImpl;
-import dk.alexandra.fresco.tools.ot.otextension.Rot;
+import dk.alexandra.fresco.tools.ot.otextension.RotImpl;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -116,7 +116,7 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
     OtExtensionResourcePool otResources = new OtExtensionResourcePoolImpl(getMyId(), otherId,
         getPrgSeedLength(), getLambdaSecurityParam(), getInstanceId(),
         getRandomGenerator(), ct, seedOts.get(otherId));
-    return new BristolRotBatch(new Rot(otResources, network));
+    return new BristolRotBatch(new RotImpl(otResources, network));
   }
 
   @Override
