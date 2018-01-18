@@ -65,7 +65,7 @@ class MultiplyLeft extends TwoPartyProtocol {
    */
   public List<FieldElement> multiply(List<FieldElement> leftFactors) {
     List<StrictBitVector> seeds = multiplyLeftHelper.generateSeeds(leftFactors, getModBitLength());
-    List<FieldElement> feSeeds = seedsToFieldElements(seeds, getModulus(), getModBitLength());
+    List<FieldElement> feSeeds = seedsToFieldElements(seeds, getModulus());
     // receive diffs from other party
     List<FieldElement> diffs =
         getFieldElementSerializer().deserializeList(getNetwork().receive(getOtherId()));
@@ -89,5 +89,5 @@ class MultiplyLeft extends TwoPartyProtocol {
     // TODO need to check somewhere that the modulus is close enough to 2^modBitLength
     return new FieldElement(new BigInteger(vector.toByteArray()).mod(modulus), modulus);
   }
-  
+
 }
