@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 
@@ -17,16 +16,12 @@ public class BristolOt implements Ot {
    * Constructs a new OT protocol and constructs the internal sender and
    * receiver objects.
    *
-   * @param resources
-   *          The common OT extension resource pool
-   * @param network
-   *          The network instance
    * @param batchSize
    *          Size of the OT extension batch the protocol will construct
+   * @param randomOtExtension random OT extension
    */
-  public BristolOt(OtExtensionResourcePool resources, Network network,
-      int batchSize) {
-    this.rot = new Rot(resources, network);
+  public BristolOt(int batchSize, Rot randomOtExtension) {
+    this.rot = randomOtExtension;
     this.batchSize = batchSize;
   }
 

@@ -74,8 +74,8 @@ public class TestFunctionalBristolOt {
 
   private List<Pair<StrictBitVector, StrictBitVector>> bristolOtSend(
       OtExtensionTestContext ctx, int iterations, int batchSize) {
-    Ot otSender = new BristolOt(ctx.createResources(1), ctx.getNetwork(),
-        batchSize);
+    Ot otSender = new BristolOt(
+        batchSize, new Rot(ctx.createResources(1), ctx.getNetwork()));
     List<Pair<StrictBitVector, StrictBitVector>> messages = new ArrayList<>(
         iterations);
     Drbg rand = ctx.createRand(1);
@@ -95,8 +95,8 @@ public class TestFunctionalBristolOt {
 
   private List<StrictBitVector> bristolOtReceive(OtExtensionTestContext ctx,
       StrictBitVector choices, int batchSize) {
-    Ot otReceiver = new BristolOt(ctx.createResources(1), ctx.getNetwork(),
-        batchSize);
+    Ot otReceiver = new BristolOt(
+        batchSize, new Rot(ctx.createResources(1), ctx.getNetwork()));
     List<StrictBitVector> messages = new ArrayList<>(choices.getSize());
     for (int i = 0; i < choices.getSize(); i++) {
       StrictBitVector message = otReceiver.receive(choices.getBit(i, false));
@@ -219,8 +219,8 @@ public class TestFunctionalBristolOt {
 
   private Exception bristolOtMaliciousSend(OtExtensionTestContext ctx,
       int iterations, int batchSize) throws IOException {
-    BristolOt otSender = new BristolOt(ctx.createResources(1), ctx.getNetwork(),
-        batchSize);
+    BristolOt otSender = new BristolOt(
+        batchSize, new Rot(ctx.createResources(1), ctx.getNetwork()));
     Drbg rand = ctx.createRand(1);
     byte[] msgBytes = new byte[messageLength / 8];
     rand.nextBytes(msgBytes);
@@ -236,8 +236,8 @@ public class TestFunctionalBristolOt {
       throws IOException, NoSuchMethodException, SecurityException,
       IllegalArgumentException, IllegalAccessException,
       InvocationTargetException, NoSuchFieldException {
-    BristolOt otReceiver = new BristolOt(ctx.createResources(1), ctx
-        .getNetwork(), batchSize);
+    BristolOt otReceiver = new BristolOt(batchSize, new Rot(ctx.createResources(1), ctx
+        .getNetwork()));
     otReceiver.receive(choices.getBit(0, false));
     Field receiver = BristolOt.class.getDeclaredField("receiver");
     receiver.setAccessible(true);

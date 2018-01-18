@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.Ot;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Random;
@@ -27,8 +26,8 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> {
   public void runPartyOne(int pid) throws IOException {
     OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
         lambdaSecurityParam);
-    Ot ot = new BristolOt(ctx.createResources(1), ctx.getNetwork(),
-        amountOfOTs);
+    Ot ot = new BristolOt(
+        amountOfOTs, new Rot(ctx.createResources(1), ctx.getNetwork()));
     for (int i = 0; i < amountOfOTs; i++) {
       boolean choice = (new Random()).nextBoolean();
       System.out.print("Choice " + choice + ": ");
@@ -50,8 +49,8 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> {
   public void runPartyTwo(int pid) throws IOException {
     OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
         lambdaSecurityParam);
-    Ot ot = new BristolOt(ctx.createResources(1), ctx.getNetwork(),
-        amountOfOTs);
+    Ot ot = new BristolOt(
+        amountOfOTs, new Rot(ctx.createResources(1), ctx.getNetwork()));
     Drbg rand = ctx.createRand(1);
     for (int i = 0; i < amountOfOTs; i++) {
       StrictBitVector msgZero = new StrictBitVector(messageSize, rand);
