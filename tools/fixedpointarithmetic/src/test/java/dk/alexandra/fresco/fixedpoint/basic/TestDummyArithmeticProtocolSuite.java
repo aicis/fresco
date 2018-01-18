@@ -68,6 +68,12 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
+  public void test_Mults() throws Exception {
+    runTest(new BasicArithmeticTests.TestMult<>(), EvaluationStrategy.SEQUENTIAL,
+        2);
+  }
+  
+  @Test
   public void test_DivisionSecretDivisor() throws Exception {
     runTest(new BasicArithmeticTests.TestDivisionSecret<>(), EvaluationStrategy.SEQUENTIAL,
         2);

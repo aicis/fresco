@@ -1,5 +1,8 @@
 package dk.alexandra.fresco.fixedpoint.basic;
 
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+
 import dk.alexandra.fresco.fixedpoint.DefaultFixedNumeric;
 import dk.alexandra.fresco.fixedpoint.FixedNumeric;
 import dk.alexandra.fresco.fixedpoint.SFixed;
@@ -11,6 +14,10 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.Assert;
 
 public class BasicArithmeticTests {
@@ -33,7 +40,7 @@ public class BasicArithmeticTests {
           };
           BigDecimal output = runApplication(app);
 
-          Assert.assertEquals(value.setScale(5, RoundingMode.HALF_UP), output);
+          Assert.assertEquals(value.setScale(5, RoundingMode.DOWN), output);
         }
       };
     }
@@ -58,7 +65,7 @@ public class BasicArithmeticTests {
           BigDecimal output = runApplication(app);
 
           if (conf.getMyId() == 1) {
-            Assert.assertEquals(value.setScale(5, RoundingMode.HALF_UP), output);
+            Assert.assertEquals(value.setScale(5, RoundingMode.DOWN), output);
           } else {
             Assert.assertNull(output);
           }
@@ -87,7 +94,7 @@ public class BasicArithmeticTests {
           };
           BigDecimal output = runApplication(app);
 
-          Assert.assertEquals(value.setScale(5, RoundingMode.HALF_UP), output);
+          Assert.assertEquals(value.setScale(5, RoundingMode.DOWN), output);
         }
       };
     }
@@ -114,7 +121,7 @@ public class BasicArithmeticTests {
           BigDecimal output = runApplication(app);
 
           Assert.assertEquals(value.add(value2)
-              .setScale(5, RoundingMode.HALF_UP), output);
+              .setScale(5, RoundingMode.DOWN), output);
         }
       };
     }
@@ -142,7 +149,7 @@ public class BasicArithmeticTests {
           BigDecimal output = runApplication(app);
 
           Assert.assertEquals(value.add(value2)
-              .setScale(5, RoundingMode.HALF_UP), output);
+              .setScale(5, RoundingMode.DOWN), output);
         }
       };
     }
@@ -170,7 +177,7 @@ public class BasicArithmeticTests {
           BigDecimal output = runApplication(app);
 
           Assert.assertEquals(value.subtract(value2)
-              .setScale(5, RoundingMode.HALF_UP), output);
+              .setScale(5, RoundingMode.DOWN), output);
         }
       };
     }
@@ -197,7 +204,7 @@ public class BasicArithmeticTests {
           BigDecimal output = runApplication(app);
 
           Assert.assertEquals(value.subtract(value2)
-              .setScale(5, RoundingMode.HALF_UP), output);
+              .setScale(5, RoundingMode.DOWN), output);
         }
       };
     }
@@ -224,7 +231,7 @@ public class BasicArithmeticTests {
           BigDecimal output = runApplication(app);
 
           Assert.assertEquals(value.subtract(value2)
-              .setScale(5, RoundingMode.HALF_UP), output);
+              .setScale(5, RoundingMode.DOWN), output);
         }
       };
     }
@@ -251,7 +258,7 @@ public class BasicArithmeticTests {
           };
           BigDecimal output = runApplication(app);
           Assert.assertEquals(value.multiply(value2)
-              .setScale(5, RoundingMode.HALF_UP), output);
+              .setScale(5, RoundingMode.DOWN), output);
         }
       };
     }
@@ -277,7 +284,7 @@ public class BasicArithmeticTests {
           };
           BigDecimal output = runApplication(app);
           Assert.assertEquals(value.multiply(value2)
-              .setScale(5, RoundingMode.HALF_UP), output);
+              .setScale(5, RoundingMode.DOWN), output);
         }
       };
     }
@@ -304,7 +311,7 @@ public class BasicArithmeticTests {
           };
           BigDecimal output = runApplication(app);
           Assert.assertEquals(value.divide(value2)
-              .setScale(5, RoundingMode.HALF_UP), output);
+              .setScale(5, RoundingMode.DOWN), output);
         }
       };
     }
@@ -330,10 +337,61 @@ public class BasicArithmeticTests {
           };
           BigDecimal output = runApplication(app);
           Assert.assertEquals(value.divide(value2)
-              .setScale(5, RoundingMode.HALF_UP), output);
+              .setScale(5, RoundingMode.DOWN), output);
         }
       };
     }
   }  
   
+  public static class TestMult<ResourcePoolT extends ResourcePool>
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      final int precision = 3;
+      List<BigDecimal> openInputs =
+          Stream.of(1.223, 222.23, 5.59703, 0.004, 5.90, 6.0, 0.0007, 0.121998, 9.999999)
+          .map(BigDecimal::valueOf).collect(Collectors.toList());
+      List<BigDecimal> openInputs2 =
+          Stream.of(1.000, 1.0000, 0.22211, 100.1, 11.0, .07, 0.0005, 10.00112, 999991.0)
+          .map(BigDecimal::valueOf).collect(Collectors.toList());
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<List<BigDecimal>, ProtocolBuilderNumeric> app = producer -> {
+            FixedNumeric numeric = new DefaultFixedNumeric(producer, precision);
+            
+            List<DRes<SFixed>> closed1 =
+                openInputs.stream().map(numeric::known).collect(Collectors.toList());
+            List<DRes<SFixed>> closed2 =
+                openInputs2.stream().map(numeric::known).collect(Collectors.toList());
+            
+            List<DRes<SFixed>> result = new ArrayList<>();
+            for(DRes<SFixed> inputX : closed1) {
+              result.add(numeric.mult(inputX, closed2.get(closed1.indexOf(inputX))));
+            }
+
+            List<DRes<BigDecimal>> opened =
+                result.stream().map(numeric::open).collect(Collectors.toList());
+            return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
+          };
+          List<BigDecimal> output = runApplication(app);
+
+          for (BigDecimal openOutput : output) {
+            int idx = output.indexOf(openOutput);
+            
+            BigDecimal a = openInputs.get(idx).setScale(precision, RoundingMode.DOWN); 
+            BigDecimal b = openInputs2.get(idx).setScale(precision, RoundingMode.DOWN);
+            System.out.println(a+" * "+b+" = "+output.get(idx));
+            System.out.println("a.un"+a.unscaledValue());
+            assertThat(openOutput, 
+                is(a.multiply(b).setScale(precision, RoundingMode.DOWN)));
+          }
+
+
+        }
+      };
+    }
+  }
+
 }
