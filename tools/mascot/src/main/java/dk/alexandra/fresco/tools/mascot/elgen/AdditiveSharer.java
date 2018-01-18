@@ -29,7 +29,7 @@ public class AdditiveSharer implements Sharer {
 
   @Override
   public List<FieldElement> share(FieldElement input, int numShares) {
-    List<FieldElement> shares = sampler.getNext(modulus, modBitLength, numShares - 1);
+    List<FieldElement> shares = sampler.getNext(modulus, numShares - 1);
     FieldElement sumShares = arithmeticUtils.sum(shares);
     FieldElement diff = input.subtract(sumShares);
     shares.add(diff);

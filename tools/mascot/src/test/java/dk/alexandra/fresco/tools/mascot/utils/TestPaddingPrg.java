@@ -15,7 +15,6 @@ import org.junit.Test;
 public class TestPaddingPrg {
 
   private final BigInteger modulus = new BigInteger("340282366920938463463374607431768211297");
-  private final int modBitLength = 128;
 
   @Test
   public void testGetNextProducesFieldElement() {
@@ -23,8 +22,9 @@ public class TestPaddingPrg {
     new Random().nextBytes(seedBytes);
     StrictBitVector seed = new StrictBitVector(seedBytes);
     FieldElementPrg prg = new FieldElementPrgImpl(seed);
-    FieldElement el = prg.getNext(modulus, modBitLength);
+    FieldElement el = prg.getNext(modulus);
     assertEquals(modulus, el.getModulus());
+    int modBitLength = 128;
     assertEquals(modBitLength, el.getBitLength());
   }
 
@@ -34,7 +34,7 @@ public class TestPaddingPrg {
     new Random().nextBytes(seedBytes);
     StrictBitVector seed = new StrictBitVector(seedBytes);
     FieldElementPrg prg = new FieldElementPrgImpl(seed);
-    FieldElement el = prg.getNext(modulus, modBitLength);
+    FieldElement el = prg.getNext(modulus);
     assertFalse(el.isZero());
   }
 
@@ -44,8 +44,8 @@ public class TestPaddingPrg {
     new Random().nextBytes(seedBytes);
     StrictBitVector seed = new StrictBitVector(seedBytes);
     FieldElementPrg prg = new FieldElementPrgImpl(seed);
-    FieldElement elOne = prg.getNext(modulus, modBitLength);
-    FieldElement elTwo = prg.getNext(modulus, modBitLength);
+    FieldElement elOne = prg.getNext(modulus);
+    FieldElement elTwo = prg.getNext(modulus);
     // not equals, without actually using equals
     assertFalse(elOne.subtract(elTwo).isZero());
   }
@@ -58,8 +58,8 @@ public class TestPaddingPrg {
     StrictBitVector seedOther = new StrictBitVector(seedBytes);
     FieldElementPrg prgOne = new FieldElementPrgImpl(seed);
     FieldElementPrg prgTwo = new FieldElementPrgImpl(seedOther);
-    FieldElement elOne = prgOne.getNext(modulus, modBitLength);
-    FieldElement elTwo = prgTwo.getNext(modulus, modBitLength);
+    FieldElement elOne = prgOne.getNext(modulus);
+    FieldElement elTwo = prgTwo.getNext(modulus);
     CustomAsserts.assertEquals(elOne, elTwo);
   }
 
@@ -77,8 +77,8 @@ public class TestPaddingPrg {
     StrictBitVector seedTwo = new StrictBitVector(seedBytesTwo);
     FieldElementPrg prgTwo = new FieldElementPrgImpl(seedTwo);
 
-    FieldElement elOne = prgOne.getNext(modulus, modBitLength);
-    FieldElement elTwo = prgTwo.getNext(modulus, modBitLength);
+    FieldElement elOne = prgOne.getNext(modulus);
+    FieldElement elTwo = prgTwo.getNext(modulus);
     assertNotEquals(elOne, elTwo);
   }
 

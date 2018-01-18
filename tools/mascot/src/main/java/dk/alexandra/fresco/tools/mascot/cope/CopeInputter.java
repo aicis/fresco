@@ -73,17 +73,16 @@ public class CopeInputter extends TwoPartyProtocol {
     List<Pair<FieldElement, FieldElement>> maskPairs = new ArrayList<>();
     for (int i = 0; i < numInputs; i++) {
       // generate masks for single input
-      maskPairs.addAll(generateMaskPairs(getModulus(), getModBitLength()));
+      maskPairs.addAll(generateMaskPairs(getModulus()));
     }
     return maskPairs;
   }
 
-  private List<Pair<FieldElement, FieldElement>> generateMaskPairs(BigInteger modulus,
-      int modBitLength) {
+  private List<Pair<FieldElement, FieldElement>> generateMaskPairs(BigInteger modulus) {
     Stream<Pair<FieldElement, FieldElement>> maskStream =
         IntStream.range(0, leftPrgs.size()).mapToObj(idx -> {
-          FieldElement t0 = this.leftPrgs.get(idx).getNext(modulus, modBitLength);
-          FieldElement t1 = this.rightPrgs.get(idx).getNext(modulus, modBitLength);
+          FieldElement t0 = this.leftPrgs.get(idx).getNext(modulus);
+          FieldElement t1 = this.rightPrgs.get(idx).getNext(modulus);
           return new Pair<>(t0, t1);
         });
     return maskStream.collect(Collectors.toList());

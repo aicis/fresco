@@ -76,7 +76,7 @@ public class CopeSigner extends TwoPartyProtocol {
     for (int i = 0; i < numInputs; i++) {
       // generate masks for single input
       List<FieldElement> singleInputMasks = prgs.stream()
-          .map(prg -> prg.getNext(modulus, modBitLength))
+          .map(prg -> prg.getNext(modulus))
           .collect(Collectors.toList());
       masks.addAll(singleInputMasks);
     }
