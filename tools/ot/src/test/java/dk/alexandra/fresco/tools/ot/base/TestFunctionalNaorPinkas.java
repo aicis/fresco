@@ -57,15 +57,16 @@ public class TestFunctionalNaorPinkas {
         RuntimeForTests.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     try {
       Drbg rand = new AesCtrDrbg(HelperForTests.seedOne);
-      Ot otSender = new NaorPinkasOt(1, 2, rand, network);
+      Ot otSender = new NaorPinkasOt(1, 2, rand, network, new DHParameterSpec(
+          TestNaorPinkasOt.DhPvalue, TestNaorPinkasOt.DhGvalue));
       List<Pair<StrictBitVector, StrictBitVector>> messages = new ArrayList<>(
           iterations);
       for (int i = 0; i < iterations; i++) {
         StrictBitVector msgZero = new StrictBitVector(messageLength, rand);
         StrictBitVector msgOne = new StrictBitVector(messageLength, rand);
         otSender.send(msgZero, msgOne);
-        Pair<StrictBitVector, StrictBitVector> currentPair =
-            new Pair<StrictBitVector, StrictBitVector>(msgZero, msgOne);
+        Pair<StrictBitVector, StrictBitVector> currentPair = new Pair<StrictBitVector, StrictBitVector>(
+            msgZero, msgOne);
         messages.add(currentPair);
       }
       return messages;
@@ -80,7 +81,8 @@ public class TestFunctionalNaorPinkas {
         RuntimeForTests.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     try {
       Drbg rand = new AesCtrDrbg(HelperForTests.seedTwo);
-      Ot otReceiver = new NaorPinkasOt(2, 1, rand, network);
+      Ot otReceiver = new NaorPinkasOt(2, 1, rand, network, new DHParameterSpec(
+          TestNaorPinkasOt.DhPvalue, TestNaorPinkasOt.DhGvalue));
       List<StrictBitVector> messages = new ArrayList<>(choices.getSize());
       for (int i = 0; i < choices.getSize(); i++) {
         StrictBitVector message = otReceiver.receive(choices.getBit(i, false));
@@ -94,12 +96,15 @@ public class TestFunctionalNaorPinkas {
 
   /**
    * Verify that we can execute the OT.
+   *
+   * @throws Exception
+   *           Thrown if the Diffie-Hellman parameter size field could not be changed
    */
   @SuppressWarnings("unchecked")
   @Test
-  public void testNaorPinkasOt() {
-    // We execute 160 OTs
-    int iterations = 160;
+  public void testNaorPinkasOt() throws Exception {
+    // We execute 24 OTs
+    int iterations = 24;
     Drbg rand = new AesCtrDrbg(HelperForTests.seedThree);
     StrictBitVector choices = new StrictBitVector(iterations, rand);
     Callable<List<?>> partyOneOt = () -> otSend(iterations);

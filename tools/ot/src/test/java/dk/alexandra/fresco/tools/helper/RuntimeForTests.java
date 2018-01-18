@@ -66,7 +66,7 @@ public class RuntimeForTests {
    */
   public <T> List<T> runPerPartyTasks(List<Callable<T>> tasks) {
     try {
-      List<Future<T>> results = executor.invokeAll(tasks, 60L,
+      List<Future<T>> results = executor.invokeAll(tasks, 15L,
           TimeUnit.SECONDS);
       // this is a bit of a mess...
       @SuppressWarnings("unchecked")
