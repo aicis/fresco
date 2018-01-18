@@ -8,8 +8,8 @@ import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.helper.TestHelper;
-import dk.alexandra.fresco.tools.helper.TestRuntime;
+import dk.alexandra.fresco.tools.helper.HelperForTests;
+import dk.alexandra.fresco.tools.helper.RuntimeForTests;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 
 import java.io.Closeable;
@@ -26,20 +26,20 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class FunctionalTestBristolOt {
+public class TestFunctionalBristolOt {
   private final int kbitLength = 128;
   private final int lambdaSecurityParam = 56;
   private final int messageLength = 1024;
   private OtExtensionTestContext senderContext;
   private OtExtensionTestContext receiverContext;
-  private TestRuntime testRuntime;
+  private RuntimeForTests testRuntime;
 
   /**
    * Initializes the test runtime by setting up OT extension contexts for both sender and receiver.
    */
   @Before
   public void initializeRuntime() {
-    this.testRuntime = new TestRuntime();
+    this.testRuntime = new RuntimeForTests();
     Callable<OtExtensionTestContext> partyOneInit = () -> bristolInitSender();
     Callable<OtExtensionTestContext> partyTwoInit = () -> bristolInitReceiver();
     // run tasks and get ordered list of results
@@ -119,7 +119,7 @@ public class FunctionalTestBristolOt {
     // We execute more OTs than the batchSize to ensure that an automatic
     // extension will take place once preprocessed OTs run out
     int iterations = 1032;
-    Drbg rand = new AesCtrDrbg(TestHelper.seedThree);
+    Drbg rand = new AesCtrDrbg(HelperForTests.seedThree);
     StrictBitVector choices = new StrictBitVector(iterations, rand);
     Callable<List<?>> partyOneOt = () -> bristolOtSend(senderContext,
         iterations, batchSize);
@@ -128,7 +128,7 @@ public class FunctionalTestBristolOt {
     // run tasks and get ordered list of results
     List<List<?>> extendResults = testRuntime.runPerPartyTasks(Arrays.asList(
         partyOneOt, partyTwoOt));
-    TestHelper.verifyOts(
+    HelperForTests.verifyOts(
         (List<Pair<StrictBitVector, StrictBitVector>>) extendResults
         .get(0), (List<StrictBitVector>) extendResults.get(1), choices);
   }
@@ -158,14 +158,14 @@ public class FunctionalTestBristolOt {
     Callable<List<?>> partyOneExtend = () -> bristolRotBatchSend(senderContext,
         extendSize, 1);
     // Pick some random choice bits
-    Drbg rand = new AesCtrDrbg(TestHelper.seedThree);
+    Drbg rand = new AesCtrDrbg(HelperForTests.seedThree);
     StrictBitVector choices = new StrictBitVector(extendSize, rand);
     Callable<List<?>> partyTwoExtend = () -> bristolRotBatchReceive(
         receiverContext, choices, 1);
     // run tasks and get ordered list of results
     List<List<?>> extendResults = testRuntime
         .runPerPartyTasks(Arrays.asList(partyOneExtend, partyTwoExtend));
-    TestHelper.verifyOts(
+    HelperForTests.verifyOts(
         (List<Pair<StrictBitVector, StrictBitVector>>) extendResults
         .get(0), (List<StrictBitVector>) extendResults.get(1), choices);
   }
@@ -182,7 +182,7 @@ public class FunctionalTestBristolOt {
       final int sessionId = i;
       Callable<List<?>> partyOneExtend = () -> bristolRotBatchSend(
           senderContext, extendSize, sessionId);
-      byte[] seed = TestHelper.seedThree;
+      byte[] seed = HelperForTests.seedThree;
       // Make sure the seed used is unique for each thread
       seed[0] ^= (byte) i;
       Drbg rand = new AesCtrDrbg(seed);
@@ -196,7 +196,7 @@ public class FunctionalTestBristolOt {
           (List<Pair<StrictBitVector, StrictBitVector>>) extendResults.get(0);
       List<StrictBitVector> receiverResults = (List<StrictBitVector>) extendResults
           .get(1);
-      TestHelper.verifyOts(senderResults, receiverResults, choices);
+      HelperForTests.verifyOts(senderResults, receiverResults, choices);
       // Sanity check:
       // Ensure that we don't get the same values in each parallel execution
       if (previousChoices != null) {

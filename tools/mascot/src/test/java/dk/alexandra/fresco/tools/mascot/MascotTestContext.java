@@ -27,8 +27,8 @@ import java.util.Random;
  */
 public class MascotTestContext {
 
-  MascotResourcePool resourcePool;
-  Network network;
+  private final MascotResourcePool resourcePool;
+  private final Network network;
 
   /**
    * Creates new test context.
@@ -72,48 +72,16 @@ public class MascotTestContext {
     return resourcePool.getMyId();
   }
 
-  public int getNoOfParties() {
-    return resourcePool.getNoOfParties();
-  }
-
   public List<Integer> getPartyIds() {
     return resourcePool.getPartyIds();
-  }
-
-  public MessageDigest getMessageDigest() {
-    return resourcePool.getMessageDigest();
   }
 
   public int getModBitLength() {
     return resourcePool.getModBitLength();
   }
 
-  public int getLambdaSecurityParam() {
-    return resourcePool.getLambdaSecurityParam();
-  }
-
-  public int getNumLeftFactors() {
-    return resourcePool.getNumCandidatesPerTriple();
-  }
-
   public int getPrgSeedLength() {
     return resourcePool.getPrgSeedLength();
-  }
-
-  public FieldElementPrg getLocalSampler() {
-    return resourcePool.getLocalSampler();
-  }
-
-  public FieldElementSerializer getFieldElementSerializer() {
-    return resourcePool.getFieldElementSerializer();
-  }
-
-  public StrictBitVectorSerializer getStrictBitVectorSerializer() {
-    return resourcePool.getStrictBitVectorSerializer();
-  }
-
-  public ByteSerializer<HashBasedCommitment> getCommitmentSerializer() {
-    return resourcePool.getCommitmentSerializer();
   }
 
   public Network getNetwork() {

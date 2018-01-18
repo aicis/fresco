@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 
 /**
  * Actively-secure protocol for computing authenticated, secret-shared multiplication triples based
- * on the MASCOT protocol (https://eprint.iacr.org/2016/505.pdf).
+ * on the MASCOT protocol (<a href="https://eprint.iacr.org/2016/505.pdf">https://eprint.iacr.org/2016/505.pdf</a>).
  *
  * <p>In particular, produces random, authenticated, secret-shared triples of the form a, b, c such
  * that <i>a * b = c</i>. This protocol is refered to as <i>&Pi;<sub>Triple</sub></i> and listed as
@@ -42,6 +42,12 @@ public class TripleGeneration extends BaseProtocol {
     super(resourcePool, network);
     this.leftMultipliers = new HashMap<>();
     this.rightMultipliers = new HashMap<>();
+    initializeMultipliers(resourcePool, network);
+    this.elementGeneration = elementGeneration;
+    this.jointSampler = jointSampler;
+  }
+
+  private void initializeMultipliers(MascotResourcePool resourcePool, Network network) {
     for (Integer partyId : getPartyIds()) {
       if (partyId != getMyId()) {
         if (getMyId() < partyId) {
@@ -57,8 +63,6 @@ public class TripleGeneration extends BaseProtocol {
         }
       }
     }
-    this.elementGeneration = elementGeneration;
-    this.jointSampler = jointSampler;
   }
 
   TripleGeneration(MascotResourcePool resourcePool, Network network, FieldElementPrg jointSampler,
@@ -68,7 +72,9 @@ public class TripleGeneration extends BaseProtocol {
   }
 
   /**
-   * Generates numTriples multiplication triples in a batch.
+   * Generates numTriples multiplication triples in a batch. <p>Implements Protocol 4 (all steps).
+   * Note that while the paper describes a protocol for generating a single triple, this
+   * implementation produces a batch of multiplication triples.</p>
    *
    * @param numTriples number of triples to generate
    * @return valid multiplication triples
@@ -83,38 +89,44 @@ public class TripleGeneration extends BaseProtocol {
     // compute product groups
     List<FieldElement> productGroups = multiply(leftFactorGroups, rightFactors);
     // combine into unauthenticated triples
-    List<UnauthTriple> unauthTriples =
-        toUnauthTriple(leftFactorGroups, rightFactors, productGroups);
+    List<UnauthenticatedTriple> unauthTriples =
+        toUnauthenticatedTriple(leftFactorGroups, rightFactors, productGroups);
     // combine unauthenticated triples into unauthenticated triple candidates
-    List<UnauthCand> candidates = combine(unauthTriples);
+    List<UnauthenticatedCandidate> candidates = combine(unauthTriples);
     // use el-gen to input candidates and combine them to the authenticated candidates
-    List<AuthCand> authenticated = authenticate(candidates);
+    List<AuthenticatedCandidate> authenticated = authenticate(candidates);
     // for each candidate, run sacrifice and get valid triple
     List<MultTriple> triples = sacrifice(authenticated);
     // return valid triples
     return triples;
   }
 
-  List<UnauthTriple> toUnauthTriple(List<FieldElement> left, List<FieldElement> right,
-      List<FieldElement> prods) {
-    Stream<UnauthTriple> stream = IntStream.range(0, right.size()).mapToObj(idx -> {
-      int groupStart = idx * getNumCandidatesPerTriple();
-      int groupEnd = (idx + 1) * getNumCandidatesPerTriple();
-      return new UnauthTriple(left.subList(groupStart, groupEnd), right.get(idx),
-          prods.subList(groupStart, groupEnd));
-    });
-    return stream.collect(Collectors.toList());
-  }
-
+  /**
+   * Computes the unauthenticated, secret-shared products of leftFactorGroups and rightFactors.
+   * <p>Implements batched version of Multiply sub-protocol of Protocol 4.</p> <p>Note that for each
+   * right factor, there are multiple left factors (the number of left factors depends on the
+   * security parameter {@link MascotResourcePool#getNumCandidatesPerTriple()}).</p> <p>For
+   * instance, given two right factors <i>r<sub>0</sub></i>, <i>r<sub>1</sub></i> and corresponding
+   * left factor groups (each group of size 2) <i>l<sub>0,0</sub></i>, <i>l<sub>0,1</sub></i>,
+   * <i>l<sub>1,0</sub></i>, <i>l<sub>1,1</sub></i></p>, the result will be <i>r<sub>0</sub></i> *
+   * <i> l<sub>0,0</sub></i>, <i>r<sub>0</sub></i> * <i>l<sub>0,1</sub></i>, <i>r<sub>1</sub></i> *
+   * <i>l<sub>1,0</sub></i>, <i>r<sub>1</sub></i> * <i>l<sub>1,1</sub></i></p>
+   *
+   * @param leftFactorGroups the left factors going into product evaluation. Note that these are
+   * referred to as groups since there are multiple (numLeftFactors) left factors per right factor.
+   * @param rightFactors the right factors going into product evaluation.
+   * @return unauthenticated product shares
+   */
   List<FieldElement> multiply(List<FieldElement> leftFactorGroups,
       List<FieldElement> rightFactors) {
+    // step 1 of protocol occurred before this method
     // "stretch" right factors, so we have one right factor for each left factor
     List<FieldElement> stretched =
         getFieldElementUtils().stretch(rightFactors, getNumCandidatesPerTriple());
 
+    // step 2 of protocol
     // for each value we will have two sub-factors for each other party
     List<List<FieldElement>> subFactors = new ArrayList<>();
-
     for (Integer partyId : getPartyIds()) {
       if (!partyId.equals(getMyId())) {
         MultiplyLeft leftMult = leftMultipliers.get(partyId);
@@ -129,17 +141,21 @@ public class TripleGeneration extends BaseProtocol {
       }
     }
 
+    // step 3 or protocol
     // own part of the product
     List<FieldElement> localSubFactors =
         getFieldElementUtils().pairWiseMultiply(leftFactorGroups, stretched);
     subFactors.add(localSubFactors);
 
     // combine all sub-factors into product shares
-    List<FieldElement> productShares = getFieldElementUtils().sumRows(subFactors);
-    return productShares;
+    return getFieldElementUtils().sumRows(subFactors);
   }
 
-  List<UnauthCand> combine(List<UnauthTriple> triples) {
+  /**
+   * Implements batched version of Combine sub-protocol of Protocol 4.
+   */
+  private List<UnauthenticatedCandidate> combine(List<UnauthenticatedTriple> triples) {
+    // step 1 of protocol
     int numTriples = triples.size();
 
     List<List<FieldElement>> masks = jointSampler.getNext(getModulus(), getModBitLength(),
@@ -148,27 +164,24 @@ public class TripleGeneration extends BaseProtocol {
     List<List<FieldElement>> sacrificeMasks = jointSampler.getNext(getModulus(), getModBitLength(),
         numTriples, getNumCandidatesPerTriple());
 
-    List<UnauthCand> candidates = IntStream.range(0, numTriples).mapToObj(idx -> {
-      UnauthTriple triple = triples.get(idx);
-      List<FieldElement> m = masks.get(idx);
-      List<FieldElement> ms = sacrificeMasks.get(idx);
-      return triple.toCandidate(m, ms);
-    }).collect(Collectors.toList());
-
-    return candidates;
+    // step 2 of protocol
+    return IntStream.range(0, numTriples)
+        .mapToObj(idx -> {
+          UnauthenticatedTriple triple = triples.get(idx);
+          List<FieldElement> m = masks.get(idx);
+          List<FieldElement> ms = sacrificeMasks.get(idx);
+          return triple.toCandidate(m, ms);
+        })
+        .collect(Collectors.toList());
   }
 
-  List<AuthCand> toAuthenticatedCand(List<AuthenticatedElement> list, int partSize) {
-    int numParts = list.size() / partSize;
-    return IntStream.range(0, numParts).mapToObj(idx -> {
-      List<AuthenticatedElement> batch = list.subList(idx * partSize, (idx + 1) * partSize);
-      return new AuthCand(batch);
-    }).collect(Collectors.toList());
-  }
-
-  List<AuthCand> authenticate(List<UnauthCand> candidates) {
-    List<FieldElement> flatInputs =
-        candidates.stream().flatMap(TripleCandidate::stream).collect(Collectors.toList());
+  /**
+   * Implements batched version of Authenticate sub-protocol of Protocol 4.
+   */
+  private List<AuthenticatedCandidate> authenticate(List<UnauthenticatedCandidate> candidates) {
+    List<FieldElement> flatInputs = candidates.stream()
+        .flatMap(TripleCandidate::stream)
+        .collect(Collectors.toList());
 
     List<List<AuthenticatedElement>> shares = new ArrayList<>();
     for (Integer partyId : getPartyIds()) {
@@ -181,22 +194,78 @@ public class TripleGeneration extends BaseProtocol {
 
     List<AuthenticatedElement> combined =
         new ArithmeticCollectionUtils<AuthenticatedElement>().sumRows(shares);
-    return toAuthenticatedCand(combined, 5);
+    return toAuthenticatedCandidate(combined, 5);
   }
 
-  List<AuthenticatedElement> computeRhos(List<AuthCand> candidates, List<FieldElement> masks) {
+  /**
+   * Implements batched version of Sacrifice sub-protocol of Protocol 4.
+   */
+  private List<MultTriple> sacrifice(List<AuthenticatedCandidate> candidates) {
+    // step 1 or protocol
+    List<FieldElement> randomCoefficients = jointSampler
+        .getNext(getModulus(), getModBitLength(), candidates.size());
+
+    // step 2
+    // compute masked values we will open and use in mac-check
+    List<AuthenticatedElement> rhos = computeRhos(candidates, randomCoefficients);
+
+    // step 3
+    // open masked values
+    List<FieldElement> openRhos = elementGeneration.open(rhos);
+
+    // step 4
+    // compute macs
+    List<AuthenticatedElement> sigmas = computeSigmas(candidates, randomCoefficients, openRhos);
+
+    // step 5
+    // put rhos and sigmas together
+    rhos.addAll(sigmas);
+    // pad open rhos with zeroes, one for each sigma
+    List<FieldElement> paddedRhos = getFieldElementUtils().padWith(openRhos,
+        new FieldElement(0, getModulus(), getModBitLength()), sigmas.size());
+    // run mac-check
+    elementGeneration.check(rhos, paddedRhos);
+
+    // convert candidates to valid triples and return
+    return toMultTriples(candidates);
+  }
+
+  private List<UnauthenticatedTriple> toUnauthenticatedTriple(List<FieldElement> left,
+      List<FieldElement> right,
+      List<FieldElement> products) {
+    Stream<UnauthenticatedTriple> stream = IntStream.range(0, right.size()).mapToObj(idx -> {
+      int groupStart = idx * getNumCandidatesPerTriple();
+      int groupEnd = (idx + 1) * getNumCandidatesPerTriple();
+      return new UnauthenticatedTriple(left.subList(groupStart, groupEnd), right.get(idx),
+          products.subList(groupStart, groupEnd));
+    });
+    return stream.collect(Collectors.toList());
+  }
+
+  private List<AuthenticatedCandidate> toAuthenticatedCandidate(List<AuthenticatedElement> list,
+      int partSize) {
+    int numParts = list.size() / partSize;
+    return IntStream.range(0, numParts).mapToObj(idx -> {
+      List<AuthenticatedElement> batch = list.subList(idx * partSize, (idx + 1) * partSize);
+      return new AuthenticatedCandidate(batch);
+    }).collect(Collectors.toList());
+  }
+
+  private List<AuthenticatedElement> computeRhos(List<AuthenticatedCandidate> candidates,
+      List<FieldElement> masks) {
     List<AuthenticatedElement> rhos = IntStream.range(0, candidates.size()).mapToObj(idx -> {
-      AuthCand cand = candidates.get(idx);
+      AuthenticatedCandidate cand = candidates.get(idx);
       FieldElement mask = masks.get(idx);
       return cand.computeRho(mask);
     }).collect(Collectors.toList());
     return rhos;
   }
 
-  List<AuthenticatedElement> computeSigmas(List<AuthCand> candidates, List<FieldElement> masks,
+  private List<AuthenticatedElement> computeSigmas(List<AuthenticatedCandidate> candidates,
+      List<FieldElement> masks,
       List<FieldElement> openRhos) {
     List<AuthenticatedElement> sigmas = IntStream.range(0, candidates.size()).mapToObj(idx -> {
-      AuthCand cand = candidates.get(idx);
+      AuthenticatedCandidate cand = candidates.get(idx);
       FieldElement mask = masks.get(idx);
       FieldElement openRho = openRhos.get(idx);
       return cand.computeSigma(openRho, mask);
@@ -204,44 +273,22 @@ public class TripleGeneration extends BaseProtocol {
     return sigmas;
   }
 
-  List<MultTriple> toMultTriples(List<AuthCand> candidates) {
-    return candidates.stream().map(AuthCand::toTriple).collect(Collectors.toList());
+  private List<MultTriple> toMultTriples(List<AuthenticatedCandidate> candidates) {
+    return candidates.stream().map(AuthenticatedCandidate::toTriple).collect(Collectors.toList());
   }
 
-  List<MultTriple> sacrifice(List<AuthCand> candidates) {
-    List<FieldElement> masks =
-        jointSampler.getNext(getModulus(), getModBitLength(), candidates.size());
+  /**
+   * Represents single unauthenticated multiplication triple. <p>Contains a single left factor group
+   * <b>a</b>, single right factor <i>b</i>, and product group <b>c</b>. An unauthenticated triple
+   * will go into the Combine sub-protocol of Protocol 4.</p>
+   */
+  private final class UnauthenticatedTriple {
 
-    // compute masked values we will open and use in mac-check
-    List<AuthenticatedElement> rhos = computeRhos(candidates, masks);
-
-    // open masked values
-    List<FieldElement> openRhos = elementGeneration.open(rhos);
-
-    // compute macs
-    List<AuthenticatedElement> sigmas = computeSigmas(candidates, masks, openRhos);
-
-    // put rhos and sigmas together
-    rhos.addAll(sigmas);
-
-    // pad open rhos with zeroes, one for each sigma
-    List<FieldElement> paddedRhos = getFieldElementUtils().padWith(openRhos,
-        new FieldElement(0, getModulus(), getModBitLength()), sigmas.size());
-
-    // run mac-check
-    // TODO check if we can avoid re-masking
-    elementGeneration.check(rhos, paddedRhos);
-
-    // convert candidates to valid triples and return
-    return toMultTriples(candidates);
-  }
-
-  private final class UnauthTriple {
     private final List<FieldElement> leftFactors;
     private final FieldElement rightFactor;
     private final List<FieldElement> product;
 
-    public UnauthTriple(List<FieldElement> leftFactors, FieldElement rightFactor,
+    public UnauthenticatedTriple(List<FieldElement> leftFactors, FieldElement rightFactor,
         List<FieldElement> product) {
       super();
       this.leftFactors = leftFactors;
@@ -249,21 +296,60 @@ public class TripleGeneration extends BaseProtocol {
       this.product = product;
     }
 
-    UnauthCand toCandidate(List<FieldElement> masks, List<FieldElement> sacrificeMasks) {
+    UnauthenticatedCandidate toCandidate(List<FieldElement> masks,
+        List<FieldElement> sacrificeMasks) {
       FieldElement left = getFieldElementUtils().innerProduct(leftFactors, masks);
       FieldElement prod = getFieldElementUtils().innerProduct(product, masks);
       FieldElement leftSac = getFieldElementUtils().innerProduct(leftFactors, sacrificeMasks);
       FieldElement prodSac = getFieldElementUtils().innerProduct(product, sacrificeMasks);
-      return new UnauthCand(left, rightFactor, prod, leftSac, prodSac);
+      return new UnauthenticatedCandidate(left, rightFactor, prod, leftSac, prodSac);
+    }
+  }
+
+  /**
+   * Represents single unauthenticated triple candidate (<i>a</i>, <i>b</i>, <i>c</i>, <i>a'</i>,
+   * <i>c'</i>). <p>An unauthenticated triple candidate is the input to the authentication
+   * sub-protocol of Protocol 4.</p>
+   */
+  private final class UnauthenticatedCandidate extends TripleCandidate<FieldElement> {
+
+    UnauthenticatedCandidate(FieldElement leftFactor, FieldElement rightFactor,
+        FieldElement product, FieldElement leftFactorHat, FieldElement productHat) {
+      super(leftFactor, rightFactor, product, leftFactorHat, productHat);
+    }
+  }
+
+  /**
+   * Represents single authenticated triple candidate (<i>[[a]]</i>, <i>[[b]]</i>, <i>[[c]]</i>,
+   * <i>[[a']]</i>, <i>[[c']]</i>). <p>Note <i>[[a']]</i>, <i>[[c']]</i> in the Sacrifice
+   * sub-protocol of Protocol 4.</p>
+   */
+  private final class AuthenticatedCandidate extends TripleCandidate<AuthenticatedElement> {
+
+    AuthenticatedCandidate(List<AuthenticatedElement> ordered) {
+      super(ordered);
+    }
+
+    AuthenticatedElement computeRho(FieldElement mask) {
+      return leftFactor.multiply(mask).subtract(leftFactorHat);
+    }
+
+    AuthenticatedElement computeSigma(FieldElement openRho, FieldElement mask) {
+      return product.multiply(mask).subtract(productHat).subtract(rightFactor.multiply(openRho));
+    }
+
+    MultTriple toTriple() {
+      return new MultTriple(leftFactor, rightFactor, product);
     }
   }
 
   private class TripleCandidate<T> {
-    protected final T leftFactor;
-    protected final T rightFactor;
-    protected final T product;
-    protected final T leftFactorHat;
-    protected final T productHat;
+
+    final T leftFactor;
+    final T rightFactor;
+    final T product;
+    final T leftFactorHat;
+    final T productHat;
 
     TripleCandidate(T leftFactor, T rightFactor, T product, T leftFactorHat, T productHat) {
       this.leftFactor = leftFactor;
@@ -279,31 +365,6 @@ public class TripleGeneration extends BaseProtocol {
 
     Stream<T> stream() {
       return Stream.of(leftFactor, rightFactor, product, leftFactorHat, productHat);
-    }
-  }
-
-  private final class UnauthCand extends TripleCandidate<FieldElement> {
-    UnauthCand(FieldElement leftFactor, FieldElement rightFactor, FieldElement product,
-        FieldElement leftFactorHat, FieldElement productHat) {
-      super(leftFactor, rightFactor, product, leftFactorHat, productHat);
-    }
-  }
-
-  private final class AuthCand extends TripleCandidate<AuthenticatedElement> {
-    public AuthCand(List<AuthenticatedElement> ordered) {
-      super(ordered);
-    }
-
-    public AuthenticatedElement computeRho(FieldElement mask) {
-      return leftFactor.multiply(mask).subtract(leftFactorHat);
-    }
-
-    public AuthenticatedElement computeSigma(FieldElement openRho, FieldElement mask) {
-      return product.multiply(mask).subtract(productHat).subtract(rightFactor.multiply(openRho));
-    }
-
-    public MultTriple toTriple() {
-      return new MultTriple(leftFactor, rightFactor, product);
     }
   }
 

@@ -6,8 +6,8 @@ import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
-import dk.alexandra.fresco.tools.helper.TestHelper;
-import dk.alexandra.fresco.tools.helper.TestRuntime;
+import dk.alexandra.fresco.tools.helper.HelperForTests;
+import dk.alexandra.fresco.tools.helper.RuntimeForTests;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
 
 import java.nio.ByteBuffer;
@@ -35,10 +35,10 @@ public class OtExtensionTestContext {
    */
   public OtExtensionTestContext(int myId, int otherId, int kbitLength,
       int lambdaSecurityParam) {
-    this.network = new CheatingNetwork(TestRuntime.defaultNetworkConfiguration(
+    this.network = new CheatingNetwork(RuntimeForTests.defaultNetworkConfiguration(
         myId, Arrays.asList(1, 2)));
     DummyOt dummyOt = new DummyOt(otherId, network);
-    Drbg rand = new AesCtrDrbg(TestHelper.seedOne);
+    Drbg rand = new AesCtrDrbg(HelperForTests.seedOne);
     this.seedOts = new RotList(rand, kbitLength);
     if (myId < otherId) {
       this.seedOts.send(dummyOt);
@@ -82,9 +82,9 @@ public class OtExtensionTestContext {
    * @return A new randomness generator unique for {@code instanceId}
    */
   public Drbg createRand(int instanceId) {
-    ByteBuffer idBuffer = ByteBuffer.allocate(TestHelper.seedOne.length);
+    ByteBuffer idBuffer = ByteBuffer.allocate(HelperForTests.seedOne.length);
     byte[] seedBytes = idBuffer.putInt(instanceId).array();
-    ByteArrayHelper.xor(seedBytes, TestHelper.seedOne);
+    ByteArrayHelper.xor(seedBytes, HelperForTests.seedOne);
     // TODO make sure this is okay!
     return new PaddingAesCtrDrbg(seedBytes);
   }

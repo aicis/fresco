@@ -34,7 +34,7 @@ public class TestBitConverter extends NetworkedTest {
             elementGeneration, prg),
         elementGeneration, macKeyShare);
     BitConverter bitConverter = new BitConverter(ctx.getResourcePool(), ctx.getNetwork(),
-        elementGeneration, onlinePhase, macKeyShare);
+        onlinePhase, macKeyShare);
     List<AuthenticatedElement> closed = (ctx.getMyId() == 1) ? elementGeneration.input(randomValues)
         : elementGeneration.input(1, randomValues.size());
     List<AuthenticatedElement> bits = bitConverter.convertToBits(closed);

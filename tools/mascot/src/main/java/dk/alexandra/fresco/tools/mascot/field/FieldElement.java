@@ -97,8 +97,8 @@ public final class FieldElement implements Addable<FieldElement> {
   }
 
   /**
-   * Converts value into byte array. <br>
-   * Result is guaranteed to exactly bitLength / 8 long.
+   * Converts value into byte array. <p>Result is guaranteed to be exactly bitLength / 8 long
+   * (truncates if underlying BigInteger value "overflows"). Result is in big-endian order. </p>
    *
    * @return byte representation of value
    */
