@@ -10,10 +10,8 @@ import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Random;
-
 import org.junit.Test;
 
-// TODO a test that asserts the that result looks "random" as a sanity check?
 public class TestPaddingPrg {
 
   private final BigInteger modulus = new BigInteger("340282366920938463463374607431768211297");
@@ -28,6 +26,16 @@ public class TestPaddingPrg {
     FieldElement el = prg.getNext(modulus, modBitLength);
     assertEquals(modulus, el.getModulus());
     assertEquals(modBitLength, el.getBitLength());
+  }
+
+  @Test
+  public void testGetNextProducesNonZeroResult() {
+    byte[] seedBytes = new byte[32];
+    new Random().nextBytes(seedBytes);
+    StrictBitVector seed = new StrictBitVector(seedBytes);
+    FieldElementPrg prg = new FieldElementPrgImpl(seed);
+    FieldElement el = prg.getNext(modulus, modBitLength);
+    assertFalse(el.isZero());
   }
 
   @Test

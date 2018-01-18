@@ -18,12 +18,9 @@ public class BroadcastValidation extends BaseProtocol {
   }
 
   /**
-   * Computes digest of messages of messages and resets md.
-   * 
-   * @param messages
-   * @return
+   * Computes digest of messages and resets md.
    */
-  byte[] computeDigest(List<byte[]> messages) {
+  private byte[] computeDigest(List<byte[]> messages) {
     for (byte[] message : messages) {
       getMessageDigest().update(message);
     }
@@ -34,11 +31,12 @@ public class BroadcastValidation extends BaseProtocol {
 
   /**
    * Compares all other digests with own digest and throws if any are not equal.
-   * 
+   *
    * @param ownDigest hash of messages sent
    * @param otherDigests hashes received from other parties
+   * @throws MaliciousException if validation fails
    */
-  void validateDigests(byte[] ownDigest, List<byte[]> otherDigests) {
+  private void validateDigests(byte[] ownDigest, List<byte[]> otherDigests) {
     for (byte[] otherDigest : otherDigests) {
       if (!Arrays.equals(ownDigest, otherDigest)) {
         throw new MaliciousException("Broadcast validation failed");
@@ -48,7 +46,7 @@ public class BroadcastValidation extends BaseProtocol {
 
   /**
    * Performs broadcast validation on a list of messages.
-   * 
+   *
    * @param messages messages to validate
    */
   public void validate(List<byte[]> messages) {

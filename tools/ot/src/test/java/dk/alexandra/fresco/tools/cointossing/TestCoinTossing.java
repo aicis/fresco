@@ -10,8 +10,8 @@ import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.helper.TestHelper;
-import dk.alexandra.fresco.tools.helper.TestRuntime;
+import dk.alexandra.fresco.tools.helper.HelperForTests;
+import dk.alexandra.fresco.tools.helper.RuntimeForTests;
 import dk.alexandra.fresco.tools.ot.otextension.CheatingNetwork;
 
 import java.io.Closeable;
@@ -28,21 +28,21 @@ import org.junit.Test;
 public class TestCoinTossing {
   private CoinTossing ctOne;
   private CoinTossing ctTwo;
-  private TestRuntime testRuntime;
+  private RuntimeForTests testRuntime;
 
   private CoinTossing setupPartyOne() throws NoSuchAlgorithmException {
     Network network = new CheatingNetwork(
-        TestRuntime.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
+        RuntimeForTests.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     // To stress things we use HMAC for one party and AES for another
-    Drbg rand = new HmacDrbg(TestHelper.seedOne);
+    Drbg rand = new HmacDrbg(HelperForTests.seedOne);
     CoinTossing ct = new CoinTossing(1, 2, rand, network);
     return ct;
   }
 
   private CoinTossing setupPartyTwo() {
     Network network = new CheatingNetwork(
-        TestRuntime.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
-    Drbg rand = new AesCtrDrbg(TestHelper.seedTwo);
+        RuntimeForTests.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
+    Drbg rand = new AesCtrDrbg(HelperForTests.seedTwo);
     CoinTossing ct = new CoinTossing(2, 1, rand, network);
     return ct;
   }
@@ -70,7 +70,7 @@ public class TestCoinTossing {
    */
   @Before
   public void initializeRuntime() {
-    this.testRuntime = new TestRuntime();
+    this.testRuntime = new RuntimeForTests();
     // define task each party will run
     Callable<CoinTossing> partyOneTask = () -> setupPartyOne();
     Callable<CoinTossing> partyTwoTask = () -> setupPartyTwo();

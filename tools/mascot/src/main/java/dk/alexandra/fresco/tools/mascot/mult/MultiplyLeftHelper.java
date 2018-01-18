@@ -10,19 +10,14 @@ import java.util.List;
 
 /**
  * A helper class for multiplication-based protocols {@link dk.alexandra.fresco.tools.mascot.cope.CopeSigner}
- * and {@link MultiplyLeft}. These two classes share a lot functionality. This functionality is
- * implemented here.
+ * and the multiplication sub-protocol used by {@link dk.alexandra.fresco.tools.mascot.triple.TripleGeneration}.
+ * These two classes share a lot functionality. This functionality is implemented here.
  */
 public class MultiplyLeftHelper extends MultiplySharedHelper {
 
   public MultiplyLeftHelper(MascotResourcePool resourcePool,
-      Network network, Integer otherId, int numLeftFactors) {
-    super(resourcePool, network, otherId, numLeftFactors);
-  }
-
-  public MultiplyLeftHelper(MascotResourcePool resourcePool,
       Network network, Integer otherId) {
-    super(resourcePool, network, otherId, 1);
+    super(resourcePool, network, otherId);
   }
 
   /**
@@ -55,10 +50,10 @@ public class MultiplyLeftHelper extends MultiplySharedHelper {
    */
   public List<FieldElement> computeProductShares(List<FieldElement> leftFactors,
       List<FieldElement> feSeeds, List<FieldElement> diffs) {
-    List<FieldElement> result = new ArrayList<FieldElement>(leftFactors.size());
+    List<FieldElement> result = new ArrayList<>(leftFactors.size());
     int diffIdx = 0;
     for (FieldElement leftFactor : leftFactors) {
-      List<FieldElement> summands = new ArrayList<FieldElement>(getModBitLength());
+      List<FieldElement> summands = new ArrayList<>(getModBitLength());
       for (int b = 0; b < getModBitLength(); b++) {
         FieldElement feSeed = feSeeds.get(diffIdx);
         FieldElement diff = diffs.get(diffIdx);

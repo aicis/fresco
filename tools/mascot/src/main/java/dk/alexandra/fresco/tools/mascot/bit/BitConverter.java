@@ -3,7 +3,6 @@ package dk.alexandra.fresco.tools.mascot.bit;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.tools.mascot.BaseProtocol;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
-import dk.alexandra.fresco.tools.mascot.elgen.ElementGeneration;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.online.OnlinePhase;
@@ -15,18 +14,15 @@ import java.util.List;
  */
 public class BitConverter extends BaseProtocol {
 
-  private final ElementGeneration elementGeneration;
   private final OnlinePhase onlinePhase;
   private final FieldElement macKeyShare;
 
   /**
    * Creates new {@link BitConverter}.
    */
-  public BitConverter(MascotResourcePool resourcePool,
-      Network network, ElementGeneration elementGeneration, OnlinePhase onlinePhase,
+  public BitConverter(MascotResourcePool resourcePool, Network network, OnlinePhase onlinePhase,
       FieldElement macKeyShare) {
     super(resourcePool, network);
-    this.elementGeneration = elementGeneration;
     this.onlinePhase = onlinePhase;
     this.macKeyShare = macKeyShare;
   }
@@ -42,7 +38,8 @@ public class BitConverter extends BaseProtocol {
    */
   public List<AuthenticatedElement> convertToBits(List<AuthenticatedElement> randomElements) {
     List<AuthenticatedElement> squares = onlinePhase.multiply(randomElements, randomElements);
-    List<FieldElement> openSquares = elementGeneration.open(squares);
+    List<FieldElement> openSquares = onlinePhase.open(squares);
+    onlinePhase.triggerMacCheck();
     List<AuthenticatedElement> bits = new ArrayList<>(randomElements.size());
     for (int b = 0; b < randomElements.size(); b++) {
       FieldElement square = openSquares.get(b);

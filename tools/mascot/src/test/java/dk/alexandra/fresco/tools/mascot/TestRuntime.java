@@ -14,13 +14,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class TestRuntime {
-
-  private static final Logger logger = LoggerFactory.getLogger(TestRuntime.class);
 
   private Map<Integer, MascotTestContext> contexts;
   private ExecutorService executor;
@@ -34,7 +30,7 @@ public class TestRuntime {
     this.contexts = new HashMap<>();
     this.executor = null;
     this.executorInitialized = false;
-    this.timeout = 2000L;
+    this.timeout = 20L;
   }
 
   /**

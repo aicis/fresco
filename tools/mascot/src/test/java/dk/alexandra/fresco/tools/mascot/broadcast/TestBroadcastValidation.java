@@ -13,7 +13,6 @@ import java.util.concurrent.Callable;
 import org.junit.Test;
 
 
-// TODO cannot connect to other party failure
 public class TestBroadcastValidation extends NetworkedTest {
 
   private Pair<Boolean, Exception> runSinglePartyBroadcastValidation(MascotTestContext ctx,
@@ -38,7 +37,7 @@ public class TestBroadcastValidation extends NetworkedTest {
 
     // messages
     List<byte[]> messages =
-        Arrays.asList(new byte[] {0x00, 0x01}, new byte[] {0x02}, new byte[] {0x03});
+        Arrays.asList(new byte[]{0x00, 0x01}, new byte[]{0x02}, new byte[]{0x03});
 
     // define task each party will run
     Callable<Pair<Boolean, Exception>> partyOneTask =
@@ -63,9 +62,9 @@ public class TestBroadcastValidation extends NetworkedTest {
 
     // messages
     List<byte[]> messages =
-        Arrays.asList(new byte[] {0x00, 0x01}, new byte[] {0x02}, new byte[] {0x03});
+        Arrays.asList(new byte[]{0x00, 0x01}, new byte[]{0x02}, new byte[]{0x03});
     List<byte[]> badMessages =
-        Arrays.asList(new byte[] {0x00, 0x02}, new byte[] {0x02}, new byte[] {0x03});
+        Arrays.asList(new byte[]{0x00, 0x02}, new byte[]{0x02}, new byte[]{0x03});
 
     // define task each party will run
     Callable<Pair<Boolean, Exception>> partyOneTask =
@@ -94,9 +93,9 @@ public class TestBroadcastValidation extends NetworkedTest {
 
     // messages
     List<byte[]> messages =
-        Arrays.asList(new byte[] {0x00, 0x01}, new byte[] {0x02}, new byte[] {0x03});
+        Arrays.asList(new byte[]{0x00, 0x01}, new byte[]{0x02}, new byte[]{0x03});
     List<byte[]> badMessages =
-        Arrays.asList(new byte[] {0x00}, new byte[] {0x02}, new byte[] {0x03});
+        Arrays.asList(new byte[]{0x00}, new byte[]{0x02}, new byte[]{0x03});
 
     // define task each party will run
     Callable<Pair<Boolean, Exception>> partyOneTask =
@@ -125,9 +124,9 @@ public class TestBroadcastValidation extends NetworkedTest {
 
     // messages
     List<byte[]> messages =
-        Arrays.asList(new byte[] {0x00, 0x01}, new byte[] {0x02}, new byte[] {0x03});
+        Arrays.asList(new byte[]{0x00, 0x01}, new byte[]{0x02}, new byte[]{0x03});
     List<byte[]> badMessages =
-        Arrays.asList(new byte[] {0x00, 0x01}, new byte[] {0x03}, new byte[] {0x02});
+        Arrays.asList(new byte[]{0x00, 0x01}, new byte[]{0x03}, new byte[]{0x02});
 
     // define task each party will run
     Callable<Pair<Boolean, Exception>> partyOneTask =

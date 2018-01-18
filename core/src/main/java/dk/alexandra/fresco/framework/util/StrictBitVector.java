@@ -150,7 +150,7 @@ public class StrictBitVector {
     final int prime = 31;
     int result = 1;
     result = prime * result + Arrays.hashCode(bits);
-    result = prime * result + size;
+    // no need to include size parameter since it is derived directly from bits
     return result;
   }
 
@@ -169,9 +169,7 @@ public class StrictBitVector {
     if (!Arrays.equals(bits, other.bits)) {
       return false;
     }
-    if (size != other.size) {
-      return false;
-    }
+    // no need to check size parameter since it is derived directly from bits
     return true;
   }
 

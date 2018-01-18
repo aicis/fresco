@@ -27,11 +27,18 @@ public class MascotDemo {
 
   private final Mascot mascot;
   private final Closeable toClose;
+  private int networkBufferSize = 104856800;
+  private int modBitLength = 128;
+  private BigInteger modulus = ModulusFinder.findSuitableModulus(modBitLength);
+  private int lambdaSecurityParam = 128;
+  private int prgSeedLength = 256;
+  private int numLeftFactors = 3;
+  private int instanceId = 1;
 
   MascotDemo(Integer myId, List<Integer> partyIds) {
-    int bufferSize = 104856800;
     Network network =
-        new KryoNetNetwork(defaultNetworkConfiguration(myId, partyIds), bufferSize, false, 15000);
+        new KryoNetNetwork(defaultNetworkConfiguration(myId, partyIds), networkBufferSize, false,
+            15000);
     MascotResourcePool resourcePool = defaultResourcePool(myId, partyIds,
         network);
     FieldElement macKeyShare = resourcePool.getLocalSampler().getNext(
@@ -40,7 +47,7 @@ public class MascotDemo {
     mascot = new Mascot(resourcePool, network, macKeyShare);
   }
 
-  void run(int numIts, int numTriples) {
+  private void run(int numIts, int numTriples) {
     for (int i = 0; i < numIts; i++) {
       System.out.println("Generating another triple batch.");
       long startTime = System.currentTimeMillis();
@@ -64,13 +71,8 @@ public class MascotDemo {
     return new NetworkConfigurationImpl(myId, parties);
   }
 
-  MascotResourcePool defaultResourcePool(Integer myId, List<Integer> partyIds, Network network) {
-    int modBitLength = 128;
-    BigInteger modulus = ModulusFinder.findSuitableModulus(modBitLength);
-    int lambdaSecurityParam = 128;
-    int prgSeedLength = 256;
-    int numLeftFactors = 3;
-    int instanceId = 1;
+  private MascotResourcePool defaultResourcePool(Integer myId, List<Integer> partyIds,
+      Network network) {
     // generate random seed for local DRBG
     byte[] drbgSeed = new byte[prgSeedLength / 8];
     new SecureRandom().nextBytes(drbgSeed);

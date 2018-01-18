@@ -10,18 +10,17 @@ import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import dk.alexandra.fresco.tools.mascot.triple.TripleGeneration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 public class OnlinePhase extends BaseProtocol {
 
   private final TripleGeneration tripleGeneration;
   private final ElementGeneration elementGeneration;
   private final FieldElement macKeyShare;
+  private final OpenedValueStore openedValueStore;
 
   /**
    * Creates new {@link OnlinePhase}.
-   *
-   * @param resourcePool mascot resource pool
-   * @param network network
    */
   public OnlinePhase(MascotResourcePool resourcePool,
       Network network, TripleGeneration tripleGeneration, ElementGeneration elementGeneration,
@@ -30,6 +29,7 @@ public class OnlinePhase extends BaseProtocol {
     this.tripleGeneration = tripleGeneration;
     this.elementGeneration = elementGeneration;
     this.macKeyShare = macKeyShare;
+    this.openedValueStore = new OpenedValueStore();
   }
 
   /**
@@ -52,9 +52,8 @@ public class OnlinePhase extends BaseProtocol {
       epsilons.add(left.subtract(triple.getLeft()));
       deltas.add(right.subtract(triple.getRight()));
     }
-    // TODO do these values need to be checked when online output protocol is invoked?
-    List<FieldElement> openEpsilons = elementGeneration.open(epsilons);
-    List<FieldElement> openDeltas = elementGeneration.open(deltas);
+    List<FieldElement> openEpsilons = open(epsilons);
+    List<FieldElement> openDeltas = open(deltas);
     List<AuthenticatedElement> products = new ArrayList<>(leftFactors.size());
     for (int i = 0; i < leftFactors.size(); i++) {
       MultTriple triple = triples.get(i);
@@ -69,6 +68,50 @@ public class OnlinePhase extends BaseProtocol {
       products.add(product);
     }
     return products;
+  }
+
+  /**
+   * Runs open protocol and stores all opened values along with the macs for later validation.
+   */
+  public List<FieldElement> open(List<AuthenticatedElement> closed) {
+    List<FieldElement> opened = elementGeneration.open(closed);
+    openedValueStore.addValues(closed, opened);
+    return opened;
+  }
+
+  /**
+   * Manual way to initialize mac check on all unchecked values opened so far.
+   */
+  public void triggerMacCheck() {
+    openedValueStore.checkAllAndClear(elementGeneration::check);
+  }
+
+  /**
+   * A class that stores all opened values along with their macs and runs mac checks when required.
+   */
+  private class OpenedValueStore {
+
+    private final List<AuthenticatedElement> sharesWithMacs;
+    private final List<FieldElement> openedValues;
+
+    public OpenedValueStore() {
+      this.sharesWithMacs = new ArrayList<>();
+      this.openedValues = new ArrayList<>();
+    }
+
+    public void addValues(List<AuthenticatedElement> newSharesWithMacs,
+        List<FieldElement> newOpenedValues) {
+      this.sharesWithMacs.addAll(newSharesWithMacs);
+      this.openedValues.addAll(newOpenedValues);
+    }
+
+    public void checkAllAndClear(
+        BiConsumer<List<AuthenticatedElement>, List<FieldElement>> checker) {
+      checker.accept(this.sharesWithMacs, this.openedValues);
+      this.sharesWithMacs.clear();
+      this.openedValues.clear();
+    }
+
   }
 
 }

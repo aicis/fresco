@@ -1,7 +1,5 @@
 package dk.alexandra.fresco.tools.mascot;
 
-import static org.junit.Assert.assertEquals;
-
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
@@ -77,7 +75,7 @@ public class CustomAsserts {
    * @param expected expected authenticated element
    * @param actual actual authenticated element
    */
-  public static void assertEqualsMessaged(String message, AuthenticatedElement expected,
+  private static void assertEqualsMessaged(String message, AuthenticatedElement expected,
       AuthenticatedElement actual) {
     assertEqualsMessaged(" share mismatch " + message, expected.getShare(), actual.getShare());
     assertEqualsMessaged(" mac mismatch " + message, expected.getMac(), actual.getMac());
@@ -92,7 +90,7 @@ public class CustomAsserts {
    * @param expected expected field element
    * @param actual actual field element
    */
-  public static void assertEqualsMessaged(String message, FieldElement expected,
+  private static void assertEqualsMessaged(String message, FieldElement expected,
       FieldElement actual) {
     Assert.assertThat("Bit length mismatch" + message + " in " + actual, expected.getBitLength(),
         Is.is(actual.getBitLength()));

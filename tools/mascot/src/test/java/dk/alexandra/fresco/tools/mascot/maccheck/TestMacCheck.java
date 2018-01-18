@@ -14,10 +14,8 @@ import java.util.concurrent.Callable;
 
 import org.junit.Test;
 
-// TODO generalize to many parties
 public class TestMacCheck extends NetworkedTest {
 
-  // TODO as part of new testing framework, re-think how to test for exceptions
   private Pair<Boolean, Exception> runSinglePartyMacCheck(MascotTestContext ctx,
       FieldElement opened, FieldElement macKeyShare, FieldElement macShare) {
     MacCheck macChecker = new MacCheck(ctx.getResourcePool(), ctx.getNetwork());

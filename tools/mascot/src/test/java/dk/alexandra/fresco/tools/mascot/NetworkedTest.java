@@ -1,13 +1,9 @@
 package dk.alexandra.fresco.tools.mascot;
 
 import dk.alexandra.fresco.framework.util.ModulusFinder;
-import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrgImpl;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
-
 import org.junit.After;
 import org.junit.Before;
 
@@ -21,9 +17,10 @@ public abstract class NetworkedTest {
   protected int modBitLength;
   protected int lambdaSecurityParam;
   protected int numLeftFactors;
-  protected int prgSeedLength;
+  private int prgSeedLength;
 
-  NetworkedTest(BigInteger modulus, int modBitLength, int lambdaSecurity, int numLeftFactors,
+  private NetworkedTest(BigInteger modulus, int modBitLength, int lambdaSecurity,
+      int numLeftFactors,
       int prgSeedLength) {
     super();
     this.modulus = modulus;

@@ -44,15 +44,15 @@ public class CommitmentBasedInput<T> extends BaseProtocol {
    *
    * @param comm own commitment
    */
-  protected List<HashBasedCommitment> distributeCommitments(HashBasedCommitment comm) {
+  private List<HashBasedCommitment> distributeCommitments(HashBasedCommitment comm) {
     // broadcast own commitment
     broadcaster.sendToAll(getCommitmentSerializer().serialize(comm));
     // receive other parties' commitments from broadcast
     List<byte[]> rawComms = broadcaster.receiveFromAll();
     // parse
-    List<HashBasedCommitment> comms = rawComms.stream()
-        .map(raw -> getCommitmentSerializer().deserialize(raw)).collect(Collectors.toList());
-    return comms;
+    return rawComms.stream()
+        .map(getCommitmentSerializer()::deserialize)
+        .collect(Collectors.toList());
   }
 
   /**
@@ -60,7 +60,7 @@ public class CommitmentBasedInput<T> extends BaseProtocol {
    *
    * @param opening own opening info
    */
-  protected List<byte[]> distributeOpenings(byte[] opening) {
+  private List<byte[]> distributeOpenings(byte[] opening) {
     // send (over regular network) own opening info
     getNetwork().sendToAll(opening);
     // receive opening info from others
@@ -71,17 +71,18 @@ public class CommitmentBasedInput<T> extends BaseProtocol {
   /**
    * Attempts to open commitments using opening info, will throw if opening fails.
    *
-   * @param comms commitments
+   * @param commitments commitments
    * @param openings opening information
    * @return values from opened commitments
+   * @throws dk.alexandra.fresco.framework.MaliciousException if opening fails
    */
-  protected List<T> open(List<HashBasedCommitment> comms, List<byte[]> openings) {
-    if (comms.size() != openings.size()) {
+  protected List<T> open(List<HashBasedCommitment> commitments, List<byte[]> openings) {
+    if (commitments.size() != openings.size()) {
       throw new IllegalArgumentException("Lists must be same size");
     }
-    List<T> result = new ArrayList<>(comms.size());
-    for (int i = 0; i < comms.size(); i++) {
-      HashBasedCommitment comm = comms.get(i);
+    List<T> result = new ArrayList<>(commitments.size());
+    for (int i = 0; i < commitments.size(); i++) {
+      HashBasedCommitment comm = commitments.get(i);
       byte[] opening = openings.get(i);
       T el = serializer.deserialize(comm.open(opening));
       result.add(el);
@@ -105,7 +106,6 @@ public class CommitmentBasedInput<T> extends BaseProtocol {
 
     // all parties commit
     List<HashBasedCommitment> comms = distributeCommitments(ownComm);
-    ;
 
     // all parties send opening info
     List<byte[]> openings = distributeOpenings(ownOpening);
