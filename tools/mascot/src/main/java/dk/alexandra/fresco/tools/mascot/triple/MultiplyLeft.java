@@ -1,10 +1,11 @@
-package dk.alexandra.fresco.tools.mascot.mult;
+package dk.alexandra.fresco.tools.mascot.triple;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.TwoPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeftHelper;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
  * the functionality of the left party. For the other side, see {@link MultiplyRight}. The resulting
  * product is secret-shared among the two parties.
  */
-public class MultiplyLeft extends TwoPartyProtocol {
+class MultiplyLeft extends TwoPartyProtocol {
 
   private final MultiplyLeftHelper multiplyLeftHelper;
 

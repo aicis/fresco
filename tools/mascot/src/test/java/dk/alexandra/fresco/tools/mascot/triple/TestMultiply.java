@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.tools.mascot.mult;
+package dk.alexandra.fresco.tools.mascot.triple;
 
 import static org.junit.Assert.assertEquals;
 
@@ -10,6 +10,8 @@ import dk.alexandra.fresco.tools.mascot.arithm.ArithmeticCollectionUtils;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementUtils;
 
+import dk.alexandra.fresco.tools.mascot.triple.MultiplyLeft;
+import dk.alexandra.fresco.tools.mascot.triple.MultiplyRight;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;

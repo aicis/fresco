@@ -10,8 +10,8 @@ import java.util.List;
 
 /**
  * A helper class for multiplication-based protocols {@link dk.alexandra.fresco.tools.mascot.cope.CopeSigner}
- * and {@link MultiplyLeft}. These two classes share a lot functionality. This functionality is
- * implemented here.
+ * and the multiplication sub-protocol used by {@link dk.alexandra.fresco.tools.mascot.triple.TripleGeneration}.
+ * These two classes share a lot functionality. This functionality is implemented here.
  */
 public class MultiplyLeftHelper extends MultiplySharedHelper {
 
