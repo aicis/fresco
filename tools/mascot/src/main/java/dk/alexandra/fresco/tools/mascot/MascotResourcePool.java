@@ -11,16 +11,8 @@ import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import java.security.MessageDigest;
-import java.util.List;
 
 public interface MascotResourcePool extends NumericResourcePool {
-
-  /**
-   * Gets the party ids.
-   *
-   * @return party ids
-   */
-  List<Integer> getPartyIds();
 
   /**
    * Returns the instance ID which is unique for this particular resource pool object, but only in the

@@ -65,7 +65,7 @@ public class ElementGeneration extends BaseProtocol {
     values.add(extraElement);
 
     // inputter secret-shares input values (step 2)
-    List<FieldElement> shares = secretShare(values, getPartyIds().size());
+    List<FieldElement> shares = secretShare(values, getNoOfParties());
 
     // compute per element mac share (steps 3, 4, 5)
     List<FieldElement> macs = macValues(values);
@@ -206,10 +206,9 @@ public class ElementGeneration extends BaseProtocol {
     List<List<FieldElement>> allShares =
         values.stream().map(value -> sharer.share(value, numShares)).collect(Collectors.toList());
     List<List<FieldElement>> byParty = getFieldElementUtils().transpose(allShares);
-    for (Integer partyId : getPartyIds()) {
+    for (int partyId = 1; partyId <= getNoOfParties(); partyId++) {
       // send shares to everyone but self
-      if (!partyId.equals(getMyId())) {
-        // assume party ids go from 1...n
+      if (partyId != getMyId()) {
         List<FieldElement> shares = byParty.get(partyId - 1);
         getNetwork().send(partyId, getFieldElementSerializer().serialize(shares));
       }
@@ -253,7 +252,7 @@ public class ElementGeneration extends BaseProtocol {
    * difference that the mac key share has already been sampled before this protocol runs).
    */
   private void initializeCope(MascotResourcePool resourcePool, Network network) {
-    for (Integer partyId : getPartyIds()) {
+    for (int partyId = 1; partyId <= getNoOfParties(); partyId++) {
       if (getMyId() != partyId) {
         CopeSigner signer;
         CopeInputter inputter;

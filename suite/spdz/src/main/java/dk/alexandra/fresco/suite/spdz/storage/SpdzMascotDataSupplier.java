@@ -20,12 +20,9 @@ import dk.alexandra.fresco.tools.ot.otextension.RotList;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayDeque;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -183,11 +180,9 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     if (mascot != null) {
       return;
     }
-    List<Integer> partyIds =
-        IntStream.range(1, numberOfPlayers + 1).boxed().collect(Collectors.toList());
     int numLeftFactors = 3;
     mascot = new Mascot(
-        new MascotResourcePoolImpl(myId, partyIds, instanceId, drbg, seedOts, getModulus(),
+        new MascotResourcePoolImpl(myId, numberOfPlayers, instanceId, drbg, seedOts, getModulus(),
             modBitLength, modBitLength, prgSeedLength, numLeftFactors), tripleNetwork.get(), ssk);
   }
 

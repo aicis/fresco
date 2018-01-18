@@ -9,7 +9,6 @@ import dk.alexandra.fresco.tools.mascot.field.FieldElementUtils;
 import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
 import java.math.BigInteger;
 import java.security.MessageDigest;
-import java.util.List;
 
 /**
  * Class that stores data and resources common across all MPC protocols.
@@ -44,7 +43,7 @@ public abstract class BaseProtocol {
     return resourcePool.getModBitLength();
   }
 
-  public int getLambdaSecurityParam() {
+  protected int getLambdaSecurityParam() {
     return resourcePool.getLambdaSecurityParam();
   }
 
@@ -52,7 +51,7 @@ public abstract class BaseProtocol {
     return resourcePool.getFieldElementSerializer();
   }
 
-  public FieldElementPrg getLocalSampler() {
+  protected FieldElementPrg getLocalSampler() {
     return resourcePool.getLocalSampler();
   }
 
@@ -68,20 +67,20 @@ public abstract class BaseProtocol {
     return resourcePool.getMessageDigest();
   }
 
-  public Drbg getRandomGenerator() {
+  protected Drbg getRandomGenerator() {
     return resourcePool.getRandomGenerator();
   }
 
-  public ByteSerializer<HashBasedCommitment> getCommitmentSerializer() {
+  protected ByteSerializer<HashBasedCommitment> getCommitmentSerializer() {
     return resourcePool.getCommitmentSerializer();
   }
 
-  public List<Integer> getPartyIds() {
-    return resourcePool.getPartyIds();
+  protected int getNumCandidatesPerTriple() {
+    return resourcePool.getNumCandidatesPerTriple();
   }
 
-  public int getNumCandidatesPerTriple() {
-    return resourcePool.getNumCandidatesPerTriple();
+  protected int getNoOfParties() {
+    return resourcePool.getNoOfParties();
   }
 
 }
