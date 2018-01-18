@@ -8,7 +8,7 @@ import dk.alexandra.fresco.tools.mascot.cope.CopeSigner;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.maccheck.MacCheck;
-import dk.alexandra.fresco.tools.mascot.utils.FieldElementPrg;
+import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

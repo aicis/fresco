@@ -62,6 +62,12 @@ public class TestFieldElementSerializer {
   // Negative tests
 
   @Test(expected = IllegalArgumentException.class)
+  public void testSerializeWrongModulusSingleElement() {
+    FieldElement element = new FieldElement(1, new BigInteger("251"));
+    serializer.serialize(element);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
   public void testSerializeWrongModulus() {
     int[] arr = {1, 42, 123, 111};
     List<FieldElement> elements = MascotTestUtils.generateSingleRow(arr, new BigInteger("251"));

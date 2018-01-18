@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.tools.mascot.utils;
+package dk.alexandra.fresco.tools.mascot.prg;
 
 import dk.alexandra.fresco.framework.util.Drng;
 import dk.alexandra.fresco.framework.util.DrngImpl;
