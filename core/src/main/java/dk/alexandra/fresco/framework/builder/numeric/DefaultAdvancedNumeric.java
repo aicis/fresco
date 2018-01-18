@@ -110,8 +110,7 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
 
   @Override
   public DRes<RandomAdditiveMask> additiveMask(int noOfBits) {
-    return builder.seq(new dk.alexandra.fresco.lib.compare.RandomAdditiveMask(
-        BuilderFactoryNumeric.MAGIC_SECURE_NUMBER, noOfBits));
+    return builder.seq(new dk.alexandra.fresco.lib.compare.RandomAdditiveMask(noOfBits));
   }
 
   @Override

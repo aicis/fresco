@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RightShiftResult;
+import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -38,7 +39,8 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
   public DRes<RightShiftResult> buildComputation(ProtocolBuilderNumeric sequential) {
     return sequential.seq((builder) -> {
       AdvancedNumeric additiveMaskBuilder = builder.advancedNumeric();
-      return additiveMaskBuilder.additiveMask(bitLength);
+      return additiveMaskBuilder
+          .additiveMask(bitLength + BuilderFactoryNumeric.MAGIC_SECURE_NUMBER);
     }).pairInPar((parSubSequential, randomAdditiveMask) -> {
       BigInteger two = BigInteger.valueOf(2);
       Numeric numericBuilder = parSubSequential.numeric();
