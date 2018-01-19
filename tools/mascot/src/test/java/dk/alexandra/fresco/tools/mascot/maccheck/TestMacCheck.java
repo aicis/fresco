@@ -7,11 +7,9 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.tools.mascot.MascotTestContext;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
-
 import org.junit.Test;
 
 public class TestMacCheck extends NetworkedTest {
@@ -120,19 +118,18 @@ public class TestMacCheck extends NetworkedTest {
 
   @Test
   public void testTwoPartiesValidMacCheck() {
-    modulus = new BigInteger("65521");
     // two parties run this
     initContexts(Arrays.asList(1, 2));
 
     // left party inputs
     FieldElement macKeyShareOne = new FieldElement(11231, modulus);
     FieldElement openedOne = new FieldElement(42, modulus);
-    FieldElement macShareOne = new FieldElement(4444, modulus);
+    FieldElement macShareOne = new FieldElement(9000, modulus);
 
     // right party inputs
     FieldElement macKeyShareTwo = new FieldElement(7719, modulus);
     FieldElement openedTwo = new FieldElement(42, modulus);
-    FieldElement macShareTwo = new FieldElement(5204, modulus);
+    FieldElement macShareTwo = new FieldElement(672, modulus);
 
     // define task each party will run
     Callable<Pair<Boolean, Exception>> partyOneTask =
@@ -143,7 +140,6 @@ public class TestMacCheck extends NetworkedTest {
     List<Pair<Boolean, Exception>> results =
         testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
 
-    // the above mac check fails since 4444 + 5204 = (11231 + 7719) * 42
     for (Pair<Boolean, Exception> res : results) {
       assertEquals(res.getFirst(), false);
     }
@@ -151,20 +147,19 @@ public class TestMacCheck extends NetworkedTest {
 
   @Test
   public void testThreePartyValidMacCheck() {
-    modulus = new BigInteger("65521");
     initContexts(Arrays.asList(1, 2, 3));
 
     FieldElement openedOne = new FieldElement(42, modulus);
     FieldElement macKeyShareOne = new FieldElement(11231, modulus);
-    FieldElement macShareOne = new FieldElement(4444, modulus);
+    FieldElement macShareOne = new FieldElement(9000, modulus);
 
     FieldElement openedTwo = new FieldElement(42, modulus);
     FieldElement macKeyShareTwo = new FieldElement(7719, modulus);
-    FieldElement macShareTwo = new FieldElement(5204, modulus);
+    FieldElement macShareTwo = new FieldElement(700, modulus);
 
     FieldElement openedThree = new FieldElement(42, modulus);
     FieldElement macKeyShareThree = new FieldElement(1, modulus);
-    FieldElement macShareThree = new FieldElement(42, modulus);
+    FieldElement macShareThree = new FieldElement(14, modulus);
 
     // define task each party will run
     Callable<Pair<Boolean, Exception>> partyOneTask =
@@ -177,7 +172,6 @@ public class TestMacCheck extends NetworkedTest {
     List<Pair<Boolean, Exception>> results =
         testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask, partyThreeTask));
 
-    // the above mac check fails since 4444 + 5204 + 42 = (11231 + 7719 + 1) * 42
     for (Pair<Boolean, Exception> res : results) {
       assertEquals(false, res.getFirst());
     }

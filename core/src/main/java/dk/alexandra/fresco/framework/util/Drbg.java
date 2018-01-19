@@ -22,5 +22,5 @@ public interface Drbg {
    *
    * @param bytes The byte array which will be overwritten with random data.
    */
-  public void nextBytes(byte[] bytes);
+  void nextBytes(byte[] bytes);
 }

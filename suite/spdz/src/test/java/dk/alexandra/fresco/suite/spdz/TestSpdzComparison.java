@@ -3,7 +3,6 @@ package dk.alexandra.fresco.suite.spdz;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.lib.arithmetic.SortingTests;
 import dk.alexandra.fresco.lib.compare.CompareTests;
 import dk.alexandra.fresco.lib.list.EliminateDuplicatesTests.TestFindDuplicatesOne;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
@@ -52,30 +51,6 @@ public class TestSpdzComparison extends AbstractSpdzTest {
   @Test
   public void testCompareEQEdgeCasesSequential() {
     runTest(new CompareTests.TestCompareEQEdgeCases<>(), EvaluationStrategy.SEQUENTIAL,
-        PreprocessingStrategy.DUMMY, 2);
-  }
-
-  @Test
-  public void test_isSorted() {
-    runTest(new SortingTests.TestIsSorted<>(), EvaluationStrategy.SEQUENTIAL,
-        PreprocessingStrategy.DUMMY, 2);
-  }
-
-  @Test
-  public void test_compareAndSwap() {
-    runTest(new SortingTests.TestCompareAndSwap<>(), EvaluationStrategy.SEQUENTIAL,
-        PreprocessingStrategy.DUMMY, 2);
-  }
-
-  @Test
-  public void test_Sort() {
-    runTest(new SortingTests.TestSort<>(), EvaluationStrategy.SEQUENTIAL,
-        PreprocessingStrategy.DUMMY, 2);
-  }
-
-  @Test
-  public void test_Big_Sort() {
-    runTest(new SortingTests.TestBigSort<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2);
   }
 

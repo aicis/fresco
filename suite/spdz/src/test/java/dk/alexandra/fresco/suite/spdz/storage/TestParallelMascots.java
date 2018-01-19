@@ -8,6 +8,7 @@ import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.suite.spdz.KryoNetManager;
 import dk.alexandra.fresco.tools.mascot.Mascot;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePoolImpl;
+import dk.alexandra.fresco.tools.mascot.MascotSecurityParameters;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
@@ -35,10 +36,8 @@ import org.slf4j.LoggerFactory;
 
 public class TestParallelMascots {
 
-  private int modBitLength;
   private ExecutorService executorService;
-  private int prgSeedLength;
-  private int numLeftFactors;
+  private MascotSecurityParameters mascotSecurityParameters;
   private List<Integer> ports;
   private int noOfParties;
   private BigInteger modulus;
@@ -52,23 +51,15 @@ public class TestParallelMascots {
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(10000 + i * (noOfParties - 1));
     }
-    modBitLength = 128;
     executorService = Executors.newCachedThreadPool();
-    numLeftFactors = 3;
-    prgSeedLength = 256;
-    modulus = ModulusFinder.findSuitableModulus(modBitLength);
+    mascotSecurityParameters = new MascotSecurityParameters();
+    modulus = ModulusFinder.findSuitableModulus(mascotSecurityParameters.getModBitLength());
     iterations = 3;
   }
 
   @After
   public void tearDown() {
     executorService.shutdownNow();
-  }
-
-  @Test
-  public void testConstructorWithOtherModulus() throws Exception {
-    modulus = new BigInteger("340282366920938463463374607431768211297");
-    constructMascot();
   }
 
   @Test
@@ -81,7 +72,7 @@ public class TestParallelMascots {
     for (int otherId = 1; otherId <= noOfParties; otherId++) {
       if (otherId != myId) {
         Ot ot = new DummyOt(otherId, network);
-        RotList currentSeedOts = new RotList(drbg, prgSeedLength);
+        RotList currentSeedOts = new RotList(drbg, mascotSecurityParameters.getPrgSeedLength());
         if (myId < otherId) {
           currentSeedOts.send(ot);
           currentSeedOts.receive(ot);
@@ -112,14 +103,14 @@ public class TestParallelMascots {
     Map<Integer, FieldElement> macKeyShares = new HashMap<>();
     for (int myId = 1; myId <= noOfParties; myId++) {
       FieldElement ssk = SpdzMascotDataSupplier
-          .createRandomSsk(modulus, prgSeedLength);
+          .createRandomSsk(modulus, mascotSecurityParameters.getPrgSeedLength());
       macKeyShares.put(myId, ssk);
     }
     return macKeyShares;
   }
 
   private Drbg getDrbg() {
-    byte[] drbgSeed = new byte[prgSeedLength / 8];
+    byte[] drbgSeed = new byte[mascotSecurityParameters.getPrgSeedLength() / 8];
     new SecureRandom().nextBytes(drbgSeed);
     return new PaddingAesCtrDrbg(drbgSeed);
   }
@@ -127,6 +118,7 @@ public class TestParallelMascots {
   private void constructMascot() throws Exception {
     List<Map<Integer, RotList>> seedOts = setupOts();
     Map<Integer, FieldElement> perPartyMacKeyShares = setupMacKeyShares();
+    final MascotSecurityParameters finalParams = mascotSecurityParameters;
     List<Callable<Mascot>> mascotCreators = new ArrayList<>();
     for (int i = 0; i < iterations; i++) {
       @SuppressWarnings("resource")
@@ -136,12 +128,11 @@ public class TestParallelMascots {
         int finalMyId = myId;
         int finalInstanceId = i;
         Map<Integer, RotList> seedOt = seedOts.get(finalMyId - 1);
-        mascotCreators.add(() -> {
-          int lambdaParam = this.modBitLength;
-          return new Mascot(new MascotResourcePoolImpl(finalMyId, noOfParties, finalInstanceId,
-              getDrbg(), seedOt, modulus, modBitLength, lambdaParam, prgSeedLength, numLeftFactors),
-              normalManager.createExtraNetwork(finalMyId), randomSsk);
-        });
+        mascotCreators.add(() -> new Mascot(
+            new MascotResourcePoolImpl(finalMyId, noOfParties,
+              finalInstanceId, getDrbg(), seedOt, mascotSecurityParameters),
+            normalManager.createExtraNetwork(finalMyId),
+            randomSsk));
       }
     }
     invoke(mascotCreators);
@@ -163,8 +154,7 @@ public class TestParallelMascots {
         mascotCreators.add(() -> {
           Mascot mascot = new Mascot(
               new MascotResourcePoolImpl(finalMyId, noOfParties, finalInstanceId,
-                  getDrbg(), seedOt, modulus, modBitLength, 256, prgSeedLength,
-                  numLeftFactors),
+                  getDrbg(), seedOt, mascotSecurityParameters),
               normalManager.createExtraNetwork(finalMyId), randomSsk);
           return mascot.getTriples(16);
         });

@@ -1,16 +1,13 @@
 package dk.alexandra.fresco.tools.mascot;
 
-import dk.alexandra.fresco.commitment.HashBasedCommitment;
-import dk.alexandra.fresco.commitment.HashBasedCommitmentSerializer;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
-import dk.alexandra.fresco.framework.network.serializers.StrictBitVectorSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
-import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
@@ -28,35 +25,22 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
   private final Map<Integer, RotList> seedOts;
   private final int instanceId;
   private final BigInteger modulus;
-  private final int modBitLength;
-  private final int lambdaSecurityParam;
-  private final int prgSeedLength;
-  private final int numCandidatesPerTriple;
   private final FieldElementPrg localSampler;
-  private final FieldElementSerializer fieldElementSerializer;
-  private final StrictBitVectorSerializer strictBitVectorSerializer;
-  private final ByteSerializer<HashBasedCommitment> commitmentSerializer;
   private final MessageDigest messageDigest;
+  private final MascotSecurityParameters mascotSecurityParameters;
 
   /**
    * Creates {@link MascotResourcePoolImpl}.
    */
-  public MascotResourcePoolImpl(int myId, int noOfParties,
-      int instanceId, Drbg drbg, Map<Integer, RotList> seedOts,
-      BigInteger modulus, int modBitLength, int lambdaSecurityParam,
-      int prgSeedLength, int numCandidatesPerTriple) {
+  public MascotResourcePoolImpl(int myId, int noOfParties, int instanceId, Drbg drbg,
+      Map<Integer, RotList> seedOts, MascotSecurityParameters mascotSecurityParameters) {
     super(myId, noOfParties, drbg);
     this.instanceId = instanceId;
     this.seedOts = seedOts;
-    this.modulus = modulus;
-    this.modBitLength = modBitLength;
-    this.lambdaSecurityParam = lambdaSecurityParam;
-    this.numCandidatesPerTriple = numCandidatesPerTriple;
-    this.prgSeedLength = prgSeedLength;
-    this.localSampler = new FieldElementPrgImpl(new StrictBitVector(prgSeedLength, drbg));
-    this.fieldElementSerializer = new FieldElementSerializer(modulus);
-    this.strictBitVectorSerializer = new StrictBitVectorSerializer();
-    this.commitmentSerializer = new HashBasedCommitmentSerializer();
+    this.modulus = ModulusFinder.findSuitableModulus(mascotSecurityParameters.getModBitLength());
+    this.mascotSecurityParameters = mascotSecurityParameters;
+    this.localSampler = new FieldElementPrgImpl(
+        new StrictBitVector(mascotSecurityParameters.getPrgSeedLength(), drbg));
     this.messageDigest = ExceptionConverter.safe(() -> MessageDigest.getInstance("SHA-256"),
         "Configuration error, SHA-256 is needed for Mascot");
   }
@@ -73,37 +57,22 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
 
   @Override
   public int getModBitLength() {
-    return modBitLength;
+    return mascotSecurityParameters.getModBitLength();
   }
 
   @Override
   public int getLambdaSecurityParam() {
-    return lambdaSecurityParam;
+    return mascotSecurityParameters.getLambdaSecurityParam();
   }
 
   @Override
   public int getNumCandidatesPerTriple() {
-    return numCandidatesPerTriple;
+    return mascotSecurityParameters.getNumCandidatesPerTriple();
   }
 
   @Override
   public FieldElementPrg getLocalSampler() {
     return localSampler;
-  }
-
-  @Override
-  public FieldElementSerializer getFieldElementSerializer() {
-    return fieldElementSerializer;
-  }
-
-  @Override
-  public StrictBitVectorSerializer getStrictBitVectorSerializer() {
-    return strictBitVectorSerializer;
-  }
-
-  @Override
-  public ByteSerializer<HashBasedCommitment> getCommitmentSerializer() {
-    return commitmentSerializer;
   }
 
   @Override
@@ -131,7 +100,7 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
 
   @Override
   public int getPrgSeedLength() {
-    return prgSeedLength;
+    return mascotSecurityParameters.getPrgSeedLength();
   }
 
 }

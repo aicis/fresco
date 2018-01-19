@@ -10,6 +10,7 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.suite.spdz.preprocessing.MascotFormatConverter;
 import dk.alexandra.fresco.tools.mascot.Mascot;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePoolImpl;
+import dk.alexandra.fresco.tools.mascot.MascotSecurityParameters;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.InputMask;
@@ -179,10 +180,11 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     if (mascot != null) {
       return;
     }
-    int numLeftFactors = 3;
+    int numCandidatesPerTriple = 3;
     mascot = new Mascot(
-        new MascotResourcePoolImpl(myId, numberOfPlayers, instanceId, drbg, seedOts, getModulus(),
-            modBitLength, modBitLength, prgSeedLength, numLeftFactors), tripleNetwork.get(), ssk);
+        new MascotResourcePoolImpl(myId, numberOfPlayers, instanceId, drbg, seedOts,
+            new MascotSecurityParameters(modBitLength, modBitLength, prgSeedLength,
+                numCandidatesPerTriple)), tripleNetwork.get(), ssk);
   }
 
 }

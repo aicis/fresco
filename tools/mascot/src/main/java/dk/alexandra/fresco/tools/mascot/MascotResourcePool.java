@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.tools.mascot;
 
 import dk.alexandra.fresco.commitment.HashBasedCommitment;
+import dk.alexandra.fresco.commitment.HashBasedCommitmentSerializer;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
@@ -15,41 +16,30 @@ import java.security.MessageDigest;
 public interface MascotResourcePool extends NumericResourcePool {
 
   /**
-   * Returns the instance ID which is unique for this particular resource pool object, but only in the
-   * given execution.
-   * 
-   * @return the instance ID of this particular object
+   * Returns the instance ID which is unique for this particular resource pool object, but only in
+   * the given execution.
    *
+   * @return the instance ID of this particular object
    */
   int getInstanceId();
 
   /**
-   * Gets bit length of modulus (k security param in Mascot paper).
-   *
-   * @return modulus bit length
+   * {@link MascotSecurityParameters#getModBitLength()}.
    */
   int getModBitLength();
 
   /**
-   * Gets OT security parameter num bits (lambda in Mascot paper).
-   *
-   * @return lambda security parameter
+   * {@link MascotSecurityParameters#getLambdaSecurityParam()}.
    */
   int getLambdaSecurityParam();
 
   /**
-   * Gets number of factors that go into sacrifice step. <br>
-   * For each triple we generate, we will generate and numLeftFactors - 1 triples for a single right
-   * factor and sacrifice these to authenticate the triple.
-   *
-   * @return number of factors
+   * {@link MascotSecurityParameters#getNumCandidatesPerTriple()}.
    */
   int getNumCandidatesPerTriple();
 
   /**
-   * Gets bit length of seed used to underlying prg.
-   *
-   * @return prg seed bit length
+   * {@link MascotSecurityParameters#getPrgSeedLength()}.
    */
   int getPrgSeedLength();
 
@@ -65,21 +55,27 @@ public interface MascotResourcePool extends NumericResourcePool {
    *
    * @return serializer
    */
-  FieldElementSerializer getFieldElementSerializer();
+  default ByteSerializer<FieldElement> getFieldElementSerializer() {
+    return new FieldElementSerializer(getModulus());
+  }
 
   /**
    * Gets serializer for {@link StrictBitVector}.
    *
    * @return serializer
    */
-  StrictBitVectorSerializer getStrictBitVectorSerializer();
+  default ByteSerializer<StrictBitVector> getStrictBitVectorSerializer() {
+    return new StrictBitVectorSerializer();
+  }
 
   /**
    * Gets serializer for {@link HashBasedCommitment}.
    *
    * @return serializer
    */
-  ByteSerializer<HashBasedCommitment> getCommitmentSerializer();
+  default ByteSerializer<HashBasedCommitment> getCommitmentSerializer() {
+    return new HashBasedCommitmentSerializer();
+  }
 
   /**
    * Gets the message digest for this protocol suite invocation.

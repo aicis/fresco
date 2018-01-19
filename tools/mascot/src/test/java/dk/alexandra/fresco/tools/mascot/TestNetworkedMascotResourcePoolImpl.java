@@ -7,7 +7,6 @@ import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
-import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -31,11 +30,8 @@ public class TestNetworkedMascotResourcePoolImpl extends NetworkedTest {
     seedOtsMap.put(otherId, seedOts);
     MascotResourcePool resourcePool = new MascotResourcePoolImpl(ctx.getMyId(),
         ctx.getNoOfParties(),
-        1, new AesCtrDrbg(new byte[32]), seedOtsMap, new BigInteger(
-        "251"), 8, 8, 8, 8);
-    RotBatch rot =
-        resourcePool.createRot(otherId, ctx.getNetwork());
-    return rot;
+        1, new AesCtrDrbg(new byte[32]), seedOtsMap, new MascotSecurityParameters(8, 8, 8, 3));
+    return resourcePool.createRot(otherId, ctx.getNetwork());
   }
 
   @Test
@@ -47,8 +43,8 @@ public class TestNetworkedMascotResourcePoolImpl extends NetworkedTest {
 
     List<RotBatch> results =
         testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
-    assertTrue(results.get(0) instanceof RotBatch);
-    assertTrue(results.get(1) instanceof RotBatch);
+    assertTrue(results.get(0) != null);
+    assertTrue(results.get(1) != null);
   }
 
 }

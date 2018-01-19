@@ -9,16 +9,14 @@ public class TestMascotResourcePoolImpl {
   @Test(expected = UnsupportedOperationException.class)
   public void testGetSerializer() {
     MascotResourcePool resourcePool = new MascotResourcePoolImpl(0, 1, 1,
-        new AesCtrDrbg(new byte[32]), null, new BigInteger("251"), 0, 0, 0,
-        0);
+        new AesCtrDrbg(new byte[32]), null, new MascotSecurityParameters());
     resourcePool.getSerializer();
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testCreateRotForSelf() {
     MascotResourcePool resourcePool = new MascotResourcePoolImpl(1, 1, 1,
-        new AesCtrDrbg(new byte[32]), null, new BigInteger("251"), 0, 0, 0,
-        0);
+        new AesCtrDrbg(new byte[32]), null, new MascotSecurityParameters());
     resourcePool.createRot(1, null);
   }
 }

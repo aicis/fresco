@@ -11,6 +11,7 @@ public class ModulusFinder {
   private static final HashMap<Integer, BigInteger> precomputed = new HashMap<>();
 
   static {
+    precomputed.put(8, new BigInteger("251"));
     precomputed.put(16, new BigInteger("65519"));
     precomputed.put(64, new BigInteger("18446744073709551557"));
     precomputed.put(128, new BigInteger("340282366920938463463374607431768211283"));

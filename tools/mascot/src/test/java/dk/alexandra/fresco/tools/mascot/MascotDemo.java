@@ -13,9 +13,7 @@ import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import dk.alexandra.fresco.tools.ot.base.NaorPinkasOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
-import dk.alexandra.fresco.framework.util.ModulusFinder;
 import java.io.Closeable;
-import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,11 +26,7 @@ public class MascotDemo {
   private final Mascot mascot;
   private final Closeable toClose;
   private int networkBufferSize = 104856800;
-  private int modBitLength = 128;
-  private BigInteger modulus = ModulusFinder.findSuitableModulus(modBitLength);
-  private int lambdaSecurityParam = 128;
-  private int prgSeedLength = 256;
-  private int numLeftFactors = 3;
+  private MascotSecurityParameters parameters = new MascotSecurityParameters();
   private int instanceId = 1;
 
   MascotDemo(Integer myId, List<Integer> partyIds) {
@@ -74,14 +68,14 @@ public class MascotDemo {
   private MascotResourcePool defaultResourcePool(Integer myId, List<Integer> partyIds,
       Network network) {
     // generate random seed for local DRBG
-    byte[] drbgSeed = new byte[prgSeedLength / 8];
+    byte[] drbgSeed = new byte[parameters.getPrgSeedLength() / 8];
     new SecureRandom().nextBytes(drbgSeed);
     Drbg drbg = new PaddingAesCtrDrbg(drbgSeed);
     Map<Integer, RotList> seedOts = new HashMap<>();
     for (Integer otherId : partyIds) {
       if (myId != otherId) {
         Ot ot = new NaorPinkasOt(myId, otherId, drbg, network);
-        RotList currentSeedOts = new RotList(drbg, prgSeedLength);
+        RotList currentSeedOts = new RotList(drbg, parameters.getPrgSeedLength());
         if (myId < otherId) {
           currentSeedOts.send(ot);
           currentSeedOts.receive(ot);
@@ -93,8 +87,7 @@ public class MascotDemo {
       }
     }
     return new MascotResourcePoolImpl(myId, partyIds.size(), instanceId, drbg, seedOts,
-        modulus, modBitLength, lambdaSecurityParam, prgSeedLength,
-        numLeftFactors);
+        new MascotSecurityParameters());
   }
 
   /**
