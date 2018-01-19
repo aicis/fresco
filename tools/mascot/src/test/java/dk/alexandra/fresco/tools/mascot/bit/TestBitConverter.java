@@ -20,21 +20,20 @@ import org.junit.Test;
 
 public class TestBitConverter extends NetworkedTest {
 
-  FieldElementPrg getJointPrg(int prgSeedLength) {
+  private FieldElementPrg getJointPrg(int prgSeedLength) {
     return new FieldElementPrgImpl(new StrictBitVector(prgSeedLength));
   }
 
-  public List<FieldElement> runConvertToBits(MascotTestContext ctx, FieldElement macKeyShare,
+  private List<FieldElement> runConvertToBits(MascotTestContext ctx, FieldElement macKeyShare,
       List<FieldElement> randomValues) {
     FieldElementPrg prg = getJointPrg(ctx.getPrgSeedLength());
     ElementGeneration elementGeneration = new ElementGeneration(ctx.getResourcePool(),
         ctx.getNetwork(), macKeyShare, prg);
-    OnlinePhase onlinePhase = new OnlinePhase(ctx.getResourcePool(), ctx.getNetwork(),
+    OnlinePhase onlinePhase = new OnlinePhase(ctx.getResourcePool(),
         new TripleGeneration(ctx.getResourcePool(), ctx.getNetwork(),
             elementGeneration, prg),
         elementGeneration, macKeyShare);
-    BitConverter bitConverter = new BitConverter(ctx.getResourcePool(), ctx.getNetwork(),
-        onlinePhase, macKeyShare);
+    BitConverter bitConverter = new BitConverter(ctx.getResourcePool(), onlinePhase, macKeyShare);
     List<AuthenticatedElement> closed = (ctx.getMyId() == 1) ? elementGeneration.input(randomValues)
         : elementGeneration.input(1, randomValues.size());
     List<AuthenticatedElement> bits = bitConverter.convertToBits(closed);

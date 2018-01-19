@@ -4,8 +4,8 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
-import dk.alexandra.fresco.tools.mascot.TwoPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.FieldElementUtils;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,12 +16,15 @@ import java.util.List;
  * and the multiplication sub-protocol used by {@link dk.alexandra.fresco.tools.mascot.triple.TripleGeneration}.
  * These two classes share a lot of functionality. This functionality is implemented here.
  */
-public class MultiplyRightHelper extends TwoPartyProtocol {
+public class MultiplyRightHelper {
 
   private final RotBatch rot;
+  private final MascotResourcePool resourcePool;
+  private final FieldElementUtils fieldElementUtils;
 
   public MultiplyRightHelper(MascotResourcePool resourcePool, Network network, int otherId) {
-    super(resourcePool, network, otherId);
+    this.resourcePool = resourcePool;
+    this.fieldElementUtils = new FieldElementUtils(resourcePool.getModulus());
     this.rot = resourcePool.createRot(otherId, network);
   }
 
@@ -41,7 +44,7 @@ public class MultiplyRightHelper extends TwoPartyProtocol {
    */
   public List<Pair<StrictBitVector, StrictBitVector>> generateSeeds(int numMults, int seedLength) {
     // perform rots for each bit, for each left factor, for each multiplication
-    int numRots = super.getResourcePool().getModBitLength() * numMults;
+    int numRots = getResourcePool().getModBitLength() * numMults;
     List<Pair<StrictBitVector, StrictBitVector>> seeds = getRot().send(numRots, seedLength);
     Collections.reverse(seeds);
     return seeds;
@@ -68,7 +71,7 @@ public class MultiplyRightHelper extends TwoPartyProtocol {
       FieldElement diff = computeDiff(feSeedPair, rightFactor);
       diffs.add(diff);
       seedPairIdx++;
-      rightFactorIdx = seedPairIdx / (super.getResourcePool().getModBitLength());
+      rightFactorIdx = seedPairIdx / (getResourcePool().getModBitLength());
     }
     return diffs;
   }
@@ -85,8 +88,8 @@ public class MultiplyRightHelper extends TwoPartyProtocol {
       int numRightFactors) {
     List<FieldElement> productShares = new ArrayList<>(numRightFactors);
     for (int rightFactIdx = 0; rightFactIdx < numRightFactors; rightFactIdx++) {
-      int from = rightFactIdx * super.getResourcePool().getModBitLength();
-      int to = (rightFactIdx + 1) * super.getResourcePool().getModBitLength();
+      int from = rightFactIdx * getResourcePool().getModBitLength();
+      int to = (rightFactIdx + 1) * getResourcePool().getModBitLength();
       List<FieldElement> subFactors = feZeroSeeds.subList(from, to);
       FieldElement recombined = getFieldElementUtils().recombine(subFactors);
       productShares.add(recombined.negate());
@@ -101,7 +104,15 @@ public class MultiplyRightHelper extends TwoPartyProtocol {
     return left.subtract(right).add(factor);
   }
 
-  RotBatch getRot() {
+  private RotBatch getRot() {
     return rot;
+  }
+
+  private FieldElementUtils getFieldElementUtils() {
+    return fieldElementUtils;
+  }
+
+  private MascotResourcePool getResourcePool() {
+    return resourcePool;
   }
 }

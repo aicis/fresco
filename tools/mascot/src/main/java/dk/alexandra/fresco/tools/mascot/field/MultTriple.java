@@ -2,6 +2,10 @@ package dk.alexandra.fresco.tools.mascot.field;
 
 import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 
+/**
+ * An secret-shared authenticated multiplication triple. <p>Holds three elements [a],[b],[c] such
+ * that [a * b] = [c]</p>
+ */
 public class MultTriple implements Addable<MultTriple> {
 
   private final AuthenticatedElement left;
@@ -10,7 +14,7 @@ public class MultTriple implements Addable<MultTriple> {
 
   /**
    * Creates new multiplication triple.
-   * 
+   *
    * @param left left factor
    * @param right right factor
    * @param product product
@@ -34,7 +38,7 @@ public class MultTriple implements Addable<MultTriple> {
   public AuthenticatedElement getProduct() {
     return product;
   }
-  
+
   @Override
   public String toString() {
     return "MultTriple [left=" + left + ", right=" + right + ", product=" + product + "]";

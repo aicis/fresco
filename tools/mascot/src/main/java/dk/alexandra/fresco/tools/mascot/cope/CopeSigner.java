@@ -3,7 +3,6 @@ package dk.alexandra.fresco.tools.mascot.cope;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
-import dk.alexandra.fresco.tools.mascot.TwoPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeftHelper;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
@@ -24,11 +23,14 @@ import java.util.stream.IntStream;
  * protocol is to be run by the signer party. For the other side of the protocol, see {@link
  * CopeInputter}.</p>
  */
-public class CopeSigner extends TwoPartyProtocol {
+public class CopeSigner {
 
   private final List<FieldElementPrg> prgs;
   private final FieldElement macKeyShare;
   private final MultiplyLeftHelper multiplier;
+  private final int otherId;
+  private final MascotResourcePool resourcePool;
+  private final Network network;
 
   /**
    * Creates new cope signer.
@@ -43,7 +45,9 @@ public class CopeSigner extends TwoPartyProtocol {
    */
   public CopeSigner(MascotResourcePool resourcePool, Network network, int otherId,
       FieldElement macKeyShare) {
-    super(resourcePool, network, otherId);
+    this.otherId = otherId;
+    this.resourcePool = resourcePool;
+    this.network = network;
     this.macKeyShare = macKeyShare;
     this.multiplier = new MultiplyLeftHelper(resourcePool, network, otherId);
     this.prgs = new ArrayList<>();
@@ -58,10 +62,10 @@ public class CopeSigner extends TwoPartyProtocol {
    */
   public List<FieldElement> extend(int numInputs) {
     // compute chosen masks
-    List<FieldElement> chosenMasks = generateMasks(numInputs, super.getResourcePool().getModulus(),
-        super.getResourcePool().getModBitLength());
+    List<FieldElement> chosenMasks = generateMasks(numInputs, getResourcePool().getModulus(),
+        getResourcePool().getModBitLength());
     // receive diffs from other party
-    List<FieldElement> diffs = super.getResourcePool().getFieldElementSerializer()
+    List<FieldElement> diffs = getResourcePool().getFieldElementSerializer()
         .deserializeList(getNetwork().receive(getOtherId()));
     // use mac share for each input
     List<FieldElement> macKeyShares =
@@ -90,4 +94,15 @@ public class CopeSigner extends TwoPartyProtocol {
     }
   }
 
+  private int getOtherId() {
+    return otherId;
+  }
+
+  private Network getNetwork() {
+    return network;
+  }
+
+  private MascotResourcePool getResourcePool() {
+    return resourcePool;
+  }
 }

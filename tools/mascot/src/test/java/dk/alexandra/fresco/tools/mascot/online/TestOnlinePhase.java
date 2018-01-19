@@ -19,7 +19,7 @@ import org.junit.Test;
 
 public class TestOnlinePhase extends NetworkedTest {
 
-  FieldElementPrg getJointPrg(int prgSeedLength) {
+  private FieldElementPrg getJointPrg(int prgSeedLength) {
     return new FieldElementPrgImpl(new StrictBitVector(prgSeedLength));
   }
 
@@ -31,8 +31,7 @@ public class TestOnlinePhase extends NetworkedTest {
     TripleGeneration tripleGeneration = new TripleGeneration(ctx.getResourcePool(),
         ctx.getNetwork(),
         elementGeneration, prg);
-    OnlinePhase onlinePhase = new OnlinePhase(ctx.getResourcePool(), ctx.getNetwork(),
-        tripleGeneration,
+    OnlinePhase onlinePhase = new OnlinePhase(ctx.getResourcePool(), tripleGeneration,
         elementGeneration, macKeyShare);
     List<AuthenticatedElement> partyOneInputs;
     List<AuthenticatedElement> partyTwoInputs;

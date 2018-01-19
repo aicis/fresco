@@ -2,7 +2,6 @@ package dk.alexandra.fresco.tools.mascot.broadcast;
 
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.tools.mascot.BaseProtocol;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import java.util.Arrays;
 import java.util.List;
@@ -11,10 +10,14 @@ import java.util.List;
  * Actively-secure protocol for performing hash-based broadcast validation. Allows participating
  * parties to ensure that a list of messages is consistent across all parties.
  */
-public class BroadcastValidation extends BaseProtocol {
+public class BroadcastValidation {
+
+  private final MascotResourcePool resourcePool;
+  private final Network network;
 
   public BroadcastValidation(MascotResourcePool resourcePool, Network network) {
-    super(resourcePool, network);
+    this.resourcePool = resourcePool;
+    this.network = network;
   }
 
   /**
@@ -22,10 +25,10 @@ public class BroadcastValidation extends BaseProtocol {
    */
   private byte[] computeDigest(List<byte[]> messages) {
     for (byte[] message : messages) {
-      super.getResourcePool().getMessageDigest().update(message);
+      getResourcePool().getMessageDigest().update(message);
     }
-    byte[] digest = super.getResourcePool().getMessageDigest().digest();
-    super.getResourcePool().getMessageDigest().reset();
+    byte[] digest = getResourcePool().getMessageDigest().digest();
+    getResourcePool().getMessageDigest().reset();
     return digest;
   }
 
@@ -60,4 +63,11 @@ public class BroadcastValidation extends BaseProtocol {
     validateDigests(digest, digests);
   }
 
+  private Network getNetwork() {
+    return network;
+  }
+
+  private MascotResourcePool getResourcePool() {
+    return resourcePool;
+  }
 }

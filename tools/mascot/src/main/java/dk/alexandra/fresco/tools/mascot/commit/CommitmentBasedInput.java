@@ -3,7 +3,6 @@ package dk.alexandra.fresco.tools.mascot.commit;
 import dk.alexandra.fresco.commitment.HashBasedCommitment;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
-import dk.alexandra.fresco.tools.mascot.BaseProtocol;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.broadcast.BroadcastValidation;
 import dk.alexandra.fresco.tools.mascot.broadcast.BroadcastingNetworkProxy;
@@ -17,17 +16,20 @@ import java.util.stream.Collectors;
  *
  * @param <T> type of value to commit to
  */
-public class CommitmentBasedInput<T> extends BaseProtocol {
+public class CommitmentBasedInput<T> {
 
   private final ByteSerializer<T> serializer;
   private final Network broadcaster;
+  private final MascotResourcePool resourcePool;
+  private final Network network;
 
   /**
    * Creates new {@link CommitmentBasedInput}.
    */
   public CommitmentBasedInput(MascotResourcePool resourcePool, Network network,
       ByteSerializer<T> serializer) {
-    super(resourcePool, network);
+    this.resourcePool = resourcePool;
+    this.network = network;
     this.serializer = serializer;
     // for more than two parties, we need to use broadcast
     if (resourcePool.getNoOfParties() > 2) {
@@ -46,12 +48,12 @@ public class CommitmentBasedInput<T> extends BaseProtocol {
    */
   private List<HashBasedCommitment> distributeCommitments(HashBasedCommitment comm) {
     // broadcast own commitment
-    broadcaster.sendToAll(super.getResourcePool().getCommitmentSerializer().serialize(comm));
+    broadcaster.sendToAll(getResourcePool().getCommitmentSerializer().serialize(comm));
     // receive other parties' commitments from broadcast
     List<byte[]> rawComms = broadcaster.receiveFromAll();
     // parse
     return rawComms.stream()
-        .map(super.getResourcePool().getCommitmentSerializer()::deserialize)
+        .map(getResourcePool().getCommitmentSerializer()::deserialize)
         .collect(Collectors.toList());
   }
 
@@ -64,8 +66,7 @@ public class CommitmentBasedInput<T> extends BaseProtocol {
     // send (over regular network) own opening info
     getNetwork().sendToAll(opening);
     // receive opening info from others
-    List<byte[]> openings = getNetwork().receiveFromAll();
-    return openings;
+    return getNetwork().receiveFromAll();
   }
 
   /**
@@ -102,7 +103,8 @@ public class CommitmentBasedInput<T> extends BaseProtocol {
     HashBasedCommitment ownComm = new HashBasedCommitment();
 
     // commit to value locally
-    byte[] ownOpening = ownComm.commit(super.getResourcePool().getRandomGenerator(), serializer.serialize(value));
+    byte[] ownOpening = ownComm
+        .commit(getResourcePool().getRandomGenerator(), serializer.serialize(value));
 
     // all parties commit
     List<HashBasedCommitment> comms = distributeCommitments(ownComm);
@@ -114,4 +116,11 @@ public class CommitmentBasedInput<T> extends BaseProtocol {
     return open(comms, openings);
   }
 
+  private Network getNetwork() {
+    return network;
+  }
+
+  protected MascotResourcePool getResourcePool() {
+    return resourcePool;
+  }
 }

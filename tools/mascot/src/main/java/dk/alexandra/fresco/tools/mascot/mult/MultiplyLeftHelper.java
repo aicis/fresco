@@ -3,8 +3,8 @@ package dk.alexandra.fresco.tools.mascot.mult;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
-import dk.alexandra.fresco.tools.mascot.TwoPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.FieldElementUtils;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,12 +15,15 @@ import java.util.List;
  * and the multiplication sub-protocol used by {@link dk.alexandra.fresco.tools.mascot.triple.TripleGeneration}.
  * These two classes share a lot functionality. This functionality is implemented here.
  */
-public class MultiplyLeftHelper extends TwoPartyProtocol {
+public class MultiplyLeftHelper {
 
   private final RotBatch rot;
+  private final MascotResourcePool resourcePool;
+  private final FieldElementUtils fieldElementUtils;
 
   public MultiplyLeftHelper(MascotResourcePool resourcePool, Network network, int otherId) {
-    super(resourcePool, network, otherId);
+    this.resourcePool = resourcePool;
+    this.fieldElementUtils = new FieldElementUtils(resourcePool.getModulus());
     this.rot = resourcePool.createRot(otherId, network);
   }
 
@@ -56,8 +59,8 @@ public class MultiplyLeftHelper extends TwoPartyProtocol {
     List<FieldElement> result = new ArrayList<>(leftFactors.size());
     int diffIdx = 0;
     for (FieldElement leftFactor : leftFactors) {
-      List<FieldElement> summands = new ArrayList<>(super.getResourcePool().getModBitLength());
-      for (int b = 0; b < super.getResourcePool().getModBitLength(); b++) {
+      List<FieldElement> summands = new ArrayList<>(getResourcePool().getModBitLength());
+      for (int b = 0; b < getResourcePool().getModBitLength(); b++) {
         FieldElement feSeed = feSeeds.get(diffIdx);
         FieldElement diff = diffs.get(diffIdx);
         boolean bit = leftFactor.getBit(b);
@@ -71,7 +74,15 @@ public class MultiplyLeftHelper extends TwoPartyProtocol {
     return result;
   }
 
-  RotBatch getRot() {
+  private RotBatch getRot() {
     return rot;
+  }
+
+  private FieldElementUtils getFieldElementUtils() {
+    return fieldElementUtils;
+  }
+
+  private MascotResourcePool getResourcePool() {
+    return resourcePool;
   }
 }

@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
-import dk.alexandra.fresco.tools.mascot.TwoPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyRightHelper;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
@@ -26,11 +25,14 @@ import java.util.stream.Stream;
  * protocol is to be run by the inputter party. For the other side of the protocol, see {@link
  * CopeSigner}.</p>
  */
-public class CopeInputter extends TwoPartyProtocol {
+public class CopeInputter {
 
   private final List<FieldElementPrg> leftPrgs;
   private final List<FieldElementPrg> rightPrgs;
   private final MultiplyRightHelper helper;
+  private final int otherId;
+  private final MascotResourcePool resourcePool;
+  private final Network network;
 
   /**
    * Creates a new {@link CopeInputter} and initializes the COPE protocol.
@@ -39,7 +41,9 @@ public class CopeInputter extends TwoPartyProtocol {
    * seeds used in the <i>Extend</i> sub-protocol.</p>
    */
   public CopeInputter(MascotResourcePool resourcePool, Network network, int otherId) {
-    super(resourcePool, network, otherId);
+    this.otherId = otherId;
+    this.resourcePool = resourcePool;
+    this.network = network;
     this.leftPrgs = new ArrayList<>();
     this.rightPrgs = new ArrayList<>();
     this.helper = new MultiplyRightHelper(resourcePool, network, otherId);
@@ -58,14 +62,12 @@ public class CopeInputter extends TwoPartyProtocol {
     // compute t0 - t1 + x for each input x for each mask pair
     List<FieldElement> diffs = helper.computeDiffs(maskPairs, inputElements);
     // send diffs
-    getNetwork().send(getOtherId(), super.getResourcePool().getFieldElementSerializer().serialize(diffs));
+    getNetwork().send(getOtherId(), getResourcePool().getFieldElementSerializer().serialize(diffs));
     // get zero index masks
     List<FieldElement> feZeroSeeds =
-        maskPairs.stream().map(feSeedPair -> feSeedPair.getFirst()).collect(Collectors.toList());
+        maskPairs.stream().map(Pair::getFirst).collect(Collectors.toList());
     // compute product shares
-    List<FieldElement> productShares =
-        helper.computeProductShares(feZeroSeeds, inputElements.size());
-    return productShares;
+    return helper.computeProductShares(feZeroSeeds, inputElements.size());
   }
 
   private List<Pair<FieldElement, FieldElement>> generateMaskPairs(int numInputs) {
@@ -73,7 +75,7 @@ public class CopeInputter extends TwoPartyProtocol {
     List<Pair<FieldElement, FieldElement>> maskPairs = new ArrayList<>();
     for (int i = 0; i < numInputs; i++) {
       // generate masks for single input
-      maskPairs.addAll(generateMaskPairs(super.getResourcePool().getModulus()));
+      maskPairs.addAll(generateMaskPairs(getResourcePool().getModulus()));
     }
     return maskPairs;
   }
@@ -95,4 +97,15 @@ public class CopeInputter extends TwoPartyProtocol {
     }
   }
 
+  private int getOtherId() {
+    return otherId;
+  }
+
+  private Network getNetwork() {
+    return network;
+  }
+
+  private MascotResourcePool getResourcePool() {
+    return resourcePool;
+  }
 }

@@ -17,7 +17,7 @@ public class TestShareUtils {
   private final BigInteger modulus = new BigInteger("251");
   private final int modBitLength = 8;
   private final FieldElementPrg sampler = new FieldElementPrgImpl(new StrictBitVector(256));
-  private final Sharer shareUtils = new AdditiveSharer(sampler, modulus, modBitLength);
+  private final Sharer shareUtils = new AdditiveSharer(sampler, modulus);
   
   @Test
   public void testAdditiveShare() {

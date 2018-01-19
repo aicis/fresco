@@ -24,7 +24,7 @@ public class CoinTossingMpc extends CommitmentBasedInput<StrictBitVector> {
    * @param seeds all parties' seeds
    * @return shared seed
    */
-  StrictBitVector combine(List<StrictBitVector> seeds) {
+  private StrictBitVector combine(List<StrictBitVector> seeds) {
     StrictBitVector acc = seeds.get(0);
     for (StrictBitVector seed : seeds.subList(1, seeds.size())) {
       acc.xor(seed);

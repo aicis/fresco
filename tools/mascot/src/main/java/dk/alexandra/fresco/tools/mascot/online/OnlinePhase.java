@@ -1,7 +1,5 @@
 package dk.alexandra.fresco.tools.mascot.online;
 
-import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.tools.mascot.BaseProtocol;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.elgen.ElementGeneration;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
@@ -17,20 +15,21 @@ import java.util.function.BiConsumer;
  * protocol. <p>This functionality is needed in the offline for generating random bits as
  * pre-processed material but may also be used as a light-weight online SPDZ runtime.</p>
  */
-public class OnlinePhase extends BaseProtocol {
+public class OnlinePhase {
 
   private final TripleGeneration tripleGeneration;
   private final ElementGeneration elementGeneration;
   private final FieldElement macKeyShare;
   private final OpenedValueStore openedValueStore;
+  private final MascotResourcePool resourcePool;
 
   /**
    * Creates new {@link OnlinePhase}.
    */
-  public OnlinePhase(MascotResourcePool resourcePool,
-      Network network, TripleGeneration tripleGeneration, ElementGeneration elementGeneration,
+  public OnlinePhase(MascotResourcePool resourcePool, TripleGeneration tripleGeneration,
+      ElementGeneration elementGeneration,
       FieldElement macKeyShare) {
-    super(resourcePool, network);
+    this.resourcePool = resourcePool;
     this.tripleGeneration = tripleGeneration;
     this.elementGeneration = elementGeneration;
     this.macKeyShare = macKeyShare;
@@ -69,7 +68,8 @@ public class OnlinePhase extends BaseProtocol {
       FieldElement epsilonDeltaProd = epsilon.multiply(delta);
       // [c] + epsilon * [b] + delta * [a] + epsilon * delta
       AuthenticatedElement product = triple.getProduct().add(right.multiply(epsilon))
-          .add(left.multiply(delta)).add(epsilonDeltaProd, super.getResourcePool().getMyId(), macKeyShare);
+          .add(left.multiply(delta))
+          .add(epsilonDeltaProd, getResourcePool().getMyId(), macKeyShare);
       products.add(product);
     }
     return products;
@@ -89,6 +89,10 @@ public class OnlinePhase extends BaseProtocol {
    */
   public void triggerMacCheck() {
     openedValueStore.checkAllAndClear(elementGeneration::check);
+  }
+
+  private MascotResourcePool getResourcePool() {
+    return resourcePool;
   }
 
   /**

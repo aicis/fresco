@@ -11,10 +11,9 @@ import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.InputMask;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 import dk.alexandra.fresco.tools.mascot.online.OnlinePhase;
-import dk.alexandra.fresco.tools.mascot.triple.TripleGeneration;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;
-
+import dk.alexandra.fresco.tools.mascot.triple.TripleGeneration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,17 +24,18 @@ import java.util.stream.IntStream;
  * which can be used for the SPDZ pre-processing phase. <br> Supports generation of multiplication
  * triples, random authenticated elements, and random authenticated bits.
  */
-public class Mascot extends BaseProtocol {
+public class Mascot {
 
   private final TripleGeneration tripleGeneration;
   private final ElementGeneration elementGeneration;
   private final BitConverter bitConverter;
+  private final MascotResourcePool resourcePool;
 
   /**
    * Creates new {@link Mascot}.
    */
   public Mascot(MascotResourcePool resourcePool, Network network, FieldElement macKeyShare) {
-    super(resourcePool, network);
+    this.resourcePool = resourcePool;
     // agree on joint seed
     StrictBitVector jointSeed = new CoinTossingMpc(resourcePool, network)
         .generateJointSeed(resourcePool.getPrgSeedLength());
@@ -44,8 +44,8 @@ public class Mascot extends BaseProtocol {
         new ElementGeneration(resourcePool, network, macKeyShare, jointSampler);
     this.tripleGeneration =
         new TripleGeneration(resourcePool, network, elementGeneration, jointSampler);
-    this.bitConverter = new BitConverter(resourcePool, network,
-        new OnlinePhase(resourcePool, network, tripleGeneration, elementGeneration,
+    this.bitConverter = new BitConverter(resourcePool,
+        new OnlinePhase(resourcePool, tripleGeneration, elementGeneration,
             macKeyShare), macKeyShare);
   }
 
@@ -90,12 +90,11 @@ public class Mascot extends BaseProtocol {
    */
   public List<AuthenticatedElement> getRandomElements(int numElements) {
     List<List<AuthenticatedElement>> perPartyElements = new ArrayList<>(
-        super.getResourcePool().getNoOfParties());
-    for (int partyId = 1; partyId <= super.getResourcePool().getNoOfParties(); partyId++) {
-      if (partyId == super.getResourcePool().getMyId()) {
-        List<FieldElement> randomElements =
-            super.getResourcePool()
-                .getLocalSampler().getNext(super.getResourcePool().getModulus(), numElements);
+        getResourcePool().getNoOfParties());
+    for (int partyId = 1; partyId <= getResourcePool().getNoOfParties(); partyId++) {
+      if (partyId == getResourcePool().getMyId()) {
+        List<FieldElement> randomElements = getResourcePool().getLocalSampler()
+            .getNext(getResourcePool().getModulus(), numElements);
         perPartyElements.add(elementGeneration.input(randomElements));
       } else {
         perPartyElements.add(elementGeneration.input(partyId, numElements));
@@ -112,10 +111,9 @@ public class Mascot extends BaseProtocol {
    * @return input masks
    */
   public List<InputMask> getInputMasks(Integer maskerId, int numMasks) {
-    if (maskerId.equals(super.getResourcePool().getMyId())) {
-      List<FieldElement> randomMasks =
-          super.getResourcePool()
-              .getLocalSampler().getNext(super.getResourcePool().getModulus(), numMasks);
+    if (maskerId.equals(getResourcePool().getMyId())) {
+      List<FieldElement> randomMasks = getResourcePool().getLocalSampler()
+          .getNext(getResourcePool().getModulus(), numMasks);
       List<AuthenticatedElement> authenticated = input(randomMasks);
       return IntStream.range(0, numMasks)
           .mapToObj(idx -> new InputMask(randomMasks.get(idx), authenticated.get(idx)))
@@ -136,4 +134,7 @@ public class Mascot extends BaseProtocol {
     return bitConverter.convertToBits(getRandomElements(numBits));
   }
 
+  private MascotResourcePool getResourcePool() {
+    return resourcePool;
+  }
 }

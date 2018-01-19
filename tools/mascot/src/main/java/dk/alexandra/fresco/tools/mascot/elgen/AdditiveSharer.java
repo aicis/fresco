@@ -10,7 +10,6 @@ public class AdditiveSharer implements Sharer {
 
   private final FieldElementPrg sampler;
   private final BigInteger modulus;
-  private final int modBitLength;
   private final ArithmeticCollectionUtils<FieldElement> arithmeticUtils;
 
   /**
@@ -18,12 +17,10 @@ public class AdditiveSharer implements Sharer {
    * 
    * @param sampler source of randomness
    * @param modulus field modulus
-   * @param modBitLength modulus bit length
    */
-  public AdditiveSharer(FieldElementPrg sampler, BigInteger modulus, int modBitLength) {
+  AdditiveSharer(FieldElementPrg sampler, BigInteger modulus) {
     this.sampler = sampler;
     this.modulus = modulus;
-    this.modBitLength = modBitLength;
     this.arithmeticUtils = new ArithmeticCollectionUtils<>();
   }
 
