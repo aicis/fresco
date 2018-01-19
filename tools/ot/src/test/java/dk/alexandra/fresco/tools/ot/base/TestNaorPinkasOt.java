@@ -12,7 +12,6 @@ import dk.alexandra.fresco.framework.util.Drng;
 import dk.alexandra.fresco.framework.util.DrngImpl;
 import dk.alexandra.fresco.tools.helper.HelperForTests;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
@@ -60,8 +59,6 @@ public class TestNaorPinkasOt {
   /**
    * Construct a NaorPinkasOt instance based on some static Diffie-Hellman parameters.
    *
-   * @throws NoSuchAlgorithmException
-   *           The internal randomness generator does not exist.
    * @throws SecurityException
    *           Thrown if it is not possible to change private method visibility
    * @throws NoSuchMethodException
@@ -69,7 +66,7 @@ public class TestNaorPinkasOt {
    */
   @Before
   public void setup()
-      throws NoSuchAlgorithmException, NoSuchMethodException,
+      throws NoSuchMethodException,
       SecurityException {
     Drbg randBit = new AesCtrDrbg(HelperForTests.seedOne);
     randNum = new DrngImpl(randBit);
@@ -128,11 +125,10 @@ public class TestNaorPinkasOt {
 
   @Test
   public void testEncDec()
-      throws NoSuchAlgorithmException, IllegalAccessException,
-      IllegalArgumentException, InvocationTargetException {
-    BigInteger privateKey = randNum.nextBigInteger(ot.getDhParams().getP());
-    BigInteger publicKey = ot.getDhParams().getG().modPow(privateKey,
-        ot.getDhParams().getP());
+      throws IllegalAccessException, IllegalArgumentException,
+      InvocationTargetException {
+    BigInteger privateKey = randNum.nextBigInteger(DhPvalue);
+    BigInteger publicKey = DhGvalue.modPow(privateKey, DhPvalue);
     // We are statically using SHA-256 and thus have 256 bit digests
     byte[] message = new byte[256 / 8];
     BigInteger cipher = (BigInteger) encryptMessage.invoke(ot, publicKey,
@@ -146,8 +142,7 @@ public class TestNaorPinkasOt {
 
   @Test
   public void testPadMessage()
-      throws NoSuchAlgorithmException, IOException, ClassNotFoundException,
-      IllegalAccessException, IllegalArgumentException,
+      throws IllegalAccessException, IllegalArgumentException,
       InvocationTargetException {
     byte[] message = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
         0x08 };
@@ -162,11 +157,10 @@ public class TestNaorPinkasOt {
   /**** NEGATIVE TESTS. ****/
   @Test
   public void testFailedEncDec()
-      throws NoSuchAlgorithmException, IllegalAccessException,
-      IllegalArgumentException, InvocationTargetException {
-    BigInteger privateKey = randNum.nextBigInteger(ot.getDhParams().getP());
-    BigInteger publicKey = ot.getDhParams().getG().modPow(privateKey,
-        ot.getDhParams().getP());
+      throws IllegalAccessException, IllegalArgumentException,
+      InvocationTargetException {
+    BigInteger privateKey = randNum.nextBigInteger(DhPvalue);
+    BigInteger publicKey = DhGvalue.modPow(privateKey, DhPvalue);
     // We are statically using SHA-256 and thus have 256 bit digests
     byte[] message = new byte[256 / 8];
     BigInteger cipher = (BigInteger) encryptMessage.invoke(ot, publicKey,
@@ -182,8 +176,7 @@ public class TestNaorPinkasOt {
 
   @Test
   public void testFailedPadMessage()
-      throws NoSuchAlgorithmException, IOException, ClassNotFoundException,
-      IllegalAccessException, IllegalArgumentException,
+      throws IllegalAccessException, IllegalArgumentException,
       InvocationTargetException {
     byte[] message = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
         0x08 };
@@ -197,9 +190,8 @@ public class TestNaorPinkasOt {
   }
 
   @Test
-  public void testUnequalLengthMessages() throws NoSuchFieldException,
-      SecurityException, IllegalArgumentException, IllegalAccessException,
-      NoSuchMethodException, InvocationTargetException {
+  public void testUnequalLengthMessages() throws SecurityException,
+      IllegalArgumentException, IllegalAccessException, NoSuchMethodException {
     Method method = ot.getClass().getDeclaredMethod("recoverTrueMessage",
         byte[].class, byte[].class, byte[].class, boolean.class);
     // Remove private

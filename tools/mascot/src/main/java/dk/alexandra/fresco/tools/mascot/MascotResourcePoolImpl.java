@@ -80,8 +80,8 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
     if (getMyId() == otherId) {
       throw new IllegalArgumentException("Cannot initialize with self");
     }
-    CoinTossing ct = new CoinTossing(getMyId(), otherId, getRandomGenerator(), network);
-    ct.initialize();
+    CoinTossing ct = new CoinTossing(getMyId(), otherId, getRandomGenerator());
+    ct.initialize(network);
     OtExtensionResourcePool otResources = new OtExtensionResourcePoolImpl(getMyId(), otherId,
         getPrgSeedLength(), getLambdaSecurityParam(), getInstanceId(),
         getRandomGenerator(), ct, seedOts.get(otherId));

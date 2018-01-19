@@ -43,7 +43,7 @@ public class TestOtExtensionResourcePool {
       }
     };
     seedOts = new RotList(rand, 128);
-    ct = new CoinTossing(1, 2, rand, network);
+    ct = new CoinTossing(1, 2, rand);
   }
 
   /**** POSITIVE TESTS. ****/
@@ -62,7 +62,8 @@ public class TestOtExtensionResourcePool {
       new CoteSender(new OtExtensionResourcePoolImpl(1, 2, 0, 40, 1, rand, ct,
           seedOts), network);
     } catch (IllegalArgumentException e) {
-      assertEquals("Security parameters must be at least 1 and divisible by 8", e.getMessage());
+      assertEquals("Security parameters must be at least 1 and divisible by 8",
+          e.getMessage());
       thrown = true;
     }
     assertEquals(thrown, true);
@@ -71,7 +72,8 @@ public class TestOtExtensionResourcePool {
       new CoteReceiver(new OtExtensionResourcePoolImpl(1, 2, 128, 0, 1, rand,
           ct, seedOts), network);
     } catch (IllegalArgumentException e) {
-      assertEquals("Security parameters must be at least 1 and divisible by 8", e.getMessage());
+      assertEquals("Security parameters must be at least 1 and divisible by 8",
+          e.getMessage());
       thrown = true;
     }
     assertEquals(thrown, true);
@@ -80,7 +82,8 @@ public class TestOtExtensionResourcePool {
       new CoteSender(new OtExtensionResourcePoolImpl(1, 2, 127, 40, 1, rand, ct,
           seedOts), network);
     } catch (IllegalArgumentException e) {
-      assertEquals("Security parameters must be at least 1 and divisible by 8", e.getMessage());
+      assertEquals("Security parameters must be at least 1 and divisible by 8",
+          e.getMessage());
       thrown = true;
     }
     assertEquals(thrown, true);
@@ -89,7 +92,8 @@ public class TestOtExtensionResourcePool {
       new CoteReceiver(new OtExtensionResourcePoolImpl(1, 2, 128, 60, 1, rand,
           ct, seedOts), network);
     } catch (IllegalArgumentException e) {
-      assertEquals("Security parameters must be at least 1 and divisible by 8", e.getMessage());
+      assertEquals("Security parameters must be at least 1 and divisible by 8",
+          e.getMessage());
       thrown = true;
     }
     assertEquals(thrown, true);

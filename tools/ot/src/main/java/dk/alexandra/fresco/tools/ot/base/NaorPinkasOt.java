@@ -37,7 +37,7 @@ public class NaorPinkasOt implements Ot {
    */
   private static final String PRG_ALGORITHM = "SHA1PRNG";
   private static final int DIFFIE_HELLMAN_SIZE = 2048;
-  private DHParameterSpec params;
+  private DHParameterSpec dhParams;
 
   /**
    * Constructs a Naor-Pinkas OT instance by interactively and securely sampling
@@ -54,7 +54,7 @@ public class NaorPinkasOt implements Ot {
    */
   public NaorPinkasOt(int myId, int otherId, Drbg rand, Network network) {
     this(myId, otherId, rand, network, null);
-    setDhParams(computeSecureDhParams());
+    computeSecureDhParams();
   }
 
   /**
@@ -81,16 +81,8 @@ public class NaorPinkasOt implements Ot {
     this.hashDigest = ExceptionConverter.safe(() -> MessageDigest.getInstance(
         HASH_ALGORITHM),
         "Missing secure, hash function which is dependent in this library");
-    this.params = params;
+    this.dhParams = params;
     this.randNum = new DrngImpl(randBit);
-  }
-
-  public DHParameterSpec getDhParams() {
-    return params;
-  }
-
-  public void setDhParams(DHParameterSpec newParams) {
-    this.params = newParams;
   }
 
   @Override
@@ -112,7 +104,7 @@ public class NaorPinkasOt implements Ot {
   }
 
   @Override
-  public StrictBitVector receive(Boolean choiceBit) {
+  public StrictBitVector receive(boolean choiceBit) {
     byte[] seed = receiveByteOt(choiceBit);
     byte[] encryptedZeroMessage = network.receive(otherId);
     byte[] encryptedOneMessage = network.receive(otherId);
@@ -198,12 +190,11 @@ public class NaorPinkasOt implements Ot {
    * @return The two random messages sent by the sender.
    */
   private Pair<byte[], byte[]> sendBytesOt() {
-    // Pick random element c
-    BigInteger c = randNum.nextBigInteger(params.getP());
+    BigInteger c = randNum.nextBigInteger(dhParams.getP());
     network.send(otherId, c.toByteArray());
     BigInteger publicKeyZero = new BigInteger(network.receive(otherId));
-    // publicKeyOne = c / keyZero
-    BigInteger publicKeyOne = publicKeyZero.modInverse(params.getP())
+    // publicKeyOne = c / publicKeyZero
+    BigInteger publicKeyOne = publicKeyZero.modInverse(dhParams.getP())
         .multiply(c);
     byte[] messageZero = new byte[hashDigest.getDigestLength()];
     byte[] messageOne = new byte[hashDigest.getDigestLength()];
@@ -222,11 +213,12 @@ public class NaorPinkasOt implements Ot {
   private byte[] receiveByteOt(Boolean choiceBit) {
     BigInteger c = new BigInteger(network.receive(otherId));
     // Pick random element privateKey
-    BigInteger privateKey = randNum.nextBigInteger(params.getP());
+    BigInteger privateKey = randNum.nextBigInteger(dhParams.getP());
     // publicKeySigma = G^privateKey mod P
-    BigInteger publicKeySigma = params.getG().modPow(privateKey, params.getP());
+    BigInteger publicKeySigma = dhParams.getG().modPow(privateKey, dhParams
+        .getP());
     // publicKeyNotSigma = c / publicKeySigma mod P
-    BigInteger publicKeyNotSigma = publicKeySigma.modInverse(params.getP())
+    BigInteger publicKeyNotSigma = publicKeySigma.modInverse(dhParams.getP())
         .multiply(c);
     if (choiceBit == false) {
       network.send(otherId, publicKeySigma.toByteArray());
@@ -256,12 +248,12 @@ public class NaorPinkasOt implements Ot {
   private BigInteger encryptMessage(BigInteger publicKey,
       byte[] message) {
     // Pick random element r
-    BigInteger r = randNum.nextBigInteger(params.getP());
+    BigInteger r = randNum.nextBigInteger(dhParams.getP());
     // Compute encryption:
     // encryption = g^r mod P
-    BigInteger encryption = params.getG().modPow(r, params.getP());
+    BigInteger encryption = dhParams.getG().modPow(r, dhParams.getP());
     // toHash = publicKey^r mod P
-    BigInteger toHash = publicKey.modPow(r, params.getP());
+    BigInteger toHash = publicKey.modPow(r, dhParams.getP());
     // randomMessage = H(toHash)
     byte[] encB = hashDigest.digest(toHash.toByteArray());
     System.arraycopy(encB, 0, message, 0, hashDigest.getDigestLength());
@@ -278,33 +270,29 @@ public class NaorPinkasOt implements Ot {
    * @return The plain message
    */
   private byte[] decryptMessage(BigInteger cipher, BigInteger privateKey) {
-    BigInteger toHash = cipher.modPow(privateKey, params.getP());
+    BigInteger toHash = cipher.modPow(privateKey, dhParams.getP());
     return hashDigest.digest(toHash.toByteArray());
   }
 
   /**
    * Agree on Diffie-Hellman parameters using coin-tossing. The parameters are
    * stored internally and used to compute the OT.
-   *
-   * @return The computed Diffie-Hellman parameters
    */
-  private DHParameterSpec computeSecureDhParams() {
+  private void computeSecureDhParams() {
     // Do coin-tossing to agree on a random seed of "kbitLength" bits
-    CoinTossing ct = new CoinTossing(myId, otherId,
-        randBit, network);
-    ct.initialize();
+    CoinTossing ct = new CoinTossing(myId, otherId, randBit);
+    ct.initialize(network);
     StrictBitVector seed = ct.toss(hashDigest.getDigestLength() * 8);
-    return computeDhParams(seed.toByteArray());
+    computeDhParams(seed.toByteArray());
   }
 
   /**
-   * Compute Diffie-Hellman parameters based on a seed.
+   * Compute and set Diffie-Hellman parameters based on a seed.
    *
    * @param seed
    *          The seed used to sample the Diffie-Hellman parameters
-   * @return The computed Diffie-Hellman parameters
    */
-  private DHParameterSpec computeDhParams(byte[] seed) {
+  private void computeDhParams(byte[] seed) {
     // Make a parameter generator for Diffie-Hellman parameters
     AlgorithmParameterGenerator paramGen = ExceptionConverter.safe(
         () -> AlgorithmParameterGenerator.getInstance("DH"),
@@ -316,7 +304,7 @@ public class NaorPinkasOt implements Ot {
     // Construct DH parameters of a 2048 bit group based on the common seed
     paramGen.init(DIFFIE_HELLMAN_SIZE, commonRand);
     AlgorithmParameters params = paramGen.generateParameters();
-    return ExceptionConverter.safe(() -> params.getParameterSpec(
+    ExceptionConverter.safe(() -> this.dhParams = params.getParameterSpec(
         DHParameterSpec.class),
         "Missing Java internal parameter generator which is needed in this library");
   }

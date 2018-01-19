@@ -50,7 +50,7 @@ public class BristolOt implements Ot {
    *          true represents 1.
    */
   @Override
-  public StrictBitVector receive(Boolean choiceBit) {
+  public StrictBitVector receive(boolean choiceBit) {
     if (this.receiver == null) {
       RotReceiver receiver = rot.getReceiver();
       this.receiver = new BristolOtReceiver(receiver, batchSize);

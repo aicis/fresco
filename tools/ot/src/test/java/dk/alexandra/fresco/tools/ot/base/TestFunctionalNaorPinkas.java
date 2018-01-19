@@ -15,7 +15,6 @@ import dk.alexandra.fresco.tools.ot.otextension.CheatingNetwork;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -52,7 +51,7 @@ public class TestFunctionalNaorPinkas {
   }
 
   private List<Pair<StrictBitVector, StrictBitVector>> otSend(int iterations)
-      throws IOException, NoSuchAlgorithmException {
+      throws IOException {
     Network network = new CheatingNetwork(
         RuntimeForTests.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     try {
@@ -65,8 +64,8 @@ public class TestFunctionalNaorPinkas {
         StrictBitVector msgZero = new StrictBitVector(messageLength, rand);
         StrictBitVector msgOne = new StrictBitVector(messageLength, rand);
         otSender.send(msgZero, msgOne);
-        Pair<StrictBitVector, StrictBitVector> currentPair = new Pair<StrictBitVector, StrictBitVector>(
-            msgZero, msgOne);
+        Pair<StrictBitVector, StrictBitVector> currentPair =
+            new Pair<StrictBitVector, StrictBitVector>(msgZero, msgOne);
         messages.add(currentPair);
       }
       return messages;
@@ -76,7 +75,7 @@ public class TestFunctionalNaorPinkas {
   }
 
   private List<StrictBitVector> otReceive(StrictBitVector choices)
-      throws IOException, NoSuchAlgorithmException {
+      throws IOException {
     Network network = new CheatingNetwork(
         RuntimeForTests.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     try {
@@ -155,7 +154,7 @@ public class TestFunctionalNaorPinkas {
 
   /***** NEGATIVE TESTS. *****/
   private List<StrictBitVector> otSendCheat()
-      throws IOException, NoSuchAlgorithmException {
+      throws IOException {
     Network network = new CheatingNetwork(
         RuntimeForTests.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     try {
@@ -176,7 +175,7 @@ public class TestFunctionalNaorPinkas {
   }
 
   private List<StrictBitVector> otReceiveCheat(boolean choice)
-      throws IOException, NoSuchAlgorithmException {
+      throws IOException {
     Network network = new CheatingNetwork(
         RuntimeForTests.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     try {

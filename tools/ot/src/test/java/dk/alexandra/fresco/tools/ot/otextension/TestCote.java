@@ -49,7 +49,7 @@ public class TestCote {
     Field received = RotList.class.getDeclaredField("received");
     received.setAccessible(true);
     received.set(seedOts, true);
-    CoinTossing ct = new CoinTossing(1, 2, rand, network);
+    CoinTossing ct = new CoinTossing(1, 2, rand);
     OtExtensionResourcePool resources = new OtExtensionResourcePoolImpl(1, 2,
         128, 40, 1, rand, ct, seedOts);
     this.cote = new Cote(resources, network);

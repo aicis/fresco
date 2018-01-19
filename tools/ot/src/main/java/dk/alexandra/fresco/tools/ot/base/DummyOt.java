@@ -21,13 +21,12 @@ public class DummyOt implements Ot {
    *          The network to use
    */
   public DummyOt(int otherId, Network network) {
-    super();
     this.otherId = otherId;
     this.network = network;
   }
 
   @Override
-  public StrictBitVector receive(Boolean choiceBit) {
+  public StrictBitVector receive(boolean choiceBit) {
     byte[] messageZeroRaw = this.network.receive(this.otherId);
     byte[] messageOneRaw = this.network.receive(this.otherId);
     return !choiceBit

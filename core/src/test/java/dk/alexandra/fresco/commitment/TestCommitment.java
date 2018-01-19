@@ -50,7 +50,8 @@ public class TestCommitment {
     HashBasedCommitmentSerializer serializer = new HashBasedCommitmentSerializer();
     byte[] serializedComm = serializer.serialize(comm);
     HashBasedCommitment deserializedComm = serializer.deserialize(serializedComm);
-    assertArrayEquals(comm.commitmentVal, deserializedComm.commitmentVal);
+    assertArrayEquals(comm.getCommitmentValue(), deserializedComm
+        .getCommitmentValue());
   }
 
   @Test
@@ -69,7 +70,8 @@ public class TestCommitment {
     List<HashBasedCommitment> deserializedList = serializer
         .deserializeList(serializedList);
     for (int i = 0; i < deserializedList.size(); i++) {
-      assertArrayEquals(list.get(i).commitmentVal, deserializedList.get(i).commitmentVal);
+      assertArrayEquals(list.get(i).getCommitmentValue(), deserializedList.get(
+          i).getCommitmentValue());
     }
   }
 

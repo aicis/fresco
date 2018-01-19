@@ -23,7 +23,6 @@ public class CoinTossing {
   private final int otherId;
   private final int myId;
   private final Drbg rand;
-  private final Network network;
   private final ByteSerializer<HashBasedCommitment> serializer;
   private boolean initialized = false;
   private Drbg coinTossingPrg;
@@ -38,31 +37,21 @@ public class CoinTossing {
    *          participating in the protocol
    * @param rand
    *          Object used for randomness generation
-   * @param network
-   *          The network instance
    */
-  public CoinTossing(int myId, int otherId, Drbg rand, Network network) {
+  public CoinTossing(int myId, int otherId, Drbg rand) {
     this.myId = myId;
     this.otherId = otherId;
     this.rand = rand;
-    this.network = network;
     this.serializer = new HashBasedCommitmentSerializer();
   }
 
   /**
-   * Returns the underlying network.
+   * Initialize the coin-tossing functionality by making the parties agree on a seed.
    *
-   * @return Returns the underlying network
+   * @param network
+   *          The network instance
    */
-  public Network getNetwork() {
-    return this.network;
-  }
-
-  /**
-   * Initialize the coin-tossing functionality by making the parties agree on a
-   * seed.
-   */
-  public void initialize() {
+  public void initialize(Network network) {
     if (initialized) {
       throw new IllegalStateException("Already initialized");
     }
@@ -70,7 +59,7 @@ public class CoinTossing {
     // exactly 32 bytes for AesCtrDrbg
     byte[] seed = new byte[32];
     rand.nextBytes(seed);
-    byte[] otherSeed = exchangeSeeds(seed);
+    byte[] otherSeed = exchangeSeeds(seed, network);
     ByteArrayHelper.xor(seed, otherSeed);
     this.coinTossingPrg = new AesCtrDrbg(seed);
     initialized = true;
@@ -81,13 +70,10 @@ public class CoinTossing {
    * nearest factor of 8.
    *
    * @param size
-   *          The amount of random bits needed
+   *          The amount of random bits needed. Must be at least 1.
    * @return The byte array consisting of uniformly random sampled bytes.
    */
   public StrictBitVector toss(int size) {
-    if (size < 1) {
-      throw new IllegalArgumentException("At least one coin must be tossed.");
-    }
     if (!initialized) {
       throw new IllegalStateException("Not initialized");
     }
@@ -103,9 +89,11 @@ public class CoinTossing {
    *
    * @param seed
    *          The current party's seed
+   * @param network
+   *          The network instance
    * @return The other party's seed
    */
-  private byte[] exchangeSeeds(byte[] seed) {
+  private byte[] exchangeSeeds(byte[] seed, Network network) {
     // Let the party with the smallest id be the party receiving a commitment
     if (myId < otherId) {
       byte[] serializedComm = network.receive(otherId);

@@ -9,7 +9,7 @@ public class HashBasedCommitmentSerializer implements ByteSerializer<HashBasedCo
 
   @Override
   public byte[] serialize(HashBasedCommitment comm) {
-    return comm.commitmentVal;
+    return comm.getCommitmentValue();
   }
 
   @Override
@@ -21,7 +21,7 @@ public class HashBasedCommitmentSerializer implements ByteSerializer<HashBasedCo
     byte[] commList = new byte[elements.size() * HashBasedCommitment.DIGEST_LENGTH];
     // Ensure all field elements are in the same field and have same bit length
     for (int i = 0; i < elements.size(); i++) {
-      System.arraycopy(elements.get(i).commitmentVal, 0, commList,
+      System.arraycopy(elements.get(i).getCommitmentValue(), 0, commList,
           i * HashBasedCommitment.DIGEST_LENGTH, HashBasedCommitment.DIGEST_LENGTH);
     }
     return commList;
@@ -34,7 +34,7 @@ public class HashBasedCommitmentSerializer implements ByteSerializer<HashBasedCo
           "The length of the byte array to deserialize is wrong.");
     }
     HashBasedCommitment comm = new HashBasedCommitment();
-    comm.commitmentVal = data.clone();
+    comm.setCommitmentValue(data.clone());
     return comm;
   }
 
@@ -55,7 +55,7 @@ public class HashBasedCommitmentSerializer implements ByteSerializer<HashBasedCo
       byte[] commVal = new byte[HashBasedCommitment.DIGEST_LENGTH];
       System.arraycopy(data, i * HashBasedCommitment.DIGEST_LENGTH,
           commVal, 0, HashBasedCommitment.DIGEST_LENGTH);
-      comm.commitmentVal = commVal;
+      comm.setCommitmentValue(commVal);
       res.add(comm);
     }
     return res;
