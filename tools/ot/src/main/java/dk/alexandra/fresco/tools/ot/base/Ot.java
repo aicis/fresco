@@ -8,8 +8,8 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 public interface Ot {
 
   /**
-   * Send two possible messages.
-   * 
+   * Send two possible messages for the recipient to choose from.
+   *
    * @param messageZero
    *          Message zero to send
    * @param messageOne
@@ -19,11 +19,11 @@ public interface Ot {
 
   /**
    * Receive one-out-of-two messages.
-   * 
+   *
    * @param choiceBit
    *          Bit indicating which message to receive. False means message zero
    *          and true means message one.
    * @return The message indicated by the choice bit
    */
-  StrictBitVector receive(Boolean choiceBit);
+  StrictBitVector receive(boolean choiceBit);
 }

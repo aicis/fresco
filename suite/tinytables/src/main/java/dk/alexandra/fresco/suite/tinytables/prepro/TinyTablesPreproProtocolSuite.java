@@ -5,7 +5,7 @@ import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.framework.util.BitVector;
+import dk.alexandra.fresco.framework.util.RegularBitVector;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTable;
@@ -195,12 +195,12 @@ public class TinyTablesPreproProtocolSuite
         network.receive(Util.otherPlayerId(resourcePool.getMyId()));
     TinyTablesElementVector otherShares = new TinyTablesElementVector(data, length);
 
-    BitVector open = TinyTablesElementVector.open(shares, otherShares);
+    RegularBitVector open = TinyTablesElementVector.open(shares, otherShares);
 
     for (int i = 0; i < unprocessedGates; i++) {
       TinyTablesPreproANDProtocol gate = this.unprocessedAndGates.get(i);
-      boolean e = open.get(2 * i);
-      boolean d = open.get(2 * i + 1);
+      boolean e = open.getBit(2 * i);
+      boolean d = open.getBit(2 * i + 1);
 
       TinyTablesElement product = TinyTablesElement.finalizeMultiplication(e, d,
           usedTriples.get(i), resourcePool.getMyId());

@@ -16,7 +16,6 @@ import dk.alexandra.fresco.tools.ot.otextension.CheatingNetwork;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -30,37 +29,31 @@ public class TestCoinTossing {
   private CoinTossing ctTwo;
   private RuntimeForTests testRuntime;
 
-  private CoinTossing setupPartyOne() throws NoSuchAlgorithmException {
-    Network network = new CheatingNetwork(
-        RuntimeForTests.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
-    // To stress things we use HMAC for one party and AES for another
-    Drbg rand = new HmacDrbg(HelperForTests.seedOne);
-    CoinTossing ct = new CoinTossing(1, 2, rand, network);
-    return ct;
-  }
-
-  private CoinTossing setupPartyTwo() {
-    Network network = new CheatingNetwork(
-        RuntimeForTests.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
-    Drbg rand = new AesCtrDrbg(HelperForTests.seedTwo);
-    CoinTossing ct = new CoinTossing(2, 1, rand, network);
-    return ct;
-  }
-
-  private Exception initCtOne() {
+  private Exception initCtOne() throws IOException {
+    Network network = null;
     try {
-      ctOne.initialize();
+      network = new CheatingNetwork(RuntimeForTests
+          .defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
+      ctOne.initialize(network);
     } catch (Exception e) {
       return e;
+    } finally {
+      ((Closeable) network).close();
     }
     return null;
   }
 
-  private Exception initCtTwo() {
+  private Exception initCtTwo() throws IOException {
+    Network network = null;
     try {
-      ctTwo.initialize();
+      network = new CheatingNetwork(RuntimeForTests
+          .defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
+      ctTwo.initialize(network);
+      ((Closeable) network).close();
     } catch (Exception e) {
       return e;
+    } finally {
+      ((Closeable) network).close();
     }
     return null;
   }
@@ -71,26 +64,18 @@ public class TestCoinTossing {
   @Before
   public void initializeRuntime() {
     this.testRuntime = new RuntimeForTests();
-    // define task each party will run
-    Callable<CoinTossing> partyOneTask = () -> setupPartyOne();
-    Callable<CoinTossing> partyTwoTask = () -> setupPartyTwo();
-    // run tasks and get ordered list of results
-    List<CoinTossing> results = testRuntime
-        .runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
-    ctOne = results.get(0);
-    ctTwo = results.get(1);
+    // To stress things we use HMAC for one party and AES for another
+    Drbg randOne = new HmacDrbg(HelperForTests.seedOne);
+    Drbg randTwo = new AesCtrDrbg(HelperForTests.seedTwo);
+    ctOne = new CoinTossing(1, 2, randOne);
+    ctTwo = new CoinTossing(2, 1, randTwo);
   }
 
   /**
    * Shuts down the network and test runtime.
-   * 
-   * @throws IOException
-   *           Thrown if the network fails to shut down
    */
   @After
-  public void shutdown() throws IOException {
-    ((Closeable) ctOne.getNetwork()).close();
-    ((Closeable) ctTwo.getNetwork()).close();
+  public void shutdown() {
     testRuntime.shutdown();
   }
 
@@ -148,18 +133,6 @@ public class TestCoinTossing {
       ctOne.toss(128);
     } catch (IllegalStateException e) {
       assertEquals("Not initialized", e.getMessage());
-      thrown = true;
-    }
-    assertEquals(true, thrown);
-  }
-
-  @Test
-  public void testIncorrectSize() {
-    boolean thrown = false;
-    try {
-      ctOne.toss(0);
-    } catch (IllegalArgumentException e) {
-      assertEquals("At least one coin must be tossed.", e.getMessage());
       thrown = true;
     }
     assertEquals(true, thrown);

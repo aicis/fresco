@@ -9,7 +9,6 @@ import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 
-import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,22 +21,20 @@ public class CoinTossingDemo {
 
   /**
    * Run one of the parties.
-   * 
+   *
    * @param myId
    *          The PID of the party running this code.
    * @param otherId
    *          The PID of the other party.
    * @throws NoSuchAlgorithmException
    *           Thrown if the underlying hash algorithm does not exist
-   * @throws IOException
-   *           Thrown in case of network issues
    */
   public void run(int myId, int otherId) throws NoSuchAlgorithmException {
     Network network = new KryoNetNetwork(getNetworkConfiguration(myId));
     System.out.println("Connected party " + myId);
     Drbg rand = new HmacDrbg(new byte[] { 0x42 });
-    CoinTossing ct = new CoinTossing(myId, otherId, rand, network);
-    ct.initialize();
+    CoinTossing ct = new CoinTossing(myId, otherId, rand);
+    ct.initialize(network);
     StrictBitVector bits = ct.toss(amountOfBits);
     byte[] bytes = bits.toByteArray();
     System.out.println("done party " + myId);
@@ -51,7 +48,7 @@ public class CoinTossingDemo {
   /**
    * The main function, taking one argument, the PID of the calling party. I.e.
    * the one currently executing the code.
-   * 
+   *
    * @param args
    *          Argument list, consisting of only the PID
    */

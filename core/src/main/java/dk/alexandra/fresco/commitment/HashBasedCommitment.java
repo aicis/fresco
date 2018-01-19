@@ -29,7 +29,7 @@ public class HashBasedCommitment {
   /**
    * The actual value representing the commitment.
    */
-  byte[] commitmentVal = null;
+  private byte[] commitmentVal = null;
   private final MessageDigest digest;
 
   /**
@@ -93,5 +93,24 @@ public class HashBasedCommitment {
     } else {
       throw new MaliciousException("The opening info does not match the commitment.");
     }
+  }
+
+  /**
+   * Returns the byte array value that is the actual commitment.
+   *
+   * @return the byte array commitment
+   */
+  byte[] getCommitmentValue() {
+    return commitmentVal;
+  }
+
+  /**
+   * Sets the commitment value.
+   *
+   * @param commitmentValue
+   *          the commitment value
+   */
+  void setCommitmentValue(byte[] commitmentValue) {
+    this.commitmentVal = commitmentValue;
   }
 }

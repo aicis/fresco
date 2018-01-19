@@ -17,7 +17,8 @@ public interface RotBatch {
    * @param messageSize The size of the messages
    * @return The random messages construct for each of the OTs
    */
-  List<Pair<StrictBitVector, StrictBitVector>> send(int numMessages, int messageSize);
+  List<Pair<StrictBitVector, StrictBitVector>> send(int numMessages,
+      int messageSize);
 
   /**
    * Receive random messages based on the choice bits in {@code choiceBits}.
