@@ -15,7 +15,6 @@ import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
 import java.io.Closeable;
 import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,15 +24,14 @@ public class MascotDemo {
 
   private final Mascot mascot;
   private final Closeable toClose;
-  private int networkBufferSize = 104856800;
   private MascotSecurityParameters parameters = new MascotSecurityParameters();
-  private int instanceId = 1;
 
-  MascotDemo(Integer myId, List<Integer> partyIds) {
+  private MascotDemo(int myId, int noOfParties) {
+    int networkBufferSize = 104856800;
     Network network =
-        new KryoNetNetwork(defaultNetworkConfiguration(myId, partyIds), networkBufferSize, false,
+        new KryoNetNetwork(defaultNetworkConfiguration(myId, noOfParties), networkBufferSize, false,
             15000);
-    MascotResourcePool resourcePool = defaultResourcePool(myId, partyIds,
+    MascotResourcePool resourcePool = defaultResourcePool(myId, noOfParties,
         network);
     FieldElement macKeyShare = resourcePool.getLocalSampler().getNext(
         resourcePool.getModulus());
@@ -57,22 +55,22 @@ public class MascotDemo {
     ExceptionConverter.safe(closeTask, "Failed closing network");
   }
 
-  private NetworkConfiguration defaultNetworkConfiguration(Integer myId, List<Integer> partyIds) {
+  private NetworkConfiguration defaultNetworkConfiguration(int myId, int noOfParties) {
     Map<Integer, Party> parties = new HashMap<>();
-    for (Integer partyId : partyIds) {
+    for (int partyId = 1; partyId <= noOfParties; partyId++) {
       parties.put(partyId, new Party(partyId, "localhost", 8005 + partyId));
     }
     return new NetworkConfigurationImpl(myId, parties);
   }
 
-  private MascotResourcePool defaultResourcePool(Integer myId, List<Integer> partyIds,
+  private MascotResourcePool defaultResourcePool(int myId, int noOfParties,
       Network network) {
     // generate random seed for local DRBG
     byte[] drbgSeed = new byte[parameters.getPrgSeedLength() / 8];
     new SecureRandom().nextBytes(drbgSeed);
     Drbg drbg = new PaddingAesCtrDrbg(drbgSeed);
     Map<Integer, RotList> seedOts = new HashMap<>();
-    for (Integer otherId : partyIds) {
+    for (int otherId = 1; otherId <= noOfParties; otherId++) {
       if (myId != otherId) {
         Ot ot = new NaorPinkasOt(myId, otherId, drbg, network);
         RotList currentSeedOts = new RotList(drbg, parameters.getPrgSeedLength());
@@ -86,17 +84,16 @@ public class MascotDemo {
         seedOts.put(otherId, currentSeedOts);
       }
     }
-    return new MascotResourcePoolImpl(myId, partyIds.size(), instanceId, drbg, seedOts,
-        new MascotSecurityParameters());
+    int instanceId = 1;
+    return new MascotResourcePoolImpl(myId, noOfParties, instanceId, drbg, seedOts, parameters);
   }
 
   /**
    * Runs demo.
    */
   public static void main(String[] args) {
-    Integer myId = Integer.parseInt(args[0]);
-    List<Integer> partyIds = Arrays.asList(1, 2);
-    new MascotDemo(myId, partyIds).run(10, 1024);
+    int myId = Integer.parseInt(args[0]);
+    new MascotDemo(myId, 2).run(10, 1024);
   }
 
 }
