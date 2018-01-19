@@ -23,11 +23,26 @@ public class AuthenticatedElement implements Addable<AuthenticatedElement> {
     this.modulus = modulus;
   }
 
+  /**
+   * Adds other to this and returns result.
+   * @param other value to be added
+   * @return sum
+   */
   @Override
   public AuthenticatedElement add(AuthenticatedElement other) {
     return new AuthenticatedElement(share.add(other.share), mac.add(other.mac), modulus);
   }
 
+  /**
+   * Adds constant (open) value to this and returns result. <p>All parties compute their mac share
+   * of the public value and add it to the mac share of the authenticated value, however only party
+   * 1 adds the public value to is value share.</p>
+   *
+   * @param other constant, open value
+   * @param partyId party ID used to ensure that only one party adds value to share
+   * @param macKeyShare mac key share for maccing open value
+   * @return result of sum
+   */
   public AuthenticatedElement add(FieldElement other, int partyId, FieldElement macKeyShare) {
     FieldElement otherMac = other.multiply(macKeyShare);
     // only party 1 actually adds value to its share
@@ -37,10 +52,20 @@ public class AuthenticatedElement implements Addable<AuthenticatedElement> {
     return add(wrapped);
   }
 
+  /**
+   * Subtracts other from this and returns result.
+   * @param other value to be subtracted
+   * @return difference
+   */
   public AuthenticatedElement subtract(AuthenticatedElement other) {
     return new AuthenticatedElement(share.subtract(other.share), mac.subtract(other.mac), modulus);
   }
 
+  /**
+   * Multiplies this by public, constant value and returns result.
+   * @param constant factor
+   * @return product
+   */
   public AuthenticatedElement multiply(FieldElement constant) {
     return new AuthenticatedElement(share.multiply(constant), mac.multiply(constant), modulus);
   }
