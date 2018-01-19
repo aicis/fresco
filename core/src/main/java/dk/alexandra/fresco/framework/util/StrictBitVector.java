@@ -114,7 +114,8 @@ public class StrictBitVector implements BitVector {
    */
   @Override
   public byte[] toByteArray() {
-    return bits;
+    // TODO when we return bits directly we run into correlation errors in TestParallelMascots.
+    return bits.clone();
   }
 
   /**
