@@ -69,7 +69,7 @@ public class OnlinePhase extends BaseProtocol {
       FieldElement epsilonDeltaProd = epsilon.multiply(delta);
       // [c] + epsilon * [b] + delta * [a] + epsilon * delta
       AuthenticatedElement product = triple.getProduct().add(right.multiply(epsilon))
-          .add(left.multiply(delta)).add(epsilonDeltaProd, getMyId(), macKeyShare);
+          .add(left.multiply(delta)).add(epsilonDeltaProd, super.getResourcePool().getMyId(), macKeyShare);
       products.add(product);
     }
     return products;

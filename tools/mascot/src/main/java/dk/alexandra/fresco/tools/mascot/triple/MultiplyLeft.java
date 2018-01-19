@@ -64,11 +64,12 @@ class MultiplyLeft extends TwoPartyProtocol {
    *         ...</i>
    */
   public List<FieldElement> multiply(List<FieldElement> leftFactors) {
-    List<StrictBitVector> seeds = multiplyLeftHelper.generateSeeds(leftFactors, getModBitLength());
-    List<FieldElement> feSeeds = seedsToFieldElements(seeds, getModulus());
+    List<StrictBitVector> seeds = multiplyLeftHelper.generateSeeds(leftFactors,
+        super.getResourcePool().getModBitLength());
+    List<FieldElement> feSeeds = seedsToFieldElements(seeds, super.getResourcePool().getModulus());
     // receive diffs from other party
     List<FieldElement> diffs =
-        getFieldElementSerializer().deserializeList(getNetwork().receive(getOtherId()));
+        super.getResourcePool().getFieldElementSerializer().deserializeList(getNetwork().receive(getOtherId()));
     return multiplyLeftHelper.computeProductShares(leftFactors, feSeeds, diffs);
   }
 

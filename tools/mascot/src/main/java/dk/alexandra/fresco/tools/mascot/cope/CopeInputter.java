@@ -43,7 +43,7 @@ public class CopeInputter extends TwoPartyProtocol {
     this.leftPrgs = new ArrayList<>();
     this.rightPrgs = new ArrayList<>();
     this.helper = new MultiplyRightHelper(resourcePool, network, otherId);
-    seedPrgs(helper.generateSeeds(1, getLambdaSecurityParam()));
+    seedPrgs(helper.generateSeeds(1, resourcePool.getLambdaSecurityParam()));
   }
 
   /**
@@ -58,7 +58,7 @@ public class CopeInputter extends TwoPartyProtocol {
     // compute t0 - t1 + x for each input x for each mask pair
     List<FieldElement> diffs = helper.computeDiffs(maskPairs, inputElements);
     // send diffs
-    getNetwork().send(getOtherId(), getFieldElementSerializer().serialize(diffs));
+    getNetwork().send(getOtherId(), super.getResourcePool().getFieldElementSerializer().serialize(diffs));
     // get zero index masks
     List<FieldElement> feZeroSeeds =
         maskPairs.stream().map(feSeedPair -> feSeedPair.getFirst()).collect(Collectors.toList());
@@ -73,7 +73,7 @@ public class CopeInputter extends TwoPartyProtocol {
     List<Pair<FieldElement, FieldElement>> maskPairs = new ArrayList<>();
     for (int i = 0; i < numInputs; i++) {
       // generate masks for single input
-      maskPairs.addAll(generateMaskPairs(getModulus()));
+      maskPairs.addAll(generateMaskPairs(super.getResourcePool().getModulus()));
     }
     return maskPairs;
   }

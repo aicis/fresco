@@ -59,14 +59,14 @@ class MultiplyRight extends TwoPartyProtocol {
    */
   public List<FieldElement> multiply(List<FieldElement> rightFactors) {
     List<Pair<StrictBitVector, StrictBitVector>> seedPairs =
-        multiplyRightHelper.generateSeeds(rightFactors.size(), getModBitLength());
+        multiplyRightHelper.generateSeeds(rightFactors.size(), super.getResourcePool().getModBitLength());
     // convert seeds pairs to field elements so we can compute on them
     List<Pair<FieldElement, FieldElement>> feSeedPairs =
-        seedsToFieldElements(seedPairs, getModulus());
+        seedsToFieldElements(seedPairs, super.getResourcePool().getModulus());
     // compute q0 - q1 + b for each seed pair
     List<FieldElement> diffs = multiplyRightHelper.computeDiffs(feSeedPairs, rightFactors);
     // send diffs over to other party
-    getNetwork().send(getOtherId(), getFieldElementSerializer().serialize(diffs));
+    getNetwork().send(getOtherId(), super.getResourcePool().getFieldElementSerializer().serialize(diffs));
     // get zero index seeds
     List<FieldElement> feZeroSeeds =
         feSeedPairs.stream().map(Pair::getFirst).collect(Collectors.toList());

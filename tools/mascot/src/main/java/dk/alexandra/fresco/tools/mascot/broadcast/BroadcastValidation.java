@@ -22,10 +22,10 @@ public class BroadcastValidation extends BaseProtocol {
    */
   private byte[] computeDigest(List<byte[]> messages) {
     for (byte[] message : messages) {
-      getMessageDigest().update(message);
+      super.getResourcePool().getMessageDigest().update(message);
     }
-    byte[] digest = getMessageDigest().digest();
-    getMessageDigest().reset();
+    byte[] digest = super.getResourcePool().getMessageDigest().digest();
+    super.getResourcePool().getMessageDigest().reset();
     return digest;
   }
 

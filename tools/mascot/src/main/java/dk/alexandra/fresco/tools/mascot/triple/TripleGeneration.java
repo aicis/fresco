@@ -46,9 +46,9 @@ public class TripleGeneration extends BaseProtocol {
   }
 
   private void initializeMultipliers(MascotResourcePool resourcePool, Network network) {
-    for (int partyId = 1; partyId <= getNoOfParties(); partyId++) {
-      if (partyId != getMyId()) {
-        if (getMyId() < partyId) {
+    for (int partyId = 1; partyId <= resourcePool.getNoOfParties(); partyId++) {
+      if (partyId != resourcePool.getMyId()) {
+        if (resourcePool.getMyId() < partyId) {
           rightMultipliers.put(partyId, new MultiplyRight(resourcePool, network,
               partyId));
           leftMultipliers.put(partyId, new MultiplyLeft(resourcePool, network,
@@ -79,11 +79,13 @@ public class TripleGeneration extends BaseProtocol {
    */
   public List<MultTriple> triple(int numTriples) {
     // generate random left factor groups
-    List<FieldElement> leftFactorGroups = getLocalSampler().getNext(getModulus(),
-        numTriples * getNumCandidatesPerTriple());
+    List<FieldElement> leftFactorGroups = super.getResourcePool().getLocalSampler()
+        .getNext(super.getResourcePool().getModulus(),
+        numTriples * super.getResourcePool().getNumCandidatesPerTriple());
     // generate random right factors
     List<FieldElement> rightFactors =
-        getLocalSampler().getNext(getModulus(), numTriples);
+        super.getResourcePool()
+            .getLocalSampler().getNext(super.getResourcePool().getModulus(), numTriples);
     // compute product groups
     List<FieldElement> productGroups = multiply(leftFactorGroups, rightFactors);
     // combine into unauthenticated triples
@@ -120,16 +122,16 @@ public class TripleGeneration extends BaseProtocol {
     // step 1 of protocol occurred before this method
     // "stretch" right factors, so we have one right factor for each left factor
     List<FieldElement> stretched =
-        getFieldElementUtils().stretch(rightFactors, getNumCandidatesPerTriple());
+        getFieldElementUtils().stretch(rightFactors, super.getResourcePool().getNumCandidatesPerTriple());
 
     // step 2 of protocol
     // for each value we will have two sub-factors for each other party
     List<List<FieldElement>> subFactors = new ArrayList<>();
-    for (int partyId = 1; partyId <= getNoOfParties(); partyId++) {
-      if (partyId != getMyId()) {
+    for (int partyId = 1; partyId <= super.getResourcePool().getNoOfParties(); partyId++) {
+      if (partyId != super.getResourcePool().getMyId()) {
         MultiplyLeft leftMult = leftMultipliers.get(partyId);
         MultiplyRight rightMult = rightMultipliers.get(partyId);
-        if (getMyId() < partyId) {
+        if (super.getResourcePool().getMyId() < partyId) {
           subFactors.add(rightMult.multiply(stretched));
           subFactors.add(leftMult.multiply(leftFactorGroups));
         } else {
@@ -157,10 +159,10 @@ public class TripleGeneration extends BaseProtocol {
     int numTriples = triples.size();
 
     List<List<FieldElement>> masks = jointSampler
-        .getNext(getModulus(), numTriples, getNumCandidatesPerTriple());
+        .getNext(super.getResourcePool().getModulus(), numTriples, super.getResourcePool().getNumCandidatesPerTriple());
 
-    List<List<FieldElement>> sacrificeMasks = jointSampler.getNext(getModulus(),
-        numTriples, getNumCandidatesPerTriple());
+    List<List<FieldElement>> sacrificeMasks = jointSampler.getNext(super.getResourcePool().getModulus(),
+        numTriples, super.getResourcePool().getNumCandidatesPerTriple());
 
     // step 2 of protocol
     return IntStream.range(0, numTriples)
@@ -182,8 +184,8 @@ public class TripleGeneration extends BaseProtocol {
         .collect(Collectors.toList());
 
     List<List<AuthenticatedElement>> shares = new ArrayList<>();
-    for (int partyId = 1; partyId <= getNoOfParties(); partyId++) {
-      if (partyId == getMyId()) {
+    for (int partyId = 1; partyId <= super.getResourcePool().getNoOfParties(); partyId++) {
+      if (partyId == super.getResourcePool().getMyId()) {
         shares.add(elementGeneration.input(flatInputs));
       } else {
         shares.add(elementGeneration.input(partyId, flatInputs.size()));
@@ -201,7 +203,7 @@ public class TripleGeneration extends BaseProtocol {
   private List<MultTriple> sacrifice(List<AuthenticatedCandidate> candidates) {
     // step 1 or protocol
     List<FieldElement> randomCoefficients = jointSampler
-        .getNext(getModulus(), candidates.size());
+        .getNext(super.getResourcePool().getModulus(), candidates.size());
 
     // step 2
     // compute masked values we will open and use in mac-check
@@ -220,7 +222,7 @@ public class TripleGeneration extends BaseProtocol {
     rhos.addAll(sigmas);
     // pad open rhos with zeroes, one for each sigma
     List<FieldElement> paddedRhos = getFieldElementUtils().padWith(openRhos,
-        new FieldElement(0, getModulus()), sigmas.size());
+        new FieldElement(0, super.getResourcePool().getModulus()), sigmas.size());
     // run mac-check
     elementGeneration.check(rhos, paddedRhos);
 
@@ -232,8 +234,8 @@ public class TripleGeneration extends BaseProtocol {
       List<FieldElement> right,
       List<FieldElement> products) {
     Stream<UnauthenticatedTriple> stream = IntStream.range(0, right.size()).mapToObj(idx -> {
-      int groupStart = idx * getNumCandidatesPerTriple();
-      int groupEnd = (idx + 1) * getNumCandidatesPerTriple();
+      int groupStart = idx * super.getResourcePool().getNumCandidatesPerTriple();
+      int groupEnd = (idx + 1) * super.getResourcePool().getNumCandidatesPerTriple();
       return new UnauthenticatedTriple(left.subList(groupStart, groupEnd), right.get(idx),
           products.subList(groupStart, groupEnd));
     });

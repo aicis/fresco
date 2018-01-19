@@ -55,9 +55,9 @@ public class BitConverter extends BaseProtocol {
       AuthenticatedElement oneOrNegativeOne =
           randomElement.multiply(root.modInverse()); // division
       FieldElement two =
-          new FieldElement(2, getModulus());
-      FieldElement one = new FieldElement(1, getModulus());
-      AuthenticatedElement bit = oneOrNegativeOne.add(one, getMyId(), macKeyShare)
+          new FieldElement(2, super.getResourcePool().getModulus());
+      FieldElement one = new FieldElement(1, super.getResourcePool().getModulus());
+      AuthenticatedElement bit = oneOrNegativeOne.add(one, super.getResourcePool().getMyId(), macKeyShare)
           .multiply(two.modInverse());
       bits.add(bit);
     }

@@ -3,7 +3,9 @@ package dk.alexandra.fresco.tools.mascot.mult;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
+import dk.alexandra.fresco.tools.mascot.TwoPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,11 +15,13 @@ import java.util.List;
  * and the multiplication sub-protocol used by {@link dk.alexandra.fresco.tools.mascot.triple.TripleGeneration}.
  * These two classes share a lot functionality. This functionality is implemented here.
  */
-public class MultiplyLeftHelper extends MultiplySharedHelper {
+public class MultiplyLeftHelper extends TwoPartyProtocol {
 
-  public MultiplyLeftHelper(MascotResourcePool resourcePool,
-      Network network, Integer otherId) {
+  private final RotBatch rot;
+
+  public MultiplyLeftHelper(MascotResourcePool resourcePool, Network network, int otherId) {
     super(resourcePool, network, otherId);
+    this.rot = resourcePool.createRot(otherId, network);
   }
 
   /**
@@ -31,7 +35,6 @@ public class MultiplyLeftHelper extends MultiplySharedHelper {
     StrictBitVector packedFactors = getFieldElementUtils().pack(leftFactors);
     // use rot to get choice seeds
     List<StrictBitVector> seeds = getRot().receive(packedFactors, seedLength);
-    // TODO temporary fix until big-endianness issue is resolved
     Collections.reverse(seeds);
     return seeds;
   }
@@ -41,8 +44,7 @@ public class MultiplyLeftHelper extends MultiplySharedHelper {
   }
 
   /**
-   * Computes this party's shares of the products. <br>
-   * There is a product share per left factor.
+   * Computes this party's shares of the products. <br> There is a product share per left factor.
    *
    * @param leftFactors this party's multiplication factors
    * @param feSeeds seeds as field elements
@@ -54,8 +56,8 @@ public class MultiplyLeftHelper extends MultiplySharedHelper {
     List<FieldElement> result = new ArrayList<>(leftFactors.size());
     int diffIdx = 0;
     for (FieldElement leftFactor : leftFactors) {
-      List<FieldElement> summands = new ArrayList<>(getModBitLength());
-      for (int b = 0; b < getModBitLength(); b++) {
+      List<FieldElement> summands = new ArrayList<>(super.getResourcePool().getModBitLength());
+      for (int b = 0; b < super.getResourcePool().getModBitLength(); b++) {
         FieldElement feSeed = feSeeds.get(diffIdx);
         FieldElement diff = diffs.get(diffIdx);
         boolean bit = leftFactor.getBit(b);
@@ -67,5 +69,9 @@ public class MultiplyLeftHelper extends MultiplySharedHelper {
       result.add(productShare);
     }
     return result;
+  }
+
+  RotBatch getRot() {
+    return rot;
   }
 }

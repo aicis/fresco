@@ -89,11 +89,13 @@ public class Mascot extends BaseProtocol {
    * @return random authenticated elements
    */
   public List<AuthenticatedElement> getRandomElements(int numElements) {
-    List<List<AuthenticatedElement>> perPartyElements = new ArrayList<>(getNoOfParties());
-    for (int partyId = 1; partyId <= getNoOfParties(); partyId++) {
-      if (partyId == getMyId()) {
+    List<List<AuthenticatedElement>> perPartyElements = new ArrayList<>(
+        super.getResourcePool().getNoOfParties());
+    for (int partyId = 1; partyId <= super.getResourcePool().getNoOfParties(); partyId++) {
+      if (partyId == super.getResourcePool().getMyId()) {
         List<FieldElement> randomElements =
-            getLocalSampler().getNext(getModulus(), numElements);
+            super.getResourcePool()
+                .getLocalSampler().getNext(super.getResourcePool().getModulus(), numElements);
         perPartyElements.add(elementGeneration.input(randomElements));
       } else {
         perPartyElements.add(elementGeneration.input(partyId, numElements));
@@ -110,9 +112,10 @@ public class Mascot extends BaseProtocol {
    * @return input masks
    */
   public List<InputMask> getInputMasks(Integer maskerId, int numMasks) {
-    if (maskerId.equals(getMyId())) {
+    if (maskerId.equals(super.getResourcePool().getMyId())) {
       List<FieldElement> randomMasks =
-          getLocalSampler().getNext(getModulus(), numMasks);
+          super.getResourcePool()
+              .getLocalSampler().getNext(super.getResourcePool().getModulus(), numMasks);
       List<AuthenticatedElement> authenticated = input(randomMasks);
       return IntStream.range(0, numMasks)
           .mapToObj(idx -> new InputMask(randomMasks.get(idx), authenticated.get(idx)))

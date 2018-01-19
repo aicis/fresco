@@ -43,7 +43,8 @@ public class ElementGeneration extends BaseProtocol {
     this.macKeyShare = macKeyShare;
     this.localSampler = resourcePool.getLocalSampler();
     this.jointSampler = jointSampler;
-    this.sharer = new AdditiveSharer(localSampler, getModulus(), getModBitLength());
+    this.sharer = new AdditiveSharer(localSampler, resourcePool.getModulus(),
+        resourcePool.getModBitLength());
     this.copeSigners = new HashMap<>();
     this.copeInputters = new HashMap<>();
     initializeCope(resourcePool, network);
@@ -61,25 +62,25 @@ public class ElementGeneration extends BaseProtocol {
     values = new ArrayList<>(values);
 
     // add extra random element which will later be used to mask inputs (step 1)
-    FieldElement extraElement = localSampler.getNext(getModulus());
+    FieldElement extraElement = localSampler.getNext(super.getResourcePool().getModulus());
     values.add(extraElement);
 
     // inputter secret-shares input values (step 2)
-    List<FieldElement> shares = secretShare(values, getNoOfParties());
+    List<FieldElement> shares = secretShare(values, super.getResourcePool().getNoOfParties());
 
     // compute per element mac share (steps 3, 4, 5)
     List<FieldElement> macs = macValues(values);
 
     // generate coefficients for values and macs (step 6)
     List<FieldElement> coefficients = jointSampler
-        .getNext(getModulus(), values.size());
+        .getNext(super.getResourcePool().getModulus(), values.size());
 
     // mask and combine values (step 7)
     FieldElement maskedValue = getFieldElementUtils().innerProduct(values, coefficients);
     // send masked value to all other parties
-    getNetwork().sendToAll(getFieldElementSerializer().serialize(maskedValue));
+    getNetwork().sendToAll(super.getResourcePool().getFieldElementSerializer().serialize(maskedValue));
     // so that we can use receiveFromAll correctly later
-    getNetwork().receive(getMyId());
+    getNetwork().receive(super.getResourcePool().getMyId());
 
     // perform mac-check on opened value (will throw if mac check fails) (steps 8 and 9)
     runMacCheck(maskedValue, coefficients, macs);
@@ -101,7 +102,7 @@ public class ElementGeneration extends BaseProtocol {
   public List<AuthenticatedElement> input(Integer inputterId, int numInputs) {
     // receive shares from inputter (step 2)
     List<FieldElement> shares =
-        getFieldElementSerializer().deserializeList(getNetwork().receive(inputterId));
+        super.getResourcePool().getFieldElementSerializer().deserializeList(getNetwork().receive(inputterId));
 
     // receive per-element mac shares (steps 3 through 5)
     CopeSigner copeSigner = copeSigners.get(inputterId);
@@ -109,11 +110,11 @@ public class ElementGeneration extends BaseProtocol {
 
     // generate coefficients for macs (step 6)
     List<FieldElement> coefficients = jointSampler
-        .getNext(getModulus(),  numInputs + 1);
+        .getNext(super.getResourcePool().getModulus(),  numInputs + 1);
 
     // receive masked value we will use in mac-check (step 7)
     FieldElement maskedValue =
-        getFieldElementSerializer().deserialize(getNetwork().receive(inputterId));
+        super.getResourcePool().getFieldElementSerializer().deserialize(getNetwork().receive(inputterId));
 
     // perform mac-check on opened value (steps 8 through 9)
     runMacCheck(maskedValue, coefficients, macs);
@@ -134,7 +135,7 @@ public class ElementGeneration extends BaseProtocol {
   public void check(List<AuthenticatedElement> sharesWithMacs, List<FieldElement> openValues) {
     // will use this to mask macs
     List<FieldElement> masks =
-        jointSampler.getNext(getModulus(), sharesWithMacs.size());
+        jointSampler.getNext(super.getResourcePool().getModulus(), sharesWithMacs.size());
     // only need macs
     List<FieldElement> macs =
         sharesWithMacs.stream().map(AuthenticatedElement::getMac).collect(Collectors.toList());
@@ -155,12 +156,12 @@ public class ElementGeneration extends BaseProtocol {
     List<FieldElement> ownShares =
         closed.stream().map(AuthenticatedElement::getShare).collect(Collectors.toList());
     // send own shares to others
-    getNetwork().sendToAll(getFieldElementSerializer().serialize(ownShares));
+    getNetwork().sendToAll(super.getResourcePool().getFieldElementSerializer().serialize(ownShares));
     // receive others' shares
     List<byte[]> rawShares = getNetwork().receiveFromAll();
     // parse
     List<List<FieldElement>> shares = rawShares.stream()
-        .map(getFieldElementSerializer()::deserializeList)
+        .map(super.getResourcePool().getFieldElementSerializer()::deserializeList)
         .collect(Collectors.toList());
     // recombine (step 2)
     return getFieldElementUtils().sumRows(shares);
@@ -206,15 +207,15 @@ public class ElementGeneration extends BaseProtocol {
     List<List<FieldElement>> allShares =
         values.stream().map(value -> sharer.share(value, numShares)).collect(Collectors.toList());
     List<List<FieldElement>> byParty = getFieldElementUtils().transpose(allShares);
-    for (int partyId = 1; partyId <= getNoOfParties(); partyId++) {
+    for (int partyId = 1; partyId <= super.getResourcePool().getNoOfParties(); partyId++) {
       // send shares to everyone but self
-      if (partyId != getMyId()) {
+      if (partyId != super.getResourcePool().getMyId()) {
         List<FieldElement> shares = byParty.get(partyId - 1);
-        getNetwork().send(partyId, getFieldElementSerializer().serialize(shares));
+        getNetwork().send(partyId, super.getResourcePool().getFieldElementSerializer().serialize(shares));
       }
     }
     // return own shares
-    return byParty.get(getMyId() - 1);
+    return byParty.get(super.getResourcePool().getMyId() - 1);
   }
 
   /**
@@ -226,7 +227,7 @@ public class ElementGeneration extends BaseProtocol {
         .mapToObj(idx -> {
           FieldElement share = shares.get(idx);
           FieldElement mac = macs.get(idx);
-          return new AuthenticatedElement(share, mac, getModulus());
+          return new AuthenticatedElement(share, mac, super.getResourcePool().getModulus());
         })
         .collect(Collectors.toList());
   }
@@ -252,12 +253,12 @@ public class ElementGeneration extends BaseProtocol {
    * difference that the mac key share has already been sampled before this protocol runs).
    */
   private void initializeCope(MascotResourcePool resourcePool, Network network) {
-    for (int partyId = 1; partyId <= getNoOfParties(); partyId++) {
-      if (getMyId() != partyId) {
+    for (int partyId = 1; partyId <= resourcePool.getNoOfParties(); partyId++) {
+      if (resourcePool.getMyId() != partyId) {
         CopeSigner signer;
         CopeInputter inputter;
         // construction order matters since receive blocks and this is not parallelized
-        if (getMyId() < partyId) {
+        if (resourcePool.getMyId() < partyId) {
           signer = new CopeSigner(resourcePool, network, partyId, this.macKeyShare);
           inputter = new CopeInputter(resourcePool, network, partyId);
         } else {
@@ -269,5 +270,4 @@ public class ElementGeneration extends BaseProtocol {
       }
     }
   }
-
 }

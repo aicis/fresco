@@ -40,7 +40,7 @@ public class CoinTossingMpc extends CommitmentBasedInput<StrictBitVector> {
    */
   public StrictBitVector generateJointSeed(int bitLengthSeed) {
     // generate own seed
-    return generateJointSeed(new StrictBitVector(bitLengthSeed, getRandomGenerator()));
+    return generateJointSeed(new StrictBitVector(bitLengthSeed, super.getResourcePool().getRandomGenerator()));
   }
 
   /**

@@ -46,12 +46,12 @@ public class CommitmentBasedInput<T> extends BaseProtocol {
    */
   private List<HashBasedCommitment> distributeCommitments(HashBasedCommitment comm) {
     // broadcast own commitment
-    broadcaster.sendToAll(getCommitmentSerializer().serialize(comm));
+    broadcaster.sendToAll(super.getResourcePool().getCommitmentSerializer().serialize(comm));
     // receive other parties' commitments from broadcast
     List<byte[]> rawComms = broadcaster.receiveFromAll();
     // parse
     return rawComms.stream()
-        .map(getCommitmentSerializer()::deserialize)
+        .map(super.getResourcePool().getCommitmentSerializer()::deserialize)
         .collect(Collectors.toList());
   }
 
@@ -102,7 +102,7 @@ public class CommitmentBasedInput<T> extends BaseProtocol {
     HashBasedCommitment ownComm = new HashBasedCommitment();
 
     // commit to value locally
-    byte[] ownOpening = ownComm.commit(getRandomGenerator(), serializer.serialize(value));
+    byte[] ownOpening = ownComm.commit(super.getResourcePool().getRandomGenerator(), serializer.serialize(value));
 
     // all parties commit
     List<HashBasedCommitment> comms = distributeCommitments(ownComm);

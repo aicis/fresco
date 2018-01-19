@@ -47,7 +47,7 @@ public class CopeSigner extends TwoPartyProtocol {
     this.macKeyShare = macKeyShare;
     this.multiplier = new MultiplyLeftHelper(resourcePool, network, otherId);
     this.prgs = new ArrayList<>();
-    seedPrgs(multiplier.generateSeeds(macKeyShare, getLambdaSecurityParam()));
+    seedPrgs(multiplier.generateSeeds(macKeyShare, resourcePool.getLambdaSecurityParam()));
   }
 
   /**
@@ -58,9 +58,10 @@ public class CopeSigner extends TwoPartyProtocol {
    */
   public List<FieldElement> extend(int numInputs) {
     // compute chosen masks
-    List<FieldElement> chosenMasks = generateMasks(numInputs, getModulus(), getModBitLength());
+    List<FieldElement> chosenMasks = generateMasks(numInputs, super.getResourcePool().getModulus(),
+        super.getResourcePool().getModBitLength());
     // receive diffs from other party
-    List<FieldElement> diffs = getFieldElementSerializer()
+    List<FieldElement> diffs = super.getResourcePool().getFieldElementSerializer()
         .deserializeList(getNetwork().receive(getOtherId()));
     // use mac share for each input
     List<FieldElement> macKeyShares =

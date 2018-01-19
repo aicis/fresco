@@ -14,7 +14,8 @@ public abstract class TwoPartyProtocol extends BaseProtocol {
     this.otherId = otherId;
   }
 
-  public int getOtherId() {
+  protected int getOtherId() {
     return otherId;
   }
+
 }

@@ -4,7 +4,9 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
+import dk.alexandra.fresco.tools.mascot.TwoPartyProtocol;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -14,11 +16,13 @@ import java.util.List;
  * and the multiplication sub-protocol used by {@link dk.alexandra.fresco.tools.mascot.triple.TripleGeneration}.
  * These two classes share a lot of functionality. This functionality is implemented here.
  */
-public class MultiplyRightHelper extends MultiplySharedHelper {
+public class MultiplyRightHelper extends TwoPartyProtocol {
 
-  public MultiplyRightHelper(MascotResourcePool resourcePool,
-      Network network, Integer otherId) {
+  private final RotBatch rot;
+
+  public MultiplyRightHelper(MascotResourcePool resourcePool, Network network, int otherId) {
     super(resourcePool, network, otherId);
+    this.rot = resourcePool.createRot(otherId, network);
   }
 
   /**
@@ -37,7 +41,7 @@ public class MultiplyRightHelper extends MultiplySharedHelper {
    */
   public List<Pair<StrictBitVector, StrictBitVector>> generateSeeds(int numMults, int seedLength) {
     // perform rots for each bit, for each left factor, for each multiplication
-    int numRots = getModBitLength() * numMults;
+    int numRots = super.getResourcePool().getModBitLength() * numMults;
     List<Pair<StrictBitVector, StrictBitVector>> seeds = getRot().send(numRots, seedLength);
     Collections.reverse(seeds);
     return seeds;
@@ -64,15 +68,14 @@ public class MultiplyRightHelper extends MultiplySharedHelper {
       FieldElement diff = computeDiff(feSeedPair, rightFactor);
       diffs.add(diff);
       seedPairIdx++;
-      rightFactorIdx = seedPairIdx / (getModBitLength());
+      rightFactorIdx = seedPairIdx / (super.getResourcePool().getModBitLength());
     }
     return diffs;
   }
 
   /**
-   * Computes this party's shares of the final products. <br>
-   * For each seed pair (q0, q1) this party holds, uses q0 to recombine into field elements
-   * representing the product shares.
+   * Computes this party's shares of the final products. <br> For each seed pair (q0, q1) this party
+   * holds, uses q0 to recombine into field elements representing the product shares.
    *
    * @param feZeroSeeds the zero choice seeds
    * @param numRightFactors number of total right factors
@@ -82,8 +85,8 @@ public class MultiplyRightHelper extends MultiplySharedHelper {
       int numRightFactors) {
     List<FieldElement> productShares = new ArrayList<>(numRightFactors);
     for (int rightFactIdx = 0; rightFactIdx < numRightFactors; rightFactIdx++) {
-      int from = rightFactIdx * getModBitLength();
-      int to = (rightFactIdx + 1) * getModBitLength();
+      int from = rightFactIdx * super.getResourcePool().getModBitLength();
+      int to = (rightFactIdx + 1) * super.getResourcePool().getModBitLength();
       List<FieldElement> subFactors = feZeroSeeds.subList(from, to);
       FieldElement recombined = getFieldElementUtils().recombine(subFactors);
       productShares.add(recombined.negate());
@@ -96,5 +99,9 @@ public class MultiplyRightHelper extends MultiplySharedHelper {
     FieldElement left = feSeedPair.getFirst();
     FieldElement right = feSeedPair.getSecond();
     return left.subtract(right).add(factor);
+  }
+
+  RotBatch getRot() {
+    return rot;
   }
 }
