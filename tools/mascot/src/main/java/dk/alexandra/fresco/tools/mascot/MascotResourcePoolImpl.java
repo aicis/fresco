@@ -30,7 +30,15 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
   private final MascotSecurityParameters mascotSecurityParameters;
 
   /**
-   * Creates {@link MascotResourcePoolImpl}.
+   * Creates new {@link MascotResourcePoolImpl}.
+   *
+   * @param myId this party's id
+   * @param noOfParties number of parties
+   * @param instanceId the instance ID which is unique for this particular resource pool object, but
+   * only in the given execution.
+   * @param drbg source of randomness
+   * @param seedOts pre-computed base OTs
+   * @param mascotSecurityParameters mascot security parameters ({@link MascotSecurityParameters})
    */
   public MascotResourcePoolImpl(int myId, int noOfParties, int instanceId, Drbg drbg,
       Map<Integer, RotList> seedOts, MascotSecurityParameters mascotSecurityParameters) {
