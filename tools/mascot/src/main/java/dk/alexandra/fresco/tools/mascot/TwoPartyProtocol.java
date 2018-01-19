@@ -7,14 +7,14 @@ import dk.alexandra.fresco.framework.network.Network;
  */
 public abstract class TwoPartyProtocol extends BaseProtocol {
 
-  private final Integer otherId;
+  private final int otherId;
 
-  public TwoPartyProtocol(MascotResourcePool resourcePool, Network network, Integer otherId) {
+  public TwoPartyProtocol(MascotResourcePool resourcePool, Network network, int otherId) {
     super(resourcePool, network);
     this.otherId = otherId;
   }
 
-  public Integer getOtherId() {
+  public int getOtherId() {
     return otherId;
   }
 }

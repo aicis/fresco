@@ -13,7 +13,7 @@ public abstract class MultiplySharedHelper extends TwoPartyProtocol {
 
   private final RotBatch rot;
 
-  MultiplySharedHelper(MascotResourcePool resourcePool, Network network, Integer otherId) {
+  MultiplySharedHelper(MascotResourcePool resourcePool, Network network, int otherId) {
     super(resourcePool, network, otherId);
     this.rot = resourcePool.createRot(otherId, network);
   }

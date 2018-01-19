@@ -41,7 +41,7 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
   /**
    * Creates {@link MascotResourcePoolImpl}.
    */
-  public MascotResourcePoolImpl(Integer myId, int noOfParties,
+  public MascotResourcePoolImpl(int myId, int noOfParties,
       int instanceId, Drbg drbg, Map<Integer, RotList> seedOts,
       BigInteger modulus, int modBitLength, int lambdaSecurityParam,
       int prgSeedLength, int numCandidatesPerTriple) {

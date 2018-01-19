@@ -45,7 +45,7 @@ class MultiplyLeft extends TwoPartyProtocol {
    * @param network the network
    * @param otherId the other party's
    */
-  public MultiplyLeft(MascotResourcePool resourcePool, Network network, Integer otherId) {
+  MultiplyLeft(MascotResourcePool resourcePool, Network network, int otherId) {
     super(resourcePool, network, otherId);
     multiplyLeftHelper = new MultiplyLeftHelper(resourcePool, network, otherId);
   }

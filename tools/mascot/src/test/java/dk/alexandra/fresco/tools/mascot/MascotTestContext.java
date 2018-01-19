@@ -27,7 +27,7 @@ public class MascotTestContext {
   /**
    * Creates new test context.
    */
-  public MascotTestContext(Integer myId, List<Integer> partyIds, int instanceId,
+  public MascotTestContext(int myId, List<Integer> partyIds, int instanceId,
       BigInteger modulus, int modBitLength, int lambdaSecurityParam,
       int numLeftFactors, int prgSeedLength) {
     this.network = new KryoNetNetwork(defaultNetworkConfiguration(myId, partyIds));
@@ -82,7 +82,7 @@ public class MascotTestContext {
     return network;
   }
 
-  private static NetworkConfiguration defaultNetworkConfiguration(Integer myId,
+  private static NetworkConfiguration defaultNetworkConfiguration(int myId,
       List<Integer> partyIds) {
     Map<Integer, Party> parties = new HashMap<>();
     for (Integer partyId : partyIds) {

@@ -99,18 +99,18 @@ public class OnlinePhase extends BaseProtocol {
     private final List<AuthenticatedElement> sharesWithMacs;
     private final List<FieldElement> openedValues;
 
-    public OpenedValueStore() {
+    OpenedValueStore() {
       this.sharesWithMacs = new ArrayList<>();
       this.openedValues = new ArrayList<>();
     }
 
-    public void addValues(List<AuthenticatedElement> newSharesWithMacs,
+    void addValues(List<AuthenticatedElement> newSharesWithMacs,
         List<FieldElement> newOpenedValues) {
       this.sharesWithMacs.addAll(newSharesWithMacs);
       this.openedValues.addAll(newOpenedValues);
     }
 
-    public void checkAllAndClear(
+    void checkAllAndClear(
         BiConsumer<List<AuthenticatedElement>, List<FieldElement>> checker) {
       checker.accept(this.sharesWithMacs, this.openedValues);
       this.sharesWithMacs.clear();

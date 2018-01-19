@@ -41,7 +41,7 @@ public class CopeSigner extends TwoPartyProtocol {
    * @param otherId the id of the other party
    * @param macKeyShare this party's share of the mac key
    */
-  public CopeSigner(MascotResourcePool resourcePool, Network network, Integer otherId,
+  public CopeSigner(MascotResourcePool resourcePool, Network network, int otherId,
       FieldElement macKeyShare) {
     super(resourcePool, network, otherId);
     this.macKeyShare = macKeyShare;

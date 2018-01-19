@@ -38,7 +38,7 @@ public class CopeInputter extends TwoPartyProtocol {
    * <p>This will run the initialization sub-protocol of COPE using an OT protocol to set up the PRG
    * seeds used in the <i>Extend</i> sub-protocol.</p>
    */
-  public CopeInputter(MascotResourcePool resourcePool, Network network, Integer otherId) {
+  public CopeInputter(MascotResourcePool resourcePool, Network network, int otherId) {
     super(resourcePool, network, otherId);
     this.leftPrgs = new ArrayList<>();
     this.rightPrgs = new ArrayList<>();
