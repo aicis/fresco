@@ -70,9 +70,9 @@ public class CoteShared {
     // Remember that int is 32 bits, thus 4 bytes
     byte[] seedBytes = originalSeed.toByteArray();
     ByteBuffer idBuffer = ByteBuffer.allocate(seedBytes.length);
-    byte[] idArray = idBuffer.putInt(resources.getInstanceId()).array();
-    ByteArrayHelper.xor(seedBytes, idArray);
+    byte[] newSeed = idBuffer.putInt(resources.getInstanceId()).array();
+    ByteArrayHelper.xor(newSeed, seedBytes);
     // TODO make sure this is okay!
-    return new PaddingAesCtrDrbg(seedBytes);
+    return new PaddingAesCtrDrbg(newSeed);
   }
 }

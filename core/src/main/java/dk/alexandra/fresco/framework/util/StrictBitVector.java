@@ -82,7 +82,7 @@ public class StrictBitVector implements BitVector {
    * @param value
    *          value to set bit to
    * @param isBigEndian
-   *          Indicates whether the underlying byte array should be interpreted 
+   *          Indicates whether the underlying byte array should be interpreted
    *          as big-endian or little-endian
    */
   public void setBit(int index, boolean value, boolean isBigEndian) {
@@ -102,11 +102,11 @@ public class StrictBitVector implements BitVector {
   }
 
   /**
-   * Returns a reference to the internal byte array representing the bit vector. 
-   * Thus modifying this  byte array DIRECTLY modifies the bits in this 
+   * Returns a reference to the internal byte array representing the bit vector.
+   * Thus modifying this  byte array DIRECTLY modifies the bits in this
    * StrictBitVector object.
    * <p>
-   * The representation is big-endian, that is the first 8 bits will be in the 
+   * The representation is big-endian, that is the first 8 bits will be in the
    * last byte.
    * </p>
    *
@@ -114,8 +114,7 @@ public class StrictBitVector implements BitVector {
    */
   @Override
   public byte[] toByteArray() {
-    // TODO when we return bits directly we run into correlation errors in TestParallelMascots.
-    return bits.clone();
+    return bits;
   }
 
   /**
@@ -170,7 +169,7 @@ public class StrictBitVector implements BitVector {
   }
 
   /**
-   * Constructs a new StrictBitVector which is the concatenation of the vectors 
+   * Constructs a new StrictBitVector which is the concatenation of the vectors
    * given as input.
    *
    * @param bitVectors
@@ -182,7 +181,7 @@ public class StrictBitVector implements BitVector {
   }
 
   /**
-   * Constructs a new StrictBitVector which is the concatenation of the vectors 
+   * Constructs a new StrictBitVector which is the concatenation of the vectors
    * given as input.
    *
    * @param reverse
