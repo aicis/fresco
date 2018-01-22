@@ -54,7 +54,9 @@ public class TestFunctionalNaorPinkas {
         RuntimeForTests.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     try {
       Drbg rand = new AesCtrDrbg(HelperForTests.seedOne);
-      Ot otSender = new NaorPinkasOt(2, rand, network, staticParams);
+      DhParameters params = new DhParameters();
+      Ot otSender = new NaorPinkasOt(2, rand, network, params
+          .computeSecureDhParams(1, 2, rand, network));
       List<Pair<StrictBitVector, StrictBitVector>> messages = new ArrayList<>(
           iterations);
       for (int i = 0; i < iterations; i++) {
@@ -77,7 +79,9 @@ public class TestFunctionalNaorPinkas {
         RuntimeForTests.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     try {
       Drbg rand = new AesCtrDrbg(HelperForTests.seedTwo);
-      Ot otReceiver = new NaorPinkasOt(1, rand, network, staticParams);
+      DhParameters params = new DhParameters();
+      Ot otReceiver = new NaorPinkasOt(1, rand, network, params
+          .computeSecureDhParams(2, 1, rand, network));
       List<StrictBitVector> messages = new ArrayList<>(choices.getSize());
       for (int i = 0; i < choices.getSize(); i++) {
         StrictBitVector message = otReceiver.receive(choices.getBit(i, false));
