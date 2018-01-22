@@ -13,14 +13,14 @@ import org.junit.Test;
 
 public class TestCoinTossingMpc extends NetworkedTest {
 
-  public StrictBitVector singlePartyCoinTossing(MascotTestContext ctx, StrictBitVector ownSeed) {
+  private StrictBitVector singlePartyCoinTossing(MascotTestContext ctx, StrictBitVector ownSeed) {
     CoinTossingMpc coinTosser = new CoinTossingMpc(ctx.getResourcePool(), ctx.getNetwork());
     return coinTosser.generateJointSeed(ownSeed);
   }
 
   @Test
   public void twoPartyCoinTossing() {
-    initContexts(Arrays.asList(1, 2));
+    initContexts(2);
 
     StrictBitVector seedOne =
         new StrictBitVector(new byte[]{(byte) 0x00, (byte) 0x02, (byte) 0xFF});
@@ -45,7 +45,7 @@ public class TestCoinTossingMpc extends NetworkedTest {
 
   @Test
   public void threePartyCoinTossing() {
-    initContexts(Arrays.asList(1, 2, 3));
+    initContexts(3);
 
     StrictBitVector seedOne =
         new StrictBitVector(new byte[]{(byte) 0x00, (byte) 0x02, (byte) 0xFF});

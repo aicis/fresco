@@ -3,7 +3,6 @@ package dk.alexandra.fresco.tools.mascot;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.Pair;
 import java.io.Closeable;
-import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,7 +25,7 @@ public class TestRuntime {
   /**
    * Creates new test runtime.
    */
-  public TestRuntime() {
+  TestRuntime() {
     this.contexts = new HashMap<>();
     this.executor = null;
     this.executorInitialized = false;
@@ -48,7 +47,7 @@ public class TestRuntime {
       }, "Closing network failed");
     }
     executor.shutdown();
-    ExceptionConverter.safe(()-> {
+    ExceptionConverter.safe(() -> {
       executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
       return null;
     }, "Executor shutdown failed");
@@ -57,14 +56,14 @@ public class TestRuntime {
   /**
    * Creates a new executor service with fixed-size thread pool.
    *
-   * @param numParties number of threads in thread pool (one per party)
+   * @param noOfParties number of threads in thread pool (one per party)
    */
-  private void initalizeExecutor(int numParties) {
+  private void initializeExecutor(int noOfParties) {
     if (executorInitialized) {
       throw new IllegalStateException("Executor already initialized");
     }
     executorInitialized = true;
-    executor = Executors.newFixedThreadPool(numParties);
+    executor = Executors.newFixedThreadPool(noOfParties);
   }
 
   /**
@@ -75,36 +74,24 @@ public class TestRuntime {
    * @return results of tasks
    */
   private <T> List<T> safeInvokeAll(List<Callable<T>> tasks) {
-    Callable<List<Future<T>>> runAll = () -> {
-      return executor.invokeAll(tasks, timeout, TimeUnit.SECONDS);
-    };
+    Callable<List<Future<T>>> runAll = () -> executor.invokeAll(tasks, timeout, TimeUnit.SECONDS);
     List<Future<T>> futures = ExceptionConverter.safe(runAll, "Invoke all failed");
-    return futures.stream().map(future -> {
-      return ExceptionConverter.safe(() -> future.get(), "Party task failed");
-    }).collect(Collectors.toList());
+    return futures.stream().map(future -> ExceptionConverter.safe(future::get, "Party task failed"))
+        .collect(Collectors.toList());
   }
 
   /**
    * Given a ready executor, creates as Mascot test context for each party.
-   *
-   * @param partyIds the parties
-   * @param modulus the modulus
-   * @param modBitLength length of modulus
-   * @param lambdaSecurityParam lambda security
-   * @param numLeftFactors num sacrifice factors
-   * @param prgSeedLength prg seed bit length
-   * @return map of initialized contexts
    */
   public Map<Integer, MascotTestContext> initializeContexts(
-      List<Integer> partyIds, int instanceId, BigInteger modulus,
-      int modBitLength, int lambdaSecurityParam, int numLeftFactors,
-      int prgSeedLength) {
-    initalizeExecutor(partyIds.size());
+      int noOfParties, int instanceId,
+      MascotSecurityParameters securityParameters) {
+    initializeExecutor(noOfParties);
     List<Callable<Pair<Integer, MascotTestContext>>> initializationTasks = new LinkedList<>();
-    for (Integer partyId : partyIds) {
-      initializationTasks.add(() -> initializeContext(partyId, partyIds,
-          instanceId, modulus, modBitLength,
-          lambdaSecurityParam, numLeftFactors, prgSeedLength));
+    for (int partyId = 1; partyId <= noOfParties; partyId++) {
+      int finalPartyId = partyId;
+      initializationTasks.add(() -> initializeContext(finalPartyId, noOfParties,
+          instanceId, securityParameters));
     }
     for (Pair<Integer, MascotTestContext> pair : safeInvokeAll(initializationTasks)) {
       contexts.put(pair.getFirst(), pair.getSecond());
@@ -128,22 +115,11 @@ public class TestRuntime {
 
   /**
    * Initializes a single context for a party.
-   *
-   * @param myId this party's id
-   * @param partyIds the parties
-   * @param modulus the modulus
-   * @param modBitLength length of modulus
-   * @param lambdaSecurityParam lambda security
-   * @param numLeftFactors num sacrifice factors
-   * @param prgSeedLength prg seed bit length
-   * @return map of initialized contexts
    */
-  private Pair<Integer, MascotTestContext> initializeContext(Integer myId, List<Integer> partyIds,
-      int instanceId, BigInteger modulus, int modBitLength,
-      int lambdaSecurityParam, int numLeftFactors, int prgSeedLength) {
-    MascotTestContext ctx = new MascotTestContext(myId, new LinkedList<>(
-        partyIds), instanceId, modulus,
-        modBitLength, lambdaSecurityParam, numLeftFactors, prgSeedLength);
+  private Pair<Integer, MascotTestContext> initializeContext(int myId, int noOfParties,
+      int instanceId, MascotSecurityParameters securityParameters) {
+    MascotTestContext ctx = new MascotTestContext(myId, noOfParties, instanceId,
+        securityParameters);
     return new Pair<>(myId, ctx);
   }
 

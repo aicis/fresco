@@ -33,7 +33,7 @@ public class TestBroadcastValidation extends NetworkedTest {
   @Test
   public void testThreePartiesValidBroadcast() {
     // two parties run this
-    initContexts(Arrays.asList(1, 2, 3));
+    initContexts(3);
 
     // messages
     List<byte[]> messages =
@@ -58,7 +58,7 @@ public class TestBroadcastValidation extends NetworkedTest {
   @Test
   public void testThreePartiesBroadcastDifferentValues() {
     // three parties run this
-    initContexts(Arrays.asList(1, 2, 3));
+    initContexts(3);
 
     // messages
     List<byte[]> messages =
@@ -89,7 +89,7 @@ public class TestBroadcastValidation extends NetworkedTest {
   @Test
   public void testThreePartiesBroadcastDifferentSize() {
     // three parties run this
-    initContexts(Arrays.asList(1, 2, 3));
+    initContexts(3);
 
     // messages
     List<byte[]> messages =
@@ -120,7 +120,7 @@ public class TestBroadcastValidation extends NetworkedTest {
   @Test
   public void testThreePartiesBroadcastDifferentOrder() {
     // three parties run this
-    initContexts(Arrays.asList(1, 2, 3));
+    initContexts(3);
 
     // messages
     List<byte[]> messages =

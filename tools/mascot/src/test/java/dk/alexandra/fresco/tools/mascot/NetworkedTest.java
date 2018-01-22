@@ -2,41 +2,27 @@ package dk.alexandra.fresco.tools.mascot;
 
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import java.math.BigInteger;
-import java.util.List;
 import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
 
 public abstract class NetworkedTest {
 
-  protected TestRuntime testRuntime;
   protected Map<Integer, MascotTestContext> contexts;
+  protected TestRuntime testRuntime;
 
-  // maskot parameters
-  protected BigInteger modulus;
-  protected int modBitLength;
-  protected int lambdaSecurityParam;
-  protected int numLeftFactors;
-  private int prgSeedLength;
+  private final MascotSecurityParameters defaultParameters = new MascotSecurityParameters(16, 16,
+      256, 3);
+  private BigInteger modulus = ModulusFinder.findSuitableModulus(16);
 
-  private NetworkedTest(BigInteger modulus, int modBitLength, int lambdaSecurity,
-      int numLeftFactors,
-      int prgSeedLength) {
-    super();
-    this.modulus = modulus;
-    this.modBitLength = modBitLength;
-    this.lambdaSecurityParam = lambdaSecurity;
-    this.numLeftFactors = numLeftFactors;
-    this.prgSeedLength = prgSeedLength;
+  public void initContexts(int noOfParties) {
+    initContexts(noOfParties, defaultParameters);
   }
 
-  public NetworkedTest() {
-    this(ModulusFinder.findSuitableModulus(16), 16, 16, 3, 256);
-  }
-
-  public void initContexts(List<Integer> partyIds) {
-    contexts = testRuntime.initializeContexts(partyIds, 1, modulus,
-        modBitLength, lambdaSecurityParam, numLeftFactors, prgSeedLength);
+  public void initContexts(int noOfParties, MascotSecurityParameters securityParameters) {
+    modulus = ModulusFinder.findSuitableModulus(securityParameters.getModBitLength());
+    contexts = testRuntime.initializeContexts(noOfParties, 1,
+        securityParameters);
   }
 
   @Before
@@ -53,6 +39,14 @@ public abstract class NetworkedTest {
       testRuntime.shutdown();
       testRuntime = null;
     }
+  }
+
+  protected BigInteger getModulus() {
+    return modulus;
+  }
+
+  protected MascotSecurityParameters getDefaultParameters() {
+    return defaultParameters;
   }
 
 }

@@ -44,17 +44,17 @@ public class TestBitConverter extends NetworkedTest {
 
   @Test
   public void testTwoPartiesBatchedConvertToBits() {
-    initContexts(Arrays.asList(1, 2));
+    initContexts(2);
 
     // left party mac key share
-    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), modulus);
+    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), getModulus());
 
     // right party mac key share
-    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), modulus);
+    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), getModulus());
 
     // party one inputs
     List<FieldElement> randomValues =
-        MascotTestUtils.generateSingleRow(new int[]{12, 11, 1, 2}, modulus);
+        MascotTestUtils.generateSingleRow(new int[]{12, 11, 1, 2}, getModulus());
 
     // define task each party will run
     Callable<List<FieldElement>> partyOneTask =

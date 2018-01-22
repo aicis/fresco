@@ -13,6 +13,7 @@ import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -73,15 +74,15 @@ public class TestElementGeneration extends NetworkedTest {
   @Test
   public void testTwoPartiesSingleInput() {
     // two parties run this
-    initContexts(Arrays.asList(1, 2));
+    initContexts(2);
     // left party mac key share
-    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), modulus);
+    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), getModulus());
 
     // right party mac key share
-    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), modulus);
+    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), getModulus());
 
     // single right party input element
-    FieldElement input = new FieldElement(7, modulus);
+    FieldElement input = new FieldElement(7, getModulus());
     List<FieldElement> inputs = Collections.singletonList(input);
 
     // define task each party will run
@@ -100,12 +101,12 @@ public class TestElementGeneration extends NetworkedTest {
     List<AuthenticatedElement> rightShares = results.get(1);
     AuthenticatedElement rightShare = rightShares.get(0);
 
-    FieldElement expectedRecomb = new FieldElement(7, modulus);
+    FieldElement expectedRecomb = new FieldElement(7, getModulus());
     FieldElement expectedMacRecomb = new FieldElement(
-        input.multiply(macKeyShareOne.add(macKeyShareTwo)).getValue(), modulus);
+        input.multiply(macKeyShareOne.add(macKeyShareTwo)).getValue(), getModulus());
 
     AuthenticatedElement expected =
-        new AuthenticatedElement(expectedRecomb, expectedMacRecomb, modulus);
+        new AuthenticatedElement(expectedRecomb, expectedMacRecomb, getModulus());
     AuthenticatedElement actual = leftShare.add(rightShare);
 
     CustomAsserts.assertEquals(expected, actual);
@@ -114,16 +115,16 @@ public class TestElementGeneration extends NetworkedTest {
   @Test
   public void testTwoPartiesSingleInputReverseRoles() {
     // two parties run this
-    initContexts(Arrays.asList(1, 2));
+    initContexts(2);
 
     // left party mac key share
-    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), modulus);
+    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), getModulus());
 
     // right party mac key share
-    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), modulus);
+    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), getModulus());
 
     // single right party input element
-    FieldElement input = new FieldElement(7, modulus);
+    FieldElement input = new FieldElement(7, getModulus());
     List<FieldElement> inputs = Collections.singletonList(input);
 
     // define task each party will run
@@ -142,12 +143,12 @@ public class TestElementGeneration extends NetworkedTest {
     List<AuthenticatedElement> rightShares = results.get(1);
     AuthenticatedElement rightShare = rightShares.get(0);
 
-    FieldElement expectedRecomb = new FieldElement(7, modulus);
+    FieldElement expectedRecomb = new FieldElement(7, getModulus());
     FieldElement expectedMacRecomb = new FieldElement(
-        input.multiply(macKeyShareOne.add(macKeyShareTwo)).getValue(), modulus);
+        input.multiply(macKeyShareOne.add(macKeyShareTwo)).getValue(), getModulus());
 
     AuthenticatedElement expected =
-        new AuthenticatedElement(expectedRecomb, expectedMacRecomb, modulus);
+        new AuthenticatedElement(expectedRecomb, expectedMacRecomb, getModulus());
     AuthenticatedElement actual = leftShare.add(rightShare);
 
     CustomAsserts.assertEquals(expected, actual);
@@ -156,18 +157,18 @@ public class TestElementGeneration extends NetworkedTest {
   @Test
   public void testThreePartiesSingleInput() {
     // two parties run this
-    initContexts(Arrays.asList(1, 2, 3));
+    initContexts(3);
 
     // party mac key shares
-    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), modulus);
+    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), getModulus());
 
-    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), modulus);
+    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), getModulus());
 
     FieldElement macKeyShareThree =
-        new FieldElement(new BigInteger("40401"), modulus);
+        new FieldElement(new BigInteger("40401"), getModulus());
 
     // single right party input element
-    FieldElement input = new FieldElement(7, modulus);
+    FieldElement input = new FieldElement(7, getModulus());
     List<FieldElement> inputs = Collections.singletonList(input);
 
     // define task each party will run
@@ -186,7 +187,7 @@ public class TestElementGeneration extends NetworkedTest {
     List<FieldElement> macKeyShares =
         Arrays.asList(macKeyShareOne, macKeyShareTwo, macKeyShareThree);
     List<AuthenticatedElement> expected =
-        computeExpected(inputs, macKeyShares, modulus);
+        computeExpected(inputs, macKeyShares, getModulus());
 
     CustomAsserts.assertEqualsAuth(expected, actual);
   }
@@ -194,15 +195,15 @@ public class TestElementGeneration extends NetworkedTest {
   @Test
   public void testTwoPartiesMultInputs() {
     // two parties run this
-    initContexts(Arrays.asList(1, 2));
+    initContexts(2);
 
     // party mac key shares
-    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), modulus);
-    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), modulus);
+    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), getModulus());
+    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), getModulus());
 
     // inputs
     int[] inputArr = {7, 444, 112, 11};
-    List<FieldElement> inputs = MascotTestUtils.generateSingleRow(inputArr, modulus);
+    List<FieldElement> inputs = MascotTestUtils.generateSingleRow(inputArr, getModulus());
 
     // define task each party will run
     Callable<List<AuthenticatedElement>> partyOneTask =
@@ -218,7 +219,7 @@ public class TestElementGeneration extends NetworkedTest {
         new ArithmeticCollectionUtils<AuthenticatedElement>().sumRows(results);
     List<FieldElement> macKeyShares = Arrays.asList(macKeyShareOne, macKeyShareTwo);
     List<AuthenticatedElement> expected =
-        computeExpected(inputs, macKeyShares, modulus);
+        computeExpected(inputs, macKeyShares, getModulus());
 
     CustomAsserts.assertEqualsAuth(expected, actual);
   }
@@ -226,16 +227,16 @@ public class TestElementGeneration extends NetworkedTest {
   @Test
   public void testTwoPartiesSingleInputMultRounds() {
     // two parties run this
-    initContexts(Arrays.asList(1, 2));
+    initContexts(2);
 
     // party mac key shares
-    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), modulus);
-    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), modulus);
+    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), getModulus());
+    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), getModulus());
 
     // inputs
     int[][] inputArr = {{70}, {12}, {123}};
     List<List<FieldElement>> inputs =
-        MascotTestUtils.generateMatrix(inputArr, modulus);
+        MascotTestUtils.generateMatrix(inputArr, getModulus());
     int numInputsPerRound = inputs.get(0).size();
     int numRounds = inputs.size();
 
@@ -254,9 +255,9 @@ public class TestElementGeneration extends NetworkedTest {
         new ArithmeticCollectionUtils<AuthenticatedElement>().sumRows(results);
     List<FieldElement> macKeyShares = Arrays.asList(macKeyShareOne, macKeyShareTwo);
     List<FieldElement> flatInputs =
-        inputs.stream().flatMap(l -> l.stream()).collect(Collectors.toList());
+        inputs.stream().flatMap(Collection::stream).collect(Collectors.toList());
     List<AuthenticatedElement> expected =
-        computeExpected(flatInputs, macKeyShares, modulus);
+        computeExpected(flatInputs, macKeyShares, getModulus());
 
     CustomAsserts.assertEqualsAuth(expected, actual);
   }

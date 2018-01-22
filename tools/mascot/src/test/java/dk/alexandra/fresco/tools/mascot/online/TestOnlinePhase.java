@@ -50,20 +50,20 @@ public class TestOnlinePhase extends NetworkedTest {
 
   @Test
   public void testTwoPartiesBatchedMultiply() {
-    initContexts(Arrays.asList(1, 2));
+    initContexts(2);
 
     // left party mac key share
-    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), modulus);
+    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), getModulus());
 
     // right party mac key share
-    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), modulus);
+    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), getModulus());
 
     // party one inputs
     List<FieldElement> partyOneInputs =
-        MascotTestUtils.generateSingleRow(new int[]{12, 11, 1, 2}, modulus);
+        MascotTestUtils.generateSingleRow(new int[]{12, 11, 1, 2}, getModulus());
     // party two inputs
     List<FieldElement> partyTwoInputs =
-        MascotTestUtils.generateSingleRow(new int[]{0, 3, 221, 65518}, modulus);
+        MascotTestUtils.generateSingleRow(new int[]{0, 3, 221, 65518}, getModulus());
 
     // define task each party will run
     Callable<List<FieldElement>> partyOneTask =
@@ -81,7 +81,7 @@ public class TestOnlinePhase extends NetworkedTest {
 
     // outputs should be correct products
     List<FieldElement> expected = MascotTestUtils
-        .generateSingleRow(new int[]{0, 33, 221, 65517}, modulus);
+        .generateSingleRow(new int[]{0, 33, 221, 65517}, getModulus());
     CustomAsserts.assertEquals(expected, partyOneOutput);
   }
 

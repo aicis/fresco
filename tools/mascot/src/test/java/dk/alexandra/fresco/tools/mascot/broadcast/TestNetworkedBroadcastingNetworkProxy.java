@@ -8,12 +8,10 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.tools.mascot.MascotTestContext;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-
 import org.junit.Test;
 
 
@@ -70,7 +68,7 @@ public class TestNetworkedBroadcastingNetworkProxy extends NetworkedTest {
 
   @Test
   public void testValidBroadcastReceive() {
-    initContexts(Arrays.asList(1, 2, 3));
+    initContexts(3);
 
     List<Callable<byte[]>> tasks = new ArrayList<>();
     byte[] toSend = new byte[] {0x01, 0x02};
@@ -86,7 +84,7 @@ public class TestNetworkedBroadcastingNetworkProxy extends NetworkedTest {
 
   @Test
   public void testIncosistentBroadcastSender() {
-    initContexts(Arrays.asList(1, 2, 3));
+    initContexts(3);
 
     final List<Callable<MaliciousException>> tasks = new ArrayList<>();
     Map<Integer, byte[]> toSend = new HashMap<>();

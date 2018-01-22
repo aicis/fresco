@@ -3,6 +3,7 @@ package dk.alexandra.fresco.tools.mascot.triple;
 import static org.junit.Assert.assertEquals;
 
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
+import dk.alexandra.fresco.tools.mascot.MascotSecurityParameters;
 import dk.alexandra.fresco.tools.mascot.MascotTestContext;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
@@ -36,14 +37,14 @@ public class TestMultiply extends NetworkedTest {
 
   @Test
   public void testSingleMult() {
-    initContexts(Arrays.asList(1, 2));
+    initContexts(2);
 
     // left parties input (can be multiple)
-    FieldElement leftInput = new FieldElement(12, modulus);
+    FieldElement leftInput = new FieldElement(12, getModulus());
     List<FieldElement> leftInputs = Collections.singletonList(leftInput);
 
     // single right party input element
-    FieldElement rightInput = new FieldElement(7, modulus);
+    FieldElement rightInput = new FieldElement(7, getModulus());
     List<FieldElement> rightInputs = Collections.singletonList(rightInput);
 
     // define task each party will run
@@ -71,16 +72,16 @@ public class TestMultiply extends NetworkedTest {
   @Test
   public void testMultBatchedReversedRoles() {
     // two parties run this
-    initContexts(Arrays.asList(1, 2));
+    initContexts(2);
 
     // left parties input
     int[] leftRows = {70, 71, 72, 12, 13, 14, 123, 124, 125};
     List<FieldElement> leftInputs =
-        MascotTestUtils.generateSingleRow(leftRows, modulus);
+        MascotTestUtils.generateSingleRow(leftRows, getModulus());
     // right party input
     int[] rightRows = {1, 1, 1, 2, 2, 2, 3, 3, 3};
     List<FieldElement> rightInputs =
-        MascotTestUtils.generateSingleRow(rightRows, modulus);
+        MascotTestUtils.generateSingleRow(rightRows, getModulus());
 
     // roles are flipped
     Callable<List<FieldElement>> partyOneTask = () -> runLeftMult(contexts.get(2), 1, leftInputs);
@@ -96,7 +97,7 @@ public class TestMultiply extends NetworkedTest {
     List<FieldElement> rightResults = results.get(1);
 
     int[] prods = {70, 71, 72, 12 * 2, 13 * 2, 14 * 2, 123 * 3, 124 * 3, 125 * 3};
-    List<FieldElement> expected = MascotTestUtils.generateSingleRow(prods, modulus);
+    List<FieldElement> expected = MascotTestUtils.generateSingleRow(prods, getModulus());
     assertEquals(expected.size(), leftResults.size());
     assertEquals(expected.size(), rightResults.size());
     List<FieldElement> actual = IntStream.range(0, expected.size())
@@ -108,15 +109,16 @@ public class TestMultiply extends NetworkedTest {
 
   private void testManyMults(int lambdaSecurityParam) {
     // two parties run this
-    this.lambdaSecurityParam = lambdaSecurityParam; // change lambda security
-    initContexts(Arrays.asList(1, 2));
+    initContexts(2,
+        new MascotSecurityParameters(getDefaultParameters().getModBitLength(), lambdaSecurityParam,
+            getDefaultParameters().getPrgSeedLength(), getDefaultParameters().getNumCandidatesPerTriple()));
     // left parties input
     List<FieldElement> leftInputs = new ArrayList<>(2);
     // right party input
     List<FieldElement> rightInputs = new ArrayList<>(2);
     for (int i = 1; i <= 2; i++) {
-      leftInputs.add(new FieldElement(i, modulus));
-      rightInputs.add(new FieldElement(i, modulus));
+      leftInputs.add(new FieldElement(i, getModulus()));
+      rightInputs.add(new FieldElement(i, getModulus()));
     }
 
     // define task each party will run
@@ -130,13 +132,13 @@ public class TestMultiply extends NetworkedTest {
 
     List<FieldElement> actual = new ArithmeticCollectionUtils<FieldElement>().sumRows(results);
     List<FieldElement> expected =
-        new FieldElementUtils(modulus).pairWiseMultiply(leftInputs, rightInputs);
+        new FieldElementUtils(getModulus()).pairWiseMultiply(leftInputs, rightInputs);
     CustomAsserts.assertEquals(expected, actual);
   }
 
   @Test
   public void testManyMults() {
-    testManyMults(lambdaSecurityParam);
+    testManyMults(getDefaultParameters().getLambdaSecurityParam());
   }
 
   @Test

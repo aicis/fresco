@@ -12,7 +12,6 @@ import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
 import java.math.BigInteger;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -27,18 +26,17 @@ public class MascotTestContext {
   /**
    * Creates new test context.
    */
-  public MascotTestContext(int myId, List<Integer> partyIds, int instanceId,
-      BigInteger modulus, int modBitLength, int lambdaSecurityParam,
-      int numCandidatesPerTriple, int prgSeedLength) {
-    this.network = new KryoNetNetwork(defaultNetworkConfiguration(myId, partyIds));
-    byte[] drbgSeed = new byte[prgSeedLength / 8];
+  public MascotTestContext(int myId, int noOfParties, int instanceId,
+      MascotSecurityParameters securityParameters) {
+    this.network = new KryoNetNetwork(defaultNetworkConfiguration(myId, noOfParties));
+    byte[] drbgSeed = new byte[securityParameters.getPrgSeedLength() / 8];
     new Random(myId).nextBytes(drbgSeed);
     Drbg drbg = new PaddingAesCtrDrbg(drbgSeed);
     Map<Integer, RotList> seedOts = new HashMap<>();
-    for (Integer otherId : partyIds) {
+    for (int otherId = 1; otherId <= noOfParties; otherId++) {
       if (myId != otherId) {
         Ot ot = new DummyOt(otherId, network);
-        RotList currentSeedOts = new RotList(drbg, prgSeedLength);
+        RotList currentSeedOts = new RotList(drbg, securityParameters.getPrgSeedLength());
         if (myId < otherId) {
           currentSeedOts.send(ot);
           currentSeedOts.receive(ot);
@@ -49,10 +47,8 @@ public class MascotTestContext {
         seedOts.put(otherId, currentSeedOts);
       }
     }
-    this.resourcePool = new MascotResourcePoolImpl(myId, partyIds.size(),
-        instanceId, drbg, seedOts,
-        new MascotSecurityParameters(modBitLength, lambdaSecurityParam, prgSeedLength,
-            numCandidatesPerTriple));
+    this.resourcePool = new MascotResourcePoolImpl(myId, noOfParties, instanceId, drbg, seedOts,
+        securityParameters);
   }
 
   public MascotResourcePool getResourcePool() {
@@ -71,10 +67,6 @@ public class MascotTestContext {
     return resourcePool.getNoOfParties();
   }
 
-  public int getModBitLength() {
-    return resourcePool.getModBitLength();
-  }
-
   public int getPrgSeedLength() {
     return resourcePool.getPrgSeedLength();
   }
@@ -84,9 +76,9 @@ public class MascotTestContext {
   }
 
   private static NetworkConfiguration defaultNetworkConfiguration(int myId,
-      List<Integer> partyIds) {
+      int noOfParties) {
     Map<Integer, Party> parties = new HashMap<>();
-    for (Integer partyId : partyIds) {
+    for (int partyId = 1; partyId <= noOfParties; partyId++) {
       parties.put(partyId, new Party(partyId, "localhost", 8000 + partyId));
     }
     return new NetworkConfigurationImpl(myId, parties);
