@@ -26,7 +26,7 @@ public class BristolRotBatchDemo {
     OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
         lambdaSecurityParam);
     OtExtensionResourcePool resources = ctx.createResources(1);
-    RotBatch rotBatch = new BristolRotBatch(new RotImpl(ctx.createResources(1), ctx
+    RotBatch rotBatch = new BristolRotBatch(new RotFactoryImpl(ctx.createResources(1), ctx
             .getNetwork()), resources.getComputationalSecurityParameter(),
         resources.getLambdaSecurityParam());
     StrictBitVector choices = new StrictBitVector(amountOfOTs, ctx.createRand(
@@ -50,7 +50,7 @@ public class BristolRotBatchDemo {
     OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
         lambdaSecurityParam);
     OtExtensionResourcePool resources = ctx.createResources(1);
-    RotBatch rotBatch = new BristolRotBatch(new RotImpl(ctx.createResources(1), ctx
+    RotBatch rotBatch = new BristolRotBatch(new RotFactoryImpl(ctx.createResources(1), ctx
             .getNetwork()), resources.getComputationalSecurityParameter(),
         resources.getLambdaSecurityParam());
     List<Pair<StrictBitVector, StrictBitVector>> messages = rotBatch.send(

@@ -30,7 +30,7 @@ public class CoteDemo<ResourcePoolT extends ResourcePool> {
   public void runPartyOne(int pid) throws IOException {
     OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
         lambdaSecurityParam);
-    Cote cote = new Cote(ctx.createResources(1), ctx.getNetwork());
+    CoteFactory cote = new CoteFactory(ctx.createResources(1), ctx.getNetwork());
     CoteReceiver coteRec = cote.getReceiver();
     byte[] otChoices = new byte[amountOfOTs / 8];
     ctx.createRand(1).nextBytes(otChoices);
@@ -59,7 +59,7 @@ public class CoteDemo<ResourcePoolT extends ResourcePool> {
   public void runPartyTwo(int pid) throws IOException {
     OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
         lambdaSecurityParam);
-    Cote cote = new Cote(ctx.createResources(1), ctx.getNetwork());
+    CoteFactory cote = new CoteFactory(ctx.createResources(1), ctx.getNetwork());
     CoteSender coteSnd = cote.getSender();
     List<StrictBitVector> q = coteSnd.extend(amountOfOTs);
     System.out.println("done sender");

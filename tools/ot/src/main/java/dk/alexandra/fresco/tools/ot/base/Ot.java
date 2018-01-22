@@ -3,12 +3,11 @@ package dk.alexandra.fresco.tools.ot.base;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 
 /**
- * Oblivious Transfer interface for 1-out-of-2 oblivious transfer. That is, the 
- * sending party inputs two messages and the receiving party a single bit. 
- * If the bit is 0 the receiving party learns the first of the sending party's
- * messages. If it is 1 it instead learns the second of the sending party's 
- * messages. The sending party does not learn anything besides that the transfer 
- * was carried out.
+ * Oblivious Transfer interface for 1-out-of-2 oblivious transfer. That is, the sending party inputs
+ * two messages and the receiving party a single bit. If the bit is 0 the receiving party learns the
+ * first of the sending party's messages. If it is 1 it instead learns the second of the sending
+ * party's messages. The sending party does not learn anything besides that the transfer was carried
+ * out.
  */
 public interface Ot {
 

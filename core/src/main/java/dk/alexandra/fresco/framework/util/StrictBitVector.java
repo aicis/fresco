@@ -4,10 +4,11 @@ import java.util.Arrays;
 import java.util.Collections;
 
 /**
- * This class represents a bit vector. Internally the bit vector is represented by a byte array.
- * This is done to make it easy and fast to carry out internal operations and bit manipulations.
- * However, this also means that an instance MUST contain an amount of bits which is divisible by 8
- * since a byte always contains 8 bits.
+ * This class represents a bit vector. Internally the bit vector is represented 
+ * by a byte array. This is done to make it easy and fast to carry out internal 
+ * operations and bit manipulations. However, this also means that an instance 
+ * MUST contain an amount of bits which is divisible by 8 since a byte always 
+ * contains 8 bits.
  */
 public class StrictBitVector implements BitVector {
 
@@ -15,9 +16,9 @@ public class StrictBitVector implements BitVector {
   private final int size;
 
   /**
-   * Constructs new strict bit vector, using the byte array given as input for the internal
-   * representation. Thus modifying this byte array DIRECTLY modifies the bits in this StrictBitVector
-   * object.
+   * Constructs new strict bit vector, using the byte array given as input for 
+   * the internal representation. Thus modifying this byte array DIRECTLY 
+   * modifies the bits in this StrictBitVector object.
    *
    * @param bits
    *          raw bytes

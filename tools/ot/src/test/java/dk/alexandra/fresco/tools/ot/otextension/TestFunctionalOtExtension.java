@@ -22,10 +22,10 @@ import org.junit.Test;
 
 public class TestFunctionalOtExtension {
   private RuntimeForTests testRuntime;
-  private Cote coteSender;
+  private CoteFactory coteSender;
   private OtExtensionResourcePool senderResources;
   private Network senderNetwork;
-  private Cote coteReceiver;
+  private CoteFactory coteReceiver;
   private OtExtensionResourcePool receiverResources;
   private Network receiverNetwork;
   private int kbitLength = 128;
@@ -44,10 +44,10 @@ public class TestFunctionalOtExtension {
     // run tasks and get ordered list of results
     List<List<?>> results = testRuntime
         .runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
-    coteSender = (Cote) results.get(0).get(0);
+    coteSender = (CoteFactory) results.get(0).get(0);
     senderResources = (OtExtensionResourcePool) results.get(0).get(1);
     senderNetwork = (Network) results.get(0).get(2);
-    coteReceiver = (Cote) results.get(1).get(0);
+    coteReceiver = (CoteFactory) results.get(1).get(0);
     receiverResources = (OtExtensionResourcePool) results.get(1).get(1);
     receiverNetwork = (Network) results.get(1).get(2);
   }
@@ -70,7 +70,7 @@ public class TestFunctionalOtExtension {
         lambdaSecurityParam);
     OtExtensionResourcePool resources = ctx.createResources(1);
     Network network = ctx.getNetwork();
-    Cote cote = new Cote(resources, network);
+    CoteFactory cote = new CoteFactory(resources, network);
     List<Object> res = new ArrayList<>(3);
     res.add(cote);
     res.add(resources);
@@ -83,7 +83,7 @@ public class TestFunctionalOtExtension {
         lambdaSecurityParam);
     OtExtensionResourcePool resources = ctx.createResources(1);
     Network network = ctx.getNetwork();
-    Cote cote = new Cote(resources, network);
+    CoteFactory cote = new CoteFactory(resources, network);
     List<Object> res = new ArrayList<>(3);
     res.add(cote);
     res.add(resources);

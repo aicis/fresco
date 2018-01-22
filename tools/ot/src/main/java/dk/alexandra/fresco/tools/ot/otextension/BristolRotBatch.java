@@ -17,7 +17,7 @@ import java.util.List;
  * bits.
  */
 public class BristolRotBatch implements RotBatch {
-  private final Rot rot;
+  private final RotFactory rot;
   private final int comSecParam;
   private final int statSecParam;
 
@@ -35,7 +35,7 @@ public class BristolRotBatch implements RotBatch {
    * @param statSecParam
    *          The statistical security parameter
    */
-  public BristolRotBatch(Rot randomOtExtension, int comSecParam, int statSecParam) {
+  public BristolRotBatch(RotFactory randomOtExtension, int comSecParam, int statSecParam) {
     this.rot = randomOtExtension;
     this.comSecParam = comSecParam;
     this.statSecParam = statSecParam;

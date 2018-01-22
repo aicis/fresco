@@ -5,7 +5,7 @@ import dk.alexandra.fresco.framework.network.Network;
 /**
  * Container class for a protocol instance of correlated OT extension with errors.
  */
-public class Cote {
+public class CoteFactory {
   private CoteSender sender = null;
   private CoteReceiver receiver = null;
   private final OtExtensionResourcePool resources;
@@ -20,7 +20,7 @@ public class Cote {
    * @param network
    *          The network instance
    */
-  public Cote(OtExtensionResourcePool resources, Network network) {
+  public CoteFactory(OtExtensionResourcePool resources, Network network) {
     this.resources = resources;
     this.network = network;
   }

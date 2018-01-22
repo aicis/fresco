@@ -3,7 +3,7 @@ package dk.alexandra.fresco.tools.ot.otextension;
 /**
  * Factory for getting a protocol instance of random OT extension.
  */
-public interface Rot {
+public interface RotFactory {
 
   /**
    * Returns the sender object for the protocol.

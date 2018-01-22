@@ -74,7 +74,7 @@ public class TestFunctionalBristolOt {
   private List<Pair<StrictBitVector, StrictBitVector>> bristolOtSend(
       OtExtensionTestContext ctx, int iterations, int batchSize) {
     OtExtensionResourcePool resources = ctx.createResources(1);
-    Ot otSender = new BristolOt(new RotImpl(resources, ctx.getNetwork()),
+    Ot otSender = new BristolOt(new RotFactoryImpl(resources, ctx.getNetwork()),
         resources,
         ctx.getNetwork(), batchSize);
     List<Pair<StrictBitVector, StrictBitVector>> messages = new ArrayList<>(
@@ -97,7 +97,7 @@ public class TestFunctionalBristolOt {
   private List<StrictBitVector> bristolOtReceive(OtExtensionTestContext ctx,
       StrictBitVector choices, int batchSize) {
     OtExtensionResourcePool resources = ctx.createResources(1);
-    Ot otReceiver = new BristolOt(new RotImpl(resources, ctx.getNetwork()),
+    Ot otReceiver = new BristolOt(new RotFactoryImpl(resources, ctx.getNetwork()),
         resources, ctx.getNetwork(), batchSize);
     List<StrictBitVector> messages = new ArrayList<>(choices.getSize());
     for (int i = 0; i < choices.getSize(); i++) {
@@ -136,7 +136,7 @@ public class TestFunctionalBristolOt {
   private List<Pair<StrictBitVector, StrictBitVector>> bristolRotBatchSend(
       OtExtensionTestContext ctx, int batchSize, int id) {
     OtExtensionResourcePool resources = ctx.createResources(id);
-    BristolRotBatch rotBatchSender = new BristolRotBatch(new RotImpl(resources,
+    BristolRotBatch rotBatchSender = new BristolRotBatch(new RotFactoryImpl(resources,
         ctx.getNetwork()), resources.getComputationalSecurityParameter(),
         resources.getLambdaSecurityParam());
     List<Pair<StrictBitVector, StrictBitVector>> messages = rotBatchSender
@@ -147,7 +147,7 @@ public class TestFunctionalBristolOt {
   private List<StrictBitVector> bristolRotBatchReceive(
       OtExtensionTestContext ctx, StrictBitVector choices, int id) {
     OtExtensionResourcePool resources = ctx.createResources(id);
-    BristolRotBatch rotBatchReceiver = new BristolRotBatch(new RotImpl(resources,
+    BristolRotBatch rotBatchReceiver = new BristolRotBatch(new RotFactoryImpl(resources,
         ctx.getNetwork()), resources.getComputationalSecurityParameter(),
         resources.getLambdaSecurityParam());
     List<StrictBitVector> messages = rotBatchReceiver.receive(choices,
@@ -226,7 +226,7 @@ public class TestFunctionalBristolOt {
   private Exception bristolOtMaliciousSend(OtExtensionTestContext ctx,
       int iterations, int batchSize) {
     OtExtensionResourcePool resources = ctx.createResources(1);
-    BristolOt otSender = new BristolOt(new RotImpl(resources, ctx.getNetwork()),
+    BristolOt otSender = new BristolOt(new RotFactoryImpl(resources, ctx.getNetwork()),
         resources, ctx.getNetwork(), batchSize);
     Drbg rand = ctx.createRand(1);
     byte[] msgBytes = new byte[messageLength / 8];
@@ -244,7 +244,7 @@ public class TestFunctionalBristolOt {
       IllegalArgumentException, IllegalAccessException,
       NoSuchFieldException {
     OtExtensionResourcePool resources = ctx.createResources(1);
-    BristolOt otReceiver = new BristolOt(new RotImpl(resources, ctx
+    BristolOt otReceiver = new BristolOt(new RotFactoryImpl(resources, ctx
         .getNetwork()), resources, ctx.getNetwork(), batchSize);
     otReceiver.receive(choices.getBit(0, false));
     Field receiver = BristolOt.class.getDeclaredField("receiver");

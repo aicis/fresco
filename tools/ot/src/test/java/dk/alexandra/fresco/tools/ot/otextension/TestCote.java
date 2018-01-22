@@ -15,7 +15,7 @@ import org.junit.Test;
 
 public class TestCote {
   private final int kbitSecurity = 128;
-  private Cote cote;
+  private CoteFactory cote;
   private Drbg rand;
   private Network network;
 
@@ -52,7 +52,7 @@ public class TestCote {
     CoinTossing ct = new CoinTossing(1, 2, rand);
     OtExtensionResourcePool resources = new OtExtensionResourcePoolImpl(1, 2,
         128, 40, 1, rand, ct, seedOts);
-    this.cote = new Cote(resources, network);
+    this.cote = new CoteFactory(resources, network);
   }
 
   /**** NEGATIVE TESTS. ****/

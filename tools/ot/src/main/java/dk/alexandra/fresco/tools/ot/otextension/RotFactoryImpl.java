@@ -5,7 +5,7 @@ import dk.alexandra.fresco.framework.network.Network;
 /**
  * Container class for a protocol instance of random OT extension.
  */
-public class RotImpl implements Rot {
+public class RotFactoryImpl implements RotFactory {
   private RotSenderImpl sender = null;
   private RotReceiverImpl receiver = null;
   private final OtExtensionResourcePool resources;
@@ -20,7 +20,7 @@ public class RotImpl implements Rot {
    * @param network
    *          The network instance
    */
-  public RotImpl(OtExtensionResourcePool resources, Network network) {
+  public RotFactoryImpl(OtExtensionResourcePool resources, Network network) {
     this.resources = resources;
     this.network = network;
   }

@@ -31,7 +31,7 @@ public class RotDemo<ResourcePoolT extends ResourcePool> {
     OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
         lambdaSecurityParam);
     // ctx.getDummyOtInstance().receive();
-    Rot rot = new RotImpl(ctx.createResources(1), ctx.getNetwork());
+    RotFactory rot = new RotFactoryImpl(ctx.createResources(1), ctx.getNetwork());
     RotReceiver rotRec = rot.getReceiver();
     // rotRec.initialize();
     byte[] otChoices = new byte[amountOfOTs / 8];
@@ -61,7 +61,7 @@ public class RotDemo<ResourcePoolT extends ResourcePool> {
   public void runPartyTwo(int pid) throws IOException {
     OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
         lambdaSecurityParam);
-    Rot rot = new RotImpl(ctx.createResources(1), ctx.getNetwork());
+    RotFactory rot = new RotFactoryImpl(ctx.createResources(1), ctx.getNetwork());
     RotSender rotSnd = rot.getSender();
     Pair<List<StrictBitVector>, List<StrictBitVector>> vpairs = rotSnd
         .extend(amountOfOTs);
