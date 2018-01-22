@@ -63,6 +63,8 @@ public class NaorPinkasOt implements Ot {
     // To avoid leakage both messages sent will have the length of the longest
     // of the two
     int maxBitLength = Math.max(messageZero.getSize(), messageOne.getSize());
+    // Completes the actual Naor-Pinkas to send two random messages of the length
+    // of the hash digest
     Pair<byte[], byte[]> seedMessages = sendBytesOt();
     // We divide the length with 8 to get the byte length and then use the short
     // messages from the OT as seeds for a PRG which does a one-time-pad
@@ -157,7 +159,8 @@ public class NaorPinkasOt implements Ot {
   }
 
   /**
-   * Completes the sender's part of the Naor-Pinkas OT.
+   * Completes the sender's part of the Naor-Pinkas OT in order to send two
+   * random messages of the length of hash digest.
    *
    * @return The two random messages sent by the sender.
    */
