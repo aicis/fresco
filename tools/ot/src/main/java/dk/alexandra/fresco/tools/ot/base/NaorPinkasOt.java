@@ -24,7 +24,14 @@ public class NaorPinkasOt implements Ot {
   private final Network network;
   private final Drng randNum;
   private final MessageDigest hashDigest;
-  private final DHParameterSpec dhParams;
+  /**
+   * The modulus of the Diffie-Hellman group used in the OT.
+   */
+  private final BigInteger p;
+  /**
+   * The generator of the Diffie-Hellman group used in the OT.
+   */
+  private final BigInteger g;
 
   /**
    * Constructs a Naor-Pinkas OT instance using prespecified Diffie-Hellman
@@ -46,7 +53,8 @@ public class NaorPinkasOt implements Ot {
     this.hashDigest = ExceptionConverter.safe(() -> MessageDigest.getInstance(
         HASH_ALGORITHM),
         "Missing secure, hash function which is dependent in this library");
-    this.dhParams = params;
+    this.p = params.getP();
+    this.g = params.getG();
     this.randNum = new DrngImpl(randBit);
   }
 
@@ -91,8 +99,7 @@ public class NaorPinkasOt implements Ot {
    *          The seed to use for a PRG
    * @return The one-time padded message
    */
-  private byte[] padMessage(byte[] message, int maxSize,
-      byte[] seed) {
+  private byte[] padMessage(byte[] message, int maxSize, byte[] seed) {
     byte[] maxLengthMessage = Arrays.copyOf(message, maxSize);
     byte[] encryptedMessage = new byte[maxSize];
     Drbg prg = new AesCtrDrbg(seed);
@@ -155,12 +162,12 @@ public class NaorPinkasOt implements Ot {
    * @return The two random messages sent by the sender.
    */
   private Pair<byte[], byte[]> sendBytesOt() {
-    BigInteger c = randNum.nextBigInteger(dhParams.getP());
+    // Pick a random value c mod p
+    BigInteger c = randNum.nextBigInteger(p);
     network.send(otherId, c.toByteArray());
     BigInteger publicKeyZero = new BigInteger(network.receive(otherId));
-    // publicKeyOne = c / publicKeyZero
-    BigInteger publicKeyOne = publicKeyZero.modInverse(dhParams.getP())
-        .multiply(c);
+    // publicKeyOne = c / publicKeyZero mod p
+    BigInteger publicKeyOne = publicKeyZero.modInverse(p).multiply(c);
     byte[] messageZero = new byte[hashDigest.getDigestLength()];
     byte[] messageOne = new byte[hashDigest.getDigestLength()];
     BigInteger encZero = encryptMessage(publicKeyZero, messageZero);
@@ -177,14 +184,11 @@ public class NaorPinkasOt implements Ot {
    */
   private byte[] receiveByteOt(Boolean choiceBit) {
     BigInteger c = new BigInteger(network.receive(otherId));
-    // Pick random element privateKey
-    BigInteger privateKey = randNum.nextBigInteger(dhParams.getP());
-    // publicKeySigma = G^privateKey mod P
-    BigInteger publicKeySigma = dhParams.getG().modPow(privateKey, dhParams
-        .getP());
-    // publicKeyNotSigma = c / publicKeySigma mod P
-    BigInteger publicKeyNotSigma = publicKeySigma.modInverse(dhParams.getP())
-        .multiply(c);
+    // Pick random element privateKey mod p
+    BigInteger privateKey = randNum.nextBigInteger(p);
+    BigInteger publicKeySigma = g.modPow(privateKey, p);
+    // publicKeyNotSigma = c / publicKeySigma mod p
+    BigInteger publicKeyNotSigma = publicKeySigma.modInverse(p).multiply(c);
     if (choiceBit == false) {
       network.send(otherId, publicKeySigma.toByteArray());
     } else {
@@ -212,14 +216,12 @@ public class NaorPinkasOt implements Ot {
    */
   private BigInteger encryptMessage(BigInteger publicKey,
       byte[] message) {
-    // Pick random element r
-    BigInteger r = randNum.nextBigInteger(dhParams.getP());
+    // Pick random element r mod p
+    BigInteger r = randNum.nextBigInteger(p);
     // Compute encryption:
-    // encryption = g^r mod P
-    BigInteger encryption = dhParams.getG().modPow(r, dhParams.getP());
-    // toHash = publicKey^r mod P
-    BigInteger toHash = publicKey.modPow(r, dhParams.getP());
-    // randomMessage = H(toHash)
+    BigInteger encryption = g.modPow(r, p);
+    BigInteger toHash = publicKey.modPow(r, p);
+    // encB = H(toHash)
     byte[] encB = hashDigest.digest(toHash.toByteArray());
     System.arraycopy(encB, 0, message, 0, hashDigest.getDigestLength());
     return encryption;
@@ -235,7 +237,7 @@ public class NaorPinkasOt implements Ot {
    * @return The plain message
    */
   private byte[] decryptMessage(BigInteger cipher, BigInteger privateKey) {
-    BigInteger toHash = cipher.modPow(privateKey, dhParams.getP());
+    BigInteger toHash = cipher.modPow(privateKey, p);
     return hashDigest.digest(toHash.toByteArray());
   }
 }

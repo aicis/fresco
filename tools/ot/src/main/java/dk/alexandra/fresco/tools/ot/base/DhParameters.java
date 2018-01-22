@@ -15,7 +15,7 @@ import java.security.SecureRandom;
 import javax.crypto.spec.DHParameterSpec;
 
 /**
- * Class for generating Diffie-Hellman parameters using Java's internal functionality. The call can
+ * Class for generating Diffie-Hellman parameters using Java's internal functionality. The class can
  * be used to both generate the parameters securely using coin-tossing, locally using a seed or
  * simply to retrieve a pair of static parameters.
  */
