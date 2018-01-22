@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Protocol class for the party acting as the sender in a random OT extension.
  */
-public interface RotSender extends RotShared {
+public interface RotSender {
 
   /**
    * Constructs a new batch of random OTs.

@@ -29,7 +29,7 @@ public class RotImpl implements Rot {
   public RotSender getSender() {
     if (this.sender == null) {
       CoteSender sender = new CoteSender(resources, network);
-      this.sender = new RotSenderImpl(sender, resources.getCoinTossing());
+      this.sender = new RotSenderImpl(sender, resources, network);
     }
     return sender;
   }
@@ -38,7 +38,7 @@ public class RotImpl implements Rot {
   public RotReceiver getReceiver() {
     if (this.receiver == null) {
       CoteReceiver receiver = new CoteReceiver(resources, network);
-      this.receiver = new RotReceiverImpl(receiver, resources.getCoinTossing());
+      this.receiver = new RotReceiverImpl(receiver, resources, network);
     }
     return receiver;
   }

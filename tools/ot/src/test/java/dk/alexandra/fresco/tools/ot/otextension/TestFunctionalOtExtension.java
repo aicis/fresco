@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.MaliciousException;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
@@ -23,8 +24,10 @@ public class TestFunctionalOtExtension {
   private RuntimeForTests testRuntime;
   private Cote coteSender;
   private OtExtensionResourcePool senderResources;
+  private Network senderNetwork;
   private Cote coteReceiver;
   private OtExtensionResourcePool receiverResources;
+  private Network receiverNetwork;
   private int kbitLength = 128;
   private int lambdaSecurityParam = 64;
 
@@ -36,15 +39,17 @@ public class TestFunctionalOtExtension {
   public void initializeRuntime() {
     this.testRuntime = new RuntimeForTests();
     // define task each party will run
-    Callable<Pair<Cote, OtExtensionResourcePool>> partyOneTask = this::setupCoteSender;
-    Callable<Pair<Cote, OtExtensionResourcePool>> partyTwoTask = this::setupCoteReceiver;
+    Callable<List<?>> partyOneTask = this::setupCoteSender;
+    Callable<List<?>> partyTwoTask = this::setupCoteReceiver;
     // run tasks and get ordered list of results
-    List<Pair<Cote, OtExtensionResourcePool>> results = testRuntime
+    List<List<?>> results = testRuntime
         .runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
-    coteSender = results.get(0).getFirst();
-    senderResources = results.get(0).getSecond();
-    coteReceiver = results.get(1).getFirst();
-    receiverResources = results.get(1).getSecond();
+    coteSender = (Cote) results.get(0).get(0);
+    senderResources = (OtExtensionResourcePool) results.get(0).get(1);
+    senderNetwork = (Network) results.get(0).get(2);
+    coteReceiver = (Cote) results.get(1).get(0);
+    receiverResources = (OtExtensionResourcePool) results.get(1).get(1);
+    receiverNetwork = (Network) results.get(1).get(2);
   }
 
   /**
@@ -55,25 +60,35 @@ public class TestFunctionalOtExtension {
    */
   @After
   public void shutdown() throws IOException {
-    ((Closeable) coteSender.getSender().getNetwork()).close();
-    ((Closeable) coteReceiver.getReceiver().getNetwork()).close();
+    ((Closeable) senderNetwork).close();
+    ((Closeable) receiverNetwork).close();
     testRuntime.shutdown();
   }
 
-  private Pair<Cote, OtExtensionResourcePool> setupCoteSender() {
+  private List<?> setupCoteSender() {
     OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
         lambdaSecurityParam);
     OtExtensionResourcePool resources = ctx.createResources(1);
-    Cote cote = new Cote(resources, ctx.getNetwork());
-    return new Pair<>(cote, resources);
+    Network network = ctx.getNetwork();
+    Cote cote = new Cote(resources, network);
+    List<Object> res = new ArrayList<>(3);
+    res.add(cote);
+    res.add(resources);
+    res.add(network);
+    return res;
   }
 
-  private Pair<Cote, OtExtensionResourcePool> setupCoteReceiver() {
+  private List<?> setupCoteReceiver() {
     OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
         lambdaSecurityParam);
     OtExtensionResourcePool resources = ctx.createResources(1);
-    Cote cote = new Cote(resources, ctx.getNetwork());
-    return new Pair<>(cote, resources);
+    Network network = ctx.getNetwork();
+    Cote cote = new Cote(resources, network);
+    List<Object> res = new ArrayList<>(3);
+    res.add(cote);
+    res.add(resources);
+    res.add(network);
+    return res;
   }
 
   /***** POSITIVE TESTS. *****/
@@ -122,7 +137,7 @@ public class TestFunctionalOtExtension {
   private List<Pair<StrictBitVector, StrictBitVector>> extendRotSender(
       int size) {
     RotSender rotSender = new RotSenderImpl(coteSender.getSender(),
-        senderResources.getCoinTossing());
+        senderResources, senderNetwork);
     Pair<List<StrictBitVector>, List<StrictBitVector>> messages = rotSender
         .extend(size);
     List<Pair<StrictBitVector, StrictBitVector>> res = new ArrayList<>(size);
@@ -136,7 +151,7 @@ public class TestFunctionalOtExtension {
 
   private List<StrictBitVector> extendRotReceiver(StrictBitVector choices) {
     RotReceiver rotReceiver = new RotReceiverImpl(coteReceiver.getReceiver(),
-        receiverResources.getCoinTossing());
+        receiverResources, receiverNetwork);
     return rotReceiver.extend(choices);
   }
 
@@ -181,7 +196,7 @@ public class TestFunctionalOtExtension {
     // up to the random choices of the sender. We have verifies that for the static
     // randomness used by our tests this happens for choice 1
     int corruptUVecPos = 1;
-    ((CheatingNetwork) coteReceiver.getReceiver().getNetwork())
+    ((CheatingNetwork) receiverNetwork)
         .cheatInNextMessage(corruptUVecPos, 0);
     Callable<List<?>> partyTwoExtend = () -> extendRotReceiver(choices);
     // run tasks and get ordered list of results

@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
 import dk.alexandra.fresco.framework.MaliciousException;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.framework.util.Drbg;
@@ -15,9 +16,12 @@ import java.util.List;
  * automatically processes a new batch. These random OTs are adjusted to work as
  * chosen bit/message 1-out-of-2 OTs.
  */
-public class BristolOtReceiver extends BristolOtShared {
-  // The internal random OT receiver functionality used
+public class BristolOtReceiver {
   private final RotReceiver receiver;
+  private final OtExtensionResourcePool resources;
+  private final Network network;
+  private final int batchSize;
+
   // The random messages received from the batched random 1-out-of-2 OTs
   private List<StrictBitVector> randomMessages;
   // The random choices from the batched random 1-out-of-2 OTs
@@ -30,13 +34,20 @@ public class BristolOtReceiver extends BristolOtShared {
    * will then construct OTs in batches of {@code batchSize}.
    *
    * @param rotReceiver
-   *          The underlying receiver object to use
+   *          The random OT receiver instance to use
+   * @param resources
+   *          The resource pool for this specific instance
+   * @param network
+   *          The network to use
    * @param batchSize
-   *          The amount of OTs to construct at a time, internally.
+   *          Size of the OT extension batch the protocol will construct
    */
-  public BristolOtReceiver(RotReceiver rotReceiver, int batchSize) {
-    super(rotReceiver, batchSize);
+  public BristolOtReceiver(RotReceiver rotReceiver,
+      OtExtensionResourcePool resources, Network network, int batchSize) {
     this.receiver = rotReceiver;
+    this.resources = resources;
+    this.network = network;
+    this.batchSize = batchSize;
   }
 
   /**
@@ -49,8 +60,8 @@ public class BristolOtReceiver extends BristolOtShared {
   public byte[] receive(Boolean choiceBit) {
     // Check if there is still an unused random OT stored, if not, execute a
     // random OT extension
-    if (offset < 0 || offset >= getBatchSize()) {
-      choices = new StrictBitVector(getBatchSize(), getRand());
+    if (offset < 0 || offset >= batchSize) {
+      choices = new StrictBitVector(batchSize, resources.getRandomGenerator());
       randomMessages = receiver.extend(choices);
       offset = 0;
     }
@@ -59,8 +70,8 @@ public class BristolOtReceiver extends BristolOtShared {
     // choice bit
     sendSwitchBit(choiceBit);
     // Receive the serialized adjusted messages
-    byte[] zeroAdjustment = getNetwork().receive(getOtherId());
-    byte[] oneAdjustment = getNetwork().receive(getOtherId());
+    byte[] zeroAdjustment = network.receive(resources.getOtherId());
+    byte[] oneAdjustment = network.receive(resources.getOtherId());
     byte[] res = doActualReceive(zeroAdjustment, oneAdjustment);
     offset++;
     return res;
@@ -106,7 +117,7 @@ public class BristolOtReceiver extends BristolOtShared {
     if (choiceBit ^ choices.getBit(offset, false) == true) {
       switchBit[0] = 0x01;
     }
-    getNetwork().send(getOtherId(), switchBit);
+    network.send(resources.getOtherId(), switchBit);
   }
 
   private void adjustMessage(byte[] adjustment) {

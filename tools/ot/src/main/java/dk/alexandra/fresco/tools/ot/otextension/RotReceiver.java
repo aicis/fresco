@@ -7,7 +7,7 @@ import java.util.List;
  * Protocol class for the party acting as the receiver in an random OT extension
  * following the Bristol 2015 OT extension.
  */
-public interface RotReceiver extends RotShared {
+public interface RotReceiver {
 
   /**
    * Constructs a new batch of random OTs.

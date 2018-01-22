@@ -1,32 +1,40 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
 import dk.alexandra.fresco.framework.MaliciousException;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.cointossing.CoinTossing;
 import java.util.Collections;
 import java.util.List;
 
 public class RotSenderImpl extends RotSharedImpl implements RotSender {
-  // The correlated OT with errors sender that this object will use
   private final CoteSender sender;
+  private final OtExtensionResourcePool resources;
+  private final Network network;
 
   /**
    * Construct a sending party for an instance of the random OT extension protocol.
    *
    * @param snd
    *          The correlated OT with error sender this protocol will use
-   * @param ct
-   *          The coin tossing instance to use
+   * @param resources
+   *          The common OT extension resources
+   * @param network
+   *          The network to use
    */
-  public RotSenderImpl(CoteSender snd, CoinTossing ct) {
-    super(snd, ct);
-    sender = snd;
+  public RotSenderImpl(CoteSender snd, OtExtensionResourcePool resources,
+      Network network) {
+    super(resources.getCoinTossing(), resources.getDigest(), resources
+        .getComputationalSecurityParameter());
+    this.sender = snd;
+    this.resources = resources;
+    this.network = network;
   }
 
   @Override
   public Pair<List<StrictBitVector>, List<StrictBitVector>> extend(int size) {
-    int ellPrime = size + getKbitLength() + getLambdaSecurityParam();
+    int ellPrime = size + resources.getComputationalSecurityParameter()
+        + resources.getLambdaSecurityParam();
     // Construct a sufficient amount correlated OTs with errors
     List<StrictBitVector> qlist = sender.extend(ellPrime);
     // Agree on a random challenge for each of the correlated OTs with errors
@@ -37,8 +45,8 @@ public class RotSenderImpl extends RotSharedImpl implements RotSender {
     // random challenges
     StrictBitVector qvec = computeInnerProduct(chiList, qlist);
     // Retrieve the receivers parts of the correlation check challenge
-    byte[] xvecBytes = getNetwork().receive(getOtherId());
-    byte[] tvecBytes = getNetwork().receive(getOtherId());
+    byte[] xvecBytes = network.receive(resources.getOtherId());
+    byte[] tvecBytes = network.receive(resources.getOtherId());
     StrictBitVector xvec = new StrictBitVector(xvecBytes);
     StrictBitVector tvec = new StrictBitVector(tvecBytes);
     // Compute the challenge vector based on the receivers send values

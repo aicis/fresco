@@ -17,19 +17,28 @@ import java.util.List;
  * bits.
  */
 public class BristolRotBatch implements RotBatch {
+  private final Rot rot;
+  private final int comSecParam;
+  private final int statSecParam;
 
   private RotSender sender;
   private RotReceiver receiver;
-  private final Rot rot;
 
   /**
-   * Constructs a new random batch OT protocol and constructs the internal
-   * sender and receiver objects.
+   * Constructs a new random batch OT protocol and constructs the internal sender and receiver
+   * objects.
    *
-   * @param randomOtExtension random OT extension
+   * @param randomOtExtension
+   *          An instance of the underlying random OT extension
+   * @param comSecParam
+   *          The computational security parameter
+   * @param statSecParam
+   *          The statistical security parameter
    */
-  public BristolRotBatch(Rot randomOtExtension) {
+  public BristolRotBatch(Rot randomOtExtension, int comSecParam, int statSecParam) {
     this.rot = randomOtExtension;
+    this.comSecParam = comSecParam;
+    this.statSecParam = statSecParam;
   }
 
   @Override
@@ -41,7 +50,7 @@ public class BristolRotBatch implements RotBatch {
     List<Pair<StrictBitVector, StrictBitVector>> res = new ArrayList<>(
         numMessages);
     int amountToPreprocess = computeExtensionSize(numMessages,
-        sender.getKbitLength(), sender.getLambdaSecurityParam());
+        comSecParam, statSecParam);
     Pair<List<StrictBitVector>, List<StrictBitVector>> messages = sender
         .extend(amountToPreprocess);
     List<StrictBitVector> rawZeroMessages = messages.getFirst();
@@ -67,7 +76,7 @@ public class BristolRotBatch implements RotBatch {
     List<StrictBitVector> res = new ArrayList<>(choiceBits.getSize());
     // Find how many OTs we need to preprocess
     int amountToPreprocess = computeExtensionSize(choiceBits.getSize(),
-        receiver.getKbitLength(), receiver.getLambdaSecurityParam());
+        comSecParam, statSecParam);
     // Construct a new choice-bit vector of the original choices, padded with
     // 0 choices if needed
     byte[] extraByteChoices = Arrays.copyOf(choiceBits.toByteArray(),

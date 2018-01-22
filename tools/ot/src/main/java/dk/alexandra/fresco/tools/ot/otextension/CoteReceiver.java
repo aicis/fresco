@@ -13,6 +13,8 @@ import java.util.List;
  * errors extension.
  */
 public class CoteReceiver extends CoteShared {
+  private final OtExtensionResourcePool resources;
+  private final Network network;
   private final List<Pair<Drbg, Drbg>> prgs;
 
   /**
@@ -24,14 +26,16 @@ public class CoteReceiver extends CoteShared {
    *          The network object used to communicate with the other party
    */
   public CoteReceiver(OtExtensionResourcePool resources, Network network) {
-    super(resources, network);
-    this.prgs = new ArrayList<>(getkBitLength());
+    super(resources.getInstanceId());
+    this.prgs = new ArrayList<>(resources.getComputationalSecurityParameter());
     for (Pair<StrictBitVector, StrictBitVector> pair : resources.getSeedOts()
         .getSentMessages()) {
       Drbg prgZero = initPrg(pair.getFirst());
       Drbg prgFirst = initPrg(pair.getSecond());
       prgs.add(new Pair<>(prgZero, prgFirst));
     }
+    this.resources = resources;
+    this.network = network;
   }
 
   /**
@@ -52,9 +56,11 @@ public class CoteReceiver extends CoteShared {
     // (the amount of bits in the primitive type; byte)
     int bytesNeeded = choices.getSize() / 8;
     // Use prgs to expand the seeds
-    List<StrictBitVector> tlistZero = new ArrayList<>(getkBitLength());
-    List<StrictBitVector> ulist = new ArrayList<>(getkBitLength());
-    for (int i = 0; i < getkBitLength(); i++) {
+    List<StrictBitVector> tlistZero = new ArrayList<>(resources
+        .getComputationalSecurityParameter());
+    List<StrictBitVector> ulist = new ArrayList<>(resources
+        .getComputationalSecurityParameter());
+    for (int i = 0; i < resources.getComputationalSecurityParameter(); i++) {
       // Expand the seed OTs using a prg and store the result in tlistZero
       byte[] byteBuffer = new byte[bytesNeeded];
       prgs.get(i).getFirst().nextBytes(byteBuffer);
@@ -91,7 +97,6 @@ public class CoteReceiver extends CoteShared {
       System.arraycopy(list.get(i).toByteArray(), 0, toSend, i * elementLength,
           elementLength);
     }
-    getNetwork().send(getOtherId(), toSend);
+    network.send(resources.getOtherId(), toSend);
   }
-
 }

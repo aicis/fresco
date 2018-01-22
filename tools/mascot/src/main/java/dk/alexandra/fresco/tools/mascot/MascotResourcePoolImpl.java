@@ -93,7 +93,8 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
     OtExtensionResourcePool otResources = new OtExtensionResourcePoolImpl(getMyId(), otherId,
         getPrgSeedLength(), getLambdaSecurityParam(), getInstanceId(),
         getRandomGenerator(), ct, seedOts.get(otherId));
-    return new BristolRotBatch(new RotImpl(otResources, network));
+    return new BristolRotBatch(new RotImpl(otResources, network),
+        getPrgSeedLength(), getLambdaSecurityParam());
   }
 
   @Override

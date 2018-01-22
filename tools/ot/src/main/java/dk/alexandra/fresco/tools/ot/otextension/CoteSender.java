@@ -12,6 +12,8 @@ import java.util.List;
  * errors extension.
  */
 public class CoteSender extends CoteShared {
+  private final OtExtensionResourcePool resources;
+  private final Network network;
   // The prgs based on the seeds learned from OT
   private final List<Drbg> prgs;
   // The random messages choices for the random seed OTs
@@ -26,7 +28,7 @@ public class CoteSender extends CoteShared {
    *          The network interface. Must not be null and must be initialized.
    */
   public CoteSender(OtExtensionResourcePool resources, Network network) {
-    super(resources, network);
+    super(resources.getInstanceId());
     this.prgs = new ArrayList<>(resources.getComputationalSecurityParameter());
     for (StrictBitVector message : resources.getSeedOts()
         .getLearnedMessages()) {
@@ -34,6 +36,8 @@ public class CoteSender extends CoteShared {
       prgs.add(initPrg(message));
     }
     otChoices = resources.getSeedOts().getChoices();
+    this.resources = resources;
+    this.network = network;
   }
 
   /**
@@ -66,17 +70,19 @@ public class CoteSender extends CoteShared {
     // (the amount of bits in the primitive type; byte)
     int bytesNeeded = size / 8;
     byte[] byteBuffer = new byte[bytesNeeded];
-    List<StrictBitVector> tlist = new ArrayList<>(getkBitLength());
-    for (int i = 0; i < getkBitLength(); i++) {
+    List<StrictBitVector> tlist = new ArrayList<>(resources
+        .getComputationalSecurityParameter());
+    for (int i = 0; i < resources.getComputationalSecurityParameter(); i++) {
       // Expand the message learned from the seed OTs using a PRG
       prgs.get(i).nextBytes(byteBuffer);
       StrictBitVector tvec = new StrictBitVector(byteBuffer);
       tlist.add(tvec);
     }
-    List<StrictBitVector> ulist = receiveList(getkBitLength());
+    List<StrictBitVector> ulist = receiveList(resources
+        .getComputationalSecurityParameter());
     // Update tlist based on the random choices from the seed OTs, i.e
     // tlist[i] := (otChoicesp[i] AND ulist[i]) XOR tlist[i]
-    for (int i = 0; i < getkBitLength(); i++) {
+    for (int i = 0; i < resources.getComputationalSecurityParameter(); i++) {
       if (otChoices.getBit(i, false) == true) {
         tlist.get(i).xor(ulist.get(i));
       }
@@ -94,7 +100,7 @@ public class CoteSender extends CoteShared {
    */
   private List<StrictBitVector> receiveList(int size) {
     List<StrictBitVector> list = new ArrayList<>(size);
-    byte[] byteBuffer = getNetwork().receive(getOtherId());
+    byte[] byteBuffer = network.receive(resources.getOtherId());
     int elementLength = byteBuffer.length / size;
     for (int i = 0; i < size; i++) {
       byte[] currentVector = new byte[elementLength];

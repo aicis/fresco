@@ -1,7 +1,5 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
 import java.nio.ByteBuffer;
@@ -13,52 +11,28 @@ import java.util.List;
  * Superclass containing the common variables and methods for the sender and
  * receiver parties of random OT extension.
  */
-public class RotSharedImpl implements RotShared {
-  private final CoteShared cote;
+public class RotSharedImpl {
   private final CoinTossing ct;
+  private final int comSecParam;
+  private final MessageDigest digest;
 
   /**
-   * Constructs a random OT extension super-class using an underlying correlated OT with errors
-   * object.
+   * Constructs a random OT extension super-class using an underlying correlated
+   * OT with errors object.
    *
-   * @param cote
-   *          The underlying correlated OT with errors
    * @param ct
    *          The coin tossing instance to use
+   * @param digest
+   *          The hash function to use
+   * @param comSecParam
+   *          The computational security parameter
    */
-  public RotSharedImpl(CoteShared cote, CoinTossing ct) {
-    super();
-    this.cote = cote;
+  public RotSharedImpl(CoinTossing ct, MessageDigest digest, int comSecParam) {
     this.ct = ct;
+    this.digest = digest;
+    this.comSecParam = comSecParam;
   }
 
-  public int getOtherId() {
-    return cote.getOtherId();
-  }
-
-  @Override
-  public int getKbitLength() {
-    return cote.getkBitLength();
-  }
-
-  @Override
-  public int getLambdaSecurityParam() {
-    return cote.getLambdaSecurityParam();
-  }
-
-  @Override
-  public Drbg getRand() {
-    return cote.getRand();
-  }
-
-  @Override
-  public MessageDigest getDigest() {
-    return cote.getDigest();
-  }
-
-  public Network getNetwork() {
-    return cote.getNetwork();
-  }
 
   /**
    * Computes the inner product of two lists of StrictBitVector objects. The
@@ -156,7 +130,7 @@ public class RotSharedImpl implements RotShared {
       indexBuffer.putInt(i);
       // Move the value to hash into the buffer
       indexBuffer.put(input.get(i).toByteArray());
-      hash = getDigest().digest(indexBuffer.array());
+      hash = digest.digest(indexBuffer.array());
       // Allocate the new bitvector, which contains 256 bits since SHA-256 is
       // used
       res.add(new StrictBitVector(hash));
@@ -176,7 +150,7 @@ public class RotSharedImpl implements RotShared {
   protected List<StrictBitVector> getChallenges(int size) {
     List<StrictBitVector> list = new ArrayList<>(size);
     for (int i = 0; i < size; i++) {
-      StrictBitVector currentToss = ct.toss(getKbitLength());
+      StrictBitVector currentToss = ct.toss(comSecParam);
       list.add(currentToss);
     }
     return list;

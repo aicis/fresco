@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.framework.util.Drbg;
@@ -15,9 +16,12 @@ import java.util.List;
  * automatically processes a new batch. These random OTs are adjusted to work as
  * chosen bit/message 1-out-of-2 OTs.
  */
-public class BristolOtSender extends BristolOtShared {
-  // The internal random OT sender functionality used
+public class BristolOtSender {
   private final RotSender sender;
+  private final OtExtensionResourcePool resources;
+  private final Network network;
+  private final int batchSize;
+
   // The random messages generated in the underlying random OT functionality
   private Pair<List<StrictBitVector>, List<StrictBitVector>> randomMessages;
   // Index of the current random OT to use
@@ -28,13 +32,20 @@ public class BristolOtSender extends BristolOtShared {
    * will then construct OTs in batches of {@code batchSize}.
    *
    * @param rotSender
-   *          The underlying receiver object to use
+   *          The underlying random OT sender object to use
+   * @param resources
+   *          The resource pool for this specific instance
+   * @param network
+   *          The network to use
    * @param batchSize
-   *          The amount of OTs to construct at a time, internally.
+   *          Size of the OT extension batch the protocol will construct
    */
-  public BristolOtSender(RotSender rotSender, int batchSize) {
-    super(rotSender, batchSize);
+  public BristolOtSender(RotSender rotSender, OtExtensionResourcePool resources,
+      Network network, int batchSize) {
     this.sender = rotSender;
+    this.resources = resources;
+    this.network = network;
+    this.batchSize = batchSize;
   }
 
   /**
@@ -48,8 +59,8 @@ public class BristolOtSender extends BristolOtShared {
   public void send(byte[] messageZero, byte[] messageOne) {
     // Check if there is still an unused random OT stored, if not, execute a
     // random OT extension
-    if (offset < 0 || offset >= getBatchSize()) {
-      randomMessages = sender.extend(getBatchSize());
+    if (offset < 0 || offset >= batchSize) {
+      randomMessages = sender.extend(batchSize);
       offset = 0;
     }
     doActualSend(messageZero, messageOne);
@@ -72,7 +83,7 @@ public class BristolOtSender extends BristolOtShared {
     int maxLength = Math.max(messageZero.length, messageOne.length);
     // Receive a bit from the receiver indicating whether the zero and one
     // messages should be switched around
-    byte[] switchBit = getNetwork().receive(getOtherId());
+    byte[] switchBit = network.receive(resources.getOtherId());
     // If false (indicated by byte 0x00), then don't switch around
     if (switchBit[0] == 0x00) {
       sendAdjustedMessage(messageZero, maxLength, randomZero.toByteArray());
@@ -95,6 +106,6 @@ public class BristolOtSender extends BristolOtShared {
     // XOR the pseudorandom string onto the message
     ByteArrayHelper.xor(toSend, paddedMessage);
     // Finally send the result
-    getNetwork().send(getOtherId(), toSend);
+    network.send(resources.getOtherId(), toSend);
   }
 }

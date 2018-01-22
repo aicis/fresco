@@ -1,32 +1,43 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.cointossing.CoinTossing;
 import java.util.List;
 
 public class RotReceiverImpl extends RotSharedImpl implements RotReceiver {
   private final CoteReceiver receiver;
+  private final OtExtensionResourcePool resources;
+  private final Network network;
 
   /**
    * Construct a receiving party for an instance of the random OT extension protocol.
    *
    * @param rec
    *          The correlated OT with error receiver this protocol will use
-   * @param ct
-   *          The coin tossing instance to use
+   * @param resources
+   *          The common OT extension resources
+   * @param network
+   *          The network to use
    */
-  public RotReceiverImpl(CoteReceiver rec, CoinTossing ct) {
-    super(rec, ct);
+  public RotReceiverImpl(CoteReceiver rec, OtExtensionResourcePool resources,
+      Network network) {
+    super(resources.getCoinTossing(), resources.getDigest(), resources
+        .getComputationalSecurityParameter());
     this.receiver = rec;
+    this.resources = resources;
+    this.network = network;
   }
 
   @Override
   public List<StrictBitVector> extend(StrictBitVector choices) {
-    int ellPrime = choices.getSize() + getKbitLength()
-        + getLambdaSecurityParam();
+    int ellPrime = choices.getSize() + resources
+        .getComputationalSecurityParameter() + resources
+            .getLambdaSecurityParam();
     // Extend the choices with random choices for padding
     StrictBitVector paddingChoices = new StrictBitVector(
-        getKbitLength() + getLambdaSecurityParam(), getRand());
+        resources.getComputationalSecurityParameter()
+            + resources.getLambdaSecurityParam(), resources
+                .getRandomGenerator());
     StrictBitVector extendedChoices = StrictBitVector.concat(choices,
         paddingChoices);
     // Use the choices along with the random padding uses for correlated OT with
@@ -35,9 +46,9 @@ public class RotReceiverImpl extends RotSharedImpl implements RotReceiver {
     // Agree on challenges for linear combination test
     List<StrictBitVector> chiList = getChallenges(ellPrime);
     StrictBitVector xvec = computeBitLinearCombination(extendedChoices, chiList);
-    getNetwork().send(getOtherId(), xvec.toByteArray());
+    network.send(resources.getOtherId(), xvec.toByteArray());
     StrictBitVector tvec = computeInnerProduct(chiList, tlist);
-    getNetwork().send(getOtherId(), tvec.toByteArray());
+    network.send(resources.getOtherId(), tvec.toByteArray());
     // Remove the correlation of the OTs by hashing
     List<StrictBitVector> vvec = hashBitVector(tlist, choices.getSize());
     return vvec;
