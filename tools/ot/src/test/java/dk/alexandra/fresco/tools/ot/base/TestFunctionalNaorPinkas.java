@@ -32,14 +32,12 @@ public class TestFunctionalNaorPinkas {
   private DHParameterSpec staticParams;
 
   /**
-   * Initializes the test runtime and constructs loads preconstructed
-   * Diffe-Hellman parameters.
+   * Initializes the test runtime and constructs loads preconstructed Diffe-Hellman parameters.
    */
   @Before
-  public void initializeRuntime() {
+  public void initializeRuntime() throws Exception {
     this.testRuntime = new RuntimeForTests();
-    staticParams = new DHParameterSpec(TestNaorPinkasOt.DhPvalue,
-        TestNaorPinkasOt.DhGvalue);
+    staticParams = DhParameters.getStaticDhParams();
   }
 
   /**
@@ -51,13 +49,12 @@ public class TestFunctionalNaorPinkas {
   }
 
   private List<Pair<StrictBitVector, StrictBitVector>> otSend(int iterations)
-      throws IOException {
+      throws Exception {
     Network network = new CheatingNetwork(
         RuntimeForTests.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     try {
       Drbg rand = new AesCtrDrbg(HelperForTests.seedOne);
-      Ot otSender = new NaorPinkasOt(1, 2, rand, network, new DHParameterSpec(
-          TestNaorPinkasOt.DhPvalue, TestNaorPinkasOt.DhGvalue));
+      Ot otSender = new NaorPinkasOt(2, rand, network, staticParams);
       List<Pair<StrictBitVector, StrictBitVector>> messages = new ArrayList<>(
           iterations);
       for (int i = 0; i < iterations; i++) {
@@ -75,13 +72,12 @@ public class TestFunctionalNaorPinkas {
   }
 
   private List<StrictBitVector> otReceive(StrictBitVector choices)
-      throws IOException {
+      throws Exception {
     Network network = new CheatingNetwork(
         RuntimeForTests.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     try {
       Drbg rand = new AesCtrDrbg(HelperForTests.seedTwo);
-      Ot otReceiver = new NaorPinkasOt(2, 1, rand, network, new DHParameterSpec(
-          TestNaorPinkasOt.DhPvalue, TestNaorPinkasOt.DhGvalue));
+      Ot otReceiver = new NaorPinkasOt(1, rand, network, staticParams);
       List<StrictBitVector> messages = new ArrayList<>(choices.getSize());
       for (int i = 0; i < choices.getSize(); i++) {
         StrictBitVector message = otReceiver.receive(choices.getBit(i, false));
@@ -159,7 +155,7 @@ public class TestFunctionalNaorPinkas {
         RuntimeForTests.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     try {
       Drbg rand = new AesCtrDrbg(HelperForTests.seedOne);
-      Ot otSender = new NaorPinkasOt(1, 2, rand, network, staticParams);
+      Ot otSender = new NaorPinkasOt(2, rand, network, staticParams);
       StrictBitVector msgZero = new StrictBitVector(messageLength, rand);
       StrictBitVector msgOne = new StrictBitVector(messageLength, rand);
       // Send a wrong random value c, than what is actually used
@@ -180,7 +176,7 @@ public class TestFunctionalNaorPinkas {
         RuntimeForTests.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     try {
       Drbg rand = new AesCtrDrbg(HelperForTests.seedTwo);
-      Ot otReceiver = new NaorPinkasOt(2, 1, rand, network, staticParams);
+      Ot otReceiver = new NaorPinkasOt(1, rand, network, staticParams);
       StrictBitVector message = otReceiver.receive(choice);
       List<StrictBitVector> messageList = new ArrayList<>(1);
       messageList.add(message);

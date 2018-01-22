@@ -10,6 +10,7 @@ import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultTriple;
+import dk.alexandra.fresco.tools.ot.base.DhParameters;
 import dk.alexandra.fresco.tools.ot.base.NaorPinkasOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
@@ -19,6 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+
+import javax.crypto.spec.DHParameterSpec;
 
 public class MascotDemo {
 
@@ -72,7 +75,10 @@ public class MascotDemo {
     Map<Integer, RotList> seedOts = new HashMap<>();
     for (int otherId = 1; otherId <= noOfParties; otherId++) {
       if (myId != otherId) {
-        Ot ot = new NaorPinkasOt(myId, otherId, drbg, network);
+        DhParameters params = new DhParameters();
+        DHParameterSpec dhSpec = params.computeSecureDhParams(myId, otherId,
+            drbg, network);
+        Ot ot = new NaorPinkasOt(otherId, drbg, network, dhSpec);
         RotList currentSeedOts = new RotList(drbg, parameters.getPrgSeedLength());
         if (myId < otherId) {
           currentSeedOts.send(ot);
