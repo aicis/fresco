@@ -118,7 +118,6 @@ public class TestParallelMascots {
   private void constructMascot() throws Exception {
     List<Map<Integer, RotList>> seedOts = setupOts();
     Map<Integer, FieldElement> perPartyMacKeyShares = setupMacKeyShares();
-    final MascotSecurityParameters finalParams = mascotSecurityParameters;
     List<Callable<Mascot>> mascotCreators = new ArrayList<>();
     for (int i = 0; i < iterations; i++) {
       @SuppressWarnings("resource")

@@ -8,52 +8,42 @@ import static org.junit.Assert.assertTrue;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.helper.HelperForTests;
 import dk.alexandra.fresco.tools.helper.RuntimeForTests;
 import dk.alexandra.fresco.tools.ot.otextension.CheatingNetwork;
-
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 public class TestCoinTossing {
+
   private CoinTossing ctOne;
   private CoinTossing ctTwo;
   private RuntimeForTests testRuntime;
+  private Network netOne;
+  private Network netTwo;
 
-  private Exception initCtOne() throws IOException {
-    Network network = null;
+  private Exception initCtOne() {
     try {
-      network = new CheatingNetwork(RuntimeForTests
-          .defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
-      ctOne.initialize(network);
+      ctOne.initialize(netOne);
     } catch (Exception e) {
       return e;
-    } finally {
-      ((Closeable) network).close();
     }
     return null;
   }
 
-  private Exception initCtTwo() throws IOException {
-    Network network = null;
+  private Exception initCtTwo() {
     try {
-      network = new CheatingNetwork(RuntimeForTests
-          .defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
-      ctTwo.initialize(network);
-      ((Closeable) network).close();
+      ctTwo.initialize(netTwo);
     } catch (Exception e) {
       return e;
-    } finally {
-      ((Closeable) network).close();
     }
     return null;
   }
@@ -69,6 +59,15 @@ public class TestCoinTossing {
     Drbg randTwo = new AesCtrDrbg(HelperForTests.seedTwo);
     ctOne = new CoinTossing(1, 2, randOne);
     ctTwo = new CoinTossing(2, 1, randTwo);
+    List<Callable<Network>> createNets = Arrays.asList(
+        () -> new CheatingNetwork(RuntimeForTests
+            .defaultNetworkConfiguration(1, Arrays.asList(1, 2))),
+        () -> new CheatingNetwork(RuntimeForTests
+            .defaultNetworkConfiguration(2, Arrays.asList(1, 2)))
+    );
+    List<Network> nets = this.testRuntime.runPerPartyTasks(createNets);
+    this.netOne = nets.get(0);
+    this.netTwo = nets.get(1);
   }
 
   /**
@@ -77,14 +76,25 @@ public class TestCoinTossing {
   @After
   public void shutdown() {
     testRuntime.shutdown();
+    if (netOne != null) {
+      ExceptionConverter.safe(() -> {
+        if (netOne != null) {
+          ((Closeable) netOne).close();
+        }
+        if (netTwo != null) {
+          ((Closeable) netTwo).close();
+        }
+        return null;
+      }, "Error closing networks");
+    }
   }
 
   /**** POSITIVE TESTS. ****/
   @Test
   public void testCt() {
     int size = 10000;
-    Callable<Exception> partyOneInit = () -> initCtOne();
-    Callable<Exception> partyTwoInit = () -> initCtTwo();
+    Callable<Exception> partyOneInit = this::initCtOne;
+    Callable<Exception> partyTwoInit = this::initCtTwo;
     // run tasks and get ordered list of results
     List<Exception> initResults = testRuntime
         .runPerPartyTasks(Arrays.asList(partyOneInit, partyTwoInit));
@@ -110,8 +120,8 @@ public class TestCoinTossing {
    **/
   @Test
   public void testDoubleInit() {
-    Callable<Exception> partyOneTask = () -> initCtOne();
-    Callable<Exception> partyTwoTask = () -> initCtTwo();
+    Callable<Exception> partyOneTask = this::initCtOne;
+    Callable<Exception> partyTwoTask = this::initCtTwo;
     // run tasks and get ordered list of results
     List<Exception> results = testRuntime
         .runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
