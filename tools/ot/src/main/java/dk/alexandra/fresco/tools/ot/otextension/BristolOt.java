@@ -5,7 +5,9 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 
 /**
- * Container class for a protocol instance of Bristol OTs.
+ * Container class for a protocol instance of Bristol OTs, which is an OT 
+ * extension protocol, secure in the random oracle model. 
+ * It is specified in the paper https://eprint.iacr.org/2015/546
  */
 public class BristolOt implements Ot {
   private BristolOtSender sender = null;
@@ -16,7 +18,7 @@ public class BristolOt implements Ot {
   private final int batchSize;
 
   /**
-   * Constructs a new OT protocol and constructs the internal sender and receiver 
+   * Constructs a new OT protocol and constructs the internal sender and receiver
    * objects.
    *
    * @param randomOtExtension
