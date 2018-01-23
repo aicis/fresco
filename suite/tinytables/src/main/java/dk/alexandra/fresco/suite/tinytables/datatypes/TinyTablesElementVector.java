@@ -16,7 +16,7 @@ import java.io.Serializable;
 public class TinyTablesElementVector implements Serializable {
 
   private static final long serialVersionUID = -2405648771000699453L;
-  private RegularBitVector values;
+  private final RegularBitVector values;
 
   public TinyTablesElementVector(byte[] shares, int size) {
     this.values = new RegularBitVector(shares, size);
