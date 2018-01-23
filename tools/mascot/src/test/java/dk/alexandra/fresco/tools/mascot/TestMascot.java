@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import dk.alexandra.fresco.tools.mascot.arithm.ArithmeticCollectionUtils;
+import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.InputMask;
@@ -69,7 +69,7 @@ public class TestMascot extends NetworkedTest {
     List<List<MultiplicationTriple>> results = testRuntime.runPerPartyTasks(tasks);
     assertEquals(results.get(0).size(), 1);
     assertEquals(results.get(1).size(), 1);
-    List<MultiplicationTriple> combined = new ArithmeticCollectionUtils<MultiplicationTriple>().sumRows(results);
+    List<MultiplicationTriple> combined = Addable.sumRows(results);
     for (MultiplicationTriple triple : combined) {
       CustomAsserts.assertTripleIsValid(triple, macKeyShareOne.add(macKeyShareTwo));
     }
@@ -88,8 +88,7 @@ public class TestMascot extends NetworkedTest {
     List<List<AuthenticatedElement>> results = testRuntime.runPerPartyTasks(tasks);
     assertEquals(results.get(0).size(), 1);
     assertEquals(results.get(1).size(), 1);
-    AuthenticatedElement recombined = new ArithmeticCollectionUtils<AuthenticatedElement>()
-        .sumRows(results).get(0);
+    AuthenticatedElement recombined = Addable.sumRows(results).get(0);
     // sanity check
     assertFalse(recombined.getShare().isZero());
   }
@@ -159,7 +158,7 @@ public class TestMascot extends NetworkedTest {
     assertEquals(results.get(0).size(), 1);
     assertEquals(results.get(1).size(), 1);
     List<AuthenticatedElement> combined =
-        new ArithmeticCollectionUtils<AuthenticatedElement>().sumRows(results);
+        Addable.sumRows(results);
     FieldElement actualRecombinedValue = combined.get(0).getShare();
     FieldElement actualRecombinedMac = combined.get(0).getMac();
     CustomAsserts.assertEquals(input, actualRecombinedValue);
@@ -183,7 +182,7 @@ public class TestMascot extends NetworkedTest {
     List<List<MultiplicationTriple>> results = testRuntime.runPerPartyTasks(tasks);
     assertEquals(results.get(0).size(), 1);
     assertEquals(results.get(1).size(), 1);
-    List<MultiplicationTriple> combined = new ArithmeticCollectionUtils<MultiplicationTriple>().sumRows(results);
+    List<MultiplicationTriple> combined = Addable.sumRows(results);
     for (MultiplicationTriple triple : combined) {
       CustomAsserts.assertTripleIsValid(triple, macKeyShareOne.add(macKeyShareTwo));
     }

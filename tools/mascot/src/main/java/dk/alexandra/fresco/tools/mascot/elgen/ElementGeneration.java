@@ -2,6 +2,8 @@ package dk.alexandra.fresco.tools.mascot.elgen;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
+import dk.alexandra.fresco.tools.mascot.arithm.Addable;
+import dk.alexandra.fresco.tools.mascot.arithm.TransposeUtils;
 import dk.alexandra.fresco.tools.mascot.cope.CopeInputter;
 import dk.alexandra.fresco.tools.mascot.cope.CopeSigner;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
@@ -168,7 +170,7 @@ public class ElementGeneration {
         .map(resourcePool.getFieldElementSerializer()::deserializeList)
         .collect(Collectors.toList());
     // recombine (step 2)
-    return fieldElementUtils.sumRows(shares);
+    return Addable.sumRows(shares);
   }
 
   /**
@@ -180,7 +182,7 @@ public class ElementGeneration {
     List<FieldElement> selfMacced = selfMac(values);
     List<List<FieldElement>> maccedByAll = otherPartiesMac(values);
     maccedByAll.add(selfMacced);
-    return fieldElementUtils.sumRows(maccedByAll);
+    return Addable.sumRows(maccedByAll);
   }
 
   /**
@@ -210,7 +212,7 @@ public class ElementGeneration {
   private List<FieldElement> secretShare(List<FieldElement> values, int numShares) {
     List<List<FieldElement>> allShares =
         values.stream().map(value -> sharer.share(value, numShares)).collect(Collectors.toList());
-    List<List<FieldElement>> byParty = fieldElementUtils.transpose(allShares);
+    List<List<FieldElement>> byParty = TransposeUtils.transpose(allShares);
     for (int partyId = 1; partyId <= resourcePool.getNoOfParties(); partyId++) {
       // send shares to everyone but self
       if (partyId != resourcePool.getMyId()) {

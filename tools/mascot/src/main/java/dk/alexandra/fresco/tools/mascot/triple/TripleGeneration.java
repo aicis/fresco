@@ -2,7 +2,7 @@ package dk.alexandra.fresco.tools.mascot.triple;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
-import dk.alexandra.fresco.tools.mascot.arithm.ArithmeticCollectionUtils;
+import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 import dk.alexandra.fresco.tools.mascot.elgen.ElementGeneration;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
@@ -149,7 +149,7 @@ public class TripleGeneration {
     subFactors.add(localSubFactors);
 
     // combine all sub-factors into product shares
-    return fieldElementUtils.sumRows(subFactors);
+    return Addable.sumRows(subFactors);
   }
 
   /**
@@ -195,8 +195,7 @@ public class TripleGeneration {
       }
     }
 
-    List<AuthenticatedElement> combined =
-        new ArithmeticCollectionUtils<AuthenticatedElement>().sumRows(shares);
+    List<AuthenticatedElement> combined = Addable.sumRows(shares);
     return toAuthenticatedCandidate(combined, 5);
   }
 

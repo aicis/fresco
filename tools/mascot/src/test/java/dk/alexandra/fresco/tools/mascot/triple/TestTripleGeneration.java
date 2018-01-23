@@ -6,7 +6,7 @@ import dk.alexandra.fresco.tools.mascot.MascotSecurityParameters;
 import dk.alexandra.fresco.tools.mascot.MascotTestContext;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
-import dk.alexandra.fresco.tools.mascot.arithm.ArithmeticCollectionUtils;
+import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementUtils;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
@@ -17,15 +17,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
-
 import org.hamcrest.collection.IsCollectionWithSize;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class TestTripleGeneration extends NetworkedTest {
-
-  private final ArithmeticCollectionUtils<FieldElement> arithmeticUtils =
-      new ArithmeticCollectionUtils<>();
 
   private FieldElementPrg getJointPrg(int prgSeedLength) {
     return new FieldElementPrgImpl(new StrictBitVector(prgSeedLength));
@@ -140,15 +136,15 @@ public class TestTripleGeneration extends NetworkedTest {
     FieldElementUtils fieldElementUtils = new FieldElementUtils(getModulus());
     // for each input pair of factors the result is (a1 + a2 + ...) * (b1 + b2 + ...)
     List<FieldElement> expectedLeftFactors =
-        arithmeticUtils.sumRows(Arrays.asList(leftFactorsOne, leftFactorsTwo));
+        Addable.sumRows(Arrays.asList(leftFactorsOne, leftFactorsTwo));
     List<FieldElement> expectedRightFactors = fieldElementUtils
-        .stretch(arithmeticUtils.sumRows(Arrays.asList(rightFactorsOne, rightFactorsTwo)), 3);
+        .stretch(Addable.sumRows(Arrays.asList(rightFactorsOne, rightFactorsTwo)), 3);
 
     List<FieldElement> expected =
         fieldElementUtils.pairWiseMultiply(expectedLeftFactors, expectedRightFactors);
 
     // actual results, recombined
-    List<FieldElement> actual = arithmeticUtils.sumRows(results);
+    List<FieldElement> actual = Addable.sumRows(results);
     CustomAsserts.assertEquals(expected, actual);
   }
 
@@ -167,10 +163,10 @@ public class TestTripleGeneration extends NetworkedTest {
     }
 
     List<List<MultiplicationTriple>> results = testRuntime.runPerPartyTasks(tasks);
-    List<MultiplicationTriple> combined = new ArithmeticCollectionUtils<MultiplicationTriple>().sumRows(results);
+    List<MultiplicationTriple> combined = Addable.sumRows(results);
     Assert.assertThat(combined, IsCollectionWithSize.hasSize(numTriples));
     for (MultiplicationTriple triple : combined) {
-      CustomAsserts.assertTripleIsValid(triple, arithmeticUtils.sum(macKeyShares));
+      CustomAsserts.assertTripleIsValid(triple, Addable.sum(macKeyShares));
     }
   }
 
@@ -190,10 +186,10 @@ public class TestTripleGeneration extends NetworkedTest {
     }
 
     List<List<MultiplicationTriple>> results = testRuntime.runPerPartyTasks(tasks);
-    List<MultiplicationTriple> combined = new ArithmeticCollectionUtils<MultiplicationTriple>().sumRows(results);
+    List<MultiplicationTriple> combined = Addable.sumRows(results);
     Assert.assertThat(combined, IsCollectionWithSize.hasSize(numTriples * numIterations));
     for (MultiplicationTriple triple : combined) {
-      CustomAsserts.assertTripleIsValid(triple, arithmeticUtils.sum(macKeyShares));
+      CustomAsserts.assertTripleIsValid(triple, Addable.sum(macKeyShares));
     }
   }
 
