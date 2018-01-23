@@ -20,7 +20,7 @@ public class DefaultFixedNumeric implements FixedNumeric<SFixedSIntWrapper> {
    * @param precision Amount of digits after the dot.
    */
   public DefaultFixedNumeric(ProtocolBuilderNumeric builder, int precision) {
-    super();
+   // super();
     this.precision = precision;
     this.builder = builder;
   }
@@ -139,16 +139,8 @@ public class DefaultFixedNumeric implements FixedNumeric<SFixedSIntWrapper> {
   
   @Override
   public DRes<SFixedSIntWrapper> random() {
-    int scale = (int)Math.pow(10, precision);
-    int scaleSize = (int)Math.ceil((Math.log(scale)/(Math.log(2))));
-    System.out.println("scale: "+scale+" has size: "+scaleSize);
-    
-    DRes<RandomAdditiveMask> random = builder.advancedNumeric().additiveMask(scaleSize);
-    /*BigInteger mod = builder.getBasicNumericContext().getModulus().subtract(BigInteger.ONE);
-    DRes<SInt> closedMod = builder.numeric().known(mod);
-    System.out.println("mod : "+mod+" random: "+random);
-    
-    DRes<SInt> divided = builder.advancedNumeric().div(closedMod, random);*/
-    return new SFixedSIntWrapper(()->random.out().r);
+    System.out.println("Default numeric building using: "+builder);
+    return new FixedPointRandom(precision).buildComputation(builder);
   }
+  
 }
