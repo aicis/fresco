@@ -2,7 +2,7 @@ package dk.alexandra.fresco.tools.mascot;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.arithm.ArithmeticCollectionUtils;
+import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 import dk.alexandra.fresco.tools.mascot.bit.BitConverter;
 import dk.alexandra.fresco.tools.mascot.cointossing.CoinTossingMpc;
 import dk.alexandra.fresco.tools.mascot.elgen.ElementGeneration;
@@ -100,7 +100,7 @@ public class Mascot {
         perPartyElements.add(elementGeneration.input(partyId, numElements));
       }
     }
-    return new ArithmeticCollectionUtils<AuthenticatedElement>().sumRows(perPartyElements);
+    return Addable.sumRows(perPartyElements);
   }
 
   /**

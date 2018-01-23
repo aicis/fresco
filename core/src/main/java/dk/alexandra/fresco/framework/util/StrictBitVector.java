@@ -1,13 +1,12 @@
 package dk.alexandra.fresco.framework.util;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 /**
- * This class represents a bit vector. Internally the bit vector is represented 
- * by a byte array. This is done to make it easy and fast to carry out internal 
- * operations and bit manipulations. However, this also means that an instance 
- * MUST contain an amount of bits which is divisible by 8 since a byte always 
+ * This class represents a bit vector. Internally the bit vector is represented
+ * by a byte array. This is done to make it easy and fast to carry out internal
+ * operations and bit manipulations. However, this also means that an instance
+ * MUST contain an amount of bits which is divisible by 8 since a byte always
  * contains 8 bits.
  */
 public class StrictBitVector implements BitVector {
@@ -16,8 +15,8 @@ public class StrictBitVector implements BitVector {
   private final int size;
 
   /**
-   * Constructs new strict bit vector, using the byte array given as input for 
-   * the internal representation. Thus modifying this byte array DIRECTLY 
+   * Constructs new strict bit vector, using the byte array given as input for
+   * the internal representation. Thus modifying this byte array DIRECTLY
    * modifies the bits in this StrictBitVector object.
    *
    * @param bits
@@ -170,32 +169,13 @@ public class StrictBitVector implements BitVector {
   }
 
   /**
-   * Constructs a new StrictBitVector which is the concatenation of the vectors
-   * given as input.
+   * Constructs a new StrictBitVector which is the concatenation of the vectors given as input.
    *
    * @param bitVectors
    *          the vectors to concatenate
    * @return the concatenated vector
    */
   public static StrictBitVector concat(StrictBitVector... bitVectors) {
-    return concat(false, bitVectors);
-  }
-
-  /**
-   * Constructs a new StrictBitVector which is the concatenation of the vectors
-   * given as input.
-   *
-   * @param reverse
-   *          indicating whether or not to reverse the list before concatenation
-   * @param bitVectors
-   *          the vectors to concatenate
-   * @return the concatenated vector
-   */
-  public static StrictBitVector concat(boolean reverse,
-      StrictBitVector... bitVectors) {
-    if (reverse) {
-      Collections.reverse(Arrays.asList(bitVectors));
-    }
     // compute length of result byte array and number of bits
     int combinedBitLength = 0;
     for (StrictBitVector bitVector : bitVectors) {

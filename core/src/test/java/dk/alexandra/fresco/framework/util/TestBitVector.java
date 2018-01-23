@@ -64,7 +64,7 @@ public class TestBitVector {
     boolean exception = false;
     try {
       new RegularBitVector(-1);
-    } catch (IllegalArgumentException e) {
+    } catch (NegativeArraySizeException e) {
       exception = true;
     }
     assertTrue(exception);

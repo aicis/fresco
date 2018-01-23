@@ -3,9 +3,9 @@ package dk.alexandra.fresco.tools.mascot.maccheck;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
+import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 import dk.alexandra.fresco.tools.mascot.commit.CommitmentBasedInput;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElementUtils;
 import java.util.List;
 
 /**
@@ -15,13 +15,11 @@ import java.util.List;
  */
 public class MacCheck extends CommitmentBasedInput<FieldElement> {
 
-  private final FieldElementUtils fieldElementUtils;
   /**
    * Constructs new mac checker.
    */
   public MacCheck(MascotResourcePool resourcePool, Network network) {
     super(resourcePool, network, resourcePool.getFieldElementSerializer());
-    fieldElementUtils = new FieldElementUtils(resourcePool.getModulus());
   }
 
   /**
@@ -40,7 +38,7 @@ public class MacCheck extends CommitmentBasedInput<FieldElement> {
     // commit to own value
     List<FieldElement> sigmas = allCommit(sigma);
     // add up all sigmas
-    FieldElement sigmaSum = fieldElementUtils.sum(sigmas);
+    FieldElement sigmaSum = Addable.sum(sigmas);
 
     // sum of sigmas must be 0
     if (!sigmaSum.isZero()) {

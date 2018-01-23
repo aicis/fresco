@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.arithm.ArithmeticCollectionUtils;
+import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class FieldElementUtils extends ArithmeticCollectionUtils<FieldElement> {
+public class FieldElementUtils {
 
   private final BigInteger modulus;
   private final int modBitLength;
@@ -62,7 +62,7 @@ public class FieldElementUtils extends ArithmeticCollectionUtils<FieldElement> {
    * @param rightFactors right factors
    * @return stream of products
    */
-  public Stream<FieldElement> pairWiseMultiplyStream(List<FieldElement> leftFactors,
+  private Stream<FieldElement> pairWiseMultiplyStream(List<FieldElement> leftFactors,
       List<FieldElement> rightFactors) {
     return IntStream.range(0, leftFactors.size()).mapToObj(idx -> {
       FieldElement l = leftFactors.get(idx);
@@ -82,7 +82,7 @@ public class FieldElementUtils extends ArithmeticCollectionUtils<FieldElement> {
     if (left.size() != right.size()) {
       throw new IllegalArgumentException("Lists must have same size");
     }
-    return sum(pairWiseMultiplyStream(left, right));
+    return Addable.sum(pairWiseMultiplyStream(left, right));
   }
 
   /**
@@ -157,11 +157,10 @@ public class FieldElementUtils extends ArithmeticCollectionUtils<FieldElement> {
   public StrictBitVector pack(List<FieldElement> elements, boolean reverse) {
     StrictBitVector[] bitVecs =
         elements.stream().map(FieldElement::toBitVector).toArray(StrictBitVector[]::new);
-    return StrictBitVector.concat(reverse, bitVecs);
-  }
-
-  public StrictBitVector pack(List<FieldElement> elements) {
-    return pack(elements, true);
+    if (reverse) {
+      Collections.reverse(Arrays.asList(bitVecs));
+    }
+    return StrictBitVector.concat(bitVecs);
   }
 
   /**

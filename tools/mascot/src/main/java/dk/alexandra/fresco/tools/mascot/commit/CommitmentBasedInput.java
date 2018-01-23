@@ -11,12 +11,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Actively-secure protocol for binding input. Allows each party to distribute a value to the other
- * parties using commitments.
+ * Actively-secure protocol for binding input. <p>Allows each party to distribute a value to the
+ * other parties using commitments. Extended by protocols such as {@link
+ * dk.alexandra.fresco.tools.mascot.maccheck.MacCheck} which consist of a binding input phase of
+ * public values followed by a computation on these values.</p>
  *
  * @param <T> type of value to commit to
  */
-public class CommitmentBasedInput<T> {
+public abstract class CommitmentBasedInput<T> {
 
   private final ByteSerializer<T> serializer;
   private final Network broadcaster;
