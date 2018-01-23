@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.fixedpoint;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RandomAdditiveMask;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigDecimal;
@@ -139,8 +138,7 @@ public class DefaultFixedNumeric implements FixedNumeric<SFixedSIntWrapper> {
   
   @Override
   public DRes<SFixedSIntWrapper> random() {
-    System.out.println("Default numeric building using: "+builder);
-    return new FixedPointRandom(precision).buildComputation(builder);
+    return builder.seq(new FixedPointRandom(precision));
   }
   
 }

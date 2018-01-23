@@ -499,7 +499,9 @@ public class BasicArithmeticTests {
                 FixedNumeric numeric = new DefaultFixedNumeric(seq, 5);
 
                 List<DRes<SFixed>> result = new ArrayList<>();
-                result.add(numeric.random());
+                for(int i = 0; i< 100; i++) {
+                  result.add(numeric.random());
+                }
                 return () -> result;
               }).seq((seq, dat) -> {
                 FixedNumeric numeric = new DefaultFixedNumeric(seq, 5);
@@ -508,13 +510,21 @@ public class BasicArithmeticTests {
                 return () -> opened.stream().map(DRes::out).collect(Collectors.toList());  
               });
 
-
-              System.out.println("about to run application");
               List<BigDecimal> output = runApplication(app);
-              //List<DRes<SFixed>> output = runApplication(app);
-              System.out.println("outp: "+output);
-              //assertTrue(BigDecimal.ONE.compareTo(output) >= 0);
-              //assertTrue(BigDecimal.ZERO.compareTo(output) <= 0);
+              BigDecimal sum = BigDecimal.ZERO;
+              BigDecimal min = BigDecimal.ONE;
+              BigDecimal max = BigDecimal.ZERO;
+              for(BigDecimal random : output){
+                sum = sum.add(random);
+                if(random.compareTo(min) == -1) {
+                  min = random;
+                }
+                if(random.compareTo(max) == 1) {
+                  max = random;
+                }
+                assertTrue(BigDecimal.ONE.compareTo(random) >= 0);
+                assertTrue(BigDecimal.ZERO.compareTo(random) <= 0);
+              }
         }
       };
     }
