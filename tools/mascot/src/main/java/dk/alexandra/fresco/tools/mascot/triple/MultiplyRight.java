@@ -63,14 +63,14 @@ class MultiplyRight {
    */
   public List<FieldElement> multiply(List<FieldElement> rightFactors) {
     List<Pair<StrictBitVector, StrictBitVector>> seedPairs =
-        multiplyRightHelper.generateSeeds(rightFactors.size(), getResourcePool().getModBitLength());
+        multiplyRightHelper.generateSeeds(rightFactors.size(), resourcePool.getModBitLength());
     // convert seeds pairs to field elements so we can compute on them
     List<Pair<FieldElement, FieldElement>> feSeedPairs =
-        seedsToFieldElements(seedPairs, getResourcePool().getModulus());
+        seedsToFieldElements(seedPairs, resourcePool.getModulus());
     // compute q0 - q1 + b for each seed pair
     List<FieldElement> diffs = multiplyRightHelper.computeDiffs(feSeedPairs, rightFactors);
     // send diffs over to other party
-    getNetwork().send(getOtherId(), getResourcePool().getFieldElementSerializer().serialize(diffs));
+    network.send(otherId, resourcePool.getFieldElementSerializer().serialize(diffs));
     // get zero index seeds
     List<FieldElement> feZeroSeeds =
         feSeedPairs.stream().map(Pair::getFirst).collect(Collectors.toList());
@@ -92,15 +92,4 @@ class MultiplyRight {
     return new FieldElement(new BigInteger(vector.toByteArray()).mod(modulus), modulus);
   }
 
-  private int getOtherId() {
-    return otherId;
-  }
-
-  private Network getNetwork() {
-    return network;
-  }
-
-  private MascotResourcePool getResourcePool() {
-    return resourcePool;
-  }
 }

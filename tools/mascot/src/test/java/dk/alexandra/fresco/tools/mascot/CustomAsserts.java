@@ -2,7 +2,7 @@ package dk.alexandra.fresco.tools.mascot;
 
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.field.MultTriple;
+import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -104,7 +104,7 @@ public class CustomAsserts {
    * @param triple triple to check
    * @param macKey recombined mac key
    */
-  public static void assertTripleIsValid(MultTriple triple, FieldElement macKey) {
+  public static void assertTripleIsValid(MultiplicationTriple triple, FieldElement macKey) {
     AuthenticatedElement left = triple.getLeft();
     AuthenticatedElement right = triple.getRight();
     AuthenticatedElement product = triple.getProduct();

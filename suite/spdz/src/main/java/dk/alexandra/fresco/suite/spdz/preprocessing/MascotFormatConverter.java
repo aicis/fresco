@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.preprocessing;
 
+import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import java.math.BigInteger;
 
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
@@ -8,7 +9,6 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.InputMask;
-import dk.alexandra.fresco.tools.mascot.field.MultTriple;
 
 public class MascotFormatConverter {
 
@@ -25,12 +25,12 @@ public class MascotFormatConverter {
   }
 
   /**
-   * Converts single {@link MultTriple} to {@link SpdzTriple}.
+   * Converts single {@link MultiplicationTriple} to {@link SpdzTriple}.
    * 
    * @param triple triple to convert
    * @return converted triple
    */
-  public static SpdzTriple toSpdzTriple(MultTriple triple) {
+  public static SpdzTriple toSpdzTriple(MultiplicationTriple triple) {
     SpdzElement a = toSpdzElement(triple.getLeft());
     SpdzElement b = toSpdzElement(triple.getRight());
     SpdzElement c = toSpdzElement(triple.getProduct());

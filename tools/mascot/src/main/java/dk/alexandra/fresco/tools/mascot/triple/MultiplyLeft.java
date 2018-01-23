@@ -60,12 +60,12 @@ class MultiplyLeft {
    */
   public List<FieldElement> multiply(List<FieldElement> leftFactors) {
     List<StrictBitVector> seeds = multiplyLeftHelper.generateSeeds(leftFactors,
-        getResourcePool().getModBitLength());
-    List<FieldElement> feSeeds = seedsToFieldElements(seeds, getResourcePool().getModulus());
+        resourcePool.getModBitLength());
+    List<FieldElement> feSeeds = seedsToFieldElements(seeds, resourcePool.getModulus());
     // receive diffs from other party
     List<FieldElement> diffs =
-        getResourcePool().getFieldElementSerializer()
-            .deserializeList(getNetwork().receive(getOtherId()));
+        resourcePool.getFieldElementSerializer()
+            .deserializeList(network.receive(otherId));
     return multiplyLeftHelper.computeProductShares(leftFactors, feSeeds, diffs);
   }
 
@@ -87,15 +87,4 @@ class MultiplyLeft {
     return new FieldElement(new BigInteger(vector.toByteArray()).mod(modulus), modulus);
   }
 
-  private int getOtherId() {
-    return otherId;
-  }
-
-  private Network getNetwork() {
-    return network;
-  }
-
-  private MascotResourcePool getResourcePool() {
-    return resourcePool;
-  }
 }

@@ -37,7 +37,7 @@ public class CommitmentBasedInput<T> {
           new BroadcastingNetworkProxy(network, new BroadcastValidation(resourcePool, network));
     } else {
       // if we have two parties or less we can just use the regular network
-      this.broadcaster = this.getNetwork();
+      this.broadcaster = this.network;
     }
   }
 
@@ -64,9 +64,9 @@ public class CommitmentBasedInput<T> {
    */
   private List<byte[]> distributeOpenings(byte[] opening) {
     // send (over regular network) own opening info
-    getNetwork().sendToAll(opening);
+    network.sendToAll(opening);
     // receive opening info from others
-    return getNetwork().receiveFromAll();
+    return network.receiveFromAll();
   }
 
   /**
@@ -114,10 +114,6 @@ public class CommitmentBasedInput<T> {
 
     // open commitments using received opening info
     return open(comms, openings);
-  }
-
-  private Network getNetwork() {
-    return network;
   }
 
   protected MascotResourcePool getResourcePool() {

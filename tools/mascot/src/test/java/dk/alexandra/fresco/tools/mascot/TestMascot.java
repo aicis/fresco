@@ -8,7 +8,7 @@ import dk.alexandra.fresco.tools.mascot.arithm.ArithmeticCollectionUtils;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.InputMask;
-import dk.alexandra.fresco.tools.mascot.field.MultTriple;
+import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -20,7 +20,7 @@ public class TestMascot extends NetworkedTest {
   private final FieldElement macKeyShareOne = new FieldElement(11231, getModulus());
   private final FieldElement macKeyShareTwo = new FieldElement(7719, getModulus());
 
-  private List<MultTriple> runTripleGen(MascotTestContext ctx, FieldElement macKeyShare,
+  private List<MultiplicationTriple> runTripleGen(MascotTestContext ctx, FieldElement macKeyShare,
       int numTriples) {
     Mascot mascot = new Mascot(ctx.getResourcePool(), ctx.getNetwork(), macKeyShare);
     return mascot.getTriples(numTriples);
@@ -62,15 +62,15 @@ public class TestMascot extends NetworkedTest {
     initContexts(2);
 
     // define per party task with params
-    List<Callable<List<MultTriple>>> tasks = new ArrayList<>();
+    List<Callable<List<MultiplicationTriple>>> tasks = new ArrayList<>();
     tasks.add(() -> runTripleGen(contexts.get(1), macKeyShareOne, 1));
     tasks.add(() -> runTripleGen(contexts.get(2), macKeyShareTwo, 1));
 
-    List<List<MultTriple>> results = testRuntime.runPerPartyTasks(tasks);
+    List<List<MultiplicationTriple>> results = testRuntime.runPerPartyTasks(tasks);
     assertEquals(results.get(0).size(), 1);
     assertEquals(results.get(1).size(), 1);
-    List<MultTriple> combined = new ArithmeticCollectionUtils<MultTriple>().sumRows(results);
-    for (MultTriple triple : combined) {
+    List<MultiplicationTriple> combined = new ArithmeticCollectionUtils<MultiplicationTriple>().sumRows(results);
+    for (MultiplicationTriple triple : combined) {
       CustomAsserts.assertTripleIsValid(triple, macKeyShareOne.add(macKeyShareTwo));
     }
   }
@@ -176,15 +176,15 @@ public class TestMascot extends NetworkedTest {
     FieldElement macKeyShareTwo = new FieldElement(212, getModulus());
 
     // define per party task with params
-    List<Callable<List<MultTriple>>> tasks = new ArrayList<>();
+    List<Callable<List<MultiplicationTriple>>> tasks = new ArrayList<>();
     tasks.add(() -> runTripleGen(contexts.get(1), macKeyShareOne, 1));
     tasks.add(() -> runTripleGen(contexts.get(2), macKeyShareTwo, 1));
 
-    List<List<MultTriple>> results = testRuntime.runPerPartyTasks(tasks);
+    List<List<MultiplicationTriple>> results = testRuntime.runPerPartyTasks(tasks);
     assertEquals(results.get(0).size(), 1);
     assertEquals(results.get(1).size(), 1);
-    List<MultTriple> combined = new ArithmeticCollectionUtils<MultTriple>().sumRows(results);
-    for (MultTriple triple : combined) {
+    List<MultiplicationTriple> combined = new ArithmeticCollectionUtils<MultiplicationTriple>().sumRows(results);
+    for (MultiplicationTriple triple : combined) {
       CustomAsserts.assertTripleIsValid(triple, macKeyShareOne.add(macKeyShareTwo));
     }
   }

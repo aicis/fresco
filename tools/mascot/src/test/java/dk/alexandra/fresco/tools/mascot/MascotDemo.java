@@ -9,7 +9,7 @@ import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.field.MultTriple;
+import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import dk.alexandra.fresco.tools.ot.base.DhParameters;
 import dk.alexandra.fresco.tools.ot.base.NaorPinkasOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
@@ -46,7 +46,7 @@ public class MascotDemo {
     for (int i = 0; i < numIts; i++) {
       System.out.println("Generating another triple batch.");
       long startTime = System.currentTimeMillis();
-      List<MultTriple> triples = mascot.getTriples(numTriples);
+      List<MultiplicationTriple> triples = mascot.getTriples(numTriples);
       long endTime = System.currentTimeMillis();
       long total = endTime - startTime;
       System.out.println("Generated " + triples.size() + " triples in " + total + " ms");
