@@ -74,7 +74,7 @@ public class TestFunctionalBristolOt {
   private List<Pair<StrictBitVector, StrictBitVector>> bristolOtSend(
       OtExtensionTestContext ctx, int iterations, int batchSize) {
     OtExtensionResourcePool resources = ctx.createResources(1);
-    Ot otSender = new BristolOt(new RotFactoryImpl(resources, ctx.getNetwork()),
+    Ot otSender = new BristolOtFactory(new RotFactoryImpl(resources, ctx.getNetwork()),
         resources,
         ctx.getNetwork(), batchSize);
     List<Pair<StrictBitVector, StrictBitVector>> messages = new ArrayList<>(
@@ -97,7 +97,7 @@ public class TestFunctionalBristolOt {
   private List<StrictBitVector> bristolOtReceive(OtExtensionTestContext ctx,
       StrictBitVector choices, int batchSize) {
     OtExtensionResourcePool resources = ctx.createResources(1);
-    Ot otReceiver = new BristolOt(new RotFactoryImpl(resources, ctx.getNetwork()),
+    Ot otReceiver = new BristolOtFactory(new RotFactoryImpl(resources, ctx.getNetwork()),
         resources, ctx.getNetwork(), batchSize);
     List<StrictBitVector> messages = new ArrayList<>(choices.getSize());
     for (int i = 0; i < choices.getSize(); i++) {
@@ -226,7 +226,7 @@ public class TestFunctionalBristolOt {
   private Exception bristolOtMaliciousSend(OtExtensionTestContext ctx,
       int iterations, int batchSize) {
     OtExtensionResourcePool resources = ctx.createResources(1);
-    BristolOt otSender = new BristolOt(new RotFactoryImpl(resources, ctx.getNetwork()),
+    BristolOtFactory otSender = new BristolOtFactory(new RotFactoryImpl(resources, ctx.getNetwork()),
         resources, ctx.getNetwork(), batchSize);
     Drbg rand = ctx.createRand(1);
     byte[] msgBytes = new byte[messageLength / 8];
@@ -244,10 +244,10 @@ public class TestFunctionalBristolOt {
       IllegalArgumentException, IllegalAccessException,
       NoSuchFieldException {
     OtExtensionResourcePool resources = ctx.createResources(1);
-    BristolOt otReceiver = new BristolOt(new RotFactoryImpl(resources, ctx
+    BristolOtFactory otReceiver = new BristolOtFactory(new RotFactoryImpl(resources, ctx
         .getNetwork()), resources, ctx.getNetwork(), batchSize);
     otReceiver.receive(choices.getBit(0, false));
-    Field receiver = BristolOt.class.getDeclaredField("receiver");
+    Field receiver = BristolOtFactory.class.getDeclaredField("receiver");
     receiver.setAccessible(true);
     Method method = receiver.get(otReceiver).getClass().getDeclaredMethod(
         "doActualReceive", byte[].class, byte[].class);

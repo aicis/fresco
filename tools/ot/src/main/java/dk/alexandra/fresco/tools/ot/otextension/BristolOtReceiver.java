@@ -57,7 +57,7 @@ public class BristolOtReceiver {
    *          Choice-bit. False for message 0, true for message 1.
    * @return The serialized message from the OT
    */
-  public byte[] receive(Boolean choiceBit) {
+  public byte[] receive(boolean choiceBit) {
     // Check if there is still an unused random OT stored, if not, execute a
     // random OT extension
     if (offset < 0 || offset >= batchSize) {
