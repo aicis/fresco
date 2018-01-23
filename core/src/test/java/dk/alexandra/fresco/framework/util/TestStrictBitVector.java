@@ -48,22 +48,6 @@ public class TestStrictBitVector {
   }
 
   @Test
-  public void testConcatReverse() {
-    byte[] bitsOne = { (byte) 0xFF, (byte) 0x01, (byte) 0x00 };
-    StrictBitVector bvOne = new StrictBitVector(bitsOne);
-
-    byte[] bitsTwo = { (byte) 0x01, (byte) 0x02, (byte) 0x03 };
-    StrictBitVector bvTwo = new StrictBitVector(bitsTwo);
-
-    StrictBitVector actual = StrictBitVector.concat(true, bvOne, bvTwo);
-
-    byte[] expectedBits =
-        { (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0xFF, (byte) 0x01, (byte) 0x00 };
-    StrictBitVector expected = new StrictBitVector(expectedBits);
-    assertEquals(expected, actual);
-  }
-
-  @Test
   public void testConcatDifferentSizeBitVectors() {
     byte[] bitsOne = { (byte) 0xFF, (byte) 0x01, (byte) 0x00 };
     StrictBitVector bvOne = new StrictBitVector(bitsOne);

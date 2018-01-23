@@ -157,11 +157,10 @@ public class FieldElementUtils extends ArithmeticCollectionUtils<FieldElement> {
   public StrictBitVector pack(List<FieldElement> elements, boolean reverse) {
     StrictBitVector[] bitVecs =
         elements.stream().map(FieldElement::toBitVector).toArray(StrictBitVector[]::new);
-    return StrictBitVector.concat(reverse, bitVecs);
-  }
-
-  public StrictBitVector pack(List<FieldElement> elements) {
-    return pack(elements, true);
+    if (reverse) {
+      Collections.reverse(Arrays.asList(bitVecs));
+    }
+    return StrictBitVector.concat(bitVecs);
   }
 
   /**

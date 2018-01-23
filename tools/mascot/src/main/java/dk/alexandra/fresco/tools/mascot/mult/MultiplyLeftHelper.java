@@ -34,8 +34,10 @@ public class MultiplyLeftHelper {
    * @param seedLength the length of the seeds that the ROT produces
    * @return list of seeds to prgs
    */
-  public List<StrictBitVector> generateSeeds(List<FieldElement> leftFactors, int seedLength) {
-    StrictBitVector packedFactors = getFieldElementUtils().pack(leftFactors);
+  public List<StrictBitVector> generateSeeds(List<FieldElement> leftFactors,
+      int seedLength) {
+    StrictBitVector packedFactors = getFieldElementUtils().pack(leftFactors,
+        true);
     // use rot to get choice seeds
     List<StrictBitVector> seeds = getRot().receive(packedFactors, seedLength);
     Collections.reverse(seeds);

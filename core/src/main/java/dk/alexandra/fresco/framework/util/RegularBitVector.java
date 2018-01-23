@@ -44,10 +44,6 @@ public class RegularBitVector implements BitVector {
    * @param size size of the vector
    */
   public RegularBitVector(int size) {
-    if (size < 0) {
-      throw new IllegalArgumentException(
-          "Size of vector must not be negative but was " + size);
-    }
     this.size = size;
     this.bits = new BitSet(size);
   }
@@ -104,7 +100,7 @@ public class RegularBitVector implements BitVector {
    *          The position of the first bit to include in the range
    * @param to
    *          The position of the bit AFTER the last bit to include in the range
-   * @return A new {@BitVector} containing the subset of 
+   * @return A new {@RegularBitVector} containing the subset of 
    *          [{@code from}, {@code to}[ from this bit vector
    */
   public RegularBitVector getRange(int from, int to) {
