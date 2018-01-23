@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 
-public class DefaultFixedNumeric implements FixedNumeric<SFixedSIntWrapper> {
+public class SIntWrapperFixedNumeric implements FixedNumeric<SFixed> {
 
   private final int precision;
   private final ProtocolBuilderNumeric builder;
@@ -18,36 +18,36 @@ public class DefaultFixedNumeric implements FixedNumeric<SFixedSIntWrapper> {
    * @param builder The protocolbuilder used to construct underlying protocols.
    * @param precision Amount of digits after the dot.
    */
-  public DefaultFixedNumeric(ProtocolBuilderNumeric builder, int precision) {
+  public SIntWrapperFixedNumeric(ProtocolBuilderNumeric builder, int precision) {
    // super();
     this.precision = precision;
     this.builder = builder;
   }
 
   @Override
-  public DRes<SFixedSIntWrapper> known(BigDecimal value) {
+  public DRes<SFixed> known(BigDecimal value) {
     value = value.setScale(this.precision, RoundingMode.DOWN);
     DRes<SInt> input = builder.numeric().known(value.unscaledValue());
     return new SFixedSIntWrapper(input);
   }
 
   @Override
-  public DRes<SFixedSIntWrapper> input(BigDecimal value, int inputParty) {
+  public DRes<SFixed> input(BigDecimal value, int inputParty) {
     value = value.setScale(this.precision, RoundingMode.DOWN);
     DRes<SInt> input = builder.numeric().input(value.unscaledValue(), inputParty);
     return new SFixedSIntWrapper(input);
   }
 
   @Override
-  public DRes<BigDecimal> open(DRes<SFixedSIntWrapper> secretShare) {
-    DRes<SInt> sint = secretShare.out().getSInt();
+  public DRes<BigDecimal> open(DRes<SFixed> secretShare) {
+    DRes<SInt> sint = ((SFixedSIntWrapper)secretShare.out()).getSInt();
     DRes<BigInteger> bi = builder.numeric().open(sint);
     return () -> new BigDecimal(bi.out(), precision);
   }
 
   @Override
-  public DRes<BigDecimal> open(DRes<SFixedSIntWrapper> secretShare, int outputParty) {
-    DRes<SInt> sint = secretShare.out().getSInt();
+  public DRes<BigDecimal> open(DRes<SFixed> secretShare, int outputParty) {
+    DRes<SInt> sint = ((SFixedSIntWrapper)secretShare.out()).getSInt();
     DRes<BigInteger> bi = builder.numeric().open(sint, outputParty);
     return () -> {
       if (bi.out() != null) {
@@ -59,45 +59,49 @@ public class DefaultFixedNumeric implements FixedNumeric<SFixedSIntWrapper> {
   }
 
   @Override
-  public DRes<SFixedSIntWrapper> add(BigDecimal a, DRes<SFixedSIntWrapper> b) {
+  public DRes<SFixed> add(BigDecimal a, DRes<SFixed> b) {
     a = a.setScale(this.precision, RoundingMode.DOWN);
-    DRes<SInt> sint = b.out().getSInt();
+    DRes<SInt> sint = ((SFixedSIntWrapper)b.out()).getSInt();
     DRes<SInt> input = builder.numeric().add(a.unscaledValue(), sint);
     return new SFixedSIntWrapper(input);
   }
 
   @Override
-  public DRes<SFixedSIntWrapper> add(DRes<SFixedSIntWrapper> a, DRes<SFixedSIntWrapper> b) {
-    DRes<SInt> add = builder.numeric().add(a.out().getSInt(), b.out().getSInt());
+  public DRes<SFixed> add(DRes<SFixed> a, DRes<SFixed> b) {
+    DRes<SInt> add = builder.numeric().add(
+        ((SFixedSIntWrapper)a.out()).getSInt(),
+        ((SFixedSIntWrapper)b.out()).getSInt());
     return new SFixedSIntWrapper(add);
   }
 
   @Override
-  public DRes<SFixedSIntWrapper> sub(DRes<SFixedSIntWrapper> a, DRes<SFixedSIntWrapper> b) {
-    DRes<SInt> sub = builder.numeric().sub(a.out().getSInt(), b.out().getSInt());
+  public DRes<SFixed> sub(DRes<SFixed> a, DRes<SFixed> b) {
+    DRes<SInt> sub = builder.numeric().sub(
+        ((SFixedSIntWrapper)a.out()).getSInt(),
+        ((SFixedSIntWrapper)b.out()).getSInt());
     return new SFixedSIntWrapper(sub);
   }
 
   @Override
-  public DRes<SFixedSIntWrapper> sub(BigDecimal a, DRes<SFixedSIntWrapper> b) {
+  public DRes<SFixed> sub(BigDecimal a, DRes<SFixed> b) {
     a = a.setScale(this.precision, RoundingMode.DOWN);
-    DRes<SInt> sint = b.out().getSInt();
+    DRes<SInt> sint = ((SFixedSIntWrapper)b.out()).getSInt();
     DRes<SInt> input = builder.numeric().sub(a.unscaledValue(), sint);
     return new SFixedSIntWrapper(input);
   }
 
   @Override
-  public DRes<SFixedSIntWrapper> sub(DRes<SFixedSIntWrapper> a, BigDecimal b) {
+  public DRes<SFixed> sub(DRes<SFixed> a, BigDecimal b) {
     b = b.setScale(this.precision, RoundingMode.DOWN);
-    DRes<SInt> sint = a.out().getSInt();
+    DRes<SInt> sint = ((SFixedSIntWrapper)a.out()).getSInt();
     DRes<SInt> input = builder.numeric().sub(sint, b.unscaledValue());
     return new SFixedSIntWrapper(input);
   }
 
   @Override
-  public DRes<SFixedSIntWrapper> mult(DRes<SFixedSIntWrapper> a, DRes<SFixedSIntWrapper> b) {
-    DRes<SInt> sintA = a.out().getSInt();
-    DRes<SInt> sintB = b.out().getSInt();
+  public DRes<SFixed> mult(DRes<SFixed> a, DRes<SFixed> b) {
+    DRes<SInt> sintA = ((SFixedSIntWrapper)a.out()).getSInt();
+    DRes<SInt> sintB = ((SFixedSIntWrapper)b.out()).getSInt();
     DRes<SInt> input = builder.numeric().mult(sintA, sintB);
     DRes<SInt> output = builder.advancedNumeric()
         .div(input, BigInteger.TEN.pow(this.precision));
@@ -105,9 +109,9 @@ public class DefaultFixedNumeric implements FixedNumeric<SFixedSIntWrapper> {
   }
 
   @Override
-  public DRes<SFixedSIntWrapper> mult(BigDecimal a, DRes<SFixedSIntWrapper> b) {
+  public DRes<SFixed> mult(BigDecimal a, DRes<SFixed> b) {
     a = a.setScale(this.precision, RoundingMode.DOWN);
-    DRes<SInt> sintB = b.out().getSInt();
+    DRes<SInt> sintB = ((SFixedSIntWrapper)b.out()).getSInt();
     DRes<SInt> input = builder.numeric().mult(a.unscaledValue(), sintB);
     DRes<SInt> output = builder.advancedNumeric()
         .div(input, BigInteger.TEN.pow(this.precision));
@@ -116,9 +120,9 @@ public class DefaultFixedNumeric implements FixedNumeric<SFixedSIntWrapper> {
   }
 
   @Override
-  public DRes<SFixedSIntWrapper> div(DRes<SFixedSIntWrapper> a, DRes<SFixedSIntWrapper> b) {
-    DRes<SInt> sintA = a.out().getSInt();
-    DRes<SInt> sintB = b.out().getSInt();
+  public DRes<SFixed> div(DRes<SFixed> a, DRes<SFixed> b) {
+    DRes<SInt> sintA = ((SFixedSIntWrapper)a.out()).getSInt();
+    DRes<SInt> sintB = ((SFixedSIntWrapper)b.out()).getSInt();
     DRes<SInt> scaledA = builder.numeric().mult(BigInteger.TEN.pow(precision), sintA);
     DRes<SInt> input = builder.advancedNumeric().div(scaledA, sintB);
 
@@ -126,8 +130,8 @@ public class DefaultFixedNumeric implements FixedNumeric<SFixedSIntWrapper> {
   }
 
   @Override
-  public DRes<SFixedSIntWrapper> div(DRes<SFixedSIntWrapper> a, BigDecimal b) {
-    DRes<SInt> sintA = a.out().getSInt();
+  public DRes<SFixed> div(DRes<SFixed> a, BigDecimal b) {
+    DRes<SInt> sintA = ((SFixedSIntWrapper)a.out()).getSInt();
     b = b.setScale(this.precision, RoundingMode.DOWN);
 
     DRes<SInt> input = builder.advancedNumeric().div(
@@ -137,7 +141,7 @@ public class DefaultFixedNumeric implements FixedNumeric<SFixedSIntWrapper> {
   }
   
   @Override
-  public DRes<SFixedSIntWrapper> random() {
+  public DRes<SFixed> random() {
     return builder.seq(new FixedPointRandom(precision));
   }
   

@@ -11,7 +11,7 @@ import java.math.BigInteger;
  * Construct a random SFixed with a value between 0 and 1.  
  *
  */
-public class FixedPointRandom implements Computation<SFixedSIntWrapper, ProtocolBuilderNumeric> {
+public class FixedPointRandom implements Computation<SFixed, ProtocolBuilderNumeric> {
 
   private final int scaleSize;
   private final int precision;
@@ -22,7 +22,7 @@ public class FixedPointRandom implements Computation<SFixedSIntWrapper, Protocol
   }
 
   @Override
-  public DRes<SFixedSIntWrapper> buildComputation(ProtocolBuilderNumeric builder) {
+  public DRes<SFixed> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq(seq -> {
       DRes<RandomAdditiveMask> random = seq.advancedNumeric().additiveMask(scaleSize);
       return () -> random;

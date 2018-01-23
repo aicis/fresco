@@ -9,85 +9,85 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void test_Input_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicFixedPointTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
 
   @Test
   public void test_Open_to_party_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestOpenToParty<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicFixedPointTests.TestOpenToParty<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
   
   @Test
   public void test_Known() throws Exception {
-    runTest(new BasicArithmeticTests.TestKnown<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicFixedPointTests.TestKnown<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
   
   @Test
   public void test_AddKnown() throws Exception {
-    runTest(new BasicArithmeticTests.TestAddKnown<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicFixedPointTests.TestAddKnown<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
   
   @Test
   public void test_AddSecret() throws Exception {
-    runTest(new BasicArithmeticTests.TestAdd<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicFixedPointTests.TestAdd<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
   
   @Test
   public void test_SubtractSecret() throws Exception {
-    runTest(new BasicArithmeticTests.TestSubtractSecret<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicFixedPointTests.TestSubtractSecret<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
   
   @Test
   public void test_SubKnown() throws Exception {
-    runTest(new BasicArithmeticTests.TestSubKnown<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicFixedPointTests.TestSubKnown<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
   
   @Test
   public void test_SubKnown2() throws Exception {
-    runTest(new BasicArithmeticTests.TestSubKnown2<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicFixedPointTests.TestSubKnown2<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
 
   @Test
   public void test_MultSecret() throws Exception {
-    runTest(new BasicArithmeticTests.TestMult<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicFixedPointTests.TestMult<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
   
   @Test
   public void test_MultKnown() throws Exception {
-    runTest(new BasicArithmeticTests.TestMultKnown<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicFixedPointTests.TestMultKnown<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
 
   @Test
   public void test_Mults() throws Exception {
-    runTest(new BasicArithmeticTests.TestMult<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicFixedPointTests.TestMult<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
   
   @Test
   public void test_DivisionSecretDivisor() throws Exception {
-    runTest(new BasicArithmeticTests.TestDiv<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicFixedPointTests.TestDiv<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
   
   @Test
   public void test_DivisionKnownDivisor() throws Exception {
-    runTest(new BasicArithmeticTests.TestDivisionKnownDivisor<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicFixedPointTests.TestDivisionKnownDivisor<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
   
   @Test
   public void test_RandomElement() throws Exception {
-    runTest(new BasicArithmeticTests.TestRandom<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicFixedPointTests.TestRandom<>(), EvaluationStrategy.SEQUENTIAL,
         2);
   }
 }
