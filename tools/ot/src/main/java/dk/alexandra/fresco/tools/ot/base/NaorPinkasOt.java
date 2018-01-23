@@ -65,7 +65,7 @@ public class NaorPinkasOt implements Ot {
     int maxBitLength = Math.max(messageZero.getSize(), messageOne.getSize());
     // Completes the actual Naor-Pinkas to send two random messages of the length
     // of the hash digest
-    Pair<byte[], byte[]> seedMessages = sendBytesOt();
+    Pair<byte[], byte[]> seedMessages = sendRandomOt();
     // We divide the length with 8 to get the byte length and then use the short
     // messages from the OT as seeds for a PRG which does a one-time-pad
     // encryption of the true messages to send
@@ -80,7 +80,7 @@ public class NaorPinkasOt implements Ot {
 
   @Override
   public StrictBitVector receive(boolean choiceBit) {
-    byte[] seed = receiveByteOt(choiceBit);
+    byte[] seed = receiveRandomOt(choiceBit);
     byte[] encryptedZeroMessage = network.receive(otherId);
     byte[] encryptedOneMessage = network.receive(otherId);
     return recoverTrueMessage(encryptedZeroMessage, encryptedOneMessage, seed,
@@ -164,28 +164,30 @@ public class NaorPinkasOt implements Ot {
    *
    * @return The two random messages sent by the sender.
    */
-  private Pair<byte[], byte[]> sendBytesOt() {
+  private Pair<byte[], byte[]> sendRandomOt() {
     // Pick a random value c mod p
     BigInteger c = randNum.nextBigInteger(p);
     network.send(otherId, c.toByteArray());
     BigInteger publicKeyZero = new BigInteger(network.receive(otherId));
     // publicKeyOne = c / publicKeyZero mod p
     BigInteger publicKeyOne = publicKeyZero.modInverse(p).multiply(c);
-    byte[] messageZero = new byte[hashDigest.getDigestLength()];
-    byte[] messageOne = new byte[hashDigest.getDigestLength()];
-    BigInteger encZero = encryptMessage(publicKeyZero, messageZero);
-    BigInteger encOne = encryptMessage(publicKeyOne, messageOne);
-    network.send(otherId, encZero.toByteArray());
-    network.send(otherId, encOne.toByteArray());
-    return new Pair<>(messageZero, messageOne);
+    // Construct ciphertexts encrypting random messages
+    Pair<BigInteger, byte[]> zeroChoiceData = encryptRandomMessage(publicKeyZero);
+    Pair<BigInteger, byte[]> oneChoiceData = encryptRandomMessage(publicKeyOne);
+    // Send the ciphertexts
+    network.send(otherId, zeroChoiceData.getFirst().toByteArray());
+    network.send(otherId, oneChoiceData.getFirst().toByteArray());
+    // Return the random messages
+    return new Pair<>(zeroChoiceData.getSecond(), oneChoiceData.getSecond());
   }
 
   /**
-   * Completes the receiver's part of the Naor-Pinkas OT.
+   * Completes the receiver's part of the Naor-Pinkas OT in order to receive a
+   * random message of the length of hash digest.
    *
-   * @return The message received
+   * @return The random message received
    */
-  private byte[] receiveByteOt(Boolean choiceBit) {
+  private byte[] receiveRandomOt(boolean choiceBit) {
     BigInteger c = new BigInteger(network.receive(otherId));
     // Pick random element privateKey mod p
     BigInteger privateKey = randNum.nextBigInteger(p);
@@ -201,33 +203,34 @@ public class NaorPinkasOt implements Ot {
     BigInteger encOne = new BigInteger(network.receive(otherId));
     byte[] message;
     if (choiceBit == false) {
-      message = decryptMessage(encZero, privateKey);
+      message = decryptRandomMessage(encZero, privateKey);
     } else {
-      message = decryptMessage(encOne, privateKey);
+      message = decryptRandomMessage(encOne, privateKey);
     }
     return message;
   }
 
   /**
    * Completes the internal Naor-Pinkas encryption.
+   * <p>
+   * Given a "public key" as input this method constructs an encryption of a
+   * random message. Both the encryption and random message are returned.
+   * </p>
    *
    * @param publicKey
    *          The public key to encrypt with
-   * @param message
-   *          The message to encrypt
-   * @return The ciphertext
+   * @return A pair where the first element is the ciphertext and the second
+   *         element is the plaintext.
    */
-  private BigInteger encryptMessage(BigInteger publicKey,
-      byte[] message) {
+  private Pair<BigInteger, byte[]> encryptRandomMessage(BigInteger publicKey) {
     // Pick random element r mod p
     BigInteger r = randNum.nextBigInteger(p);
     // Compute encryption:
-    BigInteger encryption = g.modPow(r, p);
+    BigInteger cipherText = g.modPow(r, p);
     BigInteger toHash = publicKey.modPow(r, p);
-    // encB = H(toHash)
-    byte[] encB = hashDigest.digest(toHash.toByteArray());
-    System.arraycopy(encB, 0, message, 0, hashDigest.getDigestLength());
-    return encryption;
+    // message = H(toHash)
+    byte[] message = hashDigest.digest(toHash.toByteArray());
+    return new Pair<BigInteger, byte[]>(cipherText, message);
   }
 
   /**
@@ -239,7 +242,7 @@ public class NaorPinkasOt implements Ot {
    *          The private key to use for decryption
    * @return The plain message
    */
-  private byte[] decryptMessage(BigInteger cipher, BigInteger privateKey) {
+  private byte[] decryptRandomMessage(BigInteger cipher, BigInteger privateKey) {
     BigInteger toHash = cipher.modPow(privateKey, p);
     return hashDigest.digest(toHash.toByteArray());
   }

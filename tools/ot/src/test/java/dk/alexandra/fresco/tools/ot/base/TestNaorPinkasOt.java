@@ -10,6 +10,7 @@ import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Drng;
 import dk.alexandra.fresco.framework.util.DrngImpl;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.tools.helper.HelperForTests;
 
 import java.lang.reflect.InvocationTargetException;
@@ -69,11 +70,11 @@ public class TestNaorPinkasOt {
     staticSpec = DhParameters.getStaticDhParams();
     this.ot = new NaorPinkasOt(2, randBit, network, staticSpec);
     // Change visibility of private methods so they can be tested
-    this.encryptMessage = NaorPinkasOt.class.getDeclaredMethod("encryptMessage",
-        BigInteger.class, byte[].class);
+    this.encryptMessage = NaorPinkasOt.class.getDeclaredMethod(
+        "encryptRandomMessage", BigInteger.class);
     this.encryptMessage.setAccessible(true);
-    this.decryptMessage = NaorPinkasOt.class.getDeclaredMethod("decryptMessage",
-        BigInteger.class, BigInteger.class);
+    this.decryptMessage = NaorPinkasOt.class.getDeclaredMethod(
+        "decryptRandomMessage", BigInteger.class, BigInteger.class);
     this.decryptMessage.setAccessible(true);
     this.padMessage = NaorPinkasOt.class.getDeclaredMethod("padMessage",
         byte[].class, int.class, byte[].class);
@@ -103,6 +104,7 @@ public class TestNaorPinkasOt {
     assertEquals(staticSpec.getP(), newSpec.getP());
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   public void testEncDec()
       throws IllegalAccessException, IllegalArgumentException,
@@ -110,14 +112,13 @@ public class TestNaorPinkasOt {
     BigInteger privateKey = randNum.nextBigInteger(staticSpec.getP());
     BigInteger publicKey = staticSpec.getG().modPow(privateKey, staticSpec
         .getP());
-    // We are statically using SHA-256 and thus have 256 bit digests
-    byte[] message = new byte[256 / 8];
-    BigInteger cipher = (BigInteger) encryptMessage.invoke(ot, publicKey,
-        message);
+    Pair<BigInteger, byte[]> encryptionData = (Pair<BigInteger, byte[]>)
+        encryptMessage.invoke(ot, publicKey);
+    byte[] message = encryptionData.getSecond();
     // Sanity check that the byte array gets initialized, i.e. is not the 0-array
     assertFalse(Arrays.equals(new byte[256 / 8], message));
-    byte[] decryptedMessage = (byte[]) decryptMessage.invoke(ot, cipher,
-        privateKey);
+    byte[] decryptedMessage = (byte[]) decryptMessage.invoke(ot, encryptionData
+        .getFirst(), privateKey);
     assertArrayEquals(message, decryptedMessage);
   }
 
@@ -136,6 +137,7 @@ public class TestNaorPinkasOt {
   }
 
   /**** NEGATIVE TESTS. ****/
+  @SuppressWarnings("unchecked")
   @Test
   public void testFailedEncDec()
       throws IllegalAccessException, IllegalArgumentException,
@@ -143,16 +145,15 @@ public class TestNaorPinkasOt {
     BigInteger privateKey = randNum.nextBigInteger(staticSpec.getP());
     BigInteger publicKey = staticSpec.getG().modPow(privateKey, staticSpec
         .getP());
-    // We are statically using SHA-256 and thus have 256 bit digests
-    byte[] message = new byte[256 / 8];
-    BigInteger cipher = (BigInteger) encryptMessage.invoke(ot, publicKey,
-        message);
+    Pair<BigInteger, byte[]> encryptionData = (Pair<BigInteger, byte[]>) encryptMessage
+        .invoke(ot, publicKey);
+    byte[] message = encryptionData.getSecond();
     // Sanity check that the byte array gets initialized, i.e. is not the
     // 0-array
     assertFalse(Arrays.equals(new byte[256 / 8], message));
     message[(256 / 8) - 1] ^= 0x01;
-    byte[] decryptedMessage = (byte[]) decryptMessage.invoke(ot, cipher,
-        privateKey);
+    byte[] decryptedMessage = (byte[]) decryptMessage.invoke(ot, encryptionData
+        .getFirst(), privateKey);
     assertFalse(Arrays.equals(message, decryptedMessage));
   }
 
