@@ -109,7 +109,7 @@ public class BristolOtReceiver {
    * @param choiceBit
    *          The actual choice bit of the receiver
    */
-  private void sendSwitchBit(Boolean choiceBit) {
+  private void sendSwitchBit(boolean choiceBit) {
     // Since we can only send a byte array we use 0x00 to indicate a 0-choice
     // and 0x01 to indicate a 1-choice
     byte[] switchBit = new byte[] { 0x00 };
