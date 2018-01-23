@@ -62,11 +62,11 @@ public class CopeSigner {
    */
   public List<FieldElement> extend(int numInputs) {
     // compute chosen masks
-    List<FieldElement> chosenMasks = generateMasks(numInputs, getResourcePool().getModulus(),
-        getResourcePool().getModBitLength());
+    List<FieldElement> chosenMasks = generateMasks(numInputs, resourcePool.getModulus(),
+        resourcePool.getModBitLength());
     // receive diffs from other party
-    List<FieldElement> diffs = getResourcePool().getFieldElementSerializer()
-        .deserializeList(getNetwork().receive(getOtherId()));
+    List<FieldElement> diffs = resourcePool.getFieldElementSerializer()
+        .deserializeList(network.receive(otherId));
     // use mac share for each input
     List<FieldElement> macKeyShares =
         IntStream.range(0, numInputs).mapToObj(idx -> macKeyShare).collect(Collectors.toList());
@@ -94,15 +94,4 @@ public class CopeSigner {
     }
   }
 
-  private int getOtherId() {
-    return otherId;
-  }
-
-  private Network getNetwork() {
-    return network;
-  }
-
-  private MascotResourcePool getResourcePool() {
-    return resourcePool;
-  }
 }

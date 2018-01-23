@@ -7,7 +7,7 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.suite.spdz.preprocessing.MascotFormatConverter;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.field.MultTriple;
+import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import java.math.BigInteger;
 import org.junit.Test;
 
@@ -38,7 +38,7 @@ public class TestMascotFormatConverter {
     AuthenticatedElement left = getAuthElement(1, 2, modulus);
     AuthenticatedElement right = getAuthElement(3, 4, modulus);
     AuthenticatedElement product = getAuthElement(5, 6, modulus);
-    MultTriple triple = new MultTriple(left, right, product);
+    MultiplicationTriple triple = new MultiplicationTriple(left, right, product);
     SpdzTriple expected = new SpdzTriple(getSpdzElement(1, 2, modulus),
         getSpdzElement(3, 4, modulus), getSpdzElement(5, 6, modulus));
     SpdzTriple actual = MascotFormatConverter.toSpdzTriple(triple);

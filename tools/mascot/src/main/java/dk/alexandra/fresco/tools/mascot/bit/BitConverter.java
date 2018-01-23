@@ -48,16 +48,13 @@ public class BitConverter {
       AuthenticatedElement oneOrNegativeOne =
           randomElement.multiply(root.modInverse()); // division
       FieldElement two =
-          new FieldElement(2, getResourcePool().getModulus());
-      FieldElement one = new FieldElement(1, getResourcePool().getModulus());
-      AuthenticatedElement bit = oneOrNegativeOne.add(one, getResourcePool().getMyId(), macKeyShare)
+          new FieldElement(2, resourcePool.getModulus());
+      FieldElement one = new FieldElement(1, resourcePool.getModulus());
+      AuthenticatedElement bit = oneOrNegativeOne.add(one, resourcePool.getMyId(), macKeyShare)
           .multiply(two.modInverse());
       bits.add(bit);
     }
     return bits;
   }
 
-  private MascotResourcePool getResourcePool() {
-    return resourcePool;
-  }
 }

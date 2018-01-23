@@ -36,10 +36,10 @@ public class MultiplyLeftHelper {
    */
   public List<StrictBitVector> generateSeeds(List<FieldElement> leftFactors,
       int seedLength) {
-    StrictBitVector packedFactors = getFieldElementUtils().pack(leftFactors,
+    StrictBitVector packedFactors = fieldElementUtils.pack(leftFactors,
         true);
     // use rot to get choice seeds
-    List<StrictBitVector> seeds = getRot().receive(packedFactors, seedLength);
+    List<StrictBitVector> seeds = rot.receive(packedFactors, seedLength);
     Collections.reverse(seeds);
     return seeds;
   }
@@ -61,8 +61,8 @@ public class MultiplyLeftHelper {
     List<FieldElement> result = new ArrayList<>(leftFactors.size());
     int diffIdx = 0;
     for (FieldElement leftFactor : leftFactors) {
-      List<FieldElement> summands = new ArrayList<>(getResourcePool().getModBitLength());
-      for (int b = 0; b < getResourcePool().getModBitLength(); b++) {
+      List<FieldElement> summands = new ArrayList<>(resourcePool.getModBitLength());
+      for (int b = 0; b < resourcePool.getModBitLength(); b++) {
         FieldElement feSeed = feSeeds.get(diffIdx);
         FieldElement diff = diffs.get(diffIdx);
         boolean bit = leftFactor.getBit(b);
@@ -70,21 +70,10 @@ public class MultiplyLeftHelper {
         summands.add(summand);
         diffIdx++;
       }
-      FieldElement productShare = getFieldElementUtils().recombine(summands);
+      FieldElement productShare = fieldElementUtils.recombine(summands);
       result.add(productShare);
     }
     return result;
   }
 
-  private RotBatch getRot() {
-    return rot;
-  }
-
-  private FieldElementUtils getFieldElementUtils() {
-    return fieldElementUtils;
-  }
-
-  private MascotResourcePool getResourcePool() {
-    return resourcePool;
-  }
 }

@@ -25,10 +25,10 @@ public class BroadcastValidation {
    */
   private byte[] computeDigest(List<byte[]> messages) {
     for (byte[] message : messages) {
-      getResourcePool().getMessageDigest().update(message);
+      resourcePool.getMessageDigest().update(message);
     }
-    byte[] digest = getResourcePool().getMessageDigest().digest();
-    getResourcePool().getMessageDigest().reset();
+    byte[] digest = resourcePool.getMessageDigest().digest();
+    resourcePool.getMessageDigest().reset();
     return digest;
   }
 
@@ -56,18 +56,11 @@ public class BroadcastValidation {
     // compute digest
     byte[] digest = computeDigest(messages);
     // send it to others
-    getNetwork().sendToAll(digest);
+    network.sendToAll(digest);
     // receive others' digests
-    List<byte[]> digests = getNetwork().receiveFromAll();
+    List<byte[]> digests = network.receiveFromAll();
     // validate digests
     validateDigests(digest, digests);
   }
 
-  private Network getNetwork() {
-    return network;
-  }
-
-  private MascotResourcePool getResourcePool() {
-    return resourcePool;
-  }
 }

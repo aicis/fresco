@@ -16,7 +16,6 @@ public class InputMask {
    * @param maskShare the authenticated share of the value
    */
   public InputMask(FieldElement openValue, AuthenticatedElement maskShare) {
-    super();
     this.openValue = openValue;
     this.maskShare = maskShare;
   }

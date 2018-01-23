@@ -14,7 +14,7 @@ import dk.alexandra.fresco.tools.mascot.MascotSecurityParameters;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.InputMask;
-import dk.alexandra.fresco.tools.mascot.field.MultTriple;
+import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
@@ -41,7 +41,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   private final Function<Integer, SpdzSInt[]> preprocessedValues;
   private final FieldElement ssk;
 
-  private final ArrayDeque<MultTriple> triples;
+  private final ArrayDeque<MultiplicationTriple> triples;
   private final ArrayDeque<InputMask> masks;
   private final ArrayDeque<AuthenticatedElement> randomElements;
   private final ArrayDeque<AuthenticatedElement> randomBits;
@@ -121,7 +121,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       triples.addAll(mascot.getTriples(batchSize));
       logger.trace("Got another triple batch");
     }
-    MultTriple triple = triples.pop();
+    MultiplicationTriple triple = triples.pop();
     return MascotFormatConverter.toSpdzTriple(triple);
   }
 

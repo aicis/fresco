@@ -62,7 +62,7 @@ public class CopeInputter {
     // compute t0 - t1 + x for each input x for each mask pair
     List<FieldElement> diffs = helper.computeDiffs(maskPairs, inputElements);
     // send diffs
-    getNetwork().send(getOtherId(), getResourcePool().getFieldElementSerializer().serialize(diffs));
+    network.send(otherId, resourcePool.getFieldElementSerializer().serialize(diffs));
     // get zero index masks
     List<FieldElement> feZeroSeeds =
         maskPairs.stream().map(Pair::getFirst).collect(Collectors.toList());
@@ -75,7 +75,7 @@ public class CopeInputter {
     List<Pair<FieldElement, FieldElement>> maskPairs = new ArrayList<>();
     for (int i = 0; i < numInputs; i++) {
       // generate masks for single input
-      maskPairs.addAll(generateMaskPairs(getResourcePool().getModulus()));
+      maskPairs.addAll(generateMaskPairs(resourcePool.getModulus()));
     }
     return maskPairs;
   }
@@ -97,15 +97,4 @@ public class CopeInputter {
     }
   }
 
-  private int getOtherId() {
-    return otherId;
-  }
-
-  private Network getNetwork() {
-    return network;
-  }
-
-  private MascotResourcePool getResourcePool() {
-    return resourcePool;
-  }
 }

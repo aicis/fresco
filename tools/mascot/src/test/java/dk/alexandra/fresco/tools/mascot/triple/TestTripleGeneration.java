@@ -6,10 +6,10 @@ import dk.alexandra.fresco.tools.mascot.MascotSecurityParameters;
 import dk.alexandra.fresco.tools.mascot.MascotTestContext;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
-import dk.alexandra.fresco.tools.mascot.arithm.ArithmeticCollectionUtils;
+import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementUtils;
-import dk.alexandra.fresco.tools.mascot.field.MultTriple;
+import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;
 import java.math.BigInteger;
@@ -17,15 +17,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
-
 import org.hamcrest.collection.IsCollectionWithSize;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class TestTripleGeneration extends NetworkedTest {
-
-  private final ArithmeticCollectionUtils<FieldElement> arithmeticUtils =
-      new ArithmeticCollectionUtils<>();
 
   private FieldElementPrg getJointPrg(int prgSeedLength) {
     return new FieldElementPrgImpl(new StrictBitVector(prgSeedLength));
@@ -38,18 +34,18 @@ public class TestTripleGeneration extends NetworkedTest {
     return tripleGen.multiply(leftFactorGroups, rightFactors);
   }
 
-  private List<MultTriple> runSinglePartyTriple(MascotTestContext ctx, FieldElement macKeyShare,
+  private List<MultiplicationTriple> runSinglePartyTriple(MascotTestContext ctx, FieldElement macKeyShare,
       int numTriples) {
     TripleGeneration tripleGen = new TripleGeneration(ctx.getResourcePool(), ctx.getNetwork(),
         getJointPrg(ctx.getPrgSeedLength()), macKeyShare);
     return tripleGen.triple(numTriples);
   }
 
-  private List<MultTriple> runSinglePartyTripleRepeated(MascotTestContext ctx,
+  private List<MultiplicationTriple> runSinglePartyTripleRepeated(MascotTestContext ctx,
       FieldElement macKeyShare, int numTriples, int numIterations) {
     TripleGeneration tripleGen = new TripleGeneration(ctx.getResourcePool(), ctx.getNetwork(),
         getJointPrg(ctx.getPrgSeedLength()), macKeyShare);
-    List<MultTriple> triples = new ArrayList<>();
+    List<MultiplicationTriple> triples = new ArrayList<>();
     for (int r = 0; r < numIterations; r++) {
       triples.addAll(tripleGen.triple(numTriples));
     }
@@ -140,15 +136,15 @@ public class TestTripleGeneration extends NetworkedTest {
     FieldElementUtils fieldElementUtils = new FieldElementUtils(getModulus());
     // for each input pair of factors the result is (a1 + a2 + ...) * (b1 + b2 + ...)
     List<FieldElement> expectedLeftFactors =
-        arithmeticUtils.sumRows(Arrays.asList(leftFactorsOne, leftFactorsTwo));
+        Addable.sumRows(Arrays.asList(leftFactorsOne, leftFactorsTwo));
     List<FieldElement> expectedRightFactors = fieldElementUtils
-        .stretch(arithmeticUtils.sumRows(Arrays.asList(rightFactorsOne, rightFactorsTwo)), 3);
+        .stretch(Addable.sumRows(Arrays.asList(rightFactorsOne, rightFactorsTwo)), 3);
 
     List<FieldElement> expected =
         fieldElementUtils.pairWiseMultiply(expectedLeftFactors, expectedRightFactors);
 
     // actual results, recombined
-    List<FieldElement> actual = arithmeticUtils.sumRows(results);
+    List<FieldElement> actual = Addable.sumRows(results);
     CustomAsserts.assertEquals(expected, actual);
   }
 
@@ -157,20 +153,20 @@ public class TestTripleGeneration extends NetworkedTest {
     initContexts(macKeyShares.size());
 
     // define per party task with params
-    List<Callable<List<MultTriple>>> tasks = new ArrayList<>();
+    List<Callable<List<MultiplicationTriple>>> tasks = new ArrayList<>();
     for (int pid = 1; pid <= macKeyShares.size(); pid++) {
       MascotTestContext partyCtx = contexts.get(pid);
       FieldElement macKeyShare = macKeyShares.get(pid - 1);
-      Callable<List<MultTriple>> partyTask =
+      Callable<List<MultiplicationTriple>> partyTask =
           () -> runSinglePartyTriple(partyCtx, macKeyShare, numTriples);
       tasks.add(partyTask);
     }
 
-    List<List<MultTriple>> results = testRuntime.runPerPartyTasks(tasks);
-    List<MultTriple> combined = new ArithmeticCollectionUtils<MultTriple>().sumRows(results);
+    List<List<MultiplicationTriple>> results = testRuntime.runPerPartyTasks(tasks);
+    List<MultiplicationTriple> combined = Addable.sumRows(results);
     Assert.assertThat(combined, IsCollectionWithSize.hasSize(numTriples));
-    for (MultTriple triple : combined) {
-      CustomAsserts.assertTripleIsValid(triple, arithmeticUtils.sum(macKeyShares));
+    for (MultiplicationTriple triple : combined) {
+      CustomAsserts.assertTripleIsValid(triple, Addable.sum(macKeyShares));
     }
   }
 
@@ -180,20 +176,20 @@ public class TestTripleGeneration extends NetworkedTest {
     initContexts(macKeyShares.size());
 
     // define per party task with params
-    List<Callable<List<MultTriple>>> tasks = new ArrayList<>();
+    List<Callable<List<MultiplicationTriple>>> tasks = new ArrayList<>();
     for (int pid = 1; pid <= macKeyShares.size(); pid++) {
       MascotTestContext partyCtx = contexts.get(pid);
       FieldElement macKeyShare = macKeyShares.get(pid - 1);
-      Callable<List<MultTriple>> partyTask =
+      Callable<List<MultiplicationTriple>> partyTask =
           () -> runSinglePartyTripleRepeated(partyCtx, macKeyShare, numTriples, numIterations);
       tasks.add(partyTask);
     }
 
-    List<List<MultTriple>> results = testRuntime.runPerPartyTasks(tasks);
-    List<MultTriple> combined = new ArithmeticCollectionUtils<MultTriple>().sumRows(results);
+    List<List<MultiplicationTriple>> results = testRuntime.runPerPartyTasks(tasks);
+    List<MultiplicationTriple> combined = Addable.sumRows(results);
     Assert.assertThat(combined, IsCollectionWithSize.hasSize(numTriples * numIterations));
-    for (MultTriple triple : combined) {
-      CustomAsserts.assertTripleIsValid(triple, arithmeticUtils.sum(macKeyShares));
+    for (MultiplicationTriple triple : combined) {
+      CustomAsserts.assertTripleIsValid(triple, Addable.sum(macKeyShares));
     }
   }
 

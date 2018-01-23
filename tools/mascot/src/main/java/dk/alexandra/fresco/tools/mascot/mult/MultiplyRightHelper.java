@@ -44,8 +44,8 @@ public class MultiplyRightHelper {
    */
   public List<Pair<StrictBitVector, StrictBitVector>> generateSeeds(int numMults, int seedLength) {
     // perform rots for each bit, for each left factor, for each multiplication
-    int numRots = getResourcePool().getModBitLength() * numMults;
-    List<Pair<StrictBitVector, StrictBitVector>> seeds = getRot().send(numRots, seedLength);
+    int numRots = resourcePool.getModBitLength() * numMults;
+    List<Pair<StrictBitVector, StrictBitVector>> seeds = rot.send(numRots, seedLength);
     Collections.reverse(seeds);
     return seeds;
   }
@@ -71,7 +71,7 @@ public class MultiplyRightHelper {
       FieldElement diff = computeDiff(feSeedPair, rightFactor);
       diffs.add(diff);
       seedPairIdx++;
-      rightFactorIdx = seedPairIdx / (getResourcePool().getModBitLength());
+      rightFactorIdx = seedPairIdx / (resourcePool.getModBitLength());
     }
     return diffs;
   }
@@ -88,10 +88,10 @@ public class MultiplyRightHelper {
       int numRightFactors) {
     List<FieldElement> productShares = new ArrayList<>(numRightFactors);
     for (int rightFactIdx = 0; rightFactIdx < numRightFactors; rightFactIdx++) {
-      int from = rightFactIdx * getResourcePool().getModBitLength();
-      int to = (rightFactIdx + 1) * getResourcePool().getModBitLength();
+      int from = rightFactIdx * resourcePool.getModBitLength();
+      int to = (rightFactIdx + 1) * resourcePool.getModBitLength();
       List<FieldElement> subFactors = feZeroSeeds.subList(from, to);
-      FieldElement recombined = getFieldElementUtils().recombine(subFactors);
+      FieldElement recombined = fieldElementUtils.recombine(subFactors);
       productShares.add(recombined.negate());
     }
     return productShares;
@@ -104,15 +104,4 @@ public class MultiplyRightHelper {
     return left.subtract(right).add(factor);
   }
 
-  private RotBatch getRot() {
-    return rot;
-  }
-
-  private FieldElementUtils getFieldElementUtils() {
-    return fieldElementUtils;
-  }
-
-  private MascotResourcePool getResourcePool() {
-    return resourcePool;
-  }
 }

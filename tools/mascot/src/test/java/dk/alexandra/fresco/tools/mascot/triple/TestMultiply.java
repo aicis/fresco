@@ -7,7 +7,7 @@ import dk.alexandra.fresco.tools.mascot.MascotSecurityParameters;
 import dk.alexandra.fresco.tools.mascot.MascotTestContext;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
-import dk.alexandra.fresco.tools.mascot.arithm.ArithmeticCollectionUtils;
+import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementUtils;
 import java.util.ArrayList;
@@ -130,7 +130,7 @@ public class TestMultiply extends NetworkedTest {
     List<List<FieldElement>> results =
         testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
 
-    List<FieldElement> actual = new ArithmeticCollectionUtils<FieldElement>().sumRows(results);
+    List<FieldElement> actual = Addable.sumRows(results);
     List<FieldElement> expected =
         new FieldElementUtils(getModulus()).pairWiseMultiply(leftInputs, rightInputs);
     CustomAsserts.assertEquals(expected, actual);

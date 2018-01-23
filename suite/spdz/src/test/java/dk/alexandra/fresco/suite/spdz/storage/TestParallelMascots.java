@@ -10,7 +10,7 @@ import dk.alexandra.fresco.tools.mascot.Mascot;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePoolImpl;
 import dk.alexandra.fresco.tools.mascot.MascotSecurityParameters;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.field.MultTriple;
+import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
@@ -141,7 +141,7 @@ public class TestParallelMascots {
   public void testFirstTriples() throws Exception {
     List<Map<Integer, RotList>> seedOts = setupOts();
     Map<Integer, FieldElement> perPartyMacKeyShares = setupMacKeyShares();
-    List<Callable<List<MultTriple>>> mascotCreators = new ArrayList<>();
+    List<Callable<List<MultiplicationTriple>>> mascotCreators = new ArrayList<>();
     for (int i = 0; i < iterations; i++) {
       @SuppressWarnings("resource")
       KryoNetManager normalManager = new KryoNetManager(ports);

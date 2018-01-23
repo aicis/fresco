@@ -4,7 +4,7 @@ import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.elgen.ElementGeneration;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.field.MultTriple;
+import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import dk.alexandra.fresco.tools.mascot.triple.TripleGeneration;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,13 +46,13 @@ public class OnlinePhase {
    */
   public List<AuthenticatedElement> multiply(List<AuthenticatedElement> leftFactors,
       List<AuthenticatedElement> rightFactors) {
-    List<MultTriple> triples = tripleGeneration.triple(leftFactors.size());
+    List<MultiplicationTriple> triples = tripleGeneration.triple(leftFactors.size());
     List<AuthenticatedElement> epsilons = new ArrayList<>(leftFactors.size());
     List<AuthenticatedElement> deltas = new ArrayList<>(leftFactors.size());
     for (int i = 0; i < leftFactors.size(); i++) {
       AuthenticatedElement left = leftFactors.get(i);
       AuthenticatedElement right = rightFactors.get(i);
-      MultTriple triple = triples.get(i);
+      MultiplicationTriple triple = triples.get(i);
       epsilons.add(left.subtract(triple.getLeft()));
       deltas.add(right.subtract(triple.getRight()));
     }
@@ -60,7 +60,7 @@ public class OnlinePhase {
     List<FieldElement> openDeltas = open(deltas);
     List<AuthenticatedElement> products = new ArrayList<>(leftFactors.size());
     for (int i = 0; i < leftFactors.size(); i++) {
-      MultTriple triple = triples.get(i);
+      MultiplicationTriple triple = triples.get(i);
       AuthenticatedElement left = triple.getLeft();
       AuthenticatedElement right = triple.getRight();
       FieldElement epsilon = openEpsilons.get(i);
@@ -69,7 +69,7 @@ public class OnlinePhase {
       // [c] + epsilon * [b] + delta * [a] + epsilon * delta
       AuthenticatedElement product = triple.getProduct().add(right.multiply(epsilon))
           .add(left.multiply(delta))
-          .add(epsilonDeltaProd, getResourcePool().getMyId(), macKeyShare);
+          .add(epsilonDeltaProd, resourcePool.getMyId(), macKeyShare);
       products.add(product);
     }
     return products;
@@ -89,10 +89,6 @@ public class OnlinePhase {
    */
   public void triggerMacCheck() {
     openedValueStore.checkAllAndClear(elementGeneration::check);
-  }
-
-  private MascotResourcePool getResourcePool() {
-    return resourcePool;
   }
 
   /**

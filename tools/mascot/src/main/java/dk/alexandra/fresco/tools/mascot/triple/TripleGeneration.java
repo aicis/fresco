@@ -2,12 +2,12 @@ package dk.alexandra.fresco.tools.mascot.triple;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
-import dk.alexandra.fresco.tools.mascot.arithm.ArithmeticCollectionUtils;
+import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 import dk.alexandra.fresco.tools.mascot.elgen.ElementGeneration;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementUtils;
-import dk.alexandra.fresco.tools.mascot.field.MultTriple;
+import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -80,14 +80,14 @@ public class TripleGeneration {
    * @param numTriples number of triples to generate
    * @return valid multiplication triples
    */
-  public List<MultTriple> triple(int numTriples) {
+  public List<MultiplicationTriple> triple(int numTriples) {
     // generate random left factor groups
-    List<FieldElement> leftFactorGroups = getResourcePool().getLocalSampler()
-        .getNext(getResourcePool().getModulus(),
-            numTriples * getResourcePool().getNumCandidatesPerTriple());
+    List<FieldElement> leftFactorGroups = resourcePool.getLocalSampler()
+        .getNext(resourcePool.getModulus(),
+            numTriples * resourcePool.getNumCandidatesPerTriple());
     // generate random right factors
-    List<FieldElement> rightFactors = getResourcePool().getLocalSampler()
-        .getNext(getResourcePool().getModulus(), numTriples);
+    List<FieldElement> rightFactors = resourcePool.getLocalSampler()
+        .getNext(resourcePool.getModulus(), numTriples);
     // compute product groups
     List<FieldElement> productGroups = multiply(leftFactorGroups, rightFactors);
     // combine into unauthenticated triples
@@ -122,17 +122,17 @@ public class TripleGeneration {
     // step 1 of protocol occurred before this method
     // "stretch" right factors, so we have one right factor for each left factor
     List<FieldElement> stretched =
-        getFieldElementUtils()
-            .stretch(rightFactors, getResourcePool().getNumCandidatesPerTriple());
+        fieldElementUtils
+            .stretch(rightFactors, resourcePool.getNumCandidatesPerTriple());
 
     // step 2 of protocol
     // for each value we will have two sub-factors for each other party
     List<List<FieldElement>> subFactors = new ArrayList<>();
-    for (int partyId = 1; partyId <= getResourcePool().getNoOfParties(); partyId++) {
-      if (partyId != getResourcePool().getMyId()) {
+    for (int partyId = 1; partyId <= resourcePool.getNoOfParties(); partyId++) {
+      if (partyId != resourcePool.getMyId()) {
         MultiplyLeft leftMult = leftMultipliers.get(partyId);
         MultiplyRight rightMult = rightMultipliers.get(partyId);
-        if (getResourcePool().getMyId() < partyId) {
+        if (resourcePool.getMyId() < partyId) {
           subFactors.add(rightMult.multiply(stretched));
           subFactors.add(leftMult.multiply(leftFactorGroups));
         } else {
@@ -145,11 +145,11 @@ public class TripleGeneration {
     // step 3 or protocol
     // own part of the product
     List<FieldElement> localSubFactors =
-        getFieldElementUtils().pairWiseMultiply(leftFactorGroups, stretched);
+        fieldElementUtils.pairWiseMultiply(leftFactorGroups, stretched);
     subFactors.add(localSubFactors);
 
     // combine all sub-factors into product shares
-    return getFieldElementUtils().sumRows(subFactors);
+    return Addable.sumRows(subFactors);
   }
 
   /**
@@ -160,12 +160,12 @@ public class TripleGeneration {
     int numTriples = triples.size();
 
     List<List<FieldElement>> masks = jointSampler
-        .getNext(getResourcePool().getModulus(), numTriples,
-            getResourcePool().getNumCandidatesPerTriple());
+        .getNext(resourcePool.getModulus(), numTriples,
+            resourcePool.getNumCandidatesPerTriple());
 
     List<List<FieldElement>> sacrificeMasks = jointSampler
-        .getNext(getResourcePool().getModulus(),
-            numTriples, getResourcePool().getNumCandidatesPerTriple());
+        .getNext(resourcePool.getModulus(),
+            numTriples, resourcePool.getNumCandidatesPerTriple());
 
     // step 2 of protocol
     return IntStream.range(0, numTriples)
@@ -187,26 +187,25 @@ public class TripleGeneration {
         .collect(Collectors.toList());
 
     List<List<AuthenticatedElement>> shares = new ArrayList<>();
-    for (int partyId = 1; partyId <= getResourcePool().getNoOfParties(); partyId++) {
-      if (partyId == getResourcePool().getMyId()) {
+    for (int partyId = 1; partyId <= resourcePool.getNoOfParties(); partyId++) {
+      if (partyId == resourcePool.getMyId()) {
         shares.add(elementGeneration.input(flatInputs));
       } else {
         shares.add(elementGeneration.input(partyId, flatInputs.size()));
       }
     }
 
-    List<AuthenticatedElement> combined =
-        new ArithmeticCollectionUtils<AuthenticatedElement>().sumRows(shares);
+    List<AuthenticatedElement> combined = Addable.sumRows(shares);
     return toAuthenticatedCandidate(combined, 5);
   }
 
   /**
    * Implements batched version of Sacrifice sub-protocol of Protocol 4.
    */
-  private List<MultTriple> sacrifice(List<AuthenticatedCandidate> candidates) {
+  private List<MultiplicationTriple> sacrifice(List<AuthenticatedCandidate> candidates) {
     // step 1 or protocol
     List<FieldElement> randomCoefficients = jointSampler
-        .getNext(getResourcePool().getModulus(), candidates.size());
+        .getNext(resourcePool.getModulus(), candidates.size());
 
     // step 2
     // compute masked values we will open and use in mac-check
@@ -224,8 +223,8 @@ public class TripleGeneration {
     // put rhos and sigmas together
     rhos.addAll(sigmas);
     // pad open rhos with zeroes, one for each sigma
-    List<FieldElement> paddedRhos = getFieldElementUtils().padWith(openRhos,
-        new FieldElement(0, getResourcePool().getModulus()), sigmas.size());
+    List<FieldElement> paddedRhos = fieldElementUtils.padWith(openRhos,
+        new FieldElement(0, resourcePool.getModulus()), sigmas.size());
     // run mac-check
     elementGeneration.check(rhos, paddedRhos);
 
@@ -237,8 +236,8 @@ public class TripleGeneration {
       List<FieldElement> right,
       List<FieldElement> products) {
     Stream<UnauthenticatedTriple> stream = IntStream.range(0, right.size()).mapToObj(idx -> {
-      int groupStart = idx * getResourcePool().getNumCandidatesPerTriple();
-      int groupEnd = (idx + 1) * getResourcePool().getNumCandidatesPerTriple();
+      int groupStart = idx * resourcePool.getNumCandidatesPerTriple();
+      int groupEnd = (idx + 1) * resourcePool.getNumCandidatesPerTriple();
       return new UnauthenticatedTriple(left.subList(groupStart, groupEnd), right.get(idx),
           products.subList(groupStart, groupEnd));
     });
@@ -274,16 +273,8 @@ public class TripleGeneration {
     }).collect(Collectors.toList());
   }
 
-  private List<MultTriple> toMultTriples(List<AuthenticatedCandidate> candidates) {
+  private List<MultiplicationTriple> toMultTriples(List<AuthenticatedCandidate> candidates) {
     return candidates.stream().map(AuthenticatedCandidate::toTriple).collect(Collectors.toList());
-  }
-
-  private FieldElementUtils getFieldElementUtils() {
-    return fieldElementUtils;
-  }
-
-  private MascotResourcePool getResourcePool() {
-    return resourcePool;
   }
 
   /**
@@ -307,10 +298,10 @@ public class TripleGeneration {
 
     UnauthenticatedCandidate toCandidate(List<FieldElement> masks,
         List<FieldElement> sacrificeMasks) {
-      FieldElement left = getFieldElementUtils().innerProduct(leftFactors, masks);
-      FieldElement prod = getFieldElementUtils().innerProduct(product, masks);
-      FieldElement leftSac = getFieldElementUtils().innerProduct(leftFactors, sacrificeMasks);
-      FieldElement prodSac = getFieldElementUtils().innerProduct(product, sacrificeMasks);
+      FieldElement left = fieldElementUtils.innerProduct(leftFactors, masks);
+      FieldElement prod = fieldElementUtils.innerProduct(product, masks);
+      FieldElement leftSac = fieldElementUtils.innerProduct(leftFactors, sacrificeMasks);
+      FieldElement prodSac = fieldElementUtils.innerProduct(product, sacrificeMasks);
       return new UnauthenticatedCandidate(left, rightFactor, prod, leftSac, prodSac);
     }
   }
@@ -347,8 +338,8 @@ public class TripleGeneration {
       return product.multiply(mask).subtract(productHat).subtract(rightFactor.multiply(openRho));
     }
 
-    MultTriple toTriple() {
-      return new MultTriple(leftFactor, rightFactor, product);
+    MultiplicationTriple toTriple() {
+      return new MultiplicationTriple(leftFactor, rightFactor, product);
     }
   }
 
