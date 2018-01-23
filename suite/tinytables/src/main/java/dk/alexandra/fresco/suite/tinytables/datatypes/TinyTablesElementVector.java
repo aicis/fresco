@@ -30,10 +30,6 @@ public class TinyTablesElementVector implements Serializable {
     this.values.setBit(index, share);
   }
 
-  public void setShare(int index, TinyTablesElement value) {
-    this.values.setBit(index, value.getShare());
-  }
-
   public TinyTablesElement get(int index) {
     return new TinyTablesElement(values.getBit(index));
   }
