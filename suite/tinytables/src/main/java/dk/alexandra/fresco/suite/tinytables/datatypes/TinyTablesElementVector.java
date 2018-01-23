@@ -18,10 +18,6 @@ public class TinyTablesElementVector implements Serializable {
   private static final long serialVersionUID = -2405648771000699453L;
   private RegularBitVector values;
 
-  public TinyTablesElementVector(boolean[] shares) {
-    this.values = new RegularBitVector(shares);
-  }
-
   public TinyTablesElementVector(byte[] shares, int size) {
     this.values = new RegularBitVector(shares, size);
   }
