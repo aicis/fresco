@@ -120,9 +120,8 @@ public class RotSharedImpl {
     List<StrictBitVector> res = new ArrayList<>(size);
     // Allocate a buffer to contain the index of the value to hash along with
     // the value itself.
-    // Size of an int is always 4 bytes in java
     ByteBuffer indexBuffer = ByteBuffer
-        .allocate(4 + input.get(0).getSize() * 8);
+        .allocate(Integer.SIZE + input.get(0).getSize() / 8);
     byte[] hash;
     for (int i = 0; i < size; i++) {
       indexBuffer.clear();

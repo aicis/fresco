@@ -9,11 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A wrapper class for a list of random seed OTs. An instance of this class (once {@code send}
- * and/or {@code receive} has been called) is meant to be used for several OT extension instances.
- * <br/>
- * Notice that an instance of this class is only meant to contain a single and static list of OTs.
- * Thus a new instance must be made if one wishes to construct a list of new and random OTs.
+ * A wrapper class for a list of random seed OTs. An instance of this class
+ * (once {@code send} and/or {@code receive} has been called) is meant to be
+ * used for several OT extension instances.
+ * <p>
+ * Notice that an instance of this class is only meant to contain a single and
+ * static list of OTs. Thus a new instance must be made if one wishes to
+ * construct a list of new and random OTs.
+ * </p>
  */
 public class RotList {
   private final int amount;
@@ -46,7 +49,11 @@ public class RotList {
   }
 
   /**
-   * Sends the prepared random OTs using {@code ot} as the underlying OT functionality.
+   * Sends the prepared random OTs using {@code ot} as the underlying OT
+   * functionality.
+   * <p>
+   * This method should only be called once.
+   * </p>
    *
    * @param ot
    *          The OT functionality to use for sending the random OTs
@@ -62,7 +69,11 @@ public class RotList {
   }
 
   /**
-   * Executes the receiving parts of the list of OTs using {@code ot} as the underlying OT protocol.
+   * Executes the receiving parts of the list of OTs using {@code ot} as the
+   * underlying OT protocol.
+   * <p>
+   * This method should only be called once.
+   * </p>
    *
    * @param ot
    *          The OT functionality to use for receiving the random OTs
@@ -79,8 +90,10 @@ public class RotList {
   }
 
   /**
-   * Retrieves the list of random messages used as the sending part of the OTs,
-   * assuming the OTs have been executed.
+   * Retrieves the list of random messages used as the sending part of the OTs.
+   * <p>
+   * Can only be called after {@link #send(Ot)}.
+   * </p>
    *
    * @return The random messages used for the sender in list of OTs
    */
@@ -92,8 +105,11 @@ public class RotList {
   }
 
   /**
-   * Retrieves the list of random messages used as the receiving part of the OTs,
-   * assuming the OTs have been executed.
+   * Retrieves the list of random messages used as the receiving part of the
+   * OTs.
+   * <p>
+   * Can only be called after {@link #receive(Ot)}.
+   * </p>
    *
    * @return The random messages used for the receiver in list of OTs
    */
@@ -105,9 +121,14 @@ public class RotList {
   }
 
   /**
-   * Returns the bit vector of the random choices the receiving party has used in the list of OTs.
+   * Returns the bit vector of the random choices the receiving party has used
+   * in the list of OTs.
+   * <p>
+   * Can only be called after {@link #receive(Ot)}.
+   * </p>
    *
-   * @return The bit vector of random choices used by the receiver in the list of OTs
+   * @return The bit vector of random choices used by the receiver in the list
+   *         of OTs
    */
   public StrictBitVector getChoices() {
     if (received == false) {
