@@ -11,7 +11,7 @@ import java.util.List;
  * Superclass containing the common variables and methods for the sender and
  * receiver parties of random OT extension.
  */
-public class RotSharedImpl {
+public abstract class RotSharedImpl {
   private final CoinTossing ct;
   private final int comSecParam;
   private final MessageDigest digest;

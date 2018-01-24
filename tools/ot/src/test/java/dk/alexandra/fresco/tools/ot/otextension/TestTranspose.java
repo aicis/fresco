@@ -80,12 +80,6 @@ public class TestTranspose {
   }
 
   @Test
-  public void testNewTranspose() {
-    // Verify that it is possible to construct a Transpose object
-    new Transpose();
-  }
-
-  @Test
   public void testBigMatrix() {
     boolean thrown = false;
     List<StrictBitVector> matrix = new ArrayList<>(128);

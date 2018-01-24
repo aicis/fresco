@@ -12,10 +12,16 @@ import java.util.List;
  */
 public class Transpose {
 
+  private Transpose() {
+    /**
+     * This class is meant to only contain static helper methods.
+     */
+  }
+
   /**
    * Transposes, in-place, a matrix represent in row-major as a list of byte
    * arrays.
-   * 
+   *
    * @param input
    *          The matrix to transpose
    */
@@ -78,7 +84,7 @@ public class Transpose {
   /**
    * Complete the Eklundh algorithm for transposing with initial blocks of 8
    * bits. That is, assuming all blocks of 8 bits have already been transposed
-   * 
+   *
    * @param input
    *          The matrix to transpose. Represented in row-major
    */
@@ -100,7 +106,7 @@ public class Transpose {
 
   /**
    * Swaps the content of two square blocks, in-place.
-   * 
+   *
    * @param input
    *          The list of arrays of which to swap
    * @param row
@@ -124,7 +130,7 @@ public class Transpose {
 
   /**
    * Check that a matrix obeys the rules needed to do Eklundh transposing.
-   * 
+   *
    * @param input
    *          The matrix to check
    */
@@ -152,7 +158,7 @@ public class Transpose {
 
   /**
    * Transpose all 8 bit squares in a square matrix, in-place.
-   * 
+   *
    * @param input
    *          The input
    */
@@ -169,7 +175,7 @@ public class Transpose {
   /**
    * Transposes 8x8 bit blocks of a row-major matrix, at positions "rowOffset",
    * "columnOffset".
-   * 
+   *
    * @param input
    *          The matrix to transpose
    * @param rowOffset
@@ -221,7 +227,7 @@ public class Transpose {
 
   /**
    * Allocate a matrix in row-major form, as a list of byte arrays.
-   * 
+   *
    * @param rows
    *          Rows in the matrix
    * @param columns

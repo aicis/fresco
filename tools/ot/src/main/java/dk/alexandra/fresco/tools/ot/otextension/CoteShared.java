@@ -11,7 +11,7 @@ import java.nio.ByteBuffer;
  * Superclass containing the common methods for the sender and
  * receiver parties of correlated OT with errors.
  */
-public class CoteShared {
+public abstract class CoteShared {
   private final int instanceId;
 
   /**
