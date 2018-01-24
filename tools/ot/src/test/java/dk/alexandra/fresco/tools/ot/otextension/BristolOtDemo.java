@@ -27,7 +27,7 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> {
     OtExtensionTestContext ctx = new OtExtensionTestContext(1, 2, kbitLength,
         lambdaSecurityParam);
     OtExtensionResourcePool resources = ctx.createResources(1);
-    Ot ot = new BristolOtFactory(new RotFactoryImpl(resources, ctx.getNetwork()), resources,
+    Ot ot = new BristolOtFactory(new RotFactory(resources, ctx.getNetwork()), resources,
         ctx.getNetwork(), amountOfOTs);
     for (int i = 0; i < amountOfOTs; i++) {
       boolean choice = (new Random()).nextBoolean();
@@ -51,7 +51,7 @@ public class BristolOtDemo<ResourcePoolT extends ResourcePool> {
     OtExtensionTestContext ctx = new OtExtensionTestContext(2, 1, kbitLength,
         lambdaSecurityParam);
     OtExtensionResourcePool resources = ctx.createResources(1);
-    Ot ot = new BristolOtFactory(new RotFactoryImpl(resources, ctx.getNetwork()), resources,
+    Ot ot = new BristolOtFactory(new RotFactory(resources, ctx.getNetwork()), resources,
         ctx.getNetwork(), amountOfOTs);
     Drbg rand = ctx.createRand(1);
     for (int i = 0; i < amountOfOTs; i++) {

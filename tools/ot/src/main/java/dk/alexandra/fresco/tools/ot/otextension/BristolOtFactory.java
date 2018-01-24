@@ -53,7 +53,7 @@ public class BristolOtFactory implements Ot {
   @Override
   public void send(StrictBitVector messageZero, StrictBitVector messageOne) {
     if (this.sender == null) {
-      RotSender sender = rot.getSender();
+      RotSender sender = rot.createSender();
       this.sender = new BristolOtSender(sender, resources, network, batchSize);
     }
     this.sender.send(messageZero.toByteArray(), messageOne.toByteArray());

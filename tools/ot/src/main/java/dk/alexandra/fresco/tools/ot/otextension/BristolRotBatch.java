@@ -45,7 +45,7 @@ public class BristolRotBatch implements RotBatch {
   public List<Pair<StrictBitVector, StrictBitVector>> send(int numMessages,
       int sizeOfEachMessage) {
     if (this.sender == null) {
-      this.sender = rot.getSender();
+      this.sender = rot.createSender();
     }
     List<Pair<StrictBitVector, StrictBitVector>> res = new ArrayList<>(
         numMessages);
