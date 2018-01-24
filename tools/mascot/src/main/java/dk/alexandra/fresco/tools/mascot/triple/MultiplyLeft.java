@@ -74,16 +74,14 @@ class MultiplyLeft {
    *
    * @param seeds the seeds represented as bit vectors
    * @param modulus the modulus we are working in
-   * @return seeds converted to field elements via PRG
+   * @return seeds converted to field elements
    */
   private List<FieldElement> seedsToFieldElements(List<StrictBitVector> seeds, BigInteger modulus) {
-    // TODO need to check somewhere that the modulus is close enough to 2^modBitLength
-    return seeds.stream().map(seed -> fromBits(seed, modulus))
-        .collect(Collectors.toList());
+    return seeds.stream().map(seed -> fromBits(seed, modulus)).collect(Collectors.toList());
   }
 
   private FieldElement fromBits(StrictBitVector vector, BigInteger modulus) {
-    // TODO need to check somewhere that the modulus is close enough to 2^modBitLength
+    // safe since the modulus is guaranteed to be close enough to 2^modBitLength
     return new FieldElement(new BigInteger(vector.toByteArray()).mod(modulus), modulus);
   }
 

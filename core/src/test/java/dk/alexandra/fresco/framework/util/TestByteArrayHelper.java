@@ -157,4 +157,14 @@ public class TestByteArrayHelper {
     }
     assertEquals(thrown, true);
   }
+
+  @Test(expected = IllegalAccessError.class)
+  public void testGetBitIllegal() {
+    ByteArrayHelper.getBit(new byte[]{}, -1);
+  }
+
+  @Test(expected = IllegalAccessError.class)
+  public void testSetBitIllegal() {
+    ByteArrayHelper.setBit(new byte[]{}, -1, true);
+  }
 }

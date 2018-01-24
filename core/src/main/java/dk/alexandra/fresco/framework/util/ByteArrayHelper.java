@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.framework.util;
 
 import java.util.List;
-import java.util.Random;
 
 public class ByteArrayHelper {
 
@@ -96,19 +95,6 @@ public class ByteArrayHelper {
     for (int i = 0; i < input.length * 8; i++) {
       setBit(output, positions + i, getBit(input, i));
     }
-  }
-
-  /**
-   * Generates a random byte array of a given size.
-   *
-   * @param size size of the byte array
-   * @param rand a source of randomness
-   * @return an array of random bytes
-   */
-  public static byte[] randomByteArray(int size, Random rand) {
-    byte[] array = new byte[size];
-    rand.nextBytes(array);
-    return array;
   }
 
 }

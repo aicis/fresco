@@ -30,10 +30,11 @@ public class MascotSecurityParameters {
   }
 
   /**
-   * Creates new {@link MascotSecurityParameters} with realistic parameters.
+   * Creates new {@link MascotSecurityParameters} with realistic parameters (based on paper
+   * recommendations).
    */
   public MascotSecurityParameters() {
-    this(128, 56, 256, 3);
+    this(128, 64, 256, 3);
   }
 
   /**

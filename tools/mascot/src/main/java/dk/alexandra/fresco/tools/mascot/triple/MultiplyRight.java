@@ -88,7 +88,7 @@ class MultiplyRight {
   }
 
   private FieldElement fromBits(StrictBitVector vector, BigInteger modulus) {
-    // TODO need to check somewhere that the modulus is close enough to 2^modBitLength
+    // safe since the modulus is guaranteed to be close enough to 2^modBitLength
     return new FieldElement(new BigInteger(vector.toByteArray()).mod(modulus), modulus);
   }
 

@@ -100,7 +100,7 @@ public class RegularBitVector implements BitVector {
    *          The position of the first bit to include in the range
    * @param to
    *          The position of the bit AFTER the last bit to include in the range
-   * @return A new {@RegularBitVector} containing the subset of 
+   * @return A new {@link #RegularBitVector} containing the subset of
    *          [{@code from}, {@code to}[ from this bit vector
    */
   public RegularBitVector getRange(int from, int to) {
@@ -113,7 +113,7 @@ public class RegularBitVector implements BitVector {
           "From index is smaller than to index. From: " + from + " to: " + to);
     }
     BitSet subrange = bits.get(from, to);
-    return new RegularBitVector(subrange.toByteArray(), length);
+    return new RegularBitVector(subrange.toByteArray(), (length - 1) * 8);
   }
 
   private void rangeCheck(int i) {

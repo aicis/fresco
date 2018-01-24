@@ -5,8 +5,11 @@ import java.util.List;
 
 public class TransposeUtils<T> {
 
+  private TransposeUtils() {
+  }
+
   /**
-   * Transposes matrix. <br> Rows become columns and columns become rows.
+   * Transposes matrix. <p>Rows become columns and columns become rows.</p>
    *
    * @param mat matrix to transpose
    * @return transposed matrix

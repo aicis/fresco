@@ -11,9 +11,14 @@ import org.junit.Test;
 
 public class TestBitVector {
 
+  private static void assertBitVectorEquals(RegularBitVector expected, RegularBitVector actual) {
+    assertEquals(expected.getSize(), actual.getSize());
+    assertArrayEquals(expected.toByteArray(), actual.toByteArray());
+  }
+
   @Test
   public void testBitVectorBooleanArray() {
-    boolean[] bs = new boolean[] { true, true, true, false, false, true, false, false };
+    boolean[] bs = new boolean[]{true, true, true, false, false, true, false, false};
     RegularBitVector vector = new RegularBitVector(bs);
     assertEquals(bs.length, vector.getSize());
     assertEquals(bs[0], vector.getBit(0));
@@ -28,7 +33,7 @@ public class TestBitVector {
 
   @Test
   public void testBitVectorByteArray() {
-    byte[] bytes = new byte[] { 0x01, 0x02, 0x03, 0x04 };
+    byte[] bytes = new byte[]{0x01, 0x02, 0x03, 0x04};
     {
       BitSet bitSet = BitSet.valueOf(bytes);
       RegularBitVector vector = new RegularBitVector(bytes, bytes.length * 8);
@@ -117,14 +122,14 @@ public class TestBitVector {
   @Test
   public void testAsByteArr() {
     {
-      byte[] bytes = new byte[] { 0x01, 0x02, 0x03, 0x04 };
+      byte[] bytes = new byte[]{0x01, 0x02, 0x03, 0x04};
       RegularBitVector vector = new RegularBitVector(bytes, bytes.length * 8);
       byte[] vectorBytes = vector.toByteArray();
       assertArrayEquals(bytes, vectorBytes);
     }
     {
       // Test with last byte being zeroes
-      byte[] bytes = new byte[] { 0x01, 0x02, 0x03, 0x00 };
+      byte[] bytes = new byte[]{0x01, 0x02, 0x03, 0x00};
       RegularBitVector vector = new RegularBitVector(bytes, bytes.length * 8);
       byte[] vectorBytes = vector.toByteArray();
       // TODO: Find out if this is the intended behavior?
@@ -134,8 +139,8 @@ public class TestBitVector {
 
   @Test
   public void testXor() {
-    byte[] bytes1 = new byte[] { 0x01, 0x02, 0x03, 0x04 };
-    byte[] bytes2 = new byte[] { 0x01, 0x01, 0x01, 0x01 };
+    byte[] bytes1 = new byte[]{0x01, 0x02, 0x03, 0x04};
+    byte[] bytes2 = new byte[]{0x01, 0x01, 0x01, 0x01};
     RegularBitVector vector1 = new RegularBitVector(bytes1, bytes1.length * 8);
     RegularBitVector vector2 = new RegularBitVector(bytes2, bytes2.length * 8);
     vector1.xor(vector2);
@@ -145,7 +150,7 @@ public class TestBitVector {
     for (int i = 0; i < vector1.getSize(); i++) {
       assertEquals(bitSet1.get(i), vector1.getBit(i));
     }
-    byte[] bytes3 = new byte[] { 0x01, 0x01, 0x01, 0x01, 0x03 };
+    byte[] bytes3 = new byte[]{0x01, 0x01, 0x01, 0x01, 0x03};
     RegularBitVector vector3 = new RegularBitVector(bytes3, bytes3.length);
     boolean exception = false;
     try {
@@ -156,4 +161,50 @@ public class TestBitVector {
     assertTrue(exception);
   }
 
+  @Test
+  public void testXorWithNonRegular() {
+    byte[] bytes1 = new byte[]{0x01, 0x02, 0x03, 0x04};
+    byte[] bytes2 = new byte[]{0x01, 0x01, 0x01, 0x01};
+    RegularBitVector vector1 = new RegularBitVector(bytes1, bytes1.length * 8);
+    BitVector vector2 = new StrictBitVector(bytes2);
+    vector1.xor(vector2);
+    BitSet bitSet1 = BitSet.valueOf(bytes1);
+    BitSet bitSet2 = BitSet.valueOf(bytes2);
+    bitSet1.xor(bitSet2);
+    for (int i = 0; i < vector1.getSize(); i++) {
+      assertEquals(bitSet1.get(i), vector1.getBit(i));
+    }
+    byte[] bytes3 = new byte[]{0x01, 0x01, 0x01, 0x01, 0x03};
+    RegularBitVector vector3 = new RegularBitVector(bytes3, bytes3.length);
+    boolean exception = false;
+    try {
+      vector1.xor(vector3);
+    } catch (IllegalArgumentException e) {
+      exception = true;
+    }
+    assertTrue(exception);
+  }
+
+  @Test
+  public void testGetRange() {
+    byte[] bytes = new byte[]{0x01, 0x02, 0x03, 0x04};
+    RegularBitVector vector = new RegularBitVector(bytes, bytes.length * 8);
+    RegularBitVector expected = new RegularBitVector(new byte[]{0x01}, 8);
+    RegularBitVector actual = vector.getRange(0, 2);
+    assertBitVectorEquals(expected, actual);
+  }
+
+  @Test(expected = IndexOutOfBoundsException.class)
+  public void testGetRangeZeroTo() {
+    byte[] bytes = new byte[]{0x01, 0x02, 0x03, 0x04};
+    RegularBitVector vector = new RegularBitVector(bytes, bytes.length * 8);
+    vector.getRange(0, 0);
+  }
+
+  @Test(expected = IndexOutOfBoundsException.class)
+  public void testGetRangeToSmallerThanFrom() {
+    byte[] bytes = new byte[]{0x01, 0x02, 0x03, 0x04};
+    RegularBitVector vector = new RegularBitVector(bytes, bytes.length * 8);
+    vector.getRange(2, 1);
+  }
 }
