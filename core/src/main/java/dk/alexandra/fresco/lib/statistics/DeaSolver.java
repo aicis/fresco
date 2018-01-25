@@ -2,7 +2,6 @@ package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -56,7 +55,7 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
    */
   public DeaSolver(AnalysisType type, List<List<DRes<SInt>>> inputValues,
       List<List<DRes<SInt>>> outputValues, List<List<DRes<SInt>>> setInput,
-      List<List<DRes<SInt>>> setOutput) throws MPCException {
+      List<List<DRes<SInt>>> setOutput)  {
     this(PivotRule.DANZIG, type, inputValues, outputValues, setInput, setOutput);
   }
 
@@ -74,7 +73,7 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
    */
   public DeaSolver(PivotRule pivotRule, AnalysisType type, List<List<DRes<SInt>>> inputValues,
       List<List<DRes<SInt>>> outputValues, List<List<DRes<SInt>>> setInput,
-      List<List<DRes<SInt>>> setOutput) throws MPCException {
+      List<List<DRes<SInt>>> setOutput)  {
     this.pivotRule = pivotRule;
     this.type = type;
     this.targetInputs = inputValues;
@@ -82,7 +81,7 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
     this.inputDataSet = setInput;
     this.outputDataSet = setOutput;
     if (!consistencyCheck()) {
-      throw new MPCException("Inconsistent dataset / query data");
+      throw new IllegalArgumentException("Inconsistent dataset / query data");
     }
   }
 

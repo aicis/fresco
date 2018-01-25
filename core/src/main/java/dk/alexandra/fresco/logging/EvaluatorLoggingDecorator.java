@@ -14,14 +14,14 @@ public class EvaluatorLoggingDecorator<
     ResourcePoolT extends ResourcePool,
     Builder extends ProtocolBuilder
     >
-    implements ProtocolEvaluator<ResourcePoolT, Builder>, PerformanceLogger {
+    implements ProtocolEvaluator<ResourcePoolT>, PerformanceLogger {
 
   public static final String SCE_RUNNINGTIMES = "Evaluation time for evaluator ";
-  
-  private ProtocolEvaluator<ResourcePoolT, Builder> delegate;
+
+  private ProtocolEvaluator<ResourcePoolT> delegate;
   private List<Long> runtimeLogger = new ArrayList<>();
-  
-  public EvaluatorLoggingDecorator(ProtocolEvaluator<ResourcePoolT, Builder> delegate) {
+
+  public EvaluatorLoggingDecorator(ProtocolEvaluator<ResourcePoolT> delegate) {
     this.delegate = delegate;
   }
 
@@ -40,11 +40,13 @@ public class EvaluatorLoggingDecorator<
   }
 
   @Override
-  public void eval(ProtocolProducer protocolProducer, ResourcePoolT resourcePool, Network network) {
+  public EvaluationStatistics eval(
+      ProtocolProducer protocolProducer, ResourcePoolT resourcePool, Network network) {
     long then = System.currentTimeMillis();
-    this.delegate.eval(protocolProducer, resourcePool, network);
+    EvaluationStatistics eval = delegate.eval(protocolProducer, resourcePool, network);
     long now = System.currentTimeMillis();
     long runningTime = now - then;
     this.runtimeLogger.add(runningTime);
+    return eval;
   }
 }

@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -132,7 +131,7 @@ public class TestFakeTripGen {
     try {
       FakeTripGen.elementToBytes(element, 0);
       Assert.fail("Should have cast an exception");
-    } catch (MPCException e) {
+    } catch (RuntimeException e) {
 
     }
 
@@ -143,7 +142,7 @@ public class TestFakeTripGen {
     try {
       FakeTripGen.elementToBytes(element, 0);
       Assert.fail("Should have cast an exception");
-    } catch (MPCException e) {
+    } catch (RuntimeException e) {
 
     }
   }
@@ -158,7 +157,7 @@ public class TestFakeTripGen {
     try {
       FakeTripGen.bigIntToBytes(b, 0);
       Assert.fail("Should have cast an exception");
-    } catch (MPCException e) {
+    } catch (RuntimeException e) {
 
     }
   }

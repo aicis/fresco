@@ -14,10 +14,12 @@ public class SpdzProtocolSuite implements ProtocolSuiteNumeric<SpdzResourcePool>
   }
 
   @Override
-  public BuilderFactoryNumeric init(SpdzResourcePool resourcePool, Network network) {
-    BasicNumericContext spdzFactory =
-        new BasicNumericContext(maxBitLength, resourcePool.getModulus(), resourcePool);
-    return new SpdzBuilder(spdzFactory);
+  public BuilderFactoryNumeric init(SpdzResourcePool resourcePool,
+      Network network) {
+    BasicNumericContext numericContext =
+        new BasicNumericContext(maxBitLength, resourcePool.getModulus(),
+            resourcePool.getMyId(), resourcePool.getNoOfParties());
+    return new SpdzBuilder(numericContext);
   }
 
   @Override

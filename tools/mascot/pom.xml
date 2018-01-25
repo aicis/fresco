@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+           http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <parent>
+    <groupId>dk.alexandra.fresco</groupId>
+    <artifactId>tools-master-pom</artifactId>
+    <version>0.2-SNAPSHOT</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>mascot</artifactId>
+  <name>mascot</name>
+
+  <dependencies>
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>core</artifactId>
+      <version>${fresco-version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>ot</artifactId>
+      <version>${fresco-version}</version>
+    </dependency>
+  </dependencies>
+
+</project>
