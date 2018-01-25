@@ -32,7 +32,8 @@ import java.util.List;
  */
 public class DefaultAdvancedNumeric implements AdvancedNumeric {
 
-  final int MAGIC_SECURE_NUMBER = 60;
+  // Security parameter for rightshift operations.
+  private final int magicSecurenumber = 60;
   private final BuilderFactoryNumeric factoryNumeric;
   private final ProtocolBuilderNumeric builder;
 
@@ -119,7 +120,7 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
     DRes<RightShiftResult> rightShiftResult = builder.seq(
         new RightShift(
             factoryNumeric.getBasicNumericContext().getMaxBitLength(),
-            input, false, MAGIC_SECURE_NUMBER));
+            input, false, magicSecurenumber));
     return () -> rightShiftResult.out().getResult();
   }
 
@@ -128,7 +129,7 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
     return builder.seq(
         new RightShift(
             factoryNumeric.getBasicNumericContext().getMaxBitLength(),
-            input, true, MAGIC_SECURE_NUMBER));
+            input, true, magicSecurenumber));
   }
 
   @Override
