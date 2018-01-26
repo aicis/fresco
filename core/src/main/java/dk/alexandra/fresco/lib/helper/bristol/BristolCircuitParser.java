@@ -1,11 +1,9 @@
 package dk.alexandra.fresco.lib.helper.bristol;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -62,7 +60,7 @@ public class BristolCircuitParser implements
     this.no_output = Integer.parseInt(meta[2]);
     linesIter.next(); // 3rd line is always empty line.
 
-    this.wires = new HashMap<Integer, DRes<SBool>>(no_wires);
+    this.wires = new HashMap<>(no_wires);
     initWires();
   }
 
@@ -85,7 +83,7 @@ public class BristolCircuitParser implements
    *
    * Returns null if any input of circuit is not currently present in wires map.
    */
-  private void parseLine(String line, ProtocolBuilderBinary builder) throws IOException {
+  private void parseLine(String line, ProtocolBuilderBinary builder) {
     String[] tokens = line.split(" \\s*");
     int no_input = Integer.parseInt(tokens[0]);
     int no_output = Integer.parseInt(tokens[1]);
@@ -99,9 +97,9 @@ public class BristolCircuitParser implements
     }
     String type = tokens[2 + no_input + no_output];
 
-    if("XOR".equals(type)) {
+    if ("XOR".equals(type)) {
       if (in.length != 2 || out.length != 1) {
-        throw new IOException("Wrong circuit format for XOR");
+        throw new IllegalArgumentException("Wrong circuit format for XOR");
       }
       DRes<SBool> leftInWireXor = wires.get(in[0]);
       DRes<SBool> rightInWireXor = wires.get(in[1]);
@@ -110,47 +108,45 @@ public class BristolCircuitParser implements
       // If some input wire is not ready we have reached a gate that depends on
       // output that is not yet ready, aka first gate of next batch.
       if (leftInWireXor == null) {
-        throw new MPCException("xor: LEFT input wire " + in[0] + " was null");
+        throw new IllegalArgumentException("xor: LEFT input wire " + in[0] + " was null");
       }
       if (rightInWireXor == null) {
-        throw new MPCException("xor: RIGHT input wire " + in[1] + " was null");
+        throw new IllegalArgumentException("xor: RIGHT input wire " + in[1] + " was null");
       }
 
       outWireXor = builder.binary().xor(leftInWireXor, rightInWireXor);
       this.wires.put(out[0], outWireXor);
-      
-    } else if("AND".equals(type)) {
+
+    } else if ("AND".equals(type)) {
       if (in.length != 2 || out.length != 1) {
-        throw new IOException("Wrong circuit format for AND");
+        throw new IllegalArgumentException("Wrong circuit format for AND");
       }
       DRes<SBool> leftInWireAnd = wires.get(in[0]);
       DRes<SBool> rightInWireAnd = wires.get(in[1]);
       DRes<SBool> outWireAnd = wires.get(out[0]);
 
       if (leftInWireAnd == null) {
-        throw new MPCException("and LEFT input " + in[0] + " was not set");
+        throw new IllegalArgumentException("and LEFT input " + in[0] + " was not set");
       }
       if (rightInWireAnd == null) {
-        throw new MPCException("and RIGHT input " + in[1] + " was not set");
+        throw new IllegalArgumentException("and RIGHT input " + in[1] + " was not set");
       }
 
       outWireAnd = builder.binary().and(leftInWireAnd, rightInWireAnd);
       this.wires.put(out[0], outWireAnd);
-      return;
-    } else if("INV".equals(type)) {
+    } else if ("INV".equals(type)) {
       if (in.length != 1 || out.length != 1) {
-        throw new IOException("Wrong circuit format for INV");
+        throw new IllegalArgumentException("Wrong circuit format for INV");
       }
       DRes<SBool> inWireNot = wires.get(in[0]);
       DRes<SBool> outWireNot = wires.get(out[0]);
       if (inWireNot == null) {
-        throw new MPCException("NOT input " + in[0] + " was not set");
+        throw new IllegalArgumentException("NOT input " + in[0] + " was not set");
       }
       outWireNot = builder.binary().not(inWireNot);
       this.wires.put(out[0], outWireNot);
-      return;
     } else {
-    throw new MPCException("Unknown gate type: " + type);
+      throw new IllegalArgumentException("Unknown gate type: " + type);
     }
   }
 
@@ -173,20 +169,15 @@ public class BristolCircuitParser implements
    */
   public DRes<List<SBool>> buildComputation(ProtocolBuilderBinary builder) {
 
-    return builder.seq(seq -> {
-      return new IterationState(this.linesIter);
-    }).whileLoop((state) -> state.it.hasNext(), (seq, state) -> {
+    return builder.seq(seq ->
+        new IterationState(this.linesIter)
+    ).whileLoop((state) -> state.it.hasNext(), (seq, state) -> {
       String line = state.it.next();
       if (line.equals("")) {
         // empty line
         return state;
       }
-      try {
-        parseLine(line, seq);
-      } catch (IOException e) {
-        this.lines.close();
-        throw new MPCException("Could not parse the line '" + line + "'", e);
-      }
+      parseLine(line, seq);
       return state;
     }).seq((seq, state) -> {
       List<SBool> output = new ArrayList<>();
@@ -203,7 +194,7 @@ public class BristolCircuitParser implements
     ClassLoader classLoader = BristolCircuitParser.class.getClassLoader();
     InputStream is = classLoader.getResourceAsStream(path);
     if (is == null) {
-      throw new MPCException("Couldn't find bristol circuit descritpion at " + path);
+      throw new IllegalArgumentException("Couldn't find bristol circuit descritpion at " + path);
     }
     Stream<String> stream = new BufferedReader(new InputStreamReader(is)).lines();
     return new BristolCircuitParser(stream, in1, in2);

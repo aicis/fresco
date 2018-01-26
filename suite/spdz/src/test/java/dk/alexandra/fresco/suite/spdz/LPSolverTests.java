@@ -2,7 +2,6 @@ package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -42,7 +41,7 @@ class LPSolverTests {
               inputreader = PlainLPInputReader.getFileInputReader(program, pattern, conf.getMyId());
             } catch (FileNotFoundException e) {
               e.printStackTrace();
-              throw new MPCException("Could not read needed files: " + e.getMessage(), e);
+              throw new IllegalArgumentException("Could not read needed files: " + e.getMessage(), e);
             }
             return builder.par(par -> {
               PlainSpdzLPPrefix prefix;
@@ -50,7 +49,7 @@ class LPSolverTests {
                 prefix = new PlainSpdzLPPrefix(inputreader, par);
               } catch (IOException e) {
                 e.printStackTrace();
-                throw new MPCException("IOException: " + e.getMessage(), e);
+                throw new RuntimeException("IOException: " + e.getMessage(), e);
               }
               return () -> prefix;
             }).seq((seq, prefix) -> {

@@ -15,13 +15,13 @@ public class SpdzStorageImpl implements SpdzStorage {
   private List<BigInteger> openedValues;
   private List<SpdzElement> closedValues;
 
-  private DataSupplier supplier;
+  private SpdzDataSupplier supplier;
 
   /**
    * Creates an instance of the SpdzStorageImpl class using the given data supplier. 
    * @param supplier The way the storage should provide and get data. 
    */
-  public SpdzStorageImpl(DataSupplier supplier) {
+  public SpdzStorageImpl(SpdzDataSupplier supplier) {
     this.supplier = supplier;
     openedValues = new LinkedList<>();
     closedValues = new LinkedList<>();
@@ -34,7 +34,7 @@ public class SpdzStorageImpl implements SpdzStorage {
   }
 
   @Override
-  public DataSupplier getSupplier() {
+  public SpdzDataSupplier getSupplier() {
     return this.supplier;
   }
 

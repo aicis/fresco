@@ -29,7 +29,8 @@ public class DummyArithmeticProtocolSuite
   @Override
   public BuilderFactoryNumeric init(DummyArithmeticResourcePool resourcePool, Network network) {
     BasicNumericContext basicNumericContext =
-        new BasicNumericContext(maxBitLength, modulus, resourcePool);
+        new BasicNumericContext(maxBitLength, modulus, resourcePool.getMyId(),
+            resourcePool.getNoOfParties());
     return new DummyArithmeticBuilderFactory(basicNumericContext);
   }
 

@@ -52,7 +52,13 @@ public class TestSpdzBasicArithmetic3Parties extends AbstractSpdzTest {
   @Test
   public void test_Alternating_Sequential_Batched() throws Exception {
     runTest(new BasicArithmeticTests.TestAlternatingMultAdd<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED,
-        PreprocessingStrategy.DUMMY, 3);
+        EvaluationStrategy.SEQUENTIAL_BATCHED, PreprocessingStrategy.DUMMY, 3);
   }
+
+  @Test
+  public void test_Input_SequentialBatched_Mascot() throws Exception {
+    runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+        PreprocessingStrategy.MASCOT, 3, 16, 16);
+  }
+
 }

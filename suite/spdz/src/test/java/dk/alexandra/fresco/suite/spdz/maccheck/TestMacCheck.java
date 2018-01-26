@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.maccheck;
 
-import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
@@ -21,12 +21,11 @@ import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
-import dk.alexandra.fresco.suite.spdz.storage.DataSupplier;
-import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,8 +42,8 @@ public class TestMacCheck {
     try {
       runTest(new TestSecretSharedDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2, true);
     } catch (RuntimeException e) {
-      if (e.getCause().getCause() == null 
-          || !(e.getCause().getCause() instanceof MPCException)) {
+      if (e.getCause().getCause() == null
+          || !(e.getCause().getCause() instanceof MaliciousException)) {
         Assert.fail();
       }
     }
@@ -55,8 +54,8 @@ public class TestMacCheck {
     try {
       runTest(new TestSecretSharedDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2, false);
     } catch (RuntimeException e) {
-      if (e.getCause().getCause() == null 
-          || !(e.getCause().getCause() instanceof MPCException)) {        
+      if (e.getCause().getCause() == null
+          || !(e.getCause().getCause() instanceof MaliciousException)) {
         Assert.fail();
       }
     }
@@ -78,7 +77,7 @@ public class TestMacCheck {
       ProtocolSuiteNumeric<SpdzResourcePool> protocolSuite = new SpdzProtocolSuite(150);
       BatchEvaluationStrategy<SpdzResourcePool> batchEvalStrat = evalStrategy.getStrategy();
 
-      ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
+      ProtocolEvaluator<SpdzResourcePool> evaluator =
           new BatchedProtocolEvaluator<>(batchEvalStrat, protocolSuite);
 
       SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =
@@ -97,11 +96,11 @@ public class TestMacCheck {
 
   private SpdzResourcePool createResourcePool(int myId, int size, Random rand, SecureRandom secRand,
       boolean corruptMac) {
-    DataSupplier supplier;
+    SpdzDataSupplier supplier;
     if (myId == 1 && corruptMac) {
       supplier = new DummyMaliciousDataSupplier(myId, size);
     } else {
-      supplier = new DummyDataSupplierImpl(myId, size);
+      supplier = new SpdzDummyDataSupplier(myId, size);
     }
     SpdzStorage store;
     if (!corruptMac) {
@@ -110,17 +109,12 @@ public class TestMacCheck {
       store = new SpdzStorageImpl(supplier);
     }
 
-    try {
-      return new SpdzResourcePoolImpl(myId, size, new HmacDrbg(), store);
-    } catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException("Your system does not have the necessary hash function avaiable.",
-          e);
-    }
+    return new SpdzResourcePoolImpl(myId, size, new HmacDrbg(), store);
   }
 
   private class MaliciousSpdzStorage extends SpdzStorageImpl {
 
-    public MaliciousSpdzStorage(DataSupplier supplier) {
+    public MaliciousSpdzStorage(SpdzDataSupplier supplier) {
       super(supplier);
     }
 
@@ -131,7 +125,7 @@ public class TestMacCheck {
 
   }
 
-  private class DummyMaliciousDataSupplier extends DummyDataSupplierImpl {
+  private class DummyMaliciousDataSupplier extends SpdzDummyDataSupplier {
 
     int maliciousCountdown = 10;
 

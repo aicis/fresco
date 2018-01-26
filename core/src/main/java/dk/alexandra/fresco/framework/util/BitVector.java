@@ -1,92 +1,50 @@
 package dk.alexandra.fresco.framework.util;
 
-import java.util.BitSet;
-
 /**
- * Class for representing a vector of bits. Uses {@link BitSet} to hold the vector.
+ * Interface defining a vector of bits and certain operations that can be 
+ * executed on such a vector.
  */
-public class BitVector {
-
-  private BitSet bits;
-  private int size;
+public interface BitVector {
 
   /**
-   * Creates a BitVector from a <code>boolean</code> array.
+   * Returns the bit at a given index of this vector.
    *
-   * @param array a <code>boolean</code> array
+   * @param index
+   *          The index of the bit to access. First bit is at position 0.
+   * @return The bit at position {@code index}
    */
-  public BitVector(boolean[] array) {
-    this.bits = BitSetUtils.fromArray(array);
-    this.size = array.length;
-  }
+  public boolean getBit(int index);
 
   /**
-   * Creates a BitVector from an array of bytes.
+   * Set the bit in position {@code index} (counting from 0) to {@code value}.
    *
-   * @param array an array of bytes
-   * @param size the number of bits of <code>array</code> to use for this vector
+   * @param index
+   *          The index of the bit to set
+   * @param value
+   *          The value which the bit at position {@code index} should take.
    */
-  public BitVector(byte[] array, int size) {
-    if (size < 0) {
-      throw new IllegalArgumentException("Size of vector must not be negative but was " + size);
-    }
-    this.bits = BitSet.valueOf(array);
-    this.size = size;
-  }
+  public void setBit(int index, boolean value);
 
   /**
-   * Creates a BitVector with all entries set to zero.
+   * Returns the amount of bits in the bit vector.
    *
-   * @param size size of the vector
+   * @return The amount of bits in the bit vector
    */
-  public BitVector(int size) {
-    if (size < 0) {
-      throw new IllegalArgumentException("Size of vector must not be negative but was " + size);
-    }
-    this.size = size;
-    this.bits = new BitSet(size);
-  }
-
-  public int getSize() {
-    return this.size;
-  }
-
-  public boolean get(int index) {
-    rangeCheck(index);
-    return this.bits.get(index);
-  }
-
-  public void set(int index, boolean value) {
-    rangeCheck(index);
-    this.bits.set(index, value);
-  }
-
-  public byte[] asByteArr() {
-    return bits.toByteArray();
-  }
-
-  public boolean[] asBooleans() {
-    return BitSetUtils.toArray(bits, size);
-  }
+  public int getSize();
 
   /**
-   * Updates this BitVector to be the XOR with an other BitVector.
-   * @param other the other BitVector
-   * @throws IllegalArgumentException if the two BitVectors are not of equal size
+   * Return the bit vector as a byte array, rounding up to the nearest byte if 
+   * necessary.
+   *
+   * @return A byte array with the content of this bit vector
    */
-  public void xor(BitVector other) {
-    if (other.getSize() != this.getSize()) {
-      throw new IllegalArgumentException("Vectors does not have same size");
-    }
-    bits.xor(other.bits);
-  }
+  public byte[] toByteArray();
 
-  private void rangeCheck(int i) {
-    if (i < 0 || i >= this.size) {
-      throw new IndexOutOfBoundsException(
-          "Cannot access index " + i + " on vector of size " + this.size);
-    }
-
-  }
-
+  /**
+   * Updates the bit vector to be the XOR with an other bit vector.
+   *
+   * @param other
+   *          the other bit vector
+   */
+  public void xor(BitVector other);
 }
