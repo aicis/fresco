@@ -57,7 +57,7 @@ public class CmdLineProtocolSuite {
       this.protocolSuite = dummyArithmeticFromCmdLine(properties);
       BigInteger mod = new BigInteger(properties.getProperty("modulus",
           "67039039649712985497870124991238141152738485774711365274259660130265015367064643"
-          + "54255445443244279389455058889493431223951165286470575994074291745908195329"));
+              + "54255445443244279389455058889493431223951165286470575994074291745908195329"));
       this.resourcePool =
           new DummyArithmeticResourcePoolImpl(myId, noOfPlayers, mod);
     } else if (protocolSuiteName.equals("spdz")) {
@@ -87,7 +87,7 @@ public class CmdLineProtocolSuite {
   private ProtocolSuite<?, ?> dummyArithmeticFromCmdLine(Properties properties) {
     BigInteger mod = new BigInteger(properties.getProperty("modulus",
         "67039039649712985497870124991238141152738485774711365274259660130265015367064643"
-        + "54255445443244279389455058889493431223951165286470575994074291745908195329"));
+            + "54255445443244279389455058889493431223951165286470575994074291745908195329"));
     int maxBitLength = Integer.parseInt(properties.getProperty("maxbitlength", "150"));
     return new DummyArithmeticProtocolSuite(mod, maxBitLength);
   }
@@ -135,7 +135,6 @@ public class CmdLineProtocolSuite {
 
 
   private ProtocolSuite<?, ?> tinyTablesFromCmdLine(Properties properties) {
-//      throws IllegalArgumentException {
     String tinytablesFileOption = "tinytables.file";
     String tinyTablesFilePath = properties.getProperty(tinytablesFileOption, "tinytables");
     return new TinyTablesProtocolSuite(myId, new File(tinyTablesFilePath));
