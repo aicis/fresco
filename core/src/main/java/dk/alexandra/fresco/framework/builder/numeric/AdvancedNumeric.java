@@ -228,6 +228,9 @@ public interface AdvancedNumeric extends ComputationDirectory {
     }
   }
 
+  /**
+   * Container holding a random bitvector and its SInt representation. 
+   */
   class RandomAdditiveMask {
 
     public final List<DRes<SInt>> bits;
