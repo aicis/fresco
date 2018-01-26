@@ -52,7 +52,8 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
   private Network network;
   private boolean logPerformance;
   private ProtocolSuite<ResourcePoolT, BuilderT> protocolSuite;
-  private ProtocolEvaluator<ResourcePoolT, BuilderT> evaluator;
+  private ProtocolEvaluator<ResourcePoolT> evaluator;
+
   private ResourcePoolT resourcePool;
   private SecureComputationEngine<ResourcePoolT, BuilderT> sce;
 
@@ -73,7 +74,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
     return resourcePool;
   }
 
-  public ProtocolEvaluator<ResourcePoolT, BuilderT> getEvaluator() {
+  public ProtocolEvaluator<ResourcePoolT> getEvaluator() {
     return evaluator;
   }
 

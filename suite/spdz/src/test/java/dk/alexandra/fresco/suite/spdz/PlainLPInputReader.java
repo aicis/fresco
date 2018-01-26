@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.MPCException;
-import dk.alexandra.fresco.suite.spdz.utils.LPInputReader;
+import dk.alexandra.fresco.suite.spdz.utils.LinearProgrammingInputReader;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -10,7 +9,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.LinkedList;
 
-public class PlainLPInputReader implements LPInputReader {
+public class PlainLPInputReader implements LinearProgrammingInputReader {
 
   private BigInteger[][] constraintValues;
   private BigInteger[] costValues;
@@ -156,20 +155,20 @@ public class PlainLPInputReader implements LPInputReader {
 
 
   @Override
-  public void readInput() throws IOException, MPCException {
+  public void readInput() throws IOException, RuntimeException {
     readPattern(patternReader);
     readValues(valuesReader);
     checkConsistency();
   }
 
-  private void readPattern(BufferedReader patternReader) throws IOException, MPCException {
+  private void readPattern(BufferedReader patternReader) throws IOException, RuntimeException {
     if (!readInputPattern) {
       LinkedList<int[]> constraintList = new LinkedList<>();
       String line = patternReader.readLine();
       if (line != null) {
         costPattern = parsePatternLine(line);
       } else {
-        throw new MPCException("Input pattern malformed: Empty input");
+        throw new RuntimeException("Input pattern malformed: Empty input");
       }
       line = patternReader.readLine();
       while (line != null && !line.trim().equals("")) {
@@ -181,22 +180,22 @@ public class PlainLPInputReader implements LPInputReader {
       if (noVariables < 0) {
         noVariables = costPattern.length;
       } else if (costPattern.length != noVariables) {
-        throw new MPCException("Input malformed: input pattern and values do not match");
+        throw new RuntimeException("Input malformed: input pattern and values do not match");
       }
       if (noConstraints < 0) {
         noConstraints = constraintList.size();
       } else if (constraintList.size() != noConstraints) {
-        throw new MPCException("Input malformed: input pattern and values do not match");
+        throw new RuntimeException("Input malformed: input pattern and values do not match");
       }
       if (noConstraints == 0) {
-        throw new MPCException("Input pattern malformed: No constraints given.");
+        throw new RuntimeException("Input pattern malformed: No constraints given.");
       }
 
       int index = 0;
       constraintPattern = new int[noConstraints][noVariables + 1];
       for (int[] row : constraintList) {
         if (row.length != noVariables + 1) {
-          throw new MPCException("Input pattern malformed: Dimensions do not match.");
+          throw new RuntimeException("Input pattern malformed: Dimensions do not match.");
         }
         constraintPattern[index] = row;
         index++;
@@ -214,14 +213,14 @@ public class PlainLPInputReader implements LPInputReader {
     return pattern;
   }
 
-  private void readValues(BufferedReader valueReader) throws IOException, MPCException {
+  private void readValues(BufferedReader valueReader) throws IOException, RuntimeException {
     if (!readInputValues) {
       LinkedList<BigInteger[]> constraintList = new LinkedList<>();
       String line = valueReader.readLine();
       if (line != null) {
         costValues = parseValueLine(line);
       } else {
-        throw new MPCException("Input values malformed: Empty input");
+        throw new RuntimeException("Input values malformed: Empty input");
       }
       line = valueReader.readLine();
       while (line != null && !line.trim().equals("")) {
@@ -233,22 +232,22 @@ public class PlainLPInputReader implements LPInputReader {
       if (noVariables < 0) {
         noVariables = costValues.length;
       } else if (costValues.length != noVariables) {
-        throw new MPCException("Input malformed: input pattern and values do not match");
+        throw new RuntimeException("Input malformed: input pattern and values do not match");
       }
       if (noConstraints < 0) {
         noConstraints = constraintList.size();
       } else if (constraintList.size() != noConstraints) {
-        throw new MPCException("Input malformed: input pattern and values do not match");
+        throw new RuntimeException("Input malformed: input pattern and values do not match");
       }
       if (noConstraints == 0) {
-        throw new MPCException("Input values malformed: No constraints given.");
+        throw new RuntimeException("Input values malformed: No constraints given.");
       }
 
       int index = 0;
       constraintValues = new BigInteger[noConstraints][noVariables + 1];
       for (BigInteger[] row : constraintList) {
         if (row.length != noVariables + 1) {
-          throw new MPCException("Input values malformed: Dimensions do not match " +
+          throw new RuntimeException("Input values malformed: Dimensions do not match " +
               row.length + " != " + (noVariables + 1));
         }
         constraintValues[index] = row;
@@ -258,20 +257,20 @@ public class PlainLPInputReader implements LPInputReader {
     }
   }
 
-  private void checkConsistency() throws MPCException {
+  private void checkConsistency() throws RuntimeException {
     if (readInputValues && readInputPattern) {
       for (int i = 0; i < constraintValues.length; i++) {
         for (int j = 0; j < constraintValues[0].length; j++) {
           if (constraintValues[i][j] == null &&
               (constraintPattern[i][j] == myId || constraintPattern[i][j] == 0)) {
-            throw new MPCException(
+            throw new RuntimeException( 
                 "Input malformed: constraint value (" + i + "," + j + ") missing");
           }
         }
       }
       for (int i = 0; i < costValues.length; i++) {
         if (costValues[i] == null && (costPattern[i] == myId || costPattern[i] == 0)) {
-          throw new MPCException("Input malformed: cost value " + i + " missing");
+          throw new RuntimeException("Input malformed: cost value " + i + " missing");
         }
       }
     }

@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.demo;
 
 import dk.alexandra.fresco.demo.cli.CmdLineUtil;
-import dk.alexandra.fresco.demo.helpers.DemoNumericApplication;
+import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 /**
  * A simple demo computing the distance between two secret points.
  */
-public class DistanceDemo extends DemoNumericApplication<BigInteger> {
+public class DistanceDemo implements Application<BigInteger, ProtocolBuilderNumeric> {
 
   private static Logger log = LoggerFactory.getLogger(DistanceDemo.class);
 

@@ -44,11 +44,7 @@ public class TestKryoNetNetwork {
         KryoNetNetwork network = new KryoNetNetwork(conf);
         network.send(2, new byte[] { 0x04 });
         network.receive(2);
-        try {
-          network.close();
-        } catch (IOException e) {
-          // Ignore
-        }
+        network.close();
       }
     });
     t1.start();
@@ -61,11 +57,7 @@ public class TestKryoNetNetwork {
     // Also test noOfParties
     int noOfParties = network.getNoOfParties();
     assertEquals(parties.size(), noOfParties);
-    try {
-      network.close();
-    } catch (IOException e) {
-      fail("Failed to close network");
-    }
+    network.close();
     try {
       t1.join(1000);
     } catch (InterruptedException e) {
@@ -87,11 +79,7 @@ public class TestKryoNetNetwork {
         KryoNetNetwork network = new KryoNetNetwork(conf, 1000, true, 4000);
         network.send(2, new byte[] { 0x04 });
         network.receive(2);
-        try {
-          network.close();
-        } catch (IOException e) {
-          // Ignore
-        }
+        network.close();
       }
     });
     t1.start();
@@ -101,11 +89,7 @@ public class TestKryoNetNetwork {
     byte[] arr = network.receive(1);
     network.send(1, new byte[] {0x00});
     assertArrayEquals(new byte[] { 0x04 }, arr);
-    try {
-      network.close();
-    } catch (IOException e) {
-      fail("Failed to close network");
-    }
+    network.close();
     try {
       t1.join(1000);
     } catch (InterruptedException e) {
@@ -138,11 +122,7 @@ public class TestKryoNetNetwork {
         network.send(2, toSendAndExpect1);
         network.send(2, toSendAndExpect2);
         network.send(2, toSendAndExpect3);
-        try {
-          network.close();
-        } catch (IOException e) {
-          // Ignore
-        }
+        network.close();
       }
     });
     t1.start();
@@ -155,11 +135,7 @@ public class TestKryoNetNetwork {
     assertArrayEquals(toSendAndExpect1, arr1);
     assertArrayEquals(toSendAndExpect2, arr2);
     assertArrayEquals(toSendAndExpect3, arr3);
-    try {
-      network.close();
-    } catch (IOException e) {
-      fail("Failed to close network");
-    }
+    network.close();
     try {
       t1.join();
     } catch (InterruptedException e) {
@@ -179,7 +155,7 @@ public class TestKryoNetNetwork {
       public void run() {
         NetworkConfiguration conf = new NetworkConfigurationImpl(1, parties);
         KryoNetNetwork network = new KryoNetNetwork(conf);
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 1000000; i++) {
           network.send(1, new byte[] { 0x04 });
         }
         try {
@@ -188,11 +164,7 @@ public class TestKryoNetNetwork {
         } catch (RuntimeException e) {
           // Interrupting the thread should result in a RuntimeException unblocking the thread
         } finally {
-          try {
-            network.close();
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
+          network.close();
         }
       }
     });
@@ -208,12 +180,7 @@ public class TestKryoNetNetwork {
     } catch (InterruptedException e) {
       fail("Threads should finish without main getting interrupted");
     }
-    try {
-      network.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-      fail("Closing network should not result in an exception");
-    }
+    network.close();
   }
 
   @SuppressWarnings("resource")
@@ -262,9 +229,9 @@ public class TestKryoNetNetwork {
   @Test(timeout = 200000)
   public void testPartiesReconnect() {
     List<Integer> ports = getFreePorts(5);
-    testMultiplePartiesReconnect(2, 50, ports.subList(0, 2));
-    testMultiplePartiesReconnect(3, 50, ports.subList(0, 3));
-    testMultiplePartiesReconnect(5, 50, ports);
+    testMultiplePartiesReconnect(2, 30, ports.subList(0, 2));
+    testMultiplePartiesReconnect(3, 20, ports.subList(0, 3));
+    testMultiplePartiesReconnect(5, 20, ports);
   }
 
   private void testMultiplePartiesReconnect(int noOfParties, int noOfRetries, List<Integer> ports) {
@@ -302,11 +269,7 @@ public class TestKryoNetNetwork {
       }
       // Closing networks again.
       for (KryoNetNetwork network : networks.values()) {
-        try {
-          network.close();
-        } catch (IOException e) {
-          Assert.fail("Closing the networks should not result in exceptions");
-        }
+        network.close();
       }
     }
   }

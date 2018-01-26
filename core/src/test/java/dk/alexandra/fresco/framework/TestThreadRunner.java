@@ -7,6 +7,7 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -66,6 +67,15 @@ public class TestThreadRunner {
       } catch (Exception e) {
         this.testException = e;
         logger.error("" + this + " threw exception during test:", e);
+        if (conf.network != null) {
+          if (conf.network instanceof Closeable) {
+            try {
+              ((Closeable) conf.network).close();
+            } catch (IOException ignored) {
+              // Cannot do anything about this.
+            }
+          }
+        }
         Thread.currentThread().interrupt();
       } catch (AssertionError e) {
         this.testException = e;
@@ -171,25 +181,35 @@ public class TestThreadRunner {
     }
 
     try {
-      for (TestThread<ResourcePoolT, Builder> t : threads) {
-        try {
-          t.join(MAX_WAIT_FOR_THREAD);
-        } catch (InterruptedException e) {
-          throw new TestFrameworkException("Test was interrupted");
-        }
-        if (!t.finished) {
-          logger.error("" + t + " timed out");
-          throw new TestFrameworkException(t + " timed out");
-        }
-        if (t.setupException != null) {
-          throw new TestFrameworkException(t + " threw exception in setup (see stderr)");
-        } else if (t.testException != null) {
-          throw new TestFrameworkException(t + " threw exception in test (see stderr)",
-              t.testException);
-        } else if (t.teardownException != null) {
-          throw new TestFrameworkException(t + " threw exception in teardown (see stderr)");
+      long iteration = 0;
+      while (!threads.isEmpty() && iteration * 1000 < MAX_WAIT_FOR_THREAD) {
+        for (Iterator<TestThread<ResourcePoolT, Builder>> iterator = threads.iterator();
+            iterator.hasNext(); ) {
+          TestThread<ResourcePoolT, Builder> t = iterator.next();
+          try {
+            iteration++;
+            t.join(1000);
+            if (!t.isAlive()) {
+              iterator.remove();
+            }
+          } catch (InterruptedException e) {
+            throw new TestFrameworkException("Test was interrupted");
+          }
+          if (t.setupException != null) {
+            throw new TestFrameworkException(t + " threw exception in setup (see stderr)");
+          } else if (t.testException != null) {
+            throw new TestFrameworkException(t + " threw exception in test (see stderr)",
+                t.testException);
+          } else if (t.teardownException != null) {
+            throw new TestFrameworkException(t + " threw exception in teardown (see stderr)");
+          }
         }
       }
+      if (!threads.isEmpty()) {
+        logger.error(f + ": Test timed out");
+        throw new TestFrameworkException(f + ": Test timed out");
+      }
+
     } finally {
       closeNetworks(confs);
     }

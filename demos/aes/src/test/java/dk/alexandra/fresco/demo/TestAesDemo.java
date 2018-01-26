@@ -33,7 +33,7 @@ import org.junit.Test;
 public class TestAesDemo {
 
   @Test
-  public void testAesDemo() throws Exception {
+  public void testAESDemo() {
     int noPlayers = 2;
     // Since SCAPI currently does not work with ports > 9999 we use fixed ports
     // here instead of relying on ephemeral ports which are often > 9999.
@@ -48,7 +48,7 @@ public class TestAesDemo {
     for (int playerId : netConf.keySet()) {
       ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> suite =
           new DummyBooleanProtocolSuite();
-      ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
+      ProtocolEvaluator<ResourcePoolImpl> evaluator =
           new BatchedProtocolEvaluator<>(new SequentialStrategy<>(), suite);
       SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce =
           new SecureComputationEngineImpl<>(suite, evaluator);

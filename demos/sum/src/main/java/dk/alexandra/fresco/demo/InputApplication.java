@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.demo;
 
-import dk.alexandra.fresco.demo.helpers.DemoNumericApplication;
+import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  *
  * @author Kasper Damgaard
  */
-public class InputApplication extends DemoNumericApplication<List<SInt>> {
+public class InputApplication implements Application<List<SInt>, ProtocolBuilderNumeric> {
 
   private int[] inputs;
   private int length;

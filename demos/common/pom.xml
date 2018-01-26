@@ -16,7 +16,15 @@
       <version>1.3</version>
     </dependency>
 
-
+    <!-- Tests depends on Spdz tests. -->
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>spdz</artifactId>
+      <version>${fresco-version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    
   </dependencies>
   <build>
     <plugins>

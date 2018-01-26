@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.demo;
 
-import dk.alexandra.fresco.demo.helpers.DemoNumericApplication;
+import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -12,7 +12,7 @@ import java.math.BigInteger;
  *
  * @author kasperdamgard
  */
-public class SumAndOutputApplication extends DemoNumericApplication<BigInteger> {
+public class SumAndOutputApplication implements Application<BigInteger, ProtocolBuilderNumeric> {
 
 
   private InputApplication inputApp;

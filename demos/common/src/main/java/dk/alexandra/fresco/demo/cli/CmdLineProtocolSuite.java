@@ -13,11 +13,10 @@ import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
-import dk.alexandra.fresco.suite.spdz.storage.DataSupplier;
-import dk.alexandra.fresco.suite.spdz.storage.DataSupplierImpl;
-import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageConstants;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
@@ -110,27 +109,22 @@ public class CmdLineProtocolSuite {
   private SpdzResourcePool createSpdzResourcePool(Properties properties) {
     String strat = properties.getProperty("spdz.preprocessingStrategy");
     final PreprocessingStrategy strategy = PreprocessingStrategy.valueOf(strat);
-    DataSupplier supplier = null;
+    SpdzDataSupplier supplier = null;
     if (strategy == PreprocessingStrategy.DUMMY) {
-      supplier = new DummyDataSupplierImpl(myId, noOfPlayers);
+      supplier = new SpdzDummyDataSupplier(myId, noOfPlayers);
     }
     if (strategy == PreprocessingStrategy.STATIC) {
-      String storageName = properties.getProperty("spdz.storage");
       int noOfThreadsUsed = 1;
+      String storageName = properties.getProperty("spdz.storage");
       storageName =
-          SpdzStorageConstants.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
+          SpdzStorageDataSupplier.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
           + "_";
-
-      supplier = new DataSupplierImpl(new FilebasedStreamedStorageImpl(
-          new InMemoryStorage()), storageName, noOfPlayers);
+      supplier = new SpdzStorageDataSupplier(
+          new FilebasedStreamedStorageImpl(new InMemoryStorage()), storageName, noOfPlayers);
     }
 
     SpdzStorage store = new SpdzStorageImpl(supplier);
-    try {
-      return new SpdzResourcePoolImpl(myId, noOfPlayers, new HmacDrbg(), store);
-    } catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException("Your system does not support the necessary hash function.", e);
-    }
+    return new SpdzResourcePoolImpl(myId, noOfPlayers, new HmacDrbg(), store);
   }
 
   private ProtocolSuite<?, ?> tinyTablesPreProFromCmdLine(Properties properties) {
@@ -139,7 +133,9 @@ public class CmdLineProtocolSuite {
     return new TinyTablesPreproProtocolSuite(myId, new File(tinyTablesFilePath));
   }
 
+
   private ProtocolSuite<?, ?> tinyTablesFromCmdLine(Properties properties) {
+//      throws IllegalArgumentException {
     String tinytablesFileOption = "tinytables.file";
     String tinyTablesFilePath = properties.getProperty(tinytablesFileOption, "tinytables");
     return new TinyTablesProtocolSuite(myId, new File(tinyTablesFilePath));

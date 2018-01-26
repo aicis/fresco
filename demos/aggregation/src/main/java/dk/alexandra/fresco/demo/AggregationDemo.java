@@ -14,7 +14,6 @@ import dk.alexandra.fresco.lib.collections.MatrixUtils;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -91,11 +90,10 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
    * Main.
    *
    * @param args must include player ID
-   * @throws NoSuchAlgorithmException If your system does not support
-    the hash function needed by SPDZ
+   * @throws IOException In case of network failure.
    */
   public static <ResourcePoolT extends ResourcePool> void main(String[] args) throws
-      IOException, NoSuchAlgorithmException {
+      IOException {
     
     
     CmdLineUtil<ResourcePoolT, ProtocolBuilderNumeric> util = new CmdLineUtil<>();
