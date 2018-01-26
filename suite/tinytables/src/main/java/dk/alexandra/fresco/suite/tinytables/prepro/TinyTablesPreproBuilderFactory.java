@@ -29,8 +29,7 @@ public class TinyTablesPreproBuilderFactory implements BuilderFactoryBinary {
 
       @Override
       public DRes<SBool> xor(DRes<SBool> left, DRes<SBool> right) {
-        SBool out = new TinyTablesPreproSBool();
-        TinyTablesPreproXORProtocol p = new TinyTablesPreproXORProtocol(left, right, out);
+        TinyTablesPreproXORProtocol p = new TinyTablesPreproXORProtocol(left, right);
         builder.append(p);
         return p;
       }
@@ -57,8 +56,7 @@ public class TinyTablesPreproBuilderFactory implements BuilderFactoryBinary {
 
       @Override
       public DRes<SBool> not(DRes<SBool> in) {
-        SBool out = new TinyTablesPreproSBool();
-        TinyTablesPreproNOTProtocol p = new TinyTablesPreproNOTProtocol(in, out);
+        TinyTablesPreproNOTProtocol p = new TinyTablesPreproNOTProtocol(in);
         builder.append(p);
         return p;
       }
@@ -78,9 +76,8 @@ public class TinyTablesPreproBuilderFactory implements BuilderFactoryBinary {
 
       @Override
       public DRes<SBool> and(DRes<SBool> left, DRes<SBool> right) {
-        SBool out = new TinyTablesPreproSBool();
         TinyTablesPreproANDProtocol p =
-            new TinyTablesPreproANDProtocol(getNextId(), left, right, out);
+            new TinyTablesPreproANDProtocol(getNextId(), left, right);
         builder.append(p);
         return p;
       }

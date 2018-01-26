@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
@@ -22,11 +22,10 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.spdz.maccheck.MaliciousSpdzMacCheckProtocol;
 import dk.alexandra.fresco.suite.spdz.maccheck.MaliciousSpdzRoundSynchronization;
-import dk.alexandra.fresco.suite.spdz.storage.DataSupplier;
-import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,7 +61,7 @@ public class TestMaliciousBehaviour {
           Corrupt.COMMIT_ROUND_1);
       Assert.fail("Should not go well");
     } catch (RuntimeException e) {
-      if (e.getCause().getCause() == null || !(e.getCause().getCause() instanceof MPCException)) {
+      if (e.getCause().getCause() == null || !(e.getCause().getCause() instanceof MaliciousException)) {
         Assert.fail();
       }
     }
@@ -75,7 +74,7 @@ public class TestMaliciousBehaviour {
           Corrupt.OPEN_COMMIT_ROUND_1);
       Assert.fail("Should not go well");
     } catch (RuntimeException e) {
-      if (e.getCause().getCause() == null || !(e.getCause().getCause() instanceof MPCException)) {
+      if (e.getCause().getCause() == null || !(e.getCause().getCause() instanceof MaliciousException)) {
         Assert.fail();
       }
     }
@@ -88,7 +87,7 @@ public class TestMaliciousBehaviour {
           Corrupt.COMMIT_ROUND_2);
       Assert.fail("Should not go well");
     } catch (RuntimeException e) {
-      if (e.getCause().getCause() == null || !(e.getCause().getCause() instanceof MPCException)) {
+      if (e.getCause().getCause() == null || !(e.getCause().getCause() instanceof MaliciousException)) {
         Assert.fail();
       }
     }
@@ -101,7 +100,7 @@ public class TestMaliciousBehaviour {
           Corrupt.OPEN_COMMIT_ROUND_2);
       Assert.fail("Should not go well");
     } catch (RuntimeException e) {
-      if (e.getCause().getCause() == null || !(e.getCause().getCause() instanceof MPCException)) {
+      if (e.getCause().getCause() == null || !(e.getCause().getCause() instanceof MaliciousException)) {
         Assert.fail();
       }
     }
@@ -114,7 +113,7 @@ public class TestMaliciousBehaviour {
           Corrupt.INPUT);
       Assert.fail("Should not go well");
     } catch (RuntimeException e) {
-      if (e.getCause().getCause() == null || !(e.getCause().getCause() instanceof MPCException)) {
+      if (e.getCause().getCause() == null || !(e.getCause().getCause() instanceof MaliciousException)) {
         Assert.fail();
       }
     }
@@ -141,7 +140,7 @@ public class TestMaliciousBehaviour {
       }
       BatchEvaluationStrategy<SpdzResourcePool> batchEvalStrat = evalStrategy.getStrategy();
 
-      ProtocolEvaluator<SpdzResourcePool, ProtocolBuilderNumeric> evaluator =
+      ProtocolEvaluator<SpdzResourcePool> evaluator =
           new BatchedProtocolEvaluator<>(batchEvalStrat, protocolSuite);
 
       SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =
@@ -161,15 +160,9 @@ public class TestMaliciousBehaviour {
 
   private SpdzResourcePool createResourcePool(int myId, int size, Random rand,
       SecureRandom secRand) {
-    DataSupplier supplier = new DummyDataSupplierImpl(myId, size);
+    SpdzDataSupplier supplier = new SpdzDummyDataSupplier(myId, size);
     SpdzStorage store = new SpdzStorageImpl(supplier);
-
-    try {
-      return new SpdzResourcePoolImpl(myId, size, new HmacDrbg(), store);
-    } catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException("Your system does not have the necessary hash function avaiable.",
-          e);
-    }
+    return new SpdzResourcePoolImpl(myId, size, new HmacDrbg(), store);
   }
 
   private class MaliciousSpdzProtocolSuite implements ProtocolSuiteNumeric<SpdzResourcePool> {
@@ -200,8 +193,8 @@ public class TestMaliciousBehaviour {
 
     @Override
     public BuilderFactoryNumeric init(SpdzResourcePool resourcePool, Network network) {
-      BasicNumericContext spdzFactory =
-          new BasicNumericContext(maxBitLength, resourcePool.getModulus(), resourcePool);
+      BasicNumericContext spdzFactory = new BasicNumericContext(maxBitLength,
+          resourcePool.getModulus(), resourcePool.getMyId(), resourcePool.getNoOfParties());
       if (resourcePool.getMyId() == 1 && corrupt.compareTo(Corrupt.INPUT) == 0) {
         return new MaliciousSpdzBuilder(spdzFactory);
       } else {

@@ -40,13 +40,13 @@ public abstract class AbstractDummyBooleanTest {
   
   protected void runTest(
       TestThreadRunner.TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f,
-      EvaluationStrategy evalStrategy) throws Exception {
+      EvaluationStrategy evalStrategy) {
     runTest(f, evalStrategy, false);
   }
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f,
-      EvaluationStrategy evalStrategy, boolean logPerformance) throws Exception {
+      EvaluationStrategy evalStrategy, boolean logPerformance) {
 
     // The dummy protocol suite has the nice property that it can be run by just one player.
     int noOfParties = 1;
@@ -56,8 +56,7 @@ public abstract class AbstractDummyBooleanTest {
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f,
-      EvaluationStrategy evalStrategy, boolean logPerformance, int noOfParties)
-          throws Exception {
+      EvaluationStrategy evalStrategy, boolean logPerformance, int noOfParties) {
 
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
@@ -87,9 +86,8 @@ public abstract class AbstractDummyBooleanTest {
         strat = new BatchEvaluationLoggingDecorator<>(strat);
         aggregate.add((PerformanceLogger) strat);
       }
-      
-      ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator =
-          new BatchedProtocolEvaluator<>(strat, ps);
+
+      ProtocolEvaluator<ResourcePoolImpl> evaluator = new BatchedProtocolEvaluator<>(strat, ps);
       if (logPerformance) {
         evaluator = new EvaluatorLoggingDecorator<>(evaluator);
         aggregate.add((PerformanceLogger) evaluator);
