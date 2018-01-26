@@ -1,0 +1,1 @@
+Implementation of the Bristol OT extension (https://eprint.iacr.org/2015/546) using the Naor-Pinkas OT (http://www.pinkas.net/PAPERS/effot.ps) as base/seed OTs. This OT extension can for example be used in MASCOT. Main functionality is exposed via the `BristolOt` class. For example usage, also see `BristolOtDemo`.

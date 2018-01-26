@@ -3,7 +3,6 @@ package dk.alexandra.fresco.suite.spdz;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.lib.arithmetic.SortingTests;
 import dk.alexandra.fresco.lib.compare.CompareTests;
 import dk.alexandra.fresco.lib.list.EliminateDuplicatesTests.TestFindDuplicatesOne;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
@@ -15,11 +14,17 @@ import org.junit.Test;
 public class TestSpdzComparison extends AbstractSpdzTest {
 
   @Test
-  public void test_compareLT_Sequential() throws Exception {
+  public void test_compareLT_Sequential() {
     runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2);
   }
-  
+
+  @Test
+  public void test_compareLTEdge_Sequential() {
+    runTest(new CompareTests.TestCompareLTEdgeCases<>(), EvaluationStrategy.SEQUENTIAL,
+        PreprocessingStrategy.DUMMY, 2);
+  }
+
   @Test
   @Ignore("This is not tested on windows and does not work here")
   public void test_compareLT_Sequential_static() throws Exception {
@@ -38,38 +43,39 @@ public class TestSpdzComparison extends AbstractSpdzTest {
   }
 
   @Test
-  public void test_compareEQ_Sequential() throws Exception {
+  public void test_compareEQ_Sequential() {
     runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_isSorted() throws Exception {
-    runTest(new SortingTests.TestIsSorted<>(), EvaluationStrategy.SEQUENTIAL,
+  public void testCompareEQEdgeCasesSequential() {
+    runTest(new CompareTests.TestCompareEQEdgeCases<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_compareAndSwap() throws Exception {
-    runTest(new SortingTests.TestCompareAndSwap<>(), EvaluationStrategy.SEQUENTIAL,
-        PreprocessingStrategy.DUMMY, 2);
-  }
-
-  @Test
-  public void test_Sort() throws Exception {
-    runTest(new SortingTests.TestSort<>(), EvaluationStrategy.SEQUENTIAL,
-        PreprocessingStrategy.DUMMY, 2);
-  }
-
-  @Test
-  public void test_Big_Sort() throws Exception {
-    runTest(new SortingTests.TestBigSort<>(), EvaluationStrategy.SEQUENTIAL,
-        PreprocessingStrategy.DUMMY, 2);
-  }
-
-  @Test
-  public void test_find_duplicates() throws Exception {
+  public void test_find_duplicates() {
     runTest(new TestFindDuplicatesOne<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2);
   }
+
+  @Test
+  public void testCompareLTBatchedMascot() {
+    runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+        PreprocessingStrategy.MASCOT, 2, 64,2);
+  }
+
+  @Test
+  public void testCompareEQSequentialBatchedMascot() {
+    runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+        PreprocessingStrategy.MASCOT, 2, 64,2);
+  }
+
+  @Test
+  public void testCompareEQEdgeCasesBatchedMascot() {
+    runTest(new CompareTests.TestCompareEQEdgeCases<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+        PreprocessingStrategy.MASCOT, 2, 64,2);
+  }
+
 }

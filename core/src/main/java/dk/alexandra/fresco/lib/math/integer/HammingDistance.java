@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Computes the Hamming distance between an array of shared bits and a public value
+ * Computes the Hamming distance between an array of shared bits and a public value.
  *
  */
 public class HammingDistance implements Computation<SInt, ProtocolBuilderNumeric> {

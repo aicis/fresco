@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
+import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
@@ -49,7 +49,7 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
   }
 
   @Override
-  public BigIntegerSerializer getSerializer() {
+  public ByteSerializer<BigInteger> getSerializer() {
     return new BigIntegerWithFixedLengthSerializer(modulusSize);
   }
 
@@ -64,8 +64,8 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
   }
 
   @Override
-  public BigInteger convertRepresentation(BigInteger b) {
-    BigInteger actual = b.mod(modulus);
+  public BigInteger convertRepresentation(BigInteger bigInteger) {
+    BigInteger actual = bigInteger.mod(modulus);
     if (actual.compareTo(modulusHalf) > 0) {
       actual = actual.subtract(modulus);
     }

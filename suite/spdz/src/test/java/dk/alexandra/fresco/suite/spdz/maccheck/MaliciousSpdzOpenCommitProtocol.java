@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.maccheck;
 
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
+import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzNativeProtocol;
@@ -47,16 +47,16 @@ public class MaliciousSpdzOpenCommitProtocol extends SpdzNativeProtocol<Boolean>
   @Override
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool, Network network) {
     int players = spdzResourcePool.getNoOfParties();
-    BigIntegerSerializer serializer = spdzResourcePool.getSerializer();
+    ByteSerializer<BigInteger> serializer = spdzResourcePool.getSerializer();
     if (round == 0) {
       // Send your opening to all players
       BigInteger value = this.commitment.getValue();
-      network.sendToAll(serializer.toBytes(value));
+      network.sendToAll(serializer.serialize(value));
       BigInteger randomness = this.commitment.getRandomness();
       if (corruptNow) {
         randomness = randomness.add(BigInteger.ONE);
       }
-      network.sendToAll(serializer.toBytes(randomness));
+      network.sendToAll(serializer.serialize(randomness));
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else if (round == 1) {
       // Receive openings from all parties and check they are valid
@@ -67,8 +67,8 @@ public class MaliciousSpdzOpenCommitProtocol extends SpdzNativeProtocol<Boolean>
       BigInteger[] broadcastMessages = new BigInteger[2 * players];
       for (int i = 0; i < players; i++) {
         BigInteger com = commitments.get(i + 1);
-        BigInteger open0 = serializer.toBigInteger(values.get(i));
-        BigInteger open1 = serializer.toBigInteger(randomnesses.get(i));
+        BigInteger open0 = serializer.deserialize(values.get(i));
+        BigInteger open1 = serializer.deserialize(randomnesses.get(i));
         boolean validate = checkCommitment(spdzResourcePool, com, open0, open1);
         openingValidated = openingValidated && validate;
         ss.put(i, open0);

@@ -35,18 +35,17 @@ public class SpdzElement implements Serializable {
   /**
    * Create a SpdzElement containing a share, mac and modulus.
    * This constructor handles serialized data.
-   * @param data Array of bytes containing the share and mac. 
-    First half contains the share, second contains the mac 
+   * @param data Array of bytes containing the share and mac.
+    First half contains the share, second contains the mac
    * @param modulus The modulus
    * @param modulusSize The size of the share and mac
    */
   public SpdzElement(byte[] data, BigInteger modulus, int modulusSize) {
-    int size = modulusSize;
-    byte[] shareBytes = new byte[size];
-    byte[] macBytes = new byte[size];
-    for (int i = 0; i < data.length / 2; i++) {
+    byte[] shareBytes = new byte[modulusSize];
+    byte[] macBytes = new byte[modulusSize];
+    for(int i = 0; i < data.length/2; i++){
       shareBytes[i] = data[i];
-      macBytes[i] = data[size + i];
+      macBytes[i] = data[modulusSize + i];
     }
     this.share = new BigInteger(shareBytes);
     this.mac = new BigInteger(macBytes);
@@ -113,8 +112,8 @@ public class SpdzElement implements Serializable {
     return new SpdzElement(share, mac, this.mod);
   }
 
-
   //Utility methods
+
   @Override
   public String toString() {
     return "spdz(" + share + ", " + mac + ")";

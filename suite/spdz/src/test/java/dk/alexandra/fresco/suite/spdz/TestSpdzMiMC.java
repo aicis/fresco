@@ -7,27 +7,34 @@ import org.junit.Test;
 
 public class TestSpdzMiMC extends AbstractSpdzTest {
 
-	@Test
-	public void test_mimc_same_enc() throws Exception {
+  @Test
+  public void test_mimc_same_enc() {
     runTest(new MiMCTests.TestMiMCEncSameEnc<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_mimc_diff_enc() throws Exception {
+  public void test_mimc_diff_enc() {
     runTest(new MiMCTests.TestMiMCDifferentPlainTexts<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_mimc_det_enc() throws Exception {
+  public void test_mimc_det_enc() {
     runTest(new MiMCTests.TestMiMCEncryptsDeterministically<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2);
   }
 
-	@Test
-	public void test_mimc_enc_dec() throws Exception {
+  @Test
+  public void test_mimc_enc_dec() {
     runTest(new MiMCTests.TestMiMCEncDec<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2);
   }
+
+  @Test
+  public void testMimcWithMascot() {
+    runTest(new MiMCTests.TestMiMCEncDec<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+        PreprocessingStrategy.MASCOT, 2, 16,16);
+  }
+
 }

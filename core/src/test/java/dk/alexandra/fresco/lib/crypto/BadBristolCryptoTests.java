@@ -25,7 +25,6 @@ package dk.alexandra.fresco.lib.crypto;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
@@ -72,7 +71,7 @@ public class BadBristolCryptoTests {
                 runApplication(multApp);
                 Assert.fail();
               } catch(RuntimeException e) {
-                Assert.assertEquals(e.getCause().getClass(), MPCException.class);
+                Assert.assertEquals(e.getCause().getClass(), IllegalArgumentException.class);
               }
 
         }
@@ -107,7 +106,7 @@ public class BadBristolCryptoTests {
                 runApplication(multApp);
                 Assert.fail();
               } catch(RuntimeException e) {
-                Assert.assertEquals(e.getCause().getClass(), MPCException.class);
+                Assert.assertEquals(e.getCause().getClass(), IllegalArgumentException.class);
               }
 
         }
@@ -143,7 +142,7 @@ public class BadBristolCryptoTests {
                 Assert.fail();
               } catch(RuntimeException e) {
                 e.printStackTrace();
-                Assert.assertEquals(e.getCause().getClass(), MPCException.class);
+                Assert.assertEquals(e.getCause().getClass(), IllegalArgumentException.class);
               }
 
         }
@@ -179,7 +178,7 @@ public class BadBristolCryptoTests {
                 Assert.fail();
               } catch(RuntimeException e) {
                 e.printStackTrace();
-                Assert.assertEquals(e.getCause().getClass(), MPCException.class);
+                Assert.assertEquals(e.getCause().getClass(), IllegalArgumentException.class);
               }
 
         }
@@ -215,7 +214,7 @@ public class BadBristolCryptoTests {
                 runApplication(multApp);
                 Assert.fail();
               } catch(RuntimeException e) {
-                Assert.assertEquals(e.getCause().getClass(), MPCException.class);
+                Assert.assertEquals(e.getCause().getClass(), IllegalArgumentException.class);
               }
         }
       };
@@ -250,7 +249,7 @@ public class BadBristolCryptoTests {
                 runApplication(multApp);
                 Assert.fail();
               } catch(RuntimeException e) {
-                Assert.assertEquals(e.getCause().getClass(), MPCException.class);
+                Assert.assertEquals(e.getCause().getClass(), IllegalArgumentException.class);
               }
         }
       };
@@ -284,7 +283,7 @@ public class BadBristolCryptoTests {
                 runApplication(multApp);
                 Assert.fail();
               } catch(RuntimeException e) {
-                Assert.assertEquals(e.getCause().getClass(), MPCException.class);
+                Assert.assertEquals(e.getCause().getClass(), IllegalArgumentException.class);
               }
         }
       };
@@ -318,7 +317,7 @@ public class BadBristolCryptoTests {
                 runApplication(multApp);
                 Assert.fail();
               } catch(RuntimeException e) {
-                Assert.assertEquals(e.getCause().getClass(), MPCException.class);
+                Assert.assertEquals(e.getCause().getClass(), IllegalArgumentException.class);
               }
         }
       };
@@ -352,7 +351,7 @@ public class BadBristolCryptoTests {
                 runApplication(multApp);
                 Assert.fail();
               } catch(RuntimeException e) {
-                Assert.assertEquals(e.getCause().getClass(), MPCException.class);
+                Assert.assertEquals(e.getCause().getClass(), IllegalArgumentException.class);
               }
         }
       };
@@ -387,7 +386,7 @@ public class BadBristolCryptoTests {
                 runApplication(multApp);
                 Assert.fail();
               } catch(RuntimeException e) {
-                Assert.assertEquals(e.getCause().getClass(), MPCException.class);
+                Assert.assertEquals(e.getCause().getClass(), IllegalArgumentException.class);
               }
         }
       };
@@ -421,7 +420,7 @@ public class BadBristolCryptoTests {
                 runApplication(multApp);
                 Assert.fail();
               } catch(RuntimeException e) {
-                Assert.assertEquals(e.getCause().getClass(), MPCException.class);
+                Assert.assertEquals(e.getCause().getClass(), IllegalArgumentException.class);
               }
         }
       };
@@ -455,7 +454,7 @@ public class BadBristolCryptoTests {
                 runApplication(multApp);
                 Assert.fail();
               } catch(RuntimeException e) {
-                Assert.assertEquals(e.getCause().getClass(), MPCException.class);
+                Assert.assertEquals(e.getCause().getClass(), IllegalArgumentException.class);
               }
         }
       };
@@ -489,7 +488,7 @@ public class BadBristolCryptoTests {
                 runApplication(multApp);
                 Assert.fail();
               } catch(RuntimeException e) {
-                Assert.assertEquals(e.getCause().getClass(), MPCException.class);
+                Assert.assertEquals(e.getCause().getClass(), IllegalArgumentException.class);
               }
         }
       };
@@ -524,7 +523,7 @@ public class BadBristolCryptoTests {
                 runApplication(multApp);
                 Assert.fail();
               } catch(RuntimeException e) {
-                Assert.assertEquals(e.getCause().getClass(), MPCException.class);
+                Assert.assertEquals(e.getCause().getClass(), IllegalArgumentException.class);
               }
         }
       };
@@ -558,7 +557,7 @@ public class BadBristolCryptoTests {
                 runApplication(multApp);
                 Assert.fail();
               } catch(RuntimeException e) {
-                Assert.assertEquals(e.getCause().getClass(), MPCException.class);
+                Assert.assertEquals(e.getCause().getClass(), IllegalArgumentException.class);
               }
         }
       };
@@ -597,7 +596,7 @@ public class BadBristolCryptoTests {
                 Assert.fail();
               } catch(RuntimeException e) {
                 e.printStackTrace();
-                Assert.assertEquals(e.getCause().getClass(), MPCException.class);
+                Assert.assertEquals(e.getCause().getClass(), IllegalArgumentException.class);
               }
         }
       };

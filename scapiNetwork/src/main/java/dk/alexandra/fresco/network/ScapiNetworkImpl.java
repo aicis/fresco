@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.network;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.network.Network;
@@ -138,10 +137,11 @@ public class ScapiNetworkImpl implements Network, Closeable {
           try {
             secureChannel = getSecureChannel(c, sharedSecretKey);
           } catch (InvalidKeyException e) {
-            throw new MPCException("Invalid AES key (shared secret key): " + sharedSecretKey, e);
+            throw new IllegalArgumentException("Invalid AES key (shared secret key): "
+                + sharedSecretKey, e);
           } catch (SecurityLevelException e) {
-            throw new MPCException("SCAPI security level exception when creating channel " + cStr
-                + " towards " + partyId, e);
+            throw new RuntimeException("SCAPI security level exception "
+                + "when creating channel " + cStr + " towards " + partyId, e);
           }
 
           channels.put(cStr, secureChannel);
@@ -210,7 +210,7 @@ public class ScapiNetworkImpl implements Network, Closeable {
       return;
     }
     if (!idToPartyData.containsKey(partyId)) {
-      throw new MPCException("No party with id " + partyId);
+      throw new IllegalArgumentException("No party with id " + partyId);
     }
     PartyData receiver = idToPartyData.get(partyId);
     Map<String, Channel> channels = connections.get(receiver);
@@ -218,7 +218,7 @@ public class ScapiNetworkImpl implements Network, Closeable {
     try {
       c.send(data);
     } catch (IOException e) {
-      throw new MPCException("Cannot send", e);
+      throw new RuntimeException("Cannot send", e);
     }
   }
 
@@ -227,8 +227,9 @@ public class ScapiNetworkImpl implements Network, Closeable {
     if (partyId == this.conf.getMyId()) {
       byte[] res = (byte[]) this.queues.get(0).poll();
       if (res == null) {
-        throw new MPCException("Self(" + partyId + ") have not send anything on channel " + 0
-            + "before receive was called.");
+        throw new IllegalStateException(
+            "Self(" + partyId + ") have not send anything on channel " + 0
+                + "before receive was called.");
       }
       return res;
     } else {
@@ -236,7 +237,7 @@ public class ScapiNetworkImpl implements Network, Closeable {
       Map<String, Channel> channels = connections.get(receiver);
       Channel c = channels.get("" + 0);
       if (c == null) {
-        throw new MPCException("Trying to send via channel " + 0
+        throw new IllegalStateException("Trying to send via channel " + 0
             + ", but this network was initiated with only " + this.channelAmount + " channels.");
       }
       byte[] res;
@@ -245,7 +246,7 @@ public class ScapiNetworkImpl implements Network, Closeable {
       } catch (ClassNotFoundException e) {
         throw new RuntimeException("Weird class not found exception, sry. ", e);
       } catch (IOException e) {
-        throw new MPCException("Cannot receive", e);
+        throw new RuntimeException("Cannot receive", e);
       }
       return res;
     }

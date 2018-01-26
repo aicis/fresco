@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.framework.configuration;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Party;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -46,7 +45,7 @@ public class TestConfiguration {
       }
       return ports;
     } catch (IOException e) {
-      throw new MPCException("Could not allocate free ports", e);
+      throw new IllegalStateException("Could not allocate free ports", e);
 
     }
   }
