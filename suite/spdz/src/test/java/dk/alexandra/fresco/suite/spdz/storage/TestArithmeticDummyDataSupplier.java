@@ -9,15 +9,21 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.SameTypePair;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Test;
 
 public class TestArithmeticDummyDataSupplier {
 
-  private final BigInteger modulus = new BigInteger("251");
+  private final List<BigInteger> moduli = Arrays.asList(
+      new BigInteger("251"),
+      new BigInteger("340282366920938463463374607431768211283"),
+      new BigInteger(
+          "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557")
+  );
 
-  private void testGetRandomElementShare(int noOfParties) {
+  private void testGetRandomElementShare(int noOfParties, BigInteger modulus) {
     List<ArithmeticDummyDataSupplier> suppliers = new ArrayList<>(noOfParties);
     for (int i = 0; i < noOfParties; i++) {
       suppliers.add(new ArithmeticDummyDataSupplier(i + 1, noOfParties, modulus));
@@ -41,7 +47,13 @@ public class TestArithmeticDummyDataSupplier {
     assertAllDifferent(shares);
   }
 
-  private void testGetRandomBitShare(int noOfParties) {
+  private void testGetRandomElementShare(int noOfParties) {
+    for (BigInteger modulus : moduli) {
+      testGetRandomElementShare(noOfParties, modulus);
+    }
+  }
+
+  private void testGetRandomBitShare(int noOfParties, BigInteger modulus) {
     List<ArithmeticDummyDataSupplier> suppliers = new ArrayList<>(noOfParties);
     for (int i = 0; i < noOfParties; i++) {
       suppliers.add(new ArithmeticDummyDataSupplier(i + 1, noOfParties, modulus));
@@ -66,7 +78,13 @@ public class TestArithmeticDummyDataSupplier {
     assertAllBits(elements);
   }
 
-  private void testGetMultiplicationTripleShares(int noOfParties) {
+  private void testGetRandomBitShare(int noOfParties) {
+    for (BigInteger modulus : moduli) {
+      testGetRandomBitShare(noOfParties, modulus);
+    }
+  }
+
+  private void testGetMultiplicationTripleShares(int noOfParties, BigInteger modulus) {
     List<ArithmeticDummyDataSupplier> suppliers = new ArrayList<>(noOfParties);
     for (int i = 0; i < noOfParties; i++) {
       suppliers.add(new ArithmeticDummyDataSupplier(i + 1, noOfParties, modulus));
@@ -76,6 +94,12 @@ public class TestArithmeticDummyDataSupplier {
       actual.add(supplier.getMultiplicationTripleShares());
     }
     assertMultiplicationTriplesValid(actual, modulus);
+  }
+
+  private void testGetMultiplicationTripleShares(int noOfParties) {
+    for (BigInteger modulus : moduli) {
+      testGetMultiplicationTripleShares(noOfParties, modulus);
+    }
   }
 
   @Test

@@ -24,11 +24,16 @@ public class SpdzConfigurableDataSupplier implements SpdzDataSupplier {
 
   @Override
   public SpdzTriple getNextTriple() {
-    return null;
+    MultiplicationTripleShares rawTriple = supplier.getMultiplicationTripleShares();
+    return new SpdzTriple(
+        toSpdzElement(rawTriple.getLeft()),
+        toSpdzElement(rawTriple.getLeft()),
+        toSpdzElement(rawTriple.getRight()));
   }
 
   @Override
   public SpdzSInt[] getNextExpPipe() {
+    // TODO
     return new SpdzSInt[0];
   }
 
