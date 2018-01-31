@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -87,6 +88,26 @@ public class TestSpdzConfigurableDataSupplier {
     }
   }
 
+  private void testGetNextBit(int noOfParties, BigInteger modulus) {
+    List<SpdzConfigurableDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
+    BigInteger macKey = getMacKeyFromSuppliers(suppliers);
+    List<SpdzElement> bitShares = new ArrayList<>(noOfParties);
+    for (SpdzConfigurableDataSupplier supplier : suppliers) {
+      bitShares.add(supplier.getNextBit().value);
+    }
+    SpdzElement recombined = recombine(bitShares);
+    assertMacCorrect(recombined, macKey, modulus);
+    BigInteger value = recombined.getShare();
+    assertTrue("Value not a bit " + value,
+        value.equals(BigInteger.ZERO) || value.equals(BigInteger.ONE));
+  }
+
+  private void testGetNextBit(int noOfParties) {
+    for (BigInteger modulus : moduli) {
+      testGetNextBit(noOfParties, modulus);
+    }
+  }
+
   @Test
   public void testGetNextTriple() {
     testGetNextTriple(2);
@@ -102,6 +123,13 @@ public class TestSpdzConfigurableDataSupplier {
         testGetNextInputMask(partyCount, i + 1);
       }
     }
+  }
+
+  @Test
+  public void testGetNextBit() {
+    testGetNextBit(2);
+    testGetNextBit(3);
+    testGetNextBit(5);
   }
 
   private SpdzElement recombine(List<SpdzElement> shares) {
