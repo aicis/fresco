@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
@@ -108,6 +109,28 @@ public class TestSpdzConfigurableDataSupplier {
     }
   }
 
+  private void testGetNextRandomFieldElement(int noOfParties, BigInteger modulus) {
+    List<SpdzConfigurableDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
+    BigInteger macKey = getMacKeyFromSuppliers(suppliers);
+    List<SpdzElement> bitShares = new ArrayList<>(noOfParties);
+    for (SpdzConfigurableDataSupplier supplier : suppliers) {
+      bitShares.add(supplier.getNextRandomFieldElement().value);
+    }
+    SpdzElement recombined = recombine(bitShares);
+    assertMacCorrect(recombined, macKey, modulus);
+    // sanity check not zero (with 251, that is actually not unlikely enough)
+    if (!modulus.equals(new BigInteger("251"))) {
+      BigInteger value = recombined.getShare();
+      assertFalse("Random value was 0 ", value.equals(BigInteger.ZERO));
+    }
+  }
+
+  private void testGetNextRandomFieldElement(int noOfParties) {
+    for (BigInteger modulus : moduli) {
+      testGetNextRandomFieldElement(noOfParties, modulus);
+    }
+  }
+
   @Test
   public void testGetNextTriple() {
     testGetNextTriple(2);
@@ -130,6 +153,13 @@ public class TestSpdzConfigurableDataSupplier {
     testGetNextBit(2);
     testGetNextBit(3);
     testGetNextBit(5);
+  }
+
+  @Test
+  public void testGetNextRandomFieldElement() {
+    testGetNextRandomFieldElement(2);
+    testGetNextRandomFieldElement(3);
+    testGetNextRandomFieldElement(5);
   }
 
   private SpdzElement recombine(List<SpdzElement> shares) {
