@@ -55,7 +55,8 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
        * extra to avoid leakage.
        */
       AdvancedNumeric additiveMaskBuilder = builder.advancedNumeric();
-      return additiveMaskBuilder.additiveMask(bitLength);
+      DRes<RandomAdditiveMask> mask = additiveMaskBuilder.additiveMask(bitLength);
+      return mask;
     }).seq((parSubSequential, randomAdditiveMask) -> {
       DRes<SInt> result = parSubSequential.numeric().add(input, () -> randomAdditiveMask.r);
       DRes<BigInteger> open = parSubSequential.numeric().open(result);
@@ -79,7 +80,7 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
 
         /*
          * One of the following must be true for there to be a carry from the
-         * addition of the i'th bits of the input and r:
+         * addition of the i'th bits of the input and the mask, r:
          * 
          * 1) If the i'th bit of the masked input is set, both the i'th bit of r
          * AND the carry from the previous bit should be set.
@@ -98,24 +99,26 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
       final DRes<SInt> rBottom = seq.advancedNumeric().innerProductWithPublicPart(
           seq.getBigIntegerHelper().getTwoPowersList(shifts), mask.bits);
 
-      BigInteger inv = BigInteger.ONE.shiftLeft(shifts)
+      BigInteger inverse = BigInteger.ONE.shiftLeft(shifts)
           .modInverse(seq.getBasicNumericContext().getModulus());
       DRes<SInt> rTop = seq.numeric().sub(mask.r, rBottom);
 
       /*
-       * rTop is r with the last 32 bits set to zero, so it is now divisible by
-       * 2^shifts, so multiplying with the inverse in the field corresponds to
-       * doing shifts right shifts.
+       * rTop is r with the last shifts bits set to zero, and it is hence
+       * divisible by 2^shifts, so multiplying with the inverse in the field
+       * corresponds to shifting r.
        */
-      DRes<SInt> rShifted = seq.numeric().mult(inv, rTop);
-            
+      DRes<SInt> rShifted = seq.numeric().mult(inverse, rTop);
+      BigInteger mShifted = masked.shiftRight(shifts);
+
       /*
        * The naive result to return would be mShifted - rShifted, but this is
        * not equal to the shifted input if there was a carry form the addition
        * of the most significant bits that were removed by the shift.
        */
-      BigInteger mShifted = masked.shiftRight(shifts);
-      DRes<SInt> result = seq.numeric().sub(mShifted, seq.numeric().add(rShifted, carry));
+      DRes<SInt> naiveResult = seq.numeric().sub(mShifted, rShifted);
+      DRes<SInt> result = seq.numeric().sub(naiveResult, carry);
+
       if (!calculateRemainder) {
         return () -> new RightShiftResult(result.out(), null);
       } else {
