@@ -162,6 +162,14 @@ public class TestSpdzConfigurableDataSupplier {
     testGetNextRandomFieldElement(5);
   }
 
+  @Test
+  public void testGetters() {
+    SpdzConfigurableDataSupplier supplier = new SpdzConfigurableDataSupplier(1, 2, moduli.get(0),
+        BigInteger.ONE);
+    assertEquals(moduli.get(0), supplier.getModulus());
+    assertEquals(BigInteger.ONE, supplier.getSecretSharedKey());
+  }
+
   private SpdzElement recombine(List<SpdzElement> shares) {
     return shares.stream().reduce(SpdzElement::add).get();
   }
