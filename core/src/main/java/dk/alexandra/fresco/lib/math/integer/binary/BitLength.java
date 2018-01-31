@@ -1,11 +1,12 @@
 package dk.alexandra.fresco.lib.math.integer.binary;
 
+import java.math.BigInteger;
+
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import java.math.BigInteger;
 
 /**
  * Finds the bit length of an integer. This is done by finding the bit representation of the integer
@@ -36,9 +37,8 @@ public class BitLength implements Computation<SInt, ProtocolBuilderNumeric> {
     /*
      * Find the bit representation of the input.
 		 */
-      return seq.advancedNumeric()
-          .rightShiftWithRemainder(input, maxBitLength);
-    }).seq((seq, rightShiftResult) -> {
+      return seq.advancedNumeric().toBits(input, maxBitLength);
+    }).seq((seq, bits) -> {
       DRes<SInt> mostSignificantBitIndex = null;
       Numeric numeric = seq.numeric();
       for (int n = 0; n < maxBitLength; n++) {
@@ -46,7 +46,7 @@ public class BitLength implements Computation<SInt, ProtocolBuilderNumeric> {
        * If bits[n] == 1 we let mostSignificantIndex be current index.
 			 * Otherwise we leave it be.
 			 */
-        SInt remainderResult = rightShiftResult.getRemainder().get(n);
+        SInt remainderResult = bits.get(n);
         if (mostSignificantBitIndex == null) {
           mostSignificantBitIndex = numeric.mult(BigInteger.valueOf(n), () -> remainderResult);
         } else {
@@ -63,4 +63,5 @@ public class BitLength implements Computation<SInt, ProtocolBuilderNumeric> {
       return numeric.add(BigInteger.ONE, mostSignificantBitIndex);
     });
   }
+
 }

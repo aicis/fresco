@@ -1,5 +1,8 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
+import java.math.BigInteger;
+import java.util.List;
+
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -9,7 +12,6 @@ import dk.alexandra.fresco.lib.conversion.IntegerToBitsByShift;
 import dk.alexandra.fresco.lib.math.integer.ProductSIntList;
 import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import dk.alexandra.fresco.lib.math.integer.binary.BitLength;
-import dk.alexandra.fresco.lib.math.integer.binary.RepeatedRightShift;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShift;
 import dk.alexandra.fresco.lib.math.integer.division.KnownDivisor;
 import dk.alexandra.fresco.lib.math.integer.division.KnownDivisorRemainder;
@@ -22,8 +24,6 @@ import dk.alexandra.fresco.lib.math.integer.linalg.InnerProduct;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductOpen;
 import dk.alexandra.fresco.lib.math.integer.log.Logarithm;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SquareRoot;
-import java.math.BigInteger;
-import java.util.List;
 
 /**
  * Default way of producing the protocols within the interface. This default class can be
@@ -134,7 +134,7 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
   @Override
   public DRes<SInt> rightShift(DRes<SInt> input, int shifts) {
     DRes<RightShiftResult> rightShiftResult = builder.seq(
-        new RepeatedRightShift(
+        new RightShift(factoryNumeric.getBasicNumericContext().getMaxBitLength(),
             input, shifts, false));
     return () -> rightShiftResult.out().getResult();
   }
@@ -144,7 +144,7 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
       DRes<SInt> input,
       int shifts) {
     return builder.seq(
-        new RepeatedRightShift(
+        new RightShift(factoryNumeric.getBasicNumericContext().getMaxBitLength(),
             input, shifts, true));
   }
 
