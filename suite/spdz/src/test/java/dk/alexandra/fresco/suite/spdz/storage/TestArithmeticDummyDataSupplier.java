@@ -190,6 +190,15 @@ public class TestArithmeticDummyDataSupplier {
       productValues.add(product.getFirst());
       productShares.add(product.getSecond());
     }
+    // sizes are the same
+    assertEquals(rightValues.size(), leftValues.size());
+    assertEquals(leftValues.size(), productValues.size());
+    // left * right = product
+    for (int i = 0; i < leftValues.size(); i++) {
+      assertEquals(productValues.get(i),
+          leftValues.get(i).multiply(rightValues.get(i)).mod(modulus));
+    }
+    // all left values the same; left = recombine([left]); all left shares different
     leftValues.add(MathUtils.sum(leftShares, modulus));
     assertAllEqual(leftValues);
     assertAllDifferent(leftShares);
@@ -199,12 +208,6 @@ public class TestArithmeticDummyDataSupplier {
     productValues.add(MathUtils.sum(productShares, modulus));
     assertAllEqual(productValues);
     assertAllDifferent(productShares);
-    assertEquals(rightValues.size(), leftValues.size());
-    assertEquals(leftValues.size(), productValues.size());
-    for (int i = 0; i < leftValues.size(); i++) {
-      assertEquals(productValues.get(i),
-          leftValues.get(i).multiply(rightValues.get(i)).mod(modulus));
-    }
   }
 
 }

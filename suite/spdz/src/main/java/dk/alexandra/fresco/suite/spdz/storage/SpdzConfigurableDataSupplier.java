@@ -27,8 +27,8 @@ public class SpdzConfigurableDataSupplier implements SpdzDataSupplier {
     MultiplicationTripleShares rawTriple = supplier.getMultiplicationTripleShares();
     return new SpdzTriple(
         toSpdzElement(rawTriple.getLeft()),
-        toSpdzElement(rawTriple.getLeft()),
-        toSpdzElement(rawTriple.getRight()));
+        toSpdzElement(rawTriple.getRight()),
+        toSpdzElement(rawTriple.getProduct()));
   }
 
   @Override
