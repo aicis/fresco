@@ -4,14 +4,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import dk.alexandra.fresco.framework.util.TransposeUtils;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 import org.junit.Test;
 
 public class TestSpdzConfigurableDataSupplier {
@@ -25,11 +28,17 @@ public class TestSpdzConfigurableDataSupplier {
 
   private List<SpdzConfigurableDataSupplier> setupSuppliers(int noOfParties,
       BigInteger modulus) {
+    return setupSuppliers(noOfParties, modulus, 200);
+  }
+
+  private List<SpdzConfigurableDataSupplier> setupSuppliers(int noOfParties,
+      BigInteger modulus, int expPipeLength) {
     List<SpdzConfigurableDataSupplier> suppliers = new ArrayList<>(noOfParties);
     Random random = new Random();
     for (int i = 0; i < noOfParties; i++) {
       BigInteger macKeyShare = new BigInteger(modulus.bitLength(), random).mod(modulus);
-      suppliers.add(new SpdzConfigurableDataSupplier(i + 1, noOfParties, modulus, macKeyShare));
+      suppliers.add(new SpdzConfigurableDataSupplier(i + 1, noOfParties, modulus, macKeyShare,
+          expPipeLength));
     }
     return suppliers;
   }
@@ -131,11 +140,41 @@ public class TestSpdzConfigurableDataSupplier {
     }
   }
 
+  private void testGetNextExpPipe(int noOfParties, BigInteger modulus, int expPipeLength) {
+    List<SpdzConfigurableDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
+    BigInteger macKey = getMacKeyFromSuppliers(suppliers);
+    List<SpdzSInt[]> expPipes = new ArrayList<>(noOfParties);
+    for (SpdzConfigurableDataSupplier supplier : suppliers) {
+      expPipes.add(supplier.getNextExpPipe());
+    }
+    for (SpdzSInt[] expPipe : expPipes) {
+      assertEquals(expPipeLength + 1, expPipe.length);
+    }
+    List<List<SpdzElement>> unwrapped = expPipes.stream()
+        .map(pipe -> Arrays.stream(pipe).map(v -> v.value).collect(Collectors.toList()))
+        .collect(Collectors.toList());
+    List<SpdzElement> recombined = recombineExpPipe(unwrapped);
+    assertExpPipeValid(recombined, macKey, modulus);
+  }
+
+  private void testGetNextExpPipe(int noOfParties) {
+    for (BigInteger modulus : moduli) {
+      testGetNextExpPipe(noOfParties, modulus, 200);
+    }
+  }
+
   @Test
   public void testGetNextTriple() {
     testGetNextTriple(2);
     testGetNextTriple(3);
     testGetNextTriple(5);
+  }
+
+  @Test
+  public void testGetNextExpPipe() {
+    testGetNextExpPipe(2);
+    testGetNextExpPipe(3);
+    testGetNextExpPipe(5);
   }
 
   @Test
@@ -174,6 +213,12 @@ public class TestSpdzConfigurableDataSupplier {
     return shares.stream().reduce(SpdzElement::add).get();
   }
 
+  private List<SpdzElement> recombineExpPipe(List<List<SpdzElement>> expPipeShares) {
+    return TransposeUtils.transpose(expPipeShares).stream()
+        .map(this::recombine)
+        .collect(Collectors.toList());
+  }
+
   private SpdzTriple recombineTriples(List<SpdzTriple> triples) {
     List<SpdzElement> left = new ArrayList<>(triples.size());
     List<SpdzElement> right = new ArrayList<>(triples.size());
@@ -197,6 +242,21 @@ public class TestSpdzConfigurableDataSupplier {
     // check that a * b = c
     assertEquals(recombined.getC().getShare(),
         recombined.getA().getShare().multiply(recombined.getB().getShare()).mod(modulus));
+  }
+
+  private void assertExpPipeValid(List<SpdzElement> recombined, BigInteger macKey,
+      BigInteger modulus) {
+    for (SpdzElement element : recombined) {
+      assertMacCorrect(element, macKey, modulus);
+    }
+    List<BigInteger> values = recombined.stream().map(SpdzElement::getShare)
+        .collect(Collectors.toList());
+    BigInteger inverted = values.get(0);
+    BigInteger first = values.get(1);
+    assertEquals(inverted, first.modInverse(modulus));
+    for (int i = 1; i < values.size(); i++) {
+      assertEquals(first.modPow(BigInteger.valueOf(i), modulus), values.get(i));
+    }
   }
 
 }

@@ -71,7 +71,7 @@ public class ArithmeticDummyDataSupplier {
   public List<SameTypePair<BigInteger>> getExpPipe(int expPipeLength) {
     List<BigInteger> openExpPipe = getOpenExpPipe(expPipeLength);
     return openExpPipe.stream()
-        .map(r -> new SameTypePair<>(r, sharer.share(r, noOfParties).get(myId)))
+        .map(r -> new SameTypePair<>(r, sharer.share(r, noOfParties).get(myId - 1)))
         .collect(Collectors.toList());
   }
 
