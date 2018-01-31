@@ -155,7 +155,6 @@ public class MiMCTests {
           BigInteger x_big = BigInteger.valueOf(10);
           Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
             Numeric intFactory = builder.numeric();
-            builder.getBasicNumericContext();
             DRes<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527619));
             DRes<SInt> plainText = intFactory.known(x_big);
             DRes<SInt> cipherText = builder.seq(new MiMCEncryption(plainText, encryptionKey, 17));

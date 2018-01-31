@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.util.SameTypePair;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -19,7 +20,13 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
 
   public SpdzDummyDataSupplier(int myId, int noOfPlayers) {
     // TODO kill this
-    this(myId, noOfPlayers, getDefaultModulus(noOfPlayers), getSsk(getDefaultModulus(noOfPlayers)));
+    this(myId, noOfPlayers, ModulusFinder.findSuitableModulus(512),
+        getSsk(ModulusFinder.findSuitableModulus(512)));
+  }
+
+  public SpdzDummyDataSupplier(int myId, int noOfPlayers, BigInteger modulus) {
+    // TODO kill this
+    this(myId, noOfPlayers, modulus, getSsk(modulus));
   }
 
   public SpdzDummyDataSupplier(int myId, int noOfPlayers, BigInteger modulus,
@@ -91,18 +98,6 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
     );
   }
 
-  // TODO kill this
-  static private BigInteger getDefaultModulus(int noOfPlayers) {
-    if (noOfPlayers == 2) {
-      return new BigInteger(
-          "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557");
-    } else {
-      return new BigInteger(
-          "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
-    }
-  }
-
-  // TODO kill this
   static private BigInteger getSsk(BigInteger modulus) {
     return new BigInteger(modulus.bitLength(), new Random()).mod(modulus);
   }
