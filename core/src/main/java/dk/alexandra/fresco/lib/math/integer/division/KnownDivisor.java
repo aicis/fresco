@@ -1,12 +1,13 @@
 package dk.alexandra.fresco.lib.math.integer.division;
 
+import java.math.BigInteger;
+
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
-import java.math.BigInteger;
 
 
 /**
@@ -29,6 +30,7 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
 
     this.dividend = dividend;
     this.divisor = divisor;
+    
   }
 
   private BigInteger convertRepresentation(
@@ -67,6 +69,11 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
     BigInteger signedDivisor = convertRepresentation(modulus, modulusHalf, divisor);
     int divisorSign = signedDivisor.signum();
     BigInteger divisorAbs = signedDivisor.abs();
+    int maxDivisorBitLength = builder.getBasicNumericContext().getMaxBitLength() - 3;
+    if (divisorAbs.bitLength() > maxDivisorBitLength) {
+      throw new IllegalArgumentException("Divisor is too big. Bit length is "
+          + divisorAbs.bitLength() + " but should only be at most " + maxDivisorBitLength);
+    }
 
     /*
      * The quotient will have bit length < 2 * maxBitLength, and this has to be shifted maxBitLength

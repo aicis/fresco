@@ -84,9 +84,7 @@ public class DivisionTests {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final BigInteger x = new BigInteger("123978634193227335452345761");
-        private final BigInteger d = new BigInteger("345195198248564927489350624"
-            + "95619070576369242887355682637129830065132507683532321771277227216"
-            + "22139694727529444746715611975582643235287997037145872954097664");
+        private final BigInteger d = new BigInteger("956190705763692428873556826371298300651325076835323217712");
 
         @Override
         public void test() throws Exception {
