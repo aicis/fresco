@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.tools.mascot.elgen;
 
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.SecretSharer;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 import dk.alexandra.fresco.tools.mascot.arithm.TransposeUtils;
@@ -31,7 +32,7 @@ public class ElementGeneration {
   private final FieldElement macKeyShare;
   private final FieldElementPrg localSampler;
   private final FieldElementPrg jointSampler;
-  private final Sharer sharer;
+  private final SecretSharer<FieldElement> sharer;
   private final Map<Integer, CopeSigner> copeSigners;
   private final Map<Integer, CopeInputter> copeInputters;
   private final MascotResourcePool resourcePool;
@@ -50,7 +51,7 @@ public class ElementGeneration {
     this.macKeyShare = macKeyShare;
     this.localSampler = resourcePool.getLocalSampler();
     this.jointSampler = jointSampler;
-    this.sharer = new AdditiveSharer(localSampler, resourcePool.getModulus());
+    this.sharer = new AdditiveSecretSharer(localSampler, resourcePool.getModulus());
     this.copeSigners = new HashMap<>();
     this.copeInputters = new HashMap<>();
     initializeCope(resourcePool, network);
