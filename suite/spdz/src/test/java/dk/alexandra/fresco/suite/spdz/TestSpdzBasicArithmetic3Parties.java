@@ -8,7 +8,6 @@ import org.junit.Test;
 /**
  * Basic arithmetic tests using the SPDZ protocol suite with 3 parties. Have to hardcode the number
  * of parties for now, since the storage is currently build to handle a fixed number of parties.
- * 
  */
 public class TestSpdzBasicArithmetic3Parties extends AbstractSpdzTest {
 
@@ -35,7 +34,6 @@ public class TestSpdzBasicArithmetic3Parties extends AbstractSpdzTest {
     runTest(new BasicArithmeticTests.TestLotsMult<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 3);
   }
-
 
   @Test
   public void test_Lots_Of_Mults_Sequential_Batched() throws Exception {
