@@ -50,6 +50,10 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
   @Override
   public DRes<RightShiftResult> buildComputation(ProtocolBuilderNumeric sequential) {
     return sequential.seq((builder) -> {
+      /*
+       * Generate random additive mask of the same length as the input + some
+       * extra to avoid leakage.
+       */
       AdvancedNumeric additiveMaskBuilder = builder.advancedNumeric();
       return additiveMaskBuilder.additiveMask(bitLength);
     }).pairInPar((parSubSequential, randomAdditiveMask) -> {
@@ -63,7 +67,7 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
 
       /*
        * m = r + input, so there is a carry from the addition of the first
-       * (least significant) bit iff mi = 0 and ri = 1.
+       * (least significant) bit if and only if m_i = 0 and r_i = 1.
        */
       BigInteger mi = m.testBit(0) ? BigInteger.ONE : BigInteger.ZERO;
       DRes<SInt> ri = randomAdditiveMask.bits.get(0);
@@ -75,15 +79,15 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
         DRes<SInt> x = round1.numeric().mult(currentCarry, ri);
 
         /*
-         * If the i'th bit of the mask is zero, either the i'th bit of r OR the
-         * previous carry bit should be set.
+         * If the i'th bit of the mask is zero, either the i'th bit of r OR there's
+         * carry from the previous bit.
          */
         DRes<SInt> miZeroAndCarry = round1.numeric().mult(mi.xor(BigInteger.ONE),
             round1.numeric().sub(round1.numeric().add(currentCarry, ri), x));
 
         /*
-         * If the i'th bit of the mask is one, both the i'th bit of r AND the
-         * previous carry have to be set.
+         * If the i'th bit of the mask is one, both the i'th bit of r AND
+         * there's carry from the previous bit.
          */
         DRes<SInt> miOneAndCarry = round1.numeric().mult(mi, x);
         currentCarry = round1.numeric().add(miZeroAndCarry, miOneAndCarry);
@@ -99,7 +103,7 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
       BigInteger inv = BigInteger.ONE.shiftLeft(shifts)
           .modInverse(round1.getBasicNumericContext().getModulus());
       DRes<SInt> rTop = round1.numeric().sub(randomAdditiveMask.r, rBottom);
-      
+
       /*
        * rTop is now divisible by 2^shifts, so multiplying with inv corresponds
        * to doing shifts right shifts.
@@ -111,10 +115,11 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
 
       BigInteger mShifted = inputs.getFirst().shiftRight(shifts);
 
-      // Now we calculate the naive shift, x >> shifts = mTop - rTop
+      // Calculate the naive result, x >> shifts = mShifted - rShifted
       DRes<SInt> shifted = round2.numeric().sub(mShifted, inputs.getSecond().getSecond());
 
-      // ...but if there was a carry from the last bit, we need to subtract that
+      // ...but if there was a carry from the bits just below the shift, we need
+      // to subtract that
       DRes<SInt> result = round2.numeric().sub(shifted, inputs.getSecond().getFirst());
 
       return result;
@@ -124,8 +129,8 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
         return () -> new RightShiftResult(result, null);
       } else {
         BigInteger twoPow = BigInteger.ONE.shiftLeft(shifts);
-        DRes<SInt> shifted = round3.numeric().mult(twoPow, result);
-        DRes<SInt> remainder = round3.numeric().sub(input, shifted);
+        DRes<SInt> leftShifted = round3.numeric().mult(twoPow, result);
+        DRes<SInt> remainder = round3.numeric().sub(input, leftShifted);
         return () -> new RightShiftResult(result, remainder.out());
       }
     });
