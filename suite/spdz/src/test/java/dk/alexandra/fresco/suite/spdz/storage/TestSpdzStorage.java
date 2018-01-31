@@ -62,8 +62,4 @@ public class TestSpdzStorage {
     supplier.getNextRandomFieldElement();
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void testDummyDataSupplierTooManyPlayers() {
-    new SpdzDummyDataSupplier(1, 4);
-  }
 }

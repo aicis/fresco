@@ -24,7 +24,7 @@ public class ArithmeticDummyDataSupplier {
   private final Random random;
   private final SecretSharer<BigInteger> sharer;
 
-  public ArithmeticDummyDataSupplier(int myId, int noOfParties, BigInteger modulus) {
+  ArithmeticDummyDataSupplier(int myId, int noOfParties, BigInteger modulus) {
     this.myId = myId;
     this.noOfParties = noOfParties;
     this.modulus = modulus;
@@ -132,7 +132,6 @@ public class ArithmeticDummyDataSupplier {
           .mapToObj(i -> new BigInteger(modBitLength, random).mod(modulus))
           .collect(Collectors.toList());
     }
-
   }
 
 }

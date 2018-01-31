@@ -17,7 +17,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import org.junit.Test;
 
-public class TestSpdzConfigurableDataSupplier {
+public class TestSpdzDummyDataSupplier {
 
   private final List<BigInteger> moduli = Arrays.asList(
       new BigInteger("251"),
@@ -26,26 +26,26 @@ public class TestSpdzConfigurableDataSupplier {
           "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557")
   );
 
-  private List<SpdzConfigurableDataSupplier> setupSuppliers(int noOfParties,
+  private List<SpdzDummyDataSupplier> setupSuppliers(int noOfParties,
       BigInteger modulus) {
     return setupSuppliers(noOfParties, modulus, 200);
   }
 
-  private List<SpdzConfigurableDataSupplier> setupSuppliers(int noOfParties,
+  private List<SpdzDummyDataSupplier> setupSuppliers(int noOfParties,
       BigInteger modulus, int expPipeLength) {
-    List<SpdzConfigurableDataSupplier> suppliers = new ArrayList<>(noOfParties);
+    List<SpdzDummyDataSupplier> suppliers = new ArrayList<>(noOfParties);
     Random random = new Random();
     for (int i = 0; i < noOfParties; i++) {
       BigInteger macKeyShare = new BigInteger(modulus.bitLength(), random).mod(modulus);
-      suppliers.add(new SpdzConfigurableDataSupplier(i + 1, noOfParties, modulus, macKeyShare,
+      suppliers.add(new SpdzDummyDataSupplier(i + 1, noOfParties, modulus, macKeyShare,
           expPipeLength));
     }
     return suppliers;
   }
 
-  private BigInteger getMacKeyFromSuppliers(List<SpdzConfigurableDataSupplier> suppliers) {
+  private BigInteger getMacKeyFromSuppliers(List<SpdzDummyDataSupplier> suppliers) {
     BigInteger macKey = BigInteger.ZERO;
-    for (SpdzConfigurableDataSupplier supplier : suppliers) {
+    for (SpdzDummyDataSupplier supplier : suppliers) {
       macKey = macKey.add(supplier.getSecretSharedKey());
     }
     return macKey.mod(suppliers.get(0).getModulus());
@@ -53,10 +53,10 @@ public class TestSpdzConfigurableDataSupplier {
 
 
   private void testGetNextTriple(int noOfParties, BigInteger modulus) {
-    List<SpdzConfigurableDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
+    List<SpdzDummyDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
     BigInteger macKey = getMacKeyFromSuppliers(suppliers);
     List<SpdzTriple> triples = new ArrayList<>(noOfParties);
-    for (SpdzConfigurableDataSupplier supplier : suppliers) {
+    for (SpdzDummyDataSupplier supplier : suppliers) {
       triples.add(supplier.getNextTriple());
     }
     SpdzTriple recombined = recombineTriples(triples);
@@ -70,10 +70,10 @@ public class TestSpdzConfigurableDataSupplier {
   }
 
   private void testGetNextInputMask(int noOfParties, int towardParty, BigInteger modulus) {
-    List<SpdzConfigurableDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
+    List<SpdzDummyDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
     BigInteger macKey = getMacKeyFromSuppliers(suppliers);
     List<SpdzInputMask> masks = new ArrayList<>(noOfParties);
-    for (SpdzConfigurableDataSupplier supplier : suppliers) {
+    for (SpdzDummyDataSupplier supplier : suppliers) {
       masks.add(supplier.getNextInputMask(towardParty));
     }
     BigInteger realValue = null;
@@ -99,10 +99,10 @@ public class TestSpdzConfigurableDataSupplier {
   }
 
   private void testGetNextBit(int noOfParties, BigInteger modulus) {
-    List<SpdzConfigurableDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
+    List<SpdzDummyDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
     BigInteger macKey = getMacKeyFromSuppliers(suppliers);
     List<SpdzElement> bitShares = new ArrayList<>(noOfParties);
-    for (SpdzConfigurableDataSupplier supplier : suppliers) {
+    for (SpdzDummyDataSupplier supplier : suppliers) {
       bitShares.add(supplier.getNextBit().value);
     }
     SpdzElement recombined = recombine(bitShares);
@@ -119,10 +119,10 @@ public class TestSpdzConfigurableDataSupplier {
   }
 
   private void testGetNextRandomFieldElement(int noOfParties, BigInteger modulus) {
-    List<SpdzConfigurableDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
+    List<SpdzDummyDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
     BigInteger macKey = getMacKeyFromSuppliers(suppliers);
     List<SpdzElement> bitShares = new ArrayList<>(noOfParties);
-    for (SpdzConfigurableDataSupplier supplier : suppliers) {
+    for (SpdzDummyDataSupplier supplier : suppliers) {
       bitShares.add(supplier.getNextRandomFieldElement().value);
     }
     SpdzElement recombined = recombine(bitShares);
@@ -141,10 +141,10 @@ public class TestSpdzConfigurableDataSupplier {
   }
 
   private void testGetNextExpPipe(int noOfParties, BigInteger modulus, int expPipeLength) {
-    List<SpdzConfigurableDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
+    List<SpdzDummyDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
     BigInteger macKey = getMacKeyFromSuppliers(suppliers);
     List<SpdzSInt[]> expPipes = new ArrayList<>(noOfParties);
-    for (SpdzConfigurableDataSupplier supplier : suppliers) {
+    for (SpdzDummyDataSupplier supplier : suppliers) {
       expPipes.add(supplier.getNextExpPipe());
     }
     for (SpdzSInt[] expPipe : expPipes) {
@@ -203,7 +203,7 @@ public class TestSpdzConfigurableDataSupplier {
 
   @Test
   public void testGetters() {
-    SpdzConfigurableDataSupplier supplier = new SpdzConfigurableDataSupplier(1, 2, moduli.get(0),
+    SpdzDummyDataSupplier supplier = new SpdzDummyDataSupplier(1, 2, moduli.get(0),
         BigInteger.ONE);
     assertEquals(moduli.get(0), supplier.getModulus());
     assertEquals(BigInteger.ONE, supplier.getSecretSharedKey());
