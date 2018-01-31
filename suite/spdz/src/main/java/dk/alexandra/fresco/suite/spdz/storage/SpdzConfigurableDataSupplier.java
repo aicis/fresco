@@ -6,6 +6,7 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import java.math.BigInteger;
+import java.util.List;
 
 public class SpdzConfigurableDataSupplier implements SpdzDataSupplier {
 
@@ -13,12 +14,19 @@ public class SpdzConfigurableDataSupplier implements SpdzDataSupplier {
   private final ArithmeticDummyDataSupplier supplier;
   private final BigInteger modulus;
   private final BigInteger secretSharedKey;
+  private final int expPipeLength;
 
   public SpdzConfigurableDataSupplier(int myId, int noOfPlayers, BigInteger modulus,
-      BigInteger secretSharedKey) {
+    BigInteger secretSharedKey) {
+    this(myId, noOfPlayers, modulus, secretSharedKey, 200);
+  }
+
+  public SpdzConfigurableDataSupplier(int myId, int noOfPlayers, BigInteger modulus,
+      BigInteger secretSharedKey, int expPipeLength) {
     this.myId = myId;
     this.modulus = modulus;
     this.secretSharedKey = secretSharedKey;
+    this.expPipeLength = expPipeLength;
     this.supplier = new ArithmeticDummyDataSupplier(myId, noOfPlayers, modulus);
   }
 
@@ -33,8 +41,10 @@ public class SpdzConfigurableDataSupplier implements SpdzDataSupplier {
 
   @Override
   public SpdzSInt[] getNextExpPipe() {
-    // TODO
-    return new SpdzSInt[0];
+    List<SameTypePair<BigInteger>> rawExpPipe = supplier.getExpPipe(expPipeLength);
+    return rawExpPipe.stream()
+        .map(r -> new SpdzSInt(toSpdzElement(r)))
+        .toArray(SpdzSInt[]::new);
   }
 
   @Override
@@ -74,4 +84,5 @@ public class SpdzConfigurableDataSupplier implements SpdzDataSupplier {
         modulus
     );
   }
+
 }

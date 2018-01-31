@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.util.MathUtils;
 import dk.alexandra.fresco.framework.util.SameTypePair;
 import dk.alexandra.fresco.framework.util.SecretSharer;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -36,7 +37,7 @@ public class ArithmeticDummyDataSupplier {
    * Computes the next random element and this party's share.
    */
   public SameTypePair<BigInteger> getRandomElementShare() {
-    BigInteger element = getNextRandomElement();
+    BigInteger element = sampleRandomBigInteger();
     return new SameTypePair<>(element, sharer.share(element, noOfParties).get(myId - 1));
   }
 
@@ -52,8 +53,8 @@ public class ArithmeticDummyDataSupplier {
    * Computes the next random multiplication triple and this party's shares.
    */
   public MultiplicationTripleShares getMultiplicationTripleShares() {
-    BigInteger left = getNextRandomElement();
-    BigInteger right = getNextRandomElement();
+    BigInteger left = sampleRandomBigInteger();
+    BigInteger right = sampleRandomBigInteger();
     BigInteger product = left.multiply(right).mod(modulus);
     return new MultiplicationTripleShares(
         new SameTypePair<>(left, sharer.share(left, noOfParties).get(myId - 1)),
@@ -62,8 +63,33 @@ public class ArithmeticDummyDataSupplier {
     );
   }
 
-  private BigInteger getNextRandomElement() {
+  /**
+   * Constructs an exponentiation pipe. <p>An exponentiation pipe is a list of numbers in the
+   * following format: r^{-1}, r, r^{2}, r^{3}, ..., r^{expPipeLength}, where r is a random element
+   * and all exponentiations are mod {@link #modulus}.</p>
+   */
+  public List<SameTypePair<BigInteger>> getExpPipe(int expPipeLength) {
+    List<BigInteger> openExpPipe = getOpenExpPipe(expPipeLength);
+    return openExpPipe.stream()
+        .map(r -> new SameTypePair<>(r, sharer.share(r, noOfParties).get(myId)))
+        .collect(Collectors.toList());
+  }
+
+  private BigInteger sampleRandomBigInteger() {
     return new BigInteger(modBitLength, random).mod(modulus);
+  }
+
+  private List<BigInteger> getOpenExpPipe(int expPipeLength) {
+    List<BigInteger> openExpPipe = new ArrayList<>(expPipeLength);
+    BigInteger first = sampleRandomBigInteger();
+    BigInteger inverse = first.modInverse(modulus);
+    openExpPipe.add(inverse);
+    openExpPipe.add(first);
+    for (int i = 1; i < expPipeLength; i++) {
+      BigInteger previous = openExpPipe.get(openExpPipe.size() - 1);
+      openExpPipe.add(previous.multiply(first).mod(modulus));
+    }
+    return openExpPipe;
   }
 
   private BigInteger getNextBit() {
