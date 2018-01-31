@@ -2,8 +2,8 @@ package dk.alexandra.fresco.suite.spdz.storage;
 
 import static org.junit.Assert.assertEquals;
 
-import dk.alexandra.fresco.framework.util.MathUtils;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -21,21 +21,35 @@ public class TestSpdzConfigurableDataSupplier {
           "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557")
   );
 
-  private void testGetNextTriple(int noOfParties, BigInteger modulus) {
+  private List<SpdzConfigurableDataSupplier> setupSuppliers(int noOfParties,
+      BigInteger modulus) {
     List<SpdzConfigurableDataSupplier> suppliers = new ArrayList<>(noOfParties);
-    List<BigInteger> macKeyShares = new ArrayList<>(noOfParties);
     Random random = new Random();
     for (int i = 0; i < noOfParties; i++) {
       BigInteger macKeyShare = new BigInteger(modulus.bitLength(), random).mod(modulus);
-      macKeyShares.add(macKeyShare);
       suppliers.add(new SpdzConfigurableDataSupplier(i + 1, noOfParties, modulus, macKeyShare));
     }
+    return suppliers;
+  }
+
+  private BigInteger getMacKeyFromSuppliers(List<SpdzConfigurableDataSupplier> suppliers) {
+    BigInteger macKey = BigInteger.ZERO;
+    for (SpdzConfigurableDataSupplier supplier : suppliers) {
+      macKey = macKey.add(supplier.getSecretSharedKey());
+    }
+    return macKey.mod(suppliers.get(0).getModulus());
+  }
+
+
+  private void testGetNextTriple(int noOfParties, BigInteger modulus) {
+    List<SpdzConfigurableDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
+    BigInteger macKey = getMacKeyFromSuppliers(suppliers);
     List<SpdzTriple> triples = new ArrayList<>(noOfParties);
     for (SpdzConfigurableDataSupplier supplier : suppliers) {
       triples.add(supplier.getNextTriple());
     }
     SpdzTriple recombined = recombineTriples(triples);
-    assertTripleValid(recombined, macKeyShares, modulus);
+    assertTripleValid(recombined, macKey, modulus);
   }
 
   private void testGetNextTriple(int noOfParties) {
@@ -44,11 +58,50 @@ public class TestSpdzConfigurableDataSupplier {
     }
   }
 
+  private void testGetNextInputMask(int noOfParties, int towardParty, BigInteger modulus) {
+    List<SpdzConfigurableDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
+    BigInteger macKey = getMacKeyFromSuppliers(suppliers);
+    List<SpdzInputMask> masks = new ArrayList<>(noOfParties);
+    for (SpdzConfigurableDataSupplier supplier : suppliers) {
+      masks.add(supplier.getNextInputMask(towardParty));
+    }
+    BigInteger realValue = null;
+    List<SpdzElement> shares = new ArrayList<>(noOfParties);
+    for (int i = 0; i < noOfParties; i++) {
+      SpdzInputMask spdzInputMask = masks.get(i);
+      if (i + 1 != towardParty) {
+        assertEquals(null, spdzInputMask.getRealValue());
+      } else {
+        realValue = spdzInputMask.getRealValue();
+      }
+      shares.add(spdzInputMask.getMask());
+    }
+    SpdzElement recombined = recombine(shares);
+    assertMacCorrect(recombined, macKey, modulus);
+    assertEquals(realValue, recombined.getShare());
+  }
+
+  private void testGetNextInputMask(int noOfParties, int towardParty) {
+    for (BigInteger modulus : moduli) {
+      testGetNextInputMask(noOfParties, towardParty, modulus);
+    }
+  }
+
   @Test
   public void testGetNextTriple() {
     testGetNextTriple(2);
     testGetNextTriple(3);
     testGetNextTriple(5);
+  }
+
+  @Test
+  public void testGetNextInputMask() {
+    List<Integer> partyCounts = Arrays.asList(2, 3, 5);
+    for (int partyCount : partyCounts) {
+      for (int i = 0; i < partyCount; i++) {
+        testGetNextInputMask(partyCount, i + 1);
+      }
+    }
   }
 
   private SpdzElement recombine(List<SpdzElement> shares) {
@@ -71,9 +124,7 @@ public class TestSpdzConfigurableDataSupplier {
     assertEquals(recombined.getShare().multiply(macKey).mod(modulus), recombined.getMac());
   }
 
-  private void assertTripleValid(SpdzTriple recombined, List<BigInteger> macKeyShares,
-      BigInteger modulus) {
-    BigInteger macKey = MathUtils.sum(macKeyShares, modulus);
+  private void assertTripleValid(SpdzTriple recombined, BigInteger macKey, BigInteger modulus) {
     assertMacCorrect(recombined.getA(), macKey, modulus);
     assertMacCorrect(recombined.getB(), macKey, modulus);
     assertMacCorrect(recombined.getC(), macKey, modulus);
