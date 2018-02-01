@@ -14,7 +14,8 @@ public interface Network {
 
   /**
    * Send data to other party with id partyId. Ownership of the data array is transferred to
-   * the network through this call.
+   * the network through this call. This means that the caller cannot change the byte array after
+   * this call nor assume it is unchanged by the network.
    *
    * @param partyId the party to send data to
    * @param data the data to send
