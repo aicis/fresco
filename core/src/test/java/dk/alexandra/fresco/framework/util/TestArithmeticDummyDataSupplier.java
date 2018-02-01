@@ -26,7 +26,7 @@ public class TestArithmeticDummyDataSupplier {
     for (int i = 0; i < noOfParties; i++) {
       suppliers.add(new ArithmeticDummyDataSupplier(i + 1, noOfParties, modulus));
     }
-    List<Pair<BigInteger,BigInteger>> actual = new ArrayList<>();
+    List<Pair<BigInteger, BigInteger>> actual = new ArrayList<>();
     for (ArithmeticDummyDataSupplier supplier : suppliers) {
       actual.add(supplier.getRandomElementShare());
     }
@@ -56,7 +56,7 @@ public class TestArithmeticDummyDataSupplier {
     for (int i = 0; i < noOfParties; i++) {
       suppliers.add(new ArithmeticDummyDataSupplier(i + 1, noOfParties, modulus));
     }
-    List<Pair<BigInteger,BigInteger>> actual = new ArrayList<>();
+    List<Pair<BigInteger, BigInteger>> actual = new ArrayList<>();
     for (ArithmeticDummyDataSupplier supplier : suppliers) {
       actual.add(supplier.getRandomBitShare());
     }
@@ -97,6 +97,29 @@ public class TestArithmeticDummyDataSupplier {
   private void testGetMultiplicationTripleShares(int noOfParties) {
     for (BigInteger modulus : moduli) {
       testGetMultiplicationTripleShares(noOfParties, modulus);
+    }
+  }
+
+  private void testGetExpPipe(int noOfParties, BigInteger modulus) {
+    List<ArithmeticDummyDataSupplier> suppliers = new ArrayList<>(noOfParties);
+    for (int i = 0; i < noOfParties; i++) {
+      suppliers.add(new ArithmeticDummyDataSupplier(i + 1, noOfParties, modulus));
+    }
+    List<List<Pair<BigInteger, BigInteger>>> actual = new ArrayList<>();
+    for (ArithmeticDummyDataSupplier supplier : suppliers) {
+      actual.add(supplier.getExpPipe(200));
+    }
+    // not quite flat map sadly
+    List<List<BigInteger>> openPipes = actual.stream()
+        .map(p -> p.stream().map(Pair::getFirst).collect(Collectors.toList()))
+        .collect(Collectors.toList());
+    assertAllEqual(openPipes);
+    assertPipeIsCorrect(openPipes.get(0), modulus);
+  }
+
+  private void testGetExpPipe(int noOfParties) {
+    for (BigInteger modulus : moduli) {
+      testGetExpPipe(noOfParties, modulus);
     }
   }
 
@@ -146,6 +169,13 @@ public class TestArithmeticDummyDataSupplier {
   }
 
   @Test
+  public void testGetExpPipes() {
+    testGetExpPipe(2);
+    testGetExpPipe(3);
+    testGetExpPipe(5);
+  }
+
+  @Test
   public void testDummyRecombine() {
     BigInteger modulus = moduli.get(0);
     BigInteger input = new BigInteger(modulus.bitLength(), new Random()).mod(modulus);
@@ -165,9 +195,9 @@ public class TestArithmeticDummyDataSupplier {
     }
   }
 
-  private void assertAllEqual(List<BigInteger> elements) {
-    BigInteger first = elements.get(0);
-    for (BigInteger element : elements) {
+  private <T> void assertAllEqual(List<T> elements) {
+    T first = elements.get(0);
+    for (T element : elements) {
       assertEquals(first, element);
     }
   }
@@ -176,6 +206,15 @@ public class TestArithmeticDummyDataSupplier {
     for (BigInteger element : elements) {
       assertTrue("Element not a bit " + element,
           element.equals(BigInteger.ZERO) || element.equals(BigInteger.ONE));
+    }
+  }
+
+  private void assertPipeIsCorrect(List<BigInteger> pipe, BigInteger modulus) {
+    BigInteger inverted = pipe.get(0);
+    BigInteger first = pipe.get(1);
+    assertEquals(inverted, first.modInverse(modulus));
+    for (int i = 1; i < pipe.size(); i++) {
+      assertEquals(first.modPow(BigInteger.valueOf(i), modulus), pipe.get(i));
     }
   }
 
@@ -188,9 +227,9 @@ public class TestArithmeticDummyDataSupplier {
     List<BigInteger> productValues = new ArrayList<>(triples.size());
     List<BigInteger> productShares = new ArrayList<>(triples.size());
     for (MultiplicationTripleShares triple : triples) {
-      Pair<BigInteger,BigInteger> left = triple.getLeft();
-      Pair<BigInteger,BigInteger> right = triple.getRight();
-      Pair<BigInteger,BigInteger> product = triple.getProduct();
+      Pair<BigInteger, BigInteger> left = triple.getLeft();
+      Pair<BigInteger, BigInteger> right = triple.getRight();
+      Pair<BigInteger, BigInteger> product = triple.getProduct();
       leftValues.add(left.getFirst());
       leftShares.add(left.getSecond());
       rightValues.add(right.getFirst());

@@ -33,7 +33,7 @@ public class ArithmeticDummyDataSupplier {
   /**
    * Computes the next random element and this party's share.
    */
-  public Pair<BigInteger,BigInteger> getRandomElementShare() {
+  public Pair<BigInteger, BigInteger> getRandomElementShare() {
     BigInteger element = sampleRandomBigInteger();
     return new Pair<>(element, sharer.share(element, noOfParties).get(myId - 1));
   }
@@ -41,7 +41,7 @@ public class ArithmeticDummyDataSupplier {
   /**
    * Computes the next random bit (expressed as {@link BigInteger}) and this party's share.
    */
-  public Pair<BigInteger,BigInteger> getRandomBitShare() {
+  public Pair<BigInteger, BigInteger> getRandomBitShare() {
     BigInteger bit = getNextBit();
     return new Pair<>(bit, sharer.share(bit, noOfParties).get(myId - 1));
   }
@@ -65,7 +65,7 @@ public class ArithmeticDummyDataSupplier {
    * following format: r^{-1}, r, r^{2}, r^{3}, ..., r^{expPipeLength}, where r is a random element
    * and all exponentiations are mod {@link #modulus}.</p>
    */
-  public List<Pair<BigInteger,BigInteger>> getExpPipe(int expPipeLength) {
+  public List<Pair<BigInteger, BigInteger>> getExpPipe(int expPipeLength) {
     List<BigInteger> openExpPipe = getOpenExpPipe(expPipeLength);
     return openExpPipe.stream()
         .map(r -> new Pair<>(r, sharer.share(r, noOfParties).get(myId - 1)))
