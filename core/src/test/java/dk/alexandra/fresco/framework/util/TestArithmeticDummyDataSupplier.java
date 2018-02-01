@@ -176,6 +176,29 @@ public class TestArithmeticDummyDataSupplier {
   }
 
   @Test
+  public void testBitsNotAllSame() {
+    int noOfParties = 2;
+    BigInteger modulus = moduli.get(1);
+    ArithmeticDummyDataSupplier supplier = new ArithmeticDummyDataSupplier(1, noOfParties,
+        modulus);
+    List<BigInteger> bits = new ArrayList<>(1000);
+    for (int i = 0; i < 1000; i++) {
+      bits.add(supplier.getRandomBitShare().getFirst());
+    }
+    boolean seenZero = false;
+    boolean seenOne = false;
+    for (BigInteger bit : bits) {
+      seenZero = seenZero || bit.equals(BigInteger.ZERO);
+      seenOne = seenOne || bit.equals(BigInteger.ONE);
+      if (seenOne && seenZero) {
+        break;
+      }
+    }
+    assertTrue(seenOne);
+    assertTrue(seenZero);
+  }
+
+  @Test
   public void testDummyRecombine() {
     BigInteger modulus = moduli.get(0);
     BigInteger input = new BigInteger(modulus.bitLength(), new Random()).mod(modulus);
