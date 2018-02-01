@@ -1,8 +1,5 @@
-package dk.alexandra.fresco.suite.spdz.storage;
+package dk.alexandra.fresco.framework.util;
 
-import dk.alexandra.fresco.framework.util.MathUtils;
-import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.util.SecretSharer;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +9,7 @@ import java.util.stream.IntStream;
 
 /**
  * Supplies generic pre-processed material common across arithmetic SPDZ-like suites, including
- * random elements, bit, and multiplication triples. <p>Uses {@link Random} to deterministically
+ * random elements, bits, and multiplication triples. <p>Uses {@link Random} to deterministically
  * generate all material. NOT secure.</p>
  */
 public class ArithmeticDummyDataSupplier {
@@ -24,7 +21,7 @@ public class ArithmeticDummyDataSupplier {
   private final Random random;
   private final SecretSharer<BigInteger> sharer;
 
-  ArithmeticDummyDataSupplier(int myId, int noOfParties, BigInteger modulus) {
+  public ArithmeticDummyDataSupplier(int myId, int noOfParties, BigInteger modulus) {
     this.myId = myId;
     this.noOfParties = noOfParties;
     this.modulus = modulus;

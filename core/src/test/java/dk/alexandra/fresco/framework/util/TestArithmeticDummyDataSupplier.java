@@ -1,12 +1,9 @@
-package dk.alexandra.fresco.suite.spdz.storage;
+package dk.alexandra.fresco.framework.util;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-import dk.alexandra.fresco.framework.util.MathUtils;
-import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.util.SecretSharer;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
