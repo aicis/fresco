@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotEquals;
 
 import dk.alexandra.fresco.framework.util.MathUtils;
 import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.util.SameTypePair;
 import dk.alexandra.fresco.framework.util.SecretSharer;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -30,7 +29,7 @@ public class TestArithmeticDummyDataSupplier {
     for (int i = 0; i < noOfParties; i++) {
       suppliers.add(new ArithmeticDummyDataSupplier(i + 1, noOfParties, modulus));
     }
-    List<SameTypePair<BigInteger>> actual = new ArrayList<>();
+    List<Pair<BigInteger,BigInteger>> actual = new ArrayList<>();
     for (ArithmeticDummyDataSupplier supplier : suppliers) {
       actual.add(supplier.getRandomElementShare());
     }
@@ -60,7 +59,7 @@ public class TestArithmeticDummyDataSupplier {
     for (int i = 0; i < noOfParties; i++) {
       suppliers.add(new ArithmeticDummyDataSupplier(i + 1, noOfParties, modulus));
     }
-    List<SameTypePair<BigInteger>> actual = new ArrayList<>();
+    List<Pair<BigInteger,BigInteger>> actual = new ArrayList<>();
     for (ArithmeticDummyDataSupplier supplier : suppliers) {
       actual.add(supplier.getRandomBitShare());
     }
@@ -192,9 +191,9 @@ public class TestArithmeticDummyDataSupplier {
     List<BigInteger> productValues = new ArrayList<>(triples.size());
     List<BigInteger> productShares = new ArrayList<>(triples.size());
     for (MultiplicationTripleShares triple : triples) {
-      SameTypePair<BigInteger> left = triple.getLeft();
-      SameTypePair<BigInteger> right = triple.getRight();
-      SameTypePair<BigInteger> product = triple.getProduct();
+      Pair<BigInteger,BigInteger> left = triple.getLeft();
+      Pair<BigInteger,BigInteger> right = triple.getRight();
+      Pair<BigInteger,BigInteger> product = triple.getProduct();
       leftValues.add(left.getFirst());
       leftShares.add(left.getSecond());
       rightValues.add(right.getFirst());

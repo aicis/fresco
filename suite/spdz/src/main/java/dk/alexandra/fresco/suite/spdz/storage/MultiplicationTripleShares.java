@@ -1,32 +1,32 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
-import dk.alexandra.fresco.framework.util.SameTypePair;
+import dk.alexandra.fresco.framework.util.Pair;
 import java.math.BigInteger;
 
 public class MultiplicationTripleShares {
 
-  private final SameTypePair<BigInteger> left;
-  private final SameTypePair<BigInteger> right;
-  private final SameTypePair<BigInteger> product;
+  private final Pair<BigInteger,BigInteger> left;
+  private final Pair<BigInteger,BigInteger> right;
+  private final Pair<BigInteger,BigInteger> product;
 
   MultiplicationTripleShares(
-      SameTypePair<BigInteger> left,
-      SameTypePair<BigInteger> right,
-      SameTypePair<BigInteger> product) {
+      Pair<BigInteger,BigInteger> left,
+      Pair<BigInteger,BigInteger> right,
+      Pair<BigInteger,BigInteger> product) {
     this.left = left;
     this.right = right;
     this.product = product;
   }
 
-  public SameTypePair<BigInteger> getLeft() {
+  public Pair<BigInteger,BigInteger> getLeft() {
     return left;
   }
 
-  public SameTypePair<BigInteger> getRight() {
+  public Pair<BigInteger,BigInteger> getRight() {
     return right;
   }
 
-  public SameTypePair<BigInteger> getProduct() {
+  public Pair<BigInteger,BigInteger> getProduct() {
     return product;
   }
 }

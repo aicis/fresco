@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
 import dk.alexandra.fresco.framework.util.MathUtils;
-import dk.alexandra.fresco.framework.util.SameTypePair;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.SecretSharer;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -36,17 +36,17 @@ public class ArithmeticDummyDataSupplier {
   /**
    * Computes the next random element and this party's share.
    */
-  public SameTypePair<BigInteger> getRandomElementShare() {
+  public Pair<BigInteger,BigInteger> getRandomElementShare() {
     BigInteger element = sampleRandomBigInteger();
-    return new SameTypePair<>(element, sharer.share(element, noOfParties).get(myId - 1));
+    return new Pair<>(element, sharer.share(element, noOfParties).get(myId - 1));
   }
 
   /**
    * Computes the next random bit (expressed as {@link BigInteger}) and this party's share.
    */
-  public SameTypePair<BigInteger> getRandomBitShare() {
+  public Pair<BigInteger,BigInteger> getRandomBitShare() {
     BigInteger bit = getNextBit();
-    return new SameTypePair<>(bit, sharer.share(bit, noOfParties).get(myId - 1));
+    return new Pair<>(bit, sharer.share(bit, noOfParties).get(myId - 1));
   }
 
   /**
@@ -57,9 +57,9 @@ public class ArithmeticDummyDataSupplier {
     BigInteger right = sampleRandomBigInteger();
     BigInteger product = left.multiply(right).mod(modulus);
     return new MultiplicationTripleShares(
-        new SameTypePair<>(left, sharer.share(left, noOfParties).get(myId - 1)),
-        new SameTypePair<>(right, sharer.share(right, noOfParties).get(myId - 1)),
-        new SameTypePair<>(product, sharer.share(product, noOfParties).get(myId - 1))
+        new Pair<>(left, sharer.share(left, noOfParties).get(myId - 1)),
+        new Pair<>(right, sharer.share(right, noOfParties).get(myId - 1)),
+        new Pair<>(product, sharer.share(product, noOfParties).get(myId - 1))
     );
   }
 
@@ -68,10 +68,10 @@ public class ArithmeticDummyDataSupplier {
    * following format: r^{-1}, r, r^{2}, r^{3}, ..., r^{expPipeLength}, where r is a random element
    * and all exponentiations are mod {@link #modulus}.</p>
    */
-  public List<SameTypePair<BigInteger>> getExpPipe(int expPipeLength) {
+  public List<Pair<BigInteger,BigInteger>> getExpPipe(int expPipeLength) {
     List<BigInteger> openExpPipe = getOpenExpPipe(expPipeLength);
     return openExpPipe.stream()
-        .map(r -> new SameTypePair<>(r, sharer.share(r, noOfParties).get(myId - 1)))
+        .map(r -> new Pair<>(r, sharer.share(r, noOfParties).get(myId - 1)))
         .collect(Collectors.toList());
   }
 

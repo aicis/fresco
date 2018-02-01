@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
 import dk.alexandra.fresco.framework.util.ModulusFinder;
-import dk.alexandra.fresco.framework.util.SameTypePair;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -54,7 +54,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
 
   @Override
   public SpdzSInt[] getNextExpPipe() {
-    List<SameTypePair<BigInteger>> rawExpPipe = supplier.getExpPipe(expPipeLength);
+    List<Pair<BigInteger,BigInteger>> rawExpPipe = supplier.getExpPipe(expPipeLength);
     return rawExpPipe.stream()
         .map(r -> new SpdzSInt(toSpdzElement(r)))
         .toArray(SpdzSInt[]::new);
@@ -62,7 +62,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
 
   @Override
   public SpdzInputMask getNextInputMask(int towardPlayerId) {
-    SameTypePair<BigInteger> raw = supplier.getRandomElementShare();
+    Pair<BigInteger,BigInteger> raw = supplier.getRandomElementShare();
     if (myId == towardPlayerId) {
       return new SpdzInputMask(toSpdzElement(raw), raw.getFirst());
     } else {
@@ -90,7 +90,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
     return new SpdzSInt(toSpdzElement(supplier.getRandomElementShare()));
   }
 
-  private SpdzElement toSpdzElement(SameTypePair<BigInteger> raw) {
+  private SpdzElement toSpdzElement(Pair<BigInteger,BigInteger> raw) {
     return new SpdzElement(
         raw.getSecond(),
         raw.getFirst().multiply(secretSharedKey).mod(modulus),
