@@ -14,5 +14,5 @@ public class TestSameTypePair {
     assertEquals(new Integer(1), pair.getFirst());
     assertEquals(new Integer(2), pair.getSecond());
   }
-  
+
 }

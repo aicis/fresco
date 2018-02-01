@@ -30,9 +30,7 @@ public class MiMCTests {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-
         @Override
         public void test() throws Exception {
           final BigInteger[] modulus = new BigInteger[1];
@@ -48,10 +46,10 @@ public class MiMCTests {
           BigInteger result = runApplication(app);
 
           BigInteger expectedModulus = new BigInteger(
-              "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557");
+              "13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006083527");
           Assert.assertEquals(expectedModulus, modulus[0]);
           BigInteger expectedCipherText = new BigInteger(
-              "10388336824440235723309131431891968131690383663436711590309818298349333623568340591094832870178074855376232596303647115");
+              "1820575256567343287822539103049123566297546524412536407680299311432702558689030352925047622023903485129724476853331600792699010701523638266948303172055567");
           Assert.assertEquals(expectedCipherText, result);
         }
       };
