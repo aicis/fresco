@@ -7,6 +7,8 @@ public class MathUtils {
 
   private static final BigInteger TWO = BigInteger.valueOf(2);
 
+  private MathUtils() {
+  }
 
   /**
    * Checks whether a value is a quadratic residue, i.e., if it has a square root mod modulus. </b>

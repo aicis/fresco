@@ -123,6 +123,7 @@ public class ArithmeticDummyDataSupplier {
     /**
      * Recombines additive secret-shares into secret.
      */
+    @Override
     public BigInteger recombine(List<BigInteger> shares) {
       return MathUtils.sum(shares, modulus);
     }

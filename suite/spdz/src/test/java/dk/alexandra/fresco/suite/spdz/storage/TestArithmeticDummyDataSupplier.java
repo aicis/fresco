@@ -7,10 +7,12 @@ import static org.junit.Assert.assertNotEquals;
 import dk.alexandra.fresco.framework.util.MathUtils;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.SameTypePair;
+import dk.alexandra.fresco.framework.util.SecretSharer;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 import org.junit.Test;
 
@@ -145,6 +147,16 @@ public class TestArithmeticDummyDataSupplier {
   @Test
   public void testGetMultiplicationTripleSharesFive() {
     testGetMultiplicationTripleShares(5);
+  }
+
+  @Test
+  public void testDummyRecombine() {
+    BigInteger modulus = moduli.get(0);
+    BigInteger input = new BigInteger(modulus.bitLength(), new Random()).mod(modulus);
+    SecretSharer<BigInteger> sharer = new ArithmeticDummyDataSupplier(1, 2,
+        modulus).new DummyBigIntegerSharer(modulus,
+        new Random());
+    assertEquals(input, sharer.recombine(sharer.share(input, 2)));
   }
 
   private void assertAllDifferent(List<BigInteger> elements) {
