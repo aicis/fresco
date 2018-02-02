@@ -12,8 +12,6 @@ open source MIT license.
 
 The FRESCO source code is available at https://github.com/aicis/fresco.
 
-
-
 Contents:
 ---------
 
