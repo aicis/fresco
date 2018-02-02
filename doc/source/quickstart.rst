@@ -81,9 +81,10 @@ two parties running on the same machine.
     double dist = Math.sqrt(bigInteger.doubleValue());
 
 
-From here, the work with MultiPartyComputation becomes somewhat more onvolved - you should
-change to an actual protocol suites, here Spdz. This requires a Spdz resource pool which involves
-figuring how to handle the offline phase - and hence defining the security model properly.
+From here, the work with MultiPartyComputation becomes somewhat more involved - you should change
+the suite to the actual protocol suites, here Spdz is the natural choice. This requires a Spdz
+resource pool which involves figuring how to handle the offline phase - and hence defining the
+security model properly.
 
 Use the mailing list for further advise and help.
 
