@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.marlin.datatypes;
 
 /**
- * Interface to representing unsigned integers larger than 64 bits.
+ * Interface for representing unsigned integers larger than 64 bits.
  */
 public interface BigUInt<T extends BigUInt> {
 

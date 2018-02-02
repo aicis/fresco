@@ -3,8 +3,10 @@ package dk.alexandra.fresco.suite.marlin;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
+import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
 
-public class MarlinProtocolSuite implements ProtocolSuiteNumeric<MarlinResourcePool> {
+public class MarlinProtocolSuite<T extends BigUInt<T>> implements
+    ProtocolSuiteNumeric<MarlinResourcePool> {
 
   @Override
   public BuilderFactoryNumeric init(MarlinResourcePool resourcePool, Network network) {

@@ -22,6 +22,7 @@ import dk.alexandra.fresco.logging.PerformanceLogger;
 import dk.alexandra.fresco.logging.PerformanceLoggerCountingAggregate;
 import dk.alexandra.fresco.logging.PerformancePrinter;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
+import dk.alexandra.fresco.suite.marlin.datatypes.MutableUInt128;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,7 +50,7 @@ public class AbstractMarlinTest {
 
       NetworkConfiguration partyNetConf = netConf.get(playerId);
 
-      ProtocolSuiteNumeric<MarlinResourcePool> ps = new MarlinProtocolSuite();
+      ProtocolSuiteNumeric<MarlinResourcePool> ps = new MarlinProtocolSuite<MutableUInt128>();
       if (logPerformance) {
         ps = new NumericSuiteLogging<>(ps);
         aggregate.add((PerformanceLogger) ps);
