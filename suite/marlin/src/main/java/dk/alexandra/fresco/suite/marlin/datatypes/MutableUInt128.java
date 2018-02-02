@@ -43,6 +43,7 @@ public class MutableUInt128 implements BigUInt<MutableUInt128> {
     this.low = other.low;
   }
 
+  @Override
   public void addInPlace(MutableUInt128 other) {
     long newLow = Integer.toUnsignedLong(this.low) + Integer.toUnsignedLong(other.low);
     long lowOverflow = newLow >>> 32;
@@ -56,12 +57,14 @@ public class MutableUInt128 implements BigUInt<MutableUInt128> {
     this.high = newHigh;
   }
 
+  @Override
   public MutableUInt128 add(MutableUInt128 other) {
     MutableUInt128 clone = new MutableUInt128(this);
     clone.addInPlace(other);
     return clone;
   }
 
+  @Override
   public void multiplyInPlace(MutableUInt128 other) {
     long thisLowAsLong = Integer.toUnsignedLong(this.low);
     long thisMidAsLong = Integer.toUnsignedLong(this.mid);
@@ -102,6 +105,7 @@ public class MutableUInt128 implements BigUInt<MutableUInt128> {
     this.high = newHigh;
   }
 
+  @Override
   public MutableUInt128 multiply(MutableUInt128 other) {
     MutableUInt128 clone = new MutableUInt128(this);
     clone.multiplyInPlace(other);
