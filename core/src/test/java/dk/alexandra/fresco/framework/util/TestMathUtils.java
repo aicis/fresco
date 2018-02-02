@@ -3,11 +3,13 @@ package dk.alexandra.fresco.framework.util;
 import static org.junit.Assert.assertEquals;
 
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Test;
 
 public class TestMathUtils {
 
-  BigInteger modulus = new BigInteger("113");
+  private BigInteger modulus = new BigInteger("113");
 
   @Test
   public void testIsQuadraticResidue() {
@@ -31,6 +33,20 @@ public class TestMathUtils {
     BigInteger value = new BigInteger("180740608519057052622341767564917758093");
     BigInteger actual = MathUtils.modularSqrt(value, bigModulus);
     assertEquals(actual.pow(2).mod(bigModulus), value);
+  }
+
+  @Test
+  public void testSum() {
+    List<BigInteger> summands = Arrays.asList(
+        BigInteger.ONE,
+        BigInteger.ZERO,
+        modulus.subtract(BigInteger.TEN).mod(modulus),
+        new BigInteger("42").mod(modulus)
+    );
+    BigInteger expected = BigInteger.ONE.add(BigInteger.ZERO)
+        .add(modulus.subtract(BigInteger.TEN).mod(modulus)).add(new BigInteger("42").mod(modulus))
+        .mod(modulus);
+    assertEquals(expected, MathUtils.sum(summands, modulus));
   }
 
   @Test(expected = IllegalArgumentException.class)
