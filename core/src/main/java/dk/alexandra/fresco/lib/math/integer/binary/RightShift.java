@@ -106,7 +106,7 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
       /*
        * rTop is r with the last shifts bits set to zero, and it is hence
        * divisible by 2^shifts, so multiplying with the inverse in the field
-       * corresponds to shifting r.
+       * corresponds to shifting.
        */
       DRes<SInt> rShifted = seq.numeric().mult(inverse, rTop);
       BigInteger mShifted = masked.shiftRight(shifts);
@@ -114,7 +114,8 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
       /*
        * The naive result to return would be mShifted - rShifted, but this is
        * not equal to the shifted input if there was a carry form the addition
-       * of the most significant bits that were removed by the shift.
+       * of the input and r on the most significant bit that was removed by
+       * the shift.
        */
       DRes<SInt> naiveResult = seq.numeric().sub(mShifted, rShifted);
       DRes<SInt> result = seq.numeric().sub(naiveResult, carry);
