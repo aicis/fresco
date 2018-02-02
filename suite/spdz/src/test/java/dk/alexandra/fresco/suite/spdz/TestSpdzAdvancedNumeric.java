@@ -1,12 +1,11 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import org.junit.Test;
-
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.AdvancedNumericTests;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationTests.TestExponentiation;
 import dk.alexandra.fresco.lib.math.polynomial.PolynomialTests.TestPolynomialEvaluator;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
+import org.junit.Test;
 
 public class TestSpdzAdvancedNumeric extends AbstractSpdzTest {
 
@@ -42,8 +41,7 @@ public class TestSpdzAdvancedNumeric extends AbstractSpdzTest {
         new int[]{1, Integer.MAX_VALUE},
         new int[]{-9, 4},
         new int[]{9, -4},
-        new int[]{-9, -4},
-        new int[]{100000000,2000}
+        new int[]{-9, -4}
     };
     for (int[] example : examples) {
       test_DivisionWithKnownDenominator(example[0], example[1]);
