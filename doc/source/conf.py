@@ -53,8 +53,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'FRESCO'
-copyright = u'2015, FRESCO (http://github.com/aicis/fresco)'
-author = u'Kasper Damgaard, Thomas P. Jakobsen, Peter S. Nordholt'
+copyright = u'2018, FRESCO (http://github.com/aicis/fresco)'
+author = u'FRESCO team'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -234,7 +234,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
   (master_doc, 'FRESCO.tex', u'FRESCO Documentation',
-   u'Kasper Damgaard, Thomas P. Jakobsen, Peter S. Nordholt', 'manual'),
+   u'', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

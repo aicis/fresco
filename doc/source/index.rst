@@ -22,5 +22,6 @@ Contents:
    install
    quickstart
    protocol_suites
+   contributing
    developers
    todo
