@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.tinytables.prepro.protocols;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.value.SBool;
@@ -29,13 +28,11 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol<SBool>
   private DRes<SBool> inLeft, inRight;
   private TinyTablesPreproSBool out;
 
-  public TinyTablesPreproANDProtocol(int id, DRes<SBool> inLeft, DRes<SBool> inRight,
-      SBool out) {
+  public TinyTablesPreproANDProtocol(int id, DRes<SBool> inLeft, DRes<SBool> inRight) {
     super();
     this.id = id;
     this.inLeft = inLeft;
     this.inRight = inRight;
-    this.out = (TinyTablesPreproSBool) out;
   }
 
   public TinyTablesPreproSBool getInLeft() {
@@ -44,10 +41,6 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol<SBool>
 
   public TinyTablesPreproSBool getInRight() {
     return (TinyTablesPreproSBool) inRight.out();
-  }
-
-  public TinyTablesPreproSBool getOut() {
-    return out;
   }
 
   @Override
@@ -61,28 +54,20 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol<SBool>
     TinyTablesPreproProtocolSuite ps =
         TinyTablesPreproProtocolSuite.getInstance(resourcePool.getMyId());
 
-    switch (round) {
-      case 0:
+    /*
+     * Here we only pick the mask of the output wire. The TinyTable is calculated after all AND
+     * gates has been preprocessed.
+     */
+    boolean rO = ps.getSecureRandom().nextBoolean();
+    out = new TinyTablesPreproSBool(new TinyTablesElement(rO));
 
-        /*
-         * Here we only pick the mask of the output wire. The TinyTable is calculated after all AND
-         * gates has been preprocessed.
-         */
-        boolean rO = ps.getSecureRandom().nextBoolean();
-        out = (out == null) ? new TinyTablesPreproSBool() : out;
-        out.setValue(new TinyTablesElement(rO));
+    /*
+     * We need to finish the processing of this gate after all preprocessing is done (see
+     * calculateTinyTable). To do this, we keep a reference to all AND gates.
+     */
+    ps.addANDGate(this);
 
-        /*
-         * We need to finish the processing of this gate after all preprocessing is done (see
-         * calculateTinyTable). To do this, we keep a reference to all AND gates.
-         */
-        ps.addANDGate(this);
-
-        return EvaluationStatus.IS_DONE;
-
-      default:
-        throw new MPCException("Cannot evaluate more than one round");
-    }
+    return EvaluationStatus.IS_DONE;
   }
 
   /**

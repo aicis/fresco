@@ -3,9 +3,9 @@ package dk.alexandra.fresco.logging;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Comparison;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
+import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.logging.arithmetic.ComparisonLoggerDecorator;
@@ -18,7 +18,7 @@ import java.util.Map;
  *
  * @param <ResourcePoolT> the resource pool of the original decorated suite.
  */
-public class NumericSuiteLogging<ResourcePoolT extends ResourcePool>
+public class NumericSuiteLogging<ResourcePoolT extends NumericResourcePool>
     implements ProtocolSuiteNumeric<ResourcePoolT>, PerformanceLogger {
 
   private final ProtocolSuiteNumeric<ResourcePoolT> delegateSuite;

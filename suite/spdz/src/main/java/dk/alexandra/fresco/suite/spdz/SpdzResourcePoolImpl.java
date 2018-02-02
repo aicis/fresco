@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
+import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
@@ -15,22 +15,29 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
   private int modulusSize;
   private BigInteger modulus;
   private BigInteger modulusHalf;
-  private SpdzStorage store;
+  private SpdzStorage storage;
 
-  public SpdzResourcePoolImpl(int myId, int noOfPlayers, Drbg drbg, SpdzStorage store) {
+  /**
+   * Construct a ResourcePool implementation suitable for the spdz protocol suite.
+   * @param myId The id of the party
+   * @param noOfPlayers The amount of parties
+   * @param drbg The randomness to use
+   * @param storage The storage to use
+   */
+  public SpdzResourcePoolImpl(int myId, int noOfPlayers, Drbg drbg, SpdzStorage storage) {
     super(myId, noOfPlayers, drbg);
 
-    this.store = store;
+    this.storage = storage;
 
     messageDigest = ExceptionConverter.safe(
         () -> MessageDigest.getInstance("SHA-256"),
         "Configuration error, SHA-256 is needed for Spdz");
 
     // To make sure we are properly initialized, may throw runtime exceptions if not
-    store.getSSK();
+    storage.getSecretSharedKey();
 
     // Initialize various fields global to the computation.
-    this.modulus = store.getSupplier().getModulus();
+    this.modulus = storage.getSupplier().getModulus();
     this.modulusHalf = this.modulus.divide(BigInteger.valueOf(2));
     this.modulusSize = this.modulus.toByteArray().length;
 
@@ -42,13 +49,13 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
   }
 
   @Override
-  public BigIntegerSerializer getSerializer() {
+  public ByteSerializer<BigInteger> getSerializer() {
     return new BigIntegerWithFixedLengthSerializer(modulusSize);
   }
 
   @Override
   public SpdzStorage getStore() {
-    return store;
+    return storage;
   }
 
   @Override
@@ -57,8 +64,8 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
   }
 
   @Override
-  public BigInteger convertRepresentation(BigInteger b) {
-    BigInteger actual = b.mod(modulus);
+  public BigInteger convertRepresentation(BigInteger bigInteger) {
+    BigInteger actual = bigInteger.mod(modulus);
     if (actual.compareTo(modulusHalf) > 0) {
       actual = actual.subtract(modulus);
     }

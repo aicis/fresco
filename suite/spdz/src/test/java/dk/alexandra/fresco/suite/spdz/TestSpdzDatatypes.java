@@ -68,7 +68,7 @@ public class TestSpdzDatatypes {
     Assert.assertNotEquals(tripCNull, trip1);
     Assert.assertNotEquals(trip1.hashCode(), tripBNull.hashCode());
     Assert.assertNotEquals(tripANull.hashCode(), tripCNull.hashCode());
-    Assert.assertEquals("SpdzTriple [a=spdz(1, 1), b=spdz(1, 1), c=spdz(1, 1)]", trip1.toString());    
+    Assert.assertEquals("SpdzTriple [elementA=spdz(1, 1), elementB=spdz(1, 1), elementC=spdz(1, 1)]", trip1.toString());    
   }
   
   @Test

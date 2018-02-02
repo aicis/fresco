@@ -1,8 +1,8 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
-import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
+import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
@@ -15,7 +15,7 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
 
   private SpdzInputMask inputMask; // is opened by this gate.
   protected BigInteger input;
-  private BigInteger value_masked;
+  private BigInteger valueMasked;
   protected SpdzSInt out;
   private int inputter;
   private byte[] digest;
@@ -31,36 +31,35 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
     int myId = spdzResourcePool.getMyId();
     BigInteger modulus = spdzResourcePool.getModulus();
     SpdzStorage storage = spdzResourcePool.getStore();
-    BigIntegerSerializer serializer = spdzResourcePool.getSerializer();
-    switch (round) {
-      case 0:
-        this.inputMask = storage.getSupplier().getNextInputMask(this.inputter);
-        if (myId == this.inputter) {
-          BigInteger bcValue = this.input.subtract(this.inputMask.getRealValue());
-          bcValue = bcValue.mod(modulus);
-          network.sendToAll(serializer.toBytes(bcValue));
-        }
-        return EvaluationStatus.HAS_MORE_ROUNDS;
-      case 1:
-        this.value_masked = serializer.toBigInteger(network.receive(inputter));
-        this.digest = sendBroadcastValidation(
-            spdzResourcePool.getMessageDigest(), network,
-            value_masked);
-        return EvaluationStatus.HAS_MORE_ROUNDS;
-      case 2:
-        boolean validated = receiveBroadcastValidation(network, digest);
-        if (!validated) {
-          throw new MPCException("Broadcast digests did not match");
-        }
-        SpdzElement value_masked_elm =
-            new SpdzElement(
-                value_masked,
-                storage.getSSK().multiply(value_masked).mod(modulus),
-                modulus);
-        this.out = new SpdzSInt(this.inputMask.getMask().add(value_masked_elm, myId));
-        return EvaluationStatus.IS_DONE;
+    ByteSerializer<BigInteger> serializer = spdzResourcePool.getSerializer();
+    if (round == 0) {
+      this.inputMask = storage.getSupplier().getNextInputMask(this.inputter);
+      if (myId == this.inputter) {
+        BigInteger bcValue = this.input.subtract(this.inputMask.getRealValue());
+        bcValue = bcValue.mod(modulus);
+        network.sendToAll(serializer.serialize(bcValue));
+      }
+      return EvaluationStatus.HAS_MORE_ROUNDS;
+    } else if (round == 1) {
+      this.valueMasked = serializer.deserialize(network.receive(inputter));
+      this.digest = sendBroadcastValidation(
+          spdzResourcePool.getMessageDigest(), network,
+          valueMasked);
+      return EvaluationStatus.HAS_MORE_ROUNDS;
+    } else {
+      boolean validated = receiveBroadcastValidation(network, digest);
+      if (!validated) {
+        throw new MaliciousException("Broadcast digests did not match");
+      }
+      SpdzElement valueMaskedElement =
+          new SpdzElement(
+              valueMasked,
+              storage.getSecretSharedKey().multiply(valueMasked).mod(modulus),
+              modulus);
+      this.out = new SpdzSInt(this.inputMask.getMask().add(valueMaskedElement, myId));
+      return EvaluationStatus.IS_DONE;
     }
-    throw new MPCException("Cannot evaluate rounds larger than 2");
+
   }
 
   @Override

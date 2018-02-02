@@ -11,15 +11,14 @@ import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproSBo
  * <p>
  * This class represents a close protocol in the preprocessing phase of the TinyTables protocol.
  * </p>
- * 
+ *
  * <p>
  * Here the one player, the inputter, knows the input value <i>b</i>, and he picks a random mask
  * <i>r</i> and sends <i>e = b + r</i> to the other player, who simply assigns <code>false</code> to
  * his share of the mask.
  * </p>
- * 
- * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  *
+ * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
 public class TinyTablesPreproCloseProtocol extends TinyTablesPreproProtocol<SBool> {
 
@@ -31,25 +30,18 @@ public class TinyTablesPreproCloseProtocol extends TinyTablesPreproProtocol<SBoo
     this.inputter = inputter;
   }
 
-  public TinyTablesPreproCloseProtocol(int id, int inputter, SBool out) {
-    this.id = id;
-    this.inputter = inputter;
-    this.out = (TinyTablesPreproSBool) out;
-  }
-
   @Override
   public EvaluationStatus evaluate(int round, ResourcePoolImpl resourcePool, Network network) {
     TinyTablesPreproProtocolSuite ps =
         TinyTablesPreproProtocolSuite.getInstance(resourcePool.getMyId());
 
-    out = (out == null) ? new TinyTablesPreproSBool() : out;
     if (resourcePool.getMyId() == inputter) {
       /*
        * The masking parameter r is additively shared among the players. If you are the inputter,
        * you are responsible for picking a random share.
        */
       TinyTablesElement r = new TinyTablesElement(ps.getSecureRandom().nextBoolean());
-      out.setValue(r);
+      out = new TinyTablesPreproSBool(r);
 
       // We store the share for the online phase
       ps.getStorage().storeMaskShare(id, r);
@@ -58,7 +50,7 @@ public class TinyTablesPreproCloseProtocol extends TinyTablesPreproProtocol<SBoo
       /*
        * All other players set a trivial (false) share.
        */
-      out.setValue(new TinyTablesElement(false));
+      out = new TinyTablesPreproSBool(new TinyTablesElement(false));
     }
     return EvaluationStatus.IS_DONE;
   }

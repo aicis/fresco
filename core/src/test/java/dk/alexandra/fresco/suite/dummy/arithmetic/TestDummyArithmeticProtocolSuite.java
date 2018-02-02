@@ -6,6 +6,7 @@ import static org.junit.Assert.assertThat;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ExponentiationPipeTests;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.arithmetic.AdvancedNumericTests;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
@@ -51,10 +52,6 @@ import org.junit.Test;
 
 
 public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTest {
-  private final BigInteger defaultMod = new BigInteger(
-      "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
-
-
 
   @Test
   public void test_Input_Sequential() throws Exception {
@@ -65,9 +62,9 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_OutputToTarget_Sequential() throws Exception {
     runTest(new BasicArithmeticTests.TestOutputToSingleParty<>(), EvaluationStrategy.SEQUENTIAL,
-        2, defaultMod, true);
+        2, true);
     assertThat(performanceLoggers.get(1).getLoggedValues()
-        .get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), is((long)0));
+        .get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), is((long) 0));
   }
 
   @Test
@@ -119,8 +116,20 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
+  public void testCompareLTEdgeCasesSequential() throws Exception {
+    runTest(new CompareTests.TestCompareLTEdgeCases<>(), EvaluationStrategy.SEQUENTIAL,
+        1);
+  }
+
+  @Test
   public void test_compareEQ_Sequential() throws Exception {
     runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL,
+        1);
+  }
+
+  @Test
+  public void testCompareEQEdgeCasesSequential() throws Exception {
+    runTest(new CompareTests.TestCompareEQEdgeCases<>(), EvaluationStrategy.SEQUENTIAL,
         1);
   }
 
@@ -389,7 +398,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     BigInteger mod = new BigInteger(
         "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557");
     runTest(new MiMCTests.TestMiMCEncDec<>(), EvaluationStrategy.SEQUENTIAL,
-        1, mod, false);
+        1, mod);
   }
 
   @Test
@@ -397,7 +406,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     BigInteger mod = new BigInteger(
         "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557");
     runTest(new MiMCTests.TestMiMCEncDecFixedRounds<>(), EvaluationStrategy.SEQUENTIAL,
-        1, mod, false);
+        1, mod);
   }
 
   @Test
@@ -405,7 +414,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     BigInteger mod = new BigInteger(
         "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557");
     runTest(new MiMCTests.TestMiMCEncryptsDeterministically<>(), EvaluationStrategy.SEQUENTIAL,
-        1, mod, false);
+        1, mod);
   }
 
   // lib.list
@@ -442,12 +451,19 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
-  public void test_LpSolverBland() throws Exception {
-        runTest(new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.BLAND),
+  public void test_LpSolverDanzigSmallerMod() throws Exception {
+    runTest(new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.DANZIG),
         EvaluationStrategy.SEQUENTIAL,
-        2, defaultMod, true);
+        2, ModulusFinder.findSuitableModulus(128), 30, false);
+  }
+
+  @Test
+  public void test_LpSolverBland() throws Exception {
+    runTest(new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.BLAND),
+        EvaluationStrategy.SEQUENTIAL,
+        2, true);
     assertThat(performanceLoggers.get(1).getLoggedValues()
-        .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_EQ), is((long)33));
+        .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_EQ), is((long) 33));
   }
 
   @Test
@@ -487,9 +503,9 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_ss_division() throws Exception {
     runTest(new DivisionTests.TestSecretSharedDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        1, defaultMod, true);
+        1, true);
     assertThat(performanceLoggers.get(1).getLoggedValues()
-        .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_COMP0), is((long)80));
+        .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_COMP0), is((long) 80));
   }
 
   @Test
@@ -500,9 +516,9 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_Exponentiation() throws Exception {
     runTest(new ExponentiationTests.TestExponentiation<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        2, defaultMod, true);
+        2, true);
     assertThat(performanceLoggers.get(1).getLoggedValues()
-        .get(NumericLoggingDecorator.ARITHMETIC_BASIC_SUB), is((long)19));
+        .get(NumericLoggingDecorator.ARITHMETIC_BASIC_SUB), is((long) 19));
   }
 
 
@@ -545,17 +561,17 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_Minimum_Protocol_2_parties() throws Exception {
     runTest(new MinTests.TestMinimumProtocol<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        2, defaultMod, true);
+        2, true);
     assertThat(performanceLoggers.get(1).getLoggedValues()
-        .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_LEQ), is((long)10));
+        .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_LEQ), is((long) 10));
   }
 
   @Test
   public void test_Min_Inf_Frac_2_parties() throws Exception {
     runTest(new MinTests.TestMinInfFraction<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        2, defaultMod, true);
+        2, true);
     assertThat(performanceLoggers.get(1).getLoggedValues()
-        .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_LEQ), is((long)10));
+        .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_LEQ), is((long) 10));
   }
 
   @Test
