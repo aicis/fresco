@@ -71,7 +71,7 @@ public class BristolRotBatch implements RotBatch {
   public List<StrictBitVector> receive(StrictBitVector choiceBits,
       int sizeOfEachMessage) {
     if (this.receiver == null) {
-      this.receiver = rot.getReceiver();
+      this.receiver = rot.createReceiver();
     }
     List<StrictBitVector> res = new ArrayList<>(choiceBits.getSize());
     // Find how many OTs we need to preprocess

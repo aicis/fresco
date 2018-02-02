@@ -13,7 +13,9 @@ import java.util.List;
 public interface Network {
 
   /**
-   * Send data to other party with id partyId.
+   * Send data to other party with id partyId. Ownership of the data array is transferred to
+   * the network through this call. This means that the caller cannot change the byte array after
+   * this call nor assume it is unchanged by the network.
    *
    * @param partyId the party to send data to
    * @param data the data to send
@@ -21,7 +23,8 @@ public interface Network {
   void send(int partyId, byte[] data);
 
   /**
-   * Blocking call that only returns once the data has been fully received.
+   * Blocking call that only returns once the data has been fully received. Ownership of the
+   * byte array is given to the caller.
    *
    * @param partyId the party to receive from
    * @return the data send by the given partyId through the given channel
