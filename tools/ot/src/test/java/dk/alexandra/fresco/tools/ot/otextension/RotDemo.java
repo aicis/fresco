@@ -32,7 +32,7 @@ public class RotDemo<ResourcePoolT extends ResourcePool> {
         lambdaSecurityParam);
     // ctx.getDummyOtInstance().receive();
     RotFactory rot = new RotFactory(ctx.createResources(1), ctx.getNetwork());
-    RotReceiver rotRec = rot.getReceiver();
+    RotReceiver rotRec = rot.createReceiver();
     // rotRec.initialize();
     byte[] otChoices = new byte[amountOfOTs / 8];
     ctx.createRand(1).nextBytes(otChoices);
