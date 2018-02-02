@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.framework.sce.evaluator;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -54,7 +53,7 @@ public class NetworkBatchDecorator implements Network {
     ByteArrayOutputStream buffer = this.output
         .computeIfAbsent(id, (i) -> new ByteArrayOutputStream());
     if (data.length > Byte.MAX_VALUE) {
-      throw new MPCException(
+      throw new IllegalStateException(
           "Current implementation only supports small packages, data.length=" + data.length);
     }
     buffer.write(data.length);

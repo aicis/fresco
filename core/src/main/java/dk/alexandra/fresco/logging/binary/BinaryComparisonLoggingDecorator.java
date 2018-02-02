@@ -10,7 +10,6 @@ import java.util.Map;
 
 public class BinaryComparisonLoggingDecorator implements PerformanceLogger, Comparison {
 
-  public static final String ID = "PARTY_ID";
   public static final String BINARY_COMPARISON_EQ = "EQ_COUNT";
   public static final String BINARY_COMPARISON_GT = "GT_COUNT";
 
@@ -40,14 +39,9 @@ public class BinaryComparisonLoggingDecorator implements PerformanceLogger, Comp
     this.eqCount = 0;
   }
   
-  public void setDelegate(Comparison comp) {
-    this.delegate = comp;
-  }
-
   @Override
-  public Map<String, Long> getLoggedValues(int myId) {
+  public Map<String, Long> getLoggedValues() {
     Map<String, Long> values = new HashMap<>();
-    values.put(ID, (long)myId);
     values.put(BINARY_COMPARISON_EQ, this.eqCount);
     values.put(BINARY_COMPARISON_GT, this.gtCount);
     return values;

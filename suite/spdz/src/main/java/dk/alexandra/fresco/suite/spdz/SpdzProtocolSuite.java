@@ -1,12 +1,11 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.BuilderFactory;
-import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
-import dk.alexandra.fresco.suite.ProtocolSuite;
+import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 
-public class SpdzProtocolSuite implements ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> {
+public class SpdzProtocolSuite implements ProtocolSuiteNumeric<SpdzResourcePool> {
 
   private final int maxBitLength;
 
@@ -15,8 +14,7 @@ public class SpdzProtocolSuite implements ProtocolSuite<SpdzResourcePool, Protoc
   }
 
   @Override
-  public BuilderFactory<ProtocolBuilderNumeric> init(SpdzResourcePool resourcePool,
-      Network network) {
+  public BuilderFactoryNumeric init(SpdzResourcePool resourcePool, Network network) {
     BasicNumericContext spdzFactory =
         new BasicNumericContext(maxBitLength, resourcePool.getModulus(), resourcePool);
     return new SpdzBuilder(spdzFactory);

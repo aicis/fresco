@@ -1,11 +1,12 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
-import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolCollection;
+import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.ProtocolSuite;
+import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import java.math.BigInteger;
 
 
@@ -15,7 +16,7 @@ import java.math.BigInteger;
  * <b>NB: Do NOT use in production!</b>
  */
 public class DummyArithmeticProtocolSuite
-    implements ProtocolSuite<DummyArithmeticResourcePool, ProtocolBuilderNumeric> {
+    implements ProtocolSuiteNumeric<DummyArithmeticResourcePool> {
 
   private final BigInteger modulus;
   private final int maxBitLength;
@@ -26,8 +27,7 @@ public class DummyArithmeticProtocolSuite
   }
 
   @Override
-  public BuilderFactory<ProtocolBuilderNumeric> init(DummyArithmeticResourcePool resourcePool,
-      Network network) {
+  public BuilderFactoryNumeric init(DummyArithmeticResourcePool resourcePool, Network network) {
     BasicNumericContext basicNumericContext =
         new BasicNumericContext(maxBitLength, modulus, resourcePool);
     return new DummyArithmeticBuilderFactory(basicNumericContext);
