@@ -3,34 +3,46 @@
 Quickstart
 ==========
 
-This section gives a brief introduction to fresco and the possible
-applications of this framework.
+This section gives a brief introduction on how to get started working with FRESCO. If you have further
+questions please get in touch using our issue tracker on `GitHub
+<https://github.com/aicis/fresco/issues>`_ or by email at fresco@alexandra.dk.
 
-Bundled within this repository there are five demos:
-* Sum - computes the sum of a number of integers input by party 1.
-* Distance - computes the distance between two points (in a euclidian two dimensional space).
-* Aggregation - will compute the aggregation of a hardcoded list. The list consists of pairs of (key,value). The demo aggregates all values where the key's match.
-* AES - uses AES to encrypt a block of plaintext comming from party 2 using a key provided by party 1.
-* PrivateSetIntersection - computes the set intersection between two parties.
+The best place to start is to browse the demos bundled with the FRESCO repository (see the repo on `GitHub
+<https://github.com/aicis/fresco/tree/develop/demos>`_). The following demos are currently included:
 
-The demos shows how to run applications directly from the command line.
+* **Sum** - computes the sum of a number of integers input by a single party.
 
-If you want to try the frame work, then start by creating an application - it is quite easy to
-run an application using the dummy protocol suite. There in distribution already a series of
-applications ranging from sum and AES to more complex algorithms expressed by the LP solver
-(solving a liniar program).
+* **Distance** - computes the distance between two points provided by two different parties (in
+  Euclidean two dimensional space).
 
-Every computation with a general purpose is located within a ComputationDirectory, so you can
-also build your own application based upon the existing set of computations.
+* **Aggregation** - computes the aggregation of a hard-coded list. The list consists of pairs of
+  (key,value). The demo aggregates all values where the keys match.
 
-A simple example
+* **AES** - computes an AES encryption of a block of plain-text provided by one party under a key
+  provided by an other party.
+
+* **Private Set Intersection** - computes the intersection of the private sets of two parties.
+
+Each demo includes instructions on how to build and run them directly on the command line.
+
+The demos should hopefully give you a sense of how secure computation is specified in FRESCO. To get
+started on your own applications you should also have a look at the various classes implementing the
+``ComputationDirectory`` interface which gathers various generic functionality implemented in FRESCO
+which can be combined to realize more complex functionality. Specifically consider ``Numeric``
+and ``AdvancedNumeric`` for arithmetic and ``Binary`` and ``AdvancedBinary`` for Boolean based
+secure computation.
+
+
+A Simple Example
 ----------------
-In this example we will explore the effort to use the FRESCO framework in your own application.
-FRESCO is a flexible framework intended to be used in your own software stack, so start
+
+In this example we will explore the effort required to use the FRESCO framework in your own
+application. FRESCO is a flexible framework intended to be used in your own software stack, so start
 by adding the dependency to fresco in your own project.
 
-This example is based on the DistanceDemo - it is very simple by nature. Any application can
-be replaced with this.
+This example is based on the ``DistanceDemo`` class implementing the **Distance** demo outlined
+above. However, essentially any FRESCO application could be substituted for ``DistanceDemo`` in the
+following.
 
 .. sourcecode:: java
 
@@ -51,13 +63,13 @@ be replaced with this.
     double dist = Math.sqrt(bigInteger.doubleValue());
 
 
-Here we take the existing application, DistanceDemo, and run it with a single party using the
-dummy protocol suite. This can run directly in your own tests.
+Here we take the existing application, ``DistanceDemo``, and run it with a single party using the dummy
+protocol suite. This can run directly in your own tests.
 
-Congratulations on running your first FRESCO application.
+Congratulations on running your first FRESCO application!
 
-If you want to see this run on multiple parties, the above example can be modified to include
-two parties running on the same machine.
+If you want to see this run with multiple parties, the above example can be modified to include two
+parties running on the same machine.
 
 .. sourcecode:: java
 
@@ -80,52 +92,49 @@ two parties running on the same machine.
         new KryoNetNetwork(new NetworkConfigurationImpl(myId, parties)));
     double dist = Math.sqrt(bigInteger.doubleValue());
 
-
-From here, the work with MultiPartyComputation becomes somewhat more involved - you should change
-the suite to the actual protocol suites, here Spdz is the natural choice. This requires a Spdz
-resource pool which involves figuring how to handle the offline phase - and hence defining the
-security model properly.
-
-Use the mailing list for further advise and help.
-
 A Little Explanation
 --------------------
 
-Lets have a look at each part of the example.
+Let's have a look at each part of the example above.
 
-A FRESCO application implements the ``Application`` interface. To run an
-application we must first create a ``SecureComputationEngine``. This is a
-core component of FRESCO that is the primary entry point for doing the computations
-through the computation directories and the active protocol suite.
+A FRESCO application, in this case ``DistanceDemo``, implements the ``Application`` interface. To
+run an ``Application`` we must first create a ``SecureComputationEngine``. This is a core component
+of FRESCO that is the primary entry point for executing the secure computations through the
+computation directories and the active protocol suite.
 
-The ``SecureComputationEngine`` is initialized with the protocol suite and an aveluator.
-
-To run an application, we also need a ``ResourcePool`` and a ``Network``.
-A ResourcePool is controlled by you, the application developer and is a central
-database of resources that the suite needs. The network is the interconnected parties, by
-default FRESCO uses KryoNet as the network supplier, but you can create your own
+The ``SecureComputationEngine`` is initialized with a ``ProtocolSuite`` and a ``ProtocolEvaluator``
+(defining the secure computation technique and strategy for evaluating the application
+respectively). In this case we are using the ``DummyArithmeticProtocolSuite`` with the
+``BatchedProtocolEvaluator``.
+ 
+To run an ``Application``, we also need a ``ResourcePool`` and a ``Network``. A ``ResourcePool`` is
+controlled by you, the application developer and is a central database of resources that the suite
+needs. The ``Network`` is the interconnected parties participating in the secure computation. By
+default FRESCO uses a ``Network`` implementation based on `KryoNet
+<https://github.com/EsotericSoftware/kryonet>`_ as the network supplier, but you can create your own
 and use that if this matches your application better.
 
-When we call ``runApplication`` the ``SecureComputationEngine`` executes the application
-and returns the evaluated result directly in a big integer - here the distance between
-the two points.
+When we call ``runApplication`` the ``SecureComputationEngine`` executes the application and returns
+the evaluated result directly in a ``BigInteger`` - here the distance between the two points.
 
-Notice how our ``Application`` is made. Implementing ``Application``
-signals that our ``DistanceDemo`` class is a FRESCO application. An application must
-also state what it outputs as well as what type of application this is i.e. are
-we creating a binary or arithmetic application. This is seen in the interface ::
+Notice how our ``Application`` is made. Implementing ``Application`` signals that our
+``DistanceDemo`` class is a FRESCO application. An application must also state what it outputs as
+well as what type of application this is i.e. are we creating a binary or arithmetic application.
+This is seen in the interface 
+
+.. sourcecode:: java
 
     public interface Application<OutputT, Builder extends ProtocolBuilder> extends Computation<OutputT, Builder> 
 
-The output type can be anything you want. In our case it is a BigInteger.
-The builder type we use is a numeric type since the DistanceDemo computation
-works with numeric protocol suites. Since the Application interface extends
-the Computation interface, this requires us to implement the method
+The output type can be anything you want. In our case it is a ``BigInteger``. The builder type we
+use here is a numeric type since the ``DistanceDemo`` computation works with numeric protocol
+suites. Since the ``Application`` interface extends the ``Computation`` interface, this requires us
+to implement the method
 
 .. sourcecode:: java
 
    DRes<BigInteger> buildComputation(ProtocolBuilderNumeric producer)
 
-This is the method that defines how our FRESCO application is built. The DRes
-return type is just a delayed result for the output (everything in FRESCO is evaluated "later"
-and there can be delayed.
+This is the method that defines how our FRESCO application is built. The ``DRes`` return type is
+represents a deffered result for the output (modelling that everything in FRESCO is evaluated
+"later").

@@ -27,7 +27,7 @@ examples the FRESCO framework has been used in prototypes to
 
 * Compute statistical data from surveys without revealing the individual survey answers (in the PRACTICE_).
 
-* Benchmark the financial and energy performance of companies while keeping the private performance
+* Benchmark the financial and energy performance of companies while keeping private the performance
   data of the individual company (in the PRACTICE_ and `Big Data by Security`_ projects respectively).
 
 * Let banks credit rate potential customers without revealing the private data of the costumers *or*
@@ -46,7 +46,7 @@ Main Features of FRESCO
 
 The FRESCO framework aims to support the development of both new applications using secure
 computation, and the development of new secure computation techniques (referred to as *protocol
-suites* in FRESCO) to be used as the backend for those application. In some sense FRESCO can be
+suites* in FRESCO) to be used as the backend for those applications. In some sense FRESCO can be
 thought of as a *hub* that provides the infrastructure to connect applications with protocol suites.
 The focus of the framework is the following main features:
 
@@ -63,8 +63,6 @@ The focus of the framework is the following main features:
   and components that allows protocol suites to be developed with minimal effort. Once you have
   developed your protocol suite, you immediately get the benefit that many existing applications
   (and tests) can run on top of your new suite.
-
-.. Not really sure about the last two points...
 
 * **Open and flexible design**. FRESCO provides great freedom regarding the way you implement your
   applications and protocol suites. Applications can, e.g., be specified in Java, or as a textual

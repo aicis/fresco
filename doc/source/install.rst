@@ -27,7 +27,6 @@ now be found in the ``./target`` directory as well as in your local maven reposi
 Downloading a Pre-Built FRESCO Release
 --------------------------------------
 
-.. Consider removing this. It is not the recommended way to install anyway.
+Altenatively you can download the latest release of FRESCO from GitHub_.
 
-Altenatively you can download the latest release of FRESCO from :ref:`here
-<releases>`.
+.. _GitHub: https://github.com/aicis/fresco/releases

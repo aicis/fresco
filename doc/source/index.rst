@@ -8,7 +8,9 @@ FRESCO
 ======
 
 FRESCO is a FRamework for Efficient and Secure COmputation, written in Java and licensed under the
-open source MIT license.
+open source MIT license. These pages breifly documents the project. If you have questions not
+answered on these pages please ask using our issue tracker on `GitHub
+<https://github.com/aicis/fresco/issues>`_ or by email at fresco@alexandra.dk.
 
 The FRESCO source code is available at https://github.com/aicis/fresco.
 
@@ -24,4 +26,3 @@ Contents:
    protocol_suites
    contributing
    developers
-   todo
