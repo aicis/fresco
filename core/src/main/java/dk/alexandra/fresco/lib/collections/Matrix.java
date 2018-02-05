@@ -55,7 +55,7 @@ public class Matrix<T> {
   /**
    * Gets all rows of the matrix.
    * 
-   * <p>Convenience method for iterating over the rows of the matrix.
+   * <p>Convenience method for iterating over the rows of the matrix.</p>
    * 
    * @return A concatenated list of rows
    */
