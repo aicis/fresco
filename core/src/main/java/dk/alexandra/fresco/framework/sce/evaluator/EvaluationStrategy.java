@@ -6,17 +6,17 @@ public enum EvaluationStrategy {
   SEQUENTIAL {
     @Override
     public <ResourcePoolT extends ResourcePool>
-    BatchEvaluationStrategy<ResourcePoolT> getStrategy() {
+        BatchEvaluationStrategy<ResourcePoolT> getStrategy() {
       return new SequentialStrategy<>();
     }
   }, SEQUENTIAL_BATCHED {
     @Override
     public <ResourcePoolT extends ResourcePool>
-    BatchEvaluationStrategy<ResourcePoolT> getStrategy() {
+        BatchEvaluationStrategy<ResourcePoolT> getStrategy() {
       return new BatchedStrategy<>();
     }
   };
 
   public abstract <ResourcePoolT extends ResourcePool>
-  BatchEvaluationStrategy<ResourcePoolT> getStrategy();
+      BatchEvaluationStrategy<ResourcePoolT> getStrategy();
 }

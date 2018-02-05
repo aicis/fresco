@@ -59,9 +59,9 @@ public class DefaultComparison implements Comparison {
     // TODO create a compareLeqOrEqZero on comparison builder
     DRes<SInt> compare =
         compareLEQ(input.known(BigInteger.ZERO), x);
-    BigInteger oInt = BigInteger.valueOf(2);
+    BigInteger oint = BigInteger.valueOf(2);
     Numeric numericBuilder = builder.numeric();
-    DRes<SInt> twice = numericBuilder.mult(oInt, compare);
+    DRes<SInt> twice = numericBuilder.mult(oint, compare);
     return numericBuilder.sub(twice, BigInteger.valueOf(1));
   }
 
