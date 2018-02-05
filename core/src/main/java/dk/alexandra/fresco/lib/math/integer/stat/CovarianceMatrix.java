@@ -55,16 +55,16 @@ public class CovarianceMatrix implements
     return builder.par((par) -> {
       /*
        * If (some of) the sample means has not been provided, we calculate
-		   * them here.
-		   */
+       * them here.
+       */
       List<DRes<SInt>> allMeans = new ArrayList<>(data.size());
       Iterator<DRes<SInt>> means = mean.iterator();
       for (List<DRes<SInt>> datum : data) {
         DRes<SInt> currentMean = null;
-        if(means.hasNext()) {
+        if (means.hasNext()) {
           currentMean = means.next();
         }
-        if(currentMean == null) {
+        if (currentMean == null) {
           currentMean = par.seq(new Mean(datum));
         }
         allMeans.add(currentMean);
@@ -86,7 +86,7 @@ public class CovarianceMatrix implements
           row.add(par.seq(new Covariance(
               dataRow, dataRow2,
               means.get(currentIndex), means.get(innerIndex)
-          )));
+              )));
         }
         // When i == j we are calculating the variance of data[i]
         // which saves us one subtraction per data entry compared to
