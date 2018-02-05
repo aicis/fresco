@@ -23,31 +23,31 @@ import org.apache.commons.cli.Option;
  * This demonstrates how to aggregate generic protocols to form an application.
  *
  * <p>It is designed for two players and requires a protocol suite that supports basic logic
- * operations.
+ * operations.</p>
  * 
  * <p>Player 1 inputs a secret 128-bit AES key (as a 32 char hex string), player 2 inputs a secret
  * plaintext (also a 32 char hex string). The output (to both players) is the resulting AES
- * encryption of the plaintext under the given AES key.
+ * encryption of the plaintext under the given AES key.</p>
  * 
  * <p>Suppose we have two players. P2 has the plaintext block 000102030405060708090a0b0c0d0e0f
  * and P1 has the key 00112233445566778899aabbccddeeff. They both want to know the ciphertext,
  * i.e., the result of encrypting 000102030405060708090a0b0c0d0e0f under the key
  * 00112233445566778899aabbccddeeff, but they do not want to reveal the key and the plaintext to
- * each other.
+ * each other.</p>
  * 
  * <p>The two players can then run this application with these parameters:
  * 
  * <p>P1: $ java -jar aes.jar -i1 -s dummy -p1:localhost:9292 -p2:localhost:9994 -in
- * 000102030405060708090a0b0c0d0e0f
+ * 000102030405060708090a0b0c0d0e0f</p>
  * 
  * <p>P2: $ java -jar aes.jar -i2 -s dummy -p1:localhost:9292 -p2:localhost:9994 -in
- * 00112233445566778899aabbccddeeff
+ * 00112233445566778899aabbccddeeff</p>
  * 
- * <p>This results in this output (at both parties):
+ * <p>This results in this output (at both parties):</p>
  * 
- * <p>The resulting ciphertext is: 69c4e0d86a7b0430d8cdb78070b4c55a
+ * <p>The resulting ciphertext is: 69c4e0d86a7b0430d8cdb78070b4c55a</p>
  * 
- * <p>OBS: Using the dummy protocol suite is not secure!
+ * <p>OBS: Using the dummy protocol suite is not secure!</p>
  */
 public class AesDemo implements Application<List<Boolean>, ProtocolBuilderBinary> {
 
