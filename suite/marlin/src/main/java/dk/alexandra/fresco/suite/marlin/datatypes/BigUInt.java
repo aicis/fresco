@@ -1,5 +1,7 @@
 package dk.alexandra.fresco.suite.marlin.datatypes;
 
+import java.math.BigInteger;
+
 /**
  * Interface for representing unsigned integers larger than 64 bits.
  */
@@ -36,5 +38,10 @@ public interface BigUInt<T extends BigUInt> {
    * Return this as array of bytes. <p>Result is big-endian.</p>
    */
   byte[] toByteArray();
+
+  /**
+   * Return this as {@link BigInteger}.
+   */
+  BigInteger toBigInteger();
 
 }

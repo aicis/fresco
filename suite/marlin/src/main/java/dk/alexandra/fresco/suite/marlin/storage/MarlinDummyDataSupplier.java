@@ -1,23 +1,28 @@
 package dk.alexandra.fresco.suite.marlin.storage;
 
 import dk.alexandra.fresco.framework.util.ArithmeticDummyDataSupplier;
+import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinElement;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinInputMask;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinTriple;
 import dk.alexandra.fresco.suite.marlin.datatypes.MutableUInt128;
-import java.math.BigInteger;
 
-public class MarlinDummyDataSupplier implements MarlinDataSupplier {
+public class MarlinDummyDataSupplier<T extends BigUInt<T>> implements MarlinDataSupplier {
 
   private final int myId;
   private final ArithmeticDummyDataSupplier supplier;
-  private final BigInteger secretSharedKey;
+  private final T secretSharedKey;
+  private final BigUIntFactory<T> factory;
 
-  public MarlinDummyDataSupplier(int myId, int noOfParties, BigInteger secretSharedKey) {
+  public MarlinDummyDataSupplier(int myId, int noOfParties, T secretSharedKey,
+      BigUIntFactory<T> factory) {
     this.myId = myId;
     this.secretSharedKey = secretSharedKey;
-    supplier = new ArithmeticDummyDataSupplier(myId, noOfParties, null);
+    this.factory = factory;
+    this.supplier = new ArithmeticDummyDataSupplier(myId, noOfParties,
+        factory.createRandom().toBigInteger());
   }
 
   @Override
@@ -33,7 +38,10 @@ public class MarlinDummyDataSupplier implements MarlinDataSupplier {
   @Override
   public MarlinSInt getNextBit() {
     return new MarlinSInt<>(
-        new MarlinElement<>(new MutableUInt128(new byte[]{}), new MutableUInt128(new byte[]{})));
+        new MarlinElement<>(
+            factory.createFromBytes(new byte[]{}),
+            factory.createFromBytes(new byte[]{}))
+    );
   }
 
   @Override

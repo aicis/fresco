@@ -112,7 +112,9 @@ public class MutableUInt128 implements BigUInt<MutableUInt128> {
     return clone;
   }
 
-  public BigInteger toBigInt() {
+  @Override
+  public BigInteger toBigInteger() {
+    // TODO use byte array?
     BigInteger low = new BigInteger(Integer.toUnsignedString(this.low));
     BigInteger mid = new BigInteger(Integer.toUnsignedString(this.mid)).shiftLeft(32);
     BigInteger high = new BigInteger(Long.toUnsignedString(this.high)).shiftLeft(64);
@@ -134,7 +136,7 @@ public class MutableUInt128 implements BigUInt<MutableUInt128> {
 
   @Override
   public String toString() {
-    return toBigInt().toString();
+    return toBigInteger().toString();
   }
 
   @Override

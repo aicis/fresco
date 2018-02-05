@@ -28,8 +28,7 @@ public interface MarlinDataSupplier<T extends BigUInt<T>> {
   MarlinSInt<T> getNextBit();
 
   /**
-   * Returns the Players share of the Shared Secret Key (alpha). This is never to be send to anyone
-   * else!
+   * Returns the player's share of the mac key.
    */
   T getSecretSharedKey();
 

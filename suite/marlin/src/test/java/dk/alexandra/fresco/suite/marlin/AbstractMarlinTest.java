@@ -23,6 +23,9 @@ import dk.alexandra.fresco.logging.PerformanceLoggerCountingAggregate;
 import dk.alexandra.fresco.logging.PerformancePrinter;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.marlin.datatypes.MutableUInt128;
+import dk.alexandra.fresco.suite.marlin.datatypes.MutableUInt128Factory;
+import dk.alexandra.fresco.suite.marlin.storage.MarlinStorage;
+import dk.alexandra.fresco.suite.marlin.storage.MarlinStorageImpl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,7 +53,8 @@ public class AbstractMarlinTest {
 
       NetworkConfiguration partyNetConf = netConf.get(playerId);
 
-      ProtocolSuiteNumeric<MarlinResourcePool> ps = new MarlinProtocolSuite<MutableUInt128>();
+      ProtocolSuiteNumeric<MarlinResourcePool> ps = new MarlinProtocolSuite<>(
+          new MutableUInt128Factory());
       if (logPerformance) {
         ps = new NumericSuiteLogging<>(ps);
         aggregate.add((PerformanceLogger) ps);
@@ -70,6 +74,7 @@ public class AbstractMarlinTest {
         aggregate.add((PerformanceLogger) evaluator);
       }
 
+      MarlinStorage<MutableUInt128> storage = createStorage();
       SecureComputationEngine<MarlinResourcePool, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(ps, evaluator);
 
@@ -77,7 +82,7 @@ public class AbstractMarlinTest {
       TestThreadRunner.TestThreadConfiguration<MarlinResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,
-              () -> new MarlinResourcePoolImpl(playerId, noOfParties, drbg),
+              () -> new MarlinResourcePoolImpl(playerId, noOfParties, drbg, storage),
               () -> {
                 KryoNetNetwork kryoNetwork = new KryoNetNetwork(partyNetConf);
                 if (logPerformance) {
@@ -99,4 +104,9 @@ public class AbstractMarlinTest {
       printer.printPerformanceLog(pl);
     }
   }
+
+  private MarlinStorage<MutableUInt128> createStorage() {
+    return new MarlinStorageImpl<>();
+  }
+
 }

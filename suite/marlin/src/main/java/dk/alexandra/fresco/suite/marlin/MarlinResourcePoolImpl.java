@@ -3,19 +3,23 @@ package dk.alexandra.fresco.suite.marlin;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
+import dk.alexandra.fresco.suite.marlin.storage.MarlinStorage;
 import java.math.BigInteger;
 
-public class MarlinResourcePoolImpl extends ResourcePoolImpl implements MarlinResourcePool {
+public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolImpl implements
+    MarlinResourcePool {
 
   private final int operationalBitLength;
   private final int effectiveBitLength;
   private final BigInteger modulus;
+  private final MarlinStorage storage;
 
   /**
    * Creates new {@link MarlinResourcePool}.
    */
   private MarlinResourcePoolImpl(int myId, int noOfPlayers, Drbg drbg, int operationalBitLength,
-      int effectiveBitLength) {
+      int effectiveBitLength, MarlinStorage<T> storage) {
     super(myId, noOfPlayers, drbg);
     if (operationalBitLength != 128) {
       throw new IllegalArgumentException(
@@ -28,13 +32,15 @@ public class MarlinResourcePoolImpl extends ResourcePoolImpl implements MarlinRe
     this.operationalBitLength = operationalBitLength;
     this.effectiveBitLength = effectiveBitLength;
     this.modulus = BigInteger.ONE.shiftLeft(operationalBitLength);
+    this.storage = storage;
   }
 
   /**
    * Creates new {@link MarlinResourcePool}.
    */
-  public MarlinResourcePoolImpl(int myId, int noOfPlayers, Drbg drbg) {
-    this(myId, noOfPlayers, drbg, 128, 64);
+  public MarlinResourcePoolImpl(int myId, int noOfPlayers, Drbg drbg,
+      MarlinStorage storage) {
+    this(myId, noOfPlayers, drbg, 128, 64, storage);
   }
 
   @Override
@@ -45,6 +51,11 @@ public class MarlinResourcePoolImpl extends ResourcePoolImpl implements MarlinRe
   @Override
   public int getEffectiveBitLength() {
     return effectiveBitLength;
+  }
+
+  @Override
+  public MarlinStorage getStorage() {
+    return storage;
   }
 
   @Override
