@@ -210,7 +210,8 @@ public abstract class AbstractSpdzTest {
       KryoNetManager expPipeGenerator) {
     SpdzDataSupplier supplier;
     if (preProStrat == DUMMY) {
-      supplier = new SpdzDummyDataSupplier(myId, numberOfParties);
+      supplier = new SpdzDummyDataSupplier(myId, numberOfParties,
+          ModulusFinder.findSuitableModulus(modBitLength));
     } else if (preProStrat == MASCOT) {
       List<Integer> partyIds =
           IntStream.range(1, numberOfParties + 1).boxed().collect(Collectors.toList());

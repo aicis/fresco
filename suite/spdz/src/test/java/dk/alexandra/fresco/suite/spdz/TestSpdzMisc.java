@@ -8,6 +8,7 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
+import java.math.BigInteger;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -34,7 +35,7 @@ public class TestSpdzMisc {
 
   @Test(expected = IllegalStateException.class)
   public void testSpdzExponentiationPipeProtocolExpPipeFailedLength() {
-    SpdzStorage store = new SpdzStorageImpl(new SpdzDummyDataSupplier(1, 2));
+    SpdzStorage store = new SpdzStorageImpl(new SpdzDummyDataSupplier(1, 2, new BigInteger("251")));
     SpdzResourcePool rp = new SpdzResourcePoolImpl(1, 2, null, store);
     SpdzExponentiationPipeProtocol pro = new SpdzExponentiationPipeProtocol(
         FakeTripGen.EXP_PIPE_SIZE);

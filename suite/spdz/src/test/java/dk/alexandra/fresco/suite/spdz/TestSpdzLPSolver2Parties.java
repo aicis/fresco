@@ -27,4 +27,11 @@ public class TestSpdzLPSolver2Parties extends AbstractSpdzTest {
         PreprocessingStrategy.DUMMY, 2);
   }
 
+  @Test
+  public void test_LPSolver_2_Sequential_batched_dummy_smaller_mod() {
+    runTest(new LPSolverTests.TestLPSolver<>(PivotRule.DANZIG),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
+        PreprocessingStrategy.DUMMY, 2, false, 128, 30);
+  }
+
 }
