@@ -25,7 +25,7 @@ import org.apache.commons.cli.Option;
  * This demonstrates how to the private set intersection problem can be solved.
  *
  * <p>It is designed for two players and requires a protocol suite that supports basic logic
- * operations.
+ * operations.</p>
  *
  * <p>Both players input a secret 128-bit AES key (as a 32 char hex string) as well as a list of
  * secret integers. The two AES keys are xored together using 2PC. The resulting key is then used
@@ -33,32 +33,32 @@ import org.apache.commons.cli.Option;
  * resulting AES encryptions of the lists of integers under the xored AES key. Note that the output
  * is a single list, with the first half being encryptions of P1's inputs and the second half being
  * encryptions of P2's inputs. The players are themselves responsible for computing the actual
- * intersection.
+ * intersection.</p>
  *
  * <p>Suppose we have two players. P1 has the key 000102030405060708090a0b0c0d0e0f and a list of
  * integers, {1,3,66,1123} and P2 has the key 00112233445566778899aabbccddeeff and a list of
  * integers {2,66,112,1123}. They both want to know if there is an overlap in their lists of
- * integers, but they do not want to reveal the lists to each other.
+ * integers, but they do not want to reveal the lists to each other.</p>
  *
- * <p>The two players can then run this application with these parameters:
+ * <p>The two players can then run this application with these parameters:</p>
  *
  * <p>P1: $ java -jar privateset.jar -i2 -s dummy -p1:localhost:9994 -p2:localhost:9292
- * -key:000102030405060708090a0b0c0d0e0f -in1,3,66,1123
+ * -key:000102030405060708090a0b0c0d0e0f -in1,3,66,1123</p>
  *
  * <p>P2: $ java -jar privateset.jar -i1 -s dummy -p1:localhost:9994 -p2:localhost:9292
- * -key:00112233445566778899aabbccddeeff -in2,66,112,1123
+ * -key:00112233445566778899aabbccddeeff -in2,66,112,1123</p>
  *
- * <p>This results in this output (at both parties):
+ * <p>This results in this output (at both parties):</p>
  *
  * <p>The resulting ciphertexts are result(0): c5cf1e6421d3302430b4c1e1258e23dc result(1):
  * 2f512cbe2004159f2a9f432aa23074fe result(2): a5bb0723dd40d10189b8e7e1ab383aa1 result(3):
  * 687114568afa5846470e5a5e553c639d result(4): 1f4e1f637a388bcb9984cf3d16c9243e result(5):
  * a5bb0723dd40d10189b8e7e1ab383aa1 result(6): 52cd1dbeeb5f1dce0742aebf285e1472 result(7):
- * 687114568afa5846470e5a5e553c639d
+ * 687114568afa5846470e5a5e553c639d</p>
  *
- * <p>The results reveal that P1 indexes 3 and 4 (66 and 1123) also exist in Player 2's input list.
+ * <p>The results reveal that P1 indexes 3 and 4 (66 and 1123) also exist in Player 2's input list.</p>
  *
- * <p>OBS: Using the dummy protocol suite is not secure!
+ * <p>NOTE: Using the dummy protocol suite is not secure!</p>
  */
 public class PrivateSetDemo implements Application<List<List<Boolean>>, ProtocolBuilderBinary> {
 
