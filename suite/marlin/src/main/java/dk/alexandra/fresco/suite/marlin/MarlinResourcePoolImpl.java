@@ -4,7 +4,8 @@ import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
-import dk.alexandra.fresco.suite.marlin.storage.MarlinStorage;
+import dk.alexandra.fresco.suite.marlin.storage.MarlinDataSupplier;
+import dk.alexandra.fresco.suite.marlin.storage.MarlinOpenedValueStore;
 import java.math.BigInteger;
 
 public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolImpl implements
@@ -13,13 +14,14 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
   private final int operationalBitLength;
   private final int effectiveBitLength;
   private final BigInteger modulus;
-  private final MarlinStorage storage;
+  private final MarlinOpenedValueStore<T> storage;
+  private final MarlinDataSupplier<T> supplier;
 
   /**
    * Creates new {@link MarlinResourcePool}.
    */
   private MarlinResourcePoolImpl(int myId, int noOfPlayers, Drbg drbg, int operationalBitLength,
-      int effectiveBitLength, MarlinStorage<T> storage) {
+      int effectiveBitLength, MarlinOpenedValueStore<T> storage, MarlinDataSupplier<T> supplier) {
     super(myId, noOfPlayers, drbg);
     if (operationalBitLength != 128) {
       throw new IllegalArgumentException(
@@ -33,14 +35,15 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
     this.effectiveBitLength = effectiveBitLength;
     this.modulus = BigInteger.ONE.shiftLeft(operationalBitLength);
     this.storage = storage;
+    this.supplier = supplier;
   }
 
   /**
    * Creates new {@link MarlinResourcePool}.
    */
   public MarlinResourcePoolImpl(int myId, int noOfPlayers, Drbg drbg,
-      MarlinStorage storage) {
-    this(myId, noOfPlayers, drbg, 128, 64, storage);
+      MarlinOpenedValueStore<T> storage, MarlinDataSupplier<T> supplier) {
+    this(myId, noOfPlayers, drbg, 128, 64, storage, supplier);
   }
 
   @Override
@@ -54,8 +57,13 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
   }
 
   @Override
-  public MarlinStorage getStorage() {
+  public MarlinOpenedValueStore getOpenValueStore() {
     return storage;
+  }
+
+  @Override
+  public MarlinDataSupplier getDataSupplier() {
+    return supplier;
   }
 
   @Override

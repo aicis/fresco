@@ -7,9 +7,8 @@ import dk.alexandra.fresco.suite.marlin.datatypes.MarlinElement;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinInputMask;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinTriple;
-import dk.alexandra.fresco.suite.marlin.datatypes.MutableUInt128;
 
-public class MarlinDummyDataSupplier<T extends BigUInt<T>> implements MarlinDataSupplier {
+public class MarlinDummyDataSupplier<T extends BigUInt<T>> implements MarlinDataSupplier<T> {
 
   private final int myId;
   private final ArithmeticDummyDataSupplier supplier;
@@ -36,7 +35,7 @@ public class MarlinDummyDataSupplier<T extends BigUInt<T>> implements MarlinData
   }
 
   @Override
-  public MarlinSInt getNextBit() {
+  public MarlinSInt<T> getNextBit() {
     return new MarlinSInt<>(
         new MarlinElement<>(
             factory.createFromBytes(new byte[]{}),
@@ -45,12 +44,12 @@ public class MarlinDummyDataSupplier<T extends BigUInt<T>> implements MarlinData
   }
 
   @Override
-  public MutableUInt128 getSecretSharedKey() {
+  public T getSecretSharedKey() {
     return null;
   }
 
   @Override
-  public MarlinSInt getNextRandomFieldElement() {
+  public MarlinSInt<T> getNextRandomFieldElement() {
     return null;
   }
 

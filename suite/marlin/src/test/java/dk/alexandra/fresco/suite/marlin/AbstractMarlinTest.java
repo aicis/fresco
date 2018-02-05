@@ -22,10 +22,13 @@ import dk.alexandra.fresco.logging.PerformanceLogger;
 import dk.alexandra.fresco.logging.PerformanceLoggerCountingAggregate;
 import dk.alexandra.fresco.logging.PerformancePrinter;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
+import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
 import dk.alexandra.fresco.suite.marlin.datatypes.MutableUInt128;
 import dk.alexandra.fresco.suite.marlin.datatypes.MutableUInt128Factory;
-import dk.alexandra.fresco.suite.marlin.storage.MarlinStorage;
-import dk.alexandra.fresco.suite.marlin.storage.MarlinStorageImpl;
+import dk.alexandra.fresco.suite.marlin.storage.MarlinDataSupplier;
+import dk.alexandra.fresco.suite.marlin.storage.MarlinDummyDataSupplier;
+import dk.alexandra.fresco.suite.marlin.storage.MarlinOpenedValueStore;
+import dk.alexandra.fresco.suite.marlin.storage.MarlinOpenedValueStoreImpl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -74,7 +77,11 @@ public class AbstractMarlinTest {
         aggregate.add((PerformanceLogger) evaluator);
       }
 
-      MarlinStorage<MutableUInt128> storage = createStorage();
+      BigUIntFactory<MutableUInt128> factory = new MutableUInt128Factory();
+      MarlinOpenedValueStore<MutableUInt128> storage = createOpenedValueStore();
+      MarlinDataSupplier<MutableUInt128> supplier = createDataSupplier(playerId, noOfParties,
+          factory);
+
       SecureComputationEngine<MarlinResourcePool, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(ps, evaluator);
 
@@ -82,7 +89,7 @@ public class AbstractMarlinTest {
       TestThreadRunner.TestThreadConfiguration<MarlinResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,
-              () -> new MarlinResourcePoolImpl(playerId, noOfParties, drbg, storage),
+              () -> new MarlinResourcePoolImpl<>(playerId, noOfParties, drbg, storage, supplier),
               () -> {
                 KryoNetNetwork kryoNetwork = new KryoNetNetwork(partyNetConf);
                 if (logPerformance) {
@@ -105,8 +112,13 @@ public class AbstractMarlinTest {
     }
   }
 
-  private MarlinStorage<MutableUInt128> createStorage() {
-    return new MarlinStorageImpl<>();
+  private MarlinOpenedValueStore<MutableUInt128> createOpenedValueStore() {
+    return new MarlinOpenedValueStoreImpl<>();
+  }
+
+  private MarlinDataSupplier<MutableUInt128> createDataSupplier(int myId, int noOfParties,
+      BigUIntFactory<MutableUInt128> factory) {
+    return new MarlinDummyDataSupplier<>(myId, noOfParties, factory.createRandom(), factory);
   }
 
 }
