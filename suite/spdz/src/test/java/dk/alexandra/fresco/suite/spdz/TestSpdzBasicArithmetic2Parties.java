@@ -1,14 +1,12 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests.TestEuclidianDivision;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests.TestSecretSharedDivision;
 import dk.alexandra.fresco.lib.math.integer.log.LogTests.TestLogarithm;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SqrtTests.TestSquareRoot;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
-import java.math.BigInteger;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -50,7 +48,7 @@ public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
     runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2);
   }
-  
+
   @Test
   public void test_OutputToTarget_Sequential() throws Exception {
     runTest(new BasicArithmeticTests.TestOutputToSingleParty<>(), EvaluationStrategy.SEQUENTIAL,
@@ -96,12 +94,18 @@ public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
   @Test
   public void test_Input_SequentialBatched_Mascot() throws Exception {
     runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        PreprocessingStrategy.MASCOT, 2, 16,16);
+        PreprocessingStrategy.MASCOT, 2, 16, 16);
+  }
+
+  @Test
+  public void test_Lots_Of_Mults_Sequential_Batched_Different_Modulus() throws Exception {
+    runTest(new BasicArithmeticTests.TestLotsMult<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+        PreprocessingStrategy.DUMMY, 2, false, 64, 16);
   }
 
   @Test
   public void testOpenWithConversionMascot() throws Exception {
     runTest(new BasicArithmeticTests.TestOpenWithConversion<>(), EvaluationStrategy.SEQUENTIAL,
-        PreprocessingStrategy.MASCOT, 2, 16,16);
+        PreprocessingStrategy.MASCOT, 2, 16, 16);
   }
 }

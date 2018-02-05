@@ -1,8 +1,7 @@
 package dk.alexandra.fresco.demo;
 
-import dk.alexandra.fresco.demo.helpers.DemoNumericApplication;
+import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.BuildStep;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -17,7 +16,7 @@ import java.util.stream.Collectors;
  *
  * @author Kasper Damgaard
  */
-public class InputApplication extends DemoNumericApplication<List<SInt>> {
+public class InputApplication implements Application<List<SInt>, ProtocolBuilderNumeric> {
 
   private int[] inputs;
   private int length;
@@ -33,12 +32,8 @@ public class InputApplication extends DemoNumericApplication<List<SInt>> {
 
   @Override
   public DRes<List<SInt>> buildComputation(ProtocolBuilderNumeric producer) {
-    return createBuildStep(producer);
-  }
-
-  public BuildStep<?, ProtocolBuilderNumeric, List<SInt>> createBuildStep(
-      ProtocolBuilderNumeric producer) {
-    return producer.par(par -> {
+    return 
+    producer.par(par -> {
       Numeric numeric = par.numeric();
       List<DRes<SInt>> result = new ArrayList<>(length);
       for (int i = 0; i < this.length; i++) {

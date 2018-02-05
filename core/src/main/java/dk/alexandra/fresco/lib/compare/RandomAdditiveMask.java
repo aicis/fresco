@@ -13,14 +13,12 @@ import java.util.List;
 public class RandomAdditiveMask implements
     Computation<AdvancedNumeric.RandomAdditiveMask, ProtocolBuilderNumeric> {
 
-  private final int securityParameter;
   private final int noOfBits;
 
   private List<DRes<SInt>> bits;
   private DRes<SInt> value;
 
-  public RandomAdditiveMask(int securityParameter, int noOfBits) {
-    this.securityParameter = securityParameter;
+  public RandomAdditiveMask(int noOfBits) {
     this.noOfBits = noOfBits;
   }
 
@@ -28,18 +26,17 @@ public class RandomAdditiveMask implements
   public DRes<AdvancedNumeric.RandomAdditiveMask> buildComputation(
       ProtocolBuilderNumeric builder) {
     Numeric numericBuilder = builder.numeric();
-    List<DRes<SInt>> allBits = new ArrayList<>();
-    for (int i = 0; i < noOfBits + securityParameter; i++) {
+    bits = new ArrayList<>();
+    for (int i = 0; i < noOfBits; i++) {
       DRes<SInt> randomBit = numericBuilder.randomBit();
-      allBits.add(randomBit);
+      bits.add(randomBit);
     }
 
     MiscBigIntegerGenerators oIntGenerators = builder.getBigIntegerHelper();
 
-    List<BigInteger> twoPows = oIntGenerators.getTwoPowersList(securityParameter + noOfBits);
+    List<BigInteger> twoPows = oIntGenerators.getTwoPowersList(noOfBits);
     AdvancedNumeric innerProductBuilder = builder.advancedNumeric();
-    value = innerProductBuilder.innerProductWithPublicPart(twoPows, allBits);
-    bits = allBits.subList(0, noOfBits);
+    value = innerProductBuilder.innerProductWithPublicPart(twoPows, bits);
     return () -> new AdvancedNumeric.RandomAdditiveMask(
         bits,
         value.out());
