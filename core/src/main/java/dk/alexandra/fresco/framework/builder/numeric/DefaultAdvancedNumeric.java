@@ -32,6 +32,8 @@ import java.util.List;
  */
 public class DefaultAdvancedNumeric implements AdvancedNumeric {
 
+  // Security parameter for rightshift operations.
+  private final int magicSecurenumber = 60;
   private final BuilderFactoryNumeric factoryNumeric;
   private final ProtocolBuilderNumeric builder;
 
@@ -110,8 +112,7 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
 
   @Override
   public DRes<RandomAdditiveMask> additiveMask(int noOfBits) {
-    return builder.seq(new dk.alexandra.fresco.lib.compare.RandomAdditiveMask(
-        BuilderFactoryNumeric.MAGIC_SECURE_NUMBER, noOfBits));
+    return builder.seq(new dk.alexandra.fresco.lib.compare.RandomAdditiveMask(noOfBits));
   }
 
   @Override
@@ -119,7 +120,7 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
     DRes<RightShiftResult> rightShiftResult = builder.seq(
         new RightShift(
             factoryNumeric.getBasicNumericContext().getMaxBitLength(),
-            input, false));
+            input, false, magicSecurenumber));
     return () -> rightShiftResult.out().getResult();
   }
 
@@ -129,14 +130,14 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
         new RepeatedRightShift(
             input, shifts, false));
     return () -> rightShiftResult.out().getResult();
-  }
-
+  }  
+  
   @Override
   public DRes<RightShiftResult> rightShiftWithRemainder(DRes<SInt> input) {
     return builder.seq(
         new RightShift(
             factoryNumeric.getBasicNumericContext().getMaxBitLength(),
-            input, true));
+            input, true, magicSecurenumber));
   }
 
   @Override

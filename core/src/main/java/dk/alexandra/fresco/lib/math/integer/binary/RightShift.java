@@ -16,6 +16,7 @@ import java.util.Collections;
  */
 public class RightShift implements Computation<RightShiftResult, ProtocolBuilderNumeric> {
 
+  private final int securityParameter;
   private final boolean calculateRemainders;
   // Input
   private final DRes<SInt> input;
@@ -27,18 +28,21 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
    * @param input The input.
    * @param calculateRemainders true to also calculate remainder. If false remainders in result will
    *        be null.
+   * @param securityParameter The amount of bits to use for masking  
    */
-  public RightShift(int bitLength, DRes<SInt> input, boolean calculateRemainders) {
+  public RightShift(int bitLength, DRes<SInt> input, boolean calculateRemainders, int securityParameter) {
     this.bitLength = bitLength;
     this.input = input;
     this.calculateRemainders = calculateRemainders;
+    this.securityParameter = securityParameter;
   }
 
   @Override
   public DRes<RightShiftResult> buildComputation(ProtocolBuilderNumeric sequential) {
     return sequential.seq((builder) -> {
       AdvancedNumeric additiveMaskBuilder = builder.advancedNumeric();
-      return additiveMaskBuilder.additiveMask(bitLength);
+      return additiveMaskBuilder
+          .additiveMask(bitLength + securityParameter);
     }).pairInPar((parSubSequential, randomAdditiveMask) -> {
       BigInteger two = BigInteger.valueOf(2);
       Numeric numericBuilder = parSubSequential.numeric();
