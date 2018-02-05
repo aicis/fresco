@@ -18,7 +18,7 @@ import java.math.BigInteger;
  *
  * <p>Its results approximate regular integer division with n bits, where n is equal to {@link
  * BasicNumericContext#getMaxBitLength()} / 4. Just like
- * regular integer division, this division will always truncate the result instead of rounding.
+ * regular integer division, this division will always truncate the result instead of rounding.</p>
  */
 public class SecretSharedDivisor
     implements Computation<SInt, ProtocolBuilderNumeric> {
