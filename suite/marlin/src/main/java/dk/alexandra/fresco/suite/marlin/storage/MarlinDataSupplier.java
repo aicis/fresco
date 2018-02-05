@@ -35,6 +35,6 @@ public interface MarlinDataSupplier<T extends BigUInt<T>> {
   /**
    * Returns the next random field element.
    */
-  MarlinSInt<T> getNextRandomFieldElement();
+  MarlinSInt<T> getNextRandomElement();
 
 }

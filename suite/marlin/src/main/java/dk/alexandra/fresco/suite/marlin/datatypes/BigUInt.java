@@ -22,12 +22,12 @@ public interface BigUInt<T extends BigUInt> {
   /**
    * Compute sum of this and {@code other}.
    */
-  BigUInt add(T other);
+  T add(T other);
 
   /**
    * Compute product of this and {@code other}.
    */
-  BigUInt multiply(T other);
+  T multiply(T other);
 
   /**
    * Return bit length.

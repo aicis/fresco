@@ -18,4 +18,9 @@ public class MutableUInt128Factory implements BigUIntFactory<MutableUInt128> {
     return createFromBytes(bytes);
   }
 
+  @Override
+  public int getBitLength() {
+    return 128;
+  }
+
 }

@@ -1,12 +1,14 @@
 package dk.alexandra.fresco.suite.marlin.storage;
 
 import dk.alexandra.fresco.framework.util.ArithmeticDummyDataSupplier;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinElement;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinInputMask;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinTriple;
+import java.math.BigInteger;
 
 public class MarlinDummyDataSupplier<T extends BigUInt<T>> implements MarlinDataSupplier<T> {
 
@@ -21,7 +23,7 @@ public class MarlinDummyDataSupplier<T extends BigUInt<T>> implements MarlinData
     this.secretSharedKey = secretSharedKey;
     this.factory = factory;
     this.supplier = new ArithmeticDummyDataSupplier(myId, noOfParties,
-        factory.createRandom().toBigInteger());
+        BigInteger.ONE.shiftLeft(factory.getBitLength()));
   }
 
   @Override
@@ -36,21 +38,24 @@ public class MarlinDummyDataSupplier<T extends BigUInt<T>> implements MarlinData
 
   @Override
   public MarlinSInt<T> getNextBit() {
-    return new MarlinSInt<>(
-        new MarlinElement<>(
-            factory.createFromBytes(new byte[]{}),
-            factory.createFromBytes(new byte[]{}))
-    );
+    return null;
   }
 
   @Override
   public T getSecretSharedKey() {
-    return null;
+    return secretSharedKey;
   }
 
   @Override
-  public MarlinSInt<T> getNextRandomFieldElement() {
-    return null;
+  public MarlinSInt<T> getNextRandomElement() {
+    return new MarlinSInt<>(toMarlinElement(supplier.getRandomElementShare()));
+  }
+
+  private MarlinElement<T> toMarlinElement(Pair<BigInteger, BigInteger> raw) {
+    T openValue = factory.createFromBigInteger(raw.getFirst());
+    T share = factory.createFromBigInteger(raw.getSecond());
+    T macShare = openValue.multiply(secretSharedKey);
+    return new MarlinElement<>(share, macShare);
   }
 
 }

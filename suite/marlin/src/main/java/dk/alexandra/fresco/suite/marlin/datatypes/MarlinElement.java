@@ -10,6 +10,20 @@ public class MarlinElement<T extends BigUInt<T>> {
     this.macShare = macShare;
   }
 
+  public MarlinElement<T> add(MarlinElement<T> other) {
+    return new MarlinElement<>(share.add(other.share), macShare.add(other.macShare));
+  }
 
+  public MarlinElement<T> multiply(T other) {
+    return new MarlinElement<>(share.multiply(other), macShare.multiply(other));
+  }
+
+  public T getShare() {
+    return share;
+  }
+
+  public T getMacShare() {
+    return macShare;
+  }
 
 }
