@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  * smaller than or equal to 0 to a very large value (essentially assuming this
  * value would be a good approximation of infinity). Such a solution however,
  * turns out to be prone to overflow problems, and picking the very larger
- * value, is also non-trivial.
+ * value, is also non-trivial.</p>
  */
 public class MinInfFrac implements Computation<MinInfOutput, ProtocolBuilderNumeric> {
 
