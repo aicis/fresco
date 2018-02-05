@@ -89,7 +89,8 @@ public class AbstractMarlinTest {
       TestThreadRunner.TestThreadConfiguration<MarlinResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,
-              () -> new MarlinResourcePoolImpl<>(playerId, noOfParties, drbg, storage, supplier),
+              () -> new MarlinResourcePoolImpl<>(playerId, noOfParties, drbg, storage, supplier,
+                  factory),
               () -> {
                 KryoNetNetwork kryoNetwork = new KryoNetNetwork(partyNetConf);
                 if (logPerformance) {

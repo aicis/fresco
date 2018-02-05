@@ -5,7 +5,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * Unsigned 128-bit integer with support for in-place operations.
+ * Unsigned 128-bit integer with support for in-place operations. <p>Loosely follows this article
+ * https://locklessinc.com/articles/256bit_arithmetic/.</p>
  */
 public class MutableUInt128 implements BigUInt<MutableUInt128> {
 
@@ -18,7 +19,7 @@ public class MutableUInt128 implements BigUInt<MutableUInt128> {
    *
    * @param bytes bytes interpreted in big-endian order.
    */
-  public MutableUInt128(byte[] bytes) {
+  MutableUInt128(byte[] bytes) {
     byte[] padded = pad(bytes);
     ByteBuffer buffer = ByteBuffer.wrap(padded);
     buffer.order(ByteOrder.BIG_ENDIAN);
@@ -27,7 +28,7 @@ public class MutableUInt128 implements BigUInt<MutableUInt128> {
     this.low = buffer.getInt();
   }
 
-  public MutableUInt128(BigInteger value) {
+  MutableUInt128(BigInteger value) {
     this(value.toByteArray());
   }
 
@@ -37,7 +38,7 @@ public class MutableUInt128 implements BigUInt<MutableUInt128> {
     this.low = (int) value;
   }
 
-  public MutableUInt128(MutableUInt128 other) {
+  MutableUInt128(MutableUInt128 other) {
     this.high = other.high;
     this.mid = other.mid;
     this.low = other.low;
@@ -109,6 +110,27 @@ public class MutableUInt128 implements BigUInt<MutableUInt128> {
   public MutableUInt128 multiply(MutableUInt128 other) {
     MutableUInt128 clone = new MutableUInt128(this);
     clone.multiplyInPlace(other);
+    return clone;
+  }
+
+  @Override
+  public void subtractInPlace(MutableUInt128 other) {
+    long newLow = Integer.toUnsignedLong(this.low) + Integer.toUnsignedLong(other.low);
+    long lowOverflow = newLow >>> 32;
+    long newMid = Integer.toUnsignedLong(this.mid)
+        - Integer.toUnsignedLong(other.mid)
+        - lowOverflow;
+    long midOverflow = newMid >>> 32;
+    long newHigh = this.high + other.high + midOverflow;
+    this.low = (int) newLow;
+    this.mid = (int) newMid;
+    this.high = newHigh;
+  }
+
+  @Override
+  public MutableUInt128 subtract(MutableUInt128 other) {
+    MutableUInt128 clone = new MutableUInt128(this);
+    clone.subtractInPlace(other);
     return clone;
   }
 

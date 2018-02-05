@@ -21,6 +21,13 @@ public interface BigUIntFactory<T extends BigUInt<T>> {
    */
   T createRandom();
 
+  /**
+   * Creates element whose value is zero.
+   */
+  default T createZero() {
+    return createFromBytes(new byte[getBitLength() / 8]);
+  }
+
   int getBitLength();
 
 }

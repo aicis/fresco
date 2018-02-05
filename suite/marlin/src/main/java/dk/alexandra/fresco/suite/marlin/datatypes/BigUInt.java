@@ -20,6 +20,12 @@ public interface BigUInt<T extends BigUInt> {
   void multiplyInPlace(T other);
 
   /**
+   * Update value of this to be difference of this and other {@code other}. <p>This is an in-place
+   * operation.</p>
+   */
+  void subtractInPlace(T other);
+
+  /**
    * Compute sum of this and {@code other}.
    */
   T add(T other);
@@ -28,6 +34,11 @@ public interface BigUInt<T extends BigUInt> {
    * Compute product of this and {@code other}.
    */
   T multiply(T other);
+
+  /**
+   * Compute difference of this and {@code other}.
+   */
+  T subtract(T other);
 
   /**
    * Return bit length.

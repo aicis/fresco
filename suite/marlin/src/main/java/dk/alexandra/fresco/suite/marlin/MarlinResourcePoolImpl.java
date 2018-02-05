@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
 import dk.alexandra.fresco.suite.marlin.storage.MarlinDataSupplier;
 import dk.alexandra.fresco.suite.marlin.storage.MarlinOpenedValueStore;
 import java.math.BigInteger;
@@ -16,12 +17,14 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
   private final BigInteger modulus;
   private final MarlinOpenedValueStore<T> storage;
   private final MarlinDataSupplier<T> supplier;
+  private final BigUIntFactory<T> factory;
 
   /**
    * Creates new {@link MarlinResourcePool}.
    */
   private MarlinResourcePoolImpl(int myId, int noOfPlayers, Drbg drbg, int operationalBitLength,
-      int effectiveBitLength, MarlinOpenedValueStore<T> storage, MarlinDataSupplier<T> supplier) {
+      int effectiveBitLength, MarlinOpenedValueStore<T> storage, MarlinDataSupplier<T> supplier,
+      BigUIntFactory<T> factory) {
     super(myId, noOfPlayers, drbg);
     if (operationalBitLength != 128) {
       throw new IllegalArgumentException(
@@ -36,14 +39,16 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
     this.modulus = BigInteger.ONE.shiftLeft(operationalBitLength);
     this.storage = storage;
     this.supplier = supplier;
+    this.factory = factory;
   }
 
   /**
    * Creates new {@link MarlinResourcePool}.
    */
   public MarlinResourcePoolImpl(int myId, int noOfPlayers, Drbg drbg,
-      MarlinOpenedValueStore<T> storage, MarlinDataSupplier<T> supplier) {
-    this(myId, noOfPlayers, drbg, 128, 64, storage, supplier);
+      MarlinOpenedValueStore<T> storage, MarlinDataSupplier<T> supplier,
+      BigUIntFactory<T> factory) {
+    this(myId, noOfPlayers, drbg, 128, 64, storage, supplier, factory);
   }
 
   @Override
@@ -67,9 +72,20 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
   }
 
   @Override
+  public BigUIntFactory getFactory() {
+    return factory;
+  }
+
+  @Override
+  public ByteSerializer getRawSerializer() {
+    return null;
+  }
+
+  @Override
   public BigInteger getModulus() {
     return modulus;
   }
+
 
   @Override
   public ByteSerializer<BigInteger> getSerializer() {

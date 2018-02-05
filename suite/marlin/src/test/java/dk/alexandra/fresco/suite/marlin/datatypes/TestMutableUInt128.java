@@ -57,6 +57,10 @@ public class TestMutableUInt128 {
         twoTo128.subtract(BigInteger.ONE),
         new MutableUInt128(twoTo128.subtract(BigInteger.ONE)).toBigInteger()
     );
+    assertEquals(
+        twoTo128.subtract(BigInteger.ONE),
+        new MutableUInt128(new BigInteger("-1")).toBigInteger()
+    );
   }
 
   @Test
