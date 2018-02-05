@@ -27,31 +27,31 @@ public class ExponentiationOpenBase implements Computation<SInt, ProtocolBuilder
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq((seq) ->
-        seq.advancedNumeric().toBits(exponent, maxExponentBitLength)
-    ).seq((seq, bits) -> {
-      BigInteger e = base;
-      Numeric numeric = seq.numeric();
-      DRes<SInt> result = null;
-      for (SInt bit : bits) {
-        /*
-         * result += bits[i] * (result * r - r) + r
-				 *
-				 *  aka.
-				 *
-				 *            result       if bits[i] = 0
-				 * result = {
-				 *            result * e   if bits[i] = 1
-				 */
-        if (result == null) {
-          BigInteger sub = e.subtract(BigInteger.ONE);
-          result = numeric.add(BigInteger.ONE, numeric.mult(sub, () -> bit));
-        } else {
-          DRes<SInt> sub = numeric.sub(numeric.mult(e, result), result);
-          result = numeric.add(result, numeric.mult(sub, () -> bit));
-        }
-        e = e.multiply(e);
-      }
-      return result;
-    });
+    seq.advancedNumeric().toBits(exponent, maxExponentBitLength)
+        ).seq((seq, bits) -> {
+          BigInteger e = base;
+          Numeric numeric = seq.numeric();
+          DRes<SInt> result = null;
+          for (SInt bit : bits) {
+            /*
+             * result += bits[i] * (result * r - r) + r
+             *
+             *  aka.
+             *
+             *            result       if bits[i] = 0
+             * result = {
+             *            result * e   if bits[i] = 1
+             */
+            if (result == null) {
+              BigInteger sub = e.subtract(BigInteger.ONE);
+              result = numeric.add(BigInteger.ONE, numeric.mult(sub, () -> bit));
+            } else {
+              DRes<SInt> sub = numeric.sub(numeric.mult(e, result), result);
+              result = numeric.add(result, numeric.mult(sub, () -> bit));
+            }
+            e = e.multiply(e);
+          }
+          return result;
+        });
   }
 }

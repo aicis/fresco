@@ -22,7 +22,7 @@ public class ZeroTestReducer implements Computation<SInt, ProtocolBuilderNumeric
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq((seq) -> seq.advancedNumeric().additiveMask(bitLength)
     ).seq((seq, mask) -> {
-      DRes<SInt> mS = seq.numeric().add(input, () -> mask.r);
+      DRes<SInt> mS = seq.numeric().add(input, () -> mask.random);
       DRes<BigInteger> mO = seq.numeric().open(mS);
       return () -> new Pair<>(mask.bits, mO.out());
     }).seq((seq, pair) ->

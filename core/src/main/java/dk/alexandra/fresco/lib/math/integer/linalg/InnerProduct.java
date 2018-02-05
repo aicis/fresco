@@ -15,21 +15,21 @@ import java.util.RandomAccess;
  */
 public class InnerProduct implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private final List<DRes<SInt>> aVector;
-  private final List<DRes<SInt>> bVector;
+  private final List<DRes<SInt>> vectorA;
+  private final List<DRes<SInt>> vectorB;
 
   public InnerProduct(
-      List<DRes<SInt>> aVector,
-      List<DRes<SInt>> bVector) {
-    this.aVector = getRandomAccessList(aVector);
-    this.bVector = getRandomAccessList(bVector);
+      List<DRes<SInt>> vectorA,
+      List<DRes<SInt>> vectorB) {
+    this.vectorA = getRandomAccessList(vectorA);
+    this.vectorB = getRandomAccessList(vectorB);
   }
 
-  private List<DRes<SInt>> getRandomAccessList(List<DRes<SInt>> aVector) {
-    if (aVector instanceof RandomAccess) {
-      return aVector;
+  private List<DRes<SInt>> getRandomAccessList(List<DRes<SInt>> vectorA) {
+    if (vectorA instanceof RandomAccess) {
+      return vectorA;
     } else {
-      return new ArrayList<>(aVector);
+      return new ArrayList<>(vectorA);
     }
   }
 
@@ -37,11 +37,11 @@ public class InnerProduct implements Computation<SInt, ProtocolBuilderNumeric> {
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder
         .par(parallel -> {
-          List<DRes<SInt>> products = new ArrayList<>(aVector.size());
+          List<DRes<SInt>> products = new ArrayList<>(vectorA.size());
           Numeric numericBuilder = parallel.numeric();
-          for (int i = 0; i < aVector.size(); i++) {
-            DRes<SInt> nextA = aVector.get(i);
-            DRes<SInt> nextB = bVector.get(i);
+          for (int i = 0; i < vectorA.size(); i++) {
+            DRes<SInt> nextA = vectorA.get(i);
+            DRes<SInt> nextB = vectorB.get(i);
             products.add(numericBuilder.mult(nextA, nextB));
           }
           return () -> products;

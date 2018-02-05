@@ -1,13 +1,12 @@
 package dk.alexandra.fresco.lib.collections.io;
 
-import java.math.BigInteger;
-
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationParallel;
 import dk.alexandra.fresco.framework.builder.numeric.Collections;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.RowPairD;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.math.BigInteger;
 
 public class OpenRowPair
     implements ComputationParallel<RowPairD<BigInteger, BigInteger>, ProtocolBuilderNumeric> {
