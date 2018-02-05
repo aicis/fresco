@@ -96,7 +96,7 @@ public class TestInputSumExample {
             return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
               @Override
               public void test() throws Exception {
-                InputSumExample.runApplication(conf.sce, conf.getResourcePool(), conf.getNetwork());
+                new InputSumExample().runApplication(conf.sce, conf.getResourcePool(), conf.getNetwork());
               }
             };
           }
@@ -113,7 +113,7 @@ public class TestInputSumExample {
             return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
               @Override
               public void test() throws Exception {
-                InputSumExample.runApplication(conf.sce, conf.getResourcePool(), conf.getNetwork());
+                new InputSumExample().runApplication(conf.sce, conf.getResourcePool(), conf.getNetwork());
               }
             };
           }
