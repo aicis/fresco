@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.suite.marlin.storage;
 
 import dk.alexandra.fresco.framework.util.ArithmeticDummyDataSupplier;
+import dk.alexandra.fresco.framework.util.MultiplicationTripleShares;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
@@ -27,18 +28,28 @@ public class MarlinDummyDataSupplier<T extends BigUInt<T>> implements MarlinData
   }
 
   @Override
-  public MarlinTriple getNextTriple() {
-    return null;
+  public MarlinTriple<T> getNextTripleShares() {
+    MultiplicationTripleShares rawTriple = supplier.getMultiplicationTripleShares();
+    return new MarlinTriple<>(
+        toMarlinElement(rawTriple.getLeft()),
+        toMarlinElement(rawTriple.getRight()),
+        toMarlinElement(rawTriple.getProduct()));
   }
 
   @Override
-  public MarlinInputMask getNextInputMask(int towardPlayerId) {
-    return null;
+  public MarlinInputMask<T> getNextInputMask(int towardPlayerId) {
+    Pair<BigInteger, BigInteger> raw = supplier.getRandomElementShare();
+    if (myId == towardPlayerId) {
+      return new MarlinInputMask<>(toMarlinElement(raw),
+          factory.createFromBigInteger(raw.getFirst()));
+    } else {
+      return new MarlinInputMask<>(toMarlinElement(raw));
+    }
   }
 
   @Override
-  public MarlinSInt<T> getNextBit() {
-    return null;
+  public MarlinSInt<T> getNextBitShare() {
+    return new MarlinSInt<>(toMarlinElement(supplier.getRandomBitShare()));
   }
 
   @Override
@@ -47,7 +58,7 @@ public class MarlinDummyDataSupplier<T extends BigUInt<T>> implements MarlinData
   }
 
   @Override
-  public MarlinSInt<T> getNextRandomElement() {
+  public MarlinSInt<T> getNextRandomElementShare() {
     return new MarlinSInt<>(toMarlinElement(supplier.getRandomElementShare()));
   }
 

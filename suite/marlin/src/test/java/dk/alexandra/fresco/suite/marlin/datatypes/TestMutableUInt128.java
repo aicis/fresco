@@ -9,6 +9,7 @@ import org.junit.Test;
 
 public class TestMutableUInt128 {
 
+  // TODO test toBitInteger
   private final BigInteger two = BigInteger.valueOf(2);
   private final BigInteger twoTo32 = BigInteger.ONE.shiftLeft(32);
   private final BigInteger twoTo64 = BigInteger.ONE.shiftLeft(64);
@@ -86,7 +87,8 @@ public class TestMutableUInt128 {
     );
     assertEquals(
         twoTo128.subtract(BigInteger.ONE),
-        new MutableUInt128(twoTo128.subtract(BigInteger.ONE)).add(new MutableUInt128(0)).toBigInteger()
+        new MutableUInt128(twoTo128.subtract(BigInteger.ONE)).add(new MutableUInt128(0))
+            .toBigInteger()
     );
     assertEquals(
         BigInteger.ZERO,

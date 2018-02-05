@@ -12,7 +12,7 @@ public interface MarlinDataSupplier<T extends BigUInt<T>> {
    *
    * @return the next new triple
    */
-  MarlinTriple getNextTriple();
+  MarlinTriple<T> getNextTripleShares();
 
   /**
    * Supplies the next inputmask for a given input player.
@@ -20,12 +20,12 @@ public interface MarlinDataSupplier<T extends BigUInt<T>> {
    * @param towardPlayerId the id of the input player
    * @return the appropriate input mask
    */
-  MarlinInputMask getNextInputMask(int towardPlayerId);
+  MarlinInputMask<T> getNextInputMask(int towardPlayerId);
 
   /**
    * Supplies the next bit (SInt representing value in {0, 1}).
    */
-  MarlinSInt<T> getNextBit();
+  MarlinSInt<T> getNextBitShare();
 
   /**
    * Returns the player's share of the mac key.
@@ -35,6 +35,6 @@ public interface MarlinDataSupplier<T extends BigUInt<T>> {
   /**
    * Returns the next random field element.
    */
-  MarlinSInt<T> getNextRandomElement();
+  MarlinSInt<T> getNextRandomElementShare();
 
 }
