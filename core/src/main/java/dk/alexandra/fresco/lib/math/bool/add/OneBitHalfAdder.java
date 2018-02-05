@@ -12,7 +12,8 @@ import dk.alexandra.fresco.framework.value.SBool;
 public class OneBitHalfAdder
     implements Computation<Pair<SBool, SBool>, ProtocolBuilderBinary> {
 
-  private DRes<SBool> left, right;
+  private DRes<SBool> left;
+  private DRes<SBool> right;
 
   public OneBitHalfAdder(DRes<SBool> left, DRes<SBool> right) {
     this.left = left;

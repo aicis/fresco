@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.lib.statistics;
 
-
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
@@ -39,8 +38,9 @@ public class DEAPrefixBuilderMaximize implements
     this.targetOutputs = targetOutputs;
   }
 
-  // A value no benchmarking result should be larger than. Note the benchmarking results are of the form
-  // \theta = "the factor a farmer can do better than he currently does" and thus is not necessarily upper bounded.
+  // A value no benchmarking result should be larger than. Note the benchmarking results
+  // are of the form \theta = "the factor a farmer can do better than he currently does"
+  // and thus is not necessarily upper bounded.
   private static final int BENCHMARKING_BIG_M = 1000;
 
 
@@ -50,14 +50,14 @@ public class DEAPrefixBuilderMaximize implements
     DRes<SInt> one = builder.numeric().known(BigInteger.ONE);
     /*
      * First copy the target values to the basis. This ensures that the
-		 * target values are in the basis thus the score must at least be 1.
-		 */
+     * target values are in the basis thus the score must at least be 1.
+     */
     List<List<DRes<SInt>>> newBasisInputs = addTargetToList(basisInputs, targetInputs);
     List<List<DRes<SInt>>> newBasisOutputs = addTargetToList(basisOutputs, targetOutputs);
 
-		/*
+    /*
      * NeProtocol the basis output
-		 */
+     */
     int lambdas = newBasisInputs.get(0).size();
 
     BigInteger negativeOne = BigInteger.valueOf(-1);
@@ -67,18 +67,18 @@ public class DEAPrefixBuilderMaximize implements
           Numeric numeric = par.numeric();
           List<List<DRes<SInt>>> negatedBasisResult = newBasisOutputs.stream().map(
               outputs -> outputs.stream()
-                  .map(output -> numeric.mult(negativeOne, output))
-                  .collect(Collectors.toList())
-          ).collect(Collectors.toList());
+              .map(output -> numeric.mult(negativeOne, output))
+              .collect(Collectors.toList())
+              ).collect(Collectors.toList());
           return () -> negatedBasisResult;
         });
 
     int constraints = newBasisInputs.size() + newBasisOutputs.size() + 1;
     int variables = lambdas + constraints + 1;
     ArrayList<ArrayList<DRes<SInt>>> slack = getIdentity(constraints, one, zero);
-    ArrayList<ArrayList<DRes<SInt>>> C = new ArrayList<>(constraints);
+    ArrayList<ArrayList<DRes<SInt>>> secretConstraints = new ArrayList<>(constraints);
     for (int i = 0; i < newBasisInputs.size(); i++) {
-      C.add(inputRow(newBasisInputs.get(i), slack.get(i), zero));
+      secretConstraints.add(inputRow(newBasisInputs.get(i), slack.get(i), zero));
     }
 
     return builder.seq(seq -> {
@@ -86,13 +86,13 @@ public class DEAPrefixBuilderMaximize implements
       List<List<DRes<SInt>>> negatedBasisOutputs = negatedBasisOutputsComputation.out();
 
       for (int i = newBasisInputs.size(); i < constraints - 1; i++) {
-        C.add(outputRow(negatedBasisOutputs.get(i - newBasisInputs.size()),
+        secretConstraints.add(outputRow(negatedBasisOutputs.get(i - newBasisInputs.size()),
             targetOutputs.get(i - newBasisInputs.size()), slack.get(i)));
       }
-      C.add(lambdaRow(lambdas, slack.get(constraints - 1), zero, one));
+      secretConstraints.add(lambdaRow(lambdas, slack.get(constraints - 1), zero, one));
 
-      ArrayList<DRes<SInt>> F = fVector(variables, lambdas, seq, zero);
-      ArrayList<DRes<SInt>> B = bVector(constraints, targetInputs, zero, one);
+      ArrayList<DRes<SInt>> vectorF = buildVectorF(variables, lambdas, seq, zero);
+      ArrayList<DRes<SInt>> vectorB = buildVectorB(constraints, targetInputs, zero, one);
       DRes<SInt> z = seq.numeric().known(BigInteger.valueOf(-BENCHMARKING_BIG_M));
       DRes<SInt> pivot = one;
 
@@ -101,7 +101,8 @@ public class DEAPrefixBuilderMaximize implements
         basis.add(seq.numeric().known(BigInteger.valueOf(lambdas + 1 + 1 + i)));
       }
 
-      LPTableau tab = new LPTableau(new Matrix<>(constraints, variables, C), B, F, z);
+      LPTableau tab = new LPTableau(
+          new Matrix<>(constraints, variables, secretConstraints), vectorB, vectorF, z);
       Matrix<DRes<SInt>> updateMatrix = new Matrix<>(
           constraints + 1, constraints + 1, getIdentity(constraints + 1, one, zero));
       return () -> new SimpleLPPrefix(updateMatrix, tab, pivot, basis);
@@ -142,44 +143,44 @@ public class DEAPrefixBuilderMaximize implements
     return newBasis;
   }
 
-  private ArrayList<DRes<SInt>> fVector(int size, int lambdas,
+  private ArrayList<DRes<SInt>> buildVectorF(int size, int lambdas,
       ProtocolBuilderNumeric builder,
       DRes<SInt> zero) {
     Numeric numeric = builder.numeric();
     DRes<SInt> minusOne = numeric.known(BigInteger.valueOf(-1));
     DRes<SInt> minusBigM = numeric.known(BigInteger.valueOf(0 - BENCHMARKING_BIG_M));
-    ArrayList<DRes<SInt>> F = new ArrayList<>(size);
+    ArrayList<DRes<SInt>> vectorF = new ArrayList<>(size);
     int index = 0;
     // Delta has coefficient 1
-    F.add(minusOne);
+    vectorF.add(minusOne);
     index++;
     // Make sure there are lambdas > 0
     while (index < lambdas + 1) {
-      F.add(minusBigM);
+      vectorF.add(minusBigM);
       index++;
     }
     // Slack variables do not contribute to cost
     while (index < size) {
-      F.add(zero);
+      vectorF.add(zero);
       index++;
     }
-    return F;
+    return vectorF;
   }
 
 
-  private ArrayList<DRes<SInt>> bVector(int size,
+  private ArrayList<DRes<SInt>> buildVectorB(int size,
       List<DRes<SInt>> targetInputs,
       DRes<SInt> zero,
       DRes<SInt> one) {
-    ArrayList<DRes<SInt>> B = new ArrayList<>(size);
-    B.addAll(targetInputs);
+    ArrayList<DRes<SInt>> vectorB = new ArrayList<>(size);
+    vectorB.addAll(targetInputs);
     // For each bank output constraint B is zero
-    while (B.size() < size - 1) {
-      B.add(zero);
+    while (vectorB.size() < size - 1) {
+      vectorB.add(zero);
     }
     // For the lambda constraint B is one
-    B.add(one);
-    return B;
+    vectorB.add(one);
+    return vectorB;
   }
 
   private ArrayList<DRes<SInt>> inputRow(List<DRes<SInt>> vflInputs,

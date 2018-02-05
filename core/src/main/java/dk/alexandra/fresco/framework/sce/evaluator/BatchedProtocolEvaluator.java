@@ -62,7 +62,6 @@ public class BatchedProtocolEvaluator<ResourcePoolT extends ResourcePool>
       }
       totalProtocols += size;
       totalBatches += 1;
-
       roundSynchronization.finishedBatch(size, resourcePool, network);
     } while (protocolProducer.hasNextProtocols());
 

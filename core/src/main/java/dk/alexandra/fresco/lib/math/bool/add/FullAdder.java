@@ -14,16 +14,16 @@ import java.util.List;
  * It takes the naive approach of linking 1-Bit-Full Adders together to implement
  * a generic length adder.
  */
-public class FullAdder 
-    implements Computation<List<DRes<SBool>>, ProtocolBuilderBinary> {
+public class FullAdder implements Computation<List<DRes<SBool>>, ProtocolBuilderBinary> {
 
-  private List<DRes<SBool>> lefts, rights;
+  private List<DRes<SBool>> lefts;
+  private List<DRes<SBool>> rights;
   private DRes<SBool> inCarry;
 
   public FullAdder(List<DRes<SBool>> lefts, 
       List<DRes<SBool>> rights, 
       DRes<SBool> inCarry) {
-    
+
     if (lefts.size() != rights.size()) {
       throw new IllegalArgumentException("input lists for Full Adder must be of same length.");
     }
@@ -31,34 +31,36 @@ public class FullAdder
     this.rights = rights;
     this.inCarry = inCarry;
   }
-  
-  
+
+
   @Override
   public DRes<List<DRes<SBool>>> buildComputation(ProtocolBuilderBinary builder) {
 
     List<DRes<SBool>> result = new ArrayList<DRes<SBool>>(); 
-    
+
     return builder.seq(seq -> {
-      int idx = this.lefts.size() -1;
-      IterationState is = new IterationState(idx, seq.advancedBinary().oneBitFullAdder(lefts.get(idx), rights.get(idx), inCarry));
+      int idx = this.lefts.size() - 1;
+      IterationState is = new IterationState(idx,
+          seq.advancedBinary().oneBitFullAdder(lefts.get(idx), rights.get(idx), inCarry));
       return is;
     }).whileLoop(
         (state) -> state.round >= 1,
         (seq, state) -> {
-          int idx = state.round -1;
-          
+          int idx = state.round - 1;
+
           result.add(0, state.value.out().getFirst());
-          IterationState is = new IterationState(idx, seq.advancedBinary().oneBitFullAdder(lefts.get(idx), rights.get(idx), state.value.out().getSecond()));
+          IterationState is = new IterationState(idx, seq.advancedBinary()
+              .oneBitFullAdder(lefts.get(idx), rights.get(idx), state.value.out().getSecond()));
           return is;
         }
-    ).seq((seq, state) -> {
-      result.add(0, state.value.out().getFirst());
-      result.add(0, state.value.out().getSecond());
-      return () -> result;
-      }
-    );
+        ).seq((seq, state) -> {
+          result.add(0, state.value.out().getFirst());
+          result.add(0, state.value.out().getSecond());
+          return () -> result;
+        }
+            );
   }
-  
+
   private static final class IterationState implements DRes<IterationState> {
 
     private int round;

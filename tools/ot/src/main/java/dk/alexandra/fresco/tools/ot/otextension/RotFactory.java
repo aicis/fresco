@@ -27,7 +27,7 @@ public class RotFactory {
     return new RotSenderImpl(sender, resources, network);
   }
 
-  public RotReceiver getReceiver() {
+  public RotReceiver createReceiver() {
     CoteReceiver receiver = new CoteReceiver(resources, network);
     return new RotReceiverImpl(receiver, resources, network);
   }
