@@ -1,10 +1,14 @@
 package dk.alexandra.fresco.framework.util;
 
 import java.math.BigInteger;
+import java.util.List;
 
 public class MathUtils {
 
   private static final BigInteger TWO = BigInteger.valueOf(2);
+
+  private MathUtils() {
+  }
 
   /**
    * Checks whether a value is a quadratic residue, i.e., if it has a square root mod modulus. </b>
@@ -66,6 +70,16 @@ public class MathUtils {
       r = r.multiply(b).mod(modulus);
     }
     return r;
+  }
+
+  /**
+   * Computes the sum of elements with modular wrap-around.
+   */
+  public static BigInteger sum(List<BigInteger> summands, BigInteger modulus) {
+    return summands.stream()
+        .reduce(BigInteger::add)
+        .orElse(BigInteger.ZERO)
+        .mod(modulus);
   }
 
   /**

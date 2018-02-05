@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Application for performing credit rating.
  *
- * Given a dataset (a vector of values) and a credit rating function (a set of intervals for each
+ * <p>Given a dataset (a vector of values) and a credit rating function (a set of intervals for each
  * value) will calculate the combined score.
  */
 public class CreditRater implements
@@ -24,11 +24,13 @@ public class CreditRater implements
   private List<List<DRes<SInt>>> intervalScores;
 
   /**
-   * @throws IllegalArgumentException if the intervals, values and intervalScores does not have the same length
+   * Construct a new CreditRater.
+   * @throws IllegalArgumentException if the intervals, values and intervalScores
+    does not have the same length
    */
   public CreditRater(
       List<DRes<SInt>> values, List<List<DRes<SInt>>> intervals,
-      List<List<DRes<SInt>>> intervalScores){
+      List<List<DRes<SInt>>> intervalScores) {
     this.values = values;
     this.intervals = intervals;
     this.intervalScores = intervalScores;

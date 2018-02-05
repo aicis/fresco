@@ -1,37 +1,22 @@
 package dk.alexandra.fresco.demo;
 
+import dk.alexandra.fresco.demo.cli.CmdLineUtil;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.Party;
-import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
-import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
-import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
-import dk.alexandra.fresco.framework.sce.evaluator.SequentialStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.collections.MatrixUtils;
 import dk.alexandra.fresco.suite.ProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
-import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
-import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class AggregationDemo<ResourcePoolT extends ResourcePool> {
 
@@ -105,38 +90,30 @@ public class AggregationDemo<ResourcePoolT extends ResourcePool> {
    * Main.
    *
    * @param args must include player ID
+   * @throws IOException In case of network failure.
    */
-  public static void main(String[] args) throws IOException {
-    // My player ID
-    int pid = Integer.parseInt(args[0]);
+  public static <ResourcePoolT extends ResourcePool> void main(String[] args) throws
+      IOException {
+    
+    
+    CmdLineUtil<ResourcePoolT, ProtocolBuilderNumeric> util = new CmdLineUtil<>();
 
-    // Create SPDZ protocol suite
-    ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> suite = new SpdzProtocolSuite(150);
+    util.parse(args);
+    
+    ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric> suite = util.getProtocolSuite();
 
-    // Define circuit evaluation strategy
-    ProtocolEvaluator<SpdzResourcePool> sequentialEvaluator =
-        new BatchedProtocolEvaluator<>(new SequentialStrategy<>(), suite);
+    SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce =
+        new SecureComputationEngineImpl<>(suite, util.getEvaluator());
 
-    // Instantiate execution environment
-    SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =
-        new SecureComputationEngineImpl<>(suite, sequentialEvaluator);
-
-    // Create resource pool
-    try (KryoNetNetwork network = new KryoNetNetwork(getNetworkConfiguration(pid))) {
-      SpdzStorage store = new SpdzStorageImpl(
-          new SpdzDummyDataSupplier(pid, getNetworkConfiguration(pid).noOfParties()));
-    SpdzResourcePool rp = new SpdzResourcePoolImpl(pid, getNetworkConfiguration(pid).noOfParties(),
-        new HmacDrbg(), store);
-      // Instatiate our demo and run
-      AggregationDemo<SpdzResourcePool> demo = new AggregationDemo<>();
-      demo.runApplication(sce, rp, network);
-    }
+    ResourcePoolT resourcePool = util.getResourcePool();
+    
+    AggregationDemo<ResourcePoolT> demo = new AggregationDemo<>();
+    
+    util.startNetwork();
+    demo.runApplication(sce, resourcePool, util.getNetwork());
+    
+    util.closeNetwork();
+    sce.shutdownSCE();
   }
 
-  private static NetworkConfiguration getNetworkConfiguration(int pid) {
-    Map<Integer, Party> parties = new HashMap<>();
-    parties.put(1, new Party(1, "localhost", 8001));
-    parties.put(2, new Party(2, "localhost", 8002));
-    return new NetworkConfigurationImpl(pid, parties);
-  }
 }

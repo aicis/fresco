@@ -12,6 +12,9 @@ import dk.alexandra.fresco.tools.mascot.field.InputMask;
 
 public class MascotFormatConverter {
 
+  private MascotFormatConverter() {
+  }
+
   /**
    * Converts single {@link AuthenticatedElement} to {@link SpdzElement}.
    * 
