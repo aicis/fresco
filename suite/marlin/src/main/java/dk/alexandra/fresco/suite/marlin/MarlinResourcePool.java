@@ -27,7 +27,7 @@ public interface MarlinResourcePool<T extends BigUInt<T>> extends NumericResourc
   BigUIntFactory<T> getFactory();
 
   /**
-   * Returns serializer for serializing instances of {@link T}.
+   * Returns serializer for instances of {@link T}.
    */
   ByteSerializer<T> getRawSerializer();
 

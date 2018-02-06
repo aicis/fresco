@@ -18,6 +18,7 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
   private final MarlinOpenedValueStore<T> storage;
   private final MarlinDataSupplier<T> supplier;
   private final BigUIntFactory<T> factory;
+  private final ByteSerializer<T> rawSerializer;
 
   /**
    * Creates new {@link MarlinResourcePool}.
@@ -40,6 +41,7 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
     this.storage = storage;
     this.supplier = supplier;
     this.factory = factory;
+    this.rawSerializer = factory.createSerializer();
   }
 
   /**
@@ -78,14 +80,13 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
 
   @Override
   public ByteSerializer getRawSerializer() {
-    return null;
+    return rawSerializer;
   }
 
   @Override
   public BigInteger getModulus() {
     return modulus;
   }
-
 
   @Override
   public ByteSerializer<BigInteger> getSerializer() {

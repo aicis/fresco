@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.marlin.datatypes;
 
+import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import java.math.BigInteger;
 
 public interface BigUIntFactory<T extends BigUInt<T>> {
@@ -27,6 +28,11 @@ public interface BigUIntFactory<T extends BigUInt<T>> {
   default T createZero() {
     return createFromBytes(new byte[getBitLength() / 8]);
   }
+
+  /**
+   * Creates serializer for {@link T} instances.
+   */
+  ByteSerializer<T> createSerializer();
 
   int getBitLength();
 
