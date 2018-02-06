@@ -33,7 +33,7 @@ public class DummyArithmeticResourcePoolImpl extends ResourcePoolImpl
 
   /**
    * Constructs a new {@link ResourcePool} for the Dummy Arithmetic suite.
-   *  @param myId id of this party
+   * @param myId id of this party
    * @param noOfPlayers number of parties in the participating 
    */
   public DummyArithmeticResourcePoolImpl(int myId, int noOfPlayers) {
