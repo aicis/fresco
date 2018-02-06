@@ -85,7 +85,7 @@ We work with two classes of tests:
   already running. I.e., it should always possible to check out the code and just run these tests
   with only meeting the requirements seen in the :ref:`install<install>` section.
 
-* Integration tests. This are tests that for example rely on external databases being set up, or
+* Integration tests. These are tests that for example rely on external databases being set up, or
   involve deployment to different hosts. You can mark a test class or test method as integration
   test by using the ``@Category`` annotation like so:
 
