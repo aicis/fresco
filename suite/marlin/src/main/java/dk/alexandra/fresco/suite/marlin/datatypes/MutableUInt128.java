@@ -6,10 +6,13 @@ import java.nio.ByteOrder;
 
 /**
  * Unsigned 128-bit integer with support for in-place operations. <p>Loosely follows this article
- * https://locklessinc.com/articles/256bit_arithmetic/.</p>
+ * https://locklessinc.com/articles/256bit_arithmetic/. Note that this class is NOT SAFE to
+ * instantiate with negative values.</p>
  */
 public class MutableUInt128 implements BigUInt<MutableUInt128> {
 
+  private static final MutableUInt128 MINUS_ONE = new MutableUInt128(
+      BigInteger.ONE.shiftLeft(128).subtract(BigInteger.ONE));
   private long high;
   private int mid;
   private int low;
@@ -115,22 +118,26 @@ public class MutableUInt128 implements BigUInt<MutableUInt128> {
 
   @Override
   public void subtractInPlace(MutableUInt128 other) {
-    long newLow = Integer.toUnsignedLong(this.low) + Integer.toUnsignedLong(other.low);
-    long lowOverflow = newLow >>> 32;
-    long newMid = Integer.toUnsignedLong(this.mid)
-        - Integer.toUnsignedLong(other.mid)
-        - lowOverflow;
-    long midOverflow = newMid >>> 32;
-    long newHigh = this.high + other.high + midOverflow;
-    this.low = (int) newLow;
-    this.mid = (int) newMid;
-    this.high = newHigh;
+    // TODO optimize if bottle-neck
+    addInPlace(other.negate());
   }
 
   @Override
   public MutableUInt128 subtract(MutableUInt128 other) {
     MutableUInt128 clone = new MutableUInt128(this);
     clone.subtractInPlace(other);
+    return clone;
+  }
+
+  @Override
+  public void negateInPlace() {
+    multiplyInPlace(MINUS_ONE);
+  }
+
+  @Override
+  public MutableUInt128 negate() {
+    MutableUInt128 clone = new MutableUInt128(this);
+    clone.negateInPlace();
     return clone;
   }
 

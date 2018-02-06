@@ -26,6 +26,11 @@ public interface BigUInt<T extends BigUInt> {
   void subtractInPlace(T other);
 
   /**
+   * Negates the value of this (with wrap-around). <p>This is an in-place operation.</p>
+   */
+  void negateInPlace();
+
+  /**
    * Compute sum of this and {@code other}.
    */
   T add(T other);
@@ -39,6 +44,11 @@ public interface BigUInt<T extends BigUInt> {
    * Compute difference of this and {@code other}.
    */
   T subtract(T other);
+
+  /**
+   * Compute negation of this and return.
+   */
+  T negate();
 
   /**
    * Return bit length.

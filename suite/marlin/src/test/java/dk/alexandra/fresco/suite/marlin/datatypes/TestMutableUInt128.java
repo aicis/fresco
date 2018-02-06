@@ -57,10 +57,6 @@ public class TestMutableUInt128 {
         twoTo128.subtract(BigInteger.ONE),
         new MutableUInt128(twoTo128.subtract(BigInteger.ONE)).toBigInteger()
     );
-    assertEquals(
-        twoTo128.subtract(BigInteger.ONE),
-        new MutableUInt128(new BigInteger("-1")).toBigInteger()
-    );
   }
 
   @Test
@@ -165,6 +161,50 @@ public class TestMutableUInt128 {
         twoTo64.multiply(twoTo64.add(BigInteger.TEN)).mod(twoTo128),
         new MutableUInt128(twoTo64)
             .multiply(new MutableUInt128(twoTo64.add(BigInteger.TEN)))
+            .toBigInteger()
+    );
+  }
+
+  @Test
+  public void testNegate() {
+    assertEquals(
+        BigInteger.ZERO,
+        new MutableUInt128(BigInteger.ZERO).negate().toBigInteger()
+    );
+    assertEquals(
+        BigInteger.ONE,
+        new MutableUInt128(twoTo128.subtract(BigInteger.ONE)).negate().toBigInteger()
+    );
+    assertEquals(
+        two,
+        new MutableUInt128(twoTo128.subtract(two)).negate().toBigInteger()
+    );
+    assertEquals(
+        twoTo128.subtract(two),
+        new MutableUInt128(two).negate().toBigInteger()
+    );
+  }
+
+  @Test
+  public void testSubtract() {
+    assertEquals(
+        BigInteger.ZERO,
+        new MutableUInt128(BigInteger.ZERO).subtract(new MutableUInt128(BigInteger.ZERO))
+            .toBigInteger()
+    );
+    assertEquals(
+        BigInteger.ONE,
+        new MutableUInt128(BigInteger.ONE).subtract(new MutableUInt128(BigInteger.ZERO))
+            .toBigInteger()
+    );
+    assertEquals(
+        BigInteger.ZERO,
+        new MutableUInt128(BigInteger.ONE).subtract(new MutableUInt128(BigInteger.ONE))
+            .toBigInteger()
+    );
+    assertEquals(
+        twoTo128.subtract(BigInteger.ONE),
+        new MutableUInt128(BigInteger.ONE).subtract(new MutableUInt128(two))
             .toBigInteger()
     );
   }
