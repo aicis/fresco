@@ -48,9 +48,9 @@ The FRESCO framework aims to support the development of both new applications us
 computation, and the development of new secure computation techniques (referred to as *protocol
 suites* in FRESCO) to be used as the backend for those applications. In some sense FRESCO can be
 thought of as a *hub* that provides the infrastructure to connect applications with protocol suites.
-The focus of the framework is the following main features:
+The framework puts focus on the following main features:
 
-* **Rapid and simple application development**. With FRESCO you can write application that uses
+* **Rapid and simple application development**. With FRESCO you can write applications that use
   secure computation without being an expert in cryptography. You only need to specify which data to
   "close" and which data to "open". FRESCO provides a *standard library* of many commonly used
   secure functionalities. These can be easily combined in order to quickly achieve new complex
@@ -71,7 +71,7 @@ The focus of the framework is the following main features:
   C/C++ and still get the benefit of access to many existing applications written using FRESCO.
 
 * **Support for large and efficient computations**. FRESCO supports techniques such as
-  parallelization and pre-processing that allows to cope with large computations.
+  parallelization and pre-processing that enable scaling to large computations.
 
 
 Contact
@@ -85,7 +85,7 @@ fresco@alexandra.dk or by using our `issue tracker
 Related Projects
 ----------------
 
-For further projects related to secure computations we refer to the Awesome-MPC_ list.
+For further projects related to secure computation we refer to the Awesome-MPC_ list.
 
 .. _Awesome-MPC: https://github.com/rdragos/awesome-mpc
 

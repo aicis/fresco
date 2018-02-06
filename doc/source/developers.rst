@@ -3,7 +3,7 @@
 For Developers
 ==============
 
-In section we give some tips and guidelines for developing and contributing code to FRESCO.
+In this section we give some tips and guidelines for developing and contributing code to FRESCO.
 
 Directory Structure
 -------------------
@@ -76,7 +76,7 @@ patches have 100% coverage and do not decrease the overall test coverage.
 
 For each sub-project tests are located in the source code folder named ``test`` separated from the
 main code, as per the standard Maven directory structure. When writing tests for something in
-package ``x.y.z`` the test should test should belong to the same package. This way, methods that are
+package ``x.y.z`` the test should belong to the same package. This way, methods that are
 *package private* and therefore not exposed in the FRESCO API can also be tested.
 
 We work with two classes of tests:
@@ -85,7 +85,7 @@ We work with two classes of tests:
   already running. I.e., it should always possible to check out the code and just run these tests
   with only meeting the requirements seen in the :ref:`install<install>` section.
 
-* Integration tests. This is tests that for example rely on external databases being set up, or
+* Integration tests. This are tests that for example rely on external databases being set up, or
   involve deployment to different hosts. You can mark a test class or test method as integration
   test by using the ``@Category`` annotation like so:
 
@@ -135,7 +135,7 @@ its own ``partyId`` so if the test requires the parties to do different things, 
 their partyId.
 
 The rest of the arguments to ``runTest`` are parameters over which you want your tests to vary. For
-example this could be number of players and evaluation strategy. But it can also include parameters
+example this could be the number of players and evaluation strategy. But it can also include parameters
 specific to your suite. The ``runTest`` should set up the remaining parameters for your test --
 those parameters that should remain fixed in all your tests.
 

@@ -36,9 +36,7 @@ secure computation.
 A Simple Example
 ----------------
 
-In this example we will explore the effort required to use the FRESCO framework in your own
-application. FRESCO is a flexible framework intended to be used in your own software stack, so start
-by adding the dependency to fresco in your own project.
+In this example we demonstrate how to use the FRESCO framework in your own application. FRESCO is a flexible framework intended to be used in your own software stack, so start by adding the dependency to fresco in your own project.
 
 This example is based on the ``DistanceDemo`` class implementing the **Distance** demo outlined
 above. However, essentially any FRESCO application could be substituted for ``DistanceDemo`` in the
@@ -47,17 +45,15 @@ following.
 .. sourcecode:: java
 
     DistanceDemo distDemo = new DistanceDemo(1, x, y);
-    BigInteger modulus = ModulusFinder.findSuitableModulus(64);
     Party me = new Party(1, "localhost", 8871);
-    DummyArithmeticProtocolSuite protocolSuite =
-        new DummyArithmeticProtocolSuite(modulus, 32);
+    DummyArithmeticProtocolSuite protocolSuite = new DummyArithmeticProtocolSuite();
     SecureComputationEngine<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce =
         new SecureComputationEngineImpl<>(
             protocolSuite,
             new BatchedProtocolEvaluator<>(new BatchedStrategy<>(), protocolSuite));
     BigInteger bigInteger = sce.runApplication(
         distDemo,
-        new DummyArithmeticResourcePoolImpl(1, 1, modulus),
+        new DummyArithmeticResourcePoolImpl(1, 1),
         new KryoNetNetwork(new NetworkConfigurationImpl(1, Collections.singletonMap(1,
             me))));
     double dist = Math.sqrt(bigInteger.doubleValue());
@@ -74,11 +70,9 @@ parties running on the same machine.
 .. sourcecode:: java
 
     DistanceDemo distDemo = new DistanceDemo(1, x, y);
-    BigInteger modulus = ModulusFinder.findSuitableModulus(64);
     Party partyOne = new Party(1, "localhost", 8871);
     Party partyTwo = new Party(2, "localhost", 8872);
-    DummyArithmeticProtocolSuite protocolSuite =
-        new DummyArithmeticProtocolSuite(modulus, 32);
+    DummyArithmeticProtocolSuite protocolSuite = new DummyArithmeticProtocolSuite();
     SecureComputationEngine<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce =
         new SecureComputationEngineImpl<>(
             protocolSuite,
@@ -88,7 +82,7 @@ parties running on the same machine.
     parties.put(2, partyTwo);
     BigInteger bigInteger = sce.runApplication(
         distDemo,
-        new DummyArithmeticResourcePoolImpl(myId, 2, modulus),
+        new DummyArithmeticResourcePoolImpl(myId, 2),
         new KryoNetNetwork(new NetworkConfigurationImpl(myId, parties)));
     double dist = Math.sqrt(bigInteger.doubleValue());
 
@@ -99,8 +93,7 @@ Let's have a look at each part of the example above.
 
 A FRESCO application, in this case ``DistanceDemo``, implements the ``Application`` interface. To
 run an ``Application`` we must first create a ``SecureComputationEngine``. This is a core component
-of FRESCO that is the primary entry point for executing the secure computations through the
-computation directories and the active protocol suite.
+of FRESCO that is the primary entry point for executing secure computations through the computation directories and the active protocol suite.
 
 The ``SecureComputationEngine`` is initialized with a ``ProtocolSuite`` and a ``ProtocolEvaluator``
 (defining the secure computation technique and strategy for evaluating the application
@@ -117,7 +110,7 @@ and use that if this matches your application better.
 When we call ``runApplication`` the ``SecureComputationEngine`` executes the application and returns
 the evaluated result directly in a ``BigInteger`` - here the distance between the two points.
 
-Notice how our ``Application`` is made. Implementing ``Application`` signals that our
+Notice how our ``Application`` is created. Implementing ``Application`` signals that our
 ``DistanceDemo`` class is a FRESCO application. An application must also state what it outputs as
 well as what type of application this is i.e. are we creating a binary or arithmetic application.
 This is seen in the interface 
@@ -135,6 +128,6 @@ to implement the method
 
    DRes<BigInteger> buildComputation(ProtocolBuilderNumeric producer)
 
-This is the method that defines how our FRESCO application is built. The ``DRes`` return type is
-represents a deffered result for the output (modelling that everything in FRESCO is evaluated
+This is the method that defines how our FRESCO application is built. The ``DRes`` return type 
+represents a deferred result for the output (modelling that everything in FRESCO is evaluated
 "later").

@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import java.math.BigInteger;
 
 /**
@@ -28,6 +29,15 @@ public class DummyArithmeticResourcePoolImpl extends ResourcePoolImpl
    */
   public DummyArithmeticResourcePoolImpl(int myId, int noOfPlayers, BigInteger modulus) {
     this(myId, noOfPlayers, new HmacDrbg(), modulus);
+  }
+
+  /**
+   * Constructs a new {@link ResourcePool} for the Dummy Arithmetic suite.
+   *  @param myId id of this party
+   * @param noOfPlayers number of parties in the participating 
+   */
+  public DummyArithmeticResourcePoolImpl(int myId, int noOfPlayers) {
+    this(myId, noOfPlayers, new HmacDrbg(), ModulusFinder.findSuitableModulus(128));
   }
 
   /**
