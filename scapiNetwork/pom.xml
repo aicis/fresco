@@ -1,0 +1,138 @@
+<?xml version="1.0"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <parent>
+    <groupId>dk.alexandra.fresco</groupId>
+    <artifactId>master-pom</artifactId>
+    <version>0.2-SNAPSHOT</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>scapiNetwork</artifactId>
+  <packaging>jar</packaging>
+  <name>scapiNetwork</name>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>core</artifactId>
+      <version>${fresco-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>spdz</artifactId>
+      <version>${fresco-version}</version>      
+    </dependency>
+    <dependency>
+      <groupId>scapi</groupId>
+      <artifactId>scapi</artifactId>
+      <!-- Normally version should be e.g. 2.4.0, but we currently use a custom version 
+           since we need the most recent changes for authenticated channels to work,
+           see https://github.com/cryptobiu/scapi/issues/71. -->
+      <version>dfc8b2da384d87310c8f755b301bc085b1557671</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-exec</artifactId>
+      <version>1.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcprov-jdk15on</artifactId>
+      <version>1.53</version>
+    </dependency>
+    <!-- Scapi end -->
+
+    <!-- TODO Proper handling would imply these utilities to be present in a seperate module -->
+    <dependency>
+      <groupId>dk.alexandra.fresco</groupId>
+      <artifactId>core</artifactId>
+      <version>${fresco-version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.2</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- This does that 'mvn test' does not involve IntegrationTests. See
+         http://www.javacodegeeks.com/2015/01/separating-integration-tests-from-unit-tests-using-maven-failsafe-junit-category.html -->
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.18.1</version>
+        <configuration>
+          <forkCount>1</forkCount>
+          <reuseForks>false</reuseForks>
+          <excludedGroups>dk.alexandra.fresco.IntegrationTest</excludedGroups>
+        </configuration>
+      </plugin>
+
+      <!-- Make 'mvn integration-test' do all tests, including, well, IntegrationTests. See
+           http://www.javacodegeeks.com/2015/01/separating-integration-tests-from-unit-tests-using-maven-failsafe-junit-category.html -->
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>2.18.1</version>
+        <configuration>
+          <includes>
+            <include>**/*.java</include>
+          </includes>
+          <groups>dk.alexandra.fresco.IntegrationTest</groups>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+    <!-- We has SCAPI as dependency. Since scapi is not included
+       in any standard mvn repository, and we dont want to set up
+       our own corporate repository, we create a 'local' repository
+       in the file system (i.e., in our git reopostory).
+
+       See e.g. http://stackoverflow.com/questions/2229757/
+                maven-add-a-dependency-to-a-jar-by-relative-path
+
+       I installed the SCAPI jar using this command:
+
+        tpj@ubuntu:~/fresco$ mvn org.apache.maven.plugins:maven-install-plugin:2.3.1:install-file 
+	      -Dfile=/Users/tpj/Scapi-2.4.0.jar
+	      -DgroupId=scapi 
+	      -DartifactId=scapi 
+	      -Dpackaging=jar 
+	      -Dversion=2.4.0 
+	      -DlocalRepositoryPath=./lib
+
+  -->
+  <repositories>
+    <repository>
+      <id>mvn-local-repo</id>
+      <url>file://${basedir}/../lib</url>
+    </repository>
+  </repositories>
+
+</project>

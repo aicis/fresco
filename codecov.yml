@@ -1,0 +1,43 @@
+codecov:
+  notify:
+    require_ci_to_pass: yes
+
+coverage:
+  precision: 2
+  round: down
+  range: "50...100"
+  notify:
+    gitter:
+      default:
+        url: "https://webhooks.gitter.im/e/26fb31b10380d1eda3b0"
+        threshold: 1%
+  
+  status:
+    
+    # Require the overall project coverage not to decrease
+    project:
+      default:
+        enabled: yes
+        target: auto
+    # Require the patch to be fully covered
+    patch:
+      default:
+        enabled: yes
+        target: 100%
+        only_pulls: true
+    
+    changes: no
+
+parsers:
+  gcov:
+    branch_detection:
+      conditional: yes
+      loop: yes
+      method: no
+      macro: no
+
+comment:
+  layout: "reach, diff, flags, files, footer"
+  behavior: default
+  require_changes: no
+

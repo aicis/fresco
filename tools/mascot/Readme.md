@@ -1,0 +1,1 @@
+Implementation of MASCOT (https://eprint.iacr.org/2016/505) which can be used for the SPDZ pre-processing phase. Main functionality is exposed via the `Mascot` class. For example usage, also see `MascotDemo`.

@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>core</artifactId>
+  <packaging>jar</packaging>
+  <name>fresco-core</name>
+
+  <parent>
+    <groupId>dk.alexandra.fresco</groupId>
+    <artifactId>master-pom</artifactId>
+    <version>0.2-SNAPSHOT</version>
+  </parent>
+
+  <!-- ================= FRESCO DEPENDENCIES ============================ -->
+
+  <dependencies>
+
+    <!-- AES functionality -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-crypto</artifactId>
+      <version>1.0.0</version>
+    </dependency>
+
+    <!-- KryoNet -->
+    <dependency>
+      <groupId>com.esotericsoftware</groupId>
+      <artifactId>kryonet</artifactId>
+      <version>2.22.0-RC1</version>
+    </dependency>
+
+    <!-- Used for plaintext LP solving -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-math3</artifactId>
+      <version>3.5</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+
+  <!-- ================ FRESCO BUILD ========================== -->
+
+  <build>
+    <plugins>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.2</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- This does that 'mvn test' does not involve IntegrationTests. See
+         http://www.javacodegeeks.com/2015/01/separating-integration-tests-from-unit-tests-using-maven-failsafe-junit-category.html -->
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.18.1</version>
+        <configuration>
+          <forkCount>1</forkCount>
+          <reuseForks>false</reuseForks>
+          <excludedGroups>dk.alexandra.fresco.IntegrationTest</excludedGroups>
+        </configuration>
+      </plugin>
+
+      <!-- Make 'mvn integration-test' do all tests, including, well, IntegrationTests. See
+           http://www.javacodegeeks.com/2015/01/separating-integration-tests-from-unit-tests-using-maven-failsafe-junit-category.html -->
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>2.18.1</version>
+        <configuration>
+          <includes>
+            <include>**/*.java</include>
+          </includes>
+          <groups>dk.alexandra.fresco.IntegrationTest</groups>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
+  </build>
+</project>
