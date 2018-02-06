@@ -28,7 +28,7 @@ public class MarlinElement<T extends BigUInt<T>> {
    * @param macKeyShare mac key share for maccing open value
    * @return result of sum
    */
-  public MarlinElement<T> add(T other, int partyId, T macKeyShare, T zeroElement) {
+  public MarlinElement<T> addConstant(T other, int partyId, T macKeyShare, T zeroElement) {
     T otherMac = other.multiply(macKeyShare);
     // only party 1 actually adds value to its share
     T value = (partyId == 1) ? other : zeroElement;

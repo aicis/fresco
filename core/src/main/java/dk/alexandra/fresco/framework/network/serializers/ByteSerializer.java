@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.framework.network.serializers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,5 +44,13 @@ public interface ByteSerializer<T> {
    * @return the converted elements.
    */
   List<T> deserializeList(byte[] bytes);
+
+  default List<T> deserializeList(List<byte[]> bytes) {
+    List<T> elements = new ArrayList<>(bytes.size());
+    for (byte[] subBytes : bytes) {
+      elements.add(deserialize(subBytes));
+    }
+    return elements;
+  }
 
 }

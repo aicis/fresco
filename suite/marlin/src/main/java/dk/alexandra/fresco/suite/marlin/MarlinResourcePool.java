@@ -12,7 +12,7 @@ public interface MarlinResourcePool<T extends BigUInt<T>> extends NumericResourc
   /**
    * Returns instance of {@link MarlinOpenedValueStore} which tracks all opened, unchecked values.
    */
-  MarlinOpenedValueStore<T> getOpenValueStore();
+  MarlinOpenedValueStore<T> getOpenedValueStore();
 
   /**
    * Returns instance of {@link MarlinDataSupplier} which provides pre-processed material such as

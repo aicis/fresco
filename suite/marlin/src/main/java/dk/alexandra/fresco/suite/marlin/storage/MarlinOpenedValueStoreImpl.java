@@ -22,6 +22,8 @@ public class MarlinOpenedValueStoreImpl<T extends BigUInt<T>> implements MarlinO
     openedValues.addAll(newOpenedValues);
   }
 
+
+
   @Override
   public Pair<List<MarlinElement<T>>, List<T>> popValues() {
     List<MarlinElement<T>> macsToCheck = new ArrayList<>(sharesWithMacs);

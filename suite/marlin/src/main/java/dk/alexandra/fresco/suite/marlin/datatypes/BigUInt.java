@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.suite.marlin.datatypes;
 
 import java.math.BigInteger;
+import java.util.List;
 
 /**
  * Interface for representing unsigned integers larger than 64 bits.
@@ -64,5 +65,12 @@ public interface BigUInt<T extends BigUInt> {
    * Return this as {@link BigInteger}.
    */
   BigInteger toBigInteger();
+
+  /**
+   * Compute sum of elements.
+   */
+  static <S extends BigUInt<S>> S sum(List<S> elements) {
+    return elements.stream().reduce(BigUInt::add).get();
+  }
 
 }

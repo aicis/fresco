@@ -64,7 +64,7 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
   }
 
   @Override
-  public MarlinOpenedValueStore getOpenValueStore() {
+  public MarlinOpenedValueStore getOpenedValueStore() {
     return storage;
   }
 

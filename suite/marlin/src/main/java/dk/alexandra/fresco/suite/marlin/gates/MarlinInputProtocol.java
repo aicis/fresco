@@ -39,14 +39,12 @@ public class MarlinInputProtocol<T extends BigUInt<T>> extends MarlinNativeProto
         network.sendToAll(serializer.serialize(bcValue));
       }
       return EvaluationStatus.HAS_MORE_ROUNDS;
-    } else if (round == 1) {
-      // TODO put back broadcast validation
-      this.maskedInput = serializer.deserialize(network.receive(inputPartyId));
-      return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
+      this.maskedInput = serializer.deserialize(network.receive(inputPartyId));
       MarlinElement<T> result = this.inputMask.getMaskShare()
-          .add(maskedInput, myId, supplier.getSecretSharedKey(), factory.createZero());
+          .addConstant(maskedInput, myId, supplier.getSecretSharedKey(), factory.createZero());
       this.out = new MarlinSInt<>(result);
+      System.out.println(this.out);
       return EvaluationStatus.IS_DONE;
     }
   }

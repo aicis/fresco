@@ -7,13 +7,25 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
+import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
+import dk.alexandra.fresco.suite.marlin.gates.MarlinInputProtocol;
+import dk.alexandra.fresco.suite.marlin.gates.MarlinOutputProtocol;
 import java.math.BigInteger;
 
-public class MarlinBuilder implements BuilderFactoryNumeric {
+public class MarlinBuilder<T extends BigUInt<T>> implements BuilderFactoryNumeric {
+
+  private final BigUIntFactory<T> factory;
+  private final BasicNumericContext numericContext;
+
+  MarlinBuilder(BigUIntFactory<T> factory, BasicNumericContext numericContext) {
+    this.factory = factory;
+    this.numericContext = numericContext;
+  }
 
   @Override
   public BasicNumericContext getBasicNumericContext() {
-    return null;
+    return numericContext;
   }
 
   @Override
@@ -71,12 +83,15 @@ public class MarlinBuilder implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> input(BigInteger value, int inputParty) {
-        return null;
+        MarlinInputProtocol<T> inputProtocol = new MarlinInputProtocol<>(
+            factory.createFromBigInteger(value), inputParty);
+        return builder.append(inputProtocol);
       }
 
       @Override
       public DRes<BigInteger> open(DRes<SInt> secretShare) {
-        return null;
+        MarlinOutputProtocol<T> outputProtocol = new MarlinOutputProtocol<>(secretShare);
+        return builder.append(outputProtocol);
       }
 
       @Override
