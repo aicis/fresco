@@ -19,7 +19,7 @@ Then in a terminal run: ::
   cd fresco
   mvn install
 
-This will download the FRESCO soure code and dependencies, compile the FRESCO core, and run the test
+This will download the FRESCO soure code and dependencies, compile FRESCO, and run the test
 suite. On a successful build Maven should install FRESCO on your system and a FRESCO JAR file can
 now be found in the ``./target`` directory as well as in your local maven repository. Note that 
 ``mvn install`` will execute the test suite included with FRESCO as part of the build. To skip the tests
