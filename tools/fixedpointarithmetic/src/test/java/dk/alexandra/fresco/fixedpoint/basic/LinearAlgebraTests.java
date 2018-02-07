@@ -7,11 +7,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import dk.alexandra.fresco.fixedpoint.DefaultFixedNumeric;
 import dk.alexandra.fresco.fixedpoint.FixedNumeric;
-import dk.alexandra.fresco.fixedpoint.LinearAlgebra;
 import dk.alexandra.fresco.fixedpoint.SFixed;
-import dk.alexandra.fresco.fixedpoint.SIntWrapperFixedNumeric;
-import dk.alexandra.fresco.fixedpoint.SIntWrapperLinearAlgebra;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -37,8 +35,8 @@ public class LinearAlgebraTests {
           // functionality to be tested
           Application<Matrix<SFixed>, ProtocolBuilderNumeric> testApplication = root -> {
             // close inputs
-            LinearAlgebra la = new SIntWrapperLinearAlgebra(root, 5);
-            DRes<Matrix<DRes<SFixed>>> mat = la.input(input, 1);
+            FixedNumeric fixed = new DefaultFixedNumeric(root, 5);
+            DRes<Matrix<DRes<SFixed>>> mat = fixed.linalg().input(input, 1);
 
             // unwrap and return result
             return () -> new MatrixUtils().unwrapMatrix(mat);
@@ -77,10 +75,11 @@ public class LinearAlgebraTests {
 
           // define functionality to be tested
           Application<Matrix<BigDecimal>, ProtocolBuilderNumeric> testApplication = root -> {
-            LinearAlgebra la = new SIntWrapperLinearAlgebra(root, 1);
-            DRes<Matrix<DRes<SFixed>>> closed = la.input(input, 1);
+            FixedNumeric fixed = new DefaultFixedNumeric(root, 1);
 
-            DRes<Matrix<DRes<BigDecimal>>> opened = la.open(closed);
+            DRes<Matrix<DRes<SFixed>>> closed = fixed.linalg().input(input, 1);
+
+            DRes<Matrix<DRes<BigDecimal>>> opened = fixed.linalg().open(closed);
             return () -> new MatrixUtils().unwrapMatrix(opened);
           };
 
@@ -119,17 +118,18 @@ public class LinearAlgebraTests {
 
           // define functionality to be tested
           Application<List<Matrix<BigDecimal>>, ProtocolBuilderNumeric> testApplication = root -> {
-            LinearAlgebra la = new SIntWrapperLinearAlgebra(root, 1);
-            DRes<Matrix<DRes<SFixed>>> closedA = la.input(a, 1);
-            DRes<Matrix<DRes<SFixed>>> closedB = la.input(b, 1);
+            FixedNumeric fixed = new DefaultFixedNumeric(root, 1);
             
-            DRes<Matrix<DRes<SFixed>>> res1 = la.add(closedA, closedB);
-            DRes<Matrix<DRes<SFixed>>> res2 = la.add(a, closedB);
-            DRes<Matrix<DRes<SFixed>>> res3 = la.add(b, closedA);
+            DRes<Matrix<DRes<SFixed>>> closedA = fixed.linalg().input(a, 1);
+            DRes<Matrix<DRes<SFixed>>> closedB = fixed.linalg().input(b, 1);
+            
+            DRes<Matrix<DRes<SFixed>>> res1 = fixed.linalg().add(closedA, closedB);
+            DRes<Matrix<DRes<SFixed>>> res2 = fixed.linalg().add(a, closedB);
+            DRes<Matrix<DRes<SFixed>>> res3 = fixed.linalg().add(b, closedA);
 
-            DRes<Matrix<DRes<BigDecimal>>> open1 = la.open(res1);
-            DRes<Matrix<DRes<BigDecimal>>> open2 = la.open(res2);
-            DRes<Matrix<DRes<BigDecimal>>> open3 = la.open(res3);
+            DRes<Matrix<DRes<BigDecimal>>> open1 = fixed.linalg().open(res1);
+            DRes<Matrix<DRes<BigDecimal>>> open2 = fixed.linalg().open(res2);
+            DRes<Matrix<DRes<BigDecimal>>> open3 = fixed.linalg().open(res3);
             
             return () -> Arrays.asList(new MatrixUtils().unwrapMatrix(open1), new MatrixUtils().unwrapMatrix(open2), new MatrixUtils().unwrapMatrix(open3));
           };
@@ -170,18 +170,18 @@ public class LinearAlgebraTests {
           // define functionality to be tested
           Application<List<Matrix<BigDecimal>>, ProtocolBuilderNumeric> testApplication = root -> {
             
-            LinearAlgebra la = new SIntWrapperLinearAlgebra(root, 1);
-            FixedNumeric fixed = new SIntWrapperFixedNumeric(root, 1);
-            DRes<Matrix<DRes<SFixed>>> closedMatrix = la.input(matrix, 1);
-            DRes<SFixed> closedScalar = fixed.input(s, 1);
-            
-            DRes<Matrix<DRes<SFixed>>> res1 = la.scale(closedScalar, closedMatrix);
-            DRes<Matrix<DRes<SFixed>>> res2 = la.scale(s, closedMatrix);
-            DRes<Matrix<DRes<SFixed>>> res3 = la.scale(closedScalar, matrix);
+            FixedNumeric fixed = new DefaultFixedNumeric(root, 1);
 
-            DRes<Matrix<DRes<BigDecimal>>> open1 = la.open(res1);
-            DRes<Matrix<DRes<BigDecimal>>> open2 = la.open(res2);
-            DRes<Matrix<DRes<BigDecimal>>> open3 = la.open(res3);
+            DRes<Matrix<DRes<SFixed>>> closedMatrix = fixed.linalg().input(matrix, 1);
+            DRes<SFixed> closedScalar = fixed.numeric().input(s, 1);
+            
+            DRes<Matrix<DRes<SFixed>>> res1 = fixed.linalg().scale(closedScalar, closedMatrix);
+            DRes<Matrix<DRes<SFixed>>> res2 = fixed.linalg().scale(s, closedMatrix);
+            DRes<Matrix<DRes<SFixed>>> res3 = fixed.linalg().scale(closedScalar, matrix);
+
+            DRes<Matrix<DRes<BigDecimal>>> open1 = fixed.linalg().open(res1);
+            DRes<Matrix<DRes<BigDecimal>>> open2 = fixed.linalg().open(res2);
+            DRes<Matrix<DRes<BigDecimal>>> open3 = fixed.linalg().open(res3);
             
             return () -> Arrays.asList(new MatrixUtils().unwrapMatrix(open1), new MatrixUtils().unwrapMatrix(open2), new MatrixUtils().unwrapMatrix(open3));
           };
@@ -238,17 +238,18 @@ public class LinearAlgebraTests {
           Matrix<BigDecimal> expected = new Matrix<>(n, 1, e);
 
           Application<List<Matrix<BigDecimal>>, ProtocolBuilderNumeric> testApplication = root -> {
-            LinearAlgebra la = new SIntWrapperLinearAlgebra(root, 1);
-            DRes<Matrix<DRes<SFixed>>> closedMatrix = la.input(matrix, 1);
-            DRes<Matrix<DRes<SFixed>>> closedVector = la.input(vector, 1);
+            FixedNumeric fixed = new DefaultFixedNumeric(root, 1);
+
+            DRes<Matrix<DRes<SFixed>>> closedMatrix = fixed.linalg().input(matrix, 1);
+            DRes<Matrix<DRes<SFixed>>> closedVector = fixed.linalg().input(vector, 1);
             
-            DRes<Matrix<DRes<SFixed>>> res1 = la.mult(closedMatrix, closedVector);
-            DRes<Matrix<DRes<SFixed>>> res2 = la.mult(matrix, closedVector);
-            DRes<Matrix<DRes<SFixed>>> res3 = la.mult(closedMatrix, vector);
+            DRes<Matrix<DRes<SFixed>>> res1 = fixed.linalg().mult(closedMatrix, closedVector);
+            DRes<Matrix<DRes<SFixed>>> res2 = fixed.linalg().mult(matrix, closedVector);
+            DRes<Matrix<DRes<SFixed>>> res3 = fixed.linalg().mult(closedMatrix, vector);
             
-            DRes<Matrix<DRes<BigDecimal>>> open1 = la.open(res1);
-            DRes<Matrix<DRes<BigDecimal>>> open2 = la.open(res2);
-            DRes<Matrix<DRes<BigDecimal>>> open3 = la.open(res3);
+            DRes<Matrix<DRes<BigDecimal>>> open1 = fixed.linalg().open(res1);
+            DRes<Matrix<DRes<BigDecimal>>> open2 = fixed.linalg().open(res2);
+            DRes<Matrix<DRes<BigDecimal>>> open3 = fixed.linalg().open(res3);
             
             return () -> Arrays.asList(new MatrixUtils().unwrapMatrix(open1), new MatrixUtils().unwrapMatrix(open2), new MatrixUtils().unwrapMatrix(open3));
           };

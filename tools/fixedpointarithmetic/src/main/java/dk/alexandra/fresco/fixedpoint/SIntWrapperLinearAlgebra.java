@@ -25,7 +25,7 @@ public class SIntWrapperLinearAlgebra implements LinearAlgebra {
     this.precision = precision;
   }
 
-  private FixedNumeric getFixedNumeric(ProtocolBuilderNumeric builder) {
+  private BasicFixedNumeric getFixedNumeric(ProtocolBuilderNumeric builder) {
     return new SIntWrapperFixedNumeric(builder, precision);
   }
 
@@ -133,13 +133,13 @@ public class SIntWrapperLinearAlgebra implements LinearAlgebra {
    * @return
    */
   private <A> DRes<Matrix<DRes<SFixed>>> add(ProtocolBuilderNumeric builder, Matrix<A> a,
-      Matrix<DRes<SFixed>> b, BiFunction<FixedNumeric, Pair<A, DRes<SFixed>>, DRes<SFixed>> add) {
+      Matrix<DRes<SFixed>> b, BiFunction<BasicFixedNumeric, Pair<A, DRes<SFixed>>, DRes<SFixed>> add) {
     return builder.par(par -> {
       if (a.getWidth() != b.getWidth() || a.getHeight() != b.getHeight()) {
         throw new IllegalArgumentException("Matrices must have same sizes - " + a.getWidth() + "x"
             + a.getHeight() + " != " + b.getWidth() + "x" + b.getHeight());
       }
-      FixedNumeric fixed = getFixedNumeric(par);
+      BasicFixedNumeric fixed = getFixedNumeric(par);
       ArrayList<ArrayList<DRes<SFixed>>> rows = new ArrayList<>(a.getHeight());
       for (int j = 0; j < a.getHeight(); j++) {
         ArrayList<DRes<SFixed>> row = new ArrayList<>();
@@ -164,11 +164,11 @@ public class SIntWrapperLinearAlgebra implements LinearAlgebra {
    * @return
    */
   private <A, B> DRes<SFixed> innerProduct(ProtocolBuilderNumeric builder, List<A> v1,
-      List<B> v2, BiFunction<FixedNumeric, Pair<A, B>, DRes<SFixed>> mult,
-      BiFunction<FixedNumeric, Pair<DRes<SFixed>, DRes<SFixed>>, DRes<SFixed>> add) {
+      List<B> v2, BiFunction<BasicFixedNumeric, Pair<A, B>, DRes<SFixed>> mult,
+      BiFunction<BasicFixedNumeric, Pair<DRes<SFixed>, DRes<SFixed>>, DRes<SFixed>> add) {
     return builder.par(par -> {
       List<DRes<SFixed>> products = new ArrayList<>(v1.size());
-      FixedNumeric fixed = getFixedNumeric(par);
+      BasicFixedNumeric fixed = getFixedNumeric(par);
       for (int k = 0; k < v1.size(); k++) {
         A nextA = v1.get(k);
         B nextB = v2.get(k);
@@ -177,7 +177,7 @@ public class SIntWrapperLinearAlgebra implements LinearAlgebra {
       return () -> products;
     }).seq((seq, list) -> {
       DRes<SFixed> c = list.get(0);
-      FixedNumeric fixed = getFixedNumeric(seq);
+      BasicFixedNumeric fixed = getFixedNumeric(seq);
       for (int k = 1; k < list.size(); k++) {
         c = add.apply(fixed, new Pair<>(c, list.get(k)));
       }
@@ -196,8 +196,8 @@ public class SIntWrapperLinearAlgebra implements LinearAlgebra {
    * @return
    */
   private <A, B> DRes<Matrix<DRes<SFixed>>> mult(ProtocolBuilderNumeric builder, Matrix<A> a,
-      Matrix<B> b, BiFunction<FixedNumeric, Pair<A, B>, DRes<SFixed>> mult,
-      BiFunction<FixedNumeric, Pair<DRes<SFixed>, DRes<SFixed>>, DRes<SFixed>> add) {
+      Matrix<B> b, BiFunction<BasicFixedNumeric, Pair<A, B>, DRes<SFixed>> mult,
+      BiFunction<BasicFixedNumeric, Pair<DRes<SFixed>, DRes<SFixed>>, DRes<SFixed>> add) {
     return builder.par(par -> {
 
       if (a.getWidth() != b.getHeight()) {
@@ -228,9 +228,9 @@ public class SIntWrapperLinearAlgebra implements LinearAlgebra {
    * @return
    */
   private <S, A> DRes<Matrix<DRes<SFixed>>> scale(ProtocolBuilderNumeric builder, S s, Matrix<A> a,
-      BiFunction<FixedNumeric, Pair<S, A>, DRes<SFixed>> mult) {
+      BiFunction<BasicFixedNumeric, Pair<S, A>, DRes<SFixed>> mult) {
     return builder.par(par -> {
-      FixedNumeric fixed = getFixedNumeric(par);
+      BasicFixedNumeric fixed = getFixedNumeric(par);
       ArrayList<ArrayList<DRes<SFixed>>> rows = new ArrayList<>(a.getHeight());
       for (ArrayList<A> row : a.getRows()) {
         rows.add(new ArrayList<>(row.stream().map(x -> mult.apply(fixed, new Pair<>(s, x))).collect(Collectors.toList())));

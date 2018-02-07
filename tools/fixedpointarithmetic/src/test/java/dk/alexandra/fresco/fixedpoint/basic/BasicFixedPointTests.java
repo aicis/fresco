@@ -14,9 +14,9 @@ import java.util.stream.Stream;
 
 import org.junit.Assert;
 
+import dk.alexandra.fresco.fixedpoint.DefaultFixedNumeric;
 import dk.alexandra.fresco.fixedpoint.FixedNumeric;
 import dk.alexandra.fresco.fixedpoint.SFixed;
-import dk.alexandra.fresco.fixedpoint.SIntWrapperFixedNumeric;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -37,11 +37,11 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            FixedNumeric numeric = new SIntWrapperFixedNumeric(producer, 5);
+            FixedNumeric fixed = new DefaultFixedNumeric(producer, 5);
 
-            DRes<SFixed> input = numeric.input(value, 1);
+            DRes<SFixed> input = fixed.numeric().input(value, 1);
 
-            return numeric.open(input);
+            return fixed.numeric().open(input);
           };
           BigDecimal output = runApplication(app);
 
@@ -63,12 +63,12 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            FixedNumeric numeric = new SIntWrapperFixedNumeric(producer, 5);
+            FixedNumeric fixed = new DefaultFixedNumeric(producer, 5);
 
             DRes<SInt> sint = producer.numeric().input(value, 1);
-            DRes<SFixed> input = numeric.fromSInt(sint);
+            DRes<SFixed> input = fixed.numeric().fromSInt(sint);
 
-            return numeric.open(input);
+            return fixed.numeric().open(input);
           };
           BigDecimal output = runApplication(app);
 
@@ -88,11 +88,11 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            FixedNumeric numeric = new SIntWrapperFixedNumeric(producer, 5);
+            FixedNumeric fixed = new DefaultFixedNumeric(producer, 5);
 
-            DRes<SFixed> input = numeric.input(value, 1);
+            DRes<SFixed> input = fixed.numeric().input(value, 1);
 
-            return numeric.open(input, 1);
+            return fixed.numeric().open(input, 1);
           };
           BigDecimal output = runApplication(app);
 
@@ -117,11 +117,11 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            FixedNumeric numeric = new SIntWrapperFixedNumeric(producer, 5);
+            FixedNumeric fixed = new DefaultFixedNumeric(producer, 5);
 
-            DRes<SFixed> input = numeric.known(value);
+            DRes<SFixed> input = fixed.numeric().known(value);
 
-            return numeric.open(input);
+            return fixed.numeric().open(input);
           };
           BigDecimal output = runApplication(app);
 
@@ -142,12 +142,12 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            FixedNumeric numeric = new SIntWrapperFixedNumeric(producer, 5);
+            FixedNumeric fixed = new DefaultFixedNumeric(producer, 5);
 
-            DRes<SFixed> input = numeric.input(value, 1);
-            DRes<SFixed> sum = numeric.add(value2, input);
+            DRes<SFixed> input = fixed.numeric().input(value, 1);
+            DRes<SFixed> sum = fixed.numeric().add(value2, input);
 
-            return numeric.open(sum);
+            return fixed.numeric().open(sum);
           };
           BigDecimal output = runApplication(app);
 
@@ -168,13 +168,13 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            FixedNumeric numeric = new SIntWrapperFixedNumeric(producer, 5);
+            FixedNumeric fixed = new DefaultFixedNumeric(producer, 5);
 
-            DRes<SFixed> input = numeric.input(value, 1);
-            DRes<SFixed> input2 = numeric.input(value2, 1);
-            DRes<SFixed> sum = numeric.add(input2, input);
+            DRes<SFixed> input = fixed.numeric().input(value, 1);
+            DRes<SFixed> input2 = fixed.numeric().input(value2, 1);
+            DRes<SFixed> sum = fixed.numeric().add(input2, input);
 
-            return numeric.open(sum);
+            return fixed.numeric().open(sum);
           };
           BigDecimal output = runApplication(app);
 
@@ -195,13 +195,13 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            FixedNumeric numeric = new SIntWrapperFixedNumeric(producer, 5);
+            FixedNumeric fixed = new DefaultFixedNumeric(producer, 5);
 
-            DRes<SFixed> input = numeric.input(value, 1);
-            DRes<SFixed> input2 = numeric.input(value2, 1);
-            DRes<SFixed> diff = numeric.sub(input, input2);
+            DRes<SFixed> input = fixed.numeric().input(value, 1);
+            DRes<SFixed> input2 = fixed.numeric().input(value2, 1);
+            DRes<SFixed> diff = fixed.numeric().sub(input, input2);
 
-            return numeric.open(diff);
+            return fixed.numeric().open(diff);
           };
           BigDecimal output = runApplication(app);
 
@@ -222,12 +222,12 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            FixedNumeric numeric = new SIntWrapperFixedNumeric(producer, 5);
+            FixedNumeric fixed = new DefaultFixedNumeric(producer, 5);
 
-            DRes<SFixed> input = numeric.input(value, 1);
-            DRes<SFixed> diff = numeric.sub(input, value2);
+            DRes<SFixed> input = fixed.numeric().input(value, 1);
+            DRes<SFixed> diff = fixed.numeric().sub(input, value2);
 
-            return numeric.open(diff);
+            return fixed.numeric().open(diff);
           };
           BigDecimal output = runApplication(app);
 
@@ -248,12 +248,12 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            FixedNumeric numeric = new SIntWrapperFixedNumeric(producer, 5);
+            FixedNumeric fixed = new DefaultFixedNumeric(producer, 5);
 
-            DRes<SFixed> input2 = numeric.input(value2, 1);
-            DRes<SFixed> diff = numeric.sub(value, input2);
+            DRes<SFixed> input2 = fixed.numeric().input(value2, 1);
+            DRes<SFixed> diff = fixed.numeric().sub(value, input2);
 
-            return numeric.open(diff);
+            return fixed.numeric().open(diff);
           };
           BigDecimal output = runApplication(app);
 
@@ -274,13 +274,13 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            FixedNumeric numeric = new SIntWrapperFixedNumeric(producer, 5);
+            FixedNumeric fixed = new DefaultFixedNumeric(producer, 5);
 
-            DRes<SFixed> input = numeric.input(value, 1);
-            DRes<SFixed> input2 = numeric.input(value2, 1);
-            DRes<SFixed> product = numeric.mult(input, input2);
+            DRes<SFixed> input = fixed.numeric().input(value, 1);
+            DRes<SFixed> input2 = fixed.numeric().input(value2, 1);
+            DRes<SFixed> product = fixed.numeric().mult(input, input2);
 
-            return numeric.open(product);
+            return fixed.numeric().open(product);
           };
           BigDecimal output = runApplication(app);
           Assert.assertEquals(value.multiply(value2).setScale(5, RoundingMode.DOWN), output);
@@ -300,12 +300,12 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            FixedNumeric numeric = new SIntWrapperFixedNumeric(producer, 5);
+            FixedNumeric fixed = new DefaultFixedNumeric(producer, 5);
 
-            DRes<SFixed> input2 = numeric.input(value2, 1);
-            DRes<SFixed> product = numeric.mult(value, input2);
+            DRes<SFixed> input2 = fixed.numeric().input(value2, 1);
+            DRes<SFixed> product = fixed.numeric().mult(value, input2);
 
-            return numeric.open(product);
+            return fixed.numeric().open(product);
           };
           BigDecimal output = runApplication(app);
           Assert.assertEquals(value.multiply(value2).setScale(5, RoundingMode.DOWN), output);
@@ -325,13 +325,13 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            FixedNumeric numeric = new SIntWrapperFixedNumeric(producer, 5);
+            FixedNumeric fixed = new DefaultFixedNumeric(producer, 5);
 
-            DRes<SFixed> input = numeric.input(value, 1);
-            DRes<SFixed> input2 = numeric.input(value2, 1);
-            DRes<SFixed> product = numeric.div(input, input2);
+            DRes<SFixed> input = fixed.numeric().input(value, 1);
+            DRes<SFixed> input2 = fixed.numeric().input(value2, 1);
+            DRes<SFixed> product = fixed.numeric().div(input, input2);
 
-            return numeric.open(product);
+            return fixed.numeric().open(product);
           };
           BigDecimal output = runApplication(app);
           Assert.assertEquals(value.divide(value2).setScale(5, RoundingMode.DOWN), output);
@@ -351,12 +351,12 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            FixedNumeric numeric = new SIntWrapperFixedNumeric(producer, 5);
+            FixedNumeric fixed = new DefaultFixedNumeric(producer, 5);
 
-            DRes<SFixed> input = numeric.input(value, 1);
-            DRes<SFixed> product = numeric.div(input, value2);
+            DRes<SFixed> input = fixed.numeric().input(value, 1);
+            DRes<SFixed> product = fixed.numeric().div(input, value2);
 
-            return numeric.open(product);
+            return fixed.numeric().open(product);
           };
           BigDecimal output = runApplication(app);
           Assert.assertEquals(value.divide(value2).setScale(5, RoundingMode.DOWN), output);
@@ -381,19 +381,19 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<List<BigDecimal>, ProtocolBuilderNumeric> app = producer -> {
-            FixedNumeric numeric = new SIntWrapperFixedNumeric(producer, precision);
+            FixedNumeric fixed = new DefaultFixedNumeric(producer, precision);
 
-            List<DRes<SFixed>> closed1 = openInputs.stream().map(numeric::known)
+            List<DRes<SFixed>> closed1 = openInputs.stream().map(fixed.numeric()::known)
                 .collect(Collectors.toList());
-            List<DRes<SFixed>> closed2 = openInputs2.stream().map(numeric::known)
+            List<DRes<SFixed>> closed2 = openInputs2.stream().map(fixed.numeric()::known)
                 .collect(Collectors.toList());
 
             List<DRes<SFixed>> result = new ArrayList<>();
             for (DRes<SFixed> inputX : closed1) {
-              result.add(numeric.mult(inputX, closed2.get(closed1.indexOf(inputX))));
+              result.add(fixed.numeric().mult(inputX, closed2.get(closed1.indexOf(inputX))));
             }
 
-            List<DRes<BigDecimal>> opened = result.stream().map(numeric::open)
+            List<DRes<BigDecimal>> opened = result.stream().map(fixed.numeric()::open)
                 .collect(Collectors.toList());
             return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
           };
@@ -427,19 +427,19 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<List<BigDecimal>, ProtocolBuilderNumeric> app = producer -> {
-            FixedNumeric numeric = new SIntWrapperFixedNumeric(producer, precision);
+            FixedNumeric fixed = new DefaultFixedNumeric(producer, precision);
 
-            List<DRes<SFixed>> closed1 = openInputs.stream().map(numeric::known)
+            List<DRes<SFixed>> closed1 = openInputs.stream().map(fixed.numeric()::known)
                 .collect(Collectors.toList());
-            List<DRes<SFixed>> closed2 = openInputs2.stream().map(numeric::known)
+            List<DRes<SFixed>> closed2 = openInputs2.stream().map(fixed.numeric()::known)
                 .collect(Collectors.toList());
 
             List<DRes<SFixed>> result = new ArrayList<>();
             for (DRes<SFixed> inputX : closed1) {
-              result.add(numeric.add(inputX, closed2.get(closed1.indexOf(inputX))));
+              result.add(fixed.numeric().add(inputX, closed2.get(closed1.indexOf(inputX))));
             }
 
-            List<DRes<BigDecimal>> opened = result.stream().map(numeric::open)
+            List<DRes<BigDecimal>> opened = result.stream().map(fixed.numeric()::open)
                 .collect(Collectors.toList());
             return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
           };
@@ -474,19 +474,19 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<List<BigDecimal>, ProtocolBuilderNumeric> app = producer -> {
-            FixedNumeric numeric = new SIntWrapperFixedNumeric(producer, precision);
+            FixedNumeric fixed = new DefaultFixedNumeric(producer, precision);
 
-            List<DRes<SFixed>> closed1 = openInputs.stream().map(numeric::known)
+            List<DRes<SFixed>> closed1 = openInputs.stream().map(fixed.numeric()::known)
                 .collect(Collectors.toList());
-            List<DRes<SFixed>> closed2 = openInputs2.stream().map(numeric::known)
+            List<DRes<SFixed>> closed2 = openInputs2.stream().map(fixed.numeric()::known)
                 .collect(Collectors.toList());
 
             List<DRes<SFixed>> result = new ArrayList<>();
             for (DRes<SFixed> inputX : closed1) {
-              result.add(numeric.div(inputX, closed2.get(closed1.indexOf(inputX))));
+              result.add(fixed.numeric().div(inputX, closed2.get(closed1.indexOf(inputX))));
             }
 
-            List<DRes<BigDecimal>> opened = result.stream().map(numeric::open)
+            List<DRes<BigDecimal>> opened = result.stream().map(fixed.numeric()::open)
                 .collect(Collectors.toList());
             return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
           };
@@ -515,16 +515,16 @@ public class BasicFixedPointTests {
         public void test() throws Exception {
           Application<List<BigDecimal>, ProtocolBuilderNumeric> app = producer -> producer
               .seq(seq -> {
-            FixedNumeric numeric = new SIntWrapperFixedNumeric(seq, 5);
+                FixedNumeric fixed = new DefaultFixedNumeric(seq, 5);
 
             List<DRes<SFixed>> result = new ArrayList<>();
             for (int i = 0; i < 100; i++) {
-              result.add(numeric.random());
+              result.add(fixed.advanced().random());
             }
             return () -> result;
           }).seq((seq, dat) -> {
-            FixedNumeric numeric = new SIntWrapperFixedNumeric(seq, 5);
-            List<DRes<BigDecimal>> opened = dat.stream().map(numeric::open)
+            FixedNumeric fixed = new DefaultFixedNumeric(seq, 5);
+            List<DRes<BigDecimal>> opened = dat.stream().map(fixed.numeric()::open)
                 .collect(Collectors.toList());
             return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
           });

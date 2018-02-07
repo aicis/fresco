@@ -8,7 +8,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 
-public class SIntWrapperFixedNumeric implements FixedNumeric {
+public class SIntWrapperFixedNumeric implements BasicFixedNumeric {
 
   private final int precision;
   private final ProtocolBuilderNumeric builder;
@@ -139,11 +139,6 @@ public class SIntWrapperFixedNumeric implements FixedNumeric {
         builder.numeric().mult(BigInteger.TEN.pow(this.precision), sintA),
         b.unscaledValue());
     return new SFixedSIntWrapper(input);
-  }
-  
-  @Override
-  public DRes<SFixed> random() {
-    return builder.seq(new FixedPointRandom(precision));
   }
 
   @Override

@@ -22,7 +22,7 @@ public class SIntWrapperAdvancedFixedNumeric implements AdvancedFixedNumeric {
    * @param builder
    * @return
    */
-  private FixedNumeric getFixedNumeric(ProtocolBuilderNumeric builder) {
+  private BasicFixedNumeric getFixedNumeric(ProtocolBuilderNumeric builder) {
     return new SIntWrapperFixedNumeric(builder, precision);
   }
 
@@ -51,7 +51,7 @@ public class SIntWrapperAdvancedFixedNumeric implements AdvancedFixedNumeric {
       coefficients[i - 1] = new BigDecimal(n);
     }
 
-    FixedNumeric fixed = getFixedNumeric(builder);
+    BasicFixedNumeric fixed = getFixedNumeric(builder);
     DRes<SFixed> sum = fixed.known(coefficients[0]);
     DRes<SFixed> pow = fixed.known(BigDecimal.ONE);
     for (int i = 1; i < terms; i++) {
@@ -59,6 +59,10 @@ public class SIntWrapperAdvancedFixedNumeric implements AdvancedFixedNumeric {
       sum = fixed.add(sum, fixed.mult(coefficients[i], pow));
     }
     return fixed.div(sum, coefficients[0]);
-
+  }
+    
+  @Override
+  public DRes<SFixed> random() {
+    return builder.seq(new FixedPointRandom(precision));
   }
 }

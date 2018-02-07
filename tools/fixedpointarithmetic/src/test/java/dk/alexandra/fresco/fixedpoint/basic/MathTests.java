@@ -5,11 +5,9 @@ import java.math.RoundingMode;
 
 import org.junit.Assert;
 
-import dk.alexandra.fresco.fixedpoint.AdvancedFixedNumeric;
+import dk.alexandra.fresco.fixedpoint.DefaultFixedNumeric;
 import dk.alexandra.fresco.fixedpoint.FixedNumeric;
 import dk.alexandra.fresco.fixedpoint.SFixed;
-import dk.alexandra.fresco.fixedpoint.SIntWrapperAdvancedFixedNumeric;
-import dk.alexandra.fresco.fixedpoint.SIntWrapperFixedNumeric;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -36,14 +34,11 @@ public class MathTests {
           // functionality to be tested
           Application<BigDecimal, ProtocolBuilderNumeric> testApplication = root -> {
             // close inputs
-            FixedNumeric fixed = new SIntWrapperFixedNumeric(root, precision);
-            DRes<SFixed> secret = fixed.input(input, 1);
+            FixedNumeric fixed = new DefaultFixedNumeric(root, precision);
+            DRes<SFixed> secret = fixed.numeric().input(input, 1);
+            DRes<SFixed> result = fixed.advanced().exp(secret);
             
-            AdvancedFixedNumeric advanced = new SIntWrapperAdvancedFixedNumeric(root, precision);
-
-            DRes<SFixed> result = advanced.exp(secret);
-            
-            return fixed.open(result);
+            return fixed.numeric().open(result);
           };
           BigDecimal output = runApplication(testApplication);
           Assert.assertEquals(expected, output);
