@@ -8,7 +8,7 @@ questions please get in touch using our issue tracker on `GitHub
 <https://github.com/aicis/fresco/issues>`_ or by email at fresco@alexandra.dk.
 
 The best place to start is to browse the demos bundled with the FRESCO repository (see the repo on `GitHub
-<https://github.com/aicis/fresco/tree/develop/demos>`_). The following demos are currently included:
+<https://github.com/aicis/fresco/tree/master/demos>`_). The following demos are currently included:
 
 * **Sum** - computes the sum of a number of integers input by a single party.
 
