@@ -19,4 +19,5 @@ public interface AdvancedFixedNumeric extends ComputationDirectory {
    * @return The random value 
    */
   public DRes<SFixed> random();
+  
 }

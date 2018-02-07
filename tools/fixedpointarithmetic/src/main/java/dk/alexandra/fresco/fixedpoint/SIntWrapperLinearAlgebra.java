@@ -47,16 +47,14 @@ public class SIntWrapperLinearAlgebra implements LinearAlgebra {
   @Override
   public DRes<Matrix<DRes<SFixed>>> mult(DRes<Matrix<DRes<SFixed>>> a, Matrix<BigDecimal> b) {
     return builder.seq(seq -> {
-      return mult(seq, a.out(), b, (f, x) -> f.mult(x.getSecond(), x.getFirst()),
-          (f, x) -> f.add(x.getFirst(), x.getSecond()));
+      return mult(seq, a.out(), b, (f, x) -> innerProductWithPublicPart(f, x.getSecond(), x.getFirst()));
     });
   }
 
   @Override
   public DRes<Matrix<DRes<SFixed>>> mult(Matrix<BigDecimal> a, DRes<Matrix<DRes<SFixed>>> b) {
     return builder.seq(seq -> {
-      return mult(seq, a, b.out(), (f, x) -> f.mult(x.getFirst(), x.getSecond()),
-          (f, x) -> f.add(x.getFirst(), x.getSecond()));
+      return mult(seq, a, b.out(), (f, x) -> innerProductWithPublicPart(f, x.getFirst(), x.getSecond()));
     });
   }
 
@@ -64,8 +62,7 @@ public class SIntWrapperLinearAlgebra implements LinearAlgebra {
   public DRes<Matrix<DRes<SFixed>>> mult(DRes<Matrix<DRes<SFixed>>> a,
       DRes<Matrix<DRes<SFixed>>> b) {
     return builder.seq(seq -> {
-      return mult(seq, a.out(), b.out(), (f, x) -> f.mult(x.getFirst(), x.getSecond()),
-          (f, x) -> f.add(x.getFirst(), x.getSecond()));
+      return mult(seq, a.out(), b.out(), (f, x) -> innerProduct(f, x.getFirst(), x.getSecond()));
     });
   }
 
@@ -153,39 +150,6 @@ public class SIntWrapperLinearAlgebra implements LinearAlgebra {
   }
 
   /**
-   * Calculate the inner product of two vectors using the given builder and
-   * fixed point arithmetic operations.
-   * 
-   * @param builder
-   * @param v1
-   * @param v2
-   * @param mult
-   * @param add
-   * @return
-   */
-  private <A, B> DRes<SFixed> innerProduct(ProtocolBuilderNumeric builder, List<A> v1,
-      List<B> v2, BiFunction<BasicFixedNumeric, Pair<A, B>, DRes<SFixed>> mult,
-      BiFunction<BasicFixedNumeric, Pair<DRes<SFixed>, DRes<SFixed>>, DRes<SFixed>> add) {
-    return builder.par(par -> {
-      List<DRes<SFixed>> products = new ArrayList<>(v1.size());
-      BasicFixedNumeric fixed = getFixedNumeric(par);
-      for (int k = 0; k < v1.size(); k++) {
-        A nextA = v1.get(k);
-        B nextB = v2.get(k);
-        products.add(mult.apply(fixed, new Pair<>(nextA, nextB)));
-      }
-      return () -> products;
-    }).seq((seq, list) -> {
-      DRes<SFixed> c = list.get(0);
-      BasicFixedNumeric fixed = getFixedNumeric(seq);
-      for (int k = 1; k < list.size(); k++) {
-        c = add.apply(fixed, new Pair<>(c, list.get(k)));
-      }
-      return c;
-    });
-  }
-
-  /**
    * Calculate the product of two matrices using the given builder and arithmetic operations.
    * 
    * @param builder
@@ -196,8 +160,7 @@ public class SIntWrapperLinearAlgebra implements LinearAlgebra {
    * @return
    */
   private <A, B> DRes<Matrix<DRes<SFixed>>> mult(ProtocolBuilderNumeric builder, Matrix<A> a,
-      Matrix<B> b, BiFunction<BasicFixedNumeric, Pair<A, B>, DRes<SFixed>> mult,
-      BiFunction<BasicFixedNumeric, Pair<DRes<SFixed>, DRes<SFixed>>, DRes<SFixed>> add) {
+      Matrix<B> b, BiFunction<ProtocolBuilderNumeric, Pair<List<A>, List<B>>, DRes<SFixed>> innerProduct) {
     return builder.par(par -> {
 
       if (a.getWidth() != b.getHeight()) {
@@ -209,7 +172,7 @@ public class SIntWrapperLinearAlgebra implements LinearAlgebra {
       for (int i = 0; i < a.getHeight(); i++) {
         ArrayList<DRes<SFixed>> row = new ArrayList<>(b.getWidth());
         for (int j = 0; j < b.getWidth(); j++) {
-          row.add(innerProduct(par, a.getRow(i), b.getColumn(j), mult, add));
+          row.add(innerProduct.apply(par, new Pair<>(a.getRow(i), b.getColumn(j))));
         }
         rows.add(row);
       }
@@ -237,6 +200,32 @@ public class SIntWrapperLinearAlgebra implements LinearAlgebra {
       }
       return () -> new Matrix<>(a.getHeight(), a.getWidth(), rows);
     });
+  }
+
+  @Override
+  public DRes<SFixed> innerProduct(List<BigDecimal> a, DRes<List<DRes<SFixed>>> b) {
+    return innerProductWithPublicPart(builder, a, b.out());
+  }
+
+  private DRes<SFixed> innerProductWithPublicPart(ProtocolBuilderNumeric builder, List<BigDecimal> a, List<DRes<SFixed>> b) {
+    List<BigInteger> aInt = a.stream().map(x -> x.setScale(precision).unscaledValue()).collect(Collectors.toList());
+    List<DRes<SInt>> bInt = b.stream().map(x -> ((SFixedSIntWrapper) x.out()).getSInt()).collect(Collectors.toList());
+    DRes<SInt> innerProductInt = builder.advancedNumeric().innerProductWithPublicPart(aInt, bInt);
+    DRes<SInt> innerProductUnscaled = builder.advancedNumeric().div(innerProductInt, BigInteger.TEN.pow(precision));
+    return new SFixedSIntWrapper(innerProductUnscaled);
+  }
+
+  @Override
+  public DRes<SFixed> innerProduct(DRes<List<DRes<SFixed>>> a, DRes<List<DRes<SFixed>>> b) {
+    return innerProduct(builder, a.out(), b.out());
+  }
+
+  public DRes<SFixed> innerProduct(ProtocolBuilderNumeric builder, List<DRes<SFixed>> a, List<DRes<SFixed>> b) {
+    List<DRes<SInt>> aInt = a.stream().map(x -> ((SFixedSIntWrapper) x.out()).getSInt()).collect(Collectors.toList());
+    List<DRes<SInt>> bInt = b.stream().map(x -> ((SFixedSIntWrapper) x.out()).getSInt()).collect(Collectors.toList());
+    DRes<SInt> innerProductInt = builder.advancedNumeric().innerProduct(aInt, bInt);
+    DRes<SInt> innerProductUnscaled = builder.advancedNumeric().div(innerProductInt, BigInteger.TEN.pow(precision));
+    return new SFixedSIntWrapper(innerProductUnscaled);
   }
 
 }

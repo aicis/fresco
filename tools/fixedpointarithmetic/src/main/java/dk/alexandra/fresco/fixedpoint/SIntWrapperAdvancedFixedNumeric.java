@@ -65,4 +65,5 @@ public class SIntWrapperAdvancedFixedNumeric implements AdvancedFixedNumeric {
   public DRes<SFixed> random() {
     return builder.seq(new FixedPointRandom(precision));
   }
+  
 }

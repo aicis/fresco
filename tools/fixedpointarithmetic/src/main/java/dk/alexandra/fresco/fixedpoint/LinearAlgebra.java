@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.fixedpoint;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
@@ -104,4 +105,8 @@ public interface LinearAlgebra extends ComputationDirectory {
    */
   DRes<Matrix<DRes<BigDecimal>>> open(DRes<Matrix<DRes<SFixed>>> secretShare);
 
+  DRes<SFixed> innerProduct(DRes<List<DRes<SFixed>>> a, DRes<List<DRes<SFixed>>> b);
+
+  DRes<SFixed> innerProduct(List<BigDecimal> a, DRes<List<DRes<SFixed>>> b);
+  
 }
