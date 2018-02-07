@@ -1,12 +1,12 @@
-package dk.alexandra.fresco.suite.marlin;
+package dk.alexandra.fresco.suite.marlin.resource;
 
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
-import dk.alexandra.fresco.suite.marlin.storage.MarlinDataSupplier;
-import dk.alexandra.fresco.suite.marlin.storage.MarlinOpenedValueStore;
+import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinDataSupplier;
+import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStore;
 import java.math.BigInteger;
 
 public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolImpl implements

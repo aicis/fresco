@@ -4,10 +4,10 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.suite.marlin.MarlinResourcePool;
+import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
-import dk.alexandra.fresco.suite.marlin.storage.MarlinOpenedValueStore;
+import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStore;
 import java.math.BigInteger;
 import java.util.List;
 

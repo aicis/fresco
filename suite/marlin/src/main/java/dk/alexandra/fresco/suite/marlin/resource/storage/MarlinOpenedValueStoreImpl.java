@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.suite.marlin.storage;
+package dk.alexandra.fresco.suite.marlin.resource.storage;
 
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;

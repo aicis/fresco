@@ -1,50 +1,60 @@
 package dk.alexandra.fresco.suite.marlin.gates;
 
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
+import dk.alexandra.fresco.framework.sce.resources.Broadcast;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.suite.marlin.MarlinResourcePool;
+import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinElement;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinInputMask;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
-import dk.alexandra.fresco.suite.marlin.storage.MarlinDataSupplier;
 
 public class MarlinInputProtocol<T extends BigUInt<T>> extends MarlinNativeProtocol<SInt, T> {
 
   private final T input;
   private final int inputPartyId;
   private MarlinInputMask<T> inputMask;
-  private T maskedInput;
+  private byte[] digest;
   private MarlinSInt<T> out;
+  private Broadcast broadcast; // TODO this belongs on the resource pool
 
   public MarlinInputProtocol(T input, int inputPartyId) {
     this.input = input;
     this.inputPartyId = inputPartyId;
+    this.broadcast = null;
   }
 
   @Override
-  public EvaluationStatus evaluate(int round, MarlinResourcePool<T> resourcePool,
-      Network network) {
-    // TODO check that we don't need to add anything to storage
-    int myId = resourcePool.getMyId();
-    MarlinDataSupplier<T> supplier = resourcePool.getDataSupplier();
+  public EvaluationStatus evaluate(int round, MarlinResourcePool<T> resourcePool, Network network) {
     BigUIntFactory<T> factory = resourcePool.getFactory();
-    ByteSerializer<T> serializer = resourcePool.getRawSerializer();
+    int myId = resourcePool.getMyId();
     if (round == 0) {
-      this.inputMask = supplier.getNextInputMask(this.inputPartyId);
+      this.inputMask = resourcePool.getDataSupplier().getNextInputMask(this.inputPartyId);
       if (myId == this.inputPartyId) {
         T bcValue = this.input.subtract(this.inputMask.getOpenValue());
-        network.sendToAll(serializer.serialize(bcValue));
+        network.sendToAll(resourcePool.getRawSerializer().serialize(bcValue));
       }
       return EvaluationStatus.HAS_MORE_ROUNDS;
-    } else {
-      this.maskedInput = serializer.deserialize(network.receive(inputPartyId));
+    } else if (round == 1) {
+      T maskedInput = resourcePool.getRawSerializer().deserialize(network.receive(inputPartyId));
       MarlinElement<T> result = this.inputMask.getMaskShare()
-          .addConstant(maskedInput, myId, supplier.getSecretSharedKey(), factory.createZero());
+          .addConstant(maskedInput, myId, resourcePool.getDataSupplier().getSecretSharedKey(),
+              factory.zero());
+      // TODO is it safe to set out before the protocol is done potentially?
       this.out = new MarlinSInt<>(result);
-      System.out.println(this.out);
+      if (network.getNoOfParties() <= 2) {
+        return EvaluationStatus.IS_DONE;
+      } else {
+        this.broadcast = new Broadcast(network);
+        this.digest = broadcast.computeAndSendDigests(maskedInput.toByteArray());
+        return EvaluationStatus.HAS_MORE_ROUNDS;
+      }
+    } else {
+      // TODO more elegant way to deal with broadcast
+      if (broadcast != null) {
+        broadcast.receiveAndValidateDigests(this.digest);
+      }
       return EvaluationStatus.IS_DONE;
     }
   }

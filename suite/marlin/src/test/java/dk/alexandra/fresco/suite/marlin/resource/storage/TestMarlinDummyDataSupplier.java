@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.suite.marlin.storage;
+package dk.alexandra.fresco.suite.marlin.resource.storage;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertArrayEquals;

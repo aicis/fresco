@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.suite.marlin.storage;
+package dk.alexandra.fresco.suite.marlin.resource.storage;
 
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinInputMask;

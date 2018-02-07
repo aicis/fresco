@@ -12,4 +12,10 @@ public class TestMarlinBasicArithmetic2Parties extends AbstractMarlinTest {
         false);
   }
 
+  @Test
+  public void testInputThree() {
+    runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
+        false);
+  }
+
 }
