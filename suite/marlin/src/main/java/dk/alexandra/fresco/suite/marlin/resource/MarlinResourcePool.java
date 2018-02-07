@@ -6,6 +6,7 @@ import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinDataSupplier;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStore;
+import java.math.BigInteger;
 
 public interface MarlinResourcePool<T extends BigUInt<T>> extends NumericResourcePool {
 
@@ -37,4 +38,9 @@ public interface MarlinResourcePool<T extends BigUInt<T>> extends NumericResourc
   // TODO not clear that this belongs here
   int getEffectiveBitLength();
 
+  @Override
+  default BigInteger convertRepresentation(BigInteger bigInteger) {
+    // TODO
+    return bigInteger.mod(BigInteger.ONE.shiftLeft(getEffectiveBitLength()));
+  }
 }

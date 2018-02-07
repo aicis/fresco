@@ -7,27 +7,35 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class BigUIntSerializer<T extends BigUInt<T>> implements ByteSerializer<T> {
+public class LossyBigUIntSerializer<T extends BigUInt<T>> implements ByteSerializer<T> {
 
   private final BigUIntFactory<T> factory;
-  private final int byteLength;
+  private final int operationalByteLength;
+  private int effectiveByteLength;
 
-  public BigUIntSerializer(BigUIntFactory<T> factory) {
+  public LossyBigUIntSerializer(BigUIntFactory<T> factory) {
     this.factory = factory;
-    this.byteLength = factory.getBitLength() / 8;
+    this.operationalByteLength = factory.getOperationalBitLength() / 8;
+    this.effectiveByteLength = factory.getEffectiveBitLength() / 8;
+  }
+
+  @Override
+  public void hack(int length) {
+    this.effectiveByteLength = length;
   }
 
   @Override
   public byte[] serialize(T object) {
-    return object.toByteArray();
+    return Arrays.copyOfRange(object.toByteArray(), operationalByteLength - effectiveByteLength,
+        operationalByteLength);
   }
 
   @Override
   public byte[] serialize(List<T> objects) {
-    byte[] all = new byte[byteLength * objects.size()];
+    byte[] all = new byte[effectiveByteLength * objects.size()];
     for (int i = 0; i < objects.size(); i++) {
       byte[] serialized = serialize(objects.get(i));
-      System.arraycopy(serialized, 0, all, i * byteLength, byteLength);
+      System.arraycopy(serialized, 0, all, i * effectiveByteLength, effectiveByteLength);
     }
     return all;
   }
@@ -39,14 +47,15 @@ public class BigUIntSerializer<T extends BigUInt<T>> implements ByteSerializer<T
 
   @Override
   public List<T> deserializeList(byte[] bytes) {
-    if (bytes.length % byteLength != 0) {
+    if (bytes.length % effectiveByteLength != 0) {
       throw new IllegalArgumentException(
           "Total number of bytes must be a multiple of length of single element");
     }
-    int numElements = bytes.length / byteLength;
+    int numElements = bytes.length / effectiveByteLength;
     List<T> elements = new ArrayList<>(numElements);
     for (int i = 0; i < numElements; i++) {
-      elements.add(deserialize(Arrays.copyOfRange(bytes, i * byteLength, (i + 1) * byteLength)));
+      elements.add(deserialize(
+          Arrays.copyOfRange(bytes, i * effectiveByteLength, (i + 1) * effectiveByteLength)));
     }
     return elements;
   }

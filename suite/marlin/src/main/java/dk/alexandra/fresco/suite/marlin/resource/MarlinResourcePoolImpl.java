@@ -33,7 +33,7 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
     }
     if (effectiveBitLength != 64) {
       throw new IllegalArgumentException(
-          "Current implementation only supports 128 element bit length");
+          "Current implementation only supports 64 effective bit length");
     }
     this.operationalBitLength = operationalBitLength;
     this.effectiveBitLength = effectiveBitLength;

@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.marlin.datatypes;
 
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
-import dk.alexandra.fresco.suite.marlin.util.BigUIntSerializer;
+import dk.alexandra.fresco.suite.marlin.util.LossyBigUIntSerializer;
 import java.security.SecureRandom;
 
 public class MutableUInt128Factory implements BigUIntFactory<MutableUInt128> {
@@ -22,11 +22,16 @@ public class MutableUInt128Factory implements BigUIntFactory<MutableUInt128> {
 
   @Override
   public ByteSerializer<MutableUInt128> createSerializer() {
-    return new BigUIntSerializer<>(this);
+    return new LossyBigUIntSerializer<>(this);
   }
 
   @Override
-  public int getBitLength() {
+  public int getOperationalBitLength() {
+    return 128;
+  }
+
+  @Override
+  public int getEffectiveBitLength() {
     return 128;
   }
 

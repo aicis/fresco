@@ -37,13 +37,13 @@ public class TestMarlinBasicArithmetic extends AbstractMarlinTest {
   }
 
   @Test
-  public void testMultiplyKnown() {
+  public void testKnown() {
     runTest(new BasicArithmeticTests.TestKnownSInt<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2,
         false);
   }
 
   @Test
-  public void testMultiplyKnownThree() {
+  public void testKnownThree() {
     runTest(new BasicArithmeticTests.TestKnownSInt<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
         false);
   }
@@ -59,6 +59,5 @@ public class TestMarlinBasicArithmetic extends AbstractMarlinTest {
     runTest(new BasicArithmeticTests.TestMultiply<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
         false);
   }
-
 
 }

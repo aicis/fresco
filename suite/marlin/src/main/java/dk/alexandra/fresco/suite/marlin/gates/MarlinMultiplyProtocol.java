@@ -31,19 +31,20 @@ public class MarlinMultiplyProtocol<T extends BigUInt<T>> extends
 
   @Override
   public EvaluationStatus evaluate(int round, MarlinResourcePool<T> resourcePool, Network network) {
-    final ByteSerializer<T> serializer = resourcePool.getRawSerializer();
+    ByteSerializer<T> rawSerializer = resourcePool.getRawSerializer();
+    rawSerializer.hack(8);
     final T macKeyShare = resourcePool.getDataSupplier().getSecretSharedKey();
     final BigUIntFactory<T> factory = resourcePool.getFactory();
     if (round == 0) {
       triple = resourcePool.getDataSupplier().getNextTripleShares();
       epsilon = ((MarlinSInt<T>) left.out()).subtract(triple.getLeft());
       delta = ((MarlinSInt<T>) right.out()).subtract(triple.getRight());
-      network.sendToAll(resourcePool.getRawSerializer().serialize(epsilon.getShare()));
-      network.sendToAll(resourcePool.getRawSerializer().serialize(delta.getShare()));
+      network.sendToAll(rawSerializer.serialize(epsilon.getShare()));
+      network.sendToAll(rawSerializer.serialize(delta.getShare()));
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       Pair<T, T> epsilonAndDelta = receiveAndReconstruct(network, resourcePool.getNoOfParties(),
-          serializer);
+          rawSerializer);
       // compute [prod] = [c] + epsilon * [b] + delta * [a] + epsilon * delta
       T e = epsilonAndDelta.getFirst();
       T d = epsilonAndDelta.getSecond();

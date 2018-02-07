@@ -150,6 +150,16 @@ public class MutableUInt128 implements BigUInt<MutableUInt128> {
     return low.add(mid).add(high);
   }
 
+  @Override
+  public long getLow() {
+    return 0;
+  }
+
+  @Override
+  public long getHigh() {
+    return 0;
+  }
+
   private byte[] pad(byte[] bytes) {
     byte[] padded = new byte[getBitLength() / 8];
     // potentially drop byte containing sign bit

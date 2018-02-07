@@ -73,4 +73,10 @@ public interface BigUInt<T extends BigUInt> {
     return elements.stream().reduce(BigUInt::add).get();
   }
 
+  // TODO hack hack hack
+
+  long getLow();
+
+  long getHigh();
+
 }
