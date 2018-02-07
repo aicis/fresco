@@ -16,6 +16,12 @@ public class SIntWrapperAdvancedFixedNumeric implements AdvancedFixedNumeric {
     this.precision = precision;
   }
 
+  /**
+   * Get a FixedNumeric based on the given builder.
+   * 
+   * @param builder
+   * @return
+   */
   private FixedNumeric getFixedNumeric(ProtocolBuilderNumeric builder) {
     return new SIntWrapperFixedNumeric(builder, precision);
   }

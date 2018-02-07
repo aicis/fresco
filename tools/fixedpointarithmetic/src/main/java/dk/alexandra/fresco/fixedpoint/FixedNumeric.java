@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
+import dk.alexandra.fresco.framework.value.SInt;
 
 /**
  * Basic interface for fixed point numeric applications.
@@ -99,6 +100,8 @@ public interface FixedNumeric extends ComputationDirectory {
    * @return A secret value which represents the given public value.
    */
   DRes<SFixed> known(BigDecimal value);
+  
+  DRes<SFixed> fromSInt(DRes<SInt> value);
 
   /**
    * Closes a public value. If the MPC party calling this method is not providing input, just use

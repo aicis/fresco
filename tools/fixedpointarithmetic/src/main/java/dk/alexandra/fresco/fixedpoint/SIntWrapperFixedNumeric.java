@@ -145,5 +145,11 @@ public class SIntWrapperFixedNumeric implements FixedNumeric {
   public DRes<SFixed> random() {
     return builder.seq(new FixedPointRandom(precision));
   }
+
+  @Override
+  public DRes<SFixed> fromSInt(DRes<SInt> value) {
+    DRes<SInt> scaled = builder.numeric().mult(BigInteger.TEN.pow(precision), value);
+    return new SFixedSIntWrapper(scaled);
+  }
   
 }

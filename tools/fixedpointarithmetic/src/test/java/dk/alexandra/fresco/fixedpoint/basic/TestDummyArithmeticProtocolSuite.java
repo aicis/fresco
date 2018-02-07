@@ -27,6 +27,12 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
   
   @Test
+  public void test_useSInt() throws Exception {
+    runTest(new BasicFixedPointTests.TestUseSInt<>(), EvaluationStrategy.SEQUENTIAL,
+        2);
+  }
+  
+  @Test
   public void test_AddKnown() throws Exception {
     runTest(new BasicFixedPointTests.TestAddKnown<>(), EvaluationStrategy.SEQUENTIAL,
         2);
