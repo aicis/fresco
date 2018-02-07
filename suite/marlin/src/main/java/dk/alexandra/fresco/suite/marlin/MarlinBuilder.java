@@ -11,6 +11,7 @@ import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
 import dk.alexandra.fresco.suite.marlin.gates.MarlinAddProtocol;
 import dk.alexandra.fresco.suite.marlin.gates.MarlinInputProtocol;
+import dk.alexandra.fresco.suite.marlin.gates.MarlinKnownSIntProtocol;
 import dk.alexandra.fresco.suite.marlin.gates.MarlinMultiplyProtocol;
 import dk.alexandra.fresco.suite.marlin.gates.MarlinOutputProtocol;
 import java.math.BigInteger;
@@ -35,8 +36,7 @@ public class MarlinBuilder<T extends BigUInt<T>> implements BuilderFactoryNumeri
     return new Numeric() {
       @Override
       public DRes<SInt> add(DRes<SInt> a, DRes<SInt> b) {
-        MarlinAddProtocol<T> addProtocol = new MarlinAddProtocol<>(a, b);
-        return builder.append(addProtocol);
+        return builder.append(new MarlinAddProtocol<T>(a, b));
       }
 
       @Override
@@ -61,8 +61,7 @@ public class MarlinBuilder<T extends BigUInt<T>> implements BuilderFactoryNumeri
 
       @Override
       public DRes<SInt> mult(DRes<SInt> a, DRes<SInt> b) {
-        MarlinMultiplyProtocol<T> multiplyProtocol = new MarlinMultiplyProtocol<>(a, b);
-        return builder.append(multiplyProtocol);
+        return builder.append(new MarlinMultiplyProtocol<T>(a, b));
       }
 
       @Override
@@ -82,20 +81,18 @@ public class MarlinBuilder<T extends BigUInt<T>> implements BuilderFactoryNumeri
 
       @Override
       public DRes<SInt> known(BigInteger value) {
-        return null;
+        return builder.append(new MarlinKnownSIntProtocol<>(factory.createFromBigInteger(value)));
       }
 
       @Override
       public DRes<SInt> input(BigInteger value, int inputParty) {
-        MarlinInputProtocol<T> inputProtocol = new MarlinInputProtocol<>(
-            factory.createFromBigInteger(value), inputParty);
-        return builder.append(inputProtocol);
+        return builder.append(new MarlinInputProtocol<>(
+            factory.createFromBigInteger(value), inputParty));
       }
 
       @Override
       public DRes<BigInteger> open(DRes<SInt> secretShare) {
-        MarlinOutputProtocol<T> outputProtocol = new MarlinOutputProtocol<>(secretShare);
-        return builder.append(outputProtocol);
+        return builder.append(new MarlinOutputProtocol<T>(secretShare));
       }
 
       @Override
