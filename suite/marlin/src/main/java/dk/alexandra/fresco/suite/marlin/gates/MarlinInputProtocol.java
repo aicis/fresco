@@ -29,29 +29,29 @@ public class MarlinInputProtocol<T extends BigUInt<T>> extends MarlinNativeProto
     BigUIntFactory<T> factory = resourcePool.getFactory();
     int myId = resourcePool.getMyId();
     if (round == 0) {
-      this.inputMask = resourcePool.getDataSupplier().getNextInputMask(this.inputPartyId);
-      if (myId == this.inputPartyId) {
-        T bcValue = this.input.subtract(this.inputMask.getOpenValue());
+      inputMask = resourcePool.getDataSupplier().getNextInputMask(inputPartyId);
+      if (myId == inputPartyId) {
+        T bcValue = this.input.subtract(inputMask.getOpenValue());
         network.sendToAll(resourcePool.getRawSerializer().serialize(bcValue));
       }
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else if (round == 1) {
       T maskedInput = resourcePool.getRawSerializer().deserialize(network.receive(inputPartyId));
-      this.out = this.inputMask.getMaskShare()
+      out = inputMask.getMaskShare()
           .addConstant(maskedInput, myId, resourcePool.getDataSupplier().getSecretSharedKey(),
               factory.zero());
-      if (network.getNoOfParties() <= 2) {
+      if (resourcePool.getNoOfParties() <= 2) {
         return EvaluationStatus.IS_DONE;
       } else {
-        this.broadcast = new Broadcast(network);
+        broadcast = new Broadcast(network);
         // TODO maybe better to run broadcast directly to byte array received from network
-        this.digest = broadcast.computeAndSendDigests(maskedInput.toByteArray());
+        digest = broadcast.computeAndSendDigests(maskedInput.toByteArray());
         return EvaluationStatus.HAS_MORE_ROUNDS;
       }
     } else {
       // TODO more elegant way to deal with broadcast
       if (broadcast != null) {
-        broadcast.receiveAndValidateDigests(this.digest);
+        broadcast.receiveAndValidateDigests(digest);
       }
       return EvaluationStatus.IS_DONE;
     }

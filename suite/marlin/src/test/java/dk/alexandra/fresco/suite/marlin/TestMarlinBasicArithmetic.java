@@ -30,5 +30,17 @@ public class TestMarlinBasicArithmetic extends AbstractMarlinTest {
         false);
   }
 
+  @Test
+  public void testMultiply() {
+    runTest(new BasicArithmeticTests.TestMultiply<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2,
+        false);
+  }
+
+  @Test
+  public void testMultiplyThree() {
+    runTest(new BasicArithmeticTests.TestMultiply<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
+        false);
+  }
+
 
 }

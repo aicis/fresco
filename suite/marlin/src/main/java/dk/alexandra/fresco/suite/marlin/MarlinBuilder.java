@@ -11,6 +11,7 @@ import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
 import dk.alexandra.fresco.suite.marlin.gates.MarlinAddProtocol;
 import dk.alexandra.fresco.suite.marlin.gates.MarlinInputProtocol;
+import dk.alexandra.fresco.suite.marlin.gates.MarlinMultiplyProtocol;
 import dk.alexandra.fresco.suite.marlin.gates.MarlinOutputProtocol;
 import java.math.BigInteger;
 
@@ -60,7 +61,8 @@ public class MarlinBuilder<T extends BigUInt<T>> implements BuilderFactoryNumeri
 
       @Override
       public DRes<SInt> mult(DRes<SInt> a, DRes<SInt> b) {
-        return null;
+        MarlinMultiplyProtocol<T> multiplyProtocol = new MarlinMultiplyProtocol<>(a, b);
+        return builder.append(multiplyProtocol);
       }
 
       @Override

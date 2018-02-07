@@ -16,6 +16,10 @@ public class MarlinSInt<T extends BigUInt<T>> implements SInt {
     return new MarlinSInt<>(share.add(other.share), macShare.add(other.macShare));
   }
 
+  public MarlinSInt<T> subtract(MarlinSInt<T> other) {
+    return new MarlinSInt<>(share.subtract(other.share), macShare.subtract(other.macShare));
+  }
+
   public MarlinSInt<T> multiply(T other) {
     return new MarlinSInt<>(share.multiply(other), macShare.multiply(other));
   }
