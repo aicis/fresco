@@ -208,6 +208,9 @@ public class SIntWrapperLinearAlgebra implements LinearAlgebra {
   }
 
   private DRes<SFixed> innerProductWithPublicPart(ProtocolBuilderNumeric builder, List<BigDecimal> a, List<DRes<SFixed>> b) {
+    if (a.size() != b.size()) {
+      throw new IllegalArgumentException("Vectors must have same size");
+    }
     List<BigInteger> aInt = a.stream().map(x -> x.setScale(precision).unscaledValue()).collect(Collectors.toList());
     List<DRes<SInt>> bInt = b.stream().map(x -> ((SFixedSIntWrapper) x.out()).getSInt()).collect(Collectors.toList());
     DRes<SInt> innerProductInt = builder.advancedNumeric().innerProductWithPublicPart(aInt, bInt);
@@ -221,6 +224,9 @@ public class SIntWrapperLinearAlgebra implements LinearAlgebra {
   }
 
   public DRes<SFixed> innerProduct(ProtocolBuilderNumeric builder, List<DRes<SFixed>> a, List<DRes<SFixed>> b) {
+    if (a.size() != b.size()) {
+      throw new IllegalArgumentException("Vectors must have same size");
+    }
     List<DRes<SInt>> aInt = a.stream().map(x -> ((SFixedSIntWrapper) x.out()).getSInt()).collect(Collectors.toList());
     List<DRes<SInt>> bInt = b.stream().map(x -> ((SFixedSIntWrapper) x.out()).getSInt()).collect(Collectors.toList());
     DRes<SInt> innerProductInt = builder.advancedNumeric().innerProduct(aInt, bInt);

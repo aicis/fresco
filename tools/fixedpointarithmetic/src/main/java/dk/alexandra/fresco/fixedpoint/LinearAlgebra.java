@@ -105,8 +105,22 @@ public interface LinearAlgebra extends ComputationDirectory {
    */
   DRes<Matrix<DRes<BigDecimal>>> open(DRes<Matrix<DRes<SFixed>>> secretShare);
 
+  /**
+   * Calculate the inner product of two secret vectors.
+   * 
+   * @param a Secret value 1
+   * @param b Secret value 1
+   * @return
+   */
   DRes<SFixed> innerProduct(DRes<List<DRes<SFixed>>> a, DRes<List<DRes<SFixed>>> b);
 
+  /**
+   * Calculate the inner product of a public and a secret vector.
+   * 
+   * @param a Public value
+   * @param b Secret value
+   * @return
+   */
   DRes<SFixed> innerProduct(List<BigDecimal> a, DRes<List<DRes<SFixed>>> b);
   
 }
