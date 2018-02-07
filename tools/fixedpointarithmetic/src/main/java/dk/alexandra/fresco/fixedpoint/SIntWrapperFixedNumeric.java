@@ -1,13 +1,14 @@
 package dk.alexandra.fresco.fixedpoint;
 
-import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 
-public class SIntWrapperFixedNumeric implements FixedNumeric<SFixed> {
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.value.SInt;
+
+public class SIntWrapperFixedNumeric implements FixedNumeric {
 
   private final int precision;
   private final ProtocolBuilderNumeric builder;

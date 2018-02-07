@@ -1,8 +1,9 @@
 package dk.alexandra.fresco.fixedpoint.basic;
 
+import org.junit.Test;
+
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.suite.dummy.arithmetic.AbstractDummyArithmeticTest;
-import org.junit.Test;
 
 
 public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTest {
@@ -89,5 +90,50 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   public void test_RandomElement() throws Exception {
     runTest(new BasicFixedPointTests.TestRandom<>(), EvaluationStrategy.SEQUENTIAL,
         2);
+  }
+  
+  @Test
+  public void test_closeFixedMatrix() throws Exception {
+    runTest(new LinearAlgebraTests.TestCloseFixedMatrix<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void test_closeAndOpenFixedMatrix() throws Exception {
+    runTest(new LinearAlgebraTests.TestCloseAndOpenMatrix<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void test_matrixAddition() throws Exception {
+    runTest(new LinearAlgebraTests.TestMatrixAddition<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+  
+  @Test
+  public void test_matrixMultiplication() throws Exception {
+    runTest(new LinearAlgebraTests.TestMatrixMultiplication<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+  
+  @Test
+  public void test_knownMatrixMultiplication() throws Exception {
+    runTest(new LinearAlgebraTests.TestKnownMatrixMultiplication<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+  
+  @Test
+  public void test_matrixScale() throws Exception {
+    runTest(new LinearAlgebraTests.TestMatrixScale<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void test_matrixPublicScale() throws Exception {
+    runTest(new LinearAlgebraTests.TestMatrixPublicScale<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void test_matrixScalePublic() throws Exception {
+    runTest(new LinearAlgebraTests.TestMatrixScalePublic<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void test_exp() throws Exception {
+    runTest(new MathTests.TestExp<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 }
