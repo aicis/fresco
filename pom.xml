@@ -7,10 +7,10 @@
   <groupId>dk.alexandra.fresco</groupId>
   <artifactId>master-pom</artifactId>
   <properties>
-    <fresco-version>0.2-SNAPSHOT</fresco-version>
+    <fresco-version>1.0.0</fresco-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
-  <version>0.2-SNAPSHOT</version>
+  <version>1.0.0</version>
 
   <packaging>pom</packaging>
 
@@ -53,6 +53,7 @@
           <nonavbar>true</nonavbar>
           <notree>true</notree>
           <nohelp>true</nohelp>
+          <additionalparam>-Xdoclint:none</additionalparam>
         </configuration>
         <executions>
           <execution>

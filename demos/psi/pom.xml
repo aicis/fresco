@@ -3,7 +3,7 @@
   <parent>
     <groupId>dk.alexandra.fresco</groupId>
     <artifactId>demos</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>1.0.0</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -13,7 +13,7 @@
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>
       <artifactId>demos-common</artifactId>
-      <version>0.2-SNAPSHOT</version>
+      <version>1.0.0</version>
     </dependency>
   </dependencies>
   
