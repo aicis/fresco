@@ -22,7 +22,7 @@ public class MarlinAddProtocol<T extends BigUInt<T>> extends MarlinNativeProtoco
   public EvaluationStatus evaluate(int round, MarlinResourcePool<T> resourcePool, Network network) {
     MarlinSInt<T> left = (MarlinSInt<T>) this.left.out();
     MarlinSInt<T> right = (MarlinSInt<T>) this.right.out();
-    this.sum = new MarlinSInt<T>(left.getValue().add(right.getValue()));
+    this.sum = left.add(right);
     return EvaluationStatus.IS_DONE;
   }
 

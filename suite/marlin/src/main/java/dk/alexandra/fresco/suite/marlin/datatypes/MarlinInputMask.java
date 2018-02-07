@@ -2,19 +2,19 @@ package dk.alexandra.fresco.suite.marlin.datatypes;
 
 public class MarlinInputMask<T extends BigUInt<T>> {
 
-  private final MarlinElement<T> maskShare;
+  private final MarlinSInt<T> maskShare;
   private final T openValue;
 
-  public MarlinInputMask(MarlinElement<T> maskShare) {
+  public MarlinInputMask(MarlinSInt<T> maskShare) {
     this(maskShare, null);
   }
 
-  public MarlinInputMask(MarlinElement<T> maskShare, T openValue) {
+  public MarlinInputMask(MarlinSInt<T> maskShare, T openValue) {
     this.maskShare = maskShare;
     this.openValue = openValue;
   }
 
-  public MarlinElement<T> getMaskShare() {
+  public MarlinSInt<T> getMaskShare() {
     return maskShare;
   }
 

@@ -2,25 +2,25 @@ package dk.alexandra.fresco.suite.marlin.datatypes;
 
 public class MarlinTriple<T extends BigUInt<T>> {
 
-  private final MarlinElement<T> left;
-  private final MarlinElement<T> right;
-  private final MarlinElement<T> product;
+  private final MarlinSInt<T> left;
+  private final MarlinSInt<T> right;
+  private final MarlinSInt<T> product;
 
-  public MarlinTriple(MarlinElement<T> left, MarlinElement<T> right, MarlinElement<T> product) {
+  public MarlinTriple(MarlinSInt<T> left, MarlinSInt<T> right, MarlinSInt<T> product) {
     this.left = left;
     this.right = right;
     this.product = product;
   }
 
-  public MarlinElement<T> getLeft() {
+  public MarlinSInt<T> getLeft() {
     return left;
   }
 
-  public MarlinElement<T> getRight() {
+  public MarlinSInt<T> getRight() {
     return right;
   }
 
-  public MarlinElement<T> getProduct() {
+  public MarlinSInt<T> getProduct() {
     return product;
   }
 

@@ -2,7 +2,7 @@ package dk.alexandra.fresco.suite.marlin.resource.storage;
 
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
-import dk.alexandra.fresco.suite.marlin.datatypes.MarlinElement;
+import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
 import java.util.Collections;
 import java.util.List;
 
@@ -14,9 +14,9 @@ public interface MarlinOpenedValueStore<T extends BigUInt<T>> {
   /**
    * Store elements with macs that were just opened along with the corresponding open values.
    */
-  void pushOpenedValues(List<MarlinElement<T>> newSharesWithMacs, List<T> newOpenedValues);
+  void pushOpenedValues(List<MarlinSInt<T>> newSharesWithMacs, List<T> newOpenedValues);
 
-  default void pushOpenedValue(MarlinElement<T> newShareWithMac, T newOpenedValue) {
+  default void pushOpenedValue(MarlinSInt<T> newShareWithMac, T newOpenedValue) {
     pushOpenedValues(Collections.singletonList(newShareWithMac),
         Collections.singletonList(newOpenedValue));
   }
@@ -24,6 +24,6 @@ public interface MarlinOpenedValueStore<T extends BigUInt<T>> {
   /**
    * Retrieves all values that haven't been checked yet and clears the store.
    */
-  Pair<List<MarlinElement<T>>, List<T>> popValues();
+  Pair<List<MarlinSInt<T>>, List<T>> popValues();
 
 }

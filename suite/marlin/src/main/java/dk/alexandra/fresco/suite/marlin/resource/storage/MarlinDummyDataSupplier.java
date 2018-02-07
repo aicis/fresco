@@ -5,9 +5,8 @@ import dk.alexandra.fresco.framework.util.MultiplicationTripleShares;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
-import dk.alexandra.fresco.suite.marlin.datatypes.MarlinElement;
-import dk.alexandra.fresco.suite.marlin.datatypes.MarlinInputMask;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.MarlinInputMask;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinTriple;
 import java.math.BigInteger;
 
@@ -49,7 +48,7 @@ public class MarlinDummyDataSupplier<T extends BigUInt<T>> implements MarlinData
 
   @Override
   public MarlinSInt<T> getNextBitShare() {
-    return new MarlinSInt<>(toMarlinElement(supplier.getRandomBitShare()));
+    return toMarlinElement(supplier.getRandomBitShare());
   }
 
   @Override
@@ -59,14 +58,14 @@ public class MarlinDummyDataSupplier<T extends BigUInt<T>> implements MarlinData
 
   @Override
   public MarlinSInt<T> getNextRandomElementShare() {
-    return new MarlinSInt<>(toMarlinElement(supplier.getRandomElementShare()));
+    return toMarlinElement(supplier.getRandomElementShare());
   }
 
-  private MarlinElement<T> toMarlinElement(Pair<BigInteger, BigInteger> raw) {
+  private MarlinSInt<T> toMarlinElement(Pair<BigInteger, BigInteger> raw) {
     T openValue = factory.createFromBigInteger(raw.getFirst());
     T share = factory.createFromBigInteger(raw.getSecond());
     T macShare = openValue.multiply(secretSharedKey);
-    return new MarlinElement<>(share, macShare);
+    return new MarlinSInt<>(share, macShare);
   }
 
 }

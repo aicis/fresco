@@ -1,8 +1,8 @@
 package dk.alexandra.fresco.suite.marlin.resource.storage;
 
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
-import dk.alexandra.fresco.suite.marlin.datatypes.MarlinInputMask;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.MarlinInputMask;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinTriple;
 
 public interface MarlinDataSupplier<T extends BigUInt<T>> {

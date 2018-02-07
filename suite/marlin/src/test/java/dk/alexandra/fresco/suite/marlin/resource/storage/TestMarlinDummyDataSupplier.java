@@ -6,7 +6,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
-import dk.alexandra.fresco.suite.marlin.datatypes.MarlinElement;
+import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinInputMask;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinTriple;
 import dk.alexandra.fresco.suite.marlin.datatypes.MutableUInt128;
@@ -22,11 +22,11 @@ public class TestMarlinDummyDataSupplier {
   private void testGetNextRandomElementShare(int noOfParties) {
     List<MarlinDataSupplier<MutableUInt128>> suppliers = setupSuppliers(noOfParties);
     MutableUInt128 macKey = getMacKeyFromSuppliers(suppliers);
-    List<MarlinElement<MutableUInt128>> shares = new ArrayList<>(noOfParties);
+    List<MarlinSInt<MutableUInt128>> shares = new ArrayList<>(noOfParties);
     for (MarlinDataSupplier<MutableUInt128> supplier : suppliers) {
-      shares.add(supplier.getNextRandomElementShare().getValue());
+      shares.add(supplier.getNextRandomElementShare());
     }
-    MarlinElement<MutableUInt128> recombined = recombine(shares);
+    MarlinSInt<MutableUInt128> recombined = recombine(shares);
     assertFalse("Random value was 0 ",
         recombined.getShare().toBigInteger().equals(BigInteger.ZERO));
     assertMacCorrect(recombined, macKey);
@@ -35,11 +35,11 @@ public class TestMarlinDummyDataSupplier {
   private void testGetNextBitShare(int noOfParties) {
     List<MarlinDataSupplier<MutableUInt128>> suppliers = setupSuppliers(noOfParties);
     MutableUInt128 macKey = getMacKeyFromSuppliers(suppliers);
-    List<MarlinElement<MutableUInt128>> shares = new ArrayList<>(noOfParties);
+    List<MarlinSInt<MutableUInt128>> shares = new ArrayList<>(noOfParties);
     for (MarlinDataSupplier<MutableUInt128> supplier : suppliers) {
-      shares.add(supplier.getNextBitShare().getValue());
+      shares.add(supplier.getNextBitShare());
     }
-    MarlinElement<MutableUInt128> recombined = recombine(shares);
+    MarlinSInt<MutableUInt128> recombined = recombine(shares);
     BigInteger asBitInt = recombined.getShare().toBigInteger();
     assertTrue("Not a bit " + asBitInt,
         asBitInt.equals(BigInteger.ZERO) || asBitInt.equals(BigInteger.ONE));
@@ -54,7 +54,7 @@ public class TestMarlinDummyDataSupplier {
       masks.add(supplier.getNextInputMask(towardParty));
     }
     MutableUInt128 realValue = null;
-    List<MarlinElement<MutableUInt128>> shares = new ArrayList<>(noOfParties);
+    List<MarlinSInt<MutableUInt128>> shares = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       MarlinInputMask<MutableUInt128> inputMask = masks.get(i - 1);
       if (i != towardParty) {
@@ -64,7 +64,7 @@ public class TestMarlinDummyDataSupplier {
       }
       shares.add(inputMask.getMaskShare());
     }
-    MarlinElement<MutableUInt128> recombined = recombine(shares);
+    MarlinSInt<MutableUInt128> recombined = recombine(shares);
     assertMacCorrect(recombined, macKey);
     assertEquals(realValue.toBigInteger(), recombined.getShare().toBigInteger());
   }
@@ -111,11 +111,11 @@ public class TestMarlinDummyDataSupplier {
     testGetNextTripleShares(5);
   }
 
-  private MarlinElement<MutableUInt128> recombine(List<MarlinElement<MutableUInt128>> shares) {
-    return shares.stream().reduce(MarlinElement::add).get();
+  private MarlinSInt<MutableUInt128> recombine(List<MarlinSInt<MutableUInt128>> shares) {
+    return shares.stream().reduce(MarlinSInt::add).get();
   }
 
-  private void assertMacCorrect(MarlinElement<MutableUInt128> recombined, MutableUInt128 macKey) {
+  private void assertMacCorrect(MarlinSInt<MutableUInt128> recombined, MutableUInt128 macKey) {
     assertArrayEquals(
         macKey.multiply(recombined.getShare()).toByteArray(),
         recombined.getMacShare().toByteArray()
@@ -143,9 +143,9 @@ public class TestMarlinDummyDataSupplier {
 
   private MarlinTriple<MutableUInt128> recombineTriples(
       List<MarlinTriple<MutableUInt128>> triples) {
-    List<MarlinElement<MutableUInt128>> left = new ArrayList<>(triples.size());
-    List<MarlinElement<MutableUInt128>> right = new ArrayList<>(triples.size());
-    List<MarlinElement<MutableUInt128>> product = new ArrayList<>(triples.size());
+    List<MarlinSInt<MutableUInt128>> left = new ArrayList<>(triples.size());
+    List<MarlinSInt<MutableUInt128>> right = new ArrayList<>(triples.size());
+    List<MarlinSInt<MutableUInt128>> product = new ArrayList<>(triples.size());
     for (MarlinTriple<MutableUInt128> triple : triples) {
       left.add(triple.getLeft());
       right.add(triple.getRight());

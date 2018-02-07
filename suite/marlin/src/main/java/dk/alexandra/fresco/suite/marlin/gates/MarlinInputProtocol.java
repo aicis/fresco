@@ -3,12 +3,11 @@ package dk.alexandra.fresco.suite.marlin.gates;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.Broadcast;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
-import dk.alexandra.fresco.suite.marlin.datatypes.MarlinElement;
-import dk.alexandra.fresco.suite.marlin.datatypes.MarlinInputMask;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.MarlinInputMask;
+import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 
 public class MarlinInputProtocol<T extends BigUInt<T>> extends MarlinNativeProtocol<SInt, T> {
 
@@ -38,11 +37,9 @@ public class MarlinInputProtocol<T extends BigUInt<T>> extends MarlinNativeProto
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else if (round == 1) {
       T maskedInput = resourcePool.getRawSerializer().deserialize(network.receive(inputPartyId));
-      MarlinElement<T> result = this.inputMask.getMaskShare()
+      this.out = this.inputMask.getMaskShare()
           .addConstant(maskedInput, myId, resourcePool.getDataSupplier().getSecretSharedKey(),
               factory.zero());
-      // TODO is it safe to set out before the protocol is done potentially?
-      this.out = new MarlinSInt<>(result);
       if (network.getNoOfParties() <= 2) {
         return EvaluationStatus.IS_DONE;
       } else {
