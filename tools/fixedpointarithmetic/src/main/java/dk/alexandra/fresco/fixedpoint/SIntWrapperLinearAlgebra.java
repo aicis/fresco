@@ -19,12 +19,10 @@ public class SIntWrapperLinearAlgebra implements LinearAlgebra {
 
   private ProtocolBuilderNumeric builder;
   private int precision;
-  private MatrixUtils utils;
 
   public SIntWrapperLinearAlgebra(ProtocolBuilderNumeric builder, int precision) {
     this.builder = builder;
     this.precision = precision;
-    this.utils = new MatrixUtils();
   }
 
   private FixedNumeric getFixedNumeric(ProtocolBuilderNumeric builder) {
@@ -104,6 +102,7 @@ public class SIntWrapperLinearAlgebra implements LinearAlgebra {
     DRes<Matrix<DRes<SInt>>> closedAsInts = () -> mapMatrix(a.out(),
         entry -> ((SFixedSIntWrapper) entry.out()).getSInt());
     DRes<Matrix<DRes<BigInteger>>> openAsInts = builder.collections().openMatrix(closedAsInts);
+    MatrixUtils utils = new MatrixUtils();
     return () -> mapMatrix(utils.unwrapMatrix(openAsInts), e -> () -> new BigDecimal(e, precision));
   }
 
