@@ -113,23 +113,8 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
   
   @Test
-  public void test_knownMatrixMultiplication() throws Exception {
-    runTest(new LinearAlgebraTests.TestKnownMatrixMultiplication<>(), EvaluationStrategy.SEQUENTIAL, 2);
-  }
-  
-  @Test
   public void test_matrixScale() throws Exception {
     runTest(new LinearAlgebraTests.TestMatrixScale<>(), EvaluationStrategy.SEQUENTIAL, 2);
-  }
-
-  @Test
-  public void test_matrixPublicScale() throws Exception {
-    runTest(new LinearAlgebraTests.TestMatrixPublicScale<>(), EvaluationStrategy.SEQUENTIAL, 2);
-  }
-
-  @Test
-  public void test_matrixScalePublic() throws Exception {
-    runTest(new LinearAlgebraTests.TestMatrixScalePublic<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
