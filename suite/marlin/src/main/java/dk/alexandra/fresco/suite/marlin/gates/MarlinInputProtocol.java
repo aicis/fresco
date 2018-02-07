@@ -47,6 +47,7 @@ public class MarlinInputProtocol<T extends BigUInt<T>> extends MarlinNativeProto
         return EvaluationStatus.IS_DONE;
       } else {
         this.broadcast = new Broadcast(network);
+        // TODO maybe better to run broadcast directly to byte array received from network
         this.digest = broadcast.computeAndSendDigests(maskedInput.toByteArray());
         return EvaluationStatus.HAS_MORE_ROUNDS;
       }

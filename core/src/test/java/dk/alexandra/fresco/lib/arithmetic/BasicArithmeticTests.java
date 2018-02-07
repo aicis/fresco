@@ -81,6 +81,30 @@ public class BasicArithmeticTests {
     }
   }
 
+  public static class TestAdd<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigInteger leftValue = BigInteger.valueOf(10);
+      BigInteger rightValue = BigInteger.valueOf(4);
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
+            Numeric numeric = producer.numeric();
+            DRes<SInt> left = numeric.input(leftValue, 1);
+            DRes<SInt> right = numeric.input(rightValue, 1);
+            DRes<SInt> result = numeric.add(left, right);
+            return numeric.open(result);
+          };
+          BigInteger output = runApplication(app);
+          Assert.assertEquals(leftValue.add(rightValue), output);
+        }
+      };
+    }
+  }
+
   public static class TestAddPublicValue<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 

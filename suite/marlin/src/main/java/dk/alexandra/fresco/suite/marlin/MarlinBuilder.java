@@ -9,6 +9,7 @@ import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
+import dk.alexandra.fresco.suite.marlin.gates.MarlinAddProtocol;
 import dk.alexandra.fresco.suite.marlin.gates.MarlinInputProtocol;
 import dk.alexandra.fresco.suite.marlin.gates.MarlinOutputProtocol;
 import java.math.BigInteger;
@@ -33,7 +34,8 @@ public class MarlinBuilder<T extends BigUInt<T>> implements BuilderFactoryNumeri
     return new Numeric() {
       @Override
       public DRes<SInt> add(DRes<SInt> a, DRes<SInt> b) {
-        return null;
+        MarlinAddProtocol<T> addProtocol = new MarlinAddProtocol<>(a, b);
+        return builder.append(addProtocol);
       }
 
       @Override

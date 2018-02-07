@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import org.junit.Test;
 
-public class TestMarlinBasicArithmetic2Parties extends AbstractMarlinTest {
+public class TestMarlinBasicArithmetic extends AbstractMarlinTest {
 
   @Test
   public void testInput() {
@@ -17,5 +17,18 @@ public class TestMarlinBasicArithmetic2Parties extends AbstractMarlinTest {
     runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
         false);
   }
+
+  @Test
+  public void testAdd() {
+    runTest(new BasicArithmeticTests.TestAdd<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2,
+        false);
+  }
+
+  @Test
+  public void testAddThree() {
+    runTest(new BasicArithmeticTests.TestAdd<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
+        false);
+  }
+
 
 }
