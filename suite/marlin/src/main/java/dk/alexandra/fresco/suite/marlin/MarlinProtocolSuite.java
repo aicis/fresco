@@ -7,6 +7,7 @@ import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
+import dk.alexandra.fresco.suite.marlin.synchronization.MarlinRoundSynchronization;
 
 public class MarlinProtocolSuite<T extends BigUInt<T>> implements
     ProtocolSuiteNumeric<MarlinResourcePool> {

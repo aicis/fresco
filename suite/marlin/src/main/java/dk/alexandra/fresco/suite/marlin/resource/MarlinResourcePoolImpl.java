@@ -1,6 +1,8 @@
 package dk.alexandra.fresco.suite.marlin.resource;
 
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
+import dk.alexandra.fresco.framework.sce.resources.Broadcast;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
@@ -19,6 +21,7 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
   private final MarlinDataSupplier<T> supplier;
   private final BigUIntFactory<T> factory;
   private final ByteSerializer<T> rawSerializer;
+  private Broadcast broadcast;
 
   /**
    * Creates new {@link MarlinResourcePool}.
@@ -42,6 +45,7 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
     this.supplier = supplier;
     this.factory = factory;
     this.rawSerializer = factory.createSerializer();
+    this.broadcast = null;
   }
 
   /**
@@ -81,6 +85,14 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
   @Override
   public ByteSerializer getRawSerializer() {
     return rawSerializer;
+  }
+
+  @Override
+  public Broadcast getBroadcast(Network network) {
+    if (broadcast == null) {
+      broadcast = new Broadcast(network);
+    }
+    return broadcast;
   }
 
   @Override

@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.suite.marlin;
+package dk.alexandra.fresco.suite.marlin.synchronization;
 
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.network.Network;

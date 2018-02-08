@@ -1,7 +1,9 @@
 package dk.alexandra.fresco.suite.marlin.resource;
 
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
+import dk.alexandra.fresco.framework.sce.resources.Broadcast;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinDataSupplier;
@@ -32,6 +34,12 @@ public interface MarlinResourcePool<T extends BigUInt<T>> extends NumericResourc
    */
   ByteSerializer<T> getRawSerializer();
 
+  /**
+   * Gets a broadcast protocol. <p>Instantiates new protocol if protocol not already instantiated and
+   * cached.</p>
+   */
+  Broadcast getBroadcast(Network network);
+
   // TODO not clear that this belongs here
   int getOperationalBitLength();
 
@@ -43,4 +51,5 @@ public interface MarlinResourcePool<T extends BigUInt<T>> extends NumericResourc
     // TODO
     return bigInteger;
   }
+
 }

@@ -43,9 +43,10 @@ public class MarlinInputProtocol<T extends BigUInt<T>> extends MarlinNativeProto
       if (resourcePool.getNoOfParties() <= 2) {
         return EvaluationStatus.IS_DONE;
       } else {
-        broadcast = new Broadcast(network);
-        // TODO maybe better to run broadcast directly to byte array received from network
-        digest = broadcast.computeAndSendDigests(maskedInput.toByteArray());
+        broadcast = resourcePool.getBroadcast(network);
+        // TODO maybe better to run broadcast directly on byte array received from network
+        digest = broadcast
+            .computeAndSendDigests(resourcePool.getRawSerializer().serialize(maskedInput));
         return EvaluationStatus.HAS_MORE_ROUNDS;
       }
     } else {
