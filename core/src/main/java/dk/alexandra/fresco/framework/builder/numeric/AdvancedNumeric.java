@@ -1,11 +1,12 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
+import java.math.BigInteger;
+import java.util.List;
+
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import java.math.BigInteger;
-import java.util.List;
 
 /**
  * Interface for advanced functionality applicable to numeric type applications. 
@@ -212,9 +213,9 @@ public interface AdvancedNumeric extends ComputationDirectory {
   class RightShiftResult {
 
     final SInt result;
-    final List<SInt> remainder;
+    final SInt remainder;
 
-    public RightShiftResult(SInt result, List<SInt> remainder) {
+    public RightShiftResult(SInt result, SInt remainder) {
       this.result = result;
       this.remainder = remainder;
     }
@@ -223,7 +224,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
       return result;
     }
 
-    public List<SInt> getRemainder() {
+    public SInt getRemainder() {
       return remainder;
     }
   }

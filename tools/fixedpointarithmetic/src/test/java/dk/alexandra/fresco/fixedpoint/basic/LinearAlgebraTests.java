@@ -203,7 +203,7 @@ public class LinearAlgebraTests {
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-        final int n = 20;
+        final int n = 5;
         final int precision = 4;
 
         @Override
