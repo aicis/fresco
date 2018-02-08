@@ -120,7 +120,7 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
     DRes<RightShiftResult> rightShiftResult = builder.seq(
         new RightShift(
             factoryNumeric.getBasicNumericContext().getMaxBitLength(),
-            input, false, magicSecurenumber));
+            input, false));
     return () -> rightShiftResult.out().getResult();
   }
 
@@ -129,7 +129,7 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
     return builder.seq(
         new RightShift(
             factoryNumeric.getBasicNumericContext().getMaxBitLength(),
-            input, true, magicSecurenumber));
+            input, true));
   }
 
   @Override
