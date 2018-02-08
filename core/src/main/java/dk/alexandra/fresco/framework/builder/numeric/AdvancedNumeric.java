@@ -235,11 +235,11 @@ public interface AdvancedNumeric extends ComputationDirectory {
   class RandomAdditiveMask {
 
     public final List<DRes<SInt>> bits;
-    public final SInt r;
+    public final SInt random;
 
-    public RandomAdditiveMask(List<DRes<SInt>> bits, SInt r) {
+    public RandomAdditiveMask(List<DRes<SInt>> bits, SInt random) {
       this.bits = bits;
-      this.r = r;
+      this.random = random;
     }
   }
 }

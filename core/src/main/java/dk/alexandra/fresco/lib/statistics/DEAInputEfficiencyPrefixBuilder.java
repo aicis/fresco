@@ -25,7 +25,7 @@ import java.util.List;
  * </p>
  */
 public class DEAInputEfficiencyPrefixBuilder implements
-    Computation<SimpleLPPrefix, ProtocolBuilderNumeric> {
+Computation<SimpleLPPrefix, ProtocolBuilderNumeric> {
 
   private final List<List<DRes<SInt>>> basisInputs;
   private final List<List<DRes<SInt>>> basisOutputs;

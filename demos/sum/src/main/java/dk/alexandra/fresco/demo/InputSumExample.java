@@ -12,9 +12,18 @@ import java.math.BigInteger;
 
 public class InputSumExample {
 
-  public static <ResourcePoolT extends ResourcePool> void runApplication(
+  public InputSumExample(){
+  }
+  
+  /**
+   * Run the InputSumExample application.
+   * @param sce The SCE to use
+   * @param resourcePool The ResourcePool to use  
+   * @param network The network to use
+   */
+  public <ResourcePoolT extends ResourcePool> void runApplication(
       SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce,
-      ResourcePoolT resourcePool, Network network) throws IOException {
+      ResourcePoolT resourcePool, Network network) {
     InputApplication inputApp;
 
     int myId = resourcePool.getMyId();
@@ -36,6 +45,11 @@ public class InputSumExample {
     System.out.println("Expected result: " + sum + ", Result was: " + result);
   }
 
+  /**
+   * Main method for InputSumExample.
+   * @param args arguments for the demo
+   * @throws IOException if the network fails
+   */
   public static <ResourcePoolT extends ResourcePool> void main(String[] args) throws IOException {
     CmdLineUtil<ResourcePoolT, ProtocolBuilderNumeric> util = new CmdLineUtil<>();
 
@@ -47,8 +61,10 @@ public class InputSumExample {
         new SecureComputationEngineImpl<>(psConf, util.getEvaluator());
 
     ResourcePoolT resourcePool = util.getResourcePool();
-    runApplication(sce, resourcePool, util.getNetwork());
-    util.close();
+    util.startNetwork();
+    new InputSumExample().runApplication(sce, resourcePool, util.getNetwork());
+    
+    util.closeNetwork();
     sce.shutdownSCE();
   }
 

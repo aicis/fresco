@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.tools.mascot.arithm;
 
+import dk.alexandra.fresco.framework.util.TransposeUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;

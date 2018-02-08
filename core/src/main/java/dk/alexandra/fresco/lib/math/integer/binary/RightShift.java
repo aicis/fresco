@@ -1,3 +1,4 @@
+
 package dk.alexandra.fresco.lib.math.integer.binary;
 
 import java.math.BigInteger;
@@ -58,7 +59,7 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
       DRes<RandomAdditiveMask> mask = additiveMaskBuilder.additiveMask(bitLength);
       return mask;
     }).seq((parSubSequential, randomAdditiveMask) -> {
-      DRes<SInt> result = parSubSequential.numeric().add(input, () -> randomAdditiveMask.r);
+      DRes<SInt> result = parSubSequential.numeric().add(input, () -> randomAdditiveMask.random);
       DRes<BigInteger> open = parSubSequential.numeric().open(result);
       return () -> new Pair<>(open, randomAdditiveMask);
     }).seq((seq, maskedInput) -> {
@@ -101,7 +102,7 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
 
       BigInteger inverse = BigInteger.ONE.shiftLeft(shifts)
           .modInverse(seq.getBasicNumericContext().getModulus());
-      DRes<SInt> rTop = seq.numeric().sub(mask.r, rBottom);
+      DRes<SInt> rTop = seq.numeric().sub(mask.random, rBottom);
 
       /*
        * rTop is r with the last shifts bits set to zero, and it is hence

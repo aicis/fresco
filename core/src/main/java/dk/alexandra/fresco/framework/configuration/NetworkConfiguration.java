@@ -9,13 +9,14 @@ import dk.alexandra.fresco.framework.Party;
 public interface NetworkConfiguration {
 
   /**
-   * @param pId A non-zero integer that uniquely identifies the party in a computation.
+   * Get a specific Party.
+   * @param partyId A non-zero integer that uniquely identifies the party in a computation.
    * @return The MPC party with the given ID.
    */
-  Party getParty(int pId);
+  Party getParty(int partyId);
 
   /**
-   * 
+   * Get the Party representing this party.
    * @return Ourselves
    */
   Party getMe();

@@ -69,7 +69,7 @@ public class BristolOtFactory implements Ot {
   @Override
   public StrictBitVector receive(boolean choiceBit) {
     if (this.receiver == null) {
-      RotReceiver receiver = rot.getReceiver();
+      RotReceiver receiver = rot.createReceiver();
       this.receiver = new BristolOtReceiver(receiver, resources, network,
           batchSize);
     }
