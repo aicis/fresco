@@ -1,5 +1,7 @@
 package dk.alexandra.fresco.framework.util;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.BitSet;
 import java.util.List;
 
@@ -10,6 +12,16 @@ public class ByteAndBitConverter {
 
   // This is supposed to be a "static class", ie no instantiation
   private ByteAndBitConverter() {}
+
+  /**
+   * Converts long to byte array.
+   */
+  public static byte[] toByteArray(long value) {
+    ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+    buffer.order(ByteOrder.BIG_ENDIAN);
+    buffer.putLong(value);
+    return buffer.array();
+  }
 
   /**
    * Converts an int to its bit representation.
@@ -63,8 +75,8 @@ public class ByteAndBitConverter {
     }
 
     StringBuilder binb = new StringBuilder();
-    for (int i = 0; i < niceBits.length; i++) {
-      binb.append(niceBits[i] ? "1" : "0");
+    for (boolean niceBit : niceBits) {
+      binb.append(niceBit ? "1" : "0");
     }
     String bin = binb.toString();
     for (int i = 0; i < bin.length() / 4; i++) {
@@ -87,7 +99,7 @@ public class ByteAndBitConverter {
   private static boolean[] convertArray(Boolean[] in) {
     boolean[] output = new boolean[in.length];
     for (int i = 0; i < in.length; i++) {
-      output[i] = in[i].booleanValue();
+      output[i] = in[i];
     }
     return output;
   }

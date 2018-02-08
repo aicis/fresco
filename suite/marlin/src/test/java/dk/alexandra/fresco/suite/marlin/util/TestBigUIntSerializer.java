@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.Random;
 import org.junit.Test;
 
-public class TestLossyBigUIntSerializer {
+public class TestBigUIntSerializer {
 
   private final BigUIntFactory<MutableUInt128> factory = new MutableUInt128Factory();
-  private final ByteSerializer<MutableUInt128> serializer = new LossyBigUIntSerializer<>(factory);
+  private final ByteSerializer<MutableUInt128> serializer = new BigUIntSerializer<>(factory);
 
   @Test
   public void testSerialize() {
@@ -25,7 +25,7 @@ public class TestLossyBigUIntSerializer {
     rawBytes[2] = 0x03;
     rawBytes[15] = 0x16;
     MutableUInt128 element = factory.createFromBytes(rawBytes);
-    assertArrayEquals(Arrays.copyOfRange(rawBytes, 8, 16), serializer.serialize(element));
+    assertArrayEquals(rawBytes, serializer.serialize(element));
   }
 
   @Test
@@ -38,31 +38,26 @@ public class TestLossyBigUIntSerializer {
         factory.createFromBytes(Arrays.copyOfRange(rawBytes, 16, 32))
     );
     byte[] actual = serializer.serialize(elements);
-    byte[] expected = new byte[16];
-    System.arraycopy(rawBytes, 8, expected, 0, 8);
-    System.arraycopy(rawBytes, 8 + 16, expected, 8, 8);
-    assertArrayEquals(expected, actual);
+    assertArrayEquals(rawBytes, actual);
   }
 
   @Test
   public void testDeserialize() {
     Random random = new Random(42);
-    byte[] bytes = new byte[8];
+    byte[] bytes = new byte[16];
     random.nextBytes(bytes);
     MutableUInt128 uint = serializer.deserialize(bytes);
-    byte[] expected = new byte[16];
-    System.arraycopy(bytes, 0, expected, 8, 8);
-    assertArrayEquals(expected, uint.toByteArray());
+    assertArrayEquals(bytes, uint.toByteArray());
   }
 
   @Test
   public void testDeserializeList() {
     Random random = new Random(42);
-    byte[] rawBytes = new byte[16];
+    byte[] rawBytes = new byte[32];
     random.nextBytes(rawBytes);
     List<MutableUInt128> expected = Arrays.asList(
-        factory.createFromBytes(Arrays.copyOfRange(rawBytes, 0, 8)),
-        factory.createFromBytes(Arrays.copyOfRange(rawBytes, 8, 16))
+        factory.createFromBytes(Arrays.copyOfRange(rawBytes, 0, 16)),
+        factory.createFromBytes(Arrays.copyOfRange(rawBytes, 16, 32))
     );
     List<MutableUInt128> actual = serializer.deserializeList(rawBytes);
     assertEquals(expected.size(), actual.size());

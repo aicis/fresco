@@ -2,7 +2,7 @@ package dk.alexandra.fresco.suite.marlin.gates;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
+import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
@@ -31,20 +31,19 @@ public class MarlinMultiplyProtocol<T extends BigUInt<T>> extends
 
   @Override
   public EvaluationStatus evaluate(int round, MarlinResourcePool<T> resourcePool, Network network) {
-    ByteSerializer<T> rawSerializer = resourcePool.getRawSerializer();
-    rawSerializer.hack(8);
     final T macKeyShare = resourcePool.getDataSupplier().getSecretSharedKey();
     final BigUIntFactory<T> factory = resourcePool.getFactory();
     if (round == 0) {
       triple = resourcePool.getDataSupplier().getNextTripleShares();
       epsilon = ((MarlinSInt<T>) left.out()).subtract(triple.getLeft());
       delta = ((MarlinSInt<T>) right.out()).subtract(triple.getRight());
-      network.sendToAll(rawSerializer.serialize(epsilon.getShare()));
-      network.sendToAll(rawSerializer.serialize(delta.getShare()));
+      // we only send the lower bits so we can't use serializer here
+      network.sendToAll(ByteAndBitConverter.toByteArray(epsilon.getShare().getLow()));
+      network.sendToAll(ByteAndBitConverter.toByteArray(delta.getShare().getLow()));
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       Pair<T, T> epsilonAndDelta = receiveAndReconstruct(network, resourcePool.getNoOfParties(),
-          rawSerializer);
+          factory);
       // compute [prod] = [c] + epsilon * [b] + delta * [a] + epsilon * delta
       T e = epsilonAndDelta.getFirst();
       T d = epsilonAndDelta.getSecond();
@@ -69,12 +68,13 @@ public class MarlinMultiplyProtocol<T extends BigUInt<T>> extends
    * Retrieves shares for epsilon and delta and reconstructs each.
    */
   private Pair<T, T> receiveAndReconstruct(Network network, int noOfParties,
-      ByteSerializer<T> serializer) {
+      BigUIntFactory<T> factory) {
     List<T> epsilonShares = new ArrayList<>(noOfParties);
     List<T> deltaShares = new ArrayList<>(noOfParties);
+    // TODO figure out clean way to deal with long to BigUInt conversion
     for (int i = 1; i <= noOfParties; i++) {
-      epsilonShares.add(serializer.deserialize(network.receive(i)));
-      deltaShares.add(serializer.deserialize(network.receive(i)));
+      epsilonShares.add(factory.createFromBytes(network.receive(i)));
+      deltaShares.add(factory.createFromBytes(network.receive(i)));
     }
     T e = BigUInt.sum(epsilonShares);
     T d = BigUInt.sum(deltaShares);

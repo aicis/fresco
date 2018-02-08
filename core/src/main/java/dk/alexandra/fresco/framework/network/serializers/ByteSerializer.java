@@ -11,10 +11,6 @@ import java.util.List;
  */
 public interface ByteSerializer<T> {
 
-  default void hack(int length) {
-
-  }
-
   /**
    * Converts an element of type T to an array of bytes
    *

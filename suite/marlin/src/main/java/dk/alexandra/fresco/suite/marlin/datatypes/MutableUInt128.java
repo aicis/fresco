@@ -152,7 +152,7 @@ public class MutableUInt128 implements BigUInt<MutableUInt128> {
 
   @Override
   public long getLow() {
-    return 0;
+    return (Integer.toUnsignedLong(this.mid) << 32) + Integer.toUnsignedLong(this.low);
   }
 
   @Override
