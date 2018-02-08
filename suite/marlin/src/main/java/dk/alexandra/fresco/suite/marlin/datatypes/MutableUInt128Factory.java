@@ -9,6 +9,11 @@ public class MutableUInt128Factory implements BigUIntFactory<MutableUInt128> {
   private final SecureRandom random = new SecureRandom();
 
   @Override
+  public MutableUInt128 createFromLong(long value) {
+    return new MutableUInt128(value);
+  }
+
+  @Override
   public MutableUInt128 createFromBytes(byte[] bytes) {
     return new MutableUInt128(bytes);
   }

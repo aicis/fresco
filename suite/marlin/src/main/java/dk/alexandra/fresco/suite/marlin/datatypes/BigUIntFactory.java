@@ -6,6 +6,11 @@ import java.math.BigInteger;
 public interface BigUIntFactory<T extends BigUInt<T>> {
 
   /**
+   * Creates new {@link T} from a long.
+   */
+  T createFromLong(long value);
+
+  /**
    * Creates new {@link T} from a raw array of bytes.
    */
   T createFromBytes(byte[] bytes);

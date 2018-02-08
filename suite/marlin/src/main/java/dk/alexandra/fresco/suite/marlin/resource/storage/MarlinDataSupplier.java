@@ -1,9 +1,11 @@
 package dk.alexandra.fresco.suite.marlin.resource.storage;
 
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
-import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinInputMask;
+import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinTriple;
+import java.util.ArrayList;
+import java.util.List;
 
 public interface MarlinDataSupplier<T extends BigUInt<T>> {
 
@@ -36,5 +38,13 @@ public interface MarlinDataSupplier<T extends BigUInt<T>> {
    * Returns the next random field element.
    */
   MarlinSInt<T> getNextRandomElementShare();
+
+  default List<MarlinSInt<T>> getNextRandomElementShares(int numShares) {
+    List<MarlinSInt<T>> shares = new ArrayList<>(numShares);
+    for (int i = 0; i < numShares; i++) {
+      shares.add(getNextRandomElementShare());
+    }
+    return shares;
+  }
 
 }
