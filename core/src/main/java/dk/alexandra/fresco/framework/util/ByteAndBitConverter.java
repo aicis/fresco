@@ -15,6 +15,7 @@ public class ByteAndBitConverter {
 
   /**
    * Converts long to byte array.
+   * TODO move to own serializer?
    */
   public static byte[] toByteArray(long value) {
     ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);

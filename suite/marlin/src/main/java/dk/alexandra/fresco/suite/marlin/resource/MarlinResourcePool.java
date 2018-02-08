@@ -41,6 +41,6 @@ public interface MarlinResourcePool<T extends BigUInt<T>> extends NumericResourc
   @Override
   default BigInteger convertRepresentation(BigInteger bigInteger) {
     // TODO
-    return bigInteger.mod(BigInteger.ONE.shiftLeft(getEffectiveBitLength()));
+    return bigInteger;
   }
 }
