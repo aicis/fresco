@@ -1,10 +1,11 @@
 
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
+import java.math.BigInteger;
+
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
-import java.math.BigInteger;
 
 /**
  * Implements closing a value in the Dummy Arithmetic suite where all operations are done in the
@@ -32,12 +33,12 @@ public class DummyArithmeticCloseProtocol extends DummyArithmeticNativeProtocol<
   public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool rp, Network network) {
     if (round == 0) {
       if (targetId == rp.getMyId()) {
-        network.sendToAll(rp.getSerializer().serialize(open.out()));
+        network.sendToAll(rp.getSerializer().serialize(open.out().mod(rp.getModulus())));
       }
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else { //if (round == 1) {
-      BigInteger b = rp.getSerializer().deserialize(network.receive(targetId));
-      closed = new DummyArithmeticSInt(b);
+      byte[] bin = network.receive(targetId);
+      closed = new DummyArithmeticSInt(rp.getSerializer().deserialize(bin));
       return EvaluationStatus.IS_DONE;
     }
   }
