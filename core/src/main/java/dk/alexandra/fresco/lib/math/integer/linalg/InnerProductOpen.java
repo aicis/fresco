@@ -15,23 +15,23 @@ import java.util.List;
  */
 public class InnerProductOpen implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private final List<BigInteger> aVector;
-  private final List<DRes<SInt>> bVector;
+  private final List<BigInteger> vectorA;
+  private final List<DRes<SInt>> vectorB;
 
-  public InnerProductOpen(List<BigInteger> aVector,
-      List<DRes<SInt>> bVector) {
-    this.aVector = aVector;
-    this.bVector = bVector;
+  public InnerProductOpen(List<BigInteger> vectorA,
+      List<DRes<SInt>> vectorB) {
+    this.vectorA = vectorA;
+    this.vectorB = vectorB;
   }
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.par(parallel -> {
-      List<DRes<SInt>> result = new ArrayList<>(aVector.size());
+      List<DRes<SInt>> result = new ArrayList<>(vectorA.size());
       Numeric numericBuilder = parallel.numeric();
-      for (int i = 0; i < aVector.size(); i++) {
-        BigInteger nextA = aVector.get(i);
-        DRes<SInt> nextB = bVector.get(i);
+      for (int i = 0; i < vectorA.size(); i++) {
+        BigInteger nextA = vectorA.get(i);
+        DRes<SInt> nextB = vectorB.get(i);
         result.add(numericBuilder.mult(nextA, nextB));
       }
       return () -> result;

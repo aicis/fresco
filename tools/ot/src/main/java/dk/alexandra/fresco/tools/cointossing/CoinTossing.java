@@ -98,7 +98,7 @@ public class CoinTossing {
     if (myId < otherId) {
       byte[] serializedComm = network.receive(otherId);
       HashBasedCommitment comm = serializer.deserialize(serializedComm);
-      network.send(otherId, seed);
+      network.send(otherId, seed.clone());
       byte[] opening = network.receive(otherId);
       return comm.open(opening);
     } else {

@@ -12,18 +12,18 @@ import java.math.BigInteger;
  */
 public class Inversion implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private final DRes<SInt> x;
+  private final DRes<SInt> value;
 
-  public Inversion(DRes<SInt> x) {
-    this.x = x;
+  public Inversion(DRes<SInt> value) {
+    this.value = value;
   }
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     Numeric numeric = builder.numeric();
     DRes<SInt> random = numeric.randomElement();
-    DRes<SInt> sProduct = numeric.mult(x, random);
-    DRes<BigInteger> open = numeric.open(sProduct);
+    DRes<SInt> product = numeric.mult(value, random);
+    DRes<BigInteger> open = numeric.open(product);
     return builder.seq((seq) -> {
       BigInteger value = open.out();
       BigInteger inverse = value.modInverse(seq.getBasicNumericContext().getModulus());

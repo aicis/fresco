@@ -7,10 +7,10 @@
   <groupId>dk.alexandra.fresco</groupId>
   <artifactId>master-pom</artifactId>
   <properties>
-    <fresco-version>0.2-SNAPSHOT</fresco-version>
+    <fresco-version>1.0.0</fresco-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
-  <version>0.2-SNAPSHOT</version>
+  <version>1.0.0</version>
 
   <packaging>pom</packaging>
 
@@ -46,6 +46,35 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.0.0-M1</version>
+        <configuration>
+          <quiet>true</quiet>
+          <nonavbar>true</nonavbar>
+          <notree>true</notree>
+          <nohelp>true</nohelp>
+          <additionalparam>-Xdoclint:none</additionalparam>
+        </configuration>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>3.0.1</version>
+        <configuration>
+          <skipSource>true</skipSource>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>2.0.2</version>
         <configuration>
@@ -77,7 +106,7 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.7.9</version>
+        <version>0.8.0</version>
         <executions>
           <execution>
             <goals>

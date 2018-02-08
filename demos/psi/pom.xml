@@ -3,7 +3,7 @@
   <parent>
     <groupId>dk.alexandra.fresco</groupId>
     <artifactId>demos</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>1.0.0</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -13,7 +13,7 @@
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>
       <artifactId>demos-common</artifactId>
-      <version>0.2-SNAPSHOT</version>
+      <version>1.0.0</version>
     </dependency>
   </dependencies>
   
@@ -51,6 +51,27 @@
 	    </goals>
 	  </execution>
 	</executions>
+      </plugin>
+
+            <!-- CODE COVERAGE -->
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.7.9</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>report</id>
+            <phase>test</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

@@ -46,7 +46,6 @@ import dk.alexandra.fresco.lib.statistics.DeaSolverTests.TestDeaFixed1;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.arithmetic.ComparisonLoggerDecorator;
 import dk.alexandra.fresco.logging.arithmetic.NumericLoggingDecorator;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import org.junit.Test;
 
@@ -395,26 +394,20 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void test_MiMC_EncDec() throws Exception {
-    BigInteger mod = new BigInteger(
-        "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557");
     runTest(new MiMCTests.TestMiMCEncDec<>(), EvaluationStrategy.SEQUENTIAL,
-        1, mod);
+        1, ModulusFinder.findSuitableModulus(512));
   }
 
   @Test
   public void test_MiMC_EncDecFixedRounds() throws Exception {
-    BigInteger mod = new BigInteger(
-        "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557");
     runTest(new MiMCTests.TestMiMCEncDecFixedRounds<>(), EvaluationStrategy.SEQUENTIAL,
-        1, mod);
+        1, ModulusFinder.findSuitableModulus(512));
   }
 
   @Test
   public void test_MiMC_Deterministically() throws Exception {
-    BigInteger mod = new BigInteger(
-        "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557");
     runTest(new MiMCTests.TestMiMCEncryptsDeterministically<>(), EvaluationStrategy.SEQUENTIAL,
-        1, mod);
+        1, ModulusFinder.findSuitableModulus(512));
   }
 
   // lib.list
