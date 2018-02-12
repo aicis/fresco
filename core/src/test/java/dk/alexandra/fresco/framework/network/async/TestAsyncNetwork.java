@@ -294,7 +294,7 @@ public class TestAsyncNetwork {
     NetworkConfiguration conf = new NetworkConfigurationImpl(2, parties);
     try {
       new ClosedEarlyAsyncNetwork(conf, 15000);
-    } catch(RuntimeException e) {
+    } catch (RuntimeException e) {
       server.close();
       throw e;
     }

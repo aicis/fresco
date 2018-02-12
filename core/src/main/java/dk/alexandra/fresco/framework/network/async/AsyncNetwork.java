@@ -58,7 +58,7 @@ public class AsyncNetwork implements Network, Closeable {
    * other parties.
    *
    * @param conf The network configuration
-   * @param timeout
+   * @param timeout timeout in milliseconds
    */
   public AsyncNetwork(NetworkConfiguration conf, int timeout) {
     this.conf = conf;
@@ -66,7 +66,7 @@ public class AsyncNetwork implements Network, Closeable {
     this.queues = new HashMap<>();
     int fixedSize = Math.max(1, getNoOfParties() - 1);
     this.receiverService = Executors.newFixedThreadPool(fixedSize);
-    this.senderServices = new HashMap<Integer, ExecutorService>();
+    this.senderServices = new HashMap<>();
     for (int i = 1; i <= conf.noOfParties(); i++) {
       if (this.conf.getMyId() != i) {
         this.senderServices.put(i, Executors.newFixedThreadPool(1));
@@ -76,7 +76,7 @@ public class AsyncNetwork implements Network, Closeable {
     try {
       this.server = ServerSocketChannel.open();
       this.server.bind(sock);
-      logger.info("Bound at " + sock);
+      logger.info("Bound at {}", sock);
     } catch (IOException e) {
       throw new RuntimeException("Failed to bind to " + sock, e);
     }
@@ -223,7 +223,7 @@ public class AsyncNetwork implements Network, Closeable {
     ExceptionConverter.safe(() -> {
       blocker.acquire();
       return null;
-    } , "Blocker got interrupted");
+    }, "Blocker got interrupted");
     boolean connected = true;
     for (Boolean succ : successes) {
       if (!succ) {
@@ -235,7 +235,7 @@ public class AsyncNetwork implements Network, Closeable {
       close();
       throw new RuntimeException("Failed to connect to all parties");
     }
-    logger.info("Connected to all parties. PartyId to channel map: " + partyIdToChannel);
+    logger.info("Connected to all parties. PartyId to channel map: {}", partyIdToChannel);
     Enumeration<Integer> keys = partyIdToChannel.keys();
     while (keys.hasMoreElements()) {
       int partyId = keys.nextElement();
@@ -251,7 +251,7 @@ public class AsyncNetwork implements Network, Closeable {
     } else {
       this.senderServices.get(partyId).submit(() -> {
         ExceptionConverter.safe(() -> {
-          ByteBuffer buf = ByteBuffer.allocate(4+data.length);
+          ByteBuffer buf = ByteBuffer.allocate(4 + data.length);
           //set length
           buf.putInt(data.length);
           //set data
@@ -261,7 +261,7 @@ public class AsyncNetwork implements Network, Closeable {
             this.clients.get(partyId).write(buf);
           }
           return null;
-        } , "Could not send data");
+        }, "Could not send data");
       });
     }
   }
@@ -270,7 +270,7 @@ public class AsyncNetwork implements Network, Closeable {
   public byte[] receive(int partyId) {
     return ExceptionConverter.safe(() -> {
       return this.queues.get(partyId).take();
-    } , "Thread got interrupted while waiting for input");
+    }, "Thread got interrupted while waiting for input");
   }
 
   @Override
@@ -290,14 +290,15 @@ public class AsyncNetwork implements Network, Closeable {
       this.receiverService.shutdownNow();
       for (ExecutorService executorService : this.senderServices.values()) {
         executorService.shutdown();
+        // REVIEW: Please try to avoid literal constants
         executorService.awaitTermination(500, TimeUnit.MILLISECONDS);
       }
       this.server.close();
       for (SocketChannel channel : this.clients.values()) {
         channel.close();
       }
-      logger.debug("P" + conf.getMyId() + ": Network closed");
+      logger.debug("P{}: Network closed", conf.getMyId());
       return null;
-    } , "Could not close the network");
+    }, "Could not close the network");
   }
 }
