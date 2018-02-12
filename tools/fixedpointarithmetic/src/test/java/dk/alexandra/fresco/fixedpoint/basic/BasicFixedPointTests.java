@@ -2,7 +2,6 @@ package dk.alexandra.fresco.fixedpoint.basic;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -499,50 +498,6 @@ public class BasicFixedPointTests {
             BigDecimal b = openInputs2.get(idx).setScale(precision, RoundingMode.DOWN);
             assertThat(openOutput,
                 is(a.divide(b, RoundingMode.DOWN).setScale(precision, RoundingMode.DOWN)));
-          }
-        }
-      };
-    }
-  }
-
-  public static class TestRandom<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
-
-    @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-        @Override
-        public void test() throws Exception {
-          Application<List<BigDecimal>, ProtocolBuilderNumeric> app = producer -> producer
-              .seq(seq -> {
-                FixedNumeric fixed = new DefaultFixedNumeric(seq, 5);
-
-            List<DRes<SFixed>> result = new ArrayList<>();
-            for (int i = 0; i < 100; i++) {
-              result.add(fixed.advanced().random());
-            }
-            return () -> result;
-          }).seq((seq, dat) -> {
-            FixedNumeric fixed = new DefaultFixedNumeric(seq, 5);
-            List<DRes<BigDecimal>> opened = dat.stream().map(fixed.numeric()::open)
-                .collect(Collectors.toList());
-            return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
-          });
-
-          List<BigDecimal> output = runApplication(app);
-          BigDecimal sum = BigDecimal.ZERO;
-          BigDecimal min = BigDecimal.ONE;
-          BigDecimal max = BigDecimal.ZERO;
-          for (BigDecimal random : output) {
-            sum = sum.add(random);
-            if (random.compareTo(min) == -1) {
-              min = random;
-            }
-            if (random.compareTo(max) == 1) {
-              max = random;
-            }
-            assertTrue(BigDecimal.ONE.compareTo(random) >= 0);
-            assertTrue(BigDecimal.ZERO.compareTo(random) <= 0);
           }
         }
       };

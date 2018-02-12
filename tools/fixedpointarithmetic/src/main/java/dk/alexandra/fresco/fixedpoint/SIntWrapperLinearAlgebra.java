@@ -2,6 +2,7 @@ package dk.alexandra.fresco.fixedpoint;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -89,7 +90,7 @@ public class SIntWrapperLinearAlgebra implements LinearAlgebra {
 
   @Override
   public DRes<Matrix<DRes<SFixed>>> input(Matrix<BigDecimal> a, int inputParty) {
-    Matrix<BigInteger> asInts = mapMatrix(a, e -> e.setScale(precision).unscaledValue());
+    Matrix<BigInteger> asInts = mapMatrix(a, e -> e.setScale(precision, RoundingMode.DOWN).unscaledValue());
     DRes<Matrix<DRes<SInt>>> closed = builder.collections().closeMatrix(asInts, inputParty);
     return () -> mapMatrix(closed.out(), e -> new SFixedSIntWrapper(e));
   }
@@ -211,7 +212,7 @@ public class SIntWrapperLinearAlgebra implements LinearAlgebra {
     if (a.size() != b.size()) {
       throw new IllegalArgumentException("Vectors must have same size");
     }
-    List<BigInteger> aInt = a.stream().map(x -> x.setScale(precision).unscaledValue()).collect(Collectors.toList());
+    List<BigInteger> aInt = a.stream().map(x -> x.setScale(precision, RoundingMode.DOWN).unscaledValue()).collect(Collectors.toList());
     List<DRes<SInt>> bInt = b.stream().map(x -> ((SFixedSIntWrapper) x.out()).getSInt()).collect(Collectors.toList());
     DRes<SInt> innerProductInt = builder.advancedNumeric().innerProductWithPublicPart(aInt, bInt);
     DRes<SInt> innerProductUnscaled = builder.advancedNumeric().div(innerProductInt, BigInteger.TEN.pow(precision));

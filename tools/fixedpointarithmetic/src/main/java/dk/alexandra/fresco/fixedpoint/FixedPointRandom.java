@@ -1,11 +1,12 @@
 package dk.alexandra.fresco.fixedpoint;
 
+import java.math.BigInteger;
+
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
-import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RandomAdditiveMask;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import java.math.BigInteger;
 
 /**
  * Construct a random SFixed with a value between 0 and 1.  
@@ -25,15 +26,15 @@ public class FixedPointRandom implements Computation<SFixed, ProtocolBuilderNume
   public DRes<SFixed> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq(seq -> {
       DRes<RandomAdditiveMask> random = seq.advancedNumeric().additiveMask(scaleSize);
-      return () -> random;
+      return random;
     }).seq((seq, random) -> {
       
-      DRes<SInt> rand = random.out().r;
+      DRes<SInt> rand = random.random;
       BigInteger divi = BigInteger.valueOf(2).pow(scaleSize);
       DRes<SInt> r2 = seq.numeric().mult(BigInteger.TEN.pow(precision), rand);
       DRes<SInt> result = seq.advancedNumeric().div(r2, divi);
       
-      return () -> new SFixedSIntWrapper(result);
+      return new SFixedSIntWrapper(result);
     });
   }
 }

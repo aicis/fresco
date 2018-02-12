@@ -93,12 +93,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
   
   @Test
-  public void test_RandomElement() throws Exception {
-    runTest(new BasicFixedPointTests.TestRandom<>(), EvaluationStrategy.SEQUENTIAL,
-        2);
-  }
-  
-  @Test
   public void test_closeFixedMatrix() throws Exception {
     runTest(new LinearAlgebraTests.TestCloseFixedMatrix<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
@@ -126,5 +120,11 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_exp() throws Exception {
     runTest(new MathTests.TestExp<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+  
+  @Test
+  public void test_RandomElement() throws Exception {
+    runTest(new MathTests.TestRandom<>(), EvaluationStrategy.SEQUENTIAL,
+        2);
   }
 }
