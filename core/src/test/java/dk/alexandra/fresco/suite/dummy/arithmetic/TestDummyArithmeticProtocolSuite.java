@@ -3,11 +3,6 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-
-import org.junit.Test;
-
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ExponentiationPipeTests;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
@@ -50,6 +45,9 @@ import dk.alexandra.fresco.lib.statistics.DeaSolverTests.TestDeaFixed1;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.arithmetic.ComparisonLoggerDecorator;
 import dk.alexandra.fresco.logging.arithmetic.NumericLoggingDecorator;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import org.junit.Test;
 
 
 public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTest {

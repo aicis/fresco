@@ -1,15 +1,14 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
-import java.math.BigInteger;
-import java.util.List;
-
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.math.BigInteger;
+import java.util.List;
 
 /**
- * Interface for advanced functionality applicable to numeric type applications. 
+ * Interface for advanced functionality applicable to numeric type applications.
  */
 public interface AdvancedNumeric extends ComputationDirectory {
 
@@ -38,7 +37,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
    * @return A deferred result computing an approximation of <i>dividend / divisor</i>.
    */
   DRes<SInt> div(DRes<SInt> dividend, BigInteger divisor);
-  
+
   /**
    * This protocol calculates an approximation of <code>floor(dividend / divisor)</code>, which will
    * be either correct or slightly smaller than the correct result.
@@ -69,6 +68,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
 
   /**
    * Computes the exponentiation of x^e
+   * 
    * @param x The base
    * @param e The exponent
    * @param maxExponentLength The maximum length of the exponent.
@@ -78,6 +78,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
 
   /**
    * Computes the exponentiation of x^e
+   * 
    * @param x The base
    * @param e The exponent
    * @param maxExponentLength The maximum length of the exponent.
@@ -87,6 +88,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
 
   /**
    * Computes the exponentiation of x^e.
+   * 
    * @param x The base
    * @param e The exponent
    * @return A deferred result computing x^e
@@ -119,7 +121,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
   DRes<SInt> innerProduct(List<DRes<SInt>> vectorA, List<DRes<SInt>> vectorB);
 
   /**
-   * Computes the inner product between a public vector and a secret vector. 
+   * Computes the inner product between a public vector and a secret vector.
    * 
    * @param vectorA The public vector
    * @param vectorB The secret vector
@@ -129,6 +131,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
 
   /**
    * Creates a string of random bits.
+   * 
    * @param noOfBits The amount of bits to create - i.e. the bit string length.
    * @return A container holding the bit string once evaluated.
    */
@@ -146,10 +149,10 @@ public interface AdvancedNumeric extends ComputationDirectory {
    * @return A deferred result computing input >> shifts
    */
   DRes<SInt> rightShift(DRes<SInt> input, int shifts);
-  
+
   /**
    * @param input input
-   * @return A deferred result computing<br> 
+   * @return A deferred result computing<br>
    *         result: input >> 1<br>
    *         remainder: The <code>shifts</code> least significant bits of the input with the least
    *         significant having index 0.
@@ -178,6 +181,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
 
   /**
    * Compute the inverse of x within the field of operation
+   * 
    * @param x The element to take the inverse of
    * @return A deferred result computing x^-1 mod p where p is the modulus of the field.
    */
@@ -208,7 +212,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
       DRes<SInt> right);
 
   /**
-   * Container holding the deferred result and remainder of shifting a number.  
+   * Container holding the deferred result and remainder of shifting a number.
    */
   class RightShiftResult {
 

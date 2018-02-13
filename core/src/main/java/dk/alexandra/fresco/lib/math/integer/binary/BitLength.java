@@ -1,12 +1,11 @@
 package dk.alexandra.fresco.lib.math.integer.binary;
 
-import java.math.BigInteger;
-
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.math.BigInteger;
 
 /**
  * Finds the bit length of an integer. This is done by finding the bit representation of the integer
