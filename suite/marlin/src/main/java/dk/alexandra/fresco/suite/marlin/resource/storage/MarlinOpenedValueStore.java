@@ -26,4 +26,6 @@ public interface MarlinOpenedValueStore<T extends BigUInt<T>> {
    */
   Pair<List<MarlinSInt<T>>, List<T>> popValues();
 
+  boolean isEmpty();
+
 }

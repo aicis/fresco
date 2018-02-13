@@ -22,8 +22,6 @@ public class MarlinOpenedValueStoreImpl<T extends BigUInt<T>> implements MarlinO
     openedValues.addAll(newOpenedValues);
   }
 
-
-
   @Override
   public Pair<List<MarlinSInt<T>>, List<T>> popValues() {
     List<MarlinSInt<T>> macsToCheck = new ArrayList<>(sharesWithMacs);
@@ -31,6 +29,11 @@ public class MarlinOpenedValueStoreImpl<T extends BigUInt<T>> implements MarlinO
     sharesWithMacs.clear();
     openedValues.clear();
     return new Pair<>(macsToCheck, valuesToCheck);
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return sharesWithMacs.isEmpty();
   }
 
 }

@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.suite.marlin.gates;
+package dk.alexandra.fresco.suite.marlin.protocols;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.Network;
@@ -37,11 +37,8 @@ public class MarlinOutputProtocol<T extends BigUInt<T>> extends
       // TODO probably want a serializer
       List<T> shares = network.receiveFromAll().stream().map(factory::createFromBytes).collect(
           Collectors.toList());
-      // TODO make sure that arithmetic before storing is still mod 2^k
       T openedNotConverted = BigUInt.sum(shares);
-      openedValueStore.pushOpenedValue(
-          (MarlinSInt<T>) share.out(),
-          openedNotConverted);
+      openedValueStore.pushOpenedValue((MarlinSInt<T>) share.out(), openedNotConverted);
       this.opened = resourcePool
           .convertRepresentation(BigInteger.valueOf(openedNotConverted.getLow()));
       return EvaluationStatus.IS_DONE;

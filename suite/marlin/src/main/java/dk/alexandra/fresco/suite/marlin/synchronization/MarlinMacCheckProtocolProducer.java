@@ -13,7 +13,7 @@ import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
-import dk.alexandra.fresco.suite.marlin.gates.MarlinBroadcastProtocol;
+import dk.alexandra.fresco.suite.marlin.protocols.MarlinBroadcastProtocol;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,12 +22,16 @@ import java.util.stream.Collectors;
 public class MarlinMacCheckProtocolProducer<T extends BigUInt<T>> implements ProtocolProducer {
 
   private final SequentialProtocolProducer protocolProducer;
+  private MarlinBroadcastProtocol<T> broadcastMasked;
+  private List<T> randomCoefficients;
+  private T linearCombination;
 
   public MarlinMacCheckProtocolProducer(MarlinResourcePool<T> resourcePool) {
     final Pair<List<MarlinSInt<T>>, List<T>> opened = resourcePool.getOpenedValueStore()
         .popValues();
     final List<MarlinSInt<T>> sharesAndMacs = opened.getFirst();
     final List<T> openValues = opened.getSecond();
+    final BigUIntFactory<T> factory = resourcePool.getFactory();
     protocolProducer = new SequentialProtocolProducer(
         // TODO make sure that running broadcast validation retro-actively is okay
         // TODO only run broadcast on lower bits
@@ -35,19 +39,29 @@ public class MarlinMacCheckProtocolProducer<T extends BigUInt<T>> implements Pro
             new MarlinBroadcastProtocol<>(sharesAndMacs.stream().map(MarlinSInt::getShare).collect(
                 Collectors.toList())))
     );
-    protocolProducer.append(new LazyProtocolProducerDecorator(() -> {
-      BigUIntFactory<T> factory = resourcePool.getFactory();
-      List<T> randomCoefficients = sampleRandomCoefficients(resourcePool.getRandomGenerator(),
-          factory, openValues.size());
-      T linearCombination = BigUInt.innerProduct(openValues, randomCoefficients);
-      MarlinSInt<T> randomShare = resourcePool.getDataSupplier().getNextRandomElementShare();
-      List<T> originalShares = sharesAndMacs.stream()
-          .map(MarlinSInt::getShare)
-          .collect(Collectors.toList());
-      long[] overflow = computeOverflow(originalShares, factory);
-
-      return null;
-    }));
+    protocolProducer.append(
+        new LazyProtocolProducerDecorator(() -> {
+          randomCoefficients = sampleRandomCoefficients(resourcePool.getRandomGenerator(),
+              factory, openValues.size());
+          linearCombination = BigUInt.innerProduct(openValues, randomCoefficients);
+          MarlinSInt<T> randomShare = resourcePool.getDataSupplier().getNextRandomElementShare();
+          List<T> originalShares = sharesAndMacs.stream()
+              .map(MarlinSInt::getShare)
+              .collect(Collectors.toList());
+          long[] overflow = computeOverflow(originalShares, factory);
+          long linearCombinationOverflow = computeLinearCombination(overflow, randomCoefficients);
+          long masked = linearCombinationOverflow + randomShare.getShare().getLow();
+          System.out.println("local masked " + masked);
+          broadcastMasked = new MarlinBroadcastProtocol<>(
+              factory.createFromLong(masked));
+          return new SingleProtocolProducer<>(broadcastMasked);
+        }));
+    protocolProducer.append(
+        new LazyProtocolProducerDecorator(() -> {
+          List<T> maskedOverflow = broadcastMasked.out();
+          System.out.println("local masked " + maskedOverflow);
+          return new SequentialProtocolProducer();
+        }));
   }
 
   @Override
@@ -66,7 +80,7 @@ public class MarlinMacCheckProtocolProducer<T extends BigUInt<T>> implements Pro
     List<T> randomCoefficients = new ArrayList<>(numCoefficients);
     Drng drng = new DrngImpl(drbg);
     for (int i = 0; i < numCoefficients; i++) {
-      // TODO check that this is correct
+      // TODO check that the upper bound is correct
       randomCoefficients.add(factory.createFromLong(drng.nextLong(Long.MAX_VALUE)));
     }
     return randomCoefficients;
@@ -83,7 +97,7 @@ public class MarlinMacCheckProtocolProducer<T extends BigUInt<T>> implements Pro
     return overflow;
   }
 
-  private long computeLinearComb(long[] overflow, List<T> randomCoefficients) {
+  private long computeLinearCombination(long[] overflow, List<T> randomCoefficients) {
     long sum = 0;
     for (int i = 0; i < overflow.length; i++) {
       sum += overflow[i] * randomCoefficients.get(i).getLow();

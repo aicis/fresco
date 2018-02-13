@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.suite.marlin.gates;
+package dk.alexandra.fresco.suite.marlin.protocols;
 
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;

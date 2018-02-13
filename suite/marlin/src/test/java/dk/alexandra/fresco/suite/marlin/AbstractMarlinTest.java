@@ -88,7 +88,7 @@ public class AbstractMarlinTest {
           new SecureComputationEngineImpl<>(ps, evaluator);
 
       // TODO initialize joint drbg via coin-tossing which requires a network
-      Drbg drbg = new AesCtrDrbg(new byte[]{});
+      Drbg drbg = new AesCtrDrbg(new byte[32]);
       TestThreadRunner.TestThreadConfiguration<MarlinResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,

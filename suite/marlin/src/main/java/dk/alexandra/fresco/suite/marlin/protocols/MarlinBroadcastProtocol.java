@@ -1,9 +1,10 @@
-package dk.alexandra.fresco.suite.marlin.gates;
+package dk.alexandra.fresco.suite.marlin.protocols;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.Broadcast;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
+import java.util.Collections;
 import java.util.List;
 
 public class MarlinBroadcastProtocol<T extends BigUInt<T>> extends
@@ -15,6 +16,10 @@ public class MarlinBroadcastProtocol<T extends BigUInt<T>> extends
 
   public MarlinBroadcastProtocol(List<T> input) {
     this.input = input;
+  }
+
+  public MarlinBroadcastProtocol(T input) {
+    this(Collections.singletonList(input));
   }
 
   @Override
