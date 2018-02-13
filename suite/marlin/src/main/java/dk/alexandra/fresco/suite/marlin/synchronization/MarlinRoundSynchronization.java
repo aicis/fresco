@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.suite.marlin.synchronization;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
@@ -8,7 +7,6 @@ import dk.alexandra.fresco.framework.sce.evaluator.NetworkBatchDecorator;
 import dk.alexandra.fresco.framework.sce.evaluator.ProtocolCollectionList;
 import dk.alexandra.fresco.suite.ProtocolSuite.RoundSynchronization;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
-import dk.alexandra.fresco.suite.marlin.protocols.MarlinOutputProtocol;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStore;
 
@@ -62,15 +60,15 @@ public class MarlinRoundSynchronization<T extends BigUInt<T>> implements
   @Override
   public void beforeBatch(ProtocolCollection<MarlinResourcePool<T>> nativeProtocols,
       MarlinResourcePool<T> resourcePool, Network network) {
-    for (NativeProtocol<?, ?> protocol : nativeProtocols) {
-      if (protocol instanceof MarlinOutputProtocol) {
-        isCheckRequired = true;
-        break;
-      }
-    }
-    if (isCheckRequired) {
-      System.out.println("Check required");
-      doMacCheck(resourcePool, network);
-    }
+//    for (NativeProtocol<?, ?> protocol : nativeProtocols) {
+//      if (protocol instanceof MarlinOutputProtocol) {
+//        isCheckRequired = true;
+//        break;
+//      }
+//    }
+//    if (isCheckRequired) {
+//      System.out.println("Check required");
+//      doMacCheck(resourcePool, network);
+//    }
   }
 }

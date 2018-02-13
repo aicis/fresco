@@ -142,6 +142,11 @@ public class MutableUInt128 implements BigUInt<MutableUInt128> {
   }
 
   @Override
+  public boolean isZero() {
+    return low == 0 && mid == 0 && high == 0;
+  }
+
+  @Override
   public BigInteger toBigInteger() {
     // TODO use byte array?
     BigInteger low = new BigInteger(Integer.toUnsignedString(this.low));
@@ -157,7 +162,16 @@ public class MutableUInt128 implements BigUInt<MutableUInt128> {
 
   @Override
   public long getHigh() {
-    return 0;
+    return high;
+  }
+
+  @Override
+  public MutableUInt128 shiftLowIntoHigh() {
+    MutableUInt128 copy = new MutableUInt128(this);
+    copy.high = copy.getLow();
+    copy.mid = 0;
+    copy.low = 0;
+    return copy;
   }
 
   private byte[] pad(byte[] bytes) {

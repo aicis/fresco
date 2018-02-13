@@ -88,11 +88,9 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
   }
 
   @Override
-  public Broadcast getBroadcast(Network network) {
-    if (broadcast == null) {
-      broadcast = new Broadcast(network);
-    }
-    return broadcast;
+  public Broadcast createBroadcast(Network network) {
+    // TODO come up with way to cache this
+    return new Broadcast(network);
   }
 
   @Override

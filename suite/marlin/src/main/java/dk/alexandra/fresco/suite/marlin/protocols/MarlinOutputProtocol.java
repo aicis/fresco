@@ -18,6 +18,7 @@ public class MarlinOutputProtocol<T extends BigUInt<T>> extends
 
   private final DRes<SInt> share;
   private BigInteger opened;
+  private MarlinSInt<T> authenticatedElement;
 
   public MarlinOutputProtocol(DRes<SInt> share) {
     this.share = share;
@@ -29,16 +30,16 @@ public class MarlinOutputProtocol<T extends BigUInt<T>> extends
     MarlinOpenedValueStore<T> openedValueStore = resourcePool.getOpenedValueStore();
     BigUIntFactory<T> factory = resourcePool.getFactory();
     if (round == 0) {
-      MarlinSInt<T> out = (MarlinSInt<T>) share.out();
+      authenticatedElement = (MarlinSInt<T>) share.out();
       // TODO clean up--only sending lower k bits
-      network.sendToAll(ByteAndBitConverter.toByteArray(out.getShare().getLow()));
+      network.sendToAll(ByteAndBitConverter.toByteArray(authenticatedElement.getShare().getLow()));
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       // TODO probably want a serializer
       List<T> shares = network.receiveFromAll().stream().map(factory::createFromBytes).collect(
           Collectors.toList());
       T openedNotConverted = BigUInt.sum(shares);
-      openedValueStore.pushOpenedValue((MarlinSInt<T>) share.out(), openedNotConverted);
+      openedValueStore.pushOpenedValue(authenticatedElement, openedNotConverted);
       this.opened = resourcePool
           .convertRepresentation(BigInteger.valueOf(openedNotConverted.getLow()));
       return EvaluationStatus.IS_DONE;

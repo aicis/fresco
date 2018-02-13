@@ -53,6 +53,11 @@ public interface BigUInt<T extends BigUInt> {
   T negate();
 
   /**
+   * Check if values is zero.
+   */
+  boolean isZero();
+
+  /**
    * Return bit length.
    */
   int getBitLength();
@@ -89,7 +94,7 @@ public interface BigUInt<T extends BigUInt> {
    * Compute inner product of elements.
    */
   static <S extends BigUInt<S>> S innerProduct(List<S> left, List<S> right) {
-    return sum(product(left,right));
+    return sum(product(left, right));
   }
 
   // TODO hack hack hack
@@ -97,5 +102,7 @@ public interface BigUInt<T extends BigUInt> {
   long getLow();
 
   long getHigh();
+
+  T shiftLowIntoHigh();
 
 }

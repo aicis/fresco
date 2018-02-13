@@ -24,6 +24,14 @@ public class MarlinSInt<T extends BigUInt<T>> implements SInt {
     return new MarlinSInt<>(share.multiply(other), macShare.multiply(other));
   }
 
+  @Override
+  public String toString() {
+    return "MarlinSInt{" +
+        "share=" + share +
+        ", macShare=" + macShare +
+        '}';
+  }
+
   /**
    * Adds constant (open) value to this and returns result. <p>All parties compute their mac share
    * of the public value and add it to the mac share of the authenticated value, however only party

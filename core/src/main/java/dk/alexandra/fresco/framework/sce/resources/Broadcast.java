@@ -70,7 +70,8 @@ public class Broadcast {
    * Receives digests from other parties and checks that these are consistent with own digest.
    */
   public void receiveAndValidateDigests(byte[] ownDigest) {
-    validateDigests(ownDigest, network.receiveFromAll());
+    List<byte[]> received = network.receiveFromAll();
+    validateDigests(ownDigest, received);
   }
 
 }

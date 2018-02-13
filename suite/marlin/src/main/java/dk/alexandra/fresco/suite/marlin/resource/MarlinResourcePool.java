@@ -1,5 +1,7 @@
 package dk.alexandra.fresco.suite.marlin.resource;
 
+import dk.alexandra.fresco.commitment.HashBasedCommitment;
+import dk.alexandra.fresco.commitment.HashBasedCommitmentSerializer;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
@@ -35,10 +37,13 @@ public interface MarlinResourcePool<T extends BigUInt<T>> extends NumericResourc
   ByteSerializer<T> getRawSerializer();
 
   /**
-   * Gets a broadcast protocol. <p>Instantiates new protocol if protocol not already instantiated and
-   * cached.</p>
+   * Creates a new broadcast helper.
    */
-  Broadcast getBroadcast(Network network);
+  Broadcast createBroadcast(Network network);
+
+  default ByteSerializer<HashBasedCommitment> getCommitmentSerializer() {
+    return new HashBasedCommitmentSerializer();
+  }
 
   // TODO not clear that this belongs here
   int getOperationalBitLength();
