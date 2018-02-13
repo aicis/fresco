@@ -16,7 +16,7 @@ public class IntegerToBitsByShift implements Computation<List<SInt>, ProtocolBui
 
   private final DRes<SInt> input;
   private final int maxInputLength;
-  private final DelayedComputation<List<SInt>> result = new DelayedComputation<>();
+  private List<SInt> result;
 
   public IntegerToBitsByShift(DRes<SInt> input, int maxInputLength) {
     this.input = input;
@@ -26,7 +26,7 @@ public class IntegerToBitsByShift implements Computation<List<SInt>, ProtocolBui
   @Override
   public DRes<List<SInt>> buildComputation(ProtocolBuilderNumeric builder) {
     doIteration(builder, input, maxInputLength, new ArrayList<SInt>(maxInputLength));
-    return result;
+    return () -> result;
   }
 
   private void doIteration(ProtocolBuilderNumeric producer, DRes<SInt> input, int shifts,
@@ -40,21 +40,7 @@ public class IntegerToBitsByShift implements Computation<List<SInt>, ProtocolBui
         doIteration(seq, iteration.out().getResult(), shifts - 1, remainders);
       });
     } else {
-      result.setComputation(() -> remainders);
-    }
-  }
-
-  private static class DelayedComputation<R> implements DRes<R> {
-
-    private DRes<R> closure;
-
-    public void setComputation(DRes<R> computation) {
-      this.closure = computation;
-    }
-
-    @Override
-    public R out() {
-      return closure.out();
+      result = remainders;
     }
   }
 }
