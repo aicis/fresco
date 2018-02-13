@@ -21,7 +21,7 @@ public class SIntWrapperAdvancedFixedNumeric implements AdvancedFixedNumeric {
 
   @Override
   public DRes<SFixed> exp(DRes<SFixed> x) {
-    int terms = 16; 
+    int terms = 16;
     BigDecimal[] coefficients = new BigDecimal[terms];
     BigInteger n = BigInteger.ONE;
     coefficients[terms - 1] = new BigDecimal(n);
@@ -29,24 +29,22 @@ public class SIntWrapperAdvancedFixedNumeric implements AdvancedFixedNumeric {
       n = n.multiply(BigInteger.valueOf(i));
       coefficients[i - 1] = new BigDecimal(n);
     }
-    
+
     return builder.seq(seq -> {
       /*
-       * We approximate the exponential function by calculating the first terms
-       * of the Taylor expansion. By letting all terms in the series have common
-       * denominator, we only need to do one division.
+       * We approximate the exponential function by calculating the first terms of the Taylor
+       * expansion. By letting all terms in the series have common denominator, we only need to do
+       * one division.
        * 
-       * TODO: In the current implementation we compute 16 terms, which seems to
-       * give decent percision for small inputs. If we want full precision for
-       * all possible inputs, we need to calculate many more terms, since the
-       * error after n terms is approx 1/(n+1)! x^{n+1}), and this would cause
-       * the function to be very inefficient. Maybe we should allow the app
+       * TODO: In the current implementation we compute 16 terms, which seems to give decent
+       * percision for small inputs. If we want full precision for all possible inputs, we need to
+       * calculate many more terms, since the error after n terms is approx 1/(n+1)! x^{n+1}), and
+       * this would cause the function to be very inefficient. Maybe we should allow the app
        * developer to specify an upper bound on the input?
        * 
-       * TODO: The multiplications can be done in parallel if all powers are
-       * calculated first.
+       * TODO: The multiplications can be done in parallel if all powers are calculated first.
        */
-      
+
       FixedNumeric fixed = new DefaultFixedNumeric(seq, precision);
       DRes<SFixed> sum = fixed.numeric().known(coefficients[0]);
       DRes<SFixed> pow = fixed.numeric().known(BigDecimal.ONE);
@@ -54,10 +52,10 @@ public class SIntWrapperAdvancedFixedNumeric implements AdvancedFixedNumeric {
         pow = fixed.numeric().mult(pow, x);
         sum = fixed.numeric().add(sum, fixed.numeric().mult(coefficients[i], pow));
       }
-      return fixed.numeric().div(sum, coefficients[0]);            
+      return fixed.numeric().div(sum, coefficients[0]);
     });
   }
-    
+
   @Override
   public DRes<SFixed> random() {
     return builder.seq(new FixedPointRandom(precision));
@@ -78,7 +76,7 @@ public class SIntWrapperAdvancedFixedNumeric implements AdvancedFixedNumeric {
       for (DRes<SFixed> term : terms) {
         ints.add(((SFixedSIntWrapper) term.out()).getSInt());
       }
-      return new SFixedSIntWrapper(builder.advancedNumeric().sum(ints));      
+      return new SFixedSIntWrapper(builder.advancedNumeric().sum(ints));
     });
   }
 }

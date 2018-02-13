@@ -5,5 +5,4 @@ package dk.alexandra.fresco.fixedpoint;
  */
 public interface SFixed {
 
-
 }

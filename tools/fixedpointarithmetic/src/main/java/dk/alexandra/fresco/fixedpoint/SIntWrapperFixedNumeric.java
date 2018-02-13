@@ -16,10 +16,8 @@ public class SIntWrapperFixedNumeric implements BasicFixedNumeric {
   /**
    * Creates a FixedNumeric which creates basic numeric operations
    *
-   * @param builder
-   *          The protocolbuilder used to construct underlying protocols.
-   * @param precision
-   *          Amount of digits after the dot.
+   * @param builder The protocolbuilder used to construct underlying protocols.
+   * @param precision Amount of digits after the dot.
    */
   public SIntWrapperFixedNumeric(ProtocolBuilderNumeric builder, int precision) {
     // super();
@@ -32,7 +30,7 @@ public class SIntWrapperFixedNumeric implements BasicFixedNumeric {
     return builder.seq(seq -> {
       BigDecimal scaled = value.setScale(this.precision, RoundingMode.DOWN);
       DRes<SInt> input = seq.numeric().known(scaled.unscaledValue());
-      return new SFixedSIntWrapper(input);      
+      return new SFixedSIntWrapper(input);
     });
   }
 
@@ -41,7 +39,7 @@ public class SIntWrapperFixedNumeric implements BasicFixedNumeric {
     return builder.seq(seq -> {
       BigDecimal scaled = value.setScale(this.precision, RoundingMode.DOWN);
       DRes<SInt> input = seq.numeric().input(scaled.unscaledValue(), inputParty);
-      return new SFixedSIntWrapper(input);      
+      return new SFixedSIntWrapper(input);
     });
   }
 
@@ -84,7 +82,7 @@ public class SIntWrapperFixedNumeric implements BasicFixedNumeric {
     return builder.seq(seq -> {
       DRes<SInt> add = seq.numeric().add(((SFixedSIntWrapper) a.out()).getSInt(),
           ((SFixedSIntWrapper) b.out()).getSInt());
-      return new SFixedSIntWrapper(add);            
+      return new SFixedSIntWrapper(add);
     });
   }
 
@@ -93,7 +91,7 @@ public class SIntWrapperFixedNumeric implements BasicFixedNumeric {
     return builder.seq(seq -> {
       DRes<SInt> sub = seq.numeric().sub(((SFixedSIntWrapper) a.out()).getSInt(),
           ((SFixedSIntWrapper) b.out()).getSInt());
-      return new SFixedSIntWrapper(sub);      
+      return new SFixedSIntWrapper(sub);
     });
   }
 
@@ -113,7 +111,7 @@ public class SIntWrapperFixedNumeric implements BasicFixedNumeric {
       BigDecimal bScaled = b.setScale(this.precision, RoundingMode.DOWN);
       DRes<SInt> sint = ((SFixedSIntWrapper) a.out()).getSInt();
       DRes<SInt> input = seq.numeric().sub(sint, bScaled.unscaledValue());
-      return new SFixedSIntWrapper(input);      
+      return new SFixedSIntWrapper(input);
     });
   }
 

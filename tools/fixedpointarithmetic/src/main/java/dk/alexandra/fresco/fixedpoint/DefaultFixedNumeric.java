@@ -14,7 +14,7 @@ public class DefaultFixedNumeric implements FixedNumeric {
     this.builder = builder;
     this.precision = precision;
   }
-  
+
   @Override
   public BasicFixedNumeric numeric() {
     if (this.numeric == null) {
@@ -30,7 +30,7 @@ public class DefaultFixedNumeric implements FixedNumeric {
     }
     return this.advanced;
   }
-  
+
   @Override
   public LinearAlgebra linalg() {
     if (this.linalg == null) {
@@ -38,6 +38,6 @@ public class DefaultFixedNumeric implements FixedNumeric {
     }
     return this.linalg;
   }
-  
+
 
 }

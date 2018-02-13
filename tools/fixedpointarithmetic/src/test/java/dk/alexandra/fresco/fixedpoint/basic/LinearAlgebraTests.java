@@ -102,27 +102,34 @@ public class LinearAlgebraTests {
         @Override
         public void test() throws Exception {
           // define input and output
-          
-          
-          ArrayList<BigDecimal> aRow1 = new ArrayList<>(Arrays.asList(BigDecimal.valueOf(1.1), BigDecimal.valueOf(2.2)));
-          ArrayList<BigDecimal> aRow2 = new ArrayList<>(Arrays.asList(BigDecimal.valueOf(3.3), BigDecimal.valueOf(4.2)));
+
+
+          ArrayList<BigDecimal> aRow1 =
+              new ArrayList<>(Arrays.asList(BigDecimal.valueOf(1.1), BigDecimal.valueOf(2.2)));
+          ArrayList<BigDecimal> aRow2 =
+              new ArrayList<>(Arrays.asList(BigDecimal.valueOf(3.3), BigDecimal.valueOf(4.2)));
           Matrix<BigDecimal> a = new Matrix<>(2, 2, new ArrayList<>(Arrays.asList(aRow1, aRow2)));
 
-          ArrayList<BigDecimal> bRow1 = new ArrayList<>(Arrays.asList(BigDecimal.valueOf(1.9), BigDecimal.valueOf(2.9)));
-          ArrayList<BigDecimal> bRow2 = new ArrayList<>(Arrays.asList(BigDecimal.valueOf(3.9), BigDecimal.valueOf(4.8)));
+          ArrayList<BigDecimal> bRow1 =
+              new ArrayList<>(Arrays.asList(BigDecimal.valueOf(1.9), BigDecimal.valueOf(2.9)));
+          ArrayList<BigDecimal> bRow2 =
+              new ArrayList<>(Arrays.asList(BigDecimal.valueOf(3.9), BigDecimal.valueOf(4.8)));
           Matrix<BigDecimal> b = new Matrix<>(2, 2, new ArrayList<>(Arrays.asList(bRow1, bRow2)));
 
-          ArrayList<BigDecimal> cRow1 = new ArrayList<>(Arrays.asList(aRow1.get(0).add(bRow1.get(0)), aRow1.get(1).add(bRow1.get(1))));
-          ArrayList<BigDecimal> cRow2 = new ArrayList<>(Arrays.asList(aRow2.get(0).add(bRow2.get(0)), aRow2.get(1).add(bRow2.get(1))));
-          Matrix<BigDecimal> expected = new Matrix<>(2, 2, new ArrayList<>(Arrays.asList(cRow1, cRow2)));
+          ArrayList<BigDecimal> cRow1 = new ArrayList<>(
+              Arrays.asList(aRow1.get(0).add(bRow1.get(0)), aRow1.get(1).add(bRow1.get(1))));
+          ArrayList<BigDecimal> cRow2 = new ArrayList<>(
+              Arrays.asList(aRow2.get(0).add(bRow2.get(0)), aRow2.get(1).add(bRow2.get(1))));
+          Matrix<BigDecimal> expected =
+              new Matrix<>(2, 2, new ArrayList<>(Arrays.asList(cRow1, cRow2)));
 
           // define functionality to be tested
           Application<List<Matrix<BigDecimal>>, ProtocolBuilderNumeric> testApplication = root -> {
             FixedNumeric fixed = new DefaultFixedNumeric(root, 1);
-            
+
             DRes<Matrix<DRes<SFixed>>> closedA = fixed.linalg().input(a, 1);
             DRes<Matrix<DRes<SFixed>>> closedB = fixed.linalg().input(b, 1);
-            
+
             DRes<Matrix<DRes<SFixed>>> res1 = fixed.linalg().add(closedA, closedB);
             DRes<Matrix<DRes<SFixed>>> res2 = fixed.linalg().add(a, closedB);
             DRes<Matrix<DRes<SFixed>>> res3 = fixed.linalg().add(b, closedA);
@@ -130,8 +137,9 @@ public class LinearAlgebraTests {
             DRes<Matrix<DRes<BigDecimal>>> open1 = fixed.linalg().open(res1);
             DRes<Matrix<DRes<BigDecimal>>> open2 = fixed.linalg().open(res2);
             DRes<Matrix<DRes<BigDecimal>>> open3 = fixed.linalg().open(res3);
-            
-            return () -> Arrays.asList(new MatrixUtils().unwrapMatrix(open1), new MatrixUtils().unwrapMatrix(open2), new MatrixUtils().unwrapMatrix(open3));
+
+            return () -> Arrays.asList(new MatrixUtils().unwrapMatrix(open1),
+                new MatrixUtils().unwrapMatrix(open2), new MatrixUtils().unwrapMatrix(open3));
           };
 
           List<Matrix<BigDecimal>> output = runApplication(testApplication);
@@ -169,12 +177,12 @@ public class LinearAlgebraTests {
 
           // define functionality to be tested
           Application<List<Matrix<BigDecimal>>, ProtocolBuilderNumeric> testApplication = root -> {
-            
+
             FixedNumeric fixed = new DefaultFixedNumeric(root, 1);
 
             DRes<Matrix<DRes<SFixed>>> closedMatrix = fixed.linalg().input(matrix, 1);
             DRes<SFixed> closedScalar = fixed.numeric().input(s, 1);
-            
+
             DRes<Matrix<DRes<SFixed>>> res1 = fixed.linalg().scale(closedScalar, closedMatrix);
             DRes<Matrix<DRes<SFixed>>> res2 = fixed.linalg().scale(s, closedMatrix);
             DRes<Matrix<DRes<SFixed>>> res3 = fixed.linalg().scale(closedScalar, matrix);
@@ -182,8 +190,9 @@ public class LinearAlgebraTests {
             DRes<Matrix<DRes<BigDecimal>>> open1 = fixed.linalg().open(res1);
             DRes<Matrix<DRes<BigDecimal>>> open2 = fixed.linalg().open(res2);
             DRes<Matrix<DRes<BigDecimal>>> open3 = fixed.linalg().open(res3);
-            
-            return () -> Arrays.asList(new MatrixUtils().unwrapMatrix(open1), new MatrixUtils().unwrapMatrix(open2), new MatrixUtils().unwrapMatrix(open3));
+
+            return () -> Arrays.asList(new MatrixUtils().unwrapMatrix(open1),
+                new MatrixUtils().unwrapMatrix(open2), new MatrixUtils().unwrapMatrix(open3));
           };
 
           List<Matrix<BigDecimal>> output = runApplication(testApplication);
@@ -242,16 +251,17 @@ public class LinearAlgebraTests {
 
             DRes<Matrix<DRes<SFixed>>> closedMatrix = fixed.linalg().input(matrix, 1);
             DRes<Matrix<DRes<SFixed>>> closedVector = fixed.linalg().input(vector, 1);
-            
+
             DRes<Matrix<DRes<SFixed>>> res1 = fixed.linalg().mult(closedMatrix, closedVector);
             DRes<Matrix<DRes<SFixed>>> res2 = fixed.linalg().mult(matrix, closedVector);
             DRes<Matrix<DRes<SFixed>>> res3 = fixed.linalg().mult(closedMatrix, vector);
-            
+
             DRes<Matrix<DRes<BigDecimal>>> open1 = fixed.linalg().open(res1);
             DRes<Matrix<DRes<BigDecimal>>> open2 = fixed.linalg().open(res2);
             DRes<Matrix<DRes<BigDecimal>>> open3 = fixed.linalg().open(res3);
-            
-            return () -> Arrays.asList(new MatrixUtils().unwrapMatrix(open1), new MatrixUtils().unwrapMatrix(open2), new MatrixUtils().unwrapMatrix(open3));
+
+            return () -> Arrays.asList(new MatrixUtils().unwrapMatrix(open1),
+                new MatrixUtils().unwrapMatrix(open2), new MatrixUtils().unwrapMatrix(open3));
           };
 
           List<Matrix<BigDecimal>> output = runApplication(testApplication);

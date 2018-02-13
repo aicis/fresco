@@ -100,7 +100,7 @@ public interface BasicFixedNumeric extends ComputationDirectory {
    * @return A secret value which represents the given public value.
    */
   DRes<SFixed> known(BigDecimal value);
-  
+
   DRes<SFixed> fromSInt(DRes<SInt> value);
 
   /**

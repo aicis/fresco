@@ -370,30 +370,30 @@ public class BasicFixedPointTests {
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       final int precision = 3;
-      List<BigDecimal> openInputs = Stream
-          .of(1.223, 222.23, 5.59703, 0.004, 5.90, 6.0, 0.0007, 0.121998, 9.999999)
-          .map(BigDecimal::valueOf).collect(Collectors.toList());
-      List<BigDecimal> openInputs2 = Stream
-          .of(1.000, 1.0000, 0.22211, 100.1, 11.0, .07, 0.0005, 10.00112, 999991.0)
-          .map(BigDecimal::valueOf).collect(Collectors.toList());
+      List<BigDecimal> openInputs =
+          Stream.of(1.223, 222.23, 5.59703, 0.004, 5.90, 6.0, 0.0007, 0.121998, 9.999999)
+              .map(BigDecimal::valueOf).collect(Collectors.toList());
+      List<BigDecimal> openInputs2 =
+          Stream.of(1.000, 1.0000, 0.22211, 100.1, 11.0, .07, 0.0005, 10.00112, 999991.0)
+              .map(BigDecimal::valueOf).collect(Collectors.toList());
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
           Application<List<BigDecimal>, ProtocolBuilderNumeric> app = producer -> {
             FixedNumeric fixed = new DefaultFixedNumeric(producer, precision);
 
-            List<DRes<SFixed>> closed1 = openInputs.stream().map(fixed.numeric()::known)
-                .collect(Collectors.toList());
-            List<DRes<SFixed>> closed2 = openInputs2.stream().map(fixed.numeric()::known)
-                .collect(Collectors.toList());
+            List<DRes<SFixed>> closed1 =
+                openInputs.stream().map(fixed.numeric()::known).collect(Collectors.toList());
+            List<DRes<SFixed>> closed2 =
+                openInputs2.stream().map(fixed.numeric()::known).collect(Collectors.toList());
 
             List<DRes<SFixed>> result = new ArrayList<>();
             for (DRes<SFixed> inputX : closed1) {
               result.add(fixed.numeric().mult(inputX, closed2.get(closed1.indexOf(inputX))));
             }
 
-            List<DRes<BigDecimal>> opened = result.stream().map(fixed.numeric()::open)
-                .collect(Collectors.toList());
+            List<DRes<BigDecimal>> opened =
+                result.stream().map(fixed.numeric()::open).collect(Collectors.toList());
             return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
           };
           List<BigDecimal> output = runApplication(app);
@@ -416,30 +416,30 @@ public class BasicFixedPointTests {
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       final int precision = 3;
-      List<BigDecimal> openInputs = Stream
-          .of(1.223, 222.23, 5.59703, 0.004, 5.90, 6.0, 0.0007, 0.121998, 9.999999)
-          .map(BigDecimal::valueOf).collect(Collectors.toList());
-      List<BigDecimal> openInputs2 = Stream
-          .of(1.000, 1.0000, 0.22211, 100.1, 11.0, .07, 0.0005, 10.00112, 999991.0)
-          .map(BigDecimal::valueOf).collect(Collectors.toList());
+      List<BigDecimal> openInputs =
+          Stream.of(1.223, 222.23, 5.59703, 0.004, 5.90, 6.0, 0.0007, 0.121998, 9.999999)
+              .map(BigDecimal::valueOf).collect(Collectors.toList());
+      List<BigDecimal> openInputs2 =
+          Stream.of(1.000, 1.0000, 0.22211, 100.1, 11.0, .07, 0.0005, 10.00112, 999991.0)
+              .map(BigDecimal::valueOf).collect(Collectors.toList());
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
           Application<List<BigDecimal>, ProtocolBuilderNumeric> app = producer -> {
             FixedNumeric fixed = new DefaultFixedNumeric(producer, precision);
 
-            List<DRes<SFixed>> closed1 = openInputs.stream().map(fixed.numeric()::known)
-                .collect(Collectors.toList());
-            List<DRes<SFixed>> closed2 = openInputs2.stream().map(fixed.numeric()::known)
-                .collect(Collectors.toList());
+            List<DRes<SFixed>> closed1 =
+                openInputs.stream().map(fixed.numeric()::known).collect(Collectors.toList());
+            List<DRes<SFixed>> closed2 =
+                openInputs2.stream().map(fixed.numeric()::known).collect(Collectors.toList());
 
             List<DRes<SFixed>> result = new ArrayList<>();
             for (DRes<SFixed> inputX : closed1) {
               result.add(fixed.numeric().add(inputX, closed2.get(closed1.indexOf(inputX))));
             }
 
-            List<DRes<BigDecimal>> opened = result.stream().map(fixed.numeric()::open)
-                .collect(Collectors.toList());
+            List<DRes<BigDecimal>> opened =
+                result.stream().map(fixed.numeric()::open).collect(Collectors.toList());
             return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
           };
           List<BigDecimal> output = runApplication(app);
@@ -462,12 +462,12 @@ public class BasicFixedPointTests {
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       final int precision = 5;
-      List<BigDecimal> openInputs = Stream
-          .of(1.223, 222.23, 5.59703, 0.004, 5.90, 6.0, 0.00007, 0.121998, 9.999999)
-          .map(BigDecimal::valueOf).collect(Collectors.toList());
-      List<BigDecimal> openInputs2 = Stream
-          .of(1.000, 1.0000, 0.22211, 100.1, 11.0, 0.5, 0.0005, 10.00112, 999991.0)
-          .map(BigDecimal::valueOf).collect(Collectors.toList());
+      List<BigDecimal> openInputs =
+          Stream.of(1.223, 222.23, 5.59703, 0.004, 5.90, 6.0, 0.00007, 0.121998, 9.999999)
+              .map(BigDecimal::valueOf).collect(Collectors.toList());
+      List<BigDecimal> openInputs2 =
+          Stream.of(1.000, 1.0000, 0.22211, 100.1, 11.0, 0.5, 0.0005, 10.00112, 999991.0)
+              .map(BigDecimal::valueOf).collect(Collectors.toList());
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
@@ -475,18 +475,18 @@ public class BasicFixedPointTests {
           Application<List<BigDecimal>, ProtocolBuilderNumeric> app = producer -> {
             FixedNumeric fixed = new DefaultFixedNumeric(producer, precision);
 
-            List<DRes<SFixed>> closed1 = openInputs.stream().map(fixed.numeric()::known)
-                .collect(Collectors.toList());
-            List<DRes<SFixed>> closed2 = openInputs2.stream().map(fixed.numeric()::known)
-                .collect(Collectors.toList());
+            List<DRes<SFixed>> closed1 =
+                openInputs.stream().map(fixed.numeric()::known).collect(Collectors.toList());
+            List<DRes<SFixed>> closed2 =
+                openInputs2.stream().map(fixed.numeric()::known).collect(Collectors.toList());
 
             List<DRes<SFixed>> result = new ArrayList<>();
             for (DRes<SFixed> inputX : closed1) {
               result.add(fixed.numeric().div(inputX, closed2.get(closed1.indexOf(inputX))));
             }
 
-            List<DRes<BigDecimal>> opened = result.stream().map(fixed.numeric()::open)
-                .collect(Collectors.toList());
+            List<DRes<BigDecimal>> opened =
+                result.stream().map(fixed.numeric()::open).collect(Collectors.toList());
             return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
           };
           List<BigDecimal> output = runApplication(app);

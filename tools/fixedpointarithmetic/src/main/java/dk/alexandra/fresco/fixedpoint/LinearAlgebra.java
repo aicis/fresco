@@ -19,8 +19,7 @@ public interface LinearAlgebra extends ComputationDirectory {
    * @param b Secret value 2
    * @return A deferred result computing a+b
    */
-  DRes<Matrix<DRes<SFixed>>> add(DRes<Matrix<DRes<SFixed>>> a,
-      DRes<Matrix<DRes<SFixed>>> b);
+  DRes<Matrix<DRes<SFixed>>> add(DRes<Matrix<DRes<SFixed>>> a, DRes<Matrix<DRes<SFixed>>> b);
 
   /**
    * Adds a secret value with a public value and returns the result.
@@ -57,8 +56,7 @@ public interface LinearAlgebra extends ComputationDirectory {
    * @param b
    * @return
    */
-  DRes<Matrix<DRes<SFixed>>> mult(Matrix<BigDecimal> a,
-      DRes<Matrix<DRes<SFixed>>> b);
+  DRes<Matrix<DRes<SFixed>>> mult(Matrix<BigDecimal> a, DRes<Matrix<DRes<SFixed>>> b);
 
   /**
    * Multiply a secret matrix by a public constant.
@@ -122,5 +120,5 @@ public interface LinearAlgebra extends ComputationDirectory {
    * @return
    */
   DRes<SFixed> innerProduct(List<BigDecimal> a, DRes<List<DRes<SFixed>>> b);
-  
+
 }
