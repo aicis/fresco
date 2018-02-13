@@ -1,8 +1,5 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
-import java.math.BigInteger;
-import java.util.List;
-
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -24,6 +21,8 @@ import dk.alexandra.fresco.lib.math.integer.linalg.InnerProduct;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductOpen;
 import dk.alexandra.fresco.lib.math.integer.log.Logarithm;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SquareRoot;
+import java.math.BigInteger;
+import java.util.List;
 
 /**
  * Default way of producing the protocols within the interface. This default class can be
