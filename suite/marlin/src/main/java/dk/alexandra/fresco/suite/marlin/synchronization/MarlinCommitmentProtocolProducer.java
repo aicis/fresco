@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
-import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
@@ -18,20 +17,17 @@ import java.util.List;
 public class MarlinCommitmentProtocolProducer<T extends BigUInt<T>> implements ProtocolProducer {
 
   private final SequentialProtocolProducer protocolProducer;
-  private final Drbg random;
   private final byte[] ownOpening;
   private MarlinBroadcastProtocolProducer<T> commitmentBroadcast;
   private MarlinAllBroadcastProtocol<T> openingBroadcast;
-  private final HashBasedCommitment ownCommitment;
   private List<T> result;
 
-  public MarlinCommitmentProtocolProducer(MarlinResourcePool<T> resourcePool, T value) {
+  MarlinCommitmentProtocolProducer(MarlinResourcePool<T> resourcePool, T value) {
     ByteSerializer<HashBasedCommitment> commitmentSerializer = resourcePool
         .getCommitmentSerializer();
-    random = new AesCtrDrbg();
-    ownCommitment = new HashBasedCommitment();
+    final HashBasedCommitment ownCommitment = new HashBasedCommitment();
     ownOpening = ownCommitment.commit(
-        random,
+        new AesCtrDrbg(),
         resourcePool.getRawSerializer().serialize(value));
     protocolProducer = new SequentialProtocolProducer();
     protocolProducer.lazyAppend(() -> {
