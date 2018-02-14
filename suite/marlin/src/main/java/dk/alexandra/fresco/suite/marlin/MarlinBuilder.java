@@ -9,11 +9,11 @@ import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
+import dk.alexandra.fresco.suite.marlin.protocols.computations.MarlinInputComputation;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinAddProtocol;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinKnownSIntProtocol;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinMultiplyProtocol;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinOutputProtocol;
-import dk.alexandra.fresco.suite.marlin.protocols.producers.MarlinInputProtocolProducer;
 import java.math.BigInteger;
 
 public class MarlinBuilder<T extends BigUInt<T>> implements BuilderFactoryNumeric {
@@ -86,11 +86,11 @@ public class MarlinBuilder<T extends BigUInt<T>> implements BuilderFactoryNumeri
 
       @Override
       public DRes<SInt> input(BigInteger value, int inputParty) {
-        MarlinInputProtocolProducer<T> inputProtocolProducer = new MarlinInputProtocolProducer<>(
-            factory.createFromBigInteger(value), inputParty);
-        builder.createAndAppend(inputProtocolProducer);
-        return inputProtocolProducer::out;
+        return builder.seq(
+            new MarlinInputComputation<>(factory.createFromBigInteger(value), inputParty)
+        );
       }
+
 
       @Override
       public DRes<BigInteger> open(DRes<SInt> secretShare) {
