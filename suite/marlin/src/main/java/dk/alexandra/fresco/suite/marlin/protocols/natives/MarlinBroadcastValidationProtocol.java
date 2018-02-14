@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.suite.marlin.protocols;
+package dk.alexandra.fresco.suite.marlin.protocols.natives;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.Broadcast;

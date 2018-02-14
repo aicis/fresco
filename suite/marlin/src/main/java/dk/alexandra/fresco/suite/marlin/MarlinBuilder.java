@@ -9,11 +9,11 @@ import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
-import dk.alexandra.fresco.suite.marlin.protocols.MarlinAddProtocol;
-import dk.alexandra.fresco.suite.marlin.protocols.MarlinKnownSIntProtocol;
-import dk.alexandra.fresco.suite.marlin.protocols.MarlinMultiplyProtocol;
-import dk.alexandra.fresco.suite.marlin.protocols.MarlinOutputProtocol;
-import dk.alexandra.fresco.suite.marlin.synchronization.MarlinInputProtocolProducer;
+import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinAddProtocol;
+import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinKnownSIntProtocol;
+import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinMultiplyProtocol;
+import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinOutputProtocol;
+import dk.alexandra.fresco.suite.marlin.protocols.producers.MarlinInputProtocolProducer;
 import java.math.BigInteger;
 
 public class MarlinBuilder<T extends BigUInt<T>> implements BuilderFactoryNumeric {

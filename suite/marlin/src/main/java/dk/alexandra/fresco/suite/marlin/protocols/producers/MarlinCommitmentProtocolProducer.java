@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.suite.marlin.synchronization;
+package dk.alexandra.fresco.suite.marlin.protocols.producers;
 
 import dk.alexandra.fresco.commitment.HashBasedCommitment;
 import dk.alexandra.fresco.framework.ProtocolCollection;
@@ -9,7 +9,7 @@ import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
-import dk.alexandra.fresco.suite.marlin.protocols.MarlinAllBroadcastProtocol;
+import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinAllBroadcastProtocol;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 import java.util.ArrayList;
 import java.util.List;

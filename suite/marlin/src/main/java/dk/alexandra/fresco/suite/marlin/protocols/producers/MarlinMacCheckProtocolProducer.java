@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.suite.marlin.synchronization;
+package dk.alexandra.fresco.suite.marlin.protocols.producers;
 
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.ProtocolCollection;

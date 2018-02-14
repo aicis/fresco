@@ -1,29 +1,29 @@
-package dk.alexandra.fresco.suite.marlin.synchronization;
+package dk.alexandra.fresco.suite.marlin.protocols.producers;
 
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
-import dk.alexandra.fresco.suite.marlin.protocols.MarlinBroadcastValidationProtocol;
-import dk.alexandra.fresco.suite.marlin.protocols.MarlinInputOnlyProtocol;
+import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinAllBroadcastProtocol;
+import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinBroadcastValidationProtocol;
+import java.util.List;
 
-public class MarlinInputProtocolProducer<T extends BigUInt<T>> implements ProtocolProducer {
+public class MarlinBroadcastProtocolProducer<T extends BigUInt<T>> implements ProtocolProducer {
 
   private final SequentialProtocolProducer protocolProducer;
-  private MarlinInputOnlyProtocol<T> unvalidatedInput;
+  private MarlinAllBroadcastProtocol<T> allBroadcast;
 
-  public MarlinInputProtocolProducer(T input, int inputPartyId) {
+  MarlinBroadcastProtocolProducer(byte[] input) {
     protocolProducer = new SequentialProtocolProducer();
     protocolProducer.lazyAppend(() -> {
-      unvalidatedInput = new MarlinInputOnlyProtocol<>(input, inputPartyId);
-      return new SingleProtocolProducer<>(unvalidatedInput);
+      allBroadcast = new MarlinAllBroadcastProtocol<>(input);
+      return new SingleProtocolProducer<>(allBroadcast);
     });
     protocolProducer.lazyAppend(() -> new SingleProtocolProducer<>(
-        new MarlinBroadcastValidationProtocol<>(unvalidatedInput.out().getSecond())
-    ));
+        new MarlinBroadcastValidationProtocol<>(allBroadcast.out()))
+    );
   }
 
   @Override
@@ -37,8 +37,8 @@ public class MarlinInputProtocolProducer<T extends BigUInt<T>> implements Protoc
     return protocolProducer.hasNextProtocols();
   }
 
-  public SInt out() {
-    return unvalidatedInput.out().getFirst().out();
+  public List<byte[]> out() {
+    return allBroadcast.out();
   }
 
 }
