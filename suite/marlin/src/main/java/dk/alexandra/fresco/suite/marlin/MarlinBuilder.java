@@ -21,7 +21,7 @@ public class MarlinBuilder<T extends BigUInt<T>> implements BuilderFactoryNumeri
   private final BigUIntFactory<T> factory;
   private final BasicNumericContext numericContext;
 
-  MarlinBuilder(BigUIntFactory<T> factory, BasicNumericContext numericContext) {
+  public MarlinBuilder(BigUIntFactory<T> factory, BasicNumericContext numericContext) {
     this.factory = factory;
     this.numericContext = numericContext;
   }
@@ -90,7 +90,6 @@ public class MarlinBuilder<T extends BigUInt<T>> implements BuilderFactoryNumeri
             new MarlinInputComputation<>(factory.createFromBigInteger(value), inputParty)
         );
       }
-
 
       @Override
       public DRes<BigInteger> open(DRes<SInt> secretShare) {

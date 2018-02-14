@@ -28,7 +28,7 @@ public class MarlinProtocolSuite<T extends BigUInt<T>> implements
 
   @Override
   public RoundSynchronization<MarlinResourcePool> createRoundSynchronization() {
-    return new MarlinRoundSynchronization();
+    return new MarlinRoundSynchronization(factory);
   }
 
 }
