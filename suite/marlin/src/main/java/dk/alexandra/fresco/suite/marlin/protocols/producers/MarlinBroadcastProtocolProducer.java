@@ -3,27 +3,48 @@ package dk.alexandra.fresco.suite.marlin.protocols.producers;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinAllBroadcastProtocol;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinBroadcastValidationProtocol;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MarlinBroadcastProtocolProducer<T extends BigUInt<T>> implements ProtocolProducer {
 
   private final SequentialProtocolProducer protocolProducer;
-  private MarlinAllBroadcastProtocol<T> allBroadcast;
+  private List<MarlinAllBroadcastProtocol<T>> allBroadcasts;
+  private List<byte[]> out;
 
-  MarlinBroadcastProtocolProducer(byte[] input) {
+  MarlinBroadcastProtocolProducer(List<byte[]> input) {
+    allBroadcasts = new LinkedList<>();
     protocolProducer = new SequentialProtocolProducer();
     protocolProducer.lazyAppend(() -> {
-      allBroadcast = new MarlinAllBroadcastProtocol<>(input);
-      return new SingleProtocolProducer<>(allBroadcast);
+      ParallelProtocolProducer parallel = new ParallelProtocolProducer();
+      for (byte[] singleInput : input) {
+        MarlinAllBroadcastProtocol<T> broadcast = new MarlinAllBroadcastProtocol<>(singleInput);
+        allBroadcasts.add(broadcast);
+        parallel.append(new SingleProtocolProducer<>(broadcast));
+      }
+      return parallel;
     });
-    protocolProducer.lazyAppend(() -> new SingleProtocolProducer<>(
-        new MarlinBroadcastValidationProtocol<>(allBroadcast.out()))
+    protocolProducer.lazyAppend(
+        () -> {
+          out = allBroadcasts.stream()
+              .flatMap(broadcast -> broadcast.out().stream())
+              .collect(Collectors.toList());
+          return new SingleProtocolProducer<>(
+              new MarlinBroadcastValidationProtocol<>(out));
+        }
     );
+  }
+
+  MarlinBroadcastProtocolProducer(byte[] input) {
+    this(Collections.singletonList(input));
   }
 
   @Override
@@ -38,7 +59,7 @@ public class MarlinBroadcastProtocolProducer<T extends BigUInt<T>> implements Pr
   }
 
   public List<byte[]> out() {
-    return allBroadcast.out();
+    return out;
   }
 
 }

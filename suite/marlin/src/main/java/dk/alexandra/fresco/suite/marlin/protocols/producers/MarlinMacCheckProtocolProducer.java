@@ -35,13 +35,13 @@ public class MarlinMacCheckProtocolProducer<T extends BigUInt<T>> implements Pro
     final BigUIntFactory<T> factory = resourcePool.getFactory();
     final T macKeyShare = resourcePool.getDataSupplier().getSecretSharedKey();
     protocolProducer = new SequentialProtocolProducer();
-//    protocolProducer = new SequentialProtocolProducer(
-//        new SequentialProtocolProducer(new SingleProtocolProducer<>(
-//            // TODO make sure that running broadcast validation retro-actively is okay
-//            // TODO only run broadcast on lower bits
-//            new MarlinBroadcastValidationProtocol<>(
-//                sharesAndMacs.stream().map(MarlinSInt::getShare).collect(
-//                    Collectors.toList())))));
+    protocolProducer.lazyAppend(() -> {
+      // TODO make sure that running broadcast validation retro-actively is okay
+      List<byte[]> sharesLowBits = authenticatedElements.stream()
+          .map(element -> ByteAndBitConverter.toByteArray(element.getShare().getLow()))
+          .collect(Collectors.toList());
+      return new MarlinBroadcastProtocolProducer<>(sharesLowBits);
+    });
     protocolProducer.lazyAppend(() -> {
       randomCoefficients = sampleRandomCoefficients(resourcePool.getRandomGenerator(),
           factory, openValues.size());

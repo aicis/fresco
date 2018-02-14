@@ -11,16 +11,22 @@ import java.util.List;
 public class ByteAndBitConverter {
 
   // This is supposed to be a "static class", ie no instantiation
-  private ByteAndBitConverter() {}
+  private ByteAndBitConverter() {
+  }
 
   /**
-   * Converts long to byte array.
-   * TODO move to own serializer?
+   * Converts long to byte array. TODO move to own serializer?
    */
   public static byte[] toByteArray(long value) {
-    ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+    return toByteArray(new long[]{value});
+  }
+
+  public static byte[] toByteArray(long[] values) {
+    ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES * values.length);
     buffer.order(ByteOrder.BIG_ENDIAN);
-    buffer.putLong(value);
+    for (long value : values) {
+      buffer.putLong(value);
+    }
     return buffer.array();
   }
 
