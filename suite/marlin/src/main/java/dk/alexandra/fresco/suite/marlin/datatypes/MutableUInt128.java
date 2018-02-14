@@ -22,7 +22,7 @@ public class MutableUInt128 implements BigUInt<MutableUInt128> {
    *
    * @param bytes bytes interpreted in big-endian order.
    */
-  MutableUInt128(byte[] bytes) {
+  public MutableUInt128(byte[] bytes) {
     byte[] padded = pad(bytes);
     ByteBuffer buffer = ByteBuffer.wrap(padded);
     buffer.order(ByteOrder.BIG_ENDIAN);

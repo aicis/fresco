@@ -34,9 +34,9 @@ public class MarlinCommitmentComputation<T extends BigUInt<T>> implements
     byte[] ownOpening = ownCommitment.commit(
         new AesCtrDrbg(),
         resourcePool.getRawSerializer().serialize(value));
-    return builder.par(par -> new MarlinBroadcastComputation<>(
+    return builder.seq(new MarlinBroadcastComputation<>(
         commitmentSerializer.serialize(ownCommitment)
-    ).buildComputation(par)).seq((seq, rawCommitments) -> {
+    )).seq((seq, rawCommitments) -> {
       DRes<List<byte[]>> openingsDRes = seq.append(new MarlinAllBroadcastProtocol<>(ownOpening));
       List<HashBasedCommitment> commitments = commitmentSerializer.deserializeList(rawCommitments);
       return () -> serializer.deserializeList(open(commitments, openingsDRes.out()));

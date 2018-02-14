@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.marlin.protocols.computations;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.ComputationParallel;
+import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinAllBroadcastProtocol;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class MarlinBroadcastComputation<T extends BigUInt<T>> implements
-    ComputationParallel<List<byte[]>, ProtocolBuilderNumeric> {
+    Computation<List<byte[]>, ProtocolBuilderNumeric> {
 
   private final List<byte[]> input;
 
@@ -25,12 +25,14 @@ public class MarlinBroadcastComputation<T extends BigUInt<T>> implements
 
   @Override
   public DRes<List<byte[]>> buildComputation(ProtocolBuilderNumeric builder) {
-    List<DRes<List<byte[]>>> broadcastValues = new LinkedList<>();
-    for (byte[] singleInput : input) {
-      broadcastValues.add(builder.append(new MarlinAllBroadcastProtocol<>(singleInput)));
-    }
-    return builder.seq(seq -> {
-      List<byte[]> toValidate = broadcastValues.stream()
+    return builder.par(par -> {
+      List<DRes<List<byte[]>>> broadcastValues = new LinkedList<>();
+      for (byte[] singleInput : input) {
+        broadcastValues.add(par.append(new MarlinAllBroadcastProtocol<>(singleInput)));
+      }
+      return () -> broadcastValues;
+    }).seq((seq, lst) -> {
+      List<byte[]> toValidate = lst.stream()
           .flatMap(broadcast -> broadcast.out().stream())
           .collect(Collectors.toList());
       DRes<Void> nothing = seq.append(new MarlinBroadcastValidationProtocol<>(toValidate));
