@@ -14,12 +14,12 @@ import java.nio.channels.SocketChannel;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
@@ -33,7 +33,10 @@ import org.slf4j.LoggerFactory;
  */
 public class AsyncNetwork implements Network, Closeable {
 
+  private static final int DEFAULT_RETRY_DELAY_MILLIS = 500;
   private static final Logger logger = LoggerFactory.getLogger(AsyncNetwork.class);
+
+  public static final int DEFAULT_CONNECTION_TIMEOUT_MILLIS = 15000;
 
   ServerSocketChannel server;
   Map<Integer, SocketChannel> clients;
@@ -46,10 +49,10 @@ public class AsyncNetwork implements Network, Closeable {
    * Creates a network with the given configuration and a default timeout of 15 seconds. Calling the
    * constructor will automatically trigger an attempt to connect to the other parties.
    *
-   * @param conf The network configuration
+   * @param conf the network configuration
    */
   public AsyncNetwork(NetworkConfiguration conf) {
-    this(conf, 15000);
+    this(conf, DEFAULT_CONNECTION_TIMEOUT_MILLIS);
   }
 
   /**
@@ -72,7 +75,16 @@ public class AsyncNetwork implements Network, Closeable {
         this.senderServices.put(i, Executors.newFixedThreadPool(1));
       }
     }
-    SocketAddress sock = new InetSocketAddress(conf.getParty(conf.getMyId()).getPort());
+    listen();
+    connect(timeout);
+    handshake();
+  }
+
+  /**
+   * Starts listening for connections from the opposing parties.
+   */
+  private void listen() {
+    SocketAddress sock = new InetSocketAddress(conf.getMe().getPort());
     try {
       this.server = ServerSocketChannel.open();
       this.server.bind(sock);
@@ -80,51 +92,48 @@ public class AsyncNetwork implements Network, Closeable {
     } catch (IOException e) {
       throw new RuntimeException("Failed to bind to " + sock, e);
     }
+  }
+
+  /**
+   * Connects to opposing parties.
+   *
+   * @param timeout millis before timeout
+   */
+  private void connect(int timeout) {
     for (int i = 1; i <= conf.noOfParties(); i++) {
-      this.queues.put(i, new ArrayBlockingQueue<>(1000000));
+      this.queues.put(i, new LinkedBlockingQueue<byte[]>());
       if (i != conf.getMyId()) {
         Party p = conf.getParty(i);
         SocketAddress addr = new InetSocketAddress(p.getHostname(), p.getPort());
-        try {
-          int retries;
-          int milliSecondsBetween;
-          if (timeout < 500) {
-            retries = 1;
-            milliSecondsBetween = timeout;
-          } else {
-            retries = timeout / 500;
-            milliSecondsBetween = 500;
-          }
-          int count = 0;
-          boolean connected = false;
-          while (!connected) {
+        int retries = Math.max(1, timeout / DEFAULT_RETRY_DELAY_MILLIS);
+        int retryDelay = Math.min(DEFAULT_RETRY_DELAY_MILLIS, timeout);
+        int count = 0;
+        boolean connected = false;
+        while (!connected && count < retries) {
+          count++;
+          try {
+            SocketChannel channel = SocketChannel.open();
+            channel.connect(addr);
+            connected = true;
+            this.clients.put(i, channel);
+          } catch (IOException e) {
             try {
-              count++;
-              SocketChannel channel = SocketChannel.open();
-              channel.connect(addr);
-              connected = true;
-              this.clients.put(i, channel);
-            } catch (IOException ex) {
-              if (count > retries) {
-                throw ex;
-              }
-              try {
-                Thread.sleep(milliSecondsBetween);
-              } catch (InterruptedException e) {
-                close();
-                throw new RuntimeException("Got interrupted while trying to connect.");
-              }
+              Thread.sleep(retryDelay);
+            } catch (InterruptedException ex) {
+              close();
+              throw new RuntimeException("Interrupted waiting to connect", ex);
             }
           }
-        } catch (IOException e) {
+        }
+        if (!connected) {
           close();
-          throw new RuntimeException("Could not open a connection to the addr " + addr, e);
+          throw new RuntimeException("Failed to connect to " + p + " after " + retries
+              + " attempts.");
         }
       }
     }
-
-    handshake();
   }
+
 
   private class ServerWaiter implements Runnable {
 
@@ -133,9 +142,6 @@ public class AsyncNetwork implements Network, Closeable {
 
     public ServerWaiter(int fromPartyId, SocketChannel channel) {
       this.channel = channel;
-      // TODO: Important? Maybe it doesn't matter?
-      // ExceptionConverter.safe(() -> this.channel.configureBlocking(true),
-      // "Could not configure channel to blocking");
       this.fromPartyId = fromPartyId;
     }
 
@@ -144,7 +150,7 @@ public class AsyncNetwork implements Network, Closeable {
       boolean running = true;
       while (running) {
         try {
-          ByteBuffer buf = ByteBuffer.allocate(4);
+          ByteBuffer buf = ByteBuffer.allocate(Integer.BYTES);
           channel.read(buf);
           buf.flip();
           int nextMessageSize = buf.getInt();
@@ -251,7 +257,7 @@ public class AsyncNetwork implements Network, Closeable {
     } else {
       this.senderServices.get(partyId).submit(() -> {
         ExceptionConverter.safe(() -> {
-          ByteBuffer buf = ByteBuffer.allocate(4 + data.length);
+          ByteBuffer buf = ByteBuffer.allocate(Integer.BYTES + data.length);
           //set length
           buf.putInt(data.length);
           //set data
@@ -290,8 +296,7 @@ public class AsyncNetwork implements Network, Closeable {
       this.receiverService.shutdownNow();
       for (ExecutorService executorService : this.senderServices.values()) {
         executorService.shutdown();
-        // REVIEW: Please try to avoid literal constants
-        executorService.awaitTermination(500, TimeUnit.MILLISECONDS);
+        executorService.awaitTermination(DEFAULT_CONNECTION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
       }
       this.server.close();
       for (SocketChannel channel : this.clients.values()) {
