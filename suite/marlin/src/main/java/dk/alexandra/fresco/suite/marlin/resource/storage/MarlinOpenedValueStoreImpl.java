@@ -36,4 +36,9 @@ public class MarlinOpenedValueStoreImpl<T extends BigUInt<T>> implements MarlinO
     return sharesWithMacs.isEmpty();
   }
 
+  @Override
+  public int size() {
+    return sharesWithMacs.size();
+  }
+
 }

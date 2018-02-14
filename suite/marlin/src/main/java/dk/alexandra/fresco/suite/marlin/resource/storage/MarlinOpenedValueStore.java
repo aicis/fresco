@@ -22,10 +22,18 @@ public interface MarlinOpenedValueStore<T extends BigUInt<T>> {
   }
 
   /**
-   * Retrieves all values that haven't been checked yet and clears the store.
+   * Retrieve all values that haven't been checked yet and clears the store.
    */
   Pair<List<MarlinSInt<T>>, List<T>> popValues();
 
+  /**
+   * Check if there are unchecked values.
+   */
   boolean isEmpty();
+
+  /**
+   * Check number of unchecked values.
+   */
+  int size();
 
 }

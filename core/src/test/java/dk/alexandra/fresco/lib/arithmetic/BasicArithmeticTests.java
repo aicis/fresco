@@ -305,8 +305,8 @@ public class BasicArithmeticTests {
                   computations.add(numeric.mult(firstClosed, secondClosed));
                 }
                 return () -> computations;
-              }).seq((seq, computations) -> {
-                Numeric numeric = seq.numeric();
+              }).par((par, computations) -> {
+                Numeric numeric = par.numeric();
                 List<DRes<BigInteger>> opened =
                     computations.stream().map(numeric::open).collect(Collectors.toList());
                 return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
