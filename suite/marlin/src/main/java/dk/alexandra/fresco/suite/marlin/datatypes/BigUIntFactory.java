@@ -19,7 +19,7 @@ public interface BigUIntFactory<T extends BigUInt<T>> {
    * Creates new {@link T} from a {@link BigInteger}.
    */
   default T createFromBigInteger(BigInteger value) {
-    return createFromBytes(value.toByteArray());
+    return (value == null) ? null : createFromBytes(value.toByteArray());
   }
 
   /**

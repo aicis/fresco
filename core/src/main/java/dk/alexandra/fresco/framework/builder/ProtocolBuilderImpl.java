@@ -45,7 +45,7 @@ public abstract class ProtocolBuilderImpl<BuilderT extends ProtocolBuilderImpl<B
     }));
   }
 
-  private void createAndAppend(ProtocolProducer producer) {
+  public void createAndAppend(ProtocolProducer producer) {
     if (protocols == null) {
       throw new IllegalStateException("Cannot build this twice, it has all ready been constructed");
     }

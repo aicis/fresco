@@ -10,7 +10,6 @@ import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStore;
 
-// TODO check that this is actually secure
 public class MarlinRoundSynchronization<T extends BigUInt<T>> implements
     RoundSynchronization<MarlinResourcePool<T>> {
 

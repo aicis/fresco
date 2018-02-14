@@ -2,6 +2,7 @@ package dk.alexandra.fresco.suite.marlin;
 
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
+import dk.alexandra.fresco.lib.collections.io.CloseListTests.TestCloseAndOpenList;
 import org.junit.Test;
 
 public class TestMarlinBasicArithmetic extends AbstractMarlinTest {
@@ -49,14 +50,26 @@ public class TestMarlinBasicArithmetic extends AbstractMarlinTest {
   }
 
   @Test
-  public void testMultiplyMany() {
-    runTest(new BasicArithmeticTests.TestLotsMult<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2,
+  public void testMultiplyThree() {
+    runTest(new BasicArithmeticTests.TestMultiply<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
         false);
   }
 
   @Test
-  public void testMultiplyThree() {
-    runTest(new BasicArithmeticTests.TestMultiply<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
+  public void testInputOutputMany() {
+    runTest(new TestCloseAndOpenList<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2,
+        false);
+  }
+
+  @Test
+  public void testInputOutputManyThree() {
+    runTest(new TestCloseAndOpenList<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
+        false);
+  }
+
+  @Test
+  public void testMultiplyMany() {
+    runTest(new BasicArithmeticTests.TestLotsMult<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2,
         false);
   }
 

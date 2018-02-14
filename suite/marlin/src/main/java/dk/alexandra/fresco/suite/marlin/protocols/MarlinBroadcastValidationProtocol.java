@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.Broadcast;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
+import java.util.Collections;
 import java.util.List;
 
 public class MarlinBroadcastValidationProtocol<T extends BigUInt<T>> extends
@@ -15,6 +16,10 @@ public class MarlinBroadcastValidationProtocol<T extends BigUInt<T>> extends
 
   public MarlinBroadcastValidationProtocol(List<byte[]> input) {
     this.input = input;
+  }
+
+  public MarlinBroadcastValidationProtocol(byte[] input) {
+    this(Collections.singletonList(input));
   }
 
   @Override

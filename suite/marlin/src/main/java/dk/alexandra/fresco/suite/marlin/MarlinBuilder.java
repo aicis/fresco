@@ -10,10 +10,10 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
 import dk.alexandra.fresco.suite.marlin.protocols.MarlinAddProtocol;
-import dk.alexandra.fresco.suite.marlin.protocols.MarlinInputProtocol;
 import dk.alexandra.fresco.suite.marlin.protocols.MarlinKnownSIntProtocol;
 import dk.alexandra.fresco.suite.marlin.protocols.MarlinMultiplyProtocol;
 import dk.alexandra.fresco.suite.marlin.protocols.MarlinOutputProtocol;
+import dk.alexandra.fresco.suite.marlin.synchronization.MarlinInputProtocolProducer;
 import java.math.BigInteger;
 
 public class MarlinBuilder<T extends BigUInt<T>> implements BuilderFactoryNumeric {
@@ -86,8 +86,10 @@ public class MarlinBuilder<T extends BigUInt<T>> implements BuilderFactoryNumeri
 
       @Override
       public DRes<SInt> input(BigInteger value, int inputParty) {
-        return builder.append(new MarlinInputProtocol<>(
-            factory.createFromBigInteger(value), inputParty));
+        MarlinInputProtocolProducer<T> inputProtocolProducer = new MarlinInputProtocolProducer<>(
+            factory.createFromBigInteger(value), inputParty);
+        builder.createAndAppend(inputProtocolProducer);
+        return inputProtocolProducer::out;
       }
 
       @Override
