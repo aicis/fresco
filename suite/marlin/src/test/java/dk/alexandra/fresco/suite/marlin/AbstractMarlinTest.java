@@ -23,8 +23,8 @@ import dk.alexandra.fresco.logging.PerformanceLoggerCountingAggregate;
 import dk.alexandra.fresco.logging.PerformancePrinter;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
-import dk.alexandra.fresco.suite.marlin.datatypes.MutableUInt128;
-import dk.alexandra.fresco.suite.marlin.datatypes.MutableUInt128Factory;
+import dk.alexandra.fresco.suite.marlin.datatypes.UInt128;
+import dk.alexandra.fresco.suite.marlin.datatypes.UInt128Factory;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePoolImpl;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinDataSupplier;
@@ -60,7 +60,7 @@ public class AbstractMarlinTest {
       NetworkConfiguration partyNetConf = netConf.get(playerId);
 
       ProtocolSuiteNumeric<MarlinResourcePool> ps = new MarlinProtocolSuite<>(
-          new MutableUInt128Factory());
+          new UInt128Factory());
       if (logPerformance) {
         ps = new NumericSuiteLogging<>(ps);
         aggregate.add((PerformanceLogger) ps);
@@ -80,9 +80,9 @@ public class AbstractMarlinTest {
         aggregate.add((PerformanceLogger) evaluator);
       }
 
-      BigUIntFactory<MutableUInt128> factory = new MutableUInt128Factory();
-      MarlinOpenedValueStore<MutableUInt128> store = createOpenedValueStore();
-      MarlinDataSupplier<MutableUInt128> supplier = createDataSupplier(playerId, noOfParties,
+      BigUIntFactory<UInt128> factory = new UInt128Factory();
+      MarlinOpenedValueStore<UInt128> store = createOpenedValueStore();
+      MarlinDataSupplier<UInt128> supplier = createDataSupplier(playerId, noOfParties,
           factory);
 
       SecureComputationEngine<MarlinResourcePool, ProtocolBuilderNumeric> sce =
@@ -116,19 +116,19 @@ public class AbstractMarlinTest {
     }
   }
 
-  private MarlinOpenedValueStore<MutableUInt128> createOpenedValueStore() {
+  private MarlinOpenedValueStore<UInt128> createOpenedValueStore() {
     return new MarlinOpenedValueStoreImpl<>();
   }
 
-  private MarlinDataSupplier<MutableUInt128> createDataSupplier(int myId, int noOfParties,
-      BigUIntFactory<MutableUInt128> factory) {
+  private MarlinDataSupplier<UInt128> createDataSupplier(int myId, int noOfParties,
+      BigUIntFactory<UInt128> factory) {
     return new MarlinDummyDataSupplier<>(myId, noOfParties, factory.createRandom(), factory);
   }
 
-  private MarlinResourcePool<MutableUInt128> createResourcePool(int playerId, int noOfParties,
-      MarlinOpenedValueStore<MutableUInt128> store, MarlinDataSupplier<MutableUInt128> supplier,
-      BigUIntFactory<MutableUInt128> factory, Supplier<Network> networkSupplier) {
-    MarlinResourcePool<MutableUInt128> resourcePool = new MarlinResourcePoolImpl<>(playerId,
+  private MarlinResourcePool<UInt128> createResourcePool(int playerId, int noOfParties,
+      MarlinOpenedValueStore<UInt128> store, MarlinDataSupplier<UInt128> supplier,
+      BigUIntFactory<UInt128> factory, Supplier<Network> networkSupplier) {
+    MarlinResourcePool<UInt128> resourcePool = new MarlinResourcePoolImpl<>(playerId,
         noOfParties, null, store, supplier, factory);
     resourcePool.initializeJointRandomness(networkSupplier, AesCtrDrbg::new, 32);
     return resourcePool;

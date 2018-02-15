@@ -9,20 +9,20 @@ import java.nio.ByteOrder;
  * https://locklessinc.com/articles/256bit_arithmetic/. Note that this class is NOT SAFE to
  * instantiate with negative values.</p>
  */
-public class MutableUInt128 implements BigUInt<MutableUInt128> {
+public class UInt128 implements BigUInt<UInt128> {
 
-  private static final MutableUInt128 MINUS_ONE = new MutableUInt128(
+  private static final UInt128 MINUS_ONE = new UInt128(
       BigInteger.ONE.shiftLeft(128).subtract(BigInteger.ONE));
-  private long high;
-  private int mid;
-  private int low;
+  private final long high;
+  private final int mid;
+  private final int low;
 
   /**
-   * Creates new {@link MutableUInt128}.
+   * Creates new {@link UInt128}.
    *
    * @param bytes bytes interpreted in big-endian order.
    */
-  public MutableUInt128(byte[] bytes) {
+  public UInt128(byte[] bytes) {
     byte[] padded = pad(bytes);
     ByteBuffer buffer = ByteBuffer.wrap(padded);
     buffer.order(ByteOrder.BIG_ENDIAN);
@@ -31,23 +31,30 @@ public class MutableUInt128 implements BigUInt<MutableUInt128> {
     this.low = buffer.getInt();
   }
 
-  MutableUInt128(BigInteger value) {
+  private UInt128(long high, int mid, int low) {
+    this.high = high;
+    this.mid = mid;
+    this.low = low;
+  }
+
+  UInt128(BigInteger value) {
     this(value.toByteArray());
   }
 
-  public MutableUInt128(long value) {
+  public UInt128(long value) {
     this.high = 0;
     this.mid = (int) (value >>> 32);
     this.low = (int) value;
   }
 
-  MutableUInt128(MutableUInt128 other) {
+  UInt128(UInt128 other) {
     this.high = other.high;
     this.mid = other.mid;
     this.low = other.low;
   }
 
-  private void addInPlace(MutableUInt128 other) {
+  @Override
+  public UInt128 add(UInt128 other) {
     long newLow = Integer.toUnsignedLong(this.low) + Integer.toUnsignedLong(other.low);
     long lowOverflow = newLow >>> 32;
     long newMid = Integer.toUnsignedLong(this.mid)
@@ -55,19 +62,11 @@ public class MutableUInt128 implements BigUInt<MutableUInt128> {
         + lowOverflow;
     long midOverflow = newMid >>> 32;
     long newHigh = this.high + other.high + midOverflow;
-    this.low = (int) newLow;
-    this.mid = (int) newMid;
-    this.high = newHigh;
+    return new UInt128(newHigh, (int) newMid, (int) newLow);
   }
 
   @Override
-  public MutableUInt128 add(MutableUInt128 other) {
-    MutableUInt128 clone = new MutableUInt128(this);
-    clone.addInPlace(other);
-    return clone;
-  }
-
-  private void multiplyInPlace(MutableUInt128 other) {
+  public UInt128 multiply(UInt128 other) {
     long thisLowAsLong = Integer.toUnsignedLong(this.low);
     long thisMidAsLong = Integer.toUnsignedLong(this.mid);
     long otherLowAsLong = Integer.toUnsignedLong(other.low);
@@ -101,40 +100,17 @@ public class MutableUInt128 implements BigUInt<MutableUInt128> {
         + (Integer.toUnsignedLong(t8) << 32)
         + (m1 >>> 32)
         + (newMid >>> 32);
-
-    this.low = (int) t1;
-    this.mid = (int) newMid;
-    this.high = newHigh;
+    return new UInt128(newHigh, (int) newMid, (int) t1);
   }
 
   @Override
-  public MutableUInt128 multiply(MutableUInt128 other) {
-    MutableUInt128 clone = new MutableUInt128(this);
-    clone.multiplyInPlace(other);
-    return clone;
-  }
-
-  private void subtractInPlace(MutableUInt128 other) {
-    // TODO optimize if bottle-neck
-    addInPlace(other.negate());
+  public UInt128 subtract(UInt128 other) {
+    return this.add(other.negate());
   }
 
   @Override
-  public MutableUInt128 subtract(MutableUInt128 other) {
-    MutableUInt128 clone = new MutableUInt128(this);
-    clone.subtractInPlace(other);
-    return clone;
-  }
-
-  private void negateInPlace() {
-    multiplyInPlace(MINUS_ONE);
-  }
-
-  @Override
-  public MutableUInt128 negate() {
-    MutableUInt128 clone = new MutableUInt128(this);
-    clone.negateInPlace();
-    return clone;
+  public UInt128 negate() {
+    return multiply(MINUS_ONE);
   }
 
   @Override
@@ -162,12 +138,8 @@ public class MutableUInt128 implements BigUInt<MutableUInt128> {
   }
 
   @Override
-  public MutableUInt128 shiftLowIntoHigh() {
-    MutableUInt128 copy = new MutableUInt128(this);
-    copy.high = copy.getLow();
-    copy.mid = 0;
-    copy.low = 0;
-    return copy;
+  public UInt128 shiftLowIntoHigh() {
+    return new UInt128(getLow(), 0, 0);
   }
 
   private byte[] pad(byte[] bytes) {
