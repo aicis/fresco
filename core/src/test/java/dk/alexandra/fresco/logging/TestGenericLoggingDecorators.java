@@ -66,7 +66,7 @@ public class TestGenericLoggingDecorators {
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  netConf.keySet().size(), drbg, mod),
+                  netConf.keySet().size(), mod),
               () -> new KryoNetNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }
@@ -108,7 +108,7 @@ public class TestGenericLoggingDecorators {
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  netConf.keySet().size(), drbg, mod),
+                  netConf.keySet().size(), mod),
               () -> {
                 NetworkLoggingDecorator network = new NetworkLoggingDecorator(
                     new KryoNetNetwork(partyNetConf));
@@ -166,7 +166,7 @@ public class TestGenericLoggingDecorators {
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  netConf.keySet().size(), drbg, mod),
+                  netConf.keySet().size(), mod),
               () -> new KryoNetNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }

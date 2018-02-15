@@ -21,7 +21,6 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -169,7 +168,7 @@ public abstract class AbstractSpdzTest {
         new BasicNumericContext(maxBitLength, tripleSupplier.getModulus(), myId, noOfPlayers))
         .createSequential();
     SpdzResourcePoolImpl tripleResourcePool =
-        new SpdzResourcePoolImpl(myId, noOfPlayers, null, new SpdzStorageImpl(tripleSupplier));
+        new SpdzResourcePoolImpl(myId, noOfPlayers, new SpdzStorageImpl(tripleSupplier));
 
     DRes<List<DRes<SInt>>> exponentiationPipe =
         new DefaultPreprocessedValues(sequential).getExponentiationPipe(pipeLength);
@@ -254,7 +253,7 @@ public abstract class AbstractSpdzTest {
       supplier = new SpdzStorageDataSupplier(storage, storageName, numberOfParties);
     }
     SpdzStorage store = new SpdzStorageImpl(supplier);
-    return new SpdzResourcePoolImpl(myId, numberOfParties, new HmacDrbg(), store);
+    return new SpdzResourcePoolImpl(myId, numberOfParties, store);
   }
 
   private SpdzSInt[] computeSInts(DRes<List<DRes<SInt>>> pipe) {

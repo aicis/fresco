@@ -13,8 +13,6 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
@@ -50,7 +48,6 @@ public class TestInputSumExample {
       ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric> suite;
 
       Supplier<ResourcePoolT> resourcePool;
-      Drbg drbg = new HmacDrbg();
       if (dummy) {
         BigInteger mod = new BigInteger(
             "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
@@ -58,13 +55,13 @@ public class TestInputSumExample {
             (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new DummyArithmeticProtocolSuite(
                 mod, 150);
         resourcePool = () -> (ResourcePoolT) new DummyArithmeticResourcePoolImpl(i, n,
-            drbg, mod);
+            mod);
       } else {
         suite = (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new SpdzProtocolSuite(150);
         resourcePool = () -> {
           try {
             return (ResourcePoolT) new SpdzResourcePoolImpl(i, n,
-                drbg, new SpdzStorageImpl(new SpdzDummyDataSupplier(i, n)));
+                new SpdzStorageImpl(new SpdzDummyDataSupplier(i, n)));
           } catch (Exception e) {
             throw new RuntimeException("Your system does not support the necessary hash function.", e);
           } 

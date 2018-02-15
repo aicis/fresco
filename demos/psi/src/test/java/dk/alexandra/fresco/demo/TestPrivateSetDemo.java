@@ -17,8 +17,6 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
-import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
@@ -57,13 +55,12 @@ public class TestPrivateSetDemo {
           new DummyBooleanProtocolSuite();
 
       // The rest is generic configuration as well
-      Drbg drbg = new HmacDrbg();
       ProtocolEvaluator<ResourcePoolImpl> evaluator =
           new BatchedProtocolEvaluator<>(new BatchedStrategy<>(), suite);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite, evaluator),
-              () -> new ResourcePoolImpl(playerId, noPlayers, drbg),
+              () -> new ResourcePoolImpl(playerId, noPlayers),
               () -> new KryoNetNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }
@@ -95,13 +92,12 @@ public class TestPrivateSetDemo {
               9000 + playerId, playerId);
 
       // More generic configuration
-      Drbg drbg = new HmacDrbg();
       ProtocolEvaluator<ResourcePoolImpl> evaluator =
           new BatchedProtocolEvaluator<>(new BatchedStrategy<>(), suite);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite, evaluator),
-              () -> new ResourcePoolImpl(playerId, noPlayers, drbg),
+              () -> new ResourcePoolImpl(playerId, noPlayers),
               () -> new KryoNetNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }
@@ -121,13 +117,12 @@ public class TestPrivateSetDemo {
             (ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary>) getTinyTablesProtocolSuite(
                 playerId);
 
-        Drbg drbg = new HmacDrbg();
         ProtocolEvaluator<ResourcePoolImpl> evaluator =
             new BatchedProtocolEvaluator<>(new BatchedStrategy<>(), suite);
         TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
             new TestThreadConfiguration<>(
                 new SecureComputationEngineImpl<>(suite, evaluator),
-                () -> new ResourcePoolImpl(playerId, noPlayers, drbg),
+                () -> new ResourcePoolImpl(playerId, noPlayers),
                 () -> new KryoNetNetwork(secondConf.get(playerId)));
         conf.put(playerId, ttc);
       }
