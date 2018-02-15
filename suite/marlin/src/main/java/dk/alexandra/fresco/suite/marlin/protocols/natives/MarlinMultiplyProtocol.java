@@ -2,11 +2,11 @@ package dk.alexandra.fresco.suite.marlin.protocols.natives;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
-import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinTriple;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
@@ -32,7 +32,6 @@ public class MarlinMultiplyProtocol<T extends BigUInt<T>> extends
   @Override
   public EvaluationStatus evaluate(int round, MarlinResourcePool<T> resourcePool, Network network) {
     final T macKeyShare = resourcePool.getDataSupplier().getSecretSharedKey();
-    final BigUIntFactory<T> factory = resourcePool.getFactory();
     if (round == 0) {
       triple = resourcePool.getDataSupplier().getNextTripleShares();
       epsilon = ((MarlinSInt<T>) left.out()).subtract(triple.getLeft());
@@ -43,7 +42,7 @@ public class MarlinMultiplyProtocol<T extends BigUInt<T>> extends
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       Pair<T, T> epsilonAndDelta = receiveAndReconstruct(network, resourcePool.getNoOfParties(),
-          factory);
+          resourcePool.getRawSerializer());
       // compute [prod] = [c] + epsilon * [b] + delta * [a] + epsilon * delta
       T e = epsilonAndDelta.getFirst();
       T d = epsilonAndDelta.getSecond();
@@ -51,7 +50,7 @@ public class MarlinMultiplyProtocol<T extends BigUInt<T>> extends
       product = triple.getProduct()
           .add(triple.getRight().multiply(e))
           .add(triple.getLeft().multiply(d))
-          .addConstant(ed, resourcePool.getMyId(), macKeyShare, factory.zero());
+          .addConstant(ed, resourcePool.getMyId(), macKeyShare, resourcePool.getFactory().zero());
       resourcePool.getOpenedValueStore().pushOpenedValues(
           Arrays.asList(epsilon, delta),
           Arrays.asList(e, d)
@@ -68,13 +67,12 @@ public class MarlinMultiplyProtocol<T extends BigUInt<T>> extends
    * Retrieves shares for epsilon and delta and reconstructs each.
    */
   private Pair<T, T> receiveAndReconstruct(Network network, int noOfParties,
-      BigUIntFactory<T> factory) {
+      ByteSerializer<T> serializer) {
     List<T> epsilonShares = new ArrayList<>(noOfParties);
     List<T> deltaShares = new ArrayList<>(noOfParties);
-    // TODO figure out clean way to deal with long to BigUInt conversion
     for (int i = 1; i <= noOfParties; i++) {
-      epsilonShares.add(factory.createFromBytes(network.receive(i)));
-      deltaShares.add(factory.createFromBytes(network.receive(i)));
+      epsilonShares.add(serializer.deserialize(network.receive(i)));
+      deltaShares.add(serializer.deserialize(network.receive(i)));
     }
     T e = BigUInt.sum(epsilonShares);
     T d = BigUInt.sum(deltaShares);

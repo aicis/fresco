@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
-import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStore;
@@ -27,7 +26,6 @@ public class MarlinOutputProtocol<T extends BigUInt<T>> extends
   public EvaluationStatus evaluate(int round, MarlinResourcePool<T> resourcePool,
       Network network) {
     MarlinOpenedValueStore<T> openedValueStore = resourcePool.getOpenedValueStore();
-    BigUIntFactory<T> factory = resourcePool.getFactory();
     if (round == 0) {
       authenticatedElement = (MarlinSInt<T>) share.out();
       // TODO clean up--only sending lower k bits
