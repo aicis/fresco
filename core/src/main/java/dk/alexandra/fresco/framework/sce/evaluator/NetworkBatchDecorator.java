@@ -5,8 +5,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Default network for the evaluators, this interface bridges the raw network4
@@ -22,7 +20,6 @@ public class NetworkBatchDecorator implements Network {
   private final Network network;
   private Map<Integer, ByteArrayOutputStream> output;
   private Map<Integer, ByteArrayInputStream> input;
-  private Logger logger = LoggerFactory.getLogger(NetworkBatchDecorator.class);
 
   public NetworkBatchDecorator(int noOfParties, Network network) {
     this.noOfParties = noOfParties;
