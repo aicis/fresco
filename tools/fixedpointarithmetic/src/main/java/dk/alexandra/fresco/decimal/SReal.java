@@ -1,8 +1,8 @@
-package dk.alexandra.fresco.fixedpoint;
+package dk.alexandra.fresco.decimal;
 
 /**
  * Wrapper for SInt used to represent fixed point values.
  */
-public interface SFixed {
+public interface SReal {
 
 }

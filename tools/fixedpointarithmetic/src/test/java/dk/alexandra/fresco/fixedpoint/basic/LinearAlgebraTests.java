@@ -2,14 +2,10 @@ package dk.alexandra.fresco.fixedpoint.basic;
 
 import static org.junit.Assert.assertTrue;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import dk.alexandra.fresco.fixedpoint.DefaultFixedNumeric;
-import dk.alexandra.fresco.fixedpoint.FixedNumeric;
-import dk.alexandra.fresco.fixedpoint.SFixed;
+import dk.alexandra.fresco.decimal.RealNumeric;
+import dk.alexandra.fresco.decimal.SReal;
+import dk.alexandra.fresco.decimal.fixed.FixedNumeric;
+import dk.alexandra.fresco.decimal.floating.FloatNumeric;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -18,6 +14,11 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.collections.MatrixUtils;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class LinearAlgebraTests {
 
@@ -33,15 +34,15 @@ public class LinearAlgebraTests {
           // input
           Matrix<BigDecimal> input = new Matrix<>(0, 0, new ArrayList<>());
           // functionality to be tested
-          Application<Matrix<SFixed>, ProtocolBuilderNumeric> testApplication = root -> {
+          Application<Matrix<SReal>, ProtocolBuilderNumeric> testApplication = root -> {
             // close inputs
-            FixedNumeric fixed = new DefaultFixedNumeric(root, 5);
-            DRes<Matrix<DRes<SFixed>>> mat = fixed.linalg().input(input, 1);
+            RealNumeric fixed = new FloatNumeric(root);
+            DRes<Matrix<DRes<SReal>>> mat = fixed.linalg().input(input, 1);
 
             // unwrap and return result
             return () -> new MatrixUtils().unwrapMatrix(mat);
           };
-          Matrix<SFixed> output = runApplication(testApplication);
+          Matrix<SReal> output = runApplication(testApplication);
           assertTrue(output.getRows().isEmpty());
         }
       };
@@ -75,17 +76,18 @@ public class LinearAlgebraTests {
 
           // define functionality to be tested
           Application<Matrix<BigDecimal>, ProtocolBuilderNumeric> testApplication = root -> {
-            FixedNumeric fixed = new DefaultFixedNumeric(root, 1);
+            RealNumeric fixed = new FixedNumeric(root, 4);
 
-            DRes<Matrix<DRes<SFixed>>> closed = fixed.linalg().input(input, 1);
+            DRes<Matrix<DRes<SReal>>> closed = fixed.linalg().input(input, 1);
 
             DRes<Matrix<DRes<BigDecimal>>> opened = fixed.linalg().open(closed);
             return () -> new MatrixUtils().unwrapMatrix(opened);
           };
 
           Matrix<BigDecimal> output = runApplication(testApplication);
+          System.out.println(output);
           for (int i = 0; i < input.getHeight(); i++) {
-            assertTrue(output.getRow(i).equals(input.getRow(i)));
+            assertTrue(TestUtils.isEqual(output.getRow(i), input.getRow(i)));
           }
         }
       };
@@ -125,14 +127,14 @@ public class LinearAlgebraTests {
 
           // define functionality to be tested
           Application<List<Matrix<BigDecimal>>, ProtocolBuilderNumeric> testApplication = root -> {
-            FixedNumeric fixed = new DefaultFixedNumeric(root, 1);
+            RealNumeric fixed = new FloatNumeric(root);
 
-            DRes<Matrix<DRes<SFixed>>> closedA = fixed.linalg().input(a, 1);
-            DRes<Matrix<DRes<SFixed>>> closedB = fixed.linalg().input(b, 1);
+            DRes<Matrix<DRes<SReal>>> closedA = fixed.linalg().input(a, 1);
+            DRes<Matrix<DRes<SReal>>> closedB = fixed.linalg().input(b, 1);
 
-            DRes<Matrix<DRes<SFixed>>> res1 = fixed.linalg().add(closedA, closedB);
-            DRes<Matrix<DRes<SFixed>>> res2 = fixed.linalg().add(a, closedB);
-            DRes<Matrix<DRes<SFixed>>> res3 = fixed.linalg().add(b, closedA);
+            DRes<Matrix<DRes<SReal>>> res1 = fixed.linalg().add(closedA, closedB);
+            DRes<Matrix<DRes<SReal>>> res2 = fixed.linalg().add(a, closedB);
+            DRes<Matrix<DRes<SReal>>> res3 = fixed.linalg().add(b, closedA);
 
             DRes<Matrix<DRes<BigDecimal>>> open1 = fixed.linalg().open(res1);
             DRes<Matrix<DRes<BigDecimal>>> open2 = fixed.linalg().open(res2);
@@ -145,7 +147,7 @@ public class LinearAlgebraTests {
           List<Matrix<BigDecimal>> output = runApplication(testApplication);
           for (int i = 0; i < a.getHeight(); i++) {
             for (int j = 0; j < output.size(); j++) {
-              assertTrue(expected.getRow(i).equals(output.get(j).getRow(i)));
+              assertTrue(TestUtils.isEqual(expected.getRow(i), output.get(j).getRow(i)));
             }
           }
         }
@@ -178,14 +180,14 @@ public class LinearAlgebraTests {
           // define functionality to be tested
           Application<List<Matrix<BigDecimal>>, ProtocolBuilderNumeric> testApplication = root -> {
 
-            FixedNumeric fixed = new DefaultFixedNumeric(root, 1);
+            RealNumeric fixed = new FloatNumeric(root);
 
-            DRes<Matrix<DRes<SFixed>>> closedMatrix = fixed.linalg().input(matrix, 1);
-            DRes<SFixed> closedScalar = fixed.numeric().input(s, 1);
+            DRes<Matrix<DRes<SReal>>> closedMatrix = fixed.linalg().input(matrix, 1);
+            DRes<SReal> closedScalar = fixed.numeric().input(s, 1);
 
-            DRes<Matrix<DRes<SFixed>>> res1 = fixed.linalg().scale(closedScalar, closedMatrix);
-            DRes<Matrix<DRes<SFixed>>> res2 = fixed.linalg().scale(s, closedMatrix);
-            DRes<Matrix<DRes<SFixed>>> res3 = fixed.linalg().scale(closedScalar, matrix);
+            DRes<Matrix<DRes<SReal>>> res1 = fixed.linalg().scale(closedScalar, closedMatrix);
+            DRes<Matrix<DRes<SReal>>> res2 = fixed.linalg().scale(s, closedMatrix);
+            DRes<Matrix<DRes<SReal>>> res3 = fixed.linalg().scale(closedScalar, matrix);
 
             DRes<Matrix<DRes<BigDecimal>>> open1 = fixed.linalg().open(res1);
             DRes<Matrix<DRes<BigDecimal>>> open2 = fixed.linalg().open(res2);
@@ -198,7 +200,57 @@ public class LinearAlgebraTests {
           List<Matrix<BigDecimal>> output = runApplication(testApplication);
           for (int i = 0; i < matrix.getHeight(); i++) {
             for (int j = 0; j < output.size(); j++) {
-              assertTrue(expected.getRow(i).equals(output.get(j).getRow(i)));
+              assertTrue(TestUtils.isEqual(expected.getRow(i), output.get(j).getRow(i)));
+            }
+          }
+        }
+      };
+    }
+  }
+
+  public static class TestMatrixScaleLarge<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        int n = 500;
+
+        @Override
+        public void test() throws Exception {
+          // define input and output
+          Matrix<BigDecimal> matrix =
+              new Matrix<>(n, n, j -> new ArrayList<>(Collections.nCopies(n, BigDecimal.ONE)));
+
+          BigDecimal s = BigDecimal.valueOf(0.1);
+
+          // define functionality to be tested
+          Application<List<Matrix<BigDecimal>>, ProtocolBuilderNumeric> testApplication = root -> {
+
+            RealNumeric fixed = new FloatNumeric(root);
+
+            DRes<Matrix<DRes<SReal>>> closedMatrix = fixed.linalg().input(matrix, 1);
+            DRes<SReal> closedScalar = fixed.numeric().input(s, 1);
+
+            DRes<Matrix<DRes<SReal>>> res1 = fixed.linalg().scale(closedScalar, closedMatrix);
+            DRes<Matrix<DRes<SReal>>> res2 = fixed.linalg().scale(s, closedMatrix);
+            DRes<Matrix<DRes<SReal>>> res3 = fixed.linalg().scale(closedScalar, matrix);
+
+            DRes<Matrix<DRes<BigDecimal>>> open1 = fixed.linalg().open(res1);
+            DRes<Matrix<DRes<BigDecimal>>> open2 = fixed.linalg().open(res2);
+            DRes<Matrix<DRes<BigDecimal>>> open3 = fixed.linalg().open(res3);
+
+            return () -> Arrays.asList(new MatrixUtils().unwrapMatrix(open1),
+                new MatrixUtils().unwrapMatrix(open2), new MatrixUtils().unwrapMatrix(open3));
+          };
+
+          List<Matrix<BigDecimal>> output = runApplication(testApplication);
+          for (Matrix<BigDecimal> m : output) {
+            for (int i = 0; i < m.getHeight(); i++) {
+              for (int j = 0; j < m.getWidth(); j++) {
+                assertTrue(TestUtils.isEqual(m.getRow(i).get(j), s));
+              }
             }
           }
         }
@@ -212,7 +264,7 @@ public class LinearAlgebraTests {
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-        final int n = 5;
+        final int n = 50;
         final int precision = 4;
 
         @Override
@@ -247,14 +299,14 @@ public class LinearAlgebraTests {
           Matrix<BigDecimal> expected = new Matrix<>(n, 1, e);
 
           Application<List<Matrix<BigDecimal>>, ProtocolBuilderNumeric> testApplication = root -> {
-            FixedNumeric fixed = new DefaultFixedNumeric(root, 1);
+            RealNumeric fixed = new FloatNumeric(root);
 
-            DRes<Matrix<DRes<SFixed>>> closedMatrix = fixed.linalg().input(matrix, 1);
-            DRes<Matrix<DRes<SFixed>>> closedVector = fixed.linalg().input(vector, 1);
+            DRes<Matrix<DRes<SReal>>> closedMatrix = fixed.linalg().input(matrix, 1);
+            DRes<Matrix<DRes<SReal>>> closedVector = fixed.linalg().input(vector, 1);
 
-            DRes<Matrix<DRes<SFixed>>> res1 = fixed.linalg().mult(closedMatrix, closedVector);
-            DRes<Matrix<DRes<SFixed>>> res2 = fixed.linalg().mult(matrix, closedVector);
-            DRes<Matrix<DRes<SFixed>>> res3 = fixed.linalg().mult(closedMatrix, vector);
+            DRes<Matrix<DRes<SReal>>> res1 = fixed.linalg().mult(closedMatrix, closedVector);
+            DRes<Matrix<DRes<SReal>>> res2 = fixed.linalg().mult(matrix, closedVector);
+            DRes<Matrix<DRes<SReal>>> res3 = fixed.linalg().mult(closedMatrix, vector);
 
             DRes<Matrix<DRes<BigDecimal>>> open1 = fixed.linalg().open(res1);
             DRes<Matrix<DRes<BigDecimal>>> open2 = fixed.linalg().open(res2);
@@ -267,7 +319,7 @@ public class LinearAlgebraTests {
           List<Matrix<BigDecimal>> output = runApplication(testApplication);
           for (int i = 0; i < matrix.getHeight(); i++) {
             for (int j = 0; j < output.size(); j++) {
-              assertTrue(expected.getRow(i).equals(output.get(j).getRow(i)));
+              assertTrue(TestUtils.isEqual(expected.getRow(i), output.get(j).getRow(i)));
             }
           }
         }

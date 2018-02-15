@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.fixedpoint;
+package dk.alexandra.fresco.decimal;
 
 import java.math.BigDecimal;
 
@@ -9,7 +9,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 /**
  * Basic interface for fixed point numeric applications.
  */
-public interface BasicFixedNumeric extends ComputationDirectory {
+public interface BasicRealNumeric extends ComputationDirectory {
 
   /**
    * Adds two secret values and returns the result.
@@ -18,7 +18,7 @@ public interface BasicFixedNumeric extends ComputationDirectory {
    * @param b Secret value 2
    * @return A deferred result computing a+b
    */
-  DRes<SFixed> add(DRes<SFixed> a, DRes<SFixed> b);
+  DRes<SReal> add(DRes<SReal> a, DRes<SReal> b);
 
   /**
    * Adds a secret value with a public value and returns the result.
@@ -27,7 +27,7 @@ public interface BasicFixedNumeric extends ComputationDirectory {
    * @param b Secret value
    * @return A deferred result computing a+b
    */
-  DRes<SFixed> add(BigDecimal a, DRes<SFixed> b);
+  DRes<SReal> add(BigDecimal a, DRes<SReal> b);
 
   /**
    * Subtracts two secret values and returns the result.
@@ -36,7 +36,7 @@ public interface BasicFixedNumeric extends ComputationDirectory {
    * @param b Secret value 2
    * @return A deferred result computing a-b
    */
-  DRes<SFixed> sub(DRes<SFixed> a, DRes<SFixed> b);
+  DRes<SReal> sub(DRes<SReal> a, DRes<SReal> b);
 
   /**
    * Subtracts a public value and a secret value and returns the result.
@@ -45,7 +45,7 @@ public interface BasicFixedNumeric extends ComputationDirectory {
    * @param b Secret value
    * @return A deferred result computing a-b
    */
-  DRes<SFixed> sub(BigDecimal a, DRes<SFixed> b);
+  DRes<SReal> sub(BigDecimal a, DRes<SReal> b);
 
   /**
    * Subtracts a secret value and a public value and returns the result.
@@ -54,7 +54,7 @@ public interface BasicFixedNumeric extends ComputationDirectory {
    * @param b Public value
    * @return A deferred result computing a-b
    */
-  DRes<SFixed> sub(DRes<SFixed> a, BigDecimal b);
+  DRes<SReal> sub(DRes<SReal> a, BigDecimal b);
 
   /**
    * Multiplies two secret values and returns the result.
@@ -63,7 +63,7 @@ public interface BasicFixedNumeric extends ComputationDirectory {
    * @param b Secret value 2
    * @return A deferred result computing a*b
    */
-  DRes<SFixed> mult(DRes<SFixed> a, DRes<SFixed> b);
+  DRes<SReal> mult(DRes<SReal> a, DRes<SReal> b);
 
   /**
    * Multiplies a public value onto a secret value and returns the result.
@@ -72,7 +72,7 @@ public interface BasicFixedNumeric extends ComputationDirectory {
    * @param b Secret value
    * @return A deferred result computing a*b
    */
-  DRes<SFixed> mult(BigDecimal a, DRes<SFixed> b);
+  DRes<SReal> mult(BigDecimal a, DRes<SReal> b);
 
   /**
    * Divides two secret values and returns the result.
@@ -81,7 +81,7 @@ public interface BasicFixedNumeric extends ComputationDirectory {
    * @param b Secret value 2
    * @return A deferred result computing a/b
    */
-  DRes<SFixed> div(DRes<SFixed> a, DRes<SFixed> b);
+  DRes<SReal> div(DRes<SReal> a, DRes<SReal> b);
 
   /**
    * Divides a secret value with a public value and returns the result.
@@ -90,7 +90,7 @@ public interface BasicFixedNumeric extends ComputationDirectory {
    * @param b Public value
    * @return A deferred result computing a/b
    */
-  DRes<SFixed> div(DRes<SFixed> a, BigDecimal b);
+  DRes<SReal> div(DRes<SReal> a, BigDecimal b);
 
   /**
    * Creates a known secret value from a public value. This is primarily a helper function in order
@@ -99,9 +99,9 @@ public interface BasicFixedNumeric extends ComputationDirectory {
    * @param value The public value.
    * @return A secret value which represents the given public value.
    */
-  DRes<SFixed> known(BigDecimal value);
+  DRes<SReal> known(BigDecimal value);
 
-  DRes<SFixed> fromSInt(DRes<SInt> value);
+  DRes<SReal> fromSInt(DRes<SInt> value);
 
   /**
    * Closes a public value. If the MPC party calling this method is not providing input, just use
@@ -111,7 +111,7 @@ public interface BasicFixedNumeric extends ComputationDirectory {
    * @param inputParty The ID of the MPC party.
    * @return The closed input value.
    */
-  DRes<SFixed> input(BigDecimal value, int inputParty);
+  DRes<SReal> input(BigDecimal value, int inputParty);
 
   /**
    * Opens a value to all MPC parties.
@@ -119,7 +119,7 @@ public interface BasicFixedNumeric extends ComputationDirectory {
    * @param secretShare The value to open.
    * @return The opened value represented by the closed value.
    */
-  DRes<BigDecimal> open(DRes<SFixed> secretShare);
+  DRes<BigDecimal> open(DRes<SReal> secretShare);
 
   /**
    * Opens a value to a single given party.
@@ -128,6 +128,6 @@ public interface BasicFixedNumeric extends ComputationDirectory {
    * @param outputParty The party to receive the opened value.
    * @return The opened value if you are the outputParty, or null otherwise.
    */
-  DRes<BigDecimal> open(DRes<SFixed> secretShare, int outputParty);
+  DRes<BigDecimal> open(DRes<SReal> secretShare, int outputParty);
 
 }

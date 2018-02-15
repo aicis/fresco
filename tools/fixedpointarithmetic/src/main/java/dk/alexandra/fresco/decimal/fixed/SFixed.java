@@ -1,13 +1,14 @@
-package dk.alexandra.fresco.fixedpoint;
+package dk.alexandra.fresco.decimal.fixed;
 
+import dk.alexandra.fresco.decimal.SReal;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.value.SInt;
 
-public class SFixedSIntWrapper implements SFixed, DRes<SFixed> {
+public class SFixed implements SReal, DRes<SReal> {
 
   private final DRes<SInt> value;
 
-  public SFixedSIntWrapper(DRes<SInt> value) {
+  public SFixed(DRes<SInt> value) {
     this.value = value;
   }
 
@@ -16,7 +17,8 @@ public class SFixedSIntWrapper implements SFixed, DRes<SFixed> {
   }
 
   @Override
-  public SFixedSIntWrapper out() {
+  public SFixed out() {
     return this;
   }
+  
 }
