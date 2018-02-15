@@ -14,8 +14,6 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.BinarySuiteLogging;
 import dk.alexandra.fresco.logging.DefaultPerformancePrinter;
@@ -96,12 +94,9 @@ public abstract class AbstractDummyBooleanTest {
       SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce =
           new SecureComputationEngineImpl<>(ps, evaluator);
 
-       
-
-      Drbg drbg = new HmacDrbg();
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
-              () -> new ResourcePoolImpl(playerId, noOfParties, drbg), () -> {
+              () -> new ResourcePoolImpl(playerId, noOfParties), () -> {
             Network network;
             KryoNetNetwork kryoNetwork = new KryoNetNetwork(partyNetConf);
             if (logPerformance) {

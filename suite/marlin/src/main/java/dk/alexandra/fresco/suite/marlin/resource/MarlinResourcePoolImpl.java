@@ -38,8 +38,7 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
   private final MarlinDataSupplier<T> supplier;
   private final BigUIntFactory<T> factory;
   private final ByteSerializer<T> rawSerializer;
-  // TODO come up with clean way to reconcile this with drbg on ResourcePoolImpl
-  private Drbg jointRandomness;
+  private Drbg drbg;
 
   /**
    * Creates new {@link MarlinResourcePool}.
@@ -47,7 +46,7 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
   private MarlinResourcePoolImpl(int myId, int noOfPlayers, Drbg drbg, int operationalBitLength,
       int effectiveBitLength, MarlinOpenedValueStore<T> storage, MarlinDataSupplier<T> supplier,
       BigUIntFactory<T> factory) {
-    super(myId, noOfPlayers, drbg);
+    super(myId, noOfPlayers);
     if (operationalBitLength != 128) {
       throw new IllegalArgumentException(
           "Current implementation only supports 128 operational bit length");
@@ -63,6 +62,7 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
     this.supplier = supplier;
     this.factory = factory;
     this.rawSerializer = factory.createSerializer();
+    this.drbg = drbg;
   }
 
   /**
@@ -133,7 +133,7 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
       ByteArrayHelper.xor(jointSeed, seed);
     }
     // TODO should be supplied
-    jointRandomness = new AesCtrDrbg(jointSeed);
+    drbg = new AesCtrDrbg(jointSeed);
     ExceptionConverter.safe(() -> {
       ((Closeable) network).close();
       return null;
@@ -158,7 +158,7 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
 
   @Override
   public Drbg getRandomGenerator() {
-    return jointRandomness;
+    return drbg;
   }
 
 }

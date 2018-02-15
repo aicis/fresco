@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.sce.resources.Broadcast;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinDataSupplier;
@@ -44,6 +45,16 @@ public interface MarlinResourcePool<T extends BigUInt<T>> extends NumericResourc
    * closed upon completion of this method.</p>
    */
   void initializeJointRandomness(Supplier<Network> networkSupplier);
+
+  /**
+   * The DRBG is useful for protocols which needs a form of shared randomness where the random bytes
+   * are not easily guessed by an adversary. This generator will provide exactly that. For explicit
+   * security guarantees, we refer to implementations of
+   * {@link dk.alexandra.fresco.framework.util.Drbg}.
+   *
+   * @return An instance of a DRBG.
+   */
+  Drbg getRandomGenerator();
 
   /**
    * Creates a new broadcast helper. TODO remove?

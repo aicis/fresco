@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.network.serializers.StrictBitVectorSerializer;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
@@ -92,4 +93,15 @@ public interface MascotResourcePool extends NumericResourcePool {
    * @return instance of random oblivious transfer protocol
    */
   RotBatch createRot(int otherId, Network network);
+
+  /**
+   * The DRBG is useful for protocols which needs a form of shared randomness where the random bytes
+   * are not easily guessed by an adversary. This generator will provide exactly that. For explicit
+   * security guarantees, we refer to implementations of
+   * {@link dk.alexandra.fresco.framework.util.Drbg}.
+   *
+   * @return An instance of a DRBG.
+   */
+  Drbg getRandomGenerator();
+
 }

@@ -11,19 +11,12 @@
   <parent>
     <groupId>dk.alexandra.fresco</groupId>
     <artifactId>master-pom</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>1.0.0</version>
   </parent>
 
   <!-- ================= FRESCO DEPENDENCIES ============================ -->
 
   <dependencies>
-
-    <!-- AES functionality -->
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-crypto</artifactId>
-      <version>1.0.0</version>
-    </dependency>
 
     <!-- KryoNet -->
     <dependency>
