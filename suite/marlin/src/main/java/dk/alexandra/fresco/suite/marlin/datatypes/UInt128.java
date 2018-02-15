@@ -120,11 +120,7 @@ public class UInt128 implements BigUInt<UInt128> {
 
   @Override
   public BigInteger toBigInteger() {
-    // TODO use byte array?
-    BigInteger low = new BigInteger(Integer.toUnsignedString(this.low));
-    BigInteger mid = new BigInteger(Integer.toUnsignedString(this.mid)).shiftLeft(32);
-    BigInteger high = new BigInteger(Long.toUnsignedString(this.high)).shiftLeft(64);
-    return low.add(mid).add(high);
+    return new BigInteger(1, toByteArray());
   }
 
   @Override
