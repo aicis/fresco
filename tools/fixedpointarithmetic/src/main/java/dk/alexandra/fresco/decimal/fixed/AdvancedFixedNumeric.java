@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.decimal.fixed;
 
 import dk.alexandra.fresco.decimal.DefaultAdvancedRealNumeric;
-import dk.alexandra.fresco.decimal.RandomReal;
 import dk.alexandra.fresco.decimal.SReal;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -66,10 +65,5 @@ public class AdvancedFixedNumeric extends DefaultAdvancedRealNumeric {
       return new SFixed(innerProductUnscaled);      
     });
   }
-  
-  @Override
-  public DRes<SReal> random() {
-    return builder.seq(new RandomReal(precision));
-  }
- 
+
 }

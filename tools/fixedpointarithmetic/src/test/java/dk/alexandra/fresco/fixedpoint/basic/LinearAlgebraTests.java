@@ -3,9 +3,8 @@ package dk.alexandra.fresco.fixedpoint.basic;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.decimal.RealNumeric;
+import dk.alexandra.fresco.decimal.RealNumericProvider;
 import dk.alexandra.fresco.decimal.SReal;
-import dk.alexandra.fresco.decimal.fixed.FixedNumeric;
-import dk.alexandra.fresco.decimal.floating.FloatNumeric;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -17,7 +16,6 @@ import dk.alexandra.fresco.lib.collections.MatrixUtils;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 public class LinearAlgebraTests {
@@ -25,6 +23,12 @@ public class LinearAlgebraTests {
   public static class TestCloseFixedMatrix<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
+    private RealNumericProvider provider;
+
+    public TestCloseFixedMatrix(RealNumericProvider provider) {
+      this.provider = provider;
+    }
+    
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
@@ -36,7 +40,7 @@ public class LinearAlgebraTests {
           // functionality to be tested
           Application<Matrix<SReal>, ProtocolBuilderNumeric> testApplication = root -> {
             // close inputs
-            RealNumeric fixed = new FloatNumeric(root);
+            RealNumeric fixed = provider.apply(root);
             DRes<Matrix<DRes<SReal>>> mat = fixed.linalg().input(input, 1);
 
             // unwrap and return result
@@ -52,6 +56,12 @@ public class LinearAlgebraTests {
   public static class TestCloseAndOpenMatrix<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
+    private RealNumericProvider provider;
+
+    public TestCloseAndOpenMatrix(RealNumericProvider provider) {
+      this.provider = provider;
+    }
+    
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
@@ -76,7 +86,7 @@ public class LinearAlgebraTests {
 
           // define functionality to be tested
           Application<Matrix<BigDecimal>, ProtocolBuilderNumeric> testApplication = root -> {
-            RealNumeric fixed = new FixedNumeric(root, 4);
+            RealNumeric fixed = provider.apply(root);
 
             DRes<Matrix<DRes<SReal>>> closed = fixed.linalg().input(input, 1);
 
@@ -97,15 +107,18 @@ public class LinearAlgebraTests {
   public static class TestMatrixAddition<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
+    private RealNumericProvider provider;
+
+    public TestMatrixAddition(RealNumericProvider provider) {
+      this.provider = provider;
+    }
+    
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         @Override
         public void test() throws Exception {
-          // define input and output
-
-
           ArrayList<BigDecimal> aRow1 =
               new ArrayList<>(Arrays.asList(BigDecimal.valueOf(1.1), BigDecimal.valueOf(2.2)));
           ArrayList<BigDecimal> aRow2 =
@@ -127,7 +140,7 @@ public class LinearAlgebraTests {
 
           // define functionality to be tested
           Application<List<Matrix<BigDecimal>>, ProtocolBuilderNumeric> testApplication = root -> {
-            RealNumeric fixed = new FloatNumeric(root);
+            RealNumeric fixed = provider.apply(root);
 
             DRes<Matrix<DRes<SReal>>> closedA = fixed.linalg().input(a, 1);
             DRes<Matrix<DRes<SReal>>> closedB = fixed.linalg().input(b, 1);
@@ -158,6 +171,12 @@ public class LinearAlgebraTests {
   public static class TestMatrixScale<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
+    private RealNumericProvider provider;
+
+    public TestMatrixScale(RealNumericProvider provider) {
+      this.provider = provider;
+    }
+    
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
@@ -180,7 +199,7 @@ public class LinearAlgebraTests {
           // define functionality to be tested
           Application<List<Matrix<BigDecimal>>, ProtocolBuilderNumeric> testApplication = root -> {
 
-            RealNumeric fixed = new FloatNumeric(root);
+            RealNumeric fixed = provider.apply(root);
 
             DRes<Matrix<DRes<SReal>>> closedMatrix = fixed.linalg().input(matrix, 1);
             DRes<SReal> closedScalar = fixed.numeric().input(s, 1);
@@ -208,59 +227,15 @@ public class LinearAlgebraTests {
     }
   }
 
-  public static class TestMatrixScaleLarge<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
-
-    @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-
-        int n = 500;
-
-        @Override
-        public void test() throws Exception {
-          // define input and output
-          Matrix<BigDecimal> matrix =
-              new Matrix<>(n, n, j -> new ArrayList<>(Collections.nCopies(n, BigDecimal.ONE)));
-
-          BigDecimal s = BigDecimal.valueOf(0.1);
-
-          // define functionality to be tested
-          Application<List<Matrix<BigDecimal>>, ProtocolBuilderNumeric> testApplication = root -> {
-
-            RealNumeric fixed = new FloatNumeric(root);
-
-            DRes<Matrix<DRes<SReal>>> closedMatrix = fixed.linalg().input(matrix, 1);
-            DRes<SReal> closedScalar = fixed.numeric().input(s, 1);
-
-            DRes<Matrix<DRes<SReal>>> res1 = fixed.linalg().scale(closedScalar, closedMatrix);
-            DRes<Matrix<DRes<SReal>>> res2 = fixed.linalg().scale(s, closedMatrix);
-            DRes<Matrix<DRes<SReal>>> res3 = fixed.linalg().scale(closedScalar, matrix);
-
-            DRes<Matrix<DRes<BigDecimal>>> open1 = fixed.linalg().open(res1);
-            DRes<Matrix<DRes<BigDecimal>>> open2 = fixed.linalg().open(res2);
-            DRes<Matrix<DRes<BigDecimal>>> open3 = fixed.linalg().open(res3);
-
-            return () -> Arrays.asList(new MatrixUtils().unwrapMatrix(open1),
-                new MatrixUtils().unwrapMatrix(open2), new MatrixUtils().unwrapMatrix(open3));
-          };
-
-          List<Matrix<BigDecimal>> output = runApplication(testApplication);
-          for (Matrix<BigDecimal> m : output) {
-            for (int i = 0; i < m.getHeight(); i++) {
-              for (int j = 0; j < m.getWidth(); j++) {
-                assertTrue(TestUtils.isEqual(m.getRow(i).get(j), s));
-              }
-            }
-          }
-        }
-      };
-    }
-  }
-
   public static class TestMatrixMultiplication<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
+    private RealNumericProvider provider;
+
+    public TestMatrixMultiplication(RealNumericProvider provider) {
+      this.provider = provider;
+    }
+    
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
@@ -299,7 +274,7 @@ public class LinearAlgebraTests {
           Matrix<BigDecimal> expected = new Matrix<>(n, 1, e);
 
           Application<List<Matrix<BigDecimal>>, ProtocolBuilderNumeric> testApplication = root -> {
-            RealNumeric fixed = new FloatNumeric(root);
+            RealNumeric fixed = provider.apply(root);
 
             DRes<Matrix<DRes<SReal>>> closedMatrix = fixed.linalg().input(matrix, 1);
             DRes<Matrix<DRes<SReal>>> closedVector = fixed.linalg().input(vector, 1);

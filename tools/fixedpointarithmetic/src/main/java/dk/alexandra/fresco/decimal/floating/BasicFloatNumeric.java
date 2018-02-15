@@ -13,7 +13,7 @@ public class BasicFloatNumeric implements BasicRealNumeric {
 
   private final ProtocolBuilderNumeric builder;
   private final int minPrecision = 4;
-  private final int defaultPrecision = 4;
+  private final int defaultPrecision = 6;
   private final int maxPrecision = 16;
   
   /**
@@ -26,6 +26,10 @@ public class BasicFloatNumeric implements BasicRealNumeric {
     this.builder = builder;
   }
 
+  int getDefaultPrecision() {
+    return defaultPrecision;
+  }
+  
   private DRes<SInt> unscaled(ProtocolBuilderNumeric scope, SFloat current, int scale) {
     DRes<SInt> sint = current.out().getSInt();
     if (current.getScale() < scale) {
@@ -204,9 +208,20 @@ public class BasicFloatNumeric implements BasicRealNumeric {
   }
 
   @Override
-  public DRes<BigDecimal> open(DRes<SReal> secretShare, int outputParty) {
-    // TODO Auto-generated method stub
-    return null;
+  public DRes<BigDecimal> open(DRes<SReal> x, int outputParty) {
+    return builder.seq(seq -> {
+      SFloat xFloat = (SFloat) x.out();
+      DRes<SInt> unscaled = xFloat.getSInt();
+      DRes<BigInteger> unscaledOpen = seq.numeric().open(unscaled, outputParty);
+      int precision = xFloat.getScale();
+      return () -> {
+        if (unscaledOpen.out() != null) {
+          return new BigDecimal(unscaledOpen.out(), precision);
+        } else {
+          return null;
+        }
+      };
+    });
   }
 
 }

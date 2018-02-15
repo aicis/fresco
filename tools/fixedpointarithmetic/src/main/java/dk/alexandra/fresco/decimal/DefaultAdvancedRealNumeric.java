@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.decimal;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RandomAdditiveMask;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigDecimal;
@@ -129,7 +130,22 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
 
   @Override
   public DRes<SReal> random() {
-    return builder.seq(new RandomReal(DEFAULT_RANDOM_PRECISION));
+    int scaleSize = (int) Math.ceil((Math.log(Math.pow(10, DEFAULT_RANDOM_PRECISION)) / (Math.log(2))));
+    
+    return builder.seq(seq -> {
+      DRes<RandomAdditiveMask> random = seq.advancedNumeric().additiveMask(scaleSize);
+      return random;
+    }).seq((seq, random) -> {
+
+      RealNumeric numeric = provider.apply(seq);
+      
+      DRes<SInt> rand = random.random;
+      BigInteger divi = BigInteger.valueOf(2).pow(scaleSize);
+      DRes<SInt> r2 = seq.numeric().mult(BigInteger.TEN.pow(DEFAULT_RANDOM_PRECISION), rand);
+      DRes<SInt> result = seq.advancedNumeric().div(r2, divi);
+
+      return numeric.numeric().div(numeric.numeric().fromSInt(result), new BigDecimal(divi));
+    });
   }
 
 }
