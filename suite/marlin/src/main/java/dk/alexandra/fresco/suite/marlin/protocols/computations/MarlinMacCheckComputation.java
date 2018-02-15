@@ -21,9 +21,6 @@ public class MarlinMacCheckComputation<T extends BigUInt<T>> implements
     Computation<Void, ProtocolBuilderNumeric> {
 
   private final MarlinResourcePool<T> resourcePool;
-  private List<T> randomCoefficients;
-  private T y;
-  private MarlinSInt<T> r;
 
   public MarlinMacCheckComputation(
       MarlinResourcePool<T> resourcePool) {
@@ -32,8 +29,7 @@ public class MarlinMacCheckComputation<T extends BigUInt<T>> implements
 
   @Override
   public DRes<Void> buildComputation(ProtocolBuilderNumeric builder) {
-    Pair<List<MarlinSInt<T>>, List<T>> opened = resourcePool.getOpenedValueStore()
-        .popValues();
+    Pair<List<MarlinSInt<T>>, List<T>> opened = resourcePool.getOpenedValueStore().popValues();
     List<MarlinSInt<T>> authenticatedElements = opened.getFirst();
     List<T> openValues = opened.getSecond();
     BigUIntFactory<T> factory = resourcePool.getFactory();
@@ -41,13 +37,14 @@ public class MarlinMacCheckComputation<T extends BigUInt<T>> implements
     List<byte[]> sharesLowBits = authenticatedElements.stream()
         .map(element -> ByteAndBitConverter.toByteArray(element.getShare().getLow()))
         .collect(Collectors.toList());
+    final List<T> randomCoefficients = sampleRandomCoefficients(
+        resourcePool.getRandomGenerator(),
+        factory, openValues.size());
+    final T y = BigUInt.innerProduct(openValues, randomCoefficients);
+    final MarlinSInt<T> r = resourcePool.getDataSupplier().getNextRandomElementShare();
     return builder
         .seq(new MarlinBroadcastComputation<>(sharesLowBits))
         .seq((seq, ignored) -> {
-          randomCoefficients = sampleRandomCoefficients(resourcePool.getRandomGenerator(),
-              factory, openValues.size());
-          y = BigUInt.innerProduct(openValues, randomCoefficients);
-          r = resourcePool.getDataSupplier().getNextRandomElementShare();
           List<T> originalShares = authenticatedElements.stream()
               .map(MarlinSInt::getShare)
               .collect(Collectors.toList());
