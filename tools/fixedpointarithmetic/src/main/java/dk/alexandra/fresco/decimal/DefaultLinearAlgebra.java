@@ -190,5 +190,5 @@ public abstract class DefaultLinearAlgebra implements LinearAlgebra {
       return () -> new Matrix<>(a.getHeight(), a.getWidth(), rows);
     });
   }
-
+  
 }

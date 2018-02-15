@@ -10,7 +10,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
 /**
- * Shifts a number to the right.
+ * Returns a number which is approximately the input shifted a number of positions to the right.
  */
 public class Truncate implements Computation<SInt, ProtocolBuilderNumeric> {
 

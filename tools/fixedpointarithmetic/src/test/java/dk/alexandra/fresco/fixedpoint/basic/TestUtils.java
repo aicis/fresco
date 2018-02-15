@@ -1,18 +1,16 @@
 package dk.alexandra.fresco.fixedpoint.basic;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 
 public class TestUtils {
 
   static boolean isEqual(BigDecimal a, BigDecimal b) {
-    int scale = Math.min(a.scale(), b.scale());
 
-    BigDecimal aScaled = a.setScale(scale, RoundingMode.DOWN);
-    BigDecimal bScaled = b.setScale(scale, RoundingMode.DOWN);
-
-    if (aScaled.compareTo(bScaled) != 0) {
+    BigDecimal bound = BigDecimal.valueOf(1.0); //TODO: Set reasonable bound
+    BigDecimal d = a.subtract(b).abs();
+    
+    if (d.compareTo(bound) != -1) {
       System.out.println(a + " != " + b);
       return false;
     }

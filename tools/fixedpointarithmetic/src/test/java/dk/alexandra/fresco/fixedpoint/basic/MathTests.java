@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import dk.alexandra.fresco.decimal.RealNumeric;
 import dk.alexandra.fresco.decimal.RealNumericProvider;
 import dk.alexandra.fresco.decimal.SReal;
+import dk.alexandra.fresco.decimal.utils.Truncate;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -140,4 +141,30 @@ public class MathTests {
       };
     }
   }
+  
+  public static class TestTrunc<ResourcePoolT extends ResourcePool>
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+@Override
+public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+  return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+    @Override
+    public void test() throws Exception {
+      Application<BigInteger, ProtocolBuilderNumeric> app =
+          producer -> producer.seq(seq -> {
+
+            DRes<SInt> input = seq.numeric().known(new BigInteger("1024"));
+            
+            DRes<SInt> result = seq.seq(new Truncate(12, input, 2));
+            return seq.numeric().open(result);
+          });
+
+      BigInteger output = runApplication(app);
+      System.out.println(output);
+
+    }
+  };
+}
+}
+  
 }

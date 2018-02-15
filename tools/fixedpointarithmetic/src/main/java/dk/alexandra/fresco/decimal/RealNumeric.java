@@ -9,8 +9,8 @@ public interface RealNumeric {
    */
   public BasicRealNumeric numeric();
 
-  public DefaultAdvancedRealNumeric advanced();
+  public AdvancedRealNumeric advanced();
 
-  public DefaultLinearAlgebra linalg();
+  public LinearAlgebra linalg();
 
 }
