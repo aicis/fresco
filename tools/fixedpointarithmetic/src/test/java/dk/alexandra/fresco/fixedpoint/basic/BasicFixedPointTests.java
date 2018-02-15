@@ -552,8 +552,7 @@ public class BasicFixedPointTests {
 
             BigDecimal a = openInputs.get(idx);
             BigDecimal b = openInputs2.get(idx);
-            System.out.println(a.divide(b, RoundingMode.DOWN) + " ~ " + openOutput);
-            //Assert.assertTrue(TestUtils.isEqual(a.divide(b, RoundingMode.DOWN), openOutput));
+            Assert.assertTrue(TestUtils.isEqual(a.divide(b, RoundingMode.DOWN), openOutput));
           }
         }
       };

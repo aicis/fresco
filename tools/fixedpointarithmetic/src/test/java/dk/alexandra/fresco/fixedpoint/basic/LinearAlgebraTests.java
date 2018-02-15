@@ -95,7 +95,6 @@ public class LinearAlgebraTests {
           };
 
           Matrix<BigDecimal> output = runApplication(testApplication);
-          System.out.println(output);
           for (int i = 0; i < input.getHeight(); i++) {
             assertTrue(TestUtils.isEqual(output.getRow(i), input.getRow(i)));
           }
