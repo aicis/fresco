@@ -9,7 +9,6 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.RoundingMode;
 
 public class BasicBinaryFixedNumeric implements BasicRealNumeric {
 
@@ -146,7 +145,7 @@ public class BasicBinaryFixedNumeric implements BasicRealNumeric {
     return builder.seq(seq -> {
       DRes<SInt> sintA = ((SBinaryFixed) a.out()).getSInt();
       DRes<SInt> sintB = ((SBinaryFixed) b.out()).getSInt();
-      DRes<SInt> scaledA = seq.numeric().mult(BigInteger.TEN.pow(precision), sintA);
+      DRes<SInt> scaledA = seq.numeric().mult(BigInteger.valueOf(2).pow(precision), sintA);
       DRes<SInt> input = seq.advancedNumeric().div(scaledA, sintB);
       return new SBinaryFixed(input);
     });
@@ -156,9 +155,9 @@ public class BasicBinaryFixedNumeric implements BasicRealNumeric {
   public DRes<SReal> div(DRes<SReal> a, BigDecimal b) {
     return builder.seq(seq -> {
       DRes<SInt> sintA = ((SBinaryFixed) a.out()).getSInt();
-      BigDecimal bScaled = b.setScale(this.precision, RoundingMode.DOWN);
+      BigBinary bScaled = new BigBinary(b, precision);
       DRes<SInt> input = seq.advancedNumeric().div(
-          seq.numeric().mult(BigInteger.TEN.pow(this.precision), sintA), bScaled.unscaledValue());
+          seq.numeric().mult(BigInteger.valueOf(2).pow(precision), sintA), bScaled.unscaledValue());
       return new SBinaryFixed(input);
     });
   }
