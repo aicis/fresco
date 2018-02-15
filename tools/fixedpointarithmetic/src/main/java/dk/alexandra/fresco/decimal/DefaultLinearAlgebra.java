@@ -22,7 +22,7 @@ public abstract class DefaultLinearAlgebra implements LinearAlgebra {
     this.builder = builder;
     this.provider = provider;
   }
-  
+
   @Override
   public DRes<Matrix<DRes<SReal>>> input(Matrix<BigDecimal> a, int inputParty) {
     return builder.par(par -> {
@@ -48,7 +48,7 @@ public abstract class DefaultLinearAlgebra implements LinearAlgebra {
       return () -> new Matrix<>(a.out().getHeight(), a.out().getWidth(), rows);
     });
   }
-  
+
   @Override
   public DRes<Matrix<DRes<SReal>>> add(DRes<Matrix<DRes<SReal>>> a, DRes<Matrix<DRes<SReal>>> b) {
     return builder.par(par -> {
@@ -66,24 +66,24 @@ public abstract class DefaultLinearAlgebra implements LinearAlgebra {
   @Override
   public DRes<Matrix<DRes<SReal>>> mult(DRes<Matrix<DRes<SReal>>> a, Matrix<BigDecimal> b) {
     return builder.seq(seq -> {
-      return mult(seq, a.out(), b,
-          (f, x) -> provider.apply(f).advanced().innerProductWithPublicPart(x.getSecond(), x.getFirst()));
+      return mult(seq, a.out(), b, (f, x) -> provider.apply(f).advanced()
+          .innerProductWithPublicPart(x.getSecond(), x.getFirst()));
     });
   }
 
   @Override
   public DRes<Matrix<DRes<SReal>>> mult(Matrix<BigDecimal> a, DRes<Matrix<DRes<SReal>>> b) {
     return builder.seq(seq -> {
-      return mult(seq, a, b.out(),
-          (f, x) -> provider.apply(f).advanced().innerProductWithPublicPart(x.getFirst(), x.getSecond()));
+      return mult(seq, a, b.out(), (f, x) -> provider.apply(f).advanced()
+          .innerProductWithPublicPart(x.getFirst(), x.getSecond()));
     });
   }
 
   @Override
   public DRes<Matrix<DRes<SReal>>> mult(DRes<Matrix<DRes<SReal>>> a, DRes<Matrix<DRes<SReal>>> b) {
     return builder.seq(seq -> {
-      return mult(seq, a.out(), b.out(), (f, x) -> provider.apply(f).advanced()
-          .innerProduct(x.getFirst(), x.getSecond()));
+      return mult(seq, a.out(), b.out(),
+          (f, x) -> provider.apply(f).advanced().innerProduct(x.getFirst(), x.getSecond()));
     });
   }
 

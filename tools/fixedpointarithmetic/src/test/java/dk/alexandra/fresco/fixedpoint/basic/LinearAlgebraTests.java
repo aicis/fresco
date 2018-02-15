@@ -28,7 +28,7 @@ public class LinearAlgebraTests {
     public TestCloseFixedMatrix(RealNumericProvider provider) {
       this.provider = provider;
     }
-    
+
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
@@ -61,7 +61,7 @@ public class LinearAlgebraTests {
     public TestCloseAndOpenMatrix(RealNumericProvider provider) {
       this.provider = provider;
     }
-    
+
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
@@ -112,7 +112,7 @@ public class LinearAlgebraTests {
     public TestMatrixAddition(RealNumericProvider provider) {
       this.provider = provider;
     }
-    
+
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
@@ -176,7 +176,7 @@ public class LinearAlgebraTests {
     public TestMatrixScale(RealNumericProvider provider) {
       this.provider = provider;
     }
-    
+
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
@@ -235,7 +235,7 @@ public class LinearAlgebraTests {
     public TestMatrixMultiplication(RealNumericProvider provider) {
       this.provider = provider;
     }
-    
+
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {

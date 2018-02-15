@@ -20,5 +20,5 @@ public class SFixed implements SReal, DRes<SReal> {
   public SFixed out() {
     return this;
   }
-  
+
 }

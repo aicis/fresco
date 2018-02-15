@@ -10,6 +10,5 @@ public class TestDummyFloatArithmetic extends RealAbstractDummyArithmeticTest {
   RealNumericProvider getProvider() {
     return scope -> new FloatNumeric(scope);
   }
-  
-}
 
+}

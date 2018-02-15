@@ -15,7 +15,7 @@ public class BasicFloatNumeric implements BasicRealNumeric {
   private final int minPrecision = 4;
   private final int defaultPrecision = 6;
   private final int maxPrecision = 16;
-  
+
   /**
    * Creates a FixedNumeric which creates basic numeric operations
    *
@@ -29,7 +29,7 @@ public class BasicFloatNumeric implements BasicRealNumeric {
   int getDefaultPrecision() {
     return defaultPrecision;
   }
-  
+
   private DRes<SInt> unscaled(ProtocolBuilderNumeric scope, SFloat current, int scale) {
     DRes<SInt> sint = current.out().getSInt();
     if (current.getScale() < scale) {
@@ -89,7 +89,7 @@ public class BasicFloatNumeric implements BasicRealNumeric {
   @Override
   public DRes<SReal> sub(DRes<SReal> a, BigDecimal b) {
     return builder.seq(seq -> {
-      SFloat aFloat = (SFloat)a.out();
+      SFloat aFloat = (SFloat) a.out();
       int precision = Math.max(b.scale(), aFloat.getScale());
       DRes<SInt> aUnscaled = unscaled(seq, aFloat, precision);
       BigDecimal bScaled = b.setScale(precision);
@@ -105,7 +105,8 @@ public class BasicFloatNumeric implements BasicRealNumeric {
       int precision = aFloat.getScale() + bFloat.getScale();
       DRes<SInt> unscaled = seq.numeric().mult(aFloat.getSInt(), bFloat.getSInt());
       if (precision > maxPrecision) {
-        unscaled = seq.advancedNumeric().div(unscaled, BigInteger.TEN.pow(precision - defaultPrecision));
+        unscaled =
+            seq.advancedNumeric().div(unscaled, BigInteger.TEN.pow(precision - defaultPrecision));
         precision = defaultPrecision;
       }
       return new SFloat(unscaled, precision);
@@ -117,10 +118,10 @@ public class BasicFloatNumeric implements BasicRealNumeric {
     return builder.seq(seq -> {
       SFloat bFloat = (SFloat) b.out();
       int precision = a.scale() + bFloat.getScale();
-      DRes<SInt> unscaled =
-          seq.numeric().mult(a.unscaledValue(), bFloat.getSInt());
+      DRes<SInt> unscaled = seq.numeric().mult(a.unscaledValue(), bFloat.getSInt());
       if (precision > maxPrecision) {
-        unscaled = seq.advancedNumeric().div(unscaled, BigInteger.TEN.pow(precision - defaultPrecision));
+        unscaled =
+            seq.advancedNumeric().div(unscaled, BigInteger.TEN.pow(precision - defaultPrecision));
         precision = defaultPrecision;
       }
       return new SFloat(unscaled, precision);
@@ -137,10 +138,10 @@ public class BasicFloatNumeric implements BasicRealNumeric {
 
       int precision = aFloat.getScale() - bFloat.getScale();
       if (precision < minPrecision) {
-        if (aFloat.getScale() < 2*minPrecision) {
+        if (aFloat.getScale() < 2 * minPrecision) {
           aInt = unscaled(seq, aFloat, bFloat.getScale() + defaultPrecision);
           precision = defaultPrecision;
-        } else if (bFloat.getScale() > 2*minPrecision) {
+        } else if (bFloat.getScale() > 2 * minPrecision) {
           bInt = unscaled(seq, bFloat, aFloat.getScale() - defaultPrecision);
           precision = defaultPrecision;
         }
@@ -158,10 +159,10 @@ public class BasicFloatNumeric implements BasicRealNumeric {
       BigInteger bInt = b.unscaledValue();
       int precision = aFloat.getScale() - b.scale();
       if (precision < minPrecision) {
-        if (aFloat.getScale() < 2*minPrecision) {
+        if (aFloat.getScale() < 2 * minPrecision) {
           aInt = unscaled(seq, aFloat, b.scale() + defaultPrecision);
           precision = defaultPrecision;
-        } else if (b.scale() > 2*minPrecision) {
+        } else if (b.scale() > 2 * minPrecision) {
           bInt = bInt.divide(BigInteger.TEN.pow(defaultPrecision - precision));
           precision = defaultPrecision;
         }
@@ -175,7 +176,8 @@ public class BasicFloatNumeric implements BasicRealNumeric {
   public DRes<SReal> known(BigDecimal value) {
     return builder.seq(seq -> {
       int precision = defaultPrecision;
-      DRes<SInt> input = seq.numeric().known(value.setScale(precision, RoundingMode.DOWN).unscaledValue());
+      DRes<SInt> input =
+          seq.numeric().known(value.setScale(precision, RoundingMode.DOWN).unscaledValue());
       return new SFloat(input, precision);
     });
   }
@@ -191,7 +193,8 @@ public class BasicFloatNumeric implements BasicRealNumeric {
   public DRes<SReal> input(BigDecimal value, int inputParty) {
     return builder.seq(seq -> {
       int precision = defaultPrecision;
-      DRes<SInt> input = seq.numeric().input(value.setScale(precision, RoundingMode.DOWN).unscaledValue(), inputParty);
+      DRes<SInt> input = seq.numeric()
+          .input(value.setScale(precision, RoundingMode.DOWN).unscaledValue(), inputParty);
       return new SFloat(input, precision);
     });
   }

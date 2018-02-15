@@ -34,8 +34,8 @@ public class Truncate implements Computation<SInt, ProtocolBuilderNumeric> {
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric sequential) {
     return sequential.seq((builder) -> {
       /*
-       * Generate random additive mask of the same length as the input + some
-       * extra to avoid leakage.
+       * Generate random additive mask of the same length as the input + some extra to avoid
+       * leakage.
        */
       AdvancedNumeric additiveMaskBuilder = builder.advancedNumeric();
       DRes<RandomAdditiveMask> mask = additiveMaskBuilder.additiveMask(bitLength);
@@ -54,14 +54,13 @@ public class Truncate implements Computation<SInt, ProtocolBuilderNumeric> {
       final DRes<SInt> rBottom = seq.advancedNumeric().innerProductWithPublicPart(
           seq.getBigIntegerHelper().getTwoPowersList(shifts), mask.bits);
 
-      BigInteger inverse = BigInteger.ONE.shiftLeft(shifts)
-          .modInverse(seq.getBasicNumericContext().getModulus());
+      BigInteger inverse =
+          BigInteger.ONE.shiftLeft(shifts).modInverse(seq.getBasicNumericContext().getModulus());
       DRes<SInt> rTop = seq.numeric().sub(mask.random, rBottom);
 
       /*
-       * rTop is r with the last shifts bits set to zero, and it is hence
-       * divisible by 2^shifts, so multiplying with the inverse in the field
-       * corresponds to shifting.
+       * rTop is r with the last shifts bits set to zero, and it is hence divisible by 2^shifts, so
+       * multiplying with the inverse in the field corresponds to shifting.
        */
       DRes<SInt> rShifted = seq.numeric().mult(inverse, rTop);
       BigInteger mShifted = masked.shiftRight(shifts);

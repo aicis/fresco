@@ -16,7 +16,7 @@ public class SFloat implements SReal, DRes<SReal> {
   DRes<SInt> getSInt() {
     return value;
   }
-  
+
   int getScale() {
     return scale;
   }

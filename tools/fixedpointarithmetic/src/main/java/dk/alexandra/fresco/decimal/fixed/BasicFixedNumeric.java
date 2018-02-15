@@ -80,8 +80,8 @@ public class BasicFixedNumeric implements BasicRealNumeric {
   @Override
   public DRes<SReal> add(DRes<SReal> a, DRes<SReal> b) {
     return builder.seq(seq -> {
-      DRes<SInt> add = seq.numeric().add(((SFixed) a.out()).getSInt(),
-          ((SFixed) b.out()).getSInt());
+      DRes<SInt> add =
+          seq.numeric().add(((SFixed) a.out()).getSInt(), ((SFixed) b.out()).getSInt());
       return new SFixed(add);
     });
   }
@@ -89,8 +89,8 @@ public class BasicFixedNumeric implements BasicRealNumeric {
   @Override
   public DRes<SReal> sub(DRes<SReal> a, DRes<SReal> b) {
     return builder.seq(seq -> {
-      DRes<SInt> sub = seq.numeric().sub(((SFixed) a.out()).getSInt(),
-          ((SFixed) b.out()).getSInt());
+      DRes<SInt> sub =
+          seq.numeric().sub(((SFixed) a.out()).getSInt(), ((SFixed) b.out()).getSInt());
       return new SFixed(sub);
     });
   }
@@ -164,6 +164,6 @@ public class BasicFixedNumeric implements BasicRealNumeric {
     DRes<SInt> scaled = builder.numeric().mult(BigInteger.TEN.pow(precision), value);
     return new SFixed(scaled);
   }
-  
+
 
 }

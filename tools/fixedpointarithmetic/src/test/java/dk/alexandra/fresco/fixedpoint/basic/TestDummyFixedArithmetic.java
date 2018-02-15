@@ -9,6 +9,5 @@ public class TestDummyFixedArithmetic extends RealAbstractDummyArithmeticTest {
   public RealNumericProvider getProvider() {
     return scope -> new FixedNumeric(scope, 5);
   }
-  
 
 }

@@ -114,10 +114,7 @@ public class MathTests {
                 for (int i = 0; i < 100; i++) {
                   result.add(fixed.advanced().random());
                 }
-                
-//                return () -> result;
-//              }).seq((seq, dat) -> {
-//                RealNumeric fixed = provider.apply(seq);
+
                 List<DRes<BigDecimal>> opened =
                     result.stream().map(fixed.numeric()::open).collect(Collectors.toList());
                 return () -> opened.stream().map(DRes::out).collect(Collectors.toList());

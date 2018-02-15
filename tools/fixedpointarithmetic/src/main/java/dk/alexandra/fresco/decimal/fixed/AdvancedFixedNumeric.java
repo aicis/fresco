@@ -38,19 +38,18 @@ public class AdvancedFixedNumeric extends DefaultAdvancedRealNumeric {
       }
       List<BigInteger> aInt =
           a.stream().map(x -> x.setScale(precision, RoundingMode.DOWN).unscaledValue())
-          .collect(Collectors.toList());
+              .collect(Collectors.toList());
       List<DRes<SInt>> bInt =
           b.stream().map(x -> ((SFixed) x.out()).getSInt()).collect(Collectors.toList());
       DRes<SInt> innerProductInt = seq.advancedNumeric().innerProductWithPublicPart(aInt, bInt);
       DRes<SInt> innerProductUnscaled =
           seq.advancedNumeric().div(innerProductInt, BigInteger.TEN.pow(precision));
-      return new SFixed(innerProductUnscaled);      
+      return new SFixed(innerProductUnscaled);
     });
   }
 
   @Override
-  public DRes<SReal> innerProduct(List<DRes<SReal>> a,
-      List<DRes<SReal>> b) {
+  public DRes<SReal> innerProduct(List<DRes<SReal>> a, List<DRes<SReal>> b) {
     return builder.seq(seq -> {
       if (a.size() != b.size()) {
         throw new IllegalArgumentException("Vectors must have same size");
@@ -62,7 +61,7 @@ public class AdvancedFixedNumeric extends DefaultAdvancedRealNumeric {
       DRes<SInt> innerProductInt = seq.advancedNumeric().innerProduct(aInt, bInt);
       DRes<SInt> innerProductUnscaled =
           seq.advancedNumeric().div(innerProductInt, BigInteger.TEN.pow(precision));
-      return new SFixed(innerProductUnscaled);      
+      return new SFixed(innerProductUnscaled);
     });
   }
 

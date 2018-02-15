@@ -29,7 +29,7 @@ public class BasicFixedPointTests {
     public TestInput(RealNumericProvider provider) {
       this.provider = provider;
     }
-    
+
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       BigDecimal value = BigDecimal.valueOf(10.00100);
@@ -59,7 +59,7 @@ public class BasicFixedPointTests {
     public TestUseSInt(RealNumericProvider provider) {
       this.provider = provider;
     }
-    
+
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
@@ -92,7 +92,7 @@ public class BasicFixedPointTests {
     public TestOpenToParty(RealNumericProvider provider) {
       this.provider = provider;
     }
-    
+
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       BigDecimal value = BigDecimal.valueOf(10.00100);
@@ -127,7 +127,7 @@ public class BasicFixedPointTests {
     public TestKnown(RealNumericProvider provider) {
       this.provider = provider;
     }
-    
+
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       BigDecimal value = BigDecimal.valueOf(10.00100);
@@ -157,7 +157,7 @@ public class BasicFixedPointTests {
     public TestAddKnown(RealNumericProvider provider) {
       this.provider = provider;
     }
-    
+
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       BigDecimal value = BigDecimal.valueOf(10.00100);
@@ -189,7 +189,7 @@ public class BasicFixedPointTests {
     public TestAddSecret(RealNumericProvider provider) {
       this.provider = provider;
     }
-    
+
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       BigDecimal value = BigDecimal.valueOf(10.00100);
@@ -222,7 +222,7 @@ public class BasicFixedPointTests {
     public TestSubtractSecret(RealNumericProvider provider) {
       this.provider = provider;
     }
-    
+
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       BigDecimal value = BigDecimal.valueOf(10.00100);
@@ -255,7 +255,7 @@ public class BasicFixedPointTests {
     public TestSubKnown(RealNumericProvider provider) {
       this.provider = provider;
     }
-    
+
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       BigDecimal value = BigDecimal.valueOf(10.00100);
@@ -287,7 +287,7 @@ public class BasicFixedPointTests {
     public TestMultSecret(RealNumericProvider provider) {
       this.provider = provider;
     }
-    
+
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       BigDecimal value = BigDecimal.valueOf(10.00100);
@@ -319,7 +319,7 @@ public class BasicFixedPointTests {
     public TestMultKnown(RealNumericProvider provider) {
       this.provider = provider;
     }
-    
+
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       BigDecimal value = BigDecimal.valueOf(10.00100);
@@ -350,7 +350,7 @@ public class BasicFixedPointTests {
     public TestDivisionSecret(RealNumericProvider provider) {
       this.provider = provider;
     }
-    
+
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       BigDecimal value = BigDecimal.valueOf(10.00100);
@@ -382,7 +382,7 @@ public class BasicFixedPointTests {
     public TestDivisionKnownDivisor(RealNumericProvider provider) {
       this.provider = provider;
     }
-    
+
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       BigDecimal value = BigDecimal.valueOf(10.00100);
@@ -413,7 +413,7 @@ public class BasicFixedPointTests {
     public TestMult(RealNumericProvider provider) {
       this.provider = provider;
     }
-    
+
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       List<BigDecimal> openInputs =
@@ -464,7 +464,7 @@ public class BasicFixedPointTests {
     public TestAdd(RealNumericProvider provider) {
       this.provider = provider;
     }
-    
+
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       List<BigDecimal> openInputs =
@@ -515,7 +515,7 @@ public class BasicFixedPointTests {
     public TestDiv(RealNumericProvider provider) {
       this.provider = provider;
     }
-    
+
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       List<BigDecimal> openInputs =

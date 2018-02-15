@@ -8,5 +8,5 @@ public class FloatLinearAlgebra extends DefaultLinearAlgebra {
   public FloatLinearAlgebra(ProtocolBuilderNumeric builder) {
     super(builder, scope -> new FloatNumeric(scope));
   }
-  
+
 }
