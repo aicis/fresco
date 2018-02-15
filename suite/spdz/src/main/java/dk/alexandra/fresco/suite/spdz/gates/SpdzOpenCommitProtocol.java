@@ -50,7 +50,6 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigI
       network.sendToAll(serializer.serialize(randomness));
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else if (round == 1) {
-      Map<Integer, BigInteger> commitments = this.commitments;
       // Receive openings from all parties and check they are valid
       List<byte[]> values = network.receiveFromAll();
       List<byte[]> randomnesses = network.receiveFromAll();
@@ -58,12 +57,11 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigI
       boolean openingValidated = true;
       BigInteger[] broadcastMessages = new BigInteger[2 * players];
       for (int i = 0; i < players; i++) {
-        BigInteger com = commitments.get(i + 1);
+        BigInteger commitment = commitments.get(i + 1);
         BigInteger open0 = serializer.deserialize(values.get(i));
         BigInteger open1 = serializer.deserialize(randomnesses.get(i));
         boolean validate = checkCommitment(
-            spdzResourcePool, com,
-            open0, open1);
+            spdzResourcePool, commitment, open0, open1);
         openingValidated = openingValidated && validate;
         ss.put(i, open0);
         broadcastMessages[i * 2] = open0;
