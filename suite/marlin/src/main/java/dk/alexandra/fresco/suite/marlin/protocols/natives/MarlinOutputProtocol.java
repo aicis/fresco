@@ -11,7 +11,6 @@ import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStore;
 import java.math.BigInteger;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class MarlinOutputProtocol<T extends BigUInt<T>> extends
     MarlinNativeProtocol<BigInteger, T> {
@@ -35,13 +34,10 @@ public class MarlinOutputProtocol<T extends BigUInt<T>> extends
       network.sendToAll(ByteAndBitConverter.toByteArray(authenticatedElement.getShare().getLow()));
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
-      // TODO probably want a serializer
-      List<T> shares = network.receiveFromAll().stream().map(factory::createFromBytes).collect(
-          Collectors.toList());
-      T openedNotConverted = BigUInt.sum(shares);
-      openedValueStore.pushOpenedValue(authenticatedElement, openedNotConverted);
-      this.opened = resourcePool
-          .convertRepresentation(BigInteger.valueOf(openedNotConverted.getLow()));
+      List<T> shares = resourcePool.getRawSerializer().deserializeList(network.receiveFromAll());
+      T recombined = BigUInt.sum(shares);
+      openedValueStore.pushOpenedValue(authenticatedElement, recombined);
+      this.opened = resourcePool.convertRepresentation(recombined);
       return EvaluationStatus.IS_DONE;
     }
   }
