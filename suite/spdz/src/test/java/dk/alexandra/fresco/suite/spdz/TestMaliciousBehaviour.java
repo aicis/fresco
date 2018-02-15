@@ -26,12 +26,10 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,7 +53,7 @@ public class TestMaliciousBehaviour {
   }
 
   @Test
-  public void testCommitmentCorruptRound1() throws Exception {
+  public void testCommitmentCorruptRound1() {
     try {
       runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
           Corrupt.COMMIT_ROUND_1);
@@ -69,7 +67,7 @@ public class TestMaliciousBehaviour {
   }
 
   @Test
-  public void testOpenCommitmentCorruptRound1() throws Exception {
+  public void testOpenCommitmentCorruptRound1() {
     try {
       runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2,
           Corrupt.OPEN_COMMIT_ROUND_1);
@@ -83,7 +81,7 @@ public class TestMaliciousBehaviour {
   }
 
   @Test
-  public void testCommitmentCorruptRound2() throws Exception {
+  public void testCommitmentCorruptRound2() {
     try {
       runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
           Corrupt.COMMIT_ROUND_2);
@@ -97,7 +95,7 @@ public class TestMaliciousBehaviour {
   }
 
   @Test
-  public void testOpenCommitmentCorruptRound2() throws Exception {
+  public void testOpenCommitmentCorruptRound2() {
     try {
       runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2,
           Corrupt.OPEN_COMMIT_ROUND_2);
@@ -111,7 +109,7 @@ public class TestMaliciousBehaviour {
   }
 
   @Test
-  public void testMaliciousInput() throws Exception {
+  public void testMaliciousInput() {
     try {
       runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2,
           Corrupt.INPUT);
@@ -126,7 +124,7 @@ public class TestMaliciousBehaviour {
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
-      EvaluationStrategy evalStrategy, int noOfParties, Corrupt corrupt) throws Exception {
+      EvaluationStrategy evalStrategy, int noOfParties, Corrupt corrupt) {
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * (noOfParties - 1));
@@ -137,7 +135,7 @@ public class TestMaliciousBehaviour {
     Map<Integer, TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     for (int playerId : netConf.keySet()) {
-      ProtocolSuiteNumeric<SpdzResourcePool> protocolSuite = null;
+      ProtocolSuiteNumeric<SpdzResourcePool> protocolSuite;
       if (playerId == 1) {
         protocolSuite = new MaliciousSpdzProtocolSuite(150, corrupt);
       } else {
@@ -153,7 +151,7 @@ public class TestMaliciousBehaviour {
 
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
-              () -> createResourcePool(playerId, noOfParties, new Random(), new SecureRandom()),
+              () -> createResourcePool(playerId, noOfParties),
               () -> {
                 KryoNetNetwork kryoNetwork = new KryoNetNetwork(netConf.get(playerId));
                 return kryoNetwork;
@@ -163,8 +161,7 @@ public class TestMaliciousBehaviour {
     TestThreadRunner.run(f, conf);
   }
 
-  private SpdzResourcePool createResourcePool(int myId, int size, Random rand,
-      SecureRandom secRand) {
+  private SpdzResourcePool createResourcePool(int myId, int size) {
     SpdzDataSupplier supplier = new SpdzDummyDataSupplier(myId, size);
     SpdzStorage store = new SpdzStorageImpl(supplier);
     return new SpdzResourcePoolImpl(myId, size, new HmacDrbg(), store);
@@ -209,8 +206,6 @@ public class TestMaliciousBehaviour {
     public RoundSynchronization<SpdzResourcePool> createRoundSynchronization() {
       return new MaliciousSpdzRoundSynchronization(this);
     }
-
   }
-
 }
 
