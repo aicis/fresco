@@ -35,7 +35,7 @@ public class BasicBinaryFloatNumeric implements BasicRealNumeric {
     if (current.getScale() < scale) {
       sint = scope.numeric().mult(BigInteger.valueOf(2).pow(scale - current.getScale()), sint);
     } else if (current.getScale() > scale) {
-      sint = scope.seq(new Truncate(maxScale, sint, current.getScale() - scale));//scope.advancedNumeric().div(sint, BigInteger.valueOf(2).pow(current.getScale() - scale));
+      sint = scope.seq(new Truncate(2*maxScale, sint, current.getScale() - scale));
     }
     return sint;
   }
@@ -140,7 +140,7 @@ public class BasicBinaryFloatNumeric implements BasicRealNumeric {
       DRes<SInt> bInt = unscaled(seq, bFloat, defaultScale);
       
       DRes<SInt> scaled = seq.advancedNumeric().div(aInt, bInt);
-      return new SBinaryFloat(scaled, 16);
+      return new SBinaryFloat(scaled, defaultScale);
     });
   }
 
@@ -153,7 +153,7 @@ public class BasicBinaryFloatNumeric implements BasicRealNumeric {
       BigBinary binB = new BigBinary(b, defaultScale);
       BigInteger bInt = binB.unscaledValue();
       DRes<SInt> scaled = seq.advancedNumeric().div(aInt, bInt);
-      return new SBinaryFloat(scaled, 16);
+      return new SBinaryFloat(scaled, defaultScale);
     });
   }
 
