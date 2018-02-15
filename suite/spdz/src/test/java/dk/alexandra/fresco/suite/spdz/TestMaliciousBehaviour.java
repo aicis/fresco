@@ -61,7 +61,8 @@ public class TestMaliciousBehaviour {
           Corrupt.COMMIT_ROUND_1);
       Assert.fail("Should not go well");
     } catch (RuntimeException e) {
-      if (e.getCause().getCause() == null || !(e.getCause().getCause() instanceof MaliciousException)) {
+      if (e.getCause().getCause() == null || !(e.getCause()
+          .getCause() instanceof MaliciousException)) {
         Assert.fail();
       }
     }
@@ -74,7 +75,8 @@ public class TestMaliciousBehaviour {
           Corrupt.OPEN_COMMIT_ROUND_1);
       Assert.fail("Should not go well");
     } catch (RuntimeException e) {
-      if (e.getCause().getCause() == null || !(e.getCause().getCause() instanceof MaliciousException)) {
+      if (e.getCause().getCause() == null || !(e.getCause()
+          .getCause() instanceof MaliciousException)) {
         Assert.fail();
       }
     }
@@ -87,7 +89,8 @@ public class TestMaliciousBehaviour {
           Corrupt.COMMIT_ROUND_2);
       Assert.fail("Should not go well");
     } catch (RuntimeException e) {
-      if (e.getCause().getCause() == null || !(e.getCause().getCause() instanceof MaliciousException)) {
+      if (e.getCause().getCause() == null || !(e.getCause()
+          .getCause() instanceof MaliciousException)) {
         Assert.fail();
       }
     }
@@ -100,7 +103,8 @@ public class TestMaliciousBehaviour {
           Corrupt.OPEN_COMMIT_ROUND_2);
       Assert.fail("Should not go well");
     } catch (RuntimeException e) {
-      if (e.getCause().getCause() == null || !(e.getCause().getCause() instanceof MaliciousException)) {
+      if (e.getCause().getCause() == null || !(e.getCause()
+          .getCause() instanceof MaliciousException)) {
         Assert.fail();
       }
     }
@@ -113,7 +117,8 @@ public class TestMaliciousBehaviour {
           Corrupt.INPUT);
       Assert.fail("Should not go well");
     } catch (RuntimeException e) {
-      if (e.getCause().getCause() == null || !(e.getCause().getCause() instanceof MaliciousException)) {
+      if (e.getCause().getCause() == null || !(e.getCause()
+          .getCause() instanceof MaliciousException)) {
         Assert.fail();
       }
     }
@@ -165,13 +170,12 @@ public class TestMaliciousBehaviour {
     return new SpdzResourcePoolImpl(myId, size, new HmacDrbg(), store);
   }
 
-  private class MaliciousSpdzProtocolSuite implements ProtocolSuiteNumeric<SpdzResourcePool> {
+  private class MaliciousSpdzProtocolSuite extends SpdzProtocolSuite {
 
-    private final int maxBitLength;
     private Corrupt corrupt;
 
     public MaliciousSpdzProtocolSuite(int maxBitLength, Corrupt corrupt) {
-      this.maxBitLength = maxBitLength;
+      super(maxBitLength);
       this.corrupt = corrupt;
       switch (corrupt) {
         case COMMIT_ROUND_1:
@@ -193,8 +197,7 @@ public class TestMaliciousBehaviour {
 
     @Override
     public BuilderFactoryNumeric init(SpdzResourcePool resourcePool, Network network) {
-      BasicNumericContext spdzFactory = new BasicNumericContext(maxBitLength,
-          resourcePool.getModulus(), resourcePool.getMyId(), resourcePool.getNoOfParties());
+      BasicNumericContext spdzFactory = createNumericContext(resourcePool);
       if (resourcePool.getMyId() == 1 && corrupt.compareTo(Corrupt.INPUT) == 0) {
         return new MaliciousSpdzBuilder(spdzFactory);
       } else {
@@ -204,7 +207,7 @@ public class TestMaliciousBehaviour {
 
     @Override
     public RoundSynchronization<SpdzResourcePool> createRoundSynchronization() {
-      return new MaliciousSpdzRoundSynchronization();
+      return new MaliciousSpdzRoundSynchronization(this);
     }
 
   }
