@@ -12,6 +12,7 @@ import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinDataSupplier;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStore;
 import java.math.BigInteger;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public interface MarlinResourcePool<T extends BigUInt<T>> extends NumericResourcePool {
@@ -43,14 +44,17 @@ public interface MarlinResourcePool<T extends BigUInt<T>> extends NumericResourc
    * relying on joint randomness are used. Requires a network since a coin tossing protocol is
    * executed to establish a joint random seed. It is guaranteed that the supplied network will be
    * closed upon completion of this method.</p>
+   *
+   * @param networkSupplier supplier for network to be used in coin-tossing
+   * @param drbgGenerator creates drbg given the seed generated via coin-tossing
    */
-  void initializeJointRandomness(Supplier<Network> networkSupplier);
+  void initializeJointRandomness(Supplier<Network> networkSupplier,
+      Function<byte[], Drbg> drbgGenerator);
 
   /**
    * The DRBG is useful for protocols which needs a form of shared randomness where the random bytes
    * are not easily guessed by an adversary. This generator will provide exactly that. For explicit
-   * security guarantees, we refer to implementations of
-   * {@link dk.alexandra.fresco.framework.util.Drbg}.
+   * security guarantees, we refer to implementations of {@link dk.alexandra.fresco.framework.util.Drbg}.
    *
    * @return An instance of a DRBG.
    */

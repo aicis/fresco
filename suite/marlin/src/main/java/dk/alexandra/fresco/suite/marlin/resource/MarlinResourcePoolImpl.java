@@ -11,7 +11,6 @@ import dk.alexandra.fresco.framework.sce.evaluator.NetworkBatchDecorator;
 import dk.alexandra.fresco.framework.sce.evaluator.ProtocolCollectionList;
 import dk.alexandra.fresco.framework.sce.resources.Broadcast;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
@@ -26,6 +25,7 @@ import java.io.Closeable;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolImpl implements
@@ -105,7 +105,8 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
   }
 
   @Override
-  public void initializeJointRandomness(Supplier<Network> networkSupplier) {
+  public void initializeJointRandomness(Supplier<Network> networkSupplier,
+      Function<byte[], Drbg> drbgGenerator) {
     BasicNumericContext numericContext = new BasicNumericContext(effectiveBitLength, modulus,
         getMyId(), getNoOfParties());
     Network network = networkSupplier.get();
@@ -132,8 +133,7 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
     for (byte[] seed : seeds.out()) {
       ByteArrayHelper.xor(jointSeed, seed);
     }
-    // TODO should be supplied
-    drbg = new AesCtrDrbg(jointSeed);
+    drbg = drbgGenerator.apply(jointSeed);
     ExceptionConverter.safe(() -> {
       ((Closeable) network).close();
       return null;
@@ -158,6 +158,9 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
 
   @Override
   public Drbg getRandomGenerator() {
+    if (drbg == null) {
+      throw new IllegalStateException("Joint drbg must be initialized before use");
+    }
     return drbg;
   }
 

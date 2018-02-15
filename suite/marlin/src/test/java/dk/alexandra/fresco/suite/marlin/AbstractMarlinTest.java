@@ -132,7 +132,7 @@ public class AbstractMarlinTest {
       BigUIntFactory<MutableUInt128> factory, Supplier<Network> networkSupplier) {
     MarlinResourcePool<MutableUInt128> resourcePool = new MarlinResourcePoolImpl<>(playerId,
         noOfParties, null, store, supplier, factory);
-    resourcePool.initializeJointRandomness(networkSupplier);
+    resourcePool.initializeJointRandomness(networkSupplier, AesCtrDrbg::new);
     return resourcePool;
   }
 
