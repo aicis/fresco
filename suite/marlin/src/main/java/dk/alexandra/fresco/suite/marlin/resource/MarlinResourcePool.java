@@ -11,6 +11,7 @@ import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinDataSupplier;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStore;
 import java.math.BigInteger;
+import java.util.function.Supplier;
 
 public interface MarlinResourcePool<T extends BigUInt<T>> extends NumericResourcePool {
 
@@ -37,7 +38,15 @@ public interface MarlinResourcePool<T extends BigUInt<T>> extends NumericResourc
   ByteSerializer<T> getRawSerializer();
 
   /**
-   * Creates a new broadcast helper.
+   * Initializes deterministic joint randomness source. <p>Must be called before any protocols
+   * relying on joint randomness are used. Requires a network since a coin tossing protocol is
+   * executed to establish a joint random seed. It is guaranteed that the supplied network will be
+   * closed upon completion of this method.</p>
+   */
+  void initializeJointRandomness(Supplier<Network> networkSupplier);
+
+  /**
+   * Creates a new broadcast helper. TODO remove?
    */
   Broadcast createBroadcast(Network network);
 

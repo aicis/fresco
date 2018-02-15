@@ -47,22 +47,6 @@ public class MarlinInputOnlyProtocol<T extends BigUInt<T>> extends
       this.out = new Pair<>(out, inputMaskBytes);
       return EvaluationStatus.IS_DONE;
     }
-//      if (resourcePool.getNoOfParties() <= 2) {
-//        return EvaluationStatus.IS_DONE;
-//      } else {
-//        broadcast = resourcePool.createBroadcast(network);
-//        // TODO maybe better to run broadcast directly on byte array received from network
-//        digest = broadcast
-//            .computeAndSendDigests(serializer.serialize(maskedInput));
-//        return EvaluationStatus.HAS_MORE_ROUNDS;
-//      }
-//    } else {
-//      // TODO more elegant way to deal with broadcast
-//      if (broadcast != null) {
-//        broadcast.receiveAndValidateDigests(digest);
-//      }
-//      return EvaluationStatus.IS_DONE;
-//    }
   }
 
   @Override

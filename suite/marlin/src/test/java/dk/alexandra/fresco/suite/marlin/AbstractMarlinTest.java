@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
@@ -35,6 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public class AbstractMarlinTest {
 
@@ -80,30 +82,30 @@ public class AbstractMarlinTest {
       }
 
       BigUIntFactory<MutableUInt128> factory = new MutableUInt128Factory();
-      MarlinOpenedValueStore<MutableUInt128> storage = createOpenedValueStore();
+      MarlinOpenedValueStore<MutableUInt128> store = createOpenedValueStore();
       MarlinDataSupplier<MutableUInt128> supplier = createDataSupplier(playerId, noOfParties,
           factory);
 
       SecureComputationEngine<MarlinResourcePool, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(ps, evaluator);
 
-      // TODO initialize joint drbg via coin-tossing which requires a network
       Drbg drbg = new AesCtrDrbg(new byte[32]);
+      Supplier<Network> networkSupplier = () -> {
+        KryoNetNetwork kryoNetwork = new KryoNetNetwork(partyNetConf);
+        if (logPerformance) {
+          NetworkLoggingDecorator network = new NetworkLoggingDecorator(kryoNetwork);
+          aggregate.add(network);
+          return network;
+        } else {
+          return kryoNetwork;
+        }
+      };
       TestThreadRunner.TestThreadConfiguration<MarlinResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,
-              () -> new MarlinResourcePoolImpl<>(playerId, noOfParties, drbg, storage, supplier,
-                  factory),
-              () -> {
-                KryoNetNetwork kryoNetwork = new KryoNetNetwork(partyNetConf);
-                if (logPerformance) {
-                  NetworkLoggingDecorator network = new NetworkLoggingDecorator(kryoNetwork);
-                  aggregate.add(network);
-                  return network;
-                } else {
-                  return kryoNetwork;
-                }
-              });
+              () -> createResourcePool(playerId, noOfParties, store, supplier,
+                  factory, networkSupplier),
+              networkSupplier);
 
       conf.put(playerId, ttc);
       performanceLoggers.putIfAbsent(playerId, aggregate);
@@ -123,6 +125,15 @@ public class AbstractMarlinTest {
   private MarlinDataSupplier<MutableUInt128> createDataSupplier(int myId, int noOfParties,
       BigUIntFactory<MutableUInt128> factory) {
     return new MarlinDummyDataSupplier<>(myId, noOfParties, factory.createRandom(), factory);
+  }
+
+  private MarlinResourcePool<MutableUInt128> createResourcePool(int playerId, int noOfParties,
+      MarlinOpenedValueStore<MutableUInt128> store, MarlinDataSupplier<MutableUInt128> supplier,
+      BigUIntFactory<MutableUInt128> factory, Supplier<Network> networkSupplier) {
+    MarlinResourcePool<MutableUInt128> resourcePool = new MarlinResourcePoolImpl<>(playerId,
+        noOfParties, null, store, supplier, factory);
+    resourcePool.initializeJointRandomness(networkSupplier);
+    return resourcePool;
   }
 
 }

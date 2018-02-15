@@ -13,33 +13,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MarlinCommitmentComputation<T extends BigUInt<T>> implements
-    ComputationParallel<List<T>, ProtocolBuilderNumeric> {
+    ComputationParallel<List<byte[]>, ProtocolBuilderNumeric> {
 
   private final MarlinResourcePool<T> resourcePool;
-  private final T value;
+  private final byte[] value;
 
-  public MarlinCommitmentComputation(
-      MarlinResourcePool<T> resourcePool, T value) {
-    // think about logistics of exposing resource pool
+  public MarlinCommitmentComputation(MarlinResourcePool<T> resourcePool, byte[] value) {
+    // TODO think about logistics of exposing resource pool
     this.resourcePool = resourcePool;
     this.value = value;
   }
 
   @Override
-  public DRes<List<T>> buildComputation(ProtocolBuilderNumeric builder) {
+  public DRes<List<byte[]>> buildComputation(ProtocolBuilderNumeric builder) {
     HashBasedCommitment ownCommitment = new HashBasedCommitment();
     ByteSerializer<HashBasedCommitment> commitmentSerializer = resourcePool
         .getCommitmentSerializer();
-    ByteSerializer<T> serializer = resourcePool.getRawSerializer();
-    byte[] ownOpening = ownCommitment.commit(
-        new AesCtrDrbg(),
-        resourcePool.getRawSerializer().serialize(value));
+    // TODO optimize by caching initialized drbg somewhere, if needed
+    byte[] ownOpening = ownCommitment.commit(new AesCtrDrbg(), value);
     return builder.seq(new MarlinBroadcastComputation<>(
         commitmentSerializer.serialize(ownCommitment)
     )).seq((seq, rawCommitments) -> {
       DRes<List<byte[]>> openingsDRes = seq.append(new MarlinAllBroadcastProtocol<>(ownOpening));
       List<HashBasedCommitment> commitments = commitmentSerializer.deserializeList(rawCommitments);
-      return () -> serializer.deserializeList(open(commitments, openingsDRes.out()));
+      return () -> open(commitments, openingsDRes.out());
     });
   }
 

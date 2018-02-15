@@ -67,10 +67,12 @@ public class MarlinMacCheckComputation<T extends BigUInt<T>> implements
               .subtract(mj)
               .subtract(p.multiply(macKeyShare).shiftLowIntoHigh())
               .add(r.getMacShare().shiftLowIntoHigh());
-          return new MarlinCommitmentComputation<>(resourcePool, zj).buildComputation(seq);
+          byte[] zjBytes = resourcePool.getRawSerializer().serialize(zj);
+          return new MarlinCommitmentComputation<>(resourcePool, zjBytes).buildComputation(seq);
         })
         .seq((seq, commitZjs) -> {
-          if (!BigUInt.sum(commitZjs).isZero()) {
+          List<T> deserialized = resourcePool.getRawSerializer().deserializeList(commitZjs);
+          if (!BigUInt.sum(deserialized).isZero()) {
             throw new MaliciousException("Mac check failed");
           }
           return null;

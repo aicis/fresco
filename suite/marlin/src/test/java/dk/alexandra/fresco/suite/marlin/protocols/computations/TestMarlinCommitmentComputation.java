@@ -39,22 +39,22 @@ public class TestMarlinCommitmentComputation extends AbstractMarlinTest {
         @Override
         public void test() throws Exception {
           int noParties = conf.getResourcePool().getNoOfParties();
-          List<MutableUInt128> inputs = new ArrayList<>();
+          List<byte[]> inputs = new ArrayList<>();
           Random random = new Random(42);
           for (int i = 1; i <= noParties; i++) {
-            byte[] bytes = new byte[16];
+            byte[] bytes = new byte[32];
             random.nextBytes(bytes);
-            inputs.add(new MutableUInt128(bytes));
+            inputs.add(bytes);
           }
-          Application<List<MutableUInt128>, ProtocolBuilderNumeric> testApplication =
+          Application<List<byte[]>, ProtocolBuilderNumeric> testApplication =
               root -> new MarlinCommitmentComputation<>(
                   conf.getResourcePool(),
                   inputs.get(root.getBasicNumericContext().getMyId() - 1))
                   .buildComputation(root);
-          List<MutableUInt128> actual = runApplication(testApplication);
+          List<byte[]> actual = runApplication(testApplication);
           assertEquals(inputs.size(), actual.size());
           for (int i = 0; i < actual.size(); i++) {
-            assertArrayEquals(inputs.get(i).toByteArray(), actual.get(i).toByteArray());
+            assertArrayEquals(inputs.get(i), actual.get(i));
           }
         }
       };

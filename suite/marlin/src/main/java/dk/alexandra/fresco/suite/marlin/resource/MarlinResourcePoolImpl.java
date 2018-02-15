@@ -1,18 +1,35 @@
 package dk.alexandra.fresco.suite.marlin.resource;
 
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
+import dk.alexandra.fresco.framework.sce.evaluator.NetworkBatchDecorator;
+import dk.alexandra.fresco.framework.sce.evaluator.ProtocolCollectionList;
 import dk.alexandra.fresco.framework.sce.resources.Broadcast;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.ExceptionConverter;
+import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
+import dk.alexandra.fresco.suite.marlin.MarlinBuilder;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
+import dk.alexandra.fresco.suite.marlin.protocols.computations.MarlinCommitmentComputation;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinDataSupplier;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStore;
+import java.io.Closeable;
 import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.List;
+import java.util.function.Supplier;
 
 public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolImpl implements
-    MarlinResourcePool {
+    MarlinResourcePool<T> {
 
   private final int operationalBitLength;
   private final int effectiveBitLength;
@@ -21,7 +38,8 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
   private final MarlinDataSupplier<T> supplier;
   private final BigUIntFactory<T> factory;
   private final ByteSerializer<T> rawSerializer;
-  private Broadcast broadcast;
+  // TODO come up with clean way to reconcile this with drbg on ResourcePoolImpl
+  private Drbg jointRandomness;
 
   /**
    * Creates new {@link MarlinResourcePool}.
@@ -45,7 +63,6 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
     this.supplier = supplier;
     this.factory = factory;
     this.rawSerializer = factory.createSerializer();
-    this.broadcast = null;
   }
 
   /**
@@ -68,23 +85,59 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
   }
 
   @Override
-  public MarlinOpenedValueStore getOpenedValueStore() {
+  public MarlinOpenedValueStore<T> getOpenedValueStore() {
     return storage;
   }
 
   @Override
-  public MarlinDataSupplier getDataSupplier() {
+  public MarlinDataSupplier<T> getDataSupplier() {
     return supplier;
   }
 
   @Override
-  public BigUIntFactory getFactory() {
+  public BigUIntFactory<T> getFactory() {
     return factory;
   }
 
   @Override
-  public ByteSerializer getRawSerializer() {
+  public ByteSerializer<T> getRawSerializer() {
     return rawSerializer;
+  }
+
+  @Override
+  public void initializeJointRandomness(Supplier<Network> networkSupplier) {
+    BasicNumericContext numericContext = new BasicNumericContext(effectiveBitLength, modulus,
+        getMyId(), getNoOfParties());
+    Network network = networkSupplier.get();
+    NetworkBatchDecorator networkBatchDecorator =
+        new NetworkBatchDecorator(
+            this.getNoOfParties(),
+            network);
+    BuilderFactoryNumeric builderFactory = new MarlinBuilder<>(factory, numericContext);
+    ProtocolBuilderNumeric root = builderFactory.createSequential();
+    byte[] ownSeed = new byte[32];
+    new SecureRandom().nextBytes(ownSeed);
+    DRes<List<byte[]>> seeds = new MarlinCommitmentComputation<>(this, ownSeed)
+        .buildComputation(root);
+    ProtocolProducer commitmentProducer = root.build();
+    do {
+      ProtocolCollectionList<MarlinResourcePool> protocolCollectionList =
+          new ProtocolCollectionList<>(
+              128); // batch size is irrelevant since this is a very light-weight protocol
+      commitmentProducer.getNextProtocols(protocolCollectionList);
+      new BatchedStrategy<MarlinResourcePool>()
+          .processBatch(protocolCollectionList, this, networkBatchDecorator);
+    } while (commitmentProducer.hasNextProtocols());
+    byte[] jointSeed = new byte[32];
+    for (byte[] seed : seeds.out()) {
+      ByteArrayHelper.xor(jointSeed, seed);
+    }
+    // TODO should be supplied
+    jointRandomness = new AesCtrDrbg(jointSeed);
+    ExceptionConverter.safe(() -> {
+      ((Closeable) network).close();
+      return null;
+    }, "Failed to close network");
   }
 
   @Override
@@ -101,6 +154,11 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
   @Override
   public ByteSerializer<BigInteger> getSerializer() {
     throw new UnsupportedOperationException("This suite does not support serializing big integers");
+  }
+
+  @Override
+  public Drbg getRandomGenerator() {
+    return jointRandomness;
   }
 
 }

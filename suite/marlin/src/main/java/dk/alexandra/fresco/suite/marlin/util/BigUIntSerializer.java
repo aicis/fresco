@@ -24,7 +24,6 @@ public class BigUIntSerializer<T extends BigUInt<T>> implements ByteSerializer<T
 
   @Override
   public byte[] serialize(List<T> objects) {
-    // TODO this will break on lists that are too big with the batched network decorator
     byte[] all = new byte[byteLength * objects.size()];
     for (int i = 0; i < objects.size(); i++) {
       byte[] serialized = serialize(objects.get(i));
