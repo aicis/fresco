@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.function.Supplier;
 
 public class SequentialProtocolProducer implements ProtocolProducer, ProtocolProducerCollection {
 
@@ -22,10 +21,6 @@ public class SequentialProtocolProducer implements ProtocolProducer, ProtocolPro
 
   public void append(ProtocolProducer protocolProducer) {
     this.protocolProducers.add(protocolProducer);
-  }
-
-  public void lazyAppend(Supplier<ProtocolProducer> supplier) {
-    append(new LazyProtocolProducerDecorator(supplier));
   }
 
   @Override
