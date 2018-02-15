@@ -47,8 +47,7 @@ public class MutableUInt128 implements BigUInt<MutableUInt128> {
     this.low = other.low;
   }
 
-  @Override
-  public void addInPlace(MutableUInt128 other) {
+  private void addInPlace(MutableUInt128 other) {
     long newLow = Integer.toUnsignedLong(this.low) + Integer.toUnsignedLong(other.low);
     long lowOverflow = newLow >>> 32;
     long newMid = Integer.toUnsignedLong(this.mid)
@@ -68,8 +67,7 @@ public class MutableUInt128 implements BigUInt<MutableUInt128> {
     return clone;
   }
 
-  @Override
-  public void multiplyInPlace(MutableUInt128 other) {
+  private void multiplyInPlace(MutableUInt128 other) {
     long thisLowAsLong = Integer.toUnsignedLong(this.low);
     long thisMidAsLong = Integer.toUnsignedLong(this.mid);
     long otherLowAsLong = Integer.toUnsignedLong(other.low);
@@ -116,8 +114,7 @@ public class MutableUInt128 implements BigUInt<MutableUInt128> {
     return clone;
   }
 
-  @Override
-  public void subtractInPlace(MutableUInt128 other) {
+  private void subtractInPlace(MutableUInt128 other) {
     // TODO optimize if bottle-neck
     addInPlace(other.negate());
   }
@@ -129,8 +126,7 @@ public class MutableUInt128 implements BigUInt<MutableUInt128> {
     return clone;
   }
 
-  @Override
-  public void negateInPlace() {
+  private void negateInPlace() {
     multiplyInPlace(MINUS_ONE);
   }
 

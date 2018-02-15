@@ -10,29 +10,6 @@ import java.util.List;
 public interface BigUInt<T extends BigUInt> {
 
   /**
-   * Update value of this to be sum of this and other {@code other}. <p>This is an in-place
-   * operation.</p>
-   */
-  void addInPlace(T other);
-
-  /**
-   * Update value of this to be product of this and other {@code other}. <p>This is an in-place
-   * operation.</p>
-   */
-  void multiplyInPlace(T other);
-
-  /**
-   * Update value of this to be difference of this and other {@code other}. <p>This is an in-place
-   * operation.</p>
-   */
-  void subtractInPlace(T other);
-
-  /**
-   * Negates the value of this (with wrap-around). <p>This is an in-place operation.</p>
-   */
-  void negateInPlace();
-
-  /**
    * Compute sum of this and {@code other}.
    */
   T add(T other);
