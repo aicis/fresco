@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
-import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
@@ -17,7 +16,7 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigI
 
   private SpdzCommitment commitment;
   private Map<Integer, BigInteger> ss;
-  private DRes<Map<Integer, BigInteger>> commitments;
+  private Map<Integer, BigInteger> commitments;
   private byte[] digest;
 
   /**
@@ -27,7 +26,7 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigI
    * @param commitments Other parties commitments.
    */
   public SpdzOpenCommitProtocol(SpdzCommitment commitment,
-      DRes<Map<Integer, BigInteger>> commitments) {
+      Map<Integer, BigInteger> commitments) {
     this.commitment = commitment;
     this.commitments = commitments;
     this.ss = new HashMap<>();
@@ -51,7 +50,7 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigI
       network.sendToAll(serializer.serialize(randomness));
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else if (round == 1) {
-      Map<Integer, BigInteger> commitments = this.commitments.out();
+      Map<Integer, BigInteger> commitments = this.commitments;
       // Receive openings from all parties and check they are valid
       List<byte[]> values = network.receiveFromAll();
       List<byte[]> randomnesses = network.receiveFromAll();
