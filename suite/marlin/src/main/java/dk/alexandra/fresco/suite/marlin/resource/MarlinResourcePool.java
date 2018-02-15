@@ -47,9 +47,10 @@ public interface MarlinResourcePool<T extends BigUInt<T>> extends NumericResourc
    *
    * @param networkSupplier supplier for network to be used in coin-tossing
    * @param drbgGenerator creates drbg given the seed generated via coin-tossing
+   * @param seedLength expected length for drbg seed
    */
   void initializeJointRandomness(Supplier<Network> networkSupplier,
-      Function<byte[], Drbg> drbgGenerator);
+      Function<byte[], Drbg> drbgGenerator, int seedLength);
 
   /**
    * The DRBG is useful for protocols which needs a form of shared randomness where the random bytes

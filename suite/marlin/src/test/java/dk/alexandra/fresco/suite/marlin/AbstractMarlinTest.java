@@ -13,7 +13,6 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
-import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.DefaultPerformancePrinter;
 import dk.alexandra.fresco.logging.EvaluatorLoggingDecorator;
@@ -89,7 +88,6 @@ public class AbstractMarlinTest {
       SecureComputationEngine<MarlinResourcePool, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(ps, evaluator);
 
-      Drbg drbg = new AesCtrDrbg(new byte[32]);
       Supplier<Network> networkSupplier = () -> {
         KryoNetNetwork kryoNetwork = new KryoNetNetwork(partyNetConf);
         if (logPerformance) {
@@ -132,7 +130,7 @@ public class AbstractMarlinTest {
       BigUIntFactory<MutableUInt128> factory, Supplier<Network> networkSupplier) {
     MarlinResourcePool<MutableUInt128> resourcePool = new MarlinResourcePoolImpl<>(playerId,
         noOfParties, null, store, supplier, factory);
-    resourcePool.initializeJointRandomness(networkSupplier, AesCtrDrbg::new);
+    resourcePool.initializeJointRandomness(networkSupplier, AesCtrDrbg::new, 32);
     return resourcePool;
   }
 

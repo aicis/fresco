@@ -106,7 +106,7 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
 
   @Override
   public void initializeJointRandomness(Supplier<Network> networkSupplier,
-      Function<byte[], Drbg> drbgGenerator) {
+      Function<byte[], Drbg> drbgGenerator, int seedLength) {
     BasicNumericContext numericContext = new BasicNumericContext(effectiveBitLength, modulus,
         getMyId(), getNoOfParties());
     Network network = networkSupplier.get();
@@ -116,7 +116,7 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
             network);
     BuilderFactoryNumeric builderFactory = new MarlinBuilder<>(factory, numericContext);
     ProtocolBuilderNumeric root = builderFactory.createSequential();
-    byte[] ownSeed = new byte[32];
+    byte[] ownSeed = new byte[seedLength];
     new SecureRandom().nextBytes(ownSeed);
     DRes<List<byte[]>> seeds = new MarlinCommitmentComputation<>(this, ownSeed)
         .buildComputation(root);
@@ -129,7 +129,7 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
       new BatchedStrategy<MarlinResourcePool>()
           .processBatch(protocolCollectionList, this, networkBatchDecorator);
     } while (commitmentProducer.hasNextProtocols());
-    byte[] jointSeed = new byte[32];
+    byte[] jointSeed = new byte[seedLength];
     for (byte[] seed : seeds.out()) {
       ByteArrayHelper.xor(jointSeed, seed);
     }
