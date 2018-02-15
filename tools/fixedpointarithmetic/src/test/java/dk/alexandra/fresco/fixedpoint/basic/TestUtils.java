@@ -7,7 +7,7 @@ public class TestUtils {
 
   static boolean isEqual(BigDecimal a, BigDecimal b) {
 
-    BigDecimal bound = BigDecimal.valueOf(1.0); //TODO: Set reasonable bound
+    BigDecimal bound = BigDecimal.valueOf(0.1); //TODO: Set reasonable bound
     BigDecimal d = a.subtract(b).abs();
     
     if (d.compareTo(bound) != -1) {

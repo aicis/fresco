@@ -55,11 +55,6 @@ public abstract class RealAbstractDummyArithmeticTest extends AbstractDummyArith
   }
 
   @Test
-  public void test_MultSecret() throws Exception {
-    runTest(new BasicFixedPointTests.TestMult<>(getProvider()), EvaluationStrategy.SEQUENTIAL, 2);
-  }
-
-  @Test
   public void test_MultKnown() throws Exception {
     runTest(new BasicFixedPointTests.TestMultKnown<>(getProvider()), EvaluationStrategy.SEQUENTIAL,
         2);
