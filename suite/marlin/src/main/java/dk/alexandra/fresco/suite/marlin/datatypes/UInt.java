@@ -7,10 +7,10 @@ import java.nio.IntBuffer;
 
 public class UInt implements BigUInt<UInt> {
 
-  private final int[] chunks;
+  private final int[] ints;
 
   public UInt(int[] chunks) {
-    this.chunks = chunks;
+    this.ints = chunks;
   }
 
   public UInt(byte[] bytes, int requiredBitLength) {
@@ -21,9 +21,21 @@ public class UInt implements BigUInt<UInt> {
     this(value.toByteArray(), requiredBitLength);
   }
 
+  public UInt(long value, int requiredBitLength) {
+    this(longToInts(value, requiredBitLength));
+  }
+
   @Override
   public UInt add(UInt other) {
-    return null;
+    int[] resultInts = new int[ints.length];
+    long carry = 0;
+    // big-endian, so reverse order
+    for (int l = ints.length - 1; l >= 0; l--) {
+      long sum = toULong(ints[l]) + toULong(other.ints[l]) + carry;
+      resultInts[l] = (int) sum;
+      carry = sum >>> 32;
+    }
+    return new UInt(resultInts);
   }
 
   @Override
@@ -48,14 +60,14 @@ public class UInt implements BigUInt<UInt> {
 
   @Override
   public int getBitLength() {
-    return chunks.length * Integer.SIZE;
+    return ints.length * Integer.SIZE;
   }
 
   @Override
   public byte[] toByteArray() {
     ByteBuffer buffer = ByteBuffer.allocate(getBitLength() / Byte.SIZE);
     IntBuffer intBuffer = buffer.asIntBuffer();
-    intBuffer.put(chunks);
+    intBuffer.put(ints);
     return buffer.array();
   }
 
@@ -79,6 +91,10 @@ public class UInt implements BigUInt<UInt> {
     return null;
   }
 
+  private long toULong(int value) {
+    return Integer.toUnsignedLong(value);
+  }
+
   private static int[] toIntArray(byte[] bytes, int requiredBitLength) {
     IntBuffer intBuf =
         ByteBuffer.wrap(pad(bytes, requiredBitLength))
@@ -93,13 +109,20 @@ public class UInt implements BigUInt<UInt> {
     byte[] padded = new byte[requiredBitLength / 8];
     // potentially drop byte containing sign bit
     boolean dropSignBitByte = (bytes[0] == 0x00);
-    int bytesLen = dropSignBitByte ? bytes.length - 1 : bytes.length;
-    if (bytesLen > padded.length) {
+    int bytesLength = dropSignBitByte ? bytes.length - 1 : bytes.length;
+    if (bytesLength > padded.length) {
       throw new IllegalArgumentException("Exceeds capacity");
     }
     int srcPos = dropSignBitByte ? 1 : 0;
-    System.arraycopy(bytes, srcPos, padded, padded.length - bytesLen, bytesLen);
+    System.arraycopy(bytes, srcPos, padded, padded.length - bytesLength, bytesLength);
     return padded;
+  }
+
+  private static int[] longToInts(long value, int requiredBitLength) {
+    int[] ints = new int[requiredBitLength / Integer.SIZE];
+    ints[ints.length - 1] = (int) value;
+    ints[ints.length - 2] = (int) (value >>> 32);
+    return ints;
   }
 
 }

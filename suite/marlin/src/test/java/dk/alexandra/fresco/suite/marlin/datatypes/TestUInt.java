@@ -59,6 +59,53 @@ public class TestUInt {
   }
 
   @Test
+  public void testAdd() {
+    assertEquals(
+        BigInteger.ZERO,
+        new UInt(0, 128).add(new UInt(0, 128)).toBigInteger()
+    );
+    assertEquals(
+        two,
+        new UInt(1, 128).add(new UInt(1, 128)).toBigInteger()
+    );
+    assertEquals(
+        twoTo32,
+        new UInt(twoTo32, 128).add(new UInt(0, 128)).toBigInteger()
+    );
+    assertEquals(
+        twoTo32.add(BigInteger.ONE),
+        new UInt(twoTo32, 128).add(new UInt(1, 128)).toBigInteger()
+    );
+    assertEquals(
+        twoTo64,
+        new UInt(twoTo64, 128).add(new UInt(0, 128)).toBigInteger()
+    );
+    assertEquals(
+        twoTo64.add(BigInteger.ONE),
+        new UInt(twoTo64, 128).add(new UInt(1, 128)).toBigInteger()
+    );
+    assertEquals(
+        twoTo128.subtract(BigInteger.ONE),
+        new UInt(twoTo128.subtract(BigInteger.ONE), 128).add(new UInt(0, 128))
+            .toBigInteger()
+    );
+    assertEquals(
+        BigInteger.ZERO,
+        new UInt(twoTo128.subtract(BigInteger.ONE), 128)
+            .add(new UInt(BigInteger.ONE, 128)).toBigInteger()
+    );
+    assertEquals(
+        twoTo128.subtract(new BigInteger("10000000")).add(twoTo32.add(twoTo64)).mod(twoTo128),
+        new UInt(twoTo128.subtract(new BigInteger("10000000")), 128)
+            .add(new UInt(twoTo32.add(twoTo64), 128)).toBigInteger()
+    );
+    assertEquals(
+        twoTo32.add(twoTo64).mod(twoTo128),
+        new UInt(twoTo32, 128).add(new UInt(twoTo64, 128)).toBigInteger()
+    );
+  }
+
+  @Test
   public void testToByteArrayWithPadding() {
     byte[] bytes = new byte[]{0x42};
     BigUInt<UInt> uint = new UInt(bytes, 128);
