@@ -110,6 +110,7 @@ public class AsyncNetwork implements CloseableNetwork {
     } finally {
       es.shutdownNow();
     }
+    logger.info("P{} successfully connected network", conf.getMyId());
   }
 
   /**
@@ -137,6 +138,7 @@ public class AsyncNetwork implements CloseableNetwork {
             b.position(0);
             channel.write(b);
             connectionMade = true;
+            logger.info("P{} connected to {}", conf.getMyId(), p);
           } catch (IOException e) {
             attempts++;
             Thread.sleep(1 << attempts);
@@ -161,6 +163,7 @@ public class AsyncNetwork implements CloseableNetwork {
       channel.read(buf);
       buf.position(0);
       int id = buf.get();
+      logger.info("P{} accepted connection from {}", conf.getMyId(), conf.getParty(i));
       ServerWaiter sw = new ServerWaiter(id, channel);
       this.receiverService.submit(sw);
     }
@@ -174,7 +177,7 @@ public class AsyncNetwork implements CloseableNetwork {
     try {
       this.server = ServerSocketChannel.open();
       this.server.bind(sock);
-      logger.info("Bound at {}", sock);
+      logger.info("P{} bound at {}", conf.getMyId(), sock);
     } catch (IOException e) {
       throw new RuntimeException("Failed to bind to " + sock, e);
     }
