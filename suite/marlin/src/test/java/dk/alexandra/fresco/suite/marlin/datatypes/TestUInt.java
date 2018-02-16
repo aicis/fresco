@@ -165,6 +165,50 @@ public class TestUInt {
   }
 
   @Test
+  public void testNegate() {
+    assertEquals(
+        BigInteger.ZERO,
+        new UInt(BigInteger.ZERO, 128).negate().toBigInteger()
+    );
+    assertEquals(
+        BigInteger.ONE,
+        new UInt(twoTo128.subtract(BigInteger.ONE), 128).negate().toBigInteger()
+    );
+    assertEquals(
+        two,
+        new UInt(twoTo128.subtract(two), 128).negate().toBigInteger()
+    );
+    assertEquals(
+        twoTo128.subtract(two),
+        new UInt(two, 128).negate().toBigInteger()
+    );
+  }
+
+  @Test
+  public void testSubtract() {
+    assertEquals(
+        BigInteger.ZERO,
+        new UInt(BigInteger.ZERO, 128).subtract(new UInt(BigInteger.ZERO, 128))
+            .toBigInteger()
+    );
+    assertEquals(
+        BigInteger.ONE,
+        new UInt(BigInteger.ONE, 128).subtract(new UInt(BigInteger.ZERO, 128))
+            .toBigInteger()
+    );
+    assertEquals(
+        BigInteger.ZERO,
+        new UInt(BigInteger.ONE, 128).subtract(new UInt(BigInteger.ONE, 128))
+            .toBigInteger()
+    );
+    assertEquals(
+        twoTo128.subtract(BigInteger.ONE),
+        new UInt(BigInteger.ONE, 128).subtract(new UInt(two, 128))
+            .toBigInteger()
+    );
+  }
+
+  @Test
   public void testToByteArrayWithPadding() {
     byte[] bytes = new byte[]{0x42};
     BigUInt<UInt> uint = new UInt(bytes, 128);

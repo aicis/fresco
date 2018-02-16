@@ -40,6 +40,7 @@ public class UInt implements BigUInt<UInt> {
 
   @Override
   public UInt multiply(UInt other) {
+    // TODO get rid off extra multiplication
     // note that we assume that other has the same bit-length as this
     int[] resultInts = new int[ints.length];
     for (int l = resultInts.length - 1; l >= 0; l--) {
@@ -57,12 +58,18 @@ public class UInt implements BigUInt<UInt> {
 
   @Override
   public UInt subtract(UInt other) {
-    return null;
+    return this.add(other.negate());
   }
 
   @Override
   public UInt negate() {
-    return null;
+    int[] reversed = new int[ints.length];
+    for (int i = 0; i < reversed.length; i++) {
+      reversed[i] = ~ints[i];
+    }
+    // TODO cache this
+    UInt one = new UInt(1, 128);
+    return new UInt(reversed).add(one);
   }
 
   @Override
