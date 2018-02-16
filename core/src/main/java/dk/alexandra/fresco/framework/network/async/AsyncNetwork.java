@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AsyncNetwork implements CloseableNetwork {
 
-  public static final int DEFAULT_CONNECTION_TIMEOUT_MILLIS = 15000;
+  public static final int DEFAULT_CONNECTION_TIMEOUT_MILLIS = 60000;
   public static final int SHUTDOWN_DELAY_MILLIS = 500;
 
   private static final Logger logger = LoggerFactory.getLogger(AsyncNetwork.class);
