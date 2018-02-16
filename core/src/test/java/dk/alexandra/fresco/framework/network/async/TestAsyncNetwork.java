@@ -72,15 +72,29 @@ public class TestAsyncNetwork {
    */
   private void circularSendSingleMessage(int numParties, int messageSize) {
     networks = createNetworks(numParties);
-    IntStream.range(1, numParties + 1).parallel().forEach(id -> {
-      byte[] data = new byte[messageSize];
-      byte[] expectedData = new byte[messageSize];
-      Arrays.fill(data, (byte) id);
-      Arrays.fill(expectedData, (byte) prevParty(id, numParties));
-      networks.get(id).send(nextParty(id, numParties), data);
-      byte[] receivedData = networks.get(id).receive(prevParty(id, numParties));
-      assertArrayEquals(expectedData, receivedData);
-    });
+    ExecutorService es = Executors.newFixedThreadPool(numParties);
+    List<Future<?>> fs = new ArrayList<>(numParties);
+    for (int i = 1; i < numParties + 1; i++) {
+      final int id = i;
+      Future<?> f = es.submit(() -> {
+        byte[] data = new byte[messageSize];
+        byte[] expectedData = new byte[messageSize];
+        Arrays.fill(data, (byte) id);
+        Arrays.fill(expectedData, (byte) prevParty(id, numParties));
+        networks.get(id).send(nextParty(id, numParties), data);
+        byte[] receivedData = networks.get(id).receive(prevParty(id, numParties));
+        assertArrayEquals(expectedData, receivedData);
+      });
+      fs.add(f);
+    }
+    for (Future<?> future : fs) {
+      try {
+        future.get();
+      } catch (InterruptedException | ExecutionException e) {
+        e.printStackTrace();
+        fail("Test should not throw exception");
+      }
+    }
   }
 
   @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS)
@@ -117,27 +131,41 @@ public class TestAsyncNetwork {
    */
   private void sendMultipleToSingleReceiver(int numParties, int numMessages) {
     networks = createNetworks(numParties);
-    IntStream.range(1, numParties + 1).parallel().forEach(id -> {
-      if (id == numParties) {
-        for (int i = 1; i < numParties; i++) {
-          Random r = new Random(i);
+    ExecutorService es = Executors.newFixedThreadPool(numParties);
+    List<Future<?>> fs = new ArrayList<>(numParties);
+    for (int i = 1; i < numParties + 1; i++) {
+      final int id = i;
+      Future<?> f = es.submit(() -> {
+        if (id == numParties) {
+          for (int k = 1; k < numParties; k++) {
+            Random r = new Random(k);
+            final byte[] data = new byte[1024];
+            byte[] receivedData;
+            for (int j = 0; j < numMessages; j++) {
+              receivedData = networks.get(id).receive(k);
+              r.nextBytes(data);
+              assertArrayEquals(data, receivedData);
+            }
+          }
+        } else {
+          Random r = new Random(id);
           final byte[] data = new byte[1024];
-          byte[] receivedData;
           for (int j = 0; j < numMessages; j++) {
-            receivedData = networks.get(id).receive(i);
             r.nextBytes(data);
-            assertArrayEquals(data, receivedData);
+            networks.get(id).send(numParties, data.clone());
           }
         }
-      } else {
-        Random r = new Random(id);
-        final byte[] data = new byte[1024];
-        for (int j = 0; j < numMessages; j++) {
-          r.nextBytes(data);
-          networks.get(id).send(numParties, data.clone());
+      });
+      fs.add(f);
+      for (Future<?> future : fs) {
+        try {
+          future.get();
+        } catch (InterruptedException | ExecutionException e) {
+          e.printStackTrace();
+          fail("Test should not throw exception");
         }
       }
-    });
+    }
   }
 
   @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS)
@@ -185,8 +213,7 @@ public class TestAsyncNetwork {
     ServerSocket socket = null;
     try {
       List<NetworkConfiguration> confs = getNetConfs(2);
-      socket = ServerSocketFactory.getDefault()
-        .createServerSocket(confs.get(0).getMe().getPort());
+      socket = ServerSocketFactory.getDefault().createServerSocket(confs.get(0).getMe().getPort());
       new AsyncNetwork(confs.get(0));
     } finally {
       socket.close();
@@ -296,7 +323,7 @@ public class TestAsyncNetwork {
   }
 
   private void closeNetworks(Map<Integer, CloseableNetwork> networks) {
-    networks.values().parallelStream().forEach(CloseableNetwork::close);
+    networks.values().stream().forEach(CloseableNetwork::close);
   }
 
   private int nextParty(int myId, int numParties) {
