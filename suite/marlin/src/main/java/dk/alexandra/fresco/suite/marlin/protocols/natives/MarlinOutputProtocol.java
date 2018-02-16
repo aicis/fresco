@@ -29,7 +29,8 @@ public class MarlinOutputProtocol<T extends BigUInt<T>> extends
     if (round == 0) {
       authenticatedElement = (MarlinSInt<T>) share.out();
       // TODO clean up--only sending lower k bits
-      network.sendToAll(ByteAndBitConverter.toByteArray(authenticatedElement.getShare().getLow()));
+      long low = authenticatedElement.getShare().getLow();
+      network.sendToAll(ByteAndBitConverter.toByteArray(low));
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       List<T> shares = resourcePool.getRawSerializer().deserializeList(network.receiveFromAll());

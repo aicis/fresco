@@ -5,8 +5,8 @@ import static org.junit.Assert.assertEquals;
 
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
-import dk.alexandra.fresco.suite.marlin.datatypes.UInt128;
-import dk.alexandra.fresco.suite.marlin.datatypes.UInt128Factory;
+import dk.alexandra.fresco.suite.marlin.datatypes.UInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.UIntFactory;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -14,8 +14,8 @@ import org.junit.Test;
 
 public class TestBigUIntSerializer {
 
-  private final BigUIntFactory<UInt128> factory = new UInt128Factory();
-  private final ByteSerializer<UInt128> serializer = new BigUIntSerializer<>(factory);
+  private final BigUIntFactory<UInt> factory = new UIntFactory();
+  private final ByteSerializer<UInt> serializer = new BigUIntSerializer<>(factory);
 
   @Test
   public void testSerialize() {
@@ -24,7 +24,7 @@ public class TestBigUIntSerializer {
     rawBytes[1] = 0x02;
     rawBytes[2] = 0x03;
     rawBytes[15] = 0x16;
-    UInt128 element = factory.createFromBytes(rawBytes);
+    UInt element = factory.createFromBytes(rawBytes);
     assertArrayEquals(rawBytes, serializer.serialize(element));
   }
 
@@ -33,7 +33,7 @@ public class TestBigUIntSerializer {
     Random random = new Random(42);
     byte[] rawBytes = new byte[32];
     random.nextBytes(rawBytes);
-    List<UInt128> elements = Arrays.asList(
+    List<UInt> elements = Arrays.asList(
         factory.createFromBytes(Arrays.copyOfRange(rawBytes, 0, 16)),
         factory.createFromBytes(Arrays.copyOfRange(rawBytes, 16, 32))
     );
@@ -46,7 +46,7 @@ public class TestBigUIntSerializer {
     Random random = new Random(42);
     byte[] bytes = new byte[16];
     random.nextBytes(bytes);
-    UInt128 uint = serializer.deserialize(bytes);
+    UInt uint = serializer.deserialize(bytes);
     assertArrayEquals(bytes, uint.toByteArray());
   }
 
@@ -55,11 +55,11 @@ public class TestBigUIntSerializer {
     Random random = new Random(42);
     byte[] rawBytes = new byte[32];
     random.nextBytes(rawBytes);
-    List<UInt128> expected = Arrays.asList(
+    List<UInt> expected = Arrays.asList(
         factory.createFromBytes(Arrays.copyOfRange(rawBytes, 0, 16)),
         factory.createFromBytes(Arrays.copyOfRange(rawBytes, 16, 32))
     );
-    List<UInt128> actual = serializer.deserializeList(rawBytes);
+    List<UInt> actual = serializer.deserializeList(rawBytes);
     assertEquals(expected.size(), actual.size());
     for (int i = 0; i < actual.size(); i++) {
       assertArrayEquals(expected.get(i).toByteArray(), actual.get(i).toByteArray());

@@ -2,6 +2,8 @@ package dk.alexandra.fresco.suite.marlin.datatypes;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
 import java.util.Random;
@@ -239,4 +241,9 @@ public class TestUInt {
     assertArrayEquals(bytes, actual);
   }
 
+  @Test
+  public void testIsZero() {
+    assertTrue(new UInt(0, 128).isZero());
+    assertFalse(new UInt(1, 128).isZero());
+  }
 }
