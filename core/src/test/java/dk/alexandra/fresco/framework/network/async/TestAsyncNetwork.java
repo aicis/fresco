@@ -1,304 +1,312 @@
 package dk.alexandra.fresco.framework.network.async;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
+import dk.alexandra.fresco.framework.network.CloseableNetwork;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.nio.channels.ServerSocketChannel;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.Future;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import javax.net.ServerSocketFactory;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 public class TestAsyncNetwork {
 
-  private List<Integer> getFreePorts(int no) {
-    List<Integer> res = new ArrayList<>();
-    for (int i = 0; i < no; i++) {
-      res.add(9000 + i);
-    }
-    return res;
+  private static final int ONE_MINUTE_TIMEOUT = 60000;
+  private Map<Integer, CloseableNetwork> networks;
+
+  @Before
+  public void setup() {
+    networks = new HashMap<>();
   }
 
-  @Test(timeout = 5000)
-  public void testSendBytes() {
-    Map<Integer, Party> parties = new HashMap<>();
-    List<Integer> ports = getFreePorts(2);
-    parties.put(1, new Party(1, "localhost", ports.get(0), "78dbinb27xi1i"));
-    parties.put(2, new Party(2, "localhost", ports.get(1), "h287hs287g22n"));
-    Thread t1 = new Thread(new Runnable() {
-
-      @Override
-      public void run() {
-        NetworkConfiguration conf = new NetworkConfigurationImpl(1, parties);
-        AsyncNetwork network = new AsyncNetwork(conf);
-        network.send(2, new byte[] { 0x04 });
-        network.receive(2);
-        network.close();
-      }
-    });
-    t1.start();
-
-    NetworkConfiguration conf = new NetworkConfigurationImpl(2, parties);
-    AsyncNetwork network = new AsyncNetwork(conf);
-    byte[] arr = network.receive(1);
-    network.send(1, new byte[] { 0x00 });
-    assertArrayEquals(new byte[] { 0x04 }, arr);
-    // Also test noOfParties
-    int noOfParties = network.getNoOfParties();
-    assertEquals(parties.size(), noOfParties);
-    network.close();
-    try {
-      t1.join(1000);
-    } catch (InterruptedException e) {
-      fail("Threads should finish without main getting interrupted");
-    }
+  @After
+  public void tearDown() {
+    closeNetworks(networks);
   }
 
-  @Test(timeout = 5000)
-  public void testSendBytesAllowMultipleMessages() {
-    Map<Integer, Party> parties = new HashMap<>();
-    List<Integer> ports = getFreePorts(2);
-    parties.put(1, new Party(1, "localhost", ports.get(0)));
-    parties.put(2, new Party(2, "localhost", ports.get(1)));
-    Thread t1 = new Thread(new Runnable() {
+  // TEST CONNECT
 
-      @Override
-      public void run() {
-        NetworkConfiguration conf = new NetworkConfigurationImpl(1, parties);
-        AsyncNetwork network = new AsyncNetwork(conf);
-        network.send(2, new byte[] { 0x04 });
-        network.receive(2);
-        network.close();
-      }
+  @Test
+  public void testConnectOneParty() {
+    networks = createNetworks(1);
+  }
+
+  @Test
+  public void testConnectTwoParties() {
+    networks = createNetworks(2);
+  }
+
+  @Test
+  public void testConnectMultipleParties() {
+    networks = createNetworks(7);
+  }
+
+  // CIRCULAR SENDS
+
+  /**
+   * In this test each party sends a message of a given size to the party next party, with the last
+   * party sending to the first party.
+   *
+   * @param numParties the number of parties
+   * @param messageSize the size of the message
+   */
+  private void circularSendSingleMessage(int numParties, int messageSize) {
+    networks = createNetworks(numParties);
+    IntStream.range(1, numParties + 1).parallel().forEach(id -> {
+      byte[] data = new byte[messageSize];
+      byte[] expectedData = new byte[messageSize];
+      Arrays.fill(data, (byte) id);
+      Arrays.fill(expectedData, (byte) prevParty(id, numParties));
+      networks.get(id).send(nextParty(id, numParties), data);
+      byte[] receivedData = networks.get(id).receive(prevParty(id, numParties));
+      assertArrayEquals(expectedData, receivedData);
     });
-    t1.start();
+  }
 
-    NetworkConfiguration conf = new NetworkConfigurationImpl(2, parties);
-    AsyncNetwork network = new AsyncNetwork(conf);
-    byte[] arr = network.receive(1);
-    network.send(1, new byte[] { 0x00 });
-    assertArrayEquals(new byte[] { 0x04 }, arr);
-    network.close();
-    try {
-      t1.join(1000);
-    } catch (InterruptedException e) {
-      fail("Threads should finish without main getting interrupted");
-    }
+  @Test(timeout = ONE_MINUTE_TIMEOUT)
+  public void testSelfSend() {
+    circularSendSingleMessage(1, 1024);
+  }
+
+  @Test(timeout = ONE_MINUTE_TIMEOUT)
+  public void testSendEmpty() {
+    circularSendSingleMessage(2, 0);
+  }
+
+  @Test(timeout = ONE_MINUTE_TIMEOUT)
+  public void testSendByte() {
+    circularSendSingleMessage(2, 1);
   }
 
   // Send 100Mb through the network to stress-test it.
-  @Test(timeout = 10000)
+  @Test(timeout = ONE_MINUTE_TIMEOUT)
   public void testSendHugeAmount() {
-    final byte[] toSendAndExpect1 = new byte[104857600];
-    new Random().nextBytes(toSendAndExpect1);
-    Map<Integer, Party> parties = new HashMap<>();
-    List<Integer> ports = getFreePorts(2);
-    parties.put(1, new Party(1, "localhost", ports.get(0)));
-    parties.put(2, new Party(2, "localhost", ports.get(1)));
-    Thread t1 = new Thread(new Runnable() {
-
-      @Override
-      public void run() {
-        NetworkConfiguration conf = new NetworkConfigurationImpl(1, parties);
-        AsyncNetwork network = new AsyncNetwork(conf);
-        network.send(2, toSendAndExpect1);
-        network.close();
-      }
-    });
-    t1.start();
-
-    NetworkConfiguration conf = new NetworkConfigurationImpl(2, parties);
-    AsyncNetwork network = new AsyncNetwork(conf);
-    byte[] arr1 = network.receive(1);
-    assertArrayEquals(toSendAndExpect1, arr1);
-    network.close();
-    try {
-      t1.join();
-    } catch (InterruptedException e) {
-      fail("Threads should finish without main getting interrupted");
-    }
+    circularSendSingleMessage(2, 104857600);
   }
 
-  @Test(timeout = 5000)
-  public void testSendInterrupt() {
-    Map<Integer, Party> parties = new HashMap<>();
-    List<Integer> ports = getFreePorts(2);
-    parties.put(1, new Party(1, "localhost", ports.get(0)));
-    parties.put(2, new Party(2, "localhost", ports.get(1)));
-    Thread t1 = new Thread(new Runnable() {
+  @Test(timeout = ONE_MINUTE_TIMEOUT)
+  public void testSendManyParties() {
+    circularSendSingleMessage(10, 1024);
+  }
 
-      @Override
-      public void run() {
-        NetworkConfiguration conf = new NetworkConfigurationImpl(1, parties);
-        AsyncNetwork network = new AsyncNetwork(conf);
-        for (int i = 0; i < 1000000; i++) {
-          network.send(1, new byte[] { 0x04 });
+  /**
+   * This test sends multiple messages from all parties to a single receiver.
+   *
+   * @param numParties the number of parties
+   * @param numMessages the number of messages
+   */
+  private void sendMultipleToSingleReceiver(int numParties, int numMessages) {
+    networks = createNetworks(numParties);
+    IntStream.range(1, numParties + 1).parallel().forEach(id -> {
+      if (id == numParties) {
+        for (int i = 1; i < numParties; i++) {
+          Random r = new Random(i);
+          final byte[] data = new byte[1024];
+          byte[] receivedData;
+          for (int j = 0; j < numMessages; j++) {
+            receivedData = networks.get(id).receive(i);
+            r.nextBytes(data);
+            assertArrayEquals(data, receivedData);
+          }
         }
-        try {
-          // This should block after sending 1000001 messages
-          network.send(1, new byte[] { 0x04 });
-        } catch (RuntimeException e) {
-          // Interrupting the thread should result in a RuntimeException unblocking the thread
-        } finally {
-          network.close();
+      } else {
+        Random r = new Random(id);
+        final byte[] data = new byte[1024];
+        for (int j = 0; j < numMessages; j++) {
+          r.nextBytes(data);
+          networks.get(id).send(numParties, data.clone());
         }
       }
     });
-    t1.start();
-    // Connect to the party run in t1 above
-    NetworkConfiguration conf = new NetworkConfigurationImpl(2, parties);
-    AsyncNetwork network = new AsyncNetwork(conf);
-
-    try {
-      t1.join(400);
-      t1.interrupt();
-      t1.join();
-    } catch (InterruptedException e) {
-      fail("Threads should finish without main getting interrupted");
-    }
-    network.close();
   }
 
-  @Test(expected = RuntimeException.class, timeout = 5000)
-  public void testConnectInterrupt() throws IOException {
-    Map<Integer, Party> parties = new HashMap<>();
-    List<Integer> ports = getFreePorts(2);
-    parties.put(1, new Party(1, "localhost", ports.get(0)));
-    parties.put(2, new Party(2, "localhost", ports.get(1)));
-    FutureTask<Object> futureTask = new FutureTask<>(new Callable<Object>() {
+  @Test(timeout = ONE_MINUTE_TIMEOUT)
+  public void testManyPartiesSendToOneReceiver() {
+    sendMultipleToSingleReceiver(10, 100);
+  }
 
-      @SuppressWarnings("resource")
-      @Override
-      public Object call() throws Exception {
-        NetworkConfiguration conf = new NetworkConfigurationImpl(1, parties);
-        new AsyncNetwork(conf);
-        return null;
-      }
-    });
-    Thread t1 = new Thread(futureTask);
-    t1.start();
+  @Test(timeout = ONE_MINUTE_TIMEOUT)
+  public void testSendManyMessagesToOneReceiver() {
+    sendMultipleToSingleReceiver(2, 10000);
+  }
+
+  // TESTING FOR FAILURE
+
+  @Test(expected = RuntimeException.class, timeout = ONE_MINUTE_TIMEOUT)
+  public void testFailedSend() {
+    networks = createNetworks(2);
     try {
-      t1.join(200);
-      t1.interrupt();
-      t1.join(200);
-      futureTask.get();
-    } catch (InterruptedException e) {
-      fail("Threads should finish without main getting interrupted");
-    } catch (ExecutionException e) {
-      throw (RuntimeException) e.getCause().getCause();
+      // Close channel to provoke IOException while sending
+      ((AsyncNetwork) (networks.get(1))).clients.get(2).close();
+    } catch (IOException e) {
+      fail("IOException closing channel");
+      e.printStackTrace();
     }
+    networks.get(1).send(2, new byte[] { 0x01 });
+    try {
+      Thread.sleep(1);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+    networks.get(1).send(2, new byte[] { 0x01 });
+  }
+
+  @Test(expected = RuntimeException.class, timeout = ONE_MINUTE_TIMEOUT)
+  public void testFailedReceive() throws Exception {
+    networks = createNetworks(2);
+    // Close network to provoke IOException while receiving
+    networks.get(1).close();
+    networks.get(1).receive(2);
   }
 
   @SuppressWarnings("resource")
-  @Test(expected = RuntimeException.class, timeout = 70000)
-  public void testConnectTimeout() {
-    Map<Integer, Party> parties = new HashMap<>();
-    List<Integer> ports = getFreePorts(2);
-    parties.put(1, new Party(1, "localhost", ports.get(0)));
-    parties.put(2, new Party(2, "localhost", ports.get(1)));
-    NetworkConfiguration conf = new NetworkConfigurationImpl(1, parties);
-    // This should time out waiting for a connection to a party that is not listening
-    new AsyncNetwork(conf, 200);
-  }
-
-  @SuppressWarnings("resource")
-  @Test(expected = RuntimeException.class, timeout = 70000)
-  public void testCannotBind() throws IOException {
-    Map<Integer, Party> parties = new HashMap<>();
-    List<Integer> ports = getFreePorts(2);
-    parties.put(1, new Party(1, "localhost", ports.get(0)));
-    parties.put(2, new Party(2, "localhost", ports.get(1)));
-    NetworkConfiguration conf = new NetworkConfigurationImpl(1, parties);
-    // This should time out waiting for a connection to a party that is not listening
-    ServerSocket socket = ServerSocketFactory.getDefault().createServerSocket(ports.get(0));
+  @Test(expected = RuntimeException.class, timeout = ONE_MINUTE_TIMEOUT)
+  public void testFailToBind() throws Throwable {
+    ServerSocket socket = null;
     try {
-      new AsyncNetwork(conf, 200);
-    } catch (RuntimeException e) {
-      throw e;
+      List<NetworkConfiguration> confs = getNetConfs(2);
+      socket = ServerSocketFactory.getDefault()
+        .createServerSocket(confs.get(0).getMe().getPort());
+      new AsyncNetwork(confs.get(0));
     } finally {
       socket.close();
     }
   }
 
-  @Test(timeout = 200000)
-  public void testPartiesReconnect() {
-    List<Integer> ports = getFreePorts(5);
-    testMultiplePartiesReconnect(2, 30, ports.subList(0, 2));
-    testMultiplePartiesReconnect(3, 20, ports.subList(0, 3));
-    testMultiplePartiesReconnect(5, 20, ports);
-  }
-
-  private void testMultiplePartiesReconnect(int noOfParties, int noOfRetries, List<Integer> ports) {
-    Map<Integer, Party> parties = new HashMap<>();
-
-    for (int i = 1; i <= noOfParties; i++) {
-      parties.put(i, new Party(i, "localhost", ports.get(i - 1)));
-    }
-    for (int retry = 0; retry < noOfRetries; retry++) {
-      List<FutureTask<Object>> tasks = new ArrayList<>();
-      final ConcurrentHashMap<Integer, AsyncNetwork> networks = new ConcurrentHashMap<>();
-      for (int i = 0; i < noOfParties; i++) {
-        final int myId = i + 1;
-        FutureTask<Object> t = new FutureTask<>(new Callable<Object>() {
-
-          @Override
-          public Object call() {
-            NetworkConfiguration conf = new NetworkConfigurationImpl(myId, parties);
-            AsyncNetwork network = new AsyncNetwork(conf);
-            networks.put(myId, network);
-            return null;
-          }
-        });
-        tasks.add(t);
-        (new Thread(t)).start();
-      }
-
-      for (FutureTask<Object> t : tasks) {
-        try {
-          t.get();
-        } catch (Exception e) {
-          e.printStackTrace();
-          fail("Tasks should not throw exceptions");
-        }
-      }
-      // Closing networks again.
-      for (AsyncNetwork network : networks.values()) {
-        network.close();
-      }
+  @Test(expected = RuntimeException.class, timeout = ONE_MINUTE_TIMEOUT)
+  public void testConnectInterrupt() throws Throwable {
+    List<NetworkConfiguration> confs = getNetConfs(2);
+    ExecutorService es = Executors.newSingleThreadExecutor();
+    Future<AsyncNetwork> f = es.submit(() -> new AsyncNetwork(confs.get(1)));
+    es.shutdownNow();
+    try {
+      f.get();
+    } catch (InterruptedException e) {
+      fail("Test should not be interrupted");
+    } catch (ExecutionException e) {
+      throw e.getCause();
     }
   }
 
   @SuppressWarnings("resource")
-  @Test(expected = RuntimeException.class, timeout = 5000)
+  @Test(expected = RuntimeException.class, timeout = ONE_MINUTE_TIMEOUT)
+  public void testConnectTimeout() {
+
+    List<NetworkConfiguration> confs = getNetConfs(2);
+    // This should time out waiting for a connection to a party that is not listening
+    new AsyncNetwork(confs.get(0), 10);
+  }
+
+  @Test(timeout = ONE_MINUTE_TIMEOUT)
+  public void testPartiesReconnect() {
+    testMultiplePartiesReconnect(2, 10);
+    testMultiplePartiesReconnect(5, 20);
+  }
+
+  private void testMultiplePartiesReconnect(int numParties, int noOfRetries) {
+    List<NetworkConfiguration> confs = getNetConfs(numParties);
+    for (int i = 0; i < noOfRetries; i++) {
+      networks = createNetworks(confs);
+      closeNetworks(networks);
+    }
+  }
+
+  @SuppressWarnings("resource")
+  @Test(expected = RuntimeException.class, timeout = ONE_MINUTE_TIMEOUT)
   public void testHandshakeFail() throws IOException, InterruptedException, ExecutionException {
-    Map<Integer, Party> parties = new HashMap<>();
-    List<Integer> ports = getFreePorts(2);
-    parties.put(1, new Party(1, "localhost", ports.get(0)));
-    parties.put(2, new Party(2, "localhost", ports.get(1)));
+    List<NetworkConfiguration> confs = getNetConfs(2);
     ServerSocketChannel server = ServerSocketChannel.open();
-    server.bind(new InetSocketAddress("localhost", ports.get(0)));
-    NetworkConfiguration conf = new NetworkConfigurationImpl(2, parties);
+    server.bind(new InetSocketAddress("localhost", confs.get(1).getMe().getPort()));
     try {
-      new ClosedEarlyAsyncNetwork(conf, 15000);
+      new ClosedEarlyAsyncNetwork(confs.get(0), 15000);
     } catch (RuntimeException e) {
       server.close();
       throw e;
     }
   }
+
+  private List<Integer> getFreePorts(int numPorts) {
+    List<Integer> ports = new ArrayList<>();
+    for (int i = 0; i < numPorts; i++) {
+      try (ServerSocket s = new ServerSocket(0)) {
+        ports.add(s.getLocalPort());
+      } catch (IOException e) {
+        throw new RuntimeException("No free ports", e);
+      }
+    }
+    return ports;
+  }
+
+  private Map<Integer, CloseableNetwork> createNetworks(int numParties) {
+    List<NetworkConfiguration> confs = getNetConfs(numParties);
+    return createNetworks(confs);
+  }
+
+  private Map<Integer, CloseableNetwork> createNetworks(List<NetworkConfiguration> confs) {
+    int numParties = confs.get(0).noOfParties();
+    ForkJoinPool forkJoinPool = new ForkJoinPool(numParties);
+    Map<Integer, CloseableNetwork> netMap = new HashMap<>(numParties);
+    try {
+      List<AsyncNetwork> netList = forkJoinPool.submit(
+          () -> confs.parallelStream().map(c -> new AsyncNetwork(c)).collect(Collectors.toList()))
+          .get();
+      IntStream.range(1, numParties + 1).forEach(i -> netMap.put(i, netList.get(i - 1)));
+    } catch (InterruptedException | ExecutionException e) {
+      e.printStackTrace();
+      fail("Failed to setup networks.");
+    } finally {
+      forkJoinPool.shutdown();
+    }
+    return netMap;
+  }
+
+  private List<NetworkConfiguration> getNetConfs(int numParties) {
+    Map<Integer, Party> parties = new HashMap<>(numParties);
+    List<NetworkConfiguration> confs = new ArrayList<>(numParties);
+    List<Integer> ports = getFreePorts(numParties);
+    int id = 1;
+    for (Integer port : ports) {
+      parties.put(id, new Party(id, "localhost", port));
+      id++;
+    }
+    for (int i = 1; i <= numParties; i++) {
+      confs.add(new NetworkConfigurationImpl(i, parties));
+    }
+    return confs;
+  }
+
+  private void closeNetworks(Map<Integer, CloseableNetwork> networks) {
+    networks.values().parallelStream().forEach(CloseableNetwork::close);
+  }
+
+  private int nextParty(int myId, int numParties) {
+    return (myId == numParties) ? 1 : myId + 1;
+  }
+
+  private int prevParty(int myId, int numParties) {
+    return (myId == 1) ? numParties : myId - 1;
+  }
+
 
   private class ClosedEarlyAsyncNetwork extends AsyncNetwork {
 
@@ -307,9 +315,9 @@ public class TestAsyncNetwork {
     }
 
     @Override
-    void handshake() {
+    void connectServer() throws IOException {
       close();
-      super.handshake();
+      super.connectServer();
     }
   }
 }

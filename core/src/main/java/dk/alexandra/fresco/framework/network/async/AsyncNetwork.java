@@ -2,26 +2,27 @@ package dk.alexandra.fresco.framework.network.async;
 
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.CloseableNetwork;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
-import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,12 +32,12 @@ import org.slf4j.LoggerFactory;
  * incoming messages and passes them to the blocking queues where the main thread is potentially
  * waiting.
  */
-public class AsyncNetwork implements Network, Closeable {
-
-  private static final int DEFAULT_RETRY_DELAY_MILLIS = 500;
-  private static final Logger logger = LoggerFactory.getLogger(AsyncNetwork.class);
+public class AsyncNetwork implements CloseableNetwork {
 
   public static final int DEFAULT_CONNECTION_TIMEOUT_MILLIS = 15000;
+  public static final int SHUTDOWN_DELAY_MILLIS = 500;
+
+  private static final Logger logger = LoggerFactory.getLogger(AsyncNetwork.class);
 
   ServerSocketChannel server;
   Map<Integer, SocketChannel> clients;
@@ -44,6 +45,8 @@ public class AsyncNetwork implements Network, Closeable {
   NetworkConfiguration conf;
   ExecutorService receiverService;
   Map<Integer, ExecutorService> senderServices;
+  Exception sendException = null;
+  Exception receiveException = null;
 
   /**
    * Creates a network with the given configuration and a default timeout of 15 seconds. Calling the
@@ -72,18 +75,101 @@ public class AsyncNetwork implements Network, Closeable {
     this.senderServices = new HashMap<>();
     for (int i = 1; i <= conf.noOfParties(); i++) {
       if (this.conf.getMyId() != i) {
-        this.senderServices.put(i, Executors.newFixedThreadPool(1));
+        this.senderServices.put(i, Executors.newSingleThreadExecutor());
       }
     }
-    listen();
-    connect(timeout);
-    handshake();
+    ExecutorService es = Executors.newFixedThreadPool(2);
+    CompletionService<?> cs = new ExecutorCompletionService<>(es);
+    cs.submit(() -> {
+      connectClient();
+      return null;
+    });
+    cs.submit(() -> {
+      bindServer();
+      connectServer();
+      return null;
+    });
+    try {
+      for (int i = 0; i < 2; i++) {
+        Future<?> f = cs.poll(timeout, TimeUnit.MILLISECONDS);
+        if (f == null) {
+          throw new TimeoutException("Timed out");
+        } else {
+          f.get();
+        }
+      }
+    } catch (InterruptedException e) {
+      close();
+      throw new RuntimeException("Interrupted while connecting network", e);
+    } catch (ExecutionException e) {
+      close();
+      throw new RuntimeException("Failed to connect network", e.getCause());
+    } catch (TimeoutException e) {
+      close();
+      throw new RuntimeException("Timed out connecting network", e.getCause());
+    } finally {
+      es.shutdownNow();
+    }
   }
 
   /**
-   * Starts listening for connections from the opposing parties.
+   * Makes connections to the opposing parties.
+   * <p>
+   * The resulting connections will be used to send messages.
+   * </p>
+   * @throws InterruptedException thrown if interrupted while waiting to do a connection attempt
    */
-  private void listen() {
+  private void connectClient() throws InterruptedException {
+    for (int i = 1; i <= conf.noOfParties(); i++) {
+      this.queues.put(i, new LinkedBlockingQueue<byte[]>());
+      if (i != conf.getMyId()) {
+        Party p = conf.getParty(i);
+        SocketAddress addr = new InetSocketAddress(p.getHostname(), p.getPort());
+        boolean connectionMade = false;
+        int attempts = 0;
+        while (!connectionMade) {
+          try {
+            SocketChannel channel = SocketChannel.open();
+            channel.connect(addr);
+            this.clients.put(i, channel);
+            ByteBuffer b = ByteBuffer.allocate(1);
+            b.put((byte) conf.getMyId());
+            b.position(0);
+            channel.write(b);
+            connectionMade = true;
+          } catch (IOException e) {
+            attempts++;
+            Thread.sleep(1 << attempts);
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Listens for connections from the opposing parties.
+   * <p>
+   * The resulting connections will be used to receive messages.
+   * </p>
+   * @throws IOException thrown if an {@link IOException} occurs while listening.
+   */
+  void connectServer() throws IOException {
+    for (int i = 0; i < getNoOfParties() - 1; i++) {
+      SocketChannel channel = server.accept();
+      channel.configureBlocking(true);
+      ByteBuffer buf = ByteBuffer.allocate(1);
+      channel.read(buf);
+      buf.position(0);
+      int id = buf.get();
+      ServerWaiter sw = new ServerWaiter(id, channel);
+      this.receiverService.submit(sw);
+    }
+  }
+
+  /**
+   * Binds the server to the port of this party.
+   */
+  private void bindServer() {
     SocketAddress sock = new InetSocketAddress(conf.getMe().getPort());
     try {
       this.server = ServerSocketChannel.open();
@@ -94,48 +180,7 @@ public class AsyncNetwork implements Network, Closeable {
     }
   }
 
-  /**
-   * Connects to opposing parties.
-   *
-   * @param timeout millis before timeout
-   */
-  private void connect(int timeout) {
-    for (int i = 1; i <= conf.noOfParties(); i++) {
-      this.queues.put(i, new LinkedBlockingQueue<byte[]>());
-      if (i != conf.getMyId()) {
-        Party p = conf.getParty(i);
-        SocketAddress addr = new InetSocketAddress(p.getHostname(), p.getPort());
-        int retries = Math.max(1, timeout / DEFAULT_RETRY_DELAY_MILLIS);
-        int retryDelay = Math.min(DEFAULT_RETRY_DELAY_MILLIS, timeout);
-        int count = 0;
-        boolean connected = false;
-        while (!connected && count < retries) {
-          count++;
-          try {
-            SocketChannel channel = SocketChannel.open();
-            channel.connect(addr);
-            connected = true;
-            this.clients.put(i, channel);
-          } catch (IOException e) {
-            try {
-              Thread.sleep(retryDelay);
-            } catch (InterruptedException ex) {
-              close();
-              throw new RuntimeException("Interrupted waiting to connect", ex);
-            }
-          }
-        }
-        if (!connected) {
-          close();
-          throw new RuntimeException("Failed to connect to " + p + " after " + retries
-              + " attempts.");
-        }
-      }
-    }
-  }
-
-
-  private class ServerWaiter implements Runnable {
+  private class ServerWaiter implements Callable<Object> {
 
     private SocketChannel channel;
     private int fromPartyId;
@@ -146,7 +191,7 @@ public class AsyncNetwork implements Network, Closeable {
     }
 
     @Override
-    public void run() {
+    public Object call() throws Exception {
       boolean running = true;
       while (running) {
         try {
@@ -160,94 +205,14 @@ public class AsyncNetwork implements Network, Closeable {
           }
           queues.get(fromPartyId).add(buf.array());
         } catch (IOException e) {
+          channel.close();
           running = false;
+          receiveException = e;
         }
       }
-    }
-
-  }
-
-  private class Handshaker implements Runnable {
-    private ServerSocketChannel server;
-    private Map<Integer, SocketChannel> partyIdToChannel;
-    private Semaphore blocker;
-    private ConcurrentLinkedDeque<Boolean> successes;
-
-    public Handshaker(ServerSocketChannel server, Map<Integer, SocketChannel> partyIdToChannel,
-        Semaphore blocker, ConcurrentLinkedDeque<Boolean> successes) {
-      this.server = server;
-      this.partyIdToChannel = partyIdToChannel;
-      this.blocker = blocker;
-      this.successes = successes;
-    }
-
-    @Override
-    public void run() {
-      int count = 0;
-      while (count < getNoOfParties() - 1) {
-        try {
-          SocketChannel channel = server.accept();
-          channel.configureBlocking(true);
-          ByteBuffer buf = ByteBuffer.allocate(1);
-          channel.read(buf);
-          buf.position(0);
-          int id = buf.get();
-          partyIdToChannel.put(id, channel);
-          successes.add(true);
-          blocker.release();
-          count++;
-        } catch (IOException e) {
-          logger.error("IOException occured during handshake", e);
-          count++;
-          successes.add(false);
-          blocker.release();
-        }
-      }
-    }
-  }
-
-  /**
-   * Communicate with all parties and obtain their ID. This is required since we use a dual
-   * connection strategy which means all parties serve as both client and server. Server just
-   * accepts incoming connections, and we need to map the connection to a party. Malicious parties
-   * could send an incorrect ID, which would overwrite an honest party. This, however, leads to a
-   * null pointer exception as soon as we try to communicate with a missing partyID. Can still lead
-   * to leaking information. Cannot be fixed without authenticated channels.
-   */
-  void handshake() {
-    ConcurrentHashMap<Integer, SocketChannel> partyIdToChannel = new ConcurrentHashMap<>();
-    Semaphore blocker = new Semaphore(-getNoOfParties() + 2);
-    ConcurrentLinkedDeque<Boolean> successes = new ConcurrentLinkedDeque<>();
-    Thread t = new Thread(new Handshaker(this.server, partyIdToChannel, blocker, successes));
-    t.start();
-    for (SocketChannel channel : this.clients.values()) {
-      ByteBuffer id = ByteBuffer.allocate(1);
-      id.put((byte) this.conf.getMyId());
-      id.position(0);
-      ExceptionConverter.safe(() -> channel.write(id), "Not able to send my id");
-    }
-    ExceptionConverter.safe(() -> {
-      blocker.acquire();
       return null;
-    }, "Blocker got interrupted");
-    boolean connected = true;
-    for (Boolean succ : successes) {
-      if (!succ) {
-        connected = false;
-      }
     }
-    if (!connected) {
-      logger.error("Could not connect to all parties");
-      close();
-      throw new RuntimeException("Failed to connect to all parties");
-    }
-    logger.info("Connected to all parties. PartyId to channel map: {}", partyIdToChannel);
-    Enumeration<Integer> keys = partyIdToChannel.keys();
-    while (keys.hasMoreElements()) {
-      int partyId = keys.nextElement();
-      SocketChannel channel = partyIdToChannel.get(partyId);
-      this.receiverService.submit(new ServerWaiter(partyId, channel));
-    }
+
   }
 
   @Override
@@ -256,24 +221,32 @@ public class AsyncNetwork implements Network, Closeable {
       this.queues.get(conf.getMyId()).offer(data);
     } else {
       this.senderServices.get(partyId).submit(() -> {
-        ExceptionConverter.safe(() -> {
+        try {
           ByteBuffer buf = ByteBuffer.allocate(Integer.BYTES + data.length);
-          //set length
           buf.putInt(data.length);
-          //set data
           buf.put(data);
           buf.position(0);
           while (buf.hasRemaining()) {
             this.clients.get(partyId).write(buf);
           }
-          return null;
-        }, "Could not send data");
+        } catch (Exception e) {
+          this.sendException = e;
+        }
+        return null;
       });
+      if (sendException != null) {
+        throw new RuntimeException("Previous send operation failed due to exception",
+            sendException);
+      }
     }
   }
 
   @Override
   public byte[] receive(int partyId) {
+    if (receiveException != null) {
+      throw new RuntimeException("Previous receive operation failed due to exception",
+          receiveException);
+    }
     return ExceptionConverter.safe(() -> {
       return this.queues.get(partyId).take();
     }, "Thread got interrupted while waiting for input");
@@ -296,14 +269,18 @@ public class AsyncNetwork implements Network, Closeable {
       this.receiverService.shutdownNow();
       for (ExecutorService executorService : this.senderServices.values()) {
         executorService.shutdown();
-        executorService.awaitTermination(DEFAULT_CONNECTION_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
+        executorService.awaitTermination(SHUTDOWN_DELAY_MILLIS, TimeUnit.MILLISECONDS);
+        executorService.shutdownNow();
       }
-      this.server.close();
+      // TODO: this should be closed when all connections are accepted
+      if (this.server != null) {
+        this.server.close();
+      }
       for (SocketChannel channel : this.clients.values()) {
         channel.close();
       }
       logger.debug("P{}: Network closed", conf.getMyId());
       return null;
-    }, "Could not close the network");
+    }, "Unable to properly close the network.");
   }
 }
