@@ -106,7 +106,7 @@ public class TestAsyncNetwork {
 
   @Test(timeout = ONE_MINUTE_TIMEOUT_MILLIS)
   public void testSendManyParties() {
-    circularSendSingleMessage(10, 1024);
+    circularSendSingleMessage(5, 1024);
   }
 
   /**
@@ -142,7 +142,7 @@ public class TestAsyncNetwork {
 
   @Test(timeout = ONE_MINUTE_TIMEOUT_MILLIS)
   public void testManyPartiesSendToOneReceiver() {
-    sendMultipleToSingleReceiver(10, 100);
+    sendMultipleToSingleReceiver(5, 100);
   }
 
   @Test(timeout = ONE_MINUTE_TIMEOUT_MILLIS)
