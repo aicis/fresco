@@ -163,7 +163,7 @@ public class AsyncNetwork implements CloseableNetwork {
       channel.read(buf);
       buf.position(0);
       int id = buf.get();
-      logger.info("P{} accepted connection from {}", conf.getMyId(), conf.getParty(i));
+      logger.info("P{} accepted connection from {}", conf.getMyId(), conf.getParty(i + 1));
       ServerWaiter sw = new ServerWaiter(id, channel);
       this.receiverService.submit(sw);
     }
