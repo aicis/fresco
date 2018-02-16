@@ -31,7 +31,7 @@ import org.junit.Test;
 
 public class TestAsyncNetwork {
 
-  private static final int ONE_MINUTE_TIMEOUT = 60000;
+  private static final int ONE_MINUTE_TIMEOUT_MILLIS = 60000;
   private Map<Integer, CloseableNetwork> networks;
 
   @Before
@@ -83,28 +83,28 @@ public class TestAsyncNetwork {
     });
   }
 
-  @Test(timeout = ONE_MINUTE_TIMEOUT)
+  @Test(timeout = ONE_MINUTE_TIMEOUT_MILLIS)
   public void testSelfSend() {
     circularSendSingleMessage(1, 1024);
   }
 
-  @Test(timeout = ONE_MINUTE_TIMEOUT)
+  @Test(timeout = ONE_MINUTE_TIMEOUT_MILLIS)
   public void testSendEmpty() {
     circularSendSingleMessage(2, 0);
   }
 
-  @Test(timeout = ONE_MINUTE_TIMEOUT)
+  @Test(timeout = ONE_MINUTE_TIMEOUT_MILLIS)
   public void testSendByte() {
     circularSendSingleMessage(2, 1);
   }
 
   // Send 100Mb through the network to stress-test it.
-  @Test(timeout = ONE_MINUTE_TIMEOUT)
+  @Test(timeout = ONE_MINUTE_TIMEOUT_MILLIS)
   public void testSendHugeAmount() {
     circularSendSingleMessage(2, 104857600);
   }
 
-  @Test(timeout = ONE_MINUTE_TIMEOUT)
+  @Test(timeout = ONE_MINUTE_TIMEOUT_MILLIS)
   public void testSendManyParties() {
     circularSendSingleMessage(10, 1024);
   }
@@ -140,19 +140,19 @@ public class TestAsyncNetwork {
     });
   }
 
-  @Test(timeout = ONE_MINUTE_TIMEOUT)
+  @Test(timeout = ONE_MINUTE_TIMEOUT_MILLIS)
   public void testManyPartiesSendToOneReceiver() {
     sendMultipleToSingleReceiver(10, 100);
   }
 
-  @Test(timeout = ONE_MINUTE_TIMEOUT)
+  @Test(timeout = ONE_MINUTE_TIMEOUT_MILLIS)
   public void testSendManyMessagesToOneReceiver() {
     sendMultipleToSingleReceiver(2, 10000);
   }
 
   // TESTING FOR FAILURE
 
-  @Test(expected = RuntimeException.class, timeout = ONE_MINUTE_TIMEOUT)
+  @Test(expected = RuntimeException.class, timeout = ONE_MINUTE_TIMEOUT_MILLIS)
   public void testFailedSend() {
     networks = createNetworks(2);
     try {
@@ -171,7 +171,7 @@ public class TestAsyncNetwork {
     networks.get(1).send(2, new byte[] { 0x01 });
   }
 
-  @Test(expected = RuntimeException.class, timeout = ONE_MINUTE_TIMEOUT)
+  @Test(expected = RuntimeException.class, timeout = ONE_MINUTE_TIMEOUT_MILLIS)
   public void testFailedReceive() throws Exception {
     networks = createNetworks(2);
     // Close network to provoke IOException while receiving
@@ -180,7 +180,7 @@ public class TestAsyncNetwork {
   }
 
   @SuppressWarnings("resource")
-  @Test(expected = RuntimeException.class, timeout = ONE_MINUTE_TIMEOUT)
+  @Test(expected = RuntimeException.class, timeout = ONE_MINUTE_TIMEOUT_MILLIS)
   public void testFailToBind() throws Throwable {
     ServerSocket socket = null;
     try {
@@ -193,7 +193,7 @@ public class TestAsyncNetwork {
     }
   }
 
-  @Test(expected = RuntimeException.class, timeout = ONE_MINUTE_TIMEOUT)
+  @Test(expected = RuntimeException.class, timeout = ONE_MINUTE_TIMEOUT_MILLIS)
   public void testConnectInterrupt() throws Throwable {
     List<NetworkConfiguration> confs = getNetConfs(2);
     ExecutorService es = Executors.newSingleThreadExecutor();
@@ -209,7 +209,7 @@ public class TestAsyncNetwork {
   }
 
   @SuppressWarnings("resource")
-  @Test(expected = RuntimeException.class, timeout = ONE_MINUTE_TIMEOUT)
+  @Test(expected = RuntimeException.class, timeout = ONE_MINUTE_TIMEOUT_MILLIS)
   public void testConnectTimeout() {
 
     List<NetworkConfiguration> confs = getNetConfs(2);
@@ -217,7 +217,7 @@ public class TestAsyncNetwork {
     new AsyncNetwork(confs.get(0), 10);
   }
 
-  @Test(timeout = ONE_MINUTE_TIMEOUT)
+  @Test(timeout = ONE_MINUTE_TIMEOUT_MILLIS)
   public void testPartiesReconnect() {
     testMultiplePartiesReconnect(2, 10);
     testMultiplePartiesReconnect(5, 20);
@@ -232,7 +232,7 @@ public class TestAsyncNetwork {
   }
 
   @SuppressWarnings("resource")
-  @Test(expected = RuntimeException.class, timeout = ONE_MINUTE_TIMEOUT)
+  @Test(expected = RuntimeException.class, timeout = ONE_MINUTE_TIMEOUT_MILLIS)
   public void testHandshakeFail() throws IOException, InterruptedException, ExecutionException {
     List<NetworkConfiguration> confs = getNetConfs(2);
     ServerSocketChannel server = ServerSocketChannel.open();
