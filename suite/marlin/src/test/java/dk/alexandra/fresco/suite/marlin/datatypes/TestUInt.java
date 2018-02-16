@@ -1,8 +1,10 @@
 package dk.alexandra.fresco.suite.marlin.datatypes;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.math.BigInteger;
+import java.util.Random;
 import org.junit.Test;
 
 public class TestUInt {
@@ -54,6 +56,37 @@ public class TestUInt {
         twoTo128.subtract(BigInteger.ONE),
         new UInt(twoTo128.subtract(BigInteger.ONE), 128).toBigInteger()
     );
+  }
+
+  @Test
+  public void testToByteArrayWithPadding() {
+    byte[] bytes = new byte[]{0x42};
+    BigUInt<UInt> uint = new UInt(bytes, 128);
+    byte[] expected = new byte[16];
+    expected[expected.length - 1] = 0x42;
+    byte[] actual = uint.toByteArray();
+    assertArrayEquals(expected, actual);
+  }
+
+  @Test
+  public void testToByteArray() {
+    byte[] bytes = new byte[16];
+    new Random(1).nextBytes(bytes);
+    BigUInt<UInt> uint = new UInt(bytes, 128);
+    byte[] actual = uint.toByteArray();
+    assertArrayEquals(bytes, actual);
+  }
+
+  @Test
+  public void testToByteArrayMore() {
+    byte[] bytes = new byte[]{
+        0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, // high
+        0x02, 0x02, 0x02, 0x02, // mid
+        0x03, 0x03, 0x02, 0x03  // low
+    };
+    BigUInt<UInt> uint = new UInt(bytes, 128);
+    byte[] actual = uint.toByteArray();
+    assertArrayEquals(bytes, actual);
   }
 
 }
