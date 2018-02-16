@@ -204,6 +204,7 @@ public class TestAsyncNetwork {
     networks = createNetworks(2);
     // Close network to provoke IOException while receiving
     networks.get(1).close();
+    Thread.sleep(10);
     networks.get(1).receive(2);
   }
 
