@@ -40,7 +40,19 @@ public class UInt implements BigUInt<UInt> {
 
   @Override
   public UInt multiply(UInt other) {
-    return null;
+    // note that we assume that other has the same bit-length as this
+    int[] resultInts = new int[ints.length];
+    for (int l = resultInts.length - 1; l >= 0; l--) {
+      long carry = 0;
+      int resIdxOffset = l;
+      for (int r = resultInts.length - 1; r >= 0 && resIdxOffset >= 0; r--, resIdxOffset--) {
+        long product = toULong(ints[l]) * toULong(other.ints[r])
+            + toULong(resultInts[resIdxOffset]) + carry;
+        carry = product >>> 32;
+        resultInts[resIdxOffset] = (int) product;
+      }
+    }
+    return new UInt(resultInts);
   }
 
   @Override

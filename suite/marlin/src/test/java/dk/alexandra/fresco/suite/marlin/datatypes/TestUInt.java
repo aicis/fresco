@@ -106,6 +106,65 @@ public class TestUInt {
   }
 
   @Test
+  public void testMultiply() {
+    assertEquals(
+        BigInteger.ZERO,
+        new UInt(0, 128).multiply(new UInt(0, 128)).toBigInteger()
+    );
+    assertEquals(
+        BigInteger.ZERO,
+        new UInt(1, 128).multiply(new UInt(0, 128)).toBigInteger()
+    );
+    assertEquals(
+        BigInteger.ZERO,
+        new UInt(0, 128).multiply(new UInt(1, 128)).toBigInteger()
+    );
+    assertEquals(
+        BigInteger.ZERO,
+        new UInt(1024, 128).multiply(new UInt(0, 128)).toBigInteger()
+    );
+    assertEquals(
+        BigInteger.ZERO,
+        new UInt(twoTo128.subtract(BigInteger.ONE), 128).multiply(new UInt(0, 128))
+            .toBigInteger()
+    );
+    assertEquals(
+        BigInteger.ONE,
+        new UInt(1, 128).multiply(new UInt(1, 128)).toBigInteger()
+    );
+    assertEquals(
+        twoTo128.subtract(BigInteger.ONE),
+        new UInt(1, 128)
+            .multiply(new UInt(twoTo128.subtract(BigInteger.ONE), 128))
+            .toBigInteger()
+    );
+    assertEquals(
+        twoTo128.subtract(BigInteger.ONE),
+        new UInt(twoTo128.subtract(BigInteger.ONE), 128).multiply(new UInt(1, 128))
+            .toBigInteger()
+    );
+    // multiply no overflow
+    assertEquals(
+        new BigInteger("42").multiply(new BigInteger("7")),
+        new UInt(new BigInteger("42"), 128).multiply(new UInt(new BigInteger("7"), 128))
+            .toBigInteger()
+    );
+    // multiply with overflow
+    assertEquals(
+        new BigInteger("42").multiply(twoTo128.subtract(BigInteger.ONE)).mod(twoTo128),
+        new UInt(new BigInteger("42"), 128)
+            .multiply(new UInt(twoTo128.subtract(BigInteger.ONE), 128))
+            .toBigInteger()
+    );
+    assertEquals(
+        twoTo64.multiply(twoTo64.add(BigInteger.TEN)).mod(twoTo128),
+        new UInt(twoTo64, 128)
+            .multiply(new UInt(twoTo64.add(BigInteger.TEN), 128))
+            .toBigInteger()
+    );
+  }
+
+  @Test
   public void testToByteArrayWithPadding() {
     byte[] bytes = new byte[]{0x42};
     BigUInt<UInt> uint = new UInt(bytes, 128);
