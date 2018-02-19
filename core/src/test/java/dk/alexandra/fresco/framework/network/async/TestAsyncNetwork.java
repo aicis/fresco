@@ -8,9 +8,10 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.CloseableNetwork;
 import java.io.IOException;
-import java.net.InetSocketAddress;
+import java.lang.reflect.Field;
 import java.net.ServerSocket;
-import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -59,6 +60,21 @@ public class TestAsyncNetwork {
   @Test
   public void testConnectMultipleParties() {
     networks = createNetworks(7);
+  }
+
+  // TEST CLOSE
+
+  @Test
+  public void testClose() {
+    networks = createNetworks(3);
+    closeNetworks(networks);
+  }
+
+  @SuppressWarnings("resource")
+  @Test(expected = RuntimeException.class)
+  public void testNegativeTimeout() {
+    List<NetworkConfiguration> conf = getNetConfs(2);
+    new AsyncNetwork(conf.get(1), Duration.ofMillis(-10));
   }
 
   // CIRCULAR SENDS
@@ -180,23 +196,54 @@ public class TestAsyncNetwork {
 
   // TESTING FOR FAILURE
 
+  @SuppressWarnings("unchecked")
   @Test(expected = RuntimeException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
   public void testFailedSend() {
     networks = createNetworks(2);
     try {
       // Close channel to provoke IOException while sending
-      ((AsyncNetwork) (networks.get(1))).clients.get(2).close();
+      Field f = networks.get(1).getClass().getDeclaredField("channelMap");
+      f.setAccessible(true);
+      ((HashMap<Integer, SocketChannel>)f.get(networks.get(1))).get(2).close();
+      f.setAccessible(false);
     } catch (IOException e) {
       fail("IOException closing channel");
-      e.printStackTrace();
+    } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
+        | IllegalAccessException e) {
+      fail("Reflection related error");
     }
-    networks.get(1).send(2, new byte[] { 0x01 });
     try {
+      networks.get(1).send(2, new byte[] { 0x01 });
       Thread.sleep(1);
+      networks.get(1).send(2, new byte[] { 0x01 });
     } catch (InterruptedException e) {
-      e.printStackTrace();
+      fail("No interruption should occur");
     }
+
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testSendToNegativePartyId() {
+    networks = createNetworks(1);
+    networks.get(1).send(-1, new byte[] { 0x01 });
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testSendToTooLargePartyId() {
+    networks = createNetworks(1);
     networks.get(1).send(2, new byte[] { 0x01 });
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testReceiveFromNegativePartyId() {
+    networks = createNetworks(1);
+    networks.get(1).receive(-1);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testReceiveFromTooLargePartyId() {
+    networks = createNetworks(1);
+    networks.get(1).receive(2);
   }
 
   @Test(expected = RuntimeException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
@@ -242,7 +289,7 @@ public class TestAsyncNetwork {
 
     List<NetworkConfiguration> confs = getNetConfs(2);
     // This should time out waiting for a connection to a party that is not listening
-    new AsyncNetwork(confs.get(0), 10);
+    new AsyncNetwork(confs.get(0), Duration.ofMillis(10));
   }
 
   @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS)
@@ -256,20 +303,6 @@ public class TestAsyncNetwork {
     for (int i = 0; i < noOfRetries; i++) {
       networks = createNetworks(confs);
       closeNetworks(networks);
-    }
-  }
-
-  @SuppressWarnings("resource")
-  @Test(expected = RuntimeException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
-  public void testHandshakeFail() throws IOException, InterruptedException, ExecutionException {
-    List<NetworkConfiguration> confs = getNetConfs(2);
-    ServerSocketChannel server = ServerSocketChannel.open();
-    server.bind(new InetSocketAddress("localhost", confs.get(1).getMe().getPort()));
-    try {
-      new ClosedEarlyAsyncNetwork(confs.get(0), 15000);
-    } catch (RuntimeException e) {
-      server.close();
-      throw e;
     }
   }
 
@@ -335,18 +368,5 @@ public class TestAsyncNetwork {
     return (myId == 1) ? numParties : myId - 1;
   }
 
-
-  private class ClosedEarlyAsyncNetwork extends AsyncNetwork {
-
-    public ClosedEarlyAsyncNetwork(NetworkConfiguration conf, int timeout) {
-      super(conf, timeout);
-    }
-
-    @Override
-    void connectServer() throws IOException {
-      close();
-      super.connectServer();
-    }
-  }
 }
 
