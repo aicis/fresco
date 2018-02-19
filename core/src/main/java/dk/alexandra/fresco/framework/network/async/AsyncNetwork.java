@@ -15,8 +15,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
@@ -38,21 +38,21 @@ import org.slf4j.LoggerFactory;
 public class AsyncNetwork implements CloseableNetwork {
 
   public static final Duration DEFAULT_CONNECTION_TIMEOUT = Duration.ofMinutes(1);
-  public static final Duration SHUTDOWN_DELAY = Duration.ofSeconds(1);
   private static final Logger logger = LoggerFactory.getLogger(AsyncNetwork.class);
 
   private ServerSocketChannel server;
-  private Map<Integer, SocketChannel> channelMap;
-  private Map<Integer, BlockingQueue<byte[]>> queues;
-  private NetworkConfiguration conf;
-  private ExecutorService receiverService;
-  private Map<Integer, ExecutorService> senderServices;
-  private Exception sendException = null;
-  private Exception receiveException = null;
+  private final Map<Integer, SocketChannel> channelMap;
+  private final Map<Integer, BlockingQueue<byte[]>> outQueues;
+  private final Map<Integer, BlockingQueue<byte[]>> inQueues;
+  private final NetworkConfiguration conf;
+  private ExecutorService communicationService;
+  private Future<Object> sendFuture;
+  private Future<Object> receiveFuture;
 
   /**
-   * Creates a network with the given configuration and a default timeout of 15 seconds. Calling the
-   * constructor will automatically trigger an attempt to connect to the other parties.
+   * Creates a network with the given configuration and a default timeout of
+   * {@link #DEFAULT_CONNECTION_TIMEOUT}. Calling the constructor will automatically trigger an
+   * attempt to connect to the other parties. If this fails a {@link RuntimeException} is thrown.
    *
    * @param conf the network configuration
    */
@@ -63,21 +63,23 @@ public class AsyncNetwork implements CloseableNetwork {
   /**
    * Creates a network with the given configuration and a timeout of <code>timeout</code> in
    * milliseconds. Calling the constructor will automatically trigger an attempt to connect to the
-   * other parties.
+   * other parties. If this fails a {@link RuntimeException} is thrown.
    *
    * @param conf The network configuration
    * @param timeout the time to wait until timeout
    */
   public AsyncNetwork(NetworkConfiguration conf, Duration timeout) {
     this.conf = conf;
-    this.queues = new HashMap<>(conf.noOfParties());
-    this.channelMap = new ConcurrentHashMap<>(conf.noOfParties() - 1);
+    this.outQueues = new HashMap<>(conf.noOfParties());
+    this.inQueues = new HashMap<>(conf.noOfParties());
+    this.channelMap = new HashMap<>(conf.noOfParties() - 1);
     for (int i = 1; i < conf.noOfParties() + 1; i++) {
-      queues.put(i, new LinkedBlockingQueue<>());
+      outQueues.put(i, new LinkedBlockingQueue<>());
+      inQueues.put(i, new LinkedBlockingQueue<>());
     }
     if (conf.noOfParties() > 1) {
       connectNetwork(conf, timeout);
-      startReceivers();
+      startCommunication();
     }
     logger.info("P{} successfully connected network", conf.getMyId());
   }
@@ -85,8 +87,7 @@ public class AsyncNetwork implements CloseableNetwork {
   /**
    * Fully connects the network.
    * <p>
-   * Connects two channels to each external party (i.e., parties other than this party). One channel
-   * to send and one channel to receive messages.
+   * Connects a channels to each external party (i.e., parties other than this party).
    * </p>
    *
    * @param conf the configuration defining the network to connect
@@ -94,13 +95,7 @@ public class AsyncNetwork implements CloseableNetwork {
    */
   private void connectNetwork(NetworkConfiguration conf, Duration timeout) {
     int externalParties = getNoOfParties() - 1;
-    this.receiverService = Executors.newFixedThreadPool(externalParties);
-    this.senderServices = new HashMap<>(externalParties);
-    for (int i = 1; i <= conf.noOfParties(); i++) {
-      if (this.conf.getMyId() != i) {
-        this.senderServices.put(i, Executors.newSingleThreadExecutor());
-      }
-    }
+    this.communicationService = Executors.newFixedThreadPool(externalParties * 2);
     ExecutorService es = Executors.newFixedThreadPool(2);
     CompletionService<Map<Integer, SocketChannel>> cs = new ExecutorCompletionService<>(es);
     cs.submit(() -> {
@@ -133,31 +128,69 @@ public class AsyncNetwork implements CloseableNetwork {
     }
   }
 
-  private void startReceivers() {
+  /**
+   * Starts communication threads to handle incoming and outgoing messages.
+   */
+  private void startCommunication() {
     for (Entry<Integer, SocketChannel> entry : this.channelMap.entrySet()) {
       final int id = entry.getKey();
       SocketChannel channel = entry.getValue();
-      this.receiverService.submit(() -> {
-        try {
-          while (true) {
-            ByteBuffer inBuf = ByteBuffer.allocate(Integer.BYTES);
-            channel.read(inBuf);
-            inBuf.flip();
-            int nextMessageSize = inBuf.getInt();
-            inBuf = ByteBuffer.allocate(nextMessageSize);
-            while (inBuf.remaining() > 0) {
-              channel.read(inBuf);
-            }
-            queues.get(id).put(inBuf.array());
-          }
-        } catch (IOException e) {
-          receiveException = e;
-          throw e;
-        } finally {
-          channel.close();
-        }
-      });
+      receiveFuture = this.communicationService.submit(new Receiver(channel, inQueues.get(id)));
+      sendFuture = this.communicationService.submit(new Sender(channel, outQueues.get(id)));
     }
+  }
+
+  private class Receiver implements Callable<Object> {
+
+    private final SocketChannel channel;
+    private final BlockingQueue<byte[]> queue;
+
+    public Receiver(SocketChannel channel, BlockingQueue<byte[]> queue) {
+      this.channel = channel;
+      this.queue = queue;
+    }
+
+    @Override
+    public Object call() throws IOException, InterruptedException {
+      ByteBuffer buf = ByteBuffer.allocate(Integer.BYTES);
+      channel.read(buf);
+      buf.flip();
+      int nextMessageSize = buf.getInt();
+      buf = ByteBuffer.allocate(nextMessageSize);
+      while (buf.remaining() > 0) {
+        channel.read(buf);
+      }
+      queue.add(buf.array());
+      receiveFuture = communicationService.submit(new Receiver(channel, queue));
+      return null;
+    }
+
+  }
+
+  private class Sender implements Callable<Object> {
+
+    private final SocketChannel channel;
+    private final BlockingQueue<byte[]> queue;
+
+    public Sender(SocketChannel channel, BlockingQueue<byte[]> queue) {
+      this.channel = channel;
+      this.queue = queue;
+    }
+
+    @Override
+    public Object call() throws IOException, InterruptedException {
+      byte[] data = queue.take();
+      ByteBuffer buf = ByteBuffer.allocate(Integer.BYTES + data.length);
+      buf.putInt(data.length);
+      buf.put(data);
+      buf.position(0);
+      while (buf.hasRemaining()) {
+        channel.write(buf);
+      }
+      sendFuture = communicationService.submit(new Sender(channel, queue));
+      return null;
+    }
+
   }
 
   /**
@@ -241,67 +274,40 @@ public class AsyncNetwork implements CloseableNetwork {
 
   @Override
   public void send(int partyId, byte[] data) {
-    if (!inRange(partyId)) {
-      throw new IllegalArgumentException(
-          "Party id " + partyId + " not in range 1 ... " + getNoOfParties());
+    inRange(partyId);
+    if (conf.noOfParties() != 1 && sendFuture.isDone()) {
+      ExceptionConverter.safe(() -> sendFuture.get(), "A previous send operation failed");
     }
-    if (this.conf.getMyId() == partyId) {
-      this.queues.get(conf.getMyId()).offer(data);
+    if (partyId == conf.getMyId()) {
+      this.inQueues.get(partyId).add(data);
     } else {
-      this.senderServices.get(partyId).submit(() -> {
-        try {
-          ByteBuffer buf = ByteBuffer.allocate(Integer.BYTES + data.length);
-          buf.putInt(data.length);
-          buf.put(data);
-          buf.position(0);
-          while (buf.hasRemaining()) {
-            this.channelMap.get(partyId).write(buf);
-          }
-        } catch (Exception e) {
-          e.printStackTrace();
-          this.sendException = e;
-        }
-        return null;
-      });
-      if (sendException != null) {
-        throw new RuntimeException("Previous send operation failed due to exception",
-            sendException);
-      }
+      this.outQueues.get(partyId).add(data);
     }
   }
 
   @Override
   public byte[] receive(int partyId) {
-    if (!inRange(partyId)) {
-      throw new IllegalArgumentException(
-          "Party id " + partyId + " not in range 1 ... " + getNoOfParties());
+    inRange(partyId);
+    if (conf.noOfParties() != 1 && receiveFuture.isDone()) {
+      ExceptionConverter.safe(() -> receiveFuture.get(), "A previous receive operation failed");
     }
-    if (receiveException != null) {
-      throw new RuntimeException("Previous receive operation failed due to exception",
-          receiveException);
-    }
-    return ExceptionConverter.safe(() -> {
-      return this.queues.get(partyId).take();
-    }, "Thread got interrupted while waiting for input");
-
+    return ExceptionConverter.safe(() -> this.inQueues.get(partyId).take(), "Receive interrupted");
   }
 
   /**
    * Check if a party ID is in the range of known parties.
    *
    * @param partyId an ID for a party
-   * @return whether or not the ID is in the range of parties
    */
-  private boolean inRange(int partyId) {
-    return (0 < partyId && partyId < getNoOfParties() + 1);
+  private void inRange(int partyId) {
+    if (!(0 < partyId && partyId < getNoOfParties() + 1)) {
+      throw new IllegalArgumentException(
+          "Party id " + partyId + " not in range 1 ... " + getNoOfParties());
+    }
   }
 
   /**
    * Closes the network down and releases held resources.
-   * <p>
-   * May wait up to {@link AsyncNetwork#SHUTDOWN_DELAY} to let the network process any pending in or
-   * out bound messages.
-   * </p>
    */
   @Override
   public void close() {
@@ -310,12 +316,7 @@ public class AsyncNetwork implements CloseableNetwork {
       return;
     }
     ExceptionConverter.safe(() -> {
-      this.receiverService.shutdownNow();
-      for (ExecutorService executorService : this.senderServices.values()) {
-        executorService.shutdown();
-        executorService.awaitTermination(SHUTDOWN_DELAY.toMillis(), TimeUnit.MILLISECONDS);
-        executorService.shutdownNow();
-      }
+      this.communicationService.shutdownNow();
       if (this.server != null) {
         this.server.close();
       }
