@@ -3,16 +3,18 @@ package dk.alexandra.fresco.lib.helper;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import java.util.ArrayList;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.Iterator;
 import java.util.List;
 
 public class SequentialProtocolProducer implements ProtocolProducer {
 
   private ProtocolProducer currentProducer;
-  private final List<ProtocolProducer> protocolProducers;
+  private final Deque<ProtocolProducer> protocolProducers;
 
   public SequentialProtocolProducer(List<ProtocolProducer> protocols) {
-    protocolProducers = new ArrayList<>(protocols);
+    protocolProducers = new ArrayDeque<>(protocols);
   }
 
 
@@ -32,16 +34,20 @@ public class SequentialProtocolProducer implements ProtocolProducer {
     if (protocolProducers.isEmpty()) {
       return null;
     }
-    ProtocolProducer current = protocolProducers.get(0);
+    ProtocolProducer current = protocolProducers.getFirst();
     if (current instanceof LazyProtocolProducerDecorator) {
       LazyProtocolProducerDecorator currentProducer = (LazyProtocolProducerDecorator) current;
-      protocolProducers.remove(0);
-      protocolProducers.add(0, currentProducer.getInnerProtocolProducer());
+      protocolProducers.removeFirst();
+      protocolProducers.addFirst(currentProducer.getInnerProtocolProducer());
       return inline();
     } else if (current instanceof SequentialProtocolProducer) {
       SequentialProtocolProducer seq = (SequentialProtocolProducer) current;
-      protocolProducers.remove(0);
-      protocolProducers.addAll(0, seq.protocolProducers);
+      protocolProducers.removeFirst();
+      for (Iterator<ProtocolProducer> iterator = seq.protocolProducers.descendingIterator();
+          iterator.hasNext(); ) {
+        ProtocolProducer protocolProducer = iterator.next();
+        protocolProducers.addFirst(protocolProducer);
+      }
       return inline();
     } else {
       return current;
@@ -53,8 +59,8 @@ public class SequentialProtocolProducer implements ProtocolProducer {
     if (currentProducer != null && currentProducer.hasNextProtocols()) {
       return true;
     }
-    while (!protocolProducers.isEmpty() && !protocolProducers.get(0).hasNextProtocols()) {
-      protocolProducers.remove(0);
+    while (!protocolProducers.isEmpty() && !protocolProducers.getFirst().hasNextProtocols()) {
+      protocolProducers.removeFirst();
       currentProducer = null;
     }
     return !protocolProducers.isEmpty();
