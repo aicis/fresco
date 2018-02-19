@@ -84,8 +84,8 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
           }
           BigInteger gamma = BigInteger.ZERO;
           index = 0;
-          for (SpdzElement c : closedValues) {
-            gamma = gamma.add(rs[index++].multiply(c.getMac())).mod(modulus);
+          for (SpdzElement closedValue : closedValues) {
+            gamma = gamma.add(rs[index++].multiply(closedValue.getMac())).mod(modulus);
           }
 
           BigInteger alpha = storage.getSecretSharedKey();
