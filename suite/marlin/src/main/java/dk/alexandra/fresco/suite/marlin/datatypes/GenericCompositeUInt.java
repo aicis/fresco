@@ -8,32 +8,32 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class UInt implements BigUInt<UInt> {
+public class GenericCompositeUInt implements CompositeUInt<GenericCompositeUInt> {
 
   private final int[] ints;
 
-  public UInt(final int[] ints) {
+  public GenericCompositeUInt(final int[] ints) {
     this.ints = ints;
   }
 
-  public UInt(UInt other, int requiredBitLength) {
+  public GenericCompositeUInt(GenericCompositeUInt other, int requiredBitLength) {
     this(pad(other.ints, requiredBitLength));
   }
 
-  public UInt(byte[] bytes, int requiredBitLength) {
+  public GenericCompositeUInt(byte[] bytes, int requiredBitLength) {
     this(toIntArray(bytes, requiredBitLength));
   }
 
-  public UInt(BigInteger value, int requiredBitLength) {
+  public GenericCompositeUInt(BigInteger value, int requiredBitLength) {
     this(value.toByteArray(), requiredBitLength);
   }
 
-  public UInt(long value, int requiredBitLength) {
+  public GenericCompositeUInt(long value, int requiredBitLength) {
     this(longToInts(value, requiredBitLength));
   }
 
   @Override
-  public UInt add(final UInt other) {
+  public GenericCompositeUInt add(final GenericCompositeUInt other) {
     final int[] resultInts = new int[ints.length];
     long carry = 0;
     // big-endian, so reverse order
@@ -42,11 +42,11 @@ public class UInt implements BigUInt<UInt> {
       resultInts[l] = (int) sum;
       carry = sum >>> 32;
     }
-    return new UInt(resultInts);
+    return new GenericCompositeUInt(resultInts);
   }
 
   @Override
-  public UInt multiply(final UInt other) {
+  public GenericCompositeUInt multiply(final GenericCompositeUInt other) {
     // TODO get rid off extra multiplication
     // note that we assume that other has the same bit-length as this
     final int[] resultInts = new int[ints.length];
@@ -60,23 +60,23 @@ public class UInt implements BigUInt<UInt> {
         resultInts[resIdxOffset] = (int) product;
       }
     }
-    return new UInt(resultInts);
+    return new GenericCompositeUInt(resultInts);
   }
 
   @Override
-  public UInt subtract(UInt other) {
+  public GenericCompositeUInt subtract(GenericCompositeUInt other) {
     return this.add(other.negate());
   }
 
   @Override
-  public UInt negate() {
+  public GenericCompositeUInt negate() {
     int[] reversed = new int[ints.length];
     for (int i = 0; i < reversed.length; i++) {
       reversed[i] = ~ints[i];
     }
     // TODO cache this
-    UInt one = new UInt(1, 128);
-    return new UInt(reversed).add(one);
+    GenericCompositeUInt one = new GenericCompositeUInt(1, 128);
+    return new GenericCompositeUInt(reversed).add(one);
   }
 
   @Override
@@ -108,23 +108,23 @@ public class UInt implements BigUInt<UInt> {
   }
 
   @Override
-  public UInt computeOverflow() {
-    UInt low = new UInt(getLowLong(), ints.length * Integer.SIZE);
+  public GenericCompositeUInt computeOverflow() {
+    GenericCompositeUInt low = new GenericCompositeUInt(getLowLong(), ints.length * Integer.SIZE);
     return low.subtract(this).getHigh();
   }
 
   @Override
-  public UInt getSubRange(int from, int to) {
-    return new UInt(getIntSubRange(from, to));
+  public GenericCompositeUInt getSubRange(int from, int to) {
+    return new GenericCompositeUInt(getIntSubRange(from, to));
   }
 
   @Override
-  public UInt getLow() {
+  public GenericCompositeUInt getLow() {
     return getSubRange(0, 2);
   }
 
   @Override
-  public UInt getHigh() {
+  public GenericCompositeUInt getHigh() {
     return getSubRange(2, 4);
   }
 
@@ -133,11 +133,11 @@ public class UInt implements BigUInt<UInt> {
   }
 
   @Override
-  public UInt shiftLowIntoHigh() {
+  public GenericCompositeUInt shiftLowIntoHigh() {
     int[] shifted = new int[ints.length];
     shifted[0] = ints[shifted.length - 2];
     shifted[1] = ints[shifted.length - 1];
-    return new UInt(shifted);
+    return new GenericCompositeUInt(shifted);
   }
 
   @Override
@@ -195,18 +195,18 @@ public class UInt implements BigUInt<UInt> {
   }
 
   public static void runUInt() {
-    UIntFactory factory = new UIntFactory();
+    GenericCompositeUIntFactory factory = new GenericCompositeUIntFactory();
     int numValues = 1000000;
-    List<UInt> left = new ArrayList<>(numValues);
-    List<UInt> right = new ArrayList<>(numValues);
+    List<GenericCompositeUInt> left = new ArrayList<>(numValues);
+    List<GenericCompositeUInt> right = new ArrayList<>(numValues);
     for (int i = 0; i < numValues; i++) {
       left.add(factory.createRandom());
       right.add(factory.createRandom());
     }
-    UInt other = BigUInt.innerProduct(left, right);
+    GenericCompositeUInt other = CompositeUInt.innerProduct(left, right);
     System.out.println(other);
     long startTime = System.currentTimeMillis();
-    UInt inner = BigUInt.innerProduct(left, right);
+    GenericCompositeUInt inner = CompositeUInt.innerProduct(left, right);
     long endTime = System.currentTimeMillis();
     long duration = (endTime - startTime);
     System.out.println(inner);
@@ -214,18 +214,18 @@ public class UInt implements BigUInt<UInt> {
   }
 
   public static void runUInt128() {
-    UInt128Factory factory = new UInt128Factory();
+    CompositeUInt128Factory factory = new CompositeUInt128Factory();
     int numValues = 1000000;
-    List<UInt128> left = new ArrayList<>(numValues);
-    List<UInt128> right = new ArrayList<>(numValues);
+    List<CompositeUInt128> left = new ArrayList<>(numValues);
+    List<CompositeUInt128> right = new ArrayList<>(numValues);
     for (int i = 0; i < numValues; i++) {
       left.add(factory.createRandom());
       right.add(factory.createRandom());
     }
-    UInt128 other = BigUInt.innerProduct(left, right);
+    CompositeUInt128 other = CompositeUInt.innerProduct(left, right);
     System.out.println(other);
     long startTime = System.currentTimeMillis();
-    UInt128 inner = BigUInt.innerProduct(left, right);
+    CompositeUInt128 inner = CompositeUInt.innerProduct(left, right);
     long endTime = System.currentTimeMillis();
     long duration = (endTime - startTime);
     System.out.println(inner);

@@ -5,13 +5,13 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
-import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUIntFactory;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinInputMask;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 
-public class MarlinInputOnlyProtocol<T extends BigUInt<T>> extends
+public class MarlinInputOnlyProtocol<T extends CompositeUInt<T>> extends
     MarlinNativeProtocol<Pair<DRes<SInt>, byte[]>, T> {
 
   private final T input;
@@ -26,7 +26,7 @@ public class MarlinInputOnlyProtocol<T extends BigUInt<T>> extends
 
   @Override
   public EvaluationStatus evaluate(int round, MarlinResourcePool<T> resourcePool, Network network) {
-    BigUIntFactory<T> factory = resourcePool.getFactory();
+    CompositeUIntFactory<T> factory = resourcePool.getFactory();
     int myId = resourcePool.getMyId();
     ByteSerializer<T> serializer = resourcePool.getRawSerializer();
     if (round == 0) {

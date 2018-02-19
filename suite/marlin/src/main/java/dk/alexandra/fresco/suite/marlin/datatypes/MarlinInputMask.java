@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.marlin.datatypes;
 
-public class MarlinInputMask<T extends BigUInt<T>> {
+public class MarlinInputMask<T extends CompositeUInt<T>> {
 
   private final MarlinSInt<T> maskShare;
   private final T openValue;

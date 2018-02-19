@@ -5,7 +5,7 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinTriple;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MarlinMultiplyProtocol<T extends BigUInt<T>> extends
+public class MarlinMultiplyProtocol<T extends CompositeUInt<T>> extends
     MarlinNativeProtocol<SInt, T> {
 
   private final DRes<SInt> left;
@@ -73,8 +73,8 @@ public class MarlinMultiplyProtocol<T extends BigUInt<T>> extends
       epsilonShares.add(serializer.deserialize(network.receive(i)));
       deltaShares.add(serializer.deserialize(network.receive(i)));
     }
-    T e = BigUInt.sum(epsilonShares);
-    T d = BigUInt.sum(deltaShares);
+    T e = CompositeUInt.sum(epsilonShares);
+    T d = CompositeUInt.sum(deltaShares);
     return new Pair<>(e, d);
   }
 

@@ -1,12 +1,12 @@
 package dk.alexandra.fresco.suite.marlin.resource.storage;
 
 import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MarlinOpenedValueStoreImpl<T extends BigUInt<T>> implements MarlinOpenedValueStore<T> {
+public class MarlinOpenedValueStoreImpl<T extends CompositeUInt<T>> implements MarlinOpenedValueStore<T> {
 
   private final List<MarlinSInt<T>> sharesWithMacs;
   private final List<T> openedValues;

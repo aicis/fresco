@@ -4,17 +4,17 @@ import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
-import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
-import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUIntFactory;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 import dk.alexandra.fresco.suite.marlin.synchronization.MarlinRoundSynchronization;
 
-public class MarlinProtocolSuite<T extends BigUInt<T>> implements
+public class MarlinProtocolSuite<T extends CompositeUInt<T>> implements
     ProtocolSuiteNumeric<MarlinResourcePool> {
 
-  private final BigUIntFactory<T> factory;
+  private final CompositeUIntFactory<T> factory;
 
-  MarlinProtocolSuite(BigUIntFactory<T> factory) {
+  MarlinProtocolSuite(CompositeUIntFactory<T> factory) {
     this.factory = factory;
   }
 

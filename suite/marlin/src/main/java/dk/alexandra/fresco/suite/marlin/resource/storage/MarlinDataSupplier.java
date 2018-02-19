@@ -1,13 +1,13 @@
 package dk.alexandra.fresco.suite.marlin.resource.storage;
 
-import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinInputMask;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinTriple;
 import java.util.ArrayList;
 import java.util.List;
 
-public interface MarlinDataSupplier<T extends BigUInt<T>> {
+public interface MarlinDataSupplier<T extends CompositeUInt<T>> {
 
   /**
    * Supplies the next triple.

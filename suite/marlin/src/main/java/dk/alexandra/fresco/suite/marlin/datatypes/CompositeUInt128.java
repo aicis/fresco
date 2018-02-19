@@ -9,20 +9,20 @@ import java.nio.ByteOrder;
  * https://locklessinc.com/articles/256bit_arithmetic/. Note that this class is NOT SAFE to
  * instantiate with negative values.</p>
  */
-public class UInt128 implements BigUInt<UInt128> {
+public class CompositeUInt128 implements CompositeUInt<CompositeUInt128> {
 
-  private static final UInt128 MINUS_ONE = new UInt128(
+  private static final CompositeUInt128 MINUS_ONE = new CompositeUInt128(
       BigInteger.ONE.shiftLeft(128).subtract(BigInteger.ONE));
   private final long high;
   private final int mid;
   private final int low;
 
   /**
-   * Creates new {@link UInt128}.
+   * Creates new {@link CompositeUInt128}.
    *
    * @param bytes bytes interpreted in big-endian order.
    */
-  public UInt128(byte[] bytes) {
+  public CompositeUInt128(byte[] bytes) {
     byte[] padded = pad(bytes);
     ByteBuffer buffer = ByteBuffer.wrap(padded);
     buffer.order(ByteOrder.BIG_ENDIAN);
@@ -31,30 +31,30 @@ public class UInt128 implements BigUInt<UInt128> {
     this.low = buffer.getInt();
   }
 
-  private UInt128(long high, int mid, int low) {
+  private CompositeUInt128(long high, int mid, int low) {
     this.high = high;
     this.mid = mid;
     this.low = low;
   }
 
-  UInt128(BigInteger value) {
+  CompositeUInt128(BigInteger value) {
     this(value.toByteArray());
   }
 
-  public UInt128(long value) {
+  public CompositeUInt128(long value) {
     this.high = 0;
     this.mid = (int) (value >>> 32);
     this.low = (int) value;
   }
 
-  UInt128(UInt128 other) {
+  CompositeUInt128(CompositeUInt128 other) {
     this.high = other.high;
     this.mid = other.mid;
     this.low = other.low;
   }
 
   @Override
-  public UInt128 add(UInt128 other) {
+  public CompositeUInt128 add(CompositeUInt128 other) {
     long newLow = Integer.toUnsignedLong(this.low) + Integer.toUnsignedLong(other.low);
     long lowOverflow = newLow >>> 32;
     long newMid = Integer.toUnsignedLong(this.mid)
@@ -62,11 +62,11 @@ public class UInt128 implements BigUInt<UInt128> {
         + lowOverflow;
     long midOverflow = newMid >>> 32;
     long newHigh = this.high + other.high + midOverflow;
-    return new UInt128(newHigh, (int) newMid, (int) newLow);
+    return new CompositeUInt128(newHigh, (int) newMid, (int) newLow);
   }
 
   @Override
-  public UInt128 multiply(UInt128 other) {
+  public CompositeUInt128 multiply(CompositeUInt128 other) {
     long thisLowAsLong = Integer.toUnsignedLong(this.low);
     long thisMidAsLong = Integer.toUnsignedLong(this.mid);
     long otherLowAsLong = Integer.toUnsignedLong(other.low);
@@ -100,16 +100,16 @@ public class UInt128 implements BigUInt<UInt128> {
         + (Integer.toUnsignedLong(t8) << 32)
         + (m1 >>> 32)
         + (newMid >>> 32);
-    return new UInt128(newHigh, (int) newMid, (int) t1);
+    return new CompositeUInt128(newHigh, (int) newMid, (int) t1);
   }
 
   @Override
-  public UInt128 subtract(UInt128 other) {
+  public CompositeUInt128 subtract(CompositeUInt128 other) {
     return this.add(other.negate());
   }
 
   @Override
-  public UInt128 negate() {
+  public CompositeUInt128 negate() {
     return multiply(MINUS_ONE);
   }
 
@@ -124,22 +124,22 @@ public class UInt128 implements BigUInt<UInt128> {
   }
 
   @Override
-  public UInt128 computeOverflow() {
+  public CompositeUInt128 computeOverflow() {
     return null;
   }
 
   @Override
-  public UInt128 getSubRange(int from, int to) {
+  public CompositeUInt128 getSubRange(int from, int to) {
     return null;
   }
 
   @Override
-  public UInt128 getLow() {
+  public CompositeUInt128 getLow() {
     return null;
   }
 
   @Override
-  public UInt128 getHigh() {
+  public CompositeUInt128 getHigh() {
     return null;
   }
 
@@ -148,8 +148,8 @@ public class UInt128 implements BigUInt<UInt128> {
   }
 
   @Override
-  public UInt128 shiftLowIntoHigh() {
-    return new UInt128(getLowLong(), 0, 0);
+  public CompositeUInt128 shiftLowIntoHigh() {
+    return new CompositeUInt128(getLowLong(), 0, 0);
   }
 
   private byte[] pad(byte[] bytes) {

@@ -6,13 +6,13 @@ import dk.alexandra.fresco.framework.builder.ComputationParallel;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
-import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUInt;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinAllBroadcastProtocol;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MarlinCommitmentComputation<T extends BigUInt<T>> implements
+public class MarlinCommitmentComputation<T extends CompositeUInt<T>> implements
     ComputationParallel<List<byte[]>, ProtocolBuilderNumeric> {
 
   private final MarlinResourcePool<T> resourcePool;

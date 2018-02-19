@@ -7,8 +7,8 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
-import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
-import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUIntFactory;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
 import dk.alexandra.fresco.suite.marlin.protocols.computations.MarlinInputComputation;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinKnownSIntProtocol;
@@ -16,12 +16,12 @@ import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinMultiplyProtocol
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinOutputProtocol;
 import java.math.BigInteger;
 
-public class MarlinBuilder<T extends BigUInt<T>> implements BuilderFactoryNumeric {
+public class MarlinBuilder<T extends CompositeUInt<T>> implements BuilderFactoryNumeric {
 
-  private final BigUIntFactory<T> factory;
+  private final CompositeUIntFactory<T> factory;
   private final BasicNumericContext numericContext;
 
-  public MarlinBuilder(BigUIntFactory<T> factory, BasicNumericContext numericContext) {
+  public MarlinBuilder(CompositeUIntFactory<T> factory, BasicNumericContext numericContext) {
     this.factory = factory;
     this.numericContext = numericContext;
   }

@@ -7,15 +7,15 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.sce.resources.Broadcast;
 import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
-import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUIntFactory;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinDataSupplier;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStore;
 import java.math.BigInteger;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public interface MarlinResourcePool<T extends BigUInt<T>> extends NumericResourcePool {
+public interface MarlinResourcePool<T extends CompositeUInt<T>> extends NumericResourcePool {
 
   /**
    * Returns instance of {@link MarlinOpenedValueStore} which tracks all opened, unchecked values.
@@ -32,7 +32,7 @@ public interface MarlinResourcePool<T extends BigUInt<T>> extends NumericResourc
    * Returns factory for constructing concrete instances of {@link T}, i.e., the class representing
    * the raw element data type.
    */
-  BigUIntFactory<T> getFactory();
+  CompositeUIntFactory<T> getFactory();
 
   /**
    * Returns serializer for instances of {@link T}.

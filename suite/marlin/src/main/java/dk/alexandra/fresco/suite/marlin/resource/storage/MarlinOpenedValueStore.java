@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.marlin.resource.storage;
 
 import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
 import java.util.Collections;
 import java.util.List;
@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * A class that stores all opened values along with their macs for subsequent mac checks.
  */
-public interface MarlinOpenedValueStore<T extends BigUInt<T>> {
+public interface MarlinOpenedValueStore<T extends CompositeUInt<T>> {
 
   /**
    * Store elements with macs that were just opened along with the corresponding open values.

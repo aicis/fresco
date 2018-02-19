@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Interface for representing unsigned integers larger than 64 bits.
  */
-public interface BigUInt<T extends BigUInt> {
+public interface CompositeUInt<T extends CompositeUInt> {
 
   /**
    * Compute sum of this and {@code other}.
@@ -59,19 +59,17 @@ public interface BigUInt<T extends BigUInt> {
 
   T shiftLowIntoHigh();
 
-  // TODO hack hack hack
-
   /**
    * Compute sum of elements.
    */
-  static <S extends BigUInt<S>> S sum(List<S> elements) {
-    return elements.stream().reduce(BigUInt::add).get();
+  static <S extends CompositeUInt<S>> S sum(List<S> elements) {
+    return elements.stream().reduce(CompositeUInt::add).get();
   }
 
   /**
    * Compute pairwise product of elements.
    */
-  static <S extends BigUInt<S>> List<S> product(List<S> left, List<S> right) {
+  static <S extends CompositeUInt<S>> List<S> product(List<S> left, List<S> right) {
     List<S> product = new ArrayList<>(left.size());
     for (int i = 0; i < left.size(); i++) {
       product.add(left.get(i).multiply(right.get(i)));
@@ -82,7 +80,7 @@ public interface BigUInt<T extends BigUInt> {
   /**
    * Compute inner product of elements.
    */
-  static <S extends BigUInt<S>> S innerProduct(List<S> left, List<S> right) {
+  static <S extends CompositeUInt<S>> S innerProduct(List<S> left, List<S> right) {
     return sum(product(left, right));
   }
 

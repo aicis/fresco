@@ -16,8 +16,8 @@ import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.marlin.MarlinBuilder;
-import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
-import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUIntFactory;
 import dk.alexandra.fresco.suite.marlin.protocols.computations.MarlinCommitmentComputation;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinDataSupplier;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStore;
@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolImpl implements
+public class MarlinResourcePoolImpl<T extends CompositeUInt<T>> extends ResourcePoolImpl implements
     MarlinResourcePool<T> {
 
   private final int operationalBitLength;
@@ -36,7 +36,7 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
   private final BigInteger modulus;
   private final MarlinOpenedValueStore<T> storage;
   private final MarlinDataSupplier<T> supplier;
-  private final BigUIntFactory<T> factory;
+  private final CompositeUIntFactory<T> factory;
   private final ByteSerializer<T> rawSerializer;
   private Drbg drbg;
 
@@ -45,7 +45,7 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
    */
   private MarlinResourcePoolImpl(int myId, int noOfPlayers, Drbg drbg, int operationalBitLength,
       int effectiveBitLength, MarlinOpenedValueStore<T> storage, MarlinDataSupplier<T> supplier,
-      BigUIntFactory<T> factory) {
+      CompositeUIntFactory<T> factory) {
     super(myId, noOfPlayers);
     if (operationalBitLength != 128) {
       throw new IllegalArgumentException(
@@ -70,7 +70,7 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
    */
   public MarlinResourcePoolImpl(int myId, int noOfPlayers, Drbg drbg,
       MarlinOpenedValueStore<T> storage, MarlinDataSupplier<T> supplier,
-      BigUIntFactory<T> factory) {
+      CompositeUIntFactory<T> factory) {
     this(myId, noOfPlayers, drbg, 128, 64, storage, supplier, factory);
   }
 
@@ -95,7 +95,7 @@ public class MarlinResourcePoolImpl<T extends BigUInt<T>> extends ResourcePoolIm
   }
 
   @Override
-  public BigUIntFactory<T> getFactory() {
+  public CompositeUIntFactory<T> getFactory() {
     return factory;
   }
 

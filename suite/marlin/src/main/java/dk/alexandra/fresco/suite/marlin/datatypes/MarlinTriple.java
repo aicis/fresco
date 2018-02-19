@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.marlin.datatypes;
 
-public class MarlinTriple<T extends BigUInt<T>> {
+public class MarlinTriple<T extends CompositeUInt<T>> {
 
   private final MarlinSInt<T> left;
   private final MarlinSInt<T> right;

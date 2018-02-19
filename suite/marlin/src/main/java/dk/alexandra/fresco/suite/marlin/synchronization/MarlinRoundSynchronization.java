@@ -10,28 +10,28 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.suite.ProtocolSuite.RoundSynchronization;
 import dk.alexandra.fresco.suite.marlin.MarlinBuilder;
 import dk.alexandra.fresco.suite.marlin.MarlinProtocolSuite;
-import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
-import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUIntFactory;
 import dk.alexandra.fresco.suite.marlin.protocols.computations.MarlinMacCheckComputation;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinOutputProtocol;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStore;
 
-public class MarlinRoundSynchronization<T extends BigUInt<T>> implements
+public class MarlinRoundSynchronization<T extends CompositeUInt<T>> implements
     RoundSynchronization<MarlinResourcePool<T>> {
 
   private final int openValueThreshold;
   private final int batchSize;
   private boolean isCheckRequired;
-  private final BigUIntFactory<T> factory;
+  private final CompositeUIntFactory<T> factory;
   private final MarlinProtocolSuite<T> protocolSuite;
 
   public MarlinRoundSynchronization(MarlinProtocolSuite<T> protocolSuite,
-      BigUIntFactory<T> factory) {
+      CompositeUIntFactory<T> factory) {
     this(protocolSuite, factory, 100000, 128);
   }
 
-  public MarlinRoundSynchronization(MarlinProtocolSuite<T> protocolSuite, BigUIntFactory<T> factory,
+  public MarlinRoundSynchronization(MarlinProtocolSuite<T> protocolSuite, CompositeUIntFactory<T> factory,
       int openValueThreshold,
       int batchSize) {
     this.factory = factory;

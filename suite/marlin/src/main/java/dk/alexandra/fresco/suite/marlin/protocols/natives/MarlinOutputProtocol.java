@@ -3,14 +3,14 @@ package dk.alexandra.fresco.suite.marlin.protocols.natives;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStore;
 import java.math.BigInteger;
 import java.util.List;
 
-public class MarlinOutputProtocol<T extends BigUInt<T>> extends
+public class MarlinOutputProtocol<T extends CompositeUInt<T>> extends
     MarlinNativeProtocol<BigInteger, T> {
 
   private final DRes<SInt> share;
@@ -32,7 +32,7 @@ public class MarlinOutputProtocol<T extends BigUInt<T>> extends
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       List<T> shares = resourcePool.getRawSerializer().deserializeList(network.receiveFromAll());
-      T recombined = BigUInt.sum(shares);
+      T recombined = CompositeUInt.sum(shares);
       openedValueStore.pushOpenedValue(authenticatedElement, recombined);
       this.opened = resourcePool.convertRepresentation(recombined);
       return EvaluationStatus.IS_DONE;

@@ -3,7 +3,7 @@ package dk.alexandra.fresco.suite.marlin.datatypes;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import java.math.BigInteger;
 
-public interface BigUIntFactory<T extends BigUInt<T>> {
+public interface CompositeUIntFactory<T extends CompositeUInt<T>> {
 
   /**
    * Creates new {@link T} from a raw array of bytes.

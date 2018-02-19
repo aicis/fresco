@@ -9,7 +9,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.suite.marlin.AbstractMarlinTest;
-import dk.alexandra.fresco.suite.marlin.datatypes.UInt128;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUInt128;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ public class TestMarlinCommitmentComputation extends AbstractMarlinTest {
         false);
   }
 
-  private static class TestTest<ResourcePoolT extends MarlinResourcePool<UInt128>>
+  private static class TestTest<ResourcePoolT extends MarlinResourcePool<CompositeUInt128>>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
