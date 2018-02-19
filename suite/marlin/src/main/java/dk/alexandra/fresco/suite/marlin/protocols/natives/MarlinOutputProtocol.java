@@ -2,7 +2,6 @@ package dk.alexandra.fresco.suite.marlin.protocols.natives;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
@@ -28,9 +27,8 @@ public class MarlinOutputProtocol<T extends BigUInt<T>> extends
     MarlinOpenedValueStore<T> openedValueStore = resourcePool.getOpenedValueStore();
     if (round == 0) {
       authenticatedElement = (MarlinSInt<T>) share.out();
-      // TODO clean up--only sending lower k bits
-      long low = authenticatedElement.getShare().getLow();
-      network.sendToAll(ByteAndBitConverter.toByteArray(low));
+      network.sendToAll(resourcePool.getRawSerializer()
+          .serialize(authenticatedElement.getShare().getLowAsUInt()));
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       List<T> shares = resourcePool.getRawSerializer().deserializeList(network.receiveFromAll());

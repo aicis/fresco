@@ -77,7 +77,7 @@ public interface MarlinResourcePool<T extends BigUInt<T>> extends NumericResourc
   int getEffectiveBitLength();
 
   default BigInteger convertRepresentation(T value) {
-    return BigInteger.valueOf(value.getLow());
+    return value.getLowAsUInt().toBigInteger();
   }
 
 }

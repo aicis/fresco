@@ -149,11 +149,6 @@ public class UInt128 implements BigUInt<UInt128> {
   }
 
   @Override
-  public long getHigh() {
-    return high;
-  }
-
-  @Override
   public UInt128 shiftLowIntoHigh() {
     return new UInt128(getLow(), 0, 0);
   }

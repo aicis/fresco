@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
-import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Drng;
 import dk.alexandra.fresco.framework.util.DrngImpl;
@@ -33,18 +32,17 @@ public class MarlinMacCheckComputation<T extends BigUInt<T>> implements
     Pair<List<MarlinSInt<T>>, List<T>> opened = resourcePool.getOpenedValueStore().popValues();
     List<MarlinSInt<T>> authenticatedElements = opened.getFirst();
     List<T> openValues = opened.getSecond();
+    ByteSerializer<T> serializer = resourcePool.getRawSerializer();
     BigUIntFactory<T> factory = resourcePool.getFactory();
     T macKeyShare = resourcePool.getDataSupplier().getSecretSharedKey();
-    // TODO use serializer
     List<byte[]> sharesLowBits = authenticatedElements.stream()
-        .map(element -> ByteAndBitConverter.toByteArray(element.getShare().getLow()))
+        .map(element -> serializer.serialize(element.getShare().getLowAsUInt()))
         .collect(Collectors.toList());
     final List<T> randomCoefficients = sampleRandomCoefficients(
         resourcePool.getRandomGenerator(),
         factory, openValues.size());
     final T y = BigUInt.innerProduct(openValues, randomCoefficients);
     final MarlinSInt<T> r = resourcePool.getDataSupplier().getNextRandomElementShare();
-    ByteSerializer<T> serializer = resourcePool.getRawSerializer();
     return builder
         .seq(new MarlinBroadcastComputation<>(sharesLowBits))
         .seq((seq, ignored) -> {

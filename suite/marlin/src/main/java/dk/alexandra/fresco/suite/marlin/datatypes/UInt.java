@@ -130,11 +130,6 @@ public class UInt implements BigUInt<UInt> {
   }
 
   @Override
-  public long getHigh() {
-    return (toULong(ints[0]) << 32) + toULong(ints[1]);
-  }
-
-  @Override
   public UInt shiftLowIntoHigh() {
     int[] shifted = new int[ints.length];
     shifted[0] = ints[shifted.length - 2];

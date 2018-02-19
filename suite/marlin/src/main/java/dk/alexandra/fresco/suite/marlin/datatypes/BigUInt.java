@@ -63,8 +63,6 @@ public interface BigUInt<T extends BigUInt> {
 
   long getLow();
 
-  long getHigh();
-
   /**
    * Compute sum of elements.
    */
