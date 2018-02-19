@@ -148,8 +148,6 @@ public class AsyncNetwork implements CloseableNetwork {
             while (inBuf.remaining() > 0) {
               channel.read(inBuf);
             }
-            logger.debug("P{} just received {} bytes from P{}", conf.getMyId(),
-                inBuf.array().length, id);
             queues.get(id).put(inBuf.array());
           }
         } catch (IOException e) {
