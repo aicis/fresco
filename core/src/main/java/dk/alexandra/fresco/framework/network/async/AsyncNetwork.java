@@ -222,8 +222,7 @@ public class AsyncNetwork implements CloseableNetwork {
           channelMap.put(i, channel);
           logger.info("P{} connected to {}", conf.getMyId(), p);
         } catch (IOException e) {
-          attempts++;
-          Thread.sleep(1 << attempts);
+          Thread.sleep(1 << ++attempts);
         }
       }
     }
