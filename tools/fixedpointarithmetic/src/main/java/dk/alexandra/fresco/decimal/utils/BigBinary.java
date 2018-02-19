@@ -29,7 +29,7 @@ public class BigBinary {
    * @param scale
    */
   public BigBinary(BigDecimal value, int scale) {
-    this(value.multiply(BigDecimal.valueOf(2.0).pow(scale)).toBigInteger(), scale);
+    this(value.multiply(new BigDecimal(BigInteger.ONE.shiftLeft(scale))).toBigInteger(), scale);
   }
 
   /**
@@ -73,9 +73,7 @@ public class BigBinary {
 
   @Override
   public String toString() {
-    System.out.println(unscaled);
-    System.out.println(BigDecimal.valueOf(2.0).pow(scale));
-    return unscaled + " * 2^-" + scale + " = " + toBigDecimal();
+    return unscaled + " * 2^{-" + scale + "} = " + toBigDecimal();
   }
 
 }
