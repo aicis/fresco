@@ -82,8 +82,7 @@ public class MarlinMacCheckComputation<T extends BigUInt<T>> implements
     Drng drng = new DrngImpl(drbg);
     for (int i = 0; i < numCoefficients; i++) {
       // TODO check upper bound
-      randomCoefficients.add(
-          factory.createFromLong(drng.nextLong(Long.MAX_VALUE)));
+      randomCoefficients.add(factory.createFromLong(drng.nextLong(Long.MAX_VALUE)));
     }
     return randomCoefficients;
   }

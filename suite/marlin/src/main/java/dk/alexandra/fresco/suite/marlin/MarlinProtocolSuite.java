@@ -20,15 +20,18 @@ public class MarlinProtocolSuite<T extends BigUInt<T>> implements
 
   @Override
   public BuilderFactoryNumeric init(MarlinResourcePool resourcePool, Network network) {
-    BasicNumericContext numericContext = new BasicNumericContext(
-        resourcePool.getEffectiveBitLength(), resourcePool.getModulus(), resourcePool.getMyId(),
-        resourcePool.getNoOfParties());
-    return new MarlinBuilder<>(factory, numericContext);
+    return new MarlinBuilder<>(factory, createBasicNumericContext(resourcePool));
   }
 
   @Override
   public RoundSynchronization<MarlinResourcePool> createRoundSynchronization() {
-    return new MarlinRoundSynchronization(factory);
+    return new MarlinRoundSynchronization(this, factory);
+  }
+
+  public BasicNumericContext createBasicNumericContext(MarlinResourcePool<T> resourcePool) {
+    return new BasicNumericContext(
+        resourcePool.getEffectiveBitLength(), resourcePool.getModulus(), resourcePool.getMyId(),
+        resourcePool.getNoOfParties());
   }
 
 }
