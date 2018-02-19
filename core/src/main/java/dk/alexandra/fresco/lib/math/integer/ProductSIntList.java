@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * ComputationBuilder for multiplying a list of SInts
+ * ComputationBuilder for multiplying a list of SInts.
  */
 public class ProductSIntList implements Computation<SInt, ProtocolBuilderNumeric> {
 

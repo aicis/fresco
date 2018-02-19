@@ -12,24 +12,30 @@ import dk.alexandra.fresco.framework.value.SBool;
 public class OneBitFullAdder
     implements Computation<Pair<SBool, SBool>, ProtocolBuilderBinary> {
 
-  private DRes<SBool> a, b, c;
-  private DRes<SBool> xor1, xor2, xor3, and1, and2 = null;
+  private DRes<SBool> valueA = null;
+  private DRes<SBool> valueB = null;
+  private DRes<SBool> carry = null;
+  private DRes<SBool> xor1 = null;
+  private DRes<SBool> xor2 = null;
+  private DRes<SBool> xor3 = null;
+  private DRes<SBool> and1 = null;
+  private DRes<SBool> and2 = null;
 
   public OneBitFullAdder(DRes<SBool> a, DRes<SBool> b, DRes<SBool> c) {
-    this.a = a;
-    this.b = b;
-    this.c = c;
+    this.valueA = a;
+    this.valueB = b;
+    this.carry = c;
   }
 
   @Override
   public DRes<Pair<SBool, SBool>> buildComputation(ProtocolBuilderBinary builder) {
     return builder.par(par -> {
-      xor1 = par.binary().xor(a, b);
-      and1 = par.binary().and(a, b);
+      xor1 = par.binary().xor(valueA, valueB);
+      and1 = par.binary().and(valueA, valueB);
       return () -> (par);
     }).par((par, pair) -> {
-      xor2 = par.binary().xor(xor1, c);
-      and2 = par.binary().and(xor1, c);
+      xor2 = par.binary().xor(xor1, carry);
+      and2 = par.binary().and(xor1, carry);
       return () -> (par);
     }).par((par, pair) -> {
       xor3 = par.binary().xor(and2, and1);

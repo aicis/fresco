@@ -1,16 +1,15 @@
 package dk.alexandra.fresco.lib.collections.io;
 
-import java.math.BigInteger;
-
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationParallel;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.math.BigInteger;
 
 /**
- * Implements a open operation on a pair of Computation<SInt>.
+ * Implements a open operation on a pair of {@link DRes<SInt>}.
  */
 public class OpenPair implements
     ComputationParallel<Pair<DRes<BigInteger>, DRes<BigInteger>>, ProtocolBuilderNumeric> {

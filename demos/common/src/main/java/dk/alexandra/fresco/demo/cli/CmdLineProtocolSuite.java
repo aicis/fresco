@@ -13,10 +13,10 @@ import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
-import dk.alexandra.fresco.suite.spdz.storage.DataSupplier;
-import dk.alexandra.fresco.suite.spdz.storage.DataSupplierImpl;
-import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
@@ -45,40 +45,33 @@ public class CmdLineProtocolSuite {
     return Arrays.toString(strings);
   }
 
-  public CmdLineProtocolSuite(String protocolSuiteName, Properties properties, int myId,
+  CmdLineProtocolSuite(String protocolSuiteName, Properties properties, int myId,
       int noOfPlayers) throws ParseException, NoSuchAlgorithmException {
     this.myId = myId;
     this.noOfPlayers = noOfPlayers;
-    switch (protocolSuiteName) {
-      case "dummybool":
-        this.protocolSuite = new DummyBooleanProtocolSuite();
-        this.resourcePool =
-            new ResourcePoolImpl(myId, noOfPlayers, new HmacDrbg());
-        break;
-      case "dummyarithmetic":
-        this.protocolSuite = dummyArithmeticFromCmdLine(properties);
-        BigInteger mod = new BigInteger(properties.getProperty("modulus",
-            "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329"));
-        this.resourcePool =
-            new DummyArithmeticResourcePoolImpl(myId, noOfPlayers, mod);
-        break;
-      case "spdz":
-        this.protocolSuite = SpdzConfigurationFromCmdLine(properties);
-        this.resourcePool =
-            createSpdzResourcePool(properties);
-        break;
-      case "tinytablesprepro":
-        this.protocolSuite = tinyTablesPreProFromCmdLine(properties);
-        this.resourcePool =
-            new ResourcePoolImpl(myId, noOfPlayers, new HmacDrbg());
-        break;
-      case "tinytables":
-        this.protocolSuite = tinyTablesFromCmdLine(properties);
-        this.resourcePool =
-            new ResourcePoolImpl(myId, noOfPlayers, new HmacDrbg());
-        break;
-      default:
-        throw new ParseException("Unknown protocol suite: " + protocolSuiteName);
+    if (protocolSuiteName.equals("dummybool")) {
+      this.protocolSuite = new DummyBooleanProtocolSuite();
+      this.resourcePool =
+          new ResourcePoolImpl(myId, noOfPlayers, new HmacDrbg());
+    } else if (protocolSuiteName.equals("dummyarithmetic")) {
+      this.protocolSuite = dummyArithmeticFromCmdLine(properties);
+      BigInteger mod = new BigInteger(properties.getProperty("modulus",
+          "67039039649712985497870124991238141152738485774711365274259660130265015367064643"
+              + "54255445443244279389455058889493431223951165286470575994074291745908195329"));
+      this.resourcePool =
+          new DummyArithmeticResourcePoolImpl(myId, noOfPlayers, mod);
+    } else if (protocolSuiteName.equals("spdz")) {
+      this.protocolSuite = getSpdzProtocolSuite(properties);
+      this.resourcePool =
+          createSpdzResourcePool(properties);
+    } else if (protocolSuiteName.equals("tinytablesprepro")) {
+      this.protocolSuite = tinyTablesPreProFromCmdLine(properties);
+      this.resourcePool =
+          new ResourcePoolImpl(myId, noOfPlayers, new HmacDrbg());
+    } else {
+      this.protocolSuite = tinyTablesFromCmdLine(properties);
+      this.resourcePool =
+          new ResourcePoolImpl(myId, noOfPlayers, new HmacDrbg());
     }
   }
 
@@ -93,12 +86,13 @@ public class CmdLineProtocolSuite {
 
   private ProtocolSuite<?, ?> dummyArithmeticFromCmdLine(Properties properties) {
     BigInteger mod = new BigInteger(properties.getProperty("modulus",
-        "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329"));
+        "67039039649712985497870124991238141152738485774711365274259660130265015367064643"
+            + "54255445443244279389455058889493431223951165286470575994074291745908195329"));
     int maxBitLength = Integer.parseInt(properties.getProperty("maxbitlength", "150"));
     return new DummyArithmeticProtocolSuite(mod, maxBitLength);
   }
 
-  private ProtocolSuite<?, ?> SpdzConfigurationFromCmdLine(Properties properties) {
+  private ProtocolSuite<?, ?> getSpdzProtocolSuite(Properties properties) {
     Properties p = getProperties(properties);
     // TODO: Figure out a meaningful default for the below
     final int maxBitLength = Integer.parseInt(p.getProperty("spdz.maxBitLength", "64"));
@@ -115,39 +109,32 @@ public class CmdLineProtocolSuite {
   private SpdzResourcePool createSpdzResourcePool(Properties properties) {
     String strat = properties.getProperty("spdz.preprocessingStrategy");
     final PreprocessingStrategy strategy = PreprocessingStrategy.valueOf(strat);
-    DataSupplier supplier;
-    switch (strategy) {
-      case DUMMY:
-        supplier = new DummyDataSupplierImpl(myId, noOfPlayers);        
-        break;
-      case STATIC:
-        int noOfThreadsUsed = 1;        
-        String storageName =
-            DataSupplierImpl.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
-            + "_";
-        supplier = new DataSupplierImpl(new FilebasedStreamedStorageImpl(new InMemoryStorage()), storageName, noOfPlayers);        
-        break;      
-      default:
-        throw new ConfigurationException("Unkonwn preprocessing strategy: " + strategy);
+    SpdzDataSupplier supplier = null;
+    if (strategy == PreprocessingStrategy.DUMMY) {
+      supplier = new SpdzDummyDataSupplier(myId, noOfPlayers);
     }
+    if (strategy == PreprocessingStrategy.STATIC) {
+      int noOfThreadsUsed = 1;
+      String storageName = properties.getProperty("spdz.storage");
+      storageName =
+          SpdzStorageDataSupplier.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
+          + "_";
+      supplier = new SpdzStorageDataSupplier(
+          new FilebasedStreamedStorageImpl(new InMemoryStorage()), storageName, noOfPlayers);
+    }
+
     SpdzStorage store = new SpdzStorageImpl(supplier);
-    try {
-      return new SpdzResourcePoolImpl(myId, noOfPlayers, new HmacDrbg(), store);
-    } catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException("Your system does not support the necessary hash function.", e);
-    }
+    return new SpdzResourcePoolImpl(myId, noOfPlayers, new HmacDrbg(), store);
   }
 
-  private ProtocolSuite<?, ?> tinyTablesPreProFromCmdLine(Properties properties)
-      throws ParseException, IllegalArgumentException {
+  private ProtocolSuite<?, ?> tinyTablesPreProFromCmdLine(Properties properties) {
     String tinytablesFileOption = "tinytables.file";
     String tinyTablesFilePath = properties.getProperty(tinytablesFileOption, "tinytables");
     return new TinyTablesPreproProtocolSuite(myId, new File(tinyTablesFilePath));
   }
 
-  private ProtocolSuite<?, ?> tinyTablesFromCmdLine(Properties properties)
-      throws ParseException, IllegalArgumentException {
 
+  private ProtocolSuite<?, ?> tinyTablesFromCmdLine(Properties properties) {
     String tinytablesFileOption = "tinytables.file";
     String tinyTablesFilePath = properties.getProperty(tinytablesFileOption, "tinytables");
     return new TinyTablesProtocolSuite(myId, new File(tinyTablesFilePath));

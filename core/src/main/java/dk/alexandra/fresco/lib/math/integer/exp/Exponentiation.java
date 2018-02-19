@@ -35,13 +35,13 @@ public class Exponentiation implements Computation<SInt, ProtocolBuilderNumeric>
       for (SInt bit : bits) {
         /*
          * result += bits[i] * (result * r - r) + r
-				 *
-				 *  aka.
-				 *
-				 *            result       if bits[i] = 0
-				 * result = {
-				 *            result * e   if bits[i] = 1
-				 */
+         *
+         *  aka.
+         *
+         *            result       if bits[i] = 0
+         * result = {
+         *            result * e   if bits[i] = 1
+         */
         if (result == null) {
           DRes<SInt> sub = numeric.sub(e, BigInteger.ONE);
           result = numeric.add(BigInteger.ONE, numeric.mult(() -> bit, sub));

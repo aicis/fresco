@@ -20,7 +20,7 @@ import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
-import dk.alexandra.fresco.suite.spdz.storage.DummyDataSupplierImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -35,8 +35,7 @@ public class TestInputSumExample {
 
   @SuppressWarnings("unchecked")
   private static <ResourcePoolT extends ResourcePool> void runTest(
-      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> test, boolean dummy, int n)
-      throws Exception {
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> test, boolean dummy, int n) {
     // Since SCAPI currently does not work with ports > 9999 we use fixed ports
     // here instead of relying on ephemeral ports which are often > 9999.
     List<Integer> ports = new ArrayList<>(n);
@@ -65,7 +64,7 @@ public class TestInputSumExample {
         resourcePool = () -> {
           try {
             return (ResourcePoolT) new SpdzResourcePoolImpl(i, n,
-                drbg, new SpdzStorageImpl(new DummyDataSupplierImpl(i, n)));
+                drbg, new SpdzStorageImpl(new SpdzDummyDataSupplier(i, n)));
           } catch (Exception e) {
             throw new RuntimeException("Your system does not support the necessary hash function.", e);
           } 
@@ -97,7 +96,7 @@ public class TestInputSumExample {
             return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
               @Override
               public void test() throws Exception {
-                InputSumExample.runApplication(conf.sce, conf.getResourcePool(), conf.getNetwork());
+                new InputSumExample().runApplication(conf.sce, conf.getResourcePool(), conf.getNetwork());
               }
             };
           }
@@ -114,7 +113,7 @@ public class TestInputSumExample {
             return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
               @Override
               public void test() throws Exception {
-                InputSumExample.runApplication(conf.sce, conf.getResourcePool(), conf.getNetwork());
+                new InputSumExample().runApplication(conf.sce, conf.getResourcePool(), conf.getNetwork());
               }
             };
           }

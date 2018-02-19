@@ -14,6 +14,8 @@ import java.math.BigInteger;
  */
 public class DefaultComparison implements Comparison {
 
+  // Security parameter used by protocols using rightshifts and/or additive masks.
+  private final int magicSecureNumber = 60;
   private final BuilderFactoryNumeric factoryNumeric;
   private final ProtocolBuilderNumeric builder;
 
@@ -27,8 +29,7 @@ public class DefaultComparison implements Comparison {
   public DRes<SInt> compareLEQLong(DRes<SInt> x, DRes<SInt> y) {
     int bitLength = factoryNumeric.getBasicNumericContext().getMaxBitLength() * 2;
     LessThanOrEquals leqProtocol = new LessThanOrEquals(
-        bitLength, BuilderFactoryNumeric.MAGIC_SECURE_NUMBER,
-        x, y);
+        bitLength, magicSecureNumber, x, y);
     return builder.seq(leqProtocol);
 
   }
@@ -48,9 +49,7 @@ public class DefaultComparison implements Comparison {
   public DRes<SInt> compareLEQ(DRes<SInt> x, DRes<SInt> y) {
     int bitLength = factoryNumeric.getBasicNumericContext().getMaxBitLength();
     return builder.seq(
-        new LessThanOrEquals(
-            bitLength, BuilderFactoryNumeric.MAGIC_SECURE_NUMBER,
-            x, y));
+        new LessThanOrEquals(bitLength, magicSecureNumber, x, y));
   }
 
   @Override
@@ -59,15 +58,15 @@ public class DefaultComparison implements Comparison {
     // TODO create a compareLeqOrEqZero on comparison builder
     DRes<SInt> compare =
         compareLEQ(input.known(BigInteger.ZERO), x);
-    BigInteger oInt = BigInteger.valueOf(2);
+    BigInteger oint = BigInteger.valueOf(2);
     Numeric numericBuilder = builder.numeric();
-    DRes<SInt> twice = numericBuilder.mult(oInt, compare);
+    DRes<SInt> twice = numericBuilder.mult(oint, compare);
     return numericBuilder.sub(twice, BigInteger.valueOf(1));
   }
 
   @Override
   public DRes<SInt> compareZero(DRes<SInt> x, int bitLength) {
-    return builder.seq(new ZeroTest(bitLength, x));
+    return builder.seq(new ZeroTest(bitLength, x, magicSecureNumber));
   }
 
 }
