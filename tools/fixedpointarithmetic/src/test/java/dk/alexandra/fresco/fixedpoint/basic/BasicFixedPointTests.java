@@ -181,39 +181,6 @@ public class BasicFixedPointTests {
     }
   }
 
-  public static class TestAddSecret<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
-
-    private RealNumericProvider provider;
-
-    public TestAddSecret(RealNumericProvider provider) {
-      this.provider = provider;
-    }
-
-    @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      BigDecimal value = BigDecimal.valueOf(10.00100);
-      BigDecimal value2 = BigDecimal.valueOf(20.1);
-      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-        @Override
-        public void test() throws Exception {
-          Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            RealNumeric fixed = provider.apply(producer);
-
-            DRes<SReal> input = fixed.numeric().input(value, 1);
-            DRes<SReal> input2 = fixed.numeric().input(value2, 1);
-            DRes<SReal> sum = fixed.numeric().add(input2, input);
-
-            return fixed.numeric().open(sum);
-          };
-          BigDecimal output = runApplication(app);
-
-          Assert.assertTrue(TestUtils.isEqual(value.add(value2), output));
-        }
-      };
-    }
-  }
-
   public static class TestSubtractSecret<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
