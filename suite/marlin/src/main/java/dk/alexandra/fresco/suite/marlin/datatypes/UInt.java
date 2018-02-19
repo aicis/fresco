@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class UInt implements BigUInt<UInt> {
@@ -100,6 +101,24 @@ public class UInt implements BigUInt<UInt> {
   @Override
   public BigInteger toBigInteger() {
     return new BigInteger(1, toByteArray());
+  }
+
+  @Override
+  public UInt getSubRange(int from, int to) {
+    // big-endian order so need to flip indexes
+    int fromFlipped = ints.length - from - (to - from);
+    int toFlipped = ints.length - from;
+    return new UInt(Arrays.copyOfRange(ints, fromFlipped, toFlipped));
+  }
+
+  @Override
+  public UInt getLowAsUInt() {
+    return getSubRange(0, 2);
+  }
+
+  @Override
+  public UInt getHighAsUInt() {
+    return getSubRange(2, 4);
   }
 
   @Override

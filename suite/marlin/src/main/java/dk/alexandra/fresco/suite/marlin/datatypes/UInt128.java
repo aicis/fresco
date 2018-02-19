@@ -124,6 +124,21 @@ public class UInt128 implements BigUInt<UInt128> {
   }
 
   @Override
+  public UInt128 getSubRange(int from, int to) {
+    return null;
+  }
+
+  @Override
+  public UInt128 getLowAsUInt() {
+    return null;
+  }
+
+  @Override
+  public UInt128 getHighAsUInt() {
+    return null;
+  }
+
+  @Override
   public long getLow() {
     return (Integer.toUnsignedLong(this.mid) << 32) + Integer.toUnsignedLong(this.low);
   }

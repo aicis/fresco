@@ -246,4 +246,25 @@ public class TestUInt {
     assertTrue(new UInt(0, 128).isZero());
     assertFalse(new UInt(1, 128).isZero());
   }
+
+  @Test
+  public void testGetSubRange() {
+    byte[] bytes = new byte[]{
+        0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, // high
+        0x02, 0x02, 0x02, 0x02, // mid
+        0x03, 0x03, 0x02, 0x03  // low
+    };
+    BigUInt<UInt> uint = new UInt(bytes, 128);
+    BigUInt<UInt> subLow = uint.getSubRange(0, 2);
+    byte[] expectedSubRangeBytesLow = new byte[]{
+        0x02, 0x02, 0x02, 0x02,
+        0x03, 0x03, 0x02, 0x03
+    };
+    assertArrayEquals(expectedSubRangeBytesLow, subLow.toByteArray());
+    BigUInt<UInt> subHigh = uint.getSubRange(2, 4);
+    byte[] expectedSubRangeBytesHigh = new byte[]{
+        0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01
+    };
+    assertArrayEquals(expectedSubRangeBytesHigh, subHigh.toByteArray());
+  }
 }

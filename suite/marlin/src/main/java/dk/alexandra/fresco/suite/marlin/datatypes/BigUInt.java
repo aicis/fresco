@@ -49,6 +49,20 @@ public interface BigUInt<T extends BigUInt> {
    */
   BigInteger toBigInteger();
 
+  T getSubRange(int from, int to);
+
+  T getLowAsUInt();
+
+  T getHighAsUInt();
+
+  T shiftLowIntoHigh();
+
+  // TODO hack hack hack
+
+  long getLow();
+
+  long getHigh();
+
   /**
    * Compute sum of elements.
    */
@@ -73,13 +87,5 @@ public interface BigUInt<T extends BigUInt> {
   static <S extends BigUInt<S>> S innerProduct(List<S> left, List<S> right) {
     return sum(product(left, right));
   }
-
-  // TODO hack hack hack
-
-  long getLow();
-
-  long getHigh();
-
-  T shiftLowIntoHigh();
 
 }
