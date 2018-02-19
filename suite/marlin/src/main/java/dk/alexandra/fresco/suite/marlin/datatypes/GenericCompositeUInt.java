@@ -109,7 +109,7 @@ public class GenericCompositeUInt implements CompositeUInt<GenericCompositeUInt>
 
   @Override
   public GenericCompositeUInt computeOverflow() {
-    GenericCompositeUInt low = new GenericCompositeUInt(getLowLong(), ints.length * Integer.SIZE);
+    GenericCompositeUInt low = new GenericCompositeUInt(getLowAsLong(), ints.length * Integer.SIZE);
     return low.subtract(this).getHigh();
   }
 
@@ -128,7 +128,8 @@ public class GenericCompositeUInt implements CompositeUInt<GenericCompositeUInt>
     return getSubRange(2, 4);
   }
 
-  private long getLowLong() {
+  @Override
+  public long getLowAsLong() {
     return (toULong(ints[ints.length - 2]) << 32) + toULong(ints[ints.length - 1]);
   }
 

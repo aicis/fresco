@@ -59,6 +59,8 @@ public interface CompositeUInt<T extends CompositeUInt> {
 
   T shiftLowIntoHigh();
 
+  long getLowAsLong();
+
   /**
    * Compute sum of elements.
    */

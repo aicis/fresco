@@ -15,7 +15,7 @@ public class CompositeUInt128Factory implements CompositeUIntFactory<CompositeUI
 
   @Override
   public CompositeUInt128 createFromLow(CompositeUInt128 value) {
-    return null;
+    return new CompositeUInt128(value.getLowAsLong());
   }
 
   @Override

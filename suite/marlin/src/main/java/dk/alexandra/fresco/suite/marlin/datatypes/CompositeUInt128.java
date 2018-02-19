@@ -17,6 +17,12 @@ public class CompositeUInt128 implements CompositeUInt<CompositeUInt128> {
   private final int mid;
   private final int low;
 
+  public CompositeUInt128() {
+    high = 0;
+    mid = 0;
+    low = 0;
+  }
+
   /**
    * Creates new {@link CompositeUInt128}.
    *
@@ -125,31 +131,33 @@ public class CompositeUInt128 implements CompositeUInt<CompositeUInt128> {
 
   @Override
   public CompositeUInt128 computeOverflow() {
-    return null;
+    CompositeUInt128 low = new CompositeUInt128(getLowAsLong());
+    return low.subtract(this).getHigh();
   }
 
   @Override
   public CompositeUInt128 getSubRange(int from, int to) {
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public CompositeUInt128 getLow() {
-    return null;
+    return new LongWrapper(getLowAsLong());
   }
 
   @Override
   public CompositeUInt128 getHigh() {
-    return null;
+    return new LongWrapper(high);
   }
 
-  private long getLowLong() {
+  @Override
+  public long getLowAsLong() {
     return (Integer.toUnsignedLong(this.mid) << 32) + Integer.toUnsignedLong(this.low);
   }
 
   @Override
   public CompositeUInt128 shiftLowIntoHigh() {
-    return new CompositeUInt128(getLowLong(), 0, 0);
+    return new CompositeUInt128(getLowAsLong(), 0, 0);
   }
 
   private byte[] pad(byte[] bytes) {

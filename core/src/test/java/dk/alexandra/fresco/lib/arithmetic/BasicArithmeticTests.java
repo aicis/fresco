@@ -285,7 +285,7 @@ public class BasicArithmeticTests {
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       BigInteger first = BigInteger.valueOf(10);
       BigInteger second = BigInteger.valueOf(5);
-      final int REPS = 20000;
+      final int REPS = 1000000;
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         @Override
