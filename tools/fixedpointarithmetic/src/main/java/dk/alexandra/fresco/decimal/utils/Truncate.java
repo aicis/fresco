@@ -12,14 +12,13 @@ import java.math.BigInteger;
 
 /**
  * Returns a number which is approximately the input shifted a number of positions to the right. The
- * result will be one larger than the exact result with propability ~ 1/2. If you need the exact
- * result you need to use {@link RightShift} instead, but this will be at a significant performance
- * cost.
+ * result will be one larger than the exact result with some non negligeble propability. If you need
+ * the exact result you need to use {@link RightShift} instead, but this will be at a significant
+ * performance cost.
  * 
- * The result is incorrect if and only if there was a carry when the input was added with a random
- * mask from the most significant bit removed by the shift. For a more precise formula of the
- * propability of getting such a carry, see Metropolis and Tanny (1977), Significance arithmetic:
- * The propability of carrying, Comp. & Maths. with Appls., Vol. 3. pp. 77-81.
+ * The protocol is similar to protocol 3.1 in Catrina O., Saxena A. (2010) Secure Computation with
+ * Fixed-Point Numbers. In: Sion R. (eds) Financial Cryptography and Data Security. FC 2010. Lecture
+ * Notes in Computer Science, vol 6052. Springer, Berlin, Heidelberg.
  */
 public class Truncate implements Computation<SInt, ProtocolBuilderNumeric> {
 
@@ -45,7 +44,8 @@ public class Truncate implements Computation<SInt, ProtocolBuilderNumeric> {
        * leakage.
        */
       AdvancedNumeric additiveMaskBuilder = builder.advancedNumeric();
-      DRes<RandomAdditiveMask> mask = additiveMaskBuilder.additiveMask(sequential.getBasicNumericContext().getMaxBitLength());
+      DRes<RandomAdditiveMask> mask =
+          additiveMaskBuilder.additiveMask(sequential.getBasicNumericContext().getMaxBitLength());
       return mask;
     }).seq((parSubSequential, randomAdditiveMask) -> {
       DRes<SInt> result = parSubSequential.numeric().add(input, () -> randomAdditiveMask.random);
