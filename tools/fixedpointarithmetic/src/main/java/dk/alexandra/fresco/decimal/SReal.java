@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.decimal;
 
 /**
- * Wrapper for SInt used to represent fixed point values.
+ * Basic closed numeric value for representing fractions.
  */
 public interface SReal {
 

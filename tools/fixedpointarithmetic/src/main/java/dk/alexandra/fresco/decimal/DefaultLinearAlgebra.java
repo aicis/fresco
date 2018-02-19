@@ -10,9 +10,6 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-/**
- * Basic interface for fixed point numeric applications.
- */
 public abstract class DefaultLinearAlgebra implements LinearAlgebra {
 
   private final ProtocolBuilderNumeric builder;

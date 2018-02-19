@@ -12,16 +12,9 @@ import java.math.RoundingMode;
 public class BasicFloatNumeric implements BasicRealNumeric {
 
   private final ProtocolBuilderNumeric builder;
-  private final int minPrecision = 4;
   private final int defaultPrecision = 6;
   private final int maxPrecision = 16;
 
-  /**
-   * Creates a FixedNumeric which creates basic numeric operations
-   *
-   * @param builder The protocolbuilder used to construct underlying protocols.
-   * @param precision Amount of digits after the dot.
-   */
   public BasicFloatNumeric(ProtocolBuilderNumeric builder) {
     this.builder = builder;
   }
@@ -133,21 +126,12 @@ public class BasicFloatNumeric implements BasicRealNumeric {
     return builder.seq(seq -> {
       SFloat aFloat = (SFloat) a.out();
       SFloat bFloat = (SFloat) b.out();
-      DRes<SInt> aInt = aFloat.getSInt();
-      DRes<SInt> bInt = bFloat.getSInt();
 
-      int precision = aFloat.getScale() - bFloat.getScale();
-      if (precision < minPrecision) {
-        if (aFloat.getScale() < 2 * minPrecision) {
-          aInt = unscaled(seq, aFloat, bFloat.getScale() + defaultPrecision);
-          precision = defaultPrecision;
-        } else if (bFloat.getScale() > 2 * minPrecision) {
-          bInt = unscaled(seq, bFloat, aFloat.getScale() - defaultPrecision);
-          precision = defaultPrecision;
-        }
-      }
+      DRes<SInt> aInt = unscaled(seq, aFloat, 2 * defaultPrecision);
+      DRes<SInt> bInt = unscaled(seq, bFloat, defaultPrecision);
+
       DRes<SInt> scaled = seq.advancedNumeric().div(aInt, bInt);
-      return new SFloat(scaled, precision);
+      return new SFloat(scaled, defaultPrecision);
     });
   }
 
@@ -155,20 +139,12 @@ public class BasicFloatNumeric implements BasicRealNumeric {
   public DRes<SReal> div(DRes<SReal> a, BigDecimal b) {
     return builder.seq(seq -> {
       SFloat aFloat = (SFloat) a.out();
-      DRes<SInt> aInt = aFloat.getSInt();
-      BigInteger bInt = b.unscaledValue();
-      int precision = aFloat.getScale() - b.scale();
-      if (precision < minPrecision) {
-        if (aFloat.getScale() < 2 * minPrecision) {
-          aInt = unscaled(seq, aFloat, b.scale() + defaultPrecision);
-          precision = defaultPrecision;
-        } else if (b.scale() > 2 * minPrecision) {
-          bInt = bInt.divide(BigInteger.TEN.pow(defaultPrecision - precision));
-          precision = defaultPrecision;
-        }
-      }
-      DRes<SInt> scaled = seq.advancedNumeric().div(aInt, b.unscaledValue());
-      return new SFloat(scaled, precision);
+
+      DRes<SInt> aInt = unscaled(seq, aFloat, 2 * defaultPrecision);
+      BigInteger bInt = b.setScale(defaultPrecision).unscaledValue();
+
+      DRes<SInt> scaled = seq.advancedNumeric().div(aInt, bInt);
+      return new SFloat(scaled, defaultPrecision);
     });
   }
 

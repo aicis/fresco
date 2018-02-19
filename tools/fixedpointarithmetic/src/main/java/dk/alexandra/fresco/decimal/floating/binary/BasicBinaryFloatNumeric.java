@@ -13,17 +13,13 @@ import java.math.BigInteger;
 public class BasicBinaryFloatNumeric implements BasicRealNumeric {
 
   private final ProtocolBuilderNumeric builder;
-  private final int defaultScale = 16;
-  private final int maxScale = 48;
+  private int defaultScale, maxScale;
 
-  /**
-   * Creates a FixedNumeric which creates basic numeric operations
-   *
-   * @param builder The protocolbuilder used to construct underlying protocols.
-   * @param precision Amount of digits after the dot.
-   */
   public BasicBinaryFloatNumeric(ProtocolBuilderNumeric builder) {
     this.builder = builder;
+    
+    this.maxScale = builder.getBasicNumericContext().getMaxBitLength() / 4;
+    this.defaultScale = 16;
   }
 
   int getDefaultPrecision() {

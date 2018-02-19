@@ -6,7 +6,7 @@ import java.math.RoundingMode;
 
 /**
  * Instances of this class represents a fractional value represented in binary as <i>value =
- * unscaled * 2<sub>-scale</sub></i>. This can be seen as a simpel version of {@link BigDecimal}
+ * unscaled * 2<sub>-scale</sub></i>. This can be seen as a simplified version of {@link BigDecimal}
  * where we use base 2 instead of base 10.
  * 
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
@@ -21,7 +21,7 @@ public class BigBinary {
     this.unscaled = unscaled;
     this.scale = scale;
   }
-  
+
   /**
    * Create a new BigBinary representing the given BigDecimal value with the given scale.
    * 
@@ -31,7 +31,7 @@ public class BigBinary {
   public BigBinary(BigDecimal value, int scale) {
     this(value.multiply(BigDecimal.valueOf(2.0).pow(scale)).toBigInteger(), scale);
   }
-  
+
   /**
    * Return the scale of this BigBinary.
    * 
@@ -40,7 +40,7 @@ public class BigBinary {
   public int scale() {
     return scale;
   }
-  
+
   /**
    * Return the unscaled value of this BigBinary.
    * 
@@ -49,7 +49,7 @@ public class BigBinary {
   public BigInteger unscaledValue() {
     return unscaled;
   }
-  
+
   /**
    * Return a new BigBinary value which represents the same value as this but with the given scale.
    * 
@@ -65,16 +65,17 @@ public class BigBinary {
     }
     return new BigBinary(newUnscaled, scale);
   }
-  
+
   public BigDecimal toBigDecimal() {
-    return new BigDecimal(unscaled).setScale(scale).divide(BigDecimal.valueOf(2.0).pow(scale), RoundingMode.HALF_UP);
+    return new BigDecimal(unscaled).setScale(scale).divide(BigDecimal.valueOf(2.0).pow(scale),
+        RoundingMode.HALF_UP);
   }
-  
+
   @Override
   public String toString() {
     System.out.println(unscaled);
     System.out.println(BigDecimal.valueOf(2.0).pow(scale));
-    return unscaled + " * 2^-" + scale + " = " + toBigDecimal(); 
+    return unscaled + " * 2^-" + scale + " = " + toBigDecimal();
   }
-  
+
 }

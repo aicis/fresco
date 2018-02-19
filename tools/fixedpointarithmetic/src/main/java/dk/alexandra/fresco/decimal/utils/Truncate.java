@@ -7,10 +7,19 @@ import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RandomAddit
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.math.integer.binary.RightShift;
 import java.math.BigInteger;
 
 /**
- * Returns a number which is approximately the input shifted a number of positions to the right.
+ * Returns a number which is approximately the input shifted a number of positions to the right. The
+ * result will be one larger than the exact result with propability ~ 1/2. If you need the exact
+ * result you need to use {@link RightShift} instead, but this will be at a significant performance
+ * cost.
+ * 
+ * The result is incorrect if and only if there was a carry when the input was added with a random
+ * mask from the most significant bit removed by the shift. For a more precise formula of the
+ * propability of getting such a carry, see Metropolis and Tanny (1977), Significance arithmetic:
+ * The propability of carrying, Comp. & Maths. with Appls., Vol. 3. pp. 77-81.
  */
 public class Truncate implements Computation<SInt, ProtocolBuilderNumeric> {
 

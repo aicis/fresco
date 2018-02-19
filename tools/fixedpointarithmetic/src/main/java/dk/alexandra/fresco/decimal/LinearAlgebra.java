@@ -43,7 +43,6 @@ public interface LinearAlgebra extends ComputationDirectory {
    */
   DRes<Matrix<DRes<SReal>>> mult(DRes<Matrix<DRes<SReal>>> a, Matrix<BigDecimal> b);
 
-
   /**
    * Multiply a public value with a secret value.
    * 
