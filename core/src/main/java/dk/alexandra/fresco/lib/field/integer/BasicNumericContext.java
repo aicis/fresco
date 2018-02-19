@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.lib.field.integer;
 
-import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.math.BigInteger;
 
 /**
@@ -18,14 +17,14 @@ public class BasicNumericContext {
    * @param maxBitLength The maximum length in bits that the numbers in the application will
    *     have.
    * @param modulus the modules used in the application
-   * @param partyConfiguration the party setup for this context
+   * @param myId my party id
+   * @param noOfParties number of parties in computation
    */
-  public BasicNumericContext(int maxBitLength, BigInteger modulus,
-      ResourcePool partyConfiguration) {
+  public BasicNumericContext(int maxBitLength, BigInteger modulus, int myId, int noOfParties) {
     this.maxBitLength = maxBitLength;
     this.modulus = modulus;
-    this.myId = partyConfiguration.getMyId();
-    this.noOfParties = partyConfiguration.getNoOfParties();
+    this.myId = myId;
+    this.noOfParties = noOfParties;
   }
 
   /**

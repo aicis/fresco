@@ -30,7 +30,7 @@ public class Matrix<T> {
   /**
    * Clones matrix.
    * 
-   * @param other
+   * @param other The matrix to be cloned
    */
   public Matrix(Matrix<T> other) {
     this.width = other.getWidth();
@@ -55,9 +55,9 @@ public class Matrix<T> {
   /**
    * Gets all rows of the matrix.
    * 
-   * Convenience method for iterating over the rows of the matrix.
+   * <p>Convenience method for iterating over the rows of the matrix.</p>
    * 
-   * @return
+   * @return A concatenated list of rows
    */
   public ArrayList<ArrayList<T>> getRows() {
     return this.matrix;

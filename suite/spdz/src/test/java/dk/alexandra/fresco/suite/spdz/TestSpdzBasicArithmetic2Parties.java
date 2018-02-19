@@ -62,6 +62,12 @@ public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
   }
 
   @Test
+  public void testOpenWithConversion() throws Exception {
+    runTest(new BasicArithmeticTests.TestOpenWithConversion<>(), EvaluationStrategy.SEQUENTIAL,
+        PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
   public void test_MultAndAdd_Sequential() throws Exception {
     runTest(new BasicArithmeticTests.TestSimpleMultAndAdd<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2);
@@ -83,5 +89,23 @@ public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
   public void test_MinInfFrac_SequentialBatched() throws Exception {
     runTest(new BasicArithmeticTests.TestMinInfFrac<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
+  public void test_Input_SequentialBatched_Mascot() throws Exception {
+    runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+        PreprocessingStrategy.MASCOT, 2, 16, 16);
+  }
+
+  @Test
+  public void test_Lots_Of_Mults_Sequential_Batched_Different_Modulus() throws Exception {
+    runTest(new BasicArithmeticTests.TestLotsMult<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+        PreprocessingStrategy.DUMMY, 2, false, 64, 16);
+  }
+
+  @Test
+  public void testOpenWithConversionMascot() throws Exception {
+    runTest(new BasicArithmeticTests.TestOpenWithConversion<>(), EvaluationStrategy.SEQUENTIAL,
+        PreprocessingStrategy.MASCOT, 2, 16, 16);
   }
 }

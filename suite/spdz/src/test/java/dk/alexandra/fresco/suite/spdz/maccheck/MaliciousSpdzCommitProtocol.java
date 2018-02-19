@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.maccheck;
 
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
+import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzNativeProtocol;
@@ -33,16 +33,16 @@ public class MaliciousSpdzCommitProtocol extends SpdzNativeProtocol<Boolean> {
   @Override
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool, Network network) {
     int players = spdzResourcePool.getNoOfParties();
-    BigIntegerSerializer serializer = spdzResourcePool.getSerializer();
+    ByteSerializer<BigInteger> serializer = spdzResourcePool.getSerializer();
     if (round == 0) {
       network.sendToAll(
-          serializer.toBytes(commitment.computeCommitment(spdzResourcePool.getModulus())));
+          serializer.serialize(commitment.computeCommitment(spdzResourcePool.getModulus())));
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else if (round == 1) {
 
       List<byte[]> commitments = network.receiveFromAll();
       for (int i = 0; i < commitments.size(); i++) {
-        comms.put(i + 1, serializer.toBigInteger(commitments.get(i)));
+        comms.put(i + 1, serializer.deserialize(commitments.get(i)));
       }
       if (players < 3) {
         this.result = true;

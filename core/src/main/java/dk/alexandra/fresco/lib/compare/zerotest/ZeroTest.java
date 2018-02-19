@@ -11,17 +11,19 @@ import dk.alexandra.fresco.framework.value.SInt;
  */
 public class ZeroTest implements Computation<SInt, ProtocolBuilderNumeric> {
 
+  private final int securityParameter;
   private final int bitLength;
   private final DRes<SInt> input;
 
-  public ZeroTest(int bitLength, DRes<SInt> input) {
+  public ZeroTest(int bitLength, DRes<SInt> input, int securityParameter) {
     this.bitLength = bitLength;
     this.input = input;
+    this.securityParameter = securityParameter;
   }
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    DRes<SInt> reduced = builder.seq(new ZeroTestReducer(bitLength, input));
+    DRes<SInt> reduced = builder.seq(new ZeroTestReducer(bitLength, input, securityParameter));
     return builder.seq(new ZeroTestBruteforce(bitLength, reduced));
   }
 }

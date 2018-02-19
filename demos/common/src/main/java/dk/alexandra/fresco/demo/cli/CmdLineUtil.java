@@ -13,6 +13,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.EvaluatorLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
@@ -21,7 +22,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,9 +41,9 @@ import org.slf4j.LoggerFactory;
  * A set of default configurations are used when parameters are not specified at runtime.
  * </p>
  */
-public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder> {
+public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends ProtocolBuilder> {
 
-  private final static Logger logger = LoggerFactory.getLogger(CmdLineUtil.class);
+  private static final Logger logger = LoggerFactory.getLogger(CmdLineUtil.class);
 
   private final Options options;
   private Options appOptions;
@@ -51,10 +51,11 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
   private NetworkConfiguration networkConfiguration;
   private Network network;
   private boolean logPerformance;
-  private ProtocolSuite<ResourcePoolT, Builder> protocolSuite;
-  private ProtocolEvaluator<ResourcePoolT, Builder> evaluator;
+  private ProtocolSuite<ResourcePoolT, BuilderT> protocolSuite;
+  private ProtocolEvaluator<ResourcePoolT> evaluator;
+
   private ResourcePoolT resourcePool;
-  private SecureComputationEngine<ResourcePoolT, Builder> sce;
+  private SecureComputationEngine<ResourcePoolT, BuilderT> sce;
 
   public CmdLineUtil() {
     this.appOptions = new Options();
@@ -73,24 +74,24 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     return resourcePool;
   }
 
-  public ProtocolEvaluator<ResourcePoolT, Builder> getEvaluator() {
+  public ProtocolEvaluator<ResourcePoolT> getEvaluator() {
     return evaluator;
   }
 
-  public ProtocolSuite<ResourcePoolT, Builder> getProtocolSuite() {
+  public ProtocolSuite<ResourcePoolT, BuilderT> getProtocolSuite() {
     return this.protocolSuite;
   }
 
-  public SecureComputationEngine<ResourcePoolT, Builder> getSCE() {
+  public SecureComputationEngine<ResourcePoolT, BuilderT> getSce() {
     return this.sce;
   }
 
   /**
    * Adds standard options.
    *
-   * TODO: Move standard options to SCE.
-   *
-   * For instance, options for setting player id and protocol suite.
+   * <p>TODO: Move standard options to SCE.
+   * 
+   * <p>For instance, options for setting player id and protocol suite.
    */
   private Options buildStandardOptions() {
     Options options = new Options();
@@ -106,11 +107,13 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
 
     options.addOption(Option.builder("p")
         .desc(
-            "Connection data for a party. Use -p multiple times to specify many players. You must always at least include yourself."
-                + "Must be on the form [id]:[hostname]:[port] or [id]:[hostname]:[port]:[shared key]. "
-                + "id is a unique positive integer for the player, host and port is where to find the player, "
-                + " shared key is an optional string defining a secret key that is shared by you and the other player "
-                + " (the other player must submit the same key for you as you do for him). ")
+            "Connection data for a party. Use -p multiple times to specify many players. "
+            + "You must always at least include yourself. Must be on the form "
+            + "[id]:[hostname]:[port] or [id]:[hostname]:[port]:[shared key]. "
+            + "id is a unique positive integer for the player, host and port is where to "
+            + "find the player, shared key is an optional string defining a secret key "
+            + "that is shared by you and the other player (the other player must submit "
+            + "the same key for you as you do for him). ")
         .longOpt("party").required(true).hasArgs().build());
 
     options.addOption(Option.builder("e")
@@ -121,7 +124,8 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
 
     options.addOption(Option.builder("b")
         .desc(
-            "The maximum number of native protocols kept in memory at any point in time. Defaults to 4096")
+            "The maximum number of native protocols kept in memory at any point in time. "
+            + "Defaults to 4096")
         .longOpt("max-batch").required(false).hasArg(true).build());
 
     options.addOption(Option.builder("D").argName("property=value")
@@ -137,13 +141,10 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
   private int parseNonzeroInt(String optionId) throws ParseException {
     int res;
     String opStr = this.cmd.getOptionValue(optionId);
-    if (opStr == null) {
-      throw new ParseException("No value for option: " + optionId);
-    }
     try {
       res = Integer.parseInt(opStr);
-      if (res < 0) {
-        throw new ParseException(optionId + " must be a positive integer");
+      if (res < 1) {
+        throw new ParseException(optionId + " must be a positive integer larger than 0");
       }
     } catch (NumberFormatException e) {
       throw new ParseException(
@@ -152,30 +153,24 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     return res;
   }
 
-  private void validateStandardOptions() throws ParseException {
-    int myId;
-
+  private String validateAndGetProtocolSuite() throws ParseException {
     Object suiteObj = this.cmd.getParsedOptionValue("s");
-    if (suiteObj == null) {
-      throw new ParseException("Cannot parse '" + this.cmd.getOptionValue("s") + "' as a string");
-    }
+    String suite = ((String) suiteObj).toLowerCase();
 
-    final Map<Integer, Party> parties = new HashMap<>();
-    final String suite = (String) suiteObj;
-
-    if (!CmdLineProtocolSuite.getSupportedProtocolSuites().contains(suite.toLowerCase())) {
+    if (!CmdLineProtocolSuite.getSupportedProtocolSuites().contains(suite)) {
       throw new ParseException("Unknown protocol suite: " + suite);
     }
-
-    myId = parseNonzeroInt("i");
-    if (myId == 0) {
-      throw new ParseException("Player id must be positive, non-zero integer");
-    }
-
-    for (String pStr : this.cmd.getOptionValues("p")) {
-      String[] p = pStr.split(":");
+    return suite;
+  }
+  
+  private void parseAndSetupNetwork() throws ParseException {
+    int myId = parseNonzeroInt("i");
+    final Map<Integer, Party> parties = new HashMap<>();
+    
+    for (String partyOptions : this.cmd.getOptionValues("p")) {
+      String[] p = partyOptions.split(":");
       if (p.length < 3 || p.length > 4) {
-        throw new ParseException("Could not parse '" + pStr
+        throw new ParseException("Could not parse '" + partyOptions
             + "' as [id]:[host]:[port] or [id]:[host]:[port]:[shared key]");
       }
       try {
@@ -193,23 +188,21 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
         }
         parties.put(id, party);
       } catch (NumberFormatException | UnknownHostException e) {
-        throw new ParseException("Could not parse '" + pStr + "': " + e.getMessage());
+        throw new ParseException("Could not parse '" + partyOptions + "': " + e.getMessage());
       }
     }
     if (!parties.containsKey(myId)) {
       throw new ParseException("This party is given the id " + myId
-          + " but this id is not present in the list of parties " + parties.keySet());
+          + " but this id is not present in the list of parties: " + parties.keySet());
     }
-
-    if (this.cmd.hasOption("l")) {
-      this.logPerformance = true;
-    }
-
-    logger.info("Player id          : " + myId);
-    logger.info("NativeProtocol suite     : " + suite);
-    logger.info("Players            : " + parties);
 
     this.networkConfiguration = new NetworkConfigurationImpl(myId, parties);
+  }
+  
+  /**
+   * Create a network and connect to the other parties.
+   */
+  public void startNetwork() {
     this.network = new KryoNetNetwork(networkConfiguration);
     if (logPerformance) {
       this.network = new NetworkLoggingDecorator(this.network);
@@ -221,8 +214,8 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     if (this.cmd.hasOption("b")) {
       try {
         maxBatchSize = Integer.parseInt(this.cmd.getOptionValue("b"));
-      } catch (Exception e) {
-        throw new ParseException("");
+      } catch (NumberFormatException e) {
+        throw new ParseException("Batch size has to be an integer");
       }
     }
     return maxBatchSize;
@@ -235,72 +228,94 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     this.appOptions.addOption(option);
   }
 
+  /**
+   * Parses the arguments. Also constructs various configuration objects such as ProtocolSuite
+   * and ResourcePool. 
+   * @param args The arguments
+   * @return CommandLine
+   */
   @SuppressWarnings("unchecked")
   public CommandLine parse(String[] args) {
     try {
       CommandLineParser parser = new DefaultParser();
-      Options helpOpt = new Options();
-      helpOpt.addOption(Option.builder("h").desc("Displays this help message").longOpt("help")
-          .required(false).hasArg(false).build());
-
-      cmd = parser.parse(helpOpt, args, true);
-      if (cmd.hasOption("h")) {
+      Options allOpts = getOptions();
+      
+      this.cmd = parser.parse(allOpts, args);
+      if (this.cmd.hasOption("h")) {
         displayHelp();
-        System.exit(0);
+        return null;
       }
-      Options allOpts = new Options();
-      for (Option o : options.getOptions()) {
-        allOpts.addOption(o);
-      }
-      for (Option o : appOptions.getOptions()) {
-        allOpts.addOption(o);
-      }
-      cmd = parser.parse(allOpts, args);
 
-      validateStandardOptions();
-      String protocolSuiteName = ((String) this.cmd.getParsedOptionValue("s")).toLowerCase();
+      if (this.cmd.hasOption("l")) {
+        this.logPerformance = true;
+      }
+
+      
+      String protocolSuiteName = validateAndGetProtocolSuite();
+      parseAndSetupNetwork();
+
       CmdLineProtocolSuite protocolSuiteParser = new CmdLineProtocolSuite(protocolSuiteName,
           cmd.getOptionProperties("D"), this.networkConfiguration.getMyId(),
           this.networkConfiguration.noOfParties());
-      protocolSuite = (ProtocolSuite<ResourcePoolT, Builder>)
+      protocolSuite = (ProtocolSuite<ResourcePoolT, BuilderT>)
           protocolSuiteParser.getProtocolSuite();
       resourcePool = (ResourcePoolT) protocolSuiteParser.getResourcePool();
-      try {
-        BatchEvaluationStrategy<ResourcePoolT> batchEvalStrat = evaluationStrategyFromString(
-            this.cmd.getOptionValue("e", EvaluationStrategy.SEQUENTIAL.name()));
-        if (logPerformance) {
-          batchEvalStrat = new BatchEvaluationLoggingDecorator<>(batchEvalStrat);
-        }
-        int maxBatchSize = getMaxBatchSize();
-        this.evaluator = new BatchedProtocolEvaluator<>(batchEvalStrat, protocolSuite,
-            maxBatchSize);
-      } catch (ConfigurationException e) {
-        throw new ParseException("Invalid evaluation strategy: " + this.cmd.getOptionValue("e"));
+      BatchEvaluationStrategy<ResourcePoolT> batchEvalStrat = evaluationStrategyFromString(
+          this.cmd.getOptionValue("e", EvaluationStrategy.SEQUENTIAL.name()));
+      if (logPerformance) {
+        batchEvalStrat = new BatchEvaluationLoggingDecorator<>(batchEvalStrat);
       }
-    } catch (ParseException e) {
-      System.err.println("Error while parsing arguments: " + e.getLocalizedMessage());
+      int maxBatchSize = getMaxBatchSize();
+      this.evaluator = new BatchedProtocolEvaluator<>(batchEvalStrat, protocolSuite,
+          maxBatchSize);
+    } catch (Exception e) {
+      ExceptionConverter.safe(() -> {
+        closeNetwork(); 
+        return null; 
+      },
+          "Failed to close the network");
+
+      System.err.println("Error while parsing arguments / instantiating protocol suite: "
+          + e.getLocalizedMessage());
       System.err.println();
       displayHelp();
-      System.exit(-1); // TODO: Consider moving to top level.
-    } catch (NoSuchAlgorithmException ex) {
-      System.err.println("Could not instantiate the Deterministic Random Bit Generator due to " + ex.getLocalizedMessage());
-      ex.printStackTrace();
+      throw new IllegalArgumentException("Error while parsing arguments: "
+          + e.getLocalizedMessage(), e);
     }
 
     if (logPerformance) {
       evaluator = new EvaluatorLoggingDecorator<>(evaluator);
     }
     this.sce = new SecureComputationEngineImpl<>(protocolSuite, evaluator);
-    
 
     return this.cmd;
   }
 
+  private Options getOptions() {
+    Options allOpts = new Options();
+    
+    Option helpOpt = Option.builder("h").desc("Displays this help message").longOpt("help")
+        .required(false).hasArg(false).build();
+    allOpts.addOption(helpOpt);
+    
+    for (Option o : options.getOptions()) {
+      allOpts.addOption(o);
+    }
+    
+    for (Option o : appOptions.getOptions()) {
+      allOpts.addOption(o);
+    }
+    return allOpts;
+  }
+  
   private BatchEvaluationStrategy<ResourcePoolT> evaluationStrategyFromString(String evalStr) {
     EvaluationStrategy evalStrategy = EvaluationStrategy.valueOf(evalStr.toUpperCase());
     return evalStrategy.getStrategy();
   }
 
+  /**
+   * Print a help text, displaying the various options. 
+   */
   public void displayHelp() {
     HelpFormatter formatter = new HelpFormatter();
     formatter.setSyntaxPrefix("");
@@ -309,9 +324,13 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, Builder extends Pro
     formatter.printHelp("Application specific options are:", this.appOptions);
   }
 
-  public void close() throws IOException {
-    if (getNetwork() instanceof Closeable) {
-      ((Closeable) getNetwork()).close();
+  /**
+   * Attempts to close the network.
+   * @throws IOException If the networks fails to close
+   */
+  public void closeNetwork() throws IOException {
+    if (this.network != null) {
+      ((Closeable) this.network).close();
     }
   }
 }

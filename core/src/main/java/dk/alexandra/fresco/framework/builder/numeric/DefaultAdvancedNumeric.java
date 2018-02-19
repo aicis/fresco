@@ -32,6 +32,8 @@ import java.util.List;
  */
 public class DefaultAdvancedNumeric implements AdvancedNumeric {
 
+  // Security parameter for rightshift operations.
+  private final int magicSecurenumber = 60;
   private final BuilderFactoryNumeric factoryNumeric;
   private final ProtocolBuilderNumeric builder;
 
@@ -55,15 +57,15 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
   public DRes<SInt> div(DRes<SInt> dividend, BigInteger divisor) {
     return builder.seq(new KnownDivisor(dividend, divisor));
   }
-
-  @Override
-  public DRes<SInt> mod(DRes<SInt> dividend, BigInteger divisor) {
-    return builder.seq(new KnownDivisorRemainder(dividend, divisor));
-  }
-
+  
   @Override
   public DRes<SInt> div(DRes<SInt> dividend, DRes<SInt> divisor) {
     return builder.seq(new SecretSharedDivisor(dividend, divisor));
+  }
+  
+  @Override
+  public DRes<SInt> mod(DRes<SInt> dividend, BigInteger divisor) {
+    return builder.seq(new KnownDivisorRemainder(dividend, divisor));
   }
 
   @Override
@@ -98,20 +100,19 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
 
 
   @Override
-  public DRes<SInt> innerProduct(List<DRes<SInt>> aVector,
-      List<DRes<SInt>> bVector) {
-    return builder.seq(new InnerProduct(aVector, bVector));
+  public DRes<SInt> innerProduct(List<DRes<SInt>> vectorA,
+      List<DRes<SInt>> vectorB) {
+    return builder.seq(new InnerProduct(vectorA, vectorB));
   }
 
   @Override
-  public DRes<SInt> innerProductWithPublicPart(List<BigInteger> aVector, List<DRes<SInt>> bVector) {
-    return builder.seq(new InnerProductOpen(aVector, bVector));
+  public DRes<SInt> innerProductWithPublicPart(List<BigInteger> vectorA, List<DRes<SInt>> vectorB) {
+    return builder.seq(new InnerProductOpen(vectorA, vectorB));
   }
 
   @Override
   public DRes<RandomAdditiveMask> additiveMask(int noOfBits) {
-    return builder.seq(new dk.alexandra.fresco.lib.compare.RandomAdditiveMask(
-        BuilderFactoryNumeric.MAGIC_SECURE_NUMBER, noOfBits));
+    return builder.seq(new dk.alexandra.fresco.lib.compare.RandomAdditiveMask(noOfBits));
   }
 
   @Override
@@ -119,16 +120,8 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
     DRes<RightShiftResult> rightShiftResult = builder.seq(
         new RightShift(
             factoryNumeric.getBasicNumericContext().getMaxBitLength(),
-            input, false));
+            input, false, magicSecurenumber));
     return () -> rightShiftResult.out().getResult();
-  }
-
-  @Override
-  public DRes<RightShiftResult> rightShiftWithRemainder(DRes<SInt> input) {
-    return builder.seq(
-        new RightShift(
-            factoryNumeric.getBasicNumericContext().getMaxBitLength(),
-            input, true));
   }
 
   @Override
@@ -137,6 +130,14 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
         new RepeatedRightShift(
             input, shifts, false));
     return () -> rightShiftResult.out().getResult();
+  }  
+  
+  @Override
+  public DRes<RightShiftResult> rightShiftWithRemainder(DRes<SInt> input) {
+    return builder.seq(
+        new RightShift(
+            factoryNumeric.getBasicNumericContext().getMaxBitLength(),
+            input, true, magicSecurenumber));
   }
 
   @Override

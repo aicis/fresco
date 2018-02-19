@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.tinytables.online.protocols;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.BooleanSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
@@ -12,6 +11,7 @@ import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.datatypes.TinyTablesSBool;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * <p>
@@ -42,36 +42,29 @@ public class TinyTablesANDProtocol extends TinyTablesProtocol<SBool> {
     this.id = id;
     this.inLeft = inLeft;
     this.inRight = inRight;
-    this.out = new TinyTablesSBool();
   }
 
   @Override
   public EvaluationStatus evaluate(int round, ResourcePoolImpl resourcePool, Network network) {
     TinyTablesProtocolSuite ps = TinyTablesProtocolSuite.getInstance(resourcePool.getMyId());
 
-    switch (round) {
-      case 0:
-        TinyTable tinyTable = ps.getStorage().getTinyTable(id);
-        if (tinyTable == null) {
-          throw new MPCException("Unable to find TinyTable for gate with id " + id);
-        }
-        TinyTablesElement myShare = tinyTable.getValue(((TinyTablesSBool) inLeft.out()).getValue(),
-            ((TinyTablesSBool) inRight.out()).getValue());
+    if (round == 0) {
+      TinyTable tinyTable = Objects.requireNonNull(ps.getStorage().getTinyTable(id),
+          "Unable to find TinyTable for gate with id " + id);
+      TinyTablesElement myShare = tinyTable.getValue(((TinyTablesSBool) inLeft.out()).getValue(),
+          ((TinyTablesSBool) inRight.out()).getValue());
 
-        network.sendToAll(new byte[]{BooleanSerializer.toBytes(myShare.getShare())});
-        return EvaluationStatus.HAS_MORE_ROUNDS;
-      case 1:
-        List<byte[]> buffers = network.receiveFromAll();
-        List<TinyTablesElement> shares = new ArrayList<>();
-        for (byte[] bytes : buffers) {
-          shares.add(new TinyTablesElement(BooleanSerializer.fromBytes(bytes[0])));
-        }
-        boolean open = TinyTablesElement.open(shares);
-        this.out = (out == null) ? new TinyTablesSBool() : out;
-        this.out.setValue(new TinyTablesElement(open));
-        return EvaluationStatus.IS_DONE;
-      default:
-        throw new MPCException("Cannot evaluate rounds larger than 0");
+      network.sendToAll(new byte[]{BooleanSerializer.toBytes(myShare.getShare())});
+      return EvaluationStatus.HAS_MORE_ROUNDS;
+    } else {
+      List<byte[]> buffers = network.receiveFromAll();
+      List<TinyTablesElement> shares = new ArrayList<>();
+      for (byte[] bytes : buffers) {
+        shares.add(new TinyTablesElement(BooleanSerializer.fromBytes(bytes[0])));
+      }
+      boolean open = TinyTablesElement.open(shares);
+      this.out = new TinyTablesSBool(new TinyTablesElement(open));
+      return EvaluationStatus.IS_DONE;
     }
   }
 

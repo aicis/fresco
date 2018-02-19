@@ -42,7 +42,7 @@ import org.junit.experimental.categories.Category;
 public class TestTinyTables {
 
   private void runTest(TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f,
-      EvaluationStrategy evalStrategy, boolean preprocessing, String name) throws Exception {
+      EvaluationStrategy evalStrategy, boolean preprocessing, String name) {
     int noPlayers = 2;
     // Since SCAPI currently does not work with ports > 9999 we use fixed
     // ports
@@ -58,7 +58,7 @@ public class TestTinyTables {
         new HashMap<>();
 
     for (int playerId : netConf.keySet()) {
-      ProtocolEvaluator<ResourcePoolImpl, ProtocolBuilderBinary> evaluator;
+      ProtocolEvaluator<ResourcePoolImpl> evaluator;
 
       ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> suite;
       File tinyTablesFile = new File(getFilenameForTest(playerId, name));
@@ -147,7 +147,7 @@ public class TestTinyTables {
   }
 
   @Test
-  public void testInput() throws Exception {
+  public void testInput() {
     runTest(new BasicBooleanTests.TestInput<>(false), EvaluationStrategy.SEQUENTIAL,
         true, "testInput");
     runTest(new BasicBooleanTests.TestInput<>(true), EvaluationStrategy.SEQUENTIAL,
@@ -155,7 +155,7 @@ public class TestTinyTables {
   }
 
   @Test
-  public void testXOR() throws Exception {
+  public void testXOR() {
     runTest(new BasicBooleanTests.TestXOR<>(false), EvaluationStrategy.SEQUENTIAL,
         true, "testXOR");
     runTest(new BasicBooleanTests.TestXOR<>(true), EvaluationStrategy.SEQUENTIAL,
@@ -163,7 +163,7 @@ public class TestTinyTables {
   }
 
   @Test
-  public void testAND() throws Exception {
+  public void testAND() {
     runTest(new BasicBooleanTests.TestAND<>(false), EvaluationStrategy.SEQUENTIAL,
         true, "testAND");
     runTest(new BasicBooleanTests.TestAND<>(true), EvaluationStrategy.SEQUENTIAL,
@@ -171,7 +171,7 @@ public class TestTinyTables {
   }
 
   @Test
-  public void testNOT() throws Exception {
+  public void testNOT() {
     runTest(new BasicBooleanTests.TestNOT<>(false), EvaluationStrategy.SEQUENTIAL,
         true, "testNOT");
     runTest(new BasicBooleanTests.TestNOT<>(true), EvaluationStrategy.SEQUENTIAL,
@@ -179,7 +179,7 @@ public class TestTinyTables {
   }
 
   @Test
-  public void testBasicProtocols() throws Exception {
+  public void testBasicProtocols() {
     runTest(new BasicBooleanTests.TestBasicProtocols<>(false),
         EvaluationStrategy.SEQUENTIAL, true, "testBasicProtocols");
     runTest(new BasicBooleanTests.TestBasicProtocols<>(true),
@@ -190,7 +190,7 @@ public class TestTinyTables {
 
   @Category(IntegrationTest.class)
   @Test
-  public void testMult() throws Exception {
+  public void testMult() {
     runTest(new BristolCryptoTests.Mult32x32Test<>(false),
         EvaluationStrategy.SEQUENTIAL, true, "testMult32x32");
     runTest(new BristolCryptoTests.Mult32x32Test<>(true),
@@ -199,7 +199,7 @@ public class TestTinyTables {
 
   @Category(IntegrationTest.class)
   @Test
-  public void testAES() throws Exception {
+  public void testAES() {
     runTest(new BristolCryptoTests.AesTest<>(false), EvaluationStrategy.SEQUENTIAL,
         true, "testAES");
     runTest(new BristolCryptoTests.AesTest<>(true), EvaluationStrategy.SEQUENTIAL,
@@ -208,7 +208,7 @@ public class TestTinyTables {
 
   @Category(IntegrationTest.class)
   @Test
-  public void test_DES() throws Exception {
+  public void test_DES() {
     runTest(new BristolCryptoTests.DesTest<>(false), EvaluationStrategy.SEQUENTIAL,
         true, "testDES");
     runTest(new BristolCryptoTests.DesTest<>(true), EvaluationStrategy.SEQUENTIAL,
@@ -217,7 +217,7 @@ public class TestTinyTables {
 
   @Category(IntegrationTest.class)
   @Test
-  public void test_SHA1() throws Exception {
+  public void test_SHA1() {
     runTest(new BristolCryptoTests.Sha1Test<>(false), EvaluationStrategy.SEQUENTIAL,
         true, "testSHA1");
     runTest(new BristolCryptoTests.Sha1Test<>(true), EvaluationStrategy.SEQUENTIAL,
@@ -226,7 +226,7 @@ public class TestTinyTables {
 
   @Category(IntegrationTest.class)
   @Test
-  public void test_SHA256() throws Exception {
+  public void test_SHA256() {
     runTest(new BristolCryptoTests.Sha256Test<>(false),
         EvaluationStrategy.SEQUENTIAL, true, "testSHA256");
     runTest(new BristolCryptoTests.Sha256Test<>(true),
@@ -236,7 +236,7 @@ public class TestTinyTables {
   /* Advanced functionality */
 
   @Test
-  public void test_Binary_Adder() throws Exception {
+  public void test_Binary_Adder() {
     runTest(new AddTests.TestFullAdder<>(false),
         EvaluationStrategy.SEQUENTIAL_BATCHED, true, "testAdder");
     runTest(new AddTests.TestFullAdder<>(true),
@@ -244,7 +244,7 @@ public class TestTinyTables {
   }
 
   @Test
-  public void test_comparison() throws Exception {
+  public void test_comparison() {
     runTest(new ComparisonBooleanTests.TestGreaterThan<>(false),
         EvaluationStrategy.SEQUENTIAL, true, "testGT");
     runTest(new ComparisonBooleanTests.TestGreaterThan<>(true),
@@ -252,7 +252,7 @@ public class TestTinyTables {
   }
 
   @Test
-  public void test_equality() throws Exception {
+  public void test_equality() {
     runTest(new ComparisonBooleanTests.TestEquality<>(false),
         EvaluationStrategy.SEQUENTIAL, true, "testEQ");
     runTest(new ComparisonBooleanTests.TestEquality<>(true),

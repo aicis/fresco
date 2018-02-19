@@ -40,13 +40,14 @@ public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeri
 
     final BigInteger one = BigInteger.ONE;
 
-    return builder.seq((seq) -> seq.advancedNumeric().additiveMask(bitLength))
+    return builder.seq((seq) -> seq.advancedNumeric()
+        .additiveMask(bitLength + securityParameter))
         .pairInPar((seq, mask) -> {
-          List<DRes<SInt>> bits = mask.bits;
+          List<DRes<SInt>> bits = mask.bits.subList(0, bitLength);
           List<DRes<SInt>> rBottomBits = bits.subList(0, bitLengthBottom);
           List<BigInteger> twoPowsBottom =
               seq.getBigIntegerHelper().getTwoPowersList(bitLengthBottom);
-          return Pair.lazy(mask.r, seq.advancedNumeric().innerProductWithPublicPart(twoPowsBottom, rBottomBits));
+          return Pair.lazy(mask.random, seq.advancedNumeric().innerProductWithPublicPart(twoPowsBottom, rBottomBits));
         }, (seq, mask) -> {
           List<DRes<SInt>> rTopBits =
               mask.bits.subList(bitLengthBottom, bitLengthBottom + bitLengthTop);

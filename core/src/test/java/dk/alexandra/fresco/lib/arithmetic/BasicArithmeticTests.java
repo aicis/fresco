@@ -106,6 +106,31 @@ public class BasicArithmeticTests {
     }
   }
 
+  public static class TestOpenWithConversion<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app = producer -> {
+            BigInteger modulus = producer.getBasicNumericContext().getModulus();
+            BigInteger input = modulus.divide(BigInteger.valueOf(2)).add(BigInteger.ONE);
+            Numeric numeric = producer.numeric();
+            DRes<SInt> closed = numeric.input(input, 1);
+            DRes<BigInteger> opened = numeric.open(closed);
+            BigInteger expected = input.subtract(modulus);
+            return () -> {
+              return new Pair<BigInteger, BigInteger>(opened.out(), expected);
+            };
+          };
+          Pair<BigInteger, BigInteger> actualAndExpected = runApplication(app);
+          Assert.assertEquals(actualAndExpected.getSecond(), actualAndExpected.getFirst());
+        }
+      };
+    }
+  }
+
   public static class TestKnownSInt<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 

@@ -1,8 +1,8 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.serializers.BigIntegerSerializer;
+import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -33,24 +33,24 @@ public class MaliciousSpdzInputProtocol extends SpdzNativeProtocol<SInt> {
     int myId = spdzResourcePool.getMyId();
     BigInteger modulus = spdzResourcePool.getModulus();
     SpdzStorage storage = spdzResourcePool.getStore();
-    BigIntegerSerializer serializer = spdzResourcePool.getSerializer();
+    ByteSerializer<BigInteger> serializer = spdzResourcePool.getSerializer();
     if (round == 0) {
       this.inputMask = storage.getSupplier().getNextInputMask(this.inputter);
       if (myId == this.inputter) {
         BigInteger bcValue = this.input.subtract(this.inputMask.getRealValue());
         bcValue = bcValue.mod(modulus);
-        network.sendToAll(serializer.toBytes(bcValue));
+        network.sendToAll(serializer.serialize(bcValue));
       }
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else if (round == 1) {
-      this.valueMasked = serializer.toBigInteger(network.receive(inputter));
+      this.valueMasked = serializer.deserialize(network.receive(inputter));
       this.digest = sendMaliciousBroadcastValidation(spdzResourcePool.getMessageDigest(), network,
           valueMasked);
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       boolean validated = receiveMaliciousBroadcastValidation(network, digest);
       if (!validated) {
-        throw new MPCException("Broadcast digests did not match");
+        throw new MaliciousException("Broadcast digests did not match");
       }
       SpdzElement valueMaskedElm = new SpdzElement(valueMasked,
           storage.getSecretSharedKey().multiply(valueMasked).mod(modulus), modulus);
