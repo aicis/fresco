@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Drng;
@@ -34,6 +35,7 @@ public class MarlinMacCheckComputation<T extends BigUInt<T>> implements
     List<T> openValues = opened.getSecond();
     BigUIntFactory<T> factory = resourcePool.getFactory();
     T macKeyShare = resourcePool.getDataSupplier().getSecretSharedKey();
+    // TODO use serializer
     List<byte[]> sharesLowBits = authenticatedElements.stream()
         .map(element -> ByteAndBitConverter.toByteArray(element.getShare().getLow()))
         .collect(Collectors.toList());
@@ -42,20 +44,28 @@ public class MarlinMacCheckComputation<T extends BigUInt<T>> implements
         factory, openValues.size());
     final T y = BigUInt.innerProduct(openValues, randomCoefficients);
     final MarlinSInt<T> r = resourcePool.getDataSupplier().getNextRandomElementShare();
+    ByteSerializer<T> serializer = resourcePool.getRawSerializer();
     return builder
         .seq(new MarlinBroadcastComputation<>(sharesLowBits))
         .seq((seq, ignored) -> {
           List<T> originalShares = authenticatedElements.stream()
               .map(MarlinSInt::getShare)
               .collect(Collectors.toList());
-          long pj = computeLinearCombination(
-              computeOverflow(originalShares, factory), randomCoefficients);
-          byte[] pjBytes = ByteAndBitConverter.toByteArray(pj + r.getShare().getLow());
+          List<T> overflow = originalShares.stream()
+              .map(T::computeOverflow)
+              .collect(Collectors.toList());
+          List<T> randomCoefficientsLow = randomCoefficients.stream()
+              .map(T::getLowAsUInt)
+              .collect(Collectors.toList());
+          T pj = BigUInt.innerProduct(overflow, randomCoefficientsLow);
+          byte[] pjBytes = serializer.serialize(pj.add(r.getShare().getLowAsUInt()));
           return new MarlinBroadcastComputation<>(pjBytes).buildComputation(seq);
         })
         .seq((seq, broadcastPjs) -> {
-          List<T> pjList = resourcePool.getRawSerializer().deserializeList(broadcastPjs);
-          T p = factory.createFromLong(sum(getLowsAsLongs(pjList)));
+          List<T> pjList = serializer.deserializeList(broadcastPjs);
+          T pLow = BigUInt.sum(
+              pjList.stream().map(BigUInt::getLowAsUInt).collect(Collectors.toList()));
+          T p = factory.createFromLong(pLow.getLow());
           List<T> macShares = authenticatedElements.stream()
               .map(MarlinSInt::getMacShare)
               .collect(Collectors.toList());
@@ -64,12 +74,11 @@ public class MarlinMacCheckComputation<T extends BigUInt<T>> implements
               .subtract(mj)
               .subtract(p.multiply(macKeyShare).shiftLowIntoHigh())
               .add(r.getMacShare().shiftLowIntoHigh());
-          byte[] zjBytes = resourcePool.getRawSerializer().serialize(zj);
-          return new MarlinCommitmentComputation<>(resourcePool, zjBytes).buildComputation(seq);
+          return new MarlinCommitmentComputation<>(resourcePool, serializer.serialize(zj))
+              .buildComputation(seq);
         })
         .seq((seq, commitZjs) -> {
-          List<T> deserialized = resourcePool.getRawSerializer().deserializeList(commitZjs);
-          if (!BigUInt.sum(deserialized).isZero()) {
+          if (!BigUInt.sum(serializer.deserializeList(commitZjs)).isZero()) {
             throw new MaliciousException("Mac check failed");
           }
           return null;
@@ -85,41 +94,6 @@ public class MarlinMacCheckComputation<T extends BigUInt<T>> implements
       randomCoefficients.add(factory.createFromLong(drng.nextLong(Long.MAX_VALUE)));
     }
     return randomCoefficients;
-  }
-
-  private long[] computeOverflow(List<T> shares, BigUIntFactory<T> factory) {
-    long[] overflow = new long[shares.size()];
-    for (int i = 0; i < overflow.length; i++) {
-      T share = shares.get(i);
-      T lower = factory.createFromLong(share.getLow());
-      T diff = lower.subtract(share);
-      overflow[i] = diff.getHigh();
-    }
-    return overflow;
-  }
-
-  private long computeLinearCombination(long[] overflow, List<T> randomCoefficients) {
-    long sum = 0;
-    for (int i = 0; i < overflow.length; i++) {
-      sum += overflow[i] * randomCoefficients.get(i).getLow();
-    }
-    return sum;
-  }
-
-  private long sum(long[] elements) {
-    long sum = 0;
-    for (long element : elements) {
-      sum += element;
-    }
-    return sum;
-  }
-
-  private long[] getLowsAsLongs(List<T> elements) {
-    long[] lows = new long[elements.size()];
-    for (int i = 0; i < lows.length; i++) {
-      lows[i] = elements.get(i).getLow();
-    }
-    return lows;
   }
 
 }

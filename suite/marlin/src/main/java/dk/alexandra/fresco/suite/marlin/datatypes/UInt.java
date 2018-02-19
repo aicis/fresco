@@ -104,11 +104,14 @@ public class UInt implements BigUInt<UInt> {
   }
 
   @Override
+  public UInt computeOverflow() {
+    UInt low = new UInt(getLow(), ints.length * Integer.SIZE);
+    return low.subtract(this).getHighAsUInt();
+  }
+
+  @Override
   public UInt getSubRange(int from, int to) {
-    // big-endian order so need to flip indexes
-    int fromFlipped = ints.length - from - (to - from);
-    int toFlipped = ints.length - from;
-    return new UInt(Arrays.copyOfRange(ints, fromFlipped, toFlipped));
+    return new UInt(getIntSubRange(from, to));
   }
 
   @Override
@@ -142,6 +145,13 @@ public class UInt implements BigUInt<UInt> {
   @Override
   public String toString() {
     return toBigInteger().toString();
+  }
+
+  private int[] getIntSubRange(int from, int to) {
+    // big-endian order so need to flip indexes
+    int fromFlipped = ints.length - from - (to - from);
+    int toFlipped = ints.length - from;
+    return Arrays.copyOfRange(ints, fromFlipped, toFlipped);
   }
 
   private static long toULong(final int value) {

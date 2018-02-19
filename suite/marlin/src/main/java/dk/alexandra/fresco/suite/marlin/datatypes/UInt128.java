@@ -124,6 +124,11 @@ public class UInt128 implements BigUInt<UInt128> {
   }
 
   @Override
+  public UInt128 computeOverflow() {
+    return null;
+  }
+
+  @Override
   public UInt128 getSubRange(int from, int to) {
     return null;
   }

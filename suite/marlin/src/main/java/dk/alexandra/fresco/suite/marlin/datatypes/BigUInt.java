@@ -49,6 +49,8 @@ public interface BigUInt<T extends BigUInt> {
    */
   BigInteger toBigInteger();
 
+  T computeOverflow();
+
   T getSubRange(int from, int to);
 
   T getLowAsUInt();
