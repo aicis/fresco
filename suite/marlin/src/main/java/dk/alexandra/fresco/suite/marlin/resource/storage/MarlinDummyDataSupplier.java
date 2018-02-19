@@ -23,7 +23,7 @@ public class MarlinDummyDataSupplier<T extends BigUInt<T>> implements MarlinData
     this.secretSharedKey = secretSharedKey;
     this.factory = factory;
     this.supplier = new ArithmeticDummyDataSupplier(myId, noOfParties,
-        BigInteger.ONE.shiftLeft(factory.getOperationalBitLength()));
+        BigInteger.ONE.shiftLeft(factory.getCompositeBitLength()));
   }
 
   @Override

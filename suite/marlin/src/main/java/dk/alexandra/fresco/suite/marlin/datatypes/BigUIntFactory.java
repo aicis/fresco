@@ -6,11 +6,6 @@ import java.math.BigInteger;
 public interface BigUIntFactory<T extends BigUInt<T>> {
 
   /**
-   * Creates new {@link T} from a long.
-   */
-  T createFromLong(long value);
-
-  /**
    * Creates new {@link T} from a raw array of bytes.
    */
   T createFromBytes(byte[] bytes);
@@ -33,7 +28,7 @@ public interface BigUIntFactory<T extends BigUInt<T>> {
    * Creates element whose value is zero.
    */
   default T zero() {
-    return createFromBytes(new byte[getOperationalBitLength() / Byte.SIZE]);
+    return createFromBytes(new byte[getCompositeBitLength() / Byte.SIZE]);
   }
 
   /**
@@ -41,8 +36,10 @@ public interface BigUIntFactory<T extends BigUInt<T>> {
    */
   ByteSerializer<T> createSerializer();
 
-  int getOperationalBitLength();
+  int getCompositeBitLength();
 
-  int getEffectiveBitLength();
+  int getLowBitLength();
+
+  int getHighBitLength();
 
 }

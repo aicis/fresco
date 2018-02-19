@@ -53,9 +53,9 @@ public interface BigUInt<T extends BigUInt> {
 
   T getSubRange(int from, int to);
 
-  T getLowAsUInt();
+  T getLow();
 
-  T getHighAsUInt();
+  T getHigh();
 
   T shiftLowIntoHigh();
 

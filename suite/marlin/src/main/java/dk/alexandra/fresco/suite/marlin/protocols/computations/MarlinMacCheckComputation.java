@@ -6,8 +6,6 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.Drng;
-import dk.alexandra.fresco.framework.util.DrngImpl;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.BigUIntFactory;
@@ -36,9 +34,9 @@ public class MarlinMacCheckComputation<T extends BigUInt<T>> implements
     BigUIntFactory<T> factory = resourcePool.getFactory();
     T macKeyShare = resourcePool.getDataSupplier().getSecretSharedKey();
     List<byte[]> sharesLowBits = authenticatedElements.stream()
-        .map(element -> serializer.serialize(element.getShare().getLowAsUInt()))
+        .map(element -> serializer.serialize(element.getShare().getLow()))
         .collect(Collectors.toList());
-    final List<T> randomCoefficients = sampleRandomCoefficients(
+    final List<T> randomCoefficients = sampleCoefficients(
         resourcePool.getRandomGenerator(),
         factory, openValues.size());
     final T y = BigUInt.innerProduct(openValues, randomCoefficients);
@@ -53,16 +51,16 @@ public class MarlinMacCheckComputation<T extends BigUInt<T>> implements
               .map(T::computeOverflow)
               .collect(Collectors.toList());
           List<T> randomCoefficientsLow = randomCoefficients.stream()
-              .map(T::getLowAsUInt)
+              .map(T::getLow)
               .collect(Collectors.toList());
           T pj = BigUInt.innerProduct(overflow, randomCoefficientsLow);
-          byte[] pjBytes = serializer.serialize(pj.add(r.getShare().getLowAsUInt()));
+          byte[] pjBytes = serializer.serialize(pj.add(r.getShare().getLow()));
           return new MarlinBroadcastComputation<>(pjBytes).buildComputation(seq);
         })
         .seq((seq, broadcastPjs) -> {
           List<T> pjList = serializer.deserializeList(broadcastPjs);
           T pLow = BigUInt.sum(
-              pjList.stream().map(BigUInt::getLowAsUInt).collect(Collectors.toList()));
+              pjList.stream().map(BigUInt::getLow).collect(Collectors.toList()));
           T p = factory.createFromLow(pLow);
           List<T> macShares = authenticatedElements.stream()
               .map(MarlinSInt::getMacShare)
@@ -83,13 +81,12 @@ public class MarlinMacCheckComputation<T extends BigUInt<T>> implements
         });
   }
 
-  private List<T> sampleRandomCoefficients(Drbg drbg, BigUIntFactory<T> factory,
-      int numCoefficients) {
+  private List<T> sampleCoefficients(Drbg drbg, BigUIntFactory<T> factory, int numCoefficients) {
     List<T> randomCoefficients = new ArrayList<>(numCoefficients);
-    Drng drng = new DrngImpl(drbg);
     for (int i = 0; i < numCoefficients; i++) {
-      // TODO check upper bound
-      randomCoefficients.add(factory.createFromLong(drng.nextLong(Long.MAX_VALUE)));
+      byte[] bytes = new byte[factory.getHighBitLength() / Byte.SIZE];
+      drbg.nextBytes(bytes);
+      randomCoefficients.add(factory.createFromBytes(bytes));
     }
     return randomCoefficients;
   }

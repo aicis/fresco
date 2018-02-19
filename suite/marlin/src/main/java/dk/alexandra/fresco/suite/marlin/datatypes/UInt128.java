@@ -134,22 +134,22 @@ public class UInt128 implements BigUInt<UInt128> {
   }
 
   @Override
-  public UInt128 getLowAsUInt() {
+  public UInt128 getLow() {
     return null;
   }
 
   @Override
-  public UInt128 getHighAsUInt() {
+  public UInt128 getHigh() {
     return null;
   }
 
-  private long getLow() {
+  private long getLowLong() {
     return (Integer.toUnsignedLong(this.mid) << 32) + Integer.toUnsignedLong(this.low);
   }
 
   @Override
   public UInt128 shiftLowIntoHigh() {
-    return new UInt128(getLow(), 0, 0);
+    return new UInt128(getLowLong(), 0, 0);
   }
 
   private byte[] pad(byte[] bytes) {

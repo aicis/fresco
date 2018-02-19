@@ -36,8 +36,8 @@ public class MarlinMultiplyProtocol<T extends BigUInt<T>> extends
       triple = resourcePool.getDataSupplier().getNextTripleShares();
       epsilon = ((MarlinSInt<T>) left.out()).subtract(triple.getLeft());
       delta = ((MarlinSInt<T>) right.out()).subtract(triple.getRight());
-      network.sendToAll(serializer.serialize(epsilon.getShare().getLowAsUInt()));
-      network.sendToAll(serializer.serialize(delta.getShare().getLowAsUInt()));
+      network.sendToAll(serializer.serialize(epsilon.getShare().getLow()));
+      network.sendToAll(serializer.serialize(delta.getShare().getLow()));
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       Pair<T, T> epsilonAndDelta = receiveAndReconstruct(network, resourcePool.getNoOfParties(),

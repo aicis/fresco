@@ -9,11 +9,6 @@ public class UInt128Factory implements BigUIntFactory<UInt128> {
   private final SecureRandom random = new SecureRandom();
 
   @Override
-  public UInt128 createFromLong(long value) {
-    return new UInt128(value);
-  }
-
-  @Override
   public UInt128 createFromBytes(byte[] bytes) {
     return new UInt128(bytes);
   }
@@ -36,12 +31,17 @@ public class UInt128Factory implements BigUIntFactory<UInt128> {
   }
 
   @Override
-  public int getOperationalBitLength() {
+  public int getCompositeBitLength() {
     return 128;
   }
 
   @Override
-  public int getEffectiveBitLength() {
+  public int getLowBitLength() {
+    return 64;
+  }
+
+  @Override
+  public int getHighBitLength() {
     return 64;
   }
 

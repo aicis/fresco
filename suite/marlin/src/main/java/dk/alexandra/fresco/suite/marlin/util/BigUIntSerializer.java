@@ -14,7 +14,7 @@ public class BigUIntSerializer<T extends BigUInt<T>> implements ByteSerializer<T
 
   public BigUIntSerializer(BigUIntFactory<T> factory) {
     this.factory = factory;
-    this.byteLength = factory.getOperationalBitLength() / 8;
+    this.byteLength = factory.getCompositeBitLength() / 8;
   }
 
   @Override

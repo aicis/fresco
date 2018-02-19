@@ -109,8 +109,8 @@ public class UInt implements BigUInt<UInt> {
 
   @Override
   public UInt computeOverflow() {
-    UInt low = new UInt(getLow(), ints.length * Integer.SIZE);
-    return low.subtract(this).getHighAsUInt();
+    UInt low = new UInt(getLowLong(), ints.length * Integer.SIZE);
+    return low.subtract(this).getHigh();
   }
 
   @Override
@@ -119,16 +119,16 @@ public class UInt implements BigUInt<UInt> {
   }
 
   @Override
-  public UInt getLowAsUInt() {
+  public UInt getLow() {
     return getSubRange(0, 2);
   }
 
   @Override
-  public UInt getHighAsUInt() {
+  public UInt getHigh() {
     return getSubRange(2, 4);
   }
 
-  private long getLow() {
+  private long getLowLong() {
     return (toULong(ints[ints.length - 2]) << 32) + toULong(ints[ints.length - 1]);
   }
 
