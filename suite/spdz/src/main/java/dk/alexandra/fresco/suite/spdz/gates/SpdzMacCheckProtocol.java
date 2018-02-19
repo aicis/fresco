@@ -55,10 +55,10 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
           List<BigInteger> openedValues = storage.getOpenedValues();
 
           // Add all s's to get the common random value:
-          BigInteger sum = BigInteger.ZERO;
-          for (BigInteger otherS : openCommit.values()) {
-            sum = sum.add(otherS);
-          }
+          BigInteger sum =
+              openCommit.values()
+                  .stream()
+                  .reduce(BigInteger.ZERO, BigInteger::add);
 
           openedValuesSize = openedValues.size();
 
@@ -97,11 +97,12 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
               .seq((subSeq, commitProtocol) ->
                   subSeq.append(new SpdzOpenCommitProtocol(deltaCommitment, commitProtocol)));
         }).seq((seq, commitments) -> {
-          BigInteger deltaSum = BigInteger.ZERO;
-          for (BigInteger d : commitments.values()) {
-            deltaSum = deltaSum.add(d);
-          }
-          deltaSum = deltaSum.mod(modulus);
+          BigInteger deltaSum =
+              commitments.values()
+                  .stream()
+                  .reduce(BigInteger.ZERO, BigInteger::add)
+                  .mod(modulus);
+
           if (!deltaSum.equals(BigInteger.ZERO)) {
             throw new MaliciousException(
                 "The sum of delta's was not 0. Someone was corrupting something amongst "
