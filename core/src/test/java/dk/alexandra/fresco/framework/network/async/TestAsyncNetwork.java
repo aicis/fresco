@@ -3,6 +3,7 @@ package dk.alexandra.fresco.framework.network.async;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
 
+import ch.qos.logback.classic.Logger;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
@@ -158,7 +159,9 @@ public class TestAsyncNetwork {
             final byte[] data = new byte[1024];
             byte[] receivedData;
             for (int j = 0; j < numMessages; j++) {
+              System.out.println("Receiving message " + j + " from " + k);
               receivedData = networks.get(id).receive(k);
+              System.out.println("Received message " + j + " from " + k);
               r.nextBytes(data);
               assertArrayEquals(data, receivedData);
             }
@@ -357,7 +360,14 @@ public class TestAsyncNetwork {
   }
 
   private void closeNetworks(Map<Integer, CloseableNetwork> networks) {
-    networks.values().stream().forEach(CloseableNetwork::close);
+    networks.values().stream().forEach(t -> {
+      try {
+        t.close();
+      } catch (IOException e) {
+        fail("This should never happen");
+        e.printStackTrace();
+      }
+    });
   }
 
   private int nextParty(int myId, int numParties) {
