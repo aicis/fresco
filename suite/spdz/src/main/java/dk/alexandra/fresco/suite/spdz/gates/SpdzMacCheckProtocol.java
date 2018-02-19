@@ -70,8 +70,8 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
           }
           BigInteger a = BigInteger.ZERO;
           int index = 0;
-          for (BigInteger aa : openedValues) {
-            a = a.add(aa.multiply(rs[index++])).mod(modulus);
+          for (BigInteger openedValue : openedValues) {
+            a = a.add(openedValue.multiply(rs[index++])).mod(modulus);
           }
 
           List<SpdzElement> closedValues = storage.getClosedValues();
