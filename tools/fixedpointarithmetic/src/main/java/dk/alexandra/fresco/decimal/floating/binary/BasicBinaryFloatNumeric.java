@@ -18,7 +18,7 @@ public class BasicBinaryFloatNumeric implements BasicRealNumeric {
   public BasicBinaryFloatNumeric(ProtocolBuilderNumeric builder) {
     this.builder = builder;
     
-    this.maxScale = builder.getBasicNumericContext().getMaxBitLength() / 4;
+    this.maxScale = 48;
     this.defaultScale = 16;
   }
 
@@ -31,7 +31,7 @@ public class BasicBinaryFloatNumeric implements BasicRealNumeric {
     if (current.getScale() < scale) {
       sint = scope.numeric().mult(BigInteger.valueOf(2).pow(scale - current.getScale()), sint);
     } else if (current.getScale() > scale) {
-      sint = scope.seq(new Truncate(2*maxScale, sint, current.getScale() - scale));
+      sint = scope.seq(new Truncate(sint, current.getScale() - scale));
     }
     return sint;
   }
@@ -104,7 +104,7 @@ public class BasicBinaryFloatNumeric implements BasicRealNumeric {
       int scale = aFloat.getScale() + bFloat.getScale();
       DRes<SInt> unscaled = seq.numeric().mult(aFloat.getSInt(), bFloat.getSInt());
       if (scale > maxScale) {
-        unscaled = seq.seq(new Truncate(maxScale, unscaled, scale - defaultScale));
+        unscaled = seq.seq(new Truncate(unscaled, scale - defaultScale));
         scale = defaultScale;
       }
       return new SBinaryFloat(unscaled, scale);
@@ -119,7 +119,7 @@ public class BasicBinaryFloatNumeric implements BasicRealNumeric {
       int scale = aBin.scale() + bFloat.getScale();
       DRes<SInt> unscaled = seq.numeric().mult(aBin.unscaledValue(), bFloat.getSInt());
       if (scale > maxScale) {
-        unscaled = seq.seq(new Truncate(maxScale, unscaled, scale - defaultScale));
+        unscaled = seq.seq(new Truncate(unscaled, scale - defaultScale));
         scale = defaultScale;
       }
       return new SBinaryFloat(unscaled, scale);

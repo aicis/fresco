@@ -124,7 +124,7 @@ public class BasicBinaryFixedNumeric implements BasicRealNumeric {
       DRes<SInt> sintA = ((SBinaryFixed) a.out()).getSInt();
       DRes<SInt> sintB = ((SBinaryFixed) b.out()).getSInt();
       DRes<SInt> input = seq.numeric().mult(sintA, sintB);
-      DRes<SInt> output = seq.seq(new Truncate(2 * precision, input, this.precision));
+      DRes<SInt> output = seq.seq(new Truncate(input, this.precision));
       return new SBinaryFixed(output);
     });
   }
@@ -135,7 +135,7 @@ public class BasicBinaryFixedNumeric implements BasicRealNumeric {
       BigBinary aScaled = new BigBinary(a, this.precision);
       DRes<SInt> sintB = ((SBinaryFixed) b.out()).getSInt();
       DRes<SInt> input = seq.numeric().mult(aScaled.unscaledValue(), sintB);
-      DRes<SInt> output = seq.seq(new Truncate(2 * precision, input, this.precision));
+      DRes<SInt> output = seq.seq(new Truncate(input, this.precision));
       return new SBinaryFixed(output);
     });
   }

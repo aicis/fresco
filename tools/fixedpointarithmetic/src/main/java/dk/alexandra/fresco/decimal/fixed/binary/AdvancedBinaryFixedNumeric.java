@@ -43,7 +43,7 @@ public class AdvancedBinaryFixedNumeric extends DefaultAdvancedRealNumeric {
       List<DRes<SInt>> bInt =
           b.stream().map(x -> ((SBinaryFixed) x.out()).getSInt()).collect(Collectors.toList());
       DRes<SInt> innerProductInt = seq.advancedNumeric().innerProductWithPublicPart(aInt, bInt);
-      DRes<SInt> innerProductUnscaled = seq.seq(new Truncate(precision * 10, innerProductInt, precision));
+      DRes<SInt> innerProductUnscaled = seq.seq(new Truncate(innerProductInt, precision));
       return new SBinaryFixed(innerProductUnscaled);
     });
   }
@@ -59,7 +59,7 @@ public class AdvancedBinaryFixedNumeric extends DefaultAdvancedRealNumeric {
       List<DRes<SInt>> bInt =
           b.stream().map(x -> ((SBinaryFixed) x.out()).getSInt()).collect(Collectors.toList());
       DRes<SInt> innerProductInt = seq.advancedNumeric().innerProduct(aInt, bInt);
-      DRes<SInt> innerProductUnscaled = seq.seq(new Truncate(precision * 10, innerProductInt, precision));
+      DRes<SInt> innerProductUnscaled = seq.seq(new Truncate(innerProductInt, precision));
       return new SBinaryFixed(innerProductUnscaled);
     });
   }

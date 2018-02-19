@@ -106,7 +106,7 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
        * TODO: The multiplications can be done in parallel if all powers are calculated first.
        */
 
-      int terms = 16;
+      int terms = 12;
       BigDecimal[] coefficients = new BigDecimal[terms];
       BigInteger n = BigInteger.ONE;
       coefficients[terms - 1] = new BigDecimal(n);

@@ -25,16 +25,14 @@ public class Truncate implements Computation<SInt, ProtocolBuilderNumeric> {
 
   // Input
   private final DRes<SInt> input;
-  private final int bitLength;
   private final int shifts;
 
-  public Truncate(int bitLength, DRes<SInt> input, int shifts) {
+  public Truncate(DRes<SInt> input, int shifts) {
 
     if (shifts < 0) {
       throw new IllegalArgumentException();
     }
 
-    this.bitLength = bitLength;
     this.input = input;
     this.shifts = shifts;
   }
@@ -47,7 +45,7 @@ public class Truncate implements Computation<SInt, ProtocolBuilderNumeric> {
        * leakage.
        */
       AdvancedNumeric additiveMaskBuilder = builder.advancedNumeric();
-      DRes<RandomAdditiveMask> mask = additiveMaskBuilder.additiveMask(bitLength);
+      DRes<RandomAdditiveMask> mask = additiveMaskBuilder.additiveMask(sequential.getBasicNumericContext().getMaxBitLength());
       return mask;
     }).seq((parSubSequential, randomAdditiveMask) -> {
       DRes<SInt> result = parSubSequential.numeric().add(input, () -> randomAdditiveMask.random);
