@@ -100,7 +100,6 @@ public abstract class AbstractSpdzTest {
               () -> createResourcePool(playerId, noOfParties, new Random(),
                   new SecureRandom(), preProStrat),
               () -> {
-                //Network network = new KryoNetNetwork(netConf.get(playerId));
                 Network network = new AsyncNetwork(netConf.get(playerId));
                 if (logPerformance) {
                   network = new NetworkLoggingDecorator(network);

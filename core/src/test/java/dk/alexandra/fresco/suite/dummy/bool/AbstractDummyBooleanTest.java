@@ -105,7 +105,6 @@ public abstract class AbstractDummyBooleanTest {
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new ResourcePoolImpl(playerId, noOfParties, drbg), () -> {
             Network network;
-            //network = new KryoNetNetwork(partyNetConf);
             network = new AsyncNetwork(partyNetConf);
             if (logPerformance) {
               network = new NetworkLoggingDecorator(network);

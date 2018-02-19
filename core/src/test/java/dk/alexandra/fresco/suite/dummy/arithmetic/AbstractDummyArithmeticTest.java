@@ -101,14 +101,13 @@ public abstract class AbstractDummyArithmeticTest {
               () -> new DummyArithmeticResourcePoolImpl(playerId,
                   noOfParties, drbg, mod),
               () -> {
-                //Network kryoNetwork = new KryoNetNetwork(partyNetConf);
-                Network kryoNetwork = new AsyncNetwork(partyNetConf);
+                Network asyncNetwork = new AsyncNetwork(partyNetConf);
                 if (logPerformance) {
-                  NetworkLoggingDecorator network = new NetworkLoggingDecorator(kryoNetwork);
+                  NetworkLoggingDecorator network = new NetworkLoggingDecorator(asyncNetwork);
                   aggregate.add(network);
                   return network;
                 } else {
-                  return kryoNetwork;
+                  return asyncNetwork;
                 }
               });
 
