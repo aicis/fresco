@@ -63,7 +63,7 @@ public class MarlinMacCheckComputation<T extends BigUInt<T>> implements
           List<T> pjList = serializer.deserializeList(broadcastPjs);
           T pLow = BigUInt.sum(
               pjList.stream().map(BigUInt::getLowAsUInt).collect(Collectors.toList()));
-          T p = factory.createFromLong(pLow.getLow());
+          T p = factory.createFromLow(pLow);
           List<T> macShares = authenticatedElements.stream()
               .map(MarlinSInt::getMacShare)
               .collect(Collectors.toList());

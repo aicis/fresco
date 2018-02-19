@@ -19,6 +19,11 @@ public class UInt128Factory implements BigUIntFactory<UInt128> {
   }
 
   @Override
+  public UInt128 createFromLow(UInt128 value) {
+    return null;
+  }
+
+  @Override
   public UInt128 createRandom() {
     byte[] bytes = new byte[16];
     this.random.nextBytes(bytes);

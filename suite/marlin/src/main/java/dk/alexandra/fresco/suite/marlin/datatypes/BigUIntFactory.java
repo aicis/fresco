@@ -15,6 +15,8 @@ public interface BigUIntFactory<T extends BigUInt<T>> {
    */
   T createFromBytes(byte[] bytes);
 
+  T createFromLow(T value);
+
   /**
    * Creates new {@link T} from a {@link BigInteger}.
    */
@@ -31,7 +33,7 @@ public interface BigUIntFactory<T extends BigUInt<T>> {
    * Creates element whose value is zero.
    */
   default T zero() {
-    return createFromBytes(new byte[getOperationalBitLength() / 8]);
+    return createFromBytes(new byte[getOperationalBitLength() / Byte.SIZE]);
   }
 
   /**

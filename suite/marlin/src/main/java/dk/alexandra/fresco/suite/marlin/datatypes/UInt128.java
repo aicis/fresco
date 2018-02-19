@@ -143,8 +143,7 @@ public class UInt128 implements BigUInt<UInt128> {
     return null;
   }
 
-  @Override
-  public long getLow() {
+  private long getLow() {
     return (Integer.toUnsignedLong(this.mid) << 32) + Integer.toUnsignedLong(this.low);
   }
 

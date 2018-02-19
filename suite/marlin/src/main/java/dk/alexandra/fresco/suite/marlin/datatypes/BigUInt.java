@@ -61,8 +61,6 @@ public interface BigUInt<T extends BigUInt> {
 
   // TODO hack hack hack
 
-  long getLow();
-
   /**
    * Compute sum of elements.
    */

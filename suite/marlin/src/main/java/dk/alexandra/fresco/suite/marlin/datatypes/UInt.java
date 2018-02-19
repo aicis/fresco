@@ -12,8 +12,12 @@ public class UInt implements BigUInt<UInt> {
 
   private final int[] ints;
 
-  public UInt(final int[] chunks) {
-    this.ints = chunks;
+  public UInt(final int[] ints) {
+    this.ints = ints;
+  }
+
+  public UInt(UInt other, int requiredBitLength) {
+    this(pad(other.ints, requiredBitLength));
   }
 
   public UInt(byte[] bytes, int requiredBitLength) {
@@ -124,8 +128,7 @@ public class UInt implements BigUInt<UInt> {
     return getSubRange(2, 4);
   }
 
-  @Override
-  public long getLow() {
+  private long getLow() {
     return (toULong(ints[ints.length - 2]) << 32) + toULong(ints[ints.length - 1]);
   }
 
@@ -164,7 +167,7 @@ public class UInt implements BigUInt<UInt> {
   }
 
   private static byte[] pad(byte[] bytes, int requiredBitLength) {
-    byte[] padded = new byte[requiredBitLength / 8];
+    byte[] padded = new byte[requiredBitLength / Byte.SIZE];
     // potentially drop byte containing sign bit
     boolean dropSignBitByte = (bytes[0] == 0x00);
     int bytesLength = dropSignBitByte ? bytes.length - 1 : bytes.length;
@@ -173,6 +176,14 @@ public class UInt implements BigUInt<UInt> {
     }
     int srcPos = dropSignBitByte ? 1 : 0;
     System.arraycopy(bytes, srcPos, padded, padded.length - bytesLength, bytesLength);
+    return padded;
+  }
+
+  private static int[] pad(int[] ints, int requiredBitLength) {
+    int byteLength = requiredBitLength / Integer.SIZE;
+    int[] padded = new int[byteLength];
+    // assuming ints is shorter than required length
+    System.arraycopy(ints, 0, padded, byteLength - ints.length, ints.length);
     return padded;
   }
 
