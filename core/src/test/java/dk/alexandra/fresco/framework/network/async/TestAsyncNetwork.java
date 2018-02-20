@@ -3,7 +3,6 @@ package dk.alexandra.fresco.framework.network.async;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
 
-import ch.qos.logback.classic.Logger;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
@@ -286,7 +285,6 @@ public class TestAsyncNetwork {
   @SuppressWarnings("resource")
   @Test(expected = RuntimeException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
   public void testConnectTimeout() {
-
     List<NetworkConfiguration> confs = getNetConfs(2);
     // This should time out waiting for a connection to a party that is not listening
     new AsyncNetwork(confs.get(0), Duration.ofMillis(10));

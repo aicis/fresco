@@ -7,5 +7,4 @@ import java.io.Closeable;
  */
 public interface CloseableNetwork extends Network, Closeable {
 
-
 }

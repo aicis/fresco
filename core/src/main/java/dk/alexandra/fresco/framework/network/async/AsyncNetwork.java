@@ -113,13 +113,13 @@ public class AsyncNetwork implements CloseableNetwork {
         }
       }
     } catch (InterruptedException e) {
-      close();
+      teardown();
       throw new RuntimeException("Interrupted while connecting network", e);
     } catch (ExecutionException e) {
-      close();
+      teardown();
       throw new RuntimeException("Failed to connect network", e.getCause());
     } catch (TimeoutException e) {
-      close();
+      teardown();
       throw new RuntimeException("Timed out connecting network", e);
     } finally {
       es.shutdownNow();
@@ -199,7 +199,7 @@ public class AsyncNetwork implements CloseableNetwork {
    * Starts communication threads to handle incoming and outgoing messages.
    */
   private void startCommunication() {
-    int externalParties = getNoOfParties() - 1;
+    int externalParties = conf.noOfParties() - 1;
     this.communicationService = Executors.newFixedThreadPool(externalParties * 2);
     for (Entry<Integer, SocketChannel> entry : this.channelMap.entrySet()) {
       final int id = entry.getKey();
@@ -209,6 +209,9 @@ public class AsyncNetwork implements CloseableNetwork {
     }
   }
 
+  /**
+   * Implements the receiver receiving a single message and starting a new receiver.
+   */
   private class Receiver implements Callable<Object> {
 
     private final SocketChannel channel;
@@ -236,6 +239,9 @@ public class AsyncNetwork implements CloseableNetwork {
 
   }
 
+  /**
+   * Implements the sender sending a single message and starting a new sender.
+   */
   private class Sender implements Callable<Object> {
 
     private final SocketChannel channel;
@@ -261,10 +267,6 @@ public class AsyncNetwork implements CloseableNetwork {
     }
 
   }
-
-
-
-  //
 
   @Override
   public void send(int partyId, byte[] data) {
@@ -302,26 +304,34 @@ public class AsyncNetwork implements CloseableNetwork {
     }
   }
 
+  private void teardown() {
+    if (conf.noOfParties() < 2) {
+      logger.info("P{}: Network closed", conf.getMyId());
+      return;
+    }
+    ExceptionConverter.safe(() -> {
+      if (this.communicationService != null) {
+        this.communicationService.shutdownNow();
+      }
+      if (this.server != null) {
+        this.server.close();
+      }
+      if (this.channelMap != null) {
+        for (SocketChannel channel : this.channelMap.values()) {
+          channel.close();
+        }
+      }
+      return null;
+    }, "Unable to properly close the network.");
+    logger.info("P{}: Network closed", conf.getMyId());
+  }
+
   /**
    * Closes the network down and releases held resources.
    */
   @Override
   public void close() {
-    if (getNoOfParties() < 2) {
-      logger.info("P{}: Network closed", conf.getMyId());
-      return;
-    }
-    ExceptionConverter.safe(() -> {
-      this.communicationService.shutdownNow();
-      if (this.server != null) {
-        this.server.close();
-      }
-      for (SocketChannel channel : this.channelMap.values()) {
-        channel.close();
-      }
-      return null;
-    }, "Unable to properly close the network.");
-    logger.info("P{}: Network closed", conf.getMyId());
+    teardown();
   }
 
   @Override
