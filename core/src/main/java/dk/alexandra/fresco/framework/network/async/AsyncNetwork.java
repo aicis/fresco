@@ -316,10 +316,8 @@ public class AsyncNetwork implements CloseableNetwork {
       if (this.server != null) {
         this.server.close();
       }
-      if (this.channelMap != null) {
-        for (SocketChannel channel : this.channelMap.values()) {
-          channel.close();
-        }
+      for (SocketChannel channel : this.channelMap.values()) {
+        channel.close();
       }
       return null;
     }, "Unable to properly close the network.");
