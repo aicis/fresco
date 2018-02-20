@@ -94,8 +94,6 @@ public class AsyncNetwork implements CloseableNetwork {
    * @param timeout duration to wait until timeout
    */
   private void connectNetwork(NetworkConfiguration conf, Duration timeout) {
-    int externalParties = getNoOfParties() - 1;
-    this.communicationService = Executors.newFixedThreadPool(externalParties * 2);
     ExecutorService es = Executors.newFixedThreadPool(2);
     CompletionService<Map<Integer, SocketChannel>> cs = new ExecutorCompletionService<>(es);
     cs.submit(() -> {
@@ -129,9 +127,80 @@ public class AsyncNetwork implements CloseableNetwork {
   }
 
   /**
+   * Makes connections to the opposing parties with higher id's.
+   *
+   * @throws InterruptedException thrown if interrupted while waiting to do a connection attempt
+   */
+  private Map<Integer, SocketChannel> connectClient() throws InterruptedException {
+    Map<Integer, SocketChannel> channelMap = new HashMap<>(conf.noOfParties() - conf.getMyId());
+    for (int i = conf.getMyId() + 1; i <= conf.noOfParties(); i++) {
+      Party p = conf.getParty(i);
+      SocketAddress addr = new InetSocketAddress(p.getHostname(), p.getPort());
+      boolean connectionMade = false;
+      int attempts = 0;
+      while (!connectionMade) {
+        try {
+          SocketChannel channel = SocketChannel.open();
+          channel.connect(addr);
+          channel.configureBlocking(true);
+          this.channelMap.put(i, channel);
+          ByteBuffer b = ByteBuffer.allocate(1);
+          b.put((byte) conf.getMyId());
+          b.position(0);
+          channel.write(b);
+          connectionMade = true;
+          channelMap.put(i, channel);
+          logger.info("P{} connected to {}", conf.getMyId(), p);
+        } catch (IOException e) {
+          Thread.sleep(1 << ++attempts);
+        }
+      }
+    }
+    return channelMap;
+  }
+
+  /**
+   * Binds the server to the port of this party.
+   */
+  private void bindServer() {
+    SocketAddress sock = new InetSocketAddress(conf.getMe().getPort());
+    try {
+      this.server = ServerSocketChannel.open();
+      this.server.bind(sock);
+      logger.info("P{} bound at {}", conf.getMyId(), sock);
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to bind to " + sock, e);
+    }
+  }
+
+  /**
+   * Listens for connections from the opposing parties with lower id's.
+   *
+   * @throws IOException thrown if an {@link IOException} occurs while listening.
+   */
+  private Map<Integer, SocketChannel> connectServer() throws IOException {
+    Map<Integer, SocketChannel> channelMap = new HashMap<>(conf.getMyId() - 1);
+    for (int i = 1; i < conf.getMyId(); i++) {
+      SocketChannel channel = server.accept();
+      channel.configureBlocking(true);
+      ByteBuffer buf = ByteBuffer.allocate(1);
+      channel.read(buf);
+      buf.position(0);
+      final int id = buf.get();
+      this.channelMap.put(id, channel);
+      logger.info("P{} accepted connection from {}", conf.getMyId(), conf.getParty(id));
+      channelMap.put(id, channel);
+    }
+    server.close();
+    return channelMap;
+  }
+
+  /**
    * Starts communication threads to handle incoming and outgoing messages.
    */
   private void startCommunication() {
+    int externalParties = getNoOfParties() - 1;
+    this.communicationService = Executors.newFixedThreadPool(externalParties * 2);
     for (Entry<Integer, SocketChannel> entry : this.channelMap.entrySet()) {
       final int id = entry.getKey();
       SocketChannel channel = entry.getValue();
@@ -160,7 +229,7 @@ public class AsyncNetwork implements CloseableNetwork {
       while (buf.remaining() > 0) {
         channel.read(buf);
       }
-      queue.add(buf.array());
+      queue.offer(buf.array());
       receiveFuture = communicationService.submit(new Receiver(channel, queue));
       return null;
     }
@@ -193,102 +262,30 @@ public class AsyncNetwork implements CloseableNetwork {
 
   }
 
-  /**
-   * Makes connections to the opposing parties.
-   * <p>
-   * The resulting connections will be used to send messages.
-   * </p>
-   *
-   * @throws InterruptedException thrown if interrupted while waiting to do a connection attempt
-   */
-  private Map<Integer, SocketChannel> connectClient() throws InterruptedException {
-    Map<Integer, SocketChannel> channelMap = new HashMap<>(conf.noOfParties() - conf.getMyId());
-    for (int i = conf.getMyId() + 1; i <= conf.noOfParties(); i++) {
-      Party p = conf.getParty(i);
-      SocketAddress addr = new InetSocketAddress(p.getHostname(), p.getPort());
-      boolean connectionMade = false;
-      int attempts = 0;
-      while (!connectionMade) {
-        try {
-          SocketChannel channel = SocketChannel.open();
-          channel.connect(addr);
-          channel.configureBlocking(true);
-          this.channelMap.put(i, channel);
-          ByteBuffer b = ByteBuffer.allocate(1);
-          b.put((byte) conf.getMyId());
-          b.position(0);
-          channel.write(b);
-          connectionMade = true;
-          channelMap.put(i, channel);
-          logger.info("P{} connected to {}", conf.getMyId(), p);
-        } catch (IOException e) {
-          Thread.sleep(1 << ++attempts);
-        }
-      }
-    }
-    return channelMap;
-  }
 
-
-  /**
-   * Listens for connections from the opposing parties.
-   * <p>
-   * The resulting connections will be used to receive messages.
-   * </p>
-   *
-   * @throws IOException thrown if an {@link IOException} occurs while listening.
-   */
-  private Map<Integer, SocketChannel> connectServer() throws IOException {
-    Map<Integer, SocketChannel> channelMap = new HashMap<>(conf.getMyId() - 1);
-    for (int i = 1; i < conf.getMyId(); i++) {
-      SocketChannel channel = server.accept();
-      channel.configureBlocking(true);
-      ByteBuffer buf = ByteBuffer.allocate(1);
-      channel.read(buf);
-      buf.position(0);
-      final int id = buf.get();
-      this.channelMap.put(id, channel);
-      logger.info("P{} accepted connection from {}", conf.getMyId(), conf.getParty(id));
-      channelMap.put(id, channel);
-    }
-    server.close();
-    return channelMap;
-  }
 
   //
-
-  /**
-   * Binds the server to the port of this party.
-   */
-  private void bindServer() {
-    SocketAddress sock = new InetSocketAddress(conf.getMe().getPort());
-    try {
-      this.server = ServerSocketChannel.open();
-      this.server.bind(sock);
-      logger.info("P{} bound at {}", conf.getMyId(), sock);
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to bind to " + sock, e);
-    }
-  }
 
   @Override
   public void send(int partyId, byte[] data) {
     inRange(partyId);
-    if (conf.noOfParties() != 1 && sendFuture.isDone()) {
-      ExceptionConverter.safe(() -> sendFuture.get(), "A previous send operation failed");
+    Future<?> temp = sendFuture;
+    if (conf.noOfParties() != 1 && temp.isDone()) {
+      ExceptionConverter.safe(() -> temp.get(), "A previous send operation failed");
     }
     if (partyId == conf.getMyId()) {
       this.inQueues.get(partyId).add(data);
     } else {
-      this.outQueues.get(partyId).add(data);
+      this.outQueues.get(partyId).offer(data);
     }
   }
 
   @Override
   public byte[] receive(int partyId) {
     inRange(partyId);
-    if (conf.noOfParties() != 1 && receiveFuture.isDone()) {
-      ExceptionConverter.safe(() -> receiveFuture.get(), "A previous receive operation failed");
+    Future<?> temp = receiveFuture;
+    if (conf.noOfParties() != 1 && temp.isDone()) {
+      ExceptionConverter.safe(() -> temp.get(), "A previous receive operation failed");
     }
     return ExceptionConverter.safe(() -> this.inQueues.get(partyId).take(), "Receive interrupted");
   }

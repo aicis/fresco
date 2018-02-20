@@ -159,9 +159,7 @@ public class TestAsyncNetwork {
             final byte[] data = new byte[1024];
             byte[] receivedData;
             for (int j = 0; j < numMessages; j++) {
-              System.out.println("Receiving message " + j + " from " + k);
               receivedData = networks.get(id).receive(k);
-              System.out.println("Received message " + j + " from " + k);
               r.nextBytes(data);
               assertArrayEquals(data, receivedData);
             }
@@ -222,7 +220,6 @@ public class TestAsyncNetwork {
     } catch (InterruptedException e) {
       fail("No interruption should occur");
     }
-
   }
 
   @Test(expected = IllegalArgumentException.class)
