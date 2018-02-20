@@ -48,4 +48,13 @@ public interface AdvancedRealNumeric extends ComputationDirectory {
    */
   DRes<SReal> random();
 
+  /**
+   * Calculate the natural logarithm of a secret value. Works best for small inputs (< 40), so
+   * larger inputs should be scaled (utilize that log(x * b<sup>e</sup>) = log(x) + e log(b)).
+   * 
+   * @param x
+   * @return
+   */
+  DRes<SReal> log(DRes<SReal> x);
+
 }

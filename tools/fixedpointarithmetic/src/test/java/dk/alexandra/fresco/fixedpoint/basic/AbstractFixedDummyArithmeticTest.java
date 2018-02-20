@@ -117,5 +117,10 @@ public class AbstractFixedDummyArithmeticTest extends AbstractDummyArithmeticTes
   public void test_leq() throws Exception {
     runTest(new BasicFixedPointTests.TestLeq<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
+  
+  @Test
+  public void test_log() throws Exception {
+    runTest(new MathTests.TestLog<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
 
 }

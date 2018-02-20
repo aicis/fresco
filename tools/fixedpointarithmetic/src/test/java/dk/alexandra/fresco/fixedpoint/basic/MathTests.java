@@ -16,6 +16,7 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.Assert;
 
 public class MathTests {
@@ -92,4 +93,46 @@ public class MathTests {
       };
     }
   }
+
+  public static class TestLog<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      List<BigDecimal> openInputs = Stream.of(1.223, 5.59703, 0.2, 40.1, 6.9, 0.07, 0.12198)
+          .map(BigDecimal::valueOf).collect(Collectors.toList());
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<List<BigDecimal>, ProtocolBuilderNumeric> app = producer -> {
+            RealNumeric numeric = new FixedNumeric(producer);
+
+            List<DRes<SReal>> closed1 =
+                openInputs.stream().map(numeric.numeric()::known).collect(Collectors.toList());
+
+            List<DRes<SReal>> result = new ArrayList<>();
+            for (DRes<SReal> inputX : closed1) {
+              result.add(numeric.advanced().log(inputX));
+            }
+
+            List<DRes<BigDecimal>> opened =
+                result.stream().map(numeric.numeric()::open).collect(Collectors.toList());
+            return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
+          };
+          List<BigDecimal> output = runApplication(app);
+
+          for (BigDecimal openOutput : output) {
+            int idx = output.indexOf(openOutput);
+
+            BigDecimal a = openInputs.get(idx);
+            System.out.println(a);
+            Assert.assertTrue(
+                TestUtils.isEqual(new BigDecimal(Math.log(a.doubleValue())), openOutput));
+          }
+        }
+      };
+    }
+  }
+
 }

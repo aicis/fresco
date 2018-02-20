@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric {
 
@@ -103,7 +104,7 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
       }
       return () -> powers;
     }).par((par, powers) -> {
-      
+
       /*
        * We approximate the exponential function by calculating the first terms of the Taylor
        * expansion. By letting all terms in the series have common denominator, we only need to do
@@ -144,6 +145,44 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
       BigInteger divisor = BigInteger.ONE.shiftLeft(DEFAULT_RANDOM_BITS);
       return numeric.numeric().div(numeric.numeric().fromSInt(randomInteger),
           new BigDecimal(divisor));
+    });
+  }
+
+  @Override
+  public DRes<SReal> log(DRes<SReal> x) {
+    int numberOfTerms = 16;
+
+    /*
+     * The logarithm is calculated as the Taylor expansion based on the identity log(x) = 2
+     * artanh((x-1)/(x+1)). See https://en.wikipedia.org/wiki/Logarithm#Power_series.
+     * 
+     * It works okay for small inputs (< 40), but the convergence rate is too slow for larger inputs
+     * to get precise results.
+     */
+
+    return builder.seq(seq -> {
+      RealNumeric numeric = provider.apply(seq);
+      DRes<SReal> y = numeric.numeric().div(numeric.numeric().sub(x, BigDecimal.ONE),
+          numeric.numeric().add(BigDecimal.ONE, x));
+      DRes<SReal> ySquared = numeric.numeric().mult(y, y);
+
+      List<DRes<SReal>> powers = new ArrayList<>(numberOfTerms);
+      powers.add(y);
+      DRes<SReal> currentPower = y;
+      for (int i = 1; i < numberOfTerms; i++) {
+        currentPower = numeric.numeric().mult(currentPower, ySquared);
+        powers.add(currentPower);
+      }
+      return () -> powers;
+    }).par((par, powers) -> {
+      RealNumeric numeric = provider.apply(par);
+      List<DRes<SReal>> terms = powers.stream()
+          .map(e -> numeric.numeric().mult(new BigDecimal(1.0 / (2 * powers.indexOf(e) + 1)), e))
+          .collect(Collectors.toList());
+      return () -> terms;
+    }).seq((seq, terms) -> {
+      RealNumeric numeric = provider.apply(seq);
+      return numeric.numeric().mult(BigDecimal.valueOf(2.0), numeric.advanced().sum(terms));
     });
   }
 
