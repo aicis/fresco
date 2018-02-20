@@ -12,6 +12,7 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,8 +64,10 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
         comm = new MaliciousSpdzCommitProtocol(commitment, comms, corruptCommitRound1);
         openComm = new MaliciousSpdzOpenCommitProtocol(commitment, comms, commitments,
             corruptOpenCommitRound1);
-        pp = new SequentialProtocolProducer(new SingleProtocolProducer<>(comm),
-            new SingleProtocolProducer<>(openComm));
+        pp = new SequentialProtocolProducer(
+            Arrays.asList(
+                new SingleProtocolProducer<>(comm),
+                new SingleProtocolProducer<>(openComm)));
       } else if (round == 1) {
         if (!comm.out()) {
           throw new MaliciousException(
@@ -115,8 +118,10 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
         commitments = new HashMap<>();
         openComm = new MaliciousSpdzOpenCommitProtocol(commitment, comms, commitments,
             corruptOpenCommitRound2);
-        pp = new SequentialProtocolProducer(new SingleProtocolProducer<>(comm),
-            new SingleProtocolProducer<>(openComm));
+        pp = new SequentialProtocolProducer(
+            Arrays.asList(
+                new SingleProtocolProducer<>(comm),
+                new SingleProtocolProducer<>(openComm)));
       } else {
         if (!comm.out()) {
           throw new MaliciousException(
@@ -138,10 +143,10 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
         // clean up store before returning to evaluating such that we only
         // evaluate the next macs, not those we already checked.
         this.storage.reset();
-        pp = new SequentialProtocolProducer();
+        pp = null;
       }
     }
-    if (pp.hasNextProtocols()) {
+    if (pp != null && pp.hasNextProtocols()) {
       pp.getNextProtocols(protocolCollection);
     } else {
       round++;
