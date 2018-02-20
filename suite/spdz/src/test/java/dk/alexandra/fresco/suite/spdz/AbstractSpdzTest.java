@@ -12,6 +12,7 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.async.AsyncNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
@@ -116,13 +117,13 @@ public abstract class AbstractSpdzTest {
               () -> createResourcePool(playerId, noOfParties, preProStrat, otManager, tripleManager,
                   expPipeManager),
               () -> {
-                KryoNetNetwork kryoNetwork = new KryoNetNetwork(netConf.get(playerId));
+                Network network = new AsyncNetwork(netConf.get(playerId));
                 if (logPerformance) {
-                  NetworkLoggingDecorator network = new NetworkLoggingDecorator(kryoNetwork);
-                  aggregate.add(network);
+                  network = new NetworkLoggingDecorator(network);
+                  aggregate.add((NetworkLoggingDecorator)network);
                   return network;
                 } else {
-                  return kryoNetwork;
+                  return network;
                 }
               });
       conf.put(playerId, ttc);
