@@ -1,10 +1,9 @@
 package dk.alexandra.fresco.decimal;
 
-import java.math.BigDecimal;
-
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.math.BigDecimal;
 
 /**
  * Basic interface for fixed point numeric applications.
@@ -130,4 +129,13 @@ public interface BasicRealNumeric extends ComputationDirectory {
    */
   DRes<BigDecimal> open(DRes<SReal> secretShare, int outputParty);
 
+  /**
+   * Compare two secret values. Returns a secret int that is 1 if x \leq y and 0 otherwise.
+   *
+   * @param x Secret value 1
+   * @param y Secret value 2
+   * @return A secret int that is 1 if x \leq y and 0 otherwise.
+   */
+  DRes<SInt> leq(DRes<SReal> x, DRes<SReal> y);
+  
 }

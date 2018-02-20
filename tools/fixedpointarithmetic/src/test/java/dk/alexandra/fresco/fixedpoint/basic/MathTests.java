@@ -3,17 +3,15 @@ package dk.alexandra.fresco.fixedpoint.basic;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.decimal.RealNumeric;
-import dk.alexandra.fresco.decimal.RealNumericProvider;
 import dk.alexandra.fresco.decimal.SReal;
+import dk.alexandra.fresco.decimal.fixed.FixedNumeric;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,12 +22,6 @@ public class MathTests {
 
   public static class TestExp<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
-
-    private RealNumericProvider provider;
-
-    public TestExp(RealNumericProvider provider) {
-      this.provider = provider;
-    }
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -45,7 +37,7 @@ public class MathTests {
           // functionality to be tested
           Application<BigDecimal, ProtocolBuilderNumeric> testApplication = root -> {
             // close inputs
-            RealNumeric fixed = provider.apply(root);
+            RealNumeric fixed = new FixedNumeric(root);
             DRes<SReal> secret = fixed.numeric().input(input, 1);
             DRes<SReal> result = fixed.advanced().exp(secret);
             return fixed.numeric().open(result);
@@ -58,48 +50,8 @@ public class MathTests {
     }
   }
 
-  public static class TestLeq<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
-
-    private RealNumericProvider provider;
-
-    public TestLeq(RealNumericProvider provider) {
-      this.provider = provider;
-    }
-
-    @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-
-      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-        @Override
-        public void test() throws Exception {
-          BigDecimal x = BigDecimal.valueOf(1.010100001);
-          BigDecimal y = BigDecimal.valueOf(1.011);
-
-          // functionality to be tested
-          Application<BigInteger, ProtocolBuilderNumeric> testApplication = root -> {
-            // close inputs
-            RealNumeric fixed = provider.apply(root);
-            DRes<SReal> secret1 = fixed.numeric().input(x, 1);
-            DRes<SReal> secret2 = fixed.numeric().input(y, 2);
-            DRes<SInt> result = fixed.advanced().leq(secret1, secret2);
-            return root.numeric().open(result);
-          };
-          BigInteger output = runApplication(testApplication);
-          Assert.assertTrue(output.equals(BigInteger.ONE));
-        }
-      };
-    }
-  }
-
   public static class TestRandom<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
-
-    private RealNumericProvider provider;
-
-    public TestRandom(RealNumericProvider provider) {
-      this.provider = provider;
-    }
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -108,7 +60,7 @@ public class MathTests {
         public void test() throws Exception {
           Application<List<BigDecimal>, ProtocolBuilderNumeric> app =
               producer -> producer.seq(seq -> {
-                RealNumeric fixed = provider.apply(seq);
+                RealNumeric fixed = new FixedNumeric(seq);
 
                 List<DRes<SReal>> result = new ArrayList<>();
                 for (int i = 0; i < 100; i++) {
@@ -132,6 +84,7 @@ public class MathTests {
             if (random.compareTo(max) == 1) {
               max = random;
             }
+            System.out.println(random);
             assertTrue(BigDecimal.ONE.compareTo(random) >= 0);
             assertTrue(BigDecimal.ZERO.compareTo(random) <= 0);
           }

@@ -3,6 +3,7 @@ package dk.alexandra.fresco.decimal;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RandomAdditiveMask;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -14,16 +15,13 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
   private final ProtocolBuilderNumeric builder;
   private final RealNumericProvider provider;
 
-  private static final int DEFAULT_RANDOM_PRECISION = 10;
+  private static final int DEFAULT_RANDOM_BITS = 32;
 
   protected DefaultAdvancedRealNumeric(ProtocolBuilderNumeric builder,
       RealNumericProvider provider) {
     this.builder = builder;
     this.provider = provider;
   }
-
-  @Override
-  public abstract DRes<SInt> leq(DRes<SReal> x, DRes<SReal> y);
 
   @Override
   public DRes<SReal> sum(List<DRes<SReal>> input) {
@@ -52,7 +50,6 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
   @Override
   public DRes<SReal> innerProduct(List<DRes<SReal>> a, List<DRes<SReal>> b) {
     return builder.par(par -> {
-
       if (a.size() != b.size()) {
         throw new IllegalArgumentException("Vectors must have same size");
       }
@@ -62,6 +59,7 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
       for (int i = 0; i < a.size(); i++) {
         products.add(fixed.numeric().mult(a.get(i), b.get(i)));
       }
+
       return () -> products;
     }).seq((seq, list) -> {
       RealNumeric fixed = provider.apply(seq);
@@ -72,15 +70,16 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
   @Override
   public DRes<SReal> innerProductWithPublicPart(List<BigDecimal> a, List<DRes<SReal>> b) {
     return builder.par(r1 -> {
-      RealNumeric fixed = provider.apply(r1);
       if (a.size() != b.size()) {
         throw new IllegalArgumentException("Vectors must have same size");
       }
 
+      RealNumeric fixed = provider.apply(r1);
       List<DRes<SReal>> products = new ArrayList<>(a.size());
       for (int i = 0; i < a.size(); i++) {
         products.add(fixed.numeric().mult(a.get(i), b.get(i)));
       }
+
       return () -> products;
     }).seq((seq, list) -> {
       RealNumeric fixed = provider.apply(seq);
@@ -91,7 +90,20 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
   @Override
   public DRes<SReal> exp(DRes<SReal> x) {
 
+    int numberOfTerms = 16;
     return builder.seq(seq -> {
+      List<DRes<SReal>> powers = new ArrayList<>(numberOfTerms - 1);
+
+      powers.add(x);
+      DRes<SReal> pow = x;
+      RealNumeric fixed = provider.apply(seq);
+      for (int i = 1; i < numberOfTerms - 1; i++) {
+        pow = fixed.numeric().mult(pow, x);
+        powers.add(pow);
+      }
+      return () -> powers;
+    }).par((par, powers) -> {
+      
       /*
        * We approximate the exponential function by calculating the first terms of the Taylor
        * expansion. By letting all terms in the series have common denominator, we only need to do
@@ -102,50 +114,36 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
        * calculate many more terms, since the error after n terms is approx 1/(n+1)! x^{n+1}), and
        * this would cause the function to be very inefficient. Maybe we should allow the app
        * developer to specify an upper bound on the input?
-       * 
-       * TODO: The multiplications can be done in parallel if all powers are calculated first.
        */
 
-      int terms = 12;
-      BigDecimal[] coefficients = new BigDecimal[terms];
       BigInteger n = BigInteger.ONE;
-      coefficients[terms - 1] = new BigDecimal(n);
-      for (int i = terms - 1; i >= 1; i--) {
+      List<DRes<SReal>> terms = new ArrayList<>(numberOfTerms);
+      RealNumeric fixed = provider.apply(par);
+      for (int i = numberOfTerms - 1; i >= 1; i--) {
+        terms.add(fixed.numeric().mult(new BigDecimal(n), powers.get(i - 1)));
         n = n.multiply(BigInteger.valueOf(i));
-        coefficients[i - 1] = new BigDecimal(n);
       }
-
+      final BigDecimal divisor = new BigDecimal(n);
+      terms.add(fixed.numeric().known(divisor));
+      return () -> new Pair<>(terms, divisor);
+    }).seq((seq, termsAndDivisor) -> {
       RealNumeric fixed = provider.apply(seq);
-      DRes<SReal> pow = x;
-      DRes<SReal> sum = fixed.numeric().known(coefficients[0]);
-      for (int i = 1; i < terms; i++) {
-        sum = fixed.numeric().add(sum, fixed.numeric().mult(coefficients[i], pow));
-        if (i <= terms - 2) {
-          pow = fixed.numeric().mult(pow, x);
-        }
-      }
-      return fixed.numeric().div(sum, coefficients[0]);
+      return fixed.numeric().div(fixed.advanced().sum(termsAndDivisor.getFirst()),
+          termsAndDivisor.getSecond());
     });
   }
 
   @Override
   public DRes<SReal> random() {
-    int scaleSize =
-        (int) Math.ceil((Math.log(Math.pow(10, DEFAULT_RANDOM_PRECISION)) / (Math.log(2))));
-
     return builder.seq(seq -> {
-      DRes<RandomAdditiveMask> random = seq.advancedNumeric().additiveMask(scaleSize);
+      DRes<RandomAdditiveMask> random = seq.advancedNumeric().additiveMask(DEFAULT_RANDOM_BITS);
       return random;
     }).seq((seq, random) -> {
-
       RealNumeric numeric = provider.apply(seq);
-
-      DRes<SInt> rand = random.random;
-      BigInteger divi = BigInteger.valueOf(2).pow(scaleSize);
-      DRes<SInt> r2 = seq.numeric().mult(BigInteger.TEN.pow(DEFAULT_RANDOM_PRECISION), rand);
-      DRes<SInt> result = seq.advancedNumeric().div(r2, divi);
-
-      return numeric.numeric().div(numeric.numeric().fromSInt(result), new BigDecimal(divi));
+      DRes<SInt> randomInteger = random.random;
+      BigInteger divisor = BigInteger.ONE.shiftLeft(DEFAULT_RANDOM_BITS);
+      return numeric.numeric().div(numeric.numeric().fromSInt(randomInteger),
+          new BigDecimal(divisor));
     });
   }
 

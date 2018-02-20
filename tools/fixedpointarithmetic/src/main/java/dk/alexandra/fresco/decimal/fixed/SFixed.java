@@ -5,27 +5,32 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.value.SInt;
 
 /**
- * Closed datatype for representing fixed point numbers, e.g. represent a fraction <i>x</i> as <i>n
- * 10<sub>e</sub></i> where <i>n</i> is an {@link SInt} and <i>e > 0</i> is a fixed precision.
+ * Closed datatype for representing fixed point numbers, e.g. represent a fraction <i>x</i> as <i>n x
+ * b<sup>e</sup></i> where <i>n</i> is an {@link SInt}, <i>e &ge; 0</i> is a precision (avaialble
+ * via {@link #getScale()}) that may vary from value to value and <i>b</i> is the base (either 2 or 10).
  * 
  * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  *
  */
 public class SFixed implements SReal, DRes<SReal> {
-
   private final DRes<SInt> value;
+  private int scale;
 
-  public SFixed(DRes<SInt> value) {
+  public SFixed(DRes<SInt> value, int scale) {
     this.value = value;
+    this.scale = scale;
   }
 
   DRes<SInt> getSInt() {
     return value;
   }
 
+  int getScale() {
+    return scale;
+  }
+
   @Override
   public SFixed out() {
     return this;
   }
-
 }

@@ -23,56 +23,53 @@ public abstract class DefaultLinearAlgebra implements LinearAlgebra {
   @Override
   public DRes<Matrix<DRes<SReal>>> input(Matrix<BigDecimal> a, int inputParty) {
     return builder.par(par -> {
-      ArrayList<ArrayList<DRes<SReal>>> rows = new ArrayList<>(a.getHeight());
-      BasicRealNumeric fixed = provider.apply(par).numeric();
-      for (ArrayList<BigDecimal> row : a.getRows()) {
-        rows.add(new ArrayList<>(
-            row.stream().map(e -> fixed.input(e, inputParty)).collect(Collectors.toList())));
-      }
-      return () -> new Matrix<>(a.getHeight(), a.getWidth(), rows);
+      RealNumeric numeric = provider.apply(par);
+      Matrix<DRes<SReal>> matrix =
+          new Matrix<>(a.getHeight(), a.getWidth(), i -> new ArrayList<>(a.getRow(i).stream()
+              .map(e -> numeric.numeric().input(e, inputParty)).collect(Collectors.toList())));
+      return () -> matrix;
     });
   }
 
   @Override
   public DRes<Matrix<DRes<BigDecimal>>> open(DRes<Matrix<DRes<SReal>>> a) {
     return builder.par(par -> {
-      ArrayList<ArrayList<DRes<BigDecimal>>> rows = new ArrayList<>(a.out().getHeight());
-      BasicRealNumeric fixed = provider.apply(par).numeric();
-      for (ArrayList<DRes<SReal>> row : a.out().getRows()) {
-        rows.add(
-            new ArrayList<>(row.stream().map(e -> fixed.open(e)).collect(Collectors.toList())));
-      }
-      return () -> new Matrix<>(a.out().getHeight(), a.out().getWidth(), rows);
+      RealNumeric numeric = provider.apply(par);
+      Matrix<DRes<BigDecimal>> matrix = new Matrix<>(a.out().getHeight(), a.out().getWidth(),
+          i -> new ArrayList<>(a.out().getRow(i).stream().map(e -> numeric.numeric().open(e))
+              .collect(Collectors.toList())));
+      return () -> matrix;
     });
   }
 
   @Override
   public DRes<Matrix<DRes<SReal>>> add(DRes<Matrix<DRes<SReal>>> a, DRes<Matrix<DRes<SReal>>> b) {
     return builder.par(par -> {
-      return add(par, a.out(), b.out(), (f, x) -> f.add(x.getFirst(), x.getSecond()));
+      return add(par, a.out(), b.out(),
+          (scope, x) -> scope.numeric().add(x.getFirst(), x.getSecond()));
     });
   }
 
   @Override
   public DRes<Matrix<DRes<SReal>>> add(Matrix<BigDecimal> a, DRes<Matrix<DRes<SReal>>> b) {
     return builder.par(par -> {
-      return add(par, a, b.out(), (f, x) -> f.add(x.getFirst(), x.getSecond()));
+      return add(par, a, b.out(), (scope, x) -> scope.numeric().add(x.getFirst(), x.getSecond()));
     });
   }
 
   @Override
   public DRes<Matrix<DRes<SReal>>> mult(DRes<Matrix<DRes<SReal>>> a, Matrix<BigDecimal> b) {
     return builder.seq(seq -> {
-      return mult(seq, a.out(), b, (f, x) -> provider.apply(f).advanced()
-          .innerProductWithPublicPart(x.getSecond(), x.getFirst()));
+      return mult(seq, a.out(), b,
+          (scope, x) -> scope.advanced().innerProductWithPublicPart(x.getSecond(), x.getFirst()));
     });
   }
 
   @Override
   public DRes<Matrix<DRes<SReal>>> mult(Matrix<BigDecimal> a, DRes<Matrix<DRes<SReal>>> b) {
     return builder.seq(seq -> {
-      return mult(seq, a, b.out(), (f, x) -> provider.apply(f).advanced()
-          .innerProductWithPublicPart(x.getFirst(), x.getSecond()));
+      return mult(seq, a, b.out(),
+          (scope, x) -> scope.advanced().innerProductWithPublicPart(x.getFirst(), x.getSecond()));
     });
   }
 
@@ -80,28 +77,28 @@ public abstract class DefaultLinearAlgebra implements LinearAlgebra {
   public DRes<Matrix<DRes<SReal>>> mult(DRes<Matrix<DRes<SReal>>> a, DRes<Matrix<DRes<SReal>>> b) {
     return builder.seq(seq -> {
       return mult(seq, a.out(), b.out(),
-          (f, x) -> provider.apply(f).advanced().innerProduct(x.getFirst(), x.getSecond()));
+          (scope, x) -> scope.advanced().innerProduct(x.getFirst(), x.getSecond()));
     });
   }
 
   @Override
   public DRes<Matrix<DRes<SReal>>> scale(BigDecimal s, DRes<Matrix<DRes<SReal>>> a) {
     return builder.par(par -> {
-      return scale(par, s, a.out(), (f, x) -> f.mult(x.getFirst(), x.getSecond()));
+      return scale(par, s, a.out(), (f, x) -> f.numeric().mult(x.getFirst(), x.getSecond()));
     });
   }
 
   @Override
   public DRes<Matrix<DRes<SReal>>> scale(DRes<SReal> s, DRes<Matrix<DRes<SReal>>> a) {
     return builder.par(par -> {
-      return scale(par, s, a.out(), (f, x) -> f.mult(x.getFirst(), x.getSecond()));
+      return scale(par, s, a.out(), (f, x) -> f.numeric().mult(x.getFirst(), x.getSecond()));
     });
   }
 
   @Override
   public DRes<Matrix<DRes<SReal>>> scale(DRes<SReal> s, Matrix<BigDecimal> a) {
     return builder.par(par -> {
-      return scale(par, s, a, (f, x) -> f.mult(x.getSecond(), x.getFirst()));
+      return scale(par, s, a, (f, x) -> f.numeric().mult(x.getSecond(), x.getFirst()));
     });
   }
 
@@ -114,23 +111,22 @@ public abstract class DefaultLinearAlgebra implements LinearAlgebra {
    * @param add
    * @return
    */
-  private <A> DRes<Matrix<DRes<SReal>>> add(ProtocolBuilderNumeric builder, Matrix<A> a,
-      Matrix<DRes<SReal>> b, BiFunction<BasicRealNumeric, Pair<A, DRes<SReal>>, DRes<SReal>> add) {
+  private <A, B, C> DRes<Matrix<C>> add(ProtocolBuilderNumeric builder, Matrix<A> a, Matrix<B> b,
+      BiFunction<RealNumeric, Pair<A, B>, C> add) {
     return builder.par(par -> {
       if (a.getWidth() != b.getWidth() || a.getHeight() != b.getHeight()) {
         throw new IllegalArgumentException("Matrices must have same sizes - " + a.getWidth() + "x"
             + a.getHeight() + " != " + b.getWidth() + "x" + b.getHeight());
       }
-      BasicRealNumeric fixed = provider.apply(par).numeric();
-      ArrayList<ArrayList<DRes<SReal>>> rows = new ArrayList<>(a.getHeight());
-      for (int j = 0; j < a.getHeight(); j++) {
-        ArrayList<DRes<SReal>> row = new ArrayList<>();
-        for (int i = 0; i < a.getWidth(); i++) {
-          row.add(add.apply(fixed, new Pair<>(a.getRow(j).get(i), b.getRow(j).get(i))));
+      RealNumeric numeric = provider.apply(par);
+      Matrix<C> result = new Matrix<>(a.getHeight(), a.getWidth(), i -> {
+        ArrayList<C> row = new ArrayList<>();
+        for (int j = 0; j < a.getWidth(); j++) {
+          row.add(add.apply(numeric, new Pair<>(a.getRow(i).get(j), b.getRow(i).get(j))));
         }
-        rows.add(row);
-      }
-      return () -> new Matrix<>(a.getHeight(), a.getWidth(), rows);
+        return row;
+      });
+      return () -> result;
     });
   }
 
@@ -144,9 +140,8 @@ public abstract class DefaultLinearAlgebra implements LinearAlgebra {
    * @param add
    * @return
    */
-  private <A, B> DRes<Matrix<DRes<SReal>>> mult(ProtocolBuilderNumeric builder, Matrix<A> a,
-      Matrix<B> b,
-      BiFunction<ProtocolBuilderNumeric, Pair<List<A>, List<B>>, DRes<SReal>> innerProduct) {
+  private <A, B, C> DRes<Matrix<C>> mult(ProtocolBuilderNumeric builder, Matrix<A> a, Matrix<B> b,
+      BiFunction<RealNumeric, Pair<List<A>, List<B>>, C> innerProduct) {
     return builder.par(par -> {
 
       if (a.getWidth() != b.getHeight()) {
@@ -154,15 +149,15 @@ public abstract class DefaultLinearAlgebra implements LinearAlgebra {
             "Matrice sizes does not match - " + a.getWidth() + " != " + b.getHeight());
       }
 
-      ArrayList<ArrayList<DRes<SReal>>> rows = new ArrayList<>(a.getHeight());
-      for (int i = 0; i < a.getHeight(); i++) {
-        ArrayList<DRes<SReal>> row = new ArrayList<>(b.getWidth());
+      RealNumeric numeric = provider.apply(par);
+      Matrix<C> result = new Matrix<>(a.getHeight(), b.getWidth(), i -> {
+        ArrayList<C> row = new ArrayList<>(b.getWidth());
         for (int j = 0; j < b.getWidth(); j++) {
-          row.add(innerProduct.apply(par, new Pair<>(a.getRow(i), b.getColumn(j))));
+          row.add(innerProduct.apply(numeric, new Pair<>(a.getRow(i), b.getColumn(j))));
         }
-        rows.add(row);
-      }
-      return () -> new Matrix<>(a.getHeight(), b.getWidth(), rows);
+        return row;
+      });
+      return () -> result;
     });
   }
 
@@ -170,22 +165,19 @@ public abstract class DefaultLinearAlgebra implements LinearAlgebra {
    * Scale the given matrix by a scalar using the given builder and multiplication operation.
    * 
    * @param builder
-   * @param s
    * @param a
+   * @param b
    * @param mult
    * @return
    */
-  private <S, A> DRes<Matrix<DRes<SReal>>> scale(ProtocolBuilderNumeric builder, S s, Matrix<A> a,
-      BiFunction<BasicRealNumeric, Pair<S, A>, DRes<SReal>> mult) {
+  private <A, B, C> DRes<Matrix<C>> scale(ProtocolBuilderNumeric builder, A a, Matrix<B> b,
+      BiFunction<RealNumeric, Pair<A, B>, C> mult) {
     return builder.par(par -> {
-      RealNumeric fixed = provider.apply(par);
-      ArrayList<ArrayList<DRes<SReal>>> rows = new ArrayList<>(a.getHeight());
-      for (ArrayList<A> row : a.getRows()) {
-        rows.add(new ArrayList<>(row.stream()
-            .map(x -> mult.apply(fixed.numeric(), new Pair<>(s, x))).collect(Collectors.toList())));
-      }
-      return () -> new Matrix<>(a.getHeight(), a.getWidth(), rows);
+      RealNumeric numeric = provider.apply(par);
+      Matrix<C> result = new Matrix<>(b.getHeight(), b.getWidth(), i -> new ArrayList<>(b.getRow(i)
+          .stream().map(x -> mult.apply(numeric, new Pair<>(a, x))).collect(Collectors.toList())));
+      return () -> result;
     });
   }
-  
+
 }
