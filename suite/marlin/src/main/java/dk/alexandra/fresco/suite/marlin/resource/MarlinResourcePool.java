@@ -7,32 +7,34 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.sce.resources.Broadcast;
 import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUInt;
-import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUIntFactory;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.UInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinDataSupplier;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStore;
 import java.math.BigInteger;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public interface MarlinResourcePool<T extends CompositeUInt<T>> extends NumericResourcePool {
+public interface MarlinResourcePool<H extends UInt<H>, L extends UInt<L>, T extends CompUInt<H, L, T>> extends
+    NumericResourcePool {
 
   /**
    * Returns instance of {@link MarlinOpenedValueStore} which tracks all opened, unchecked values.
    */
-  MarlinOpenedValueStore<T> getOpenedValueStore();
+  MarlinOpenedValueStore<H, L, T> getOpenedValueStore();
 
   /**
    * Returns instance of {@link MarlinDataSupplier} which provides pre-processed material such as
    * multiplication triples.
    */
-  MarlinDataSupplier<T> getDataSupplier();
+  MarlinDataSupplier<H, L, T> getDataSupplier();
 
   /**
    * Returns factory for constructing concrete instances of {@link T}, i.e., the class representing
    * the raw element data type.
    */
-  CompositeUIntFactory<T> getFactory();
+  CompUIntFactory<H, L, T> getFactory();
 
   /**
    * Returns serializer for instances of {@link T}.

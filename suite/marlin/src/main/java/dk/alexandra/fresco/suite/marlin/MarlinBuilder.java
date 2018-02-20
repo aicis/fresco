@@ -7,21 +7,23 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
-import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUInt;
-import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUIntFactory;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.UInt;
 import dk.alexandra.fresco.suite.marlin.protocols.computations.MarlinInputComputation;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinKnownSIntProtocol;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinMultiplyProtocol;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinOutputProtocol;
 import java.math.BigInteger;
 
-public class MarlinBuilder<T extends CompositeUInt<T>> implements BuilderFactoryNumeric {
+public class MarlinBuilder<H extends UInt<H>, L extends UInt<L>, T extends CompUInt<H, L, T>> implements
+    BuilderFactoryNumeric {
 
-  private final CompositeUIntFactory<T> factory;
+  private final CompUIntFactory<H, L, T> factory;
   private final BasicNumericContext numericContext;
 
-  public MarlinBuilder(CompositeUIntFactory<T> factory, BasicNumericContext numericContext) {
+  public MarlinBuilder(CompUIntFactory<H, L, T> factory, BasicNumericContext numericContext) {
     this.factory = factory;
     this.numericContext = numericContext;
   }
@@ -36,7 +38,7 @@ public class MarlinBuilder<T extends CompositeUInt<T>> implements BuilderFactory
     return new Numeric() {
       @Override
       public DRes<SInt> add(DRes<SInt> a, DRes<SInt> b) {
-        return () -> ((MarlinSInt<T>) a.out()).add((MarlinSInt<T>) b.out());
+        return () -> ((MarlinSInt<H, L, T>) a.out()).add((MarlinSInt<H, L, T>) b.out());
       }
 
       @Override
@@ -61,7 +63,7 @@ public class MarlinBuilder<T extends CompositeUInt<T>> implements BuilderFactory
 
       @Override
       public DRes<SInt> mult(DRes<SInt> a, DRes<SInt> b) {
-        return builder.append(new MarlinMultiplyProtocol<T>(a, b));
+        return builder.append(new MarlinMultiplyProtocol<H, L, T>(a, b));
       }
 
       @Override
@@ -93,7 +95,7 @@ public class MarlinBuilder<T extends CompositeUInt<T>> implements BuilderFactory
 
       @Override
       public DRes<BigInteger> open(DRes<SInt> secretShare) {
-        return builder.append(new MarlinOutputProtocol<T>(secretShare));
+        return builder.append(new MarlinOutputProtocol<H, L, T>(secretShare));
       }
 
       @Override

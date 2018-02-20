@@ -3,14 +3,16 @@ package dk.alexandra.fresco.suite.marlin.datatypes;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import java.math.BigInteger;
 
-public interface CompositeUIntFactory<T extends CompositeUInt<T>> {
+public interface CompUIntFactory<H extends UInt<H>, L extends UInt<L>, T extends CompUInt<H, L, T>> {
 
   /**
    * Creates new {@link T} from a raw array of bytes.
    */
   T createFromBytes(byte[] bytes);
 
-  T createFromLow(T value);
+  T createFromHigh(H value);
+
+  T createFromLow(L value);
 
   /**
    * Creates new {@link T} from a {@link BigInteger}.

@@ -16,8 +16,9 @@ import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.marlin.MarlinBuilder;
-import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUInt;
-import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUIntFactory;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntFactory;
+import dk.alexandra.fresco.suite.marlin.datatypes.UInt;
 import dk.alexandra.fresco.suite.marlin.protocols.computations.MarlinCommitmentComputation;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinDataSupplier;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStore;
@@ -28,15 +29,16 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class MarlinResourcePoolImpl<T extends CompositeUInt<T>> extends ResourcePoolImpl implements
-    MarlinResourcePool<T> {
+public class MarlinResourcePoolImpl<H extends UInt<H>, L extends UInt<L>, T extends CompUInt<H, L, T>> extends
+    ResourcePoolImpl implements
+    MarlinResourcePool<H, L, T> {
 
   private final int operationalBitLength;
   private final int effectiveBitLength;
   private final BigInteger modulus;
-  private final MarlinOpenedValueStore<T> storage;
-  private final MarlinDataSupplier<T> supplier;
-  private final CompositeUIntFactory<T> factory;
+  private final MarlinOpenedValueStore<H, L, T> storage;
+  private final MarlinDataSupplier<H, L, T> supplier;
+  private final CompUIntFactory<H, L, T> factory;
   private final ByteSerializer<T> rawSerializer;
   private Drbg drbg;
 
@@ -44,8 +46,9 @@ public class MarlinResourcePoolImpl<T extends CompositeUInt<T>> extends Resource
    * Creates new {@link MarlinResourcePool}.
    */
   private MarlinResourcePoolImpl(int myId, int noOfPlayers, Drbg drbg, int operationalBitLength,
-      int effectiveBitLength, MarlinOpenedValueStore<T> storage, MarlinDataSupplier<T> supplier,
-      CompositeUIntFactory<T> factory) {
+      int effectiveBitLength, MarlinOpenedValueStore<H, L, T> storage,
+      MarlinDataSupplier<H, L, T> supplier,
+      CompUIntFactory<H, L, T> factory) {
     super(myId, noOfPlayers);
     if (operationalBitLength != 128) {
       throw new IllegalArgumentException(
@@ -69,8 +72,8 @@ public class MarlinResourcePoolImpl<T extends CompositeUInt<T>> extends Resource
    * Creates new {@link MarlinResourcePool}.
    */
   public MarlinResourcePoolImpl(int myId, int noOfPlayers, Drbg drbg,
-      MarlinOpenedValueStore<T> storage, MarlinDataSupplier<T> supplier,
-      CompositeUIntFactory<T> factory) {
+      MarlinOpenedValueStore<H, L, T> storage, MarlinDataSupplier<H, L, T> supplier,
+      CompUIntFactory<H, L, T> factory) {
     this(myId, noOfPlayers, drbg, 128, 64, storage, supplier, factory);
   }
 
@@ -85,17 +88,17 @@ public class MarlinResourcePoolImpl<T extends CompositeUInt<T>> extends Resource
   }
 
   @Override
-  public MarlinOpenedValueStore<T> getOpenedValueStore() {
+  public MarlinOpenedValueStore<H, L, T> getOpenedValueStore() {
     return storage;
   }
 
   @Override
-  public MarlinDataSupplier<T> getDataSupplier() {
+  public MarlinDataSupplier<H, L, T> getDataSupplier() {
     return supplier;
   }
 
   @Override
-  public CompositeUIntFactory<T> getFactory() {
+  public CompUIntFactory<H, L, T> getFactory() {
     return factory;
   }
 

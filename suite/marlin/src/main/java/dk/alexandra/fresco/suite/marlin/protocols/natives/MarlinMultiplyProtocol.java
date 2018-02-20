@@ -5,7 +5,8 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.UInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinTriple;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
@@ -13,15 +14,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MarlinMultiplyProtocol<T extends CompositeUInt<T>> extends
-    MarlinNativeProtocol<SInt, T> {
+public class MarlinMultiplyProtocol<H extends UInt<H>, L extends UInt<L>, T extends CompUInt<H, L, T>> extends
+    MarlinNativeProtocol<SInt, H, L, T> {
 
   private final DRes<SInt> left;
   private final DRes<SInt> right;
-  private MarlinTriple<T> triple;
+  private MarlinTriple<H, L, T> triple;
   private SInt product;
-  private MarlinSInt<T> epsilon;
-  private MarlinSInt<T> delta;
+  private MarlinSInt<H, L, T> epsilon;
+  private MarlinSInt<H, L, T> delta;
 
   public MarlinMultiplyProtocol(DRes<SInt> left, DRes<SInt> right) {
     this.left = left;
@@ -29,15 +30,15 @@ public class MarlinMultiplyProtocol<T extends CompositeUInt<T>> extends
   }
 
   @Override
-  public EvaluationStatus evaluate(int round, MarlinResourcePool<T> resourcePool, Network network) {
+  public EvaluationStatus evaluate(int round, MarlinResourcePool<H, L, T> resourcePool, Network network) {
     final T macKeyShare = resourcePool.getDataSupplier().getSecretSharedKey();
     ByteSerializer<T> serializer = resourcePool.getRawSerializer();
     if (round == 0) {
       triple = resourcePool.getDataSupplier().getNextTripleShares();
-      epsilon = ((MarlinSInt<T>) left.out()).subtract(triple.getLeft());
-      delta = ((MarlinSInt<T>) right.out()).subtract(triple.getRight());
-      network.sendToAll(serializer.serialize(epsilon.getShare().getLow()));
-      network.sendToAll(serializer.serialize(delta.getShare().getLow()));
+      epsilon = ((MarlinSInt<H, L, T>) left.out()).subtract(triple.getLeft());
+      delta = ((MarlinSInt<H, L, T>) right.out()).subtract(triple.getRight());
+      network.sendToAll(epsilon.getShare().getLow().toByteArray());
+      network.sendToAll(delta.getShare().getLow().toByteArray());
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       Pair<T, T> epsilonAndDelta = receiveAndReconstruct(network, resourcePool.getNoOfParties(),
@@ -73,8 +74,8 @@ public class MarlinMultiplyProtocol<T extends CompositeUInt<T>> extends
       epsilonShares.add(serializer.deserialize(network.receive(i)));
       deltaShares.add(serializer.deserialize(network.receive(i)));
     }
-    T e = CompositeUInt.sum(epsilonShares);
-    T d = CompositeUInt.sum(deltaShares);
+    T e = UInt.sum(epsilonShares);
+    T d = UInt.sum(deltaShares);
     return new Pair<>(e, d);
   }
 

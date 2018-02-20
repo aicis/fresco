@@ -6,19 +6,20 @@ import dk.alexandra.fresco.framework.builder.ComputationParallel;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
-import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.UInt;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinAllBroadcastProtocol;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MarlinCommitmentComputation<T extends CompositeUInt<T>> implements
+public class MarlinCommitmentComputation<H extends UInt<H>, L extends UInt<L>, T extends CompUInt<H, L, T>> implements
     ComputationParallel<List<byte[]>, ProtocolBuilderNumeric> {
 
-  private final MarlinResourcePool<T> resourcePool;
+  private final MarlinResourcePool<H, L, T> resourcePool;
   private final byte[] value;
 
-  public MarlinCommitmentComputation(MarlinResourcePool<T> resourcePool, byte[] value) {
+  public MarlinCommitmentComputation(MarlinResourcePool<H, L, T> resourcePool, byte[] value) {
     // TODO think about logistics of exposing resource pool
     this.resourcePool = resourcePool;
     this.value = value;

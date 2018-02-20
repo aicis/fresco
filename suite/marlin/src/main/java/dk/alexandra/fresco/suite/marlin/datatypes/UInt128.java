@@ -9,26 +9,26 @@ import java.nio.ByteOrder;
  * https://locklessinc.com/articles/256bit_arithmetic/. Note that this class is NOT SAFE to
  * instantiate with negative values.</p>
  */
-public class CompositeUInt128 implements CompositeUInt<CompositeUInt128> {
+public class UInt128 implements CompUInt<UInt64, UInt64, UInt128> {
 
-  private static final CompositeUInt128 MINUS_ONE = new CompositeUInt128(
+  private static final UInt128 MINUS_ONE = new UInt128(
       BigInteger.ONE.shiftLeft(128).subtract(BigInteger.ONE));
   private final long high;
   private final int mid;
   private final int low;
 
-  public CompositeUInt128() {
+  public UInt128() {
     high = 0;
     mid = 0;
     low = 0;
   }
 
   /**
-   * Creates new {@link CompositeUInt128}.
+   * Creates new {@link UInt128}.
    *
    * @param bytes bytes interpreted in big-endian order.
    */
-  public CompositeUInt128(byte[] bytes) {
+  public UInt128(byte[] bytes) {
     byte[] padded = pad(bytes);
     ByteBuffer buffer = ByteBuffer.wrap(padded);
     buffer.order(ByteOrder.BIG_ENDIAN);
@@ -37,30 +37,34 @@ public class CompositeUInt128 implements CompositeUInt<CompositeUInt128> {
     this.low = buffer.getInt();
   }
 
-  private CompositeUInt128(long high, int mid, int low) {
+  private UInt128(long high, int mid, int low) {
     this.high = high;
     this.mid = mid;
     this.low = low;
   }
 
-  CompositeUInt128(BigInteger value) {
+  UInt128(BigInteger value) {
     this(value.toByteArray());
   }
 
-  public CompositeUInt128(long value) {
+  public UInt128(UInt64 value) {
+    this(value.getLowAsLong());
+  }
+
+  public UInt128(long value) {
     this.high = 0;
     this.mid = (int) (value >>> 32);
     this.low = (int) value;
   }
 
-  CompositeUInt128(CompositeUInt128 other) {
+  UInt128(UInt128 other) {
     this.high = other.high;
     this.mid = other.mid;
     this.low = other.low;
   }
 
   @Override
-  public CompositeUInt128 add(CompositeUInt128 other) {
+  public UInt128 add(UInt128 other) {
     long newLow = Integer.toUnsignedLong(this.low) + Integer.toUnsignedLong(other.low);
     long lowOverflow = newLow >>> 32;
     long newMid = Integer.toUnsignedLong(this.mid)
@@ -68,11 +72,11 @@ public class CompositeUInt128 implements CompositeUInt<CompositeUInt128> {
         + lowOverflow;
     long midOverflow = newMid >>> 32;
     long newHigh = this.high + other.high + midOverflow;
-    return new CompositeUInt128(newHigh, (int) newMid, (int) newLow);
+    return new UInt128(newHigh, (int) newMid, (int) newLow);
   }
 
   @Override
-  public CompositeUInt128 multiply(CompositeUInt128 other) {
+  public UInt128 multiply(UInt128 other) {
     long thisLowAsLong = Integer.toUnsignedLong(this.low);
     long thisMidAsLong = Integer.toUnsignedLong(this.mid);
     long otherLowAsLong = Integer.toUnsignedLong(other.low);
@@ -106,16 +110,16 @@ public class CompositeUInt128 implements CompositeUInt<CompositeUInt128> {
         + (Integer.toUnsignedLong(t8) << 32)
         + (m1 >>> 32)
         + (newMid >>> 32);
-    return new CompositeUInt128(newHigh, (int) newMid, (int) t1);
+    return new UInt128(newHigh, (int) newMid, (int) t1);
   }
 
   @Override
-  public CompositeUInt128 subtract(CompositeUInt128 other) {
+  public UInt128 subtract(UInt128 other) {
     return this.add(other.negate());
   }
 
   @Override
-  public CompositeUInt128 negate() {
+  public UInt128 negate() {
     return multiply(MINUS_ONE);
   }
 
@@ -130,24 +134,19 @@ public class CompositeUInt128 implements CompositeUInt<CompositeUInt128> {
   }
 
   @Override
-  public CompositeUInt128 computeOverflow() {
-    CompositeUInt128 low = new CompositeUInt128(getLowAsLong());
+  public UInt64 computeOverflow() {
+    UInt128 low = new UInt128(getLowAsLong());
     return low.subtract(this).getHigh();
   }
 
   @Override
-  public CompositeUInt128 getSubRange(int from, int to) {
-    throw new UnsupportedOperationException();
+  public UInt64 getLow() {
+    return new UInt64(getLowAsLong());
   }
 
   @Override
-  public CompositeUInt128 getLow() {
-    return new LongWrapper(getLowAsLong());
-  }
-
-  @Override
-  public CompositeUInt128 getHigh() {
-    return new LongWrapper(high);
+  public UInt64 getHigh() {
+    return new UInt64(high);
   }
 
   @Override
@@ -156,8 +155,8 @@ public class CompositeUInt128 implements CompositeUInt<CompositeUInt128> {
   }
 
   @Override
-  public CompositeUInt128 shiftLowIntoHigh() {
-    return new CompositeUInt128(getLowAsLong(), 0, 0);
+  public UInt128 shiftLowIntoHigh() {
+    return new UInt128(getLowAsLong(), 0, 0);
   }
 
   private byte[] pad(byte[] bytes) {

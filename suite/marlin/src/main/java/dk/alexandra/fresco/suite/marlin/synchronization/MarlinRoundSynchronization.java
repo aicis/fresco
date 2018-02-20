@@ -10,28 +10,30 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.suite.ProtocolSuite.RoundSynchronization;
 import dk.alexandra.fresco.suite.marlin.MarlinBuilder;
 import dk.alexandra.fresco.suite.marlin.MarlinProtocolSuite;
-import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUInt;
-import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUIntFactory;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntFactory;
+import dk.alexandra.fresco.suite.marlin.datatypes.UInt;
 import dk.alexandra.fresco.suite.marlin.protocols.computations.MarlinMacCheckComputation;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinOutputProtocol;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStore;
 
-public class MarlinRoundSynchronization<T extends CompositeUInt<T>> implements
-    RoundSynchronization<MarlinResourcePool<T>> {
+public class MarlinRoundSynchronization<H extends UInt<H>, L extends UInt<L>, T extends CompUInt<H, L, T>> implements
+    RoundSynchronization<MarlinResourcePool<H, L, T>> {
 
   private final int openValueThreshold;
   private final int batchSize;
   private boolean isCheckRequired;
-  private final CompositeUIntFactory<T> factory;
-  private final MarlinProtocolSuite<T> protocolSuite;
+  private final CompUIntFactory<H, L, T> factory;
+  private final MarlinProtocolSuite<H, L, T> protocolSuite;
 
-  public MarlinRoundSynchronization(MarlinProtocolSuite<T> protocolSuite,
-      CompositeUIntFactory<T> factory) {
+  public MarlinRoundSynchronization(MarlinProtocolSuite<H, L, T> protocolSuite,
+      CompUIntFactory<H, L, T> factory) {
     this(protocolSuite, factory, 100000, 128);
   }
 
-  public MarlinRoundSynchronization(MarlinProtocolSuite<T> protocolSuite, CompositeUIntFactory<T> factory,
+  public MarlinRoundSynchronization(MarlinProtocolSuite<H, L, T> protocolSuite,
+      CompUIntFactory<H, L, T> factory,
       int openValueThreshold,
       int batchSize) {
     this.factory = factory;
@@ -41,17 +43,17 @@ public class MarlinRoundSynchronization<T extends CompositeUInt<T>> implements
     this.isCheckRequired = false;
   }
 
-  private void doMacCheck(MarlinResourcePool<T> resourcePool, Network network) {
-    MarlinOpenedValueStore<T> openedValueStore = resourcePool.getOpenedValueStore();
+  private void doMacCheck(MarlinResourcePool<H, L, T> resourcePool, Network network) {
+    MarlinOpenedValueStore<H, L, T> openedValueStore = resourcePool.getOpenedValueStore();
     if (!openedValueStore.isEmpty()) {
-      MarlinBuilder<T> builder = new MarlinBuilder<>(factory,
+      MarlinBuilder<H, L, T> builder = new MarlinBuilder<>(factory,
           protocolSuite.createBasicNumericContext(resourcePool));
-      BatchEvaluationStrategy<MarlinResourcePool> batchStrategy = new BatchedStrategy<>();
-      BatchedProtocolEvaluator<MarlinResourcePool> evaluator = new BatchedProtocolEvaluator<>(
+      BatchEvaluationStrategy<MarlinResourcePool<H, L, T>> batchStrategy = new BatchedStrategy<>();
+      BatchedProtocolEvaluator<MarlinResourcePool<H, L, T>> evaluator = new BatchedProtocolEvaluator<>(
           batchStrategy,
           protocolSuite,
           batchSize);
-      MarlinMacCheckComputation<T> macCheck = new MarlinMacCheckComputation<>(resourcePool);
+      MarlinMacCheckComputation<H, L, T> macCheck = new MarlinMacCheckComputation<>(resourcePool);
       ProtocolBuilderNumeric sequential = builder.createSequential();
       macCheck.buildComputation(sequential);
       evaluator.eval(sequential.build(), resourcePool, network);
@@ -59,7 +61,7 @@ public class MarlinRoundSynchronization<T extends CompositeUInt<T>> implements
   }
 
   @Override
-  public void finishedBatch(int gatesEvaluated, MarlinResourcePool<T> resourcePool,
+  public void finishedBatch(int gatesEvaluated, MarlinResourcePool<H, L, T> resourcePool,
       Network network) {
     if (isCheckRequired || resourcePool.getOpenedValueStore().size() > openValueThreshold) {
       doMacCheck(resourcePool, network);
@@ -68,13 +70,13 @@ public class MarlinRoundSynchronization<T extends CompositeUInt<T>> implements
   }
 
   @Override
-  public void finishedEval(MarlinResourcePool<T> resourcePool, Network network) {
+  public void finishedEval(MarlinResourcePool<H, L, T> resourcePool, Network network) {
     doMacCheck(resourcePool, network);
   }
 
   @Override
-  public void beforeBatch(ProtocolCollection<MarlinResourcePool<T>> nativeProtocols,
-      MarlinResourcePool<T> resourcePool, Network network) {
+  public void beforeBatch(ProtocolCollection<MarlinResourcePool<H, L, T>> nativeProtocols,
+      MarlinResourcePool<H, L, T> resourcePool, Network network) {
     for (NativeProtocol<?, ?> protocol : nativeProtocols) {
       if (protocol instanceof MarlinOutputProtocol) {
         isCheckRequired = true;

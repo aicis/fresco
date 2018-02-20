@@ -5,12 +5,12 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import dk.alexandra.fresco.suite.marlin.datatypes.CompositeUIntFactory;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinInputMask;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinTriple;
-import dk.alexandra.fresco.suite.marlin.datatypes.GenericCompositeUInt;
-import dk.alexandra.fresco.suite.marlin.datatypes.GenericCompositeUIntFactory;
+import dk.alexandra.fresco.suite.marlin.datatypes.GenericUInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.GenericCompUIntFactory;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,26 +20,26 @@ import org.junit.Test;
 public class TestMarlinDummyDataSupplier {
 
   private void testGetNextRandomElementShare(int noOfParties) {
-    List<MarlinDataSupplier<GenericCompositeUInt>> suppliers = setupSuppliers(noOfParties);
-    GenericCompositeUInt macKey = getMacKeyFromSuppliers(suppliers);
-    List<MarlinSInt<GenericCompositeUInt>> shares = new ArrayList<>(noOfParties);
-    for (MarlinDataSupplier<GenericCompositeUInt> supplier : suppliers) {
+    List<MarlinDataSupplier<GenericUInt, GenericUInt, GenericUInt>> suppliers = setupSuppliers(noOfParties);
+    GenericUInt macKey = getMacKeyFromSuppliers(suppliers);
+    List<MarlinSInt<GenericUInt, GenericUInt, GenericUInt>> shares = new ArrayList<>(noOfParties);
+    for (MarlinDataSupplier<GenericUInt, GenericUInt, GenericUInt> supplier : suppliers) {
       shares.add(supplier.getNextRandomElementShare());
     }
-    MarlinSInt<GenericCompositeUInt> recombined = recombine(shares);
+    MarlinSInt<GenericUInt, GenericUInt, GenericUInt> recombined = recombine(shares);
     assertFalse("Random value was 0 ",
         recombined.getShare().toBigInteger().equals(BigInteger.ZERO));
     assertMacCorrect(recombined, macKey);
   }
 
   private void testGetNextBitShare(int noOfParties) {
-    List<MarlinDataSupplier<GenericCompositeUInt>> suppliers = setupSuppliers(noOfParties);
-    GenericCompositeUInt macKey = getMacKeyFromSuppliers(suppliers);
-    List<MarlinSInt<GenericCompositeUInt>> shares = new ArrayList<>(noOfParties);
-    for (MarlinDataSupplier<GenericCompositeUInt> supplier : suppliers) {
+    List<MarlinDataSupplier<GenericUInt, GenericUInt, GenericUInt>> suppliers = setupSuppliers(noOfParties);
+    GenericUInt macKey = getMacKeyFromSuppliers(suppliers);
+    List<MarlinSInt<GenericUInt, GenericUInt, GenericUInt>> shares = new ArrayList<>(noOfParties);
+    for (MarlinDataSupplier<GenericUInt, GenericUInt, GenericUInt> supplier : suppliers) {
       shares.add(supplier.getNextBitShare());
     }
-    MarlinSInt<GenericCompositeUInt> recombined = recombine(shares);
+    MarlinSInt<GenericUInt, GenericUInt, GenericUInt> recombined = recombine(shares);
     BigInteger asBitInt = recombined.getShare().toBigInteger();
     assertTrue("Not a bit " + asBitInt,
         asBitInt.equals(BigInteger.ZERO) || asBitInt.equals(BigInteger.ONE));
@@ -47,16 +47,16 @@ public class TestMarlinDummyDataSupplier {
   }
 
   private void testGetInputMask(int noOfParties, int towardParty) {
-    List<MarlinDataSupplier<GenericCompositeUInt>> suppliers = setupSuppliers(noOfParties);
-    GenericCompositeUInt macKey = getMacKeyFromSuppliers(suppliers);
-    List<MarlinInputMask<GenericCompositeUInt>> masks = new ArrayList<>(noOfParties);
-    for (MarlinDataSupplier<GenericCompositeUInt> supplier : suppliers) {
+    List<MarlinDataSupplier<GenericUInt, GenericUInt, GenericUInt>> suppliers = setupSuppliers(noOfParties);
+    GenericUInt macKey = getMacKeyFromSuppliers(suppliers);
+    List<MarlinInputMask<GenericUInt, GenericUInt, GenericUInt>> masks = new ArrayList<>(noOfParties);
+    for (MarlinDataSupplier<GenericUInt, GenericUInt, GenericUInt> supplier : suppliers) {
       masks.add(supplier.getNextInputMask(towardParty));
     }
-    GenericCompositeUInt realValue = null;
-    List<MarlinSInt<GenericCompositeUInt>> shares = new ArrayList<>(noOfParties);
+    GenericUInt realValue = null;
+    List<MarlinSInt<GenericUInt, GenericUInt, GenericUInt>> shares = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
-      MarlinInputMask<GenericCompositeUInt> inputMask = masks.get(i - 1);
+      MarlinInputMask<GenericUInt, GenericUInt, GenericUInt> inputMask = masks.get(i - 1);
       if (i != towardParty) {
         assertTrue(null == inputMask.getOpenValue());
       } else {
@@ -64,19 +64,19 @@ public class TestMarlinDummyDataSupplier {
       }
       shares.add(inputMask.getMaskShare());
     }
-    MarlinSInt<GenericCompositeUInt> recombined = recombine(shares);
+    MarlinSInt<GenericUInt, GenericUInt, GenericUInt> recombined = recombine(shares);
     assertMacCorrect(recombined, macKey);
     assertEquals(realValue.toBigInteger(), recombined.getShare().toBigInteger());
   }
 
   private void testGetNextTripleShares(int noOfParties) {
-    List<MarlinDataSupplier<GenericCompositeUInt>> suppliers = setupSuppliers(noOfParties);
-    GenericCompositeUInt macKey = getMacKeyFromSuppliers(suppliers);
-    List<MarlinTriple<GenericCompositeUInt>> triples = new ArrayList<>(noOfParties);
-    for (MarlinDataSupplier<GenericCompositeUInt> supplier : suppliers) {
+    List<MarlinDataSupplier<GenericUInt, GenericUInt, GenericUInt>> suppliers = setupSuppliers(noOfParties);
+    GenericUInt macKey = getMacKeyFromSuppliers(suppliers);
+    List<MarlinTriple<GenericUInt, GenericUInt, GenericUInt>> triples = new ArrayList<>(noOfParties);
+    for (MarlinDataSupplier<GenericUInt, GenericUInt, GenericUInt> supplier : suppliers) {
       triples.add(supplier.getNextTripleShares());
     }
-    MarlinTriple<GenericCompositeUInt> recombined = recombineTriples(triples);
+    MarlinTriple<GenericUInt, GenericUInt, GenericUInt> recombined = recombineTriples(triples);
     assertTripleValid(recombined, macKey);
   }
 
@@ -111,41 +111,45 @@ public class TestMarlinDummyDataSupplier {
     testGetNextTripleShares(5);
   }
 
-  private MarlinSInt<GenericCompositeUInt> recombine(List<MarlinSInt<GenericCompositeUInt>> shares) {
+  private MarlinSInt<GenericUInt, GenericUInt, GenericUInt> recombine(
+      List<MarlinSInt<GenericUInt, GenericUInt, GenericUInt>> shares) {
     return shares.stream().reduce(MarlinSInt::add).get();
   }
 
-  private void assertMacCorrect(MarlinSInt<GenericCompositeUInt> recombined, GenericCompositeUInt macKey) {
+  private void assertMacCorrect(MarlinSInt<GenericUInt, GenericUInt, GenericUInt> recombined,
+      GenericUInt macKey) {
     assertArrayEquals(
         macKey.multiply(recombined.getShare()).toByteArray(),
         recombined.getMacShare().toByteArray()
     );
   }
 
-  private List<MarlinDataSupplier<GenericCompositeUInt>> setupSuppliers(int noOfParties) {
-    List<MarlinDataSupplier<GenericCompositeUInt>> suppliers = new ArrayList<>(noOfParties);
+  private List<MarlinDataSupplier<GenericUInt, GenericUInt, GenericUInt>> setupSuppliers(
+      int noOfParties) {
+    List<MarlinDataSupplier<GenericUInt, GenericUInt, GenericUInt>> suppliers = new ArrayList<>(
+        noOfParties);
     for (int i = 0; i < noOfParties; i++) {
-      CompositeUIntFactory<GenericCompositeUInt> factory = new GenericCompositeUIntFactory();
-      GenericCompositeUInt macKeyShare = factory.createRandom();
+      CompUIntFactory<GenericUInt, GenericUInt, GenericUInt> factory = new GenericCompUIntFactory();
+      GenericUInt macKeyShare = factory.createRandom();
       suppliers.add(new MarlinDummyDataSupplier<>(i + 1, noOfParties, macKeyShare,
           factory));
     }
     return suppliers;
   }
 
-  private GenericCompositeUInt getMacKeyFromSuppliers(
-      List<MarlinDataSupplier<GenericCompositeUInt>> suppliers) {
+  private GenericUInt getMacKeyFromSuppliers(
+      List<MarlinDataSupplier<GenericUInt, GenericUInt, GenericUInt>> suppliers) {
     return suppliers.stream()
         .map(MarlinDataSupplier::getSecretSharedKey)
-        .reduce(GenericCompositeUInt::add).get();
+        .reduce(GenericUInt::add).get();
   }
 
-  private MarlinTriple<GenericCompositeUInt> recombineTriples(
-      List<MarlinTriple<GenericCompositeUInt>> triples) {
-    List<MarlinSInt<GenericCompositeUInt>> left = new ArrayList<>(triples.size());
-    List<MarlinSInt<GenericCompositeUInt>> right = new ArrayList<>(triples.size());
-    List<MarlinSInt<GenericCompositeUInt>> product = new ArrayList<>(triples.size());
-    for (MarlinTriple<GenericCompositeUInt> triple : triples) {
+  private MarlinTriple<GenericUInt, GenericUInt, GenericUInt> recombineTriples(
+      List<MarlinTriple<GenericUInt, GenericUInt, GenericUInt>> triples) {
+    List<MarlinSInt<GenericUInt, GenericUInt, GenericUInt>> left = new ArrayList<>(triples.size());
+    List<MarlinSInt<GenericUInt, GenericUInt, GenericUInt>> right = new ArrayList<>(triples.size());
+    List<MarlinSInt<GenericUInt, GenericUInt, GenericUInt>> product = new ArrayList<>(triples.size());
+    for (MarlinTriple<GenericUInt, GenericUInt, GenericUInt> triple : triples) {
       left.add(triple.getLeft());
       right.add(triple.getRight());
       product.add(triple.getProduct());
@@ -153,7 +157,7 @@ public class TestMarlinDummyDataSupplier {
     return new MarlinTriple<>(recombine(left), recombine(right), recombine(product));
   }
 
-  private void assertTripleValid(MarlinTriple<GenericCompositeUInt> recombined, GenericCompositeUInt macKey) {
+  private void assertTripleValid(MarlinTriple<GenericUInt, GenericUInt, GenericUInt> recombined, GenericUInt macKey) {
     assertMacCorrect(recombined.getLeft(), macKey);
     assertMacCorrect(recombined.getRight(), macKey);
     assertMacCorrect(recombined.getRight(), macKey);

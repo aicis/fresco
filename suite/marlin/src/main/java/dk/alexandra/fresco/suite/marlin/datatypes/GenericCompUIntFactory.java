@@ -4,29 +4,36 @@ import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.suite.marlin.util.BigUIntSerializer;
 import java.security.SecureRandom;
 
-public class GenericCompositeUIntFactory implements CompositeUIntFactory<GenericCompositeUInt> {
+public class GenericCompUIntFactory implements
+    CompUIntFactory<GenericUInt, GenericUInt, GenericUInt> {
 
   private final SecureRandom random = new SecureRandom();
 
   @Override
-  public GenericCompositeUInt createFromBytes(byte[] bytes) {
-    return new GenericCompositeUInt(bytes, 128);
+  public GenericUInt createFromBytes(byte[] bytes) {
+    return new GenericUInt(bytes, 128);
   }
 
   @Override
-  public GenericCompositeUInt createFromLow(GenericCompositeUInt value) {
-    return new GenericCompositeUInt(value, 128);
+  public GenericUInt createFromHigh(GenericUInt value) {
+    // TODO check that this is correct
+    return new GenericUInt(value, 128);
   }
 
   @Override
-  public GenericCompositeUInt createRandom() {
+  public GenericUInt createFromLow(GenericUInt value) {
+    return new GenericUInt(value, 128);
+  }
+
+  @Override
+  public GenericUInt createRandom() {
     byte[] bytes = new byte[16];
     this.random.nextBytes(bytes);
     return createFromBytes(bytes);
   }
 
   @Override
-  public ByteSerializer<GenericCompositeUInt> createSerializer() {
+  public ByteSerializer<GenericUInt> createSerializer() {
     return new BigUIntSerializer<>(this);
   }
 

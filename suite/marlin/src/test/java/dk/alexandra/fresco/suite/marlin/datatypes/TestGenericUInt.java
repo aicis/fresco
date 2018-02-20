@@ -9,7 +9,7 @@ import java.math.BigInteger;
 import java.util.Random;
 import org.junit.Test;
 
-public class TestGenericCompositeUInt {
+public class TestGenericUInt {
 
   private final BigInteger two = BigInteger.valueOf(2);
   private final BigInteger twoTo32 = BigInteger.ONE.shiftLeft(32);
@@ -20,43 +20,43 @@ public class TestGenericCompositeUInt {
   public void testConstruct() {
     assertEquals(
         BigInteger.ZERO,
-        new GenericCompositeUInt(BigInteger.ZERO, 128).toBigInteger()
+        new GenericUInt(BigInteger.ZERO, 128).toBigInteger()
     );
     assertEquals(
         BigInteger.ONE,
-        new GenericCompositeUInt(BigInteger.ONE, 128).toBigInteger()
+        new GenericUInt(BigInteger.ONE, 128).toBigInteger()
     );
     assertEquals(
         new BigInteger("42"),
-        new GenericCompositeUInt(new BigInteger("42"), 128).toBigInteger()
+        new GenericUInt(new BigInteger("42"), 128).toBigInteger()
     );
     assertEquals(
         twoTo32,
-        new GenericCompositeUInt(twoTo32, 128).toBigInteger()
+        new GenericUInt(twoTo32, 128).toBigInteger()
     );
     assertEquals(
         twoTo32.subtract(BigInteger.ONE),
-        new GenericCompositeUInt(twoTo32.subtract(BigInteger.ONE), 128).toBigInteger()
+        new GenericUInt(twoTo32.subtract(BigInteger.ONE), 128).toBigInteger()
     );
     assertEquals(
         twoTo32.add(BigInteger.ONE),
-        new GenericCompositeUInt(twoTo32.add(BigInteger.ONE), 128).toBigInteger()
+        new GenericUInt(twoTo32.add(BigInteger.ONE), 128).toBigInteger()
     );
     assertEquals(
         twoTo64.subtract(BigInteger.ONE),
-        new GenericCompositeUInt(twoTo64.subtract(BigInteger.ONE), 128).toBigInteger()
+        new GenericUInt(twoTo64.subtract(BigInteger.ONE), 128).toBigInteger()
     );
     assertEquals(
         twoTo64,
-        new GenericCompositeUInt(twoTo64, 128).toBigInteger()
+        new GenericUInt(twoTo64, 128).toBigInteger()
     );
     assertEquals(
         twoTo64.add(BigInteger.ONE),
-        new GenericCompositeUInt(twoTo64.add(BigInteger.ONE), 128).toBigInteger()
+        new GenericUInt(twoTo64.add(BigInteger.ONE), 128).toBigInteger()
     );
     assertEquals(
         twoTo128.subtract(BigInteger.ONE),
-        new GenericCompositeUInt(twoTo128.subtract(BigInteger.ONE), 128).toBigInteger()
+        new GenericUInt(twoTo128.subtract(BigInteger.ONE), 128).toBigInteger()
     );
   }
 
@@ -64,46 +64,46 @@ public class TestGenericCompositeUInt {
   public void testAdd() {
     assertEquals(
         BigInteger.ZERO,
-        new GenericCompositeUInt(0, 128).add(new GenericCompositeUInt(0, 128)).toBigInteger()
+        new GenericUInt(0, 128).add(new GenericUInt(0, 128)).toBigInteger()
     );
     assertEquals(
         two,
-        new GenericCompositeUInt(1, 128).add(new GenericCompositeUInt(1, 128)).toBigInteger()
+        new GenericUInt(1, 128).add(new GenericUInt(1, 128)).toBigInteger()
     );
     assertEquals(
         twoTo32,
-        new GenericCompositeUInt(twoTo32, 128).add(new GenericCompositeUInt(0, 128)).toBigInteger()
+        new GenericUInt(twoTo32, 128).add(new GenericUInt(0, 128)).toBigInteger()
     );
     assertEquals(
         twoTo32.add(BigInteger.ONE),
-        new GenericCompositeUInt(twoTo32, 128).add(new GenericCompositeUInt(1, 128)).toBigInteger()
+        new GenericUInt(twoTo32, 128).add(new GenericUInt(1, 128)).toBigInteger()
     );
     assertEquals(
         twoTo64,
-        new GenericCompositeUInt(twoTo64, 128).add(new GenericCompositeUInt(0, 128)).toBigInteger()
+        new GenericUInt(twoTo64, 128).add(new GenericUInt(0, 128)).toBigInteger()
     );
     assertEquals(
         twoTo64.add(BigInteger.ONE),
-        new GenericCompositeUInt(twoTo64, 128).add(new GenericCompositeUInt(1, 128)).toBigInteger()
+        new GenericUInt(twoTo64, 128).add(new GenericUInt(1, 128)).toBigInteger()
     );
     assertEquals(
         twoTo128.subtract(BigInteger.ONE),
-        new GenericCompositeUInt(twoTo128.subtract(BigInteger.ONE), 128).add(new GenericCompositeUInt(0, 128))
+        new GenericUInt(twoTo128.subtract(BigInteger.ONE), 128).add(new GenericUInt(0, 128))
             .toBigInteger()
     );
     assertEquals(
         BigInteger.ZERO,
-        new GenericCompositeUInt(twoTo128.subtract(BigInteger.ONE), 128)
-            .add(new GenericCompositeUInt(BigInteger.ONE, 128)).toBigInteger()
+        new GenericUInt(twoTo128.subtract(BigInteger.ONE), 128)
+            .add(new GenericUInt(BigInteger.ONE, 128)).toBigInteger()
     );
     assertEquals(
         twoTo128.subtract(new BigInteger("10000000")).add(twoTo32.add(twoTo64)).mod(twoTo128),
-        new GenericCompositeUInt(twoTo128.subtract(new BigInteger("10000000")), 128)
-            .add(new GenericCompositeUInt(twoTo32.add(twoTo64), 128)).toBigInteger()
+        new GenericUInt(twoTo128.subtract(new BigInteger("10000000")), 128)
+            .add(new GenericUInt(twoTo32.add(twoTo64), 128)).toBigInteger()
     );
     assertEquals(
         twoTo32.add(twoTo64).mod(twoTo128),
-        new GenericCompositeUInt(twoTo32, 128).add(new GenericCompositeUInt(twoTo64, 128)).toBigInteger()
+        new GenericUInt(twoTo32, 128).add(new GenericUInt(twoTo64, 128)).toBigInteger()
     );
   }
 
@@ -111,57 +111,58 @@ public class TestGenericCompositeUInt {
   public void testMultiply() {
     assertEquals(
         BigInteger.ZERO,
-        new GenericCompositeUInt(0, 128).multiply(new GenericCompositeUInt(0, 128)).toBigInteger()
+        new GenericUInt(0, 128).multiply(new GenericUInt(0, 128)).toBigInteger()
     );
     assertEquals(
         BigInteger.ZERO,
-        new GenericCompositeUInt(1, 128).multiply(new GenericCompositeUInt(0, 128)).toBigInteger()
+        new GenericUInt(1, 128).multiply(new GenericUInt(0, 128)).toBigInteger()
     );
     assertEquals(
         BigInteger.ZERO,
-        new GenericCompositeUInt(0, 128).multiply(new GenericCompositeUInt(1, 128)).toBigInteger()
+        new GenericUInt(0, 128).multiply(new GenericUInt(1, 128)).toBigInteger()
     );
     assertEquals(
         BigInteger.ZERO,
-        new GenericCompositeUInt(1024, 128).multiply(new GenericCompositeUInt(0, 128)).toBigInteger()
+        new GenericUInt(1024, 128).multiply(new GenericUInt(0, 128)).toBigInteger()
     );
     assertEquals(
         BigInteger.ZERO,
-        new GenericCompositeUInt(twoTo128.subtract(BigInteger.ONE), 128).multiply(new GenericCompositeUInt(0, 128))
+        new GenericUInt(twoTo128.subtract(BigInteger.ONE), 128).multiply(new GenericUInt(0, 128))
             .toBigInteger()
     );
     assertEquals(
         BigInteger.ONE,
-        new GenericCompositeUInt(1, 128).multiply(new GenericCompositeUInt(1, 128)).toBigInteger()
+        new GenericUInt(1, 128).multiply(new GenericUInt(1, 128)).toBigInteger()
     );
     assertEquals(
         twoTo128.subtract(BigInteger.ONE),
-        new GenericCompositeUInt(1, 128)
-            .multiply(new GenericCompositeUInt(twoTo128.subtract(BigInteger.ONE), 128))
+        new GenericUInt(1, 128)
+            .multiply(new GenericUInt(twoTo128.subtract(BigInteger.ONE), 128))
             .toBigInteger()
     );
     assertEquals(
         twoTo128.subtract(BigInteger.ONE),
-        new GenericCompositeUInt(twoTo128.subtract(BigInteger.ONE), 128).multiply(new GenericCompositeUInt(1, 128))
+        new GenericUInt(twoTo128.subtract(BigInteger.ONE), 128).multiply(new GenericUInt(1, 128))
             .toBigInteger()
     );
     // multiply no overflow
     assertEquals(
         new BigInteger("42").multiply(new BigInteger("7")),
-        new GenericCompositeUInt(new BigInteger("42"), 128).multiply(new GenericCompositeUInt(new BigInteger("7"), 128))
+        new GenericUInt(new BigInteger("42"), 128)
+            .multiply(new GenericUInt(new BigInteger("7"), 128))
             .toBigInteger()
     );
     // multiply with overflow
     assertEquals(
         new BigInteger("42").multiply(twoTo128.subtract(BigInteger.ONE)).mod(twoTo128),
-        new GenericCompositeUInt(new BigInteger("42"), 128)
-            .multiply(new GenericCompositeUInt(twoTo128.subtract(BigInteger.ONE), 128))
+        new GenericUInt(new BigInteger("42"), 128)
+            .multiply(new GenericUInt(twoTo128.subtract(BigInteger.ONE), 128))
             .toBigInteger()
     );
     assertEquals(
         twoTo64.multiply(twoTo64.add(BigInteger.TEN)).mod(twoTo128),
-        new GenericCompositeUInt(twoTo64, 128)
-            .multiply(new GenericCompositeUInt(twoTo64.add(BigInteger.TEN), 128))
+        new GenericUInt(twoTo64, 128)
+            .multiply(new GenericUInt(twoTo64.add(BigInteger.TEN), 128))
             .toBigInteger()
     );
   }
@@ -170,19 +171,19 @@ public class TestGenericCompositeUInt {
   public void testNegate() {
     assertEquals(
         BigInteger.ZERO,
-        new GenericCompositeUInt(BigInteger.ZERO, 128).negate().toBigInteger()
+        new GenericUInt(BigInteger.ZERO, 128).negate().toBigInteger()
     );
     assertEquals(
         BigInteger.ONE,
-        new GenericCompositeUInt(twoTo128.subtract(BigInteger.ONE), 128).negate().toBigInteger()
+        new GenericUInt(twoTo128.subtract(BigInteger.ONE), 128).negate().toBigInteger()
     );
     assertEquals(
         two,
-        new GenericCompositeUInt(twoTo128.subtract(two), 128).negate().toBigInteger()
+        new GenericUInt(twoTo128.subtract(two), 128).negate().toBigInteger()
     );
     assertEquals(
         twoTo128.subtract(two),
-        new GenericCompositeUInt(two, 128).negate().toBigInteger()
+        new GenericUInt(two, 128).negate().toBigInteger()
     );
   }
 
@@ -190,22 +191,22 @@ public class TestGenericCompositeUInt {
   public void testSubtract() {
     assertEquals(
         BigInteger.ZERO,
-        new GenericCompositeUInt(BigInteger.ZERO, 128).subtract(new GenericCompositeUInt(BigInteger.ZERO, 128))
+        new GenericUInt(BigInteger.ZERO, 128).subtract(new GenericUInt(BigInteger.ZERO, 128))
             .toBigInteger()
     );
     assertEquals(
         BigInteger.ONE,
-        new GenericCompositeUInt(BigInteger.ONE, 128).subtract(new GenericCompositeUInt(BigInteger.ZERO, 128))
+        new GenericUInt(BigInteger.ONE, 128).subtract(new GenericUInt(BigInteger.ZERO, 128))
             .toBigInteger()
     );
     assertEquals(
         BigInteger.ZERO,
-        new GenericCompositeUInt(BigInteger.ONE, 128).subtract(new GenericCompositeUInt(BigInteger.ONE, 128))
+        new GenericUInt(BigInteger.ONE, 128).subtract(new GenericUInt(BigInteger.ONE, 128))
             .toBigInteger()
     );
     assertEquals(
         twoTo128.subtract(BigInteger.ONE),
-        new GenericCompositeUInt(BigInteger.ONE, 128).subtract(new GenericCompositeUInt(two, 128))
+        new GenericUInt(BigInteger.ONE, 128).subtract(new GenericUInt(two, 128))
             .toBigInteger()
     );
   }
@@ -213,7 +214,7 @@ public class TestGenericCompositeUInt {
   @Test
   public void testToByteArrayWithPadding() {
     byte[] bytes = new byte[]{0x42};
-    CompositeUInt<GenericCompositeUInt> uint = new GenericCompositeUInt(bytes, 128);
+    UInt<GenericUInt> uint = new GenericUInt(bytes, 128);
     byte[] expected = new byte[16];
     expected[expected.length - 1] = 0x42;
     byte[] actual = uint.toByteArray();
@@ -224,7 +225,7 @@ public class TestGenericCompositeUInt {
   public void testToByteArray() {
     byte[] bytes = new byte[16];
     new Random(1).nextBytes(bytes);
-    CompositeUInt<GenericCompositeUInt> uint = new GenericCompositeUInt(bytes, 128);
+    UInt<GenericUInt> uint = new GenericUInt(bytes, 128);
     byte[] actual = uint.toByteArray();
     assertArrayEquals(bytes, actual);
   }
@@ -236,15 +237,15 @@ public class TestGenericCompositeUInt {
         0x02, 0x02, 0x02, 0x02, // mid
         0x03, 0x03, 0x02, 0x03  // low
     };
-    CompositeUInt<GenericCompositeUInt> uint = new GenericCompositeUInt(bytes, 128);
+    UInt<GenericUInt> uint = new GenericUInt(bytes, 128);
     byte[] actual = uint.toByteArray();
     assertArrayEquals(bytes, actual);
   }
 
   @Test
   public void testIsZero() {
-    assertTrue(new GenericCompositeUInt(0, 128).isZero());
-    assertFalse(new GenericCompositeUInt(1, 128).isZero());
+    assertTrue(new GenericUInt(0, 128).isZero());
+    assertFalse(new GenericUInt(1, 128).isZero());
   }
 
   @Test
@@ -254,14 +255,14 @@ public class TestGenericCompositeUInt {
         0x02, 0x02, 0x02, 0x02, // mid
         0x03, 0x03, 0x02, 0x03  // low
     };
-    CompositeUInt<GenericCompositeUInt> uint = new GenericCompositeUInt(bytes, 128);
-    CompositeUInt<GenericCompositeUInt> subLow = uint.getSubRange(0, 2);
+    CompUInt<GenericUInt, GenericUInt, GenericUInt> uint = new GenericUInt(bytes, 128);
+    GenericUInt subLow = uint.getLow();
     byte[] expectedSubRangeBytesLow = new byte[]{
         0x02, 0x02, 0x02, 0x02,
         0x03, 0x03, 0x02, 0x03
     };
     assertArrayEquals(expectedSubRangeBytesLow, subLow.toByteArray());
-    CompositeUInt<GenericCompositeUInt> subHigh = uint.getSubRange(2, 4);
+    GenericUInt subHigh = uint.getHigh();
     byte[] expectedSubRangeBytesHigh = new byte[]{
         0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01
     };

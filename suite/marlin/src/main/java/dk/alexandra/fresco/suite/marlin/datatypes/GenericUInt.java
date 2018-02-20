@@ -8,32 +8,32 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class GenericCompositeUInt implements CompositeUInt<GenericCompositeUInt> {
+public class GenericUInt implements CompUInt<GenericUInt, GenericUInt, GenericUInt> {
 
   private final int[] ints;
 
-  public GenericCompositeUInt(final int[] ints) {
+  public GenericUInt(final int[] ints) {
     this.ints = ints;
   }
 
-  public GenericCompositeUInt(GenericCompositeUInt other, int requiredBitLength) {
+  public GenericUInt(GenericUInt other, int requiredBitLength) {
     this(pad(other.ints, requiredBitLength));
   }
 
-  public GenericCompositeUInt(byte[] bytes, int requiredBitLength) {
+  public GenericUInt(byte[] bytes, int requiredBitLength) {
     this(toIntArray(bytes, requiredBitLength));
   }
 
-  public GenericCompositeUInt(BigInteger value, int requiredBitLength) {
+  public GenericUInt(BigInteger value, int requiredBitLength) {
     this(value.toByteArray(), requiredBitLength);
   }
 
-  public GenericCompositeUInt(long value, int requiredBitLength) {
+  public GenericUInt(long value, int requiredBitLength) {
     this(longToInts(value, requiredBitLength));
   }
 
   @Override
-  public GenericCompositeUInt add(final GenericCompositeUInt other) {
+  public GenericUInt add(final GenericUInt other) {
     final int[] resultInts = new int[ints.length];
     long carry = 0;
     // big-endian, so reverse order
@@ -42,11 +42,11 @@ public class GenericCompositeUInt implements CompositeUInt<GenericCompositeUInt>
       resultInts[l] = (int) sum;
       carry = sum >>> 32;
     }
-    return new GenericCompositeUInt(resultInts);
+    return new GenericUInt(resultInts);
   }
 
   @Override
-  public GenericCompositeUInt multiply(final GenericCompositeUInt other) {
+  public GenericUInt multiply(final GenericUInt other) {
     // TODO get rid off extra multiplication
     // note that we assume that other has the same bit-length as this
     final int[] resultInts = new int[ints.length];
@@ -60,23 +60,23 @@ public class GenericCompositeUInt implements CompositeUInt<GenericCompositeUInt>
         resultInts[resIdxOffset] = (int) product;
       }
     }
-    return new GenericCompositeUInt(resultInts);
+    return new GenericUInt(resultInts);
   }
 
   @Override
-  public GenericCompositeUInt subtract(GenericCompositeUInt other) {
+  public GenericUInt subtract(GenericUInt other) {
     return this.add(other.negate());
   }
 
   @Override
-  public GenericCompositeUInt negate() {
+  public GenericUInt negate() {
     int[] reversed = new int[ints.length];
     for (int i = 0; i < reversed.length; i++) {
       reversed[i] = ~ints[i];
     }
     // TODO cache this
-    GenericCompositeUInt one = new GenericCompositeUInt(1, 128);
-    return new GenericCompositeUInt(reversed).add(one);
+    GenericUInt one = new GenericUInt(1, 128);
+    return new GenericUInt(reversed).add(one);
   }
 
   @Override
@@ -108,23 +108,22 @@ public class GenericCompositeUInt implements CompositeUInt<GenericCompositeUInt>
   }
 
   @Override
-  public GenericCompositeUInt computeOverflow() {
-    GenericCompositeUInt low = new GenericCompositeUInt(getLowAsLong(), ints.length * Integer.SIZE);
+  public GenericUInt computeOverflow() {
+    GenericUInt low = new GenericUInt(getLowAsLong(), ints.length * Integer.SIZE);
     return low.subtract(this).getHigh();
   }
 
-  @Override
-  public GenericCompositeUInt getSubRange(int from, int to) {
-    return new GenericCompositeUInt(getIntSubRange(from, to));
+  private GenericUInt getSubRange(int from, int to) {
+    return new GenericUInt(getIntSubRange(from, to));
   }
 
   @Override
-  public GenericCompositeUInt getLow() {
+  public GenericUInt getLow() {
     return getSubRange(0, 2);
   }
 
   @Override
-  public GenericCompositeUInt getHigh() {
+  public GenericUInt getHigh() {
     return getSubRange(2, 4);
   }
 
@@ -134,11 +133,11 @@ public class GenericCompositeUInt implements CompositeUInt<GenericCompositeUInt>
   }
 
   @Override
-  public GenericCompositeUInt shiftLowIntoHigh() {
+  public GenericUInt shiftLowIntoHigh() {
     int[] shifted = new int[ints.length];
     shifted[0] = ints[shifted.length - 2];
     shifted[1] = ints[shifted.length - 1];
-    return new GenericCompositeUInt(shifted);
+    return new GenericUInt(shifted);
   }
 
   @Override
@@ -196,18 +195,18 @@ public class GenericCompositeUInt implements CompositeUInt<GenericCompositeUInt>
   }
 
   public static void runUInt() {
-    GenericCompositeUIntFactory factory = new GenericCompositeUIntFactory();
+    GenericCompUIntFactory factory = new GenericCompUIntFactory();
     int numValues = 1000000;
-    List<GenericCompositeUInt> left = new ArrayList<>(numValues);
-    List<GenericCompositeUInt> right = new ArrayList<>(numValues);
+    List<GenericUInt> left = new ArrayList<>(numValues);
+    List<GenericUInt> right = new ArrayList<>(numValues);
     for (int i = 0; i < numValues; i++) {
       left.add(factory.createRandom());
       right.add(factory.createRandom());
     }
-    GenericCompositeUInt other = CompositeUInt.innerProduct(left, right);
+    GenericUInt other = UInt.innerProduct(left, right);
     System.out.println(other);
     long startTime = System.currentTimeMillis();
-    GenericCompositeUInt inner = CompositeUInt.innerProduct(left, right);
+    GenericUInt inner = UInt.innerProduct(left, right);
     long endTime = System.currentTimeMillis();
     long duration = (endTime - startTime);
     System.out.println(inner);
@@ -215,18 +214,18 @@ public class GenericCompositeUInt implements CompositeUInt<GenericCompositeUInt>
   }
 
   public static void runUInt128() {
-    CompositeUInt128Factory factory = new CompositeUInt128Factory();
+    CompUInt128Factory factory = new CompUInt128Factory();
     int numValues = 1000000;
-    List<CompositeUInt128> left = new ArrayList<>(numValues);
-    List<CompositeUInt128> right = new ArrayList<>(numValues);
+    List<UInt128> left = new ArrayList<>(numValues);
+    List<UInt128> right = new ArrayList<>(numValues);
     for (int i = 0; i < numValues; i++) {
       left.add(factory.createRandom());
       right.add(factory.createRandom());
     }
-    CompositeUInt128 other = CompositeUInt.innerProduct(left, right);
+    UInt128 other = UInt.innerProduct(left, right);
     System.out.println(other);
     long startTime = System.currentTimeMillis();
-    CompositeUInt128 inner = CompositeUInt.innerProduct(left, right);
+    UInt128 inner = UInt.innerProduct(left, right);
     long endTime = System.currentTimeMillis();
     long duration = (endTime - startTime);
     System.out.println(inner);

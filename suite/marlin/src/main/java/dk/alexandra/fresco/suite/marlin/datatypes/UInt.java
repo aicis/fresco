@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Interface for representing unsigned integers larger than 64 bits.
  */
-public interface CompositeUInt<T extends CompositeUInt> {
+public interface UInt<T extends UInt> {
 
   /**
    * Compute sum of this and {@code other}.
@@ -49,13 +49,11 @@ public interface CompositeUInt<T extends CompositeUInt> {
    */
   BigInteger toBigInteger();
 
-  T computeOverflow();
+//  T getSubRange(int from, int to);
 
-  T getSubRange(int from, int to);
-
-  T getLow();
-
-  T getHigh();
+//  T getLow();
+//
+//  T getHigh();
 
   T shiftLowIntoHigh();
 
@@ -64,14 +62,14 @@ public interface CompositeUInt<T extends CompositeUInt> {
   /**
    * Compute sum of elements.
    */
-  static <S extends CompositeUInt<S>> S sum(List<S> elements) {
-    return elements.stream().reduce(CompositeUInt::add).get();
+  static <S extends UInt<S>> S sum(List<S> elements) {
+    return elements.stream().reduce(UInt::add).get();
   }
 
   /**
    * Compute pairwise product of elements.
    */
-  static <S extends CompositeUInt<S>> List<S> product(List<S> left, List<S> right) {
+  static <S extends UInt<S>> List<S> product(List<S> left, List<S> right) {
     List<S> product = new ArrayList<>(left.size());
     for (int i = 0; i < left.size(); i++) {
       product.add(left.get(i).multiply(right.get(i)));
@@ -82,7 +80,7 @@ public interface CompositeUInt<T extends CompositeUInt> {
   /**
    * Compute inner product of elements.
    */
-  static <S extends CompositeUInt<S>> S innerProduct(List<S> left, List<S> right) {
+  static <S extends UInt<S>> S innerProduct(List<S> left, List<S> right) {
     return sum(product(left, right));
   }
 
