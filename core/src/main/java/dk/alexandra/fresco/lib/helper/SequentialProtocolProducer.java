@@ -3,25 +3,20 @@ package dk.alexandra.fresco.lib.helper;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.List;
 
-public class SequentialProtocolProducer implements ProtocolProducer, ProtocolProducerCollection {
+public class SequentialProtocolProducer implements ProtocolProducer {
 
-  private LinkedList<ProtocolProducer> protocolProducers = new LinkedList<>();
   private ProtocolProducer currentProducer;
+  private final Deque<ProtocolProducer> protocolProducers;
 
-  public SequentialProtocolProducer(ProtocolProducer... protocolProducers) {
-    this.protocolProducers.addAll(Arrays.asList(protocolProducers));
+  public SequentialProtocolProducer(List<ProtocolProducer> protocols) {
+    protocolProducers = new ArrayDeque<>(protocols);
   }
 
-  public SequentialProtocolProducer() {
-
-  }
-
-  public void append(ProtocolProducer protocolProducer) {
-    this.protocolProducers.add(protocolProducer);
-  }
 
   @Override
   public <ResourcePoolT extends ResourcePool> void getNextProtocols(
@@ -41,14 +36,18 @@ public class SequentialProtocolProducer implements ProtocolProducer, ProtocolPro
     }
     ProtocolProducer current = protocolProducers.getFirst();
     if (current instanceof LazyProtocolProducerDecorator) {
-      protocolProducers.removeFirst();
       LazyProtocolProducerDecorator currentProducer = (LazyProtocolProducerDecorator) current;
-      protocolProducers.add(0, currentProducer.getInnerProtocolProducer());
+      protocolProducers.removeFirst();
+      protocolProducers.addFirst(currentProducer.getInnerProtocolProducer());
       return inline();
     } else if (current instanceof SequentialProtocolProducer) {
-      protocolProducers.removeFirst();
       SequentialProtocolProducer seq = (SequentialProtocolProducer) current;
-      protocolProducers.addAll(0, seq.protocolProducers);
+      protocolProducers.removeFirst();
+      for (Iterator<ProtocolProducer> iterator = seq.protocolProducers.descendingIterator();
+          iterator.hasNext(); ) {
+        ProtocolProducer protocolProducer = iterator.next();
+        protocolProducers.addFirst(protocolProducer);
+      }
       return inline();
     } else {
       return current;
