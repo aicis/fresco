@@ -109,7 +109,7 @@ public abstract class AbstractDummyArithmeticTest {
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  noOfParties, drbg, mod),
+                  noOfParties, mod),
               () -> {
                 KryoNetNetwork kryoNetwork = new KryoNetNetwork(partyNetConf);
                 if (logPerformance) {

@@ -72,7 +72,7 @@ public class TestNumericSuiteLoggingDecorators {
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  noOfParties, drbg, mod),
+                  noOfParties, mod),
               () -> new KryoNetNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }
@@ -138,7 +138,7 @@ public class TestNumericSuiteLoggingDecorators {
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  noOfParties, drbg, mod),
+                  noOfParties, mod),
               () -> new KryoNetNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }

@@ -30,13 +30,13 @@ public class TestSpdzMisc {
     SpdzStorage store = new SpdzStorageImpl(
         new SpdzStorageDataSupplier(new FilebasedStreamedStorageImpl(new InMemoryStorage()), "null",
             2));
-    new SpdzResourcePoolImpl(1, 2, null, store);
+    new SpdzResourcePoolImpl(1, 2, store);
   }
 
   @Test(expected = IllegalStateException.class)
   public void testSpdzExponentiationPipeProtocolExpPipeFailedLength() {
     SpdzStorage store = new SpdzStorageImpl(new SpdzDummyDataSupplier(1, 2, new BigInteger("251")));
-    SpdzResourcePool rp = new SpdzResourcePoolImpl(1, 2, null, store);
+    SpdzResourcePool rp = new SpdzResourcePoolImpl(1, 2, store);
     SpdzExponentiationPipeProtocol pro = new SpdzExponentiationPipeProtocol(
         FakeTripGen.EXP_PIPE_SIZE);
     pro.evaluate(0, rp, null);

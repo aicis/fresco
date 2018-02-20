@@ -107,6 +107,6 @@ public abstract class AbstractSpdzTest {
 
   private SpdzResourcePool createResourcePool(int myId, int size) {
     SpdzStorageImpl store = new SpdzStorageImpl(new SpdzDummyDataSupplier(myId, size));
-    return new SpdzResourcePoolImpl(myId, size, new HmacDrbg(), store);
+    return new SpdzResourcePoolImpl(myId, size, store);
   }
 }
