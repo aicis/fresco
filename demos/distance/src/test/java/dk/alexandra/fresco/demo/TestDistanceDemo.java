@@ -65,7 +65,7 @@ public class TestDistanceDemo {
   private SpdzResourcePool createResourcePool(int myId, int size) {
     SpdzStorage store;
     store = new SpdzStorageImpl(new SpdzDummyDataSupplier(myId, size));
-    return new SpdzResourcePoolImpl(myId, size, new HmacDrbg(), store);
+    return new SpdzResourcePoolImpl(myId, size, store);
   }
 
   @Test

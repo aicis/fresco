@@ -14,7 +14,6 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialStrategy;
-import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
@@ -45,7 +44,7 @@ public class TestAggregation {
       ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> suite = new SpdzProtocolSuite(150);
       SpdzStorage store = new SpdzStorageImpl(new SpdzDummyDataSupplier(i, n));
       SpdzResourcePool rp =
-          new SpdzResourcePoolImpl(i, n, new HmacDrbg(), store);
+          new SpdzResourcePoolImpl(i, n, store);
       ProtocolEvaluator<SpdzResourcePool> evaluator =
           new BatchedProtocolEvaluator<>(new SequentialStrategy<>(), suite);
       SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =
