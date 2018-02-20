@@ -6,6 +6,8 @@ import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.lib.helper.LazyProtocolProducerDecorator;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
+import java.util.Arrays;
+import java.util.List;
 
 class BuildStepSingle<BuilderT extends ProtocolBuilderImpl<BuilderT>, OutputT, InputT>
     implements BuildStep.NextStepBuilder<BuilderT, OutputT, InputT> {
@@ -27,7 +29,7 @@ class BuildStepSingle<BuilderT extends ProtocolBuilderImpl<BuilderT>, OutputT, I
     BuilderT builder = createBuilder(factory);
     DRes<OutputT> output = function.buildComputation(builder, input);
     if (next != null) {
-      SequentialProtocolProducer protocolProducer = new SequentialProtocolProducer(
+      List<ProtocolProducer> protocols = Arrays.asList(
           builder.build(),
           new LazyProtocolProducerDecorator(() -> {
             OutputT out = null;
@@ -35,8 +37,8 @@ class BuildStepSingle<BuilderT extends ProtocolBuilderImpl<BuilderT>, OutputT, I
               out = output.out();
             }
             return next.createProducer(out, factory);
-          })
-      );
+          }));
+      SequentialProtocolProducer protocolProducer = new SequentialProtocolProducer(protocols);
       return new Pair<>(protocolProducer, null);
     } else {
       return new Pair<>(builder.build(), output);
