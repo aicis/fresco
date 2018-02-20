@@ -13,6 +13,9 @@ public class UInt128 implements CompUInt<UInt64, UInt64, UInt128> {
 
   private static final UInt128 MINUS_ONE = new UInt128(
       BigInteger.ONE.shiftLeft(128).subtract(BigInteger.ONE));
+  private static final UInt128 ONE = new UInt128(1);
+
+
   private final long high;
   private final int mid;
   private final int low;
@@ -120,7 +123,7 @@ public class UInt128 implements CompUInt<UInt64, UInt64, UInt128> {
 
   @Override
   public UInt128 negate() {
-    return multiply(MINUS_ONE);
+    return new UInt128(~high, ~mid, ~low).add(ONE);
   }
 
   @Override
