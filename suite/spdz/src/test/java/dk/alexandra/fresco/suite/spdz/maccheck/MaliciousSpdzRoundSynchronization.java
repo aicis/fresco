@@ -5,12 +5,17 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.NetworkBatchDecorator;
 import dk.alexandra.fresco.framework.sce.evaluator.ProtocolCollectionList;
+import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzRoundSynchronization;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.security.SecureRandom;
 
 public class MaliciousSpdzRoundSynchronization extends SpdzRoundSynchronization {
+
+  public MaliciousSpdzRoundSynchronization(SpdzProtocolSuite spdzProtocolSuite) {
+    super(spdzProtocolSuite);
+  }
 
   @Override
   protected void doMacCheck(SpdzResourcePool resourcePool, Network network) {
