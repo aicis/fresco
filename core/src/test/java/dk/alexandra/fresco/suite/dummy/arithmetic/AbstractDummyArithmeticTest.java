@@ -110,7 +110,7 @@ public abstract class AbstractDummyArithmeticTest {
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  noOfParties, drbg, mod),
+                  noOfParties, mod),
               () -> {
                 Network asyncNetwork = new AsyncNetwork(partyNetConf);
                 if (logPerformance) {

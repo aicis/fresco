@@ -3,7 +3,6 @@ package dk.alexandra.fresco.suite.spdz;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
-import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
@@ -21,11 +20,10 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
    * Construct a ResourcePool implementation suitable for the spdz protocol suite.
    * @param myId The id of the party
    * @param noOfPlayers The amount of parties
-   * @param drbg The randomness to use
    * @param storage The storage to use
    */
-  public SpdzResourcePoolImpl(int myId, int noOfPlayers, Drbg drbg, SpdzStorage storage) {
-    super(myId, noOfPlayers, drbg);
+  public SpdzResourcePoolImpl(int myId, int noOfPlayers, SpdzStorage storage) {
+    super(myId, noOfPlayers);
 
     this.storage = storage;
 

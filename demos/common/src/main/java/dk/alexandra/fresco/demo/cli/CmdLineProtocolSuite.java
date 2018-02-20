@@ -52,7 +52,7 @@ public class CmdLineProtocolSuite {
     if (protocolSuiteName.equals("dummybool")) {
       this.protocolSuite = new DummyBooleanProtocolSuite();
       this.resourcePool =
-          new ResourcePoolImpl(myId, noOfPlayers, new HmacDrbg());
+          new ResourcePoolImpl(myId, noOfPlayers);
     } else if (protocolSuiteName.equals("dummyarithmetic")) {
       this.protocolSuite = dummyArithmeticFromCmdLine(properties);
       BigInteger mod = new BigInteger(properties.getProperty("modulus",
@@ -67,11 +67,11 @@ public class CmdLineProtocolSuite {
     } else if (protocolSuiteName.equals("tinytablesprepro")) {
       this.protocolSuite = tinyTablesPreProFromCmdLine(properties);
       this.resourcePool =
-          new ResourcePoolImpl(myId, noOfPlayers, new HmacDrbg());
+          new ResourcePoolImpl(myId, noOfPlayers);
     } else {
       this.protocolSuite = tinyTablesFromCmdLine(properties);
       this.resourcePool =
-          new ResourcePoolImpl(myId, noOfPlayers, new HmacDrbg());
+          new ResourcePoolImpl(myId, noOfPlayers);
     }
   }
 
@@ -124,7 +124,7 @@ public class CmdLineProtocolSuite {
     }
 
     SpdzStorage store = new SpdzStorageImpl(supplier);
-    return new SpdzResourcePoolImpl(myId, noOfPlayers, new HmacDrbg(), store);
+    return new SpdzResourcePoolImpl(myId, noOfPlayers, store);
   }
 
   private ProtocolSuite<?, ?> tinyTablesPreProFromCmdLine(Properties properties) {

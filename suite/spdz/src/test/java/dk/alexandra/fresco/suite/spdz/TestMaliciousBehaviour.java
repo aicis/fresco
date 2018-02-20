@@ -15,7 +15,6 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.compare.CompareTests;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
@@ -164,7 +163,7 @@ public class TestMaliciousBehaviour {
   private SpdzResourcePool createResourcePool(int myId, int size) {
     SpdzDataSupplier supplier = new SpdzDummyDataSupplier(myId, size);
     SpdzStorage store = new SpdzStorageImpl(supplier);
-    return new SpdzResourcePoolImpl(myId, size, new HmacDrbg(), store);
+    return new SpdzResourcePoolImpl(myId, size, store);
   }
 
   private class MaliciousSpdzProtocolSuite extends SpdzProtocolSuite {

@@ -61,7 +61,7 @@ public class TestScapiNetworkLayer {
       network.init(netConf.get(i), 1);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderNumeric> ttc =
           new TestThreadConfiguration<>(null,
-              () -> new ResourcePoolImpl(i, n, null), () -> network);
+              () -> new ResourcePoolImpl(i, n), () -> network);
       conf.put(i, ttc);
       netConfs.put(i, netConf.get(i));
     }

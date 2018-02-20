@@ -54,7 +54,7 @@ public class TestScapiNetwork {
       network.init(netConf.get(i), 1);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderNumeric> ttc =
           new TestThreadConfiguration<>(null,
-              () -> new ResourcePoolImpl(i, n, null), () -> network);
+              () -> new ResourcePoolImpl(i, n), () -> network);
       conf.put(i, ttc);
     }
     TestThreadRunner.run(test, conf);
@@ -102,7 +102,7 @@ public class TestScapiNetwork {
       network.init(netConf.get(i), 1);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderNumeric> ttc =
           new TestThreadConfiguration<>(null,
-              () -> new ResourcePoolImpl(i, n, null), () -> network);
+              () -> new ResourcePoolImpl(i, n), () -> network);
       conf.put(i, ttc);
     }
     return conf;
