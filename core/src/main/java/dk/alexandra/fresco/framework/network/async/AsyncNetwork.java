@@ -262,10 +262,6 @@ public class AsyncNetwork implements CloseableNetwork {
 
   }
 
-
-
-  //
-
   @Override
   public void send(int partyId, byte[] data) {
     inRange(partyId);
