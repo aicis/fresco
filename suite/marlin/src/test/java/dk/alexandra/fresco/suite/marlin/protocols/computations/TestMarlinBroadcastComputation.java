@@ -10,12 +10,16 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.marlin.AbstractMarlinTest;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt128;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt128Factory;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntFactory;
+import dk.alexandra.fresco.suite.marlin.datatypes.UInt64;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import org.junit.Test;
 
-public class TestMarlinBroadcastComputation extends AbstractMarlinTest {
+public class TestMarlinBroadcastComputation extends AbstractMarlinTest<UInt64, UInt64, CompUInt128> {
 
   @Test
   public void testBroadcast() {
@@ -27,6 +31,11 @@ public class TestMarlinBroadcastComputation extends AbstractMarlinTest {
   public void testBroadcastThree() {
     runTest(new TestTest<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
         false);
+  }
+
+  @Override
+  protected CompUIntFactory<UInt64, UInt64, CompUInt128> createFactory() {
+    return new CompUInt128Factory();
   }
 
   private static class TestTest<ResourcePoolT extends ResourcePool>
