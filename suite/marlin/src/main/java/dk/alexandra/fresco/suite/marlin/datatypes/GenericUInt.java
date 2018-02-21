@@ -38,7 +38,7 @@ public class GenericUInt implements CompUInt<GenericUInt, GenericUInt, GenericUI
     long carry = 0;
     // big-endian, so reverse order
     for (int l = ints.length - 1; l >= 0; l--) {
-      final long sum = toULong(ints[l]) + toULong(other.ints[l]) + carry;
+      final long sum = UInt.toUnLong(ints[l]) + UInt.toUnLong(other.ints[l]) + carry;
       resultInts[l] = (int) sum;
       carry = sum >>> 32;
     }
@@ -54,8 +54,8 @@ public class GenericUInt implements CompUInt<GenericUInt, GenericUInt, GenericUI
       long carry = 0;
       int resIdxOffset = l;
       for (int r = ints.length - 1; r >= 0 && resIdxOffset >= 0; r--, resIdxOffset--) {
-        final long product = toULong(ints[l]) * toULong(other.ints[r])
-            + toULong(resultInts[resIdxOffset]) + carry;
+        final long product = UInt.toUnLong(ints[l]) * UInt.toUnLong(other.ints[r])
+            + UInt.toUnLong(resultInts[resIdxOffset]) + carry;
         carry = product >>> 32;
         resultInts[resIdxOffset] = (int) product;
       }
@@ -129,7 +129,7 @@ public class GenericUInt implements CompUInt<GenericUInt, GenericUInt, GenericUI
 
   @Override
   public long getLowAsLong() {
-    return (toULong(ints[ints.length - 2]) << 32) + toULong(ints[ints.length - 1]);
+    return (UInt.toUnLong(ints[ints.length - 2]) << 32) + UInt.toUnLong(ints[ints.length - 1]);
   }
 
   @Override
@@ -150,10 +150,6 @@ public class GenericUInt implements CompUInt<GenericUInt, GenericUInt, GenericUI
     int fromFlipped = ints.length - from - (to - from);
     int toFlipped = ints.length - from;
     return Arrays.copyOfRange(ints, fromFlipped, toFlipped);
-  }
-
-  private static long toULong(final int value) {
-    return value & 0xffffffffL;
   }
 
   private static int[] toIntArray(byte[] bytes, int requiredBitLength) {
@@ -194,9 +190,9 @@ public class GenericUInt implements CompUInt<GenericUInt, GenericUInt, GenericUI
     return ints;
   }
 
-  public static void runUInt() {
+  private static void runUInt() {
     GenericCompUIntFactory factory = new GenericCompUIntFactory();
-    int numValues = 1000000;
+    int numValues = 10000000;
     List<GenericUInt> left = new ArrayList<>(numValues);
     List<GenericUInt> right = new ArrayList<>(numValues);
     for (int i = 0; i < numValues; i++) {
@@ -213,19 +209,19 @@ public class GenericUInt implements CompUInt<GenericUInt, GenericUInt, GenericUI
     System.out.println(duration);
   }
 
-  public static void runUInt128() {
+  private static void runUInt128() {
     CompUInt128Factory factory = new CompUInt128Factory();
-    int numValues = 1000000;
-    List<UInt128> left = new ArrayList<>(numValues);
-    List<UInt128> right = new ArrayList<>(numValues);
+    int numValues = 10000000;
+    List<CompUInt128> left = new ArrayList<>(numValues);
+    List<CompUInt128> right = new ArrayList<>(numValues);
     for (int i = 0; i < numValues; i++) {
       left.add(factory.createRandom());
       right.add(factory.createRandom());
     }
-    UInt128 other = UInt.innerProduct(left, right);
+    CompUInt128 other = UInt.innerProduct(left, right);
     System.out.println(other);
     long startTime = System.currentTimeMillis();
-    UInt128 inner = UInt.innerProduct(left, right);
+    CompUInt128 inner = UInt.innerProduct(left, right);
     long endTime = System.currentTimeMillis();
     long duration = (endTime - startTime);
     System.out.println(inner);
@@ -233,6 +229,9 @@ public class GenericUInt implements CompUInt<GenericUInt, GenericUInt, GenericUI
   }
 
   public static void main(String[] args) {
+    runUInt128();
+    runUInt();
+    System.out.println("For real");
     runUInt128();
     runUInt();
   }

@@ -6,33 +6,27 @@ import dk.alexandra.fresco.framework.builder.ComputationParallel;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
-import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
-import dk.alexandra.fresco.suite.marlin.datatypes.UInt;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinAllBroadcastProtocol;
-import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MarlinCommitmentComputation<H extends UInt<H>, L extends UInt<L>, T extends CompUInt<H, L, T>> implements
+public class MarlinCommitmentComputation implements
     ComputationParallel<List<byte[]>, ProtocolBuilderNumeric> {
 
-  private final MarlinResourcePool<H, L, T> resourcePool;
+  private final ByteSerializer<HashBasedCommitment> commitmentSerializer;
   private final byte[] value;
 
-  public MarlinCommitmentComputation(MarlinResourcePool<H, L, T> resourcePool, byte[] value) {
-    // TODO think about logistics of exposing resource pool
-    this.resourcePool = resourcePool;
+  public MarlinCommitmentComputation(ByteSerializer<HashBasedCommitment> commitmentSerializer, byte[] value) {
+    this.commitmentSerializer = commitmentSerializer;
     this.value = value;
   }
 
   @Override
   public DRes<List<byte[]>> buildComputation(ProtocolBuilderNumeric builder) {
     HashBasedCommitment ownCommitment = new HashBasedCommitment();
-    ByteSerializer<HashBasedCommitment> commitmentSerializer = resourcePool
-        .getCommitmentSerializer();
     // TODO optimize by caching initialized drbg somewhere, if needed
     byte[] ownOpening = ownCommitment.commit(new AesCtrDrbg(), value);
-    return builder.seq(new MarlinBroadcastComputation<>(
+    return builder.seq(new MarlinBroadcastComputation(
         commitmentSerializer.serialize(ownCommitment)
     )).seq((seq, rawCommitments) -> {
       DRes<List<byte[]>> openingsDRes = seq.append(new MarlinAllBroadcastProtocol<>(ownOpening));

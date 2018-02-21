@@ -22,7 +22,7 @@ import dk.alexandra.fresco.logging.PerformanceLogger;
 import dk.alexandra.fresco.logging.PerformanceLoggerCountingAggregate;
 import dk.alexandra.fresco.logging.PerformancePrinter;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
-import dk.alexandra.fresco.suite.marlin.datatypes.UInt128;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt128;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt128Factory;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.marlin.datatypes.UInt64;
@@ -43,7 +43,7 @@ public class AbstractMarlinTest {
   protected Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
 
   protected void runTest(
-      TestThreadRunner.TestThreadFactory<MarlinResourcePool<UInt64, UInt64, UInt128>, ProtocolBuilderNumeric> f,
+      TestThreadRunner.TestThreadFactory<MarlinResourcePool<UInt64, UInt64, CompUInt128>, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, int noOfParties, boolean logPerformance) {
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
@@ -52,7 +52,7 @@ public class AbstractMarlinTest {
 
     Map<Integer, NetworkConfiguration> netConf =
         TestConfiguration.getNetworkConfigurations(noOfParties, ports);
-    Map<Integer, TestThreadRunner.TestThreadConfiguration<MarlinResourcePool<UInt64, UInt64, UInt128>, ProtocolBuilderNumeric>> conf =
+    Map<Integer, TestThreadRunner.TestThreadConfiguration<MarlinResourcePool<UInt64, UInt64, CompUInt128>, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     for (int playerId : netConf.keySet()) {
       PerformanceLoggerCountingAggregate aggregate
@@ -60,34 +60,34 @@ public class AbstractMarlinTest {
 
       NetworkConfiguration partyNetConf = netConf.get(playerId);
 
-      ProtocolSuiteNumeric<MarlinResourcePool<UInt64, UInt64, UInt128>> ps = new MarlinProtocolSuite<>(
+      ProtocolSuiteNumeric<MarlinResourcePool<UInt64, UInt64, CompUInt128>> ps = new MarlinProtocolSuite<>(
           new CompUInt128Factory());
       if (logPerformance) {
         ps = new NumericSuiteLogging<>(ps);
         aggregate.add((PerformanceLogger) ps);
       }
 
-      BatchEvaluationStrategy<MarlinResourcePool<UInt64, UInt64, UInt128>> batchEvaluationStrategy =
+      BatchEvaluationStrategy<MarlinResourcePool<UInt64, UInt64, CompUInt128>> batchEvaluationStrategy =
           evalStrategy.getStrategy();
       if (logPerformance) {
         batchEvaluationStrategy =
             new BatchEvaluationLoggingDecorator<>(batchEvaluationStrategy);
         aggregate.add((PerformanceLogger) batchEvaluationStrategy);
       }
-      ProtocolEvaluator<MarlinResourcePool<UInt64, UInt64, UInt128>> evaluator =
+      ProtocolEvaluator<MarlinResourcePool<UInt64, UInt64, CompUInt128>> evaluator =
           new BatchedProtocolEvaluator<>(batchEvaluationStrategy, ps);
       if (logPerformance) {
         evaluator = new EvaluatorLoggingDecorator<>(evaluator);
         aggregate.add((PerformanceLogger) evaluator);
       }
 
-      CompUIntFactory<UInt64, UInt64, UInt128> factory = new CompUInt128Factory();
-      MarlinOpenedValueStore<UInt64, UInt64, UInt128> store = createOpenedValueStore();
-      MarlinDataSupplier<UInt64, UInt64, UInt128> supplier = createDataSupplier(playerId,
+      CompUIntFactory<UInt64, UInt64, CompUInt128> factory = new CompUInt128Factory();
+      MarlinOpenedValueStore<UInt64, UInt64, CompUInt128> store = createOpenedValueStore();
+      MarlinDataSupplier<UInt64, UInt64, CompUInt128> supplier = createDataSupplier(playerId,
           noOfParties,
           factory);
 
-      SecureComputationEngine<MarlinResourcePool<UInt64, UInt64, UInt128>, ProtocolBuilderNumeric> sce =
+      SecureComputationEngine<MarlinResourcePool<UInt64, UInt64, CompUInt128>, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(ps, evaluator);
 
       Supplier<Network> networkSupplier = () -> {
@@ -100,7 +100,7 @@ public class AbstractMarlinTest {
           return asyncNetwork;
         }
       };
-      TestThreadRunner.TestThreadConfiguration<MarlinResourcePool<UInt64, UInt64, UInt128>, ProtocolBuilderNumeric> ttc =
+      TestThreadRunner.TestThreadConfiguration<MarlinResourcePool<UInt64, UInt64, CompUInt128>, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,
               () -> createResourcePool(playerId, noOfParties, store, supplier,
@@ -118,21 +118,21 @@ public class AbstractMarlinTest {
     }
   }
 
-  private MarlinOpenedValueStore<UInt64, UInt64, UInt128> createOpenedValueStore() {
+  private MarlinOpenedValueStore<UInt64, UInt64, CompUInt128> createOpenedValueStore() {
     return new MarlinOpenedValueStoreImpl<>();
   }
 
-  private MarlinDataSupplier<UInt64, UInt64, UInt128> createDataSupplier(int myId, int noOfParties,
-      CompUIntFactory<UInt64, UInt64, UInt128> factory) {
+  private MarlinDataSupplier<UInt64, UInt64, CompUInt128> createDataSupplier(int myId, int noOfParties,
+      CompUIntFactory<UInt64, UInt64, CompUInt128> factory) {
     return new MarlinDummyDataSupplier<>(myId, noOfParties, factory.createRandom(), factory);
   }
 
-  private MarlinResourcePool<UInt64, UInt64, UInt128> createResourcePool(int playerId,
+  private MarlinResourcePool<UInt64, UInt64, CompUInt128> createResourcePool(int playerId,
       int noOfParties,
-      MarlinOpenedValueStore<UInt64, UInt64, UInt128> store,
-      MarlinDataSupplier<UInt64, UInt64, UInt128> supplier,
-      CompUIntFactory<UInt64, UInt64, UInt128> factory, Supplier<Network> networkSupplier) {
-    MarlinResourcePool<UInt64, UInt64, UInt128> resourcePool = new MarlinResourcePoolImpl<>(
+      MarlinOpenedValueStore<UInt64, UInt64, CompUInt128> store,
+      MarlinDataSupplier<UInt64, UInt64, CompUInt128> supplier,
+      CompUIntFactory<UInt64, UInt64, CompUInt128> factory, Supplier<Network> networkSupplier) {
+    MarlinResourcePool<UInt64, UInt64, CompUInt128> resourcePool = new MarlinResourcePoolImpl<>(
         playerId,
         noOfParties, null, store, supplier, factory);
     resourcePool.initializeJointRandomness(networkSupplier, AesCtrDrbg::new, 32);

@@ -9,7 +9,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.suite.marlin.AbstractMarlinTest;
-import dk.alexandra.fresco.suite.marlin.datatypes.UInt128;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt128;
 import dk.alexandra.fresco.suite.marlin.datatypes.UInt64;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ public class TestMarlinCommitmentComputation extends AbstractMarlinTest {
         false);
   }
 
-  private static class TestTest<ResourcePoolT extends MarlinResourcePool<UInt64, UInt64, UInt128>>
+  private static class TestTest<ResourcePoolT extends MarlinResourcePool<UInt64, UInt64, CompUInt128>>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
@@ -48,8 +48,8 @@ public class TestMarlinCommitmentComputation extends AbstractMarlinTest {
             inputs.add(bytes);
           }
           Application<List<byte[]>, ProtocolBuilderNumeric> testApplication =
-              root -> new MarlinCommitmentComputation<>(
-                  conf.getResourcePool(),
+              root -> new MarlinCommitmentComputation(
+                  conf.getResourcePool().getCommitmentSerializer(),
                   inputs.get(root.getBasicNumericContext().getMyId() - 1))
                   .buildComputation(root);
           List<byte[]> actual = runApplication(testApplication);

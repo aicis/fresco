@@ -46,7 +46,7 @@ public class TestMarlinBroadcastComputation extends AbstractMarlinTest {
             inputs.add(bytes);
           }
           Application<List<byte[]>, ProtocolBuilderNumeric> testApplication =
-              root -> new MarlinBroadcastComputation<>(
+              root -> new MarlinBroadcastComputation(
                   inputs.get(root.getBasicNumericContext().getMyId() - 1)).buildComputation(root);
           List<byte[]> actual = runApplication(testApplication);
           assertEquals(inputs.size(), actual.size());

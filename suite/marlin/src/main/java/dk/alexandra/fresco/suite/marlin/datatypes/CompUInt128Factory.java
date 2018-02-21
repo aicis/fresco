@@ -4,34 +4,34 @@ import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.suite.marlin.util.BigUIntSerializer;
 import java.security.SecureRandom;
 
-public class CompUInt128Factory implements CompUIntFactory<UInt64, UInt64, UInt128> {
+public class CompUInt128Factory implements CompUIntFactory<UInt64, UInt64, CompUInt128> {
 
   private final SecureRandom random = new SecureRandom();
 
   @Override
-  public UInt128 createFromBytes(byte[] bytes) {
-    return new UInt128(bytes);
+  public CompUInt128 createFromBytes(byte[] bytes) {
+    return new CompUInt128(bytes);
   }
 
   @Override
-  public UInt128 createFromHigh(UInt64 value) {
-    return new UInt128(value);
+  public CompUInt128 createFromHigh(UInt64 value) {
+    return new CompUInt128(value);
   }
 
   @Override
-  public UInt128 createFromLow(UInt64 value) {
-    return new UInt128(value);
+  public CompUInt128 createFromLow(UInt64 value) {
+    return new CompUInt128(value);
   }
 
   @Override
-  public UInt128 createRandom() {
+  public CompUInt128 createRandom() {
     byte[] bytes = new byte[16];
     this.random.nextBytes(bytes);
     return createFromBytes(bytes);
   }
 
   @Override
-  public ByteSerializer<UInt128> createSerializer() {
+  public ByteSerializer<CompUInt128> createSerializer() {
     return new BigUIntSerializer<>(this);
   }
 

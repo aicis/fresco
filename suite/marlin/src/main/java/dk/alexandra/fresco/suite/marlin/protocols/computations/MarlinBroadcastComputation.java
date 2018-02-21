@@ -3,14 +3,13 @@ package dk.alexandra.fresco.suite.marlin.protocols.computations;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.suite.marlin.datatypes.UInt;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinAllBroadcastProtocol;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinBroadcastValidationProtocol;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class MarlinBroadcastComputation<T extends UInt<T>> implements
+public class MarlinBroadcastComputation implements
     Computation<List<byte[]>, ProtocolBuilderNumeric> {
 
   private final List<byte[]> input;

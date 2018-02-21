@@ -121,7 +121,9 @@ public class MarlinResourcePoolImpl<H extends UInt<H>, L extends UInt<L>, T exte
     ProtocolBuilderNumeric root = builderFactory.createSequential();
     byte[] ownSeed = new byte[seedLength];
     new SecureRandom().nextBytes(ownSeed);
-    DRes<List<byte[]>> seeds = new MarlinCommitmentComputation<>(this, ownSeed)
+    DRes<List<byte[]>> seeds = new MarlinCommitmentComputation(
+        this.getCommitmentSerializer(),
+        ownSeed)
         .buildComputation(root);
     ProtocolProducer commitmentProducer = root.build();
     do {

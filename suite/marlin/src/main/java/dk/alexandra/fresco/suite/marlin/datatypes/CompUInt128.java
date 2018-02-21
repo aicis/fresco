@@ -9,29 +9,20 @@ import java.nio.ByteOrder;
  * https://locklessinc.com/articles/256bit_arithmetic/. Note that this class is NOT SAFE to
  * instantiate with negative values.</p>
  */
-public class UInt128 implements CompUInt<UInt64, UInt64, UInt128> {
+public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
 
-  private static final UInt128 MINUS_ONE = new UInt128(
-      BigInteger.ONE.shiftLeft(128).subtract(BigInteger.ONE));
-  private static final UInt128 ONE = new UInt128(1);
-
+  private static final CompUInt128 ONE = new CompUInt128(1);
 
   private final long high;
   private final int mid;
   private final int low;
 
-  public UInt128() {
-    high = 0;
-    mid = 0;
-    low = 0;
-  }
-
   /**
-   * Creates new {@link UInt128}.
+   * Creates new {@link CompUInt128}.
    *
    * @param bytes bytes interpreted in big-endian order.
    */
-  public UInt128(byte[] bytes) {
+  public CompUInt128(byte[] bytes) {
     byte[] padded = pad(bytes);
     ByteBuffer buffer = ByteBuffer.wrap(padded);
     buffer.order(ByteOrder.BIG_ENDIAN);
@@ -40,34 +31,34 @@ public class UInt128 implements CompUInt<UInt64, UInt64, UInt128> {
     this.low = buffer.getInt();
   }
 
-  private UInt128(long high, int mid, int low) {
+  private CompUInt128(long high, int mid, int low) {
     this.high = high;
     this.mid = mid;
     this.low = low;
   }
 
-  UInt128(BigInteger value) {
+  CompUInt128(BigInteger value) {
     this(value.toByteArray());
   }
 
-  public UInt128(UInt64 value) {
+  public CompUInt128(UInt64 value) {
     this(value.getLowAsLong());
   }
 
-  public UInt128(long value) {
+  public CompUInt128(long value) {
     this.high = 0;
     this.mid = (int) (value >>> 32);
     this.low = (int) value;
   }
 
-  UInt128(UInt128 other) {
+  CompUInt128(CompUInt128 other) {
     this.high = other.high;
     this.mid = other.mid;
     this.low = other.low;
   }
 
   @Override
-  public UInt128 add(UInt128 other) {
+  public CompUInt128 add(CompUInt128 other) {
     long newLow = Integer.toUnsignedLong(this.low) + Integer.toUnsignedLong(other.low);
     long lowOverflow = newLow >>> 32;
     long newMid = Integer.toUnsignedLong(this.mid)
@@ -75,15 +66,15 @@ public class UInt128 implements CompUInt<UInt64, UInt64, UInt128> {
         + lowOverflow;
     long midOverflow = newMid >>> 32;
     long newHigh = this.high + other.high + midOverflow;
-    return new UInt128(newHigh, (int) newMid, (int) newLow);
+    return new CompUInt128(newHigh, (int) newMid, (int) newLow);
   }
 
   @Override
-  public UInt128 multiply(UInt128 other) {
-    long thisLowAsLong = Integer.toUnsignedLong(this.low);
-    long thisMidAsLong = Integer.toUnsignedLong(this.mid);
-    long otherLowAsLong = Integer.toUnsignedLong(other.low);
-    long otherMidAsLong = Integer.toUnsignedLong(other.mid);
+  public CompUInt128 multiply(CompUInt128 other) {
+    long thisLowAsLong = UInt.toUnLong(this.low);
+    long thisMidAsLong = UInt.toUnLong(this.mid);
+    long otherLowAsLong = UInt.toUnLong(other.low);
+    long otherMidAsLong = UInt.toUnLong(other.mid);
 
     // low
     long t1 = thisLowAsLong * otherLowAsLong;
@@ -102,28 +93,28 @@ public class UInt128 implements CompUInt<UInt64, UInt64, UInt128> {
 
     long m1 = (t1 >>> 32) + (t2 & 0xffffffffL);
     int m2 = (int) m1;
-    long newMid = Integer.toUnsignedLong(m2) + (t4 & 0xffffffffL);
+    long newMid = UInt.toUnLong(m2) + (t4 & 0xffffffffL);
 
     long newHigh = (t2 >>> 32)
         + t3
         + (t4 >>> 32)
         + t5
-        + (Integer.toUnsignedLong(t6) << 32)
+        + (UInt.toUnLong(t6) << 32)
         + t7
-        + (Integer.toUnsignedLong(t8) << 32)
+        + (UInt.toUnLong(t8) << 32)
         + (m1 >>> 32)
         + (newMid >>> 32);
-    return new UInt128(newHigh, (int) newMid, (int) t1);
+    return new CompUInt128(newHigh, (int) newMid, (int) t1);
   }
 
   @Override
-  public UInt128 subtract(UInt128 other) {
+  public CompUInt128 subtract(CompUInt128 other) {
     return this.add(other.negate());
   }
 
   @Override
-  public UInt128 negate() {
-    return new UInt128(~high, ~mid, ~low).add(ONE);
+  public CompUInt128 negate() {
+    return new CompUInt128(~high, ~mid, ~low).add(ONE);
   }
 
   @Override
@@ -138,7 +129,7 @@ public class UInt128 implements CompUInt<UInt64, UInt64, UInt128> {
 
   @Override
   public UInt64 computeOverflow() {
-    UInt128 low = new UInt128(getLowAsLong());
+    CompUInt128 low = new CompUInt128(getLowAsLong());
     return low.subtract(this).getHigh();
   }
 
@@ -158,8 +149,8 @@ public class UInt128 implements CompUInt<UInt64, UInt64, UInt128> {
   }
 
   @Override
-  public UInt128 shiftLowIntoHigh() {
-    return new UInt128(getLowAsLong(), 0, 0);
+  public CompUInt128 shiftLowIntoHigh() {
+    return new CompUInt128(getLowAsLong(), 0, 0);
   }
 
   private byte[] pad(byte[] bytes) {

@@ -49,12 +49,6 @@ public interface UInt<T extends UInt> {
    */
   BigInteger toBigInteger();
 
-//  T getSubRange(int from, int to);
-
-//  T getLow();
-//
-//  T getHigh();
-
   T shiftLowIntoHigh();
 
   long getLowAsLong();
@@ -82,6 +76,13 @@ public interface UInt<T extends UInt> {
    */
   static <S extends UInt<S>> S innerProduct(List<S> left, List<S> right) {
     return sum(product(left, right));
+  }
+
+  /**
+   * Short-hand for Integer.toUnsignedLong().
+   */
+  static long toUnLong(final int value) {
+    return value & 0xffffffffL;
   }
 
 }

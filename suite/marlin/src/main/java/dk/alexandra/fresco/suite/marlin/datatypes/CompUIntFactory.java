@@ -26,6 +26,8 @@ public interface CompUIntFactory<H extends UInt<H>, L extends UInt<L>, T extends
    */
   T createRandom();
 
+//  T createDeterministicRandom(Drbg drbg, int numBytes);
+
   /**
    * Creates element whose value is zero.
    */

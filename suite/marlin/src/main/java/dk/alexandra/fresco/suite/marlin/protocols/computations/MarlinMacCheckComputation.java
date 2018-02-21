@@ -16,63 +16,70 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class MarlinMacCheckComputation<H extends UInt<H>, L extends UInt<L>, T extends CompUInt<H, L, T>> implements
-    Computation<Void, ProtocolBuilderNumeric> {
+public class MarlinMacCheckComputation<
+    HighT extends UInt<HighT>,
+    LowT extends UInt<LowT>,
+    CompT extends CompUInt<HighT, LowT, CompT>>
+    implements Computation<Void, ProtocolBuilderNumeric> {
 
-  private final MarlinResourcePool<H, L, T> resourcePool;
+  private final MarlinResourcePool<HighT, LowT, CompT> resourcePool;
 
   public MarlinMacCheckComputation(
-      MarlinResourcePool<H, L, T> resourcePool) {
+      MarlinResourcePool<HighT, LowT, CompT> resourcePool) {
     this.resourcePool = resourcePool;
   }
 
   @Override
   public DRes<Void> buildComputation(ProtocolBuilderNumeric builder) {
-    Pair<List<MarlinSInt<H, L, T>>, List<T>> opened = resourcePool.getOpenedValueStore().popValues();
-    List<MarlinSInt<H, L, T>> authenticatedElements = opened.getFirst();
-    List<T> openValues = opened.getSecond();
-    ByteSerializer<T> serializer = resourcePool.getRawSerializer();
-    CompUIntFactory<H, L, T> factory = resourcePool.getFactory();
-    T macKeyShare = resourcePool.getDataSupplier().getSecretSharedKey();
+    Pair<List<MarlinSInt<HighT, LowT, CompT>>, List<CompT>> opened = resourcePool
+        .getOpenedValueStore()
+        .popValues();
+    List<MarlinSInt<HighT, LowT, CompT>> authenticatedElements = opened.getFirst();
+    List<CompT> openValues = opened.getSecond();
+    ByteSerializer<CompT> serializer = resourcePool.getRawSerializer();
+    CompUIntFactory<HighT, LowT, CompT> factory = resourcePool.getFactory();
+    CompT macKeyShare = resourcePool.getDataSupplier().getSecretSharedKey();
     // TODO figure out serializers
     List<byte[]> sharesLowBits = authenticatedElements.stream()
         .map(element -> element.getShare().getLow().toByteArray())
         .collect(Collectors.toList());
-    final List<T> randomCoefficients = sampleCoefficients(
+    final List<CompT> randomCoefficients = sampleCoefficients(
         resourcePool.getRandomGenerator(),
         factory, openValues.size());
-    final T y = UInt.innerProduct(openValues, randomCoefficients);
-    final MarlinSInt<H, L, T> r = resourcePool.getDataSupplier().getNextRandomElementShare();
+    final CompT y = UInt.innerProduct(openValues, randomCoefficients);
+    final MarlinSInt<HighT, LowT, CompT> r = resourcePool.getDataSupplier()
+        .getNextRandomElementShare();
     return builder
-        .seq(new MarlinBroadcastComputation<>(sharesLowBits))
+        .seq(new MarlinBroadcastComputation(sharesLowBits))
         .seq((seq, ignored) -> {
-          List<T> originalShares = authenticatedElements.stream()
+          List<CompT> originalShares = authenticatedElements.stream()
               .map(MarlinSInt::getShare)
               .collect(Collectors.toList());
-          List<L> overflow = originalShares.stream()
-              .map(T::computeOverflow)
+          List<LowT> overflow = originalShares.stream()
+              .map(CompT::computeOverflow)
               .collect(Collectors.toList());
-          List<L> randomCoefficientsLow = randomCoefficients.stream()
-              .map(T::getLow)
+          List<LowT> randomCoefficientsLow = randomCoefficients.stream()
+              .map(CompT::getLow)
               .collect(Collectors.toList());
-          L pj = UInt.innerProduct(overflow, randomCoefficientsLow);
+          LowT pj = UInt.innerProduct(overflow, randomCoefficientsLow);
           byte[] pjBytes = pj.add(r.getShare().getLow()).toByteArray();
-          return new MarlinBroadcastComputation<>(pjBytes).buildComputation(seq);
+          return new MarlinBroadcastComputation(pjBytes).buildComputation(seq);
         })
         .seq((seq, broadcastPjs) -> {
-          List<T> pjList = serializer.deserializeList(broadcastPjs);
-          L pLow = UInt.sum(
-              pjList.stream().map(T::getLow).collect(Collectors.toList()));
-          T p = factory.createFromLow(pLow);
-          List<T> macShares = authenticatedElements.stream()
+          List<CompT> pjList = serializer.deserializeList(broadcastPjs);
+          LowT pLow = UInt.sum(
+              pjList.stream().map(CompT::getLow).collect(Collectors.toList()));
+          CompT p = factory.createFromLow(pLow);
+          List<CompT> macShares = authenticatedElements.stream()
               .map(MarlinSInt::getMacShare)
               .collect(Collectors.toList());
-          T mj = UInt.innerProduct(macShares, randomCoefficients);
-          T zj = macKeyShare.multiply(y)
+          CompT mj = UInt.innerProduct(macShares, randomCoefficients);
+          CompT zj = macKeyShare.multiply(y)
               .subtract(mj)
               .subtract(p.multiply(macKeyShare).shiftLowIntoHigh())
               .add(r.getMacShare().shiftLowIntoHigh());
-          return new MarlinCommitmentComputation<>(resourcePool, serializer.serialize(zj))
+          return new MarlinCommitmentComputation(resourcePool.getCommitmentSerializer(),
+              serializer.serialize(zj))
               .buildComputation(seq);
         })
         .seq((seq, commitZjs) -> {
@@ -83,8 +90,9 @@ public class MarlinMacCheckComputation<H extends UInt<H>, L extends UInt<L>, T e
         });
   }
 
-  private List<T> sampleCoefficients(Drbg drbg, CompUIntFactory<H, L, T> factory, int numCoefficients) {
-    List<T> randomCoefficients = new ArrayList<>(numCoefficients);
+  private List<CompT> sampleCoefficients(Drbg drbg, CompUIntFactory<HighT, LowT, CompT> factory,
+      int numCoefficients) {
+    List<CompT> randomCoefficients = new ArrayList<>(numCoefficients);
     for (int i = 0; i < numCoefficients; i++) {
       byte[] bytes = new byte[factory.getHighBitLength() / Byte.SIZE];
       drbg.nextBytes(bytes);
