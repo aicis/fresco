@@ -7,14 +7,13 @@ import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStor
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
-import dk.alexandra.fresco.suite.spdz.AbstractSpdzTest;
 import java.io.IOException;
 import java.math.BigInteger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestStorage extends AbstractSpdzTest {
+public class TestStorage {
 
   private static final int THREAD_COUNT = 1;
   private static final int MY_ID = 1;
