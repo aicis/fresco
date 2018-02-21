@@ -109,27 +109,33 @@ public class GenericUInt implements CompUInt<GenericUInt, GenericUInt, GenericUI
 
   @Override
   public GenericUInt computeOverflow() {
-    GenericUInt low = new GenericUInt(getLowAsLong(), ints.length * Integer.SIZE);
-    return low.subtract(this).getHigh();
-  }
-
-  private GenericUInt getSubRange(int from, int to) {
-    return new GenericUInt(getIntSubRange(from, to));
+    GenericUInt low = new GenericUInt(toLong(), ints.length * Integer.SIZE);
+    return low.subtract(this).getMostSignificant();
   }
 
   @Override
-  public GenericUInt getLow() {
+  public GenericUInt getLeastSignificant() {
     return getSubRange(0, 2);
   }
 
   @Override
-  public GenericUInt getHigh() {
+  public GenericUInt getLeastSignificantAsHigh() {
+    return getSubRange(0, 2);
+  }
+
+  @Override
+  public GenericUInt getMostSignificant() {
     return getSubRange(2, 4);
   }
 
   @Override
-  public long getLowAsLong() {
+  public long toLong() {
     return (UInt.toUnLong(ints[ints.length - 2]) << 32) + UInt.toUnLong(ints[ints.length - 1]);
+  }
+
+  @Override
+  public int toInt() {
+    return ints[ints.length - 1];
   }
 
   @Override
@@ -143,6 +149,10 @@ public class GenericUInt implements CompUInt<GenericUInt, GenericUInt, GenericUI
   @Override
   public String toString() {
     return toBigInteger().toString();
+  }
+
+  private GenericUInt getSubRange(int from, int to) {
+    return new GenericUInt(getIntSubRange(from, to));
   }
 
   private int[] getIntSubRange(int from, int to) {
@@ -231,7 +241,6 @@ public class GenericUInt implements CompUInt<GenericUInt, GenericUInt, GenericUI
   public static void main(String[] args) {
     runUInt128();
     runUInt();
-    System.out.println("For real");
     runUInt128();
     runUInt();
   }

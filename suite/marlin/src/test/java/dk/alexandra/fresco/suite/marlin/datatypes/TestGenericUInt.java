@@ -256,13 +256,13 @@ public class TestGenericUInt {
         0x03, 0x03, 0x02, 0x03  // low
     };
     CompUInt<GenericUInt, GenericUInt, GenericUInt> uint = new GenericUInt(bytes, 128);
-    GenericUInt subLow = uint.getLow();
+    GenericUInt subLow = uint.getLeastSignificant();
     byte[] expectedSubRangeBytesLow = new byte[]{
         0x02, 0x02, 0x02, 0x02,
         0x03, 0x03, 0x02, 0x03
     };
     assertArrayEquals(expectedSubRangeBytesLow, subLow.toByteArray());
-    GenericUInt subHigh = uint.getHigh();
+    GenericUInt subHigh = uint.getMostSignificant();
     byte[] expectedSubRangeBytesHigh = new byte[]{
         0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01
     };

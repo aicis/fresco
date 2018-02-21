@@ -39,9 +39,8 @@ public class MarlinMacCheckComputation<
     ByteSerializer<CompT> serializer = resourcePool.getRawSerializer();
     CompUIntFactory<HighT, LowT, CompT> factory = resourcePool.getFactory();
     CompT macKeyShare = resourcePool.getDataSupplier().getSecretSharedKey();
-    // TODO figure out serializers
     List<byte[]> sharesLowBits = authenticatedElements.stream()
-        .map(element -> element.getShare().getLow().toByteArray())
+        .map(element -> element.getShare().getLeastSignificant().toByteArray())
         .collect(Collectors.toList());
     final List<CompT> randomCoefficients = sampleCoefficients(
         resourcePool.getRandomGenerator(),
@@ -55,20 +54,20 @@ public class MarlinMacCheckComputation<
           List<CompT> originalShares = authenticatedElements.stream()
               .map(MarlinSInt::getShare)
               .collect(Collectors.toList());
-          List<LowT> overflow = originalShares.stream()
+          List<HighT> overflow = originalShares.stream()
               .map(CompT::computeOverflow)
               .collect(Collectors.toList());
-          List<LowT> randomCoefficientsLow = randomCoefficients.stream()
-              .map(CompT::getLow)
+          List<HighT> randomCoefficientsAsHigh = randomCoefficients.stream()
+              .map(CompT::getLeastSignificantAsHigh)
               .collect(Collectors.toList());
-          LowT pj = UInt.innerProduct(overflow, randomCoefficientsLow);
-          byte[] pjBytes = pj.add(r.getShare().getLow()).toByteArray();
+          HighT pj = UInt.innerProduct(overflow, randomCoefficientsAsHigh);
+          byte[] pjBytes = pj.add(r.getShare().getLeastSignificantAsHigh()).toByteArray();
           return new MarlinBroadcastComputation(pjBytes).buildComputation(seq);
         })
         .seq((seq, broadcastPjs) -> {
           List<CompT> pjList = serializer.deserializeList(broadcastPjs);
           LowT pLow = UInt.sum(
-              pjList.stream().map(CompT::getLow).collect(Collectors.toList()));
+              pjList.stream().map(CompT::getLeastSignificant).collect(Collectors.toList()));
           CompT p = factory.createFromLow(pLow);
           List<CompT> macShares = authenticatedElements.stream()
               .map(MarlinSInt::getMacShare)

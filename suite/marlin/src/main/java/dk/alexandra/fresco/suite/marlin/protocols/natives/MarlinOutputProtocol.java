@@ -29,7 +29,7 @@ public class MarlinOutputProtocol<H extends UInt<H>, L extends UInt<L>, T extend
     if (round == 0) {
       authenticatedElement = (MarlinSInt<H, L, T>) share.out();
       // TODO figure out serializer
-      network.sendToAll(authenticatedElement.getShare().getLow().toByteArray());
+      network.sendToAll(authenticatedElement.getShare().getLeastSignificant().toByteArray());
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       List<T> shares = resourcePool.getRawSerializer().deserializeList(network.receiveFromAll());

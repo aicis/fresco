@@ -14,11 +14,6 @@ public class CompUInt128Factory implements CompUIntFactory<UInt64, UInt64, CompU
   }
 
   @Override
-  public CompUInt128 createFromHigh(UInt64 value) {
-    return new CompUInt128(value);
-  }
-
-  @Override
   public CompUInt128 createFromLow(UInt64 value) {
     return new CompUInt128(value);
   }
@@ -33,11 +28,6 @@ public class CompUInt128Factory implements CompUIntFactory<UInt64, UInt64, CompU
   @Override
   public ByteSerializer<CompUInt128> createSerializer() {
     return new BigUIntSerializer<>(this);
-  }
-
-  @Override
-  public int getCompositeBitLength() {
-    return 128;
   }
 
   @Override

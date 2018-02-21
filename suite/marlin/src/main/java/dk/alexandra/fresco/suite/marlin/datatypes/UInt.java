@@ -49,9 +49,17 @@ public interface UInt<T extends UInt> {
    */
   BigInteger toBigInteger();
 
-  T shiftLowIntoHigh();
+  /**
+   * Returns this as long.
+   */
+  long toLong();
 
-  long getLowAsLong();
+  /**
+   * Returns this as int.
+   */
+  int toInt();
+
+  // TODO these belong on the factory
 
   /**
    * Compute sum of elements.
@@ -81,7 +89,7 @@ public interface UInt<T extends UInt> {
   /**
    * Short-hand for Integer.toUnsignedLong().
    */
-  static long toUnLong(final int value) {
+  static long toUnLong(int value) {
     return value & 0xffffffffL;
   }
 

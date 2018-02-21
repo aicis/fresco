@@ -79,7 +79,7 @@ public interface MarlinResourcePool<H extends UInt<H>, L extends UInt<L>, T exte
   int getEffectiveBitLength();
 
   default BigInteger convertRepresentation(T value) {
-    return value.getLow().toBigInteger();
+    return value.getLeastSignificant().toBigInteger();
   }
 
 }

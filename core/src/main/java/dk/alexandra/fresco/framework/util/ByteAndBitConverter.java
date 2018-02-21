@@ -15,10 +15,23 @@ public class ByteAndBitConverter {
   }
 
   /**
-   * Converts long to byte array. TODO move to own serializer?
+   * Converts long to byte array.
    */
   public static byte[] toByteArray(long value) {
-    return toByteArray(new long[]{value});
+    ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
+    buffer.order(ByteOrder.BIG_ENDIAN);
+    buffer.putLong(value);
+    return buffer.array();
+  }
+
+  /**
+   * Converts int to byte array.
+   */
+  public static byte[] toByteArray(int value) {
+    ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
+    buffer.order(ByteOrder.BIG_ENDIAN);
+    buffer.putLong(value);
+    return buffer.array();
   }
 
   public static byte[] toByteArray(long[] values) {

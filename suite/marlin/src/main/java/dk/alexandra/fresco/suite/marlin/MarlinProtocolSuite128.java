@@ -6,7 +6,6 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt128Factory;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePoolUint128;
-import dk.alexandra.fresco.suite.marlin.synchronization.MarlinRoundSynchronization;
 
 public class MarlinProtocolSuite128
     implements ProtocolSuiteNumeric<MarlinResourcePoolUint128> {
@@ -25,7 +24,8 @@ public class MarlinProtocolSuite128
 
   @Override
   public RoundSynchronization<MarlinResourcePoolUint128> createRoundSynchronization() {
-    return new MarlinRoundSynchronization(this, factory);
+//    return new MarlinRoundSynchronization<>(this, factory);
+    return null;
   }
 
   public BasicNumericContext createBasicNumericContext(MarlinResourcePoolUint128 resourcePool) {

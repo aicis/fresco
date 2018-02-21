@@ -4,35 +4,35 @@ import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import java.math.BigInteger;
 
 /**
- * A wrapper for the long type adhering to the {@link UInt} interface so that it can be used by
+ * A wrapper for the int type adhering to the {@link UInt} interface so that it can be used by
  * {@link CompUInt} instances.
  */
-public class UInt64 implements UInt<UInt64> {
+public class UInt32 implements UInt<UInt32> {
 
-  private final long value;
+  private final int value;
 
-  public UInt64(long value) {
+  public UInt32(int value) {
     this.value = value;
   }
 
   @Override
-  public UInt64 add(UInt64 other) {
-    return new UInt64(value + other.value);
+  public UInt32 add(UInt32 other) {
+    return new UInt32(value + other.value);
   }
 
   @Override
-  public UInt64 multiply(UInt64 other) {
-    return new UInt64(value * other.value);
+  public UInt32 multiply(UInt32 other) {
+    return new UInt32(value * other.value);
   }
 
   @Override
-  public UInt64 subtract(UInt64 other) {
-    return new UInt64(value - other.value);
+  public UInt32 subtract(UInt32 other) {
+    return new UInt32(value - other.value);
   }
 
   @Override
-  public UInt64 negate() {
-    return new UInt64(-value);
+  public UInt32 negate() {
+    return new UInt32(-value);
   }
 
   @Override
@@ -42,7 +42,7 @@ public class UInt64 implements UInt<UInt64> {
 
   @Override
   public int getBitLength() {
-    return 64;
+    return 32;
   }
 
   @Override
@@ -57,12 +57,12 @@ public class UInt64 implements UInt<UInt64> {
 
   @Override
   public long toLong() {
-    return value;
+    return UInt.toUnLong(value);
   }
 
   @Override
   public int toInt() {
-    return (int) value;
+    return value;
   }
 
 }

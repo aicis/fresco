@@ -1,13 +1,39 @@
 package dk.alexandra.fresco.suite.marlin.datatypes;
 
-public interface CompUInt<HighT extends UInt<HighT>,
+/**
+ * An unsigned integer conceptually composed of two other unsigned integers. <p>Composite integers
+ * have a bit length of t = s + k, where the s most significant bits can be viewed as a s-bit
+ * integer of type HighT and the k least significant bits as a k-bit integer of type LowT. The
+ * underlying representation is big endian.</p>
+ */
+public interface CompUInt<
+    HighT extends UInt<HighT>,
     LowT extends UInt<LowT>,
-    T extends UInt<T>> extends UInt<T> {
+    CompT extends UInt<CompT>> extends UInt<CompT> {
 
-  HighT getHigh();
+  /**
+   * Get the s most significant bits as an unsigned integer of type {@link HighT}.
+   */
+  HighT getMostSignificant();
 
-  LowT getLow();
+  /**
+   * Get the k least significant bits as an unsigned integer of type {@link LowT}.
+   */
+  LowT getLeastSignificant();
 
-  LowT computeOverflow();
+  /**
+   * Get the s least significant bits as an unsigned integer of type {@link HighT}.
+   */
+  HighT getLeastSignificantAsHigh();
+
+  /**
+   * TODO
+   */
+  HighT computeOverflow();
+
+  /**
+   * Left-shift the k least significant bits by k.
+   */
+  CompT shiftLowIntoHigh();
 
 }
