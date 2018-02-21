@@ -35,53 +35,70 @@ public class MarlinMacCheckComputation<
         .getOpenedValueStore()
         .popValues();
     List<MarlinSInt<HighT, LowT, CompT>> authenticatedElements = opened.getFirst();
+    System.out.println("authenticatedElements " + authenticatedElements);
     List<CompT> openValues = opened.getSecond();
+    System.out.println("openValues " + openValues);
     ByteSerializer<CompT> serializer = resourcePool.getRawSerializer();
     CompUIntFactory<HighT, LowT, CompT> factory = resourcePool.getFactory();
     CompT macKeyShare = resourcePool.getDataSupplier().getSecretSharedKey();
     List<byte[]> sharesLowBits = authenticatedElements.stream()
         .map(element -> element.getShare().getLeastSignificant().toByteArray())
         .collect(Collectors.toList());
+    System.out.println("macKeyShare " + macKeyShare);
     final List<CompT> randomCoefficients = sampleCoefficients(
         resourcePool.getRandomGenerator(),
         factory, openValues.size());
+    System.out.println("randomCoefficients " + randomCoefficients);
     final CompT y = UInt.innerProduct(openValues, randomCoefficients);
+    System.out.println("y " + y);
     final MarlinSInt<HighT, LowT, CompT> r = resourcePool.getDataSupplier()
         .getNextRandomElementShare();
+    System.out.println("r " + r);
     return builder
         .seq(new MarlinBroadcastComputation(sharesLowBits))
         .seq((seq, ignored) -> {
           List<CompT> originalShares = authenticatedElements.stream()
               .map(MarlinSInt::getShare)
               .collect(Collectors.toList());
+          System.out.println("originalShares " + originalShares);
           List<HighT> overflow = originalShares.stream()
               .map(CompT::computeOverflow)
               .collect(Collectors.toList());
+          System.out.println("overflow " + overflow);
           List<HighT> randomCoefficientsAsHigh = randomCoefficients.stream()
               .map(CompT::getLeastSignificantAsHigh)
               .collect(Collectors.toList());
+          System.out.println("randomCoefficientsAsHigh " + randomCoefficientsAsHigh);
           HighT pj = UInt.innerProduct(overflow, randomCoefficientsAsHigh);
+//          System.out.println("pj " + pj);
+          System.out.println("pj + r " + pj.add(r.getShare().getLeastSignificantAsHigh()));
           byte[] pjBytes = pj.add(r.getShare().getLeastSignificantAsHigh()).toByteArray();
           return new MarlinBroadcastComputation(pjBytes).buildComputation(seq);
         })
         .seq((seq, broadcastPjs) -> {
           List<CompT> pjList = serializer.deserializeList(broadcastPjs);
-          LowT pLow = UInt.sum(
-              pjList.stream().map(CompT::getLeastSignificant).collect(Collectors.toList()));
-          CompT p = factory.createFromLow(pLow);
+          System.out.println("pjList " + pjList);
+          HighT pLow = UInt.sum(
+              pjList.stream().map(CompT::getLeastSignificantAsHigh).collect(Collectors.toList()));
+          System.out.println("pLow " + pLow);
+          CompT p = factory.createFromHigh(pLow);
+          System.out.println("p " + p);
           List<CompT> macShares = authenticatedElements.stream()
               .map(MarlinSInt::getMacShare)
               .collect(Collectors.toList());
           CompT mj = UInt.innerProduct(macShares, randomCoefficients);
+          System.out.println("mj " + mj);
           CompT zj = macKeyShare.multiply(y)
               .subtract(mj)
               .subtract(p.multiply(macKeyShare).shiftLowIntoHigh())
               .add(r.getMacShare().shiftLowIntoHigh());
+          System.out.println("zj " + zj);
           return new MarlinCommitmentComputation(resourcePool.getCommitmentSerializer(),
               serializer.serialize(zj))
               .buildComputation(seq);
         })
         .seq((seq, commitZjs) -> {
+          System.out.println("commitZjs " + serializer.deserializeList(commitZjs));
           if (!UInt.sum(serializer.deserializeList(commitZjs)).isZero()) {
             throw new MaliciousException("Mac check failed");
           }

@@ -23,7 +23,7 @@ public interface MarlinOpenedValueStore<H extends UInt<H>, L extends UInt<L>, T 
   }
 
   /**
-   * Retrieve all values that haven't been checked yet and clears the store.
+   * Retrieve all values that haven't been checked yet and clear the store.
    */
   Pair<List<MarlinSInt<H, L, T>>, List<T>> popValues();
 

@@ -17,9 +17,9 @@ public interface CompUIntFactory<
   CompT createFromBytes(byte[] bytes);
 
   /**
-   * Creates new {@link CompT} from an instance of {@link LowT}.
+   * Creates new {@link CompT} from an instance of {@link HighT}.
    */
-  CompT createFromLow(LowT value);
+  CompT createFromHigh(HighT value);
 
   /**
    * Creates random {@link CompT}.

@@ -150,7 +150,7 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
 
   @Override
   public long toLong() {
-    return (Integer.toUnsignedLong(this.mid) << 32) + Integer.toUnsignedLong(this.low);
+    return (UInt.toUnLong(this.mid) << 32) + UInt.toUnLong(this.low);
   }
 
   @Override

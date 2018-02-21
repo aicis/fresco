@@ -6,7 +6,7 @@ import java.nio.ByteOrder;
 
 public class CompUInt96 implements CompUInt<UInt64, UInt32, CompUInt96> {
 
-  private static final CompUInt96 ONE = new CompUInt96(1);
+  private static final CompUInt96 ONE = new CompUInt96((int) 1);
 
   private final long high;
   private final int low;
@@ -58,7 +58,7 @@ public class CompUInt96 implements CompUInt<UInt64, UInt32, CompUInt96> {
 
   @Override
   public CompUInt96 add(CompUInt96 other) {
-    long newLow = Integer.toUnsignedLong(this.low) + Integer.toUnsignedLong(other.low);
+    long newLow = UInt.toUnLong(this.low) + UInt.toUnLong(other.low);
     long lowOverflow = newLow >>> 32;
     long newHigh = this.high + other.high + lowOverflow;
     return new CompUInt96(newHigh, (int) newLow);
@@ -68,20 +68,12 @@ public class CompUInt96 implements CompUInt<UInt64, UInt32, CompUInt96> {
   public CompUInt96 multiply(CompUInt96 other) {
     long thisLowAsLong = UInt.toUnLong(this.low);
     long otherLowAsLong = UInt.toUnLong(other.low);
-
     // low
     long t1 = thisLowAsLong * otherLowAsLong;
     long t3 = thisLowAsLong * other.high;
-
     // high
     long t7 = this.high * otherLowAsLong;
-
-    long m1 = (t1 >>> 32);
-    int m2 = (int) m1;
-    long newMid = UInt.toUnLong(m2);
-
-    long newHigh = t3 + t7 + (m1 >>> 32) + (newMid >>> 32);
-    return new CompUInt96(newHigh, (int) t1);
+    return new CompUInt96(t3 + t7 + (t1 >>> 32), (int) t1);
   }
 
   @Override
@@ -112,7 +104,7 @@ public class CompUInt96 implements CompUInt<UInt64, UInt32, CompUInt96> {
 
   @Override
   public UInt32 getLeastSignificant() {
-    return new UInt32(toInt());
+    return new UInt32(low);
   }
 
   @Override
@@ -127,7 +119,7 @@ public class CompUInt96 implements CompUInt<UInt64, UInt32, CompUInt96> {
 
   @Override
   public long toLong() {
-    return (high << 32) + (UInt.toUnLong(this.low));
+    return ((high & 0xffffffffL) << 32) + (UInt.toUnLong(this.low));
   }
 
   @Override
@@ -137,7 +129,9 @@ public class CompUInt96 implements CompUInt<UInt64, UInt32, CompUInt96> {
 
   @Override
   public CompUInt96 shiftLowIntoHigh() {
-    return new CompUInt96(toLong(), 0);
+    // need to first shift high by 32 and then add low into it
+    long highShifted = high << 32;
+    return new CompUInt96(highShifted + UInt.toUnLong(low), 0);
   }
 
   private byte[] pad(byte[] bytes) {
@@ -160,7 +154,7 @@ public class CompUInt96 implements CompUInt<UInt64, UInt32, CompUInt96> {
 
   @Override
   public int getBitLength() {
-    return 128;
+    return 96;
   }
 
   @Override

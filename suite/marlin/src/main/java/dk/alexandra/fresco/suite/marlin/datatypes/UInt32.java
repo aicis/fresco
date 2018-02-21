@@ -57,12 +57,17 @@ public class UInt32 implements UInt<UInt32> {
 
   @Override
   public long toLong() {
-    return UInt.toUnLong(value);
+    throw new UnsupportedOperationException("You didn't mean to call this.");
   }
 
   @Override
   public int toInt() {
     return value;
+  }
+
+  @Override
+  public String toString() {
+    return Integer.toUnsignedString(value);
   }
 
 }

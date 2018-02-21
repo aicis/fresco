@@ -15,7 +15,7 @@ public class GenericCompUIntFactory implements
   }
 
   @Override
-  public GenericUInt createFromLow(GenericUInt value) {
+  public GenericUInt createFromHigh(GenericUInt value) {
     return new GenericUInt(value, 128);
   }
 

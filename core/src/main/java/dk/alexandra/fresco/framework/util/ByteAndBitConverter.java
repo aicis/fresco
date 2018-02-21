@@ -30,7 +30,7 @@ public class ByteAndBitConverter {
   public static byte[] toByteArray(int value) {
     ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
     buffer.order(ByteOrder.BIG_ENDIAN);
-    buffer.putLong(value);
+    buffer.putInt(value);
     return buffer.array();
   }
 

@@ -14,7 +14,7 @@ public class CompUInt96Factory implements CompUIntFactory<UInt64, UInt32, CompUI
   }
 
   @Override
-  public CompUInt96 createFromLow(UInt32 value) {
+  public CompUInt96 createFromHigh(UInt64 value) {
     return new CompUInt96(value);
   }
 

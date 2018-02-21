@@ -24,7 +24,6 @@ import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinDataSupplier;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStore;
 import java.io.Closeable;
 import java.math.BigInteger;
-import java.security.SecureRandom;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -47,36 +46,18 @@ public class MarlinResourcePoolImpl<
   /**
    * Creates new {@link MarlinResourcePool}.
    */
-  private MarlinResourcePoolImpl(int myId, int noOfPlayers, Drbg drbg, int operationalBitLength,
-      int effectiveBitLength, MarlinOpenedValueStore<H, L, T> storage,
-      MarlinDataSupplier<H, L, T> supplier,
-      CompUIntFactory<H, L, T> factory) {
+  public MarlinResourcePoolImpl(int myId, int noOfPlayers, Drbg drbg,
+      MarlinOpenedValueStore<H, L, T> storage,
+      MarlinDataSupplier<H, L, T> supplier, CompUIntFactory<H, L, T> factory) {
     super(myId, noOfPlayers);
-    if (operationalBitLength != 128) {
-      throw new IllegalArgumentException(
-          "Current implementation only supports 128 operational bit length");
-    }
-    if (effectiveBitLength != 64) {
-      throw new IllegalArgumentException(
-          "Current implementation only supports 64 effective bit length");
-    }
-    this.operationalBitLength = operationalBitLength;
-    this.effectiveBitLength = effectiveBitLength;
+    this.operationalBitLength = factory.getCompositeBitLength();
+    this.effectiveBitLength = factory.getLowBitLength();
     this.modulus = BigInteger.ONE.shiftLeft(operationalBitLength);
     this.storage = storage;
     this.supplier = supplier;
     this.factory = factory;
     this.rawSerializer = factory.createSerializer();
     this.drbg = drbg;
-  }
-
-  /**
-   * Creates new {@link MarlinResourcePool}.
-   */
-  public MarlinResourcePoolImpl(int myId, int noOfPlayers, Drbg drbg,
-      MarlinOpenedValueStore<H, L, T> storage, MarlinDataSupplier<H, L, T> supplier,
-      CompUIntFactory<H, L, T> factory) {
-    this(myId, noOfPlayers, drbg, 128, 64, storage, supplier, factory);
   }
 
   @Override
@@ -112,6 +93,7 @@ public class MarlinResourcePoolImpl<
   @Override
   public void initializeJointRandomness(Supplier<Network> networkSupplier,
       Function<byte[], Drbg> drbgGenerator, int seedLength) {
+    // TODO clean this up
     BasicNumericContext numericContext = new BasicNumericContext(effectiveBitLength, modulus,
         getMyId(), getNoOfParties());
     Network network = networkSupplier.get();
@@ -122,7 +104,8 @@ public class MarlinResourcePoolImpl<
     BuilderFactoryNumeric builderFactory = new MarlinBuilder<>(factory, numericContext);
     ProtocolBuilderNumeric root = builderFactory.createSequential();
     byte[] ownSeed = new byte[seedLength];
-    new SecureRandom().nextBytes(ownSeed);
+    System.out.println(MarlinResourcePool.class + " change me back!");
+//    new SecureRandom().nextBytes(ownSeed);
     DRes<List<byte[]>> seeds = new MarlinCommitmentComputation(
         this.getCommitmentSerializer(),
         ownSeed)

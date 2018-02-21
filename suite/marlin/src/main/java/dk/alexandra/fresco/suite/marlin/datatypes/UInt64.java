@@ -65,4 +65,8 @@ public class UInt64 implements UInt<UInt64> {
     return (int) value;
   }
 
+  @Override
+  public String toString() {
+    return Long.toUnsignedString(value);
+  }
 }

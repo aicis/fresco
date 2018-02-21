@@ -12,35 +12,39 @@ import dk.alexandra.fresco.suite.marlin.datatypes.MarlinInputMask;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 
-public class MarlinInputOnlyProtocol<H extends UInt<H>, L extends UInt<L>, T extends CompUInt<H, L, T>> extends
-    MarlinNativeProtocol<Pair<DRes<SInt>, byte[]>, H, L, T> {
+public class MarlinInputOnlyProtocol<
+    HighT extends UInt<HighT>,
+    LowT extends UInt<LowT>,
+    CompT extends CompUInt<HighT, LowT, CompT>>
+    extends MarlinNativeProtocol<Pair<DRes<SInt>, byte[]>, HighT, LowT, CompT> {
 
-  private final T input;
+  private final CompT input;
   private final int inputPartyId;
-  private MarlinInputMask<H, L, T> inputMask;
+  private MarlinInputMask<HighT, LowT, CompT> inputMask;
   private Pair<DRes<SInt>, byte[]> out;
 
-  public MarlinInputOnlyProtocol(T input, int inputPartyId) {
+  public MarlinInputOnlyProtocol(CompT input, int inputPartyId) {
     this.input = input;
     this.inputPartyId = inputPartyId;
   }
 
   @Override
-  public EvaluationStatus evaluate(int round, MarlinResourcePool<H, L, T> resourcePool, Network network) {
-    CompUIntFactory<H, L, T> factory = resourcePool.getFactory();
+  public EvaluationStatus evaluate(int round, MarlinResourcePool<HighT, LowT, CompT> resourcePool,
+      Network network) {
+    CompUIntFactory<HighT, LowT, CompT> factory = resourcePool.getFactory();
     int myId = resourcePool.getMyId();
-    ByteSerializer<T> serializer = resourcePool.getRawSerializer();
+    ByteSerializer<CompT> serializer = resourcePool.getRawSerializer();
     if (round == 0) {
       inputMask = resourcePool.getDataSupplier().getNextInputMask(inputPartyId);
       if (myId == inputPartyId) {
-        T bcValue = this.input.subtract(inputMask.getOpenValue());
+        CompT bcValue = this.input.subtract(inputMask.getOpenValue());
         network.sendToAll(serializer.serialize(bcValue));
       }
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       byte[] inputMaskBytes = network.receive(inputPartyId);
-      T macKeyShare = resourcePool.getDataSupplier().getSecretSharedKey();
-      MarlinSInt<H, L, T> out = inputMask.getMaskShare().addConstant(
+      CompT macKeyShare = resourcePool.getDataSupplier().getSecretSharedKey();
+      MarlinSInt<HighT, LowT, CompT> out = inputMask.getMaskShare().addConstant(
           serializer.deserialize(inputMaskBytes),
           myId,
           macKeyShare,

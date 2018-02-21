@@ -14,7 +14,7 @@ public class CompUInt128Factory implements CompUIntFactory<UInt64, UInt64, CompU
   }
 
   @Override
-  public CompUInt128 createFromLow(UInt64 value) {
+  public CompUInt128 createFromHigh(UInt64 value) {
     return new CompUInt128(value);
   }
 

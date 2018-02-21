@@ -3,13 +3,14 @@ package dk.alexandra.fresco.suite.marlin;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.collections.io.CloseListTests.TestCloseAndOpenList;
-import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt128;
-import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt128Factory;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt96;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt96Factory;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntFactory;
+import dk.alexandra.fresco.suite.marlin.datatypes.UInt32;
 import dk.alexandra.fresco.suite.marlin.datatypes.UInt64;
 import org.junit.Test;
 
-public class TestMarlinBasicArithmetic128 extends AbstractMarlinTest<UInt64, UInt64, CompUInt128> {
+public class TestMarlinBasicArithmetic96 extends AbstractMarlinTest<UInt64, UInt32, CompUInt96> {
 
   @Test
   public void testInput() {
@@ -83,9 +84,9 @@ public class TestMarlinBasicArithmetic128 extends AbstractMarlinTest<UInt64, UIn
         false);
   }
 
+
   @Override
-  protected CompUIntFactory<UInt64, UInt64, CompUInt128> createFactory() {
-    return new CompUInt128Factory();
+  protected CompUIntFactory<UInt64, UInt32, CompUInt96> createFactory() {
+    return new CompUInt96Factory();
   }
-  
 }
