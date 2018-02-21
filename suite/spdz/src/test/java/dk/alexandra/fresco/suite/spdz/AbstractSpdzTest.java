@@ -12,6 +12,7 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.async.AsyncNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
@@ -21,7 +22,6 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -117,13 +117,13 @@ public abstract class AbstractSpdzTest {
               () -> createResourcePool(playerId, noOfParties, preProStrat, otManager, tripleManager,
                   expPipeManager),
               () -> {
-                KryoNetNetwork kryoNetwork = new KryoNetNetwork(netConf.get(playerId));
+                Network network = new AsyncNetwork(netConf.get(playerId));
                 if (logPerformance) {
-                  NetworkLoggingDecorator network = new NetworkLoggingDecorator(kryoNetwork);
-                  aggregate.add(network);
+                  network = new NetworkLoggingDecorator(network);
+                  aggregate.add((NetworkLoggingDecorator)network);
                   return network;
                 } else {
-                  return kryoNetwork;
+                  return network;
                 }
               });
       conf.put(playerId, ttc);
@@ -169,7 +169,7 @@ public abstract class AbstractSpdzTest {
         new BasicNumericContext(maxBitLength, tripleSupplier.getModulus(), myId, noOfPlayers))
         .createSequential();
     SpdzResourcePoolImpl tripleResourcePool =
-        new SpdzResourcePoolImpl(myId, noOfPlayers, null, new SpdzStorageImpl(tripleSupplier));
+        new SpdzResourcePoolImpl(myId, noOfPlayers, new SpdzStorageImpl(tripleSupplier));
 
     DRes<List<DRes<SInt>>> exponentiationPipe =
         new DefaultPreprocessedValues(sequential).getExponentiationPipe(pipeLength);
@@ -254,7 +254,7 @@ public abstract class AbstractSpdzTest {
       supplier = new SpdzStorageDataSupplier(storage, storageName, numberOfParties);
     }
     SpdzStorage store = new SpdzStorageImpl(supplier);
-    return new SpdzResourcePoolImpl(myId, numberOfParties, new HmacDrbg(), store);
+    return new SpdzResourcePoolImpl(myId, numberOfParties, store);
   }
 
   private SpdzSInt[] computeSInts(DRes<List<DRes<SInt>>> pipe) {

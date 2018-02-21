@@ -1,11 +1,11 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.ProtocolCollection;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
-import dk.alexandra.fresco.framework.sce.evaluator.NetworkBatchDecorator;
-import dk.alexandra.fresco.framework.sce.evaluator.ProtocolCollectionList;
 import dk.alexandra.fresco.suite.ProtocolSuite.RoundSynchronization;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMacCheckProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputProtocol;
@@ -19,34 +19,33 @@ import java.security.SecureRandom;
 public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResourcePool> {
 
   private static final int macCheckThreshold = 100000;
+  private final SpdzProtocolSuite spdzProtocolSuite;
+  private final SecureRandom secRand;
   private int gatesEvaluated = 0;
   private boolean doMacCheck = false;
-  private final SecureRandom secRand;
 
-  public SpdzRoundSynchronization() {
+  public SpdzRoundSynchronization(SpdzProtocolSuite spdzProtocolSuite) {
+    this.spdzProtocolSuite = spdzProtocolSuite;
     this.secRand = new SecureRandom();
   }
-  
+
   protected void doMacCheck(SpdzResourcePool resourcePool, Network network) {
-    NetworkBatchDecorator networkBatchDecorator =
-        new NetworkBatchDecorator(
-            resourcePool.getNoOfParties(),
-            network);
     SpdzStorage storage = resourcePool.getStore();
     int batchSize = 128;
 
     //Ensure that we have any values to do MAC check on
     if (!storage.getOpenedValues().isEmpty()) {
+      SpdzBuilder spdzBuilder = new SpdzBuilder(
+          spdzProtocolSuite.createNumericContext(resourcePool));
+      BatchEvaluationStrategy<SpdzResourcePool> batchStrategy = new BatchedStrategy<>();
+      BatchedProtocolEvaluator<SpdzResourcePool> evaluator =
+          new BatchedProtocolEvaluator<>(batchStrategy, spdzProtocolSuite, batchSize);
+
       SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(secRand,
           resourcePool.getMessageDigest(), storage, resourcePool.getModulus());
-
-      do {
-        ProtocolCollectionList<SpdzResourcePool> protocolCollectionList =
-            new ProtocolCollectionList<>(batchSize);
-        macCheck.getNextProtocols(protocolCollectionList);
-        BatchEvaluationStrategy<SpdzResourcePool> batchStrat = new BatchedStrategy<>();
-        batchStrat.processBatch(protocolCollectionList, resourcePool, networkBatchDecorator);
-      } while (macCheck.hasNextProtocols());
+      ProtocolBuilderNumeric sequential = spdzBuilder.createSequential();
+      macCheck.buildComputation(sequential);
+      evaluator.eval(sequential.build(), resourcePool, network);
     }
   }
 
