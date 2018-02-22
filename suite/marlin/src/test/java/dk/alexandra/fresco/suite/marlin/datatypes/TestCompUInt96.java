@@ -143,6 +143,12 @@ public class TestCompUInt96 {
         new CompUInt96(twoTo96.subtract(BigInteger.ONE)).multiply(new CompUInt96(1))
             .toBigInteger()
     );
+    assertEquals(
+        new BigInteger("4294967306").multiply(new BigInteger("7415541639366192187")).mod(twoTo96),
+        new CompUInt96(new BigInteger("4294967306"))
+            .multiply(new CompUInt96(new BigInteger("7415541639366192187")))
+            .toBigInteger()
+    );
     // multiply no overflow
     assertEquals(
         new BigInteger("42").multiply(new BigInteger("7")),
