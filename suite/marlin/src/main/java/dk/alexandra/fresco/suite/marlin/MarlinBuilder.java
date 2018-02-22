@@ -12,9 +12,12 @@ import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.UInt;
 import dk.alexandra.fresco.suite.marlin.protocols.computations.MarlinInputComputation;
+import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinAddKnownProtocol;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinKnownSIntProtocol;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinMultiplyProtocol;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinOutputProtocol;
+import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinRandomBitProtocol;
+import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinRandomElementProtocol;
 import java.math.BigInteger;
 
 public class MarlinBuilder<H extends UInt<H>, L extends UInt<L>, T extends CompUInt<H, L, T>> implements
@@ -43,12 +46,12 @@ public class MarlinBuilder<H extends UInt<H>, L extends UInt<L>, T extends CompU
 
       @Override
       public DRes<SInt> add(BigInteger a, DRes<SInt> b) {
-        return null;
+        return builder.append(new MarlinAddKnownProtocol<>(factory.createFromBigInteger(a), b));
       }
 
       @Override
       public DRes<SInt> sub(DRes<SInt> a, DRes<SInt> b) {
-        return null;
+        return () -> ((MarlinSInt<T>) a.out()).subtract((MarlinSInt<T>) b.out());
       }
 
       @Override
@@ -58,27 +61,28 @@ public class MarlinBuilder<H extends UInt<H>, L extends UInt<L>, T extends CompU
 
       @Override
       public DRes<SInt> sub(DRes<SInt> a, BigInteger b) {
-        return null;
+        return builder
+            .append(new MarlinAddKnownProtocol<>(factory.createFromBigInteger(b).negate(), a));
       }
 
       @Override
       public DRes<SInt> mult(DRes<SInt> a, DRes<SInt> b) {
-        return builder.append(new MarlinMultiplyProtocol<H, L, T>(a, b));
+        return builder.append(new MarlinMultiplyProtocol<>(a, b));
       }
 
       @Override
       public DRes<SInt> mult(BigInteger a, DRes<SInt> b) {
-        return null;
+        return () -> ((MarlinSInt<T>) b).multiply(factory.createFromBigInteger(a));
       }
 
       @Override
       public DRes<SInt> randomBit() {
-        return null;
+        return builder.append(new MarlinRandomBitProtocol<>());
       }
 
       @Override
       public DRes<SInt> randomElement() {
-        return null;
+        return builder.append(new MarlinRandomElementProtocol<>());
       }
 
       @Override
@@ -95,7 +99,7 @@ public class MarlinBuilder<H extends UInt<H>, L extends UInt<L>, T extends CompU
 
       @Override
       public DRes<BigInteger> open(DRes<SInt> secretShare) {
-        return builder.append(new MarlinOutputProtocol<H, L, T>(secretShare));
+        return builder.append(new MarlinOutputProtocol<>(secretShare));
       }
 
       @Override
