@@ -49,7 +49,7 @@ public class MarlinMacCheckComputation<
     final MarlinSInt<CompT> r = resourcePool.getDataSupplier()
         .getNextRandomElementShare();
     return builder
-        .seq(new MarlinBroadcastComputation(sharesLowBits))
+        .seq(new BroadcastComputation<>(sharesLowBits))
         .seq((seq, ignored) -> {
           List<CompT> originalShares = authenticatedElements.stream()
               .map(MarlinSInt::getShare)
@@ -62,7 +62,7 @@ public class MarlinMacCheckComputation<
               .collect(Collectors.toList());
           HighT pj = UInt.innerProduct(overflow, randomCoefficientsAsHigh);
           byte[] pjBytes = pj.add(r.getShare().getLeastSignificantAsHigh()).toByteArray();
-          return new MarlinBroadcastComputation(pjBytes).buildComputation(seq);
+          return new BroadcastComputation<ProtocolBuilderNumeric>(pjBytes).buildComputation(seq);
         })
         .seq((seq, broadcastPjs) -> {
           List<CompT> pjList = serializer.deserializeList(broadcastPjs);

@@ -9,7 +9,6 @@ import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.NetworkBatchDecorator;
 import dk.alexandra.fresco.framework.sce.evaluator.ProtocolCollectionList;
-import dk.alexandra.fresco.framework.sce.resources.Broadcast;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.framework.util.Drbg;
@@ -129,12 +128,6 @@ public class MarlinResourcePoolImpl<
       ((Closeable) network).close();
       return null;
     }, "Failed to close network");
-  }
-
-  @Override
-  public Broadcast createBroadcast(Network network) {
-    // TODO come up with way to cache this
-    return new Broadcast(network);
   }
 
   @Override

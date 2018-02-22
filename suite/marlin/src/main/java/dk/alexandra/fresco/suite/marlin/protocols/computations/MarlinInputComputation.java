@@ -7,7 +7,7 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.UInt;
-import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinBroadcastValidationProtocol;
+import dk.alexandra.fresco.suite.marlin.protocols.natives.BroadcastValidationProtocol;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinInputOnlyProtocol;
 
 public class MarlinInputComputation<H extends UInt<H>, L extends UInt<L>, T extends CompUInt<H, L, T>> implements
@@ -28,7 +28,7 @@ public class MarlinInputComputation<H extends UInt<H>, L extends UInt<L>, T exte
     return builder.seq(seq -> {
       Pair<DRes<SInt>, byte[]> unwrapped = pair.out();
       DRes<Void> nothing = seq
-          .append(new MarlinBroadcastValidationProtocol<>(unwrapped.getSecond()));
+          .append(new BroadcastValidationProtocol<>(unwrapped.getSecond()));
       return () -> {
         nothing.out();
         return unwrapped.getFirst().out();

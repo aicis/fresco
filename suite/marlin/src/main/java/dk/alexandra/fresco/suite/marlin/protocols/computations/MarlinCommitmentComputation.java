@@ -6,7 +6,7 @@ import dk.alexandra.fresco.framework.builder.ComputationParallel;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
-import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinAllBroadcastProtocol;
+import dk.alexandra.fresco.suite.marlin.protocols.natives.AllBroadcastProtocol;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,10 +26,10 @@ public class MarlinCommitmentComputation implements
     HashBasedCommitment ownCommitment = new HashBasedCommitment();
     // TODO optimize by caching initialized drbg somewhere, if needed
     byte[] ownOpening = ownCommitment.commit(new AesCtrDrbg(), value);
-    return builder.seq(new MarlinBroadcastComputation(
+    return builder.seq(new BroadcastComputation<>(
         commitmentSerializer.serialize(ownCommitment)
     )).seq((seq, rawCommitments) -> {
-      DRes<List<byte[]>> openingsDRes = seq.append(new MarlinAllBroadcastProtocol<>(ownOpening));
+      DRes<List<byte[]>> openingsDRes = seq.append(new AllBroadcastProtocol<>(ownOpening));
       List<HashBasedCommitment> commitments = commitmentSerializer.deserializeList(rawCommitments);
       return () -> open(commitments, openingsDRes.out());
     });

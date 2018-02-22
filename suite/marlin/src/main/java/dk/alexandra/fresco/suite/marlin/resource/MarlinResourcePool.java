@@ -5,11 +5,10 @@ import dk.alexandra.fresco.commitment.HashBasedCommitmentSerializer;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
-import dk.alexandra.fresco.framework.sce.resources.Broadcast;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
-import dk.alexandra.fresco.suite.marlin.datatypes.UInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntFactory;
+import dk.alexandra.fresco.suite.marlin.datatypes.UInt;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinDataSupplier;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStore;
 import java.math.BigInteger;
@@ -65,11 +64,6 @@ public interface MarlinResourcePool<
    * @return An instance of a DRBG.
    */
   Drbg getRandomGenerator();
-
-  /**
-   * Creates a new broadcast helper. TODO remove?
-   */
-  Broadcast createBroadcast(Network network);
 
   default ByteSerializer<HashBasedCommitment> getCommitmentSerializer() {
     return new HashBasedCommitmentSerializer();
