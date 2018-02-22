@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntFactory;
-import dk.alexandra.fresco.suite.marlin.datatypes.GenericUInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.GenericCompUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.GenericCompUIntFactory;
 import java.util.Arrays;
 import java.util.List;
@@ -14,8 +14,8 @@ import org.junit.Test;
 
 public class TestUIntSerializer {
 
-  private final CompUIntFactory<GenericUInt, GenericUInt, GenericUInt> factory = new GenericCompUIntFactory();
-  private final ByteSerializer<GenericUInt> serializer = new BigUIntSerializer<>(factory);
+  private final CompUIntFactory<GenericCompUInt, GenericCompUInt, GenericCompUInt> factory = new GenericCompUIntFactory();
+  private final ByteSerializer<GenericCompUInt> serializer = new BigUIntSerializer<>(factory);
 
   @Test
   public void testSerialize() {
@@ -24,7 +24,7 @@ public class TestUIntSerializer {
     rawBytes[1] = 0x02;
     rawBytes[2] = 0x03;
     rawBytes[15] = 0x16;
-    GenericUInt element = factory.createFromBytes(rawBytes);
+    GenericCompUInt element = factory.createFromBytes(rawBytes);
     assertArrayEquals(rawBytes, serializer.serialize(element));
   }
 
@@ -33,7 +33,7 @@ public class TestUIntSerializer {
     Random random = new Random(42);
     byte[] rawBytes = new byte[32];
     random.nextBytes(rawBytes);
-    List<GenericUInt> elements = Arrays.asList(
+    List<GenericCompUInt> elements = Arrays.asList(
         factory.createFromBytes(Arrays.copyOfRange(rawBytes, 0, 16)),
         factory.createFromBytes(Arrays.copyOfRange(rawBytes, 16, 32))
     );
@@ -46,7 +46,7 @@ public class TestUIntSerializer {
     Random random = new Random(42);
     byte[] bytes = new byte[16];
     random.nextBytes(bytes);
-    GenericUInt uint = serializer.deserialize(bytes);
+    GenericCompUInt uint = serializer.deserialize(bytes);
     assertArrayEquals(bytes, uint.toByteArray());
   }
 
@@ -55,11 +55,11 @@ public class TestUIntSerializer {
     Random random = new Random(42);
     byte[] rawBytes = new byte[32];
     random.nextBytes(rawBytes);
-    List<GenericUInt> expected = Arrays.asList(
+    List<GenericCompUInt> expected = Arrays.asList(
         factory.createFromBytes(Arrays.copyOfRange(rawBytes, 0, 16)),
         factory.createFromBytes(Arrays.copyOfRange(rawBytes, 16, 32))
     );
-    List<GenericUInt> actual = serializer.deserializeList(rawBytes);
+    List<GenericCompUInt> actual = serializer.deserializeList(rawBytes);
     assertEquals(expected.size(), actual.size());
     for (int i = 0; i < actual.size(); i++) {
       assertArrayEquals(expected.get(i).toByteArray(), actual.get(i).toByteArray());

@@ -1,20 +1,20 @@
 package dk.alexandra.fresco.suite.marlin.datatypes;
 
-public class MarlinInputMask<H extends UInt<H>, L extends UInt<L>, T extends CompUInt<H, L, T>> {
+public class MarlinInputMask<T extends CompUInt<?, ?, T>> {
 
-  private final MarlinSInt<H, L, T> maskShare;
+  private final MarlinSInt<T> maskShare;
   private final T openValue;
 
-  public MarlinInputMask(MarlinSInt<H, L, T> maskShare) {
+  public MarlinInputMask(MarlinSInt<T> maskShare) {
     this(maskShare, null);
   }
 
-  public MarlinInputMask(MarlinSInt<H, L, T> maskShare, T openValue) {
+  public MarlinInputMask(MarlinSInt<T> maskShare, T openValue) {
     this.maskShare = maskShare;
     this.openValue = openValue;
   }
 
-  public MarlinSInt<H, L, T> getMaskShare() {
+  public MarlinSInt<T> getMaskShare() {
     return maskShare;
   }
 

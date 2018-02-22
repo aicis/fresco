@@ -8,32 +8,32 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class GenericUInt implements CompUInt<GenericUInt, GenericUInt, GenericUInt> {
+public class GenericCompUInt implements CompUInt<GenericCompUInt, GenericCompUInt, GenericCompUInt> {
 
   private final int[] ints;
 
-  public GenericUInt(final int[] ints) {
+  public GenericCompUInt(final int[] ints) {
     this.ints = ints;
   }
 
-  public GenericUInt(GenericUInt other, int requiredBitLength) {
+  public GenericCompUInt(GenericCompUInt other, int requiredBitLength) {
     this(pad(other.ints, requiredBitLength));
   }
 
-  public GenericUInt(byte[] bytes, int requiredBitLength) {
+  public GenericCompUInt(byte[] bytes, int requiredBitLength) {
     this(toIntArray(bytes, requiredBitLength));
   }
 
-  public GenericUInt(BigInteger value, int requiredBitLength) {
+  public GenericCompUInt(BigInteger value, int requiredBitLength) {
     this(value.toByteArray(), requiredBitLength);
   }
 
-  public GenericUInt(long value, int requiredBitLength) {
+  public GenericCompUInt(long value, int requiredBitLength) {
     this(longToInts(value, requiredBitLength));
   }
 
   @Override
-  public GenericUInt add(final GenericUInt other) {
+  public GenericCompUInt add(final GenericCompUInt other) {
     final int[] resultInts = new int[ints.length];
     long carry = 0;
     // big-endian, so reverse order
@@ -42,11 +42,11 @@ public class GenericUInt implements CompUInt<GenericUInt, GenericUInt, GenericUI
       resultInts[l] = (int) sum;
       carry = sum >>> 32;
     }
-    return new GenericUInt(resultInts);
+    return new GenericCompUInt(resultInts);
   }
 
   @Override
-  public GenericUInt multiply(final GenericUInt other) {
+  public GenericCompUInt multiply(final GenericCompUInt other) {
     // TODO get rid off extra multiplication
     // note that we assume that other has the same bit-length as this
     final int[] resultInts = new int[ints.length];
@@ -60,23 +60,23 @@ public class GenericUInt implements CompUInt<GenericUInt, GenericUInt, GenericUI
         resultInts[resIdxOffset] = (int) product;
       }
     }
-    return new GenericUInt(resultInts);
+    return new GenericCompUInt(resultInts);
   }
 
   @Override
-  public GenericUInt subtract(GenericUInt other) {
+  public GenericCompUInt subtract(GenericCompUInt other) {
     return this.add(other.negate());
   }
 
   @Override
-  public GenericUInt negate() {
+  public GenericCompUInt negate() {
     int[] reversed = new int[ints.length];
     for (int i = 0; i < reversed.length; i++) {
       reversed[i] = ~ints[i];
     }
     // TODO cache this
-    GenericUInt one = new GenericUInt(1, 128);
-    return new GenericUInt(reversed).add(one);
+    GenericCompUInt one = new GenericCompUInt(1, 128);
+    return new GenericCompUInt(reversed).add(one);
   }
 
   @Override
@@ -108,23 +108,23 @@ public class GenericUInt implements CompUInt<GenericUInt, GenericUInt, GenericUI
   }
 
   @Override
-  public GenericUInt computeOverflow() {
-    GenericUInt low = new GenericUInt(toLong(), ints.length * Integer.SIZE);
+  public GenericCompUInt computeOverflow() {
+    GenericCompUInt low = new GenericCompUInt(toLong(), ints.length * Integer.SIZE);
     return low.subtract(this).getMostSignificant();
   }
 
   @Override
-  public GenericUInt getLeastSignificant() {
+  public GenericCompUInt getLeastSignificant() {
     return getSubRange(0, 2);
   }
 
   @Override
-  public GenericUInt getLeastSignificantAsHigh() {
+  public GenericCompUInt getLeastSignificantAsHigh() {
     return getSubRange(0, 2);
   }
 
   @Override
-  public GenericUInt getMostSignificant() {
+  public GenericCompUInt getMostSignificant() {
     return getSubRange(2, 4);
   }
 
@@ -139,11 +139,11 @@ public class GenericUInt implements CompUInt<GenericUInt, GenericUInt, GenericUI
   }
 
   @Override
-  public GenericUInt shiftLowIntoHigh() {
+  public GenericCompUInt shiftLowIntoHigh() {
     int[] shifted = new int[ints.length];
     shifted[0] = ints[shifted.length - 2];
     shifted[1] = ints[shifted.length - 1];
-    return new GenericUInt(shifted);
+    return new GenericCompUInt(shifted);
   }
 
   @Override
@@ -151,8 +151,8 @@ public class GenericUInt implements CompUInt<GenericUInt, GenericUInt, GenericUI
     return toBigInteger().toString();
   }
 
-  private GenericUInt getSubRange(int from, int to) {
-    return new GenericUInt(getIntSubRange(from, to));
+  private GenericCompUInt getSubRange(int from, int to) {
+    return new GenericCompUInt(getIntSubRange(from, to));
   }
 
   private int[] getIntSubRange(int from, int to) {
@@ -202,17 +202,17 @@ public class GenericUInt implements CompUInt<GenericUInt, GenericUInt, GenericUI
 
   private static void runUInt() {
     GenericCompUIntFactory factory = new GenericCompUIntFactory();
-    int numValues = 10000000;
-    List<GenericUInt> left = new ArrayList<>(numValues);
-    List<GenericUInt> right = new ArrayList<>(numValues);
+    int numValues = 1000000;
+    List<GenericCompUInt> left = new ArrayList<>(numValues);
+    List<GenericCompUInt> right = new ArrayList<>(numValues);
     for (int i = 0; i < numValues; i++) {
       left.add(factory.createRandom());
       right.add(factory.createRandom());
     }
-    GenericUInt other = UInt.innerProduct(left, right);
+    GenericCompUInt other = UInt.innerProduct(left, right);
     System.out.println(other);
     long startTime = System.currentTimeMillis();
-    GenericUInt inner = UInt.innerProduct(left, right);
+    GenericCompUInt inner = UInt.innerProduct(left, right);
     long endTime = System.currentTimeMillis();
     long duration = (endTime - startTime);
     System.out.println(inner);
@@ -221,7 +221,7 @@ public class GenericUInt implements CompUInt<GenericUInt, GenericUInt, GenericUI
 
   private static void runUInt128() {
     CompUInt128Factory factory = new CompUInt128Factory();
-    int numValues = 10000000;
+    int numValues = 1000000;
     List<CompUInt128> left = new ArrayList<>(numValues);
     List<CompUInt128> right = new ArrayList<>(numValues);
     for (int i = 0; i < numValues; i++) {

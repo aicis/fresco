@@ -19,10 +19,10 @@ public class MarlinMultiplyProtocol<H extends UInt<H>, L extends UInt<L>, T exte
 
   private final DRes<SInt> left;
   private final DRes<SInt> right;
-  private MarlinTriple<H, L, T> triple;
+  private MarlinTriple<T> triple;
   private SInt product;
-  private MarlinSInt<H, L, T> epsilon;
-  private MarlinSInt<H, L, T> delta;
+  private MarlinSInt<T> epsilon;
+  private MarlinSInt<T> delta;
 
   public MarlinMultiplyProtocol(DRes<SInt> left, DRes<SInt> right) {
     this.left = left;
@@ -35,8 +35,8 @@ public class MarlinMultiplyProtocol<H extends UInt<H>, L extends UInt<L>, T exte
     ByteSerializer<T> serializer = resourcePool.getRawSerializer();
     if (round == 0) {
       triple = resourcePool.getDataSupplier().getNextTripleShares();
-      epsilon = ((MarlinSInt<H, L, T>) left.out()).subtract(triple.getLeft());
-      delta = ((MarlinSInt<H, L, T>) right.out()).subtract(triple.getRight());
+      epsilon = ((MarlinSInt<T>) left.out()).subtract(triple.getLeft());
+      delta = ((MarlinSInt<T>) right.out()).subtract(triple.getRight());
       network.sendToAll(epsilon.getShare().getLeastSignificant().toByteArray());
       network.sendToAll(delta.getShare().getLeastSignificant().toByteArray());
       return EvaluationStatus.HAS_MORE_ROUNDS;

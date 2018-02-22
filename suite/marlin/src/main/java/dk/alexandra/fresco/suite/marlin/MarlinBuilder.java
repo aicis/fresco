@@ -38,7 +38,7 @@ public class MarlinBuilder<H extends UInt<H>, L extends UInt<L>, T extends CompU
     return new Numeric() {
       @Override
       public DRes<SInt> add(DRes<SInt> a, DRes<SInt> b) {
-        return () -> ((MarlinSInt<H, L, T>) a.out()).add((MarlinSInt<H, L, T>) b.out());
+        return () -> ((MarlinSInt<T>) a.out()).add((MarlinSInt<T>) b.out());
       }
 
       @Override

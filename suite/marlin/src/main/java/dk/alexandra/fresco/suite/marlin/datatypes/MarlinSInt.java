@@ -2,7 +2,7 @@ package dk.alexandra.fresco.suite.marlin.datatypes;
 
 import dk.alexandra.fresco.framework.value.SInt;
 
-public class MarlinSInt<H extends UInt<H>, L extends UInt<L>, T extends CompUInt<H, L, T>> implements
+public class MarlinSInt<T extends CompUInt<?, ?, T>> implements
     SInt {
 
   private final T share;
@@ -13,15 +13,15 @@ public class MarlinSInt<H extends UInt<H>, L extends UInt<L>, T extends CompUInt
     this.macShare = macShare;
   }
 
-  public MarlinSInt<H, L, T> add(MarlinSInt<H, L, T> other) {
+  public MarlinSInt<T> add(MarlinSInt<T> other) {
     return new MarlinSInt<>(share.add(other.share), macShare.add(other.macShare));
   }
 
-  public MarlinSInt<H, L, T> subtract(MarlinSInt<H, L, T> other) {
+  public MarlinSInt<T> subtract(MarlinSInt<T> other) {
     return new MarlinSInt<>(share.subtract(other.share), macShare.subtract(other.macShare));
   }
 
-  public MarlinSInt<H, L, T> multiply(T other) {
+  public MarlinSInt<T> multiply(T other) {
     return new MarlinSInt<>(share.multiply(other), macShare.multiply(other));
   }
 
@@ -43,11 +43,11 @@ public class MarlinSInt<H extends UInt<H>, L extends UInt<L>, T extends CompUInt
    * @param macKeyShare mac key share for maccing open value
    * @return result of sum
    */
-  public MarlinSInt<H, L, T> addConstant(T other, int partyId, T macKeyShare, T zeroElement) {
+  public MarlinSInt<T> addConstant(T other, int partyId, T macKeyShare, T zeroElement) {
     T otherMac = other.multiply(macKeyShare);
     // only party 1 actually adds value to its share
     T value = (partyId == 1) ? other : zeroElement;
-    MarlinSInt<H, L, T> wrapped = new MarlinSInt<>(value, otherMac);
+    MarlinSInt<T> wrapped = new MarlinSInt<>(value, otherMac);
     return add(wrapped);
   }
 

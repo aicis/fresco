@@ -31,10 +31,10 @@ public class MarlinMacCheckComputation<
 
   @Override
   public DRes<Void> buildComputation(ProtocolBuilderNumeric builder) {
-    Pair<List<MarlinSInt<HighT, LowT, CompT>>, List<CompT>> opened = resourcePool
+    Pair<List<MarlinSInt<CompT>>, List<CompT>> opened = resourcePool
         .getOpenedValueStore()
         .popValues();
-    List<MarlinSInt<HighT, LowT, CompT>> authenticatedElements = opened.getFirst();
+    List<MarlinSInt<CompT>> authenticatedElements = opened.getFirst();
     List<CompT> openValues = opened.getSecond();
     ByteSerializer<CompT> serializer = resourcePool.getRawSerializer();
     CompUIntFactory<HighT, LowT, CompT> factory = resourcePool.getFactory();
@@ -46,7 +46,7 @@ public class MarlinMacCheckComputation<
         resourcePool.getRandomGenerator(),
         factory, openValues.size());
     final CompT y = UInt.innerProduct(openValues, randomCoefficients);
-    final MarlinSInt<HighT, LowT, CompT> r = resourcePool.getDataSupplier()
+    final MarlinSInt<CompT> r = resourcePool.getDataSupplier()
         .getNextRandomElementShare();
     return builder
         .seq(new MarlinBroadcastComputation(sharesLowBits))

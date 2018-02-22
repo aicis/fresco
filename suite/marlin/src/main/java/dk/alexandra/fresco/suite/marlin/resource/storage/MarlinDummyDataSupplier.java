@@ -11,16 +11,19 @@ import dk.alexandra.fresco.suite.marlin.datatypes.MarlinTriple;
 import dk.alexandra.fresco.suite.marlin.datatypes.UInt;
 import java.math.BigInteger;
 
-public class MarlinDummyDataSupplier<H extends UInt<H>, L extends UInt<L>, T extends CompUInt<H, L, T>> implements
-    MarlinDataSupplier<H, L, T> {
+public class MarlinDummyDataSupplier<
+    HighT extends UInt<HighT>,
+    LowT extends UInt<LowT>,
+    T extends CompUInt<HighT, LowT, T>> implements
+    MarlinDataSupplier<T> {
 
   private final int myId;
   private final ArithmeticDummyDataSupplier supplier;
   private final T secretSharedKey;
-  private final CompUIntFactory<H, L, T> factory;
+  private final CompUIntFactory<HighT, LowT, T> factory;
 
   public MarlinDummyDataSupplier(int myId, int noOfParties, T secretSharedKey,
-      CompUIntFactory<H, L, T> factory) {
+      CompUIntFactory<HighT, LowT, T> factory) {
     this.myId = myId;
     this.secretSharedKey = secretSharedKey;
     this.factory = factory;
@@ -29,7 +32,7 @@ public class MarlinDummyDataSupplier<H extends UInt<H>, L extends UInt<L>, T ext
   }
 
   @Override
-  public MarlinTriple<H, L, T> getNextTripleShares() {
+  public MarlinTriple<T> getNextTripleShares() {
     MultiplicationTripleShares rawTriple = supplier.getMultiplicationTripleShares();
     return new MarlinTriple<>(
         toMarlinElement(rawTriple.getLeft()),
@@ -38,7 +41,7 @@ public class MarlinDummyDataSupplier<H extends UInt<H>, L extends UInt<L>, T ext
   }
 
   @Override
-  public MarlinInputMask<H, L, T> getNextInputMask(int towardPlayerId) {
+  public MarlinInputMask<T> getNextInputMask(int towardPlayerId) {
     Pair<BigInteger, BigInteger> raw = supplier.getRandomElementShare();
     if (myId == towardPlayerId) {
       return new MarlinInputMask<>(toMarlinElement(raw),
@@ -49,7 +52,7 @@ public class MarlinDummyDataSupplier<H extends UInt<H>, L extends UInt<L>, T ext
   }
 
   @Override
-  public MarlinSInt<H, L, T> getNextBitShare() {
+  public MarlinSInt<T> getNextBitShare() {
     return toMarlinElement(supplier.getRandomBitShare());
   }
 
@@ -59,11 +62,11 @@ public class MarlinDummyDataSupplier<H extends UInt<H>, L extends UInt<L>, T ext
   }
 
   @Override
-  public MarlinSInt<H, L, T> getNextRandomElementShare() {
+  public MarlinSInt<T> getNextRandomElementShare() {
     return toMarlinElement(supplier.getRandomElementShare());
   }
 
-  private MarlinSInt<H, L, T> toMarlinElement(Pair<BigInteger, BigInteger> raw) {
+  private MarlinSInt<T> toMarlinElement(Pair<BigInteger, BigInteger> raw) {
     T openValue = factory.createFromBigInteger(raw.getFirst());
     T share = factory.createFromBigInteger(raw.getSecond());
     T macShare = openValue.multiply(secretSharedKey);

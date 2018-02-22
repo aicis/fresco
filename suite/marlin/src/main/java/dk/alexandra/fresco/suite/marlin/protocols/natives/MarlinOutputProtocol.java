@@ -16,7 +16,7 @@ public class MarlinOutputProtocol<H extends UInt<H>, L extends UInt<L>, T extend
 
   private final DRes<SInt> share;
   private BigInteger opened;
-  private MarlinSInt<H, L, T> authenticatedElement;
+  private MarlinSInt<T> authenticatedElement;
 
   public MarlinOutputProtocol(DRes<SInt> share) {
     this.share = share;
@@ -25,10 +25,9 @@ public class MarlinOutputProtocol<H extends UInt<H>, L extends UInt<L>, T extend
   @Override
   public EvaluationStatus evaluate(int round, MarlinResourcePool<H, L, T> resourcePool,
       Network network) {
-    MarlinOpenedValueStore<H, L, T> openedValueStore = resourcePool.getOpenedValueStore();
+    MarlinOpenedValueStore<T> openedValueStore = resourcePool.getOpenedValueStore();
     if (round == 0) {
-      authenticatedElement = (MarlinSInt<H, L, T>) share.out();
-      // TODO figure out serializer
+      authenticatedElement = (MarlinSInt<T>) share.out();
       network.sendToAll(authenticatedElement.getShare().getLeastSignificant().toByteArray());
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {

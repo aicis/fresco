@@ -11,7 +11,6 @@ import dk.alexandra.fresco.suite.ProtocolSuite.RoundSynchronization;
 import dk.alexandra.fresco.suite.marlin.MarlinBuilder;
 import dk.alexandra.fresco.suite.marlin.MarlinProtocolSuite;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
-import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.marlin.datatypes.UInt;
 import dk.alexandra.fresco.suite.marlin.protocols.computations.MarlinMacCheckComputation;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinOutputProtocol;
@@ -24,19 +23,15 @@ public class MarlinRoundSynchronization<H extends UInt<H>, L extends UInt<L>, T 
   private final int openValueThreshold;
   private final int batchSize;
   private boolean isCheckRequired;
-  private final CompUIntFactory<H, L, T> factory;
   private final MarlinProtocolSuite<H, L, T> protocolSuite;
 
-  public MarlinRoundSynchronization(MarlinProtocolSuite<H, L, T> protocolSuite,
-      CompUIntFactory<H, L, T> factory) {
-    this(protocolSuite, factory, 100000, 128);
+  public MarlinRoundSynchronization(MarlinProtocolSuite<H, L, T> protocolSuite) {
+    this(protocolSuite, 100000, 128);
   }
 
   public MarlinRoundSynchronization(MarlinProtocolSuite<H, L, T> protocolSuite,
-      CompUIntFactory<H, L, T> factory,
       int openValueThreshold,
       int batchSize) {
-    this.factory = factory;
     this.protocolSuite = protocolSuite;
     this.openValueThreshold = openValueThreshold;
     this.batchSize = batchSize;
@@ -44,9 +39,9 @@ public class MarlinRoundSynchronization<H extends UInt<H>, L extends UInt<L>, T 
   }
 
   private void doMacCheck(MarlinResourcePool<H, L, T> resourcePool, Network network) {
-    MarlinOpenedValueStore<H, L, T> openedValueStore = resourcePool.getOpenedValueStore();
+    MarlinOpenedValueStore<T> openedValueStore = resourcePool.getOpenedValueStore();
     if (!openedValueStore.isEmpty()) {
-      MarlinBuilder<H, L, T> builder = new MarlinBuilder<>(factory,
+      MarlinBuilder<H, L, T> builder = new MarlinBuilder<>(resourcePool.getFactory(),
           protocolSuite.createBasicNumericContext(resourcePool));
       BatchEvaluationStrategy<MarlinResourcePool<H, L, T>> batchStrategy = new BatchedStrategy<>();
       BatchedProtocolEvaluator<MarlinResourcePool<H, L, T>> evaluator = new BatchedProtocolEvaluator<>(

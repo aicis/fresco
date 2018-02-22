@@ -32,24 +32,25 @@ import java.util.function.Supplier;
 public class MarlinResourcePoolImpl<
     H extends UInt<H>,
     L extends UInt<L>,
-    T extends CompUInt<H, L, T>> extends ResourcePoolImpl
+    T extends CompUInt<H, L, T>>
+    extends ResourcePoolImpl
     implements MarlinResourcePool<H, L, T> {
 
   private final int operationalBitLength;
   private final int effectiveBitLength;
   private final BigInteger modulus;
-  private final MarlinOpenedValueStore<H, L, T> storage;
-  private final MarlinDataSupplier<H, L, T> supplier;
+  private final MarlinOpenedValueStore<T> storage;
+  private final MarlinDataSupplier<T> supplier;
   private final CompUIntFactory<H, L, T> factory;
   private final ByteSerializer<T> rawSerializer;
   private Drbg drbg;
 
   /**
-   * Creates new {@link MarlinResourcePool}.
+   * Creates new {@link MarlinResourcePoolImpl}.
    */
   public MarlinResourcePoolImpl(int myId, int noOfPlayers, Drbg drbg,
-      MarlinOpenedValueStore<H, L, T> storage,
-      MarlinDataSupplier<H, L, T> supplier, CompUIntFactory<H, L, T> factory) {
+      MarlinOpenedValueStore<T> storage,
+      MarlinDataSupplier<T> supplier, CompUIntFactory<H, L, T> factory) {
     super(myId, noOfPlayers);
     this.operationalBitLength = factory.getCompositeBitLength();
     this.effectiveBitLength = factory.getLowBitLength();
@@ -72,12 +73,12 @@ public class MarlinResourcePoolImpl<
   }
 
   @Override
-  public MarlinOpenedValueStore<H, L, T> getOpenedValueStore() {
+  public MarlinOpenedValueStore<T> getOpenedValueStore() {
     return storage;
   }
 
   @Override
-  public MarlinDataSupplier<H, L, T> getDataSupplier() {
+  public MarlinDataSupplier<T> getDataSupplier() {
     return supplier;
   }
 

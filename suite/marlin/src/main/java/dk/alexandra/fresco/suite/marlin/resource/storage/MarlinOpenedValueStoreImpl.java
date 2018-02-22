@@ -3,15 +3,15 @@ package dk.alexandra.fresco.suite.marlin.resource.storage;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
-import dk.alexandra.fresco.suite.marlin.datatypes.UInt;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MarlinOpenedValueStoreImpl<H extends UInt<H>, L extends UInt<L>, T extends CompUInt<H, L, T>> implements
-    MarlinOpenedValueStore<H, L, T> {
+public class MarlinOpenedValueStoreImpl<
+    CompT extends CompUInt<?, ?, CompT>>
+    implements MarlinOpenedValueStore<CompT> {
 
-  private final List<MarlinSInt<H, L, T>> sharesWithMacs;
-  private final List<T> openedValues;
+  private final List<MarlinSInt<CompT>> sharesWithMacs;
+  private final List<CompT> openedValues;
 
   public MarlinOpenedValueStoreImpl() {
     this.sharesWithMacs = new ArrayList<>();
@@ -19,15 +19,16 @@ public class MarlinOpenedValueStoreImpl<H extends UInt<H>, L extends UInt<L>, T 
   }
 
   @Override
-  public void pushOpenedValues(List<MarlinSInt<H, L, T>> newSharesWithMacs, List<T> newOpenedValues) {
+  public void pushOpenedValues(List<MarlinSInt<CompT>> newSharesWithMacs,
+      List<CompT> newOpenedValues) {
     sharesWithMacs.addAll(newSharesWithMacs);
     openedValues.addAll(newOpenedValues);
   }
 
   @Override
-  public Pair<List<MarlinSInt<H, L, T>>, List<T>> popValues() {
-    List<MarlinSInt<H, L, T>> macsToCheck = new ArrayList<>(sharesWithMacs);
-    List<T> valuesToCheck = new ArrayList<>(openedValues);
+  public Pair<List<MarlinSInt<CompT>>, List<CompT>> popValues() {
+    List<MarlinSInt<CompT>> macsToCheck = new ArrayList<>(sharesWithMacs);
+    List<CompT> valuesToCheck = new ArrayList<>(openedValues);
     sharesWithMacs.clear();
     openedValues.clear();
     return new Pair<>(macsToCheck, valuesToCheck);

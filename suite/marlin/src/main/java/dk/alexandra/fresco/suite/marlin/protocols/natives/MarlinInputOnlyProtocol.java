@@ -20,7 +20,7 @@ public class MarlinInputOnlyProtocol<
 
   private final CompT input;
   private final int inputPartyId;
-  private MarlinInputMask<HighT, LowT, CompT> inputMask;
+  private MarlinInputMask<CompT> inputMask;
   private Pair<DRes<SInt>, byte[]> out;
 
   public MarlinInputOnlyProtocol(CompT input, int inputPartyId) {
@@ -44,7 +44,7 @@ public class MarlinInputOnlyProtocol<
     } else {
       byte[] inputMaskBytes = network.receive(inputPartyId);
       CompT macKeyShare = resourcePool.getDataSupplier().getSecretSharedKey();
-      MarlinSInt<HighT, LowT, CompT> out = inputMask.getMaskShare().addConstant(
+      MarlinSInt<CompT> out = inputMask.getMaskShare().addConstant(
           serializer.deserialize(inputMaskBytes),
           myId,
           macKeyShare,

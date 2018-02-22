@@ -16,30 +16,33 @@ import java.math.BigInteger;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public interface MarlinResourcePool<H extends UInt<H>, L extends UInt<L>, T extends CompUInt<H, L, T>> extends
-    NumericResourcePool {
+public interface MarlinResourcePool<
+    HighT extends UInt<HighT>,
+    LowT extends UInt<LowT>,
+    CompT extends CompUInt<HighT, LowT, CompT>>
+    extends NumericResourcePool {
 
   /**
    * Returns instance of {@link MarlinOpenedValueStore} which tracks all opened, unchecked values.
    */
-  MarlinOpenedValueStore<H, L, T> getOpenedValueStore();
+  MarlinOpenedValueStore<CompT> getOpenedValueStore();
 
   /**
    * Returns instance of {@link MarlinDataSupplier} which provides pre-processed material such as
    * multiplication triples.
    */
-  MarlinDataSupplier<H, L, T> getDataSupplier();
+  MarlinDataSupplier<CompT> getDataSupplier();
 
   /**
-   * Returns factory for constructing concrete instances of {@link T}, i.e., the class representing
-   * the raw element data type.
+   * Returns factory for constructing concrete instances of {@link CompT}, i.e., the class
+   * representing the raw element data type.
    */
-  CompUIntFactory<H, L, T> getFactory();
+  CompUIntFactory<HighT, LowT, CompT> getFactory();
 
   /**
-   * Returns serializer for instances of {@link T}.
+   * Returns serializer for instances of {@link CompT}.
    */
-  ByteSerializer<T> getRawSerializer();
+  ByteSerializer<CompT> getRawSerializer();
 
   /**
    * Initializes deterministic joint randomness source. <p>Must be called before any protocols
@@ -78,7 +81,7 @@ public interface MarlinResourcePool<H extends UInt<H>, L extends UInt<L>, T exte
   // TODO not clear that this belongs here
   int getEffectiveBitLength();
 
-  default BigInteger convertRepresentation(T value) {
+  default BigInteger convertRepresentation(CompT value) {
     return value.getLeastSignificant().toBigInteger();
   }
 
