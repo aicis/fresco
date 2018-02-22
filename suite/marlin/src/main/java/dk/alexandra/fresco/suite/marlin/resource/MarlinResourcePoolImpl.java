@@ -24,6 +24,7 @@ import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinDataSupplier;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStore;
 import java.io.Closeable;
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -104,8 +105,7 @@ public class MarlinResourcePoolImpl<
     BuilderFactoryNumeric builderFactory = new MarlinBuilder<>(factory, numericContext);
     ProtocolBuilderNumeric root = builderFactory.createSequential();
     byte[] ownSeed = new byte[seedLength];
-    System.out.println(MarlinResourcePool.class + " change me back!");
-//    new SecureRandom().nextBytes(ownSeed);
+    new SecureRandom().nextBytes(ownSeed);
     DRes<List<byte[]>> seeds = new MarlinCommitmentComputation(
         this.getCommitmentSerializer(),
         ownSeed)

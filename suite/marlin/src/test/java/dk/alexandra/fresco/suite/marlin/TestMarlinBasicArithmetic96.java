@@ -84,9 +84,9 @@ public class TestMarlinBasicArithmetic96 extends AbstractMarlinTest<UInt64, UInt
         false);
   }
 
-
   @Override
   protected CompUIntFactory<UInt64, UInt32, CompUInt96> createFactory() {
     return new CompUInt96Factory();
   }
+
 }

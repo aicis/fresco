@@ -31,7 +31,6 @@ import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinDataSupplier;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinDummyDataSupplier;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStore;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStoreImpl;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -128,9 +127,7 @@ public abstract class AbstractMarlinTest<
   private MarlinDataSupplier<HighT, LowT, CompT> createDataSupplier(int myId,
       int noOfParties,
       CompUIntFactory<HighT, LowT, CompT> factory) {
-    System.out.println("AbstractMarlinTest remove me!");
-    CompT keyShare = factory.createFromBigInteger(BigInteger.valueOf(myId));
-    return new MarlinDummyDataSupplier<>(myId, noOfParties, keyShare, factory);
+    return new MarlinDummyDataSupplier<>(myId, noOfParties, factory.createRandom(), factory);
   }
 
   private MarlinResourcePool<HighT, LowT, CompT> createResourcePool(int playerId,
