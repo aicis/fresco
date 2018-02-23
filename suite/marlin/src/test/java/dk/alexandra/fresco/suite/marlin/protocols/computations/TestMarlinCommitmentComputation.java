@@ -16,7 +16,6 @@ import dk.alexandra.fresco.suite.marlin.MarlinProtocolSuite128;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt128;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt128Factory;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntFactory;
-import dk.alexandra.fresco.suite.marlin.datatypes.UInt64;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePoolImpl;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinDataSupplier;
@@ -28,8 +27,6 @@ import java.util.function.Supplier;
 import org.junit.Test;
 
 public class TestMarlinCommitmentComputation extends AbstractMarlinTest<
-    UInt64,
-    UInt64,
     CompUInt128,
     MarlinResourcePool<CompUInt128>> {
 

@@ -6,8 +6,6 @@ import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt96;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt96Factory;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntFactory;
-import dk.alexandra.fresco.suite.marlin.datatypes.UInt32;
-import dk.alexandra.fresco.suite.marlin.datatypes.UInt64;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePoolImpl;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinDataSupplier;
@@ -15,8 +13,6 @@ import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStore;
 import java.util.function.Supplier;
 
 public class TestMarlinBasicArithmetic96 extends MarlinTestSuite<
-    UInt64,
-    UInt32,
     CompUInt96,
     MarlinResourcePool<CompUInt96>> {
 

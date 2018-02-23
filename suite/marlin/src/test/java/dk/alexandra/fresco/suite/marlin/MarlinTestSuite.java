@@ -9,11 +9,9 @@ import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 import org.junit.Test;
 
 public abstract class MarlinTestSuite<
-    HighT extends UInt<HighT>,
-    LowT extends UInt<LowT>,
-    CompT extends CompUInt<HighT, LowT, CompT>,
+    CompT extends CompUInt<?, ?, CompT>,
     MarlinResourcePoolT extends MarlinResourcePool<CompT>>
-    extends AbstractMarlinTest<HighT, LowT, CompT, MarlinResourcePoolT> {
+    extends AbstractMarlinTest<CompT, MarlinResourcePoolT> {
 
   @Test
   public void testInput() {

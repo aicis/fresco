@@ -23,7 +23,6 @@ import dk.alexandra.fresco.logging.PerformancePrinter;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntFactory;
-import dk.alexandra.fresco.suite.marlin.datatypes.UInt;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinDataSupplier;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinDummyDataSupplier;
@@ -36,9 +35,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 public abstract class AbstractMarlinTest<
-    HighT extends UInt<HighT>,
-    LowT extends UInt<LowT>,
-    CompT extends CompUInt<HighT, LowT, CompT>,
+    CompT extends CompUInt<?, ?, CompT>,
     MarlinResourcePoolT extends MarlinResourcePool<CompT>> {
 
   protected Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
