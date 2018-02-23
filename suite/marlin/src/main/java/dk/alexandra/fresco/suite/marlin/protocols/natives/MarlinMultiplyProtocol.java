@@ -14,15 +14,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MarlinMultiplyProtocol<T extends CompUInt<?, ?, T>> extends
-    MarlinNativeProtocol<SInt, T> {
+public class MarlinMultiplyProtocol<PlainT extends CompUInt<?, ?, PlainT>> extends
+    MarlinNativeProtocol<SInt, PlainT> {
 
   private final DRes<SInt> left;
   private final DRes<SInt> right;
-  private MarlinTriple<T> triple;
+  private MarlinTriple<PlainT> triple;
   private SInt product;
-  private MarlinSInt<T> epsilon;
-  private MarlinSInt<T> delta;
+  private MarlinSInt<PlainT> epsilon;
+  private MarlinSInt<PlainT> delta;
 
   public MarlinMultiplyProtocol(DRes<SInt> left, DRes<SInt> right) {
     this.left = left;
@@ -30,23 +30,25 @@ public class MarlinMultiplyProtocol<T extends CompUInt<?, ?, T>> extends
   }
 
   @Override
-  public EvaluationStatus evaluate(int round, MarlinResourcePool<T> resourcePool, Network network) {
-    final T macKeyShare = resourcePool.getDataSupplier().getSecretSharedKey();
-    ByteSerializer<T> serializer = resourcePool.getRawSerializer();
+  public EvaluationStatus evaluate(int round, MarlinResourcePool<PlainT> resourcePool,
+      Network network) {
+    final PlainT macKeyShare = resourcePool.getDataSupplier().getSecretSharedKey();
+    ByteSerializer<PlainT> serializer = resourcePool.getRawSerializer();
     if (round == 0) {
       triple = resourcePool.getDataSupplier().getNextTripleShares();
-      epsilon = ((MarlinSInt<T>) left.out()).subtract(triple.getLeft());
-      delta = ((MarlinSInt<T>) right.out()).subtract(triple.getRight());
+      epsilon = ((MarlinSInt<PlainT>) left.out()).subtract(triple.getLeft());
+      delta = ((MarlinSInt<PlainT>) right.out()).subtract(triple.getRight());
       network.sendToAll(epsilon.getShare().getLeastSignificant().toByteArray());
       network.sendToAll(delta.getShare().getLeastSignificant().toByteArray());
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
-      Pair<T, T> epsilonAndDelta = receiveAndReconstruct(network, resourcePool.getNoOfParties(),
+      Pair<PlainT, PlainT> epsilonAndDelta = receiveAndReconstruct(network,
+          resourcePool.getNoOfParties(),
           serializer);
       // compute [prod] = [c] + epsilon * [b] + delta * [a] + epsilon * delta
-      T e = epsilonAndDelta.getFirst();
-      T d = epsilonAndDelta.getSecond();
-      T ed = e.multiply(d);
+      PlainT e = epsilonAndDelta.getFirst();
+      PlainT d = epsilonAndDelta.getSecond();
+      PlainT ed = e.multiply(d);
       product = triple.getProduct()
           .add(triple.getRight().multiply(e))
           .add(triple.getLeft().multiply(d))
@@ -66,16 +68,16 @@ public class MarlinMultiplyProtocol<T extends CompUInt<?, ?, T>> extends
   /**
    * Retrieves shares for epsilon and delta and reconstructs each.
    */
-  private Pair<T, T> receiveAndReconstruct(Network network, int noOfParties,
-      ByteSerializer<T> serializer) {
-    List<T> epsilonShares = new ArrayList<>(noOfParties);
-    List<T> deltaShares = new ArrayList<>(noOfParties);
+  private Pair<PlainT, PlainT> receiveAndReconstruct(Network network, int noOfParties,
+      ByteSerializer<PlainT> serializer) {
+    List<PlainT> epsilonShares = new ArrayList<>(noOfParties);
+    List<PlainT> deltaShares = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       epsilonShares.add(serializer.deserialize(network.receive(i)));
       deltaShares.add(serializer.deserialize(network.receive(i)));
     }
-    T e = UInt.sum(epsilonShares);
-    T d = UInt.sum(deltaShares);
+    PlainT e = UInt.sum(epsilonShares);
+    PlainT d = UInt.sum(deltaShares);
     return new Pair<>(e, d);
   }
 

@@ -9,13 +9,13 @@ import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.BroadcastValidationProtocol;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinInputOnlyProtocol;
 
-public class MarlinInputComputation<T extends CompUInt<?, ?, T>> implements
+public class MarlinInputComputation<PlainT extends CompUInt<?, ?, PlainT>> implements
     Computation<SInt, ProtocolBuilderNumeric> {
 
-  private final T input;
+  private final PlainT input;
   private final int inputPartyId;
 
-  public MarlinInputComputation(T input, int inputPartyId) {
+  public MarlinInputComputation(PlainT input, int inputPartyId) {
     this.inputPartyId = inputPartyId;
     this.input = input;
   }

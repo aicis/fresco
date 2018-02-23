@@ -6,6 +6,7 @@ import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 
 public abstract class MarlinNativeProtocol<
     OutputT,
-    T extends CompUInt<?, ?, T>> implements NativeProtocol<OutputT, MarlinResourcePool<T>> {
+    PlainT extends CompUInt<?, ?, PlainT>> implements
+    NativeProtocol<OutputT, MarlinResourcePool<PlainT>> {
 
 }

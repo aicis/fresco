@@ -6,18 +6,18 @@ import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 
-public class MarlinKnownSIntProtocol<
-    T extends CompUInt<?, ?, T>> extends MarlinNativeProtocol<SInt, T> {
+public class MarlinKnownSIntProtocol<PlainT extends CompUInt<?, ?, PlainT>>
+    extends MarlinNativeProtocol<SInt, PlainT> {
 
-  private final T input;
+  private final PlainT input;
   private SInt out;
 
-  public MarlinKnownSIntProtocol(T input) {
+  public MarlinKnownSIntProtocol(PlainT input) {
     this.input = input;
   }
 
   @Override
-  public EvaluationStatus evaluate(int round, MarlinResourcePool<T> resourcePool,
+  public EvaluationStatus evaluate(int round, MarlinResourcePool<PlainT> resourcePool,
       Network network) {
     out = new MarlinSInt<>(
         (resourcePool.getMyId() == 1) ? input : resourcePool.getFactory().zero(),

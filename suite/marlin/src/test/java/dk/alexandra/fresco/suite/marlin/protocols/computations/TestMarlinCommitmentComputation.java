@@ -12,10 +12,9 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.marlin.AbstractMarlinTest;
-import dk.alexandra.fresco.suite.marlin.MarlinProtocolSuite;
+import dk.alexandra.fresco.suite.marlin.MarlinProtocolSuite128;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt128;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt128Factory;
-import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntConverter128;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.marlin.datatypes.UInt64;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
@@ -66,7 +65,7 @@ public class TestMarlinCommitmentComputation extends AbstractMarlinTest<
 
   @Override
   protected ProtocolSuiteNumeric<MarlinResourcePool<CompUInt128>> createProtocolSuite() {
-    return new MarlinProtocolSuite<>(new CompUIntConverter128());
+    return new MarlinProtocolSuite128();
   }
 
   private static class TestTest<ResourcePoolT extends MarlinResourcePool<CompUInt128>>

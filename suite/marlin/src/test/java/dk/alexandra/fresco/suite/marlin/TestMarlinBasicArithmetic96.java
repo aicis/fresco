@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt96;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt96Factory;
-import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntConverter96;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.marlin.datatypes.UInt32;
 import dk.alexandra.fresco.suite.marlin.datatypes.UInt64;
@@ -41,7 +40,7 @@ public class TestMarlinBasicArithmetic96 extends MarlinTestSuite<
 
   @Override
   protected ProtocolSuiteNumeric<MarlinResourcePool<CompUInt96>> createProtocolSuite() {
-    return new MarlinProtocolSuite<>(new CompUIntConverter96());
+    return new MarlinProtocolSuite96();
   }
 
 }

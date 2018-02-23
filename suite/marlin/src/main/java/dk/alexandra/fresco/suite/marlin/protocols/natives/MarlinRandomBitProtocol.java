@@ -5,14 +5,13 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 
-public class MarlinRandomBitProtocol<
-    CompT extends CompUInt<?, ?, CompT>>
-    extends MarlinNativeProtocol<SInt, CompT> {
+public class MarlinRandomBitProtocol<PlainT extends CompUInt<?, ?, PlainT>>
+    extends MarlinNativeProtocol<SInt, PlainT> {
 
   private SInt bit;
 
   @Override
-  public EvaluationStatus evaluate(int round, MarlinResourcePool<CompT> resourcePool,
+  public EvaluationStatus evaluate(int round, MarlinResourcePool<PlainT> resourcePool,
       Network network) {
     this.bit = resourcePool.getDataSupplier().getNextBitShare();
     return EvaluationStatus.IS_DONE;
