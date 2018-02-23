@@ -24,11 +24,3 @@ suite. On a successful build Maven should install FRESCO on your system and a FR
 now be found in the ``./target`` directory as well as in your local maven repository. Note that 
 ``mvn install`` will execute the test suite included with FRESCO as part of the build. To skip the tests
 and only run the build, use ``mvn install -DskipTests``.
-
- 
-Downloading a Pre-Built FRESCO Release
---------------------------------------
-
-Altenatively you can download the latest release of FRESCO from GitHub_.
-
-.. _GitHub: https://github.com/aicis/fresco/releases
