@@ -58,12 +58,7 @@ public class MarlinResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
   }
 
   @Override
-  public int getOperationalBitLength() {
-    return operationalBitLength;
-  }
-
-  @Override
-  public int getEffectiveBitLength() {
+  public int getMaxBitLength() {
     return effectiveBitLength;
   }
 

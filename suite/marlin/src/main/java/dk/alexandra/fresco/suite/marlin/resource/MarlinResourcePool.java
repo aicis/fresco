@@ -14,30 +14,36 @@ import java.math.BigInteger;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public interface MarlinResourcePool<CompT extends CompUInt<?, ?, CompT>>
+/**
+ * Common resources for {@link dk.alexandra.fresco.suite.marlin.MarlinProtocolSuite}.
+ *
+ * @param <PlainT> the type of the core arithmetic data type, in this case an instance of {@link
+ * CompUInt}.
+ */
+public interface MarlinResourcePool<PlainT extends CompUInt<?, ?, PlainT>>
     extends NumericResourcePool {
 
   /**
    * Returns instance of {@link MarlinOpenedValueStore} which tracks all opened, unchecked values.
    */
-  MarlinOpenedValueStore<CompT> getOpenedValueStore();
+  MarlinOpenedValueStore<PlainT> getOpenedValueStore();
 
   /**
    * Returns instance of {@link MarlinDataSupplier} which provides pre-processed material such as
    * multiplication triples.
    */
-  MarlinDataSupplier<CompT> getDataSupplier();
+  MarlinDataSupplier<PlainT> getDataSupplier();
 
   /**
-   * Returns factory for constructing concrete instances of {@link CompT}, i.e., the class
+   * Returns factory for constructing concrete instances of {@link PlainT}, i.e., the class
    * representing the raw element data type.
    */
-  CompUIntFactory<CompT> getFactory();
+  CompUIntFactory<PlainT> getFactory();
 
   /**
-   * Returns serializer for instances of {@link CompT}.
+   * Returns serializer for instances of {@link PlainT}.
    */
-  ByteSerializer<CompT> getRawSerializer();
+  ByteSerializer<PlainT> getRawSerializer();
 
   /**
    * Initializes deterministic joint randomness source. <p>Must be called before any protocols
@@ -61,23 +67,29 @@ public interface MarlinResourcePool<CompT extends CompUInt<?, ?, CompT>>
    */
   Drbg getRandomGenerator();
 
+  /**
+   * Returns bit length of maximum representable element.
+   */
+  int getMaxBitLength();
+
+  /**
+   * Converts opened value of underlying arithmetic type to a BigInteger. <p>This may convert the
+   * value to a negative value depending on the semantics of the plain text type.</p>
+   */
+  default BigInteger convertRepresentation(PlainT value) {
+    return value.getLeastSignificant().toBigInteger();
+  }
+
+  /**
+   * Returns serializer for {@link HashBasedCommitment}.
+   */
   default ByteSerializer<HashBasedCommitment> getCommitmentSerializer() {
     return new HashBasedCommitmentSerializer();
   }
 
-  // TODO not clear that this belongs here
-  int getOperationalBitLength();
-
-  // TODO not clear that this belongs here
-  int getEffectiveBitLength();
-
   @Override
   default BigInteger convertRepresentation(BigInteger value) {
     return convertRepresentation(getFactory().createFromBigInteger(value));
-  }
-
-  default BigInteger convertRepresentation(CompT value) {
-    return value.getLeastSignificant().toBigInteger();
   }
 
 }

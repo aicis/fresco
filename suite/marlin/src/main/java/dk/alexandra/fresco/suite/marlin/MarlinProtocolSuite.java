@@ -34,7 +34,7 @@ public abstract class MarlinProtocolSuite<
 
   public BasicNumericContext createBasicNumericContext(MarlinResourcePool<PlainT> resourcePool) {
     return new BasicNumericContext(
-        resourcePool.getEffectiveBitLength(), resourcePool.getModulus(), resourcePool.getMyId(),
+        resourcePool.getMaxBitLength(), resourcePool.getModulus(), resourcePool.getMyId(),
         resourcePool.getNoOfParties());
   }
 
