@@ -29,11 +29,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class MarlinResourcePoolImpl<
-    H extends UInt<H>,
-    L extends UInt<L>,
-    T extends CompUInt<H, L, T>>
+    T extends CompUInt<?, ?, T>>
     extends ResourcePoolImpl
-    implements MarlinResourcePool<H, L, T> {
+    implements MarlinResourcePool<T> {
 
   private final int operationalBitLength;
   private final int effectiveBitLength;

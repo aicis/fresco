@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MarlinMultiplyProtocol<H extends UInt<H>, L extends UInt<L>, T extends CompUInt<H, L, T>> extends
-    MarlinNativeProtocol<SInt, H, L, T> {
+public class MarlinMultiplyProtocol<T extends CompUInt<?, ?, T>> extends
+    MarlinNativeProtocol<SInt, T> {
 
   private final DRes<SInt> left;
   private final DRes<SInt> right;
@@ -30,7 +30,7 @@ public class MarlinMultiplyProtocol<H extends UInt<H>, L extends UInt<L>, T exte
   }
 
   @Override
-  public EvaluationStatus evaluate(int round, MarlinResourcePool<H, L, T> resourcePool, Network network) {
+  public EvaluationStatus evaluate(int round, MarlinResourcePool<T> resourcePool, Network network) {
     final T macKeyShare = resourcePool.getDataSupplier().getSecretSharedKey();
     ByteSerializer<T> serializer = resourcePool.getRawSerializer();
     if (round == 0) {

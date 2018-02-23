@@ -39,7 +39,7 @@ public abstract class AbstractMarlinTest<
     HighT extends UInt<HighT>,
     LowT extends UInt<LowT>,
     CompT extends CompUInt<HighT, LowT, CompT>,
-    MarlinResourcePoolT extends MarlinResourcePool<HighT, LowT, CompT>> {
+    MarlinResourcePoolT extends MarlinResourcePool<CompT>> {
 
   protected Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
 

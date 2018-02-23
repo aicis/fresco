@@ -22,7 +22,7 @@ import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinRandomElementPro
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinSubtractFromKnownProtocol;
 import java.math.BigInteger;
 
-public class MarlinBuilder<H extends UInt<H>, L extends UInt<L>, T extends CompUInt<H, L, T>> implements
+public class MarlinBuilder<T extends CompUInt<?, ?, T>> implements
     BuilderFactoryNumeric {
 
   private final CompUIntFactory<T> factory;

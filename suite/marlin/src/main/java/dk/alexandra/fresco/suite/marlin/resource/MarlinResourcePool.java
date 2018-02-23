@@ -8,7 +8,6 @@ import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntFactory;
-import dk.alexandra.fresco.suite.marlin.datatypes.UInt;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinDataSupplier;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStore;
 import java.math.BigInteger;
@@ -16,9 +15,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public interface MarlinResourcePool<
-    HighT extends UInt<HighT>,
-    LowT extends UInt<LowT>,
-    CompT extends CompUInt<HighT, LowT, CompT>>
+    CompT extends CompUInt<?, ?, CompT>>
     extends NumericResourcePool {
 
   /**

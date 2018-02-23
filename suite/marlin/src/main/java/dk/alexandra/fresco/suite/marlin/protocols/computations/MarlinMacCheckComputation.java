@@ -23,11 +23,11 @@ public class MarlinMacCheckComputation<
     CompT extends CompUInt<HighT, LowT, CompT>>
     implements Computation<Void, ProtocolBuilderNumeric> {
 
-  private final MarlinResourcePool<HighT, LowT, CompT> resourcePool;
+  private final MarlinResourcePool<CompT> resourcePool;
   private final CompUIntConverter<HighT, LowT, CompT> converter;
 
   public MarlinMacCheckComputation(
-      MarlinResourcePool<HighT, LowT, CompT> resourcePool,
+      MarlinResourcePool<CompT> resourcePool,
       CompUIntConverter<HighT, LowT, CompT> converter) {
     this.resourcePool = resourcePool;
     this.converter = converter;

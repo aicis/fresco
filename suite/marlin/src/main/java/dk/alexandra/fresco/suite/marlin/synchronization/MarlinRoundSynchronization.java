@@ -22,7 +22,7 @@ public class MarlinRoundSynchronization<
     HighT extends UInt<HighT>,
     LowT extends UInt<LowT>,
     CompT extends CompUInt<HighT, LowT, CompT>>
-    implements RoundSynchronization<MarlinResourcePool<HighT, LowT, CompT>> {
+    implements RoundSynchronization<MarlinResourcePool<CompT>> {
 
   private final int openValueThreshold;
   private final int batchSize;
@@ -46,13 +46,13 @@ public class MarlinRoundSynchronization<
     this.isCheckRequired = false;
   }
 
-  private void doMacCheck(MarlinResourcePool<HighT, LowT, CompT> resourcePool, Network network) {
+  private void doMacCheck(MarlinResourcePool<CompT> resourcePool, Network network) {
     MarlinOpenedValueStore<CompT> openedValueStore = resourcePool.getOpenedValueStore();
     if (!openedValueStore.isEmpty()) {
-      MarlinBuilder<HighT, LowT, CompT> builder = new MarlinBuilder<>(resourcePool.getFactory(),
+      MarlinBuilder<CompT> builder = new MarlinBuilder<>(resourcePool.getFactory(),
           protocolSuite.createBasicNumericContext(resourcePool));
-      BatchEvaluationStrategy<MarlinResourcePool<HighT, LowT, CompT>> batchStrategy = new BatchedStrategy<>();
-      BatchedProtocolEvaluator<MarlinResourcePool<HighT, LowT, CompT>> evaluator = new BatchedProtocolEvaluator<>(
+      BatchEvaluationStrategy<MarlinResourcePool<CompT>> batchStrategy = new BatchedStrategy<>();
+      BatchedProtocolEvaluator<MarlinResourcePool<CompT>> evaluator = new BatchedProtocolEvaluator<>(
           batchStrategy,
           protocolSuite,
           batchSize);
@@ -65,7 +65,7 @@ public class MarlinRoundSynchronization<
   }
 
   @Override
-  public void finishedBatch(int gatesEvaluated, MarlinResourcePool<HighT, LowT, CompT> resourcePool,
+  public void finishedBatch(int gatesEvaluated, MarlinResourcePool<CompT> resourcePool,
       Network network) {
     if (isCheckRequired || resourcePool.getOpenedValueStore().size() > openValueThreshold) {
       doMacCheck(resourcePool, network);
@@ -74,14 +74,14 @@ public class MarlinRoundSynchronization<
   }
 
   @Override
-  public void finishedEval(MarlinResourcePool<HighT, LowT, CompT> resourcePool, Network network) {
+  public void finishedEval(MarlinResourcePool<CompT> resourcePool, Network network) {
     doMacCheck(resourcePool, network);
   }
 
   @Override
   public void beforeBatch(
-      ProtocolCollection<MarlinResourcePool<HighT, LowT, CompT>> nativeProtocols,
-      MarlinResourcePool<HighT, LowT, CompT> resourcePool, Network network) {
+      ProtocolCollection<MarlinResourcePool<CompT>> nativeProtocols,
+      MarlinResourcePool<CompT> resourcePool, Network network) {
     for (NativeProtocol<?, ?> protocol : nativeProtocols) {
       // TODO come up with a cleaner way of doing this
       if (protocol instanceof RequiresMacCheck) {

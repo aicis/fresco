@@ -10,26 +10,29 @@ import dk.alexandra.fresco.suite.marlin.datatypes.UInt;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 import dk.alexandra.fresco.suite.marlin.synchronization.MarlinRoundSynchronization;
 
-public class MarlinProtocolSuite<H extends UInt<H>, L extends UInt<L>, T extends CompUInt<H, L, T>> implements
-    ProtocolSuiteNumeric<MarlinResourcePool<H, L, T>> {
+public class MarlinProtocolSuite<
+    HighT extends UInt<HighT>,
+    LowT extends UInt<LowT>,
+    CompT extends CompUInt<HighT, LowT, CompT>>
+    implements ProtocolSuiteNumeric<MarlinResourcePool<CompT>> {
 
-  private final CompUIntConverter<H, L, T> converter;
+  private final CompUIntConverter<HighT, LowT, CompT> converter;
 
-  public MarlinProtocolSuite(CompUIntConverter<H, L, T> converter) {
+  public MarlinProtocolSuite(CompUIntConverter<HighT, LowT, CompT> converter) {
     this.converter = converter;
   }
 
   @Override
-  public BuilderFactoryNumeric init(MarlinResourcePool<H, L, T> resourcePool, Network network) {
+  public BuilderFactoryNumeric init(MarlinResourcePool<CompT> resourcePool, Network network) {
     return new MarlinBuilder<>(resourcePool.getFactory(), createBasicNumericContext(resourcePool));
   }
 
   @Override
-  public RoundSynchronization<MarlinResourcePool<H, L, T>> createRoundSynchronization() {
+  public RoundSynchronization<MarlinResourcePool<CompT>> createRoundSynchronization() {
     return new MarlinRoundSynchronization<>(this, converter);
   }
 
-  public BasicNumericContext createBasicNumericContext(MarlinResourcePool<H, L, T> resourcePool) {
+  public BasicNumericContext createBasicNumericContext(MarlinResourcePool<CompT> resourcePool) {
     return new BasicNumericContext(
         resourcePool.getEffectiveBitLength(), resourcePool.getModulus(), resourcePool.getMyId(),
         resourcePool.getNoOfParties());

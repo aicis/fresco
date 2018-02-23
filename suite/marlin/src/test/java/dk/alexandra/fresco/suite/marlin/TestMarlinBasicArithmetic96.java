@@ -19,14 +19,14 @@ public class TestMarlinBasicArithmetic96 extends MarlinTestSuite<
     UInt64,
     UInt32,
     CompUInt96,
-    MarlinResourcePool<UInt64, UInt32, CompUInt96>> {
+    MarlinResourcePool<CompUInt96>> {
 
   @Override
-  protected MarlinResourcePool<UInt64, UInt32, CompUInt96> createResourcePool(int playerId,
+  protected MarlinResourcePool<CompUInt96> createResourcePool(int playerId,
       int noOfParties, MarlinOpenedValueStore<CompUInt96> store,
       MarlinDataSupplier<CompUInt96> supplier,
       CompUIntFactory<CompUInt96> factory, Supplier<Network> networkSupplier) {
-    MarlinResourcePool<UInt64, UInt32, CompUInt96> resourcePool =
+    MarlinResourcePool<CompUInt96> resourcePool =
         new MarlinResourcePoolImpl<>(
             playerId,
             noOfParties, null, store, supplier, factory);
@@ -40,7 +40,7 @@ public class TestMarlinBasicArithmetic96 extends MarlinTestSuite<
   }
 
   @Override
-  protected ProtocolSuiteNumeric<MarlinResourcePool<UInt64, UInt32, CompUInt96>> createProtocolSuite() {
+  protected ProtocolSuiteNumeric<MarlinResourcePool<CompUInt96>> createProtocolSuite() {
     return new MarlinProtocolSuite<>(new CompUIntConverter96());
   }
 

@@ -32,7 +32,7 @@ public class TestMarlinCommitmentComputation extends AbstractMarlinTest<
     UInt64,
     UInt64,
     CompUInt128,
-    MarlinResourcePool<UInt64, UInt64, CompUInt128>> {
+    MarlinResourcePool<CompUInt128>> {
 
   @Test
   public void testCommitmentTwo() {
@@ -47,11 +47,11 @@ public class TestMarlinCommitmentComputation extends AbstractMarlinTest<
   }
 
   @Override
-  protected MarlinResourcePool<UInt64, UInt64, CompUInt128> createResourcePool(int playerId,
+  protected MarlinResourcePool<CompUInt128> createResourcePool(int playerId,
       int noOfParties, MarlinOpenedValueStore<CompUInt128> store,
       MarlinDataSupplier<CompUInt128> supplier,
       CompUIntFactory<CompUInt128> factory, Supplier<Network> networkSupplier) {
-    MarlinResourcePool<UInt64, UInt64, CompUInt128> resourcePool =
+    MarlinResourcePool<CompUInt128> resourcePool =
         new MarlinResourcePoolImpl<>(
             playerId,
             noOfParties, null, store, supplier, factory);
@@ -65,11 +65,11 @@ public class TestMarlinCommitmentComputation extends AbstractMarlinTest<
   }
 
   @Override
-  protected ProtocolSuiteNumeric<MarlinResourcePool<UInt64, UInt64, CompUInt128>> createProtocolSuite() {
+  protected ProtocolSuiteNumeric<MarlinResourcePool<CompUInt128>> createProtocolSuite() {
     return new MarlinProtocolSuite<>(new CompUIntConverter128());
   }
 
-  private static class TestTest<ResourcePoolT extends MarlinResourcePool<UInt64, UInt64, CompUInt128>>
+  private static class TestTest<ResourcePoolT extends MarlinResourcePool<CompUInt128>>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override

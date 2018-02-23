@@ -12,7 +12,7 @@ public abstract class MarlinTestSuite<
     HighT extends UInt<HighT>,
     LowT extends UInt<LowT>,
     CompT extends CompUInt<HighT, LowT, CompT>,
-    MarlinResourcePoolT extends MarlinResourcePool<HighT, LowT, CompT>>
+    MarlinResourcePoolT extends MarlinResourcePool<CompT>>
     extends AbstractMarlinTest<HighT, LowT, CompT, MarlinResourcePoolT> {
 
   @Test

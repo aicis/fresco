@@ -14,10 +14,8 @@ import java.math.BigInteger;
 import java.util.List;
 
 public class MarlinOutputSinglePartyProtocol<
-    HighT extends UInt<HighT>,
-    LowT extends UInt<LowT>,
-    CompT extends CompUInt<HighT, LowT, CompT>>
-    extends MarlinNativeProtocol<BigInteger, HighT, LowT, CompT>
+    CompT extends CompUInt<?, ?, CompT>>
+    extends MarlinNativeProtocol<BigInteger, CompT>
     implements RequiresMacCheck {
 
   private final DRes<SInt> share;
@@ -32,7 +30,7 @@ public class MarlinOutputSinglePartyProtocol<
   }
 
   @Override
-  public EvaluationStatus evaluate(int round, MarlinResourcePool<HighT, LowT, CompT> resourcePool,
+  public EvaluationStatus evaluate(int round, MarlinResourcePool<CompT> resourcePool,
       Network network) {
     MarlinOpenedValueStore<CompT> openedValueStore = resourcePool.getOpenedValueStore();
     MarlinDataSupplier<CompT> supplier = resourcePool.getDataSupplier();

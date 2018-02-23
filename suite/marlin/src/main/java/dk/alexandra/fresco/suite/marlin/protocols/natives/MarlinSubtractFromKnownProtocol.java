@@ -5,14 +5,11 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
-import dk.alexandra.fresco.suite.marlin.datatypes.UInt;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 
 public class MarlinSubtractFromKnownProtocol<
-    HighT extends UInt<HighT>,
-    LowT extends UInt<LowT>,
-    CompT extends CompUInt<HighT, LowT, CompT>>
-    extends MarlinNativeProtocol<SInt, HighT, LowT, CompT> {
+    CompT extends CompUInt<?, ?, CompT>>
+    extends MarlinNativeProtocol<SInt, CompT> {
 
   private final CompT left;
   private final DRes<SInt> right;
@@ -24,7 +21,7 @@ public class MarlinSubtractFromKnownProtocol<
   }
 
   @Override
-  public EvaluationStatus evaluate(int round, MarlinResourcePool<HighT, LowT, CompT> resourcePool,
+  public EvaluationStatus evaluate(int round, MarlinResourcePool<CompT> resourcePool,
       Network network) {
     MarlinSInt<CompT> leftSInt = new MarlinSInt<>(
         (resourcePool.getMyId() == 1) ? left : resourcePool.getFactory().zero(),
