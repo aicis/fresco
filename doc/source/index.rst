@@ -3,14 +3,21 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
   
-
-FRESCO
-======
+.. image:: https://alexandra.dk/logo/fresco-logo-artwork.svg
+   :width: 75 %
+   :alt: Fresco logo
+   :align: center
+ 
+|
+|
 
 FRESCO is a FRamework for Efficient and Secure COmputation, written in Java and licensed under the
-open source MIT license. These pages breifly documents the project. If you have questions not
-answered on these pages please ask using our issue tracker on `GitHub
-<https://github.com/aicis/fresco/issues>`_ or by email at fresco@alexandra.dk.
+open source MIT license. The project aims to ease the development of prototype applications based on
+secure computation. 
+
+These pages breifly document the project. If you have questions not answered here please ask using
+our `issue tracker <https://github.com/aicis/fresco/issues>`_ on GitHub or by email at
+fresco@alexandra.dk.
 
 The FRESCO source code is available at https://github.com/aicis/fresco.
 
