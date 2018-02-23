@@ -3,25 +3,30 @@
 Quickstart
 ==========
 
-This section gives a brief introduction on how to get started working with FRESCO. If you have further
-questions please get in touch using our issue tracker on `GitHub
-<https://github.com/aicis/fresco/issues>`_ or by email at fresco@alexandra.dk.
+This section gives a brief introduction on how to start working with FRESCO. If you have further
+questions please get in touch using our `issue tracker <https://github.com/aicis/fresco/issues>`_ or
+by email at fresco@alexandra.dk.
 
-The best place to start is to browse the demos bundled with the FRESCO repository (see the repo on `GitHub
-<https://github.com/aicis/fresco/tree/master/demos>`_). The following demos are currently included:
+The best place to start is to browse the demos bundled with the FRESCO repository at
+https://github.com/aicis/fresco/tree/master/demos.
 
-* **Sum** - computes the sum of a number of integers input by a single party.
+The following demos are currently included:
 
-* **Distance** - computes the distance between two points provided by two different parties (in
-  Euclidean two dimensional space).
+* `Sum <https://github.com/aicis/fresco/tree/master/demos/sum>`_ - computes the sum of a number of
+  integers input by a single party.
 
-* **Aggregation** - computes the aggregation of a hard-coded list. The list consists of pairs of
-  (key,value). The demo aggregates all values where the keys match.
+* `Distance <https://github.com/aicis/fresco/tree/master/demos/distance>`_ - computes the distance
+  between two points provided by two different parties (in Euclidean two dimensional space).
 
-* **AES** - computes an AES encryption of a block of plain-text provided by one party under a key
-  provided by an other party.
+* `Aggregation <https://github.com/aicis/fresco/tree/master/demos/aggregation>`_ - computes the aggregation
+  of a hard-coded list. The list consists of pairs of (key,value). The demo aggregates all values
+  where the keys match.
 
-* **Private Set Intersection** - computes the intersection of the private sets of two parties.
+* `AES <https://github.com/aicis/fresco/tree/master/demos/aes>`_ - computes an AES encryption of a
+  block of plain-text provided by one party under a key provided by an other party.
+
+* `Private Set Intersection <https://github.com/aicis/fresco/tree/master/demos/psi>`_ - computes the
+  intersection of the private sets of two parties.
 
 Each demo includes instructions on how to build and run them directly on the command line.
 
@@ -36,7 +41,9 @@ secure computation.
 A Simple Example
 ----------------
 
-In this example we demonstrate how to use the FRESCO framework in your own application. FRESCO is a flexible framework intended to be used in your own software stack, so start by adding the dependency to fresco in your own project.
+In this example we demonstrate how to use the FRESCO framework in your own application. FRESCO is a
+flexible framework intended to be used in your own software stack, so start by adding the dependency
+to fresco in your own project.
 
 This example is based on the ``DistanceDemo`` class implementing the **Distance** demo outlined
 above. However, essentially any FRESCO application could be substituted for ``DistanceDemo`` in the
@@ -59,8 +66,8 @@ following.
     double dist = Math.sqrt(bigInteger.doubleValue());
 
 
-Here we take the existing application, ``DistanceDemo``, and run it with a single party using the dummy
-protocol suite. This can run directly in your own tests.
+Here we take the existing application, ``DistanceDemo``, and run it with a single party using the
+dummy protocol suite. This can run directly in your own tests.
 
 Congratulations on running your first FRESCO application!
 
@@ -93,7 +100,8 @@ Let's have a look at each part of the example above.
 
 A FRESCO application, in this case ``DistanceDemo``, implements the ``Application`` interface. To
 run an ``Application`` we must first create a ``SecureComputationEngine``. This is a core component
-of FRESCO that is the primary entry point for executing secure computations through the computation directories and the active protocol suite.
+of FRESCO that is the primary entry point for executing secure computations through the computation
+directories and the active protocol suite.
 
 The ``SecureComputationEngine`` is initialized with a ``ProtocolSuite`` and a ``ProtocolEvaluator``
 (defining the secure computation technique and strategy for evaluating the application
@@ -113,7 +121,7 @@ the evaluated result directly in a ``BigInteger`` - here the distance between th
 Notice how our ``Application`` is created. Implementing ``Application`` signals that our
 ``DistanceDemo`` class is a FRESCO application. An application must also state what it outputs as
 well as what type of application this is i.e. are we creating a binary or arithmetic application.
-This is seen in the interface 
+This is seen in the interface
 
 .. sourcecode:: java
 
@@ -128,6 +136,6 @@ to implement the method
 
    DRes<BigInteger> buildComputation(ProtocolBuilderNumeric producer)
 
-This is the method that defines how our FRESCO application is built. The ``DRes`` return type 
+This is the method that defines how our FRESCO application is built. The ``DRes`` return type
 represents a deferred result for the output (modelling that everything in FRESCO is evaluated
 "later").
