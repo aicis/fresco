@@ -3,15 +3,11 @@ package dk.alexandra.fresco.suite.marlin;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.collections.io.CloseListTests.TestCloseAndOpenList;
-import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
-import dk.alexandra.fresco.suite.marlin.datatypes.UInt;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 import org.junit.Test;
 
-public abstract class MarlinTestSuite<
-    CompT extends CompUInt<?, ?, CompT>,
-    MarlinResourcePoolT extends MarlinResourcePool<CompT>>
-    extends AbstractMarlinTest<CompT, MarlinResourcePoolT> {
+public abstract class MarlinTestSuite<MarlinResourcePoolT extends MarlinResourcePool<?>>
+    extends AbstractMarlinTest<MarlinResourcePoolT> {
 
   @Test
   public void testInput() {

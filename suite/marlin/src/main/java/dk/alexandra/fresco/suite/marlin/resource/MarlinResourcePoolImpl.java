@@ -17,7 +17,6 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.marlin.MarlinBuilder;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntFactory;
-import dk.alexandra.fresco.suite.marlin.datatypes.UInt;
 import dk.alexandra.fresco.suite.marlin.protocols.computations.MarlinCommitmentComputation;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinDataSupplier;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStore;
@@ -28,26 +27,25 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class MarlinResourcePoolImpl<
-    T extends CompUInt<?, ?, T>>
+public class MarlinResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
     extends ResourcePoolImpl
-    implements MarlinResourcePool<T> {
+    implements MarlinResourcePool<PlainT> {
 
   private final int operationalBitLength;
   private final int effectiveBitLength;
   private final BigInteger modulus;
-  private final MarlinOpenedValueStore<T> storage;
-  private final MarlinDataSupplier<T> supplier;
-  private final CompUIntFactory<T> factory;
-  private final ByteSerializer<T> rawSerializer;
+  private final MarlinOpenedValueStore<PlainT> storage;
+  private final MarlinDataSupplier<PlainT> supplier;
+  private final CompUIntFactory<PlainT> factory;
+  private final ByteSerializer<PlainT> rawSerializer;
   private Drbg drbg;
 
   /**
    * Creates new {@link MarlinResourcePoolImpl}.
    */
   public MarlinResourcePoolImpl(int myId, int noOfPlayers, Drbg drbg,
-      MarlinOpenedValueStore<T> storage,
-      MarlinDataSupplier<T> supplier, CompUIntFactory<T> factory) {
+      MarlinOpenedValueStore<PlainT> storage,
+      MarlinDataSupplier<PlainT> supplier, CompUIntFactory<PlainT> factory) {
     super(myId, noOfPlayers);
     this.operationalBitLength = factory.getCompositeBitLength();
     this.effectiveBitLength = factory.getLowBitLength();
@@ -70,22 +68,22 @@ public class MarlinResourcePoolImpl<
   }
 
   @Override
-  public MarlinOpenedValueStore<T> getOpenedValueStore() {
+  public MarlinOpenedValueStore<PlainT> getOpenedValueStore() {
     return storage;
   }
 
   @Override
-  public MarlinDataSupplier<T> getDataSupplier() {
+  public MarlinDataSupplier<PlainT> getDataSupplier() {
     return supplier;
   }
 
   @Override
-  public CompUIntFactory<T> getFactory() {
+  public CompUIntFactory<PlainT> getFactory() {
     return factory;
   }
 
   @Override
-  public ByteSerializer<T> getRawSerializer() {
+  public ByteSerializer<PlainT> getRawSerializer() {
     return rawSerializer;
   }
 

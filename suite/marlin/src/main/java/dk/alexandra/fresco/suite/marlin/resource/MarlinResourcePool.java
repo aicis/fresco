@@ -14,8 +14,7 @@ import java.math.BigInteger;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public interface MarlinResourcePool<
-    CompT extends CompUInt<?, ?, CompT>>
+public interface MarlinResourcePool<CompT extends CompUInt<?, ?, CompT>>
     extends NumericResourcePool {
 
   /**
