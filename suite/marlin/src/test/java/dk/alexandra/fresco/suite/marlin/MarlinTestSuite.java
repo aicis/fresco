@@ -225,4 +225,20 @@ public abstract class MarlinTestSuite<
         false);
   }
 
+  @Test
+  public void testOutputToSingleParty() {
+    runTest(new BasicArithmeticTests.TestOutputToSingleParty<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
+        2,
+        false);
+  }
+
+  @Test
+  public void testOutputToSinglePartyThree() {
+    runTest(new BasicArithmeticTests.TestOutputToSingleParty<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
+        3,
+        false);
+  }
+
 }

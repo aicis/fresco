@@ -16,6 +16,7 @@ import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinAddKnownProtocol
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinKnownSIntProtocol;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinMultiplyProtocol;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinOutputProtocol;
+import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinOutputSinglePartyProtocol;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinRandomBitProtocol;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinRandomElementProtocol;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinSubtractFromKnownProtocol;
@@ -106,7 +107,7 @@ public class MarlinBuilder<H extends UInt<H>, L extends UInt<L>, T extends CompU
 
       @Override
       public DRes<BigInteger> open(DRes<SInt> secretShare, int outputParty) {
-        return null;
+        return builder.append(new MarlinOutputSinglePartyProtocol<>(secretShare, outputParty));
       }
     };
   }
