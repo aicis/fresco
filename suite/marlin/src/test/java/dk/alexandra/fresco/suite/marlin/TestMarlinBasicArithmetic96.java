@@ -202,6 +202,38 @@ public class TestMarlinBasicArithmetic96 extends AbstractMarlinTest<
         false);
   }
 
+  @Test
+  public void testSubtractPublic() {
+    runTest(new BasicArithmeticTests.TestSubtractPublic<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
+        2,
+        false);
+  }
+
+  @Test
+  public void testSubtractPublicThree() {
+    runTest(new BasicArithmeticTests.TestSubtractPublic<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
+        3,
+        false);
+  }
+
+  @Test
+  public void testSubtractFromPublic() {
+    runTest(new BasicArithmeticTests.TestSubtractFromPublic<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
+        2,
+        false);
+  }
+
+  @Test
+  public void testSubtractFromPublicThree() {
+    runTest(new BasicArithmeticTests.TestSubtractFromPublic<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
+        3,
+        false);
+  }
+
   @Override
   protected MarlinResourcePool<UInt64, UInt32, CompUInt96> createResourcePool(int playerId,
       int noOfParties, MarlinOpenedValueStore<CompUInt96> store,

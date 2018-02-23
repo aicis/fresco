@@ -18,6 +18,7 @@ import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinMultiplyProtocol
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinOutputProtocol;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinRandomBitProtocol;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinRandomElementProtocol;
+import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinSubtractFromKnownProtocol;
 import java.math.BigInteger;
 
 public class MarlinBuilder<H extends UInt<H>, L extends UInt<L>, T extends CompUInt<H, L, T>> implements
@@ -56,7 +57,8 @@ public class MarlinBuilder<H extends UInt<H>, L extends UInt<L>, T extends CompU
 
       @Override
       public DRes<SInt> sub(BigInteger a, DRes<SInt> b) {
-        return null;
+        return builder.append(
+            new MarlinSubtractFromKnownProtocol<>(factory.createFromBigInteger(a), b));
       }
 
       @Override

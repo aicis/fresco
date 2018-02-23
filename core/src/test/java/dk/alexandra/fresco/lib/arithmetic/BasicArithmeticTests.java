@@ -184,6 +184,58 @@ public class BasicArithmeticTests {
     }
   }
 
+  public static class TestSubtractPublic<ResourcePoolT extends NumericResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigInteger left = BigInteger.valueOf(4);
+      BigInteger right = BigInteger.valueOf(10);
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
+            Numeric numeric = producer.numeric();
+            DRes<SInt> leftClosed = numeric.input(left, 1);
+            DRes<SInt> result = numeric.sub(leftClosed, right);
+            return numeric.open(result);
+          };
+          ResourcePoolT resourcePool = conf.getResourcePool();
+          BigInteger expected = resourcePool
+              .convertRepresentation(left.subtract(right).mod(resourcePool.getModulus()));
+          BigInteger actual = runApplication(app);
+          Assert.assertEquals(expected, actual);
+        }
+      };
+    }
+  }
+
+  public static class TestSubtractFromPublic<ResourcePoolT extends NumericResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigInteger left = BigInteger.valueOf(4);
+      BigInteger right = BigInteger.valueOf(10);
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
+            Numeric numeric = producer.numeric();
+            DRes<SInt> rightClosed = numeric.input(right, 1);
+            DRes<SInt> result = numeric.sub(left, rightClosed);
+            return numeric.open(result);
+          };
+          ResourcePoolT resourcePool = conf.getResourcePool();
+          BigInteger expected = resourcePool
+              .convertRepresentation(left.subtract(right).mod(resourcePool.getModulus()));
+          BigInteger actual = runApplication(app);
+          Assert.assertEquals(expected, actual);
+        }
+      };
+    }
+  }
+
   public static class TestAddPublicValue<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 

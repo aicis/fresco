@@ -2,8 +2,7 @@ package dk.alexandra.fresco.suite.marlin.datatypes;
 
 import dk.alexandra.fresco.framework.value.SInt;
 
-public class MarlinSInt<T extends CompUInt<?, ?, T>> implements
-    SInt {
+public class MarlinSInt<T extends CompUInt<?, ?, T>> implements SInt {
 
   private final T share;
   private final T macShare;

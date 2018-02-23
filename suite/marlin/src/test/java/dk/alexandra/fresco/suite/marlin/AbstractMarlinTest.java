@@ -125,19 +125,7 @@ public abstract class AbstractMarlinTest<
       CompUIntFactory<HighT, LowT, CompT> factory) {
     return new MarlinDummyDataSupplier<>(myId, noOfParties, factory.createRandom(), factory);
   }
-
-//  private MarlinResourcePoolT createResourcePool(int playerId,
-//      int noOfParties,
-//      MarlinOpenedValueStore<HighT, LowT, CompT> store,
-//      MarlinDataSupplier<HighT, LowT, CompT> supplier,
-//      CompUIntFactory<HighT, LowT, CompT> factory, Supplier<Network> networkSupplier) {
-//    MarlinResourcePoolT resourcePool = new MarlinResourcePoolImpl<HighT, LowT, CompT>(
-//        playerId,
-//        noOfParties, null, store, supplier, factory);
-//    resourcePool.initializeJointRandomness(networkSupplier, AesCtrDrbg::new, 32);
-//    return resourcePool;
-//  }
-
+  
   protected abstract MarlinResourcePoolT createResourcePool(int playerId,
       int noOfParties,
       MarlinOpenedValueStore<CompT> store,
