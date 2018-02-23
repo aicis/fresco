@@ -36,7 +36,7 @@ public interface MarlinResourcePool<
    * Returns factory for constructing concrete instances of {@link CompT}, i.e., the class
    * representing the raw element data type.
    */
-  CompUIntFactory<HighT, LowT, CompT> getFactory();
+  CompUIntFactory<CompT> getFactory();
 
   /**
    * Returns serializer for instances of {@link CompT}.

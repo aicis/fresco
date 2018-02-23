@@ -8,22 +8,19 @@ import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinInputMask;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinTriple;
-import dk.alexandra.fresco.suite.marlin.datatypes.UInt;
 import java.math.BigInteger;
 
 public class MarlinDummyDataSupplier<
-    HighT extends UInt<HighT>,
-    LowT extends UInt<LowT>,
-    T extends CompUInt<HighT, LowT, T>> implements
+    T extends CompUInt<?, ?, T>> implements
     MarlinDataSupplier<T> {
 
   private final int myId;
   private final ArithmeticDummyDataSupplier supplier;
   private final T secretSharedKey;
-  private final CompUIntFactory<HighT, LowT, T> factory;
+  private final CompUIntFactory<T> factory;
 
   public MarlinDummyDataSupplier(int myId, int noOfParties, T secretSharedKey,
-      CompUIntFactory<HighT, LowT, T> factory) {
+      CompUIntFactory<T> factory) {
     this.myId = myId;
     this.secretSharedKey = secretSharedKey;
     this.factory = factory;

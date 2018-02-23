@@ -4,18 +4,13 @@ import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.suite.marlin.util.BigUIntSerializer;
 import java.security.SecureRandom;
 
-public class CompUInt96Factory implements CompUIntFactory<UInt64, UInt32, CompUInt96> {
+public class CompUInt96Factory implements CompUIntFactory<CompUInt96> {
 
   private final SecureRandom random = new SecureRandom();
 
   @Override
   public CompUInt96 createFromBytes(byte[] bytes) {
     return new CompUInt96(bytes);
-  }
-
-  @Override
-  public CompUInt96 createFromHigh(UInt64 value) {
-    return new CompUInt96(value);
   }
 
   @Override

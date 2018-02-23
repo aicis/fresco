@@ -2,18 +2,17 @@ package dk.alexandra.fresco.suite.marlin.util;
 
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
-import dk.alexandra.fresco.suite.marlin.datatypes.UInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class BigUIntSerializer<H extends UInt<H>, L extends UInt<L>, T extends CompUInt<H, L, T>> implements ByteSerializer<T> {
+public class BigUIntSerializer<T extends CompUInt<?, ?, T>> implements ByteSerializer<T> {
 
-  private final CompUIntFactory<H, L, T> factory;
+  private final CompUIntFactory<T> factory;
   private final int byteLength;
 
-  public BigUIntSerializer(CompUIntFactory<H, L, T> factory) {
+  public BigUIntSerializer(CompUIntFactory<T> factory) {
     this.factory = factory;
     this.byteLength = factory.getCompositeBitLength() / 8;
   }

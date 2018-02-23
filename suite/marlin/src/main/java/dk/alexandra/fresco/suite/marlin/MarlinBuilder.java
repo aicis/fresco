@@ -25,10 +25,10 @@ import java.math.BigInteger;
 public class MarlinBuilder<H extends UInt<H>, L extends UInt<L>, T extends CompUInt<H, L, T>> implements
     BuilderFactoryNumeric {
 
-  private final CompUIntFactory<H, L, T> factory;
+  private final CompUIntFactory<T> factory;
   private final BasicNumericContext numericContext;
 
-  public MarlinBuilder(CompUIntFactory<H, L, T> factory, BasicNumericContext numericContext) {
+  public MarlinBuilder(CompUIntFactory<T> factory, BasicNumericContext numericContext) {
     this.factory = factory;
     this.numericContext = numericContext;
   }

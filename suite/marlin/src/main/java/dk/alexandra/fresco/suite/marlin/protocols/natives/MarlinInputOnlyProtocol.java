@@ -31,7 +31,7 @@ public class MarlinInputOnlyProtocol<
   @Override
   public EvaluationStatus evaluate(int round, MarlinResourcePool<HighT, LowT, CompT> resourcePool,
       Network network) {
-    CompUIntFactory<HighT, LowT, CompT> factory = resourcePool.getFactory();
+    CompUIntFactory<CompT> factory = resourcePool.getFactory();
     int myId = resourcePool.getMyId();
     ByteSerializer<CompT> serializer = resourcePool.getRawSerializer();
     if (round == 0) {

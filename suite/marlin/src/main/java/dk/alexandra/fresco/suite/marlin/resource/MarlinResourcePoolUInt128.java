@@ -16,7 +16,7 @@ public class MarlinResourcePoolUInt128 extends MarlinResourcePoolImpl<UInt64, UI
       Drbg drbg,
       MarlinOpenedValueStore<CompUInt128> storage,
       MarlinDataSupplier<CompUInt128> supplier,
-      CompUIntFactory<UInt64, UInt64, CompUInt128> factory) {
+      CompUIntFactory<CompUInt128> factory) {
     super(myId, noOfPlayers, drbg, storage, supplier, factory);
   }
 

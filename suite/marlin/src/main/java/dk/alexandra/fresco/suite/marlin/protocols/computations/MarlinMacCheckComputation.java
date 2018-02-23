@@ -8,6 +8,7 @@ import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntConverter;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.UInt;
@@ -23,10 +24,13 @@ public class MarlinMacCheckComputation<
     implements Computation<Void, ProtocolBuilderNumeric> {
 
   private final MarlinResourcePool<HighT, LowT, CompT> resourcePool;
+  private final CompUIntConverter<HighT, LowT, CompT> converter;
 
   public MarlinMacCheckComputation(
-      MarlinResourcePool<HighT, LowT, CompT> resourcePool) {
+      MarlinResourcePool<HighT, LowT, CompT> resourcePool,
+      CompUIntConverter<HighT, LowT, CompT> converter) {
     this.resourcePool = resourcePool;
+    this.converter = converter;
   }
 
   @Override
@@ -37,7 +41,7 @@ public class MarlinMacCheckComputation<
     List<MarlinSInt<CompT>> authenticatedElements = opened.getFirst();
     List<CompT> openValues = opened.getSecond();
     ByteSerializer<CompT> serializer = resourcePool.getRawSerializer();
-    CompUIntFactory<HighT, LowT, CompT> factory = resourcePool.getFactory();
+    CompUIntFactory<CompT> factory = resourcePool.getFactory();
     CompT macKeyShare = resourcePool.getDataSupplier().getSecretSharedKey();
     List<byte[]> sharesLowBits = authenticatedElements.stream()
         .map(element -> element.getShare().getLeastSignificant().toByteArray())
@@ -68,7 +72,7 @@ public class MarlinMacCheckComputation<
           List<CompT> pjList = serializer.deserializeList(broadcastPjs);
           HighT pLow = UInt.sum(
               pjList.stream().map(CompT::getLeastSignificantAsHigh).collect(Collectors.toList()));
-          CompT p = factory.createFromHigh(pLow);
+          CompT p = converter.createFromHigh(pLow);
           List<CompT> macShares = authenticatedElements.stream()
               .map(MarlinSInt::getMacShare)
               .collect(Collectors.toList());
@@ -89,7 +93,7 @@ public class MarlinMacCheckComputation<
         });
   }
 
-  private List<CompT> sampleCoefficients(Drbg drbg, CompUIntFactory<HighT, LowT, CompT> factory,
+  private List<CompT> sampleCoefficients(Drbg drbg, CompUIntFactory<CompT> factory,
       int numCoefficients) {
     List<CompT> randomCoefficients = new ArrayList<>(numCoefficients);
     for (int i = 0; i < numCoefficients; i++) {

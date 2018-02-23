@@ -81,7 +81,7 @@ public abstract class AbstractMarlinTest<
         aggregate.add((PerformanceLogger) evaluator);
       }
 
-      CompUIntFactory<HighT, LowT, CompT> factory = createFactory();
+      CompUIntFactory<CompT> factory = createFactory();
       MarlinOpenedValueStore<CompT> store = createOpenedValueStore();
       MarlinDataSupplier<CompT> supplier = createDataSupplier(playerId, noOfParties,
           factory);
@@ -122,7 +122,7 @@ public abstract class AbstractMarlinTest<
   }
 
   private MarlinDataSupplier<CompT> createDataSupplier(int myId, int noOfParties,
-      CompUIntFactory<HighT, LowT, CompT> factory) {
+      CompUIntFactory<CompT> factory) {
     return new MarlinDummyDataSupplier<>(myId, noOfParties, factory.createRandom(), factory);
   }
 
@@ -130,9 +130,9 @@ public abstract class AbstractMarlinTest<
       int noOfParties,
       MarlinOpenedValueStore<CompT> store,
       MarlinDataSupplier<CompT> supplier,
-      CompUIntFactory<HighT, LowT, CompT> factory, Supplier<Network> networkSupplier);
+      CompUIntFactory<CompT> factory, Supplier<Network> networkSupplier);
 
-  protected abstract CompUIntFactory<HighT, LowT, CompT> createFactory();
+  protected abstract CompUIntFactory<CompT> createFactory();
 
   protected abstract ProtocolSuiteNumeric<MarlinResourcePoolT> createProtocolSuite();
 

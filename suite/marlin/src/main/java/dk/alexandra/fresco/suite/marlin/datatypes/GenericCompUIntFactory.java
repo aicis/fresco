@@ -5,18 +5,13 @@ import dk.alexandra.fresco.suite.marlin.util.BigUIntSerializer;
 import java.security.SecureRandom;
 
 public class GenericCompUIntFactory implements
-    CompUIntFactory<GenericCompUInt, GenericCompUInt, GenericCompUInt> {
+    CompUIntFactory<GenericCompUInt> {
 
   private final SecureRandom random = new SecureRandom();
 
   @Override
   public GenericCompUInt createFromBytes(byte[] bytes) {
     return new GenericCompUInt(bytes, 128);
-  }
-
-  @Override
-  public GenericCompUInt createFromHigh(GenericCompUInt value) {
-    return new GenericCompUInt(value, 128);
   }
 
   @Override

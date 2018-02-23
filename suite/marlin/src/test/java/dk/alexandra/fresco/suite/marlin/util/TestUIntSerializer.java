@@ -14,7 +14,7 @@ import org.junit.Test;
 
 public class TestUIntSerializer {
 
-  private final CompUIntFactory<GenericCompUInt, GenericCompUInt, GenericCompUInt> factory = new GenericCompUIntFactory();
+  private final CompUIntFactory<GenericCompUInt> factory = new GenericCompUIntFactory();
   private final ByteSerializer<GenericCompUInt> serializer = new BigUIntSerializer<>(factory);
 
   @Test

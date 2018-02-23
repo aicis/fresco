@@ -5,6 +5,7 @@ import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt128;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt128Factory;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntConverter128;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.marlin.datatypes.UInt64;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
@@ -23,7 +24,7 @@ public class TestMarlinBasicArithmetic128 extends MarlinTestSuite<
   protected MarlinResourcePool<UInt64, UInt64, CompUInt128> createResourcePool(int playerId,
       int noOfParties, MarlinOpenedValueStore<CompUInt128> store,
       MarlinDataSupplier<CompUInt128> supplier,
-      CompUIntFactory<UInt64, UInt64, CompUInt128> factory, Supplier<Network> networkSupplier) {
+      CompUIntFactory<CompUInt128> factory, Supplier<Network> networkSupplier) {
     MarlinResourcePool<UInt64, UInt64, CompUInt128> resourcePool =
         new MarlinResourcePoolImpl<>(
             playerId,
@@ -33,13 +34,13 @@ public class TestMarlinBasicArithmetic128 extends MarlinTestSuite<
   }
 
   @Override
-  protected CompUIntFactory<UInt64, UInt64, CompUInt128> createFactory() {
+  protected CompUIntFactory<CompUInt128> createFactory() {
     return new CompUInt128Factory();
   }
 
   @Override
   protected ProtocolSuiteNumeric<MarlinResourcePool<UInt64, UInt64, CompUInt128>> createProtocolSuite() {
-    return new MarlinProtocolSuite<>();
+    return new MarlinProtocolSuite<>(new CompUIntConverter128());
   }
 
 

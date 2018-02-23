@@ -6,20 +6,12 @@ import java.math.BigInteger;
 /**
  * Factory for {@link CompT} instances.
  */
-public interface CompUIntFactory<
-    HighT extends UInt<HighT>,
-    LowT extends UInt<LowT>,
-    CompT extends CompUInt<HighT, LowT, CompT>> {
+public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> {
 
   /**
    * Creates new {@link CompT} from a raw array of bytes.
    */
   CompT createFromBytes(byte[] bytes);
-
-  /**
-   * Creates new {@link CompT} from an instance of {@link HighT}.
-   */
-  CompT createFromHigh(HighT value);
 
   /**
    * Creates random {@link CompT}.
@@ -32,12 +24,12 @@ public interface CompUIntFactory<
   ByteSerializer<CompT> createSerializer();
 
   /**
-   * Get length of {@link HighT} representing most significant bits.
+   * Get length of most significant bits which represent the masking portion.
    */
   int getHighBitLength();
 
   /**
-   * Get length of {@link LowT} representing least significant bits.
+   * Get length of least significant bits which represent the data portion.
    */
   int getLowBitLength();
 

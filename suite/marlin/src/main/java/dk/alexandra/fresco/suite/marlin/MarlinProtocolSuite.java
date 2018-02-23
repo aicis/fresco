@@ -5,12 +5,19 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntConverter;
 import dk.alexandra.fresco.suite.marlin.datatypes.UInt;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 import dk.alexandra.fresco.suite.marlin.synchronization.MarlinRoundSynchronization;
 
 public class MarlinProtocolSuite<H extends UInt<H>, L extends UInt<L>, T extends CompUInt<H, L, T>> implements
     ProtocolSuiteNumeric<MarlinResourcePool<H, L, T>> {
+
+  private final CompUIntConverter<H, L, T> converter;
+
+  public MarlinProtocolSuite(CompUIntConverter<H, L, T> converter) {
+    this.converter = converter;
+  }
 
   @Override
   public BuilderFactoryNumeric init(MarlinResourcePool<H, L, T> resourcePool, Network network) {
@@ -19,7 +26,7 @@ public class MarlinProtocolSuite<H extends UInt<H>, L extends UInt<L>, T extends
 
   @Override
   public RoundSynchronization<MarlinResourcePool<H, L, T>> createRoundSynchronization() {
-    return new MarlinRoundSynchronization<>(this);
+    return new MarlinRoundSynchronization<>(this, converter);
   }
 
   public BasicNumericContext createBasicNumericContext(MarlinResourcePool<H, L, T> resourcePool) {

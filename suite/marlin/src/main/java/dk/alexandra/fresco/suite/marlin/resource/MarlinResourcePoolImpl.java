@@ -40,7 +40,7 @@ public class MarlinResourcePoolImpl<
   private final BigInteger modulus;
   private final MarlinOpenedValueStore<T> storage;
   private final MarlinDataSupplier<T> supplier;
-  private final CompUIntFactory<H, L, T> factory;
+  private final CompUIntFactory<T> factory;
   private final ByteSerializer<T> rawSerializer;
   private Drbg drbg;
 
@@ -49,7 +49,7 @@ public class MarlinResourcePoolImpl<
    */
   public MarlinResourcePoolImpl(int myId, int noOfPlayers, Drbg drbg,
       MarlinOpenedValueStore<T> storage,
-      MarlinDataSupplier<T> supplier, CompUIntFactory<H, L, T> factory) {
+      MarlinDataSupplier<T> supplier, CompUIntFactory<T> factory) {
     super(myId, noOfPlayers);
     this.operationalBitLength = factory.getCompositeBitLength();
     this.effectiveBitLength = factory.getLowBitLength();
@@ -82,7 +82,7 @@ public class MarlinResourcePoolImpl<
   }
 
   @Override
-  public CompUIntFactory<H, L, T> getFactory() {
+  public CompUIntFactory<T> getFactory() {
     return factory;
   }
 
