@@ -61,8 +61,8 @@ public class MarlinBuilder<H extends UInt<H>, L extends UInt<L>, T extends CompU
 
       @Override
       public DRes<SInt> sub(DRes<SInt> a, BigInteger b) {
-        return builder
-            .append(new MarlinAddKnownProtocol<>(factory.createFromBigInteger(b).negate(), a));
+        return builder.append(
+            new MarlinAddKnownProtocol<>(factory.createFromBigInteger(b).negate(), a));
       }
 
       @Override
@@ -72,7 +72,7 @@ public class MarlinBuilder<H extends UInt<H>, L extends UInt<L>, T extends CompU
 
       @Override
       public DRes<SInt> mult(BigInteger a, DRes<SInt> b) {
-        return () -> ((MarlinSInt<T>) b).multiply(factory.createFromBigInteger(a));
+        return () -> ((MarlinSInt<T>) b.out()).multiply(factory.createFromBigInteger(a));
       }
 
       @Override

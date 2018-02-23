@@ -53,7 +53,7 @@ public class MarlinResourcePoolImpl<
     super(myId, noOfPlayers);
     this.operationalBitLength = factory.getCompositeBitLength();
     this.effectiveBitLength = factory.getLowBitLength();
-    this.modulus = BigInteger.ONE.shiftLeft(operationalBitLength);
+    this.modulus = BigInteger.ONE.shiftLeft(effectiveBitLength);
     this.storage = storage;
     this.supplier = supplier;
     this.factory = factory;

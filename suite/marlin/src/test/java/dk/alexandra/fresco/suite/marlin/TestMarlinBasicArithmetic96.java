@@ -61,6 +61,20 @@ public class TestMarlinBasicArithmetic96 extends AbstractMarlinTest<
   }
 
   @Test
+  public void testAddPublic() {
+    runTest(new BasicArithmeticTests.TestAddPublicValue<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+        2,
+        false);
+  }
+
+  @Test
+  public void testAddPublicThree() {
+    runTest(new BasicArithmeticTests.TestAddPublicValue<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+        2,
+        false);
+  }
+
+  @Test
   public void testKnownThree() {
     runTest(new BasicArithmeticTests.TestKnownSInt<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
         false);
@@ -93,6 +107,98 @@ public class TestMarlinBasicArithmetic96 extends AbstractMarlinTest<
   @Test
   public void testMultiplyManyThree() {
     runTest(new BasicArithmeticTests.TestLotsMult<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
+        false);
+  }
+
+  @Test
+  public void testSumAndMult() {
+    runTest(new BasicArithmeticTests.TestSumAndMult<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
+        false);
+  }
+
+  @Test
+  public void testSumAndMultThree() {
+    runTest(new BasicArithmeticTests.TestSumAndMult<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+        3,
+        false);
+  }
+
+  @Test
+  public void testSimpleMultAndAdd() {
+    runTest(new BasicArithmeticTests.TestSimpleMultAndAdd<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
+        false);
+  }
+
+  @Test
+  public void testSimpleMultAndAddThree() {
+    runTest(new BasicArithmeticTests.TestSimpleMultAndAdd<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
+        3,
+        false);
+  }
+
+  @Test
+  public void testAlternatingMultAdd() {
+    runTest(new BasicArithmeticTests.TestAlternatingMultAdd<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
+        2,
+        false);
+  }
+
+  @Test
+  public void testAlternatingMultAddThree() {
+    runTest(new BasicArithmeticTests.TestAlternatingMultAdd<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
+        3,
+        false);
+  }
+
+  @Test
+  public void testMultiplyByPublicValue() {
+    runTest(new BasicArithmeticTests.TestMultiplyByPublicValue<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
+        2,
+        false);
+  }
+
+  @Test
+  public void testMultiplyByPublicValueThree() {
+    runTest(new BasicArithmeticTests.TestMultiplyByPublicValue<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
+        3,
+        false);
+  }
+
+  @Test
+  public void testSubtract() {
+    runTest(new BasicArithmeticTests.TestSubtract<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
+        2,
+        false);
+  }
+
+  @Test
+  public void testSubtractThree() {
+    runTest(new BasicArithmeticTests.TestSubtract<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
+        3,
+        false);
+  }
+
+  @Test
+  public void testSubtractNegative() {
+    runTest(new BasicArithmeticTests.TestSubtractNegative<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
+        2,
+        false);
+  }
+
+  @Test
+  public void testSubtractNegativeThree() {
+    runTest(new BasicArithmeticTests.TestSubtractNegative<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
+        3,
         false);
   }
 

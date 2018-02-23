@@ -26,7 +26,7 @@ public class MarlinAddKnownProtocol<
   @Override
   public EvaluationStatus evaluate(int round, MarlinResourcePool<HighT, LowT, CompT> resourcePool,
       Network network) {
-    out = ((MarlinSInt<CompT>) right).addConstant(left, resourcePool.getMyId(),
+    out = ((MarlinSInt<CompT>) right.out()).addConstant(left, resourcePool.getMyId(),
         resourcePool.getDataSupplier().getSecretSharedKey(), resourcePool.getFactory().zero());
     return EvaluationStatus.IS_DONE;
   }

@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
+import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -129,6 +130,60 @@ public class BasicArithmeticTests {
     }
   }
 
+  public static class TestSubtract<ResourcePoolT extends NumericResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigInteger left = BigInteger.valueOf(10);
+      BigInteger right = BigInteger.valueOf(4);
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
+            Numeric numeric = producer.numeric();
+            DRes<SInt> leftClosed = numeric.input(left, 1);
+            DRes<SInt> rightClosed = numeric.input(right, 1);
+            DRes<SInt> result = numeric.sub(leftClosed, rightClosed);
+            return numeric.open(result);
+          };
+          ResourcePoolT resourcePool = conf.getResourcePool();
+          BigInteger expected = resourcePool
+              .convertRepresentation(left.subtract(right).mod(resourcePool.getModulus()));
+          BigInteger actual = runApplication(app);
+          Assert.assertEquals(expected, actual);
+        }
+      };
+    }
+  }
+
+  public static class TestSubtractNegative<ResourcePoolT extends NumericResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigInteger left = BigInteger.valueOf(4);
+      BigInteger right = BigInteger.valueOf(10);
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
+            Numeric numeric = producer.numeric();
+            DRes<SInt> leftClosed = numeric.input(left, 1);
+            DRes<SInt> rightClosed = numeric.input(right, 1);
+            DRes<SInt> result = numeric.sub(leftClosed, rightClosed);
+            return numeric.open(result);
+          };
+          ResourcePoolT resourcePool = conf.getResourcePool();
+          BigInteger expected = resourcePool
+              .convertRepresentation(left.subtract(right).mod(resourcePool.getModulus()));
+          BigInteger actual = runApplication(app);
+          Assert.assertEquals(expected, actual);
+        }
+      };
+    }
+  }
+
   public static class TestAddPublicValue<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
@@ -154,8 +209,33 @@ public class BasicArithmeticTests {
     }
   }
 
+  public static class TestMultiplyByPublicValue<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigInteger value = BigInteger.valueOf(10);
+      BigInteger constant = BigInteger.valueOf(4);
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
+            Numeric numeric = producer.numeric();
+            DRes<SInt> input = numeric.input(value, 1);
+            DRes<SInt> result = numeric.mult(constant, input);
+            return numeric.open(result);
+          };
+          BigInteger output = runApplication(app);
+
+          Assert.assertEquals(value.multiply(constant), output);
+        }
+      };
+    }
+  }
+
   public static class TestOpenWithConversion<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
@@ -168,9 +248,7 @@ public class BasicArithmeticTests {
             DRes<SInt> closed = numeric.input(input, 1);
             DRes<BigInteger> opened = numeric.open(closed);
             BigInteger expected = input.subtract(modulus);
-            return () -> {
-              return new Pair<BigInteger, BigInteger>(opened.out(), expected);
-            };
+            return () -> new Pair<>(opened.out(), expected);
           };
           Pair<BigInteger, BigInteger> actualAndExpected = runApplication(app);
           Assert.assertEquals(actualAndExpected.getSecond(), actualAndExpected.getFirst());

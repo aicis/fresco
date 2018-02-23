@@ -75,6 +75,11 @@ public interface MarlinResourcePool<
   // TODO not clear that this belongs here
   int getEffectiveBitLength();
 
+  @Override
+  default BigInteger convertRepresentation(BigInteger value) {
+    return convertRepresentation(getFactory().createFromBigInteger(value));
+  }
+
   default BigInteger convertRepresentation(CompT value) {
     return value.getLeastSignificant().toBigInteger();
   }
