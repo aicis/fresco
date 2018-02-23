@@ -11,17 +11,18 @@ import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStore;
 import java.math.BigInteger;
 import java.util.List;
 
-public class MarlinOutputProtocol<
+public class MarlinOutputToAllProtocol<
     HighT extends UInt<HighT>,
     LowT extends UInt<LowT>,
     CompT extends CompUInt<HighT, LowT, CompT>>
-    extends MarlinNativeProtocol<BigInteger, HighT, LowT, CompT> {
+    extends MarlinNativeProtocol<BigInteger, HighT, LowT, CompT>
+    implements RequiresMacCheck {
 
   private final DRes<SInt> share;
   private BigInteger opened;
   private MarlinSInt<CompT> authenticatedElement;
 
-  public MarlinOutputProtocol(DRes<SInt> share) {
+  public MarlinOutputToAllProtocol(DRes<SInt> share) {
     this.share = share;
   }
 

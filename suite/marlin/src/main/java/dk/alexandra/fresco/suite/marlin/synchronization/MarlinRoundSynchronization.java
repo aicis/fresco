@@ -13,7 +13,7 @@ import dk.alexandra.fresco.suite.marlin.MarlinProtocolSuite;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.UInt;
 import dk.alexandra.fresco.suite.marlin.protocols.computations.MarlinMacCheckComputation;
-import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinOutputProtocol;
+import dk.alexandra.fresco.suite.marlin.protocols.natives.RequiresMacCheck;
 import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
 import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStore;
 
@@ -73,7 +73,8 @@ public class MarlinRoundSynchronization<H extends UInt<H>, L extends UInt<L>, T 
   public void beforeBatch(ProtocolCollection<MarlinResourcePool<H, L, T>> nativeProtocols,
       MarlinResourcePool<H, L, T> resourcePool, Network network) {
     for (NativeProtocol<?, ?> protocol : nativeProtocols) {
-      if (protocol instanceof MarlinOutputProtocol) {
+      // TODO come up with a cleaner way of doing this
+      if (protocol instanceof RequiresMacCheck) {
         isCheckRequired = true;
         break;
       }

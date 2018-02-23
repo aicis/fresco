@@ -17,7 +17,8 @@ public class MarlinOutputSinglePartyProtocol<
     HighT extends UInt<HighT>,
     LowT extends UInt<LowT>,
     CompT extends CompUInt<HighT, LowT, CompT>>
-    extends MarlinNativeProtocol<BigInteger, HighT, LowT, CompT> {
+    extends MarlinNativeProtocol<BigInteger, HighT, LowT, CompT>
+    implements RequiresMacCheck {
 
   private final DRes<SInt> share;
   private final int outputParty;
