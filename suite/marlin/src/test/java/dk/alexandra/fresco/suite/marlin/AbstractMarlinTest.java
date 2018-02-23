@@ -125,7 +125,7 @@ public abstract class AbstractMarlinTest<
       CompUIntFactory<HighT, LowT, CompT> factory) {
     return new MarlinDummyDataSupplier<>(myId, noOfParties, factory.createRandom(), factory);
   }
-  
+
   protected abstract MarlinResourcePoolT createResourcePool(int playerId,
       int noOfParties,
       MarlinOpenedValueStore<CompT> store,
