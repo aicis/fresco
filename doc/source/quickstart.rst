@@ -137,5 +137,5 @@ to implement the method
    DRes<BigInteger> buildComputation(ProtocolBuilderNumeric producer)
 
 This is the method that defines how our FRESCO application is built. The ``DRes`` return type
-represents a deferred result for the output (modelling that everything in FRESCO is evaluated
+represents a deferred result for the output (modeling that everything in FRESCO is evaluated
 "later").

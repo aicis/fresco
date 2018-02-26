@@ -15,7 +15,7 @@ FRESCO is a FRamework for Efficient and Secure COmputation, written in Java and 
 open source MIT license. The project aims to ease the development of prototype applications based on
 secure computation. 
 
-These pages breifly document the project. If you have questions not answered here please ask using
+These pages briefly document the project. If you have questions not answered here please ask using
 our `issue tracker <https://github.com/aicis/fresco/issues>`_ on GitHub or by email at
 fresco@alexandra.dk.
 
