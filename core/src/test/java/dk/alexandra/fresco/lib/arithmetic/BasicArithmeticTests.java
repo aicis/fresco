@@ -121,7 +121,7 @@ public class BasicArithmeticTests {
             DRes<BigInteger> opened = numeric.open(closed);
             BigInteger expected = input.subtract(modulus);
             return () -> {
-              return new Pair<BigInteger, BigInteger>(opened.out(), expected);
+              return new Pair<>(opened.out(), expected);
             };
           };
           Pair<BigInteger, BigInteger> actualAndExpected = runApplication(app);
@@ -237,7 +237,7 @@ public class BasicArithmeticTests {
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       BigInteger first = BigInteger.valueOf(10);
       BigInteger second = BigInteger.valueOf(5);
-      final int REPS = 20000;
+      final int repetitions = 20000;
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         @Override
@@ -253,12 +253,12 @@ public class BasicArithmeticTests {
                 DRes<SInt> secondClosed = pair.getSecond();
                 Numeric numeric = par.numeric();
                 ArrayList<DRes<SInt>> computations = new ArrayList<>();
-                for (int i = 0; i < REPS; i++) {
+                for (int i = 0; i < repetitions; i++) {
                   computations.add(numeric.mult(firstClosed, secondClosed));
                 }
                 return () -> computations;
-              }).seq((seq, computations) -> {
-                Numeric numeric = seq.numeric();
+              }).par((par, computations) -> {
+                Numeric numeric = par.numeric();
                 List<DRes<BigInteger>> opened =
                     computations.stream().map(numeric::open).collect(Collectors.toList());
                 return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
@@ -266,7 +266,7 @@ public class BasicArithmeticTests {
           List<BigInteger> output = runApplication(app);
 
           BigInteger multiply = first.multiply(second);
-          Assert.assertThat(output.size(), Is.is(REPS));
+          Assert.assertThat(output.size(), Is.is(repetitions));
           for (BigInteger result : output) {
             Assert.assertEquals(multiply, result);
           }
@@ -282,6 +282,7 @@ public class BasicArithmeticTests {
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
         public void test() throws Exception {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app = producer -> {
             List<BigInteger> bns = Arrays.asList(BigInteger.valueOf(10), BigInteger.valueOf(2),
