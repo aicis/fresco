@@ -20,8 +20,7 @@ Then in a terminal run: ::
   mvn install
 
 This will download the FRESCO source code and dependencies, compile all the FRESCO modules, and run
-the test suite. On a successful build Maven should install the FRESCO modules on your system and a
-FRESCO JAR files can now be found in the ``./target`` directory of the corresponding module, as well
+the test suite. On a successful build Maven should install the FRESCO modules on your system and a JAR file can now be found in the ``./target`` directory of each corresponding module, as well
 as in your local Maven repository. Note, that the test suite executed on ``mvn install`` can take
 several minutes. To skip the tests and only run the build, use ``mvn install -DskipTests``.
 
