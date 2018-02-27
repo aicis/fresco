@@ -129,7 +129,7 @@ public class TestMarlinDummyDataSupplier {
     List<MarlinDataSupplier<GenericCompUInt>> suppliers = new ArrayList<>(
         noOfParties);
     for (int i = 0; i < noOfParties; i++) {
-      CompUIntFactory<GenericCompUInt> factory = new GenericCompUIntFactory();
+      CompUIntFactory<GenericCompUInt> factory = new GenericCompUIntFactory(64, 64);
       GenericCompUInt macKeyShare = factory.createRandom();
       suppliers.add(new MarlinDummyDataSupplier<>(i + 1, noOfParties, macKeyShare,
           factory));

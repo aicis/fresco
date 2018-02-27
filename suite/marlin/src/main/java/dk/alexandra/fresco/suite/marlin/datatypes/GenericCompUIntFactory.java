@@ -8,6 +8,13 @@ public class GenericCompUIntFactory implements
     CompUIntFactory<GenericCompUInt> {
 
   private final SecureRandom random = new SecureRandom();
+  private final int highBitLength;
+  private final int lowBitLength;
+
+  public GenericCompUIntFactory(int highBitLength, int lowBitLength) {
+    this.highBitLength = highBitLength;
+    this.lowBitLength = lowBitLength;
+  }
 
   @Override
   public GenericCompUInt createFromBytes(byte[] bytes) {
@@ -28,12 +35,12 @@ public class GenericCompUIntFactory implements
 
   @Override
   public int getLowBitLength() {
-    return 64;
+    return lowBitLength;
   }
 
   @Override
   public int getHighBitLength() {
-    return 64;
+    return highBitLength;
   }
 
 }

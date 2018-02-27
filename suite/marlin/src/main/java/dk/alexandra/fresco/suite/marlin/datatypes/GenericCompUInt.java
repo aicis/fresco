@@ -201,7 +201,7 @@ public class GenericCompUInt implements CompUInt<GenericCompUInt, GenericCompUIn
   }
 
   private static void runUInt() {
-    GenericCompUIntFactory factory = new GenericCompUIntFactory();
+    GenericCompUIntFactory factory = new GenericCompUIntFactory(64, 64);
     int numValues = 1000000;
     List<GenericCompUInt> left = new ArrayList<>(numValues);
     List<GenericCompUInt> right = new ArrayList<>(numValues);
