@@ -8,20 +8,21 @@ In this section we give some tips and guidelines for developing and contributing
 Directory Structure
 -------------------
 
-The FRESCO root directory (see `GitHub <https://github.com/aicis/fresco>`_) contains a number
+The FRESCO root directory (see https://github.com/aicis/fresco) contains a number
 sub-directories containing multiple sub-projects for FRESCO. Here we describe the most important
 directories:
 
-* **core** - contains the core FRESCO framework including the application interface, library of
-  generic functionality and dummy suites.
+* `core <https://github.com/aicis/fresco/tree/master/core>`_ - contains the core FRESCO
+  framework including the application interface, library of generic functionality and dummy suites.
 
-* **demos** - contains a number of demos demonstrating how FRESCO can be used. Each demo has its own sub-project. 
+* `demos <https://github.com/aicis/fresco/tree/master/demos>`_ - contains a number of demos
+  demonstrating how FRESCO can be used. Each demo has its own sub-project.
 
-* **doc** - contains the source of the documentation for this site.
+* `doc <https://github.com/aicis/fresco/tree/master/doc>`_ - contains the source of the documentation for this site.
 
-* **suite** - contains the protocol suites implemented in FRESCO each as its own sub-project.
+* `suite <https://github.com/aicis/fresco/tree/master/suite>`_ - contains the protocol suites implemented in FRESCO each as its own sub-project.
 
-* **tools** - contains various tools used in FRESCO each as its own sub-project.
+* `tools <https://github.com/aicis/fresco/tree/master/tools>`_ - contains various tools used in FRESCO each as its own sub-project.
 
 We use `Maven <https://maven.apache.org/>`_ to manage FRESCO, and within each sub-project we use
 the standard Maven directory structure.
@@ -47,7 +48,8 @@ correctly, you may also need to go to ::
 and delete all groups in the list displayed (as the Google style dictates that all imports
 must be in a single block).
 
-Additionally, the Jacoco plugin can be useful to check code coverage.
+To help fulfill the code coverage goal described in `Testing`_ we also recommend installing the
+Jacoco plugin. This eases checking code coverage on your changes locally.
 
 Alternatively some IntelliJ support is also present - look for the .idea files in the root of the
 repository.
@@ -58,12 +60,10 @@ Code Style
 ----------
 
 To keep the code style consistent we use the style defined by `Google
-<https://google.github.io/styleguide/javaguide.html>`_.
+<https://google.github.io/styleguide/javaguide.html>`_. We prefer to keep the code from generating
+compile warnings, using the ``@SuppressWarnings`` annotation sparingly in case of unavoidable warnings.
 
-Avoid creating warnings in the code. If e.g. for some *good reason* generics cannot be correctly
-parameterized, use ``@SuppressWarnings("rawtypes")`` to get rid of the warning.
-
-.. _`testing`:
+.. _`Testing`:
 
 Testing
 -------

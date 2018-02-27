@@ -1,6 +1,6 @@
 
-Distance demonstrator
-=====================
+AES demonstrator
+================
 
 This demonstrator will use AES to encrypt a block of plaintext comming from
 party 2 using a key provided by party 1.
