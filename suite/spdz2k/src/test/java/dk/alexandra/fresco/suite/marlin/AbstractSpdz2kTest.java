@@ -23,6 +23,7 @@ import dk.alexandra.fresco.logging.PerformancePrinter;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.marlin.resource.Spdz2kResourcePool;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,15 @@ import java.util.function.Supplier;
 public abstract class AbstractSpdz2kTest<MarlinResourcePoolT extends Spdz2kResourcePool<?>> {
 
   protected Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
+  protected final List<Integer> partyNumbers = Arrays.asList(2, 3);
+
+  protected void runTest(
+      TestThreadRunner.TestThreadFactory<MarlinResourcePoolT, ProtocolBuilderNumeric> f,
+      EvaluationStrategy evalStrategy) {
+    for (Integer numberOfParties : partyNumbers) {
+      runTest(f, evalStrategy, numberOfParties, false);
+    }
+  }
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<MarlinResourcePoolT, ProtocolBuilderNumeric> f,

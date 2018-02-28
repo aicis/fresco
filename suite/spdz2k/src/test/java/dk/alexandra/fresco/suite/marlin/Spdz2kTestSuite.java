@@ -11,260 +11,102 @@ public abstract class Spdz2kTestSuite<MarlinResourcePoolT extends Spdz2kResource
 
   @Test
   public void testInput() {
-    runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2,
-        false);
-  }
-
-  @Test
-  public void testInputThree() {
-    runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
-        false);
+    runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testAdd() {
-    runTest(new BasicArithmeticTests.TestAdd<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2,
-        false);
-  }
-
-  @Test
-  public void testAddThree() {
-    runTest(new BasicArithmeticTests.TestAdd<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
-        false);
+    runTest(new BasicArithmeticTests.TestAdd<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testMultiply() {
-    runTest(new BasicArithmeticTests.TestMultiply<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2,
-        false);
+    runTest(new BasicArithmeticTests.TestMultiply<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testKnown() {
-    runTest(new BasicArithmeticTests.TestKnownSInt<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2,
-        false);
+    runTest(new BasicArithmeticTests.TestKnownSInt<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testAddPublic() {
-    runTest(new BasicArithmeticTests.TestAddPublicValue<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        2,
-        false);
-  }
-
-  @Test
-  public void testAddPublicThree() {
-    runTest(new BasicArithmeticTests.TestAddPublicValue<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        2,
-        false);
-  }
-
-  @Test
-  public void testKnownThree() {
-    runTest(new BasicArithmeticTests.TestKnownSInt<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
-        false);
-  }
-
-  @Test
-  public void testMultiplyThree() {
-    runTest(new BasicArithmeticTests.TestMultiply<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
-        false);
+    runTest(new BasicArithmeticTests.TestAddPublicValue<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testInputOutputMany() {
-    runTest(new TestCloseAndOpenList<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2,
-        false);
-  }
-
-  @Test
-  public void testInputOutputManyThree() {
-    runTest(new TestCloseAndOpenList<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
-        false);
+    runTest(new TestCloseAndOpenList<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testMultiplyMany() {
-    runTest(new BasicArithmeticTests.TestLotsMult<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2,
-        false);
-  }
-
-  @Test
-  public void testMultiplyManyThree() {
-    runTest(new BasicArithmeticTests.TestLotsMult<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
-        false);
+    runTest(new BasicArithmeticTests.TestLotsMult<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testSumAndMult() {
-    runTest(new BasicArithmeticTests.TestSumAndMult<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
-        false);
-  }
-
-  @Test
-  public void testSumAndMultThree() {
-    runTest(new BasicArithmeticTests.TestSumAndMult<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        3,
-        false);
+    runTest(new BasicArithmeticTests.TestSumAndMult<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testSimpleMultAndAdd() {
     runTest(new BasicArithmeticTests.TestSimpleMultAndAdd<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
-        false);
-  }
-
-  @Test
-  public void testSimpleMultAndAddThree() {
-    runTest(new BasicArithmeticTests.TestSimpleMultAndAdd<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED,
-        3,
-        false);
+        EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testAlternatingMultAdd() {
     runTest(new BasicArithmeticTests.TestAlternatingMultAdd<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED,
-        2,
-        false);
-  }
-
-  @Test
-  public void testAlternatingMultAddThree() {
-    runTest(new BasicArithmeticTests.TestAlternatingMultAdd<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED,
-        3,
-        false);
+        EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testMultiplyByPublicValue() {
     runTest(new BasicArithmeticTests.TestMultiplyByPublicValue<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED,
-        2,
-        false);
-  }
-
-  @Test
-  public void testMultiplyByPublicValueThree() {
-    runTest(new BasicArithmeticTests.TestMultiplyByPublicValue<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED,
-        3,
-        false);
+        EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testSubtract() {
     runTest(new BasicArithmeticTests.TestSubtract<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED,
-        2,
-        false);
-  }
-
-  @Test
-  public void testSubtractThree() {
-    runTest(new BasicArithmeticTests.TestSubtract<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED,
-        3,
-        false);
+        EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testSubtractNegative() {
     runTest(new BasicArithmeticTests.TestSubtractNegative<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED,
-        2,
-        false);
-  }
-
-  @Test
-  public void testSubtractNegativeThree() {
-    runTest(new BasicArithmeticTests.TestSubtractNegative<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED,
-        3,
-        false);
+        EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testSubtractPublic() {
     runTest(new BasicArithmeticTests.TestSubtractPublic<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED,
-        2,
-        false);
-  }
-
-  @Test
-  public void testSubtractPublicThree() {
-    runTest(new BasicArithmeticTests.TestSubtractPublic<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED,
-        3,
-        false);
+        EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testSubtractFromPublic() {
     runTest(new BasicArithmeticTests.TestSubtractFromPublic<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED,
-        2,
-        false);
-  }
-
-  @Test
-  public void testSubtractFromPublicThree() {
-    runTest(new BasicArithmeticTests.TestSubtractFromPublic<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED,
-        3,
-        false);
+        EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testOutputToSingleParty() {
     runTest(new BasicArithmeticTests.TestOutputToSingleParty<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED,
-        2,
-        false);
-  }
-
-  @Test
-  public void testOutputToSinglePartyThree() {
-    runTest(new BasicArithmeticTests.TestOutputToSingleParty<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED,
-        3,
-        false);
+        EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testRandomBit() {
     runTest(new BasicArithmeticTests.TestRandomBit<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED,
-        2,
-        false);
-  }
-
-  @Test
-  public void testRandomBitThree() {
-    runTest(new BasicArithmeticTests.TestRandomBit<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED,
-        3,
-        false);
+        EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testRandomElement() {
     runTest(new BasicArithmeticTests.TestRandomElement<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED,
-        2,
-        false);
-  }
-
-  @Test
-  public void testRandomElementThree() {
-    runTest(new BasicArithmeticTests.TestRandomElement<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED,
-        3,
-        false);
+        EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
 }
