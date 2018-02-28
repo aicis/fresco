@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AsyncNetwork implements CloseableNetwork {
 
+  private static final int PARTY_ID_BYTES = 1;
   public static final Duration DEFAULT_CONNECTION_TIMEOUT = Duration.ofMinutes(1);
   private static final Logger logger = LoggerFactory.getLogger(AsyncNetwork.class);
 
@@ -144,10 +145,12 @@ public class AsyncNetwork implements CloseableNetwork {
           channel.connect(addr);
           channel.configureBlocking(true);
           this.channelMap.put(i, channel);
-          ByteBuffer b = ByteBuffer.allocate(1);
+          ByteBuffer b = ByteBuffer.allocate(PARTY_ID_BYTES);
           b.put((byte) conf.getMyId());
           b.position(0);
-          channel.write(b);
+          while (b.hasRemaining()) {
+            channel.write(b);
+          }
           connectionMade = true;
           channelMap.put(i, channel);
           logger.info("P{} connected to {}", conf.getMyId(), p);
@@ -183,8 +186,10 @@ public class AsyncNetwork implements CloseableNetwork {
     for (int i = 1; i < conf.getMyId(); i++) {
       SocketChannel channel = server.accept();
       channel.configureBlocking(true);
-      ByteBuffer buf = ByteBuffer.allocate(1);
-      channel.read(buf);
+      ByteBuffer buf = ByteBuffer.allocate(PARTY_ID_BYTES);
+      while (buf.hasRemaining()) {
+        channel.read(buf);
+      }
       buf.position(0);
       final int id = buf.get();
       this.channelMap.put(id, channel);
@@ -225,7 +230,9 @@ public class AsyncNetwork implements CloseableNetwork {
     @Override
     public Object call() throws IOException, InterruptedException {
       ByteBuffer buf = ByteBuffer.allocate(Integer.BYTES);
-      channel.read(buf);
+      while (buf.hasRemaining()) {
+        channel.read(buf);
+      }
       buf.flip();
       int nextMessageSize = buf.getInt();
       buf = ByteBuffer.allocate(nextMessageSize);
