@@ -148,6 +148,15 @@ public abstract class DefaultLinearAlgebra implements LinearAlgebra {
     });
   }
 
+  /**
+   * Multiply a matrix to a vector using the given inner product operator.
+   * 
+   * @param builder
+   * @param a
+   * @param v
+   * @param innerProduct
+   * @return
+   */
   private <A, B, C> DRes<Vector<C>> operate(ProtocolBuilderNumeric builder, Matrix<A> a,
       Vector<B> v, BiFunction<RealNumeric, Pair<List<A>, List<B>>, C> innerProduct) {
     return builder.par(par -> {
@@ -158,10 +167,9 @@ public abstract class DefaultLinearAlgebra implements LinearAlgebra {
       }
 
       RealNumeric numeric = provider.apply(par);
-      Vector<C> result = new Vector<>(a.getHeight());
-      for (int i = 0; i < a.getHeight(); i++) {
-        result.add(innerProduct.apply(numeric, new Pair<>(a.getRow(i), v)));
-      }
+      Vector<C> result =
+          a.getRows().stream().map(r -> innerProduct.apply(numeric, new Pair<>(r, v)))
+              .collect(Collectors.toCollection(Vector::new));
       return () -> result;
     });
   }
@@ -241,8 +249,10 @@ public abstract class DefaultLinearAlgebra implements LinearAlgebra {
       BiFunction<RealNumeric, Pair<A, B>, C> mult) {
     return builder.par(par -> {
       RealNumeric numeric = provider.apply(par);
-      Matrix<C> result = new Matrix<>(b.getHeight(), b.getWidth(),
-          i -> b.getRow(i).stream().map(x -> mult.apply(numeric, new Pair<>(a, x)))
+      Matrix<C> result = new Matrix<C>(b.getHeight(), b.getWidth(),
+          b.getRows().stream()
+              .map(r -> r.stream().map(x -> mult.apply(numeric, new Pair<>(a, x)))
+                  .collect(Collectors.toCollection(ArrayList::new)))
               .collect(Collectors.toCollection(ArrayList::new)));
       return () -> result;
     });
