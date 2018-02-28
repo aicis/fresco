@@ -56,7 +56,13 @@ public interface AdvancedRealNumeric extends ComputationDirectory {
    * @return
    */
   DRes<SReal> log(DRes<SReal> x);
-  
+
+  /**
+   * Calculate the square root of a secret value.
+   * 
+   * @param x
+   * @return
+   */
   DRes<SReal> sqrt(DRes<SReal> x);
 
 }
