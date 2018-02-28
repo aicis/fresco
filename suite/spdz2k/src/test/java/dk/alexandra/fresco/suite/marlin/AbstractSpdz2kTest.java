@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public abstract class AbstractMarlinTest<MarlinResourcePoolT extends Spdz2kResourcePool<?>> {
+public abstract class AbstractSpdz2kTest<MarlinResourcePoolT extends Spdz2kResourcePool<?>> {
 
   protected Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
 

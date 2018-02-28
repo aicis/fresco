@@ -11,7 +11,7 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
-import dk.alexandra.fresco.suite.marlin.AbstractMarlinTest;
+import dk.alexandra.fresco.suite.marlin.AbstractSpdz2kTest;
 import dk.alexandra.fresco.suite.marlin.Spdz2kProtocolSuite128;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt128;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt128Factory;
@@ -27,7 +27,7 @@ import java.util.function.Supplier;
 import org.junit.Test;
 
 public class TestSpdz2kCommitmentComputation extends
-    AbstractMarlinTest<Spdz2kResourcePool<CompUInt128>> {
+    AbstractSpdz2kTest<Spdz2kResourcePool<CompUInt128>> {
 
   @Test
   public void testCommitmentTwo() {

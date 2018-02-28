@@ -6,8 +6,8 @@ import dk.alexandra.fresco.lib.collections.io.CloseListTests.TestCloseAndOpenLis
 import dk.alexandra.fresco.suite.marlin.resource.Spdz2kResourcePool;
 import org.junit.Test;
 
-public abstract class MarlinTestSuite<MarlinResourcePoolT extends Spdz2kResourcePool<?>>
-    extends AbstractMarlinTest<MarlinResourcePoolT> {
+public abstract class Spdz2kTestSuite<MarlinResourcePoolT extends Spdz2kResourcePool<?>>
+    extends AbstractSpdz2kTest<MarlinResourcePoolT> {
 
   @Test
   public void testInput() {
@@ -230,6 +230,22 @@ public abstract class MarlinTestSuite<MarlinResourcePoolT extends Spdz2kResource
   @Test
   public void testOutputToSinglePartyThree() {
     runTest(new BasicArithmeticTests.TestOutputToSingleParty<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
+        3,
+        false);
+  }
+
+  @Test
+  public void testRandomBit() {
+    runTest(new BasicArithmeticTests.TestRandomBit<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
+        2,
+        false);
+  }
+
+  @Test
+  public void testRandomBitThree() {
+    runTest(new BasicArithmeticTests.TestRandomBit<>(),
         EvaluationStrategy.SEQUENTIAL_BATCHED,
         3,
         false);

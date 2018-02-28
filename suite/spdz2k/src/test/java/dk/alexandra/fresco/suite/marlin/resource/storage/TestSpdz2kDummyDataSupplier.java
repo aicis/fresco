@@ -17,7 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
 
-public class TestMarlinDummyDataSupplier {
+public class TestSpdz2kDummyDataSupplier {
 
   private void testGetNextRandomElementShare(int noOfParties) {
     List<Spdz2kDataSupplier<GenericCompUInt>> suppliers = setupSuppliers(noOfParties);

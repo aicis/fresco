@@ -1,10 +1,13 @@
 package dk.alexandra.fresco.lib.arithmetic;
 
+import static junit.framework.TestCase.assertTrue;
+
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.Collections;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -280,6 +283,36 @@ public class BasicArithmeticTests {
           BigInteger output = runApplication(app);
 
           Assert.assertEquals(value.multiply(constant), output);
+        }
+      };
+    }
+  }
+
+  public static class TestRandomBit<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = producer -> {
+            Numeric numeric = producer.numeric();
+            Collections collections = producer.collections();
+            int numBits = 10;
+            List<DRes<SInt>> bits = new ArrayList<>(numBits);
+            for (int i = 0; i < numBits; i++) {
+              bits.add(numeric.randomBit());
+            }
+            DRes<List<DRes<BigInteger>>> opened = collections.openList(() -> bits);
+            return () -> opened.out().stream().map(DRes::out)
+                .collect(Collectors.toList());
+          };
+          List<BigInteger> bits = runApplication(app);
+          for (BigInteger bit : bits) {
+            assertTrue("Expected bit but was " + bit,
+                bit.equals(BigInteger.ZERO) || bit.equals(BigInteger.ONE));
+          }
         }
       };
     }
