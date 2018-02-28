@@ -249,11 +249,9 @@ public abstract class DefaultLinearAlgebra implements LinearAlgebra {
       BiFunction<RealNumeric, Pair<A, B>, C> mult) {
     return builder.par(par -> {
       RealNumeric numeric = provider.apply(par);
-      Matrix<C> result = new Matrix<C>(b.getHeight(), b.getWidth(),
-          b.getRows().stream()
-              .map(r -> r.stream().map(x -> mult.apply(numeric, new Pair<>(a, x)))
-                  .collect(Collectors.toCollection(ArrayList::new)))
-              .collect(Collectors.toCollection(ArrayList::new)));
+      Matrix<C> result = new Matrix<>(b.getHeight(), b.getWidth(), i -> 
+          b.getRow(i).stream().map(x -> mult.apply(numeric, new Pair<>(a, x)))
+                  .collect(Collectors.toCollection(ArrayList::new)));
       return () -> result;
     });
   }
