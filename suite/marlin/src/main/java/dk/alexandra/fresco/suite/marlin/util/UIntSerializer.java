@@ -7,12 +7,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class BigUIntSerializer<T extends CompUInt<?, ?, T>> implements ByteSerializer<T> {
+public class UIntSerializer<T extends CompUInt<?, ?, T>> implements ByteSerializer<T> {
 
   private final CompUIntFactory<T> factory;
   private final int byteLength;
 
-  public BigUIntSerializer(CompUIntFactory<T> factory) {
+  public UIntSerializer(CompUIntFactory<T> factory) {
     this.factory = factory;
     this.byteLength = factory.getCompositeBitLength() / 8;
   }

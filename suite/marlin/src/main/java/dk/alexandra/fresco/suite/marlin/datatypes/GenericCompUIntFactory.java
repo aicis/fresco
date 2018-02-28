@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.marlin.datatypes;
 
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
-import dk.alexandra.fresco.suite.marlin.util.BigUIntSerializer;
+import dk.alexandra.fresco.suite.marlin.util.UIntSerializer;
 import java.security.SecureRandom;
 
 public class GenericCompUIntFactory implements
@@ -18,19 +18,19 @@ public class GenericCompUIntFactory implements
 
   @Override
   public GenericCompUInt createFromBytes(byte[] bytes) {
-    return new GenericCompUInt(bytes, 128);
+    return new GenericCompUInt(bytes, getCompositeBitLength());
   }
 
   @Override
   public GenericCompUInt createRandom() {
-    byte[] bytes = new byte[16];
+    byte[] bytes = new byte[getCompositeBitLength() / Byte.SIZE];
     this.random.nextBytes(bytes);
     return createFromBytes(bytes);
   }
 
   @Override
   public ByteSerializer<GenericCompUInt> createSerializer() {
-    return new BigUIntSerializer<>(this);
+    return new UIntSerializer<>(this);
   }
 
   @Override

@@ -127,7 +127,8 @@ public class TestGenericCompUInt {
     );
     assertEquals(
         BigInteger.ZERO,
-        new GenericCompUInt(twoTo128.subtract(BigInteger.ONE), 128).multiply(new GenericCompUInt(0, 128))
+        new GenericCompUInt(twoTo128.subtract(BigInteger.ONE), 128)
+            .multiply(new GenericCompUInt(0, 128))
             .toBigInteger()
     );
     assertEquals(
@@ -142,7 +143,8 @@ public class TestGenericCompUInt {
     );
     assertEquals(
         twoTo128.subtract(BigInteger.ONE),
-        new GenericCompUInt(twoTo128.subtract(BigInteger.ONE), 128).multiply(new GenericCompUInt(1, 128))
+        new GenericCompUInt(twoTo128.subtract(BigInteger.ONE), 128)
+            .multiply(new GenericCompUInt(1, 128))
             .toBigInteger()
     );
     // multiply no overflow
@@ -191,7 +193,8 @@ public class TestGenericCompUInt {
   public void testSubtract() {
     assertEquals(
         BigInteger.ZERO,
-        new GenericCompUInt(BigInteger.ZERO, 128).subtract(new GenericCompUInt(BigInteger.ZERO, 128))
+        new GenericCompUInt(BigInteger.ZERO, 128)
+            .subtract(new GenericCompUInt(BigInteger.ZERO, 128))
             .toBigInteger()
     );
     assertEquals(
@@ -251,11 +254,11 @@ public class TestGenericCompUInt {
   @Test
   public void testGetSubRange() {
     byte[] bytes = new byte[]{
-        0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, // high
-        0x02, 0x02, 0x02, 0x02, // mid
-        0x03, 0x03, 0x02, 0x03  // low
+        0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+        0x02, 0x02, 0x02, 0x02, 0x03, 0x03, 0x02, 0x03
     };
-    CompUInt<GenericCompUInt, GenericCompUInt, GenericCompUInt> uint = new GenericCompUInt(bytes, 128);
+    CompUInt<GenericCompUInt, GenericCompUInt, GenericCompUInt> uint = new GenericCompUInt(bytes,
+        128);
     GenericCompUInt subLow = uint.getLeastSignificant();
     byte[] expectedSubRangeBytesLow = new byte[]{
         0x02, 0x02, 0x02, 0x02,
@@ -267,5 +270,30 @@ public class TestGenericCompUInt {
         0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01
     };
     assertArrayEquals(expectedSubRangeBytesHigh, subHigh.toByteArray());
+  }
+
+  @Test
+  public void testGetBitLengths() {
+    GenericCompUInt uint3232 = new GenericCompUInt(new int[]{1, 0});
+    assertEquals(32, uint3232.getHighBitLength());
+    assertEquals(32, uint3232.getLowBitLength());
+    assertEquals(64, uint3232.getCompositeBitLength());
+    GenericCompUInt uint6432 = new GenericCompUInt(new int[]{2, 1, 0}, 32);
+    assertEquals(64, uint6432.getHighBitLength());
+    assertEquals(32, uint6432.getLowBitLength());
+    assertEquals(96, uint6432.getCompositeBitLength());
+  }
+
+  @Test
+  public void testShiftLowIntoHigh() {
+    GenericCompUInt uint3232 = new GenericCompUInt(new int[]{2, 1});
+    assertEquals(new GenericCompUInt(new int[]{1, 0}).toBigInteger(),
+        uint3232.shiftLowIntoHigh().toBigInteger());
+    GenericCompUInt uint6432 = new GenericCompUInt(new int[]{3, 2, 1}, 32);
+    assertEquals(new GenericCompUInt(new int[]{0, 1, 0}).toBigInteger(),
+        uint6432.shiftLowIntoHigh().toBigInteger());
+    GenericCompUInt uint3264 = new GenericCompUInt(new int[]{3, 2, 1}, 64);
+    assertEquals(new GenericCompUInt(new int[]{1, 0, 0}).toBigInteger(),
+        uint3264.shiftLowIntoHigh().toBigInteger());
   }
 }

@@ -163,6 +163,16 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
     return new CompUInt128(toLong(), 0, 0);
   }
 
+  @Override
+  public int getLowBitLength() {
+    return 64;
+  }
+
+  @Override
+  public int getHighBitLength() {
+    return 64;
+  }
+
   private byte[] pad(byte[] bytes) {
     byte[] padded = new byte[getBitLength() / 8];
     // potentially drop byte containing sign bit
@@ -179,11 +189,6 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
   @Override
   public String toString() {
     return toBigInteger().toString();
-  }
-
-  @Override
-  public int getBitLength() {
-    return 128;
   }
 
   @Override

@@ -8,28 +8,35 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class GenericCompUInt implements CompUInt<GenericCompUInt, GenericCompUInt, GenericCompUInt> {
+public class GenericCompUInt implements
+    CompUInt<GenericCompUInt, GenericCompUInt, GenericCompUInt> {
 
+  private final int lowBitLength;
   private final int[] ints;
 
-  public GenericCompUInt(final int[] ints) {
+  GenericCompUInt(final int[] ints, int lowBitLength) {
+    this.lowBitLength = lowBitLength;
     this.ints = ints;
   }
 
-  public GenericCompUInt(GenericCompUInt other, int requiredBitLength) {
+  GenericCompUInt(int low, int requiredBitLength) {
+    this(initIntArray(low, requiredBitLength));
+  }
+
+  GenericCompUInt(final int[] ints) {
+    this(ints, ints.length / 2 * Integer.SIZE);
+  }
+
+  GenericCompUInt(GenericCompUInt other, int requiredBitLength) {
     this(pad(other.ints, requiredBitLength));
   }
 
-  public GenericCompUInt(byte[] bytes, int requiredBitLength) {
+  GenericCompUInt(byte[] bytes, int requiredBitLength) {
     this(toIntArray(bytes, requiredBitLength));
   }
 
-  public GenericCompUInt(BigInteger value, int requiredBitLength) {
+  GenericCompUInt(BigInteger value, int requiredBitLength) {
     this(value.toByteArray(), requiredBitLength);
-  }
-
-  public GenericCompUInt(long value, int requiredBitLength) {
-    this(longToInts(value, requiredBitLength));
   }
 
   @Override
@@ -74,9 +81,7 @@ public class GenericCompUInt implements CompUInt<GenericCompUInt, GenericCompUIn
     for (int i = 0; i < reversed.length; i++) {
       reversed[i] = ~ints[i];
     }
-    // TODO cache this
-    GenericCompUInt one = new GenericCompUInt(1, 128);
-    return new GenericCompUInt(reversed).add(one);
+    return new GenericCompUInt(reversed).add(one());
   }
 
   @Override
@@ -109,23 +114,24 @@ public class GenericCompUInt implements CompUInt<GenericCompUInt, GenericCompUIn
 
   @Override
   public GenericCompUInt computeOverflow() {
-    GenericCompUInt low = new GenericCompUInt(toLong(), ints.length * Integer.SIZE);
+    // TODO definitely wrong...
+    GenericCompUInt low = new GenericCompUInt(getLeastSignificant(), ints.length * Integer.SIZE);
     return low.subtract(this).getMostSignificant();
   }
 
   @Override
   public GenericCompUInt getLeastSignificant() {
-    return getSubRange(0, 2);
+    return getSubRange(0, getLowBitLength() / Integer.SIZE);
   }
 
   @Override
   public GenericCompUInt getLeastSignificantAsHigh() {
-    return getSubRange(0, 2);
+    return getSubRange(0, getHighBitLength() / Integer.SIZE);
   }
 
   @Override
   public GenericCompUInt getMostSignificant() {
-    return getSubRange(2, 4);
+    return getSubRange(getLowBitLength() / Integer.SIZE, getCompositeBitLength() / Integer.SIZE);
   }
 
   @Override
@@ -141,14 +147,34 @@ public class GenericCompUInt implements CompUInt<GenericCompUInt, GenericCompUIn
   @Override
   public GenericCompUInt shiftLowIntoHigh() {
     int[] shifted = new int[ints.length];
-    shifted[0] = ints[shifted.length - 2];
-    shifted[1] = ints[shifted.length - 1];
+    int smallerByteLength = Integer.min(getLowBitLength(), getHighBitLength()) / Integer.SIZE;
+    int lowByteLength = getLowBitLength() / Integer.SIZE;
+    for (int i = 0; i < smallerByteLength; i++) {
+      shifted[shifted.length - (lowByteLength + i + 1)] = ints[shifted.length - i - 1];
+    }
     return new GenericCompUInt(shifted);
+  }
+
+  @Override
+  public int getLowBitLength() {
+    return lowBitLength;
+  }
+
+  @Override
+  public int getHighBitLength() {
+    return ints.length * Integer.SIZE - getLowBitLength();
   }
 
   @Override
   public String toString() {
     return toBigInteger().toString();
+  }
+
+  private GenericCompUInt one() {
+    // TODO cache this
+    int[] temp = new int[getCompositeBitLength() / Integer.SIZE];
+    temp[temp.length - 1] = 1;
+    return new GenericCompUInt(temp);
   }
 
   private GenericCompUInt getSubRange(int from, int to) {
@@ -193,11 +219,10 @@ public class GenericCompUInt implements CompUInt<GenericCompUInt, GenericCompUIn
     return padded;
   }
 
-  private static int[] longToInts(long value, int requiredBitLength) {
-    int[] ints = new int[requiredBitLength / Integer.SIZE];
-    ints[ints.length - 1] = (int) value;
-    ints[ints.length - 2] = (int) (value >>> 32);
-    return ints;
+  private static int[] initIntArray(int value, int requiredBitLength) {
+    int[] temp = new int[requiredBitLength / Integer.SIZE];
+    temp[temp.length - 1] = value;
+    return temp;
   }
 
   private static void runUInt() {
@@ -210,7 +235,6 @@ public class GenericCompUInt implements CompUInt<GenericCompUInt, GenericCompUIn
       right.add(factory.createRandom());
     }
     GenericCompUInt other = UInt.innerProduct(left, right);
-    System.out.println(other);
     long startTime = System.currentTimeMillis();
     GenericCompUInt inner = UInt.innerProduct(left, right);
     long endTime = System.currentTimeMillis();

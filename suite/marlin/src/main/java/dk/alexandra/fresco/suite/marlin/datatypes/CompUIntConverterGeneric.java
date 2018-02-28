@@ -1,12 +1,12 @@
 package dk.alexandra.fresco.suite.marlin.datatypes;
 
-public class GenericComputUIntConverter implements
+public class CompUIntConverterGeneric implements
     CompUIntConverter<GenericCompUInt, GenericCompUInt, GenericCompUInt> {
 
   private final int highBitLength;
   private final int lowBitLength;
 
-  public GenericComputUIntConverter(int highBitLength, int lowBitLength) {
+  public CompUIntConverterGeneric(int highBitLength, int lowBitLength) {
     this.highBitLength = highBitLength;
     this.lowBitLength = lowBitLength;
   }

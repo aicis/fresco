@@ -18,7 +18,7 @@ public class TestMarlinBasicArithmeticGeneric extends
   @Override
   protected MarlinResourcePool<GenericCompUInt> createResourcePool(int playerId, int noOfParties,
       Supplier<Network> networkSupplier) {
-    CompUIntFactory<GenericCompUInt> factory = new GenericCompUIntFactory(64, 64);
+    CompUIntFactory<GenericCompUInt> factory = new GenericCompUIntFactory(32, 32);
     MarlinResourcePool<GenericCompUInt> resourcePool =
         new MarlinResourcePoolImpl<>(
             playerId,
@@ -32,7 +32,7 @@ public class TestMarlinBasicArithmeticGeneric extends
 
   @Override
   protected ProtocolSuiteNumeric<MarlinResourcePool<GenericCompUInt>> createProtocolSuite() {
-    return new MarlinProtocolSuiteGeneric(64, 64);
+    return new MarlinProtocolSuiteGeneric(32, 32);
   }
 
 }

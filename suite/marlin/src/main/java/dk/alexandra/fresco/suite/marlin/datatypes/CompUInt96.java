@@ -29,7 +29,7 @@ public class CompUInt96 implements CompUInt<UInt64, UInt32, CompUInt96> {
 
   private CompUInt96(int high, int mid, int low) {
     this.high = high;
-    this.mid= mid;
+    this.mid = mid;
     this.low = low;
   }
 
@@ -71,7 +71,7 @@ public class CompUInt96 implements CompUInt<UInt64, UInt32, CompUInt96> {
         + Integer.toUnsignedLong(other.mid)
         + lowOverflow;
     long midOverflow = newMid >>> 32;
-    long newHigh = UInt.toUnLong(this.high) + UInt.toUnLong(other.high )+ midOverflow;
+    long newHigh = UInt.toUnLong(this.high) + UInt.toUnLong(other.high) + midOverflow;
     return new CompUInt96((int) newHigh, (int) newMid, (int) newLow);
   }
 
@@ -167,6 +167,16 @@ public class CompUInt96 implements CompUInt<UInt64, UInt32, CompUInt96> {
   @Override
   public CompUInt96 shiftLowIntoHigh() {
     return new CompUInt96(mid, low, 0);
+  }
+
+  @Override
+  public int getLowBitLength() {
+    return 32;
+  }
+
+  @Override
+  public int getHighBitLength() {
+    return 64;
   }
 
   private byte[] pad(byte[] bytes) {

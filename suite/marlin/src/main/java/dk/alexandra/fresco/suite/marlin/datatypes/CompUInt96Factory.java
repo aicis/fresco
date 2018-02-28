@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.marlin.datatypes;
 
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
-import dk.alexandra.fresco.suite.marlin.util.BigUIntSerializer;
+import dk.alexandra.fresco.suite.marlin.util.UIntSerializer;
 import java.security.SecureRandom;
 
 public class CompUInt96Factory implements CompUIntFactory<CompUInt96> {
@@ -22,7 +22,7 @@ public class CompUInt96Factory implements CompUIntFactory<CompUInt96> {
 
   @Override
   public ByteSerializer<CompUInt96> createSerializer() {
-    return new BigUIntSerializer<>(this);
+    return new UIntSerializer<>(this);
   }
 
   @Override

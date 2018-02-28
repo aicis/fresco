@@ -36,4 +36,26 @@ public interface CompUInt<
    */
   CompT shiftLowIntoHigh();
 
+  /**
+   * Get length of least significant bit segment, i.e., k.
+   */
+  int getLowBitLength();
+
+  /**
+   * Get length of most significant bit segment, i.e., s.
+   */
+  int getHighBitLength();
+
+  /**
+   * Returns total bit length, i.e., k + s.
+   */
+  default int getCompositeBitLength() {
+    return getHighBitLength() + getLowBitLength();
+  }
+
+  @Override
+  default int getBitLength() {
+    return getCompositeBitLength();
+  }
+
 }

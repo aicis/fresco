@@ -26,8 +26,7 @@ public class MarlinMacCheckComputation<
   private final MarlinResourcePool<PlainT> resourcePool;
   private final CompUIntConverter<HighT, LowT, PlainT> converter;
 
-  public MarlinMacCheckComputation(
-      MarlinResourcePool<PlainT> resourcePool,
+  public MarlinMacCheckComputation(MarlinResourcePool<PlainT> resourcePool,
       CompUIntConverter<HighT, LowT, PlainT> converter) {
     this.resourcePool = resourcePool;
     this.converter = converter;
