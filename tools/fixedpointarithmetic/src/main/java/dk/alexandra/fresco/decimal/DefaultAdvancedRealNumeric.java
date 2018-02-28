@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.decimal;
 
+import dk.alexandra.fresco.decimal.fixed.FixedNumeric;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RandomAdditiveMask;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -13,15 +14,18 @@ import java.util.stream.Collectors;
 
 public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric {
 
-  private final ProtocolBuilderNumeric builder;
+  protected final ProtocolBuilderNumeric builder;
   private final RealNumericProvider provider;
 
   private static final int DEFAULT_RANDOM_BITS = 32;
 
-  protected DefaultAdvancedRealNumeric(ProtocolBuilderNumeric builder,
-      RealNumericProvider provider) {
+  protected DefaultAdvancedRealNumeric(ProtocolBuilderNumeric builder, RealNumericProvider provider) {
     this.builder = builder;
     this.provider = provider;
+  }
+  
+  protected DefaultAdvancedRealNumeric(ProtocolBuilderNumeric builder) {
+    this(builder, scope -> new FixedNumeric(scope));
   }
 
   @Override
@@ -185,5 +189,5 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
       return numeric.numeric().mult(BigDecimal.valueOf(2.0), numeric.advanced().sum(terms));
     });
   }
-
+  
 }

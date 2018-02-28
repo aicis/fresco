@@ -2,6 +2,7 @@ package dk.alexandra.fresco.decimal.fixed;
 
 import dk.alexandra.fresco.decimal.BasicRealNumeric;
 import dk.alexandra.fresco.decimal.SReal;
+import dk.alexandra.fresco.decimal.fixed.utils.Truncate;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -9,38 +10,76 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 
-public abstract class BasicFixedNumeric implements BasicRealNumeric {
+public class BasicFixedNumeric implements BasicRealNumeric {
 
   private final ProtocolBuilderNumeric builder;
-  private final int base;
+  private final BigInteger BASE = BigInteger.valueOf(2);
   private final int defaultPrecision;
   private final int maxPrecision;
 
-  public BasicFixedNumeric(ProtocolBuilderNumeric builder, int base, int defaultPrecision, int maxPrecision) {
+  
+  public BasicFixedNumeric(ProtocolBuilderNumeric builder, int defaultPrecision,
+      int maxPrecision) {
     this.builder = builder;
-    this.base = base;
     this.defaultPrecision = defaultPrecision;
     this.maxPrecision = maxPrecision;
   }
   
-  private BigInteger unscaled(BigDecimal value, int scale) {
-    return value.multiply(new BigDecimal(BigInteger.valueOf(base).pow(scale))).toBigInteger();
+  public BasicFixedNumeric(ProtocolBuilderNumeric builder) {
+    this(builder, 16, 48);
   }
-  
+
+  /**
+   * Return the unscaled value of a fixed point representation of the given public <i>value</i> with
+   * the given scale.
+   * 
+   * @param value
+   * @param scale
+   * @return
+   */
+  private BigInteger unscaled(BigDecimal value, int scale) {
+    return value.multiply(new BigDecimal(BASE.pow(scale))).toBigInteger();
+  }
+
+  /**
+   * Returns the unscaled value og the given secret <i>value</i> with the given scale.
+   * 
+   * @param scope
+   * @param value
+   * @param scale
+   * @return
+   */
   private DRes<SInt> unscaled(ProtocolBuilderNumeric scope, SFixed value, int scale) {
     return scale(scope, value.getSInt(), scale - value.getScale());
   }
-  
+
+  /**
+   * Return the value represented by the fixed point representation <i>unscaled *
+   * 2<sup>-scale</sup></i>.
+   * 
+   * @param unscaled
+   * @param scale
+   * @return
+   */
   private BigDecimal scaled(BigInteger unscaled, int scale) {
-    return new BigDecimal(unscaled).setScale(10).divide(BigDecimal.valueOf(base).pow(scale),
+    return new BigDecimal(unscaled).setScale(20).divide(new BigDecimal(BASE.pow(scale)),
         RoundingMode.HALF_UP);
   }
-  
+
+  /**
+   * Scale the given secret integer <i>n</i>. This is equivalent to multiplying <i>n</i> with
+   * <i>2<sup>scale</sup></i>. Note that <i>n</i> may be negative.
+   * 
+   * @param scope
+   * @param n
+   * @param scale
+   * @return
+   */
   protected DRes<SInt> scale(ProtocolBuilderNumeric scope, DRes<SInt> n, int scale) {
     if (scale > 0) {
-      return scope.numeric().mult(BigInteger.valueOf(base).pow(scale), n);
+      n = scope.numeric().mult(BigInteger.ONE.shiftLeft(scale), n);
     } else if (scale < 0) {
-      return scope.advancedNumeric().div(n, BigInteger.valueOf(base).pow(-scale));
+      n = scope.seq(new Truncate(n, -scale));
     }
     return n;
   }
@@ -163,8 +202,7 @@ public abstract class BasicFixedNumeric implements BasicRealNumeric {
   public DRes<SReal> known(BigDecimal value) {
     return builder.seq(seq -> {
       int precision = defaultPrecision;
-      DRes<SInt> input =
-          seq.numeric().known(unscaled(value, defaultPrecision));
+      DRes<SInt> input = seq.numeric().known(unscaled(value, defaultPrecision));
       return new SFixed(input, precision);
     });
   }
@@ -180,8 +218,7 @@ public abstract class BasicFixedNumeric implements BasicRealNumeric {
   public DRes<SReal> input(BigDecimal value, int inputParty) {
     return builder.seq(seq -> {
       int precision = defaultPrecision;
-      DRes<SInt> input = seq.numeric()
-          .input(unscaled(value, defaultPrecision), inputParty);
+      DRes<SInt> input = seq.numeric().input(unscaled(value, defaultPrecision), inputParty);
       return new SFixed(input, precision);
     });
   }
@@ -219,11 +256,11 @@ public abstract class BasicFixedNumeric implements BasicRealNumeric {
     return builder.seq(seq -> {
       SFixed aFloat = (SFixed) a.out();
       SFixed bFloat = (SFixed) b.out();
-      
+
       int scale = Math.max(aFloat.getScale(), (bFloat.getScale()));
       DRes<SInt> aUnscaled = unscaled(seq, aFloat, scale);
       DRes<SInt> bUnscaled = unscaled(seq, bFloat, scale);
-      
+
       return seq.comparison().compareLEQ(aUnscaled, bUnscaled);
     });
   }

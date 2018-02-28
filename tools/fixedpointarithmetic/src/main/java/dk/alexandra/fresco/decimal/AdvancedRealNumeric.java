@@ -56,5 +56,7 @@ public interface AdvancedRealNumeric extends ComputationDirectory {
    * @return
    */
   DRes<SReal> log(DRes<SReal> x);
+  
+  DRes<SReal> sqrt(DRes<SReal> x);
 
 }

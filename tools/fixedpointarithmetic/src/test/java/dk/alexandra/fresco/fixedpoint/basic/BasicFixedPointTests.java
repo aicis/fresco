@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.fixedpoint.basic;
 
 import dk.alexandra.fresco.decimal.RealNumeric;
-import dk.alexandra.fresco.decimal.RealNumericProvider;
 import dk.alexandra.fresco.decimal.SReal;
 import dk.alexandra.fresco.decimal.fixed.FixedNumeric;
 import dk.alexandra.fresco.framework.Application;
@@ -22,9 +21,6 @@ import org.junit.Assert;
 
 public class BasicFixedPointTests {
 
-  private static RealNumericProvider provider =
-      scope -> new FixedNumeric(scope, FixedNumeric.Base.BINARY);
-
   public static class TestInput<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
@@ -35,7 +31,7 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            RealNumeric fixed = provider.apply(producer);
+            RealNumeric fixed = new FixedNumeric(producer);
 
             DRes<SReal> input = fixed.numeric().input(value, 1);
 
@@ -61,7 +57,7 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            RealNumeric fixed = provider.apply(producer);
+            RealNumeric fixed = new FixedNumeric(producer);
 
             DRes<SInt> sint = producer.numeric().input(value, 1);
             DRes<SReal> input = fixed.numeric().fromSInt(sint);
@@ -86,7 +82,7 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            RealNumeric fixed = provider.apply(producer);
+            RealNumeric fixed = new FixedNumeric(producer);
 
             DRes<SReal> input = fixed.numeric().input(value, 1);
 
@@ -115,7 +111,7 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            RealNumeric fixed = provider.apply(producer);
+            RealNumeric fixed = new FixedNumeric(producer);
 
             DRes<SReal> input = fixed.numeric().known(value);
 
@@ -140,7 +136,7 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            RealNumeric fixed = provider.apply(producer);
+            RealNumeric fixed = new FixedNumeric(producer);
 
             DRes<SReal> input = fixed.numeric().input(value, 1);
             DRes<SReal> sum = fixed.numeric().add(value2, input);
@@ -166,7 +162,7 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            RealNumeric fixed = provider.apply(producer);
+            RealNumeric fixed = new FixedNumeric(producer);
 
             DRes<SReal> input = fixed.numeric().input(value, 1);
             DRes<SReal> input2 = fixed.numeric().input(value2, 1);
@@ -193,7 +189,7 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            RealNumeric fixed = provider.apply(producer);
+            RealNumeric fixed = new FixedNumeric(producer);
 
             DRes<SReal> input = fixed.numeric().input(value, 1);
             DRes<SReal> diff = fixed.numeric().sub(input, value2);
@@ -219,7 +215,7 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            RealNumeric fixed = provider.apply(producer);
+            RealNumeric fixed = new FixedNumeric(producer);
 
             DRes<SReal> input2 = fixed.numeric().input(value2, 1);
             DRes<SReal> product = fixed.numeric().mult(value, input2);
@@ -244,7 +240,7 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            RealNumeric fixed = provider.apply(producer);
+            RealNumeric fixed = new FixedNumeric(producer);
 
             DRes<SReal> input = fixed.numeric().input(value, 1);
             DRes<SReal> input2 = fixed.numeric().input(value2, 1);
@@ -270,7 +266,7 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            RealNumeric fixed = provider.apply(producer);
+            RealNumeric fixed = new FixedNumeric(producer);
 
             DRes<SReal> input = fixed.numeric().input(value, 1);
             DRes<SReal> product = fixed.numeric().div(input, value2);
@@ -299,7 +295,7 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<List<BigDecimal>, ProtocolBuilderNumeric> app = producer -> {
-            RealNumeric fixed = provider.apply(producer);
+            RealNumeric fixed = new FixedNumeric(producer);
 
             List<DRes<SReal>> closed1 =
                 openInputs.stream().map(fixed.numeric()::known).collect(Collectors.toList());
@@ -344,7 +340,7 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<List<BigDecimal>, ProtocolBuilderNumeric> app = producer -> {
-            RealNumeric fixed = provider.apply(producer);
+            RealNumeric fixed = new FixedNumeric(producer);
 
             List<DRes<SReal>> closed1 =
                 openInputs.stream().map(fixed.numeric()::known).collect(Collectors.toList());
@@ -390,7 +386,7 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<List<BigDecimal>, ProtocolBuilderNumeric> app = producer -> {
-            RealNumeric fixed = provider.apply(producer);
+            RealNumeric fixed = new FixedNumeric(producer);
 
             List<DRes<SReal>> closed1 =
                 openInputs.stream().map(fixed.numeric()::known).collect(Collectors.toList());
@@ -436,7 +432,7 @@ public class BasicFixedPointTests {
         @Override
         public void test() throws Exception {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app = producer -> {
-            RealNumeric fixed = provider.apply(producer);
+            RealNumeric fixed = new FixedNumeric(producer);
 
             List<DRes<SReal>> closed1 =
                 openInputs.stream().map(fixed.numeric()::known).collect(Collectors.toList());

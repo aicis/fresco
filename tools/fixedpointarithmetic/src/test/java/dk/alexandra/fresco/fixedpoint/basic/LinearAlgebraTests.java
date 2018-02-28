@@ -17,6 +17,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Vector;
+import java.util.stream.Collectors;
 
 public class LinearAlgebraTests {
 
@@ -78,7 +80,7 @@ public class LinearAlgebraTests {
 
             DRes<Matrix<DRes<SReal>>> closed = fixed.linalg().input(input, 1);
 
-            DRes<Matrix<DRes<BigDecimal>>> opened = fixed.linalg().open(closed);
+            DRes<Matrix<DRes<BigDecimal>>> opened = fixed.linalg().openMatrix(closed);
             return () -> new MatrixUtils().unwrapMatrix(opened);
           };
 
@@ -130,9 +132,9 @@ public class LinearAlgebraTests {
             DRes<Matrix<DRes<SReal>>> res2 = fixed.linalg().add(a, closedB);
             DRes<Matrix<DRes<SReal>>> res3 = fixed.linalg().add(b, closedA);
 
-            DRes<Matrix<DRes<BigDecimal>>> open1 = fixed.linalg().open(res1);
-            DRes<Matrix<DRes<BigDecimal>>> open2 = fixed.linalg().open(res2);
-            DRes<Matrix<DRes<BigDecimal>>> open3 = fixed.linalg().open(res3);
+            DRes<Matrix<DRes<BigDecimal>>> open1 = fixed.linalg().openMatrix(res1);
+            DRes<Matrix<DRes<BigDecimal>>> open2 = fixed.linalg().openMatrix(res2);
+            DRes<Matrix<DRes<BigDecimal>>> open3 = fixed.linalg().openMatrix(res3);
 
             return () -> Arrays.asList(new MatrixUtils().unwrapMatrix(open1),
                 new MatrixUtils().unwrapMatrix(open2), new MatrixUtils().unwrapMatrix(open3));
@@ -183,12 +185,13 @@ public class LinearAlgebraTests {
             DRes<Matrix<DRes<SReal>>> res2 = fixed.linalg().scale(s, closedMatrix);
             DRes<Matrix<DRes<SReal>>> res3 = fixed.linalg().scale(closedScalar, matrix);
 
-            DRes<Matrix<DRes<BigDecimal>>> open1 = fixed.linalg().open(res1);
-            DRes<Matrix<DRes<BigDecimal>>> open2 = fixed.linalg().open(res2);
-            DRes<Matrix<DRes<BigDecimal>>> open3 = fixed.linalg().open(res3);
+            DRes<Matrix<DRes<BigDecimal>>> open1 = fixed.linalg().openMatrix(res1);
+            DRes<Matrix<DRes<BigDecimal>>> open2 = fixed.linalg().openMatrix(res2);
+            DRes<Matrix<DRes<BigDecimal>>> open3 = fixed.linalg().openMatrix(res3);
 
             return () -> Arrays.asList(new MatrixUtils().unwrapMatrix(open1),
                 new MatrixUtils().unwrapMatrix(open2), new MatrixUtils().unwrapMatrix(open3));
+
           };
 
           List<Matrix<BigDecimal>> output = runApplication(testApplication);
@@ -252,9 +255,9 @@ public class LinearAlgebraTests {
             DRes<Matrix<DRes<SReal>>> res2 = fixed.linalg().mult(matrix, closedVector);
             DRes<Matrix<DRes<SReal>>> res3 = fixed.linalg().mult(closedMatrix, vector);
 
-            DRes<Matrix<DRes<BigDecimal>>> open1 = fixed.linalg().open(res1);
-            DRes<Matrix<DRes<BigDecimal>>> open2 = fixed.linalg().open(res2);
-            DRes<Matrix<DRes<BigDecimal>>> open3 = fixed.linalg().open(res3);
+            DRes<Matrix<DRes<BigDecimal>>> open1 = fixed.linalg().openMatrix(res1);
+            DRes<Matrix<DRes<BigDecimal>>> open2 = fixed.linalg().openMatrix(res2);
+            DRes<Matrix<DRes<BigDecimal>>> open3 = fixed.linalg().openMatrix(res3);
 
             return () -> Arrays.asList(new MatrixUtils().unwrapMatrix(open1),
                 new MatrixUtils().unwrapMatrix(open2), new MatrixUtils().unwrapMatrix(open3));
@@ -264,6 +267,76 @@ public class LinearAlgebraTests {
           for (int i = 0; i < matrix.getHeight(); i++) {
             for (int j = 0; j < output.size(); j++) {
               assertTrue(TestUtils.isEqual(expected.getRow(i), output.get(j).getRow(i)));
+            }
+          }
+        }
+      };
+    }
+  }
+
+
+  public static class TestMatrixOperate<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        final int n = 50;
+        final int precision = 4;
+
+        @Override
+        public void test() throws Exception {
+          // Matrix
+          ArrayList<ArrayList<BigDecimal>> a = new ArrayList<>(n);
+          for (int i = 0; i < n; i++) {
+            ArrayList<BigDecimal> row = new ArrayList<>(n);
+            for (int j = 0; j < n; j++) {
+              row.add(BigDecimal.ONE.setScale(precision));
+            }
+            a.add(row);
+          }
+          Matrix<BigDecimal> matrix = new Matrix<>(n, n, a);
+
+          // Vector
+          Vector<BigDecimal> vector = new Vector<>(n);
+          for (int i = 0; i < n; i++) {
+            vector.add(BigDecimal.ONE.setScale(precision));
+          }
+
+          // Expected output
+          Vector<BigDecimal> expected = new Vector<>(n);
+          for (int i = 0; i < n; i++) {
+            expected.add(BigDecimal.valueOf(n).setScale(1));
+          }
+
+          Application<List<Vector<BigDecimal>>, ProtocolBuilderNumeric> testApplication = root -> {
+            RealNumeric fixed = new FixedNumeric(root);
+
+            DRes<Matrix<DRes<SReal>>> closedMatrix = fixed.linalg().input(matrix, 1);
+            DRes<Vector<DRes<SReal>>> closedVector = fixed.linalg().input(vector, 1);
+
+            DRes<Vector<DRes<SReal>>> res1 = fixed.linalg().operate(closedMatrix, closedVector);
+            DRes<Vector<DRes<SReal>>> res2 = fixed.linalg().operate(matrix, closedVector);
+            DRes<Vector<DRes<SReal>>> res3 = fixed.linalg().operate(closedMatrix, vector);
+
+            DRes<Vector<DRes<BigDecimal>>> open1 = fixed.linalg().openVector(res1);
+            DRes<Vector<DRes<BigDecimal>>> open2 = fixed.linalg().openVector(res2);
+            DRes<Vector<DRes<BigDecimal>>> open3 = fixed.linalg().openVector(res3);
+
+            return () -> Arrays.asList(
+                open1.out().stream().map(x -> x.out())
+                    .collect(Collectors.toCollection(Vector::new)),
+                open2.out().stream().map(x -> x.out())
+                    .collect(Collectors.toCollection(Vector::new)),
+                open3.out().stream().map(x -> x.out())
+                    .collect(Collectors.toCollection(Vector::new)));
+          };
+
+          List<Vector<BigDecimal>> output = runApplication(testApplication);
+          System.out.println(output);
+          for (int i = 0; i < matrix.getHeight(); i++) {
+            for (int j = 0; j < output.size(); j++) {
+              assertTrue(TestUtils.isEqual(expected.get(i), output.get(j).get(i)));
             }
           }
         }

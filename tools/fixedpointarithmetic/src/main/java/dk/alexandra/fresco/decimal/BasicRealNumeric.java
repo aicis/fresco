@@ -6,7 +6,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigDecimal;
 
 /**
- * Basic interface for fixed point numeric applications.
+ * Basic interface for numeric applications on real numbers.
  */
 public interface BasicRealNumeric extends ComputationDirectory {
 

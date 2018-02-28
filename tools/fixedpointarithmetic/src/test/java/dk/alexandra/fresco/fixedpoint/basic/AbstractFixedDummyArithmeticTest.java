@@ -104,6 +104,12 @@ public class AbstractFixedDummyArithmeticTest extends AbstractDummyArithmeticTes
   }
 
   @Test
+  public void test_matrixOperate() throws Exception {
+    runTest(new LinearAlgebraTests.TestMatrixOperate<>(), EvaluationStrategy.SEQUENTIAL,
+        2);
+  }
+
+  @Test
   public void test_exp() throws Exception {
     runTest(new MathTests.TestExp<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
@@ -123,4 +129,8 @@ public class AbstractFixedDummyArithmeticTest extends AbstractDummyArithmeticTes
     runTest(new MathTests.TestLog<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
+  @Test
+  public void test_sqrt() throws Exception {
+    runTest(new MathTests.TestSqrt<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
 }

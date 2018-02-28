@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.decimal.utils;
+package dk.alexandra.fresco.decimal.fixed.utils;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
@@ -27,11 +27,6 @@ public class Truncate implements Computation<SInt, ProtocolBuilderNumeric> {
   private final int shifts;
 
   public Truncate(DRes<SInt> input, int shifts) {
-
-    if (shifts < 0) {
-      throw new IllegalArgumentException();
-    }
-
     this.input = input;
     this.shifts = shifts;
   }

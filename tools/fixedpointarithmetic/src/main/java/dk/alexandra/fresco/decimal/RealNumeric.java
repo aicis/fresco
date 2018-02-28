@@ -10,7 +10,7 @@ public interface RealNumeric {
   public BasicRealNumeric numeric();
 
   /**
-   * Get advanced arithmetic functionality for SReals's.
+   * Get advanced mathematical functions for SReals's.
    *
    * @return
    */
