@@ -1,6 +1,8 @@
 package dk.alexandra.fresco.lib.arithmetic;
 
 import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
@@ -318,6 +320,34 @@ public class BasicArithmeticTests {
     }
   }
 
+  public static class TestRandomElement<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = producer -> {
+            Numeric numeric = producer.numeric();
+            Collections collections = producer.collections();
+            int numElements = 10;
+            List<DRes<SInt>> elements = new ArrayList<>(numElements);
+            for (int i = 0; i < numElements; i++) {
+              elements.add(numeric.randomElement());
+            }
+            DRes<List<DRes<BigInteger>>> opened = collections.openList(() -> elements);
+            return () -> opened.out().stream().map(DRes::out)
+                .collect(Collectors.toList());
+          };
+          List<BigInteger> elements = runApplication(app);
+          assertAllDifferent(elements);
+          assertEquals(10, elements.size());
+        }
+      };
+    }
+  }
+
   public static class TestOpenWithConversion<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
@@ -598,6 +628,16 @@ public class BasicArithmeticTests {
           }
         }
       };
+    }
+  }
+
+  private static void assertAllDifferent(List<BigInteger> elements) {
+    for (int i = 0; i < elements.size(); i++) {
+      for (int j = 0; j < elements.size(); j++) {
+        if (i != j) {
+          assertNotEquals(elements.get(i), elements.get(j));
+        }
+      }
     }
   }
 }

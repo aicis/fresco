@@ -251,4 +251,20 @@ public abstract class Spdz2kTestSuite<MarlinResourcePoolT extends Spdz2kResource
         false);
   }
 
+  @Test
+  public void testRandomElement() {
+    runTest(new BasicArithmeticTests.TestRandomElement<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
+        2,
+        false);
+  }
+
+  @Test
+  public void testRandomElementThree() {
+    runTest(new BasicArithmeticTests.TestRandomElement<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
+        3,
+        false);
+  }
+
 }
