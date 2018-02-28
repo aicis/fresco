@@ -31,14 +31,14 @@ public class TestSpdz2kCommitmentComputation extends
 
   @Test
   public void testCommitmentTwo() {
-    runTest(new TestTest<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2,
-        false);
+    runTest(new TestTest<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2
+    );
   }
 
   @Test
   public void testCommitmentThree() {
-    runTest(new TestTest<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
-        false);
+    runTest(new TestTest<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3
+    );
   }
 
   @Override

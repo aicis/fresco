@@ -2,6 +2,7 @@ package dk.alexandra.fresco.suite.marlin;
 
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
+import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
@@ -12,14 +13,6 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
-import dk.alexandra.fresco.logging.DefaultPerformancePrinter;
-import dk.alexandra.fresco.logging.EvaluatorLoggingDecorator;
-import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
-import dk.alexandra.fresco.logging.NumericSuiteLogging;
-import dk.alexandra.fresco.logging.PerformanceLogger;
-import dk.alexandra.fresco.logging.PerformanceLoggerCountingAggregate;
-import dk.alexandra.fresco.logging.PerformancePrinter;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.marlin.resource.Spdz2kResourcePool;
 import java.io.IOException;
@@ -33,79 +26,51 @@ import java.util.function.Supplier;
 
 public abstract class AbstractSpdz2kTest<MarlinResourcePoolT extends Spdz2kResourcePool<?>> {
 
-  private Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
   private final List<Integer> partyNumbers = Arrays.asList(2, 3);
 
   void runTest(
       TestThreadRunner.TestThreadFactory<MarlinResourcePoolT, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy) {
     for (Integer numberOfParties : partyNumbers) {
-      runTest(f, evalStrategy, numberOfParties, false);
+      runTest(f, evalStrategy, numberOfParties);
     }
   }
 
   protected void runTest(
-      TestThreadRunner.TestThreadFactory<MarlinResourcePoolT, ProtocolBuilderNumeric> f,
-      EvaluationStrategy evalStrategy, int noOfParties, boolean logPerformance) {
+      TestThreadFactory<MarlinResourcePoolT, ProtocolBuilderNumeric> f,
+      EvaluationStrategy evalStrategy, int noOfParties) {
 
+    List<Integer> ports = getFreePorts(2 * noOfParties);
     Map<Integer, NetworkConfiguration> netConf =
-        TestConfiguration.getNetworkConfigurations(noOfParties, getFreePorts(noOfParties));
+        TestConfiguration.getNetworkConfigurations(noOfParties, ports.subList(0, noOfParties));
+    Map<Integer, NetworkConfiguration> coinTossingNetConf = TestConfiguration
+        .getNetworkConfigurations(noOfParties, ports.subList(noOfParties, ports.size()));
+
     Map<Integer, TestThreadRunner.TestThreadConfiguration<MarlinResourcePoolT, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     for (int playerId : netConf.keySet()) {
-      PerformanceLoggerCountingAggregate aggregate
-          = new PerformanceLoggerCountingAggregate();
-
       NetworkConfiguration partyNetConf = netConf.get(playerId);
-
+      NetworkConfiguration coinTossingPartyNetConf = coinTossingNetConf.get(playerId);
       ProtocolSuiteNumeric<MarlinResourcePoolT> ps = createProtocolSuite();
-      if (logPerformance) {
-        ps = new NumericSuiteLogging<>(ps);
-        aggregate.add((PerformanceLogger) ps);
-      }
-
       BatchEvaluationStrategy<MarlinResourcePoolT> batchEvaluationStrategy =
           evalStrategy.getStrategy();
-      if (logPerformance) {
-        batchEvaluationStrategy =
-            new BatchEvaluationLoggingDecorator<>(batchEvaluationStrategy);
-        aggregate.add((PerformanceLogger) batchEvaluationStrategy);
-      }
       ProtocolEvaluator<MarlinResourcePoolT> evaluator =
           new BatchedProtocolEvaluator<>(batchEvaluationStrategy, ps);
-      if (logPerformance) {
-        evaluator = new EvaluatorLoggingDecorator<>(evaluator);
-        aggregate.add((PerformanceLogger) evaluator);
-      }
 
       SecureComputationEngine<MarlinResourcePoolT, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(ps, evaluator);
 
-      Supplier<Network> networkSupplier = () -> {
-        Network asyncNetwork = new AsyncNetwork(partyNetConf);
-        if (logPerformance) {
-          NetworkLoggingDecorator network = new NetworkLoggingDecorator(asyncNetwork);
-          aggregate.add(network);
-          return network;
-        } else {
-          return asyncNetwork;
-        }
-      };
+      Supplier<Network> networkSupplier = () -> (Network) new AsyncNetwork(partyNetConf);
       TestThreadRunner.TestThreadConfiguration<MarlinResourcePoolT, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,
-              () -> createResourcePool(playerId, noOfParties, networkSupplier),
-              networkSupplier);
+              () -> createResourcePool(playerId, noOfParties,
+                  () -> new AsyncNetwork(coinTossingPartyNetConf)),
+              () -> new AsyncNetwork(partyNetConf));
 
       conf.put(playerId, ttc);
-      performanceLoggers.putIfAbsent(playerId, aggregate);
     }
-
     TestThreadRunner.run(f, conf);
-    PerformancePrinter printer = new DefaultPerformancePrinter();
-    for (PerformanceLogger pl : performanceLoggers.values()) {
-      printer.printPerformanceLog(pl);
-    }
   }
 
   private List<Integer> getFreePorts(int numPorts) {

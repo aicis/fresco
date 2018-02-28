@@ -32,14 +32,14 @@ public class TestSpdz2kBroadcastComputation extends
 
   @Test
   public void testBroadcast() {
-    runTest(new TestTest<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2,
-        false);
+    runTest(new TestTest<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2
+    );
   }
 
   @Test
   public void testBroadcastThree() {
-    runTest(new TestTest<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
-        false);
+    runTest(new TestTest<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3
+    );
   }
 
   @Override
