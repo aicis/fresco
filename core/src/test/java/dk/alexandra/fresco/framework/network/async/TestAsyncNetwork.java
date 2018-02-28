@@ -199,6 +199,8 @@ public class TestAsyncNetwork {
   @SuppressWarnings("unchecked")
   @Test(expected = RuntimeException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
   public void testFailedSend() {
+    int retries = 10;
+    int sleeptime = 5;
     networks = createNetworks(2);
     try {
       // Close channel to provoke IOException while sending
@@ -212,10 +214,14 @@ public class TestAsyncNetwork {
         | IllegalAccessException e) {
       fail("Reflection related error");
     }
+    // Below the first call should make the sending thread fail
+    // The subsequent calls should provoke the exception to propagate to the main thread
     try {
       networks.get(1).send(2, new byte[] { 0x01 });
-      Thread.sleep(1);
-      networks.get(1).send(2, new byte[] { 0x01 });
+      for (int i = 0; i < retries; i++) {
+        Thread.sleep(sleeptime);
+        networks.get(1).send(2, new byte[] { 0x01 });
+      }
     } catch (InterruptedException e) {
       fail("No interruption should occur");
     }

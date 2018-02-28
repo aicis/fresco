@@ -25,12 +25,12 @@ having to involve any third parties.
 In general any computable function can be computed privately using secure computation. To give a few
 examples the FRESCO framework has been used in prototypes to 
 
-* Compute statistical data from surveys without revealing the individual survey answers (in the PRACTICE_).
+* Compute statistical data from surveys without revealing the individual survey answers (in PRACTICE_).
 
 * Benchmark the financial and energy performance of companies while keeping private the performance
-  data of the individual company (in the PRACTICE_ and `Big Data by Security`_ projects respectively).
+  data of the individual company (in the PRACTICE_ and `Big Data by Security`_  projects respectively).
 
-* Let banks credit rate potential customers without revealing the private data of the costumers *or*
+* Let banks credit rate potential customers without revealing the private data of the customers *or*
   the private credit rating functions of the bank (in the `Big Data by Security`_ project).
 
 For more information on secure computation see Wikipedia_.
