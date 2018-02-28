@@ -229,32 +229,6 @@ public class BasicFixedPointTests {
     }
   }
 
-  public static class TestDivisionSecret<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
-
-    @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      BigDecimal value = BigDecimal.valueOf(10.00100);
-      BigDecimal value2 = BigDecimal.valueOf(0.2);
-      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-        @Override
-        public void test() throws Exception {
-          Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
-            RealNumeric fixed = new FixedNumeric(producer);
-
-            DRes<SReal> input = fixed.numeric().input(value, 1);
-            DRes<SReal> input2 = fixed.numeric().input(value2, 1);
-            DRes<SReal> product = fixed.numeric().div(input, input2);
-
-            return fixed.numeric().open(product);
-          };
-          BigDecimal output = runApplication(app);
-          Assert.assertTrue(TestUtils.isEqual(value.divide(value2), output));
-        }
-      };
-    }
-  }
-
   public static class TestDivisionKnownDivisor<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
