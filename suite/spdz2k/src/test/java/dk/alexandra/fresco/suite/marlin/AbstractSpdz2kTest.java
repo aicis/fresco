@@ -22,6 +22,8 @@ import dk.alexandra.fresco.logging.PerformanceLoggerCountingAggregate;
 import dk.alexandra.fresco.logging.PerformancePrinter;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.marlin.resource.Spdz2kResourcePool;
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -31,10 +33,10 @@ import java.util.function.Supplier;
 
 public abstract class AbstractSpdz2kTest<MarlinResourcePoolT extends Spdz2kResourcePool<?>> {
 
-  protected Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
-  protected final List<Integer> partyNumbers = Arrays.asList(2, 3);
+  private Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
+  private final List<Integer> partyNumbers = Arrays.asList(2, 3);
 
-  protected void runTest(
+  void runTest(
       TestThreadRunner.TestThreadFactory<MarlinResourcePoolT, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy) {
     for (Integer numberOfParties : partyNumbers) {
@@ -45,13 +47,9 @@ public abstract class AbstractSpdz2kTest<MarlinResourcePoolT extends Spdz2kResou
   protected void runTest(
       TestThreadRunner.TestThreadFactory<MarlinResourcePoolT, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, int noOfParties, boolean logPerformance) {
-    List<Integer> ports = new ArrayList<>(noOfParties);
-    for (int i = 1; i <= noOfParties; i++) {
-      ports.add(9000 + i * (noOfParties - 1));
-    }
 
     Map<Integer, NetworkConfiguration> netConf =
-        TestConfiguration.getNetworkConfigurations(noOfParties, ports);
+        TestConfiguration.getNetworkConfigurations(noOfParties, getFreePorts(noOfParties));
     Map<Integer, TestThreadRunner.TestThreadConfiguration<MarlinResourcePoolT, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     for (int playerId : netConf.keySet()) {
@@ -108,6 +106,18 @@ public abstract class AbstractSpdz2kTest<MarlinResourcePoolT extends Spdz2kResou
     for (PerformanceLogger pl : performanceLoggers.values()) {
       printer.printPerformanceLog(pl);
     }
+  }
+
+  private List<Integer> getFreePorts(int numPorts) {
+    List<Integer> ports = new ArrayList<>();
+    for (int i = 0; i < numPorts; i++) {
+      try (ServerSocket s = new ServerSocket(0)) {
+        ports.add(s.getLocalPort());
+      } catch (IOException e) {
+        throw new RuntimeException("No free ports", e);
+      }
+    }
+    return ports;
   }
 
   protected abstract MarlinResourcePoolT createResourcePool(int playerId, int noOfParties,
