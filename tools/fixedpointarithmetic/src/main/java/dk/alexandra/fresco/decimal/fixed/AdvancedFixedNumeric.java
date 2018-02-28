@@ -5,6 +5,7 @@ import dk.alexandra.fresco.decimal.SReal;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.math.BigDecimal;
 
 public class AdvancedFixedNumeric extends DefaultAdvancedRealNumeric {
 
@@ -20,10 +21,12 @@ public class AdvancedFixedNumeric extends DefaultAdvancedRealNumeric {
       int scale = cast.getScale();
       DRes<SInt> intResult = seq.advancedNumeric().sqrt(underlyingInt,
           seq.getBasicNumericContext().getMaxBitLength());
+      int newScale = Math.floorDiv(scale, 2);
+      DRes<SReal> result = new SFixed(intResult, newScale);      
       if (scale % 2 != 0) {
-        throw new IllegalArgumentException("Scale should be even");
+        result = new FixedNumeric(seq).numeric().mult(BigDecimal.valueOf(Math.sqrt(2.0)), result);
       }
-      return new SFixed(intResult, scale / 2);
+      return result;
     });
     
   }
