@@ -10,23 +10,23 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntConverter;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntFactory;
-import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.Spdz2kSInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.UInt;
-import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
+import dk.alexandra.fresco.suite.marlin.resource.Spdz2kResourcePool;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class MarlinMacCheckComputation<
+public class Spdz2kMacCheckComputation<
     HighT extends UInt<HighT>,
     LowT extends UInt<LowT>,
     PlainT extends CompUInt<HighT, LowT, PlainT>>
     implements Computation<Void, ProtocolBuilderNumeric> {
 
-  private final MarlinResourcePool<PlainT> resourcePool;
+  private final Spdz2kResourcePool<PlainT> resourcePool;
   private final CompUIntConverter<HighT, LowT, PlainT> converter;
 
-  public MarlinMacCheckComputation(MarlinResourcePool<PlainT> resourcePool,
+  public Spdz2kMacCheckComputation(Spdz2kResourcePool<PlainT> resourcePool,
       CompUIntConverter<HighT, LowT, PlainT> converter) {
     this.resourcePool = resourcePool;
     this.converter = converter;
@@ -34,10 +34,10 @@ public class MarlinMacCheckComputation<
 
   @Override
   public DRes<Void> buildComputation(ProtocolBuilderNumeric builder) {
-    Pair<List<MarlinSInt<PlainT>>, List<PlainT>> opened = resourcePool
+    Pair<List<Spdz2kSInt<PlainT>>, List<PlainT>> opened = resourcePool
         .getOpenedValueStore()
         .popValues();
-    List<MarlinSInt<PlainT>> authenticatedElements = opened.getFirst();
+    List<Spdz2kSInt<PlainT>> authenticatedElements = opened.getFirst();
     List<PlainT> openValues = opened.getSecond();
     ByteSerializer<PlainT> serializer = resourcePool.getRawSerializer();
     CompUIntFactory<PlainT> factory = resourcePool.getFactory();
@@ -49,13 +49,13 @@ public class MarlinMacCheckComputation<
         resourcePool.getRandomGenerator(),
         factory, openValues.size());
     final PlainT y = UInt.innerProduct(openValues, randomCoefficients);
-    final MarlinSInt<PlainT> r = resourcePool.getDataSupplier()
+    final Spdz2kSInt<PlainT> r = resourcePool.getDataSupplier()
         .getNextRandomElementShare();
     return builder
         .seq(new BroadcastComputation<>(sharesLowBits))
         .seq((seq, ignored) -> {
           List<PlainT> originalShares = authenticatedElements.stream()
-              .map(MarlinSInt::getShare)
+              .map(Spdz2kSInt::getShare)
               .collect(Collectors.toList());
           List<HighT> overflow = originalShares.stream()
               .map(PlainT::computeOverflow)
@@ -73,14 +73,14 @@ public class MarlinMacCheckComputation<
               pjList.stream().map(PlainT::getLeastSignificantAsHigh).collect(Collectors.toList()));
           PlainT p = converter.createFromHigh(pLow);
           List<PlainT> macShares = authenticatedElements.stream()
-              .map(MarlinSInt::getMacShare)
+              .map(Spdz2kSInt::getMacShare)
               .collect(Collectors.toList());
           PlainT mj = UInt.innerProduct(macShares, randomCoefficients);
           PlainT zj = macKeyShare.multiply(y)
               .subtract(mj)
               .subtract(p.multiply(macKeyShare).shiftLowIntoHigh())
               .add(r.getMacShare().shiftLowIntoHigh());
-          return new MarlinCommitmentComputation(resourcePool.getCommitmentSerializer(),
+          return new Spdz2kCommitmentComputation(resourcePool.getCommitmentSerializer(),
               serializer.serialize(zj))
               .buildComputation(seq);
         })

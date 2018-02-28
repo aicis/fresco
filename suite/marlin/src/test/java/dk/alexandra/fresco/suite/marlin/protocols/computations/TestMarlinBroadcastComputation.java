@@ -13,14 +13,14 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.marlin.AbstractMarlinTest;
-import dk.alexandra.fresco.suite.marlin.MarlinProtocolSuite128;
+import dk.alexandra.fresco.suite.marlin.Spdz2kProtocolSuite128;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt128;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt128Factory;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntFactory;
-import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
-import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePoolImpl;
-import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinDummyDataSupplier;
-import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStoreImpl;
+import dk.alexandra.fresco.suite.marlin.resource.Spdz2kResourcePool;
+import dk.alexandra.fresco.suite.marlin.resource.Spdz2kResourcePoolImpl;
+import dk.alexandra.fresco.suite.marlin.resource.storage.Spdz2kDummyDataSupplier;
+import dk.alexandra.fresco.suite.marlin.resource.storage.Spdz2kOpenedValueStoreImpl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -28,7 +28,7 @@ import java.util.function.Supplier;
 import org.junit.Test;
 
 public class TestMarlinBroadcastComputation extends
-    AbstractMarlinTest<MarlinResourcePool<CompUInt128>> {
+    AbstractMarlinTest<Spdz2kResourcePool<CompUInt128>> {
 
   @Test
   public void testBroadcast() {
@@ -43,23 +43,23 @@ public class TestMarlinBroadcastComputation extends
   }
 
   @Override
-  protected MarlinResourcePool<CompUInt128> createResourcePool(int playerId, int noOfParties,
+  protected Spdz2kResourcePool<CompUInt128> createResourcePool(int playerId, int noOfParties,
       Supplier<Network> networkSupplier) {
     CompUIntFactory<CompUInt128> factory = new CompUInt128Factory();
-    MarlinResourcePool<CompUInt128> resourcePool =
-        new MarlinResourcePoolImpl<>(
+    Spdz2kResourcePool<CompUInt128> resourcePool =
+        new Spdz2kResourcePoolImpl<>(
             playerId,
             noOfParties, null,
-            new MarlinOpenedValueStoreImpl<>(),
-            new MarlinDummyDataSupplier<>(playerId, noOfParties, factory.createRandom(), factory),
+            new Spdz2kOpenedValueStoreImpl<>(),
+            new Spdz2kDummyDataSupplier<>(playerId, noOfParties, factory.createRandom(), factory),
             factory);
     resourcePool.initializeJointRandomness(networkSupplier, AesCtrDrbg::new, 32);
     return resourcePool;
   }
 
   @Override
-  protected ProtocolSuiteNumeric<MarlinResourcePool<CompUInt128>> createProtocolSuite() {
-    return new MarlinProtocolSuite128();
+  protected ProtocolSuiteNumeric<Spdz2kResourcePool<CompUInt128>> createProtocolSuite() {
+    return new Spdz2kProtocolSuite128();
   }
 
   private static class TestTest<ResourcePoolT extends ResourcePool>

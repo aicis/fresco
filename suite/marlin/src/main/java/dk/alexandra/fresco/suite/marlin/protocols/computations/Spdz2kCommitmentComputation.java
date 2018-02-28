@@ -10,13 +10,13 @@ import dk.alexandra.fresco.suite.marlin.protocols.natives.AllBroadcastProtocol;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MarlinCommitmentComputation implements
+public class Spdz2kCommitmentComputation implements
     ComputationParallel<List<byte[]>, ProtocolBuilderNumeric> {
 
   private final ByteSerializer<HashBasedCommitment> commitmentSerializer;
   private final byte[] value;
 
-  public MarlinCommitmentComputation(ByteSerializer<HashBasedCommitment> commitmentSerializer, byte[] value) {
+  public Spdz2kCommitmentComputation(ByteSerializer<HashBasedCommitment> commitmentSerializer, byte[] value) {
     this.commitmentSerializer = commitmentSerializer;
     this.value = value;
   }

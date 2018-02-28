@@ -2,31 +2,31 @@ package dk.alexandra.fresco.suite.marlin.datatypes;
 
 import dk.alexandra.fresco.framework.value.SInt;
 
-public class MarlinSInt<T extends CompUInt<?, ?, T>> implements SInt {
+public class Spdz2kSInt<T extends CompUInt<?, ?, T>> implements SInt {
 
   private final T share;
   private final T macShare;
 
-  public MarlinSInt(T share, T macShare) {
+  public Spdz2kSInt(T share, T macShare) {
     this.share = share;
     this.macShare = macShare;
   }
 
-  public MarlinSInt<T> add(MarlinSInt<T> other) {
-    return new MarlinSInt<>(share.add(other.share), macShare.add(other.macShare));
+  public Spdz2kSInt<T> add(Spdz2kSInt<T> other) {
+    return new Spdz2kSInt<>(share.add(other.share), macShare.add(other.macShare));
   }
 
-  public MarlinSInt<T> subtract(MarlinSInt<T> other) {
-    return new MarlinSInt<>(share.subtract(other.share), macShare.subtract(other.macShare));
+  public Spdz2kSInt<T> subtract(Spdz2kSInt<T> other) {
+    return new Spdz2kSInt<>(share.subtract(other.share), macShare.subtract(other.macShare));
   }
 
-  public MarlinSInt<T> multiply(T other) {
-    return new MarlinSInt<>(share.multiply(other), macShare.multiply(other));
+  public Spdz2kSInt<T> multiply(T other) {
+    return new Spdz2kSInt<>(share.multiply(other), macShare.multiply(other));
   }
 
   @Override
   public String toString() {
-    return "MarlinSInt{" +
+    return "Spdz2kSInt{" +
         "share=" + share +
         ", macShare=" + macShare +
         '}';
@@ -42,11 +42,11 @@ public class MarlinSInt<T extends CompUInt<?, ?, T>> implements SInt {
    * @param macKeyShare mac key share for maccing open value
    * @return result of sum
    */
-  public MarlinSInt<T> addConstant(T other, int partyId, T macKeyShare, T zeroElement) {
+  public Spdz2kSInt<T> addConstant(T other, int partyId, T macKeyShare, T zeroElement) {
     T otherMac = other.multiply(macKeyShare);
     // only party 1 actually adds value to its share
     T value = (partyId == 1) ? other : zeroElement;
-    MarlinSInt<T> wrapped = new MarlinSInt<>(value, otherMac);
+    Spdz2kSInt<T> wrapped = new Spdz2kSInt<>(value, otherMac);
     return add(wrapped);
   }
 

@@ -21,14 +21,14 @@ import dk.alexandra.fresco.logging.PerformanceLogger;
 import dk.alexandra.fresco.logging.PerformanceLoggerCountingAggregate;
 import dk.alexandra.fresco.logging.PerformancePrinter;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
-import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
+import dk.alexandra.fresco.suite.marlin.resource.Spdz2kResourcePool;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public abstract class AbstractMarlinTest<MarlinResourcePoolT extends MarlinResourcePool<?>> {
+public abstract class AbstractMarlinTest<MarlinResourcePoolT extends Spdz2kResourcePool<?>> {
 
   protected Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
 

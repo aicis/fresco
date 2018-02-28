@@ -3,10 +3,10 @@ package dk.alexandra.fresco.suite.marlin;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.collections.io.CloseListTests.TestCloseAndOpenList;
-import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
+import dk.alexandra.fresco.suite.marlin.resource.Spdz2kResourcePool;
 import org.junit.Test;
 
-public abstract class MarlinTestSuite<MarlinResourcePoolT extends MarlinResourcePool<?>>
+public abstract class MarlinTestSuite<MarlinResourcePoolT extends Spdz2kResourcePool<?>>
     extends AbstractMarlinTest<MarlinResourcePoolT> {
 
   @Test

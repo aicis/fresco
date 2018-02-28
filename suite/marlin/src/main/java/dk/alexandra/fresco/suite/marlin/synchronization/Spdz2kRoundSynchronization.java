@@ -8,34 +8,38 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.suite.ProtocolSuite.RoundSynchronization;
-import dk.alexandra.fresco.suite.marlin.MarlinBuilder;
-import dk.alexandra.fresco.suite.marlin.MarlinProtocolSuite;
+import dk.alexandra.fresco.suite.marlin.Spdz2kBuilder;
+import dk.alexandra.fresco.suite.marlin.Spdz2kProtocolSuite;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntConverter;
 import dk.alexandra.fresco.suite.marlin.datatypes.UInt;
-import dk.alexandra.fresco.suite.marlin.protocols.computations.MarlinMacCheckComputation;
+import dk.alexandra.fresco.suite.marlin.protocols.computations.Spdz2kMacCheckComputation;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.RequiresMacCheck;
-import dk.alexandra.fresco.suite.marlin.resource.MarlinResourcePool;
-import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStore;
+import dk.alexandra.fresco.suite.marlin.resource.Spdz2kResourcePool;
+import dk.alexandra.fresco.suite.marlin.resource.storage.Spdz2kOpenedValueStore;
 
-public class MarlinRoundSynchronization<
+/**
+ * Round synchronization for SPDZ2k. <p>Requires a mac check to be performed on an all opened
+ * unauthenticated values whenever an output protocol is encountered in a batch.</p>
+ */
+public class Spdz2kRoundSynchronization<
     HighT extends UInt<HighT>,
     LowT extends UInt<LowT>,
     PlainT extends CompUInt<HighT, LowT, PlainT>>
-    implements RoundSynchronization<MarlinResourcePool<PlainT>> {
+    implements RoundSynchronization<Spdz2kResourcePool<PlainT>> {
 
   private final int openValueThreshold;
   private final int batchSize;
   private boolean isCheckRequired;
-  private final MarlinProtocolSuite<HighT, LowT, PlainT> protocolSuite;
+  private final Spdz2kProtocolSuite<HighT, LowT, PlainT> protocolSuite;
   private final CompUIntConverter<HighT, LowT, PlainT> converter;
 
-  public MarlinRoundSynchronization(MarlinProtocolSuite<HighT, LowT, PlainT> protocolSuite,
+  public Spdz2kRoundSynchronization(Spdz2kProtocolSuite<HighT, LowT, PlainT> protocolSuite,
       CompUIntConverter<HighT, LowT, PlainT> converter) {
     this(protocolSuite, converter, 100000, 128);
   }
 
-  public MarlinRoundSynchronization(MarlinProtocolSuite<HighT, LowT, PlainT> protocolSuite,
+  public Spdz2kRoundSynchronization(Spdz2kProtocolSuite<HighT, LowT, PlainT> protocolSuite,
       CompUIntConverter<HighT, LowT, PlainT> converter,
       int openValueThreshold,
       int batchSize) {
@@ -46,17 +50,17 @@ public class MarlinRoundSynchronization<
     this.isCheckRequired = false;
   }
 
-  private void doMacCheck(MarlinResourcePool<PlainT> resourcePool, Network network) {
-    MarlinOpenedValueStore<PlainT> openedValueStore = resourcePool.getOpenedValueStore();
+  private void doMacCheck(Spdz2kResourcePool<PlainT> resourcePool, Network network) {
+    Spdz2kOpenedValueStore<PlainT> openedValueStore = resourcePool.getOpenedValueStore();
     if (!openedValueStore.isEmpty()) {
-      MarlinBuilder<PlainT> builder = new MarlinBuilder<>(resourcePool.getFactory(),
+      Spdz2kBuilder<PlainT> builder = new Spdz2kBuilder<>(resourcePool.getFactory(),
           protocolSuite.createBasicNumericContext(resourcePool));
-      BatchEvaluationStrategy<MarlinResourcePool<PlainT>> batchStrategy = new BatchedStrategy<>();
-      BatchedProtocolEvaluator<MarlinResourcePool<PlainT>> evaluator = new BatchedProtocolEvaluator<>(
+      BatchEvaluationStrategy<Spdz2kResourcePool<PlainT>> batchStrategy = new BatchedStrategy<>();
+      BatchedProtocolEvaluator<Spdz2kResourcePool<PlainT>> evaluator = new BatchedProtocolEvaluator<>(
           batchStrategy,
           protocolSuite,
           batchSize);
-      MarlinMacCheckComputation<HighT, LowT, PlainT> macCheck = new MarlinMacCheckComputation<>(
+      Spdz2kMacCheckComputation<HighT, LowT, PlainT> macCheck = new Spdz2kMacCheckComputation<>(
           resourcePool, converter);
       ProtocolBuilderNumeric sequential = builder.createSequential();
       macCheck.buildComputation(sequential);
@@ -65,7 +69,7 @@ public class MarlinRoundSynchronization<
   }
 
   @Override
-  public void finishedBatch(int gatesEvaluated, MarlinResourcePool<PlainT> resourcePool,
+  public void finishedBatch(int gatesEvaluated, Spdz2kResourcePool<PlainT> resourcePool,
       Network network) {
     if (isCheckRequired || resourcePool.getOpenedValueStore().size() > openValueThreshold) {
       doMacCheck(resourcePool, network);
@@ -74,14 +78,14 @@ public class MarlinRoundSynchronization<
   }
 
   @Override
-  public void finishedEval(MarlinResourcePool<PlainT> resourcePool, Network network) {
+  public void finishedEval(Spdz2kResourcePool<PlainT> resourcePool, Network network) {
     doMacCheck(resourcePool, network);
   }
 
   @Override
   public void beforeBatch(
-      ProtocolCollection<MarlinResourcePool<PlainT>> nativeProtocols,
-      MarlinResourcePool<PlainT> resourcePool, Network network) {
+      ProtocolCollection<Spdz2kResourcePool<PlainT>> nativeProtocols,
+      Spdz2kResourcePool<PlainT> resourcePool, Network network) {
     for (NativeProtocol<?, ?> protocol : nativeProtocols) {
       // TODO come up with a cleaner way of doing this
       if (protocol instanceof RequiresMacCheck) {

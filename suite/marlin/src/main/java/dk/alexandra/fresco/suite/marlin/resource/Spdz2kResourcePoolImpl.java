@@ -14,12 +14,12 @@ import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
-import dk.alexandra.fresco.suite.marlin.MarlinBuilder;
+import dk.alexandra.fresco.suite.marlin.Spdz2kBuilder;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntFactory;
-import dk.alexandra.fresco.suite.marlin.protocols.computations.MarlinCommitmentComputation;
-import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinDataSupplier;
-import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStore;
+import dk.alexandra.fresco.suite.marlin.protocols.computations.Spdz2kCommitmentComputation;
+import dk.alexandra.fresco.suite.marlin.resource.storage.Spdz2kDataSupplier;
+import dk.alexandra.fresco.suite.marlin.resource.storage.Spdz2kOpenedValueStore;
 import java.io.Closeable;
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -27,25 +27,25 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class MarlinResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
+public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
     extends ResourcePoolImpl
-    implements MarlinResourcePool<PlainT> {
+    implements Spdz2kResourcePool<PlainT> {
 
   private final int operationalBitLength;
   private final int effectiveBitLength;
   private final BigInteger modulus;
-  private final MarlinOpenedValueStore<PlainT> storage;
-  private final MarlinDataSupplier<PlainT> supplier;
+  private final Spdz2kOpenedValueStore<PlainT> storage;
+  private final Spdz2kDataSupplier<PlainT> supplier;
   private final CompUIntFactory<PlainT> factory;
   private final ByteSerializer<PlainT> rawSerializer;
   private Drbg drbg;
 
   /**
-   * Creates new {@link MarlinResourcePoolImpl}.
+   * Creates new {@link Spdz2kResourcePoolImpl}.
    */
-  public MarlinResourcePoolImpl(int myId, int noOfPlayers, Drbg drbg,
-      MarlinOpenedValueStore<PlainT> storage,
-      MarlinDataSupplier<PlainT> supplier, CompUIntFactory<PlainT> factory) {
+  public Spdz2kResourcePoolImpl(int myId, int noOfPlayers, Drbg drbg,
+      Spdz2kOpenedValueStore<PlainT> storage,
+      Spdz2kDataSupplier<PlainT> supplier, CompUIntFactory<PlainT> factory) {
     super(myId, noOfPlayers);
     this.operationalBitLength = factory.getCompositeBitLength();
     this.effectiveBitLength = factory.getLowBitLength();
@@ -63,12 +63,12 @@ public class MarlinResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
   }
 
   @Override
-  public MarlinOpenedValueStore<PlainT> getOpenedValueStore() {
+  public Spdz2kOpenedValueStore<PlainT> getOpenedValueStore() {
     return storage;
   }
 
   @Override
-  public MarlinDataSupplier<PlainT> getDataSupplier() {
+  public Spdz2kDataSupplier<PlainT> getDataSupplier() {
     return supplier;
   }
 
@@ -93,21 +93,21 @@ public class MarlinResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
         new NetworkBatchDecorator(
             this.getNoOfParties(),
             network);
-    BuilderFactoryNumeric builderFactory = new MarlinBuilder<>(factory, numericContext);
+    BuilderFactoryNumeric builderFactory = new Spdz2kBuilder<>(factory, numericContext);
     ProtocolBuilderNumeric root = builderFactory.createSequential();
     byte[] ownSeed = new byte[seedLength];
     new SecureRandom().nextBytes(ownSeed);
-    DRes<List<byte[]>> seeds = new MarlinCommitmentComputation(
+    DRes<List<byte[]>> seeds = new Spdz2kCommitmentComputation(
         this.getCommitmentSerializer(),
         ownSeed)
         .buildComputation(root);
     ProtocolProducer commitmentProducer = root.build();
     do {
-      ProtocolCollectionList<MarlinResourcePool> protocolCollectionList =
+      ProtocolCollectionList<Spdz2kResourcePool> protocolCollectionList =
           new ProtocolCollectionList<>(
               128); // batch size is irrelevant since this is a very light-weight protocol
       commitmentProducer.getNextProtocols(protocolCollectionList);
-      new BatchedStrategy<MarlinResourcePool>()
+      new BatchedStrategy<Spdz2kResourcePool>()
           .processBatch(protocolCollectionList, this, networkBatchDecorator);
     } while (commitmentProducer.hasNextProtocols());
     byte[] jointSeed = new byte[seedLength];

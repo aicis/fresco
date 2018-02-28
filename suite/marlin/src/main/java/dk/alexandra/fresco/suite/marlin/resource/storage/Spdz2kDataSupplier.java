@@ -1,20 +1,24 @@
 package dk.alexandra.fresco.suite.marlin.resource.storage;
 
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
-import dk.alexandra.fresco.suite.marlin.datatypes.MarlinInputMask;
-import dk.alexandra.fresco.suite.marlin.datatypes.MarlinSInt;
-import dk.alexandra.fresco.suite.marlin.datatypes.MarlinTriple;
+import dk.alexandra.fresco.suite.marlin.datatypes.Spdz2kInputMask;
+import dk.alexandra.fresco.suite.marlin.datatypes.Spdz2kSInt;
+import dk.alexandra.fresco.suite.marlin.datatypes.Spdz2kTriple;
 import java.util.ArrayList;
 import java.util.List;
 
-public interface MarlinDataSupplier<T extends CompUInt<?, ?, T>> {
+/**
+ * Interface for a supplier of pre-processing material. <p>Material includes random elements shares,
+ * random bit shares, and multiplication triple shares.</p>
+ */
+public interface Spdz2kDataSupplier<T extends CompUInt<?, ?, T>> {
 
   /**
    * Supplies the next triple.
    *
    * @return the next new triple
    */
-  MarlinTriple<T> getNextTripleShares();
+  Spdz2kTriple<T> getNextTripleShares();
 
   /**
    * Supplies the next inputmask for a given input player.
@@ -22,12 +26,12 @@ public interface MarlinDataSupplier<T extends CompUInt<?, ?, T>> {
    * @param towardPlayerId the id of the input player
    * @return the appropriate input mask
    */
-  MarlinInputMask<T> getNextInputMask(int towardPlayerId);
+  Spdz2kInputMask<T> getNextInputMask(int towardPlayerId);
 
   /**
    * Supplies the next bit (SInt representing value in {0, 1}).
    */
-  MarlinSInt<T> getNextBitShare();
+  Spdz2kSInt<T> getNextBitShare();
 
   /**
    * Returns the player's share of the mac key.
@@ -37,10 +41,10 @@ public interface MarlinDataSupplier<T extends CompUInt<?, ?, T>> {
   /**
    * Returns the next random field element.
    */
-  MarlinSInt<T> getNextRandomElementShare();
+  Spdz2kSInt<T> getNextRandomElementShare();
 
-  default List<MarlinSInt<T>> getNextRandomElementShares(int numShares) {
-    List<MarlinSInt<T>> shares = new ArrayList<>(numShares);
+  default List<Spdz2kSInt<T>> getNextRandomElementShares(int numShares) {
+    List<Spdz2kSInt<T>> shares = new ArrayList<>(numShares);
     for (int i = 0; i < numShares; i++) {
       shares.add(getNextRandomElementShare());
     }

@@ -7,15 +7,15 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.BroadcastValidationProtocol;
-import dk.alexandra.fresco.suite.marlin.protocols.natives.MarlinInputOnlyProtocol;
+import dk.alexandra.fresco.suite.marlin.protocols.natives.Spdz2kInputOnlyProtocol;
 
-public class MarlinInputComputation<PlainT extends CompUInt<?, ?, PlainT>> implements
+public class Spdz2kInputComputation<PlainT extends CompUInt<?, ?, PlainT>> implements
     Computation<SInt, ProtocolBuilderNumeric> {
 
   private final PlainT input;
   private final int inputPartyId;
 
-  public MarlinInputComputation(PlainT input, int inputPartyId) {
+  public Spdz2kInputComputation(PlainT input, int inputPartyId) {
     this.inputPartyId = inputPartyId;
     this.input = input;
   }
@@ -23,7 +23,7 @@ public class MarlinInputComputation<PlainT extends CompUInt<?, ?, PlainT>> imple
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     DRes<Pair<DRes<SInt>, byte[]>> pair = builder
-        .append(new MarlinInputOnlyProtocol<>(input, inputPartyId));
+        .append(new Spdz2kInputOnlyProtocol<>(input, inputPartyId));
     return builder.seq(seq -> {
       Pair<DRes<SInt>, byte[]> unwrapped = pair.out();
       DRes<Void> nothing = seq

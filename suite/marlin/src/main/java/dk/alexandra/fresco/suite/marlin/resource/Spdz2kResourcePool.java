@@ -6,33 +6,34 @@ import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.suite.marlin.Spdz2kProtocolSuite;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntFactory;
-import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinDataSupplier;
-import dk.alexandra.fresco.suite.marlin.resource.storage.MarlinOpenedValueStore;
+import dk.alexandra.fresco.suite.marlin.resource.storage.Spdz2kDataSupplier;
+import dk.alexandra.fresco.suite.marlin.resource.storage.Spdz2kOpenedValueStore;
 import java.math.BigInteger;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * Common resources for {@link dk.alexandra.fresco.suite.marlin.MarlinProtocolSuite}.
+ * Common resources for {@link Spdz2kProtocolSuite}.
  *
  * @param <PlainT> the type of the core arithmetic data type, in this case an instance of {@link
  * CompUInt}.
  */
-public interface MarlinResourcePool<PlainT extends CompUInt<?, ?, PlainT>>
+public interface Spdz2kResourcePool<PlainT extends CompUInt<?, ?, PlainT>>
     extends NumericResourcePool {
 
   /**
-   * Returns instance of {@link MarlinOpenedValueStore} which tracks all opened, unchecked values.
+   * Returns instance of {@link Spdz2kOpenedValueStore} which tracks all opened, unchecked values.
    */
-  MarlinOpenedValueStore<PlainT> getOpenedValueStore();
+  Spdz2kOpenedValueStore<PlainT> getOpenedValueStore();
 
   /**
-   * Returns instance of {@link MarlinDataSupplier} which provides pre-processed material such as
+   * Returns instance of {@link Spdz2kDataSupplier} which provides pre-processed material such as
    * multiplication triples.
    */
-  MarlinDataSupplier<PlainT> getDataSupplier();
+  Spdz2kDataSupplier<PlainT> getDataSupplier();
 
   /**
    * Returns factory for constructing concrete instances of {@link PlainT}, i.e., the class
