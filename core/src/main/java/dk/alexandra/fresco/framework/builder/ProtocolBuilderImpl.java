@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.lib.helper.LazyProtocolProducerDecorator;
 import dk.alexandra.fresco.lib.helper.ParallelProtocolProducer;
-import dk.alexandra.fresco.lib.helper.ProtocolProducerCollection;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import java.util.LinkedList;
@@ -73,21 +72,15 @@ public abstract class ProtocolBuilderImpl<BuilderT extends ProtocolBuilderImpl<B
    */
   public ProtocolProducer build() {
     if (parallel) {
-      ParallelProtocolProducer parallelProtocolProducer = new ParallelProtocolProducer();
-      addEntities(parallelProtocolProducer);
+      ParallelProtocolProducer parallelProtocolProducer = new ParallelProtocolProducer(protocols);
+      protocols = null;
       return parallelProtocolProducer;
     } else {
-      SequentialProtocolProducer sequentialProtocolProducer = new SequentialProtocolProducer();
-      addEntities(sequentialProtocolProducer);
+      SequentialProtocolProducer sequentialProtocolProducer =
+          new SequentialProtocolProducer(protocols);
+      protocols = null;
       return sequentialProtocolProducer;
     }
-  }
-
-  private void addEntities(ProtocolProducerCollection producerCollection) {
-    for (ProtocolProducer protocolProducer : protocols) {
-      producerCollection.append(protocolProducer);
-    }
-    protocols = null;
   }
 
   /**

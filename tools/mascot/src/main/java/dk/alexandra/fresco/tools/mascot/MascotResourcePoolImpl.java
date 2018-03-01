@@ -28,6 +28,7 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
   private final FieldElementPrg localSampler;
   private final MessageDigest messageDigest;
   private final MascotSecurityParameters mascotSecurityParameters;
+  private final Drbg drbg;
 
   /**
    * Creates new {@link MascotResourcePoolImpl}.
@@ -42,7 +43,8 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
    */
   public MascotResourcePoolImpl(int myId, int noOfParties, int instanceId, Drbg drbg,
       Map<Integer, RotList> seedOts, MascotSecurityParameters mascotSecurityParameters) {
-    super(myId, noOfParties, drbg);
+    super(myId, noOfParties);
+    this.drbg = drbg;
     this.instanceId = instanceId;
     this.seedOts = seedOts;
     this.modulus = ModulusFinder.findSuitableModulus(mascotSecurityParameters.getModBitLength());
@@ -95,6 +97,11 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
         getRandomGenerator(), ct, seedOts.get(otherId));
     return new BristolRotBatch(new RotFactory(otResources, network),
         getPrgSeedLength(), getLambdaSecurityParam());
+  }
+
+  @Override
+  public Drbg getRandomGenerator() {
+    return drbg;
   }
 
   @Override

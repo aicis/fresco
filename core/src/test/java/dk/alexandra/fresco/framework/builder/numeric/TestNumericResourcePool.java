@@ -3,7 +3,6 @@ package dk.alexandra.fresco.framework.builder.numeric;
 import static org.junit.Assert.assertEquals;
 
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
-import dk.alexandra.fresco.framework.util.Drbg;
 import java.math.BigInteger;
 import org.junit.Test;
 
@@ -61,9 +60,5 @@ public class TestNumericResourcePool {
       return 0;
     }
 
-    @Override
-    public Drbg getRandomGenerator() {
-      return null;
-    }
   }
 }

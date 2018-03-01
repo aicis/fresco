@@ -5,9 +5,24 @@ import static org.junit.Assert.assertFalse;
 
 import java.util.Arrays;
 import java.util.Random;
+import org.hamcrest.core.IsEqual;
+import org.hamcrest.core.IsNot;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class TestAesCtrDrbg {
+
+  @Test
+  public void testDefaultConstructor() {
+    Drbg drbg = new AesCtrDrbg();
+    Drbg otherDrbg = new AesCtrDrbg();
+    byte[] bytes = new byte[16];
+    drbg.nextBytes(bytes);
+    byte[] otherBytes = new byte[16];
+    otherDrbg.nextBytes(bytes);
+    // sanity check that different drbg produce different results
+    Assert.assertThat(bytes, IsNot.not(IsEqual.equalTo(otherBytes)));
+  }
 
   @Test
   public void testAesCtrDrbg() {

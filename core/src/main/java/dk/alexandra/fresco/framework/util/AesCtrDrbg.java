@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.framework.util;
 
+import java.security.SecureRandom;
 import javax.crypto.Cipher;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.IvParameterSpec;
@@ -17,10 +18,17 @@ public class AesCtrDrbg implements Drbg {
   private int reseedCounter;
 
   /**
+   * Creates a new DRBG based on AES in counter mode with securely-generated random seed.
+   */
+  public AesCtrDrbg() {
+    this(generateSeed());
+  }
+
+  /**
    * Creates a new DRBG based on AES in counter mode.
    *
    * @param seed the seed for the DRBG. This must be a valid AES-128 key (i.e., must be 32 bytes
-   *     long)
+   * long)
    * @throws IllegalArgumentException if seed is not of the correct length (32 bytes)
    */
   public AesCtrDrbg(byte[] seed) {
@@ -61,15 +69,13 @@ public class AesCtrDrbg implements Drbg {
   }
 
   /**
-   * Generates enough pseudo-random bytes to fill a given array.
-   * <p>
-   * Note: this method is unsafe the sense that it expects two array of equal size at most
-   * {@value #UPDATE_LIMIT} and does not check for this.
-   * </p>
+   * Generates enough pseudo-random bytes to fill a given array. <p> Note: this method is unsafe the
+   * sense that it expects two array of equal size at most {@value #UPDATE_LIMIT} and does not check
+   * for this. </p>
    *
    * @param zeroes an array of zero bytes of length equal to output array.
    * @param output an array of size at most {@value #UPDATE_LIMIT} which will be filled with pseudo
-   *     random bytes.
+   * random bytes.
    */
   void nextBytesBounded(byte[] zeroes, byte[] output) {
     if (generatedBytes + output.length > UPDATE_LIMIT) {
@@ -121,4 +127,11 @@ public class AesCtrDrbg implements Drbg {
     nextBytes(key);
     initCipher(key, iv);
   }
+
+  private static byte[] generateSeed() {
+    byte[] randomSeed = new byte[32];
+    new SecureRandom().nextBytes(randomSeed);
+    return randomSeed;
+  }
+
 }
