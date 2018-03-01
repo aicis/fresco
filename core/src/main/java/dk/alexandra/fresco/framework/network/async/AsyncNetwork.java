@@ -265,13 +265,11 @@ public class AsyncNetwork implements CloseableNetwork {
     public Object call() throws IOException, InterruptedException {
       byte[] data = queue.take();
       ByteBuffer buf = ByteBuffer.allocate(Integer.BYTES + data.length);
-      if (data.length != 0) {
-        buf.putInt(data.length);
-        buf.put(data);
-        buf.position(0);
-        while (buf.hasRemaining()) {
-          channel.write(buf);
-        }
+      buf.putInt(data.length);
+      buf.put(data);
+      buf.position(0);
+      while (buf.hasRemaining()) {
+        channel.write(buf);
       }
       if (alive || !queue.isEmpty()) {
         sendFuture = communicationService.submit(new Sender(channel, queue));
@@ -302,7 +300,10 @@ public class AsyncNetwork implements CloseableNetwork {
     if (conf.noOfParties() != 1 && temp.isDone()) {
       ExceptionConverter.safe(() -> temp.get(), "A previous receive operation failed");
     }
-    return ExceptionConverter.safe(() -> this.inQueues.get(partyId).take(), "Receive interrupted");
+    byte[] data = ExceptionConverter.safe(() ->
+      this.inQueues.get(partyId).take(), "Receive interrupted"
+    );
+    return data;
   }
 
   /**
@@ -325,11 +326,14 @@ public class AsyncNetwork implements CloseableNetwork {
     }
     ExceptionConverter.safe(() -> {
       while (!outQueues.values().stream().allMatch(q -> q.isEmpty())) {
-        // Busy wait until all out going queues are empty
+        // Busy wait for outQueues to be empty
       }
       // Send one final message to stop the senders
       byte[] killMessage = new byte[] {};
-      outQueues.values().stream().forEach(q -> q.offer(killMessage));
+      outQueues.keySet().stream()
+        .filter(i -> i != conf.getMyId())
+        .map(i -> outQueues.get(i))
+        .forEach(q -> q.offer(killMessage));
       if (communicationService != null) {
         communicationService.shutdownNow();
       }
@@ -339,9 +343,9 @@ public class AsyncNetwork implements CloseableNetwork {
       for (SocketChannel channel : this.channelMap.values()) {
         channel.close();
       }
+      logger.info("P{}: Network closed", conf.getMyId());
       return null;
     }, "Unable to properly close the network.");
-    logger.info("P{}: Network closed", conf.getMyId());
   }
 
   /**
