@@ -40,7 +40,7 @@ public interface LinearAlgebra extends ComputationDirectory {
    * 
    * @param a Secret value 1
    * @param v Secret value 2
-   * @return
+   * @return A deferred result computing a*v
    */
   DRes<Vector<DRes<SReal>>> operate(DRes<Matrix<DRes<SReal>>> a, DRes<Vector<DRes<SReal>>> v);
 
@@ -49,7 +49,7 @@ public interface LinearAlgebra extends ComputationDirectory {
    * 
    * @param a Secret matrix
    * @param v Public vector
-   * @return
+   * @return A deferred result computing a*v
    */
   DRes<Vector<DRes<SReal>>> operate(DRes<Matrix<DRes<SReal>>> a, Vector<BigDecimal> v);
 
@@ -58,7 +58,7 @@ public interface LinearAlgebra extends ComputationDirectory {
    * 
    * @param a Public matrix
    * @param v Secret vector
-   * @return
+   * @return A deferred result computing a*v
    */
   DRes<Vector<DRes<SReal>>> operate(Matrix<BigDecimal> a, DRes<Vector<DRes<SReal>>> v);
 
@@ -74,9 +74,9 @@ public interface LinearAlgebra extends ComputationDirectory {
   /**
    * Multiply a public value with a secret value.
    * 
-   * @param a
-   * @param b
-   * @return
+   * @param a Public value
+   * @param b Secret value
+   * @return A deferred result computing a*b
    */
   DRes<Matrix<DRes<SReal>>> mult(Matrix<BigDecimal> a, DRes<Matrix<DRes<SReal>>> b);
 
@@ -125,9 +125,7 @@ public interface LinearAlgebra extends ComputationDirectory {
    * @param inputParty The ID of the MPC party.
    * @return The closed input value.
    */
-
   DRes<Vector<DRes<SReal>>> input(Vector<BigDecimal> value, int inputParty);
-
 
   /**
    * Opens a matrix to all MPC parties.

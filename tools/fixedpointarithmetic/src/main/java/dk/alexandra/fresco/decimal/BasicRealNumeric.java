@@ -100,6 +100,12 @@ public interface BasicRealNumeric extends ComputationDirectory {
    */
   DRes<SReal> known(BigDecimal value);
 
+  /**
+   * Create a secret real value from a secret integer value representing the same value.
+   * 
+   * @param value A secret integer.
+   * @return A secret real with the same value as the input
+   */
   DRes<SReal> fromSInt(DRes<SInt> value);
 
   /**
