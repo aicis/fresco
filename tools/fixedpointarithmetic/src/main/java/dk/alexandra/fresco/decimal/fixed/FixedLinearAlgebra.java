@@ -6,7 +6,7 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 public class FixedLinearAlgebra extends DefaultLinearAlgebra {
 
   public FixedLinearAlgebra(ProtocolBuilderNumeric builder) {
-    super(builder, scope -> new FixedNumeric(scope));
+    super(builder, FixedNumeric::new);
   }
 
 }
