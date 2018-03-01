@@ -1,15 +1,5 @@
 package dk.alexandra.fresco.lib.arithmetic;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.hamcrest.core.Is;
-import org.junit.Assert;
-
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -21,7 +11,14 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.integer.min.MinInfFrac;
-
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.hamcrest.core.Is;
+import org.junit.Assert;
 
 /**
  * Generic test cases for basic finite field operations.
@@ -123,7 +120,7 @@ public class BasicArithmeticTests {
             DRes<BigInteger> opened = numeric.open(closed);
             BigInteger expected = input.subtract(modulus);
             return () -> {
-              return new Pair<BigInteger, BigInteger>(opened.out(), expected);
+              return new Pair<>(opened.out(), expected);
             };
           };
           Pair<BigInteger, BigInteger> actualAndExpected = runApplication(app);

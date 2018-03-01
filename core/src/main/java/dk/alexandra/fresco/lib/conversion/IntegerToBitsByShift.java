@@ -1,13 +1,12 @@
 package dk.alexandra.fresco.lib.conversion;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RightShiftResult;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Converts a number to its bit representation by shifting the maximum

@@ -1,11 +1,5 @@
 package dk.alexandra.fresco.lib.math.integer.binary;
 
-import java.math.BigInteger;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.junit.Assert;
-
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -15,6 +9,10 @@ import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RightShiftR
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.math.BigInteger;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.junit.Assert;
 
 
 /**
@@ -43,14 +41,16 @@ public class BinaryOperationsTests {
         public void test() throws Exception {
           Application<BigInteger[], ProtocolBuilderNumeric> app =
               (ProtocolBuilderNumeric builder) -> {
-            AdvancedNumeric rightShift = builder.advancedNumeric();
-            DRes<SInt> encryptedInput = builder.numeric().known(input);
-            DRes<RightShiftResult> shiftedRight =
-                rightShift.rightShiftWithRemainder(encryptedInput, shifts);
-            DRes<BigInteger> openResult = builder.numeric().open(() -> shiftedRight.out().getResult());
-            DRes<BigInteger> openRemainder = builder.numeric().open(() -> shiftedRight.out().getRemainder());
-            return () -> new BigInteger[] { openResult.out(), openRemainder.out() };
-          };
+                AdvancedNumeric rightShift = builder.advancedNumeric();
+                DRes<SInt> encryptedInput = builder.numeric().known(input);
+                DRes<RightShiftResult> shiftedRight =
+                    rightShift.rightShiftWithRemainder(encryptedInput, shifts);
+                DRes<BigInteger> openResult =
+                    builder.numeric().open(() -> shiftedRight.out().getResult());
+                DRes<BigInteger> openRemainder =
+                    builder.numeric().open(() -> shiftedRight.out().getRemainder());
+                return () -> new BigInteger[] {openResult.out(), openRemainder.out()};
+              };
           BigInteger[] output = runApplication(app);
 
           Assert.assertEquals(input.shiftRight(shifts), output[0]);
@@ -88,7 +88,7 @@ public class BinaryOperationsTests {
       };
     }
   }
-  
+
   /**
    * Test binary right shift of a shared secret.
    */
@@ -104,15 +104,17 @@ public class BinaryOperationsTests {
 
         @Override
         public void test() throws Exception {
-          Application<List<BigInteger>, ProtocolBuilderNumeric> app = producer -> producer.seq(builder -> {            
-            DRes<SInt> sharedInput = builder.numeric().known(input);
-            return builder.advancedNumeric().toBits(sharedInput, max);
-          }).seq((seq, result) -> {
-            List<DRes<BigInteger>> outs = result.stream().map(seq.numeric()::open).collect(Collectors.toList());
-            return () -> outs.stream().map(DRes::out).collect(Collectors.toList());
-          });
-          
-          List<BigInteger> result = runApplication(app);          
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app =
+              producer -> producer.seq(builder -> {
+                DRes<SInt> sharedInput = builder.numeric().known(input);
+                return builder.advancedNumeric().toBits(sharedInput, max);
+              }).seq((seq, result) -> {
+                List<DRes<BigInteger>> outs =
+                    result.stream().map(seq.numeric()::open).collect(Collectors.toList());
+                return () -> outs.stream().map(DRes::out).collect(Collectors.toList());
+              });
+
+          List<BigInteger> result = runApplication(app);
           for (int i = 0; i < max; i++) {
             Assert.assertEquals(result.get(i).testBit(0), input.testBit(i));
           }
