@@ -8,6 +8,8 @@ import dk.alexandra.fresco.suite.marlin.protocols.natives.BroadcastValidationPro
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Generic active broadcast validation computation. <p>Uses generic native protocols {@link
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
 public class BroadcastComputation<BuilderT extends ProtocolBuilderImpl<BuilderT>> implements
     Computation<List<byte[]>, BuilderT> {
 
+  private static final Logger logger = LoggerFactory.getLogger(Spdz2kCommitmentComputation.class);
   private final List<byte[]> input;
 
   BroadcastComputation(List<byte[]> input) {

@@ -9,9 +9,13 @@ import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.suite.marlin.protocols.natives.AllBroadcastProtocol;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Spdz2kCommitmentComputation implements
     ComputationParallel<List<byte[]>, ProtocolBuilderNumeric> {
+
+  private static final Logger logger = LoggerFactory.getLogger(Spdz2kCommitmentComputation.class);
 
   private final ByteSerializer<HashBasedCommitment> commitmentSerializer;
   private final byte[] value;
@@ -29,6 +33,7 @@ public class Spdz2kCommitmentComputation implements
     return builder.seq(new BroadcastComputation<>(
         commitmentSerializer.serialize(ownCommitment)
     )).seq((seq, rawCommitments) -> {
+      logger.debug("Done with broadcast computation " + builder.getBasicNumericContext().getMyId());
       DRes<List<byte[]>> openingsDRes = seq.append(new AllBroadcastProtocol<>(ownOpening));
       List<HashBasedCommitment> commitments = commitmentSerializer.deserializeList(rawCommitments);
       return () -> open(commitments, openingsDRes.out());

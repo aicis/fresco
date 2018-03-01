@@ -97,10 +97,13 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
     BasicNumericContext numericContext = new BasicNumericContext(effectiveBitLength, modulus,
         getMyId(), getNoOfParties());
     Network network = networkSupplier.get();
+    logger.debug("Got network " + getMyId());
+
     NetworkBatchDecorator networkBatchDecorator =
         new NetworkBatchDecorator(
             this.getNoOfParties(),
             network);
+    logger.debug("Got network decorator" + getMyId());
     BuilderFactoryNumeric builderFactory = new Spdz2kBuilder<>(factory, numericContext);
     ProtocolBuilderNumeric root = builderFactory.createSequential();
     byte[] ownSeed = new byte[seedLength];
@@ -110,7 +113,10 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
         ownSeed)
         .buildComputation(root);
     ProtocolProducer commitmentProducer = root.build();
+    logger.debug("Build producer " + getMyId());
+    int counter = 0;
     do {
+      logger.debug("Processing  " + getMyId() + " batch number " + counter++);
       ProtocolCollectionList<Spdz2kResourcePool> protocolCollectionList =
           new ProtocolCollectionList<>(
               1); // batch size is irrelevant since this is a very light-weight protocol
@@ -127,7 +133,7 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
         .toString(jointSeed));
     ExceptionConverter.safe(() -> {
       ((Closeable) network).close();
-      logger.debug("Closed network" + getMyId() + " seed " + Arrays
+      logger.debug("Closed network " + getMyId() + " seed " + Arrays
           .toString(jointSeed));
       return null;
     }, "Failed to close network");
