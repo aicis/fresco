@@ -10,6 +10,7 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Assert;
@@ -39,7 +40,7 @@ public class BinaryOperationsTests {
 
         @Override
         public void test() throws Exception {
-          Application<BigInteger[], ProtocolBuilderNumeric> app =
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app =
               (ProtocolBuilderNumeric builder) -> {
                 AdvancedNumeric rightShift = builder.advancedNumeric();
                 DRes<SInt> encryptedInput = builder.numeric().known(input);
@@ -49,12 +50,12 @@ public class BinaryOperationsTests {
                     builder.numeric().open(() -> shiftedRight.out().getResult());
                 DRes<BigInteger> openRemainder =
                     builder.numeric().open(() -> shiftedRight.out().getRemainder());
-                return () -> new BigInteger[] {openResult.out(), openRemainder.out()};
+                return () -> Arrays.asList(openResult.out(), openRemainder.out());
               };
-          BigInteger[] output = runApplication(app);
+              List<BigInteger> output = runApplication(app);
 
-          Assert.assertEquals(input.shiftRight(shifts), output[0]);
-          Assert.assertEquals(input.mod(BigInteger.ONE.shiftLeft(shifts)), output[1]);
+          Assert.assertEquals(input.shiftRight(shifts), output.get(0));
+          Assert.assertEquals(input.mod(BigInteger.ONE.shiftLeft(shifts)), output.get(1));
         }
       };
     }
