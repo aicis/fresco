@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Converts a number to its bit representation by shifting the maximum
- * bit-length of the number times.
+ * Converts a number to its bit representation by shifting the maximum bit-length of the number
+ * times.
  */
 public class IntegerToBitsByShift implements Computation<List<SInt>, ProtocolBuilderNumeric> {
 
@@ -33,8 +33,8 @@ public class IntegerToBitsByShift implements Computation<List<SInt>, ProtocolBui
       List<SInt> remainders) {
 
     if (shifts > 0) {
-      DRes<RightShiftResult> iteration = producer
-          .seq((seq) -> seq.advancedNumeric().rightShiftWithRemainder(input));
+      DRes<RightShiftResult> iteration =
+          producer.seq((seq) -> seq.advancedNumeric().rightShiftWithRemainder(input));
       producer.createIteration((seq) -> {
         remainders.add(iteration.out().getRemainder());
         doIteration(seq, iteration.out().getResult(), shifts - 1, remainders);
