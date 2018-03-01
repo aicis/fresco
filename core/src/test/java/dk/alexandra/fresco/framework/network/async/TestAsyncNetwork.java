@@ -146,7 +146,7 @@ public class TestAsyncNetwork {
    * @param numMessages the number of messages
    */
   private void sendMultipleToSingleReceiver(int numParties, int numMessages) {
-    networks = createNetworks(numParties);
+    Map<Integer, CloseableNetwork> networks = createNetworks(numParties);
     ExecutorService es = Executors.newFixedThreadPool(numParties);
     List<Future<?>> fs = new ArrayList<>(numParties);
     for (int i = 1; i < numParties + 1; i++) {
@@ -162,6 +162,7 @@ public class TestAsyncNetwork {
               r.nextBytes(data);
               assertArrayEquals(data, receivedData);
             }
+
           }
         } else {
           Random r = new Random(id);
@@ -171,15 +172,20 @@ public class TestAsyncNetwork {
             networks.get(id).send(numParties, data.clone());
           }
         }
+        try {
+          networks.get(id).close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
       });
       fs.add(f);
-      for (Future<?> future : fs) {
-        try {
-          future.get();
-        } catch (InterruptedException | ExecutionException e) {
-          e.printStackTrace();
-          fail("Test should not throw exception");
-        }
+    }
+    for (Future<?> future : fs) {
+      try {
+        future.get();
+      } catch (InterruptedException | ExecutionException e) {
+        e.printStackTrace();
+        fail("Test should not throw exception");
       }
     }
   }
