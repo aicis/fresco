@@ -113,7 +113,7 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
     do {
       ProtocolCollectionList<Spdz2kResourcePool> protocolCollectionList =
           new ProtocolCollectionList<>(
-              128); // batch size is irrelevant since this is a very light-weight protocol
+              1); // batch size is irrelevant since this is a very light-weight protocol
       commitmentProducer.getNextProtocols(protocolCollectionList);
       new BatchedStrategy<Spdz2kResourcePool>()
           .processBatch(protocolCollectionList, this, networkBatchDecorator);
@@ -128,7 +128,7 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
     ExceptionConverter.safe(() -> {
       ((Closeable) network).close();
       logger.debug("Closed network" + getMyId() + " seed " + Arrays
-        .toString(jointSeed));
+          .toString(jointSeed));
       return null;
     }, "Failed to close network");
 
