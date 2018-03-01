@@ -46,6 +46,7 @@ public class AsyncNetwork implements CloseableNetwork {
   private final Map<Integer, BlockingQueue<byte[]>> outQueues;
   private final Map<Integer, BlockingQueue<byte[]>> inQueues;
   private final NetworkConfiguration conf;
+  private boolean alive;
   private ExecutorService communicationService;
   private Future<Object> sendFuture;
   private Future<Object> receiveFuture;
@@ -74,6 +75,7 @@ public class AsyncNetwork implements CloseableNetwork {
     this.outQueues = new HashMap<>(conf.noOfParties());
     this.inQueues = new HashMap<>(conf.noOfParties());
     this.channelMap = new HashMap<>(conf.noOfParties() - 1);
+    this.alive = true;
     for (int i = 1; i < conf.noOfParties() + 1; i++) {
       outQueues.put(i, new LinkedBlockingQueue<>());
       inQueues.put(i, new LinkedBlockingQueue<>());
@@ -263,13 +265,17 @@ public class AsyncNetwork implements CloseableNetwork {
     public Object call() throws IOException, InterruptedException {
       byte[] data = queue.take();
       ByteBuffer buf = ByteBuffer.allocate(Integer.BYTES + data.length);
-      buf.putInt(data.length);
-      buf.put(data);
-      buf.position(0);
-      while (buf.hasRemaining()) {
-        channel.write(buf);
+      if (data.length != 0) {
+        buf.putInt(data.length);
+        buf.put(data);
+        buf.position(0);
+        while (buf.hasRemaining()) {
+          channel.write(buf);
+        }
       }
-      sendFuture = communicationService.submit(new Sender(channel, queue));
+      if (alive || !queue.isEmpty()) {
+        sendFuture = communicationService.submit(new Sender(channel, queue));
+      }
       return null;
     }
 
@@ -312,14 +318,19 @@ public class AsyncNetwork implements CloseableNetwork {
   }
 
   private void teardown() {
+    alive = false;
     if (conf.noOfParties() < 2) {
       logger.info("P{}: Network closed", conf.getMyId());
       return;
     }
     ExceptionConverter.safe(() -> {
-      if (this.communicationService != null) {
-        this.communicationService.shutdownNow();
+      while (!outQueues.values().stream().allMatch(q -> q.isEmpty())) {
+        // Busy wait until all out going queues are empty
       }
+      // Send one final message to stop the senders
+      byte[] killMessage = new byte[] {};
+      outQueues.values().stream().forEach(q -> q.offer(killMessage));
+      communicationService.shutdownNow();
       if (this.server != null) {
         this.server.close();
       }
