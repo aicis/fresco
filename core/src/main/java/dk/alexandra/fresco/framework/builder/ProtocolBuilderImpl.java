@@ -11,8 +11,6 @@ import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public abstract class ProtocolBuilderImpl<BuilderT extends ProtocolBuilderImpl<BuilderT>>
     implements ProtocolBuilder {
@@ -27,22 +25,6 @@ public abstract class ProtocolBuilderImpl<BuilderT extends ProtocolBuilderImpl<B
     this.parallel = parallel;
     this.protocols = new LinkedList<>();
     this.factory = factory;
-  }
-
-  /**
-   * Creates another protocol builder based on the supplied consumer. This method re-creates the
-   * builder based on a sequential protocol producer inserted into this original protocol producer
-   * as a child.
-   *
-   * @param consumer lazy creation of the protocol producer
-   */
-  public <T extends Consumer<BuilderT>> void createIteration(T consumer) {
-    Supplier<BuilderT> supplier = () -> factory.createSequential();
-    createAndAppend(new LazyProtocolProducerDecorator(() -> {
-      BuilderT builder = supplier.get();
-      consumer.accept(builder);
-      return builder.build();
-    }));
   }
 
   private void createAndAppend(ProtocolProducer producer) {

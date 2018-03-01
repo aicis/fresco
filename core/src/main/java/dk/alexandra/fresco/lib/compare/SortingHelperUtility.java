@@ -88,8 +88,11 @@ public class SortingHelperUtility {
                       for (int i = 0; i < values.size() - d; i++) {
                         if ((i & p) == state.r) {
                           int finalI = i;
-                          par.createIteration(seq3 ->
-                              compareAndSwap(seq3, finalI, finalI + d, values)
+                          par.seq(seq3 ->
+                              {
+                                compareAndSwap(seq3, finalI, finalI + d, values);
+                                return null;
+                              }
                           );
                         }
                       }
