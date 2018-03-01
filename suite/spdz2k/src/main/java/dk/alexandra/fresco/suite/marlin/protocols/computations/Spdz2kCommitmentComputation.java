@@ -20,7 +20,8 @@ public class Spdz2kCommitmentComputation implements
   private final ByteSerializer<HashBasedCommitment> commitmentSerializer;
   private final byte[] value;
 
-  public Spdz2kCommitmentComputation(ByteSerializer<HashBasedCommitment> commitmentSerializer, byte[] value) {
+  public Spdz2kCommitmentComputation(ByteSerializer<HashBasedCommitment> commitmentSerializer,
+      byte[] value) {
     this.commitmentSerializer = commitmentSerializer;
     this.value = value;
   }
@@ -34,7 +35,8 @@ public class Spdz2kCommitmentComputation implements
         commitmentSerializer.serialize(ownCommitment)
     )).seq((seq, rawCommitments) -> {
       logger.debug("Done with broadcast computation " + builder.getBasicNumericContext().getMyId());
-      DRes<List<byte[]>> openingsDRes = seq.append(new AllBroadcastProtocol<>(ownOpening));
+      DRes<List<byte[]>> openingsDRes = seq
+          .seq((otherSeq -> otherSeq.append(new AllBroadcastProtocol<>(ownOpening))));
       List<HashBasedCommitment> commitments = commitmentSerializer.deserializeList(rawCommitments);
       return () -> open(commitments, openingsDRes.out());
     });
