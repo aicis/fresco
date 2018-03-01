@@ -23,13 +23,18 @@ import dk.alexandra.fresco.suite.marlin.resource.storage.Spdz2kOpenedValueStore;
 import java.io.Closeable;
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
     extends ResourcePoolImpl
     implements Spdz2kResourcePool<PlainT> {
+
+  private static final Logger logger = LoggerFactory.getLogger(Spdz2kResourcePoolImpl.class);
 
   private final int operationalBitLength;
   private final int effectiveBitLength;
@@ -118,10 +123,15 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
       ByteArrayHelper.xor(jointSeed, seed);
     }
     drbg = drbgGenerator.apply(jointSeed);
+    logger.debug("Generated joint seed successfully " + getMyId() + " seed " + Arrays
+        .toString(jointSeed));
     ExceptionConverter.safe(() -> {
       ((Closeable) network).close();
+      logger.debug("Closed network" + getMyId() + " seed " + Arrays
+        .toString(jointSeed));
       return null;
     }, "Failed to close network");
+
   }
 
   @Override
