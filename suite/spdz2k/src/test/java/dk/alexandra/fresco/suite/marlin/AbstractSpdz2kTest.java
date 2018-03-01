@@ -60,7 +60,6 @@ public abstract class AbstractSpdz2kTest<MarlinResourcePoolT extends Spdz2kResou
       SecureComputationEngine<MarlinResourcePoolT, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(ps, evaluator);
 
-      Supplier<Network> networkSupplier = () -> (Network) new AsyncNetwork(partyNetConf);
       TestThreadRunner.TestThreadConfiguration<MarlinResourcePoolT, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,
