@@ -208,9 +208,7 @@ public class BasicFixedNumeric implements BasicRealNumeric {
 
   @Override
   public DRes<SReal> fromSInt(DRes<SInt> value) {
-    return builder.seq(seq -> {
-      return new SFixed(value.out(), 0);
-    });
+    return builder.seq(seq -> new SFixed(value.out(), 0));
   }
 
   @Override
