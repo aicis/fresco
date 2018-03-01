@@ -1,7 +1,8 @@
 language: java
 sudo: false # faster builds
 
-test: travis_wait mvn -Dtest=TestSpdz2kBasicArithmetic96 test -e -DfailIfNoTests=false
+script:
+- mvn -Dtest=TestSpdz2kBasicArithmetic96 test -e -DfailIfNoTests=false
 
 after_success:
 - bash <(curl -s https://codecov.io/bash)
