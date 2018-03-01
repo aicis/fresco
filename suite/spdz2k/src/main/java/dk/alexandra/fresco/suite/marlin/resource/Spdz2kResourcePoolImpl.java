@@ -12,7 +12,6 @@ import dk.alexandra.fresco.framework.sce.evaluator.ProtocolCollectionList;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.marlin.Spdz2kBuilder;
 import dk.alexandra.fresco.suite.marlin.datatypes.CompUInt;
@@ -20,7 +19,6 @@ import dk.alexandra.fresco.suite.marlin.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.marlin.protocols.computations.Spdz2kCommitmentComputation;
 import dk.alexandra.fresco.suite.marlin.resource.storage.Spdz2kDataSupplier;
 import dk.alexandra.fresco.suite.marlin.resource.storage.Spdz2kOpenedValueStore;
-import java.io.Closeable;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.Arrays;
@@ -131,12 +129,12 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
     drbg = drbgGenerator.apply(jointSeed);
     logger.debug("Generated joint seed successfully " + getMyId() + " seed " + Arrays
         .toString(jointSeed));
-    ExceptionConverter.safe(() -> {
-      ((Closeable) network).close();
-      logger.debug("Closed network " + getMyId() + " seed " + Arrays
-          .toString(jointSeed));
-      return null;
-    }, "Failed to close network");
+//    ExceptionConverter.safe(() -> {
+//      ((Closeable) network).close();
+//      logger.debug("Closed network " + getMyId() + " seed " + Arrays
+//          .toString(jointSeed));
+//      return null;
+//    }, "Failed to close network");
 
   }
 
