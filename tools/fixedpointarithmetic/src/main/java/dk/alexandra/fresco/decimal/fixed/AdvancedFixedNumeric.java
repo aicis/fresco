@@ -19,16 +19,16 @@ public class AdvancedFixedNumeric extends DefaultAdvancedRealNumeric {
       SFixed cast = (SFixed) x.out();
       DRes<SInt> underlyingInt = cast.getSInt();
       int scale = cast.getScale();
-      DRes<SInt> intResult = seq.advancedNumeric().sqrt(underlyingInt,
-          seq.getBasicNumericContext().getMaxBitLength());
+      DRes<SInt> intResult =
+          seq.advancedNumeric().sqrt(underlyingInt, seq.getBasicNumericContext().getMaxBitLength());
       int newScale = Math.floorDiv(scale, 2);
-      DRes<SReal> result = new SFixed(intResult, newScale);      
+      DRes<SReal> result = new SFixed(intResult, newScale);
       if (scale % 2 != 0) {
         result = new FixedNumeric(seq).numeric().mult(BigDecimal.valueOf(Math.sqrt(2.0)), result);
       }
       return result;
     });
-    
+
   }
 
 }

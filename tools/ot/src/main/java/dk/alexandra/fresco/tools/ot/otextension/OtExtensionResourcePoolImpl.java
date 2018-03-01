@@ -45,6 +45,7 @@ public class OtExtensionResourcePoolImpl extends ResourcePoolImpl implements
   private final MessageDigest digest;
   private final RotList seedOts;
   private final CoinTossing ct;
+  private final Drbg drbg;
 
   /**
    * Constructs an OT extension resource pool.
@@ -69,13 +70,14 @@ public class OtExtensionResourcePoolImpl extends ResourcePoolImpl implements
   public OtExtensionResourcePoolImpl(int myId, int otherId,
       int computationalSecurityParam, int lambdaSecurityParam, int instanceId,
       Drbg drbg, CoinTossing ct, RotList seedOts) {
-    super(myId, 2, drbg);
+    super(myId, 2);
     if (computationalSecurityParam < 1 || lambdaSecurityParam < 1
         || lambdaSecurityParam % 8 != 0 || computationalSecurityParam
             % 8 != 0) {
       throw new IllegalArgumentException(
           "Security parameters must be at least 1 and divisible by 8");
     }
+    this.drbg = drbg;
     this.otherId = otherId;
     this.computationalSecurityParam = computationalSecurityParam;
     this.lambdaSecurityParam = lambdaSecurityParam;
@@ -126,5 +128,10 @@ public class OtExtensionResourcePoolImpl extends ResourcePoolImpl implements
   @Override
   public CoinTossing getCoinTossing() {
     return ct;
+  }
+
+  @Override
+  public Drbg getRandomGenerator() {
+    return drbg;
   }
 }

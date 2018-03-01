@@ -1,11 +1,10 @@
 
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
-import java.math.BigInteger;
-
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.math.BigInteger;
 
 /**
  * Implements closing a value in the Dummy Arithmetic suite where all operations are done in the

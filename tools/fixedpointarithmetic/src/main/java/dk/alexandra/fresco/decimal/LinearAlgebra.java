@@ -25,7 +25,7 @@ public interface LinearAlgebra extends ComputationDirectory {
    * @return A deferred result computing a+b
    */
   DRes<Matrix<DRes<SReal>>> add(Matrix<BigDecimal> a, DRes<Matrix<DRes<SReal>>> b);
-  
+
   /**
    * Multiplies two secret values and returns the result.
    *

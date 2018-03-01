@@ -13,8 +13,7 @@ public class AbstractFixedDummyArithmeticTest extends AbstractDummyArithmeticTes
 
   @Test
   public void test_Open_to_party_Sequential() throws Exception {
-    runTest(new BasicFixedPointTests.TestOpenToParty<>(),
-        EvaluationStrategy.SEQUENTIAL, 2);
+    runTest(new BasicFixedPointTests.TestOpenToParty<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
@@ -24,14 +23,12 @@ public class AbstractFixedDummyArithmeticTest extends AbstractDummyArithmeticTes
 
   @Test
   public void test_useSInt() throws Exception {
-    runTest(new BasicFixedPointTests.TestUseSInt<>(), EvaluationStrategy.SEQUENTIAL,
-        2);
+    runTest(new BasicFixedPointTests.TestUseSInt<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void test_AddKnown() throws Exception {
-    runTest(new BasicFixedPointTests.TestAddKnown<>(), EvaluationStrategy.SEQUENTIAL,
-        2);
+    runTest(new BasicFixedPointTests.TestAddKnown<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
@@ -41,20 +38,17 @@ public class AbstractFixedDummyArithmeticTest extends AbstractDummyArithmeticTes
 
   @Test
   public void test_SubtractSecret() throws Exception {
-    runTest(new BasicFixedPointTests.TestSubtractSecret<>(),
-        EvaluationStrategy.SEQUENTIAL, 2);
+    runTest(new BasicFixedPointTests.TestSubtractSecret<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void test_SubKnown() throws Exception {
-    runTest(new BasicFixedPointTests.TestSubKnown<>(), EvaluationStrategy.SEQUENTIAL,
-        2);
+    runTest(new BasicFixedPointTests.TestSubKnown<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void test_MultKnown() throws Exception {
-    runTest(new BasicFixedPointTests.TestMultKnown<>(), EvaluationStrategy.SEQUENTIAL,
-        2);
+    runTest(new BasicFixedPointTests.TestMultKnown<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
@@ -69,44 +63,38 @@ public class AbstractFixedDummyArithmeticTest extends AbstractDummyArithmeticTes
 
   @Test
   public void test_DivisionKnownDivisor() throws Exception {
-    runTest(new BasicFixedPointTests.TestDivisionKnownDivisor<>(),
-        EvaluationStrategy.SEQUENTIAL, 2);
+    runTest(new BasicFixedPointTests.TestDivisionKnownDivisor<>(), EvaluationStrategy.SEQUENTIAL,
+        2);
   }
 
   @Test
   public void test_closeFixedMatrix() throws Exception {
-    runTest(new LinearAlgebraTests.TestCloseFixedMatrix<>(),
-        EvaluationStrategy.SEQUENTIAL, 2);
+    runTest(new LinearAlgebraTests.TestCloseFixedMatrix<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void test_closeAndOpenFixedMatrix() throws Exception {
-    runTest(new LinearAlgebraTests.TestCloseAndOpenMatrix<>(),
-        EvaluationStrategy.SEQUENTIAL, 2);
+    runTest(new LinearAlgebraTests.TestCloseAndOpenMatrix<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void test_matrixAddition() throws Exception {
-    runTest(new LinearAlgebraTests.TestMatrixAddition<>(),
-        EvaluationStrategy.SEQUENTIAL, 2);
+    runTest(new LinearAlgebraTests.TestMatrixAddition<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void test_matrixMultiplication() throws Exception {
-    runTest(new LinearAlgebraTests.TestMatrixMultiplication<>(),
-        EvaluationStrategy.SEQUENTIAL, 2);
+    runTest(new LinearAlgebraTests.TestMatrixMultiplication<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void test_matrixScale() throws Exception {
-    runTest(new LinearAlgebraTests.TestMatrixScale<>(), EvaluationStrategy.SEQUENTIAL,
-        2);
+    runTest(new LinearAlgebraTests.TestMatrixScale<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void test_matrixOperate() throws Exception {
-    runTest(new LinearAlgebraTests.TestMatrixOperate<>(), EvaluationStrategy.SEQUENTIAL,
-        2);
+    runTest(new LinearAlgebraTests.TestMatrixOperate<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
@@ -123,7 +111,7 @@ public class AbstractFixedDummyArithmeticTest extends AbstractDummyArithmeticTes
   public void test_leq() throws Exception {
     runTest(new BasicFixedPointTests.TestLeq<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
-  
+
   @Test
   public void test_log() throws Exception {
     runTest(new MathTests.TestLog<>(), EvaluationStrategy.SEQUENTIAL, 2);

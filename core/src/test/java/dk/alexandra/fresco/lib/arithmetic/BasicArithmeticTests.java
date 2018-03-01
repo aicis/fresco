@@ -1,15 +1,5 @@
 package dk.alexandra.fresco.lib.arithmetic;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.hamcrest.core.Is;
-import org.junit.Assert;
-
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -21,7 +11,14 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.integer.min.MinInfFrac;
-
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.hamcrest.core.Is;
+import org.junit.Assert;
 
 /**
  * Generic test cases for basic finite field operations.
@@ -123,7 +120,7 @@ public class BasicArithmeticTests {
             DRes<BigInteger> opened = numeric.open(closed);
             BigInteger expected = input.subtract(modulus);
             return () -> {
-              return new Pair<BigInteger, BigInteger>(opened.out(), expected);
+              return new Pair<>(opened.out(), expected);
             };
           };
           Pair<BigInteger, BigInteger> actualAndExpected = runApplication(app);
@@ -239,7 +236,7 @@ public class BasicArithmeticTests {
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       BigInteger first = BigInteger.valueOf(10);
       BigInteger second = BigInteger.valueOf(5);
-      final int REPS = 20000;
+      final int repetitions = 20000;
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         @Override
@@ -255,12 +252,12 @@ public class BasicArithmeticTests {
                 DRes<SInt> secondClosed = pair.getSecond();
                 Numeric numeric = par.numeric();
                 ArrayList<DRes<SInt>> computations = new ArrayList<>();
-                for (int i = 0; i < REPS; i++) {
+                for (int i = 0; i < repetitions; i++) {
                   computations.add(numeric.mult(firstClosed, secondClosed));
                 }
                 return () -> computations;
-              }).seq((seq, computations) -> {
-                Numeric numeric = seq.numeric();
+              }).par((par, computations) -> {
+                Numeric numeric = par.numeric();
                 List<DRes<BigInteger>> opened =
                     computations.stream().map(numeric::open).collect(Collectors.toList());
                 return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
@@ -268,7 +265,7 @@ public class BasicArithmeticTests {
           List<BigInteger> output = runApplication(app);
 
           BigInteger multiply = first.multiply(second);
-          Assert.assertThat(output.size(), Is.is(REPS));
+          Assert.assertThat(output.size(), Is.is(repetitions));
           for (BigInteger result : output) {
             Assert.assertEquals(multiply, result);
           }

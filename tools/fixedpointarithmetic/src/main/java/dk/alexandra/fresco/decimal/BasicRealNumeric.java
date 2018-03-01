@@ -137,5 +137,5 @@ public interface BasicRealNumeric extends ComputationDirectory {
    * @return A secret int that is 1 if x \leq y and 0 otherwise.
    */
   DRes<SInt> leq(DRes<SReal> x, DRes<SReal> y);
-  
+
 }

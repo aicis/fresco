@@ -109,7 +109,7 @@ public class TestMacCheck {
       store = new SpdzStorageImpl(supplier);
     }
 
-    return new SpdzResourcePoolImpl(myId, size, new HmacDrbg(), store);
+    return new SpdzResourcePoolImpl(myId, size, store);
   }
 
   private class MaliciousSpdzStorage extends SpdzStorageImpl {

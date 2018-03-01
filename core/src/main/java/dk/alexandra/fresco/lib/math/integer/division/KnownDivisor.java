@@ -1,22 +1,20 @@
 package dk.alexandra.fresco.lib.math.integer.division;
 
-import java.math.BigInteger;
-
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
+import java.math.BigInteger;
 
 
 /**
- * This protocol is an implementation Euclidean division (finding quotient and
- * remainder) on integers with a secret shared divedend and a known divisor. In
- * the implementation we calculate a constant <i>m</i> such that multiplication
- * with <i>m</i> will correspond to the desired division -- just shifted a
- * number of bits to the left. To get the right result we just need to shift
- * back again.
+ * This protocol is an implementation Euclidean division (finding quotient and remainder) on
+ * integers with a secret shared divedend and a known divisor. In the implementation we calculate a
+ * constant <i>m</i> such that multiplication with <i>m</i> will correspond to the desired division
+ * -- just shifted a number of bits to the left. To get the right result we just need to shift back
+ * again.
  *
  */
 public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
@@ -24,18 +22,12 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
   private final DRes<SInt> dividend;
   private final BigInteger divisor;
 
-  public KnownDivisor(
-      DRes<SInt> dividend,
-      BigInteger divisor) {
-
+  public KnownDivisor(DRes<SInt> dividend, BigInteger divisor) {
     this.dividend = dividend;
     this.divisor = divisor;
-    
   }
 
-  private BigInteger convertRepresentation(
-      BigInteger modulus,
-      BigInteger modulusHalf,
+  private BigInteger convertRepresentation(BigInteger modulus, BigInteger modulusHalf,
       BigInteger b) {
     // Stolen from Spdz Util
     BigInteger actual = b.mod(modulus);

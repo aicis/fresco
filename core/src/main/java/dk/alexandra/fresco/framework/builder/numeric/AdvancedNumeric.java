@@ -1,12 +1,11 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
-import java.math.BigInteger;
-import java.util.List;
-
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.math.BigInteger;
+import java.util.List;
 
 /**
  * Interface for advanced functionality applicable to numeric type applications. 

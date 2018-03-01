@@ -17,14 +17,13 @@ public class BasicFixedNumeric implements BasicRealNumeric {
   private final int defaultPrecision;
   private final int maxPrecision;
 
-  
-  public BasicFixedNumeric(ProtocolBuilderNumeric builder, int defaultPrecision,
-      int maxPrecision) {
+
+  public BasicFixedNumeric(ProtocolBuilderNumeric builder, int defaultPrecision, int maxPrecision) {
     this.builder = builder;
     this.defaultPrecision = defaultPrecision;
     this.maxPrecision = maxPrecision;
   }
-  
+
   public BasicFixedNumeric(ProtocolBuilderNumeric builder) {
     this(builder, 16, 48);
   }

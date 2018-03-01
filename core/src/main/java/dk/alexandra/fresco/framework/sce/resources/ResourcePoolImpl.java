@@ -1,7 +1,5 @@
 package dk.alexandra.fresco.framework.sce.resources;
 
-import dk.alexandra.fresco.framework.util.Drbg;
-
 /**
  * Container for resources needed by runtimes (protocol suites).
  */
@@ -9,7 +7,6 @@ public class ResourcePoolImpl implements ResourcePool {
 
   private final int myId;
   private final int noOfPlayers;
-  private final Drbg drbg;
 
   /**
    * Creates an instance of the default implementation of a resource pool. This contains the basic
@@ -17,12 +14,10 @@ public class ResourcePoolImpl implements ResourcePool {
    *
    * @param myId The ID of the MPC party.
    * @param noOfPlayers The amount of parties within the MPC computation.
-   * @param drbg The DRBG providing shared randomness.
    */
-  public ResourcePoolImpl(int myId, int noOfPlayers, Drbg drbg) {
+  public ResourcePoolImpl(int myId, int noOfPlayers) {
     this.myId = myId;
     this.noOfPlayers = noOfPlayers;
-    this.drbg = drbg;
   }
 
   @Override
@@ -33,11 +28,6 @@ public class ResourcePoolImpl implements ResourcePool {
   @Override
   public int getNoOfParties() {
     return this.noOfPlayers;
-  }
-
-  @Override
-  public Drbg getRandomGenerator() {
-    return this.drbg;
   }
 
 }
