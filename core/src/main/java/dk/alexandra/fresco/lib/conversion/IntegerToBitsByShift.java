@@ -1,13 +1,13 @@
 package dk.alexandra.fresco.lib.conversion;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RightShiftResult;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Converts a number to its bit representation by shifting the maximum
@@ -17,7 +17,6 @@ public class IntegerToBitsByShift implements Computation<List<SInt>, ProtocolBui
 
   private final DRes<SInt> input;
   private final int maxInputLength;
-  private final DelayedComputation<List<SInt>> result = new DelayedComputation<>();
 
   public IntegerToBitsByShift(DRes<SInt> input, int maxInputLength) {
     this.input = input;
@@ -26,36 +25,40 @@ public class IntegerToBitsByShift implements Computation<List<SInt>, ProtocolBui
 
   @Override
   public DRes<List<SInt>> buildComputation(ProtocolBuilderNumeric builder) {
-    doIteration(builder, input, maxInputLength, new ArrayList<SInt>(maxInputLength));
-    return result;
+    return builder
+        .seq((ignored) -> () -> new State(input, maxInputLength))
+        .whileLoop(
+            (state) -> state.shifts > 0,
+            (seq, state) -> {
+              DRes<RightShiftResult> remainder =
+                  seq.advancedNumeric().rightShiftWithRemainder(state.currentInput);
+              return () ->
+                  state.createNext(remainder.out().getResult(), remainder.out().getRemainder());
+            })
+        .seq((seq, state) ->
+            () -> state.remainders
+                .stream()
+                .map(DRes::out)
+                .collect(Collectors.toList()));
   }
 
-  private void doIteration(ProtocolBuilderNumeric producer, DRes<SInt> input, int shifts,
-      List<SInt> remainders) {
+  private class State {
 
-    if (shifts > 0) {
-      DRes<RightShiftResult> iteration = producer
-          .seq((seq) -> seq.advancedNumeric().rightShiftWithRemainder(input));
-      producer.createIteration((seq) -> {
-        remainders.add(iteration.out().getRemainder());
-        doIteration(seq, iteration.out().getResult(), shifts - 1, remainders);
-      });
-    } else {
-      result.setComputation(() -> remainders);
-    }
-  }
+    private final DRes<SInt> currentInput;
+    private final int shifts;
+    private final List<DRes<SInt>> remainders;
 
-  private static class DelayedComputation<R> implements DRes<R> {
-
-    private DRes<R> closure;
-
-    public void setComputation(DRes<R> computation) {
-      this.closure = computation;
+    public State(DRes<SInt> currentInput, int shifts) {
+      this.currentInput = currentInput;
+      this.shifts = shifts;
+      this.remainders = new ArrayList<>();
     }
 
-    @Override
-    public R out() {
-      return closure.out();
+    public State createNext(DRes<SInt> value, DRes<SInt> nextRemainder) {
+      State state = new State(value, shifts - 1);
+      state.remainders.addAll(remainders);
+      state.remainders.add(nextRemainder);
+      return state;
     }
   }
 }
