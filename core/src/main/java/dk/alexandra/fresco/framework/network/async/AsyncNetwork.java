@@ -330,7 +330,9 @@ public class AsyncNetwork implements CloseableNetwork {
       // Send one final message to stop the senders
       byte[] killMessage = new byte[] {};
       outQueues.values().stream().forEach(q -> q.offer(killMessage));
-      communicationService.shutdownNow();
+      if (communicationService != null) {
+        communicationService.shutdownNow();
+      }
       if (this.server != null) {
         this.server.close();
       }
