@@ -19,11 +19,12 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
 
   private static final int DEFAULT_RANDOM_BITS = 32;
 
-  protected DefaultAdvancedRealNumeric(ProtocolBuilderNumeric builder, RealNumericProvider provider) {
+  protected DefaultAdvancedRealNumeric(ProtocolBuilderNumeric builder,
+      RealNumericProvider provider) {
     this.builder = builder;
     this.provider = provider;
   }
-  
+
   protected DefaultAdvancedRealNumeric(ProtocolBuilderNumeric builder) {
     this(builder, scope -> new FixedNumeric(scope));
   }
@@ -189,5 +190,5 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
       return numeric.numeric().mult(BigDecimal.valueOf(2.0), numeric.advanced().sum(terms));
     });
   }
-  
+
 }

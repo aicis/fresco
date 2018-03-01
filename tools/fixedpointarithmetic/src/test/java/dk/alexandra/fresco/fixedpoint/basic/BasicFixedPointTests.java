@@ -428,9 +428,9 @@ public class BasicFixedPointTests {
             int idx = output.indexOf(openOutput);
 
             BigDecimal a = openInputs.get(idx);
-            BigDecimal b = openInputs2.get(idx);            
+            BigDecimal b = openInputs2.get(idx);
             int expected = (a.compareTo(b) != 1) ? 1 : 0;
-            
+
             Assert.assertTrue(openOutput.intValue() == expected);
           }
         }
