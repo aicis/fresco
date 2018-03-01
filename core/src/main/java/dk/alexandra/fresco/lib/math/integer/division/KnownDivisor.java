@@ -9,12 +9,11 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import java.math.BigInteger;
 
 /**
- * This protocol is an implementation Euclidean division (finding quotient and
- * remainder) on integers with a secret shared divedend and a known divisor. In
- * the implementation we calculate a constant <i>m</i> such that multiplication
- * with <i>m</i> will correspond to the desired division -- just shifted a
- * number of bits to the left. To get the right result we just need to shift
- * back again.
+ * This protocol is an implementation Euclidean division (finding quotient and remainder) on
+ * integers with a secret shared divedend and a known divisor. In the implementation we calculate a
+ * constant <i>m</i> such that multiplication with <i>m</i> will correspond to the desired division
+ * -- just shifted a number of bits to the left. To get the right result we just need to shift back
+ * again.
  *
  */
 public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
@@ -22,19 +21,19 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
   private final DRes<SInt> dividend;
   private final BigInteger divisor;
 
-  public KnownDivisor(
-      DRes<SInt> dividend,
-      BigInteger divisor) {
-
+  /**
+   * Constructs a division computation where the divisor is publicly known.
+   *
+   * @param dividend the dividend
+   * @param divisor the publicly known divisor
+   */
+  public KnownDivisor(DRes<SInt> dividend, BigInteger divisor) {
     this.dividend = dividend;
-    this.divisor = divisor;    
+    this.divisor = divisor;
   }
 
-  private BigInteger convertRepresentation(
-      BigInteger modulus,
-      BigInteger modulusHalf,
+  private BigInteger convertRepresentation(BigInteger modulus, BigInteger modulusHalf,
       BigInteger b) {
-    // Stolen from Spdz Util
     BigInteger actual = b.mod(modulus);
     if (actual.compareTo(modulusHalf) > 0) {
       actual = actual.subtract(modulus);
@@ -51,7 +50,7 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
      * We use the fact that if 2^{N+l} \leq m * d \leq 2^{N+l} + 2^l, then floor(x/d) = floor(x * m
      * >> N+l) for all x of length <= N (see Thm 4.2 of
      * "Division by Invariant Integers using Multiplication" by Granlund and Montgomery).
-     * 
+     *
      * TODO: Note that if the dividend is nonnegative, the sign considerations can be omitted,
      * giving a significant speed-up.
      */
@@ -59,7 +58,7 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
     Numeric numeric = builder.numeric();
     /*
      * Numbers larger than half the field size is considered to be negative.
-     * 
+     *
      * TODO: This should be handled differently because it will not necessarily work with another
      * arithmetic protocol suite.
      */
@@ -71,7 +70,6 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
       throw new IllegalArgumentException("Divisor is too big. Bit length is "
           + divisorAbs.bitLength() + " but should only be at most " + maxDivisorBitLength);
     }
-
     /*
      * The quotient will have bit length < 2 * maxBitLength, and this has to be shifted maxBitLength
      * + divisorBitLength. So in total we need 3 * maxBitLength + divisorBitLength to be
@@ -80,7 +78,6 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
     int maxBitLength =
         (builder.getBasicNumericContext().getMaxBitLength() - divisorAbs.bitLength()) / 3;
     int shifts = maxBitLength + divisorAbs.bitLength();
-
     /*
      * Compute the sign of the dividend
      */
@@ -93,18 +90,16 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
      */
     BigInteger m = BigInteger.ONE.shiftLeft(shifts).divide(divisorAbs).add(BigInteger.ONE);
     DRes<SInt> quotientAbs = numeric.mult(m, dividendAbs);
-
     /*
      * Now quotientAbs is the result shifted SHIFTS bits to the left, so we shift it back to get the
      * result in absolute value, q.
      */
     DRes<SInt> q = builder.advancedNumeric().rightShift(quotientAbs, shifts);
-
     /*
      * Adjust the sign of the result.
      */
-    BigInteger oInt = BigInteger.valueOf(divisorSign);
-    DRes<SInt> sign = numeric.mult(oInt, dividendSign);
+    BigInteger openDivisorSign = BigInteger.valueOf(divisorSign);
+    DRes<SInt> sign = numeric.mult(openDivisorSign, dividendSign);
     return numeric.mult(q, sign);
   }
 }

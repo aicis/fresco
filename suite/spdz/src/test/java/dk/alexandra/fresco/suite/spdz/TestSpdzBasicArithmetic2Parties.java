@@ -2,8 +2,8 @@ package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
-import dk.alexandra.fresco.lib.math.integer.division.DivisionTests.TestEuclidianDivision;
-import dk.alexandra.fresco.lib.math.integer.division.DivisionTests.TestSecretSharedDivision;
+import dk.alexandra.fresco.lib.math.integer.division.DivisionTests.TestKnownDivisorDivision;
+import dk.alexandra.fresco.lib.math.integer.division.DivisionTests.TestDivision;
 import dk.alexandra.fresco.lib.math.integer.log.LogTests.TestLogarithm;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SqrtTests.TestSquareRoot;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
@@ -21,13 +21,13 @@ public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
   @Ignore
   @Test
   public void test_Division_Sequential_Batched() throws Exception {
-    runTest(new TestEuclidianDivision<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new TestKnownDivisorDivision<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_Secret_Shared_Division_Sequential_Batched() throws Exception {
-    runTest(new TestSecretSharedDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new TestDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
   }
 
