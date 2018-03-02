@@ -12,7 +12,7 @@ import java.math.BigInteger;
 
 /**
  * Returns a number which is approximately the input shifted a number of positions to the right. The
- * result will be one larger than the exact result with some non negligeble propability. If you need
+ * result will be one larger than the exact result with some non-negligible propability. If you need
  * the exact result you need to use {@link RightShift} instead, but this will be at a significant
  * performance cost.
  * 
