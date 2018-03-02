@@ -184,9 +184,8 @@ public class BasicFixedNumeric implements BasicRealNumeric {
   @Override
   public DRes<SReal> known(BigDecimal value) {
     return builder.seq(seq -> {
-      int precision = defaultPrecision;
       DRes<SInt> input = seq.numeric().known(unscaled(value, defaultPrecision));
-      return new SFixed(input, precision);
+      return new SFixed(input, defaultPrecision);
     });
   }
 
@@ -198,9 +197,8 @@ public class BasicFixedNumeric implements BasicRealNumeric {
   @Override
   public DRes<SReal> input(BigDecimal value, int inputParty) {
     return builder.seq(seq -> {
-      int precision = defaultPrecision;
       DRes<SInt> input = seq.numeric().input(unscaled(value, defaultPrecision), inputParty);
-      return new SFixed(input, precision);
+      return new SFixed(input, defaultPrecision);
     });
   }
 
