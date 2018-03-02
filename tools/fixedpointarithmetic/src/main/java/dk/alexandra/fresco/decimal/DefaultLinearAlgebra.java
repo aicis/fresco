@@ -151,14 +151,15 @@ public abstract class DefaultLinearAlgebra implements LinearAlgebra {
   /**
    * Multiply a matrix to a vector using the given inner product operator.
    * 
-   * @param builder
-   * @param a
-   * @param v
-   * @param innerProduct
-   * @return
+   * @param builder The builder to be used for this computation
+   * @param a Matrix of type <code>A</code>
+   * @param v Vector of type <code>B</code>
+   * @param innerProductOperator An inner product operator which takes the inner product of a vector
+   *        of type <code>A</code> and type <code>B</code> to produce a value of type <code>C</code>
+   * @return A vector of type <code>C</code> which is the product of the matrix and the vector
    */
   private <A, B, C> DRes<Vector<C>> operate(ProtocolBuilderNumeric builder, Matrix<A> a,
-      Vector<B> v, BiFunction<RealNumeric, Pair<List<A>, List<B>>, C> innerProduct) {
+      Vector<B> v, BiFunction<RealNumeric, Pair<List<A>, List<B>>, C> innerProductOperator) {
     return builder.par(par -> {
 
       if (a.getWidth() != v.size()) {
@@ -168,7 +169,7 @@ public abstract class DefaultLinearAlgebra implements LinearAlgebra {
 
       RealNumeric numeric = provider.apply(par);
       Vector<C> result =
-          a.getRows().stream().map(r -> innerProduct.apply(numeric, new Pair<>(r, v)))
+          a.getRows().stream().map(r -> innerProductOperator.apply(numeric, new Pair<>(r, v)))
               .collect(Collectors.toCollection(Vector::new));
       return () -> result;
     });
@@ -177,14 +178,15 @@ public abstract class DefaultLinearAlgebra implements LinearAlgebra {
   /**
    * Add two matrices using the given builder and fixed point add operation.
    * 
-   * @param builder
-   * @param a
-   * @param b
-   * @param add
-   * @return
+   * @param builder The builder to be used for this computation
+   * @param a Matrix of type <code>A</code>
+   * @param b Matrix of type <code>B</code>
+   * @param addOperator The addition operator which adds an element of type <code>A</code> and type
+   *        <code>B</code> to give an element of type <code>C</code>
+   * @return A matrix of type <code>C</code> which is the sum of the two matrices
    */
   private <A, B, C> DRes<Matrix<C>> add(ProtocolBuilderNumeric builder, Matrix<A> a, Matrix<B> b,
-      BiFunction<RealNumeric, Pair<A, B>, C> add) {
+      BiFunction<RealNumeric, Pair<A, B>, C> addOperator) {
     return builder.par(par -> {
       if (a.getWidth() != b.getWidth() || a.getHeight() != b.getHeight()) {
         throw new IllegalArgumentException("Matrices must have same sizes - " + a.getWidth() + "x"
@@ -196,7 +198,7 @@ public abstract class DefaultLinearAlgebra implements LinearAlgebra {
         List<A> rowA = a.getRow(i);
         List<B> rowB = b.getRow(i);
         for (int j = 0; j < a.getWidth(); j++) {
-          row.add(add.apply(numeric, new Pair<>(rowA.get(j), rowB.get(j))));
+          row.add(addOperator.apply(numeric, new Pair<>(rowA.get(j), rowB.get(j))));
         }
         return row;
       });
@@ -207,15 +209,15 @@ public abstract class DefaultLinearAlgebra implements LinearAlgebra {
   /**
    * Calculate the product of two matrices using the given builder and arithmetic operations.
    * 
-   * @param builder
-   * @param a
-   * @param b
-   * @param mult
-   * @param add
+   * @param builder The builder to be used for this computation
+   * @param a Matrix of type <code>A</code>
+   * @param b Matrix of type <code>B</code>
+   * @param innerProductOperator An inner product operator which takes the inner product of a vector
+   *        of type <code>A</code> and type <code>B</code> to produce a value of type <code>C</code>
    * @return
    */
   private <A, B, C> DRes<Matrix<C>> mult(ProtocolBuilderNumeric builder, Matrix<A> a, Matrix<B> b,
-      BiFunction<RealNumeric, Pair<List<A>, List<B>>, C> innerProduct) {
+      BiFunction<RealNumeric, Pair<List<A>, List<B>>, C> innerProductOperator) {
     return builder.par(par -> {
 
       if (a.getWidth() != b.getHeight()) {
@@ -228,7 +230,7 @@ public abstract class DefaultLinearAlgebra implements LinearAlgebra {
         ArrayList<C> row = new ArrayList<>(b.getWidth());
         List<A> rowA = a.getRow(i);
         for (int j = 0; j < b.getWidth(); j++) {
-          row.add(innerProduct.apply(numeric, new Pair<>(rowA, b.getColumn(j))));
+          row.add(innerProductOperator.apply(numeric, new Pair<>(rowA, b.getColumn(j))));
         }
         return row;
       });
@@ -239,18 +241,20 @@ public abstract class DefaultLinearAlgebra implements LinearAlgebra {
   /**
    * Scale the given matrix by a scalar using the given builder and multiplication operation.
    * 
-   * @param builder
-   * @param a
-   * @param b
-   * @param mult
+   * @param builder The builder to be used for this computation
+   * @param a A value of type <code>A</code>
+   * @param b Matrix of type <code>B</code>
+   * @param multiplicationOperator An multiplication operator which multiplies an element of type
+   *        <code>A</code> and type <code>B</code> to give an element of type <code>C</code>
    * @return
    */
   private <A, B, C> DRes<Matrix<C>> scale(ProtocolBuilderNumeric builder, A a, Matrix<B> b,
-      BiFunction<RealNumeric, Pair<A, B>, C> mult) {
+      BiFunction<RealNumeric, Pair<A, B>, C> multiplicationOperator) {
     return builder.par(par -> {
       RealNumeric numeric = provider.apply(par);
       Matrix<C> result = new Matrix<>(b.getHeight(), b.getWidth(),
-          i -> b.getRow(i).stream().map(x -> mult.apply(numeric, new Pair<>(a, x)))
+          i -> b.getRow(i).stream()
+              .map(x -> multiplicationOperator.apply(numeric, new Pair<>(a, x)))
               .collect(Collectors.toCollection(ArrayList::new)));
       return () -> result;
     });
