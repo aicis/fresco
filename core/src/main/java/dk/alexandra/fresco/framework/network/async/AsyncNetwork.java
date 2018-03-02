@@ -300,9 +300,8 @@ public class AsyncNetwork implements CloseableNetwork {
     if (conf.noOfParties() != 1 && temp.isDone()) {
       ExceptionConverter.safe(() -> temp.get(), "A previous receive operation failed");
     }
-    byte[] data = ExceptionConverter.safe(() ->
-      this.inQueues.get(partyId).take(), "Receive interrupted"
-    );
+    byte[] data =
+        ExceptionConverter.safe(() -> this.inQueues.get(partyId).take(), "Receive interrupted");
     return data;
   }
 
@@ -319,33 +318,35 @@ public class AsyncNetwork implements CloseableNetwork {
   }
 
   private void teardown() {
-    alive = false;
-    if (conf.noOfParties() < 2) {
-      logger.info("P{}: Network closed", conf.getMyId());
-      return;
+    if (alive) {
+      alive = false;
+      if (conf.noOfParties() < 2) {
+        logger.info("P{}: Network closed", conf.getMyId());
+        return;
+      }
+      ExceptionConverter.safe(() -> {
+        while (!outQueues.values().stream().allMatch(q -> q.isEmpty())) {
+          // Busy wait for outQueues to be empty
+        }
+        // Send one final message to stop the senders
+        byte[] killMessage = new byte[] {};
+        outQueues.keySet().stream().filter(i -> i != conf.getMyId()).map(i -> outQueues.get(i))
+            .forEach(q -> q.offer(killMessage));
+        if (communicationService != null) {
+          communicationService.shutdownNow();
+        }
+        if (this.server != null) {
+          this.server.close();
+        }
+        for (SocketChannel channel : this.channelMap.values()) {
+          channel.close();
+        }
+        logger.info("P{}: Network closed", conf.getMyId());
+        return null;
+      }, "Unable to properly close the network.");
+    } else {
+      logger.info("P{}: Network already closed", conf.getMyId());
     }
-    ExceptionConverter.safe(() -> {
-      while (!outQueues.values().stream().allMatch(q -> q.isEmpty())) {
-        // Busy wait for outQueues to be empty
-      }
-      // Send one final message to stop the senders
-      byte[] killMessage = new byte[] {};
-      outQueues.keySet().stream()
-        .filter(i -> i != conf.getMyId())
-        .map(i -> outQueues.get(i))
-        .forEach(q -> q.offer(killMessage));
-      if (communicationService != null) {
-        communicationService.shutdownNow();
-      }
-      if (this.server != null) {
-        this.server.close();
-      }
-      for (SocketChannel channel : this.channelMap.values()) {
-        channel.close();
-      }
-      logger.info("P{}: Network closed", conf.getMyId());
-      return null;
-    }, "Unable to properly close the network.");
   }
 
   /**
