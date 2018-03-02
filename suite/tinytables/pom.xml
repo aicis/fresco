@@ -7,7 +7,7 @@
   <parent>
     <groupId>dk.alexandra.fresco</groupId>
     <artifactId>fresco-protocol-suites-pom</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
@@ -28,7 +28,7 @@
     <dependency>
       <groupId>scapi</groupId>
       <artifactId>scapi</artifactId>
-      <!-- Normally version should be e.g. 2.4.0, but we currently use a custom version 
+      <!-- Normally version should be e.g. 2.4.0, but we currently use a custom version
            since we need the most recent changes for authenticated channels to work,
            see https://github.com/cryptobiu/scapi/issues/71. -->
       <version>dfc8b2da384d87310c8f755b301bc085b1557671</version>

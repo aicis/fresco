@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.maccheck;
 
-import dk.alexandra.fresco.framework.MPCException;
+import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -12,6 +12,7 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,15 +64,17 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
         comm = new MaliciousSpdzCommitProtocol(commitment, comms, corruptCommitRound1);
         openComm = new MaliciousSpdzOpenCommitProtocol(commitment, comms, commitments,
             corruptOpenCommitRound1);
-        pp = new SequentialProtocolProducer(new SingleProtocolProducer<>(comm),
-            new SingleProtocolProducer<>(openComm));
+        pp = new SequentialProtocolProducer(
+            Arrays.asList(
+                new SingleProtocolProducer<>(comm),
+                new SingleProtocolProducer<>(openComm)));
       } else if (round == 1) {
         if (!comm.out()) {
-          throw new MPCException(
+          throw new MaliciousException(
               "Malicious activity detected: Broadcast of commitments was not validated.");
         }
         if (!openComm.out()) {
-          throw new MPCException("Malicious activity detected: Opening commitments failed.");
+          throw new MaliciousException("Malicious activity detected: Opening commitments failed.");
         }
 
         this.as = storage.getOpenedValues();
@@ -99,10 +102,6 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
         List<SpdzElement> closedValues = storage.getClosedValues();
         // compute gamma_i as the sum of all MAC's on the opened values times
         // r_j.
-        if (closedValues.size() != t) {
-          throw new MPCException("Malicious activity detected: Amount of closed values does not "
-              + "equal the amount of partially opened values. Aborting!");
-        }
         BigInteger gamma = BigInteger.ZERO;
         index = 0;
         for (SpdzElement c : closedValues) {
@@ -119,15 +118,17 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
         commitments = new HashMap<>();
         openComm = new MaliciousSpdzOpenCommitProtocol(commitment, comms, commitments,
             corruptOpenCommitRound2);
-        pp = new SequentialProtocolProducer(new SingleProtocolProducer<>(comm),
-            new SingleProtocolProducer<>(openComm));
+        pp = new SequentialProtocolProducer(
+            Arrays.asList(
+                new SingleProtocolProducer<>(comm),
+                new SingleProtocolProducer<>(openComm)));
       } else {
         if (!comm.out()) {
-          throw new MPCException(
+          throw new MaliciousException(
               "Malicious activity detected: Broadcast of commitments was not validated.");
         }
         if (!openComm.out()) {
-          throw new MPCException("Malicious activity detected: Opening commitments failed.");
+          throw new MaliciousException("Malicious activity detected: Opening commitments failed.");
         }
         BigInteger deltaSum = BigInteger.ZERO;
         for (BigInteger d : commitments.values()) {
@@ -135,17 +136,17 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
         }
         deltaSum = deltaSum.mod(modulus);
         if (!deltaSum.equals(BigInteger.ZERO)) {
-          throw new MPCException(
+          throw new MaliciousException(
               "The sum of delta's was not 0. Someone was corrupting something amongst " + as.size()
                   + " macs. Sum was " + deltaSum.toString() + " Aborting!");
         }
         // clean up store before returning to evaluating such that we only
         // evaluate the next macs, not those we already checked.
         this.storage.reset();
-        pp = new SequentialProtocolProducer();
+        pp = null;
       }
     }
-    if (pp.hasNextProtocols()) {
+    if (pp != null && pp.hasNextProtocols()) {
       pp.getNextProtocols(protocolCollection);
     } else {
       round++;

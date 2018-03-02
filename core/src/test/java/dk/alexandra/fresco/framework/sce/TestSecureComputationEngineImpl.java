@@ -16,7 +16,6 @@ import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePool;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import org.junit.After;
 import org.junit.Before;
@@ -33,9 +32,9 @@ public class TestSecureComputationEngineImpl {
   public void setup() {
     DummyArithmeticProtocolSuite suite =
         new DummyArithmeticProtocolSuite(BigInteger.valueOf(101), 2);
-    ProtocolEvaluator<DummyArithmeticResourcePool, ProtocolBuilderNumeric> eval =
+    ProtocolEvaluator<DummyArithmeticResourcePool> evaluator =
         new BatchedProtocolEvaluator<>(new SequentialStrategy<>(), suite);
-    sce = new SecureComputationEngineImpl<>(suite, eval);
+    sce = new SecureComputationEngineImpl<>(suite, evaluator);
     sce.shutdownSCE(); // test this before setup
     sce.setup();
   }
@@ -46,16 +45,12 @@ public class TestSecureComputationEngineImpl {
   }
 
   @Test
-  public void testRunApplication() throws NoSuchAlgorithmException {
+  public void testRunApplication() {
     Application<BigInteger, ProtocolBuilderNumeric> app =
-        new Application<BigInteger, ProtocolBuilderNumeric>() {
-
-          @Override
-          public DRes<BigInteger> buildComputation(ProtocolBuilderNumeric builder) {
-            DRes<SInt> a = builder.numeric().known(BigInteger.valueOf(10));
-            DRes<SInt> b = builder.numeric().known(BigInteger.valueOf(10));
-            return builder.numeric().open(builder.numeric().add(a, b));
-          }
+        builder -> {
+          DRes<SInt> a = builder.numeric().known(BigInteger.valueOf(10));
+          DRes<SInt> b = builder.numeric().known(BigInteger.valueOf(10));
+          return builder.numeric().open(builder.numeric().add(a, b));
         };
     DummyArithmeticResourcePool rp =
         new DummyArithmeticResourcePoolImpl(0, 1, BigInteger.valueOf(101));
@@ -65,14 +60,10 @@ public class TestSecureComputationEngineImpl {
   }
 
   @Test(expected = RuntimeException.class)
-  public void testRunApplicationAppThrows() throws NoSuchAlgorithmException {
+  public void testRunApplicationAppThrows() {
     Application<Object, ProtocolBuilderNumeric> app =
-        new Application<Object, ProtocolBuilderNumeric>() {
-
-          @Override
-          public DRes<Object> buildComputation(ProtocolBuilderNumeric builder) {
-            throw new RuntimeException();
-          }
+        builder -> {
+          throw new RuntimeException();
         };
     DummyArithmeticResourcePool rp =
         new DummyArithmeticResourcePoolImpl(0, 1, BigInteger.valueOf(101));
@@ -81,15 +72,11 @@ public class TestSecureComputationEngineImpl {
   }
 
   @Test(expected = RuntimeException.class)
-  public void testRunApplicationAppTimesOut() throws NoSuchAlgorithmException {
+  public void testRunApplicationAppTimesOut() {
     Application<Object, ProtocolBuilderNumeric> app =
-        new Application<Object, ProtocolBuilderNumeric>() {
+        builder -> {
+          while (true) {
 
-          @Override
-          public DRes<Object> buildComputation(ProtocolBuilderNumeric builder) {
-            while (true) {
-
-            }
           }
         };
     DummyArithmeticResourcePool rp =

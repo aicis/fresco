@@ -93,7 +93,7 @@ public final class BuildStep<
    * @param secondFunction of the second protocol producer - will be lazy evaluated
    */
   public <FirstOutputT, SecondOutputT>
-  BuildStep<OutputT, BuilderT, Pair<FirstOutputT, SecondOutputT>> pairInPar(
+      BuildStep<OutputT, BuilderT, Pair<FirstOutputT, SecondOutputT>> pairInPar(
       FrescoLambda<OutputT, BuilderT, FirstOutputT> firstFunction,
       FrescoLambda<OutputT, BuilderT, SecondOutputT> secondFunction) {
     BuildStep<OutputT, BuilderT, Pair<FirstOutputT, SecondOutputT>>

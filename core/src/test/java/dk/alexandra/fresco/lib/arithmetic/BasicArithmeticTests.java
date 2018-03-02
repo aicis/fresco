@@ -106,6 +106,31 @@ public class BasicArithmeticTests {
     }
   }
 
+  public static class TestOpenWithConversion<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app = producer -> {
+            BigInteger modulus = producer.getBasicNumericContext().getModulus();
+            BigInteger input = modulus.divide(BigInteger.valueOf(2)).add(BigInteger.ONE);
+            Numeric numeric = producer.numeric();
+            DRes<SInt> closed = numeric.input(input, 1);
+            DRes<BigInteger> opened = numeric.open(closed);
+            BigInteger expected = input.subtract(modulus);
+            return () -> {
+              return new Pair<>(opened.out(), expected);
+            };
+          };
+          Pair<BigInteger, BigInteger> actualAndExpected = runApplication(app);
+          Assert.assertEquals(actualAndExpected.getSecond(), actualAndExpected.getFirst());
+        }
+      };
+    }
+  }
+
   public static class TestKnownSInt<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
@@ -212,7 +237,7 @@ public class BasicArithmeticTests {
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       BigInteger first = BigInteger.valueOf(10);
       BigInteger second = BigInteger.valueOf(5);
-      final int REPS = 20000;
+      final int repetitions = 20000;
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         @Override
@@ -228,12 +253,12 @@ public class BasicArithmeticTests {
                 DRes<SInt> secondClosed = pair.getSecond();
                 Numeric numeric = par.numeric();
                 ArrayList<DRes<SInt>> computations = new ArrayList<>();
-                for (int i = 0; i < REPS; i++) {
+                for (int i = 0; i < repetitions; i++) {
                   computations.add(numeric.mult(firstClosed, secondClosed));
                 }
                 return () -> computations;
-              }).seq((seq, computations) -> {
-                Numeric numeric = seq.numeric();
+              }).par((par, computations) -> {
+                Numeric numeric = par.numeric();
                 List<DRes<BigInteger>> opened =
                     computations.stream().map(numeric::open).collect(Collectors.toList());
                 return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
@@ -241,7 +266,7 @@ public class BasicArithmeticTests {
           List<BigInteger> output = runApplication(app);
 
           BigInteger multiply = first.multiply(second);
-          Assert.assertThat(output.size(), Is.is(REPS));
+          Assert.assertThat(output.size(), Is.is(repetitions));
           for (BigInteger result : output) {
             Assert.assertEquals(multiply, result);
           }
@@ -257,6 +282,7 @@ public class BasicArithmeticTests {
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
         public void test() throws Exception {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app = producer -> {
             List<BigInteger> bns = Arrays.asList(BigInteger.valueOf(10), BigInteger.valueOf(2),

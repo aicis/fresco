@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
@@ -21,6 +22,10 @@ public class DummyArithmeticProtocolSuite
   private final BigInteger modulus;
   private final int maxBitLength;
 
+  public DummyArithmeticProtocolSuite() {
+    this(ModulusFinder.findSuitableModulus(128), 32);
+  }
+
   public DummyArithmeticProtocolSuite(BigInteger modulus, int maxBitLength) {
     this.modulus = modulus;
     this.maxBitLength = maxBitLength;
@@ -29,7 +34,8 @@ public class DummyArithmeticProtocolSuite
   @Override
   public BuilderFactoryNumeric init(DummyArithmeticResourcePool resourcePool, Network network) {
     BasicNumericContext basicNumericContext =
-        new BasicNumericContext(maxBitLength, modulus, resourcePool);
+        new BasicNumericContext(maxBitLength, modulus, resourcePool.getMyId(),
+            resourcePool.getNoOfParties());
     return new DummyArithmeticBuilderFactory(basicNumericContext);
   }
 

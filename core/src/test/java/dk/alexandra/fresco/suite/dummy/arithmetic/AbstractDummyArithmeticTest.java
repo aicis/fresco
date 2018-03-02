@@ -5,7 +5,8 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.async.AsyncNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
@@ -35,26 +36,36 @@ import java.util.Map;
 public abstract class AbstractDummyArithmeticTest {
 
   protected Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
+  private final BigInteger defaultMod = new BigInteger(
+      "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
+  private final int defaultMaxBitLength = 200;
 
   /**
-   * Runs test with default modulus and no performance logging. i.e. standard test setup.
+   * Runs test with default modulus, max bit length, and no performance logging. i.e. standard test
+   * setup.
    */
   protected void runTest(
       TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
-      EvaluationStrategy evalStrategy, int noOfParties)
-      throws Exception {
-    BigInteger mod = new BigInteger(
-        "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
-    runTest(f, evalStrategy, noOfParties, mod, false);
+      EvaluationStrategy evalStrategy, int noOfParties) {
+    runTest(f, evalStrategy, noOfParties, defaultMod, defaultMaxBitLength, false);
   }
 
-  /**
-   * Runs test with all parameters free. Only the starting port of 9000 is chosen by default.
-   */
+  protected void runTest(
+      TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
+      EvaluationStrategy evalStrategy, int noOfParties, boolean logPerformance) {
+    runTest(f, evalStrategy, noOfParties, defaultMod, defaultMaxBitLength, logPerformance);
+  }
+
+  protected void runTest(
+      TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
+      EvaluationStrategy evalStrategy, int noOfParties, BigInteger modulus) {
+    runTest(f, evalStrategy, noOfParties, modulus, defaultMaxBitLength, false);
+  }
+
   protected void runTest(
       TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, int noOfParties,
-      BigInteger mod, boolean logPerformance) throws Exception {
+      BigInteger mod, int maxBitLength, boolean logPerformance) {
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * (noOfParties - 1));
@@ -66,14 +77,15 @@ public abstract class AbstractDummyArithmeticTest {
         new HashMap<>();
     for (int playerId : netConf.keySet()) {
       PerformanceLoggerCountingAggregate aggregate
-        = new PerformanceLoggerCountingAggregate();
+          = new PerformanceLoggerCountingAggregate();
 
       NetworkConfiguration partyNetConf = netConf.get(playerId);
 
-      ProtocolSuiteNumeric<DummyArithmeticResourcePool> ps = new DummyArithmeticProtocolSuite(mod, 200);
-      if(logPerformance){
+      ProtocolSuiteNumeric<DummyArithmeticResourcePool> ps = new DummyArithmeticProtocolSuite(mod,
+          maxBitLength);
+      if (logPerformance) {
         ps = new NumericSuiteLogging<>(ps);
-        aggregate.add((PerformanceLogger)ps);
+        aggregate.add((PerformanceLogger) ps);
       }
 
       BatchEvaluationStrategy<DummyArithmeticResourcePool> batchEvaluationStrategy =
@@ -83,7 +95,7 @@ public abstract class AbstractDummyArithmeticTest {
             new BatchEvaluationLoggingDecorator<>(batchEvaluationStrategy);
         aggregate.add((PerformanceLogger) batchEvaluationStrategy);
       }
-      ProtocolEvaluator<DummyArithmeticResourcePool, ProtocolBuilderNumeric> evaluator =
+      ProtocolEvaluator<DummyArithmeticResourcePool> evaluator =
           new BatchedProtocolEvaluator<>(batchEvaluationStrategy, ps);
       if (logPerformance) {
         evaluator = new EvaluatorLoggingDecorator<>(evaluator);
@@ -98,15 +110,15 @@ public abstract class AbstractDummyArithmeticTest {
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  noOfParties, drbg, mod),
+                  noOfParties, mod),
               () -> {
-                KryoNetNetwork kryoNetwork = new KryoNetNetwork(partyNetConf);
+                Network asyncNetwork = new AsyncNetwork(partyNetConf);
                 if (logPerformance) {
-                  NetworkLoggingDecorator network = new NetworkLoggingDecorator(kryoNetwork);
+                  NetworkLoggingDecorator network = new NetworkLoggingDecorator(asyncNetwork);
                   aggregate.add(network);
                   return network;
                 } else {
-                  return kryoNetwork;
+                  return asyncNetwork;
                 }
               });
 

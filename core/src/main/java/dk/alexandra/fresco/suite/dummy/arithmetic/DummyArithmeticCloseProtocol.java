@@ -32,11 +32,11 @@ public class DummyArithmeticCloseProtocol extends DummyArithmeticNativeProtocol<
   public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool rp, Network network) {
     if (round == 0) {
       if (targetId == rp.getMyId()) {
-        network.sendToAll(rp.getSerializer().toBytes((open.out())));
+        network.sendToAll(rp.getSerializer().serialize(open.out()));
       }
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else { //if (round == 1) {
-      BigInteger b = rp.getSerializer().toBigInteger(network.receive(targetId));
+      BigInteger b = rp.getSerializer().deserialize(network.receive(targetId));
       closed = new DummyArithmeticSInt(b);
       return EvaluationStatus.IS_DONE;
     }

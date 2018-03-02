@@ -33,7 +33,7 @@ import org.junit.Test;
 public class TestNumericSuiteLoggingDecorators {
 
   @Test
-  public void testNumericLoggingDecorator() throws Exception {
+  public void testNumericLoggingDecorator() {
     //Test a single conditional select (1 mult and 1 sub (consisting of 1 add)).
     TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f
         = ConditionalSelectTests.testSelectLeft();
@@ -63,7 +63,7 @@ public class TestNumericSuiteLoggingDecorators {
           new NumericSuiteLogging<>(new DummyArithmeticProtocolSuite(mod, 200));
       performanceLoggers.put(playerId, ps);
       BatchEvaluationStrategy<DummyArithmeticResourcePool> strat = evalStrategy.getStrategy();
-      ProtocolEvaluator<DummyArithmeticResourcePool, ProtocolBuilderNumeric> evaluator
+      ProtocolEvaluator<DummyArithmeticResourcePool> evaluator
           = new BatchedProtocolEvaluator<>(strat, ps);
       SecureComputationEngine<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce
           = new SecureComputationEngineImpl<>(ps, evaluator);
@@ -72,10 +72,8 @@ public class TestNumericSuiteLoggingDecorators {
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  noOfParties, drbg, mod),
-              () -> {
-                return new KryoNetNetwork(partyNetConf);
-              });
+                  noOfParties, mod),
+              () -> new KryoNetNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
@@ -101,7 +99,7 @@ public class TestNumericSuiteLoggingDecorators {
   }
 
   @Test
-  public void testComparisonLoggingDecorator() throws Exception {
+  public void testComparisonLoggingDecorator() {
     TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f
         = new CompareTests.TestCompareEQ<>();
 
@@ -131,8 +129,8 @@ public class TestNumericSuiteLoggingDecorators {
       performanceLoggers.put(playerId, ps);
 
       BatchEvaluationStrategy<DummyArithmeticResourcePool> strat = evalStrategy.getStrategy();
-      ProtocolEvaluator<DummyArithmeticResourcePool, ProtocolBuilderNumeric> evaluator
-          = new BatchedProtocolEvaluator<>(strat, ps);
+      ProtocolEvaluator<DummyArithmeticResourcePool> evaluator = new BatchedProtocolEvaluator<>(
+          strat, ps);
       SecureComputationEngine<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce
           = new SecureComputationEngineImpl<>(ps, evaluator);
 
@@ -140,10 +138,8 @@ public class TestNumericSuiteLoggingDecorators {
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  noOfParties, drbg, mod),
-              () -> {
-                return new KryoNetNetwork(partyNetConf);
-              });
+                  noOfParties, mod),
+              () -> new KryoNetNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);

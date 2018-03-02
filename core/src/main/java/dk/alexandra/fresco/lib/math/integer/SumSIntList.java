@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * ComputationBuilder for summing a list of SInts
+ * ComputationBuilder for summing a list of SInts.
  */
 public class SumSIntList implements Computation<SInt, ProtocolBuilderNumeric> {
 

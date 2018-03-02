@@ -2,7 +2,6 @@ package dk.alexandra.fresco.network;
 
 import static org.junit.Assert.assertTrue;
 
-import dk.alexandra.fresco.framework.MPCException;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -55,7 +54,7 @@ public class TestScapiNetwork {
       network.init(netConf.get(i), 1);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderNumeric> ttc =
           new TestThreadConfiguration<>(null,
-              () -> new ResourcePoolImpl(i, n, null), () -> network);
+              () -> new ResourcePoolImpl(i, n), () -> network);
       conf.put(i, ttc);
     }
     TestThreadRunner.run(test, conf);
@@ -103,7 +102,7 @@ public class TestScapiNetwork {
       network.init(netConf.get(i), 1);
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderNumeric> ttc =
           new TestThreadConfiguration<>(null,
-              () -> new ResourcePoolImpl(i, n, null), () -> network);
+              () -> new ResourcePoolImpl(i, n), () -> network);
       conf.put(i, ttc);
     }
     return conf;
@@ -214,7 +213,7 @@ public class TestScapiNetwork {
                   boolean exception = false;
                   try {
                     network.send(4, data);
-                  } catch (MPCException e) {
+                  } catch (IllegalArgumentException e) {
                     exception = true;
                   }
                   assertTrue(exception);

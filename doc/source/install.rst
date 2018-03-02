@@ -3,56 +3,56 @@
 Installation
 ============
 
-FRESCO is designed to run on Linux, Mac OS X, and Windows.
+FRESCO is designed to run on Linux, MacOS, and Windows. The following installation guide is tested
+on Linux and MacOS.
 
+Building FRESCO from Source
+---------------------------
 
-Downloading a Pre-Built FRESCO Release
---------------------------------------
+The preferred way to install FRESCO is by building it from the latest source from GitHub. To do
+this, make sure you have installed `git <http://git-scm.org>`_, `Java 8 <http://java.com>`_, and
+`Maven <https://maven.apache.org/>`_.
 
-You can download the latest release of FRESCO from :ref:`here
-<releases>`.
+Then in a terminal run: ::
 
+  git clone https://github.com/aicis/fresco.git
+  cd fresco
+  mvn install
 
-Installing FRESCO from Source
------------------------------
+This will download the FRESCO source code and dependencies, compile all the FRESCO modules, and run
+the test suite. On a successful build Maven should install the FRESCO modules on your system and a JAR file can now be found in the ``./target`` directory of each corresponding module, as well
+as in your local Maven repository. Note, that the test suite executed on ``mvn install`` can take
+several minutes. To skip the tests and only run the build, use ``mvn install -DskipTests``.
 
-To install from source, make sure you have installed `git
-<http://git-scm.org>`_, `Java 1.8 <http://java.com>`_, and `Maven
-<https://maven.apache.org/>`_. Then run: ::
+If you use Maven for your project you can then use a FRESCO module by adding it as a dependency in
+your projects POM file. E.g., to use the ``core`` module add the dependency
 
-  $ git clone https://github.com/aicis/fresco/fresco.git
-  $ cd fresco/core
-  $ mvn install
+.. sourcecode:: xml
 
-This will download some dependencies, compile the FRESCO core, and runs our
-extensive test suite. If everything works fine Maven installs FRESCO on your
-system and a FRESCO JAR file can now be found in the ``./target`` folder as well
-as in your local maven repository.
+  <dependency>
+    <groupId>dk.alexandra.fresco</groupId>
+    <artifactId>core</artifactId>
+    <version>1.0.1-SNAPSHOT</version>
+  </dependency>
 
-FRESCO is split up into several projects in order to better manage
-dependencies. We have the following projects which are all included in your git
-clone you just fetched:
+possibly incrementing the version number to the current version.
 
-- core
-- suite
-- demos
-- scapiNetwork
-- tools
+Using the Latest Release
+------------------------
 
-The core project contains the :ref:`standard library<STD_LIB>` as well as the
-two :ref:`dummy protocol suites<DUMMY_BOOL>`. It essentially contains all you
-need to be able to run a secure computation.
+If you prefer to install the a released version of FRESCO you can get the source from the release
+site https://github.com/aicis/fresco/releases, and run ``mvn install`` as described above.
 
-The suite project contains all the actually secure protocol suites that FRESCO
-currently can run.
+Alternatively If your project uses Maven you could just add the dependency to your projects POM file
+and have Maven download the dependency from the Central Repository. E.g., to use a release version
+of the ``core`` module add the dependency
 
-Demos are demonstrators which shows different applications in actual use. It
-should be fairly straightforward to take the jar file these generate and run
-them on different machines. The AES demo is chosen as the :ref:`quickstart
-tutorial<Quickstart>`, where we go into greater depths of the inner workings.
+.. sourcecode:: xml
 
-ScapiNetwork is an example of how to create a different network implementation
-and use this instead.
+  <dependency>
+    <groupId>dk.alexandra.fresco</groupId>
+    <artifactId>core</artifactId>
+    <version>1.0.0</version>
+  </dependency>
 
-Tools contains projects that either helps the developer or is a standalone tool
-which can help in certain situations. 
+possibly adjusting the version tag to the desired version.

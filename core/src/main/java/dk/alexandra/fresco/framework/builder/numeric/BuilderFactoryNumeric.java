@@ -21,8 +21,6 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
  */
 public interface BuilderFactoryNumeric extends BuilderFactory<ProtocolBuilderNumeric> {
 
-  int MAGIC_SECURE_NUMBER = 60;
-
   BasicNumericContext getBasicNumericContext();
 
   Numeric createNumeric(ProtocolBuilderNumeric builder);

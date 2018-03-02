@@ -32,41 +32,42 @@ import org.junit.Test;
 
 public class TestGenericLoggingDecorators {
 
-  private final BigInteger mod 
-    = new BigInteger("6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
-  
+  private final BigInteger mod
+      = new BigInteger(
+      "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
+
   @Test
-  public void testEvaluatorLoggingDecorator() throws Exception {
+  public void testEvaluatorLoggingDecorator() {
     TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f
         = new CompareTests.TestCompareEQ<>();
 
-    EvaluationStrategy evalStrategy = EvaluationStrategy.SEQUENTIAL; 
+    EvaluationStrategy evalStrategy = EvaluationStrategy.SEQUENTIAL;
     Map<Integer, NetworkConfiguration> netConf = getNetConf();
-    Map<Integer, TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>> conf =
-        new HashMap<>();
+    Map<Integer,
+        TestThreadRunner.TestThreadConfiguration<
+            DummyArithmeticResourcePool,
+            ProtocolBuilderNumeric>> conf = new HashMap<>();
 
     List<PerformanceLogger> decoratedLoggers = new ArrayList<>();
     for (int playerId : netConf.keySet()) {
       NetworkConfiguration partyNetConf = netConf.get(playerId);
-      
+
       DummyArithmeticProtocolSuite ps = new DummyArithmeticProtocolSuite(mod, 200);
       BatchEvaluationStrategy<DummyArithmeticResourcePool> strat = evalStrategy.getStrategy();
-      ProtocolEvaluator<DummyArithmeticResourcePool, ProtocolBuilderNumeric> evaluator 
+      ProtocolEvaluator<DummyArithmeticResourcePool> evaluator
           = new BatchedProtocolEvaluator<>(strat, ps);
       EvaluatorLoggingDecorator<DummyArithmeticResourcePool, ProtocolBuilderNumeric> decoratedEvaluator
           = new EvaluatorLoggingDecorator<>(evaluator);
-      SecureComputationEngine<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce 
+      SecureComputationEngine<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce
           = new SecureComputationEngineImpl<>(ps, decoratedEvaluator);
       decoratedLoggers.add(decoratedEvaluator);
-      
+
       Drbg drbg = new HmacDrbg();
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  netConf.keySet().size(), drbg, mod),
-              () -> {
-                return new KryoNetNetwork(partyNetConf);
-              });
+                  netConf.keySet().size(), mod),
+              () -> new KryoNetNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
@@ -74,20 +75,20 @@ public class TestGenericLoggingDecorators {
     PerformanceLogger performanceLogger = decoratedLoggers.get(0);
 
     Map<String, Long> loggedValues = performanceLogger.getLoggedValues();
-    long runningTime = loggedValues.get(EvaluatorLoggingDecorator.SCE_RUNNINGTIMES+0);
+    long runningTime = loggedValues.get(EvaluatorLoggingDecorator.SCE_RUNNINGTIMES + 0);
     assertTrue(runningTime > 0);
     performanceLogger.reset();
     loggedValues = performanceLogger.getLoggedValues();
     assertTrue(loggedValues.size() == 0);
-  }  
+  }
 
   @Test
-  public void testNetworkLoggingDecorator() throws Exception {
-    
+  public void testNetworkLoggingDecorator() {
+
     TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f
         = new CompareTests.TestCompareLT<>();
 
-    EvaluationStrategy evalStrategy = EvaluationStrategy.SEQUENTIAL; 
+    EvaluationStrategy evalStrategy = EvaluationStrategy.SEQUENTIAL;
     Map<Integer, NetworkConfiguration> netConf = getNetConf();
     Map<Integer, TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
@@ -95,21 +96,22 @@ public class TestGenericLoggingDecorators {
     List<PerformanceLogger> decoratedLoggers = Collections.synchronizedList(new ArrayList<>());
     for (int playerId : netConf.keySet()) {
       NetworkConfiguration partyNetConf = netConf.get(playerId);
-      
+
       DummyArithmeticProtocolSuite ps = new DummyArithmeticProtocolSuite(mod, 200);
       BatchEvaluationStrategy<DummyArithmeticResourcePool> strat = evalStrategy.getStrategy();
-      ProtocolEvaluator<DummyArithmeticResourcePool, ProtocolBuilderNumeric> evaluator 
+      ProtocolEvaluator<DummyArithmeticResourcePool> evaluator
           = new BatchedProtocolEvaluator<>(strat, ps);
-      SecureComputationEngine<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce 
+      SecureComputationEngine<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce
           = new SecureComputationEngineImpl<>(ps, evaluator);
-      
+
       Drbg drbg = new HmacDrbg();
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  netConf.keySet().size(), drbg, mod),
+                  netConf.keySet().size(), mod),
               () -> {
-                NetworkLoggingDecorator network = new NetworkLoggingDecorator(new KryoNetNetwork(partyNetConf));
+                NetworkLoggingDecorator network = new NetworkLoggingDecorator(
+                    new KryoNetNetwork(partyNetConf));
                 decoratedLoggers.add(network);
                 return network;
               });
@@ -120,24 +122,25 @@ public class TestGenericLoggingDecorators {
     PerformanceLogger performanceLogger = decoratedLoggers.get(0);
 
     Map<String, Long> loggedValues = performanceLogger.getLoggedValues();
-    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), is((long)132));
-    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BATCHES), is((long)2));
-    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_PARTY_BYTES+"_1"), is((long)132));
+    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), is((long) 132));
+    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BATCHES), is((long) 2));
+    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_PARTY_BYTES + "_1"),
+        is((long) 132));
     performanceLogger.reset();
 
     loggedValues = performanceLogger.getLoggedValues();
-    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), is((long)0));
-    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BATCHES), is((long)0));
+    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), is((long) 0));
+    assertThat(loggedValues.get(NetworkLoggingDecorator.NETWORK_TOTAL_BATCHES), is((long) 0));
     assertThat(loggedValues.size(), is(2));
   }
-  
+
   @Test
-  public void testBatchEvaluationLoggingDecorator() throws Exception {
-    
+  public void testBatchEvaluationLoggingDecorator() {
+
     TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f
         = new BasicArithmeticTests.TestSumAndMult<>();
 
-    EvaluationStrategy evalStrategy = EvaluationStrategy.SEQUENTIAL; 
+    EvaluationStrategy evalStrategy = EvaluationStrategy.SEQUENTIAL;
 
     Map<Integer, NetworkConfiguration> netConf = getNetConf();
 
@@ -147,43 +150,45 @@ public class TestGenericLoggingDecorators {
     List<PerformanceLogger> decoratedLoggers = new ArrayList<>();
     for (int playerId : netConf.keySet()) {
       NetworkConfiguration partyNetConf = netConf.get(playerId);
-      
+
       DummyArithmeticProtocolSuite ps = new DummyArithmeticProtocolSuite(mod, 200);
       BatchEvaluationStrategy<DummyArithmeticResourcePool> strat = evalStrategy.getStrategy();
       BatchEvaluationLoggingDecorator<DummyArithmeticResourcePool> decoratedStrat =
           new BatchEvaluationLoggingDecorator<>(strat);
       decoratedLoggers.add(decoratedStrat);
-      
-      ProtocolEvaluator<DummyArithmeticResourcePool, ProtocolBuilderNumeric> evaluator 
+
+      ProtocolEvaluator<DummyArithmeticResourcePool> evaluator
           = new BatchedProtocolEvaluator<>(decoratedStrat, ps);
-      SecureComputationEngine<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce 
+      SecureComputationEngine<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce
           = new SecureComputationEngineImpl<>(ps, evaluator);
-      
+
       Drbg drbg = new HmacDrbg();
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  netConf.keySet().size(), drbg, mod),
-              () -> {
-                return new KryoNetNetwork(partyNetConf);
-              });
+                  netConf.keySet().size(), mod),
+              () -> new KryoNetNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
 
     PerformanceLogger performanceLogger = decoratedLoggers.get(0);
     Map<String, Long> loggedValues = performanceLogger.getLoggedValues();
-    assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_COUNTER), is((long)8));
-    assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_NATIVE_PROTOCOLS), is((long)43));
-    assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MIN_PROTOCOLS), is((long)1));
-    assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MAX_PROTOCOLS), is((long)21));
+    assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_COUNTER), is((long) 8));
+    assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_NATIVE_PROTOCOLS),
+        is((long) 43));
+    assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MIN_PROTOCOLS), is((long) 1));
+    assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MAX_PROTOCOLS),
+        is((long) 21));
 
     performanceLogger.reset();
     loggedValues = performanceLogger.getLoggedValues();
-    assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_COUNTER), is((long)0));
-    assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_NATIVE_PROTOCOLS), is((long)0));
-    assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MIN_PROTOCOLS), is((long)Integer.MAX_VALUE));
-    assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MAX_PROTOCOLS), is((long)0));
+    assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_COUNTER), is((long) 0));
+    assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_NATIVE_PROTOCOLS),
+        is((long) 0));
+    assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MIN_PROTOCOLS),
+        is((long) Integer.MAX_VALUE));
+    assertThat(loggedValues.get(BatchEvaluationLoggingDecorator.BATCH_MAX_PROTOCOLS), is((long) 0));
   }
 
   private Map<Integer, NetworkConfiguration> getNetConf() {

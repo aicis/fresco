@@ -15,14 +15,18 @@ public class SpdzProtocolSuite implements ProtocolSuiteNumeric<SpdzResourcePool>
 
   @Override
   public BuilderFactoryNumeric init(SpdzResourcePool resourcePool, Network network) {
-    BasicNumericContext spdzFactory =
-        new BasicNumericContext(maxBitLength, resourcePool.getModulus(), resourcePool);
-    return new SpdzBuilder(spdzFactory);
+    BasicNumericContext numericContext = createNumericContext(resourcePool);
+    return new SpdzBuilder(numericContext);
+  }
+
+  BasicNumericContext createNumericContext(SpdzResourcePool resourcePool) {
+    return new BasicNumericContext(maxBitLength, resourcePool.getModulus(),
+        resourcePool.getMyId(), resourcePool.getNoOfParties());
   }
 
   @Override
   public RoundSynchronization<SpdzResourcePool> createRoundSynchronization() {
-    return new SpdzRoundSynchronization();
+    return new SpdzRoundSynchronization(this);
   }
 
 }

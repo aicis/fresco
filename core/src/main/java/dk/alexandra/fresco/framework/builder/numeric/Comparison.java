@@ -17,7 +17,16 @@ public interface Comparison extends ComputationDirectory {
    * @return A deferred result computing x == y
    */
   DRes<SInt> equals(int bitLength, DRes<SInt> x, DRes<SInt> y);
-
+  
+  /**
+   * Computes x == y.
+   *
+   * @param x input
+   * @param y input
+   * @return A deferred result computing x == y. Result will be either [1] (true) or [0] (false).
+   */
+  DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y);
+  
   /**
    * Computes if x1 <= x2.
    * @param x1 input
@@ -37,15 +46,6 @@ public interface Comparison extends ComputationDirectory {
    */
   DRes<SInt> compareLEQLong(DRes<SInt> x1, DRes<SInt> x2);
 
-  /**
-   * Computes x == y.
-   *
-   * @param x input
-   * @param y input
-   * @return A deferred result computing x == y. Result will be either [1] (true) or [0] (false).
-   */
-  DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y);
-  
   /**
    * Computes the sign of the value (positive or negative)
    * 

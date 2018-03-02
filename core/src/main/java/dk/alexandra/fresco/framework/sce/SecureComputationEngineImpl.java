@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
+import dk.alexandra.fresco.framework.ProtocolEvaluator.EvaluationStatistics;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -28,7 +29,7 @@ public class SecureComputationEngineImpl
     <ResourcePoolT extends ResourcePool, BuilderT extends ProtocolBuilder>
     implements SecureComputationEngine<ResourcePoolT, BuilderT> {
 
-  private ProtocolEvaluator<ResourcePoolT, BuilderT> evaluator;
+  private ProtocolEvaluator<ResourcePoolT> evaluator;
   private ExecutorService executorService;
   private boolean setup;
   private ProtocolSuite<ResourcePoolT, BuilderT> protocolSuite;
@@ -42,7 +43,7 @@ public class SecureComputationEngineImpl
    * @param evaluator the {@link ProtocolEvaluator} to run secure evaluation.
    */
   public SecureComputationEngineImpl(ProtocolSuite<ResourcePoolT, BuilderT> protocolSuite,
-      ProtocolEvaluator<ResourcePoolT, BuilderT> evaluator) {
+      ProtocolEvaluator<ResourcePoolT> evaluator) {
     this.protocolSuite = protocolSuite;
     this.evaluator = evaluator;
     this.setup = false;
@@ -70,14 +71,19 @@ public class SecureComputationEngineImpl
   }
 
   private <OutputT> DRes<OutputT> evalApplication(Application<OutputT, BuilderT> application,
-      ResourcePoolT resourcePool, Network network) throws Exception {
+      ResourcePoolT resourcePool, Network network) {
     logger.info(
         "Running application: " + application + " using protocol suite: " + this.protocolSuite);
     BuilderFactory<BuilderT> protocolFactory = this.protocolSuite.init(resourcePool, network);
     BuilderT builder = protocolFactory.createSequential();
-    DRes<OutputT> output = application.buildComputation(builder);
+    final DRes<OutputT> output = application.buildComputation(builder);
     long then = System.currentTimeMillis();
-    this.evaluator.eval(builder.build(), resourcePool, network);
+    EvaluationStatistics eval = this.evaluator.eval(builder.build(), resourcePool, network);
+
+    logger.debug("Evaluator done."
+        + " Evaluated a total of " + eval.getNativeProtocols()
+        + " native protocols in " + eval.getBatches() + " batches.");
+
     long now = System.currentTimeMillis();
     long timeSpent = now - then;
     logger.info("The application {} finished evaluation in {} ms.", application, timeSpent);
