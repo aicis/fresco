@@ -28,26 +28,10 @@ public class BasicFixedNumeric implements BasicRealNumeric {
     this(builder, 16, 48);
   }
 
-  /**
-   * Return the unscaled value of a fixed point representation of the given public <i>value</i> with
-   * the given scale.
-   * 
-   * @param value
-   * @param scale
-   * @return
-   */
   private BigInteger unscaled(BigDecimal value, int scale) {
     return value.multiply(new BigDecimal(BASE.pow(scale))).toBigInteger();
   }
 
-  /**
-   * Returns the unscaled value og the given secret <i>value</i> with the given scale.
-   * 
-   * @param scope
-   * @param value
-   * @param scale
-   * @return
-   */
   private DRes<SInt> unscaled(ProtocolBuilderNumeric scope, SFixed value, int scale) {
     return scale(scope, value.getSInt(), scale - value.getScale());
   }
@@ -56,8 +40,8 @@ public class BasicFixedNumeric implements BasicRealNumeric {
    * Return the value represented by the fixed point representation <i>unscaled *
    * 2<sup>-scale</sup></i>.
    * 
-   * @param unscaled
-   * @param scale
+   * @param unscaled The unscaled value
+   * @param scale The scale
    * @return
    */
   private BigDecimal scaled(BigInteger unscaled, int scale) {
