@@ -42,7 +42,7 @@ public interface LinearAlgebra extends ComputationDirectory {
    * @param v Secret value 2
    * @return A deferred result computing a*v
    */
-  DRes<Vector<DRes<SReal>>> operate(DRes<Matrix<DRes<SReal>>> a, DRes<Vector<DRes<SReal>>> v);
+  DRes<Vector<DRes<SReal>>> vectorMult(DRes<Matrix<DRes<SReal>>> a, DRes<Vector<DRes<SReal>>> v);
 
   /**
    * Multiply a matrix to a vector.
@@ -51,7 +51,7 @@ public interface LinearAlgebra extends ComputationDirectory {
    * @param v Public vector
    * @return A deferred result computing a*v
    */
-  DRes<Vector<DRes<SReal>>> operate(DRes<Matrix<DRes<SReal>>> a, Vector<BigDecimal> v);
+  DRes<Vector<DRes<SReal>>> vectorMult(DRes<Matrix<DRes<SReal>>> a, Vector<BigDecimal> v);
 
   /**
    * Multiply a matrix to a vector.
@@ -60,7 +60,7 @@ public interface LinearAlgebra extends ComputationDirectory {
    * @param v Secret vector
    * @return A deferred result computing a*v
    */
-  DRes<Vector<DRes<SReal>>> operate(Matrix<BigDecimal> a, DRes<Vector<DRes<SReal>>> v);
+  DRes<Vector<DRes<SReal>>> vectorMult(Matrix<BigDecimal> a, DRes<Vector<DRes<SReal>>> v);
 
   /**
    * Multiplies a public value onto a secret value and returns the result.

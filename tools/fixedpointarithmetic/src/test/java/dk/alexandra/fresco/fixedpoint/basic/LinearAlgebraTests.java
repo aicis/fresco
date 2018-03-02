@@ -315,9 +315,9 @@ public class LinearAlgebraTests {
             DRes<Matrix<DRes<SReal>>> closedMatrix = fixed.linalg().input(matrix, 1);
             DRes<Vector<DRes<SReal>>> closedVector = fixed.linalg().input(vector, 1);
 
-            DRes<Vector<DRes<SReal>>> res1 = fixed.linalg().operate(closedMatrix, closedVector);
-            DRes<Vector<DRes<SReal>>> res2 = fixed.linalg().operate(matrix, closedVector);
-            DRes<Vector<DRes<SReal>>> res3 = fixed.linalg().operate(closedMatrix, vector);
+            DRes<Vector<DRes<SReal>>> res1 = fixed.linalg().vectorMult(closedMatrix, closedVector);
+            DRes<Vector<DRes<SReal>>> res2 = fixed.linalg().vectorMult(matrix, closedVector);
+            DRes<Vector<DRes<SReal>>> res3 = fixed.linalg().vectorMult(closedMatrix, vector);
 
             DRes<Vector<DRes<BigDecimal>>> open1 = fixed.linalg().openVector(res1);
             DRes<Vector<DRes<BigDecimal>>> open2 = fixed.linalg().openVector(res2);

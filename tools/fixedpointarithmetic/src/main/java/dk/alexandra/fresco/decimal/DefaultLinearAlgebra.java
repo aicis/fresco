@@ -124,7 +124,7 @@ public abstract class DefaultLinearAlgebra implements LinearAlgebra {
   }
 
   @Override
-  public DRes<Vector<DRes<SReal>>> operate(DRes<Matrix<DRes<SReal>>> a,
+  public DRes<Vector<DRes<SReal>>> vectorMult(DRes<Matrix<DRes<SReal>>> a,
       DRes<Vector<DRes<SReal>>> v) {
     return builder.par(par -> {
       return operate(par, a.out(), v.out(),
@@ -133,7 +133,7 @@ public abstract class DefaultLinearAlgebra implements LinearAlgebra {
   }
 
   @Override
-  public DRes<Vector<DRes<SReal>>> operate(DRes<Matrix<DRes<SReal>>> a, Vector<BigDecimal> v) {
+  public DRes<Vector<DRes<SReal>>> vectorMult(DRes<Matrix<DRes<SReal>>> a, Vector<BigDecimal> v) {
     return builder.par(par -> {
       return operate(par, a.out(), v,
           (scope, x) -> scope.advanced().innerProductWithPublicPart(x.getSecond(), x.getFirst()));
@@ -141,7 +141,7 @@ public abstract class DefaultLinearAlgebra implements LinearAlgebra {
   }
 
   @Override
-  public DRes<Vector<DRes<SReal>>> operate(Matrix<BigDecimal> a, DRes<Vector<DRes<SReal>>> v) {
+  public DRes<Vector<DRes<SReal>>> vectorMult(Matrix<BigDecimal> a, DRes<Vector<DRes<SReal>>> v) {
     return builder.par(par -> {
       return operate(par, a, v.out(),
           (scope, x) -> scope.advanced().innerProductWithPublicPart(x.getFirst(), x.getSecond()));
