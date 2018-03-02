@@ -127,7 +127,7 @@ public abstract class DefaultLinearAlgebra implements LinearAlgebra {
   public DRes<Vector<DRes<SReal>>> vectorMult(DRes<Matrix<DRes<SReal>>> a,
       DRes<Vector<DRes<SReal>>> v) {
     return builder.par(par -> {
-      return operate(par, a.out(), v.out(),
+      return vectorMult(par, a.out(), v.out(),
           (scope, x) -> scope.advanced().innerProduct(x.getFirst(), x.getSecond()));
     });
   }
@@ -135,7 +135,7 @@ public abstract class DefaultLinearAlgebra implements LinearAlgebra {
   @Override
   public DRes<Vector<DRes<SReal>>> vectorMult(DRes<Matrix<DRes<SReal>>> a, Vector<BigDecimal> v) {
     return builder.par(par -> {
-      return operate(par, a.out(), v,
+      return vectorMult(par, a.out(), v,
           (scope, x) -> scope.advanced().innerProductWithPublicPart(x.getSecond(), x.getFirst()));
     });
   }
@@ -143,7 +143,7 @@ public abstract class DefaultLinearAlgebra implements LinearAlgebra {
   @Override
   public DRes<Vector<DRes<SReal>>> vectorMult(Matrix<BigDecimal> a, DRes<Vector<DRes<SReal>>> v) {
     return builder.par(par -> {
-      return operate(par, a, v.out(),
+      return vectorMult(par, a, v.out(),
           (scope, x) -> scope.advanced().innerProductWithPublicPart(x.getFirst(), x.getSecond()));
     });
   }
@@ -158,7 +158,7 @@ public abstract class DefaultLinearAlgebra implements LinearAlgebra {
    *        of type <code>A</code> and type <code>B</code> to produce a value of type <code>C</code>
    * @return A vector of type <code>C</code> which is the product of the matrix and the vector
    */
-  private <A, B, C> DRes<Vector<C>> operate(ProtocolBuilderNumeric builder, Matrix<A> a,
+  private <A, B, C> DRes<Vector<C>> vectorMult(ProtocolBuilderNumeric builder, Matrix<A> a,
       Vector<B> v, BiFunction<RealNumeric, Pair<List<A>, List<B>>, C> innerProductOperator) {
     return builder.par(par -> {
 
