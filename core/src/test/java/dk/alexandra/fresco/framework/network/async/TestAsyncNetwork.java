@@ -47,31 +47,31 @@ public class TestAsyncNetwork {
 
   // TEST CONNECT
 
-  @Test
+  @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS)
   public void testConnectOneParty() {
     networks = createNetworks(1);
   }
 
-  @Test
+  @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS)
   public void testConnectTwoParties() {
     networks = createNetworks(2);
   }
 
-  @Test
+  @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS)
   public void testConnectMultipleParties() {
     networks = createNetworks(7);
   }
 
   // TEST CLOSE
 
-  @Test
+  @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS)
   public void testClose() {
     networks = createNetworks(3);
     closeNetworks(networks);
   }
 
   @SuppressWarnings("resource")
-  @Test(expected = RuntimeException.class)
+  @Test(expected = RuntimeException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
   public void testNegativeTimeout() {
     List<NetworkConfiguration> conf = getNetConfs(2);
     new AsyncNetwork(conf.get(1), Duration.ofMillis(-10));
@@ -233,25 +233,25 @@ public class TestAsyncNetwork {
     }
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
   public void testSendToNegativePartyId() {
     networks = createNetworks(1);
     networks.get(1).send(-1, new byte[] { 0x01 });
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
   public void testSendToTooLargePartyId() {
     networks = createNetworks(1);
     networks.get(1).send(2, new byte[] { 0x01 });
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
   public void testReceiveFromNegativePartyId() {
     networks = createNetworks(1);
     networks.get(1).receive(-1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
   public void testReceiveFromTooLargePartyId() {
     networks = createNetworks(1);
     networks.get(1).receive(2);
