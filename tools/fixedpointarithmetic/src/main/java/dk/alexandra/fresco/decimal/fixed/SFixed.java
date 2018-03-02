@@ -11,7 +11,7 @@ import dk.alexandra.fresco.framework.value.SInt;
  */
 public class SFixed implements SReal, DRes<SReal> {
   private final DRes<SInt> value;
-  private int scale;
+  private final int scale;
 
   public SFixed(DRes<SInt> value, int scale) {
     this.value = value;
