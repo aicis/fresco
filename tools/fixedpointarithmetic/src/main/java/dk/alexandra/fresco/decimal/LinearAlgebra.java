@@ -18,7 +18,7 @@ public interface LinearAlgebra extends ComputationDirectory {
   DRes<Matrix<DRes<SReal>>> add(DRes<Matrix<DRes<SReal>>> a, DRes<Matrix<DRes<SReal>>> b);
 
   /**
-   * Adds a secret value with a public value and returns the result.
+   * Adds a secret value to a public value and returns the result.
    *
    * @param a Public value
    * @param b Secret value
