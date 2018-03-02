@@ -257,11 +257,25 @@ public class TestAsyncNetwork {
     networks.get(1).receive(2);
   }
 
+  @SuppressWarnings("unchecked")
   @Test(expected = RuntimeException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
   public void testFailedReceive() throws Exception {
     networks = createNetworks(2);
     // Close network to provoke IOException while receiving
-    networks.get(1).close();
+    try {
+      // Close channel to provoke IOException while sending
+      Field f = networks.get(1).getClass().getDeclaredField("channelMap");
+      f.setAccessible(true);
+      ((HashMap<Integer, SocketChannel>)f.get(networks.get(1))).get(2).close();
+      f.setAccessible(false);
+    } catch (IOException e) {
+      fail("IOException closing channel");
+    } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
+        | IllegalAccessException e) {
+      fail("Reflection related error");
+    } catch (Exception e) {
+      fail("Should not throw exception yet");
+    }
     Thread.sleep(10);
     networks.get(1).receive(2);
   }
