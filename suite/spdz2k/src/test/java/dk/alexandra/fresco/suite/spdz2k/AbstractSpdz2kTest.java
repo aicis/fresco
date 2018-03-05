@@ -26,7 +26,7 @@ import java.util.function.Supplier;
 
 public abstract class AbstractSpdz2kTest<MarlinResourcePoolT extends Spdz2kResourcePool<?>> {
 
-  private final List<Integer> partyNumbers = Arrays.asList(2);
+  private final List<Integer> partyNumbers = Arrays.asList(2, 3);
 
   void runTest(
       TestThreadRunner.TestThreadFactory<MarlinResourcePoolT, ProtocolBuilderNumeric> f,
