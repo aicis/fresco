@@ -114,8 +114,29 @@ public class TestAsyncNetwork {
   }
 
   @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS)
-  public void testSelfSend() {
+  public void testSelfSendOneParty() {
     circularSendSingleMessage(1, 1024);
+  }
+
+  @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS)
+  public void testSelfSendThreeParties() {
+    networks = createNetworks(3);
+    networks.keySet().stream().forEach(i -> networks.get(i).send(i, new byte[] {0x01}));
+    networks.keySet().stream().forEach(i -> networks.get(i).receive(i));
+  }
+
+  @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS, expected = RuntimeException.class)
+  public void testSendAfterClose() {
+    networks = createNetworks(3);
+    closeNetworks(networks);
+    networks.get(1).send(2, new byte[] {});
+  }
+
+  @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS, expected = RuntimeException.class)
+  public void testReceiveAfterClose() {
+    networks = createNetworks(3);
+    closeNetworks(networks);
+    networks.get(1).receive(2);
   }
 
   @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS)
@@ -162,7 +183,6 @@ public class TestAsyncNetwork {
               r.nextBytes(data);
               assertArrayEquals(data, receivedData);
             }
-
           }
         } else {
           Random r = new Random(id);
@@ -204,10 +224,11 @@ public class TestAsyncNetwork {
 
   @SuppressWarnings("unchecked")
   @Test(expected = RuntimeException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
-  public void testFailedSend() {
-    int retries = 10;
-    int sleeptime = 5;
+  public void testFailedSend() throws InterruptedException {
     networks = createNetworks(2);
+    for (int i = 0; i < 1000; i++) {
+      networks.get(1).send(2, new byte[] { 0x01 });
+    }
     try {
       // Close channel to provoke IOException while sending
       Field f = networks.get(1).getClass().getDeclaredField("channelMap");
@@ -222,14 +243,11 @@ public class TestAsyncNetwork {
     }
     // Below the first call should make the sending thread fail
     // The subsequent calls should provoke the exception to propagate to the main thread
-    try {
+    int retries = 10;
+    networks.get(1).send(2, new byte[] { 0x01 });
+    Thread.sleep(10);
+    for (int i = 0; i < retries; i++) {
       networks.get(1).send(2, new byte[] { 0x01 });
-      for (int i = 0; i < retries; i++) {
-        Thread.sleep(sleeptime);
-        networks.get(1).send(2, new byte[] { 0x01 });
-      }
-    } catch (InterruptedException e) {
-      fail("No interruption should occur");
     }
   }
 

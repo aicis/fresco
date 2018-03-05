@@ -25,6 +25,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,10 +48,10 @@ public class AsyncNetwork implements CloseableNetwork {
   private final Map<Integer, BlockingQueue<byte[]>> outQueues;
   private final Map<Integer, BlockingQueue<byte[]>> inQueues;
   private final NetworkConfiguration conf;
-  private boolean alive;
+  private final AtomicBoolean alive;
   private ExecutorService communicationService;
-  private Future<Object> sendFuture;
-  private Future<Object> receiveFuture;
+  private final Map<Integer, Future<Object>> sendFutures;
+  private final Map<Integer, Future<Object>> receiveFutures;
 
   /**
    * Creates a network with the given configuration and a default timeout of
@@ -75,7 +77,9 @@ public class AsyncNetwork implements CloseableNetwork {
     this.outQueues = new HashMap<>(conf.noOfParties());
     this.inQueues = new HashMap<>(conf.noOfParties());
     this.channelMap = new HashMap<>(conf.noOfParties() - 1);
-    this.alive = true;
+    this.sendFutures = new HashMap<>(conf.noOfParties() - 1);
+    this.receiveFutures = new HashMap<>(conf.noOfParties() - 1);
+    this.alive = new AtomicBoolean(true);
     for (int i = 1; i < conf.noOfParties() + 1; i++) {
       outQueues.put(i, new LinkedBlockingQueue<>());
       inQueues.put(i, new LinkedBlockingQueue<>());
@@ -211,8 +215,12 @@ public class AsyncNetwork implements CloseableNetwork {
     for (Entry<Integer, SocketChannel> entry : this.channelMap.entrySet()) {
       final int id = entry.getKey();
       SocketChannel channel = entry.getValue();
-      receiveFuture = this.communicationService.submit(new Receiver(channel, inQueues.get(id)));
-      sendFuture = this.communicationService.submit(new Sender(channel, outQueues.get(id)));
+      Future<Object> receiveFuture =
+          this.communicationService.submit(new Receiver(channel, inQueues.get(id)));
+      Future<Object> sendFuture =
+          this.communicationService.submit(new Sender(channel, outQueues.get(id)));
+      sendFutures.put(id, sendFuture);
+      receiveFutures.put(id, receiveFuture);
     }
   }
 
@@ -231,18 +239,19 @@ public class AsyncNetwork implements CloseableNetwork {
 
     @Override
     public Object call() throws IOException, InterruptedException {
-      ByteBuffer buf = ByteBuffer.allocate(Integer.BYTES);
-      while (buf.hasRemaining()) {
-        channel.read(buf);
+      while (alive.get()) {
+        ByteBuffer buf = ByteBuffer.allocate(Integer.BYTES);
+        while (buf.hasRemaining()) {
+          channel.read(buf);
+        }
+        buf.flip();
+        int nextMessageSize = buf.getInt();
+        buf = ByteBuffer.allocate(nextMessageSize);
+        while (buf.remaining() > 0) {
+          channel.read(buf);
+        }
+        queue.add(buf.array());
       }
-      buf.flip();
-      int nextMessageSize = buf.getInt();
-      buf = ByteBuffer.allocate(nextMessageSize);
-      while (buf.remaining() > 0) {
-        channel.read(buf);
-      }
-      queue.offer(buf.array());
-      receiveFuture = communicationService.submit(new Receiver(channel, queue));
       return null;
     }
 
@@ -263,16 +272,15 @@ public class AsyncNetwork implements CloseableNetwork {
 
     @Override
     public Object call() throws IOException, InterruptedException {
-      byte[] data = queue.take();
-      ByteBuffer buf = ByteBuffer.allocate(Integer.BYTES + data.length);
-      buf.putInt(data.length);
-      buf.put(data);
-      buf.position(0);
-      while (buf.hasRemaining()) {
-        channel.write(buf);
-      }
-      if (alive || !queue.isEmpty()) {
-        sendFuture = communicationService.submit(new Sender(channel, queue));
+      while (!queue.isEmpty() || alive.get()) {
+        byte[] data = queue.take();
+        ByteBuffer buf = ByteBuffer.allocate(Integer.BYTES + data.length);
+        buf.putInt(data.length);
+        buf.put(data);
+        buf.position(0);
+        while (buf.hasRemaining()) {
+          channel.write(buf);
+        }
       }
       return null;
     }
@@ -282,23 +290,33 @@ public class AsyncNetwork implements CloseableNetwork {
   @Override
   public void send(int partyId, byte[] data) {
     inRange(partyId);
-    Future<?> temp = sendFuture;
-    if (conf.noOfParties() != 1 && temp.isDone()) {
-      ExceptionConverter.safe(() -> temp.get(), "A previous send operation failed");
+    if (partyId != conf.getMyId() && sendFutures.get(partyId).isDone()) {
+      Exception exception = null;
+      try {
+        sendFutures.get(partyId).get();
+      } catch (Exception e) {
+        exception = e;
+      }
+      throw new RuntimeException("Receiver not running, unable to receive", exception);
     }
     if (partyId == conf.getMyId()) {
       this.inQueues.get(partyId).add(data);
     } else {
-      this.outQueues.get(partyId).offer(data);
+      this.outQueues.get(partyId).add(data);
     }
   }
 
   @Override
   public byte[] receive(int partyId) {
     inRange(partyId);
-    Future<?> temp = receiveFuture;
-    if (conf.noOfParties() != 1 && temp.isDone()) {
-      ExceptionConverter.safe(() -> temp.get(), "A previous receive operation failed");
+    if (partyId != conf.getMyId() && receiveFutures.get(partyId).isDone()) {
+      Exception exception = null;
+      try {
+        receiveFutures.get(partyId).get();
+      } catch (Exception e) {
+        exception = e;
+      }
+      throw new RuntimeException("Receiver not running, unable to receive", exception);
     }
     byte[] data =
         ExceptionConverter.safe(() -> this.inQueues.get(partyId).take(), "Receive interrupted");
@@ -318,36 +336,75 @@ public class AsyncNetwork implements CloseableNetwork {
   }
 
   private void teardown() {
-    if (alive) {
-      alive = false;
+    if (alive.get()) {
+      alive.set(false);
       if (conf.noOfParties() < 2) {
         logger.info("P{}: Network closed", conf.getMyId());
         return;
       }
       ExceptionConverter.safe(() -> {
-        while (!outQueues.values().stream().allMatch(q -> q.isEmpty())) {
-          // Busy wait for outQueues to be empty
-        }
-        // Send one final message to stop the senders
-        byte[] killMessage = new byte[] {};
-        outQueues.keySet().stream()
-          .filter(i -> i != conf.getMyId())
-          .map(i -> outQueues.get(i))
-          .forEach(q -> q.offer(killMessage));
-        if (communicationService != null) {
-          communicationService.shutdownNow();
-        }
-        if (this.server != null) {
-          this.server.close();
-        }
-        for (SocketChannel channel : this.channelMap.values()) {
-          channel.close();
-        }
+        closeThreads();
+        closeChannels();
         logger.info("P{}: Network closed", conf.getMyId());
         return null;
       }, "Unable to properly close the network.");
     } else {
       logger.info("P{}: Network already closed", conf.getMyId());
+    }
+  }
+
+  /**
+   * Safely closes the communication channels. Note: this should only be called after the channels
+   * are no longer used.
+   *
+   * @throws IOException if closing the channels triggers an IOException
+   */
+  private void closeChannels() throws IOException {
+    if (this.server != null) {
+      this.server.close();
+    }
+    for (SocketChannel channel : this.channelMap.values()) {
+      channel.close();
+    }
+  }
+
+  /**
+   * Safely closes the threads used for sending/receiving messages. Note: this should be only be
+   * called once {@link #alive} is set to false.
+   */
+  private void closeThreads() {
+    // Before closing we need to make sure that any pending messages gets sent to
+    // potentially waiting parties.
+    // The senders at this point will be in one of the following states
+    // 1. Blocked waiting for a message. These will have an empty queue.
+    // 2. Working to send the final messages. These could have empty queues but will then stop.
+    // 3. Stopped after exception. These could have an non empty queue.
+    // 4. Stopped naturally after having send their last message. These will have empty queues.
+    // Here we want any sender in state 1. and 2. to stop in the best way (i.e., go to state 4.)
+    // We do this by putting a dummy message in the queue of all running senders
+    // This should unblock any senders in state 2. and cause them to eventually reach state 4.
+    sendFutures.keySet().stream().filter(i -> !sendFutures.get(i).isDone())
+        .filter(i -> outQueues.get(i).isEmpty()).map(i -> outQueues.get(i))
+        .forEach(q -> q.add(new byte[] {}));
+    for (Future<Object> f : sendFutures.values()) {
+      try {
+        f.get();
+      } catch (Exception e) {
+        // TODO: Should this cause close to throw an exception?
+        logger.warn("A failed sender detected during close", e);
+      }
+    }
+    // Here we just check if any receivers failed
+    for (Future<Object> f : receiveFutures.values().stream().filter(f -> f.isDone())
+        .collect(Collectors.toList())) {
+      try {
+        f.get();
+      } catch (Exception e) {
+        logger.warn("A failed receiver detected during close", e);
+      }
+    }
+    if (communicationService != null) {
+      communicationService.shutdownNow();
     }
   }
 
