@@ -17,15 +17,24 @@ public class BasicFixedNumeric implements BasicRealNumeric {
   private final int defaultPrecision;
   private final int maxPrecision;
 
-
-  public BasicFixedNumeric(ProtocolBuilderNumeric builder, int defaultPrecision, int maxPrecision) {
+  public BasicFixedNumeric(ProtocolBuilderNumeric builder, int precision) {
     this.builder = builder;
-    this.defaultPrecision = defaultPrecision;
-    this.maxPrecision = maxPrecision;
+    this.defaultPrecision = precision;
+
+    // We reserve as many bits the integer part as for the fractional part, and to be able to
+    // perform multiplications, we need to be able to represent at least two times that before
+    // truncation.
+    this.maxPrecision = builder.getBasicNumericContext().getMaxBitLength() / 4;
+    if (maxPrecision < 2 * defaultPrecision) {
+      throw new IllegalArgumentException(
+          "The precision was chosen too large for a product of two numbers to be representable"
+              + "in this numeric context. You cannot choose a precision larger than "
+              + (maxPrecision / 2) + ".");
+    }
   }
 
   public BasicFixedNumeric(ProtocolBuilderNumeric builder) {
-    this(builder, 16, 48);
+    this(builder, 16);
   }
 
   private BigInteger unscaled(BigDecimal value, int scale) {
@@ -33,7 +42,7 @@ public class BasicFixedNumeric implements BasicRealNumeric {
   }
 
   private DRes<SInt> unscaled(ProtocolBuilderNumeric scope, SFixed value, int scale) {
-    return scale(scope, value.getSInt(), scale - value.getScale());
+    return scale(scope, value.getSInt(), scale - value.getPrecision());
   }
 
   /**
@@ -45,7 +54,7 @@ public class BasicFixedNumeric implements BasicRealNumeric {
    * @return
    */
   private BigDecimal scaled(BigInteger unscaled, int scale) {
-    return new BigDecimal(unscaled).setScale(20).divide(new BigDecimal(BASE.pow(scale)),
+    return new BigDecimal(unscaled).setScale(2 * scale).divide(new BigDecimal(BASE.pow(scale)),
         RoundingMode.HALF_UP);
   }
 
@@ -72,7 +81,7 @@ public class BasicFixedNumeric implements BasicRealNumeric {
     return builder.seq(seq -> {
       SFixed aFloat = (SFixed) a.out();
       SFixed bFloat = (SFixed) b.out();
-      int precision = Math.max(aFloat.getScale(), (bFloat.getScale()));
+      int precision = Math.max(aFloat.getPrecision(), (bFloat.getPrecision()));
       DRes<SInt> aUnscaled = unscaled(seq, aFloat, precision);
       DRes<SInt> bUnscaled = unscaled(seq, bFloat, precision);
       return new SFixed(seq.numeric().add(aUnscaled, bUnscaled), precision);
@@ -83,7 +92,7 @@ public class BasicFixedNumeric implements BasicRealNumeric {
   public DRes<SReal> add(BigDecimal a, DRes<SReal> b) {
     return builder.seq(seq -> {
       SFixed bFloat = (SFixed) b.out();
-      int precision = Math.max(defaultPrecision, bFloat.getScale());
+      int precision = Math.max(defaultPrecision, bFloat.getPrecision());
       BigInteger aInt = unscaled(a, precision);
       DRes<SInt> bUnscaled = unscaled(seq, (SFixed) b.out(), precision);
       return new SFixed(seq.numeric().add(aInt, bUnscaled), precision);
@@ -95,7 +104,7 @@ public class BasicFixedNumeric implements BasicRealNumeric {
     return builder.seq(seq -> {
       SFixed aFloat = (SFixed) a.out();
       SFixed bFloat = (SFixed) b.out();
-      int precision = Math.max(aFloat.getScale(), bFloat.getScale());
+      int precision = Math.max(aFloat.getPrecision(), bFloat.getPrecision());
       DRes<SInt> aUncaled = unscaled(seq, aFloat, precision);
       DRes<SInt> bUncaled = unscaled(seq, bFloat, precision);
       return new SFixed(seq.numeric().sub(aUncaled, bUncaled), precision);
@@ -106,7 +115,7 @@ public class BasicFixedNumeric implements BasicRealNumeric {
   public DRes<SReal> sub(BigDecimal a, DRes<SReal> b) {
     return builder.seq(seq -> {
       SFixed bFloat = (SFixed) b.out();
-      int precision = Math.max(defaultPrecision, bFloat.getScale());
+      int precision = Math.max(defaultPrecision, bFloat.getPrecision());
       BigInteger aScaled = unscaled(a, precision);
       DRes<SInt> bUnscaled = unscaled(seq, bFloat, precision);
       return new SFixed(seq.numeric().sub(aScaled, bUnscaled), precision);
@@ -117,7 +126,7 @@ public class BasicFixedNumeric implements BasicRealNumeric {
   public DRes<SReal> sub(DRes<SReal> a, BigDecimal b) {
     return builder.seq(seq -> {
       SFixed aFloat = (SFixed) a.out();
-      int precision = Math.max(defaultPrecision, aFloat.getScale());
+      int precision = Math.max(defaultPrecision, aFloat.getPrecision());
       DRes<SInt> aUnscaled = unscaled(seq, aFloat, precision);
       BigInteger bUnscaled = unscaled(b, precision);
       return new SFixed(seq.numeric().sub(aUnscaled, bUnscaled), precision);
@@ -129,7 +138,7 @@ public class BasicFixedNumeric implements BasicRealNumeric {
     return builder.seq(seq -> {
       SFixed aFloat = (SFixed) a.out();
       SFixed bFloat = (SFixed) b.out();
-      int precision = aFloat.getScale() + bFloat.getScale();
+      int precision = aFloat.getPrecision() + bFloat.getPrecision();
       DRes<SInt> unscaled = seq.numeric().mult(aFloat.getSInt(), bFloat.getSInt());
       if (precision > maxPrecision) {
         unscaled = scale(seq, unscaled, defaultPrecision - precision);
@@ -143,7 +152,7 @@ public class BasicFixedNumeric implements BasicRealNumeric {
   public DRes<SReal> mult(BigDecimal a, DRes<SReal> b) {
     return builder.seq(seq -> {
       SFixed bFloat = (SFixed) b.out();
-      int precision = defaultPrecision + bFloat.getScale();
+      int precision = defaultPrecision + bFloat.getPrecision();
       BigInteger aUnscaled = unscaled(a, defaultPrecision);
       DRes<SInt> unscaled = seq.numeric().mult(aUnscaled, bFloat.getSInt());
       if (precision > maxPrecision) {
@@ -208,7 +217,7 @@ public class BasicFixedNumeric implements BasicRealNumeric {
       SFixed xFloat = (SFixed) x.out();
       DRes<SInt> unscaled = xFloat.getSInt();
       DRes<BigInteger> unscaledOpen = seq.numeric().open(unscaled);
-      int precision = xFloat.getScale();
+      int precision = xFloat.getPrecision();
       return () -> scaled(unscaledOpen.out(), precision);
     });
   }
@@ -219,7 +228,7 @@ public class BasicFixedNumeric implements BasicRealNumeric {
       SFixed xFloat = (SFixed) x.out();
       DRes<SInt> unscaled = xFloat.getSInt();
       DRes<BigInteger> unscaledOpen = seq.numeric().open(unscaled, outputParty);
-      int precision = xFloat.getScale();
+      int precision = xFloat.getPrecision();
       return () -> {
         if (unscaledOpen.out() != null) {
           return scaled(unscaledOpen.out(), precision);
@@ -236,7 +245,7 @@ public class BasicFixedNumeric implements BasicRealNumeric {
       SFixed aFloat = (SFixed) a.out();
       SFixed bFloat = (SFixed) b.out();
 
-      int scale = Math.max(aFloat.getScale(), (bFloat.getScale()));
+      int scale = Math.max(aFloat.getPrecision(), (bFloat.getPrecision()));
       DRes<SInt> aUnscaled = unscaled(seq, aFloat, scale);
       DRes<SInt> bUnscaled = unscaled(seq, bFloat, scale);
 

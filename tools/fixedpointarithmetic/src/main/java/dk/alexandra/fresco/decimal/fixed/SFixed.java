@@ -6,24 +6,24 @@ import dk.alexandra.fresco.framework.value.SInt;
 
 /**
  * Closed datatype for representing binary fixed point numbers, e.g. represent a fraction <i>x</i>
- * as <i>n 2<sup>e</sup></i> where <i>n</i> is an {@link SInt}, <i>e &ge; 0</i> is a precision
- * (avaialble via {@link #getScale()}) that may vary from value to value.
+ * as <i>m 2<sup>n</sup></i> where <i>m</i> is an {@link SInt}, <i>n &ge; 0</i> is a precision
+ * (avaialble via {@link #getPrecision()}) that may vary from value to value.
  */
 public class SFixed implements SReal, DRes<SReal> {
   private final DRes<SInt> value;
-  private final int scale;
+  private final int precision;
 
-  public SFixed(DRes<SInt> value, int scale) {
+  public SFixed(DRes<SInt> value, int precision) {
     this.value = value;
-    this.scale = scale;
+    this.precision = precision;
   }
 
   DRes<SInt> getSInt() {
     return value;
   }
 
-  int getScale() {
-    return scale;
+  int getPrecision() {
+    return precision;
   }
 
   @Override

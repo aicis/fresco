@@ -18,7 +18,7 @@ public class AdvancedFixedNumeric extends DefaultAdvancedRealNumeric {
     return builder.seq(seq -> {
       SFixed cast = (SFixed) x.out();
       DRes<SInt> underlyingInt = cast.getSInt();
-      int scale = cast.getScale();
+      int scale = cast.getPrecision();
       DRes<SInt> intResult =
           seq.advancedNumeric().sqrt(underlyingInt, seq.getBasicNumericContext().getMaxBitLength());
       int newScale = Math.floorDiv(scale, 2);
