@@ -282,12 +282,10 @@ public class TestAsyncNetwork {
     // Close network to provoke IOException while receiving
     try {
       // Close channel to provoke IOException while sending
-      Field f = networks.get(1).getClass().getDeclaredField("channelMap");
+      Field f = networks.get(1).getClass().getDeclaredField("receiveFutures");
       f.setAccessible(true);
-      ((HashMap<Integer, SocketChannel>)f.get(networks.get(1))).get(2).close();
+      ((HashMap<Integer, Future<Object>>)f.get(networks.get(1))).get(2).cancel(true);
       f.setAccessible(false);
-    } catch (IOException e) {
-      fail("IOException closing channel");
     } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
         | IllegalAccessException e) {
       fail("Reflection related error");
