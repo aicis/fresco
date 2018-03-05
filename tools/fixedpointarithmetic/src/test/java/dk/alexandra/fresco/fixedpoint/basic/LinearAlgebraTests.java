@@ -86,7 +86,7 @@ public class LinearAlgebraTests {
 
           Matrix<BigDecimal> output = runApplication(testApplication);
           for (int i = 0; i < input.getHeight(); i++) {
-            assertTrue(TestUtils.isEqual(output.getRow(i), input.getRow(i)));
+            new TestUtils().assertEqual(output.getRow(i), input.getRow(i), 15);
           }
         }
       };
@@ -143,7 +143,7 @@ public class LinearAlgebraTests {
           List<Matrix<BigDecimal>> output = runApplication(testApplication);
           for (int i = 0; i < a.getHeight(); i++) {
             for (int j = 0; j < output.size(); j++) {
-              assertTrue(TestUtils.isEqual(expected.getRow(i), output.get(j).getRow(i)));
+              new TestUtils().assertEqual(expected.getRow(i), output.get(j).getRow(i), 15);
             }
           }
         }
@@ -197,7 +197,7 @@ public class LinearAlgebraTests {
           List<Matrix<BigDecimal>> output = runApplication(testApplication);
           for (int i = 0; i < matrix.getHeight(); i++) {
             for (int j = 0; j < output.size(); j++) {
-              assertTrue(TestUtils.isEqual(expected.getRow(i), output.get(j).getRow(i)));
+              new TestUtils().assertEqual(expected.getRow(i), output.get(j).getRow(i), 15);
             }
           }
         }
@@ -266,7 +266,7 @@ public class LinearAlgebraTests {
           List<Matrix<BigDecimal>> output = runApplication(testApplication);
           for (int i = 0; i < matrix.getHeight(); i++) {
             for (int j = 0; j < output.size(); j++) {
-              assertTrue(TestUtils.isEqual(expected.getRow(i), output.get(j).getRow(i)));
+              new TestUtils().assertEqual(expected.getRow(i), output.get(j).getRow(i), 15);
             }
           }
         }
@@ -336,7 +336,7 @@ public class LinearAlgebraTests {
           System.out.println(output);
           for (int i = 0; i < matrix.getHeight(); i++) {
             for (int j = 0; j < output.size(); j++) {
-              assertTrue(TestUtils.isEqual(expected.get(i), output.get(j).get(i)));
+              new TestUtils().assertEqual(expected.get(i), output.get(j).get(i), 15);
             }
           }
         }

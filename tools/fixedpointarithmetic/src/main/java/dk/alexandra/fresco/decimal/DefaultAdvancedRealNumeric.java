@@ -117,7 +117,7 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
        * 
        * TODO: In the current implementation we compute 16 terms, which seems to give decent
        * percision for small inputs. If we want full precision for all possible inputs, we need to
-       * calculate many more terms, since the error after n terms is approx 1/(n+1)! x^{n+1}), and
+       * calculate many more terms, since the error after n terms is approx x^{n+1}/(n+1)!), and
        * this would cause the function to be very inefficient. Maybe we should allow the app
        * developer to specify an upper bound on the input?
        */

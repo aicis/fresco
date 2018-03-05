@@ -18,11 +18,11 @@ public class SFixed implements SReal, DRes<SReal> {
     this.precision = precision;
   }
 
-  DRes<SInt> getSInt() {
+  public DRes<SInt> getSInt() {
     return value;
   }
 
-  int getPrecision() {
+  public int getPrecision() {
     return precision;
   }
 

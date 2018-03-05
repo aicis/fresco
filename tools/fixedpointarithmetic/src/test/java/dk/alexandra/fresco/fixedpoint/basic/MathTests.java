@@ -12,40 +12,41 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.junit.Assert;
 
 public class MathTests {
 
   public static class TestExp<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
+    int precision = 16;
+    
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
-          int precision = 4;
-          double x = 2.1;
+          double x = 1.1;
           BigDecimal input = BigDecimal.valueOf(x);
           BigDecimal expected = BigDecimal.valueOf(Math.exp(x));
 
           // functionality to be tested
           Application<BigDecimal, ProtocolBuilderNumeric> testApplication = root -> {
             // close inputs
-            RealNumeric fixed = new FixedNumeric(root);
+            RealNumeric fixed = new FixedNumeric(root, precision);
             DRes<SReal> secret = fixed.numeric().input(input, 1);
             DRes<SReal> result = fixed.advanced().exp(secret);
             return fixed.numeric().open(result);
           };
           BigDecimal output = runApplication(testApplication);
-          Assert.assertTrue(TestUtils.isEqual(expected.setScale(precision, RoundingMode.DOWN),
-              output.setScale(precision, RoundingMode.DOWN)));
+          int expectedPrecision = precision - 1;
+          System.out.println(expectedPrecision);
+          new TestUtils().assertEqual(expected,
+              output, expectedPrecision);
         }
       };
     }
@@ -99,14 +100,15 @@ public class MathTests {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      List<BigDecimal> openInputs = Stream.of(1.223, 5.59703, 0.2, 40.1, 6.9, 0.07, 0.12198)
+      List<BigDecimal> openInputs = Stream.of(1.1, 2.1, 3.1, 4.1, 5.1, 10.1)
           .map(BigDecimal::valueOf).collect(Collectors.toList());
+      int precision = 16;
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
           Application<List<BigDecimal>, ProtocolBuilderNumeric> app = producer -> {
-            RealNumeric numeric = new FixedNumeric(producer);
+            RealNumeric numeric = new FixedNumeric(producer, precision);
 
             List<DRes<SReal>> closed1 =
                 openInputs.stream().map(numeric.numeric()::known).collect(Collectors.toList());
@@ -122,13 +124,12 @@ public class MathTests {
           };
           List<BigDecimal> output = runApplication(app);
 
+          TestUtils utils = new TestUtils();
           for (BigDecimal openOutput : output) {
             int idx = output.indexOf(openOutput);
 
             BigDecimal a = openInputs.get(idx);
-            System.out.println(a);
-            Assert.assertTrue(
-                TestUtils.isEqual(new BigDecimal(Math.log(a.doubleValue())), openOutput));
+            utils.assertEqual(new BigDecimal(Math.log(a.doubleValue())), openOutput, 8);
           }
         }
       };
@@ -140,14 +141,15 @@ public class MathTests {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      List<BigDecimal> openInputs = Stream.of(1.223, 5.59703, 0.2, 40.1, 6.9, 0.07, 0.12198)
+      int precision = 16;
+      List<BigDecimal> openInputs = Stream.of(1000_000.0, 1_000.0 + 0.5 * Math.pow(2.0, precision), 40.1)
           .map(BigDecimal::valueOf).collect(Collectors.toList());
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() throws Exception {
           Application<List<BigDecimal>, ProtocolBuilderNumeric> app = producer -> {
-            RealNumeric numeric = new FixedNumeric(producer);
+            RealNumeric numeric = new FixedNumeric(producer, precision);
 
             List<DRes<SReal>> closed1 =
                 openInputs.stream().map(numeric.numeric()::known).collect(Collectors.toList());
@@ -163,13 +165,12 @@ public class MathTests {
           };
           List<BigDecimal> output = runApplication(app);
 
+          TestUtils utils = new TestUtils();
           for (BigDecimal openOutput : output) {
             int idx = output.indexOf(openOutput);
 
-            BigDecimal a = openInputs.get(idx);
-            System.out.println(a);
-            Assert.assertTrue(
-                TestUtils.isEqual(new BigDecimal(Math.sqrt(a.doubleValue())), openOutput));
+            BigDecimal expected = new BigDecimal(Math.sqrt(openInputs.get(idx).doubleValue()));
+            utils.assertEqual(expected, openOutput, precision / 2);
           }
         }
       };

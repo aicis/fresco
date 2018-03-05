@@ -57,6 +57,11 @@ public class AbstractFixedDummyArithmeticTest extends AbstractDummyArithmeticTes
   }
 
   @Test
+  public void test_repeated_Multiplication() throws Exception {
+    runTest(new BasicFixedPointTests.TestRepeatedMultiplication<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
   public void test_DivisionSecretDivisor() throws Exception {
     runTest(new BasicFixedPointTests.TestDiv<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
@@ -120,5 +125,10 @@ public class AbstractFixedDummyArithmeticTest extends AbstractDummyArithmeticTes
   @Test
   public void test_sqrt() throws Exception {
     runTest(new MathTests.TestSqrt<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void test_trunctation() throws Exception {
+    runTest(new TruncationTests.TestTruncation<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 }

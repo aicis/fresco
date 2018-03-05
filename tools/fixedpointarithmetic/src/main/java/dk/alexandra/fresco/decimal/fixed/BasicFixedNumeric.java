@@ -38,7 +38,8 @@ public class BasicFixedNumeric implements BasicRealNumeric {
   }
 
   private BigInteger unscaled(BigDecimal value, int scale) {
-    return value.multiply(new BigDecimal(BASE.pow(scale))).toBigInteger();
+    return value.multiply(new BigDecimal(BASE.pow(scale))).setScale(0, RoundingMode.HALF_UP)
+        .toBigIntegerExact();
   }
 
   private DRes<SInt> unscaled(ProtocolBuilderNumeric scope, SFixed value, int scale) {
@@ -54,7 +55,7 @@ public class BasicFixedNumeric implements BasicRealNumeric {
    * @return
    */
   private BigDecimal scaled(BigInteger unscaled, int scale) {
-    return new BigDecimal(unscaled).setScale(2 * scale).divide(new BigDecimal(BASE.pow(scale)),
+    return new BigDecimal(unscaled).setScale(scale).divide(new BigDecimal(BASE.pow(scale)),
         RoundingMode.HALF_UP);
   }
 
