@@ -67,7 +67,7 @@ public class BasicFixedNumeric implements BasicRealNumeric {
    * @param scale
    * @return
    */
-  protected DRes<SInt> scale(ProtocolBuilderNumeric scope, DRes<SInt> n, int scale) {
+  private DRes<SInt> scale(ProtocolBuilderNumeric scope, DRes<SInt> n, int scale) {
     if (scale > 0) {
       n = scope.numeric().mult(BigInteger.ONE.shiftLeft(scale), n);
     } else if (scale < 0) {
@@ -140,8 +140,18 @@ public class BasicFixedNumeric implements BasicRealNumeric {
       SFixed bFloat = (SFixed) b.out();
       int precision = aFloat.getPrecision() + bFloat.getPrecision();
       DRes<SInt> unscaled = seq.numeric().mult(aFloat.getSInt(), bFloat.getSInt());
+
       if (precision > maxPrecision) {
-        unscaled = scale(seq, unscaled, defaultPrecision - precision);
+        /*
+         * We allow for 'pseudo-floating-point' numbers where the precision may increase after each
+         * multiplications and we only truncate when reaching an upper bound for the precision.
+         *
+         * For performance reasons, we use the Truncate algorithm instead of RightShift when
+         * truncating numbers, so every time this is done to the SInt used to represent a fixed
+         * number, eg. after multiplication, there is a propability (p ~ 0.5) that the result will
+         * be one larger than the expected value which will make the corresponding fixed point
+         * number 2^-n larger than the expected value.
+         */ unscaled = scale(seq, unscaled, defaultPrecision - precision);
         precision = defaultPrecision;
       }
       return new SFixed(unscaled, precision);
