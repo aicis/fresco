@@ -10,7 +10,6 @@ import dk.alexandra.fresco.framework.network.CloseableNetwork;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.ServerSocket;
-import java.nio.channels.SocketChannel;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -230,13 +229,11 @@ public class TestAsyncNetwork {
       networks.get(1).send(2, new byte[] { 0x01 });
     }
     try {
-      // Close channel to provoke IOException while sending
-      Field f = networks.get(1).getClass().getDeclaredField("channelMap");
+      // Cancel sendfuture to provoke an exception while sending
+      Field f = networks.get(1).getClass().getDeclaredField("sendFutures");
       f.setAccessible(true);
-      ((HashMap<Integer, SocketChannel>)f.get(networks.get(1))).get(2).close();
+      ((HashMap<Integer, Future<Object>>)f.get(networks.get(1))).get(2).cancel(true);
       f.setAccessible(false);
-    } catch (IOException e) {
-      fail("IOException closing channel");
     } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
         | IllegalAccessException e) {
       fail("Reflection related error");
