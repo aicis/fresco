@@ -11,7 +11,7 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 
-public class  SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
+public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
 
   private SpdzInputMask inputMask; // is opened by this gate.
   protected BigInteger input;
@@ -49,7 +49,7 @@ public class  SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
     } else {
       boolean validated = receiveBroadcastValidation(network, digest);
       if (!validated) {
-        throw new MaliciousException("Broadcast digests did not match");
+        throw new MaliciousException("SecureBroadcastUtil digests did not match");
       }
       SpdzElement valueMaskedElement =
           new SpdzElement(

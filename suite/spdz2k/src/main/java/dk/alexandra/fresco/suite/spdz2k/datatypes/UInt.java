@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Interface for representing unsigned integers larger than 64 bits.
+ * Interface for representing unsigned integers.
  */
 public interface UInt<T extends UInt> {
 
@@ -25,7 +25,9 @@ public interface UInt<T extends UInt> {
   T subtract(T other);
 
   /**
-   * Compute negation of this and return.
+   * Compute arithmetic negation of this and return. <p>Note that the result will have modular wrap
+   * around mod 2^bitLength since the value is unsigned. Equivalent to computing unsigned result of
+   * (this * (2^bitLength - 1)).</p>
    */
   T negate();
 
@@ -59,13 +61,11 @@ public interface UInt<T extends UInt> {
    */
   int toInt();
 
-  // TODO these belong on the factory
-
   /**
    * Compute sum of elements.
    */
   static <S extends UInt<S>> S sum(List<S> elements) {
-    return elements.stream().reduce(UInt::add).get();
+    return elements.stream().reduce(UInt::add).orElse(elements.get(0));
   }
 
   /**
@@ -83,7 +83,11 @@ public interface UInt<T extends UInt> {
    * Compute inner product of elements.
    */
   static <S extends UInt<S>> S innerProduct(List<S> left, List<S> right) {
-    return sum(product(left, right));
+    S accumulator = left.get(0).multiply(right.get(0));
+    for (int i = 1; i < left.size(); i++) {
+      accumulator.add(left.get(i).multiply(right.get(i)));
+    }
+    return accumulator;
   }
 
   /**

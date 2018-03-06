@@ -27,11 +27,6 @@ public interface CompUInt<
   HighT getLeastSignificantAsHigh();
 
   /**
-   * TODO
-   */
-  HighT computeOverflow();
-
-  /**
    * Left-shift the k least significant bits by k.
    */
   CompT shiftLowIntoHigh();

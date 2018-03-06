@@ -2,7 +2,7 @@ package dk.alexandra.fresco.suite.spdz2k.protocols.natives;
 
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.sce.resources.Broadcast;
+import dk.alexandra.fresco.framework.sce.resources.SecureBroadcastUtil;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import java.util.Collections;
 import java.util.List;
@@ -15,7 +15,7 @@ public class BroadcastValidationProtocol<ResourcePoolT extends ResourcePool> imp
     NativeProtocol<Void, ResourcePoolT> {
 
   private final List<byte[]> input;
-  private Broadcast broadcast;
+  private SecureBroadcastUtil broadcast;
   private byte[] digest;
 
   public BroadcastValidationProtocol(List<byte[]> input) {
@@ -37,7 +37,7 @@ public class BroadcastValidationProtocol<ResourcePoolT extends ResourcePool> imp
       return EvaluationStatus.IS_DONE;
     }
     if (round == 0) {
-      broadcast = new Broadcast(network);
+      broadcast = new SecureBroadcastUtil(network);
       digest = broadcast.computeAndSendDigests(input);
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {

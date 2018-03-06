@@ -103,11 +103,10 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
         ownSeed)
         .buildComputation(root);
     ProtocolProducer commitmentProducer = root.build();
-    int counter = 0;
     do {
       ProtocolCollectionList<Spdz2kResourcePool> protocolCollectionList =
           new ProtocolCollectionList<>(
-              1); // batch size is irrelevant since this is a very light-weight protocol
+              128); // batch size is irrelevant since this is a very light-weight protocol
       commitmentProducer.getNextProtocols(protocolCollectionList);
       new BatchedStrategy<Spdz2kResourcePool>()
           .processBatch(protocolCollectionList, this, networkBatchDecorator);

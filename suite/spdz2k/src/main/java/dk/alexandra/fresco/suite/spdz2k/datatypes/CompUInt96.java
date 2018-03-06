@@ -134,12 +134,6 @@ public class CompUInt96 implements CompUInt<UInt64, UInt32, CompUInt96> {
   }
 
   @Override
-  public UInt64 computeOverflow() {
-    CompUInt96 low = new CompUInt96(getLeastSignificant());
-    return low.subtract(this).getMostSignificant();
-  }
-
-  @Override
   public UInt32 getLeastSignificant() {
     return new UInt32(low);
   }

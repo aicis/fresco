@@ -13,7 +13,7 @@ import java.util.Random;
 public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
 
   private static final CompUInt128 ONE = new CompUInt128(1);
-
+  private static final CompUInt128Factory factory = new CompUInt128Factory();
   private final long high;
   private final int mid;
   private final int low;
@@ -133,12 +133,6 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
   @Override
   public BigInteger toBigInteger() {
     return new BigInteger(1, toByteArray());
-  }
-
-  @Override
-  public UInt64 computeOverflow() {
-    CompUInt128 low = new CompUInt128(getLeastSignificant());
-    return low.subtract(this).getMostSignificant();
   }
 
   @Override

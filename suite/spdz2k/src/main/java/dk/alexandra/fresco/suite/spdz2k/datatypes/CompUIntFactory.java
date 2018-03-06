@@ -53,5 +53,5 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> {
   default CompT zero() {
     return createFromBytes(new byte[getCompositeBitLength() / Byte.SIZE]);
   }
-
+  
 }

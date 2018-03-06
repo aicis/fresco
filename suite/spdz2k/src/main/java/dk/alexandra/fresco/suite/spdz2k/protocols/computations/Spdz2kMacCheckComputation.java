@@ -17,6 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Computation for performing batched mac-check on all currently opened, unchecked values.
+ */
 public class Spdz2kMacCheckComputation<
     HighT extends UInt<HighT>,
     LowT extends UInt<LowT>,
@@ -49,17 +52,14 @@ public class Spdz2kMacCheckComputation<
         resourcePool.getRandomGenerator(),
         factory, openValues.size());
     final PlainT y = UInt.innerProduct(openValues, randomCoefficients);
-    final Spdz2kSInt<PlainT> r = resourcePool.getDataSupplier()
-        .getNextRandomElementShare();
+    final Spdz2kSInt<PlainT> r = resourcePool.getDataSupplier().getNextRandomElementShare();
     return builder
         .seq(new BroadcastComputation<>(sharesLowBits))
         .seq((seq, ignored) -> {
           List<PlainT> originalShares = authenticatedElements.stream()
               .map(Spdz2kSInt::getShare)
               .collect(Collectors.toList());
-          List<HighT> overflow = originalShares.stream()
-              .map(PlainT::computeOverflow)
-              .collect(Collectors.toList());
+          List<HighT> overflow = computeDifference(originalShares, converter);
           List<HighT> randomCoefficientsAsHigh = randomCoefficients.stream()
               .map(PlainT::getLeastSignificantAsHigh)
               .collect(Collectors.toList());
@@ -101,6 +101,20 @@ public class Spdz2kMacCheckComputation<
       randomCoefficients.add(factory.createFromBytes(bytes));
     }
     return randomCoefficients;
+  }
+
+  /**
+   * For each share v, where low denotes the value representing the k lower bits of v, and s is the
+   * number of upper bits, compute ((low - s) % 2^{k + s} >> k) % 2^s.
+   */
+  private List<HighT> computeDifference(List<PlainT> originalShares,
+      CompUIntConverter<HighT, LowT, PlainT> converter) {
+    return originalShares.stream()
+        .map(value -> {
+          PlainT low = converter.createFromLow(value.getLeastSignificant());
+          return low.subtract(value).getMostSignificant();
+        })
+        .collect(Collectors.toList());
   }
 
 }

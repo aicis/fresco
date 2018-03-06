@@ -5,25 +5,24 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import java.security.MessageDigest;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
- * Utility for running an actively-secure broadcast channel.
+ * Utility for running secure broadcast.
  */
-public class Broadcast {
+public class SecureBroadcastUtil {
 
   private final Network network;
-  private final MessageDigest md;
+  private final MessageDigest messageDigest;
 
-  public Broadcast(Network network) {
+  public SecureBroadcastUtil(Network network) {
     this(network, ExceptionConverter.safe(() -> MessageDigest.getInstance("SHA-256"),
-        "Configuration error, SHA-256 is needed for Broadcast"));
+        "Configuration error, SHA-256 is needed for SecureBroadcastUtil"));
   }
 
-  private Broadcast(Network network, MessageDigest md) {
+  private SecureBroadcastUtil(Network network, MessageDigest messageDigest) {
     this.network = network;
-    this.md = md;
+    this.messageDigest = messageDigest;
   }
 
   /**
@@ -31,10 +30,10 @@ public class Broadcast {
    */
   private byte[] computeDigest(List<byte[]> messages) {
     for (byte[] message : messages) {
-      md.update(message);
+      messageDigest.update(message);
     }
-    byte[] digest = md.digest();
-    md.reset();
+    byte[] digest = messageDigest.digest();
+    messageDigest.reset();
     return digest;
   }
 
@@ -48,7 +47,7 @@ public class Broadcast {
   private void validateDigests(byte[] ownDigest, List<byte[]> otherDigests) {
     for (byte[] otherDigest : otherDigests) {
       if (!Arrays.equals(ownDigest, otherDigest)) {
-        throw new MaliciousException("Broadcast validation failed");
+        throw new MaliciousException("SecureBroadcastUtil validation failed");
       }
     }
   }
@@ -60,10 +59,6 @@ public class Broadcast {
     byte[] digest = computeDigest(messages);
     network.sendToAll(digest);
     return digest;
-  }
-
-  public byte[] computeAndSendDigests(byte[] message) {
-    return computeAndSendDigests(Collections.singletonList(message));
   }
 
   /**

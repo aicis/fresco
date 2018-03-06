@@ -16,7 +16,6 @@ public class ByteAndBitConverter {
    * Converts long to big-endian byte array.
    */
   public static byte[] toByteArray(long value) {
-//    throw new UnsupportedOperationException("Implement me correctly!");
     byte[] bytes = new byte[8];
     for (int i = 7; i >= 0; i--) {
       bytes[i] = (byte) (value & 0xFF);
@@ -29,7 +28,6 @@ public class ByteAndBitConverter {
    * Converts int to big-endian byte array.
    */
   public static byte[] toByteArray(int value) {
-//    throw new UnsupportedOperationException("Implement me correctly!");
     byte[] bytes = new byte[4];
     for (int i = 3; i >= 0; i--) {
       bytes[i] = (byte) (value & 0xFF);
@@ -114,7 +112,7 @@ public class ByteAndBitConverter {
   private static boolean[] convertArray(Boolean[] in) {
     boolean[] output = new boolean[in.length];
     for (int i = 0; i < in.length; i++) {
-      output[i] = in[i];
+      output[i] = in[i].booleanValue();
     }
     return output;
   }

@@ -111,13 +111,6 @@ public class GenericCompUInt implements
   }
 
   @Override
-  public GenericCompUInt computeOverflow() {
-    // TODO definitely wrong...
-    GenericCompUInt low = new GenericCompUInt(getLeastSignificant(), ints.length * Integer.SIZE);
-    return low.subtract(this).getMostSignificant();
-  }
-
-  @Override
   public GenericCompUInt getLeastSignificant() {
     return getSubRange(0, getLowBitLength() / Integer.SIZE);
   }

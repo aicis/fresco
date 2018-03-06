@@ -1,9 +1,5 @@
 package dk.alexandra.fresco.lib.arithmetic;
 
-import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -312,7 +308,7 @@ public class BasicArithmeticTests {
           };
           List<BigInteger> bits = runApplication(app);
           for (BigInteger bit : bits) {
-            assertTrue("Expected bit but was " + bit,
+            Assert.assertTrue("Expected bit but was " + bit,
                 bit.equals(BigInteger.ZERO) || bit.equals(BigInteger.ONE));
           }
         }
@@ -342,7 +338,7 @@ public class BasicArithmeticTests {
           };
           List<BigInteger> elements = runApplication(app);
           assertAllDifferent(elements);
-          assertEquals(10, elements.size());
+          Assert.assertEquals(10, elements.size());
         }
       };
     }
@@ -635,7 +631,7 @@ public class BasicArithmeticTests {
     for (int i = 0; i < elements.size(); i++) {
       for (int j = 0; j < elements.size(); j++) {
         if (i != j) {
-          assertNotEquals(elements.get(i), elements.get(j));
+          Assert.assertNotEquals(elements.get(i), elements.get(j));
         }
       }
     }
