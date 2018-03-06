@@ -11,16 +11,16 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kTriple;
 import java.math.BigInteger;
 
 public class Spdz2kDummyDataSupplier<
-    T extends CompUInt<?, ?, T>> implements
-    Spdz2kDataSupplier<T> {
+    PlainT extends CompUInt<?, ?, PlainT>> implements
+    Spdz2kDataSupplier<PlainT> {
 
   private final int myId;
   private final ArithmeticDummyDataSupplier supplier;
-  private final T secretSharedKey;
-  private final CompUIntFactory<T> factory;
+  private final PlainT secretSharedKey;
+  private final CompUIntFactory<PlainT> factory;
 
-  public Spdz2kDummyDataSupplier(int myId, int noOfParties, T secretSharedKey,
-      CompUIntFactory<T> factory) {
+  public Spdz2kDummyDataSupplier(int myId, int noOfParties, PlainT secretSharedKey,
+      CompUIntFactory<PlainT> factory) {
     this.myId = myId;
     this.secretSharedKey = secretSharedKey;
     this.factory = factory;
@@ -29,44 +29,44 @@ public class Spdz2kDummyDataSupplier<
   }
 
   @Override
-  public Spdz2kTriple<T> getNextTripleShares() {
+  public Spdz2kTriple<PlainT> getNextTripleShares() {
     MultiplicationTripleShares rawTriple = supplier.getMultiplicationTripleShares();
     return new Spdz2kTriple<>(
-        toMarlinElement(rawTriple.getLeft()),
-        toMarlinElement(rawTriple.getRight()),
-        toMarlinElement(rawTriple.getProduct()));
+        toSpdz2kElement(rawTriple.getLeft()),
+        toSpdz2kElement(rawTriple.getRight()),
+        toSpdz2kElement(rawTriple.getProduct()));
   }
 
   @Override
-  public Spdz2kInputMask<T> getNextInputMask(int towardPlayerId) {
+  public Spdz2kInputMask<PlainT> getNextInputMask(int towardPlayerId) {
     Pair<BigInteger, BigInteger> raw = supplier.getRandomElementShare();
     if (myId == towardPlayerId) {
-      return new Spdz2kInputMask<>(toMarlinElement(raw),
+      return new Spdz2kInputMask<>(toSpdz2kElement(raw),
           factory.createFromBigInteger(raw.getFirst()));
     } else {
-      return new Spdz2kInputMask<>(toMarlinElement(raw));
+      return new Spdz2kInputMask<>(toSpdz2kElement(raw));
     }
   }
 
   @Override
-  public Spdz2kSInt<T> getNextBitShare() {
-    return toMarlinElement(supplier.getRandomBitShare());
+  public Spdz2kSInt<PlainT> getNextBitShare() {
+    return toSpdz2kElement(supplier.getRandomBitShare());
   }
 
   @Override
-  public T getSecretSharedKey() {
+  public PlainT getSecretSharedKey() {
     return secretSharedKey;
   }
 
   @Override
-  public Spdz2kSInt<T> getNextRandomElementShare() {
-    return toMarlinElement(supplier.getRandomElementShare());
+  public Spdz2kSInt<PlainT> getNextRandomElementShare() {
+    return toSpdz2kElement(supplier.getRandomElementShare());
   }
 
-  private Spdz2kSInt<T> toMarlinElement(Pair<BigInteger, BigInteger> raw) {
-    T openValue = factory.createFromBigInteger(raw.getFirst());
-    T share = factory.createFromBigInteger(raw.getSecond());
-    T macShare = openValue.multiply(secretSharedKey);
+  private Spdz2kSInt<PlainT> toSpdz2kElement(Pair<BigInteger, BigInteger> raw) {
+    PlainT openValue = factory.createFromBigInteger(raw.getFirst());
+    PlainT share = factory.createFromBigInteger(raw.getSecond());
+    PlainT macShare = openValue.multiply(secretSharedKey);
     return new Spdz2kSInt<>(share, macShare);
   }
 

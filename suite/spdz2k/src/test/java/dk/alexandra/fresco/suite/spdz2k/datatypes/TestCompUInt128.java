@@ -212,7 +212,7 @@ public class TestCompUInt128 {
   @Test
   public void testToByteArrayWithPadding() {
     byte[] bytes = new byte[]{0x42};
-    UInt<CompUInt128> uint = new CompUInt128(bytes);
+    UInt<CompUInt128> uint = new CompUInt128(bytes, true);
     byte[] expected = new byte[16];
     expected[expected.length - 1] = 0x42;
     byte[] actual = uint.toByteArray();

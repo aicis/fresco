@@ -24,12 +24,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public abstract class AbstractSpdz2kTest<MarlinResourcePoolT extends Spdz2kResourcePool<?>> {
+public abstract class AbstractSpdz2kTest<Spdz2kResourcePoolT extends Spdz2kResourcePool<?>> {
 
   private final List<Integer> partyNumbers = Arrays.asList(2, 3);
 
   void runTest(
-      TestThreadRunner.TestThreadFactory<MarlinResourcePoolT, ProtocolBuilderNumeric> f,
+      TestThreadRunner.TestThreadFactory<Spdz2kResourcePoolT, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy) {
     for (Integer numberOfParties : partyNumbers) {
       runTest(f, evalStrategy, numberOfParties);
@@ -37,7 +37,7 @@ public abstract class AbstractSpdz2kTest<MarlinResourcePoolT extends Spdz2kResou
   }
 
   protected void runTest(
-      TestThreadFactory<MarlinResourcePoolT, ProtocolBuilderNumeric> f,
+      TestThreadFactory<Spdz2kResourcePoolT, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, int noOfParties) {
 
     List<Integer> ports = getFreePorts(2 * noOfParties);
@@ -46,21 +46,21 @@ public abstract class AbstractSpdz2kTest<MarlinResourcePoolT extends Spdz2kResou
     Map<Integer, NetworkConfiguration> coinTossingNetConf = TestConfiguration
         .getNetworkConfigurations(noOfParties, ports.subList(noOfParties, ports.size()));
 
-    Map<Integer, TestThreadRunner.TestThreadConfiguration<MarlinResourcePoolT, ProtocolBuilderNumeric>> conf =
+    Map<Integer, TestThreadRunner.TestThreadConfiguration<Spdz2kResourcePoolT, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     for (int playerId : netConf.keySet()) {
       NetworkConfiguration partyNetConf = netConf.get(playerId);
       NetworkConfiguration coinTossingPartyNetConf = coinTossingNetConf.get(playerId);
-      ProtocolSuiteNumeric<MarlinResourcePoolT> ps = createProtocolSuite();
-      BatchEvaluationStrategy<MarlinResourcePoolT> batchEvaluationStrategy =
+      ProtocolSuiteNumeric<Spdz2kResourcePoolT> ps = createProtocolSuite();
+      BatchEvaluationStrategy<Spdz2kResourcePoolT> batchEvaluationStrategy =
           evalStrategy.getStrategy();
-      ProtocolEvaluator<MarlinResourcePoolT> evaluator =
+      ProtocolEvaluator<Spdz2kResourcePoolT> evaluator =
           new BatchedProtocolEvaluator<>(batchEvaluationStrategy, ps);
 
-      SecureComputationEngine<MarlinResourcePoolT, ProtocolBuilderNumeric> sce =
+      SecureComputationEngine<Spdz2kResourcePoolT, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(ps, evaluator);
 
-      TestThreadRunner.TestThreadConfiguration<MarlinResourcePoolT, ProtocolBuilderNumeric> ttc =
+      TestThreadRunner.TestThreadConfiguration<Spdz2kResourcePoolT, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(
               sce,
               () -> createResourcePool(playerId, noOfParties,
@@ -84,9 +84,9 @@ public abstract class AbstractSpdz2kTest<MarlinResourcePoolT extends Spdz2kResou
     return ports;
   }
 
-  protected abstract MarlinResourcePoolT createResourcePool(int playerId, int noOfParties,
+  protected abstract Spdz2kResourcePoolT createResourcePool(int playerId, int noOfParties,
       Supplier<Network> networkSupplier);
 
-  protected abstract ProtocolSuiteNumeric<MarlinResourcePoolT> createProtocolSuite();
+  protected abstract ProtocolSuiteNumeric<Spdz2kResourcePoolT> createProtocolSuite();
 
 }

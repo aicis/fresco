@@ -4,9 +4,7 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 public class GenericCompUInt implements
     CompUInt<GenericCompUInt, GenericCompUInt, GenericCompUInt> {
@@ -223,50 +221,6 @@ public class GenericCompUInt implements
     int[] temp = new int[requiredBitLength / Integer.SIZE];
     temp[temp.length - 1] = value;
     return temp;
-  }
-
-  private static void runUInt() {
-    GenericCompUIntFactory factory = new GenericCompUIntFactory(64, 64);
-    int numValues = 1000000;
-    List<GenericCompUInt> left = new ArrayList<>(numValues);
-    List<GenericCompUInt> right = new ArrayList<>(numValues);
-    for (int i = 0; i < numValues; i++) {
-      left.add(factory.createRandom());
-      right.add(factory.createRandom());
-    }
-    GenericCompUInt other = UInt.innerProduct(left, right);
-    long startTime = System.currentTimeMillis();
-    GenericCompUInt inner = UInt.innerProduct(left, right);
-    long endTime = System.currentTimeMillis();
-    long duration = (endTime - startTime);
-    System.out.println(inner);
-    System.out.println(duration);
-  }
-
-  private static void runUInt128() {
-    CompUInt128Factory factory = new CompUInt128Factory();
-    int numValues = 1000000;
-    List<CompUInt128> left = new ArrayList<>(numValues);
-    List<CompUInt128> right = new ArrayList<>(numValues);
-    for (int i = 0; i < numValues; i++) {
-      left.add(factory.createRandom());
-      right.add(factory.createRandom());
-    }
-    CompUInt128 other = UInt.innerProduct(left, right);
-    System.out.println(other);
-    long startTime = System.currentTimeMillis();
-    CompUInt128 inner = UInt.innerProduct(left, right);
-    long endTime = System.currentTimeMillis();
-    long duration = (endTime - startTime);
-    System.out.println(inner);
-    System.out.println(duration);
-  }
-
-  public static void main(String[] args) {
-    runUInt128();
-    runUInt();
-    runUInt128();
-    runUInt();
   }
 
 }

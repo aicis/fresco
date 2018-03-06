@@ -57,10 +57,6 @@ public class Spdz2kMultiplyProtocol<PlainT extends CompUInt<?, ?, PlainT>> exten
           Arrays.asList(epsilon, delta),
           Arrays.asList(e, d)
       );
-      // TODO is this really necessary?
-      triple = null;
-      epsilon = null;
-      delta = null;
       return EvaluationStatus.IS_DONE;
     }
   }

@@ -1,7 +1,5 @@
 package dk.alexandra.fresco.framework.util;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.BitSet;
 import java.util.List;
 
@@ -15,32 +13,29 @@ public class ByteAndBitConverter {
   }
 
   /**
-   * Converts long to byte array.
+   * Converts long to big-endian byte array.
    */
   public static byte[] toByteArray(long value) {
-    ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
-    buffer.order(ByteOrder.BIG_ENDIAN);
-    buffer.putLong(value);
-    return buffer.array();
+//    throw new UnsupportedOperationException("Implement me correctly!");
+    byte[] bytes = new byte[8];
+    for (int i = 7; i >= 0; i--) {
+      bytes[i] = (byte) (value & 0xFF);
+      value >>= 8;
+    }
+    return bytes;
   }
 
   /**
-   * Converts int to byte array.
+   * Converts int to big-endian byte array.
    */
   public static byte[] toByteArray(int value) {
-    ByteBuffer buffer = ByteBuffer.allocate(Integer.BYTES);
-    buffer.order(ByteOrder.BIG_ENDIAN);
-    buffer.putInt(value);
-    return buffer.array();
-  }
-
-  public static byte[] toByteArray(long[] values) {
-    ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES * values.length);
-    buffer.order(ByteOrder.BIG_ENDIAN);
-    for (long value : values) {
-      buffer.putLong(value);
+//    throw new UnsupportedOperationException("Implement me correctly!");
+    byte[] bytes = new byte[4];
+    for (int i = 3; i >= 0; i--) {
+      bytes[i] = (byte) (value & 0xFF);
+      value >>= 8;
     }
-    return buffer.array();
+    return bytes;
   }
 
   /**
