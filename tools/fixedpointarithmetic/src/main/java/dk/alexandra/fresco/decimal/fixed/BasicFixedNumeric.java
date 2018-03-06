@@ -27,7 +27,7 @@ public class BasicFixedNumeric implements BasicRealNumeric {
     this.maxPrecision = builder.getBasicNumericContext().getMaxBitLength() / 4;
     if (maxPrecision < 2 * defaultPrecision) {
       throw new IllegalArgumentException(
-          "The precision was chosen too large for a product of two numbers to be representable"
+          "The precision was chosen too large for a product of two numbers to be representable "
               + "in this numeric context. You cannot choose a precision larger than "
               + (maxPrecision / 2) + ".");
     }
