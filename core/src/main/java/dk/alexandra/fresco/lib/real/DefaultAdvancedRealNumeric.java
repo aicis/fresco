@@ -1,10 +1,8 @@
 package dk.alexandra.fresco.lib.real;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RandomAdditiveMask;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -14,8 +12,6 @@ import java.util.stream.Collectors;
 public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric {
 
   protected final ProtocolBuilderNumeric builder;
-
-  private static final int DEFAULT_RANDOM_BITS = 32;
 
   protected DefaultAdvancedRealNumeric(ProtocolBuilderNumeric builder) {
     this.builder = builder;
@@ -120,19 +116,6 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
     }).seq((seq, termsAndDivisor) -> {
       return seq.realNumeric().div(seq.realAdvanced().sum(termsAndDivisor.getFirst()),
           termsAndDivisor.getSecond());
-    });
-  }
-
-  @Override
-  public DRes<SReal> random() {
-    return builder.seq(seq -> {
-      DRes<RandomAdditiveMask> random = seq.advancedNumeric().additiveMask(DEFAULT_RANDOM_BITS);
-      return random;
-    }).seq((seq, random) -> {
-      DRes<SInt> randomInteger = random.random;
-      BigInteger divisor = BigInteger.ONE.shiftLeft(DEFAULT_RANDOM_BITS);
-      return seq.realNumeric().div(seq.realNumeric().fromSInt(randomInteger),
-          new BigDecimal(divisor));
     });
   }
 
