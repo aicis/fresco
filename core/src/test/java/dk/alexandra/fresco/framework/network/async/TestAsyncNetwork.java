@@ -276,9 +276,8 @@ public class TestAsyncNetwork {
   @Test(expected = RuntimeException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
   public void testFailedReceive() throws Exception {
     networks = createNetworks(2);
-    // Close network to provoke IOException while receiving
     try {
-      // Close channel to provoke IOException while sending
+      // Cancel receiveFuture to provoke exception when receiving
       Field f = networks.get(1).getClass().getDeclaredField("receiveFutures");
       f.setAccessible(true);
       ((HashMap<Integer, Future<Object>>)f.get(networks.get(1))).get(2).cancel(true);
