@@ -23,18 +23,13 @@ import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kOpenedValueStore;
 import java.io.Closeable;
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
     extends ResourcePoolImpl
     implements Spdz2kResourcePool<PlainT> {
-
-  private static final Logger logger = LoggerFactory.getLogger(Spdz2kResourcePoolImpl.class);
 
   private final int operationalBitLength;
   private final int effectiveBitLength;
@@ -91,19 +86,14 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
   public void initializeJointRandomness(Supplier<Network> networkSupplier,
       Function<byte[], Drbg> drbgGenerator, int seedLength) {
     // TODO clean this up
-//    byte[] fixedSeed = new byte[32];
-//    fixedSeed[0] = 1;
-//    drbg = drbgGenerator.apply(fixedSeed);
     BasicNumericContext numericContext = new BasicNumericContext(effectiveBitLength, modulus,
         getMyId(), getNoOfParties());
     Network network = networkSupplier.get();
-    logger.debug("Got network " + getMyId());
 
     NetworkBatchDecorator networkBatchDecorator =
         new NetworkBatchDecorator(
             this.getNoOfParties(),
             network);
-    logger.debug("Got network decorator" + getMyId());
     BuilderFactoryNumeric builderFactory = new Spdz2kBuilder<>(factory, numericContext);
     ProtocolBuilderNumeric root = builderFactory.createSequential();
     byte[] ownSeed = new byte[seedLength];
@@ -113,10 +103,8 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
         ownSeed)
         .buildComputation(root);
     ProtocolProducer commitmentProducer = root.build();
-    logger.debug("Build producer " + getMyId());
     int counter = 0;
     do {
-      logger.debug("Processing  " + getMyId() + " batch number " + counter++);
       ProtocolCollectionList<Spdz2kResourcePool> protocolCollectionList =
           new ProtocolCollectionList<>(
               1); // batch size is irrelevant since this is a very light-weight protocol
@@ -129,15 +117,10 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
       ByteArrayHelper.xor(jointSeed, seed);
     }
     drbg = drbgGenerator.apply(jointSeed);
-    logger.debug("Generated joint seed successfully " + getMyId() + " seed " + Arrays
-        .toString(jointSeed));
     ExceptionConverter.safe(() -> {
       ((Closeable) network).close();
-      logger.debug("Closed network " + getMyId() + " seed " + Arrays
-          .toString(jointSeed));
       return null;
     }, "Failed to close network");
-
   }
 
   @Override
