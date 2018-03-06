@@ -1,11 +1,11 @@
-package dk.alexandra.fresco.fixedpoint.basic;
+package dk.alexandra.fresco.lib.real;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import org.junit.Assert;
 
-public class TestUtils {
+class RealTestUtils {
 
   void assertEqual(BigDecimal a, BigDecimal b, int precision) {
 

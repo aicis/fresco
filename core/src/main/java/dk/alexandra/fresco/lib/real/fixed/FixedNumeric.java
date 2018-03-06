@@ -1,23 +1,23 @@
-package dk.alexandra.fresco.decimal.fixed;
+package dk.alexandra.fresco.lib.real.fixed;
 
-import dk.alexandra.fresco.decimal.BasicRealNumeric;
-import dk.alexandra.fresco.decimal.SReal;
-import dk.alexandra.fresco.decimal.fixed.utils.Truncate;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.real.RealNumeric;
+import dk.alexandra.fresco.lib.real.SReal;
+import dk.alexandra.fresco.lib.real.fixed.utils.Truncate;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 
-public class BasicFixedNumeric implements BasicRealNumeric {
+public class FixedNumeric implements RealNumeric {
 
   private final ProtocolBuilderNumeric builder;
   private final BigInteger BASE = BigInteger.valueOf(2);
   private final int defaultPrecision;
   private final int maxPrecision;
 
-  public BasicFixedNumeric(ProtocolBuilderNumeric builder, int precision) {
+  public FixedNumeric(ProtocolBuilderNumeric builder, int precision) {
     this.builder = builder;
     this.defaultPrecision = precision;
 
@@ -33,7 +33,7 @@ public class BasicFixedNumeric implements BasicRealNumeric {
     }
   }
 
-  public BasicFixedNumeric(ProtocolBuilderNumeric builder) {
+  public FixedNumeric(ProtocolBuilderNumeric builder) {
     this(builder, 16);
   }
 

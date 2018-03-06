@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.decimal;
+package dk.alexandra.fresco.lib.real;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
@@ -6,7 +6,7 @@ import dk.alexandra.fresco.lib.collections.Matrix;
 import java.math.BigDecimal;
 import java.util.Vector;
 
-public interface LinearAlgebra extends ComputationDirectory {
+public interface RealLinearAlgebra extends ComputationDirectory {
 
   /**
    * Adds two secret values and returns the result.

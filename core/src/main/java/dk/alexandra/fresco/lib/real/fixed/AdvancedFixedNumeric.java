@@ -1,16 +1,16 @@
-package dk.alexandra.fresco.decimal.fixed;
+package dk.alexandra.fresco.lib.real.fixed;
 
-import dk.alexandra.fresco.decimal.DefaultAdvancedRealNumeric;
-import dk.alexandra.fresco.decimal.SReal;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.real.DefaultAdvancedRealNumeric;
+import dk.alexandra.fresco.lib.real.SReal;
 import java.math.BigDecimal;
 
 public class AdvancedFixedNumeric extends DefaultAdvancedRealNumeric {
 
   public AdvancedFixedNumeric(ProtocolBuilderNumeric builder) {
-    super(builder, scope -> new FixedNumeric(scope));
+    super(builder);
   }
 
   @Override
@@ -24,7 +24,7 @@ public class AdvancedFixedNumeric extends DefaultAdvancedRealNumeric {
       int newScale = Math.floorDiv(scale, 2);
       DRes<SReal> result = new SFixed(intResult, newScale);
       if (scale % 2 != 0) {
-        result = new FixedNumeric(seq).numeric().mult(BigDecimal.valueOf(Math.sqrt(2.0)), result);
+        result = seq.realNumeric().mult(BigDecimal.valueOf(Math.sqrt(2.0)), result);
       }
       return result;
     });

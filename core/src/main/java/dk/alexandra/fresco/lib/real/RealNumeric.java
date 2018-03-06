@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.decimal;
+package dk.alexandra.fresco.lib.real;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 /**
  * Basic interface for numeric applications on real numbers.
  */
-public interface BasicRealNumeric extends ComputationDirectory {
+public interface RealNumeric extends ComputationDirectory {
 
   /**
    * Adds two secret values and returns the result.

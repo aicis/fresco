@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.decimal.fixed.utils;
+package dk.alexandra.fresco.lib.real.fixed.utils;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;

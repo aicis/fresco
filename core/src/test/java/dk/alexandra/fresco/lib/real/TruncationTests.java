@@ -1,6 +1,5 @@
-package dk.alexandra.fresco.fixedpoint.basic;
+package dk.alexandra.fresco.lib.real;
 
-import dk.alexandra.fresco.decimal.fixed.utils.Truncate;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -8,6 +7,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.real.fixed.utils.Truncate;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;

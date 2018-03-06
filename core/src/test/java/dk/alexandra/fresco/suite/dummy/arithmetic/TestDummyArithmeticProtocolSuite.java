@@ -39,6 +39,10 @@ import dk.alexandra.fresco.lib.math.integer.min.MinTests;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SqrtTests;
 import dk.alexandra.fresco.lib.math.integer.stat.StatisticsTests;
 import dk.alexandra.fresco.lib.math.polynomial.PolynomialTests;
+import dk.alexandra.fresco.lib.real.BasicFixedPointTests;
+import dk.alexandra.fresco.lib.real.LinearAlgebraTests;
+import dk.alexandra.fresco.lib.real.MathTests;
+import dk.alexandra.fresco.lib.real.TruncationTests;
 import dk.alexandra.fresco.lib.statistics.CreditRaterTest;
 import dk.alexandra.fresco.lib.statistics.DeaSolver.AnalysisType;
 import dk.alexandra.fresco.lib.statistics.DeaSolverTests.RandomDataDeaTest;
@@ -619,6 +623,132 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(
         new ExponentiationPipeTests.TestPreprocessedValues<>(),
         EvaluationStrategy.SEQUENTIAL, 1);
+  }
+  
+  @Test
+  public void test_Real_Input_Sequential() throws Exception {
+    runTest(new BasicFixedPointTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void test_Real_Open_to_party_Sequential() throws Exception {
+    runTest(new BasicFixedPointTests.TestOpenToParty<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void test_Real_Known() throws Exception {
+    runTest(new BasicFixedPointTests.TestKnown<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void test_Real_Use_SInt() throws Exception {
+    runTest(new BasicFixedPointTests.TestUseSInt<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void test_Real_Add_Known() throws Exception {
+    runTest(new BasicFixedPointTests.TestAddKnown<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void test_Real_Add_Secret() throws Exception {
+    runTest(new BasicFixedPointTests.TestAdd<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void test_Real_Subtract_Secret() throws Exception {
+    runTest(new BasicFixedPointTests.TestSubtractSecret<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void test_Real_Sub_Known() throws Exception {
+    runTest(new BasicFixedPointTests.TestSubKnown<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void test_Real_Mult_Known() throws Exception {
+    runTest(new BasicFixedPointTests.TestMultKnown<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void test_Real_Mults() throws Exception {
+    runTest(new BasicFixedPointTests.TestMult<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void test_Real_Repeated_Multiplication() throws Exception {
+    runTest(new BasicFixedPointTests.TestRepeatedMultiplication<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void test_Real_Division_Secret_Divisor() throws Exception {
+    runTest(new BasicFixedPointTests.TestDiv<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void test_Real_Division_Known_Divisor() throws Exception {
+    runTest(new BasicFixedPointTests.TestDivisionKnownDivisor<>(), EvaluationStrategy.SEQUENTIAL,
+        2);
+  }
+
+  @Test
+  public void test_Close_Real_Matrix() throws Exception {
+    runTest(new LinearAlgebraTests.TestCloseFixedMatrix<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void test_Close_And_Open_Real_Matrix() throws Exception {
+    runTest(new LinearAlgebraTests.TestCloseAndOpenMatrix<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void test_Real_Matrix_Addition() throws Exception {
+    runTest(new LinearAlgebraTests.TestMatrixAddition<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void test_Real_Matrix_Multiplication() throws Exception {
+    runTest(new LinearAlgebraTests.TestMatrixMultiplication<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void test_Real_Matrix_Scale() throws Exception {
+    runTest(new LinearAlgebraTests.TestMatrixScale<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void test_Real_Matrix_Operate() throws Exception {
+    runTest(new LinearAlgebraTests.TestMatrixOperate<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void test_Real_Exp() throws Exception {
+    runTest(new MathTests.TestExp<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void test_Real_Random_Element() throws Exception {
+    runTest(new MathTests.TestRandom<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void test_Real_Leq() throws Exception {
+    runTest(new BasicFixedPointTests.TestLeq<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void test_Real_Log() throws Exception {
+    runTest(new MathTests.TestLog<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void test_Real_Sqrt() throws Exception {
+    runTest(new MathTests.TestSqrt<>(), EvaluationStrategy.SEQUENTIAL, 2);
+  }
+
+  @Test
+  public void test_trunctation() throws Exception {
+    runTest(new TruncationTests.TestTruncation<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
 }

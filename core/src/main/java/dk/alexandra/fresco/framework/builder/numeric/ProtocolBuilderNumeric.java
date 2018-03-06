@@ -3,6 +3,9 @@ package dk.alexandra.fresco.framework.builder.numeric;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderImpl;
 import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
+import dk.alexandra.fresco.lib.real.AdvancedRealNumeric;
+import dk.alexandra.fresco.lib.real.RealLinearAlgebra;
+import dk.alexandra.fresco.lib.real.RealNumeric;
 
 /**
  * Central class for building protocols that are based on numeric protocol suites. This class
@@ -17,8 +20,11 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
   private Comparison comparison;
   private Collections collections;
   private AdvancedNumeric advancedNumeric;
-  private PreprocessedValues preprocessedValues; 
+  private PreprocessedValues preprocessedValues;
   private Debug debug;
+  private RealNumeric realNumeric;
+  private AdvancedRealNumeric advancedRealNumeric;
+  private RealLinearAlgebra realLinearAlgebra;
 
   ProtocolBuilderNumeric(BuilderFactoryNumeric factory, boolean parallel) {
     super(factory, parallel);
@@ -126,4 +132,44 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
   public MiscBigIntegerGenerators getBigIntegerHelper() {
     return factory.getBigIntegerHelper();
   }
+
+  /**
+   * Creates a {@link RealNumeric} computation directory for this instance - i.e. this intended
+   * producer. Contains basic arithmetic operations on fixed point numbers.
+   *
+   * @return The real numeric computation directory.
+   */
+  public RealNumeric realNumeric() {
+    if (realNumeric == null) {
+      realNumeric = factory.createRealNumeric(this);
+    }
+    return realNumeric;
+  }
+
+  /**
+   * Creates an {@link AdvancedRealNumeric} computation directory for this instance - i.e. this
+   * intended producer. Contains advanced mathematical functions for fixed point numbers.
+   *
+   * @return The advanced real numeric computation directory.
+   */
+  public AdvancedRealNumeric realAdvanced() {
+    if (advancedRealNumeric == null) {
+      advancedRealNumeric = factory.createAdvancedRealNumeric(this);
+    }
+    return advancedRealNumeric;
+  }
+
+  /**
+   * Creates a {@link RealLinearAlgebra} computation directory for this instance - i.e. this
+   * intended producer. Contains linear algebra functions over fixed point numbers.
+   *
+   * @return The advanced real numeric computation directory.
+   */
+  public RealLinearAlgebra realLinAlg() {
+    if (realLinearAlgebra == null) {
+      realLinearAlgebra = factory.createRealLinearAlgebra(this);
+    }
+    return realLinearAlgebra;
+  }
+
 }

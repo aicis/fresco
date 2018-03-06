@@ -1,6 +1,5 @@
-package dk.alexandra.fresco.decimal;
+package dk.alexandra.fresco.lib.real;
 
-import dk.alexandra.fresco.decimal.fixed.FixedNumeric;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RandomAdditiveMask;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -15,18 +14,11 @@ import java.util.stream.Collectors;
 public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric {
 
   protected final ProtocolBuilderNumeric builder;
-  private final RealNumericProvider provider;
 
   private static final int DEFAULT_RANDOM_BITS = 32;
 
-  protected DefaultAdvancedRealNumeric(ProtocolBuilderNumeric builder,
-      RealNumericProvider provider) {
-    this.builder = builder;
-    this.provider = provider;
-  }
-
   protected DefaultAdvancedRealNumeric(ProtocolBuilderNumeric builder) {
-    this(builder, scope -> new FixedNumeric(scope));
+    this.builder = builder;
   }
 
   @Override
@@ -34,13 +26,12 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
     return builder.seq(seq -> () -> input)
         .whileLoop((inputs) -> inputs.size() > 1, (seq, inputs) -> seq.par(parallel -> {
           List<DRes<SReal>> out = new ArrayList<>();
-          RealNumeric numeric = provider.apply(parallel);
           DRes<SReal> left = null;
           for (DRes<SReal> input1 : inputs) {
             if (left == null) {
               left = input1;
             } else {
-              out.add(numeric.numeric().add(left, input1));
+              out.add(parallel.realNumeric().add(left, input1));
               left = null;
             }
           }
@@ -60,16 +51,14 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
         throw new IllegalArgumentException("Vectors must have same size");
       }
 
-      RealNumeric fixed = provider.apply(par);
       List<DRes<SReal>> products = new ArrayList<>(a.size());
       for (int i = 0; i < a.size(); i++) {
-        products.add(fixed.numeric().mult(a.get(i), b.get(i)));
+        products.add(par.realNumeric().mult(a.get(i), b.get(i)));
       }
 
       return () -> products;
     }).seq((seq, list) -> {
-      RealNumeric fixed = provider.apply(seq);
-      return fixed.advanced().sum(list);
+      return seq.realAdvanced().sum(list);
     });
   }
 
@@ -80,16 +69,14 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
         throw new IllegalArgumentException("Vectors must have same size");
       }
 
-      RealNumeric fixed = provider.apply(r1);
       List<DRes<SReal>> products = new ArrayList<>(a.size());
       for (int i = 0; i < a.size(); i++) {
-        products.add(fixed.numeric().mult(a.get(i), b.get(i)));
+        products.add(r1.realNumeric().mult(a.get(i), b.get(i)));
       }
 
       return () -> products;
     }).seq((seq, list) -> {
-      RealNumeric fixed = provider.apply(seq);
-      return fixed.advanced().sum(list);
+      return seq.realAdvanced().sum(list);
     });
   }
 
@@ -102,9 +89,8 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
 
       powers.add(x);
       DRes<SReal> pow = x;
-      RealNumeric fixed = provider.apply(seq);
       for (int i = 1; i < numberOfTerms - 1; i++) {
-        pow = fixed.numeric().mult(pow, x);
+        pow = seq.realNumeric().mult(pow, x);
         powers.add(pow);
       }
       return () -> powers;
@@ -124,17 +110,15 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
 
       BigInteger n = BigInteger.ONE;
       List<DRes<SReal>> terms = new ArrayList<>(numberOfTerms);
-      RealNumeric fixed = provider.apply(par);
       for (int i = numberOfTerms - 1; i >= 1; i--) {
-        terms.add(fixed.numeric().mult(new BigDecimal(n), powers.get(i - 1)));
+        terms.add(par.realNumeric().mult(new BigDecimal(n), powers.get(i - 1)));
         n = n.multiply(BigInteger.valueOf(i));
       }
       final BigDecimal divisor = new BigDecimal(n);
-      terms.add(fixed.numeric().known(divisor));
+      terms.add(par.realNumeric().known(divisor));
       return () -> new Pair<>(terms, divisor);
     }).seq((seq, termsAndDivisor) -> {
-      RealNumeric fixed = provider.apply(seq);
-      return fixed.numeric().div(fixed.advanced().sum(termsAndDivisor.getFirst()),
+      return seq.realNumeric().div(seq.realAdvanced().sum(termsAndDivisor.getFirst()),
           termsAndDivisor.getSecond());
     });
   }
@@ -145,10 +129,9 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
       DRes<RandomAdditiveMask> random = seq.advancedNumeric().additiveMask(DEFAULT_RANDOM_BITS);
       return random;
     }).seq((seq, random) -> {
-      RealNumeric numeric = provider.apply(seq);
       DRes<SInt> randomInteger = random.random;
       BigInteger divisor = BigInteger.ONE.shiftLeft(DEFAULT_RANDOM_BITS);
-      return numeric.numeric().div(numeric.numeric().fromSInt(randomInteger),
+      return seq.realNumeric().div(seq.realNumeric().fromSInt(randomInteger),
           new BigDecimal(divisor));
     });
   }
@@ -166,28 +149,26 @@ public abstract class DefaultAdvancedRealNumeric implements AdvancedRealNumeric 
      */
 
     return builder.seq(seq -> {
-      RealNumeric numeric = provider.apply(seq);
-      DRes<SReal> y = numeric.numeric().div(numeric.numeric().sub(x, BigDecimal.ONE),
-          numeric.numeric().add(BigDecimal.ONE, x));
-      DRes<SReal> ySquared = numeric.numeric().mult(y, y);
+      DRes<SReal> y = seq.realNumeric().div(seq.realNumeric().sub(x, BigDecimal.ONE),
+          seq.realNumeric().add(BigDecimal.ONE, x));
+      DRes<SReal> ySquared = seq.realNumeric().mult(y, y);
 
       List<DRes<SReal>> powers = new ArrayList<>(numberOfTerms);
       powers.add(y);
       DRes<SReal> currentPower = y;
       for (int i = 1; i < numberOfTerms; i++) {
-        currentPower = numeric.numeric().mult(currentPower, ySquared);
+        currentPower = seq.realNumeric().mult(currentPower, ySquared);
         powers.add(currentPower);
       }
       return () -> powers;
     }).par((par, powers) -> {
-      RealNumeric numeric = provider.apply(par);
       List<DRes<SReal>> terms = powers.stream()
-          .map(e -> numeric.numeric().mult(new BigDecimal(1.0 / (2 * powers.indexOf(e) + 1)), e))
+          .map(
+              e -> par.realNumeric().mult(new BigDecimal(1.0 / (2 * powers.indexOf(e) + 1)), e))
           .collect(Collectors.toList());
       return () -> terms;
     }).seq((seq, terms) -> {
-      RealNumeric numeric = provider.apply(seq);
-      return numeric.numeric().mult(BigDecimal.valueOf(2.0), numeric.advanced().sum(terms));
+      return seq.realNumeric().mult(BigDecimal.valueOf(2.0), seq.realAdvanced().sum(terms));
     });
   }
 
