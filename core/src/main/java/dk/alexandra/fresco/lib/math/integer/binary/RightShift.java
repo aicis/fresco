@@ -48,7 +48,7 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
 
   @Override
   public DRes<RightShiftResult> buildComputation(ProtocolBuilderNumeric sequential) {
-    return sequential.seq((builder) -> {
+    return sequential.seq(builder -> {
       /*
        * Generate random additive mask of the same length as the input + some
        * extra to avoid leakage.
@@ -56,9 +56,9 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
       AdvancedNumeric additiveMaskBuilder = builder.advancedNumeric();
       DRes<RandomAdditiveMask> mask = additiveMaskBuilder.additiveMask(bitLength);
       return mask;
-    }).seq((parSubSequential, randomAdditiveMask) -> {
-      DRes<SInt> result = parSubSequential.numeric().add(input, () -> randomAdditiveMask.r);
-      DRes<BigInteger> open = parSubSequential.numeric().open(result);
+    }).seq((seq, randomAdditiveMask) -> {
+      DRes<SInt> result = seq.numeric().add(input, () -> randomAdditiveMask.random);
+      DRes<BigInteger> open = seq.numeric().open(result);
       return () -> new Pair<>(open, randomAdditiveMask);
     }).seq((seq, maskedInput) -> {
       BigInteger masked = maskedInput.getFirst().out();
@@ -100,7 +100,7 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
 
       BigInteger inverse = BigInteger.ONE.shiftLeft(shifts)
           .modInverse(seq.getBasicNumericContext().getModulus());
-      DRes<SInt> rTop = seq.numeric().sub(mask.r, rBottom);
+      DRes<SInt> rTop = seq.numeric().sub(mask.random, rBottom);
 
       /*
        * rTop is r with the last shifts bits set to zero, and it is hence
