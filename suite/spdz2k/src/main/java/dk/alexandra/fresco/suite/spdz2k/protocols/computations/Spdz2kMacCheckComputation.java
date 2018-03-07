@@ -60,9 +60,11 @@ public class Spdz2kMacCheckComputation<
     PlainT y = UInt.innerProduct(openValues, randomCoefficients);
     Spdz2kSInt<PlainT> r = supplier.getNextRandomElementShare();
     return builder
+        // note that we only care about the broadcast validation in this step; we ignore the actual
+        // results of the broadcast since the parties already have them as authenticatedElements
         .seq(new BroadcastComputation<>(sharesLowBits))
-        .seq((seq, ignored) -> stepOne(seq, authenticatedElements, r))
-        .seq((seq, broadcastPjs) -> stepTwo(seq, authenticatedElements, macKeyShare, y, r,
+        .seq((seq, ignored) -> computePValues(seq, authenticatedElements, r))
+        .seq((seq, broadcastPjs) -> computeZValues(seq, authenticatedElements, macKeyShare, y, r,
             broadcastPjs))
         .seq((seq, commitZjs) -> {
           if (!UInt.sum(serializer.deserializeList(commitZjs)).isZero()) {
@@ -73,7 +75,7 @@ public class Spdz2kMacCheckComputation<
         });
   }
 
-  private DRes<List<byte[]>> stepOne(ProtocolBuilderNumeric builder,
+  private DRes<List<byte[]>> computePValues(ProtocolBuilderNumeric builder,
       List<Spdz2kSInt<PlainT>> authenticatedElements,
       Spdz2kSInt<PlainT> r) {
     List<PlainT> originalShares = authenticatedElements.stream()
@@ -88,7 +90,7 @@ public class Spdz2kMacCheckComputation<
     return new BroadcastComputation<ProtocolBuilderNumeric>(pjBytes).buildComputation(builder);
   }
 
-  private DRes<List<byte[]>> stepTwo(ProtocolBuilderNumeric builder,
+  private DRes<List<byte[]>> computeZValues(ProtocolBuilderNumeric builder,
       List<Spdz2kSInt<PlainT>> authenticatedElements,
       PlainT macKeyShare, PlainT y, Spdz2kSInt<PlainT> r,
       List<byte[]> broadcastPjs) {
