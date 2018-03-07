@@ -3,8 +3,9 @@ package dk.alexandra.fresco.suite.spdz2k.datatypes;
 import dk.alexandra.fresco.framework.value.SInt;
 
 /**
+ * Represents an authenticated, secret-share element.
  *
- * @param <PlainT>
+ * @param <PlainT> type of underlying plain value, i.e., the value type we use for arithmetic.
  */
 public class Spdz2kSInt<PlainT extends CompUInt<?, ?, PlainT>> implements SInt {
 
@@ -27,16 +28,24 @@ public class Spdz2kSInt<PlainT extends CompUInt<?, ?, PlainT>> implements SInt {
   public Spdz2kSInt(PlainT share, PlainT macKeyShare, PlainT zero, boolean isPartyOne) {
     this(isPartyOne ? share : zero, share.multiply(macKeyShare));
   }
-
-
+  
+  /**
+   * Compute sum of this and other.
+   */
   public Spdz2kSInt<PlainT> add(Spdz2kSInt<PlainT> other) {
     return new Spdz2kSInt<>(share.add(other.share), macShare.add(other.macShare));
   }
 
+  /**
+   * Compute difference of this and other.
+   */
   public Spdz2kSInt<PlainT> subtract(Spdz2kSInt<PlainT> other) {
     return new Spdz2kSInt<>(share.subtract(other.share), macShare.subtract(other.macShare));
   }
 
+  /**
+   * Compute product of this and constant (open) value.
+   */
   public Spdz2kSInt<PlainT> multiply(PlainT other) {
     return new Spdz2kSInt<>(share.multiply(other), macShare.multiply(other));
   }
@@ -50,9 +59,9 @@ public class Spdz2kSInt<PlainT extends CompUInt<?, ?, PlainT>> implements SInt {
   }
 
   /**
-   * Adds constant (open) value to this and returns result. <p>All parties compute their mac share
-   * of the public value and add it to the mac share of the authenticated value, however only party
-   * 1 adds the public value to is value share.</p>
+   * Compute sum of this and constant (open) value. <p>All parties compute their mac share of the
+   * public value and add it to the mac share of the authenticated value, however only party 1 adds
+   * the public value to is value share.</p>
    *
    * @param other constant, open value
    * @param macKeyShare mac key share for maccing open value
