@@ -20,6 +20,7 @@ import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kRandomBitProtoco
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kRandomElementProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kSubtractFromKnownProtocol;
 import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  * Basic native builder for the SPDZ2k protocol suite.
@@ -125,7 +126,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
    * Get result from deferred and downcast result to {@link Spdz2kSInt<PlainT>}.
    */
   private Spdz2kSInt<PlainT> toSpdz2kSInt(DRes<SInt> value) {
-    return (Spdz2kSInt<PlainT>) value.out();
+    return Objects.requireNonNull((Spdz2kSInt<PlainT>) value.out());
   }
 
 }
