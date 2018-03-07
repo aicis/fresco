@@ -10,6 +10,7 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kInputMask;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
+import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kDataSupplier;
 
 public class Spdz2kInputOnlyProtocol<PlainT extends CompUInt<?, ?, PlainT>>
     extends Spdz2kNativeProtocol<Pair<DRes<SInt>, byte[]>, PlainT> {
@@ -30,8 +31,9 @@ public class Spdz2kInputOnlyProtocol<PlainT extends CompUInt<?, ?, PlainT>>
     CompUIntFactory<PlainT> factory = resourcePool.getFactory();
     int myId = resourcePool.getMyId();
     ByteSerializer<PlainT> serializer = resourcePool.getRawSerializer();
+    Spdz2kDataSupplier<PlainT> dataSupplier = resourcePool.getDataSupplier();
     if (round == 0) {
-      inputMask = resourcePool.getDataSupplier().getNextInputMask(inputPartyId);
+      inputMask = dataSupplier.getNextInputMask(inputPartyId);
       if (myId == inputPartyId) {
         PlainT bcValue = this.input.subtract(inputMask.getOpenValue());
         network.sendToAll(serializer.serialize(bcValue));
@@ -39,12 +41,13 @@ public class Spdz2kInputOnlyProtocol<PlainT extends CompUInt<?, ?, PlainT>>
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       byte[] inputMaskBytes = network.receive(inputPartyId);
-      PlainT macKeyShare = resourcePool.getDataSupplier().getSecretSharedKey();
-      Spdz2kSInt<PlainT> out = inputMask.getMaskShare().addConstant(
+      PlainT macKeyShare = dataSupplier.getSecretSharedKey();
+      Spdz2kSInt<PlainT> maskShare = inputMask.getMaskShare();
+      Spdz2kSInt<PlainT> out = maskShare.addConstant(
           serializer.deserialize(inputMaskBytes),
-          myId,
           macKeyShare,
-          factory.zero());
+          factory.zero(),
+          myId == 1);
       this.out = new Pair<>(out, inputMaskBytes);
       return EvaluationStatus.IS_DONE;
     }

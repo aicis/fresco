@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.UInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kTriple;
@@ -55,10 +56,14 @@ public class Spdz2kMultiplyProtocol<PlainT extends CompUInt<?, ?, PlainT>> exten
       Spdz2kSInt<PlainT> tripleRight = triple.getRight();
       Spdz2kSInt<PlainT> tripleLeft = triple.getLeft();
       Spdz2kSInt<PlainT> tripleProduct = triple.getProduct();
+      CompUIntFactory<PlainT> factory = resourcePool.getFactory();
       this.product = tripleProduct
           .add(tripleRight.multiply(e))
           .add(tripleLeft.multiply(d))
-          .addConstant(ed, resourcePool.getMyId(), macKeyShare, resourcePool.getFactory().zero());
+          .addConstant(ed,
+              macKeyShare,
+              factory.zero(),
+              resourcePool.getMyId() == 1);
       resourcePool.getOpenedValueStore().pushOpenedValues(
           Arrays.asList(epsilon, delta),
           Arrays.asList(e, d)
