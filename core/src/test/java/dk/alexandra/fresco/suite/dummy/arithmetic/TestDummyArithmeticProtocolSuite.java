@@ -508,7 +508,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_ss_division() throws Exception {
     runTest(new DivisionTests.TestDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        1, defaultMod, true);
+        1, true);
     assertThat(performanceLoggers.get(1).getLoggedValues()
         .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_COMP0), is((long) 80));
   }
