@@ -32,25 +32,25 @@ public class Spdz2kDummyDataSupplier<
   public Spdz2kTriple<PlainT> getNextTripleShares() {
     MultiplicationTripleShares rawTriple = supplier.getMultiplicationTripleShares();
     return new Spdz2kTriple<>(
-        toSpdz2kElement(rawTriple.getLeft()),
-        toSpdz2kElement(rawTriple.getRight()),
-        toSpdz2kElement(rawTriple.getProduct()));
+        toSpdz2kSInt(rawTriple.getLeft()),
+        toSpdz2kSInt(rawTriple.getRight()),
+        toSpdz2kSInt(rawTriple.getProduct()));
   }
 
   @Override
   public Spdz2kInputMask<PlainT> getNextInputMask(int towardPlayerId) {
     Pair<BigInteger, BigInteger> raw = supplier.getRandomElementShare();
     if (myId == towardPlayerId) {
-      return new Spdz2kInputMask<>(toSpdz2kElement(raw),
+      return new Spdz2kInputMask<>(toSpdz2kSInt(raw),
           factory.createFromBigInteger(raw.getFirst()));
     } else {
-      return new Spdz2kInputMask<>(toSpdz2kElement(raw));
+      return new Spdz2kInputMask<>(toSpdz2kSInt(raw));
     }
   }
 
   @Override
   public Spdz2kSInt<PlainT> getNextBitShare() {
-    return toSpdz2kElement(supplier.getRandomBitShare());
+    return toSpdz2kSInt(supplier.getRandomBitShare());
   }
 
   @Override
@@ -60,10 +60,10 @@ public class Spdz2kDummyDataSupplier<
 
   @Override
   public Spdz2kSInt<PlainT> getNextRandomElementShare() {
-    return toSpdz2kElement(supplier.getRandomElementShare());
+    return toSpdz2kSInt(supplier.getRandomElementShare());
   }
 
-  private Spdz2kSInt<PlainT> toSpdz2kElement(Pair<BigInteger, BigInteger> raw) {
+  private Spdz2kSInt<PlainT> toSpdz2kSInt(Pair<BigInteger, BigInteger> raw) {
     PlainT openValue = factory.createFromBigInteger(raw.getFirst());
     PlainT share = factory.createFromBigInteger(raw.getSecond());
     PlainT macShare = openValue.multiply(secretSharedKey);

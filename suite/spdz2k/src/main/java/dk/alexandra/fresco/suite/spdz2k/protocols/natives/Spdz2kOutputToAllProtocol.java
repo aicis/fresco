@@ -28,7 +28,7 @@ public class Spdz2kOutputToAllProtocol<PlainT extends CompUInt<?, ?, PlainT>>
       Network network) {
     Spdz2kOpenedValueStore<PlainT> openedValueStore = resourcePool.getOpenedValueStore();
     if (round == 0) {
-      authenticatedElement = (Spdz2kSInt<PlainT>) share.out();
+      authenticatedElement = toSpdz2kSInt(share);
       network.sendToAll(authenticatedElement.getShare().getLeastSignificant().toByteArray());
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {

@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
-import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 
 public class Spdz2kAddKnownProtocol<PlainT extends CompUInt<?, ?, PlainT>>
@@ -22,7 +21,7 @@ public class Spdz2kAddKnownProtocol<PlainT extends CompUInt<?, ?, PlainT>>
   @Override
   public EvaluationStatus evaluate(int round, Spdz2kResourcePool<PlainT> resourcePool,
       Network network) {
-    out = ((Spdz2kSInt<PlainT>) right.out()).addConstant(left, resourcePool.getMyId(),
+    out = toSpdz2kSInt(right).addConstant(left, resourcePool.getMyId(),
         resourcePool.getDataSupplier().getSecretSharedKey(), resourcePool.getFactory().zero());
     return EvaluationStatus.IS_DONE;
   }

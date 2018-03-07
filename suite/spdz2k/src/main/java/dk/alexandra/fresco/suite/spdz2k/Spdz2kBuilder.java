@@ -47,7 +47,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
     return new Numeric() {
       @Override
       public DRes<SInt> add(DRes<SInt> a, DRes<SInt> b) {
-        return () -> ((Spdz2kSInt<PlainT>) a.out()).add((Spdz2kSInt<PlainT>) b.out());
+        return () -> toSpdz2kSInt(a).add(toSpdz2kSInt(b));
       }
 
       @Override
@@ -57,7 +57,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
       @Override
       public DRes<SInt> sub(DRes<SInt> a, DRes<SInt> b) {
-        return () -> ((Spdz2kSInt<PlainT>) a.out()).subtract((Spdz2kSInt<PlainT>) b.out());
+        return () -> (toSpdz2kSInt(a)).subtract(toSpdz2kSInt(b));
       }
 
       @Override
@@ -79,7 +79,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
       @Override
       public DRes<SInt> mult(BigInteger a, DRes<SInt> b) {
-        return () -> ((Spdz2kSInt<PlainT>) b.out()).multiply(factory.createFromBigInteger(a));
+        return () -> toSpdz2kSInt(b).multiply(factory.createFromBigInteger(a));
       }
 
       @Override
@@ -119,6 +119,13 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
   @Override
   public MiscBigIntegerGenerators getBigIntegerHelper() {
     throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Get result from deferred and downcast result to {@link Spdz2kSInt<PlainT>}.
+   */
+  private Spdz2kSInt<PlainT> toSpdz2kSInt(DRes<SInt> value) {
+    return (Spdz2kSInt<PlainT>) value.out();
   }
 
 }

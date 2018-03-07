@@ -35,7 +35,7 @@ public class Spdz2kOutputSinglePartyProtocol<PlainT extends CompUInt<?, ?, Plain
     Spdz2kDataSupplier<PlainT> supplier = resourcePool.getDataSupplier();
     if (round == 0) {
       this.inputMask = supplier.getNextInputMask(outputParty);
-      inMinusMask = ((Spdz2kSInt<PlainT>) this.share.out()).subtract(this.inputMask.getMaskShare());
+      inMinusMask = toSpdz2kSInt(share).subtract(this.inputMask.getMaskShare());
       network.sendToAll(inMinusMask.getShare().getLeastSignificant().toByteArray());
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {

@@ -26,7 +26,7 @@ public class Spdz2kSubtractFromKnownProtocol<PlainT extends CompUInt<?, ?, Plain
         (resourcePool.getMyId() == 1) ? left : resourcePool.getFactory().zero(),
         left.multiply(resourcePool.getDataSupplier().getSecretSharedKey())
     );
-    out = leftSInt.subtract(((Spdz2kSInt<PlainT>) right.out()));
+    out = leftSInt.subtract(toSpdz2kSInt(right));
     return EvaluationStatus.IS_DONE;
   }
 

@@ -14,15 +14,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Native protocol for computing product of two secret-shared numbers.
+ */
 public class Spdz2kMultiplyProtocol<PlainT extends CompUInt<?, ?, PlainT>> extends
     Spdz2kNativeProtocol<SInt, PlainT> {
 
   private final DRes<SInt> left;
   private final DRes<SInt> right;
   private Spdz2kTriple<PlainT> triple;
-  private SInt product;
   private Spdz2kSInt<PlainT> epsilon;
   private Spdz2kSInt<PlainT> delta;
+  private SInt product;
 
   public Spdz2kMultiplyProtocol(DRes<SInt> left, DRes<SInt> right) {
     this.left = left;
@@ -36,8 +39,8 @@ public class Spdz2kMultiplyProtocol<PlainT extends CompUInt<?, ?, PlainT>> exten
     ByteSerializer<PlainT> serializer = resourcePool.getRawSerializer();
     if (round == 0) {
       triple = resourcePool.getDataSupplier().getNextTripleShares();
-      epsilon = ((Spdz2kSInt<PlainT>) left.out()).subtract(triple.getLeft());
-      delta = ((Spdz2kSInt<PlainT>) right.out()).subtract(triple.getRight());
+      epsilon = toSpdz2kSInt(left).subtract(triple.getLeft());
+      delta = toSpdz2kSInt(right).subtract(triple.getRight());
       network.sendToAll(epsilon.getShare().getLeastSignificant().toByteArray());
       network.sendToAll(delta.getShare().getLeastSignificant().toByteArray());
       return EvaluationStatus.HAS_MORE_ROUNDS;
@@ -49,9 +52,12 @@ public class Spdz2kMultiplyProtocol<PlainT extends CompUInt<?, ?, PlainT>> exten
       PlainT e = epsilonAndDelta.getFirst();
       PlainT d = epsilonAndDelta.getSecond();
       PlainT ed = e.multiply(d);
-      product = triple.getProduct()
-          .add(triple.getRight().multiply(e))
-          .add(triple.getLeft().multiply(d))
+      Spdz2kSInt<PlainT> tripleRight = triple.getRight();
+      Spdz2kSInt<PlainT> tripleLeft = triple.getLeft();
+      Spdz2kSInt<PlainT> tripleProduct = triple.getProduct();
+      this.product = tripleProduct
+          .add(tripleRight.multiply(e))
+          .add(tripleLeft.multiply(d))
           .addConstant(ed, resourcePool.getMyId(), macKeyShare, resourcePool.getFactory().zero());
       resourcePool.getOpenedValueStore().pushOpenedValues(
           Arrays.asList(epsilon, delta),
