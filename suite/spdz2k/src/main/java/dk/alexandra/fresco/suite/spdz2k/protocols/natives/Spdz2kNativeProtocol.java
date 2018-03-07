@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
+import java.util.Objects;
 
 public abstract class Spdz2kNativeProtocol<
     OutputT,
@@ -16,7 +17,7 @@ public abstract class Spdz2kNativeProtocol<
    * Get result from deferred and downcast result to {@link Spdz2kSInt<PlainT>}.
    */
   Spdz2kSInt<PlainT> toSpdz2kSInt(DRes<SInt> value) {
-    return (Spdz2kSInt<PlainT>) value.out();
+    return Objects.requireNonNull((Spdz2kSInt<PlainT>) value.out());
   }
 
 }
