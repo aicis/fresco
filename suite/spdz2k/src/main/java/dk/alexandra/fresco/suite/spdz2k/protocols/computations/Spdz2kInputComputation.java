@@ -26,12 +26,8 @@ public class Spdz2kInputComputation<PlainT extends CompUInt<?, ?, PlainT>> imple
         .append(new Spdz2kInputOnlyProtocol<>(input, inputPartyId));
     return builder.seq(seq -> {
       Pair<DRes<SInt>, byte[]> unwrapped = pair.out();
-      DRes<Void> nothing = seq
-          .append(new BroadcastValidationProtocol<>(unwrapped.getSecond()));
-      return () -> {
-        nothing.out();
-        return unwrapped.getFirst().out();
-      };
+      seq.append(new BroadcastValidationProtocol<>(unwrapped.getSecond()));
+      return unwrapped.getFirst();
     });
   }
 

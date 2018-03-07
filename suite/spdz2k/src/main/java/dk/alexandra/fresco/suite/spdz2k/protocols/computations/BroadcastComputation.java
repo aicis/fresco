@@ -41,12 +41,8 @@ public class BroadcastComputation<BuilderT extends ProtocolBuilderImpl<BuilderT>
       List<byte[]> toValidate = lst.stream()
           .flatMap(broadcast -> broadcast.out().stream())
           .collect(Collectors.toList());
-      DRes<Void> nothing = seq.append(new BroadcastValidationProtocol<>(toValidate));
-      return () -> {
-//        TODO get rid off
-        nothing.out();
-        return toValidate;
-      };
+      seq.append(new BroadcastValidationProtocol<>(toValidate));
+      return () -> toValidate;
     });
   }
 
