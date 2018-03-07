@@ -24,6 +24,7 @@ import java.io.Closeable;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -31,7 +32,6 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
     extends ResourcePoolImpl
     implements Spdz2kResourcePool<PlainT> {
 
-  private final int operationalBitLength;
   private final int effectiveBitLength;
   private final BigInteger modulus;
   private final Spdz2kOpenedValueStore<PlainT> storage;
@@ -47,7 +47,9 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
       Spdz2kOpenedValueStore<PlainT> storage,
       Spdz2kDataSupplier<PlainT> supplier, CompUIntFactory<PlainT> factory) {
     super(myId, noOfPlayers);
-    this.operationalBitLength = factory.getCompositeBitLength();
+    Objects.requireNonNull(storage);
+    Objects.requireNonNull(supplier);
+    Objects.requireNonNull(factory);
     this.effectiveBitLength = factory.getLowBitLength();
     this.modulus = BigInteger.ONE.shiftLeft(effectiveBitLength);
     this.storage = storage;
