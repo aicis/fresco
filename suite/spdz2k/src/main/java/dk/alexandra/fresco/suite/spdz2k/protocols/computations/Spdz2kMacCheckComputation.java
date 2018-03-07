@@ -57,39 +57,13 @@ public class Spdz2kMacCheckComputation<
     List<byte[]> sharesLowBits = authenticatedElements.stream()
         .map(element -> element.getShare().getLeastSignificant().toByteArray())
         .collect(Collectors.toList());
-    final PlainT y = UInt.innerProduct(openValues, randomCoefficients);
-    final Spdz2kSInt<PlainT> r = supplier.getNextRandomElementShare();
+    PlainT y = UInt.innerProduct(openValues, randomCoefficients);
+    Spdz2kSInt<PlainT> r = supplier.getNextRandomElementShare();
     return builder
         .seq(new BroadcastComputation<>(sharesLowBits))
-        .seq((seq, ignored) -> {
-          List<PlainT> originalShares = authenticatedElements.stream()
-              .map(Spdz2kSInt::getShare)
-              .collect(Collectors.toList());
-          List<HighT> overflow = computeDifference(originalShares, converter);
-          List<HighT> randomCoefficientsAsHigh = randomCoefficients.stream()
-              .map(PlainT::getLeastSignificantAsHigh)
-              .collect(Collectors.toList());
-          HighT pj = UInt.innerProduct(overflow, randomCoefficientsAsHigh);
-          byte[] pjBytes = pj.add(r.getShare().getLeastSignificantAsHigh()).toByteArray();
-          return new BroadcastComputation<ProtocolBuilderNumeric>(pjBytes).buildComputation(seq);
-        })
-        .seq((seq, broadcastPjs) -> {
-          List<PlainT> pjList = serializer.deserializeList(broadcastPjs);
-          HighT pLow = UInt.sum(
-              pjList.stream().map(PlainT::getLeastSignificantAsHigh).collect(Collectors.toList()));
-          PlainT p = converter.createFromHigh(pLow);
-          List<PlainT> macShares = authenticatedElements.stream()
-              .map(Spdz2kSInt::getMacShare)
-              .collect(Collectors.toList());
-          PlainT mj = UInt.innerProduct(macShares, randomCoefficients);
-          PlainT zj = macKeyShare.multiply(y)
-              .subtract(mj)
-              .subtract(p.multiply(macKeyShare).shiftLowIntoHigh())
-              .add(r.getMacShare().shiftLowIntoHigh());
-          return new Spdz2kCommitmentComputation(commitmentSerializer,
-              serializer.serialize(zj))
-              .buildComputation(seq);
-        })
+        .seq((seq, ignored) -> stepOne(seq, authenticatedElements, r))
+        .seq((seq, broadcastPjs) -> stepTwo(seq, authenticatedElements, macKeyShare, y, r,
+            broadcastPjs))
         .seq((seq, commitZjs) -> {
           if (!UInt.sum(serializer.deserializeList(commitZjs)).isZero()) {
             throw new MaliciousException("Mac check failed");
@@ -97,6 +71,41 @@ public class Spdz2kMacCheckComputation<
           openedValueStore.clear();
           return null;
         });
+  }
+
+  private DRes<List<byte[]>> stepOne(ProtocolBuilderNumeric builder,
+      List<Spdz2kSInt<PlainT>> authenticatedElements,
+      Spdz2kSInt<PlainT> r) {
+    List<PlainT> originalShares = authenticatedElements.stream()
+        .map(Spdz2kSInt::getShare)
+        .collect(Collectors.toList());
+    List<HighT> overflow = computeDifference(originalShares, converter);
+    List<HighT> randomCoefficientsAsHigh = randomCoefficients.stream()
+        .map(PlainT::getLeastSignificantAsHigh)
+        .collect(Collectors.toList());
+    HighT pj = UInt.innerProduct(overflow, randomCoefficientsAsHigh);
+    byte[] pjBytes = pj.add(r.getShare().getLeastSignificantAsHigh()).toByteArray();
+    return new BroadcastComputation<ProtocolBuilderNumeric>(pjBytes).buildComputation(builder);
+  }
+
+  private DRes<List<byte[]>> stepTwo(ProtocolBuilderNumeric builder,
+      List<Spdz2kSInt<PlainT>> authenticatedElements,
+      PlainT macKeyShare, PlainT y, Spdz2kSInt<PlainT> r,
+      List<byte[]> broadcastPjs) {
+    List<PlainT> pjList = serializer.deserializeList(broadcastPjs);
+    HighT pLow = UInt.sum(
+        pjList.stream().map(PlainT::getLeastSignificantAsHigh).collect(Collectors.toList()));
+    PlainT p = converter.createFromHigh(pLow);
+    List<PlainT> macShares = authenticatedElements.stream()
+        .map(Spdz2kSInt::getMacShare)
+        .collect(Collectors.toList());
+    PlainT mj = UInt.innerProduct(macShares, randomCoefficients);
+    PlainT zj = macKeyShare.multiply(y)
+        .subtract(mj)
+        .subtract(p.multiply(macKeyShare).shiftLowIntoHigh())
+        .add(r.getMacShare().shiftLowIntoHigh());
+    return new Spdz2kCommitmentComputation(commitmentSerializer, serializer.serialize(zj))
+        .buildComputation(builder);
   }
 
   /**

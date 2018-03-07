@@ -43,6 +43,7 @@ public class BroadcastComputation<BuilderT extends ProtocolBuilderImpl<BuilderT>
           .collect(Collectors.toList());
       DRes<Void> nothing = seq.append(new BroadcastValidationProtocol<>(toValidate));
       return () -> {
+//        TODO get rid off
         nothing.out();
         return toValidate;
       };

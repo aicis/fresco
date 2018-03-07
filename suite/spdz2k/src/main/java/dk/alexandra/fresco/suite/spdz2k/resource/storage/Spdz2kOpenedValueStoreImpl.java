@@ -11,10 +11,12 @@ public class Spdz2kOpenedValueStoreImpl<PlainT extends CompUInt<?, ?, PlainT>>
 
   private final List<Spdz2kSInt<PlainT>> sharesWithMacs;
   private final List<PlainT> openedValues;
+  private int numPending;
 
   public Spdz2kOpenedValueStoreImpl() {
     this.sharesWithMacs = new ArrayList<>();
     this.openedValues = new ArrayList<>();
+    numPending = 0;
   }
 
   @Override
@@ -22,27 +24,37 @@ public class Spdz2kOpenedValueStoreImpl<PlainT extends CompUInt<?, ?, PlainT>>
       List<PlainT> newOpenedValues) {
     sharesWithMacs.addAll(newSharesWithMacs);
     openedValues.addAll(newOpenedValues);
+    numPending += newSharesWithMacs.size();
   }
 
   @Override
   public Pair<List<Spdz2kSInt<PlainT>>, List<PlainT>> peekValues() {
+    numPending -= sharesWithMacs.size();
     return new Pair<>(sharesWithMacs, openedValues);
   }
 
   @Override
   public void clear() {
+    if (numPending > 0) {
+      throw new IllegalStateException("Called clear before checking all values");
+    }
     sharesWithMacs.clear();
     openedValues.clear();
   }
 
   @Override
-  public boolean isEmpty() {
-    return sharesWithMacs.isEmpty();
+  public boolean hasPendingValues() {
+    return numPending == 0;
   }
 
   @Override
   public int size() {
     return sharesWithMacs.size();
+  }
+
+  @Override
+  public boolean exceedsThreshold(int threshold) {
+    return numPending > threshold;
   }
 
 }

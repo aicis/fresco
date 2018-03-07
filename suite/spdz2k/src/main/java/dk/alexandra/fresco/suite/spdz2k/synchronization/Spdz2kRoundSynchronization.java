@@ -52,7 +52,7 @@ public class Spdz2kRoundSynchronization<
 
   private void doMacCheck(Spdz2kResourcePool<PlainT> resourcePool, Network network) {
     Spdz2kOpenedValueStore<PlainT> openedValueStore = resourcePool.getOpenedValueStore();
-    if (!openedValueStore.isEmpty()) {
+    if (!openedValueStore.hasPendingValues()) {
       Spdz2kBuilder<PlainT> builder = new Spdz2kBuilder<>(resourcePool.getFactory(),
           protocolSuite.createBasicNumericContext(resourcePool));
       BatchEvaluationStrategy<Spdz2kResourcePool<PlainT>> batchStrategy = new BatchedStrategy<>();
@@ -71,7 +71,8 @@ public class Spdz2kRoundSynchronization<
   @Override
   public void finishedBatch(int gatesEvaluated, Spdz2kResourcePool<PlainT> resourcePool,
       Network network) {
-    if (isCheckRequired || resourcePool.getOpenedValueStore().size() > openValueThreshold) {
+    Spdz2kOpenedValueStore<PlainT> openedValueStore = resourcePool.getOpenedValueStore();
+    if (isCheckRequired || openedValueStore.exceedsThreshold(openValueThreshold)) {
       doMacCheck(resourcePool, network);
       isCheckRequired = false;
     }

@@ -22,7 +22,9 @@ public interface Spdz2kOpenedValueStore<T extends CompUInt<?, ?, T>> {
   }
 
   /**
-   * Retrieve all values that haven't been checked yet and clear the store.
+   * Retrieve all values that haven't been checked yet. <p>Note that this does <b>not</b> clear the
+   * values. It only only sets are flag that these values have been scheduled for clearing. Once
+   * mac-check is done, use {@link #clear()} for clearing.</p>
    */
   Pair<List<Spdz2kSInt<T>>, List<T>> peekValues();
 
@@ -34,11 +36,16 @@ public interface Spdz2kOpenedValueStore<T extends CompUInt<?, ?, T>> {
   /**
    * Check if there are unchecked values.
    */
-  boolean isEmpty();
+  boolean hasPendingValues();
 
   /**
    * Check number of unchecked values.
    */
   int size();
+
+  /**
+   * Check if number of values not yet scheduled for checking exceeds given threshold.
+   */
+  boolean exceedsThreshold(int threshold);
 
 }
