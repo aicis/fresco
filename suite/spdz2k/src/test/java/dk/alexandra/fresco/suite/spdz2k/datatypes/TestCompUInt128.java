@@ -9,7 +9,6 @@ import org.junit.Test;
 
 public class TestCompUInt128 {
 
-  // TODO test toBitInteger
   private final BigInteger two = BigInteger.valueOf(2);
   private final BigInteger twoTo32 = BigInteger.ONE.shiftLeft(32);
   private final BigInteger twoTo64 = BigInteger.ONE.shiftLeft(64);
@@ -238,6 +237,31 @@ public class TestCompUInt128 {
     UInt<CompUInt128> uint = new CompUInt128(bytes);
     byte[] actual = uint.toByteArray();
     assertArrayEquals(bytes, actual);
+  }
+
+  @Test
+  public void testGetBitLength() {
+    CompUInt128 uint = new CompUInt128(1);
+    assertEquals(128, uint.getBitLength());
+    assertEquals(64, uint.getLowBitLength());
+    assertEquals(64, uint.getHighBitLength());
+  }
+
+  @Test
+  public void testToInt() {
+    UInt<CompUInt128> uint = new CompUInt128(1);
+    assertEquals(1, uint.toInt());
+  }
+
+  @Test
+  public void testToString() {
+    UInt<CompUInt128> uint = new CompUInt128(12135);
+    assertEquals("12135", uint.toString());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testPadIllegal() {
+    new CompUInt128(new byte[50], true);
   }
 
 }

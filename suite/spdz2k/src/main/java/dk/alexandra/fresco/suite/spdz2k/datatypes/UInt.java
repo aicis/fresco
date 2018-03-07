@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -66,17 +65,6 @@ public interface UInt<T extends UInt> {
    */
   static <S extends UInt<S>> S sum(List<S> elements) {
     return elements.stream().reduce(UInt::add).orElse(elements.get(0));
-  }
-
-  /**
-   * Compute pairwise product of elements.
-   */
-  static <S extends UInt<S>> List<S> product(List<S> left, List<S> right) {
-    List<S> product = new ArrayList<>(left.size());
-    for (int i = 0; i < left.size(); i++) {
-      product.add(left.get(i).multiply(right.get(i)));
-    }
-    return product;
   }
 
   /**

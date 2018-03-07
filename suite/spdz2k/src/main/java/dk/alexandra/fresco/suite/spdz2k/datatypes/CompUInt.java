@@ -53,4 +53,21 @@ public interface CompUInt<
     return getCompositeBitLength();
   }
 
+  /**
+   * Util for padding a byte array up to the required bit length. <p>Since we are working with
+   * unsigned ints, the first byte of the passed in array is discarded if it's a zero byte.</p>
+   */
+  static byte[] pad(byte[] bytes, int requiredBitLength) {
+    byte[] padded = new byte[requiredBitLength / Byte.SIZE];
+    // potentially drop byte containing sign bit
+    boolean dropSignBitByte = (bytes[0] == 0x00);
+    int bytesLen = dropSignBitByte ? bytes.length - 1 : bytes.length;
+    if (bytesLen > padded.length) {
+      throw new IllegalArgumentException("Exceeds capacity");
+    }
+    int srcPos = dropSignBitByte ? 1 : 0;
+    System.arraycopy(bytes, srcPos, padded, padded.length - bytesLen, bytesLen);
+    return padded;
+  }
+
 }

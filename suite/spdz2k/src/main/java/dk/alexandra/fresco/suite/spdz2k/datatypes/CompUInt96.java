@@ -5,8 +5,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 public class CompUInt96 implements CompUInt<UInt64, UInt32, CompUInt96> {
-  // TODO optimize by using long and int as opposed to three ints
-
   private static final CompUInt96 ONE = new CompUInt96((int) 1);
 
   private final int high;

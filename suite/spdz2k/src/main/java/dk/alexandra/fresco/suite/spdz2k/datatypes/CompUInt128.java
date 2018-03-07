@@ -1,9 +1,6 @@
 package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 /**
  * Unsigned 128-bit integer with support for in-place operations. <p>Loosely follows this article
@@ -13,30 +10,43 @@ import java.util.Random;
 public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
 
   private static final CompUInt128 ONE = new CompUInt128(1);
-  private static final CompUInt128Factory factory = new CompUInt128Factory();
   private final long high;
   private final int mid;
   private final int low;
 
   /**
-   * Creates new {@link CompUInt128}.
+   * Creates new {@link CompUInt128}. <p>Do <b>not</b> pad bytes by default.</p>
    *
    * @param bytes bytes interpreted in big-endian order.
    */
   public CompUInt128(byte[] bytes) {
-    if (bytes.length == 16) {
-      this.high = toLong(bytes, 8);
-      this.mid = toInt(bytes, 4);
-      this.low = toInt(bytes, 0);
+    this(bytes, false);
+  }
+
+  /**
+   * Creates new {@link CompUInt128}.
+   *
+   * @param bytes bytes interpreted in big-endian order.
+   * @param requiresPadding indicates if the bytes need to be padded up to 16 bytes.
+   */
+  public CompUInt128(byte[] bytes, boolean requiresPadding) {
+    byte[] padded = requiresPadding ? CompUInt.pad(bytes, 128) : bytes;
+    if (padded.length == 16) {
+      this.high = toLong(padded, 8);
+      this.mid = toInt(padded, 4);
+      this.low = toInt(padded, 0);
     } else {
       this.high = 0L;
-      this.mid = toInt(bytes, 4);
-      this.low = toInt(bytes, 0);
+      this.mid = toInt(padded, 4);
+      this.low = toInt(padded, 0);
     }
   }
 
-  public CompUInt128(byte[] bytes, boolean padFlag) {
-    this(pad(bytes));
+  /**
+   * Creates new {@link CompUInt128} from {@link BigInteger}.
+   */
+  public CompUInt128(BigInteger value) {
+    this(value.toByteArray(), true);
   }
 
   private CompUInt128(long high, int mid, int low) {
@@ -45,15 +55,11 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
     this.low = low;
   }
 
-  CompUInt128(BigInteger value) {
-    this(value.toByteArray(), true);
-  }
-
-  public CompUInt128(UInt64 value) {
+  CompUInt128(UInt64 value) {
     this(value.toLong());
   }
 
-  public CompUInt128(long value) {
+  CompUInt128(long value) {
     this.high = 0;
     this.mid = (int) (value >>> 32);
     this.low = (int) value;
@@ -223,72 +229,6 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
         | (bytes[flipped - 1] & 0xFF) << 8
         | (bytes[flipped - 2] & 0xFF) << 16
         | (bytes[flipped - 3] & 0xFF) << 24;
-  }
-
-  private static byte[] pad(byte[] bytes) {
-    byte[] padded = new byte[16];
-    // potentially drop byte containing sign bit
-    boolean dropSignBitByte = (bytes[0] == 0x00);
-    int bytesLen = dropSignBitByte ? bytes.length - 1 : bytes.length;
-    if (bytesLen > padded.length) {
-      throw new IllegalArgumentException("Exceeds capacity");
-    }
-    int srcPos = dropSignBitByte ? 1 : 0;
-    System.arraycopy(bytes, srcPos, padded, padded.length - bytesLen, bytesLen);
-    return padded;
-  }
-
-  private static void runUInt128(List<CompUInt128> left, List<CompUInt128> right) {
-    CompUInt128 other = UInt.innerProduct(left, right);
-    System.out.println(other);
-    long startTime = System.currentTimeMillis();
-    CompUInt128 inner = UInt.innerProduct(left, right);
-    long endTime = System.currentTimeMillis();
-    long duration = (endTime - startTime);
-    System.out.println(inner);
-    System.out.println(duration);
-  }
-
-  private static void runUIntBigInt(List<BigInteger> left, List<BigInteger> right, BigInteger modulus) {
-    long startTime = System.currentTimeMillis();
-    List<BigInteger> result = new ArrayList<>(left.size());
-    for (int i = 0; i < left.size(); i++) {
-      result.add(left.get(i).multiply(right.get(i)).mod(modulus));
-    }
-    BigInteger inner = BigInteger.ZERO;
-    for (BigInteger value : result) {
-      inner = inner.add(value);
-    }
-    inner = inner.mod(modulus);
-    long endTime = System.currentTimeMillis();
-    long duration = (endTime - startTime);
-    System.out.println(inner);
-    System.out.println(duration);
-  }
-
-  public static void main(String[] args) {
-    CompUInt128Factory factory = new CompUInt128Factory();
-    int numValues = 100000;
-    List<CompUInt128> left = new ArrayList<>(numValues);
-    List<CompUInt128> right = new ArrayList<>(numValues);
-    for (int i = 0; i < numValues; i++) {
-      left.add(factory.createRandom());
-      right.add(factory.createRandom());
-    }
-    for (int i = 0; i < 100; i++) {
-      runUInt128(left, right);
-    }
-    List<BigInteger> bigLeft = new ArrayList<>(numValues);
-    List<BigInteger> bigRight = new ArrayList<>(numValues);
-    Random rand = new Random();
-    BigInteger modulus = BigInteger.ONE.shiftLeft(128);
-    for (int i = 0; i < numValues; i++) {
-      bigLeft.add(new BigInteger(128, rand).mod(modulus));
-      bigRight.add(new BigInteger(128, rand).mod(modulus));
-    }
-    for (int i = 0; i < 100; i++) {
-      runUIntBigInt(bigLeft, bigRight, modulus);
-    }
   }
 
 }

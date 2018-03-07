@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Utility for running secure broadcast.
+ * Utility for running secure broadcast. <p>Requires SHA-256 message digest.</p>
  */
 public class SecureBroadcastUtil {
 
