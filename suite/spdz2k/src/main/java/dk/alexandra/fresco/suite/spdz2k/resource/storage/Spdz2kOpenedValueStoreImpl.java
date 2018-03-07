@@ -25,12 +25,14 @@ public class Spdz2kOpenedValueStoreImpl<PlainT extends CompUInt<?, ?, PlainT>>
   }
 
   @Override
-  public Pair<List<Spdz2kSInt<PlainT>>, List<PlainT>> popValues() {
-    List<Spdz2kSInt<PlainT>> macsToCheck = new ArrayList<>(sharesWithMacs);
-    List<PlainT> valuesToCheck = new ArrayList<>(openedValues);
+  public Pair<List<Spdz2kSInt<PlainT>>, List<PlainT>> peekValues() {
+    return new Pair<>(sharesWithMacs, openedValues);
+  }
+
+  @Override
+  public void clear() {
     sharesWithMacs.clear();
     openedValues.clear();
-    return new Pair<>(macsToCheck, valuesToCheck);
   }
 
   @Override

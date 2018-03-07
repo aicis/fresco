@@ -24,7 +24,12 @@ public interface Spdz2kOpenedValueStore<T extends CompUInt<?, ?, T>> {
   /**
    * Retrieve all values that haven't been checked yet and clear the store.
    */
-  Pair<List<Spdz2kSInt<T>>, List<T>> popValues();
+  Pair<List<Spdz2kSInt<T>>, List<T>> peekValues();
+
+  /**
+   * Clear all values after checking.
+   */
+  void clear();
 
   /**
    * Check if there are unchecked values.

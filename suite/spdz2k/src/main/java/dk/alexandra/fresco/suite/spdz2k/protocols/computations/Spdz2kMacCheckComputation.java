@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.spdz2k.protocols.computations;
 
+import dk.alexandra.fresco.commitment.HashBasedCommitment;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.builder.Computation;
@@ -13,6 +14,8 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.UInt;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
+import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kDataSupplier;
+import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kOpenedValueStore;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,33 +29,36 @@ public class Spdz2kMacCheckComputation<
     PlainT extends CompUInt<HighT, LowT, PlainT>>
     implements Computation<Void, ProtocolBuilderNumeric> {
 
-  private final Spdz2kResourcePool<PlainT> resourcePool;
   private final CompUIntConverter<HighT, LowT, PlainT> converter;
+  private final Spdz2kOpenedValueStore<PlainT> openedValueStore;
+  private final ByteSerializer<PlainT> serializer;
+  private final Spdz2kDataSupplier<PlainT> supplier;
+  private List<PlainT> randomCoefficients;
+  private ByteSerializer<HashBasedCommitment> commitmentSerializer;
 
   public Spdz2kMacCheckComputation(Spdz2kResourcePool<PlainT> resourcePool,
       CompUIntConverter<HighT, LowT, PlainT> converter) {
-    this.resourcePool = resourcePool;
+    this.openedValueStore = resourcePool.getOpenedValueStore();
     this.converter = converter;
+    this.serializer = resourcePool.getRawSerializer();
+    this.supplier = resourcePool.getDataSupplier();
+    this.randomCoefficients = sampleCoefficients(
+        resourcePool.getRandomGenerator(),
+        resourcePool.getFactory(), openedValueStore.size());
+    this.commitmentSerializer = resourcePool.getCommitmentSerializer();
   }
 
   @Override
   public DRes<Void> buildComputation(ProtocolBuilderNumeric builder) {
-    Pair<List<Spdz2kSInt<PlainT>>, List<PlainT>> opened = resourcePool
-        .getOpenedValueStore()
-        .popValues();
+    Pair<List<Spdz2kSInt<PlainT>>, List<PlainT>> opened = openedValueStore.peekValues();
     List<Spdz2kSInt<PlainT>> authenticatedElements = opened.getFirst();
     List<PlainT> openValues = opened.getSecond();
-    ByteSerializer<PlainT> serializer = resourcePool.getRawSerializer();
-    CompUIntFactory<PlainT> factory = resourcePool.getFactory();
-    PlainT macKeyShare = resourcePool.getDataSupplier().getSecretSharedKey();
+    PlainT macKeyShare = supplier.getSecretSharedKey();
     List<byte[]> sharesLowBits = authenticatedElements.stream()
         .map(element -> element.getShare().getLeastSignificant().toByteArray())
         .collect(Collectors.toList());
-    final List<PlainT> randomCoefficients = sampleCoefficients(
-        resourcePool.getRandomGenerator(),
-        factory, openValues.size());
     final PlainT y = UInt.innerProduct(openValues, randomCoefficients);
-    final Spdz2kSInt<PlainT> r = resourcePool.getDataSupplier().getNextRandomElementShare();
+    final Spdz2kSInt<PlainT> r = supplier.getNextRandomElementShare();
     return builder
         .seq(new BroadcastComputation<>(sharesLowBits))
         .seq((seq, ignored) -> {
@@ -80,7 +86,7 @@ public class Spdz2kMacCheckComputation<
               .subtract(mj)
               .subtract(p.multiply(macKeyShare).shiftLowIntoHigh())
               .add(r.getMacShare().shiftLowIntoHigh());
-          return new Spdz2kCommitmentComputation(resourcePool.getCommitmentSerializer(),
+          return new Spdz2kCommitmentComputation(commitmentSerializer,
               serializer.serialize(zj))
               .buildComputation(seq);
         })
@@ -88,10 +94,14 @@ public class Spdz2kMacCheckComputation<
           if (!UInt.sum(serializer.deserializeList(commitZjs)).isZero()) {
             throw new MaliciousException("Mac check failed");
           }
+          openedValueStore.clear();
           return null;
         });
   }
 
+  /**
+   * Samples random coefficients for mac-check using joint source of randomness.
+   */
   private List<PlainT> sampleCoefficients(Drbg drbg, CompUIntFactory<PlainT> factory,
       int numCoefficients) {
     List<PlainT> randomCoefficients = new ArrayList<>(numCoefficients);

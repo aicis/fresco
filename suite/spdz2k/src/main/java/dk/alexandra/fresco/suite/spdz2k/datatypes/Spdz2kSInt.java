@@ -28,7 +28,7 @@ public class Spdz2kSInt<PlainT extends CompUInt<?, ?, PlainT>> implements SInt {
   public Spdz2kSInt(PlainT share, PlainT macKeyShare, PlainT zero, boolean isPartyOne) {
     this(isPartyOne ? share : zero, share.multiply(macKeyShare));
   }
-  
+
   /**
    * Compute sum of this and other.
    */
