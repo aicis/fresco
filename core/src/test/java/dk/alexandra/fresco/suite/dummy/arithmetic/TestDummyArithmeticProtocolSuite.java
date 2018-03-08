@@ -9,6 +9,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.arithmetic.AdvancedNumericTests;
+import dk.alexandra.fresco.lib.arithmetic.AdvancedNumericTests.TestMinInfFrac;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.arithmetic.MiMCTests;
 import dk.alexandra.fresco.lib.arithmetic.ParallelAndSequenceTests.TestSumAndProduct;
@@ -98,13 +99,13 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void test_MinInfFrac_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestMinInfFrac<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new TestMinInfFrac<>(), EvaluationStrategy.SEQUENTIAL,
         1);
   }
 
   @Test
   public void test_MinInfFrac_SequentialBatched() throws Exception {
-    runTest(new BasicArithmeticTests.TestMinInfFrac<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new TestMinInfFrac<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         1);
   }
 

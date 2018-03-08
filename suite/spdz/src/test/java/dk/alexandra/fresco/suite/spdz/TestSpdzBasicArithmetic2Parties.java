@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.lib.arithmetic.AdvancedNumericTests.TestMinInfFrac;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests.TestKnownDivisorDivision;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests.TestDivision;
@@ -81,13 +82,13 @@ public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
 
   @Test
   public void test_MinInfFrac_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestMinInfFrac<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new TestMinInfFrac<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_MinInfFrac_SequentialBatched() throws Exception {
-    runTest(new BasicArithmeticTests.TestMinInfFrac<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new TestMinInfFrac<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
   }
 

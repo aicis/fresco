@@ -12,10 +12,8 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.math.integer.min.MinInfFrac;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -126,8 +124,9 @@ public class BasicArithmeticTests {
             DRes<SInt> result = numeric.add(left, right);
             return numeric.open(result);
           };
+          ResourcePoolT resourcePool = conf.getResourcePool();
           BigInteger output = runApplication(app);
-          Assert.assertEquals(leftValue.add(rightValue).mod(modulus), output);
+          Assert.assertEquals(resourcePool.convertRepresentation(leftValue.add(rightValue)), output);
         }
       };
     }
@@ -176,8 +175,10 @@ public class BasicArithmeticTests {
             DRes<SInt> result = numeric.mult(left, right);
             return numeric.open(result);
           };
+          ResourcePoolT resourcePool = conf.getResourcePool();
           BigInteger output = runApplication(app);
-          Assert.assertEquals(leftValue.multiply(rightValue).mod(modulus), output);
+          Assert.assertEquals(resourcePool.convertRepresentation(leftValue.multiply(rightValue)),
+              output);
         }
       };
     }
@@ -560,60 +561,6 @@ public class BasicArithmeticTests {
           for (BigInteger result : output) {
             Assert.assertEquals(multiply, result);
           }
-        }
-      };
-    }
-  }
-
-  public static class TestMinInfFrac<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
-
-    @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-
-      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-        @Override
-        public void test() {
-          Application<List<BigInteger>, ProtocolBuilderNumeric> app = producer -> {
-            List<BigInteger> bns = Arrays.asList(BigInteger.valueOf(10), BigInteger.valueOf(2),
-                BigInteger.valueOf(30), BigInteger.valueOf(1), BigInteger.valueOf(50),
-                BigInteger.valueOf(10), BigInteger.valueOf(20), BigInteger.valueOf(30),
-                BigInteger.valueOf(5), BigInteger.valueOf(1));
-            List<BigInteger> bds = Arrays.asList(BigInteger.valueOf(10), BigInteger.valueOf(10),
-                BigInteger.valueOf(10), BigInteger.valueOf(10), BigInteger.valueOf(10),
-                BigInteger.valueOf(10), BigInteger.valueOf(20), BigInteger.valueOf(30),
-                BigInteger.valueOf(500), BigInteger.valueOf(50));
-            List<BigInteger> binfs = Arrays.asList(BigInteger.valueOf(0), BigInteger.valueOf(0),
-                BigInteger.valueOf(0), BigInteger.valueOf(1), BigInteger.valueOf(0),
-                BigInteger.valueOf(0), BigInteger.valueOf(0), BigInteger.valueOf(0),
-                BigInteger.valueOf(1), BigInteger.valueOf(1));
-            Numeric numeric = producer.numeric();
-            List<DRes<SInt>> ns =
-                bns.stream().map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
-            List<DRes<SInt>> ds =
-                bds.stream().map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
-            List<DRes<SInt>> infs =
-                binfs.stream().map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
-
-            return producer.seq(new MinInfFrac(ns, ds, infs)).seq((seq2, infOutput) -> {
-              Numeric innerNumeric = seq2.numeric();
-              List<DRes<BigInteger>> collect =
-                  infOutput.cs.stream().map(innerNumeric::open).collect(Collectors.toList());
-              return () -> collect.stream().map(DRes::out).collect(Collectors.toList());
-            });
-          };
-          List<BigInteger> outputs = runApplication(app);
-          int sum = 0;
-          for (int i = 0; i < outputs.size(); i++) {
-            sum += outputs.get(i).intValue();
-            if (i == 1) {
-              Assert.assertEquals(BigInteger.ONE, outputs.get(i));
-            } else {
-              Assert.assertEquals(BigInteger.ZERO, outputs.get(i));
-            }
-          }
-          Assert.assertEquals(1, sum);
-
         }
       };
     }
