@@ -44,7 +44,7 @@ public interface Spdz2kResourcePool<PlainT extends CompUInt<?, ?, PlainT>>
   /**
    * Returns serializer for instances of {@link PlainT}.
    */
-  ByteSerializer<PlainT> getRawSerializer();
+  ByteSerializer<PlainT> getPlainSerializer();
 
   /**
    * Initializes deterministic joint randomness source. <p>Must be called before any protocols

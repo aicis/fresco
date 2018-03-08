@@ -52,7 +52,6 @@ public class GenericCompUInt implements
 
   @Override
   public GenericCompUInt multiply(final GenericCompUInt other) {
-    // TODO get rid off extra multiplication
     // note that we assume that other has the same bit-length as this
     final int[] resultInts = new int[ints.length];
     for (int l = ints.length - 1; l >= 0; l--) {
@@ -181,25 +180,12 @@ public class GenericCompUInt implements
 
   private static int[] toIntArray(byte[] bytes, int requiredBitLength) {
     IntBuffer intBuf =
-        ByteBuffer.wrap(pad(bytes, requiredBitLength))
+        ByteBuffer.wrap(CompUInt.pad(bytes, requiredBitLength))
             .order(ByteOrder.BIG_ENDIAN)
             .asIntBuffer();
     int[] array = new int[intBuf.remaining()];
     intBuf.get(array);
     return array;
-  }
-
-  private static byte[] pad(byte[] bytes, int requiredBitLength) {
-    byte[] padded = new byte[requiredBitLength / Byte.SIZE];
-    // potentially drop byte containing sign bit
-    boolean dropSignBitByte = (bytes[0] == 0x00);
-    int bytesLength = dropSignBitByte ? bytes.length - 1 : bytes.length;
-    if (bytesLength > padded.length) {
-      throw new IllegalArgumentException("Exceeds capacity");
-    }
-    int srcPos = dropSignBitByte ? 1 : 0;
-    System.arraycopy(bytes, srcPos, padded, padded.length - bytesLength, bytesLength);
-    return padded;
   }
 
   private static int[] pad(int[] ints, int requiredBitLength) {

@@ -37,7 +37,7 @@ public class Spdz2kMultiplyProtocol<PlainT extends CompUInt<?, ?, PlainT>> exten
   public EvaluationStatus evaluate(int round, Spdz2kResourcePool<PlainT> resourcePool,
       Network network) {
     final PlainT macKeyShare = resourcePool.getDataSupplier().getSecretSharedKey();
-    ByteSerializer<PlainT> serializer = resourcePool.getRawSerializer();
+    ByteSerializer<PlainT> serializer = resourcePool.getPlainSerializer();
     if (round == 0) {
       triple = resourcePool.getDataSupplier().getNextTripleShares();
       epsilon = toSpdz2kSInt(left).subtract(triple.getLeft());

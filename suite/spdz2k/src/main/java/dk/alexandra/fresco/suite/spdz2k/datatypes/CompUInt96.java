@@ -17,7 +17,7 @@ public class CompUInt96 implements CompUInt<UInt64, UInt32, CompUInt96> {
    * @param bytes bytes interpreted in big-endian order.
    */
   public CompUInt96(byte[] bytes) {
-    byte[] padded = pad(bytes);
+    byte[] padded = CompUInt.pad(bytes, 96);
     ByteBuffer buffer = ByteBuffer.wrap(padded);
     buffer.order(ByteOrder.BIG_ENDIAN);
     this.high = buffer.getInt();
@@ -35,21 +35,21 @@ public class CompUInt96 implements CompUInt<UInt64, UInt32, CompUInt96> {
     this(value.toByteArray());
   }
 
-  public CompUInt96(UInt64 value) {
+  CompUInt96(UInt64 value) {
     this(value.toLong());
   }
 
-  public CompUInt96(UInt32 value) {
+  CompUInt96(UInt32 value) {
     this(value.toInt());
   }
 
-  public CompUInt96(long value) {
+  CompUInt96(long value) {
     this.high = 0;
     this.mid = (int) (value >>> 32);
     this.low = (int) value;
   }
 
-  public CompUInt96(int value) {
+  CompUInt96(int value) {
     this.high = 0;
     this.mid = 0;
     this.low = value;
@@ -169,19 +169,6 @@ public class CompUInt96 implements CompUInt<UInt64, UInt32, CompUInt96> {
   @Override
   public int getHighBitLength() {
     return 64;
-  }
-
-  private byte[] pad(byte[] bytes) {
-    byte[] padded = new byte[getBitLength() / 8];
-    // potentially drop byte containing sign bit
-    boolean dropSignBitByte = (bytes[0] == 0x00);
-    int bytesLen = dropSignBitByte ? bytes.length - 1 : bytes.length;
-    if (bytesLen > padded.length) {
-      throw new IllegalArgumentException("Exceeds capacity");
-    }
-    int srcPos = dropSignBitByte ? 1 : 0;
-    System.arraycopy(bytes, srcPos, padded, padded.length - bytesLen, bytesLen);
-    return padded;
   }
 
   @Override

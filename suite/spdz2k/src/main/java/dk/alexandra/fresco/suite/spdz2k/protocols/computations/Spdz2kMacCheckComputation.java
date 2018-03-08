@@ -40,7 +40,7 @@ public class Spdz2kMacCheckComputation<
       CompUIntConverter<HighT, LowT, PlainT> converter) {
     this.openedValueStore = resourcePool.getOpenedValueStore();
     this.converter = converter;
-    this.serializer = resourcePool.getRawSerializer();
+    this.serializer = resourcePool.getPlainSerializer();
     this.supplier = resourcePool.getDataSupplier();
     this.randomCoefficients = sampleCoefficients(
         resourcePool.getRandomGenerator(),

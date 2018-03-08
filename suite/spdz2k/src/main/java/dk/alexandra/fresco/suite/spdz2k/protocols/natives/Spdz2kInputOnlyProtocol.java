@@ -30,7 +30,7 @@ public class Spdz2kInputOnlyProtocol<PlainT extends CompUInt<?, ?, PlainT>>
       Network network) {
     CompUIntFactory<PlainT> factory = resourcePool.getFactory();
     int myId = resourcePool.getMyId();
-    ByteSerializer<PlainT> serializer = resourcePool.getRawSerializer();
+    ByteSerializer<PlainT> serializer = resourcePool.getPlainSerializer();
     Spdz2kDataSupplier<PlainT> dataSupplier = resourcePool.getDataSupplier();
     if (round == 0) {
       inputMask = dataSupplier.getNextInputMask(inputPartyId);

@@ -252,4 +252,24 @@ public class TestCompUInt96 {
     assertEquals(twoTo64.longValue(), new CompUInt96(twoTo64).toLong());
   }
 
+  @Test
+  public void testGetBitLength() {
+    CompUInt96 uint = new CompUInt96(1);
+    assertEquals(96, uint.getBitLength());
+    assertEquals(64, uint.getHighBitLength());
+    assertEquals(32, uint.getLowBitLength());
+  }
+
+  @Test
+  public void testToInt() {
+    UInt<CompUInt96> uint = new CompUInt96(1);
+    assertEquals(1, uint.toInt());
+  }
+
+  @Test
+  public void testToString() {
+    UInt<CompUInt96> uint = new CompUInt96(12135);
+    assertEquals("12135", uint.toString());
+  }
+
 }

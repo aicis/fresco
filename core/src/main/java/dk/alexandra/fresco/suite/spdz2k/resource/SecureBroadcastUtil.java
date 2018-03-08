@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.framework.sce.resources;
+package dk.alexandra.fresco.suite.spdz2k.resource;
 
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;
@@ -8,13 +8,16 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Utility for running secure broadcast. <p>Requires SHA-256 message digest.</p>
+ * Utility for running secure broadcast.
  */
 public class SecureBroadcastUtil {
 
   private final Network network;
   private final MessageDigest messageDigest;
 
+  /**
+   * Creates new {@link SecureBroadcastUtil}. <p>Requires SHA-256 message digest.</p>
+   */
   public SecureBroadcastUtil(Network network) {
     this(network, ExceptionConverter.safe(() -> MessageDigest.getInstance("SHA-256"),
         "Configuration error, SHA-256 is needed for SecureBroadcastUtil"));

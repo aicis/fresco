@@ -296,4 +296,23 @@ public class TestGenericCompUInt {
     assertEquals(new GenericCompUInt(new int[]{1, 0, 0}).toBigInteger(),
         uint3264.shiftLowIntoHigh().toBigInteger());
   }
+
+  @Test
+  public void testToInt() {
+    GenericCompUInt uint3232 = new GenericCompUInt(new int[]{1111});
+    assertEquals(1111, uint3232.toInt());
+  }
+
+  @Test
+  public void testToLong() {
+    GenericCompUInt uint3232 = new GenericCompUInt(new int[]{122, 1111});
+    assertEquals(523986011223L, uint3232.toLong());
+  }
+
+  @Test
+  public void testToString() {
+    GenericCompUInt uint3232 = new GenericCompUInt(new int[]{122, 1111});
+    assertEquals("523986011223", uint3232.toString());
+  }
+
 }

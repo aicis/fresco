@@ -79,7 +79,7 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
   }
 
   @Override
-  public ByteSerializer<PlainT> getRawSerializer() {
+  public ByteSerializer<PlainT> getPlainSerializer() {
     return rawSerializer;
   }
 

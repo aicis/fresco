@@ -57,7 +57,7 @@ public class UInt32 implements UInt<UInt32> {
 
   @Override
   public long toLong() {
-    throw new UnsupportedOperationException("You didn't mean to call this.");
+    return Integer.toUnsignedLong(value);
   }
 
   @Override

@@ -32,7 +32,7 @@ public class Spdz2kOutputToAllProtocol<PlainT extends CompUInt<?, ?, PlainT>>
       network.sendToAll(authenticatedElement.getShare().getLeastSignificant().toByteArray());
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
-      List<PlainT> shares = resourcePool.getRawSerializer()
+      List<PlainT> shares = resourcePool.getPlainSerializer()
           .deserializeList(network.receiveFromAll());
       PlainT recombined = UInt.sum(shares);
       openedValueStore.pushOpenedValue(authenticatedElement, recombined);

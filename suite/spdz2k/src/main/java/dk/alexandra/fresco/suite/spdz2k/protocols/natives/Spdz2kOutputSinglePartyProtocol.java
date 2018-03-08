@@ -39,7 +39,7 @@ public class Spdz2kOutputSinglePartyProtocol<PlainT extends CompUInt<?, ?, Plain
       network.sendToAll(inMinusMask.getShare().getLeastSignificant().toByteArray());
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
-      List<PlainT> shares = resourcePool.getRawSerializer()
+      List<PlainT> shares = resourcePool.getPlainSerializer()
           .deserializeList(network.receiveFromAll());
       PlainT recombined = UInt.sum(shares);
       openedValueStore.pushOpenedValue(inMinusMask, recombined);

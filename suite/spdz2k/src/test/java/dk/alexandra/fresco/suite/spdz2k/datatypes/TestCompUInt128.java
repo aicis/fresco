@@ -243,8 +243,8 @@ public class TestCompUInt128 {
   public void testGetBitLength() {
     CompUInt128 uint = new CompUInt128(1);
     assertEquals(128, uint.getBitLength());
-    assertEquals(64, uint.getLowBitLength());
     assertEquals(64, uint.getHighBitLength());
+    assertEquals(64, uint.getLowBitLength());
   }
 
   @Test
