@@ -45,6 +45,9 @@ public interface ByteSerializer<T> {
    */
   List<T> deserializeList(byte[] bytes);
 
+  /**
+   * Call {@link #deserialize(byte[])} for each byte array in input.
+   */
   default List<T> deserializeList(List<byte[]> bytes) {
     List<T> elements = new ArrayList<>(bytes.size());
     for (byte[] subBytes : bytes) {

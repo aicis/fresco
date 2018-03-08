@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.suite.spdz2k.synchronization;
 
-import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
@@ -17,6 +16,7 @@ import dk.alexandra.fresco.suite.spdz2k.protocols.computations.Spdz2kMacCheckCom
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.RequiresMacCheck;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kOpenedValueStore;
+import java.util.stream.StreamSupport;
 
 /**
  * Round synchronization for SPDZ2k. <p>Requires a mac check to be performed on an all opened
@@ -87,13 +87,8 @@ public class Spdz2kRoundSynchronization<
   public void beforeBatch(
       ProtocolCollection<Spdz2kResourcePool<PlainT>> nativeProtocols,
       Spdz2kResourcePool<PlainT> resourcePool, Network network) {
-    for (NativeProtocol<?, ?> protocol : nativeProtocols) {
-      // TODO come up with a cleaner way of doing this
-      if (protocol instanceof RequiresMacCheck) {
-        isCheckRequired = true;
-        break;
-      }
-    }
+    isCheckRequired = StreamSupport.stream(nativeProtocols.spliterator(), false)
+        .anyMatch(p -> p instanceof RequiresMacCheck);
     if (isCheckRequired) {
       doMacCheck(resourcePool, network);
     }
