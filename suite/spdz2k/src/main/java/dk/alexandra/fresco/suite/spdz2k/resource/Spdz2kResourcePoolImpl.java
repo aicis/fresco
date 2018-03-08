@@ -88,7 +88,8 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
       Function<byte[], Drbg> drbgGenerator, int seedLength) {
     Network network = networkSupplier.get();
     Computation<byte[], ProtocolBuilderNumeric> coinTossing =
-        new CoinTossingComputation(seedLength, new HashBasedCommitmentSerializer());
+        new CoinTossingComputation(seedLength, new HashBasedCommitmentSerializer(),
+            getNoOfParties());
     byte[] jointSeed = runCoinTossing(coinTossing, network);
     drbg = drbgGenerator.apply(jointSeed);
     ExceptionConverter.safe(() -> {

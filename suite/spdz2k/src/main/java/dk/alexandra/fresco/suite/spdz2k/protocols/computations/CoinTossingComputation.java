@@ -15,19 +15,23 @@ public class CoinTossingComputation implements Computation<byte[], ProtocolBuild
 
   private final ByteSerializer<HashBasedCommitment> serializer;
   private final byte[] ownSeed;
+  private final int noOfParties;
 
-  public CoinTossingComputation(byte[] ownSeed, ByteSerializer<HashBasedCommitment> serializer) {
+  public CoinTossingComputation(byte[] ownSeed, ByteSerializer<HashBasedCommitment> serializer,
+      int noOfParties) {
     this.serializer = serializer;
     this.ownSeed = ownSeed;
+    this.noOfParties = noOfParties;
   }
 
-  public CoinTossingComputation(int seedLength, ByteSerializer<HashBasedCommitment> serializer) {
-    this(generateSeed(seedLength), serializer);
+  public CoinTossingComputation(int seedLength, ByteSerializer<HashBasedCommitment> serializer,
+      int noOfParties) {
+    this(generateSeed(seedLength), serializer, noOfParties);
   }
 
   @Override
   public DRes<byte[]> buildComputation(ProtocolBuilderNumeric builder) {
-    return builder.par(new Spdz2kCommitmentComputation(serializer, ownSeed))
+    return builder.par(new Spdz2kCommitmentComputation(serializer, ownSeed, noOfParties))
         .seq((seq, seeds) -> {
           byte[] jointSeed = new byte[ownSeed.length];
           for (byte[] seed : seeds) {

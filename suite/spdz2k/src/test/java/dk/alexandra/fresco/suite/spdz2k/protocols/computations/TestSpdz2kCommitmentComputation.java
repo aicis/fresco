@@ -80,7 +80,7 @@ public class TestSpdz2kCommitmentComputation extends
           Application<List<byte[]>, ProtocolBuilderNumeric> testApplication =
               root -> new Spdz2kCommitmentComputation(
                   conf.getResourcePool().getCommitmentSerializer(),
-                  inputs.get(root.getBasicNumericContext().getMyId() - 1))
+                  inputs.get(root.getBasicNumericContext().getMyId() - 1), noParties)
                   .buildComputation(root);
           List<byte[]> actual = runApplication(testApplication);
           assertEquals(inputs.size(), actual.size());

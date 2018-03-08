@@ -15,33 +15,32 @@ public class Spdz2kCommitmentComputation implements
 
   private final ByteSerializer<HashBasedCommitment> commitmentSerializer;
   private final byte[] value;
+  private final int noOfParties;
 
   public Spdz2kCommitmentComputation(ByteSerializer<HashBasedCommitment> commitmentSerializer,
-      byte[] value) {
+      byte[] value, int noOfParties) {
     this.commitmentSerializer = commitmentSerializer;
     this.value = value;
+    this.noOfParties = noOfParties;
   }
 
   @Override
   public DRes<List<byte[]>> buildComputation(ProtocolBuilderNumeric builder) {
     HashBasedCommitment ownCommitment = new HashBasedCommitment();
-    // TODO optimize by caching initialized drbg somewhere, if needed
     byte[] ownOpening = ownCommitment.commit(new AesCtrDrbg(), value);
     return builder.seq(new BroadcastComputation<>(
         commitmentSerializer.serialize(ownCommitment)
     )).seq((seq, rawCommitments) -> {
       DRes<List<byte[]>> openingsDRes = seq.append(new AllBroadcastProtocol<>(ownOpening));
       List<HashBasedCommitment> commitments = commitmentSerializer.deserializeList(rawCommitments);
-      return () -> open(commitments, openingsDRes.out());
+      return () -> open(commitments, openingsDRes.out(), noOfParties);
     });
   }
 
-  private List<byte[]> open(List<HashBasedCommitment> commitments, List<byte[]> openings) {
-    if (commitments.size() != openings.size()) {
-      throw new IllegalArgumentException("Lists must be same size");
-    }
+  private List<byte[]> open(List<HashBasedCommitment> commitments, List<byte[]> openings,
+      int noOfParties) {
     List<byte[]> result = new ArrayList<>(commitments.size());
-    for (int i = 0; i < commitments.size(); i++) {
+    for (int i = 0; i < noOfParties; i++) {
       HashBasedCommitment commitment = commitments.get(i);
       byte[] opening = openings.get(i);
       result.add(commitment.open(opening));

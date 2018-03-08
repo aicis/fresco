@@ -35,7 +35,15 @@ public class Spdz2kMacCheckComputation<
   private final Spdz2kDataSupplier<PlainT> supplier;
   private List<PlainT> randomCoefficients;
   private ByteSerializer<HashBasedCommitment> commitmentSerializer;
+  private final int noOfParties;
 
+  /**
+   * Creates new {@link Spdz2kMacCheckComputation}.
+   *
+   * @param resourcePool resources for running Spdz2k
+   * @param converter utility class for converting between {@link HighT} and {@link PlainT}, {@link
+   * LowT} and {@link PlainT}
+   */
   public Spdz2kMacCheckComputation(Spdz2kResourcePool<PlainT> resourcePool,
       CompUIntConverter<HighT, LowT, PlainT> converter) {
     this.openedValueStore = resourcePool.getOpenedValueStore();
@@ -46,6 +54,7 @@ public class Spdz2kMacCheckComputation<
         resourcePool.getRandomGenerator(),
         resourcePool.getFactory(), openedValueStore.getNumPending());
     this.commitmentSerializer = resourcePool.getCommitmentSerializer();
+    this.noOfParties = resourcePool.getNoOfParties();
   }
 
   @Override
@@ -106,8 +115,8 @@ public class Spdz2kMacCheckComputation<
         .subtract(mj)
         .subtract(p.multiply(macKeyShare).shiftLowIntoHigh())
         .add(r.getMacShare().shiftLowIntoHigh());
-    return new Spdz2kCommitmentComputation(commitmentSerializer, serializer.serialize(zj))
-        .buildComputation(builder);
+    return new Spdz2kCommitmentComputation(commitmentSerializer, serializer.serialize(zj),
+        noOfParties).buildComputation(builder);
   }
 
   /**
