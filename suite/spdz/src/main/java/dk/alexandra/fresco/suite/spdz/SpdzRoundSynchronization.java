@@ -18,7 +18,7 @@ import java.security.SecureRandom;
  */
 public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResourcePool> {
 
-  private static final int macCheckThreshold = 100000;
+  private static final int macCheckThreshold = 10000;
   private final SpdzProtocolSuite spdzProtocolSuite;
   private final SecureRandom secRand;
   private int gatesEvaluated = 0;

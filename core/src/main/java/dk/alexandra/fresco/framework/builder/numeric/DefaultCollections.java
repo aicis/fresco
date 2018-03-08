@@ -5,6 +5,7 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.RowPairD;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
+import dk.alexandra.fresco.lib.collections.batch.BatchMultiply;
 import dk.alexandra.fresco.lib.collections.io.CloseList;
 import dk.alexandra.fresco.lib.collections.io.CloseMatrix;
 import dk.alexandra.fresco.lib.collections.io.OpenList;
@@ -22,7 +23,7 @@ import java.util.List;
 
 public class DefaultCollections implements Collections {
 
-  private final ProtocolBuilderNumeric builder;
+  protected final ProtocolBuilderNumeric builder;
 
   protected DefaultCollections(BuilderFactoryNumeric factoryNumeric,
       ProtocolBuilderNumeric builder) {
@@ -108,6 +109,12 @@ public class DefaultCollections implements Collections {
   public DRes<Matrix<DRes<SInt>>> leakyAggregateSum(DRes<Matrix<DRes<SInt>>> values,
       int groupColIdx, int aggColIdx) {
     return builder.seq(new MiMCAggregation(values, groupColIdx, aggColIdx));
+  }
+
+  @Override
+  public DRes<List<DRes<SInt>>> batchMultiply(DRes<List<DRes<SInt>>> left,
+      DRes<List<DRes<SInt>>> right) {
+    return builder.par(new BatchMultiply(left, right));
   }
 
 }

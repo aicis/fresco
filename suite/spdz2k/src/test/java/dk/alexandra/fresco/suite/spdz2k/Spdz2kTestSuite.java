@@ -126,4 +126,10 @@ public abstract class Spdz2kTestSuite<MarlinResourcePoolT extends Spdz2kResource
         EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
+  @Test
+  public void testBatchedMultiply() {
+    runTest(new BasicArithmeticTests.TestBatchedMultiply<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
 }

@@ -652,6 +652,42 @@ public class BasicArithmeticTests {
     }
   }
 
+  public static class TestBatchedMultiply<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      int repetitions = 20000;
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() {
+          Application<List<DRes<SInt>>, ProtocolBuilderNumeric> app =
+              producer -> producer.seq(seq -> {
+                List<BigInteger> inputsLeft = new ArrayList<>(repetitions);
+                List<BigInteger> inputsRight = new ArrayList<>(repetitions);
+                for (int i = 0; i < repetitions; i++) {
+                  inputsLeft.add(BigInteger.ONE);
+                  inputsRight.add(BigInteger.ONE);
+                }
+                DRes<List<DRes<SInt>>> left;
+                DRes<List<DRes<SInt>>> right;
+                if (seq.getBasicNumericContext().getMyId() == 1) {
+                  left = seq.collections().closeList(inputsLeft, 1);
+                  right = seq.collections().closeList(inputsRight, 1);
+                } else {
+                  left = seq.collections().closeList(repetitions, 1);
+                  right = seq.collections().closeList(repetitions, 1);
+                }
+                return seq.collections().batchMultiply(left, right);
+              });
+          List<DRes<SInt>> output = runApplication(app);
+        }
+      };
+    }
+
+  }
+
   private static void assertAllDifferent(List<BigInteger> elements) {
     for (int i = 0; i < elements.size(); i++) {
       for (int j = 0; j < elements.size(); j++) {
