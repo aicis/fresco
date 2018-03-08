@@ -8,7 +8,7 @@ public class TestBinaryOperations {
   
   @Test(expected = IllegalArgumentException.class)
   public void testRepeatedRightShiftBadLength1() {
-    new RepeatedRightShift(new DummyArithmeticSInt(2), -1, true);
+    new RightShift(2, new DummyArithmeticSInt(2), -1, true);
   }
 
 }
