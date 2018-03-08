@@ -31,6 +31,11 @@ public abstract class Spdz2kTestSuite<MarlinResourcePoolT extends Spdz2kResource
   }
 
   @Test
+  public void testMultiplyByZero() {
+    runTest(new BasicArithmeticTests.TestMultiplyByZero<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
   public void testMultiplyWithOverflow() {
     runTest(new BasicArithmeticTests.TestMultiplyWithOverflow<>(),
         EvaluationStrategy.SEQUENTIAL_BATCHED);

@@ -126,7 +126,8 @@ public class BasicArithmeticTests {
           };
           ResourcePoolT resourcePool = conf.getResourcePool();
           BigInteger output = runApplication(app);
-          Assert.assertEquals(resourcePool.convertRepresentation(leftValue.add(rightValue)), output);
+          Assert
+              .assertEquals(resourcePool.convertRepresentation(leftValue.add(rightValue)), output);
         }
       };
     }
@@ -152,6 +153,30 @@ public class BasicArithmeticTests {
           };
           BigInteger output = runApplication(app);
           Assert.assertEquals(leftValue.multiply(rightValue), output);
+        }
+      };
+    }
+  }
+
+  public static class TestMultiplyByZero<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigInteger leftValue = BigInteger.valueOf(10);
+      BigInteger rightValue = BigInteger.valueOf(0);
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() {
+          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
+            Numeric numeric = producer.numeric();
+            DRes<SInt> left = numeric.input(leftValue, 1);
+            DRes<SInt> right = numeric.input(rightValue, 1);
+            DRes<SInt> result = numeric.mult(left, right);
+            return numeric.open(result);
+          };
+          BigInteger output = runApplication(app);
+          Assert.assertEquals(BigInteger.ZERO, output);
         }
       };
     }
