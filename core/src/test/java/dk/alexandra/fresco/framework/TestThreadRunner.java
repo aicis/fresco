@@ -37,8 +37,7 @@ public class TestThreadRunner {
       this.conf = conf;
     }
 
-    protected <OutputT> OutputT runApplication(Application<OutputT, Builder> app)
-        throws IOException {
+    protected <OutputT> OutputT runApplication(Application<OutputT, Builder> app) {
       return conf.sce.runApplication(app, conf.getResourcePool(), conf.getNetwork());
     }
 

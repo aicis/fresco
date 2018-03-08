@@ -50,7 +50,7 @@ public class SecureBroadcastUtil {
   private void validateDigests(byte[] ownDigest, List<byte[]> otherDigests) {
     for (byte[] otherDigest : otherDigests) {
       if (!Arrays.equals(ownDigest, otherDigest)) {
-        throw new MaliciousException("SecureBroadcastUtil validation failed");
+        throw new MaliciousException("Broadcast validation failed");
       }
     }
   }
