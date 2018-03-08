@@ -41,7 +41,7 @@ public interface Spdz2kOpenedValueStore<T extends CompUInt<?, ?, T>> {
   /**
    * Check number of unchecked values.
    */
-  int size();
+  int getNumPending();
 
   /**
    * Check if number of values not yet scheduled for checking exceeds given threshold.

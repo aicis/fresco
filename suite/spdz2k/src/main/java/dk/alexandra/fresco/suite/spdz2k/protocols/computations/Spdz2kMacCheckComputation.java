@@ -44,7 +44,7 @@ public class Spdz2kMacCheckComputation<
     this.supplier = resourcePool.getDataSupplier();
     this.randomCoefficients = sampleCoefficients(
         resourcePool.getRandomGenerator(),
-        resourcePool.getFactory(), openedValueStore.size());
+        resourcePool.getFactory(), openedValueStore.getNumPending());
     this.commitmentSerializer = resourcePool.getCommitmentSerializer();
   }
 

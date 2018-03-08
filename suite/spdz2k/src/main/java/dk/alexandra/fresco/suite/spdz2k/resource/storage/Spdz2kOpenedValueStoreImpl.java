@@ -35,7 +35,7 @@ public class Spdz2kOpenedValueStoreImpl<PlainT extends CompUInt<?, ?, PlainT>>
 
   @Override
   public void clear() {
-    if (numPending > 0) {
+    if (hasPendingValues()) {
       throw new IllegalStateException("Called clear before checking all values");
     }
     sharesWithMacs.clear();
@@ -44,12 +44,12 @@ public class Spdz2kOpenedValueStoreImpl<PlainT extends CompUInt<?, ?, PlainT>>
 
   @Override
   public boolean hasPendingValues() {
-    return numPending == 0;
+    return numPending > 0;
   }
 
   @Override
-  public int size() {
-    return sharesWithMacs.size();
+  public int getNumPending() {
+    return numPending;
   }
 
   @Override
