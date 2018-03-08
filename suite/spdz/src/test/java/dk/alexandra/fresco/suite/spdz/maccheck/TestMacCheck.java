@@ -14,7 +14,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
-import dk.alexandra.fresco.lib.math.integer.division.DivisionTests.TestSecretSharedDivision;
+import dk.alexandra.fresco.lib.math.integer.division.DivisionTests.TestDivision;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
@@ -40,7 +40,7 @@ public class TestMacCheck {
   @Test
   public void testMacCorrupt() throws Exception {
     try {
-      runTest(new TestSecretSharedDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2, true);
+      runTest(new TestDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2, true);
     } catch (RuntimeException e) {
       if (e.getCause().getCause() == null
           || !(e.getCause().getCause() instanceof MaliciousException)) {
@@ -52,7 +52,7 @@ public class TestMacCheck {
   @Test
   public void testClosedValuesIncorrectSize() throws Exception {
     try {
-      runTest(new TestSecretSharedDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2, false);
+      runTest(new TestDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2, false);
     } catch (RuntimeException e) {
       if (e.getCause().getCause() == null
           || !(e.getCause().getCause() instanceof MaliciousException)) {

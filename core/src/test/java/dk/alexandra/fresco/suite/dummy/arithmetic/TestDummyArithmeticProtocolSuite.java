@@ -479,23 +479,35 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
         1);
   }
 
+  @Test
+  public void test_Bits() throws Exception {
+    runTest(new BinaryOperationsTests.TestBits<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+        1);
+  }
+
   // Math tests
 
   @Test
   public void test_euclidian_division() throws Exception {
-    runTest(new DivisionTests.TestEuclidianDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new DivisionTests.TestKnownDivisorDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         1);
   }
 
   @Test
   public void test_euclidian_division_large_divisor() throws Exception {
-    runTest(new DivisionTests.TestEuclidianDivisionLargeDivisor<>(),
+    runTest(new DivisionTests.TestKnownDivisorLargeDivisor<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, 1);
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void test_euclidian_division_too_large_divisor() throws Exception {
+    runTest(new DivisionTests.TestKnowndivisorTooLargeDivisor<>(),
         EvaluationStrategy.SEQUENTIAL_BATCHED, 1);
   }
 
   @Test
   public void test_ss_division() throws Exception {
-    runTest(new DivisionTests.TestSecretSharedDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new DivisionTests.TestDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         1, true);
     assertThat(performanceLoggers.get(1).getLoggedValues()
         .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_COMP0), is((long) 80));
