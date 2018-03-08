@@ -20,8 +20,20 @@ public abstract class Spdz2kTestSuite<MarlinResourcePoolT extends Spdz2kResource
   }
 
   @Test
+  public void testAddWithOverflow() {
+    runTest(new BasicArithmeticTests.TestAddWithOverflow<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
   public void testMultiply() {
     runTest(new BasicArithmeticTests.TestMultiply<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
+  public void testMultiplyWithOverflow() {
+    runTest(new BasicArithmeticTests.TestMultiplyWithOverflow<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test

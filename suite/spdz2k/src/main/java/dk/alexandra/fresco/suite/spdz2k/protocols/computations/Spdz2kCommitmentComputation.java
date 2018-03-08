@@ -2,7 +2,7 @@ package dk.alexandra.fresco.suite.spdz2k.protocols.computations;
 
 import dk.alexandra.fresco.commitment.HashBasedCommitment;
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.ComputationParallel;
+import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Spdz2kCommitmentComputation implements
-    ComputationParallel<List<byte[]>, ProtocolBuilderNumeric> {
+    Computation<List<byte[]>, ProtocolBuilderNumeric> {
 
   private final ByteSerializer<HashBasedCommitment> commitmentSerializer;
   private final byte[] value;

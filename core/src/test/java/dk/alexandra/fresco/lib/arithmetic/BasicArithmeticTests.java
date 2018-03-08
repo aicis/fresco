@@ -108,6 +108,32 @@ public class BasicArithmeticTests {
     }
   }
 
+  public static class TestAddWithOverflow<ResourcePoolT extends NumericResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() {
+          BigInteger modulus = conf.getResourcePool().getModulus();
+          BigInteger leftValue = modulus.subtract(BigInteger.ONE);
+          BigInteger rightValue = BigInteger.valueOf(4);
+          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
+            Numeric numeric = producer.numeric();
+            DRes<SInt> left = numeric.input(leftValue, 1);
+            DRes<SInt> right = numeric.input(rightValue, 1);
+            DRes<SInt> result = numeric.add(left, right);
+            return numeric.open(result);
+          };
+          BigInteger output = runApplication(app);
+          Assert.assertEquals(leftValue.add(rightValue).mod(modulus), output);
+        }
+      };
+    }
+
+  }
+
   public static class TestMultiply<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
@@ -130,6 +156,32 @@ public class BasicArithmeticTests {
         }
       };
     }
+  }
+
+  public static class TestMultiplyWithOverflow<ResourcePoolT extends NumericResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() {
+          BigInteger modulus = conf.getResourcePool().getModulus();
+          BigInteger leftValue = modulus.subtract(BigInteger.ONE);
+          BigInteger rightValue = BigInteger.valueOf(2);
+          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
+            Numeric numeric = producer.numeric();
+            DRes<SInt> left = numeric.input(leftValue, 1);
+            DRes<SInt> right = numeric.input(rightValue, 1);
+            DRes<SInt> result = numeric.mult(left, right);
+            return numeric.open(result);
+          };
+          BigInteger output = runApplication(app);
+          Assert.assertEquals(leftValue.multiply(rightValue).mod(modulus), output);
+        }
+      };
+    }
+
   }
 
   public static class TestSubtract<ResourcePoolT extends NumericResourcePool>
