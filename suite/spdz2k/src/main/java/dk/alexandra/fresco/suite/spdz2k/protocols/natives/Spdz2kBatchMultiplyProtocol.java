@@ -86,17 +86,24 @@ public class Spdz2kBatchMultiplyProtocol<PlainT extends CompUInt<?, ?, PlainT>> 
   private List<Pair<PlainT, PlainT>> receiveAndReconstruct(Network network, int noOfParties,
       ByteSerializer<PlainT> serializer) {
     List<Pair<PlainT, PlainT>> pairs = new ArrayList<>(epsilons.size());
+    long receiveTime = 0L;
     for (int p = 0; p < epsilons.size(); p++) {
       List<PlainT> epsilonShares = new ArrayList<>(noOfParties);
       List<PlainT> deltaShares = new ArrayList<>(noOfParties);
       for (int i = 1; i <= noOfParties; i++) {
-        epsilonShares.add(serializer.deserialize(network.receive(i)));
-        deltaShares.add(serializer.deserialize(network.receive(i)));
+        long start = System.currentTimeMillis();
+        byte[] rawEpsilon = network.receive(i);
+        byte[] rawDelta = network.receive(i);
+        long end = System.currentTimeMillis();
+        receiveTime += end - start;
+        epsilonShares.add(serializer.deserialize(rawEpsilon));
+        deltaShares.add(serializer.deserialize(rawDelta));
       }
       PlainT e = UInt.sum(epsilonShares);
       PlainT d = UInt.sum(deltaShares);
       pairs.add(new Pair<>(e, d));
     }
+//    System.out.println("Receive," + receiveTime);
     return pairs;
   }
 

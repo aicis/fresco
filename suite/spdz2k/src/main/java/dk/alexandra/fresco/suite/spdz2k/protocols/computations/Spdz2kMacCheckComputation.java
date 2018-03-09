@@ -63,16 +63,10 @@ public class Spdz2kMacCheckComputation<
     List<Spdz2kSInt<PlainT>> authenticatedElements = opened.getFirst();
     List<PlainT> openValues = opened.getSecond();
     PlainT macKeyShare = supplier.getSecretSharedKey();
-    List<byte[]> sharesLowBits = authenticatedElements.stream()
-        .map(element -> element.getShare().getLeastSignificant().toByteArray())
-        .collect(Collectors.toList());
     PlainT y = UInt.innerProduct(openValues, randomCoefficients);
     Spdz2kSInt<PlainT> r = supplier.getNextRandomElementShare();
     return builder
-        // note that we only care about the broadcast validation in this step; we ignore the actual
-        // results of the broadcast since the parties already have them as authenticatedElements
-        .seq(new BroadcastComputation<>(sharesLowBits))
-        .seq((seq, ignored) -> computePValues(seq, authenticatedElements, r))
+        .seq(seq -> computePValues(seq, authenticatedElements, r))
         .seq((seq, broadcastPjs) -> computeZValues(seq, authenticatedElements, macKeyShare, y, r,
             broadcastPjs))
         .seq((seq, commitZjs) -> {
@@ -84,17 +78,21 @@ public class Spdz2kMacCheckComputation<
         });
   }
 
+  private HighT computePj(PlainT originalShare, PlainT randomCoefficient) {
+    HighT overflow = computeDifference(originalShare);
+    HighT randomCoefficientHigh = randomCoefficient.getLeastSignificantAsHigh();
+    return overflow.multiply(randomCoefficientHigh);
+  }
+
   private DRes<List<byte[]>> computePValues(ProtocolBuilderNumeric builder,
       List<Spdz2kSInt<PlainT>> authenticatedElements,
       Spdz2kSInt<PlainT> r) {
-    List<PlainT> originalShares = authenticatedElements.stream()
-        .map(Spdz2kSInt::getShare)
-        .collect(Collectors.toList());
-    List<HighT> overflow = computeDifference(originalShares, converter);
-    List<HighT> randomCoefficientsAsHigh = randomCoefficients.stream()
-        .map(PlainT::getLeastSignificantAsHigh)
-        .collect(Collectors.toList());
-    HighT pj = UInt.innerProduct(overflow, randomCoefficientsAsHigh);
+    HighT pj = computePj(authenticatedElements.get(0).getShare(), randomCoefficients.get(0));
+    for (int i = 1; i < authenticatedElements.size(); i++) {
+      PlainT share = authenticatedElements.get(i).getShare();
+      PlainT randomCoefficient = randomCoefficients.get(i);
+      pj = pj.add(computePj(share, randomCoefficient));
+    }
     byte[] pjBytes = pj.add(r.getShare().getLeastSignificantAsHigh()).toByteArray();
     return new BroadcastComputation<ProtocolBuilderNumeric>(pjBytes).buildComputation(builder);
   }
@@ -140,11 +138,13 @@ public class Spdz2kMacCheckComputation<
   private List<HighT> computeDifference(List<PlainT> originalShares,
       CompUIntConverter<HighT, LowT, PlainT> converter) {
     return originalShares.stream()
-        .map(value -> {
-          PlainT low = converter.createFromLow(value.getLeastSignificant());
-          return low.subtract(value).getMostSignificant();
-        })
+        .map(this::computeDifference)
         .collect(Collectors.toList());
+  }
+
+  private HighT computeDifference(PlainT value) {
+    PlainT low = converter.createFromLow(value.getLeastSignificant());
+    return low.subtract(value).getMostSignificant();
   }
 
 }

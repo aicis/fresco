@@ -73,7 +73,7 @@ public interface UInt<T extends UInt> {
   static <S extends UInt<S>> S innerProduct(List<S> left, List<S> right) {
     S accumulator = left.get(0).multiply(right.get(0));
     for (int i = 1; i < left.size(); i++) {
-      accumulator.add(left.get(i).multiply(right.get(i)));
+      accumulator = accumulator.add(left.get(i).multiply(right.get(i)));
     }
     return accumulator;
   }

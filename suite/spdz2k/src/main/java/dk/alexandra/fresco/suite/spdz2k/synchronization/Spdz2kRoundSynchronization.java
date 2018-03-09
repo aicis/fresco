@@ -36,7 +36,7 @@ public class Spdz2kRoundSynchronization<
 
   public Spdz2kRoundSynchronization(Spdz2kProtocolSuite<HighT, LowT, PlainT> protocolSuite,
       CompUIntConverter<HighT, LowT, PlainT> converter) {
-    this(protocolSuite, converter, 10000, 128);
+    this(protocolSuite, converter, 1000000, 128);
   }
 
   public Spdz2kRoundSynchronization(Spdz2kProtocolSuite<HighT, LowT, PlainT> protocolSuite,
