@@ -63,15 +63,20 @@ public class Spdz2kMacCheckComputation<
     List<Spdz2kSInt<PlainT>> authenticatedElements = opened.getFirst();
     List<PlainT> openValues = opened.getSecond();
     PlainT macKeyShare = supplier.getSecretSharedKey();
-    List<byte[]> sharesLowBits = authenticatedElements.stream()
-        .map(element -> element.getShare().getLeastSignificant().toByteArray())
-        .collect(Collectors.toList());
     PlainT y = UInt.innerProduct(openValues, randomCoefficients);
     Spdz2kSInt<PlainT> r = supplier.getNextRandomElementShare();
     return builder
-        // note that we only care about the broadcast validation in this step; we ignore the actual
-        // results of the broadcast since the parties already have them as authenticatedElements
-        .seq(new BroadcastComputation<>(sharesLowBits))
+        .seq(seq -> {
+          if (noOfParties > 2) {
+            List<byte[]> sharesLowBits = authenticatedElements.stream()
+                .map(element -> element.getShare().getLeastSignificant().toByteArray())
+                .collect(Collectors.toList());
+            return new BroadcastComputation<ProtocolBuilderNumeric>(sharesLowBits)
+                .buildComputation(seq);
+          } else {
+            return () -> null;
+          }
+        })
         .seq((seq, ignored) -> computePValues(seq, authenticatedElements, r))
         .seq((seq, broadcastPjs) -> computeZValues(seq, authenticatedElements, macKeyShare, y, r,
             broadcastPjs))
