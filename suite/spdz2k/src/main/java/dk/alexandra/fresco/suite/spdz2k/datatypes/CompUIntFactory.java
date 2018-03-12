@@ -13,6 +13,10 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> {
    */
   CompT createFromBytes(byte[] bytes);
 
+  default CompT createFromBytes(byte[] bytes, int chunkIndex, int chunkLength) {
+    throw new UnsupportedOperationException();
+  }
+
   /**
    * Creates random {@link CompT}.
    */

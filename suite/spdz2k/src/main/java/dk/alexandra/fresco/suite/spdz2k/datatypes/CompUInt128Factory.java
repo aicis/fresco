@@ -16,6 +16,11 @@ public class CompUInt128Factory implements CompUIntFactory<CompUInt128> {
   }
 
   @Override
+  public CompUInt128 createFromBytes(byte[] bytes, int chunkIndex, int chunkLength) {
+    return new CompUInt128(bytes, chunkIndex, chunkLength);
+  }
+
+  @Override
   public CompUInt128 createRandom() {
     byte[] bytes = new byte[16];
     this.random.nextBytes(bytes);

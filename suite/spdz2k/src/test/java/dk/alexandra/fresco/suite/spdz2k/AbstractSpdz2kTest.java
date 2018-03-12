@@ -11,8 +11,8 @@ import dk.alexandra.fresco.framework.network.async.AsyncNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
-import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.framework.sce.evaluator.ExperimentalProtocolEvaluator;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 import java.io.IOException;
@@ -55,7 +55,7 @@ public abstract class AbstractSpdz2kTest<Spdz2kResourcePoolT extends Spdz2kResou
       BatchEvaluationStrategy<Spdz2kResourcePoolT> batchEvaluationStrategy =
           evalStrategy.getStrategy();
       ProtocolEvaluator<Spdz2kResourcePoolT> evaluator =
-          new BatchedProtocolEvaluator<>(batchEvaluationStrategy, ps);
+          new ExperimentalProtocolEvaluator<>(batchEvaluationStrategy, ps);
 
       SecureComputationEngine<Spdz2kResourcePoolT, ProtocolBuilderNumeric> sce =
           new SecureComputationEngineImpl<>(ps, evaluator);

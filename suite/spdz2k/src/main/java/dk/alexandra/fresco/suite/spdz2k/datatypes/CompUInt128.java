@@ -42,6 +42,20 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
     }
   }
 
+  public CompUInt128(byte[] bytes, int chunkIndex, int chunkLength) {
+    if (chunkLength == 16) {
+      this.high = toLong(bytes, chunkIndex + 8);
+      this.mid = toInt(bytes, chunkIndex + 4);
+      this.low = toInt(bytes, chunkIndex);
+    } else if (chunkLength == 8) {
+      this.high = 0L;
+      this.mid = toInt(bytes, chunkIndex, chunkLength, 4);
+      this.low = toInt(bytes, chunkIndex, chunkLength, 0);
+    } else {
+      throw new IllegalArgumentException("Unsupported chunk length");
+    }
+  }
+
   /**
    * Creates new {@link CompUInt128} from {@link BigInteger}.
    */
@@ -229,6 +243,14 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
         | (bytes[flipped - 1] & 0xFF) << 8
         | (bytes[flipped - 2] & 0xFF) << 16
         | (bytes[flipped - 3] & 0xFF) << 24;
+  }
+
+  private static int toInt(byte[] bytes, int chunkIndex, int byteLength, int start) {
+    int flipped = byteLength - start - 1;
+    return (bytes[flipped + chunkIndex] & 0xFF)
+        | (bytes[flipped - 1 + chunkIndex] & 0xFF) << 8
+        | (bytes[flipped - 2 + chunkIndex] & 0xFF) << 16
+        | (bytes[flipped - 3 + chunkIndex] & 0xFF) << 24;
   }
 
 }

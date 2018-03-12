@@ -17,7 +17,7 @@ import java.util.Map;
 public class NetworkBatchDecorator implements Network {
 
   private int noOfParties;
-  private final Network network;
+  protected final Network network;
   private Map<Integer, ByteArrayOutputStream> output;
   private Map<Integer, ByteArrayInputStream> input;
 
