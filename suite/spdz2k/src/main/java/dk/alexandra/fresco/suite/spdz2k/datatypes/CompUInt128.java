@@ -31,12 +31,13 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
    */
   public CompUInt128(byte[] bytes, boolean requiresPadding) {
     byte[] padded = requiresPadding ? CompUInt.pad(bytes, 128) : bytes;
-    if (padded.length == 16) {
-      this.high = toLong(padded, 8);
+    if (padded.length == 8) {
+      // we are instantiating from the least significant bits only
+      this.high = 0L;
       this.mid = toInt(padded, 4);
       this.low = toInt(padded, 0);
     } else {
-      this.high = 0L;
+      this.high = toLong(padded, 8);
       this.mid = toInt(padded, 4);
       this.low = toInt(padded, 0);
     }
