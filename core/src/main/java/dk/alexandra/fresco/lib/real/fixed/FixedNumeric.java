@@ -21,20 +21,18 @@ public class FixedNumeric implements RealNumeric {
     this.builder = builder;
     this.defaultPrecision = precision;
 
-    // We reserve as many bits the integer part as for the fractional part, and to be able to
-    // perform multiplications, we need to be able to represent at least two times that before
-    // truncation.
+    // We reserve as many bits the integer part as for the fractional part.
     this.maxPrecision = builder.getBasicNumericContext().getMaxBitLength() / 4;
-    if (maxPrecision < 2 * defaultPrecision) {
+    if (defaultPrecision > maxPrecision) {
       throw new IllegalArgumentException(
           "The precision was chosen too large for a product of two numbers to be representable "
               + "in this numeric context. You cannot choose a precision larger than "
-              + (maxPrecision / 2) + ".");
+              + maxPrecision + ".");
     }
   }
 
   public FixedNumeric(ProtocolBuilderNumeric builder) {
-    this(builder, 16);
+    this(builder, builder.getRealNumericContext().getPrecision());
   }
 
   private BigInteger unscaled(BigDecimal value, int scale) {
