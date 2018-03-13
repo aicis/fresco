@@ -7,13 +7,10 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
-import dk.alexandra.fresco.suite.spdz2k.datatypes.UInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kTriple;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Native protocol for computing product of two secret-shared numbers.
@@ -47,6 +44,7 @@ public class Spdz2kMultiplyProtocol<PlainT extends CompUInt<?, ?, PlainT>> exten
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       Pair<PlainT, PlainT> epsilonAndDelta = receiveAndReconstruct(network,
+          resourcePool.getFactory(),
           resourcePool.getNoOfParties(),
           serializer);
       // compute [prod] = [c] + epsilon * [b] + delta * [a] + epsilon * delta
@@ -75,16 +73,15 @@ public class Spdz2kMultiplyProtocol<PlainT extends CompUInt<?, ?, PlainT>> exten
   /**
    * Retrieves shares for epsilon and delta and reconstructs each.
    */
-  private Pair<PlainT, PlainT> receiveAndReconstruct(Network network, int noOfParties,
+  private Pair<PlainT, PlainT> receiveAndReconstruct(Network network,
+      CompUIntFactory<PlainT> factory, int noOfParties,
       ByteSerializer<PlainT> serializer) {
-    List<PlainT> epsilonShares = new ArrayList<>(noOfParties);
-    List<PlainT> deltaShares = new ArrayList<>(noOfParties);
+    PlainT e = factory.zero();
+    PlainT d = factory.zero();
     for (int i = 1; i <= noOfParties; i++) {
-      epsilonShares.add(serializer.deserialize(network.receive(i)));
-      deltaShares.add(serializer.deserialize(network.receive(i)));
+      e = e.add(serializer.deserialize(network.receive(i)));
+      d = d.add(serializer.deserialize(network.receive(i)));
     }
-    PlainT e = UInt.sum(epsilonShares);
-    PlainT d = UInt.sum(deltaShares);
     return new Pair<>(e, d);
   }
 
