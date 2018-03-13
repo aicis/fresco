@@ -10,6 +10,7 @@ import dk.alexandra.fresco.framework.util.DrngImpl;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
+import dk.alexandra.fresco.tools.ot.otextension.PseudoOtpImpl;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Arrays;
@@ -69,10 +70,10 @@ public class NaorPinkasOt implements Ot {
     // We divide the length with 8 to get the byte length and then use the short
     // messages from the OT as seeds for a PRG which does a one-time-pad
     // encryption of the true messages to send
-    byte[] encryptedZeroMessage = padMessage(messageZero.toByteArray(),
-        maxBitLength / 8, seedMessages.getFirst());
-    byte[] encryptedOneMessage = padMessage(messageOne.toByteArray(),
-        maxBitLength / 8, seedMessages.getSecond());
+    byte[] encryptedZeroMessage = new PseudoOtpImpl()
+        .encrypt(messageZero.toByteArray(), seedMessages.getFirst(), maxBitLength / Byte.SIZE);
+    byte[] encryptedOneMessage = new PseudoOtpImpl()
+        .encrypt(messageOne.toByteArray(), seedMessages.getSecond(), maxBitLength / Byte.SIZE);
     // Send the padded messages
     network.send(otherId, encryptedZeroMessage);
     network.send(otherId, encryptedOneMessage);
@@ -85,47 +86,6 @@ public class NaorPinkasOt implements Ot {
     byte[] encryptedOneMessage = network.receive(otherId);
     return recoverTrueMessage(encryptedZeroMessage, encryptedOneMessage, seed,
         choiceBit);
-  }
-
-  /**
-   * Make a one-time padding of a {@code message} using a PRG seeded on
-   * {@code seed}.
-   *
-   * @param message
-   *          The message to one-time pad
-   *
-   * @param maxSize
-   *          The size of the resultant ciphertext. MUST be at least the length
-   *          of the message itself. If longer, it will be padded with zeros
-   * @param seed
-   *          The seed to use for a PRG
-   * @return The one-time padded message
-   */
-  private byte[] padMessage(byte[] message, int maxSize, byte[] seed) {
-    byte[] maxLengthMessage = Arrays.copyOf(message, maxSize);
-    byte[] encryptedMessage = new byte[maxSize];
-    Drbg prg = new AesCtrDrbg(seed);
-    prg.nextBytes(encryptedMessage);
-    ByteArrayHelper.xor(encryptedMessage, maxLengthMessage);
-    return encryptedMessage;
-  }
-
-  /**
-   * Decrypt a one-time padded {@code paddedMessage} using a PRG seeded on
-   * {@code seed}.
-   *
-   * @param paddedMessage
-   *          The message to one-time pad
-   * @param seed
-   *          The seed to use for a PRG
-   * @return The plain message
-   */
-  private byte[] unpadMessage(byte[] paddedMessage, byte[] seed) {
-    byte[] message = new byte[paddedMessage.length];
-    Drbg prg = new AesCtrDrbg(seed);
-    prg.nextBytes(message);
-    ByteArrayHelper.xor(message, paddedMessage);
-    return message;
   }
 
   /**
@@ -151,9 +111,9 @@ public class NaorPinkasOt implements Ot {
     }
     byte[] unpaddedMessage;
     if (choiceBit == false) {
-      unpaddedMessage = unpadMessage(encryptedZeroMessage, seed);
+      unpaddedMessage = new PseudoOtpImpl().decrypt(encryptedZeroMessage, seed);
     } else {
-      unpaddedMessage = unpadMessage(encryptedOneMessage, seed);
+      unpaddedMessage = new PseudoOtpImpl().decrypt(encryptedOneMessage, seed);
     }
     return new StrictBitVector(unpaddedMessage);
   }
@@ -230,7 +190,7 @@ public class NaorPinkasOt implements Ot {
     BigInteger toHash = publicKey.modPow(r, p);
     // message = H(toHash)
     byte[] message = hashDigest.digest(toHash.toByteArray());
-    return new Pair<BigInteger, byte[]>(cipherText, message);
+    return new Pair<>(cipherText, message);
   }
 
   /**
