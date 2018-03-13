@@ -46,7 +46,7 @@ public class Spdz2kBatchMultiplyProtocol<PlainT extends CompUInt<?, ?, PlainT>> 
         Spdz2kSInt<PlainT> delta = right.subtract(triples.get(i).getRight());
         deltas.add(delta);
       }
-      serializeAndSend(network, resourcePool.getFactory(), epsilons, deltas);
+      serializeAndSend(network, epsilons, deltas);
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       products = new ArrayList<>(epsilons.size());
@@ -88,16 +88,14 @@ public class Spdz2kBatchMultiplyProtocol<PlainT extends CompUInt<?, ?, PlainT>> 
       epsilonShares.add(factory.zero());
       deltaShares.add(factory.zero());
     }
-    int byteLength = factory.getLowBitLength() / Byte.SIZE;
     for (int i = 1; i <= noOfParties; i++) {
-      byte[] rawEpsilons = network.receive(i);
-      byte[] rawDeltas = network.receive(i);
       for (int j = 0; j < epsilons.size(); j++) {
-        int chunkIndex = j * byteLength;
+        byte[] rawEpsilons = network.receive(i);
+        byte[] rawDeltas = network.receive(i);
         epsilonShares.set(j, epsilonShares.get(j)
-            .add(factory.createFromBytes(rawEpsilons, chunkIndex, byteLength)));
+            .add(factory.createFromBytes(rawEpsilons)));
         deltaShares.set(j, deltaShares.get(j)
-            .add(factory.createFromBytes(rawDeltas, chunkIndex, byteLength)));
+            .add(factory.createFromBytes(rawDeltas)));
       }
     }
     for (int j = 0; j < epsilons.size(); j++) {
@@ -106,19 +104,14 @@ public class Spdz2kBatchMultiplyProtocol<PlainT extends CompUInt<?, ?, PlainT>> 
     return pairs;
   }
 
-  private void serializeAndSend(Network network, CompUIntFactory<PlainT> factory,
-      List<Spdz2kSInt<PlainT>> epsilons, List<Spdz2kSInt<PlainT>> deltas) {
-    int byteLength = factory.getLowBitLength() / Byte.SIZE;
-    byte[] epsilonBytes = new byte[epsilons.size() * byteLength];
-    byte[] deltaBytes = new byte[epsilons.size() * byteLength];
+  private void serializeAndSend(Network network, List<Spdz2kSInt<PlainT>> epsilons,
+      List<Spdz2kSInt<PlainT>> deltas) {
     for (int i = 0; i < epsilons.size(); i++) {
       byte[] serializedEpsilon = epsilons.get(i).getShare().getLeastSignificant().toByteArray();
       byte[] serializedDelta = deltas.get(i).getShare().getLeastSignificant().toByteArray();
-      System.arraycopy(serializedEpsilon, 0, epsilonBytes, i * byteLength, byteLength);
-      System.arraycopy(serializedDelta, 0, deltaBytes, i * byteLength, byteLength);
+      network.sendToAll(serializedEpsilon);
+      network.sendToAll(serializedDelta);
     }
-    network.sendToAll(epsilonBytes);
-    network.sendToAll(deltaBytes);
   }
 
   @Override
