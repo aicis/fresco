@@ -12,6 +12,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.NetworkBatchDecorator;
 import dk.alexandra.fresco.framework.sce.evaluator.ProtocolCollectionList;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
@@ -37,6 +38,7 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
   private final Spdz2kDataSupplier<PlainT> supplier;
   private final CompUIntFactory<PlainT> factory;
   private final ByteSerializer<PlainT> rawSerializer;
+  private final Drbg localDrbg;
   private Drbg drbg;
 
   /**
@@ -56,6 +58,7 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
     this.factory = factory;
     this.rawSerializer = factory.createSerializer();
     this.drbg = drbg;
+    this.localDrbg = new AesCtrDrbg();
   }
 
   @Override
@@ -89,7 +92,7 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
     Network network = networkSupplier.get();
     Computation<byte[], ProtocolBuilderNumeric> coinTossing =
         new CoinTossingComputation(seedLength, new HashBasedCommitmentSerializer(),
-            getNoOfParties());
+            getNoOfParties(), getLocalRandomGenerator());
     byte[] jointSeed = runCoinTossing(coinTossing, network);
     drbg = drbgGenerator.apply(jointSeed);
     ExceptionConverter.safe(() -> {
@@ -114,6 +117,11 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
       throw new IllegalStateException("Joint drbg must be initialized before use");
     }
     return drbg;
+  }
+
+  @Override
+  public Drbg getLocalRandomGenerator() {
+    return localDrbg;
   }
 
   /**

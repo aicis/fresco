@@ -36,6 +36,7 @@ public class Spdz2kMacCheckComputation<
   private List<PlainT> randomCoefficients;
   private ByteSerializer<HashBasedCommitment> commitmentSerializer;
   private final int noOfParties;
+  private final Drbg localDrbg;
 
   /**
    * Creates new {@link Spdz2kMacCheckComputation}.
@@ -55,6 +56,7 @@ public class Spdz2kMacCheckComputation<
         resourcePool.getFactory(), openedValueStore.getNumPending());
     this.commitmentSerializer = resourcePool.getCommitmentSerializer();
     this.noOfParties = resourcePool.getNoOfParties();
+    this.localDrbg = resourcePool.getLocalRandomGenerator();
   }
 
   @Override
@@ -125,7 +127,7 @@ public class Spdz2kMacCheckComputation<
         .subtract(p.multiply(macKeyShare).shiftLowIntoHigh())
         .add(r.getMacShare().shiftLowIntoHigh());
     return new Spdz2kCommitmentComputation(commitmentSerializer, serializer.serialize(zj),
-        noOfParties).buildComputation(builder);
+        noOfParties, localDrbg).buildComputation(builder);
   }
 
   /**

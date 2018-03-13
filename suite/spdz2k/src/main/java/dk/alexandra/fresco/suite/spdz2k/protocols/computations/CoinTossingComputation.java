@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.ByteArrayHelper;
+import dk.alexandra.fresco.framework.util.Drbg;
 import java.security.SecureRandom;
 
 /**
@@ -16,22 +17,25 @@ public class CoinTossingComputation implements Computation<byte[], ProtocolBuild
   private final ByteSerializer<HashBasedCommitment> serializer;
   private final byte[] ownSeed;
   private final int noOfParties;
+  private final Drbg localDrbg;
+
 
   public CoinTossingComputation(byte[] ownSeed, ByteSerializer<HashBasedCommitment> serializer,
-      int noOfParties) {
+      int noOfParties, Drbg localDrbg) {
     this.serializer = serializer;
     this.ownSeed = ownSeed;
     this.noOfParties = noOfParties;
+    this.localDrbg = localDrbg;
   }
 
   public CoinTossingComputation(int seedLength, ByteSerializer<HashBasedCommitment> serializer,
-      int noOfParties) {
-    this(generateSeed(seedLength), serializer, noOfParties);
+      int noOfParties, Drbg localDrbg) {
+    this(generateSeed(seedLength), serializer, noOfParties, localDrbg);
   }
 
   @Override
   public DRes<byte[]> buildComputation(ProtocolBuilderNumeric builder) {
-    return builder.seq(new Spdz2kCommitmentComputation(serializer, ownSeed, noOfParties))
+    return builder.seq(new Spdz2kCommitmentComputation(serializer, ownSeed, noOfParties, localDrbg))
         .seq((seq, seeds) -> {
           byte[] jointSeed = new byte[ownSeed.length];
           for (byte[] seed : seeds) {

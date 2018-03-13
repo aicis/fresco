@@ -69,6 +69,13 @@ public interface Spdz2kResourcePool<PlainT extends CompUInt<?, ?, PlainT>>
   Drbg getRandomGenerator();
 
   /**
+   * A DRBG for generating private randomness locally. <p>The purpose of this class is to avoid
+   * initializing a new DRBG whenever a native protocol uses it for local randomness as this can be
+   * quite costly.</p>
+   */
+  Drbg getLocalRandomGenerator();
+
+  /**
    * Returns bit length of maximum representable element.
    */
   int getMaxBitLength();
