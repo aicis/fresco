@@ -13,7 +13,7 @@ import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 import java.util.Arrays;
 
 /**
- * Native protocol for computing product of two secret-shared numbers.
+ * Native protocol for computing product of two secret numbers.
  */
 public class Spdz2kMultiplyProtocol<PlainT extends CompUInt<?, ?, PlainT>> extends
     Spdz2kNativeProtocol<SInt, PlainT> {
@@ -25,6 +25,12 @@ public class Spdz2kMultiplyProtocol<PlainT extends CompUInt<?, ?, PlainT>> exten
   private Spdz2kSInt<PlainT> delta;
   private SInt product;
 
+  /**
+   * Creates new {@link Spdz2kMultiplyProtocol}.
+   *
+   * @param left left factor
+   * @param right right factor
+   */
   public Spdz2kMultiplyProtocol(DRes<SInt> left, DRes<SInt> right) {
     this.left = left;
     this.right = right;

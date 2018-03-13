@@ -10,6 +10,10 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kTriple;
 import java.math.BigInteger;
 
+/**
+ * Insecure implementation of {@link Spdz2kDataSupplier}. <p>This class deterministically generates
+ * pre-processing material for each party and can therefore not be used in production.</p>
+ */
 public class Spdz2kDummyDataSupplier<
     PlainT extends CompUInt<?, ?, PlainT>> implements
     Spdz2kDataSupplier<PlainT> {

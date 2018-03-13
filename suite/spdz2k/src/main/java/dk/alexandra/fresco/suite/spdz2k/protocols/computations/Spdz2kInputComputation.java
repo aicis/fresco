@@ -9,6 +9,13 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.BroadcastValidationProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kInputOnlyProtocol;
 
+/**
+ * Native computation for inputting private data. <p>Consists of native protocols {@link
+ * Spdz2kInputOnlyProtocol} and {@link BroadcastValidationProtocol}. The first returns this party's
+ * share of the input along with the bytes of the masked input. The second step runs a broadcast
+ * validation of the bytes of the masked input (if more than two parties are carrying out the
+ * computation).</p>
+ */
 public class Spdz2kInputComputation<PlainT extends CompUInt<?, ?, PlainT>> implements
     Computation<SInt, ProtocolBuilderNumeric> {
 
@@ -22,10 +29,10 @@ public class Spdz2kInputComputation<PlainT extends CompUInt<?, ?, PlainT>> imple
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    DRes<Pair<DRes<SInt>, byte[]>> pair = builder
+    DRes<Pair<DRes<SInt>, byte[]>> shareAndMaskBytes = builder
         .append(new Spdz2kInputOnlyProtocol<>(input, inputPartyId));
     return builder.seq(seq -> {
-      Pair<DRes<SInt>, byte[]> unwrapped = pair.out();
+      Pair<DRes<SInt>, byte[]> unwrapped = shareAndMaskBytes.out();
       seq.append(new BroadcastValidationProtocol<>(unwrapped.getSecond()));
       return unwrapped.getFirst();
     });

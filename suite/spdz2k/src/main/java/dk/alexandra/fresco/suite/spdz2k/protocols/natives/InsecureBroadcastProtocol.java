@@ -9,13 +9,18 @@ import java.util.List;
  * Generic native protocol implementing insecure broadcast. <p>Used as a building block in {@link
  * dk.alexandra.fresco.suite.spdz2k.protocols.computations.BroadcastComputation}.</p>
  */
-public class AllBroadcastProtocol<ResourcePoolT extends ResourcePool> implements
+public class InsecureBroadcastProtocol<ResourcePoolT extends ResourcePool> implements
     NativeProtocol<List<byte[]>, ResourcePoolT> {
 
   private final byte[] input;
   private List<byte[]> result;
 
-  public AllBroadcastProtocol(byte[] input) {
+  /**
+   * Creates new {@link InsecureBroadcastProtocol}.
+   *
+   * @param input own input to broadcast
+   */
+  public InsecureBroadcastProtocol(byte[] input) {
     this.input = input;
   }
 

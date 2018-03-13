@@ -18,6 +18,11 @@ public class BroadcastValidationProtocol<ResourcePoolT extends ResourcePool> imp
   private SecureBroadcastUtil broadcast;
   private byte[] digest;
 
+  /**
+   * Creates new {@link BroadcastValidationProtocol}.
+   *
+   * @param input inputs received that need to be validated.
+   */
   public BroadcastValidationProtocol(List<byte[]> input) {
     this.input = input;
   }

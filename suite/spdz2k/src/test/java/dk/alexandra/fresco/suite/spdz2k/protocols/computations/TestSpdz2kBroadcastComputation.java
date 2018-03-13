@@ -20,7 +20,7 @@ import dk.alexandra.fresco.suite.spdz2k.Spdz2kProtocolSuite128;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt128;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt128Factory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
-import dk.alexandra.fresco.suite.spdz2k.protocols.natives.AllBroadcastProtocol;
+import dk.alexandra.fresco.suite.spdz2k.protocols.natives.InsecureBroadcastProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.BroadcastValidationProtocol;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePoolImpl;
@@ -167,7 +167,7 @@ public class TestSpdz2kBroadcastComputation extends
   }
 
   private static class MaliciousAllBroadcast extends
-      AllBroadcastProtocol<Spdz2kResourcePool<CompUInt128>> {
+      InsecureBroadcastProtocol<Spdz2kResourcePool<CompUInt128>> {
 
     private final byte[] inputCopy;
     private List<byte[]> resultCopy;

@@ -8,6 +8,9 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kDataSupplier;
 
+/**
+ * Native protocol from computing the sum of a secret value and a public constant.
+ */
 public class Spdz2kAddKnownProtocol<PlainT extends CompUInt<?, ?, PlainT>>
     extends Spdz2kNativeProtocol<SInt, PlainT> {
 
@@ -15,8 +18,14 @@ public class Spdz2kAddKnownProtocol<PlainT extends CompUInt<?, ?, PlainT>>
   private final DRes<SInt> right;
   private SInt out;
 
-  public Spdz2kAddKnownProtocol(PlainT input, DRes<SInt> right) {
-    this.left = input;
+  /**
+   * Creates new {@link Spdz2kAddKnownProtocol}.
+   *
+   * @param left public summand
+   * @param right secret summand
+   */
+  public Spdz2kAddKnownProtocol(PlainT left, DRes<SInt> right) {
+    this.left = left;
     this.right = right;
   }
 

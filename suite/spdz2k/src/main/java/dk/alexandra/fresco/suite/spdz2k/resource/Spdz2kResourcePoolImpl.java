@@ -28,6 +28,11 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/**
+ * Default implementation of {@link Spdz2kResourcePool}. <p>If a securely generated, joint random
+ * seed is needed, {@link #initializeJointRandomness(Supplier, Function, int)} must be called before
+ * using this class.</p>
+ */
 public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
     extends ResourcePoolImpl
     implements Spdz2kResourcePool<PlainT> {

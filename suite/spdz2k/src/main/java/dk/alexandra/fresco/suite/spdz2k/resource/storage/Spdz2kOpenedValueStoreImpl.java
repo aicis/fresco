@@ -6,6 +6,9 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Implements {@link Spdz2kOpenedValueStore}.
+ */
 public class Spdz2kOpenedValueStoreImpl<PlainT extends CompUInt<?, ?, PlainT>>
     implements Spdz2kOpenedValueStore<PlainT> {
 

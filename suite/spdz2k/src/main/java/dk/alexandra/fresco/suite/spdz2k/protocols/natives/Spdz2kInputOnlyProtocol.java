@@ -12,14 +12,26 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kDataSupplier;
 
+/**
+ * Native protocol for inputting data. <p>This is used by native computation {@link
+ * dk.alexandra.fresco.suite.spdz2k.protocols.computations.Spdz2kInputComputation}. The result of
+ * this protocol is this party's share of the input, as well as the bytes of the masked input which
+ * are later used in a broadcast validation.</p>
+ */
 public class Spdz2kInputOnlyProtocol<PlainT extends CompUInt<?, ?, PlainT>>
     extends Spdz2kNativeProtocol<Pair<DRes<SInt>, byte[]>, PlainT> {
 
   private final PlainT input;
   private final int inputPartyId;
   private Spdz2kInputMask<PlainT> inputMask;
-  private Pair<DRes<SInt>, byte[]> out;
+  private Pair<DRes<SInt>, byte[]> shareAndMaskBytes;
 
+  /**
+   * Creates new {@link Spdz2kInputOnlyProtocol}.
+   *
+   * @param input value to secret-share
+   * @param inputPartyId id of input party
+   */
   public Spdz2kInputOnlyProtocol(PlainT input, int inputPartyId) {
     this.input = input;
     this.inputPartyId = inputPartyId;
@@ -48,14 +60,14 @@ public class Spdz2kInputOnlyProtocol<PlainT extends CompUInt<?, ?, PlainT>>
           macKeyShare,
           factory.zero(),
           myId == 1);
-      this.out = new Pair<>(out, inputMaskBytes);
+      this.shareAndMaskBytes = new Pair<>(out, inputMaskBytes);
       return EvaluationStatus.IS_DONE;
     }
   }
 
   @Override
   public Pair<DRes<SInt>, byte[]> out() {
-    return out;
+    return shareAndMaskBytes;
   }
 
 }

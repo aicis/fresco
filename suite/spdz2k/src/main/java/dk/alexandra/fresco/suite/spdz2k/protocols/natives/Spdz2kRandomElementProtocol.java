@@ -5,6 +5,9 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 
+/**
+ * Native protocol for generating a random shared value.
+ */
 public class Spdz2kRandomElementProtocol<PlainT extends CompUInt<?, ?, PlainT>>
     extends Spdz2kNativeProtocol<SInt, PlainT> {
 

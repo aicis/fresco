@@ -6,10 +6,13 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.suite.spdz2k.protocols.natives.AllBroadcastProtocol;
+import dk.alexandra.fresco.suite.spdz2k.protocols.natives.InsecureBroadcastProtocol;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Protocol for all parties to commit to a value and open it to the other parties.
+ */
 public class Spdz2kCommitmentComputation implements
     Computation<List<byte[]>, ProtocolBuilderNumeric> {
 
@@ -33,7 +36,7 @@ public class Spdz2kCommitmentComputation implements
     return builder.seq(new BroadcastComputation<>(
         commitmentSerializer.serialize(ownCommitment)
     )).seq((seq, rawCommitments) -> {
-      DRes<List<byte[]>> openingsDRes = seq.append(new AllBroadcastProtocol<>(ownOpening));
+      DRes<List<byte[]>> openingsDRes = seq.append(new InsecureBroadcastProtocol<>(ownOpening));
       List<HashBasedCommitment> commitments = commitmentSerializer.deserializeList(rawCommitments);
       return () -> open(commitments, openingsDRes.out(), noOfParties);
     });

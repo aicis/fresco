@@ -7,23 +7,32 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class UIntSerializer<T extends CompUInt<?, ?, T>> implements ByteSerializer<T> {
+/**
+ * Serializer for {@link CompUInt} instances.
+ */
+public class UIntSerializer<PlainT extends CompUInt<?, ?, PlainT>> implements
+    ByteSerializer<PlainT> {
 
-  private final CompUIntFactory<T> factory;
+  private final CompUIntFactory<PlainT> factory;
   private final int byteLength;
 
-  public UIntSerializer(CompUIntFactory<T> factory) {
+  /**
+   * Creates new {@link UIntSerializer}.
+   *
+   * @param factory factory for creating {@link PlainT} instances.
+   */
+  public UIntSerializer(CompUIntFactory<PlainT> factory) {
     this.factory = factory;
     this.byteLength = factory.getCompositeBitLength() / 8;
   }
 
   @Override
-  public byte[] serialize(T object) {
+  public byte[] serialize(PlainT object) {
     return object.toByteArray();
   }
 
   @Override
-  public byte[] serialize(List<T> objects) {
+  public byte[] serialize(List<PlainT> objects) {
     byte[] all = new byte[byteLength * objects.size()];
     for (int i = 0; i < objects.size(); i++) {
       byte[] serialized = serialize(objects.get(i));
@@ -33,18 +42,18 @@ public class UIntSerializer<T extends CompUInt<?, ?, T>> implements ByteSerializ
   }
 
   @Override
-  public T deserialize(byte[] bytes) {
+  public PlainT deserialize(byte[] bytes) {
     return factory.createFromBytes(bytes);
   }
 
   @Override
-  public List<T> deserializeList(byte[] bytes) {
+  public List<PlainT> deserializeList(byte[] bytes) {
     if (bytes.length % byteLength != 0) {
       throw new IllegalArgumentException(
           "Total number of bytes must be a multiple of length of single element");
     }
     int numElements = bytes.length / byteLength;
-    List<T> elements = new ArrayList<>(numElements);
+    List<PlainT> elements = new ArrayList<>(numElements);
     for (int i = 0; i < numElements; i++) {
       elements.add(deserialize(Arrays.copyOfRange(bytes, i * byteLength, (i + 1) * byteLength)));
     }

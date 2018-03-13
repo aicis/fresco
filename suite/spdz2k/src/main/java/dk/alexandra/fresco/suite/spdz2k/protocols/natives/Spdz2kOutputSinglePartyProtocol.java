@@ -13,6 +13,9 @@ import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kOpenedValueStore;
 import java.math.BigInteger;
 import java.util.List;
 
+/**
+ * Native protocol for opening a secret value to a single party.
+ */
 public class Spdz2kOutputSinglePartyProtocol<PlainT extends CompUInt<?, ?, PlainT>>
     extends Spdz2kNativeProtocol<BigInteger, PlainT>
     implements RequiresMacCheck {
@@ -23,6 +26,12 @@ public class Spdz2kOutputSinglePartyProtocol<PlainT extends CompUInt<?, ?, Plain
   private Spdz2kInputMask<PlainT> inputMask;
   private Spdz2kSInt<PlainT> inMinusMask;
 
+  /**
+   * Creates new {@link Spdz2kOutputSinglePartyProtocol}.
+   *
+   * @param share value to open
+   * @param outputParty party to open to
+   */
   public Spdz2kOutputSinglePartyProtocol(DRes<SInt> share, int outputParty) {
     this.share = share;
     this.outputParty = outputParty;
