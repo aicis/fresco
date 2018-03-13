@@ -6,6 +6,7 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.lib.real.AdvancedRealNumeric;
 import dk.alexandra.fresco.lib.real.RealLinearAlgebra;
 import dk.alexandra.fresco.lib.real.RealNumeric;
+import dk.alexandra.fresco.lib.real.RealNumericContext;
 
 /**
  * Central class for building protocols that are based on numeric protocol suites. This class
@@ -25,11 +26,13 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
   private RealNumeric realNumeric;
   private AdvancedRealNumeric advancedRealNumeric;
   private RealLinearAlgebra realLinearAlgebra;
+  private RealNumericContext realNumericContext;
 
   ProtocolBuilderNumeric(BuilderFactoryNumeric factory, boolean parallel) {
     super(factory, parallel);
     this.factory = factory;
     this.basicNumericContext = factory.getBasicNumericContext();
+    this.realNumericContext = factory.getRealNumericContext();
   }
 
   /**
@@ -39,6 +42,10 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
    */
   public BasicNumericContext getBasicNumericContext() {
     return basicNumericContext;
+  }
+  
+  public RealNumericContext getRealNumericContext() {
+    return realNumericContext;
   }
 
   /**

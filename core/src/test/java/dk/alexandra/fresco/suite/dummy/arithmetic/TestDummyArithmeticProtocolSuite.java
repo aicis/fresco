@@ -57,106 +57,90 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void test_Input_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL,
-        2);
+    runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void test_OutputToTarget_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestOutputToSingleParty<>(), EvaluationStrategy.SEQUENTIAL,
-        2, true);
+    runTest(new BasicArithmeticTests.TestOutputToSingleParty<>(), EvaluationStrategy.SEQUENTIAL, 2,
+        true);
     assertThat(performanceLoggers.get(1).getLoggedValues()
         .get(NetworkLoggingDecorator.NETWORK_TOTAL_BYTES), is((long) 0));
   }
 
   @Test
   public void test_AddPublicValue_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestAddPublicValue<>(), EvaluationStrategy.SEQUENTIAL,
-        1);
+    runTest(new BasicArithmeticTests.TestAddPublicValue<>(), EvaluationStrategy.SEQUENTIAL, 1);
   }
 
   @Test
   public void test_KnownSInt_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestKnownSInt<>(), EvaluationStrategy.SEQUENTIAL,
-        1);
+    runTest(new BasicArithmeticTests.TestKnownSInt<>(), EvaluationStrategy.SEQUENTIAL, 1);
   }
 
   @Test
   public void test_MultAndAdd_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestSimpleMultAndAdd<>(), EvaluationStrategy.SEQUENTIAL,
-        1);
+    runTest(new BasicArithmeticTests.TestSimpleMultAndAdd<>(), EvaluationStrategy.SEQUENTIAL, 1);
   }
 
   @Test
   public void testSumAndOutputSequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestSumAndMult<>(), EvaluationStrategy.SEQUENTIAL,
-        1);
+    runTest(new BasicArithmeticTests.TestSumAndMult<>(), EvaluationStrategy.SEQUENTIAL, 1);
   }
 
   @Test
   public void testSumAndProduct() throws Exception {
-    runTest(new TestSumAndProduct<>(), EvaluationStrategy.SEQUENTIAL,
-        1);
+    runTest(new TestSumAndProduct<>(), EvaluationStrategy.SEQUENTIAL, 1);
   }
 
   @Test
   public void test_MinInfFrac_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestMinInfFrac<>(), EvaluationStrategy.SEQUENTIAL,
-        1);
+    runTest(new BasicArithmeticTests.TestMinInfFrac<>(), EvaluationStrategy.SEQUENTIAL, 1);
   }
 
   @Test
   public void test_MinInfFrac_SequentialBatched() throws Exception {
-    runTest(new BasicArithmeticTests.TestMinInfFrac<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        1);
+    runTest(new BasicArithmeticTests.TestMinInfFrac<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 1);
   }
 
   @Test
   public void test_compareLT_Sequential() throws Exception {
-    runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
-        1);
+    runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL, 1);
   }
 
   @Test
   public void testCompareLTEdgeCasesSequential() throws Exception {
-    runTest(new CompareTests.TestCompareLTEdgeCases<>(), EvaluationStrategy.SEQUENTIAL,
-        1);
+    runTest(new CompareTests.TestCompareLTEdgeCases<>(), EvaluationStrategy.SEQUENTIAL, 1);
   }
 
   @Test
   public void test_compareEQ_Sequential() throws Exception {
-    runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL,
-        1);
+    runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL, 1);
   }
 
   @Test
   public void testCompareEQEdgeCasesSequential() throws Exception {
-    runTest(new CompareTests.TestCompareEQEdgeCases<>(), EvaluationStrategy.SEQUENTIAL,
-        1);
+    runTest(new CompareTests.TestCompareEQEdgeCases<>(), EvaluationStrategy.SEQUENTIAL, 1);
   }
 
   @Test
   public void test_isSorted() throws Exception {
-    runTest(new SortingTests.TestIsSorted<>(), EvaluationStrategy.SEQUENTIAL,
-        1);
+    runTest(new SortingTests.TestIsSorted<>(), EvaluationStrategy.SEQUENTIAL, 1);
   }
 
   @Test
   public void test_compareAndSwap() throws Exception {
-    runTest(new SortingTests.TestCompareAndSwap<>(), EvaluationStrategy.SEQUENTIAL,
-        1);
+    runTest(new SortingTests.TestCompareAndSwap<>(), EvaluationStrategy.SEQUENTIAL, 1);
   }
 
   @Test
   public void test_Sort() throws Exception {
-    runTest(new SortingTests.TestSort<>(), EvaluationStrategy.SEQUENTIAL,
-        1);
+    runTest(new SortingTests.TestSort<>(), EvaluationStrategy.SEQUENTIAL, 1);
   }
 
   @Test
   public void test_Big_Sort() throws Exception {
-    runTest(new SortingTests.TestBigSort<>(), EvaluationStrategy.SEQUENTIAL,
-        1);
+    runTest(new SortingTests.TestBigSort<>(), EvaluationStrategy.SEQUENTIAL, 1);
   }
 
   // Statistics
@@ -243,20 +227,17 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void test_conditional_select_left() throws Exception {
-    runTest(ConditionalSelectTests.testSelectLeft(), EvaluationStrategy.SEQUENTIAL,
-        1);
+    runTest(ConditionalSelectTests.testSelectLeft(), EvaluationStrategy.SEQUENTIAL, 1);
   }
 
   @Test
   public void test_conditional_select_right() throws Exception {
-    runTest(ConditionalSelectTests.testSelectRight(), EvaluationStrategy.SEQUENTIAL,
-        1);
+    runTest(ConditionalSelectTests.testSelectRight(), EvaluationStrategy.SEQUENTIAL, 1);
   }
 
   @Test
   public void test_swap_yes() throws Exception {
-    runTest(SwapIfTests.testSwapYes(), EvaluationStrategy.SEQUENTIAL,
-        1);
+    runTest(SwapIfTests.testSwapYes(), EvaluationStrategy.SEQUENTIAL, 1);
   }
 
   @Test
@@ -266,151 +247,131 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void test_swap_rows_yes() throws Exception {
-    runTest(ConditionalSwapRowsTests.testSwapYes(), EvaluationStrategy.SEQUENTIAL,
-        1);
+    runTest(ConditionalSwapRowsTests.testSwapYes(), EvaluationStrategy.SEQUENTIAL, 1);
   }
 
   @Test
   public void test_swap_rows_no() throws Exception {
-    runTest(ConditionalSwapRowsTests.testSwapNo(), EvaluationStrategy.SEQUENTIAL,
-        1);
+    runTest(ConditionalSwapRowsTests.testSwapNo(), EvaluationStrategy.SEQUENTIAL, 1);
   }
 
   @Test
   public void test_swap_neighbors_yes() throws Exception {
-    runTest(ConditionalSwapNeighborsTests.testSwapYes(), EvaluationStrategy.SEQUENTIAL,
-        1);
+    runTest(ConditionalSwapNeighborsTests.testSwapYes(), EvaluationStrategy.SEQUENTIAL, 1);
   }
 
   @Test
   public void test_swap_neighbors_no() throws Exception {
-    runTest(ConditionalSwapNeighborsTests.testSwapNo(), EvaluationStrategy.SEQUENTIAL,
-        1);
+    runTest(ConditionalSwapNeighborsTests.testSwapNo(), EvaluationStrategy.SEQUENTIAL, 1);
   }
 
   // lib.collections
 
   @Test
   public void test_close_empty_list() throws Exception {
-    runTest(new CloseListTests.TestCloseEmptyList<>(), EvaluationStrategy.SEQUENTIAL,
-        2);
+    runTest(new CloseListTests.TestCloseEmptyList<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void test_close_list() throws Exception {
-    runTest(new CloseListTests.TestCloseEmptyList<>(), EvaluationStrategy.SEQUENTIAL,
-        2);
+    runTest(new CloseListTests.TestCloseEmptyList<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void test_close_empty_matrix() throws Exception {
-    runTest(new CloseMatrixTests.TestCloseEmptyMatrix<>(), EvaluationStrategy.SEQUENTIAL,
-        2);
+    runTest(new CloseMatrixTests.TestCloseEmptyMatrix<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void test_close_matrix() throws Exception {
-    runTest(new CloseMatrixTests.TestCloseAndOpenMatrix<>(), EvaluationStrategy.SEQUENTIAL,
-        2);
+    runTest(new CloseMatrixTests.TestCloseAndOpenMatrix<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void test_Test_Is_Sorted() throws Exception {
-    runTest(new SearchingTests.TestIsSorted<>(), EvaluationStrategy.SEQUENTIAL,
-        1);
+    runTest(new SearchingTests.TestIsSorted<>(), EvaluationStrategy.SEQUENTIAL, 1);
   }
 
   @Test
   public void test_permute_empty_rows() throws Exception {
-    runTest(PermuteRowsTests.permuteEmptyRows(), EvaluationStrategy.SEQUENTIAL,
-        2);
+    runTest(PermuteRowsTests.permuteEmptyRows(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void test_permute_rows() throws Exception {
-    runTest(PermuteRowsTests.permuteRows(), EvaluationStrategy.SEQUENTIAL,
-        2);
+    runTest(PermuteRowsTests.permuteRows(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test(expected = UnsupportedOperationException.class)
   public void test_permute_rows_non_power_of_two() throws Throwable {
     ArrayList<ArrayList<DRes<SInt>>> fakeRows = new ArrayList<>();
     Matrix<DRes<SInt>> fakeMatrix = new Matrix<>(3, 2, fakeRows);
-    new PermuteRows(() -> fakeMatrix, new int[]{}, 1, true).buildComputation(null);
+    new PermuteRows(() -> fakeMatrix, new int[] {}, 1, true).buildComputation(null);
   }
 
   @Test
   public void test_shuffle_rows_two_parties() throws Exception {
-    runTest(ShuffleRowsTests.shuffleRowsTwoParties(), EvaluationStrategy.SEQUENTIAL,
-        2);
+    runTest(ShuffleRowsTests.shuffleRowsTwoParties(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void test_shuffle_rows_three_parties() throws Exception {
-    runTest(ShuffleRowsTests.shuffleRowsThreeParties(), EvaluationStrategy.SEQUENTIAL,
-        3);
+    runTest(ShuffleRowsTests.shuffleRowsThreeParties(), EvaluationStrategy.SEQUENTIAL, 3);
   }
 
   @Test
   public void test_shuffle_rows_empty() throws Exception {
-    runTest(ShuffleRowsTests.shuffleRowsEmpty(), EvaluationStrategy.SEQUENTIAL,
-        2);
+    runTest(ShuffleRowsTests.shuffleRowsEmpty(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void test_leaky_aggregate_two() throws Exception {
-    runTest(LeakyAggregationTests.aggregate(), EvaluationStrategy.SEQUENTIAL,
-        2);
+    runTest(LeakyAggregationTests.aggregate(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void test_leaky_aggregate_unique_keys_two() throws Exception {
-    runTest(LeakyAggregationTests.aggregateUniqueKeys(), EvaluationStrategy.SEQUENTIAL,
-        2);
+    runTest(LeakyAggregationTests.aggregateUniqueKeys(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void test_leaky_aggregate_three() throws Exception {
-    runTest(LeakyAggregationTests.aggregate(), EvaluationStrategy.SEQUENTIAL,
-        3);
+    runTest(LeakyAggregationTests.aggregate(), EvaluationStrategy.SEQUENTIAL, 3);
   }
 
   @Test
   public void test_leaky_aggregate_empty() throws Exception {
-    runTest(LeakyAggregationTests.aggregateEmpty(), EvaluationStrategy.SEQUENTIAL,
-        2);
+    runTest(LeakyAggregationTests.aggregateEmpty(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   //
 
   @Test
   public void test_MiMC_DifferentPlainTexts() throws Exception {
-    runTest(new MiMCTests.TestMiMCDifferentPlainTexts<>(), EvaluationStrategy.SEQUENTIAL,
-        1);
+    runTest(new MiMCTests.TestMiMCDifferentPlainTexts<>(), EvaluationStrategy.SEQUENTIAL, 1);
   }
 
   @Test
   public void test_MiMC_EncSameEnc() throws Exception {
-    runTest(new MiMCTests.TestMiMCEncSameEnc<>(), EvaluationStrategy.SEQUENTIAL,
-        1);
+    runTest(new MiMCTests.TestMiMCEncSameEnc<>(), EvaluationStrategy.SEQUENTIAL, 1);
   }
 
   @Test
   public void test_MiMC_EncDec() throws Exception {
-    runTest(new MiMCTests.TestMiMCEncDec<>(), EvaluationStrategy.SEQUENTIAL,
-        1, ModulusFinder.findSuitableModulus(512));
+    runTest(new MiMCTests.TestMiMCEncDec<>(), EvaluationStrategy.SEQUENTIAL, 1,
+        ModulusFinder.findSuitableModulus(512));
   }
 
   @Test
   public void test_MiMC_EncDecFixedRounds() throws Exception {
-    runTest(new MiMCTests.TestMiMCEncDecFixedRounds<>(), EvaluationStrategy.SEQUENTIAL,
-        1, ModulusFinder.findSuitableModulus(512));
+    runTest(new MiMCTests.TestMiMCEncDecFixedRounds<>(), EvaluationStrategy.SEQUENTIAL, 1,
+        ModulusFinder.findSuitableModulus(512));
   }
 
   @Test
   public void test_MiMC_Deterministically() throws Exception {
-    runTest(new MiMCTests.TestMiMCEncryptsDeterministically<>(), EvaluationStrategy.SEQUENTIAL,
-        1, ModulusFinder.findSuitableModulus(512));
+    runTest(new MiMCTests.TestMiMCEncryptsDeterministically<>(), EvaluationStrategy.SEQUENTIAL, 1,
+        ModulusFinder.findSuitableModulus(512));
   }
 
   // lib.list
@@ -423,8 +384,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   // lib.lp
   @Test
   public void test_LPSolverEntering() throws Exception {
-    runTest(new LpBuildingBlockTests.TestEnteringVariable<>(), EvaluationStrategy.SEQUENTIAL,
-        2);
+    runTest(new LpBuildingBlockTests.TestEnteringVariable<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
@@ -435,65 +395,56 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void test_LpTableauDebug() throws Exception {
-    runTest(new LpBuildingBlockTests.TestLpTableuDebug<>(), EvaluationStrategy.SEQUENTIAL,
-        2);
+    runTest(new LpBuildingBlockTests.TestLpTableuDebug<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void test_LpSolverDanzig() throws Exception {
     runTest(new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.DANZIG),
-        EvaluationStrategy.SEQUENTIAL,
-        2);
+        EvaluationStrategy.SEQUENTIAL, 2);
   }
 
   @Test
   public void test_LpSolverDanzigSmallerMod() throws Exception {
     runTest(new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.DANZIG),
-        EvaluationStrategy.SEQUENTIAL,
-        2, ModulusFinder.findSuitableModulus(128), 30, false);
+        EvaluationStrategy.SEQUENTIAL, 2, ModulusFinder.findSuitableModulus(128), 30, 8, false);
   }
 
   @Test
   public void test_LpSolverBland() throws Exception {
     runTest(new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.BLAND),
-        EvaluationStrategy.SEQUENTIAL,
-        2, true);
+        EvaluationStrategy.SEQUENTIAL, 2, true);
     assertThat(performanceLoggers.get(1).getLoggedValues()
         .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_EQ), is((long) 33));
   }
 
   @Test
   public void test_LpSolverDebug() throws Exception {
-    runTest(new LpBuildingBlockTests.TestLpSolverDebug<>(), EvaluationStrategy.SEQUENTIAL,
-        2);
+    runTest(new LpBuildingBlockTests.TestLpSolverDebug<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
 
 
   // lib.math.integer.binary
   @Test
   public void test_Right_Shift() throws Exception {
-    runTest(new BinaryOperationsTests.TestRightShift<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        2);
+    runTest(new BinaryOperationsTests.TestRightShift<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
 
   @Test
   public void test_Bit_Length() throws Exception {
-    runTest(new BinaryOperationsTests.TestBitLength<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        1);
+    runTest(new BinaryOperationsTests.TestBitLength<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 1);
   }
-  
+
   @Test
   public void test_Bits() throws Exception {
-    runTest(new BinaryOperationsTests.TestBits<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        1);
+    runTest(new BinaryOperationsTests.TestBits<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 1);
   }
 
   // Math tests
 
   @Test
   public void test_euclidian_division() throws Exception {
-    runTest(new DivisionTests.TestEuclidianDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        1);
+    runTest(new DivisionTests.TestEuclidianDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 1);
   }
 
   @Test
@@ -544,66 +495,56 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void test_InnerProductClosed() throws Exception {
-    runTest(new LinAlgTests.TestInnerProductClosed<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        2);
+    runTest(new LinAlgTests.TestInnerProductClosed<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
 
   @Test
   public void test_InnerProductOpen() throws Exception {
-    runTest(new LinAlgTests.TestInnerProductOpen<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        2);
+    runTest(new LinAlgTests.TestInnerProductOpen<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
 
   @Test
   public void test_Logarithm() throws Exception {
-    runTest(new LogTests.TestLogarithm<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        2);
+    runTest(new LogTests.TestLogarithm<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
 
   @Test
   public void test_Minimum_Protocol_2_parties() throws Exception {
-    runTest(new MinTests.TestMinimumProtocol<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        2, true);
+    runTest(new MinTests.TestMinimumProtocol<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2, true);
     assertThat(performanceLoggers.get(1).getLoggedValues()
         .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_LEQ), is((long) 10));
   }
 
   @Test
   public void test_Min_Inf_Frac_2_parties() throws Exception {
-    runTest(new MinTests.TestMinInfFraction<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        2, true);
+    runTest(new MinTests.TestMinInfFraction<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2, true);
     assertThat(performanceLoggers.get(1).getLoggedValues()
         .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_LEQ), is((long) 10));
   }
 
   @Test
   public void test_Min_Inf_Frac_Trivial_2_parties() throws Exception {
-    runTest(new MinTests.TestMinInfFractionTrivial<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        2);
+    runTest(new MinTests.TestMinInfFractionTrivial<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
 
   @Test
   public void test_sqrt() throws Exception {
-    runTest(new SqrtTests.TestSquareRoot<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        2);
+    runTest(new SqrtTests.TestSquareRoot<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
 
   @Test
   public void test_Exiting_Variable_2_parties() throws Exception {
-    runTest(new StatisticsTests.TestStatistics<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        2);
+    runTest(new StatisticsTests.TestStatistics<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
 
   @Test
   public void test_Exiting_Variable_3_parties() throws Exception {
-    runTest(new StatisticsTests.TestStatistics<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        3);
+    runTest(new StatisticsTests.TestStatistics<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3);
   }
 
   @Test
   public void test_Exiting_Variable_No_Mean_2_parties() throws Exception {
-    runTest(new StatisticsTests.TestStatisticsNoMean<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        2);
+    runTest(new StatisticsTests.TestStatisticsNoMean<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
 
   @Test
@@ -620,11 +561,10 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void test_exponentiation_pipe_preprocessed() throws Exception {
-    runTest(
-        new ExponentiationPipeTests.TestPreprocessedValues<>(),
-        EvaluationStrategy.SEQUENTIAL, 1);
+    runTest(new ExponentiationPipeTests.TestPreprocessedValues<>(), EvaluationStrategy.SEQUENTIAL,
+        1);
   }
-  
+
   @Test
   public void test_Real_Input_Sequential() throws Exception {
     runTest(new BasicFixedPointTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL, 2);
@@ -677,7 +617,8 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void test_Real_Repeated_Multiplication() throws Exception {
-    runTest(new BasicFixedPointTests.TestRepeatedMultiplication<>(), EvaluationStrategy.SEQUENTIAL, 2);
+    runTest(new BasicFixedPointTests.TestRepeatedMultiplication<>(), EvaluationStrategy.SEQUENTIAL,
+        2);
   }
 
   @Test

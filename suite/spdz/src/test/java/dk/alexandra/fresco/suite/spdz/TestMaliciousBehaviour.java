@@ -18,6 +18,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.compare.CompareTests;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
+import dk.alexandra.fresco.lib.real.RealNumericContext;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.spdz.maccheck.MaliciousSpdzMacCheckProtocol;
 import dk.alexandra.fresco.suite.spdz.maccheck.MaliciousSpdzRoundSynchronization;
@@ -194,10 +195,11 @@ public class TestMaliciousBehaviour {
     @Override
     public BuilderFactoryNumeric init(SpdzResourcePool resourcePool, Network network) {
       BasicNumericContext spdzFactory = createNumericContext(resourcePool);
+      RealNumericContext realNumericContext = createRealNumericContext();
       if (resourcePool.getMyId() == 1 && corrupt.compareTo(Corrupt.INPUT) == 0) {
-        return new MaliciousSpdzBuilder(spdzFactory);
+        return new MaliciousSpdzBuilder(spdzFactory, realNumericContext);
       } else {
-        return new SpdzBuilder(spdzFactory);
+        return new SpdzBuilder(spdzFactory, realNumericContext);
       }
     }
 

@@ -39,6 +39,7 @@ public abstract class AbstractDummyArithmeticTest {
   private final BigInteger defaultMod = new BigInteger(
       "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
   private final int defaultMaxBitLength = 200;
+  private final int defaultFixedPointPrecision = 16;
 
   /**
    * Runs test with default modulus, max bit length, and no performance logging. i.e. standard test
@@ -47,25 +48,28 @@ public abstract class AbstractDummyArithmeticTest {
   protected void runTest(
       TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, int noOfParties) {
-    runTest(f, evalStrategy, noOfParties, defaultMod, defaultMaxBitLength, false);
+    runTest(f, evalStrategy, noOfParties, defaultMod, defaultMaxBitLength,
+        defaultFixedPointPrecision, false);
   }
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, int noOfParties, boolean logPerformance) {
-    runTest(f, evalStrategy, noOfParties, defaultMod, defaultMaxBitLength, logPerformance);
+    runTest(f, evalStrategy, noOfParties, defaultMod, defaultMaxBitLength,
+        defaultFixedPointPrecision, logPerformance);
   }
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, int noOfParties, BigInteger modulus) {
-    runTest(f, evalStrategy, noOfParties, modulus, defaultMaxBitLength, false);
+    runTest(f, evalStrategy, noOfParties, modulus, defaultMaxBitLength, defaultFixedPointPrecision,
+        false);
   }
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
-      EvaluationStrategy evalStrategy, int noOfParties,
-      BigInteger mod, int maxBitLength, boolean logPerformance) {
+      EvaluationStrategy evalStrategy, int noOfParties, BigInteger mod, int maxBitLength,
+      int fixedPointPrecision, boolean logPerformance) {
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * (noOfParties - 1));
@@ -76,13 +80,12 @@ public abstract class AbstractDummyArithmeticTest {
     Map<Integer, TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     for (int playerId : netConf.keySet()) {
-      PerformanceLoggerCountingAggregate aggregate
-          = new PerformanceLoggerCountingAggregate();
+      PerformanceLoggerCountingAggregate aggregate = new PerformanceLoggerCountingAggregate();
 
       NetworkConfiguration partyNetConf = netConf.get(playerId);
 
-      ProtocolSuiteNumeric<DummyArithmeticResourcePool> ps = new DummyArithmeticProtocolSuite(mod,
-          maxBitLength);
+      ProtocolSuiteNumeric<DummyArithmeticResourcePool> ps =
+          new DummyArithmeticProtocolSuite(mod, maxBitLength, fixedPointPrecision);
       if (logPerformance) {
         ps = new NumericSuiteLogging<>(ps);
         aggregate.add((PerformanceLogger) ps);
@@ -91,8 +94,7 @@ public abstract class AbstractDummyArithmeticTest {
       BatchEvaluationStrategy<DummyArithmeticResourcePool> batchEvaluationStrategy =
           evalStrategy.getStrategy();
       if (logPerformance) {
-        batchEvaluationStrategy =
-            new BatchEvaluationLoggingDecorator<>(batchEvaluationStrategy);
+        batchEvaluationStrategy = new BatchEvaluationLoggingDecorator<>(batchEvaluationStrategy);
         aggregate.add((PerformanceLogger) batchEvaluationStrategy);
       }
       ProtocolEvaluator<DummyArithmeticResourcePool> evaluator =
@@ -107,11 +109,8 @@ public abstract class AbstractDummyArithmeticTest {
 
       Drbg drbg = new HmacDrbg();
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
-          new TestThreadRunner.TestThreadConfiguration<>(
-              sce,
-              () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  noOfParties, mod),
-              () -> {
+          new TestThreadRunner.TestThreadConfiguration<>(sce,
+              () -> new DummyArithmeticResourcePoolImpl(playerId, noOfParties, mod), () -> {
                 Network asyncNetwork = new AsyncNetwork(partyNetConf);
                 if (logPerformance) {
                   NetworkLoggingDecorator network = new NetworkLoggingDecorator(asyncNetwork);

@@ -7,6 +7,7 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.lib.real.AdvancedRealNumeric;
 import dk.alexandra.fresco.lib.real.RealLinearAlgebra;
 import dk.alexandra.fresco.lib.real.RealNumeric;
+import dk.alexandra.fresco.lib.real.RealNumericContext;
 import dk.alexandra.fresco.lib.real.fixed.AdvancedFixedNumeric;
 import dk.alexandra.fresco.lib.real.fixed.FixedLinearAlgebra;
 import dk.alexandra.fresco.lib.real.fixed.FixedNumeric;
@@ -29,6 +30,8 @@ public interface BuilderFactoryNumeric extends BuilderFactory<ProtocolBuilderNum
 
   BasicNumericContext getBasicNumericContext();
 
+  RealNumericContext getRealNumericContext();
+  
   Numeric createNumeric(ProtocolBuilderNumeric builder);
 
   MiscBigIntegerGenerators getBigIntegerHelper();
