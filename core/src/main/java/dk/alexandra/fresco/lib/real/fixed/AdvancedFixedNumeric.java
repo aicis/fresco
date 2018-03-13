@@ -27,7 +27,7 @@ public class AdvancedFixedNumeric extends DefaultAdvancedRealNumeric {
       int newScale = Math.floorDiv(scale, 2);
       DRes<SReal> result = new SFixed(intResult, newScale);
       if (scale % 2 != 0) {
-        result = seq.realNumeric().mult(BigDecimal.valueOf(Math.sqrt(2.0)), result);
+        result = seq.realNumeric().mult(BigDecimal.valueOf(1.0 / Math.sqrt(2.0)), result);
       }
       return result;
     });
