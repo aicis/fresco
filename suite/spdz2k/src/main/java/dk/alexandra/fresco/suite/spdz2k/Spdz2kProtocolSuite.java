@@ -20,7 +20,7 @@ import dk.alexandra.fresco.suite.spdz2k.synchronization.Spdz2kRoundSynchronizati
  * used in the mac-check protocol implemented in {@link Spdz2kMacCheckComputation}.</p>
  *
  * @param <HighT> type representing most significant bit portion of open values
- * @param <LowT> type representing most significant bit portion of open values
+ * @param <LowT> type representing least significant bit portion of open values
  * @param <PlainT> the type representing open values
  */
 public abstract class Spdz2kProtocolSuite<

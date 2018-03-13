@@ -75,10 +75,16 @@ public class Spdz2kSInt<PlainT extends CompUInt<?, ?, PlainT>> implements SInt {
     return add(wrapped);
   }
 
+  /**
+   * Return share.
+   */
   public PlainT getShare() {
     return share;
   }
 
+  /**
+   * Return mac share.
+   */
   public PlainT getMacShare() {
     return macShare;
   }

@@ -6,6 +6,11 @@ import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.util.Arrays;
 
+/**
+ * Implementation of {@link CompUInt} that allows for any size least-significant and
+ * most-significant bit portion. <p>Note that this class is a lot slower than dedicated
+ * implementations such as {@link CompUInt128}.</p>
+ */
 public class GenericCompUInt implements
     CompUInt<GenericCompUInt, GenericCompUInt, GenericCompUInt> {
 
