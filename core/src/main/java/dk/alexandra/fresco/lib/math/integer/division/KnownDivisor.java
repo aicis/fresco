@@ -11,11 +11,10 @@ import java.math.BigInteger;
 
 /**
  * This protocol is an implementation Euclidean division (finding quotient and remainder) on
- * integers with a secret shared divedend and a known divisor. In the implementation we calculate a
- * constant <i>m</i> such that multiplication with <i>m</i> will correspond to the desired division
- * -- just shifted a number of bits to the left. To get the right result we just need to shift back
- * again.
- *
+ * integers with a secret shared divedend and a known divisor. The dividend must have bitlength
+ * smaller than <i>(maxBitLenght - divisorBitLength) / 2</i> where the maxBitLength is avabilable
+ * via {@link ProtocolBuilderNumeric.getBasicNumericContext().getMaxBitLength()} in order for the
+ * division protocol to produce a precise result.
  */
 public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
 
@@ -61,7 +60,7 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
     BigInteger signedDivisor = convertRepresentation(modulus, modulusHalf, divisor);
     int divisorSign = signedDivisor.signum();
     BigInteger divisorAbs = signedDivisor.abs();
-    int maxDivisorBitLength = builder.getBasicNumericContext().getMaxBitLength() - 3;
+    int maxDivisorBitLength = basicNumericContext.getMaxBitLength() - 3;
     if (divisorAbs.bitLength() > maxDivisorBitLength) {
       throw new IllegalArgumentException("Divisor is too big. Bit length is "
           + divisorAbs.bitLength() + " but should only be at most " + maxDivisorBitLength);
@@ -72,8 +71,7 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
      * + divisorBitLength. So in total we need 3 * maxBitLength + divisorBitLength to be
      * representable.
      */
-    int maxBitLength =
-        (builder.getBasicNumericContext().getMaxBitLength() - divisorAbs.bitLength()) / 3;
+    int maxBitLength = (basicNumericContext.getMaxBitLength() - divisorAbs.bitLength()) / 3;
     int shifts = maxBitLength + divisorAbs.bitLength();
 
     /*
