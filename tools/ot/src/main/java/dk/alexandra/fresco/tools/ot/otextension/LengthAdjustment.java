@@ -1,25 +1,37 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import java.security.DigestException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Objects;
 
+/**
+ * A static utility class commonly used to adjust the length of a candidate byte array by either
+ * truncating the array or stretching it using a PRG using the candidate byte array as a seed. The
+ * PRG implemented in this using a cryptographic hash-function and a counter.
+ *
+ */
 final class LengthAdjustment {
+
+  public static String DIGEST_ALGO = "SHA-256";
 
   private LengthAdjustment() {
     // Should not be instantiated
   }
 
   /**
-   * Generates a key of the desired length, either by truncating the key, or stretching it using a
-   * hash-function and a counter.
+   * Generates an array of the desired length, either by truncating a candidate array, or stretching
+   * it using a hash-function and a counter.
    *
    * @param candidate the candidate key
    * @param byteLength the desired key length
    * @return a key of the desired length
    */
   static byte[] adjust(byte[] candidate, int byteLength) {
+    Objects.requireNonNull(candidate);
+    if (byteLength < 0) {
+      throw new IllegalArgumentException("Can not adjust length to negative length: " + byteLength);
+    }
     byte[] key;
     if (candidate.length >= byteLength) {
       key = Arrays.copyOf(candidate, byteLength);
@@ -30,18 +42,15 @@ final class LengthAdjustment {
       while (offset < byteLength) {
         MessageDigest digest;
         try {
-          digest = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e1) {
-          throw new RuntimeException("SHA-256 not supported", e1);
+          digest = MessageDigest.getInstance(DIGEST_ALGO);
+        } catch (NoSuchAlgorithmException e) {
+          throw new RuntimeException(DIGEST_ALGO + " not supported", e);
         }
         digest.update(intToBytes(counter++));
         digest.update(candidate);
-        try {
-          digest.digest(key, offset, Math.min(digest.getDigestLength(), byteLength - offset));
-        } catch (DigestException e) {
-          throw new RuntimeException("Error computing digest", e);
-        }
-        offset += Math.min(digest.getDigestLength(), byteLength - offset);
+        int len = Math.min(digest.getDigestLength(), byteLength - offset);
+        System.arraycopy(digest.digest(), 0, key, offset, len);
+        offset += len;
       }
     }
     return key;
@@ -49,6 +58,7 @@ final class LengthAdjustment {
 
   /**
    * Generates a byte array representation of an integer.
+   *
    * @param i an integer
    * @return a corresponding byte array
    */
