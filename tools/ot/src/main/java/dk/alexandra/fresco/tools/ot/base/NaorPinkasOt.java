@@ -8,7 +8,7 @@ import dk.alexandra.fresco.framework.util.DrngImpl;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.ot.otextension.PseudoOtpImpl;
+import dk.alexandra.fresco.tools.ot.otextension.PseudoOtp;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import javax.crypto.spec.DHParameterSpec;
@@ -53,9 +53,9 @@ public class NaorPinkasOt implements Ot {
   public void send(StrictBitVector messageZero, StrictBitVector messageOne) {
     int maxBitLength = Math.max(messageZero.getSize(), messageOne.getSize());
     Pair<byte[], byte[]> seedMessages = sendRandomOt();
-    byte[] encryptedZeroMessage = new PseudoOtpImpl().encrypt(messageZero.toByteArray(),
+    byte[] encryptedZeroMessage = PseudoOtp.encrypt(messageZero.toByteArray(),
         seedMessages.getFirst(), maxBitLength / Byte.SIZE);
-    byte[] encryptedOneMessage = new PseudoOtpImpl().encrypt(messageOne.toByteArray(),
+    byte[] encryptedOneMessage = PseudoOtp.encrypt(messageOne.toByteArray(),
         seedMessages.getSecond(), maxBitLength / Byte.SIZE);
     network.send(otherId, encryptedZeroMessage);
     network.send(otherId, encryptedOneMessage);
@@ -87,9 +87,9 @@ public class NaorPinkasOt implements Ot {
     }
     byte[] unpaddedMessage;
     if (choiceBit == false) {
-      unpaddedMessage = new PseudoOtpImpl().decrypt(encryptedZeroMessage, seed);
+      unpaddedMessage = PseudoOtp.decrypt(encryptedZeroMessage, seed);
     } else {
-      unpaddedMessage = new PseudoOtpImpl().decrypt(encryptedOneMessage, seed);
+      unpaddedMessage = PseudoOtp.decrypt(encryptedOneMessage, seed);
     }
     return new StrictBitVector(unpaddedMessage);
   }
