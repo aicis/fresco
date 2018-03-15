@@ -7,6 +7,8 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Protocol class for the party acting as the receiver in an correlated OT with
@@ -31,8 +33,8 @@ public class CoteReceiver extends CoteShared {
     for (Pair<StrictBitVector, StrictBitVector> pair : resources.getSeedOts()
         .getSentMessages()) {
       Drbg prgZero = initPrg(pair.getFirst());
-      Drbg prgFirst = initPrg(pair.getSecond());
-      prgs.add(new Pair<>(prgZero, prgFirst));
+      Drbg prgOne = initPrg(pair.getSecond());
+      prgs.add(new Pair<>(prgZero, prgOne));
     }
     this.resources = resources;
     this.network = network;
@@ -52,31 +54,21 @@ public class CoteReceiver extends CoteShared {
       throw new IllegalArgumentException(
           "The amount of OTs must be a positive integer");
     }
-    // Compute how many bytes we need for "size" OTs by dividing "size" by 8
-    // (the amount of bits in the primitive type; byte)
-    int bytesNeeded = choices.getSize() / 8;
-    // Use prgs to expand the seeds
-    List<StrictBitVector> tlistZero = new ArrayList<>(resources
-        .getComputationalSecurityParameter());
-    List<StrictBitVector> ulist = new ArrayList<>(resources
-        .getComputationalSecurityParameter());
-    for (int i = 0; i < resources.getComputationalSecurityParameter(); i++) {
-      // Expand the seed OTs using a prg and store the result in tlistZero
-      byte[] byteBuffer = new byte[bytesNeeded];
-      prgs.get(i).getFirst().nextBytes(byteBuffer);
-      StrictBitVector tzero = new StrictBitVector(byteBuffer);
-      tlistZero.add(tzero);
-      byteBuffer = new byte[bytesNeeded];
-      prgs.get(i).getSecond().nextBytes(byteBuffer);
-      // Compute the u list, i.e. tzero XOR tone XOR randomChoices
-      // Note that this is an in-place call and thus tone gets modified
-      StrictBitVector tone = new StrictBitVector(byteBuffer);
-      tone.xor(tzero);
-      tone.xor(choices);
-      ulist.add(tone);
-    }
+    int bytesNeeded = choices.getSize() / Byte.SIZE;
+    final List<StrictBitVector>  tlistZero = prgs.stream().limit(resources.getComputationalSecurityParameter())
+        .map(p -> p.getFirst())
+        .map(drbg -> {byte[] byteBuffer = new byte[bytesNeeded]; drbg.nextBytes(byteBuffer); return byteBuffer; })
+        .map(StrictBitVector::new)
+      .collect(Collectors.toList());
+    final List<StrictBitVector> ulist = prgs.stream().limit(resources.getComputationalSecurityParameter())
+        .map(p -> p.getSecond())
+        .map(drbg -> {byte[] byteBuffer = new byte[bytesNeeded]; drbg.nextBytes(byteBuffer); return byteBuffer; })
+        .map(StrictBitVector::new)
+        .collect(Collectors.toList());
+    ulist.stream().forEach(u -> u.xor(choices));
+    IntStream.range(0, resources.getComputationalSecurityParameter())
+      .forEach(i -> ulist.get(i).xor(tlistZero.get(i)));
     sendList(ulist);
-    // Complete tilt-your-head by transposing the message "matrix"
     return Transpose.transpose(tlistZero);
   }
 
