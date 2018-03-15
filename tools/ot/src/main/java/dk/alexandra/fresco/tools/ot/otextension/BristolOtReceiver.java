@@ -95,7 +95,7 @@ public class BristolOtReceiver {
     } else {
       adjustment = oneAdjustment;
     }
-    return new PseudoOtpImpl().decrypt(adjustment, randomMessages.get(offset).toByteArray());
+    return PseudoOtp.decrypt(adjustment, randomMessages.get(offset).toByteArray());
   }
 
   /**
