@@ -72,11 +72,15 @@ public class BristolOtSender {
     byte[] switchBit = network.receive(resources.getOtherId());
     // If false (indicated by byte 0x00), then don't switch around
     if (switchBit[0] == 0x00) {
-      network.send(resources.getOtherId(), PseudoOtp.encrypt(messageZero, randomZero.toByteArray(), maxLength));
-      network.send(resources.getOtherId(), PseudoOtp.encrypt(messageOne, randomOne.toByteArray(), maxLength));
+      network.send(resources.getOtherId(),
+          PseudoOtp.encrypt(messageZero, randomZero.toByteArray(), maxLength));
+      network.send(resources.getOtherId(),
+          PseudoOtp.encrypt(messageOne, randomOne.toByteArray(), maxLength));
     } else {
-      network.send(resources.getOtherId(), PseudoOtp.encrypt(messageOne, randomZero.toByteArray(), maxLength));
-      network.send(resources.getOtherId(), PseudoOtp.encrypt(messageZero, randomOne.toByteArray(), maxLength));
+      network.send(resources.getOtherId(),
+          PseudoOtp.encrypt(messageOne, randomZero.toByteArray(), maxLength));
+      network.send(resources.getOtherId(),
+          PseudoOtp.encrypt(messageZero, randomOne.toByteArray(), maxLength));
     }
   }
 }

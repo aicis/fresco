@@ -13,7 +13,7 @@ import java.util.Objects;
  */
 final class LengthAdjustment {
 
-  public static String DIGEST_ALGO = "SHA-256";
+  static final String DIGEST_ALGO = "SHA-256";
 
   private LengthAdjustment() {
     // Should not be instantiated
@@ -62,7 +62,7 @@ final class LengthAdjustment {
    * @param i an integer
    * @return a corresponding byte array
    */
-  static private byte[] intToBytes(int i) {
+  private static byte[] intToBytes(int i) {
     byte[] result = new byte[Integer.BYTES];
     result[0] = (byte) (i >> 24);
     result[1] = (byte) (i >> 16);

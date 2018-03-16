@@ -70,7 +70,7 @@ public final class PseudoOtp {
    * (e.g., using a hash function).
    * </p>
    *
-   * @param ciphterText the cipher text to be decrypted
+   * @param cipherText the cipher text to be decrypted
    * @param keyCandidate the candidate key for OTP decryption
    * @return the resulting message
    */
@@ -89,7 +89,7 @@ public final class PseudoOtp {
    * (e.g., using a hash function).
    * </p>
    *
-   * @param ciphterText the cipher text to be decrypted
+   * @param cipherText the cipher text to be decrypted
    * @param keyCandidate the candidate key for OTP decryption
    * @param messageLength fixes the length of the message to decrypt, the given
    *        <code>cipherText</code> will be either truncated or padded with zeroes to match this

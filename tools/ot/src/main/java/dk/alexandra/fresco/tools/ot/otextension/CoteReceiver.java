@@ -55,14 +55,24 @@ public class CoteReceiver extends CoteShared {
           "The amount of OTs must be a positive integer");
     }
     int bytesNeeded = choices.getSize() / Byte.SIZE;
-    final List<StrictBitVector>  tlistZero = prgs.stream().limit(resources.getComputationalSecurityParameter())
+    final List<StrictBitVector>  tlistZero = prgs.stream()
+        .limit(resources.getComputationalSecurityParameter())
         .map(p -> p.getFirst())
-        .map(drbg -> {byte[] byteBuffer = new byte[bytesNeeded]; drbg.nextBytes(byteBuffer); return byteBuffer; })
+        .map(drbg -> {
+          byte[] byteBuffer = new byte[bytesNeeded];
+          drbg.nextBytes(byteBuffer);
+          return byteBuffer;
+        })
         .map(StrictBitVector::new)
-      .collect(Collectors.toList());
-    final List<StrictBitVector> ulist = prgs.stream().limit(resources.getComputationalSecurityParameter())
+        .collect(Collectors.toList());
+    final List<StrictBitVector> ulist = prgs.stream()
+        .limit(resources.getComputationalSecurityParameter())
         .map(p -> p.getSecond())
-        .map(drbg -> {byte[] byteBuffer = new byte[bytesNeeded]; drbg.nextBytes(byteBuffer); return byteBuffer; })
+        .map(drbg -> {
+          byte[] byteBuffer = new byte[bytesNeeded];
+          drbg.nextBytes(byteBuffer);
+          return byteBuffer;
+        })
         .map(StrictBitVector::new)
         .collect(Collectors.toList());
     ulist.stream().forEach(u -> u.xor(choices));

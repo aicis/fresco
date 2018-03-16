@@ -66,10 +66,10 @@ public class CoteSender extends CoteShared {
     final List<StrictBitVector> tlist = prgs.stream()
         .limit(resources.getComputationalSecurityParameter())
         .map(drbg -> {
-            byte[] bytes = new byte[bytesNeeded];
-            drbg.nextBytes(bytes);
-            return bytes;
-          })
+          byte[] bytes = new byte[bytesNeeded];
+          drbg.nextBytes(bytes);
+          return bytes;
+        })
         .map(StrictBitVector::new)
         .collect(Collectors.toList());
     final List<StrictBitVector> ulist = receiveList(resources.getComputationalSecurityParameter());
