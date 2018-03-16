@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,15 +33,18 @@ public class Transpose {
     byte[][] res = new byte[rows][columns / Byte.SIZE];
     // Process all squares of minDim x minDim
     List<List<byte[]>> squares = IntStream.range(0, maxDim / minDim)
-      .mapToObj(i -> extractSquare(input, minDim, tall, i))
-      .map(m -> { transposeAllByteBlocks(m); return m; })
-      .map(m -> { doEklundh(m); return m; })
-      .collect(Collectors.toList());
+        .mapToObj(i -> extractSquare(input, minDim, tall, i)).map(m -> {
+          transposeAllByteBlocks(m);
+          return m;
+        })
+        .map(m -> {
+          doEklundh(m);
+          return m;
+        })
+        .collect(Collectors.toList());
     IntStream.range(0, maxDim / minDim)
-      .forEach(i -> insertSquare(minDim, tall, res, squares.get(i), i));
-    return IntStream.range(0, res.length)
-        .mapToObj(i -> res[i])
-        .map(StrictBitVector::new)
+        .forEach(i -> insertSquare(minDim, tall, res, squares.get(i), i));
+    return IntStream.range(0, res.length).mapToObj(i -> res[i]).map(StrictBitVector::new)
         .collect(Collectors.toList());
   }
 
@@ -61,8 +63,8 @@ public class Transpose {
     int rowOffset = tall ? i * length : 0;
     int columnOffset = tall ? 0 : i * length / Byte.SIZE;
     for (int j = 0; j < tempSquare.length; j++) {
-        byte[] row = input.get(rowOffset + j).toByteArray();
-        System.arraycopy(row, columnOffset, tempSquare[j], 0, tempSquare[j].length);
+      byte[] row = input.get(rowOffset + j).toByteArray();
+      System.arraycopy(row, columnOffset, tempSquare[j], 0, tempSquare[j].length);
     }
     return Arrays.asList(tempSquare);
   }
@@ -193,13 +195,5 @@ public class Transpose {
     input.get(rowOffset + 5)[columnOffset / 8] = newRow5;
     input.get(rowOffset + 6)[columnOffset / 8] = newRow6;
     input.get(rowOffset + 7)[columnOffset / 8] = newRow7;
-  }
-
-  private static List<byte[]> initializeByteMatrix(int rows, int columns) {
-    List<byte[]> res = new ArrayList<>(rows);
-    for (int i = 0; i < rows; i++) {
-      res.add(new byte[columns / Byte.SIZE]);
-    }
-    return res;
   }
 }
