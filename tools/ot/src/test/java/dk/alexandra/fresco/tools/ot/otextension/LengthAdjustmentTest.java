@@ -2,10 +2,10 @@ package dk.alexandra.fresco.tools.ot.otextension;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Random;
 import org.junit.Test;
@@ -81,28 +81,20 @@ public class LengthAdjustmentTest {
     LengthAdjustment.adjust(null, 10);
   }
 
-  @Test(expected = RuntimeException.class)
-  public void testAdjustDigestNotSupported() throws IllegalArgumentException,
-      IllegalAccessException, NoSuchFieldException, SecurityException {
-    Field field = null;
+  @Test(expected = NoSuchAlgorithmException.class)
+  public void testAdjustDigestNotSupported() throws Throwable {
     try {
-      field = LengthAdjustment.class.getDeclaredField("DIGEST_ALGO");
-      field.setAccessible(true);
-      Field modifiersField = Field.class.getDeclaredField("modifiers");
-      modifiersField.setAccessible(true);
-      modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-      field.set(null, "NONEXISTING_DIGEST_ALGO");
-      LengthAdjustment.adjust(new byte[] { 0x00 }, 10);
+      Method m = LengthAdjustment.class.getDeclaredMethod("getDigest", String.class);
+      m.setAccessible(true);
+      m.invoke(LengthAdjustment.class, "Test");
+    } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException e) {
+      e.printStackTrace();
+      throw e;
+    } catch (InvocationTargetException f) {
+      throw f.getCause().getCause();
     } finally {
-      if (field != null) {
-        // Clean up reflection mess
-        field.set(null, "SHA-256");
-        Field modifiersField = Field.class.getDeclaredField("modifiers");
-        modifiersField.setAccessible(true);
-        modifiersField.setInt(field, field.getModifiers() & Modifier.FINAL);
-        modifiersField.setAccessible(false);
-        field.setAccessible(false);
-      }
+      Method m = LengthAdjustment.class.getDeclaredMethod("getDigest", String.class);
+      m.setAccessible(false);
     }
   }
 
