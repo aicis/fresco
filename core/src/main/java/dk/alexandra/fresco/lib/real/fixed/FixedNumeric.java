@@ -21,13 +21,16 @@ public class FixedNumeric implements RealNumeric {
     this.builder = builder;
     this.defaultPrecision = precision;
 
-    // We reserve as many bits the integer part as for the fractional part.
+    /*
+     * We reserve as many bits the integer part as for the fractional part and to be able to
+     * represent products, we need to be able to hold twice that under the max bit length.
+     */
     this.maxPrecision = builder.getBasicNumericContext().getMaxBitLength() / 4;
     if (defaultPrecision > maxPrecision) {
       throw new IllegalArgumentException(
           "The precision was chosen too large for a product of two numbers to be representable "
-              + "in this numeric context. You cannot choose a precision larger than "
-              + maxPrecision + ".");
+              + "in this numeric context. You cannot choose a precision larger than " + maxPrecision
+              + ".");
     }
   }
 
@@ -143,14 +146,17 @@ public class FixedNumeric implements RealNumeric {
       if (precision > maxPrecision) {
         /*
          * We allow for 'pseudo-floating-point' numbers where the precision may increase after each
-         * multiplications and we only truncate when reaching an upper bound for the precision.
+         * multiplications and we only truncate when reaching an upper bound for the precision. This
+         * is motly effective when the precision was chosen small compared to the max bit length in
+         * the underlying field.
          *
          * For performance reasons, we use the Truncate algorithm instead of RightShift when
          * truncating numbers, so every time this is done to the SInt used to represent a fixed
          * number, eg. after multiplication, there is a propability (p ~ 0.5) that the result will
          * be one larger than the expected value which will make the corresponding fixed point
          * number 2^-n larger than the expected value.
-         */ unscaled = scale(seq, unscaled, defaultPrecision - precision);
+         */
+        unscaled = scale(seq, unscaled, defaultPrecision - precision);
         precision = defaultPrecision;
       }
       return new SFixed(unscaled, precision);

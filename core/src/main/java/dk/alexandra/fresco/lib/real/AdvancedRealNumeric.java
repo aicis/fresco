@@ -34,7 +34,9 @@ public interface AdvancedRealNumeric extends ComputationDirectory {
   DRes<SReal> innerProductWithPublicPart(List<BigDecimal> a, List<DRes<SReal>> b);
 
   /**
-   * Calcualte the exponential function of a secret input x.
+   * Calcualte the exponential function of a secret input x. The result is mmore precise for small
+   * inputs, so the input should be scaled if possible (note that <i>exp(n x) =
+   * exp(x)<sup>n</sup></i>).
    * 
    * @param x Secret value
    * @return A deferred result computing computing e<sup>x</sup>
@@ -49,8 +51,9 @@ public interface AdvancedRealNumeric extends ComputationDirectory {
   DRes<SReal> random();
 
   /**
-   * Calculate the natural logarithm of a secret value. Works best for small inputs (< 40), so
-   * larger inputs should be scaled (utilize that log(x * b<sup>e</sup>) = log(x) + e log(b)).
+   * Calculate the natural logarithm of a secret value. Works best for small inputs (< 10), so
+   * larger inputs should be scaled is possible (note that <i>log(x * b<sup>e</sup>) = log(x) + e
+   * log(b)</i>).
    * 
    * @param x Secret value
    * @return A deferred result computing computing log(x)

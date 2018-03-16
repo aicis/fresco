@@ -24,9 +24,12 @@ public class AdvancedFixedNumeric extends DefaultAdvancedRealNumeric {
       int scale = cast.getPrecision();
       DRes<SInt> intResult =
           seq.advancedNumeric().sqrt(underlyingInt, seq.getBasicNumericContext().getMaxBitLength());
+
       int newScale = Math.floorDiv(scale, 2);
       DRes<SReal> result = new SFixed(intResult, newScale);
-      if (scale % 2 != 0) {
+
+      int scaleResidue = Math.floorMod(scale, 2);
+      if (scaleResidue == 1) {
         result = seq.realNumeric().mult(BigDecimal.valueOf(1.0 / Math.sqrt(2.0)), result);
       }
       return result;
