@@ -124,8 +124,8 @@ public class PseudoOtpTest {
     byte[] cipherText = PseudoOtp.encrypt(message, candidate, cipherLength);
     assertEquals(cipherLength, cipherText.length);
     if (cipherText.length > 0) {
-     assertFalse(Arrays.equals(Arrays.copyOf(message, cipherLength), cipherText));
-     assertFalse(Arrays.equals(Arrays.copyOf(candidate, cipherLength), cipherText));
+      assertFalse(Arrays.equals(Arrays.copyOf(message, cipherLength), cipherText));
+      assertFalse(Arrays.equals(Arrays.copyOf(candidate, cipherLength), cipherText));
     }
     byte[] decryptedMessage = PseudoOtp.decrypt(cipherText, candidate, cipherLength);
     assertArrayEquals(Arrays.copyOf(message, cipherLength), decryptedMessage);

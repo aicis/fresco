@@ -2,6 +2,7 @@ package dk.alexandra.fresco.tools.ot.otextension;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -105,7 +106,7 @@ public class LengthAdjustmentTest {
     assertEquals(adjustedLength, adjusted1.length);
     byte[] adjusted2 = LengthAdjustment.adjust(candidate, adjustedLength);
     assertArrayEquals(adjusted1, adjusted2);
-
+    assertFalse(Arrays.equals(new byte[adjusted1.length], adjusted1));
   }
 
 }
