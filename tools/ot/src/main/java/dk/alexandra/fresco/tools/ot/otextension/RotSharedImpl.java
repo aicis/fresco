@@ -69,24 +69,27 @@ public abstract class RotSharedImpl {
    */
   private static StrictBitVector multiplyWithoutReduction(StrictBitVector avec,
       StrictBitVector bvec) {
-    byte[] res = new byte[(avec.getSize() + bvec.getSize()) / 8];
+    byte[] res = new byte[(avec.getSize() + bvec.getSize()) / Byte.SIZE];
     byte[] avecBytes = avec.toByteArray();
     byte[] bvecBytes = bvec.toByteArray();
-    byte[][] rotations = new byte[8][bvecBytes.length + 1];
-    for (int i = 0; i < 8; i++) {
+    byte[][] rotations = new byte[Byte.SIZE][bvecBytes.length + 1];
+    System.arraycopy(bvecBytes, 0, rotations[0], 0, bvecBytes.length);
+    for (int i = 1; i < Byte.SIZE; i++) {
       for (int j = 0; j < rotations[i].length - 1; j++) {
         int b = Byte.toUnsignedInt(bvecBytes[j]);
         rotations[i][j] ^= (byte) (b >> i);
-        rotations[i][j + 1] = (byte) (b << 8 - i);
+        rotations[i][j + 1] = (byte) (b << Byte.SIZE - i);
       }
     }
     // multiply using the school book method (where addition is XOR)
     for (int i = 0; i < avec.getSize(); i++) {
-      byte currentByte = (byte) (avecBytes[i / 8] >> (7 - (i % 8)));
-      byte[] currentRotation = rotations[i % 8];
+      int bitIndex = i % Byte.SIZE;
+      int byteIndex = i / Byte.SIZE;
+      byte currentByte = (byte) (avecBytes[byteIndex] >> ((Byte.SIZE - 1) - (bitIndex)));
       if ((currentByte & 1) == 1) {
+        byte[] currentRotation = rotations[bitIndex];
         for (int j = 0; j < currentRotation.length; j++) {
-          res[(i / 8) + j] ^= currentRotation[j];
+          res[byteIndex + j] ^= currentRotation[j];
         }
       }
     }

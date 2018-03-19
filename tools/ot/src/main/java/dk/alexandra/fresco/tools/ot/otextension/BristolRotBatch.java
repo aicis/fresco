@@ -62,7 +62,7 @@ public class BristolRotBatch implements RotBatch {
       this.receiver = rot.createReceiver();
     }
     int amountToPreprocess = computeExtensionSize(choiceBits.getSize(), comSecParam, statSecParam);
-    byte[] extraByteChoices = Arrays.copyOf(choiceBits.toByteArray(), amountToPreprocess / 8);
+    byte[] extraByteChoices = Arrays.copyOf(choiceBits.toByteArray(), amountToPreprocess / Byte.SIZE);
     List<StrictBitVector> messages = receiver.extend(new StrictBitVector(extraByteChoices));
     return messages.stream().limit(choiceBits.getSize())
         .map(m -> LengthAdjustment.adjust(m.toByteArray(), sizeOfEachMessage / Byte.SIZE))

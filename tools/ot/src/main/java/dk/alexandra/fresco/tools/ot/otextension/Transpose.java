@@ -36,34 +36,55 @@ public class Transpose {
         .mapToObj(i -> extractSquare(input, minDim, tall, i)).map(m -> {
           transposeAllByteBlocks(m);
           return m;
-        })
-        .map(m -> {
+        }).map(m -> {
           doEklundh(m);
           return m;
-        })
-        .collect(Collectors.toList());
+        }).collect(Collectors.toList());
     IntStream.range(0, maxDim / minDim)
-        .forEach(i -> insertSquare(minDim, tall, res, squares.get(i), i));
+        .forEach(i -> insertSquare(res, squares.get(i), minDim, tall, i));
     return IntStream.range(0, res.length).mapToObj(i -> res[i]).map(StrictBitVector::new)
         .collect(Collectors.toList());
   }
 
-  private static void insertSquare(int minDim, boolean tall, byte[][] res,
-      List<byte[]> currentSquare, int i) {
+  /**
+   * Given a matrix <i>M</i> where the smallest dimension, <i>m</i>, divides the largest,<i>n</i>,
+   * we can see <i>M</i> as a matrix consisting of a sequence of <i>n/m</i> square sub matrices of
+   * dimension <i>m x m</i>. This takes such a square matrix an inserts it into the larger matrix
+   * at a given position in the sequence.
+   * @param matrix the larger matrix in which to insert a square
+   * @param square the square matrix
+   * @param minDim the smallest dimension of the larger matrix
+   * @param wide if the matrix is wide, i.e., if the first dimension is smaller than the second.
+   * @param i the position in which to insert the square matrix
+   */
+  private static void insertSquare(byte[][] matrix, List<byte[]> square, int minDim, boolean wide,
+      int i) {
     for (int j = 0; j < minDim; j++) {
-      int rowOffset = tall ? 0 : i * minDim;
-      int columnOffset = tall ? i * minDim / Byte.SIZE : 0;
-      System.arraycopy(currentSquare.get(j), 0, res[j + rowOffset], columnOffset, minDim / 8);
+      int rowOffset = wide ? 0 : i * minDim;
+      int columnOffset = wide ? i * minDim / Byte.SIZE : 0;
+      System.arraycopy(square.get(j), 0, matrix[j + rowOffset], columnOffset, minDim / Byte.SIZE);
     }
   }
 
-  private static List<byte[]> extractSquare(List<StrictBitVector> input, int length, boolean tall,
+  /**
+   * Given a matrix <i>M</i> where the smallest dimension, <i>m</i>, divides the largest,<i>n</i>,
+   * we can see <i>M</i> as a matrix consisting of a sequence of <i>n/m</i> square sub matrices of
+   * dimension <i>m x m</i>. This extracts such a square matrix from a given position in the
+   * sequence of a larger matrix <i>M</i>.
+   *
+   * @param matrix the matrix from which to extract a square matrix
+   * @param minDim the smallest dimension of the matrix
+   * @param tall if the matrix is tall, i.e., if the first dimension is larger than the second
+   * @param i the position the sequence from which to extract a square matrix
+   * @return the corresponding square matrix
+   */
+  private static List<byte[]> extractSquare(List<StrictBitVector> matrix, int minDim, boolean tall,
       int i) {
-    byte[][] tempSquare = new byte[length][length / Byte.SIZE];
-    int rowOffset = tall ? i * length : 0;
-    int columnOffset = tall ? 0 : i * length / Byte.SIZE;
+    byte[][] tempSquare = new byte[minDim][minDim / Byte.SIZE];
+    int rowOffset = tall ? i * minDim : 0;
+    int columnOffset = tall ? 0 : i * minDim / Byte.SIZE;
     for (int j = 0; j < tempSquare.length; j++) {
-      byte[] row = input.get(rowOffset + j).toByteArray();
+      byte[] row = matrix.get(rowOffset + j).toByteArray();
       System.arraycopy(row, columnOffset, tempSquare[j], 0, tempSquare[j].length);
     }
     return Arrays.asList(tempSquare);
@@ -77,11 +98,9 @@ public class Transpose {
    */
   private static void doEklundh(List<byte[]> input) {
     int rows = input.size();
-    // Multiply by 8 because there are 8 bits in a byte
     int byteColumns = input.get(0).length;
-    // Do the Eklundh transposing
     for (int blockSize = 1; blockSize <= byteColumns / 2; blockSize = blockSize * 2) {
-      for (int i = 0; i < rows; i = i + 2 * 8 * blockSize) {
+      for (int i = 0; i < rows; i = i + 2 * Byte.SIZE * blockSize) {
         for (int j = 0; j < byteColumns; j = j + 2 * blockSize) {
           // swap the blocks
           swap(input, i, j, blockSize);
@@ -99,11 +118,12 @@ public class Transpose {
    * @param blockSize The amount of bits in the block to swap
    */
   private static void swap(List<byte[]> input, int row, int column, int blockSize) {
-    for (int k = 0; k < blockSize * 8; k++) {
+    for (int k = 0; k < blockSize * Byte.SIZE; k++) {
       for (int l = 0; l < blockSize; l++) {
         byte temp = input.get(row + k)[column + blockSize + l];
-        input.get(row + k)[column + blockSize + l] = input.get(row + blockSize * 8 + k)[column + l];
-        input.get(row + blockSize * 8 + k)[column + l] = temp;
+        input.get(row + k)[column + blockSize + l] =
+            input.get(row + blockSize * Byte.SIZE + k)[column + l];
+        input.get(row + blockSize * Byte.SIZE + k)[column + l] = temp;
       }
     }
   }
@@ -116,8 +136,8 @@ public class Transpose {
   private static void doSanityCheck(List<StrictBitVector> input) {
     int rows = input.size();
     // Check if the amount of rows is 8*2^x for some x
-    if ((rows % 8 != 0) || // Check 8 | rows
-        (((rows / 8) & ((rows / 8) - 1)) != 0)) {
+    if ((rows % Byte.SIZE != 0) || // Check 8 | rows
+        (((rows / Byte.SIZE) & ((rows / Byte.SIZE) - 1)) != 0)) {
       // Verify that the msb is 1 and all other bits are 0
       throw new IllegalArgumentException(
           "The amount rows in the matrix is not 8*2^x for some x > 1");
@@ -143,8 +163,8 @@ public class Transpose {
   private static void transposeAllByteBlocks(List<byte[]> input) {
     // Start by transposing one byte and 8 rows at a time using the trivial
     // O(n^2) algorithm
-    for (int i = 0; i < input.size(); i = i + 8) {
-      for (int j = 0; j < input.get(0).length * 8; j = j + 8) {
+    for (int i = 0; i < input.size(); i = i + Byte.SIZE) {
+      for (int j = 0; j < input.get(0).length * Byte.SIZE; j = j + Byte.SIZE) {
         transposeByteBlock(input, i, j);
       }
     }
@@ -187,13 +207,13 @@ public class Transpose {
       newRow6 ^= (byte) (((currentRow & 0x02) << 24 + 6) >>> (24 + k));
       newRow7 ^= (byte) (((currentRow & 0x01) << 24 + 7) >>> (24 + k));
     }
-    input.get(rowOffset + 0)[columnOffset / 8] = newRow0;
-    input.get(rowOffset + 1)[columnOffset / 8] = newRow1;
-    input.get(rowOffset + 2)[columnOffset / 8] = newRow2;
-    input.get(rowOffset + 3)[columnOffset / 8] = newRow3;
-    input.get(rowOffset + 4)[columnOffset / 8] = newRow4;
-    input.get(rowOffset + 5)[columnOffset / 8] = newRow5;
-    input.get(rowOffset + 6)[columnOffset / 8] = newRow6;
-    input.get(rowOffset + 7)[columnOffset / 8] = newRow7;
+    input.get(rowOffset + 0)[columnOffset / Byte.SIZE] = newRow0;
+    input.get(rowOffset + 1)[columnOffset / Byte.SIZE] = newRow1;
+    input.get(rowOffset + 2)[columnOffset / Byte.SIZE] = newRow2;
+    input.get(rowOffset + 3)[columnOffset / Byte.SIZE] = newRow3;
+    input.get(rowOffset + 4)[columnOffset / Byte.SIZE] = newRow4;
+    input.get(rowOffset + 5)[columnOffset / Byte.SIZE] = newRow5;
+    input.get(rowOffset + 6)[columnOffset / Byte.SIZE] = newRow6;
+    input.get(rowOffset + 7)[columnOffset / Byte.SIZE] = newRow7;
   }
 }
