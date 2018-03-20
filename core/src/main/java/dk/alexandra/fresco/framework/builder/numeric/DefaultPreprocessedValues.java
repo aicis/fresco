@@ -26,28 +26,26 @@ public class DefaultPreprocessedValues implements PreprocessedValues {
       ArrayList<DRes<SInt>> list = new ArrayList<>(pipeLength + 1);
       list.add(inverse);
       list.add(r);
-      return () -> new IterationState(2, list);
-    }).whileLoop((state) -> state.round <= pipeLength + 1, (seq, state) -> {
-      DRes<SInt> last = state.value.get(state.round - 1);
-      List<DRes<SInt>> newValues = state.value.stream()
-          .limit(pipeLength / 2 + 1)
-          .skip(1)
-          .map(v -> seq.numeric().mult(last, v))
-          .collect(Collectors.toList());
-      state.value.addAll(newValues);
-      return () ->
-      new IterationState(2 * state.round - 1, state.value);
-    }).seq((seq, state) -> () -> state.value);
+      return () -> new IterationState(list);
+    }).whileLoop((state) -> state.values.size() <= pipeLength + 1, (seq, state) -> {
+      return seq.par(par -> {
+        DRes<SInt> last = state.values.get(state.values.size() - 1);
+        int limit = pipeLength + 2 - state.values.size();
+        List<DRes<SInt>> newValues = state.values.stream().skip(1).limit(limit)
+            .map(v -> par.numeric().mult(last, v)).collect(Collectors.toList());
+        state.values.addAll(newValues);
+        return () -> new IterationState(state.values);
+      });
+
+    }).seq((seq, state) -> () -> state.values);
   }
 
   private static final class IterationState {
 
-    private final int round;
-    private final List<DRes<SInt>> value;
+    private final List<DRes<SInt>> values;
 
-    private IterationState(int round, List<DRes<SInt>> value) {
-      this.round = round;
-      this.value = value;
+    private IterationState(List<DRes<SInt>> values) {
+      this.values = values;
     }
   }
 }

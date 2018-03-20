@@ -23,6 +23,9 @@ public class ExponentiationPipeTests {
   public static class TestPreprocessedValues<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
+    static final int length1 = 30;
+    static final int length2 = 200;
+
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
@@ -31,40 +34,41 @@ public class ExponentiationPipeTests {
         public void test() throws Exception {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app =
               producer -> producer.seq(seq -> {
-                DRes<List<DRes<SInt>>> input1 = seq.preprocessedValues().getExponentiationPipe(2);
-                DRes<List<DRes<SInt>>> input2 = seq.preprocessedValues().getExponentiationPipe(7);
+                DRes<List<DRes<SInt>>> input1 = seq.preprocessedValues()
+                    .getExponentiationPipe(length1);
+                DRes<List<DRes<SInt>>> input2 = seq.preprocessedValues()
+                    .getExponentiationPipe(length2);
                 List<DRes<List<DRes<SInt>>>> pipes = new ArrayList<>();
                 pipes.add(input1);
                 pipes.add(input2);
-
                 return () -> pipes;
-              }).seq((seq, res) -> {
+              }).par((par, res) -> {
                 List<DRes<BigInteger>> result = new ArrayList<>();
                 for (DRes<SInt> s : res.get(0).out()) {
-                  result.add(seq.numeric().open(s));
+                  result.add(par.numeric().open(s));
                 }
                 for (DRes<SInt> s : res.get(1).out()) {
-                  result.add(seq.numeric().open(s));
+                  result.add(par.numeric().open(s));
                 }
                 return () -> result;
-
               }).seq((seq,
                   output) -> () -> output.stream().map(DRes::out).collect(Collectors.toList()));
 
           List<BigInteger> output = runApplication(app);
+          Assert.assertEquals(length1 + length2 + 4, output.size());
           BigInteger modulus =
               ((DummyArithmeticResourcePoolImpl) this.conf.getResourcePool()).getModulus();
           BigInteger base1 = output.get(1);
-          BigInteger base2 = output.get(5);
+          BigInteger base2 = output.get(length1 + 3);
           Assert.assertEquals(output.get(0), base1.modInverse(modulus));
-          Assert.assertEquals(output.get(4), base2.modInverse(modulus));
-          for (int i = 0; i < 2; i++) {
-            Assert.assertEquals(output.get(i + 2).mod(modulus),
-                base1.modPow(BigInteger.valueOf(i + 2), modulus));
+          Assert.assertEquals(output.get(length1 + 2), base2.modInverse(modulus));
+          for (int i = 0; i < length1 + 1; i++) {
+            Assert.assertEquals(output.get(i + 1).mod(modulus),
+                base1.modPow(BigInteger.valueOf(i + 1), modulus));
           }
-          for (int i = 0; i < 6; i++) {
-            Assert.assertEquals(output.get(i + 6).mod(modulus),
-                base2.modPow(BigInteger.valueOf(i + 2), modulus));
+          for (int i = 0; i < length2 + 1; i++) {
+            Assert.assertEquals(output.get(length1 + 3 + i).mod(modulus),
+                base2.modPow(BigInteger.valueOf(i + 1), modulus));
           }
         }
       };
