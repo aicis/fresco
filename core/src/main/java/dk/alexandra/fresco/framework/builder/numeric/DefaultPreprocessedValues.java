@@ -23,7 +23,7 @@ public class DefaultPreprocessedValues implements PreprocessedValues {
     return builder.seq(b -> {
       DRes<SInt> r = b.numeric().randomElement();
       DRes<SInt> inverse = b.advancedNumeric().invert(r);
-      ArrayList<DRes<SInt>> list = new ArrayList<>(pipeLength + 1);
+      ArrayList<DRes<SInt>> list = new ArrayList<>(pipeLength + 2);
       list.add(inverse);
       list.add(r);
       return () -> new IterationState(list);
