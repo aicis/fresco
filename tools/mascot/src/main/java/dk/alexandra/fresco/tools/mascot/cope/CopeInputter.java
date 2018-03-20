@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.tools.mascot.cope;
 
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
@@ -65,7 +66,8 @@ public class CopeInputter {
     network.send(otherId, resourcePool.getFieldElementSerializer().serialize(diffs));
     // get zero index masks
     List<FieldElement> feZeroSeeds =
-        maskPairs.stream().map(Pair::getFirst).collect(Collectors.toList());
+        maskPairs.parallelStream().map(Pair::getFirst).collect(Collectors.toList());
+
     // compute product shares
     return helper.computeProductShares(feZeroSeeds, inputElements.size());
   }
@@ -82,7 +84,7 @@ public class CopeInputter {
 
   private List<Pair<FieldElement, FieldElement>> generateMaskPairs(BigInteger modulus) {
     Stream<Pair<FieldElement, FieldElement>> maskStream =
-        IntStream.range(0, leftPrgs.size()).mapToObj(idx -> {
+        IntStream.range(0, leftPrgs.size()).parallel().mapToObj(idx -> {
           FieldElement t0 = this.leftPrgs.get(idx).getNext(modulus);
           FieldElement t1 = this.rightPrgs.get(idx).getNext(modulus);
           return new Pair<>(t0, t1);

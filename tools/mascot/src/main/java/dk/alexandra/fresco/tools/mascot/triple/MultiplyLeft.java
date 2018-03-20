@@ -77,7 +77,7 @@ class MultiplyLeft {
    * @return seeds converted to field elements
    */
   private List<FieldElement> seedsToFieldElements(List<StrictBitVector> seeds, BigInteger modulus) {
-    return seeds.stream().map(seed -> fromBits(seed, modulus)).collect(Collectors.toList());
+    return seeds.parallelStream().map(seed -> fromBits(seed, modulus)).collect(Collectors.toList());
   }
 
   private FieldElement fromBits(StrictBitVector vector, BigInteger modulus) {
