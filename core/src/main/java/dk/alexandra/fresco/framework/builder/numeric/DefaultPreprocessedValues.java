@@ -23,29 +23,19 @@ public class DefaultPreprocessedValues implements PreprocessedValues {
     return builder.seq(b -> {
       DRes<SInt> r = b.numeric().randomElement();
       DRes<SInt> inverse = b.advancedNumeric().invert(r);
-      ArrayList<DRes<SInt>> list = new ArrayList<>(pipeLength + 2);
-      list.add(inverse);
-      list.add(r);
-      return () -> new IterationState(list);
-    }).whileLoop((state) -> state.values.size() <= pipeLength + 1, (seq, state) -> {
+      ArrayList<DRes<SInt>> values = new ArrayList<>(pipeLength + 2);
+      values.add(inverse);
+      values.add(r);
+      return () -> values;
+    }).whileLoop((values) -> values.size() <= pipeLength + 1, (seq, values) -> {
       return seq.par(par -> {
-        DRes<SInt> last = state.values.get(state.values.size() - 1);
-        int limit = pipeLength + 2 - state.values.size();
-        List<DRes<SInt>> newValues = state.values.stream().skip(1).limit(limit)
+        DRes<SInt> last = values.get(values.size() - 1);
+        int limit = pipeLength + 2 - values.size();
+        List<DRes<SInt>> newValues = values.stream().skip(1).limit(limit)
             .map(v -> par.numeric().mult(last, v)).collect(Collectors.toList());
-        state.values.addAll(newValues);
-        return () -> new IterationState(state.values);
+        values.addAll(newValues);
+        return () -> values;
       });
-
-    }).seq((seq, state) -> () -> state.values);
-  }
-
-  private static final class IterationState {
-
-    private final List<DRes<SInt>> values;
-
-    private IterationState(List<DRes<SInt>> values) {
-      this.values = values;
-    }
+    }).seq((seq, values) -> () -> values);
   }
 }
