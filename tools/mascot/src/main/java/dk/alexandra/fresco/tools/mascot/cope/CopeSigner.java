@@ -64,12 +64,12 @@ public class CopeSigner {
     // compute chosen masks
     List<FieldElement> chosenMasks = generateMasks(numInputs, resourcePool.getModulus(),
         resourcePool.getModBitLength());
-    // receive diffs from other party
-    List<FieldElement> diffs = resourcePool.getFieldElementSerializer()
-        .deserializeList(network.receive(otherId));
     // use mac share for each input
     List<FieldElement> macKeyShares =
         IntStream.range(0, numInputs).mapToObj(idx -> macKeyShare).collect(Collectors.toList());
+    // receive diffs from other party
+    List<FieldElement> diffs = resourcePool.getFieldElementSerializer()
+        .deserializeList(network.receive(otherId));
     // compute product shares
     return multiplier.computeProductShares(macKeyShares, chosenMasks, diffs);
   }
@@ -80,7 +80,7 @@ public class CopeSigner {
     // generate mask for each input
     for (int i = 0; i < numInputs; i++) {
       // generate masks for single input
-      List<FieldElement> singleInputMasks = prgs.stream()
+      List<FieldElement> singleInputMasks = prgs.parallelStream()
           .map(prg -> prg.getNext(modulus))
           .collect(Collectors.toList());
       masks.addAll(singleInputMasks);
