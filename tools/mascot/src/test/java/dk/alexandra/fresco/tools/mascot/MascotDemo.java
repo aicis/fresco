@@ -5,6 +5,7 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.async.AsyncNetwork;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
@@ -30,10 +31,8 @@ public class MascotDemo {
   private MascotSecurityParameters parameters = new MascotSecurityParameters();
 
   private MascotDemo(int myId, int noOfParties) {
-    int networkBufferSize = 104856800;
-    Network network =
-        new KryoNetNetwork(defaultNetworkConfiguration(myId, noOfParties), networkBufferSize, false,
-            15000);
+       Network network =
+        new AsyncNetwork(defaultNetworkConfiguration(myId, noOfParties));
     MascotResourcePool resourcePool = defaultResourcePool(myId, noOfParties,
         network);
     FieldElement macKeyShare = resourcePool.getLocalSampler().getNext(
@@ -97,7 +96,7 @@ public class MascotDemo {
    */
   public static void main(String[] args) {
     int myId = Integer.parseInt(args[0]);
-    new MascotDemo(myId, 2).run(10, 1024);
+    new MascotDemo(myId, 2).run(1, 9 * 1024);
   }
 
 }
