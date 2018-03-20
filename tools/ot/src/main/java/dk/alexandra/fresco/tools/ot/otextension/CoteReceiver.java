@@ -55,7 +55,7 @@ public class CoteReceiver extends CoteShared {
           "The amount of OTs must be a positive integer");
     }
     int bytesNeeded = choices.getSize() / Byte.SIZE;
-    final List<StrictBitVector>  tlistZero = prgs.stream()
+    final List<StrictBitVector>  tlistZero = prgs.parallelStream()
         .limit(resources.getComputationalSecurityParameter())
         .map(p -> p.getFirst())
         .map(drbg -> {
@@ -65,7 +65,7 @@ public class CoteReceiver extends CoteShared {
         })
         .map(StrictBitVector::new)
         .collect(Collectors.toList());
-    final List<StrictBitVector> ulist = prgs.stream()
+    final List<StrictBitVector> ulist = prgs.parallelStream()
         .limit(resources.getComputationalSecurityParameter())
         .map(p -> p.getSecond())
         .map(drbg -> {
@@ -75,8 +75,8 @@ public class CoteReceiver extends CoteShared {
         })
         .map(StrictBitVector::new)
         .collect(Collectors.toList());
-    ulist.stream().forEach(u -> u.xor(choices));
-    IntStream.range(0, resources.getComputationalSecurityParameter())
+    ulist.parallelStream().forEach(u -> u.xor(choices));
+    IntStream.range(0, resources.getComputationalSecurityParameter()).parallel()
       .forEach(i -> ulist.get(i).xor(tlistZero.get(i)));
     sendList(ulist);
     return Transpose.transpose(tlistZero);

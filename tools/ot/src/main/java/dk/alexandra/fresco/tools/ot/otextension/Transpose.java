@@ -32,7 +32,7 @@ public class Transpose {
     int columns = tall ? maxDim : minDim;
     byte[][] res = new byte[rows][columns / Byte.SIZE];
     // Process all squares of minDim x minDim
-    List<List<byte[]>> squares = IntStream.range(0, maxDim / minDim)
+    List<List<byte[]>> squares = IntStream.range(0, maxDim / minDim).parallel()
         .mapToObj(i -> extractSquare(input, minDim, tall, i)).map(m -> {
           transposeAllByteBlocks(m);
           return m;
@@ -40,9 +40,9 @@ public class Transpose {
           doEklundh(m);
           return m;
         }).collect(Collectors.toList());
-    IntStream.range(0, maxDim / minDim)
+    IntStream.range(0, maxDim / minDim).parallel()
         .forEach(i -> insertSquare(res, squares.get(i), minDim, tall, i));
-    return IntStream.range(0, res.length).mapToObj(i -> res[i]).map(StrictBitVector::new)
+    return IntStream.range(0, res.length).parallel().mapToObj(i -> res[i]).map(StrictBitVector::new)
         .collect(Collectors.toList());
   }
 

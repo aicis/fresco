@@ -49,12 +49,13 @@ public abstract class RotSharedImpl {
       List<StrictBitVector> blist) {
     // All elements of each list MUST have equal size so we find the size using the first element.
     StrictBitVector res = new StrictBitVector(alist.get(0).getSize() + blist.get(0).getSize());
-    res = IntStream.range(0, alist.size())
+    List<StrictBitVector> products = IntStream.range(0, alist.size()).parallel()
         .mapToObj(i -> multiplyWithoutReduction(alist.get(i), blist.get(i)))
-        .reduce(res, (a, b) -> {
-          a.xor(b);
-          return a;
-        });
+        .collect(Collectors.toList());
+    products.stream().reduce(res, (a, b) -> {
+      a.xor(b);
+      return a;
+    });
     return res;
   }
 

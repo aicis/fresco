@@ -43,15 +43,15 @@ public class BristolRotBatch implements RotBatch {
     }
     int amountToPreprocess = computeExtensionSize(numMessages, comSecParam, statSecParam);
     Pair<List<StrictBitVector>, List<StrictBitVector>> messages = sender.extend(amountToPreprocess);
-    List<StrictBitVector> zeroMessages = messages.getFirst().stream().limit(numMessages)
+    List<StrictBitVector> zeroMessages = messages.getFirst().parallelStream().limit(numMessages)
         .map(m -> LengthAdjustment.adjust(m.toByteArray(), sizeOfEachMessage / Byte.SIZE))
         .map(StrictBitVector::new)
         .collect(Collectors.toList());
-    List<StrictBitVector> oneMessages = messages.getSecond().stream().limit(numMessages)
+    List<StrictBitVector> oneMessages = messages.getSecond().parallelStream().limit(numMessages)
         .map(m -> LengthAdjustment.adjust(m.toByteArray(), sizeOfEachMessage / Byte.SIZE))
         .map(StrictBitVector::new)
         .collect(Collectors.toList());
-    return IntStream.range(0, numMessages)
+    return IntStream.range(0, numMessages).parallel()
         .mapToObj(i -> new Pair<>(zeroMessages.get(i), oneMessages.get(i)))
         .collect(Collectors.toList());
   }
@@ -65,7 +65,7 @@ public class BristolRotBatch implements RotBatch {
     byte[] extraByteChoices = Arrays.copyOf(choiceBits.toByteArray(),
         amountToPreprocess / Byte.SIZE);
     List<StrictBitVector> messages = receiver.extend(new StrictBitVector(extraByteChoices));
-    return messages.stream().limit(choiceBits.getSize())
+    return messages.parallelStream().limit(choiceBits.getSize())
         .map(m -> LengthAdjustment.adjust(m.toByteArray(), sizeOfEachMessage / Byte.SIZE))
         .map(StrictBitVector::new)
         .collect(Collectors.toList());
