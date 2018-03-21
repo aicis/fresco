@@ -1,5 +1,8 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -12,6 +15,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.junit.Assert;
 
 
@@ -23,8 +27,7 @@ public class ExponentiationPipeTests {
   public static class TestPreprocessedValues<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
-    static final int length1 = 8;
-    static final int length2 = 24;
+    static final int[] lengths = {1, 2, 5, 8, 16, 23, 31, 49};
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -33,47 +36,46 @@ public class ExponentiationPipeTests {
         @Override
         public void test() throws Exception {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app =
-              producer -> producer.seq(seq -> {
-                DRes<List<DRes<SInt>>> input1 = seq.preprocessedValues()
-                    .getExponentiationPipe(length1);
-                DRes<List<DRes<SInt>>> input2 = seq.preprocessedValues()
-                    .getExponentiationPipe(length2);
-                List<DRes<List<DRes<SInt>>>> pipes = new ArrayList<>();
-                pipes.add(input1);
-                pipes.add(input2);
+              producer -> producer.par(par -> {
+                try {
+                  par.preprocessedValues().getExponentiationPipe(-1);
+                  fail("Should throw exception on negative lenght");
+                } catch (IllegalArgumentException e) {
+                  // This should happen
+                }
+                List<DRes<List<DRes<SInt>>>> pipes = new ArrayList<>(lengths.length);
+                for (int i = 0; i < lengths.length; i++) {
+                  pipes.add(par.preprocessedValues().getExponentiationPipe(lengths[i]));
+                }
                 return () -> pipes;
-              }).par((par, res) -> {
-                List<DRes<BigInteger>> result = new ArrayList<>();
-                for (DRes<SInt> s : res.get(0).out()) {
-                  result.add(par.numeric().open(s));
-                }
-                for (DRes<SInt> s : res.get(1).out()) {
-                  result.add(par.numeric().open(s));
-                }
-                return () -> result;
-              }).seq((seq,
-                  output) -> () -> output.stream().map(DRes::out).collect(Collectors.toList()));
-
+              }).par((par, pipes) -> {
+                List<DRes<BigInteger>> output = pipes.stream()
+                    .map(v -> v.out())
+                    .flatMap(p -> p.stream())
+                    .map(e -> par.numeric().open(e))
+                    .collect(Collectors.toList());
+                return () -> output;
+              }).seq((seq, output) -> () ->
+              output.stream().map(DRes::out).collect(Collectors.toList()));
           List<BigInteger> output = runApplication(app);
-          Assert.assertEquals(length1 + length2 + 4, output.size());
+          int sumLengths = IntStream.range(0, lengths.length).map(i -> lengths[i]).sum();
+          sumLengths += 2 * lengths.length;
+          assertEquals(sumLengths, output.size());
           BigInteger modulus =
               ((DummyArithmeticResourcePoolImpl) this.conf.getResourcePool()).getModulus();
-          BigInteger base1 = output.get(1);
-          BigInteger base2 = output.get(length1 + 3);
-          Assert.assertEquals(output.get(0), base1.modInverse(modulus));
-          Assert.assertEquals(output.get(length1 + 2), base2.modInverse(modulus));
-          for (int i = 0; i < length1 + 1; i++) {
-            Assert.assertEquals(output.get(i + 1).mod(modulus),
-                base1.modPow(BigInteger.valueOf(i + 1), modulus));
-          }
-          for (int i = 0; i < length2 + 1; i++) {
-            Assert.assertEquals(output.get(length1 + 3 + i).mod(modulus),
-                base2.modPow(BigInteger.valueOf(i + 1), modulus));
+          int offset = 0;
+          for (int length : lengths) {
+            BigInteger baseInv = output.get(offset++);
+            BigInteger base = output.get(offset++);
+            assertEquals(base.modInverse(modulus), baseInv.mod(modulus));
+            for (int i = 2; i < length + 2; i++) {
+              BigInteger b = output.get(offset++);
+              assertEquals(b.mod(modulus), base.modPow(BigInteger.valueOf(i), modulus));
+            }
           }
         }
       };
     }
   }
-
 
 }
