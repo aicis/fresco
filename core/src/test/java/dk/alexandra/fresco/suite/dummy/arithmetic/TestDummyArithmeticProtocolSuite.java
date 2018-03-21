@@ -625,7 +625,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   public void test_exponentiation_pipe_preprocessed() throws Exception {
     runTest(
         new ExponentiationPipeTests.TestPreprocessedValues<>(),
-        EvaluationStrategy.SEQUENTIAL, 1);
+        EvaluationStrategy.SEQUENTIAL_BATCHED, 1);
   }
 
 }
