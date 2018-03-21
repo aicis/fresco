@@ -27,7 +27,7 @@ public class ExponentiationPipeTests {
   public static class TestPreprocessedValues<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
-    static final int[] lengths = {1, 2, 5, 8, 16, 23, 31, 49};
+    static final int[] lengths = {0, 1, 2, 5, 8, 16, 23, 31, 49};
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
