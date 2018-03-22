@@ -1,9 +1,11 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.BuildStep;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Default implementation which should only be used if for some reason preprocessing is not
@@ -19,32 +21,38 @@ public class DefaultPreprocessedValues implements PreprocessedValues {
 
   @Override
   public DRes<List<DRes<SInt>>> getExponentiationPipe(int pipeLength) {
-    return builder.seq(b -> {
-      DRes<SInt> r = b.numeric().randomElement();
-      DRes<SInt> inverse = b.advancedNumeric().invert(r);
-      ArrayList<DRes<SInt>> list = new ArrayList<>();
-      list.add(inverse);
-      list.add(r);
-      return () -> new IterationState(2, list);
-    }).whileLoop(
-        (state) -> state.round <= pipeLength + 1,
-        (seq, state) -> {
-          DRes<SInt> r = state.value.get(1);
-          DRes<SInt> last = state.value.get(state.value.size() - 1);
-          List<DRes<SInt>> values = new ArrayList<>(state.value);
-          values.add(seq.numeric().mult(last, r));
-          return () -> new IterationState(state.round + 1, values);
-        }).seq((seq, state) -> () -> state.value);
-  }
-
-  private static final class IterationState {
-
-    private final int round;
-    private final List<DRes<SInt>> value;
-
-    private IterationState(int round, List<DRes<SInt>> value) {
-      this.round = round;
-      this.value = value;
+    if (pipeLength < 0) {
+      throw new IllegalArgumentException(
+          "Can not create an exponentiation pipe of length less than 0");
+    }
+    BuildStep<Void, ProtocolBuilderNumeric, List<DRes<SInt>>> firstStep =
+        builder.seq(b -> {
+          DRes<SInt> r = b.numeric().randomElement();
+          DRes<SInt> inverse = b.advancedNumeric().invert(r);
+          List<DRes<SInt>> values = new ArrayList<>(pipeLength + 2);
+          values.add(inverse);
+          values.add(r);
+          return () -> values;
+        });
+    if (pipeLength == 0) {
+      return firstStep;
+    } else if (pipeLength == 1) {
+      return firstStep.seq((b, values) -> {
+        DRes<SInt> r = values.get(values.size() - 1);
+        values.add(b.numeric().mult(r, r));
+        return () -> values;
+      });
+    } else {
+      return firstStep.whileLoop((values) -> values.size() < pipeLength + 2, (seq, values) -> {
+        return seq.par(par -> {
+          DRes<SInt> last = values.get(values.size() - 1);
+          int limit = pipeLength + 2 - values.size();
+          List<DRes<SInt>> newValues = values.stream().skip(1).limit(limit)
+              .map(v -> par.numeric().mult(last, v)).collect(Collectors.toList());
+          values.addAll(newValues);
+          return () -> values;
+        });
+      });
     }
   }
 }

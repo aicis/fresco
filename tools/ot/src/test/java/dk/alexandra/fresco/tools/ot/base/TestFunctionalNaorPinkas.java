@@ -48,23 +48,18 @@ public class TestFunctionalNaorPinkas {
     testRuntime.shutdown();
   }
 
-  private List<Pair<StrictBitVector, StrictBitVector>> otSend(int iterations)
-      throws Exception {
-    Network network = new CheatingNetwork(
-        RuntimeForTests.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
+  private List<Pair<StrictBitVector, StrictBitVector>> otSend(int iterations) throws Exception {
+    Network network =
+        new CheatingNetwork(RuntimeForTests.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     try {
       Drbg rand = new AesCtrDrbg(HelperForTests.seedOne);
-      DhParameters params = new DhParameters();
-      Ot otSender = new NaorPinkasOt(2, rand, network, params
-          .computeSecureDhParams(1, 2, rand, network));
-      List<Pair<StrictBitVector, StrictBitVector>> messages = new ArrayList<>(
-          iterations);
+      Ot otSender = new NaorPinkasOt(2, rand, network, staticParams);
+      List<Pair<StrictBitVector, StrictBitVector>> messages = new ArrayList<>(iterations);
       for (int i = 0; i < iterations; i++) {
         StrictBitVector msgZero = new StrictBitVector(messageLength, rand);
         StrictBitVector msgOne = new StrictBitVector(messageLength, rand);
         otSender.send(msgZero, msgOne);
-        Pair<StrictBitVector, StrictBitVector> currentPair =
-            new Pair<StrictBitVector, StrictBitVector>(msgZero, msgOne);
+        Pair<StrictBitVector, StrictBitVector> currentPair = new Pair<>(msgZero, msgOne);
         messages.add(currentPair);
       }
       return messages;
@@ -73,15 +68,12 @@ public class TestFunctionalNaorPinkas {
     }
   }
 
-  private List<StrictBitVector> otReceive(StrictBitVector choices)
-      throws Exception {
-    Network network = new CheatingNetwork(
-        RuntimeForTests.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
+  private List<StrictBitVector> otReceive(StrictBitVector choices) throws Exception {
+    Network network =
+        new CheatingNetwork(RuntimeForTests.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     try {
       Drbg rand = new AesCtrDrbg(HelperForTests.seedTwo);
-      DhParameters params = new DhParameters();
-      Ot otReceiver = new NaorPinkasOt(1, rand, network, params
-          .computeSecureDhParams(2, 1, rand, network));
+      Ot otReceiver = new NaorPinkasOt(1, rand, network, staticParams);
       List<StrictBitVector> messages = new ArrayList<>(choices.getSize());
       for (int i = 0; i < choices.getSize(); i++) {
         StrictBitVector message = otReceiver.receive(choices.getBit(i, false));
@@ -96,8 +88,7 @@ public class TestFunctionalNaorPinkas {
   /**
    * Verify that we can execute the OT.
    *
-   * @throws Exception
-   *           Thrown if the Diffie-Hellman parameter size field could not be changed
+   * @throws Exception Thrown if the Diffie-Hellman parameter size field could not be changed
    */
   @SuppressWarnings("unchecked")
   @Test
@@ -109,13 +100,12 @@ public class TestFunctionalNaorPinkas {
     Callable<List<?>> partyOneOt = () -> otSend(iterations);
     Callable<List<?>> partyTwoOt = () -> otReceive(choices);
     // run tasks and get ordered list of results
-    List<List<?>> extendResults = testRuntime
-        .runPerPartyTasks(Arrays.asList(partyOneOt, partyTwoOt));
+    List<List<?>> extendResults =
+        testRuntime.runPerPartyTasks(Arrays.asList(partyOneOt, partyTwoOt));
     for (int i = 0; i < iterations; i++) {
       Pair<StrictBitVector, StrictBitVector> senderResult =
           (Pair<StrictBitVector, StrictBitVector>) extendResults.get(0).get(i);
-      StrictBitVector receiverResult = (StrictBitVector) extendResults.get(1)
-          .get(i);
+      StrictBitVector receiverResult = (StrictBitVector) extendResults.get(1).get(i);
       if (choices.getBit(i, false) == false) {
         // Check that the 0 message is the one the receiver got if his choicebit
         // was 0
@@ -138,10 +128,8 @@ public class TestFunctionalNaorPinkas {
       assertNotEquals(senderResult.getFirst(), senderResult.getSecond());
       // Check that all messages are not all equal
       if (i > 0) {
-        assertNotEquals(extendResults.get(0).get(i - 1),
-            extendResults.get(0).get(i));
-        assertNotEquals(extendResults.get(1).get(i - 1),
-            extendResults.get(1).get(i));
+        assertNotEquals(extendResults.get(0).get(i - 1), extendResults.get(0).get(i));
+        assertNotEquals(extendResults.get(1).get(i - 1), extendResults.get(1).get(i));
       }
     }
     // Do more sanity checks
@@ -153,10 +141,9 @@ public class TestFunctionalNaorPinkas {
   }
 
   /***** NEGATIVE TESTS. *****/
-  private List<StrictBitVector> otSendCheat()
-      throws IOException {
-    Network network = new CheatingNetwork(
-        RuntimeForTests.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
+  private List<StrictBitVector> otSendCheat() throws IOException {
+    Network network =
+        new CheatingNetwork(RuntimeForTests.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
     try {
       Drbg rand = new AesCtrDrbg(HelperForTests.seedOne);
       Ot otSender = new NaorPinkasOt(2, rand, network, staticParams);
@@ -174,10 +161,9 @@ public class TestFunctionalNaorPinkas {
     }
   }
 
-  private List<StrictBitVector> otReceiveCheat(boolean choice)
-      throws IOException {
-    Network network = new CheatingNetwork(
-        RuntimeForTests.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
+  private List<StrictBitVector> otReceiveCheat(boolean choice) throws IOException {
+    Network network =
+        new CheatingNetwork(RuntimeForTests.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
     try {
       Drbg rand = new AesCtrDrbg(HelperForTests.seedTwo);
       Ot otReceiver = new NaorPinkasOt(1, rand, network, staticParams);
@@ -191,10 +177,9 @@ public class TestFunctionalNaorPinkas {
   }
 
   /**
-   * Test that a sender who flips a bit in its random choice results in
-   * different messages being sent. This is not meant to capture the best
-   * possible cheating strategy, but more as a sanity checks that the proper
-   * checks are in place.
+   * Test that a sender who flips a bit in its random choice results in different messages being
+   * sent. This is not meant to capture the best possible cheating strategy, but more as a sanity
+   * checks that the proper checks are in place.
    */
   @Test
   public void testCheatingInNaorPinkasOt() {
@@ -202,8 +187,8 @@ public class TestFunctionalNaorPinkas {
     Callable<List<StrictBitVector>> partyOneInit = () -> otSendCheat();
     Callable<List<StrictBitVector>> partyTwoInit = () -> otReceiveCheat(choice);
     // run tasks and get ordered list of results
-    List<List<StrictBitVector>> results = testRuntime
-        .runPerPartyTasks(Arrays.asList(partyOneInit, partyTwoInit));
+    List<List<StrictBitVector>> results =
+        testRuntime.runPerPartyTasks(Arrays.asList(partyOneInit, partyTwoInit));
     List<StrictBitVector> senderResults = results.get(0);
     StrictBitVector receiverResult = results.get(1).get(0);
     // Verify that the Both messages of the sender is different from the message

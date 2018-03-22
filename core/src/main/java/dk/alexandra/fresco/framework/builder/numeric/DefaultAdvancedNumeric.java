@@ -55,12 +55,12 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
   public DRes<SInt> div(DRes<SInt> dividend, BigInteger divisor) {
     return builder.seq(new KnownDivisor(dividend, divisor));
   }
-  
+
   @Override
   public DRes<SInt> div(DRes<SInt> dividend, DRes<SInt> divisor) {
     return builder.seq(new SecretSharedDivisor(dividend, divisor));
   }
-  
+
   @Override
   public DRes<SInt> mod(DRes<SInt> dividend, BigInteger divisor) {
     return builder.seq(new KnownDivisorRemainder(dividend, divisor));
@@ -98,8 +98,7 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
 
 
   @Override
-  public DRes<SInt> innerProduct(List<DRes<SInt>> vectorA,
-      List<DRes<SInt>> vectorB) {
+  public DRes<SInt> innerProduct(List<DRes<SInt>> vectorA, List<DRes<SInt>> vectorB) {
     return builder.seq(new InnerProduct(vectorA, vectorB));
   }
 
@@ -132,19 +131,16 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
 
   @Override
   public DRes<SInt> rightShift(DRes<SInt> input, int shifts) {
-    DRes<RightShiftResult> rightShiftResult = builder.seq(
-        new RightShift(factoryNumeric.getBasicNumericContext().getMaxBitLength(),
-            input, shifts, false));
+    DRes<RightShiftResult> rightShiftResult =
+        builder.seq(new RightShift(factoryNumeric.getBasicNumericContext().getMaxBitLength(), input,
+            shifts, false));
     return () -> rightShiftResult.out().getResult();
-  }  
+  }
 
   @Override
-  public DRes<RightShiftResult> rightShiftWithRemainder(
-      DRes<SInt> input,
-      int shifts) {
-    return builder.seq(
-        new RightShift(factoryNumeric.getBasicNumericContext().getMaxBitLength(),
-            input, shifts, true));
+  public DRes<RightShiftResult> rightShiftWithRemainder(DRes<SInt> input, int shifts) {
+    return builder.seq(new RightShift(factoryNumeric.getBasicNumericContext().getMaxBitLength(),
+        input, shifts, true));
   }
 
   @Override

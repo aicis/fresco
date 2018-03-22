@@ -13,7 +13,7 @@ import java.math.BigInteger;
  * This protocol is an implementation Euclidean division (finding quotient and remainder) on
  * integers with a secret shared divedend and a known divisor. The dividend must have bitlength
  * smaller than <i>(maxBitLenght - divisorBitLength) / 2</i> where the maxBitLength is avabilable
- * via {@link ProtocolBuilderNumeric.getBasicNumericContext().getMaxBitLength()} in order for the
+ * via {@link ProtocolBuilderNumeric#getBasicNumericContext().getMaxBitLength()} in order for the
  * division protocol to produce a precise result.
  */
 public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
@@ -21,6 +21,12 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
   private final DRes<SInt> dividend;
   private final BigInteger divisor;
 
+  /**
+   * Constructs a division computation where the divisor is publicly known.
+   *
+   * @param dividend the dividend
+   * @param divisor the publicly known divisor
+   */
   public KnownDivisor(DRes<SInt> dividend, BigInteger divisor) {
     this.dividend = dividend;
     this.divisor = divisor;
@@ -28,7 +34,6 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
 
   private BigInteger convertRepresentation(BigInteger modulus, BigInteger modulusHalf,
       BigInteger b) {
-    // Stolen from Spdz Util
     BigInteger actual = b.mod(modulus);
     if (actual.compareTo(modulusHalf) > 0) {
       actual = actual.subtract(modulus);
@@ -45,7 +50,7 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
      * We use the fact that if 2^{N+l} \leq m * d \leq 2^{N+l} + 2^l, then floor(x/d) = floor(x * m
      * >> N+l) for all x of length <= N (see Thm 4.2 of
      * "Division by Invariant Integers using Multiplication" by Granlund and Montgomery).
-     * 
+     *
      * TODO: Note that if the dividend is nonnegative, the sign considerations can be omitted,
      * giving a significant speed-up.
      */
@@ -53,7 +58,7 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
     Numeric numeric = builder.numeric();
     /*
      * Numbers larger than half the field size is considered to be negative.
-     * 
+     *
      * TODO: This should be handled differently because it will not necessarily work with another
      * arithmetic protocol suite.
      */
@@ -65,7 +70,6 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
       throw new IllegalArgumentException("Divisor is too big. Bit length is "
           + divisorAbs.bitLength() + " but should only be at most " + maxDivisorBitLength);
     }
-
     /*
      * The quotient will have bit length < 2 * maxBitLength, and this has to be shifted maxBitLength
      * + divisorBitLength. So in total we need 3 * maxBitLength + divisorBitLength to be
@@ -73,7 +77,6 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
      */
     int maxBitLength = (basicNumericContext.getMaxBitLength() - divisorAbs.bitLength()) / 3;
     int shifts = maxBitLength + divisorAbs.bitLength();
-
     /*
      * Compute the sign of the dividend
      */
@@ -86,18 +89,16 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
      */
     BigInteger m = BigInteger.ONE.shiftLeft(shifts).divide(divisorAbs).add(BigInteger.ONE);
     DRes<SInt> quotientAbs = numeric.mult(m, dividendAbs);
-
     /*
      * Now quotientAbs is the result shifted SHIFTS bits to the left, so we shift it back to get the
      * result in absolute value, q.
      */
     DRes<SInt> q = builder.advancedNumeric().rightShift(quotientAbs, shifts);
-
     /*
      * Adjust the sign of the result.
      */
-    BigInteger oint = BigInteger.valueOf(divisorSign);
-    DRes<SInt> sign = numeric.mult(oint, dividendSign);
+    BigInteger openDivisorSign = BigInteger.valueOf(divisorSign);
+    DRes<SInt> sign = numeric.mult(openDivisorSign, dividendSign);
     return numeric.mult(q, sign);
   }
 }
