@@ -182,7 +182,7 @@ public class TripleGeneration {
    * Implements batched version of Authenticate sub-protocol of Protocol 4.
    */
   private List<AuthenticatedCandidate> authenticate(List<UnauthenticatedCandidate> candidates) {
-    List<FieldElement> flatInputs = candidates.stream()
+    List<FieldElement> flatInputs = candidates.parallelStream()
         .flatMap(TripleCandidate::stream)
         .collect(Collectors.toList());
 

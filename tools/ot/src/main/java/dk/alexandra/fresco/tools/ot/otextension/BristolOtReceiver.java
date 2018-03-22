@@ -2,9 +2,6 @@ package dk.alexandra.fresco.tools.ot.otextension;
 
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.AesCtrDrbg;
-import dk.alexandra.fresco.framework.util.ByteArrayHelper;
-import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 
 import java.util.List;
@@ -98,8 +95,7 @@ public class BristolOtReceiver {
     } else {
       adjustment = oneAdjustment;
     }
-    adjustMessage(adjustment);
-    return adjustment;
+    return PseudoOtp.decrypt(adjustment, randomMessages.get(offset).toByteArray());
   }
 
   /**
@@ -118,17 +114,5 @@ public class BristolOtReceiver {
       switchBit[0] = 0x01;
     }
     network.send(resources.getOtherId(), switchBit);
-  }
-
-  private void adjustMessage(byte[] adjustment) {
-    // Retrieve the random preprocessed message
-    byte[] randomMessage = randomMessages.get(offset).toByteArray();
-    // Use the random message as the seed to a PRG
-    Drbg currentPrg = new AesCtrDrbg(randomMessage);
-    byte[] randomness = new byte[adjustment.length];
-    // Expand the seed to the length of the received message from the sender
-    currentPrg.nextBytes(randomness);
-    // Use XOR to one-time unpad the message
-    ByteArrayHelper.xor(adjustment, randomness);
   }
 }

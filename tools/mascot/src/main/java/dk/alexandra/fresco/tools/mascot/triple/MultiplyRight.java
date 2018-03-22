@@ -73,14 +73,14 @@ class MultiplyRight {
     network.send(otherId, resourcePool.getFieldElementSerializer().serialize(diffs));
     // get zero index seeds
     List<FieldElement> feZeroSeeds =
-        feSeedPairs.stream().map(Pair::getFirst).collect(Collectors.toList());
+        feSeedPairs.parallelStream().map(Pair::getFirst).collect(Collectors.toList());
     // compute product shares
     return multiplyRightHelper.computeProductShares(feZeroSeeds, rightFactors.size());
   }
 
   private List<Pair<FieldElement, FieldElement>> seedsToFieldElements(
       List<Pair<StrictBitVector, StrictBitVector>> seedPairs, BigInteger modulus) {
-    return seedPairs.stream().map(pair -> {
+    return seedPairs.parallelStream().map(pair -> {
       FieldElement t0 = fromBits(pair.getFirst(), modulus);
       FieldElement t1 = fromBits(pair.getSecond(), modulus);
       return new Pair<>(t0, t1);
