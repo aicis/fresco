@@ -21,7 +21,7 @@ public class MascotFormatConverter {
    * @param element authenticated element
    * @return spdz element
    */
-  public static SpdzSInt toSpdzElement(AuthenticatedElement element) {
+  public static SpdzSInt toSpdzSInt(AuthenticatedElement element) {
     BigInteger share = element.getShare().toBigInteger();
     BigInteger mac = element.getMac().toBigInteger();
     return new SpdzSInt(share, mac, element.getModulus());
@@ -34,9 +34,9 @@ public class MascotFormatConverter {
    * @return converted triple
    */
   public static SpdzTriple toSpdzTriple(MultiplicationTriple triple) {
-    SpdzSInt a = toSpdzElement(triple.getLeft());
-    SpdzSInt b = toSpdzElement(triple.getRight());
-    SpdzSInt c = toSpdzElement(triple.getProduct());
+    SpdzSInt a = toSpdzSInt(triple.getLeft());
+    SpdzSInt b = toSpdzSInt(triple.getRight());
+    SpdzSInt c = toSpdzSInt(triple.getProduct());
     return new SpdzTriple(a, b, c);
   }
 
@@ -49,9 +49,9 @@ public class MascotFormatConverter {
   public static SpdzInputMask toSpdzInputMask(InputMask mask) {
     FieldElement openMask = mask.getOpenValue();
     if (openMask == null) {
-      return new SpdzInputMask(toSpdzElement(mask.getMaskShare()));
+      return new SpdzInputMask(toSpdzSInt(mask.getMaskShare()));
     } else {
-      return new SpdzInputMask(toSpdzElement(mask.getMaskShare()), openMask.toBigInteger());
+      return new SpdzInputMask(toSpdzSInt(mask.getMaskShare()), openMask.toBigInteger());
     }
   }
 

@@ -162,6 +162,6 @@ public class SpdzStorageDataSupplier implements SpdzDataSupplier {
   @Override
   public SpdzSInt getNextRandomFieldElement() {
     // TODO: We should probably have a random element storage stream
-    return new SpdzSInt(this.getNextTriple().getA());
+    return this.getNextTriple().getA();
   }
 }

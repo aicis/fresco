@@ -133,7 +133,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       randomElements.addAll(mascot.getRandomElements(batchSize));
       logger.trace("Got another random element batch");
     }
-    return new SpdzSInt(MascotFormatConverter.toSpdzElement(randomElements.pop()));
+    return MascotFormatConverter.toSpdzSInt(randomElements.pop());
   }
 
   @Override
@@ -163,7 +163,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       randomBits.addAll(mascot.getRandomBits(batchSize));
       logger.trace("Got another bit batch");
     }
-    return new SpdzSInt(MascotFormatConverter.toSpdzElement(randomBits.pop()));
+    return MascotFormatConverter.toSpdzSInt(randomBits.pop());
   }
 
   @Override

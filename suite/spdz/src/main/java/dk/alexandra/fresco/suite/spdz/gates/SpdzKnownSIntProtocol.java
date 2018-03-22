@@ -30,7 +30,7 @@ public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
       int round,
       SpdzResourcePool spdzResourcePool,
       Network network) {
-    secretValue = new SpdzSInt(createKnownSpdzElement(spdzResourcePool, value));
+    secretValue = createKnownSpdzElement(spdzResourcePool, value);
     return EvaluationStatus.IS_DONE;
   }
 

@@ -53,7 +53,7 @@ public class MaliciousSpdzInputProtocol extends SpdzNativeProtocol<SInt> {
       }
       SpdzSInt valueMaskedElm = new SpdzSInt(valueMasked,
           storage.getSecretSharedKey().multiply(valueMasked).mod(modulus), modulus);
-      this.out = new SpdzSInt(this.inputMask.getMask().add(valueMaskedElm, myId));
+      this.out = this.inputMask.getMask().add(valueMaskedElm, myId);
       return EvaluationStatus.IS_DONE;
     }
 

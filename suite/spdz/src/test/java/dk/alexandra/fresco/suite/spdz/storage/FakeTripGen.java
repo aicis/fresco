@@ -331,7 +331,7 @@ public class FakeTripGen {
       List<SpdzSInt> elements = toShares(bit, mac, noOfParties);
       SpdzSInt[] shares = new SpdzSInt[noOfParties];
       for (int j = 0; j < noOfParties; j++) {
-        shares[j] = new SpdzSInt(elements.get(j));
+        shares[j] = elements.get(j);
       }
       res.add(shares);
     }
@@ -363,7 +363,7 @@ public class FakeTripGen {
         BigInteger mac = getMac(bit);
         List<SpdzSInt> elements = toShares(bit, mac, noOfParties);
         for (int j = 0; j < noOfParties; j++) {
-          ooss.get(j).writeObject(new SpdzSInt(elements.get(j)));
+          ooss.get(j).writeObject(elements.get(j));
         }
         if (i % 30000 == 0) {
           for (ObjectOutputStream oos : ooss) {
@@ -399,7 +399,7 @@ public class FakeTripGen {
       BigInteger mac = getMac(rInv);
       List<SpdzSInt> elements = toShares(rInv, mac, noOfParties);
       for (int i = 0; i < noOfParties; i++) {
-        expPipe[i][0] = new SpdzSInt(elements.get(i));
+        expPipe[i][0] = elements.get(i);
       }
 
       BigInteger exp = BigInteger.ONE;
@@ -408,7 +408,7 @@ public class FakeTripGen {
         mac = getMac(exp);
         elements = toShares(exp, mac, noOfParties);
         for (int p = 0; p < noOfParties; p++) {
-          expPipe[p][i] = new SpdzSInt(elements.get(p));
+          expPipe[p][i] = elements.get(p);
         }
       }
       res.add(expPipe);
@@ -430,7 +430,7 @@ public class FakeTripGen {
         BigInteger mac = getMac(rInv);
         List<SpdzSInt> elements = toShares(rInv, mac, noOfParties);
         for (int i = 0; i < noOfParties; i++) {
-          expPipe[i][0] = new SpdzSInt(elements.get(i));
+          expPipe[i][0] = elements.get(i);
         }
 
         BigInteger exp = BigInteger.ONE;
@@ -439,7 +439,7 @@ public class FakeTripGen {
           mac = getMac(exp);
           elements = toShares(exp, mac, noOfParties);
           for (int p = 0; p < noOfParties; p++) {
-            expPipe[p][i] = new SpdzSInt(elements.get(p));
+            expPipe[p][i] = elements.get(p);
           }
         }
         for (int i = 0; i < noOfParties; i++) {

@@ -63,10 +63,9 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SInt> {
           store.getSecretSharedKey().multiply(product).mod(modulus),
           modulus);
       SpdzSInt res = triple.getC();
-      res = res.add(triple.getB().multiply(e))
+      out = res.add(triple.getB().multiply(e))
           .add(triple.getA().multiply(d))
           .add(ed, spdzResourcePool.getMyId());
-      out = new SpdzSInt(res);
       // Set the opened and closed value.
       store.addOpenedValue(e);
       store.addOpenedValue(d);

@@ -55,7 +55,7 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
               valueMasked,
               storage.getSecretSharedKey().multiply(valueMasked).mod(modulus),
               modulus);
-      this.out = new SpdzSInt(this.inputMask.getMask().add(valueMaskedElement, myId));
+      this.out = this.inputMask.getMask().add(valueMaskedElement, myId);
       return EvaluationStatus.IS_DONE;
     }
 

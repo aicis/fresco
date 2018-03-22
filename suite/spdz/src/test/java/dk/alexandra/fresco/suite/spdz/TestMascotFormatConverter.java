@@ -28,7 +28,7 @@ public class TestMascotFormatConverter {
     BigInteger modulus = new BigInteger("340282366920938463463374607431768211297");
     AuthenticatedElement element = getAuthElement(100, 123, modulus);
     SpdzSInt expected = getSpdzElement(100, 123, modulus);
-    SpdzSInt actual = MascotFormatConverter.toSpdzElement(element);
+    SpdzSInt actual = MascotFormatConverter.toSpdzSInt(element);
     assertEquals(expected, actual);
   }
 

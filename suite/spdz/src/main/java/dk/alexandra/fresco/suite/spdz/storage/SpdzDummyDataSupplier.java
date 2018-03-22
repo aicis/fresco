@@ -48,16 +48,15 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
   public SpdzTriple getNextTriple() {
     MultiplicationTripleShares rawTriple = supplier.getMultiplicationTripleShares();
     return new SpdzTriple(
-        toSpdzElement(rawTriple.getLeft()),
-        toSpdzElement(rawTriple.getRight()),
-        toSpdzElement(rawTriple.getProduct()));
+        toSpdzSInt(rawTriple.getLeft()),
+        toSpdzSInt(rawTriple.getRight()),
+        toSpdzSInt(rawTriple.getProduct()));
   }
 
   @Override
   public SpdzSInt[] getNextExpPipe() {
     List<Pair<BigInteger,BigInteger>> rawExpPipe = supplier.getExpPipe(expPipeLength);
     return rawExpPipe.stream()
-        .map(r -> new SpdzSInt(toSpdzElement(r)))
         .toArray(SpdzSInt[]::new);
   }
 
@@ -65,15 +64,15 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
   public SpdzInputMask getNextInputMask(int towardPlayerId) {
     Pair<BigInteger,BigInteger> raw = supplier.getRandomElementShare();
     if (myId == towardPlayerId) {
-      return new SpdzInputMask(toSpdzElement(raw), raw.getFirst());
+      return new SpdzInputMask(toSpdzSInt(raw), raw.getFirst());
     } else {
-      return new SpdzInputMask(toSpdzElement(raw), null);
+      return new SpdzInputMask(toSpdzSInt(raw), null);
     }
   }
 
   @Override
   public SpdzSInt getNextBit() {
-    return new SpdzSInt(toSpdzElement(supplier.getRandomBitShare()));
+    return toSpdzSInt(supplier.getRandomBitShare());
   }
 
   @Override
@@ -88,10 +87,10 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
 
   @Override
   public SpdzSInt getNextRandomFieldElement() {
-    return new SpdzSInt(toSpdzElement(supplier.getRandomElementShare()));
+    return toSpdzSInt(supplier.getRandomElementShare());
   }
 
-  private SpdzSInt toSpdzElement(Pair<BigInteger, BigInteger> raw) {
+  private SpdzSInt toSpdzSInt(Pair<BigInteger, BigInteger> raw) {
     return new SpdzSInt(
         raw.getSecond(),
         raw.getFirst().multiply(secretSharedKey).mod(modulus),
