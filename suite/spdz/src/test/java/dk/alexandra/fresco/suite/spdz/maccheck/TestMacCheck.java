@@ -13,7 +13,7 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.util.HmacDrbg;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests.TestDivision;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
@@ -109,7 +109,7 @@ public class TestMacCheck {
       store = new SpdzStorageImpl(supplier);
     }
 
-    return new SpdzResourcePoolImpl(myId, size, store);
+    return new SpdzResourcePoolImpl(myId, size, store, new AesCtrDrbg(new byte[32]));
   }
 
   private class MaliciousSpdzStorage extends SpdzStorageImpl {

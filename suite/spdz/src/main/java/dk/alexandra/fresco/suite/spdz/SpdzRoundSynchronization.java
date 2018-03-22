@@ -18,15 +18,15 @@ import java.security.SecureRandom;
  */
 public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResourcePool> {
 
-  private static final int macCheckThreshold = 100000;
+  private final int macCheckThreshold;
   private final SpdzProtocolSuite spdzProtocolSuite;
   private final SecureRandom secRand;
-  private int gatesEvaluated = 0;
   private boolean doMacCheck = false;
 
   public SpdzRoundSynchronization(SpdzProtocolSuite spdzProtocolSuite) {
     this.spdzProtocolSuite = spdzProtocolSuite;
     this.secRand = new SecureRandom();
+    this.macCheckThreshold = 1000000;
   }
 
   protected void doMacCheck(SpdzResourcePool resourcePool, Network network) {
@@ -34,7 +34,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
     int batchSize = 128;
 
     //Ensure that we have any values to do MAC check on
-    if (!storage.getOpenedValues().isEmpty()) {
+    if (!storage.getOpenedValues().isEmpty() && !storage.isBeingChecked()) {
       SpdzBuilder spdzBuilder = new SpdzBuilder(
           spdzProtocolSuite.createNumericContext(resourcePool));
       BatchEvaluationStrategy<SpdzResourcePool> batchStrategy = new BatchedStrategy<>();
@@ -42,10 +42,12 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
           new BatchedProtocolEvaluator<>(batchStrategy, spdzProtocolSuite, batchSize);
 
       SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(secRand,
-          resourcePool.getMessageDigest(), storage, resourcePool.getModulus());
+          resourcePool.getMessageDigest(), storage, resourcePool.getModulus(),
+          resourcePool.getRandomGenerator());
       ProtocolBuilderNumeric sequential = spdzBuilder.createSequential();
       macCheck.buildComputation(sequential);
       evaluator.eval(sequential.build(), resourcePool, network);
+      storage.toggleIsBeingChecked();
     }
   }
 
@@ -56,11 +58,10 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
 
   @Override
   public void finishedBatch(int gatesEvaluated, SpdzResourcePool resourcePool, Network network) {
-    this.gatesEvaluated += gatesEvaluated;
-    if (this.gatesEvaluated > macCheckThreshold || doMacCheck) {
+    int numUnchecked = resourcePool.getStore().getOpenedValues().size();
+    if (numUnchecked > macCheckThreshold || doMacCheck) {
       doMacCheck(resourcePool, network);
       doMacCheck = false;
-      this.gatesEvaluated = 0;
     }
   }
 

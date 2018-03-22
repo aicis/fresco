@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.util.HmacDrbg;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
@@ -124,7 +124,7 @@ public class CmdLineProtocolSuite {
     }
 
     SpdzStorage store = new SpdzStorageImpl(supplier);
-    return new SpdzResourcePoolImpl(myId, noOfPlayers, store);
+    return new SpdzResourcePoolImpl(myId, noOfPlayers, store, new AesCtrDrbg(new byte[32]));
   }
 
   private ProtocolSuite<?, ?> tinyTablesPreProFromCmdLine(Properties properties) {

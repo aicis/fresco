@@ -13,6 +13,7 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
@@ -61,7 +62,7 @@ public class TestInputSumExample {
         resourcePool = () -> {
           try {
             return (ResourcePoolT) new SpdzResourcePoolImpl(i, n,
-                new SpdzStorageImpl(new SpdzDummyDataSupplier(i, n)));
+                new SpdzStorageImpl(new SpdzDummyDataSupplier(i, n)), new AesCtrDrbg(new byte[32]));
           } catch (Exception e) {
             throw new RuntimeException("Your system does not support the necessary hash function.", e);
           } 

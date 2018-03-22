@@ -8,7 +8,6 @@ import java.util.List;
 /**
  * Manages the storage associated with the online phase of SPDZ. This includes all the preprocessed
  * data and the opened and closed accumulated during the online phase
- *
  */
 public interface SpdzStorage {
 
@@ -58,5 +57,9 @@ public interface SpdzStorage {
    * @return alpha_i
    */
   BigInteger getSecretSharedKey();
+
+  boolean isBeingChecked();
+
+  void toggleIsBeingChecked();
 
 }

@@ -3,6 +3,7 @@ package dk.alexandra.fresco.suite.spdz;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
@@ -15,6 +16,7 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
   private BigInteger modulus;
   private BigInteger modulusHalf;
   private SpdzStorage storage;
+  private Drbg drbg;
 
   /**
    * Construct a ResourcePool implementation suitable for the spdz protocol suite.
@@ -22,7 +24,7 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
    * @param noOfPlayers The amount of parties
    * @param storage The storage to use
    */
-  public SpdzResourcePoolImpl(int myId, int noOfPlayers, SpdzStorage storage) {
+  public SpdzResourcePoolImpl(int myId, int noOfPlayers, SpdzStorage storage, Drbg drbg) {
     super(myId, noOfPlayers);
 
     this.storage = storage;
@@ -38,7 +40,7 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
     this.modulus = storage.getSupplier().getModulus();
     this.modulusHalf = this.modulus.divide(BigInteger.valueOf(2));
     this.modulusSize = this.modulus.toByteArray().length;
-
+    this.drbg = drbg;
   }
 
   @Override
@@ -59,6 +61,14 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
   @Override
   public MessageDigest getMessageDigest() {
     return messageDigest;
+  }
+
+  @Override
+  public Drbg getRandomGenerator() {
+    if (drbg == null) {
+      throw new IllegalStateException("Joint drbg must be initialized before use");
+    }
+    return drbg;
   }
 
   @Override

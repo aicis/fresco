@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
@@ -22,6 +23,7 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
   private final MessageDigest digest;
   private final SpdzStorage storage;
   private final BigInteger modulus;
+  private final Drbg jointDrbg;
   private int openedValuesSize;
 
   /**
@@ -37,37 +39,25 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
       final SecureRandom rand,
       final MessageDigest digest,
       final SpdzStorage storage,
-      final BigInteger modulus) {
+      final BigInteger modulus,
+      final Drbg jointDrbg) {
     this.rand = rand;
     this.digest = digest;
     this.storage = storage;
     this.modulus = modulus;
+    this.jointDrbg = jointDrbg;
+    storage.toggleIsBeingChecked();
   }
 
   @Override
   public DRes<Void> buildComputation(ProtocolBuilderNumeric builder) {
-    SpdzCommitment commitment = new SpdzCommitment(digest,
-        new BigInteger(modulus.bitLength(), rand).mod(modulus), rand);
-    return builder.seq((seq) -> seq.append(new SpdzCommitProtocol(commitment)))
-        .seq((seq, commitProtocol) ->
-            seq.append(new SpdzOpenCommitProtocol(commitment, commitProtocol)))
-        .seq((seq, openCommit) -> {
+    return builder
+        .seq(seq -> {
           List<BigInteger> openedValues = storage.getOpenedValues();
-
-          // Add all s's to get the common random value:
-          BigInteger sum =
-              openCommit.values()
-                  .stream()
-                  .reduce(BigInteger.ZERO, BigInteger::add);
 
           openedValuesSize = openedValues.size();
 
-          BigInteger[] rs = new BigInteger[openedValuesSize];
-          BigInteger temporaryR = sum;
-          for (int i = 0; i < openedValuesSize; i++) {
-            temporaryR = new BigInteger(digest.digest(temporaryR.toByteArray())).mod(modulus);
-            rs[i] = temporaryR;
-          }
+          BigInteger[] rs = sampleRandomCoefficients(openedValuesSize, jointDrbg, modulus);
           BigInteger a = BigInteger.ZERO;
           int index = 0;
           for (BigInteger openedValue : openedValues) {
@@ -115,4 +105,16 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
           return null;
         });
   }
+
+  private BigInteger[] sampleRandomCoefficients(int numCoefficients, Drbg jointDrbg,
+      BigInteger modulus) {
+    BigInteger[] coefficients = new BigInteger[numCoefficients];
+    for (int i = 0; i < numCoefficients; i++) {
+      byte[] bytes = new byte[modulus.bitLength() / Byte.SIZE];
+      jointDrbg.nextBytes(bytes);
+      coefficients[i] = new BigInteger(bytes).mod(modulus);
+    }
+    return coefficients;
+  }
+
 }

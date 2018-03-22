@@ -14,6 +14,7 @@ public class SpdzStorageImpl implements SpdzStorage {
 
   private List<BigInteger> openedValues;
   private List<SpdzElement> closedValues;
+  private boolean isBeingChecked;
 
   private SpdzDataSupplier supplier;
 
@@ -23,8 +24,9 @@ public class SpdzStorageImpl implements SpdzStorage {
    */
   public SpdzStorageImpl(SpdzDataSupplier supplier) {
     this.supplier = supplier;
-    openedValues = new LinkedList<>();
-    closedValues = new LinkedList<>();
+    this.openedValues = new LinkedList<>();
+    this.closedValues = new LinkedList<>();
+    this.isBeingChecked = false;
   }
 
   @Override
@@ -61,6 +63,16 @@ public class SpdzStorageImpl implements SpdzStorage {
   @Override
   public BigInteger getSecretSharedKey() {
     return this.supplier.getSecretSharedKey();
+  }
+
+  @Override
+  public boolean isBeingChecked() {
+    return isBeingChecked;
+  }
+
+  @Override
+  public void toggleIsBeingChecked() {
+    isBeingChecked = !isBeingChecked;
   }
 
 }

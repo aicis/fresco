@@ -21,6 +21,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
@@ -120,7 +121,7 @@ public abstract class AbstractSpdzTest {
                 Network network = new AsyncNetwork(netConf.get(playerId));
                 if (logPerformance) {
                   network = new NetworkLoggingDecorator(network);
-                  aggregate.add((NetworkLoggingDecorator)network);
+                  aggregate.add((NetworkLoggingDecorator) network);
                   return network;
                 } else {
                   return network;
@@ -169,7 +170,8 @@ public abstract class AbstractSpdzTest {
         new BasicNumericContext(maxBitLength, tripleSupplier.getModulus(), myId, noOfPlayers))
         .createSequential();
     SpdzResourcePoolImpl tripleResourcePool =
-        new SpdzResourcePoolImpl(myId, noOfPlayers, new SpdzStorageImpl(tripleSupplier));
+        new SpdzResourcePoolImpl(myId, noOfPlayers, new SpdzStorageImpl(tripleSupplier),
+            new AesCtrDrbg(new byte[32]));
 
     DRes<List<DRes<SInt>>> exponentiationPipe =
         new DefaultPreprocessedValues(sequential).getExponentiationPipe(pipeLength);
@@ -254,7 +256,7 @@ public abstract class AbstractSpdzTest {
       supplier = new SpdzStorageDataSupplier(storage, storageName, numberOfParties);
     }
     SpdzStorage store = new SpdzStorageImpl(supplier);
-    return new SpdzResourcePoolImpl(myId, numberOfParties, store);
+    return new SpdzResourcePoolImpl(myId, numberOfParties, store, new AesCtrDrbg(new byte[32]));
   }
 
   private SpdzSInt[] computeSInts(DRes<List<DRes<SInt>>> pipe) {

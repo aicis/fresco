@@ -13,7 +13,7 @@ import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.util.HmacDrbg;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
@@ -65,7 +65,7 @@ public class TestDistanceDemo {
   private SpdzResourcePool createResourcePool(int myId, int size) {
     SpdzStorage store;
     store = new SpdzStorageImpl(new SpdzDummyDataSupplier(myId, size));
-    return new SpdzResourcePoolImpl(myId, size, store);
+    return new SpdzResourcePoolImpl(myId, size, store, new AesCtrDrbg(new byte[32]));
   }
 
   @Test

@@ -2,6 +2,7 @@ package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.suite.spdz.storage.FakeTripGen;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
@@ -30,13 +31,13 @@ public class TestSpdzMisc {
     SpdzStorage store = new SpdzStorageImpl(
         new SpdzStorageDataSupplier(new FilebasedStreamedStorageImpl(new InMemoryStorage()), "null",
             2));
-    new SpdzResourcePoolImpl(1, 2, store);
+    new SpdzResourcePoolImpl(1, 2, store, new AesCtrDrbg(new byte[32]));
   }
 
   @Test(expected = IllegalStateException.class)
   public void testSpdzExponentiationPipeProtocolExpPipeFailedLength() {
     SpdzStorage store = new SpdzStorageImpl(new SpdzDummyDataSupplier(1, 2, new BigInteger("251")));
-    SpdzResourcePool rp = new SpdzResourcePoolImpl(1, 2, store);
+    SpdzResourcePool rp = new SpdzResourcePoolImpl(1, 2, store, new AesCtrDrbg(new byte[32]));
     SpdzExponentiationPipeProtocol pro = new SpdzExponentiationPipeProtocol(
         FakeTripGen.EXP_PIPE_SIZE);
     pro.evaluate(0, rp, null);
