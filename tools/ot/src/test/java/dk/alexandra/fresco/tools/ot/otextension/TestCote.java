@@ -62,7 +62,7 @@ public class TestCote {
     try {
       cote.getSender().extend(127);
     } catch (IllegalArgumentException e) {
-      assertEquals("The amount of OTs must be a positive integer divisize by 8",
+      assertEquals("The amount of OTs must be a positive integer divisible by 8",
           e.getMessage());
       thrown = true;
     }
