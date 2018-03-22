@@ -11,12 +11,6 @@ public class SpdzSInt implements SInt, Serializable {
   private final BigInteger mac;
   private final BigInteger mod;
 
-//  public SpdzSInt(SpdzSInt other) {
-//    this.share = other.share;
-//    this.mac = other.mac;
-//    this.mod = other.mod;
-//  }
-
   /**
    * Create a SpdzSInt containing a share, mac and modulus.
    *
