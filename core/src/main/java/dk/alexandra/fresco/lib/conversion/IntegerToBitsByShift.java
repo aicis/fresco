@@ -7,11 +7,10 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
- * Converts a number to its bit representation by shifting the maximum
- * bit-length of the number times.
+ * Converts a number to its bit representation by shifting the maximum bit-length of the number
+ * times.
  */
 public class IntegerToBitsByShift implements Computation<List<SInt>, ProtocolBuilderNumeric> {
 
@@ -32,32 +31,27 @@ public class IntegerToBitsByShift implements Computation<List<SInt>, ProtocolBui
             (seq, state) -> {
               DRes<RightShiftResult> remainder =
                   seq.advancedNumeric().rightShiftWithRemainder(state.currentInput);
-              return () ->
-                  state.createNext(remainder.out().getResult(), remainder.out().getRemainder());
+              return () -> state.createNext(remainder.out());
             })
-        .seq((seq, state) ->
-            () -> state.remainders
-                .stream()
-                .map(DRes::out)
-                .collect(Collectors.toList()));
+        .seq((seq, state) -> () -> state.remainders);
   }
 
   private class State {
 
     private final DRes<SInt> currentInput;
     private final int shifts;
-    private final List<DRes<SInt>> remainders;
+    private final List<SInt> remainders;
 
-    public State(DRes<SInt> currentInput, int shifts) {
+    State(DRes<SInt> currentInput, int shifts) {
       this.currentInput = currentInput;
       this.shifts = shifts;
       this.remainders = new ArrayList<>();
     }
 
-    public State createNext(DRes<SInt> value, DRes<SInt> nextRemainder) {
-      State state = new State(value, shifts - 1);
+    State createNext(RightShiftResult value) {
+      State state = new State(value.getResult(), shifts - 1);
       state.remainders.addAll(remainders);
-      state.remainders.add(nextRemainder);
+      state.remainders.add(value.getRemainder());
       return state;
     }
   }
