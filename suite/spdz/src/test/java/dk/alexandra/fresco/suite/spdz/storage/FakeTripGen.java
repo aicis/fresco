@@ -1,8 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -54,13 +53,13 @@ public class FakeTripGen {
   private static final StandardOpenOption CREATE = StandardOpenOption.CREATE;
 
   /**
-   * Generates a byte representation of a SpdzElement (i.e. a share and mac pair), that is
+   * Generates a byte representation of a SpdzSInt (i.e. a share and mac pair), that is
    * understood by the SpdzByteDataRetreiver.
    * 
    * @param element the element to be converted.
    * @return a byte representation of the element.
    */
-  public static ByteBuffer elementToBytes(SpdzElement element, int size) {
+  public static ByteBuffer elementToBytes(SpdzSInt element, int size) {
     BigInteger share = element.getShare();
     byte[] shareBytes = share.toByteArray();
     BigInteger mac = element.getMac();
@@ -133,15 +132,15 @@ public class FakeTripGen {
     for (int i = 0; i < amount; i++) {
       BigInteger a = sample();
       BigInteger macA = getMac(a);
-      List<SpdzElement> elementsA = toShares(a, macA, noOfParties);
+      List<SpdzSInt> elementsA = toShares(a, macA, noOfParties);
 
       BigInteger b = sample();
       BigInteger macB = getMac(b);
-      List<SpdzElement> elementsB = toShares(b, macB, noOfParties);
+      List<SpdzSInt> elementsB = toShares(b, macB, noOfParties);
 
       BigInteger c = b.multiply(a).mod(mod);
       BigInteger macC = getMac(c);
-      List<SpdzElement> elementsC = toShares(c, macC, noOfParties);
+      List<SpdzSInt> elementsC = toShares(c, macC, noOfParties);
 
       SpdzTriple[] arr = new SpdzTriple[noOfParties];
       for (int j = 0; j < elementsA.size(); j++) {
@@ -174,15 +173,15 @@ public class FakeTripGen {
       for (int i = 0; i < amount; i++) {
         BigInteger a = sample();
         BigInteger macA = getMac(a);
-        List<SpdzElement> elementsA = toShares(a, macA, noOfParties);
+        List<SpdzSInt> elementsA = toShares(a, macA, noOfParties);
 
         BigInteger b = sample();
         BigInteger macB = getMac(b);
-        List<SpdzElement> elementsB = toShares(b, macB, noOfParties);
+        List<SpdzSInt> elementsB = toShares(b, macB, noOfParties);
 
         BigInteger c = b.multiply(a).mod(mod);
         BigInteger macC = getMac(c);
-        List<SpdzElement> elementsC = toShares(c, macC, noOfParties);
+        List<SpdzSInt> elementsC = toShares(c, macC, noOfParties);
 
         for (int j = 0; j < elementsA.size(); j++) {
           ooss.get(j)
@@ -221,10 +220,10 @@ public class FakeTripGen {
       List<SpdzInputMask[]> inputs = new ArrayList<SpdzInputMask[]>(amount);
       for (int i = 0; i < amount; i++) {
         BigInteger mask = sample();
-        List<SpdzElement> elements = toShares(mask, getMac(mask), noOfParties);
+        List<SpdzSInt> elements = toShares(mask, getMac(mask), noOfParties);
         SpdzInputMask[] inputMasks = new SpdzInputMask[noOfParties];
         for (int pId = 0; pId < noOfParties; pId++) {
-          SpdzElement elm = elements.get(pId);
+          SpdzSInt elm = elements.get(pId);
           SpdzInputMask inpMask;
           if (pId == currPId) {
             inpMask = new SpdzInputMask(elm, mask);
@@ -261,10 +260,10 @@ public class FakeTripGen {
     List<SpdzInputMask[]> inputs = new ArrayList<SpdzInputMask[]>(amount);
     for (int i = 0; i < amount; i++) {
       BigInteger mask = sample();
-      List<SpdzElement> elements = toShares(mask, getMac(mask), noOfParties);
+      List<SpdzSInt> elements = toShares(mask, getMac(mask), noOfParties);
       SpdzInputMask[] inputMasks = new SpdzInputMask[noOfParties];
       for (int pId = 0; pId < noOfParties; pId++) {
-        SpdzElement elm = elements.get(pId);
+        SpdzSInt elm = elements.get(pId);
         SpdzInputMask inpMask;
         if (pId == towardsPartyId - 1) {
           inpMask = new SpdzInputMask(elm, mask);
@@ -303,9 +302,9 @@ public class FakeTripGen {
     for (List<ObjectOutputStream> ooss : streams) {
       for (int i = 0; i < amount; i++) {
         BigInteger mask = sample();
-        List<SpdzElement> elements = toShares(mask, getMac(mask), noOfParties);
+        List<SpdzSInt> elements = toShares(mask, getMac(mask), noOfParties);
         for (int pId = 0; pId < noOfParties; pId++) {
-          SpdzElement elm = elements.get(pId);
+          SpdzSInt elm = elements.get(pId);
           SpdzInputMask inpMask;
           if (pId == inputterId) {
             inpMask = new SpdzInputMask(elm, mask);
@@ -329,7 +328,7 @@ public class FakeTripGen {
     for (int i = 0; i < amount; i++) {
       bit = new BigInteger(1, rand);
       BigInteger mac = getMac(bit);
-      List<SpdzElement> elements = toShares(bit, mac, noOfParties);
+      List<SpdzSInt> elements = toShares(bit, mac, noOfParties);
       SpdzSInt[] shares = new SpdzSInt[noOfParties];
       for (int j = 0; j < noOfParties; j++) {
         shares[j] = new SpdzSInt(elements.get(j));
@@ -362,7 +361,7 @@ public class FakeTripGen {
       for (int i = 0; i < amount; i++) {
         bit = new BigInteger(1, rand);
         BigInteger mac = getMac(bit);
-        List<SpdzElement> elements = toShares(bit, mac, noOfParties);
+        List<SpdzSInt> elements = toShares(bit, mac, noOfParties);
         for (int j = 0; j < noOfParties; j++) {
           ooss.get(j).writeObject(new SpdzSInt(elements.get(j)));
         }
@@ -398,7 +397,7 @@ public class FakeTripGen {
       BigInteger r = sample();
       BigInteger rInv = r.modInverse(mod);
       BigInteger mac = getMac(rInv);
-      List<SpdzElement> elements = toShares(rInv, mac, noOfParties);
+      List<SpdzSInt> elements = toShares(rInv, mac, noOfParties);
       for (int i = 0; i < noOfParties; i++) {
         expPipe[i][0] = new SpdzSInt(elements.get(i));
       }
@@ -429,7 +428,7 @@ public class FakeTripGen {
         BigInteger r = sample();
         BigInteger rInv = r.modInverse(mod);
         BigInteger mac = getMac(rInv);
-        List<SpdzElement> elements = toShares(rInv, mac, noOfParties);
+        List<SpdzSInt> elements = toShares(rInv, mac, noOfParties);
         for (int i = 0; i < noOfParties; i++) {
           expPipe[i][0] = new SpdzSInt(elements.get(i));
         }
@@ -659,7 +658,7 @@ public class FakeTripGen {
    */
   private static void writeAsShared(BigInteger b, List<FileChannel> channels) throws IOException {
     BigInteger mac = getMac(b);
-    List<SpdzElement> elements = toShares(b, mac, numberOfParties);
+    List<SpdzSInt> elements = toShares(b, mac, numberOfParties);
     writeElements(elements, channels);
   }
 
@@ -709,8 +708,8 @@ public class FakeTripGen {
       }
       for (int h = 0; h < numberOfInputs; h++) {
         mask = sample();
-        List<SpdzElement> elements = toShares(mask, getMac(mask), numberOfParties);
-        Iterator<SpdzElement> itE = elements.iterator();
+        List<SpdzSInt> elements = toShares(mask, getMac(mask), numberOfParties);
+        Iterator<SpdzSInt> itE = elements.iterator();
         Iterator<FileChannel> itFC = channels.iterator();
         while (itE.hasNext() && itFC.hasNext()) {
           FileChannel fc = itFC.next();
@@ -789,9 +788,9 @@ public class FakeTripGen {
    * @param channels channels to the appropriate files (i.e. one for each player)
    * @throws IOException
    */
-  private static void writeElements(List<SpdzElement> elements, List<FileChannel> channels)
+  private static void writeElements(List<SpdzSInt> elements, List<FileChannel> channels)
       throws IOException {
-    Iterator<SpdzElement> eIt = elements.iterator();
+    Iterator<SpdzSInt> eIt = elements.iterator();
     Iterator<FileChannel> cIt = channels.iterator();
     while (eIt.hasNext() && cIt.hasNext()) {
       cIt.next().write(elementToBytes(eIt.next(), size));
@@ -806,8 +805,8 @@ public class FakeTripGen {
    * @param numberOfParties the number of parties
    * @return a list of SpdzElements giving the SPDZ sharing
    */
-  private static List<SpdzElement> toShares(BigInteger value, BigInteger mac, int numberOfParties) {
-    List<SpdzElement> elements = new ArrayList<SpdzElement>(numberOfParties);
+  private static List<SpdzSInt> toShares(BigInteger value, BigInteger mac, int numberOfParties) {
+    List<SpdzSInt> elements = new ArrayList<SpdzSInt>(numberOfParties);
     BigInteger valShare;
     BigInteger macShare;
     for (int i = 0; i < numberOfParties - 1; i++) {
@@ -815,9 +814,9 @@ public class FakeTripGen {
       macShare = sample();
       value = value.subtract(valShare).mod(mod);
       mac = mac.subtract(macShare).mod(mod);
-      elements.add(new SpdzElement(valShare, macShare, FakeTripGen.mod));
+      elements.add(new SpdzSInt(valShare, macShare, FakeTripGen.mod));
     }
-    elements.add(new SpdzElement(value, mac, FakeTripGen.mod));
+    elements.add(new SpdzSInt(value, mac, FakeTripGen.mod));
     return elements;
   }
 

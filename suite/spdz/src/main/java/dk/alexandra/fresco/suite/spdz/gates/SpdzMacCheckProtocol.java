@@ -6,7 +6,7 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -64,7 +64,7 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
             a = a.add(openedValue.multiply(rs[index++])).mod(modulus);
           }
 
-          List<SpdzElement> closedValues = storage.getClosedValues();
+          List<SpdzSInt> closedValues = storage.getClosedValues();
           // compute gamma_i as the sum of all MAC's on the opened values times
           // r_j.
           if (closedValues.size() != openedValuesSize) {
@@ -74,7 +74,7 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
           }
           BigInteger gamma = BigInteger.ZERO;
           index = 0;
-          for (SpdzElement closedValue : closedValues) {
+          for (SpdzSInt closedValue : closedValues) {
             gamma = gamma.add(rs[index++].multiply(closedValue.getMac())).mod(modulus);
           }
 

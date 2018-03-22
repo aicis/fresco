@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -35,7 +35,7 @@ public interface SpdzStorage {
    *
    * @param elem a element to add
    */
-  void addClosedValue(SpdzElement elem);
+  void addClosedValue(SpdzSInt elem);
 
   /**
    * Get the current opened values
@@ -49,7 +49,7 @@ public interface SpdzStorage {
    *
    * @return a list of closed values
    */
-  List<SpdzElement> getClosedValues();
+  List<SpdzSInt> getClosedValues();
 
   /**
    * Returns the players share of the Secret Shared Key (alpha).

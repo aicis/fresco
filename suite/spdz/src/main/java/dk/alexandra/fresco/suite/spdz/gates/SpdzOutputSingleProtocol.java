@@ -5,9 +5,8 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 import java.util.List;
@@ -40,7 +39,7 @@ public class SpdzOutputSingleProtocol extends SpdzNativeProtocol<BigInteger>
     if (round == 0) {
       this.mask = storage.getSupplier().getNextInputMask(targetPlayer);
       SpdzSInt closedValue = (SpdzSInt) this.in.out();
-      SpdzElement inMinusMask = closedValue.value.subtract(this.mask.getMask());
+      SpdzSInt inMinusMask = closedValue.subtract(this.mask.getMask());
       storage.addClosedValue(inMinusMask);
       network.sendToAll(serializer.serialize(inMinusMask.getShare()));
       return EvaluationStatus.HAS_MORE_ROUNDS;

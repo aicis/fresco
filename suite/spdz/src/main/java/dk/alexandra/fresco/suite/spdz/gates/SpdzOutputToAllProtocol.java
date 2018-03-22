@@ -28,7 +28,7 @@ public class SpdzOutputToAllProtocol extends SpdzNativeProtocol<BigInteger>
     ByteSerializer<BigInteger> serializer = spdzResourcePool.getSerializer();
     if (round == 0) {
       SpdzSInt out = (SpdzSInt) in.out();
-      network.sendToAll(serializer.serialize(out.value.getShare()));
+      network.sendToAll(serializer.serialize(out.getShare()));
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       List<byte[]> shares = network.receiveFromAll();
@@ -38,7 +38,7 @@ public class SpdzOutputToAllProtocol extends SpdzNativeProtocol<BigInteger>
       }
       openedVal = openedVal.mod(spdzResourcePool.getModulus());
       storage.addOpenedValue(openedVal);
-      storage.addClosedValue(((SpdzSInt) in.out()).value);
+      storage.addClosedValue(((SpdzSInt) in.out()));
       BigInteger tmpOut = openedVal;
       tmpOut = spdzResourcePool.convertRepresentation(tmpOut);
       this.out = tmpOut;

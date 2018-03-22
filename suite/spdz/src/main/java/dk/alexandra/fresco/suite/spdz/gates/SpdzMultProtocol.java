@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
@@ -17,8 +16,8 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SInt> {
   private DRes<SInt> right;
   private SpdzSInt out;
   private SpdzTriple triple;
-  private SpdzElement epsilon;  // my share of the differences [x]-[a]
-  private SpdzElement delta;  // and [y]-[b].
+  private SpdzSInt epsilon;  // my share of the differences [x]-[a]
+  private SpdzSInt delta;  // and [y]-[b].
 
   public SpdzMultProtocol(DRes<SInt> left, DRes<SInt> right) {
     this.left = left;
@@ -34,8 +33,8 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SInt> {
     if (round == 0) {
       this.triple = store.getSupplier().getNextTriple();
 
-      epsilon = ((SpdzSInt) left.out()).value.subtract(triple.getA());
-      delta = ((SpdzSInt) right.out()).value.subtract(triple.getB());
+      epsilon = ((SpdzSInt) left.out()).subtract(triple.getA());
+      delta = ((SpdzSInt) right.out()).subtract(triple.getB());
 
       network.sendToAll(serializer.serialize(epsilon.getShare()));
       network.sendToAll(serializer.serialize(delta.getShare()));
@@ -59,11 +58,11 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SInt> {
       d = d.mod(modulus);
 
       BigInteger product = e.multiply(d).mod(modulus);
-      SpdzElement ed = new SpdzElement(
+      SpdzSInt ed = new SpdzSInt(
           product,
           store.getSecretSharedKey().multiply(product).mod(modulus),
           modulus);
-      SpdzElement res = triple.getC();
+      SpdzSInt res = triple.getC();
       res = res.add(triple.getB().multiply(e))
           .add(triple.getA().multiply(d))
           .add(ed, spdzResourcePool.getMyId());

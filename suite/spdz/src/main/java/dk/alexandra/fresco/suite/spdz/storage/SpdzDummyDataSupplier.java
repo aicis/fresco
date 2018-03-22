@@ -4,9 +4,8 @@ import dk.alexandra.fresco.framework.util.ArithmeticDummyDataSupplier;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.util.MultiplicationTripleShares;
 import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import java.math.BigInteger;
 import java.util.List;
@@ -92,8 +91,8 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
     return new SpdzSInt(toSpdzElement(supplier.getRandomElementShare()));
   }
 
-  private SpdzElement toSpdzElement(Pair<BigInteger, BigInteger> raw) {
-    return new SpdzElement(
+  private SpdzSInt toSpdzElement(Pair<BigInteger, BigInteger> raw) {
+    return new SpdzSInt(
         raw.getSecond(),
         raw.getFirst().multiply(secretSharedKey).mod(modulus),
         modulus

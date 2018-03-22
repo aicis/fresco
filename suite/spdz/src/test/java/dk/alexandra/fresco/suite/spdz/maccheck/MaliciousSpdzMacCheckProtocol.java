@@ -7,7 +7,7 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -99,12 +99,12 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
           a = a.add(aa.multiply(rs[index++])).mod(modulus);
         }
 
-        List<SpdzElement> closedValues = storage.getClosedValues();
+        List<SpdzSInt> closedValues = storage.getClosedValues();
         // compute gamma_i as the sum of all MAC's on the opened values times
         // r_j.
         BigInteger gamma = BigInteger.ZERO;
         index = 0;
-        for (SpdzElement c : closedValues) {
+        for (SpdzSInt c : closedValues) {
           gamma = gamma.add(rs[index++].multiply(c.getMac())).mod(modulus);
         }
 

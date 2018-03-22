@@ -19,7 +19,7 @@ import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
@@ -119,8 +119,8 @@ public class TestMacCheck {
     }
 
     @Override
-    public List<SpdzElement> getClosedValues() {
-      return new ArrayList<SpdzElement>();
+    public List<SpdzSInt> getClosedValues() {
+      return new ArrayList<SpdzSInt>();
     }
 
   }
@@ -140,7 +140,7 @@ public class TestMacCheck {
       if (maliciousCountdown == 0) {
         BigInteger share = trip.getA().getShare();
         share = share.add(BigInteger.ONE);
-        SpdzElement newA = new SpdzElement(share, trip.getA().getMac(), getModulus());
+        SpdzSInt newA = new SpdzSInt(share, trip.getA().getMac(), getModulus());
         trip = new SpdzTriple(newA, trip.getB(), trip.getC());
       }
       return trip;

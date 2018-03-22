@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import java.math.BigInteger;
 
@@ -27,10 +26,10 @@ public class SpdzSubtractProtocolKnownLeft extends SpdzNativeProtocol<SInt> {
   @Override
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       Network network) {
-    SpdzElement left =
+    SpdzSInt left =
         SpdzKnownSIntProtocol.createKnownSpdzElement(spdzResourcePool, this.left);
     SpdzSInt right = (SpdzSInt) this.right.out();
-    this.out = new SpdzSInt(left.subtract(right.value));
+    this.out = left.subtract(right);
     return EvaluationStatus.IS_DONE;
   }
 

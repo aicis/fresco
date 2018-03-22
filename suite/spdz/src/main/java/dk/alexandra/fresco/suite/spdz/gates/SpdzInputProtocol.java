@@ -5,9 +5,8 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 
@@ -51,8 +50,8 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
       if (!validated) {
         throw new MaliciousException("SecureBroadcastUtil digests did not match");
       }
-      SpdzElement valueMaskedElement =
-          new SpdzElement(
+      SpdzSInt valueMaskedElement =
+          new SpdzSInt(
               valueMasked,
               storage.getSecretSharedKey().multiply(valueMasked).mod(modulus),
               modulus);

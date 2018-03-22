@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import java.math.BigInteger;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.List;
 public class SpdzStorageImpl implements SpdzStorage {
 
   private List<BigInteger> openedValues;
-  private List<SpdzElement> closedValues;
+  private List<SpdzSInt> closedValues;
   private boolean isBeingChecked;
 
   private SpdzDataSupplier supplier;
@@ -46,7 +46,7 @@ public class SpdzStorageImpl implements SpdzStorage {
   }
 
   @Override
-  public void addClosedValue(SpdzElement elem) {
+  public void addClosedValue(SpdzSInt elem) {
     closedValues.add(elem);
   }
 
@@ -56,7 +56,7 @@ public class SpdzStorageImpl implements SpdzStorage {
   }
 
   @Override
-  public List<SpdzElement> getClosedValues() {
+  public List<SpdzSInt> getClosedValues() {
     return closedValues;
   }
 

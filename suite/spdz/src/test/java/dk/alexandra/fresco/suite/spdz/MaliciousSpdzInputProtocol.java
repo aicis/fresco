@@ -4,9 +4,8 @@ import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzNativeProtocol;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
@@ -52,7 +51,7 @@ public class MaliciousSpdzInputProtocol extends SpdzNativeProtocol<SInt> {
       if (!validated) {
         throw new MaliciousException("SecureBroadcastUtil digests did not match");
       }
-      SpdzElement valueMaskedElm = new SpdzElement(valueMasked,
+      SpdzSInt valueMaskedElm = new SpdzSInt(valueMasked,
           storage.getSecretSharedKey().multiply(valueMasked).mod(modulus), modulus);
       this.out = new SpdzSInt(this.inputMask.getMask().add(valueMaskedElm, myId));
       return EvaluationStatus.IS_DONE;
