@@ -25,8 +25,8 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
   /**
    * @param bitLength An upper bound for the bitLength of the input.
    * @param input The input.
-   * @param calculateRemainder true to also calculate remainder, aka input mod 2^shifts. If false
-   *        remainder in result will be null.
+   * @param calculateRemainder true to also calculate remainder, aka input mod 2^shifts. If
+   *     false remainder in result will be null.
    */
   public RightShift(int bitLength, DRes<SInt> input, boolean calculateRemainder) {
     this(bitLength, input, 1, calculateRemainder);
@@ -45,19 +45,17 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
   }
 
   @Override
-  public DRes<RightShiftResult> buildComputation(ProtocolBuilderNumeric sequential) {
-    return sequential.seq((builder) -> {
+  public DRes<RightShiftResult> buildComputation(ProtocolBuilderNumeric builder) {
+    return builder.seq((seq) -> {
       /*
        * Generate random additive mask of the same length as the input + some extra to avoid
        * leakage.
        */
-      AdvancedNumeric additiveMaskBuilder = builder.advancedNumeric();
-      DRes<RandomAdditiveMask> mask = additiveMaskBuilder.additiveMask(bitLength);
-      return mask;
-    }).seq((parSubSequential, randomAdditiveMask) -> {
-      DRes<SInt> result = parSubSequential.numeric().add(input, () -> randomAdditiveMask.random);
-      DRes<BigInteger> open = parSubSequential.numeric().open(result);
-      return () -> new Pair<>(open, randomAdditiveMask);
+      AdvancedNumeric additiveMaskBuilder = seq.advancedNumeric();
+      DRes<RandomAdditiveMask> randomAdditiveMask = additiveMaskBuilder.additiveMask(bitLength);
+      DRes<SInt> result = seq.numeric().add(input, () -> randomAdditiveMask.out().random);
+      DRes<BigInteger> open = seq.numeric().open(result);
+      return () -> new Pair<>(open, randomAdditiveMask.out());
     }).seq((seq, maskedInput) -> {
       BigInteger masked = maskedInput.getFirst().out();
       RandomAdditiveMask mask = maskedInput.getSecond();
@@ -78,10 +76,10 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
         /*
          * One of the following must be true for there to be a carry from the addition of the i'th
          * bits of the input and the mask, r:
-         * 
+         *
          * 1) If the i'th bit of the masked input is set, both the i'th bit of r AND the carry from
          * the previous bit should be set.
-         * 
+         *
          * 2) If the i'th bit of the masked input it not set, either the i'th bit of r is set OR
          * there was a carry from the previous adding the (i-1)'th bits.
          */
