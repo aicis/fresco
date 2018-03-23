@@ -7,6 +7,7 @@ target/
 .classpath
 .settings
 .project
+.metadata
 
 # Checkstyle files
 .checkstyle

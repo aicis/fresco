@@ -1,8 +1,6 @@
 language: java
 sudo: false # faster builds
 
-test: travis_wait mvn test
-
 after_success:
 - bash <(curl -s https://codecov.io/bash)
 

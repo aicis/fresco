@@ -25,7 +25,7 @@ public class TestSpdzCollections extends AbstractSpdzTest {
 
   @Test
   public void test_close_list() throws Exception {
-    runTest(new CloseListTests.TestCloseEmptyList<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new CloseListTests.TestCloseAndOpenList<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2);
   }
 

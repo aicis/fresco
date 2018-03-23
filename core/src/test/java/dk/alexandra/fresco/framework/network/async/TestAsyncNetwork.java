@@ -10,7 +10,6 @@ import dk.alexandra.fresco.framework.network.CloseableNetwork;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.ServerSocket;
-import java.nio.channels.SocketChannel;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -47,31 +47,31 @@ public class TestAsyncNetwork {
 
   // TEST CONNECT
 
-  @Test
+  @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS)
   public void testConnectOneParty() {
     networks = createNetworks(1);
   }
 
-  @Test
+  @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS)
   public void testConnectTwoParties() {
     networks = createNetworks(2);
   }
 
-  @Test
+  @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS)
   public void testConnectMultipleParties() {
     networks = createNetworks(7);
   }
 
   // TEST CLOSE
 
-  @Test
+  @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS)
   public void testClose() {
     networks = createNetworks(3);
     closeNetworks(networks);
   }
 
   @SuppressWarnings("resource")
-  @Test(expected = RuntimeException.class)
+  @Test(expected = RuntimeException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
   public void testNegativeTimeout() {
     List<NetworkConfiguration> conf = getNetConfs(2);
     new AsyncNetwork(conf.get(1), Duration.ofMillis(-10));
@@ -114,8 +114,29 @@ public class TestAsyncNetwork {
   }
 
   @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS)
-  public void testSelfSend() {
+  public void testSelfSendOneParty() {
     circularSendSingleMessage(1, 1024);
+  }
+
+  @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS)
+  public void testSelfSendThreeParties() {
+    networks = createNetworks(3);
+    networks.keySet().stream().forEach(i -> networks.get(i).send(i, new byte[] {0x01}));
+    networks.keySet().stream().forEach(i -> networks.get(i).receive(i));
+  }
+
+  @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS, expected = RuntimeException.class)
+  public void testSendAfterClose() {
+    networks = createNetworks(3);
+    closeNetworks(networks);
+    networks.get(1).send(2, new byte[] {});
+  }
+
+  @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS, expected = RuntimeException.class)
+  public void testReceiveAfterClose() {
+    networks = createNetworks(3);
+    closeNetworks(networks);
+    networks.get(1).receive(2);
   }
 
   @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS)
@@ -146,7 +167,7 @@ public class TestAsyncNetwork {
    * @param numMessages the number of messages
    */
   private void sendMultipleToSingleReceiver(int numParties, int numMessages) {
-    networks = createNetworks(numParties);
+    Map<Integer, CloseableNetwork> networks = createNetworks(numParties);
     ExecutorService es = Executors.newFixedThreadPool(numParties);
     List<Future<?>> fs = new ArrayList<>(numParties);
     for (int i = 1; i < numParties + 1; i++) {
@@ -171,15 +192,20 @@ public class TestAsyncNetwork {
             networks.get(id).send(numParties, data.clone());
           }
         }
+        try {
+          networks.get(id).close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
       });
       fs.add(f);
-      for (Future<?> future : fs) {
-        try {
-          future.get();
-        } catch (InterruptedException | ExecutionException e) {
-          e.printStackTrace();
-          fail("Test should not throw exception");
-        }
+    }
+    for (Future<?> future : fs) {
+      try {
+        future.get();
+      } catch (InterruptedException | ExecutionException e) {
+        e.printStackTrace();
+        fail("Test should not throw exception");
       }
     }
   }
@@ -198,64 +224,71 @@ public class TestAsyncNetwork {
 
   @SuppressWarnings("unchecked")
   @Test(expected = RuntimeException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
-  public void testFailedSend() {
-    int retries = 10;
-    int sleeptime = 5;
+  public void testFailedSend() throws InterruptedException {
     networks = createNetworks(2);
+    for (int i = 0; i < 1000; i++) {
+      networks.get(1).send(2, new byte[] { 0x01 });
+    }
     try {
-      // Close channel to provoke IOException while sending
-      Field f = networks.get(1).getClass().getDeclaredField("channelMap");
+      // Cancel sendfuture to provoke an exception while sending
+      Field f = networks.get(1).getClass().getDeclaredField("sendFutures");
       f.setAccessible(true);
-      ((HashMap<Integer, SocketChannel>)f.get(networks.get(1))).get(2).close();
+      ((HashMap<Integer, Future<Object>>)f.get(networks.get(1))).get(2).cancel(true);
       f.setAccessible(false);
-    } catch (IOException e) {
-      fail("IOException closing channel");
     } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
         | IllegalAccessException e) {
       fail("Reflection related error");
     }
     // Below the first call should make the sending thread fail
     // The subsequent calls should provoke the exception to propagate to the main thread
-    try {
+    int retries = 10;
+    networks.get(1).send(2, new byte[] { 0x01 });
+    Thread.sleep(10);
+    for (int i = 0; i < retries; i++) {
       networks.get(1).send(2, new byte[] { 0x01 });
-      for (int i = 0; i < retries; i++) {
-        Thread.sleep(sleeptime);
-        networks.get(1).send(2, new byte[] { 0x01 });
-      }
-    } catch (InterruptedException e) {
-      fail("No interruption should occur");
     }
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
   public void testSendToNegativePartyId() {
     networks = createNetworks(1);
     networks.get(1).send(-1, new byte[] { 0x01 });
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
   public void testSendToTooLargePartyId() {
     networks = createNetworks(1);
     networks.get(1).send(2, new byte[] { 0x01 });
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
   public void testReceiveFromNegativePartyId() {
     networks = createNetworks(1);
     networks.get(1).receive(-1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
   public void testReceiveFromTooLargePartyId() {
     networks = createNetworks(1);
     networks.get(1).receive(2);
   }
 
+  @SuppressWarnings("unchecked")
   @Test(expected = RuntimeException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
   public void testFailedReceive() throws Exception {
     networks = createNetworks(2);
-    // Close network to provoke IOException while receiving
-    networks.get(1).close();
+    try {
+      // Cancel receiveFuture to provoke exception when receiving
+      Field f = networks.get(1).getClass().getDeclaredField("receiveFutures");
+      f.setAccessible(true);
+      ((HashMap<Integer, Future<Object>>)f.get(networks.get(1))).get(2).cancel(true);
+      f.setAccessible(false);
+    } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
+        | IllegalAccessException e) {
+      fail("Reflection related error");
+    } catch (Exception e) {
+      fail("Should not throw exception yet");
+    }
     Thread.sleep(10);
     networks.get(1).receive(2);
   }
@@ -301,6 +334,50 @@ public class TestAsyncNetwork {
     testMultiplePartiesReconnect(2, 10);
     testMultiplePartiesReconnect(5, 20);
   }
+
+  // TEST STUFF THAT WILL PROBABLY NEVER HAPPEN TO GET FULL TEST COVERAGE
+
+  @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS, expected = RuntimeException.class)
+  public void testFinishingReceivers() {
+    networks = createNetworks(2);
+    // Set alive = false in order for the receiver to stop
+    try {
+      Field f = networks.get(1).getClass().getDeclaredField("alive");
+      f.setAccessible(true);
+      ((AtomicBoolean)f.get(networks.get(1))).set(false);
+      f.setAccessible(false);
+    } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
+        | IllegalAccessException e) {
+      fail("Reflection related error");
+    }
+    // wake up the receiver for it notice it should stop
+    networks.get(2).send(1, new byte[] {0x01});
+    networks.get(1).receive(2);
+    // Give the receiver some time
+    try {
+      Thread.sleep(1000);
+    } catch (InterruptedException e1) {
+      e1.printStackTrace();
+    }
+    // receiver should now be stopped
+    try {
+     networks.get(1).receive(2);
+     fail("The above receive should throw an exception");
+    } finally {
+      // Set alive = true so we can close the network properly
+      try {
+        Field f = networks.get(1).getClass().getDeclaredField("alive");
+        f.setAccessible(true);
+        ((AtomicBoolean)f.get(networks.get(1))).set(true);
+        f.setAccessible(false);
+      } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
+          | IllegalAccessException e) {
+        fail("Reflection related error");
+      }
+    }
+  }
+
+  // HELPER METHODS
 
   private void testMultiplePartiesReconnect(int numParties, int noOfRetries) {
     List<NetworkConfiguration> confs = getNetConfs(numParties);
