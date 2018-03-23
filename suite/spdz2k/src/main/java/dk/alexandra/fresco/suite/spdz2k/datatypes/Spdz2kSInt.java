@@ -84,6 +84,11 @@ public class Spdz2kSInt<PlainT extends CompUInt<?, ?, PlainT>> implements SInt {
   }
 
   @Override
+  public void callback(SInt value) {
+
+  }
+
+  @Override
   public SInt out() {
     return this;
   }

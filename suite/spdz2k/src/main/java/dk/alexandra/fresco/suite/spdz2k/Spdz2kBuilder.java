@@ -2,8 +2,6 @@ package dk.alexandra.fresco.suite.spdz2k;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
-import dk.alexandra.fresco.framework.builder.numeric.Collections;
-import dk.alexandra.fresco.framework.builder.numeric.DefaultCollections;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -14,16 +12,14 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
 import dk.alexandra.fresco.suite.spdz2k.protocols.computations.Spdz2kInputComputation;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAddKnownProtocol;
-import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kBatchMultiplyProtocol;
+import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kBatchMultiplier;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kKnownSIntProtocol;
-import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kMultiplyProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kOutputSinglePartyProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kOutputToAllProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kRandomBitProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kRandomElementProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kSubtractFromKnownProtocol;
 import java.math.BigInteger;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -48,13 +44,10 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
   }
 
   @Override
-  public Collections createCollections(ProtocolBuilderNumeric builder) {
-    return new Spdz2kCollections(this, builder);
-  }
-
-  @Override
   public Numeric createNumeric(ProtocolBuilderNumeric builder) {
     return new Numeric() {
+      private Spdz2kBatchMultiplier<PlainT> multiplier;
+
       @Override
       public DRes<SInt> add(DRes<SInt> a, DRes<SInt> b) {
         return () -> toSpdz2kSInt(a).add(toSpdz2kSInt(b));
@@ -84,7 +77,11 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
       @Override
       public DRes<SInt> mult(DRes<SInt> a, DRes<SInt> b) {
-        return builder.append(new Spdz2kMultiplyProtocol<>(a, b));
+        if (multiplier == null) {
+          multiplier = new Spdz2kBatchMultiplier<>();
+          builder.append(multiplier);
+        }
+        return multiplier.append(a, b);
       }
 
       @Override
@@ -136,20 +133,6 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
    */
   private Spdz2kSInt<PlainT> toSpdz2kSInt(DRes<SInt> value) {
     return Objects.requireNonNull((Spdz2kSInt<PlainT>) value.out());
-  }
-
-  private class Spdz2kCollections extends DefaultCollections {
-
-    Spdz2kCollections(BuilderFactoryNumeric factoryNumeric, ProtocolBuilderNumeric builder) {
-      super(factoryNumeric, builder);
-    }
-
-    @Override
-    public DRes<List<DRes<SInt>>> batchMultiply(DRes<List<DRes<SInt>>> left,
-        DRes<List<DRes<SInt>>> right) {
-      return builder.par(par -> par.append(new Spdz2kBatchMultiplyProtocol<>(left, right)));
-    }
-    
   }
 
 }
