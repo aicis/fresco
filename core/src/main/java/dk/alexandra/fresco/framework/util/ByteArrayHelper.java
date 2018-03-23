@@ -4,6 +4,10 @@ import java.util.List;
 
 public class ByteArrayHelper {
 
+  private ByteArrayHelper() {
+    // Should not be instantiated
+  }
+
   /**
    * Returns the bit at a given index, reading from left-to-right, from a byte array.
    *
