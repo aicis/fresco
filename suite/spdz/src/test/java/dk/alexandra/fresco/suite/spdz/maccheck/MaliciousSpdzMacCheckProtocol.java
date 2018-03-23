@@ -71,7 +71,7 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
       } else if (round == 1) {
         if (!comm.out()) {
           throw new MaliciousException(
-              "Malicious activity detected: Broadcast of commitments was not validated.");
+              "Malicious activity detected: SecureBroadcastUtil of commitments was not validated.");
         }
         if (!openComm.out()) {
           throw new MaliciousException("Malicious activity detected: Opening commitments failed.");
@@ -125,7 +125,7 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
       } else {
         if (!comm.out()) {
           throw new MaliciousException(
-              "Malicious activity detected: Broadcast of commitments was not validated.");
+              "Malicious activity detected: SecureBroadcastUtil of commitments was not validated.");
         }
         if (!openComm.out()) {
           throw new MaliciousException("Malicious activity detected: Opening commitments failed.");

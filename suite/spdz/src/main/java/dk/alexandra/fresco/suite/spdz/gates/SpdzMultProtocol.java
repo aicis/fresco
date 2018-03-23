@@ -73,12 +73,6 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SInt> {
       store.addOpenedValue(d);
       store.addClosedValue(epsilon);
       store.addClosedValue(delta);
-      // help the garbage collector.
-      left = null;
-      right = null;
-      triple = null;
-      epsilon = null;
-      delta = null;
       return EvaluationStatus.IS_DONE;
     }
   }

@@ -63,33 +63,27 @@ public class CloseListTests {
         public void test() throws Exception {
           // define input
           List<BigInteger> input = new ArrayList<>();
-          input.add(BigInteger.valueOf(1));
-          input.add(BigInteger.valueOf(2));
-          input.add(BigInteger.valueOf(3));
-
+          int numInputs = 100;
+          for (int i = 0; i < numInputs; i++) {
+            input.add(BigInteger.valueOf(i));
+          }
           // define functionality to be tested
           Application<List<BigInteger>, ProtocolBuilderNumeric> testApplication = root -> {
             Collections collections = root.collections();
-            DRes<List<DRes<SInt>>> closed = null;
+            DRes<List<DRes<SInt>>> closed;
             if (root.getBasicNumericContext().getMyId() == 1) {
               // party 1 provides input
               closed = collections.closeList(input, 1);
             } else {
               // other parties receive it
-              closed = collections.closeList(3, 1);
+              closed = collections.closeList(numInputs, 1);
             }
             DRes<List<DRes<BigInteger>>> opened = collections.openList(closed);
             return () -> opened.out().stream().map(DRes::out).collect(Collectors.toList());
           };
           // run test application
-          final List<BigInteger> output = runApplication(testApplication);
-          
-          // define expected result and assert
-          List<BigInteger> expected = new ArrayList<>();
-          expected.add(BigInteger.valueOf(1));
-          expected.add(BigInteger.valueOf(2));
-          expected.add(BigInteger.valueOf(3));
-          assertThat(output, is(expected));
+          List<BigInteger> output = runApplication(testApplication);
+          assertThat(output, is(input));
         }
       };
     }

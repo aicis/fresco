@@ -92,7 +92,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
     return new SpdzSInt(toSpdzElement(supplier.getRandomElementShare()));
   }
 
-  private SpdzElement toSpdzElement(Pair<BigInteger,BigInteger> raw) {
+  private SpdzElement toSpdzElement(Pair<BigInteger, BigInteger> raw) {
     return new SpdzElement(
         raw.getSecond(),
         raw.getFirst().multiply(secretSharedKey).mod(modulus),

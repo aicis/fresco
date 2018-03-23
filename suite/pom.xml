@@ -12,6 +12,7 @@
 
   <modules>
     <module>spdz</module>
+    <module>spdz2k</module>
     <module>tinytables</module>
   </modules>
 </project>
