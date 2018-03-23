@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -333,6 +334,44 @@ public class TestAsyncNetwork {
     testMultiplePartiesReconnect(2, 10);
     testMultiplePartiesReconnect(5, 20);
   }
+
+  // TEST STUFF THAT WILL PROBABLY NEVER HAPPEN TO GET FULL TEST COVERAGE
+
+  @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS, expected = RuntimeException.class)
+  public void testFinishingReceivers() {
+    networks = createNetworks(2);
+    // Set alive = false in order for the receiver to stop
+    try {
+      Field f = networks.get(1).getClass().getDeclaredField("alive");
+      f.setAccessible(true);
+      ((AtomicBoolean)f.get(networks.get(1))).set(false);
+      f.setAccessible(false);
+    } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
+        | IllegalAccessException e) {
+      fail("Reflection related error");
+    }
+    // wake up the receiver for it notice it should stop
+    networks.get(2).send(1, new byte[] {0x01});
+    networks.get(1).receive(2);
+    // receiver should now be stopped
+    try {
+     networks.get(1).receive(2);
+     fail("The above receive should throw an exception");
+    } finally {
+      // Set alive = true so we can close the network properly
+      try {
+        Field f = networks.get(1).getClass().getDeclaredField("alive");
+        f.setAccessible(true);
+        ((AtomicBoolean)f.get(networks.get(1))).set(true);
+        f.setAccessible(false);
+      } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
+          | IllegalAccessException e) {
+        fail("Reflection related error");
+      }
+    }
+  }
+
+  // HELPER METHODS
 
   private void testMultiplePartiesReconnect(int numParties, int noOfRetries) {
     List<NetworkConfiguration> confs = getNetConfs(numParties);
