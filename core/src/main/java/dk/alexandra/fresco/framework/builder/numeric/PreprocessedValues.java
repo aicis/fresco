@@ -12,12 +12,12 @@ import java.util.List;
 public interface PreprocessedValues {
 
   /**
-   * Returns a exponentiation pipe of the form [r^-1, r, r^2, ..., r^pipe_length], where r is a
+   * Returns a exponentiation pipe of the form [r^-1, r, r^2, ..., r^pipe_length + 1], where r is a
    * random element in the field of operation.
-   * 
-   * @param pipeLength The length of the exponentiation pipe. Note that the returned array will be 1
-   *        longer than the argument due to the inverse element at position 0.
-   * @return An array of the form [r^-1, r, r^2, ..., r^pipe_length]
+   *
+   * @param pipeLength The length of the exponentiation pipe. Note that the returned array will be 2
+   *        longer than the argument.
+   * @return An array of the form [r^-1, r, r^2, ..., r^pipe_length + 1]
    */
   DRes<List<DRes<SInt>>> getExponentiationPipe(int pipeLength);
 
