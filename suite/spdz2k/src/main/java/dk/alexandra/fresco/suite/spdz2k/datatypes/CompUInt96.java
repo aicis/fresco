@@ -25,7 +25,7 @@ public class CompUInt96 implements CompUInt<UInt64, UInt32, CompUInt96> {
     this.low = buffer.getInt();
   }
 
-  private CompUInt96(int high, int mid, int low) {
+  CompUInt96(int high, int mid, int low) {
     this.high = high;
     this.mid = mid;
     this.low = low;

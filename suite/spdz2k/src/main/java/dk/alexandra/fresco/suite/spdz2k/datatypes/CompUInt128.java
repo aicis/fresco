@@ -50,7 +50,7 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
     this(value.toByteArray(), true);
   }
 
-  private CompUInt128(long high, int mid, int low) {
+  CompUInt128(long high, int mid, int low) {
     this.high = high;
     this.mid = mid;
     this.low = low;

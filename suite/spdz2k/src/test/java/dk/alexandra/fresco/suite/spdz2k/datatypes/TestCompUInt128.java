@@ -2,6 +2,8 @@ package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
 import java.util.Random;
@@ -262,6 +264,14 @@ public class TestCompUInt128 {
   @Test(expected = IllegalArgumentException.class)
   public void testPadIllegal() {
     new CompUInt128(new byte[50], true);
+  }
+
+  @Test
+  public void testIsZero() {
+    assertTrue(new CompUInt128(0, 0,0).isZero());
+    assertFalse(new CompUInt128(0, 0,1).isZero());
+    assertFalse(new CompUInt128(0, 1,0).isZero());
+    assertFalse(new CompUInt128(1, 0,0).isZero());
   }
 
 }
