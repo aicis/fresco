@@ -353,6 +353,12 @@ public class TestAsyncNetwork {
     // wake up the receiver for it notice it should stop
     networks.get(2).send(1, new byte[] {0x01});
     networks.get(1).receive(2);
+    // Give the receiver some time
+    try {
+      Thread.sleep(1000);
+    } catch (InterruptedException e1) {
+      e1.printStackTrace();
+    }
     // receiver should now be stopped
     try {
      networks.get(1).receive(2);
