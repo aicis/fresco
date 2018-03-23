@@ -31,14 +31,12 @@ public class TestSpdz2kCommitmentComputation extends
 
   @Test
   public void testCommitmentTwo() {
-    runTest(new TestTest<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2
-    );
+    runTest(new TestCommitment<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
 
   @Test
   public void testCommitmentThree() {
-    runTest(new TestTest<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3
-    );
+    runTest(new TestCommitment<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3);
   }
 
   @Override
@@ -61,7 +59,7 @@ public class TestSpdz2kCommitmentComputation extends
     return new Spdz2kProtocolSuite128();
   }
 
-  private static class TestTest<ResourcePoolT extends Spdz2kResourcePool<CompUInt128>>
+  private static class TestCommitment<ResourcePoolT extends Spdz2kResourcePool<CompUInt128>>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
