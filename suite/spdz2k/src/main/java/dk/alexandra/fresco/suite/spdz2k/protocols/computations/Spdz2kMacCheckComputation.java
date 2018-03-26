@@ -63,7 +63,9 @@ public class Spdz2kMacCheckComputation<
     List<Spdz2kSInt<PlainT>> authenticatedElements = opened.getFirst();
     List<PlainT> openValues = opened.getSecond();
     PlainT macKeyShare = supplier.getSecretSharedKey();
+    long start = System.currentTimeMillis();
     PlainT y = UInt.innerProduct(openValues, randomCoefficients);
+    System.out.println("Inner prod took " + (System.currentTimeMillis() - start));
     Spdz2kSInt<PlainT> r = supplier.getNextRandomElementShare();
     return builder
         .seq(seq -> computePValues(seq, authenticatedElements, r))

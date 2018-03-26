@@ -10,6 +10,10 @@ package dk.alexandra.fresco.framework;
  */
 public interface DRes<OutputT> {
 
+  default void callback(OutputT value) {
+
+  }
+
   /**
    * Gets the result of this computation. The result might not be known before evaluation has
    * reached and touched this result. i.e. calling out() before having evaluated the protocol
