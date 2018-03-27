@@ -11,6 +11,10 @@ public interface CompUInt<
     LowT extends UInt<LowT>,
     CompT extends UInt<CompT>> extends UInt<CompT> {
 
+  default Accumulator<CompT> asAcc() {
+    return null;
+  }
+
   /**
    * Get the s most significant bits as an unsigned integer of type {@link HighT}.
    */

@@ -8,6 +8,7 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.Accumulator;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntConverter;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
@@ -105,16 +106,24 @@ public class Spdz2kMacCheckComputation<
     HighT pLow = UInt.sum(
         pjList.stream().map(PlainT::getLeastSignificantAsHigh).collect(Collectors.toList()));
     PlainT p = converter.createFromHigh(pLow);
-    List<PlainT> macShares = authenticatedElements.stream()
-        .map(Spdz2kSInt::getMacShare)
-        .collect(Collectors.toList());
-    PlainT mj = UInt.innerProduct(macShares, randomCoefficients);
+    PlainT mj = computeMj(authenticatedElements);
     PlainT zj = macKeyShare.multiply(y)
         .subtract(mj)
         .subtract(p.multiply(macKeyShare).shiftLowIntoHigh())
         .add(r.getMacShare().shiftLowIntoHigh());
     return new Spdz2kCommitmentComputation(commitmentSerializer, serializer.serialize(zj),
         noOfParties).buildComputation(builder);
+  }
+
+  private PlainT computeMj(List<Spdz2kSInt<PlainT>> authenticatedElements) {
+    Accumulator<PlainT> acc = authenticatedElements.get(0).getMacShare()
+        .multiply(randomCoefficients.get(0)).asAcc();
+    for (int i = 1; i < authenticatedElements.size(); i++) {
+      PlainT macShare = authenticatedElements.get(i).getMacShare();
+      PlainT randomCoefficient = randomCoefficients.get(i);
+      acc.add(macShare.multiply(randomCoefficient));
+    }
+    return acc.getResult();
   }
 
   /**
@@ -132,16 +141,9 @@ public class Spdz2kMacCheckComputation<
   }
 
   /**
-   * For each share v, where low denotes the value representing the k lower bits of v, and s is the
-   * number of upper bits, compute ((low - s) % 2^{k + s} >> k) % 2^s.
+   * For value, where low denotes the value representing the k lower bits of v, and s is the number
+   * of upper bits, compute ((low - s) % 2^{k + s} >> k) % 2^s.
    */
-  private List<HighT> computeDifference(List<PlainT> originalShares,
-      CompUIntConverter<HighT, LowT, PlainT> converter) {
-    return originalShares.stream()
-        .map(this::computeDifference)
-        .collect(Collectors.toList());
-  }
-
   private HighT computeDifference(PlainT value) {
     PlainT low = converter.createFromLow(value.getLeastSignificant());
     return low.subtract(value).getMostSignificant();

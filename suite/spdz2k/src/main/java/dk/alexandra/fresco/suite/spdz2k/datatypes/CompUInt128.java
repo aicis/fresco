@@ -63,7 +63,7 @@ public final class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> 
     this(value.toByteArray(), true);
   }
 
-  private CompUInt128(long high, int mid, int low) {
+  public CompUInt128(long high, int mid, int low) {
     this.high = high;
     this.mid = mid;
     this.low = low;
@@ -212,6 +212,23 @@ public final class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> 
     toByteArray(bytes, 4, mid);
     toByteArrayLong(bytes, 8, high);
     return bytes;
+  }
+
+  @Override
+  public Accumulator<CompUInt128> asAcc() {
+    return new CompUInt128Accumulator(this);
+  }
+
+  long getHigh() {
+    return high;
+  }
+
+  int getMid() {
+    return mid;
+  }
+
+  int getLow() {
+    return low;
   }
 
   private void toByteArrayLong(byte[] bytes, int start, long value) {
