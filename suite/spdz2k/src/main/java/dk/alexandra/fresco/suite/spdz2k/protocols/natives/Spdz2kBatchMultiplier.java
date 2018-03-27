@@ -60,7 +60,8 @@ public class Spdz2kBatchMultiplier<PlainT extends CompUInt<?, ?, PlainT>> extend
       serializeAndSend(network, resourcePool.getFactory(), epsilons, deltas);
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
-      receiveAndReconstruct(network, resourcePool.getFactory(), resourcePool.getNoOfParties());
+      receiveAndReconstruct(network, resourcePool.getFactory(), resourcePool.getMyId(),
+          resourcePool.getNoOfParties());
       PlainT zero = resourcePool.getFactory().zero();
       for (int i = 0; i < openEpsilons.size(); i++) {
         // compute [prod] = [c] + epsilons * [b] + deltas * [a] + epsilons * deltas
@@ -84,22 +85,25 @@ public class Spdz2kBatchMultiplier<PlainT extends CompUInt<?, ?, PlainT>> extend
   /**
    * Retrieves shares for epsilons and deltas and reconstructs each.
    */
-  private void receiveAndReconstruct(Network network,
-      CompUIntFactory<PlainT> factory, int noOfParties) {
+  private void receiveAndReconstruct(Network network, CompUIntFactory<PlainT> factory, int myId,
+      int noOfParties) {
     for (int i = 0; i < epsilons.size(); i++) {
-      openEpsilons.add(factory.zero());
-      openDeltas.add(factory.zero());
+      openEpsilons.add(epsilons.get(i).getShare().clearHigh());
+      openDeltas.add(deltas.get(i).getShare().clearHigh());
     }
     int byteLength = factory.getLowBitLength() / Byte.SIZE;
-    for (int i = 1; i <= noOfParties; i++) {
-      byte[] rawEpsilons = network.receive(i);
-      byte[] rawDeltas = network.receive(i);
-      for (int j = 0; j < epsilons.size(); j++) {
-        int chunkIndex = j * byteLength;
-        openEpsilons.set(j, openEpsilons.get(j)
-            .add(factory.createFromBytes(rawEpsilons, chunkIndex, byteLength)));
-        openDeltas.set(j, openDeltas.get(j)
-            .add(factory.createFromBytes(rawDeltas, chunkIndex, byteLength)));
+    for (int partyId = 1; partyId <= noOfParties; partyId++) {
+      // need to receive own shares to clear buffers
+      byte[] rawEpsilons = network.receive(partyId);
+      byte[] rawDeltas = network.receive(partyId);
+      if (myId != partyId) {
+        for (int j = 0; j < epsilons.size(); j++) {
+          int chunkIndex = j * byteLength;
+          openEpsilons.set(j, openEpsilons.get(j)
+              .add(factory.createFromBytes(rawEpsilons, chunkIndex, byteLength)));
+          openDeltas.set(j, openDeltas.get(j)
+              .add(factory.createFromBytes(rawDeltas, chunkIndex, byteLength)));
+        }
       }
     }
   }

@@ -45,7 +45,7 @@ public interface CompUInt<
    * Sets most significant bits to 0.
    */
   default CompT clearHigh() {
-    
+    throw new UnsupportedOperationException();
   }
 
   /**

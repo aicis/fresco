@@ -136,6 +136,11 @@ public final class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> 
   }
 
   @Override
+  public CompUInt128 clearHigh() {
+    return new CompUInt128(0, mid, low);
+  }
+
+  @Override
   public CompUInt128 subtract(CompUInt128 other) {
     return this.add(other.negate());
   }
