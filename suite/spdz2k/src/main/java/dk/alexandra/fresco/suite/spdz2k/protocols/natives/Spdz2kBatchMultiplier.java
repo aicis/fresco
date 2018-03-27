@@ -2,7 +2,6 @@ package dk.alexandra.fresco.suite.spdz2k.protocols.natives;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
@@ -23,6 +22,8 @@ public class Spdz2kBatchMultiplier<PlainT extends CompUInt<?, ?, PlainT>> extend
   private List<Spdz2kTriple<PlainT>> triples;
   private List<Spdz2kSInt<PlainT>> epsilons;
   private List<Spdz2kSInt<PlainT>> deltas;
+  private List<PlainT> openEpsilons;
+  private List<PlainT> openDeltas;
 
   public Spdz2kBatchMultiplier() {
     this.leftFactors = new LinkedList<>();
@@ -43,6 +44,8 @@ public class Spdz2kBatchMultiplier<PlainT extends CompUInt<?, ?, PlainT>> extend
     if (round == 0) {
       epsilons = new ArrayList<>(leftFactors.size());
       deltas = new ArrayList<>(rightFactors.size());
+      openEpsilons = new ArrayList<>(leftFactors.size());
+      openDeltas = new ArrayList<>(leftFactors.size());
       triples = resourcePool.getDataSupplier().getNextTripleShares(leftFactors.size());
       int i = 0;
       while (!leftFactors.isEmpty()) {
@@ -57,28 +60,21 @@ public class Spdz2kBatchMultiplier<PlainT extends CompUInt<?, ?, PlainT>> extend
       serializeAndSend(network, resourcePool.getFactory(), epsilons, deltas);
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
-      List<Pair<PlainT, PlainT>> epsilonAndDelta = receiveAndReconstruct(network,
-          resourcePool.getFactory(),
-          resourcePool.getNoOfParties()
-      );
-      List<PlainT> plainEs = new ArrayList<>(epsilons.size());
-      List<PlainT> plainDs = new ArrayList<>(epsilons.size());
+      receiveAndReconstruct(network, resourcePool.getFactory(), resourcePool.getNoOfParties());
       PlainT zero = resourcePool.getFactory().zero();
-      for (int i = 0; i < epsilonAndDelta.size(); i++) {
+      for (int i = 0; i < openEpsilons.size(); i++) {
         // compute [prod] = [c] + epsilons * [b] + deltas * [a] + epsilons * deltas
-        PlainT e = epsilonAndDelta.get(i).getFirst();
-        PlainT d = epsilonAndDelta.get(i).getSecond();
+        PlainT e = openEpsilons.get(i);
+        PlainT d = openDeltas.get(i);
         PlainT ed = e.multiply(d);
         SInt product = triples.get(i).getProduct()
             .add(triples.get(i).getRight().multiply(e))
             .add(triples.get(i).getLeft().multiply(d))
             .addConstant(ed, macKeyShare, zero, resourcePool.getMyId() == 1);
-        plainEs.add(e);
-        plainDs.add(d);
         deferredProducts.add(product);
       }
-      resourcePool.getOpenedValueStore().pushOpenedValues(epsilons, plainEs);
-      resourcePool.getOpenedValueStore().pushOpenedValues(deltas, plainDs);
+      resourcePool.getOpenedValueStore().pushOpenedValues(epsilons, openEpsilons);
+      resourcePool.getOpenedValueStore().pushOpenedValues(deltas, openDeltas);
       epsilons.clear();
       deltas.clear();
       return EvaluationStatus.IS_DONE;
@@ -88,15 +84,11 @@ public class Spdz2kBatchMultiplier<PlainT extends CompUInt<?, ?, PlainT>> extend
   /**
    * Retrieves shares for epsilons and deltas and reconstructs each.
    */
-  private List<Pair<PlainT, PlainT>> receiveAndReconstruct(Network network,
+  private void receiveAndReconstruct(Network network,
       CompUIntFactory<PlainT> factory, int noOfParties) {
-    // TODO possible to optimize by not recreating own shares
-    List<Pair<PlainT, PlainT>> pairs = new ArrayList<>(epsilons.size());
-    List<PlainT> epsilonShares = new ArrayList<>(epsilons.size());
-    List<PlainT> deltaShares = new ArrayList<>(epsilons.size());
     for (int i = 0; i < epsilons.size(); i++) {
-      epsilonShares.add(factory.zero());
-      deltaShares.add(factory.zero());
+      openEpsilons.add(factory.zero());
+      openDeltas.add(factory.zero());
     }
     int byteLength = factory.getLowBitLength() / Byte.SIZE;
     for (int i = 1; i <= noOfParties; i++) {
@@ -104,16 +96,12 @@ public class Spdz2kBatchMultiplier<PlainT extends CompUInt<?, ?, PlainT>> extend
       byte[] rawDeltas = network.receive(i);
       for (int j = 0; j < epsilons.size(); j++) {
         int chunkIndex = j * byteLength;
-        epsilonShares.set(j, epsilonShares.get(j)
+        openEpsilons.set(j, openEpsilons.get(j)
             .add(factory.createFromBytes(rawEpsilons, chunkIndex, byteLength)));
-        deltaShares.set(j, deltaShares.get(j)
+        openDeltas.set(j, openDeltas.get(j)
             .add(factory.createFromBytes(rawDeltas, chunkIndex, byteLength)));
       }
     }
-    for (int j = 0; j < epsilons.size(); j++) {
-      pairs.add(new Pair<>(epsilonShares.get(j), deltaShares.get(j)));
-    }
-    return pairs;
   }
 
   /**
