@@ -7,7 +7,7 @@ import java.math.BigInteger;
  * https://locklessinc.com/articles/256bit_arithmetic/. Note that this class is NOT SAFE to
  * instantiate with negative values.</p>
  */
-public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
+public final class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
 
   private static final CompUInt128 ONE = new CompUInt128(1);
   private final long high;

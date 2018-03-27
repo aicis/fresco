@@ -652,7 +652,7 @@ public class BasicArithmeticTests {
     }
   }
 
-  public static class TestBatchedMultiply<ResourcePoolT extends ResourcePool>
+  public static class TestBatchedMultiply<ResourcePoolT extends NumericResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
@@ -662,13 +662,13 @@ public class BasicArithmeticTests {
 
         @Override
         public void test() {
-          Application<List<DRes<SInt>>, ProtocolBuilderNumeric> app =
+          Application<List<DRes<BigInteger>>, ProtocolBuilderNumeric> app =
               producer -> producer.seq(seq -> {
                 List<BigInteger> inputsLeft = new ArrayList<>(repetitions);
                 List<BigInteger> inputsRight = new ArrayList<>(repetitions);
                 for (int i = 0; i < repetitions; i++) {
-                  inputsLeft.add(BigInteger.ONE);
-                  inputsRight.add(BigInteger.ONE);
+                  inputsLeft.add(BigInteger.valueOf(i));
+                  inputsRight.add(BigInteger.valueOf(i + 1));
                 }
                 DRes<List<DRes<SInt>>> left;
                 DRes<List<DRes<SInt>>> right;
@@ -679,9 +679,17 @@ public class BasicArithmeticTests {
                   left = seq.collections().closeList(repetitions, 1);
                   right = seq.collections().closeList(repetitions, 1);
                 }
-                return seq.collections().batchMultiply(left, right);
+                return seq.collections().openList(seq.collections().batchMultiply(left, right));
               });
-          List<DRes<SInt>> output = runApplication(app);
+          List<BigInteger> expected = new ArrayList<>(repetitions);
+          NumericResourcePool resourcePool = conf.getResourcePool();
+          for (int i = 0; i < repetitions; i++) {
+            BigInteger prod = BigInteger.valueOf(i).multiply(BigInteger.valueOf(i + 1));
+            expected.add(resourcePool.convertRepresentation(prod));
+          }
+          List<BigInteger> actual = runApplication(app).stream().map(DRes::out)
+              .collect(Collectors.toList());
+          Assert.assertEquals(expected, actual);
         }
       };
     }

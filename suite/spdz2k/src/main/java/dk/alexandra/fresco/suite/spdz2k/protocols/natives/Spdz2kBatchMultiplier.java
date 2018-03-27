@@ -17,25 +17,23 @@ import java.util.List;
 public class Spdz2kBatchMultiplier<PlainT extends CompUInt<?, ?, PlainT>> extends
     Spdz2kNativeProtocol<List<DRes<SInt>>, PlainT> {
 
-  private Deque<DRes<SInt>> leftFactors;
-  private Deque<DRes<SInt>> rightFactors;
-  private Deque<DeferredSInt> deferredProducts;
+  private final Deque<DRes<SInt>> leftFactors;
+  private final Deque<DRes<SInt>> rightFactors;
+  private final Deque<SInt> deferredProducts;
   private List<Spdz2kTriple<PlainT>> triples;
   private List<Spdz2kSInt<PlainT>> epsilons;
   private List<Spdz2kSInt<PlainT>> deltas;
 
   public Spdz2kBatchMultiplier() {
-    leftFactors = new LinkedList<>();
-    rightFactors = new LinkedList<>();
-    deferredProducts = new LinkedList<>();
+    this.leftFactors = new LinkedList<>();
+    this.rightFactors = new LinkedList<>();
+    this.deferredProducts = new LinkedList<>();
   }
 
   public DRes<SInt> append(DRes<SInt> left, DRes<SInt> right) {
-    DeferredSInt deferred = new DeferredSInt();
     leftFactors.add(left);
     rightFactors.add(right);
-    deferredProducts.add(deferred);
-    return deferred;
+    return deferredProducts::pop;
   }
 
   @Override
@@ -43,8 +41,8 @@ public class Spdz2kBatchMultiplier<PlainT extends CompUInt<?, ?, PlainT>> extend
       Network network) {
     PlainT macKeyShare = resourcePool.getDataSupplier().getSecretSharedKey();
     if (round == 0) {
-      this.epsilons = new ArrayList<>(leftFactors.size());
-      this.deltas = new ArrayList<>(rightFactors.size());
+      epsilons = new ArrayList<>(leftFactors.size());
+      deltas = new ArrayList<>(rightFactors.size());
       triples = resourcePool.getDataSupplier().getNextTripleShares(leftFactors.size());
       int i = 0;
       while (!leftFactors.isEmpty()) {
@@ -77,7 +75,7 @@ public class Spdz2kBatchMultiplier<PlainT extends CompUInt<?, ?, PlainT>> extend
             .addConstant(ed, macKeyShare, zero, resourcePool.getMyId() == 1);
         plainEs.add(e);
         plainDs.add(d);
-        deferredProducts.pop().callback(product);
+        deferredProducts.add(product);
       }
       resourcePool.getOpenedValueStore().pushOpenedValues(epsilons, plainEs);
       resourcePool.getOpenedValueStore().pushOpenedValues(deltas, plainDs);
@@ -92,6 +90,7 @@ public class Spdz2kBatchMultiplier<PlainT extends CompUInt<?, ?, PlainT>> extend
    */
   private List<Pair<PlainT, PlainT>> receiveAndReconstruct(Network network,
       CompUIntFactory<PlainT> factory, int noOfParties) {
+    // TODO possible to optimize by not recreating own shares
     List<Pair<PlainT, PlainT>> pairs = new ArrayList<>(epsilons.size());
     List<PlainT> epsilonShares = new ArrayList<>(epsilons.size());
     List<PlainT> deltaShares = new ArrayList<>(epsilons.size());
@@ -117,6 +116,9 @@ public class Spdz2kBatchMultiplier<PlainT extends CompUInt<?, ?, PlainT>> extend
     return pairs;
   }
 
+  /**
+   * Serializes and sends epsilon and delta values.
+   */
   private void serializeAndSend(Network network, CompUIntFactory<PlainT> factory,
       List<Spdz2kSInt<PlainT>> epsilons, List<Spdz2kSInt<PlainT>> deltas) {
     int byteLength = factory.getLowBitLength() / Byte.SIZE;
@@ -135,25 +137,6 @@ public class Spdz2kBatchMultiplier<PlainT extends CompUInt<?, ?, PlainT>> extend
   @Override
   public List<DRes<SInt>> out() {
     return null;
-  }
-
-  private class DeferredSInt implements DRes<SInt> {
-    // should this just be a future?
-
-    private SInt value;
-
-    @Override
-    public void callback(SInt value) {
-      if (this.value != null) {
-        throw new IllegalArgumentException("Value already assigned");
-      }
-      this.value = value;
-    }
-
-    @Override
-    public SInt out() {
-      return value;
-    }
   }
 
 }
