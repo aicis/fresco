@@ -53,7 +53,7 @@ public class SpdzCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigInteg
     } else {
       if (!receiveBroadcastValidation(network, broadcastDigest)) {
         throw new MaliciousException(
-            "Malicious activity detected: SecureBroadcastUtil of commitments was not validated.");
+            "Malicious activity detected: Broadcast of commitments was not validated.");
       }
       return EvaluationStatus.IS_DONE;
     }

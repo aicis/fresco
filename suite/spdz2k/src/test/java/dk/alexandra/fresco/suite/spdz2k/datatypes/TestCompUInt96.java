@@ -2,6 +2,8 @@ package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
 import java.util.Random;
@@ -270,6 +272,14 @@ public class TestCompUInt96 {
   public void testToString() {
     UInt<CompUInt96> uint = new CompUInt96(12135);
     assertEquals("12135", uint.toString());
+  }
+
+  @Test
+  public void testIsZero() {
+    assertTrue(new CompUInt96(0, 0,0).isZero());
+    assertFalse(new CompUInt96(0, 0,1).isZero());
+    assertFalse(new CompUInt96(0, 1,0).isZero());
+    assertFalse(new CompUInt96(1, 0,0).isZero());
   }
 
 }

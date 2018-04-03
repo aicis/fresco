@@ -6,8 +6,8 @@ import dk.alexandra.fresco.lib.collections.io.CloseListTests.TestCloseAndOpenLis
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 import org.junit.Test;
 
-public abstract class Spdz2kTestSuite<MarlinResourcePoolT extends Spdz2kResourcePool<?>>
-    extends AbstractSpdz2kTest<MarlinResourcePoolT> {
+public abstract class Spdz2kTestSuite<Spdz2kResourcePoolT extends Spdz2kResourcePool<?>>
+    extends AbstractSpdz2kTest<Spdz2kResourcePoolT> {
 
   @Test
   public void testInput() {
