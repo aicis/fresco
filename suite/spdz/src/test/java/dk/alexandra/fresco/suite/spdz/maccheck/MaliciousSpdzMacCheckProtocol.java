@@ -4,11 +4,12 @@ import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.lib.helper.SequentialProtocolProducer;
 import dk.alexandra.fresco.lib.helper.SingleProtocolProducer;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
@@ -22,36 +23,36 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
   private SecureRandom rand;
   private MessageDigest digest;
   private List<BigInteger> as;
-  private SpdzStorage storage;
   private int round = 0;
   private ProtocolProducer pp;
   private Map<Integer, BigInteger> commitments;
   private BigInteger modulus;
   private MaliciousSpdzCommitProtocol comm;
   private MaliciousSpdzOpenCommitProtocol openComm;
+  private final List<SpdzSInt> closedValues;
+  private final List<BigInteger> openedValues;
+  private final BigInteger alpha;
 
   public static boolean corruptCommitRound1 = false;
   public static boolean corruptOpenCommitRound1 = false;
   public static boolean corruptCommitRound2 = false;
   public static boolean corruptOpenCommitRound2 = false;
 
-  /**
-   * Protocol which handles the MAC check internal to SPDZ. If this protocol reaches the end, no
-   * malicious activity was detected and the storage is reset.
-   *
-   * @param rand A secure randomness source
-   * @param digest A secure hash used for the commitment scheme
-   * @param storage The store containing the half-opened values to be checked
-   * @param modulus The global modulus used.
-   */
-  public MaliciousSpdzMacCheckProtocol(SecureRandom rand, MessageDigest digest, SpdzStorage storage,
-      BigInteger modulus) {
+  public MaliciousSpdzMacCheckProtocol(
+      final SecureRandom rand,
+      final MessageDigest digest,
+      final Pair<List<SpdzSInt>, List<BigInteger>> toCheck,
+      final BigInteger modulus,
+      final Drbg jointDrbg,
+      final BigInteger alpha) {
     this.rand = rand;
     this.digest = digest;
-    this.storage = storage;
-    this.commitments = new HashMap<>();
+    this.closedValues = toCheck.getFirst();
+    this.openedValues = toCheck.getSecond();
     this.modulus = modulus;
+    this.alpha = alpha;
   }
+
 
   @Override
   public <ResourcePoolT extends ResourcePool> void getNextProtocols(
@@ -77,7 +78,7 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
           throw new MaliciousException("Malicious activity detected: Opening commitments failed.");
         }
 
-        this.as = storage.getOpenedValues();
+        this.as = openedValues;
 
         // Add all s's to get the common random value:
         BigInteger s = BigInteger.ZERO;
@@ -99,7 +100,6 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
           a = a.add(aa.multiply(rs[index++])).mod(modulus);
         }
 
-        List<SpdzSInt> closedValues = storage.getClosedValues();
         // compute gamma_i as the sum of all MAC's on the opened values times
         // r_j.
         BigInteger gamma = BigInteger.ZERO;
@@ -108,7 +108,6 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
           gamma = gamma.add(rs[index++].multiply(c.getMac())).mod(modulus);
         }
 
-        BigInteger alpha = storage.getSecretSharedKey();
         // compute delta_i as: gamma_i - alpha_i*a
         BigInteger delta = gamma.subtract(alpha.multiply(a)).mod(modulus);
         // Commit to delta and open it afterwards
@@ -142,7 +141,8 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
         }
         // clean up store before returning to evaluating such that we only
         // evaluate the next macs, not those we already checked.
-        this.storage.reset();
+        openedValues.clear();
+        closedValues.clear();
         pp = null;
       }
     }
