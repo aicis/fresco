@@ -20,7 +20,7 @@ import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImp
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzOpenedValueStoreImpl;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -61,11 +61,12 @@ public class TestInputSumExample {
         suite = (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new SpdzProtocolSuite(150);
         resourcePool = () -> {
           try {
-            return (ResourcePoolT) new SpdzResourcePoolImpl(i, n,
-                new SpdzStorageImpl(new SpdzDummyDataSupplier(i, n)), new AesCtrDrbg(new byte[32]));
+            return (ResourcePoolT) new SpdzResourcePoolImpl(i, n, new SpdzOpenedValueStoreImpl(),
+                new SpdzDummyDataSupplier(i, n), new AesCtrDrbg(new byte[32]));
           } catch (Exception e) {
-            throw new RuntimeException("Your system does not support the necessary hash function.", e);
-          } 
+            throw new RuntimeException("Your system does not support the necessary hash function.",
+                e);
+          }
         };
       }
       TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> ttc =
@@ -94,7 +95,8 @@ public class TestInputSumExample {
             return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
               @Override
               public void test() throws Exception {
-                new InputSumExample().runApplication(conf.sce, conf.getResourcePool(), conf.getNetwork());
+                new InputSumExample()
+                    .runApplication(conf.sce, conf.getResourcePool(), conf.getNetwork());
               }
             };
           }
@@ -111,7 +113,8 @@ public class TestInputSumExample {
             return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
               @Override
               public void test() throws Exception {
-                new InputSumExample().runApplication(conf.sce, conf.getResourcePool(), conf.getNetwork());
+                new InputSumExample()
+                    .runApplication(conf.sce, conf.getResourcePool(), conf.getNetwork());
               }
             };
           }

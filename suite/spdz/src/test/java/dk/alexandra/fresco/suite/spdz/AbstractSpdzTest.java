@@ -41,9 +41,8 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzMascotDataSupplier;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzOpenedValueStoreImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDataSupplier;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
@@ -161,7 +160,7 @@ public abstract class AbstractSpdzTest {
     runTest(f, evalStrategy, preProStrat, noOfParties, false, modBitLength, maxBitLength);
   }
 
-  DRes<List<DRes<SInt>>> createPipe(
+  private DRes<List<DRes<SInt>>> createPipe(
       int myId, int noOfPlayers, int pipeLength,
       KryoNetNetwork pipeNetwork,
       SpdzMascotDataSupplier tripleSupplier) {
@@ -170,7 +169,7 @@ public abstract class AbstractSpdzTest {
         new BasicNumericContext(maxBitLength, tripleSupplier.getModulus(), myId, noOfPlayers))
         .createSequential();
     SpdzResourcePoolImpl tripleResourcePool =
-        new SpdzResourcePoolImpl(myId, noOfPlayers, new SpdzStorageImpl(tripleSupplier),
+        new SpdzResourcePoolImpl(myId, noOfPlayers, new SpdzOpenedValueStoreImpl(), tripleSupplier,
             new AesCtrDrbg(new byte[32]));
 
     DRes<List<DRes<SInt>>> exponentiationPipe =
@@ -255,8 +254,8 @@ public abstract class AbstractSpdzTest {
           new FilebasedStreamedStorageImpl(new InMemoryStorage());
       supplier = new SpdzStorageDataSupplier(storage, storageName, numberOfParties);
     }
-    SpdzStorage store = new SpdzStorageImpl(supplier);
-    return new SpdzResourcePoolImpl(myId, numberOfParties, store, new AesCtrDrbg(new byte[32]));
+    return new SpdzResourcePoolImpl(myId, numberOfParties, new SpdzOpenedValueStoreImpl(), supplier,
+        new AesCtrDrbg(new byte[32]));
   }
 
   private SpdzSInt[] computeSInts(DRes<List<DRes<SInt>>> pipe) {

@@ -7,7 +7,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
 import java.math.BigInteger;
 
 public class SpdzMultProtocol extends SpdzNativeProtocol<SInt> {
@@ -27,11 +27,11 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SInt> {
   @Override
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       Network network) {
-    SpdzStorage store = spdzResourcePool.getStore();
+    SpdzDataSupplier dataSupplier = spdzResourcePool.getDataSupplier();
     int noOfPlayers = spdzResourcePool.getNoOfParties();
     ByteSerializer<BigInteger> serializer = spdzResourcePool.getSerializer();
     if (round == 0) {
-      this.triple = store.getSupplier().getNextTriple();
+      this.triple = dataSupplier.getNextTriple();
 
       epsilon = ((SpdzSInt) left.out()).subtract(triple.getA());
       delta = ((SpdzSInt) right.out()).subtract(triple.getB());
@@ -60,17 +60,15 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SInt> {
       BigInteger product = e.multiply(d).mod(modulus);
       SpdzSInt ed = new SpdzSInt(
           product,
-          store.getSecretSharedKey().multiply(product).mod(modulus),
+          dataSupplier.getSecretSharedKey().multiply(product).mod(modulus),
           modulus);
       SpdzSInt res = triple.getC();
       out = res.add(triple.getB().multiply(e))
           .add(triple.getA().multiply(d))
           .add(ed, spdzResourcePool.getMyId());
       // Set the opened and closed value.
-      store.addOpenedValue(e);
-      store.addOpenedValue(d);
-      store.addClosedValue(epsilon);
-      store.addClosedValue(delta);
+      spdzResourcePool.getOpenedValueStore().pushOpenedValue(epsilon, e);
+      spdzResourcePool.getOpenedValueStore().pushOpenedValue(delta, d);
       return EvaluationStatus.IS_DONE;
     }
   }

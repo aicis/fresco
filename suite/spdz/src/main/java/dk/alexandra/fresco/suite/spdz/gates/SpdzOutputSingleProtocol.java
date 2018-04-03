@@ -5,9 +5,9 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -18,6 +18,7 @@ public class SpdzOutputSingleProtocol extends SpdzNativeProtocol<BigInteger>
   private BigInteger out;
   private int targetPlayer;
   private SpdzInputMask mask;
+  private SpdzSInt inMinusMask;
 
   public SpdzOutputSingleProtocol(DRes<SInt> in, int targetPlayer) {
     this.in = in;
@@ -32,15 +33,13 @@ public class SpdzOutputSingleProtocol extends SpdzNativeProtocol<BigInteger>
   @Override
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       Network network) {
-
     int myId = spdzResourcePool.getMyId();
-    SpdzStorage storage = spdzResourcePool.getStore();
+    SpdzDataSupplier dataSupplier = spdzResourcePool.getDataSupplier();
     ByteSerializer<BigInteger> serializer = spdzResourcePool.getSerializer();
     if (round == 0) {
-      this.mask = storage.getSupplier().getNextInputMask(targetPlayer);
+      this.mask = dataSupplier.getNextInputMask(targetPlayer);
       SpdzSInt closedValue = (SpdzSInt) this.in.out();
-      SpdzSInt inMinusMask = closedValue.subtract(this.mask.getMask());
-      storage.addClosedValue(inMinusMask);
+      inMinusMask = closedValue.subtract(this.mask.getMask());
       network.sendToAll(serializer.serialize(inMinusMask.getShare()));
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
@@ -50,7 +49,7 @@ public class SpdzOutputSingleProtocol extends SpdzNativeProtocol<BigInteger>
         openedVal = openedVal.add(serializer.deserialize(buffer));
       }
       openedVal = openedVal.mod(spdzResourcePool.getModulus());
-      storage.addOpenedValue(openedVal);
+      spdzResourcePool.getOpenedValueStore().pushOpenedValue(inMinusMask, openedVal);
       if (targetPlayer == myId) {
         openedVal = openedVal.add(this.mask.getRealValue()).mod(spdzResourcePool.getModulus());
         this.out = openedVal;

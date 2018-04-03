@@ -24,8 +24,7 @@ import dk.alexandra.fresco.suite.spdz.maccheck.MaliciousSpdzMacCheckProtocol;
 import dk.alexandra.fresco.suite.spdz.maccheck.MaliciousSpdzRoundSynchronization;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzOpenedValueStoreImpl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -152,10 +151,7 @@ public class TestMaliciousBehaviour {
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> createResourcePool(playerId, noOfParties),
-              () -> {
-                KryoNetNetwork kryoNetwork = new KryoNetNetwork(netConf.get(playerId));
-                return kryoNetwork;
-              });
+              () -> new KryoNetNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
@@ -163,15 +159,15 @@ public class TestMaliciousBehaviour {
 
   private SpdzResourcePool createResourcePool(int myId, int size) {
     SpdzDataSupplier supplier = new SpdzDummyDataSupplier(myId, size);
-    SpdzStorage store = new SpdzStorageImpl(supplier);
-    return new SpdzResourcePoolImpl(myId, size, store, new AesCtrDrbg(new byte[32]));
+    return new SpdzResourcePoolImpl(myId, size, new SpdzOpenedValueStoreImpl(), supplier,
+        new AesCtrDrbg(new byte[32]));
   }
 
   private class MaliciousSpdzProtocolSuite extends SpdzProtocolSuite {
 
     private Corrupt corrupt;
 
-    public MaliciousSpdzProtocolSuite(int maxBitLength, Corrupt corrupt) {
+    MaliciousSpdzProtocolSuite(int maxBitLength, Corrupt corrupt) {
       super(maxBitLength);
       this.corrupt = corrupt;
       switch (corrupt) {

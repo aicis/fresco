@@ -18,8 +18,7 @@ import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzOpenedValueStoreImpl;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -63,9 +62,8 @@ public class TestDistanceDemo {
   }
 
   private SpdzResourcePool createResourcePool(int myId, int size) {
-    SpdzStorage store;
-    store = new SpdzStorageImpl(new SpdzDummyDataSupplier(myId, size));
-    return new SpdzResourcePoolImpl(myId, size, store, new AesCtrDrbg(new byte[32]));
+    return new SpdzResourcePoolImpl(myId, size, new SpdzOpenedValueStoreImpl(),
+        new SpdzDummyDataSupplier(myId, size), new AesCtrDrbg(new byte[32]));
   }
 
   @Test
@@ -148,7 +146,7 @@ public class TestDistanceDemo {
         throw new RuntimeException("Communication error");
       }
     };
-    
+
     Runnable p3 = () -> {
       try {
         DistanceDemo.main(
@@ -158,7 +156,7 @@ public class TestDistanceDemo {
         throw new RuntimeException("Communication error");
       }
     };
-    
+
     Thread t1 = new Thread(p1);
     Thread t2 = new Thread(p2);
     Thread t3 = new Thread(p3);
@@ -169,53 +167,53 @@ public class TestDistanceDemo {
     t2.join();
     t3.join();
   }
-  
-  @Test(expected=IllegalArgumentException.class)
+
+  @Test(expected = IllegalArgumentException.class)
   public void testDistanceCmdLine3PartyWithInput() throws Exception {
     DistanceDemo.main(
-        new String[]{"-i", "3", "-p", "1:localhost:8081", "-p", "2:localhost:8082", 
+        new String[]{"-i", "3", "-p", "1:localhost:8081", "-p", "2:localhost:8082",
             "-p", "3:localhost:8083", "-s", "dummyArithmetic", "-x", "20", "-y", "15"});
     fail();
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testDistanceCmdLine3PartyWithInputX() throws Exception {
     DistanceDemo.main(
-        new String[]{"-i", "3", "-p", "1:localhost:8081", "-p", "2:localhost:8082", 
-            "-p", "3:localhost:8083", "-s", "dummyArithmetic", "-x", "20"});
-    fail();
-  }
-  
-  @Test(expected=IllegalArgumentException.class)
-  public void testDistanceCmdLine3PartyWithInputY() throws Exception {
-    DistanceDemo.main(
-        new String[]{"-i", "3", "-p", "1:localhost:8081", "-p", "2:localhost:8082", 
-            "-p", "3:localhost:8083", "-s", "dummyArithmetic", "-y", "15"});
-    fail();
-  }
-  
-  @Test(expected=IllegalArgumentException.class)
-  public void testDistanceCmdLine2PartyWithNoInputX() throws Exception {
-    DistanceDemo.main(
-        new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082", 
-            "-p", "3:localhost:8083", "-s", "dummyArithmetic", "-y", "15"});
-    fail();
-  }
-  
-  @Test(expected=IllegalArgumentException.class)
-  public void testDistanceCmdLine2PartyWithNoInputY() throws Exception {
-    DistanceDemo.main(
-        new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082", 
+        new String[]{"-i", "3", "-p", "1:localhost:8081", "-p", "2:localhost:8082",
             "-p", "3:localhost:8083", "-s", "dummyArithmetic", "-x", "20"});
     fail();
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class)
+  public void testDistanceCmdLine3PartyWithInputY() throws Exception {
+    DistanceDemo.main(
+        new String[]{"-i", "3", "-p", "1:localhost:8081", "-p", "2:localhost:8082",
+            "-p", "3:localhost:8083", "-s", "dummyArithmetic", "-y", "15"});
+    fail();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testDistanceCmdLine2PartyWithNoInputX() throws Exception {
+    DistanceDemo.main(
+        new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082",
+            "-p", "3:localhost:8083", "-s", "dummyArithmetic", "-y", "15"});
+    fail();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testDistanceCmdLine2PartyWithNoInputY() throws Exception {
+    DistanceDemo.main(
+        new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082",
+            "-p", "3:localhost:8083", "-s", "dummyArithmetic", "-x", "20"});
+    fail();
+  }
+
+  @Test(expected = IllegalArgumentException.class)
   public void testDistanceCmdLine2PartyWithNoInput() throws Exception {
     DistanceDemo.main(
-        new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082", 
+        new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082",
             "-p", "3:localhost:8083", "-s", "dummyArithmetic"});
     fail();
   }
-  
+
 }

@@ -20,8 +20,7 @@ import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzOpenedValueStoreImpl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,9 +42,9 @@ public class TestAggregation {
         new HashMap<>();
     for (int i : netConf.keySet()) {
       ProtocolSuite<SpdzResourcePool, ProtocolBuilderNumeric> suite = new SpdzProtocolSuite(150);
-      SpdzStorage store = new SpdzStorageImpl(new SpdzDummyDataSupplier(i, n));
       SpdzResourcePool rp =
-          new SpdzResourcePoolImpl(i, n, store, new AesCtrDrbg(new byte[32]));
+          new SpdzResourcePoolImpl(i, n, new SpdzOpenedValueStoreImpl(),
+              new SpdzDummyDataSupplier(i, n), new AesCtrDrbg(new byte[32]));
       ProtocolEvaluator<SpdzResourcePool> evaluator =
           new BatchedProtocolEvaluator<>(new SequentialStrategy<>(), suite);
       SecureComputationEngine<SpdzResourcePool, ProtocolBuilderNumeric> sce =

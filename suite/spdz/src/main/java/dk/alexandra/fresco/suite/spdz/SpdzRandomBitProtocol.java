@@ -10,7 +10,7 @@ public class SpdzRandomBitProtocol extends SpdzNativeProtocol<SInt> {
 
   @Override
   public EvaluationStatus evaluate(int round, SpdzResourcePool resourcePool, Network network) {
-    this.out = resourcePool.getStore().getSupplier().getNextBit();
+    this.out = resourcePool.getDataSupplier().getNextBit();
     return EvaluationStatus.IS_DONE;
   }
 

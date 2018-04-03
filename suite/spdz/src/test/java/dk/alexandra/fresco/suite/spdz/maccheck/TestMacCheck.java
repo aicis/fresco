@@ -23,8 +23,7 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzOpenedValueStoreImpl;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -85,10 +84,8 @@ public class TestMacCheck {
 
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce, () -> createResourcePool(playerId,
-              noOfParties, new Random(), new SecureRandom(), corruptMac), () -> {
-            KryoNetNetwork kryoNetwork = new KryoNetNetwork(netConf.get(playerId));
-            return kryoNetwork;
-          });
+              noOfParties, new Random(), new SecureRandom(), corruptMac),
+              () -> new KryoNetNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
@@ -102,34 +99,15 @@ public class TestMacCheck {
     } else {
       supplier = new SpdzDummyDataSupplier(myId, size);
     }
-    SpdzStorage store;
-    if (!corruptMac) {
-      store = new MaliciousSpdzStorage(supplier);
-    } else {
-      store = new SpdzStorageImpl(supplier);
-    }
-
-    return new SpdzResourcePoolImpl(myId, size, store, new AesCtrDrbg(new byte[32]));
-  }
-
-  private class MaliciousSpdzStorage extends SpdzStorageImpl {
-
-    public MaliciousSpdzStorage(SpdzDataSupplier supplier) {
-      super(supplier);
-    }
-
-    @Override
-    public List<SpdzSInt> getClosedValues() {
-      return new ArrayList<SpdzSInt>();
-    }
-
+    return new SpdzResourcePoolImpl(myId, size, new SpdzOpenedValueStoreImpl(), supplier,
+        new AesCtrDrbg(new byte[32]));
   }
 
   private class DummyMaliciousDataSupplier extends SpdzDummyDataSupplier {
 
     int maliciousCountdown = 10;
 
-    public DummyMaliciousDataSupplier(int myId, int numberOfPlayers) {
+    DummyMaliciousDataSupplier(int myId, int numberOfPlayers) {
       super(myId, numberOfPlayers);
     }
 

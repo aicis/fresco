@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -24,7 +23,6 @@ public class SpdzOutputToAllProtocol extends SpdzNativeProtocol<BigInteger>
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       Network network) {
 
-    SpdzStorage storage = spdzResourcePool.getStore();
     ByteSerializer<BigInteger> serializer = spdzResourcePool.getSerializer();
     if (round == 0) {
       SpdzSInt out = (SpdzSInt) in.out();
@@ -37,8 +35,7 @@ public class SpdzOutputToAllProtocol extends SpdzNativeProtocol<BigInteger>
         openedVal = openedVal.add(serializer.deserialize(buffer));
       }
       openedVal = openedVal.mod(spdzResourcePool.getModulus());
-      storage.addOpenedValue(openedVal);
-      storage.addClosedValue(((SpdzSInt) in.out()));
+      spdzResourcePool.getOpenedValueStore().pushOpenedValue(((SpdzSInt) in.out()), openedVal);
       BigInteger tmpOut = openedVal;
       tmpOut = spdzResourcePool.convertRepresentation(tmpOut);
       this.out = tmpOut;
