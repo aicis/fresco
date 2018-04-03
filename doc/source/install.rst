@@ -35,7 +35,15 @@ your projects POM file. E.g., to use the ``core`` module add the dependency
     <version>1.0.1-SNAPSHOT</version>
   </dependency>
 
-possibly incrementing the version number to the current version.
+possibly incrementing the version number to the current version. Note that in order to use one of the :ref:`protocol suites <protocol_suites>` in your project, you will need to add it as a dependency as well. For instance, if you want to use the SPDZ protocol suite, your POM file will need to include:
+
+.. sourcecode:: xml
+
+  <dependency>
+    <groupId>dk.alexandra.fresco</groupId>
+    <artifactId>spdz</artifactId>
+    <version>1.0.1-SNAPSHOT</version>
+  </dependency>
 
 Using the Latest Release
 ------------------------
@@ -45,13 +53,19 @@ site https://github.com/aicis/fresco/releases, and run ``mvn install`` as descri
 
 Alternatively If your project uses Maven you could just add the dependency to your projects POM file
 and have Maven download the dependency from the Central Repository. E.g., to use a release version
-of the ``core`` module add the dependency
+of the ``core`` and ``spdz`` modules add the dependencies
 
 .. sourcecode:: xml
 
   <dependency>
     <groupId>dk.alexandra.fresco</groupId>
     <artifactId>core</artifactId>
+    <version>1.0.0</version>
+  </dependency>
+
+  <dependency>
+    <groupId>dk.alexandra.fresco</groupId>
+    <artifactId>spdz</artifactId>
     <version>1.0.0</version>
   </dependency>
 
