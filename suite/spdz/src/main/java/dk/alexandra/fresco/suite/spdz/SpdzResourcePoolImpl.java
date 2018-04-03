@@ -8,7 +8,6 @@ import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.OpenedValueStore;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 
@@ -18,7 +17,6 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
   private final int modulusSize;
   private final BigInteger modulus;
   private final BigInteger modulusHalf;
-  private SpdzStorage storage;
   private final OpenedValueStore<SpdzSInt, BigInteger> openedValueStore;
   private final SpdzDataSupplier dataSupplier;
   private Drbg drbg;
@@ -41,7 +39,7 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
         () -> MessageDigest.getInstance("SHA-256"),
         "Configuration error, SHA-256 is needed for Spdz");
     // Initialize various fields global to the computation.
-    this.modulus = storage.getSupplier().getModulus();
+    this.modulus = dataSupplier.getModulus();
     this.modulusHalf = this.modulus.divide(BigInteger.valueOf(2));
     this.modulusSize = this.modulus.toByteArray().length;
     this.drbg = drbg;
@@ -55,11 +53,6 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
   @Override
   public ByteSerializer<BigInteger> getSerializer() {
     return new BigIntegerWithFixedLengthSerializer(modulusSize);
-  }
-
-  @Override
-  public SpdzStorage getStore() {
-    return storage;
   }
 
   @Override

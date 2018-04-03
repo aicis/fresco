@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.OpenedValueStore;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 
@@ -30,13 +29,6 @@ public interface SpdzResourcePool extends NumericResourcePool {
    * @return An instance of a DRBG.
    */
   Drbg getRandomGenerator();
-
-  /**
-   * Gets the Spdz store.
-   *
-   * @return the store
-   */
-  SpdzStorage getStore();
 
   /**
    * Returns instance of {@link OpenedValueStore} which tracks all opened, unchecked values.
