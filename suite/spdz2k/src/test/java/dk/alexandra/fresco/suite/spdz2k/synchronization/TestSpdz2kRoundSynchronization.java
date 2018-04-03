@@ -78,11 +78,4 @@ public class TestSpdz2kRoundSynchronization extends
     }
   }
 
-  private class MockSpdz2kOpenedValueStoreImpl extends Spdz2kOpenedValueStoreImpl<CompUInt128> {
-
-    @Override
-    public boolean exceedsThreshold(int threshold) {
-      return true;
-    }
-  }
 }
