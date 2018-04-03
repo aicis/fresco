@@ -57,6 +57,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
   public SpdzSInt[] getNextExpPipe() {
     List<Pair<BigInteger,BigInteger>> rawExpPipe = supplier.getExpPipe(expPipeLength);
     return rawExpPipe.stream()
+        .map(this::toSpdzSInt)
         .toArray(SpdzSInt[]::new);
   }
 
