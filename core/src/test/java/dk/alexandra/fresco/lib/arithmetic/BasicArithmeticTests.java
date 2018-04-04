@@ -5,15 +5,15 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.Collections;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
+import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.math.integer.min.MinInfFrac;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -38,7 +38,7 @@ public class BasicArithmeticTests {
       BigInteger value = BigInteger.valueOf(10);
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
-        public void test() throws Exception {
+        public void test() {
           Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
             Numeric numeric = producer.numeric();
 
@@ -61,20 +61,255 @@ public class BasicArithmeticTests {
       BigInteger value = BigInteger.valueOf(10);
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
-        public void test() throws Exception {
+        public void test() {
+          for (int partyId = 1; partyId <= conf.getResourcePool().getNoOfParties(); partyId++) {
+            final int finalPartyId = partyId;
+            Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
+              Numeric numeric = producer.numeric();
+              DRes<SInt> input = numeric.known(value);
+              return numeric.open(input, finalPartyId);
+            };
+            BigInteger output = runApplication(app);
+            if (conf.getMyId() == finalPartyId) {
+              Assert.assertEquals(BigInteger.valueOf(10), output);
+            } else {
+              Assert.assertNull(output);
+            }
+          }
+        }
+      };
+    }
+  }
+
+  public static class TestAdd<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigInteger leftValue = BigInteger.valueOf(10);
+      BigInteger rightValue = BigInteger.valueOf(4);
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() {
           Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
             Numeric numeric = producer.numeric();
-
-            DRes<SInt> input = numeric.known(value);
-            return numeric.open(input, 2);
+            DRes<SInt> left = numeric.input(leftValue, 1);
+            DRes<SInt> right = numeric.input(rightValue, 1);
+            DRes<SInt> result = numeric.add(left, right);
+            return numeric.open(result);
           };
           BigInteger output = runApplication(app);
+          Assert.assertEquals(leftValue.add(rightValue), output);
+        }
+      };
+    }
+  }
 
-          if (conf.getMyId() == 2) {
-            Assert.assertEquals(BigInteger.valueOf(10), output);
-          } else {
-            Assert.assertNull(output);
-          }
+  public static class TestAddWithOverflow<ResourcePoolT extends NumericResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() {
+          BigInteger modulus = conf.getResourcePool().getModulus();
+          BigInteger leftValue = modulus.subtract(BigInteger.ONE);
+          BigInteger rightValue = BigInteger.valueOf(4);
+          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
+            Numeric numeric = producer.numeric();
+            DRes<SInt> left = numeric.input(leftValue, 1);
+            DRes<SInt> right = numeric.input(rightValue, 1);
+            DRes<SInt> result = numeric.add(left, right);
+            return numeric.open(result);
+          };
+          ResourcePoolT resourcePool = conf.getResourcePool();
+          BigInteger output = runApplication(app);
+          Assert
+              .assertEquals(resourcePool.convertRepresentation(leftValue.add(rightValue)), output);
+        }
+      };
+    }
+
+  }
+
+  public static class TestMultiply<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigInteger leftValue = BigInteger.valueOf(10);
+      BigInteger rightValue = BigInteger.valueOf(4);
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() {
+          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
+            Numeric numeric = producer.numeric();
+            DRes<SInt> left = numeric.input(leftValue, 1);
+            DRes<SInt> right = numeric.input(rightValue, 1);
+            DRes<SInt> result = numeric.mult(left, right);
+            return numeric.open(result);
+          };
+          BigInteger output = runApplication(app);
+          Assert.assertEquals(leftValue.multiply(rightValue), output);
+        }
+      };
+    }
+  }
+
+  public static class TestMultiplyByZero<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigInteger leftValue = BigInteger.valueOf(10);
+      BigInteger rightValue = BigInteger.valueOf(0);
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() {
+          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
+            Numeric numeric = producer.numeric();
+            DRes<SInt> left = numeric.input(leftValue, 1);
+            DRes<SInt> right = numeric.input(rightValue, 1);
+            DRes<SInt> result = numeric.mult(left, right);
+            return numeric.open(result);
+          };
+          BigInteger output = runApplication(app);
+          Assert.assertEquals(BigInteger.ZERO, output);
+        }
+      };
+    }
+  }
+
+  public static class TestMultiplyWithOverflow<ResourcePoolT extends NumericResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() {
+          BigInteger modulus = conf.getResourcePool().getModulus();
+          BigInteger leftValue = modulus.subtract(BigInteger.ONE);
+          BigInteger rightValue = BigInteger.valueOf(2);
+          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
+            Numeric numeric = producer.numeric();
+            DRes<SInt> left = numeric.input(leftValue, 1);
+            DRes<SInt> right = numeric.input(rightValue, 1);
+            DRes<SInt> result = numeric.mult(left, right);
+            return numeric.open(result);
+          };
+          ResourcePoolT resourcePool = conf.getResourcePool();
+          BigInteger output = runApplication(app);
+          Assert.assertEquals(resourcePool.convertRepresentation(leftValue.multiply(rightValue)),
+              output);
+        }
+      };
+    }
+
+  }
+
+  public static class TestSubtract<ResourcePoolT extends NumericResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigInteger left = BigInteger.valueOf(10);
+      BigInteger right = BigInteger.valueOf(4);
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() {
+          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
+            Numeric numeric = producer.numeric();
+            DRes<SInt> leftClosed = numeric.input(left, 1);
+            DRes<SInt> rightClosed = numeric.input(right, 1);
+            DRes<SInt> result = numeric.sub(leftClosed, rightClosed);
+            return numeric.open(result);
+          };
+          ResourcePoolT resourcePool = conf.getResourcePool();
+          BigInteger expected = resourcePool
+              .convertRepresentation(left.subtract(right).mod(resourcePool.getModulus()));
+          BigInteger actual = runApplication(app);
+          Assert.assertEquals(expected, actual);
+        }
+      };
+    }
+  }
+
+  public static class TestSubtractNegative<ResourcePoolT extends NumericResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigInteger left = BigInteger.valueOf(4);
+      BigInteger right = BigInteger.valueOf(10);
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() {
+          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
+            Numeric numeric = producer.numeric();
+            DRes<SInt> leftClosed = numeric.input(left, 1);
+            DRes<SInt> rightClosed = numeric.input(right, 1);
+            DRes<SInt> result = numeric.sub(leftClosed, rightClosed);
+            return numeric.open(result);
+          };
+          ResourcePoolT resourcePool = conf.getResourcePool();
+          BigInteger expected = resourcePool
+              .convertRepresentation(left.subtract(right).mod(resourcePool.getModulus()));
+          BigInteger actual = runApplication(app);
+          Assert.assertEquals(expected, actual);
+        }
+      };
+    }
+  }
+
+  public static class TestSubtractPublic<ResourcePoolT extends NumericResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigInteger left = BigInteger.valueOf(4);
+      BigInteger right = BigInteger.valueOf(10);
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() {
+          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
+            Numeric numeric = producer.numeric();
+            DRes<SInt> leftClosed = numeric.input(left, 1);
+            DRes<SInt> result = numeric.sub(leftClosed, right);
+            return numeric.open(result);
+          };
+          ResourcePoolT resourcePool = conf.getResourcePool();
+          BigInteger expected = resourcePool
+              .convertRepresentation(left.subtract(right).mod(resourcePool.getModulus()));
+          BigInteger actual = runApplication(app);
+          Assert.assertEquals(expected, actual);
+        }
+      };
+    }
+  }
+
+  public static class TestSubtractFromPublic<ResourcePoolT extends NumericResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigInteger left = BigInteger.valueOf(4);
+      BigInteger right = BigInteger.valueOf(10);
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() {
+          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
+            Numeric numeric = producer.numeric();
+            DRes<SInt> rightClosed = numeric.input(right, 1);
+            DRes<SInt> result = numeric.sub(left, rightClosed);
+            return numeric.open(result);
+          };
+          ResourcePoolT resourcePool = conf.getResourcePool();
+          BigInteger expected = resourcePool
+              .convertRepresentation(left.subtract(right).mod(resourcePool.getModulus()));
+          BigInteger actual = runApplication(app);
+          Assert.assertEquals(expected, actual);
         }
       };
     }
@@ -89,7 +324,7 @@ public class BasicArithmeticTests {
       BigInteger add = BigInteger.valueOf(4);
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
-        public void test() throws Exception {
+        public void test() {
           Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
             Numeric numeric = producer.numeric();
 
@@ -105,13 +340,96 @@ public class BasicArithmeticTests {
     }
   }
 
-  public static class TestOpenWithConversion<ResourcePoolT extends ResourcePool>
+  public static class TestMultiplyByPublicValue<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigInteger value = BigInteger.valueOf(10);
+      BigInteger constant = BigInteger.valueOf(4);
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() {
+          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
+            Numeric numeric = producer.numeric();
+            DRes<SInt> input = numeric.input(value, 1);
+            DRes<SInt> result = numeric.mult(constant, input);
+            return numeric.open(result);
+          };
+          BigInteger output = runApplication(app);
+
+          Assert.assertEquals(value.multiply(constant), output);
+        }
+      };
+    }
+  }
+
+  public static class TestRandomBit<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
-        public void test() throws Exception {
+        public void test() {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = producer -> {
+            Numeric numeric = producer.numeric();
+            Collections collections = producer.collections();
+            int numBits = 10;
+            List<DRes<SInt>> bits = new ArrayList<>(numBits);
+            for (int i = 0; i < numBits; i++) {
+              bits.add(numeric.randomBit());
+            }
+            DRes<List<DRes<BigInteger>>> opened = collections.openList(() -> bits);
+            return () -> opened.out().stream().map(DRes::out)
+                .collect(Collectors.toList());
+          };
+          List<BigInteger> bits = runApplication(app);
+          for (BigInteger bit : bits) {
+            Assert.assertTrue("Expected bit but was " + bit,
+                bit.equals(BigInteger.ZERO) || bit.equals(BigInteger.ONE));
+          }
+        }
+      };
+    }
+  }
+
+  public static class TestRandomElement<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = producer -> {
+            Numeric numeric = producer.numeric();
+            Collections collections = producer.collections();
+            int numElements = 10;
+            List<DRes<SInt>> elements = new ArrayList<>(numElements);
+            for (int i = 0; i < numElements; i++) {
+              elements.add(numeric.randomElement());
+            }
+            DRes<List<DRes<BigInteger>>> opened = collections.openList(() -> elements);
+            return () -> opened.out().stream().map(DRes::out)
+                .collect(Collectors.toList());
+          };
+          List<BigInteger> elements = runApplication(app);
+          assertAllDifferent(elements);
+          Assert.assertEquals(10, elements.size());
+        }
+      };
+    }
+  }
+
+  public static class TestOpenWithConversion<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() {
           Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app = producer -> {
             BigInteger modulus = producer.getBasicNumericContext().getModulus();
             BigInteger input = modulus.divide(BigInteger.valueOf(2)).add(BigInteger.ONE);
@@ -119,9 +437,7 @@ public class BasicArithmeticTests {
             DRes<SInt> closed = numeric.input(input, 1);
             DRes<BigInteger> opened = numeric.open(closed);
             BigInteger expected = input.subtract(modulus);
-            return () -> {
-              return new Pair<>(opened.out(), expected);
-            };
+            return () -> new Pair<>(opened.out(), expected);
           };
           Pair<BigInteger, BigInteger> actualAndExpected = runApplication(app);
           Assert.assertEquals(actualAndExpected.getSecond(), actualAndExpected.getFirst());
@@ -139,7 +455,7 @@ public class BasicArithmeticTests {
           Stream.of(200, 300, 1, 2).map(BigInteger::valueOf).collect(Collectors.toList());
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
-        public void test() throws Exception {
+        public void test() {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app =
               producer -> producer.par(par -> {
                 Numeric numeric = par.numeric();
@@ -171,7 +487,7 @@ public class BasicArithmeticTests {
               .map(BigInteger::valueOf).collect(Collectors.toList());
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
-        public void test() throws Exception {
+        public void test() {
           Application<BigInteger, ProtocolBuilderNumeric> app = producer -> producer.par(par -> {
             Numeric numeric = par.numeric();
             List<DRes<SInt>> result =
@@ -205,7 +521,7 @@ public class BasicArithmeticTests {
       BigInteger second = BigInteger.valueOf(5);
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
-        public void test() throws Exception {
+        public void test() {
           Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
             Numeric numeric = producer.numeric();
 
@@ -240,7 +556,7 @@ public class BasicArithmeticTests {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         @Override
-        public void test() throws Exception {
+        public void test() {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app =
               producer -> producer.par(par -> {
                 Numeric numeric = par.numeric();
@@ -274,60 +590,6 @@ public class BasicArithmeticTests {
     }
   }
 
-  public static class TestMinInfFrac<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
-
-    @Override
-    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-
-      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
-        @Override
-        public void test() throws Exception {
-          Application<List<BigInteger>, ProtocolBuilderNumeric> app = producer -> {
-            List<BigInteger> bns = Arrays.asList(BigInteger.valueOf(10), BigInteger.valueOf(2),
-                BigInteger.valueOf(30), BigInteger.valueOf(1), BigInteger.valueOf(50),
-                BigInteger.valueOf(10), BigInteger.valueOf(20), BigInteger.valueOf(30),
-                BigInteger.valueOf(5), BigInteger.valueOf(1));
-            List<BigInteger> bds = Arrays.asList(BigInteger.valueOf(10), BigInteger.valueOf(10),
-                BigInteger.valueOf(10), BigInteger.valueOf(10), BigInteger.valueOf(10),
-                BigInteger.valueOf(10), BigInteger.valueOf(20), BigInteger.valueOf(30),
-                BigInteger.valueOf(500), BigInteger.valueOf(50));
-            List<BigInteger> binfs = Arrays.asList(BigInteger.valueOf(0), BigInteger.valueOf(0),
-                BigInteger.valueOf(0), BigInteger.valueOf(1), BigInteger.valueOf(0),
-                BigInteger.valueOf(0), BigInteger.valueOf(0), BigInteger.valueOf(0),
-                BigInteger.valueOf(1), BigInteger.valueOf(1));
-            Numeric numeric = producer.numeric();
-            List<DRes<SInt>> ns =
-                bns.stream().map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
-            List<DRes<SInt>> ds =
-                bds.stream().map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
-            List<DRes<SInt>> infs =
-                binfs.stream().map((n) -> numeric.input(n, 1)).collect(Collectors.toList());
-
-            return producer.seq(new MinInfFrac(ns, ds, infs)).seq((seq2, infOutput) -> {
-              Numeric innerNumeric = seq2.numeric();
-              List<DRes<BigInteger>> collect =
-                  infOutput.cs.stream().map(innerNumeric::open).collect(Collectors.toList());
-              return () -> collect.stream().map(DRes::out).collect(Collectors.toList());
-            });
-          };
-          List<BigInteger> outputs = runApplication(app);
-          int sum = 0;
-          for (int i = 0; i < outputs.size(); i++) {
-            sum += outputs.get(i).intValue();
-            if (i == 1) {
-              Assert.assertEquals(BigInteger.ONE, outputs.get(i));
-            } else {
-              Assert.assertEquals(BigInteger.ZERO, outputs.get(i));
-            }
-          }
-          Assert.assertEquals(1, sum);
-
-        }
-      };
-    }
-  }
-
   /**
    * Test a computation of doing a many multiplications and additions alternating between the two.
    * This should ensure batches with both types of protocols.
@@ -342,7 +604,7 @@ public class BasicArithmeticTests {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         @Override
-        public void test() throws Exception {
+        public void test() {
           final int numberOfComputations = 1000;
           Application<List<BigInteger>, ProtocolBuilderNumeric> app =
               producer -> producer.par(par -> {
@@ -386,6 +648,16 @@ public class BasicArithmeticTests {
           }
         }
       };
+    }
+  }
+
+  private static void assertAllDifferent(List<BigInteger> elements) {
+    for (int i = 0; i < elements.size(); i++) {
+      for (int j = 0; j < elements.size(); j++) {
+        if (i != j) {
+          Assert.assertNotEquals(elements.get(i), elements.get(j));
+        }
+      }
     }
   }
 }

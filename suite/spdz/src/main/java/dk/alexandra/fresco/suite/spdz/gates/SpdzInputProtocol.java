@@ -49,7 +49,7 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
     } else {
       boolean validated = receiveBroadcastValidation(network, digest);
       if (!validated) {
-        throw new MaliciousException("Broadcast digests did not match");
+        throw new MaliciousException("SecureBroadcastUtil digests did not match");
       }
       SpdzElement valueMaskedElement =
           new SpdzElement(

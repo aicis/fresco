@@ -9,7 +9,32 @@ import java.util.List;
 public class ByteAndBitConverter {
 
   // This is supposed to be a "static class", ie no instantiation
-  private ByteAndBitConverter() {}
+  private ByteAndBitConverter() {
+  }
+
+  /**
+   * Converts long to big-endian byte array.
+   */
+  public static byte[] toByteArray(long value) {
+    byte[] bytes = new byte[8];
+    for (int i = 7; i >= 0; i--) {
+      bytes[i] = (byte) (value & 0xFF);
+      value >>= 8;
+    }
+    return bytes;
+  }
+
+  /**
+   * Converts int to big-endian byte array.
+   */
+  public static byte[] toByteArray(int value) {
+    byte[] bytes = new byte[4];
+    for (int i = 3; i >= 0; i--) {
+      bytes[i] = (byte) (value & 0xFF);
+      value >>= 8;
+    }
+    return bytes;
+  }
 
   /**
    * Converts an int to its bit representation.
@@ -63,8 +88,8 @@ public class ByteAndBitConverter {
     }
 
     StringBuilder binb = new StringBuilder();
-    for (int i = 0; i < niceBits.length; i++) {
-      binb.append(niceBits[i] ? "1" : "0");
+    for (boolean niceBit : niceBits) {
+      binb.append(niceBit ? "1" : "0");
     }
     String bin = binb.toString();
     for (int i = 0; i < bin.length() / 4; i++) {

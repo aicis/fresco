@@ -1,3 +1,4 @@
+.. _protocol_suites:
 
 Protocol Suites
 ===============
