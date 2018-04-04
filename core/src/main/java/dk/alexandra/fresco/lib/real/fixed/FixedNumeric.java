@@ -9,6 +9,7 @@ import dk.alexandra.fresco.lib.real.fixed.utils.Truncate;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.util.Objects;
 
 /**
  * An implementation of the {@link RealNumeric} ComputationDirectory based on a fixed point
@@ -26,7 +27,8 @@ public class FixedNumeric implements RealNumeric {
    *
    * @param builder a ProtocolBuilder for the numeric computations which will be used to implement
    *        the fixed point operations.
-   * @param precision the precision used for the fixed point numbers.
+   * @param precision the precision used for the fixed point numbers. The precision must be in the
+   *        range <i>0 ... <code>builder.getMaxBitLength</code> / 4</i>.
    */
   public FixedNumeric(ProtocolBuilderNumeric builder, int precision) {
     this.builder = builder;
@@ -35,12 +37,11 @@ public class FixedNumeric implements RealNumeric {
      * We reserve as many bits the integer part as for the fractional part and to be able to
      * represent products, we need to be able to hold twice that under the max bit length.
      */
+    Objects.requireNonNull(builder);
     this.maxPrecision = builder.getBasicNumericContext().getMaxBitLength() / 4;
-    if (defaultPrecision > maxPrecision) {
+    if (defaultPrecision < 0 || defaultPrecision > maxPrecision) {
       throw new IllegalArgumentException(
-          "The precision was chosen too large for a product of two numbers to be representable "
-              + "in this numeric context. You cannot choose a precision larger than " + maxPrecision
-              + ".");
+          "Precision must be in the range 0 ... " + maxPrecision + " but was " + defaultPrecision);
     }
   }
 
