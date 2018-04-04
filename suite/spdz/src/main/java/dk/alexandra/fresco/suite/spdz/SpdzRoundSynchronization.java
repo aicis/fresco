@@ -86,10 +86,6 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
     }
   }
 
-  public int getOpenValueThreshold() {
-    return openValueThreshold;
-  }
-
   public int getBatchSize() {
     return batchSize;
   }
