@@ -91,7 +91,7 @@ public abstract class AbstractSpdzTest {
     for (int playerId : netConf.keySet()) {
       PerformanceLoggerCountingAggregate aggregate = new PerformanceLoggerCountingAggregate();
 
-      ProtocolSuiteNumeric<SpdzResourcePool> protocolSuite = new SpdzProtocolSuite(maxBitLength);
+      ProtocolSuiteNumeric<SpdzResourcePool> protocolSuite = getProtocolSuite(maxBitLength);
       if (logPerformance) {
         protocolSuite = new NumericSuiteLogging<>(protocolSuite);
         aggregate.add((PerformanceLogger) protocolSuite);
@@ -136,6 +136,10 @@ public abstract class AbstractSpdzTest {
     }
     tripleManager.close();
     expPipeManager.close();
+  }
+
+  protected SpdzProtocolSuite getProtocolSuite(int maxBitLength) {
+    return new SpdzProtocolSuite(maxBitLength);
   }
 
   protected void runTest(
@@ -271,7 +275,7 @@ public abstract class AbstractSpdzTest {
   private void evaluate(ProtocolBuilderNumeric spdzBuilder, SpdzResourcePool tripleResourcePool,
       Network network) {
     BatchedStrategy<SpdzResourcePool> batchedStrategy = new BatchedStrategy<>();
-    SpdzProtocolSuite spdzProtocolSuite = new SpdzProtocolSuite(maxBitLength);
+    SpdzProtocolSuite spdzProtocolSuite = getProtocolSuite(maxBitLength);
     BatchedProtocolEvaluator<SpdzResourcePool> batchedProtocolEvaluator =
         new BatchedProtocolEvaluator<>(batchedStrategy, spdzProtocolSuite);
     batchedProtocolEvaluator.eval(spdzBuilder.build(), tripleResourcePool, network);

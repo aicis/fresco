@@ -12,13 +12,18 @@ import java.math.BigInteger;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestSpdzRoundSynchronization extends AbstractSpdzTest {
+public class TestSpdzRoundSynchronizationExceedsThreshold extends AbstractSpdzTest {
 
   @Test
   public void testFinishedEvalMacCheck() {
     runTest(new TestMacCheckEvalFinished<>(),
         EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Override
+  protected SpdzProtocolSuite getProtocolSuite(int maxBitLength) {
+    return new MockSpdzProtocolSuite(maxBitLength);
   }
 
   private static class TestMacCheckEvalFinished<ResourcePoolT extends SpdzResourcePool>
@@ -34,9 +39,8 @@ public class TestSpdzRoundSynchronization extends AbstractSpdzTest {
             DRes<SInt> right = root.numeric().known(BigInteger.ONE);
             return root.numeric().mult(left, right);
           };
-          // this tests verifies that the round synchronization logic works correctly when we
-          // do not have output protocols in our application but still open values during
-          // multiplication
+          // this test verifies that the round synchronization logic works when the threshold for
+          // open values is exceeded
           runApplication(testApplication);
           Assert.assertFalse(
               "There should be no unchecked opened values after the evaluation has finished",
@@ -44,6 +48,19 @@ public class TestSpdzRoundSynchronization extends AbstractSpdzTest {
         }
       };
     }
+  }
+
+  private class MockSpdzProtocolSuite extends SpdzProtocolSuite {
+
+    public MockSpdzProtocolSuite(int maxBitLength) {
+      super(maxBitLength);
+    }
+
+    @Override
+    public RoundSynchronization<SpdzResourcePool> createRoundSynchronization() {
+      return new SpdzRoundSynchronization(this, 0, 128);
+    }
+
   }
 
 }
