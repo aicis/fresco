@@ -24,7 +24,6 @@ public class MaliciousSpdzRoundSynchronization extends SpdzRoundSynchronization 
     NetworkBatchDecorator networkBatchDecorator =
         new NetworkBatchDecorator(resourcePool.getNoOfParties(), network);
     OpenedValueStore<SpdzSInt, BigInteger> store = resourcePool.getOpenedValueStore();
-    // Ensure that we have any values to do MAC check on
     MaliciousSpdzMacCheckProtocol macCheck = new MaliciousSpdzMacCheckProtocol(new SecureRandom(),
         resourcePool.getMessageDigest(),
         store.popValues(),

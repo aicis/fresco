@@ -45,7 +45,6 @@ public class TestMaliciousBehaviour {
   public void reset() {
     MaliciousSpdzMacCheckProtocol.corruptCommitRound = false;
     MaliciousSpdzMacCheckProtocol.corruptOpenCommitRound = false;
-
   }
 
   @Test

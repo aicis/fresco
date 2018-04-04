@@ -33,7 +33,7 @@ public class Spdz2kMacCheckComputation<
   private final Spdz2kDataSupplier<PlainT> supplier;
   private final List<Spdz2kSInt<PlainT>> authenticatedElements;
   private final List<PlainT> openValues;
-  private List<PlainT> randomCoefficients;
+  private final List<PlainT> randomCoefficients;
   private ByteSerializer<HashBasedCommitment> commitmentSerializer;
   private final int noOfParties;
   private final Drbg localDrbg;
