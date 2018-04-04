@@ -22,14 +22,6 @@ public class TestSpdzMisc {
     }
   }
 
-//  @Test(expected = RuntimeException.class)
-//  public void testResourcePoolStoreNotInitialized() {
-//    SpdzStorageDataSupplier dataSupplier = new SpdzStorageDataSupplier(
-//        new FilebasedStreamedStorageImpl(new InMemoryStorage()), "null",
-//        2);
-//    new SpdzResourcePoolImpl(1, 2, store, new AesCtrDrbg(new byte[32]));
-//  }
-
   @Test(expected = IllegalStateException.class)
   public void testSpdzExponentiationPipeProtocolExpPipeFailedLength() {
     SpdzDummyDataSupplier supplier = new SpdzDummyDataSupplier(1, 2, new BigInteger("251"));
