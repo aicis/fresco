@@ -33,7 +33,20 @@ public class TestSpdz2kMacCheckComputation extends
 
   @Test
   public void testInvalidMacCheck() {
-    runTest(new TestModifyOpenValue<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
+    int noOfParties = 2;
+    for (int cheatingPartyId = 1; cheatingPartyId <= noOfParties; cheatingPartyId++) {
+      runTest(new TestModifyShare<>(cheatingPartyId), EvaluationStrategy.SEQUENTIAL_BATCHED,
+          noOfParties);
+    }
+  }
+
+  @Test
+  public void testInvalidMacCheckThree() {
+    int noOfParties = 3;
+    for (int cheatingPartyId = 1; cheatingPartyId <= noOfParties; cheatingPartyId++) {
+      runTest(new TestModifyShare<>(cheatingPartyId), EvaluationStrategy.SEQUENTIAL_BATCHED,
+          noOfParties);
+    }
   }
 
   @Override
@@ -56,8 +69,14 @@ public class TestSpdz2kMacCheckComputation extends
     return new Spdz2kProtocolSuite128();
   }
 
-  private static class TestModifyOpenValue<ResourcePoolT extends Spdz2kResourcePool<CompUInt128>>
+  private static class TestModifyShare<ResourcePoolT extends Spdz2kResourcePool<CompUInt128>>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    private final int cheatingPartyId;
+
+    TestModifyShare(int cheatingPartyId) {
+      this.cheatingPartyId = cheatingPartyId;
+    }
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -69,9 +88,9 @@ public class TestSpdz2kMacCheckComputation extends
             DRes<SInt> input = numeric.input(BigInteger.ONE, 1);
             return producer.seq(seq -> {
               SInt value = input.out();
-              if (seq.getBasicNumericContext().getMyId() == 1) {
-                value = ((Spdz2kSInt<CompUInt128>) value)
-                    .multiply(new CompUInt128(BigInteger.valueOf(2)));
+              if (seq.getBasicNumericContext().getMyId() == cheatingPartyId) {
+                value = ((Spdz2kSInt<CompUInt128>) value).multiply(
+                    new CompUInt128(BigInteger.valueOf(2)));
               }
               final SInt finalSInt = value;
               return seq.numeric().open(() -> finalSInt);
