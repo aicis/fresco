@@ -17,6 +17,7 @@ public class TestOpenedValueStoreImpl {
     store.pushOpenedValue(authenticated, open);
     Assert.assertTrue("Store expected to have pending values", store.hasPendingValues());
     Assert.assertTrue(store.exceedsThreshold(0));
+    Assert.assertFalse(store.exceedsThreshold(1));
   }
 
   @Test
