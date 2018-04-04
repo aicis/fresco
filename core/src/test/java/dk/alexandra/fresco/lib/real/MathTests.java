@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 public class MathTests {
 
   private static final int DEFAULT_PRECISION = 16;
-  
+
   public static class TestExp<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
@@ -39,10 +39,9 @@ public class MathTests {
             return root.realNumeric().open(result);
           };
           BigDecimal output = runApplication(testApplication);
-          int expectedPrecision = DEFAULT_PRECISION - 1; // 
+          int expectedPrecision = DEFAULT_PRECISION - 1; //
           System.out.println(expectedPrecision);
-          new RealTestUtils().assertEqual(expected,
-              output, expectedPrecision);
+          RealTestUtils.assertEqual(expected, output, expectedPrecision);
         }
       };
     }
@@ -116,14 +115,13 @@ public class MathTests {
           };
           List<BigDecimal> output = runApplication(app);
 
-          RealTestUtils utils = new RealTestUtils();
           for (BigDecimal openOutput : output) {
             int idx = output.indexOf(openOutput);
 
             BigDecimal a = openInputs.get(idx);
             // For large inputs, the result is quite imprecise. How imprecise is hard to estimate,
             // but for now we use 8 bits precision as bound.
-            utils.assertEqual(new BigDecimal(Math.log(a.doubleValue())), openOutput, 8);
+            RealTestUtils.assertEqual(new BigDecimal(Math.log(a.doubleValue())), openOutput, 8);
           }
         }
       };
@@ -135,8 +133,9 @@ public class MathTests {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      List<BigDecimal> openInputs = Stream.of(1000_000.0, 1_000.0 + 0.5 * Math.pow(2.0, DEFAULT_PRECISION), 40.1)
-          .map(BigDecimal::valueOf).collect(Collectors.toList());
+      List<BigDecimal> openInputs =
+          Stream.of(1000_000.0, 1_000.0 + 0.5 * Math.pow(2.0, DEFAULT_PRECISION), 40.1)
+              .map(BigDecimal::valueOf).collect(Collectors.toList());
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
@@ -156,12 +155,11 @@ public class MathTests {
           };
           List<BigDecimal> output = runApplication(app);
 
-          RealTestUtils utils = new RealTestUtils();
           for (BigDecimal openOutput : output) {
             int idx = output.indexOf(openOutput);
 
             BigDecimal expected = new BigDecimal(Math.sqrt(openInputs.get(idx).doubleValue()));
-            utils.assertEqual(expected, openOutput, DEFAULT_PRECISION / 2);
+            RealTestUtils.assertEqual(expected, openOutput, DEFAULT_PRECISION / 2);
           }
         }
       };
