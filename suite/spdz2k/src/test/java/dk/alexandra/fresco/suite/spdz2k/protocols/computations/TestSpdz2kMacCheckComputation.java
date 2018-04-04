@@ -33,7 +33,7 @@ public class TestSpdz2kMacCheckComputation extends
 
   @Test
   public void testInvalidMacCheck() {
-    runTest(new TestTest<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
+    runTest(new TestModifyOpenValue<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
 
   @Override
@@ -56,7 +56,7 @@ public class TestSpdz2kMacCheckComputation extends
     return new Spdz2kProtocolSuite128();
   }
 
-  private static class TestTest<ResourcePoolT extends Spdz2kResourcePool<CompUInt128>>
+  private static class TestModifyOpenValue<ResourcePoolT extends Spdz2kResourcePool<CompUInt128>>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
