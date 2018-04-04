@@ -23,23 +23,20 @@ public class MaliciousSpdzRoundSynchronization extends SpdzRoundSynchronization 
   protected void doMacCheck(SpdzResourcePool resourcePool, Network network) {
     NetworkBatchDecorator networkBatchDecorator =
         new NetworkBatchDecorator(resourcePool.getNoOfParties(), network);
-    int batchSize = 128;
     OpenedValueStore<SpdzSInt, BigInteger> store = resourcePool.getOpenedValueStore();
     // Ensure that we have any values to do MAC check on
-    if (!store.hasPendingValues()) {
-      MaliciousSpdzMacCheckProtocol macCheck = new MaliciousSpdzMacCheckProtocol(new SecureRandom(),
-          resourcePool.getMessageDigest(),
-          store.popValues(),
-          resourcePool.getModulus(),
-          resourcePool.getRandomGenerator(),
-          resourcePool.getDataSupplier().getSecretSharedKey());
-      do {
-        ProtocolCollectionList<SpdzResourcePool> protocolCollectionList =
-            new ProtocolCollectionList<>(batchSize);
-        macCheck.getNextProtocols(protocolCollectionList);
-        BatchEvaluationStrategy<SpdzResourcePool> batchStrat = new BatchedStrategy<>();
-        batchStrat.processBatch(protocolCollectionList, resourcePool, networkBatchDecorator);
-      } while (macCheck.hasNextProtocols());
-    }
+    MaliciousSpdzMacCheckProtocol macCheck = new MaliciousSpdzMacCheckProtocol(new SecureRandom(),
+        resourcePool.getMessageDigest(),
+        store.popValues(),
+        resourcePool.getModulus(),
+        resourcePool.getRandomGenerator(),
+        resourcePool.getDataSupplier().getSecretSharedKey());
+    do {
+      ProtocolCollectionList<SpdzResourcePool> protocolCollectionList =
+          new ProtocolCollectionList<>(getBatchSize());
+      macCheck.getNextProtocols(protocolCollectionList);
+      BatchEvaluationStrategy<SpdzResourcePool> batchStrat = new BatchedStrategy<>();
+      batchStrat.processBatch(protocolCollectionList, resourcePool, networkBatchDecorator);
+    } while (macCheck.hasNextProtocols());
   }
 }

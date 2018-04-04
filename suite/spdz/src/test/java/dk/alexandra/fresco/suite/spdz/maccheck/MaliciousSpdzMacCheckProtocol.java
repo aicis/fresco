@@ -22,7 +22,6 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
 
   private SecureRandom rand;
   private MessageDigest digest;
-  private List<BigInteger> as;
   private int round = 0;
   private ProtocolProducer pp;
   private Map<Integer, BigInteger> commitments;
@@ -32,13 +31,12 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
   private final List<SpdzSInt> closedValues;
   private final List<BigInteger> openedValues;
   private final BigInteger alpha;
+  private final Drbg jointDrbg;
 
-  public static boolean corruptCommitRound1 = false;
-  public static boolean corruptOpenCommitRound1 = false;
-  public static boolean corruptCommitRound2 = false;
-  public static boolean corruptOpenCommitRound2 = false;
+  public static boolean corruptCommitRound = false;
+  public static boolean corruptOpenCommitRound = false;
 
-  public MaliciousSpdzMacCheckProtocol(
+  MaliciousSpdzMacCheckProtocol(
       final SecureRandom rand,
       final MessageDigest digest,
       final Pair<List<SpdzSInt>, List<BigInteger>> toCheck,
@@ -51,6 +49,7 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
     this.openedValues = toCheck.getSecond();
     this.modulus = modulus;
     this.alpha = alpha;
+    this.jointDrbg = jointDrbg;
   }
 
 
@@ -59,49 +58,15 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
       ProtocolCollection<ResourcePoolT> protocolCollection) {
     if (pp == null) {
       if (round == 0) {
-        BigInteger s = new BigInteger(modulus.bitLength(), rand).mod(modulus);
-        SpdzCommitment commitment = new SpdzCommitment(digest, s, rand);
-        Map<Integer, BigInteger> comms = new HashMap<>();
-        comm = new MaliciousSpdzCommitProtocol(commitment, comms, corruptCommitRound1);
-        openComm = new MaliciousSpdzOpenCommitProtocol(commitment, comms, commitments,
-            corruptOpenCommitRound1);
-        pp = new SequentialProtocolProducer(
-            Arrays.asList(
-                new SingleProtocolProducer<>(comm),
-                new SingleProtocolProducer<>(openComm)));
-      } else if (round == 1) {
-        if (!comm.out()) {
-          throw new MaliciousException(
-              "Malicious activity detected: SecureBroadcastUtil of commitments was not validated.");
-        }
-        if (!openComm.out()) {
-          throw new MaliciousException("Malicious activity detected: Opening commitments failed.");
-        }
-
-        this.as = openedValues;
-
-        // Add all s's to get the common random value:
-        BigInteger s = BigInteger.ZERO;
-        for (BigInteger otherS : commitments.values()) {
-          s = s.add(otherS);
-        }
-
-        int t = as.size();
-
-        BigInteger[] rs = new BigInteger[t];
-        BigInteger temporaryR = s;
-        for (int i = 0; i < t; i++) {
-          temporaryR = new BigInteger(digest.digest(temporaryR.toByteArray())).mod(modulus);
-          rs[i] = temporaryR;
-        }
+        System.out.println("Malicious size " + openedValues.size());
+        BigInteger[] rs = sampleRandomCoefficients(openedValues.size(), jointDrbg, modulus);
         BigInteger a = BigInteger.ZERO;
         int index = 0;
-        for (BigInteger aa : as) {
-          a = a.add(aa.multiply(rs[index++])).mod(modulus);
+        for (BigInteger openedValue : openedValues) {
+          a = a.add(openedValue.multiply(rs[index++])).mod(modulus);
         }
 
-        // compute gamma_i as the sum of all MAC's on the opened values times
-        // r_j.
+        // compute gamma_i as the sum of all MAC's on the opened values times r_j.
         BigInteger gamma = BigInteger.ZERO;
         index = 0;
         for (SpdzSInt c : closedValues) {
@@ -113,10 +78,10 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
         // Commit to delta and open it afterwards
         SpdzCommitment commitment = new SpdzCommitment(digest, delta, rand);
         Map<Integer, BigInteger> comms = new HashMap<>();
-        comm = new MaliciousSpdzCommitProtocol(commitment, comms, corruptCommitRound2);
+        comm = new MaliciousSpdzCommitProtocol(commitment, comms, corruptCommitRound);
         commitments = new HashMap<>();
         openComm = new MaliciousSpdzOpenCommitProtocol(commitment, comms, commitments,
-            corruptOpenCommitRound2);
+            corruptOpenCommitRound);
         pp = new SequentialProtocolProducer(
             Arrays.asList(
                 new SingleProtocolProducer<>(comm),
@@ -124,7 +89,7 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
       } else {
         if (!comm.out()) {
           throw new MaliciousException(
-              "Malicious activity detected: SecureBroadcastUtil of commitments was not validated.");
+              "Malicious activity detected: Broadcast of commitments was not validated.");
         }
         if (!openComm.out()) {
           throw new MaliciousException("Malicious activity detected: Opening commitments failed.");
@@ -136,11 +101,12 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
         deltaSum = deltaSum.mod(modulus);
         if (!deltaSum.equals(BigInteger.ZERO)) {
           throw new MaliciousException(
-              "The sum of delta's was not 0. Someone was corrupting something amongst " + as.size()
+              "The sum of delta's was not 0. Someone was corrupting something amongst "
+                  + openedValues.size()
                   + " macs. Sum was " + deltaSum.toString() + " Aborting!");
         }
-        // clean up store before returning to evaluating such that we only
-        // evaluate the next macs, not those we already checked.
+        // clean up store before returning to evaluating such that we only evaluate the next macs,
+        // not those we already checked.
         openedValues.clear();
         closedValues.clear();
         pp = null;
@@ -154,8 +120,19 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
     }
   }
 
+  private BigInteger[] sampleRandomCoefficients(int numCoefficients, Drbg jointDrbg,
+      BigInteger modulus) {
+    BigInteger[] coefficients = new BigInteger[numCoefficients];
+    for (int i = 0; i < numCoefficients; i++) {
+      byte[] bytes = new byte[modulus.bitLength() / Byte.SIZE];
+      jointDrbg.nextBytes(bytes);
+      coefficients[i] = new BigInteger(bytes).mod(modulus);
+    }
+    return coefficients;
+  }
+
   @Override
   public boolean hasNextProtocols() {
-    return round < 3;
+    return round < 2;
   }
 }

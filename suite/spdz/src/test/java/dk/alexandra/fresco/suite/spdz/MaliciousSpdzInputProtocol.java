@@ -49,7 +49,7 @@ public class MaliciousSpdzInputProtocol extends SpdzNativeProtocol<SInt> {
     } else {
       boolean validated = receiveMaliciousBroadcastValidation(network, digest);
       if (!validated) {
-        throw new MaliciousException("SecureBroadcastUtil digests did not match");
+        throw new MaliciousException("Broadcast digests did not match");
       }
       SpdzSInt valueMaskedElm = new SpdzSInt(valueMasked,
           dataSupplier.getSecretSharedKey().multiply(valueMasked).mod(modulus), modulus);
