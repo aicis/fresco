@@ -101,7 +101,7 @@ public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
   @Test
   public void test_Lots_Of_Mults_Sequential_Batched_Different_Modulus() throws Exception {
     runTest(new BasicArithmeticTests.TestLotsMult<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        PreprocessingStrategy.DUMMY, 2, false, 128, 16);
+        PreprocessingStrategy.DUMMY, 2, 128, 128, 16);
   }
 
   @Test
