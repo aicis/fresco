@@ -8,15 +8,17 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.util.Pair;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class MathTests {
 
-  private static final int DEFAULT_PRECISION = 16;
+  private static final int DEFAULT_PRECISION = BasicFixedPointTests.DEFAULT_PRECISION;
 
   public static class TestExp<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
@@ -160,6 +162,179 @@ public class MathTests {
 
             BigDecimal expected = new BigDecimal(Math.sqrt(openInputs.get(idx).doubleValue()));
             RealTestUtils.assertEqual(expected, openOutput, DEFAULT_PRECISION / 2);
+          }
+        }
+      };
+    }
+  }
+
+  public static class TestSum<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      List<BigDecimal> openInputs =
+          Stream.of(1000_000.0, 1_000.0 + 0.5 * Math.pow(2.0, -DEFAULT_PRECISION), 40.1)
+              .map(BigDecimal::valueOf).collect(Collectors.toList());
+      BigDecimal expectedOutput = openInputs.stream().reduce(BigDecimal.ZERO, (a, b) -> a.add(b));
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
+            List<DRes<SReal>> closed =
+                openInputs.stream().map(producer.realNumeric()::known).collect(Collectors.toList());
+            return producer.realNumeric().open(producer.realAdvanced().sum(closed));
+          };
+          BigDecimal output = runApplication(app);
+          RealTestUtils.assertEqual(expectedOutput, output, DEFAULT_PRECISION);
+        }
+      };
+    }
+  }
+
+  public static class TestInnerProduct<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      List<BigDecimal> openInputs1 = Stream.of(64.0, 128.0, 8.0)
+              .map(BigDecimal::valueOf)
+              .collect(Collectors.toList());
+      List<BigDecimal> openInputs2 = Stream.of(1 / 64.0, 1 / 128.0, 1 / 8.0)
+          .map(BigDecimal::valueOf)
+          .collect(Collectors.toList());
+      BigDecimal expectedOutput = BigDecimal.valueOf(3);
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
+            return producer.par(par ->  {
+              List<DRes<SReal>> closed1 = openInputs1.stream()
+                  .map(par.realNumeric()::known)
+                  .collect(Collectors.toList());
+              List<DRes<SReal>> closed2 = openInputs2.stream()
+                  .map(par.realNumeric()::known)
+                  .collect(Collectors.toList());
+              return () -> new Pair<>(closed1, closed2);
+            }).seq((seq, closedPair) -> {
+              DRes<SReal> result = seq.realAdvanced()
+                  .innerProduct(closedPair.getFirst(), closedPair.getSecond());
+              return seq.realNumeric().open(result);
+            });
+          };
+          BigDecimal output = runApplication(app);
+          RealTestUtils.assertEqual(expectedOutput, output, DEFAULT_PRECISION);
+        }
+      };
+    }
+  }
+
+  public static class TestInnerProductUnmatchedDimensions<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      List<BigDecimal> openInputs1 = Arrays.asList(BigDecimal.ONE);
+      List<BigDecimal> openInputs2 = Arrays.asList(BigDecimal.ONE, BigDecimal.ONE);
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
+            return producer.par(par ->  {
+              List<DRes<SReal>> closed1 = openInputs1.stream()
+                  .map(par.realNumeric()::known)
+                  .collect(Collectors.toList());
+              List<DRes<SReal>> closed2 = openInputs2.stream()
+                  .map(par.realNumeric()::known)
+                  .collect(Collectors.toList());
+              return () -> new Pair<>(closed1, closed2);
+            }).seq((seq, closedPair) -> {
+              seq.realAdvanced().innerProduct(closedPair.getFirst(), closedPair.getSecond());
+              return () -> null;
+            });
+          };
+          try {
+            runApplication(app);
+          } catch (RuntimeException e) {
+            if (e.getCause().getClass() == IllegalArgumentException.class) {
+              // Success - ignore exception
+            } else {
+              throw e;
+            }
+          }
+        }
+      };
+    }
+  }
+
+  public static class TestInnerProductPublicPart<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      List<BigDecimal> openInputs1 = Stream.of(64.0, 128.0, 8.0)
+          .map(BigDecimal::valueOf)
+          .collect(Collectors.toList());
+      List<BigDecimal> openInputs2 = Stream.of(1 / 64.0, 1 / 128.0, 1 / 8.0)
+          .map(BigDecimal::valueOf)
+          .collect(Collectors.toList());
+      BigDecimal expectedOutput = BigDecimal.valueOf(3);
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
+            return producer.par(par ->  {
+              List<DRes<SReal>> closed = openInputs1.stream()
+                  .map(par.realNumeric()::known)
+                  .collect(Collectors.toList());
+              return () -> closed;
+            }).seq((seq, closed) -> {
+              DRes<SReal> result = seq.realAdvanced()
+                  .innerProductWithPublicPart(openInputs2, closed);
+              return seq.realNumeric().open(result);
+            });
+          };
+          BigDecimal output = runApplication(app);
+          RealTestUtils.assertEqual(expectedOutput, output, DEFAULT_PRECISION);
+        }
+      };
+    }
+  }
+
+  public static class TestInnerProductPublicPartUnmatched<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      List<BigDecimal> openInputs1 = Arrays.asList(BigDecimal.ONE);
+      List<BigDecimal> openInputs2 = Arrays.asList(BigDecimal.ONE, BigDecimal.ONE);
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
+            return producer.par(par ->  {
+              List<DRes<SReal>> closed = openInputs1.stream()
+                  .map(par.realNumeric()::known)
+                  .collect(Collectors.toList());
+              return () -> closed;
+            }).seq((seq, closed) -> {
+              seq.realAdvanced().innerProductWithPublicPart(openInputs2, closed);
+              return () -> null;
+            });
+          };
+          try {
+            runApplication(app);
+          } catch (RuntimeException e) {
+            if (e.getCause().getClass() == IllegalArgumentException.class) {
+              // Success - ignore exception
+            } else {
+              throw e;
+            }
           }
         }
       };

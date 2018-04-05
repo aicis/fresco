@@ -73,21 +73,7 @@ public abstract class AbstractDummyArithmeticTest {
         DEFAULT_FIXED_POINT_PRECISION, DEFAULT_PERFORMANCE_LOGGING);
   }
 
-  protected void runTest(
-      TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
-      EvaluationStrategy evalStrategy, int noOfParties, boolean logPerformance) {
-    runTest(f, evalStrategy, noOfParties, DEFAULT_MODULUS, DEFAULT_MAX_BIT_LENGTH,
-        DEFAULT_FIXED_POINT_PRECISION, logPerformance);
-  }
-
-  protected void runTest(
-      TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
-      EvaluationStrategy evalStrategy, int noOfParties, BigInteger modulus) {
-    runTest(f, evalStrategy, noOfParties, modulus, DEFAULT_MAX_BIT_LENGTH,
-        DEFAULT_FIXED_POINT_PRECISION, DEFAULT_PERFORMANCE_LOGGING);
-  }
-
-  protected void runTest(
+  private void runTest(
       TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, int noOfParties, BigInteger mod, int maxBitLength,
       int fixedPointPrecision, boolean logPerformance) {
