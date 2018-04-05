@@ -671,6 +671,21 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
+  public void test_Real_Vector_Multiplication_Unmatched() throws Exception {
+    runTest(new LinearAlgebraTests.TestVectorMultUnmatchedDimensions<>(), EvaluationStrategy.SEQUENTIAL, 1);
+  }
+
+  @Test
+  public void test_Real_Matrix_Multiplication_Unmatched() throws Exception {
+    runTest(new LinearAlgebraTests.TestMatrixMultUnmatchedDimensions<>(), EvaluationStrategy.SEQUENTIAL, 1);
+  }
+
+  @Test
+  public void test_Real_Matrix_Addition_Unmatched() throws Exception {
+    runTest(new LinearAlgebraTests.TestAdditionUnmatchedDimensions<>(), EvaluationStrategy.SEQUENTIAL, 1);
+  }
+
+  @Test
   public void test_Real_Exp() throws Exception {
     runTest(new MathTests.TestExp<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
