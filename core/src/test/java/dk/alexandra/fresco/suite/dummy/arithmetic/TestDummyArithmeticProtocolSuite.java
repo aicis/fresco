@@ -696,6 +696,14 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
+  public void test_Real_Sqrt_Uneven_Precision() throws Exception {
+    runTest(new MathTests.TestSqrt<>(),
+        new TestParameters()
+        .fixedPointPrecesion(BasicFixedPointTests.DEFAULT_PRECISION + 1)
+        .evaluationStrategy(EvaluationStrategy.SEQUENTIAL_BATCHED));
+  }
+
+  @Test
   public void test_trunctation() throws Exception {
     runTest(new TruncationTests.TestTruncation<>(), EvaluationStrategy.SEQUENTIAL, 2);
   }
