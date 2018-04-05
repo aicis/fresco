@@ -20,19 +20,26 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.junit.Assert;
 
+/**
+ * Basic tests of computation with fixed point numbers.
+ * <p>
+ * NOTE: these tests all assume a precision of {@link BasicFixedPointTests.DEFAULT_PRECISION}.
+ * </p>
+ */
 public class BasicFixedPointTests {
 
-  // SReals are implemented as binary fixed point numbers with 16 bits precision.
-  private static final int DEFAULT_PRECISION = 16;
+  /**
+   * The precision assumed in all tests.
+   */
+  public static final int DEFAULT_PRECISION = 16;
 
   public static class TestInput<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
-      int precision = 16;
-      List<BigDecimal> value = Arrays
-          .asList(10.000001, 5.9, 11.0, 0.0001, 100000000.0001, 1.5 * Math.pow(2.0, -precision))
+      List<BigDecimal> value = Arrays.asList(10.000001, 5.9, 11.0, 0.0001,
+          100000000.0001, 1.5 * Math.pow(2.0, -DEFAULT_PRECISION))
           .stream().map(BigDecimal::valueOf).collect(Collectors.toList());
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
@@ -506,24 +513,19 @@ public class BasicFixedPointTests {
                 openInputs.stream().map(producer.realNumeric()::known).collect(Collectors.toList());
             List<DRes<SReal>> closed2 = openInputs2.stream().map(producer.realNumeric()::known)
                 .collect(Collectors.toList());
-
             List<DRes<SReal>> result = new ArrayList<>();
             for (DRes<SReal> inputX : closed1) {
               result.add(producer.realNumeric().div(inputX, closed2.get(closed1.indexOf(inputX))));
             }
-
             List<DRes<BigDecimal>> opened =
                 result.stream().map(producer.realNumeric()::open).collect(Collectors.toList());
             return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
           };
           List<BigDecimal> output = runApplication(app);
-
           for (BigDecimal openOutput : output) {
             int idx = output.indexOf(openOutput);
-
             BigDecimal a = openInputs.get(idx).setScale(DEFAULT_PRECISION, RoundingMode.HALF_UP);
             BigDecimal b = openInputs2.get(idx).setScale(DEFAULT_PRECISION, RoundingMode.HALF_UP);
-            System.out.println(a + "/" + b);
             BigDecimal expected = a.divide(b, RoundingMode.HALF_UP);
             // It's hard to approximate error after division since it depends on the input sizes. We
             // use 4 for now.
@@ -573,8 +575,6 @@ public class BasicFixedPointTests {
             BigDecimal b = openInputs2.get(i);
             int expected = (a.compareTo(b) != 1) ? 1 : 0;
             int result = output.get(i).intValue();
-            System.out.println(a + " <= " + b + " = " + (output.get(i).intValue() == 1));
-
             Assert.assertEquals(expected, result);
           }
         }
