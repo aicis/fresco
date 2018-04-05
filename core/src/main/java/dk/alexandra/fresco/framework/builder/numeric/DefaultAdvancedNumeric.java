@@ -31,7 +31,6 @@ import java.util.List;
  */
 public class DefaultAdvancedNumeric implements AdvancedNumeric {
 
-  // Security parameter for rightshift operations.
   private final BuilderFactoryNumeric factoryNumeric;
   private final ProtocolBuilderNumeric builder;
 
@@ -96,7 +95,6 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
     return builder.seq(new Logarithm(input, maxInputLength));
   }
 
-
   @Override
   public DRes<SInt> innerProduct(List<DRes<SInt>> vectorA, List<DRes<SInt>> vectorB) {
     return builder.seq(new InnerProduct(vectorA, vectorB));
@@ -122,19 +120,19 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
   }
 
   @Override
-  public DRes<RightShiftResult> rightShiftWithRemainder(DRes<SInt> input) {
-    return builder.seq(
-        new RightShift(
-            factoryNumeric.getBasicNumericContext().getMaxBitLength(),
-            input, true));
-  }
-
-  @Override
   public DRes<SInt> rightShift(DRes<SInt> input, int shifts) {
     DRes<RightShiftResult> rightShiftResult =
         builder.seq(new RightShift(factoryNumeric.getBasicNumericContext().getMaxBitLength(), input,
             shifts, false));
     return () -> rightShiftResult.out().getResult();
+  }
+
+  @Override
+  public DRes<RightShiftResult> rightShiftWithRemainder(DRes<SInt> input) {
+    return builder.seq(
+        new RightShift(
+            factoryNumeric.getBasicNumericContext().getMaxBitLength(),
+            input, true));
   }
 
   @Override
