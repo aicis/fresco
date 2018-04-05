@@ -73,6 +73,36 @@ public abstract class DefaultLinearAlgebra implements RealLinearAlgebra {
     });
   }
 
+  /**
+   * Add two matrices using the given builder and fixed point add operation.
+   *
+   * @param builder The builder to be used for this computation
+   * @param a Matrix of type <code>A</code>
+   * @param b Matrix of type <code>B</code>
+   * @param addOperator The addition operator which adds an element of type <code>A</code> and type
+   *        <code>B</code> to give an element of type <code>C</code>
+   * @return A matrix of type <code>C</code> which is the sum of the two matrices
+   */
+  private <A, B, C> DRes<Matrix<C>> add(ProtocolBuilderNumeric builder, Matrix<A> a, Matrix<B> b,
+      BiFunction<ProtocolBuilderNumeric, Pair<A, B>, C> addOperator) {
+    return builder.par(par -> {
+      if (a.getWidth() != b.getWidth() || a.getHeight() != b.getHeight()) {
+        throw new IllegalArgumentException("Matrices must have same sizes - " + a.getWidth() + "x"
+            + a.getHeight() + " != " + b.getWidth() + "x" + b.getHeight());
+      }
+      Matrix<C> result = new Matrix<>(a.getHeight(), a.getWidth(), i -> {
+        ArrayList<C> row = new ArrayList<>();
+        List<A> rowA = a.getRow(i);
+        List<B> rowB = b.getRow(i);
+        for (int j = 0; j < a.getWidth(); j++) {
+          row.add(addOperator.apply(par, new Pair<>(rowA.get(j), rowB.get(j))));
+        }
+        return row;
+      });
+      return () -> result;
+    });
+  }
+
   @Override
   public DRes<Matrix<DRes<SReal>>> mult(DRes<Matrix<DRes<SReal>>> a, Matrix<BigDecimal> b) {
     return builder.seq(seq -> {
@@ -97,6 +127,37 @@ public abstract class DefaultLinearAlgebra implements RealLinearAlgebra {
     });
   }
 
+  /**
+   * Calculate the product of two matrices using the given builder and arithmetic operations.
+   *
+   * @param builder The builder to be used for this computation
+   * @param a Matrix of type <code>A</code>
+   * @param b Matrix of type <code>B</code>
+   * @param innerProductOperator An inner product operator which takes the inner product of a vector
+   *        of type <code>A</code> and type <code>B</code> to produce a value of type <code>C</code>
+   * @return the product of the two matrices
+   */
+  private <A, B, C> DRes<Matrix<C>> mult(ProtocolBuilderNumeric builder, Matrix<A> a, Matrix<B> b,
+      BiFunction<ProtocolBuilderNumeric, Pair<List<A>, List<B>>, C> innerProductOperator) {
+    return builder.par(par -> {
+
+      if (a.getWidth() != b.getHeight()) {
+        throw new IllegalArgumentException(
+            "Matrice sizes does not match - " + a.getWidth() + " != " + b.getHeight());
+      }
+
+      Matrix<C> result = new Matrix<>(a.getHeight(), b.getWidth(), i -> {
+        ArrayList<C> row = new ArrayList<>(b.getWidth());
+        List<A> rowA = a.getRow(i);
+        for (int j = 0; j < b.getWidth(); j++) {
+          row.add(innerProductOperator.apply(par, new Pair<>(rowA, b.getColumn(j))));
+        }
+        return row;
+      });
+      return () -> result;
+    });
+  }
+
   @Override
   public DRes<Matrix<DRes<SReal>>> scale(BigDecimal s, DRes<Matrix<DRes<SReal>>> a) {
     return builder.par(par -> {
@@ -118,6 +179,26 @@ public abstract class DefaultLinearAlgebra implements RealLinearAlgebra {
     return builder.par(par -> {
       return scale(par, s, a,
           (builder, x) -> builder.realNumeric().mult(x.getSecond(), x.getFirst()));
+    });
+  }
+
+  /**
+   * Scale the given matrix by a scalar using the given builder and multiplication operation.
+   *
+   * @param builder The builder to be used for this computation
+   * @param a A value of type <code>A</code>
+   * @param b Matrix of type <code>B</code>
+   * @param multiplicationOperator An multiplication operator which multiplies an element of type
+   *        <code>A</code> and type <code>B</code> to give an element of type <code>C</code>
+   * @return the scaled matrix
+   */
+  private <A, B, C> DRes<Matrix<C>> scale(ProtocolBuilderNumeric builder, A a, Matrix<B> b,
+      BiFunction<ProtocolBuilderNumeric, Pair<A, B>, C> multiplicationOperator) {
+    return builder.par(par -> {
+      Matrix<C> result = new Matrix<>(b.getHeight(), b.getWidth(),
+          i -> b.getRow(i).stream().map(x -> multiplicationOperator.apply(par, new Pair<>(a, x)))
+              .collect(Collectors.toCollection(ArrayList::new)));
+      return () -> result;
     });
   }
 
@@ -148,7 +229,7 @@ public abstract class DefaultLinearAlgebra implements RealLinearAlgebra {
 
   /**
    * Multiply a matrix to a vector using the given inner product operator.
-   * 
+   *
    * @param builder The builder to be used for this computation
    * @param a Matrix of type <code>A</code>
    * @param v Vector of type <code>B</code>
@@ -169,87 +250,6 @@ public abstract class DefaultLinearAlgebra implements RealLinearAlgebra {
       Vector<C> result =
           a.getRows().stream().map(r -> innerProductOperator.apply(par, new Pair<>(r, v)))
               .collect(Collectors.toCollection(Vector::new));
-      return () -> result;
-    });
-  }
-
-  /**
-   * Add two matrices using the given builder and fixed point add operation.
-   * 
-   * @param builder The builder to be used for this computation
-   * @param a Matrix of type <code>A</code>
-   * @param b Matrix of type <code>B</code>
-   * @param addOperator The addition operator which adds an element of type <code>A</code> and type
-   *        <code>B</code> to give an element of type <code>C</code>
-   * @return A matrix of type <code>C</code> which is the sum of the two matrices
-   */
-  private <A, B, C> DRes<Matrix<C>> add(ProtocolBuilderNumeric builder, Matrix<A> a, Matrix<B> b,
-      BiFunction<ProtocolBuilderNumeric, Pair<A, B>, C> addOperator) {
-    return builder.par(par -> {
-      if (a.getWidth() != b.getWidth() || a.getHeight() != b.getHeight()) {
-        throw new IllegalArgumentException("Matrices must have same sizes - " + a.getWidth() + "x"
-            + a.getHeight() + " != " + b.getWidth() + "x" + b.getHeight());
-      }
-      Matrix<C> result = new Matrix<>(a.getHeight(), a.getWidth(), i -> {
-        ArrayList<C> row = new ArrayList<>();
-        List<A> rowA = a.getRow(i);
-        List<B> rowB = b.getRow(i);
-        for (int j = 0; j < a.getWidth(); j++) {
-          row.add(addOperator.apply(par, new Pair<>(rowA.get(j), rowB.get(j))));
-        }
-        return row;
-      });
-      return () -> result;
-    });
-  }
-
-  /**
-   * Calculate the product of two matrices using the given builder and arithmetic operations.
-   * 
-   * @param builder The builder to be used for this computation
-   * @param a Matrix of type <code>A</code>
-   * @param b Matrix of type <code>B</code>
-   * @param innerProductOperator An inner product operator which takes the inner product of a vector
-   *        of type <code>A</code> and type <code>B</code> to produce a value of type <code>C</code>
-   * @return
-   */
-  private <A, B, C> DRes<Matrix<C>> mult(ProtocolBuilderNumeric builder, Matrix<A> a, Matrix<B> b,
-      BiFunction<ProtocolBuilderNumeric, Pair<List<A>, List<B>>, C> innerProductOperator) {
-    return builder.par(par -> {
-
-      if (a.getWidth() != b.getHeight()) {
-        throw new IllegalArgumentException(
-            "Matrice sizes does not match - " + a.getWidth() + " != " + b.getHeight());
-      }
-
-      Matrix<C> result = new Matrix<>(a.getHeight(), b.getWidth(), i -> {
-        ArrayList<C> row = new ArrayList<>(b.getWidth());
-        List<A> rowA = a.getRow(i);
-        for (int j = 0; j < b.getWidth(); j++) {
-          row.add(innerProductOperator.apply(par, new Pair<>(rowA, b.getColumn(j))));
-        }
-        return row;
-      });
-      return () -> result;
-    });
-  }
-
-  /**
-   * Scale the given matrix by a scalar using the given builder and multiplication operation.
-   * 
-   * @param builder The builder to be used for this computation
-   * @param a A value of type <code>A</code>
-   * @param b Matrix of type <code>B</code>
-   * @param multiplicationOperator An multiplication operator which multiplies an element of type
-   *        <code>A</code> and type <code>B</code> to give an element of type <code>C</code>
-   * @return
-   */
-  private <A, B, C> DRes<Matrix<C>> scale(ProtocolBuilderNumeric builder, A a, Matrix<B> b,
-      BiFunction<ProtocolBuilderNumeric, Pair<A, B>, C> multiplicationOperator) {
-    return builder.par(par -> {
-      Matrix<C> result = new Matrix<>(b.getHeight(), b.getWidth(),
-          i -> b.getRow(i).stream().map(x -> multiplicationOperator.apply(par, new Pair<>(a, x)))
-              .collect(Collectors.toCollection(ArrayList::new)));
       return () -> result;
     });
   }
