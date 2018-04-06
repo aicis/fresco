@@ -11,6 +11,7 @@ run the demonstrator, use the Makefile and write
 * make build
 * make runSPDZ
 * make runDummy
+* make runMASCOT
 
 The build target runs the compilation process and generates a runnable jar with
 the sum demo as the main target.
@@ -20,4 +21,5 @@ is the sum of the inputted values. For this demonstrator, it should be 65, since
 the input is fixed to the list of [1, 2, 3, 7, 8, 12, 15, 17].
 
 Choosing runSPDZ will cause the SPDZ protocol suite to be used, and using runDummy
-will cause the Dummy protocol suite to be used. 
+will cause the Dummy protocol suite to be used. runMASCOT uses the SPDZ protocol
+suite with the MASCOT preprocessing phase.
