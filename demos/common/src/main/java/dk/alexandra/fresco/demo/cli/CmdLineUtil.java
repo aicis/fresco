@@ -49,6 +49,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
   private Options appOptions;
   private CommandLine cmd;
   private NetworkConfiguration networkConfiguration;
+  private KryoNetManager networkManager;
   private Network network;
   private boolean logPerformance;
   private ProtocolSuite<ResourcePoolT, BuilderT> protocolSuite;
@@ -64,6 +65,10 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
 
   public NetworkConfiguration getNetworkConfiguration() {
     return this.networkConfiguration;
+  }
+
+  public KryoNetManager getNetworkManager() {
+    return this.networkManager;
   }
 
   public Network getNetwork() {
@@ -197,13 +202,16 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
     }
 
     this.networkConfiguration = new NetworkConfigurationImpl(myId, parties);
+    int offsetIncrement = Integer.parseInt(
+        cmd.getOptionProperties("D").getProperty("portOffsetIncrement", "10"));
+    this.networkManager = new KryoNetManager(this.networkConfiguration, offsetIncrement);
   }
   
   /**
    * Create a network and connect to the other parties.
    */
   public void startNetwork() {
-    this.network = new KryoNetNetwork(networkConfiguration);
+    this.network = this.networkManager.createNetwork();
     if (logPerformance) {
       this.network = new NetworkLoggingDecorator(this.network);
     }
@@ -256,7 +264,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
 
       CmdLineProtocolSuite protocolSuiteParser = new CmdLineProtocolSuite(protocolSuiteName,
           cmd.getOptionProperties("D"), this.networkConfiguration.getMyId(),
-          this.networkConfiguration.noOfParties());
+          this.networkConfiguration.noOfParties(), this.networkManager);
       protocolSuite = (ProtocolSuite<ResourcePoolT, BuilderT>)
           protocolSuiteParser.getProtocolSuite();
       resourcePool = (ResourcePoolT) protocolSuiteParser.getResourcePool();
@@ -329,8 +337,8 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
    * @throws IOException If the networks fails to close
    */
   public void closeNetwork() throws IOException {
-    if (this.network != null) {
-      ((Closeable) this.network).close();
+    if (this.networkManager != null) {
+      this.networkManager.close();
     }
   }
 }
