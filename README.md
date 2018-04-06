@@ -15,6 +15,6 @@ The FRESCO documentation is available at
 
 If you have any comments, questions, ideas, or find bugs, send us an
 email at fresco@alexandra.dk or use the FRESCO issue tracker at
-[http://github.org/aicis/fresco/issues](http://github.org/aicis/fresco/issues/).
+[http://github.com/aicis/fresco/issues](http://github.com/aicis/fresco/issues/).
 We will be happy to integrate code that fits into the overall design
 of FRESCO.

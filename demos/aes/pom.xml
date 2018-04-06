@@ -27,7 +27,7 @@
 	            <appendAssemblyId>false</appendAssemblyId>
 	            <archive>
 		            <manifest>
-		              <mainClass>dk.alexandra.fresco.demo.AESDemo</mainClass>
+		              <mainClass>dk.alexandra.fresco.demo.AesDemo</mainClass>
 		            </manifest>
 	            </archive>
 	            <descriptorRefs>
