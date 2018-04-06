@@ -60,7 +60,7 @@ public class TestNumericSuiteLoggingDecorators {
       NetworkConfiguration partyNetConf = netConf.get(playerId);
 
       NumericSuiteLogging<DummyArithmeticResourcePool> ps =
-          new NumericSuiteLogging<>(new DummyArithmeticProtocolSuite(mod, 200));
+          new NumericSuiteLogging<>(new DummyArithmeticProtocolSuite(mod, 200, 16));
       performanceLoggers.put(playerId, ps);
       BatchEvaluationStrategy<DummyArithmeticResourcePool> strat = evalStrategy.getStrategy();
       ProtocolEvaluator<DummyArithmeticResourcePool> evaluator
@@ -125,7 +125,7 @@ public class TestNumericSuiteLoggingDecorators {
       NetworkConfiguration partyNetConf = netConf.get(playerId);
 
       NumericSuiteLogging<DummyArithmeticResourcePool> ps = new NumericSuiteLogging<>(
-          new DummyArithmeticProtocolSuite(mod, 200));
+          new DummyArithmeticProtocolSuite(mod, 200, 16));
       performanceLoggers.put(playerId, ps);
 
       BatchEvaluationStrategy<DummyArithmeticResourcePool> strat = evalStrategy.getStrategy();

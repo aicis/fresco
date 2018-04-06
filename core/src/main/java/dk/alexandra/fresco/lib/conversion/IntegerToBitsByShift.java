@@ -9,14 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Converts a number to its bit representation by shifting the maximum
- * bit-length of the number times.
+ * Converts a number to its bit representation by shifting the maximum bit-length of the number
+ * times.
  */
 public class IntegerToBitsByShift implements Computation<List<SInt>, ProtocolBuilderNumeric> {
 
   private final DRes<SInt> input;
   private final int maxInputLength;
-  private List<SInt> result;
 
   public IntegerToBitsByShift(DRes<SInt> input, int maxInputLength) {
     this.input = input;
@@ -25,22 +24,35 @@ public class IntegerToBitsByShift implements Computation<List<SInt>, ProtocolBui
 
   @Override
   public DRes<List<SInt>> buildComputation(ProtocolBuilderNumeric builder) {
-    doIteration(builder, input, maxInputLength, new ArrayList<SInt>(maxInputLength));
-    return () -> result;
+    return builder
+        .seq((ignored) -> () -> new State(input, maxInputLength))
+        .whileLoop(
+            (state) -> state.shifts > 0,
+            (seq, state) -> {
+              DRes<RightShiftResult> remainder =
+                  seq.advancedNumeric().rightShiftWithRemainder(state.currentInput);
+              return () -> state.createNext(remainder.out());
+            })
+        .seq((seq, state) -> () -> state.remainders);
   }
 
-  private void doIteration(ProtocolBuilderNumeric producer, DRes<SInt> input, int shifts,
-      List<SInt> remainders) {
+  private class State {
 
-    if (shifts > 0) {
-      DRes<RightShiftResult> iteration = producer
-          .seq((seq) -> seq.advancedNumeric().rightShiftWithRemainder(input));
-      producer.createIteration((seq) -> {
-        remainders.add(iteration.out().getRemainder());
-        doIteration(seq, iteration.out().getResult(), shifts - 1, remainders);
-      });
-    } else {
-      result = remainders;
+    private final DRes<SInt> currentInput;
+    private final int shifts;
+    private final List<SInt> remainders;
+
+    State(DRes<SInt> currentInput, int shifts) {
+      this.currentInput = currentInput;
+      this.shifts = shifts;
+      this.remainders = new ArrayList<>();
+    }
+
+    State createNext(RightShiftResult value) {
+      State state = new State(value.getResult(), shifts - 1);
+      state.remainders.addAll(remainders);
+      state.remainders.add(value.getRemainder());
+      return state;
     }
   }
 }

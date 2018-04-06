@@ -20,7 +20,6 @@ import java.util.stream.Stream;
 import org.hamcrest.core.Is;
 import org.junit.Assert;
 
-
 /**
  * Generic test cases for basic finite field operations.
  *

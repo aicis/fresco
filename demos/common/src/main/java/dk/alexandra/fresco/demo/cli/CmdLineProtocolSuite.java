@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
-import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
@@ -89,7 +88,8 @@ public class CmdLineProtocolSuite {
         "67039039649712985497870124991238141152738485774711365274259660130265015367064643"
             + "54255445443244279389455058889493431223951165286470575994074291745908195329"));
     int maxBitLength = Integer.parseInt(properties.getProperty("maxbitlength", "150"));
-    return new DummyArithmeticProtocolSuite(mod, maxBitLength);
+    int fixedPointPrecision = Integer.parseInt(properties.getProperty("fixedPointPrecision", "16"));
+    return new DummyArithmeticProtocolSuite(mod, maxBitLength, fixedPointPrecision);
   }
 
   private ProtocolSuite<?, ?> getSpdzProtocolSuite(Properties properties) {

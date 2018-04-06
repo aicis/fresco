@@ -4,6 +4,13 @@ import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
+import dk.alexandra.fresco.lib.real.AdvancedRealNumeric;
+import dk.alexandra.fresco.lib.real.RealLinearAlgebra;
+import dk.alexandra.fresco.lib.real.RealNumeric;
+import dk.alexandra.fresco.lib.real.RealNumericContext;
+import dk.alexandra.fresco.lib.real.fixed.AdvancedFixedNumeric;
+import dk.alexandra.fresco.lib.real.fixed.FixedLinearAlgebra;
+import dk.alexandra.fresco.lib.real.fixed.FixedNumeric;
 
 /**
  * The core factory to implement when creating a numeric protocol. Every
@@ -23,6 +30,8 @@ public interface BuilderFactoryNumeric extends BuilderFactory<ProtocolBuilderNum
 
   BasicNumericContext getBasicNumericContext();
 
+  RealNumericContext getRealNumericContext();
+  
   Numeric createNumeric(ProtocolBuilderNumeric builder);
 
   MiscBigIntegerGenerators getBigIntegerHelper();
@@ -42,7 +51,20 @@ public interface BuilderFactoryNumeric extends BuilderFactory<ProtocolBuilderNum
   default PreprocessedValues createPreprocessedValues(ProtocolBuilderNumeric builder) {
     return new DefaultPreprocessedValues(builder);
   }
+  
+  default RealNumeric createRealNumeric(ProtocolBuilderNumeric builder) {
+    return new FixedNumeric(builder);
+  }
+  
+  default AdvancedRealNumeric createAdvancedRealNumeric(ProtocolBuilderNumeric builder) {
+    return new AdvancedFixedNumeric(builder);
+  }
 
+  default RealLinearAlgebra createRealLinearAlgebra(ProtocolBuilderNumeric builder) {
+    return new FixedLinearAlgebra(builder);
+  }
+
+  
   /**
    * Returns a builder which can be helpful while developing a new protocol. Be very careful though,
    * to include this in any production code since the debugging opens values to all parties.

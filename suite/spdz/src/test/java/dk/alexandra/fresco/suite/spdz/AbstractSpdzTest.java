@@ -26,6 +26,7 @@ import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
+import dk.alexandra.fresco.lib.real.RealNumericContext;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.DefaultPerformancePrinter;
 import dk.alexandra.fresco.logging.EvaluatorLoggingDecorator;
@@ -67,15 +68,18 @@ public abstract class AbstractSpdzTest {
   // TODO hack hack hack
   private static final int DEFAULT_MOD_BIT_LENGTH = 512;
   private static final int DEFAULT_MAX_BIT_LENGTH = 150;
+  private static final int DEFAULT_FIXED_POINT_PRECISION = 16;
   private int modBitLength = DEFAULT_MOD_BIT_LENGTH;
   private int maxBitLength = DEFAULT_MAX_BIT_LENGTH;
+  private int fixedPointPrecision = DEFAULT_FIXED_POINT_PRECISION;
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, PreprocessingStrategy preProStrat, int noOfParties,
-      boolean logPerformance, int modBitLength, int maxBitLength) {
+      boolean logPerformance, int modBitLength, int maxBitLength, int fixedPointPrecision) {
     this.modBitLength = modBitLength;
     this.maxBitLength = maxBitLength;
+    this.fixedPointPrecision = fixedPointPrecision;
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * (noOfParties - 1));
@@ -113,14 +117,12 @@ public abstract class AbstractSpdzTest {
           new SecureComputationEngineImpl<>(protocolSuite, evaluator);
 
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
-          new TestThreadRunner.TestThreadConfiguration<>(sce,
-              () -> createResourcePool(playerId, noOfParties, preProStrat, otManager, tripleManager,
-                  expPipeManager),
-              () -> {
+          new TestThreadRunner.TestThreadConfiguration<>(sce, () -> createResourcePool(playerId,
+              noOfParties, preProStrat, otManager, tripleManager, expPipeManager), () -> {
                 Network network = new AsyncNetwork(netConf.get(playerId));
                 if (logPerformance) {
                   network = new NetworkLoggingDecorator(network);
-                  aggregate.add((NetworkLoggingDecorator)network);
+                  aggregate.add((NetworkLoggingDecorator) network);
                   return network;
                 } else {
                   return network;
@@ -143,31 +145,29 @@ public abstract class AbstractSpdzTest {
       EvaluationStrategy evalStrategy, PreprocessingStrategy preProStrat, int noOfParties,
       boolean logPerformance) {
     runTest(f, evalStrategy, preProStrat, noOfParties, logPerformance, DEFAULT_MOD_BIT_LENGTH,
-        DEFAULT_MAX_BIT_LENGTH);
+        DEFAULT_MAX_BIT_LENGTH, DEFAULT_FIXED_POINT_PRECISION);
   }
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, PreprocessingStrategy preProStrat, int noOfParties) {
     runTest(f, evalStrategy, preProStrat, noOfParties, false, DEFAULT_MOD_BIT_LENGTH,
-        DEFAULT_MAX_BIT_LENGTH);
+        DEFAULT_MAX_BIT_LENGTH, DEFAULT_FIXED_POINT_PRECISION);
   }
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, PreprocessingStrategy preProStrat, int noOfParties,
-      int modBitLength, int maxBitLength) {
-    runTest(f, evalStrategy, preProStrat, noOfParties, false, modBitLength, maxBitLength);
+      int modBitLength, int maxBitLength, int fixedPointPrecision) {
+    runTest(f, evalStrategy, preProStrat, noOfParties, false, modBitLength, maxBitLength, fixedPointPrecision);
   }
 
-  DRes<List<DRes<SInt>>> createPipe(
-      int myId, int noOfPlayers, int pipeLength,
-      KryoNetNetwork pipeNetwork,
-      SpdzMascotDataSupplier tripleSupplier) {
+  DRes<List<DRes<SInt>>> createPipe(int myId, int noOfPlayers, int pipeLength,
+      KryoNetNetwork pipeNetwork, SpdzMascotDataSupplier tripleSupplier) {
 
     ProtocolBuilderNumeric sequential = new SpdzBuilder(
-        new BasicNumericContext(maxBitLength, tripleSupplier.getModulus(), myId, noOfPlayers))
-        .createSequential();
+        new BasicNumericContext(maxBitLength, tripleSupplier.getModulus(), myId, noOfPlayers),
+        new RealNumericContext(fixedPointPrecision)).createSequential();
     SpdzResourcePoolImpl tripleResourcePool =
         new SpdzResourcePoolImpl(myId, noOfPlayers, new SpdzStorageImpl(tripleSupplier));
 
@@ -204,9 +204,7 @@ public abstract class AbstractSpdzTest {
   }
 
   private SpdzResourcePool createResourcePool(int myId, int numberOfParties,
-      PreprocessingStrategy preProStrat,
-      KryoNetManager otGenerator,
-      KryoNetManager tripleGenerator,
+      PreprocessingStrategy preProStrat, KryoNetManager otGenerator, KryoNetManager tripleGenerator,
       KryoNetManager expPipeGenerator) {
     SpdzDataSupplier supplier;
     if (preProStrat == DUMMY) {
@@ -218,10 +216,9 @@ public abstract class AbstractSpdzTest {
       int prgSeedLength = 256;
       BigInteger modulus = ModulusFinder.findSuitableModulus(modBitLength);
       Drbg drbg = getDrbg(myId, prgSeedLength);
-      Map<Integer, RotList> seedOts = getSeedOts(myId, partyIds, prgSeedLength, drbg,
-          otGenerator.createExtraNetwork(myId));
-      FieldElement ssk = SpdzMascotDataSupplier
-          .createRandomSsk(modulus, prgSeedLength);
+      Map<Integer, RotList> seedOts =
+          getSeedOts(myId, partyIds, prgSeedLength, drbg, otGenerator.createExtraNetwork(myId));
+      FieldElement ssk = SpdzMascotDataSupplier.createRandomSsk(modulus, prgSeedLength);
       supplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, numberOfParties,
           () -> tripleGenerator.createExtraNetwork(myId), modBitLength, modulus,
           new Function<Integer, SpdzSInt[]>() {
@@ -233,22 +230,19 @@ public abstract class AbstractSpdzTest {
             public SpdzSInt[] apply(Integer pipeLength) {
               if (pipeNetwork == null) {
                 pipeNetwork = expPipeGenerator.createExtraNetwork(myId);
-                tripleSupplier = SpdzMascotDataSupplier
-                    .createSimpleSupplier(myId, numberOfParties, () -> pipeNetwork,
-                        modBitLength, modulus, null, seedOts, drbg, ssk);
+                tripleSupplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, numberOfParties,
+                    () -> pipeNetwork, modBitLength, modulus, null, seedOts, drbg, ssk);
               }
-              DRes<List<DRes<SInt>>> pipe = createPipe(myId, numberOfParties, pipeLength,
-                  pipeNetwork,
-                  tripleSupplier);
+              DRes<List<DRes<SInt>>> pipe =
+                  createPipe(myId, numberOfParties, pipeLength, pipeNetwork, tripleSupplier);
               return computeSInts(pipe);
             }
           }, seedOts, drbg, ssk);
     } else {
       // case STATIC:
       int noOfThreadsUsed = 1;
-      String storageName =
-          SpdzStorageDataSupplier.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
-              + "_";
+      String storageName = SpdzStorageDataSupplier.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_"
+          + myId + "_" + 0 + "_";
       FilebasedStreamedStorageImpl storage =
           new FilebasedStreamedStorageImpl(new InMemoryStorage());
       supplier = new SpdzStorageDataSupplier(storage, storageName, numberOfParties);

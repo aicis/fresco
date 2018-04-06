@@ -17,9 +17,8 @@ public class BitLength implements Computation<SInt, ProtocolBuilderNumeric> {
   private int maxBitLength;
 
   /**
-   * Create a protocol for finding the bit length of an integer. This is done
-   * by finding the bit representation of the integer and then returning the
-   * index of the highest set bit.
+   * Create a protocol for finding the bit length of an integer. This is done by finding the bit
+   * representation of the integer and then returning the index of the highest set bit.
    *
    * @param input An integer.
    * @param maxBitLength An upper bound for the bit length.
@@ -39,7 +38,7 @@ public class BitLength implements Computation<SInt, ProtocolBuilderNumeric> {
       DRes<SInt> mostSignificantBitIndex = null;
       Numeric numeric = seq.numeric();
       for (int n = 0; n < maxBitLength; n++) {
-        // If bits[n] == 1 we let mostSignificantIndex be current index. 
+        // If bits[n] == 1 we let mostSignificantIndex be current index.
         // Otherwise we leave it be.
         SInt remainderResult = bits.get(n);
         if (mostSignificantBitIndex == null) {

@@ -35,8 +35,9 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
 
     //Ensure that we have any values to do MAC check on
     if (!storage.getOpenedValues().isEmpty()) {
-      SpdzBuilder spdzBuilder = new SpdzBuilder(
-          spdzProtocolSuite.createNumericContext(resourcePool));
+      SpdzBuilder spdzBuilder =
+          new SpdzBuilder(spdzProtocolSuite.createNumericContext(resourcePool),
+              spdzProtocolSuite.createRealNumericContext());
       BatchEvaluationStrategy<SpdzResourcePool> batchStrategy = new BatchedStrategy<>();
       BatchedProtocolEvaluator<SpdzResourcePool> evaluator =
           new BatchedProtocolEvaluator<>(batchStrategy, spdzProtocolSuite, batchSize);

@@ -31,7 +31,7 @@ public class TestSecureComputationEngineImpl {
   @Before
   public void setup() {
     DummyArithmeticProtocolSuite suite =
-        new DummyArithmeticProtocolSuite(BigInteger.valueOf(101), 2);
+        new DummyArithmeticProtocolSuite(BigInteger.valueOf(101), 2, 0);
     ProtocolEvaluator<DummyArithmeticResourcePool> evaluator =
         new BatchedProtocolEvaluator<>(new SequentialStrategy<>(), suite);
     sce = new SecureComputationEngineImpl<>(suite, evaluator);

@@ -52,7 +52,7 @@ public class TestGenericLoggingDecorators {
     for (int playerId : netConf.keySet()) {
       NetworkConfiguration partyNetConf = netConf.get(playerId);
 
-      DummyArithmeticProtocolSuite ps = new DummyArithmeticProtocolSuite(mod, 200);
+      DummyArithmeticProtocolSuite ps = new DummyArithmeticProtocolSuite(mod, 200, 16);
       BatchEvaluationStrategy<DummyArithmeticResourcePool> strat = evalStrategy.getStrategy();
       ProtocolEvaluator<DummyArithmeticResourcePool> evaluator
           = new BatchedProtocolEvaluator<>(strat, ps);
@@ -97,7 +97,7 @@ public class TestGenericLoggingDecorators {
     for (int playerId : netConf.keySet()) {
       NetworkConfiguration partyNetConf = netConf.get(playerId);
 
-      DummyArithmeticProtocolSuite ps = new DummyArithmeticProtocolSuite(mod, 200);
+      DummyArithmeticProtocolSuite ps = new DummyArithmeticProtocolSuite(mod, 200, 16);
       BatchEvaluationStrategy<DummyArithmeticResourcePool> strat = evalStrategy.getStrategy();
       ProtocolEvaluator<DummyArithmeticResourcePool> evaluator
           = new BatchedProtocolEvaluator<>(strat, ps);
@@ -151,7 +151,7 @@ public class TestGenericLoggingDecorators {
     for (int playerId : netConf.keySet()) {
       NetworkConfiguration partyNetConf = netConf.get(playerId);
 
-      DummyArithmeticProtocolSuite ps = new DummyArithmeticProtocolSuite(mod, 200);
+      DummyArithmeticProtocolSuite ps = new DummyArithmeticProtocolSuite(mod, 200, 16);
       BatchEvaluationStrategy<DummyArithmeticResourcePool> strat = evalStrategy.getStrategy();
       BatchEvaluationLoggingDecorator<DummyArithmeticResourcePool> decoratedStrat =
           new BatchEvaluationLoggingDecorator<>(strat);
