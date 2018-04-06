@@ -10,8 +10,6 @@ import java.math.BigDecimal;
 
 public class AdvancedFixedNumeric extends DefaultAdvancedRealNumeric {
 
-  private static final int DEFAULT_RANDOM_BITS = 64;
-
   public AdvancedFixedNumeric(ProtocolBuilderNumeric builder) {
     super(builder);
   }
@@ -38,12 +36,12 @@ public class AdvancedFixedNumeric extends DefaultAdvancedRealNumeric {
   }
 
   @Override
-  public DRes<SReal> random() {
+  public DRes<SReal> random(int bits) {
     return builder.seq(seq -> {
-      DRes<RandomAdditiveMask> random = seq.advancedNumeric().additiveMask(DEFAULT_RANDOM_BITS);
+      DRes<RandomAdditiveMask> random = seq.advancedNumeric().additiveMask(bits);
       return random;
     }).seq((seq, random) -> {
-      return () -> new SFixed(random.random, DEFAULT_RANDOM_BITS);
+      return () -> new SFixed(random.random, bits);
     });
   }
 }

@@ -32,7 +32,6 @@ public class MathTests {
           double x = 1.1;
           BigDecimal input = BigDecimal.valueOf(x);
           BigDecimal expected = BigDecimal.valueOf(Math.exp(x));
-
           // functionality to be tested
           Application<BigDecimal, ProtocolBuilderNumeric> testApplication = root -> {
             // close inputs
@@ -42,7 +41,6 @@ public class MathTests {
           };
           BigDecimal output = runApplication(testApplication);
           int expectedPrecision = DEFAULT_PRECISION - 1; //
-          System.out.println(expectedPrecision);
           RealTestUtils.assertEqual(expected, output, expectedPrecision);
         }
       };
@@ -60,15 +58,14 @@ public class MathTests {
           Application<List<BigDecimal>, ProtocolBuilderNumeric> app =
               producer -> producer.seq(seq -> {
                 List<DRes<SReal>> result = new ArrayList<>();
-                for (int i = 0; i < 100; i++) {
-                  result.add(seq.realAdvanced().random());
+                for (int i = 0; i < 10; i++) {
+                  result.add(seq.realAdvanced().random(DEFAULT_PRECISION));
                 }
 
                 List<DRes<BigDecimal>> opened =
                     result.stream().map(seq.realNumeric()::open).collect(Collectors.toList());
                 return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
               });
-
           List<BigDecimal> output = runApplication(app);
           BigDecimal sum = BigDecimal.ZERO;
           BigDecimal min = BigDecimal.ONE;
@@ -81,7 +78,6 @@ public class MathTests {
             if (random.compareTo(max) == 1) {
               max = random;
             }
-            System.out.println(random);
             assertTrue(BigDecimal.ONE.compareTo(random) >= 0);
             assertTrue(BigDecimal.ZERO.compareTo(random) <= 0);
           }
