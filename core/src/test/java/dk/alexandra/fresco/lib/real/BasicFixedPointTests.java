@@ -398,6 +398,33 @@ public class BasicFixedPointTests {
     }
   }
 
+  public static class TestDivisionKnownNegativeDivisor<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+
+      BigDecimal value = BigDecimal.valueOf(10.00100);
+      BigDecimal value2 = BigDecimal.valueOf(-1);
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() throws Exception {
+          Application<BigDecimal, ProtocolBuilderNumeric> app = producer -> {
+
+            DRes<SReal> input = producer.realNumeric().input(value, 1);
+            DRes<SReal> product = producer.realNumeric().div(input, value2);
+
+            return producer.realNumeric().open(product);
+          };
+          BigDecimal output = runApplication(app);
+          RealTestUtils.assertEqual(value.divide(value2), output, DEFAULT_PRECISION - 2
+              - Math.max(0, RealTestUtils.floorLog2(value) - RealTestUtils.floorLog2(value2)));
+        }
+      };
+    }
+  }
+
   public static class TestMult<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 

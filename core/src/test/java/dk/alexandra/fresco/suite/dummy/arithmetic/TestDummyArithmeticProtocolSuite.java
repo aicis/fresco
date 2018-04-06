@@ -647,6 +647,12 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
+  public void test_Real_Division_Known_Negative_Divisor() throws Exception {
+    runTest(new BasicFixedPointTests.TestDivisionKnownNegativeDivisor<>(),
+        new TestParameters().numParties(2));
+  }
+
+  @Test
   public void test_Close_Real_Matrix() throws Exception {
     runTest(new LinearAlgebraTests.TestCloseFixedMatrix<>(), new TestParameters().numParties(2));
   }
