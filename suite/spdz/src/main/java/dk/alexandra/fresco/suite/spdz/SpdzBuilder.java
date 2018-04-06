@@ -26,13 +26,14 @@ import java.math.BigInteger;
 /**
  * Basic native builder for the SPDZ protocol suite.
  */
-class SpdzBuilder implements BuilderFactoryNumeric {
+public class SpdzBuilder implements BuilderFactoryNumeric {
 
   private BasicNumericContext basicNumericContext;
   private MiscBigIntegerGenerators miscOIntGenerators;
   private RealNumericContext realNumericContext;
 
-  SpdzBuilder(BasicNumericContext basicNumericContext, RealNumericContext realNumericContext) {
+  public SpdzBuilder(BasicNumericContext basicNumericContext,
+      RealNumericContext realNumericContext) {
     this.basicNumericContext = basicNumericContext;
     this.realNumericContext = realNumericContext;
   }
