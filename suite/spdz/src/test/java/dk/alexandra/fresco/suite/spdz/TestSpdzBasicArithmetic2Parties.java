@@ -51,6 +51,12 @@ public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
   }
 
   @Test
+  public void testInputFromAll() {
+    runTest(new BasicArithmeticTests.TestInputFromAll<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+        PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
   public void test_OutputToTarget_Sequential() {
     runTest(new BasicArithmeticTests.TestOutputToSingleParty<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2);
@@ -116,5 +122,5 @@ public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
     runTest(new BasicArithmeticTests.TestOpenWithConversion<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.MASCOT, 2, 16, 16, 16);
   }
-  
+
 }
