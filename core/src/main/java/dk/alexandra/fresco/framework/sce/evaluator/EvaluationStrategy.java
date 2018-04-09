@@ -9,11 +9,17 @@ public enum EvaluationStrategy {
         BatchEvaluationStrategy<ResourcePoolT> getStrategy() {
       return new SequentialStrategy<>();
     }
-  }, SEQUENTIAL_BATCHED {
+  }, SEQUENTIAL_BATCHED_OLD {
     @Override
     public <ResourcePoolT extends ResourcePool>
         BatchEvaluationStrategy<ResourcePoolT> getStrategy() {
       return new BatchedStrategy<>();
+    }
+  }, SEQUENTIAL_BATCHED {
+    @Override
+    public <ResourcePoolT extends ResourcePool>
+    BatchEvaluationStrategy<ResourcePoolT> getStrategy() {
+      return new NativeBatchedStrategy<>();
     }
   };
 

@@ -19,7 +19,6 @@ public class BatchedProtocolEvaluator<ResourcePoolT extends ResourcePool>
     implements ProtocolEvaluator<ResourcePoolT> {
 
   private Logger logger = LoggerFactory.getLogger(BatchedProtocolEvaluator.class);
-  private static final int MAX_EMPTY_BATCHES_IN_A_ROW = 10;
 
   private final BatchEvaluationStrategy<ResourcePoolT> batchEvaluator;
   private final ProtocolSuite<ResourcePoolT, ?> protocolSuite;
@@ -46,7 +45,6 @@ public class BatchedProtocolEvaluator<ResourcePoolT extends ResourcePool>
     int totalProtocols = 0;
     int totalBatches = 0;
 
-    NetworkBatchDecorator networkBatchDecorator = createSceNetwork(resourcePool, network);
     ProtocolSuite.RoundSynchronization<ResourcePoolT> roundSynchronization =
         protocolSuite.createRoundSynchronization();
     do {
@@ -55,7 +53,7 @@ public class BatchedProtocolEvaluator<ResourcePoolT extends ResourcePool>
       int size = protocols.size();
 
       roundSynchronization.beforeBatch(protocols, resourcePool, network);
-      batchEvaluator.processBatch(protocols, resourcePool, networkBatchDecorator);
+      batchEvaluator.processBatch(protocols, resourcePool, network);
       logger.trace("Done evaluating batch: " + batch++ + " with " + size + " native protocols");
       if (size == 0) {
         logger.debug("Batch " + batch + " is empty");
@@ -69,7 +67,4 @@ public class BatchedProtocolEvaluator<ResourcePoolT extends ResourcePool>
     return new EvaluationStatistics(totalProtocols, totalBatches);
   }
 
-  private NetworkBatchDecorator createSceNetwork(ResourcePool resourcePool, Network network) {
-    return new NetworkBatchDecorator(resourcePool.getNoOfParties(), network);
-  }
 }

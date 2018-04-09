@@ -1,10 +1,12 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestBruteforce;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 public interface SpdzDataSupplier {
 
@@ -61,5 +63,16 @@ public interface SpdzDataSupplier {
    * @return A SpdzSInt representing a random secret shared field element.
    */
   SpdzSInt getNextRandomFieldElement();
+
+  /**
+   * Returns multiple triples.
+   */
+  default List<SpdzTriple> getNextTriples(int numTriples) {
+    List<SpdzTriple> triples = new ArrayList<>(numTriples);
+    for (int i = 0; i < numTriples; i++) {
+      triples.add(getNextTriple());
+    }
+    return triples;
+  }
 
 }

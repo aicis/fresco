@@ -47,4 +47,9 @@ public class DummyArithmeticResourcePoolImpl extends ResourcePoolImpl
   public ByteSerializer<BigInteger> getSerializer() {
     return new BigIntegerWithFixedLengthSerializer(modulusSize);
   }
+
+  @Override
+  public int getModBitLength() {
+    return modulusSize;
+  }
 }

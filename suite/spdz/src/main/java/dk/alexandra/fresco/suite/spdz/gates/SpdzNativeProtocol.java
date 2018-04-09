@@ -1,13 +1,17 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 public abstract class SpdzNativeProtocol<OutputT> implements
     NativeProtocol<OutputT, SpdzResourcePool> {
@@ -42,4 +46,12 @@ public abstract class SpdzNativeProtocol<OutputT> implements
     }
     return validated;
   }
+
+  /**
+   * Get result from deferred and downcast result to {@link SpdzSInt}.
+   */
+  protected SpdzSInt toSpdzSInt(DRes<SInt> value) {
+    return Objects.requireNonNull((SpdzSInt) value.out());
+  }
+
 }

@@ -21,6 +21,11 @@ public interface NumericResourcePool extends ResourcePool {
   BigInteger getModulus();
 
   /**
+   * Return size of modulus.
+   */
+  int getModBitLength();
+
+  /**
    * Gets a serializer for big integer that is aligned with the current system settings in this
    * invocation - hence byte length of big integer.
    *

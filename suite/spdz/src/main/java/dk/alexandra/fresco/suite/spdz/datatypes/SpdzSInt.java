@@ -24,6 +24,16 @@ public class SpdzSInt implements SInt, Serializable {
     this.mod = modulus;
   }
 
+  /**
+   * Creates a {@link SpdzSInt} from a public value. <p>All parties compute the mac share of the
+   * value but only party one (by convention) stores the public value as the share, the others store
+   * 0.</p>
+   */
+  public SpdzSInt(BigInteger share, BigInteger macKeyShare, BigInteger modulus,
+      boolean isPartyOne) {
+    this(isPartyOne ? share : BigInteger.ZERO, share.multiply(macKeyShare).mod(modulus), modulus);
+  }
+
   //Communication methods
 
   /**
@@ -66,6 +76,22 @@ public class SpdzSInt implements SInt, Serializable {
     BigInteger share = this.share.add(e.getShare()).mod(mod);
     BigInteger mac = this.mac.add(e.getMac()).mod(mod);
     return new SpdzSInt(share, mac, this.mod);
+  }
+
+  /**
+   * Compute sum of this and constant (open) value. <p>All parties compute their mac share of the
+   * public value and add it to the mac share of the authenticated value, however only party 1 adds
+   * the public value to is value share.</p>
+   *
+   * @param other constant, open value
+   * @param macKeyShare mac key share for maccing open value
+   * @param isPartyOne used to ensure that only one party adds value to share
+   * @return result of sum
+   */
+  public SpdzSInt addConstant(
+      BigInteger other, BigInteger macKeyShare, BigInteger modulus, boolean isPartyOne) {
+    SpdzSInt wrapped = new SpdzSInt(other, macKeyShare, modulus, isPartyOne);
+    return add(wrapped);
   }
 
   /**

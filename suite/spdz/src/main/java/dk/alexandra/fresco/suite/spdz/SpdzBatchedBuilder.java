@@ -1,19 +1,16 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.PreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.lib.real.RealNumericContext;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzInputProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzKnownSIntProtocol;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputSingleProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputToAllProtocol;
@@ -21,32 +18,19 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzRandomProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownRight;
+import dk.alexandra.fresco.suite.spdz.gates.batched.SpdzBatchMultiplier;
 import java.math.BigInteger;
 
 /**
  * Basic native builder for the SPDZ protocol suite.
  */
-public class SpdzBuilder implements BuilderFactoryNumeric {
+public class SpdzBatchedBuilder extends SpdzBuilder {
 
-  private BasicNumericContext basicNumericContext;
-  private MiscBigIntegerGenerators miscOIntGenerators;
-  private RealNumericContext realNumericContext;
-
-  SpdzBuilder(BasicNumericContext basicNumericContext, RealNumericContext realNumericContext) {
-    this.basicNumericContext = basicNumericContext;
-    this.realNumericContext = realNumericContext;
+  SpdzBatchedBuilder(BasicNumericContext basicNumericContext,
+      RealNumericContext realNumericContext) {
+    super(basicNumericContext, realNumericContext);
   }
 
-  @Override
-  public BasicNumericContext getBasicNumericContext() {
-    return basicNumericContext;
-  }
-
-  @Override
-  public RealNumericContext getRealNumericContext() {
-    return realNumericContext;
-  }
-  
   @Override
   public PreprocessedValues createPreprocessedValues(ProtocolBuilderNumeric protocolBuilder) {
     return pipeLength -> {
@@ -60,6 +44,8 @@ public class SpdzBuilder implements BuilderFactoryNumeric {
   public Numeric createNumeric(ProtocolBuilderNumeric protocolBuilder) {
 
     return new Numeric() {
+      private SpdzBatchMultiplier multiplier;
+
       @Override
       public DRes<SInt> add(DRes<SInt> a, DRes<SInt> b) {
         SpdzAddProtocol spdzAddProtocol = new SpdzAddProtocol(a, b);
@@ -96,8 +82,11 @@ public class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> mult(DRes<SInt> a, DRes<SInt> b) {
-        SpdzMultProtocol spdzMultProtocol = new SpdzMultProtocol(a, b);
-        return protocolBuilder.append(spdzMultProtocol);
+        if (multiplier == null) {
+          multiplier = new SpdzBatchMultiplier();
+          protocolBuilder.append(multiplier);
+        }
+        return multiplier.append(a, b);
       }
 
       @Override
@@ -141,14 +130,6 @@ public class SpdzBuilder implements BuilderFactoryNumeric {
         return protocolBuilder.append(openProtocol);
       }
     };
-  }
-
-  @Override
-  public MiscBigIntegerGenerators getBigIntegerHelper() {
-    if (miscOIntGenerators == null) {
-      miscOIntGenerators = new MiscBigIntegerGenerators(basicNumericContext.getModulus());
-    }
-    return miscOIntGenerators;
   }
 
 }

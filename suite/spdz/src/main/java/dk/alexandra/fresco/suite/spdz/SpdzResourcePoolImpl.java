@@ -51,6 +51,11 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
   }
 
   @Override
+  public int getModBitLength() {
+    return modulusSize;
+  }
+
+  @Override
   public ByteSerializer<BigInteger> getSerializer() {
     return new BigIntegerWithFixedLengthSerializer(modulusSize);
   }

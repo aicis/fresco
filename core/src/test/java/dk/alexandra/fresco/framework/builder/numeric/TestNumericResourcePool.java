@@ -46,6 +46,11 @@ public class TestNumericResourcePool {
     }
 
     @Override
+    public int getModBitLength() {
+      return 0;
+    }
+
+    @Override
     public ByteSerializer<BigInteger> getSerializer() {
       return null;
     }

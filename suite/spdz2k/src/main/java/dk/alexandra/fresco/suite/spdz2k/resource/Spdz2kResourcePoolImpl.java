@@ -38,7 +38,6 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
     extends ResourcePoolImpl
     implements Spdz2kResourcePool<PlainT> {
 
-  private final int effectiveBitLength;
   private final BigInteger modulus;
   private final OpenedValueStore<Spdz2kSInt<PlainT>, PlainT> storage;
   private final Spdz2kDataSupplier<PlainT> supplier;
@@ -57,8 +56,7 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
     Objects.requireNonNull(storage);
     Objects.requireNonNull(supplier);
     Objects.requireNonNull(factory);
-    this.effectiveBitLength = factory.getLowBitLength();
-    this.modulus = BigInteger.ONE.shiftLeft(effectiveBitLength);
+    this.modulus = BigInteger.ONE.shiftLeft(factory.getLowBitLength());
     this.storage = storage;
     this.supplier = supplier;
     this.factory = factory;
@@ -69,7 +67,12 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
 
   @Override
   public int getMaxBitLength() {
-    return effectiveBitLength;
+    return factory.getLowBitLength();
+  }
+
+  @Override
+  public int getModBitLength() {
+    return factory.getLowBitLength();
   }
 
   @Override
@@ -140,7 +143,7 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
             this.getNoOfParties(),
             network);
     BuilderFactoryNumeric builderFactory = new Spdz2kBuilder<>(factory,
-        new BasicNumericContext(effectiveBitLength, modulus,
+        new BasicNumericContext(factory.getLowBitLength(), modulus,
             getMyId(), getNoOfParties()));
     ProtocolBuilderNumeric root = builderFactory.createSequential();
     DRes<byte[]> jointSeed = coinTossing
