@@ -20,6 +20,7 @@ import java.util.stream.Stream;
 import org.hamcrest.core.Is;
 import org.junit.Assert;
 
+
 /**
  * Generic test cases for basic finite field operations.
  *
@@ -41,13 +42,42 @@ public class BasicArithmeticTests {
         public void test() {
           Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
             Numeric numeric = producer.numeric();
-
             DRes<SInt> input = numeric.input(value, 1);
             return numeric.open(input);
           };
           BigInteger output = runApplication(app);
 
           Assert.assertEquals(value, output);
+        }
+      };
+    }
+  }
+
+  public static class TestInputFromAll<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() {
+          Application<Pair<Integer, List<DRes<BigInteger>>>, ProtocolBuilderNumeric> app = producer -> {
+            Numeric numeric = producer.numeric();
+            int noOfParties = producer.getBasicNumericContext().getNoOfParties();
+            List<DRes<SInt>> inputs = new ArrayList<>(noOfParties);
+            for (int i = 1; i <= noOfParties; i++) {
+              inputs.add(numeric.input(BigInteger.valueOf(i), i));
+            }
+            DRes<List<DRes<BigInteger>>> opened = producer.collections().openList(() -> inputs);
+            return () -> new Pair<>(noOfParties, opened.out());
+          };
+          Pair<Integer, List<DRes<BigInteger>>> output = runApplication(app);
+          int noOfParties = output.getFirst();
+          List<DRes<BigInteger>> inputs = output.getSecond();
+          Assert.assertEquals(noOfParties, inputs.size());
+          for (int i = 0; i < noOfParties; i++) {
+            Assert.assertEquals(i + 1, inputs.get(i).out().intValue());
+          }
         }
       };
     }
