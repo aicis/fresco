@@ -20,6 +20,11 @@ To run the demonstrator using the SPDZ protocol suite, run the command:
 
 * make runSpdz
 
+To run the demonstrator using the SPDZ protocol suite with MASCOT preprocessing,
+run the command:
+
+* make runMascot
+
 The run targets runs the actual MPC computation and releases a result which is
 the distance between the two inputted points. For this demonstrator, it should
 be approximately 11.1803 since the inputted values for party 1 are (x:10, y:10)

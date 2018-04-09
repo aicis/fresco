@@ -25,6 +25,11 @@ To run the demonstrator using the SPDZ protocol suite, run the command:
 
 * make runSpdz
 
+To run the demonstrator using the SPDZ protocol suite with MASCOT preprocessing,
+run the command:
+
+* make runMascot
+
 The run targets runs the actual MPC computation and prints the result in the
 sys.out stream (which can be found within both server1/log.txt and
 server2/log.txt).
