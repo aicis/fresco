@@ -54,7 +54,7 @@ public class TestInputSumExample {
             "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
         suite =
             (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new DummyArithmeticProtocolSuite(
-                mod, 150);
+                mod, 150, 16);
         resourcePool = () -> (ResourcePoolT) new DummyArithmeticResourcePoolImpl(i, n,
             mod);
       } else {

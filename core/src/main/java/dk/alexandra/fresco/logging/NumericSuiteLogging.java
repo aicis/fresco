@@ -8,6 +8,7 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
+import dk.alexandra.fresco.lib.real.RealNumericContext;
 import dk.alexandra.fresco.logging.arithmetic.ComparisonLoggerDecorator;
 import dk.alexandra.fresco.logging.arithmetic.NumericLoggingDecorator;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
@@ -64,6 +65,11 @@ public class NumericSuiteLogging<ResourcePoolT extends NumericResourcePool>
             new ComparisonLoggerDecorator(delegateFactory.createComparison(builder));
         aggregate.add(comparisonLoggerDecorator);
         return comparisonLoggerDecorator;
+      }
+
+      @Override
+      public RealNumericContext getRealNumericContext() {
+        return delegateFactory.getRealNumericContext();
       }
     };
   }

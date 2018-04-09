@@ -41,7 +41,8 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
 
   protected void doMacCheck(SpdzResourcePool resourcePool, Network network) {
     SpdzBuilder spdzBuilder = new SpdzBuilder(
-        spdzProtocolSuite.createNumericContext(resourcePool));
+        spdzProtocolSuite.createNumericContext(resourcePool),
+        spdzProtocolSuite.createRealNumericContext());
     BatchEvaluationStrategy<SpdzResourcePool> batchStrategy = new BatchedStrategy<>();
     BatchedProtocolEvaluator<SpdzResourcePool> evaluator =
         new BatchedProtocolEvaluator<>(batchStrategy, spdzProtocolSuite, batchSize);

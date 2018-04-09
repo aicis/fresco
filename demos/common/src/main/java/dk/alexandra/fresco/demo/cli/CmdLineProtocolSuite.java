@@ -86,7 +86,8 @@ public class CmdLineProtocolSuite {
         "67039039649712985497870124991238141152738485774711365274259660130265015367064643"
             + "54255445443244279389455058889493431223951165286470575994074291745908195329"));
     int maxBitLength = Integer.parseInt(properties.getProperty("maxbitlength", "150"));
-    return new DummyArithmeticProtocolSuite(mod, maxBitLength);
+    int fixedPointPrecision = Integer.parseInt(properties.getProperty("fixedPointPrecision", "16"));
+    return new DummyArithmeticProtocolSuite(mod, maxBitLength, fixedPointPrecision);
   }
 
   private ProtocolSuite<?, ?> getSpdzProtocolSuite(Properties properties) {

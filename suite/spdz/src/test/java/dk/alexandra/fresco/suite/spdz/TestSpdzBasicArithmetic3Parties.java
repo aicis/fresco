@@ -56,7 +56,7 @@ public class TestSpdzBasicArithmetic3Parties extends AbstractSpdzTest {
   @Test
   public void test_Input_SequentialBatched_Mascot() throws Exception {
     runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        PreprocessingStrategy.MASCOT, 3, 16, 16);
+        PreprocessingStrategy.MASCOT, 3, 16, 16, 4);
   }
 
 }
