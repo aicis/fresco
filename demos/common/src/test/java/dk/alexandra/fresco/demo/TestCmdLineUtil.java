@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.demo.cli.CmdLineUtil;
+import dk.alexandra.fresco.demo.cli.KryoNetManager;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -51,7 +52,8 @@ public class TestCmdLineUtil {
       @Override
       public void run() {
         CmdLineUtil<ResourcePoolImpl, ProtocolBuilderBinary> cmd = new CmdLineUtil<>();
-        cmd.parse(getArgs(2, "dummybool"));
+        // spdz with MASCOT used here because it requires more networks
+        cmd.parse(getArgs(2, "spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=MASCOT"));
         cmd.startNetwork();
 
         while (done.get() == false) {
@@ -146,6 +148,29 @@ public class TestCmdLineUtil {
     assertTrue(cmd.getResourcePool() instanceof ResourcePoolImpl);
     assertTrue(cmd.getSce() instanceof SecureComputationEngineImpl);
     InitializeStorage.cleanup();
+  }
+
+  @Test
+  public void testSpdzAritmeticMascotFromCmdLine() throws InterruptedException {
+    CmdLineUtil<SpdzResourcePool, ProtocolBuilderNumeric> cmd = parseAndCloseNetwork(getArgs(1, "spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=MASCOT"));
+    assertTrue(cmd.getNetwork() instanceof KryoNetNetwork);
+    assertTrue(cmd.getNetworkManager() instanceof KryoNetManager);
+    assertTrue(cmd.getEvaluator() instanceof BatchedProtocolEvaluator);
+    assertEquals(1, cmd.getNetworkConfiguration().getMyId());
+    assertEquals(2, cmd.getNetworkConfiguration().noOfParties());
+    assertTrue(cmd.getProtocolSuite() instanceof SpdzProtocolSuite);
+    assertTrue(cmd.getResourcePool() instanceof ResourcePoolImpl);
+    assertTrue(cmd.getSce() instanceof SecureComputationEngineImpl);
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void testSpdzMascontBadModBitLength() throws InterruptedException {
+    parseAndCloseNetwork(getArgs(1, "spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=MASCOT", "-D", "spdz.modBitLength=1"));
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void testSpdzMascontBadMaxBitLength() throws InterruptedException {
+    parseAndCloseNetwork(getArgs(1, "spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=MASCOT", "-D", "spdz.maxBitLength=1"));
   }
 
   @Test(expected=IllegalArgumentException.class)
