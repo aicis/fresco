@@ -1,8 +1,10 @@
 package dk.alexandra.fresco.suite.spdz.datatypes;
 
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.util.Objects;
 
 public class SpdzSInt implements SInt, Serializable {
 
@@ -194,4 +196,12 @@ public class SpdzSInt implements SInt, Serializable {
   public SInt out() {
     return this;
   }
+
+  /**
+   * Get result from deferred and downcast result to {@link SpdzSInt}.
+   */
+  public static SpdzSInt toSpdzSInt(DRes<SInt> value) {
+    return Objects.requireNonNull((SpdzSInt) value.out());
+  }
+
 }

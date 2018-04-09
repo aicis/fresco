@@ -19,7 +19,7 @@ import java.util.List;
  * A batched native protocol for multiplication. <p>This protocol accumulates values to be
  * multiplied in a batch and multiplies them once evaluate is called.</p>
  */
-public class SpdzBatchMultiplier extends SpdzNativeProtocol<Void> {
+public class SpdzBatchedMultiplication extends SpdzNativeProtocol<Void> {
 
   private final Deque<DRes<SInt>> leftFactors;
   private final Deque<DRes<SInt>> rightFactors;
@@ -30,7 +30,7 @@ public class SpdzBatchMultiplier extends SpdzNativeProtocol<Void> {
   private List<BigInteger> openEpsilons;
   private List<BigInteger> openDeltas;
 
-  public SpdzBatchMultiplier() {
+  public SpdzBatchedMultiplication() {
     this.leftFactors = new LinkedList<>();
     this.rightFactors = new LinkedList<>();
     this.deferredProducts = new LinkedList<>();
@@ -39,7 +39,7 @@ public class SpdzBatchMultiplier extends SpdzNativeProtocol<Void> {
   public DRes<SInt> append(DRes<SInt> left, DRes<SInt> right) {
     leftFactors.add(left);
     rightFactors.add(right);
-    return () -> deferredProducts::pop;
+    return deferredProducts::pop;
   }
 
   @Override
@@ -56,10 +56,10 @@ public class SpdzBatchMultiplier extends SpdzNativeProtocol<Void> {
       triples = resourcePool.getDataSupplier().getNextTriples(leftFactors.size());
       int i = 0;
       while (!leftFactors.isEmpty()) {
-        SpdzSInt left = toSpdzSInt(leftFactors.pop());
+        SpdzSInt left = SpdzSInt.toSpdzSInt(leftFactors.pop());
         SpdzSInt epsilon = left.subtract(triples.get(i).getA());
         epsilons.add(epsilon);
-        SpdzSInt right = toSpdzSInt(rightFactors.pop());
+        SpdzSInt right = SpdzSInt.toSpdzSInt(rightFactors.pop());
         SpdzSInt delta = right.subtract(triples.get(i).getB());
         deltas.add(delta);
         i++;

@@ -7,7 +7,7 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.lib.real.RealNumericContext;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocol;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzInputProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzKnownSIntProtocol;
@@ -18,7 +18,7 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzRandomProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownRight;
-import dk.alexandra.fresco.suite.spdz.gates.batched.SpdzBatchMultiplier;
+import dk.alexandra.fresco.suite.spdz.gates.batched.SpdzBatchedMultiplication;
 import java.math.BigInteger;
 
 /**
@@ -44,12 +44,12 @@ public class SpdzBatchedBuilder extends SpdzBuilder {
   public Numeric createNumeric(ProtocolBuilderNumeric protocolBuilder) {
 
     return new Numeric() {
-      private SpdzBatchMultiplier multiplier;
+
+      private SpdzBatchedMultiplication multiplications;
 
       @Override
       public DRes<SInt> add(DRes<SInt> a, DRes<SInt> b) {
-        SpdzAddProtocol spdzAddProtocol = new SpdzAddProtocol(a, b);
-        return protocolBuilder.append(spdzAddProtocol);
+        return () -> SpdzSInt.toSpdzSInt(a).add(SpdzSInt.toSpdzSInt(a));
       }
 
 
@@ -82,11 +82,11 @@ public class SpdzBatchedBuilder extends SpdzBuilder {
 
       @Override
       public DRes<SInt> mult(DRes<SInt> a, DRes<SInt> b) {
-        if (multiplier == null) {
-          multiplier = new SpdzBatchMultiplier();
-          protocolBuilder.append(multiplier);
+        if (multiplications == null) {
+          multiplications = new SpdzBatchedMultiplication();
+          protocolBuilder.append(multiplications);
         }
-        return multiplier.append(a, b);
+        return multiplications.append(a, b);
       }
 
       @Override
