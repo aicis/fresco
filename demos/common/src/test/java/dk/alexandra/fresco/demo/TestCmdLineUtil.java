@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.demo;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -29,11 +30,55 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TestCmdLineUtil {
+
+  private static Thread otherThread;
+  private static final AtomicBoolean done = new AtomicBoolean(false);
+
+  //Since network connects immediately, we need it to actually connect to avoid waiting for timeout
+  @BeforeClass
+  public static void setUpClass() {
+    final Object networkStarted = new Object();
+    otherThread = new Thread(new Runnable() {
+
+      @Override
+      public void run() {
+        CmdLineUtil<ResourcePoolImpl, ProtocolBuilderBinary> cmd = new CmdLineUtil<>();
+        cmd.parse(getArgs(2, "dummybool"));
+        cmd.startNetwork();
+
+        while (done.get() == false) {
+          try {
+            Thread.sleep(200);
+          } catch (InterruptedException e) {
+          }
+        }
+
+        try {
+          cmd.closeNetwork();
+        } catch (IOException e) {
+        }
+      }
+    });
+
+    otherThread.start();
+  }
+
+  @AfterClass
+  public static void teardownClass() {
+    done.set(true);
+    try {
+      otherThread.join();
+    } catch (InterruptedException e) {
+    }
+  }
 
   @Test
   public void testDummyBoolFromCmdLine() throws InterruptedException {
@@ -202,43 +247,23 @@ public class TestCmdLineUtil {
     //cmd.closeNetwork();
   }
 
-  //Since network connects immediately, we need it to actually connect to avoid waiting for timeout
   private <ResourcePoolT extends ResourcePool,
   Builder extends ProtocolBuilder> CmdLineUtil<ResourcePoolT, Builder>
   parseAndCloseNetwork(String[] mainArgs) {
 
-    Thread t1 = new Thread(new Runnable() {
-
-      @Override
-      public void run() {
-        CmdLineUtil<ResourcePoolT, Builder> cmd = new CmdLineUtil<>();
-        cmd.parse(getArgs(2, "dummybool"));
-        cmd.startNetwork();
-        try {
-          this.wait(50);
-          cmd.closeNetwork();
-        } catch (IOException e) {
-        } catch (InterruptedException e) {
-        }
-      }
-    });
-
-    t1.start();
     CmdLineUtil<ResourcePoolT, Builder> cmd = new CmdLineUtil<>();
     cmd.parse(mainArgs);
+
     cmd.startNetwork();
+    assertNotNull(cmd.getNetwork());
     try {
       cmd.closeNetwork();
     } catch (IOException e) {
     }
-    try {
-      t1.join(1000);
-    } catch (InterruptedException e) {
-    }
     return cmd;
   }
 
-  private String[] getArgs(int partyId, String protocolSuite, String...addedOptions) {
+  private static String[] getArgs(int partyId, String protocolSuite, String...addedOptions) {
     List<String> defaultArgs = new ArrayList<>();
     defaultArgs.addAll(Arrays.asList(new String[] { "-e", "SEQUENTIAL_BATCHED", "-i", "" + partyId, "-p", "1:localhost:8081:secret",
         "-p", "2:localhost:8082:secret", "-s", protocolSuite }));
