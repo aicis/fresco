@@ -17,6 +17,7 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
+import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.logging.EvaluatorLoggingDecorator;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
@@ -31,9 +32,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.CountDownLatch;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -41,12 +43,13 @@ import org.junit.Test;
 public class TestCmdLineUtil {
 
   private static Thread otherThread;
-  private static final AtomicBoolean done = new AtomicBoolean(false);
+  private static CountDownLatch completed;
+  private CmdLineUtil<? extends ResourcePool, ? extends ProtocolBuilder> cmd;
 
   //Since network connects immediately, we need it to actually connect to avoid waiting for timeout
   @BeforeClass
   public static void setUpClass() {
-    final Object networkStarted = new Object();
+    completed = new CountDownLatch(1);
     otherThread = new Thread(new Runnable() {
 
       @Override
@@ -56,17 +59,13 @@ public class TestCmdLineUtil {
         cmd.parse(getArgs(2, "spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=MASCOT"));
         cmd.startNetwork();
 
-        while (done.get() == false) {
-          try {
-            Thread.sleep(200);
-          } catch (InterruptedException e) {
-          }
-        }
+        try {
+          completed.await();
+        } catch (InterruptedException e) {}
 
         try {
           cmd.closeNetwork();
-        } catch (IOException e) {
-        }
+        } catch (IOException e) {}
       }
     });
 
@@ -75,16 +74,26 @@ public class TestCmdLineUtil {
 
   @AfterClass
   public static void teardownClass() {
-    done.set(true);
+    completed.countDown();
     try {
       otherThread.join();
     } catch (InterruptedException e) {
     }
   }
 
+  @After
+  public void teardown() {
+    if (cmd != null) {
+      ExceptionConverter.safe(() -> {
+        cmd.closeNetwork();
+        return null;
+      }, "Unable to close network");
+    }
+  }
+
   @Test
   public void testDummyBoolFromCmdLine() throws InterruptedException {
-    CmdLineUtil<ResourcePoolImpl, ProtocolBuilderBinary> cmd = parseAndCloseNetwork(getArgs(1, "dummybool", "-b", "4048"));
+    parseAndStartNetwork(getArgs(1, "dummybool", "-b", "4048"));
     assertTrue(cmd.getNetwork() instanceof KryoNetNetwork);
     assertTrue(cmd.getEvaluator() instanceof BatchedProtocolEvaluator);
     assertEquals(1, cmd.getNetworkConfiguration().getMyId());
@@ -96,7 +105,7 @@ public class TestCmdLineUtil {
 
   @Test
   public void testDummyBoolFromCmdLineWithLogging() throws InterruptedException {
-    CmdLineUtil<ResourcePoolImpl, ProtocolBuilderBinary> cmd = parseAndCloseNetwork(getArgs(1, "dummybool", "-l"));
+    parseAndStartNetwork(getArgs(1, "dummybool", "-l"));
     assertTrue(cmd.getNetwork() instanceof NetworkLoggingDecorator);
     assertTrue(cmd.getEvaluator() instanceof EvaluatorLoggingDecorator);
     assertEquals(1, cmd.getNetworkConfiguration().getMyId());
@@ -108,7 +117,7 @@ public class TestCmdLineUtil {
 
   @Test
   public void testDummyAritmeticFromCmdLine() throws InterruptedException {
-    CmdLineUtil<DummyArithmeticResourcePool, ProtocolBuilderNumeric> cmd = parseAndCloseNetwork(getArgs(1, "dummyarithmetic", "-b", "4048"));
+    parseAndStartNetwork(getArgs(1, "dummyarithmetic", "-b", "4048"));
     assertTrue(cmd.getNetwork() instanceof KryoNetNetwork);
     assertTrue(cmd.getEvaluator() instanceof BatchedProtocolEvaluator);
     assertEquals(1, cmd.getNetworkConfiguration().getMyId());
@@ -120,7 +129,7 @@ public class TestCmdLineUtil {
 
   @Test
   public void testSpdzAritmeticDummyFromCmdLine() throws InterruptedException {
-    CmdLineUtil<SpdzResourcePool, ProtocolBuilderNumeric> cmd = parseAndCloseNetwork(getArgs(1, "spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=DUMMY"));
+    parseAndStartNetwork(getArgs(1, "spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=DUMMY"));
     assertTrue(cmd.getNetwork() instanceof KryoNetNetwork);
     assertTrue(cmd.getEvaluator() instanceof BatchedProtocolEvaluator);
     assertEquals(1, cmd.getNetworkConfiguration().getMyId());
@@ -132,14 +141,13 @@ public class TestCmdLineUtil {
 
   @Test(expected=IllegalArgumentException.class)
   public void testSpdzBadBitLength() throws InterruptedException {
-    parseAndCloseNetwork(getArgs(1, "spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=DUMMY", "-D", "spdz.maxBitLength=1"));
+    parseAndStartNetwork(getArgs(1, "spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=DUMMY", "-D", "spdz.maxBitLength=1"));
   }
 
   @Test
   public void testSpdzAritmeticStaticFromCmdLine() throws InterruptedException, IOException {
     InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()), 2, 1, 1, 1, 1, 1);
-    CmdLineUtil<SpdzResourcePool, ProtocolBuilderNumeric> cmd =
-        parseAndCloseNetwork(getArgs(1, "spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=STATIC"));
+    parseAndStartNetwork(getArgs(1, "spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=STATIC"));
     assertTrue(cmd.getNetwork() instanceof KryoNetNetwork);
     assertTrue(cmd.getEvaluator() instanceof BatchedProtocolEvaluator);
     assertEquals(1, cmd.getNetworkConfiguration().getMyId());
@@ -152,7 +160,7 @@ public class TestCmdLineUtil {
 
   @Test
   public void testSpdzAritmeticMascotFromCmdLine() throws InterruptedException {
-    CmdLineUtil<SpdzResourcePool, ProtocolBuilderNumeric> cmd = parseAndCloseNetwork(getArgs(1, "spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=MASCOT"));
+    parseAndStartNetwork(getArgs(1, "spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=MASCOT"));
     assertTrue(cmd.getNetwork() instanceof KryoNetNetwork);
     assertTrue(cmd.getNetworkManager() instanceof KryoNetManager);
     assertTrue(cmd.getEvaluator() instanceof BatchedProtocolEvaluator);
@@ -165,22 +173,22 @@ public class TestCmdLineUtil {
 
   @Test(expected=IllegalArgumentException.class)
   public void testSpdzMascontBadModBitLength() throws InterruptedException {
-    parseAndCloseNetwork(getArgs(1, "spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=MASCOT", "-D", "spdz.modBitLength=1"));
+    parseAndStartNetwork(getArgs(1, "spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=MASCOT", "-D", "spdz.modBitLength=1"));
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void testSpdzMascontBadMaxBitLength() throws InterruptedException {
-    parseAndCloseNetwork(getArgs(1, "spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=MASCOT", "-D", "spdz.maxBitLength=1"));
+    parseAndStartNetwork(getArgs(1, "spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=MASCOT", "-D", "spdz.maxBitLength=1"));
   }
 
   @Test(expected=IllegalArgumentException.class)
   public void testSpdzAritmeticBadStrategyFromCmdLine() throws InterruptedException {
-    parseAndCloseNetwork(getArgs(1, "spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=NO_STRATEGY"));
+    parseAndStartNetwork(getArgs(1, "spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=NO_STRATEGY"));
   }
 
   @Test
   public void testTinyTablesPreproFromCmdLine() throws InterruptedException {
-    CmdLineUtil<?, ?> cmd = parseAndCloseNetwork(getArgs(1, "tinytablesprepro", "-b", "4048"));
+    parseAndStartNetwork(getArgs(1, "tinytablesprepro", "-b", "4048"));
     assertTrue(cmd.getNetwork() instanceof KryoNetNetwork);
     assertTrue(cmd.getEvaluator() instanceof BatchedProtocolEvaluator);
     assertEquals(1, cmd.getNetworkConfiguration().getMyId());
@@ -192,7 +200,7 @@ public class TestCmdLineUtil {
 
   @Test
   public void testTinyTablesFromCmdLine() throws InterruptedException {
-    CmdLineUtil<?, ?> cmd = parseAndCloseNetwork(getArgs(1, "tinytables", "-b", "4048"));
+    parseAndStartNetwork(getArgs(1, "tinytables", "-b", "4048"));
     assertTrue(cmd.getNetwork() instanceof KryoNetNetwork);
     assertTrue(cmd.getEvaluator() instanceof BatchedProtocolEvaluator);
     assertEquals(1, cmd.getNetworkConfiguration().getMyId());
@@ -272,20 +280,14 @@ public class TestCmdLineUtil {
     //cmd.closeNetwork();
   }
 
-  private <ResourcePoolT extends ResourcePool,
-  Builder extends ProtocolBuilder> CmdLineUtil<ResourcePoolT, Builder>
-  parseAndCloseNetwork(String[] mainArgs) {
+  private <ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder>
+  void parseAndStartNetwork(String[] mainArgs) {
 
-    CmdLineUtil<ResourcePoolT, Builder> cmd = new CmdLineUtil<>();
-    cmd.parse(mainArgs);
+    this.cmd = new CmdLineUtil<ResourcePoolT, Builder>();
+    this.cmd.parse(mainArgs);
 
-    cmd.startNetwork();
-    assertNotNull(cmd.getNetwork());
-    try {
-      cmd.closeNetwork();
-    } catch (IOException e) {
-    }
-    return cmd;
+    this.cmd.startNetwork();
+    assertNotNull(this.cmd.getNetwork());
   }
 
   private static String[] getArgs(int partyId, String protocolSuite, String...addedOptions) {
