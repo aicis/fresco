@@ -28,5 +28,4 @@ public interface BatchEvaluationStrategy<ResourcePoolT extends ResourcePool> {
         new NetworkBatchDecorator(network.getNoOfParties(), network));
   }
 
-  ;
 }
