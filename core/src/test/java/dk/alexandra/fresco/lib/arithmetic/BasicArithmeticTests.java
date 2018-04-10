@@ -147,7 +147,7 @@ public class BasicArithmeticTests {
             return numeric.open(numeric.mult(result, result));
           };
           BigInteger actual = runApplication(app);
-          BigInteger expected = BigInteger.valueOf(28);
+          BigInteger expected = BigInteger.valueOf(1600);
           Assert.assertEquals(expected, actual);
         }
       };
