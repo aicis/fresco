@@ -5,7 +5,7 @@ import dk.alexandra.fresco.framework.builder.numeric.PreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.lib.real.RealNumericContext;
-import dk.alexandra.fresco.suite.spdz.gates.batched.BatchedNumeric;
+import dk.alexandra.fresco.suite.spdz.gates.batched.SpdzBatchedNumeric;
 
 /**
  * Basic native builder for the SPDZ protocol suite.
@@ -29,7 +29,7 @@ public class SpdzBatchedBuilder extends SpdzBuilder {
   @Override
   public Numeric createNumeric(ProtocolBuilderNumeric protocolBuilder) {
     if (protocolBuilder.isParallel()) {
-      return new BatchedNumeric(protocolBuilder);
+      return new SpdzBatchedNumeric(protocolBuilder);
     } else {
       return new SpdzNumeric(protocolBuilder);
     }

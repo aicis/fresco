@@ -36,7 +36,8 @@ public class TestSpdzBasicArithmetic extends AbstractSpdzTest {
 
   @Test
   public void testMultiplyInSequence() {
-    runTest(new BasicArithmeticTests.TestMultiplyInSequence<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+    runTest(new BasicArithmeticTests.TestMultiplyInSequence<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test

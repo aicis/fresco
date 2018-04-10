@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocol;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzInputProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzKnownSIntProtocol;
@@ -20,7 +20,7 @@ import java.math.BigInteger;
 
 public class SpdzNumeric implements Numeric {
 
-  private final ProtocolBuilderNumeric protocolBuilder;
+  protected final ProtocolBuilderNumeric protocolBuilder;
 
   public SpdzNumeric(ProtocolBuilderNumeric protocolBuilder) {
     this.protocolBuilder = protocolBuilder;
@@ -28,8 +28,7 @@ public class SpdzNumeric implements Numeric {
 
   @Override
   public DRes<SInt> add(DRes<SInt> a, DRes<SInt> b) {
-    SpdzAddProtocol spdzAddProtocol = new SpdzAddProtocol(a, b);
-    return protocolBuilder.append(spdzAddProtocol);
+    return () -> SpdzSInt.toSpdzSInt(a).add(SpdzSInt.toSpdzSInt(b));
   }
 
   @Override
