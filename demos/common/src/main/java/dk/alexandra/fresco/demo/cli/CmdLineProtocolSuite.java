@@ -192,15 +192,13 @@ public class CmdLineProtocolSuite {
       supplier = new SpdzStorageDataSupplier(
           new FilebasedStreamedStorageImpl(new InMemoryStorage()), storageName, noOfPlayers);
     } else if (strategy == PreprocessingStrategy.MASCOT) {
-      // TODO: Figure out a meaningful default for the below
-      int modBitLength = Integer.parseInt(properties.getProperty("spdz.modBitLength", "64"));
-      int maxBitLength = Integer.parseInt(properties.getProperty("spdz.maxBitLength", "64"));
       int fixedPointPrecision = Integer.parseInt(properties.getProperty("fixedPointPrecision", "16"));
+      // TODO: Figure out a meaningful default for the below
+      int maxBitLength = Integer.parseInt(properties.getProperty("spdz.maxBitLength", "64"));
+      int modBitLength = Integer.parseInt(properties.getProperty("spdz.modBitLength", "64"));
+      // maxBitLength is already tested in getSpdzProtocolSuite.
       if (modBitLength < 2) {
         throw new RuntimeException("spdz.modBitLength must be > 1");
-      }
-      if (maxBitLength < 2) {
-        throw new RuntimeException("spdz.maxBitLength must be > 1");
       }
 
       List<Integer> partyIds =
