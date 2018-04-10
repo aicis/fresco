@@ -5,6 +5,7 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
+import dk.alexandra.fresco.suite.spdz.datatypes.DeferredSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzNativeProtocol;
@@ -23,7 +24,7 @@ public class SpdzBatchedMultiplication extends SpdzNativeProtocol<Void> {
 
   private final Deque<DRes<SInt>> leftFactors;
   private final Deque<DRes<SInt>> rightFactors;
-  private final Deque<SInt> products;
+  private final Deque<DeferredSInt> products;
   private List<SpdzTriple> triples;
   private List<SpdzSInt> epsilons;
   private List<SpdzSInt> deltas;
@@ -37,9 +38,11 @@ public class SpdzBatchedMultiplication extends SpdzNativeProtocol<Void> {
   }
 
   public DRes<SInt> append(DRes<SInt> left, DRes<SInt> right) {
+    DeferredSInt deferred = new DeferredSInt();
     leftFactors.add(left);
     rightFactors.add(right);
-    return products::pop;
+    products.add(deferred);
+    return deferred;
   }
 
   @Override
@@ -79,7 +82,7 @@ public class SpdzBatchedMultiplication extends SpdzNativeProtocol<Void> {
             .add(triples.get(i).getA().multiply(d))
             .addConstant(ed, macKeyShare, resourcePool.getModulus(),
                 resourcePool.getMyId() == 1);
-        products.add(product);
+        products.pop().callback(product);
       }
       resourcePool.getOpenedValueStore().pushOpenedValues(epsilons, openEpsilons);
       resourcePool.getOpenedValueStore().pushOpenedValues(deltas, openDeltas);

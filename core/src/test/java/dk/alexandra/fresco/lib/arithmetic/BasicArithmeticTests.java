@@ -104,6 +104,56 @@ public class BasicArithmeticTests {
     }
   }
 
+  public static class TestAddInSequence<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigInteger leftValue = BigInteger.valueOf(10);
+      BigInteger rightValue = BigInteger.valueOf(4);
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() {
+          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
+            Numeric numeric = producer.numeric();
+            DRes<SInt> el1 = numeric.input(leftValue, 1);
+            DRes<SInt> el2 = numeric.input(rightValue, 1);
+            DRes<SInt> result = numeric.add(el1, el2);
+            return numeric.open(numeric.add(result, result));
+          };
+          BigInteger actual = runApplication(app);
+          BigInteger expected = BigInteger.valueOf(28);
+          Assert.assertEquals(expected, actual);
+        }
+      };
+    }
+  }
+
+  public static class TestMultiplyInSequence<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigInteger leftValue = BigInteger.valueOf(10);
+      BigInteger rightValue = BigInteger.valueOf(4);
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() {
+          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
+            Numeric numeric = producer.numeric();
+            DRes<SInt> el1 = numeric.input(leftValue, 1);
+            DRes<SInt> el2 = numeric.input(rightValue, 1);
+            DRes<SInt> result = numeric.mult(el1, el2);
+            return numeric.open(numeric.mult(result, result));
+          };
+          BigInteger actual = runApplication(app);
+          BigInteger expected = BigInteger.valueOf(28);
+          Assert.assertEquals(expected, actual);
+        }
+      };
+    }
+  }
+
   public static class TestAddWithOverflow<ResourcePoolT extends NumericResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 

@@ -9,7 +9,7 @@ public class TestLookUpProtocol extends AbstractSpdzTest{
 	
 	@Test
 	public void test_lookup_is_sorted() throws Exception {
-    runTest(new SearchingTests.TestIsSorted<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new SearchingTests.TestIsSorted<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
   }
 

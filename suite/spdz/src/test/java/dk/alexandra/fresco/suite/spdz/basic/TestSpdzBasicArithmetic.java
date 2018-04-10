@@ -6,11 +6,16 @@ import dk.alexandra.fresco.lib.collections.io.CloseListTests.TestCloseAndOpenLis
 import dk.alexandra.fresco.suite.spdz.AbstractSpdzTest;
 import org.junit.Test;
 
-public class TestSdpzBasicArithmetic extends AbstractSpdzTest {
+public class TestSpdzBasicArithmetic extends AbstractSpdzTest {
 
   @Test
   public void testInput() {
     runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
+  public void testAddInSequence() {
+    runTest(new BasicArithmeticTests.TestAddInSequence<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
@@ -27,6 +32,11 @@ public class TestSdpzBasicArithmetic extends AbstractSpdzTest {
   @Test
   public void testMultiply() {
     runTest(new BasicArithmeticTests.TestMultiply<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
+  public void testMultiplyInSequence() {
+    runTest(new BasicArithmeticTests.TestMultiplyInSequence<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test

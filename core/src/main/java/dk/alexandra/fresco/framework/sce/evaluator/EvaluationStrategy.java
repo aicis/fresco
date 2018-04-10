@@ -7,7 +7,7 @@ public enum EvaluationStrategy {
     @Override
     public <ResourcePoolT extends ResourcePool>
         BatchEvaluationStrategy<ResourcePoolT> getStrategy() {
-      return new SequentialStrategy<>();
+      return new NativeBatchedStrategy<>();
     }
   }, SEQUENTIAL_BATCHED_OLD {
     @Override
