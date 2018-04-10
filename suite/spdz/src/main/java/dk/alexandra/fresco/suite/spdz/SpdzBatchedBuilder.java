@@ -114,7 +114,7 @@ public class SpdzBatchedBuilder extends SpdzBuilder {
       public DRes<SInt> input(BigInteger value, int inputParty) {
         if (!inputs.containsKey(inputParty)) {
           SpdzBatchedInputComputation input = new SpdzBatchedInputComputation(
-              protocolBuilder.getBasicNumericContext().getNoOfParties());
+              inputParty, protocolBuilder.getBasicNumericContext().getNoOfParties());
           inputs.put(inputParty, input);
           protocolBuilder.seq(input);
         }

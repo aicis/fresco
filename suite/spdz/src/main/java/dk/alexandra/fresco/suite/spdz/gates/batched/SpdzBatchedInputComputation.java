@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.broadcast.BroadcastValidationProtocol;
 import java.math.BigInteger;
 
 /**
@@ -16,8 +17,8 @@ public class SpdzBatchedInputComputation implements Computation<Void, ProtocolBu
 
   private final SpdzBatchedInputOnly inputOnly;
 
-  public SpdzBatchedInputComputation(int inputPartyId) {
-    inputOnly = new SpdzBatchedInputOnly(inputPartyId);
+  public SpdzBatchedInputComputation(int inputPartyId, int noOfParties) {
+    inputOnly = new SpdzBatchedInputOnly(inputPartyId, noOfParties > 2);
   }
 
   public DRes<SInt> append(BigInteger input) {
@@ -27,11 +28,15 @@ public class SpdzBatchedInputComputation implements Computation<Void, ProtocolBu
   @Override
   public DRes<Void> buildComputation(ProtocolBuilderNumeric builder) {
     if (builder.getBasicNumericContext().getNoOfParties() <= 2) {
+      // no need for broadcast validation in two-party case
       builder.append(inputOnly);
       return null;
     } else {
-      return null;
-//      return builder.seq(new BroadcastValidationProtocol<>(builder.append(inputOnly)));
+      DRes<byte[]> toValidate = builder.append(inputOnly);
+      return builder.seq(seq -> {
+        seq.append(new BroadcastValidationProtocol<>(toValidate.out()));
+        return null;
+      });
     }
   }
 

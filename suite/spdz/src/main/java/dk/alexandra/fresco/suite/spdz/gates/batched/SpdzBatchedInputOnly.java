@@ -30,10 +30,6 @@ public class SpdzBatchedInputOnly extends SpdzNativeProtocol<byte[]> {
     this.storeMaskBytesFlag = storeMaskBytesFlag;
   }
 
-  public SpdzBatchedInputOnly(int inputPartyId) {
-    this(inputPartyId, false);
-  }
-
   public DRes<SInt> append(BigInteger input) {
     inputs.add(input);
     return closed::pop;
