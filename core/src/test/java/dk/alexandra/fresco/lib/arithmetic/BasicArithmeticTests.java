@@ -41,7 +41,6 @@ public class BasicArithmeticTests {
         public void test() {
           Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
             Numeric numeric = producer.numeric();
-
             DRes<SInt> input = numeric.input(value, 1);
             return numeric.open(input);
           };

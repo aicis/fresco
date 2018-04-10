@@ -73,9 +73,11 @@ public class SpdzBatchedInputOnly extends SpdzNativeProtocol<byte[]> {
 
   private void maskAndSend(SpdzResourcePool resourcePool, Network network) {
     int byteLength = resourcePool.getModBitLength() / Byte.SIZE;
-    final byte[] bytes = new byte[byteLength];
-    for (int i = 0; i < inputs.size(); i++) {
-      BigInteger masked = inputs.pop().subtract(inputMasks.get(i).getRealValue())
+    int numInputs = inputs.size();
+    final byte[] bytes = new byte[numInputs * byteLength];
+    for (int i = 0; i < numInputs; i++) {
+      BigInteger pop = inputs.pop();
+      BigInteger masked = pop.subtract(inputMasks.get(i).getRealValue())
           .mod(resourcePool.getModulus());
       System.arraycopy(resourcePool.getSerializer().serialize(masked), 0, bytes,
           i * byteLength, byteLength);

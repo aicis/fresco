@@ -19,7 +19,7 @@ public class SpdzProtocolSuite implements ProtocolSuiteNumeric<SpdzResourcePool>
   }
 
   public SpdzProtocolSuite(int maxBitLength, int fixedPointPrecision) {
-    this(maxBitLength, fixedPointPrecision, false);
+    this(maxBitLength, fixedPointPrecision, true);
   }
 
   public SpdzProtocolSuite(int maxBitLength, boolean useBatchedBuilder) {
@@ -39,7 +39,6 @@ public class SpdzProtocolSuite implements ProtocolSuiteNumeric<SpdzResourcePool>
     } else {
       return new SpdzBuilder(numericContext, realContext);
     }
-
   }
 
   BasicNumericContext createNumericContext(SpdzResourcePool resourcePool) {

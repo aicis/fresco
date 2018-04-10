@@ -161,6 +161,13 @@ public abstract class AbstractSpdzTest {
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
+      EvaluationStrategy evalStrategy) {
+    runTest(f, evalStrategy, PreprocessingStrategy.DUMMY, 2, false, DEFAULT_MOD_BIT_LENGTH,
+        DEFAULT_MAX_BIT_LENGTH, DEFAULT_FIXED_POINT_PRECISION);
+  }
+
+  protected void runTest(
+      TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, PreprocessingStrategy preProStrat, int noOfParties,
       int modBitLength, int maxBitLength, int fixedPointPrecision) {
     runTest(f, evalStrategy, preProStrat, noOfParties, false, modBitLength, maxBitLength,

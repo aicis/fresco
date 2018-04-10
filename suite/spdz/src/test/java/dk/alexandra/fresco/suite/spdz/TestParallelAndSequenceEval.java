@@ -16,7 +16,7 @@ public class TestParallelAndSequenceEval extends AbstractSpdzTest{
 
 	@Test
   public void testSumAndProduct() throws Exception {
-    runTest(new TestSumAndProduct<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new TestSumAndProduct<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
   }
 }

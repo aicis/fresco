@@ -10,7 +10,7 @@ import dk.alexandra.fresco.framework.util.OpenedValueStore;
 import dk.alexandra.fresco.suite.ProtocolSuite.RoundSynchronization;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMacCheckProtocol;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputProtocol;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzRequiresMacCheck;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.stream.StreamSupport;
@@ -80,7 +80,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
       ProtocolCollection<SpdzResourcePool> protocols, SpdzResourcePool resourcePool,
       Network network) {
     isCheckRequired = StreamSupport.stream(protocols.spliterator(), false)
-        .anyMatch(p -> p instanceof SpdzOutputProtocol);
+        .anyMatch(p -> p instanceof SpdzRequiresMacCheck);
     OpenedValueStore<SpdzSInt, BigInteger> store = resourcePool.getOpenedValueStore();
     if (store.hasPendingValues() && isCheckRequired) {
       doMacCheck(resourcePool, network);

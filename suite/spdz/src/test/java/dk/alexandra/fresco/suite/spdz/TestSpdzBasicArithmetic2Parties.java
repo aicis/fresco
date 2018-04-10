@@ -21,92 +21,96 @@ public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
   // TODO PFF Consider deleting or changing test data to avoid the failure?
   @Ignore
   @Test
-  public void test_Division_Sequential_Batched() throws Exception {
-    runTest(new TestKnownDivisorDivision<>(), EvaluationStrategy.SEQUENTIAL,
+  public void test_Division_Sequential_Batched() {
+    runTest(new TestKnownDivisorDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_Secret_Shared_Division_Sequential_Batched() throws Exception {
+  public void test_Secret_Shared_Division_Sequential_Batched() {
     runTest(new TestDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_Log_Sequential_Batched() throws Exception {
+  public void test_Log_Sequential_Batched() {
     runTest(new TestLogarithm<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_Sqrt_Sequential_Batched() throws Exception {
+  public void test_Sqrt_Sequential_Batched() {
     runTest(new TestSquareRoot<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_Input_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL,
+  public void test_Input_Sequential() {
+    runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_OutputToTarget_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestOutputToSingleParty<>(), EvaluationStrategy.SEQUENTIAL,
+  public void test_OutputToTarget_Sequential() {
+    runTest(new BasicArithmeticTests.TestOutputToSingleParty<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_AddPublicValue_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestAddPublicValue<>(), EvaluationStrategy.SEQUENTIAL,
+  public void test_AddPublicValue_Sequential() {
+    runTest(new BasicArithmeticTests.TestAddPublicValue<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void testOpenWithConversion() throws Exception {
-    runTest(new BasicArithmeticTests.TestOpenWithConversion<>(), EvaluationStrategy.SEQUENTIAL,
+  public void testOpenWithConversion() {
+    runTest(new BasicArithmeticTests.TestOpenWithConversion<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_MultAndAdd_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestSimpleMultAndAdd<>(), EvaluationStrategy.SEQUENTIAL,
+  public void test_MultAndAdd_Sequential() {
+    runTest(new BasicArithmeticTests.TestSimpleMultAndAdd<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_Sum_And_Output_Sequential() throws Exception {
-    runTest(new BasicArithmeticTests.TestSumAndMult<>(), EvaluationStrategy.SEQUENTIAL,
+  public void test_Sum_And_Output_Sequential() {
+    runTest(new BasicArithmeticTests.TestSumAndMult<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_MinInfFrac_Sequential() throws Exception {
-    runTest(new TestMinInfFrac<>(), EvaluationStrategy.SEQUENTIAL,
-        PreprocessingStrategy.DUMMY, 2);
-  }
-
-  @Test
-  public void test_MinInfFrac_SequentialBatched() throws Exception {
+  public void test_MinInfFrac_Sequential() {
     runTest(new TestMinInfFrac<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_Input_SequentialBatched_Mascot() throws Exception {
+  public void test_MinInfFrac_SequentialBatched() {
+    runTest(new TestMinInfFrac<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+        PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
+  public void test_Input_SequentialBatched_Mascot() {
     runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.MASCOT, 2, 16, 16, 4);
   }
 
   @Test
-  public void test_Lots_Of_Mults_Sequential_Batched_Different_Modulus() throws Exception {
+  public void test_Lots_Of_Mults_Sequential_Batched_Different_Modulus() {
     runTest(new BasicArithmeticTests.TestLotsMult<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2, 128, 128, 16);
   }
 
   @Test
-  public void testOpenWithConversionMascot() throws Exception {
-    runTest(new BasicArithmeticTests.TestOpenWithConversion<>(), EvaluationStrategy.SEQUENTIAL,
+  public void testOpenWithConversionMascot() {
+    runTest(new BasicArithmeticTests.TestOpenWithConversion<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.MASCOT, 2, 16, 16, 4);
   }
 }

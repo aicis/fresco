@@ -14,7 +14,7 @@ import java.security.MessageDigest;
 public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResourcePool {
 
   private final MessageDigest messageDigest;
-  private final int modulusSize;
+  private final int modulusByteLength;
   private final BigInteger modulus;
   private final BigInteger modulusHalf;
   private final OpenedValueStore<SpdzSInt, BigInteger> openedValueStore;
@@ -41,7 +41,7 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
     // Initialize various fields global to the computation.
     this.modulus = dataSupplier.getModulus();
     this.modulusHalf = this.modulus.divide(BigInteger.valueOf(2));
-    this.modulusSize = this.modulus.toByteArray().length;
+    this.modulusByteLength = this.modulus.toByteArray().length;
     this.drbg = drbg;
   }
 
@@ -52,12 +52,12 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
 
   @Override
   public int getModBitLength() {
-    return modulusSize;
+    return modulusByteLength * Byte.SIZE;
   }
 
   @Override
   public ByteSerializer<BigInteger> getSerializer() {
-    return new BigIntegerWithFixedLengthSerializer(modulusSize);
+    return new BigIntegerWithFixedLengthSerializer(modulusByteLength);
   }
 
   @Override

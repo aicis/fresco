@@ -10,9 +10,10 @@ import java.math.BigInteger;
 import java.util.List;
 
 public class SpdzOutputToAllProtocol extends SpdzNativeProtocol<BigInteger>
-    implements SpdzOutputProtocol {
+    implements SpdzRequiresMacCheck {
 
   private DRes<SInt> in;
+  private SpdzSInt outTemp;
   private BigInteger out;
 
   public SpdzOutputToAllProtocol(DRes<SInt> in) {
@@ -25,8 +26,8 @@ public class SpdzOutputToAllProtocol extends SpdzNativeProtocol<BigInteger>
 
     ByteSerializer<BigInteger> serializer = spdzResourcePool.getSerializer();
     if (round == 0) {
-      SpdzSInt out = (SpdzSInt) in.out();
-      network.sendToAll(serializer.serialize(out.getShare()));
+      outTemp = (SpdzSInt) in.out();
+      network.sendToAll(serializer.serialize(outTemp.getShare()));
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       List<byte[]> shares = network.receiveFromAll();
@@ -35,7 +36,7 @@ public class SpdzOutputToAllProtocol extends SpdzNativeProtocol<BigInteger>
         openedVal = openedVal.add(serializer.deserialize(buffer));
       }
       openedVal = openedVal.mod(spdzResourcePool.getModulus());
-      spdzResourcePool.getOpenedValueStore().pushOpenedValue(((SpdzSInt) in.out()), openedVal);
+      spdzResourcePool.getOpenedValueStore().pushOpenedValue(outTemp, openedVal);
       BigInteger tmpOut = openedVal;
       tmpOut = spdzResourcePool.convertRepresentation(tmpOut);
       this.out = tmpOut;

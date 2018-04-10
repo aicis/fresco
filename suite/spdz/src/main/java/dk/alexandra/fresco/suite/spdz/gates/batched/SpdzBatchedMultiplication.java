@@ -77,7 +77,8 @@ public class SpdzBatchedMultiplication extends SpdzNativeProtocol<Void> {
         SInt product = triples.get(i).getC()
             .add(triples.get(i).getB().multiply(e))
             .add(triples.get(i).getA().multiply(d))
-            .addConstant(ed, macKeyShare, BigInteger.ZERO, resourcePool.getMyId() == 1);
+            .addConstant(ed, macKeyShare, resourcePool.getModulus(),
+                resourcePool.getMyId() == 1);
         products.add(product);
       }
       resourcePool.getOpenedValueStore().pushOpenedValues(epsilons, openEpsilons);
@@ -97,7 +98,7 @@ public class SpdzBatchedMultiplication extends SpdzNativeProtocol<Void> {
   }
 
   /**
-   * Retrieves shares for epsilons and deltas and reconstructs each.
+   * Receives shares for epsilons and deltas and reconstructs each.
    */
   private void receiveAndReconstruct(Network network, ByteSerializer<BigInteger> serializer,
       BigInteger modulus, int myId, int noOfParties) {

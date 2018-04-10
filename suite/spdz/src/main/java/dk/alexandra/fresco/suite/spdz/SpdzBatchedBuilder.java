@@ -20,6 +20,7 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownRight;
 import dk.alexandra.fresco.suite.spdz.gates.batched.SpdzBatchedInputComputation;
 import dk.alexandra.fresco.suite.spdz.gates.batched.SpdzBatchedMultiplication;
 import java.math.BigInteger;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -47,11 +48,11 @@ public class SpdzBatchedBuilder extends SpdzBuilder {
     return new Numeric() {
 
       private SpdzBatchedMultiplication multiplications;
-      private Map<Integer, SpdzBatchedInputComputation> inputs;
+      private Map<Integer, SpdzBatchedInputComputation> inputs = new HashMap<>();
 
       @Override
       public DRes<SInt> add(DRes<SInt> a, DRes<SInt> b) {
-        return () -> SpdzSInt.toSpdzSInt(a).add(SpdzSInt.toSpdzSInt(a));
+        return () -> SpdzSInt.toSpdzSInt(a).add(SpdzSInt.toSpdzSInt(b));
       }
 
       @Override
@@ -112,6 +113,7 @@ public class SpdzBatchedBuilder extends SpdzBuilder {
 
       @Override
       public DRes<SInt> input(BigInteger value, int inputParty) {
+        System.out.println("here?");
         if (!inputs.containsKey(inputParty)) {
           SpdzBatchedInputComputation input = new SpdzBatchedInputComputation(
               inputParty, protocolBuilder.getBasicNumericContext().getNoOfParties());

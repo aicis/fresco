@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class BigIntegerWithFixedLengthSerializer implements ByteSerializer<BigInteger> {
 
-  private int byteLength;
+  private final int byteLength;
 
   /**
    * Creates a new instance that adhere to the interface.

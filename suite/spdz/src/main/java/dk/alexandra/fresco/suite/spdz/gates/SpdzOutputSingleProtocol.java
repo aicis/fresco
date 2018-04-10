@@ -12,7 +12,7 @@ import java.math.BigInteger;
 import java.util.List;
 
 public class SpdzOutputSingleProtocol extends SpdzNativeProtocol<BigInteger>
-    implements SpdzOutputProtocol {
+    implements SpdzRequiresMacCheck {
 
   private DRes<SInt> in;
   private BigInteger out;
