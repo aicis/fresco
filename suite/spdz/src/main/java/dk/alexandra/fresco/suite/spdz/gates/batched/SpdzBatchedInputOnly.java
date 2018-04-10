@@ -14,17 +14,24 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 
-public class SpdzBatchedInputOnly extends SpdzNativeProtocol<Void> {
+public class SpdzBatchedInputOnly extends SpdzNativeProtocol<byte[]> {
 
   private final Deque<BigInteger> inputs;
   private final int inputPartyId;
   private final Deque<SInt> closed;
+  private final boolean storeMaskBytesFlag;
+  private byte[] inputMaskBytes;
   private List<SpdzInputMask> inputMasks;
 
-  public SpdzBatchedInputOnly(int inputPartyId) {
+  public SpdzBatchedInputOnly(int inputPartyId, boolean storeMaskBytesFlag) {
     this.inputPartyId = inputPartyId;
     this.inputs = new LinkedList<>();
     this.closed = new LinkedList<>();
+    this.storeMaskBytesFlag = storeMaskBytesFlag;
+  }
+
+  public SpdzBatchedInputOnly(int inputPartyId) {
+    this(inputPartyId, false);
   }
 
   public DRes<SInt> append(BigInteger input) {
@@ -44,7 +51,10 @@ public class SpdzBatchedInputOnly extends SpdzNativeProtocol<Void> {
       }
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
-      byte[] inputMaskBytes = network.receive(inputPartyId);
+      final byte[] inputMaskBytes = network.receive(inputPartyId);
+      if (storeMaskBytesFlag) {
+        this.inputMaskBytes = inputMaskBytes;
+      }
       List<BigInteger> masked = serializer.deserializeList(inputMaskBytes);
       BigInteger macKeyShare = dataSupplier.getSecretSharedKey();
       for (int i = 0; i < inputMasks.size(); i++) {
@@ -61,8 +71,8 @@ public class SpdzBatchedInputOnly extends SpdzNativeProtocol<Void> {
   }
 
   @Override
-  public Void out() {
-    return null;
+  public byte[] out() {
+    return inputMaskBytes;
   }
 
   private void maskAndSend(SpdzResourcePool resourcePool, Network network) {

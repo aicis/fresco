@@ -8,6 +8,7 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.lib.broadcast.BroadcastComputation;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntConverter;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;

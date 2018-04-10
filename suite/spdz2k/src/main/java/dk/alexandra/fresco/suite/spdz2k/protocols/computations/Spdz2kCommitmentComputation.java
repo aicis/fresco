@@ -6,7 +6,8 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.suite.spdz2k.protocols.natives.InsecureBroadcastProtocol;
+import dk.alexandra.fresco.lib.broadcast.BroadcastComputation;
+import dk.alexandra.fresco.lib.broadcast.InsecureBroadcastProtocol;
 import java.util.ArrayList;
 import java.util.List;
 

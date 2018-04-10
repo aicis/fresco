@@ -8,10 +8,9 @@ import java.math.BigInteger;
 
 /**
  * Native batched computation for inputting private data. <p>Consists of native batched protocols
- * {@link SpdzBatchedInputOnly} and {@link ...}. The first returns this
- * party's share of the input along with the bytes of the masked input. The second step runs a
- * broadcast validation of the bytes of the masked input (if more than two parties are carrying out
- * the computation).</p>
+ * {@link SpdzBatchedInputOnly} and {@link ...}. The first returns this party's share of the input
+ * along with the bytes of the masked input. The second step runs a broadcast validation of the
+ * bytes of the masked input (if more than two parties are carrying out the computation).</p>
  */
 public class SpdzBatchedInputComputation implements Computation<Void, ProtocolBuilderNumeric> {
 
@@ -27,9 +26,13 @@ public class SpdzBatchedInputComputation implements Computation<Void, ProtocolBu
 
   @Override
   public DRes<Void> buildComputation(ProtocolBuilderNumeric builder) {
-    builder.append(inputOnly);
-
-    return null;
+    if (builder.getBasicNumericContext().getNoOfParties() <= 2) {
+      builder.append(inputOnly);
+      return null;
+    } else {
+      return null;
+//      return builder.seq(new BroadcastValidationProtocol<>(builder.append(inputOnly)));
+    }
   }
 
 }

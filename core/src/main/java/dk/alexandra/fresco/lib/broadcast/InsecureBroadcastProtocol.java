@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.suite.spdz2k.protocols.natives;
+package dk.alexandra.fresco.lib.broadcast;
 
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.network.Network;
@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  * Generic native protocol implementing insecure broadcast. <p>Used as a building block in {@link
- * dk.alexandra.fresco.suite.spdz2k.protocols.computations.BroadcastComputation}.</p>
+ * BroadcastComputation}.</p>
  */
 public class InsecureBroadcastProtocol<ResourcePoolT extends ResourcePool> implements
     NativeProtocol<List<byte[]>, ResourcePoolT> {

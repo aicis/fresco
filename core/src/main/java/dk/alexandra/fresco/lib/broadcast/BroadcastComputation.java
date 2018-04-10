@@ -1,10 +1,8 @@
-package dk.alexandra.fresco.suite.spdz2k.protocols.computations;
+package dk.alexandra.fresco.lib.broadcast;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderImpl;
-import dk.alexandra.fresco.suite.spdz2k.protocols.natives.BroadcastValidationProtocol;
-import dk.alexandra.fresco.suite.spdz2k.protocols.natives.InsecureBroadcastProtocol;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,11 +16,11 @@ public class BroadcastComputation<BuilderT extends ProtocolBuilderImpl<BuilderT>
 
   private final List<byte[]> input;
 
-  BroadcastComputation(List<byte[]> input) {
+  public BroadcastComputation(List<byte[]> input) {
     this.input = input;
   }
 
-  BroadcastComputation(byte[] input) {
+  public BroadcastComputation(byte[] input) {
     this(java.util.Collections.singletonList(input));
   }
 
