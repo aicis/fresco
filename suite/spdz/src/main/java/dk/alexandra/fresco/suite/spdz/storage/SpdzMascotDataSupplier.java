@@ -145,11 +145,11 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   }
 
   @Override
-  public SpdzInputMask getNextInputMask(int towardPlayerID) {
+  public SpdzInputMask getNextInputMask(int inputPartyId) {
     ensureInitialized();
     if (masks.isEmpty()) {
       logger.trace("Getting another mask batch");
-      masks.addAll(mascot.getInputMasks(towardPlayerID, batchSize));
+      masks.addAll(mascot.getInputMasks(inputPartyId, batchSize));
       logger.trace("Got another mask batch");
     }
     return MascotFormatConverter.toSpdzInputMask(masks.pop());

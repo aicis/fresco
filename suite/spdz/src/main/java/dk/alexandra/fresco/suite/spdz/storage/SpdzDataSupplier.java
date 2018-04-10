@@ -30,10 +30,10 @@ public interface SpdzDataSupplier {
   /**
    * Supplies the next inputmask for a given input player.
    *
-   * @param towardPlayerId the id of the input player
+   * @param inputPartyId the id of the input player
    * @return the appropriate input mask
    */
-  SpdzInputMask getNextInputMask(int towardPlayerId);
+  SpdzInputMask getNextInputMask(int inputPartyId);
 
   /**
    * Supplies the next bit (i.e. a SpdzSInt representing a value in {0, 1}).
@@ -73,6 +73,17 @@ public interface SpdzDataSupplier {
       triples.add(getNextTriple());
     }
     return triples;
+  }
+
+  /**
+   * Returns multiple masks.
+   */
+  default List<SpdzInputMask> getNextMasks(int inputPartyId, int numMasks) {
+    List<SpdzInputMask> masks = new ArrayList<>(numMasks);
+    for (int i = 0; i < numMasks; i++) {
+      masks.add(getNextInputMask(inputPartyId));
+    }
+    return masks;
   }
 
 }

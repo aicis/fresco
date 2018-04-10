@@ -9,7 +9,6 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.lib.real.RealNumericContext;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocolKnownLeft;
-import dk.alexandra.fresco.suite.spdz.gates.SpdzInputProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzKnownSIntProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputSingleProtocol;
@@ -18,6 +17,7 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzRandomProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownRight;
+import dk.alexandra.fresco.suite.spdz.gates.batched.SpdzBatchedInputComputation;
 import dk.alexandra.fresco.suite.spdz.gates.batched.SpdzBatchedMultiplication;
 import java.math.BigInteger;
 
@@ -46,19 +46,18 @@ public class SpdzBatchedBuilder extends SpdzBuilder {
     return new Numeric() {
 
       private SpdzBatchedMultiplication multiplications;
+      private SpdzBatchedInputComputation inputs;
 
       @Override
       public DRes<SInt> add(DRes<SInt> a, DRes<SInt> b) {
         return () -> SpdzSInt.toSpdzSInt(a).add(SpdzSInt.toSpdzSInt(a));
       }
 
-
       @Override
       public DRes<SInt> add(BigInteger a, DRes<SInt> b) {
         SpdzAddProtocolKnownLeft spdzAddProtocolKnownLeft = new SpdzAddProtocolKnownLeft(a, b);
         return protocolBuilder.append(spdzAddProtocolKnownLeft);
       }
-
 
       @Override
       public DRes<SInt> sub(DRes<SInt> a, DRes<SInt> b) {
@@ -93,7 +92,6 @@ public class SpdzBatchedBuilder extends SpdzBuilder {
       public DRes<SInt> mult(BigInteger a, DRes<SInt> b) {
         SpdzMultProtocolKnownLeft spdzMultProtocol4 = new SpdzMultProtocolKnownLeft(a, b);
         return protocolBuilder.append(spdzMultProtocol4);
-
       }
 
       @Override
@@ -113,8 +111,12 @@ public class SpdzBatchedBuilder extends SpdzBuilder {
 
       @Override
       public DRes<SInt> input(BigInteger value, int inputParty) {
-        SpdzInputProtocol protocol = new SpdzInputProtocol(value, inputParty);
-        return protocolBuilder.append(protocol);
+        if (inputs == null) {
+          inputs = new SpdzBatchedInputComputation(
+              protocolBuilder.getBasicNumericContext().getNoOfParties());
+          protocolBuilder.seq(inputs);
+        }
+        return inputs.append(value, inputParty);
       }
 
       @Override

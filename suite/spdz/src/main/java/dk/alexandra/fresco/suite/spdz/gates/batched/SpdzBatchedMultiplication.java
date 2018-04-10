@@ -23,7 +23,7 @@ public class SpdzBatchedMultiplication extends SpdzNativeProtocol<Void> {
 
   private final Deque<DRes<SInt>> leftFactors;
   private final Deque<DRes<SInt>> rightFactors;
-  private final Deque<SInt> deferredProducts;
+  private final Deque<SInt> products;
   private List<SpdzTriple> triples;
   private List<SpdzSInt> epsilons;
   private List<SpdzSInt> deltas;
@@ -33,13 +33,13 @@ public class SpdzBatchedMultiplication extends SpdzNativeProtocol<Void> {
   public SpdzBatchedMultiplication() {
     this.leftFactors = new LinkedList<>();
     this.rightFactors = new LinkedList<>();
-    this.deferredProducts = new LinkedList<>();
+    this.products = new LinkedList<>();
   }
 
   public DRes<SInt> append(DRes<SInt> left, DRes<SInt> right) {
     leftFactors.add(left);
     rightFactors.add(right);
-    return deferredProducts::pop;
+    return products::pop;
   }
 
   @Override
@@ -78,7 +78,7 @@ public class SpdzBatchedMultiplication extends SpdzNativeProtocol<Void> {
             .add(triples.get(i).getB().multiply(e))
             .add(triples.get(i).getA().multiply(d))
             .addConstant(ed, macKeyShare, BigInteger.ZERO, resourcePool.getMyId() == 1);
-        deferredProducts.add(product);
+        products.add(product);
       }
       resourcePool.getOpenedValueStore().pushOpenedValues(epsilons, openEpsilons);
       resourcePool.getOpenedValueStore().pushOpenedValues(deltas, openDeltas);

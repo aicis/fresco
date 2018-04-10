@@ -96,20 +96,20 @@ public class SpdzStorageDataSupplier implements SpdzDataSupplier {
   }
 
   @Override
-  public SpdzInputMask getNextInputMask(int towardPlayerId) {
+  public SpdzInputMask getNextInputMask(int inputPartyId) {
     SpdzInputMask mask;
     try {
       mask = this.storage.getNext(storageName
-          + INPUT_STORAGE + towardPlayerId);
+          + INPUT_STORAGE + inputPartyId);
     } catch (NoMoreElementsException e) {
-      logger.error("Mask no. " + inputMaskCounters[towardPlayerId - 1] + " towards player "
-          + towardPlayerId + " was not present in the storage "
-          + (storageName + INPUT_STORAGE + towardPlayerId));
-      throw new IllegalArgumentException("Mask no. " + inputMaskCounters[towardPlayerId - 1]
-          + " towards player " + towardPlayerId + " was not present in the storage "
-          + (storageName + INPUT_STORAGE + towardPlayerId), e);
+      logger.error("Mask no. " + inputMaskCounters[inputPartyId - 1] + " towards player "
+          + inputPartyId + " was not present in the storage "
+          + (storageName + INPUT_STORAGE + inputPartyId));
+      throw new IllegalArgumentException("Mask no. " + inputMaskCounters[inputPartyId - 1]
+          + " towards player " + inputPartyId + " was not present in the storage "
+          + (storageName + INPUT_STORAGE + inputPartyId), e);
     }
-    inputMaskCounters[towardPlayerId - 1]++;
+    inputMaskCounters[inputPartyId - 1]++;
     return mask;
   }
 

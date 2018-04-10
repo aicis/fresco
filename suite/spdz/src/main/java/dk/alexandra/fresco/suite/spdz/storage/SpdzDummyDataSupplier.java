@@ -62,9 +62,9 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
   }
 
   @Override
-  public SpdzInputMask getNextInputMask(int towardPlayerId) {
+  public SpdzInputMask getNextInputMask(int inputPartyId) {
     Pair<BigInteger,BigInteger> raw = supplier.getRandomElementShare();
-    if (myId == towardPlayerId) {
+    if (myId == inputPartyId) {
       return new SpdzInputMask(toSpdzSInt(raw), raw.getFirst());
     } else {
       return new SpdzInputMask(toSpdzSInt(raw), null);
