@@ -5,8 +5,6 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Native batched computation for inputting private data. <p>Consists of native batched protocols
@@ -17,27 +15,21 @@ import java.util.Map;
  */
 public class SpdzBatchedInputComputation implements Computation<Void, ProtocolBuilderNumeric> {
 
-  private final Map<Integer, SpdzBatchedInputOnly> inputOnly;
+  private final SpdzBatchedInputOnly inputOnly;
 
-  public SpdzBatchedInputComputation(int noOfParties) {
-    inputOnly = new HashMap<>();
-    for (int partyId = 1; partyId <= noOfParties; partyId++) {
-      inputOnly.put(partyId, new SpdzBatchedInputOnly(partyId));
-    }
+  public SpdzBatchedInputComputation(int inputPartyId) {
+    inputOnly = new SpdzBatchedInputOnly(inputPartyId);
   }
 
-  public DRes<SInt> append(BigInteger input, int inputPartyId) {
-    return inputOnly.get(inputPartyId).append(input);
+  public DRes<SInt> append(BigInteger input) {
+    return inputOnly.append(input);
   }
 
   @Override
   public DRes<Void> buildComputation(ProtocolBuilderNumeric builder) {
-    return builder.par(par -> {
-      for (SpdzBatchedInputOnly input : inputOnly.values()) {
-        par.append(input);
-      }
-      return null;
-    });
+    builder.append(inputOnly);
+
+    return null;
   }
 
 }

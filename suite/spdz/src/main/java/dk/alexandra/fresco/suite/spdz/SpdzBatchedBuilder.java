@@ -20,6 +20,7 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownRight;
 import dk.alexandra.fresco.suite.spdz.gates.batched.SpdzBatchedInputComputation;
 import dk.alexandra.fresco.suite.spdz.gates.batched.SpdzBatchedMultiplication;
 import java.math.BigInteger;
+import java.util.Map;
 
 /**
  * Basic native builder for the SPDZ protocol suite.
@@ -46,7 +47,7 @@ public class SpdzBatchedBuilder extends SpdzBuilder {
     return new Numeric() {
 
       private SpdzBatchedMultiplication multiplications;
-      private SpdzBatchedInputComputation inputs;
+      private Map<Integer, SpdzBatchedInputComputation> inputs;
 
       @Override
       public DRes<SInt> add(DRes<SInt> a, DRes<SInt> b) {
@@ -111,12 +112,13 @@ public class SpdzBatchedBuilder extends SpdzBuilder {
 
       @Override
       public DRes<SInt> input(BigInteger value, int inputParty) {
-        if (inputs == null) {
-          inputs = new SpdzBatchedInputComputation(
+        if (!inputs.containsKey(inputParty)) {
+          SpdzBatchedInputComputation input = new SpdzBatchedInputComputation(
               protocolBuilder.getBasicNumericContext().getNoOfParties());
-          protocolBuilder.seq(inputs);
+          inputs.put(inputParty, input);
+          protocolBuilder.seq(input);
         }
-        return inputs.append(value, inputParty);
+        return inputs.get(inputParty).append(value);
       }
 
       @Override
