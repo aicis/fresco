@@ -15,7 +15,7 @@ import org.junit.Assert;
 
 public class TestBatchArithmetic {
 
-  public static class TestBatchedMultiply<ResourcePoolT extends NumericResourcePool>
+  public static class TestBatchMultiply<ResourcePoolT extends NumericResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
