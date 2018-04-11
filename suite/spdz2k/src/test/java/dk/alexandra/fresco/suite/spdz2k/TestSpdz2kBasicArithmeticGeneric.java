@@ -13,7 +13,7 @@ import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kOpenedValueStoreI
 import java.util.function.Supplier;
 
 public class TestSpdz2kBasicArithmeticGeneric extends
-    Spdz2kTestSuite<Spdz2kResourcePool<GenericCompUInt>> {
+    Spdz2kBasicArithmeticTestSuite<Spdz2kResourcePool<GenericCompUInt>> {
 
   @Override
   protected Spdz2kResourcePool<GenericCompUInt> createResourcePool(int playerId, int noOfParties,

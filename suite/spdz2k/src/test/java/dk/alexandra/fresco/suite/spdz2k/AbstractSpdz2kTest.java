@@ -27,12 +27,15 @@ import java.util.function.Supplier;
 public abstract class AbstractSpdz2kTest<Spdz2kResourcePoolT extends Spdz2kResourcePool<?>> {
 
   private final List<Integer> partyNumbers = Arrays.asList(2, 3);
+  private final List<EvaluationStrategy> evaluationStrategies = Arrays.asList(
+      EvaluationStrategy.SEQUENTIAL_BATCHED, EvaluationStrategy.NATIVE_BATCHED);
 
   void runTest(
-      TestThreadRunner.TestThreadFactory<Spdz2kResourcePoolT, ProtocolBuilderNumeric> f,
-      EvaluationStrategy evalStrategy) {
-    for (Integer numberOfParties : partyNumbers) {
-      runTest(f, evalStrategy, numberOfParties);
+      TestThreadRunner.TestThreadFactory<Spdz2kResourcePoolT, ProtocolBuilderNumeric> f) {
+    for (EvaluationStrategy evaluationStrategy : evaluationStrategies) {
+      for (Integer numberOfParties : partyNumbers) {
+        runTest(f, evaluationStrategy, numberOfParties);
+      }
     }
   }
 
