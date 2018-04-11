@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.suite.spdz.basic;
+package dk.alexandra.fresco.suite.spdz.batchednative;
 
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
