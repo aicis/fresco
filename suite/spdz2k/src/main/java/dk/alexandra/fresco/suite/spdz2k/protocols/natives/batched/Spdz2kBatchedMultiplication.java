@@ -15,7 +15,11 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Spdz2kBatchedMultiply<PlainT extends CompUInt<?, ?, PlainT>> extends
+/**
+ * A batched native protocol for multiplication. <p>This protocol accumulates values to be
+ * multiplied in a batch and multiplies them once evaluate is called.</p>
+ */
+public class Spdz2kBatchedMultiplication<PlainT extends CompUInt<?, ?, PlainT>> extends
     Spdz2kNativeProtocol<List<DRes<SInt>>, PlainT> {
 
   private final Deque<DRes<SInt>> leftFactors;
@@ -27,7 +31,7 @@ public class Spdz2kBatchedMultiply<PlainT extends CompUInt<?, ?, PlainT>> extend
   private List<PlainT> openEpsilons;
   private List<PlainT> openDeltas;
 
-  public Spdz2kBatchedMultiply() {
+  public Spdz2kBatchedMultiplication() {
     this.leftFactors = new LinkedList<>();
     this.rightFactors = new LinkedList<>();
     this.deferredProducts = new LinkedList<>();
@@ -87,7 +91,7 @@ public class Spdz2kBatchedMultiply<PlainT extends CompUInt<?, ?, PlainT>> extend
   }
 
   /**
-   * Retrieves shares for epsilons and deltas and reconstructs each.
+   * Receives shares for epsilons and deltas and reconstructs each.
    */
   private void receiveAndReconstruct(Network network, CompUIntFactory<PlainT> factory, int myId,
       int noOfParties) {
