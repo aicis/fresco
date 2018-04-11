@@ -195,7 +195,7 @@ public class BasicArithmeticTests {
           Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
             Numeric numeric = producer.numeric();
             DRes<SInt> left = numeric.input(leftValue, 1);
-            DRes<SInt> right = numeric.input(rightValue, 1);
+            DRes<SInt> right = numeric.input(rightValue, 2);
             DRes<SInt> result = numeric.mult(left, right);
             return numeric.open(result);
           };

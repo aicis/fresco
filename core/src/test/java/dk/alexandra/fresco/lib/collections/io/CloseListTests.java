@@ -62,30 +62,35 @@ public class CloseListTests {
         @Override
         public void test() throws Exception {
           // define input
-          List<BigInteger> input = new ArrayList<>();
-          int numInputs = 100;
-          for (int i = 0; i < numInputs; i++) {
-            input.add(BigInteger.valueOf(i));
-          }
-          // define functionality to be tested
-          Application<List<BigInteger>, ProtocolBuilderNumeric> testApplication = root -> {
-            Collections collections = root.collections();
-            DRes<List<DRes<SInt>>> closed;
-            if (root.getBasicNumericContext().getMyId() == 1) {
-              // party 1 provides input
-              closed = collections.closeList(input, 1);
-            } else {
-              // other parties receive it
-              closed = collections.closeList(numInputs, 1);
+          for (int inputParty = 1; inputParty <= conf.getResourcePool().getNoOfParties();
+              inputParty++) {
+            final int finalInputParty = inputParty;
+            List<BigInteger> input = new ArrayList<>();
+            int numInputs = 100;
+            for (int i = 0; i < numInputs; i++) {
+              input.add(BigInteger.valueOf(i));
             }
-            DRes<List<DRes<BigInteger>>> opened = collections.openList(closed);
-            return () -> opened.out().stream().map(DRes::out).collect(Collectors.toList());
-          };
-          // run test application
-          List<BigInteger> output = runApplication(testApplication);
-          assertThat(output, is(input));
+            // define functionality to be tested
+            Application<List<BigInteger>, ProtocolBuilderNumeric> testApplication = root -> {
+              Collections collections = root.collections();
+              DRes<List<DRes<SInt>>> closed;
+              if (root.getBasicNumericContext().getMyId() == finalInputParty) {
+                // party 1 provides input
+                closed = collections.closeList(input, finalInputParty);
+              } else {
+                // other parties receive it
+                closed = collections.closeList(numInputs, finalInputParty);
+              }
+              DRes<List<DRes<BigInteger>>> opened = collections.openList(closed);
+              return () -> opened.out().stream().map(DRes::out).collect(Collectors.toList());
+            };
+            // run test application
+            List<BigInteger> output = runApplication(testApplication);
+            assertThat(output, is(input));
+          }
         }
       };
     }
   }
+
 }
