@@ -7,7 +7,7 @@ import dk.alexandra.fresco.lib.real.RealNumericContext;
 import dk.alexandra.fresco.suite.spdz.gates.batched.SpdzBatchedNumeric;
 
 /**
- * Native builder that uses batched native protocols for the SPDZ protocol suite.
+ * Builder that uses batched native protocols for the SPDZ protocol suite.
  */
 public class SpdzBatchedBuilder extends SpdzBuilder {
 
