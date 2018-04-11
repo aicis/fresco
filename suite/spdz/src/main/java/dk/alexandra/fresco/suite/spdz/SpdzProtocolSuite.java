@@ -19,7 +19,7 @@ public class SpdzProtocolSuite implements ProtocolSuiteNumeric<SpdzResourcePool>
   }
 
   public SpdzProtocolSuite(int maxBitLength, int fixedPointPrecision) {
-    this(maxBitLength, fixedPointPrecision, true);
+    this(maxBitLength, fixedPointPrecision, false);
   }
 
   public SpdzProtocolSuite(int maxBitLength, boolean useBatchedBuilder) {
