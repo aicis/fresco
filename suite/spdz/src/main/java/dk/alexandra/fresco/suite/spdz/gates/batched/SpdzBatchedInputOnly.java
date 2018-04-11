@@ -5,7 +5,7 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
-import dk.alexandra.fresco.suite.spdz.datatypes.DeferredSInt;
+import dk.alexandra.fresco.suite.spdz.datatypes.Deferred;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzNativeProtocol;
@@ -19,7 +19,7 @@ public class SpdzBatchedInputOnly extends SpdzNativeProtocol<byte[]> {
 
   private final Deque<BigInteger> inputs;
   private final int inputPartyId;
-  private final Deque<DeferredSInt> closed;
+  private final Deque<Deferred<SInt>> closed;
   private final boolean storeMaskBytesFlag;
   private byte[] inputMaskBytes;
   private List<SpdzInputMask> inputMasks;
@@ -32,7 +32,7 @@ public class SpdzBatchedInputOnly extends SpdzNativeProtocol<byte[]> {
   }
 
   public DRes<SInt> append(BigInteger input) {
-    DeferredSInt deferred = new DeferredSInt();
+    Deferred<SInt> deferred = new Deferred<>();
     inputs.add(input);
     closed.add(deferred);
     return deferred;

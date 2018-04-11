@@ -1,14 +1,13 @@
 package dk.alexandra.fresco.suite.spdz.datatypes;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.value.SInt;
 
-public class DeferredSInt implements DRes<SInt> {
+public class Deferred<T> implements DRes<T> {
   // TODO should this just be a future?
 
-  private SInt value;
+  private T value;
 
-  public void callback(SInt value) {
+  public void callback(T value) {
     if (this.value != null) {
       throw new IllegalArgumentException("Value already assigned");
     }
@@ -16,7 +15,7 @@ public class DeferredSInt implements DRes<SInt> {
   }
 
   @Override
-  public SInt out() {
+  public T out() {
     return value;
   }
 

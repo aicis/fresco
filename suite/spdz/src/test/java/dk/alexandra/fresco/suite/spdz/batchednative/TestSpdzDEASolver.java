@@ -38,7 +38,7 @@ public class TestSpdzDEASolver extends AbstractSpdzTest {
         EvaluationStrategy.NATIVE_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
   }
-  
+
   @Test
   public void test_DEASolver_2_Sequential_batched_dummy_maximize() {
     runTest(new RandomDataDeaTest<>(5, 1, 30, 3, AnalysisType.OUTPUT_EFFICIENCY),

@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.OpenedValueStore;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
+import dk.alexandra.fresco.suite.spdz.datatypes.Deferred;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzNativeProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzRequiresMacCheck;
@@ -25,7 +26,7 @@ public class SpdzBatchedOutputToAll extends SpdzNativeProtocol<Void> implements
 
   private List<SpdzSInt> authenticated;
   private final Deque<DRes<SInt>> shares;
-  private final Deque<BigInteger> opened;
+  private final Deque<Deferred<BigInteger>> opened;
 
   public SpdzBatchedOutputToAll() {
     shares = new LinkedList<>();
@@ -33,8 +34,10 @@ public class SpdzBatchedOutputToAll extends SpdzNativeProtocol<Void> implements
   }
 
   public DRes<BigInteger> append(DRes<SInt> input) {
+    Deferred<BigInteger> deferred = new Deferred<>();
     shares.add(input);
-    return opened::pop;
+    opened.add(deferred);
+    return deferred;
   }
 
   @Override
@@ -57,7 +60,7 @@ public class SpdzBatchedOutputToAll extends SpdzNativeProtocol<Void> implements
           resourcePool.getNoOfParties());
       openedValueStore.pushOpenedValues(authenticated, reconstructed);
       for (BigInteger reconstructedElement : reconstructed) {
-        opened.add(resourcePool.convertRepresentation(reconstructedElement));
+        opened.pop().callback(resourcePool.convertRepresentation(reconstructedElement));
       }
       reconstructed.clear();
       return EvaluationStatus.IS_DONE;

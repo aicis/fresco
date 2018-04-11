@@ -10,8 +10,9 @@ import java.util.Map;
 
 public class SpdzBatchedNumeric extends SpdzNumeric {
 
-  private SpdzBatchedMultiplication multiplications;
   private Map<Integer, SpdzBatchedInputComputation> inputs = new HashMap<>();
+  private SpdzBatchedMultiplication multiplications;
+  private SpdzBatchedOutputToAll outputToAll;
 
   public SpdzBatchedNumeric(
       ProtocolBuilderNumeric protocolBuilder) {
@@ -36,6 +37,15 @@ public class SpdzBatchedNumeric extends SpdzNumeric {
       protocolBuilder.seq(input);
     }
     return inputs.get(inputParty).append(value);
+  }
+
+  @Override
+  public DRes<BigInteger> open(DRes<SInt> secretShare) {
+    if (outputToAll == null) {
+      outputToAll = new SpdzBatchedOutputToAll();
+      protocolBuilder.append(outputToAll);
+    }
+    return outputToAll.append(secretShare);
   }
 
 }
