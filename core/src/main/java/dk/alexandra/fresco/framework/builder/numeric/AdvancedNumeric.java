@@ -28,6 +28,8 @@ public interface AdvancedNumeric extends ComputationDirectory {
    */
   DRes<SInt> product(List<DRes<SInt>> elements);
 
+
+
   /**
    * This protocol calculates an approximation of <code>floor(dividend / divisor)</code>, which will
    * be either correct or slightly smaller than the correct result.
