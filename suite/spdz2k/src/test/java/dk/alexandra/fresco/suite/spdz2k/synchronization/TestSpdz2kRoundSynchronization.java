@@ -49,7 +49,8 @@ public class TestSpdz2kRoundSynchronization extends
   }
 
   @Override
-  protected ProtocolSuiteNumeric<Spdz2kResourcePool<CompUInt128>> createProtocolSuite() {
+  protected ProtocolSuiteNumeric<Spdz2kResourcePool<CompUInt128>> createProtocolSuite(
+      boolean useBatchedBuilder) {
     return new Spdz2kProtocolSuite128();
   }
 

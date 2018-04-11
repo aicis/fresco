@@ -9,8 +9,13 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.GenericCompUInt;
 public class Spdz2kProtocolSuiteGeneric extends
     Spdz2kProtocolSuite<GenericCompUInt, GenericCompUInt, GenericCompUInt> {
 
-  Spdz2kProtocolSuiteGeneric(int highBitLength, int lowBitLength) {
+  public Spdz2kProtocolSuiteGeneric(int highBitLength, int lowBitLength) {
     super(new CompUIntConverterGeneric(highBitLength, lowBitLength));
+  }
+
+  public Spdz2kProtocolSuiteGeneric(int highBitLength, int lowBitLength,
+      boolean useBatchedBuilder) {
+    super(new CompUIntConverterGeneric(highBitLength, lowBitLength), useBatchedBuilder);
   }
 
 }

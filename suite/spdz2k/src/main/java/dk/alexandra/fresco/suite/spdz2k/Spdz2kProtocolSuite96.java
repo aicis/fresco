@@ -14,4 +14,8 @@ public class Spdz2kProtocolSuite96 extends Spdz2kProtocolSuite<UInt64, UInt32, C
     super(new CompUIntConverter96());
   }
 
+  Spdz2kProtocolSuite96(boolean useBatchedBuilder) {
+    super(new CompUIntConverter96(), useBatchedBuilder);
+  }
+
 }

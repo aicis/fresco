@@ -13,4 +13,8 @@ public class Spdz2kProtocolSuite128 extends Spdz2kProtocolSuite<UInt64, UInt64, 
     super(new CompUIntConverter128());
   }
 
+  public Spdz2kProtocolSuite128(boolean useBatchedBuilder) {
+    super(new CompUIntConverter128(), useBatchedBuilder);
+  }
+
 }

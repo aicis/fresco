@@ -31,8 +31,8 @@ public class TestSpdz2kBasicArithmeticGeneric extends
   }
 
   @Override
-  protected ProtocolSuiteNumeric<Spdz2kResourcePool<GenericCompUInt>> createProtocolSuite() {
-    return new Spdz2kProtocolSuiteGeneric(32, 32);
+  protected ProtocolSuiteNumeric<Spdz2kResourcePool<GenericCompUInt>> createProtocolSuite(boolean useBatchedBuilder) {
+    return new Spdz2kProtocolSuiteGeneric(32, 32, useBatchedBuilder);
   }
 
 }

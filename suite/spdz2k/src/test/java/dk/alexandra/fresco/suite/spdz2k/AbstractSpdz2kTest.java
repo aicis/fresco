@@ -51,7 +51,8 @@ public abstract class AbstractSpdz2kTest<Spdz2kResourcePoolT extends Spdz2kResou
     for (int playerId : netConf.keySet()) {
       NetworkConfiguration partyNetConf = netConf.get(playerId);
       NetworkConfiguration coinTossingPartyNetConf = coinTossingNetConf.get(playerId);
-      ProtocolSuiteNumeric<Spdz2kResourcePoolT> ps = createProtocolSuite();
+      ProtocolSuiteNumeric<Spdz2kResourcePoolT> ps = createProtocolSuite(
+          evalStrategy == EvaluationStrategy.NATIVE_BATCHED);
       BatchEvaluationStrategy<Spdz2kResourcePoolT> batchEvaluationStrategy =
           evalStrategy.getStrategy();
       ProtocolEvaluator<Spdz2kResourcePoolT> evaluator =
@@ -87,6 +88,7 @@ public abstract class AbstractSpdz2kTest<Spdz2kResourcePoolT extends Spdz2kResou
   protected abstract Spdz2kResourcePoolT createResourcePool(int playerId, int noOfParties,
       Supplier<Network> networkSupplier);
 
-  protected abstract ProtocolSuiteNumeric<Spdz2kResourcePoolT> createProtocolSuite();
+  protected abstract ProtocolSuiteNumeric<Spdz2kResourcePoolT> createProtocolSuite(
+      boolean useBatchedBuilder);
 
 }

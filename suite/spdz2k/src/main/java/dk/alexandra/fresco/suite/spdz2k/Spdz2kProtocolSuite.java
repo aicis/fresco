@@ -30,6 +30,7 @@ public abstract class Spdz2kProtocolSuite<
     implements ProtocolSuiteNumeric<Spdz2kResourcePool<PlainT>> {
 
   private final CompUIntConverter<HighT, LowT, PlainT> converter;
+  private final boolean useBatchedBuilder;
 
   /**
    * Constructs new {@link Spdz2kProtocolSuite}.
@@ -38,13 +39,25 @@ public abstract class Spdz2kProtocolSuite<
    * {@link PlainT}. This is necessary for the mac-check protocol where we perform arithmetic
    * between these different types.
    */
-  Spdz2kProtocolSuite(CompUIntConverter<HighT, LowT, PlainT> converter) {
+  public Spdz2kProtocolSuite(CompUIntConverter<HighT, LowT, PlainT> converter,
+      boolean useBatchedBuilder) {
     this.converter = converter;
+    this.useBatchedBuilder = useBatchedBuilder;
+  }
+
+  Spdz2kProtocolSuite(CompUIntConverter<HighT, LowT, PlainT> converter) {
+    this(converter, false);
   }
 
   @Override
   public BuilderFactoryNumeric init(Spdz2kResourcePool<PlainT> resourcePool, Network network) {
-    return new Spdz2kBuilder<>(resourcePool.getFactory(), createBasicNumericContext(resourcePool));
+    if (useBatchedBuilder) {
+      return new Spdz2kBatchedBuilder<>(resourcePool.getFactory(),
+          createBasicNumericContext(resourcePool));
+    } else {
+      return new Spdz2kBuilder<>(resourcePool.getFactory(),
+          createBasicNumericContext(resourcePool));
+    }
   }
 
   @Override

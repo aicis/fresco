@@ -30,8 +30,9 @@ public class TestSpdz2kBasicArithmetic128 extends Spdz2kTestSuite<Spdz2kResource
   }
 
   @Override
-  protected ProtocolSuiteNumeric<Spdz2kResourcePool<CompUInt128>> createProtocolSuite() {
-    return new Spdz2kProtocolSuite128();
+  protected ProtocolSuiteNumeric<Spdz2kResourcePool<CompUInt128>> createProtocolSuite(
+      boolean useBatchedBuilder) {
+    return new Spdz2kProtocolSuite128(useBatchedBuilder);
   }
 
 }

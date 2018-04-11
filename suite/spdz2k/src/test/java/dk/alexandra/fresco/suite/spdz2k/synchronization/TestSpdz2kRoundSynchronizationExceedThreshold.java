@@ -50,7 +50,7 @@ public class TestSpdz2kRoundSynchronizationExceedThreshold extends
   }
 
   @Override
-  protected ProtocolSuiteNumeric<Spdz2kResourcePool<CompUInt128>> createProtocolSuite() {
+  protected ProtocolSuiteNumeric<Spdz2kResourcePool<CompUInt128>> createProtocolSuite(boolean useBatchedBuilder) {
     return new MockSpdz2kProtocolSuite128();
   }
 
