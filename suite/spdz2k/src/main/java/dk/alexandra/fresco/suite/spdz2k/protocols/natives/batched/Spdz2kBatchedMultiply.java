@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.suite.spdz2k.protocols.natives.batched;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.Deferred;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
@@ -19,7 +20,7 @@ public class Spdz2kBatchedMultiply<PlainT extends CompUInt<?, ?, PlainT>> extend
 
   private final Deque<DRes<SInt>> leftFactors;
   private final Deque<DRes<SInt>> rightFactors;
-  private final Deque<SInt> deferredProducts;
+  private final Deque<Deferred<SInt>> deferredProducts;
   private List<Spdz2kTriple<PlainT>> triples;
   private List<Spdz2kSInt<PlainT>> epsilons;
   private List<Spdz2kSInt<PlainT>> deltas;
@@ -33,9 +34,11 @@ public class Spdz2kBatchedMultiply<PlainT extends CompUInt<?, ?, PlainT>> extend
   }
 
   public DRes<SInt> append(DRes<SInt> left, DRes<SInt> right) {
+    Deferred<SInt> deferred = new Deferred<>();
     leftFactors.add(left);
     rightFactors.add(right);
-    return deferredProducts::pop;
+    deferredProducts.add(deferred);
+    return deferred;
   }
 
   @Override
@@ -73,7 +76,7 @@ public class Spdz2kBatchedMultiply<PlainT extends CompUInt<?, ?, PlainT>> extend
             .add(triples.get(i).getRight().multiply(e))
             .add(triples.get(i).getLeft().multiply(d))
             .addConstant(ed, macKeyShare, zero, resourcePool.getMyId() == 1);
-        deferredProducts.add(product);
+        deferredProducts.pop().callback(product);
       }
       resourcePool.getOpenedValueStore().pushOpenedValues(epsilons, openEpsilons);
       resourcePool.getOpenedValueStore().pushOpenedValues(deltas, openDeltas);
