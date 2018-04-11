@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.framework.sce.evaluator;
 
 import dk.alexandra.fresco.framework.ProtocolCollection;
-import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 
 /**
@@ -20,12 +19,5 @@ public interface BatchEvaluationStrategy<ResourcePoolT extends ResourcePool> {
   void processBatch(
       ProtocolCollection<ResourcePoolT> protocols, ResourcePoolT resourcePool,
       NetworkBatchDecorator network);
-
-  default void processBatch(
-      ProtocolCollection<ResourcePoolT> protocols, ResourcePoolT resourcePool,
-      Network network) {
-    processBatch(protocols, resourcePool,
-        new NetworkBatchDecorator(network.getNoOfParties(), network));
-  }
-
+  
 }

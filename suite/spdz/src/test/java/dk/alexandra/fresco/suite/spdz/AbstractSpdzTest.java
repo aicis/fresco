@@ -95,17 +95,19 @@ public abstract class AbstractSpdzTest {
     for (int playerId : netConf.keySet()) {
       PerformanceLoggerCountingAggregate aggregate = new PerformanceLoggerCountingAggregate();
 
-      ProtocolSuiteNumeric<SpdzResourcePool> protocolSuite = getProtocolSuite(maxBitLength);
+      ProtocolSuiteNumeric<SpdzResourcePool> protocolSuite = getProtocolSuite(maxBitLength,
+          evalStrategy);
       if (logPerformance) {
         protocolSuite = new NumericSuiteLogging<>(protocolSuite);
         aggregate.add((PerformanceLogger) protocolSuite);
       }
-      BatchEvaluationStrategy<SpdzResourcePool> batchEvalStrat = evalStrategy.getStrategy();
 
+      BatchEvaluationStrategy<SpdzResourcePool> batchEvalStrat = evalStrategy.getStrategy();
       if (logPerformance) {
         batchEvalStrat = new BatchEvaluationLoggingDecorator<>(batchEvalStrat);
         aggregate.add((PerformanceLogger) batchEvalStrat);
       }
+
       ProtocolEvaluator<SpdzResourcePool> evaluator =
           new BatchedProtocolEvaluator<>(batchEvalStrat, protocolSuite);
       if (logPerformance) {
@@ -140,8 +142,10 @@ public abstract class AbstractSpdzTest {
     expPipeManager.close();
   }
 
-  protected SpdzProtocolSuite getProtocolSuite(int maxBitLength) {
-    return new SpdzProtocolSuite(maxBitLength);
+  protected SpdzProtocolSuite getProtocolSuite(int maxBitLength,
+      EvaluationStrategy evaluationStrategy) {
+    return new SpdzProtocolSuite(maxBitLength,
+        evaluationStrategy == EvaluationStrategy.NATIVE_BATCHED);
   }
 
   protected void runTest(
@@ -175,7 +179,8 @@ public abstract class AbstractSpdzTest {
   }
 
   private DRes<List<DRes<SInt>>> createPipe(int myId, int noOfPlayers, int pipeLength,
-      KryoNetNetwork pipeNetwork, SpdzMascotDataSupplier tripleSupplier) {
+      KryoNetNetwork pipeNetwork,
+      SpdzMascotDataSupplier tripleSupplier) {
     ProtocolBuilderNumeric sequential = new SpdzBuilder(
         new BasicNumericContext(maxBitLength, tripleSupplier.getModulus(), myId, noOfPlayers),
         new RealNumericContext(fixedPointPrecision)).createSequential();
@@ -275,8 +280,9 @@ public abstract class AbstractSpdzTest {
 
   private void evaluate(ProtocolBuilderNumeric spdzBuilder, SpdzResourcePool tripleResourcePool,
       Network network) {
-    BatchedStrategy<SpdzResourcePool> batchedStrategy = new BatchedStrategy<>();
-    SpdzProtocolSuite spdzProtocolSuite = getProtocolSuite(maxBitLength);
+    BatchEvaluationStrategy<SpdzResourcePool> batchedStrategy = new BatchedStrategy<>();
+    SpdzProtocolSuite spdzProtocolSuite = getProtocolSuite(maxBitLength,
+        EvaluationStrategy.SEQUENTIAL_BATCHED);
     BatchedProtocolEvaluator<SpdzResourcePool> batchedProtocolEvaluator =
         new BatchedProtocolEvaluator<>(batchedStrategy, spdzProtocolSuite);
     batchedProtocolEvaluator.eval(spdzBuilder.build(), tripleResourcePool, network);

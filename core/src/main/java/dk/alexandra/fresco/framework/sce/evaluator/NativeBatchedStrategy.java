@@ -15,19 +15,12 @@ public class NativeBatchedStrategy<ResourcePoolT extends ResourcePool>
     implements BatchEvaluationStrategy<ResourcePoolT> {
 
   @Override
-  public void processBatch(ProtocolCollection<ResourcePoolT> nativeProtocols,
-      ResourcePoolT resourcePool, NetworkBatchDecorator network) {
-    throw new UnsupportedOperationException(
-        "This evaluation strategy only works with a direct network instance.");
-  }
-
-  @Override
   public void processBatch(
       ProtocolCollection<ResourcePoolT> protocols, ResourcePoolT resourcePool,
-      Network network) {
+      NetworkBatchDecorator network) {
     int round = 0;
     while (protocols.size() > 0) {
-      evaluateCurrentRound(protocols, network, resourcePool, round);
+      evaluateCurrentRound(protocols, network.getDirectNetwork(), resourcePool, round);
       round++;
     }
   }

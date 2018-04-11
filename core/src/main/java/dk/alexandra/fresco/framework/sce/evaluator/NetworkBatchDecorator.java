@@ -60,6 +60,10 @@ public class NetworkBatchDecorator implements Network {
     buffer.write(data, 0, data.length);
   }
 
+  public Network getDirectNetwork() {
+    return network;
+  }
+
   /**
    * Flushes the internal buffers and sends the (remaining) pieces over the wire.
    */
