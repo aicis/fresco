@@ -21,7 +21,7 @@ import java.util.Objects;
 
 public class Spdz2kNumeric<PlainT extends CompUInt<?, ?, PlainT>> implements Numeric {
 
-  private final ProtocolBuilderNumeric builder;
+  protected final ProtocolBuilderNumeric builder;
   private final CompUIntFactory<PlainT> factory;
 
   Spdz2kNumeric(ProtocolBuilderNumeric builder, CompUIntFactory<PlainT> factory) {

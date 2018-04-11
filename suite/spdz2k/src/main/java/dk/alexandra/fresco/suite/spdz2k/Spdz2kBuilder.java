@@ -40,7 +40,6 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
     throw new UnsupportedOperationException();
   }
 
-
   @Override
   public RealNumericContext getRealNumericContext() {
     // TODO Auto-generated method stub

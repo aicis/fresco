@@ -7,7 +7,7 @@ import java.math.BigInteger;
  * https://locklessinc.com/articles/256bit_arithmetic/. Note that this class is NOT SAFE to
  * instantiate with negative values.</p>
  */
-public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
+public final class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
 
   private static final CompUInt128 ONE = new CompUInt128(1);
   private final long high;
@@ -31,15 +31,28 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
    */
   public CompUInt128(byte[] bytes, boolean requiresPadding) {
     byte[] padded = requiresPadding ? CompUInt.pad(bytes, 128) : bytes;
-    if (padded.length == 8) {
-      // we are instantiating from the least significant bits only
-      this.high = 0L;
-      this.mid = toInt(padded, 4);
-      this.low = toInt(padded, 0);
-    } else {
+    if (padded.length == 16) {
       this.high = toLong(padded, 8);
       this.mid = toInt(padded, 4);
       this.low = toInt(padded, 0);
+    } else {
+      this.high = 0L;
+      this.mid = toInt(padded, 4);
+      this.low = toInt(padded, 0);
+    }
+  }
+
+  public CompUInt128(byte[] bytes, int chunkIndex, int chunkLength) {
+    if (chunkLength == 16) {
+      this.high = toLong(bytes, chunkIndex + 8);
+      this.mid = toInt(bytes, chunkIndex + 4);
+      this.low = toInt(bytes, chunkIndex);
+    } else if (chunkLength == 8) {
+      this.high = 0L;
+      this.mid = toInt(bytes, chunkIndex, chunkLength, 4);
+      this.low = toInt(bytes, chunkIndex, chunkLength, 0);
+    } else {
+      throw new IllegalArgumentException("Unsupported chunk length");
     }
   }
 
@@ -50,7 +63,7 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
     this(value.toByteArray(), true);
   }
 
-  CompUInt128(long high, int mid, int low) {
+  public CompUInt128(long high, int mid, int low) {
     this.high = high;
     this.mid = mid;
     this.low = low;
@@ -120,6 +133,11 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
         + (m1 >>> 32)
         + (newMid >>> 32);
     return new CompUInt128(newHigh, (int) newMid, (int) t1);
+  }
+
+  @Override
+  public CompUInt128 clearHigh() {
+    return new CompUInt128(0, mid, low);
   }
 
   @Override
@@ -196,6 +214,18 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
     return bytes;
   }
 
+  long getHigh() {
+    return high;
+  }
+
+  int getMid() {
+    return mid;
+  }
+
+  int getLow() {
+    return low;
+  }
+
   private void toByteArrayLong(byte[] bytes, int start, long value) {
     int offset = bytes.length - start - 1;
     for (int i = 0; i < 8; i++) {
@@ -230,6 +260,14 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
         | (bytes[flipped - 1] & 0xFF) << 8
         | (bytes[flipped - 2] & 0xFF) << 16
         | (bytes[flipped - 3] & 0xFF) << 24;
+  }
+
+  private static int toInt(byte[] bytes, int chunkIndex, int byteLength, int start) {
+    int flipped = byteLength - start - 1;
+    return (bytes[flipped + chunkIndex] & 0xFF)
+        | (bytes[flipped - 1 + chunkIndex] & 0xFF) << 8
+        | (bytes[flipped - 2 + chunkIndex] & 0xFF) << 16
+        | (bytes[flipped - 3 + chunkIndex] & 0xFF) << 24;
   }
 
 }
