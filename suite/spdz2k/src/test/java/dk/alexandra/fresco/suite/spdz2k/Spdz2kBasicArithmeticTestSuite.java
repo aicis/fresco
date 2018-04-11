@@ -67,62 +67,52 @@ public abstract class Spdz2kBasicArithmeticTestSuite<Spdz2kResourcePoolT extends
 
   @Test
   public void testSimpleMultAndAdd() {
-    runTest(new BasicArithmeticTests.TestSimpleMultAndAdd<>()
-    );
+    runTest(new BasicArithmeticTests.TestSimpleMultAndAdd<>());
   }
 
   @Test
   public void testAlternatingMultAdd() {
-    runTest(new BasicArithmeticTests.TestAlternatingMultAdd<>()
-    );
+    runTest(new BasicArithmeticTests.TestAlternatingMultAdd<>());
   }
 
   @Test
   public void testMultiplyByPublicValue() {
-    runTest(new BasicArithmeticTests.TestMultiplyByPublicValue<>()
-    );
+    runTest(new BasicArithmeticTests.TestMultiplyByPublicValue<>());
   }
 
   @Test
   public void testSubtract() {
-    runTest(new BasicArithmeticTests.TestSubtract<>()
-    );
+    runTest(new BasicArithmeticTests.TestSubtract<>());
   }
 
   @Test
   public void testSubtractNegative() {
-    runTest(new BasicArithmeticTests.TestSubtractNegative<>()
-    );
+    runTest(new BasicArithmeticTests.TestSubtractNegative<>());
   }
 
   @Test
   public void testSubtractPublic() {
-    runTest(new BasicArithmeticTests.TestSubtractPublic<>()
-    );
+    runTest(new BasicArithmeticTests.TestSubtractPublic<>());
   }
 
   @Test
   public void testSubtractFromPublic() {
-    runTest(new BasicArithmeticTests.TestSubtractFromPublic<>()
-    );
+    runTest(new BasicArithmeticTests.TestSubtractFromPublic<>());
   }
 
   @Test
   public void testOutputToSingleParty() {
-    runTest(new BasicArithmeticTests.TestOutputToSingleParty<>()
-    );
+    runTest(new BasicArithmeticTests.TestOutputToSingleParty<>());
   }
 
   @Test
   public void testRandomBit() {
-    runTest(new BasicArithmeticTests.TestRandomBit<>()
-    );
+    runTest(new BasicArithmeticTests.TestRandomBit<>());
   }
 
   @Test
   public void testRandomElement() {
-    runTest(new BasicArithmeticTests.TestRandomElement<>()
-    );
+    runTest(new BasicArithmeticTests.TestRandomElement<>());
   }
 
 }
