@@ -19,7 +19,7 @@ public abstract class Spdz2kNativeProtocol<
   /**
    * Get result from deferred and downcast result to {@link Spdz2kSInt<PlainT>}.
    */
-  Spdz2kSInt<PlainT> toSpdz2kSInt(DRes<SInt> value) {
+  protected Spdz2kSInt<PlainT> toSpdz2kSInt(DRes<SInt> value) {
     return Objects.requireNonNull((Spdz2kSInt<PlainT>) value.out());
   }
 

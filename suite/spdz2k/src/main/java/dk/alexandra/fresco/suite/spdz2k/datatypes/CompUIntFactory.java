@@ -14,6 +14,17 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> {
   CompT createFromBytes(byte[] bytes);
 
   /**
+   * Creates new {@link CompT} from a raw array of {@link CompT} instances packed into a byte array.
+   * <p>This method avoids copying a chunk of bytes from the overall byte array and is therefore
+   * more efficient when dealing with the deserialization of a large of {@link CompT}
+   * instances.</p>
+   */
+  default CompT createFromBytes(byte[] bytes, int chunkIndex, int byteLength) {
+    // TODO remove default once done
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Creates random {@link CompT}.
    */
   CompT createRandom();
@@ -53,5 +64,5 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> {
   default CompT zero() {
     return createFromBytes(new byte[getCompositeBitLength() / Byte.SIZE]);
   }
-  
+
 }

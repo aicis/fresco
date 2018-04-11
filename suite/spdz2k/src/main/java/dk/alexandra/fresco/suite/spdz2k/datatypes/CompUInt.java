@@ -42,6 +42,14 @@ public interface CompUInt<
   int getHighBitLength();
 
   /**
+   * Sets most significant bits to 0.
+   */
+  default CompT clearHigh() {
+    // TODO remove default once done
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Returns total bit length, i.e., k + s.
    */
   default int getCompositeBitLength() {
