@@ -17,8 +17,8 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
     BuilderFactoryNumeric {
 
-  private final CompUIntFactory<PlainT> factory;
   private final BasicNumericContext numericContext;
+  protected final CompUIntFactory<PlainT> factory;
 
   public Spdz2kBuilder(CompUIntFactory<PlainT> factory, BasicNumericContext numericContext) {
     this.factory = factory;
