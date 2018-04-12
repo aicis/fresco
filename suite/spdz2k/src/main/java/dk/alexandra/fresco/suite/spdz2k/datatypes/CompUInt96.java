@@ -182,6 +182,11 @@ public class CompUInt96 implements CompUInt<UInt64, UInt32, CompUInt96> {
   }
 
   @Override
+  public CompUInt96 clearHigh() {
+    return new CompUInt96(0, 0, low);
+  }
+
+  @Override
   public byte[] toByteArray() {
     ByteBuffer buffer = ByteBuffer.allocate(getBitLength() / 8);
     buffer.order(ByteOrder.BIG_ENDIAN);
