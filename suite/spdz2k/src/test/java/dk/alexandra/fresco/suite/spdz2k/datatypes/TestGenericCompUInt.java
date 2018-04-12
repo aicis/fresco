@@ -315,4 +315,11 @@ public class TestGenericCompUInt {
     assertEquals("523986011223", uint3232.toString());
   }
 
+  @Test
+  public void testClearHigh() {
+    assertEquals(12884901930L, new GenericCompUInt(new int[]{0, 100, 3, 42}).clearHigh().toLong());
+    assertEquals(15032385535L, new GenericCompUInt(new int[]{10, 100, 3, Integer.MAX_VALUE}).clearHigh().toLong());
+    assertEquals(6442450943L, new GenericCompUInt(new int[]{0, 0, 1, Integer.MAX_VALUE}).clearHigh().toLong());
+  }
+
 }

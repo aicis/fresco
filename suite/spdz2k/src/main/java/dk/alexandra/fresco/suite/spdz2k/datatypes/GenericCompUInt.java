@@ -172,6 +172,14 @@ public class GenericCompUInt implements
     return new GenericCompUInt(temp);
   }
 
+  @Override
+  public GenericCompUInt clearHigh() {
+    int numLowInts = lowBitLength / Integer.SIZE;
+    int[] cleared = new int[ints.length];
+    System.arraycopy(ints, ints.length - numLowInts, cleared, ints.length - numLowInts, numLowInts);
+    return new GenericCompUInt(cleared, lowBitLength);
+  }
+
   private GenericCompUInt getSubRange(int from, int to) {
     return new GenericCompUInt(getIntSubRange(from, to));
   }
