@@ -68,7 +68,6 @@ public class TestUIntSerializer {
 
   @Test(expected = IllegalArgumentException.class)
   public void testDeserializeListWrongLength() {
-    Random random = new Random(42);
     byte[] rawBytes = new byte[33];
     serializer.deserializeList(rawBytes);
   }

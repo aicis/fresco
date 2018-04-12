@@ -52,9 +52,9 @@ public final class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> 
    */
   public CompUInt128(byte[] bytes, int chunkIndex, int chunkLength) {
     if (chunkLength == 16) {
-      this.high = toLong(bytes, chunkIndex + 8);
-      this.mid = toInt(bytes, chunkIndex + 4);
-      this.low = toInt(bytes, chunkIndex);
+      this.high = toLong(bytes, chunkIndex, chunkLength, 8);
+      this.mid = toInt(bytes, chunkIndex, chunkLength, 4);
+      this.low = toInt(bytes, chunkIndex, chunkLength, 0);
     } else if (chunkLength == 8) {
       this.high = 0L;
       this.mid = toInt(bytes, chunkIndex, chunkLength, 4);
@@ -238,6 +238,8 @@ public final class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> 
     }
   }
 
+  // TODO clean up
+
   private static long toLong(byte[] bytes, int start) {
     int flipped = bytes.length - start - 1;
     return (bytes[flipped] & 0xFFL)
@@ -256,6 +258,18 @@ public final class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> 
         | (bytes[flipped - 1] & 0xFF) << 8
         | (bytes[flipped - 2] & 0xFF) << 16
         | (bytes[flipped - 3] & 0xFF) << 24;
+  }
+
+  private static long toLong(byte[] bytes, int chunkIndex, int byteLength, int start) {
+    int flipped = byteLength - start - 1;
+    return (bytes[flipped + chunkIndex] & 0xFFL)
+        | (bytes[flipped - 1 + chunkIndex] & 0xFFL) << 8
+        | (bytes[flipped - 2 + chunkIndex] & 0xFFL) << 16
+        | (bytes[flipped - 3 + chunkIndex] & 0xFFL) << 24
+        | (bytes[flipped - 4 + chunkIndex] & 0xFFL) << 32
+        | (bytes[flipped - 5 + chunkIndex] & 0xFFL) << 40
+        | (bytes[flipped - 6 + chunkIndex] & 0xFFL) << 48
+        | (bytes[flipped - 7 + chunkIndex] & 0xFFL) << 56;
   }
 
   private static int toInt(byte[] bytes, int chunkIndex, int byteLength, int start) {

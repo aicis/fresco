@@ -14,13 +14,14 @@ import java.util.Map;
  */
 public class SpdzBatchedNumeric extends SpdzNumeric {
 
-  private Map<Integer, SpdzBatchedInputComputation> inputs = new HashMap<>();
+  private Map<Integer, SpdzBatchedInputComputation> inputs;
   private SpdzBatchedMultiplication multiplications;
   private SpdzBatchedOutputToAll outputToAll;
 
   public SpdzBatchedNumeric(
       ProtocolBuilderNumeric protocolBuilder) {
     super(protocolBuilder);
+    inputs = new HashMap<>();
   }
 
   @Override

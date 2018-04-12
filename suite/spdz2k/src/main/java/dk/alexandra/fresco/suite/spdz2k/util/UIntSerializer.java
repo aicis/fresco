@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -55,7 +54,7 @@ public class UIntSerializer<PlainT extends CompUInt<?, ?, PlainT>> implements
     int numElements = bytes.length / byteLength;
     List<PlainT> elements = new ArrayList<>(numElements);
     for (int i = 0; i < numElements; i++) {
-      elements.add(deserialize(Arrays.copyOfRange(bytes, i * byteLength, (i + 1) * byteLength)));
+      elements.add(factory.createFromBytes(bytes, i * byteLength, byteLength));
     }
     return elements;
   }
