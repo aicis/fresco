@@ -44,10 +44,7 @@ public interface CompUInt<
   /**
    * Sets most significant bits to 0.
    */
-  default CompT clearHigh() {
-    // TODO remove default once done
-    throw new UnsupportedOperationException();
-  }
+  CompT clearHigh();
 
   /**
    * Returns total bit length, i.e., k + s.
