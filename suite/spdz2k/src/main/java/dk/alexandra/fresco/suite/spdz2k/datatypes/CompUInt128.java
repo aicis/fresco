@@ -42,6 +42,14 @@ public final class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> 
     }
   }
 
+  /**
+   * Creates new {@link CompUInt128} from a chunk within a larger array of bytes.
+   *
+   * @param bytes array of bytes to index into
+   * @param chunkIndex index of the start of the chunk corresponding to this {@link CompUInt128}
+   * instance
+   * @param chunkLength length of chunk in bytes, can be 8 or 16
+   */
   public CompUInt128(byte[] bytes, int chunkIndex, int chunkLength) {
     if (chunkLength == 16) {
       this.high = toLong(bytes, chunkIndex + 8);

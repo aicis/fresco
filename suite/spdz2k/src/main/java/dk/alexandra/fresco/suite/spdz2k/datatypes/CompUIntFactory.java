@@ -2,6 +2,7 @@ package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import java.math.BigInteger;
+import java.util.Arrays;
 
 /**
  * Factory for {@link CompT} instances.
@@ -15,13 +16,12 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> {
 
   /**
    * Creates new {@link CompT} from a raw array of {@link CompT} instances packed into a byte array.
-   * <p>This method avoids copying a chunk of bytes from the overall byte array and is therefore
-   * more efficient when dealing with the deserialization of a large of {@link CompT}
-   * instances.</p>
+   * <p>This method allows using constructors under the hood that avoid copying a chunk of bytes
+   * from the overall byte array and is therefore more efficient when dealing with the
+   * deserialization of a large list of {@link CompT} instances.</p>
    */
-  default CompT createFromBytes(byte[] bytes, int chunkIndex, int byteLength) {
-    // TODO remove default once done
-    throw new UnsupportedOperationException();
+  default CompT createFromBytes(byte[] bytes, int chunkIndex, int chunkLength) {
+    return createFromBytes(Arrays.copyOfRange(bytes, chunkIndex, chunkIndex + chunkLength));
   }
 
   /**
