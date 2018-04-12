@@ -268,10 +268,17 @@ public class TestCompUInt128 {
 
   @Test
   public void testIsZero() {
-    assertTrue(new CompUInt128(0, 0,0).isZero());
-    assertFalse(new CompUInt128(0, 0,1).isZero());
-    assertFalse(new CompUInt128(0, 1,0).isZero());
-    assertFalse(new CompUInt128(1, 0,0).isZero());
+    assertTrue(new CompUInt128(0, 0, 0).isZero());
+    assertFalse(new CompUInt128(0, 0, 1).isZero());
+    assertFalse(new CompUInt128(0, 1, 0).isZero());
+    assertFalse(new CompUInt128(1, 0, 0).isZero());
+  }
+
+  @Test
+  public void testClearHigh() {
+    assertEquals(12884901930L, new CompUInt128(100, 3, 42).clearHigh().toLong());
+    assertEquals(15032385535L, new CompUInt128(100, 3, Integer.MAX_VALUE).clearHigh().toLong());
+    assertEquals(6442450943L, new CompUInt128(0, 1, Integer.MAX_VALUE).clearHigh().toLong());
   }
 
 }
