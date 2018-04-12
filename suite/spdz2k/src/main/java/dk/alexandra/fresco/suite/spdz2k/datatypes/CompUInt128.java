@@ -213,7 +213,7 @@ public final class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> 
     toByteArrayLong(bytes, 8, high);
     return bytes;
   }
-  
+
   private void toByteArrayLong(byte[] bytes, int start, long value) {
     int offset = bytes.length - start - 1;
     for (int i = 0; i < 8; i++) {

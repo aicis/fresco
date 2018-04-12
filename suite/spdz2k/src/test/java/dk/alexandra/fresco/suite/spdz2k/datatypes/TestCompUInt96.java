@@ -276,10 +276,16 @@ public class TestCompUInt96 {
 
   @Test
   public void testIsZero() {
-    assertTrue(new CompUInt96(0, 0,0).isZero());
-    assertFalse(new CompUInt96(0, 0,1).isZero());
-    assertFalse(new CompUInt96(0, 1,0).isZero());
-    assertFalse(new CompUInt96(1, 0,0).isZero());
+    assertTrue(new CompUInt96(0, 0, 0).isZero());
+    assertFalse(new CompUInt96(0, 0, 1).isZero());
+    assertFalse(new CompUInt96(0, 1, 0).isZero());
+    assertFalse(new CompUInt96(1, 0, 0).isZero());
   }
 
+  @Test
+  public void testClearHigh() {
+    assertEquals(42, new CompUInt96(100, 3, 42).clearHigh().toInt());
+    assertEquals(Integer.MAX_VALUE, new CompUInt96(100, 3, Integer.MAX_VALUE).clearHigh().toInt());
+    assertEquals(Integer.MAX_VALUE, new CompUInt96(0, 0, Integer.MAX_VALUE).clearHigh().toInt());
+  }
 }
