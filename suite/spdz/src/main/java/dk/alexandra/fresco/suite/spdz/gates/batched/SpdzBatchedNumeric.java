@@ -8,6 +8,10 @@ import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Native numeric computation directory which uses batched native protocols for networked native
+ * protocols.
+ */
 public class SpdzBatchedNumeric extends SpdzNumeric {
 
   private Map<Integer, SpdzBatchedInputComputation> inputs = new HashMap<>();

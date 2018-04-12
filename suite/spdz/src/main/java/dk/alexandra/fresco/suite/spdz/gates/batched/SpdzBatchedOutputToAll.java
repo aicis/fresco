@@ -63,6 +63,7 @@ public class SpdzBatchedOutputToAll extends SpdzNativeProtocol<Void> implements
         opened.pop().callback(resourcePool.convertRepresentation(reconstructedElement));
       }
       reconstructed.clear();
+      authenticated.clear();
       return EvaluationStatus.IS_DONE;
     }
   }

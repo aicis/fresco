@@ -28,7 +28,9 @@ public abstract class AbstractSpdz2kTest<Spdz2kResourcePoolT extends Spdz2kResou
 
   private final List<Integer> partyNumbers = Arrays.asList(2, 3);
   private final List<EvaluationStrategy> evaluationStrategies = Arrays.asList(
-      EvaluationStrategy.SEQUENTIAL_BATCHED, EvaluationStrategy.NATIVE_BATCHED);
+      EvaluationStrategy.SEQUENTIAL_BATCHED,
+      EvaluationStrategy.NATIVE_BATCHED
+  );
 
   void runTest(
       TestThreadRunner.TestThreadFactory<Spdz2kResourcePoolT, ProtocolBuilderNumeric> f) {
