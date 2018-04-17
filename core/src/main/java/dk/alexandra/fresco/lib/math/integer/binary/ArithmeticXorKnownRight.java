@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.lib.math.integer.binary;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.ComputationParallel;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -14,7 +14,7 @@ import java.util.List;
  * arithmetic elements. The XOR operation is expressed via an arithmetic gate.</p>
  */
 public class ArithmeticXorKnownRight implements
-    Computation<List<DRes<SInt>>, ProtocolBuilderNumeric> {
+    ComputationParallel<List<DRes<SInt>>, ProtocolBuilderNumeric> {
 
   private static final BigInteger TWO = BigInteger.valueOf(2);
   private final DRes<List<DRes<SInt>>> leftBits;
@@ -38,15 +38,17 @@ public class ArithmeticXorKnownRight implements
     List<DRes<SInt>> leftOut = leftBits.out();
     List<DRes<BigInteger>> rightOut = rightBits.out();
     List<DRes<SInt>> xoredBits = new ArrayList<>(leftOut.size());
-    Numeric nb = builder.numeric();
     for (int i = 0; i < leftOut.size(); i++) {
       DRes<SInt> leftBit = leftOut.get(i);
       BigInteger rightBit = rightOut.get(i).out();
       // logical xor of two bits can be computed as leftBit + rightBit - 2 * leftBit * rightBit
-      DRes<SInt> xoredBit = nb.sub(
-          nb.add(rightBit, leftBit),
-          nb.mult(TWO, nb.mult(rightBit, leftBit))
-      );
+      DRes<SInt> xoredBit = builder.seq(seq -> {
+        Numeric nb = builder.numeric();
+        return nb.sub(
+            nb.add(rightBit, leftBit),
+            nb.mult(TWO, nb.mult(rightBit, leftBit))
+        );
+      });
       xoredBits.add(xoredBit);
     }
     return () -> xoredBits;
