@@ -22,6 +22,8 @@ import dk.alexandra.fresco.lib.collections.permute.PermuteRowsTests;
 import dk.alexandra.fresco.lib.collections.relational.LeakyAggregationTests;
 import dk.alexandra.fresco.lib.collections.shuffle.ShuffleRowsTests;
 import dk.alexandra.fresco.lib.compare.CompareTests;
+import dk.alexandra.fresco.lib.compare.gt.TestPreCarry.TestCarryHelper;
+import dk.alexandra.fresco.lib.compare.gt.TestPreCarry.TestPreCarryBits;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelectTests;
 import dk.alexandra.fresco.lib.conditional.ConditionalSwapNeighborsTests;
 import dk.alexandra.fresco.lib.conditional.ConditionalSwapRowsTests;
@@ -786,4 +788,15 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   public void testMod2mBaseCase() {
     runTest(new TestMod2mBaseCase<>(), new TestParameters());
   }
+
+  @Test
+  public void testCarryHelper() {
+    runTest(new TestCarryHelper<>(), new TestParameters());
+  }
+
+  @Test
+  public void testPreCarryBits() {
+    runTest(new TestPreCarryBits<>(), new TestParameters());
+  }
+
 }
