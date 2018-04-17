@@ -5,36 +5,38 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.SIntPair;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.math.integer.binary.ArithmeticAndKnownRight;
 import dk.alexandra.fresco.lib.math.integer.binary.ArithmeticXorKnownRight;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CarryBits implements Computation<List<DRes<SInt>>, ProtocolBuilderNumeric> {
+public class CarryOut implements Computation<SInt, ProtocolBuilderNumeric> {
 
   private final DRes<List<DRes<SInt>>> bitsA;
   private final DRes<List<DRes<BigInteger>>> bitsB;
 
-  public CarryBits(DRes<List<DRes<SInt>>> bitsA, DRes<List<DRes<BigInteger>>> bitsB) {
+  public CarryOut(DRes<List<DRes<SInt>>> bitsA, DRes<List<DRes<BigInteger>>> bitsB) {
     this.bitsA = bitsA;
     this.bitsB = bitsB;
   }
 
   @Override
-  public DRes<List<DRes<SInt>>> buildComputation(ProtocolBuilderNumeric builder) {
-    // these could also be done in parallel
+  public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
+    // TODO both calls should be in parallel
     DRes<List<DRes<SInt>>> xoredDef = builder.par(new ArithmeticXorKnownRight(bitsA, bitsB));
-    DRes<List<DRes<SInt>>> andedDef = builder.par(new ArithmeticXorKnownRight(bitsA, bitsB));
-    DRes<List<SIntPair>> pairs = () -> {
+    DRes<List<DRes<SInt>>> andedDef = builder.par(new ArithmeticAndKnownRight(bitsA, bitsB));
+    DRes<List<DRes<SIntPair>>> pairs = () -> {
       List<DRes<SInt>> xored = xoredDef.out();
       List<DRes<SInt>> anded = andedDef.out();
-      List<SIntPair> innerPairs = new ArrayList<>(xored.size());
+      List<DRes<SIntPair>> innerPairs = new ArrayList<>(xored.size());
       for (int i = 0; i < xored.size(); i++) {
-        innerPairs.add(new SIntPair(xored.get(i), anded.get(i)));
+        int finalI = i;
+        innerPairs.add(() -> new SIntPair(xored.get(finalI), anded.get(finalI)));
       }
       return innerPairs;
     };
-    return null;
+    return builder.seq(new PreCarryBits(pairs));
   }
 
 }

@@ -15,7 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.junit.Assert;
 
-public class TestPreCarry {
+public class PreCarryTests {
 
   public static class TestCarryHelper<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
@@ -30,7 +30,7 @@ public class TestPreCarry {
             Numeric numeric = builder.numeric();
             DRes<SInt> p1 = numeric.known(BigInteger.ONE);
             DRes<SInt> g1 = numeric.known(BigInteger.ZERO);
-            DRes<SInt> p2 = numeric.known(BigInteger.ONE);
+            DRes<SInt> p2 = numeric.known(BigInteger.ZERO);
             DRes<SInt> g2 = numeric.known(BigInteger.ONE);
             SIntPair pairOne = new SIntPair(p1, g1);
             SIntPair pairTwo = new SIntPair(p2, g2);
@@ -44,8 +44,8 @@ public class TestPreCarry {
             });
           };
           Pair<BigInteger, BigInteger> expected = new Pair<>(
-              BigInteger.ONE, // p1 & p2
-              BigInteger.ONE  // g2 | (p1 & g1)
+              BigInteger.ONE, // p1 * p2
+              BigInteger.ONE  // g2 + (p1 * g1)
           );
           Pair<BigInteger, BigInteger> actual = runApplication(app);
           Assert.assertEquals(expected, actual);
@@ -78,6 +78,7 @@ public class TestPreCarry {
             DRes<SInt> carried = builder.seq(new PreCarryBits(() -> pairs));
             return builder.numeric().open(carried);
           };
+          // TODO implement real test
           BigInteger actual = runApplication(app);
           Assert.assertEquals(BigInteger.ZERO, actual);
         }
