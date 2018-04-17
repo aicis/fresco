@@ -38,6 +38,7 @@ import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationTests;
 import dk.alexandra.fresco.lib.math.integer.linalg.LinAlgTests;
 import dk.alexandra.fresco.lib.math.integer.log.LogTests;
 import dk.alexandra.fresco.lib.math.integer.min.MinTests;
+import dk.alexandra.fresco.lib.math.integer.mod.Mod2mTests.TestMod2mBaseCase;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SqrtTests;
 import dk.alexandra.fresco.lib.math.integer.stat.StatisticsTests;
 import dk.alexandra.fresco.lib.math.polynomial.PolynomialTests;
@@ -781,4 +782,8 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(new TestArithmeticXorKnownRight<>(), new TestParameters());
   }
 
+  @Test
+  public void testMod2mBaseCase() {
+    runTest(new TestMod2mBaseCase<>(), new TestParameters());
+  }
 }
