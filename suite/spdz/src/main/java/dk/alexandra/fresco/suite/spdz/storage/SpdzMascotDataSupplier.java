@@ -4,8 +4,8 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.suite.spdz.preprocessing.MascotFormatConverter;
 import dk.alexandra.fresco.tools.mascot.Mascot;
@@ -21,6 +21,7 @@ import dk.alexandra.fresco.tools.ot.otextension.RotList;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayDeque;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -42,7 +43,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   private final FieldElement ssk;
 
   private final ArrayDeque<MultiplicationTriple> triples;
-  private final ArrayDeque<InputMask> masks;
+  private final Map<Integer, ArrayDeque<InputMask>> masks;
   private final ArrayDeque<AuthenticatedElement> randomElements;
   private final ArrayDeque<AuthenticatedElement> randomBits;
   private final int prgSeedLength;
@@ -79,7 +80,10 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     this.modulus = modulus;
     this.preprocessedValues = preprocessedValues;
     this.triples = new ArrayDeque<>();
-    this.masks = new ArrayDeque<>();
+    this.masks = new HashMap<>();
+    for (int partyId = 1; partyId <= numberOfPlayers; partyId++) {
+      masks.put(partyId, new ArrayDeque<>());
+    }
     this.randomElements = new ArrayDeque<>();
     this.randomBits = new ArrayDeque<>();
     this.prgSeedLength = prgSeedLength;
@@ -147,12 +151,13 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   @Override
   public SpdzInputMask getNextInputMask(int towardPlayerID) {
     ensureInitialized();
-    if (masks.isEmpty()) {
+    ArrayDeque<InputMask> inputMasks = masks.get(towardPlayerID);
+    if (inputMasks.isEmpty()) {
       logger.trace("Getting another mask batch");
-      masks.addAll(mascot.getInputMasks(towardPlayerID, batchSize));
+      inputMasks.addAll(mascot.getInputMasks(towardPlayerID, batchSize));
       logger.trace("Got another mask batch");
     }
-    return MascotFormatConverter.toSpdzInputMask(masks.pop());
+    return MascotFormatConverter.toSpdzInputMask(inputMasks.pop());
   }
 
   @Override
