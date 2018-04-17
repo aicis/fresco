@@ -19,6 +19,7 @@ Suite                 Parties  Adversary    Model of Computation  Reactive
 `Dummy Arithmetic`_   1+       none         Arithmetic            yes
 `TinyTables`_         2        semi-honest  Boolean               yes
 `SPDZ`_               2+       malicious    Arithmetic            yes
+`SPDZ2k`_             2+       malicious    Arithmetic            yes
 ====================  =======  ===========  ====================  ========
 
 Here the *Parties* column describes the number of parties that can be involved in secure computation
@@ -46,7 +47,7 @@ the *baseline* overhead of FRESCO when no security is applied.
 
 .. _TinyTables:
 
-The TinyTables protocol suite
+The TinyTables Protocol Suite
 ------------------------------
 
 The *TinyTables* protocol suite is based on work by Damgård *et al.* `[DNNR17]`_. This protocol suite
@@ -77,6 +78,16 @@ online beyond the number of multiplications to be performed. In the online evalu
 preprocessed data to evaluate each multiplication with a small amount of communication, whereas
 addition can be done locally.
 
+.. _SPDZ2k:
+
+The SPDZ2k Protocol Suite
+-------------------------
+
+The SPDZ2k protocol suite is based on a variant of SPDZ due to Cramer *et al.* `[CDESX18]`_. In
+contrast to the regular SPDZ protocol which works over a field SPDZ2k works over the ring
+:math:`Z_{2^k}` for some :math:`k`. This is an advantage as working in such a ring more closely
+resembles how arithmetic on the integers behaves in normal programming languages and it allows for
+various optimizations compared to working over a field.
 
 References
 ----------
@@ -88,7 +99,7 @@ References
 | **The TinyTable Protocol for 2-Party Secure Computation, or: Gate-Scrambling Revisited**
 | CRYPTO 2017
 |
-|
+
 .. _`[DPSZ12]`:
 
 | [DPSZ12]:
@@ -96,5 +107,11 @@ References
 | **Practical Covertly Secure MPC for Dishonest Majority – Or: Breaking the SPDZ Limits**
 | ESORICS 2013
 |
-|
 
+.. _`[CDESX18]`:
+
+| [CDESX18]:
+| *Ronald Cramer, Ivan Damgård, Daniel Escudero, Peter Scholl, and Chaoping Xing*
+| **SPDZ_2^k: Efficient MPC mod 2^k for Dishonest Majority**
+| Unpublished
+|
