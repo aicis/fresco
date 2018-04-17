@@ -19,6 +19,7 @@ public class PreCarryBits implements Computation<SInt, ProtocolBuilderNumeric> {
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
+    // TODO enforce that input size is power of 2?
     List<DRes<SIntPair>> pairs = pairsDef.out();
     // TODO this will reverse the actual list, not just the view. more efficient to only reverse the view
     Collections.reverse(pairs);

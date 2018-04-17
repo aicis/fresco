@@ -803,19 +803,25 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void testCarryOutZero() {
     runTest(new TestCarryOut<>(new int[]{0, 0, 0, 0}, new int[]{0, 0, 0, 0}, 0),
-        new TestParameters());
+        new TestParameters().numParties(2));
   }
 
   @Test
   public void testCarryOutOne() {
     runTest(new TestCarryOut<>(new int[]{1, 0, 0, 0}, new int[]{1, 0, 0, 0}, 1),
-        new TestParameters());
+        new TestParameters().numParties(2));
   }
 
   @Test
   public void testCarryOutOneFromCarry() {
     runTest(new TestCarryOut<>(new int[]{1, 1, 0, 0}, new int[]{0, 1, 0, 0}, 1),
-        new TestParameters());
+        new TestParameters().numParties(2));
+  }
+
+  @Test
+  public void testCarryOutAllOnes() {
+    runTest(new TestCarryOut<>(new int[]{1, 1, 1, 1}, new int[]{1, 1, 1, 1}, 1),
+        new TestParameters().numParties(2));
   }
 
 }

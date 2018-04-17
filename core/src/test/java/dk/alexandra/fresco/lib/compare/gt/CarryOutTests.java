@@ -51,7 +51,6 @@ public class CarryOutTests {
                 return root.numeric().open(carry);
               };
           BigInteger actual = runApplication(app);
-          BigInteger expected = BigInteger.ZERO;
           Assert.assertEquals(expected, actual);
         }
       };

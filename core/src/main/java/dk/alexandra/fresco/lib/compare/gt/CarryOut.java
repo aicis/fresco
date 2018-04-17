@@ -9,6 +9,7 @@ import dk.alexandra.fresco.lib.math.integer.binary.ArithmeticAndKnownRight;
 import dk.alexandra.fresco.lib.math.integer.binary.ArithmeticXorKnownRight;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class CarryOut implements Computation<SInt, ProtocolBuilderNumeric> {
@@ -34,6 +35,7 @@ public class CarryOut implements Computation<SInt, ProtocolBuilderNumeric> {
         int finalI = i;
         innerPairs.add(() -> new SIntPair(xored.get(finalI), anded.get(finalI)));
       }
+      Collections.reverse(innerPairs);
       return innerPairs;
     };
     return builder.seq(new PreCarryBits(pairs));
