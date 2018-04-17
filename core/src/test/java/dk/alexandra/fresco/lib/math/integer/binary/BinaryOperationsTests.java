@@ -17,11 +17,8 @@ import org.junit.Assert;
 
 
 /**
- * Generic test cases for basic finite field operations.
- * <p>
- * Can be reused by a test case for any protocol suite that implements the basic field protocol
- * factory.
- * </p>
+ * Generic test cases for basic finite field operations. <p> Can be reused by a test case for any
+ * protocol suite that implements the basic field protocol factory. </p>
  */
 public class BinaryOperationsTests {
 
@@ -39,7 +36,7 @@ public class BinaryOperationsTests {
         private final int shifts = 3;
 
         @Override
-        public void test() throws Exception {
+        public void test() {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app =
               (ProtocolBuilderNumeric builder) -> {
                 AdvancedNumeric rightShift = builder.advancedNumeric();
@@ -52,7 +49,7 @@ public class BinaryOperationsTests {
                     builder.numeric().open(() -> shiftedRight.out().getRemainder());
                 return () -> Arrays.asList(openResult.out(), openRemainder.out());
               };
-              List<BigInteger> output = runApplication(app);
+          List<BigInteger> output = runApplication(app);
 
           Assert.assertEquals(input.shiftRight(shifts), output.get(0));
           Assert.assertEquals(input.mod(BigInteger.ONE.shiftLeft(shifts)), output.get(1));
@@ -75,7 +72,7 @@ public class BinaryOperationsTests {
         private final BigInteger input = BigInteger.valueOf(5);
 
         @Override
-        public void test() throws Exception {
+        public void test() {
           Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
             DRes<SInt> sharedInput = builder.numeric().known(input);
             AdvancedNumeric bitLengthBuilder = builder.advancedNumeric();
@@ -104,7 +101,7 @@ public class BinaryOperationsTests {
         private final int max = 16;
 
         @Override
-        public void test() throws Exception {
+        public void test() {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app =
               producer -> producer.seq(builder -> {
                 DRes<SInt> sharedInput = builder.numeric().known(input);
@@ -119,6 +116,96 @@ public class BinaryOperationsTests {
           for (int i = 0; i < max; i++) {
             Assert.assertEquals(result.get(i).testBit(0), input.testBit(i));
           }
+        }
+      };
+    }
+  }
+
+  public static class TestArithmeticAndKnownRight<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        private final List<BigInteger> left = Arrays.asList(
+            BigInteger.ONE,
+            BigInteger.ZERO,
+            BigInteger.ONE,
+            BigInteger.ZERO);
+        private final List<DRes<BigInteger>> right = Arrays.asList(
+            () -> BigInteger.ONE,
+            () -> BigInteger.ONE,
+            () -> BigInteger.ZERO,
+            () -> BigInteger.ZERO);
+
+        @Override
+        public void test() {
+          Application<List<DRes<BigInteger>>, ProtocolBuilderNumeric> app =
+              root -> {
+                int myId = root.getBasicNumericContext().getMyId();
+                DRes<List<DRes<SInt>>> leftClosed =
+                    (myId == 1) ?
+                        root.collections().closeList(left, 1)
+                        : root.collections().closeList(left.size(), 1);
+                DRes<List<DRes<SInt>>> anded = root
+                    .par(new ArithmeticAndKnownRight(leftClosed, () -> right));
+                return root.collections().openList(anded);
+              };
+          List<BigInteger> actual = runApplication(app).stream().map(DRes::out)
+              .collect(Collectors.toList());
+          List<BigInteger> expected = Arrays.asList(
+              BigInteger.ONE,
+              BigInteger.ZERO,
+              BigInteger.ZERO,
+              BigInteger.ZERO
+          );
+          Assert.assertEquals(expected, actual);
+        }
+      };
+    }
+  }
+
+  public static class TestArithmeticXorKnownRight<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        private final List<BigInteger> left = Arrays.asList(
+            BigInteger.ONE,
+            BigInteger.ZERO,
+            BigInteger.ONE,
+            BigInteger.ZERO);
+        private final List<DRes<BigInteger>> right = Arrays.asList(
+            () -> BigInteger.ONE,
+            () -> BigInteger.ONE,
+            () -> BigInteger.ZERO,
+            () -> BigInteger.ZERO);
+
+        @Override
+        public void test() {
+          Application<List<DRes<BigInteger>>, ProtocolBuilderNumeric> app =
+              root -> {
+                int myId = root.getBasicNumericContext().getMyId();
+                DRes<List<DRes<SInt>>> leftClosed =
+                    (myId == 1) ?
+                        root.collections().closeList(left, 1)
+                        : root.collections().closeList(left.size(), 1);
+                DRes<List<DRes<SInt>>> anded = root
+                    .par(new ArithmeticXorKnownRight(leftClosed, () -> right));
+                return root.collections().openList(anded);
+              };
+          List<BigInteger> actual = runApplication(app).stream().map(DRes::out)
+              .collect(Collectors.toList());
+          List<BigInteger> expected = Arrays.asList(
+              BigInteger.ZERO,
+              BigInteger.ONE,
+              BigInteger.ONE,
+              BigInteger.ZERO
+          );
+          Assert.assertEquals(expected, actual);
         }
       };
     }

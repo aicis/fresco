@@ -43,7 +43,7 @@ public class ArithmeticXorKnownRight implements
       BigInteger rightBit = rightOut.get(i).out();
       // logical xor of two bits can be computed as leftBit + rightBit - 2 * leftBit * rightBit
       DRes<SInt> xoredBit = builder.seq(seq -> {
-        Numeric nb = builder.numeric();
+        Numeric nb = seq.numeric();
         return nb.sub(
             nb.add(rightBit, leftBit),
             nb.mult(TWO, nb.mult(rightBit, leftBit))

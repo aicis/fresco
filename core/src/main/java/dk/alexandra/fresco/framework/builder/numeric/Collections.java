@@ -22,7 +22,7 @@ public interface Collections extends ComputationDirectory {
    * @param closedPair secret values
    * @return opened values
    */
-  public DRes<Pair<DRes<BigInteger>, DRes<BigInteger>>> openPair(
+  DRes<Pair<DRes<BigInteger>, DRes<BigInteger>>> openPair(
       DRes<Pair<DRes<SInt>, DRes<SInt>>> closedPair);
 
   /**
@@ -31,7 +31,7 @@ public interface Collections extends ComputationDirectory {
    * @param closedPair secret values
    * @return openened rows
    */
-  public DRes<RowPairD<BigInteger, BigInteger>> openRowPair(DRes<RowPairD<SInt, SInt>> closedPair);
+  DRes<RowPairD<BigInteger, BigInteger>> openRowPair(DRes<RowPairD<SInt, SInt>> closedPair);
 
   /**
    * Closes list of input values. <br>
@@ -41,7 +41,7 @@ public interface Collections extends ComputationDirectory {
    * @param inputParty party providing input
    * @return closed list
    */
-  public DRes<List<DRes<SInt>>> closeList(List<BigInteger> openList, int inputParty);
+  DRes<List<DRes<SInt>>> closeList(List<BigInteger> openList, int inputParty);
 
   /**
    * Closes list of input values. <br>
@@ -51,7 +51,7 @@ public interface Collections extends ComputationDirectory {
    * @param inputParty party providing input
    * @return closed list
    */
-  public DRes<List<DRes<SInt>>> closeList(int numberOfInputs, int inputParty);
+  DRes<List<DRes<SInt>>> closeList(int numberOfInputs, int inputParty);
 
   /**
    * Opens list of secret values. <br>
@@ -59,7 +59,7 @@ public interface Collections extends ComputationDirectory {
    * @param closedList secret values
    * @return closed values
    */
-  public DRes<List<DRes<BigInteger>>> openList(DRes<List<DRes<SInt>>> closedList);
+  DRes<List<DRes<BigInteger>>> openList(DRes<List<DRes<SInt>>> closedList);
 
   /**
    * Closes matrix of input values. <br>
@@ -69,7 +69,7 @@ public interface Collections extends ComputationDirectory {
    * @param inputParty party providing input
    * @return closed matrix
    */
-  public DRes<Matrix<DRes<SInt>>> closeMatrix(Matrix<BigInteger> openMatrix, int inputParty);
+  DRes<Matrix<DRes<SInt>>> closeMatrix(Matrix<BigInteger> openMatrix, int inputParty);
 
   /**
    * Closes matrix of input values. <br>
@@ -80,7 +80,7 @@ public interface Collections extends ComputationDirectory {
    * @param inputParty party providing input
    * @return closed matrix
    */
-  public DRes<Matrix<DRes<SInt>>> closeMatrix(int h, int w, int inputParty);
+  DRes<Matrix<DRes<SInt>>> closeMatrix(int h, int w, int inputParty);
 
   /**
    * Opens matrix of secret values.
@@ -88,7 +88,7 @@ public interface Collections extends ComputationDirectory {
    * @param closedMatrix input matrix
    * @return open matrix
    */
-  public DRes<Matrix<DRes<BigInteger>>> openMatrix(DRes<Matrix<DRes<SInt>>> closedMatrix);
+  DRes<Matrix<DRes<BigInteger>>> openMatrix(DRes<Matrix<DRes<SInt>>> closedMatrix);
 
   // Conditional
 
@@ -100,7 +100,7 @@ public interface Collections extends ComputationDirectory {
    * @param right right row
    * @return left if condition right otherwise
    */
-  public DRes<List<DRes<SInt>>> condSelect(DRes<SInt> condition, DRes<List<DRes<SInt>>> left,
+  DRes<List<DRes<SInt>>> condSelect(DRes<SInt> condition, DRes<List<DRes<SInt>>> left,
       DRes<List<DRes<SInt>>> right);
 
   /**
@@ -112,7 +112,7 @@ public interface Collections extends ComputationDirectory {
    * @param right right row
    * @return swapped rows if condition, same order rows otherwise
    */
-  public DRes<RowPairD<SInt, SInt>> swapIf(DRes<SInt> condition, DRes<List<DRes<SInt>>> left,
+  DRes<RowPairD<SInt, SInt>> swapIf(DRes<SInt> condition, DRes<List<DRes<SInt>>> left,
       DRes<List<DRes<SInt>>> right);
 
   /**
@@ -122,7 +122,7 @@ public interface Collections extends ComputationDirectory {
    * @param mat matrix to be row-swapped
    * @return matrix with rows swapped according to conditions
    */
-  public DRes<Matrix<DRes<SInt>>> swapNeighborsIf(DRes<List<DRes<SInt>>> conditions,
+  DRes<Matrix<DRes<SInt>>> swapNeighborsIf(DRes<List<DRes<SInt>>> conditions,
       DRes<Matrix<DRes<SInt>>> mat);
 
   // Permutations
@@ -135,7 +135,7 @@ public interface Collections extends ComputationDirectory {
    * @param idxPerm encodes the desired permutation by supplying for each index a new index
    * @return permuted rows
    */
-  public DRes<Matrix<DRes<SInt>>> permute(DRes<Matrix<DRes<SInt>>> values, int[] idxPerm);
+  DRes<Matrix<DRes<SInt>>> permute(DRes<Matrix<DRes<SInt>>> values, int[] idxPerm);
 
   /**
    * Permutes the rows of <code>values</code> according to <code>idxPerm</code>. <br>
@@ -145,7 +145,7 @@ public interface Collections extends ComputationDirectory {
    * @param permProviderPid the ID of the party choosing permutation
    * @return permuted rows
    */
-  public DRes<Matrix<DRes<SInt>>> permute(DRes<Matrix<DRes<SInt>>> values, int permProviderPid);
+  DRes<Matrix<DRes<SInt>>> permute(DRes<Matrix<DRes<SInt>>> values, int permProviderPid);
 
   /**
    * Randomly permutes (shuffles) rows of <code>values</code>. Uses secure source of randomness.
@@ -153,7 +153,7 @@ public interface Collections extends ComputationDirectory {
    * @param values rows to shuffle
    * @return shuffled rows
    */
-  public DRes<Matrix<DRes<SInt>>> shuffle(DRes<Matrix<DRes<SInt>>> values);
+  DRes<Matrix<DRes<SInt>>> shuffle(DRes<Matrix<DRes<SInt>>> values);
 
   // Relational (SQL-like) operators
 
@@ -168,7 +168,7 @@ public interface Collections extends ComputationDirectory {
    * @param aggColIdx column to aggregate
    * @return aggregated result
    */
-  public DRes<Matrix<DRes<SInt>>> leakyAggregateSum(DRes<Matrix<DRes<SInt>>> values,
+  DRes<Matrix<DRes<SInt>>> leakyAggregateSum(DRes<Matrix<DRes<SInt>>> values,
       int groupColIdx, int aggColIdx);
 
 }

@@ -40,7 +40,7 @@ public class ArithmeticAndKnownRight implements
       DRes<SInt> leftBit = leftOut.get(i);
       BigInteger rightBit = rightOut.get(i).out();
       // logical and of two bits can be computed as product
-      DRes<SInt> andedBit = builder.seq(seq -> builder.numeric().mult(rightBit, leftBit));
+      DRes<SInt> andedBit = builder.seq(seq -> seq.numeric().mult(rightBit, leftBit));
       andedBits.add(andedBit);
     }
     return () -> andedBits;

@@ -31,6 +31,8 @@ import dk.alexandra.fresco.lib.list.EliminateDuplicatesTests;
 import dk.alexandra.fresco.lib.lp.LPSolver;
 import dk.alexandra.fresco.lib.lp.LpBuildingBlockTests;
 import dk.alexandra.fresco.lib.math.integer.binary.BinaryOperationsTests;
+import dk.alexandra.fresco.lib.math.integer.binary.BinaryOperationsTests.TestArithmeticAndKnownRight;
+import dk.alexandra.fresco.lib.math.integer.binary.BinaryOperationsTests.TestArithmeticXorKnownRight;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationTests;
 import dk.alexandra.fresco.lib.math.integer.linalg.LinAlgTests;
@@ -767,6 +769,16 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_trunctation() throws Exception {
     runTest(new TruncationTests.TestTruncation<>(), new TestParameters().numParties(2));
+  }
+
+  @Test
+  public void testArithmeticAndKnownRight() {
+    runTest(new TestArithmeticAndKnownRight<>(), new TestParameters());
+  }
+
+  @Test
+  public void testArithmeticXorKnownRight() {
+    runTest(new TestArithmeticXorKnownRight<>(), new TestParameters());
   }
 
 }
