@@ -9,6 +9,7 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Assert;
 
@@ -21,15 +22,12 @@ public class CarryOutTests {
     private final List<DRes<BigInteger>> right;
     private final BigInteger expected;
 
-    public TestCarryOut(int[] leftBits, int[] rightClearBits, int expected) {
-      this.expected = BigInteger.valueOf(expected);
-      int numBits = leftBits.length;
-      left = new ArrayList<>(numBits);
-      right = new ArrayList<>(numBits);
-      for (int i = 0; i < numBits; i++) {
-        left.add(BigInteger.valueOf(leftBits[i]));
-        int finalI = i;
-        right.add(() -> BigInteger.valueOf(rightClearBits[finalI]));
+    public TestCarryOut(int l, int r) {
+      expected = carry(l, r);
+      left = intToBits(l);
+      right = new ArrayList<>(left.size());
+      for (BigInteger bit : intToBits(r)) {
+        right.add(() -> bit);
       }
     }
 
@@ -55,6 +53,23 @@ public class CarryOutTests {
         }
       };
     }
+  }
+
+  private static BigInteger carry(int a, int b) {
+    long res = Integer.toUnsignedLong(a) + Integer.toUnsignedLong(b);
+    int carry = (int) ((res & (1L << 32)) >> 32);
+    return BigInteger.valueOf(carry);
+  }
+
+  private static List<BigInteger> intToBits(int value) {
+    int numBits = Integer.SIZE;
+    List<BigInteger> bits = new ArrayList<>(numBits);
+    for (int i = 0; i < numBits; i++) {
+      int bit = (value & (1 << i)) >>> i;
+      bits.add(BigInteger.valueOf(bit));
+    }
+    Collections.reverse(bits);
+    return bits;
   }
 
 }

@@ -57,6 +57,7 @@ import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.arithmetic.ComparisonLoggerDecorator;
 import dk.alexandra.fresco.logging.arithmetic.NumericLoggingDecorator;
 import java.util.ArrayList;
+import java.util.Random;
 import org.junit.Test;
 
 public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTest {
@@ -802,25 +803,27 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void testCarryOutZero() {
-    runTest(new TestCarryOut<>(new int[]{0, 0, 0, 0}, new int[]{0, 0, 0, 0}, 0),
-        new TestParameters().numParties(2));
+    runTest(new TestCarryOut<>(0x00000000, 0x00000000), new TestParameters().numParties(2));
   }
 
   @Test
   public void testCarryOutOne() {
-    runTest(new TestCarryOut<>(new int[]{1, 0, 0, 0}, new int[]{1, 0, 0, 0}, 1),
-        new TestParameters().numParties(2));
-  }
-
-  @Test
-  public void testCarryOutOneFromCarry() {
-    runTest(new TestCarryOut<>(new int[]{1, 1, 0, 0}, new int[]{0, 1, 0, 0}, 1),
-        new TestParameters().numParties(2));
+    runTest(new TestCarryOut<>(0x80000000, 0x80000000), new TestParameters().numParties(2));
   }
 
   @Test
   public void testCarryOutAllOnes() {
-    runTest(new TestCarryOut<>(new int[]{1, 1, 1, 1}, new int[]{1, 1, 1, 1}, 1),
+    runTest(new TestCarryOut<>(0xffffffff, 0xffffffff), new TestParameters().numParties(2));
+  }
+
+  @Test
+  public void testCarryOutOneFromCarry() {
+    runTest(new TestCarryOut<>(0x40000000, 0xc0000000), new TestParameters().numParties(2));
+  }
+
+  @Test
+  public void testCarryOutRandom() {
+    runTest(new TestCarryOut<>(new Random().nextInt(), new Random().nextInt()),
         new TestParameters().numParties(2));
   }
 
