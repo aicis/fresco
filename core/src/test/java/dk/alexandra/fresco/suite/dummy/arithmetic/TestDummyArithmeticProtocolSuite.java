@@ -812,4 +812,10 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
         new TestParameters());
   }
 
+  @Test
+  public void testCarryOutOneFromCarry() {
+    runTest(new TestCarryOut<>(new int[]{1, 1, 0, 0}, new int[]{0, 1, 0, 0}, 1),
+        new TestParameters());
+  }
+
 }

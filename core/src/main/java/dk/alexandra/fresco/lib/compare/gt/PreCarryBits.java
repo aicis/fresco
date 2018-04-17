@@ -13,7 +13,7 @@ public class PreCarryBits implements Computation<SInt, ProtocolBuilderNumeric> {
 
   private final DRes<List<DRes<SIntPair>>> pairsDef;
 
-  public PreCarryBits(DRes<List<DRes<SIntPair>>> pairs) {
+  PreCarryBits(DRes<List<DRes<SIntPair>>> pairs) {
     this.pairsDef = pairs;
   }
 
@@ -26,20 +26,18 @@ public class PreCarryBits implements Computation<SInt, ProtocolBuilderNumeric> {
     if (k == 1) {
       return pairs.get(0).out().getSecond();
     } else {
-      DRes<List<DRes<SIntPair>>> bitsU = builder.par(par -> {
-        List<DRes<SIntPair>> bitsUInner = new ArrayList<>(k / 2);
+      DRes<List<DRes<SIntPair>>> nextRound = builder.par(par -> {
+        List<DRes<SIntPair>> nextRoundInner = new ArrayList<>(k / 2);
         for (int i = 0; i < k / 2; i++) {
           DRes<SIntPair> left = pairs.get(2 * i + 1);
           DRes<SIntPair> right = pairs.get(2 * i);
-          bitsUInner.add(par.seq(new CarryHelper(left, right)));
+          nextRoundInner.add(par.seq(new CarryHelper(left, right)));
         }
-        List<DRes<SIntPair>> nextRound = bitsUInner.subList(0, k / 2);
-        Collections.reverse(nextRound);
-        return () -> nextRound;
+        Collections.reverse(nextRoundInner);
+        return () -> nextRoundInner;
       });
-      return builder.seq(new PreCarryBits(bitsU));
+      return builder.seq(new PreCarryBits(nextRound));
     }
   }
-
 
 }
