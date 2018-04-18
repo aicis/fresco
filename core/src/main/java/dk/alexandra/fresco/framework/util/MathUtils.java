@@ -1,6 +1,9 @@
 package dk.alexandra.fresco.framework.util;
 
+import dk.alexandra.fresco.framework.DRes;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MathUtils {
@@ -80,6 +83,34 @@ public class MathUtils {
         .reduce(BigInteger::add)
         .orElse(BigInteger.ZERO)
         .mod(modulus);
+  }
+
+  /**
+   * Turns input value into bits in big-endian order. <p>If the actual bit length of the value is
+   * smaller than numBits, the result is padded with 0s. If the bit length is larger only the first
+   * numBits bits are used.</p>
+   */
+  public static List<BigInteger> toBits(BigInteger value, int numBits) {
+    List<BigInteger> bits = new ArrayList<>(numBits);
+    for (int b = 0; b < numBits; b++) {
+      boolean boolBit = value.testBit(b);
+      bits.add(boolBit ? BigInteger.ONE : BigInteger.ZERO);
+    }
+    Collections.reverse(bits);
+    return bits;
+  }
+
+  /**
+   * Same as {@link #toBits(BigInteger, int)}, but wraps result bits in DRes.
+   */
+  public static List<DRes<BigInteger>> toBitsAsDRes(BigInteger value, int numBits) {
+    List<DRes<BigInteger>> bits = new ArrayList<>(numBits);
+    for (int b = 0; b < numBits; b++) {
+      boolean boolBit = value.testBit(b);
+      bits.add(boolBit ? () -> BigInteger.ONE : () -> BigInteger.ZERO);
+    }
+    Collections.reverse(bits);
+    return bits;
   }
 
   /**

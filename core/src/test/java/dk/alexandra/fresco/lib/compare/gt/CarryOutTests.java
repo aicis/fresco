@@ -45,7 +45,7 @@ public class CarryOutTests {
                     (myId == 1) ?
                         root.collections().closeList(left, 1)
                         : root.collections().closeList(left.size(), 1);
-                DRes<SInt> carry = root.seq(new CarryOut(leftClosed, () -> right));
+                DRes<SInt> carry = root.seq(new CarryOut(() -> right, leftClosed));
                 return root.numeric().open(carry);
               };
           BigInteger actual = runApplication(app);

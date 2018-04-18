@@ -22,6 +22,7 @@ import dk.alexandra.fresco.lib.collections.permute.PermuteRowsTests;
 import dk.alexandra.fresco.lib.collections.relational.LeakyAggregationTests;
 import dk.alexandra.fresco.lib.collections.shuffle.ShuffleRowsTests;
 import dk.alexandra.fresco.lib.compare.CompareTests;
+import dk.alexandra.fresco.lib.compare.gt.BitLessThanOpenTests.TestBitLessThanOpenBaseCases;
 import dk.alexandra.fresco.lib.compare.gt.CarryOutTests.TestCarryOut;
 import dk.alexandra.fresco.lib.compare.gt.PreCarryTests.TestCarryHelper;
 import dk.alexandra.fresco.lib.compare.gt.PreCarryTests.TestPreCarryBits;
@@ -823,8 +824,15 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void testCarryOutRandom() {
-    runTest(new TestCarryOut<>(new Random().nextInt(), new Random().nextInt()),
+    runTest(new TestCarryOut<>(new Random(42).nextInt(), new Random(1).nextInt()),
         new TestParameters().numParties(2));
+  }
+
+  @Test
+  public void testBitLessThanOpenBaseCases() {
+    TestParameters parameters = new TestParameters().numParties(2)
+        .modulus(ModulusFinder.findSuitableModulus(128));
+    runTest(new TestBitLessThanOpenBaseCases<>(128), parameters);
   }
 
 }

@@ -12,28 +12,34 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Given values a and b represented as bits, computes if a + b overflows, i.e., if there is a
+ * carry.
+ */
 public class CarryOut implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private final DRes<List<DRes<SInt>>> bitsA;
-  private final DRes<List<DRes<BigInteger>>> bitsB;
+  private final DRes<List<DRes<BigInteger>>> clearBits;
+  private final DRes<List<DRes<SInt>>> secretBits;
   private final BigInteger carryIn;
 
-  public CarryOut(DRes<List<DRes<SInt>>> bitsA, DRes<List<DRes<BigInteger>>> bitsB,
+  public CarryOut(DRes<List<DRes<BigInteger>>> clearBits, DRes<List<DRes<SInt>>> secretBits,
       BigInteger carryIn) {
-    this.bitsA = bitsA;
-    this.bitsB = bitsB;
+    this.secretBits = secretBits;
+    this.clearBits = clearBits;
     this.carryIn = carryIn;
   }
 
-  public CarryOut(DRes<List<DRes<SInt>>> bitsA, DRes<List<DRes<BigInteger>>> bitsB) {
-    this(bitsA, bitsB, BigInteger.ZERO);
+  public CarryOut(DRes<List<DRes<BigInteger>>> clearBits, DRes<List<DRes<SInt>>> secretBits) {
+    this(clearBits, secretBits, BigInteger.ZERO);
   }
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     // TODO both calls should be in parallel
-    DRes<List<DRes<SInt>>> xoredDef = builder.par(new ArithmeticXorKnownRight(bitsA, bitsB));
-    DRes<List<DRes<SInt>>> andedDef = builder.par(new ArithmeticAndKnownRight(bitsA, bitsB));
+    DRes<List<DRes<SInt>>> xoredDef = builder
+        .par(new ArithmeticXorKnownRight(secretBits, clearBits));
+    DRes<List<DRes<SInt>>> andedDef = builder
+        .par(new ArithmeticAndKnownRight(secretBits, clearBits));
     DRes<List<DRes<SIntPair>>> pairs = () -> {
       List<DRes<SInt>> xored = xoredDef.out();
       List<DRes<SInt>> anded = andedDef.out();
