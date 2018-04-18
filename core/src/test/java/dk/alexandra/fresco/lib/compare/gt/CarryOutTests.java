@@ -55,13 +55,13 @@ public class CarryOutTests {
     }
   }
 
-  private BigInteger carry(int a, int b) {
+  private static BigInteger carry(int a, int b) {
     long res = Integer.toUnsignedLong(a) + Integer.toUnsignedLong(b);
     int carry = (int) ((res & (1L << 32)) >> 32);
     return BigInteger.valueOf(carry);
   }
 
-  private List<BigInteger> intToBits(int value) {
+  private static List<BigInteger> intToBits(int value) {
     int numBits = Integer.SIZE;
     List<BigInteger> bits = new ArrayList<>(numBits);
     for (int i = 0; i < numBits; i++) {
