@@ -16,10 +16,17 @@ public class CarryOut implements Computation<SInt, ProtocolBuilderNumeric> {
 
   private final DRes<List<DRes<SInt>>> bitsA;
   private final DRes<List<DRes<BigInteger>>> bitsB;
+  private final BigInteger carryIn;
 
-  public CarryOut(DRes<List<DRes<SInt>>> bitsA, DRes<List<DRes<BigInteger>>> bitsB) {
+  public CarryOut(DRes<List<DRes<SInt>>> bitsA, DRes<List<DRes<BigInteger>>> bitsB,
+      BigInteger carryIn) {
     this.bitsA = bitsA;
     this.bitsB = bitsB;
+    this.carryIn = carryIn;
+  }
+
+  public CarryOut(DRes<List<DRes<SInt>>> bitsA, DRes<List<DRes<BigInteger>>> bitsB) {
+    this(bitsA, bitsB, BigInteger.ZERO);
   }
 
   @Override
