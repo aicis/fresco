@@ -18,7 +18,11 @@ public interface AdvancedNumeric extends ComputationDirectory {
    * @param elements the elements to sum
    * @return A deferred result computing the sum of the elements
    */
+  @Deprecated
   DRes<SInt> sum(List<DRes<SInt>> elements);
+
+
+  DRes<SInt> sum(DRes<List<DRes<SInt>>> elements);
 
   /**
    * Calculates the product of all elements in the list.
@@ -26,6 +30,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
    * @param elements the elements to sum
    * @return A deferred result computing the product of the elements
    */
+  @Deprecated
   DRes<SInt> product(List<DRes<SInt>> elements);
 
   /**

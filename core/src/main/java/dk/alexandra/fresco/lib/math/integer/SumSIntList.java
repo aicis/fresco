@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class SumSIntList implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private final List<DRes<SInt>> input;
+  private final DRes<List<DRes<SInt>>> inputDef;
 
   /**
    * Creates a new SumSIntList.
@@ -21,11 +21,16 @@ public class SumSIntList implements Computation<SInt, ProtocolBuilderNumeric> {
    * @param list the list to sum
    */
   public SumSIntList(List<DRes<SInt>> list) {
-    input = list;
+    this(() -> list);
+  }
+
+  public SumSIntList(DRes<List<DRes<SInt>>> list) {
+    inputDef = list;
   }
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric iterationBuilder) {
+    List<DRes<SInt>> input = inputDef.out();
     return iterationBuilder.seq(seq ->
         () -> input
     ).whileLoop(

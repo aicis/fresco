@@ -46,6 +46,11 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
   }
 
   @Override
+  public DRes<SInt> sum(DRes<List<DRes<SInt>>> elements) {
+    return builder.seq(new SumSIntList(elements));
+  }
+
+  @Override
   public DRes<SInt> product(List<DRes<SInt>> elements) {
     return builder.seq(new ProductSIntList(elements));
   }
