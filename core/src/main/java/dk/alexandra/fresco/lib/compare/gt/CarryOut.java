@@ -36,21 +36,29 @@ public class CarryOut implements Computation<SInt, ProtocolBuilderNumeric> {
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     // TODO both calls should be in parallel
+    // TODO don't re-use generic protocols to cut number of mults in half
     DRes<List<DRes<SInt>>> xoredDef = builder
         .par(new ArithmeticXorKnownRight(secretBits, clearBits));
     DRes<List<DRes<SInt>>> andedDef = builder
         .par(new ArithmeticAndKnownRight(secretBits, clearBits));
-    DRes<List<DRes<SIntPair>>> pairs = () -> {
+    DRes<List<DRes<SIntPair>>> pairs = builder.seq(seq -> {
       List<DRes<SInt>> xored = xoredDef.out();
       List<DRes<SInt>> anded = andedDef.out();
       List<DRes<SIntPair>> innerPairs = new ArrayList<>(xored.size());
-      for (int i = 0; i < xored.size(); i++) {
-        int finalI = i;
-        innerPairs.add(() -> new SIntPair(xored.get(finalI), anded.get(finalI)));
+      for (int i = 0; i < xored.size() - 1; i++) {
+        SIntPair pair = new SIntPair(xored.get(i), anded.get(i));
+        innerPairs.add(() -> pair);
       }
+      // need to account for carry-in bit
+      int lastIdx = xored.size() - 1;
+      DRes<SInt> lastCarryPropagator = seq.numeric().add(
+          anded.get(lastIdx),
+          seq.numeric().mult(carryIn, xored.get(lastIdx)));
+      SIntPair pair = new SIntPair(xored.get(lastIdx), lastCarryPropagator);
+      innerPairs.add(() -> pair);
       Collections.reverse(innerPairs);
-      return innerPairs;
-    };
+      return () -> innerPairs;
+    });
     return builder.seq(new PreCarryBits(pairs));
   }
 
