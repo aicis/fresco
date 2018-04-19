@@ -15,34 +15,28 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Assert;
 
-public class TruncateTests {
+public class LessThanZeroTests {
 
-  public static class TestTruncate<ResourcePoolT extends ResourcePool>
+  public static class TestLessThanZero<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     private final List<BigInteger> openInputs;
     private final List<BigInteger> expected;
-    private final int m;
 
-    public TestTruncate(BigInteger modulus, int m) {
+    public TestLessThanZero(BigInteger modulus) {
       this.openInputs = Arrays.asList(
           BigInteger.ZERO,
-          BigInteger.ONE
+          BigInteger.ONE,
+          BigInteger.valueOf(-1)
       );
-      this.expected = computeExpected(openInputs, modulus, m);
-      this.m = m;
+      this.expected = computeExpected(openInputs, modulus);
     }
 
-    public TestTruncate(BigInteger modulus) {
-      this(modulus, modulus.bitLength() - 1);
-    }
-
-    private static List<BigInteger> computeExpected(List<BigInteger> inputs, BigInteger modulus,
-        int m) {
+    private static List<BigInteger> computeExpected(List<BigInteger> inputs, BigInteger modulus) {
       List<BigInteger> expected = new ArrayList<>(inputs.size());
-      BigInteger twoToM = BigInteger.ONE.shiftLeft(m - 1);
       for (BigInteger input : inputs) {
-        expected.add(input.mod(twoToM).shiftRight(m));
+        boolean lessThanZero = input.compareTo(BigInteger.ZERO) < 0;
+        expected.add(lessThanZero ? BigInteger.ONE : BigInteger.ZERO);
       }
       return expected;
     }
@@ -60,13 +54,14 @@ public class TruncateTests {
             List<DRes<SInt>> inputs = numeric.known(openInputs);
             List<DRes<SInt>> actualInner = new ArrayList<>(inputs.size());
             for (DRes<SInt> input : inputs) {
-              actualInner.add(builder.seq(new Truncate(input, m, k, kappa)));
+              actualInner.add(builder.seq(new LessThanZero(input, k, kappa)));
             }
             DRes<List<DRes<BigInteger>>> opened = builder.collections().openList(() -> actualInner);
             return () -> opened.out().stream().map(DRes::out).collect(Collectors.toList());
           };
           List<BigInteger> actual = runApplication(app);
           Assert.assertEquals(expected, actual);
+          System.out.println(expected);
         }
       };
     }

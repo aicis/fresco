@@ -26,7 +26,7 @@ import dk.alexandra.fresco.lib.compare.gt.BitLessThanOpenTests.TestBitLessThanOp
 import dk.alexandra.fresco.lib.compare.gt.CarryOutTests.TestCarryOut;
 import dk.alexandra.fresco.lib.compare.gt.PreCarryTests.TestCarryHelper;
 import dk.alexandra.fresco.lib.compare.gt.PreCarryTests.TestPreCarryBits;
-import dk.alexandra.fresco.lib.compare.gt.TruncateTests.TestTruncate;
+import dk.alexandra.fresco.lib.compare.gt.LessThanZeroTests.TestLessThanZero;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelectTests;
 import dk.alexandra.fresco.lib.conditional.ConditionalSwapNeighborsTests;
 import dk.alexandra.fresco.lib.conditional.ConditionalSwapRowsTests;
@@ -839,11 +839,11 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
-  public void testTruncate() {
+  public void testLessThanZero() {
     BigInteger modulus = ModulusFinder.findSuitableModulus(128);
     TestParameters parameters = new TestParameters().numParties(2)
         .modulus(modulus);
-    runTest(new TestTruncate<>(modulus), parameters);
+    runTest(new TestLessThanZero<>(modulus), parameters);
   }
 
 }
