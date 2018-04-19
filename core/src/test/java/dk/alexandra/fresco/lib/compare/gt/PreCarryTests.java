@@ -78,9 +78,8 @@ public class PreCarryTests {
             DRes<SInt> carried = builder.seq(new PreCarryBits(() -> pairs));
             return builder.numeric().open(carried);
           };
-          // TODO implement real test
           BigInteger actual = runApplication(app);
-          Assert.assertEquals(BigInteger.ZERO, actual);
+          Assert.assertEquals(BigInteger.ONE, actual);
         }
       };
     }
