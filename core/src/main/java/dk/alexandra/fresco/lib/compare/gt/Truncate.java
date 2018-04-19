@@ -8,7 +8,7 @@ import dk.alexandra.fresco.lib.math.integer.mod.DummyMod2m;
 import java.math.BigInteger;
 
 /**
- * Given k-bit secret input a and value m < k computes a >> m.
+ * Given k-bit secret input a and value m < k masks k - m upper bits and right shifts result by m.
  */
 public class Truncate implements Computation<SInt, ProtocolBuilderNumeric> {
 
@@ -17,6 +17,14 @@ public class Truncate implements Computation<SInt, ProtocolBuilderNumeric> {
   private final int k;
   private final int kappa;
 
+  /**
+   * Constructs new {@link Truncate}.
+   *
+   * @param input input to be shifted
+   * @param m shift by
+   * @param k bit length of input
+   * @param kappa computational security parameter
+   */
   public Truncate(DRes<SInt> input, int m, int k, int kappa) {
     this.input = input;
     this.m = m;
