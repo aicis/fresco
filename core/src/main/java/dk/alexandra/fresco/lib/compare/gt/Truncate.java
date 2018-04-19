@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.math.integer.mod.Mod2m;
+import dk.alexandra.fresco.lib.math.integer.mod.DummyMod2m;
 import java.math.BigInteger;
 
 /**
@@ -26,7 +26,7 @@ public class Truncate implements Computation<SInt, ProtocolBuilderNumeric> {
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    DRes<SInt> inputMod2m = builder.seq(new Mod2m(input, m, k, kappa));
+    DRes<SInt> inputMod2m = builder.seq(new DummyMod2m(input, m, k, kappa));
     DRes<SInt> difference = builder.numeric().sub(input, inputMod2m);
     BigInteger twoToMinusM = builder.getBigIntegerHelper().invertPowerOfTwo(m);
     return builder.numeric().mult(twoToMinusM, difference);
