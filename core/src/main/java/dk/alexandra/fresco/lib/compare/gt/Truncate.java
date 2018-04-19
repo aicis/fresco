@@ -12,7 +12,6 @@ import java.math.BigInteger;
  */
 public class Truncate implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private static BigInteger TWO_TO_MINUS_M;
   private final DRes<SInt> input;
   private final int m;
   private final int k;
@@ -29,19 +28,8 @@ public class Truncate implements Computation<SInt, ProtocolBuilderNumeric> {
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     DRes<SInt> inputMod2m = builder.seq(new Mod2m(input, m, k, kappa));
     DRes<SInt> difference = builder.numeric().sub(input, inputMod2m);
-    BigInteger twoToMinusM = invertPowerOfTwo(m, builder.getBasicNumericContext().getModulus());
+    BigInteger twoToMinusM = builder.getBigIntegerHelper().invertPowerOfTwo(m);
     return builder.numeric().mult(twoToMinusM, difference);
-  }
-
-  /**
-   * Computes 2^{-m} % modulus.
-   */
-  private BigInteger invertPowerOfTwo(int m, BigInteger modulus) {
-    // TODO this might belong on the numeric context
-    if (TWO_TO_MINUS_M == null) {
-      TWO_TO_MINUS_M = BigInteger.ONE.shiftLeft(m - 1).modInverse(modulus);
-    }
-    return TWO_TO_MINUS_M;
   }
 
 }
