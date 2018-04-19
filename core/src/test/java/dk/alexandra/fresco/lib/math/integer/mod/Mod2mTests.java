@@ -25,7 +25,8 @@ public class Mod2mTests {
             // TODO implement
             DRes<SInt> value = builder.numeric().known(BigInteger.ONE);
             int m = 64;
-            return builder.seq(new Mod2m(value, m));
+//            return builder.seq(new Mod2m(value, m));
+            return null;
           };
           DRes<SInt> result = runApplication(app);
         }
