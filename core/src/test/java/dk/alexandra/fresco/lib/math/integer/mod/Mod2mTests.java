@@ -38,16 +38,16 @@ public class Mod2mTests {
           outputs.add(BigInteger.ZERO);
           outputs.add(new BigInteger("3"));
           outputs.add(new BigInteger("3573894"));
-          outputs.add(two.pow(m).subtract(new BigInteger("-1")));
+          outputs.add(two.pow(m).add(new BigInteger("-1")));
           return new Pair<List<BigInteger>, List<BigInteger>>(
               inputs, outputs);
         }
 
         @Override
         public void test() {
-          int m = 64;
-          int k = 128;
-          int kappa = 128;
+          int m = 32;
+          int k = 64;
+          int kappa = 40;
           Pair<List<BigInteger>, List<BigInteger>> expecteds = getExpecteds(
               m, k);
           Application<List<BigInteger>, ProtocolBuilderNumeric> app = builder -> {

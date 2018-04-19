@@ -75,10 +75,9 @@ public class Mod2m implements Computation<SInt, ProtocolBuilderNumeric> {
         - 1), temp));
     return builder.seq( seq -> {
       BigInteger cPrime = c.out().mod(two.pow(m));
-      DRes<SInt> u = seq.seq(new BitLessThanOpen(() -> cPrime, rPrimeList));
-      DRes<SInt> aPrime = seq.numeric().add(seq.numeric().mult(two.pow(m), u),
+      DRes<SInt> u = seq.seq(new BitLessThanOpen(() -> cPrime, () -> randomBits.subList(0, m)));
+      return seq.numeric().add(seq.numeric().mult(two.pow(m), u),
           seq.numeric().sub(cPrime, rPrime));
-      return aPrime;
     });
 
   }
