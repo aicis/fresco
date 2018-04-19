@@ -3,7 +3,8 @@ package dk.alexandra.fresco.lib.math.integer.mod;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.IntStream;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
@@ -40,46 +41,43 @@ public class Mod2m implements Computation<SInt, ProtocolBuilderNumeric> {
     this.kappa = kappa;
   }
 
+  private static DRes<List<DRes<SInt>>> getDeferedList(
+      ProtocolBuilderNumeric builder, List<DRes<SInt>> baseList, int amount) {
+    BigInteger two = new BigInteger("2");
+    return  builder.par(par -> {
+      List<DRes<SInt>> list = new ArrayList<>(amount);
+      for (int i = 0; i < amount; i++) {
+        list.add(par.numeric().mult(two.pow(i), baseList.get(i)));
+      }
+      return () -> list;
+    });
+  }
+
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     if (m >= k) {
-      return input; // TODO is that ok?
+      return input; // TODO is that ok? not semantically correct for negative numbers
     }
-    List<DRes<SInt>> randomBits = new ArrayList<DRes<SInt>>(k + kappa);
-    IntStream.range(0, k + kappa).forEach(i -> randomBits.add(builder.numeric()
-        .randomBit()));
     BigInteger two = new BigInteger("2");
-    DRes<List<DRes<SInt>>> rList = builder.par(par -> {
-      List<DRes<SInt>> list = new ArrayList<>(k + kappa);
-      for (int i = 0; i < k + kappa; i++) {
-        list.add(par.numeric().mult(two.pow(i), randomBits.get(i)));
-      }
-      return () -> list;
-    });
+    List<DRes<SInt>> randomBits = Stream.generate(() -> builder.numeric()
+        .randomBit()).limit(k + kappa).collect(Collectors.toList());
+    DRes<List<DRes<SInt>>> rList = getDeferedList(builder, randomBits, k
+        + kappa);
     DRes<SInt> r = builder.advancedNumeric().sum(rList);
 
-    DRes<List<DRes<SInt>>> rPrimeList = builder.par(par -> {
-      List<DRes<SInt>> list = new ArrayList<>(m);
-      for (int i = 0; i < m; i++) {
-        list.add(par.numeric().mult(two.pow(i), randomBits.get(i)));
-      }
-      return () -> list;
-    });
+    DRes<List<DRes<SInt>>> rPrimeList = getDeferedList(builder, randomBits, m);
     DRes<SInt> rPrime = builder.advancedNumeric().sum(rPrimeList);
 
-    DRes<SInt> temp1 = builder.numeric().add(input, r);
+    // Handle the case that we work with signed integers
+    DRes<SInt> temp = builder.numeric().add(input, r);
+    // DRes<SInt> temp1 = builder.numeric().add(input, r);
     DRes<BigInteger> c = builder.numeric().open(builder.numeric().add(two.pow(k
-        - 1), temp1));
+        - 1), temp));
     return builder.seq( seq -> {
       BigInteger cPrime = c.out().mod(two.pow(m));
       DRes<SInt> u = seq.seq(new BitLessThanOpen(() -> cPrime, rPrimeList));
-      DRes<SInt> temp2 = seq.numeric().mult(two.pow(m), u);
-      DRes<SInt> temp3 = seq.numeric().sub(cPrime, rPrime);
-      DRes<SInt> aPrime = seq.numeric().add(temp2, temp3);
-      // builder.numeric().known(randomBits.get(i).two.pow(i))
-      // randomBits.forEach(r -> {
-      // System.out.println(builder.numeric().open(r).out());
-      // });
+      DRes<SInt> aPrime = seq.numeric().add(seq.numeric().mult(two.pow(m), u),
+          seq.numeric().sub(cPrime, rPrime));
       return aPrime;
     });
 

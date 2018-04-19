@@ -790,7 +790,9 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void testMod2mBaseCase() {
-    runTest(new TestMod2mBaseCase<>(), new TestParameters());
+    TestParameters params = new TestParameters();
+    params.modulus(ModulusFinder.findSuitableModulus(128));
+    runTest(new TestMod2mBaseCase<>(), params);
   }
 
   @Test
