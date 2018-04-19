@@ -19,17 +19,21 @@ public class PreCarryBits implements Computation<SInt, ProtocolBuilderNumeric> {
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    // TODO enforce that input size is power of 2?
     List<DRes<SIntPair>> pairs = pairsDef.out();
     // TODO this will reverse the actual list, not just the view. more efficient to only reverse the view
     Collections.reverse(pairs);
     int k = pairs.size();
+    if (k % 2 != 0 && k != 1) {
+      pairs.add(null);
+      k++;
+    }
+    int finalK = k;
     if (k == 1) {
       return pairs.get(0).out().getSecond();
     } else {
       DRes<List<DRes<SIntPair>>> nextRound = builder.par(par -> {
-        List<DRes<SIntPair>> nextRoundInner = new ArrayList<>(k / 2);
-        for (int i = 0; i < k / 2; i++) {
+        List<DRes<SIntPair>> nextRoundInner = new ArrayList<>(finalK / 2);
+        for (int i = 0; i < finalK / 2; i++) {
           DRes<SIntPair> left = pairs.get(2 * i + 1);
           DRes<SIntPair> right = pairs.get(2 * i);
           nextRoundInner.add(par.seq(new CarryHelper(left, right)));

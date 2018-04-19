@@ -5,7 +5,7 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.math.integer.mod.DummyMod2m;
+import dk.alexandra.fresco.lib.math.integer.mod.Mod2m;
 import java.math.BigInteger;
 
 /**
@@ -33,7 +33,7 @@ public class LessThanZero implements Computation<SInt, ProtocolBuilderNumeric> {
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    DRes<SInt> inputMod2m = builder.seq(new DummyMod2m(input, k - 1, k, kappa));
+    DRes<SInt> inputMod2m = builder.seq(new Mod2m(input, k - 1, k, kappa));
     Numeric numeric = builder.numeric();
     DRes<SInt> difference = numeric.sub(input, inputMod2m);
     BigInteger twoToMinusM = builder.getBigIntegerHelper().invertPowerOfTwo(k - 1);

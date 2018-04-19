@@ -33,7 +33,7 @@ public class MiscBigIntegerGenerators {
     if (!invertedPowersOfTwo.containsKey(exponent)) {
       invertedPowersOfTwo.put(
           exponent,
-          BigInteger.ONE.shiftLeft(exponent - 1).modInverse(modulus));
+          BigInteger.ONE.shiftLeft(exponent).modInverse(modulus));
     }
     return invertedPowersOfTwo.get(exponent);
   }
