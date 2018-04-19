@@ -23,6 +23,12 @@ public class CarryHelper implements Computation<SIntPair, ProtocolBuilderNumeric
 
   @Override
   public DRes<SIntPair> buildComputation(ProtocolBuilderNumeric builder) {
+    if (leftBitPair == null) {
+      return rightBitPair;
+    }
+    if (rightBitPair == null) {
+      return leftBitPair;
+    }
     SIntPair left = leftBitPair.out();
     SIntPair right = rightBitPair.out();
     DRes<SInt> p1 = left.getFirst();

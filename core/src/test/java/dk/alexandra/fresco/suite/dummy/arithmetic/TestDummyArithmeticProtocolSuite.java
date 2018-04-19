@@ -791,8 +791,9 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void testMod2mBaseCase() {
-    TestParameters params = new TestParameters();
-    params.modulus(ModulusFinder.findSuitableModulus(128));
+    TestParameters params = new TestParameters()
+        .modulus(ModulusFinder.findSuitableModulus(128))
+        .numParties(2);
     runTest(new TestMod2mBaseCase<>(), params);
   }
 
@@ -835,16 +836,14 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void testBitLessThanOpen() {
     BigInteger modulus = ModulusFinder.findSuitableModulus(128);
-    TestParameters parameters = new TestParameters().numParties(2)
-        .modulus(modulus);
-    runTest(new TestBitLessThanOpen<>(modulus, 128), parameters);
+    TestParameters parameters = new TestParameters().numParties(2).modulus(modulus);
+    runTest(new TestBitLessThanOpen<>(modulus, 64), parameters);
   }
 
   @Test
   public void testLessThanZero() {
     BigInteger modulus = ModulusFinder.findSuitableModulus(128);
-    TestParameters parameters = new TestParameters().numParties(2)
-        .modulus(modulus);
+    TestParameters parameters = new TestParameters().numParties(2).modulus(modulus);
     runTest(new TestLessThanZero<>(modulus), parameters);
   }
 
