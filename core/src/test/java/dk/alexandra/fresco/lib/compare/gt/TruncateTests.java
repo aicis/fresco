@@ -9,21 +9,40 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.junit.Assert;
 
 public class TruncateTests {
 
   public static class TestTruncate<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
-    private final List<BigInteger> inputs;
+    private final List<BigInteger> openInputs;
+    private final List<BigInteger> expected;
 
-    public TestTruncate(BigInteger modulus) {
-      inputs = Arrays.asList(
+    public TestTruncate(BigInteger modulus, int m) {
+      this.openInputs = Arrays.asList(
           BigInteger.ZERO,
           BigInteger.ONE
       );
+      this.expected = computeExpected(openInputs, modulus, m);
+    }
+
+    public TestTruncate(BigInteger modulus) {
+      this(modulus, modulus.bitLength());
+    }
+
+    private static List<BigInteger> computeExpected(List<BigInteger> inputs, BigInteger modulus,
+        int m) {
+      List<BigInteger> expected = new ArrayList<>(inputs.size());
+      BigInteger twoToM = BigInteger.ONE.shiftLeft(m - 1);
+      for (BigInteger input : inputs) {
+        expected.add(input.mod(twoToM).shiftLeft(m));
+      }
+      return expected;
     }
 
     @Override
@@ -34,14 +53,21 @@ public class TruncateTests {
         public void test() {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app = builder -> {
             Numeric numeric = builder.numeric();
-            DRes<SInt> p1 = numeric.known(BigInteger.ONE);
-            return null;
+            int k = builder.getBasicNumericContext().getModulus().bitLength();
+            int kappa = 40;
+            List<DRes<SInt>> inputs = numeric.known(openInputs);
+            List<DRes<SInt>> actualInner = new ArrayList<>(inputs.size());
+            for (DRes<SInt> input : inputs) {
+              actualInner.add(builder.seq(new Truncate(input, k - 1, k, kappa)));
+            }
+            DRes<List<DRes<BigInteger>>> opened = builder.collections().openList(() -> actualInner);
+            return () -> opened.out().stream().map(DRes::out).collect(Collectors.toList());
           };
           List<BigInteger> actual = runApplication(app);
+          Assert.assertEquals(expected, actual);
         }
       };
     }
-
   }
 
 }
