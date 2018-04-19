@@ -51,11 +51,7 @@ public class Mod2mTests {
               inputs, outputs);
         }
 
-        @Override
-        public void test() {
-          int m = 32;
-          int k = 64;
-          int kappa = 40;
+        private void runTest(int m, int k, int kappa) {
           Pair<List<BigInteger>, List<BigInteger>> expecteds = getExpecteds(
               m, k);
           Application<List<BigInteger>, ProtocolBuilderNumeric> app = builder -> {
@@ -73,6 +69,12 @@ public class Mod2mTests {
           List<BigInteger> actuals = runApplication(app);
           Assert.assertArrayEquals(expecteds.getSecond().toArray(), actuals
               .toArray());
+        }
+
+        @Override
+        public void test() {
+          runTest(32, 64, 40);
+          runTest(64, 128, 80);
         }
       };
     }

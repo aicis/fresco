@@ -56,7 +56,7 @@ public class Mod2m implements Computation<SInt, ProtocolBuilderNumeric> {
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     if (m >= k) {
-      return input; // TODO is that ok? not semantically correct for negative numbers
+      return input;
     }
     BigInteger two = new BigInteger("2");
     List<DRes<SInt>> randomBits = Stream.generate(() -> builder.numeric()
@@ -68,9 +68,7 @@ public class Mod2m implements Computation<SInt, ProtocolBuilderNumeric> {
     DRes<List<DRes<SInt>>> rPrimeList = getDeferedList(builder, randomBits, m);
     DRes<SInt> rPrime = builder.advancedNumeric().sum(rPrimeList);
 
-    // Handle the case that we work with signed integers
     DRes<SInt> temp = builder.numeric().add(input, r);
-    // DRes<SInt> temp1 = builder.numeric().add(input, r);
     DRes<BigInteger> c = builder.numeric().open(builder.numeric().add(two.pow(k
         - 1), temp));
     return builder.seq( seq -> {
