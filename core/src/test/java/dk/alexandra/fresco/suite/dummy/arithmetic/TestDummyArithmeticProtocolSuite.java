@@ -22,7 +22,7 @@ import dk.alexandra.fresco.lib.collections.permute.PermuteRowsTests;
 import dk.alexandra.fresco.lib.collections.relational.LeakyAggregationTests;
 import dk.alexandra.fresco.lib.collections.shuffle.ShuffleRowsTests;
 import dk.alexandra.fresco.lib.compare.CompareTests;
-import dk.alexandra.fresco.lib.compare.gt.BitLessThanOpenTests.TestBitLessThanOpenBaseCases;
+import dk.alexandra.fresco.lib.compare.gt.BitLessThanOpenTests.TestBitLessThanOpen;
 import dk.alexandra.fresco.lib.compare.gt.CarryOutTests.TestCarryOut;
 import dk.alexandra.fresco.lib.compare.gt.PreCarryTests.TestCarryHelper;
 import dk.alexandra.fresco.lib.compare.gt.PreCarryTests.TestPreCarryBits;
@@ -57,6 +57,7 @@ import dk.alexandra.fresco.lib.statistics.DeaSolverTests.TestDeaFixed1;
 import dk.alexandra.fresco.logging.NetworkLoggingDecorator;
 import dk.alexandra.fresco.logging.arithmetic.ComparisonLoggerDecorator;
 import dk.alexandra.fresco.logging.arithmetic.NumericLoggingDecorator;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Random;
 import org.junit.Test;
@@ -829,10 +830,11 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
-  public void testBitLessThanOpenBaseCases() {
+  public void testBitLessThanOpen() {
+    BigInteger modulus = ModulusFinder.findSuitableModulus(128);
     TestParameters parameters = new TestParameters().numParties(2)
-        .modulus(ModulusFinder.findSuitableModulus(128));
-    runTest(new TestBitLessThanOpenBaseCases<>(128), parameters);
+        .modulus(modulus);
+    runTest(new TestBitLessThanOpen<>(modulus, 128), parameters);
   }
 
 }
