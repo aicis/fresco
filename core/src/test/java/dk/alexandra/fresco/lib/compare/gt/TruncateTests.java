@@ -22,6 +22,7 @@ public class TruncateTests {
 
     private final List<BigInteger> openInputs;
     private final List<BigInteger> expected;
+    private final int m;
 
     public TestTruncate(BigInteger modulus, int m) {
       this.openInputs = Arrays.asList(
@@ -29,10 +30,11 @@ public class TruncateTests {
           BigInteger.ONE
       );
       this.expected = computeExpected(openInputs, modulus, m);
+      this.m = m;
     }
 
     public TestTruncate(BigInteger modulus) {
-      this(modulus, modulus.bitLength());
+      this(modulus, modulus.bitLength() - 1);
     }
 
     private static List<BigInteger> computeExpected(List<BigInteger> inputs, BigInteger modulus,
@@ -40,7 +42,7 @@ public class TruncateTests {
       List<BigInteger> expected = new ArrayList<>(inputs.size());
       BigInteger twoToM = BigInteger.ONE.shiftLeft(m - 1);
       for (BigInteger input : inputs) {
-        expected.add(input.mod(twoToM).shiftLeft(m));
+        expected.add(input.mod(twoToM).shiftRight(m));
       }
       return expected;
     }
@@ -58,7 +60,7 @@ public class TruncateTests {
             List<DRes<SInt>> inputs = numeric.known(openInputs);
             List<DRes<SInt>> actualInner = new ArrayList<>(inputs.size());
             for (DRes<SInt> input : inputs) {
-              actualInner.add(builder.seq(new Truncate(input, k - 1, k, kappa)));
+              actualInner.add(builder.seq(new Truncate(input, m, k, kappa)));
             }
             DRes<List<DRes<BigInteger>>> opened = builder.collections().openList(() -> actualInner);
             return () -> opened.out().stream().map(DRes::out).collect(Collectors.toList());
