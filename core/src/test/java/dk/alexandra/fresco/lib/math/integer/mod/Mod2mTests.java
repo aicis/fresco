@@ -28,10 +28,15 @@ public class Mod2mTests {
           BigInteger two = new BigInteger("2");
           List<BigInteger> inputs = new ArrayList<>();
           inputs.add(BigInteger.ONE);
-          inputs.add(two.pow(78));
+          inputs.add(two.pow(m + 3));
           inputs.add(two.pow(k - 2).add(new BigInteger("3")));
           inputs.add(new BigInteger("3573894"));
           inputs.add(new BigInteger("-1"));
+          inputs.add(two.pow(m).subtract(BigInteger.ONE).multiply(
+              new BigInteger("-1")));
+          inputs.add(two.pow(m + 4).multiply(new BigInteger("-1")));
+          inputs.add(two.pow(m + 5).add(new BigInteger("23493892").multiply(
+              new BigInteger("-1"))));
 
           List<BigInteger> outputs = new ArrayList<>();
           outputs.add(BigInteger.ONE);
@@ -39,6 +44,9 @@ public class Mod2mTests {
           outputs.add(new BigInteger("3"));
           outputs.add(new BigInteger("3573894"));
           outputs.add(two.pow(m).add(new BigInteger("-1")));
+          outputs.add(BigInteger.ONE);
+          outputs.add(BigInteger.ZERO);
+          outputs.add(two.pow(m).subtract(new BigInteger("23493892")));
           return new Pair<List<BigInteger>, List<BigInteger>>(
               inputs, outputs);
         }
