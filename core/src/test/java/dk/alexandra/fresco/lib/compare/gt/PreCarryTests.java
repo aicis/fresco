@@ -44,7 +44,7 @@ public class PreCarryTests {
             });
           };
           Pair<BigInteger, BigInteger> expected = new Pair<>(
-              BigInteger.ONE, // p1 * p2
+              BigInteger.ZERO, // p1 * p2
               BigInteger.ONE  // g2 + (p1 * g1)
           );
           Pair<BigInteger, BigInteger> actual = runApplication(app);

@@ -27,12 +27,15 @@ public class LessThanZeroTests {
       this.openInputs = Arrays.asList(
           BigInteger.ZERO,
           BigInteger.ONE,
-          BigInteger.valueOf(-1)
+          BigInteger.valueOf(-1),
+          BigInteger.valueOf(-111111),
+          BigInteger.valueOf(-123123),
+          modulus
       );
-      this.expected = computeExpected(openInputs, modulus);
+      this.expected = computeExpected(openInputs);
     }
 
-    private static List<BigInteger> computeExpected(List<BigInteger> inputs, BigInteger modulus) {
+    private static List<BigInteger> computeExpected(List<BigInteger> inputs) {
       List<BigInteger> expected = new ArrayList<>(inputs.size());
       for (BigInteger input : inputs) {
         boolean lessThanZero = input.compareTo(BigInteger.ZERO) < 0;
