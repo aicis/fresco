@@ -4,6 +4,8 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Basic interface for numeric applications. This is the interface which an arithmetic protocol
@@ -118,4 +120,16 @@ public interface Numeric extends ComputationDirectory {
    * @return The opened value if you are the outputParty, or null otherwise.
    */
   DRes<BigInteger> open(DRes<SInt> secretShare, int outputParty);
+
+  /**
+   * Helper methods for inputting multiple known values at once.
+   */
+  default List<DRes<SInt>> known(List<BigInteger> values) {
+    List<DRes<SInt>> secret = new ArrayList<>(values.size());
+    for (BigInteger value : values) {
+      secret.add(known(value));
+    }
+    return secret;
+  }
+
 }
