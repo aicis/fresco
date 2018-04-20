@@ -22,11 +22,12 @@ import dk.alexandra.fresco.lib.collections.permute.PermuteRowsTests;
 import dk.alexandra.fresco.lib.collections.relational.LeakyAggregationTests;
 import dk.alexandra.fresco.lib.collections.shuffle.ShuffleRowsTests;
 import dk.alexandra.fresco.lib.compare.CompareTests;
-import dk.alexandra.fresco.lib.compare.gt.BitLessThanOpenTests.TestBitLessThanOpen;
-import dk.alexandra.fresco.lib.compare.gt.CarryOutTests.TestCarryOut;
-import dk.alexandra.fresco.lib.compare.gt.PreCarryTests.TestCarryHelper;
-import dk.alexandra.fresco.lib.compare.gt.PreCarryTests.TestPreCarryBits;
-import dk.alexandra.fresco.lib.compare.gt.LessThanZeroTests.TestLessThanZero;
+import dk.alexandra.fresco.lib.compare.CompareTests.TestLessThanLogRounds;
+import dk.alexandra.fresco.lib.compare.lt.BitLessThanOpenTests.TestBitLessThanOpen;
+import dk.alexandra.fresco.lib.compare.lt.CarryOutTests.TestCarryOut;
+import dk.alexandra.fresco.lib.compare.lt.LessThanZeroTests.TestLessThanZero;
+import dk.alexandra.fresco.lib.compare.lt.PreCarryTests.TestCarryHelper;
+import dk.alexandra.fresco.lib.compare.lt.PreCarryTests.TestPreCarryBits;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelectTests;
 import dk.alexandra.fresco.lib.conditional.ConditionalSwapNeighborsTests;
 import dk.alexandra.fresco.lib.conditional.ConditionalSwapRowsTests;
@@ -845,6 +846,17 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     BigInteger modulus = ModulusFinder.findSuitableModulus(128);
     TestParameters parameters = new TestParameters().numParties(2).modulus(modulus);
     runTest(new TestLessThanZero<>(modulus), parameters);
+  }
+
+  @Test
+  public void testLessThanLogRounds() {
+    BigInteger modulus = ModulusFinder.findSuitableModulus(128);
+    int maxBitLength = 64;
+    TestParameters parameters = new TestParameters()
+        .numParties(2)
+        .modulus(modulus)
+        .maxBitLength(maxBitLength);
+    runTest(new TestLessThanLogRounds<>(modulus, maxBitLength), parameters);
   }
 
 }

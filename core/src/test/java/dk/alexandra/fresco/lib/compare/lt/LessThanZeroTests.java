@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.lib.compare.gt;
+package dk.alexandra.fresco.lib.compare.lt;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
@@ -63,7 +63,6 @@ public class LessThanZeroTests {
           };
           List<BigInteger> actual = runApplication(app);
           Assert.assertEquals(expected, actual);
-          System.out.println(expected);
         }
       };
     }

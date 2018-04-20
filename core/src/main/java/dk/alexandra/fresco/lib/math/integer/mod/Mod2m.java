@@ -10,7 +10,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.gt.BitLessThanOpen;
+import dk.alexandra.fresco.lib.compare.lt.BitLessThanOpen;
 
 /**
  * Computes modular reduction of value mod 2^m.

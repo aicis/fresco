@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.builder.numeric.Comparison;
+import dk.alexandra.fresco.framework.builder.numeric.Comparison.ComparisonAlgorithm;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -267,6 +268,75 @@ public class CompareTests {
           Assert.assertEquals(BigInteger.ZERO, output.get(3));
           Assert.assertEquals(BigInteger.ONE, output.get(4));
           Assert.assertEquals(BigInteger.ONE, output.get(5));
+        }
+      };
+    }
+  }
+
+  public static class TestLessThanLogRounds<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    private final List<BigInteger> openLeft;
+    private final List<BigInteger> openRight;
+    private final List<BigInteger> expected;
+
+    public TestLessThanLogRounds(BigInteger modulus, int maxBitLength) {
+      BigInteger two = BigInteger.valueOf(2);
+      this.openLeft = Arrays.asList(
+          BigInteger.ZERO,
+          BigInteger.ONE,
+          BigInteger.valueOf(-1),
+          BigInteger.valueOf(-111111),
+          BigInteger.valueOf(-111),
+          BigInteger.ONE,
+          modulus,
+          two.pow(maxBitLength).subtract(BigInteger.ONE),
+          two.pow(maxBitLength).subtract(two)
+      );
+      this.openRight = Arrays.asList(
+          BigInteger.ZERO,
+          BigInteger.ONE,
+          BigInteger.valueOf(-1),
+          BigInteger.valueOf(-111112),
+          BigInteger.valueOf(-110),
+          BigInteger.valueOf(5),
+          modulus,
+          two.pow(maxBitLength).subtract(two),
+          two.pow(maxBitLength).subtract(BigInteger.ONE)
+      );
+      this.expected = computeExpected(openLeft, openRight);
+    }
+
+    private static List<BigInteger> computeExpected(List<BigInteger> openLeft,
+        List<BigInteger> openRight) {
+      List<BigInteger> expected = new ArrayList<>(openLeft.size());
+      for (int i = 0; i < openLeft.size(); i++) {
+        boolean lessThan = openLeft.get(i).compareTo(openRight.get(i)) < 0;
+        expected.add(lessThan ? BigInteger.ONE : BigInteger.ZERO);
+      }
+      return expected;
+    }
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = builder -> {
+            Numeric numeric = builder.numeric();
+            List<DRes<SInt>> left = numeric.known(openLeft);
+            List<DRes<SInt>> right = numeric.known(openRight);
+            List<DRes<SInt>> actualInner = new ArrayList<>(left.size());
+            for (int i = 0; i < left.size(); i++) {
+              actualInner.add(builder.comparison().compareLT(left.get(i), right.get(i),
+                  ComparisonAlgorithm.LT_LOG_ROUNDS));
+            }
+            DRes<List<DRes<BigInteger>>> opened = builder.collections().openList(() -> actualInner);
+            return () -> opened.out().stream().map(DRes::out).collect(Collectors.toList());
+          };
+          List<BigInteger> actual = runApplication(app);
+          Assert.assertEquals(expected, actual);
         }
       };
     }

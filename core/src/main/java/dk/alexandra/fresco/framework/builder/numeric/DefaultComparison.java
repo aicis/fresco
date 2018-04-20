@@ -3,7 +3,8 @@ package dk.alexandra.fresco.framework.builder.numeric;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.eq.Equality;
-import dk.alexandra.fresco.lib.compare.gt.LessThanOrEquals;
+import dk.alexandra.fresco.lib.compare.lt.LessThanLogRounds;
+import dk.alexandra.fresco.lib.compare.lt.LessThanOrEquals;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTest;
 import java.math.BigInteger;
 
@@ -50,6 +51,19 @@ public class DefaultComparison implements Comparison {
     int bitLength = factoryNumeric.getBasicNumericContext().getMaxBitLength();
     return builder.seq(
         new LessThanOrEquals(bitLength, magicSecureNumber, x, y));
+  }
+
+  @Override
+  public DRes<SInt> compareLT(DRes<SInt> x1, DRes<SInt> x2, ComparisonAlgorithm algorithm) {
+    if (algorithm == ComparisonAlgorithm.LT_LOG_ROUNDS) {
+      int k = builder.getBasicNumericContext().getMaxBitLength();
+      // TODO this belongs somewhere else
+      int kappa = 40;
+      // TODO throw if k + kappa > mod bit length
+      return builder.seq(new LessThanLogRounds(x1, x2, k, kappa));
+    } else {
+      throw new UnsupportedOperationException("Not implemented yet");
+    }
   }
 
   @Override

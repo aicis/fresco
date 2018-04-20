@@ -17,6 +17,7 @@ public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger 
   private Comparison delegate;
   private long eqCount;
   private long leqCount;
+  private long ltCount;
   private long signCount;
   private long comp0Count;
   
@@ -44,6 +45,12 @@ public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger 
   }
 
   @Override
+  public DRes<SInt> compareLT(DRes<SInt> x1, DRes<SInt> x2, ComparisonAlgorithm algorithm) {
+    ltCount++;
+    return this.delegate.compareLT(x1, x2, algorithm);
+  }
+
+  @Override
   public DRes<SInt> compareLEQLong(DRes<SInt> x1, DRes<SInt> x2) {
     leqCount++;
     return this.delegate.compareLEQLong(x1, x2);
@@ -65,12 +72,14 @@ public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger 
   public void reset() {
     eqCount = 0;
     leqCount = 0;
+    ltCount = 0;
     signCount = 0;
     comp0Count = 0;
   }
 
   @Override
   public Map<String, Long> getLoggedValues() {
+    // TODO add ltCount
     Map<String, Long> values = new HashMap<>();
     values.put(ARITHMETIC_COMPARISON_EQ, this.eqCount);
     values.put(ARITHMETIC_COMPARISON_LEQ, this.leqCount);
