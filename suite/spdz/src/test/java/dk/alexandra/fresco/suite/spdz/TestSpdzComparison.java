@@ -3,10 +3,13 @@ package dk.alexandra.fresco.suite.spdz;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.lib.compare.CompareTests;
+import dk.alexandra.fresco.lib.compare.CompareTests.TestLessThanLogRounds;
 import dk.alexandra.fresco.lib.list.EliminateDuplicatesTests.TestFindDuplicatesOne;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.suite.spdz.storage.InitializeStorage;
+import java.math.BigInteger;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -63,19 +66,29 @@ public class TestSpdzComparison extends AbstractSpdzTest {
   @Test
   public void testCompareLTBatchedMascot() {
     runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        PreprocessingStrategy.MASCOT, 2, 64,2, 1);
+        PreprocessingStrategy.MASCOT, 2, 64, 2, 1);
+  }
+
+  @Test
+  public void testLessThanLogRounds() {
+    BigInteger modulus = ModulusFinder.findSuitableModulus(128);
+    int maxBitLength = 64;
+    runTest(new TestLessThanLogRounds<>(modulus, maxBitLength),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
+        PreprocessingStrategy.DUMMY,
+        2, 128, 64, 32);
   }
 
   @Test
   public void testCompareEQSequentialBatchedMascot() {
     runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        PreprocessingStrategy.MASCOT, 2, 64,2, 1);
+        PreprocessingStrategy.MASCOT, 2, 64, 2, 1);
   }
 
   @Test
   public void testCompareEQEdgeCasesBatchedMascot() {
     runTest(new CompareTests.TestCompareEQEdgeCases<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        PreprocessingStrategy.MASCOT, 2, 64,2, 1);
+        PreprocessingStrategy.MASCOT, 2, 64, 2, 1);
   }
 
 }
