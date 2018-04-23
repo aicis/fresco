@@ -198,6 +198,24 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
   }
 
   @Override
+  public boolean testBit(int bit) {
+    // TODO optimize if bottle-neck
+    long section;
+    int relative;
+    if (bit < Integer.SIZE) {
+      section = low;
+      relative = bit;
+    } else if (bit < Long.SIZE) {
+      section = mid;
+      relative = bit - Integer.SIZE;
+    } else {
+      section = high;
+      relative = bit - Long.SIZE;
+    }
+    return (((1L << relative) & section) >>> relative) == 1;
+  }
+
+  @Override
   public OInt out() {
     return this;
   }

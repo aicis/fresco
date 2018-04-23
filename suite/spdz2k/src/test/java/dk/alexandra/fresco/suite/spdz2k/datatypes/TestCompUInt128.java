@@ -268,10 +268,24 @@ public class TestCompUInt128 {
 
   @Test
   public void testIsZero() {
-    assertTrue(new CompUInt128(0, 0,0).isZero());
-    assertFalse(new CompUInt128(0, 0,1).isZero());
-    assertFalse(new CompUInt128(0, 1,0).isZero());
-    assertFalse(new CompUInt128(1, 0,0).isZero());
+    assertTrue(new CompUInt128(0, 0, 0).isZero());
+    assertFalse(new CompUInt128(0, 0, 1).isZero());
+    assertFalse(new CompUInt128(0, 1, 0).isZero());
+    assertFalse(new CompUInt128(1, 0, 0).isZero());
   }
 
+  @Test
+  public void testTestBit() {
+    assertTrue(new CompUInt128(0, 0, 1).testBit(0));
+    assertFalse(new CompUInt128(0, 0, 0).testBit(0));
+    assertTrue(new CompUInt128(0, 1, 0).testBit(32));
+    assertFalse(new CompUInt128(0, 0, 1).testBit(32));
+    assertTrue(new CompUInt128(1, 0, 0).testBit(64));
+    assertFalse(new CompUInt128(0, 1, 1).testBit(64));
+    assertTrue(new CompUInt128(0, 0, 1 << 14).testBit(14));
+    assertTrue(new CompUInt128(0, 1 << 10, 0).testBit(32 + 10));
+    assertTrue(new CompUInt128(1 << 2, 0, 0).testBit(64 + 2));
+    assertTrue(new CompUInt128(1L << 62, 0, 0).testBit(64 + 62));
+  }
+  
 }
