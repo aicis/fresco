@@ -1,5 +1,7 @@
 package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
+import dk.alexandra.fresco.framework.value.OInt;
+
 /**
  * An unsigned integer conceptually composed of two other unsigned integers. <p>Composite integers
  * have a bit length of t = s + k, where the s most significant bits can be viewed as a s-bit
@@ -9,7 +11,7 @@ package dk.alexandra.fresco.suite.spdz2k.datatypes;
 public interface CompUInt<
     HighT extends UInt<HighT>,
     LowT extends UInt<LowT>,
-    CompT extends UInt<CompT>> extends UInt<CompT> {
+    CompT extends UInt<CompT>> extends UInt<CompT>, OInt {
 
   /**
    * Get the s most significant bits as an unsigned integer of type {@link HighT}.

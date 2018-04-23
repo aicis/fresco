@@ -152,8 +152,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
   @Override
   public OIntFactory getOIntFactory() {
-    // TODO implement
-    throw new UnsupportedOperationException();
+    return factory;
   }
 
   @Override

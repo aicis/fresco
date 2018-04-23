@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
+import dk.alexandra.fresco.framework.value.OInt;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -190,6 +191,11 @@ public class CompUInt96 implements CompUInt<UInt64, UInt32, CompUInt96> {
     buffer.putInt(low);
     buffer.flip();
     return buffer.array();
+  }
+
+  @Override
+  public OInt out() {
+    return this;
   }
 
 }

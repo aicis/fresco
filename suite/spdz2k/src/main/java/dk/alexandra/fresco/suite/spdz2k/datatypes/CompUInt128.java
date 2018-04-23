@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
+import dk.alexandra.fresco.framework.value.OInt;
 import java.math.BigInteger;
 
 /**
@@ -194,6 +195,11 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
     toByteArray(bytes, 4, mid);
     toByteArrayLong(bytes, 8, high);
     return bytes;
+  }
+
+  @Override
+  public OInt out() {
+    return this;
   }
 
   private void toByteArrayLong(byte[] bytes, int start, long value) {

@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
+import dk.alexandra.fresco.framework.value.OInt;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -163,6 +164,11 @@ public class GenericCompUInt implements
   @Override
   public String toString() {
     return toBigInteger().toString();
+  }
+
+  @Override
+  public OInt out() {
+    return this;
   }
 
   private GenericCompUInt one() {

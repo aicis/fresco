@@ -1,12 +1,35 @@
 package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
+import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.value.OIntFactory;
 import java.math.BigInteger;
 
 /**
  * Factory for {@link CompT} instances.
  */
-public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> {
+public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> extends OIntFactory {
+
+  @Override
+  default BigInteger toBigInteger(OInt value) {
+    return ((CompUInt) value).toBigInteger();
+  }
+
+  @Override
+  default long toLong(OInt value) {
+    return ((CompUInt) value).toLong();
+  }
+
+  @Override
+  default OInt fromBigInteger(BigInteger value) {
+    return createFromBigInteger(value);
+  }
+
+  @Override
+  default OInt fromLong(long value) {
+    // TODO rethink this
+    return fromBigInteger(BigInteger.valueOf(value));
+  }
 
   /**
    * Creates new {@link CompT} from a raw array of bytes.
@@ -53,5 +76,13 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> {
   default CompT zero() {
     return createFromBytes(new byte[getCompositeBitLength() / Byte.SIZE]);
   }
-  
+
+  default CompT one() {
+    return createFromBigInteger(BigInteger.ONE);
+  }
+
+  default CompT two() {
+    return createFromBigInteger(BigInteger.valueOf(2));
+  }
+
 }
