@@ -2,14 +2,14 @@ package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.value.BigIntegerOIntFactory;
+import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import java.math.BigInteger;
 
 /**
- * Every resource pool must have a set of properties available, primarily
- * the modulus and a BigInteger serialization.
- * <p>
- * This is paired with the {@link ProtocolSuiteNumeric}.
+ * Every resource pool must have a set of properties available, primarily the modulus and a
+ * BigInteger serialization. <p> This is paired with the {@link ProtocolSuiteNumeric}.
  */
 public interface NumericResourcePool extends ResourcePool {
 
@@ -42,4 +42,13 @@ public interface NumericResourcePool extends ResourcePool {
     }
     return actual;
   }
+
+  /**
+   * Returns the backend-specific implementation of {@link OIntFactory}, for converting between
+   * backend-suite representations of open values and native data types.
+   */
+  default OIntFactory getOIntFactory() {
+    return new BigIntegerOIntFactory();
+  }
+
 }
