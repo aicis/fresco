@@ -286,6 +286,7 @@ public class TestCompUInt128 {
     assertTrue(new CompUInt128(0, 1 << 10, 0).testBit(32 + 10));
     assertTrue(new CompUInt128(1 << 2, 0, 0).testBit(64 + 2));
     assertTrue(new CompUInt128(1L << 62, 0, 0).testBit(64 + 62));
+    assertTrue(new CompUInt128(0x8000000000000000L, 0, 0).testBit(64 + 63));
   }
-  
+
 }
