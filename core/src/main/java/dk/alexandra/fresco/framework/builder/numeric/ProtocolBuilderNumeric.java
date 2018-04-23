@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderImpl;
+import dk.alexandra.fresco.framework.value.OIntArithmetic;
 import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
@@ -147,6 +148,10 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
    */
   public OIntFactory getOIntFactory() {
     return factory.getOIntFactory();
+  }
+
+  public OIntArithmetic getOIntArithmetic() {
+    return factory.getOIntArithmetic();
   }
 
   /**

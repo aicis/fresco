@@ -5,7 +5,9 @@ import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.PreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.value.BigIntegerOIntArithmetic;
 import dk.alexandra.fresco.framework.value.BigIntegerOIntFactory;
+import dk.alexandra.fresco.framework.value.OIntArithmetic;
 import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
@@ -34,11 +36,13 @@ class SpdzBuilder implements BuilderFactoryNumeric {
   private MiscBigIntegerGenerators miscOIntGenerators;
   private RealNumericContext realNumericContext;
   private final OIntFactory oIntFactory;
+  private final OIntArithmetic oIntArithmetic;
 
   SpdzBuilder(BasicNumericContext basicNumericContext, RealNumericContext realNumericContext) {
     this.basicNumericContext = basicNumericContext;
     this.realNumericContext = realNumericContext;
     this.oIntFactory = new BigIntegerOIntFactory();
+    this.oIntArithmetic = new BigIntegerOIntArithmetic(oIntFactory);
   }
 
   @Override
@@ -157,6 +161,11 @@ class SpdzBuilder implements BuilderFactoryNumeric {
   @Override
   public OIntFactory getOIntFactory() {
     return oIntFactory;
+  }
+
+  @Override
+  public OIntArithmetic getOIntArithmetic() {
+    return oIntArithmetic;
   }
 
 }

@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.value.OIntArithmetic;
 import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
@@ -63,6 +64,11 @@ public class NumericSuiteLogging<ResourcePoolT extends NumericResourcePool>
       @Override
       public OIntFactory getOIntFactory() {
         return delegateFactory.getOIntFactory();
+      }
+
+      @Override
+      public OIntArithmetic getOIntArithmetic() {
+        return delegateFactory.getOIntArithmetic();
       }
 
       @Override

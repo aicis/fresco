@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.value.OIntArithmetic;
 import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
@@ -126,6 +127,13 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
   @Override
   public OIntFactory getOIntFactory() {
+    // TODO implement
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public OIntArithmetic getOIntArithmetic() {
+    // TODO implement
     throw new UnsupportedOperationException();
   }
 

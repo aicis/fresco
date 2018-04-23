@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.lib.math.integer.mod;
 
+import dk.alexandra.fresco.framework.value.OInt;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,14 +26,10 @@ public class Mod2m implements Computation<SInt, ProtocolBuilderNumeric> {
   /**
    * Constructs new {@link Mod2m}.
    *
-   * @param input
-   *          value to reduce
-   * @param m
-   *          exponent (2^{m})
-   * @param k
-   *          bitlength of the input
-   * @param kappa
-   *          Computational security parameter
+   * @param input value to reduce
+   * @param m exponent (2^{m})
+   * @param k bitlength of the input
+   * @param kappa Computational security parameter
    */
   public Mod2m(DRes<SInt> input, int m, int k, int kappa) {
     this.input = input;
@@ -44,7 +41,7 @@ public class Mod2m implements Computation<SInt, ProtocolBuilderNumeric> {
   private static DRes<List<DRes<SInt>>> getDeferedList(
       ProtocolBuilderNumeric builder, List<DRes<SInt>> baseList, int amount) {
     BigInteger two = new BigInteger("2");
-    return  builder.par(par -> {
+    return builder.par(par -> {
       List<DRes<SInt>> list = new ArrayList<>(amount);
       for (int i = 0; i < amount; i++) {
         list.add(par.numeric().mult(two.pow(i), baseList.get(i)));
@@ -71,9 +68,10 @@ public class Mod2m implements Computation<SInt, ProtocolBuilderNumeric> {
     DRes<SInt> temp = builder.numeric().add(input, r);
     DRes<BigInteger> c = builder.numeric().open(builder.numeric().add(two.pow(k
         - 1), temp));
-    return builder.seq( seq -> {
+    return builder.seq(seq -> {
       BigInteger cPrime = c.out().mod(two.pow(m));
-      DRes<SInt> u = seq.seq(new BitLessThanOpen(() -> cPrime, () -> randomBits.subList(0, m)));
+      OInt cPrimeOInt = seq.getOIntFactory().fromBigInteger(cPrime);
+      DRes<SInt> u = seq.seq(new BitLessThanOpen(() -> cPrimeOInt, () -> randomBits.subList(0, m)));
       return seq.numeric().add(seq.numeric().mult(two.pow(m), u),
           seq.numeric().sub(cPrime, rPrime));
     });

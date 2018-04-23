@@ -3,7 +3,7 @@ package dk.alexandra.fresco.lib.compare.lt;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.util.MathUtils;
+import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -15,25 +15,24 @@ import java.util.List;
  */
 public class BitLessThanOpen implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private final DRes<BigInteger> openValueDef;
+  private final DRes<OInt> openValueDef;
   private final DRes<List<DRes<SInt>>> secretBitsDef;
 
-  public BitLessThanOpen(DRes<BigInteger> openValue, DRes<List<DRes<SInt>>> secretBits) {
+  public BitLessThanOpen(DRes<OInt> openValue, DRes<List<DRes<SInt>>> secretBits) {
     this.openValueDef = openValue;
     this.secretBitsDef = secretBits;
   }
 
-  public BitLessThanOpen(BigInteger openValue, List<DRes<SInt>> secretBits) {
+  public BitLessThanOpen(OInt openValue, List<DRes<SInt>> secretBits) {
     this(() -> openValue, () -> secretBits);
   }
-
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     List<DRes<SInt>> secretBits = secretBitsDef.out();
-    BigInteger openValueA = openValueDef.out();
+    OInt openValueA = openValueDef.out();
     int numBits = secretBits.size();
-    List<DRes<BigInteger>> openBits = MathUtils.toBitsAsDRes(openValueA, numBits);
+    List<DRes<OInt>> openBits = builder.getOIntArithmetic().toBits(openValueA, numBits);
     DRes<List<DRes<SInt>>> secretBitsNegated = builder.par(par -> {
       List<DRes<SInt>> negatedBits = new ArrayList<>(numBits);
       for (DRes<SInt> secretBit : secretBits) {
@@ -42,7 +41,8 @@ public class BitLessThanOpen implements Computation<SInt, ProtocolBuilderNumeric
       Collections.reverse(negatedBits);
       return () -> negatedBits;
     });
-    DRes<SInt> gt = builder.seq(new CarryOut(() -> openBits, secretBitsNegated, BigInteger.ONE));
+//    DRes<SInt> gt = builder.seq(new CarryOut(() -> openBits, secretBitsNegated, BigInteger.ONE));
+    DRes<SInt> gt = builder.seq(new CarryOut(() -> null, secretBitsNegated, BigInteger.ONE));
     return builder.numeric().sub(BigInteger.ONE, gt);
   }
 

@@ -5,7 +5,9 @@ import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.value.BigIntegerOIntArithmetic;
 import dk.alexandra.fresco.framework.value.BigIntegerOIntFactory;
+import dk.alexandra.fresco.framework.value.OIntArithmetic;
 import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
@@ -25,6 +27,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
   private RealNumericContext realNumericContext;
   private MiscBigIntegerGenerators mog;
   private final OIntFactory oIntFactory;
+  private final OIntArithmetic oIntArithmetic;
   private Random rand;
 
   /**
@@ -39,6 +42,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
     this.realNumericContext = realNumericContext;
     this.rand = new Random(0);
     this.oIntFactory = new BigIntegerOIntFactory();
+    this.oIntArithmetic = new BigIntegerOIntArithmetic(oIntFactory);
   }
 
   @Override
@@ -200,6 +204,11 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
   @Override
   public OIntFactory getOIntFactory() {
     return oIntFactory;
+  }
+
+  @Override
+  public OIntArithmetic getOIntArithmetic() {
+    return oIntArithmetic;
   }
 
 }
