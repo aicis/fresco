@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderImpl;
+import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.lib.real.AdvancedRealNumeric;
@@ -138,6 +139,14 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
    */
   public MiscBigIntegerGenerators getBigIntegerHelper() {
     return factory.getBigIntegerHelper();
+  }
+
+  /**
+   * Returns the backend-specific implementation of {@link OIntFactory}, for converting between
+   * backend-suite representations of open values and native data types.
+   */
+  public OIntFactory getOIntFactory() {
+    return factory.getOIntFactory();
   }
 
   /**

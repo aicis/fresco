@@ -2,8 +2,6 @@ package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.BigIntegerOIntFactory;
-import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import java.math.BigInteger;
 
@@ -41,14 +39,6 @@ public interface NumericResourcePool extends ResourcePool {
       actual = actual.subtract(modulus);
     }
     return actual;
-  }
-
-  /**
-   * Returns the backend-specific implementation of {@link OIntFactory}, for converting between
-   * backend-suite representations of open values and native data types.
-   */
-  default OIntFactory getOIntFactory() {
-    return new BigIntegerOIntFactory();
   }
 
 }

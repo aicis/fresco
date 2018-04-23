@@ -2,6 +2,7 @@ package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
+import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.lib.real.AdvancedRealNumeric;
@@ -35,6 +36,12 @@ public interface BuilderFactoryNumeric extends BuilderFactory<ProtocolBuilderNum
   Numeric createNumeric(ProtocolBuilderNumeric builder);
 
   MiscBigIntegerGenerators getBigIntegerHelper();
+
+  /**
+   * Returns the backend-specific implementation of {@link OIntFactory}, for converting between
+   * backend-suite representations of open values and native data types.
+   */
+  OIntFactory getOIntFactory();
 
   default Comparison createComparison(ProtocolBuilderNumeric builder) {
     return new DefaultComparison(this, builder);

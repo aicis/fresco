@@ -12,7 +12,6 @@ public class BasicNumericContext {
   private final int myId;
   private final int noOfParties;
 
-
   /**
    * @param maxBitLength The maximum length in bits that the numbers in the application will
    *     have.
@@ -33,7 +32,6 @@ public class BasicNumericContext {
   public int getMaxBitLength() {
     return this.maxBitLength;
   }
-
 
   /**
    * Returns the modulus used in the underlying arithmetic protocol suite.
@@ -58,4 +56,5 @@ public class BasicNumericContext {
   public int getNoOfParties() {
     return noOfParties;
   }
+
 }
