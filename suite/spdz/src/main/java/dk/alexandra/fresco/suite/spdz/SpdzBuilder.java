@@ -7,6 +7,7 @@ import dk.alexandra.fresco.framework.builder.numeric.PreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.BigIntegerOIntArithmetic;
 import dk.alexandra.fresco.framework.value.BigIntegerOIntFactory;
+import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.OIntArithmetic;
 import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -73,13 +74,16 @@ class SpdzBuilder implements BuilderFactoryNumeric {
         return protocolBuilder.append(spdzAddProtocol);
       }
 
-
       @Override
       public DRes<SInt> add(BigInteger a, DRes<SInt> b) {
         SpdzAddProtocolKnownLeft spdzAddProtocolKnownLeft = new SpdzAddProtocolKnownLeft(a, b);
         return protocolBuilder.append(spdzAddProtocolKnownLeft);
       }
 
+      @Override
+      public DRes<SInt> addOpen(DRes<OInt> a, DRes<SInt> b) {
+        return add(protocolBuilder.getOIntFactory().toBigInteger(a.out()), b);
+      }
 
       @Override
       public DRes<SInt> sub(DRes<SInt> a, DRes<SInt> b) {
@@ -92,6 +96,16 @@ class SpdzBuilder implements BuilderFactoryNumeric {
         SpdzSubtractProtocolKnownLeft spdzSubtractProtocolKnownLeft =
             new SpdzSubtractProtocolKnownLeft(a, b);
         return protocolBuilder.append(spdzSubtractProtocolKnownLeft);
+      }
+
+      @Override
+      public DRes<SInt> subFromOpen(DRes<OInt> a, DRes<SInt> b) {
+        return sub(protocolBuilder.getOIntFactory().toBigInteger(a.out()), b);
+      }
+
+      @Override
+      public DRes<SInt> subOpen(DRes<SInt> a, DRes<OInt> b) {
+        return sub(a, protocolBuilder.getOIntFactory().toBigInteger(b.out()));
       }
 
       @Override
@@ -112,6 +126,11 @@ class SpdzBuilder implements BuilderFactoryNumeric {
         SpdzMultProtocolKnownLeft spdzMultProtocol4 = new SpdzMultProtocolKnownLeft(a, b);
         return protocolBuilder.append(spdzMultProtocol4);
 
+      }
+
+      @Override
+      public DRes<SInt> multByOpen(DRes<OInt> a, DRes<SInt> b) {
+        return mult(protocolBuilder.getOIntFactory().toBigInteger(a.out()), b);
       }
 
       @Override
