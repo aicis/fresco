@@ -10,12 +10,12 @@ public class BigIntegerOIntFactory implements OIntFactory {
 
   @Override
   public BigInteger toBigInteger(OInt value) {
-    return (BigInteger) value;
+    return ((OIntBigInteger) value).getValue();
   }
 
   @Override
   public OInt fromBigInteger(BigInteger value) {
-    return (OInt) value;
+    return new OIntBigInteger(value);
   }
 
 }

@@ -134,23 +134,20 @@ public class BinaryOperationsTests {
             BigInteger.ZERO,
             BigInteger.ONE,
             BigInteger.ZERO);
-        private final List<DRes<OInt>> right = Arrays.asList(
-            () -> (OInt) BigInteger.ONE,
-            () -> (OInt) BigInteger.ONE,
-            () -> (OInt) BigInteger.ZERO,
-            () -> (OInt) BigInteger.ZERO);
+        private final List<BigInteger> right = Arrays.asList(
+            BigInteger.ONE,
+            BigInteger.ONE,
+            BigInteger.ZERO,
+            BigInteger.ZERO);
 
         @Override
         public void test() {
           Application<List<DRes<BigInteger>>, ProtocolBuilderNumeric> app =
               root -> {
-                int myId = root.getBasicNumericContext().getMyId();
-                DRes<List<DRes<SInt>>> leftClosed =
-                    (myId == 1) ?
-                        root.collections().closeList(left, 1)
-                        : root.collections().closeList(left.size(), 1);
+                DRes<List<DRes<SInt>>> leftClosed = root.numeric().knownAsDRes(left);
+                List<DRes<OInt>> rightOInts = root.getOIntFactory().fromBigInteger(right);
                 DRes<List<DRes<SInt>>> anded = root
-                    .par(new ArithmeticAndKnownRight(leftClosed, () -> right));
+                    .par(new ArithmeticAndKnownRight(leftClosed, () -> rightOInts));
                 return root.collections().openList(anded);
               };
           List<BigInteger> actual = runApplication(app).stream().map(DRes::out)

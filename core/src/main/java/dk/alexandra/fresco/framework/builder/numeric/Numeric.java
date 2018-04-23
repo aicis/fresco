@@ -165,4 +165,12 @@ public interface Numeric extends ComputationDirectory {
     return secret;
   }
 
+  default DRes<List<DRes<SInt>>> knownAsDRes(List<BigInteger> values) {
+    List<DRes<SInt>> secret = new ArrayList<>(values.size());
+    for (BigInteger value : values) {
+      secret.add(known(value));
+    }
+    return () -> secret;
+  }
+
 }

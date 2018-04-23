@@ -39,10 +39,10 @@ public class CarryOutTests {
         public void test() {
           Application<BigInteger, ProtocolBuilderNumeric> app =
               root -> {
-                DRes<List<DRes<SInt>>> leftClosed = () -> root.numeric().known(right);
+                List<DRes<SInt>> leftClosed = root.numeric().known(right);
                 OIntFactory oIntFactory = root.getOIntFactory();
                 DRes<SInt> carry = root
-                    .seq(new CarryOut(() -> oIntFactory.fromBigInteger(right), leftClosed));
+                    .seq(new CarryOut(() -> oIntFactory.fromBigInteger(right), () -> leftClosed));
                 return root.numeric().open(carry);
               };
           BigInteger actual = runApplication(app);
