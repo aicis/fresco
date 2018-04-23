@@ -8,6 +8,7 @@ import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RightShiftResult;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -133,11 +134,11 @@ public class BinaryOperationsTests {
             BigInteger.ZERO,
             BigInteger.ONE,
             BigInteger.ZERO);
-        private final List<DRes<BigInteger>> right = Arrays.asList(
-            () -> BigInteger.ONE,
-            () -> BigInteger.ONE,
-            () -> BigInteger.ZERO,
-            () -> BigInteger.ZERO);
+        private final List<DRes<OInt>> right = Arrays.asList(
+            () -> (OInt) BigInteger.ONE,
+            () -> (OInt) BigInteger.ONE,
+            () -> (OInt) BigInteger.ZERO,
+            () -> (OInt) BigInteger.ZERO);
 
         @Override
         public void test() {

@@ -41,8 +41,7 @@ public class BitLessThanOpen implements Computation<SInt, ProtocolBuilderNumeric
       Collections.reverse(negatedBits);
       return () -> negatedBits;
     });
-//    DRes<SInt> gt = builder.seq(new CarryOut(() -> openBits, secretBitsNegated, BigInteger.ONE));
-    DRes<SInt> gt = builder.seq(new CarryOut(() -> null, secretBitsNegated, BigInteger.ONE));
+    DRes<SInt> gt = builder.seq(new CarryOut(() -> openBits, secretBitsNegated, BigInteger.ONE));
     return builder.numeric().sub(BigInteger.ONE, gt);
   }
 

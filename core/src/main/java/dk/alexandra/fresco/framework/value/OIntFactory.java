@@ -1,6 +1,9 @@
 package dk.alexandra.fresco.framework.value;
 
+import dk.alexandra.fresco.framework.DRes;
 import java.math.BigInteger;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * A factory for creating instances of {@link OInt} from native java data types such as {@link
@@ -32,6 +35,10 @@ public interface OIntFactory {
    */
   default OInt fromLong(long value) {
     return fromBigInteger(BigInteger.valueOf(value));
+  }
+
+  default List<DRes<OInt>> fromBigInteger(List<BigInteger> values) {
+    return values.stream().map(this::fromBigInteger).collect(Collectors.toList());
   }
 
 }

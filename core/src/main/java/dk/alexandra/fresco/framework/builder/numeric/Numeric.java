@@ -2,6 +2,7 @@ package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
+import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -32,6 +33,14 @@ public interface Numeric extends ComputationDirectory {
   DRes<SInt> add(BigInteger a, DRes<SInt> b);
 
   /**
+   * Adds a secret value with a public value and returns the result.
+   * @param a Public value
+   * @param b Secret value
+   * @return A deferred result computing a+b
+   */
+  DRes<SInt> addOpen(DRes<OInt> a, DRes<SInt> b);
+
+  /**
    * Subtracts two secret values and returns the result.
    * @param a Secret value 1
    * @param b Secret value 2
@@ -46,6 +55,22 @@ public interface Numeric extends ComputationDirectory {
    * @return A deferred result computing a-b
    */
   DRes<SInt> sub(BigInteger a, DRes<SInt> b);
+
+  /**
+   * Subtracts a public value and a secret value and returns the result.
+   * @param a Public value
+   * @param b Secret value
+   * @return A deferred result computing a-b
+   */
+  DRes<SInt> subFromOpen(DRes<OInt> a, DRes<SInt> b);
+
+  /**
+   * Subtracts a secret value and a public value and returns the result.
+   * @param a Secret value
+   * @param b Public value
+   * @return A deferred result computing a-b
+   */
+  DRes<SInt> subOpen(DRes<SInt> a, DRes<OInt> b);
 
   /**
    * Subtracts a secret value and a public value and returns the result.
@@ -70,6 +95,14 @@ public interface Numeric extends ComputationDirectory {
    * @return A deferred result computing a*b
    */
   DRes<SInt> mult(BigInteger a, DRes<SInt> b);
+
+  /**
+   * Multiplies a public value onto a secret value and returns the result.
+   * @param a Public value
+   * @param b Secret value
+   * @return A deferred result computing a*b
+   */
+  DRes<SInt> multByOpen(DRes<OInt> a, DRes<SInt> b);
 
   /**
    * Returns a deferred result which creates a secret shared random bit. (This should be computed

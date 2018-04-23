@@ -7,6 +7,7 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.BigIntegerOIntArithmetic;
 import dk.alexandra.fresco.framework.value.BigIntegerOIntFactory;
+import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.OIntArithmetic;
 import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -32,8 +33,6 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
 
   /**
    * Creates a dummy arithmetic builder factory which creates basic numeric operations
-   *
-   * @param factory The numeric context we work within.
    */
   public DummyArithmeticBuilderFactory(BasicNumericContext basicNumericContext,
       RealNumericContext realNumericContext) {
@@ -54,7 +53,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
   public RealNumericContext getRealNumericContext() {
     return realNumericContext;
   }
-  
+
   @Override
   public Numeric createNumeric(ProtocolBuilderNumeric builder) {
     return new Numeric() {
@@ -71,6 +70,16 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
         DummyArithmeticSubtractProtocol c =
             new DummyArithmeticSubtractProtocol(() -> new DummyArithmeticSInt(a), b);
         return builder.append(c);
+      }
+
+      @Override
+      public DRes<SInt> subFromOpen(DRes<OInt> a, DRes<SInt> b) {
+        return sub(builder.getOIntFactory().toBigInteger(a.out()), b);
+      }
+
+      @Override
+      public DRes<SInt> subOpen(DRes<SInt> a, DRes<OInt> b) {
+        return sub(a, builder.getOIntFactory().toBigInteger(b.out()));
       }
 
       @Override
@@ -145,6 +154,11 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
       }
 
       @Override
+      public DRes<SInt> multByOpen(DRes<OInt> a, DRes<SInt> b) {
+        return mult(builder.getOIntFactory().toBigInteger(a.out()), b);
+      }
+
+      @Override
       public DRes<SInt> mult(DRes<SInt> a, DRes<SInt> b) {
         DummyArithmeticMultProtocol c = new DummyArithmeticMultProtocol(a, b);
         return builder.append(c);
@@ -183,6 +197,11 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
         DummyArithmeticAddProtocol c =
             new DummyArithmeticAddProtocol(() -> new DummyArithmeticSInt(a), b);
         return builder.append(c);
+      }
+
+      @Override
+      public DRes<SInt> addOpen(DRes<OInt> a, DRes<SInt> b) {
+        return add(builder.getOIntFactory().toBigInteger(a.out()), b);
       }
 
       @Override

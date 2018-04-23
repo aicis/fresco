@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -19,16 +20,14 @@ public class CarryOutTests {
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     private final List<BigInteger> left;
-    private final List<DRes<BigInteger>> right;
+    private final List<BigInteger> right;
     private final BigInteger expected;
 
     public TestCarryOut(int l, int r) {
       expected = carry(l, r);
       left = intToBits(l);
       right = new ArrayList<>(left.size());
-      for (BigInteger bit : intToBits(r)) {
-        right.add(() -> bit);
-      }
+      right.addAll(intToBits(r));
     }
 
     @Override
@@ -40,12 +39,10 @@ public class CarryOutTests {
         public void test() {
           Application<BigInteger, ProtocolBuilderNumeric> app =
               root -> {
-                int myId = root.getBasicNumericContext().getMyId();
-                DRes<List<DRes<SInt>>> leftClosed =
-                    (myId == 1) ?
-                        root.collections().closeList(left, 1)
-                        : root.collections().closeList(left.size(), 1);
-                DRes<SInt> carry = root.seq(new CarryOut(() -> right, leftClosed));
+                DRes<List<DRes<SInt>>> leftClosed = () -> root.numeric().known(right);
+                OIntFactory oIntFactory = root.getOIntFactory();
+                DRes<SInt> carry = root
+                    .seq(new CarryOut(() -> oIntFactory.fromBigInteger(right), leftClosed));
                 return root.numeric().open(carry);
               };
           BigInteger actual = runApplication(app);
