@@ -15,8 +15,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Given values a and b represented as bits, computes if a + b overflows, i.e., if there is a
- * carry.
+ * Given values a and b represented as bits, computes if a + b overflows, i.e., if the addition
+ * results in a carry.
  */
 public class CarryOut implements Computation<SInt, ProtocolBuilderNumeric> {
 
