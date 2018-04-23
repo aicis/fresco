@@ -6,9 +6,10 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 
 /**
- * Given two secret values a and b computes a < b. <p></p>
+ * Given two secret values a and b computes a < b.
  */
 public class LessThanLogRounds implements Computation<SInt, ProtocolBuilderNumeric> {
+  // TODO add paper reference
 
   private final DRes<SInt> left;
   private final DRes<SInt> right;
