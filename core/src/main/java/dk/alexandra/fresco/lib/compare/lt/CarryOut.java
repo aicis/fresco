@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.SIntPair;
 import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.integer.binary.ArithmeticAndKnownRight;
 import java.math.BigInteger;
@@ -19,7 +20,6 @@ import java.util.List;
  */
 public class CarryOut implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private static final BigInteger TWO = BigInteger.valueOf(2);
   private final DRes<List<DRes<OInt>>> openBitsDef;
   private final DRes<List<DRes<SInt>>> secretBitsDef;
   private final BigInteger carryIn;
@@ -48,6 +48,7 @@ public class CarryOut implements Computation<SInt, ProtocolBuilderNumeric> {
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
+    OIntFactory oIntFactory = builder.getOIntFactory();
     List<DRes<SInt>> secretBits = secretBitsDef.out();
     List<DRes<OInt>> openBits = openBitsDef.out();
     if (secretBits.size() != openBits.size()) {
@@ -61,12 +62,12 @@ public class CarryOut implements Computation<SInt, ProtocolBuilderNumeric> {
             DRes<OInt> rightBit = openBits.get(i);
             DRes<SInt> andedBit = andedBits.get(i);
             // TODO we need a logical computation directory for logical ops on arithmetic values
-            // logical xor of two bits can is leftBit + rightBit - 2 * leftBit * rightBit
+            // logical xor of two bits is leftBit + rightBit - 2 * leftBit * rightBit
             DRes<SInt> xoredBit = par.seq(seq -> {
               Numeric nb = seq.numeric();
               return nb.sub(
                   nb.addOpen(rightBit, leftBit),
-                  nb.mult(TWO, andedBit)
+                  nb.multByOpen(oIntFactory.two(), andedBit)
               );
             });
             pairs.add(() -> new SIntPair(xoredBit, andedBit));
@@ -78,7 +79,7 @@ public class CarryOut implements Computation<SInt, ProtocolBuilderNumeric> {
           SIntPair lastPair = pairs.get(lastIdx).out();
           DRes<SInt> lastCarryPropagator = seq.numeric().add(
               lastPair.getSecond(),
-              seq.numeric().mult(carryIn, lastPair.getFirst()));
+              seq.numeric().multByOpen(oIntFactory.fromBigInteger(carryIn), lastPair.getFirst()));
           pairs.set(lastIdx, () -> new SIntPair(lastPair.getFirst(), lastCarryPropagator));
           Collections.reverse(pairs);
           return seq.seq(new PreCarryBits(() -> pairs));

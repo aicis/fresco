@@ -8,6 +8,10 @@ import java.math.BigInteger;
  */
 public class BigIntegerOIntFactory implements OIntFactory {
 
+  private static final OInt ZERO = new OIntBigInteger(BigInteger.ZERO);
+  private static final OInt ONE = new OIntBigInteger(BigInteger.ONE);
+  private static final OInt TWO = new OIntBigInteger(BigInteger.valueOf(2));
+
   @Override
   public BigInteger toBigInteger(OInt value) {
     return ((OIntBigInteger) value).getValue();
@@ -16,6 +20,21 @@ public class BigIntegerOIntFactory implements OIntFactory {
   @Override
   public OInt fromBigInteger(BigInteger value) {
     return new OIntBigInteger(value);
+  }
+
+  @Override
+  public OInt zero() {
+    return ZERO;
+  }
+
+  @Override
+  public OInt one() {
+    return ONE;
+  }
+
+  @Override
+  public OInt two() {
+    return TWO;
   }
 
 }

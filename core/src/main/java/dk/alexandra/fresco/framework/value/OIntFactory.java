@@ -37,8 +37,26 @@ public interface OIntFactory {
     return fromBigInteger(BigInteger.valueOf(value));
   }
 
+  /**
+   * Default method for converting multiple instances of {@link BigInteger}.
+   */
   default List<DRes<OInt>> fromBigInteger(List<BigInteger> values) {
     return values.stream().map(this::fromBigInteger).collect(Collectors.toList());
   }
+
+  /**
+   * Returns representation of the value 0.
+   */
+  OInt zero();
+
+  /**
+   * Returns representation of the value 1.
+   */
+  OInt one();
+
+  /**
+   * Returns representation of the value 2.
+   */
+  OInt two();
 
 }

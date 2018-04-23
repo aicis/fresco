@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ public class BitLessThanOpen implements Computation<SInt, ProtocolBuilderNumeric
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
+    OIntFactory oIntFactory = builder.getOIntFactory();
     List<DRes<SInt>> secretBits = secretBitsDef.out();
     OInt openValueA = openValueDef.out();
     int numBits = secretBits.size();
@@ -42,7 +44,7 @@ public class BitLessThanOpen implements Computation<SInt, ProtocolBuilderNumeric
       return () -> negatedBits;
     });
     DRes<SInt> gt = builder.seq(new CarryOut(() -> openBits, secretBitsNegated, BigInteger.ONE));
-    return builder.numeric().sub(BigInteger.ONE, gt);
+    return builder.numeric().subFromOpen(oIntFactory.one(), gt);
   }
 
 }
