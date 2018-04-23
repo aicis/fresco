@@ -1,9 +1,7 @@
 package dk.alexandra.fresco.suite.spdz2k;
 
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
-import dk.alexandra.fresco.lib.compare.lt.BitLessThanOpenTests.TestBitLessThanOpen;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt128;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt128Factory;
@@ -13,7 +11,6 @@ import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kOpenedValueStoreImpl;
 import java.util.function.Supplier;
-import org.junit.Test;
 
 public class TestSpdz2kBasicArithmetic128 extends Spdz2kTestSuite<Spdz2kResourcePool<CompUInt128>> {
 
@@ -35,11 +32,6 @@ public class TestSpdz2kBasicArithmetic128 extends Spdz2kTestSuite<Spdz2kResource
   @Override
   protected ProtocolSuiteNumeric<Spdz2kResourcePool<CompUInt128>> createProtocolSuite() {
     return new Spdz2kProtocolSuite128();
-  }
-
-  @Test
-  public void testBitLessThanOpen() {
-    runTest(new TestBitLessThanOpen<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
 }
