@@ -838,7 +838,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   public void testBitLessThanOpen() {
     BigInteger modulus = ModulusFinder.findSuitableModulus(128);
     TestParameters parameters = new TestParameters().numParties(2).modulus(modulus);
-    runTest(new TestBitLessThanOpen<>(modulus, 64), parameters);
+    runTest(new TestBitLessThanOpen<>(), parameters);
   }
 
   @Test
