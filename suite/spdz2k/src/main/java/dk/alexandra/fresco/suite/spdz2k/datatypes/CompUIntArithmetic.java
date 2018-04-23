@@ -1,26 +1,26 @@
-package dk.alexandra.fresco.framework.value;
+package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
 import dk.alexandra.fresco.framework.DRes;
-import java.math.BigInteger;
+import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.value.OIntArithmetic;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * Implementation of {@link OIntArithmetic} for the case when open values are represented directly
- * via {@link BigInteger}.
+ * Implementation of {@link OIntArithmetic} for {@link CompT}.
  */
-public class BigIntegerOIntArithmetic implements OIntArithmetic {
+public class CompUIntArithmetic<CompT extends CompUInt<?, ?, CompT>> implements OIntArithmetic {
 
-  private final OIntFactory factory;
+  private final CompUIntFactory<CompT> factory;
 
-  public BigIntegerOIntArithmetic(OIntFactory factory) {
+  public CompUIntArithmetic(CompUIntFactory<CompT> factory) {
     this.factory = factory;
   }
 
   @Override
   public List<DRes<OInt>> toBits(OInt openValue, int numBits) {
-    BigInteger value = factory.toBigInteger(openValue);
+    CompUInt value = (CompUInt) openValue;
     List<DRes<OInt>> bits = new ArrayList<>(numBits);
     for (int b = 0; b < numBits; b++) {
       boolean boolBit = value.testBit(b);

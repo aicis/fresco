@@ -12,6 +12,7 @@ import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.lib.real.RealNumericContext;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntArithmetic;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
 import dk.alexandra.fresco.suite.spdz2k.protocols.computations.Spdz2kInputComputation;
@@ -157,8 +158,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
   @Override
   public OIntArithmetic getOIntArithmetic() {
-    // TODO implement
-    throw new UnsupportedOperationException();
+    return new CompUIntArithmetic<>(factory);
   }
 
   /**

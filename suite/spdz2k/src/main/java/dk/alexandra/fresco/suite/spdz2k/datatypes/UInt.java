@@ -61,6 +61,13 @@ public interface UInt<T extends UInt> {
   int toInt();
 
   /**
+   * Returns if bit at position is set or not.
+   */
+  default boolean testBit(int bit) {
+    return toBigInteger().testBit(bit);
+  }
+
+  /**
    * Compute sum of elements.
    */
   static <S extends UInt<S>> S sum(List<S> elements) {

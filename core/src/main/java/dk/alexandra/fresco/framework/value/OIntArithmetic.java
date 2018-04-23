@@ -13,6 +13,6 @@ public interface OIntArithmetic {
    * smaller than numBits, the result is padded with 0s. If the bit length is larger only the first
    * numBits bits are used.</p>
    */
-  List<DRes<OInt>> toBits(OInt value, int numBits);
+  List<DRes<OInt>> toBits(OInt openValue, int numBits);
 
 }
