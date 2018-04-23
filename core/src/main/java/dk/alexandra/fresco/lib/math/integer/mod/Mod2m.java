@@ -18,6 +18,7 @@ import dk.alexandra.fresco.lib.compare.lt.BitLessThanOpen;
  */
 public class Mod2m implements Computation<SInt, ProtocolBuilderNumeric> {
 
+  private static final BigInteger TWO = new BigInteger("2");
   private final DRes<SInt> input;
   private final int m;
   private final int k;
@@ -55,7 +56,6 @@ public class Mod2m implements Computation<SInt, ProtocolBuilderNumeric> {
     if (m >= k) {
       return input;
     }
-    BigInteger two = new BigInteger("2");
     List<DRes<SInt>> randomBits = Stream.generate(() -> builder.numeric()
         .randomBit()).limit(k + kappa).collect(Collectors.toList());
     DRes<List<DRes<SInt>>> rList = getDeferedList(builder, randomBits, k
@@ -66,13 +66,13 @@ public class Mod2m implements Computation<SInt, ProtocolBuilderNumeric> {
     DRes<SInt> rPrime = builder.advancedNumeric().sum(rPrimeList);
 
     DRes<SInt> temp = builder.numeric().add(input, r);
-    DRes<BigInteger> c = builder.numeric().open(builder.numeric().add(two.pow(k
+    DRes<BigInteger> c = builder.numeric().open(builder.numeric().add(TWO.pow(k
         - 1), temp));
     return builder.seq(seq -> {
-      BigInteger cPrime = c.out().mod(two.pow(m));
+      BigInteger cPrime = c.out().mod(TWO.pow(m));
       OInt cPrimeOInt = seq.getOIntFactory().fromBigInteger(cPrime);
-      DRes<SInt> u = seq.seq(new BitLessThanOpen(() -> cPrimeOInt, () -> randomBits.subList(0, m)));
-      return seq.numeric().add(seq.numeric().mult(two.pow(m), u),
+      DRes<SInt> u = seq.seq(new BitLessThanOpen(cPrimeOInt, () -> randomBits.subList(0, m)));
+      return seq.numeric().add(seq.numeric().mult(TWO.pow(m), u),
           seq.numeric().sub(cPrime, rPrime));
     });
 
