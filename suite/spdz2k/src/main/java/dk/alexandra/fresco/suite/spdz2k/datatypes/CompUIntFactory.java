@@ -1,9 +1,12 @@
 package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.OIntFactory;
+import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  * Factory for {@link CompT} instances.
@@ -12,6 +15,7 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> extends OI
 
   @Override
   default BigInteger toBigInteger(OInt value) {
+    // TODO test
     return ((CompUInt) value).toBigInteger();
   }
 
@@ -29,6 +33,20 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> extends OI
   default OInt fromLong(long value) {
     // TODO rethink this
     return fromBigInteger(BigInteger.valueOf(value));
+  }
+
+  /**
+   * Get result from deferred and downcast result to {@link CompT}.
+   */
+  default CompT fromOInt(DRes<OInt> value) {
+    return (CompT) value.out();
+  }
+
+  /**
+   * Get result from deferred and downcast result to {@link Spdz2kSInt<CompT>}.
+   */
+  default Spdz2kSInt<CompT> toSpdz2kSInt(DRes<SInt> value) {
+    return Objects.requireNonNull((Spdz2kSInt<CompT>) value.out());
   }
 
   /**

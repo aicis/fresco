@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.OpenedValueStore;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.UInt;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
@@ -37,8 +38,9 @@ public class Spdz2kOutputToAllProtocol<PlainT extends CompUInt<?, ?, PlainT>>
       Network network) {
     OpenedValueStore<Spdz2kSInt<PlainT>, PlainT> openedValueStore = resourcePool
         .getOpenedValueStore();
+    CompUIntFactory<PlainT> factory = resourcePool.getFactory();
     if (round == 0) {
-      authenticatedElement = toSpdz2kSInt(share);
+      authenticatedElement = factory.toSpdz2kSInt(share);
       network.sendToAll(authenticatedElement.getShare().getLeastSignificant().toByteArray());
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {

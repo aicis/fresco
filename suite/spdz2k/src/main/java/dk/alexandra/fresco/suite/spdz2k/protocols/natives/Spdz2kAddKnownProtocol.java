@@ -34,7 +34,7 @@ public class Spdz2kAddKnownProtocol<PlainT extends CompUInt<?, ?, PlainT>>
       Network network) {
     Spdz2kDataSupplier<PlainT> dataSupplier = resourcePool.getDataSupplier();
     CompUIntFactory<PlainT> factory = resourcePool.getFactory();
-    out = toSpdz2kSInt(right).addConstant(left,
+    out = factory.toSpdz2kSInt(right).addConstant(left,
         dataSupplier.getSecretSharedKey(),
         factory.zero(),
         resourcePool.getMyId() == 1);

@@ -14,7 +14,6 @@ import dk.alexandra.fresco.lib.real.RealNumericContext;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntArithmetic;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
-import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
 import dk.alexandra.fresco.suite.spdz2k.protocols.computations.Spdz2kInputComputation;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAddKnownProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kKnownSIntProtocol;
@@ -25,7 +24,6 @@ import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kRandomBitProtoco
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kRandomElementProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kSubtractFromKnownProtocol;
 import java.math.BigInteger;
-import java.util.Objects;
 
 /**
  * Basic native builder for the SPDZ2k protocol suite.
@@ -53,7 +51,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
     return new Numeric() {
       @Override
       public DRes<SInt> add(DRes<SInt> a, DRes<SInt> b) {
-        return () -> toSpdz2kSInt(a).add(toSpdz2kSInt(b));
+        return () -> factory.toSpdz2kSInt(a).add(factory.toSpdz2kSInt(b));
       }
 
       @Override
@@ -63,12 +61,12 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
       @Override
       public DRes<SInt> addOpen(DRes<OInt> a, DRes<SInt> b) {
-        return builder.append(new Spdz2kAddKnownProtocol<>((PlainT) a.out(), b));
+        return builder.append(new Spdz2kAddKnownProtocol<>(factory.fromOInt(a), b));
       }
 
       @Override
       public DRes<SInt> sub(DRes<SInt> a, DRes<SInt> b) {
-        return () -> (toSpdz2kSInt(a)).subtract(toSpdz2kSInt(b));
+        return () -> (factory.toSpdz2kSInt(a)).subtract(factory.toSpdz2kSInt(b));
       }
 
       @Override
@@ -80,13 +78,13 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
       @Override
       public DRes<SInt> subFromOpen(DRes<OInt> a, DRes<SInt> b) {
         return builder.append(
-            new Spdz2kSubtractFromKnownProtocol<>((PlainT) a.out(), b));
+            new Spdz2kSubtractFromKnownProtocol<>(factory.fromOInt(a), b));
       }
 
       @Override
       public DRes<SInt> subOpen(DRes<SInt> a, DRes<OInt> b) {
         return builder.append(
-            new Spdz2kAddKnownProtocol<>(((PlainT) b.out()).negate(), a));
+            new Spdz2kAddKnownProtocol<>(factory.fromOInt(b).negate(), a));
       }
 
       @Override
@@ -102,12 +100,12 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
       @Override
       public DRes<SInt> mult(BigInteger a, DRes<SInt> b) {
-        return () -> toSpdz2kSInt(b).multiply(factory.createFromBigInteger(a));
+        return () -> factory.toSpdz2kSInt(b).multiply(factory.createFromBigInteger(a));
       }
 
       @Override
       public DRes<SInt> multByOpen(DRes<OInt> a, DRes<SInt> b) {
-        return () -> toSpdz2kSInt(b).multiply((PlainT) a.out());
+        return () -> factory.toSpdz2kSInt(b).multiply(factory.fromOInt(a));
       }
 
       @Override
@@ -157,13 +155,6 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
   @Override
   public OIntArithmetic getOIntArithmetic() {
     return new CompUIntArithmetic<>(factory);
-  }
-
-  /**
-   * Get result from deferred and downcast result to {@link Spdz2kSInt<PlainT>}.
-   */
-  private Spdz2kSInt<PlainT> toSpdz2kSInt(DRes<SInt> value) {
-    return Objects.requireNonNull((Spdz2kSInt<PlainT>) value.out());
   }
 
   @Override

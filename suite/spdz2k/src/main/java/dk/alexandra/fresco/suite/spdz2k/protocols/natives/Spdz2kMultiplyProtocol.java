@@ -41,16 +41,17 @@ public class Spdz2kMultiplyProtocol<PlainT extends CompUInt<?, ?, PlainT>> exten
       Network network) {
     final PlainT macKeyShare = resourcePool.getDataSupplier().getSecretSharedKey();
     ByteSerializer<PlainT> serializer = resourcePool.getPlainSerializer();
+    CompUIntFactory<PlainT> factory = resourcePool.getFactory();
     if (round == 0) {
       triple = resourcePool.getDataSupplier().getNextTripleShares();
-      epsilon = toSpdz2kSInt(left).subtract(triple.getLeft());
-      delta = toSpdz2kSInt(right).subtract(triple.getRight());
+      epsilon = factory.toSpdz2kSInt(left).subtract(triple.getLeft());
+      delta = factory.toSpdz2kSInt(right).subtract(triple.getRight());
       network.sendToAll(epsilon.getShare().getLeastSignificant().toByteArray());
       network.sendToAll(delta.getShare().getLeastSignificant().toByteArray());
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       Pair<PlainT, PlainT> epsilonAndDelta = receiveAndReconstruct(network,
-          resourcePool.getFactory(),
+          factory,
           resourcePool.getNoOfParties(),
           serializer);
       // compute [prod] = [c] + epsilon * [b] + delta * [a] + epsilon * delta
@@ -60,7 +61,6 @@ public class Spdz2kMultiplyProtocol<PlainT extends CompUInt<?, ?, PlainT>> exten
       Spdz2kSInt<PlainT> tripleRight = triple.getRight();
       Spdz2kSInt<PlainT> tripleLeft = triple.getLeft();
       Spdz2kSInt<PlainT> tripleProduct = triple.getProduct();
-      CompUIntFactory<PlainT> factory = resourcePool.getFactory();
       this.product = tripleProduct
           .add(tripleRight.multiply(e))
           .add(tripleLeft.multiply(d))

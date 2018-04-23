@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 
@@ -34,9 +35,10 @@ public class Spdz2kSubtractFromKnownProtocol<PlainT extends CompUInt<?, ?, Plain
       Network network) {
     PlainT secretSharedKey = resourcePool.getDataSupplier().getSecretSharedKey();
     PlainT zero = resourcePool.getFactory().zero();
+    CompUIntFactory<PlainT> factory = resourcePool.getFactory();
     Spdz2kSInt<PlainT> leftSInt = new Spdz2kSInt<>(left, secretSharedKey, zero,
         resourcePool.getMyId() == 1);
-    difference = leftSInt.subtract(toSpdz2kSInt(right));
+    difference = leftSInt.subtract(factory.toSpdz2kSInt(right));
     return EvaluationStatus.IS_DONE;
   }
 
