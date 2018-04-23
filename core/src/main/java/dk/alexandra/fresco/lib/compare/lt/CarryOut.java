@@ -59,6 +59,7 @@ public class CarryOut implements Computation<SInt, ProtocolBuilderNumeric> {
             DRes<SInt> leftBit = secretBits.get(i);
             BigInteger rightBit = clearBits.get(i).out();
             DRes<SInt> andedBit = andedBits.get(i);
+            // TODO we need a logical computation directory for logical ops on arithmetic values
             // logical xor of two bits can is leftBit + rightBit - 2 * leftBit * rightBit
             DRes<SInt> xoredBit = par.seq(seq -> {
               Numeric nb = seq.numeric();
