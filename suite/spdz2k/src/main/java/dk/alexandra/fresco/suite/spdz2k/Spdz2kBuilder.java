@@ -2,6 +2,7 @@ package dk.alexandra.fresco.suite.spdz2k;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.Comparison;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.OInt;
@@ -19,6 +20,7 @@ import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAddKnownProtocol
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kKnownSIntProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kMultiplyProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kOutputSinglePartyProtocol;
+import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kOutputToAllAsOIntProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kOutputToAllProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kRandomBitProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kRandomElementProtocol;
@@ -44,6 +46,11 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
   @Override
   public BasicNumericContext getBasicNumericContext() {
     return numericContext;
+  }
+
+  @Override
+  public Comparison createComparison(ProtocolBuilderNumeric builder) {
+    return new Spdz2kComparison<>(this, builder, factory);
   }
 
   @Override
@@ -129,6 +136,11 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
         return builder.seq(
             new Spdz2kInputComputation<>(factory.createFromBigInteger(value), inputParty)
         );
+      }
+
+      @Override
+      public DRes<OInt> openAsOInt(DRes<SInt> secretShare) {
+        return builder.append(new Spdz2kOutputToAllAsOIntProtocol<>(secretShare));
       }
 
       @Override

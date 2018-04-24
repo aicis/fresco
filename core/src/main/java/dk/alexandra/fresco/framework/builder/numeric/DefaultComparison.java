@@ -16,9 +16,9 @@ import java.math.BigInteger;
 public class DefaultComparison implements Comparison {
 
   // Security parameter used by protocols using rightshifts and/or additive masks.
-  private final int magicSecureNumber = 60;
-  private final BuilderFactoryNumeric factoryNumeric;
-  private final ProtocolBuilderNumeric builder;
+  protected final int magicSecureNumber = 60;
+  protected final BuilderFactoryNumeric factoryNumeric;
+  protected final ProtocolBuilderNumeric builder;
 
   public DefaultComparison(BuilderFactoryNumeric factoryNumeric,
       ProtocolBuilderNumeric builder) {

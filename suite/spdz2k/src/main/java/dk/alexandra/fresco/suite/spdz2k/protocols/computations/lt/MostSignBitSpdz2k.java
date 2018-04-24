@@ -12,7 +12,6 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.lt.BitLessThanOpen;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
-import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 import java.util.List;
 
 /**
@@ -22,20 +21,19 @@ public class MostSignBitSpdz2k<PlainT extends CompUInt<?, ?, PlainT>> implements
     Computation<SInt, ProtocolBuilderNumeric> {
 
   private final DRes<SInt> value;
-  private final Spdz2kResourcePool<PlainT> resourcePool;
+  private final CompUIntFactory<PlainT> factory;
   private final int k;
 
-  public MostSignBitSpdz2k(DRes<SInt> value, Spdz2kResourcePool<PlainT> resourcePool) {
+  public MostSignBitSpdz2k(DRes<SInt> value, CompUIntFactory<PlainT> factory) {
     this.value = value;
-    this.resourcePool = resourcePool;
-    this.k = resourcePool.getMaxBitLength();
+    this.factory = factory;
+    this.k = factory.getLowBitLength();
   }
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     OIntArithmetic arithmetic = builder.getOIntArithmetic();
     DRes<OInt> twoTo2k1 = arithmetic.twoTo(k - 1);
-    CompUIntFactory<PlainT> factory = resourcePool.getFactory();
     return builder.seq(seq -> seq.advancedNumeric().randomBitMask(k - 2))
         .seq((seq, mask) -> {
           Numeric numeric = seq.numeric();
@@ -52,7 +50,7 @@ public class MostSignBitSpdz2k<PlainT extends CompUInt<?, ?, PlainT>> implements
           RandomBitMask mask = pair.getSecond();
           DRes<SInt> rPrime = mask.getValue();
           List<DRes<SInt>> rPrimeBits = mask.getBits().out();
-          DRes<SInt> u = seq.seq(new BitLessThanOpen(() -> cPrime, rPrimeBits));
+          DRes<SInt> u = seq.seq(new BitLessThanOpen(cPrime, rPrimeBits));
 //          5. Parties set [a′] = c′ − [r′] + 2k−1[u] and compute [d] = [a] − [a′].
 //          6. The parties compute and open [e] = [d] + 2k−1[b]. Let ek−1 be the most signif-
 //              icant bit of e.
