@@ -147,6 +147,13 @@ public interface Numeric extends ComputationDirectory {
   DRes<BigInteger> open(DRes<SInt> secretShare);
 
   /**
+   * Opens a value to all MPC parties.
+   */
+  default DRes<OInt> openAsOInt(DRes<SInt> secretShare) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Opens a value to a single given party.
    * @param secretShare The value to open.
    * @param outputParty The party to receive the opened value.

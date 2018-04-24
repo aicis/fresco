@@ -37,6 +37,7 @@ public class BigIntegerOIntArithmetic implements OIntArithmetic {
 
   @Override
   public List<DRes<OInt>> getPowersOfTwo(int numPowers) {
+    // TODO do we need modular reduction in here?
     // TODO taken from MiscBigIntegerGenerators, clean up
     int currentLength = twoPowersList.size();
     if (numPowers > currentLength) {
@@ -51,6 +52,11 @@ public class BigIntegerOIntArithmetic implements OIntArithmetic {
       twoPowersList = Collections.unmodifiableList(newTwoPowersList);
     }
     return twoPowersList.subList(0, numPowers);
+  }
+
+  @Override
+  public DRes<OInt> twoTo(int power) {
+    throw new UnsupportedOperationException();
   }
 
 }

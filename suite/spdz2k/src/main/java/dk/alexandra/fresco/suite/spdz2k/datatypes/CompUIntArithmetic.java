@@ -47,4 +47,9 @@ public class CompUIntArithmetic<CompT extends CompUInt<?, ?, CompT>> implements 
     return powers;
   }
 
+  @Override
+  public DRes<OInt> twoTo(int power) {
+    throw new UnsupportedOperationException();
+  }
+
 }

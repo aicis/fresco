@@ -21,4 +21,9 @@ public interface OIntArithmetic {
    */
   List<DRes<OInt>> getPowersOfTwo(int numPowers);
 
+  /**
+   * Computes 2^{power}.
+   */
+  DRes<OInt> twoTo(int power);
+
 }
