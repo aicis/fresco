@@ -2,6 +2,7 @@ package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelect;
 import dk.alexandra.fresco.lib.conditional.SwapIf;
@@ -111,8 +112,19 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
   }
 
   @Override
+  public DRes<SInt> innerProductWithPublicPart(DRes<List<DRes<OInt>>> vectorA,
+      DRes<List<DRes<SInt>>> vectorB) {
+    return null;
+  }
+
+  @Override
   public DRes<RandomAdditiveMask> additiveMask(int noOfBits) {
     return builder.seq(new dk.alexandra.fresco.lib.compare.RandomAdditiveMask(noOfBits));
+  }
+
+  @Override
+  public DRes<RandomBitMask> randomBitMask(int noOfBits) {
+    return null;
   }
 
   @Override

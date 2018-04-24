@@ -77,6 +77,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
       @Override
       public DRes<SInt> subFromOpen(DRes<OInt> a, DRes<SInt> b) {
+        // TODO should call .out inside evaluate instead
         return builder.append(
             new Spdz2kSubtractFromKnownProtocol<>(factory.fromOInt(a), b));
       }

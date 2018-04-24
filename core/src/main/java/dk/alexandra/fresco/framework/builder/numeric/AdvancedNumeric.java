@@ -3,6 +3,7 @@ package dk.alexandra.fresco.framework.builder.numeric;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.List;
@@ -73,7 +74,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
 
   /**
    * Computes the exponentiation of x^e
-   * 
+   *
    * @param x The base
    * @param e The exponent
    * @param maxExponentLength The maximum length of the exponent.
@@ -83,7 +84,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
 
   /**
    * Computes the exponentiation of x^e
-   * 
+   *
    * @param x The base
    * @param e The exponent
    * @param maxExponentLength The maximum length of the exponent.
@@ -93,7 +94,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
 
   /**
    * Computes the exponentiation of x^e.
-   * 
+   *
    * @param x The base
    * @param e The exponent
    * @return A deferred result computing x^e
@@ -118,29 +119,55 @@ public interface AdvancedNumeric extends ComputationDirectory {
 
   /**
    * Computes the inner product between two vectors.
-   * 
+   *
    * @param vectorA The first vector
    * @param vectorB The second vector
    * @return A deferred result computing the inner product of the two given vectors
+   * @deprecated inputs should be wrapped in {@link DRes}
    */
+  @Deprecated
   DRes<SInt> innerProduct(List<DRes<SInt>> vectorA, List<DRes<SInt>> vectorB);
 
   /**
    * Computes the inner product between a public vector and a secret vector.
-   * 
+   *
+   * @param vectorA The public vector
+   * @param vectorB The secret vector
+   * @return A deferred result computing the inner product of the two given vectors
+   * @deprecated inputs should be wrapped in {@link DRes}, use {@link #innerProductWithPublicPart(DRes,
+   * DRes)} instead
+   */
+  @Deprecated()
+  DRes<SInt> innerProductWithPublicPart(List<BigInteger> vectorA, List<DRes<SInt>> vectorB);
+
+  /**
+   * Computes the inner product between a public vector and a secret vector.
+   *
    * @param vectorA The public vector
    * @param vectorB The secret vector
    * @return A deferred result computing the inner product of the two given vectors
    */
-  DRes<SInt> innerProductWithPublicPart(List<BigInteger> vectorA, List<DRes<SInt>> vectorB);
+  DRes<SInt> innerProductWithPublicPart(DRes<List<DRes<OInt>>> vectorA,
+      DRes<List<DRes<SInt>>> vectorB);
 
   /**
    * Creates a string of random bits.
-   * 
+   *
    * @param noOfBits The amount of bits to create - i.e. the bit string length.
    * @return A container holding the bit string once evaluated.
+   * @deprecated use {@link #randomBitMask(int)} instead
    */
+  @Deprecated
   DRes<RandomAdditiveMask> additiveMask(int noOfBits);
+
+  /**
+   * Creates a random bit mask [b0, ..., bn] along with an {@link SInt} representing the recombined
+   * bits, i.e., sum(2^{i} * bi).
+   *
+   * @param noOfBits The amount of bits
+   * @return A container holding the bit string once evaluated.
+   */
+  DRes<RandomBitMask> randomBitMask(int noOfBits);
 
   /**
    * @param input input.
@@ -157,36 +184,34 @@ public interface AdvancedNumeric extends ComputationDirectory {
 
   /**
    * @param input input
-   * @return A deferred result computing<br>
-   *         result: input >> 1<br>
-   *         remainder: The <code>shifts</code> least significant bits of the input with the least
-   *         significant having index 0.
+   * @return A deferred result computing<br> result: input >> 1<br> remainder: The
+   * <code>shifts</code> least significant bits of the input with the least significant having index
+   * 0.
    */
   DRes<RightShiftResult> rightShiftWithRemainder(DRes<SInt> input);
 
   /**
    * @param input input
    * @param shifts Number of shifts
-   * @return A deferred result computing <br>
-   *         result: input >> shifts<br>
-   *         remainder: The <code>shifts</code> least significant bits of the input with the least
-   *         significant having index 0.
+   * @return A deferred result computing <br> result: input >> shifts<br> remainder: The
+   * <code>shifts</code> least significant bits of the input with the least significant having index
+   * 0.
    */
   DRes<RightShiftResult> rightShiftWithRemainder(DRes<SInt> input, int shifts);
 
   /**
    * Computes the bit length of the input.
-   * 
+   *
    * @param input The number to know the bit length of
    * @param maxBitLength The maximum bit length this number can have (if unknown, set this to the
-   *        modulus bit size)
+   * modulus bit size)
    * @return A deferred result computing the bit length of the input number.
    */
   DRes<SInt> bitLength(DRes<SInt> input, int maxBitLength);
 
   /**
    * Compute the inverse of x within the field of operation
-   * 
+   *
    * @param x The element to take the inverse of
    * @return A deferred result computing x^-1 mod p where p is the modulus of the field.
    */
@@ -196,7 +221,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
    * Selects left or right based on condition.
    *
    * @param condition the Computation holding the condition on which to select. Must be either 0 or
-   *        1.
+   * 1.
    * @param left the Computation holding the left argument.
    * @param right the Computation holding the right argument.
    * @return a computation holding either left or right depending on the condition.
@@ -206,12 +231,12 @@ public interface AdvancedNumeric extends ComputationDirectory {
   /**
    * Swaps <code>left</code> and <code>right</code> if <code>condition</code> is 1, keeps original
    * order otherwise. Returns result as a pair.
-   * 
+   *
    * @param condition must be 0 or 1.
    * @param left The left argument
    * @param right The right argument
    * @return A deferred result computing a pair containing [left, right] if the condition is 0 and
-   *         [right, left] if condition is 1.
+   * [right, left] if condition is 1.
    */
   DRes<Pair<DRes<SInt>, DRes<SInt>>> swapIf(DRes<SInt> condition, DRes<SInt> left,
       DRes<SInt> right);
@@ -239,8 +264,11 @@ public interface AdvancedNumeric extends ComputationDirectory {
   }
 
   /**
-   * Container holding a random bitvector and its SInt representation. 
+   * Container holding a random bitvector and its SInt representation.
+   *
+   * @deprecated values should be wrapped in DRes, use {@link RandomBitMask} instead
    */
+  @Deprecated
   class RandomAdditiveMask {
 
     public final List<DRes<SInt>> bits;
@@ -250,5 +278,28 @@ public interface AdvancedNumeric extends ComputationDirectory {
       this.bits = bits;
       this.random = random;
     }
+  }
+
+  /**
+   * Represents a random element and its bit decomposition.
+   */
+  class RandomBitMask {
+
+    private final DRes<List<DRes<SInt>>> bits;
+    private final DRes<SInt> value;
+
+    public RandomBitMask(DRes<List<DRes<SInt>>> bits, DRes<SInt> value) {
+      this.bits = bits;
+      this.value = value;
+    }
+
+    public DRes<List<DRes<SInt>>> getBits() {
+      return bits;
+    }
+
+    public DRes<SInt> getValue() {
+      return value;
+    }
+
   }
 }
