@@ -32,8 +32,19 @@ public class CompUIntArithmetic<CompT extends CompUInt<?, ?, CompT>> implements 
   }
 
   @Override
-  public List<DRes<OInt>> getPowersOfTwo(int maxPower) {
-    return null;
+  public List<DRes<OInt>> getPowersOfTwo(int numPowers) {
+    // TODO cache
+    List<DRes<OInt>> powers = new ArrayList<>(numPowers);
+    CompT current = factory.one();
+    final CompT tempOuter = current;
+    powers.add(() -> tempOuter);
+    for (int i = 1; i < numPowers; i++) {
+      // TODO use shift
+      current = current.multiply(factory.two());
+      final CompT temp = current;
+      powers.add(() -> temp);
+    }
+    return powers;
   }
 
 }
