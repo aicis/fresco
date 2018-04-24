@@ -5,11 +5,11 @@ import java.math.BigInteger;
 /**
  * An open value wrapper for {@link BigInteger}.
  */
-public class OIntBigInteger implements OInt {
+public class BigIntegerOInt implements OInt {
 
   private final BigInteger value;
 
-  public OIntBigInteger(BigInteger value) {
+  public BigIntegerOInt(BigInteger value) {
     this.value = value;
   }
 

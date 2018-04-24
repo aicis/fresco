@@ -8,18 +8,18 @@ import java.math.BigInteger;
  */
 public class BigIntegerOIntFactory implements OIntFactory {
 
-  private static final OInt ZERO = new OIntBigInteger(BigInteger.ZERO);
-  private static final OInt ONE = new OIntBigInteger(BigInteger.ONE);
-  private static final OInt TWO = new OIntBigInteger(BigInteger.valueOf(2));
+  private static final OInt ZERO = new BigIntegerOInt(BigInteger.ZERO);
+  private static final OInt ONE = new BigIntegerOInt(BigInteger.ONE);
+  private static final OInt TWO = new BigIntegerOInt(BigInteger.valueOf(2));
 
   @Override
   public BigInteger toBigInteger(OInt value) {
-    return ((OIntBigInteger) value).getValue();
+    return ((BigIntegerOInt) value).getValue();
   }
 
   @Override
   public OInt fromBigInteger(BigInteger value) {
-    return new OIntBigInteger(value);
+    return new BigIntegerOInt(value);
   }
 
   @Override
