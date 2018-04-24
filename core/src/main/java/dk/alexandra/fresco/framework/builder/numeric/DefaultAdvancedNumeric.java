@@ -2,6 +2,7 @@ package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.util.RandomBitMask;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelect;
@@ -10,6 +11,7 @@ import dk.alexandra.fresco.lib.conversion.IntegerToBitsByShift;
 import dk.alexandra.fresco.lib.math.integer.ProductSIntList;
 import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import dk.alexandra.fresco.lib.math.integer.binary.BitLength;
+import dk.alexandra.fresco.lib.math.integer.binary.GenerateRandomBitMask;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShift;
 import dk.alexandra.fresco.lib.math.integer.division.KnownDivisor;
 import dk.alexandra.fresco.lib.math.integer.division.KnownDivisorRemainder;
@@ -20,6 +22,7 @@ import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationOpenExponent;
 import dk.alexandra.fresco.lib.math.integer.inv.Inversion;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProduct;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductOpen;
+import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductWithOInt;
 import dk.alexandra.fresco.lib.math.integer.log.Logarithm;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SquareRoot;
 import java.math.BigInteger;
@@ -114,7 +117,7 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
   @Override
   public DRes<SInt> innerProductWithPublicPart(DRes<List<DRes<OInt>>> vectorA,
       DRes<List<DRes<SInt>>> vectorB) {
-    return null;
+    return builder.seq(new InnerProductWithOInt(vectorA, vectorB));
   }
 
   @Override
@@ -123,8 +126,8 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
   }
 
   @Override
-  public DRes<RandomBitMask> randomBitMask(int noOfBits) {
-    return null;
+  public DRes<RandomBitMask> randomBitMask(int numBits) {
+    return builder.seq(new GenerateRandomBitMask(numBits));
   }
 
   @Override

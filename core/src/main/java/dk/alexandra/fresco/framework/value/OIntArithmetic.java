@@ -15,4 +15,10 @@ public interface OIntArithmetic {
    */
   List<DRes<OInt>> toBits(OInt openValue, int numBits);
 
+  /**
+   * Returns a list of powers of two in ascending order, up to maxPower ([2^0, 2^1, ...,
+   * 2^maxPower]).
+   */
+  List<DRes<OInt>> getPowersOfTwo(int maxPower);
+
 }

@@ -31,4 +31,9 @@ public class BigIntegerOIntArithmetic implements OIntArithmetic {
     return bits;
   }
 
+  @Override
+  public List<DRes<OInt>> getPowersOfTwo(int maxPower) {
+    return null;
+  }
+
 }

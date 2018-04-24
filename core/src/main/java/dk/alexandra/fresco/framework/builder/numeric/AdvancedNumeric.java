@@ -3,6 +3,7 @@ package dk.alexandra.fresco.framework.builder.numeric;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.util.RandomBitMask;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -18,11 +19,17 @@ public interface AdvancedNumeric extends ComputationDirectory {
    *
    * @param elements the elements to sum
    * @return A deferred result computing the sum of the elements
+   * inputs should be wrapped in {@link DRes}, use {@link #sum(DRes)} instead
    */
   @Deprecated
   DRes<SInt> sum(List<DRes<SInt>> elements);
 
-
+  /**
+   * Calculates the sum of all elements in the list.
+   *
+   * @param elements the elements to sum
+   * @return A deferred result computing the sum of the elements
+   */
   DRes<SInt> sum(DRes<List<DRes<SInt>>> elements);
 
   /**
@@ -280,26 +287,4 @@ public interface AdvancedNumeric extends ComputationDirectory {
     }
   }
 
-  /**
-   * Represents a random element and its bit decomposition.
-   */
-  class RandomBitMask {
-
-    private final DRes<List<DRes<SInt>>> bits;
-    private final DRes<SInt> value;
-
-    public RandomBitMask(DRes<List<DRes<SInt>>> bits, DRes<SInt> value) {
-      this.bits = bits;
-      this.value = value;
-    }
-
-    public DRes<List<DRes<SInt>>> getBits() {
-      return bits;
-    }
-
-    public DRes<SInt> getValue() {
-      return value;
-    }
-
-  }
 }

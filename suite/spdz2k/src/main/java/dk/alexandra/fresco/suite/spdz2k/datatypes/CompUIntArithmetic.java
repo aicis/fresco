@@ -31,4 +31,9 @@ public class CompUIntArithmetic<CompT extends CompUInt<?, ?, CompT>> implements 
     return bits;
   }
 
+  @Override
+  public List<DRes<OInt>> getPowersOfTwo(int maxPower) {
+    return null;
+  }
+
 }
