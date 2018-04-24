@@ -58,6 +58,18 @@ public class TestCompUInt96 {
         twoTo96.subtract(BigInteger.ONE),
         new CompUInt96(twoTo96.subtract(BigInteger.ONE)).toBigInteger()
     );
+    assertEquals(
+        BigInteger.valueOf(-1).mod(twoTo96),
+        new CompUInt96(BigInteger.valueOf(-1)).toBigInteger()
+    );
+    assertEquals(
+        BigInteger.valueOf(-2).mod(twoTo96),
+        new CompUInt96(BigInteger.valueOf(-2)).toBigInteger()
+    );
+    assertEquals(
+        twoTo96.subtract(BigInteger.ONE).negate().mod(twoTo96),
+        new CompUInt96(twoTo96.subtract(BigInteger.ONE).negate()).toBigInteger()
+    );
   }
 
   @Test

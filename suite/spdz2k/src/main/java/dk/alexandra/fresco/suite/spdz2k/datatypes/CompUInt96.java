@@ -33,7 +33,7 @@ public class CompUInt96 implements CompUInt<UInt64, UInt32, CompUInt96> {
   }
 
   CompUInt96(BigInteger value) {
-    this(value.toByteArray());
+    this(value.shiftRight(64).intValue(), value.shiftRight(32).intValue(), value.intValue());
   }
 
   CompUInt96(UInt64 value) {

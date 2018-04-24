@@ -2,6 +2,7 @@ package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.suite.spdz2k.util.UIntSerializer;
+import java.math.BigInteger;
 import java.security.SecureRandom;
 
 public class CompUInt96Factory implements CompUIntFactory<CompUInt96> {
@@ -11,6 +12,11 @@ public class CompUInt96Factory implements CompUIntFactory<CompUInt96> {
   @Override
   public CompUInt96 createFromBytes(byte[] bytes) {
     return new CompUInt96(bytes);
+  }
+
+  @Override
+  public CompUInt96 createFromBigInteger(BigInteger value) {
+    return value == null ? null : new CompUInt96(value);
   }
 
   @Override

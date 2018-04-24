@@ -92,7 +92,7 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> extends OI
    * Creates element whose value is zero.
    */
   default CompT zero() {
-    return createFromBytes(new byte[getCompositeBitLength() / Byte.SIZE]);
+    return createFromBigInteger(BigInteger.ZERO);
   }
 
   default CompT one() {
