@@ -8,6 +8,8 @@ import java.security.SecureRandom;
 public class CompUInt128Factory implements CompUIntFactory<CompUInt128> {
 
   private static final CompUInt128 ZERO = new CompUInt128(new byte[16]);
+  private static final CompUInt128 ONE = new CompUInt128(1);
+  private static final CompUInt128 TWO = new CompUInt128(2);
   private final SecureRandom random = new SecureRandom();
 
   @Override
@@ -39,12 +41,22 @@ public class CompUInt128Factory implements CompUIntFactory<CompUInt128> {
 
   @Override
   public CompUInt128 createFromBigInteger(BigInteger value) {
-    return value == null ? null : new CompUInt128(value.toByteArray(), true);
+    return value == null ? null : new CompUInt128(value);
   }
 
   @Override
   public CompUInt128 zero() {
     return ZERO;
+  }
+
+  @Override
+  public CompUInt128 one() {
+    return ONE;
+  }
+
+  @Override
+  public CompUInt128 two() {
+    return TWO;
   }
 
 }

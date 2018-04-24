@@ -58,6 +58,10 @@ public class TestCompUInt128 {
         twoTo128.subtract(BigInteger.ONE),
         new CompUInt128(twoTo128.subtract(BigInteger.ONE)).toBigInteger()
     );
+    assertEquals(
+        BigInteger.valueOf(-1).mod(twoTo128),
+        new CompUInt128(BigInteger.valueOf(-1)).toBigInteger()
+    );
   }
 
   @Test
