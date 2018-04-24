@@ -34,4 +34,9 @@ public class TestSpdz2kBasicArithmetic96 extends Spdz2kTestSuite<Spdz2kResourceP
     return new Spdz2kProtocolSuite96();
   }
 
+  @Override
+  protected int getMaxBitLength() {
+    return 32;
+  }
+
 }

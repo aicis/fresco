@@ -3,6 +3,7 @@ package dk.alexandra.fresco.suite.spdz2k;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.collections.io.CloseListTests.TestCloseAndOpenList;
+import dk.alexandra.fresco.lib.compare.CompareTests.TestLessThanLogRounds;
 import dk.alexandra.fresco.lib.compare.lt.BitLessThanOpenTests.TestBitLessThanOpen;
 import dk.alexandra.fresco.lib.math.integer.binary.BinaryOperationsTests.TestGenerateRandomBitMask;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
@@ -137,5 +138,13 @@ public abstract class Spdz2kTestSuite<Spdz2kResourcePoolT extends Spdz2kResource
   public void testGenerateRandomBitMask() {
     runTest(new TestGenerateRandomBitMask<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
+
+  @Test
+  public void testLessThanLogRounds() {
+    runTest(new TestLessThanLogRounds<>(getMaxBitLength()),
+        EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  protected abstract int getMaxBitLength();
 
 }
