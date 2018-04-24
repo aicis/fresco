@@ -290,10 +290,11 @@ public class CompareTests {
           BigInteger.valueOf(-111111),
           BigInteger.valueOf(-111),
           BigInteger.ONE,
-          two.pow(maxBitLength).subtract(BigInteger.ONE),
-          two.pow(maxBitLength).subtract(two),
-          BigInteger.ONE,
-          two.pow(maxBitLength).subtract(BigInteger.valueOf(10000))
+          two.pow(maxBitLength - 1).subtract(BigInteger.ONE),
+          two.pow(maxBitLength - 1).subtract(two),
+          BigInteger.TEN,
+          two.pow(maxBitLength - 1).subtract(BigInteger.ONE),
+          two.pow(maxBitLength - 1).subtract(two)
       );
       this.openRight = Arrays.asList(
           BigInteger.ZERO,
@@ -303,10 +304,11 @@ public class CompareTests {
           BigInteger.valueOf(-111112),
           BigInteger.valueOf(-110),
           BigInteger.valueOf(5),
-          two.pow(maxBitLength).subtract(two),
-          two.pow(maxBitLength).subtract(BigInteger.ONE),
+          two.pow(maxBitLength - 1).subtract(two),
+          two.pow(maxBitLength - 1).subtract(BigInteger.ONE),
           BigInteger.valueOf(-1),
-          BigInteger.ONE
+          BigInteger.ONE,
+          BigInteger.valueOf(-1)
       );
       this.expected = computeExpected(openLeft, openRight);
     }
@@ -343,6 +345,7 @@ public class CompareTests {
             return () -> opened.out().stream().map(DRes::out).collect(Collectors.toList());
           };
           List<BigInteger> actual = runApplication(app);
+          System.out.println(expected + " " + actual);
           Assert.assertEquals(expected, actual);
         }
       };
