@@ -40,6 +40,11 @@ public interface CompUInt<
   CompT modTwoToKMinOne();
 
   /**
+   * Sets s most significant bits to 0.
+   */
+  CompT clearHighBits();
+
+  /**
    * Get length of least significant bit segment, i.e., k.
    */
   int getLowBitLength();

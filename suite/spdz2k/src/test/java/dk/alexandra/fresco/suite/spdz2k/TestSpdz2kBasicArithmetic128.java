@@ -12,7 +12,6 @@ import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kOpenedValueStoreImpl;
-import java.math.BigInteger;
 import java.util.function.Supplier;
 import org.junit.Test;
 
@@ -40,7 +39,7 @@ public class TestSpdz2kBasicArithmetic128 extends Spdz2kTestSuite<Spdz2kResource
 
   @Test
   public void testLessThanLogRounds() {
-    runTest(new TestLessThanLogRounds<>(BigInteger.ONE.shiftLeft(64), 64),
+    runTest(new TestLessThanLogRounds<>(64),
         EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 

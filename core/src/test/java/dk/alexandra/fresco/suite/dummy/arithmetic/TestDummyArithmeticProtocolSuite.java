@@ -857,7 +857,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
         .numParties(2)
         .modulus(modulus)
         .maxBitLength(maxBitLength);
-    runTest(new TestLessThanLogRounds<>(modulus, maxBitLength), parameters);
+    runTest(new TestLessThanLogRounds<>(maxBitLength), parameters);
   }
 
   @Test

@@ -21,7 +21,7 @@ public class Spdz2kOutputToAllAsOIntProtocol<PlainT extends CompUInt<?, ?, Plain
     implements RequiresMacCheck {
 
   private final DRes<SInt> share;
-  private OInt opened;
+  private PlainT opened;
   private Spdz2kSInt<PlainT> authenticatedElement;
 
   /**
@@ -48,7 +48,7 @@ public class Spdz2kOutputToAllAsOIntProtocol<PlainT extends CompUInt<?, ?, Plain
       List<PlainT> shares = serializer.deserializeList(network.receiveFromAll());
       PlainT recombined = UInt.sum(shares);
       openedValueStore.pushOpenedValue(authenticatedElement, recombined);
-      this.opened = recombined;
+      this.opened = recombined.clearHighBits();
       return EvaluationStatus.IS_DONE;
     }
   }

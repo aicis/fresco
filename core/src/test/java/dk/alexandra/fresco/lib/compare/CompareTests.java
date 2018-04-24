@@ -280,35 +280,42 @@ public class CompareTests {
     private final List<BigInteger> openRight;
     private final List<BigInteger> expected;
 
-    public TestLessThanLogRounds(BigInteger modulus, int maxBitLength) {
+    public TestLessThanLogRounds(int maxBitLength) {
       BigInteger two = BigInteger.valueOf(2);
       this.openLeft = Arrays.asList(
           BigInteger.ZERO,
+          BigInteger.ONE,
           BigInteger.ONE,
           BigInteger.valueOf(-1),
           BigInteger.valueOf(-111111),
           BigInteger.valueOf(-111),
           BigInteger.ONE,
-          modulus,
           two.pow(maxBitLength).subtract(BigInteger.ONE),
-          two.pow(maxBitLength).subtract(two)
+          two.pow(maxBitLength).subtract(two),
+          BigInteger.ONE,
+          two.pow(maxBitLength).subtract(BigInteger.valueOf(10000))
       );
       this.openRight = Arrays.asList(
           BigInteger.ZERO,
           BigInteger.ONE,
+          BigInteger.ZERO,
           BigInteger.valueOf(-1),
           BigInteger.valueOf(-111112),
           BigInteger.valueOf(-110),
           BigInteger.valueOf(5),
-          modulus,
           two.pow(maxBitLength).subtract(two),
-          two.pow(maxBitLength).subtract(BigInteger.ONE)
+          two.pow(maxBitLength).subtract(BigInteger.ONE),
+          BigInteger.valueOf(-1),
+          BigInteger.ONE
       );
       this.expected = computeExpected(openLeft, openRight);
     }
 
     private static List<BigInteger> computeExpected(List<BigInteger> openLeft,
         List<BigInteger> openRight) {
+      if (openLeft.size() != openRight.size()) {
+        throw new IllegalStateException("Incorrect test spec!");
+      }
       List<BigInteger> expected = new ArrayList<>(openLeft.size());
       for (int i = 0; i < openLeft.size(); i++) {
         boolean lessThan = openLeft.get(i).compareTo(openRight.get(i)) < 0;
