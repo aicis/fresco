@@ -48,7 +48,7 @@ public class MostSignBitSpdz2k<PlainT extends CompUInt<?, ?, PlainT>> implements
         }).seq((seq, pair) -> {
           Numeric nb = seq.numeric();
           PlainT cOpen = factory.fromOInt(pair.getFirst());
-          PlainT cPrime = null; // mod 2k-1
+          PlainT cPrime = cOpen.modTwoToKMinOne();
           RandomBitMask mask = pair.getSecond();
           DRes<SInt> rPrime = mask.getValue();
           List<DRes<SInt>> rPrimeBits = mask.getBits().out();

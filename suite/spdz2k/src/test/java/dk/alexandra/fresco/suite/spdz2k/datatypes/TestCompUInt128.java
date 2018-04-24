@@ -289,4 +289,15 @@ public class TestCompUInt128 {
     assertTrue(new CompUInt128(0x8000000000000000L, 0, 0).testBit(64 + 63));
   }
 
+  @Test
+  public void testModTwoToKMinOne() {
+    assertEquals(new CompUInt128(0, 0, 0).toBigInteger(),
+        new CompUInt128(0, 0, 0).modTwoToKMinOne().toBigInteger());
+    assertEquals(new CompUInt128(0, 0, 123123).toBigInteger(),
+        new CompUInt128(0, 0, 123123).modTwoToKMinOne().toBigInteger());
+    assertEquals(new CompUInt128(0, 0, 123123).toBigInteger(),
+        new CompUInt128(1, 0, 123123).modTwoToKMinOne().toBigInteger());
+    assertEquals(new CompUInt128(0, 0x70001001, 123123).toBigInteger(),
+        new CompUInt128(1, 0xf0001001, 123123).modTwoToKMinOne().toBigInteger());
+  }
 }

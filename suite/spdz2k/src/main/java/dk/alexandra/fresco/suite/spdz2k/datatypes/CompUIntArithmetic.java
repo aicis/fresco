@@ -13,9 +13,11 @@ import java.util.List;
 public class CompUIntArithmetic<CompT extends CompUInt<?, ?, CompT>> implements OIntArithmetic {
 
   private final CompUIntFactory<CompT> factory;
+  private final List<DRes<OInt>> powersOfTwo;
 
   public CompUIntArithmetic(CompUIntFactory<CompT> factory) {
     this.factory = factory;
+    this.powersOfTwo = initializePowersOfTwo(factory.getLowBitLength());
   }
 
   @Override
@@ -33,23 +35,33 @@ public class CompUIntArithmetic<CompT extends CompUInt<?, ?, CompT>> implements 
 
   @Override
   public List<DRes<OInt>> getPowersOfTwo(int numPowers) {
-    // TODO cache
+    if (numPowers > factory.getLowBitLength()) {
+      throw new UnsupportedOperationException();
+    } else {
+      return powersOfTwo.subList(0, numPowers);
+    }
+  }
+
+  @Override
+  public DRes<OInt> twoTo(int power) {
+    if (power > factory.getLowBitLength()) {
+      throw new UnsupportedOperationException();
+    } else {
+      return powersOfTwo.get(power);
+    }
+  }
+
+  private List<DRes<OInt>> initializePowersOfTwo(int numPowers) {
     List<DRes<OInt>> powers = new ArrayList<>(numPowers);
     CompT current = factory.one();
     final CompT tempOuter = current;
     powers.add(() -> tempOuter);
     for (int i = 1; i < numPowers; i++) {
-      // TODO use shift
       current = current.multiply(factory.two());
       final CompT temp = current;
       powers.add(() -> temp);
     }
     return powers;
-  }
-
-  @Override
-  public DRes<OInt> twoTo(int power) {
-    throw new UnsupportedOperationException();
   }
 
 }

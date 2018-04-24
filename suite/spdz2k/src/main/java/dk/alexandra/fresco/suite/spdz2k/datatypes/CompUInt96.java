@@ -163,6 +163,12 @@ public class CompUInt96 implements CompUInt<UInt64, UInt32, CompUInt96> {
   }
 
   @Override
+  public CompUInt96 modTwoToKMinOne() {
+    int newLow = (int) (~(1L << 31) & low);
+    return new CompUInt96(0, 0, newLow);
+  }
+
+  @Override
   public int getLowBitLength() {
     return 32;
   }

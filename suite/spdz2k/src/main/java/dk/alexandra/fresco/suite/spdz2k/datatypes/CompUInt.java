@@ -34,6 +34,12 @@ public interface CompUInt<
   CompT shiftLowIntoHigh();
 
   /**
+   * Compute this mod 2^{k-1}.
+   * TODO this should just be a regular mod pow 2 method
+   */
+  CompT modTwoToKMinOne();
+
+  /**
    * Get length of least significant bit segment, i.e., k.
    */
   int getLowBitLength();

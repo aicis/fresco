@@ -174,6 +174,12 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
   }
 
   @Override
+  public CompUInt128 modTwoToKMinOne() {
+    int newMid = (int) (~(1L << 31) & mid);
+    return new CompUInt128(0L, newMid, low);
+  }
+
+  @Override
   public int getLowBitLength() {
     return 64;
   }
