@@ -39,7 +39,7 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> extends OI
    * Get result from deferred and downcast result to {@link CompT}.
    */
   default CompT fromOInt(DRes<OInt> value) {
-    return (CompT) value.out();
+    return Objects.requireNonNull((CompT) value.out());
   }
 
   /**

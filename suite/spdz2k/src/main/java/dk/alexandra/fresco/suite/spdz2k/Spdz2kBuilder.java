@@ -20,8 +20,7 @@ import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAddKnownProtocol
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kKnownSIntProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kMultiplyProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kOutputSinglePartyProtocol;
-import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kOutputToAllAsOIntProtocol;
-import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kOutputToAllProtocol;
+import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kOutputToAll;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kRandomBitProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kRandomElementProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kSubtractFromKnownProtocol;
@@ -140,17 +139,31 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
       @Override
       public DRes<OInt> openAsOInt(DRes<SInt> secretShare) {
-        return builder.append(new Spdz2kOutputToAllAsOIntProtocol<>(secretShare));
+        return builder.append(new Spdz2kOutputToAll<>(secretShare));
       }
 
       @Override
       public DRes<BigInteger> open(DRes<SInt> secretShare) {
-        return builder.append(new Spdz2kOutputToAllProtocol<>(secretShare));
+        DRes<OInt> out = openAsOInt(secretShare);
+        return () -> factory.fromOInt(out).toBigInteger();
+      }
+
+      @Override
+      public DRes<OInt> openAsOInt(DRes<SInt> secretShare, int outputParty) {
+        return builder.append(new Spdz2kOutputSinglePartyProtocol<>(secretShare, outputParty));
       }
 
       @Override
       public DRes<BigInteger> open(DRes<SInt> secretShare, int outputParty) {
-        return builder.append(new Spdz2kOutputSinglePartyProtocol<>(secretShare, outputParty));
+        DRes<OInt> out = openAsOInt(secretShare, outputParty);
+        return () -> {
+          OInt res = out.out();
+          if (res == null) {
+            return null;
+          } else {
+            return factory.fromOInt(out).toBigInteger();
+          }
+        };
       }
     };
   }
