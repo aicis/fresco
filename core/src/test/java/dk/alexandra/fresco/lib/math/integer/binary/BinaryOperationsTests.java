@@ -6,8 +6,10 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RightShiftResult;
+import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -208,4 +210,50 @@ public class BinaryOperationsTests {
       };
     }
   }
+
+  public static class TestGenerateRandomBitMask<ResourcePoolT extends NumericResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        private int numBits = -1;
+        private BigInteger modulus;
+
+        private BigInteger recombine(List<BigInteger> bits) {
+          BigInteger result = BigInteger.ZERO;
+          for (int i = 0; i < bits.size(); i++) {
+            result = result.add(BigInteger.ONE.shiftLeft(i).multiply(bits.get(i)).mod(modulus));
+          }
+          return result.mod(modulus);
+        }
+
+        @Override
+        public void test() {
+          Application<Pair<DRes<BigInteger>, List<DRes<BigInteger>>>, ProtocolBuilderNumeric> app =
+              root -> {
+                numBits = root.getBasicNumericContext().getMaxBitLength() - 1;
+                modulus = root.getBasicNumericContext().getModulus();
+                return root.seq(seq -> seq.advancedNumeric().randomBitMask(numBits))
+                    .seq((seq, mask) -> {
+                      DRes<BigInteger> rec = seq.numeric().open(mask.getValue());
+                      DRes<List<DRes<BigInteger>>> bits = seq.collections()
+                          .openList(mask.getBits());
+                      return () -> new Pair<>(rec, bits.out());
+                    });
+              };
+          Pair<DRes<BigInteger>, List<DRes<BigInteger>>> actual = runApplication(app);
+          BigInteger recombined = actual.getFirst().out();
+          List<BigInteger> bits = actual.getSecond().stream()
+              .map(DRes::out)
+              .collect(Collectors.toList());
+          Assert.assertEquals(numBits, bits.size());
+          Assert.assertEquals(recombine(bits), recombined);
+        }
+      };
+    }
+  }
+
 }

@@ -18,7 +18,8 @@ public class BigIntegerOIntArithmetic implements OIntArithmetic {
 
   public BigIntegerOIntArithmetic(OIntFactory factory) {
     this.factory = factory;
-    this.twoPowersList = new ArrayList<>();
+    twoPowersList = new ArrayList<>(1);
+    twoPowersList.add(() -> new BigIntegerOInt(BigInteger.ONE));
   }
 
   @Override
@@ -41,7 +42,7 @@ public class BigIntegerOIntArithmetic implements OIntArithmetic {
     if (maxPower > currentLength) {
       ArrayList<DRes<OInt>> newTwoPowersList = new ArrayList<>(maxPower);
       newTwoPowersList.addAll(twoPowersList);
-      BigInteger currentValue = ((BigIntegerOInt) newTwoPowersList.get(currentLength - 1))
+      BigInteger currentValue = ((BigIntegerOInt) newTwoPowersList.get(currentLength - 1).out())
           .getValue();
       while (maxPower > newTwoPowersList.size()) {
         currentValue = currentValue.shiftLeft(1);

@@ -39,6 +39,7 @@ import dk.alexandra.fresco.lib.lp.LpBuildingBlockTests;
 import dk.alexandra.fresco.lib.math.integer.binary.BinaryOperationsTests;
 import dk.alexandra.fresco.lib.math.integer.binary.BinaryOperationsTests.TestArithmeticAndKnownRight;
 import dk.alexandra.fresco.lib.math.integer.binary.BinaryOperationsTests.TestArithmeticXorKnownRight;
+import dk.alexandra.fresco.lib.math.integer.binary.BinaryOperationsTests.TestGenerateRandomBitMask;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationTests;
 import dk.alexandra.fresco.lib.math.integer.linalg.LinAlgTests;
@@ -857,6 +858,17 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
         .modulus(modulus)
         .maxBitLength(maxBitLength);
     runTest(new TestLessThanLogRounds<>(modulus, maxBitLength), parameters);
+  }
+
+  @Test
+  public void testGenerateRandomBitMask() {
+    BigInteger modulus = ModulusFinder.findSuitableModulus(128);
+    int maxBitLength = 64;
+    TestParameters parameters = new TestParameters()
+        .numParties(2)
+        .modulus(modulus)
+        .maxBitLength(maxBitLength);
+    runTest(new TestGenerateRandomBitMask<>(), parameters);
   }
 
 }
