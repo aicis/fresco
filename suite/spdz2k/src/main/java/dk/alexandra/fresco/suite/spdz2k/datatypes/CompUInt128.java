@@ -174,9 +174,17 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
   }
 
   @Override
-  public CompUInt128 modTwoToKMinOne() {
-    int newMid = (int) (~(1L << 31) & mid);
-    return new CompUInt128(0L, newMid, low);
+  public CompUInt128 clearAboveBitAt(int bitPos) {
+    if (bitPos < Integer.SIZE) {
+      int mask = ~(0x80000000 >> (31 - bitPos));
+      return new CompUInt128(0L, 0, low & mask);
+    } else if (bitPos < Long.SIZE) {
+      int mask = ~(0x80000000 >> (63 - bitPos));
+      return new CompUInt128(0L, mid & mask, low);
+    } else {
+      long mask = ~(0x8000000000000000L >> (127 - bitPos));
+      return new CompUInt128(high & mask, mid, low);
+    }
   }
 
   @Override

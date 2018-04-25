@@ -304,12 +304,12 @@ public class TestCompUInt128 {
   @Test
   public void testModTwoToKMinOne() {
     assertEquals(new CompUInt128(0, 0, 0).toBigInteger(),
-        new CompUInt128(0, 0, 0).modTwoToKMinOne().toBigInteger());
+        new CompUInt128(0, 0, 0).clearAboveBitAt(63).toBigInteger());
     assertEquals(new CompUInt128(0, 0, 123123).toBigInteger(),
-        new CompUInt128(0, 0, 123123).modTwoToKMinOne().toBigInteger());
+        new CompUInt128(0, 0, 123123).clearAboveBitAt(63).toBigInteger());
     assertEquals(new CompUInt128(0, 0, 123123).toBigInteger(),
-        new CompUInt128(1, 0, 123123).modTwoToKMinOne().toBigInteger());
+        new CompUInt128(1, 0, 123123).clearAboveBitAt(63).toBigInteger());
     assertEquals(new CompUInt128(0, 0x70001001, 123123).toBigInteger(),
-        new CompUInt128(1, 0xf0001001, 123123).modTwoToKMinOne().toBigInteger());
+        new CompUInt128(1, 0xf0001001, 123123).clearAboveBitAt(63).toBigInteger());
   }
 }

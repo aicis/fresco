@@ -168,12 +168,6 @@ public class CompUInt96 implements CompUInt<UInt64, UInt32, CompUInt96> {
   }
 
   @Override
-  public CompUInt96 modTwoToKMinOne() {
-    int newLow = (int) (~(1L << 31) & low);
-    return new CompUInt96(0, 0, newLow);
-  }
-
-  @Override
   public int getLowBitLength() {
     return 32;
   }
@@ -191,6 +185,22 @@ public class CompUInt96 implements CompUInt<UInt64, UInt32, CompUInt96> {
   @Override
   public int getBitLength() {
     return 96;
+  }
+
+  @Override
+  public CompUInt96 clearAboveBitAt(int bitPos) {
+    // TODO
+    throw new UnsupportedOperationException();
+//    if (bitPos < Integer.SIZE) {
+//      int mask = ~(0x80000000 >> (31 - bitPos));
+//      return new CompUInt96(0, 0, low & mask);
+//    } else if (bitPos < Long.SIZE) {
+//      int mask = ~(0x80000000 >> (63 - bitPos));
+//      return new CompUInt96(0, mid & mask, low);
+//    } else {
+//      int mask = ~(0x80000000 >> (96 - bitPos));
+//      return new CompUInt96(high & mask, mid, low);
+//    }
   }
 
   @Override

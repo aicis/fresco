@@ -46,15 +46,11 @@ public class MostSignBitSpdz2k<PlainT extends CompUInt<?, ?, PlainT>> implements
         }).seq((seq, pair) -> {
           Numeric nb = seq.numeric();
           PlainT cOpen = factory.fromOInt(pair.getFirst());
-          PlainT cPrime = cOpen.modTwoToKMinOne();
+          PlainT cPrime = cOpen.clearAboveBitAt(k - 1);
           RandomBitMask mask = pair.getSecond();
           DRes<SInt> rPrime = mask.getValue();
           List<DRes<SInt>> rPrimeBits = mask.getBits().out();
           DRes<SInt> u = seq.seq(new BitLessThanOpen(cPrime, rPrimeBits));
-//          5. Parties set [a′] = c′ − [r′] + 2k−1[u] and compute [d] = [a] − [a′].
-//          6. The parties compute and open [e] = [d] + 2k−1[b]. Let ek−1 be the most signif-
-//              icant bit of e.
-//          7. The output of the protocol is computed as ek−1 + [b] − 2ek−1[b].
           DRes<SInt> aPrime = nb.add(
               nb.subFromOpen(() -> cPrime, rPrime),
               nb.multByOpen(twoTo2k1, u)

@@ -34,10 +34,10 @@ public interface CompUInt<
   CompT shiftLowIntoHigh();
 
   /**
-   * Compute this mod 2^{k-1}.
-   * TODO this should just be a regular mod pow 2 method
+   * Clears all bits above bitPos, i.e., (k + s) - bitPos most significant bits. <p>Analogous to
+   * computing this mod 2^{numBits}.</p>
    */
-  CompT modTwoToKMinOne();
+  CompT clearAboveBitAt(int bitPos);
 
   /**
    * Sets s most significant bits to 0.
