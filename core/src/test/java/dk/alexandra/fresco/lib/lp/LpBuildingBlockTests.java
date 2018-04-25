@@ -138,12 +138,11 @@ public class LpBuildingBlockTests {
       expectedIndex = 3;
       return builder.seq((seq) -> new BlandEnteringVariable(secretTableau, secretUpdateMatrix)
           .buildComputation(seq)).seq((seq, enteringOutput) -> {
-            List<DRes<SInt>> enteringIndex = enteringOutput.getFirst();
-            Numeric numeric = seq.numeric();
-            List<DRes<BigInteger>> opened =
-                enteringIndex.stream().map(numeric::open).collect(Collectors.toList());
-            return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
-          });
+        List<DRes<SInt>> enteringIndex = enteringOutput.getFirst();
+        List<DRes<BigInteger>> opened =
+            enteringIndex.stream().map(seq.numeric()::open).collect(Collectors.toList());
+        return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
+      });
     }
   }
 
@@ -173,7 +172,6 @@ public class LpBuildingBlockTests {
         secretTableau.debugInfo(seq, ps);
         return null;
       });
-      return;
     }
   }
 
@@ -187,13 +185,13 @@ public class LpBuildingBlockTests {
 
     DRes<BigInteger> setup(ProtocolBuilderNumeric builder, LPSolver.PivotRule rule) {
       /*
-       * 
-       * Sets up the following linear program 
-       * maximize a + b + c 
-       * a <= 1 
-       * b <= 2 
+       *
+       * Sets up the following linear program
+       * maximize a + b + c
+       * a <= 1
+       * b <= 2
        * c <= 3 (all variables > 0 is implied)
-       * 
+       *
        */
       expectedOptimal = BigInteger.valueOf(6);
       updateMatrix = new Matrix<>(4, 4, i -> {
@@ -215,15 +213,15 @@ public class LpBuildingBlockTests {
         return row;
       }); // A 3x3 identity matrix concatenated with a 3x3 identity matrix
       b = new ArrayList<>(Arrays.asList(
-          BigInteger.valueOf(1), 
-          BigInteger.valueOf(2), 
+          BigInteger.valueOf(1),
+          BigInteger.valueOf(2),
           BigInteger.valueOf(3)));
       f = new ArrayList<>(Arrays.asList(
-          BigInteger.valueOf(-1), 
           BigInteger.valueOf(-1),
-          BigInteger.valueOf(-1), 
-          BigInteger.ZERO, 
-          BigInteger.ZERO, 
+          BigInteger.valueOf(-1),
+          BigInteger.valueOf(-1),
+          BigInteger.ZERO,
+          BigInteger.ZERO,
           BigInteger.ZERO));
       inputTableau(builder);
       return builder.seq(seq -> {
@@ -238,8 +236,8 @@ public class LpBuildingBlockTests {
         return solver.buildComputation(seq);
       }).seq((seq2, lpOutput) -> {
         OptimalValue ov = new OptimalValue(lpOutput.updateMatrix, lpOutput.tableau, lpOutput.pivot);
-        return seq2.numeric().open(ov.buildComputation(seq2));
-      });
+        return ov.buildComputation(seq2);
+      }).seq((seq2, ov) -> seq2.numeric().open(ov.getFirst()));
     }
   }
 
@@ -253,7 +251,7 @@ public class LpBuildingBlockTests {
        * a <= 1 
        * b <= 2 
        * c <= 3 (all variables > 0 is implied)
-       * 
+       *
        */
       updateMatrix = new Matrix<>(4, 4, i -> {
         ArrayList<BigInteger> row =
@@ -276,15 +274,15 @@ public class LpBuildingBlockTests {
         return row;
       }); // A 3x3 identity matrix concatenated with a 3x3 identity matrix
       b = new ArrayList<>(Arrays.asList(
-          BigInteger.valueOf(1), 
-          BigInteger.valueOf(2), 
+          BigInteger.valueOf(1),
+          BigInteger.valueOf(2),
           BigInteger.valueOf(3)));
       f = new ArrayList<>(Arrays.asList(
-          BigInteger.valueOf(-1), 
           BigInteger.valueOf(-1),
-          BigInteger.valueOf(-1), 
-          BigInteger.ZERO, 
-          BigInteger.ZERO, 
+          BigInteger.valueOf(-1),
+          BigInteger.valueOf(-1),
+          BigInteger.ZERO,
+          BigInteger.ZERO,
           BigInteger.ZERO));
       inputTableau(builder);
       return builder.seq(seq -> {
@@ -296,7 +294,7 @@ public class LpBuildingBlockTests {
                 seq.numeric().known(BigInteger.valueOf(6))));
         LPSolver solver = new LPSolver(LPSolver.PivotRule.DANZIG, secretTableau, secretUpdateMatrix,
             pivot, initialBasis) {
-          
+
           @Override
           protected boolean isDebug() {
             return true;
@@ -306,8 +304,8 @@ public class LpBuildingBlockTests {
         return solver.buildComputation(seq);
       }).seq((seq2, lpOutput) -> {
         OptimalValue ov = new OptimalValue(lpOutput.updateMatrix, lpOutput.tableau, lpOutput.pivot);
-        return seq2.numeric().open(ov.buildComputation(seq2));
-      });
+        return ov.buildComputation(seq2);
+      }).seq((seq2, ov) -> seq2.numeric().open(ov.getFirst()));
     }
   }
 
@@ -317,7 +315,8 @@ public class LpBuildingBlockTests {
     ByteArrayOutputStream bytes = new ByteArrayOutputStream();
     PrintStream stream = new PrintStream(bytes);
 
-    public TestLpTableuDebug() {}
+    public TestLpTableuDebug() {
+    }
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -335,9 +334,9 @@ public class LpBuildingBlockTests {
           };
           runApplication(app);
           String debugOutput = bytes.toString("UTF-8");
-          assertDebugInfoContains(debugOutput, "C", "0, 0, 0, \n" 
-              + "1, 1, 1, \n" 
-              + "2, 2, 2, \n" 
+          assertDebugInfoContains(debugOutput, "C", "0, 0, 0, \n"
+              + "1, 1, 1, \n"
+              + "2, 2, 2, \n"
               + "3, 3, 3,");
           assertDebugInfoContains(debugOutput, "B", "10, 10, 10, 10,");
           assertDebugInfoContains(debugOutput, "F", "0, 2, 3,");
@@ -347,11 +346,11 @@ public class LpBuildingBlockTests {
     }
   }
 
-  public static class TestLpSolver<ResourcePoolT extends ResourcePool> 
-  extends TestThreadFactory <ResourcePoolT, ProtocolBuilderNumeric> {
+  public static class TestLpSolver<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
-    private LPSolver.PivotRule pivotRule; 
-    
+    private LPSolver.PivotRule pivotRule;
+
     public TestLpSolver(LPSolver.PivotRule pivotRule) {
       this.pivotRule = pivotRule;
     }
@@ -361,7 +360,7 @@ public class LpBuildingBlockTests {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         @Override
-        public void test() throws Exception {
+        public void test() {
           LpSolverTester app = new LpSolverTester() {
 
             @Override
@@ -375,18 +374,19 @@ public class LpBuildingBlockTests {
       };
     }
   }
-  
+
   public static class TestLpSolverDebug<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
-    public TestLpSolverDebug() {}
+    public TestLpSolverDebug() {
+    }
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         @Override
-        public void test() throws Exception {
+        public void test() {
           LpSolverDebugTester app = new LpSolverDebugTester() {
 
             @Override
@@ -403,17 +403,17 @@ public class LpBuildingBlockTests {
             System.setOut(stdout);
             System.out.println(debugOutput);
             debugOutput.replaceAll("\r", "");
-            assertDebugInfoContains(debugOutput, "C", "1, 0, 0, 1, 0, 0, \n" 
-                + "0, 1, 0, 0, 1, 0, \n" 
+            assertDebugInfoContains(debugOutput, "C", "1, 0, 0, 1, 0, 0, \n"
+                + "0, 1, 0, 0, 1, 0, \n"
                 + "0, 0, 1, 0, 0, 1,");
             assertDebugInfoContains(debugOutput, "B", "1, 2, 3, ");
             assertDebugInfoContains(debugOutput, "F", "-1, -1, -1, 0, 0, 0, ");
             assertDebugInfoContains(debugOutput, "z", "0");
             assertDebugInfoContains(debugOutput, "Basis [1]", "4, 5, 6,");
             assertDebugInfoContains(debugOutput, "Basis [4]", "1, 2, 3,");
-            assertDebugInfoContains(debugOutput, "Update Matrix [1]", "1, 0, 0, 0, \n" 
+            assertDebugInfoContains(debugOutput, "Update Matrix [1]", "1, 0, 0, 0, \n"
                 + "0, 1, 0, 0, \n"
-                + "0, 0, 1, 0, \n" 
+                + "0, 0, 1, 0, \n"
                 + "0, 0, 0, 1, ");
           } else {
             runApplication(app);
@@ -426,14 +426,15 @@ public class LpBuildingBlockTests {
   public static class TestEnteringVariable<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
-    public TestEnteringVariable() {}
+    public TestEnteringVariable() {
+    }
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         @Override
-        public void test() throws Exception {
+        public void test() {
           EnteringVariableTester app = new EnteringVariableTester() {
 
 
@@ -465,14 +466,15 @@ public class LpBuildingBlockTests {
   public static class TestBlandEnteringVariable<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
-    public TestBlandEnteringVariable() {}
+    public TestBlandEnteringVariable() {
+    }
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
         @Override
-        public void test() throws Exception {
+        public void test() {
           BlandEnteringVariableTester app = new BlandEnteringVariableTester() {
 
 
@@ -498,12 +500,12 @@ public class LpBuildingBlockTests {
           assertEquals(app.getExpextedIndex(), actualIndex);
         }
       };
-    }    
+    }
   }
-  
+
   /**
    * Convenience method to assert that debug output should contain a given key/value pair.
-   *  
+   *
    * @param output the debug output
    * @param key the key
    * @param value the value
@@ -511,6 +513,6 @@ public class LpBuildingBlockTests {
   private static void assertDebugInfoContains(String output, String key, String value) {
     assertTrue(output.contains(key + ": \n" + value));
   }
-  
-  
+
+
 }

@@ -32,7 +32,7 @@ class LPSolverTests {
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
-        public void test() throws Exception {
+        public void test() {
           Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
             File pattern = new File("src/test/resources/lp/pattern7.csv");
             File program = new File("src/test/resources/lp/program7.csv");
@@ -41,7 +41,7 @@ class LPSolverTests {
               inputreader = PlainLPInputReader.getFileInputReader(program, pattern, conf.getMyId());
             } catch (FileNotFoundException e) {
               e.printStackTrace();
-              throw new IllegalArgumentException("Could not read needed files: " + e.getMessage(), e);
+              throw new IllegalArgumentException("Could not read needed files ", e);
             }
             return builder.par(par -> {
               PlainSpdzLPPrefix prefix;
@@ -52,24 +52,19 @@ class LPSolverTests {
                 throw new RuntimeException("IOException: " + e.getMessage(), e);
               }
               return () -> prefix;
-            }).seq((seq, prefix) -> {
-              DRes<LPOutput> lpOutput = seq.seq(new LPSolver(pivotRule, prefix.getTableau(),
-                  prefix.getUpdateMatrix(), prefix.getPivot(), prefix.getBasis()));
-
-              DRes<SInt> optimalValue = seq.seq((inner) -> {
-                LPOutput out = lpOutput.out();
-                return new OptimalValue(out.updateMatrix, out.tableau, out.pivot)
-                    .buildComputation(inner);
-              });
-              DRes<BigInteger> open = seq.numeric().open(optimalValue);
-              return open;
-            });
+            }).seq((seq, prefix) -> seq
+                .seq(new LPSolver(pivotRule, prefix.getTableau(),
+                    prefix.getUpdateMatrix(), prefix.getPivot(), prefix.getBasis()))
+                .seq((inner, out) ->
+                    new OptimalValue(out.updateMatrix, out.tableau, out.pivot)
+                        .buildComputation(inner))
+                .seq((inner, values) -> inner.numeric().open(values.getFirst())));
           };
           long startTime = System.nanoTime();
           BigInteger result = runApplication(app);
           long endTime = System.nanoTime();
           System.out.println("============ Seq Time: " + ((endTime - startTime) / 1000000));
-          Assert.assertTrue(BigInteger.valueOf(161).equals(result));
+          Assert.assertEquals(BigInteger.valueOf(161), result);
         }
       };
     }
