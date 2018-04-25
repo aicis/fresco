@@ -9,7 +9,7 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 
 /**
- * Native protocol for subtracting a secret value from a known public values. <p>Note that the
+ * Native protocol for subtracting a secret value from a known public value. <p>Note that the
  * result is a secret value.</p>
  */
 public class Spdz2kSubtractFromKnownProtocol<PlainT extends CompUInt<?, ?, PlainT>>
