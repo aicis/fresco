@@ -302,7 +302,7 @@ public class TestCompUInt128 {
   }
 
   @Test
-  public void testModTwoToKMinOne() {
+  public void testClearAboveBitAt() {
     assertEquals(new CompUInt128(0, 0, 0).toBigInteger(),
         new CompUInt128(0, 0, 0).clearAboveBitAt(63).toBigInteger());
     assertEquals(new CompUInt128(0, 0, 123123).toBigInteger(),
@@ -311,5 +311,12 @@ public class TestCompUInt128 {
         new CompUInt128(1, 0, 123123).clearAboveBitAt(63).toBigInteger());
     assertEquals(new CompUInt128(0, 0x70001001, 123123).toBigInteger(),
         new CompUInt128(1, 0xf0001001, 123123).clearAboveBitAt(63).toBigInteger());
+    assertEquals(new CompUInt128(0, 0x00000021, 123123).toBigInteger(),
+        new CompUInt128(1, 0xf0001021, 123123).clearAboveBitAt(44).toBigInteger());
+    assertEquals(new CompUInt128(0x7000100100000000L, 0x70001001, 123123).toBigInteger(),
+        new CompUInt128(0xf000100100000000L, 0x70001001, 123123).clearAboveBitAt(127)
+            .toBigInteger());
+    assertEquals(new CompUInt128(0, 0, 0x00000001).toBigInteger(),
+        new CompUInt128(1, 1, 0xff001021).clearAboveBitAt(5).toBigInteger());
   }
 }
