@@ -89,6 +89,10 @@ contrast to the regular SPDZ protocol which works over a field SPDZ2k works over
 resembles how arithmetic on the integers behaves in normal programming languages and it allows for
 various optimizations compared to working over a field.
 
+The current implementation supports all numeric native protocols, however there are higher level 
+computations (for instance equality and comparison) which it is not yet compatible with. Support 
+for those is forthcoming.
+
 References
 ----------
 
