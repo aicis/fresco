@@ -42,7 +42,8 @@ public class CarryOutTests {
                 List<DRes<SInt>> leftClosed = root.numeric().known(right);
                 OIntFactory oIntFactory = root.getOIntFactory();
                 DRes<SInt> carry = root
-                    .seq(new CarryOut(() -> oIntFactory.fromBigInteger(right), () -> leftClosed));
+                    .seq(new CarryOut(() -> oIntFactory.fromBigInteger(right), () -> leftClosed,
+                        oIntFactory.zero()));
                 return root.numeric().open(carry);
               };
           BigInteger actual = runApplication(app);

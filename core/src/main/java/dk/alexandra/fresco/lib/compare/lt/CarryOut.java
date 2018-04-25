@@ -9,7 +9,6 @@ import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.integer.binary.ArithmeticAndKnownRight;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,7 +21,7 @@ public class CarryOut implements Computation<SInt, ProtocolBuilderNumeric> {
 
   private final DRes<List<DRes<OInt>>> openBitsDef;
   private final DRes<List<DRes<SInt>>> secretBitsDef;
-  private final BigInteger carryIn;
+  private final DRes<OInt> carryIn;
 
   /**
    * Constructs new {@link CarryOut}.
@@ -33,17 +32,10 @@ public class CarryOut implements Computation<SInt, ProtocolBuilderNumeric> {
    * inputs
    */
   public CarryOut(DRes<List<DRes<OInt>>> clearBits, DRes<List<DRes<SInt>>> secretBits,
-      BigInteger carryIn) {
+      DRes<OInt> carryIn) {
     this.secretBitsDef = secretBits;
     this.openBitsDef = clearBits;
     this.carryIn = carryIn;
-  }
-
-  /**
-   * Default call to {@link #CarryOut(DRes, DRes, BigInteger)} without a carry-in.
-   */
-  public CarryOut(DRes<List<DRes<OInt>>> clearBits, DRes<List<DRes<SInt>>> secretBits) {
-    this(clearBits, secretBits, BigInteger.ZERO);
   }
 
   @Override
@@ -79,7 +71,7 @@ public class CarryOut implements Computation<SInt, ProtocolBuilderNumeric> {
           SIntPair lastPair = pairs.get(lastIdx).out();
           DRes<SInt> lastCarryPropagator = seq.numeric().add(
               lastPair.getSecond(),
-              seq.numeric().multByOpen(oIntFactory.fromBigInteger(carryIn), lastPair.getFirst()));
+              seq.numeric().multByOpen(carryIn, lastPair.getFirst()));
           pairs.set(lastIdx, () -> new SIntPair(lastPair.getFirst(), lastCarryPropagator));
           Collections.reverse(pairs);
           return seq.seq(new PreCarryBits(() -> pairs));
