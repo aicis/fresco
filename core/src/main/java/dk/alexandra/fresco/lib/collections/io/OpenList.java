@@ -9,12 +9,12 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class OpenList
+public class OpenList<T extends DRes<SInt>>
     implements ComputationParallel<List<DRes<BigInteger>>, ProtocolBuilderNumeric> {
 
-  private final DRes<List<DRes<SInt>>> closedList;
+  private final DRes<List<T>> closedList;
 
-  public OpenList(DRes<List<DRes<SInt>>> closedList) {
+  public OpenList(DRes<List<T>> closedList) {
     super();
     this.closedList = closedList;
   }
@@ -24,7 +24,7 @@ public class OpenList
     Numeric nb = builder.numeric();
     // for each input value, call input
     List<DRes<BigInteger>> openList =
-        closedList.out().stream().map(closed -> nb.open(closed)).collect(Collectors.toList());
+        closedList.out().stream().map(nb::open).collect(Collectors.toList());
     return () -> openList;
   }
 
