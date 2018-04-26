@@ -8,7 +8,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 
 /**
  * Corresponds to circle operator in paper. <p>Given (p_{2}, g_{2}) and (p_{1}, g_{1}) computes (p,
- * g) where p = p_{2} * p_{1} and g = g_{2} + (p_{1} * g_{1}).</p>
+ * g) where p = p_{2} AND p_{1} and g = g_{2} OR (p_{2} AND g_{1}).</p>
  */
 public class CarryHelper implements Computation<SIntPair, ProtocolBuilderNumeric> {
 
