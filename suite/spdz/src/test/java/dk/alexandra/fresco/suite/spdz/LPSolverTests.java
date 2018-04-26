@@ -1,14 +1,11 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.Application;
-import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.lp.LPSolver;
-import dk.alexandra.fresco.lib.lp.LPSolver.LPOutput;
 import dk.alexandra.fresco.lib.lp.LPSolver.PivotRule;
 import dk.alexandra.fresco.lib.lp.OptimalValue;
 import java.io.File;
