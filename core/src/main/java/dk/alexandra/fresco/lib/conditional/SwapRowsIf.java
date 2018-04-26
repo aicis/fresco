@@ -10,15 +10,14 @@ import java.util.List;
 /**
  * Swaps the two rows if the condition bit is true, and does nothing if false.
  */
-public class SwapRowsIf
+public class SwapRowsIf<T extends DRes<SInt>>
     implements ComputationParallel<RowPairD<SInt, SInt>, ProtocolBuilderNumeric> {
 
   private final DRes<SInt> condition;
-  private final DRes<List<DRes<SInt>>> left;
-  private final DRes<List<DRes<SInt>>> right;
+  private final DRes<List<T>> left;
+  private final DRes<List<T>> right;
 
-  public SwapRowsIf(DRes<SInt> condition, DRes<List<DRes<SInt>>> left,
-      DRes<List<DRes<SInt>>> right) {
+  public SwapRowsIf(DRes<SInt> condition, DRes<List<T>> left, DRes<List<T>> right) {
     this.condition = condition;
     this.left = left;
     this.right = right;
