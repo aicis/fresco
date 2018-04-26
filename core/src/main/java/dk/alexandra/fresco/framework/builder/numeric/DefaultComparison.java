@@ -2,10 +2,13 @@ package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.eq.Equality;
+import dk.alexandra.fresco.lib.compare.eq.EqualityConstRounds;
+import dk.alexandra.fresco.lib.compare.eq.EqualityLogRounds;
 import dk.alexandra.fresco.lib.compare.lt.LessThanLogRounds;
 import dk.alexandra.fresco.lib.compare.lt.LessThanOrEquals;
-import dk.alexandra.fresco.lib.compare.zerotest.ZeroTest;
+import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestConstRounds;
+import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestLogRounds;
+
 import java.math.BigInteger;
 
 /**
@@ -36,14 +39,28 @@ public class DefaultComparison implements Comparison {
   }
 
   @Override
-  public DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y) {
+  public DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y,
+      EqualityAlgorithm algorithm) {
     int maxBitLength = builder.getBasicNumericContext().getMaxBitLength();
-    return equals(maxBitLength, x, y);
+    switch (algorithm) {
+    case EQ_CONST_ROUNDS:
+      return equalsConstRounds(maxBitLength, x, y);
+    case EQ_LOG_ROUNDS:
+      return equals(maxBitLength, x, y);
+    default:
+      throw new UnsupportedOperationException("Not implemented yet");
+    }
   }
 
   @Override
   public DRes<SInt> equals(int bitLength, DRes<SInt> x, DRes<SInt> y) {
-    return builder.seq(new Equality(bitLength, x, y));
+    // TODO throw if maxBitLength + securityParameter > mod bit length
+    return builder.seq(new EqualityLogRounds(bitLength, x, y));
+  }
+
+  public DRes<SInt> equalsConstRounds(int bitLength, DRes<SInt> x,
+      DRes<SInt> y) {
+    return builder.seq(new EqualityConstRounds(bitLength, x, y));
   }
 
   @Override
@@ -57,10 +74,8 @@ public class DefaultComparison implements Comparison {
   public DRes<SInt> compareLT(DRes<SInt> x1, DRes<SInt> x2, ComparisonAlgorithm algorithm) {
     if (algorithm == ComparisonAlgorithm.LT_LOG_ROUNDS) {
       int k = builder.getBasicNumericContext().getMaxBitLength();
-      // TODO this belongs somewhere else
-      int kappa = 40;
       // TODO throw if k + kappa > mod bit length
-      return builder.seq(new LessThanLogRounds(x1, x2, k, kappa));
+      return builder.seq(new LessThanLogRounds(x1, x2, k, magicSecureNumber));
     } else {
       throw new UnsupportedOperationException("Not implemented yet");
     }
@@ -80,7 +95,24 @@ public class DefaultComparison implements Comparison {
 
   @Override
   public DRes<SInt> compareZero(DRes<SInt> x, int bitLength) {
-    return builder.seq(new ZeroTest(bitLength, x, magicSecureNumber));
+    return builder.seq(new ZeroTestLogRounds(bitLength, x, magicSecureNumber));
   }
 
+  public DRes<SInt> compareZeroConstRounds(DRes<SInt> x, int bitLength) {
+    return builder.seq(new ZeroTestConstRounds(bitLength, x, magicSecureNumber));
+  }
+
+  @Override
+  public DRes<SInt> compareZero(DRes<SInt> x, int bitLength,
+      EqualityAlgorithm algorithm) {
+    // int maxBitLength = builder.getBasicNumericContext().getMaxBitLength();
+    switch (algorithm) {
+    case EQ_CONST_ROUNDS:
+      return compareZeroConstRounds(x, bitLength);
+    case EQ_LOG_ROUNDS:
+      return compareZero(x, bitLength);
+    default:
+      throw new UnsupportedOperationException("Not implemented yet");
+    }
+  }
 }

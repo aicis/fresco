@@ -2,6 +2,7 @@ package dk.alexandra.fresco.lib.compare.eq;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.Comparison.EqualityAlgorithm;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 
@@ -9,7 +10,7 @@ import dk.alexandra.fresco.framework.value.SInt;
  * Implements an equality protocol -- given inputs x, y set output to x==y.
  *
  */
-public class Equality implements Computation<SInt, ProtocolBuilderNumeric> {
+public class EqualityConstRounds implements Computation<SInt, ProtocolBuilderNumeric> {
 
   // params
   private final int bitLength;
@@ -17,13 +18,16 @@ public class Equality implements Computation<SInt, ProtocolBuilderNumeric> {
   private final DRes<SInt> right;
 
   /**
-   * Constructs an instance of the Equality computation.
-   * 
-   * @param bitLength The maximum bit length of the inputs.
-   * @param left The first element to compare.
-   * @param right The second element to compare.
+   * Constructs an instance of the Equality computation in a constant amount of rounds.
+   *
+   * @param bitLength
+   *          The maximum bit length of the inputs.
+   * @param left
+   *          The first element to compare.
+   * @param right
+   *          The second element to compare.
    */
-  public Equality(
+  public EqualityConstRounds(
       int bitLength, DRes<SInt> left, DRes<SInt> right) {
     super();
     this.bitLength = bitLength;
@@ -34,6 +38,7 @@ public class Equality implements Computation<SInt, ProtocolBuilderNumeric> {
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     DRes<SInt> diff = builder.numeric().sub(left, right);
-    return builder.comparison().compareZero(diff, bitLength);
+    return builder.comparison().compareZero(diff, bitLength,
+        EqualityAlgorithm.EQ_CONST_ROUNDS);
   }
 }
