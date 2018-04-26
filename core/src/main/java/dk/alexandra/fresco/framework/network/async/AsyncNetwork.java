@@ -297,7 +297,8 @@ public class AsyncNetwork implements CloseableNetwork {
       } catch (Exception e) {
         exception = e;
       }
-      throw new RuntimeException("Receiver not running, unable to receive", exception);
+      throw new RuntimeException("Sender for P" + partyId + " not running, unable to send",
+          exception);
     }
     if (partyId == conf.getMyId()) {
       this.inQueues.get(partyId).add(data);
@@ -316,7 +317,8 @@ public class AsyncNetwork implements CloseableNetwork {
       } catch (Exception e) {
         exception = e;
       }
-      throw new RuntimeException("Receiver not running, unable to receive", exception);
+      throw new RuntimeException("Receiver for P" + partyId
+          + " not running, unable to receive", exception);
     }
     byte[] data =
         ExceptionConverter.safe(() -> this.inQueues.get(partyId).take(), "Receive interrupted");
@@ -391,7 +393,7 @@ public class AsyncNetwork implements CloseableNetwork {
         f.get();
       } catch (Exception e) {
         // TODO: Should this cause close to throw an exception?
-        logger.warn("A failed sender detected during close", e);
+        // For now just ignore
       }
     }
     // Here we just check if any receivers failed
@@ -400,7 +402,8 @@ public class AsyncNetwork implements CloseableNetwork {
       try {
         f.get();
       } catch (Exception e) {
-        logger.warn("A failed receiver detected during close", e);
+        //TODO: Should this cause close to throw an exception?
+        // For now just ignore
       }
     }
     if (communicationService != null) {
