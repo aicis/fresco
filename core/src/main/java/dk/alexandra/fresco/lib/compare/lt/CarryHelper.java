@@ -2,7 +2,6 @@ package dk.alexandra.fresco.lib.compare.lt;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
-import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.SIntPair;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -36,11 +35,10 @@ public class CarryHelper implements Computation<SIntPair, ProtocolBuilderNumeric
     DRes<SInt> p2 = right.getFirst();
     DRes<SInt> g2 = right.getSecond();
     return builder.par(par -> {
-      Numeric numeric = par.numeric();
-      DRes<SInt> p = numeric.mult(p1, p2);
+      DRes<SInt> p = par.logical().and(p1, p2);
       DRes<SInt> q = par.seq(seq -> {
-        DRes<SInt> temp = seq.numeric().mult(p2, g1);
-        return seq.numeric().add(temp, g2);
+        DRes<SInt> temp = seq.logical().and(p2, g1);
+        return seq.logical().or(temp, g2);
       });
       return () -> new SIntPair(p, q);
     });

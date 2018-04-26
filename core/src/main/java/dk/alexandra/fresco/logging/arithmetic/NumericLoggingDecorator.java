@@ -114,6 +114,16 @@ public class NumericLoggingDecorator implements Numeric, PerformanceLogger {
   }
 
   @Override
+  public DRes<OInt> openAsOInt(DRes<SInt> secretShare) {
+    return delegate.openAsOInt(secretShare);
+  }
+
+  @Override
+  public DRes<OInt> openAsOInt(DRes<SInt> secretShare, int outputParty) {
+    return delegate.openAsOInt(secretShare, outputParty);
+  }
+
+  @Override
   public DRes<BigInteger> open(DRes<SInt> secretShare, int outputParty) {
     return this.delegate.open(secretShare, outputParty);
   }

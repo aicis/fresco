@@ -141,6 +141,25 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
       }
 
       @Override
+      public DRes<OInt> openAsOInt(DRes<SInt> secretShare) {
+        DRes<BigInteger> value = open(secretShare);
+        return () -> oIntFactory.fromBigInteger(value.out());
+      }
+
+      @Override
+      public DRes<OInt> openAsOInt(DRes<SInt> secretShare, int outputParty) {
+        DRes<BigInteger> out = open(secretShare, outputParty);
+        return () -> {
+          BigInteger res = out.out();
+          if (res == null) {
+            return null;
+          } else {
+            return oIntFactory.fromBigInteger(res);
+          }
+        };
+      }
+
+      @Override
       public DRes<BigInteger> open(DRes<SInt> secretShare, int outputParty) {
         DummyArithmeticOpenProtocol c = new DummyArithmeticOpenProtocol(secretShare, outputParty);
         return builder.append(c);

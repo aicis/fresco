@@ -122,6 +122,16 @@ public class MaliciousSpdzBuilder extends SpdzBuilder {
       }
 
       @Override
+      public DRes<OInt> openAsOInt(DRes<SInt> secretShare) {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public DRes<OInt> openAsOInt(DRes<SInt> secretShare, int outputParty) {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
       public DRes<BigInteger> open(DRes<SInt> secretShare, int outputParty) {
         SpdzOutputSingleProtocol openProtocol =
             new SpdzOutputSingleProtocol(secretShare, outputParty);
