@@ -148,8 +148,8 @@ public class BinaryOperationsTests {
               root -> {
                 DRes<List<DRes<SInt>>> leftClosed = root.numeric().knownAsDRes(left);
                 List<DRes<OInt>> rightOInts = root.getOIntFactory().fromBigInteger(right);
-                DRes<List<DRes<SInt>>> anded = root
-                    .par(new ArithmeticAndKnownRight(leftClosed, () -> rightOInts));
+                DRes<List<DRes<SInt>>> anded = root.logical()
+                    .pairWiseAndKnown(() -> rightOInts, leftClosed);
                 return root.collections().openList(anded);
               };
           List<BigInteger> actual = runApplication(app).stream().map(DRes::out)
@@ -190,9 +190,9 @@ public class BinaryOperationsTests {
               root -> {
                 DRes<List<DRes<SInt>>> leftClosed = root.numeric().knownAsDRes(left);
                 List<DRes<OInt>> rightOInts = root.getOIntFactory().fromBigInteger(right);
-                DRes<List<DRes<SInt>>> anded = root
-                    .par(new ArithmeticXorKnownRight(leftClosed, () -> rightOInts));
-                return root.collections().openList(anded);
+                DRes<List<DRes<SInt>>> xored = root.logical()
+                    .pairWiseXorKnown(() -> rightOInts, leftClosed);
+                return root.collections().openList(xored);
               };
           List<BigInteger> actual = runApplication(app).stream().map(DRes::out)
               .collect(Collectors.toList());

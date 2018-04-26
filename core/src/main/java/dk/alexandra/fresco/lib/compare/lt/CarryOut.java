@@ -7,8 +7,6 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.SIntPair;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.math.integer.binary.ArithmeticAndKnownRight;
-import dk.alexandra.fresco.lib.math.integer.binary.ArithmeticXorKnownRight;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,10 +44,8 @@ public class CarryOut implements Computation<SInt, ProtocolBuilderNumeric> {
       throw new IllegalArgumentException("Number of bits must be the same");
     }
     return builder.par(par -> {
-      DRes<List<DRes<SInt>>> xored = new ArithmeticXorKnownRight(secretBitsDef, openBitsDef)
-          .buildComputation(par);
-      DRes<List<DRes<SInt>>> anded = new ArithmeticAndKnownRight(secretBitsDef, openBitsDef)
-          .buildComputation(par);
+      DRes<List<DRes<SInt>>> xored = par.logical().pairWiseXorKnown(openBitsDef, secretBitsDef);
+      DRes<List<DRes<SInt>>> anded = par.logical().pairWiseAndKnown(openBitsDef, secretBitsDef);
       return () -> new Pair<>(xored.out(), anded.out());
     }).par((par, pair) -> {
       List<DRes<SInt>> xoredBits = pair.getFirst();

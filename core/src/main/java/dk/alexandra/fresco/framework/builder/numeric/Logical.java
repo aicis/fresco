@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.util.List;
 
 /**
  * Logical operators on secret arithmetic representations of boolean values. <p>NOTE: all inputs are
@@ -36,5 +37,19 @@ public interface Logical extends ComputationDirectory {
    * Computes logical NOT of input. <p>NOTE: Input must represent 0 or 1 values only.</p>
    */
   DRes<SInt> not(DRes<SInt> secretBit);
+
+  /**
+   * Computes pairwise logical AND of input bits. <p>NOTE: Inputs must represent 0 or 1 values
+   * only.</p>
+   */
+  DRes<List<DRes<SInt>>> pairWiseAndKnown(DRes<List<DRes<OInt>>> knownBits,
+      DRes<List<DRes<SInt>>> secretBits);
+
+  /**
+   * Computes pairwise logical XOR of input bits. <p>NOTE: Inputs must represent 0 or 1 values
+   * only.</p>
+   */
+  DRes<List<DRes<SInt>>> pairWiseXorKnown(DRes<List<DRes<OInt>>> knownBits,
+      DRes<List<DRes<SInt>>> secretBits);
 
 }

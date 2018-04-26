@@ -3,6 +3,8 @@ package dk.alexandra.fresco.framework.builder.numeric;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Default implementation of {@link Logical}, expressing logical operations via arithmetic.
@@ -55,6 +57,40 @@ public class DefaultLogical implements Logical {
     return builder.seq(seq -> {
       OInt one = seq.getOIntFactory().one();
       return seq.numeric().subFromOpen(one, secretBit);
+    });
+  }
+
+  @Override
+  public DRes<List<DRes<SInt>>> pairWiseAndKnown(DRes<List<DRes<OInt>>> knownBits,
+      DRes<List<DRes<SInt>>> secretBits) {
+    return builder.par(par -> {
+      List<DRes<SInt>> leftOut = secretBits.out();
+      List<DRes<OInt>> rightOut = knownBits.out();
+      List<DRes<SInt>> andedBits = new ArrayList<>(leftOut.size());
+      for (int i = 0; i < leftOut.size(); i++) {
+        DRes<SInt> leftBit = leftOut.get(i);
+        DRes<OInt> rightBit = rightOut.get(i);
+        DRes<SInt> andedBit = par.logical().andKnown(rightBit, leftBit);
+        andedBits.add(andedBit);
+      }
+      return () -> andedBits;
+    });
+  }
+
+  @Override
+  public DRes<List<DRes<SInt>>> pairWiseXorKnown(DRes<List<DRes<OInt>>> knownBits,
+      DRes<List<DRes<SInt>>> secretBits) {
+    return builder.par(par -> {
+      List<DRes<SInt>> leftOut = secretBits.out();
+      List<DRes<OInt>> rightOut = knownBits.out();
+      List<DRes<SInt>> xoredBits = new ArrayList<>(leftOut.size());
+      for (int i = 0; i < leftOut.size(); i++) {
+        DRes<SInt> leftBit = leftOut.get(i);
+        DRes<OInt> rightBit = rightOut.get(i);
+        DRes<SInt> andedBit = par.logical().xorKnown(rightBit, leftBit);
+        xoredBits.add(andedBit);
+      }
+      return () -> xoredBits;
     });
   }
 
