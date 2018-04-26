@@ -52,4 +52,9 @@ public interface Logical extends ComputationDirectory {
   DRes<List<DRes<SInt>>> pairWiseXorKnown(DRes<List<DRes<OInt>>> knownBits,
       DRes<List<DRes<SInt>>> secretBits);
 
+  /**
+   * Computes logical OR of all input bits. <p>NOTE: Inputs must represent 0 or 1 values only.</p>
+   */
+  DRes<SInt> orOfList(DRes<List<DRes<OInt>>> bits);
+
 }

@@ -94,4 +94,10 @@ public class DefaultLogical implements Logical {
     });
   }
 
+  @Override
+  public DRes<SInt> orOfList(DRes<List<DRes<OInt>>> bits) {
+    // TODO implement
+    throw new UnsupportedOperationException();
+  }
+  
 }
