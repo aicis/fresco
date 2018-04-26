@@ -2,10 +2,9 @@ package dk.alexandra.fresco.lib.math.integer.binary;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationParallel;
-import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,9 +15,8 @@ import java.util.List;
 public class ArithmeticXorKnownRight implements
     ComputationParallel<List<DRes<SInt>>, ProtocolBuilderNumeric> {
 
-  private static final BigInteger TWO = BigInteger.valueOf(2);
   private final DRes<List<DRes<SInt>>> leftBits;
-  private final DRes<List<DRes<BigInteger>>> rightBits;
+  private final DRes<List<DRes<OInt>>> rightBits;
 
   /**
    * Constructs new {@link ArithmeticXorKnownRight}.
@@ -28,7 +26,7 @@ public class ArithmeticXorKnownRight implements
    */
   public ArithmeticXorKnownRight(
       DRes<List<DRes<SInt>>> leftBits,
-      DRes<List<DRes<BigInteger>>> rightBits) {
+      DRes<List<DRes<OInt>>> rightBits) {
     this.leftBits = leftBits;
     this.rightBits = rightBits;
   }
@@ -36,19 +34,12 @@ public class ArithmeticXorKnownRight implements
   @Override
   public DRes<List<DRes<SInt>>> buildComputation(ProtocolBuilderNumeric builder) {
     List<DRes<SInt>> leftOut = leftBits.out();
-    List<DRes<BigInteger>> rightOut = rightBits.out();
+    List<DRes<OInt>> rightOut = rightBits.out();
     List<DRes<SInt>> xoredBits = new ArrayList<>(leftOut.size());
     for (int i = 0; i < leftOut.size(); i++) {
       DRes<SInt> leftBit = leftOut.get(i);
-      BigInteger rightBit = rightOut.get(i).out();
-      // logical xor of two bits can be computed as leftBit + rightBit - 2 * leftBit * rightBit
-      DRes<SInt> xoredBit = builder.seq(seq -> {
-        Numeric nb = seq.numeric();
-        return nb.sub(
-            nb.add(rightBit, leftBit),
-            nb.mult(TWO, nb.mult(rightBit, leftBit))
-        );
-      });
+      DRes<OInt> rightBit = rightOut.get(i).out();
+      DRes<SInt> xoredBit = builder.logical().xorKnown(rightBit, leftBit);
       xoredBits.add(xoredBit);
     }
     return () -> xoredBits;

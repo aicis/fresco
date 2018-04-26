@@ -28,6 +28,7 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
   private RealNumeric realNumeric;
   private AdvancedRealNumeric advancedRealNumeric;
   private RealLinearAlgebra realLinearAlgebra;
+  private Logical logical;
   private RealNumericContext realNumericContext;
 
   ProtocolBuilderNumeric(BuilderFactoryNumeric factory, boolean parallel) {
@@ -101,6 +102,19 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
       collections = factory.createCollections(this);
     }
     return collections;
+  }
+
+  /**
+   * Creates a {@link Logical} computation directory for this instance - i.e. this intended
+   * producer. Contains logical operations on arithmetic value.
+   *
+   * @return The collections computation directory.
+   */
+  public Logical logical() {
+    if (logical == null) {
+      logical = factory.createLogical(this);
+    }
+    return logical;
   }
 
   /**

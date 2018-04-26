@@ -39,8 +39,7 @@ public class ArithmeticAndKnownRight implements
     for (int i = 0; i < leftOut.size(); i++) {
       DRes<SInt> leftBit = leftOut.get(i);
       DRes<OInt> rightBit = rightOut.get(i);
-      // logical and of two bits can be computed as product
-      DRes<SInt> andedBit = builder.seq(seq -> seq.numeric().multByOpen(rightBit, leftBit));
+      DRes<SInt> andedBit = builder.logical().andKnown(rightBit, leftBit);
       andedBits.add(andedBit);
     }
     return () -> andedBits;

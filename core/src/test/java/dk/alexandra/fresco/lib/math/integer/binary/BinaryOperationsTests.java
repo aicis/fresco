@@ -178,23 +178,20 @@ public class BinaryOperationsTests {
             BigInteger.ZERO,
             BigInteger.ONE,
             BigInteger.ZERO);
-        private final List<DRes<BigInteger>> right = Arrays.asList(
-            () -> BigInteger.ONE,
-            () -> BigInteger.ONE,
-            () -> BigInteger.ZERO,
-            () -> BigInteger.ZERO);
+        private final List<BigInteger> right = Arrays.asList(
+            BigInteger.ONE,
+            BigInteger.ONE,
+            BigInteger.ZERO,
+            BigInteger.ZERO);
 
         @Override
         public void test() {
           Application<List<DRes<BigInteger>>, ProtocolBuilderNumeric> app =
               root -> {
-                int myId = root.getBasicNumericContext().getMyId();
-                DRes<List<DRes<SInt>>> leftClosed =
-                    (myId == 1) ?
-                        root.collections().closeList(left, 1)
-                        : root.collections().closeList(left.size(), 1);
+                DRes<List<DRes<SInt>>> leftClosed = root.numeric().knownAsDRes(left);
+                List<DRes<OInt>> rightOInts = root.getOIntFactory().fromBigInteger(right);
                 DRes<List<DRes<SInt>>> anded = root
-                    .par(new ArithmeticXorKnownRight(leftClosed, () -> right));
+                    .par(new ArithmeticXorKnownRight(leftClosed, () -> rightOInts));
                 return root.collections().openList(anded);
               };
           List<BigInteger> actual = runApplication(app).stream().map(DRes::out)

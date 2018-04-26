@@ -73,6 +73,9 @@ public interface BuilderFactoryNumeric extends BuilderFactory<ProtocolBuilderNum
     return new FixedLinearAlgebra(builder);
   }
 
+  default Logical createLogical(ProtocolBuilderNumeric builder) {
+    return new DefaultLogical(builder);
+  }
 
   /**
    * Returns a builder which can be helpful while developing a new protocol. Be very careful though,
