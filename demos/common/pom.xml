@@ -20,7 +20,7 @@
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>
       <artifactId>spdz</artifactId>
-      <version>${fresco-version}</version>
+      <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
