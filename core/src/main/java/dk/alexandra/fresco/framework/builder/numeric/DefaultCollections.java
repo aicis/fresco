@@ -24,8 +24,7 @@ public class DefaultCollections implements Collections {
 
   private final ProtocolBuilderNumeric builder;
 
-  protected DefaultCollections(BuilderFactoryNumeric factoryNumeric,
-      ProtocolBuilderNumeric builder) {
+  protected DefaultCollections(ProtocolBuilderNumeric builder) {
     this.builder = builder;
   }
 
@@ -51,8 +50,8 @@ public class DefaultCollections implements Collections {
   }
 
   @Override
-  public DRes<List<DRes<BigInteger>>> openList(DRes<List<DRes<SInt>>> closedList) {
-    return builder.par(new OpenList(closedList));
+  public <T extends DRes<SInt>> DRes<List<DRes<BigInteger>>> openList(DRes<List<T>> closedList) {
+    return builder.par(new OpenList<>(closedList));
   }
 
   @Override
@@ -66,26 +65,29 @@ public class DefaultCollections implements Collections {
   }
 
   @Override
-  public DRes<Matrix<DRes<BigInteger>>> openMatrix(DRes<Matrix<DRes<SInt>>> closedMatrix) {
-    return builder.par(new OpenMatrix(closedMatrix));
+  public <T extends DRes<SInt>> DRes<Matrix<DRes<BigInteger>>> openMatrix(
+      DRes<Matrix<T>> closedMatrix) {
+    return builder.par(new OpenMatrix<>(closedMatrix));
   }
 
   @Override
-  public DRes<List<DRes<SInt>>> condSelect(DRes<SInt> condition, DRes<List<DRes<SInt>>> left,
-      DRes<List<DRes<SInt>>> right) {
-    return builder.par(new ConditionalSelectRow(condition, left, right));
+  public <T extends DRes<SInt>> DRes<List<DRes<SInt>>> condSelect(DRes<SInt> condition,
+      DRes<List<T>> left,
+      DRes<List<T>> right) {
+    return builder.par(new ConditionalSelectRow<>(condition, left, right));
   }
 
   @Override
-  public DRes<RowPairD<SInt, SInt>> swapIf(DRes<SInt> condition, DRes<List<DRes<SInt>>> left,
-      DRes<List<DRes<SInt>>> right) {
-    return builder.par(new SwapRowsIf(condition, left, right));
+  public <T extends DRes<SInt>> DRes<RowPairD<SInt, SInt>> swapIf(DRes<SInt> condition,
+      DRes<List<T>> left,
+      DRes<List<T>> right) {
+    return builder.par(new SwapRowsIf<>(condition, left, right));
   }
 
   @Override
-  public DRes<Matrix<DRes<SInt>>> swapNeighborsIf(DRes<List<DRes<SInt>>> conditions,
-      DRes<Matrix<DRes<SInt>>> rows) {
-    return builder.par(new SwapNeighborsIf(conditions, rows));
+  public <T extends DRes<SInt>> DRes<Matrix<DRes<SInt>>> swapNeighborsIf(DRes<List<T>> conditions,
+      DRes<Matrix<T>> rows) {
+    return builder.par(new SwapNeighborsIf<>(conditions, rows));
   }
 
   @Override
@@ -96,7 +98,7 @@ public class DefaultCollections implements Collections {
 
   @Override
   public DRes<Matrix<DRes<SInt>>> permute(DRes<Matrix<DRes<SInt>>> values, int permProviderPid) {
-    return builder.seq(new PermuteRows(values, new int[] {}, permProviderPid, false));
+    return builder.seq(new PermuteRows(values, new int[]{}, permProviderPid, false));
   }
 
   @Override

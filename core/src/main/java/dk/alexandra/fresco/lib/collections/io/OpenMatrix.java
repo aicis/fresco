@@ -11,13 +11,12 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OpenMatrix
+public class OpenMatrix<T extends DRes<SInt>>
     implements ComputationParallel<Matrix<DRes<BigInteger>>, ProtocolBuilderNumeric> {
 
-  private final DRes<Matrix<DRes<SInt>>> closedMatrix;
+  private final DRes<Matrix<T>> closedMatrix;
 
-  public OpenMatrix(DRes<Matrix<DRes<SInt>>> closedMatrix) {
-    super();
+  public OpenMatrix(DRes<Matrix<T>> closedMatrix) {
     this.closedMatrix = closedMatrix;
   }
 
@@ -25,7 +24,7 @@ public class OpenMatrix
   public DRes<Matrix<DRes<BigInteger>>> buildComputation(ProtocolBuilderNumeric builder) {
     Collections collections = builder.collections();
     List<DRes<List<DRes<BigInteger>>>> closedRows = new ArrayList<>();
-    for (List<DRes<SInt>> row : closedMatrix.out().getRows()) {
+    for (List<? extends DRes<SInt>> row : closedMatrix.out().getRows()) {
       // still sort of hacky: need to artificially wrap row in computation
       DRes<List<DRes<BigInteger>>> closedRow = collections.openList(() -> row);
       closedRows.add(closedRow);
