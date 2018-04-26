@@ -1,0 +1,40 @@
+package dk.alexandra.fresco.framework.builder.numeric;
+
+import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.ComputationDirectory;
+import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.value.SInt;
+
+/**
+ * Logical operators on secret arithmetic representations of boolean values. <p>NOTE: all inputs are
+ * assumed to represent 0 or 1 values only. The result is undefined if other values are passed
+ * in.</p>
+ */
+public interface Logical extends ComputationDirectory {
+
+  /**
+   * Computes logical AND of inputs. <p>NOTE: Inputs must represent 0 or 1 values only.</p>
+   */
+  DRes<SInt> and(DRes<SInt> bitA, DRes<SInt> bitB);
+
+  /**
+   * Computes logical OR of inputs. <p>NOTE: Inputs must represent 0 or 1 values only.</p>
+   */
+  DRes<SInt> or(DRes<SInt> bitA, DRes<SInt> bitB);
+
+  /**
+   * Computes logical AND of inputs. <p>NOTE: Inputs must represent 0 or 1 values only.</p>
+   */
+  DRes<SInt> andKnown(DRes<OInt> knownBit, DRes<SInt> secretBit);
+
+  /**
+   * Computes logical XOR of inputs. <p>NOTE: Inputs must represent 0 or 1 values only.</p>
+   */
+  DRes<SInt> xorKnown(DRes<OInt> knownBit, DRes<SInt> secretBit);
+
+  /**
+   * Computes logical NOT of input. <p>NOTE: Input must represent 0 or 1 values only.</p>
+   */
+  DRes<SInt> not(DRes<SInt> secretBit);
+
+}
