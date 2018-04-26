@@ -291,14 +291,13 @@ public class AsyncNetwork implements CloseableNetwork {
   public void send(int partyId, byte[] data) {
     inRange(partyId);
     if (partyId != conf.getMyId() && sendFutures.get(partyId).isDone()) {
-      Exception exception = null;
       try {
         sendFutures.get(partyId).get();
       } catch (Exception e) {
-        exception = e;
+        throw new RuntimeException("Sender for P" + partyId + " threw exception. Unable to send",
+            e);
       }
-      throw new RuntimeException("Sender for P" + partyId + " not running, unable to send",
-          exception);
+      throw new RuntimeException("Sender for P" + partyId + " not running. Unable to send");
     }
     if (partyId == conf.getMyId()) {
       this.inQueues.get(partyId).add(data);
@@ -311,14 +310,14 @@ public class AsyncNetwork implements CloseableNetwork {
   public byte[] receive(int partyId) {
     inRange(partyId);
     if (partyId != conf.getMyId() && receiveFutures.get(partyId).isDone()) {
-      Exception exception = null;
       try {
         receiveFutures.get(partyId).get();
       } catch (Exception e) {
-        exception = e;
+        throw new RuntimeException("Receiver for P" + partyId
+            + " threw exception. Unable to receive", e);
       }
       throw new RuntimeException("Receiver for P" + partyId
-          + " not running, unable to receive", exception);
+          + " not running. Unable to receive");
     }
     byte[] data =
         ExceptionConverter.safe(() -> this.inQueues.get(partyId).take(), "Receive interrupted");
@@ -393,7 +392,7 @@ public class AsyncNetwork implements CloseableNetwork {
         f.get();
       } catch (Exception e) {
         // TODO: Should this cause close to throw an exception?
-        // For now just ignore
+        logger.warn("A failed sender detected while closing network");
       }
     }
     // Here we just check if any receivers failed
@@ -403,7 +402,7 @@ public class AsyncNetwork implements CloseableNetwork {
         f.get();
       } catch (Exception e) {
         //TODO: Should this cause close to throw an exception?
-        // For now just ignore
+        logger.warn("A failed receiver detected while closing network");
       }
     }
     if (communicationService != null) {
