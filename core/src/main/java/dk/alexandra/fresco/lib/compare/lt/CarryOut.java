@@ -2,13 +2,13 @@ package dk.alexandra.fresco.lib.compare.lt;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
-import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.SIntPair;
 import dk.alexandra.fresco.framework.value.OInt;
-import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.integer.binary.ArithmeticAndKnownRight;
+import dk.alexandra.fresco.lib.math.integer.binary.ArithmeticXorKnownRight;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -40,42 +40,38 @@ public class CarryOut implements Computation<SInt, ProtocolBuilderNumeric> {
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    OIntFactory oIntFactory = builder.getOIntFactory();
     List<DRes<SInt>> secretBits = secretBitsDef.out();
     List<DRes<OInt>> openBits = openBitsDef.out();
     if (secretBits.size() != openBits.size()) {
       throw new IllegalArgumentException("Number of bits must be the same");
     }
-    return builder.par(new ArithmeticAndKnownRight(secretBitsDef, openBitsDef))
-        .par((par, andedBits) -> {
-          List<DRes<SIntPair>> pairs = new ArrayList<>(andedBits.size());
-          for (int i = 0; i < secretBits.size(); i++) {
-            DRes<SInt> leftBit = secretBits.get(i);
-            DRes<OInt> rightBit = openBits.get(i);
-            DRes<SInt> andedBit = andedBits.get(i);
-            // TODO we need a logical computation directory for logical ops on arithmetic values
-            // logical xor of two bits is leftBit + rightBit - 2 * leftBit * rightBit
-            DRes<SInt> xoredBit = par.seq(seq -> {
-              Numeric nb = seq.numeric();
-              return nb.sub(
-                  nb.addOpen(rightBit, leftBit),
-                  nb.multByOpen(oIntFactory.two(), andedBit)
-              );
-            });
-            pairs.add(() -> new SIntPair(xoredBit, andedBit));
-          }
-          return () -> pairs;
-        }).seq((seq, pairs) -> {
-          // need to account for carry-in bit
-          int lastIdx = pairs.size() - 1;
-          SIntPair lastPair = pairs.get(lastIdx).out();
-          DRes<SInt> lastCarryPropagator = seq.numeric().add(
-              lastPair.getSecond(),
-              seq.numeric().multByOpen(carryIn, lastPair.getFirst()));
-          pairs.set(lastIdx, () -> new SIntPair(lastPair.getFirst(), lastCarryPropagator));
-          Collections.reverse(pairs);
-          return seq.seq(new PreCarryBits(() -> pairs));
-        });
+    return builder.par(par -> {
+      DRes<List<DRes<SInt>>> xored = new ArithmeticXorKnownRight(secretBitsDef, openBitsDef)
+          .buildComputation(par);
+      DRes<List<DRes<SInt>>> anded = new ArithmeticAndKnownRight(secretBitsDef, openBitsDef)
+          .buildComputation(par);
+      return () -> new Pair<>(xored.out(), anded.out());
+    }).par((par, pair) -> {
+      List<DRes<SInt>> xoredBits = pair.getFirst();
+      List<DRes<SInt>> andedBits = pair.getSecond();
+      List<DRes<SIntPair>> pairs = new ArrayList<>(andedBits.size());
+      for (int i = 0; i < secretBits.size(); i++) {
+        DRes<SInt> xoredBit = xoredBits.get(i);
+        DRes<SInt> andedBit = andedBits.get(i);
+        pairs.add(() -> new SIntPair(xoredBit, andedBit));
+      }
+      return () -> pairs;
+    }).seq((seq, pairs) -> {
+      // need to account for carry-in bit
+      int lastIdx = pairs.size() - 1;
+      SIntPair lastPair = pairs.get(lastIdx).out();
+      DRes<SInt> lastCarryPropagator = seq.numeric().add(
+          lastPair.getSecond(),
+          seq.logical().andKnown(carryIn, lastPair.getFirst()));
+      pairs.set(lastIdx, () -> new SIntPair(lastPair.getFirst(), lastCarryPropagator));
+      Collections.reverse(pairs);
+      return seq.seq(new PreCarryBits(() -> pairs));
+    });
   }
 
 }
