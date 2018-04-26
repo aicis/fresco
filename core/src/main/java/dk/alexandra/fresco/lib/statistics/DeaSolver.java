@@ -124,9 +124,7 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
   public DRes<List<DeaResult>> buildComputation(ProtocolBuilderNumeric builder) {
     List<DRes<SimpleLPPrefix>> prefixes = getPrefixWithSecretSharedValues(builder);
     return builder.par((par) -> {
-      List<
-          DRes<Pair<Pair<List<SInt>, List<SInt>>,
-              DRes<Pair<SInt, Pair<SInt, SInt>>>>>> result =
+      List<DRes<Pair<Pair<List<SInt>, List<SInt>>, DRes<OptimalValue.Result>>>> result =
           new ArrayList<>(targetInputs.size());
       for (int i = 0; i < targetInputs.size(); i++) {
         SimpleLPPrefix prefix = prefixes.get(i).out();
@@ -272,14 +270,14 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
     public final SInt denominator;
 
     private DeaResult(
-        DRes<Pair<Pair<List<SInt>, List<SInt>>, DRes<Pair<SInt, Pair<SInt, SInt>>>>> output) {
-      Pair<Pair<List<SInt>, List<SInt>>, DRes<Pair<SInt, Pair<SInt, SInt>>>> out = output.out();
+        DRes<Pair<Pair<List<SInt>, List<SInt>>, DRes<OptimalValue.Result>>> output) {
+      Pair<Pair<List<SInt>, List<SInt>>, DRes<OptimalValue.Result>> out = output.out();
       this.peers = out.getFirst().getFirst().stream().map(DRes::out).collect(Collectors.toList());
       this.peerValues =
           out.getFirst().getSecond().stream().map(DRes::out).collect(Collectors.toList());
-      this.optimal = out.getSecond().out().getFirst();
-      this.numerator = out.getSecond().out().getSecond().getFirst();
-      this.denominator = out.getSecond().out().getSecond().getSecond();
+      this.optimal = out.getSecond().out().optimal;
+      this.numerator = out.getSecond().out().numerator;
+      this.denominator = out.getSecond().out().denominator;
     }
   }
 }

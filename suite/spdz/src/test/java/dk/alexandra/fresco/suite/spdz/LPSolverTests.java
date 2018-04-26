@@ -58,7 +58,7 @@ class LPSolverTests {
                 .seq((inner, out) ->
                     new OptimalValue(out.updateMatrix, out.tableau, out.pivot)
                         .buildComputation(inner))
-                .seq((inner, values) -> inner.numeric().open(values.getFirst())));
+                .seq((inner, values) -> inner.numeric().open(values.optimal)));
           };
           long startTime = System.nanoTime();
           BigInteger result = runApplication(app);

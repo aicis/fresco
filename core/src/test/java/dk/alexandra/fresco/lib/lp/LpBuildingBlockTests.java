@@ -237,7 +237,7 @@ public class LpBuildingBlockTests {
       }).seq((seq2, lpOutput) -> {
         OptimalValue ov = new OptimalValue(lpOutput.updateMatrix, lpOutput.tableau, lpOutput.pivot);
         return ov.buildComputation(seq2);
-      }).seq((seq2, ov) -> seq2.numeric().open(ov.getFirst()));
+      }).seq((seq2, ov) -> seq2.numeric().open(ov.optimal));
     }
   }
 
@@ -245,11 +245,11 @@ public class LpBuildingBlockTests {
 
     DRes<BigInteger> setup(ProtocolBuilderNumeric builder, LPSolver.PivotRule rule) {
       /*
-       * 
-       * Sets up the following linear program 
-       * maximize a + b + c 
-       * a <= 1 
-       * b <= 2 
+       *
+       * Sets up the following linear program
+       * maximize a + b + c
+       * a <= 1
+       * b <= 2
        * c <= 3 (all variables > 0 is implied)
        *
        */
@@ -305,7 +305,7 @@ public class LpBuildingBlockTests {
       }).seq((seq2, lpOutput) -> {
         OptimalValue ov = new OptimalValue(lpOutput.updateMatrix, lpOutput.tableau, lpOutput.pivot);
         return ov.buildComputation(seq2);
-      }).seq((seq2, ov) -> seq2.numeric().open(ov.getFirst()));
+      }).seq((seq2, ov) -> seq2.numeric().open(ov.optimal));
     }
   }
 

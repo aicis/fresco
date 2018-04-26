@@ -14,7 +14,7 @@ import java.util.ArrayList;
  * terminated Simplex method. Returns the corresponding values of <code>score=p/q</code>
  */
 public class OptimalValue implements
-    Computation<Pair<SInt, Pair<SInt, SInt>>, ProtocolBuilderNumeric> {
+    Computation<OptimalValue.Result, ProtocolBuilderNumeric> {
 
   private final Matrix<DRes<SInt>> updateMatrix;
   private final DRes<SInt> pivot;
@@ -36,9 +36,8 @@ public class OptimalValue implements
     this.pivot = pivot;
   }
 
-
   @Override
-  public DRes<Pair<SInt, Pair<SInt, SInt>>> buildComputation(ProtocolBuilderNumeric builder) {
+  public DRes<Result> buildComputation(ProtocolBuilderNumeric builder) {
     ArrayList<DRes<SInt>> row = updateMatrix.getRow(updateMatrix.getHeight() - 1);
     ArrayList<DRes<SInt>> column = new ArrayList<>(row.size());
     column.addAll(tableau.getB());
@@ -47,6 +46,19 @@ public class OptimalValue implements
     DRes<SInt> numerator = advanced.innerProduct(row, column);
     DRes<SInt> invDenominator = advanced.invert(pivot);
     DRes<SInt> mult = builder.numeric().mult(numerator, invDenominator);
-    return () -> new Pair<>(mult.out(), new Pair<>(numerator.out(), pivot.out()));
+    return () -> new Result(mult.out(), numerator.out(), pivot.out());
+  }
+
+  public static class Result {
+
+    public final SInt optimal;
+    public final SInt numerator;
+    public final SInt denominator;
+
+    private Result(SInt optimal, SInt numerator, SInt denominator) {
+      this.optimal = optimal;
+      this.numerator = numerator;
+      this.denominator = denominator;
+    }
   }
 }
