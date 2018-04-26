@@ -14,12 +14,12 @@
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>
       <artifactId>spdz</artifactId>
-      <version>${fresco-version}</version>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>
       <artifactId>tinytables</artifactId>
-      <version>${fresco-version}</version>
+      <version>${project.version}</version>
     </dependency>
 
     <!-- Logging should work also for running demos -->
@@ -33,7 +33,7 @@
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>
       <artifactId>core</artifactId>
-      <version>${fresco-version}</version>
+      <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
