@@ -13,7 +13,7 @@
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>
       <artifactId>demos-common</artifactId>
-      <version>${fresco-version}</version>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
   
