@@ -7,7 +7,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
-import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.statistics.DeaSolver.AnalysisType;
 import dk.alexandra.fresco.lib.statistics.DeaSolver.DeaResult;
@@ -63,11 +62,11 @@ public class DeaSolverTests {
     private static List<List<BigInteger>> outputs;
 
     static {
-      int[][] dataSet1 = new int[][] { new int[] { 29, 13451, 14409, 16477 }, // Score 1
-          new int[] { 2, 581, 531, 1037 }, // Score 1
-          new int[] { 26, 13352, 1753, 13528 }, // Score 1
-          new int[] { 15, 4828, 949, 5126 }, // Score 0.9857962644001192
-          new int[] { 20, 6930, 6376, 9680 } //
+      int[][] dataSet1 = new int[][]{new int[]{29, 13451, 14409, 16477}, // Score 1
+          new int[]{2, 581, 531, 1037}, // Score 1
+          new int[]{26, 13352, 1753, 13528}, // Score 1
+          new int[]{15, 4828, 949, 5126}, // Score 0.9857962644001192
+          new int[]{20, 6930, 6376, 9680} //
       };
       inputs = buildInputs(dataSet1);
       outputs = buildOutputs(dataSet1);
@@ -85,8 +84,8 @@ public class DeaSolverTests {
     private static List<List<BigInteger>> outputs;
 
     static {
-      int[][] dataset = new int[][] { new int[] { 10, 20, 30, 1000 }, new int[] { 5, 10, 15, 1000 },
-          new int[] { 200, 300, 400, 100 } };
+      int[][] dataset = new int[][]{new int[]{10, 20, 30, 1000}, new int[]{5, 10, 15, 1000},
+          new int[]{200, 300, 400, 100}};
       inputs = buildInputs(dataset);
       outputs = buildOutputs(dataset);
     }
@@ -143,7 +142,7 @@ public class DeaSolverTests {
         private BigInteger modulus;
 
         @Override
-        public void test() throws Exception {
+        public void test() {
 
           Application<DeaSolver, ProtocolBuilderNumeric> app = producer -> {
             modulus = producer.getBasicNumericContext().getModulus();
@@ -160,29 +159,17 @@ public class DeaSolverTests {
 
           List<DeaResult> deaResults = runApplication(solver);
 
-          Application<List<Pair<BigInteger, Pair<List<BigInteger>, List<BigInteger>>>>, ProtocolBuilderNumeric> app2 =
+          Application<List<OpenDeaResult>, ProtocolBuilderNumeric> app2 =
               producer -> {
                 Numeric numeric = producer.numeric();
-                ArrayList<Pair<DRes<BigInteger>, Pair<List<DRes<BigInteger>>, List<DRes<BigInteger>>>>> result =
+                List<DRes<OpenDeaResult>> result =
                     new ArrayList<>();
                 for (DeaResult deaResult : deaResults) {
-                  result.add(new Pair<>(numeric.open(deaResult.optimal),
-                      new Pair<>(
-                          deaResult.peers.stream().map(numeric::open).collect(Collectors.toList()),
-                          deaResult.peerValues.stream().map(numeric::open)
-                              .collect(Collectors.toList()))));
+                  result.add(OpenDeaResult.createOpenDeaResult(numeric, deaResult));
                 }
-                return () -> result.stream()
-                    .map(pair -> new Pair<>(pair.getFirst().out(),
-                        new Pair<>(
-                            pair.getSecond().getFirst().stream().map(DRes::out)
-                                .collect(Collectors.toList()),
-                            pair.getSecond().getSecond().stream().map(DRes::out)
-                                .collect(Collectors.toList()))))
-                    .collect(Collectors.toList());
+                return () -> result.stream().map(DRes::out).collect(Collectors.toList());
               };
-          List<Pair<BigInteger, Pair<List<BigInteger>, List<BigInteger>>>> openResults =
-              runApplication(app2);
+          List<OpenDeaResult> openResults = runApplication(app2);
 
           // Solve the problem using a plaintext solver
           PlaintextDEASolver plainSolver = new PlaintextDEASolver();
@@ -195,11 +182,18 @@ public class DeaSolverTests {
               : rawBasisInputs.size() + 1;
 
           for (int i = 0; i < rawTargetInputs.size(); i++) {
-            Assert.assertEquals(plain[i], postProcess(openResults.get(i).getFirst(), type, modulus),
-                0.0000001);
+            OpenDeaResult deaResult = openResults.get(i);
+            Assert.assertEquals(plain[i], postProcess(deaResult.optimal, type, modulus), 0.0000001);
 
-            List<BigInteger> peers = openResults.get(i).getSecond().getFirst();
-            List<BigInteger> peerValues = openResults.get(i).getSecond().getSecond();
+            double computedScoreFromValues =
+                deaResult.numerator.doubleValue() / deaResult.denominator.doubleValue();
+            if (type == DeaSolver.AnalysisType.INPUT_EFFICIENCY) {
+              computedScoreFromValues *= -1;
+            }
+            Assert.assertEquals(plain[i], computedScoreFromValues, 0.0000001);
+
+            List<BigInteger> peers = deaResult.peers;
+            List<BigInteger> peerValues = deaResult.peerValues;
             double sum = 0;
             for (BigInteger b : peerValues) {
               sum += postProcess(b, AnalysisType.OUTPUT_EFFICIENCY, modulus);
@@ -224,7 +218,7 @@ public class DeaSolverTests {
                   leftHand += prod;
                 }
               }
-              double rightHand = 0;
+              double rightHand;
               if (type == AnalysisType.INPUT_EFFICIENCY) {
                 rightHand = rawTargetInputs.get(i).get(k).doubleValue() * plain[i];
               } else {
@@ -249,7 +243,7 @@ public class DeaSolverTests {
                   leftHand += prod;
                 }
               }
-              double rightHand = 0;
+              double rightHand;
               if (type == AnalysisType.INPUT_EFFICIENCY) {
                 rightHand = rawTargetOutputs.get(i).get(k).doubleValue();
               } else {
@@ -273,6 +267,45 @@ public class DeaSolverTests {
     private BigInteger[][] asArray(List<List<BigInteger>> lists) {
       return lists.stream().map(list -> list.toArray(new BigInteger[list.size()]))
           .toArray(BigInteger[][]::new);
+    }
+
+    private static class OpenDeaResult {
+
+      private final BigInteger optimal;
+      private final BigInteger numerator;
+      private final BigInteger denominator;
+      private final List<BigInteger> peers;
+      private final List<BigInteger> peerValues;
+
+      private OpenDeaResult(
+          BigInteger optimal,
+          BigInteger numerator,
+          BigInteger denominator,
+          List<BigInteger> peers,
+          List<BigInteger> peerValues) {
+        this.optimal = optimal;
+        this.numerator = numerator;
+        this.denominator = denominator;
+        this.peers = peers;
+        this.peerValues = peerValues;
+      }
+
+      static DRes<OpenDeaResult> createOpenDeaResult(Numeric numeric, DeaResult deaResult) {
+        DRes<BigInteger> optimal = numeric.open(deaResult.optimal);
+        DRes<BigInteger> numerator = numeric.open(deaResult.numerator);
+        DRes<BigInteger> denominator = numeric.open(deaResult.denominator);
+        List<DRes<BigInteger>> peers =
+            deaResult.peers.stream().map(numeric::open).collect(Collectors.toList());
+        List<DRes<BigInteger>> peerValues =
+            deaResult.peerValues.stream().map(numeric::open).collect(Collectors.toList());
+        return () -> new OpenDeaResult(
+            optimal.out(),
+            numerator.out(),
+            denominator.out(),
+            peers.stream().map(DRes::out).collect(Collectors.toList()),
+            peerValues.stream().map(DRes::out).collect(Collectors.toList())
+        );
+      }
     }
   }
 
@@ -308,14 +341,14 @@ public class DeaSolverTests {
    * </p>
    *
    * @param product The integer <i>t = r*s<sup>-1</sup>mod N</i>. Note that we must have that
-   *        <i>2r*s < N</i>.
+   *     <i>2r*s < N</i>.
    * @param mod the modulus, i.e., <i>N</i>.
    * @return The fraction as represented as the rational number <i>r/s</i>.
    */
   private static BigInteger[] gauss(BigInteger product, BigInteger mod) {
     product = product.mod(mod);
-    BigInteger[] u = { mod, BigInteger.ZERO };
-    BigInteger[] v = { product, BigInteger.ONE };
+    BigInteger[] u = {mod, BigInteger.ZERO};
+    BigInteger[] v = {product, BigInteger.ONE};
     BigInteger two = BigInteger.valueOf(2);
     BigInteger uv = innerproduct(u, v);
     BigInteger vv = innerproduct(v, v);
@@ -335,12 +368,12 @@ public class DeaSolverTests {
       BigInteger r0 = u[0].subtract(v[0].multiply(q[0]));
       BigInteger r1 = u[1].subtract(v[1].multiply(q[0]));
       u = v;
-      v = new BigInteger[] { r0, r1 };
+      v = new BigInteger[]{r0, r1};
       uu = vv;
       uv = innerproduct(u, v);
       vv = innerproduct(v, v);
     } while (uu.compareTo(vv) > 0);
-    return new BigInteger[] { u[0], u[1] };
+    return new BigInteger[]{u[0], u[1]};
   }
 
   private static BigInteger innerproduct(BigInteger[] u, BigInteger[] v) {
