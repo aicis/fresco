@@ -3,9 +3,10 @@ package dk.alexandra.fresco.framework.builder.numeric;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.util.RandomBitMask;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.math.integer.binary.RandomBitMask;
+
 import java.math.BigInteger;
 import java.util.List;
 
@@ -175,6 +176,16 @@ public interface AdvancedNumeric extends ComputationDirectory {
    * @return A container holding the bit string once evaluated.
    */
   DRes<RandomBitMask> randomBitMask(int noOfBits);
+
+  /**
+   * Takes a list of random bits [b0, ..., bn] and generates a random bit mask along with a
+   * {@link SInt} representing the recombined bits, i.e., sum(2^{i} * bi).
+   *
+   * @param randomBits
+   *          The bits to use for the bit mask
+   * @return A container holding the bit mask
+   */
+  DRes<RandomBitMask> randomBitMask(DRes<List<DRes<SInt>>> randomBits);
 
   /**
    * @param input input.

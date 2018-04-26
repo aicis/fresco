@@ -11,7 +11,7 @@ import java.util.List;
  * via {@link BigInteger}.
  */
 public class BigIntegerOIntArithmetic implements OIntArithmetic {
-
+  private static final BigInteger TWO = new BigInteger("2");
   // TODO wrapping all OInts in DRes seems like a bad idea
   private List<DRes<OInt>> twoPowersList;
   private final OIntFactory factory;
@@ -56,7 +56,13 @@ public class BigIntegerOIntArithmetic implements OIntArithmetic {
 
   @Override
   public DRes<OInt> twoTo(int power) {
-    throw new UnsupportedOperationException();
+    return factory.fromBigInteger(TWO.pow(power));
+  }
+
+  @Override
+  public DRes<OInt> modTwoTo(OInt input, int power) {
+    return factory.fromBigInteger(factory.toBigInteger(input).mod(TWO.pow(
+        power)));
   }
 
 }
