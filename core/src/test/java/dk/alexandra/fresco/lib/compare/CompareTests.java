@@ -345,7 +345,6 @@ public class CompareTests {
             return () -> opened.out().stream().map(DRes::out).collect(Collectors.toList());
           };
           List<BigInteger> actual = runApplication(app);
-          System.out.println(expected + " " + actual);
           Assert.assertEquals(expected, actual);
         }
       };
