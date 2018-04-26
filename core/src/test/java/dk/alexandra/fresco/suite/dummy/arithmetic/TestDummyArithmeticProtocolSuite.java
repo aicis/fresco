@@ -37,13 +37,13 @@ import dk.alexandra.fresco.lib.list.EliminateDuplicatesTests;
 import dk.alexandra.fresco.lib.lp.LPSolver;
 import dk.alexandra.fresco.lib.lp.LpBuildingBlockTests;
 import dk.alexandra.fresco.lib.math.integer.binary.BinaryOperationsTests;
-import dk.alexandra.fresco.lib.math.integer.binary.BinaryOperationsTests.TestArithmeticAndKnownRight;
-import dk.alexandra.fresco.lib.math.integer.binary.BinaryOperationsTests.TestArithmeticXorKnownRight;
 import dk.alexandra.fresco.lib.math.integer.binary.BinaryOperationsTests.TestGenerateRandomBitMask;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationTests;
 import dk.alexandra.fresco.lib.math.integer.linalg.LinAlgTests;
 import dk.alexandra.fresco.lib.math.integer.log.LogTests;
+import dk.alexandra.fresco.lib.math.integer.logical.LogicalOperationsTests.TestAndKnown;
+import dk.alexandra.fresco.lib.math.integer.logical.LogicalOperationsTests.TestXorKnown;
 import dk.alexandra.fresco.lib.math.integer.min.MinTests;
 import dk.alexandra.fresco.lib.math.integer.mod.Mod2mTests.TestMod2mBaseCase;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SqrtTests;
@@ -782,13 +782,13 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
-  public void testArithmeticAndKnownRight() {
-    runTest(new TestArithmeticAndKnownRight<>(), new TestParameters());
+  public void testAndKnown() {
+    runTest(new TestAndKnown<>(), new TestParameters());
   }
 
   @Test
-  public void testArithmeticXorKnownRight() {
-    runTest(new TestArithmeticXorKnownRight<>(), new TestParameters());
+  public void testXorKnown() {
+    runTest(new TestXorKnown<>(), new TestParameters());
   }
 
   @Test

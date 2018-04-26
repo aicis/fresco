@@ -99,5 +99,5 @@ public class DefaultLogical implements Logical {
     // TODO implement
     throw new UnsupportedOperationException();
   }
-  
+
 }
