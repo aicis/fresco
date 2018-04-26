@@ -17,12 +17,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import javax.net.ServerSocketFactory;
@@ -233,20 +234,19 @@ public class TestAsyncNetwork {
       // Cancel sendfuture to provoke an exception while sending
       Field f = networks.get(1).getClass().getDeclaredField("sendFutures");
       f.setAccessible(true);
-      ((HashMap<Integer, Future<Object>>)f.get(networks.get(1))).get(2).cancel(true);
+      Future<Object> future = ((HashMap<Integer, Future<Object>>)f.get(networks.get(1))).get(2);
+      future.cancel(true);
+      future.get();
       f.setAccessible(false);
+    } catch (CancellationException ce) {
+      // Ignore, this should happen
     } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
         | IllegalAccessException e) {
       fail("Reflection related error");
+    } catch (ExecutionException e) {
+      fail("Unexpected ExecutionException");
     }
-    // Below the first call should make the sending thread fail
-    // The subsequent calls should provoke the exception to propagate to the main thread
-    int retries = 10;
     networks.get(1).send(2, new byte[] { 0x01 });
-    Thread.sleep(10);
-    for (int i = 0; i < retries; i++) {
-      networks.get(1).send(2, new byte[] { 0x01 });
-    }
   }
 
   @Test(expected = IllegalArgumentException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
@@ -281,15 +281,18 @@ public class TestAsyncNetwork {
       // Cancel receiveFuture to provoke exception when receiving
       Field f = networks.get(1).getClass().getDeclaredField("receiveFutures");
       f.setAccessible(true);
-      ((HashMap<Integer, Future<Object>>)f.get(networks.get(1))).get(2).cancel(true);
+      Future<Object> future = ((HashMap<Integer, Future<Object>>)f.get(networks.get(1))).get(2);
+      future.cancel(true);
+      future.get();
       f.setAccessible(false);
     } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
         | IllegalAccessException e) {
       fail("Reflection related error");
+    } catch (CancellationException ce) {
+      // Ignore, this should happen
     } catch (Exception e) {
       fail("Should not throw exception yet");
     }
-    Thread.sleep(10);
     networks.get(1).receive(2);
   }
 
@@ -342,27 +345,28 @@ public class TestAsyncNetwork {
     networks = createNetworks(2);
     // Set alive = false in order for the receiver to stop
     try {
-      Field f = networks.get(1).getClass().getDeclaredField("alive");
-      f.setAccessible(true);
-      ((AtomicBoolean)f.get(networks.get(1))).set(false);
-      f.setAccessible(false);
+      Field f1 = networks.get(1).getClass().getDeclaredField("alive");
+      f1.setAccessible(true);
+      ((AtomicBoolean)f1.get(networks.get(1))).set(false);
+      f1.setAccessible(false);
+
+      // wake up the receiver for it to notice it should stop
+      networks.get(2).send(1, new byte[] {0x01});
+      networks.get(1).receive(2);
+      Field f2 = networks.get(1).getClass().getDeclaredField("receiveFutures");
+      f2.setAccessible(true);
+      @SuppressWarnings("unchecked")
+      Future<Object> future  =
+          ((Map<Integer, Future<Object>>)f2.get(networks.get(1))).get(2);
+      f2.setAccessible(false);
+      future.get();
     } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
-        | IllegalAccessException e) {
+        | IllegalAccessException | InterruptedException | ExecutionException e) {
       fail("Reflection related error");
     }
-    // wake up the receiver for it notice it should stop
-    networks.get(2).send(1, new byte[] {0x01});
-    networks.get(1).receive(2);
-    // Give the receiver some time
     try {
-      Thread.sleep(1000);
-    } catch (InterruptedException e1) {
-      e1.printStackTrace();
-    }
-    // receiver should now be stopped
-    try {
-     networks.get(1).receive(2);
-     fail("The above receive should throw an exception");
+      networks.get(1).receive(2);
+      fail("The above receive should throw an exception");
     } finally {
       // Set alive = true so we can close the network properly
       try {
