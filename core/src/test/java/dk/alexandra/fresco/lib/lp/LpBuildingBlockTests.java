@@ -49,7 +49,7 @@ public class LpBuildingBlockTests {
     }
 
     private ArrayList<DRes<SInt>> toArrayList(Numeric numeric, ArrayList<BigInteger> row) {
-      return new ArrayList<>(row.stream().map(numeric::known).collect(Collectors.toList()));
+      return row.stream().map(numeric::known).collect(Collectors.toCollection(ArrayList::new));
     }
 
     Matrix<BigInteger> randomMatrix(int n, int m) {
@@ -69,20 +69,17 @@ public class LpBuildingBlockTests {
 
     private int expectedIndex;
 
-    int getExpextedIndex() {
+    int getExpectedIndex() {
       return expectedIndex;
     }
 
     DRes<List<BigInteger>> setup(ProtocolBuilderNumeric builder) {
-      updateMatrix = new Matrix<>(5, 5, i -> {
-        ArrayList<BigInteger> row =
-            new ArrayList<>(Arrays.asList(((i == 0) ? BigInteger.ONE : BigInteger.ZERO),
-                ((i == 1) ? BigInteger.ONE : BigInteger.ZERO),
-                ((i == 2) ? BigInteger.ONE : BigInteger.ZERO),
-                ((i == 3) ? BigInteger.ONE : BigInteger.ZERO),
-                ((i == 4) ? BigInteger.ONE : BigInteger.ZERO)));
-        return row;
-      }); // The identity matrix
+      updateMatrix = new Matrix<>(5, 5, i ->
+          new ArrayList<>(Arrays.asList(((i == 0) ? BigInteger.ONE : BigInteger.ZERO),
+              ((i == 1) ? BigInteger.ONE : BigInteger.ZERO),
+              ((i == 2) ? BigInteger.ONE : BigInteger.ZERO),
+              ((i == 3) ? BigInteger.ONE : BigInteger.ZERO),
+              ((i == 4) ? BigInteger.ONE : BigInteger.ZERO)))); // The identity matrix
       constraints = randomMatrix(4, 5); // this is irrelevant
       b = randomList(4); // this is irrelevant
       f = new ArrayList<>(5);
@@ -117,15 +114,12 @@ public class LpBuildingBlockTests {
     }
 
     DRes<List<BigInteger>> setup(ProtocolBuilderNumeric builder) {
-      updateMatrix = new Matrix<>(5, 5, i -> {
-        ArrayList<BigInteger> row =
-            new ArrayList<>(Arrays.asList(((i == 0) ? BigInteger.ONE : BigInteger.ZERO),
-                ((i == 1) ? BigInteger.ONE : BigInteger.ZERO),
-                ((i == 2) ? BigInteger.ONE : BigInteger.ZERO),
-                ((i == 3) ? BigInteger.ONE : BigInteger.ZERO),
-                ((i == 4) ? BigInteger.ONE : BigInteger.ZERO)));
-        return row;
-      }); // The identity matrix
+      updateMatrix = new Matrix<>(5, 5, i ->
+          new ArrayList<>(Arrays.asList(((i == 0) ? BigInteger.ONE : BigInteger.ZERO),
+              ((i == 1) ? BigInteger.ONE : BigInteger.ZERO),
+              ((i == 2) ? BigInteger.ONE : BigInteger.ZERO),
+              ((i == 3) ? BigInteger.ONE : BigInteger.ZERO),
+              ((i == 4) ? BigInteger.ONE : BigInteger.ZERO)))); // The identity matrix
       constraints = randomMatrix(4, 5); // this is irrelevant
       b = randomList(4); // this is irrelevant
       f = new ArrayList<>(5);
@@ -457,7 +451,7 @@ public class LpBuildingBlockTests {
             }
           }
           assertEquals(1, sum);
-          assertEquals(app.getExpextedIndex(), actualIndex);
+          assertEquals(app.getExpectedIndex(), actualIndex);
         }
       };
     }
