@@ -189,18 +189,16 @@ public class CompUInt96 implements CompUInt<UInt64, UInt32, CompUInt96> {
 
   @Override
   public CompUInt96 clearAboveBitAt(int bitPos) {
-    // TODO
-    throw new UnsupportedOperationException();
-//    if (bitPos < Integer.SIZE) {
-//      int mask = ~(0x80000000 >> (31 - bitPos));
-//      return new CompUInt96(0, 0, low & mask);
-//    } else if (bitPos < Long.SIZE) {
-//      int mask = ~(0x80000000 >> (63 - bitPos));
-//      return new CompUInt96(0, mid & mask, low);
-//    } else {
-//      int mask = ~(0x80000000 >> (96 - bitPos));
-//      return new CompUInt96(high & mask, mid, low);
-//    }
+    if (bitPos < Integer.SIZE) {
+      int mask = ~(0x80000000 >> (31 - bitPos));
+      return new CompUInt96(0, 0, low & mask);
+    } else if (bitPos < Long.SIZE) {
+      int mask = ~(0x80000000 >> (63 - bitPos));
+      return new CompUInt96(0, mid & mask, low);
+    } else {
+      int mask = ~(0x80000000 >> (95 - bitPos));
+      return new CompUInt96(high & mask, mid, low);
+    }
   }
 
   @Override

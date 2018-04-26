@@ -294,4 +294,23 @@ public class TestCompUInt96 {
     assertFalse(new CompUInt96(1, 0,0).isZero());
   }
 
+  @Test
+  public void testClearAboveBitAt() {
+    assertEquals(new CompUInt96(0, 0, 0).toBigInteger(),
+        new CompUInt96(0, 0, 0).clearAboveBitAt(63).toBigInteger());
+    assertEquals(new CompUInt96(0, 0, 123123).toBigInteger(),
+        new CompUInt96(0, 0, 123123).clearAboveBitAt(63).toBigInteger());
+    assertEquals(new CompUInt96(0, 0, 123123).toBigInteger(),
+        new CompUInt96(1, 0, 123123).clearAboveBitAt(63).toBigInteger());
+    assertEquals(new CompUInt96(0, 0x70001001, 123123).toBigInteger(),
+        new CompUInt96(1, 0xf0001001, 123123).clearAboveBitAt(63).toBigInteger());
+    assertEquals(new CompUInt96(0, 0x00000021, 123123).toBigInteger(),
+        new CompUInt96(1, 0xf0001021, 123123).clearAboveBitAt(44).toBigInteger());
+    assertEquals(new CompUInt96(0x70001001, 0x70001001, 123123).toBigInteger(),
+        new CompUInt96(0xf0001001, 0x70001001, 123123).clearAboveBitAt(95)
+            .toBigInteger());
+    assertEquals(new CompUInt96(0, 0, 0x00000001).toBigInteger(),
+        new CompUInt96(1, 1, 0xff001021).clearAboveBitAt(5).toBigInteger());
+  }
+
 }
