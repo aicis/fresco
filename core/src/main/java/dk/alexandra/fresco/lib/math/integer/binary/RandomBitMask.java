@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.framework.util;
+package dk.alexandra.fresco.lib.math.integer.binary;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -12,7 +12,7 @@ public class RandomBitMask {
   private final DRes<List<DRes<SInt>>> bits;
   private final DRes<SInt> value;
 
-  public RandomBitMask(DRes<List<DRes<SInt>>> bits, DRes<SInt> value) {
+  RandomBitMask(DRes<List<DRes<SInt>>> bits, DRes<SInt> value) {
     this.bits = bits;
     this.value = value;
   }

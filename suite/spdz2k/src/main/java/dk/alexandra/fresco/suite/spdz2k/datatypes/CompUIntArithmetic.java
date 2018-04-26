@@ -51,6 +51,16 @@ public class CompUIntArithmetic<CompT extends CompUInt<?, ?, CompT>> implements 
     }
   }
 
+  @Override
+  public DRes<OInt> modTwoTo(OInt input, int power) {
+    if (power > factory.getLowBitLength()) {
+      throw new UnsupportedOperationException();
+    } else {
+      return factory.fromOInt(input).clearAboveBitAt(power);
+    }
+  }
+
+
   private List<DRes<OInt>> initializePowersOfTwo(int numPowers) {
     List<DRes<OInt>> powers = new ArrayList<>(numPowers);
     CompT current = factory.one();

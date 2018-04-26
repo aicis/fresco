@@ -2,7 +2,6 @@ package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.framework.util.RandomBitMask;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelect;
@@ -12,6 +11,7 @@ import dk.alexandra.fresco.lib.math.integer.ProductSIntList;
 import dk.alexandra.fresco.lib.math.integer.SumSIntList;
 import dk.alexandra.fresco.lib.math.integer.binary.BitLength;
 import dk.alexandra.fresco.lib.math.integer.binary.GenerateRandomBitMask;
+import dk.alexandra.fresco.lib.math.integer.binary.RandomBitMask;
 import dk.alexandra.fresco.lib.math.integer.binary.RightShift;
 import dk.alexandra.fresco.lib.math.integer.division.KnownDivisor;
 import dk.alexandra.fresco.lib.math.integer.division.KnownDivisorRemainder;
@@ -128,6 +128,11 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
   @Override
   public DRes<RandomBitMask> randomBitMask(int numBits) {
     return builder.seq(new GenerateRandomBitMask(numBits));
+  }
+
+  @Override
+  public DRes<RandomBitMask> randomBitMask(DRes<List<DRes<SInt>>> randomBits) {
+    return builder.seq(new GenerateRandomBitMask(randomBits));
   }
 
   @Override

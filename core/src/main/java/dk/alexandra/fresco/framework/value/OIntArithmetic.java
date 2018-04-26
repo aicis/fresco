@@ -26,4 +26,15 @@ public interface OIntArithmetic {
    */
   DRes<OInt> twoTo(int power);
 
+  /**
+   * Reduces {@link input} modulo 2^{power}.
+   *
+   * @param input
+   *          the input to reduce
+   * @param power
+   *          the two-power to reduce against
+   * @return the reduced input modulo the two-power
+   */
+  DRes<OInt> modTwoTo(OInt input, int power);
+
 }
