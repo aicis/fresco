@@ -1,11 +1,10 @@
 package dk.alexandra.fresco.lib.math.integer.mod;
 
-import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.lt.BitLessThanOpen;
 import dk.alexandra.fresco.lib.math.integer.binary.RandomBitMask;
 
 /**
@@ -51,8 +50,7 @@ public class Mod2m implements Computation<SInt, ProtocolBuilderNumeric> {
       return c;
     }).seq((seq, c) -> {
       DRes<OInt> cPrime = seq.getOIntArithmetic().modTwoTo(c, m);
-      DRes<SInt> u = seq.seq(new BitLessThanOpen(cPrime.out(), rPrime.out()
-          .getBits()));
+      DRes<SInt> u = seq.comparison().compareLTBits(cPrime, rPrime.out().getBits());
       // Return cPrime - 2^m * u
       return seq.numeric().add(seq.numeric().multByOpen(seq.getOIntArithmetic()
           .twoTo(m), u),

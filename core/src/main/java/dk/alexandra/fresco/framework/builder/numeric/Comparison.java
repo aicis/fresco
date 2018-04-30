@@ -2,7 +2,9 @@ package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
+import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.util.List;
 
 /**
  * Interface for comparing numeric values.
@@ -61,6 +63,20 @@ public interface Comparison extends ComputationDirectory {
   default DRes<SInt> compareLT(DRes<SInt> x1, DRes<SInt> x2) {
     return compareLT(x1, x2, ComparisonAlgorithm.LT_LOG_ROUNDS);
   }
+
+  /**
+   * Computes if the bit decomposition of an open value is less than the bit decomposition of a
+   * secret value.
+   *
+   * @param openValue open value which will be decomposed into bits and compared to secretBits
+   * @param secretBits secret value decomposed into bits
+   */
+  DRes<SInt> compareLTBits(DRes<OInt> openValue, DRes<List<DRes<SInt>>> secretBits);
+
+  /**
+   * Default call to {@link #compareLTBits(DRes, DRes)} with unwrapped arguments.
+   */
+  DRes<SInt> compareLTBits(OInt openValue, List<DRes<SInt>> secretBits);
 
   /**
    * Compares if x1 <= x2, but with twice the possible bit-length. Requires that the maximum bit
