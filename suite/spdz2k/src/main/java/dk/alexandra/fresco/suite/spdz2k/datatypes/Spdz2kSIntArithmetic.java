@@ -14,7 +14,7 @@ public class Spdz2kSIntArithmetic<PlainT extends CompUInt<?, ?, PlainT>> extends
   public Spdz2kSIntArithmetic(PlainT share, PlainT macShare) {
     super(macShare, share);
   }
-  
+
   /**
    * Creates a {@link Spdz2kSIntArithmetic} from a public value. <p>All parties compute the mac
    * share of the value but only party one (by convention) stores the public value as the share, the
@@ -25,8 +25,13 @@ public class Spdz2kSIntArithmetic<PlainT extends CompUInt<?, ?, PlainT>> extends
   }
 
   @Override
-  public byte[] serializeShare() {
+  public byte[] serializeShareLow() {
     return share.getLeastSignificant().toByteArray();
+  }
+
+  @Override
+  public byte[] serializeShareWhole() {
+    return share.toByteArray();
   }
 
 }

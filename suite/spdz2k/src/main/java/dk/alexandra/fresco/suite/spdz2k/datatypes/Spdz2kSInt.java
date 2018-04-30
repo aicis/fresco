@@ -74,7 +74,9 @@ public abstract class Spdz2kSInt<PlainT extends CompUInt<?, ?, PlainT>> implemen
     return macShare;
   }
 
-  public abstract byte[] serializeShare();
+  public abstract byte[] serializeShareLow();
+
+  public abstract byte[] serializeShareWhole();
 
   @Override
   public SInt out() {

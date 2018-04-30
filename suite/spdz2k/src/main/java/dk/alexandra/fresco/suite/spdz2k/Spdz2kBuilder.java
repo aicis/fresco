@@ -19,6 +19,7 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntArithmetic;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntArithmetic;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntBoolean;
 import dk.alexandra.fresco.suite.spdz2k.protocols.computations.Spdz2kInputComputation;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAddKnownProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kKnownSIntProtocol;
@@ -88,7 +89,8 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
       @Override
       public DRes<SInt> sub(DRes<SInt> a, DRes<SInt> b) {
-        return () -> (factory.toSpdz2kSIntArithmetic(a)).subtract(factory.toSpdz2kSIntArithmetic(b));
+        return () -> (factory.toSpdz2kSIntArithmetic(a))
+            .subtract(factory.toSpdz2kSIntArithmetic(b));
       }
 
       @Override
@@ -191,8 +193,10 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
       public DRes<SInt> toBoolean(DRes<SInt> arithmeticValue) {
         return () -> {
           Spdz2kSIntArithmetic<PlainT> value = factory.toSpdz2kSIntArithmetic(arithmeticValue);
-
-          return value;
+          return new Spdz2kSIntBoolean<>(
+              value.getShare().shiftLeft(factory.getLowBitLength() - 1),
+              value.getMacShare().shiftLeft(factory.getLowBitLength() - 1)
+          );
         };
       }
 
@@ -225,6 +229,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
   }
 
   class Spdz2kLogical extends DefaultLogical {
+
     protected Spdz2kLogical(
         ProtocolBuilderNumeric builder) {
       super(builder);

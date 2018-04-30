@@ -25,8 +25,13 @@ public class Spdz2kSIntBoolean<PlainT extends CompUInt<?, ?, PlainT>> extends
   }
 
   @Override
-  public byte[] serializeShare() {
+  public byte[] serializeShareLow() {
     return share.getLeastSignificant().toByteArray();
+  }
+
+  @Override
+  public byte[] serializeShareWhole() {
+    return share.toByteArray();
   }
 
 }
