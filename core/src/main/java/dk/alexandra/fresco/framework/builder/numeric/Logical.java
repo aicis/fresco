@@ -12,6 +12,7 @@ import java.util.List;
  * in.</p>
  */
 public interface Logical extends ComputationDirectory {
+  // TODO: this is starting to look a lot like the Binary computation directory...
 
   /**
    * Computes logical AND of inputs. <p>NOTE: Inputs must represent 0 or 1 values only.</p>
@@ -37,6 +38,17 @@ public interface Logical extends ComputationDirectory {
    * Computes logical NOT of input. <p>NOTE: Input must represent 0 or 1 values only.</p>
    */
   DRes<SInt> not(DRes<SInt> secretBit);
+
+  /**
+   * Opens secret bits, possibly performing conversion before producing final open value. <p>NOTE:
+   * Input must represent 0 or 1 values only.</p>
+   */
+  DRes<OInt> openAsBit(DRes<SInt> secretBit);
+
+  /**
+   * Batch opening of bits.
+   */
+  DRes<List<DRes<OInt>>> openAsBits(DRes<List<DRes<SInt>>> secretBits);
 
   /**
    * Computes pairwise logical AND of input bits. <p>NOTE: Inputs must represent 0 or 1 values

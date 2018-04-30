@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 /**
  * Default implementation of {@link Logical}, expressing logical operations via arithmetic.
@@ -58,6 +59,21 @@ public class DefaultLogical implements Logical {
     return builder.seq(seq -> {
       OInt one = seq.getOIntFactory().one();
       return seq.numeric().subFromOpen(one, secretBit);
+    });
+  }
+
+  @Override
+  public DRes<OInt> openAsBit(DRes<SInt> secretBit) {
+    return builder.numeric().openAsOInt(secretBit);
+  }
+
+  @Override
+  public DRes<List<DRes<OInt>>> openAsBits(DRes<List<DRes<SInt>>> secretBits) {
+    return builder.par(par -> {
+      List<DRes<OInt>> openList =
+          secretBits.out().stream().map(closed -> par.logical().openAsBit(closed))
+              .collect(Collectors.toList());
+      return () -> openList;
     });
   }
 
@@ -132,7 +148,7 @@ public class DefaultLogical implements Logical {
       return pairWise(bitsA, bitsB, f);
     });
   }
-  
+
   @Override
   public DRes<SInt> orOfList(DRes<List<DRes<OInt>>> bits) {
     // TODO implement

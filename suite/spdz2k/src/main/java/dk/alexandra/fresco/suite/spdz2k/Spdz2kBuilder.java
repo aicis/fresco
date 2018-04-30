@@ -262,7 +262,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
   class Spdz2kLogical extends DefaultLogical {
 
-    protected Spdz2kLogical(
+    Spdz2kLogical(
         ProtocolBuilderNumeric builder) {
       super(builder);
     }
