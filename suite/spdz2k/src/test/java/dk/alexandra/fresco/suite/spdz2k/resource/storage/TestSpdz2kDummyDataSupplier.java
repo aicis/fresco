@@ -72,11 +72,11 @@ public class TestSpdz2kDummyDataSupplier {
   private void testGetNextTripleShares(int noOfParties) {
     List<Spdz2kDataSupplier<CompUInt128>> suppliers = setupSuppliers(noOfParties);
     CompUInt128 macKey = getMacKeyFromSuppliers(suppliers);
-    List<Spdz2kTriple<CompUInt128>> triples = new ArrayList<>(noOfParties);
+    List<Spdz2kTriple<CompUInt128, Spdz2kSIntArithmetic<CompUInt128>>> triples = new ArrayList<>(noOfParties);
     for (Spdz2kDataSupplier<CompUInt128> supplier : suppliers) {
-      triples.add(supplier.getNextTripleShares());
+      triples.add(supplier.getNextTripleSharesFull());
     }
-    Spdz2kTriple<CompUInt128> recombined = recombineTriples(triples);
+    Spdz2kTriple<CompUInt128, Spdz2kSIntArithmetic<CompUInt128>> recombined = recombineTriples(triples);
     assertTripleValid(recombined, macKey);
   }
 
@@ -144,12 +144,12 @@ public class TestSpdz2kDummyDataSupplier {
         .reduce(CompUInt128::add).get();
   }
 
-  private Spdz2kTriple<CompUInt128> recombineTriples(
-      List<Spdz2kTriple<CompUInt128>> triples) {
+  private Spdz2kTriple<CompUInt128, Spdz2kSIntArithmetic<CompUInt128>> recombineTriples(
+      List<Spdz2kTriple<CompUInt128, Spdz2kSIntArithmetic<CompUInt128>>> triples) {
     List<Spdz2kSIntArithmetic<CompUInt128>> left = new ArrayList<>(triples.size());
     List<Spdz2kSIntArithmetic<CompUInt128>> right = new ArrayList<>(triples.size());
     List<Spdz2kSIntArithmetic<CompUInt128>> product = new ArrayList<>(triples.size());
-    for (Spdz2kTriple<CompUInt128> triple : triples) {
+    for (Spdz2kTriple<CompUInt128, Spdz2kSIntArithmetic<CompUInt128>> triple : triples) {
       left.add(triple.getLeft());
       right.add(triple.getRight());
       product.add(triple.getProduct());
@@ -157,7 +157,7 @@ public class TestSpdz2kDummyDataSupplier {
     return new Spdz2kTriple<>(recombine(left), recombine(right), recombine(product));
   }
 
-  private void assertTripleValid(Spdz2kTriple<CompUInt128> recombined, CompUInt128 macKey) {
+  private void assertTripleValid(Spdz2kTriple<CompUInt128, Spdz2kSIntArithmetic<CompUInt128>> recombined, CompUInt128 macKey) {
     assertMacCorrect(recombined.getLeft(), macKey);
     assertMacCorrect(recombined.getRight(), macKey);
     assertMacCorrect(recombined.getRight(), macKey);

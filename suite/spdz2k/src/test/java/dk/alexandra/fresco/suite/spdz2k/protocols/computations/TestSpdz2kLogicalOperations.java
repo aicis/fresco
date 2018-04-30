@@ -9,6 +9,8 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.spdz2k.AbstractSpdz2kTest;
@@ -76,7 +78,7 @@ public class TestSpdz2kLogicalOperations extends
 
         @Override
         public void test() {
-          Application<List<DRes<BigInteger>>, ProtocolBuilderNumeric> app =
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app =
               root -> {
                 DRes<List<DRes<SInt>>> leftClosed = root.numeric().knownAsDRes(left);
                 DRes<List<DRes<SInt>>> rightClosed = root.numeric().knownAsDRes(right);
@@ -85,11 +87,12 @@ public class TestSpdz2kLogicalOperations extends
                     .toBooleanBatch(rightClosed);
                 DRes<List<DRes<SInt>>> anded = root.logical()
                     .pairWiseAnd(leftConverted, rightConverted);
-                DRes<List<DRes<SInt>>> andedConverted = root.conversion().toArithmeticBatch(anded);
-                return root.collections().openList(andedConverted);
+                DRes<List<DRes<OInt>>> opened = root.logical().openAsBits(anded);
+                OIntFactory factory = root.getOIntFactory();
+                return () -> opened.out().stream().map(v -> factory.toBigInteger(v.out()))
+                    .collect(Collectors.toList());
               };
-          List<BigInteger> actual = runApplication(app).stream().map(DRes::out)
-              .collect(Collectors.toList());
+          List<BigInteger> actual = runApplication(app);
           List<BigInteger> expected = Arrays.asList(
               BigInteger.ONE,
               BigInteger.ZERO,

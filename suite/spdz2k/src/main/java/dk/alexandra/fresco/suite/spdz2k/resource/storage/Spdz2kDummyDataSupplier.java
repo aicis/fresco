@@ -7,6 +7,7 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kInputMask;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntArithmetic;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntBoolean;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kTriple;
 import java.math.BigInteger;
 
@@ -33,12 +34,21 @@ public class Spdz2kDummyDataSupplier<
   }
 
   @Override
-  public Spdz2kTriple<PlainT> getNextTripleShares() {
+  public Spdz2kTriple<PlainT, Spdz2kSIntArithmetic<PlainT>> getNextTripleSharesFull() {
     MultiplicationTripleShares rawTriple = supplier.getMultiplicationTripleShares();
     return new Spdz2kTriple<>(
         toSpdz2kSInt(rawTriple.getLeft()),
         toSpdz2kSInt(rawTriple.getRight()),
         toSpdz2kSInt(rawTriple.getProduct()));
+  }
+
+  @Override
+  public Spdz2kTriple<PlainT, Spdz2kSIntBoolean<PlainT>> getNextBitTripleShares() {
+    MultiplicationTripleShares rawTriple = supplier.getMultiplicationTripleShares();
+    return new Spdz2kTriple<>(
+        toSpdz2kSIntBool(rawTriple.getLeft()),
+        toSpdz2kSIntBool(rawTriple.getRight()),
+        toSpdz2kSIntBool(rawTriple.getProduct()));
   }
 
   @Override
@@ -72,6 +82,14 @@ public class Spdz2kDummyDataSupplier<
     PlainT share = factory.createFromBigInteger(raw.getSecond());
     PlainT macShare = openValue.multiply(secretSharedKey);
     return new Spdz2kSIntArithmetic<>(share, macShare);
+  }
+
+  private Spdz2kSIntBoolean<PlainT> toSpdz2kSIntBool(Pair<BigInteger, BigInteger> raw) {
+    int n = factory.getLowBitLength() - 1;
+    PlainT openValue = factory.createFromBigInteger(raw.getFirst().shiftLeft(n));
+    PlainT share = factory.createFromBigInteger(raw.getSecond().shiftLeft(n));
+    PlainT macShare = openValue.multiply(secretSharedKey);
+    return new Spdz2kSIntBoolean<>(share, macShare);
   }
 
 }

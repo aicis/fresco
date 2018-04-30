@@ -10,6 +10,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.spdz2k.AbstractSpdz2kTest;
@@ -25,6 +26,7 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -63,6 +65,7 @@ public class TestSpdz2kConversion extends
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
         private final List<BigInteger> input = Arrays.asList(
             BigInteger.ONE,
             BigInteger.ZERO
@@ -70,21 +73,21 @@ public class TestSpdz2kConversion extends
 
         @Override
         public void test() {
-          Application<List<DRes<OInt>>, ProtocolBuilderNumeric> app =
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app =
               root -> {
+                OIntFactory factory = root.getOIntFactory();
                 DRes<List<DRes<SInt>>> inputClosed = root.numeric().knownAsDRes(input);
                 DRes<List<DRes<SInt>>> inputBool = root.conversion().toBooleanBatch(inputClosed);
-                DRes<List<DRes<SInt>>> inputArithmetic = root.conversion()
-                    .toArithmeticBatch(inputBool);
-                return root.logical().openAsBits(inputArithmetic);
+                DRes<List<DRes<OInt>>> opened = root.logical().openAsBits(inputBool);
+                return () -> opened.out().stream().map(v -> factory.toBigInteger(v.out()))
+                    .collect(Collectors.toList());
               };
-//          List<BigInteger> actual = runApplication(app).stream().map(v -> v.out().)
-//              .collect(Collectors.toList());
+          List<BigInteger> actual = runApplication(app);
           List<BigInteger> expected = Arrays.asList(
               BigInteger.ONE,
               BigInteger.ZERO
           );
-          Assert.assertEquals(expected, null);
+          Assert.assertEquals(expected, actual);
         }
       };
     }

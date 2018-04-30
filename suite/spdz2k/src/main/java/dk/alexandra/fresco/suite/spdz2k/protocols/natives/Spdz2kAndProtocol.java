@@ -7,31 +7,31 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
-import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntArithmetic;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntBoolean;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kTriple;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 import java.util.Arrays;
 
 /**
- * Native protocol for computing product of two secret numbers.
+ * Native protocol for computing logical AND of two values in boolean form.
  */
-public class Spdz2kMultiplyProtocol<PlainT extends CompUInt<?, ?, PlainT>> extends
+public class Spdz2kAndProtocol<PlainT extends CompUInt<?, ?, PlainT>> extends
     Spdz2kNativeProtocol<SInt, PlainT> {
 
   private final DRes<SInt> left;
   private final DRes<SInt> right;
-  private Spdz2kTriple<PlainT, Spdz2kSIntArithmetic<PlainT>> triple;
-  private Spdz2kSIntArithmetic<PlainT> epsilon;
-  private Spdz2kSIntArithmetic<PlainT> delta;
+  private Spdz2kTriple<PlainT, Spdz2kSIntBoolean<PlainT>> triple;
+  private Spdz2kSIntBoolean<PlainT> epsilon;
+  private Spdz2kSIntBoolean<PlainT> delta;
   private SInt product;
 
   /**
-   * Creates new {@link Spdz2kMultiplyProtocol}.
+   * Creates new {@link dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kMultiplyProtocol}.
    *
    * @param left left factor
    * @param right right factor
    */
-  public Spdz2kMultiplyProtocol(DRes<SInt> left, DRes<SInt> right) {
+  public Spdz2kAndProtocol(DRes<SInt> left, DRes<SInt> right) {
     this.left = left;
     this.right = right;
   }
@@ -43,9 +43,9 @@ public class Spdz2kMultiplyProtocol<PlainT extends CompUInt<?, ?, PlainT>> exten
     ByteSerializer<PlainT> serializer = resourcePool.getPlainSerializer();
     CompUIntFactory<PlainT> factory = resourcePool.getFactory();
     if (round == 0) {
-      triple = resourcePool.getDataSupplier().getNextTripleSharesFull();
-      epsilon = factory.toSpdz2kSIntArithmetic(left).subtract(triple.getLeft());
-      delta = factory.toSpdz2kSIntArithmetic(right).subtract(triple.getRight());
+      triple = resourcePool.getDataSupplier().getNextBitTripleShares();
+      epsilon = factory.toSpdz2kSIntBoolean(left).subtract(triple.getLeft());
+      delta = factory.toSpdz2kSIntBoolean(right).subtract(triple.getRight());
       network.sendToAll(epsilon.serializeShareLow());
       network.sendToAll(delta.serializeShareLow());
       return EvaluationStatus.HAS_MORE_ROUNDS;
@@ -58,9 +58,9 @@ public class Spdz2kMultiplyProtocol<PlainT extends CompUInt<?, ?, PlainT>> exten
       PlainT e = epsilonAndDelta.getFirst();
       PlainT d = epsilonAndDelta.getSecond();
       PlainT ed = e.multiply(d);
-      Spdz2kSIntArithmetic<PlainT> tripleRight = triple.getRight();
-      Spdz2kSIntArithmetic<PlainT> tripleLeft = triple.getLeft();
-      Spdz2kSIntArithmetic<PlainT> tripleProduct = triple.getProduct();
+      Spdz2kSIntBoolean<PlainT> tripleRight = triple.getRight();
+      Spdz2kSIntBoolean<PlainT> tripleLeft = triple.getLeft();
+      Spdz2kSIntBoolean<PlainT> tripleProduct = triple.getProduct();
       this.product = tripleProduct
           .add(tripleRight.multiply(e))
           .add(tripleLeft.multiply(d))
@@ -69,7 +69,10 @@ public class Spdz2kMultiplyProtocol<PlainT extends CompUInt<?, ?, PlainT>> exten
               factory.zero(),
               resourcePool.getMyId() == 1);
       resourcePool.getOpenedValueStore().pushOpenedValues(
-          Arrays.asList(epsilon, delta),
+          Arrays.asList(
+              epsilon.asArithmetic(),
+              delta.asArithmetic()
+          ),
           Arrays.asList(e, d)
       );
       return EvaluationStatus.IS_DONE;
@@ -95,5 +98,4 @@ public class Spdz2kMultiplyProtocol<PlainT extends CompUInt<?, ?, PlainT>> exten
   public SInt out() {
     return product;
   }
-
 }
