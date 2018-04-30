@@ -3,6 +3,8 @@ package dk.alexandra.fresco.suite.spdz2k;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Comparison;
+import dk.alexandra.fresco.framework.builder.numeric.DefaultLogical;
+import dk.alexandra.fresco.framework.builder.numeric.Logical;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.OInt;
@@ -36,10 +38,13 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
   private final CompUIntFactory<PlainT> factory;
   private final BasicNumericContext numericContext;
+  private final boolean useBooleanMode;
 
-  public Spdz2kBuilder(CompUIntFactory<PlainT> factory, BasicNumericContext numericContext) {
+  public Spdz2kBuilder(CompUIntFactory<PlainT> factory, BasicNumericContext numericContext,
+      boolean useBooleanMode) {
     this.factory = factory;
     this.numericContext = numericContext;
+    this.useBooleanMode = useBooleanMode;
   }
 
   @Override
@@ -50,6 +55,15 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
   @Override
   public Comparison createComparison(ProtocolBuilderNumeric builder) {
     return new Spdz2kComparison<>(this, builder, factory);
+  }
+
+  @Override
+  public Logical createLogical(ProtocolBuilderNumeric builder) {
+    if (useBooleanMode) {
+      return new Spdz2kLogicalBooleanMode(builder);
+    } else {
+      return new Spdz2kLogical(builder);
+    }
   }
 
   @Override
@@ -187,6 +201,13 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
   public RealNumericContext getRealNumericContext() {
     // TODO Auto-generated method stub
     return null;
+  }
+
+  class Spdz2kLogical extends DefaultLogical {
+    protected Spdz2kLogical(
+        ProtocolBuilderNumeric builder) {
+      super(builder);
+    }
   }
 
 }

@@ -30,6 +30,7 @@ public abstract class Spdz2kProtocolSuite<
     implements ProtocolSuiteNumeric<Spdz2kResourcePool<PlainT>> {
 
   private final CompUIntConverter<HighT, LowT, PlainT> converter;
+  private final boolean useBooleanMode;
 
   /**
    * Constructs new {@link Spdz2kProtocolSuite}.
@@ -37,14 +38,21 @@ public abstract class Spdz2kProtocolSuite<
    * @param converter helper which allows converting {@link HighT}, and {@link LowT} instances to
    * {@link PlainT}. This is necessary for the mac-check protocol where we perform arithmetic
    * between these different types.
+   * @param useBooleanMode flag for switching to boolean shares for logical operations
    */
-  Spdz2kProtocolSuite(CompUIntConverter<HighT, LowT, PlainT> converter) {
+  Spdz2kProtocolSuite(CompUIntConverter<HighT, LowT, PlainT> converter, boolean useBooleanMode) {
     this.converter = converter;
+    this.useBooleanMode = useBooleanMode;
+  }
+
+  Spdz2kProtocolSuite(CompUIntConverter<HighT, LowT, PlainT> converter) {
+    this(converter, false);
   }
 
   @Override
   public BuilderFactoryNumeric init(Spdz2kResourcePool<PlainT> resourcePool, Network network) {
-    return new Spdz2kBuilder<>(resourcePool.getFactory(), createBasicNumericContext(resourcePool));
+    return new Spdz2kBuilder<>(resourcePool.getFactory(), createBasicNumericContext(resourcePool),
+        useBooleanMode);
   }
 
   @Override
@@ -57,5 +65,5 @@ public abstract class Spdz2kProtocolSuite<
         resourcePool.getMaxBitLength(), resourcePool.getModulus(), resourcePool.getMyId(),
         resourcePool.getNoOfParties());
   }
-
+  
 }
