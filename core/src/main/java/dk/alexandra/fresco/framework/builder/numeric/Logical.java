@@ -46,6 +46,20 @@ public interface Logical extends ComputationDirectory {
       DRes<List<DRes<SInt>>> secretBits);
 
   /**
+   * Computes pairwise logical AND of input bits. <p>NOTE: Inputs must represent 0 or 1 values
+   * only.</p>
+   */
+  DRes<List<DRes<SInt>>> pairWiseAnd(DRes<List<DRes<SInt>>> bitsA,
+      DRes<List<DRes<SInt>>> bitsB);
+
+  /**
+   * Computes pairwise logical OR of input bits. <p>NOTE: Inputs must represent 0 or 1 values
+   * only.</p>
+   */
+  DRes<List<DRes<SInt>>> pairWiseOr(DRes<List<DRes<SInt>>> bitsA,
+      DRes<List<DRes<SInt>>> bitsB);
+
+  /**
    * Computes pairwise logical XOR of input bits. <p>NOTE: Inputs must represent 0 or 1 values
    * only.</p>
    */

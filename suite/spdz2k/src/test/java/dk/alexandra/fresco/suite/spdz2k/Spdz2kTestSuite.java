@@ -6,6 +6,11 @@ import dk.alexandra.fresco.lib.collections.io.CloseListTests.TestCloseAndOpenLis
 import dk.alexandra.fresco.lib.compare.CompareTests.TestLessThanLogRounds;
 import dk.alexandra.fresco.lib.compare.lt.BitLessThanOpenTests.TestBitLessThanOpen;
 import dk.alexandra.fresco.lib.math.integer.binary.BinaryOperationsTests.TestGenerateRandomBitMask;
+import dk.alexandra.fresco.lib.math.integer.logical.LogicalOperationsTests.TestAnd;
+import dk.alexandra.fresco.lib.math.integer.logical.LogicalOperationsTests.TestAndKnown;
+import dk.alexandra.fresco.lib.math.integer.logical.LogicalOperationsTests.TestNot;
+import dk.alexandra.fresco.lib.math.integer.logical.LogicalOperationsTests.TestOr;
+import dk.alexandra.fresco.lib.math.integer.logical.LogicalOperationsTests.TestXorKnown;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 import org.junit.Test;
 
@@ -143,6 +148,31 @@ public abstract class Spdz2kTestSuite<Spdz2kResourcePoolT extends Spdz2kResource
   public void testLessThanLogRounds() {
     runTest(new TestLessThanLogRounds<>(getMaxBitLength()),
         EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
+  public void testAndKnown() {
+    runTest(new TestAndKnown<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
+  public void testAnd() {
+    runTest(new TestAnd<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
+  public void testOr() {
+    runTest(new TestOr<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
+  public void testNot() {
+    runTest(new TestNot<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
+  public void testXorKnown() {
+    runTest(new TestXorKnown<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   protected abstract int getMaxBitLength();

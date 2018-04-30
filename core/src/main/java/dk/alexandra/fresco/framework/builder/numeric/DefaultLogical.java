@@ -5,6 +5,7 @@ import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiFunction;
 
 /**
  * Default implementation of {@link Logical}, expressing logical operations via arithmetic.
@@ -60,37 +61,75 @@ public class DefaultLogical implements Logical {
     });
   }
 
-  @Override
-  public DRes<List<DRes<SInt>>> pairWiseAndKnown(DRes<List<DRes<OInt>>> knownBits,
-      DRes<List<DRes<SInt>>> secretBits) {
-    return builder.par(par -> {
-      List<DRes<SInt>> leftOut = secretBits.out();
-      List<DRes<OInt>> rightOut = knownBits.out();
-      List<DRes<SInt>> andedBits = new ArrayList<>(leftOut.size());
-      for (int i = 0; i < leftOut.size(); i++) {
-        DRes<SInt> leftBit = leftOut.get(i);
-        DRes<OInt> rightBit = rightOut.get(i);
-        DRes<SInt> andedBit = par.logical().andKnown(rightBit, leftBit);
-        andedBits.add(andedBit);
-      }
-      return () -> andedBits;
-    });
+  private DRes<List<DRes<SInt>>> pairWise(
+      DRes<List<DRes<SInt>>> bitsA,
+      DRes<List<DRes<SInt>>> bitsB,
+      BiFunction<DRes<SInt>, DRes<SInt>, DRes<SInt>> op) {
+    List<DRes<SInt>> leftOut = bitsB.out();
+    List<DRes<SInt>> rightOut = bitsA.out();
+    List<DRes<SInt>> resultBits = new ArrayList<>(leftOut.size());
+    for (int i = 0; i < leftOut.size(); i++) {
+      DRes<SInt> leftBit = leftOut.get(i);
+      DRes<SInt> rightBit = rightOut.get(i);
+      DRes<SInt> resultBit = op.apply(leftBit, rightBit);
+      resultBits.add(resultBit);
+    }
+    return () -> resultBits;
+  }
+
+  private DRes<List<DRes<SInt>>> pairWiseKnown(
+      DRes<List<DRes<OInt>>> knownBits,
+      DRes<List<DRes<SInt>>> secretBits,
+      BiFunction<DRes<OInt>, DRes<SInt>, DRes<SInt>> op) {
+    List<DRes<OInt>> knownOut = knownBits.out();
+    List<DRes<SInt>> secretOut = secretBits.out();
+    List<DRes<SInt>> resultBits = new ArrayList<>(secretOut.size());
+    for (int i = 0; i < secretOut.size(); i++) {
+      DRes<SInt> secretBit = secretOut.get(i);
+      DRes<OInt> knownBit = knownOut.get(i);
+      DRes<SInt> resultBit = op.apply(knownBit, secretBit);
+      resultBits.add(resultBit);
+    }
+    return () -> resultBits;
   }
 
   @Override
   public DRes<List<DRes<SInt>>> pairWiseXorKnown(DRes<List<DRes<OInt>>> knownBits,
       DRes<List<DRes<SInt>>> secretBits) {
     return builder.par(par -> {
-      List<DRes<SInt>> leftOut = secretBits.out();
-      List<DRes<OInt>> rightOut = knownBits.out();
-      List<DRes<SInt>> xoredBits = new ArrayList<>(leftOut.size());
-      for (int i = 0; i < leftOut.size(); i++) {
-        DRes<SInt> leftBit = leftOut.get(i);
-        DRes<OInt> rightBit = rightOut.get(i);
-        DRes<SInt> andedBit = par.logical().xorKnown(rightBit, leftBit);
-        xoredBits.add(andedBit);
-      }
-      return () -> xoredBits;
+      BiFunction<DRes<OInt>, DRes<SInt>, DRes<SInt>> f = (left, right) -> par.logical()
+          .xorKnown(left, right);
+      return pairWiseKnown(knownBits, secretBits, f);
+    });
+  }
+
+  @Override
+  public DRes<List<DRes<SInt>>> pairWiseAndKnown(DRes<List<DRes<OInt>>> knownBits,
+      DRes<List<DRes<SInt>>> secretBits) {
+    return builder.par(par -> {
+      BiFunction<DRes<OInt>, DRes<SInt>, DRes<SInt>> f = (left, right) -> par.logical()
+          .andKnown(left, right);
+      return pairWiseKnown(knownBits, secretBits, f);
+    });
+  }
+
+  @Override
+  public DRes<List<DRes<SInt>>> pairWiseAnd(DRes<List<DRes<SInt>>> bitsA,
+      DRes<List<DRes<SInt>>> bitsB) {
+    return builder.par(par -> {
+      BiFunction<DRes<SInt>, DRes<SInt>, DRes<SInt>> f = (left, right) -> par.logical()
+          .and(left, right);
+      return pairWise(bitsA, bitsB, f);
+    });
+  }
+
+  @Override
+  public DRes<List<DRes<SInt>>> pairWiseOr(DRes<List<DRes<SInt>>> bitsA,
+      DRes<List<DRes<SInt>>> bitsB) {
+    return builder.par(par -> {
+      BiFunction<DRes<SInt>, DRes<SInt>, DRes<SInt>> f = (left, right) -> par.logical()
+          .or(left, right);
+      return pairWise(bitsA, bitsB, f);
     });
   }
 
