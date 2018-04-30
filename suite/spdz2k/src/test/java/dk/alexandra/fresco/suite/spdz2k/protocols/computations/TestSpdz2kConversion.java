@@ -66,7 +66,6 @@ public class TestSpdz2kConversion extends
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
-        private OIntFactory factory;
         private final List<BigInteger> input = Arrays.asList(
             BigInteger.ONE,
             BigInteger.ZERO
@@ -74,16 +73,16 @@ public class TestSpdz2kConversion extends
 
         @Override
         public void test() {
-          Application<List<DRes<OInt>>, ProtocolBuilderNumeric> app =
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app =
               root -> {
-                factory = root.getOIntFactory();
+                OIntFactory factory = root.getOIntFactory();
                 DRes<List<DRes<SInt>>> inputClosed = root.numeric().knownAsDRes(input);
                 DRes<List<DRes<SInt>>> inputBool = root.conversion().toBooleanBatch(inputClosed);
-                return root.logical().openAsBits(inputBool);
+                DRes<List<DRes<OInt>>> opened = root.logical().openAsBits(inputBool);
+                return () -> opened.out().stream().map(v -> factory.toBigInteger(v.out()))
+                    .collect(Collectors.toList());
               };
-          List<BigInteger> actual = runApplication(app).stream()
-              .map(v -> factory.toBigInteger(v.out()))
-              .collect(Collectors.toList());
+          List<BigInteger> actual = runApplication(app);
           List<BigInteger> expected = Arrays.asList(
               BigInteger.ONE,
               BigInteger.ZERO

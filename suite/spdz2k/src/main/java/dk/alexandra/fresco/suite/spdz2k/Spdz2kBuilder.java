@@ -204,13 +204,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
       @Override
       public DRes<SInt> toArithmetic(DRes<SInt> booleanValue) {
-        return () -> {
-          Spdz2kSIntBoolean<PlainT> value = factory.toSpdz2kSIntBoolean(booleanValue);
-          return new Spdz2kSIntArithmetic<>(
-              value.getShare(),
-              value.getMacShare()
-          );
-        };
+        throw new UnsupportedOperationException();
       }
 
       @Override

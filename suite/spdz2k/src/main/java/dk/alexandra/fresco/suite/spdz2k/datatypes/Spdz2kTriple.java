@@ -1,27 +1,26 @@
 package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
-public class Spdz2kTriple<PlainT extends CompUInt<?, ?, PlainT>> {
+public class Spdz2kTriple<PlainT extends CompUInt<?, ?, PlainT>, SIntT extends Spdz2kSInt<PlainT>> {
 
-  private final Spdz2kSIntArithmetic<PlainT> left;
-  private final Spdz2kSIntArithmetic<PlainT> right;
-  private final Spdz2kSIntArithmetic<PlainT> product;
+  private final SIntT left;
+  private final SIntT right;
+  private final SIntT product;
 
-  public Spdz2kTriple(Spdz2kSIntArithmetic<PlainT> left, Spdz2kSIntArithmetic<PlainT> right,
-      Spdz2kSIntArithmetic<PlainT> product) {
+  public Spdz2kTriple(SIntT left, SIntT right, SIntT product) {
     this.left = left;
     this.right = right;
     this.product = product;
   }
 
-  public Spdz2kSIntArithmetic<PlainT> getLeft() {
+  public SIntT getLeft() {
     return left;
   }
 
-  public Spdz2kSIntArithmetic<PlainT> getRight() {
+  public SIntT getRight() {
     return right;
   }
 
-  public Spdz2kSIntArithmetic<PlainT> getProduct() {
+  public SIntT getProduct() {
     return product;
   }
 

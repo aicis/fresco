@@ -3,6 +3,7 @@ package dk.alexandra.fresco.suite.spdz2k.resource.storage;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kInputMask;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntArithmetic;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntBoolean;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kTriple;
 
 /**
@@ -12,11 +13,18 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kTriple;
 public interface Spdz2kDataSupplier<T extends CompUInt<?, ?, T>> {
 
   /**
-   * Supplies the next triple.
+   * Supplies the next full multiplication triple.
    *
    * @return the next new triple
    */
-  Spdz2kTriple<T> getNextTripleShares();
+  Spdz2kTriple<T, Spdz2kSIntArithmetic<T>> getNextTripleSharesFull();
+
+  /**
+   * Supplies the next boolean multiplication triple.
+   *
+   * @return the next new triple
+   */
+  Spdz2kTriple<T, Spdz2kSIntBoolean<T>> getNextBitTripleShares();
 
   /**
    * Supplies the next inputmask for a given input player.
