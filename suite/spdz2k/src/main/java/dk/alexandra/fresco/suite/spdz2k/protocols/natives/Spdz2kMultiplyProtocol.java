@@ -46,8 +46,8 @@ public class Spdz2kMultiplyProtocol<PlainT extends CompUInt<?, ?, PlainT>> exten
       triple = resourcePool.getDataSupplier().getNextTripleShares();
       epsilon = factory.toSpdz2kSIntArithmetic(left).subtract(triple.getLeft());
       delta = factory.toSpdz2kSIntArithmetic(right).subtract(triple.getRight());
-      network.sendToAll(epsilon.getShare().getLeastSignificant().toByteArray());
-      network.sendToAll(delta.getShare().getLeastSignificant().toByteArray());
+      network.sendToAll(epsilon.serializeShareLow());
+      network.sendToAll(delta.serializeShareLow());
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       Pair<PlainT, PlainT> epsilonAndDelta = receiveAndReconstruct(network,

@@ -48,7 +48,7 @@ public class Spdz2kOutputSinglePartyProtocol<PlainT extends CompUInt<?, ?, Plain
     if (round == 0) {
       this.inputMask = supplier.getNextInputMask(outputParty);
       inMinusMask = factory.toSpdz2kSIntArithmetic(share).subtract(this.inputMask.getMaskShare());
-      network.sendToAll(inMinusMask.getShare().getLeastSignificant().toByteArray());
+      network.sendToAll(inMinusMask.serializeShareLow());
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       List<PlainT> shares = resourcePool.getPlainSerializer()

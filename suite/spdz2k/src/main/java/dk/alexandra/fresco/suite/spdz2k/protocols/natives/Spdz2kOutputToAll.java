@@ -41,7 +41,7 @@ public class Spdz2kOutputToAll<PlainT extends CompUInt<?, ?, PlainT>>
     CompUIntFactory<PlainT> factory = resourcePool.getFactory();
     if (round == 0) {
       authenticatedElement = factory.toSpdz2kSIntArithmetic(share);
-      network.sendToAll(authenticatedElement.getShare().getLeastSignificant().toByteArray());
+      network.sendToAll(authenticatedElement.serializeShareLow());
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       ByteSerializer<PlainT> serializer = resourcePool.getPlainSerializer();
