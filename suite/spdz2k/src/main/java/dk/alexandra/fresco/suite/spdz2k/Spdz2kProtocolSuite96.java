@@ -10,8 +10,12 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.UInt64;
  */
 public class Spdz2kProtocolSuite96 extends Spdz2kProtocolSuite<UInt64, UInt32, CompUInt96> {
 
-  Spdz2kProtocolSuite96() {
-    super(new CompUIntConverter96());
+  public Spdz2kProtocolSuite96(boolean useBooleanMode) {
+    super(new CompUIntConverter96(), useBooleanMode);
+  }
+
+  public Spdz2kProtocolSuite96() {
+    this(false);
   }
 
 }

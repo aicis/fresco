@@ -53,7 +53,7 @@ public class Spdz2kRoundSynchronization<
 
   private void doMacCheck(Spdz2kResourcePool<PlainT> resourcePool, Network network) {
     Spdz2kBuilder<PlainT> builder = new Spdz2kBuilder<>(resourcePool.getFactory(),
-        protocolSuite.createBasicNumericContext(resourcePool));
+        protocolSuite.createBasicNumericContext(resourcePool), false);
     BatchEvaluationStrategy<Spdz2kResourcePool<PlainT>> batchStrategy = new BatchedStrategy<>();
     BatchedProtocolEvaluator<Spdz2kResourcePool<PlainT>> evaluator = new BatchedProtocolEvaluator<>(
         batchStrategy,
