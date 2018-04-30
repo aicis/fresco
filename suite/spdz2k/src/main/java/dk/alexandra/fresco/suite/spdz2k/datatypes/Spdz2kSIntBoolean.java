@@ -34,4 +34,12 @@ public class Spdz2kSIntBoolean<PlainT extends CompUInt<?, ?, PlainT>> extends
     return share.toByteArray();
   }
 
+  @Override
+  public String toString() {
+    return "Spdz2kSIntBoolean{" +
+        "share=" + share +
+        ", macShare=" + macShare +
+        '}';
+  }
+
 }

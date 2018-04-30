@@ -3,6 +3,7 @@ package dk.alexandra.fresco.framework.builder.numeric;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.framework.value.SInt;
+import java.util.List;
 
 /**
  * Operators for converting between different representations of secret values (for instance between
@@ -21,5 +22,15 @@ public interface Conversion extends ComputationDirectory {
    * Convert from boolean representation to arithmetic representation.
    */
   DRes<SInt> toArithmetic(DRes<SInt> booleanValue);
+
+  /**
+   * Convert multiple values from arithmetic to boolean.
+   */
+  DRes<List<DRes<SInt>>> toBooleanBatch(DRes<List<DRes<SInt>>> arithmeticBatch);
+
+  /**
+   * Convert multiple values from boolean to arithmetic.
+   */
+  DRes<List<DRes<SInt>>> toArithmeticBatch(DRes<List<DRes<SInt>>> booleanBatch);
 
 }

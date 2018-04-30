@@ -50,6 +50,13 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> extends OI
   }
 
   /**
+   * Get result from deferred and downcast result to {@link Spdz2kSIntBoolean<CompT>}.
+   */
+  default Spdz2kSIntBoolean<CompT> toSpdz2kSIntBoolean(DRes<SInt> value) {
+    return Objects.requireNonNull((Spdz2kSIntBoolean<CompT>) value.out());
+  }
+
+  /**
    * Creates new {@link CompT} from a raw array of bytes.
    */
   CompT createFromBytes(byte[] bytes);

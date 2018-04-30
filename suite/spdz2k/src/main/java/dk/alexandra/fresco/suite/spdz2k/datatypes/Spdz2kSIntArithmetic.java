@@ -34,4 +34,12 @@ public class Spdz2kSIntArithmetic<PlainT extends CompUInt<?, ?, PlainT>> extends
     return share.toByteArray();
   }
 
+  @Override
+  public String toString() {
+    return "Spdz2kSIntArithmetic{" +
+        "share=" + share +
+        ", macShare=" + macShare +
+        '}';
+  }
+
 }

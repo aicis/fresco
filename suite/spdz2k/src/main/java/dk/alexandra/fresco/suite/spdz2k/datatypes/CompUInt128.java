@@ -161,7 +161,7 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
   @Override
   public CompUInt128 shiftLeft(int n) {
     // TODO hack hack hack
-    return new CompUInt128(high, low << 31, 0);
+    return new CompUInt128(this.toBigInteger().shiftLeft(n));
   }
 
   @Override

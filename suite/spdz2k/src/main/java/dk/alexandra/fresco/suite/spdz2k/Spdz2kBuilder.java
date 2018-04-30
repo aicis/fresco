@@ -30,6 +30,8 @@ import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kRandomBitProtoco
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kRandomElementProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kSubtractFromKnownProtocol;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Basic native builder for the SPDZ2k protocol suite.
@@ -202,7 +204,37 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
       @Override
       public DRes<SInt> toArithmetic(DRes<SInt> booleanValue) {
-        throw new UnsupportedOperationException();
+        return () -> {
+          Spdz2kSIntBoolean<PlainT> value = factory.toSpdz2kSIntBoolean(booleanValue);
+          return new Spdz2kSIntArithmetic<>(
+              value.getShare(),
+              value.getMacShare()
+          );
+        };
+      }
+
+      @Override
+      public DRes<List<DRes<SInt>>> toBooleanBatch(DRes<List<DRes<SInt>>> arithmeticBatch) {
+        return builder.par(par -> {
+          List<DRes<SInt>> inner = arithmeticBatch.out();
+          List<DRes<SInt>> converted = new ArrayList<>(inner.size());
+          for (DRes<SInt> anInner : inner) {
+            converted.add(builder.conversion().toBoolean(anInner));
+          }
+          return () -> converted;
+        });
+      }
+
+      @Override
+      public DRes<List<DRes<SInt>>> toArithmeticBatch(DRes<List<DRes<SInt>>> booleanBatch) {
+        return builder.par(par -> {
+          List<DRes<SInt>> inner = booleanBatch.out();
+          List<DRes<SInt>> converted = new ArrayList<>(inner.size());
+          for (DRes<SInt> anInner : inner) {
+            converted.add(builder.conversion().toArithmetic(anInner));
+          }
+          return () -> converted;
+        });
       }
     };
   }

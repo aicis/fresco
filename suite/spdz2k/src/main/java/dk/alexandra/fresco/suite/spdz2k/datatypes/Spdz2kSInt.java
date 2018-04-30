@@ -34,14 +34,6 @@ public abstract class Spdz2kSInt<PlainT extends CompUInt<?, ?, PlainT>> implemen
     return new Spdz2kSIntArithmetic<>(share.multiply(other), macShare.multiply(other));
   }
 
-  @Override
-  public String toString() {
-    return "Spdz2kSInt{" +
-        "share=" + share +
-        ", macShare=" + macShare +
-        '}';
-  }
-
   /**
    * Compute sum of this and constant (open) value. <p>All parties compute their mac share of the
    * public value and add it to the mac share of the authenticated value, however only party 1 adds
