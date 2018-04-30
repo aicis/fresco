@@ -2,6 +2,7 @@ package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.Conversion;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.PreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -187,6 +188,12 @@ class SpdzBuilder implements BuilderFactoryNumeric {
       }
 
     };
+  }
+
+  @Override
+  public Conversion createConversion(ProtocolBuilderNumeric builder) {
+    throw new UnsupportedOperationException(
+        "This protocol suite does not currently support conversion");
   }
 
   @Override

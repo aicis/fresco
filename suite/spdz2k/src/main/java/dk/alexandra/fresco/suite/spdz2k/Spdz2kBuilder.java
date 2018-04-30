@@ -3,6 +3,7 @@ package dk.alexandra.fresco.suite.spdz2k;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Comparison;
+import dk.alexandra.fresco.framework.builder.numeric.Conversion;
 import dk.alexandra.fresco.framework.builder.numeric.DefaultLogical;
 import dk.alexandra.fresco.framework.builder.numeric.Logical;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
@@ -180,6 +181,12 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
         };
       }
     };
+  }
+
+  @Override
+  public Conversion createConversion(ProtocolBuilderNumeric builder) {
+    // TODO implement
+    return null;
   }
 
   @Override

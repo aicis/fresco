@@ -2,6 +2,7 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.Conversion;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
@@ -229,6 +230,12 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
         return builder.append(c);
       }
     };
+  }
+
+  @Override
+  public Conversion createConversion(ProtocolBuilderNumeric builder) {
+    throw new UnsupportedOperationException(
+        "This protocol suite does not currently support conversion");
   }
 
   @Override
