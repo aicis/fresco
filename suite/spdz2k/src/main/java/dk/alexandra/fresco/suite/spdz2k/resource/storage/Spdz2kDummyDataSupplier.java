@@ -44,7 +44,11 @@ public class Spdz2kDummyDataSupplier<
 
   @Override
   public Spdz2kTriple<PlainT, Spdz2kSIntBoolean<PlainT>> getNextBitTripleShares() {
-    MultiplicationTripleShares rawTriple = supplier.getMultiplicationTripleShares();
+    MultiplicationTripleShares rawTriple = supplier.getMultiplicationBitTripleShares();
+    if (myId == 1) {
+      System.out.println(rawTriple.getProduct().getFirst());
+    }
+
     return new Spdz2kTriple<>(
         toSpdz2kSIntBool(rawTriple.getLeft()),
         toSpdz2kSIntBool(rawTriple.getRight()),

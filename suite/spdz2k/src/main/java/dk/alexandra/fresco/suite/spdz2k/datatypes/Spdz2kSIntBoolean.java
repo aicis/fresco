@@ -12,7 +12,7 @@ public class Spdz2kSIntBoolean<PlainT extends CompUInt<?, ?, PlainT>> extends
    * Creates a {@link Spdz2kSIntBoolean}.
    */
   public Spdz2kSIntBoolean(PlainT share, PlainT macShare) {
-    super(macShare, share);
+    super(share, macShare);
   }
 
   /**
@@ -21,29 +21,29 @@ public class Spdz2kSIntBoolean<PlainT extends CompUInt<?, ?, PlainT>> extends
    * others store 0.</p>
    */
   public Spdz2kSIntBoolean(PlainT share, PlainT macKeyShare, PlainT zero, boolean isPartyOne) {
-    this(isPartyOne ? share : zero, share.multiply(macKeyShare));
+    this(isPartyOne ? share : zero, share.and(macKeyShare));
   }
 
   /**
    * Compute sum of this and other.
    */
   public Spdz2kSIntBoolean<PlainT> add(Spdz2kSIntBoolean<PlainT> other) {
-    return new Spdz2kSIntBoolean<>(share.add(other.share), macShare.add(other.macShare));
+    return new Spdz2kSIntBoolean<>(share.xor(other.share), macShare.xor(other.macShare));
   }
 
   /**
    * Compute difference of this and other.
    */
   public Spdz2kSIntBoolean<PlainT> subtract(Spdz2kSIntBoolean<PlainT> other) {
-    return new Spdz2kSIntBoolean<>(share.subtract(other.share),
-        macShare.subtract(other.macShare));
+    return new Spdz2kSIntBoolean<>(share.xor(other.share.not()),
+        macShare.xor(other.macShare.not()));
   }
 
   /**
    * Compute product of this and constant (open) value.
    */
   public Spdz2kSIntBoolean<PlainT> multiply(PlainT other) {
-    return new Spdz2kSIntBoolean<>(share.multiply(other), macShare.multiply(other));
+    return new Spdz2kSIntBoolean<>(share.and(other), macShare.and(other));
   }
 
   /**

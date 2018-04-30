@@ -35,7 +35,7 @@ public class TestSpdz2kLogicalOperations extends
 
   @Test
   public void testAnd() {
-    runTest(new TestAnd<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
+    runTest(new TestAndSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
 
   @Override
@@ -58,7 +58,7 @@ public class TestSpdz2kLogicalOperations extends
     return new Spdz2kProtocolSuite128(true);
   }
 
-  public static class TestAnd<ResourcePoolT extends ResourcePool>
+  public static class TestAndSpdz2k<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
@@ -69,11 +69,19 @@ public class TestSpdz2kLogicalOperations extends
             BigInteger.ONE,
             BigInteger.ZERO,
             BigInteger.ONE,
+            BigInteger.ZERO,
+            BigInteger.ONE,
+            BigInteger.ZERO,
+            BigInteger.ONE,
             BigInteger.ZERO);
         private final List<BigInteger> right = Arrays.asList(
             BigInteger.ONE,
             BigInteger.ONE,
             BigInteger.ZERO,
+            BigInteger.ZERO,
+            BigInteger.ONE,
+            BigInteger.ZERO,
+            BigInteger.ONE,
             BigInteger.ZERO);
 
         @Override
@@ -85,8 +93,10 @@ public class TestSpdz2kLogicalOperations extends
                 DRes<List<DRes<SInt>>> leftConverted = root.conversion().toBooleanBatch(leftClosed);
                 DRes<List<DRes<SInt>>> rightConverted = root.conversion()
                     .toBooleanBatch(rightClosed);
-                DRes<List<DRes<SInt>>> anded = root.logical()
-                    .pairWiseAnd(leftConverted, rightConverted);
+                DRes<List<DRes<SInt>>> anded = root.logical().pairWiseAnd(
+                    leftConverted,
+                    rightConverted
+                );
                 DRes<List<DRes<OInt>>> opened = root.logical().openAsBits(anded);
                 OIntFactory factory = root.getOIntFactory();
                 return () -> opened.out().stream().map(v -> factory.toBigInteger(v.out()))

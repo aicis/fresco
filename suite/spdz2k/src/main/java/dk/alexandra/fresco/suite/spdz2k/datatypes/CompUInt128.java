@@ -124,6 +124,21 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
   }
 
   @Override
+  public CompUInt128 and(CompUInt128 other) {
+    return new CompUInt128(high & other.high, mid & other.mid, low & other.low);
+  }
+
+  @Override
+  public CompUInt128 xor(CompUInt128 other) {
+    return new CompUInt128(high ^ other.high, mid ^ other.mid, low ^ other.low);
+  }
+
+  @Override
+  public CompUInt128 not() {
+    return new CompUInt128(~high, ~mid, ~low);
+  }
+
+  @Override
   public CompUInt128 subtract(CompUInt128 other) {
     return this.add(other.negate());
   }

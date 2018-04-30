@@ -12,7 +12,7 @@ public class Spdz2kSIntArithmetic<PlainT extends CompUInt<?, ?, PlainT>> extends
    * Creates a {@link Spdz2kSIntArithmetic}.
    */
   public Spdz2kSIntArithmetic(PlainT share, PlainT macShare) {
-    super(macShare, share);
+    super(share, macShare);
   }
 
   /**

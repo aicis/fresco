@@ -57,7 +57,8 @@ public class Spdz2kAndProtocol<PlainT extends CompUInt<?, ?, PlainT>> extends
       // compute [prod] = [c] + epsilon * [b] + delta * [a] + epsilon * delta
       PlainT e = epsilonAndDelta.getFirst();
       PlainT d = epsilonAndDelta.getSecond();
-      PlainT ed = e.multiply(d);
+      PlainT ed = e.and(d);
+      System.out.println("ed " + ed);
       Spdz2kSIntBoolean<PlainT> tripleRight = triple.getRight();
       Spdz2kSIntBoolean<PlainT> tripleLeft = triple.getLeft();
       Spdz2kSIntBoolean<PlainT> tripleProduct = triple.getProduct();
@@ -88,9 +89,10 @@ public class Spdz2kAndProtocol<PlainT extends CompUInt<?, ?, PlainT>> extends
     PlainT e = factory.zero();
     PlainT d = factory.zero();
     for (int i = 1; i <= noOfParties; i++) {
-      e = e.add(serializer.deserialize(network.receive(i)));
-      d = d.add(serializer.deserialize(network.receive(i)));
+      e = e.xor(serializer.deserialize(network.receive(i)));
+      d = d.xor(serializer.deserialize(network.receive(i)));
     }
+    System.out.println("e " + e + " d " + d);
     return new Pair<>(e, d);
   }
 

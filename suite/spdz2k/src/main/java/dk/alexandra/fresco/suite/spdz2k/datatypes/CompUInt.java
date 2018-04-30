@@ -50,6 +50,27 @@ public interface CompUInt<
   CompT clearHighBits();
 
   /**
+   * Bit-wise AND of this and other.
+   */
+  default CompT and(CompT other) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Bit-wise XOR of this and other.
+   */
+  default CompT xor(CompT other) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Bit-wise NOT of this.
+   */
+  default CompT not() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Get length of least significant bit segment, i.e., k.
    */
   int getLowBitLength();

@@ -60,6 +60,17 @@ public class ArithmeticDummyDataSupplier {
     );
   }
 
+  public MultiplicationTripleShares getMultiplicationBitTripleShares() {
+    BigInteger left = getNextBit();
+    BigInteger right = getNextBit();
+    BigInteger product = left.multiply(right).mod(BigInteger.valueOf(2));
+    return new MultiplicationTripleShares(
+        new Pair<>(left, sharer.share(left, noOfParties).get(myId - 1)),
+        new Pair<>(right, sharer.share(right, noOfParties).get(myId - 1)),
+        new Pair<>(product, sharer.share(product, noOfParties).get(myId - 1))
+    );
+  }
+
   /**
    * Constructs an exponentiation pipe. <p>An exponentiation pipe is a list of numbers in the
    * following format: r^{-1}, r, r^{2}, r^{3}, ..., r^{expPipeLength}, where r is a random element
