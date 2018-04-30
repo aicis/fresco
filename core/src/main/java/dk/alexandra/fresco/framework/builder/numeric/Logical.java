@@ -79,8 +79,11 @@ public interface Logical extends ComputationDirectory {
       DRes<List<DRes<SInt>>> secretBits);
 
   /**
-   * Computes logical OR of all input bits. <p>NOTE: Inputs must represent 0 or 1 values only.</p>
+   * Computes logical OR of all input bits.
+   * <p>
+   * NOTE: Inputs must represent 0 or 1 values only.
+   * </p>
    */
-  DRes<SInt> orOfList(DRes<List<DRes<OInt>>> bits);
+  DRes<SInt> orOfList(DRes<List<DRes<SInt>>> bits);
 
 }

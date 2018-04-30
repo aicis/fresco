@@ -150,9 +150,24 @@ public class DefaultLogical implements Logical {
   }
 
   @Override
-  public DRes<SInt> orOfList(DRes<List<DRes<OInt>>> bits) {
-    // TODO implement
-    throw new UnsupportedOperationException();
+  public DRes<SInt> orOfList(DRes<List<DRes<SInt>>> bits) {
+    return builder.seq(seq -> bits).whileLoop((inputs) -> inputs
+        .size() > 1,
+        (prevSeq, inputs) -> prevSeq.par(par -> {
+          List<DRes<SInt>> out = new ArrayList<>();
+          DRes<SInt> left = null;
+          for (DRes<SInt> currentInput : inputs) {
+            if (left == null) {
+              left = currentInput;
+            } else {
+              out.add(par.logical().or(left, currentInput));
+              left = null;
+            }
+          }
+          if (left != null) {
+            out.add(left);
+          }
+          return () -> out;
+        })).seq((builder, currentInput) -> currentInput.get(0));
   }
-
 }

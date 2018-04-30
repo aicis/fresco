@@ -183,6 +183,43 @@ public class LogicalOperationsTests {
     }
   }
 
+  public static class TestOrList<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        private final List<BigInteger> input1 = Arrays.asList(BigInteger.ZERO,
+            BigInteger.ZERO, BigInteger.ZERO, BigInteger.ZERO, BigInteger.ONE);
+        private final List<BigInteger> input2 = Arrays.asList(BigInteger.ZERO,
+            BigInteger.ZERO, BigInteger.ZERO, BigInteger.ZERO, BigInteger.ZERO);
+        private final List<BigInteger> input3 = Arrays.asList(BigInteger.ZERO,
+            BigInteger.ZERO, BigInteger.ONE, BigInteger.ZERO, BigInteger.ZERO);
+        private final List<BigInteger> input4 = Arrays.asList(BigInteger.ZERO,
+            BigInteger.ZERO, BigInteger.ONE, BigInteger.ZERO, BigInteger.ONE);
+
+        @Override
+        public void test() {
+          List<List<BigInteger>> inputLists = Arrays.asList(input1, input2,
+              input3, input4);
+          List<BigInteger> expectedOutput = Arrays.asList(BigInteger.ONE,
+              BigInteger.ZERO, BigInteger.ONE, BigInteger.ONE);
+
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = root -> {
+            List<DRes<BigInteger>> results = inputLists.stream().map(
+                current -> root.numeric().open(root.logical().orOfList(root.numeric().knownAsDRes(
+                        current)))).collect(Collectors.toList());
+            return () -> results.stream().map(DRes::out).collect(Collectors
+                .toList());
+          };
+          List<BigInteger> actual = runApplication(app);
+          Assert.assertArrayEquals(expectedOutput.toArray(), actual.toArray());
+        }
+      };
+    }
+  }
+
   public static class TestNot<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
