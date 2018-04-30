@@ -7,7 +7,7 @@ import org.junit.Test;
 public class TestSpdz2kSInt {
   @Test
   public void testToString() {
-    Spdz2kSInt<CompUInt128> sint = new Spdz2kSInt<>(
+    Spdz2kSIntArithmetic<CompUInt128> sint = new Spdz2kSIntArithmetic<>(
         new CompUInt128(BigInteger.ONE),
         new CompUInt128(BigInteger.ONE)
     );

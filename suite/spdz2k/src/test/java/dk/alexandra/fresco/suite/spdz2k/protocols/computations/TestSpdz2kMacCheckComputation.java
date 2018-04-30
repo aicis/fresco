@@ -19,7 +19,7 @@ import dk.alexandra.fresco.suite.spdz2k.Spdz2kProtocolSuite128;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt128;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt128Factory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
-import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntArithmetic;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kDummyDataSupplier;
@@ -89,7 +89,7 @@ public class TestSpdz2kMacCheckComputation extends
             return producer.seq(seq -> {
               SInt value = input.out();
               if (seq.getBasicNumericContext().getMyId() == cheatingPartyId) {
-                value = ((Spdz2kSInt<CompUInt128>) value).multiply(
+                value = ((Spdz2kSIntArithmetic<CompUInt128>) value).multiply(
                     new CompUInt128(BigInteger.valueOf(2)));
               }
               final SInt finalSInt = value;

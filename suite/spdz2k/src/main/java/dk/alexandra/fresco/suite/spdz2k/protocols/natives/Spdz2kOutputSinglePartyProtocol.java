@@ -8,7 +8,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kInputMask;
-import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntArithmetic;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.UInt;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kDataSupplier;
@@ -25,7 +25,7 @@ public class Spdz2kOutputSinglePartyProtocol<PlainT extends CompUInt<?, ?, Plain
   private final int outputParty;
   private PlainT opened;
   private Spdz2kInputMask<PlainT> inputMask;
-  private Spdz2kSInt<PlainT> inMinusMask;
+  private Spdz2kSIntArithmetic<PlainT> inMinusMask;
 
   /**
    * Creates new {@link Spdz2kOutputSinglePartyProtocol}.
@@ -41,13 +41,13 @@ public class Spdz2kOutputSinglePartyProtocol<PlainT extends CompUInt<?, ?, Plain
   @Override
   public EvaluationStatus evaluate(int round, Spdz2kResourcePool<PlainT> resourcePool,
       Network network) {
-    OpenedValueStore<Spdz2kSInt<PlainT>, PlainT> openedValueStore = resourcePool
+    OpenedValueStore<Spdz2kSIntArithmetic<PlainT>, PlainT> openedValueStore = resourcePool
         .getOpenedValueStore();
     Spdz2kDataSupplier<PlainT> supplier = resourcePool.getDataSupplier();
     CompUIntFactory<PlainT> factory = resourcePool.getFactory();
     if (round == 0) {
       this.inputMask = supplier.getNextInputMask(outputParty);
-      inMinusMask = factory.toSpdz2kSInt(share).subtract(this.inputMask.getMaskShare());
+      inMinusMask = factory.toSpdz2kSIntArithmetic(share).subtract(this.inputMask.getMaskShare());
       network.sendToAll(inMinusMask.getShare().getLeastSignificant().toByteArray());
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {

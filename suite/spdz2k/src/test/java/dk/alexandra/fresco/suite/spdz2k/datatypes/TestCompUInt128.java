@@ -319,4 +319,15 @@ public class TestCompUInt128 {
     assertEquals(new CompUInt128(0, 0, 0x00000001).toBigInteger(),
         new CompUInt128(1, 1, 0xff001021).clearAboveBitAt(5).toBigInteger());
   }
+
+  @Test
+  public void testShiftLeft() {
+    // TODO more tests
+    assertEquals(new BigInteger("0").shiftLeft(63),
+        new CompUInt128(new BigInteger("0")).shiftLeft(63).toBigInteger());
+    assertEquals(new BigInteger("1").shiftLeft(63),
+        new CompUInt128(new BigInteger("1")).shiftLeft(63).toBigInteger());
+    assertEquals(new BigInteger("12312").shiftLeft(12),
+        new CompUInt128(new BigInteger("12312")).shiftLeft(12).toBigInteger());
+  }
 }

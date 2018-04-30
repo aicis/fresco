@@ -2,7 +2,7 @@ package dk.alexandra.fresco.suite.spdz2k.resource.storage;
 
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kInputMask;
-import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntArithmetic;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kTriple;
 
 /**
@@ -29,7 +29,7 @@ public interface Spdz2kDataSupplier<T extends CompUInt<?, ?, T>> {
   /**
    * Supplies the next bit (SInt representing value in {0, 1}).
    */
-  Spdz2kSInt<T> getNextBitShare();
+  Spdz2kSIntArithmetic<T> getNextBitShare();
 
   /**
    * Returns the player's share of the mac key.
@@ -39,6 +39,6 @@ public interface Spdz2kDataSupplier<T extends CompUInt<?, ?, T>> {
   /**
    * Returns the next random field element.
    */
-  Spdz2kSInt<T> getNextRandomElementShare();
+  Spdz2kSIntArithmetic<T> getNextRandomElementShare();
 
 }

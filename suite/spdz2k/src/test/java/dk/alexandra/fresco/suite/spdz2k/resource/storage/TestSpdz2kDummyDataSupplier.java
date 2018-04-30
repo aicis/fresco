@@ -9,7 +9,7 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt128;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt128Factory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kInputMask;
-import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntArithmetic;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kTriple;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -22,11 +22,11 @@ public class TestSpdz2kDummyDataSupplier {
   private void testGetNextRandomElementShare(int noOfParties) {
     List<Spdz2kDataSupplier<CompUInt128>> suppliers = setupSuppliers(noOfParties);
     CompUInt128 macKey = getMacKeyFromSuppliers(suppliers);
-    List<Spdz2kSInt<CompUInt128>> shares = new ArrayList<>(noOfParties);
+    List<Spdz2kSIntArithmetic<CompUInt128>> shares = new ArrayList<>(noOfParties);
     for (Spdz2kDataSupplier<CompUInt128> supplier : suppliers) {
       shares.add(supplier.getNextRandomElementShare());
     }
-    Spdz2kSInt<CompUInt128> recombined = recombine(shares);
+    Spdz2kSIntArithmetic<CompUInt128> recombined = recombine(shares);
     assertFalse("Random value was 0 ",
         recombined.getShare().toBigInteger().equals(BigInteger.ZERO));
     assertMacCorrect(recombined, macKey);
@@ -35,11 +35,11 @@ public class TestSpdz2kDummyDataSupplier {
   private void testGetNextBitShare(int noOfParties) {
     List<Spdz2kDataSupplier<CompUInt128>> suppliers = setupSuppliers(noOfParties);
     CompUInt128 macKey = getMacKeyFromSuppliers(suppliers);
-    List<Spdz2kSInt<CompUInt128>> shares = new ArrayList<>(noOfParties);
+    List<Spdz2kSIntArithmetic<CompUInt128>> shares = new ArrayList<>(noOfParties);
     for (Spdz2kDataSupplier<CompUInt128> supplier : suppliers) {
       shares.add(supplier.getNextBitShare());
     }
-    Spdz2kSInt<CompUInt128> recombined = recombine(shares);
+    Spdz2kSIntArithmetic<CompUInt128> recombined = recombine(shares);
     BigInteger asBitInt = recombined.getShare().toBigInteger();
     assertTrue("Not a bit " + asBitInt,
         asBitInt.equals(BigInteger.ZERO) || asBitInt.equals(BigInteger.ONE));
@@ -54,7 +54,7 @@ public class TestSpdz2kDummyDataSupplier {
       masks.add(supplier.getNextInputMask(towardParty));
     }
     CompUInt128 realValue = null;
-    List<Spdz2kSInt<CompUInt128>> shares = new ArrayList<>(noOfParties);
+    List<Spdz2kSIntArithmetic<CompUInt128>> shares = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       Spdz2kInputMask<CompUInt128> inputMask = masks.get(i - 1);
       if (i != towardParty) {
@@ -64,7 +64,7 @@ public class TestSpdz2kDummyDataSupplier {
       }
       shares.add(inputMask.getMaskShare());
     }
-    Spdz2kSInt<CompUInt128> recombined = recombine(shares);
+    Spdz2kSIntArithmetic<CompUInt128> recombined = recombine(shares);
     assertMacCorrect(recombined, macKey);
     assertEquals(realValue.toBigInteger(), recombined.getShare().toBigInteger());
   }
@@ -111,12 +111,12 @@ public class TestSpdz2kDummyDataSupplier {
     testGetNextTripleShares(5);
   }
 
-  private Spdz2kSInt<CompUInt128> recombine(
-      List<Spdz2kSInt<CompUInt128>> shares) {
-    return shares.stream().reduce(Spdz2kSInt::add).get();
+  private Spdz2kSIntArithmetic<CompUInt128> recombine(
+      List<Spdz2kSIntArithmetic<CompUInt128>> shares) {
+    return shares.stream().reduce(Spdz2kSIntArithmetic::add).get();
   }
 
-  private void assertMacCorrect(Spdz2kSInt<CompUInt128> recombined,
+  private void assertMacCorrect(Spdz2kSIntArithmetic<CompUInt128> recombined,
       CompUInt128 macKey) {
     assertArrayEquals(
         macKey.multiply(recombined.getShare()).toByteArray(),
@@ -146,9 +146,9 @@ public class TestSpdz2kDummyDataSupplier {
 
   private Spdz2kTriple<CompUInt128> recombineTriples(
       List<Spdz2kTriple<CompUInt128>> triples) {
-    List<Spdz2kSInt<CompUInt128>> left = new ArrayList<>(triples.size());
-    List<Spdz2kSInt<CompUInt128>> right = new ArrayList<>(triples.size());
-    List<Spdz2kSInt<CompUInt128>> product = new ArrayList<>(triples.size());
+    List<Spdz2kSIntArithmetic<CompUInt128>> left = new ArrayList<>(triples.size());
+    List<Spdz2kSIntArithmetic<CompUInt128>> right = new ArrayList<>(triples.size());
+    List<Spdz2kSIntArithmetic<CompUInt128>> product = new ArrayList<>(triples.size());
     for (Spdz2kTriple<CompUInt128> triple : triples) {
       left.add(triple.getLeft());
       right.add(triple.getRight());

@@ -18,6 +18,7 @@ import dk.alexandra.fresco.lib.real.RealNumericContext;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntArithmetic;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntArithmetic;
 import dk.alexandra.fresco.suite.spdz2k.protocols.computations.Spdz2kInputComputation;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAddKnownProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kKnownSIntProtocol;
@@ -72,7 +73,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
     return new Numeric() {
       @Override
       public DRes<SInt> add(DRes<SInt> a, DRes<SInt> b) {
-        return () -> factory.toSpdz2kSInt(a).add(factory.toSpdz2kSInt(b));
+        return () -> factory.toSpdz2kSIntArithmetic(a).add(factory.toSpdz2kSIntArithmetic(b));
       }
 
       @Override
@@ -87,7 +88,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
       @Override
       public DRes<SInt> sub(DRes<SInt> a, DRes<SInt> b) {
-        return () -> (factory.toSpdz2kSInt(a)).subtract(factory.toSpdz2kSInt(b));
+        return () -> (factory.toSpdz2kSIntArithmetic(a)).subtract(factory.toSpdz2kSIntArithmetic(b));
       }
 
       @Override
@@ -122,12 +123,12 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
       @Override
       public DRes<SInt> mult(BigInteger a, DRes<SInt> b) {
-        return () -> factory.toSpdz2kSInt(b).multiply(factory.createFromBigInteger(a));
+        return () -> factory.toSpdz2kSIntArithmetic(b).multiply(factory.createFromBigInteger(a));
       }
 
       @Override
       public DRes<SInt> multByOpen(DRes<OInt> a, DRes<SInt> b) {
-        return () -> factory.toSpdz2kSInt(b).multiply(factory.fromOInt(a));
+        return () -> factory.toSpdz2kSIntArithmetic(b).multiply(factory.fromOInt(a));
       }
 
       @Override
@@ -185,8 +186,21 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
   @Override
   public Conversion createConversion(ProtocolBuilderNumeric builder) {
-    // TODO implement
-    return null;
+    return new Conversion() {
+      @Override
+      public DRes<SInt> toBoolean(DRes<SInt> arithmeticValue) {
+        return () -> {
+          Spdz2kSIntArithmetic<PlainT> value = factory.toSpdz2kSIntArithmetic(arithmeticValue);
+
+          return value;
+        };
+      }
+
+      @Override
+      public DRes<SInt> toArithmetic(DRes<SInt> booleanValue) {
+        throw new UnsupportedOperationException();
+      }
+    };
   }
 
   @Override

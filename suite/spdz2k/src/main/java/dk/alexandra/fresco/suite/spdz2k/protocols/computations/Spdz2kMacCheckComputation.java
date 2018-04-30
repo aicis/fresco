@@ -11,7 +11,7 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntConverter;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
-import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntArithmetic;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.UInt;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kDataSupplier;
@@ -31,7 +31,7 @@ public class Spdz2kMacCheckComputation<
   private final CompUIntConverter<HighT, LowT, PlainT> converter;
   private final ByteSerializer<PlainT> serializer;
   private final Spdz2kDataSupplier<PlainT> supplier;
-  private final List<Spdz2kSInt<PlainT>> authenticatedElements;
+  private final List<Spdz2kSIntArithmetic<PlainT>> authenticatedElements;
   private final List<PlainT> openValues;
   private final List<PlainT> randomCoefficients;
   private ByteSerializer<HashBasedCommitment> commitmentSerializer;
@@ -46,7 +46,7 @@ public class Spdz2kMacCheckComputation<
    * @param converter utility class for converting between {@link HighT} and {@link PlainT}, {@link
    * LowT} and {@link PlainT}
    */
-  public Spdz2kMacCheckComputation(Pair<List<Spdz2kSInt<PlainT>>, List<PlainT>> toCheck,
+  public Spdz2kMacCheckComputation(Pair<List<Spdz2kSIntArithmetic<PlainT>>, List<PlainT>> toCheck,
       Spdz2kResourcePool<PlainT> resourcePool,
       CompUIntConverter<HighT, LowT, PlainT> converter) {
     this.authenticatedElements = toCheck.getFirst();
@@ -67,7 +67,7 @@ public class Spdz2kMacCheckComputation<
   public DRes<Void> buildComputation(ProtocolBuilderNumeric builder) {
     PlainT macKeyShare = supplier.getSecretSharedKey();
     PlainT y = UInt.innerProduct(openValues, randomCoefficients);
-    Spdz2kSInt<PlainT> r = supplier.getNextRandomElementShare();
+    Spdz2kSIntArithmetic<PlainT> r = supplier.getNextRandomElementShare();
     return builder
         .seq(seq -> {
           if (noOfParties > 2) {
@@ -100,8 +100,8 @@ public class Spdz2kMacCheckComputation<
   }
 
   private DRes<List<byte[]>> computePValues(ProtocolBuilderNumeric builder,
-      List<Spdz2kSInt<PlainT>> authenticatedElements,
-      Spdz2kSInt<PlainT> r) {
+      List<Spdz2kSIntArithmetic<PlainT>> authenticatedElements,
+      Spdz2kSIntArithmetic<PlainT> r) {
     HighT pj = computePj(authenticatedElements.get(0).getShare(), randomCoefficients.get(0));
     for (int i = 1; i < authenticatedElements.size(); i++) {
       PlainT share = authenticatedElements.get(i).getShare();
@@ -113,15 +113,15 @@ public class Spdz2kMacCheckComputation<
   }
 
   private DRes<List<byte[]>> computeZValues(ProtocolBuilderNumeric builder,
-      List<Spdz2kSInt<PlainT>> authenticatedElements,
-      PlainT macKeyShare, PlainT y, Spdz2kSInt<PlainT> r,
+      List<Spdz2kSIntArithmetic<PlainT>> authenticatedElements,
+      PlainT macKeyShare, PlainT y, Spdz2kSIntArithmetic<PlainT> r,
       List<byte[]> broadcastPjs) {
     List<PlainT> pjList = serializer.deserializeList(broadcastPjs);
     HighT pLow = UInt.sum(
         pjList.stream().map(PlainT::getLeastSignificantAsHigh).collect(Collectors.toList()));
     PlainT p = converter.createFromHigh(pLow);
     List<PlainT> macShares = authenticatedElements.stream()
-        .map(Spdz2kSInt::getMacShare)
+        .map(Spdz2kSIntArithmetic::getMacShare)
         .collect(Collectors.toList());
     PlainT mj = UInt.innerProduct(macShares, randomCoefficients);
     PlainT zj = macKeyShare.multiply(y)
