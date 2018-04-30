@@ -102,8 +102,38 @@ public class DefaultLogical implements Logical {
 
   @Override
   public DRes<SInt> orOfList(DRes<List<DRes<SInt>>> bits) {
-    // TODO implement
-    throw new UnsupportedOperationException();
+    // int currentSize = bits.out().size();
+    // DRes<List<DRes<SInt>>> partialRes = bits;
+    // while (currentSize > 1) {
+    // partialRes = builder.par(par -> {
+    // List<DRes<SInt>> list = new ArrayList<>();
+    // for (int i = 0; i + 1 < partialRes.out().size(); i = i + 2) {
+    // DRes<SInt> currentOr = or(partialRes.out().get(i), partialRes.out()
+    // .get(i + 1));
+    // list.add(currentOr);
+    // }
+    // if (partialRes.out().size() % 2 == 1) {
+    // list.add(partialRes.out().get(partialRes.out().size() - 1));
+    // }
+    // return () -> list;
+    // });
+    // currentSize = partialRes.out().size();
+    // }
+    // return partialRes.out().get(0);
+    return null;
   }
 
+  private DRes<List<DRes<SInt>>> partialOr(DRes<List<DRes<SInt>>> bits) {
+    return builder.par(par -> {
+      List<DRes<SInt>> list = new ArrayList<>();
+      for (int i = 0; i + 1 < bits.out().size(); i = i + 2) {
+        DRes<SInt> currentOr = or(bits.out().get(i), bits.out().get(i + 1));
+        list.add(currentOr);
+      }
+      if (bits.out().size() % 2 == 1) {
+        list.add(bits.out().get(bits.out().size() - 1));
+      }
+      return () -> list;
+    });
+  }
 }
