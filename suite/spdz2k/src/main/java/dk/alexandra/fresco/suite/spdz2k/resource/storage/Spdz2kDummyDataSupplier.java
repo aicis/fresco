@@ -6,7 +6,7 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kInputMask;
-import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntArithmetic;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kTriple;
 import java.math.BigInteger;
 
@@ -53,7 +53,7 @@ public class Spdz2kDummyDataSupplier<
   }
 
   @Override
-  public Spdz2kSInt<PlainT> getNextBitShare() {
+  public Spdz2kSIntArithmetic<PlainT> getNextBitShare() {
     return toSpdz2kSInt(supplier.getRandomBitShare());
   }
 
@@ -63,15 +63,15 @@ public class Spdz2kDummyDataSupplier<
   }
 
   @Override
-  public Spdz2kSInt<PlainT> getNextRandomElementShare() {
+  public Spdz2kSIntArithmetic<PlainT> getNextRandomElementShare() {
     return toSpdz2kSInt(supplier.getRandomElementShare());
   }
 
-  private Spdz2kSInt<PlainT> toSpdz2kSInt(Pair<BigInteger, BigInteger> raw) {
+  private Spdz2kSIntArithmetic<PlainT> toSpdz2kSInt(Pair<BigInteger, BigInteger> raw) {
     PlainT openValue = factory.createFromBigInteger(raw.getFirst());
     PlainT share = factory.createFromBigInteger(raw.getSecond());
     PlainT macShare = openValue.multiply(secretSharedKey);
-    return new Spdz2kSInt<>(share, macShare);
+    return new Spdz2kSIntArithmetic<>(share, macShare);
   }
 
 }

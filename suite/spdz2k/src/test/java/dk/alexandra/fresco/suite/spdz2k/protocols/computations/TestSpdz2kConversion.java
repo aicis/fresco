@@ -1,17 +1,15 @@
 package dk.alexandra.fresco.suite.spdz2k.protocols.computations;
 
-import static org.junit.Assert.assertTrue;
-
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
-import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.spdz2k.AbstractSpdz2kTest;
@@ -19,34 +17,23 @@ import dk.alexandra.fresco.suite.spdz2k.Spdz2kProtocolSuite128;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt128;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt128Factory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
-import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntArithmetic;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kOpenedValueStoreImpl;
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Supplier;
+import org.junit.Assert;
 import org.junit.Test;
 
-public class TestSpdz2kMacCheckComputation extends
+public class TestSpdz2kConversion extends
     AbstractSpdz2kTest<Spdz2kResourcePool<CompUInt128>> {
 
   @Test
-  public void testInvalidMacCheck() {
-    int noOfParties = 2;
-    for (int cheatingPartyId = 1; cheatingPartyId <= noOfParties; cheatingPartyId++) {
-      runTest(new TestModifyShare<>(cheatingPartyId), EvaluationStrategy.SEQUENTIAL_BATCHED,
-          noOfParties);
-    }
-  }
-
-  @Test
-  public void testInvalidMacCheckThree() {
-    int noOfParties = 3;
-    for (int cheatingPartyId = 1; cheatingPartyId <= noOfParties; cheatingPartyId++) {
-      runTest(new TestModifyShare<>(cheatingPartyId), EvaluationStrategy.SEQUENTIAL_BATCHED,
-          noOfParties);
-    }
+  public void testArithmeticToBool() {
+    runTest(new TestArithmeticToBool<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
 
   @Override
@@ -66,44 +53,42 @@ public class TestSpdz2kMacCheckComputation extends
 
   @Override
   protected ProtocolSuiteNumeric<Spdz2kResourcePool<CompUInt128>> createProtocolSuite() {
-    return new Spdz2kProtocolSuite128();
+    return new Spdz2kProtocolSuite128(true);
   }
 
-  private static class TestModifyShare<ResourcePoolT extends Spdz2kResourcePool<CompUInt128>>
+  public static class TestArithmeticToBool<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
-
-    private final int cheatingPartyId;
-
-    TestModifyShare(int cheatingPartyId) {
-      this.cheatingPartyId = cheatingPartyId;
-    }
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        private final List<BigInteger> input = Arrays.asList(
+            BigInteger.ONE,
+            BigInteger.ZERO
+        );
+
         @Override
         public void test() {
-          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
-            Numeric numeric = producer.numeric();
-            DRes<SInt> input = numeric.input(BigInteger.ONE, 1);
-            return producer.seq(seq -> {
-              SInt value = input.out();
-              if (seq.getBasicNumericContext().getMyId() == cheatingPartyId) {
-                value = ((Spdz2kSIntArithmetic<CompUInt128>) value).multiply(
-                    new CompUInt128(BigInteger.valueOf(2)));
-              }
-              final SInt finalSInt = value;
-              return seq.numeric().open(() -> finalSInt);
-            });
-          };
-          try {
-            runApplication(app);
-          } catch (Exception e) {
-            assertTrue(e.getCause() instanceof MaliciousException);
-          }
+          Application<List<DRes<OInt>>, ProtocolBuilderNumeric> app =
+              root -> {
+                DRes<List<DRes<SInt>>> inputClosed = root.numeric().knownAsDRes(input);
+                DRes<List<DRes<SInt>>> inputBool = root.conversion().toBooleanBatch(inputClosed);
+                DRes<List<DRes<SInt>>> inputArithmetic = root.conversion()
+                    .toArithmeticBatch(inputBool);
+                return root.logical().openAsBits(inputArithmetic);
+              };
+//          List<BigInteger> actual = runApplication(app).stream().map(v -> v.out().)
+//              .collect(Collectors.toList());
+          List<BigInteger> expected = Arrays.asList(
+              BigInteger.ONE,
+              BigInteger.ZERO
+          );
+          Assert.assertEquals(expected, null);
         }
       };
     }
   }
+
 
 }

@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 /**
  * Default implementation of {@link Logical}, expressing logical operations via arithmetic.
@@ -58,6 +59,21 @@ public class DefaultLogical implements Logical {
     return builder.seq(seq -> {
       OInt one = seq.getOIntFactory().one();
       return seq.numeric().subFromOpen(one, secretBit);
+    });
+  }
+
+  @Override
+  public DRes<OInt> openAsBit(DRes<SInt> secretBit) {
+    return builder.numeric().openAsOInt(secretBit);
+  }
+
+  @Override
+  public DRes<List<DRes<OInt>>> openAsBits(DRes<List<DRes<SInt>>> secretBits) {
+    return builder.par(par -> {
+      List<DRes<OInt>> openList =
+          secretBits.out().stream().map(closed -> par.logical().openAsBit(closed))
+              .collect(Collectors.toList());
+      return () -> openList;
     });
   }
 
@@ -134,77 +150,24 @@ public class DefaultLogical implements Logical {
   }
 
   @Override
-  public DRes<SInt> orOfKnownList(DRes<List<DRes<OInt>>> bits) {
-    // TODO implement
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public DRes<SInt> orOfList(DRes<List<DRes<SInt>>> bits) {
     return builder.seq(seq -> bits).whileLoop((inputs) -> inputs
         .size() > 1,
         (prevSeq, inputs) -> prevSeq.par(par -> {
-          int halfRoundedDown = inputs.size() / 2;
-          List<DRes<SInt>> listA = inputs.subList(0, halfRoundedDown);
-          List<DRes<SInt>> listB = inputs.subList(halfRoundedDown, 2
-              * halfRoundedDown);
-          DRes<List<DRes<SInt>>> resultList = par.logical().pairWiseOr(
-              () -> listA, () -> listB);
-          if (inputs.size() % 2 == 1) {
-            resultList.out().add(inputs.get(inputs.size() - 1));
+          List<DRes<SInt>> out = new ArrayList<>();
+          DRes<SInt> left = null;
+          for (DRes<SInt> currentInput : inputs) {
+            if (left == null) {
+              left = currentInput;
+            } else {
+              out.add(par.logical().or(left, currentInput));
+              left = null;
+            }
           }
-          return resultList;
+          if (left != null) {
+            out.add(left);
+          }
+          return () -> out;
         })).seq((builder, currentInput) -> currentInput.get(0));
-  }
-
-  //    while (currentSize > 1) {
-  //      int halfRoundedDown = currentSize / 2;
-  //        List<DRes<SInt>> listA = partialRes.out().subList(0, halfRoundedDown);
-  //        List<DRes<SInt>> listB = partialRes.out().subList(halfRoundedDown, 2
-  //            * halfRoundedDown);
-  //        DRes<List<DRes<SInt>>> resultList = pairWiseOr(() -> listA,
-  //            () -> listB);
-  //        if (partialRes.out().size() % 2 == 1) {
-  //          resultList.out().add(partialRes.out().get(partialRes.out().size()
-  //              - 1));
-  //        }
-  //      partialRes = resultList;
-  //      currentSize = partialRes.out().size();
-  //    }
-  //    return partialRes.out().get(0);
-
-
-  // int currentSize = bits.out().size();
-  // DRes<List<DRes<SInt>>> partialRes = bits;
-  // while (currentSize > 1) {
-  // partialRes = builder.par(par -> {
-  // List<DRes<SInt>> list = new ArrayList<>();
-  // for (int i = 0; i + 1 < partialRes.out().size(); i = i + 2) {
-  // DRes<SInt> currentOr = or(partialRes.out().get(i), partialRes.out()
-  // .get(i + 1));
-  // list.add(currentOr);
-  // }
-  // if (partialRes.out().size() % 2 == 1) {
-  // list.add(partialRes.out().get(partialRes.out().size() - 1));
-  // }
-  // return () -> list;
-  // });
-  // currentSize = partialRes.out().size();
-  // }
-  // return partialRes.out().get(0);
-  // return null;
-
-  private DRes<List<DRes<SInt>>> partialOr(DRes<List<DRes<SInt>>> bits) {
-    return builder.par(par -> {
-      List<DRes<SInt>> list = new ArrayList<>();
-      for (int i = 0; i + 1 < bits.out().size(); i = i + 2) {
-        DRes<SInt> currentOr = or(bits.out().get(i), bits.out().get(i + 1));
-        list.add(currentOr);
-      }
-      if (bits.out().size() % 2 == 1) {
-        list.add(bits.out().get(bits.out().size() - 1));
-      }
-      return () -> list;
-    });
   }
 }

@@ -20,7 +20,7 @@ import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.suite.spdz2k.Spdz2kBuilder;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
-import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntArithmetic;
 import dk.alexandra.fresco.suite.spdz2k.protocols.computations.CoinTossingComputation;
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kDataSupplier;
 import java.io.Closeable;
@@ -40,7 +40,7 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
 
   private final int effectiveBitLength;
   private final BigInteger modulus;
-  private final OpenedValueStore<Spdz2kSInt<PlainT>, PlainT> storage;
+  private final OpenedValueStore<Spdz2kSIntArithmetic<PlainT>, PlainT> storage;
   private final Spdz2kDataSupplier<PlainT> supplier;
   private final CompUIntFactory<PlainT> factory;
   private final ByteSerializer<PlainT> rawSerializer;
@@ -51,7 +51,7 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
    * Creates new {@link Spdz2kResourcePoolImpl}.
    */
   public Spdz2kResourcePoolImpl(int myId, int noOfPlayers, Drbg drbg,
-      OpenedValueStore<Spdz2kSInt<PlainT>, PlainT> storage,
+      OpenedValueStore<Spdz2kSIntArithmetic<PlainT>, PlainT> storage,
       Spdz2kDataSupplier<PlainT> supplier, CompUIntFactory<PlainT> factory) {
     super(myId, noOfPlayers);
     Objects.requireNonNull(storage);
@@ -73,7 +73,7 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
   }
 
   @Override
-  public OpenedValueStore<Spdz2kSInt<PlainT>, PlainT> getOpenedValueStore() {
+  public OpenedValueStore<Spdz2kSIntArithmetic<PlainT>, PlainT> getOpenedValueStore() {
     return storage;
   }
 

@@ -1,15 +1,18 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.eq.EqualityConstRounds;
 import dk.alexandra.fresco.lib.compare.eq.EqualityLogRounds;
+import dk.alexandra.fresco.lib.compare.lt.BitLessThanOpen;
 import dk.alexandra.fresco.lib.compare.lt.LessThanLogRounds;
 import dk.alexandra.fresco.lib.compare.lt.LessThanOrEquals;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestConstRounds;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestLogRounds;
 
 import java.math.BigInteger;
+import java.util.List;
 
 /**
  * Default way of producing the protocols within the interface. This default class can be
@@ -79,6 +82,16 @@ public class DefaultComparison implements Comparison {
     } else {
       throw new UnsupportedOperationException("Not implemented yet");
     }
+  }
+
+  @Override
+  public DRes<SInt> compareLTBits(DRes<OInt> openValue, DRes<List<DRes<SInt>>> secretBits) {
+    return builder.seq(new BitLessThanOpen(openValue, secretBits));
+  }
+
+  @Override
+  public DRes<SInt> compareLTBits(OInt openValue, List<DRes<SInt>> secretBits) {
+    return builder.seq(new BitLessThanOpen(openValue, secretBits));
   }
 
   @Override

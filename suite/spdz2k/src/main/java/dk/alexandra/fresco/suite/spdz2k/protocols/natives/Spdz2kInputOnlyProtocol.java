@@ -8,7 +8,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kInputMask;
-import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntArithmetic;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kDataSupplier;
 
@@ -54,8 +54,8 @@ public class Spdz2kInputOnlyProtocol<PlainT extends CompUInt<?, ?, PlainT>>
     } else {
       byte[] inputMaskBytes = network.receive(inputPartyId);
       PlainT macKeyShare = dataSupplier.getSecretSharedKey();
-      Spdz2kSInt<PlainT> maskShare = inputMask.getMaskShare();
-      Spdz2kSInt<PlainT> out = maskShare.addConstant(
+      Spdz2kSIntArithmetic<PlainT> maskShare = inputMask.getMaskShare();
+      Spdz2kSIntArithmetic<PlainT> out = maskShare.addConstant(
           serializer.deserialize(inputMaskBytes),
           macKeyShare,
           factory.zero(),

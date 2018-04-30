@@ -32,6 +32,8 @@ public interface BuilderFactoryNumeric extends BuilderFactory<ProtocolBuilderNum
 
   Numeric createNumeric(ProtocolBuilderNumeric builder);
 
+  Conversion createConversion(ProtocolBuilderNumeric builder);
+
   MiscBigIntegerGenerators getBigIntegerHelper();
 
   /**

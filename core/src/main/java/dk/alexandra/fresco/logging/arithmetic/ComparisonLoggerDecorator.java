@@ -2,9 +2,11 @@ package dk.alexandra.fresco.logging.arithmetic;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.Comparison;
+import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.logging.PerformanceLogger;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger {
@@ -18,6 +20,7 @@ public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger 
   private long eqCount;
   private long leqCount;
   private long ltCount;
+  private long ltBitsCount;
   private long signCount;
   private long comp0Count;
 
@@ -49,6 +52,17 @@ public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger 
   public DRes<SInt> compareLT(DRes<SInt> x1, DRes<SInt> x2, ComparisonAlgorithm algorithm) {
     ltCount++;
     return this.delegate.compareLT(x1, x2, algorithm);
+  }
+
+  @Override
+  public DRes<SInt> compareLTBits(DRes<OInt> openValue, DRes<List<DRes<SInt>>> secretBits) {
+    ltBitsCount++;
+    return this.delegate.compareLTBits(openValue, secretBits);
+  }
+
+  @Override
+  public DRes<SInt> compareLTBits(OInt openValue, List<DRes<SInt>> secretBits) {
+    return this.compareLTBits(() -> openValue, () -> secretBits);
   }
 
   @Override

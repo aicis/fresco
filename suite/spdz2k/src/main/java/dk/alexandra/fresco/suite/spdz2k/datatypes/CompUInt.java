@@ -29,13 +29,18 @@ public interface CompUInt<
   HighT getLeastSignificantAsHigh();
 
   /**
+   * Shift left by n bits.
+   */
+  CompT shiftLeft(int n);
+
+  /**
    * Left-shift the k least significant bits by k.
    */
   CompT shiftLowIntoHigh();
 
   /**
    * Clears all bits above bitPos, i.e., (k + s) - bitPos most significant bits. <p>Analogous to
-   * computing this mod 2^{numBits}.</p>
+   * computing this mod 2^{bitPos}.</p>
    */
   CompT clearAboveBitAt(int bitPos);
 

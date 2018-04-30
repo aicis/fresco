@@ -29,6 +29,7 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
   private AdvancedRealNumeric advancedRealNumeric;
   private RealLinearAlgebra realLinearAlgebra;
   private Logical logical;
+  private Conversion conversion;
   private RealNumericContext realNumericContext;
 
   ProtocolBuilderNumeric(BuilderFactoryNumeric factory, boolean parallel) {
@@ -40,13 +41,13 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
 
   /**
    * Returns the container for information about the field of operation.
-   * 
+   *
    * @return The {@link BasicNumericContext} used within this protocol builder.
    */
   public BasicNumericContext getBasicNumericContext() {
     return basicNumericContext;
   }
-  
+
   public RealNumericContext getRealNumericContext() {
     return realNumericContext;
   }
@@ -55,7 +56,7 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
    * Creates a {@link Numeric} computation directory for this instance - i.e. this intended
    * producer. Contains only protocol suite native basic operations such as Addition and
    * multiplication.
-   * 
+   *
    * @return The {@link Numeric} computation directory.
    */
   public Numeric numeric() {
@@ -107,8 +108,6 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
   /**
    * Creates a {@link Logical} computation directory for this instance - i.e. this intended
    * producer. Contains logical operations on arithmetic value.
-   *
-   * @return The collections computation directory.
    */
   public Logical logical() {
     if (logical == null) {
@@ -118,11 +117,23 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
   }
 
   /**
+   * Creates a {@link Conversion} computation directory for this instance - i.e. this intended
+   * producer. Contains operations for converting between arithmetic and boolean representations of
+   * secret values.
+   */
+  public Conversion conversion() {
+    if (conversion == null) {
+      conversion = factory.createConversion(this);
+    }
+    return conversion;
+  }
+
+  /**
    * Creates a {@link PreprocessedValues} computation directory for this instance - i.e. this
    * intended producer. Contains elements which, if created prior to this evaluation, would save
    * computation and network. Preprocessed values does not depend on the input of the function to
    * evaluate.
-   * 
+   *
    * @return The preprocessed values computation directory.
    */
   public PreprocessedValues preprocessedValues() {
@@ -136,7 +147,7 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
    * Creates a {@link Debug} computation directory for this instance - i.e. this intended producer.
    * Contains debugging protocols for use during application development. <b>WARNING: Do not use in
    * production code as most methods within this builder reveals values to all parties.</b>
-   * 
+   *
    * @return The debug computation directory.
    */
   public Debug debug() {
@@ -149,7 +160,7 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
   /**
    * Mostly for use within internal FRESCO protocols. Contains methods helpful for working with the
    * BigInteger class.
-   * 
+   *
    * @return The {@link MiscBigIntegerGenerators} used within the builder.
    */
   public MiscBigIntegerGenerators getBigIntegerHelper() {

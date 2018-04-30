@@ -7,7 +7,7 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
-import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntArithmetic;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kTriple;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 import java.util.Arrays;
@@ -21,8 +21,8 @@ public class Spdz2kMultiplyProtocol<PlainT extends CompUInt<?, ?, PlainT>> exten
   private final DRes<SInt> left;
   private final DRes<SInt> right;
   private Spdz2kTriple<PlainT> triple;
-  private Spdz2kSInt<PlainT> epsilon;
-  private Spdz2kSInt<PlainT> delta;
+  private Spdz2kSIntArithmetic<PlainT> epsilon;
+  private Spdz2kSIntArithmetic<PlainT> delta;
   private SInt product;
 
   /**
@@ -44,10 +44,10 @@ public class Spdz2kMultiplyProtocol<PlainT extends CompUInt<?, ?, PlainT>> exten
     CompUIntFactory<PlainT> factory = resourcePool.getFactory();
     if (round == 0) {
       triple = resourcePool.getDataSupplier().getNextTripleShares();
-      epsilon = factory.toSpdz2kSInt(left).subtract(triple.getLeft());
-      delta = factory.toSpdz2kSInt(right).subtract(triple.getRight());
-      network.sendToAll(epsilon.getShare().getLeastSignificant().toByteArray());
-      network.sendToAll(delta.getShare().getLeastSignificant().toByteArray());
+      epsilon = factory.toSpdz2kSIntArithmetic(left).subtract(triple.getLeft());
+      delta = factory.toSpdz2kSIntArithmetic(right).subtract(triple.getRight());
+      network.sendToAll(epsilon.serializeShareLow());
+      network.sendToAll(delta.serializeShareLow());
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       Pair<PlainT, PlainT> epsilonAndDelta = receiveAndReconstruct(network,
@@ -58,9 +58,9 @@ public class Spdz2kMultiplyProtocol<PlainT extends CompUInt<?, ?, PlainT>> exten
       PlainT e = epsilonAndDelta.getFirst();
       PlainT d = epsilonAndDelta.getSecond();
       PlainT ed = e.multiply(d);
-      Spdz2kSInt<PlainT> tripleRight = triple.getRight();
-      Spdz2kSInt<PlainT> tripleLeft = triple.getLeft();
-      Spdz2kSInt<PlainT> tripleProduct = triple.getProduct();
+      Spdz2kSIntArithmetic<PlainT> tripleRight = triple.getRight();
+      Spdz2kSIntArithmetic<PlainT> tripleLeft = triple.getLeft();
+      Spdz2kSIntArithmetic<PlainT> tripleProduct = triple.getProduct();
       this.product = tripleProduct
           .add(tripleRight.multiply(e))
           .add(tripleLeft.multiply(d))

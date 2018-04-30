@@ -148,6 +148,12 @@ public class CompUInt96 implements CompUInt<UInt64, UInt32, CompUInt96> {
   }
 
   @Override
+  public CompUInt96 shiftLeft(int n) {
+    // TODO hack hack hack
+    return new CompUInt96(high, mid, low << 31);
+  }
+
+  @Override
   public long toLong() {
     return (UInt.toUnLong(mid) << 32) + (UInt.toUnLong(this.low));
   }

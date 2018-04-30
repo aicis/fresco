@@ -3,6 +3,7 @@ package dk.alexandra.fresco.suite.spdz2k;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Comparison;
+import dk.alexandra.fresco.framework.builder.numeric.Conversion;
 import dk.alexandra.fresco.framework.builder.numeric.DefaultLogical;
 import dk.alexandra.fresco.framework.builder.numeric.Logical;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
@@ -17,6 +18,8 @@ import dk.alexandra.fresco.lib.real.RealNumericContext;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntArithmetic;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntArithmetic;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntBoolean;
 import dk.alexandra.fresco.suite.spdz2k.protocols.computations.Spdz2kInputComputation;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAddKnownProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kKnownSIntProtocol;
@@ -27,6 +30,8 @@ import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kRandomBitProtoco
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kRandomElementProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kSubtractFromKnownProtocol;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Basic native builder for the SPDZ2k protocol suite.
@@ -60,7 +65,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
   @Override
   public Logical createLogical(ProtocolBuilderNumeric builder) {
     if (useBooleanMode) {
-      return new Spdz2kLogicalBooleanMode(builder);
+      return new Spdz2kLogicalBooleanMode<>(builder, factory);
     } else {
       return new Spdz2kLogical(builder);
     }
@@ -71,7 +76,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
     return new Numeric() {
       @Override
       public DRes<SInt> add(DRes<SInt> a, DRes<SInt> b) {
-        return () -> factory.toSpdz2kSInt(a).add(factory.toSpdz2kSInt(b));
+        return () -> factory.toSpdz2kSIntArithmetic(a).add(factory.toSpdz2kSIntArithmetic(b));
       }
 
       @Override
@@ -86,7 +91,8 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
       @Override
       public DRes<SInt> sub(DRes<SInt> a, DRes<SInt> b) {
-        return () -> (factory.toSpdz2kSInt(a)).subtract(factory.toSpdz2kSInt(b));
+        return () -> (factory.toSpdz2kSIntArithmetic(a))
+            .subtract(factory.toSpdz2kSIntArithmetic(b));
       }
 
       @Override
@@ -121,12 +127,12 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
       @Override
       public DRes<SInt> mult(BigInteger a, DRes<SInt> b) {
-        return () -> factory.toSpdz2kSInt(b).multiply(factory.createFromBigInteger(a));
+        return () -> factory.toSpdz2kSIntArithmetic(b).multiply(factory.createFromBigInteger(a));
       }
 
       @Override
       public DRes<SInt> multByOpen(DRes<OInt> a, DRes<SInt> b) {
-        return () -> factory.toSpdz2kSInt(b).multiply(factory.fromOInt(a));
+        return () -> factory.toSpdz2kSIntArithmetic(b).multiply(factory.fromOInt(a));
       }
 
       @Override
@@ -183,6 +189,57 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
   }
 
   @Override
+  public Conversion createConversion(ProtocolBuilderNumeric builder) {
+    return new Conversion() {
+      @Override
+      public DRes<SInt> toBoolean(DRes<SInt> arithmeticValue) {
+        return () -> {
+          Spdz2kSIntArithmetic<PlainT> value = factory.toSpdz2kSIntArithmetic(arithmeticValue);
+          return new Spdz2kSIntBoolean<>(
+              value.getShare().shiftLeft(factory.getLowBitLength() - 1),
+              value.getMacShare().shiftLeft(factory.getLowBitLength() - 1)
+          );
+        };
+      }
+
+      @Override
+      public DRes<SInt> toArithmetic(DRes<SInt> booleanValue) {
+        return () -> {
+          Spdz2kSIntBoolean<PlainT> value = factory.toSpdz2kSIntBoolean(booleanValue);
+          return new Spdz2kSIntArithmetic<>(
+              value.getShare(),
+              value.getMacShare()
+          );
+        };
+      }
+
+      @Override
+      public DRes<List<DRes<SInt>>> toBooleanBatch(DRes<List<DRes<SInt>>> arithmeticBatch) {
+        return builder.par(par -> {
+          List<DRes<SInt>> inner = arithmeticBatch.out();
+          List<DRes<SInt>> converted = new ArrayList<>(inner.size());
+          for (DRes<SInt> anInner : inner) {
+            converted.add(builder.conversion().toBoolean(anInner));
+          }
+          return () -> converted;
+        });
+      }
+
+      @Override
+      public DRes<List<DRes<SInt>>> toArithmeticBatch(DRes<List<DRes<SInt>>> booleanBatch) {
+        return builder.par(par -> {
+          List<DRes<SInt>> inner = booleanBatch.out();
+          List<DRes<SInt>> converted = new ArrayList<>(inner.size());
+          for (DRes<SInt> anInner : inner) {
+            converted.add(builder.conversion().toArithmetic(anInner));
+          }
+          return () -> converted;
+        });
+      }
+    };
+  }
+
+  @Override
   public MiscBigIntegerGenerators getBigIntegerHelper() {
     throw new UnsupportedOperationException();
   }
@@ -204,7 +261,8 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
   }
 
   class Spdz2kLogical extends DefaultLogical {
-    protected Spdz2kLogical(
+
+    Spdz2kLogical(
         ProtocolBuilderNumeric builder) {
       super(builder);
     }

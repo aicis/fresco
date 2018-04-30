@@ -43,10 +43,17 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> extends OI
   }
 
   /**
-   * Get result from deferred and downcast result to {@link Spdz2kSInt<CompT>}.
+   * Get result from deferred and downcast result to {@link Spdz2kSIntArithmetic <CompT>}.
    */
-  default Spdz2kSInt<CompT> toSpdz2kSInt(DRes<SInt> value) {
-    return Objects.requireNonNull((Spdz2kSInt<CompT>) value.out());
+  default Spdz2kSIntArithmetic<CompT> toSpdz2kSIntArithmetic(DRes<SInt> value) {
+    return Objects.requireNonNull((Spdz2kSIntArithmetic<CompT>) value.out());
+  }
+
+  /**
+   * Get result from deferred and downcast result to {@link Spdz2kSIntBoolean<CompT>}.
+   */
+  default Spdz2kSIntBoolean<CompT> toSpdz2kSIntBoolean(DRes<SInt> value) {
+    return Objects.requireNonNull((Spdz2kSIntBoolean<CompT>) value.out());
   }
 
   /**

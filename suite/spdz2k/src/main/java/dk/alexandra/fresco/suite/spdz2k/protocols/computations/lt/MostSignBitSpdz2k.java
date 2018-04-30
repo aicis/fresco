@@ -8,7 +8,6 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.OIntArithmetic;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.lt.BitLessThanOpen;
 import dk.alexandra.fresco.lib.math.integer.binary.RandomBitMask;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
@@ -50,7 +49,7 @@ public class MostSignBitSpdz2k<PlainT extends CompUInt<?, ?, PlainT>> implements
           RandomBitMask mask = pair.getSecond();
           DRes<SInt> rPrime = mask.getValue();
           List<DRes<SInt>> rPrimeBits = mask.getBits().out();
-          DRes<SInt> u = seq.seq(new BitLessThanOpen(cPrime, rPrimeBits));
+          DRes<SInt> u = seq.comparison().compareLTBits(cPrime, rPrimeBits);
           DRes<SInt> aPrime = nb.add(
               nb.subFromOpen(() -> cPrime, rPrime),
               nb.multByOpen(twoTo2k1, u)

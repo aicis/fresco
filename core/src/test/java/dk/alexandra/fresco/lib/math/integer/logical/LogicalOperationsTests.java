@@ -206,21 +206,15 @@ public class LogicalOperationsTests {
           List<BigInteger> expectedOutput = Arrays.asList(BigInteger.ONE,
               BigInteger.ZERO, BigInteger.ONE, BigInteger.ONE);
 
-          Application<BigInteger, ProtocolBuilderNumeric> app = root -> {
-            DRes<List<DRes<SInt>>> input1Closed = root.numeric().knownAsDRes(
-                input1);
-            DRes<List<DRes<SInt>>> input2Closed = root.numeric().knownAsDRes(
-                input2);
-            DRes<List<DRes<SInt>>> input3Closed = root.numeric().knownAsDRes(
-                input3);
-            DRes<List<DRes<SInt>>> input4Closed = root.numeric().knownAsDRes(
-                input4);
-            List<DRes<SInt>> ored = root.logical().orOfList(inputClosed);
-            return root.numeric().open(ored);
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = root -> {
+            List<DRes<BigInteger>> results = inputLists.stream().map(
+                current -> root.numeric().open(root.logical().orOfList(root.numeric().knownAsDRes(
+                        current)))).collect(Collectors.toList());
+            return () -> results.stream().map(DRes::out).collect(Collectors
+                .toList());
           };
-          BigInteger actual = runApplication(app);
-          BigInteger expected = BigInteger.ONE;
-          Assert.assertEquals(expected, actual);
+          List<BigInteger> actual = runApplication(app);
+          Assert.assertArrayEquals(expectedOutput.toArray(), actual.toArray());
         }
       };
     }

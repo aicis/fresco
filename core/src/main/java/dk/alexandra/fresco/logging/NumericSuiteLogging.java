@@ -2,6 +2,7 @@ package dk.alexandra.fresco.logging;
 
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Comparison;
+import dk.alexandra.fresco.framework.builder.numeric.Conversion;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -54,6 +55,11 @@ public class NumericSuiteLogging<ResourcePoolT extends NumericResourcePool>
             new NumericLoggingDecorator(delegateFactory.createNumeric(builder));
         aggregate.add(numericLoggingDecorator);
         return numericLoggingDecorator;
+      }
+
+      @Override
+      public Conversion createConversion(ProtocolBuilderNumeric builder) {
+        return delegateFactory.createConversion(builder);
       }
 
       @Override
