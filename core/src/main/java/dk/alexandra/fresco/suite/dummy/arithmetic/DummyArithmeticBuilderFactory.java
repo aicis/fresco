@@ -75,12 +75,18 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> subFromOpen(DRes<OInt> a, DRes<SInt> b) {
-        return sub(builder.getOIntFactory().toBigInteger(a.out()), b);
+        DummyArithmeticSubtractProtocol c =
+            new DummyArithmeticSubtractProtocol(
+                () -> new DummyArithmeticSInt(builder.getOIntFactory().toBigInteger(a.out())), b);
+        return builder.append(c);
       }
 
       @Override
       public DRes<SInt> subOpen(DRes<SInt> a, DRes<OInt> b) {
-        return sub(a, builder.getOIntFactory().toBigInteger(b.out()));
+        DummyArithmeticNativeProtocol<SInt> c =
+            new DummyArithmeticSubtractProtocol(a,
+                () -> new DummyArithmeticSInt(builder.getOIntFactory().toBigInteger(b.out())));
+        return builder.append(c);
       }
 
       @Override
@@ -175,7 +181,10 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> multByOpen(DRes<OInt> a, DRes<SInt> b) {
-        return mult(builder.getOIntFactory().toBigInteger(a.out()), b);
+        DummyArithmeticMultProtocol c =
+            new DummyArithmeticMultProtocol(
+                () -> new DummyArithmeticSInt(builder.getOIntFactory().toBigInteger(a.out())), b);
+        return builder.append(c);
       }
 
       @Override
@@ -221,7 +230,10 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> addOpen(DRes<OInt> a, DRes<SInt> b) {
-        return add(builder.getOIntFactory().toBigInteger(a.out()), b);
+        DummyArithmeticAddProtocol c =
+            new DummyArithmeticAddProtocol(
+                () -> new DummyArithmeticSInt(builder.getOIntFactory().toBigInteger(a.out())), b);
+        return builder.append(c);
       }
 
       @Override
