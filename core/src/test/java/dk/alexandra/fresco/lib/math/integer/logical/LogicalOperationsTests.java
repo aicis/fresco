@@ -183,6 +183,49 @@ public class LogicalOperationsTests {
     }
   }
 
+  public static class TestOrList<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        private final List<BigInteger> input1 = Arrays.asList(BigInteger.ZERO,
+            BigInteger.ZERO, BigInteger.ZERO, BigInteger.ZERO, BigInteger.ONE);
+        private final List<BigInteger> input2 = Arrays.asList(BigInteger.ZERO,
+            BigInteger.ZERO, BigInteger.ZERO, BigInteger.ZERO, BigInteger.ZERO);
+        private final List<BigInteger> input3 = Arrays.asList(BigInteger.ZERO,
+            BigInteger.ZERO, BigInteger.ONE, BigInteger.ZERO, BigInteger.ZERO);
+        private final List<BigInteger> input4 = Arrays.asList(BigInteger.ZERO,
+            BigInteger.ZERO, BigInteger.ONE, BigInteger.ZERO, BigInteger.ONE);
+
+        @Override
+        public void test() {
+          List<List<BigInteger>> inputLists = Arrays.asList(input1, input2,
+              input3, input4);
+          List<BigInteger> expectedOutput = Arrays.asList(BigInteger.ONE,
+              BigInteger.ZERO, BigInteger.ONE, BigInteger.ONE);
+
+          Application<BigInteger, ProtocolBuilderNumeric> app = root -> {
+            DRes<List<DRes<SInt>>> input1Closed = root.numeric().knownAsDRes(
+                input1);
+            DRes<List<DRes<SInt>>> input2Closed = root.numeric().knownAsDRes(
+                input2);
+            DRes<List<DRes<SInt>>> input3Closed = root.numeric().knownAsDRes(
+                input3);
+            DRes<List<DRes<SInt>>> input4Closed = root.numeric().knownAsDRes(
+                input4);
+            List<DRes<SInt>> ored = root.logical().orOfList(inputClosed);
+            return root.numeric().open(ored);
+          };
+          BigInteger actual = runApplication(app);
+          BigInteger expected = BigInteger.ONE;
+          Assert.assertEquals(expected, actual);
+        }
+      };
+    }
+  }
+
   public static class TestNot<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 

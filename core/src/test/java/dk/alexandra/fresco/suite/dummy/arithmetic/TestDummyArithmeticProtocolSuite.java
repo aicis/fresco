@@ -46,6 +46,7 @@ import dk.alexandra.fresco.lib.math.integer.logical.LogicalOperationsTests.TestA
 import dk.alexandra.fresco.lib.math.integer.logical.LogicalOperationsTests.TestAndKnown;
 import dk.alexandra.fresco.lib.math.integer.logical.LogicalOperationsTests.TestNot;
 import dk.alexandra.fresco.lib.math.integer.logical.LogicalOperationsTests.TestOr;
+import dk.alexandra.fresco.lib.math.integer.logical.LogicalOperationsTests.TestOrList;
 import dk.alexandra.fresco.lib.math.integer.logical.LogicalOperationsTests.TestXorKnown;
 import dk.alexandra.fresco.lib.math.integer.min.MinTests;
 import dk.alexandra.fresco.lib.math.integer.mod.Mod2mTests.TestMod2mBaseCase;
@@ -797,6 +798,11 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void testOr() {
     runTest(new TestOr<>(), new TestParameters());
+  }
+
+  @Test
+  public void testOrList() {
+    runTest(new TestOrList<>(), new TestParameters());
   }
 
   @Test

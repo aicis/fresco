@@ -141,26 +141,58 @@ public class DefaultLogical implements Logical {
 
   @Override
   public DRes<SInt> orOfList(DRes<List<DRes<SInt>>> bits) {
-    // int currentSize = bits.out().size();
-    // DRes<List<DRes<SInt>>> partialRes = bits;
-    // while (currentSize > 1) {
-    // partialRes = builder.par(par -> {
-    // List<DRes<SInt>> list = new ArrayList<>();
-    // for (int i = 0; i + 1 < partialRes.out().size(); i = i + 2) {
-    // DRes<SInt> currentOr = or(partialRes.out().get(i), partialRes.out()
-    // .get(i + 1));
-    // list.add(currentOr);
-    // }
-    // if (partialRes.out().size() % 2 == 1) {
-    // list.add(partialRes.out().get(partialRes.out().size() - 1));
-    // }
-    // return () -> list;
-    // });
-    // currentSize = partialRes.out().size();
-    // }
-    // return partialRes.out().get(0);
-    return null;
+    return builder.seq(seq -> bits).whileLoop((inputs) -> inputs
+        .size() > 1,
+        (prevSeq, inputs) -> prevSeq.par(par -> {
+          int halfRoundedDown = inputs.size() / 2;
+          List<DRes<SInt>> listA = inputs.subList(0, halfRoundedDown);
+          List<DRes<SInt>> listB = inputs.subList(halfRoundedDown, 2
+              * halfRoundedDown);
+          DRes<List<DRes<SInt>>> resultList = par.logical().pairWiseOr(
+              () -> listA, () -> listB);
+          if (inputs.size() % 2 == 1) {
+            resultList.out().add(inputs.get(inputs.size() - 1));
+          }
+          return resultList;
+        })).seq((builder, currentInput) -> currentInput.get(0));
   }
+
+  //    while (currentSize > 1) {
+  //      int halfRoundedDown = currentSize / 2;
+  //        List<DRes<SInt>> listA = partialRes.out().subList(0, halfRoundedDown);
+  //        List<DRes<SInt>> listB = partialRes.out().subList(halfRoundedDown, 2
+  //            * halfRoundedDown);
+  //        DRes<List<DRes<SInt>>> resultList = pairWiseOr(() -> listA,
+  //            () -> listB);
+  //        if (partialRes.out().size() % 2 == 1) {
+  //          resultList.out().add(partialRes.out().get(partialRes.out().size()
+  //              - 1));
+  //        }
+  //      partialRes = resultList;
+  //      currentSize = partialRes.out().size();
+  //    }
+  //    return partialRes.out().get(0);
+
+
+  // int currentSize = bits.out().size();
+  // DRes<List<DRes<SInt>>> partialRes = bits;
+  // while (currentSize > 1) {
+  // partialRes = builder.par(par -> {
+  // List<DRes<SInt>> list = new ArrayList<>();
+  // for (int i = 0; i + 1 < partialRes.out().size(); i = i + 2) {
+  // DRes<SInt> currentOr = or(partialRes.out().get(i), partialRes.out()
+  // .get(i + 1));
+  // list.add(currentOr);
+  // }
+  // if (partialRes.out().size() % 2 == 1) {
+  // list.add(partialRes.out().get(partialRes.out().size() - 1));
+  // }
+  // return () -> list;
+  // });
+  // currentSize = partialRes.out().size();
+  // }
+  // return partialRes.out().get(0);
+  // return null;
 
   private DRes<List<DRes<SInt>>> partialOr(DRes<List<DRes<SInt>>> bits) {
     return builder.par(par -> {
