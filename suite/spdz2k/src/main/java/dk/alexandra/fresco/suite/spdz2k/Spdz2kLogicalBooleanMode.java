@@ -37,8 +37,7 @@ public class Spdz2kLogicalBooleanMode<PlainT extends CompUInt<?, ?, PlainT>> ext
       return seq.numeric().openAsOInt(bitArithmetic);
     }).seq((seq, opened) -> {
       PlainT openBit = factory.fromOInt(opened);
-      PlainT res = openBit.testBit(factory.getLowBitLength() - 1) ? factory.one() : factory.zero();
-      return () -> res;
+      return openBit.testBit(factory.getLowBitLength() - 1) ? factory.one() : factory.zero();
     });
   }
 

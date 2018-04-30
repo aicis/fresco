@@ -65,7 +65,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
   @Override
   public Logical createLogical(ProtocolBuilderNumeric builder) {
     if (useBooleanMode) {
-      return new Spdz2kLogicalBooleanMode(builder);
+      return new Spdz2kLogicalBooleanMode<>(builder, factory);
     } else {
       return new Spdz2kLogical(builder);
     }
