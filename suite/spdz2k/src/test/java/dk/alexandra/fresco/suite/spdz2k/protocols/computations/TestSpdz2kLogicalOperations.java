@@ -23,8 +23,10 @@ import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kOpenedValueStoreImpl;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.junit.Assert;
@@ -36,6 +38,11 @@ public class TestSpdz2kLogicalOperations extends
   @Test
   public void testAnd() {
     runTest(new TestAndSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
+  }
+
+  @Test
+  public void testAndRandom() {
+    runTest(new TestAndSpdz2kRandom<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
 
   @Override
@@ -69,19 +76,11 @@ public class TestSpdz2kLogicalOperations extends
             BigInteger.ONE,
             BigInteger.ZERO,
             BigInteger.ONE,
-            BigInteger.ZERO,
-            BigInteger.ONE,
-            BigInteger.ZERO,
-            BigInteger.ONE,
             BigInteger.ZERO);
         private final List<BigInteger> right = Arrays.asList(
             BigInteger.ONE,
             BigInteger.ONE,
             BigInteger.ZERO,
-            BigInteger.ZERO,
-            BigInteger.ONE,
-            BigInteger.ZERO,
-            BigInteger.ONE,
             BigInteger.ZERO);
 
         @Override
@@ -113,6 +112,59 @@ public class TestSpdz2kLogicalOperations extends
         }
       };
     }
+  }
+
+  public static class TestAndSpdz2kRandom<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        private final List<BigInteger> left = randomBits(100, 1);
+        private final List<BigInteger> right = randomBits(100, 2);
+
+        @Override
+        public void test() {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app =
+              root -> {
+                DRes<List<DRes<SInt>>> leftClosed = root.numeric().knownAsDRes(left);
+                DRes<List<DRes<SInt>>> rightClosed = root.numeric().knownAsDRes(right);
+                DRes<List<DRes<SInt>>> leftConverted = root.conversion().toBooleanBatch(leftClosed);
+                DRes<List<DRes<SInt>>> rightConverted = root.conversion()
+                    .toBooleanBatch(rightClosed);
+                DRes<List<DRes<SInt>>> anded = root.logical().pairWiseAnd(
+                    leftConverted,
+                    rightConverted
+                );
+                DRes<List<DRes<OInt>>> opened = root.logical().openAsBits(anded);
+                OIntFactory factory = root.getOIntFactory();
+                return () -> opened.out().stream().map(v -> factory.toBigInteger(v.out()))
+                    .collect(Collectors.toList());
+              };
+          List<BigInteger> actual = runApplication(app);
+          List<BigInteger> expected = and(left, right);
+          Assert.assertEquals(expected, actual);
+        }
+      };
+    }
+  }
+
+  private static List<BigInteger> randomBits(int num, int seed) {
+    Random random = new Random(seed);
+    List<BigInteger> bits = new ArrayList<>(num);
+    for (int i = 0; i < num; i++) {
+      bits.add(random.nextBoolean() ? BigInteger.ONE : BigInteger.ZERO);
+    }
+    return bits;
+  }
+
+  private static List<BigInteger> and(List<BigInteger> left, List<BigInteger> right) {
+    List<BigInteger> bits = new ArrayList<>(left.size());
+    for (int i = 0; i < left.size(); i++) {
+      bits.add(left.get(i).multiply(right.get(i)).mod(BigInteger.valueOf(2)));
+    }
+    return bits;
   }
 
 
