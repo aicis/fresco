@@ -6,9 +6,9 @@ import java.util.List;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.math.integer.binary.RandomBitMask;
 
 public class ZeroTestLogRounds implements
     Computation<SInt, ProtocolBuilderNumeric> {
@@ -26,31 +26,42 @@ public class ZeroTestLogRounds implements
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    DRes<RandomBitMask> r = builder.advancedNumeric().randomBitMask(maxLength
-        + securityParameter);
-    return builder.seq(seq -> {
-      // Use the integer interpretation of r to compute c = 2^{k-1}+(left + r)
+    return builder.seq( seq -> seq.advancedNumeric().randomBitMask(maxLength
+        + securityParameter)).seq((seq, r) -> {
+      // Use the integer interpretation of r to compute c = 2^{k-1}+(input + r)
       DRes<OInt> c = seq.numeric().openAsOInt(seq.numeric().addOpen(seq
           .getOIntArithmetic().twoTo(maxLength - 1), seq.numeric().add(input, r
-              .out()
-              .getValue())));
-      return c;
-    }).par((par, c) -> {
+                      .getValue())));
+          return () -> new Pair<>(r.getBits(), c);
+    }).seq((seq, pair) -> {
+      List<DRes<OInt>> cbits = seq.getOIntArithmetic().toBits(pair.getSecond()
+          .out(), maxLength);
+      return () -> new Pair<>(pair.getFirst().out(), cbits);
+    }).seq((seq, pair) -> {
       List<DRes<SInt>> d = new ArrayList<>(maxLength);
-      DRes<OInt> two = par.getOIntArithmetic().twoTo(1);
-      List<DRes<OInt>> cbits = par.getOIntArithmetic().toBits(c.out(),
-          maxLength);
+      // DRes<OInt> two = seq.getOIntArithmetic().twoTo(1);
       for (int i = 0; i < maxLength; i++) {
-        DRes<SInt> ri = r.out().getBits().out().get(i);
-        // DRes<SInt> temp = par.numeric().multByOpen(two, par.numeric().multByOpen(cbits.get(i), ri));
-        // DRes<SInt> temp2 = par.numeric().addOpen(cbits.get(i), ri);
-        DRes<SInt> di = par.numeric().sub(par.numeric().addOpen(cbits.get(i),
-            ri), par.numeric().multByOpen(two, par.numeric().multByOpen(cbits
-                .get(i), ri)));
+        DRes<SInt> ri = pair.getFirst().get(i);
+        DRes<OInt> ci = pair.getSecond().get(i);
+        DRes<SInt> di = seq.logical().xorKnown(ci, ri);
+        // DRes<SInt> producti = seq.numeric().multByOpen(two, seq.numeric()
+        // .multByOpen(ci, ri));
+        // DRes<SInt> sumi = seq.numeric().addOpen(ci, ri);
+        // DRes<SInt> di = seq.numeric().sub(sumi, producti);
         d.add(di);
       }
-      return par.numeric().subFromOpen(par.getOIntArithmetic().twoTo(0), par
+      return () -> d;// new Pair<>(tempList1, tempList2);
+      // }).par((par, pair) -> {
+//      List<DRes<SInt>> d = new ArrayList<>(maxLength);
+//      for (int i = 0; i < maxLength; i++) {
+//        DRes<SInt> di = par.numeric().sub(pair.getSecond().get(i), pair
+//            .getFirst().get(i));
+//        d.add(di);
+//      }
+//      return () -> d;
+    }).seq((seq, d) -> {
+      return seq.numeric().subFromOpen(seq.getOIntArithmetic().twoTo(0), seq
           .logical().orOfList(() -> d));
-    });
+      });
   }
 }
