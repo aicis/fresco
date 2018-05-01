@@ -16,34 +16,42 @@ public class Spdz2kSIntBoolean<PlainT extends CompUInt<?, ?, PlainT>> extends
   }
 
   /**
-   * Creates a {@link Spdz2kSIntBoolean} from a public value. <p>All parties compute the mac
-   * share of the value but only party one (by convention) stores the public value as the share, the
+   * Creates a {@link Spdz2kSIntBoolean} from a public value. <p>All parties compute the mac share
+   * of the value but only party one (by convention) stores the public value as the share, the
    * others store 0.</p>
    */
   public Spdz2kSIntBoolean(PlainT share, PlainT macKeyShare, PlainT zero, boolean isPartyOne) {
-    this(isPartyOne ? share : zero, share.and(macKeyShare));
+    this(isPartyOne ? share : zero, share.multiplyMsb(macKeyShare));
   }
 
   /**
    * Compute sum of this and other.
    */
   public Spdz2kSIntBoolean<PlainT> add(Spdz2kSIntBoolean<PlainT> other) {
-    return new Spdz2kSIntBoolean<>(share.xor(other.share), macShare.xor(other.macShare));
+    return new Spdz2kSIntBoolean<>(
+        share.addMsb(other.share),
+        macShare.addMsb(other.macShare)
+    );
   }
 
   /**
    * Compute difference of this and other.
    */
   public Spdz2kSIntBoolean<PlainT> subtract(Spdz2kSIntBoolean<PlainT> other) {
-    return new Spdz2kSIntBoolean<>(share.xor(other.share.not()),
-        macShare.xor(other.macShare.not()));
+    return new Spdz2kSIntBoolean<>(
+        share.addMsb(other.share.negateMsb()),
+        macShare.addMsb(other.macShare.negateMsb())
+    );
   }
 
   /**
    * Compute product of this and constant (open) value.
    */
   public Spdz2kSIntBoolean<PlainT> multiply(PlainT other) {
-    return new Spdz2kSIntBoolean<>(share.and(other), macShare.and(other));
+    return new Spdz2kSIntBoolean<>(
+        share.multiplyMsb(other),
+        macShare.multiplyMsb(other)
+    );
   }
 
   /**

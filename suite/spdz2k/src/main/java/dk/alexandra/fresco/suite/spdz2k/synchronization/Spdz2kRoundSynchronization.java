@@ -1,14 +1,20 @@
 package dk.alexandra.fresco.suite.spdz2k.synchronization;
 
 import dk.alexandra.fresco.framework.ProtocolCollection;
+import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
+import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.framework.util.OpenedValueStore;
 import dk.alexandra.fresco.suite.ProtocolSuite.RoundSynchronization;
+import dk.alexandra.fresco.suite.spdz2k.Spdz2kBuilder;
 import dk.alexandra.fresco.suite.spdz2k.Spdz2kProtocolSuite;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntConverter;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntArithmetic;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.UInt;
+import dk.alexandra.fresco.suite.spdz2k.protocols.computations.Spdz2kMacCheckComputation;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.RequiresMacCheck;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 import java.util.stream.StreamSupport;
@@ -46,19 +52,19 @@ public class Spdz2kRoundSynchronization<
   }
 
   private void doMacCheck(Spdz2kResourcePool<PlainT> resourcePool, Network network) {
-//    Spdz2kBuilder<PlainT> builder = new Spdz2kBuilder<>(resourcePool.getFactory(),
-//        protocolSuite.createBasicNumericContext(resourcePool), false);
-//    BatchEvaluationStrategy<Spdz2kResourcePool<PlainT>> batchStrategy = new BatchedStrategy<>();
-//    BatchedProtocolEvaluator<Spdz2kResourcePool<PlainT>> evaluator = new BatchedProtocolEvaluator<>(
-//        batchStrategy,
-//        protocolSuite,
-//        batchSize);
-//    OpenedValueStore<Spdz2kSIntArithmetic<PlainT>, PlainT> store = resourcePool.getOpenedValueStore();
-//    Spdz2kMacCheckComputation<HighT, LowT, PlainT> macCheck = new Spdz2kMacCheckComputation<>(
-//        store.popValues(),
-//        resourcePool, converter);
-//    ProtocolBuilderNumeric sequential = builder.createSequential();
-//    macCheck.buildComputation(sequential);
+    Spdz2kBuilder<PlainT> builder = new Spdz2kBuilder<>(resourcePool.getFactory(),
+        protocolSuite.createBasicNumericContext(resourcePool), false);
+    BatchEvaluationStrategy<Spdz2kResourcePool<PlainT>> batchStrategy = new BatchedStrategy<>();
+    BatchedProtocolEvaluator<Spdz2kResourcePool<PlainT>> evaluator = new BatchedProtocolEvaluator<>(
+        batchStrategy,
+        protocolSuite,
+        batchSize);
+    OpenedValueStore<Spdz2kSIntArithmetic<PlainT>, PlainT> store = resourcePool.getOpenedValueStore();
+    Spdz2kMacCheckComputation<HighT, LowT, PlainT> macCheck = new Spdz2kMacCheckComputation<>(
+        store.popValues(),
+        resourcePool, converter);
+    ProtocolBuilderNumeric sequential = builder.createSequential();
+    macCheck.buildComputation(sequential);
 //    evaluator.eval(sequential.build(), resourcePool, network);
   }
 

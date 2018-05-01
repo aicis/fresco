@@ -50,23 +50,28 @@ public interface CompUInt<
   CompT clearHighBits();
 
   /**
+   * Converts this to bit representation.
+   */
+  CompT toBitRepresentation();
+
+  /**
    * Bit-wise AND of this and other.
    */
-  default CompT and(CompT other) {
+  default CompT multiplyMsb(CompT other) {
     throw new UnsupportedOperationException();
   }
 
   /**
    * Bit-wise XOR of this and other.
    */
-  default CompT xor(CompT other) {
+  default CompT addMsb(CompT other) {
     throw new UnsupportedOperationException();
   }
 
   /**
    * Bit-wise NOT of this.
    */
-  default CompT not() {
+  default CompT negateMsb() {
     throw new UnsupportedOperationException();
   }
 

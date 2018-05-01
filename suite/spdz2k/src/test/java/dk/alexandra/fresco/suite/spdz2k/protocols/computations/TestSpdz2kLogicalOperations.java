@@ -48,15 +48,20 @@ public class TestSpdz2kLogicalOperations extends
   @Override
   protected Spdz2kResourcePool<CompUInt128> createResourcePool(int playerId, int noOfParties,
       Supplier<Network> networkSupplier) {
+    System.err.println("TestSpdz2kLogicalOperations change me back!");
     CompUIntFactory<CompUInt128> factory = new CompUInt128Factory();
+    Random random = new Random(playerId);
+    byte[] bytes = new byte[16];
+    random.nextBytes(bytes);
+    CompUInt128 keyShare = new CompUInt128(bytes);
     Spdz2kResourcePool<CompUInt128> resourcePool =
         new Spdz2kResourcePoolImpl<>(
             playerId,
-            noOfParties, null,
+            noOfParties, new AesCtrDrbg(new byte[32]),
             new Spdz2kOpenedValueStoreImpl<>(),
-            new Spdz2kDummyDataSupplier<>(playerId, noOfParties, factory.createRandom(), factory),
+            new Spdz2kDummyDataSupplier<>(playerId, noOfParties, keyShare, factory),
             factory);
-    resourcePool.initializeJointRandomness(networkSupplier, AesCtrDrbg::new, 32);
+//    resourcePool.initializeJointRandomness(networkSupplier, AesCtrDrbg::new, 32);
     return resourcePool;
   }
 
@@ -73,15 +78,9 @@ public class TestSpdz2kLogicalOperations extends
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final List<BigInteger> left = Arrays.asList(
-            BigInteger.ONE,
-            BigInteger.ZERO,
-            BigInteger.ONE,
-            BigInteger.ZERO);
+            BigInteger.ONE);
         private final List<BigInteger> right = Arrays.asList(
-            BigInteger.ONE,
-            BigInteger.ONE,
-            BigInteger.ZERO,
-            BigInteger.ZERO);
+            BigInteger.ONE);
 
         @Override
         public void test() {

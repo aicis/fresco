@@ -84,7 +84,9 @@ public class Spdz2kMacCheckComputation<
         .seq((seq, broadcastPjs) -> computeZValues(seq, authenticatedElements, macKeyShare, y, r,
             broadcastPjs))
         .seq((seq, commitZjs) -> {
-          if (!UInt.sum(serializer.deserializeList(commitZjs)).isZero()) {
+          List<PlainT> elements = serializer.deserializeList(commitZjs);
+          PlainT sum = UInt.sum(elements);
+          if (!sum.isZero()) {
             throw new MaliciousException("Mac check failed");
           }
           authenticatedElements.clear();

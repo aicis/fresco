@@ -45,10 +45,6 @@ public class Spdz2kDummyDataSupplier<
   @Override
   public Spdz2kTriple<PlainT, Spdz2kSIntBoolean<PlainT>> getNextBitTripleShares() {
     MultiplicationTripleShares rawTriple = supplier.getMultiplicationBitTripleShares();
-    if (myId == 1) {
-      System.out.println(rawTriple.getProduct().getFirst());
-    }
-
     return new Spdz2kTriple<>(
         toSpdz2kSIntBool(rawTriple.getLeft()),
         toSpdz2kSIntBool(rawTriple.getRight()),
@@ -92,7 +88,7 @@ public class Spdz2kDummyDataSupplier<
     int n = factory.getLowBitLength() - 1;
     PlainT openValue = factory.createFromBigInteger(raw.getFirst().shiftLeft(n));
     PlainT share = factory.createFromBigInteger(raw.getSecond().shiftLeft(n));
-    PlainT macShare = openValue.multiply(secretSharedKey);
+    PlainT macShare = openValue.multiplyMsb(secretSharedKey);
     return new Spdz2kSIntBoolean<>(share, macShare);
   }
 

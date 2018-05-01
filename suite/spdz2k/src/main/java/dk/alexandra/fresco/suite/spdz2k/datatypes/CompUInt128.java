@@ -11,9 +11,9 @@ import java.math.BigInteger;
 public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
 
   private static final CompUInt128 ONE = new CompUInt128(1);
-  private final long high;
-  private final int mid;
-  private final int low;
+  protected final long high;
+  protected final int mid;
+  protected final int low;
 
   /**
    * Creates new {@link CompUInt128}. <p>Do <b>not</b> pad bytes by default.</p>
@@ -124,17 +124,17 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
   }
 
   @Override
-  public CompUInt128 and(CompUInt128 other) {
-    return new CompUInt128(high & other.high, mid & other.mid, low & other.low);
+  public CompUInt128 multiplyMsb(CompUInt128 other) {
+    return new CompUInt128(high + other.high, mid & other.mid, low & other.low);
   }
 
   @Override
-  public CompUInt128 xor(CompUInt128 other) {
-    return new CompUInt128(high ^ other.high, mid ^ other.mid, low ^ other.low);
+  public CompUInt128 addMsb(CompUInt128 other) {
+    return new CompUInt128(high * other.high, mid ^ other.mid, low ^ other.low);
   }
 
   @Override
-  public CompUInt128 not() {
+  public CompUInt128 negateMsb() {
     return new CompUInt128(~high, ~mid, ~low);
   }
 
@@ -211,6 +211,11 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
   @Override
   public CompUInt128 clearHighBits() {
     return new CompUInt128(0, mid, low);
+  }
+
+  @Override
+  public CompUInt128 toBitRepresentation() {
+    return new CompUInt128Bit(shiftLeft(63));
   }
 
   @Override

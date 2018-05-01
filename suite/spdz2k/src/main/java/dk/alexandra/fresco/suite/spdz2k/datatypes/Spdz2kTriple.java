@@ -24,4 +24,12 @@ public class Spdz2kTriple<PlainT extends CompUInt<?, ?, PlainT>, SIntT extends S
     return product;
   }
 
+  @Override
+  public String toString() {
+    return "Spdz2kTriple{" +
+        "left=" + left +
+        ", right=" + right +
+        ", product=" + product +
+        '}';
+  }
 }
