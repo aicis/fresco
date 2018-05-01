@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.lib.compare.zerotest;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import dk.alexandra.fresco.framework.DRes;
@@ -26,28 +27,30 @@ public class ZeroTestLogRounds implements
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    return builder.seq( seq -> seq.advancedNumeric().randomBitMask(maxLength
+    return builder.seq(seq -> seq.advancedNumeric().randomBitMask(maxLength
         + securityParameter)).seq((seq, r) -> {
       // Use the integer interpretation of r to compute c = 2^{k-1}+(input + r)
       DRes<OInt> c = seq.numeric().openAsOInt(seq.numeric().addOpen(seq
           .getOIntArithmetic().twoTo(maxLength - 1), seq.numeric().add(input, r
-                      .getValue())));
-          return () -> new Pair<>(r.getBits(), c);
+          .getValue())));
+      seq.debug().openAndPrint("r ", r.getValue(), System.out);
+      return () -> new Pair<>(r.getBits(), c);
     }).seq((seq, pair) -> {
+      System.out.println("c " + pair.getSecond().out());
       List<DRes<OInt>> cbits = seq.getOIntArithmetic().toBits(pair.getSecond()
           .out(), maxLength);
       return () -> new Pair<>(pair.getFirst().out(), cbits);
     }).seq((seq, pair) -> {
       List<DRes<SInt>> d = new ArrayList<>(maxLength);
-      // DRes<OInt> two = seq.getOIntArithmetic().twoTo(1);
-      for (int i = 0; i < maxLength; i++) {
+      DRes<OInt> two = seq.getOIntArithmetic().twoTo(1);
+      List<DRes<OInt>> second = pair.getSecond();
+      Collections.reverse(second);
+      // TODO why -1?
+      for (int i = 0; i < maxLength - 1; i++) {
         DRes<SInt> ri = pair.getFirst().get(i);
-        DRes<OInt> ci = pair.getSecond().get(i);
+        DRes<OInt> ci = second.get(i);
+        seq.debug().openAndPrint("r" + i + " ci " + ci.out(), ri, System.out);
         DRes<SInt> di = seq.logical().xorKnown(ci, ri);
-        // DRes<SInt> producti = seq.numeric().multByOpen(two, seq.numeric()
-        // .multByOpen(ci, ri));
-        // DRes<SInt> sumi = seq.numeric().addOpen(ci, ri);
-        // DRes<SInt> di = seq.numeric().sub(sumi, producti);
         d.add(di);
       }
       return () -> d;// new Pair<>(tempList1, tempList2);
@@ -60,8 +63,9 @@ public class ZeroTestLogRounds implements
 //      }
 //      return () -> d;
     }).seq((seq, d) -> {
+      seq.debug().openAndPrint("label " + seq.getBasicNumericContext().getMyId(), d, System.out);
       return seq.numeric().subFromOpen(seq.getOIntArithmetic().twoTo(0), seq
           .logical().orOfList(() -> d));
-      });
+    });
   }
 }

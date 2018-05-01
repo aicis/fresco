@@ -22,4 +22,11 @@ public class BigIntegerOInt implements OInt {
     return this;
   }
 
+  @Override
+  public String toString() {
+    return "BigIntegerOInt{" +
+        "value=" + value +
+        '}';
+  }
 }
+

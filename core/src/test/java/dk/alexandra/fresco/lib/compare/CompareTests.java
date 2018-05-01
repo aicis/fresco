@@ -144,6 +144,37 @@ public class CompareTests {
     }
   }
 
+  public static class TestCompareEQZero<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() throws Exception {
+          Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app = builder -> {
+            Numeric input = builder.numeric();
+            DRes<SInt> x = input.known(BigInteger.valueOf(1));
+            DRes<SInt> y = input.known(BigInteger.valueOf(0));
+            Comparison comparison = builder.comparison();
+//            DRes<SInt> compResult1 = comparison.compareZero(x, 64);
+            DRes<SInt> compResult2 = comparison.compareZero(y, 64);
+            Numeric open = builder.numeric();
+            DRes<BigInteger> res1 = open.open(x);
+            DRes<BigInteger> res2 = open.open(compResult2);
+
+            return () -> new Pair<>(res1.out(), res2.out());
+          };
+          Pair<BigInteger, BigInteger> output = runApplication(app);
+//          Assert.assertEquals(BigInteger.ZERO, output.getFirst());
+          Assert.assertEquals(BigInteger.ONE, output.getSecond());
+
+        }
+      };
+    }
+  }
+
   public static class TestCompareEQEdgeCases<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
