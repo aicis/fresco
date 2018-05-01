@@ -9,9 +9,16 @@ import java.util.List;
 public interface OIntArithmetic {
 
   /**
-   * Turns input value into bits in big-endian order. <p>If the actual bit length of the value is
-   * smaller than numBits, the result is padded with 0s. If the bit length is larger only the first
-   * numBits bits are used.</p>
+   * Returns the number one as a deferred opened int.
+   */
+  DRes<OInt> one();
+
+  /**
+   * Turns input value into bits in big-endian order.
+   * <p>
+   * If the actual bit length of the value is smaller than numBits, the result is padded with 0s. If
+   * the bit length is larger only the first numBits bits are used.
+   * </p>
    */
   List<DRes<OInt>> toBits(OInt openValue, int numBits);
 

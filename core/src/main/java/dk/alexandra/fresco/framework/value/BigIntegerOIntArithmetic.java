@@ -23,6 +23,11 @@ public class BigIntegerOIntArithmetic implements OIntArithmetic {
   }
 
   @Override
+  public DRes<OInt> one() {
+    return factory.one();
+  }
+
+  @Override
   public List<DRes<OInt>> toBits(OInt openValue, int numBits) {
     BigInteger value = factory.toBigInteger(openValue);
     List<DRes<OInt>> bits = new ArrayList<>(numBits);

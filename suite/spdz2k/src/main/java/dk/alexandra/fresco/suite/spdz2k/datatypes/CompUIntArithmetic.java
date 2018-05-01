@@ -21,6 +21,11 @@ public class CompUIntArithmetic<CompT extends CompUInt<?, ?, CompT>> implements 
   }
 
   @Override
+  public DRes<OInt> one() {
+    return factory.one();
+  }
+
+  @Override
   public List<DRes<OInt>> toBits(OInt openValue, int numBits) {
     CompUInt value = (CompUInt) openValue;
     List<DRes<OInt>> bits = new ArrayList<>(numBits);

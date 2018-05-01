@@ -11,7 +11,6 @@ import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
-import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -112,7 +111,7 @@ public class CompareTests {
   }
 
   /**
-   * Compares the two numbers 3 and 5 and checks that 3 == 3. Also checks that 3 != 5
+   * Compares the two numbers x and y and checks that x == x. Also checks that x != y
    */
   public static class TestCompareEQ<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
@@ -123,22 +122,46 @@ public class CompareTests {
 
         @Override
         public void test() throws Exception {
-          Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app = builder -> {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = builder -> {
             Numeric input = builder.numeric();
-            DRes<SInt> x = input.known(BigInteger.valueOf(1));
-            DRes<SInt> y = input.known(BigInteger.valueOf(5));
+            // Pair 1
+            DRes<SInt> x1 = input.known(BigInteger.valueOf(3));
+            DRes<SInt> y1 = input.known(BigInteger.valueOf(5));
+            // Pair 2
+            DRes<SInt> x2 = input.known(BigInteger.valueOf(11833));
+            DRes<SInt> y2 = input.known(BigInteger.valueOf(-583));
+            // Pair 3
+            // Minimum legal case
+            DRes<SInt> x3 = input.known(BigInteger.valueOf(2).pow(62).subtract(
+                BigInteger.ONE).negate());
+            DRes<SInt> y3 = input.known(BigInteger.valueOf(2).pow(62).subtract(
+                BigInteger.valueOf(2)).negate());
+
             Comparison comparison = builder.comparison();
-            DRes<SInt> compResult1 = comparison.equals(x, x);
-            DRes<SInt> compResult2 = comparison.equals(x, y);
+
+            DRes<SInt> compResult1 = comparison.equals(x1, x1);
+            DRes<SInt> compResult2 = comparison.equals(x1, y1);
+            DRes<SInt> compResult3 = comparison.equals(x2, x2);
+            DRes<SInt> compResult4 = comparison.equals(x2, y2);
+            DRes<SInt> compResult5 = comparison.equals(x3, x3);
+            DRes<SInt> compResult6 = comparison.equals(x3, y3);
             Numeric open = builder.numeric();
             DRes<BigInteger> res1 = open.open(compResult1);
             DRes<BigInteger> res2 = open.open(compResult2);
-            return () -> new Pair<>(res1.out(), res2.out());
+            DRes<BigInteger> res3 = open.open(compResult3);
+            DRes<BigInteger> res4 = open.open(compResult4);
+            DRes<BigInteger> res5 = open.open(compResult5);
+            DRes<BigInteger> res6 = open.open(compResult6);
+            return () -> Arrays.asList(res1.out(), res2.out(), res3.out(), res4
+                .out(), res5.out(), res6.out());
           };
-          Pair<BigInteger, BigInteger> output = runApplication(app);
-          Assert.assertEquals(BigInteger.ZERO, output.getSecond());
-          Assert.assertEquals(BigInteger.ONE, output.getFirst());
-
+          List<BigInteger> output = runApplication(app);
+          Assert.assertEquals(BigInteger.ONE, output.get(0));
+          Assert.assertEquals(BigInteger.ZERO, output.get(1));
+          Assert.assertEquals(BigInteger.ONE, output.get(2));
+          Assert.assertEquals(BigInteger.ZERO, output.get(3));
+          Assert.assertEquals(BigInteger.ONE, output.get(4));
+          Assert.assertEquals(BigInteger.ZERO, output.get(5));
         }
       };
     }
@@ -153,23 +176,33 @@ public class CompareTests {
 
         @Override
         public void test() throws Exception {
-          Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app = builder -> {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = builder -> {
             Numeric input = builder.numeric();
-            DRes<SInt> x = input.known(BigInteger.valueOf(1));
-            DRes<SInt> y = input.known(BigInteger.valueOf(0));
+            DRes<SInt> w = input.known(BigInteger.valueOf(-1));
+            DRes<SInt> x = input.known(BigInteger.valueOf(0));
+            // Max positive value
+            DRes<SInt> y = input.known(BigInteger.valueOf(2).pow(63).subtract(
+                BigInteger.ONE));
+            // Min negative value
+            DRes<SInt> z = input.known(BigInteger.valueOf(2).pow(63).negate());
             Comparison comparison = builder.comparison();
-//            DRes<SInt> compResult1 = comparison.compareZero(x, 64);
-            DRes<SInt> compResult2 = comparison.compareZero(y, 64);
+            DRes<SInt> compResult1 = comparison.compareZero(w, 64);
+            DRes<SInt> compResult2 = comparison.compareZero(x, 64);
+            DRes<SInt> compResult3 = comparison.compareZero(y, 64);
+            DRes<SInt> compResult4 = comparison.compareZero(z, 64);
             Numeric open = builder.numeric();
-            DRes<BigInteger> res1 = open.open(x);
+            DRes<BigInteger> res1 = open.open(compResult1);
             DRes<BigInteger> res2 = open.open(compResult2);
-
-            return () -> new Pair<>(res1.out(), res2.out());
+            DRes<BigInteger> res3 = open.open(compResult3);
+            DRes<BigInteger> res4 = open.open(compResult4);
+            return () -> Arrays.asList(res1.out(), res2.out(), res3.out(), res4
+                .out());
           };
-          Pair<BigInteger, BigInteger> output = runApplication(app);
-//          Assert.assertEquals(BigInteger.ZERO, output.getFirst());
-          Assert.assertEquals(BigInteger.ONE, output.getSecond());
-
+          List<BigInteger> output = runApplication(app);
+          Assert.assertEquals(BigInteger.ZERO, output.get(0));
+          Assert.assertEquals(BigInteger.ONE, output.get(1));
+          Assert.assertEquals(BigInteger.ZERO, output.get(2));
+          Assert.assertEquals(BigInteger.ZERO, output.get(3));
         }
       };
     }
