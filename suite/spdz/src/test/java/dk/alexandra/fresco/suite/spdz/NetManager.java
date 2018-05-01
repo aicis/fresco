@@ -2,7 +2,8 @@ package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.network.CloseableNetwork;
+import dk.alexandra.fresco.framework.network.async.AsyncNetwork;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import java.io.Closeable;
 import java.util.ArrayList;
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
-public class KryoNetManager implements Closeable {
+public class NetManager implements Closeable {
 
   private static final AtomicInteger PORT_OFFSET_COUNTER = new AtomicInteger(50);
   private static final int PORT_INCREMENT = 10;
@@ -18,14 +19,14 @@ public class KryoNetManager implements Closeable {
   private final List<Closeable> openedNetworks;
   private final int portOffset;
 
-  public KryoNetManager(List<Integer> ports) {
+  public NetManager(List<Integer> ports) {
     this.portOffset = PORT_OFFSET_COUNTER.addAndGet(PORT_INCREMENT);
     this.ports = ports;
     this.openedNetworks = new ArrayList<>();
   }
 
-  public KryoNetNetwork createExtraNetwork(int myId) {
-    KryoNetNetwork net = new KryoNetNetwork(new TestNetworkConfiguration(myId, ports, portOffset), 10485680, false, 15000);
+  public CloseableNetwork createExtraNetwork(int myId) {
+    CloseableNetwork net = new AsyncNetwork(new TestNetworkConfiguration(myId, ports, portOffset));
     openedNetworks.add(net);
     return net;
   }

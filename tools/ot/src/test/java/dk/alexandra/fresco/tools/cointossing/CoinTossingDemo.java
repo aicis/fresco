@@ -3,12 +3,11 @@ package dk.alexandra.fresco.tools.cointossing;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
-import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.async.AsyncNetwork;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +29,7 @@ public class CoinTossingDemo {
    *           Thrown if the underlying hash algorithm does not exist
    */
   public void run(int myId, int otherId) throws NoSuchAlgorithmException {
-    Network network = new KryoNetNetwork(getNetworkConfiguration(myId));
+    Network network = new AsyncNetwork(getNetworkConfiguration(myId));
     System.out.println("Connected party " + myId);
     Drbg rand = new HmacDrbg(new byte[] { 0x42 });
     CoinTossing ct = new CoinTossing(myId, otherId, rand);

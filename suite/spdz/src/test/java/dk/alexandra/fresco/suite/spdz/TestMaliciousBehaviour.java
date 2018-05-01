@@ -8,7 +8,7 @@ import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.network.async.AsyncNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
@@ -52,73 +52,53 @@ public class TestMaliciousBehaviour {
 
   }
 
-  @Test
-  public void testCommitmentCorruptRound1() {
+  @Test(expected=MaliciousException.class)
+  public void testCommitmentCorruptRound1() throws Throwable {
     try {
       runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
           Corrupt.COMMIT_ROUND_1);
-      Assert.fail("Should not go well");
     } catch (RuntimeException e) {
-      if (e.getCause().getCause() == null || !(e.getCause()
-          .getCause() instanceof MaliciousException)) {
-        Assert.fail();
-      }
+      throw e.getCause().getCause();
     }
   }
 
-  @Test
-  public void testOpenCommitmentCorruptRound1() {
+  @Test(expected=MaliciousException.class)
+  public void testOpenCommitmentCorruptRound1() throws Throwable {
     try {
       runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2,
           Corrupt.OPEN_COMMIT_ROUND_1);
-      Assert.fail("Should not go well");
     } catch (RuntimeException e) {
-      if (e.getCause().getCause() == null || !(e.getCause()
-          .getCause() instanceof MaliciousException)) {
-        Assert.fail();
-      }
+      throw e.getCause().getCause();
     }
   }
 
-  @Test
-  public void testCommitmentCorruptRound2() {
+  @Test(expected=MaliciousException.class)
+  public void testCommitmentCorruptRound2() throws Throwable {
     try {
       runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
           Corrupt.COMMIT_ROUND_2);
-      Assert.fail("Should not go well");
     } catch (RuntimeException e) {
-      if (e.getCause().getCause() == null || !(e.getCause()
-          .getCause() instanceof MaliciousException)) {
-        Assert.fail();
-      }
+      throw e.getCause().getCause();
     }
   }
 
-  @Test
-  public void testOpenCommitmentCorruptRound2() {
+  @Test(expected=MaliciousException.class)
+  public void testOpenCommitmentCorruptRound2() throws Throwable {
     try {
       runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2,
           Corrupt.OPEN_COMMIT_ROUND_2);
-      Assert.fail("Should not go well");
     } catch (RuntimeException e) {
-      if (e.getCause().getCause() == null || !(e.getCause()
-          .getCause() instanceof MaliciousException)) {
-        Assert.fail();
-      }
+      throw e.getCause().getCause();
     }
   }
 
-  @Test
-  public void testMaliciousInput() {
+  @Test(expected=MaliciousException.class)
+  public void testMaliciousInput() throws Throwable {
     try {
       runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2,
           Corrupt.INPUT);
-      Assert.fail("Should not go well");
     } catch (RuntimeException e) {
-      if (e.getCause().getCause() == null || !(e.getCause()
-          .getCause() instanceof MaliciousException)) {
-        Assert.fail();
-      }
+      throw e.getCause().getCause();
     }
   }
 
@@ -152,10 +132,7 @@ public class TestMaliciousBehaviour {
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> createResourcePool(playerId, noOfParties),
-              () -> {
-                KryoNetNetwork kryoNetwork = new KryoNetNetwork(netConf.get(playerId));
-                return kryoNetwork;
-              });
+              () -> new AsyncNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);

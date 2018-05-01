@@ -8,7 +8,6 @@ import dk.alexandra.fresco.demo.cli.CmdLineUtil;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.KryoNetNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -38,7 +37,6 @@ public class TestCmdLineUtil {
   @Test
   public void testDummyBoolFromCmdLine() throws InterruptedException {
     CmdLineUtil<ResourcePoolImpl, ProtocolBuilderBinary> cmd = parseAndCloseNetwork(getArgs(1, "dummybool", "-b", "4048"));
-    assertTrue(cmd.getNetwork() instanceof KryoNetNetwork);
     assertTrue(cmd.getEvaluator() instanceof BatchedProtocolEvaluator);
     assertEquals(1, cmd.getNetworkConfiguration().getMyId());
     assertEquals(2, cmd.getNetworkConfiguration().noOfParties());
@@ -62,7 +60,6 @@ public class TestCmdLineUtil {
   @Test
   public void testDummyAritmeticFromCmdLine() throws InterruptedException {
     CmdLineUtil<DummyArithmeticResourcePool, ProtocolBuilderNumeric> cmd = parseAndCloseNetwork(getArgs(1, "dummyarithmetic", "-b", "4048"));
-    assertTrue(cmd.getNetwork() instanceof KryoNetNetwork);
     assertTrue(cmd.getEvaluator() instanceof BatchedProtocolEvaluator);
     assertEquals(1, cmd.getNetworkConfiguration().getMyId());
     assertEquals(2, cmd.getNetworkConfiguration().noOfParties());
@@ -74,7 +71,6 @@ public class TestCmdLineUtil {
   @Test
   public void testSpdzAritmeticDummyFromCmdLine() throws InterruptedException {
     CmdLineUtil<SpdzResourcePool, ProtocolBuilderNumeric> cmd = parseAndCloseNetwork(getArgs(1, "spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=DUMMY"));
-    assertTrue(cmd.getNetwork() instanceof KryoNetNetwork);
     assertTrue(cmd.getEvaluator() instanceof BatchedProtocolEvaluator);
     assertEquals(1, cmd.getNetworkConfiguration().getMyId());
     assertEquals(2, cmd.getNetworkConfiguration().noOfParties());
@@ -93,7 +89,6 @@ public class TestCmdLineUtil {
     InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()), 2, 1, 1, 1, 1, 1);
     CmdLineUtil<SpdzResourcePool, ProtocolBuilderNumeric> cmd =
         parseAndCloseNetwork(getArgs(1, "spdz", "-b", "4048", "-D", "spdz.preprocessingStrategy=STATIC"));
-    assertTrue(cmd.getNetwork() instanceof KryoNetNetwork);
     assertTrue(cmd.getEvaluator() instanceof BatchedProtocolEvaluator);
     assertEquals(1, cmd.getNetworkConfiguration().getMyId());
     assertEquals(2, cmd.getNetworkConfiguration().noOfParties());
@@ -111,7 +106,6 @@ public class TestCmdLineUtil {
   @Test
   public void testTinyTablesPreproFromCmdLine() throws InterruptedException {
     CmdLineUtil<?, ?> cmd = parseAndCloseNetwork(getArgs(1, "tinytablesprepro", "-b", "4048"));
-    assertTrue(cmd.getNetwork() instanceof KryoNetNetwork);
     assertTrue(cmd.getEvaluator() instanceof BatchedProtocolEvaluator);
     assertEquals(1, cmd.getNetworkConfiguration().getMyId());
     assertEquals(2, cmd.getNetworkConfiguration().noOfParties());
@@ -123,7 +117,6 @@ public class TestCmdLineUtil {
   @Test
   public void testTinyTablesFromCmdLine() throws InterruptedException {
     CmdLineUtil<?, ?> cmd = parseAndCloseNetwork(getArgs(1, "tinytables", "-b", "4048"));
-    assertTrue(cmd.getNetwork() instanceof KryoNetNetwork);
     assertTrue(cmd.getEvaluator() instanceof BatchedProtocolEvaluator);
     assertEquals(1, cmd.getNetworkConfiguration().getMyId());
     assertEquals(2, cmd.getNetworkConfiguration().noOfParties());

@@ -10,7 +10,7 @@ import dk.alexandra.fresco.framework.builder.numeric.DefaultPreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.network.CloseableNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.async.AsyncNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
@@ -84,9 +84,9 @@ public abstract class AbstractSpdzTest {
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * (noOfParties - 1));
     }
-    KryoNetManager tripleManager = new KryoNetManager(ports);
-    KryoNetManager otManager = new KryoNetManager(ports);
-    KryoNetManager expPipeManager = new KryoNetManager(ports);
+    NetManager tripleManager = new NetManager(ports);
+    NetManager otManager = new NetManager(ports);
+    NetManager expPipeManager = new NetManager(ports);
 
     Map<Integer, NetworkConfiguration> netConf =
         TestConfiguration.getNetworkConfigurations(noOfParties, ports);
@@ -163,7 +163,7 @@ public abstract class AbstractSpdzTest {
   }
 
   DRes<List<DRes<SInt>>> createPipe(int myId, int noOfPlayers, int pipeLength,
-      KryoNetNetwork pipeNetwork, SpdzMascotDataSupplier tripleSupplier) {
+      CloseableNetwork pipeNetwork, SpdzMascotDataSupplier tripleSupplier) {
 
     ProtocolBuilderNumeric sequential = new SpdzBuilder(
         new BasicNumericContext(maxBitLength, tripleSupplier.getModulus(), myId, noOfPlayers),
@@ -204,8 +204,8 @@ public abstract class AbstractSpdzTest {
   }
 
   private SpdzResourcePool createResourcePool(int myId, int numberOfParties,
-      PreprocessingStrategy preProStrat, KryoNetManager otGenerator, KryoNetManager tripleGenerator,
-      KryoNetManager expPipeGenerator) {
+      PreprocessingStrategy preProStrat, NetManager otGenerator, NetManager tripleGenerator,
+      NetManager expPipeGenerator) {
     SpdzDataSupplier supplier;
     if (preProStrat == DUMMY) {
       supplier = new SpdzDummyDataSupplier(myId, numberOfParties,
@@ -224,7 +224,7 @@ public abstract class AbstractSpdzTest {
           new Function<Integer, SpdzSInt[]>() {
 
             private SpdzMascotDataSupplier tripleSupplier;
-            private KryoNetNetwork pipeNetwork;
+            private CloseableNetwork pipeNetwork;
 
             @Override
             public SpdzSInt[] apply(Integer pipeLength) {

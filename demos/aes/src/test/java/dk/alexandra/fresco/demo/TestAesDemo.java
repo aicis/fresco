@@ -10,7 +10,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.network.async.AsyncNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
@@ -54,7 +54,7 @@ public class TestAesDemo {
           new TestThreadConfiguration<>(
               sce,
               () -> new ResourcePoolImpl(playerId, noPlayers),
-              () -> new KryoNetNetwork(netConf.get(playerId)));
+              () -> new AsyncNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }
 
@@ -148,7 +148,7 @@ public class TestAesDemo {
         throw new RuntimeException("Error", e);
       }
     };
-    
+
     Runnable p3 = () -> {
       try {
         AesDemo.main(
@@ -168,11 +168,11 @@ public class TestAesDemo {
     t2.join();
     t3.join();
   }
-  
+
   @Test(expected=IllegalArgumentException.class)
   public void testAESCmdLineBadLength() throws Exception {
     AesDemo.main(
-        new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082", 
+        new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082",
             "-s", "dummyBool", "-in", "000102030405060708090a0b0c0d0"});
     fail();
   }
@@ -180,7 +180,7 @@ public class TestAesDemo {
   @Test(expected=IllegalArgumentException.class)
   public void testAESCmdLineNoInput() throws Exception {
     AesDemo.main(
-        new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082", 
+        new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082",
             "-s", "dummyBool"});
     fail();
   }
@@ -188,10 +188,10 @@ public class TestAesDemo {
   @Test(expected=IllegalArgumentException.class)
   public void testAESCmdLine3PartyInput() throws Exception {
     AesDemo.main(
-        new String[]{"-i", "3", "-p", "1:localhost:8081", "-p", "2:localhost:8082", 
+        new String[]{"-i", "3", "-p", "1:localhost:8081", "-p", "2:localhost:8082",
             "-p", "3:localhost:8083", "-s", "dummyBool", "-in", "000102030405060708090a0b0c0d0"});
     fail();
   }
-  
-  
+
+
 }

@@ -9,7 +9,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.network.async.AsyncNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
@@ -53,7 +53,7 @@ public class TestAggregation {
           new TestThreadConfiguration<>(
               sce,
               () -> rp,
-              () -> new KryoNetNetwork(netConf.get(i)));
+              () -> new AsyncNetwork(netConf.get(i)));
       conf.put(i, ttc);
     }
     TestThreadRunner.run(test, conf);

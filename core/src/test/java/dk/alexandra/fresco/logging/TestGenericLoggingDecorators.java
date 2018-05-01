@@ -9,7 +9,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.network.async.AsyncNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
@@ -67,7 +67,7 @@ public class TestGenericLoggingDecorators {
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
                   netConf.keySet().size(), mod),
-              () -> new KryoNetNetwork(partyNetConf));
+              () -> new AsyncNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
@@ -104,14 +104,14 @@ public class TestGenericLoggingDecorators {
       SecureComputationEngine<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce
           = new SecureComputationEngineImpl<>(ps, evaluator);
 
-      Drbg drbg = new HmacDrbg();
-      TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
+      TestThreadRunner
+          .TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
                   netConf.keySet().size(), mod),
               () -> {
                 NetworkLoggingDecorator network = new NetworkLoggingDecorator(
-                    new KryoNetNetwork(partyNetConf));
+                    new AsyncNetwork(partyNetConf));
                 decoratedLoggers.add(network);
                 return network;
               });
@@ -144,7 +144,9 @@ public class TestGenericLoggingDecorators {
 
     Map<Integer, NetworkConfiguration> netConf = getNetConf();
 
-    Map<Integer, TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>> conf =
+    Map<Integer,
+        TestThreadRunner
+        .TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
 
     List<PerformanceLogger> decoratedLoggers = new ArrayList<>();
@@ -162,12 +164,11 @@ public class TestGenericLoggingDecorators {
       SecureComputationEngine<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce
           = new SecureComputationEngineImpl<>(ps, evaluator);
 
-      Drbg drbg = new HmacDrbg();
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
                   netConf.keySet().size(), mod),
-              () -> new KryoNetNetwork(partyNetConf));
+              () -> new AsyncNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);

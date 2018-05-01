@@ -11,7 +11,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.network.async.AsyncNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
@@ -61,7 +61,7 @@ public class TestPrivateSetDemo {
           new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite, evaluator),
               () -> new ResourcePoolImpl(playerId, noPlayers),
-              () -> new KryoNetNetwork(netConf.get(playerId)));
+              () -> new AsyncNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }
     String[] result = this.setIntersectionDemo(conf);
@@ -98,7 +98,7 @@ public class TestPrivateSetDemo {
           new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite, evaluator),
               () -> new ResourcePoolImpl(playerId, noPlayers),
-              () -> new KryoNetNetwork(netConf.get(playerId)));
+              () -> new AsyncNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }
 
@@ -123,7 +123,7 @@ public class TestPrivateSetDemo {
             new TestThreadConfiguration<>(
                 new SecureComputationEngineImpl<>(suite, evaluator),
                 () -> new ResourcePoolImpl(playerId, noPlayers),
-                () -> new KryoNetNetwork(secondConf.get(playerId)));
+                () -> new AsyncNetwork(secondConf.get(playerId)));
         conf.put(playerId, ttc);
       }
 
@@ -252,14 +252,14 @@ public class TestPrivateSetDemo {
     t1.join();
     t2.join();
   }
-  
+
   @Test(expected=IllegalArgumentException.class)
   public void testPSICmdLine3Party() throws Exception {
     PrivateSetDemo.main(new String[]{"-i", "3", "-p", "1:localhost:8081",
         "-p", "2:localhost:8082", "-p", "3:localhost:8083", "-s", "dummyBool"});
     fail();
   }
-  
+
   @Test(expected=IllegalArgumentException.class)
   public void testPSICmdLineBadKeyLength() throws Exception {
     PrivateSetDemo.main(new String[]{"-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s",
@@ -274,12 +274,12 @@ public class TestPrivateSetDemo {
         "dummyBool", "-in", "2,3,4,6,7,12,14"});
     fail();
   }
-  
+
   @Test(expected=IllegalArgumentException.class)
   public void testPSICmdLineNoInput() throws Exception {
     PrivateSetDemo.main(new String[]{"-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s",
         "dummyBool"});
     fail();
   }
-  
+
 }
