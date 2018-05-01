@@ -125,7 +125,7 @@ public class CompareTests {
         public void test() throws Exception {
           Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app = builder -> {
             Numeric input = builder.numeric();
-            DRes<SInt> x = input.known(BigInteger.valueOf(3));
+            DRes<SInt> x = input.known(BigInteger.valueOf(1));
             DRes<SInt> y = input.known(BigInteger.valueOf(5));
             Comparison comparison = builder.comparison();
             DRes<SInt> compResult1 = comparison.equals(x, x);
@@ -136,8 +136,9 @@ public class CompareTests {
             return () -> new Pair<>(res1.out(), res2.out());
           };
           Pair<BigInteger, BigInteger> output = runApplication(app);
-          Assert.assertEquals(BigInteger.ONE, output.getFirst());
           Assert.assertEquals(BigInteger.ZERO, output.getSecond());
+          Assert.assertEquals(BigInteger.ONE, output.getFirst());
+
         }
       };
     }

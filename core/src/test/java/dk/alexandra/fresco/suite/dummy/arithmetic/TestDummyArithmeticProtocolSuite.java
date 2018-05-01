@@ -137,12 +137,21 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void test_compareEQ_Sequential() {
-    runTest(new CompareTests.TestCompareEQ<>(), new TestParameters());
+    TestParameters params = new TestParameters().modulus(ModulusFinder
+        .findSuitableModulus(128));
+    runTest(new CompareTests.TestCompareEQ<>(), params);
   }
 
   @Test
   public void testCompareEqEdgeCasesSequential() {
     runTest(new CompareTests.TestCompareEQEdgeCases<>(), new TestParameters());
+  }
+
+  @Test
+  public void test_compareZero_Sequential() {
+    TestParameters params = new TestParameters().modulus(ModulusFinder
+        .findSuitableModulus(128));
+    runTest(new CompareTests.TestCompareEQ<>(), params);
   }
 
   @Test
