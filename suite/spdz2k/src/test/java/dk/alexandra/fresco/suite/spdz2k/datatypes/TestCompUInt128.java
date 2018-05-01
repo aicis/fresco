@@ -330,4 +330,12 @@ public class TestCompUInt128 {
     assertEquals(new BigInteger("12312").shiftLeft(12),
         new CompUInt128(new BigInteger("12312")).shiftLeft(12).toBigInteger());
   }
+
+  @Test
+  public void testToBit() {
+    assertEquals(BigInteger.ZERO, new CompUInt128(0).toBitRep().toBigInteger());
+    assertEquals(twoTo64.shiftRight(1), new CompUInt128(1).toBitRep().toBigInteger());
+    assertEquals(twoTo64.shiftLeft(63), new CompUInt128(twoTo64).toBitRep().toBigInteger());
+  }
+
 }

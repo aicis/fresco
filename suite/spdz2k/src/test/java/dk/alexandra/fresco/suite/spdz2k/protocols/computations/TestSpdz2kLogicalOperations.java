@@ -78,9 +78,17 @@ public class TestSpdz2kLogicalOperations extends
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final List<BigInteger> left = Arrays.asList(
-            BigInteger.ONE);
+            BigInteger.ONE,
+            BigInteger.ZERO,
+            BigInteger.ONE,
+            BigInteger.ZERO
+        );
         private final List<BigInteger> right = Arrays.asList(
-            BigInteger.ONE);
+            BigInteger.ONE,
+            BigInteger.ONE,
+            BigInteger.ZERO,
+            BigInteger.ZERO
+        );
 
         @Override
         public void test() {
@@ -88,7 +96,8 @@ public class TestSpdz2kLogicalOperations extends
               root -> {
                 DRes<List<DRes<SInt>>> leftClosed = root.numeric().knownAsDRes(left);
                 DRes<List<DRes<SInt>>> rightClosed = root.numeric().knownAsDRes(right);
-                DRes<List<DRes<SInt>>> leftConverted = root.conversion().toBooleanBatch(leftClosed);
+                DRes<List<DRes<SInt>>> leftConverted = root.conversion()
+                    .toBooleanBatch(leftClosed);
                 DRes<List<DRes<SInt>>> rightConverted = root.conversion()
                     .toBooleanBatch(rightClosed);
                 DRes<List<DRes<SInt>>> anded = root.logical().pairWiseAnd(

@@ -57,7 +57,7 @@ public class Spdz2kAndProtocol<PlainT extends CompUInt<?, ?, PlainT>> extends
       // compute [prod] = [c] XOR epsilon AND [b] XOR delta AND [a] XOR epsilon AND delta
       PlainT e = epsilonAndDelta.getFirst();
       PlainT d = epsilonAndDelta.getSecond();
-      PlainT ed = e.multiplyMsb(d);
+      PlainT ed = e.multiply(d);
       Spdz2kSIntBoolean<PlainT> tripleRight = triple.getRight();
       Spdz2kSIntBoolean<PlainT> tripleLeft = triple.getLeft();
       Spdz2kSIntBoolean<PlainT> tripleProduct = triple.getProduct();
@@ -85,11 +85,11 @@ public class Spdz2kAndProtocol<PlainT extends CompUInt<?, ?, PlainT>> extends
   private Pair<PlainT, PlainT> receiveAndReconstruct(Network network,
       CompUIntFactory<PlainT> factory, int noOfParties,
       ByteSerializer<PlainT> serializer) {
-    PlainT e = factory.zero();
-    PlainT d = factory.zero();
+    PlainT e = factory.zero().toBitRep();
+    PlainT d = factory.zero().toBitRep();
     for (int i = 1; i <= noOfParties; i++) {
-      e = e.addMsb(serializer.deserialize(network.receive(i)));
-      d = d.addMsb(serializer.deserialize(network.receive(i)));
+      e = e.add(serializer.deserialize(network.receive(i)));
+      d = d.add(serializer.deserialize(network.receive(i)));
     }
     return new Pair<>(e, d);
   }

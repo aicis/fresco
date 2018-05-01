@@ -122,22 +122,7 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
         + (newMid >>> 32);
     return new CompUInt128(newHigh, (int) newMid, (int) t1);
   }
-
-  @Override
-  public CompUInt128 multiplyMsb(CompUInt128 other) {
-    return new CompUInt128(high + other.high, mid & other.mid, low & other.low);
-  }
-
-  @Override
-  public CompUInt128 addMsb(CompUInt128 other) {
-    return new CompUInt128(high * other.high, mid ^ other.mid, low ^ other.low);
-  }
-
-  @Override
-  public CompUInt128 negateMsb() {
-    return new CompUInt128(~high, ~mid, ~low);
-  }
-
+  
   @Override
   public CompUInt128 subtract(CompUInt128 other) {
     return this.add(other.negate());
@@ -214,8 +199,13 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
   }
 
   @Override
-  public CompUInt128 toBitRepresentation() {
+  public CompUInt128 toBitRep() {
     return new CompUInt128Bit(shiftLeft(63));
+  }
+
+  @Override
+  public CompUInt128 toArithmeticRep() {
+    throw new UnsupportedOperationException("Already arithmetic");
   }
 
   @Override

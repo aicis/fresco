@@ -196,8 +196,8 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
         return () -> {
           Spdz2kSIntArithmetic<PlainT> value = factory.toSpdz2kSIntArithmetic(arithmeticValue);
           return new Spdz2kSIntBoolean<>(
-              value.getShare().toBitRepresentation(),
-              value.getMacShare().toBitRepresentation()
+              value.getShare().toBitRep(),
+              value.getMacShare().toBitRep()
           );
         };
       }

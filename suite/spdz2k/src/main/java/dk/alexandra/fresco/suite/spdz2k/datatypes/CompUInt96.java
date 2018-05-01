@@ -174,7 +174,12 @@ public class CompUInt96 implements CompUInt<UInt64, UInt32, CompUInt96> {
   }
 
   @Override
-  public CompUInt96 toBitRepresentation() {
+  public CompUInt96 toBitRep() {
+    return null;
+  }
+
+  @Override
+  public CompUInt96 toArithmeticRep() {
     return null;
   }
 

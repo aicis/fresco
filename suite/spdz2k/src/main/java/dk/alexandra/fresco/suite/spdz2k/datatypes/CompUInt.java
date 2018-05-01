@@ -52,28 +52,12 @@ public interface CompUInt<
   /**
    * Converts this to bit representation.
    */
-  CompT toBitRepresentation();
+  CompT toBitRep();
 
   /**
-   * Bit-wise AND of this and other.
+   * Converts this to arithmetic representation.
    */
-  default CompT multiplyMsb(CompT other) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Bit-wise XOR of this and other.
-   */
-  default CompT addMsb(CompT other) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * Bit-wise NOT of this.
-   */
-  default CompT negateMsb() {
-    throw new UnsupportedOperationException();
-  }
+  CompT toArithmeticRep();
 
   /**
    * Get length of least significant bit segment, i.e., k.
