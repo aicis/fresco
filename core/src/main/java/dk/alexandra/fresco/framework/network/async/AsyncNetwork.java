@@ -53,6 +53,8 @@ public class AsyncNetwork implements CloseableNetwork {
   private ExecutorService communicationService;
   private final Map<Integer, Future<Object>> sendFutures;
   private final Map<Integer, Future<Object>> receiveFutures;
+  private final Map<Integer, Sender> senders;
+  private final Map<Integer, Receiver> receivers;
 
   /**
    * Creates a network with the given configuration and a default timeout of
@@ -75,18 +77,23 @@ public class AsyncNetwork implements CloseableNetwork {
    */
   public AsyncNetwork(NetworkConfiguration conf, Duration timeout) {
     this.conf = conf;
-    this.outQueues = new HashMap<>(conf.noOfParties());
+    int externalParties = conf.noOfParties() - 1;
     this.inQueues = new HashMap<>(conf.noOfParties());
-    this.channelMap = new HashMap<>(conf.noOfParties() - 1);
-    this.sendFutures = new HashMap<>(conf.noOfParties() - 1);
-    this.receiveFutures = new HashMap<>(conf.noOfParties() - 1);
+    this.outQueues = new HashMap<>(externalParties);
+    this.channelMap = new HashMap<>(externalParties);
+    this.sendFutures = new HashMap<>(externalParties);
+    this.receiveFutures = new HashMap<>(externalParties);
+    this.receivers = new HashMap<>(externalParties);
+    this.senders = new HashMap<>(externalParties);
     this.alive = true;
     for (int i = 1; i < conf.noOfParties() + 1; i++) {
-      outQueues.put(i, new LinkedBlockingQueue<>());
+      if (i != conf.getMyId()) {
+        outQueues.put(i, new LinkedBlockingQueue<>());
+      }
       inQueues.put(i, new LinkedBlockingQueue<>());
     }
     if (conf.noOfParties() > 1) {
-      connectNetwork(conf, timeout);
+      connectNetwork(timeout);
       startCommunication();
     }
     logger.info("P{} successfully connected network", conf.getMyId());
@@ -101,7 +108,7 @@ public class AsyncNetwork implements CloseableNetwork {
    * @param conf the configuration defining the network to connect
    * @param timeout duration to wait until timeout
    */
-  private void connectNetwork(NetworkConfiguration conf, Duration timeout) {
+  private void connectNetwork(Duration timeout) {
     ExecutorService es = Executors.newFixedThreadPool(2);
     CompletionService<Map<Integer, SocketChannel>> cs = new ExecutorCompletionService<>(es);
     cs.submit(() -> {
@@ -216,10 +223,12 @@ public class AsyncNetwork implements CloseableNetwork {
     for (Entry<Integer, SocketChannel> entry : this.channelMap.entrySet()) {
       final int id = entry.getKey();
       SocketChannel channel = entry.getValue();
-      Future<Object> receiveFuture =
-          this.communicationService.submit(new Receiver(channel, inQueues.get(id)));
-      Future<Object> sendFuture =
-          this.communicationService.submit(new Sender(channel, outQueues.get(id)));
+      Receiver receiver = new Receiver(channel, inQueues.get(id));
+      this.receivers.put(id, receiver);
+      Future<Object> receiveFuture = this.communicationService.submit(receiver);
+      Sender sender = new Sender(channel, outQueues.get(id));
+      this.senders.put(id, sender);
+      Future<Object> sendFuture = this.communicationService.submit(sender);
       sendFutures.put(id, sendFuture);
       receiveFutures.put(id, receiveFuture);
     }
@@ -240,6 +249,9 @@ public class AsyncNetwork implements CloseableNetwork {
       this.stop = new AtomicBoolean(false);
     }
 
+    /**
+     * Signal the receiver to jump out of the receive loop.
+     */
     void stop() {
       this.stop.set(true);;
     }
@@ -266,7 +278,7 @@ public class AsyncNetwork implements CloseableNetwork {
   }
 
   /**
-   * Implements the sender sending a single message and starting a new sender.
+   * Implements the sender sending messages.
    */
   private static class Sender implements Callable<Object> {
 
@@ -282,11 +294,17 @@ public class AsyncNetwork implements CloseableNetwork {
       this.stop = new AtomicBoolean(false);
     }
 
+    /**
+     * Signals to the Sender to jump out of the send loop as soon as the outgoing queue is empty.
+     */
     void flush() {
       this.flush.set(true);
     }
 
-    void stop() {
+    /**
+     * Signals the sender that it has been artificially unblocked in order for it to stop.
+     */
+    void unblocked() {
       this.stop.set(true);
     }
 
@@ -294,7 +312,7 @@ public class AsyncNetwork implements CloseableNetwork {
     public Object call() throws IOException, InterruptedException {
       while (!queue.isEmpty() || !flush.get()) {
         byte[] data = queue.take();
-        if (data.length > 0 || !stop.get()) {
+        if (!stop.get()) {
           ByteBuffer buf = ByteBuffer.allocate(Integer.BYTES + data.length);
           buf.putInt(data.length);
           buf.put(data);
@@ -411,9 +429,13 @@ public class AsyncNetwork implements CloseableNetwork {
     // Here we want any sender in state 1. and 2. to stop in the best way (i.e., go to state 4.)
     // We do this by putting a dummy message in the queue of all running senders
     // This should unblock any senders in state 2. and cause them to eventually reach state 4.
+    senders.values().forEach(s -> s.flush());
+    receivers.values().forEach(r -> r.stop());
     sendFutures.keySet().stream().filter(i -> !sendFutures.get(i).isDone())
-        .filter(i -> outQueues.get(i).isEmpty()).map(i -> outQueues.get(i))
-        .forEach(q -> q.add(new byte[] {}));
+        .filter(i -> outQueues.get(i).isEmpty()).forEach(i -> {
+          senders.get(i).unblocked();
+          outQueues.get(i).add(new byte[] {});
+        });
     for (Future<Object> f : sendFutures.values()) {
       try {
         f.get();
