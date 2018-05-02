@@ -39,8 +39,9 @@ import org.slf4j.LoggerFactory;
  */
 public class AsyncNetwork implements CloseableNetwork {
 
-  private static final int PARTY_ID_BYTES = 1;
   public static final Duration DEFAULT_CONNECTION_TIMEOUT = Duration.ofMinutes(1);
+  private static final int PARTY_ID_BYTES = 1;
+  private static final Duration RECEIVE_TIMEOUT = Duration.ofMillis(100);
   private static final Logger logger = LoggerFactory.getLogger(AsyncNetwork.class);
 
   private ServerSocketChannel server;
@@ -309,18 +310,22 @@ public class AsyncNetwork implements CloseableNetwork {
   @Override
   public byte[] receive(int partyId) {
     inRange(partyId);
-    if (partyId != conf.getMyId() && receiveFutures.get(partyId).isDone()) {
-      try {
-        receiveFutures.get(partyId).get();
-      } catch (Exception e) {
+    byte[] data = null;
+    while (data == null) {
+      if (partyId != conf.getMyId() && receiveFutures.get(partyId).isDone()) {
+        try {
+          receiveFutures.get(partyId).get();
+        } catch (Exception e) {
+          throw new RuntimeException("Receiver for P" + partyId
+              + " threw exception. Unable to receive", e);
+        }
         throw new RuntimeException("Receiver for P" + partyId
-            + " threw exception. Unable to receive", e);
+            + " not running. Unable to receive");
       }
-      throw new RuntimeException("Receiver for P" + partyId
-          + " not running. Unable to receive");
+      data = ExceptionConverter.safe(() ->
+        this.inQueues.get(partyId).poll(RECEIVE_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS),
+          "Receive interrupted");
     }
-    byte[] data =
-        ExceptionConverter.safe(() -> this.inQueues.get(partyId).take(), "Receive interrupted");
     return data;
   }
 

@@ -81,8 +81,8 @@ public class TestAsyncNetwork {
   // CIRCULAR SENDS
 
   /**
-   * In this test each party sends a message of a given size to the party next party, with the last
-   * party sending to the first party.
+   * In this test each party sends a message of a given size to the next party, with the last party
+   * sending to the first party.
    *
    * @param numParties the number of parties
    * @param messageSize the size of the message
@@ -122,7 +122,7 @@ public class TestAsyncNetwork {
   @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS)
   public void testSelfSendThreeParties() {
     networks = createNetworks(3);
-    networks.keySet().stream().forEach(i -> networks.get(i).send(i, new byte[] {0x01}));
+    networks.keySet().stream().forEach(i -> networks.get(i).send(i, new byte[] { 0x01 }));
     networks.keySet().stream().forEach(i -> networks.get(i).receive(i));
   }
 
@@ -234,7 +234,7 @@ public class TestAsyncNetwork {
       // Cancel sendfuture to provoke an exception while sending
       Field f = networks.get(1).getClass().getDeclaredField("sendFutures");
       f.setAccessible(true);
-      Future<Object> future = ((HashMap<Integer, Future<Object>>)f.get(networks.get(1))).get(2);
+      Future<Object> future = ((HashMap<Integer, Future<Object>>) f.get(networks.get(1))).get(2);
       future.cancel(true);
       future.get();
       f.setAccessible(false);
@@ -281,7 +281,7 @@ public class TestAsyncNetwork {
       // Cancel receiveFuture to provoke exception when receiving
       Field f = networks.get(1).getClass().getDeclaredField("receiveFutures");
       f.setAccessible(true);
-      Future<Object> future = ((HashMap<Integer, Future<Object>>)f.get(networks.get(1))).get(2);
+      Future<Object> future = ((HashMap<Integer, Future<Object>>) f.get(networks.get(1))).get(2);
       future.cancel(true);
       future.get();
       f.setAccessible(false);
@@ -347,17 +347,14 @@ public class TestAsyncNetwork {
     try {
       Field f1 = networks.get(1).getClass().getDeclaredField("alive");
       f1.setAccessible(true);
-      ((AtomicBoolean)f1.get(networks.get(1))).set(false);
+      ((AtomicBoolean) f1.get(networks.get(1))).set(false);
       f1.setAccessible(false);
-
       // wake up the receiver for it to notice it should stop
-      networks.get(2).send(1, new byte[] {0x01});
-      networks.get(1).receive(2);
+      networks.get(2).send(1, new byte[] { 0x01 });
       Field f2 = networks.get(1).getClass().getDeclaredField("receiveFutures");
       f2.setAccessible(true);
       @SuppressWarnings("unchecked")
-      Future<Object> future  =
-          ((Map<Integer, Future<Object>>)f2.get(networks.get(1))).get(2);
+      Future<Object> future = ((Map<Integer, Future<Object>>) f2.get(networks.get(1))).get(2);
       f2.setAccessible(false);
       future.get();
     } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
@@ -372,7 +369,7 @@ public class TestAsyncNetwork {
       try {
         Field f = networks.get(1).getClass().getDeclaredField("alive");
         f.setAccessible(true);
-        ((AtomicBoolean)f.get(networks.get(1))).set(true);
+        ((AtomicBoolean) f.get(networks.get(1))).set(true);
         f.setAccessible(false);
       } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
           | IllegalAccessException e) {
