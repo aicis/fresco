@@ -29,9 +29,9 @@ public class ZeroTestLogRounds implements
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq(seq -> seq.advancedNumeric().randomBitMask(maxLength
         + securityParameter)).seq((seq, r) -> {
-          // Use the integer interpretation of r to compute c = 2^{k-1}+(input + r)
+          // Use the integer interpretation of r to compute c = 2^maxLength+(input + r)
           DRes<OInt> c = seq.numeric().openAsOInt(seq.numeric().addOpen(seq
-              .getOIntArithmetic().twoTo(maxLength - 1), seq.numeric().add(
+              .getOIntArithmetic().twoTo(maxLength), seq.numeric().add(
                   input, r.getValue())));
           return () -> new Pair<>(r.getBits(), c);
         }).seq((seq, pair) -> {
@@ -44,8 +44,7 @@ public class ZeroTestLogRounds implements
           return () -> new Pair<>(pair.getFirst().out(), cbits);
         }).par((par, pair) -> {
           List<DRes<SInt>> d = new ArrayList<>(maxLength);
-          // TODO why -1?
-          for (int i = 0; i < maxLength - 1; i++) {
+          for (int i = 0; i < maxLength; i++) {
             DRes<SInt> ri = pair.getFirst().get(i);
             DRes<OInt> ci = pair.getSecond().get(i);
             DRes<SInt> di = par.logical().xorKnown(ci, ri);

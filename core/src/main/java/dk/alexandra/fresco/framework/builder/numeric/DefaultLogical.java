@@ -151,8 +151,8 @@ public class DefaultLogical implements Logical {
 
   @Override
   public DRes<SInt> orOfList(DRes<List<DRes<SInt>>> bits) {
-    return builder.seq(seq -> bits).whileLoop((inputs) -> inputs
-        .size() > 1,
+    return builder.seq(seq -> bits
+        ).whileLoop((inputs) -> inputs.size() > 1,
         (prevSeq, inputs) -> prevSeq.par(par -> {
           List<DRes<SInt>> out = new ArrayList<>();
           DRes<SInt> left = null;
@@ -168,6 +168,6 @@ public class DefaultLogical implements Logical {
             out.add(left);
           }
           return () -> out;
-        })).seq((builder, currentInput) -> currentInput.get(0));
+        })).seq((builder, out) -> out.get(0));
   }
 }
