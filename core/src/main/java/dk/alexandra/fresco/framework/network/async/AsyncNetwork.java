@@ -49,7 +49,7 @@ public class AsyncNetwork implements CloseableNetwork {
   private final Map<Integer, BlockingQueue<byte[]>> outQueues;
   private final Map<Integer, BlockingQueue<byte[]>> inQueues;
   private final NetworkConfiguration conf;
-  private final AtomicBoolean alive;
+  private boolean alive;
   private ExecutorService communicationService;
   private final Map<Integer, Future<Object>> sendFutures;
   private final Map<Integer, Future<Object>> receiveFutures;
@@ -80,7 +80,7 @@ public class AsyncNetwork implements CloseableNetwork {
     this.channelMap = new HashMap<>(conf.noOfParties() - 1);
     this.sendFutures = new HashMap<>(conf.noOfParties() - 1);
     this.receiveFutures = new HashMap<>(conf.noOfParties() - 1);
-    this.alive = new AtomicBoolean(true);
+    this.alive = true;
     for (int i = 1; i < conf.noOfParties() + 1; i++) {
       outQueues.put(i, new LinkedBlockingQueue<>());
       inQueues.put(i, new LinkedBlockingQueue<>());
@@ -151,7 +151,7 @@ public class AsyncNetwork implements CloseableNetwork {
           SocketChannel channel = SocketChannel.open();
           channel.connect(addr);
           channel.configureBlocking(true);
-          this.channelMap.put(i, channel);
+          channelMap.put(i, channel);
           ByteBuffer b = ByteBuffer.allocate(PARTY_ID_BYTES);
           b.put((byte) conf.getMyId());
           b.position(0);
@@ -199,7 +199,7 @@ public class AsyncNetwork implements CloseableNetwork {
       }
       buf.position(0);
       final int id = buf.get();
-      this.channelMap.put(id, channel);
+      channelMap.put(id, channel);
       logger.info("P{} accepted connection from {}", conf.getMyId(), conf.getParty(id));
       channelMap.put(id, channel);
     }
@@ -228,19 +228,26 @@ public class AsyncNetwork implements CloseableNetwork {
   /**
    * Implements the receiver receiving a single message and starting a new receiver.
    */
-  private class Receiver implements Callable<Object> {
+  private static class Receiver implements Callable<Object> {
 
     private final SocketChannel channel;
     private final BlockingQueue<byte[]> queue;
+    private final AtomicBoolean stop;
 
     public Receiver(SocketChannel channel, BlockingQueue<byte[]> queue) {
       this.channel = channel;
       this.queue = queue;
+      this.stop = new AtomicBoolean(false);
     }
+
+    void stop() {
+      this.stop.set(true);;
+    }
+
 
     @Override
     public Object call() throws IOException, InterruptedException {
-      while (alive.get()) {
+      while (!stop.get()) {
         ByteBuffer buf = ByteBuffer.allocate(Integer.BYTES);
         while (buf.hasRemaining()) {
           channel.read(buf);
@@ -261,26 +268,40 @@ public class AsyncNetwork implements CloseableNetwork {
   /**
    * Implements the sender sending a single message and starting a new sender.
    */
-  private class Sender implements Callable<Object> {
+  private static class Sender implements Callable<Object> {
 
     private final SocketChannel channel;
     private final BlockingQueue<byte[]> queue;
+    private final AtomicBoolean flush;
+    private final AtomicBoolean stop;
 
-    public Sender(SocketChannel channel, BlockingQueue<byte[]> queue) {
+    Sender(SocketChannel channel, BlockingQueue<byte[]> queue) {
       this.channel = channel;
       this.queue = queue;
+      this.flush = new AtomicBoolean(false);
+      this.stop = new AtomicBoolean(false);
+    }
+
+    void flush() {
+      this.flush.set(true);
+    }
+
+    void stop() {
+      this.stop.set(true);
     }
 
     @Override
     public Object call() throws IOException, InterruptedException {
-      while (!queue.isEmpty() || alive.get()) {
+      while (!queue.isEmpty() || !flush.get()) {
         byte[] data = queue.take();
-        ByteBuffer buf = ByteBuffer.allocate(Integer.BYTES + data.length);
-        buf.putInt(data.length);
-        buf.put(data);
-        buf.position(0);
-        while (buf.hasRemaining()) {
-          channel.write(buf);
+        if (data.length > 0 || !stop.get()) {
+          ByteBuffer buf = ByteBuffer.allocate(Integer.BYTES + data.length);
+          buf.putInt(data.length);
+          buf.put(data);
+          buf.position(0);
+          while (buf.hasRemaining()) {
+            channel.write(buf);
+          }
         }
       }
       return null;
@@ -316,14 +337,13 @@ public class AsyncNetwork implements CloseableNetwork {
         try {
           receiveFutures.get(partyId).get();
         } catch (Exception e) {
-          throw new RuntimeException("Receiver for P" + partyId
-              + " threw exception. Unable to receive", e);
+          throw new RuntimeException(
+              "Receiver for P" + partyId + " threw exception. Unable to receive", e);
         }
-        throw new RuntimeException("Receiver for P" + partyId
-            + " not running. Unable to receive");
+        throw new RuntimeException("Receiver for P" + partyId + " not running. Unable to receive");
       }
-      data = ExceptionConverter.safe(() ->
-        this.inQueues.get(partyId).poll(RECEIVE_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS),
+      data = ExceptionConverter.safe(
+          () -> this.inQueues.get(partyId).poll(RECEIVE_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS),
           "Receive interrupted");
     }
     return data;
@@ -342,8 +362,8 @@ public class AsyncNetwork implements CloseableNetwork {
   }
 
   private void teardown() {
-    if (alive.get()) {
-      alive.set(false);
+    if (alive) {
+      alive = false;
       if (conf.noOfParties() < 2) {
         logger.info("P{}: Network closed", conf.getMyId());
         return;
@@ -370,7 +390,9 @@ public class AsyncNetwork implements CloseableNetwork {
       this.server.close();
     }
     for (SocketChannel channel : this.channelMap.values()) {
-      channel.close();
+      if (channel != null) {
+        channel.close();
+      }
     }
   }
 
@@ -406,7 +428,7 @@ public class AsyncNetwork implements CloseableNetwork {
       try {
         f.get();
       } catch (Exception e) {
-        //TODO: Should this cause close to throw an exception?
+        // TODO: Should this cause close to throw an exception?
         logger.warn("A failed receiver detected while closing network");
       }
     }
