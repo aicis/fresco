@@ -13,7 +13,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 
 public class ZeroTestLogRounds implements
     Computation<SInt, ProtocolBuilderNumeric> {
-
+  // TODO add paper reference
   private final int maxLength;
   private final int securityParameter;
   private final DRes<SInt> input;
@@ -57,6 +57,5 @@ public class ZeroTestLogRounds implements
           return seq.numeric().subFromOpen(seq.getOIntArithmetic().one(), seq
               .logical().orOfList(() -> d));
         });
-    // HARDCODED 64 LENGTH
   }
 }

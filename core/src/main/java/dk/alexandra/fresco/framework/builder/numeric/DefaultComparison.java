@@ -44,7 +44,7 @@ public class DefaultComparison implements Comparison {
   @Override
   public DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y,
       EqualityAlgorithm algorithm) {
-    int maxBitLength = 64;// builder.getBasicNumericContext().getMaxBitLength();
+    int maxBitLength = builder.getBasicNumericContext().getMaxBitLength();
     switch (algorithm) {
     case EQ_CONST_ROUNDS:
       return equalsConstRounds(maxBitLength, x, y);
