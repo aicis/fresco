@@ -7,10 +7,20 @@ import org.junit.Test;
 
 public class TestCompUInt128Bit {
 
-  private final BigInteger twoTo128 = BigInteger.ONE.shiftLeft(128);
+  private static final BigInteger twoTo128 = BigInteger.ONE.shiftLeft(128);
 
   private static long rand(int seed) {
     return new Random(seed).nextLong();
+  }
+
+  private static BigInteger bigInt128(BigInteger value65) {
+    return value65.shiftLeft(63).mod(twoTo128);
+  }
+
+  private static BigInteger bigInt65(long high, int bit) {
+    return BigInteger.valueOf(high).shiftLeft(1)
+        .add(BigInteger.valueOf(bit))
+        .mod(twoTo128);
   }
 
   @Test
@@ -44,4 +54,23 @@ public class TestCompUInt128Bit {
         new CompUInt128Bit(0, 0).getValueBit());
   }
 
+  @Test
+  public void testMultiply() {
+    Assert.assertEquals(
+        bigInt128(bigInt65(rand(3), 0).multiply(bigInt65(rand(4), 0))),
+        new CompUInt128Bit(rand(3), 0).multiply(new CompUInt128Bit(rand(4), 0)).toBigInteger()
+    );
+    Assert.assertEquals(
+        bigInt128(bigInt65(rand(3), 1).multiply(bigInt65(rand(4), 0))).toString(2),
+        new CompUInt128Bit(rand(3), 1).multiply(new CompUInt128Bit(rand(4), 0)).toBigInteger().toString(2)
+    );
+    Assert.assertEquals(
+        bigInt128(bigInt65(1, 1).multiply(bigInt65(1, 1))),
+        new CompUInt128Bit(1, 1).multiply(new CompUInt128Bit(1, 1)).toBigInteger()
+    );
+    Assert.assertEquals(
+        bigInt128(bigInt65(rand(3), 1).multiply(bigInt65(rand(4), 1))),
+        new CompUInt128Bit(rand(3), 1).multiply(new CompUInt128Bit(rand(4), 1)).toBigInteger()
+    );
+  }
 }

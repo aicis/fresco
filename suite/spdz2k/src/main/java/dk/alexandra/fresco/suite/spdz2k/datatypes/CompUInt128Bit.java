@@ -16,7 +16,12 @@ public class CompUInt128Bit extends CompUInt128 {
 
   @Override
   public CompUInt128 multiply(CompUInt128 other) {
-    return new CompUInt128Bit(high * other.high, mid & other.mid, low & other.low);
+    int bit = mid >>> 31;
+    int otherBit = other.mid >>> 31;
+    return new CompUInt128Bit(
+        ((high * other.high) << 1) + (high * otherBit) + (other.high * bit),
+        mid & other.mid,
+        0);
   }
 
   @Override
