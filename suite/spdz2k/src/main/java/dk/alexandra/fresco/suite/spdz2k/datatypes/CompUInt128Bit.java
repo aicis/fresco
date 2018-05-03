@@ -2,6 +2,8 @@ package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
 public class CompUInt128Bit extends CompUInt128 {
 
+  private static final CompUInt128Bit ONE = new CompUInt128Bit(0, 0x80000000, 0);
+
   CompUInt128Bit(long high, int mid, int low) {
     super(high, mid, low);
   }
@@ -32,7 +34,8 @@ public class CompUInt128Bit extends CompUInt128 {
 
   @Override
   public CompUInt128 subtract(CompUInt128 other) {
-    return new CompUInt128Bit(high - other.high, mid ^ (~other.mid), low ^ (~other.low));
+    CompUInt128 negated = new CompUInt128Bit(~other.high, ~other.mid & 0x80000000, 0).add(ONE);
+    return this.add(negated);
   }
 
   @Override
