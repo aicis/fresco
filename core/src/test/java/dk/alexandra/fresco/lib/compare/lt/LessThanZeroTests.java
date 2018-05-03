@@ -52,11 +52,10 @@ public class LessThanZeroTests {
         public void test() {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app = builder -> {
             Numeric numeric = builder.numeric();
-            int kappa = 40;
             List<DRes<SInt>> inputs = numeric.known(openInputs);
             List<DRes<SInt>> actualInner = new ArrayList<>(inputs.size());
             for (DRes<SInt> input : inputs) {
-              actualInner.add(builder.seq(new LessThanZero(input, 64, kappa)));
+              actualInner.add(builder.seq(new LessThanZero(input)));
             }
             DRes<List<DRes<BigInteger>>> opened = builder.collections().openList(() -> actualInner);
             return () -> opened.out().stream().map(DRes::out).collect(Collectors.toList());

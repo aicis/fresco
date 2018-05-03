@@ -874,7 +874,9 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void testLessThanZero() {
     BigInteger modulus = ModulusFinder.findSuitableModulus(128);
-    TestParameters parameters = new TestParameters().numParties(2).modulus(modulus);
+    int maxBitLength = 64;
+    TestParameters parameters = new TestParameters().numParties(2).modulus(modulus).maxBitLength(
+        maxBitLength);
     runTest(new TestLessThanZero<>(modulus), parameters);
   }
 

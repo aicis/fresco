@@ -24,8 +24,8 @@ public class Spdz2kComparison<PlainT extends CompUInt<?, ?, PlainT>> extends Def
   }
 
   @Override
-  public DRes<SInt> compareLT(DRes<SInt> x1, DRes<SInt> x2, ComparisonAlgorithm algorithm) {
-    if (algorithm == ComparisonAlgorithm.LT_CONST_ROUNDS) {
+  public DRes<SInt> compareLT(DRes<SInt> x1, DRes<SInt> x2, Algorithm algorithm) {
+    if (algorithm == Algorithm.CONST_ROUNDS) {
       throw new UnsupportedOperationException(
           "No constant round comparison protocol implemented for Spdz2k");
     } else {

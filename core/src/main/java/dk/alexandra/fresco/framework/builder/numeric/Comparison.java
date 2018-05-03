@@ -12,76 +12,75 @@ import java.util.List;
 public interface Comparison extends ComputationDirectory {
 
   /**
-   * The different algorithms supported by Fresco.
+   * The different algorithms supported by Fresco. The enum is used to decide of whether an
+   * algorithm running in constant rounds or logarithmic rounds should be used. In general the
+   * logarithmic round choice is the fastest.
    */
-  public enum EqualityAlgorithm {
-    EQ_LOG_ROUNDS,
-    EQ_CONST_ROUNDS
+  public enum Algorithm {
+    LOG_ROUNDS, CONST_ROUNDS
   }
-
-  /**
-   * The different algorithms supported by Fresco.
-   */
-  enum ComparisonAlgorithm {
-    LT_LOG_ROUNDS,
-    LT_CONST_ROUNDS
-  }
-
-  /**
-   * Compares two values and return x == y
-   *
-   * @param bitLength
-   *          The maximum bit-length of the numbers to compare.
-   * @param x
-   *          The first number
-   * @param y
-   *          The second number
-   * @return A deferred result computing x == y
-   */
-  DRes<SInt> equals(int bitLength, DRes<SInt> x, DRes<SInt> y);
 
   /**
    * Computes x == y.
    *
-   * @param x input
-   * @param y input
-   * @return A deferred result computing x == y. Result will be either [1] (true) or [0] (false).
+   * @param x
+   *          the first input
+   * @param y
+   *          the second input
+   * @param bitlength
+   *          the amount of bits to do the equality test on. Must be less than or equal to the max
+   *          bitlength allowed
+   * @param algorithm
+   *          the algorithm to use
+   * @return A deferred result computing x' == y'. Where x' and y' represent the {@code bitlength}
+   *         least significant bits of x, respectively y. Result will be either [1] (true) or [0]
+   *         (false).
    */
-  DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y, EqualityAlgorithm algorithm);
+  DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y, int bitlength, Algorithm algorithm);
 
   /**
-   * Call to {@link #equals(DRes, DRes, ComparisonAlgorithm)} with default comparison algorithm.
+   * Call to {@link #equals(DRes, DRes, int, ComparisonAlgorithm)} with default comparison
+   * algorithm.
    */
-  default DRes<SInt> equals(DRes<SInt> x1, DRes<SInt> x2) {
-    return equals(x1, x2, EqualityAlgorithm.EQ_LOG_ROUNDS);
+  default DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y, int bitlength) {
+    return equals(x, y, bitlength, Algorithm.LOG_ROUNDS);
   }
 
   /**
-   * Computes if x1 <= x2.
-   *
-   * @param x1
-   *          input
-   * @param x2
-   *          input
-   * @return A deferred result computing x1 <= x2. Result will be either [1] (true) or [0] (false).
+   * Call to {@link #equals(DRes, DRes, int, ComparisonAlgorithm)} with default comparison
+   * algorithm, checking equality of all bits.
    */
-  DRes<SInt> compareLEQ(DRes<SInt> x1, DRes<SInt> x2);
+  DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y);
 
   /**
-   * Computes if x1 < x2.
+   * Computes if x <= y.
    *
-   * @param x1 input
-   * @param x2 input
-   * @param algorithm the comparison algorithm to use
-   * @return A deferred result computing x1 <= x2. Result will be either [1] (true) or [0] (false).
+   * @param x
+   *          the first input
+   * @param y
+   *          the second input
+   * @return A deferred result computing x <= y. Result will be either [1] (true) or [0] (false).
    */
-  DRes<SInt> compareLT(DRes<SInt> x1, DRes<SInt> x2, ComparisonAlgorithm algorithm);
+  DRes<SInt> compareLEQ(DRes<SInt> x, DRes<SInt> y);
 
   /**
-   * Call to {@link #compareLT(DRes, DRes, ComparisonAlgorithm)} with default comparison algorithm.
+   * Computes if x < y.
+   *
+   * @param x
+   *          the first input
+   * @param y
+   *          the second input
+   * @param algorithm
+   *          the algorithm to use
+   * @return A deferred result computing x <= y. Result will be either [1] (true) or [0] (false).
    */
-  default DRes<SInt> compareLT(DRes<SInt> x1, DRes<SInt> x2) {
-    return compareLT(x1, x2, ComparisonAlgorithm.LT_LOG_ROUNDS);
+  DRes<SInt> compareLT(DRes<SInt> x, DRes<SInt> y, Algorithm algorithm);
+
+  /**
+   * Call to {@link #compareLT(DRes, DRes, Algorithm)} with default comparison algorithm.
+   */
+  default DRes<SInt> compareLT(DRes<SInt> x, DRes<SInt> y) {
+    return compareLT(x, y, Algorithm.LOG_ROUNDS);
   }
 
   /**
@@ -99,15 +98,17 @@ public interface Comparison extends ComputationDirectory {
   DRes<SInt> compareLTBits(OInt openValue, List<DRes<SInt>> secretBits);
 
   /**
-   * Compares if x1 <= x2, but with twice the possible bit-length. Requires that the maximum bit
+   * Compares if x <= y, but with twice the possible bit-length. Requires that the maximum bit
    * length is set to something that can handle this scenario. It has to be at least less than half
    * the modulus bit size.
    *
-   * @param x1 input
-   * @param x2 input
-   * @return A deferred result computing x1 <= x2. Result will be either [1] (true) or [0] (false).
+   * @param x
+   *          the first input
+   * @param y
+   *          the second input
+   * @return A deferred result computing x <= y. Result will be either [1] (true) or [0] (false).
    */
-  DRes<SInt> compareLEQLong(DRes<SInt> x1, DRes<SInt> x2);
+  DRes<SInt> compareLEQLong(DRes<SInt> x, DRes<SInt> y);
 
   /**
    * Computes the sign of the value (positive or negative)
@@ -123,19 +124,20 @@ public interface Comparison extends ComputationDirectory {
    *
    * @param x
    *          the value to test against zero
-   * @param bitLength
-   *          bitlength including the sign bit
+   * @param bitlength
+   *          the amount of bits to do the zero-test on. Must be less than or equal to the modulus
+   *          bitlength
    * @param algorithm
    *          the algorithm to use for zero-equality test
-   * @return A deferred result computing x == 0. Result will be either [1] (true) or [0] (false)
+   * @return A deferred result computing x' == 0 where x' is the {@code bitlength} least significant
+   *         bits of x. Result will be either [1] (true) or [0] (false)
    */
-  DRes<SInt> compareZero(DRes<SInt> x, int bitLength,
-      EqualityAlgorithm algorithm);
+  DRes<SInt> compareZero(DRes<SInt> x, int bitlength, Algorithm algorithm);
 
   /**
-   * Call to {@link #compareZero(DRes, int, ComparisonAlgorithm)} with default comparison algorithm.
+   * Call to {@link #compareZero(DRes, int, Algorithm)} with default comparison algorithm.
    */
   default DRes<SInt> compareZero(DRes<SInt> x, int bitlength) {
-    return compareZero(x, bitlength, EqualityAlgorithm.EQ_LOG_ROUNDS);
+    return compareZero(x, bitlength, Algorithm.LOG_ROUNDS);
   }
 }

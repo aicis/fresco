@@ -15,28 +15,25 @@ public class LessThanZero implements Computation<SInt, ProtocolBuilderNumeric> {
   // TODO add reference to protocol description
 
   private final DRes<SInt> input;
-  private final int k;
-  private final int kappa;
 
   /**
    * Constructs new {@link LessThanZero}.
    *
    * @param input input to compare to 0
-   * @param k bit length of input
-   * @param kappa computational security parameter
    */
-  public LessThanZero(DRes<SInt> input, int k, int kappa) {
+  public LessThanZero(DRes<SInt> input) {
     this.input = input;
-    this.k = k;
-    this.kappa = kappa;
   }
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    DRes<SInt> inputMod2m = builder.seq(new Mod2m(input, k - 1, k, kappa));
+    final int maxBitlength = builder.getBasicNumericContext().getMaxBitLength();
+    final int statisticalSecurity = builder.getBasicNumericContext().getStatisticalSecurityParam();
+    DRes<SInt> inputMod2m = builder.seq(new Mod2m(input, maxBitlength - 1, maxBitlength,
+        statisticalSecurity));
     Numeric numeric = builder.numeric();
     DRes<SInt> difference = numeric.sub(input, inputMod2m);
-    BigInteger twoToMinusM = builder.getBigIntegerHelper().invertPowerOfTwo(k - 1);
+    BigInteger twoToMinusM = builder.getBigIntegerHelper().invertPowerOfTwo(maxBitlength - 1);
     return numeric.sub(BigInteger.ZERO, numeric.mult(twoToMinusM, difference));
   }
 

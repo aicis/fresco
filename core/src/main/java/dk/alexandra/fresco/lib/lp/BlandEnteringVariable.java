@@ -77,7 +77,7 @@ public class BlandEnteringVariable
           int bitlength = (int) Math.log(pairwiseSums.size()) * 2 + 1;
           Comparison comparison = par.comparison();
           for (int i = 0; i < updatedF.size(); i++) {
-            enteringIndex.add(comparison.equals(bitlength, pairwiseSums.get(i), one));
+            enteringIndex.add(comparison.equals(pairwiseSums.get(i), one, bitlength));
           }
           return () -> enteringIndex;
         })).seq((seq, enteringIndex) -> {

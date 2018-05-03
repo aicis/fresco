@@ -3,11 +3,9 @@ package dk.alexandra.fresco.framework.builder.numeric;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.lib.compare.eq.EqualityConstRounds;
-import dk.alexandra.fresco.lib.compare.eq.EqualityLogRounds;
 import dk.alexandra.fresco.lib.compare.lt.BitLessThanOpen;
-import dk.alexandra.fresco.lib.compare.lt.LessThanLogRounds;
 import dk.alexandra.fresco.lib.compare.lt.LessThanOrEquals;
+import dk.alexandra.fresco.lib.compare.lt.LessThanZero;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestConstRounds;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestLogRounds;
 
@@ -21,8 +19,6 @@ import java.util.List;
  */
 public class DefaultComparison implements Comparison {
 
-  // Security parameter used by protocols using rightshifts and/or additive masks.
-  protected final int magicSecureNumber = 40;
   protected final BuilderFactoryNumeric factoryNumeric;
   protected final ProtocolBuilderNumeric builder;
 
@@ -35,50 +31,27 @@ public class DefaultComparison implements Comparison {
   @Override
   public DRes<SInt> compareLEQLong(DRes<SInt> x, DRes<SInt> y) {
     int bitLength = factoryNumeric.getBasicNumericContext().getMaxBitLength() * 2;
-    LessThanOrEquals leqProtocol = new LessThanOrEquals(
-        bitLength, magicSecureNumber, x, y);
+    LessThanOrEquals leqProtocol = new LessThanOrEquals(bitLength, x, y);
     return builder.seq(leqProtocol);
-
-  }
-
-  @Override
-  public DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y,
-      EqualityAlgorithm algorithm) {
-    int maxBitLength = builder.getBasicNumericContext().getMaxBitLength();
-    switch (algorithm) {
-    case EQ_CONST_ROUNDS:
-      return equalsConstRounds(maxBitLength, x, y);
-    case EQ_LOG_ROUNDS:
-      return equals(maxBitLength, x, y);
-    default:
-      throw new UnsupportedOperationException("Not implemented yet");
-    }
-  }
-
-  @Override
-  public DRes<SInt> equals(int bitLength, DRes<SInt> x, DRes<SInt> y) {
-    // TODO throw if maxBitLength + securityParameter > mod bit length
-    return builder.seq(new EqualityLogRounds(bitLength, x, y));
-  }
-
-  public DRes<SInt> equalsConstRounds(int bitLength, DRes<SInt> x,
-      DRes<SInt> y) {
-    return builder.seq(new EqualityConstRounds(bitLength, x, y));
   }
 
   @Override
   public DRes<SInt> compareLEQ(DRes<SInt> x, DRes<SInt> y) {
     int bitLength = factoryNumeric.getBasicNumericContext().getMaxBitLength();
-    return builder.seq(
-        new LessThanOrEquals(bitLength, magicSecureNumber, x, y));
+    return builder.seq(new LessThanOrEquals(bitLength, x, y));
   }
 
   @Override
-  public DRes<SInt> compareLT(DRes<SInt> x1, DRes<SInt> x2, ComparisonAlgorithm algorithm) {
-    if (algorithm == ComparisonAlgorithm.LT_LOG_ROUNDS) {
-      int k = builder.getBasicNumericContext().getMaxBitLength();
-      // TODO throw if k + kappa > mod bit length
-      return builder.seq(new LessThanLogRounds(x1, x2, k, magicSecureNumber));
+  public DRes<SInt> compareLT(DRes<SInt> x, DRes<SInt> y, Algorithm algorithm) {
+    if (algorithm == Algorithm.LOG_ROUNDS) {
+      if (factoryNumeric.getBasicNumericContext().getStatisticalSecurityParam() + factoryNumeric
+          .getBasicNumericContext().getMaxBitLength() > factoryNumeric.getBasicNumericContext()
+              .getModulus().bitLength()) {
+        throw new IllegalArgumentException(
+            "The max bitlength plus the statistical security parameter overflows the size of the modulus.");
+      }
+      DRes<SInt> difference = builder.numeric().sub(x, y);
+      return builder.seq(new LessThanZero(difference));
     } else {
       throw new UnsupportedOperationException("Not implemented yet");
     }
@@ -107,23 +80,32 @@ public class DefaultComparison implements Comparison {
   }
 
   @Override
-  public DRes<SInt> compareZero(DRes<SInt> x, int bitLength) {
-    return builder.seq(new ZeroTestLogRounds(bitLength, x, magicSecureNumber));
-  }
-
-  public DRes<SInt> compareZeroConstRounds(DRes<SInt> x, int bitLength) {
-    return builder.seq(new ZeroTestConstRounds(bitLength, x, magicSecureNumber));
+  public DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y, int bitlength, Algorithm algorithm) {
+    DRes<SInt> diff = builder.numeric().sub(x, y);
+    return compareZero(diff, bitlength, algorithm);
   }
 
   @Override
-  public DRes<SInt> compareZero(DRes<SInt> x, int bitLength,
-      EqualityAlgorithm algorithm) {
-    // int maxBitLength = builder.getBasicNumericContext().getMaxBitLength();
+  public DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y) {
+    int bitLength = factoryNumeric.getBasicNumericContext().getMaxBitLength();
+    return equals(x, y, bitLength);
+  }
+
+  @Override
+  public DRes<SInt> compareZero(DRes<SInt> x, int bitlength, Algorithm algorithm) {
+    if (bitlength > factoryNumeric.getBasicNumericContext().getMaxBitLength()) {
+      throw new IllegalArgumentException("The bitlength is more than allowed for elements.");
+    }
+    if (factoryNumeric.getBasicNumericContext().getStatisticalSecurityParam()
+        + bitlength > factoryNumeric.getBasicNumericContext().getModulus().bitLength()) {
+      throw new IllegalArgumentException(
+          "The max bitlength plus the statistical security parameter overflows the size of the modulus.");
+    }
     switch (algorithm) {
-    case EQ_CONST_ROUNDS:
-      return compareZeroConstRounds(x, bitLength);
-    case EQ_LOG_ROUNDS:
-      return compareZero(x, bitLength);
+    case CONST_ROUNDS:
+      return builder.seq(new ZeroTestConstRounds(x, bitlength));
+    case LOG_ROUNDS:
+      return builder.seq(new ZeroTestLogRounds(x, bitlength));
     default:
       throw new UnsupportedOperationException("Not implemented yet");
     }
