@@ -7,7 +7,6 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.lp.LPSolver;
-import dk.alexandra.fresco.lib.lp.LPSolver.LPOutput;
 import dk.alexandra.fresco.lib.lp.LPSolver.PivotRule;
 import dk.alexandra.fresco.lib.lp.LPTableau;
 import dk.alexandra.fresco.lib.lp.OptimalValue;
@@ -22,9 +21,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
- * NativeProtocol for solving DEA problems.
- *
- * <p>
  * Given a dataset (two matrices of inputs and outputs) and a number of query vectors, the protocol
  * will compute how well the query vectors perform compared to the dataset.
  *
@@ -43,7 +39,7 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
   private final PivotRule pivotRule;
 
   /**
-   * Construct a DEA problem for the solver to solve. The problem consists of 4 matrixes: 2 basis
+   * Construct a DEA problem for the solver to solve. The problem consists of 4 matrices: 2 basis
    * input/output matrices containing the dataset which the queries will be measured against 2 query
    * input/output matrices containing the data to be evaluated.
    *
@@ -55,12 +51,12 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
    */
   public DeaSolver(AnalysisType type, List<List<DRes<SInt>>> inputValues,
       List<List<DRes<SInt>>> outputValues, List<List<DRes<SInt>>> setInput,
-      List<List<DRes<SInt>>> setOutput)  {
+      List<List<DRes<SInt>>> setOutput) {
     this(PivotRule.DANZIG, type, inputValues, outputValues, setInput, setOutput);
   }
 
   /**
-   * Construct a DEA problem for the solver to solve. The problem consists of 4 matrixes: 2 basis
+   * Construct a DEA problem for the solver to solve. The problem consists of 4 matrices: 2 basis
    * input/output matrices containing the dataset which the queries will be measured against 2 query
    * input/output matrices containing the data to be evaluated.
    *
@@ -73,7 +69,7 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
    */
   public DeaSolver(PivotRule pivotRule, AnalysisType type, List<List<DRes<SInt>>> inputValues,
       List<List<DRes<SInt>>> outputValues, List<List<DRes<SInt>>> setInput,
-      List<List<DRes<SInt>>> setOutput)  {
+      List<List<DRes<SInt>>> setOutput) {
     this.pivotRule = pivotRule;
     this.type = type;
     this.targetInputs = inputValues;
@@ -127,7 +123,7 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
   public DRes<List<DeaResult>> buildComputation(ProtocolBuilderNumeric builder) {
     List<DRes<SimpleLPPrefix>> prefixes = getPrefixWithSecretSharedValues(builder);
     return builder.par((par) -> {
-      List<DRes<Pair<Pair<List<DRes<SInt>>, List<DRes<SInt>>>, DRes<SInt>>>> result =
+      List<DRes<Pair<Pair<List<SInt>, List<SInt>>, DRes<OptimalValue.Result>>>> result =
           new ArrayList<>(targetInputs.size());
       for (int i = 0; i < targetInputs.size(); i++) {
         SimpleLPPrefix prefix = prefixes.get(i).out();
@@ -138,8 +134,7 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
 
         result.add(par.seq(subSeq -> subSeq.seq((solverSec) -> {
           LPSolver lpSolver = new LPSolver(pivotRule, tableau, update, pivot, initialBasis);
-          DRes<LPOutput> lpOutput = lpSolver.buildComputation(solverSec);
-          return lpOutput;
+          return lpSolver.buildComputation(solverSec);
         }).seq((optSec, lpOutput) -> {
           // Compute peers from lpOutput
           DRes<SInt> invPivot = optSec.advancedNumeric().invert(lpOutput.pivot);
@@ -198,11 +193,11 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
           }).par((innerPar, state) -> {
             List<DRes<SInt>> peersFromZero = state.get(0).stream()
                 .map(n -> innerPar.numeric().sub(n, f)).collect(Collectors.toList());
-            List<List<DRes<SInt>>> newState = new ArrayList<>(2);
-            newState.add(peersFromZero);
-            newState.add(state.get(1));
-            return () -> newState;
-          }).seq((seq, state) -> Pair.lazy(new Pair<>(state.get(0), state.get(1)),
+            return () -> new Pair<>(
+                peersFromZero.stream().map(DRes::out).collect(Collectors.toList()),
+                state.get(1).stream().map(DRes::out).collect(Collectors.toList())
+            );
+          }).seq((seq, state) -> Pair.lazy(state,
               new OptimalValue(lpOutput.updateMatrix, lpOutput.tableau, lpOutput.pivot)
                   .buildComputation(seq)));
         })));
@@ -270,13 +265,18 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
     public final List<SInt> peers;
     public final List<SInt> peerValues;
     public final SInt optimal;
+    public final SInt numerator;
+    public final SInt denominator;
 
-    private DeaResult(DRes<Pair<Pair<List<DRes<SInt>>, List<DRes<SInt>>>, DRes<SInt>>> output) {
-      Pair<Pair<List<DRes<SInt>>, List<DRes<SInt>>>, DRes<SInt>> out = output.out();
+    private DeaResult(
+        DRes<Pair<Pair<List<SInt>, List<SInt>>, DRes<OptimalValue.Result>>> output) {
+      Pair<Pair<List<SInt>, List<SInt>>, DRes<OptimalValue.Result>> out = output.out();
       this.peers = out.getFirst().getFirst().stream().map(DRes::out).collect(Collectors.toList());
       this.peerValues =
           out.getFirst().getSecond().stream().map(DRes::out).collect(Collectors.toList());
-      this.optimal = out.getSecond().out();
+      this.optimal = out.getSecond().out().optimal;
+      this.numerator = out.getSecond().out().numerator;
+      this.denominator = out.getSecond().out().denominator;
     }
   }
 }

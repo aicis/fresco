@@ -61,6 +61,11 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
+  public void testInputFromAll() throws Exception {
+    runTest(new BasicArithmeticTests.TestInputFromAll<>(), new TestParameters().numParties(2));
+  }
+
+  @Test
   public void test_OutputToTarget_Sequential() throws Exception {
     runTest(new BasicArithmeticTests.TestOutputToSingleParty<>(), new TestParameters()
         .numParties(2)
@@ -307,7 +312,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   public void test_permute_rows_non_power_of_two() throws Throwable {
     ArrayList<ArrayList<DRes<SInt>>> fakeRows = new ArrayList<>();
     Matrix<DRes<SInt>> fakeMatrix = new Matrix<>(3, 2, fakeRows);
-    new PermuteRows(() -> fakeMatrix, new int[] {}, 1, true).buildComputation(null);
+    new PermuteRows(() -> fakeMatrix, new int[]{}, 1, true).buildComputation(null);
   }
 
   @Test
@@ -409,11 +414,11 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   public void test_LpSolverDanzigSmallerMod() throws Exception {
     runTest(new LpBuildingBlockTests.TestLpSolver<>(LPSolver.PivotRule.DANZIG),
         new TestParameters()
-        .numParties(2)
-        .modulus(ModulusFinder.findSuitableModulus(128))
-        .maxBitLength(30)
-        .fixedPointPrecesion(8)
-        .performanceLogging(false));
+            .numParties(2)
+            .modulus(ModulusFinder.findSuitableModulus(128))
+            .maxBitLength(30)
+            .fixedPointPrecesion(8)
+            .performanceLogging(false));
   }
 
   @Test
@@ -523,8 +528,8 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   public void test_Minimum_Protocol_2_parties() throws Exception {
     runTest(new MinTests.TestMinimumProtocol<>(),
         new TestParameters()
-        .numParties(2)
-        .performanceLogging(true));
+            .numParties(2)
+            .performanceLogging(true));
     assertThat(performanceLoggers.get(1).getLoggedValues()
         .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_LEQ), is((long) 10));
   }
@@ -533,8 +538,8 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   public void test_Min_Inf_Frac_2_parties() throws Exception {
     runTest(new MinTests.TestMinInfFraction<>(),
         new TestParameters()
-        .numParties(2)
-        .performanceLogging(true));
+            .numParties(2)
+            .performanceLogging(true));
     assertThat(performanceLoggers.get(1).getLoggedValues()
         .get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_LEQ), is((long) 10));
   }
@@ -571,7 +576,8 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void test_debug_tools() throws Exception {
-    runTest(new ArithmeticDebugTests.TestArithmeticOpenAndPrint<>(), new TestParameters().numParties(2));
+    runTest(new ArithmeticDebugTests.TestArithmeticOpenAndPrint<>(),
+        new TestParameters().numParties(2));
   }
 
   @Test
@@ -755,7 +761,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   public void test_Real_Sqrt_Uneven_Precision() throws Exception {
     runTest(new MathTests.TestSqrt<>(),
         new TestParameters()
-        .fixedPointPrecesion(BasicFixedPointTests.DEFAULT_PRECISION + 1));
+            .fixedPointPrecesion(BasicFixedPointTests.DEFAULT_PRECISION + 1));
   }
 
   @Test
