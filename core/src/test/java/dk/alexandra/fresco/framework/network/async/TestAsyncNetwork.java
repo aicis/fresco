@@ -221,32 +221,52 @@ public class TestAsyncNetwork {
     sendMultipleToSingleReceiver(2, 10000);
   }
 
+  @SuppressWarnings("unchecked")
+  @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS)
+  public void testStopSenderTwice() throws Exception {
+    networks = createNetworks(2);
+    // Cancel sendfuture to provoke an exception while sending
+    Field f1 = networks.get(1).getClass().getDeclaredField("senders");
+    f1.setAccessible(true);
+    AsyncNetwork.Sender sender = ((HashMap<Integer, AsyncNetwork.Sender>)f1.get(networks.get(1))).get(2);
+    sender.stop();
+    sender.stop();
+    f1.setAccessible(false);
+  }
+
   // TESTING FOR FAILURE
 
   @SuppressWarnings("unchecked")
-  @Test(expected = RuntimeException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
-  public void testFailedSend() throws InterruptedException {
+  @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS, expected=ExecutionException.class)
+  public void testFailedSender() throws Exception {
     networks = createNetworks(2);
-    for (int i = 0; i < 1000; i++) {
-      networks.get(1).send(2, new byte[] { 0x01 });
-    }
-    try {
-      // Cancel sendfuture to provoke an exception while sending
-      Field f = networks.get(1).getClass().getDeclaredField("sendFutures");
-      f.setAccessible(true);
-      Future<Object> future = ((HashMap<Integer, Future<Object>>) f.get(networks.get(1))).get(2);
-      future.cancel(true);
-      future.get();
-      f.setAccessible(false);
-    } catch (CancellationException ce) {
-      // Ignore, this should happen
-    } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
-        | IllegalAccessException e) {
-      fail("Reflection related error");
-    } catch (ExecutionException e) {
-      fail("Unexpected ExecutionException");
-    }
-    networks.get(1).send(2, new byte[] { 0x01 });
+    // Cancel sendfuture to provoke an exception while sending
+    Field f1 = networks.get(1).getClass().getDeclaredField("senders");
+    Field f2 = networks.get(1).getClass().getDeclaredField("communicationService");
+    f1.setAccessible(true);
+    f2.setAccessible(true);
+    ExecutorService e = (ExecutorService) f2.get(networks.get(1));
+    e.shutdownNow();
+    AsyncNetwork.Sender sender = ((HashMap<Integer, AsyncNetwork.Sender>)f1.get(networks.get(1))).get(2);
+    sender.stop();
+    f1.setAccessible(false);
+    f2.setAccessible(false);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS, expected=CancellationException.class)
+  public void testFailedReceiver() throws Exception {
+    networks = createNetworks(2);
+    // Cancel sendfuture to provoke an exception while sending
+    Field f1 = networks.get(1).getClass().getDeclaredField("receivers");
+    Field f2 = networks.get(1).getClass().getDeclaredField("communicationService");
+    f1.setAccessible(true);
+    f2.setAccessible(true);
+    AsyncNetwork.Receiver receiver = ((HashMap<Integer, AsyncNetwork.Receiver>)f1.get(networks.get(1))).get(2);
+    receiver.stop();
+    receiver.isRunning();
+    f1.setAccessible(false);
+    f2.setAccessible(false);
   }
 
   @Test(expected = IllegalArgumentException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
@@ -270,29 +290,6 @@ public class TestAsyncNetwork {
   @Test(expected = IllegalArgumentException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
   public void testReceiveFromTooLargePartyId() {
     networks = createNetworks(1);
-    networks.get(1).receive(2);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Test(expected = RuntimeException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
-  public void testFailedReceive() throws Exception {
-    networks = createNetworks(2);
-    try {
-      // Cancel receiveFuture to provoke exception when receiving
-      Field f = networks.get(1).getClass().getDeclaredField("receiveFutures");
-      f.setAccessible(true);
-      Future<Object> future = ((HashMap<Integer, Future<Object>>) f.get(networks.get(1))).get(2);
-      future.cancel(true);
-      future.get();
-      f.setAccessible(false);
-    } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
-        | IllegalAccessException e) {
-      fail("Reflection related error");
-    } catch (CancellationException ce) {
-      // Ignore, this should happen
-    } catch (Exception e) {
-      fail("Should not throw exception yet");
-    }
     networks.get(1).receive(2);
   }
 
