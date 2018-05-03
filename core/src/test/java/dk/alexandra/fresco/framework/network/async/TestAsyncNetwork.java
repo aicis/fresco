@@ -228,7 +228,8 @@ public class TestAsyncNetwork {
     // Cancel sendfuture to provoke an exception while sending
     Field f1 = networks.get(1).getClass().getDeclaredField("senders");
     f1.setAccessible(true);
-    AsyncNetwork.Sender sender = ((HashMap<Integer, AsyncNetwork.Sender>)f1.get(networks.get(1))).get(2);
+    AsyncNetwork.Sender sender =
+        ((HashMap<Integer, AsyncNetwork.Sender>)f1.get(networks.get(1))).get(2);
     sender.stop();
     sender.stop();
     f1.setAccessible(false);
@@ -237,24 +238,30 @@ public class TestAsyncNetwork {
   // TESTING FOR FAILURE
 
   @SuppressWarnings("unchecked")
-  @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS, expected=ExecutionException.class)
+  @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS, expected = CancellationException.class)
   public void testFailedSender() throws Exception {
     networks = createNetworks(2);
     // Cancel sendfuture to provoke an exception while sending
     Field f1 = networks.get(1).getClass().getDeclaredField("senders");
-    Field f2 = networks.get(1).getClass().getDeclaredField("communicationService");
     f1.setAccessible(true);
+    AsyncNetwork.Sender sender =
+        ((HashMap<Integer, AsyncNetwork.Sender>)f1.get(networks.get(1))).get(2);
+    Field f2 = sender.getClass().getDeclaredField("future");
     f2.setAccessible(true);
-    ExecutorService e = (ExecutorService) f2.get(networks.get(1));
-    e.shutdownNow();
-    AsyncNetwork.Sender sender = ((HashMap<Integer, AsyncNetwork.Sender>)f1.get(networks.get(1))).get(2);
+    Future<Object> future = ((Future<Object>)f2.get(sender));
+    future.cancel(true);
+    try {
+      future.get();
+    } catch (CancellationException ce) {
+      // Ignore
+    }
     sender.stop();
     f1.setAccessible(false);
     f2.setAccessible(false);
   }
 
   @SuppressWarnings("unchecked")
-  @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS, expected=CancellationException.class)
+  @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS, expected = CancellationException.class)
   public void testFailedReceiver() throws Exception {
     networks = createNetworks(2);
     // Cancel sendfuture to provoke an exception while sending
@@ -262,7 +269,8 @@ public class TestAsyncNetwork {
     Field f2 = networks.get(1).getClass().getDeclaredField("communicationService");
     f1.setAccessible(true);
     f2.setAccessible(true);
-    AsyncNetwork.Receiver receiver = ((HashMap<Integer, AsyncNetwork.Receiver>)f1.get(networks.get(1))).get(2);
+    AsyncNetwork.Receiver receiver =
+        ((HashMap<Integer, AsyncNetwork.Receiver>)f1.get(networks.get(1))).get(2);
     receiver.stop();
     receiver.isRunning();
     f1.setAccessible(false);
