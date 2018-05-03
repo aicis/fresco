@@ -243,8 +243,8 @@ public class AsyncNetwork implements CloseableNetwork {
       Objects.requireNonNull(es);
       this.channel = channel;
       this.queue = new LinkedBlockingQueue<>();
-      this.future = es.submit(this);
       this.run = new AtomicBoolean(true);
+      this.future = es.submit(this);
     }
 
     /**
