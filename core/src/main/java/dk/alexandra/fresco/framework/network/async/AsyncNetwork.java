@@ -231,6 +231,7 @@ public class AsyncNetwork implements CloseableNetwork {
     private final SocketChannel channel;
     private final BlockingQueue<byte[]> queue;
     private final Future<Object> future;
+    private final AtomicBoolean run;
 
     /**
      * Create a new Receiver.
@@ -241,6 +242,7 @@ public class AsyncNetwork implements CloseableNetwork {
       this.channel = channel;
       this.queue = new LinkedBlockingQueue<>();
       this.future = es.submit(this);
+      this.run = new AtomicBoolean(true);
     }
 
     /**
@@ -253,19 +255,22 @@ public class AsyncNetwork implements CloseableNetwork {
     boolean isRunning() throws InterruptedException, ExecutionException {
       if (future.isDone()) {
         future.get();
+        return false;
       }
       return true;
     }
 
     /**
-     * Stops the receiver.
+     * Stops the receiver nicely.
      * @throws ExecutionException if the sender failed due to an exception
      * @throws InterruptedException if the sender was interrupted
      * @throws IOException if exception occurs while closing channel
      */
     void stop() throws InterruptedException, ExecutionException, IOException {
       if (isRunning()) {
-        future.cancel(true);
+        run.set(false);
+        channel.shutdownInput();
+        future.get();
       }
     }
 
@@ -281,19 +286,22 @@ public class AsyncNetwork implements CloseableNetwork {
 
     @Override
     public Object call() throws IOException, InterruptedException {
-      while (true) {
+      while (run.get()) {
         ByteBuffer buf = ByteBuffer.allocate(Integer.BYTES);
-        while (buf.hasRemaining()) {
+        while (buf.hasRemaining() && run.get()) {
           channel.read(buf);
         }
-        buf.flip();
-        int nextMessageSize = buf.getInt();
-        buf = ByteBuffer.allocate(nextMessageSize);
-        while (buf.remaining() > 0) {
-          channel.read(buf);
+        if (run.get()) {
+          buf.flip();
+          int nextMessageSize = buf.getInt();
+          buf = ByteBuffer.allocate(nextMessageSize);
+          while (buf.remaining() > 0) {
+            channel.read(buf);
+          }
+          queue.add(buf.array());
         }
-        queue.add(buf.array());
       }
+      return null;
     }
 
   }
@@ -365,6 +373,7 @@ public class AsyncNetwork implements CloseableNetwork {
         unblock();
       }
       future.get();
+      channel.shutdownOutput();
     }
 
     @Override
@@ -411,7 +420,9 @@ public class AsyncNetwork implements CloseableNetwork {
     byte[] data = null;
     while (data == null) {
       ExceptionConverter.safe(() -> {
-        receivers.get(partyId).isRunning();
+        if (!receivers.get(partyId).isRunning()) {
+          throw new RuntimeException("Receiver not running");
+        }
         return null;
       }, "P" + conf.getMyId() + ": Unable to receive from P" + partyId);
       data = receivers.get(partyId).pollMessage(RECEIVE_TIMEOUT);
