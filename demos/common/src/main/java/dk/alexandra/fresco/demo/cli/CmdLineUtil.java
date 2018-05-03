@@ -32,8 +32,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Utility for reading all configuration from command line.
@@ -42,8 +40,6 @@ import org.slf4j.LoggerFactory;
  * </p>
  */
 public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends ProtocolBuilder> {
-
-  private static final Logger logger = LoggerFactory.getLogger(CmdLineUtil.class);
 
   private final Options options;
   private Options appOptions;
@@ -109,11 +105,9 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
         .desc(
             "Connection data for a party. Use -p multiple times to specify many players. "
             + "You must always at least include yourself. Must be on the form "
-            + "[id]:[hostname]:[port] or [id]:[hostname]:[port]:[shared key]. "
+            + "[id]:[hostname]:[port]. "
             + "id is a unique positive integer for the player, host and port is where to "
-            + "find the player, shared key is an optional string defining a secret key "
-            + "that is shared by you and the other player (the other player must submit "
-            + "the same key for you as you do for him). ")
+            + "find the player")
         .longOpt("party").required(true).hasArgs().build());
 
     options.addOption(Option.builder("e")
@@ -169,20 +163,16 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
 
     for (String partyOptions : this.cmd.getOptionValues("p")) {
       String[] p = partyOptions.split(":");
-      if (p.length < 3 || p.length > 4) {
+      if (p.length != 3) {
         throw new ParseException("Could not parse '" + partyOptions
-            + "' as [id]:[host]:[port] or [id]:[host]:[port]:[shared key]");
+            + "' as [id]:[host]:[port]");
       }
       try {
         int id = Integer.parseInt(p[0]);
         InetAddress.getByName(p[1]); // Check that hostname is valid.
         int port = Integer.parseInt(p[2]);
         Party party;
-        if (p.length == 3) {
-          party = new Party(id, p[1], port);
-        } else {
-          party = new Party(id, p[1], port, p[3]);
-        }
+        party = new Party(id, p[1], port);
         if (parties.containsKey(id)) {
           throw new ParseException("Party ids must be unique");
         }

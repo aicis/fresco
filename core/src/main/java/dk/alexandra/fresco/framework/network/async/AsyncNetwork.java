@@ -481,11 +481,10 @@ public class AsyncNetwork implements CloseableNetwork {
       }
     }
     for (SocketChannel c: channels) {
-      try {
+      ExceptionConverter.safe(() -> {
         c.close();
-      } catch (IOException e) {
-        // Ignore, we are not going to use the channel anymore
-      }
+        return null;
+        }, "");
     }
     communicationService.shutdownNow();
   }

@@ -241,7 +241,6 @@ public class TestAsyncNetwork {
   @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS, expected = CancellationException.class)
   public void testFailedSender() throws Exception {
     networks = createNetworks(2);
-    // Cancel sendfuture to provoke an exception while sending
     Field f1 = networks.get(1).getClass().getDeclaredField("senders");
     f1.setAccessible(true);
     AsyncNetwork.Sender sender =
@@ -264,7 +263,6 @@ public class TestAsyncNetwork {
   @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS, expected = CancellationException.class)
   public void testFailedReceiver() throws Exception {
     networks = createNetworks(2);
-    // Cancel sendfuture to provoke an exception while sending
     Field f1 = networks.get(1).getClass().getDeclaredField("receivers");
     f1.setAccessible(true);
     AsyncNetwork.Receiver receiver =
@@ -287,16 +285,12 @@ public class TestAsyncNetwork {
   @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS)
   public void testReceiver() throws Exception {
     networks = createNetworks(2);
-    // Cancel sendfuture to provoke an exception while sending
     Field f1 = networks.get(1).getClass().getDeclaredField("receivers");
-    Field f2 = networks.get(1).getClass().getDeclaredField("communicationService");
     f1.setAccessible(true);
-    f2.setAccessible(true);
     AsyncNetwork.Receiver receiver =
         ((HashMap<Integer, AsyncNetwork.Receiver>)f1.get(networks.get(1))).get(2);
     receiver.stop();
     f1.setAccessible(false);
-    f2.setAccessible(false);
   }
 
   @Test(expected = IllegalArgumentException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
