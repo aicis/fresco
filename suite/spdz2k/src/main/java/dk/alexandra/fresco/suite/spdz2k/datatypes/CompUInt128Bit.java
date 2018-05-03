@@ -26,7 +26,8 @@ public class CompUInt128Bit extends CompUInt128 {
 
   @Override
   public CompUInt128 add(CompUInt128 other) {
-    return new CompUInt128Bit(high + other.high, mid ^ other.mid, low ^ other.low);
+    CompUInt128 sum = super.add(other);
+    return new CompUInt128Bit(sum.high, sum.mid, sum.low);
   }
 
   @Override

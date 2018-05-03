@@ -61,8 +61,8 @@ public class TestCompUInt128Bit {
         new CompUInt128Bit(rand(3), 0).multiply(new CompUInt128Bit(rand(4), 0)).toBigInteger()
     );
     Assert.assertEquals(
-        bigInt128(bigInt65(rand(3), 1).multiply(bigInt65(rand(4), 0))).toString(2),
-        new CompUInt128Bit(rand(3), 1).multiply(new CompUInt128Bit(rand(4), 0)).toBigInteger().toString(2)
+        bigInt128(bigInt65(rand(3), 1).multiply(bigInt65(rand(4), 0))),
+        new CompUInt128Bit(rand(3), 1).multiply(new CompUInt128Bit(rand(4), 0)).toBigInteger()
     );
     Assert.assertEquals(
         bigInt128(bigInt65(1, 1).multiply(bigInt65(1, 1))),
@@ -71,6 +71,26 @@ public class TestCompUInt128Bit {
     Assert.assertEquals(
         bigInt128(bigInt65(rand(3), 1).multiply(bigInt65(rand(4), 1))),
         new CompUInt128Bit(rand(3), 1).multiply(new CompUInt128Bit(rand(4), 1)).toBigInteger()
+    );
+  }
+
+  @Test
+  public void testAdd() {
+    Assert.assertEquals(
+        bigInt128(bigInt65(rand(3), 0).add(bigInt65(rand(4), 0))),
+        new CompUInt128Bit(rand(3), 0).add(new CompUInt128Bit(rand(4), 0)).toBigInteger()
+    );
+    Assert.assertEquals(
+        bigInt128(bigInt65(rand(3), 1).add(bigInt65(rand(4), 0))).toString(2),
+        new CompUInt128Bit(rand(3), 1).add(new CompUInt128Bit(rand(4), 0)).toBigInteger().toString(2)
+    );
+    Assert.assertEquals(
+        bigInt128(bigInt65(1, 1).add(bigInt65(1, 1))),
+        new CompUInt128Bit(1, 1).add(new CompUInt128Bit(1, 1)).toBigInteger()
+    );
+    Assert.assertEquals(
+        bigInt128(bigInt65(rand(3), 1).add(bigInt65(rand(4), 1))),
+        new CompUInt128Bit(rand(3), 1).add(new CompUInt128Bit(rand(4), 1)).toBigInteger()
     );
   }
 }
