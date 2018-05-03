@@ -339,9 +339,9 @@ public class AsyncNetwork implements CloseableNetwork {
     }
 
     /**
-     * Tests if the Receiver is running. If not throws the exception that made it stop.
+     * Tests if the Sender is running. If not throws the exception that made it stop.
      *
-     * @return true if the Receiver is running
+     * @return true if the Sender is running, false if it stopped nicely
      * @throws InterruptedException if an interrupt occurred
      * @throws ExecutionException if an exception occurred during execution
      */
