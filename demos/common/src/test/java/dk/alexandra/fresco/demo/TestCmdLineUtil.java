@@ -233,8 +233,8 @@ public class TestCmdLineUtil {
 
   private String[] getArgs(int partyId, String protocolSuite, String...addedOptions) {
     List<String> defaultArgs = new ArrayList<>();
-    defaultArgs.addAll(Arrays.asList(new String[] { "-e", "SEQUENTIAL_BATCHED", "-i", "" + partyId, "-p", "1:localhost:8081:secret",
-        "-p", "2:localhost:8082:secret", "-s", protocolSuite }));
+    defaultArgs.addAll(Arrays.asList(new String[] { "-e", "SEQUENTIAL_BATCHED", "-i", "" + partyId, "-p", "1:localhost:8081",
+        "-p", "2:localhost:8082", "-s", protocolSuite }));
     if(addedOptions.length > 0) {
       for(String opt : addedOptions) {
         defaultArgs.add(opt);
