@@ -239,6 +239,8 @@ public class AsyncNetwork implements CloseableNetwork {
      * @param es the executor used to execute the receiving thread
      */
     Receiver(SocketChannel channel, ExecutorService es) {
+      Objects.requireNonNull(channel);
+      Objects.requireNonNull(es);
       this.channel = channel;
       this.queue = new LinkedBlockingQueue<>();
       this.future = es.submit(this);
