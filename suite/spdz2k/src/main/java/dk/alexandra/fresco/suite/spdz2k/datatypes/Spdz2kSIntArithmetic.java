@@ -63,17 +63,7 @@ public class Spdz2kSIntArithmetic<PlainT extends CompUInt<?, ?, PlainT>> extends
         isPartyOne);
     return add(wrapped);
   }
-
-  @Override
-  public byte[] serializeShareLow() {
-    return share.getLeastSignificant().toByteArray();
-  }
-
-  @Override
-  public byte[] serializeShareWhole() {
-    return share.toByteArray();
-  }
-
+  
   @Override
   public String toString() {
     return "Spdz2kSIntArithmetic{" +

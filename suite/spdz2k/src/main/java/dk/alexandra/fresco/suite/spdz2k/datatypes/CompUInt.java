@@ -81,6 +81,14 @@ public interface CompUInt<
     return getCompositeBitLength();
   }
 
+  default byte[] serializeWhole() {
+    return toByteArray();
+  }
+  
+  default byte[] serializeLeastSignificant() {
+    return getLeastSignificant().toByteArray();
+  }
+
   /**
    * Util for padding a byte array up to the required bit length. <p>Since we are working with
    * unsigned ints, the first byte of the passed in array is discarded if it's a zero byte.</p>

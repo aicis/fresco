@@ -116,4 +116,16 @@ public class TestCompUInt128Bit {
     );
   }
 
+  @Test
+  public void testSerializeLeastSignificant() {
+    Assert.assertArrayEquals(
+        new byte[]{0},
+        new CompUInt128Bit(rand(42), 0).serializeLeastSignificant()
+    );
+    Assert.assertArrayEquals(
+        new byte[]{1},
+        new CompUInt128Bit(rand(42), 1).serializeLeastSignificant()
+    );
+  }
+
 }
