@@ -42,7 +42,11 @@ public class DefaultCollections implements Collections {
 
   @Override
   public DRes<List<DRes<SInt>>> closeList(List<BigInteger> openList, int inputParty) {
-    return builder.par(new CloseList(openList, inputParty));
+    if (builder.getBasicNumericContext().getMyId() == 1) {
+      return builder.par(new CloseList(openList, inputParty));
+    } else {
+      return builder.par(new CloseList(openList.size(), inputParty));
+    }
   }
 
   @Override
@@ -96,7 +100,7 @@ public class DefaultCollections implements Collections {
 
   @Override
   public DRes<Matrix<DRes<SInt>>> permute(DRes<Matrix<DRes<SInt>>> values, int permProviderPid) {
-    return builder.seq(new PermuteRows(values, new int[] {}, permProviderPid, false));
+    return builder.seq(new PermuteRows(values, new int[]{}, permProviderPid, false));
   }
 
   @Override

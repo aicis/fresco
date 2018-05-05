@@ -160,7 +160,7 @@ public class TestSpdz2kDummyDataSupplier {
   private void assertTripleValid(Spdz2kTriple<CompUInt128, Spdz2kSIntArithmetic<CompUInt128>> recombined, CompUInt128 macKey) {
     assertMacCorrect(recombined.getLeft(), macKey);
     assertMacCorrect(recombined.getRight(), macKey);
-    assertMacCorrect(recombined.getRight(), macKey);
+    assertMacCorrect(recombined.getProduct(), macKey);
     // check that a * b = c
     assertEquals(recombined.getProduct().getShare().toBigInteger(),
         recombined.getLeft().getShare().multiply(recombined.getRight().getShare()).toBigInteger());

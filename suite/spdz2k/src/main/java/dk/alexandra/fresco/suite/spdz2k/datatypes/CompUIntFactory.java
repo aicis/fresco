@@ -35,6 +35,10 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> extends OI
     return fromBigInteger(BigInteger.valueOf(value));
   }
 
+  default CompT fromBit(int bit) {
+    throw new UnsupportedOperationException();
+  }
+
   /**
    * Get result from deferred and downcast result to {@link CompT}.
    */

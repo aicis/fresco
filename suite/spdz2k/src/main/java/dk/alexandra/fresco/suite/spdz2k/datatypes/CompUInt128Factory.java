@@ -25,6 +25,11 @@ public class CompUInt128Factory implements CompUIntFactory<CompUInt128> {
   }
 
   @Override
+  public CompUInt128 fromBit(int bit) {
+    return new CompUInt128Bit(0L, bit);
+  }
+
+  @Override
   public ByteSerializer<CompUInt128> createSerializer() {
     return new UIntSerializer<>(this);
   }

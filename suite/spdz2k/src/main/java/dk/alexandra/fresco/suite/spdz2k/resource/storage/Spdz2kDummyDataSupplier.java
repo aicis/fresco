@@ -87,7 +87,7 @@ public class Spdz2kDummyDataSupplier<
   private Spdz2kSIntBoolean<PlainT> toSpdz2kSIntBool(Pair<BigInteger, BigInteger> raw) {
     PlainT openValue = factory.createFromBigInteger(raw.getFirst()).toBitRep();
     PlainT share = factory.createFromBigInteger(raw.getSecond()).toBitRep();
-    PlainT macShare = openValue.multiply(secretSharedKey);
+    PlainT macShare = openValue.toArithmeticRep().multiply(secretSharedKey);
     return new Spdz2kSIntBoolean<>(share, macShare);
   }
 

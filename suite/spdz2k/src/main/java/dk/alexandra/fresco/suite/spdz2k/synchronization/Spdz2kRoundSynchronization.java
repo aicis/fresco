@@ -65,7 +65,7 @@ public class Spdz2kRoundSynchronization<
         resourcePool, converter);
     ProtocolBuilderNumeric sequential = builder.createSequential();
     macCheck.buildComputation(sequential);
-//    evaluator.eval(sequential.build(), resourcePool, network);
+    evaluator.eval(sequential.build(), resourcePool, network);
   }
 
   @Override

@@ -18,6 +18,7 @@ public class CompUInt128Bit extends CompUInt128 {
 
   @Override
   public CompUInt128 multiply(CompUInt128 other) {
+//    CompUInt128Bit test = ((CompUInt128Bit) other);
     int bit = mid >>> 31;
     int otherBit = other.mid >>> 31;
     return new CompUInt128Bit(
@@ -28,12 +29,14 @@ public class CompUInt128Bit extends CompUInt128 {
 
   @Override
   public CompUInt128 add(CompUInt128 other) {
+//    CompUInt128Bit test = ((CompUInt128Bit) other);
     CompUInt128 sum = super.add(other);
     return new CompUInt128Bit(sum.high, sum.mid, sum.low);
   }
 
   @Override
   public CompUInt128 subtract(CompUInt128 other) {
+//    CompUInt128Bit test = ((CompUInt128Bit) other);
     CompUInt128 negated = new CompUInt128Bit(~other.high, ~other.mid & 0x80000000, 0).add(ONE);
     return this.add(negated);
   }
@@ -41,6 +44,16 @@ public class CompUInt128Bit extends CompUInt128 {
   @Override
   public CompUInt128 toBitRep() {
     throw new IllegalStateException("Already in bit form");
+  }
+
+  @Override
+  public CompUInt128 toArithmeticRep() {
+    return new CompUInt128(high, mid, low);
+  }
+
+  @Override
+  public String toString() {
+    return toBigInteger().toString() + "B";
   }
 
   @Override

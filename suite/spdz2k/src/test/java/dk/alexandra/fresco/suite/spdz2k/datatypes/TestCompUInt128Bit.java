@@ -114,6 +114,16 @@ public class TestCompUInt128Bit {
         bigInt128(bigInt65(rand(3), 1).subtract(bigInt65(rand(4), 1))),
         new CompUInt128Bit(rand(3), 1).subtract(new CompUInt128Bit(rand(4), 1)).toBigInteger()
     );
+    Assert.assertEquals(
+        bigInt128(bigInt65(0, 0).subtract(bigInt65(0, 1))),
+        new CompUInt128Bit(0, 0).subtract(new CompUInt128Bit(0, 1)).toBigInteger()
+    );
+    System.out.println(bigInt128(bigInt65(0, 0).subtract(bigInt65(0, 1))));
+    System.out.println(bigInt128(bigInt65(0, 0).subtract(bigInt65(1, 0))));
+    Assert.assertEquals(
+        bigInt128(bigInt65(0, 0).subtract(bigInt65(1, 0))),
+        new CompUInt128Bit(0, 0).subtract(new CompUInt128Bit(1, 0)).toBigInteger()
+    );
   }
 
   @Test

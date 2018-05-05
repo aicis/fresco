@@ -77,7 +77,7 @@ public class Spdz2kMacCheckComputation<
             return new BroadcastComputation<ProtocolBuilderNumeric>(sharesLowBits)
                 .buildComputation(seq);
           } else {
-            return () -> null;
+            return null;
           }
         })
         .seq((seq, ignored) -> computePValues(seq, authenticatedElements, r))

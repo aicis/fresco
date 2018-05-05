@@ -21,7 +21,7 @@ public class Spdz2kSIntBoolean<PlainT extends CompUInt<?, ?, PlainT>> extends
    * others store 0.</p>
    */
   public Spdz2kSIntBoolean(PlainT share, PlainT macKeyShare, PlainT zero, boolean isPartyOne) {
-    this(isPartyOne ? share : zero, share.multiply(macKeyShare));
+    this(isPartyOne ? share : zero, share.toArithmeticRep().multiply(macKeyShare));
   }
 
   /**
@@ -50,7 +50,7 @@ public class Spdz2kSIntBoolean<PlainT extends CompUInt<?, ?, PlainT>> extends
   public Spdz2kSIntBoolean<PlainT> multiply(PlainT other) {
     return new Spdz2kSIntBoolean<>(
         share.multiply(other),
-        macShare.multiply(other)
+        macShare.multiply(other.toArithmeticRep())
     );
   }
 
@@ -73,7 +73,7 @@ public class Spdz2kSIntBoolean<PlainT extends CompUInt<?, ?, PlainT>> extends
   }
 
   public Spdz2kSIntArithmetic<PlainT> asArithmetic() {
-    return new Spdz2kSIntArithmetic<>(share, macShare);
+    return new Spdz2kSIntArithmetic<>(share.toArithmeticRep(), macShare);
   }
 
   @Override

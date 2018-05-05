@@ -36,6 +36,11 @@ public class DefaultLogical implements Logical {
   }
 
   @Override
+  public DRes<SInt> xor(DRes<SInt> bitA, DRes<SInt> bitB) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public DRes<SInt> andKnown(DRes<OInt> knownBit, DRes<SInt> secretBit) {
     return builder.seq(seq -> seq.numeric().multByOpen(knownBit, secretBit));
   }
@@ -145,6 +150,16 @@ public class DefaultLogical implements Logical {
     return builder.par(par -> {
       BiFunction<DRes<SInt>, DRes<SInt>, DRes<SInt>> f = (left, right) -> par.logical()
           .or(left, right);
+      return pairWise(bitsA, bitsB, f);
+    });
+  }
+
+  @Override
+  public DRes<List<DRes<SInt>>> pairWiseXor(DRes<List<DRes<SInt>>> bitsA,
+      DRes<List<DRes<SInt>>> bitsB) {
+    return builder.par(par -> {
+      BiFunction<DRes<SInt>, DRes<SInt>, DRes<SInt>> f = (left, right) -> par.logical()
+          .xor(left, right);
       return pairWise(bitsA, bitsB, f);
     });
   }

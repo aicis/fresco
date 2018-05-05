@@ -10,6 +10,7 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntBoolean;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAndProtocol;
+import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kXorProtocol;
 
 /**
  * Logical operators for Spdz2k on boolean shares. <p>NOTE: requires that inputs have previously
@@ -29,6 +30,11 @@ public class Spdz2kLogicalBooleanMode<PlainT extends CompUInt<?, ?, PlainT>> ext
   @Override
   public DRes<SInt> and(DRes<SInt> bitA, DRes<SInt> bitB) {
     return builder.append(new Spdz2kAndProtocol<>(bitA, bitB));
+  }
+
+  @Override
+  public DRes<SInt> xor(DRes<SInt> bitA, DRes<SInt> bitB) {
+    return builder.append(new Spdz2kXorProtocol<>(bitA, bitB));
   }
 
   @Override
