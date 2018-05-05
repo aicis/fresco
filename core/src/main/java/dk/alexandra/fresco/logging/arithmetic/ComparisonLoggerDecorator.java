@@ -30,14 +30,19 @@ public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger 
   }
 
   @Override
-  public DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y,
-      EqualityAlgorithm algorithm) {
+  public DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y, int bitlength, Algorithm algorithm) {
     eqCount++;
-    return this.delegate.equals(x, y, algorithm);
+    return this.delegate.equals(x, y, bitlength, algorithm);
   }
 
   @Override
-  public DRes<SInt> equals(int bitLength, DRes<SInt> x, DRes<SInt> y) {
+  public DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y, int bitlength) {
+    eqCount++;
+    return this.delegate.equals(x, y, bitlength);
+  }
+
+  @Override
+  public DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y) {
     eqCount++;
     return this.delegate.equals(x, y);
   }
@@ -49,7 +54,7 @@ public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger 
   }
 
   @Override
-  public DRes<SInt> compareLT(DRes<SInt> x1, DRes<SInt> x2, ComparisonAlgorithm algorithm) {
+  public DRes<SInt> compareLT(DRes<SInt> x1, DRes<SInt> x2, Algorithm algorithm) {
     ltCount++;
     return this.delegate.compareLT(x1, x2, algorithm);
   }
@@ -78,16 +83,15 @@ public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger 
   }
 
   @Override
-  public DRes<SInt> compareZero(DRes<SInt> x, int bitLength) {
+  public DRes<SInt> compareZero(DRes<SInt> x, int bitlength) {
     comp0Count++;
-    return this.delegate.compareZero(x, bitLength);
+    return this.delegate.compareZero(x, bitlength);
   }
 
   @Override
-  public DRes<SInt> compareZero(DRes<SInt> x, int bitLength,
-      EqualityAlgorithm algorithm) {
+  public DRes<SInt> compareZero(DRes<SInt> x, int bitlength, Algorithm algorithm) {
     comp0Count++;
-    return this.delegate.compareZero(x, bitLength);
+    return this.delegate.compareZero(x, bitlength);
   }
 
   @Override

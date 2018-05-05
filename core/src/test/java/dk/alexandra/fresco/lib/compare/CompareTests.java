@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.builder.numeric.Comparison;
-import dk.alexandra.fresco.framework.builder.numeric.Comparison.ComparisonAlgorithm;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -404,7 +403,7 @@ public class CompareTests {
             List<DRes<SInt>> actualInner = new ArrayList<>(left.size());
             for (int i = 0; i < left.size(); i++) {
               actualInner.add(builder.comparison().compareLT(left.get(i), right.get(i),
-                  ComparisonAlgorithm.LT_LOG_ROUNDS));
+                  Comparison.Algorithm.LOG_ROUNDS));
             }
             DRes<List<DRes<BigInteger>>> opened = builder.collections().openList(() -> actualInner);
             return () -> opened.out().stream().map(DRes::out).collect(Collectors.toList());

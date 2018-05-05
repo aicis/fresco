@@ -12,36 +12,34 @@ import java.math.BigInteger;
 import java.util.List;
 
 public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeric> {
+  // params etc
+  private final int bitLength;
+  private final DRes<SInt> x;
+  private final DRes<SInt> y;
 
-  public LessThanOrEquals(int bitLength, int securityParameter, DRes<SInt> x, DRes<SInt> y) {
+  public LessThanOrEquals(int bitLength, DRes<SInt> x, DRes<SInt> y) {
     this.bitLength = bitLength;
-    this.securityParameter = securityParameter;
     this.x = x;
     this.y = y;
   }
 
-  // params etc
-  private final int bitLength;
-  private final int securityParameter;
-  private final DRes<SInt> x;
-  private final DRes<SInt> y;
-
   @SuppressWarnings("unchecked")
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
+    final int statisticalSecurity = builder.getBasicNumericContext().getStatisticalSecurityParam();
     final BigInteger modulus = builder.getBasicNumericContext().getModulus();
 
     final int bitLengthBottom = bitLength / 2;
     final int bitLengthTop = bitLength - bitLengthBottom;
 
-    final BigInteger twoToBitLength = BigInteger.ONE.shiftLeft(this.bitLength);
+    final BigInteger twoToBitLength = BigInteger.ONE.shiftLeft(bitLength);
     final BigInteger twoToBitLengthBottom = BigInteger.ONE.shiftLeft(bitLengthBottom);
     final BigInteger twoToNegBitLength = twoToBitLength.modInverse(modulus);
 
     final BigInteger one = BigInteger.ONE;
 
     return builder.seq((seq) -> seq.advancedNumeric()
-        .additiveMask(bitLength + securityParameter))
+        .additiveMask(bitLength + statisticalSecurity))
         .pairInPar((seq, mask) -> {
           List<DRes<SInt>> bits = mask.bits.subList(0, bitLength);
           List<DRes<SInt>> rBottomBits = bits.subList(0, bitLengthBottom);
@@ -132,7 +130,7 @@ public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeri
             // compare the half-length inputs
             int nextBitLength = (bitLength + 1) / 2;
             subComparisonResult =
-                seq.seq(new LessThanOrEquals(nextBitLength, securityParameter, rPrime, mPrime));
+                seq.seq(new LessThanOrEquals(nextBitLength, rPrime, mPrime));
           }
           return () -> new Object[] {subComparisonResult, mBar, rBar, z};
         }).seq((ProtocolBuilderNumeric seq, Object[] input) -> {
