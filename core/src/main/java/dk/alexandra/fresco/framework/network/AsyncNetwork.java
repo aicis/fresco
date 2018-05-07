@@ -1,8 +1,7 @@
-package dk.alexandra.fresco.framework.network.async;
+package dk.alexandra.fresco.framework.network;
 
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.network.CloseableNetwork;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import java.io.IOException;
 import java.net.InetSocketAddress;

@@ -1,25 +1,23 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.network.CloseableNetwork;
-import dk.alexandra.fresco.framework.network.async.AsyncNetwork;
 import java.io.IOException;
 
 /**
- * Wrapper class used for testing to ensure that proper checked exceptions are
+ * Decorator class used for testing to ensure that proper checked exceptions are
  * thrown if a party is trying to cheat. This class intercepts messages send
  * over the network and flips a bit when asked to.
  */
-public class CheatingNetwork implements CloseableNetwork {
-  private final CloseableNetwork network;
+public class CheatingNetworkDecorator implements CloseableNetwork {
 
+  private final CloseableNetwork network;
   private int cheatByteNo;
   private int messageNo;
   private int counter = 0;
   private boolean cheat = false;
 
-  public CheatingNetwork(NetworkConfiguration conf) {
-    this.network = new AsyncNetwork(conf);
+  public CheatingNetworkDecorator(CloseableNetwork network) {
+    this.network = network;
   }
 
   /**

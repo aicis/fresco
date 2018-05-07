@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.framework.network.async;
+package dk.alexandra.fresco.framework.network;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
@@ -7,6 +7,8 @@ import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.CloseableNetwork;
+import dk.alexandra.fresco.framework.network.AsyncNetwork.Receiver;
+import dk.alexandra.fresco.framework.network.AsyncNetwork.Sender;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.ServerSocket;
