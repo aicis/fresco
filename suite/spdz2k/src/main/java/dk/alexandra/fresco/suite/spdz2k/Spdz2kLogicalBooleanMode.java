@@ -79,7 +79,6 @@ public class Spdz2kLogicalBooleanMode<PlainT extends CompUInt<?, ?, PlainT>> ext
     // quite heavy machinery...
     return builder.seq(seq -> {
       Spdz2kSIntBoolean<PlainT> bit = factory.toSpdz2kSIntBoolean(secretBit);
-      System.out.println(bit);
       return seq.numeric().openAsOInt(bit.asArithmetic());
     }).seq((seq, opened) -> {
       PlainT openBit = factory.fromOInt(opened);

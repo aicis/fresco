@@ -4,11 +4,13 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.util.MathUtils;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -25,10 +27,12 @@ import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kDummyDataSupplier
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kOpenedValueStoreImpl;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -62,6 +66,12 @@ public class TestSpdz2kComparison extends
   @Test
   public void testCarryOutRandom() {
     runTest(new TestCarryOutSpdz2k<>(new Random(42).nextInt(), new Random(1).nextInt()),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
+  }
+
+  @Test
+  public void testBitLessThan() {
+    runTest(new TestBitLessThanOpenSpdz2k<>(),
         EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
 
@@ -125,6 +135,86 @@ public class TestSpdz2kComparison extends
     }
   }
 
+  public static class TestBitLessThanOpenSpdz2k<ResourcePoolT extends NumericResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    private List<BigInteger> left;
+    private List<BigInteger> right;
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app =
+              root -> {
+                int numBits = 32;
+                OIntFactory oIntFactory = root.getOIntFactory();
+                setupInputs(conf.getResourcePool().getModulus(), numBits);
+                List<DRes<OInt>> results = new ArrayList<>(left.size());
+                for (int i = 0; i < left.size(); i++) {
+                  OInt leftValue = oIntFactory.fromBigInteger(left.get(i));
+                  DRes<List<DRes<SInt>>> rightValue = toSecretBits(root, right.get(i),
+                      numBits);
+                  results.add(
+                      root.logical()
+                          .openAsBit(root.comparison().compareLTBits(leftValue, rightValue))
+                  );
+                }
+                return () -> results.stream().map(v -> oIntFactory.toBigInteger(v.out()))
+                    .collect(Collectors.toList());
+              };
+          List<BigInteger> actual = runApplication(app);
+          List<BigInteger> expected = new ArrayList<>(left.size());
+          for (int i = 0; i < left.size(); i++) {
+            boolean leq = left.get(i).compareTo(right.get(i)) < 0;
+            expected.add(leq ? BigInteger.ONE : BigInteger.ZERO);
+          }
+          Assert.assertEquals(expected, actual);
+        }
+      };
+    }
+
+    private void setupInputs(BigInteger modulus, int numBits) {
+      Random random = new Random(42);
+      this.left = Arrays.asList(
+          BigInteger.ZERO,
+          BigInteger.ONE,
+          BigInteger.ZERO,
+          BigInteger.valueOf(5),
+          BigInteger.valueOf(111),
+          BigInteger.valueOf(111),
+          modulus.subtract(BigInteger.ONE),
+          modulus.subtract(BigInteger.ONE),
+          BigInteger.valueOf(2055014152),
+          new BigInteger(numBits, random).mod(modulus)
+      );
+      this.right = Arrays.asList(
+          BigInteger.ONE,
+          BigInteger.ZERO,
+          BigInteger.ZERO,
+          BigInteger.valueOf(4),
+          BigInteger.valueOf(111),
+          BigInteger.valueOf(112),
+          modulus.subtract(BigInteger.ONE),
+          modulus.subtract(BigInteger.valueOf(2)),
+          BigInteger.valueOf(2055014153),
+          new BigInteger(numBits, random).mod(modulus)
+      );
+    }
+
+  }
+
+  private static DRes<List<DRes<SInt>>> toSecretBits(ProtocolBuilderNumeric root,
+      BigInteger value,
+      int numBits) {
+    List<BigInteger> openList = MathUtils.toBits(value, numBits);
+    Collections.reverse(openList);
+    return root.conversion().toBooleanBatch(root.collections().closeList(openList, 1));
+  }
+
   private static BigInteger carry(int a, int b) {
     long res = Integer.toUnsignedLong(a) + Integer.toUnsignedLong(b);
     int carry = (int) ((res & (1L << 32)) >> 32);
@@ -141,5 +231,5 @@ public class TestSpdz2kComparison extends
     Collections.reverse(bits);
     return bits;
   }
-  
+
 }
