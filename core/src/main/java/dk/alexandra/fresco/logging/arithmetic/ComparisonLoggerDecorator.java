@@ -66,11 +66,6 @@ public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger 
   }
 
   @Override
-  public DRes<SInt> compareLTBits(OInt openValue, List<DRes<SInt>> secretBits) {
-    return this.compareLTBits(() -> openValue, () -> secretBits);
-  }
-
-  @Override
   public DRes<SInt> compareLEQLong(DRes<SInt> x1, DRes<SInt> x2) {
     leqCount++;
     return this.delegate.compareLEQLong(x1, x2);

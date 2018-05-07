@@ -4,13 +4,13 @@ import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.collections.io.CloseListTests.TestCloseAndOpenList;
 import dk.alexandra.fresco.lib.compare.CompareTests.TestLessThanLogRounds;
-import dk.alexandra.fresco.lib.compare.lt.BitLessThanOpenTests.TestBitLessThanOpen;
 import dk.alexandra.fresco.lib.math.integer.binary.BinaryOperationsTests.TestGenerateRandomBitMask;
-import dk.alexandra.fresco.lib.math.integer.logical.LogicalOperationsTests.TestAnd;
-import dk.alexandra.fresco.lib.math.integer.logical.LogicalOperationsTests.TestAndKnown;
-import dk.alexandra.fresco.lib.math.integer.logical.LogicalOperationsTests.TestNot;
-import dk.alexandra.fresco.lib.math.integer.logical.LogicalOperationsTests.TestOr;
-import dk.alexandra.fresco.lib.math.integer.logical.LogicalOperationsTests.TestXorKnown;
+import dk.alexandra.fresco.suite.spdz2k.protocols.computations.TestSpdz2kComparison.TestBitLessThanOpenSpdz2k;
+import dk.alexandra.fresco.suite.spdz2k.protocols.computations.TestSpdz2kLogicalOperations.TestAndKnownSpdz2k;
+import dk.alexandra.fresco.suite.spdz2k.protocols.computations.TestSpdz2kLogicalOperations.TestAndSpdz2k;
+import dk.alexandra.fresco.suite.spdz2k.protocols.computations.TestSpdz2kLogicalOperations.TestNotSpdz2k;
+import dk.alexandra.fresco.suite.spdz2k.protocols.computations.TestSpdz2kLogicalOperations.TestOrSpdz2k;
+import dk.alexandra.fresco.suite.spdz2k.protocols.computations.TestSpdz2kLogicalOperations.TestXorKnownSpdz2k;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 import org.junit.Test;
 
@@ -136,7 +136,7 @@ public abstract class Spdz2kTestSuite<Spdz2kResourcePoolT extends Spdz2kResource
 
   @Test
   public void testBitLessThanOpen() {
-    runTest(new TestBitLessThanOpen<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+    runTest(new TestBitLessThanOpenSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
@@ -152,27 +152,27 @@ public abstract class Spdz2kTestSuite<Spdz2kResourcePoolT extends Spdz2kResource
 
   @Test
   public void testAndKnown() {
-    runTest(new TestAndKnown<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+    runTest(new TestAndKnownSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testAnd() {
-    runTest(new TestAnd<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+    runTest(new TestAndSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testOr() {
-    runTest(new TestOr<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+    runTest(new TestOrSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testNot() {
-    runTest(new TestNot<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+    runTest(new TestNotSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testXorKnown() {
-    runTest(new TestXorKnown<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+    runTest(new TestXorKnownSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   protected abstract int getMaxBitLength();

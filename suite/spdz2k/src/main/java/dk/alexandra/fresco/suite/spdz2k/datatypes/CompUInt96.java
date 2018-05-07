@@ -184,11 +184,6 @@ public class CompUInt96 implements CompUInt<UInt64, UInt32, CompUInt96> {
   }
 
   @Override
-  public CompUInt96 copy() {
-    return new CompUInt96(high, mid, low);
-  }
-
-  @Override
   public int getLowBitLength() {
     return 32;
   }

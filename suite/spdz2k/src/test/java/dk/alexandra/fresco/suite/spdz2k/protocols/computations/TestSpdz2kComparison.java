@@ -14,6 +14,7 @@ import dk.alexandra.fresco.framework.util.MathUtils;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.compare.CompareTests.TestLessThanLogRounds;
 import dk.alexandra.fresco.lib.compare.lt.CarryOut;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.spdz2k.AbstractSpdz2kTest;
@@ -72,6 +73,12 @@ public class TestSpdz2kComparison extends
   @Test
   public void testBitLessThan() {
     runTest(new TestBitLessThanOpenSpdz2k<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
+  }
+
+  @Test
+  public void testLessThanLogRounds() {
+    runTest(new TestLessThanLogRounds<>(64),
         EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
 
@@ -159,8 +166,9 @@ public class TestSpdz2kComparison extends
                   DRes<List<DRes<SInt>>> rightValue = toSecretBits(root, right.get(i),
                       numBits);
                   results.add(
-                      root.logical()
-                          .openAsBit(root.comparison().compareLTBits(leftValue, rightValue))
+                      root.logical().openAsBit(
+                          root.comparison().compareLTBits(leftValue, rightValue)
+                      )
                   );
                 }
                 return () -> results.stream().map(v -> oIntFactory.toBigInteger(v.out()))
@@ -212,7 +220,7 @@ public class TestSpdz2kComparison extends
       int numBits) {
     List<BigInteger> openList = MathUtils.toBits(value, numBits);
     Collections.reverse(openList);
-    return root.conversion().toBooleanBatch(root.collections().closeList(openList, 1));
+    return root.collections().closeList(openList, 1);
   }
 
   private static BigInteger carry(int a, int b) {

@@ -49,10 +49,10 @@ public class MostSignBitSpdz2k<PlainT extends CompUInt<?, ?, PlainT>> implements
           RandomBitMask mask = pair.getSecond();
           DRes<SInt> rPrime = mask.getValue();
           List<DRes<SInt>> rPrimeBits = mask.getBits().out();
-          DRes<SInt> u = seq.comparison().compareLTBits(cPrime, rPrimeBits);
+          DRes<SInt> u = seq.comparison().compareLTBits(cPrime, () -> rPrimeBits);
           DRes<SInt> aPrime = nb.add(
               nb.subFromOpen(() -> cPrime, rPrime),
-              nb.multByOpen(twoTo2k1, u)
+              () -> factory.toSpdz2kSIntBoolean(u).asArithmetic()
           );
           DRes<SInt> d = nb.sub(value, aPrime);
           DRes<SInt> b = nb.randomBit();

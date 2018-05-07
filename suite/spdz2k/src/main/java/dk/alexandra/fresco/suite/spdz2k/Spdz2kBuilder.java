@@ -59,7 +59,12 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
   @Override
   public Comparison createComparison(ProtocolBuilderNumeric builder) {
-    return new Spdz2kComparison<>(this, builder, factory);
+    if (!useBooleanMode) {
+      throw new IllegalStateException(
+          "Need to enable boolean mode to perform comparisons in spdz2k");
+    } else {
+      return new Spdz2kComparison<>(this, builder, factory);
+    }
   }
 
   @Override

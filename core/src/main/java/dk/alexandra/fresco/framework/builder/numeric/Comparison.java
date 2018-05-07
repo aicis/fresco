@@ -94,11 +94,6 @@ public interface Comparison extends ComputationDirectory {
   DRes<SInt> compareLTBits(DRes<OInt> openValue, DRes<List<DRes<SInt>>> secretBits);
 
   /**
-   * Default call to {@link #compareLTBits(DRes, DRes)} with unwrapped arguments.
-   */
-  DRes<SInt> compareLTBits(OInt openValue, List<DRes<SInt>> secretBits);
-
-  /**
    * Compares if x <= y, but with twice the possible bit-length. Requires that the maximum bit
    * length is set to something that can handle this scenario. It has to be at least less than half
    * the modulus bit size.

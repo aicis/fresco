@@ -66,11 +66,6 @@ public class CompUInt128Bit extends CompUInt128 {
     return new byte[]{(byte) (mid >>> 31)};
   }
 
-  @Override
-  public CompUInt128 copy() {
-    return new CompUInt128Bit(high, mid, low);
-  }
-
   public boolean getValueBit() {
     return testBit(63);
   }

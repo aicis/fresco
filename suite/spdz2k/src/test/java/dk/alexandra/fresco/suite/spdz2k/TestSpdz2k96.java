@@ -12,7 +12,7 @@ import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kDummyDataSupplier
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kOpenedValueStoreImpl;
 import java.util.function.Supplier;
 
-public class TestSpdz2kBasicArithmetic96 extends Spdz2kTestSuite<Spdz2kResourcePool<CompUInt96>> {
+public class TestSpdz2k96 extends Spdz2kTestSuite<Spdz2kResourcePool<CompUInt96>> {
 
   @Override
   protected Spdz2kResourcePool<CompUInt96> createResourcePool(int playerId, int noOfParties,

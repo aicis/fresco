@@ -63,11 +63,6 @@ public class DefaultComparison implements Comparison {
   }
 
   @Override
-  public DRes<SInt> compareLTBits(OInt openValue, List<DRes<SInt>> secretBits) {
-    return builder.seq(new BitLessThanOpen(openValue, secretBits));
-  }
-
-  @Override
   public DRes<SInt> sign(DRes<SInt> x) {
     Numeric input = builder.numeric();
     // TODO create a compareLeqOrEqZero on comparison builder
