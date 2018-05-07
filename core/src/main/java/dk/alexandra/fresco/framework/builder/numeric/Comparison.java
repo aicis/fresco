@@ -142,7 +142,4 @@ public interface Comparison extends ComputationDirectory {
     return compareZero(x, bitlength, Algorithm.LOG_ROUNDS);
   }
 
-  // TODO this doesn't belong here
-  DRes<SInt> preCarry(DRes<List<DRes<SIntPair>>> pairs);
-
 }

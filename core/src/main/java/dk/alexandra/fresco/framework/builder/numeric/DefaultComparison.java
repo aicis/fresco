@@ -1,13 +1,11 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.util.SIntPair;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.lt.BitLessThanOpen;
 import dk.alexandra.fresco.lib.compare.lt.LessThanOrEquals;
 import dk.alexandra.fresco.lib.compare.lt.LessThanZero;
-import dk.alexandra.fresco.lib.compare.lt.PreCarryBits;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestConstRounds;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestLogRounds;
 
@@ -111,12 +109,6 @@ public class DefaultComparison implements Comparison {
       default:
         throw new UnsupportedOperationException("Not implemented yet");
     }
-  }
-
-  // TODO this doesn't belong here
-  @Override
-  public DRes<SInt> preCarry(DRes<List<DRes<SIntPair>>> pairs) {
-    return builder.seq(new PreCarryBits(pairs));
   }
 
 }

@@ -141,35 +141,5 @@ public class TestSpdz2kComparison extends
     Collections.reverse(bits);
     return bits;
   }
-
-
-  private static List<BigInteger> and(List<BigInteger> left, List<BigInteger> right) {
-    List<BigInteger> bits = new ArrayList<>(left.size());
-    for (int i = 0; i < left.size(); i++) {
-      bits.add(left.get(i).multiply(right.get(i)).mod(BigInteger.valueOf(2)));
-    }
-    return bits;
-  }
-
-  private static List<BigInteger> xor(List<BigInteger> left, List<BigInteger> right) {
-    List<BigInteger> bits = new ArrayList<>(left.size());
-    for (int i = 0; i < left.size(); i++) {
-      bits.add(left.get(i).add(right.get(i)).mod(BigInteger.valueOf(2)));
-    }
-    return bits;
-  }
-
-  private static DRes<SInt> bit(ProtocolBuilderNumeric root, int bit) {
-    return root.conversion().toBoolean(root.numeric().input(BigInteger.valueOf(bit), 1));
-  }
-
-  private static List<BigInteger> randomBits(int num, int seed) {
-    Random random = new Random(seed);
-    List<BigInteger> bits = new ArrayList<>(num);
-    for (int i = 0; i < num; i++) {
-      bits.add(random.nextBoolean() ? BigInteger.ONE : BigInteger.ZERO);
-    }
-    return bits;
-  }
-
+  
 }
