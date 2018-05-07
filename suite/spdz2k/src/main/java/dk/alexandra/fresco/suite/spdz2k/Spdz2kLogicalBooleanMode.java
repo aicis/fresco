@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.DefaultLogical;
 import dk.alexandra.fresco.framework.builder.numeric.Logical;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
@@ -30,6 +31,16 @@ public class Spdz2kLogicalBooleanMode<PlainT extends CompUInt<?, ?, PlainT>> ext
   @Override
   public DRes<SInt> and(DRes<SInt> bitA, DRes<SInt> bitB) {
     return builder.append(new Spdz2kAndProtocol<>(bitA, bitB));
+  }
+
+  @Override
+  public DRes<SInt> or(DRes<SInt> bitA, DRes<SInt> bitB) {
+    // a OR b = a XOR b XOR (a AND b)
+    return builder.par(par -> {
+      DRes<SInt> xored = par.logical().xor(bitA, bitB);
+      DRes<SInt> anded = par.logical().and(bitA, bitB);
+      return () -> new Pair<>(xored, anded);
+    }).seq((seq, pair) -> seq.logical().xor(pair.getFirst(), pair.getSecond()));
   }
 
   @Override
