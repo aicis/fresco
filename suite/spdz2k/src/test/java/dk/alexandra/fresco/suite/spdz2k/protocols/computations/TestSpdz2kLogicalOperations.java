@@ -61,8 +61,18 @@ public class TestSpdz2kLogicalOperations extends
   }
 
   @Test
+  public void testXorKnown() {
+    runTest(new TestXorKnownSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
+  }
+
+  @Test
   public void testSequentialXor() {
     runTest(new TestSequentialXorSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
+  }
+
+  @Test
+  public void testSequentialAndKnown() {
+    runTest(new TestAndKnownSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
 
   @Test
@@ -74,6 +84,12 @@ public class TestSpdz2kLogicalOperations extends
   public void testAndRandom() {
     runTest(new TestAndSpdz2kRandom<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
+
+  @Test
+  public void testNot() {
+    runTest(new TestNotSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
+  }
+
 
   @Override
   protected Spdz2kResourcePool<CompUInt128> createResourcePool(int playerId, int noOfParties,
@@ -94,6 +110,129 @@ public class TestSpdz2kLogicalOperations extends
   @Override
   protected ProtocolSuiteNumeric<Spdz2kResourcePool<CompUInt128>> createProtocolSuite() {
     return new Spdz2kProtocolSuite128(true);
+  }
+
+  public static class TestNotSpdz2k<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app =
+              root -> {
+                DRes<SInt> notOne = root.logical().not(
+                    root.conversion().toBoolean(root.numeric().input(BigInteger.ONE, 1)));
+                DRes<SInt> notZero = root.logical().not(
+                    root.conversion().toBoolean(root.numeric().input(BigInteger.ZERO, 2)));
+                List<DRes<SInt>> notted = Arrays.asList(notOne, notZero);
+                DRes<List<DRes<OInt>>> opened = root.logical().openAsBits(() -> notted);
+                return () -> opened.out().stream()
+                    .map(v -> root.getOIntFactory().toBigInteger(v.out()))
+                    .collect(Collectors.toList());
+              };
+          List<BigInteger> actual = runApplication(app);
+          List<BigInteger> expected = Arrays.asList(
+              BigInteger.ZERO,
+              BigInteger.ONE
+          );
+          Assert.assertEquals(expected, actual);
+        }
+      };
+    }
+  }
+
+  public static class TestXorKnownSpdz2k<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        private final List<BigInteger> left = Arrays.asList(
+            BigInteger.ONE,
+            BigInteger.ZERO,
+            BigInteger.ONE,
+            BigInteger.ZERO);
+        private final List<BigInteger> right = Arrays.asList(
+            BigInteger.ONE,
+            BigInteger.ONE,
+            BigInteger.ZERO,
+            BigInteger.ZERO);
+
+        @Override
+        public void test() {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app =
+              root -> {
+                DRes<List<DRes<SInt>>> leftClosed = root.conversion()
+                    .toBooleanBatch(root.collections().closeList(left, 1));
+                OIntFactory oIntFactory = root.getOIntFactory();
+                List<DRes<OInt>> rightOInts = oIntFactory.fromBigInteger(right);
+                DRes<List<DRes<SInt>>> xored = root.logical()
+                    .pairWiseXorKnown(() -> rightOInts, leftClosed);
+                DRes<List<DRes<OInt>>> opened = root.logical().openAsBits(xored);
+                return () -> opened.out().stream().map(v -> oIntFactory.toBigInteger(v.out()))
+                    .collect(Collectors.toList());
+              };
+          List<BigInteger> actual = runApplication(app);
+          List<BigInteger> expected = Arrays.asList(
+              BigInteger.ZERO,
+              BigInteger.ONE,
+              BigInteger.ONE,
+              BigInteger.ZERO
+          );
+          Assert.assertEquals(expected, actual);
+        }
+      };
+    }
+  }
+
+  public static class TestAndKnownSpdz2k<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        private final List<BigInteger> left = Arrays.asList(
+            BigInteger.ONE,
+            BigInteger.ZERO,
+            BigInteger.ONE,
+            BigInteger.ZERO);
+        private final List<BigInteger> right = Arrays.asList(
+            BigInteger.ONE,
+            BigInteger.ONE,
+            BigInteger.ZERO,
+            BigInteger.ZERO);
+
+        @Override
+        public void test() {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app =
+              root -> {
+                DRes<List<DRes<SInt>>> leftClosed = root.conversion()
+                    .toBooleanBatch(root.collections().closeList(left, 1));
+                OIntFactory oIntFactory = root.getOIntFactory();
+                List<DRes<OInt>> rightOInts = oIntFactory.fromBigInteger(right);
+                DRes<List<DRes<SInt>>> anded = root.logical()
+                    .pairWiseAndKnown(() -> rightOInts, leftClosed);
+                DRes<List<DRes<OInt>>> opened = root.logical().openAsBits(anded);
+                return () -> opened.out().stream().map(v -> oIntFactory.toBigInteger(v.out()))
+                    .collect(Collectors.toList());
+              };
+          List<BigInteger> actual = runApplication(app);
+          List<BigInteger> expected = Arrays.asList(
+              BigInteger.ONE,
+              BigInteger.ZERO,
+              BigInteger.ZERO,
+              BigInteger.ZERO
+          );
+          Assert.assertEquals(expected, actual);
+        }
+      };
+    }
   }
 
   public static class TestSequentialXorSpdz2k<ResourcePoolT extends ResourcePool>

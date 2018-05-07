@@ -2,6 +2,7 @@ package dk.alexandra.fresco.logging.arithmetic;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.Comparison;
+import dk.alexandra.fresco.framework.util.SIntPair;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.logging.PerformanceLogger;
@@ -86,6 +87,11 @@ public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger 
   public DRes<SInt> compareZero(DRes<SInt> x, int bitlength) {
     comp0Count++;
     return this.delegate.compareZero(x, bitlength);
+  }
+
+  @Override
+  public DRes<SInt> preCarry(DRes<List<DRes<SIntPair>>> pairs) {
+    return null;
   }
 
   @Override

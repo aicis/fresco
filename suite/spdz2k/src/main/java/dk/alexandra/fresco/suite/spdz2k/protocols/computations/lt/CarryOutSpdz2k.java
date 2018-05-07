@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.lib.compare.lt;
+package dk.alexandra.fresco.suite.spdz2k.protocols.computations.lt;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
@@ -15,21 +15,21 @@ import java.util.List;
  * Given values a and b represented as bits, computes if a + b overflows, i.e., if the addition
  * results in a carry.
  */
-public class CarryOut implements Computation<SInt, ProtocolBuilderNumeric> {
+public class CarryOutSpdz2k implements Computation<SInt, ProtocolBuilderNumeric> {
 
   private final DRes<List<DRes<OInt>>> openBitsDef;
   private final DRes<List<DRes<SInt>>> secretBitsDef;
   private final DRes<OInt> carryIn;
 
   /**
-   * Constructs new {@link CarryOut}.
+   * Constructs new {@link dk.alexandra.fresco.lib.compare.lt.CarryOut}.
    *
    * @param clearBits clear bits
    * @param secretBits secret bits
    * @param carryIn an additional carry-in bit which we add to the least-significant bits of the
    * inputs
    */
-  public CarryOut(DRes<List<DRes<OInt>>> clearBits, DRes<List<DRes<SInt>>> secretBits,
+  public CarryOutSpdz2k(DRes<List<DRes<OInt>>> clearBits, DRes<List<DRes<SInt>>> secretBits,
       DRes<OInt> carryIn) {
     this.secretBitsDef = secretBits;
     this.openBitsDef = clearBits;
@@ -61,13 +61,22 @@ public class CarryOut implements Computation<SInt, ProtocolBuilderNumeric> {
       // need to account for carry-in bit
       int lastIdx = pairs.size() - 1;
       SIntPair lastPair = pairs.get(lastIdx).out();
-      DRes<SInt> lastCarryPropagator = seq.logical().xor(
+      // TODO should be xor?
+      DRes<SInt> lastCarryPropagator = seq.numeric().add(
           lastPair.getSecond(),
           seq.logical().andKnown(carryIn, lastPair.getFirst()));
       pairs.set(lastIdx, () -> new SIntPair(lastPair.getFirst(), lastCarryPropagator));
       Collections.reverse(pairs);
+//      List<DRes<SIntPair>> converted = pairs.stream().map(
+//          pair -> {
+//            return new SIntPair(
+//                seq.conversion().toBoolean(pair.out().getFirst()),
+//                seq.conversion().toBoolean(pair.out().getSecond()));
+//          }
+//      ).collect(Collectors.toList());
       return seq.comparison().preCarry(() -> pairs);
     });
   }
 
 }
+

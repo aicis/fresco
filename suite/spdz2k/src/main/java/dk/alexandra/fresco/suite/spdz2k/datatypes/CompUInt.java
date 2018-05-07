@@ -59,6 +59,8 @@ public interface CompUInt<
    */
   CompT toArithmeticRep();
 
+  CompT copy();
+
   /**
    * Get length of least significant bit segment, i.e., k.
    */

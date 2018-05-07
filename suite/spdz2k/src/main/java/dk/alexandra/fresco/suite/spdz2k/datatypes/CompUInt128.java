@@ -205,7 +205,12 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
 
   @Override
   public CompUInt128 toArithmeticRep() {
-    throw new UnsupportedOperationException("Already arithmetic");
+    throw new IllegalStateException("Already arithmetic");
+  }
+
+  @Override
+  public CompUInt128 copy() {
+    return new CompUInt128(high, mid, low);
   }
 
   @Override

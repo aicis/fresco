@@ -13,7 +13,7 @@ public class PreCarryBits implements Computation<SInt, ProtocolBuilderNumeric> {
 
   private final DRes<List<DRes<SIntPair>>> pairsDef;
 
-  PreCarryBits(DRes<List<DRes<SIntPair>>> pairs) {
+  public PreCarryBits(DRes<List<DRes<SIntPair>>> pairs) {
     this.pairsDef = pairs;
   }
 

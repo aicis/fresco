@@ -1,11 +1,13 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.util.SIntPair;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.lt.BitLessThanOpen;
 import dk.alexandra.fresco.lib.compare.lt.LessThanOrEquals;
 import dk.alexandra.fresco.lib.compare.lt.LessThanZero;
+import dk.alexandra.fresco.lib.compare.lt.PreCarryBits;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestConstRounds;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestLogRounds;
 
@@ -46,7 +48,7 @@ public class DefaultComparison implements Comparison {
     if (algorithm == Algorithm.LOG_ROUNDS) {
       if (factoryNumeric.getBasicNumericContext().getStatisticalSecurityParam() + factoryNumeric
           .getBasicNumericContext().getMaxBitLength() > factoryNumeric.getBasicNumericContext()
-              .getModulus().bitLength()) {
+          .getModulus().bitLength()) {
         throw new IllegalArgumentException(
             "The max bitlength plus the statistical security parameter overflows the size of the modulus.");
       }
@@ -102,12 +104,19 @@ public class DefaultComparison implements Comparison {
           "The max bitlength plus the statistical security parameter overflows the size of the modulus.");
     }
     switch (algorithm) {
-    case CONST_ROUNDS:
-      return builder.seq(new ZeroTestConstRounds(x, bitlength));
-    case LOG_ROUNDS:
-      return builder.seq(new ZeroTestLogRounds(x, bitlength));
-    default:
-      throw new UnsupportedOperationException("Not implemented yet");
+      case CONST_ROUNDS:
+        return builder.seq(new ZeroTestConstRounds(x, bitlength));
+      case LOG_ROUNDS:
+        return builder.seq(new ZeroTestLogRounds(x, bitlength));
+      default:
+        throw new UnsupportedOperationException("Not implemented yet");
     }
   }
+
+  // TODO this doesn't belong here
+  @Override
+  public DRes<SInt> preCarry(DRes<List<DRes<SIntPair>>> pairs) {
+    return builder.seq(new PreCarryBits(pairs));
+  }
+
 }

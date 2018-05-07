@@ -37,7 +37,15 @@ public class DefaultLogical implements Logical {
 
   @Override
   public DRes<SInt> xor(DRes<SInt> bitA, DRes<SInt> bitB) {
-    throw new UnsupportedOperationException();
+    // knownBit + secretBit - 2 * knownBit * secretBit
+    return builder.seq(seq -> {
+      // mult and add could be in parallel
+      OInt two = seq.getOIntFactory().two();
+      DRes<SInt> sum = seq.numeric().add(bitA, bitB);
+      DRes<SInt> prod = seq.numeric()
+          .multByOpen(two, seq.numeric().mult(bitA, bitB));
+      return seq.numeric().sub(sum, prod);
+    });
   }
 
   @Override

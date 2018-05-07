@@ -11,7 +11,9 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntBoolean;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAndProtocol;
+import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kXorKnownProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kXorProtocol;
+import java.math.BigInteger;
 
 /**
  * Logical operators for Spdz2k on boolean shares. <p>NOTE: requires that inputs have previously
@@ -49,10 +51,35 @@ public class Spdz2kLogicalBooleanMode<PlainT extends CompUInt<?, ?, PlainT>> ext
   }
 
   @Override
+  public DRes<SInt> andKnown(DRes<OInt> knownBit, DRes<SInt> secretBit) {
+    // TODO
+    return () -> {
+      BigInteger known = factory.toBigInteger(knownBit.out());
+      if (known.equals(BigInteger.ZERO)) {
+        return new Spdz2kSIntBoolean<>(factory.zero().toBitRep(), factory.zero());
+      } else {
+        Spdz2kSIntBoolean<PlainT> out = factory.toSpdz2kSIntBoolean(secretBit);
+        return new Spdz2kSIntBoolean<>(out.getShare(), out.getMacShare());
+      }
+    };
+  }
+
+  @Override
+  public DRes<SInt> xorKnown(DRes<OInt> knownBit, DRes<SInt> secretBit) {
+    return builder.append(new Spdz2kXorKnownProtocol<>(knownBit, secretBit));
+  }
+
+  @Override
+  public DRes<SInt> not(DRes<SInt> secretBit) {
+    return xorKnown(builder.getOIntFactory().one(), secretBit);
+  }
+
+  @Override
   public DRes<OInt> openAsBit(DRes<SInt> secretBit) {
     // quite heavy machinery...
     return builder.seq(seq -> {
       Spdz2kSIntBoolean<PlainT> bit = factory.toSpdz2kSIntBoolean(secretBit);
+      System.out.println(bit);
       return seq.numeric().openAsOInt(bit.asArithmetic());
     }).seq((seq, opened) -> {
       PlainT openBit = factory.fromOInt(opened);

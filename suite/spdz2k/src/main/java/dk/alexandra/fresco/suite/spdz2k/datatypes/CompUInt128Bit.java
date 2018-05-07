@@ -42,6 +42,11 @@ public class CompUInt128Bit extends CompUInt128 {
   }
 
   @Override
+  public CompUInt128 negate() {
+    return new CompUInt128Bit(~high, ~mid & 0x80000000, 0).add(ONE);
+  }
+
+  @Override
   public CompUInt128 toBitRep() {
     throw new IllegalStateException("Already in bit form");
   }
@@ -59,6 +64,11 @@ public class CompUInt128Bit extends CompUInt128 {
   @Override
   public byte[] serializeLeastSignificant() {
     return new byte[]{(byte) (mid >>> 31)};
+  }
+
+  @Override
+  public CompUInt128 copy() {
+    return new CompUInt128Bit(high, mid, low);
   }
 
   public boolean getValueBit() {

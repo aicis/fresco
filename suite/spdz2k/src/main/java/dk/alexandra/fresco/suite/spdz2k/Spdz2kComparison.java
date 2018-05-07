@@ -4,10 +4,12 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.DefaultComparison;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.util.SIntPair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.protocols.computations.lt.MostSignBitSpdz2k;
+import java.util.List;
 
 /**
  * Spdz2k optimized protocols for comparison.
@@ -32,6 +34,11 @@ public class Spdz2kComparison<PlainT extends CompUInt<?, ?, PlainT>> extends Def
       DRes<SInt> diff = builder.numeric().sub(x1, x2);
       return builder.seq(new MostSignBitSpdz2k<>(diff, factory));
     }
+  }
+
+  @Override
+  public DRes<SInt> preCarry(DRes<List<DRes<SIntPair>>> pairs) {
+    return super.preCarry(pairs);
   }
 
 }

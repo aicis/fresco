@@ -2,6 +2,7 @@ package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
+import dk.alexandra.fresco.framework.util.SIntPair;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.List;
@@ -140,4 +141,8 @@ public interface Comparison extends ComputationDirectory {
   default DRes<SInt> compareZero(DRes<SInt> x, int bitlength) {
     return compareZero(x, bitlength, Algorithm.LOG_ROUNDS);
   }
+
+  // TODO this doesn't belong here
+  DRes<SInt> preCarry(DRes<List<DRes<SIntPair>>> pairs);
+
 }
