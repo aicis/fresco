@@ -42,7 +42,7 @@ public class DefaultCollections implements Collections {
 
   @Override
   public DRes<List<DRes<SInt>>> closeList(List<BigInteger> openList, int inputParty) {
-    if (builder.getBasicNumericContext().getMyId() == 1) {
+    if (builder.getBasicNumericContext().getMyId() == inputParty) {
       return builder.par(new CloseList(openList, inputParty));
     } else {
       return builder.par(new CloseList(openList.size(), inputParty));
