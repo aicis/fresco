@@ -172,7 +172,8 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
           Matrix<DRes<SInt>> updateMatrix = pair.getSecond();
           List<DRes<SInt>> basis = pair.getFirst().getSecond();
           DRes<SInt> pivot = pair.getFirst().getFirst();
-          return () -> new LpState(state, basis, updateMatrix, pivot);
+          return () -> new LpState(basis, updateMatrix, pivot, state.iteration + 1,
+              state.tableau, state.enumeratedVariables, false, pivot);
         });
   }
 
@@ -307,44 +308,30 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
     private final List<DRes<SInt>> basis;
     private final DRes<SInt> prevPivot;
 
+    public LpState(List<DRes<SInt>> basis, Matrix<DRes<SInt>> updateMatrix,
+        DRes<SInt> pivot, int iteration, LPTableau tableau, List<BigInteger> enumeratedVariables,
+        boolean terminated, DRes<SInt> prevPivot) {
+      // Phase two protocol
+      this.iteration = iteration;
+      this.terminated = terminated;
+      this.tableau = tableau;
+      this.enumeratedVariables = enumeratedVariables;
+      this.pivot = pivot;
+      this.prevPivot = prevPivot;
+      this.updateMatrix = updateMatrix;
+      this.basis = basis;
+    }
+
     public LpState(LPTableau tableau, Matrix<DRes<SInt>> updateMatrix,
         DRes<SInt> pivot, List<BigInteger> enumeratedVariables,
         List<DRes<SInt>> basis, DRes<SInt> prevPivot) {
-      this.iteration = 0;
-      this.terminated = false;
-      this.tableau = tableau;
-      this.updateMatrix = updateMatrix;
-      this.pivot = pivot;
-      this.enumeratedVariables = enumeratedVariables;
-      this.basis = basis;
-      this.prevPivot = prevPivot;
-    }
-
-    public LpState(LpState state, List<DRes<SInt>> basis, Matrix<DRes<SInt>> updateMatrix,
-        DRes<SInt> pivot) {
-      // Phase two protocol
-      this.iteration = state.iteration + 1;
-      this.terminated = false;
-      this.tableau = state.tableau;
-      this.enumeratedVariables = state.enumeratedVariables;
-      // // Copy the resulting new update matrix to overwrite the current
-      this.pivot = pivot;
-      this.prevPivot = pivot;
-      this.updateMatrix = updateMatrix;
-      this.basis = basis;
+      this(basis, updateMatrix, pivot, 0, tableau, enumeratedVariables, false, prevPivot);
     }
 
     public LpState(LPTableau tableau, Matrix<DRes<SInt>> updateMatrix,
         List<DRes<SInt>> basis, DRes<SInt> pivot, int iteration) {
       // Phase one completed
-      this.iteration = iteration;
-      this.tableau = tableau;
-      this.pivot = pivot;
-      this.updateMatrix = updateMatrix;
-      this.basis = basis;
-      this.enumeratedVariables = null;
-      this.prevPivot = null;
-      this.terminated = true;
+      this(basis, updateMatrix, pivot, iteration, tableau, null, true, pivot);
     }
 
     public LpState() {
