@@ -3,6 +3,7 @@ package dk.alexandra.fresco.lib.lp;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelect;
@@ -92,7 +93,7 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
         enumeratedVariables.add(BigInteger.valueOf(i));
       }
 
-      LpState initialState = new LpState(BigInteger.ZERO, tableau, updateMatrix, null, pivot,
+      LpState initialState = new LpState(tableau, updateMatrix, null, pivot,
           enumeratedVariables, initialBasis, pivot);
       return () -> initialState;
     }).whileLoop(state -> !state.terminated(), (seq, state) -> {
@@ -103,7 +104,7 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
         logger.info("LP Iterations=" + state.iteration + " solving " + identityHashCode);
         if (state.iteration > maxNumberOfIterations) {
           logger.info("Aborting " + identityHashCode + " no solution found");
-          return LpState.broken();
+          return Pair.lazy(null, () -> BigInteger.ONE);
         }
         if (pivotRule == PivotRule.BLAND) {
           return blandPhaseOneProtocol(inner, state);
@@ -111,10 +112,16 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
           return phaseOneProtocol(inner, state, zero);
         }
       }).seq((inner, phaseOneOutput) -> {
-        if (!phaseOneOutput.terminated()) {
-          return phaseTwoProtocol(inner, phaseOneOutput);
+        BigInteger isFinished = phaseOneOutput.getSecond().out();
+        if (isFinished.equals(BigInteger.ONE)) {
+          if (phaseOneOutput.getFirst() != null) {
+            return new LpState(state, phaseOneOutput.getFirst());
+          } else {
+            return new LpState();
+          }
+        } else {
+          return phaseTwoProtocol(inner, state, phaseOneOutput.getFirst());
         }
-        return phaseOneOutput;
       });
     }).seq((seq, whileState) -> () -> new LPOutput(whileState.tableau, whileState.updateMatrix,
         whileState.basis, whileState.pivot));
@@ -133,31 +140,32 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
    * solution.
    * </p>
    */
-  private DRes<LpState> phaseTwoProtocol(ProtocolBuilderNumeric builder, LpState state) {
+  private DRes<LpState> phaseTwoProtocol(ProtocolBuilderNumeric builder, LpState state,
+      List<DRes<SInt>> entering) {
     return builder.seq((seq) -> seq.seq(
-        new ExitingVariable(state.tableau, state.updateMatrix, state.enteringIndex, state.basis)))
+        new ExitingVariable(state.tableau, state.updateMatrix, entering, state.basis)))
         .pairInPar((seq, exitingVariable) -> {
-          state.pivot = exitingVariable.pivot;
           ArrayList<DRes<SInt>> exitingIndex = exitingVariable.exitingIndex;
           // Update Basis
           DRes<SInt> ent =
               seq.advancedNumeric().innerProductWithPublicPart(state.enumeratedVariables,
-                  state.enteringIndex);
+                  entering);
           return seq.par((par) -> {
             ArrayList<DRes<SInt>> nextBasis = new ArrayList<>(noConstraints);
             for (int i = 0; i < noConstraints; i++) {
               nextBasis.add(
                   par.seq(new ConditionalSelect(exitingIndex.get(i), ent, state.basis.get(i))));
             }
-            return () -> nextBasis;
+            return Pair.lazy(exitingVariable.pivot, nextBasis);
           });
         }, (seq, exitingVariable) -> seq
             .seq(new UpdateMatrix(state.updateMatrix, exitingVariable.exitingIndex,
                 exitingVariable.updateColumn, exitingVariable.pivot, state.prevPivot)))
         .seq((seq, pair) -> {
           Matrix<DRes<SInt>> updateMatrix = pair.getSecond();
-          List<DRes<SInt>> basis = pair.getFirst();
-          return new LpState(state, basis, updateMatrix, state.pivot);
+          List<DRes<SInt>> basis = pair.getFirst().getSecond();
+          DRes<SInt> pivot = pair.getFirst().getFirst();
+          return new LpState(state, basis, updateMatrix, pivot);
         });
   }
 
@@ -171,7 +179,8 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
    *
    * @return a protocol producer for the first half of a simplex iteration
    */
-  private DRes<LpState> phaseOneProtocol(ProtocolBuilderNumeric builder, LpState state,
+  private DRes<Pair<List<DRes<SInt>>, DRes<BigInteger>>> phaseOneProtocol(
+      ProtocolBuilderNumeric builder, LpState state,
       DRes<SInt> zero) {
     return builder
         .seq(
@@ -184,7 +193,7 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
           // Check if the entry in F is non-negative
           DRes<SInt> positive = seq.comparison().compareLEQLong(zero, () -> minimum);
           DRes<BigInteger> terminationOut = seq.numeric().open(positive);
-          return new LpState(state, terminationOut, entering);
+          return () -> new Pair<>(entering, terminationOut);
         });
   }
 
@@ -198,7 +207,8 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
    *
    * @return a protocol producer for the first half of a simplex iteration
    */
-  private DRes<LpState> blandPhaseOneProtocol(ProtocolBuilderNumeric builder, LpState state) {
+  private DRes<Pair<List<DRes<SInt>>, DRes<BigInteger>>> blandPhaseOneProtocol(
+      ProtocolBuilderNumeric builder, LpState state) {
     return builder
         .seq(
             // Compute potential entering variable index and corresponding value of
@@ -208,7 +218,7 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
           List<DRes<SInt>> entering = enteringAndMinimum.getFirst();
           SInt termination = enteringAndMinimum.getSecond();
           DRes<BigInteger> terminationOut = seq.numeric().open(() -> termination);
-          return new LpState(state, terminationOut, entering);
+          return () -> new Pair<>(entering, terminationOut);
         });
   }
 
@@ -284,20 +294,20 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
   protected static class LpState implements DRes<LpState> {
 
     private final int iteration;
-    private final DRes<BigInteger> terminationOut;
+    private final boolean terminated;
     private final LPTableau tableau;
     private final Matrix<DRes<SInt>> updateMatrix;
     private final List<DRes<SInt>> enteringIndex;
-    private  DRes<SInt> pivot;
+    private final DRes<SInt> pivot;
     private final List<BigInteger> enumeratedVariables;
     private final List<DRes<SInt>> basis;
     private final DRes<SInt> prevPivot;
 
-    public LpState(BigInteger terminationOut, LPTableau tableau, Matrix<DRes<SInt>> updateMatrix,
+    public LpState(LPTableau tableau, Matrix<DRes<SInt>> updateMatrix,
         List<DRes<SInt>> enteringIndex, DRes<SInt> pivot, List<BigInteger> enumeratedVariables,
         List<DRes<SInt>> basis, DRes<SInt> prevPivot) {
       this.iteration = 0;
-      this.terminationOut = () -> terminationOut;
+      this.terminated = false;
       this.tableau = tableau;
       this.updateMatrix = updateMatrix;
       this.enteringIndex = enteringIndex;
@@ -310,8 +320,8 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
     public LpState(LpState state, List<DRes<SInt>> basis, Matrix<DRes<SInt>> updateMatrix,
         DRes<SInt> pivot) {
       // Phase two protocol
-      this.iteration = state.iteration;
-      this.terminationOut = state.terminationOut;
+      this.iteration = state.iteration + 1;
+      this.terminated = false;
       this.tableau = state.tableau;
       this.enteringIndex = state.enteringIndex;
       this.enumeratedVariables = state.enumeratedVariables;
@@ -322,21 +332,34 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
       this.basis = basis;
     }
 
-    public LpState(LpState state, DRes<BigInteger> terminationOut, List<DRes<SInt>> enteringIndex) {
-      // Phase one protocol
-      this.iteration = state.iteration + 1;
+    public LpState(LpState state, List<DRes<SInt>> enteringIndex) {
+      // Phase one completed
+      this.iteration = state.iteration;
       this.tableau = state.tableau;
       this.pivot = state.pivot;
       this.enumeratedVariables = state.enumeratedVariables;
       this.prevPivot = state.prevPivot;
       this.updateMatrix = state.updateMatrix;
       this.basis = state.basis;
-      this.terminationOut = terminationOut;
+      this.terminated = true;
       this.enteringIndex = enteringIndex;
     }
 
+    public LpState() {
+      // To many iterations
+      this.iteration = -1;
+      this.tableau = null;
+      this.pivot = null;
+      this.enumeratedVariables = null;
+      this.prevPivot = null;
+      this.updateMatrix = null;
+      this.basis = null;
+      this.terminated = true;
+      this.enteringIndex = null;
+    }
+
     public static DRes<LpState> broken() {
-      return new LpState(BigInteger.ONE, null, null, null, null, null, null, null);
+      return new LpState(null, null, null, null, null, null, null);
     }
 
     @Override
@@ -345,7 +368,7 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
     }
 
     public boolean terminated() {
-      return terminationOut.out().equals(BigInteger.ONE);
+      return terminated;
     }
   }
 }
