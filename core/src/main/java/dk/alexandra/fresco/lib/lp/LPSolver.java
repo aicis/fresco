@@ -102,7 +102,7 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
       }
       return seq.seq((inner) -> {
         logger.info("LP Iterations=" + state.iteration + " solving " + identityHashCode);
-        if (state.iteration > maxNumberOfIterations) {
+        if (state.iteration >= maxNumberOfIterations) {
           logger.info("Aborting " + identityHashCode + " no solution found");
           return Pair.lazy(null, () -> BigInteger.ONE);
         }
@@ -115,9 +115,11 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
         BigInteger isFinished = phaseOneOutput.getSecond().out();
         if (isFinished.equals(BigInteger.ONE)) {
           if (phaseOneOutput.getFirst() != null) {
-            return new LpState(state, phaseOneOutput.getFirst());
+            LpState lpState = new LpState(state.tableau, state.updateMatrix, state.basis,
+                state.pivot, state.iteration);
+            return () -> lpState;
           } else {
-            return new LpState();
+            return LpState::new;
           }
         } else {
           return phaseTwoProtocol(inner, state, phaseOneOutput.getFirst());
@@ -165,7 +167,7 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
           Matrix<DRes<SInt>> updateMatrix = pair.getSecond();
           List<DRes<SInt>> basis = pair.getFirst().getSecond();
           DRes<SInt> pivot = pair.getFirst().getFirst();
-          return new LpState(state, basis, updateMatrix, pivot);
+          return () -> new LpState(state, basis, updateMatrix, pivot);
         });
   }
 
@@ -291,7 +293,7 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
     }
   }
 
-  protected static class LpState implements DRes<LpState> {
+  protected static class LpState {
 
     private final int iteration;
     private final boolean terminated;
@@ -332,39 +334,23 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
       this.basis = basis;
     }
 
-    public LpState(LpState state, List<DRes<SInt>> enteringIndex) {
+    public LpState(LPTableau tableau, Matrix<DRes<SInt>> updateMatrix,
+        List<DRes<SInt>> basis, DRes<SInt> pivot, int iteration) {
       // Phase one completed
-      this.iteration = state.iteration;
-      this.tableau = state.tableau;
-      this.pivot = state.pivot;
-      this.enumeratedVariables = state.enumeratedVariables;
-      this.prevPivot = state.prevPivot;
-      this.updateMatrix = state.updateMatrix;
-      this.basis = state.basis;
-      this.terminated = true;
-      this.enteringIndex = enteringIndex;
-    }
-
-    public LpState() {
-      // To many iterations
-      this.iteration = -1;
-      this.tableau = null;
-      this.pivot = null;
+      this.iteration = iteration;
+      this.tableau = tableau;
+      this.pivot = pivot;
+      this.updateMatrix = updateMatrix;
+      this.basis = basis;
       this.enumeratedVariables = null;
       this.prevPivot = null;
-      this.updateMatrix = null;
-      this.basis = null;
       this.terminated = true;
       this.enteringIndex = null;
     }
 
-    public static DRes<LpState> broken() {
-      return new LpState(null, null, null, null, null, null, null);
-    }
-
-    @Override
-    public LpState out() {
-      return this;
+    public LpState() {
+      // To many iterations
+      this(null, null, null, null, -1);
     }
 
     public boolean terminated() {
