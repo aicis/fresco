@@ -93,7 +93,7 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
         enumeratedVariables.add(BigInteger.valueOf(i));
       }
 
-      LpState initialState = new LpState(tableau, updateMatrix, null, pivot,
+      LpState initialState = new LpState(tableau, updateMatrix, pivot,
           enumeratedVariables, initialBasis, pivot);
       return () -> initialState;
     }).whileLoop(state -> !state.terminated(), (seq, state) -> {
@@ -122,6 +122,11 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
             return LpState::new;
           }
         } else {
+          if (isDebug()) {
+            inner.debug()
+                .openAndPrint("Entering Variable [" + state.iteration + "]: ",
+                    phaseOneOutput.getFirst(), System.out);
+          }
           return phaseTwoProtocol(inner, state, phaseOneOutput.getFirst());
         }
       });
@@ -270,8 +275,6 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
   private void printState(ProtocolBuilderNumeric builder, LpState state) {
     PrintStream stream = System.out;
     int iterations = state.iteration;
-    builder.debug().openAndPrint("Entering Variable [" + iterations + "]: ", state.enteringIndex,
-        stream);
     builder.debug().openAndPrint("Basis [" + iterations + "]: ", state.basis, stream);
     builder.debug().openAndPrint("Update Matrix [" + iterations + "]: ", updateMatrix, stream);
     builder.debug().openAndPrint("Pivot [" + iterations + "]: ", state.prevPivot, stream);
@@ -299,20 +302,18 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
     private final boolean terminated;
     private final LPTableau tableau;
     private final Matrix<DRes<SInt>> updateMatrix;
-    private final List<DRes<SInt>> enteringIndex;
     private final DRes<SInt> pivot;
     private final List<BigInteger> enumeratedVariables;
     private final List<DRes<SInt>> basis;
     private final DRes<SInt> prevPivot;
 
     public LpState(LPTableau tableau, Matrix<DRes<SInt>> updateMatrix,
-        List<DRes<SInt>> enteringIndex, DRes<SInt> pivot, List<BigInteger> enumeratedVariables,
+        DRes<SInt> pivot, List<BigInteger> enumeratedVariables,
         List<DRes<SInt>> basis, DRes<SInt> prevPivot) {
       this.iteration = 0;
       this.terminated = false;
       this.tableau = tableau;
       this.updateMatrix = updateMatrix;
-      this.enteringIndex = enteringIndex;
       this.pivot = pivot;
       this.enumeratedVariables = enumeratedVariables;
       this.basis = basis;
@@ -325,7 +326,6 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
       this.iteration = state.iteration + 1;
       this.terminated = false;
       this.tableau = state.tableau;
-      this.enteringIndex = state.enteringIndex;
       this.enumeratedVariables = state.enumeratedVariables;
       // // Copy the resulting new update matrix to overwrite the current
       this.pivot = pivot;
@@ -345,7 +345,6 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
       this.enumeratedVariables = null;
       this.prevPivot = null;
       this.terminated = true;
-      this.enteringIndex = null;
     }
 
     public LpState() {

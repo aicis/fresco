@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.lib.lp;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
@@ -20,6 +19,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
+import org.hamcrest.Matchers;
+import org.junit.Assert;
 
 
 public class LpBuildingBlockTests {
@@ -403,8 +404,8 @@ public class LpBuildingBlockTests {
             assertDebugInfoContains(debugOutput, "B", "1, 2, 3, ");
             assertDebugInfoContains(debugOutput, "F", "-1, -1, -1, 0, 0, 0, ");
             assertDebugInfoContains(debugOutput, "z", "0");
-            assertDebugInfoContains(debugOutput, "Basis [1]", "4, 5, 6,");
-            assertDebugInfoContains(debugOutput, "Basis [4]", "1, 2, 3,");
+            assertDebugInfoContains(debugOutput, "Basis [0]", "4, 5, 6,");
+            assertDebugInfoContains(debugOutput, "Basis [3]", "1, 2, 3,");
             assertDebugInfoContains(debugOutput, "Update Matrix [1]", "1, 0, 0, 0, \n"
                 + "0, 1, 0, 0, \n"
                 + "0, 0, 1, 0, \n"
@@ -505,7 +506,7 @@ public class LpBuildingBlockTests {
    * @param value the value
    */
   private static void assertDebugInfoContains(String output, String key, String value) {
-    assertTrue(output.contains(key + ": \n" + value));
+    Assert.assertThat(output, Matchers.containsString(key + ": \n" + value));
   }
 
 
