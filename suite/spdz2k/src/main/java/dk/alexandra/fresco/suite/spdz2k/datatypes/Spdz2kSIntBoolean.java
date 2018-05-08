@@ -27,7 +27,7 @@ public class Spdz2kSIntBoolean<PlainT extends CompUInt<?, ?, PlainT>> extends
   /**
    * Compute sum of this and other.
    */
-  public Spdz2kSIntBoolean<PlainT> add(Spdz2kSIntBoolean<PlainT> other) {
+  public Spdz2kSIntBoolean<PlainT> xor(Spdz2kSIntBoolean<PlainT> other) {
     return new Spdz2kSIntBoolean<>(
         share.add(other.share),
         macShare.add(other.macShare)
@@ -35,22 +35,12 @@ public class Spdz2kSIntBoolean<PlainT extends CompUInt<?, ?, PlainT>> extends
   }
 
   /**
-   * Compute difference of this and other.
-   */
-  public Spdz2kSIntBoolean<PlainT> subtract(Spdz2kSIntBoolean<PlainT> other) {
-    return new Spdz2kSIntBoolean<>(
-        share.subtract(other.share),
-        macShare.subtract(other.macShare)
-    );
-  }
-
-  /**
    * Compute product of this and constant (open) value.
    */
-  public Spdz2kSIntBoolean<PlainT> multiply(PlainT other) {
+  public Spdz2kSIntBoolean<PlainT> and(int otherBit) {
     return new Spdz2kSIntBoolean<>(
-        share.multiply(other),
-        macShare.multiply(other.toArithmeticRep())
+        share.multiply(otherBit),
+        macShare.multiply(otherBit)
     );
   }
 
@@ -65,11 +55,11 @@ public class Spdz2kSIntBoolean<PlainT extends CompUInt<?, ?, PlainT>> extends
    * @param isPartyOne used to ensure that only one party adds value to share
    * @return result of sum
    */
-  public Spdz2kSIntBoolean<PlainT> addConstant(
+  public Spdz2kSIntBoolean<PlainT> xorOpen(
       PlainT other, PlainT macKeyShare, PlainT zero, boolean isPartyOne) {
     Spdz2kSIntBoolean<PlainT> wrapped = new Spdz2kSIntBoolean<>(other, macKeyShare, zero,
         isPartyOne);
-    return add(wrapped);
+    return xor(wrapped);
   }
 
   public Spdz2kSIntArithmetic<PlainT> asArithmetic() {

@@ -2,7 +2,6 @@ package dk.alexandra.fresco.suite.spdz2k.protocols.natives;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
@@ -43,49 +42,42 @@ public class Spdz2kAndProtocol<PlainT extends CompUInt<?, ?, PlainT>> extends
     CompUIntFactory<PlainT> factory = resourcePool.getFactory();
     if (round == 0) {
       triple = resourcePool.getDataSupplier().getNextBitTripleShares();
-      epsilon = factory.toSpdz2kSIntBoolean(left).subtract(triple.getLeft());
-      delta = factory.toSpdz2kSIntBoolean(right).subtract(triple.getRight());
-      network.sendToAll(epsilon.serializeShareLow());
-      network.sendToAll(delta.serializeShareLow());
+      epsilon = factory.toSpdz2kSIntBoolean(left).xor(triple.getLeft());
+      delta = factory.toSpdz2kSIntBoolean(right).xor(triple.getRight());
+      int packed = epsilon.serializeShareLow()[0] ^ (delta.serializeShareLow()[0] << 1);
+      final byte[] bytes = new byte[]{(byte) packed};
+      network.sendToAll(bytes);
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       Pair<PlainT, PlainT> epsilonAndDelta = receiveAndReconstruct(network,
           resourcePool.getNoOfParties(),
-          factory, null);
-      // compute [prod] = [c] XOR epsilon AND [b] XOR delta AND [a] XOR epsilon AND delta
+          factory);
       PlainT e = epsilonAndDelta.getFirst();
       PlainT d = epsilonAndDelta.getSecond();
-      PlainT ed = e.multiply(d);
-      Spdz2kSIntBoolean<PlainT> tripleLeft = triple.getLeft();
-      Spdz2kSIntBoolean<PlainT> tripleRight = triple.getRight();
-      Spdz2kSIntBoolean<PlainT> tripleProduct = triple.getProduct();
-      this.product = tripleProduct
-          .add(e.testBit(63) ? tripleRight : new Spdz2kSIntBoolean<>(factory.zero().toBitRep(), factory.zero()))
-          .add(d.testBit(63) ? tripleLeft : new Spdz2kSIntBoolean<>(factory.zero().toBitRep(), factory.zero()))
-//          .add(tripleLeft)
-//      this.product = tripleProduct
-//          .add(tripleRight.multiply(e))
-//          .add(tripleLeft.multiply(d))
-          .addConstant(ed,
-              macKeyShare,
-              factory.zero().toBitRep(),
-              resourcePool.getMyId() == 1);
-//      System.out.println(product);
-//      System.out.println();
-      // seems that shares need to be reconstructed arithmetically?
       resourcePool.getOpenedValueStore().pushOpenedValues(
           Arrays.asList(
-//              epsilon.asArithmetic(),
               epsilon.asArithmetic(),
               delta.asArithmetic()
           ),
           Arrays.asList(
               e.toArithmeticRep(),
               d.toArithmeticRep()
-//              factory.one().shiftLeft(64)
-//              e.toArithmeticRep().multiply(factory.two())
           )
       );
+      int eBit = e.bitValue();
+      int dBit = d.bitValue();
+      PlainT ed = e.multiply(d);
+      // compute [prod] = [c] XOR epsilon AND [b] XOR delta AND [a] XOR epsilon AND delta
+      Spdz2kSIntBoolean<PlainT> tripleLeft = triple.getLeft();
+      Spdz2kSIntBoolean<PlainT> tripleRight = triple.getRight();
+      Spdz2kSIntBoolean<PlainT> tripleProduct = triple.getProduct();
+      this.product = tripleProduct
+          .xor(tripleRight.and(eBit))
+          .xor(tripleLeft.and(dBit))
+          .xorOpen(ed,
+              macKeyShare,
+              factory.zero().toBitRep(),
+              resourcePool.getMyId() == 1);
       return EvaluationStatus.IS_DONE;
     }
   }
@@ -93,56 +85,18 @@ public class Spdz2kAndProtocol<PlainT extends CompUInt<?, ?, PlainT>> extends
   /**
    * Retrieves shares for epsilon and delta and reconstructs each.
    */
-  private int[] receiveAndReconstruct(Network network,
-      int noOfParties) {
-    int e = 0;
-    int d = 0;
-    for (int i = 1; i <= noOfParties; i++) {
-      e = e ^ network.receive(i)[0];
-      d = d ^ network.receive(i)[0];
-    }
-    return new int[]{e, d};
-  }
-
   private Pair<PlainT, PlainT> receiveAndReconstruct(Network network,
       int noOfParties, CompUIntFactory<PlainT> factory) {
-    int e = 0;
-    int d = 0;
-    for (int i = 1; i <= noOfParties; i++) {
-      e = e ^ network.receive(i)[0];
-      d = d ^ network.receive(i)[0];
+    int received = network.receive(1)[0];
+    PlainT e = factory.fromBit(received & 1); // first bit
+    PlainT d = factory.fromBit((received & 2) >>> 1); // second bit
+    for (int i = 2; i <= noOfParties; i++) {
+      received = network.receive(i)[0];
+      e = e.add(factory.fromBit(received & 1));
+      d = d.add(factory.fromBit((received & 2) >>> 1));
     }
-    return new Pair<>(factory.fromBit(e), factory.fromBit(d));
+    return new Pair<>(e, d);
   }
-
-  private Pair<PlainT, PlainT> receiveAndReconstruct(Network network,
-      int noOfParties, CompUIntFactory<PlainT> factory,
-      ByteSerializer<PlainT> serializer) {
-    PlainT e = factory.zero();
-    PlainT d = factory.zero();
-    for (int i = 1; i <= noOfParties; i++) {
-      byte[] bytesE = network.receive(i);
-      byte[] tempE = new byte[16];
-      tempE[15] = bytesE[0];
-      e = e.add(factory.createFromBytes(tempE));
-      byte[] bytesD = network.receive(i);
-      byte[] tempD = new byte[16];
-      tempD[15] = bytesD[0];
-      d = d.add(factory.createFromBytes(tempD));
-    }
-    return new Pair<>(e.toBitRep(), d.toBitRep());
-  }
-
-//  private Pair<PlainT, PlainT> receiveAndReconstruct(Network network,
-//      int noOfParties, CompUIntFactory<PlainT> factory) {
-//    int e = 0;
-//    int d = 0;
-//    for (int i = 1; i <= noOfParties; i++) {
-//      e = e ^ network.receive(i)[0];
-//      d = d ^ network.receive(i)[0];
-//    }
-//    return new Pair<>(factory.fromBit(e), factory.fromBit(d));
-//  }
 
   @Override
   public SInt out() {

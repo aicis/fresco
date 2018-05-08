@@ -18,7 +18,6 @@ public class CompUInt128Bit extends CompUInt128 {
 
   @Override
   public CompUInt128 multiply(CompUInt128 other) {
-//    CompUInt128Bit test = ((CompUInt128Bit) other);
     int bit = mid >>> 31;
     int otherBit = other.mid >>> 31;
     return new CompUInt128Bit(
@@ -64,6 +63,21 @@ public class CompUInt128Bit extends CompUInt128 {
   @Override
   public byte[] serializeLeastSignificant() {
     return new byte[]{(byte) (mid >>> 31)};
+  }
+
+  @Override
+  public CompUInt128 clearHighBits() {
+    return new CompUInt128Bit(0L, mid, 0);
+  }
+
+  @Override
+  public int bitValue() {
+    return (mid & 0x80000000) >>> 31;
+  }
+
+  @Override
+  public CompUInt128 multiply(int value) {
+    return this.multiply(new CompUInt128Bit(0L, value));
   }
 
   public boolean getValueBit() {

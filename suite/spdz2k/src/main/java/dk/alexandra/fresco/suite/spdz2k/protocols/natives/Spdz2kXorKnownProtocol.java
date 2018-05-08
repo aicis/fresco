@@ -32,7 +32,7 @@ public class Spdz2kXorKnownProtocol<PlainT extends CompUInt<?, ?, PlainT>> exten
     CompUIntFactory<PlainT> factory = resourcePool.getFactory();
     PlainT known = factory.fromOInt(left.out()).toBitRep();
     PlainT secretSharedKey = resourcePool.getDataSupplier().getSecretSharedKey();
-    result = factory.toSpdz2kSIntBoolean(right).addConstant(known,
+    result = factory.toSpdz2kSIntBoolean(right).xorOpen(known,
         secretSharedKey, factory.zero().toBitRep(), resourcePool.getMyId() == 1);
     return EvaluationStatus.IS_DONE;
   }

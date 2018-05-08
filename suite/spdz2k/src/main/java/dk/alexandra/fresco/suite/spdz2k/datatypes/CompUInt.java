@@ -60,6 +60,18 @@ public interface CompUInt<
   CompT toArithmeticRep();
 
   /**
+   * Computes product of this and value.
+   */
+  CompT multiply(int value);
+
+  /**
+   * Returns bit value as integer of this. <p>This is only supported by bit representations of CompUInt.</p>
+   */
+  default int bitValue() {
+    throw new IllegalStateException("Only supported by bit representations");
+  }
+
+  /**
    * Get length of least significant bit segment, i.e., k.
    */
   int getLowBitLength();
@@ -84,7 +96,7 @@ public interface CompUInt<
   default byte[] serializeWhole() {
     return toByteArray();
   }
-  
+
   default byte[] serializeLeastSignificant() {
     return getLeastSignificant().toByteArray();
   }

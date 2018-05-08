@@ -26,7 +26,7 @@ public class Spdz2kXorProtocol<PlainT extends CompUInt<?, ?, PlainT>> extends
       Network network) {
     Spdz2kSIntBoolean<PlainT> leftBit = resourcePool.getFactory().toSpdz2kSIntBoolean(left);
     Spdz2kSIntBoolean<PlainT> rightBit = resourcePool.getFactory().toSpdz2kSIntBoolean(right);
-    result = leftBit.add(rightBit);
+    result = leftBit.xor(rightBit);
     return EvaluationStatus.IS_DONE;
   }
 

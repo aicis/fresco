@@ -194,6 +194,11 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
   }
 
   @Override
+  public CompUInt128 multiply(int value) {
+    return multiply(new CompUInt128(0L, 0, value));
+  }
+
+  @Override
   public CompUInt128 clearHighBits() {
     return new CompUInt128(0, mid, low);
   }
