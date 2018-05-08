@@ -39,8 +39,8 @@ public class Spdz2kSIntBoolean<PlainT extends CompUInt<?, ?, PlainT>> extends
    */
   public Spdz2kSIntBoolean<PlainT> and(int otherBit) {
     return new Spdz2kSIntBoolean<>(
-        share.multiply(otherBit),
-        macShare.multiply(otherBit)
+        share.multiplyByBit(otherBit),
+        macShare.multiplyByBit(otherBit)
     );
   }
 

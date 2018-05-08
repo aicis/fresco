@@ -62,7 +62,7 @@ public interface CompUInt<
   /**
    * Computes product of this and value.
    */
-  CompT multiply(int value);
+  CompT multiplyByBit(int value);
 
   /**
    * Returns bit value as integer of this. <p>This is only supported by bit representations of CompUInt.</p>
