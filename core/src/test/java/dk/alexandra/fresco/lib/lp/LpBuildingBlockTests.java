@@ -226,7 +226,7 @@ public class LpBuildingBlockTests {
                 seq.numeric().known(BigInteger.valueOf(5)),
                 seq.numeric().known(BigInteger.valueOf(6))));
         LPSolver solver = new LPSolver(rule, secretTableau, secretUpdateMatrix,
-            pivot, initialBasis);
+            pivot, initialBasis, 50);
         return solver.buildComputation(seq);
       }).seq((seq2, lpOutput) -> {
         OptimalValue ov = new OptimalValue(lpOutput.updateMatrix, lpOutput.tableau, lpOutput.pivot);
@@ -287,7 +287,7 @@ public class LpBuildingBlockTests {
                 seq.numeric().known(BigInteger.valueOf(5)),
                 seq.numeric().known(BigInteger.valueOf(6))));
         LPSolver solver = new LPSolver(LPSolver.PivotRule.DANZIG, secretTableau, secretUpdateMatrix,
-            pivot, initialBasis) {
+            pivot, initialBasis, 50) {
 
           @Override
           protected boolean isDebug() {

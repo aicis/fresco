@@ -7,6 +7,7 @@ import dk.alexandra.fresco.lib.statistics.DeaSolverTests.RandomDataDeaTest;
 import dk.alexandra.fresco.lib.statistics.DeaSolverTests.TestDeaFixed1;
 import dk.alexandra.fresco.lib.statistics.DeaSolverTests.TestDeaFixed2;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
+import java.util.Random;
 import org.junit.Test;
 
 
@@ -55,6 +56,11 @@ public class TestSpdzDEASolver2Parties extends AbstractSpdzTest {
   @Test
   public void test_DEASolver_2_Sequential_dummy() throws Exception {
     runTest(new RandomDataDeaTest<>(2, 1, 5, 1, DeaSolver.AnalysisType.OUTPUT_EFFICIENCY),
+        EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2);
+  }
+  @Test
+  public void test_DEASolver_2_Sequential_dummy_NoIterations() throws Exception {
+    runTest(new RandomDataDeaTest<>(2, 1, 5, 1, DeaSolver.AnalysisType.OUTPUT_EFFICIENCY, new Random(),1, true),
         EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2);
   }
 
