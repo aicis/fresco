@@ -28,20 +28,18 @@ public class CompUInt128Bit extends CompUInt128 {
 
   @Override
   public CompUInt128 add(CompUInt128 other) {
-    CompUInt128 sum = super.add(other);
-    return new CompUInt128Bit(sum.high, sum.mid, sum.low);
+    int carry = ((mid >>> 31) + (other.mid >>> 31)) >> 1;
+    return new CompUInt128Bit(high + other.high + carry, mid ^ other.mid, 0);
   }
 
   @Override
   public CompUInt128 subtract(CompUInt128 other) {
-//    CompUInt128Bit test = ((CompUInt128Bit) other);
-    CompUInt128 negated = new CompUInt128Bit(~other.high, ~other.mid & 0x80000000, 0).add(ONE);
-    return this.add(negated);
+    throw new UnsupportedOperationException("Subtraction not supported by bit representation");
   }
 
   @Override
   public CompUInt128 negate() {
-    return new CompUInt128Bit(~high, ~mid & 0x80000000, 0).add(ONE);
+    throw new UnsupportedOperationException("Negation not supported by bit representation");
   }
 
   @Override
