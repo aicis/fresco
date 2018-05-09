@@ -189,6 +189,11 @@ public class CompUInt96 implements CompUInt<UInt64, UInt32, CompUInt96> {
   }
 
   @Override
+  public CompUInt96 testBitAsUInt(int bit) {
+    return testBit(bit) ? new CompUInt96(1) : new CompUInt96(0);
+  }
+
+  @Override
   public int getLowBitLength() {
     return 32;
   }

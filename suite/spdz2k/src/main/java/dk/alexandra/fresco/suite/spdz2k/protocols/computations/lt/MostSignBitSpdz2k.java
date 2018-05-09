@@ -50,7 +50,7 @@ public class MostSignBitSpdz2k<PlainT extends CompUInt<?, ?, PlainT>> implements
           DRes<SInt> u = seq.comparison().compareLTBits(cPrime, mask.getBits());
           DRes<SInt> aPrime = nb.add(
               nb.subFromOpen(() -> cPrime, rPrime),
-              () -> factory.toSpdz2kSIntBoolean(u).asArithmetic().out()
+              seq.seq(ignored -> factory.toSpdz2kSIntBoolean(u).asArithmetic().out())
           );
           DRes<SInt> d = nb.sub(value, aPrime);
           DRes<SInt> b = nb.randomBit();
@@ -61,11 +61,10 @@ public class MostSignBitSpdz2k<PlainT extends CompUInt<?, ?, PlainT>> implements
           Numeric nb = seq.numeric();
           PlainT eOpen = factory.fromOInt(pair.getFirst());
           DRes<SInt> b = pair.getSecond();
-          // TODO move into its own method
-          PlainT eMsb = eOpen.testBit(k - 1) ? factory.one() : factory.zero();
+          PlainT eMsb = eOpen.testBitAsUInt(k - 1);
           PlainT eMsbByTwo = eMsb.multiply(factory.two());
           return nb.sub(
-              nb.addOpen(() -> eMsb, b),
+              nb.addOpen(eMsb, b),
               nb.multByOpen(eMsbByTwo, b)
           );
         });

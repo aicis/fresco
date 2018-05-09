@@ -11,9 +11,10 @@ import java.math.BigInteger;
 public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
 
   private static final CompUInt128 ONE = new CompUInt128(1);
+  private static final CompUInt128 ZERO = new CompUInt128(0);
   protected final long high;
   protected final int mid;
-  protected final int low;
+  final int low;
 
   /**
    * Creates new {@link CompUInt128}. <p>Do <b>not</b> pad bytes by default.</p>
@@ -261,6 +262,11 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
       relative = bit - Long.SIZE;
     }
     return (((1L << relative) & section) >>> relative) == 1;
+  }
+
+  @Override
+  public CompUInt128 testBitAsUInt(int bit) {
+    return testBit(bit) ? ONE : ZERO;
   }
 
   @Override

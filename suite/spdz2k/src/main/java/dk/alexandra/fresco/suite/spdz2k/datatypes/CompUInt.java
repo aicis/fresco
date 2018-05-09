@@ -65,6 +65,11 @@ public interface CompUInt<
   CompT multiplyByBit(int value);
 
   /**
+   * Returns result of {@link #testBit(int)} as UInt.
+   */
+  CompT testBitAsUInt(int bit);
+
+  /**
    * Returns bit value of this as integer.
    */
   default int bitValue() {
