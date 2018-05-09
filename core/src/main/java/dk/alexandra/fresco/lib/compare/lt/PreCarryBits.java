@@ -11,9 +11,9 @@ import java.util.List;
 
 public class PreCarryBits implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private final DRes<List<DRes<SIntPair>>> pairsDef;
+  private final DRes<List<SIntPair>> pairsDef;
 
-  PreCarryBits(DRes<List<DRes<SIntPair>>> pairs) {
+  PreCarryBits(DRes<List<SIntPair>> pairs) {
     this.pairsDef = pairs;
   }
 
@@ -25,21 +25,40 @@ public class PreCarryBits implements Computation<SInt, ProtocolBuilderNumeric> {
               // TODO this will reverse the actual list, not just the view. more efficient to only reverse the view
               Collections.reverse(pairs);
               padIfUneven(pairs);
-              List<DRes<SIntPair>> nextRoundInner = new ArrayList<>(pairs.size() / 2);
+              List<SIntPair> nextRoundInner = new ArrayList<>(pairs.size() / 2);
               for (int i = 0; i < pairs.size() / 2; i++) {
-                DRes<SIntPair> left = pairs.get(2 * i + 1);
-                DRes<SIntPair> right = pairs.get(2 * i);
-                nextRoundInner.add(par.seq(new CarryHelper(left, right)));
+                SIntPair left = pairs.get(2 * i + 1);
+                SIntPair right = pairs.get(2 * i);
+                nextRoundInner.add(carry(par, left, right));
               }
               Collections.reverse(nextRoundInner);
               return () -> nextRoundInner;
-            })).seq((ignored, out) -> out.get(0).out().getSecond());
+            })).seq((ignored, out) -> out.get(0).getSecond());
+  }
+
+  private SIntPair carry(ProtocolBuilderNumeric builder, SIntPair left, SIntPair right) {
+    if (left == null) {
+      return right;
+    }
+    if (right == null) {
+      return left;
+    }
+    DRes<SInt> p1 = left.getFirst();
+    DRes<SInt> g1 = left.getSecond();
+    DRes<SInt> p2 = right.getFirst();
+    DRes<SInt> g2 = right.getSecond();
+    DRes<SInt> p = builder.logical().and(p1, p2);
+    DRes<SInt> q = builder.seq(seq -> {
+      DRes<SInt> temp = seq.logical().and(p2, g1);
+      return seq.logical().halfOr(temp, g2);
+    });
+    return new SIntPair(p, q);
   }
 
   /**
    * Pad with dummy null element if number of pairs is uneven.
    */
-  private void padIfUneven(List<DRes<SIntPair>> pairs) {
+  private void padIfUneven(List<SIntPair> pairs) {
     int size = pairs.size();
     if (size % 2 != 0 && size != 1) {
       pairs.add(null);

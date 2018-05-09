@@ -26,7 +26,6 @@ import dk.alexandra.fresco.lib.compare.CompareTests.TestLessThanLogRounds;
 import dk.alexandra.fresco.lib.compare.lt.BitLessThanOpenTests.TestBitLessThanOpen;
 import dk.alexandra.fresco.lib.compare.lt.CarryOutTests.TestCarryOut;
 import dk.alexandra.fresco.lib.compare.lt.LessThanZeroTests.TestLessThanZero;
-import dk.alexandra.fresco.lib.compare.lt.PreCarryTests.TestCarryHelper;
 import dk.alexandra.fresco.lib.compare.lt.PreCarryTests.TestPreCarryBits;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelectTests;
 import dk.alexandra.fresco.lib.conditional.ConditionalSwapNeighborsTests;
@@ -826,11 +825,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
         .modulus(ModulusFinder.findSuitableModulus(256))
         .numParties(2);
     runTest(new TestMod2mBaseCase<>(), params);
-  }
-
-  @Test
-  public void testCarryHelper() {
-    runTest(new TestCarryHelper<>(), new TestParameters());
   }
 
   @Test

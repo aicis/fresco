@@ -50,21 +50,21 @@ public class CarryOut implements Computation<SInt, ProtocolBuilderNumeric> {
     }).par((par, pair) -> {
       List<DRes<SInt>> xoredBits = pair.getFirst();
       List<DRes<SInt>> andedBits = pair.getSecond();
-      List<DRes<SIntPair>> pairs = new ArrayList<>(andedBits.size());
+      List<SIntPair> pairs = new ArrayList<>(andedBits.size());
       for (int i = 0; i < secretBits.size(); i++) {
         DRes<SInt> xoredBit = xoredBits.get(i);
         DRes<SInt> andedBit = andedBits.get(i);
-        pairs.add(() -> new SIntPair(xoredBit, andedBit));
+        pairs.add(new SIntPair(xoredBit, andedBit));
       }
       return () -> pairs;
     }).seq((seq, pairs) -> {
       // need to account for carry-in bit
       int lastIdx = pairs.size() - 1;
-      SIntPair lastPair = pairs.get(lastIdx).out();
+      SIntPair lastPair = pairs.get(lastIdx);
       DRes<SInt> lastCarryPropagator = seq.logical().xor(
           lastPair.getSecond(),
           seq.logical().andKnown(carryIn, lastPair.getFirst()));
-      pairs.set(lastIdx, () -> new SIntPair(lastPair.getFirst(), lastCarryPropagator));
+      pairs.set(lastIdx, new SIntPair(lastPair.getFirst(), lastCarryPropagator));
       Collections.reverse(pairs);
       return seq.seq(new PreCarryBits(() -> pairs));
     });
