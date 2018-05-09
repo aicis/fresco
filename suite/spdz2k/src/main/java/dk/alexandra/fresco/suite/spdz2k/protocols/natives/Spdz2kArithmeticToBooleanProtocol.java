@@ -25,7 +25,7 @@ public class Spdz2kArithmeticToBooleanProtocol<PlainT extends CompUInt<?, ?, Pla
         .toSpdz2kSIntArithmetic(arithmetic);
     bool = new Spdz2kSIntBoolean<>(
         value.getShare().toBitRep(),
-        value.getMacShare().shiftLeft(63)
+        value.getMacShare().toBitRep().toArithmeticRep() // results in shift
     );
     return EvaluationStatus.IS_DONE;
   }

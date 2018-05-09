@@ -191,7 +191,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
   @Override
   public Conversion createConversion(ProtocolBuilderNumeric builder) {
-    return new Spdz2kConversion<>(builder);
+    return new Spdz2kConversion(builder);
   }
 
   @Override

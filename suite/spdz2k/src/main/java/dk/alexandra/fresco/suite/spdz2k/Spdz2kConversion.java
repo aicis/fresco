@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.Conversion;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
-import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kArithmeticToBooleanProtocol;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +11,7 @@ import java.util.List;
 /**
  * Spdz2k optimized protocols for converting between arithmetic and boolean representations.
  */
-public class Spdz2kConversion<PlainT extends CompUInt<?, ?, PlainT>> implements Conversion {
+public class Spdz2kConversion implements Conversion {
 
   private final ProtocolBuilderNumeric builder;
 
