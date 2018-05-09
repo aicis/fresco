@@ -36,22 +36,22 @@ public class TestCompUInt128Bit {
   }
 
   @Test
-  public void testValueBit() {
+  public void testBitValue() {
     Assert.assertEquals(
-        false,
-        new CompUInt128Bit(111, 0).getValueBit());
+        0,
+        new CompUInt128Bit(111, 0).bitValue());
     Assert.assertEquals(
-        false,
-        new CompUInt128Bit(rand(1), 0).getValueBit());
+        0,
+        new CompUInt128Bit(rand(1), 0).bitValue());
     Assert.assertEquals(
-        true,
-        new CompUInt128Bit(rand(2), 1).getValueBit());
+        1,
+        new CompUInt128Bit(rand(2), 1).bitValue());
     Assert.assertEquals(
-        true,
-        new CompUInt128Bit(0, 1).getValueBit());
+        1,
+        new CompUInt128Bit(0, 1).bitValue());
     Assert.assertEquals(
-        false,
-        new CompUInt128Bit(0, 0).getValueBit());
+        0,
+        new CompUInt128Bit(0, 0).bitValue());
   }
 
   @Test

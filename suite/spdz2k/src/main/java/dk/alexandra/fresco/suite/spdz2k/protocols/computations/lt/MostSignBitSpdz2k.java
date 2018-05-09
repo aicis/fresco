@@ -11,7 +11,6 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.math.integer.binary.RandomBitMask;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
-import java.util.List;
 
 /**
  * Extract the value of the most significant bit of value.
@@ -48,8 +47,7 @@ public class MostSignBitSpdz2k<PlainT extends CompUInt<?, ?, PlainT>> implements
           PlainT cPrime = cOpen.clearAboveBitAt(k - 1);
           RandomBitMask mask = pair.getSecond();
           DRes<SInt> rPrime = mask.getValue();
-          List<DRes<SInt>> rPrimeBits = mask.getBits().out();
-          DRes<SInt> u = seq.comparison().compareLTBits(cPrime, () -> rPrimeBits);
+          DRes<SInt> u = seq.comparison().compareLTBits(cPrime, mask.getBits());
           DRes<SInt> aPrime = nb.add(
               nb.subFromOpen(() -> cPrime, rPrime),
               () -> factory.toSpdz2kSIntBoolean(u).asArithmetic().out()
