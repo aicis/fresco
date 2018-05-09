@@ -2,8 +2,6 @@ package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
 public class CompUInt128Bit extends CompUInt128 {
 
-  private static final CompUInt128Bit ONE = new CompUInt128Bit(0, 0x80000000, 0);
-
   public CompUInt128Bit(long high, int mid, int low) {
     super(high, mid, low);
   }

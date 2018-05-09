@@ -122,7 +122,7 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
         + (newMid >>> 32);
     return new CompUInt128(newHigh, (int) newMid, (int) t1);
   }
-  
+
   @Override
   public CompUInt128 subtract(CompUInt128 other) {
     return this.add(other.negate());
@@ -210,7 +210,10 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
 
   @Override
   public CompUInt128 toBitRep() {
-    return new CompUInt128Bit(shiftLeft(63));
+    return new CompUInt128Bit(
+        (high << 63) + (UInt.toUnLong(mid) << 31) + (UInt.toUnLong(low) >>> 1),
+        low << 31,
+        0);
   }
 
   @Override
