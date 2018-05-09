@@ -41,10 +41,12 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
   private final CompUIntFactory<PlainT> factory;
   private final BasicNumericContext numericContext;
   private final boolean useBooleanMode;
+  private final CompUIntArithmetic<PlainT> uIntArithmetic;
 
   public Spdz2kBuilder(CompUIntFactory<PlainT> factory, BasicNumericContext numericContext,
       boolean useBooleanMode) {
     this.factory = factory;
+    this.uIntArithmetic = new CompUIntArithmetic<>(factory);
     this.numericContext = numericContext;
     this.useBooleanMode = useBooleanMode;
   }
@@ -205,7 +207,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
   @Override
   public OIntArithmetic getOIntArithmetic() {
-    return new CompUIntArithmetic<>(factory);
+    return uIntArithmetic;
   }
 
   @Override
