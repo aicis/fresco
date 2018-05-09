@@ -21,6 +21,7 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.protocols.computations.Spdz2kInputComputation;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAddKnownProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kKnownSIntProtocol;
+import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kMultKnownProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kMultiplyProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kOutputSinglePartyProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kOutputToAll;
@@ -128,12 +129,12 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
       @Override
       public DRes<SInt> mult(BigInteger a, DRes<SInt> b) {
-        return () -> factory.toSpdz2kSIntArithmetic(b).multiply(factory.createFromBigInteger(a));
+        return multByOpen(factory.createFromBigInteger(a), b);
       }
 
       @Override
       public DRes<SInt> multByOpen(DRes<OInt> a, DRes<SInt> b) {
-        return () -> factory.toSpdz2kSIntArithmetic(b).multiply(factory.fromOInt(a));
+        return builder.append(new Spdz2kMultKnownProtocol<>(a, b));
       }
 
       @Override
