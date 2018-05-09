@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.SIntPair;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class PreCarryBits implements Computation<SInt, ProtocolBuilderNumeric> {
@@ -22,8 +21,6 @@ public class PreCarryBits implements Computation<SInt, ProtocolBuilderNumeric> {
     return builder.seq(seq -> pairsDef)
         .whileLoop((pairs) -> pairs.size() > 1,
             (prevSeq, pairs) -> prevSeq.par(par -> {
-              // TODO this will reverse the actual list, not just the view. more efficient to only reverse the view
-              Collections.reverse(pairs);
               padIfUneven(pairs);
               List<SIntPair> nextRoundInner = new ArrayList<>(pairs.size() / 2);
               for (int i = 0; i < pairs.size() / 2; i++) {
@@ -31,7 +28,6 @@ public class PreCarryBits implements Computation<SInt, ProtocolBuilderNumeric> {
                 SIntPair right = pairs.get(2 * i);
                 nextRoundInner.add(carry(par, left, right));
               }
-              Collections.reverse(nextRoundInner);
               return () -> nextRoundInner;
             })).seq((ignored, out) -> out.get(0).getSecond());
   }

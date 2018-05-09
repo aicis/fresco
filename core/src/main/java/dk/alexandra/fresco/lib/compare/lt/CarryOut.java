@@ -8,7 +8,6 @@ import dk.alexandra.fresco.framework.util.SIntPair;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -65,7 +64,6 @@ public class CarryOut implements Computation<SInt, ProtocolBuilderNumeric> {
           lastPair.getSecond(),
           seq.logical().andKnown(carryIn, lastPair.getFirst()));
       pairs.set(lastIdx, new SIntPair(lastPair.getFirst(), lastCarryPropagator));
-      Collections.reverse(pairs);
       return seq.seq(new PreCarryBits(() -> pairs));
     });
   }

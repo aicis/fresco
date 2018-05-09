@@ -23,10 +23,6 @@ public class BitLessThanOpen implements Computation<SInt, ProtocolBuilderNumeric
     this.secretBitsDef = secretBits;
   }
 
-  public BitLessThanOpen(OInt openValue, List<DRes<SInt>> secretBits) {
-    this(() -> openValue, () -> secretBits);
-  }
-
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     OIntFactory oIntFactory = builder.getOIntFactory();
