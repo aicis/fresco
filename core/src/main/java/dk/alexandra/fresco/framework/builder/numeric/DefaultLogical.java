@@ -36,6 +36,11 @@ public class DefaultLogical implements Logical {
   }
 
   @Override
+  public DRes<SInt> halfOr(DRes<SInt> bitA, DRes<SInt> bitB) {
+    return builder.numeric().add(bitA, bitB);
+  }
+
+  @Override
   public DRes<SInt> xor(DRes<SInt> bitA, DRes<SInt> bitB) {
     // knownBit + secretBit - 2 * knownBit * secretBit
     return builder.seq(seq -> {

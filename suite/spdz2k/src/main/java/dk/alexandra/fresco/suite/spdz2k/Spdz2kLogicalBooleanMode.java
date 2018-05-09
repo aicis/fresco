@@ -51,6 +51,11 @@ public class Spdz2kLogicalBooleanMode<PlainT extends CompUInt<?, ?, PlainT>> ext
   }
 
   @Override
+  public DRes<SInt> halfOr(DRes<SInt> bitA, DRes<SInt> bitB) {
+    return xor(bitA, bitB);
+  }
+
+  @Override
   public DRes<SInt> andKnown(DRes<OInt> knownBit, DRes<SInt> secretBit) {
     return builder.append(new Spdz2kAndKnownProtocol<>(knownBit, secretBit));
   }

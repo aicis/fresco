@@ -38,7 +38,7 @@ public class CarryHelper implements Computation<SIntPair, ProtocolBuilderNumeric
       DRes<SInt> p = par.logical().and(p1, p2);
       DRes<SInt> q = par.seq(seq -> {
         DRes<SInt> temp = seq.logical().and(p2, g1);
-        return seq.logical().or(temp, g2);
+        return seq.logical().halfOr(temp, g2);
       });
       return () -> new SIntPair(p, q);
     });

@@ -25,6 +25,12 @@ public interface Logical extends ComputationDirectory {
   DRes<SInt> or(DRes<SInt> bitA, DRes<SInt> bitB);
 
   /**
+   * Computes logical OR of inputs but is only safe to use when at least one of the bits is 0.
+   * <p>This allows to express and or as a linear operation and therefore far more efficient.</p>
+   */
+  DRes<SInt> halfOr(DRes<SInt> bitA, DRes<SInt> bitB);
+
+  /**
    * Computes logical XOR of inputs. <p>NOTE: Inputs must represent 0 or 1 values only.</p>
    */
   DRes<SInt> xor(DRes<SInt> bitA, DRes<SInt> bitB);
@@ -91,9 +97,7 @@ public interface Logical extends ComputationDirectory {
       DRes<List<DRes<SInt>>> secretBits);
 
   /**
-   * Computes logical OR of all input bits.
-   * <p>
-   * NOTE: Inputs must represent 0 or 1 values only.
+   * Computes logical OR of all input bits. <p> NOTE: Inputs must represent 0 or 1 values only.
    * </p>
    */
   DRes<SInt> orOfList(DRes<List<DRes<SInt>>> bits);
