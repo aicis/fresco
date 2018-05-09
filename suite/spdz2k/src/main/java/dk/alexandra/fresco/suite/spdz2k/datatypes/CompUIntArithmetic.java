@@ -27,12 +27,10 @@ public class CompUIntArithmetic<CompT extends CompUInt<?, ?, CompT>> implements 
 
   @Override
   public List<DRes<OInt>> toBits(OInt openValue, int numBits) {
-    CompUInt value = (CompUInt) openValue;
+    CompT value = factory.fromOInt(openValue);
     List<DRes<OInt>> bits = new ArrayList<>(numBits);
     for (int b = 0; b < numBits; b++) {
-      boolean boolBit = value.testBit(b);
-      OInt bit = boolBit ? factory.one() : factory.zero();
-      bits.add(() -> bit);
+      bits.add(value.testBitAsUInt(b));
     }
     Collections.reverse(bits);
     return bits;
