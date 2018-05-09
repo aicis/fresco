@@ -19,28 +19,15 @@ public interface OIntFactory {
   BigInteger toBigInteger(OInt value);
 
   /**
-   * Convert open value to long.
-   */
-  default long toLong(OInt value) {
-    return toBigInteger(value).longValue();
-  }
-
-  /**
    * Convert {@link BigInteger} to {@link OInt}.
    */
   OInt fromBigInteger(BigInteger value);
 
   /**
-   * Convert long to {@link OInt}.
-   */
-  default OInt fromLong(long value) {
-    return fromBigInteger(BigInteger.valueOf(value));
-  }
-
-  /**
    * Default method for converting multiple instances of {@link BigInteger}.
    */
   default List<DRes<OInt>> fromBigInteger(List<BigInteger> values) {
+    // TODO shouldn't be a DRes
     return values.stream().map(this::fromBigInteger).collect(Collectors.toList());
   }
 

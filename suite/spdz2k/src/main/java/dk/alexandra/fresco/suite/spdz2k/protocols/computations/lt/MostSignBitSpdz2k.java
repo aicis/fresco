@@ -52,7 +52,7 @@ public class MostSignBitSpdz2k<PlainT extends CompUInt<?, ?, PlainT>> implements
           DRes<SInt> u = seq.comparison().compareLTBits(cPrime, () -> rPrimeBits);
           DRes<SInt> aPrime = nb.add(
               nb.subFromOpen(() -> cPrime, rPrime),
-              () -> factory.toSpdz2kSIntBoolean(u).asArithmetic()
+              () -> factory.toSpdz2kSIntBoolean(u).asArithmetic().out()
           );
           DRes<SInt> d = nb.sub(value, aPrime);
           DRes<SInt> b = nb.randomBit();

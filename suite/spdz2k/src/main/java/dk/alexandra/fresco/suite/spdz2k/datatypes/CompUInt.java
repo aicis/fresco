@@ -65,7 +65,7 @@ public interface CompUInt<
   CompT multiplyByBit(int value);
 
   /**
-   * Returns bit value as integer of this. <p>This is only supported by bit representations of CompUInt.</p>
+   * Returns bit value of this as integer.
    */
   default int bitValue() {
     throw new IllegalStateException("Only supported by bit representations");

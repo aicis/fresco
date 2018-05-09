@@ -8,14 +8,14 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 
-public class Spdz2kXorKnownProtocol<PlainT extends CompUInt<?, ?, PlainT>> extends
+public class Spdz2kAndKnownProtocol<PlainT extends CompUInt<?, ?, PlainT>> extends
     Spdz2kNativeProtocol<SInt, PlainT> {
 
   private final DRes<OInt> left;
   private final DRes<SInt> right;
   private SInt result;
 
-  public Spdz2kXorKnownProtocol(
+  public Spdz2kAndKnownProtocol(
       DRes<OInt> left,
       DRes<SInt> right) {
     this.left = left;
@@ -26,10 +26,8 @@ public class Spdz2kXorKnownProtocol<PlainT extends CompUInt<?, ?, PlainT>> exten
   public EvaluationStatus evaluate(int round, Spdz2kResourcePool<PlainT> resourcePool,
       Network network) {
     CompUIntFactory<PlainT> factory = resourcePool.getFactory();
-    PlainT known = factory.fromOInt(left.out()).toBitRep();
-    PlainT secretSharedKey = resourcePool.getDataSupplier().getSecretSharedKey();
-    result = factory.toSpdz2kSIntBoolean(right).xorOpen(known,
-        secretSharedKey, factory.zero().toBitRep(), resourcePool.getMyId() == 1);
+    int known = factory.fromOInt(left.out()).toInt();
+    result = factory.toSpdz2kSIntBoolean(right).and(known);
     return EvaluationStatus.IS_DONE;
   }
 

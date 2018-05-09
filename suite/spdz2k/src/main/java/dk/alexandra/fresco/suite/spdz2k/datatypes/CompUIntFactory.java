@@ -20,19 +20,8 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> extends OI
   }
 
   @Override
-  default long toLong(OInt value) {
-    return ((CompUInt) value).toLong();
-  }
-
-  @Override
   default OInt fromBigInteger(BigInteger value) {
     return createFromBigInteger(value);
-  }
-
-  @Override
-  default OInt fromLong(long value) {
-    // TODO rethink this
-    return fromBigInteger(BigInteger.valueOf(value));
   }
 
   default CompT fromBit(int bit) {
