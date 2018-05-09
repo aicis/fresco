@@ -15,11 +15,11 @@ import java.util.List;
  */
 public class InnerProductWithOInt implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private final DRes<List<DRes<OInt>>> vectorADef;
+  private final DRes<List<OInt>> vectorADef;
   private final DRes<List<DRes<SInt>>> vectorBDef;
 
   public InnerProductWithOInt(
-      DRes<List<DRes<OInt>>> vectorA,
+      DRes<List<OInt>> vectorA,
       DRes<List<DRes<SInt>>> vectorB) {
     this.vectorADef = vectorA;
     this.vectorBDef = vectorB;
@@ -27,7 +27,7 @@ public class InnerProductWithOInt implements Computation<SInt, ProtocolBuilderNu
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    List<DRes<OInt>> vectorA = vectorADef.out();
+    List<OInt> vectorA = vectorADef.out();
     List<DRes<SInt>> vectorB = vectorBDef.out();
     DRes<List<DRes<SInt>>> product = builder.par(parallel -> {
       List<DRes<SInt>> result = new ArrayList<>(vectorA.size());

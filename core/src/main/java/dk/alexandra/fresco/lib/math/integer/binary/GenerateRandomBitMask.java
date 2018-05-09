@@ -37,7 +37,7 @@ public class GenerateRandomBitMask implements Computation<RandomBitMask, Protoco
       });
     }
 
-    List<DRes<OInt>> powersOfTwo = builder.getOIntArithmetic().getPowersOfTwo(
+    List<OInt> powersOfTwo = builder.getOIntArithmetic().getPowersOfTwo(
         numBits);
     DRes<SInt> recombined = builder.advancedNumeric()
         .innerProductWithPublicPart(() -> powersOfTwo, randomBits);

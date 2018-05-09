@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.framework.value;
 
-import dk.alexandra.fresco.framework.DRes;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,8 +25,7 @@ public interface OIntFactory {
   /**
    * Default method for converting multiple instances of {@link BigInteger}.
    */
-  default List<DRes<OInt>> fromBigInteger(List<BigInteger> values) {
-    // TODO shouldn't be a DRes
+  default List<OInt> fromBigInteger(List<BigInteger> values) {
     return values.stream().map(this::fromBigInteger).collect(Collectors.toList());
   }
 

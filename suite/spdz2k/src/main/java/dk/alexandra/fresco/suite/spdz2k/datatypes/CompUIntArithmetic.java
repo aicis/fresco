@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
-import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.OIntArithmetic;
 import java.util.ArrayList;
@@ -13,7 +12,7 @@ import java.util.List;
 public class CompUIntArithmetic<CompT extends CompUInt<?, ?, CompT>> implements OIntArithmetic {
 
   private final CompUIntFactory<CompT> factory;
-  private final List<DRes<OInt>> powersOfTwo;
+  private final List<OInt> powersOfTwo;
 
   public CompUIntArithmetic(CompUIntFactory<CompT> factory) {
     this.factory = factory;
@@ -21,14 +20,14 @@ public class CompUIntArithmetic<CompT extends CompUInt<?, ?, CompT>> implements 
   }
 
   @Override
-  public DRes<OInt> one() {
+  public OInt one() {
     return factory.one();
   }
 
   @Override
-  public List<DRes<OInt>> toBits(OInt openValue, int numBits) {
+  public List<OInt> toBits(OInt openValue, int numBits) {
     CompT value = factory.fromOInt(openValue);
-    List<DRes<OInt>> bits = new ArrayList<>(numBits);
+    List<OInt> bits = new ArrayList<>(numBits);
     for (int b = 0; b < numBits; b++) {
       bits.add(value.testBitAsUInt(b));
     }
@@ -37,7 +36,7 @@ public class CompUIntArithmetic<CompT extends CompUInt<?, ?, CompT>> implements 
   }
 
   @Override
-  public List<DRes<OInt>> getPowersOfTwo(int numPowers) {
+  public List<OInt> getPowersOfTwo(int numPowers) {
     if (numPowers > factory.getLowBitLength()) {
       throw new UnsupportedOperationException();
     } else {
@@ -46,7 +45,7 @@ public class CompUIntArithmetic<CompT extends CompUInt<?, ?, CompT>> implements 
   }
 
   @Override
-  public DRes<OInt> twoTo(int power) {
+  public OInt twoTo(int power) {
     if (power > factory.getLowBitLength()) {
       throw new UnsupportedOperationException();
     } else {
@@ -55,7 +54,7 @@ public class CompUIntArithmetic<CompT extends CompUInt<?, ?, CompT>> implements 
   }
 
   @Override
-  public DRes<OInt> modTwoTo(OInt input, int power) {
+  public OInt modTwoTo(OInt input, int power) {
     if (power > factory.getLowBitLength()) {
       throw new UnsupportedOperationException();
     } else {
@@ -63,16 +62,15 @@ public class CompUIntArithmetic<CompT extends CompUInt<?, ?, CompT>> implements 
     }
   }
 
-
-  private List<DRes<OInt>> initializePowersOfTwo(int numPowers) {
-    List<DRes<OInt>> powers = new ArrayList<>(numPowers);
+  private List<OInt> initializePowersOfTwo(int numPowers) {
+    List<OInt> powers = new ArrayList<>(numPowers);
     CompT current = factory.one();
     final CompT tempOuter = current;
-    powers.add(() -> tempOuter);
+    powers.add(tempOuter);
     for (int i = 1; i < numPowers; i++) {
       current = current.multiply(factory.two());
       final CompT temp = current;
-      powers.add(() -> temp);
+      powers.add(temp);
     }
     return powers;
   }

@@ -32,7 +32,7 @@ public class ZeroTestLogRounds implements Computation<SInt, ProtocolBuilderNumer
                   input, r.getValue())));
           return () -> new Pair<>(r.getBits(), c);
         }).seq((seq, pair) -> {
-          List<DRes<OInt>> cbits = seq.getOIntArithmetic().toBits(pair
+          List<OInt> cbits = seq.getOIntArithmetic().toBits(pair
               .getSecond().out(), maxBitlength);
           // Reverse the bits of c as they are stored in big endian whereas the
           // composed r values from random bit mask will be in little endian as

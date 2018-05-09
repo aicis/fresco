@@ -115,7 +115,7 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
   }
 
   @Override
-  public DRes<SInt> innerProductWithPublicPart(DRes<List<DRes<OInt>>> vectorA,
+  public DRes<SInt> innerProductWithPublicPart(DRes<List<OInt>> vectorA,
       DRes<List<DRes<SInt>>> vectorB) {
     return builder.seq(new InnerProductWithOInt(vectorA, vectorB));
   }

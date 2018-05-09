@@ -39,7 +39,7 @@ public class LogicalOperationsTests {
           Application<List<DRes<BigInteger>>, ProtocolBuilderNumeric> app =
               root -> {
                 DRes<List<DRes<SInt>>> leftClosed = root.numeric().knownAsDRes(left);
-                List<DRes<OInt>> rightOInts = root.getOIntFactory().fromBigInteger(right);
+                List<OInt> rightOInts = root.getOIntFactory().fromBigInteger(right);
                 DRes<List<DRes<SInt>>> xored = root.logical()
                     .pairWiseXorKnown(() -> rightOInts, leftClosed);
                 return root.collections().openList(xored);
@@ -81,7 +81,7 @@ public class LogicalOperationsTests {
           Application<List<DRes<BigInteger>>, ProtocolBuilderNumeric> app =
               root -> {
                 DRes<List<DRes<SInt>>> leftClosed = root.numeric().knownAsDRes(left);
-                List<DRes<OInt>> rightOInts = root.getOIntFactory().fromBigInteger(right);
+                List<OInt> rightOInts = root.getOIntFactory().fromBigInteger(right);
                 DRes<List<DRes<SInt>>> anded = root.logical()
                     .pairWiseAndKnown(() -> rightOInts, leftClosed);
                 return root.collections().openList(anded);

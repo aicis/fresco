@@ -155,7 +155,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
    * @param vectorB The secret vector
    * @return A deferred result computing the inner product of the two given vectors
    */
-  DRes<SInt> innerProductWithPublicPart(DRes<List<DRes<OInt>>> vectorA,
+  DRes<SInt> innerProductWithPublicPart(DRes<List<OInt>> vectorA,
       DRes<List<DRes<SInt>>> vectorB);
 
   /**

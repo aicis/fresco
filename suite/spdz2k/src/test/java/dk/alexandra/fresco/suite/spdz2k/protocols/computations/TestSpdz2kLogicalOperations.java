@@ -170,7 +170,7 @@ public class TestSpdz2kLogicalOperations extends
                 DRes<List<DRes<SInt>>> leftClosed = root.conversion()
                     .toBooleanBatch(root.collections().closeList(left, 1));
                 OIntFactory oIntFactory = root.getOIntFactory();
-                List<DRes<OInt>> rightOInts = oIntFactory.fromBigInteger(right);
+                List<OInt> rightOInts = oIntFactory.fromBigInteger(right);
                 DRes<List<DRes<SInt>>> xored = root.logical()
                     .pairWiseXorKnown(() -> rightOInts, leftClosed);
                 DRes<List<DRes<OInt>>> opened = root.logical().openAsBits(xored);
@@ -215,7 +215,7 @@ public class TestSpdz2kLogicalOperations extends
                 DRes<List<DRes<SInt>>> leftClosed = root.conversion()
                     .toBooleanBatch(root.collections().closeList(left, 1));
                 OIntFactory oIntFactory = root.getOIntFactory();
-                List<DRes<OInt>> rightOInts = oIntFactory.fromBigInteger(right);
+                List<OInt> rightOInts = oIntFactory.fromBigInteger(right);
                 DRes<List<DRes<SInt>>> anded = root.logical()
                     .pairWiseAndKnown(() -> rightOInts, leftClosed);
                 DRes<List<DRes<OInt>>> opened = root.logical().openAsBits(anded);

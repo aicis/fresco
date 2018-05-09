@@ -112,10 +112,10 @@ public class DefaultLogical implements Logical {
   }
 
   private DRes<List<DRes<SInt>>> pairWiseKnown(
-      DRes<List<DRes<OInt>>> knownBits,
+      DRes<List<OInt>> knownBits,
       DRes<List<DRes<SInt>>> secretBits,
       BiFunction<DRes<OInt>, DRes<SInt>, DRes<SInt>> op) {
-    List<DRes<OInt>> knownOut = knownBits.out();
+    List<OInt> knownOut = knownBits.out();
     List<DRes<SInt>> secretOut = secretBits.out();
     List<DRes<SInt>> resultBits = new ArrayList<>(secretOut.size());
     for (int i = 0; i < secretOut.size(); i++) {
@@ -128,7 +128,7 @@ public class DefaultLogical implements Logical {
   }
 
   @Override
-  public DRes<List<DRes<SInt>>> pairWiseXorKnown(DRes<List<DRes<OInt>>> knownBits,
+  public DRes<List<DRes<SInt>>> pairWiseXorKnown(DRes<List<OInt>> knownBits,
       DRes<List<DRes<SInt>>> secretBits) {
     return builder.par(par -> {
       BiFunction<DRes<OInt>, DRes<SInt>, DRes<SInt>> f = (left, right) -> par.logical()
@@ -138,7 +138,7 @@ public class DefaultLogical implements Logical {
   }
 
   @Override
-  public DRes<List<DRes<SInt>>> pairWiseAndKnown(DRes<List<DRes<OInt>>> knownBits,
+  public DRes<List<DRes<SInt>>> pairWiseAndKnown(DRes<List<OInt>> knownBits,
       DRes<List<DRes<SInt>>> secretBits) {
     return builder.par(par -> {
       BiFunction<DRes<OInt>, DRes<SInt>, DRes<SInt>> f = (left, right) -> par.logical()

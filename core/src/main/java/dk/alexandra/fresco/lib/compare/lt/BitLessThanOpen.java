@@ -29,7 +29,7 @@ public class BitLessThanOpen implements Computation<SInt, ProtocolBuilderNumeric
     List<DRes<SInt>> secretBits = secretBitsDef.out();
     OInt openValueA = openValueDef.out();
     int numBits = secretBits.size();
-    List<DRes<OInt>> openBits = builder.getOIntArithmetic().toBits(openValueA, numBits);
+    List<OInt> openBits = builder.getOIntArithmetic().toBits(openValueA, numBits);
     DRes<List<DRes<SInt>>> secretBitsNegated = builder.par(par -> {
       List<DRes<SInt>> negatedBits = new ArrayList<>(numBits);
       for (DRes<SInt> secretBit : secretBits) {

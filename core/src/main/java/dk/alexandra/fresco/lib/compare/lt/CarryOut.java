@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class CarryOut implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private final DRes<List<DRes<OInt>>> openBitsDef;
+  private final DRes<List<OInt>> openBitsDef;
   private final DRes<List<DRes<SInt>>> secretBitsDef;
   private final DRes<OInt> carryIn;
 
@@ -28,7 +28,7 @@ public class CarryOut implements Computation<SInt, ProtocolBuilderNumeric> {
    * @param carryIn an additional carry-in bit which we add to the least-significant bits of the
    * inputs
    */
-  public CarryOut(DRes<List<DRes<OInt>>> clearBits, DRes<List<DRes<SInt>>> secretBits,
+  public CarryOut(DRes<List<OInt>> clearBits, DRes<List<DRes<SInt>>> secretBits,
       DRes<OInt> carryIn) {
     this.secretBitsDef = secretBits;
     this.openBitsDef = clearBits;
@@ -38,7 +38,7 @@ public class CarryOut implements Computation<SInt, ProtocolBuilderNumeric> {
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     List<DRes<SInt>> secretBits = secretBitsDef.out();
-    List<DRes<OInt>> openBits = openBitsDef.out();
+    List<OInt> openBits = openBitsDef.out();
     if (secretBits.size() != openBits.size()) {
       throw new IllegalArgumentException("Number of bits must be the same");
     }
