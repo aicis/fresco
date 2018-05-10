@@ -63,7 +63,17 @@ public class Spdz2kSIntArithmetic<PlainT extends CompUInt<?, ?, PlainT>> extends
         isPartyOne);
     return add(wrapped);
   }
-  
+
+  /**
+   * Converts this to boolean representation ({@link Spdz2kSIntBoolean}).
+   */
+  public Spdz2kSIntBoolean<PlainT> toBoolean() {
+    return new Spdz2kSIntBoolean<>(
+        share.toBitRep(),
+        macShare.toBitRep().toArithmeticRep() // results in right-shift but keeps arithmetic rep
+    );
+  }
+
   @Override
   public String toString() {
     return "Spdz2kSIntArithmetic{" +

@@ -38,6 +38,11 @@ public class TestSpdz2kConversion extends
     runTest(new TestArithmeticToBool<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
 
+  @Test
+  public void testBoolToArithmetic() {
+    runTest(new TestBoolToArithmetic<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
+  }
+
   @Override
   protected Spdz2kResourcePool<CompUInt128> createResourcePool(int playerId, int noOfParties,
       Supplier<Network> networkSupplier) {
@@ -76,10 +81,46 @@ public class TestSpdz2kConversion extends
           Application<List<BigInteger>, ProtocolBuilderNumeric> app =
               root -> {
                 OIntFactory factory = root.getOIntFactory();
-                DRes<List<DRes<SInt>>> inputClosed = root.numeric().knownAsDRes(input);
+                DRes<List<DRes<SInt>>> inputClosed = root.collections().closeList(input, 1);
                 DRes<List<DRes<SInt>>> inputBool = root.conversion().toBooleanBatch(inputClosed);
                 DRes<List<DRes<OInt>>> opened = root.logical().openAsBits(inputBool);
                 return () -> opened.out().stream().map(v -> factory.toBigInteger(v.out()))
+                    .collect(Collectors.toList());
+              };
+          List<BigInteger> actual = runApplication(app);
+          List<BigInteger> expected = Arrays.asList(
+              BigInteger.ONE,
+              BigInteger.ZERO
+          );
+          Assert.assertEquals(expected, actual);
+        }
+      };
+    }
+  }
+
+  public static class TestBoolToArithmetic<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        private final List<BigInteger> input = Arrays.asList(
+            BigInteger.ONE,
+            BigInteger.ZERO
+        );
+
+        @Override
+        public void test() {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app =
+              root -> {
+                DRes<List<DRes<SInt>>> inputClosed = root.collections().closeList(input, 1);
+                DRes<List<DRes<SInt>>> inputBool = root.conversion().toBooleanBatch(inputClosed);
+                DRes<List<DRes<SInt>>> inputArithmetic = root.conversion()
+                    .toArithmeticBatch(inputBool);
+                DRes<List<DRes<BigInteger>>> opened = root.collections().openList(inputArithmetic);
+                return () -> opened.out().stream().map(DRes::out)
                     .collect(Collectors.toList());
               };
           List<BigInteger> actual = runApplication(app);

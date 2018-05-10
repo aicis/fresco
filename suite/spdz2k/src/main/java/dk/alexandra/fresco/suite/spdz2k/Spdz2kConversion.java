@@ -5,6 +5,7 @@ import dk.alexandra.fresco.framework.builder.numeric.Conversion;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kArithmeticToBooleanProtocol;
+import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kBooleanToArithmeticProtocol;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class Spdz2kConversion implements Conversion {
 
   @Override
   public DRes<SInt> toArithmetic(DRes<SInt> booleanValue) {
-    throw new UnsupportedOperationException();
+    return builder.append(new Spdz2kBooleanToArithmeticProtocol<>(booleanValue));
   }
 
   @Override
