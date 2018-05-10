@@ -47,6 +47,10 @@ public class Spdz2kBooleanToArithmeticProtocol<PlainT extends CompUInt<?, ?, Pla
     }
   }
 
+  /**
+   * Receive shares of value and reconstruct. <p>Note that this includes overflow into top s
+   * bits.</p>
+   */
   private PlainT receiveAndReconstruct(Network network, int noOfParties,
       CompUIntFactory<PlainT> factory) {
     int received = network.receive(1)[0];
