@@ -2,7 +2,6 @@ package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
-import dk.alexandra.fresco.framework.util.SIntPair;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.List;
@@ -40,7 +39,7 @@ public interface Comparison extends ComputationDirectory {
   DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y, int bitlength, Algorithm algorithm);
 
   /**
-   * Call to {@link #equals(DRes, DRes, int, ComparisonAlgorithm)} with default comparison
+   * Call to {@link #equals(DRes, DRes, int, Algorithm)} with default comparison
    * algorithm.
    */
   default DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y, int bitlength) {
@@ -48,7 +47,7 @@ public interface Comparison extends ComputationDirectory {
   }
 
   /**
-   * Call to {@link #equals(DRes, DRes, int, ComparisonAlgorithm)} with default comparison
+   * Call to {@link #equals(DRes, DRes, int, Algorithm)} with default comparison
    * algorithm, checking equality of all bits.
    */
   DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y);
