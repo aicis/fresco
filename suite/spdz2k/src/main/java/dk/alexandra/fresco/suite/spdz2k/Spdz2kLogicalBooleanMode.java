@@ -12,6 +12,7 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntBoolean;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAndKnownProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAndProtocol;
+import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kOutputToAll;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kXorKnownProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kXorProtocol;
 
@@ -75,7 +76,7 @@ public class Spdz2kLogicalBooleanMode<PlainT extends CompUInt<?, ?, PlainT>> ext
     // quite heavy machinery...
     return builder.seq(seq -> {
       Spdz2kSIntBoolean<PlainT> bit = factory.toSpdz2kSIntBoolean(secretBit);
-      return seq.numeric().openAsOInt(bit.asArithmetic());
+      return seq.append(new Spdz2kOutputToAll<>(bit.asArithmetic()));
     }).seq((seq, opened) -> {
       PlainT openBit = factory.fromOInt(opened);
       // TODO clean up
