@@ -32,6 +32,7 @@ public class Spdz2kBooleanToArithmeticProtocol<PlainT extends CompUInt<?, ?, Pla
       arithmeticR = resourcePool.getDataSupplier().getNextBitShare();
       Spdz2kSIntBoolean<PlainT> booleanR = arithmeticR.toBoolean();
       c = factory.toSpdz2kSIntBoolean(bool).xor(booleanR);
+      System.out.println("bool " + factory.toSpdz2kSIntBoolean(bool));
       network.sendToAll(c.serializeShareLow());
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
@@ -40,9 +41,12 @@ public class Spdz2kBooleanToArithmeticProtocol<PlainT extends CompUInt<?, ?, Pla
           c.asArithmetic(),
           openC.toArithmeticRep()
       );
-      int openCBit = openC.bitValue();
-      // equivalent to xor
-      arithmetic = (openCBit == 0) ? arithmeticR : arithmeticR.multiply(factory.one().negate());
+      // TODO
+      PlainT openCBit = openC.bitValue() == 1 ? factory.one() : factory.zero();
+      PlainT macKeyShare = resourcePool.getDataSupplier().getSecretSharedKey();
+      boolean isPartyOne = resourcePool.getMyId() == 1;
+      arithmetic = arithmeticR.addConstant(openCBit, macKeyShare, factory.zero(),
+          isPartyOne).subtract(arithmeticR.multiply(factory.two().multiply(openCBit)));
       return EvaluationStatus.IS_DONE;
     }
   }

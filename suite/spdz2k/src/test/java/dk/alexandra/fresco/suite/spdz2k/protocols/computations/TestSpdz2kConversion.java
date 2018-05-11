@@ -35,12 +35,12 @@ public class TestSpdz2kConversion extends
 
   @Test
   public void testArithmeticToBool() {
-    runTest(new TestArithmeticToBool<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
+    runTest(new TestArithmeticToBool<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testBoolToArithmetic() {
-    runTest(new TestBoolToArithmetic<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
+    runTest(new TestBoolToArithmetic<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Override

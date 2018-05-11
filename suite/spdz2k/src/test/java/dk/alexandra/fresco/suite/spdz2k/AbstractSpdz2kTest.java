@@ -28,7 +28,7 @@ public abstract class AbstractSpdz2kTest<Spdz2kResourcePoolT extends Spdz2kResou
 
   private final List<Integer> partyNumbers = Arrays.asList(2, 3);
 
-  void runTest(
+  protected void runTest(
       TestThreadRunner.TestThreadFactory<Spdz2kResourcePoolT, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy) {
     for (Integer numberOfParties : partyNumbers) {

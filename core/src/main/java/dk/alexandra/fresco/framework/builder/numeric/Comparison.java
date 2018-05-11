@@ -17,7 +17,7 @@ public interface Comparison extends ComputationDirectory {
    * algorithm running in constant rounds or logarithmic rounds should be used. In general the
    * logarithmic round choice is the fastest.
    */
-  public enum Algorithm {
+  enum Algorithm {
     LOG_ROUNDS, CONST_ROUNDS
   }
 

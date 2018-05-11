@@ -3,6 +3,9 @@ package dk.alexandra.fresco.suite.spdz2k;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.collections.io.CloseListTests.TestCloseAndOpenList;
+import dk.alexandra.fresco.lib.compare.CompareTests.TestCompareEQ;
+import dk.alexandra.fresco.lib.compare.CompareTests.TestCompareEQEdgeCases;
+import dk.alexandra.fresco.lib.compare.CompareTests.TestCompareEQZero;
 import dk.alexandra.fresco.lib.compare.CompareTests.TestLessThanLogRounds;
 import dk.alexandra.fresco.lib.math.integer.binary.BinaryOperationsTests.TestGenerateRandomBitMask;
 import dk.alexandra.fresco.suite.spdz2k.protocols.computations.TestSpdz2kComparison.TestBitLessThanOpenSpdz2k;
@@ -175,6 +178,21 @@ public abstract class Spdz2kTestSuite<Spdz2kResourcePoolT extends Spdz2kResource
     runTest(new TestXorKnownSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
+  @Test
+  public void testCompareZeroLogRounds() {
+    runTest(new TestCompareEQZero<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
+  public void testEqualsLogRounds() {
+    runTest(new TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
+  public void testEqualsEdgeCasesLogRounds() {
+    runTest(new TestCompareEQEdgeCases<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+  
   protected abstract int getMaxBitLength();
 
 }

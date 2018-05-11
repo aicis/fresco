@@ -37,57 +37,57 @@ public class TestSpdz2kLogicalOperations extends
 
   @Test
   public void testAnd() {
-    runTest(new TestAndSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
+    runTest(new TestAndSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testOr() {
-    runTest(new TestOrSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
+    runTest(new TestOrSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testAndXorSequence() {
-    runTest(new TestAndXorSequence<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
+    runTest(new TestAndXorSequence<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testSequentialAnd() {
-    runTest(new TestSequentialAndSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
+    runTest(new TestSequentialAndSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testXor() {
-    runTest(new TestXorSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
+    runTest(new TestXorSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testXorKnown() {
-    runTest(new TestXorKnownSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
+    runTest(new TestXorKnownSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testSequentialXor() {
-    runTest(new TestSequentialXorSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
+    runTest(new TestSequentialXorSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testSequentialAndKnown() {
-    runTest(new TestAndKnownSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
+    runTest(new TestAndKnownSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testXorRandom() {
-    runTest(new TestXorSpdz2kRandom<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
+    runTest(new TestXorSpdz2kRandom<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testAndRandom() {
-    runTest(new TestAndSpdz2kRandom<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
+    runTest(new TestAndSpdz2kRandom<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test
   public void testNot() {
-    runTest(new TestNotSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
+    runTest(new TestNotSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
 
