@@ -32,7 +32,6 @@ public class Spdz2kBooleanToArithmeticProtocol<PlainT extends CompUInt<?, ?, Pla
       arithmeticR = resourcePool.getDataSupplier().getNextBitShare();
       Spdz2kSIntBoolean<PlainT> booleanR = arithmeticR.toBoolean();
       c = factory.toSpdz2kSIntBoolean(bool).xor(booleanR);
-      System.out.println("bool " + factory.toSpdz2kSIntBoolean(bool));
       network.sendToAll(c.serializeShareLow());
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
