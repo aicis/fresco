@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.lib.lp;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 
 import dk.alexandra.fresco.framework.Application;
@@ -20,7 +21,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 import org.hamcrest.Matchers;
-import org.junit.Assert;
 
 
 public class LpBuildingBlockTests {
@@ -506,7 +506,7 @@ public class LpBuildingBlockTests {
    * @param value the value
    */
   private static void assertDebugInfoContains(String output, String key, String value) {
-    Assert.assertThat(output, Matchers.containsString(key + ": \n" + value));
+    assertThat(output, Matchers.containsString(key + ": \n" + value));
   }
 
 
