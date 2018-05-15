@@ -104,30 +104,27 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
         logger.info("LP Iterations=" + state.iteration + " solving " + identityHashCode);
         if (state.iteration >= maxNumberOfIterations) {
           logger.info("Aborting " + identityHashCode + " no solution found");
-          return Pair.lazy(null, () -> BigInteger.ONE);
+          return Pair.lazy(null, BigInteger.TEN);
         }
         if (pivotRule == PivotRule.BLAND) {
-          return blandPhaseOneProtocol(inner, state);
+          return phaseOneBland(inner, state);
         } else {
-          return phaseOneProtocol(inner, state, zero);
+          return phaseOneDanzig(inner, state, zero);
         }
       }).seq((inner, phaseOneOutput) -> {
-        BigInteger isFinished = phaseOneOutput.getSecond().out();
-        if (isFinished.equals(BigInteger.ONE)) {
-          if (phaseOneOutput.getFirst() != null) {
-            LpState lpState = new LpState(state.tableau, state.updateMatrix, state.basis,
-                state.pivot, state.iteration);
-            return () -> lpState;
-          } else {
-            return LpState::new;
-          }
-        } else {
+        int phaseOneResult = phaseOneOutput.getSecond().intValue();
+        if (phaseOneResult == 0) {
           if (isDebug()) {
             inner.debug()
                 .openAndPrint("Entering Variable [" + state.iteration + "]: ",
                     phaseOneOutput.getFirst(), System.out);
           }
           return phaseTwoProtocol(inner, state, phaseOneOutput.getFirst());
+        } else if (phaseOneResult == 1) {
+          return state::createTerminationState;
+        } else {
+          // Abort
+          return state::createAbortState;
         }
       });
     }).seq((seq, whileState) -> () -> new LPOutput(whileState.tableau, whileState.updateMatrix,
@@ -172,8 +169,7 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
           Matrix<DRes<SInt>> updateMatrix = pair.getSecond();
           List<DRes<SInt>> basis = pair.getFirst().getSecond();
           DRes<SInt> pivot = pair.getFirst().getFirst();
-          return () -> new LpState(basis, updateMatrix, pivot, state.iteration + 1,
-              state.tableau, state.enumeratedVariables, false, pivot);
+          return () -> state.createNextState(basis, updateMatrix, pivot);
         });
   }
 
@@ -185,9 +181,9 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
    * is the case we should terminate the simplex method.
    * </p>
    *
-   * @return a protocol producer for the first half of a simplex iteration
+   * @return a delayed result of the phaseOne computation of the first half of a simplex iteration
    */
-  private DRes<Pair<List<DRes<SInt>>, DRes<BigInteger>>> phaseOneProtocol(
+  private DRes<Pair<List<DRes<SInt>>, BigInteger>> phaseOneDanzig(
       ProtocolBuilderNumeric builder, LpState state,
       DRes<SInt> zero) {
     return builder
@@ -201,7 +197,7 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
           // Check if the entry in F is non-negative
           DRes<SInt> positive = seq.comparison().compareLEQLong(zero, () -> minimum);
           DRes<BigInteger> terminationOut = seq.numeric().open(positive);
-          return () -> new Pair<>(entering, terminationOut);
+          return () -> new Pair<>(entering, terminationOut.out());
         });
   }
 
@@ -213,9 +209,9 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
    * is present. If this is the case we should terminate the simplex method.
    * </p>
    *
-   * @return a protocol producer for the first half of a simplex iteration
+   * @return a delayed result of the phaseOne computation of the first half of a simplex iteration
    */
-  private DRes<Pair<List<DRes<SInt>>, DRes<BigInteger>>> blandPhaseOneProtocol(
+  private DRes<Pair<List<DRes<SInt>>, BigInteger>> phaseOneBland(
       ProtocolBuilderNumeric builder, LpState state) {
     return builder
         .seq(
@@ -226,7 +222,7 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
           List<DRes<SInt>> entering = enteringAndMinimum.getFirst();
           SInt termination = enteringAndMinimum.getSecond();
           DRes<BigInteger> terminationOut = seq.numeric().open(() -> termination);
-          return () -> new Pair<>(entering, terminationOut);
+          return () -> new Pair<>(entering, terminationOut.out());
         });
   }
 
@@ -328,15 +324,27 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
       this(basis, updateMatrix, pivot, 0, tableau, enumeratedVariables, false, prevPivot);
     }
 
-    public LpState(LPTableau tableau, Matrix<DRes<SInt>> updateMatrix,
-        List<DRes<SInt>> basis, DRes<SInt> pivot, int iteration) {
-      // Phase one completed
-      this(basis, updateMatrix, pivot, iteration, tableau, null, true, pivot);
+    public LpState createNextState(List<DRes<SInt>> basis, Matrix<DRes<SInt>> updateMatrix,
+        DRes<SInt> pivot) {
+      return new LpState(basis, updateMatrix, pivot, iteration + 1, tableau, enumeratedVariables,
+          false, pivot);
     }
 
-    public LpState() {
+    public LpState createTerminationState() {
+      return new LpState(basis, updateMatrix, pivot, iteration, tableau, null, true, pivot);
+    }
+/*
+
+    public LpState(LPTableau tableau, Matrix<DRes<SInt>> updateMatrix,
+        List<DRes<SInt>> basis, DRes<SInt> pivot, int iteration) {
+      // Phase one completed, we terminate
+      this(basis, updateMatrix, pivot, iteration, tableau, null, true, pivot);
+    }
+*/
+
+    public LpState createAbortState() {
       // To many iterations
-      this(null, null, null, null, -1);
+      return new LpState(null, null, null, -1, null, null, true, null);
     }
 
     public boolean terminated() {
