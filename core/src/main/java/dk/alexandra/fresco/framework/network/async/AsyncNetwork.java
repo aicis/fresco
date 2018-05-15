@@ -39,8 +39,9 @@ import org.slf4j.LoggerFactory;
  */
 public class AsyncNetwork implements CloseableNetwork {
 
-  private static final int PARTY_ID_BYTES = 1;
   public static final Duration DEFAULT_CONNECTION_TIMEOUT = Duration.ofMinutes(1);
+  private static final int PARTY_ID_BYTES = 1;
+  private static final Duration RECEIVE_TIMEOUT = Duration.ofMillis(100);
   private static final Logger logger = LoggerFactory.getLogger(AsyncNetwork.class);
 
   private ServerSocketChannel server;
@@ -291,13 +292,13 @@ public class AsyncNetwork implements CloseableNetwork {
   public void send(int partyId, byte[] data) {
     inRange(partyId);
     if (partyId != conf.getMyId() && sendFutures.get(partyId).isDone()) {
-      Exception exception = null;
       try {
         sendFutures.get(partyId).get();
       } catch (Exception e) {
-        exception = e;
+        throw new RuntimeException("Sender for P" + partyId + " threw exception. Unable to send",
+            e);
       }
-      throw new RuntimeException("Receiver not running, unable to receive", exception);
+      throw new RuntimeException("Sender for P" + partyId + " not running. Unable to send");
     }
     if (partyId == conf.getMyId()) {
       this.inQueues.get(partyId).add(data);
@@ -309,17 +310,22 @@ public class AsyncNetwork implements CloseableNetwork {
   @Override
   public byte[] receive(int partyId) {
     inRange(partyId);
-    if (partyId != conf.getMyId() && receiveFutures.get(partyId).isDone()) {
-      Exception exception = null;
-      try {
-        receiveFutures.get(partyId).get();
-      } catch (Exception e) {
-        exception = e;
+    byte[] data = null;
+    while (data == null) {
+      if (partyId != conf.getMyId() && receiveFutures.get(partyId).isDone()) {
+        try {
+          receiveFutures.get(partyId).get();
+        } catch (Exception e) {
+          throw new RuntimeException("Receiver for P" + partyId
+              + " threw exception. Unable to receive", e);
+        }
+        throw new RuntimeException("Receiver for P" + partyId
+            + " not running. Unable to receive");
       }
-      throw new RuntimeException("Receiver not running, unable to receive", exception);
+      data = ExceptionConverter.safe(() ->
+        this.inQueues.get(partyId).poll(RECEIVE_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS),
+          "Receive interrupted");
     }
-    byte[] data =
-        ExceptionConverter.safe(() -> this.inQueues.get(partyId).take(), "Receive interrupted");
     return data;
   }
 
@@ -391,7 +397,7 @@ public class AsyncNetwork implements CloseableNetwork {
         f.get();
       } catch (Exception e) {
         // TODO: Should this cause close to throw an exception?
-        logger.warn("A failed sender detected during close", e);
+        logger.warn("A failed sender detected while closing network");
       }
     }
     // Here we just check if any receivers failed
@@ -400,7 +406,8 @@ public class AsyncNetwork implements CloseableNetwork {
       try {
         f.get();
       } catch (Exception e) {
-        logger.warn("A failed receiver detected during close", e);
+        //TODO: Should this cause close to throw an exception?
+        logger.warn("A failed receiver detected while closing network");
       }
     }
     if (communicationService != null) {
