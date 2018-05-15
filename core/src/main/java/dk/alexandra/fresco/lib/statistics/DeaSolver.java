@@ -141,7 +141,7 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
               pivotRule, tableau, update, pivot, initialBasis, maxNumberOfIterations);
           return lpSolver.buildComputation(solverSec);
         }).seq((optSec, lpOutput) -> {
-          if (lpOutput.pivot == null) {
+          if (lpOutput.isAborted()) {
             return Pair.lazy(
                 new Pair<>(new ArrayList<>(), new ArrayList<>()),
                 () -> new OptimalValue.Result(null, null, null));

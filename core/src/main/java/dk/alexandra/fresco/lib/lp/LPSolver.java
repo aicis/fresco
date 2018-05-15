@@ -291,6 +291,10 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
       this.basis = basis;
       this.pivot = pivot;
     }
+
+    public boolean isAborted() {
+      return pivot == null;
+    }
   }
 
   protected static class LpState {
