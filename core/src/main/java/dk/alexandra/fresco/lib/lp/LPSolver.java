@@ -334,11 +334,11 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
     }
 
     public LpState createTerminationState() {
-      return new LpState(tableau, basis, updateMatrix, pivot, pivot, null, iteration, true);
+      return new LpState(tableau, basis, updateMatrix, pivot, pivot, null, iteration + 1, true);
     }
 
     public LpState createAbortState() {
-      return new LpState(null, null, null, null, null, null, -1, true);
+      return new LpState(null, null, null, null, null, null, iteration + 1, true);
     }
 
     public boolean terminated() {
