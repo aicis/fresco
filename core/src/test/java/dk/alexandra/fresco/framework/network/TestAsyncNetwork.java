@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.framework.network.async;
+package dk.alexandra.fresco.framework.network;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
@@ -7,6 +7,8 @@ import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.CloseableNetwork;
+import dk.alexandra.fresco.framework.network.AsyncNetwork.Receiver;
+import dk.alexandra.fresco.framework.network.AsyncNetwork.Sender;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.ServerSocket;
@@ -221,32 +223,76 @@ public class TestAsyncNetwork {
     sendMultipleToSingleReceiver(2, 10000);
   }
 
+  @SuppressWarnings("unchecked")
+  @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS)
+  public void testStopSenderTwice() throws Exception {
+    networks = createNetworks(2);
+    // Cancel sendfuture to provoke an exception while sending
+    Field f1 = networks.get(1).getClass().getDeclaredField("senders");
+    f1.setAccessible(true);
+    AsyncNetwork.Sender sender =
+        ((HashMap<Integer, AsyncNetwork.Sender>)f1.get(networks.get(1))).get(2);
+    sender.stop();
+    sender.stop();
+    f1.setAccessible(false);
+  }
+
   // TESTING FOR FAILURE
 
   @SuppressWarnings("unchecked")
-  @Test(expected = RuntimeException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
-  public void testFailedSend() throws InterruptedException {
+  @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS, expected = CancellationException.class)
+  public void testFailedSender() throws Exception {
     networks = createNetworks(2);
-    for (int i = 0; i < 1000; i++) {
-      networks.get(1).send(2, new byte[] { 0x01 });
-    }
+    Field f1 = networks.get(1).getClass().getDeclaredField("senders");
+    f1.setAccessible(true);
+    AsyncNetwork.Sender sender =
+        ((HashMap<Integer, AsyncNetwork.Sender>)f1.get(networks.get(1))).get(2);
+    Field f2 = sender.getClass().getDeclaredField("future");
+    f2.setAccessible(true);
+    Future<Object> future = ((Future<Object>)f2.get(sender));
+    future.cancel(true);
     try {
-      // Cancel sendfuture to provoke an exception while sending
-      Field f = networks.get(1).getClass().getDeclaredField("sendFutures");
-      f.setAccessible(true);
-      Future<Object> future = ((HashMap<Integer, Future<Object>>) f.get(networks.get(1))).get(2);
-      future.cancel(true);
       future.get();
-      f.setAccessible(false);
     } catch (CancellationException ce) {
-      // Ignore, this should happen
-    } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
-        | IllegalAccessException e) {
-      fail("Reflection related error");
-    } catch (ExecutionException e) {
-      fail("Unexpected ExecutionException");
+      // Ignore
     }
-    networks.get(1).send(2, new byte[] { 0x01 });
+    sender.stop();
+    f1.setAccessible(false);
+    f2.setAccessible(false);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS, expected = CancellationException.class)
+  public void testFailedReceiver() throws Exception {
+    networks = createNetworks(2);
+    Field f1 = networks.get(1).getClass().getDeclaredField("receivers");
+    f1.setAccessible(true);
+    AsyncNetwork.Receiver receiver =
+        ((HashMap<Integer, AsyncNetwork.Receiver>)f1.get(networks.get(1))).get(2);
+    Field f2 = receiver.getClass().getDeclaredField("future");
+    f2.setAccessible(true);
+    Future<Object> future = ((Future<Object>)f2.get(receiver));
+    future.cancel(true);
+    try {
+      future.get();
+    } catch (CancellationException ce) {
+      // Ignore
+    }
+    receiver.stop();
+    f1.setAccessible(false);
+    f2.setAccessible(false);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS)
+  public void testReceiver() throws Exception {
+    networks = createNetworks(2);
+    Field f1 = networks.get(1).getClass().getDeclaredField("receivers");
+    f1.setAccessible(true);
+    AsyncNetwork.Receiver receiver =
+        ((HashMap<Integer, AsyncNetwork.Receiver>)f1.get(networks.get(1))).get(2);
+    receiver.stop();
+    f1.setAccessible(false);
   }
 
   @Test(expected = IllegalArgumentException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
@@ -270,29 +316,6 @@ public class TestAsyncNetwork {
   @Test(expected = IllegalArgumentException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
   public void testReceiveFromTooLargePartyId() {
     networks = createNetworks(1);
-    networks.get(1).receive(2);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Test(expected = RuntimeException.class, timeout = TWO_MINUTE_TIMEOUT_MILLIS)
-  public void testFailedReceive() throws Exception {
-    networks = createNetworks(2);
-    try {
-      // Cancel receiveFuture to provoke exception when receiving
-      Field f = networks.get(1).getClass().getDeclaredField("receiveFutures");
-      f.setAccessible(true);
-      Future<Object> future = ((HashMap<Integer, Future<Object>>) f.get(networks.get(1))).get(2);
-      future.cancel(true);
-      future.get();
-      f.setAccessible(false);
-    } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
-        | IllegalAccessException e) {
-      fail("Reflection related error");
-    } catch (CancellationException ce) {
-      // Ignore, this should happen
-    } catch (Exception e) {
-      fail("Should not throw exception yet");
-    }
     networks.get(1).receive(2);
   }
 

@@ -7,7 +7,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
@@ -82,8 +82,7 @@ public class TestInputSumExample {
 
   private static Network createNetwork(
       NetworkConfiguration networkConfiguration) {
-    KryoNetNetwork kryoNetNetwork = new KryoNetNetwork(networkConfiguration);
-    return kryoNetNetwork;
+    return new AsyncNetwork(networkConfiguration);
   }
 
   @Test

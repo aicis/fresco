@@ -18,16 +18,4 @@ public class ExceptionConverterTest {
         "Ignored");
   }
 
-  @Test(expected = RuntimeException.class)
-  public void safeComputeWithExceptionHandling() throws Exception {
-    ExceptionConverter.safe(
-        () -> {
-          throw new NullPointerException();
-        },
-        () -> {
-          throw new NullPointerException();
-        },
-        "Ignored");
-  }
-
 }
