@@ -93,8 +93,8 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
         enumeratedVariables.add(BigInteger.valueOf(i));
       }
 
-      LpState initialState = new LpState(tableau, updateMatrix, pivot,
-          enumeratedVariables, initialBasis, pivot);
+      LpState initialState = LpState.createInitialState(tableau, initialBasis, updateMatrix, pivot,
+          enumeratedVariables, pivot);
       return () -> initialState;
     }).whileLoop(state -> !state.terminated(), (seq, state) -> {
       if (isDebug()) {
@@ -123,7 +123,7 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
         } else if (phaseOneResult == 1) {
           return state::createTerminationState;
         } else {
-          // Abort
+          // Abort, to many iterations
           return state::createAbortState;
         }
       });
@@ -304,9 +304,9 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
     private final List<DRes<SInt>> basis;
     private final DRes<SInt> prevPivot;
 
-    public LpState(List<DRes<SInt>> basis, Matrix<DRes<SInt>> updateMatrix,
-        DRes<SInt> pivot, int iteration, LPTableau tableau, List<BigInteger> enumeratedVariables,
-        boolean terminated, DRes<SInt> prevPivot) {
+    private LpState(LPTableau tableau, List<DRes<SInt>> basis, Matrix<DRes<SInt>> updateMatrix,
+        DRes<SInt> pivot, DRes<SInt> prevPivot, List<BigInteger> enumeratedVariables, int iteration,
+        boolean terminated) {
       // Phase two protocol
       this.iteration = iteration;
       this.terminated = terminated;
@@ -318,33 +318,27 @@ public class LPSolver implements Computation<LPOutput, ProtocolBuilderNumeric> {
       this.basis = basis;
     }
 
-    public LpState(LPTableau tableau, Matrix<DRes<SInt>> updateMatrix,
+    public static LpState createInitialState(LPTableau tableau,
+        List<DRes<SInt>> basis, Matrix<DRes<SInt>> updateMatrix,
         DRes<SInt> pivot, List<BigInteger> enumeratedVariables,
-        List<DRes<SInt>> basis, DRes<SInt> prevPivot) {
-      this(basis, updateMatrix, pivot, 0, tableau, enumeratedVariables, false, prevPivot);
+        DRes<SInt> prevPivot) {
+      return new LpState(
+          tableau, basis, updateMatrix, pivot, prevPivot, enumeratedVariables, 0, false
+      );
     }
 
     public LpState createNextState(List<DRes<SInt>> basis, Matrix<DRes<SInt>> updateMatrix,
         DRes<SInt> pivot) {
-      return new LpState(basis, updateMatrix, pivot, iteration + 1, tableau, enumeratedVariables,
-          false, pivot);
+      return new LpState(
+          tableau, basis, updateMatrix, pivot, pivot, enumeratedVariables, iteration + 1, false);
     }
 
     public LpState createTerminationState() {
-      return new LpState(basis, updateMatrix, pivot, iteration, tableau, null, true, pivot);
+      return new LpState(tableau, basis, updateMatrix, pivot, pivot, null, iteration, true);
     }
-/*
-
-    public LpState(LPTableau tableau, Matrix<DRes<SInt>> updateMatrix,
-        List<DRes<SInt>> basis, DRes<SInt> pivot, int iteration) {
-      // Phase one completed, we terminate
-      this(basis, updateMatrix, pivot, iteration, tableau, null, true, pivot);
-    }
-*/
 
     public LpState createAbortState() {
-      // To many iterations
-      return new LpState(null, null, null, -1, null, null, true, null);
+      return new LpState(null, null, null, null, null, null, -1, true);
     }
 
     public boolean terminated() {
