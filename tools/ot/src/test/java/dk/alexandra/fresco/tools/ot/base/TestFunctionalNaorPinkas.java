@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
+import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
@@ -11,7 +12,7 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.helper.HelperForTests;
 import dk.alexandra.fresco.tools.helper.RuntimeForTests;
-import dk.alexandra.fresco.tools.ot.otextension.CheatingNetwork;
+import dk.alexandra.fresco.tools.ot.otextension.CheatingNetworkDecorator;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -50,7 +51,7 @@ public class TestFunctionalNaorPinkas {
 
   private List<Pair<StrictBitVector, StrictBitVector>> otSend(int iterations) throws Exception {
     Network network =
-        new CheatingNetwork(RuntimeForTests.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
+        new CheatingNetworkDecorator(new AsyncNetwork(RuntimeForTests.defaultNetworkConfiguration(1, Arrays.asList(1, 2))));
     try {
       Drbg rand = new AesCtrDrbg(HelperForTests.seedOne);
       Ot otSender = new NaorPinkasOt(2, rand, network, staticParams);
@@ -70,7 +71,7 @@ public class TestFunctionalNaorPinkas {
 
   private List<StrictBitVector> otReceive(StrictBitVector choices) throws Exception {
     Network network =
-        new CheatingNetwork(RuntimeForTests.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
+        new CheatingNetworkDecorator(new AsyncNetwork(RuntimeForTests.defaultNetworkConfiguration(2, Arrays.asList(1, 2))));
     try {
       Drbg rand = new AesCtrDrbg(HelperForTests.seedTwo);
       Ot otReceiver = new NaorPinkasOt(1, rand, network, staticParams);
@@ -143,14 +144,15 @@ public class TestFunctionalNaorPinkas {
   /***** NEGATIVE TESTS. *****/
   private List<StrictBitVector> otSendCheat() throws IOException {
     Network network =
-        new CheatingNetwork(RuntimeForTests.defaultNetworkConfiguration(1, Arrays.asList(1, 2)));
+        new CheatingNetworkDecorator(
+            new AsyncNetwork(RuntimeForTests.defaultNetworkConfiguration(1, Arrays.asList(1, 2))));
     try {
       Drbg rand = new AesCtrDrbg(HelperForTests.seedOne);
       Ot otSender = new NaorPinkasOt(2, rand, network, staticParams);
       StrictBitVector msgZero = new StrictBitVector(messageLength, rand);
       StrictBitVector msgOne = new StrictBitVector(messageLength, rand);
       // Send a wrong random value c, than what is actually used
-      ((CheatingNetwork) network).cheatInNextMessage(0, 0);
+      ((CheatingNetworkDecorator) network).cheatInNextMessage(0, 0);
       otSender.send(msgZero, msgOne);
       List<StrictBitVector> messages = new ArrayList<>(2);
       messages.add(msgZero);
@@ -163,7 +165,8 @@ public class TestFunctionalNaorPinkas {
 
   private List<StrictBitVector> otReceiveCheat(boolean choice) throws IOException {
     Network network =
-        new CheatingNetwork(RuntimeForTests.defaultNetworkConfiguration(2, Arrays.asList(1, 2)));
+        new CheatingNetworkDecorator(
+            new AsyncNetwork(RuntimeForTests.defaultNetworkConfiguration(2, Arrays.asList(1, 2))));
     try {
       Drbg rand = new AesCtrDrbg(HelperForTests.seedTwo);
       Ot otReceiver = new NaorPinkasOt(1, rand, network, staticParams);
