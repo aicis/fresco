@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
@@ -13,7 +14,7 @@ import dk.alexandra.fresco.framework.util.HmacDrbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.helper.HelperForTests;
 import dk.alexandra.fresco.tools.helper.RuntimeForTests;
-import dk.alexandra.fresco.tools.ot.otextension.CheatingNetwork;
+import dk.alexandra.fresco.tools.ot.otextension.CheatingNetworkDecorator;
 import java.io.Closeable;
 import java.util.Arrays;
 import java.util.List;
@@ -60,10 +61,10 @@ public class TestCoinTossing {
     ctOne = new CoinTossing(1, 2, randOne);
     ctTwo = new CoinTossing(2, 1, randTwo);
     List<Callable<Network>> createNets = Arrays.asList(
-        () -> new CheatingNetwork(RuntimeForTests
-            .defaultNetworkConfiguration(1, Arrays.asList(1, 2))),
-        () -> new CheatingNetwork(RuntimeForTests
-            .defaultNetworkConfiguration(2, Arrays.asList(1, 2)))
+        () -> new CheatingNetworkDecorator(
+            new AsyncNetwork(RuntimeForTests.defaultNetworkConfiguration(1, Arrays.asList(1, 2)))),
+        () -> new CheatingNetworkDecorator(
+            new AsyncNetwork(RuntimeForTests.defaultNetworkConfiguration(2, Arrays.asList(1, 2))))
     );
     List<Network> nets = this.testRuntime.runPerPartyTasks(createNets);
     this.netOne = nets.get(0);

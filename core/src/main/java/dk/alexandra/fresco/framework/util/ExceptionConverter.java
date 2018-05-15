@@ -26,29 +26,4 @@ public class ExceptionConverter {
     }
   }
 
-  /**
-   * Use this method to create a safe call.
-   *
-   * @param callable the method to execute
-   * @param exceptionHandler If <code>callable</code> throws an exception, this code will be
-   *        executed before a runtime exception will be thrown. Any exceptions thrown within this
-   *        callable will be converted into a runtime exception.
-   * @param message the error message if there is an exception
-   * @param <T> the return type
-   * @return the computed value
-   */
-  @SuppressWarnings("finally")
-  public static <T> T safe(Callable<T> callable, Callable<Void> exceptionHandler, String message) {
-    try {
-      return callable.call();
-    } catch (Exception e) {
-      try {
-        exceptionHandler.call();
-      } catch(Exception ex) {
-        //ignore
-      } finally {
-        throw new RuntimeException(message, e);
-      }
-    }
-  }
 }

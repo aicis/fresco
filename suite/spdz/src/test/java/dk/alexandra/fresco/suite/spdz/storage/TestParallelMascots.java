@@ -5,7 +5,7 @@ import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
-import dk.alexandra.fresco.suite.spdz.KryoNetManager;
+import dk.alexandra.fresco.suite.spdz.NetManager;
 import dk.alexandra.fresco.tools.mascot.Mascot;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePoolImpl;
 import dk.alexandra.fresco.tools.mascot.MascotSecurityParameters;
@@ -88,7 +88,7 @@ public class TestParallelMascots {
 
   private List<Map<Integer, RotList>> setupOts() {
     List<Callable<Map<Integer, RotList>>> seedOtTasks = new ArrayList<>();
-    KryoNetManager otManager = new KryoNetManager(ports);
+    NetManager otManager = new NetManager(ports);
     for (int myId = 1; myId <= noOfParties; myId++) {
       int myFinalId = myId;
       Callable<Map<Integer, RotList>> task = () -> perPartySingleSeedOtSetup(myFinalId,
@@ -121,7 +121,7 @@ public class TestParallelMascots {
     List<Callable<Mascot>> mascotCreators = new ArrayList<>();
     for (int i = 0; i < iterations; i++) {
       @SuppressWarnings("resource")
-      KryoNetManager normalManager = new KryoNetManager(ports);
+      NetManager normalManager = new NetManager(ports);
       for (int myId = 1; myId <= noOfParties; myId++) {
         FieldElement randomSsk = perPartyMacKeyShares.get(myId);
         int finalMyId = myId;
@@ -144,7 +144,7 @@ public class TestParallelMascots {
     List<Callable<List<MultiplicationTriple>>> mascotCreators = new ArrayList<>();
     for (int i = 0; i < iterations; i++) {
       @SuppressWarnings("resource")
-      KryoNetManager normalManager = new KryoNetManager(ports);
+      NetManager normalManager = new NetManager(ports);
       for (int myId = 1; myId <= noOfParties; myId++) {
         int finalMyId = myId;
         int finalInstanceId = i;

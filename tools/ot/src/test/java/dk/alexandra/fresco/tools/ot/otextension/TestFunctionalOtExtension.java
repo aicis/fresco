@@ -196,7 +196,7 @@ public class TestFunctionalOtExtension {
     // up to the random choices of the sender. We have verifies that for the static
     // randomness used by our tests this happens for choice 1
     int corruptUVecPos = 1;
-    ((CheatingNetwork) receiverNetwork)
+    ((CheatingNetworkDecorator) receiverNetwork)
         .cheatInNextMessage(corruptUVecPos, 0);
     Callable<List<?>> partyTwoExtend = () -> extendRotReceiver(choices);
     // run tasks and get ordered list of results
