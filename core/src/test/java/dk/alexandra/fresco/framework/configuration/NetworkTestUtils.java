@@ -40,7 +40,8 @@ public class NetworkTestUtils {
   }
 
   /**
-   * Finds {@code portsRequired} free ports and returns their port numbers.
+   * Finds {@code portsRequired} free ports and returns their port numbers. <p>NOTE: two subsequent
+   * calls to this method can return overlapping sets of free ports (same with parallel calls).</p>
    *
    * @param portsRequired number of free ports required
    * @return list of port numbers of free ports

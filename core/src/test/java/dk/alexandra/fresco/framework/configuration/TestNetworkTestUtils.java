@@ -43,11 +43,10 @@ public class TestNetworkTestUtils {
   public void testGetFreePortsGivesUniquePorts() {
     int numPorts = 100;
     int numIterations = 5;
-    Set<Integer> uniquePorts = new HashSet<>();
     for (int i = 0; i < numIterations; i++) {
-      uniquePorts.addAll(NetworkTestUtils.getFreePorts(numPorts));
+      Set<Integer> uniquePorts = new HashSet<>(NetworkTestUtils.getFreePorts(numPorts));
+      assertEquals(numPorts, uniquePorts.size());
     }
-    assertEquals(numIterations * numPorts, uniquePorts.size());
   }
 
   @Test
