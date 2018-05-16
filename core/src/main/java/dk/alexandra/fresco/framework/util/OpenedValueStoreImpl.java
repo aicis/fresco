@@ -23,6 +23,12 @@ public class OpenedValueStoreImpl<AuthT, OpenT> implements OpenedValueStore<Auth
   }
 
   @Override
+  public void pushOpenedValue(AuthT newShareWithMac, OpenT newOpenedValue) {
+    sharesWithMacs.add(newShareWithMac);
+    openValues.add(newOpenedValue);
+  }
+
+  @Override
   public Pair<List<AuthT>, List<OpenT>> popValues() {
     // the caller has the responsibility of managing the returned lists, so we clear by referencing
     // new empty lists (which avoids copying) and return references to original value lists
