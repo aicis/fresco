@@ -9,6 +9,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Network-related functionality such as creating valid network configurations and finding free
+ * ports.
+ */
 public class NetworkTestUtils {
 
   public static Map<Integer, NetworkConfiguration> getNetworkConfigurations(int n,
@@ -57,7 +61,7 @@ public class NetworkTestUtils {
       try {
         socket.close();
       } catch (IOException e) {
-        e.printStackTrace();
+        throw new RuntimeException("No free ports", e);
       }
       return portNumber;
     }).collect(Collectors.toList());
