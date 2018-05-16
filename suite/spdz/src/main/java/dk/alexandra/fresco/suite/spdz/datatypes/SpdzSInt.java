@@ -16,7 +16,6 @@ public class SpdzSInt implements SInt, Serializable {
    *
    * @param share The share
    * @param mac The mac
-   * @param modulus The modulus
    */
   public SpdzSInt(BigInteger share, BigInteger mac, BigInteger modulus) {
     this.share = share;
@@ -24,30 +23,6 @@ public class SpdzSInt implements SInt, Serializable {
     this.mod = modulus;
   }
 
-  //Communication methods
-
-  /**
-   * Create a SpdzSInt containing a share, mac and modulus. This constructor handles serialized
-   * data.
-   *
-   * @param data Array of bytes containing the share and mac. First half contains the share, second
-   * contains the mac
-   * @param modulus The modulus
-   * @param modulusSize The size of the share and mac
-   */
-  public SpdzSInt(byte[] data, BigInteger modulus, int modulusSize) {
-    byte[] shareBytes = new byte[modulusSize];
-    byte[] macBytes = new byte[modulusSize];
-    for (int i = 0; i < data.length / 2; i++) {
-      shareBytes[i] = data[i];
-      macBytes[i] = data[modulusSize + i];
-    }
-    this.share = new BigInteger(shareBytes);
-    this.mac = new BigInteger(macBytes);
-    mod = modulus;
-  }
-
-  //get operations
   public BigInteger getShare() {
     return share;
   }
@@ -57,9 +32,9 @@ public class SpdzSInt implements SInt, Serializable {
   }
 
   /**
-   * Adds two SpdzSInt.
+   * Adds two {@link SpdzSInt} instances.
    *
-   * @param e The element to add
+   * @param e The value to add
    * @return The sum
    */
   public SpdzSInt add(SpdzSInt e) {
@@ -69,10 +44,10 @@ public class SpdzSInt implements SInt, Serializable {
   }
 
   /**
-   * Add a public value to this element.
+   * Add a public value to this {@link SpdzSInt}.
    *
-   * @param e The element to add
-   * @param id The id
+   * @param e The value to add
+   * @param id The party id (used to determine if this call was made by party 1 or not)
    * @return The sum
    */
   public SpdzSInt add(SpdzSInt e, int id) {
@@ -86,9 +61,9 @@ public class SpdzSInt implements SInt, Serializable {
   }
 
   /**
-   * Subtract a SpdzSInt from this element.
+   * Subtract a {@link SpdzSInt} from this value.
    *
-   * @param e The element to subtract
+   * @param e The value to subtract
    * @return The difference
    */
   public SpdzSInt subtract(SpdzSInt e) {
@@ -100,10 +75,10 @@ public class SpdzSInt implements SInt, Serializable {
   }
 
   /**
-   * Multiply this element with a constant.
+   * Multiply this {@link SpdzSInt} with a constant.
    *
    * @param c The constant to multiply
-   * @return The multiple
+   * @return The product
    */
   public SpdzSInt multiply(BigInteger c) {
     BigInteger share = this.share.multiply(c).mod(mod);
