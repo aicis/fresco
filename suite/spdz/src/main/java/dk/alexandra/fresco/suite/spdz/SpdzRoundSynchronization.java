@@ -73,7 +73,10 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
   @Override
   public void finishedBatch(int gatesEvaluated, SpdzResourcePool resourcePool, Network network) {
     OpenedValueStore<SpdzSInt, BigInteger> store = resourcePool.getOpenedValueStore();
-    if (isCheckRequired || store.exceedsThreshold(openValueThreshold)) {
+    if (isCheckRequired) {
+      doMacCheck(resourcePool, network);
+      isCheckRequired = false;
+    } else if (store.exceedsThreshold(openValueThreshold)) {
       doMacCheck(resourcePool, network);
       isCheckRequired = false;
     }
