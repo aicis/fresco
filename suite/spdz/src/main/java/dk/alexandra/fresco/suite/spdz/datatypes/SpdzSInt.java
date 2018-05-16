@@ -4,6 +4,9 @@ import dk.alexandra.fresco.framework.value.SInt;
 import java.io.Serializable;
 import java.math.BigInteger;
 
+/**
+ * Spdz-specific representation of a secret integer.
+ */
 public class SpdzSInt implements SInt, Serializable {
 
   private static final long serialVersionUID = 8828769687281856043L;
@@ -86,8 +89,6 @@ public class SpdzSInt implements SInt, Serializable {
     return new SpdzSInt(share, mac, this.mod);
   }
 
-  //Utility methods
-
   @Override
   public String toString() {
     return "spdz(" + share + ", " + mac + ")";
@@ -143,4 +144,5 @@ public class SpdzSInt implements SInt, Serializable {
   public SInt out() {
     return this;
   }
+
 }
