@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.framework.util;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -22,15 +21,12 @@ public interface OpenedValueStore<AuthT, OpenT> {
   void pushOpenedValues(List<AuthT> newSharesWithMacs, List<OpenT> newOpenedValues);
 
   /**
-   * Default call to {@link #pushOpenedValues(List, List)} that wraps single elements in lists.
+   * Call to {@link #pushOpenedValues(List, List)} that wraps single elements in lists.
    *
    * @param newShareWithMac the authenticated element storing the mac share
    * @param newOpenedValue the open value
    */
-  default void pushOpenedValue(AuthT newShareWithMac, OpenT newOpenedValue) {
-    pushOpenedValues(Collections.singletonList(newShareWithMac),
-        Collections.singletonList(newOpenedValue));
-  }
+  void pushOpenedValue(AuthT newShareWithMac, OpenT newOpenedValue);
 
   /**
    * Retrieve all values that haven't been checked yet. <p>Note that this passes ownership of the
