@@ -161,8 +161,10 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
 
   @Override
   public CompUInt128 shiftLeft(int n) {
-    // TODO hack hack hack
-    return new CompUInt128(this.toBigInteger().shiftLeft(n));
+    int nInv = Integer.SIZE - n;
+    long newHigh = (high << n) + UInt.toUnLong(mid >>> nInv);
+    int newMid = (mid << n) + (low >>> nInv);
+    return new CompUInt128(newHigh, newMid, low << n);
   }
 
   @Override
@@ -308,6 +310,11 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
         | (bytes[flipped - 1] & 0xFF) << 8
         | (bytes[flipped - 2] & 0xFF) << 16
         | (bytes[flipped - 3] & 0xFF) << 24;
+  }
+
+  public static void main(String args[]) {
+    int n = 32;
+    System.out.println(100 << n);
   }
 
 }

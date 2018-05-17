@@ -322,13 +322,19 @@ public class TestCompUInt128 {
 
   @Test
   public void testShiftLeft() {
-    // TODO more tests
-    assertEquals(new BigInteger("0").shiftLeft(63),
-        new CompUInt128(new BigInteger("0")).shiftLeft(63).toBigInteger());
-    assertEquals(new BigInteger("1").shiftLeft(63),
-        new CompUInt128(new BigInteger("1")).shiftLeft(63).toBigInteger());
-    assertEquals(new BigInteger("12312").shiftLeft(12),
-        new CompUInt128(new BigInteger("12312")).shiftLeft(12).toBigInteger());
+    byte[] bytes = new byte[16];
+    new Random(1).nextBytes(bytes);
+    CompUInt128 r = new CompUInt128(bytes);
+    for (int i = 1; i < 32; i++) {
+      assertEquals("Number of shifts " + i, r.toBigInteger().shiftLeft(i).mod(twoTo128).toString(2),
+          r.shiftLeft(i).toBigInteger().toString(2));
+    }
+//    assertEquals(new BigInteger("1").shiftLeft(63),
+//        new CompUInt128(new BigInteger("1")).shiftLeft(63).toBigInteger());
+//    assertEquals(new BigInteger("12312").shiftLeft(12),
+//        new CompUInt128(new BigInteger("12312")).shiftLeft(12).toBigInteger());
+//    assertEquals(new BigInteger("12312").shiftLeft(68),
+//        new CompUInt128(new BigInteger("12312")).shiftLeft(68).toBigInteger());
   }
 
   @Test
