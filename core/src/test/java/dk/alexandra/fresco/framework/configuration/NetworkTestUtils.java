@@ -15,16 +15,23 @@ import java.util.stream.Collectors;
  */
 public class NetworkTestUtils {
 
+  /**
+   * Creates a map of party IDs to network address (uses localhost and supplied ports) information.
+   *
+   * @param n the number of parties
+   * @param ports the ports to be used
+   * @return a map of party IDs to network address information
+   */
   public static Map<Integer, NetworkConfiguration> getNetworkConfigurations(int n,
       List<Integer> ports) {
     Map<Integer, NetworkConfiguration> confs = new HashMap<>(n);
+    Map<Integer, Party> partyMap = new HashMap<>();
+    int id = 1;
+    for (int port : ports) {
+      partyMap.put(id, new Party(id, "localhost", port));
+      id++;
+    }
     for (int i = 0; i < n; i++) {
-      Map<Integer, Party> partyMap = new HashMap<>();
-      int id = 1;
-      for (int port : ports) {
-        partyMap.put(id, new Party(id, "localhost", port));
-        id++;
-      }
       confs.put(i + 1, new NetworkConfigurationImpl(i + 1, partyMap));
     }
     return confs;
