@@ -340,6 +340,26 @@ public class TestCompUInt128 {
   }
 
   @Test
+  public void testShiftRightSmall() {
+    byte[] bytes = new byte[16];
+    new Random(2).nextBytes(bytes);
+    CompUInt128 r = new CompUInt128(bytes);
+    for (int i = 0; i < 64; i++) {
+      assertEquals("Number of shifts " + i, r.toBigInteger().shiftRight(i).mod(twoTo128).toString(2),
+          r.shiftRightSmall(i).toBigInteger().toString(2));
+    }
+    for (int i = 0; i < 64; i++) {
+      CompUInt128 element = new CompUInt128(1L << i);
+      assertEquals("Number of shifts " + i, BigInteger.ONE,
+          element.shiftRightSmall(i).toBigInteger());
+    }
+    assertEquals(new BigInteger("12312"),
+        new CompUInt128(new BigInteger("12312")).shiftRightSmall(0).toBigInteger());
+    assertEquals(new BigInteger("12312"),
+        new CompUInt128(new BigInteger("12312")).shiftRightSmall(-1).toBigInteger());
+  }
+
+  @Test
   public void testToBit() {
     assertEquals(BigInteger.ZERO, new CompUInt128(0).toBitRep().toBigInteger());
     assertEquals(twoTo64.shiftRight(1), new CompUInt128(1).toBitRep().toBigInteger());

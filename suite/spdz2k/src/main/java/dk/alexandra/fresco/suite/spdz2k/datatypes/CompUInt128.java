@@ -173,7 +173,14 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
 
   @Override
   public CompUInt128 shiftRightSmall(int n) {
-    return null;
+    if (n <= 0) {
+      return this;
+    }
+    int nInv = (Long.SIZE - n);
+    long midAndLow = (UInt.toUnLong(mid) << 32) | UInt.toUnLong(low);
+    long newHigh = high >>> n;
+    long midAndLowShifted = (high << nInv) | (midAndLow >>> n);
+    return new CompUInt128(newHigh, (int) (midAndLowShifted >>> 32), (int) midAndLowShifted);
   }
 
   @Override
