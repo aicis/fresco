@@ -54,7 +54,7 @@ public class OptimalValue implements
     public final SInt numerator;
     public final SInt denominator;
 
-    private Result(SInt optimal, SInt numerator, SInt denominator) {
+    public Result(SInt optimal, SInt numerator, SInt denominator) {
       this.optimal = optimal;
       this.numerator = numerator;
       this.denominator = denominator;
