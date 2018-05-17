@@ -321,20 +321,22 @@ public class TestCompUInt128 {
   }
 
   @Test
-  public void testShiftLeft() {
+  public void testShiftLeftSmall() {
     byte[] bytes = new byte[16];
     new Random(1).nextBytes(bytes);
     CompUInt128 r = new CompUInt128(bytes);
-    for (int i = 1; i < 32; i++) {
+    for (int i = 0; i < 64; i++) {
       assertEquals("Number of shifts " + i, r.toBigInteger().shiftLeft(i).mod(twoTo128).toString(2),
-          r.shiftLeft(i).toBigInteger().toString(2));
+          r.shiftLeftSmall(i).toBigInteger().toString(2));
     }
-//    assertEquals(new BigInteger("1").shiftLeft(63),
-//        new CompUInt128(new BigInteger("1")).shiftLeft(63).toBigInteger());
-//    assertEquals(new BigInteger("12312").shiftLeft(12),
-//        new CompUInt128(new BigInteger("12312")).shiftLeft(12).toBigInteger());
-//    assertEquals(new BigInteger("12312").shiftLeft(68),
-//        new CompUInt128(new BigInteger("12312")).shiftLeft(68).toBigInteger());
+    assertEquals(new BigInteger("1").shiftLeft(63),
+        new CompUInt128(new BigInteger("1")).shiftLeftSmall(63).toBigInteger());
+    assertEquals(new BigInteger("12312").shiftLeft(12),
+        new CompUInt128(new BigInteger("12312")).shiftLeftSmall(12).toBigInteger());
+    assertEquals(new BigInteger("12312"),
+        new CompUInt128(new BigInteger("12312")).shiftLeftSmall(0).toBigInteger());
+    assertEquals(new BigInteger("12312"),
+        new CompUInt128(new BigInteger("12312")).shiftLeftSmall(-1).toBigInteger());
   }
 
   @Test
