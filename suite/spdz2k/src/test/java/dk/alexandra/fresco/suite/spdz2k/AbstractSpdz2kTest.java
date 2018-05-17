@@ -5,7 +5,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.configuration.TestConfiguration;
+import dk.alexandra.fresco.framework.configuration.NetworkTestUtils;
 import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
@@ -15,9 +15,6 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -39,11 +36,10 @@ public abstract class AbstractSpdz2kTest<Spdz2kResourcePoolT extends Spdz2kResou
   protected void runTest(
       TestThreadFactory<Spdz2kResourcePoolT, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, int noOfParties) {
-
-    List<Integer> ports = getFreePorts(2 * noOfParties);
+    List<Integer> ports = NetworkTestUtils.getFreePorts(2 * noOfParties);
     Map<Integer, NetworkConfiguration> netConf =
-        TestConfiguration.getNetworkConfigurations(noOfParties, ports.subList(0, noOfParties));
-    Map<Integer, NetworkConfiguration> coinTossingNetConf = TestConfiguration
+        NetworkTestUtils.getNetworkConfigurations(noOfParties, ports.subList(0, noOfParties));
+    Map<Integer, NetworkConfiguration> coinTossingNetConf = NetworkTestUtils
         .getNetworkConfigurations(noOfParties, ports.subList(noOfParties, ports.size()));
 
     Map<Integer, TestThreadRunner.TestThreadConfiguration<Spdz2kResourcePoolT, ProtocolBuilderNumeric>> conf =
@@ -70,18 +66,6 @@ public abstract class AbstractSpdz2kTest<Spdz2kResourcePoolT extends Spdz2kResou
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
-  }
-
-  private List<Integer> getFreePorts(int numPorts) {
-    List<Integer> ports = new ArrayList<>();
-    for (int i = 0; i < numPorts; i++) {
-      try (ServerSocket s = new ServerSocket(0)) {
-        ports.add(s.getLocalPort());
-      } catch (IOException e) {
-        throw new RuntimeException("No free ports", e);
-      }
-    }
-    return ports;
   }
 
   protected abstract Spdz2kResourcePoolT createResourcePool(int playerId, int noOfParties,
