@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.framework.configuration;
 
 import dk.alexandra.fresco.framework.Party;
+import dk.alexandra.fresco.framework.util.Pair;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
@@ -49,12 +50,12 @@ public class NetworkConfigurationImpl implements NetworkConfiguration {
    * Verifies that all party addresses are unique.
    */
   private static void checkAddressesUnique(Map<Integer, Party> parties) {
-    Set<String> addresses = new HashSet<>();
+    Set<Pair<String, String>> addresses = new HashSet<>();
     for (Party party : parties.values()) {
-      addresses.add(party.getHostname() + " " + party.getPort());
+      addresses.add(new Pair<>(party.getHostname(), Integer.toString(party.getPort())));
     }
     if (addresses.size() != parties.size()) {
-      throw new IllegalArgumentException("Party addresses must be unique: " + addresses);
+      throw new IllegalArgumentException("Party addresses must be unique: " + parties);
     }
   }
 
