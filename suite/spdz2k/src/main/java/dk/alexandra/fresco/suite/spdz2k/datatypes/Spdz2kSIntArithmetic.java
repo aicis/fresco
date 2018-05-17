@@ -70,7 +70,7 @@ public class Spdz2kSIntArithmetic<PlainT extends CompUInt<?, ?, PlainT>> extends
   public Spdz2kSIntBoolean<PlainT> toBoolean() {
     return new Spdz2kSIntBoolean<>(
         share.toBitRep(),
-        macShare.toBitRep().toArithmeticRep() // results in right-shift but keeps arithmetic rep
+        macShare.shiftLeftSmall(macShare.getLowBitLength() - 1)
     );
   }
 
