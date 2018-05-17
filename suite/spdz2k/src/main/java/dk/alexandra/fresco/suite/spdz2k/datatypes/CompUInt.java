@@ -29,10 +29,16 @@ public interface CompUInt<
   HighT getLeastSignificantAsHigh();
 
   /**
-   * Shift left by n bits where n < k. <p>Result of a shift by n >= k is undefined. A shift for n <=
+   * Left shift by n bits where n < k. <p>Result of a shift by n >= k is undefined. A shift for n <=
    * 0 returns this, unchanged.</p>
    */
   CompT shiftLeftSmall(int n);
+
+  /**
+   * Unsigned right shift by n bits where n < k. <p>Result of a shift by n >= k is undefined. A
+   * shift for n <= 0 returns this, unchanged.</p>
+   */
+  CompT shiftRightSmall(int n);
 
   /**
    * Left-shift the k least significant bits by k.
