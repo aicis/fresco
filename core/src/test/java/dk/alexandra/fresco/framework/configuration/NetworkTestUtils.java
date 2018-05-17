@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
  */
 public class NetworkTestUtils {
 
+  private NetworkTestUtils() {
+  }
+
   /**
    * Creates a map of party IDs to network address (uses localhost and supplied ports) information.
    *
