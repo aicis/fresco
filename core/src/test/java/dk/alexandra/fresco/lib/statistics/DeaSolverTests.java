@@ -8,6 +8,7 @@ import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.lib.lp.LPSolver.PivotRule;
 import dk.alexandra.fresco.lib.statistics.DeaSolver.AnalysisType;
 import dk.alexandra.fresco.lib.statistics.DeaSolver.DeaResult;
 import java.math.BigInteger;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
+import org.hamcrest.core.IsNull;
 import org.junit.Assert;
 
 /**
@@ -37,9 +39,14 @@ public class DeaSolverTests {
 
     private RandomDataDeaTest(int inputVariables, int outputVariables, int rows, int queries,
         AnalysisType type, Random rand) {
+      this(inputVariables, outputVariables, rows, queries, type, rand, 50, false);
+    }
+
+    public RandomDataDeaTest(int inputVariables, int outputVariables, int rows, int queries,
+        AnalysisType type, Random rand, int maxNoOfIterations, boolean willBreak) {
       super(randomMatrix(rows, inputVariables, rand), randomMatrix(rows, outputVariables, rand),
           randomMatrix(queries, inputVariables, rand), randomMatrix(queries, outputVariables, rand),
-          type);
+          type, maxNoOfIterations, willBreak);
     }
 
     private static List<List<BigInteger>> randomMatrix(int width, int height, Random rand) {
@@ -73,7 +80,7 @@ public class DeaSolverTests {
     }
 
     public TestDeaFixed1(AnalysisType type) {
-      super(inputs, outputs, inputs, outputs, type);
+      super(inputs, outputs, inputs, outputs, type, 50, false);
     }
   }
 
@@ -92,7 +99,7 @@ public class DeaSolverTests {
 
 
     public TestDeaFixed2(AnalysisType type) {
-      super(inputs, outputs, inputs, outputs, type);
+      super(inputs, outputs, inputs, outputs, type, 50, false);
     }
   }
 
@@ -124,15 +131,20 @@ public class DeaSolverTests {
     private final List<List<BigInteger>> rawBasisOutputs;
     private final List<List<BigInteger>> rawBasisInputs;
     private final AnalysisType type;
+    private final int maxNoOfIterations;
+    private boolean willBreak;
 
     public TestDeaSolver(List<List<BigInteger>> rawBasisInputs,
         List<List<BigInteger>> rawBasisOutputs, List<List<BigInteger>> rawTargetInputs,
-        List<List<BigInteger>> rawTargetOutputs, AnalysisType type) {
+        List<List<BigInteger>> rawTargetOutputs, AnalysisType type, int maxNoOfIterations,
+        boolean willBreak) {
       this.rawTargetOutputs = rawTargetOutputs;
       this.rawTargetInputs = rawTargetInputs;
       this.rawBasisOutputs = rawBasisOutputs;
       this.rawBasisInputs = rawBasisInputs;
       this.type = type;
+      this.maxNoOfIterations = maxNoOfIterations;
+      this.willBreak = willBreak;
     }
 
 
@@ -152,12 +164,18 @@ public class DeaSolverTests {
             List<List<DRes<SInt>>> targetInputs = knownMatrix(numeric, rawTargetInputs);
             List<List<DRes<SInt>>> basisOutputs = knownMatrix(numeric, rawBasisOutputs);
             List<List<DRes<SInt>>> basisInputs = knownMatrix(numeric, rawBasisInputs);
-            return () -> new DeaSolver(type, targetInputs, targetOutputs, basisInputs,
-                basisOutputs);
+            return () -> new DeaSolver(PivotRule.DANZIG, type, targetInputs, targetOutputs,
+                basisInputs,
+                basisOutputs, maxNoOfIterations);
           };
           DeaSolver solver = runApplication(app);
 
           List<DeaResult> deaResults = runApplication(solver);
+
+          if (willBreak) {
+            deaResults.forEach(result -> Assert.assertThat(result.optimal, IsNull.nullValue()));
+            return;
+          }
 
           Application<List<OpenDeaResult>, ProtocolBuilderNumeric> app2 =
               producer -> {

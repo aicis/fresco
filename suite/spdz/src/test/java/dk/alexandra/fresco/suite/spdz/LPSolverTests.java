@@ -51,7 +51,7 @@ class LPSolverTests {
               return () -> prefix;
             }).seq((seq, prefix) -> seq
                 .seq(new LPSolver(pivotRule, prefix.getTableau(),
-                    prefix.getUpdateMatrix(), prefix.getPivot(), prefix.getBasis()))
+                    prefix.getUpdateMatrix(), prefix.getPivot(), prefix.getBasis(), 50))
                 .seq((inner, out) ->
                     new OptimalValue(out.updateMatrix, out.tableau, out.pivot)
                         .buildComputation(inner))
