@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.lib.lp;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
+import org.hamcrest.Matchers;
 
 
 public class LpBuildingBlockTests {
@@ -226,7 +227,7 @@ public class LpBuildingBlockTests {
                 seq.numeric().known(BigInteger.valueOf(5)),
                 seq.numeric().known(BigInteger.valueOf(6))));
         LPSolver solver = new LPSolver(rule, secretTableau, secretUpdateMatrix,
-            pivot, initialBasis);
+            pivot, initialBasis, 50);
         return solver.buildComputation(seq);
       }).seq((seq2, lpOutput) -> {
         OptimalValue ov = new OptimalValue(lpOutput.updateMatrix, lpOutput.tableau, lpOutput.pivot);
@@ -287,7 +288,7 @@ public class LpBuildingBlockTests {
                 seq.numeric().known(BigInteger.valueOf(5)),
                 seq.numeric().known(BigInteger.valueOf(6))));
         LPSolver solver = new LPSolver(LPSolver.PivotRule.DANZIG, secretTableau, secretUpdateMatrix,
-            pivot, initialBasis) {
+            pivot, initialBasis, 50) {
 
           @Override
           protected boolean isDebug() {
@@ -403,8 +404,8 @@ public class LpBuildingBlockTests {
             assertDebugInfoContains(debugOutput, "B", "1, 2, 3, ");
             assertDebugInfoContains(debugOutput, "F", "-1, -1, -1, 0, 0, 0, ");
             assertDebugInfoContains(debugOutput, "z", "0");
-            assertDebugInfoContains(debugOutput, "Basis [1]", "4, 5, 6,");
-            assertDebugInfoContains(debugOutput, "Basis [4]", "1, 2, 3,");
+            assertDebugInfoContains(debugOutput, "Basis [0]", "4, 5, 6,");
+            assertDebugInfoContains(debugOutput, "Basis [3]", "1, 2, 3,");
             assertDebugInfoContains(debugOutput, "Update Matrix [1]", "1, 0, 0, 0, \n"
                 + "0, 1, 0, 0, \n"
                 + "0, 0, 1, 0, \n"
@@ -505,7 +506,7 @@ public class LpBuildingBlockTests {
    * @param value the value
    */
   private static void assertDebugInfoContains(String output, String key, String value) {
-    assertTrue(output.contains(key + ": \n" + value));
+    assertThat(output, Matchers.containsString(key + ": \n" + value));
   }
 
 
