@@ -34,6 +34,7 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
   private final List<List<DRes<SInt>>> targetOutputs;
   private final List<List<DRes<SInt>>> inputDataSet;
   private final List<List<DRes<SInt>>> outputDataSet;
+  private int maxNumberOfIterations;
 
   private final AnalysisType type;
   private final PivotRule pivotRule;
@@ -52,7 +53,7 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
   public DeaSolver(AnalysisType type, List<List<DRes<SInt>>> inputValues,
       List<List<DRes<SInt>>> outputValues, List<List<DRes<SInt>>> setInput,
       List<List<DRes<SInt>>> setOutput) {
-    this(PivotRule.DANZIG, type, inputValues, outputValues, setInput, setOutput);
+    this(PivotRule.DANZIG, type, inputValues, outputValues, setInput, setOutput, 50);
   }
 
   /**
@@ -66,16 +67,19 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
    * @param outputValues Matrix of query output values
    * @param setInput Matrix containing the basis input
    * @param setOutput Matrix containing the basis output
+   * @param maxNumberOfIterations the LpSolver might not terminate, the solver stops after this
+   *     no
    */
   public DeaSolver(PivotRule pivotRule, AnalysisType type, List<List<DRes<SInt>>> inputValues,
       List<List<DRes<SInt>>> outputValues, List<List<DRes<SInt>>> setInput,
-      List<List<DRes<SInt>>> setOutput) {
+      List<List<DRes<SInt>>> setOutput, int maxNumberOfIterations) {
     this.pivotRule = pivotRule;
     this.type = type;
     this.targetInputs = inputValues;
     this.targetOutputs = outputValues;
     this.inputDataSet = setInput;
     this.outputDataSet = setOutput;
+    this.maxNumberOfIterations = maxNumberOfIterations;
     if (!consistencyCheck()) {
       throw new IllegalArgumentException("Inconsistent dataset / query data");
     }
@@ -133,9 +137,15 @@ public class DeaSolver implements Application<List<DeaResult>, ProtocolBuilderNu
         List<DRes<SInt>> initialBasis = prefix.getBasis();
 
         result.add(par.seq(subSeq -> subSeq.seq((solverSec) -> {
-          LPSolver lpSolver = new LPSolver(pivotRule, tableau, update, pivot, initialBasis);
+          LPSolver lpSolver = new LPSolver(
+              pivotRule, tableau, update, pivot, initialBasis, maxNumberOfIterations);
           return lpSolver.buildComputation(solverSec);
         }).seq((optSec, lpOutput) -> {
+          if (lpOutput.isAborted()) {
+            return Pair.lazy(
+                new Pair<>(new ArrayList<>(), new ArrayList<>()),
+                () -> new OptimalValue.Result(null, null, null));
+          }
           // Compute peers from lpOutput
           DRes<SInt> invPivot = optSec.advancedNumeric().invert(lpOutput.pivot);
           List<DRes<SInt>> column = new LinkedList<>(tableau.getB());
