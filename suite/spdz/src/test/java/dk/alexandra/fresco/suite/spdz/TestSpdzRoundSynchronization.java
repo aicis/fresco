@@ -21,7 +21,56 @@ public class TestSpdzRoundSynchronization extends AbstractSpdzTest {
         PreprocessingStrategy.DUMMY, 2);
   }
 
+  @Test
+  public void testMacCheckExceedThreshold() {
+    runTest(new TestMacCheckExceedThreshold<>(),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
+        PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Override
+  protected SpdzProtocolSuite createProtocolSuite(int maxBitLength) {
+    return new LowThresholdSpdzSuite(128, 128);
+  }
+
+  private class LowThresholdSpdzSuite extends SpdzProtocolSuite {
+
+    public LowThresholdSpdzSuite(int maxBitLength, int fixedPointPrecision) {
+      super(maxBitLength, fixedPointPrecision);
+    }
+
+    @Override
+    public RoundSynchronization<SpdzResourcePool> createRoundSynchronization() {
+      return new SpdzRoundSynchronization(this, 0, 128);
+    }
+  }
+
   private static class TestMacCheckEvalFinished<ResourcePoolT extends SpdzResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() {
+          Application<SInt, ProtocolBuilderNumeric> testApplication = root -> {
+            DRes<SInt> left = root.numeric().known(BigInteger.ZERO);
+            DRes<SInt> right = root.numeric().known(BigInteger.ONE);
+            return root.numeric().mult(left, right);
+          };
+          // this tests verifies that the round synchronization logic works correctly when we
+          // do not have output protocols in our application but still open values during
+          // multiplication
+          runApplication(testApplication);
+          Assert.assertFalse(
+              "There should be no unchecked opened values after the evaluation has finished",
+              conf.getResourcePool().getOpenedValueStore().hasPendingValues());
+        }
+      };
+    }
+  }
+
+  private static class TestMacCheckExceedThreshold<ResourcePoolT extends SpdzResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
