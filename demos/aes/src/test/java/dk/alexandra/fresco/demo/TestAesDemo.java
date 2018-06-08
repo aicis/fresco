@@ -9,7 +9,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.configuration.TestConfiguration;
+import dk.alexandra.fresco.framework.configuration.NetworkTestUtils;
 import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
@@ -40,7 +40,7 @@ public class TestAesDemo {
       ports.add(9000 + i * 10);
     }
     Map<Integer, NetworkConfiguration> netConf =
-        TestConfiguration.getNetworkConfigurations(noPlayers, ports);
+        NetworkTestUtils.getNetworkConfigurations(noPlayers, ports);
     Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
         new HashMap<>();
     for (int playerId : netConf.keySet()) {

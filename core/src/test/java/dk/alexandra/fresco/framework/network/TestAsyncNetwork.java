@@ -6,9 +6,7 @@ import static org.junit.Assert.fail;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
-import dk.alexandra.fresco.framework.network.CloseableNetwork;
-import dk.alexandra.fresco.framework.network.AsyncNetwork.Receiver;
-import dk.alexandra.fresco.framework.network.AsyncNetwork.Sender;
+import dk.alexandra.fresco.framework.configuration.NetworkTestUtils;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.ServerSocket;
@@ -411,18 +409,6 @@ public class TestAsyncNetwork {
     }
   }
 
-  private List<Integer> getFreePorts(int numPorts) {
-    List<Integer> ports = new ArrayList<>();
-    for (int i = 0; i < numPorts; i++) {
-      try (ServerSocket s = new ServerSocket(0)) {
-        ports.add(s.getLocalPort());
-      } catch (IOException e) {
-        throw new RuntimeException("No free ports", e);
-      }
-    }
-    return ports;
-  }
-
   private Map<Integer, CloseableNetwork> createNetworks(int numParties) {
     List<NetworkConfiguration> confs = getNetConfs(numParties);
     return createNetworks(confs);
@@ -449,7 +435,7 @@ public class TestAsyncNetwork {
   private List<NetworkConfiguration> getNetConfs(int numParties) {
     Map<Integer, Party> parties = new HashMap<>(numParties);
     List<NetworkConfiguration> confs = new ArrayList<>(numParties);
-    List<Integer> ports = getFreePorts(numParties);
+    List<Integer> ports = NetworkTestUtils.getFreePorts(numParties);
     int id = 1;
     for (Integer port : ports) {
       parties.put(id, new Party(id, "localhost", port));

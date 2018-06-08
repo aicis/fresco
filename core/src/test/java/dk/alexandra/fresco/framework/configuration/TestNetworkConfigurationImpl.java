@@ -9,7 +9,7 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 
-public class NetworkConfigurationImplTest {
+public class TestNetworkConfigurationImpl {
   
   private NetworkConfiguration netConf;
   private Party me;
@@ -66,6 +66,53 @@ public class NetworkConfigurationImplTest {
     for (int i = 1; i < netConf.noOfParties() + 1; i++) {
       assertTrue(s.contains(netConf.getParty(i).toString()));
     }
+  }
+
+  @Test
+  public void testUniqueAddressCheckDifferentHostsSamePorts() {
+    // validates that sanity check uses both hosts and ports to check for uniqueness
+    Map<Integer, Party> parties = new HashMap<>(numParties);
+    for (int i = 1; i < numParties; i++) {
+      Party p = new Party(i, "host" + i, 3000);
+      parties.put(i, p);
+      this.me = (i == myId) ? p : me;
+    }
+    this.netConf = new NetworkConfigurationImpl(myId, parties);
+  }
+
+  @Test
+  public void testUniqueAddressCheckSameHostsDifferentPorts() {
+    // validates that sanity check uses both hosts and ports to check for uniqueness
+    Map<Integer, Party> parties = new HashMap<>(numParties);
+    for (int i = 1; i < numParties; i++) {
+      Party p = new Party(i, "host", 3000 + i);
+      parties.put(i, p);
+      this.me = (i == myId) ? p : me;
+    }
+    this.netConf = new NetworkConfigurationImpl(myId, parties);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testUniqueAddressCheckAllSameHostsAndPorts() {
+    Map<Integer, Party> parties = new HashMap<>(3);
+    for (int i = 1; i < numParties; i++) {
+      Party p = new Party(i, "host", 3000);
+      parties.put(i, p);
+      this.me = (i == myId) ? p : me;
+    }
+    this.netConf = new NetworkConfigurationImpl(myId, parties);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testUniqueAddressCheckSameHostsAndPorts() {
+    Map<Integer, Party> parties = new HashMap<>(3);
+    for (int i = 1; i < numParties; i++) {
+      Party p = new Party(i, "host", 3000 + i);
+      parties.put(i, p);
+      this.me = (i == myId) ? p : me;
+    }
+    parties.put(1, new Party(1, "host", 3002));
+    this.netConf = new NetworkConfigurationImpl(myId, parties);
   }
 
 }
