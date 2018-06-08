@@ -6,7 +6,7 @@
   <parent>
     <groupId>dk.alexandra.fresco</groupId>
     <artifactId>fresco-protocol-suites-pom</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2-SNAPSHOT</version>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
