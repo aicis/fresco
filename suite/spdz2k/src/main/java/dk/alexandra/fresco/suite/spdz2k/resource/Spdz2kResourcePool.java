@@ -6,11 +6,12 @@ import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.OpenedValueStore;
 import dk.alexandra.fresco.suite.spdz2k.Spdz2kProtocolSuite;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kDataSupplier;
-import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kOpenedValueStore;
 import java.math.BigInteger;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -25,9 +26,9 @@ public interface Spdz2kResourcePool<PlainT extends CompUInt<?, ?, PlainT>>
     extends NumericResourcePool {
 
   /**
-   * Returns instance of {@link Spdz2kOpenedValueStore} which tracks all opened, unchecked values.
+   * Returns instance of {@link OpenedValueStore} which tracks all opened, unchecked values.
    */
-  Spdz2kOpenedValueStore<PlainT> getOpenedValueStore();
+  OpenedValueStore<Spdz2kSInt<PlainT>, PlainT> getOpenedValueStore();
 
   /**
    * Returns instance of {@link Spdz2kDataSupplier} which provides pre-processed material such as

@@ -15,6 +15,7 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.compare.CompareTests;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
@@ -22,21 +23,20 @@ import dk.alexandra.fresco.lib.real.RealNumericContext;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.spdz.maccheck.MaliciousSpdzMacCheckProtocol;
 import dk.alexandra.fresco.suite.spdz.maccheck.MaliciousSpdzRoundSynchronization;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzOpenedValueStoreImpl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class TestMaliciousBehaviour {
 
   enum Corrupt {
-    COMMIT_ROUND_1, OPEN_COMMIT_ROUND_1, COMMIT_ROUND_2, OPEN_COMMIT_ROUND_2, INPUT
+    COMMIT_ROUND, OPEN_COMMIT_ROUND, INPUT
   }
 
   /**
@@ -44,60 +44,49 @@ public class TestMaliciousBehaviour {
    */
   @Before
   public void reset() {
-    MaliciousSpdzMacCheckProtocol.corruptCommitRound1 = false;
-    MaliciousSpdzMacCheckProtocol.corruptOpenCommitRound1 = false;
-    MaliciousSpdzMacCheckProtocol.corruptCommitRound2 = false;
-    MaliciousSpdzMacCheckProtocol.corruptOpenCommitRound2 = false;
-
+    MaliciousSpdzMacCheckProtocol.corruptCommitRound = false;
+    MaliciousSpdzMacCheckProtocol.corruptOpenCommitRound = false;
   }
 
-  @Test(expected=MaliciousException.class)
-  public void testCommitmentCorruptRound1() throws Throwable {
+  @Test
+  public void testCommitmentCorruptRound2() {
     try {
       runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
-          Corrupt.COMMIT_ROUND_1);
+          Corrupt.COMMIT_ROUND);
+      Assert.fail("Should not go well");
     } catch (RuntimeException e) {
-      throw e.getCause().getCause();
+      if (e.getCause().getCause() == null || !(e.getCause()
+          .getCause() instanceof MaliciousException)) {
+        Assert.fail();
+      }
     }
   }
 
-  @Test(expected=MaliciousException.class)
-  public void testOpenCommitmentCorruptRound1() throws Throwable {
+  @Test
+  public void testOpenCommitmentCorruptRound2() {
     try {
       runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2,
-          Corrupt.OPEN_COMMIT_ROUND_1);
+          Corrupt.OPEN_COMMIT_ROUND);
+      Assert.fail("Should not go well");
     } catch (RuntimeException e) {
-      throw e.getCause().getCause();
+      if (e.getCause().getCause() == null || !(e.getCause()
+          .getCause() instanceof MaliciousException)) {
+        Assert.fail();
+      }
     }
   }
 
-  @Test(expected=MaliciousException.class)
-  public void testCommitmentCorruptRound2() throws Throwable {
-    try {
-      runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 3,
-          Corrupt.COMMIT_ROUND_2);
-    } catch (RuntimeException e) {
-      throw e.getCause().getCause();
-    }
-  }
-
-  @Test(expected=MaliciousException.class)
-  public void testOpenCommitmentCorruptRound2() throws Throwable {
-    try {
-      runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2,
-          Corrupt.OPEN_COMMIT_ROUND_2);
-    } catch (RuntimeException e) {
-      throw e.getCause().getCause();
-    }
-  }
-
-  @Test(expected=MaliciousException.class)
-  public void testMaliciousInput() throws Throwable {
+  @Test
+  public void testMaliciousInput() {
     try {
       runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2,
           Corrupt.INPUT);
+      Assert.fail("Should not go well");
     } catch (RuntimeException e) {
-      throw e.getCause().getCause();
+      if (e.getCause().getCause() == null || !(e.getCause()
+          .getCause() instanceof MaliciousException)) {
+        Assert.fail();
+      }
     }
   }
 
@@ -138,30 +127,24 @@ public class TestMaliciousBehaviour {
   }
 
   private SpdzResourcePool createResourcePool(int myId, int size) {
-    SpdzDataSupplier supplier = new SpdzDummyDataSupplier(myId, size);
-    SpdzStorage store = new SpdzStorageImpl(supplier);
-    return new SpdzResourcePoolImpl(myId, size, store);
+    return new SpdzResourcePoolImpl(myId, size, new SpdzOpenedValueStoreImpl(),
+        new SpdzDummyDataSupplier(myId, size),
+        new AesCtrDrbg(new byte[32]));
   }
 
   private class MaliciousSpdzProtocolSuite extends SpdzProtocolSuite {
 
     private Corrupt corrupt;
 
-    public MaliciousSpdzProtocolSuite(int maxBitLength, Corrupt corrupt) {
+    MaliciousSpdzProtocolSuite(int maxBitLength, Corrupt corrupt) {
       super(maxBitLength);
       this.corrupt = corrupt;
       switch (corrupt) {
-        case COMMIT_ROUND_1:
-          MaliciousSpdzMacCheckProtocol.corruptCommitRound1 = true;
+        case COMMIT_ROUND:
+          MaliciousSpdzMacCheckProtocol.corruptCommitRound = true;
           break;
-        case OPEN_COMMIT_ROUND_1:
-          MaliciousSpdzMacCheckProtocol.corruptOpenCommitRound1 = true;
-          break;
-        case COMMIT_ROUND_2:
-          MaliciousSpdzMacCheckProtocol.corruptCommitRound2 = true;
-          break;
-        case OPEN_COMMIT_ROUND_2:
-          MaliciousSpdzMacCheckProtocol.corruptOpenCommitRound2 = true;
+        case OPEN_COMMIT_ROUND:
+          MaliciousSpdzMacCheckProtocol.corruptOpenCommitRound = true;
           break;
         default:
           break;

@@ -5,9 +5,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.util.TransposeUtils;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -77,7 +76,7 @@ public class TestSpdzDummyDataSupplier {
       masks.add(supplier.getNextInputMask(towardParty));
     }
     BigInteger realValue = null;
-    List<SpdzElement> shares = new ArrayList<>(noOfParties);
+    List<SpdzSInt> shares = new ArrayList<>(noOfParties);
     for (int i = 0; i < noOfParties; i++) {
       SpdzInputMask spdzInputMask = masks.get(i);
       if (i + 1 != towardParty) {
@@ -87,7 +86,7 @@ public class TestSpdzDummyDataSupplier {
       }
       shares.add(spdzInputMask.getMask());
     }
-    SpdzElement recombined = recombine(shares);
+    SpdzSInt recombined = recombine(shares);
     assertMacCorrect(recombined, macKey, modulus);
     assertEquals(realValue, recombined.getShare());
   }
@@ -101,11 +100,11 @@ public class TestSpdzDummyDataSupplier {
   private void testGetNextBit(int noOfParties, BigInteger modulus) {
     List<SpdzDummyDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
     BigInteger macKey = getMacKeyFromSuppliers(suppliers);
-    List<SpdzElement> bitShares = new ArrayList<>(noOfParties);
+    List<SpdzSInt> bitShares = new ArrayList<>(noOfParties);
     for (SpdzDummyDataSupplier supplier : suppliers) {
-      bitShares.add(supplier.getNextBit().value);
+      bitShares.add(supplier.getNextBit());
     }
-    SpdzElement recombined = recombine(bitShares);
+    SpdzSInt recombined = recombine(bitShares);
     assertMacCorrect(recombined, macKey, modulus);
     BigInteger value = recombined.getShare();
     assertTrue("Value not a bit " + value,
@@ -121,11 +120,11 @@ public class TestSpdzDummyDataSupplier {
   private void testGetNextRandomFieldElement(int noOfParties, BigInteger modulus) {
     List<SpdzDummyDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
     BigInteger macKey = getMacKeyFromSuppliers(suppliers);
-    List<SpdzElement> bitShares = new ArrayList<>(noOfParties);
+    List<SpdzSInt> bitShares = new ArrayList<>(noOfParties);
     for (SpdzDummyDataSupplier supplier : suppliers) {
-      bitShares.add(supplier.getNextRandomFieldElement().value);
+      bitShares.add(supplier.getNextRandomFieldElement());
     }
-    SpdzElement recombined = recombine(bitShares);
+    SpdzSInt recombined = recombine(bitShares);
     assertMacCorrect(recombined, macKey, modulus);
     // sanity check not zero (with 251, that is actually not unlikely enough)
     if (!modulus.equals(new BigInteger("251"))) {
@@ -150,10 +149,10 @@ public class TestSpdzDummyDataSupplier {
     for (SpdzSInt[] expPipe : expPipes) {
       assertEquals(expPipeLength + 1, expPipe.length);
     }
-    List<List<SpdzElement>> unwrapped = expPipes.stream()
-        .map(pipe -> Arrays.stream(pipe).map(v -> v.value).collect(Collectors.toList()))
+    List<List<SpdzSInt>> unwrapped = expPipes.stream()
+        .map(pipe -> Arrays.stream(pipe).collect(Collectors.toList()))
         .collect(Collectors.toList());
-    List<SpdzElement> recombined = recombineExpPipe(unwrapped);
+    List<SpdzSInt> recombined = recombineExpPipe(unwrapped);
     assertExpPipeValid(recombined, macKey, modulus);
   }
 
@@ -209,20 +208,20 @@ public class TestSpdzDummyDataSupplier {
     assertEquals(BigInteger.ONE, supplier.getSecretSharedKey());
   }
 
-  private SpdzElement recombine(List<SpdzElement> shares) {
-    return shares.stream().reduce(SpdzElement::add).get();
+  private SpdzSInt recombine(List<SpdzSInt> shares) {
+    return shares.stream().reduce(SpdzSInt::add).get();
   }
 
-  private List<SpdzElement> recombineExpPipe(List<List<SpdzElement>> expPipeShares) {
+  private List<SpdzSInt> recombineExpPipe(List<List<SpdzSInt>> expPipeShares) {
     return TransposeUtils.transpose(expPipeShares).stream()
         .map(this::recombine)
         .collect(Collectors.toList());
   }
 
   private SpdzTriple recombineTriples(List<SpdzTriple> triples) {
-    List<SpdzElement> left = new ArrayList<>(triples.size());
-    List<SpdzElement> right = new ArrayList<>(triples.size());
-    List<SpdzElement> product = new ArrayList<>(triples.size());
+    List<SpdzSInt> left = new ArrayList<>(triples.size());
+    List<SpdzSInt> right = new ArrayList<>(triples.size());
+    List<SpdzSInt> product = new ArrayList<>(triples.size());
     for (SpdzTriple triple : triples) {
       left.add(triple.getA());
       right.add(triple.getB());
@@ -231,7 +230,7 @@ public class TestSpdzDummyDataSupplier {
     return new SpdzTriple(recombine(left), recombine(right), recombine(product));
   }
 
-  private void assertMacCorrect(SpdzElement recombined, BigInteger macKey, BigInteger modulus) {
+  private void assertMacCorrect(SpdzSInt recombined, BigInteger macKey, BigInteger modulus) {
     assertEquals(recombined.getShare().multiply(macKey).mod(modulus), recombined.getMac());
   }
 
@@ -244,12 +243,12 @@ public class TestSpdzDummyDataSupplier {
         recombined.getA().getShare().multiply(recombined.getB().getShare()).mod(modulus));
   }
 
-  private void assertExpPipeValid(List<SpdzElement> recombined, BigInteger macKey,
+  private void assertExpPipeValid(List<SpdzSInt> recombined, BigInteger macKey,
       BigInteger modulus) {
-    for (SpdzElement element : recombined) {
+    for (SpdzSInt element : recombined) {
       assertMacCorrect(element, macKey, modulus);
     }
-    List<BigInteger> values = recombined.stream().map(SpdzElement::getShare)
+    List<BigInteger> values = recombined.stream().map(SpdzSInt::getShare)
         .collect(Collectors.toList());
     BigInteger inverted = values.get(0);
     BigInteger first = values.get(1);

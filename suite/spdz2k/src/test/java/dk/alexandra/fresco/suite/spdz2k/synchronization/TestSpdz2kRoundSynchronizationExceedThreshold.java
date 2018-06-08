@@ -14,6 +14,7 @@ import dk.alexandra.fresco.suite.spdz2k.AbstractSpdz2kTest;
 import dk.alexandra.fresco.suite.spdz2k.Spdz2kProtocolSuite128;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt128;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt128Factory;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntConverter128;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePoolImpl;
@@ -24,12 +25,12 @@ import java.util.function.Supplier;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestSpdz2kRoundSynchronization extends
+public class TestSpdz2kRoundSynchronizationExceedThreshold extends
     AbstractSpdz2kTest<Spdz2kResourcePool<CompUInt128>> {
 
   @Test
   public void testFinishedEvalMacCheck() {
-    runTest(new TestMacCheckEvalFinished<>(),
+    runTest(new TestMacCheckExceedThreshold<>(),
         EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
 
@@ -50,10 +51,10 @@ public class TestSpdz2kRoundSynchronization extends
 
   @Override
   protected ProtocolSuiteNumeric<Spdz2kResourcePool<CompUInt128>> createProtocolSuite() {
-    return new Spdz2kProtocolSuite128();
+    return new MockSpdz2kProtocolSuite128();
   }
 
-  private static class TestMacCheckEvalFinished<ResourcePoolT extends Spdz2kResourcePool<CompUInt128>>
+  private static class TestMacCheckExceedThreshold<ResourcePoolT extends Spdz2kResourcePool<CompUInt128>>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
@@ -66,9 +67,8 @@ public class TestSpdz2kRoundSynchronization extends
             DRes<SInt> right = root.numeric().known(BigInteger.ONE);
             return root.numeric().mult(left, right);
           };
-          // this tests verifies that the round synchronization logic works correctly when we have
-          // do not have output protocols in our application but still open values during
-          // multiplication
+          // this test verifies that the round synchronization logic works when the threshold for
+          // open values is exceeded
           runApplication(testApplication);
           Assert.assertFalse(
               "There should be no unchecked opened values after the evaluation has finished",
@@ -76,6 +76,15 @@ public class TestSpdz2kRoundSynchronization extends
         }
       };
     }
+  }
+
+  private class MockSpdz2kProtocolSuite128 extends Spdz2kProtocolSuite128 {
+
+    @Override
+    public RoundSynchronization<Spdz2kResourcePool<CompUInt128>> createRoundSynchronization() {
+      return new Spdz2kRoundSynchronization<>(this, new CompUIntConverter128(), 0, 128);
+    }
+
   }
 
 }

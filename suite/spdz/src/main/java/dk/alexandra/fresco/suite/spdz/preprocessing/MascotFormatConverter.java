@@ -1,9 +1,9 @@
 package dk.alexandra.fresco.suite.spdz.preprocessing;
 
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import java.math.BigInteger;
 
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
@@ -16,15 +16,15 @@ public class MascotFormatConverter {
   }
 
   /**
-   * Converts single {@link AuthenticatedElement} to {@link SpdzElement}.
+   * Converts single {@link AuthenticatedElement} to {@link SpdzSInt}.
    * 
    * @param element authenticated element
    * @return spdz element
    */
-  public static SpdzElement toSpdzElement(AuthenticatedElement element) {
+  public static SpdzSInt toSpdzSInt(AuthenticatedElement element) {
     BigInteger share = element.getShare().toBigInteger();
     BigInteger mac = element.getMac().toBigInteger();
-    return new SpdzElement(share, mac, element.getModulus());
+    return new SpdzSInt(share, mac, element.getModulus());
   }
 
   /**
@@ -34,9 +34,9 @@ public class MascotFormatConverter {
    * @return converted triple
    */
   public static SpdzTriple toSpdzTriple(MultiplicationTriple triple) {
-    SpdzElement a = toSpdzElement(triple.getLeft());
-    SpdzElement b = toSpdzElement(triple.getRight());
-    SpdzElement c = toSpdzElement(triple.getProduct());
+    SpdzSInt a = toSpdzSInt(triple.getLeft());
+    SpdzSInt b = toSpdzSInt(triple.getRight());
+    SpdzSInt c = toSpdzSInt(triple.getProduct());
     return new SpdzTriple(a, b, c);
   }
 
@@ -49,9 +49,9 @@ public class MascotFormatConverter {
   public static SpdzInputMask toSpdzInputMask(InputMask mask) {
     FieldElement openMask = mask.getOpenValue();
     if (openMask == null) {
-      return new SpdzInputMask(toSpdzElement(mask.getMaskShare()));
+      return new SpdzInputMask(toSpdzSInt(mask.getMaskShare()));
     } else {
-      return new SpdzInputMask(toSpdzElement(mask.getMaskShare()), openMask.toBigInteger());
+      return new SpdzInputMask(toSpdzSInt(mask.getMaskShare()), openMask.toBigInteger());
     }
   }
 

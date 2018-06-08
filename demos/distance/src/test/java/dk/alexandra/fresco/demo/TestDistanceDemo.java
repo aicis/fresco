@@ -13,12 +13,12 @@ import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzOpenedValueStoreImpl;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -62,9 +62,8 @@ public class TestDistanceDemo {
   }
 
   private SpdzResourcePool createResourcePool(int myId, int size) {
-    SpdzStorage store;
-    store = new SpdzStorageImpl(new SpdzDummyDataSupplier(myId, size));
-    return new SpdzResourcePoolImpl(myId, size, store);
+    return new SpdzResourcePoolImpl(myId, size, new SpdzOpenedValueStoreImpl(),
+        new SpdzDummyDataSupplier(myId, size), new AesCtrDrbg(new byte[32]));
   }
 
   @Test
@@ -169,7 +168,7 @@ public class TestDistanceDemo {
     t3.join();
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testDistanceCmdLine3PartyWithInput() throws Exception {
     DistanceDemo.main(
         new String[]{"-i", "3", "-p", "1:localhost:8081", "-p", "2:localhost:8082",
@@ -177,7 +176,7 @@ public class TestDistanceDemo {
     fail();
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testDistanceCmdLine3PartyWithInputX() throws Exception {
     DistanceDemo.main(
         new String[]{"-i", "3", "-p", "1:localhost:8081", "-p", "2:localhost:8082",
@@ -185,7 +184,7 @@ public class TestDistanceDemo {
     fail();
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testDistanceCmdLine3PartyWithInputY() throws Exception {
     DistanceDemo.main(
         new String[]{"-i", "3", "-p", "1:localhost:8081", "-p", "2:localhost:8082",
@@ -193,7 +192,7 @@ public class TestDistanceDemo {
     fail();
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testDistanceCmdLine2PartyWithNoInputX() throws Exception {
     DistanceDemo.main(
         new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082",
@@ -201,7 +200,7 @@ public class TestDistanceDemo {
     fail();
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testDistanceCmdLine2PartyWithNoInputY() throws Exception {
     DistanceDemo.main(
         new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082",
@@ -209,7 +208,7 @@ public class TestDistanceDemo {
     fail();
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testDistanceCmdLine2PartyWithNoInput() throws Exception {
     DistanceDemo.main(
         new String[]{"-i", "1", "-p", "1:localhost:8081", "-p", "2:localhost:8082",

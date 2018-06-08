@@ -6,9 +6,9 @@ public class SpdzTriple implements Serializable {
 
   private static final long serialVersionUID = -4394957717364446774L;
 
-  private final SpdzElement elementA;
-  private final SpdzElement elementB;
-  private final SpdzElement elementC;
+  private final SpdzSInt elementA;
+  private final SpdzSInt elementB;
+  private final SpdzSInt elementC;
 
   /**
    * Construct a new SpdzTriple. The triple contains 3 values A, B and C
@@ -18,7 +18,7 @@ public class SpdzTriple implements Serializable {
    * @param elementB B
    * @param elementC C
    */
-  public SpdzTriple(SpdzElement elementA, SpdzElement elementB, SpdzElement elementC) {
+  public SpdzTriple(SpdzSInt elementA, SpdzSInt elementB, SpdzSInt elementC) {
     this.elementA = elementA;
     this.elementB = elementB;
     this.elementC = elementC;
@@ -33,15 +33,15 @@ public class SpdzTriple implements Serializable {
     this.elementC = null;
   }
 
-  public SpdzElement getA() {
+  public SpdzSInt getA() {
     return elementA;
   }
 
-  public SpdzElement getB() {
+  public SpdzSInt getB() {
     return elementB;
   }
 
-  public SpdzElement getC() {
+  public SpdzSInt getC() {
     return elementC;
   }
 

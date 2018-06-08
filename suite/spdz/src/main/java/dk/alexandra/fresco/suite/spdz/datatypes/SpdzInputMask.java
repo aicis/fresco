@@ -11,20 +11,20 @@ public class SpdzInputMask implements Serializable {
 
   private static final long serialVersionUID = 8757701490552440720L;
 
-  private SpdzElement mask;
+  private SpdzSInt mask;
   private BigInteger realValue;
 
-  public SpdzInputMask(SpdzElement mask, BigInteger realValue) {
+  public SpdzInputMask(SpdzSInt mask, BigInteger realValue) {
     this.mask = mask;
     this.realValue = realValue;
   }
 
-  public SpdzInputMask(SpdzElement mask) {
+  public SpdzInputMask(SpdzSInt mask) {
     this.mask = mask;
     this.realValue = null;
   }
 
-  public SpdzElement getMask() {
+  public SpdzSInt getMask() {
     return mask;
   }
 

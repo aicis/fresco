@@ -27,7 +27,7 @@ public class SpdzSubtractProtocol extends SpdzNativeProtocol<SInt> {
       Network network) {
     SpdzSInt left = (SpdzSInt) this.left.out();
     SpdzSInt right = (SpdzSInt) this.right.out();
-    this.out = new SpdzSInt(left.value.subtract(right.value));
+    this.out = left.subtract(right);
     return EvaluationStatus.IS_DONE;
   }
 
