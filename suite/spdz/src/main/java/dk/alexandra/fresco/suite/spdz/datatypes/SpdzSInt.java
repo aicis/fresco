@@ -19,6 +19,7 @@ public class SpdzSInt implements SInt, Serializable {
    *
    * @param share The share
    * @param mac The mac
+   * @param modulus the modulus
    */
   public SpdzSInt(BigInteger share, BigInteger mac, BigInteger modulus) {
     this.share = share;
