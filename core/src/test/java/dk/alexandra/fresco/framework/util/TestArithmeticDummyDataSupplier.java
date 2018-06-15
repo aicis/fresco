@@ -123,6 +123,24 @@ public class TestArithmeticDummyDataSupplier {
     }
   }
 
+  private void testGetTruncationPairShares(int noOfParties, BigInteger modulus) {
+    List<ArithmeticDummyDataSupplier> suppliers = new ArrayList<>(noOfParties);
+    for (int i = 0; i < noOfParties; i++) {
+      suppliers.add(new ArithmeticDummyDataSupplier(i + 1, noOfParties, modulus));
+    }
+    List<TruncationPairShares> actual = new ArrayList<>();
+    for (ArithmeticDummyDataSupplier supplier : suppliers) {
+      actual.add(supplier.getTruncationPairShares(modulus.bitLength() / 2));
+    }
+    assertTruncationPairValid(actual, modulus, modulus.bitLength() / 2);
+  }
+
+  private void testGetTruncationPairShares(int noOfParties) {
+    for (BigInteger modulus : moduli) {
+      testGetTruncationPairShares(noOfParties, modulus);
+    }
+  }
+
   @Test
   public void testGetRandomElementShareTwoParties() {
     testGetRandomElementShare(2);
@@ -173,6 +191,13 @@ public class TestArithmeticDummyDataSupplier {
     testGetExpPipe(2);
     testGetExpPipe(3);
     testGetExpPipe(5);
+  }
+
+  @Test
+  public void testGetTruncationPairShares() {
+    testGetTruncationPairShares(2);
+    testGetTruncationPairShares(3);
+    testGetTruncationPairShares(5);
   }
 
   @Test
@@ -278,6 +303,35 @@ public class TestArithmeticDummyDataSupplier {
     productValues.add(MathUtils.sum(productShares, modulus));
     assertAllEqual(productValues);
     assertAllDifferent(productShares);
+  }
+
+  private void assertTruncationPairValid(List<TruncationPairShares> pairs,
+      BigInteger modulus, int d) {
+    List<BigInteger> pPrimeValues = new ArrayList<>(pairs.size());
+    List<BigInteger> rPrimeShares = new ArrayList<>(pairs.size());
+    List<BigInteger> rValues = new ArrayList<>(pairs.size());
+    List<BigInteger> rShares = new ArrayList<>(pairs.size());
+    for (TruncationPairShares pair : pairs) {
+      Pair<BigInteger, BigInteger> rPrime = pair.getRPrime();
+      Pair<BigInteger, BigInteger> r = pair.getR();
+      pPrimeValues.add(rPrime.getFirst());
+      rPrimeShares.add(rPrime.getSecond());
+      rValues.add(r.getFirst());
+      rShares.add(r.getSecond());
+    }
+    // sizes are the same
+    assertEquals(rValues.size(), pPrimeValues.size());
+    // r = r^{prime} >> d
+    for (int i = 0; i < pPrimeValues.size(); i++) {
+      assertEquals(rValues.get(i), pPrimeValues.get(i).shiftRight(d));
+    }
+    // all left values the same; left = recombine([left]); all left shares different
+    pPrimeValues.add(MathUtils.sum(rPrimeShares, modulus));
+    assertAllEqual(pPrimeValues);
+    assertAllDifferent(rPrimeShares);
+    rValues.add(MathUtils.sum(rShares, modulus));
+    assertAllEqual(rValues);
+    assertAllDifferent(rShares);
   }
 
 }

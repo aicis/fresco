@@ -72,6 +72,19 @@ public class ArithmeticDummyDataSupplier {
   }
 
   /**
+   * Computes pair of values r and r^{prime} such that r^{prime} is a random element and r =
+   * r^{prime} / 2^{d}, i.e., r right-shifted by d.
+   */
+  public TruncationPairShares getTruncationPairShares(int d) {
+    BigInteger rPrime = sampleRandomBigInteger();
+    BigInteger r = rPrime.shiftRight(d);
+    return new TruncationPairShares(
+        new Pair<>(rPrime, sharer.share(rPrime, noOfParties).get(myId - 1)),
+        new Pair<>(r, sharer.share(r, noOfParties).get(myId - 1))
+    );
+  }
+
+  /**
    * Constructs an exponentiation pipe. <p>An exponentiation pipe is a list of numbers in the
    * following format: r^{-1}, r, r^{2}, r^{3}, ..., r^{expPipeLength}, where r is a random element
    * and all exponentiations are mod {@link #modulus}.</p>
