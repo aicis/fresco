@@ -25,6 +25,7 @@ import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductOpen;
 import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductWithOInt;
 import dk.alexandra.fresco.lib.math.integer.log.Logarithm;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SquareRoot;
+import dk.alexandra.fresco.lib.real.fixed.utils.Truncate;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -35,8 +36,8 @@ import java.util.List;
  */
 public class DefaultAdvancedNumeric implements AdvancedNumeric {
 
-  private final BuilderFactoryNumeric factoryNumeric;
-  private final ProtocolBuilderNumeric builder;
+  protected final BuilderFactoryNumeric factoryNumeric;
+  protected final ProtocolBuilderNumeric builder;
 
   protected DefaultAdvancedNumeric(BuilderFactoryNumeric factoryNumeric,
       ProtocolBuilderNumeric builder) {
@@ -133,6 +134,11 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
   @Override
   public DRes<RandomBitMask> randomBitMask(DRes<List<DRes<SInt>>> randomBits) {
     return builder.seq(new GenerateRandomBitMask(randomBits));
+  }
+
+  @Override
+  public DRes<SInt> truncate(DRes<SInt> input, int shifts) {
+    return builder.seq(new Truncate(input, shifts));
   }
 
   @Override

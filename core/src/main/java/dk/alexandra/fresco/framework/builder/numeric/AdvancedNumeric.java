@@ -19,8 +19,8 @@ public interface AdvancedNumeric extends ComputationDirectory {
    * Calculates the sum of all elements in the list.
    *
    * @param elements the elements to sum
-   * @return A deferred result computing the sum of the elements
-   * inputs should be wrapped in {@link DRes}, use {@link #sum(DRes)} instead
+   * @return A deferred result computing the sum of the elements inputs should be wrapped in {@link
+   * DRes}, use {@link #sum(DRes)} instead
    */
   @Deprecated
   DRes<SInt> sum(List<DRes<SInt>> elements);
@@ -178,14 +178,23 @@ public interface AdvancedNumeric extends ComputationDirectory {
   DRes<RandomBitMask> randomBitMask(int noOfBits);
 
   /**
-   * Takes a list of random bits [b0, ..., bn] and generates a random bit mask along with a
-   * {@link SInt} representing the recombined bits, i.e., sum(2^{i} * bi).
+   * Takes a list of random bits [b0, ..., bn] and generates a random bit mask along with a {@link
+   * SInt} representing the recombined bits, i.e., sum(2^{i} * bi).
    *
-   * @param randomBits
-   *          The bits to use for the bit mask
+   * @param randomBits The bits to use for the bit mask
    * @return A container holding the bit mask
    */
   DRes<RandomBitMask> randomBitMask(DRes<List<DRes<SInt>>> randomBits);
+
+  /**
+   * Right-shifts input by {@code shifts}. <p>Note that this is a probabilistic method which may
+   * produce an error in the least-significant bit.</p>
+   *
+   * @param input secret value to right shift
+   * @param shifts number of shifts
+   * @return shifted result
+   */
+  DRes<SInt> truncate(DRes<SInt> input, int shifts);
 
   /**
    * @param input input.

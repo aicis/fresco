@@ -35,7 +35,7 @@ public class CoinTossingComputation implements Computation<byte[], ProtocolBuild
 
   @Override
   public DRes<byte[]> buildComputation(ProtocolBuilderNumeric builder) {
-    return builder.seq(new Spdz2kCommitmentComputation(serializer, ownSeed, noOfParties, localDrbg))
+    return builder.seq(new CommitmentComputationSpdz2k(serializer, ownSeed, noOfParties, localDrbg))
         .seq((seq, seeds) -> {
           byte[] jointSeed = new byte[ownSeed.length];
           for (byte[] seed : seeds) {

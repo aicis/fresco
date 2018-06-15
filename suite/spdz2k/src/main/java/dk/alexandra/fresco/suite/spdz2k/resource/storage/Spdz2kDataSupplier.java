@@ -5,6 +5,7 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kInputMask;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntArithmetic;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntBoolean;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kTriple;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kTruncationPair;
 
 /**
  * Interface for a supplier of pre-processing material. <p>Material includes random elements shares,
@@ -45,8 +46,15 @@ public interface Spdz2kDataSupplier<T extends CompUInt<?, ?, T>> {
   T getSecretSharedKey();
 
   /**
-   * Returns the next random field element.
+   * Supplies the next random field element.
    */
   Spdz2kSIntArithmetic<T> getNextRandomElementShare();
+
+  /**
+   * Supplies the next truncation pair (r^{prime}, r) where r = r^{prime} / 2^{d}.
+   *
+   * @param d number of shifts
+   */
+  Spdz2kTruncationPair<T> getNextTruncationPair(int d);
 
 }

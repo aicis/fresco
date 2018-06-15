@@ -7,7 +7,7 @@ import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntConverter;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.UInt;
-import dk.alexandra.fresco.suite.spdz2k.protocols.computations.Spdz2kMacCheckComputation;
+import dk.alexandra.fresco.suite.spdz2k.protocols.computations.MacCheckComputationSpdz2k;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 import dk.alexandra.fresco.suite.spdz2k.synchronization.Spdz2kRoundSynchronization;
 
@@ -17,7 +17,7 @@ import dk.alexandra.fresco.suite.spdz2k.synchronization.Spdz2kRoundSynchronizati
  * HighT} and {@link LowT}, i.e., a most significant bit portion and a least significant bit
  * portion. The least-significant bit portion is used to store the actual value (or secret-share
  * thereof) we are computing on. The most-significant bit portion is required for security and is
- * used in the mac-check protocol implemented in {@link Spdz2kMacCheckComputation}.</p>
+ * used in the mac-check protocol implemented in {@link MacCheckComputationSpdz2k}.</p>
  *
  * @param <HighT> type representing most significant bit portion of open values
  * @param <LowT> type representing least significant bit portion of open values

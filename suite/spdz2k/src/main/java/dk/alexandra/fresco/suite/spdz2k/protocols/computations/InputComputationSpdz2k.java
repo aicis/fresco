@@ -16,13 +16,13 @@ import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kInputOnlyProtoco
  * validation of the bytes of the masked input (if more than two parties are carrying out the
  * computation).</p>
  */
-public class Spdz2kInputComputation<PlainT extends CompUInt<?, ?, PlainT>> implements
+public class InputComputationSpdz2k<PlainT extends CompUInt<?, ?, PlainT>> implements
     Computation<SInt, ProtocolBuilderNumeric> {
 
   private final PlainT input;
   private final int inputPartyId;
 
-  public Spdz2kInputComputation(PlainT input, int inputPartyId) {
+  public InputComputationSpdz2k(PlainT input, int inputPartyId) {
     this.inputPartyId = inputPartyId;
     this.input = input;
   }

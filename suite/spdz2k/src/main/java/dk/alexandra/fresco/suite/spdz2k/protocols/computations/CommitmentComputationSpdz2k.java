@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Protocol for all parties to commit to a value and open it to the other parties.
  */
-public class Spdz2kCommitmentComputation implements
+public class CommitmentComputationSpdz2k implements
     Computation<List<byte[]>, ProtocolBuilderNumeric> {
 
   private final ByteSerializer<HashBasedCommitment> commitmentSerializer;
@@ -21,7 +21,7 @@ public class Spdz2kCommitmentComputation implements
   private final int noOfParties;
   private final Drbg localDrbg;
 
-  public Spdz2kCommitmentComputation(ByteSerializer<HashBasedCommitment> commitmentSerializer,
+  public CommitmentComputationSpdz2k(ByteSerializer<HashBasedCommitment> commitmentSerializer,
       byte[] value, int noOfParties, Drbg localDrbg) {
     this.commitmentSerializer = commitmentSerializer;
     this.value = value;

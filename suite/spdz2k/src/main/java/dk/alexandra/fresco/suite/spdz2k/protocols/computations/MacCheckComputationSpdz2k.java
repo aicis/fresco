@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 /**
  * Computation for performing batched mac-check on all currently opened, unchecked values.
  */
-public class Spdz2kMacCheckComputation<
+public class MacCheckComputationSpdz2k<
     HighT extends UInt<HighT>,
     LowT extends UInt<LowT>,
     PlainT extends CompUInt<HighT, LowT, PlainT>>
@@ -39,14 +39,14 @@ public class Spdz2kMacCheckComputation<
   private final Drbg localDrbg;
 
   /**
-   * Creates new {@link Spdz2kMacCheckComputation}.
+   * Creates new {@link MacCheckComputationSpdz2k}.
    *
    * @param toCheck authenticated elements and open values that must be checked
    * @param resourcePool resources for running Spdz2k
    * @param converter utility class for converting between {@link HighT} and {@link PlainT}, {@link
    * LowT} and {@link PlainT}
    */
-  public Spdz2kMacCheckComputation(Pair<List<Spdz2kSIntArithmetic<PlainT>>, List<PlainT>> toCheck,
+  public MacCheckComputationSpdz2k(Pair<List<Spdz2kSIntArithmetic<PlainT>>, List<PlainT>> toCheck,
       Spdz2kResourcePool<PlainT> resourcePool,
       CompUIntConverter<HighT, LowT, PlainT> converter) {
     this.authenticatedElements = toCheck.getFirst();
@@ -130,7 +130,7 @@ public class Spdz2kMacCheckComputation<
         .subtract(mj)
         .subtract(p.multiply(macKeyShare).shiftLowIntoHigh())
         .add(r.getMacShare().shiftLowIntoHigh());
-    return new Spdz2kCommitmentComputation(commitmentSerializer, serializer.serialize(zj),
+    return new CommitmentComputationSpdz2k(commitmentSerializer, serializer.serialize(zj),
         noOfParties, localDrbg).buildComputation(builder);
   }
 

@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.suite.spdz2k;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Comparison;
 import dk.alexandra.fresco.framework.builder.numeric.Conversion;
@@ -18,7 +19,7 @@ import dk.alexandra.fresco.lib.real.RealNumericContext;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntArithmetic;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
-import dk.alexandra.fresco.suite.spdz2k.protocols.computations.Spdz2kInputComputation;
+import dk.alexandra.fresco.suite.spdz2k.protocols.computations.InputComputationSpdz2k;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAddKnownProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kKnownSIntProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kMultKnownProtocol;
@@ -73,6 +74,11 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
     } else {
       return new Spdz2kLogical(builder);
     }
+  }
+
+  @Override
+  public AdvancedNumeric createAdvancedNumeric(ProtocolBuilderNumeric builder) {
+    return new Spdz2kAdvancedNumeric(this, builder);
   }
 
   @Override
@@ -155,7 +161,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
       @Override
       public DRes<SInt> input(BigInteger value, int inputParty) {
         return builder.seq(
-            new Spdz2kInputComputation<>(factory.createFromBigInteger(value), inputParty)
+            new InputComputationSpdz2k<>(factory.createFromBigInteger(value), inputParty)
         );
       }
 

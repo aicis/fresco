@@ -9,12 +9,13 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kInputMask;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntArithmetic;
+import dk.alexandra.fresco.suite.spdz2k.protocols.computations.InputComputationSpdz2k;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kDataSupplier;
 
 /**
  * Native protocol for inputting data. <p>This is used by native computation {@link
- * dk.alexandra.fresco.suite.spdz2k.protocols.computations.Spdz2kInputComputation}. The result of
+ * InputComputationSpdz2k}. The result of
  * this protocol is this party's share of the input, as well as the bytes of the masked input which
  * are later used in a broadcast validation.</p>
  */

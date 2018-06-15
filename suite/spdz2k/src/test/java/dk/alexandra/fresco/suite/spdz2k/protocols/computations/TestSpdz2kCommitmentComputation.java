@@ -76,7 +76,7 @@ public class TestSpdz2kCommitmentComputation extends
             inputs.add(bytes);
           }
           Application<List<byte[]>, ProtocolBuilderNumeric> testApplication =
-              root -> new Spdz2kCommitmentComputation(
+              root -> new CommitmentComputationSpdz2k(
                   conf.getResourcePool().getCommitmentSerializer(),
                   inputs.get(root.getBasicNumericContext().getMyId() - 1), noParties,
                   conf.getResourcePool().getLocalRandomGenerator())

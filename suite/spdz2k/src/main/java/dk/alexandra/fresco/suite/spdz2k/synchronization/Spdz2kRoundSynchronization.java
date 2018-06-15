@@ -14,7 +14,7 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntConverter;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntArithmetic;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.UInt;
-import dk.alexandra.fresco.suite.spdz2k.protocols.computations.Spdz2kMacCheckComputation;
+import dk.alexandra.fresco.suite.spdz2k.protocols.computations.MacCheckComputationSpdz2k;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.RequiresMacCheck;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 import java.util.stream.StreamSupport;
@@ -60,7 +60,7 @@ public class Spdz2kRoundSynchronization<
         protocolSuite,
         batchSize);
     OpenedValueStore<Spdz2kSIntArithmetic<PlainT>, PlainT> store = resourcePool.getOpenedValueStore();
-    Spdz2kMacCheckComputation<HighT, LowT, PlainT> macCheck = new Spdz2kMacCheckComputation<>(
+    MacCheckComputationSpdz2k<HighT, LowT, PlainT> macCheck = new MacCheckComputationSpdz2k<>(
         store.popValues(),
         resourcePool, converter);
     ProtocolBuilderNumeric sequential = builder.createSequential();
