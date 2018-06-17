@@ -56,7 +56,7 @@ public interface BuilderFactoryNumeric extends BuilderFactory<ProtocolBuilderNum
   }
 
   default Collections createCollections(ProtocolBuilderNumeric builder) {
-    return new DefaultCollections(this, builder);
+    return new DefaultCollections(builder);
   }
 
   default PreprocessedValues createPreprocessedValues(ProtocolBuilderNumeric builder) {

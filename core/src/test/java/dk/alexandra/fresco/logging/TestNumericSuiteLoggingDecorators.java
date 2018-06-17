@@ -7,8 +7,8 @@ import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.configuration.NetworkTestUtils;
+import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
@@ -47,7 +47,7 @@ public class TestNumericSuiteLoggingDecorators {
     }
 
     Map<Integer, NetworkConfiguration> netConf =
-        TestConfiguration.getNetworkConfigurations(noOfParties, ports);
+        NetworkTestUtils.getNetworkConfigurations(noOfParties, ports);
     Map<Integer, TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     BigInteger mod = new BigInteger(
@@ -73,7 +73,7 @@ public class TestNumericSuiteLoggingDecorators {
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
                   noOfParties, mod),
-              () -> new KryoNetNetwork(partyNetConf));
+              () -> new AsyncNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
@@ -112,7 +112,7 @@ public class TestNumericSuiteLoggingDecorators {
     }
 
     Map<Integer, NetworkConfiguration> netConf =
-        TestConfiguration.getNetworkConfigurations(noOfParties, ports);
+        NetworkTestUtils.getNetworkConfigurations(noOfParties, ports);
     Map<Integer, TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     BigInteger mod = new BigInteger(
@@ -139,7 +139,7 @@ public class TestNumericSuiteLoggingDecorators {
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
                   noOfParties, mod),
-              () -> new KryoNetNetwork(partyNetConf));
+              () -> new AsyncNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);

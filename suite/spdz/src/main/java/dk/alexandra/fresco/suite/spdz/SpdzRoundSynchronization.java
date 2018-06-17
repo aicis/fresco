@@ -21,12 +21,24 @@ import java.util.stream.StreamSupport;
  */
 public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResourcePool> {
 
+  private static final int DEFAULT_VALUE_THRESHOLD = 1000000;
+  private static final int DEFAULT_BATCH_SIZE = 128;
   private final int openValueThreshold;
   private final SpdzProtocolSuite spdzProtocolSuite;
   private final SecureRandom secRand;
   private boolean isCheckRequired = false;
   private final int batchSize;
 
+  /**
+   * Creates new {@link SpdzRoundSynchronization}.
+   *
+   * @param spdzProtocolSuite the spdz protocol suite which we will use for the mac-check
+   * computation
+   * @param openValueThreshold number of open values we accumulating before forcing mac-check (the
+   * mac-check will always run if there are output gates but in order to reduce memory usage we will
+   * run the mac-check even when there are no output gates yet but the threshold is exceeded)
+   * @param batchSize batch size for mac-check protocol
+   */
   public SpdzRoundSynchronization(SpdzProtocolSuite spdzProtocolSuite, int openValueThreshold,
       int batchSize) {
     this.spdzProtocolSuite = spdzProtocolSuite;
@@ -36,7 +48,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
   }
 
   public SpdzRoundSynchronization(SpdzProtocolSuite spdzProtocolSuite) {
-    this(spdzProtocolSuite, 1000000, 128);
+    this(spdzProtocolSuite, DEFAULT_VALUE_THRESHOLD, DEFAULT_BATCH_SIZE);
   }
 
   protected void doMacCheck(SpdzResourcePool resourcePool, Network network) {
@@ -61,7 +73,10 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
   @Override
   public void finishedBatch(int gatesEvaluated, SpdzResourcePool resourcePool, Network network) {
     OpenedValueStore<SpdzSInt, BigInteger> store = resourcePool.getOpenedValueStore();
-    if (isCheckRequired || store.exceedsThreshold(openValueThreshold)) {
+    if (isCheckRequired) {
+      doMacCheck(resourcePool, network);
+      isCheckRequired = false;
+    } else if (store.exceedsThreshold(openValueThreshold)) {
       doMacCheck(resourcePool, network);
       isCheckRequired = false;
     }

@@ -25,10 +25,7 @@ public class TestSpdzDatatypes {
     Assert.assertNotEquals(elm0, elm2);
     Assert.assertNotEquals(elm0.hashCode(), elm2.hashCode());
     Assert.assertEquals("spdz(1, 1)", elm1.toString());
-    byte[] bytes = new byte[2];    
-    bytes[0] = BigInteger.ZERO.toByteArray()[0];
-    bytes[1] = BigInteger.ONE.toByteArray()[0];
-    SpdzSInt elm3 = new SpdzSInt(bytes, BigInteger.TEN, BigInteger.TEN.toByteArray().length);
+    SpdzSInt elm3 = new SpdzSInt(BigInteger.TEN, BigInteger.TEN, BigInteger.TEN);
     Assert.assertNotEquals(elm2, elm3);
     Assert.assertNotEquals(elm2, new SpdzSInt(BigInteger.ONE, BigInteger.ZERO, BigInteger.TEN));
     Assert.assertNotEquals(elm2, "");

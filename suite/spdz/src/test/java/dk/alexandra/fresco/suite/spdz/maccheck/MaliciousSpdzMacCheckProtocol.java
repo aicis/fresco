@@ -58,7 +58,6 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
       ProtocolCollection<ResourcePoolT> protocolCollection) {
     if (pp == null) {
       if (round == 0) {
-        System.out.println("Malicious size " + openedValues.size());
         BigInteger[] rs = sampleRandomCoefficients(openedValues.size(), jointDrbg, modulus);
         BigInteger a = BigInteger.ZERO;
         int index = 0;

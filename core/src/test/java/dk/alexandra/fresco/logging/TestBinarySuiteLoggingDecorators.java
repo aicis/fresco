@@ -7,8 +7,8 @@ import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.configuration.NetworkTestUtils;
+import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
@@ -27,19 +27,19 @@ import org.junit.Test;
 
 public class TestBinarySuiteLoggingDecorators {
 
-  //Tests that a < b and b !< a for some 5-bit a and b
+  // Tests that a < b and b !< a for some 5-bit a and b
   private final long bitLength = 5;
-  private final long amountOfGTs = 2 * 1;
-  private final long amountOfEQsInTest = 0;
-  private final long amountOfANDsInTest = amountOfGTs*bitLength;
-  private final long amountOfXORsInTest = amountOfGTs*(1+ (bitLength-1)*3);
+  private final long amountOfGts = 2 * 1;
+  private final long amountOfEqsInTest = 0;
+  private final long amountOfAndsInTest = amountOfGts * bitLength;
+  private final long amountOfXorsInTest = amountOfGts * (1 + (bitLength - 1) * 3);
 
 
   @Test
-  public void testBinaryComparisonLoggingDecoratorGT() {
+  public void testBinaryComparisonLoggingDecoratorGt() {
 
-    TestThreadRunner.TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f
-      = new ComparisonBooleanTests.TestGreaterThan<>();
+    TestThreadRunner.TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f =
+        new ComparisonBooleanTests.TestGreaterThan<>();
 
     int noOfParties = 2;
     EvaluationStrategy evalStrategy = EvaluationStrategy.SEQUENTIAL;
@@ -50,8 +50,9 @@ public class TestBinarySuiteLoggingDecorators {
     }
 
     Map<Integer, NetworkConfiguration> netConf =
-        TestConfiguration.getNetworkConfigurations(noOfParties, ports);
-    Map<Integer, TestThreadRunner.TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
+        NetworkTestUtils.getNetworkConfigurations(noOfParties, ports);
+    Map<Integer, TestThreadRunner
+        .TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
         new HashMap<>();
 
     Map<Integer, BinarySuiteLogging<ResourcePoolImpl>> performanceLoggers = new HashMap<>();
@@ -64,36 +65,39 @@ public class TestBinarySuiteLoggingDecorators {
       BatchEvaluationStrategy<ResourcePoolImpl> strat = evalStrategy.getStrategy();
 
       ProtocolEvaluator<ResourcePoolImpl> evaluator = new BatchedProtocolEvaluator<>(strat, ps);
-      SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce = new SecureComputationEngineImpl<>(
-          ps, evaluator);
+      SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce =
+          new SecureComputationEngineImpl<>(ps, evaluator);
       TestThreadRunner.TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new ResourcePoolImpl(playerId, noOfParties),
-              () -> new KryoNetNetwork(partyNetConf));
+              () -> new AsyncNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
 
-    for(Integer pId: netConf.keySet()) {
-      PerformanceLogger pl = performanceLoggers.get(pId);
+    for (Integer id : netConf.keySet()) {
+      PerformanceLogger pl = performanceLoggers.get(id);
 
       Map<String, Long> loggedValues = pl.getLoggedValues();
       assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_GT),
-          is(amountOfGTs));
-      assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_EQ), is(amountOfEQsInTest));
+          is(amountOfGts));
+      assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_EQ),
+          is(amountOfEqsInTest));
 
       pl.reset();
       loggedValues = pl.getLoggedValues();
-      assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_GT), is((long)0));
-      assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_EQ), is((long)0));
+      assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_GT),
+          is((long) 0));
+      assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_EQ),
+          is((long) 0));
     }
   }
 
   @Test
-  public void testBinaryComparisonLoggingDecoratorEQ() {
+  public void testBinaryComparisonLoggingDecoratorEq() {
 
-    TestThreadRunner.TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f
-      = new ComparisonBooleanTests.TestEquality<>();
+    TestThreadRunner.TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f =
+        new ComparisonBooleanTests.TestEquality<>();
 
     int noOfParties = 2;
     EvaluationStrategy evalStrategy = EvaluationStrategy.SEQUENTIAL;
@@ -104,8 +108,9 @@ public class TestBinarySuiteLoggingDecorators {
     }
 
     Map<Integer, NetworkConfiguration> netConf =
-        TestConfiguration.getNetworkConfigurations(noOfParties, ports);
-    Map<Integer, TestThreadRunner.TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
+        NetworkTestUtils.getNetworkConfigurations(noOfParties, ports);
+    Map<Integer, TestThreadRunner
+        .TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
         new HashMap<>();
 
     Map<Integer, BinarySuiteLogging<ResourcePoolImpl>> performanceLoggers = new HashMap<>();
@@ -118,28 +123,31 @@ public class TestBinarySuiteLoggingDecorators {
       BatchEvaluationStrategy<ResourcePoolImpl> strat = evalStrategy.getStrategy();
 
       ProtocolEvaluator<ResourcePoolImpl> evaluator = new BatchedProtocolEvaluator<>(strat, ps);
-      SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce = new SecureComputationEngineImpl<>(
-          ps, evaluator);
+      SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce =
+          new SecureComputationEngineImpl<>(ps, evaluator);
       TestThreadRunner.TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new ResourcePoolImpl(playerId, noOfParties),
-              () -> new KryoNetNetwork(partyNetConf));
+              () -> new AsyncNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
 
-    for(Integer pId: netConf.keySet()) {
-      PerformanceLogger pl = performanceLoggers.get(pId);
+    for (Integer id : netConf.keySet()) {
+      PerformanceLogger pl = performanceLoggers.get(id);
 
       Map<String, Long> loggedValues = pl.getLoggedValues();
       assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_GT),
           is((long) 0));
-      assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_EQ), is((long)2));
+      assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_EQ),
+          is((long) 2));
 
       pl.reset();
       loggedValues = pl.getLoggedValues();
-      assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_GT), is((long)0));
-      assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_EQ), is((long)0));
+      assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_GT),
+          is((long) 0));
+      assertThat(loggedValues.get(BinaryComparisonLoggingDecorator.BINARY_COMPARISON_EQ),
+          is((long) 0));
     }
   }
 
@@ -147,8 +155,8 @@ public class TestBinarySuiteLoggingDecorators {
   @Test
   public void testBinaryLoggingDecorator() {
 
-    TestThreadRunner.TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f
-        = new ComparisonBooleanTests.TestGreaterThan<>();
+    TestThreadRunner.TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f =
+        new ComparisonBooleanTests.TestGreaterThan<>();
 
     int noOfParties = 2;
     EvaluationStrategy evalStrategy = EvaluationStrategy.SEQUENTIAL;
@@ -159,8 +167,9 @@ public class TestBinarySuiteLoggingDecorators {
     }
 
     Map<Integer, NetworkConfiguration> netConf =
-        TestConfiguration.getNetworkConfigurations(noOfParties, ports);
-    Map<Integer, TestThreadRunner.TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
+        NetworkTestUtils.getNetworkConfigurations(noOfParties, ports);
+    Map<Integer,
+        TestThreadRunner.TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
         new HashMap<>();
 
     Map<Integer, BinarySuiteLogging<ResourcePoolImpl>> performanceLoggers = new HashMap<>();
@@ -174,29 +183,29 @@ public class TestBinarySuiteLoggingDecorators {
       BatchEvaluationStrategy<ResourcePoolImpl> strat = evalStrategy.getStrategy();
 
       ProtocolEvaluator<ResourcePoolImpl> evaluator = new BatchedProtocolEvaluator<>(strat, ps);
-      SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce = new SecureComputationEngineImpl<>(
-          ps, evaluator);
+      SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce =
+          new SecureComputationEngineImpl<>(ps, evaluator);
 
       TestThreadRunner.TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new ResourcePoolImpl(playerId, noOfParties),
-              () -> new KryoNetNetwork(partyNetConf));
+              () -> new AsyncNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
 
-    for(Integer pId: netConf.keySet()) {
-      PerformanceLogger pl = performanceLoggers.get(pId);
+    for (Integer id : netConf.keySet()) {
+      PerformanceLogger pl = performanceLoggers.get(id);
       Map<String, Long> loggedValues = pl.getLoggedValues();
-      assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_XOR), is(amountOfXORsInTest));
-      assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_AND), is(amountOfANDsInTest));
-      assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_RANDOM), is((long)0));
+      assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_XOR), is(amountOfXorsInTest));
+      assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_AND), is(amountOfAndsInTest));
+      assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_RANDOM), is((long) 0));
 
       pl.reset();
       loggedValues = pl.getLoggedValues();
-      assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_XOR), is((long)0));
-      assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_AND), is((long)0));
-      assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_RANDOM), is((long)0));
+      assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_XOR), is((long) 0));
+      assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_AND), is((long) 0));
+      assertThat(loggedValues.get(BinaryLoggingDecorator.BINARY_BASIC_RANDOM), is((long) 0));
     }
   }
 }

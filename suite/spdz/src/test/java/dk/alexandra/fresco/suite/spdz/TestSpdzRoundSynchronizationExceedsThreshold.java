@@ -21,11 +21,6 @@ public class TestSpdzRoundSynchronizationExceedsThreshold extends AbstractSpdzTe
         PreprocessingStrategy.DUMMY, 2);
   }
 
-  @Override
-  protected SpdzProtocolSuite getProtocolSuite(int maxBitLength) {
-    return new MockSpdzProtocolSuite(maxBitLength);
-  }
-
   private static class TestMacCheckEvalFinished<ResourcePoolT extends SpdzResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 

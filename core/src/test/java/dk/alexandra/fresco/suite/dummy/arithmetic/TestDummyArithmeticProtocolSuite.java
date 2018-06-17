@@ -5,6 +5,7 @@ import static org.junit.Assert.assertThat;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ExponentiationPipeTests;
+import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.arithmetic.AdvancedNumericTests;
@@ -57,6 +58,7 @@ import dk.alexandra.fresco.lib.real.LinearAlgebraTests;
 import dk.alexandra.fresco.lib.real.MathTests;
 import dk.alexandra.fresco.lib.real.TruncationTests;
 import dk.alexandra.fresco.lib.statistics.CreditRaterTest;
+import dk.alexandra.fresco.lib.statistics.DeaSolver;
 import dk.alexandra.fresco.lib.statistics.DeaSolver.AnalysisType;
 import dk.alexandra.fresco.lib.statistics.DeaSolverTests.RandomDataDeaTest;
 import dk.alexandra.fresco.lib.statistics.DeaSolverTests.TestDeaFixed1;
@@ -142,11 +144,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void testCompareEqEdgeCasesSequential() {
     runTest(new CompareTests.TestCompareEQEdgeCases<>(), new TestParameters());
-  }
-
-  @Test
-  public void test_compareZero_Sequential() {
-    runTest(new CompareTests.TestCompareEQZero<>(), new TestParameters());
   }
 
   @Test
@@ -452,6 +449,15 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_LpSolverDebug() {
     runTest(new LpBuildingBlockTests.TestLpSolverDebug<>(), new TestParameters().numParties(2));
+  }
+
+
+  @Test
+  public void test_DEASolver_2_Sequential_dummy_NoIterations() {
+    runTest(
+        new RandomDataDeaTest<>(2, 1, 5, 1, DeaSolver.AnalysisType.OUTPUT_EFFICIENCY, new Random(),
+            1, true),
+        EvaluationStrategy.SEQUENTIAL, 2);
   }
 
 
