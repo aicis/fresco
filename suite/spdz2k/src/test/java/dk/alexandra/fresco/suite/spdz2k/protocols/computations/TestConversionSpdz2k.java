@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestSpdz2kConversion extends
+public class TestConversionSpdz2k extends
     AbstractSpdz2kTest<Spdz2kResourcePool<CompUInt128>> {
 
   @Test

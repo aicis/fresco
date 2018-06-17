@@ -35,7 +35,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.junit.Test;
 
-public class TestSpdz2kBroadcastComputation extends
+public class TestBroadcastComputationSpdz2k extends
     AbstractSpdz2kTest<Spdz2kResourcePool<CompUInt128>> {
 
   @Test

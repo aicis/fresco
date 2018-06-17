@@ -28,7 +28,7 @@ import java.math.BigInteger;
 import java.util.function.Supplier;
 import org.junit.Test;
 
-public class TestSpdz2kMacCheckComputation extends
+public class TestMacCheckComputationSpdz2k extends
     AbstractSpdz2kTest<Spdz2kResourcePool<CompUInt128>> {
 
   @Test
