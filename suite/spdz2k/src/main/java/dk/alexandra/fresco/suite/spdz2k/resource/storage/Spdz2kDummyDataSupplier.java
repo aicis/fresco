@@ -31,8 +31,11 @@ public class Spdz2kDummyDataSupplier<
     this.myId = myId;
     this.secretSharedKey = secretSharedKey;
     this.factory = factory;
-    this.supplier = new ArithmeticDummyDataSupplier(myId, noOfParties,
-        BigInteger.ONE.shiftLeft(factory.getCompositeBitLength()));
+    this.supplier = new ArithmeticDummyDataSupplier(
+        myId,
+        noOfParties,
+        BigInteger.ONE.shiftLeft(factory.getCompositeBitLength()),
+        BigInteger.ONE.shiftLeft(factory.getLowBitLength() - 1));
   }
 
   @Override

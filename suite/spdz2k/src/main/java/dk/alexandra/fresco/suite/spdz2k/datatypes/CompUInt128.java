@@ -126,6 +126,14 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
 
   @Override
   public CompUInt128 subtract(CompUInt128 other) {
+//    long newLow = Integer.toUnsignedLong(this.low) - Integer.toUnsignedLong(other.low);
+//    long lowOverflow = newLow >>> 32;
+//    long newMid = Integer.toUnsignedLong(this.mid)
+//        - Integer.toUnsignedLong(other.mid)
+//        - lowOverflow;
+//    long midOverflow = newMid >>> 32;
+//    long newHigh = this.high - other.high - midOverflow;
+//    return new CompUInt128(newHigh, (int) newMid, (int) newLow);
     return this.add(other.negate());
   }
 
@@ -161,6 +169,10 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
 
   @Override
   public CompUInt128 shiftLeftSmall(int n) {
+    if (n >= Long.SIZE) {
+      throw new IllegalArgumentException(
+          "Shift step must be less than " + Long.SIZE + " but was " + n);
+    }
     if (n <= 0) {
       return this;
     }
@@ -173,6 +185,10 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
 
   @Override
   public CompUInt128 shiftRightSmall(int n) {
+    if (n >= Long.SIZE) {
+      throw new IllegalArgumentException(
+          "Shift step must be less than " + Long.SIZE + " but was " + n);
+    }
     if (n <= 0) {
       return this;
     }
@@ -181,6 +197,19 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
     long newHigh = high >>> n;
     long midAndLowShifted = (high << nInv) | (midAndLow >>> n);
     return new CompUInt128(newHigh, (int) (midAndLowShifted >>> 32), (int) midAndLowShifted);
+  }
+
+  @Override
+  public CompUInt128 shiftRightLowOnly(int n) {
+    if (n >= Long.SIZE) {
+      throw new IllegalArgumentException(
+          "Shift step must be less than " + Long.SIZE + " but was " + n);
+    }
+    if (n <= 0) {
+      return this;
+    }
+    long midAndLow = ((UInt.toUnLong(mid) << 32) | UInt.toUnLong(low)) >> n;
+    return new CompUInt128(high, (int) (midAndLow >>> 32), (int) midAndLow);
   }
 
   @Override

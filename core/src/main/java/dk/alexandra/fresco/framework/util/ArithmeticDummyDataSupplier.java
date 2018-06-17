@@ -17,17 +17,24 @@ public class ArithmeticDummyDataSupplier {
   private final int myId;
   private final int noOfParties;
   private final BigInteger modulus;
+  private final BigInteger maxOpenValue;
   private final int modBitLength;
   private final Random random;
   private final SecretSharer<BigInteger> sharer;
 
-  public ArithmeticDummyDataSupplier(int myId, int noOfParties, BigInteger modulus) {
+  public ArithmeticDummyDataSupplier(int myId, int noOfParties, BigInteger modulus,
+      BigInteger maxOpenValue) {
     this.myId = myId;
     this.noOfParties = noOfParties;
     this.modulus = modulus;
+    this.maxOpenValue = maxOpenValue;
     this.modBitLength = modulus.bitLength();
     random = new Random(42);
     sharer = new DummyBigIntegerSharer(modulus, random);
+  }
+
+  public ArithmeticDummyDataSupplier(int myId, int noOfParties, BigInteger modulus) {
+    this(myId, noOfParties, modulus, modulus);
   }
 
   /**
@@ -97,7 +104,7 @@ public class ArithmeticDummyDataSupplier {
   }
 
   private BigInteger sampleRandomBigInteger() {
-    return new BigInteger(modBitLength, random).mod(modulus);
+    return new BigInteger(modBitLength, random).mod(maxOpenValue);
   }
 
   private List<BigInteger> getOpenExpPipe(int expPipeLength) {

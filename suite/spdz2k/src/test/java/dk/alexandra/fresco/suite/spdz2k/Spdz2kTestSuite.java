@@ -8,12 +8,12 @@ import dk.alexandra.fresco.lib.compare.CompareTests.TestCompareEQEdgeCases;
 import dk.alexandra.fresco.lib.compare.CompareTests.TestCompareEQZero;
 import dk.alexandra.fresco.lib.compare.CompareTests.TestLessThanLogRounds;
 import dk.alexandra.fresco.lib.math.integer.binary.BinaryOperationsTests.TestGenerateRandomBitMask;
-import dk.alexandra.fresco.suite.spdz2k.protocols.computations.TestSpdz2kComparison.TestBitLessThanOpenSpdz2k;
-import dk.alexandra.fresco.suite.spdz2k.protocols.computations.TestSpdz2kLogicalOperations.TestAndKnownSpdz2k;
-import dk.alexandra.fresco.suite.spdz2k.protocols.computations.TestSpdz2kLogicalOperations.TestAndSpdz2k;
-import dk.alexandra.fresco.suite.spdz2k.protocols.computations.TestSpdz2kLogicalOperations.TestNotSpdz2k;
-import dk.alexandra.fresco.suite.spdz2k.protocols.computations.TestSpdz2kLogicalOperations.TestOrSpdz2k;
-import dk.alexandra.fresco.suite.spdz2k.protocols.computations.TestSpdz2kLogicalOperations.TestXorKnownSpdz2k;
+import dk.alexandra.fresco.suite.spdz2k.protocols.computations.TestComparisonSpdz2k.TestBitLessThanOpenSpdz2k;
+import dk.alexandra.fresco.suite.spdz2k.protocols.computations.TestLogicalOperationsSpdz2k.TestAndKnownSpdz2k;
+import dk.alexandra.fresco.suite.spdz2k.protocols.computations.TestLogicalOperationsSpdz2k.TestAndSpdz2k;
+import dk.alexandra.fresco.suite.spdz2k.protocols.computations.TestLogicalOperationsSpdz2k.TestNotSpdz2k;
+import dk.alexandra.fresco.suite.spdz2k.protocols.computations.TestLogicalOperationsSpdz2k.TestOrSpdz2k;
+import dk.alexandra.fresco.suite.spdz2k.protocols.computations.TestLogicalOperationsSpdz2k.TestXorKnownSpdz2k;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 import org.junit.Test;
 

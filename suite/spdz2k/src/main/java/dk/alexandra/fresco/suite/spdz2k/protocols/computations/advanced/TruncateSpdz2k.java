@@ -5,6 +5,9 @@ import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kTruncationPair;
+import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kTruncationPairProtocol;
 
 /**
  * Probabilistic truncation protocol.
@@ -16,14 +19,29 @@ public class TruncateSpdz2k<PlainT extends CompUInt<?, ?, PlainT>> implements
 
   private final DRes<SInt> value;
   private final int d;
+  private final CompUIntFactory<PlainT> factory;
 
-  public TruncateSpdz2k(DRes<SInt> value, int d) {
+  public TruncateSpdz2k(DRes<SInt> value, int d,
+      CompUIntFactory<PlainT> factory) {
     this.value = value;
     this.d = d;
+    this.factory = factory;
   }
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    return null;
+    DRes<Spdz2kTruncationPair<PlainT>> truncationPairD = builder
+        .append(new Spdz2kTruncationPairProtocol<>(d));
+    // annoying that we need this scope here
+    return builder.seq(seq -> {
+      Spdz2kTruncationPair<PlainT> truncationPair = truncationPairD.out();
+      DRes<SInt> masked = seq.numeric().sub(value, truncationPair.getRPrime());
+      return seq.numeric().openAsOInt(masked);
+    }).seq((seq, openedOInt) -> {
+      PlainT opened = factory.fromOInt(openedOInt);
+      PlainT shifted = opened.shiftRightLowOnly(d);
+      DRes<SInt> r = truncationPairD.out().getR();
+      return seq.numeric().addOpen(shifted, r);
+    });
   }
 }

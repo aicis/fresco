@@ -220,6 +220,12 @@ public class TestCompUInt128 {
         new CompUInt128(BigInteger.ONE).subtract(new CompUInt128(two))
             .toBigInteger()
     );
+    assertEquals(
+        new BigInteger("1121381238012").subtract(new BigInteger("10261555690727498232")).mod(twoTo128),
+        new CompUInt128(new BigInteger("1121381238012"))
+            .subtract(new CompUInt128(new BigInteger("10261555690727498232")))
+            .toBigInteger()
+    );
   }
 
   @Test
@@ -345,7 +351,8 @@ public class TestCompUInt128 {
     new Random(2).nextBytes(bytes);
     CompUInt128 r = new CompUInt128(bytes);
     for (int i = 0; i < 64; i++) {
-      assertEquals("Number of shifts " + i, r.toBigInteger().shiftRight(i).mod(twoTo128).toString(2),
+      assertEquals("Number of shifts " + i,
+          r.toBigInteger().shiftRight(i).mod(twoTo128).toString(2),
           r.shiftRightSmall(i).toBigInteger().toString(2));
     }
     for (int i = 0; i < 64; i++) {
