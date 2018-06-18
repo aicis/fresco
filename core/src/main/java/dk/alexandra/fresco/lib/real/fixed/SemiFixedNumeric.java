@@ -13,9 +13,9 @@ import java.util.Objects;
 
 /**
  * An implementation of the {@link RealNumeric} ComputationDirectory based on a fixed point
- * representation of real numbers.
+ * representation of real numbers. <p>This class uses a semi-floating precision point.</p>
  */
-public class FixedNumeric implements RealNumeric {
+public class SemiFixedNumeric implements RealNumeric {
 
   private static final BigInteger BASE = BigInteger.valueOf(2);
   private final int defaultPrecision;
@@ -30,7 +30,7 @@ public class FixedNumeric implements RealNumeric {
    * @param precision the precision used for the fixed point numbers. The precision must be in the
    *        range <i>0 ... <code>builder.getMaxBitLength</code> / 4</i>.
    */
-  public FixedNumeric(ProtocolBuilderNumeric builder, int precision) {
+  public SemiFixedNumeric(ProtocolBuilderNumeric builder, int precision) {
     this.builder = builder;
     this.defaultPrecision = precision;
     /*
@@ -45,7 +45,7 @@ public class FixedNumeric implements RealNumeric {
     }
   }
 
-  public FixedNumeric(ProtocolBuilderNumeric builder) {
+  public SemiFixedNumeric(ProtocolBuilderNumeric builder) {
     this(builder, builder.getRealNumericContext().getPrecision());
   }
 

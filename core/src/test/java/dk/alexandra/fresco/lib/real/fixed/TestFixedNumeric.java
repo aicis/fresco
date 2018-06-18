@@ -14,7 +14,7 @@ public class TestFixedNumeric {
     BuilderFactoryNumeric bfn = new DummyArithmeticBuilderFactory(
         new BasicNumericContext(16, BigInteger.TEN, 1, 1),
         new RealNumericContext(0));
-    new FixedNumeric(bfn.createSequential(), 4);
+    new SemiFixedNumeric(bfn.createSequential(), 4);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -22,7 +22,7 @@ public class TestFixedNumeric {
     BuilderFactoryNumeric bfn = new DummyArithmeticBuilderFactory(
         new BasicNumericContext(16, BigInteger.TEN, 1, 1),
         new RealNumericContext(0));
-    new FixedNumeric(bfn.createSequential(), 5);
+    new SemiFixedNumeric(bfn.createSequential(), 5);
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -30,12 +30,12 @@ public class TestFixedNumeric {
     BuilderFactoryNumeric bfn = new DummyArithmeticBuilderFactory(
         new BasicNumericContext(16, BigInteger.TEN, 1, 1),
         new RealNumericContext(0));
-    new FixedNumeric(bfn.createSequential(), -1);
+    new SemiFixedNumeric(bfn.createSequential(), -1);
   }
 
   @Test(expected = NullPointerException.class)
   public void testFixedNumericNullBuilder() {
-    new FixedNumeric(null, -1);
+    new SemiFixedNumeric(null, -1);
   }
 
 }

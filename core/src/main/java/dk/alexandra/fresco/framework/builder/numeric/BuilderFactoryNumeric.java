@@ -11,8 +11,9 @@ import dk.alexandra.fresco.lib.real.RealLinearAlgebra;
 import dk.alexandra.fresco.lib.real.RealNumeric;
 import dk.alexandra.fresco.lib.real.RealNumericContext;
 import dk.alexandra.fresco.lib.real.fixed.AdvancedFixedNumeric;
+import dk.alexandra.fresco.lib.real.fixed.DefaultFixedNumeric;
 import dk.alexandra.fresco.lib.real.fixed.FixedLinearAlgebra;
-import dk.alexandra.fresco.lib.real.fixed.FixedNumeric;
+import dk.alexandra.fresco.lib.real.fixed.SemiFixedNumeric;
 
 /**
  * The core factory to implement when creating a numeric protocol. Every {@link
@@ -64,7 +65,7 @@ public interface BuilderFactoryNumeric extends BuilderFactory<ProtocolBuilderNum
   }
 
   default RealNumeric createRealNumeric(ProtocolBuilderNumeric builder) {
-    return new FixedNumeric(builder);
+    return new DefaultFixedNumeric(builder);
   }
 
   default AdvancedRealNumeric createAdvancedRealNumeric(ProtocolBuilderNumeric builder) {
