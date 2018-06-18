@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
  * Basic interface for numeric applications on real numbers.
@@ -101,8 +102,15 @@ public interface RealNumeric extends ComputationDirectory {
   DRes<SReal> known(BigDecimal value);
 
   /**
+   * Creates a known secret value from a public value (which has been scaled). <p>This is primarily
+   * a helper function in order to use public values within the FRESCO functions. Note that the
+   * value is interpreted as already scaled, which avoids various rounding artifacts.</p>
+   */
+  DRes<SReal> fromScaled(BigInteger value);
+
+  /**
    * Create a secret real value from a secret integer value representing the same value.
-   * 
+   *
    * @param value A secret integer.
    * @return A secret real with the same value as the input
    */
@@ -125,6 +133,14 @@ public interface RealNumeric extends ComputationDirectory {
    * @return The opened value represented by the closed value.
    */
   DRes<BigDecimal> open(DRes<SReal> secretShare);
+
+  /**
+   * Opens a value to all MPC parties without converting to BigDecimal.
+   *
+   * @param secretShare The value to open.
+   * @return The opened value represented by the closed value (without conversion).
+   */
+  DRes<BigInteger> openRaw(DRes<SReal> secretShare);
 
   /**
    * Opens a value to a single given party.

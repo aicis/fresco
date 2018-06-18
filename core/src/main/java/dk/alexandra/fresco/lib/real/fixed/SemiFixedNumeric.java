@@ -220,6 +220,11 @@ public class SemiFixedNumeric implements RealNumeric {
   }
 
   @Override
+  public DRes<SReal> fromScaled(BigInteger value) {
+    return null;
+  }
+
+  @Override
   public DRes<SReal> fromSInt(DRes<SInt> value) {
     return builder.seq(seq -> new SFixed(value.out(), 0));
   }
@@ -241,6 +246,11 @@ public class SemiFixedNumeric implements RealNumeric {
       int precision = floatX.getPrecision();
       return () -> scaled(unscaledOpen.out(), precision);
     });
+  }
+
+  @Override
+  public DRes<BigInteger> openRaw(DRes<SReal> secretShare) {
+    return null;
   }
 
   @Override

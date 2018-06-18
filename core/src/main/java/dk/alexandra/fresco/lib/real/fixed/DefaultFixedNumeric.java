@@ -18,14 +18,12 @@ public class DefaultFixedNumeric implements RealNumeric {
   protected final ProtocolBuilderNumeric builder;
   // TODO these should be cached static fields
   private final int precision;
-  private final BigInteger scalingFactor;
   private final BigDecimal scalingFactorDecimal;
 
   public DefaultFixedNumeric(ProtocolBuilderNumeric builder, int precision) {
     this.builder = builder;
     this.precision = precision;
-    this.scalingFactor = BigInteger.ONE.shiftLeft(precision);
-    this.scalingFactorDecimal = new BigDecimal(scalingFactor);
+    this.scalingFactorDecimal = new BigDecimal(BigInteger.ONE.shiftLeft(precision));
   }
 
   public DefaultFixedNumeric(ProtocolBuilderNumeric builder) {
@@ -33,13 +31,11 @@ public class DefaultFixedNumeric implements RealNumeric {
   }
 
   private BigInteger unscaled(BigDecimal value) {
-    // TODO extremely inefficient
     return value.multiply(scalingFactorDecimal).setScale(0, RoundingMode.HALF_UP)
         .toBigIntegerExact();
   }
 
   private BigDecimal scaled(BigInteger value) {
-    // TODO extremely inefficient
     return new BigDecimal(value).setScale(precision).divide(scalingFactorDecimal,
         RoundingMode.HALF_UP);
   }
@@ -108,6 +104,14 @@ public class DefaultFixedNumeric implements RealNumeric {
   }
 
   @Override
+  public DRes<SReal> fromScaled(BigInteger value) {
+    return builder.seq(seq -> {
+      DRes<SInt> input = seq.numeric().known(value);
+      return new SFixed(input, precision);
+    });
+  }
+
+  @Override
   public DRes<SReal> fromSInt(DRes<SInt> value) {
     return null;
   }
@@ -132,6 +136,15 @@ public class DefaultFixedNumeric implements RealNumeric {
       // is called)
       BigDecimal scaled = scaled(unscaled);
       return () -> scaled;
+    });
+  }
+
+  @Override
+  public DRes<BigInteger> openRaw(DRes<SReal> secretShare) {
+    return builder.seq(seq -> {
+      SFixed floatX = (SFixed) secretShare.out();
+      DRes<SInt> unscaled = floatX.getSInt();
+      return seq.numeric().open(unscaled);
     });
   }
 
