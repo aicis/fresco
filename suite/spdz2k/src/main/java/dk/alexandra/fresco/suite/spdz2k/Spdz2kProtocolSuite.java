@@ -65,5 +65,5 @@ public abstract class Spdz2kProtocolSuite<
         resourcePool.getMaxBitLength(), resourcePool.getModulus(), resourcePool.getMyId(),
         resourcePool.getNoOfParties());
   }
-  
+
 }

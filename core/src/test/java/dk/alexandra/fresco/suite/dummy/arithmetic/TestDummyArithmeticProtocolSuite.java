@@ -54,6 +54,7 @@ import dk.alexandra.fresco.lib.math.integer.sqrt.SqrtTests;
 import dk.alexandra.fresco.lib.math.integer.stat.StatisticsTests;
 import dk.alexandra.fresco.lib.math.polynomial.PolynomialTests;
 import dk.alexandra.fresco.lib.real.BasicFixedPointTests;
+import dk.alexandra.fresco.lib.real.BasicFixedPointTests.TestMult;
 import dk.alexandra.fresco.lib.real.LinearAlgebraTests;
 import dk.alexandra.fresco.lib.real.MathTests;
 import dk.alexandra.fresco.lib.real.TruncationTests;
@@ -658,7 +659,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void test_Real_Mults() {
-    runTest(new BasicFixedPointTests.TestMult<>(), new TestParameters().numParties(2));
+    runTest(new TestMult<>(), new TestParameters().numParties(2));
   }
 
   @Test

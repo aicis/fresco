@@ -46,7 +46,11 @@ public class DefaultFixedNumeric implements RealNumeric {
 
   @Override
   public DRes<SReal> add(DRes<SReal> a, DRes<SReal> b) {
-    return null;
+    return builder.seq(seq -> {
+      SFixed floatA = (SFixed) a.out();
+      SFixed floatB = (SFixed) b.out();
+      return new SFixed(seq.numeric().add(floatA.getSInt(), floatB.getSInt()), precision);
+    });
   }
 
   @Override
@@ -71,7 +75,13 @@ public class DefaultFixedNumeric implements RealNumeric {
 
   @Override
   public DRes<SReal> mult(DRes<SReal> a, DRes<SReal> b) {
-    return null;
+    return builder.seq(seq -> {
+      SFixed floatA = (SFixed) a.out();
+      SFixed floatB = (SFixed) b.out();
+      DRes<SInt> unscaled = seq.numeric().mult(floatA.getSInt(), floatB.getSInt());
+      DRes<SInt> truncated = seq.advancedNumeric().truncate(unscaled, precision);
+      return new SFixed(truncated, precision);
+    });
   }
 
   @Override

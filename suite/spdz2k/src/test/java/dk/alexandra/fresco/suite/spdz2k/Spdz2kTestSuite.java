@@ -192,7 +192,7 @@ public abstract class Spdz2kTestSuite<Spdz2kResourcePoolT extends Spdz2kResource
   public void testEqualsEdgeCasesLogRounds() {
     runTest(new TestCompareEQEdgeCases<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
-
+  
   protected abstract int getMaxBitLength();
 
 }
