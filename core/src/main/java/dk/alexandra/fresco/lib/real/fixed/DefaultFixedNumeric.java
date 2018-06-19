@@ -51,22 +51,38 @@ public class DefaultFixedNumeric implements RealNumeric {
 
   @Override
   public DRes<SReal> add(BigDecimal a, DRes<SReal> b) {
-    return null;
+    return builder.seq(seq -> {
+      BigInteger unscaled = unscaled(a);
+      SFixed floatB = (SFixed) b.out();
+      return new SFixed(seq.numeric().add(unscaled, floatB.getSInt()), precision);
+    });
   }
 
   @Override
   public DRes<SReal> sub(DRes<SReal> a, DRes<SReal> b) {
-    return null;
+    return builder.seq(seq -> {
+      SFixed floatA = (SFixed) a.out();
+      SFixed floatB = (SFixed) b.out();
+      return new SFixed(seq.numeric().sub(floatA.getSInt(), floatB.getSInt()), precision);
+    });
   }
 
   @Override
   public DRes<SReal> sub(BigDecimal a, DRes<SReal> b) {
-    return null;
+    return builder.seq(seq -> {
+      BigInteger unscaled = unscaled(a);
+      SFixed floatB = (SFixed) b.out();
+      return new SFixed(seq.numeric().sub(unscaled, floatB.getSInt()), precision);
+    });
   }
 
   @Override
   public DRes<SReal> sub(DRes<SReal> a, BigDecimal b) {
-    return null;
+    return builder.seq(seq -> {
+      BigInteger unscaled = unscaled(b);
+      SFixed floatA = (SFixed) a.out();
+      return new SFixed(seq.numeric().sub(floatA.getSInt(), unscaled), precision);
+    });
   }
 
   @Override
@@ -82,17 +98,21 @@ public class DefaultFixedNumeric implements RealNumeric {
 
   @Override
   public DRes<SReal> mult(BigDecimal a, DRes<SReal> b) {
-    return null;
+    return builder.seq(seq -> {
+      BigInteger unscaled = unscaled(a);
+      SFixed floatB = (SFixed) b.out();
+      return new SFixed(seq.numeric().mult(unscaled, floatB.getSInt()), precision);
+    });
   }
 
   @Override
   public DRes<SReal> div(DRes<SReal> a, DRes<SReal> b) {
-    return null;
+    throw new UnsupportedOperationException("Not implemented");
   }
 
   @Override
   public DRes<SReal> div(DRes<SReal> a, BigDecimal b) {
-    return null;
+    throw new UnsupportedOperationException("Not implemented");
   }
 
   @Override
@@ -168,6 +188,10 @@ public class DefaultFixedNumeric implements RealNumeric {
 
   @Override
   public DRes<SInt> leq(DRes<SReal> x, DRes<SReal> y) {
-    return null;
+    return builder.seq(seq -> {
+      SFixed floatX = (SFixed) x.out();
+      SFixed floatY = (SFixed) y.out();
+      return seq.comparison().compareLEQ(floatX.getSInt(), floatY.getSInt());
+    });
   }
 }
