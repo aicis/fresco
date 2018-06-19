@@ -192,9 +192,23 @@ public interface AdvancedNumeric extends ComputationDirectory {
    *
    * @param input secret value to right shift
    * @param shifts number of shifts
+   * @param useTruncationPairs indicates whether truncation pairs are available as part of
+   * pre-processing material (this allows for a faster protocol)
    * @return shifted result
    */
-  DRes<SInt> truncate(DRes<SInt> input, int shifts);
+  DRes<SInt> truncate(DRes<SInt> input, int shifts, boolean useTruncationPairs);
+
+  default DRes<SInt> truncate(DRes<SInt> input, int shifts) {
+    return truncate(input, shifts, true);
+  }
+
+  /**
+   * Creates truncation pair ({@link TruncationPair}). <p>This method may rely on pre-processed
+   * material in which case it should be overridden by backend suits.</p>
+   *
+   * @param d number of shifts in truncation pair
+   */
+  DRes<TruncationPair> generateTruncationPair(int d);
 
   /**
    * @param input input.
@@ -305,6 +319,33 @@ public interface AdvancedNumeric extends ComputationDirectory {
       this.bits = bits;
       this.random = random;
     }
+  }
+
+  /**
+   * Generic representation of a truncation pair. <p> A truncation pair is pre-processing material
+   * used for probabilistic truncation. A truncation pair consists of a value r and r^{prime} such
+   * that r^{prime} is a random element and r = r^{prime} / 2^{d}, i.e., r right-shifted by d.</p>
+   */
+  class TruncationPair {
+
+    private final DRes<SInt> rPrime;
+    private final DRes<SInt> r;
+
+    public TruncationPair(
+        DRes<SInt> rPrime,
+        DRes<SInt> r) {
+      this.rPrime = rPrime;
+      this.r = r;
+    }
+
+    public DRes<SInt> getRPrime() {
+      return rPrime;
+    }
+
+    public DRes<SInt> getR() {
+      return r;
+    }
+
   }
 
 }

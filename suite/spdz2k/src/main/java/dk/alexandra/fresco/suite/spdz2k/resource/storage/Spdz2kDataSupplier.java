@@ -1,11 +1,11 @@
 package dk.alexandra.fresco.suite.spdz2k.resource.storage;
 
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.TruncationPair;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kInputMask;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntArithmetic;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntBoolean;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kTriple;
-import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kTruncationPair;
 
 /**
  * Interface for a supplier of pre-processing material. <p>Material includes random elements shares,
@@ -55,6 +55,6 @@ public interface Spdz2kDataSupplier<T extends CompUInt<?, ?, T>> {
    *
    * @param d number of shifts
    */
-  Spdz2kTruncationPair<T> getNextTruncationPair(int d);
+  TruncationPair getNextTruncationPair(int d);
 
 }

@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.spdz2k.resource.storage;
 
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.TruncationPair;
 import dk.alexandra.fresco.framework.util.ArithmeticDummyDataSupplier;
 import dk.alexandra.fresco.framework.util.MultiplicationTripleShares;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -10,7 +11,6 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kInputMask;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntArithmetic;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntBoolean;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kTriple;
-import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kTruncationPair;
 import java.math.BigInteger;
 
 /**
@@ -83,9 +83,9 @@ public class Spdz2kDummyDataSupplier<
   }
 
   @Override
-  public Spdz2kTruncationPair<PlainT> getNextTruncationPair(int d) {
+  public TruncationPair getNextTruncationPair(int d) {
     TruncationPairShares pair = supplier.getTruncationPairShares(d);
-    return new Spdz2kTruncationPair<>(toSpdz2kSInt(pair.getRPrime()), toSpdz2kSInt(pair.getR()));
+    return new TruncationPair(toSpdz2kSInt(pair.getRPrime()), toSpdz2kSInt(pair.getR()));
   }
 
   private Spdz2kSIntArithmetic<PlainT> toSpdz2kSInt(Pair<BigInteger, BigInteger> raw) {

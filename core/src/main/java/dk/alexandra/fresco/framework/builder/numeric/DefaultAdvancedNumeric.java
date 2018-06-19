@@ -26,6 +26,7 @@ import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductWithOInt;
 import dk.alexandra.fresco.lib.math.integer.log.Logarithm;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SquareRoot;
 import dk.alexandra.fresco.lib.real.fixed.utils.Truncate;
+import dk.alexandra.fresco.lib.real.fixed.utils.TruncateFromPairs;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -137,8 +138,18 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
   }
 
   @Override
-  public DRes<SInt> truncate(DRes<SInt> input, int shifts) {
-    return builder.seq(new Truncate(input, shifts));
+  public DRes<SInt> truncate(DRes<SInt> input, int shifts, boolean useTruncationPairs) {
+    if (useTruncationPairs) {
+      return builder.seq(new TruncateFromPairs(input, shifts));
+    } else {
+      return builder.seq(new Truncate(input, shifts));
+    }
+  }
+
+  @Override
+  public DRes<TruncationPair> generateTruncationPair(int d) {
+    throw new UnsupportedOperationException(
+        "Online truncation pair generation currently not supported");
   }
 
   @Override

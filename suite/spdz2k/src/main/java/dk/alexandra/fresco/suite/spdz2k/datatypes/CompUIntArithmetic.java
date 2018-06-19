@@ -75,4 +75,9 @@ public class CompUIntArithmetic<CompT extends CompUInt<?, ?, CompT>> implements 
     return powers;
   }
 
+  @Override
+  public OInt shiftRight(OInt input, int n) {
+    return factory.fromOInt(input).shiftRightLowOnly(n);
+  }
+
 }

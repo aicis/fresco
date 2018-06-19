@@ -82,7 +82,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
   @Override
   public AdvancedNumeric createAdvancedNumeric(ProtocolBuilderNumeric builder) {
-    return new Spdz2kAdvancedNumeric<>(this, builder, factory);
+    return new Spdz2kAdvancedNumeric(this, builder);
   }
 
   @Override

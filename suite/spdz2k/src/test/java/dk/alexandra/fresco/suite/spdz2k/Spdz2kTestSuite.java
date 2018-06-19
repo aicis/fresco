@@ -231,7 +231,6 @@ public abstract class Spdz2kTestSuite<Spdz2kResourcePoolT extends Spdz2kResource
     runTest(new TestMultIsolated<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
-
   protected abstract int getMaxBitLength();
 
 }

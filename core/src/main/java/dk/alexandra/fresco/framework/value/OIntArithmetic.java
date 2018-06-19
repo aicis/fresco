@@ -13,11 +13,9 @@ public interface OIntArithmetic {
   OInt one();
 
   /**
-   * Turns input value into bits in big-endian order.
-   * <p>
-   * If the actual bit length of the value is smaller than numBits, the result is padded with 0s. If
-   * the bit length is larger only the first numBits bits are used.
-   * </p>
+   * Turns input value into bits in big-endian order. <p> If the actual bit length of the value is
+   * smaller than numBits, the result is padded with 0s. If the bit length is larger only the first
+   * numBits bits are used. </p>
    */
   List<OInt> toBits(OInt openValue, int numBits);
 
@@ -35,12 +33,15 @@ public interface OIntArithmetic {
   /**
    * Reduces {@code input} modulo 2^{power}.
    *
-   * @param input
-   *          the input to reduce
-   * @param power
-   *          the two-power to reduce against
+   * @param input the input to reduce
+   * @param power the two-power to reduce against
    * @return the reduced input modulo the two-power
    */
   OInt modTwoTo(OInt input, int power);
+
+  /**
+   * Right-shifts input by n. <p>This is an unsigned shift.</p>
+   */
+  OInt shiftRight(OInt input, int n);
 
 }

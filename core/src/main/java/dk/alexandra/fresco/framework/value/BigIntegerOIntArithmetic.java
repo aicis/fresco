@@ -10,6 +10,7 @@ import java.util.List;
  * via {@link BigInteger}.
  */
 public class BigIntegerOIntArithmetic implements OIntArithmetic {
+
   private static final BigInteger TWO = new BigInteger("2");
   private List<OInt> twoPowersList;
   private final OIntFactory factory;
@@ -69,4 +70,8 @@ public class BigIntegerOIntArithmetic implements OIntArithmetic {
         power)));
   }
 
+  @Override
+  public OInt shiftRight(OInt input, int n) {
+    return factory.fromBigInteger(factory.toBigInteger(input).shiftRight(n));
+  }
 }

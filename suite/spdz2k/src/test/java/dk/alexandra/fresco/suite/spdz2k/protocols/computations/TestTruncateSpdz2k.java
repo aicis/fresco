@@ -61,6 +61,8 @@ public class TestTruncateSpdz2k extends
   public static class TestTruncate<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
+    private int maxBitLength;
+
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
 
@@ -83,18 +85,29 @@ public class TestTruncateSpdz2k extends
                       root.advancedNumeric().truncate(root.numeric().input(input, 1), 16)
                   );
                 }
+                maxBitLength = root.getBasicNumericContext().getMaxBitLength();
                 return root.collections().openList(() -> result);
               };
           List<BigInteger> actuals = runApplication(app).stream().map(DRes::out)
               .collect(Collectors.toList());
+          BigInteger modulus = BigInteger.ONE.shiftLeft(maxBitLength);
           for (int i = 0; i < inputs.size(); i++) {
-            BigInteger expected = inputs.get(i).shiftRight(16).mod(BigInteger.ONE.shiftLeft(64));
+            BigInteger expected = inputs.get(i).shiftRight(16).mod(modulus);
             BigInteger actual = actuals.get(i);
-            System.out.println(actual);
-            Assert.assertEquals(expected, actual);
+            assertWithinOne(expected, actual, modulus);
           }
         }
       };
     }
   }
+
+  private static void assertWithinOne(BigInteger expected, BigInteger actual, BigInteger modulus) {
+    BigInteger difference = expected.subtract(actual).mod(modulus);
+    String failureMessage = "Actual " + actual + " != " + expected + "+/-1";
+    Assert.assertTrue(failureMessage,
+        difference.equals(BigInteger.ZERO)
+            || difference.equals(BigInteger.ONE)
+            || difference.equals(BigInteger.valueOf(-1).mod(modulus)));
+  }
+
 }
