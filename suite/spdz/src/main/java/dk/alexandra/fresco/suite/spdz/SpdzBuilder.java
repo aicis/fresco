@@ -1,8 +1,10 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Conversion;
+import dk.alexandra.fresco.framework.builder.numeric.DefaultAdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.PreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -15,6 +17,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.lib.real.RealNumericContext;
+import dk.alexandra.fresco.lib.real.fixed.utils.Truncate;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzInputProtocol;
@@ -27,6 +30,7 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzRandomProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzSubtractProtocolKnownRight;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzTruncationPairProtocol;
 import java.math.BigInteger;
 
 /**
@@ -64,6 +68,11 @@ class SpdzBuilder implements BuilderFactoryNumeric {
           new SpdzExponentiationPipeProtocol(pipeLength);
       return protocolBuilder.append(spdzExpPipeProtocol);
     };
+  }
+
+  @Override
+  public AdvancedNumeric createAdvancedNumeric(ProtocolBuilderNumeric builder) {
+    return new SpdzAdvancedNumeric(this, builder);
   }
 
   @Override
@@ -212,6 +221,26 @@ class SpdzBuilder implements BuilderFactoryNumeric {
   @Override
   public OIntArithmetic getOIntArithmetic() {
     return oIntArithmetic;
+  }
+
+  class SpdzAdvancedNumeric extends DefaultAdvancedNumeric {
+
+    protected SpdzAdvancedNumeric(
+        BuilderFactoryNumeric factoryNumeric,
+        ProtocolBuilderNumeric builder) {
+      super(factoryNumeric, builder);
+    }
+
+    @Override
+    public DRes<SInt> truncate(DRes<SInt> input, int shifts, boolean useTruncationPairs) {
+      // TODO something broken, even with original protocol
+      return builder.seq(new Truncate(input, shifts));
+    }
+
+    @Override
+    public DRes<TruncationPair> generateTruncationPair(int d) {
+      return builder.append(new SpdzTruncationPairProtocol(d));
+    }
   }
 
 }

@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.TruncationPair;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
@@ -169,6 +170,11 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       logger.trace("Got another bit batch");
     }
     return MascotFormatConverter.toSpdzSInt(randomBits.pop());
+  }
+
+  @Override
+  public TruncationPair getNextTruncationPair(int d) {
+    throw new UnsupportedOperationException("Not implemented");
   }
 
   @Override

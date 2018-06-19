@@ -1,9 +1,11 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.TruncationPair;
 import dk.alexandra.fresco.framework.util.ArithmeticDummyDataSupplier;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.util.MultiplicationTripleShares;
 import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.util.TruncationPairShares;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
@@ -13,11 +15,14 @@ import java.util.Random;
 
 public class SpdzDummyDataSupplier implements SpdzDataSupplier {
 
+  private static int DEFAULT_MAX_BIT_LENGTH;
+
   private final int myId;
   private final ArithmeticDummyDataSupplier supplier;
   private final BigInteger modulus;
   private final BigInteger secretSharedKey;
   private final int expPipeLength;
+  private final int maxBitLength;
 
   public SpdzDummyDataSupplier(int myId, int noOfPlayers) {
     // TODO kill this
@@ -37,11 +42,18 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
 
   public SpdzDummyDataSupplier(int myId, int noOfPlayers, BigInteger modulus,
       BigInteger secretSharedKey, int expPipeLength) {
+    this(myId, noOfPlayers, modulus, secretSharedKey, expPipeLength, DEFAULT_MAX_BIT_LENGTH);
+  }
+
+  public SpdzDummyDataSupplier(int myId, int noOfPlayers, BigInteger modulus,
+      BigInteger secretSharedKey, int expPipeLength, int maxBitLength) {
     this.myId = myId;
     this.modulus = modulus;
     this.secretSharedKey = secretSharedKey;
     this.expPipeLength = expPipeLength;
-    this.supplier = new ArithmeticDummyDataSupplier(myId, noOfPlayers, modulus);
+    this.maxBitLength = maxBitLength;
+    this.supplier = new ArithmeticDummyDataSupplier(myId, noOfPlayers, modulus,
+        BigInteger.ONE.shiftLeft(maxBitLength));
   }
 
   @Override
@@ -55,7 +67,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
 
   @Override
   public SpdzSInt[] getNextExpPipe() {
-    List<Pair<BigInteger,BigInteger>> rawExpPipe = supplier.getExpPipe(expPipeLength);
+    List<Pair<BigInteger, BigInteger>> rawExpPipe = supplier.getExpPipe(expPipeLength);
     return rawExpPipe.stream()
         .map(this::toSpdzSInt)
         .toArray(SpdzSInt[]::new);
@@ -63,7 +75,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
 
   @Override
   public SpdzInputMask getNextInputMask(int towardPlayerId) {
-    Pair<BigInteger,BigInteger> raw = supplier.getRandomElementShare();
+    Pair<BigInteger, BigInteger> raw = supplier.getRandomElementShare();
     if (myId == towardPlayerId) {
       return new SpdzInputMask(toSpdzSInt(raw), raw.getFirst());
     } else {
@@ -89,6 +101,12 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
   @Override
   public SpdzSInt getNextRandomFieldElement() {
     return toSpdzSInt(supplier.getRandomElementShare());
+  }
+
+  @Override
+  public TruncationPair getNextTruncationPair(int d) {
+    TruncationPairShares pair = supplier.getTruncationPairShares(d);
+    return new TruncationPair(toSpdzSInt(pair.getRPrime()), toSpdzSInt(pair.getR()));
   }
 
   private SpdzSInt toSpdzSInt(Pair<BigInteger, BigInteger> raw) {

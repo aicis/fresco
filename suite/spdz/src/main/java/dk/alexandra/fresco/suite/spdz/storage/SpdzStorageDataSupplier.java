@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.TruncationPair;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.exceptions.NoMoreElementsException;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -60,6 +61,11 @@ public class SpdzStorageDataSupplier implements SpdzDataSupplier {
     this.storage = storage;
     this.storageName = storageName;
     this.inputMaskCounters = new int[noOfParties];
+  }
+
+  @Override
+  public TruncationPair getNextTruncationPair(int d) {
+    throw new UnsupportedOperationException("Not implemented");
   }
 
   @Override

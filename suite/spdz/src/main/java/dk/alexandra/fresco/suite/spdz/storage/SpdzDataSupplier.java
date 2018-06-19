@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.TruncationPair;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestBruteforce;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -61,5 +62,12 @@ public interface SpdzDataSupplier {
    * @return A SpdzSInt representing a random secret shared field element.
    */
   SpdzSInt getNextRandomFieldElement();
+
+  /**
+   * Supplies the next truncation pair (r^{prime}, r) where r = r^{prime} / 2^{d}.
+   *
+   * @param d number of shifts
+   */
+  TruncationPair getNextTruncationPair(int d);
 
 }
