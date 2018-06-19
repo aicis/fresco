@@ -78,13 +78,7 @@ public class TestSpdzComparison extends AbstractSpdzTest {
 
   @Test
   public void testCompareEQSequentialBatchedMascot() {
-    runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        PreprocessingStrategy.MASCOT, 2, 64, 2, 1);
-  }
-
-  @Test
-  public void testCompareEQEdgeCasesBatchedMascot() {
-    runTest(new CompareTests.TestCompareEQEdgeCases<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new CompareTests.TestCompareEQSimple<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.MASCOT, 2, 64, 2, 1);
   }
 

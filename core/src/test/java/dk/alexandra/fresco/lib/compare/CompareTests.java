@@ -109,6 +109,38 @@ public class CompareTests {
     }
   }
 
+  public static class TestCompareEQSimple<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() throws Exception {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = builder -> {
+            Numeric input = builder.numeric();
+            // Pair 1
+            DRes<SInt> x1 = input.known(BigInteger.valueOf(3));
+            DRes<SInt> y1 = input.known(BigInteger.valueOf(5));
+
+            Comparison comparison = builder.comparison();
+
+            DRes<SInt> compResult1 = comparison.equals(x1, x1);
+            DRes<SInt> compResult2 = comparison.equals(x1, y1);
+            Numeric open = builder.numeric();
+            DRes<BigInteger> res1 = open.open(compResult1);
+            DRes<BigInteger> res2 = open.open(compResult2);
+            return () -> Arrays.asList(res1.out(), res2.out());
+          };
+          List<BigInteger> output = runApplication(app);
+          Assert.assertEquals(BigInteger.ONE, output.get(0));
+          Assert.assertEquals(BigInteger.ZERO, output.get(1));
+        }
+      };
+    }
+  }
+
   /**
    * Compares the two numbers x and y and checks that x == x. Also checks that x != y
    */
