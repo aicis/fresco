@@ -101,7 +101,9 @@ public class DefaultFixedNumeric implements RealNumeric {
     return builder.seq(seq -> {
       BigInteger unscaled = unscaled(a);
       SFixed floatB = (SFixed) b.out();
-      return new SFixed(seq.numeric().mult(unscaled, floatB.getSInt()), precision);
+      DRes<SInt> overflowedProduct = seq.numeric().mult(unscaled, floatB.getSInt());
+      DRes<SInt> truncated = seq.advancedNumeric().truncate(overflowedProduct, precision);
+      return new SFixed(truncated, precision);
     });
   }
 
