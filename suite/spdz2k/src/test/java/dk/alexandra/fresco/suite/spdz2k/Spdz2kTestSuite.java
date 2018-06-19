@@ -8,6 +8,9 @@ import dk.alexandra.fresco.lib.compare.CompareTests.TestCompareEQEdgeCases;
 import dk.alexandra.fresco.lib.compare.CompareTests.TestCompareEQZero;
 import dk.alexandra.fresco.lib.compare.CompareTests.TestLessThanLogRounds;
 import dk.alexandra.fresco.lib.math.integer.binary.BinaryOperationsTests.TestGenerateRandomBitMask;
+import dk.alexandra.fresco.lib.real.BasicFixedPointTests;
+import dk.alexandra.fresco.lib.real.BasicFixedPointTests.TestMult;
+import dk.alexandra.fresco.lib.real.BasicFixedPointTests.TestMultIsolated;
 import dk.alexandra.fresco.suite.spdz2k.protocols.computations.TestComparisonSpdz2k.TestBitLessThanOpenSpdz2k;
 import dk.alexandra.fresco.suite.spdz2k.protocols.computations.TestLogicalOperationsSpdz2k.TestAndKnownSpdz2k;
 import dk.alexandra.fresco.suite.spdz2k.protocols.computations.TestLogicalOperationsSpdz2k.TestAndSpdz2k;
@@ -192,6 +195,42 @@ public abstract class Spdz2kTestSuite<Spdz2kResourcePoolT extends Spdz2kResource
   public void testEqualsEdgeCasesLogRounds() {
     runTest(new TestCompareEQEdgeCases<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
+
+  @Test
+  public void testRealInput() {
+    runTest(new BasicFixedPointTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
+  public void testRealOpenToParty() {
+    runTest(new BasicFixedPointTests.TestOpenToParty<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
+  public void testRealKnown() {
+    runTest(new BasicFixedPointTests.TestKnown<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
+  public void test_Real_Add_Secret() {
+    runTest(new BasicFixedPointTests.TestAdd<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
+  public void test_Real_Mult_Known() {
+    runTest(new BasicFixedPointTests.TestMultKnown<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
+  public void test_Real_Mults() {
+    runTest(new TestMult<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
+  public void test_Real_Mults_Isolated() {
+    runTest(new TestMultIsolated<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
 
   protected abstract int getMaxBitLength();
 

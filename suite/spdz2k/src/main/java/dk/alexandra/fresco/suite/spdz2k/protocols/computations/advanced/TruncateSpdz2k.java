@@ -21,8 +21,7 @@ public class TruncateSpdz2k<PlainT extends CompUInt<?, ?, PlainT>> implements
   private final int d;
   private final CompUIntFactory<PlainT> factory;
 
-  public TruncateSpdz2k(DRes<SInt> value, int d,
-      CompUIntFactory<PlainT> factory) {
+  public TruncateSpdz2k(DRes<SInt> value, int d, CompUIntFactory<PlainT> factory) {
     this.value = value;
     this.d = d;
     this.factory = factory;
@@ -32,16 +31,15 @@ public class TruncateSpdz2k<PlainT extends CompUInt<?, ?, PlainT>> implements
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     DRes<Spdz2kTruncationPair<PlainT>> truncationPairD = builder
         .append(new Spdz2kTruncationPairProtocol<>(d));
-    // annoying that we need this scope here
     return builder.seq(seq -> {
       Spdz2kTruncationPair<PlainT> truncationPair = truncationPairD.out();
-      DRes<SInt> masked = seq.numeric().sub(value, truncationPair.getRPrime());
+      DRes<SInt> masked = seq.numeric().add(value, truncationPair.getRPrime());
       return seq.numeric().openAsOInt(masked);
     }).seq((seq, openedOInt) -> {
       PlainT opened = factory.fromOInt(openedOInt);
       PlainT shifted = opened.shiftRightLowOnly(d);
       DRes<SInt> r = truncationPairD.out().getR();
-      return seq.numeric().addOpen(shifted, r);
+      return seq.numeric().subFromOpen(shifted, r);
     });
   }
 }

@@ -21,7 +21,11 @@ import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kOpenedValueStoreImpl;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -64,15 +68,31 @@ public class TestTruncateSpdz2k extends
 
         @Override
         public void test() {
-          final BigInteger input = BigInteger.valueOf(723121121381238012L);
-          Application<BigInteger, ProtocolBuilderNumeric> app =
+          List<BigInteger> inputs = Arrays.asList(
+              BigInteger.valueOf(-1),
+              BigInteger.ONE,
+              BigInteger.ZERO,
+              BigInteger.valueOf(2723121121381238012L),
+              BigInteger.valueOf(121121381238012L)
+          );
+          Application<List<DRes<BigInteger>>, ProtocolBuilderNumeric> app =
               root -> {
-                DRes<SInt> left = root.numeric().input(input, 1);
-                DRes<SInt> shifted = root.advancedNumeric().truncate(left, 42);
-                return root.numeric().open(shifted);
+                List<DRes<SInt>> result = new ArrayList<>(inputs.size());
+                for (BigInteger input : inputs) {
+                  result.add(
+                      root.advancedNumeric().truncate(root.numeric().input(input, 1), 16)
+                  );
+                }
+                return root.collections().openList(() -> result);
               };
-          BigInteger actual = runApplication(app);
-          Assert.assertEquals(input.shiftRight(42).mod(BigInteger.ONE.shiftLeft(42)), actual);
+          List<BigInteger> actuals = runApplication(app).stream().map(DRes::out)
+              .collect(Collectors.toList());
+          for (int i = 0; i < inputs.size(); i++) {
+            BigInteger expected = inputs.get(i).shiftRight(16).mod(BigInteger.ONE.shiftLeft(64));
+            BigInteger actual = actuals.get(i);
+            System.out.println(actual);
+            Assert.assertEquals(expected, actual);
+          }
         }
       };
     }

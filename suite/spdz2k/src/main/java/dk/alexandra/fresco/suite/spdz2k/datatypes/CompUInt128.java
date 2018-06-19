@@ -208,7 +208,7 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
     if (n <= 0) {
       return this;
     }
-    long midAndLow = ((UInt.toUnLong(mid) << 32) | UInt.toUnLong(low)) >> n;
+    long midAndLow = ((UInt.toUnLong(mid) << 32) | UInt.toUnLong(low)) >>> n;
     return new CompUInt128(high, (int) (midAndLow >>> 32), (int) midAndLow);
   }
 
