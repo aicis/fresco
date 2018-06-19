@@ -70,6 +70,7 @@ import dk.alexandra.fresco.logging.arithmetic.NumericLoggingDecorator;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Random;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTest {
@@ -436,7 +437,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
             .numParties(2)
             .modulus(ModulusFinder.findSuitableModulus(128))
             .maxBitLength(30)
-            .fixedPointPrecesion(8)
+            .fixedPointPrecision(8)
             .performanceLogging(false));
   }
 
@@ -674,17 +675,20 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
         new TestParameters().numParties(2));
   }
 
+  @Ignore
   @Test
   public void test_Real_Division_Secret_Divisor() {
     runTest(new BasicFixedPointTests.TestDiv<>(), new TestParameters().numParties(2));
   }
 
+  @Ignore
   @Test
   public void test_Real_Division_Known_Divisor() {
     runTest(new BasicFixedPointTests.TestDivisionKnownDivisor<>(),
         new TestParameters().numParties(2));
   }
 
+  @Ignore
   @Test
   public void test_Real_Division_Known_Negative_Divisor() {
     runTest(new BasicFixedPointTests.TestDivisionKnownNegativeDivisor<>(),
@@ -740,6 +744,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
         new TestParameters());
   }
 
+  @Ignore
   @Test
   public void test_Real_Exp() {
     runTest(new MathTests.TestExp<>(), new TestParameters().numParties(2));
@@ -755,11 +760,13 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(new BasicFixedPointTests.TestLeq<>(), new TestParameters().numParties(2));
   }
 
+  @Ignore
   @Test
   public void test_Real_Log() {
     runTest(new MathTests.TestLog<>(), new TestParameters().numParties(2));
   }
 
+  @Ignore
   @Test
   public void test_Real_Sqrt() {
     runTest(new MathTests.TestSqrt<>(), new TestParameters().numParties(2));
@@ -790,11 +797,12 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(new MathTests.TestInnerProductPublicPartUnmatched<>(), new TestParameters());
   }
 
+  @Ignore
   @Test
   public void test_Real_Sqrt_Uneven_Precision() {
     runTest(new MathTests.TestSqrt<>(),
         new TestParameters()
-            .fixedPointPrecesion(BasicFixedPointTests.DEFAULT_PRECISION + 1));
+            .fixedPointPrecision(BasicFixedPointTests.DEFAULT_PRECISION + 1));
   }
 
   @Test

@@ -162,8 +162,8 @@ public abstract class AbstractDummyArithmeticTest {
       return this;
     }
 
-    public TestParameters fixedPointPrecesion(int fixedPointPrecesion) {
-      this.fixedPointPrecesion = fixedPointPrecesion;
+    public TestParameters fixedPointPrecision(int fixedPointPrecision) {
+      this.fixedPointPrecesion = fixedPointPrecision;
       return this;
     }
 
