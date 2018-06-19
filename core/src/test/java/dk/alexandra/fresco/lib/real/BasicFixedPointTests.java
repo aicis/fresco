@@ -482,10 +482,11 @@ public class BasicFixedPointTests {
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       List<BigInteger> openInputs = Stream
-          .of(1L, 30_000_000_000L)
+          // 0.0001 0.1 0.01 0.11
+          .of(0x0001L, 0x8000L, 0x0800L, 0x8800L)
           .map(BigInteger::valueOf).collect(Collectors.toList());
       List<BigInteger> openInputs2 = Stream
-          .of(1L, 100L)
+          .of(0x0001L, 0x8000L, 0x8000L, 0x8000L)
           .map(BigInteger::valueOf).collect(Collectors.toList());
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
