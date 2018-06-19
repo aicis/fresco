@@ -1,8 +1,10 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Conversion;
+import dk.alexandra.fresco.framework.builder.numeric.DefaultAdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
@@ -53,6 +55,11 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
   @Override
   public RealNumericContext getRealNumericContext() {
     return realNumericContext;
+  }
+
+  @Override
+  public AdvancedNumeric createAdvancedNumeric(ProtocolBuilderNumeric builder) {
+    return new DummyAdvancedNumeric(this, builder, rand);
   }
 
   @Override
@@ -266,6 +273,33 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
   @Override
   public OIntArithmetic getOIntArithmetic() {
     return oIntArithmetic;
+  }
+
+  class DummyAdvancedNumeric extends DefaultAdvancedNumeric {
+
+    private final Random rand;
+
+    DummyAdvancedNumeric(
+        BuilderFactoryNumeric factoryNumeric,
+        ProtocolBuilderNumeric builder,
+        Random rand) {
+      super(factoryNumeric, builder);
+      this.rand = rand;
+    }
+
+    @Override
+    public DRes<TruncationPair> generateTruncationPair(int d) {
+      return builder.seq(seq -> {
+        // TODO check if random value should be from bigger space
+        BigInteger rPrimeOpen = new BigInteger(
+            builder.getBasicNumericContext().getMaxBitLength(),
+            rand);
+        BigInteger rOpen = rPrimeOpen.shiftRight(d);
+        DRes<SInt> rPrime = seq.numeric().input(rPrimeOpen, 1);
+        DRes<SInt> r = seq.numeric().input(rOpen, 1);
+        return () -> new TruncationPair(rPrime, r);
+      });
+    }
   }
 
 }
