@@ -18,12 +18,14 @@ public class DefaultFixedNumeric implements RealNumeric {
   protected final ProtocolBuilderNumeric builder;
   // TODO these should be cached static fields
   private final int precision;
+  private final BigInteger scalingFactor;
   private final BigDecimal scalingFactorDecimal;
 
   public DefaultFixedNumeric(ProtocolBuilderNumeric builder, int precision) {
     this.builder = builder;
     this.precision = precision;
-    this.scalingFactorDecimal = new BigDecimal(BigInteger.ONE.shiftLeft(precision));
+    this.scalingFactor = BigInteger.ONE.shiftLeft(precision);
+    this.scalingFactorDecimal = new BigDecimal(scalingFactor);
   }
 
   public DefaultFixedNumeric(ProtocolBuilderNumeric builder) {
@@ -135,7 +137,10 @@ public class DefaultFixedNumeric implements RealNumeric {
 
   @Override
   public DRes<SReal> fromSInt(DRes<SInt> value) {
-    return null;
+    return builder.seq(seq -> {
+      DRes<SInt> scaled = seq.numeric().mult(scalingFactor, value);
+      return new SFixed(scaled, precision);
+    });
   }
 
   @Override
