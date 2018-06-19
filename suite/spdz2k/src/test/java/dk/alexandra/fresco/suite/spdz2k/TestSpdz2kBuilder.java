@@ -7,7 +7,7 @@ public class TestSpdz2kBuilder {
 
   @Test(expected = UnsupportedOperationException.class)
   public void getBigIntegerHelper() {
-    new Spdz2kBuilder<>(new CompUInt128Factory(), null, false).getBigIntegerHelper();
+    new Spdz2kBuilder<>(new CompUInt128Factory(), null, null, false).getBigIntegerHelper();
   }
 
 }

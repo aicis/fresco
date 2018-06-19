@@ -3,6 +3,7 @@ package dk.alexandra.fresco.suite.spdz2k;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
+import dk.alexandra.fresco.lib.real.RealNumericContext;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntConverter;
@@ -29,8 +30,11 @@ public abstract class Spdz2kProtocolSuite<
     PlainT extends CompUInt<HighT, LowT, PlainT>>
     implements ProtocolSuiteNumeric<Spdz2kResourcePool<PlainT>> {
 
+  private static final int DEFAULT_FIXED_POINT_PRECISION = 16;
+
   private final CompUIntConverter<HighT, LowT, PlainT> converter;
   private final boolean useBooleanMode;
+  private final int fixedPointPrecision;
 
   /**
    * Constructs new {@link Spdz2kProtocolSuite}.
@@ -40,18 +44,31 @@ public abstract class Spdz2kProtocolSuite<
    * between these different types.
    * @param useBooleanMode flag for switching to boolean shares for logical operations
    */
-  Spdz2kProtocolSuite(CompUIntConverter<HighT, LowT, PlainT> converter, boolean useBooleanMode) {
+  Spdz2kProtocolSuite(CompUIntConverter<HighT, LowT, PlainT> converter,
+      boolean useBooleanMode,
+      int fixedPointPrecision) {
     this.converter = converter;
     this.useBooleanMode = useBooleanMode;
+    this.fixedPointPrecision = fixedPointPrecision;
+  }
+
+  Spdz2kProtocolSuite(CompUIntConverter<HighT, LowT, PlainT> converter, int fixedPointPrecision) {
+    this(converter, false, fixedPointPrecision);
+  }
+
+  Spdz2kProtocolSuite(CompUIntConverter<HighT, LowT, PlainT> converter, boolean useBooleanMode) {
+    this(converter, useBooleanMode, DEFAULT_FIXED_POINT_PRECISION);
   }
 
   Spdz2kProtocolSuite(CompUIntConverter<HighT, LowT, PlainT> converter) {
-    this(converter, false);
+    this(converter, false, DEFAULT_FIXED_POINT_PRECISION);
   }
 
   @Override
   public BuilderFactoryNumeric init(Spdz2kResourcePool<PlainT> resourcePool, Network network) {
-    return new Spdz2kBuilder<>(resourcePool.getFactory(), createBasicNumericContext(resourcePool),
+    return new Spdz2kBuilder<>(resourcePool.getFactory(),
+        createBasicNumericContext(resourcePool),
+        createRealNumericContext(),
         useBooleanMode);
   }
 
@@ -64,6 +81,10 @@ public abstract class Spdz2kProtocolSuite<
     return new BasicNumericContext(
         resourcePool.getMaxBitLength(), resourcePool.getModulus(), resourcePool.getMyId(),
         resourcePool.getNoOfParties());
+  }
+
+  public RealNumericContext createRealNumericContext() {
+    return new RealNumericContext(fixedPointPrecision);
   }
 
 }

@@ -41,14 +41,18 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
   private final CompUIntFactory<PlainT> factory;
   private final BasicNumericContext numericContext;
+  private final RealNumericContext realNumericContext;
   private final boolean useBooleanMode;
   private final CompUIntArithmetic<PlainT> uIntArithmetic;
 
-  public Spdz2kBuilder(CompUIntFactory<PlainT> factory, BasicNumericContext numericContext,
+  public Spdz2kBuilder(CompUIntFactory<PlainT> factory,
+      BasicNumericContext numericContext,
+      RealNumericContext realNumericContext,
       boolean useBooleanMode) {
     this.factory = factory;
     this.uIntArithmetic = new CompUIntArithmetic<>(factory);
     this.numericContext = numericContext;
+    this.realNumericContext = realNumericContext;
     this.useBooleanMode = useBooleanMode;
   }
 
@@ -218,8 +222,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
   @Override
   public RealNumericContext getRealNumericContext() {
-    // TODO Auto-generated method stub
-    return null;
+    return realNumericContext;
   }
 
   class Spdz2kLogical extends DefaultLogical {
