@@ -95,6 +95,13 @@ public class DefaultCollections implements Collections {
   }
 
   @Override
+  public DRes<SInt> select(DRes<List<DRes<SInt>>> selectionBits,
+      DRes<List<DRes<SInt>>> values) {
+    return builder
+        .seq(seq -> seq.advancedNumeric().innerProduct(selectionBits.out(), values.out()));
+  }
+
+  @Override
   public DRes<Matrix<DRes<SInt>>> permute(DRes<Matrix<DRes<SInt>>> values, int[] idxPerm) {
     return builder
         .seq(new PermuteRows(values, idxPerm, builder.getBasicNumericContext().getMyId(), true));

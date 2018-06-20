@@ -123,6 +123,12 @@ public interface Collections extends ComputationDirectory {
       DRes<List<T>> conditions,
       DRes<Matrix<T>> mat);
 
+  /**
+   * Obliviously selects a value from list according to selection bits. <p>Selection bits are
+   * assumed to be all zero except for the bit at the index of desired element.</p>
+   */
+  DRes<SInt> select(DRes<List<DRes<SInt>>> selectionBits, DRes<List<DRes<SInt>>> values);
+
   // Permutations
 
   /**
@@ -133,7 +139,7 @@ public interface Collections extends ComputationDirectory {
    * @param idxPerm encodes the desired permutation by supplying for each index a new index
    * @return permuted rows
    */
-   DRes<Matrix<DRes<SInt>>> permute(DRes<Matrix<DRes<SInt>>> values, int[] idxPerm);
+  DRes<Matrix<DRes<SInt>>> permute(DRes<Matrix<DRes<SInt>>> values, int[] idxPerm);
 
   /**
    * Permutes the rows of <code>values</code> according to <code>idxPerm</code>. <br> To be called
@@ -158,8 +164,8 @@ public interface Collections extends ComputationDirectory {
   /**
    * Performs a SQL-like group-by sum operation. Groups rows by column <code>groupColIdx</code> and
    * sums values in resulting groups in column <code>aggColIdx</code>. <br> NOTE: this particular
-   * implementation leaks equality of values in column
-   * <code>groupColIdx</code> and the size of the result.
+   * implementation leaks equality of values in column <code>groupColIdx</code> and the size of the
+   * result.
    *
    * @param values rows to be aggregated
    * @param groupColIdx column to group by

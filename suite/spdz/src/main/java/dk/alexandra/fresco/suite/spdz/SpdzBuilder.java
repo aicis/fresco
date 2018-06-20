@@ -229,7 +229,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
         ProtocolBuilderNumeric builder) {
       super(factoryNumeric, builder);
     }
-    
+
     @Override
     public DRes<TruncationPair> generateTruncationPair(int d) {
       return builder.append(new SpdzTruncationPairProtocol(d));
