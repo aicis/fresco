@@ -465,7 +465,8 @@ public class BasicFixedPointTests {
             BigDecimal b = openInputs2.get(idx);
             int precisionLoss = Math.max(
                 Math.max(RealTestUtils.floorLog2(a), RealTestUtils.floorLog2(b)),
-                0);
+                0
+            );
             RealTestUtils.assertEqual(a.multiply(b), openOutput,
                 DEFAULT_PRECISION - 1 - precisionLoss);
           }
