@@ -6,6 +6,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import org.junit.Test;
 
@@ -21,8 +22,8 @@ public class TestStrictBitVector {
   }
 
   @Test
-  public void testConstructRandomCorrectSize() {
-    Drbg rand = new PaddingAesCtrDrbg(new byte[] { 0x42 });
+  public void testConstructRandomCorrectSize() throws NoSuchAlgorithmException {
+    Drbg rand = AesCtrDrbgFactory.fromDerivedSeed( (byte)0x42 );
     StrictBitVector bv = new StrictBitVector(4 * 8, rand);
     assertEquals(4 * 8, bv.getSize());
     assertEquals(4, bv.toByteArray().length);

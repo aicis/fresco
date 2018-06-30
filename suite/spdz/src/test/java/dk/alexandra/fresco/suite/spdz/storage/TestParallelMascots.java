@@ -1,10 +1,10 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.AesCtrDrbgFactory;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
-import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.suite.spdz.NetManager;
 import dk.alexandra.fresco.tools.mascot.Mascot;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePoolImpl;
@@ -112,7 +112,9 @@ public class TestParallelMascots {
   private Drbg getDrbg() {
     byte[] drbgSeed = new byte[mascotSecurityParameters.getPrgSeedLength() / 8];
     new SecureRandom().nextBytes(drbgSeed);
-    return new PaddingAesCtrDrbg(drbgSeed);
+    Drbg drbg = ExceptionConverter.safe(() ->
+        AesCtrDrbgFactory.fromDerivedSeed(drbgSeed), "Could not generate drbg.");
+    return drbg;
   }
 
   private void constructMascot() throws Exception {

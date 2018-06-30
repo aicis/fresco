@@ -5,9 +5,9 @@ import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
 import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.AesCtrDrbgFactory;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
-import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import dk.alexandra.fresco.tools.ot.base.DhParameters;
@@ -69,7 +69,8 @@ public class MascotDemo {
     // generate random seed for local DRBG
     byte[] drbgSeed = new byte[parameters.getPrgSeedLength() / 8];
     new SecureRandom().nextBytes(drbgSeed);
-    Drbg drbg = new PaddingAesCtrDrbg(drbgSeed);
+    Drbg drbg = ExceptionConverter.safe(() ->
+    AesCtrDrbgFactory.fromDerivedSeed(drbgSeed), "Unable to generate DRBG.");
     Map<Integer, RotList> seedOts = new HashMap<>();
     for (int otherId = 1; otherId <= noOfParties; otherId++) {
       if (myId != otherId) {
