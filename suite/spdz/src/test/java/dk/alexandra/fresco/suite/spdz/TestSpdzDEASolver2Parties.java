@@ -13,7 +13,7 @@ import org.junit.Test;
 
 /**
  * Tests for the DEASolver.
- * 
+ *
  */
 public class TestSpdzDEASolver2Parties extends AbstractSpdzTest {
 
@@ -45,19 +45,6 @@ public class TestSpdzDEASolver2Parties extends AbstractSpdzTest {
         PreprocessingStrategy.DUMMY, 2);
   }
 
-
-  @Test
-  public void test_DEASolver_2_Sequential_batched_dummy_maximize() throws Exception {
-    runTest(new RandomDataDeaTest<>(5, 1, 30, 3, DeaSolver.AnalysisType.OUTPUT_EFFICIENCY),
-        EvaluationStrategy.SEQUENTIAL_BATCHED,
-        PreprocessingStrategy.DUMMY, 2);
-  }
-
-  @Test
-  public void test_DEASolver_2_Sequential_dummy() throws Exception {
-    runTest(new RandomDataDeaTest<>(2, 1, 5, 1, DeaSolver.AnalysisType.OUTPUT_EFFICIENCY),
-        EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2);
-  }
   @Test
   public void test_DEASolver_2_Sequential_dummy_NoIterations() throws Exception {
     runTest(new RandomDataDeaTest<>(2, 1, 5, 1, DeaSolver.AnalysisType.OUTPUT_EFFICIENCY, new Random(),1, true),
