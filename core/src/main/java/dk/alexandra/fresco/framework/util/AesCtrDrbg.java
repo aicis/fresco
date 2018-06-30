@@ -33,20 +33,21 @@ public class AesCtrDrbg implements Drbg {
   /**
    * Creates a new DRBG based on AES in counter mode.
    *
-   * @param seed the seed for the DRBG. This must be a must be {@value #SEED_LENGTH} bytes long and should be uniformly random.
-   * @throws IllegalArgumentException if seed is not of the correct length ({@value #SEED_LENGTH} bytes)
+   * @param seed the seed for the DRBG. This must be a must be {@value #SEED_LENGTH} bytes long and
+   *        should be uniformly random.
+   * @throws IllegalArgumentException if seed is not of the correct length ({@value #SEED_LENGTH}
+   *         bytes)
    */
   public AesCtrDrbg(byte[] seed) {
     if (seed.length != SEED_LENGTH) {
-      throw new IllegalArgumentException(
-          "Seed must be exactly " + SEED_LENGTH + " bytes, but the given seed is " + seed.length + " bytes long");
+      throw new IllegalArgumentException("Seed must be exactly " + SEED_LENGTH
+          + " bytes, but the given seed is " + seed.length + " bytes long");
     }
     byte[] key = new byte[KEY_LENGTH];
     byte[] iv = new byte[IV_LENGTH];
     System.arraycopy(seed, 0, key, 0, KEY_LENGTH);
     System.arraycopy(seed, KEY_LENGTH, iv, 0, IV_LENGTH);
-    this.cipher = ExceptionConverter.safe(
-        () -> Cipher.getInstance("AES/CTR/NoPadding"),
+    this.cipher = ExceptionConverter.safe(() -> Cipher.getInstance("AES/CTR/NoPadding"),
         "General exception in creating the cipher");
     initCipher(key, iv);
     reseedCounter = 0;
@@ -74,13 +75,15 @@ public class AesCtrDrbg implements Drbg {
   }
 
   /**
-   * Generates enough pseudo-random bytes to fill a given array. <p> Note: this method is unsafe the
-   * sense that it expects two array of equal size at most {@value #UPDATE_LIMIT} and does not check
-   * for this. </p>
+   * Generates enough pseudo-random bytes to fill a given array.
+   * <p>
+   * Note: this method is unsafe the sense that it expects two array of equal size at most
+   * {@value #UPDATE_LIMIT} and does not check for this.
+   * </p>
    *
    * @param zeroes an array of zero bytes of length equal to output array.
    * @param output an array of size at most {@value #UPDATE_LIMIT} which will be filled with pseudo
-   * random bytes.
+   *        random bytes.
    */
   void nextBytesBounded(byte[] zeroes, byte[] output) {
     if (generatedBytes + output.length > UPDATE_LIMIT) {
@@ -118,7 +121,7 @@ public class AesCtrDrbg implements Drbg {
     }
     if (reseedCounter + increment > RESEED_LIMIT) {
       throw new IllegalStateException(
-          "Exceeded limit on generation requests. " + "A DRBG with a fresh seed should be used.");
+          "Exceeded limit on generation requests. A DRBG with a fresh seed should be used.");
     }
     reseedCounter += increment;
   }
