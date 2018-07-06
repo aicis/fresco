@@ -9,7 +9,7 @@ import java.security.NoSuchAlgorithmException;
 public class AesCtrDrbgFactory {
 
   /**
-   * The hash used to for derived seeds
+   * The hash used to for derived seeds.
    */
   public static final String HASH_ALGORITHM = "SHA-256";
 
@@ -33,9 +33,9 @@ public class AesCtrDrbgFactory {
    * @param bytes a sequence of bytes from which to derive the seed
    * @return a new DRBG
    * @throws NoSuchAlgorithmException if the hash algorithm {@value #HASH_ALGORITHM} is not
-   *  available on the system
+   *      available on the system
    */
-  public static Drbg fromDerivedSeed(byte ... bytes) throws NoSuchAlgorithmException {
+  public static Drbg fromDerivedSeed(byte... bytes) throws NoSuchAlgorithmException {
     return fromRandomSeed(hash(bytes));
   }
 
@@ -43,8 +43,8 @@ public class AesCtrDrbgFactory {
    * Creates a new DRBG using a given array of bytes as seed directly.
    *
    * <p>
-   * Note: the seeds should be an array of exactly {@link AesCtrDrbg#SEED_LENGTH} uniformly random bytes.
-   * If the length constraint is not met an {@link IllegalArgumentException} will be thrown.
+   * Note: the seeds should be an array of exactly {@link AesCtrDrbg#SEED_LENGTH} uniformly random
+   * bytes. If the length constraint is not met an {@link IllegalArgumentException} will be thrown.
    * </p>
    *
    * @param seed {@link AesCtrDrbg#SEED_LENGTH} uniformly random bytes
@@ -63,10 +63,10 @@ public class AesCtrDrbgFactory {
   }
 
   private static byte[] hash(final byte[] bytes) throws NoSuchAlgorithmException {
-    MessageDigest md = MessageDigest.getInstance( HASH_ALGORITHM );
+    MessageDigest md = MessageDigest.getInstance(HASH_ALGORITHM);
     // This prefix is specified in NIST SP 800-90A rev. 1
     // Not sure why should be needed, but likely will not hurt either
-    md.update(new byte[] {0x01, 0x00, 0x00, 0x01, 0x00});
+    md.update(new byte[] { 0x01, 0x00, 0x00, 0x01, 0x00});
     md.update(bytes);
     return md.digest();
   }

@@ -15,8 +15,8 @@ public class AesCtrDrbgFactoryTest {
   public void testFromDerivedSeed() throws NoSuchAlgorithmException {
     // Note this test is implementation specific and may fail if we change how the seed is hashed
     MessageDigest md = MessageDigest.getInstance(AesCtrDrbgFactory.HASH_ALGORITHM);
-    Drbg drbgA = AesCtrDrbgFactory.fromDerivedSeed((byte)0x01, (byte)0x02);
-    byte[] seed = md.digest(new byte[] { 0x01, 0x00, 0x00, 0x01, 0x00, 0x01, 0x02 } );
+    Drbg drbgA = AesCtrDrbgFactory.fromDerivedSeed((byte) 0x01, (byte) 0x02);
+    byte[] seed = md.digest(new byte[] { 0x01, 0x00, 0x00, 0x01, 0x00, 0x01, 0x02 });
     assertEquals(AesCtrDrbg.SEED_LENGTH, seed.length);
     Drbg drbgB = new AesCtrDrbg(seed);
     byte[] bytesA = new byte[10000];
@@ -30,7 +30,7 @@ public class AesCtrDrbgFactoryTest {
   public void testFromRandomSeed() {
     byte[] seed = new byte[AesCtrDrbg.SEED_LENGTH];
     for (int i = 0; i < AesCtrDrbg.SEED_LENGTH; i++) {
-      seed[i] = (byte)i;
+      seed[i] = (byte) i;
     }
     Drbg drbgA = AesCtrDrbgFactory.fromRandomSeed(seed);
     Drbg drbgB = new AesCtrDrbg(seed);
@@ -43,7 +43,7 @@ public class AesCtrDrbgFactoryTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testFromRandomSeedShortSeed() {
-    AesCtrDrbgFactory.fromRandomSeed(new byte[] { 0x42 } );
+    AesCtrDrbgFactory.fromRandomSeed(new byte[] { 0x42 });
   }
 
   @Test(expected = IllegalArgumentException.class)

@@ -12,7 +12,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class AesCtrDrbg implements Drbg {
 
   /**
-   * The byte length required of the seed to an AesCtrDrbg
+   * The byte length required of the seed to an AesCtrDrbg.
    */
   public static final int SEED_LENGTH = 32;
   private static final int IV_LENGTH = 16;
