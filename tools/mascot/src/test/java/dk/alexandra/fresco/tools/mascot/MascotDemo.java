@@ -69,8 +69,7 @@ public class MascotDemo {
     // generate random seed for local DRBG
     byte[] drbgSeed = new byte[parameters.getPrgSeedLength() / 8];
     new SecureRandom().nextBytes(drbgSeed);
-    Drbg drbg = ExceptionConverter.safe(() ->
-    AesCtrDrbgFactory.fromDerivedSeed(drbgSeed), "Unable to generate DRBG.");
+    Drbg drbg = AesCtrDrbgFactory.fromDerivedSeed(drbgSeed);
     Map<Integer, RotList> seedOts = new HashMap<>();
     for (int otherId = 1; otherId <= noOfParties; otherId++) {
       if (myId != otherId) {

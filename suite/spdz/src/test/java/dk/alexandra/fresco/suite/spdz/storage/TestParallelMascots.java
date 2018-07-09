@@ -112,8 +112,7 @@ public class TestParallelMascots {
   private Drbg getDrbg() {
     byte[] drbgSeed = new byte[mascotSecurityParameters.getPrgSeedLength() / 8];
     new SecureRandom().nextBytes(drbgSeed);
-    Drbg drbg = ExceptionConverter.safe(() ->
-        AesCtrDrbgFactory.fromDerivedSeed(drbgSeed), "Could not generate drbg.");
+    Drbg drbg = AesCtrDrbgFactory.fromDerivedSeed(drbgSeed);
     return drbg;
   }
 

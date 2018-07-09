@@ -1,11 +1,8 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
 import dk.alexandra.fresco.framework.util.AesCtrDrbgFactory;
-import dk.alexandra.fresco.framework.util.ByteArrayHelper;
 import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-
 import java.nio.ByteBuffer;
 
 /**
@@ -36,7 +33,6 @@ public abstract class CoteShared {
     byte[] seedBytes = originalSeed.toByteArray();
     ByteBuffer idBuffer = ByteBuffer.allocate(seedBytes.length + Integer.BYTES);
     byte[] newSeed = idBuffer.putInt(instanceId).put(seedBytes).array();
-    return ExceptionConverter.safe(() ->
-        AesCtrDrbgFactory.fromDerivedSeed(newSeed), "Unable to generate DRBG.");
+    return AesCtrDrbgFactory.fromDerivedSeed(newSeed);
   }
 }

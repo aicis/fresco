@@ -24,7 +24,6 @@ import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.AesCtrDrbgFactory;
 import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.util.OpenedValueStoreImpl;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -188,8 +187,7 @@ public abstract class AbstractSpdzTest {
   private Drbg getDrbg(int myId, int prgSeedLength) {
     byte[] seed = new byte[prgSeedLength / 8];
     new Random(myId).nextBytes(seed);
-    Drbg drbg = ExceptionConverter.safe(() ->
-        AesCtrDrbgFactory.fromDerivedSeed(seed), "Unable to get new Drbg");
+    Drbg drbg = AesCtrDrbgFactory.fromDerivedSeed(seed);
     return drbg;
   }
 

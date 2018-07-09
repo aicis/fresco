@@ -9,7 +9,6 @@ import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.util.AesCtrDrbgFactory;
 import dk.alexandra.fresco.framework.util.Drbg;
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Before;
@@ -20,8 +19,8 @@ public class TestCommitment {
   Drbg rand;
 
   @Before
-  public void setup() throws NoSuchAlgorithmException {
-    rand = AesCtrDrbgFactory.fromDerivedSeed( (byte)0x42 );
+  public void setup() {
+    rand = AesCtrDrbgFactory.fromDerivedSeed((byte)0x42);
     comm = new HashBasedCommitment();
   }
 

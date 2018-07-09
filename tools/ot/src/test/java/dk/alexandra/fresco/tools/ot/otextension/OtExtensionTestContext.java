@@ -5,12 +5,10 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.AesCtrDrbgFactory;
 import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
 import dk.alexandra.fresco.tools.helper.HelperForTests;
 import dk.alexandra.fresco.tools.helper.RuntimeForTests;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
-
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -85,7 +83,6 @@ public class OtExtensionTestContext {
   public Drbg createRand(int instanceId) {
     ByteBuffer idBuffer = ByteBuffer.allocate(HelperForTests.seedOne.length + Integer.BYTES);
     byte[] seedBytes = idBuffer.putInt(instanceId).put(HelperForTests.seedOne).array();
-    return ExceptionConverter.safe(() ->
-        AesCtrDrbgFactory.fromDerivedSeed(seedBytes), "Unable to generate DRBG.");
+    return AesCtrDrbgFactory.fromDerivedSeed(seedBytes);
   }
 }
