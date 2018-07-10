@@ -12,7 +12,7 @@ public class TestSocketNetwork extends AbstractCloseableNetworkTest {
 
   @Override
   protected CloseableNetwork newCloseableNetwork(NetworkConfiguration conf, Duration timeout) {
-    return new SocketNetwork(conf, timeout);
+    return new SocketNetwork(conf, new Connector(conf, timeout));
   }
 
 }
