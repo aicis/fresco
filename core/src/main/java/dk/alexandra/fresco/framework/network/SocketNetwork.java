@@ -1,39 +1,23 @@
 package dk.alexandra.fresco.framework.network;
 
-import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketAddress;
-import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SocketNetwork implements CloseableNetwork {
 
   public static final Duration DEFAULT_CONNECTION_TIMEOUT = Duration.ofMinutes(1);
-  private static final int PARTY_ID_BYTES = 1;
   private static final Duration RECEIVE_TIMEOUT = Duration.ofMillis(100);
   private static final Logger logger = LoggerFactory.getLogger(SocketNetwork.class);
   private final BlockingQueue<byte[]> selfQueue;
@@ -43,6 +27,7 @@ public class SocketNetwork implements CloseableNetwork {
   private Collection<Socket> sockets;
   private final Map<Integer, Sender> senders;
   private final Map<Integer, Receiver> receivers;
+
 
   /**
    * Creates a network with the given configuration and a default timeout of
@@ -64,6 +49,10 @@ public class SocketNetwork implements CloseableNetwork {
    * @param timeout the time to wait until timeout
    */
   public SocketNetwork(NetworkConfiguration conf, Duration timeout) {
+    this(conf, new Connector(conf, timeout));
+  }
+
+  public SocketNetwork(NetworkConfiguration conf, NetworkConnector connector) {
     this.conf = conf;
     int externalParties = conf.noOfParties() - 1;
     this.receivers = new HashMap<>(externalParties);
@@ -71,126 +60,11 @@ public class SocketNetwork implements CloseableNetwork {
     this.alive = true;
     this.selfQueue = new LinkedBlockingQueue<>();
     if (conf.noOfParties() > 1) {
-      Map<Integer, Socket> channelMap = connectNetwork(timeout);
-      sockets = channelMap.values();
-      startCommunication(channelMap);
+      Map<Integer, Socket> socketMap = connector.getSocketMap();
+      sockets = socketMap.values();
+      startCommunication(socketMap);
     }
     logger.info("P{}: successfully connected network", conf.getMyId());
-  }
-
-  /**
-   * Fully connects the network.
-   * <p>
-   * Connects a channels to each external party (i.e., parties other than this party).
-   * </p>
-   *
-   * @param conf the configuration defining the network to connect
-   * @param timeout duration to wait until timeout
-   * @return a map from party ids to the associated communication channel
-   */
-  private Map<Integer, Socket> connectNetwork(Duration timeout) {
-    Map<Integer, Socket> channelMap = new HashMap<>(conf.noOfParties());
-    ExecutorService es = Executors.newFixedThreadPool(2);
-    CompletionService<Map<Integer, Socket>> cs = new ExecutorCompletionService<>(es);
-    cs.submit(() -> {
-      return connectClient();
-    });
-    cs.submit(() -> {
-      return connectServer(bindServer());
-    });
-    try {
-      for (int i = 0; i < 2; i++) {
-        Future<Map<Integer, Socket>> f = cs.poll(timeout.toMillis(), TimeUnit.MILLISECONDS);
-        if (f == null) {
-          throw new TimeoutException("Timed out");
-        } else {
-          channelMap.putAll(f.get());
-        }
-      }
-    } catch (InterruptedException e) {
-      throw new RuntimeException("Interrupted while connecting network", e);
-    } catch (ExecutionException e) {
-      throw new RuntimeException("Failed to connect network", e.getCause());
-    } catch (TimeoutException e) {
-      throw new RuntimeException("Timed out connecting network", e);
-    } finally {
-      es.shutdownNow();
-    }
-    return channelMap;
-  }
-
-
-
-  /**
-   * Makes connections to the opposing parties with higher id's.
-   *
-   * @throws InterruptedException thrown if interrupted while waiting to do a connection attempt
-   */
-  private Map<Integer, Socket> connectClient() throws InterruptedException {
-    Map<Integer, Socket> socketMap = new HashMap<>(conf.noOfParties() - conf.getMyId());
-    for (int i = conf.getMyId() + 1; i <= conf.noOfParties(); i++) {
-      Party p = conf.getParty(i);
-      SocketAddress addr = new InetSocketAddress(p.getHostname(), p.getPort());
-      boolean connectionMade = false;
-      int attempts = 0;
-      while (!connectionMade) {
-        try {
-          Socket sock = new Socket();
-          sock.connect(addr);
-          ByteBuffer b = ByteBuffer.allocate(Integer.BYTES);
-          b.putInt(conf.getMyId());
-          byte[] idBytes = new byte[PARTY_ID_BYTES];
-          byte[] bytes = b.array();
-          for (int j = 0; j < PARTY_ID_BYTES; j++) {
-            idBytes[j] = bytes[Integer.BYTES - PARTY_ID_BYTES + j];
-          }
-          sock.getOutputStream().write(idBytes);
-          connectionMade = true;
-          socketMap.put(i, sock);
-          logger.info("P{}: connected to {}", conf.getMyId(), p);
-        } catch (IOException e) {
-          Thread.sleep(1 << ++attempts);
-        }
-      }
-    }
-    return socketMap;
-  }
-
-  /**
-   * Binds the server to the port of this party.
-   */
-  private ServerSocket bindServer() {
-    try {
-      ServerSocket server = new ServerSocket(conf.getMe().getPort());
-      logger.info("P{}: bound at port {}", conf.getMyId(), conf.getMe().getPort());
-      return server;
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to bind to " + conf.getMe().getPort(), e);
-    }
-  }
-
-  /**
-   * Listens for connections from the opposing parties with lower id's.
-   *
-   * @throws IOException thrown if an {@link IOException} occurs while listening.
-   */
-  private Map<Integer, Socket> connectServer(ServerSocket server) throws IOException {
-    Map<Integer, Socket> socketMap = new HashMap<>(conf.getMyId() - 1);
-    try {
-      for (int i = 1; i < conf.getMyId(); i++) {
-        Socket sock = server.accept();
-        int id = 0;
-        for (int j = 0; j < PARTY_ID_BYTES; j++) {
-          id ^= sock.getInputStream().read() << j * Byte.SIZE;
-        }
-        socketMap.put(id, sock);
-        logger.info("P{}: accepted connection from {}", conf.getMyId(), conf.getParty(id));
-        socketMap.put(id, sock);
-      }
-    } finally {
-      server.close();
-    }
-    return socketMap;
   }
 
   /**
@@ -208,185 +82,6 @@ public class SocketNetwork implements CloseableNetwork {
       Sender sender = new Sender(socket, this.communicationService);
       this.senders.put(id, sender);
     }
-  }
-
-  /**
-   * Implements the receiver receiving a single message and starting a new receiver.
-   */
-  static class Receiver implements Callable<Object> {
-
-    private final Socket channel;
-    private final BlockingQueue<byte[]> queue;
-    private final Future<Object> future;
-    private final AtomicBoolean run;
-
-    /**
-     * Create a new Receiver.
-     * @param sock the channel receive messages on
-     * @param es the executor used to execute the receiving thread
-     */
-    Receiver(Socket sock, ExecutorService es) {
-      Objects.requireNonNull(sock);
-      Objects.requireNonNull(es);
-      this.channel = sock;
-      this.queue = new LinkedBlockingQueue<>();
-      this.run = new AtomicBoolean(true);
-      this.future = es.submit(this);
-    }
-
-    /**
-     * Tests if the Receiver is running. If not throws the exception that made it stop.
-     *
-     * @return true if the Receiver is running
-     * @throws InterruptedException if an interrupt occurred
-     * @throws ExecutionException if an exception occurred during execution
-     */
-    boolean isRunning() throws InterruptedException, ExecutionException {
-      if (future.isDone()) {
-        future.get();
-        return false;
-      }
-      return true;
-    }
-
-    /**
-     * Stops the receiver nicely.
-     * @throws ExecutionException if the sender failed due to an exception
-     * @throws InterruptedException if the sender was interrupted
-     * @throws IOException if exception occurs while closing channel
-     */
-    void stop() throws InterruptedException, ExecutionException, IOException {
-      if (isRunning()) {
-        run.set(false);
-        channel.shutdownInput();
-        future.get();
-      }
-    }
-
-    /**
-     * Polls for a message.
-     * @param timeout when to timeout waiting for a new message
-     * @return the message
-     */
-    byte[] pollMessage(Duration timeout) {
-      return ExceptionConverter.safe(() -> queue.poll(timeout.toMillis(), TimeUnit.MILLISECONDS),
-          "Receive interrupted");
-    }
-
-    @Override
-    public Object call() throws IOException, InterruptedException {
-      while (run.get()) {
-        byte[] lengthBuf = new byte[Integer.BYTES];
-        int readBytes = 0;
-        while (readBytes != Integer.BYTES) {
-          readBytes += channel.getInputStream().read(lengthBuf, readBytes, lengthBuf.length);
-        }
-        if (run.get()) {
-          int nextMessageSize = lengthBuf[3];
-          nextMessageSize ^= lengthBuf[2] << 8;
-          nextMessageSize ^= lengthBuf[1] << 16;
-          nextMessageSize ^= lengthBuf[0] << 24;
-          readBytes = 0;
-          byte[] msgBuf = new byte[nextMessageSize];
-          while (readBytes != nextMessageSize) {
-            readBytes += channel.getInputStream()
-                .read(msgBuf, readBytes, msgBuf.length - readBytes);
-          }
-          queue.add(msgBuf);
-        }
-      }
-      return null;
-    }
-
-  }
-
-  /**
-   * Implements the sender sending messages.
-   */
-  static class Sender implements Callable<Object> {
-
-    private final Socket channel;
-    private final BlockingQueue<byte[]> queue;
-    private final AtomicBoolean flush;
-    private final AtomicBoolean ignoreNext;
-    private Future<Object> future;
-
-    Sender(Socket channel, ExecutorService es) {
-      Objects.requireNonNull(channel);
-      Objects.requireNonNull(es);
-      this.channel = channel;
-      this.queue = new LinkedBlockingQueue<>();
-      this.flush = new AtomicBoolean(false);
-      this.ignoreNext = new AtomicBoolean(false);
-      this.future = es.submit(this);
-    }
-
-    /**
-     * Unblocks the sending thread and lets it stop nicely flushing out any outgoing messages.
-     */
-    private void unblock() {
-      this.flush.set(true);
-      if (queue.isEmpty()) {
-        this.ignoreNext.set(true);
-        queue.add(new byte[] {});
-      }
-    }
-
-    /**
-     * Queues an outgoing message.
-     * @param msg a message
-     */
-    void queueMessage(byte[] msg) {
-      queue.add(msg);
-    }
-
-    /**
-     * Tests if the Sender is running. If not throws the exception that made it stop.
-     *
-     * @return true if the Sender is running, false if it stopped nicely
-     * @throws InterruptedException if an interrupt occurred
-     * @throws ExecutionException if an exception occurred during execution
-     */
-    boolean isRunning() throws InterruptedException, ExecutionException {
-      if (future.isDone()) {
-        future.get();
-        return false;
-      } else {
-        return true;
-      }
-    }
-
-    /**
-     * Stops the sender nicely.
-     * @throws ExecutionException if the sender failed due to an exception
-     * @throws InterruptedException if the sender was interrupted
-     * @throws IOException if exception occurs while closing channel
-     */
-    void stop() throws InterruptedException, ExecutionException, IOException {
-      if (isRunning()) {
-        unblock();
-      }
-      future.get();
-      channel.shutdownOutput();
-    }
-
-    @Override
-    public Object call() throws IOException, InterruptedException {
-      while (!queue.isEmpty() || !flush.get()) {
-        byte[] data = queue.take();
-        if (!ignoreNext.get()) {
-          byte[] lengthBuf = new byte[Integer.BYTES];
-          lengthBuf[3] = (byte)data.length;
-          lengthBuf[2] = (byte)(data.length >> 8);
-          lengthBuf[1] = (byte)(data.length >> 16);
-          lengthBuf[0] = (byte)(data.length >> 24);
-          channel.getOutputStream().write(lengthBuf);
-          channel.getOutputStream().write(data);
-        }
-      }
-      return null;
-    }
-
   }
 
   @Override
@@ -462,14 +157,14 @@ public class SocketNetwork implements CloseableNetwork {
       try {
         s.stop();
       } catch (Exception e) {
-        logger.warn("P{}: A failed sender detected while closing network", conf.getMyId());
+        logger.debug("P{}: A failed sender detected while closing network", conf.getMyId());
       }
     }
     for (Receiver r : receivers.values()) {
       try {
         r.stop();
       } catch (Exception e) {
-        logger.warn("P{}: A failed receiver detected while closing network", conf.getMyId());
+        logger.debug("P{}: A failed receiver detected while closing network", conf.getMyId());
       }
     }
     for (Socket c: sockets) {
