@@ -35,7 +35,7 @@ public class AesCtrDrbgFactory {
    * @throws NoSuchAlgorithmException if the hash algorithm {@value #HASH_ALGORITHM} is not
    *      available on the system
    */
-  public static Drbg fromDerivedSeed(byte... bytes) {
+  public static Drbg fromDerivedSeed(final byte... bytes) {
     return ExceptionConverter.safe(() -> fromRandomSeed(hash(bytes)),
           "Unable to derive seed for AesCtrDrbg");
   }
@@ -51,7 +51,7 @@ public class AesCtrDrbgFactory {
    * @param seed {@link AesCtrDrbg#SEED_LENGTH} uniformly random bytes
    * @return a new DRBG
    */
-  public static Drbg fromRandomSeed(byte[] seed) {
+  public static Drbg fromRandomSeed(final byte[] seed) {
     return new AesCtrDrbg(seed);
   }
 
