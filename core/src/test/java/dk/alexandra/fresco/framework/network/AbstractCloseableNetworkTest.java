@@ -317,8 +317,8 @@ public abstract class AbstractCloseableNetworkTest {
     ServerSocket socket = null;
     try {
       List<NetworkConfiguration> confs = getNetConfs(2);
-      socket = ServerSocketFactory.getDefault().createServerSocket(confs.get(0).getMe().getPort());
-      newCloseableNetwork(confs.get(0));
+      socket = ServerSocketFactory.getDefault().createServerSocket(confs.get(1).getMe().getPort());
+      newCloseableNetwork(confs.get(1));
     } finally {
       socket.close();
     }
