@@ -23,10 +23,10 @@ public class DefaultBristolCrypto implements BristolCrypto {
   }
 
   @Override
-  public DRes<List<SBool>> AES(List<DRes<SBool>> keyMaterial,
-      List<DRes<SBool>> plainText) {
+  public DRes<List<SBool>> AES(List<DRes<SBool>> plainText,
+      List<DRes<SBool>> keyMaterial) {
     BristolCircuitParser parser = BristolCircuitParser
-        .readCircuitDescription("circuits/AES-non-expanded.txt", keyMaterial, plainText);
+        .readCircuitDescription("circuits/AES-non-expanded.txt", plainText, keyMaterial);
     return builder.seq(parser);
   }
 
