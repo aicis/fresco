@@ -34,7 +34,7 @@ public abstract class AbstractCloseableNetworkTest {
   protected abstract CloseableNetwork newCloseableNetwork(NetworkConfiguration conf);
 
   protected abstract CloseableNetwork newCloseableNetwork(NetworkConfiguration conf,
-        Duration timeout);
+      Duration timeout);
 
   @Before
   public void setup() {
@@ -256,7 +256,7 @@ public abstract class AbstractCloseableNetworkTest {
     return createNetworks(confs);
   }
 
-  private Map<Integer, CloseableNetwork> createNetworks(List<NetworkConfiguration> confs) {
+  protected Map<Integer, CloseableNetwork> createNetworks(List<NetworkConfiguration> confs) {
     int numParties = confs.get(0).noOfParties();
     ExecutorService es = Executors.newFixedThreadPool(numParties);
     Map<Integer, CloseableNetwork> netMap = new HashMap<>(numParties);
@@ -293,7 +293,7 @@ public abstract class AbstractCloseableNetworkTest {
     return confs;
   }
 
-  private void closeNetworks(Map<Integer, CloseableNetwork> networks) {
+  protected void closeNetworks(Map<Integer, CloseableNetwork> networks) {
     networks.values().stream().forEach(t -> {
       try {
         t.close();
@@ -304,11 +304,11 @@ public abstract class AbstractCloseableNetworkTest {
     });
   }
 
-  private int nextParty(int myId, int numParties) {
+  protected int nextParty(int myId, int numParties) {
     return (myId == numParties) ? 1 : myId + 1;
   }
 
-  private int prevParty(int myId, int numParties) {
+  protected int prevParty(int myId, int numParties) {
     return (myId == 1) ? numParties : myId - 1;
   }
 
