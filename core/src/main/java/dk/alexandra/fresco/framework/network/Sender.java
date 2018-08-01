@@ -1,5 +1,8 @@
 package dk.alexandra.fresco.framework.network;
 
+import dk.alexandra.fresco.framework.util.ExceptionConverter;
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Objects;
@@ -16,16 +19,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 class Sender implements Callable<Object> {
 
-  private final Socket channel;
+  private final DataOutputStream out;
   private final BlockingQueue<byte[]> queue;
   private final AtomicBoolean flush;
   private final AtomicBoolean ignoreNext;
   private Future<Object> future;
 
-  Sender(Socket channel, ExecutorService es) {
-    Objects.requireNonNull(channel);
+  Sender(Socket sock, ExecutorService es) {
+    Objects.requireNonNull(sock);
     Objects.requireNonNull(es);
-    this.channel = channel;
+    this.out = ExceptionConverter.safe(() ->
+    new DataOutputStream(new BufferedOutputStream(sock.getOutputStream())),
+        "Unable to get output stream from socket");
     this.queue = new LinkedBlockingQueue<>();
     this.flush = new AtomicBoolean(false);
     this.ignoreNext = new AtomicBoolean(false);
@@ -78,7 +83,6 @@ class Sender implements Callable<Object> {
       unblock();
     }
     future.get();
-    channel.shutdownOutput();
   }
 
   @Override
@@ -86,13 +90,9 @@ class Sender implements Callable<Object> {
     while (!queue.isEmpty() || !flush.get()) {
       byte[] data = queue.take();
       if (!ignoreNext.get()) {
-        byte[] lengthBuf = new byte[Integer.BYTES];
-        lengthBuf[3] = (byte)data.length;
-        lengthBuf[2] = (byte)(data.length >> 8);
-        lengthBuf[1] = (byte)(data.length >> 16);
-        lengthBuf[0] = (byte)(data.length >> 24);
-        channel.getOutputStream().write(lengthBuf);
-        channel.getOutputStream().write(data);
+        out.writeInt(data.length);
+        out.write(data);
+        out.flush();
       }
     }
     return null;

@@ -1,10 +1,11 @@
 package dk.alexandra.fresco.framework.network;
 
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.Socket;
-import java.net.SocketException;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
@@ -22,7 +23,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 class Receiver implements Callable<Object> {
 
-  private final Socket socket;
+  private final DataInputStream in;
   private final BlockingQueue<byte[]> queue;
   private final Future<Object> future;
   private final AtomicBoolean run;
@@ -36,7 +37,9 @@ class Receiver implements Callable<Object> {
   Receiver(Socket sock, ExecutorService es) {
     Objects.requireNonNull(sock);
     Objects.requireNonNull(es);
-    this.socket = sock;
+    this.in = ExceptionConverter.safe(() ->
+    new DataInputStream(new BufferedInputStream(sock.getInputStream())),
+        "Unable to get inputstream from socket.");
     this.queue = new LinkedBlockingQueue<>();
     this.run = new AtomicBoolean(true);
     this.future = es.submit(this);
@@ -67,8 +70,7 @@ class Receiver implements Callable<Object> {
   void stop() throws InterruptedException, ExecutionException, IOException {
     if (isRunning()) {
       run.set(false);
-      socket.shutdownInput();
-      future.get();
+      future.cancel(true);
     }
   }
 
@@ -86,25 +88,18 @@ class Receiver implements Callable<Object> {
   @Override
   public Object call() throws IOException, InterruptedException {
     while (run.get()) {
-      byte[] lengthBuf = new byte[Integer.BYTES];
-      int readBytes = 0;
-      while (readBytes != Integer.BYTES) {
-        InputStream in = socket.getInputStream();
-        readBytes += in.read(lengthBuf, readBytes, lengthBuf.length);
+      int length = 0;
+      try {
+        length = this.in.readInt();
+      } catch (EOFException e) {
+        run.getAndSet(false);
       }
       if (run.get()) {
-        int nextMessageSize = lengthBuf[3];
-        nextMessageSize ^= lengthBuf[2] << 8;
-        nextMessageSize ^= lengthBuf[1] << 16;
-        nextMessageSize ^= lengthBuf[0] << 24;
-        if (nextMessageSize < 0) {
+        if (length < 0) {
           run.set(false);
         } else {
-          readBytes = 0;
-          byte[] msgBuf = new byte[nextMessageSize];
-          while (readBytes != nextMessageSize) {
-            readBytes += socket.getInputStream().read(msgBuf, readBytes, msgBuf.length - readBytes);
-          }
+          byte[] msgBuf = new byte[length];
+          this.in.readFully(msgBuf);
           queue.add(msgBuf);
         }
       }
