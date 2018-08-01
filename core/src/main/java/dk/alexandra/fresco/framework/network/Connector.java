@@ -1,9 +1,9 @@
 package dk.alexandra.fresco.framework.network;
 
-import com.esotericsoftware.minlog.Log;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -25,6 +25,8 @@ import org.slf4j.LoggerFactory;
 
 public class Connector implements NetworkConnector {
 
+
+  public static final Duration DEFAULT_CONNECTION_TIMEOUT = Duration.ofMinutes(1);
   private static final int PARTY_ID_BYTES = 1;
   private static final Logger logger = LoggerFactory.getLogger(SocketNetwork.class);
   private final Map<Integer, Socket> socketMap;
@@ -94,9 +96,10 @@ public class Connector implements NetworkConnector {
    * Makes connections to the opposing parties with higher id's.
    *
    * @throws InterruptedException if interrupted while waiting to do a connection attempt
+   * @throws IOException if an IO exception occurs while connecting
    */
   private Map<Integer, Socket> connectClient(final NetworkConfiguration conf)
-      throws InterruptedException {
+      throws InterruptedException, IOException {
     Map<Integer, Socket> socketMap = new HashMap<>(conf.noOfParties() - conf.getMyId());
     for (int i = conf.getMyId() + 1; i <= conf.noOfParties(); i++) {
       Party p = conf.getParty(i);
@@ -116,8 +119,9 @@ public class Connector implements NetworkConnector {
           connectionMade = true;
           socketMap.put(i, sock);
           logger.info("P{}: connected to {}", conf.getMyId(), p);
-        } catch (IOException e) {
-          e.printStackTrace();
+        } catch (ConnectException e) {
+          // A connect exception is expected if the opposing side is not listening for our
+          // connection attempt yet. We ignore this and try again.
           Thread.sleep(1 << ++attempts);
         }
       }
@@ -165,6 +169,7 @@ public class Connector implements NetworkConnector {
         server.close();
       }
     }
+
     return socketMap;
   }
 
