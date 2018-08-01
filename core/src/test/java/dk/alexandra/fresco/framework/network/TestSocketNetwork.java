@@ -7,12 +7,13 @@ public class TestSocketNetwork extends AbstractCloseableNetworkTest {
 
   @Override
   protected CloseableNetwork newCloseableNetwork(NetworkConfiguration conf) {
-    return new SocketNetwork(conf);
+    return new SocketNetwork(conf,
+        new Connector(conf, Connector.DEFAULT_CONNECTION_TIMEOUT).getSocketMap());
   }
 
   @Override
   protected CloseableNetwork newCloseableNetwork(NetworkConfiguration conf, Duration timeout) {
-    return new SocketNetwork(conf, new Connector(conf, timeout));
+    return new SocketNetwork(conf, new Connector(conf, timeout).getSocketMap());
   }
 
 }
