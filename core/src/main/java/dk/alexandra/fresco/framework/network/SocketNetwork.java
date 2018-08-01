@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 public class SocketNetwork implements CloseableNetwork {
 
-  public static final Duration DEFAULT_CONNECTION_TIMEOUT = Duration.ofMinutes(1);
   private static final Duration RECEIVE_TIMEOUT = Duration.ofMillis(100);
   private static final Logger logger = LoggerFactory.getLogger(SocketNetwork.class);
   private final BlockingQueue<byte[]> selfQueue;
@@ -28,31 +27,14 @@ public class SocketNetwork implements CloseableNetwork {
   private final Map<Integer, Sender> senders;
   private final Map<Integer, Receiver> receivers;
 
-
   /**
-   * Creates a network with the given configuration and a default timeout of
-   * {@link #DEFAULT_CONNECTION_TIMEOUT}. Calling the constructor will automatically trigger an
-   * attempt to connect to the other parties. If this fails a {@link RuntimeException} is thrown.
+   * Creates a network with the given configuration Calling the constructor will automatically
+   * trigger an attempt to connect to the other parties. If this fails a {@link RuntimeException} is
+   * thrown.
    *
    * @param conf the network configuration
    */
-  public SocketNetwork(NetworkConfiguration conf) {
-    this(conf, DEFAULT_CONNECTION_TIMEOUT);
-  }
-
-  /**
-   * Creates a network with the given configuration and a timeout of <code>timeout</code> in
-   * milliseconds. Calling the constructor will automatically trigger an attempt to connect to the
-   * other parties. If this fails a {@link RuntimeException} is thrown.
-   *
-   * @param conf The network configuration
-   * @param timeout the time to wait until timeout
-   */
-  public SocketNetwork(NetworkConfiguration conf, Duration timeout) {
-    this(conf, new Connector(conf, timeout));
-  }
-
-  public SocketNetwork(NetworkConfiguration conf, NetworkConnector connector) {
+  public SocketNetwork(NetworkConfiguration conf, Map<Integer, Socket> socketMap) {
     this.conf = conf;
     int externalParties = conf.noOfParties() - 1;
     this.receivers = new HashMap<>(externalParties);
@@ -60,7 +42,6 @@ public class SocketNetwork implements CloseableNetwork {
     this.alive = true;
     this.selfQueue = new LinkedBlockingQueue<>();
     if (conf.noOfParties() > 1) {
-      Map<Integer, Socket> socketMap = connector.getSocketMap();
       sockets = socketMap.values();
       startCommunication(socketMap);
     }
@@ -69,6 +50,7 @@ public class SocketNetwork implements CloseableNetwork {
 
   /**
    * Starts communication threads to handle incoming and outgoing messages.
+   *
    * @param channels a map from party ids to the associated communication channels
    */
   private void startCommunication(Map<Integer, Socket> sockets) {
@@ -103,17 +85,18 @@ public class SocketNetwork implements CloseableNetwork {
   @Override
   public byte[] receive(final int partyId) {
     if (partyId == conf.getMyId()) {
-      return ExceptionConverter.safe(() -> selfQueue.take(), "Receiving from self iterrupted");
+      return ExceptionConverter.safe(() -> selfQueue.take(), "Receiving from self failed");
     }
     inRange(partyId);
     byte[] data = null;
+    data = receivers.get(partyId).pollMessage(RECEIVE_TIMEOUT);
     while (data == null) {
       ExceptionConverter.safe(() -> {
         if (!receivers.get(partyId).isRunning()) {
           throw new RuntimeException("Receiver not running");
         }
         return null;
-      }, "P" + conf.getMyId() + ": Unable to receive from P" + partyId);
+      }, "P" + conf.getMyId() + ": Unable to recieve from P" + partyId);
       data = receivers.get(partyId).pollMessage(RECEIVE_TIMEOUT);
     }
     return data;
@@ -149,25 +132,25 @@ public class SocketNetwork implements CloseableNetwork {
   }
 
   /**
-   * Safely closes the threads and channels used for sending/receiving messages.
-   * Note: this should be only be called once.
+   * Safely closes the threads and channels used for sending/receiving messages. Note: this should
+   * be only be called once.
    */
   private void closeCommunication() {
     for (Sender s : senders.values()) {
       try {
         s.stop();
       } catch (Exception e) {
-        logger.debug("P{}: A failed sender detected while closing network", conf.getMyId());
+        logger.debug("P{}: A failed sender detected while closing network", conf.getMyId(), e);
       }
     }
     for (Receiver r : receivers.values()) {
       try {
         r.stop();
       } catch (Exception e) {
-        logger.debug("P{}: A failed receiver detected while closing network", conf.getMyId());
+        logger.debug("P{}: A failed receiver detected while closing network", conf.getMyId(), e);
       }
     }
-    for (Socket c: sockets) {
+    for (Socket c : sockets) {
       ExceptionConverter.safe(() -> {
         c.close();
         return null;
