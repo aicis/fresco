@@ -482,7 +482,7 @@ public class AsyncNetwork implements CloseableNetwork {
       ExceptionConverter.safe(() -> {
         c.close();
         return null;
-        }, "");
+      }, "");
     }
     communicationService.shutdownNow();
   }
