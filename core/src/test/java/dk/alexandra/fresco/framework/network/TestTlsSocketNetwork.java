@@ -31,6 +31,15 @@ import javax.net.ssl.TrustManagerFactory;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * Demonstrates how to set up a socket network with SSLSockets (to get TLS protected channels).
+ * <p>
+ * For these tests we have generated a keystore for each party in the test and add their certificate
+ * a single truststore that will be used by all parties.
+ *
+ * To generate these we used the script in <code>fresco/core/src/test/resource/genstores.sh</code>
+ * </p>
+ */
 public class TestTlsSocketNetwork extends AbstractCloseableNetworkTest {
 
   private NetworkFactory factory;
@@ -50,8 +59,14 @@ public class TestTlsSocketNetwork extends AbstractCloseableNetworkTest {
     return factory.newCloseableNetwork(conf, timeout);
   }
 
+  /**
+   * This tests the case where a trusted party (i.e., one which certificate is in our truststore),
+   * is giving wrong id. I.e., the party is not participating in the protocol in a way that is
+   * consistent with the party's certificate. Concretely, a party with a certificate corresponding
+   * to an id of 3 will behave attempt to connect as party 2.
+   */
   @Test(expected = MaliciousException.class)
-  public void testMismatchedIdAndKey() throws InterruptedException {
+  public void testMismatchedIdAndKey() throws InterruptedException, ExecutionException {
     NetworkFactory fact = new NetworkFactoryImpl() {
 
       @Override
@@ -59,9 +74,9 @@ public class TestTlsSocketNetwork extends AbstractCloseableNetworkTest {
           NoSuchAlgorithmException, CertificateException, UnrecoverableKeyException {
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
         KeyStore ks = KeyStore.getInstance("PKCS12");
-        String storeName = "keyStore" + id;
+        String storeName = "keystore" + id;
         if (id == 2) {
-          storeName = "keyStore3";
+          storeName = "keystore3";
         }
         try (InputStream is = classloader.getResourceAsStream(storeName)) {
           ks.load(is, "testpass".toCharArray());
@@ -77,19 +92,28 @@ public class TestTlsSocketNetwork extends AbstractCloseableNetworkTest {
     ExecutorService es = Executors.newFixedThreadPool(numParties);
     Map<Integer, Future<CloseableNetwork>> futureMap = new HashMap<>(numParties);
     for (NetworkConfiguration conf : confs) {
-      Future<CloseableNetwork> f = es.submit(() ->
-          fact.newCloseableNetwork(conf, Connector.DEFAULT_CONNECTION_TIMEOUT));
+      Future<CloseableNetwork> f =
+          es.submit(() -> fact.newCloseableNetwork(conf, Connector.DEFAULT_CONNECTION_TIMEOUT));
       futureMap.put(conf.getMyId(), f);
     }
     try {
       futureMap.get(1).get();
     } catch (ExecutionException e) {
-      throw (MaliciousException) e.getCause();
+      if (e.getCause() instanceof MaliciousException) {
+        // The exception we were expecting
+        throw (MaliciousException) e.getCause();
+      } else {
+
+        throw e;
+      }
     } finally {
       es.shutdownNow();
     }
   }
 
+  /**
+   * Tests the case where a party attempts to connect with an untrusted certificate.
+   */
   @Test(expected = SSLHandshakeException.class)
   public void testUntrustedParty() throws Throwable {
     NetworkFactory fact = new NetworkFactoryImpl() {
@@ -117,18 +141,27 @@ public class TestTlsSocketNetwork extends AbstractCloseableNetworkTest {
     ExecutorService es = Executors.newFixedThreadPool(numParties);
     Map<Integer, Future<CloseableNetwork>> futureMap = new HashMap<>(numParties);
     for (NetworkConfiguration conf : confs) {
-      Future<CloseableNetwork> f = es.submit(() ->
-          fact.newCloseableNetwork(conf, Duration.ofSeconds(1)));
+      Future<CloseableNetwork> f =
+          es.submit(() -> fact.newCloseableNetwork(conf, Duration.ofSeconds(1)));
       futureMap.put(conf.getMyId(), f);
     }
     try {
       futureMap.get(1).get();
     } catch (ExecutionException e) {
-      throw e.getCause().getCause();
+      if (e.getCause() != null && e.getCause().getCause() instanceof SSLHandshakeException) {
+        // The exception we were expecting
+        throw e.getCause().getCause();
+      } else {
+        // Some other exception indicating test failed
+        throw e;
+      }
     }
   }
 
 
+  /**
+   * Provides TLS enabled closeable networks.
+   */
   private interface NetworkFactory {
 
     CloseableNetwork newCloseableNetwork(NetworkConfiguration conf, Duration timeout);
