@@ -1,10 +1,8 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
-import dk.alexandra.fresco.framework.util.ByteArrayHelper;
+import dk.alexandra.fresco.framework.util.AesCtrDrbgFactory;
 import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-
 import java.nio.ByteBuffer;
 
 /**
@@ -32,12 +30,9 @@ public abstract class CoteShared {
    * @return The initialized PRG
    */
   Drbg initPrg(StrictBitVector originalSeed) {
-    // Remember that int is 32 bits, thus 4 bytes
     byte[] seedBytes = originalSeed.toByteArray();
-    ByteBuffer idBuffer = ByteBuffer.allocate(seedBytes.length);
-    byte[] newSeed = idBuffer.putInt(instanceId).array();
-    ByteArrayHelper.xor(newSeed, seedBytes);
-    // TODO make sure this is okay!
-    return new PaddingAesCtrDrbg(newSeed);
+    ByteBuffer idBuffer = ByteBuffer.allocate(seedBytes.length + Integer.BYTES);
+    byte[] newSeed = idBuffer.putInt(instanceId).put(seedBytes).array();
+    return AesCtrDrbgFactory.fromDerivedSeed(newSeed);
   }
 }

@@ -6,13 +6,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.MaliciousException;
+import dk.alexandra.fresco.framework.util.AesCtrDrbgFactory;
 import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,7 +20,7 @@ public class TestCommitment {
 
   @Before
   public void setup() {
-    rand = new PaddingAesCtrDrbg(new byte[] { 0x42 });
+    rand = AesCtrDrbgFactory.fromDerivedSeed((byte)0x42);
     comm = new HashBasedCommitment();
   }
 
