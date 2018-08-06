@@ -1,17 +1,29 @@
-package dk.alexandra.fresco.framework.network;
+package dk.alexandra.fresco.framework.network.socket;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.util.Objects;
 import javax.net.ServerSocketFactory;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 
+/**
+ * Decorates a {@link SSLServerSocketFactory} so that all created server sockets are set to require
+ * client authentication.
+ */
 class ClientAuthSslSocketFactory extends ServerSocketFactory {
 
-  SSLServerSocketFactory factory;
+  private final SSLServerSocketFactory factory;
 
+  /**
+   * Creates a server socket factory that delegates all socket creation to a given factory for
+   * {@link SSLServerSocket}, but sets the resulting sockets to require client authentication.
+   *
+   * @param factory a factory for SSLServerSocket's.
+   */
   public ClientAuthSslSocketFactory(SSLServerSocketFactory factory) {
+    Objects.requireNonNull(factory);
     this.factory = factory;
   }
 
@@ -42,29 +54,6 @@ class ClientAuthSslSocketFactory extends ServerSocketFactory {
     SSLServerSocket sock = (SSLServerSocket) factory.createServerSocket(port);
     sock.setNeedClientAuth(true);
     return sock;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    return factory.equals(obj);
-  }
-
-  public String[] getDefaultCipherSuites() {
-    return factory.getDefaultCipherSuites();
-  }
-
-  public String[] getSupportedCipherSuites() {
-    return factory.getSupportedCipherSuites();
-  }
-
-  @Override
-  public int hashCode() {
-    return factory.hashCode();
-  }
-
-  @Override
-  public String toString() {
-    return factory.toString();
   }
 
 }
