@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
@@ -107,14 +106,10 @@ public class Connector implements NetworkConnector {
       while (!connectionMade) {
         try {
           Socket sock = socketFactory.createSocket(p.getHostname(), p.getPort());
-          ByteBuffer b = ByteBuffer.allocate(Integer.BYTES);
-          b.putInt(conf.getMyId());
-          byte[] idBytes = new byte[PARTY_ID_BYTES];
-          byte[] bytes = b.array();
           for (int j = 0; j < PARTY_ID_BYTES; j++) {
-            idBytes[j] = bytes[Integer.BYTES - PARTY_ID_BYTES + j];
+            byte b = (byte)(conf.getMyId() >>> j * Byte.SIZE);
+            sock.getOutputStream().write(b);
           }
-          sock.getOutputStream().write(idBytes);
           connectionMade = true;
           socketMap.put(i, sock);
           logger.info("P{}: connected to {}", conf.getMyId(), p);
