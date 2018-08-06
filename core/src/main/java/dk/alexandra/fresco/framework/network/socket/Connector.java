@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.framework.network;
+package dk.alexandra.fresco.framework.network.socket;
 
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Connector implements NetworkConnector {
-
 
   public static final Duration DEFAULT_CONNECTION_TIMEOUT = Duration.ofMinutes(1);
   private static final int PARTY_ID_BYTES = 1;
