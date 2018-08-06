@@ -26,13 +26,31 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * Abstracts tests for implementations of the {@link CloseableNetwork} interface.
+ *
+ */
 public abstract class AbstractCloseableNetworkTest {
 
   protected static final int TWO_MINUTE_TIMEOUT_MILLIS = 120000;
   protected Map<Integer, CloseableNetwork> networks;
 
+  /**
+   * Should create an instance of the CloseableNetwork implementation that is being tested from
+   * a given network configuration.
+   * @param conf a network configuration
+   * @return an implementation of CloseableNetwork to be tested
+   */
   protected abstract CloseableNetwork newCloseableNetwork(NetworkConfiguration conf);
 
+  /**
+   * Should create an instance of the CloseableNetwork implementation that is being tested from
+   * a given network configuration and a connection timeout duration.
+   * @param conf a network configuration
+   * @param timeout a duration in which to wait before timing out waiting for the network to be
+   *      connected.
+   * @return an implementation of CloseableNetwork to be tested
+   */
   protected abstract CloseableNetwork newCloseableNetwork(NetworkConfiguration conf,
       Duration timeout);
 
