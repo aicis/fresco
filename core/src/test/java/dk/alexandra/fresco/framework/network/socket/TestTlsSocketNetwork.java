@@ -1,9 +1,14 @@
-package dk.alexandra.fresco.framework.network;
+package dk.alexandra.fresco.framework.network.socket;
 
 import static org.junit.Assert.fail;
 
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+import dk.alexandra.fresco.framework.network.AbstractCloseableNetworkTest;
+import dk.alexandra.fresco.framework.network.CloseableNetwork;
+import dk.alexandra.fresco.framework.network.socket.Connector;
+import dk.alexandra.fresco.framework.network.socket.NetworkConnector;
+import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyManagementException;
@@ -203,7 +208,8 @@ public class TestTlsSocketNetwork extends AbstractCloseableNetworkTest {
       }
       SSLSocketFactory socketFactory = context.getSocketFactory();
       SSLServerSocketFactory serverFactory = context.getServerSocketFactory();
-      NetworkConnector connector = new TlsConnector(conf, timeout, socketFactory, serverFactory);
+      NetworkConnector connector =
+          new TlsTestConnector(conf, timeout, socketFactory, serverFactory);
       return new SocketNetwork(conf, connector.getSocketMap());
     }
 
