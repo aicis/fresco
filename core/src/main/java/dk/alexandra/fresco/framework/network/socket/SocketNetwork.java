@@ -1,20 +1,40 @@
-package dk.alexandra.fresco.framework.network;
+package dk.alexandra.fresco.framework.network.socket;
 
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+import dk.alexandra.fresco.framework.network.AsyncNetwork;
+import dk.alexandra.fresco.framework.network.CloseableNetwork;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import java.net.Socket;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A {@link CloseableNetwork} implementation based on regular the {@link Socket} interface (i.e.,
+ * not using Java's nio API).
+ *
+ * <p>
+ * Only handles the communication with the parties over a set of given sockets. I.e., delegates the
+ * responsibility of creating and connecting of these sockets to the client of the class. This is to
+ * allow us to decouple the communication strategy and connection strategies. Specifically, this
+ * allows a client to pass secure sockets to the network such as {@link javax.net.ssl.SSLSocket}.
+ * </p>
+ * <p>
+ * The implementation is similar to {@link AsyncNetwork}. I.e., two-threads a used for each external
+ * party; one for sending and one for receiving messages. Sending is non-blocking but receiving may
+ * block waiting for messages to arrive. A very simple message format is used where each message is
+ * prefixed by an integer indicating the byte length of the message.
+ * </p>
+ */
 public class SocketNetwork implements CloseableNetwork {
 
   private static final Duration RECEIVE_TIMEOUT = Duration.ofMillis(100);
@@ -22,19 +42,44 @@ public class SocketNetwork implements CloseableNetwork {
   private final BlockingQueue<byte[]> selfQueue;
   private final NetworkConfiguration conf;
   private boolean alive;
-  private ExecutorService communicationService;
-  private Collection<Socket> sockets;
+  private final Collection<Socket> sockets;
   private final Map<Integer, Sender> senders;
   private final Map<Integer, Receiver> receivers;
 
   /**
-   * Creates a network with the given configuration Calling the constructor will automatically
-   * trigger an attempt to connect to the other parties. If this fails a {@link RuntimeException} is
-   * thrown.
+   * Creates a network with the given a configuration and a mapping from party ids to sockets.
+   *
+   * <p>
+   * The mapping of party ids to sockets must be consistent with the network configuration. I.e.,
+   * there should be exactly one mapping for each opposing party (but not for the local party).
+   * Also, the sockets must be connected and open.
+   * </p>
    *
    * @param conf the network configuration
+   * @param socketMap a mapping from party ids to the socket to be used for communicating with the
+   *        given party.
+   *
+   * @throws IllegalArgumentException if {@code socketMap} and {@code conf} are inconsistent or the
+   *         sockets are not open and connected.
    */
   public SocketNetwork(NetworkConfiguration conf, Map<Integer, Socket> socketMap) {
+    Objects.requireNonNull(conf);
+    Objects.requireNonNull(socketMap);
+    for (int i = 1; i < conf.noOfParties() + 1; i++) {
+      if (i == conf.getMyId()) {
+        continue;
+      }
+      if (!socketMap.containsKey(i)) {
+        throw new IllegalArgumentException("Missing socket for P" + i);
+      }
+      Socket s = socketMap.get(i);
+      if (s.isClosed()) {
+        throw new IllegalArgumentException("Closed socket for P" + i);
+      }
+      if (!s.isConnected()) {
+        throw new IllegalArgumentException("Unconnected socket for P" + i);
+      }
+    }
     this.conf = conf;
     int externalParties = conf.noOfParties() - 1;
     this.receivers = new HashMap<>(externalParties);
@@ -42,10 +87,12 @@ public class SocketNetwork implements CloseableNetwork {
     this.alive = true;
     this.selfQueue = new LinkedBlockingQueue<>();
     if (conf.noOfParties() > 1) {
-      sockets = socketMap.values();
+      this.sockets = Collections.unmodifiableCollection(new ArrayList<>(socketMap.values()));
       startCommunication(socketMap);
+    } else {
+      this.sockets = Collections.emptyList();
     }
-    logger.info("P{}: successfully connected network", conf.getMyId());
+    logger.info("P{}: successfully started network", conf.getMyId());
   }
 
   /**
@@ -54,14 +101,13 @@ public class SocketNetwork implements CloseableNetwork {
    * @param channels a map from party ids to the associated communication channels
    */
   private void startCommunication(Map<Integer, Socket> sockets) {
-    int externalParties = this.conf.noOfParties() - 1;
-    this.communicationService = Executors.newFixedThreadPool(externalParties * 2);
     for (Entry<Integer, Socket> entry : sockets.entrySet()) {
       final int id = entry.getKey();
+      inRange(id);
       Socket socket = entry.getValue();
-      Receiver receiver = new Receiver(socket, this.communicationService);
+      Receiver receiver = new Receiver(socket);
       this.receivers.put(id, receiver);
-      Sender sender = new Sender(socket, this.communicationService);
+      Sender sender = new Sender(socket);
       this.senders.put(id, sender);
     }
   }
@@ -156,7 +202,6 @@ public class SocketNetwork implements CloseableNetwork {
         return null;
       }, "");
     }
-    communicationService.shutdownNow();
   }
 
   /**

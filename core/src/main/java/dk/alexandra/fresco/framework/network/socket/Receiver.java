@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.framework.network;
+package dk.alexandra.fresco.framework.network.socket;
 
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import java.io.BufferedInputStream;
@@ -9,23 +9,21 @@ import java.net.Socket;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
 /**
- * Implements the receiver receiving a single message and starting a new receiver.
+ * Implements the receiver receiving messages.
  */
-class Receiver implements Callable<Object> {
+class Receiver {
 
   private final DataInputStream in;
   private final BlockingQueue<byte[]> queue;
-  private final Future<Object> future;
+  private final FutureTask<Object> future;
   private final AtomicBoolean run;
 
   /**
@@ -34,19 +32,19 @@ class Receiver implements Callable<Object> {
    * @param sock the channel receive messages on
    * @param es the executor used to execute the receiving thread
    */
-  Receiver(Socket sock, ExecutorService es) {
+  Receiver(Socket sock) {
     Objects.requireNonNull(sock);
-    Objects.requireNonNull(es);
     this.in = ExceptionConverter.safe(() ->
     new DataInputStream(new BufferedInputStream(sock.getInputStream())),
         "Unable to get inputstream from socket.");
     this.queue = new LinkedBlockingQueue<>();
     this.run = new AtomicBoolean(true);
-    this.future = es.submit(this);
+    this.future = new FutureTask<>(this::call);
+    new Thread(this.future).start();
   }
 
   /**
-   * Tests if the Receiver is running. If not throws the exception that made it stop.
+   * Tests if the Receiver is running. If not throws an exception that made it stop.
    *
    * @return true if the Receiver is running
    * @throws InterruptedException if an interrupt occurred
@@ -85,8 +83,8 @@ class Receiver implements Callable<Object> {
         "Receive interrupted");
   }
 
-  @Override
-  public Object call() throws IOException, InterruptedException {
+
+  private Object call() throws IOException, InterruptedException {
     while (run.get()) {
       int length = 0;
       try {

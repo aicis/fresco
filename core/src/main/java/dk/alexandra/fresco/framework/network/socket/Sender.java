@@ -1,4 +1,4 @@
-package dk.alexandra.fresco.framework.network;
+package dk.alexandra.fresco.framework.network.socket;
 
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import java.io.BufferedOutputStream;
@@ -7,34 +7,32 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Implements the sender sending messages.
  */
-class Sender implements Callable<Object> {
+class Sender {
 
   private final DataOutputStream out;
   private final BlockingQueue<byte[]> queue;
   private final AtomicBoolean flush;
   private final AtomicBoolean ignoreNext;
-  private Future<Object> future;
+  private FutureTask<Object> future;
 
-  Sender(Socket sock, ExecutorService es) {
+  Sender(Socket sock) {
     Objects.requireNonNull(sock);
-    Objects.requireNonNull(es);
     this.out = ExceptionConverter.safe(() ->
     new DataOutputStream(new BufferedOutputStream(sock.getOutputStream())),
         "Unable to get output stream from socket");
     this.queue = new LinkedBlockingQueue<>();
     this.flush = new AtomicBoolean(false);
     this.ignoreNext = new AtomicBoolean(false);
-    this.future = es.submit(this);
+    this.future = new FutureTask<>(this::call);
+    new Thread(future).start();
   }
 
   /**
@@ -85,8 +83,7 @@ class Sender implements Callable<Object> {
     future.get();
   }
 
-  @Override
-  public Object call() throws IOException, InterruptedException {
+  private Object call() throws IOException, InterruptedException {
     while (!queue.isEmpty() || !flush.get()) {
       byte[] data = queue.take();
       if (!ignoreNext.get()) {
