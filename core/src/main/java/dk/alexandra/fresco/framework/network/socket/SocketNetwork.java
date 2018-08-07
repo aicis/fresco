@@ -160,23 +160,6 @@ public class SocketNetwork implements CloseableNetwork {
     }
   }
 
-  private void teardown() {
-    if (alive) {
-      alive = false;
-      if (conf.noOfParties() < 2) {
-        logger.info("P{}: Network closed", conf.getMyId());
-        return;
-      }
-      ExceptionConverter.safe(() -> {
-        closeCommunication();
-        logger.info("P{}: Network closed", conf.getMyId());
-        return null;
-      }, "Unable to properly close the network.");
-    } else {
-      logger.info("P{}: Network already closed", conf.getMyId());
-    }
-  }
-
   /**
    * Safely closes the threads and channels used for sending/receiving messages. Note: this should
    * be only be called once.
@@ -209,7 +192,20 @@ public class SocketNetwork implements CloseableNetwork {
    */
   @Override
   public void close() {
-    teardown();
+    if (alive) {
+      alive = false;
+      if (conf.noOfParties() < 2) {
+        logger.info("P{}: Network closed", conf.getMyId());
+        return;
+      }
+      ExceptionConverter.safe(() -> {
+        closeCommunication();
+        logger.info("P{}: Network closed", conf.getMyId());
+        return null;
+      }, "Unable to properly close the network.");
+    } else {
+      logger.info("P{}: Network already closed", conf.getMyId());
+    }
   }
 
   @Override
