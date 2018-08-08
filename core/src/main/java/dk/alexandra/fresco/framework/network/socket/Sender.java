@@ -3,96 +3,104 @@ package dk.alexandra.fresco.framework.network.socket;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.net.Socket;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Implements the sender sending messages.
+ * The sender sending messages.
  */
 class Sender {
 
+  private static final Logger logger = LoggerFactory.getLogger(Sender.class);
   private final DataOutputStream out;
   private final BlockingQueue<byte[]> queue;
-  private final AtomicBoolean flush;
+  private final AtomicBoolean flushAndStop;
   private final AtomicBoolean ignoreNext;
-  private FutureTask<Object> future;
-
-  Sender(Socket sock) {
-    Objects.requireNonNull(sock);
-    this.out = ExceptionConverter.safe(() ->
-    new DataOutputStream(new BufferedOutputStream(sock.getOutputStream())),
-        "Unable to get output stream from socket");
-    this.queue = new LinkedBlockingQueue<>();
-    this.flush = new AtomicBoolean(false);
-    this.ignoreNext = new AtomicBoolean(false);
-    this.future = new FutureTask<>(this::call);
-    new Thread(future).start();
-  }
+  private final Thread thread;
 
   /**
-   * Unblocks the sending thread and lets it stop nicely flushing out any outgoing messages.
+   * Creates a new sender on a given socket. This starts a separate thread for sending queued
+   * messages.
+   *
+   * @param sock the socket to send over
    */
-  private void unblock() {
-    this.flush.set(true);
-    if (queue.isEmpty()) {
-      this.ignoreNext.set(true);
-      queue.add(new byte[] {});
-    }
+  Sender(Socket sock) {
+    Objects.requireNonNull(sock);
+    this.out = ExceptionConverter.safe(
+        () -> new DataOutputStream(new BufferedOutputStream(sock.getOutputStream())),
+        "Unable to get output stream from socket");
+    this.queue = new LinkedBlockingQueue<>();
+    this.flushAndStop = new AtomicBoolean(false);
+    this.ignoreNext = new AtomicBoolean(false);
+    this.thread = new Thread(this::run);
+    this.thread.setDaemon(true);
+    this.thread.setName("sender-" + this.thread.getId());
+    this.thread.start();
   }
 
   /**
    * Queues an outgoing message.
+   *
+   * <p>
+   * Note: messages queued after a call to {@link #stop()} will be ignored
+   * </p>
+   *
    * @param msg a message
    */
   void queueMessage(byte[] msg) {
-    queue.add(msg);
+    if (!flushAndStop.get()) {
+      queue.add(msg);
+    }
   }
 
   /**
-   * Tests if the Sender is running. If not throws the exception that made it stop.
+   * Tests if the Sender is running.
    *
-   * @return true if the Sender is running, false if it stopped nicely
-   * @throws InterruptedException if an interrupt occurred
-   * @throws ExecutionException if an exception occurred during execution
+   * @return true if the Sender is running, false if it stopped.
    */
-  boolean isRunning() throws InterruptedException, ExecutionException {
-    if (future.isDone()) {
-      future.get();
-      return false;
-    } else {
-      return true;
-    }
+  boolean isRunning() {
+    return this.thread.isAlive();
   }
 
   /**
-   * Stops the sender nicely.
-   * @throws ExecutionException if the sender failed due to an exception
-   * @throws InterruptedException if the sender was interrupted
-   * @throws IOException if exception occurs while closing channel
+   * Stops the sender nicely. This will block until all pending messages has been flushed.
    */
-  void stop() throws InterruptedException, ExecutionException, IOException {
+  void stop() {
+    flushAndStop.set(true);
     if (isRunning()) {
-      unblock();
+      if (queue.isEmpty()) {
+        this.ignoreNext.set(true);
+        queue.add(new byte[] {});
+      }
+      ExceptionConverter.safe(() -> {
+        this.thread.join();
+        return null;
+      }, "Interrupted while stopping sender");
     }
-    future.get();
   }
 
-  private Object call() throws IOException, InterruptedException {
-    while (!queue.isEmpty() || !flush.get()) {
-      byte[] data = queue.take();
-      if (!ignoreNext.get()) {
-        out.writeInt(data.length);
-        out.write(data);
-        out.flush();
+  private void run() {
+    try {
+      while (!(flushAndStop.get() && queue.isEmpty())) {
+        byte[] data = queue.take();
+        if (!ignoreNext.get()) {
+          out.writeInt(data.length);
+          out.write(data);
+          out.flush();
+        }
+      }
+      out.writeInt(-1);
+      out.flush();
+    } catch (Exception e) {
+      if (!(flushAndStop.get() && queue.isEmpty())) {
+        logger.error("Sender failed unexpectedly", e);
       }
     }
-    return null;
   }
 
 }

@@ -4,71 +4,68 @@ import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.EOFException;
-import java.io.IOException;
 import java.net.Socket;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
- * Implements the receiver receiving messages.
+ * Rhe receiver receiving messages.
  */
 class Receiver {
 
+  private static final Logger logger = LoggerFactory.getLogger(Receiver.class);
   private final DataInputStream in;
   private final BlockingQueue<byte[]> queue;
-  private final FutureTask<Object> future;
   private final AtomicBoolean run;
+  private final Thread thread;
 
   /**
-   * Create a new Receiver.
+   * Create a new Receiver. This will start a separate thread listening for incoming messages.
    *
    * @param sock the channel receive messages on
-   * @param es the executor used to execute the receiving thread
    */
   Receiver(Socket sock) {
     Objects.requireNonNull(sock);
-    this.in = ExceptionConverter.safe(() ->
-    new DataInputStream(new BufferedInputStream(sock.getInputStream())),
+    this.in = ExceptionConverter.safe(
+        () -> new DataInputStream(new BufferedInputStream(sock.getInputStream())),
         "Unable to get inputstream from socket.");
     this.queue = new LinkedBlockingQueue<>();
     this.run = new AtomicBoolean(true);
-    this.future = new FutureTask<>(this::call);
-    new Thread(this.future).start();
+    this.thread = new Thread(this::run);
+    this.thread.setDaemon(true);
+    this.thread.setName("Receiver-" + this.thread.getId());
+    this.thread.start();
   }
 
   /**
-   * Tests if the Receiver is running. If not throws an exception that made it stop.
+   * Tests if the Receiver is running.
    *
    * @return true if the Receiver is running
-   * @throws InterruptedException if an interrupt occurred
-   * @throws ExecutionException if an exception occurred during execution
    */
-  boolean isRunning() throws InterruptedException, ExecutionException {
-    if (future.isDone()) {
-      future.get();
-      return false;
-    }
-    return true;
+  boolean isRunning() {
+    return thread.isAlive();
   }
 
   /**
    * Stops the receiver nicely.
    *
-   * @throws ExecutionException if the sender failed due to an exception
-   * @throws InterruptedException if the sender was interrupted
-   * @throws IOException if exception occurs while closing channel
+   * <p>
+   * Note messages received after this method is called can not be expected to be retrieved from the
+   * receiver.
+   * </p>
+   *
    */
-  void stop() throws InterruptedException, ExecutionException, IOException {
+  void stop() {
     if (isRunning()) {
-      run.set(false);
-      future.cancel(true);
+      this.run.set(false);
+      this.thread.interrupt();
     }
   }
 
@@ -83,16 +80,10 @@ class Receiver {
         "Receive interrupted");
   }
 
-
-  private Object call() throws IOException, InterruptedException {
+  private void run() {
     while (run.get()) {
-      int length = 0;
       try {
-        length = this.in.readInt();
-      } catch (EOFException e) {
-        run.getAndSet(false);
-      }
-      if (run.get()) {
+        int length = this.in.readInt();
         if (length < 0) {
           run.set(false);
         } else {
@@ -100,9 +91,15 @@ class Receiver {
           this.in.readFully(msgBuf);
           queue.add(msgBuf);
         }
+      } catch (EOFException eof) {
+        run.set(false);
+      } catch (Exception e) {
+        if (run.get()) {
+          run.set(false);
+          logger.error("Receiver failed unexpectedly", e);
+        }
       }
     }
-    return null;
   }
 
 }
