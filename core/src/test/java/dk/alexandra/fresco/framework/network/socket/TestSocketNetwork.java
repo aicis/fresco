@@ -129,8 +129,7 @@ public class TestSocketNetwork extends AbstractCloseableNetworkTest {
   }
 
   @Test(expected = RuntimeException.class)
-  public void testStoppedReciever() throws InterruptedException, ExecutionException, IOException,
-      NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+  public void testStoppedReciever() throws InterruptedException, ExecutionException, IOException {
     final int numParties = 3;
     List<NetworkConfiguration> confs = getNetConfs(numParties);
     ExecutorService es = Executors.newFixedThreadPool(numParties);
@@ -182,12 +181,37 @@ public class TestSocketNetwork extends AbstractCloseableNetworkTest {
     f1.setAccessible(true);
     @SuppressWarnings("unchecked")
     Sender sender = ((HashMap<Integer, Sender>) f1.get(networks.get(1))).get(2);
-    Field f2 = sender.getClass().getDeclaredField("future");
+    Field f2 = sender.getClass().getDeclaredField("thread");
     f2.setAccessible(true);
-    ((Future<?>)f2.get(sender)).cancel(true);
+    ((Thread) f2.get(sender)).interrupt();
     f1.setAccessible(false);
     f2.setAccessible(false);
   }
 
+  @Test
+  public void testSenderFailsWhileStopping()
+      throws InterruptedException, ExecutionException, IOException {
+    final int numParties = 2;
+    List<NetworkConfiguration> confs = getNetConfs(numParties);
+    ExecutorService es = Executors.newFixedThreadPool(numParties);
+    List<Future<NetworkConnector>> fs = new ArrayList<>(numParties);
+    try {
+      for (int i = 0; i < numParties; i++) {
+        final int id = i;
+        fs.add(es.submit(() -> new Connector(confs.get(id), DEFAULT_CONNECTION_TIMEOUT)));
+      }
+      Map<Integer, Socket> socketMap = fs.get(0).get().getSocketMap();
+      Sender s = new Sender(socketMap.get(2));
+      socketMap.get(2).close();
+      s.stop();
+    } finally {
+      for (Future<NetworkConnector> futureConn : fs) {
+        for (Socket s : futureConn.get().getSocketMap().values()) {
+          s.close();
+        }
+      }
+      es.shutdownNow();
+    }
+  }
 
 }
