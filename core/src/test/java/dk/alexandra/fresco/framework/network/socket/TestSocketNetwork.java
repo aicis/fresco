@@ -158,6 +158,33 @@ public class TestSocketNetwork extends AbstractCloseableNetworkTest {
     }
   }
 
+  @Test
+  public void testClosedSocketReciever()
+      throws InterruptedException, ExecutionException, IOException {
+    final int numParties = 2;
+    List<NetworkConfiguration> confs = getNetConfs(numParties);
+    ExecutorService es = Executors.newFixedThreadPool(numParties);
+    List<Future<NetworkConnector>> fs = new ArrayList<>(numParties);
+    try {
+      for (int i = 0; i < numParties; i++) {
+        final int id = i;
+        fs.add(es.submit(() -> new Connector(confs.get(id), DEFAULT_CONNECTION_TIMEOUT)));
+      }
+      Map<Integer, Socket> socketMap1 = fs.get(0).get().getSocketMap();
+      Map<Integer, Socket> socketMap2 = fs.get(1).get().getSocketMap();
+      Receiver r = new Receiver(socketMap1.get(2));
+      socketMap2.get(1).close();
+    } finally {
+      for (Future<NetworkConnector> futureConn : fs) {
+        for (Socket s : futureConn.get().getSocketMap().values()) {
+          // s.close();
+        }
+      }
+
+      es.shutdownNow();
+    }
+  }
+
   @Test(expected = RuntimeException.class)
   public void testStoppedSender()
       throws NoSuchFieldException, SecurityException, IllegalArgumentException,

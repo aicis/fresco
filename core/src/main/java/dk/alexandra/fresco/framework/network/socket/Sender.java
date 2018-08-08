@@ -53,9 +53,7 @@ class Sender {
    * @param msg a message
    */
   void queueMessage(byte[] msg) {
-    if (!flushAndStop.get()) {
-      queue.add(msg);
-    }
+    queue.add(msg);
   }
 
   /**

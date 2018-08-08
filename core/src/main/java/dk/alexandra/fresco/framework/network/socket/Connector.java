@@ -149,9 +149,8 @@ public class Connector implements NetworkConnector {
   private Map<Integer, Socket> connectServer(final NetworkConfiguration conf) throws IOException {
     Map<Integer, Socket> socketMap = new HashMap<>(conf.getMyId() - 1);
     if (conf.getMyId() > 1) {
-      ServerSocket server = serverFactory.createServerSocket(conf.getMe().getPort());
-      logger.info("P{}: bound at port {}", conf.getMyId(), conf.getMe().getPort());
-      try {
+      try (ServerSocket server = serverFactory.createServerSocket(conf.getMe().getPort())) {
+        logger.info("P{}: bound at port {}", conf.getMyId(), conf.getMe().getPort());
         for (int i = 1; i < conf.getMyId(); i++) {
           Socket sock = server.accept();
           int id = 0;
@@ -161,10 +160,6 @@ public class Connector implements NetworkConnector {
           socketMap.put(id, sock);
           logger.info("P{}: accepted connection from P{}", conf.getMyId(), id);
           socketMap.put(id, sock);
-        }
-      } finally {
-        if (server != null) {
-          server.close();
         }
       }
     }
