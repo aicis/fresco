@@ -92,7 +92,6 @@ public class SocketNetwork implements CloseableNetwork {
     } else {
       this.sockets = Collections.emptyList();
     }
-    logger.info("P{}: successfully started network", conf.getMyId());
   }
 
   /**
@@ -118,12 +117,10 @@ public class SocketNetwork implements CloseableNetwork {
       this.selfQueue.add(data);
     } else {
       inRange(partyId);
-      ExceptionConverter.safe(() -> {
-        if (!senders.get(partyId).isRunning()) {
-          throw new RuntimeException("Sender not running");
-        }
-        return null;
-      }, "P" + conf.getMyId() + ": Unable to send to P" + partyId);
+      if (!senders.get(partyId).isRunning()) {
+        throw new RuntimeException(
+            "P" + conf.getMyId() + ": Unable to send to P" + partyId + ". Sender not running");
+      }
       this.senders.get(partyId).queueMessage(data);
     }
   }
@@ -137,12 +134,10 @@ public class SocketNetwork implements CloseableNetwork {
     byte[] data = null;
     data = receivers.get(partyId).pollMessage(RECEIVE_TIMEOUT);
     while (data == null) {
-      ExceptionConverter.safe(() -> {
-        if (!receivers.get(partyId).isRunning()) {
-          throw new RuntimeException("Receiver not running");
-        }
-        return null;
-      }, "P" + conf.getMyId() + ": Unable to recieve from P" + partyId);
+      if (!receivers.get(partyId).isRunning()) {
+        throw new RuntimeException("P" + conf.getMyId() + ": Unable to recieve from P" + partyId
+            + ". Receiver not running");
+      }
       data = receivers.get(partyId).pollMessage(RECEIVE_TIMEOUT);
     }
     return data;
@@ -166,24 +161,16 @@ public class SocketNetwork implements CloseableNetwork {
    */
   private void closeCommunication() {
     for (Sender s : senders.values()) {
-      try {
-        s.stop();
-      } catch (Exception e) {
-        logger.debug("P{}: A failed sender detected while closing network", conf.getMyId(), e);
-      }
+      s.stop();
     }
     for (Receiver r : receivers.values()) {
-      try {
-        r.stop();
-      } catch (Exception e) {
-        logger.debug("P{}: A failed receiver detected while closing network", conf.getMyId(), e);
-      }
+      r.stop();
     }
-    for (Socket c : sockets) {
+    for (Socket sock : sockets) {
       ExceptionConverter.safe(() -> {
-        c.close();
+        sock.close();
         return null;
-      }, "");
+      }, "Unable to properly close socket");
     }
   }
 
