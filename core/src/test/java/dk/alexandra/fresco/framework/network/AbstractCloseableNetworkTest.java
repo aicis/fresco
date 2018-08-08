@@ -36,19 +36,21 @@ public abstract class AbstractCloseableNetworkTest {
   protected Map<Integer, CloseableNetwork> networks;
 
   /**
-   * Should create an instance of the CloseableNetwork implementation that is being tested from
-   * a given network configuration.
+   * Should create an instance of the CloseableNetwork implementation that is being tested from a
+   * given network configuration.
+   *
    * @param conf a network configuration
    * @return an implementation of CloseableNetwork to be tested
    */
   protected abstract CloseableNetwork newCloseableNetwork(NetworkConfiguration conf);
 
   /**
-   * Should create an instance of the CloseableNetwork implementation that is being tested from
-   * a given network configuration and a connection timeout duration.
+   * Should create an instance of the CloseableNetwork implementation that is being tested from a
+   * given network configuration and a connection timeout duration.
+   *
    * @param conf a network configuration
    * @param timeout a duration in which to wait before timing out waiting for the network to be
-   *      connected.
+   *        connected.
    * @return an implementation of CloseableNetwork to be tested
    */
   protected abstract CloseableNetwork newCloseableNetwork(NetworkConfiguration conf,
@@ -176,8 +178,11 @@ public abstract class AbstractCloseableNetworkTest {
    *
    * @param numParties the number of parties
    * @param numMessages the number of messages
+   * @throws ExecutionException
+   * @throws InterruptedException
    */
-  private void sendMultipleToSingleReceiver(int numParties, int numMessages) {
+  private void sendMultipleToSingleReceiver(int numParties, int numMessages)
+      throws InterruptedException, ExecutionException {
     Map<Integer, CloseableNetwork> networks = createNetworks(numParties);
     ExecutorService es = Executors.newFixedThreadPool(numParties);
     List<Future<?>> fs = new ArrayList<>(numParties);
@@ -212,22 +217,17 @@ public abstract class AbstractCloseableNetworkTest {
       fs.add(f);
     }
     for (Future<?> future : fs) {
-      try {
-        future.get();
-      } catch (InterruptedException | ExecutionException e) {
-        e.printStackTrace();
-        fail("Test should not throw exception");
-      }
+      future.get();
     }
   }
 
   @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS)
-  public void testManyPartiesSendToOneReceiver() {
+  public void testManyPartiesSendToOneReceiver() throws InterruptedException, ExecutionException {
     sendMultipleToSingleReceiver(5, 100);
   }
 
   @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS)
-  public void testSendManyMessagesToOneReceiver() {
+  public void testSendManyMessagesToOneReceiver() throws InterruptedException, ExecutionException {
     sendMultipleToSingleReceiver(2, 10000);
   }
 
@@ -280,11 +280,11 @@ public abstract class AbstractCloseableNetworkTest {
     Map<Integer, CloseableNetwork> netMap = new HashMap<>(numParties);
     Map<Integer, Future<CloseableNetwork>> futureMap = new HashMap<>(numParties);
     try {
-      for (NetworkConfiguration conf: confs) {
+      for (NetworkConfiguration conf : confs) {
         Future<CloseableNetwork> f = es.submit(() -> newCloseableNetwork(conf));
         futureMap.put(conf.getMyId(), f);
       }
-      for (Entry<Integer, Future<CloseableNetwork>> entry: futureMap.entrySet()) {
+      for (Entry<Integer, Future<CloseableNetwork>> entry : futureMap.entrySet()) {
         netMap.put(entry.getKey(), entry.getValue().get());
       }
     } catch (InterruptedException | ExecutionException e) {
