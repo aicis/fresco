@@ -8,12 +8,12 @@ import dk.alexandra.fresco.lib.statistics.DeaSolverTests.TestDeaFixed1;
 import dk.alexandra.fresco.lib.statistics.DeaSolverTests.TestDeaFixed2;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import java.util.Random;
+import org.junit.Ignore;
 import org.junit.Test;
 
 
 /**
  * Tests for the DEASolver.
- *
  */
 public class TestSpdzDEASolver2Parties extends AbstractSpdzTest {
 
@@ -25,6 +25,7 @@ public class TestSpdzDEASolver2Parties extends AbstractSpdzTest {
   }
 
   @Test
+  @Ignore
   public void test_DEASolver_2_Sequential_batched_dummy_minimize_2() throws Exception {
     runTest(new TestDeaFixed1<>(DeaSolver.AnalysisType.INPUT_EFFICIENCY),
         EvaluationStrategy.SEQUENTIAL_BATCHED,
@@ -32,6 +33,7 @@ public class TestSpdzDEASolver2Parties extends AbstractSpdzTest {
   }
 
   @Test
+  @Ignore
   public void test_DEASolver_2_Sequential_batched_dummy_maximize_fixed_data_1() throws Exception {
     runTest(new TestDeaFixed1<>(AnalysisType.OUTPUT_EFFICIENCY),
         EvaluationStrategy.SEQUENTIAL_BATCHED,
