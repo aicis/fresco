@@ -8,14 +8,14 @@ import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
  * two players both know the masked value, <i>e = r + b</i>, but each player only knows his share of
  * the value <i>e</i> (and of the mask <i>r</i>, which was picked during the preprocessing phase).
  *
- * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
 public class TinyTablesSBool implements SBool {
 
-
   private final TinyTablesElement value;
+  private static final TinyTablesSBool TRUE = new TinyTablesSBool(TinyTablesElement.getTinyTablesElement(true));
+  private static final TinyTablesSBool FALSE = new TinyTablesSBool(TinyTablesElement.getTinyTablesElement(false));
 
-  public TinyTablesSBool(TinyTablesElement share) {
+  private TinyTablesSBool(TinyTablesElement share) {
     this.value = share;
   }
 
@@ -31,6 +31,10 @@ public class TinyTablesSBool implements SBool {
   @Override
   public SBool out() {
     return this;
+  }
+
+  public static TinyTablesSBool getTinyTablesSBool(TinyTablesElement share) {
+    return share.getShare() ? TRUE : FALSE;
   }
 
 }

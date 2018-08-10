@@ -31,11 +31,11 @@ public class TinyTablesTripleGenerator {
    */
   public List<TinyTablesTriple> generate(int amount) {
 
-    List<TinyTablesTriple> triples = new ArrayList<TinyTablesTriple>();
+    List<TinyTablesTriple> triples = new ArrayList<>();
 
     switch (playerId) {
       case 1:
-        List<OTInput> otInputs = new ArrayList<OTInput>();
+        List<OTInput> otInputs = new ArrayList<>();
         for (int i = 0; i < amount; i++) {
 
           // Pick random shares of a and b
@@ -60,7 +60,7 @@ public class TinyTablesTripleGenerator {
         break;
 
       case 2:
-        List<OTSigma> otSigmas = new ArrayList<OTSigma>();
+        List<OTSigma> otSigmas = new ArrayList<>();
         for (int i = 0; i < amount; i++) {
 
 					/*
@@ -80,9 +80,10 @@ public class TinyTablesTripleGenerator {
         List<BitSet> results = receiver.receive(otSigmas, 1);
 
         for (int i = 0; i < amount; i++) {
+          TinyTablesTriple trip = triples.get(i);
           boolean c = results.get(2 * i).get(0) ^ results.get(2 * i + 1).get(0)
-              ^ triples.get(i).getA().getShare() & triples.get(i).getB().getShare();
-          triples.get(i).setC(new TinyTablesElement(c));
+              ^ trip.getA().getShare() & trip.getB().getShare();
+          triples.set(i, TinyTablesTriple.fromShares(trip.getA().getShare(), trip.getB().getShare(), c));
         }
 
         break;

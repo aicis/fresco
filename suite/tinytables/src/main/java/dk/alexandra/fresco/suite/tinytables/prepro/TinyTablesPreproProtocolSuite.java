@@ -94,7 +94,7 @@ public class TinyTablesPreproProtocolSuite
   public SecureRandom getSecureRandom() {
     return secRand;
   }
-  
+
   @Override
   public BuilderFactory<ProtocolBuilderBinary> init(
       ResourcePoolImpl resourcePool, Network network) {
@@ -105,7 +105,7 @@ public class TinyTablesPreproProtocolSuite
 
     this.tinyTablesTripleProvider =
         new BatchTinyTablesTripleProvider(new TinyTablesTripleGenerator(resourcePool.getMyId(),
-            secRand, otFactory), 1500);
+            secRand, otFactory), 8192);
 
     this.unprocessedAndGates =
         Collections.synchronizedList(new ArrayList<TinyTablesPreproANDProtocol>());

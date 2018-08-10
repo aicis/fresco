@@ -144,42 +144,42 @@ public class TestTinyTables {
 
   @Test
   public void testInput() {
-    runTest(new BasicBooleanTests.TestInput<>(false), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicBooleanTests.TestInput<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED,
         true, "testInput");
-    runTest(new BasicBooleanTests.TestInput<>(true), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicBooleanTests.TestInput<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED,
         false, "testInput");
   }
 
   @Test
   public void testXOR() {
-    runTest(new BasicBooleanTests.TestXOR<>(false), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicBooleanTests.TestXOR<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED,
         true, "testXOR");
-    runTest(new BasicBooleanTests.TestXOR<>(true), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicBooleanTests.TestXOR<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED,
         false, "testXOR");
   }
 
   @Test
   public void testAND() {
-    runTest(new BasicBooleanTests.TestAND<>(false), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicBooleanTests.TestAND<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED,
         true, "testAND");
-    runTest(new BasicBooleanTests.TestAND<>(true), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicBooleanTests.TestAND<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED,
         false, "testAND");
   }
 
   @Test
   public void testNOT() {
-    runTest(new BasicBooleanTests.TestNOT<>(false), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicBooleanTests.TestNOT<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED,
         true, "testNOT");
-    runTest(new BasicBooleanTests.TestNOT<>(true), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicBooleanTests.TestNOT<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED,
         false, "testNOT");
   }
 
   @Test
   public void testBasicProtocols() {
     runTest(new BasicBooleanTests.TestBasicProtocols<>(false),
-        EvaluationStrategy.SEQUENTIAL, true, "testBasicProtocols");
+        EvaluationStrategy.SEQUENTIAL_BATCHED, true, "testBasicProtocols");
     runTest(new BasicBooleanTests.TestBasicProtocols<>(true),
-        EvaluationStrategy.SEQUENTIAL, false, "testBasicProtocols");
+        EvaluationStrategy.SEQUENTIAL_BATCHED, false, "testBasicProtocols");
   }
 
   /* Bristol tests */
@@ -188,35 +188,35 @@ public class TestTinyTables {
   @Test
   public void testMult() {
     runTest(new BristolCryptoTests.Mult32x32Test<>(false),
-        EvaluationStrategy.SEQUENTIAL, true, "testMult32x32");
+        EvaluationStrategy.SEQUENTIAL_BATCHED, true, "testMult32x32");
     runTest(new BristolCryptoTests.Mult32x32Test<>(true),
-        EvaluationStrategy.SEQUENTIAL, false, "testMult32x32");
+        EvaluationStrategy.SEQUENTIAL_BATCHED, false, "testMult32x32");
   }
 
   @Category(IntegrationTest.class)
   @Test
   public void testAES() {
-    runTest(new BristolCryptoTests.AesTest<>(false), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BristolCryptoTests.AesTest<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED,
         true, "testAES");
-    runTest(new BristolCryptoTests.AesTest<>(true), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BristolCryptoTests.AesTest<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED,
         false, "testAES");
   }
 
   @Category(IntegrationTest.class)
   @Test
   public void test_DES() {
-    runTest(new BristolCryptoTests.DesTest<>(false), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BristolCryptoTests.DesTest<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED,
         true, "testDES");
-    runTest(new BristolCryptoTests.DesTest<>(true), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BristolCryptoTests.DesTest<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED,
         false, "testDES");
   }
 
   @Category(IntegrationTest.class)
   @Test
   public void test_SHA1() {
-    runTest(new BristolCryptoTests.Sha1Test<>(false), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BristolCryptoTests.Sha1Test<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED,
         true, "testSHA1");
-    runTest(new BristolCryptoTests.Sha1Test<>(true), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BristolCryptoTests.Sha1Test<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED,
         false, "testSHA1");
   }
 
@@ -224,9 +224,9 @@ public class TestTinyTables {
   @Test
   public void test_SHA256() {
     runTest(new BristolCryptoTests.Sha256Test<>(false),
-        EvaluationStrategy.SEQUENTIAL, true, "testSHA256");
+        EvaluationStrategy.SEQUENTIAL_BATCHED, true, "testSHA256");
     runTest(new BristolCryptoTests.Sha256Test<>(true),
-        EvaluationStrategy.SEQUENTIAL, false, "testSHA256");
+        EvaluationStrategy.SEQUENTIAL_BATCHED, false, "testSHA256");
   }
 
   /* Advanced functionality */
@@ -242,16 +242,16 @@ public class TestTinyTables {
   @Test
   public void test_comparison() {
     runTest(new ComparisonBooleanTests.TestGreaterThan<>(false),
-        EvaluationStrategy.SEQUENTIAL, true, "testGT");
+        EvaluationStrategy.SEQUENTIAL_BATCHED, true, "testGT");
     runTest(new ComparisonBooleanTests.TestGreaterThan<>(true),
-        EvaluationStrategy.SEQUENTIAL, false, "testGT");
+        EvaluationStrategy.SEQUENTIAL_BATCHED, false, "testGT");
   }
 
   @Test
   public void test_equality() {
     runTest(new ComparisonBooleanTests.TestEquality<>(false),
-        EvaluationStrategy.SEQUENTIAL, true, "testEQ");
+        EvaluationStrategy.SEQUENTIAL_BATCHED, true, "testEQ");
     runTest(new ComparisonBooleanTests.TestEquality<>(true),
-        EvaluationStrategy.SEQUENTIAL, false, "testEQ");
+        EvaluationStrategy.SEQUENTIAL_BATCHED, false, "testEQ");
   }
 }

@@ -64,7 +64,7 @@ public class TinyTablesPreproBuilderFactory implements BuilderFactoryBinary {
       @Override
       public DRes<SBool> known(boolean known) {
         // Ignore the value and use trivial mask
-        return () -> new TinyTablesPreproSBool(new TinyTablesElement(false));
+        return () -> new TinyTablesPreproSBool(TinyTablesElement.getTinyTablesElement(false));
       }
 
       @Override
