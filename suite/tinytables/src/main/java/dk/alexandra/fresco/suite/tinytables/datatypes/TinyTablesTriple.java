@@ -48,8 +48,8 @@ public class TinyTablesTriple implements Serializable {
   }
 
   private TinyTablesTriple(boolean a, boolean b, boolean c) {
-    this(TinyTablesElement.getTinyTablesElement(a), TinyTablesElement.getTinyTablesElement(b),
-        TinyTablesElement.getTinyTablesElement(c));
+    this(TinyTablesElement.getInstance(a), TinyTablesElement.getInstance(b),
+        TinyTablesElement.getInstance(c));
   }
 
   public TinyTablesElement getA() {
@@ -66,6 +66,6 @@ public class TinyTablesTriple implements Serializable {
 
   @Override
   public String toString() {
-    return "TinyTablesTriple:(" + elementA + "," + elementB + "," + elementC + ")";
+    return "TinyTablesTriple[" + elementA + "," + elementB + "," + elementC + "]";
   }
 }

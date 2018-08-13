@@ -32,7 +32,7 @@ public class TinyTablesElementVector implements Serializable {
   }
 
   public TinyTablesElement get(int index) {
-    return TinyTablesElement.getTinyTablesElement(values.getBit(index));
+    return TinyTablesElement.getInstance(values.getBit(index));
   }
 
   public byte[] payload() {

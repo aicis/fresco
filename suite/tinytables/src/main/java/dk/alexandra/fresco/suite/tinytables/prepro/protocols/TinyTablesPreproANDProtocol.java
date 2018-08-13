@@ -59,7 +59,7 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol<SBool>
      * gates has been preprocessed.
      */
     boolean rO = ps.getSecureRandom().nextBoolean();
-    out = new TinyTablesPreproSBool(TinyTablesElement.getTinyTablesElement(rO));
+    out = new TinyTablesPreproSBool(TinyTablesElement.getInstance(rO));
 
     /*
      * We need to finish the processing of this gate after all preprocessing is done (see

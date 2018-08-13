@@ -9,9 +9,9 @@ public class TestTinyTablesTriple {
 
   @Test
   public void testToString() {
-    TinyTablesTriple trip = TinyTablesTriple.fromShares(true, true, true);
-    assertThat(trip.toString(), is("TinyTablesTriple:(TinyTablesElement:true,"
-        + "TinyTablesElement:true,TinyTablesElement:true)"));
+    TinyTablesElement e = TinyTablesElement.getInstance(true);
+    TinyTablesTriple trip = TinyTablesTriple.fromShares(e.getShare(), e.getShare(), e.getShare());
+    assertThat(trip.toString(), is("TinyTablesTriple[" + e + "," + e + "," + e + "]"));
   }
 
 }

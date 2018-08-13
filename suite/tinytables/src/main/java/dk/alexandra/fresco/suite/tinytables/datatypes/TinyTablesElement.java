@@ -42,7 +42,7 @@ public class TinyTablesElement implements Serializable {
    * @return
    */
   public TinyTablesElement add(TinyTablesElement b) {
-    return getTinyTablesElement(this.share ^ b.share);
+    return getInstance(this.share ^ b.share);
   }
 
   /**
@@ -52,14 +52,14 @@ public class TinyTablesElement implements Serializable {
    * @return
    */
   public TinyTablesElement multiply(boolean s) {
-    return getTinyTablesElement(s & this.share);
+    return getInstance(s & this.share);
   }
 
   public TinyTablesElement not(int playerId) {
     if (playerId == 1) {
       return flip();
     }
-    return getTinyTablesElement(this.share);
+    return getInstance(this.share);
   }
 
   /**
@@ -69,7 +69,7 @@ public class TinyTablesElement implements Serializable {
    * @return
    */
   public TinyTablesElement flip() {
-    return getTinyTablesElement(!this.share);
+    return getInstance(!this.share);
   }
 
   /**
@@ -113,18 +113,18 @@ public class TinyTablesElement implements Serializable {
     TinyTablesElement product = triple.getC().add(triple.getB().multiply(e))
         .add(triple.getA().multiply(d));
     if (playerId == 1) {
-      product = product.add(getTinyTablesElement(e & d));
+      product = product.add(getInstance(e & d));
     }
     return product;
   }
 
-  public static TinyTablesElement getTinyTablesElement(boolean share) {
+  public static TinyTablesElement getInstance(boolean share) {
     return share ? TRUE : FALSE;
   }
 
   @Override
   public String toString() {
-    return "TinyTablesElement:" + this.share;
+    return "TinyTablesElement[share=" + this.share + "]";
   }
 
 }

@@ -12,11 +12,13 @@ import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 public class TinyTablesSBool implements SBool {
 
   private final TinyTablesElement value;
-  private static final TinyTablesSBool TRUE = new TinyTablesSBool(TinyTablesElement.getTinyTablesElement(true));
-  private static final TinyTablesSBool FALSE = new TinyTablesSBool(TinyTablesElement.getTinyTablesElement(false));
+  private static final TinyTablesSBool TRUE =
+      new TinyTablesSBool(TinyTablesElement.getInstance(true));
+  private static final TinyTablesSBool FALSE =
+      new TinyTablesSBool(TinyTablesElement.getInstance(false));
 
-  private TinyTablesSBool(TinyTablesElement share) {
-    this.value = share;
+  private TinyTablesSBool(TinyTablesElement value) {
+    this.value = value;
   }
 
   public TinyTablesElement getValue() {
@@ -25,7 +27,7 @@ public class TinyTablesSBool implements SBool {
 
   @Override
   public String toString() {
-    return "TinyTablesSBool [value=" + value + "]";
+    return "TinyTablesSBool[value=" + value + "]";
   }
 
   @Override
@@ -33,8 +35,8 @@ public class TinyTablesSBool implements SBool {
     return this;
   }
 
-  public static TinyTablesSBool getTinyTablesSBool(TinyTablesElement share) {
-    return share.getShare() ? TRUE : FALSE;
+  public static TinyTablesSBool getInstance(TinyTablesElement value) {
+    return value.getShare() ? TRUE : FALSE;
   }
 
 }

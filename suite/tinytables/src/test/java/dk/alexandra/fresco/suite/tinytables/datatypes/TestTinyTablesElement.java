@@ -9,10 +9,10 @@ public class TestTinyTablesElement {
 
   @Test
   public void testToString() {
-    TinyTablesElement e1 = TinyTablesElement.getTinyTablesElement(false);
-    TinyTablesElement e2 = TinyTablesElement.getTinyTablesElement(true);
-    assertThat(e1.toString(), is("TinyTablesElement:false"));
-    assertThat(e2.toString(), is("TinyTablesElement:true"));
+    TinyTablesElement e1 = TinyTablesElement.getInstance(false);
+    TinyTablesElement e2 = TinyTablesElement.getInstance(true);
+    assertThat(e1.toString(), is("TinyTablesElement[share=false]"));
+    assertThat(e2.toString(), is("TinyTablesElement[share=true]"));
   }
 
 }

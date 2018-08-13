@@ -61,7 +61,7 @@ public class TinyTablesBuilderFactory implements BuilderFactoryBinary {
 
       @Override
       public DRes<SBool> known(boolean known) {
-        return () -> TinyTablesSBool.getTinyTablesSBool(TinyTablesElement.getTinyTablesElement(known));
+        return () -> TinyTablesSBool.getInstance(TinyTablesElement.getInstance(known));
       }
 
       @Override

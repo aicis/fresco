@@ -50,7 +50,7 @@ public class TinyTablesXORProtocol extends TinyTablesProtocol<SBool> {
     // Free XOR
     TinyTablesSBool left = (TinyTablesSBool) inLeft.out();
     TinyTablesSBool right = (TinyTablesSBool) inRight.out();
-    this.out = TinyTablesSBool.getTinyTablesSBool(left.getValue().add(right.getValue()));
+    this.out = TinyTablesSBool.getInstance(left.getValue().add(right.getValue()));
     return EvaluationStatus.IS_DONE;
   }
 

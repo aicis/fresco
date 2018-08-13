@@ -54,7 +54,7 @@ public class TinyTablesOpenToAllProtocol extends TinyTablesProtocol<Boolean> {
       List<byte[]> buffers = network.receiveFromAll();
       List<TinyTablesElement> maskShares = new ArrayList<>();
       for (byte[] buffer : buffers) {
-        maskShares.add(TinyTablesElement.getTinyTablesElement(BooleanSerializer.fromBytes(buffer[0])));
+        maskShares.add(TinyTablesElement.getInstance(BooleanSerializer.fromBytes(buffer[0])));
       }
       boolean mask = TinyTablesElement.open(maskShares);
       this.opened = ((TinyTablesSBool) toOpen.out()).getValue().getShare() ^ mask;
