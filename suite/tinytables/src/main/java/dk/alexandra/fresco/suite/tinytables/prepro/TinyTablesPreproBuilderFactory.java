@@ -36,13 +36,14 @@ public class TinyTablesPreproBuilderFactory implements BuilderFactoryBinary {
 
       @Override
       public DRes<SBool> randomBit() {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException(
+            "The random bit computation is not implemented for TinyTables");
       }
 
       @Override
       public DRes<Boolean> open(DRes<SBool> toOpen, int towardsPartyId) {
-        throw new RuntimeException("Not implemented yet");
+        throw new UnsupportedOperationException(
+            "The opening towards party id is not implemented for TinyTables");
       }
 
       @Override
@@ -76,8 +77,7 @@ public class TinyTablesPreproBuilderFactory implements BuilderFactoryBinary {
 
       @Override
       public DRes<SBool> and(DRes<SBool> left, DRes<SBool> right) {
-        TinyTablesPreproANDProtocol p =
-            new TinyTablesPreproANDProtocol(getNextId(), left, right);
+        TinyTablesPreproANDProtocol p = new TinyTablesPreproANDProtocol(getNextId(), left, right);
         builder.append(p);
         return p;
       }
