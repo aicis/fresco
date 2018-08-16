@@ -1,6 +1,8 @@
 package dk.alexandra.fresco.suite.tinytables.ot.base;
 
+import dk.alexandra.fresco.framework.network.CloseableNetwork;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.suite.tinytables.util.Util;
 import edu.biu.scapi.comm.Channel;
 import java.io.ByteArrayInputStream;
@@ -11,29 +13,40 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 /**
- * This class wraps an instance of {@link Network} (in the FRESCO sense) as an
- * instance of {@link Channel} (as in SCAPI).
+ * This class wraps an instance of {@link CloseableNetwork} (in the FRESCO sense) as an instance of
+ * {@link Channel} (as in SCAPI).
  *
- * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
 public class NetworkWrapper implements Channel {
 
-  private Network network;
-  private int myId;
+  private final Network network;
+  private final int myId;
+  private boolean closed;
 
+  /**
+   * Wraps a FRESCO {@link CloseableNetwork} to implement a SCAPI  {@link Channel}.
+   * @param network a network, not this assumed to be not yet closed
+   * @param myId the id of this party
+   */
   public NetworkWrapper(Network network, int myId) {
-    this.network = network;
+    this.network =  network;
     this.myId = myId;
+    this.closed = false;
   }
 
   @Override
   public void close() {
+    closed = true;
+    ExceptionConverter.safe(() -> {
+      ((CloseableNetwork)network).close();
+      return null;
+    }, "Unable to close network");
 
   }
 
   @Override
   public boolean isClosed() {
-    return false;
+    return closed;
   }
 
   @Override
