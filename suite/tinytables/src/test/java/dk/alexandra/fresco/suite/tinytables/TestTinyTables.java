@@ -24,6 +24,7 @@ import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -193,8 +194,12 @@ public class TestTinyTables {
   @Test(expected = UnsupportedOperationException.class)
   public void testRandomBitOnline() throws Throwable {
     try {
+      String name = "testRandomBit";
+      // Run preprocessing for something, just to generate the required files.
+      runTest(new BasicBooleanTests.TestXOR<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED, true,
+          name);
       runTest(new BasicBooleanTests.TestRandomBit<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED,
-          false, "tesRandomBit");
+          false,  name);
     } catch (TestFrameworkException tfe) {
       if (tfe.getCause() instanceof RuntimeException) {
         throw tfe.getCause().getCause();
@@ -223,8 +228,12 @@ public class TestTinyTables {
   @Test(expected = UnsupportedOperationException.class)
   public void testOpenOnline() throws Throwable {
     try {
+      String name = "testOpen";
+      // Run preprocessing for something, just to generate the required files.
+      runTest(new BasicBooleanTests.TestXOR<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED, true,
+          name);
       runTest(new FieldBoolTests.TestOpen<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-          false, "tesOpen");
+          false, name);
     } catch (TestFrameworkException tfe) {
       if (tfe.getCause() instanceof RuntimeException) {
         throw tfe.getCause().getCause();
