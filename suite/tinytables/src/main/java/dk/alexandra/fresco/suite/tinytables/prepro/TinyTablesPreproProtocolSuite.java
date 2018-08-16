@@ -2,10 +2,12 @@ package dk.alexandra.fresco.suite.tinytables.prepro;
 
 import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
+import dk.alexandra.fresco.framework.network.CloseableNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.RegularBitVector;
+import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTable;
@@ -96,8 +98,8 @@ public class TinyTablesPreproProtocolSuite
   }
 
   @Override
-  public BuilderFactory<ProtocolBuilderBinary> init(
-      ResourcePoolImpl resourcePool, Network network) {
+  public BuilderFactory<ProtocolBuilderBinary> init(ResourcePoolImpl resourcePool,
+      Network network) {
     OTFactory otFactory = new SemiHonestOTExtensionFactory(network,
         resourcePool.getMyId(), 128, new BaseOTFactory(network,
         resourcePool.getMyId(), secRand),
@@ -142,13 +144,11 @@ public class TinyTablesPreproProtocolSuite
         /*
          * Store the TinyTables to a file.
          */
-        try {
+        ExceptionConverter.safe(() -> {
           storeTinyTables(storage, tinyTablesFile);
           logger.info("TinyTables stored to " + tinyTablesFile);
-        } catch (IOException e) {
-          logger.error("Failed to save TinyTables: " + e.getMessage());
-        }
-
+          return null;
+        }, "Failed to store TinyTables");
       }
 
     };

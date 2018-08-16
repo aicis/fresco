@@ -1,12 +1,10 @@
 package dk.alexandra.fresco.suite.tinytables.ot.base;
 
 import dk.alexandra.fresco.framework.network.Network;
-import edu.biu.scapi.exceptions.FactoriesException;
-import edu.biu.scapi.exceptions.SecurityLevelException;
+import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import edu.biu.scapi.interactiveMidProtocols.ot.otBatch.OTBatchOnByteArraySInput;
 import edu.biu.scapi.interactiveMidProtocols.ot.otBatch.semiHonest.OTSemiHonestDDHBatchOnByteArraySender;
 import edu.biu.scapi.tools.Factories.KdfFactory;
-import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,15 +29,13 @@ public class BaseOTSender implements dk.alexandra.fresco.suite.tinytables.ot.OTS
   private static OTSemiHonestDDHBatchOnByteArraySender sender;
   private OTSemiHonestDDHBatchOnByteArraySender getInstance(SecureRandom random) {
     if (sender == null) {
-      try {
-        sender = new OTSemiHonestDDHBatchOnByteArraySender(
-            new edu.biu.scapi.primitives.dlog.bc.BcDlogECF2m(),
-            //new edu.biu.scapi.primitives.dlog.openSSL.OpenSSLDlogECF2m(),
-            KdfFactory.getInstance()
-            .getObject("HKDF(HMac(SHA-256))"), random);
-      } catch (SecurityLevelException | FactoriesException | IOException e) {
-        e.printStackTrace();
-      }
+      sender = ExceptionConverter.safe(() ->
+      new OTSemiHonestDDHBatchOnByteArraySender(
+          new edu.biu.scapi.primitives.dlog.bc.BcDlogECF2m(),
+          //new edu.biu.scapi.primitives.dlog.openSSL.OpenSSLDlogECF2m(),
+          KdfFactory.getInstance()
+          .getObject("HKDF(HMac(SHA-256))"), random),
+          "Unable to construct OT sender");
     }
 
     return sender;
@@ -54,8 +50,8 @@ public class BaseOTSender implements dk.alexandra.fresco.suite.tinytables.ot.OTS
   @Override
   public void send(List<dk.alexandra.fresco.suite.tinytables.ot.datatypes.OTInput> inputs) {
 
-    ArrayList<byte[]> x0 = new ArrayList<byte[]>();
-    ArrayList<byte[]> x1 = new ArrayList<byte[]>();
+    ArrayList<byte[]> x0 = new ArrayList<>();
+    ArrayList<byte[]> x1 = new ArrayList<>();
     for (dk.alexandra.fresco.suite.tinytables.ot.datatypes.OTInput input : inputs) {
       x0.add(dk.alexandra.fresco.suite.tinytables.ot.Encoding
           .encodeBitSet(input.getX0(), input.getLength()));
@@ -66,12 +62,9 @@ public class BaseOTSender implements dk.alexandra.fresco.suite.tinytables.ot.OTS
     OTBatchOnByteArraySInput otsInputs = new OTBatchOnByteArraySInput(x0, x1);
     OTSemiHonestDDHBatchOnByteArraySender sender = getInstance(random);
 
-    try {
-      sender.transfer(new NetworkWrapper(network, myId), otsInputs);
-    } catch (ClassNotFoundException | IOException e) {
-      // Do nothing
-    }
-
+    ExceptionConverter.safe(() ->
+        sender.transfer(new NetworkWrapper(network, myId), otsInputs),
+        "Unable to transer OT inputs");
   }
 
 }
