@@ -100,4 +100,12 @@ public class TestCote {
     }
     assertEquals(true, thrown);
   }
+
+  @Test
+  public void testGetReceiverTwice() {
+    CoteReceiver r1 = cote.getReceiver();
+    CoteReceiver r2 = cote.getReceiver();
+    assertEquals(r1, r2);
+  }
+
 }
