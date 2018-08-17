@@ -65,7 +65,7 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol<SBool>
      * We need to finish the processing of this gate after all preprocessing is done (see
      * calculateTinyTable). To do this, we keep a reference to all AND gates.
      */
-    ps.addANDGate(this);
+    ps.addAndProtocol(this);
 
     return EvaluationStatus.IS_DONE;
   }

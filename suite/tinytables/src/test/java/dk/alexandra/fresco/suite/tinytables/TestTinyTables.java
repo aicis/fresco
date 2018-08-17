@@ -168,6 +168,15 @@ public class TestTinyTables {
   }
 
   @Test
+  public void testManyAnd() {
+    final int numAnds = 2000;
+    runTest(new BasicBooleanTests.TestMultipleAnds<>(false, numAnds),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, true, "testAND");
+    runTest(new BasicBooleanTests.TestMultipleAnds<>(true, numAnds),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, false, "testAND");
+  }
+
+  @Test
   public void testNOT() {
     runTest(new BasicBooleanTests.TestNOT<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED, true,
         "testNOT");
@@ -199,7 +208,7 @@ public class TestTinyTables {
       runTest(new BasicBooleanTests.TestXOR<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED, true,
           name);
       runTest(new BasicBooleanTests.TestRandomBit<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED,
-          false,  name);
+          false, name);
     } catch (TestFrameworkException tfe) {
       if (tfe.getCause() instanceof RuntimeException) {
         throw tfe.getCause().getCause();
@@ -212,10 +221,10 @@ public class TestTinyTables {
   @Test(expected = UnsupportedOperationException.class)
   public void testOpen() throws Throwable {
     try {
-      runTest(new FieldBoolTests.TestOpen<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-          true, "testOpen");
-      runTest(new FieldBoolTests.TestOpen<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-          false, "tesOpen");
+      runTest(new FieldBoolTests.TestOpen<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, true,
+          "testOpen");
+      runTest(new FieldBoolTests.TestOpen<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, false,
+          "tesOpen");
     } catch (TestFrameworkException tfe) {
       if (tfe.getCause() instanceof RuntimeException) {
         throw tfe.getCause().getCause();
@@ -232,8 +241,7 @@ public class TestTinyTables {
       // Run preprocessing for something, just to generate the required files.
       runTest(new BasicBooleanTests.TestXOR<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED, true,
           name);
-      runTest(new FieldBoolTests.TestOpen<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-          false, name);
+      runTest(new FieldBoolTests.TestOpen<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, false, name);
     } catch (TestFrameworkException tfe) {
       if (tfe.getCause() instanceof RuntimeException) {
         throw tfe.getCause().getCause();
