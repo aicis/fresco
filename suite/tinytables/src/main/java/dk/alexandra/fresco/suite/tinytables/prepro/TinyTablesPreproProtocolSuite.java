@@ -44,26 +44,19 @@ public class TinyTablesPreproProtocolSuite
     implements ProtocolSuite<TinyTablesPreproResourcePool, ProtocolBuilderBinary> {
 
 
-  private final SecureRandom secRand;
-
   public TinyTablesPreproProtocolSuite() {
-    this.secRand = new SecureRandom();
   }
 
-  public SecureRandom getSecureRandom() {
-    return secRand;
-  }
-
-  @Override
   public BuilderFactory<ProtocolBuilderBinary> init(
       TinyTablesPreproResourcePool resourcePool,
       Network network) {
+    SecureRandom secureRandom = new SecureRandom();
     OTFactory otFactory = new SemiHonestOTExtensionFactory(network, resourcePool.getMyId(), 128,
-        new BaseOTFactory(network, resourcePool.getMyId(), secRand), secRand);
+        new BaseOTFactory(network, resourcePool.getMyId(), secureRandom), secureRandom);
 
     resourcePool.setTripleGenerator(
         new BatchTinyTablesTripleProvider(
-            new TinyTablesTripleGenerator(resourcePool.getMyId(), secRand, otFactory), 8192));
+            new TinyTablesTripleGenerator(resourcePool.getMyId(), secureRandom, otFactory), 8192));
 
     return new TinyTablesPreproBuilderFactory();
   }
