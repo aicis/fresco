@@ -89,7 +89,7 @@ public class TestPrivateSetDemo {
       // Protocol specific configuration + suite
       ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> suite =
           (ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary>) getTinyTablesPreproProtocolSuite(
-              9000 + playerId, playerId);
+              9000 + playerId);
 
       // More generic configuration
       ProtocolEvaluator<ResourcePoolImpl> evaluator =
@@ -205,9 +205,9 @@ public class TestPrivateSetDemo {
     return result;
   }
 
-  private ProtocolSuite<?, ?> getTinyTablesPreproProtocolSuite(int myPort, int playerId) {
+  private ProtocolSuite<?, ?> getTinyTablesPreproProtocolSuite(int myPort) {
     TinyTablesPreproProtocolSuite config =
-        new TinyTablesPreproProtocolSuite(playerId, getTinyTablesFile(playerId));
+        new TinyTablesPreproProtocolSuite();
     return config;
   }
 
@@ -253,32 +253,36 @@ public class TestPrivateSetDemo {
     t2.join();
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testPSICmdLine3Party() throws Exception {
-    PrivateSetDemo.main(new String[]{"-i", "3", "-p", "1:localhost:8081",
+    PrivateSetDemo.main(new String[]{
+        "-i", "3", "-p", "1:localhost:8081",
         "-p", "2:localhost:8082", "-p", "3:localhost:8083", "-s", "dummyBool"});
     fail();
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testPSICmdLineBadKeyLength() throws Exception {
-    PrivateSetDemo.main(new String[]{"-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s",
-        "dummyBool", "-in", "2,3,4,6,7,12,14", "-key",
-        "abc123abc123abc123abc123abc123"});
+    PrivateSetDemo
+        .main(new String[]{
+            "-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s",
+            "dummyBool", "-in", "2,3,4,6,7,12,14", "-key",
+            "abc123abc123abc123abc123abc123"});
     fail();
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testPSICmdLineNoKey() throws Exception {
-    PrivateSetDemo.main(new String[]{"-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s",
+    PrivateSetDemo.main(new String[]{
+        "-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s",
         "dummyBool", "-in", "2,3,4,6,7,12,14"});
     fail();
   }
 
-  @Test(expected=IllegalArgumentException.class)
+  @Test(expected = IllegalArgumentException.class)
   public void testPSICmdLineNoInput() throws Exception {
-    PrivateSetDemo.main(new String[]{"-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s",
-        "dummyBool"});
+    PrivateSetDemo.main(new String[]{
+        "-i", "2", "-p", "1:localhost:8081", "-p", "2:localhost:8082", "-s", "dummyBool"});
     fail();
   }
 

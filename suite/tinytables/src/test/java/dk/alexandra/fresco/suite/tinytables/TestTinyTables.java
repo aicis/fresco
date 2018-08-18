@@ -10,6 +10,7 @@ import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkTestUtils;
 import dk.alexandra.fresco.framework.network.AsyncNetwork;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
@@ -20,11 +21,10 @@ import dk.alexandra.fresco.lib.bool.ComparisonBooleanTests;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
 import dk.alexandra.fresco.lib.field.bool.generic.FieldBoolTests;
 import dk.alexandra.fresco.lib.math.bool.add.AddTests;
-import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproResourcePool;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,22 +60,34 @@ public class TestTinyTables {
         new HashMap<>();
 
     for (int playerId : netConf.keySet()) {
-      ProtocolEvaluator<ResourcePoolImpl> evaluator;
 
-      ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> suite;
       File tinyTablesFile = new File(getFilenameForTest(playerId, name));
+      Supplier<ResourcePoolImpl> resourcePoolSupplier;
+      SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> computationEngine;
       if (preprocessing) {
-        suite = new TinyTablesPreproProtocolSuite(playerId, tinyTablesFile);
+        BatchEvaluationStrategy<TinyTablesPreproResourcePool> batchStrategy =
+            evalStrategy.getStrategy();
+        TinyTablesPreproProtocolSuite suite = new TinyTablesPreproProtocolSuite();
+        resourcePoolSupplier =
+            () -> new TinyTablesPreproResourcePool(playerId, noPlayers, tinyTablesFile);
+        ProtocolEvaluator<TinyTablesPreproResourcePool> evaluator =
+            new BatchedProtocolEvaluator<>(batchStrategy, suite);
+        computationEngine =
+            (SecureComputationEngine) new SecureComputationEngineImpl<>(suite, evaluator);
       } else {
-        suite = new TinyTablesProtocolSuite(playerId, tinyTablesFile);
+        BatchEvaluationStrategy<ResourcePoolImpl> batchStrategy = evalStrategy.getStrategy();
+        TinyTablesProtocolSuite suite = new TinyTablesProtocolSuite(playerId, tinyTablesFile);
+        resourcePoolSupplier = () -> new ResourcePoolImpl(playerId, noPlayers);
+        ProtocolEvaluator<ResourcePoolImpl> evaluator = new BatchedProtocolEvaluator<>(
+            batchStrategy, suite);
+        computationEngine = new SecureComputationEngineImpl<>(suite, evaluator);
       }
-      BatchEvaluationStrategy<ResourcePoolImpl> batchStrat = evalStrategy.getStrategy();
-      evaluator = new BatchedProtocolEvaluator<>(batchStrat, suite);
-      TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
-          new TestThreadConfiguration<>(new SecureComputationEngineImpl<>(suite, evaluator),
-              () -> new ResourcePoolImpl(playerId, noPlayers),
+      TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> configuration =
+          new TestThreadConfiguration<>(
+              computationEngine,
+              resourcePoolSupplier,
               () -> new AsyncNetwork(netConf.get(playerId)));
-      conf.put(playerId, ttc);
+      conf.put(playerId, configuration);
     }
     TestThreadRunner.run(f, conf);
 
