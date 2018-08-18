@@ -21,6 +21,7 @@ import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproResourcePool;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -97,7 +98,8 @@ public class TestPrivateSetDemo {
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite, evaluator),
-              () -> new ResourcePoolImpl(playerId, noPlayers),
+              () -> new TinyTablesPreproResourcePool(playerId, noPlayers,
+                  getTinyTablesFile(playerId)),
               () -> new AsyncNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }

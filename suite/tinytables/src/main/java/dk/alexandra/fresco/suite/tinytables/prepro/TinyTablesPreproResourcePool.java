@@ -53,7 +53,7 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
     super(myId, noOfPlayers);
     this.random = new SecureRandom();
     this.unprocessedAnds = Collections.synchronizedList(new ArrayList<>());
-    this.storage = TinyTablesStorageImpl.getInstance(myId);
+    this.storage = new TinyTablesStorageImpl();
     this.tinyTablesFile = tinyTablesFile;
   }
 
