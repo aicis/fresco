@@ -13,7 +13,6 @@ import dk.alexandra.fresco.lib.real.RealNumericContext;
 import dk.alexandra.fresco.lib.real.fixed.AdvancedFixedNumeric;
 import dk.alexandra.fresco.lib.real.fixed.DefaultFixedNumeric;
 import dk.alexandra.fresco.lib.real.fixed.FixedLinearAlgebra;
-import dk.alexandra.fresco.lib.real.fixed.SemiFixedNumeric;
 
 /**
  * The core factory to implement when creating a numeric protocol. Every {@link
@@ -77,6 +76,13 @@ public interface BuilderFactoryNumeric extends BuilderFactory<ProtocolBuilderNum
   }
 
   default Logical createLogical(ProtocolBuilderNumeric builder) {
+    return new DefaultLogical(builder);
+  }
+
+  // TODO this is a hack to enable logical operations over arithmetic values in Spdz2k.
+  // we need a way of gracefully handling protocol suites that support both arithmetic and boolean
+  // operations
+  default Logical createLogicalArithmetic(ProtocolBuilderNumeric builder) {
     return new DefaultLogical(builder);
   }
 

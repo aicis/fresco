@@ -29,6 +29,7 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
   private AdvancedRealNumeric advancedRealNumeric;
   private RealLinearAlgebra realLinearAlgebra;
   private Logical logical;
+  private Logical logicalArithmetic;
   private Conversion conversion;
   private RealNumericContext realNumericContext;
 
@@ -114,6 +115,16 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
       logical = factory.createLogical(this);
     }
     return logical;
+  }
+
+  // TODO this is a hack to enable logical operations over arithmetic values in Spdz2k.
+  // we need a way of gracefully handling protocol suites that support both arithmetic and boolean
+  // operations
+  public Logical logicalArithmetic() {
+    if (logicalArithmetic == null) {
+      logicalArithmetic = factory.createLogicalArithmetic(this);
+    }
+    return logicalArithmetic;
   }
 
   /**
