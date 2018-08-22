@@ -8,7 +8,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
 /**
- * Computes the exponentiation when the exponent is public. 
+ * Computes the exponentiation when the exponent is public.
  */
 public class ExponentiationOpenExponent implements
     Computation<SInt, ProtocolBuilderNumeric> {
@@ -16,6 +16,13 @@ public class ExponentiationOpenExponent implements
   private DRes<SInt> base;
   private BigInteger exponent;
 
+  /**
+   * A new exponentiation computation with secret base and open exponent.
+   *
+   * @param x the base as a deferred result
+   * @param e the exponent, must be strictly larger than 0.
+   * @throws IllegalArgumentException if handed an exponent that is less than or equal 0
+   */
   public ExponentiationOpenExponent(DRes<SInt> x, BigInteger e) {
     this.base = x;
     this.exponent = e;
@@ -29,7 +36,8 @@ public class ExponentiationOpenExponent implements
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq((seq) -> {
       DRes<SInt> accEven = base;
-      return new IterationState(exponent, accEven, null);
+      DRes<SInt> accOdd = seq.numeric().known(BigInteger.ONE);
+      return new IterationState(exponent, accEven, accOdd);
     }).whileLoop(
         iterationState -> !iterationState.exponent.equals(BigInteger.ONE),
         (seq, iterationState) -> {
