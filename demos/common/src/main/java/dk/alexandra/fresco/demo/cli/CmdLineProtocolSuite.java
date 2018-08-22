@@ -19,6 +19,7 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzOpenedValueStoreImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDataSupplier;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproResourcePool;
 import java.io.File;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
@@ -62,9 +63,11 @@ public class CmdLineProtocolSuite {
       this.resourcePool =
           createSpdzResourcePool(properties);
     } else if (protocolSuiteName.equals("tinytablesprepro")) {
+      String tinytablesFileOption = "tinytables.file";
+      String tinyTablesFilePath = properties.getProperty(tinytablesFileOption, "tinytables");
       this.protocolSuite = tinyTablesPreProFromCmdLine(properties);
       this.resourcePool =
-          new ResourcePoolImpl(myId, noOfPlayers);
+          new TinyTablesPreproResourcePool(myId, noOfPlayers, new File(tinyTablesFilePath));
     } else {
       this.protocolSuite = tinyTablesFromCmdLine(properties);
       this.resourcePool =
@@ -125,9 +128,7 @@ public class CmdLineProtocolSuite {
   }
 
   private ProtocolSuite<?, ?> tinyTablesPreProFromCmdLine(Properties properties) {
-    String tinytablesFileOption = "tinytables.file";
-    String tinyTablesFilePath = properties.getProperty(tinytablesFileOption, "tinytables");
-    return new TinyTablesPreproProtocolSuite(myId, new File(tinyTablesFilePath));
+    return new TinyTablesPreproProtocolSuite();
   }
 
   private ProtocolSuite<?, ?> tinyTablesFromCmdLine(Properties properties) {

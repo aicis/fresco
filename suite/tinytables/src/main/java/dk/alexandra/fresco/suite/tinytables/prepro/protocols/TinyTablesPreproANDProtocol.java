@@ -2,11 +2,10 @@ package dk.alexandra.fresco.suite.tinytables.prepro.protocols;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTable;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
-import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproResourcePool;
 import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproSBool;
 
 /**
@@ -49,23 +48,21 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol<SBool>
   }
 
   @Override
-  public EvaluationStatus evaluate(int round, ResourcePoolImpl resourcePool, Network network) {
-
-    TinyTablesPreproProtocolSuite ps =
-        TinyTablesPreproProtocolSuite.getInstance(resourcePool.getMyId());
+  public EvaluationStatus evaluate(int round, TinyTablesPreproResourcePool resourcePool,
+      Network network) {
 
     /*
      * Here we only pick the mask of the output wire. The TinyTable is calculated after all AND
      * gates has been preprocessed.
      */
-    boolean rO = ps.getSecureRandom().nextBoolean();
+    boolean rO = resourcePool.getSecureRandom().nextBoolean();
     out = new TinyTablesPreproSBool(TinyTablesElement.getInstance(rO));
 
     /*
      * We need to finish the processing of this gate after all preprocessing is done (see
      * calculateTinyTable). To do this, we keep a reference to all AND gates.
      */
-    ps.addAndProtocol(this);
+    resourcePool.addAndProtocol(this);
 
     return EvaluationStatus.IS_DONE;
   }

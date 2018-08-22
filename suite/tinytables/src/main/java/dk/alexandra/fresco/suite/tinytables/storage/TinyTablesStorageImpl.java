@@ -2,7 +2,6 @@ package dk.alexandra.fresco.suite.tinytables.storage;
 
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTable;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -15,15 +14,6 @@ public class TinyTablesStorageImpl implements TinyTablesStorage {
 	private Map<Integer, TinyTable> tinyTables = new ConcurrentHashMap<>();
 	private Map<Integer, TinyTablesElement> maskShares = new ConcurrentHashMap<>();
 		
-	public static Map<Integer, TinyTablesStorage> instances = new HashMap<>();
-
-	public static TinyTablesStorage getInstance(int id) {
-		if (!instances.containsKey(id)) {
-			instances.put(id, new TinyTablesStorageImpl());
-		}
-		return instances.get(id);
-	}
-
 	@Override
 	public TinyTable getTinyTable(int id) {
 		return tinyTables.get(id);
