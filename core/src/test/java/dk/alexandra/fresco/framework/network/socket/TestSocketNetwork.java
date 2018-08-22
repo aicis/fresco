@@ -5,8 +5,6 @@ import static dk.alexandra.fresco.framework.network.socket.Connector.DEFAULT_CON
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.network.AbstractCloseableNetworkTest;
 import dk.alexandra.fresco.framework.network.CloseableNetwork;
-import dk.alexandra.fresco.framework.network.socket.Connector;
-import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -195,7 +193,7 @@ public class TestSocketNetwork extends AbstractCloseableNetworkTest {
     @SuppressWarnings("unchecked")
     Sender sender = ((HashMap<Integer, Sender>) f1.get(networks.get(1))).get(2);
     sender.stop();
-    networks.get(1).send(2, new byte[] { 0x01 });
+    networks.get(1).send(2, new byte[]{0x01});
     f1.setAccessible(false);
   }
 
@@ -231,6 +229,34 @@ public class TestSocketNetwork extends AbstractCloseableNetworkTest {
       Sender s = new Sender(socketMap.get(2));
       socketMap.get(2).close();
       s.stop();
+    } finally {
+      for (Future<NetworkConnector> futureConn : fs) {
+        for (Socket s : futureConn.get().getSocketMap().values()) {
+          s.close();
+        }
+      }
+      es.shutdownNow();
+    }
+  }
+
+  @Test
+  public void testSenderBreakingSocket()
+      throws Exception {
+    final int numParties = 2;
+    List<NetworkConfiguration> confs = getNetConfs(numParties);
+    ExecutorService es = Executors.newFixedThreadPool(numParties);
+    List<Future<NetworkConnector>> fs = new ArrayList<>(numParties);
+    try {
+      for (int i = 0; i < numParties; i++) {
+        final int id = i;
+        fs.add(es.submit(() -> new Connector(confs.get(id), DEFAULT_CONNECTION_TIMEOUT)));
+      }
+      Map<Integer, Socket> socketMap = fs.get(0).get().getSocketMap();
+      Socket socket = socketMap.get(2);
+      Sender sender = new Sender(socket);
+
+      socket.close();
+      sender.queueMessage(new byte[1]);
     } finally {
       for (Future<NetworkConnector> futureConn : fs) {
         for (Socket s : futureConn.get().getSocketMap().values()) {
