@@ -73,7 +73,7 @@ class Sender {
     if (isRunning()) {
       if (queue.isEmpty()) {
         this.ignoreNext.set(true);
-        queue.add(new byte[] {});
+        queue.add(new byte[]{});
       }
       ExceptionConverter.safe(() -> {
         this.thread.join();
@@ -84,7 +84,7 @@ class Sender {
 
   private void run() {
     try {
-      while (!(flushAndStop.get() && queue.isEmpty())) {
+      while (shouldRun()) {
         byte[] data = queue.take();
         if (!ignoreNext.get()) {
           out.writeInt(data.length);
@@ -95,10 +95,13 @@ class Sender {
       out.writeInt(-1);
       out.flush();
     } catch (Exception e) {
-      if (!(flushAndStop.get() && queue.isEmpty())) {
+      if (shouldRun()) {
         logger.error("Sender failed unexpectedly", e);
       }
     }
   }
 
+  private boolean shouldRun() {
+    return !(flushAndStop.get() && queue.isEmpty());
+  }
 }
