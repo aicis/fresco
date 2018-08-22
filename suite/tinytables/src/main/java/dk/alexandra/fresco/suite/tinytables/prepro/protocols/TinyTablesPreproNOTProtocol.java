@@ -2,8 +2,8 @@ package dk.alexandra.fresco.suite.tinytables.prepro.protocols;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.value.SBool;
+import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproResourcePool;
 import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproSBool;
 
 /**
@@ -30,7 +30,8 @@ public class TinyTablesPreproNOTProtocol extends TinyTablesPreproProtocol<SBool>
   }
 
   @Override
-  public EvaluationStatus evaluate(int round, ResourcePoolImpl resourcePool, Network network) {
+  public EvaluationStatus evaluate(int round, TinyTablesPreproResourcePool resourcePool,
+      Network network) {
 
     /*
      * Use same masking parameter for the output

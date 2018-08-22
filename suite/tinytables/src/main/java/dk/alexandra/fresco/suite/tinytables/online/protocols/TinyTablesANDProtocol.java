@@ -60,10 +60,10 @@ public class TinyTablesANDProtocol extends TinyTablesProtocol<SBool> {
       List<byte[]> buffers = network.receiveFromAll();
       List<TinyTablesElement> shares = new ArrayList<>();
       for (byte[] bytes : buffers) {
-        shares.add(new TinyTablesElement(BooleanSerializer.fromBytes(bytes[0])));
+        shares.add(TinyTablesElement.getInstance(BooleanSerializer.fromBytes(bytes[0])));
       }
       boolean open = TinyTablesElement.open(shares);
-      this.out = new TinyTablesSBool(new TinyTablesElement(open));
+      this.out = TinyTablesSBool.getInstance(TinyTablesElement.getInstance(open));
       return EvaluationStatus.IS_DONE;
     }
   }
