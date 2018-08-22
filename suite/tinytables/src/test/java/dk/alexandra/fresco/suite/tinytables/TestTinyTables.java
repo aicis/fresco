@@ -78,14 +78,12 @@ public class TestTinyTables {
         BatchEvaluationStrategy<ResourcePoolImpl> batchStrategy = evalStrategy.getStrategy();
         TinyTablesProtocolSuite suite = new TinyTablesProtocolSuite(playerId, tinyTablesFile);
         resourcePoolSupplier = () -> new ResourcePoolImpl(playerId, noPlayers);
-        ProtocolEvaluator<ResourcePoolImpl> evaluator = new BatchedProtocolEvaluator<>(
-            batchStrategy, suite);
+        ProtocolEvaluator<ResourcePoolImpl> evaluator =
+            new BatchedProtocolEvaluator<>(batchStrategy, suite);
         computationEngine = new SecureComputationEngineImpl<>(suite, evaluator);
       }
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> configuration =
-          new TestThreadConfiguration<>(
-              computationEngine,
-              resourcePoolSupplier,
+          new TestThreadConfiguration<>(computationEngine, resourcePoolSupplier,
               () -> new AsyncNetwork(netConf.get(playerId)));
       conf.put(playerId, configuration);
     }
@@ -136,7 +134,13 @@ public class TestTinyTables {
    * Basic tests
    */
 
-  // ensure that the tinytables folder is new for each test and is deleted upon exiting each test.
+
+  /**
+   * Creates a directory in which to store preprocessing material for TinyTables. If the directory
+   * already exists the old directory is deleted and a new is created.
+   *
+   * @throws IOException if an exception occurs handling the directory.
+   */
   @Before
   public void checkFolderExists() throws IOException {
     File f = new File("tinytables");
@@ -148,6 +152,11 @@ public class TestTinyTables {
     }
   }
 
+  /**
+   * Removes the directory storing data for the tests.
+   *
+   * @throws IOException if an exception occurs while deleting the directory
+   */
   @After
   public void removeFolder() throws IOException {
     File f = new File("tinytables");
@@ -165,7 +174,7 @@ public class TestTinyTables {
   }
 
   @Test
-  public void testXOR() {
+  public void testXor() {
     runTest(new BasicBooleanTests.TestXOR<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED, true,
         "testXOR");
     runTest(new BasicBooleanTests.TestXOR<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED, false,
@@ -173,7 +182,7 @@ public class TestTinyTables {
   }
 
   @Test
-  public void testAND() {
+  public void testAnd() {
     runTest(new BasicBooleanTests.TestAND<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED, true,
         "testAND");
     runTest(new BasicBooleanTests.TestAND<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED, false,
@@ -190,7 +199,7 @@ public class TestTinyTables {
   }
 
   @Test
-  public void testNOT() {
+  public void testNot() {
     runTest(new BasicBooleanTests.TestNOT<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED, true,
         "testNOT");
     runTest(new BasicBooleanTests.TestNOT<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED, false,
@@ -198,12 +207,10 @@ public class TestTinyTables {
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void testRandomBit() throws Throwable {
+  public void testRandomBitOffline() throws Throwable {
     try {
       runTest(new BasicBooleanTests.TestRandomBit<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED,
           true, "testRandomBit");
-      runTest(new BasicBooleanTests.TestRandomBit<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED,
-          false, "tesRandomBit");
     } catch (TestFrameworkException tfe) {
       if (tfe.getCause() instanceof RuntimeException) {
         throw tfe.getCause().getCause();
@@ -216,7 +223,7 @@ public class TestTinyTables {
   @Test(expected = UnsupportedOperationException.class)
   public void testRandomBitOnline() throws Throwable {
     try {
-      String name = "testRandomBit";
+      final String name = "testRandomBit";
       // Run preprocessing for something, just to generate the required files.
       runTest(new BasicBooleanTests.TestXOR<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED, true,
           name);
@@ -232,12 +239,10 @@ public class TestTinyTables {
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void testOpen() throws Throwable {
+  public void testOpenOffline() throws Throwable {
     try {
       runTest(new FieldBoolTests.TestOpen<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, true,
-          "testOpen");
-      runTest(new FieldBoolTests.TestOpen<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, false,
-          "tesOpen");
+          "testOpenOffline");
     } catch (TestFrameworkException tfe) {
       if (tfe.getCause() instanceof RuntimeException) {
         throw tfe.getCause().getCause();
@@ -250,7 +255,7 @@ public class TestTinyTables {
   @Test(expected = UnsupportedOperationException.class)
   public void testOpenOnline() throws Throwable {
     try {
-      String name = "testOpen";
+      final String name = "testOpenOnline";
       // Run preprocessing for something, just to generate the required files.
       runTest(new BasicBooleanTests.TestXOR<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED, true,
           name);
@@ -285,7 +290,7 @@ public class TestTinyTables {
 
   @Category(IntegrationTest.class)
   @Test
-  public void testAES() {
+  public void testAes() {
     runTest(new BristolCryptoTests.AesTest<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED, true,
         "testAES");
     runTest(new BristolCryptoTests.AesTest<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED, false,
@@ -294,7 +299,7 @@ public class TestTinyTables {
 
   @Category(IntegrationTest.class)
   @Test
-  public void test_DES() {
+  public void test_Des() {
     runTest(new BristolCryptoTests.DesTest<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED, true,
         "testDES");
     runTest(new BristolCryptoTests.DesTest<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED, false,
@@ -303,7 +308,7 @@ public class TestTinyTables {
 
   @Category(IntegrationTest.class)
   @Test
-  public void test_SHA1() {
+  public void test_Sha1() {
     runTest(new BristolCryptoTests.Sha1Test<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED, true,
         "testSHA1");
     runTest(new BristolCryptoTests.Sha1Test<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED, false,
@@ -312,7 +317,7 @@ public class TestTinyTables {
 
   @Category(IntegrationTest.class)
   @Test
-  public void test_SHA256() {
+  public void test_Sha256() {
     runTest(new BristolCryptoTests.Sha256Test<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED, true,
         "testSHA256");
     runTest(new BristolCryptoTests.Sha256Test<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED, false,
