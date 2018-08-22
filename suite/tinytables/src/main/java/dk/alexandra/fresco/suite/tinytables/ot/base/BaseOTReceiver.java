@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.tinytables.ot.base;
 
+import dk.alexandra.fresco.framework.network.CloseableNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.suite.tinytables.ot.datatypes.OTSigma;
@@ -59,7 +60,8 @@ public class BaseOTReceiver implements dk.alexandra.fresco.suite.tinytables.ot.O
     }
     OTBatchRBasicInput input = new OTBatchRBasicInput(s);
     OTBatchOnByteArrayROutput output = ExceptionConverter.safe(() ->
-        (OTBatchOnByteArrayROutput) receiver.transfer(new NetworkWrapper(network, myId), input),
+    (OTBatchOnByteArrayROutput) receiver
+        .transfer(new NetworkWrapper((CloseableNetwork)network, myId), input),
         "Unable to transfer OT input");
 
     List<BitSet> results = new ArrayList<>();
