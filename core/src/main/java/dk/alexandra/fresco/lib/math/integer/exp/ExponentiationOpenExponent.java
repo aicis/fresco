@@ -36,8 +36,7 @@ public class ExponentiationOpenExponent implements
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq((seq) -> {
       DRes<SInt> accEven = base;
-      DRes<SInt> accOdd = seq.numeric().known(BigInteger.ONE);
-      return new IterationState(exponent, accEven, accOdd);
+      return new IterationState(exponent, accEven, null);
     }).whileLoop(
         iterationState -> !iterationState.exponent.equals(BigInteger.ONE),
         (seq, iterationState) -> {
@@ -59,8 +58,14 @@ public class ExponentiationOpenExponent implements
           }
           return new IterationState(exponent, accEven, accOdd);
         }
-    ).seq((seq, iterationState) ->
-        seq.numeric().mult(iterationState.accEven, iterationState.accOdd)
+    ).seq((seq, iterationState) -> {
+          if (iterationState.accOdd == null) {
+            // In case we have a power of 2
+            return iterationState.accEven;
+          } else {
+            return seq.numeric().mult(iterationState.accEven, iterationState.accOdd);
+          }
+        }
     );
   }
 
