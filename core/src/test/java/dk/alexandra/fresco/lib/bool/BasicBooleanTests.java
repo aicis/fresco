@@ -1,5 +1,7 @@
 package dk.alexandra.fresco.lib.bool;
 
+import static org.junit.Assert.assertFalse;
+
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
@@ -7,6 +9,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.Binary;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,7 +80,7 @@ public class BasicBooleanTests {
         }
       };
     }
-  }  
+  }
 
 
   public static class TestXOR<ResourcePoolT extends ResourcePool>
@@ -158,6 +161,70 @@ public class BasicBooleanTests {
             Assert.assertEquals(false, outs.get(1));
             Assert.assertEquals(false, outs.get(2));
             Assert.assertEquals(true, outs.get(3));
+          }
+        }
+      };
+    }
+  }
+
+  public static class TestMultipleAnds<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderBinary> {
+
+    private final boolean doAsserts;
+    private final int amount;
+
+    /**
+     * Constructs a test doing a given number of ANDs.
+     *
+     * <p>
+     * Note: this is mainly meant to stress test the protocol suite with a larger number ANDs. All
+     * ANDs will be with the arguments <code>false</code> and <code>true</code> and thus should give
+     * a result of <code>false</code>.
+     * </p>
+     *
+     * @param doAsserts whether or not to run the asserts
+     * @param amount the amount of ANDs to compute
+     */
+    public TestMultipleAnds(boolean doAsserts, int amount) {
+      this.doAsserts = doAsserts;
+      this.amount = amount;
+    }
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderBinary> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderBinary>() {
+        @Override
+        public void test() throws Exception {
+
+          Application<List<Boolean>, ProtocolBuilderBinary> app = producer -> producer.par(par -> {
+            Binary builder = par.binary();
+            DRes<SBool> falseBool = builder.known(false);
+            DRes<SBool> trueBool = builder.known(true);
+            return () -> new Pair<>(falseBool, trueBool);
+          }).par((par, boolPair) -> {
+            Binary builder = par.binary();
+            DRes<SBool> falseBool = boolPair.getFirst();
+            DRes<SBool> trueBool = boolPair.getSecond();
+            List<DRes<SBool>> list = new ArrayList<>();
+            for (int i = 0; i < amount; i++) {
+              list.add(builder.and(falseBool, trueBool));
+            }
+            return () -> list;
+          }).par((par, list) -> {
+            List<DRes<Boolean>> openList = new ArrayList<>(list.size());
+            for (DRes<SBool> s : list) {
+              openList.add(par.binary().open(s));
+            }
+            return () -> openList;
+          }).par((par, list) -> {
+            return () -> list.stream().map(DRes::out).collect(Collectors.toList());
+          });
+
+          List<Boolean> outs = runApplication(app);
+          if (doAsserts) {
+            for (Boolean b : outs) {
+              assertFalse(b);
+            }
           }
         }
       };
