@@ -193,7 +193,7 @@ public class TestSocketNetwork extends AbstractCloseableNetworkTest {
     @SuppressWarnings("unchecked")
     Sender sender = ((HashMap<Integer, Sender>) f1.get(networks.get(1))).get(2);
     sender.stop();
-    networks.get(1).send(2, new byte[]{0x01});
+    networks.get(1).send(2, new byte[] { 0x01 });
     f1.setAccessible(false);
   }
 
