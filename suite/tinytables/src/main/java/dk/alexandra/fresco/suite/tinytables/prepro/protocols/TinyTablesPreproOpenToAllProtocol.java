@@ -2,9 +2,8 @@ package dk.alexandra.fresco.suite.tinytables.prepro.protocols;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.value.SBool;
-import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproResourcePool;
 import dk.alexandra.fresco.suite.tinytables.prepro.datatypes.TinyTablesPreproSBool;
 
 /**
@@ -32,15 +31,13 @@ public class TinyTablesPreproOpenToAllProtocol extends TinyTablesPreproProtocol<
   }
 
   @Override
-  public EvaluationStatus evaluate(int round, ResourcePoolImpl resourcePool, Network network) {
-    TinyTablesPreproProtocolSuite ps =
-        TinyTablesPreproProtocolSuite.getInstance(resourcePool.getMyId());
-
+  public EvaluationStatus evaluate(int round, TinyTablesPreproResourcePool resourcePool,
+      Network network) {
     /*
      * To open a value, we use the same mask share as for the input which will cancel out the mask
      * when the shares are combined.
      */
-    ps.getStorage().storeMaskShare(id, ((TinyTablesPreproSBool) toOpen.out()).getValue());
+    resourcePool.getStorage().storeMaskShare(id, ((TinyTablesPreproSBool) toOpen.out()).getValue());
 
     return EvaluationStatus.IS_DONE;
   }

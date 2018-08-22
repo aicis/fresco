@@ -2,6 +2,7 @@ package dk.alexandra.fresco.suite.tinytables;
 
 import dk.alexandra.fresco.IntegrationTest;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
+import dk.alexandra.fresco.framework.TestFrameworkException;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
@@ -9,6 +10,7 @@ import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkTestUtils;
 import dk.alexandra.fresco.framework.network.AsyncNetwork;
+import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
@@ -17,10 +19,11 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.lib.bool.BasicBooleanTests;
 import dk.alexandra.fresco.lib.bool.ComparisonBooleanTests;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
+import dk.alexandra.fresco.lib.field.bool.generic.FieldBoolTests;
 import dk.alexandra.fresco.lib.math.bool.add.AddTests;
-import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproResourcePool;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -32,6 +35,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,24 +60,32 @@ public class TestTinyTables {
         new HashMap<>();
 
     for (int playerId : netConf.keySet()) {
-      ProtocolEvaluator<ResourcePoolImpl> evaluator;
 
-      ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> suite;
       File tinyTablesFile = new File(getFilenameForTest(playerId, name));
+      Supplier<ResourcePoolImpl> resourcePoolSupplier;
+      SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> computationEngine;
       if (preprocessing) {
-        suite = new TinyTablesPreproProtocolSuite(playerId, tinyTablesFile);
+        BatchEvaluationStrategy<TinyTablesPreproResourcePool> batchStrategy =
+            evalStrategy.getStrategy();
+        TinyTablesPreproProtocolSuite suite = new TinyTablesPreproProtocolSuite();
+        resourcePoolSupplier =
+            () -> new TinyTablesPreproResourcePool(playerId, noPlayers, tinyTablesFile);
+        ProtocolEvaluator<TinyTablesPreproResourcePool> evaluator =
+            new BatchedProtocolEvaluator<>(batchStrategy, suite);
+        computationEngine =
+            (SecureComputationEngine) new SecureComputationEngineImpl<>(suite, evaluator);
       } else {
-        suite = new TinyTablesProtocolSuite(playerId, tinyTablesFile);
+        BatchEvaluationStrategy<ResourcePoolImpl> batchStrategy = evalStrategy.getStrategy();
+        TinyTablesProtocolSuite suite = new TinyTablesProtocolSuite(playerId, tinyTablesFile);
+        resourcePoolSupplier = () -> new ResourcePoolImpl(playerId, noPlayers);
+        ProtocolEvaluator<ResourcePoolImpl> evaluator =
+            new BatchedProtocolEvaluator<>(batchStrategy, suite);
+        computationEngine = new SecureComputationEngineImpl<>(suite, evaluator);
       }
-      BatchEvaluationStrategy<ResourcePoolImpl> batchStrat = evalStrategy.getStrategy();
-      evaluator = new BatchedProtocolEvaluator<>(batchStrat, suite);
-      TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
-          new TestThreadConfiguration<>(
-              new SecureComputationEngineImpl<>(suite, evaluator),
-              () -> new ResourcePoolImpl(playerId, noPlayers),
-              () -> new AsyncNetwork(netConf.get(playerId))
-          );
-      conf.put(playerId, ttc);
+      TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> configuration =
+          new TestThreadConfiguration<>(computationEngine, resourcePoolSupplier,
+              () -> new AsyncNetwork(netConf.get(playerId)));
+      conf.put(playerId, configuration);
     }
     TestThreadRunner.run(f, conf);
 
@@ -122,7 +134,13 @@ public class TestTinyTables {
    * Basic tests
    */
 
-  // ensure that the tinytables folder is new for each test and is deleted upon exiting each test.
+
+  /**
+   * Creates a directory in which to store preprocessing material for TinyTables. If the directory
+   * already exists the old directory is deleted and a new is created.
+   *
+   * @throws IOException if an exception occurs handling the directory.
+   */
   @Before
   public void checkFolderExists() throws IOException {
     File f = new File("tinytables");
@@ -134,6 +152,11 @@ public class TestTinyTables {
     }
   }
 
+  /**
+   * Removes the directory storing data for the tests.
+   *
+   * @throws IOException if an exception occurs while deleting the directory
+   */
   @After
   public void removeFolder() throws IOException {
     File f = new File("tinytables");
@@ -144,42 +167,114 @@ public class TestTinyTables {
 
   @Test
   public void testInput() {
-    runTest(new BasicBooleanTests.TestInput<>(false), EvaluationStrategy.SEQUENTIAL,
-        true, "testInput");
-    runTest(new BasicBooleanTests.TestInput<>(true), EvaluationStrategy.SEQUENTIAL,
-        false, "testInput");
+    runTest(new BasicBooleanTests.TestInput<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED, true,
+        "testInput");
+    runTest(new BasicBooleanTests.TestInput<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED, false,
+        "testInput");
   }
 
   @Test
-  public void testXOR() {
-    runTest(new BasicBooleanTests.TestXOR<>(false), EvaluationStrategy.SEQUENTIAL,
-        true, "testXOR");
-    runTest(new BasicBooleanTests.TestXOR<>(true), EvaluationStrategy.SEQUENTIAL,
-        false, "testXOR");
+  public void testXor() {
+    runTest(new BasicBooleanTests.TestXOR<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED, true,
+        "testXOR");
+    runTest(new BasicBooleanTests.TestXOR<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED, false,
+        "testXOR");
   }
 
   @Test
-  public void testAND() {
-    runTest(new BasicBooleanTests.TestAND<>(false), EvaluationStrategy.SEQUENTIAL,
-        true, "testAND");
-    runTest(new BasicBooleanTests.TestAND<>(true), EvaluationStrategy.SEQUENTIAL,
-        false, "testAND");
+  public void testAnd() {
+    runTest(new BasicBooleanTests.TestAND<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED, true,
+        "testAND");
+    runTest(new BasicBooleanTests.TestAND<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED, false,
+        "testAND");
   }
 
   @Test
-  public void testNOT() {
-    runTest(new BasicBooleanTests.TestNOT<>(false), EvaluationStrategy.SEQUENTIAL,
-        true, "testNOT");
-    runTest(new BasicBooleanTests.TestNOT<>(true), EvaluationStrategy.SEQUENTIAL,
-        false, "testNOT");
+  public void testManyAnd() {
+    final int numAnds = 2000;
+    runTest(new BasicBooleanTests.TestMultipleAnds<>(false, numAnds),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, true, "testAND");
+    runTest(new BasicBooleanTests.TestMultipleAnds<>(true, numAnds),
+        EvaluationStrategy.SEQUENTIAL_BATCHED, false, "testAND");
+  }
+
+  @Test
+  public void testNot() {
+    runTest(new BasicBooleanTests.TestNOT<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED, true,
+        "testNOT");
+    runTest(new BasicBooleanTests.TestNOT<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED, false,
+        "testNOT");
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testRandomBitOffline() throws Throwable {
+    try {
+      runTest(new BasicBooleanTests.TestRandomBit<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED,
+          true, "testRandomBit");
+    } catch (TestFrameworkException tfe) {
+      if (tfe.getCause() instanceof RuntimeException) {
+        throw tfe.getCause().getCause();
+      } else {
+        throw tfe;
+      }
+    }
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testRandomBitOnline() throws Throwable {
+    try {
+      final String name = "testRandomBit";
+      // Run preprocessing for something, just to generate the required files.
+      runTest(new BasicBooleanTests.TestXOR<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED, true,
+          name);
+      runTest(new BasicBooleanTests.TestRandomBit<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED,
+          false, name);
+    } catch (TestFrameworkException tfe) {
+      if (tfe.getCause() instanceof RuntimeException) {
+        throw tfe.getCause().getCause();
+      } else {
+        throw tfe;
+      }
+    }
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testOpenOffline() throws Throwable {
+    try {
+      runTest(new FieldBoolTests.TestOpen<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, true,
+          "testOpenOffline");
+    } catch (TestFrameworkException tfe) {
+      if (tfe.getCause() instanceof RuntimeException) {
+        throw tfe.getCause().getCause();
+      } else {
+        throw tfe;
+      }
+    }
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
+  public void testOpenOnline() throws Throwable {
+    try {
+      final String name = "testOpenOnline";
+      // Run preprocessing for something, just to generate the required files.
+      runTest(new BasicBooleanTests.TestXOR<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED, true,
+          name);
+      runTest(new FieldBoolTests.TestOpen<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, false, name);
+    } catch (TestFrameworkException tfe) {
+      if (tfe.getCause() instanceof RuntimeException) {
+        throw tfe.getCause().getCause();
+      } else {
+        throw tfe;
+      }
+    }
   }
 
   @Test
   public void testBasicProtocols() {
     runTest(new BasicBooleanTests.TestBasicProtocols<>(false),
-        EvaluationStrategy.SEQUENTIAL, true, "testBasicProtocols");
-    runTest(new BasicBooleanTests.TestBasicProtocols<>(true),
-        EvaluationStrategy.SEQUENTIAL, false, "testBasicProtocols");
+        EvaluationStrategy.SEQUENTIAL_BATCHED, true, "testBasicProtocols");
+    runTest(new BasicBooleanTests.TestBasicProtocols<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED,
+        false, "testBasicProtocols");
   }
 
   /* Bristol tests */
@@ -187,71 +282,71 @@ public class TestTinyTables {
   @Category(IntegrationTest.class)
   @Test
   public void testMult() {
-    runTest(new BristolCryptoTests.Mult32x32Test<>(false),
-        EvaluationStrategy.SEQUENTIAL, true, "testMult32x32");
-    runTest(new BristolCryptoTests.Mult32x32Test<>(true),
-        EvaluationStrategy.SEQUENTIAL, false, "testMult32x32");
+    runTest(new BristolCryptoTests.Mult32x32Test<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED,
+        true, "testMult32x32");
+    runTest(new BristolCryptoTests.Mult32x32Test<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED,
+        false, "testMult32x32");
   }
 
   @Category(IntegrationTest.class)
   @Test
-  public void testAES() {
-    runTest(new BristolCryptoTests.AesTest<>(false), EvaluationStrategy.SEQUENTIAL,
-        true, "testAES");
-    runTest(new BristolCryptoTests.AesTest<>(true), EvaluationStrategy.SEQUENTIAL,
-        false, "testAES");
+  public void testAes() {
+    runTest(new BristolCryptoTests.AesTest<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED, true,
+        "testAES");
+    runTest(new BristolCryptoTests.AesTest<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED, false,
+        "testAES");
   }
 
   @Category(IntegrationTest.class)
   @Test
-  public void test_DES() {
-    runTest(new BristolCryptoTests.DesTest<>(false), EvaluationStrategy.SEQUENTIAL,
-        true, "testDES");
-    runTest(new BristolCryptoTests.DesTest<>(true), EvaluationStrategy.SEQUENTIAL,
-        false, "testDES");
+  public void test_Des() {
+    runTest(new BristolCryptoTests.DesTest<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED, true,
+        "testDES");
+    runTest(new BristolCryptoTests.DesTest<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED, false,
+        "testDES");
   }
 
   @Category(IntegrationTest.class)
   @Test
-  public void test_SHA1() {
-    runTest(new BristolCryptoTests.Sha1Test<>(false), EvaluationStrategy.SEQUENTIAL,
-        true, "testSHA1");
-    runTest(new BristolCryptoTests.Sha1Test<>(true), EvaluationStrategy.SEQUENTIAL,
-        false, "testSHA1");
+  public void test_Sha1() {
+    runTest(new BristolCryptoTests.Sha1Test<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED, true,
+        "testSHA1");
+    runTest(new BristolCryptoTests.Sha1Test<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED, false,
+        "testSHA1");
   }
 
   @Category(IntegrationTest.class)
   @Test
-  public void test_SHA256() {
-    runTest(new BristolCryptoTests.Sha256Test<>(false),
-        EvaluationStrategy.SEQUENTIAL, true, "testSHA256");
-    runTest(new BristolCryptoTests.Sha256Test<>(true),
-        EvaluationStrategy.SEQUENTIAL, false, "testSHA256");
+  public void test_Sha256() {
+    runTest(new BristolCryptoTests.Sha256Test<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED, true,
+        "testSHA256");
+    runTest(new BristolCryptoTests.Sha256Test<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED, false,
+        "testSHA256");
   }
 
   /* Advanced functionality */
 
   @Test
   public void test_Binary_Adder() {
-    runTest(new AddTests.TestFullAdder<>(false),
-        EvaluationStrategy.SEQUENTIAL_BATCHED, true, "testAdder");
-    runTest(new AddTests.TestFullAdder<>(true),
-        EvaluationStrategy.SEQUENTIAL_BATCHED, false, "testAdder");
+    runTest(new AddTests.TestFullAdder<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED, true,
+        "testAdder");
+    runTest(new AddTests.TestFullAdder<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED, false,
+        "testAdder");
   }
 
   @Test
   public void test_comparison() {
     runTest(new ComparisonBooleanTests.TestGreaterThan<>(false),
-        EvaluationStrategy.SEQUENTIAL, true, "testGT");
+        EvaluationStrategy.SEQUENTIAL_BATCHED, true, "testGT");
     runTest(new ComparisonBooleanTests.TestGreaterThan<>(true),
-        EvaluationStrategy.SEQUENTIAL, false, "testGT");
+        EvaluationStrategy.SEQUENTIAL_BATCHED, false, "testGT");
   }
 
   @Test
   public void test_equality() {
-    runTest(new ComparisonBooleanTests.TestEquality<>(false),
-        EvaluationStrategy.SEQUENTIAL, true, "testEQ");
-    runTest(new ComparisonBooleanTests.TestEquality<>(true),
-        EvaluationStrategy.SEQUENTIAL, false, "testEQ");
+    runTest(new ComparisonBooleanTests.TestEquality<>(false), EvaluationStrategy.SEQUENTIAL_BATCHED,
+        true, "testEQ");
+    runTest(new ComparisonBooleanTests.TestEquality<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED,
+        false, "testEQ");
   }
 }

@@ -1,55 +1,40 @@
 package dk.alexandra.fresco.suite.tinytables.util;
 
+import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.List;
-import java.util.SortedMap;
 
 public class Util {
-	
-	/**
-	 * Given a sorted map with integer keys and entries of type <code>T[]</code>
-	 * , this method returns a list of all entries of type <code>T</code> in the
-	 * induced ordering.
-	 * 
-	 * @param map
-	 * @return
-	 */
-	public static <T> List<T> getAll(SortedMap<Integer, T[]> map) {
-		List<T> array = new ArrayList<T>();
-		for (int i : map.keySet()) {
-			T[] entry = map.get(i);
-			for (T t : entry) {
-				array.add(t);
-			}
-		}
-		return array;
-	}
-	
-	/**
-	 * Outputs a hash of j and the given bits of size l. We assume that l < 256
-	 * since the underlying hash function is SHA-256.
-	 * 
-	 * @param j
-	 * @param bits
-	 * @param l
-	 * @return
-	 */
-	public static BitSet hash(int j, BitSet bits, int l) {
-		MessageDigest digest;
-		try {
-			digest = MessageDigest.getInstance("SHA-256");
-		} catch (NoSuchAlgorithmException e) {
-			return null;
-		}
-		digest.update((byte) j);
-		byte[] binary = digest.digest(bits.toByteArray());
-		return BitSet.valueOf(binary).get(0, l);
-	}
-	
-	public static int otherPlayerId(int myId) {
-		return myId == 1 ? 2 : 1;
-	}
+
+  private static final String HASH_ALGO = "SHA-256";
+
+  private Util() {
+    // Do not instantiate
+  }
+
+  /**
+   * Outputs a hash of <i>j</i> and the given bits of size <i>l</i>.
+   *
+   * <p>
+   * We assume that <i>l &lt; 256</i> since the underlying hash function is {@value #HASH_ALGO}.
+   * </p>
+   *
+   * @param j
+   * @param bits
+   * @param l
+   * @return
+   */
+  public static BitSet hash(int j, BitSet bits, int l) {
+    MessageDigest digest = ExceptionConverter.safe(() -> MessageDigest.getInstance(HASH_ALGO),
+        "Unable to create " + HASH_ALGO + " digest");
+    for (int i = 0; i < Integer.BYTES; i++) {
+      digest.update((byte) (j >>> i * Byte.SIZE));
+    }
+    byte[] binary = digest.digest(bits.toByteArray());
+    return BitSet.valueOf(binary).get(0, l);
+  }
+
+  public static int otherPlayerId(int myId) {
+    return myId == 1 ? 2 : 1;
+  }
 }

@@ -40,14 +40,14 @@ public class TinyTablesCloseProtocol extends TinyTablesProtocol<SBool> {
     if (round == 0) {
       if (resourcePool.getMyId() == this.inputter) {
         TinyTablesElement r = ps.getStorage().getMaskShare(id);
-        TinyTablesElement e = new TinyTablesElement(this.in ^ r.getShare());
+        TinyTablesElement e = TinyTablesElement.getInstance(this.in ^ r.getShare());
         network.sendToAll(new byte[]{BooleanSerializer.toBytes(e.getShare())});
       }
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       TinyTablesElement share =
-          new TinyTablesElement(BooleanSerializer.fromBytes(network.receive(this.inputter)[0]));
-      out = new TinyTablesSBool(share);
+          TinyTablesElement.getInstance(BooleanSerializer.fromBytes(network.receive(this.inputter)[0]));
+      out = TinyTablesSBool.getInstance(share);
       return EvaluationStatus.IS_DONE;
     }
   }
