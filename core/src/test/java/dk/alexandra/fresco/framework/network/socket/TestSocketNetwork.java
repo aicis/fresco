@@ -115,7 +115,7 @@ public class TestSocketNetwork extends AbstractCloseableNetworkTest {
 
   @Test(expected = IllegalArgumentException.class)
   @SuppressWarnings("resource")
-  public void testUnconnectedSocket() throws InterruptedException, ExecutionException, IOException {
+  public void testUnconnectedSocket() {
     final int numParties = 3;
     List<NetworkConfiguration> confs = getNetConfs(numParties);
     Map<Integer, Socket> socketMap = new HashMap<>(numParties);
@@ -186,7 +186,7 @@ public class TestSocketNetwork extends AbstractCloseableNetworkTest {
   @Test(expected = RuntimeException.class)
   public void testStoppedSender()
       throws NoSuchFieldException, SecurityException, IllegalArgumentException,
-      IllegalAccessException, InterruptedException, ExecutionException, IOException {
+      IllegalAccessException {
     networks = createNetworks(2);
     Field f1 = networks.get(1).getClass().getDeclaredField("senders");
     f1.setAccessible(true);
@@ -200,7 +200,7 @@ public class TestSocketNetwork extends AbstractCloseableNetworkTest {
   @Test
   public void testFailedSender()
       throws NoSuchFieldException, SecurityException, IllegalArgumentException,
-      IllegalAccessException, InterruptedException, ExecutionException, IOException {
+      IllegalAccessException {
     networks = createNetworks(2);
     Field f1 = networks.get(1).getClass().getDeclaredField("senders");
     f1.setAccessible(true);
