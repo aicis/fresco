@@ -5,8 +5,6 @@ import static dk.alexandra.fresco.framework.network.socket.Connector.DEFAULT_CON
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.network.AbstractCloseableNetworkTest;
 import dk.alexandra.fresco.framework.network.CloseableNetwork;
-import dk.alexandra.fresco.framework.network.socket.Connector;
-import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -117,7 +115,7 @@ public class TestSocketNetwork extends AbstractCloseableNetworkTest {
 
   @Test(expected = IllegalArgumentException.class)
   @SuppressWarnings("resource")
-  public void testUnconnectedSocket() throws InterruptedException, ExecutionException, IOException {
+  public void testUnconnectedSocket() {
     final int numParties = 3;
     List<NetworkConfiguration> confs = getNetConfs(numParties);
     Map<Integer, Socket> socketMap = new HashMap<>(numParties);
@@ -188,7 +186,7 @@ public class TestSocketNetwork extends AbstractCloseableNetworkTest {
   @Test(expected = RuntimeException.class)
   public void testStoppedSender()
       throws NoSuchFieldException, SecurityException, IllegalArgumentException,
-      IllegalAccessException, InterruptedException, ExecutionException, IOException {
+      IllegalAccessException {
     networks = createNetworks(2);
     Field f1 = networks.get(1).getClass().getDeclaredField("senders");
     f1.setAccessible(true);
@@ -202,7 +200,7 @@ public class TestSocketNetwork extends AbstractCloseableNetworkTest {
   @Test
   public void testFailedSender()
       throws NoSuchFieldException, SecurityException, IllegalArgumentException,
-      IllegalAccessException, InterruptedException, ExecutionException, IOException {
+      IllegalAccessException {
     networks = createNetworks(2);
     Field f1 = networks.get(1).getClass().getDeclaredField("senders");
     f1.setAccessible(true);
@@ -231,6 +229,34 @@ public class TestSocketNetwork extends AbstractCloseableNetworkTest {
       Sender s = new Sender(socketMap.get(2));
       socketMap.get(2).close();
       s.stop();
+    } finally {
+      for (Future<NetworkConnector> futureConn : fs) {
+        for (Socket s : futureConn.get().getSocketMap().values()) {
+          s.close();
+        }
+      }
+      es.shutdownNow();
+    }
+  }
+
+  @Test
+  public void testSenderBreakingSocket()
+      throws Exception {
+    final int numParties = 2;
+    List<NetworkConfiguration> confs = getNetConfs(numParties);
+    ExecutorService es = Executors.newFixedThreadPool(numParties);
+    List<Future<NetworkConnector>> fs = new ArrayList<>(numParties);
+    try {
+      for (int i = 0; i < numParties; i++) {
+        final int id = i;
+        fs.add(es.submit(() -> new Connector(confs.get(id), DEFAULT_CONNECTION_TIMEOUT)));
+      }
+      Map<Integer, Socket> socketMap = fs.get(0).get().getSocketMap();
+      Socket socket = socketMap.get(2);
+      Sender sender = new Sender(socket);
+
+      socket.close();
+      sender.queueMessage(new byte[1]);
     } finally {
       for (Future<NetworkConnector> futureConn : fs) {
         for (Socket s : futureConn.get().getSocketMap().values()) {
