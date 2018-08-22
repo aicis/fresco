@@ -73,7 +73,7 @@ class Sender {
     if (isRunning()) {
       if (queue.isEmpty()) {
         this.ignoreNext.set(true);
-        queue.add(new byte[]{});
+        queue.add(new byte[] {});
       }
       ExceptionConverter.safe(() -> {
         this.thread.join();
