@@ -2,7 +2,6 @@ package dk.alexandra.fresco.suite.spdz.storage;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -112,7 +111,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   public static FieldElement createRandomSsk(BigInteger modulus, int prgSeedLength) {
     byte[] seedBytes = new byte[prgSeedLength / 8];
     new SecureRandom().nextBytes(seedBytes);
-    StrictBitVector seed = new StrictBitVector(prgSeedLength, new PaddingAesCtrDrbg(seedBytes));
+    StrictBitVector seed = new StrictBitVector(seedBytes);
     FieldElementPrg localSampler = new FieldElementPrgImpl(seed);
     return localSampler.getNext(modulus);
   }
@@ -137,7 +136,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       randomElements.addAll(mascot.getRandomElements(batchSize));
       logger.trace("Got another random element batch");
     }
-    return new SpdzSInt(MascotFormatConverter.toSpdzElement(randomElements.pop()));
+    return MascotFormatConverter.toSpdzSInt(randomElements.pop());
   }
 
   @Override
@@ -168,7 +167,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
       randomBits.addAll(mascot.getRandomBits(batchSize));
       logger.trace("Got another bit batch");
     }
-    return new SpdzSInt(MascotFormatConverter.toSpdzElement(randomBits.pop()));
+    return MascotFormatConverter.toSpdzSInt(randomBits.pop());
   }
 
   @Override

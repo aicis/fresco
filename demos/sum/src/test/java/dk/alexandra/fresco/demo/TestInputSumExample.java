@@ -6,20 +6,21 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.configuration.NetworkTestUtils;
+import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzOpenedValueStoreImpl;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -41,7 +42,7 @@ public class TestInputSumExample {
       ports.add(9000 + i * 10);
     }
     Map<Integer, NetworkConfiguration> netConf =
-        TestConfiguration.getNetworkConfigurations(n, ports);
+        NetworkTestUtils.getNetworkConfigurations(n, ports);
     Map<Integer, TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     for (int i : netConf.keySet()) {
@@ -60,11 +61,12 @@ public class TestInputSumExample {
         suite = (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new SpdzProtocolSuite(150);
         resourcePool = () -> {
           try {
-            return (ResourcePoolT) new SpdzResourcePoolImpl(i, n,
-                new SpdzStorageImpl(new SpdzDummyDataSupplier(i, n)));
+            return (ResourcePoolT) new SpdzResourcePoolImpl(i, n, new SpdzOpenedValueStoreImpl(),
+                new SpdzDummyDataSupplier(i, n), new AesCtrDrbg(new byte[32]));
           } catch (Exception e) {
-            throw new RuntimeException("Your system does not support the necessary hash function.", e);
-          } 
+            throw new RuntimeException("Your system does not support the necessary hash function.",
+                e);
+          }
         };
       }
       TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric> ttc =
@@ -80,8 +82,7 @@ public class TestInputSumExample {
 
   private static Network createNetwork(
       NetworkConfiguration networkConfiguration) {
-    KryoNetNetwork kryoNetNetwork = new KryoNetNetwork(networkConfiguration);
-    return kryoNetNetwork;
+    return new AsyncNetwork(networkConfiguration);
   }
 
   @Test
@@ -93,7 +94,8 @@ public class TestInputSumExample {
             return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
               @Override
               public void test() throws Exception {
-                new InputSumExample().runApplication(conf.sce, conf.getResourcePool(), conf.getNetwork());
+                new InputSumExample()
+                    .runApplication(conf.sce, conf.getResourcePool(), conf.getNetwork());
               }
             };
           }
@@ -110,7 +112,8 @@ public class TestInputSumExample {
             return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
               @Override
               public void test() throws Exception {
-                new InputSumExample().runApplication(conf.sce, conf.getResourcePool(), conf.getNetwork());
+                new InputSumExample()
+                    .runApplication(conf.sce, conf.getResourcePool(), conf.getNetwork());
               }
             };
           }

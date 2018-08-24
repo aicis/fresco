@@ -3,7 +3,6 @@ package dk.alexandra.fresco.suite.spdz.gates;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import java.math.BigInteger;
 
@@ -31,22 +30,22 @@ public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
       int round,
       SpdzResourcePool spdzResourcePool,
       Network network) {
-    secretValue = new SpdzSInt(createKnownSpdzElement(spdzResourcePool, value));
+    secretValue = createKnownSpdzElement(spdzResourcePool, value);
     return EvaluationStatus.IS_DONE;
   }
 
-  static SpdzElement createKnownSpdzElement(
+  static SpdzSInt createKnownSpdzElement(
       SpdzResourcePool spdzResourcePool,
       BigInteger input) {
     BigInteger modulus = spdzResourcePool.getModulus();
     BigInteger value = input.mod(modulus);
-    SpdzElement elm;
-    BigInteger globalKeyShare = spdzResourcePool.getStore().getSecretSharedKey();
+    SpdzSInt elm;
+    BigInteger globalKeyShare = spdzResourcePool.getDataSupplier().getSecretSharedKey();
     if (spdzResourcePool.getMyId() == 1) {
-      elm = new SpdzElement(value,
+      elm = new SpdzSInt(value,
           value.multiply(globalKeyShare).mod(modulus), modulus);
     } else {
-      elm = new SpdzElement(BigInteger.ZERO,
+      elm = new SpdzSInt(BigInteger.ZERO,
           value.multiply(globalKeyShare).mod(modulus), modulus);
     }
     return elm;

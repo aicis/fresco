@@ -33,13 +33,13 @@ public class Spdz2kCommitmentComputation implements
   public DRes<List<byte[]>> buildComputation(ProtocolBuilderNumeric builder) {
     HashBasedCommitment ownCommitment = new HashBasedCommitment();
     byte[] ownOpening = ownCommitment.commit(localDrbg, value);
-    return builder.seq(new BroadcastComputation<>(
-        commitmentSerializer.serialize(ownCommitment)
-    )).seq((seq, rawCommitments) -> {
-      DRes<List<byte[]>> openingsDRes = seq.append(new InsecureBroadcastProtocol<>(ownOpening));
-      List<HashBasedCommitment> commitments = commitmentSerializer.deserializeList(rawCommitments);
-      return () -> open(commitments, openingsDRes.out(), noOfParties);
-    });
+    return builder.seq(new BroadcastComputation<>(commitmentSerializer.serialize(ownCommitment)))
+        .seq((seq, rawCommitments) -> {
+          DRes<List<byte[]>> openingsDRes = seq.append(new InsecureBroadcastProtocol<>(ownOpening));
+          List<HashBasedCommitment> commitments = commitmentSerializer
+              .deserializeList(rawCommitments);
+          return () -> open(commitments, openingsDRes.out(), noOfParties);
+        });
   }
 
   private List<byte[]> open(List<HashBasedCommitment> commitments, List<byte[]> openings,

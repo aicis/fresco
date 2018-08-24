@@ -8,15 +8,14 @@ import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
  * protocol suite. Note that in the preprocessing phase, no values are assigned to the wires, so
  * this class only handles the players share of the masking parameter of the wire.
  *
- * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  */
 public class TinyTablesPreproSBool implements SBool {
 
 
   private final TinyTablesElement value; // Additive share of mask of this SBool
 
-  public TinyTablesPreproSBool(TinyTablesElement share) {
-    this.value = share;
+  public TinyTablesPreproSBool(TinyTablesElement value) {
+    this.value = value;
   }
 
   /**
@@ -28,7 +27,7 @@ public class TinyTablesPreproSBool implements SBool {
 
   @Override
   public String toString() {
-    return "TinyTablePreproSBool [share=" + value + "]";
+    return "TinyTablesPreproSBool[value=" + value + "]";
   }
 
   @Override

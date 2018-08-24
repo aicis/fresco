@@ -3,10 +3,10 @@ package dk.alexandra.fresco.tools.mascot;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
-import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.AesCtrDrbgFactory;
 import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
@@ -28,10 +28,10 @@ public class MascotTestContext {
    */
   public MascotTestContext(int myId, int noOfParties, int instanceId,
       MascotSecurityParameters securityParameters) {
-    this.network = new KryoNetNetwork(defaultNetworkConfiguration(myId, noOfParties));
+    this.network = new AsyncNetwork(defaultNetworkConfiguration(myId, noOfParties));
     byte[] drbgSeed = new byte[securityParameters.getPrgSeedLength() / 8];
     new Random(myId).nextBytes(drbgSeed);
-    Drbg drbg = new PaddingAesCtrDrbg(drbgSeed);
+    Drbg drbg = AesCtrDrbgFactory.fromDerivedSeed(drbgSeed);
     Map<Integer, RotList> seedOts = new HashMap<>();
     for (int otherId = 1; otherId <= noOfParties; otherId++) {
       if (myId != otherId) {

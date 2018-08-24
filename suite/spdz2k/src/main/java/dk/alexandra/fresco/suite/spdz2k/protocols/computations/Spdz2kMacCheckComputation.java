@@ -15,7 +15,6 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.UInt;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kDataSupplier;
-import dk.alexandra.fresco.suite.spdz2k.resource.storage.Spdz2kOpenedValueStore;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,10 +29,11 @@ public class Spdz2kMacCheckComputation<
     implements Computation<Void, ProtocolBuilderNumeric> {
 
   private final CompUIntConverter<HighT, LowT, PlainT> converter;
-  private final Spdz2kOpenedValueStore<PlainT> openedValueStore;
   private final ByteSerializer<PlainT> serializer;
   private final Spdz2kDataSupplier<PlainT> supplier;
-  private List<PlainT> randomCoefficients;
+  private final List<Spdz2kSInt<PlainT>> authenticatedElements;
+  private final List<PlainT> openValues;
+  private final List<PlainT> randomCoefficients;
   private ByteSerializer<HashBasedCommitment> commitmentSerializer;
   private final int noOfParties;
   private final Drbg localDrbg;
@@ -41,19 +41,23 @@ public class Spdz2kMacCheckComputation<
   /**
    * Creates new {@link Spdz2kMacCheckComputation}.
    *
+   * @param toCheck authenticated elements and open values that must be checked
    * @param resourcePool resources for running Spdz2k
    * @param converter utility class for converting between {@link HighT} and {@link PlainT}, {@link
    * LowT} and {@link PlainT}
    */
-  public Spdz2kMacCheckComputation(Spdz2kResourcePool<PlainT> resourcePool,
+  public Spdz2kMacCheckComputation(Pair<List<Spdz2kSInt<PlainT>>, List<PlainT>> toCheck,
+      Spdz2kResourcePool<PlainT> resourcePool,
       CompUIntConverter<HighT, LowT, PlainT> converter) {
-    this.openedValueStore = resourcePool.getOpenedValueStore();
+    this.authenticatedElements = toCheck.getFirst();
+    this.openValues = toCheck.getSecond();
     this.converter = converter;
     this.serializer = resourcePool.getPlainSerializer();
     this.supplier = resourcePool.getDataSupplier();
     this.randomCoefficients = sampleCoefficients(
         resourcePool.getRandomGenerator(),
-        resourcePool.getFactory(), openedValueStore.getNumPending());
+        resourcePool.getFactory(),
+        authenticatedElements.size());
     this.commitmentSerializer = resourcePool.getCommitmentSerializer();
     this.noOfParties = resourcePool.getNoOfParties();
     this.localDrbg = resourcePool.getLocalRandomGenerator();
@@ -61,9 +65,6 @@ public class Spdz2kMacCheckComputation<
 
   @Override
   public DRes<Void> buildComputation(ProtocolBuilderNumeric builder) {
-    Pair<List<Spdz2kSInt<PlainT>>, List<PlainT>> opened = openedValueStore.peekValues();
-    List<Spdz2kSInt<PlainT>> authenticatedElements = opened.getFirst();
-    List<PlainT> openValues = opened.getSecond();
     PlainT macKeyShare = supplier.getSecretSharedKey();
     PlainT y = UInt.innerProduct(openValues, randomCoefficients);
     Spdz2kSInt<PlainT> r = supplier.getNextRandomElementShare();
@@ -86,7 +87,8 @@ public class Spdz2kMacCheckComputation<
           if (!UInt.sum(serializer.deserializeList(commitZjs)).isZero()) {
             throw new MaliciousException("Mac check failed");
           }
-          openedValueStore.clear();
+          authenticatedElements.clear();
+          openValues.clear();
           return null;
         });
   }

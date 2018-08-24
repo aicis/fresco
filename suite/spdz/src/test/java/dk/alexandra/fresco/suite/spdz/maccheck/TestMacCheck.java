@@ -6,25 +6,24 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.configuration.TestConfiguration;
-import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.configuration.NetworkTestUtils;
+import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
-import dk.alexandra.fresco.framework.util.HmacDrbg;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests.TestDivision;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePoolImpl;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzOpenedValueStoreImpl;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -70,7 +69,7 @@ public class TestMacCheck {
     }
 
     Map<Integer, NetworkConfiguration> netConf =
-        TestConfiguration.getNetworkConfigurations(noOfParties, ports);
+        NetworkTestUtils.getNetworkConfigurations(noOfParties, ports);
     Map<Integer, TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     for (int playerId : netConf.keySet()) {
@@ -85,10 +84,8 @@ public class TestMacCheck {
 
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce, () -> createResourcePool(playerId,
-              noOfParties, new Random(), new SecureRandom(), corruptMac), () -> {
-            KryoNetNetwork kryoNetwork = new KryoNetNetwork(netConf.get(playerId));
-            return kryoNetwork;
-          });
+              noOfParties, new Random(), new SecureRandom(), corruptMac),
+              () -> new AsyncNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
@@ -102,34 +99,15 @@ public class TestMacCheck {
     } else {
       supplier = new SpdzDummyDataSupplier(myId, size);
     }
-    SpdzStorage store;
-    if (!corruptMac) {
-      store = new MaliciousSpdzStorage(supplier);
-    } else {
-      store = new SpdzStorageImpl(supplier);
-    }
-
-    return new SpdzResourcePoolImpl(myId, size, store);
-  }
-
-  private class MaliciousSpdzStorage extends SpdzStorageImpl {
-
-    public MaliciousSpdzStorage(SpdzDataSupplier supplier) {
-      super(supplier);
-    }
-
-    @Override
-    public List<SpdzElement> getClosedValues() {
-      return new ArrayList<SpdzElement>();
-    }
-
+    return new SpdzResourcePoolImpl(myId, size, new SpdzOpenedValueStoreImpl(), supplier,
+        new AesCtrDrbg(new byte[32]));
   }
 
   private class DummyMaliciousDataSupplier extends SpdzDummyDataSupplier {
 
     int maliciousCountdown = 10;
 
-    public DummyMaliciousDataSupplier(int myId, int numberOfPlayers) {
+    DummyMaliciousDataSupplier(int myId, int numberOfPlayers) {
       super(myId, numberOfPlayers);
     }
 
@@ -140,7 +118,7 @@ public class TestMacCheck {
       if (maliciousCountdown == 0) {
         BigInteger share = trip.getA().getShare();
         share = share.add(BigInteger.ONE);
-        SpdzElement newA = new SpdzElement(share, trip.getA().getMac(), getModulus());
+        SpdzSInt newA = new SpdzSInt(share, trip.getA().getMac(), getModulus());
         trip = new SpdzTriple(newA, trip.getB(), trip.getC());
       }
       return trip;

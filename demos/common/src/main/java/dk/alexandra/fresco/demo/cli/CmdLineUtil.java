@@ -5,7 +5,7 @@ import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.builder.ProtocolBuilder;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
-import dk.alexandra.fresco.framework.network.KryoNetNetwork;
+import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
@@ -32,8 +32,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Utility for reading all configuration from command line.
@@ -42,8 +40,6 @@ import org.slf4j.LoggerFactory;
  * </p>
  */
 public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends ProtocolBuilder> {
-
-  private static final Logger logger = LoggerFactory.getLogger(CmdLineUtil.class);
 
   private final Options options;
   private Options appOptions;
@@ -95,7 +91,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
    * Adds standard options.
    *
    * <p>TODO: Move standard options to SCE.
-   * 
+   *
    * <p>For instance, options for setting player id and protocol suite.
    */
   private Options buildStandardOptions() {
@@ -114,11 +110,9 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
         .desc(
             "Connection data for a party. Use -p multiple times to specify many players. "
             + "You must always at least include yourself. Must be on the form "
-            + "[id]:[hostname]:[port] or [id]:[hostname]:[port]:[shared key]. "
+            + "[id]:[hostname]:[port]. "
             + "id is a unique positive integer for the player, host and port is where to "
-            + "find the player, shared key is an optional string defining a secret key "
-            + "that is shared by you and the other player (the other player must submit "
-            + "the same key for you as you do for him). ")
+            + "find the player")
         .longOpt("party").required(true).hasArgs().build());
 
     options.addOption(Option.builder("e")
@@ -167,27 +161,23 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
     }
     return suite;
   }
-  
+
   private void parseAndSetupNetwork() throws ParseException {
     int myId = parseNonzeroInt("i");
     final Map<Integer, Party> parties = new HashMap<>();
-    
+
     for (String partyOptions : this.cmd.getOptionValues("p")) {
       String[] p = partyOptions.split(":");
-      if (p.length < 3 || p.length > 4) {
+      if (p.length != 3) {
         throw new ParseException("Could not parse '" + partyOptions
-            + "' as [id]:[host]:[port] or [id]:[host]:[port]:[shared key]");
+            + "' as [id]:[host]:[port]");
       }
       try {
         int id = Integer.parseInt(p[0]);
         InetAddress.getByName(p[1]); // Check that hostname is valid.
         int port = Integer.parseInt(p[2]);
         Party party;
-        if (p.length == 3) {
-          party = new Party(id, p[1], port);
-        } else {
-          party = new Party(id, p[1], port, p[3]);
-        }
+        party = new Party(id, p[1], port);
         if (parties.containsKey(id)) {
           throw new ParseException("Party ids must be unique");
         }
@@ -206,7 +196,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
         cmd.getOptionProperties("D").getProperty("portOffsetIncrement", "10"));
     this.networkManager = new KryoNetManager(this.networkConfiguration, offsetIncrement);
   }
-  
+
   /**
    * Create a network and connect to the other parties.
    */
@@ -238,7 +228,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
 
   /**
    * Parses the arguments. Also constructs various configuration objects such as ProtocolSuite
-   * and ResourcePool. 
+   * and ResourcePool.
    * @param args The arguments
    * @return CommandLine
    */
@@ -247,7 +237,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
     try {
       CommandLineParser parser = new DefaultParser();
       Options allOpts = getOptions();
-      
+
       this.cmd = parser.parse(allOpts, args);
       if (this.cmd.hasOption("h")) {
         displayHelp();
@@ -258,7 +248,7 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
         this.logPerformance = true;
       }
 
-      
+
       String protocolSuiteName = validateAndGetProtocolSuite();
       parseAndSetupNetwork();
 
@@ -278,8 +268,8 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
           maxBatchSize);
     } catch (Exception e) {
       ExceptionConverter.safe(() -> {
-        closeNetwork(); 
-        return null; 
+        closeNetwork();
+        return null;
       },
           "Failed to close the network");
 
@@ -301,28 +291,28 @@ public class CmdLineUtil<ResourcePoolT extends ResourcePool, BuilderT extends Pr
 
   private Options getOptions() {
     Options allOpts = new Options();
-    
+
     Option helpOpt = Option.builder("h").desc("Displays this help message").longOpt("help")
         .required(false).hasArg(false).build();
     allOpts.addOption(helpOpt);
-    
+
     for (Option o : options.getOptions()) {
       allOpts.addOption(o);
     }
-    
+
     for (Option o : appOptions.getOptions()) {
       allOpts.addOption(o);
     }
     return allOpts;
   }
-  
+
   private BatchEvaluationStrategy<ResourcePoolT> evaluationStrategyFromString(String evalStr) {
     EvaluationStrategy evalStrategy = EvaluationStrategy.valueOf(evalStr.toUpperCase());
     return evalStrategy.getStrategy();
   }
 
   /**
-   * Print a help text, displaying the various options. 
+   * Print a help text, displaying the various options.
    */
   public void displayHelp() {
     HelpFormatter formatter = new HelpFormatter();

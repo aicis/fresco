@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
+import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesANDProtocol;
 import dk.alexandra.fresco.suite.tinytables.online.protocols.TinyTablesCloseProtocol;
@@ -47,7 +48,7 @@ public class TinyTablesProtocolSuite
   private final File tinyTablesFile;
   private TinyTablesStorage storage;
   private static volatile Map<Integer, TinyTablesProtocolSuite> instances = new HashMap<>();
-  private final static Logger logger = LoggerFactory.getLogger(TinyTablesProtocolSuite.class);
+  private static final Logger logger = LoggerFactory.getLogger(TinyTablesProtocolSuite.class);
 
   public static TinyTablesProtocolSuite getInstance(int id) {
     return instances.get(id);
@@ -61,12 +62,8 @@ public class TinyTablesProtocolSuite
   @Override
   public BuilderFactory<ProtocolBuilderBinary> init(ResourcePoolImpl resourcePool,
       Network network) {
-    try {
-      this.storage = loadTinyTables(tinyTablesFile);
-    } catch (ClassNotFoundException ignored) {
-    } catch (IOException e) {
-      logger.error("Failed to load TinyTables: " + e.getMessage());
-    }
+    this.storage =
+        ExceptionConverter.safe(() -> loadTinyTables(tinyTablesFile), "Unable to load TinyTables");
     BuilderFactory<ProtocolBuilderBinary> b = new TinyTablesBuilderFactory();
     return b;
   }

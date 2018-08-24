@@ -1,8 +1,7 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.suite.spdz.storage.FakeTripGen;
 import java.io.IOException;
@@ -91,13 +90,14 @@ public class TestFakeTripGen {
     for (SpdzSInt[][] pipe : expPipes) {
       SpdzSInt[] as = pipe[0];
       SpdzSInt[] bs = pipe[1];
-      BigInteger r = as[1].value.getShare().add(bs[1].value.getShare()).mod(modulus);
+      BigInteger r = as[1].getShare().add(bs[1].getShare()).mod(modulus);
       System.out.println(r);
-      Assert.assertEquals(r.modInverse(modulus), as[0].value.getShare().add(bs[0].value.getShare().mod(modulus)));
+      Assert.assertEquals(r.modInverse(modulus), as[0]
+          .getShare().add(bs[0].getShare().mod(modulus)));
       BigInteger prevR = r;
       for (int i = 0; i < as.length; i++) {
-        BigInteger share = as[i].value.getShare().add(bs[i].value.getShare()).mod(modulus);
-        BigInteger mac = as[i].value.getMac().add(bs[i].value.getMac()).mod(modulus);
+        BigInteger share = as[i].getShare().add(bs[i].getShare()).mod(modulus);
+        BigInteger mac = as[i].getMac().add(bs[i].getMac()).mod(modulus);
         Assert.assertEquals(BigInteger.ZERO, mac.subtract(share.multiply(alpha).mod(modulus)));
         if(i > 1) {
           Assert.assertEquals(r.multiply(prevR).mod(modulus), share);
@@ -113,8 +113,8 @@ public class TestFakeTripGen {
     int noOfParties = 2;
     List<SpdzSInt[]> bits = FakeTripGen.generateBits(amount, noOfParties, modulus, alpha);
     for (SpdzSInt[] b : bits) {
-      BigInteger val = b[0].value.getShare().add(b[1].value.getShare()).mod(modulus);
-      BigInteger mac = b[0].value.getMac().add(b[1].value.getMac()).mod(modulus);
+      BigInteger val = b[0].getShare().add(b[1].getShare()).mod(modulus);
+      BigInteger mac = b[0].getMac().add(b[1].getMac()).mod(modulus);
 
       Assert.assertTrue(val.equals(BigInteger.ZERO) || val.equals(BigInteger.ONE));
       Assert.assertEquals(BigInteger.ZERO, mac.subtract(val.multiply(alpha).mod(modulus)));
@@ -123,7 +123,7 @@ public class TestFakeTripGen {
 
   @Test
   public void testElementToBytes() {
-    SpdzElement element = new SpdzElement(BigInteger.valueOf(200), BigInteger.ONE, BigInteger.ZERO);
+    SpdzSInt element = new SpdzSInt(BigInteger.valueOf(200), BigInteger.ONE, BigInteger.ZERO);
     ByteBuffer buf = FakeTripGen.elementToBytes(element, 1);
     byte[] arr = buf.array();
     Assert.assertArrayEquals(new byte[] {(byte)200, 1}, arr);
@@ -135,7 +135,7 @@ public class TestFakeTripGen {
 
     }
 
-    element = new SpdzElement(BigInteger.ONE, BigInteger.valueOf(200), BigInteger.ZERO);
+    element = new SpdzSInt(BigInteger.ONE, BigInteger.valueOf(200), BigInteger.ZERO);
     buf = FakeTripGen.elementToBytes(element, 1);
     arr = buf.array();
     Assert.assertArrayEquals(new byte[] {1, (byte)200}, arr);

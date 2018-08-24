@@ -2,7 +2,7 @@ package dk.alexandra.fresco.suite.spdz;
 
 import static org.junit.Assert.assertEquals;
 
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.suite.spdz.preprocessing.MascotFormatConverter;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
@@ -19,16 +19,16 @@ public class TestMascotFormatConverter {
     return new AuthenticatedElement(share, mac, modulus);
   }
 
-  private SpdzElement getSpdzElement(int shareVal, int macVal, BigInteger modulus) {
-    return new SpdzElement(BigInteger.valueOf(shareVal), BigInteger.valueOf(macVal), modulus);
+  private SpdzSInt getSpdzElement(int shareVal, int macVal, BigInteger modulus) {
+    return new SpdzSInt(BigInteger.valueOf(shareVal), BigInteger.valueOf(macVal), modulus);
   }
 
   @Test
   public void convertSingleElement() {
     BigInteger modulus = new BigInteger("340282366920938463463374607431768211297");
     AuthenticatedElement element = getAuthElement(100, 123, modulus);
-    SpdzElement expected = getSpdzElement(100, 123, modulus);
-    SpdzElement actual = MascotFormatConverter.toSpdzElement(element);
+    SpdzSInt expected = getSpdzElement(100, 123, modulus);
+    SpdzSInt actual = MascotFormatConverter.toSpdzSInt(element);
     assertEquals(expected, actual);
   }
 

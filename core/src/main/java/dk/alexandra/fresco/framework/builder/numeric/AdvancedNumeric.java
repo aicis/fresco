@@ -67,8 +67,8 @@ public interface AdvancedNumeric extends ComputationDirectory {
   DRes<List<SInt>> toBits(DRes<SInt> in, int maxInputLength);
 
   /**
-   * Computes the exponentiation of x^e
-   * 
+   * Computes the exponentiation of x^e.
+   *
    * @param x The base
    * @param e The exponent
    * @param maxExponentLength The maximum length of the exponent.
@@ -77,8 +77,8 @@ public interface AdvancedNumeric extends ComputationDirectory {
   DRes<SInt> exp(DRes<SInt> x, DRes<SInt> e, int maxExponentLength);
 
   /**
-   * Computes the exponentiation of x^e
-   * 
+   * Computes the exponentiation of x^e.
+   *
    * @param x The base
    * @param e The exponent
    * @param maxExponentLength The maximum length of the exponent.
@@ -88,7 +88,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
 
   /**
    * Computes the exponentiation of x^e.
-   * 
+   *
    * @param x The base
    * @param e The exponent
    * @return A deferred result computing x^e
@@ -96,6 +96,8 @@ public interface AdvancedNumeric extends ComputationDirectory {
   DRes<SInt> exp(DRes<SInt> x, BigInteger e);
 
   /**
+   * Calculating the square root of a given input.
+   *
    * @param input The input.
    * @param maxInputLength An upper bound for <i>log<sub>2</sub>(input)</i>.
    * @return A deferred result computing an approximation of the square root of the input.
@@ -113,7 +115,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
 
   /**
    * Computes the inner product between two vectors.
-   * 
+   *
    * @param vectorA The first vector
    * @param vectorB The second vector
    * @return A deferred result computing the inner product of the two given vectors
@@ -122,7 +124,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
 
   /**
    * Computes the inner product between a public vector and a secret vector.
-   * 
+   *
    * @param vectorA The public vector
    * @param vectorB The secret vector
    * @return A deferred result computing the inner product of the two given vectors
@@ -131,19 +133,23 @@ public interface AdvancedNumeric extends ComputationDirectory {
 
   /**
    * Creates a string of random bits.
-   * 
+   *
    * @param noOfBits The amount of bits to create - i.e. the bit string length.
    * @return A container holding the bit string once evaluated.
    */
   DRes<RandomAdditiveMask> additiveMask(int noOfBits);
 
   /**
+   * Calculating the result of right shifting of the input by one.
+   *
    * @param input input.
    * @return A deferred result computing input >> 1
    */
   DRes<SInt> rightShift(DRes<SInt> input);
 
   /**
+   * Calculating the result of right shifting of the input by a given amount.
+   *
    * @param input input.
    * @param shifts Number of shifts
    * @return A deferred result computing input >> shifts
@@ -151,6 +157,8 @@ public interface AdvancedNumeric extends ComputationDirectory {
   DRes<SInt> rightShift(DRes<SInt> input, int shifts);
 
   /**
+   * Calculating the result of right shifting of the input by one, including the remainder.
+   *
    * @param input input
    * @return A deferred result computing<br>
    *         result: input >> 1<br>
@@ -160,6 +168,9 @@ public interface AdvancedNumeric extends ComputationDirectory {
   DRes<RightShiftResult> rightShiftWithRemainder(DRes<SInt> input);
 
   /**
+   * Calculating the result of right shifting of the input by a given amount, including the
+   * remainder.
+   *
    * @param input input
    * @param shifts Number of shifts
    * @return A deferred result computing <br>
@@ -171,7 +182,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
 
   /**
    * Computes the bit length of the input.
-   * 
+   *
    * @param input The number to know the bit length of
    * @param maxBitLength The maximum bit length this number can have (if unknown, set this to the
    *        modulus bit size)
@@ -180,8 +191,8 @@ public interface AdvancedNumeric extends ComputationDirectory {
   DRes<SInt> bitLength(DRes<SInt> input, int maxBitLength);
 
   /**
-   * Compute the inverse of x within the field of operation
-   * 
+   * Compute the inverse of x within the field of operation.
+   *
    * @param x The element to take the inverse of
    * @return A deferred result computing x^-1 mod p where p is the modulus of the field.
    */
@@ -201,7 +212,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
   /**
    * Swaps <code>left</code> and <code>right</code> if <code>condition</code> is 1, keeps original
    * order otherwise. Returns result as a pair.
-   * 
+   *
    * @param condition must be 0 or 1.
    * @param left The left argument
    * @param right The right argument
@@ -234,7 +245,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
   }
 
   /**
-   * Container holding a random bitvector and its SInt representation. 
+   * Container holding a random bitvector and its SInt representation.
    */
   class RandomAdditiveMask {
 

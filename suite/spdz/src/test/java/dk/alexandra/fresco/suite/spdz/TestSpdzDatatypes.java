@@ -1,9 +1,8 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzElement;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -14,37 +13,34 @@ import org.junit.Test;
 
 public class TestSpdzDatatypes {
 
-  SpdzElement elm_empty = new SpdzElement();
-  SpdzElement elm1 = new SpdzElement(BigInteger.ONE, BigInteger.ONE, BigInteger.TEN);
-  SpdzElement elm2 = new SpdzElement(BigInteger.ONE, BigInteger.ONE, BigInteger.TEN);
-  SpdzElement elmDiff1 = new SpdzElement(BigInteger.ZERO, BigInteger.ONE, BigInteger.TEN);
+  private SpdzSInt elm0 = new SpdzSInt(BigInteger.ZERO, BigInteger.ZERO, BigInteger.ZERO);
+  private SpdzSInt elm1 = new SpdzSInt(BigInteger.ONE, BigInteger.ONE, BigInteger.TEN);
+  private SpdzSInt elm2 = new SpdzSInt(BigInteger.ONE, BigInteger.ONE, BigInteger.TEN);
+  private SpdzSInt elmDiff1 = new SpdzSInt(BigInteger.ZERO, BigInteger.ONE, BigInteger.TEN);
   
   @Test
   public void testElementEquals() {
-    Assert.assertEquals(elm1, elm1);    
+    Assert.assertEquals(elm1, elm1);
     Assert.assertEquals(elm1, elm2);
-    Assert.assertNotEquals(elm_empty, elm2);
-    Assert.assertNotEquals(elm_empty.hashCode(), elm2.hashCode());
+    Assert.assertNotEquals(elm0, elm2);
+    Assert.assertNotEquals(elm0.hashCode(), elm2.hashCode());
     Assert.assertEquals("spdz(1, 1)", elm1.toString());
-    byte[] bytes = new byte[2];    
-    bytes[0] = BigInteger.ZERO.toByteArray()[0];
-    bytes[1] = BigInteger.ONE.toByteArray()[0];
-    SpdzElement elm3 = new SpdzElement(bytes, BigInteger.TEN, BigInteger.TEN.toByteArray().length);
+    SpdzSInt elm3 = new SpdzSInt(BigInteger.TEN, BigInteger.TEN, BigInteger.TEN);
     Assert.assertNotEquals(elm2, elm3);
-    Assert.assertNotEquals(elm2, new SpdzElement(BigInteger.ONE, BigInteger.ZERO, BigInteger.TEN));
+    Assert.assertNotEquals(elm2, new SpdzSInt(BigInteger.ONE, BigInteger.ZERO, BigInteger.TEN));
     Assert.assertNotEquals(elm2, "");
-    Assert.assertNotEquals(elm2, null);    
+    Assert.assertNotEquals(elm2, null);
     
-    SpdzElement modNull1 = new SpdzElement(BigInteger.ONE, BigInteger.ONE, null);
-    SpdzElement modNull2 = new SpdzElement(BigInteger.ONE, BigInteger.ONE, null);
+    SpdzSInt modNull1 = new SpdzSInt(BigInteger.ONE, BigInteger.ONE, null);
+    SpdzSInt modNull2 = new SpdzSInt(BigInteger.ONE, BigInteger.ONE, null);
     Assert.assertEquals(modNull1, modNull2);
     Assert.assertNotEquals(modNull1, elm1);
     
-    SpdzElement modDiff = new SpdzElement(BigInteger.ONE, BigInteger.ONE, BigInteger.ONE);
+    SpdzSInt modDiff = new SpdzSInt(BigInteger.ONE, BigInteger.ONE, BigInteger.ONE);
     Assert.assertNotEquals(modDiff, elm1);
     
-    SpdzElement shareNull1 = new SpdzElement(null, BigInteger.ONE, BigInteger.TEN);
-    SpdzElement shareNull2 = new SpdzElement(null, BigInteger.ONE, BigInteger.TEN);
+    SpdzSInt shareNull1 = new SpdzSInt(null, BigInteger.ONE, BigInteger.TEN);
+    SpdzSInt shareNull2 = new SpdzSInt(null, BigInteger.ONE, BigInteger.TEN);
     Assert.assertEquals(shareNull1, shareNull2);
     Assert.assertNotEquals(shareNull1, elm1);
   }
@@ -54,7 +50,7 @@ public class TestSpdzDatatypes {
     SpdzTriple trip_empty = new SpdzTriple();
     SpdzTriple trip1 = new SpdzTriple(elm1, elm1, elm1);
     SpdzTriple trip2 = new SpdzTriple(elm1, elm1, elm1);
-    SpdzTriple trip3 = new SpdzTriple(elm_empty, elm1, elm1);
+    SpdzTriple trip3 = new SpdzTriple(elm0, elm1, elm1);
     SpdzTriple tripANull = new SpdzTriple(null, elm1, elm1);
     SpdzTriple tripBNull = new SpdzTriple(elm1, null, elm1);
     SpdzTriple tripCNull = new SpdzTriple(elm1, elm1, null);
@@ -73,19 +69,15 @@ public class TestSpdzDatatypes {
   
   @Test
   public void testSpdzSIntEquals() {
-    SpdzSInt i_empty = new SpdzSInt();
-    SpdzSInt i_empty2 = new SpdzSInt();
-    SpdzSInt i1 = new SpdzSInt(elm1);
-    SpdzSInt i2 = new SpdzSInt(elm2);
-    SpdzSInt i3 = new SpdzSInt(elmDiff1);
+    SpdzSInt i1 = elm1;
+    SpdzSInt i2 = elm2;
+    SpdzSInt i3 = elmDiff1;
     Assert.assertEquals(i1, i1);
     Assert.assertEquals(i1, i2);
-    Assert.assertEquals(i_empty, i_empty2);
-    Assert.assertNotEquals(i_empty, i2);
     Assert.assertNotEquals(i1, null);
     Assert.assertNotEquals(i1, "");
     Assert.assertNotEquals(i1, i3);
-    Assert.assertEquals("SpdzSInt(spdz(1, 1))", i1.toString());
+    Assert.assertEquals("spdz(1, 1)", i1.toString());
   }
   
   @Test

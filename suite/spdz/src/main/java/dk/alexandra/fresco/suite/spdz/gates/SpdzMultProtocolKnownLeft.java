@@ -27,7 +27,7 @@ public class SpdzMultProtocolKnownLeft extends SpdzNativeProtocol<SInt> {
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       Network network) {
     SpdzSInt right = (SpdzSInt) this.right.out();
-    out = new SpdzSInt(right.value.multiply(left));
+    out = right.multiply(left);
     return EvaluationStatus.IS_DONE;
   }
 }

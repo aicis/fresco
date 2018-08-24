@@ -1,8 +1,8 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestBruteforce;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import java.math.BigInteger;
 

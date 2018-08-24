@@ -100,7 +100,7 @@ public class TestLpBuildingBlocks {
     f.addAll(Arrays.asList(null, null, null));
     DRes<SInt> z = null;    
     LPTableau tab = new LPTableau(matrix, b, f, z);
-    new LPSolver(LPSolver.PivotRule.DANZIG, tab, matrix, null, null);
+    new LPSolver(LPSolver.PivotRule.DANZIG, tab, matrix, null, null, 50);
     fail("Should not be reachable");
   }
   
@@ -117,7 +117,7 @@ public class TestLpBuildingBlocks {
     f.addAll(Arrays.asList(null, null, null, null));
     DRes<SInt> z = null;    
     LPTableau tab = new LPTableau(matrix, b, f, z);
-    new LPSolver(LPSolver.PivotRule.DANZIG, tab, matrix, null, null);
+    new LPSolver(LPSolver.PivotRule.DANZIG, tab, matrix, null, null, 50);
     fail("Should not be reachable");
   }
 }

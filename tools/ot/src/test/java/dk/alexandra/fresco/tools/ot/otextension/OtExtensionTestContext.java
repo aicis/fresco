@@ -1,15 +1,14 @@
 package dk.alexandra.fresco.tools.ot.otextension;
 
+import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
-import dk.alexandra.fresco.framework.util.ByteArrayHelper;
+import dk.alexandra.fresco.framework.util.AesCtrDrbgFactory;
 import dk.alexandra.fresco.framework.util.Drbg;
-import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
 import dk.alexandra.fresco.tools.helper.HelperForTests;
 import dk.alexandra.fresco.tools.helper.RuntimeForTests;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
-
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -35,8 +34,8 @@ public class OtExtensionTestContext {
    */
   public OtExtensionTestContext(int myId, int otherId, int kbitLength,
       int lambdaSecurityParam) {
-    this.network = new CheatingNetwork(RuntimeForTests.defaultNetworkConfiguration(
-        myId, Arrays.asList(1, 2)));
+    this.network = new CheatingNetworkDecorator(
+        new AsyncNetwork(RuntimeForTests.defaultNetworkConfiguration(myId, Arrays.asList(1, 2))));
     DummyOt dummyOt = new DummyOt(otherId, network);
     Drbg rand = new AesCtrDrbg(HelperForTests.seedOne);
     this.seedOts = new RotList(rand, kbitLength);
@@ -58,7 +57,7 @@ public class OtExtensionTestContext {
   }
 
   /**
-   * Creates a new OT extension resource pool based on a specific instance ID 
+   * Creates a new OT extension resource pool based on a specific instance ID
    * and initializes necessary functionalities. This means it initializes coin
    * tossing using a randomness generator unique for {@code instanceId}.
    *
@@ -82,10 +81,8 @@ public class OtExtensionTestContext {
    * @return A new randomness generator unique for {@code instanceId}
    */
   public Drbg createRand(int instanceId) {
-    ByteBuffer idBuffer = ByteBuffer.allocate(HelperForTests.seedOne.length);
-    byte[] seedBytes = idBuffer.putInt(instanceId).array();
-    ByteArrayHelper.xor(seedBytes, HelperForTests.seedOne);
-    // TODO make sure this is okay!
-    return new PaddingAesCtrDrbg(seedBytes);
+    ByteBuffer idBuffer = ByteBuffer.allocate(HelperForTests.seedOne.length + Integer.BYTES);
+    byte[] seedBytes = idBuffer.putInt(instanceId).put(HelperForTests.seedOne).array();
+    return AesCtrDrbgFactory.fromDerivedSeed(seedBytes);
   }
 }

@@ -17,6 +17,7 @@ import dk.alexandra.fresco.framework.util.PaddingAesCtrDrbg;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.lib.real.RealNumericContext;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
@@ -31,14 +32,15 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzMascotDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorage;
+import dk.alexandra.fresco.suite.spdz.storage.SpdzOpenedValueStoreImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDataSupplier;
-import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageImpl;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
+import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproResourcePool;
 import java.io.File;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
@@ -54,10 +56,8 @@ import java.util.stream.IntStream;
 import org.apache.commons.cli.ParseException;
 
 /**
- * Utility for reading all configuration from command line.
- * <p>
- * A set of default configurations are used when parameters are not specified at runtime.
- * </p>
+ * Utility for reading all configuration from command line. <p> A set of default configurations are
+ * used when parameters are not specified at runtime. </p>
  */
 public class CmdLineProtocolSuite {
 
@@ -92,9 +92,11 @@ public class CmdLineProtocolSuite {
       this.resourcePool =
           createSpdzResourcePool(properties, networkManager);
     } else if (protocolSuiteName.equals("tinytablesprepro")) {
+      String tinytablesFileOption = "tinytables.file";
+      String tinyTablesFilePath = properties.getProperty(tinytablesFileOption, "tinytables");
       this.protocolSuite = tinyTablesPreProFromCmdLine(properties);
       this.resourcePool =
-          new ResourcePoolImpl(myId, noOfPlayers);
+          new TinyTablesPreproResourcePool(myId, noOfPlayers, new File(tinyTablesFilePath));
     } else {
       this.protocolSuite = tinyTablesFromCmdLine(properties);
       this.resourcePool =
@@ -188,7 +190,7 @@ public class CmdLineProtocolSuite {
       String storageName = properties.getProperty("spdz.storage");
       storageName =
           SpdzStorageDataSupplier.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
-          + "_";
+              + "_";
       supplier = new SpdzStorageDataSupplier(
           new FilebasedStreamedStorageImpl(new InMemoryStorage()), storageName, noOfPlayers);
     } else if (strategy == PreprocessingStrategy.MASCOT) {
@@ -230,9 +232,8 @@ public class CmdLineProtocolSuite {
             }
           }, seedOts, drbg, ssk);
     }
-
-    SpdzStorage store = new SpdzStorageImpl(supplier);
-    return new SpdzResourcePoolImpl(myId, noOfPlayers, store);
+    return new SpdzResourcePoolImpl(myId, noOfPlayers, new SpdzOpenedValueStoreImpl(), supplier,
+        new AesCtrDrbg(new byte[32]));
   }
 
   private SpdzSInt[] computeSInts(DRes<List<DRes<SInt>>> pipe) {
@@ -255,11 +256,8 @@ public class CmdLineProtocolSuite {
   }
 
   private ProtocolSuite<?, ?> tinyTablesPreProFromCmdLine(Properties properties) {
-    String tinytablesFileOption = "tinytables.file";
-    String tinyTablesFilePath = properties.getProperty(tinytablesFileOption, "tinytables");
-    return new TinyTablesPreproProtocolSuite(myId, new File(tinyTablesFilePath));
+    return new TinyTablesPreproProtocolSuite();
   }
-
 
   private ProtocolSuite<?, ?> tinyTablesFromCmdLine(Properties properties) {
     String tinytablesFileOption = "tinytables.file";

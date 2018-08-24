@@ -66,7 +66,7 @@ public class TestSpdz2kCommitmentComputation extends
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
-        public void test() throws Exception {
+        public void test() {
           int noParties = conf.getResourcePool().getNoOfParties();
           List<byte[]> inputs = new ArrayList<>();
           Random random = new Random(42);
