@@ -41,6 +41,11 @@ public class UInt64 implements UInt<UInt64> {
   }
 
   @Override
+  public boolean isOne() {
+    return value == 1;
+  }
+
+  @Override
   public int getBitLength() {
     return 64;
   }

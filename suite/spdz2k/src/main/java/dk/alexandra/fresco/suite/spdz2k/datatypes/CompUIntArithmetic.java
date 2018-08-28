@@ -20,6 +20,16 @@ public class CompUIntArithmetic<CompT extends CompUInt<?, ?, CompT>> implements 
   }
 
   @Override
+  public boolean isZero(OInt openValue) {
+    return factory.fromOInt(openValue).isZero();
+  }
+
+  @Override
+  public boolean isOne(OInt openValue) {
+    return factory.fromOInt(openValue).isOne();
+  }
+
+  @Override
   public OInt one() {
     return factory.one();
   }

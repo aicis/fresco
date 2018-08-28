@@ -8,6 +8,16 @@ import java.util.List;
 public interface OIntArithmetic {
 
   /**
+   * Checks if value is equal to 0.
+   */
+  boolean isZero(OInt openValue);
+
+  /**
+   * Checks if value is equal to 1.
+   */
+  boolean isOne(OInt openValue);
+
+  /**
    * Returns the number one as a deferred opened int.
    */
   OInt one();

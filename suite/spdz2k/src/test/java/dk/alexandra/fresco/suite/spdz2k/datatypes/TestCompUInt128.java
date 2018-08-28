@@ -371,18 +371,11 @@ public class TestCompUInt128 {
   public void testShiftRightLowOnly() {
     assertEquals(BigInteger.ZERO, new CompUInt128(0).shiftRightLowOnly(16).toBigInteger());
     assertEquals(BigInteger.ZERO, new CompUInt128(1).shiftRightLowOnly(16).toBigInteger());
-
-    // top bit 0
-    for (int i = 0; i < 63; i++) {
+    for (int i = 0; i < 64; i++) {
       CompUInt128 element = new CompUInt128(1L << i);
       assertEquals("Number of shifts " + i, BigInteger.ONE,
           element.shiftRightLowOnly(i).toBigInteger());
     }
-    // top bit 1
-    CompUInt128 element = new CompUInt128(BigInteger.ONE.shiftLeft(63));
-    assertEquals("Number of shifts " + 63,
-        BigInteger.ONE.shiftLeft(63).negate().shiftRight(63).mod(twoTo64),
-        element.shiftRightLowOnly(63).toBigInteger());
   }
 
   @Test

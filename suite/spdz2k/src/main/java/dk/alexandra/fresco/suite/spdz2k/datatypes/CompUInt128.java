@@ -148,6 +148,11 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
   }
 
   @Override
+  public boolean isOne() {
+    return low == 1 && mid == 0 && high == 0;
+  }
+
+  @Override
   public BigInteger toBigInteger() {
     return new BigInteger(1, toByteArray());
   }

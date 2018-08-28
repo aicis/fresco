@@ -41,8 +41,7 @@ public interface CompUInt<
   CompT shiftRightSmall(int n);
 
   /**
-   * Signed right shift by n bits where n < k in the least significant bits only. <p>NOTE: this
-   * performs sign extension and only affects least significant bits.</p>
+   * Unsigned right shift by n bits where n < k in the least significant bits only.
    */
   CompT shiftRightLowOnly(int n);
 

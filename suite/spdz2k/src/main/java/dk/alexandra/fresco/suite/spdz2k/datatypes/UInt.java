@@ -36,6 +36,11 @@ public interface UInt<T extends UInt> {
   boolean isZero();
 
   /**
+   * Check if values is one.
+   */
+  boolean isOne();
+
+  /**
    * Return bit length.
    */
   int getBitLength();

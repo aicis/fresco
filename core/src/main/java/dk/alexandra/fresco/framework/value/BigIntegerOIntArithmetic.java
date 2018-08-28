@@ -22,6 +22,16 @@ public class BigIntegerOIntArithmetic implements OIntArithmetic {
   }
 
   @Override
+  public boolean isZero(OInt openValue) {
+    return factory.toBigInteger(openValue).equals(BigInteger.ZERO);
+  }
+
+  @Override
+  public boolean isOne(OInt openValue) {
+    return factory.toBigInteger(openValue).equals(BigInteger.ONE);
+  }
+
+  @Override
   public OInt one() {
     return factory.one();
   }

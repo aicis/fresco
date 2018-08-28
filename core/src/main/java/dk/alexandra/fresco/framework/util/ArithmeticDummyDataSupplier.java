@@ -34,7 +34,7 @@ public class ArithmeticDummyDataSupplier {
   }
 
   public ArithmeticDummyDataSupplier(int myId, int noOfParties, BigInteger modulus) {
-    this(myId, noOfParties, modulus, modulus);
+    this(myId, noOfParties, modulus, modulus.subtract(BigInteger.ONE));
   }
 
   /**
@@ -104,12 +104,14 @@ public class ArithmeticDummyDataSupplier {
   }
 
   private BigInteger sampleRandomBigInteger() {
-    return new BigInteger(modBitLength, random).mod(maxOpenValue);
+    BigInteger randomElement = new BigInteger(modBitLength, random);
+    return randomElement.mod(maxOpenValue);
   }
 
   private List<BigInteger> getOpenExpPipe(int expPipeLength) {
     List<BigInteger> openExpPipe = new ArrayList<>(expPipeLength);
     BigInteger first = sampleRandomBigInteger();
+    System.out.println(first + " " + modulus);
     BigInteger inverse = first.modInverse(modulus);
     openExpPipe.add(inverse);
     openExpPipe.add(first);
