@@ -24,6 +24,10 @@ public class ArithmeticDummyDataSupplier {
 
   public ArithmeticDummyDataSupplier(int myId, int noOfParties, BigInteger modulus,
       BigInteger maxOpenValue) {
+    if (maxOpenValue.compareTo(modulus) >= 0) {
+      throw new IllegalArgumentException(
+          "Max open value " + maxOpenValue + " must be less than " + modulus);
+    }
     this.myId = myId;
     this.noOfParties = noOfParties;
     this.modulus = modulus;
@@ -34,14 +38,14 @@ public class ArithmeticDummyDataSupplier {
   }
 
   public ArithmeticDummyDataSupplier(int myId, int noOfParties, BigInteger modulus) {
-    this(myId, noOfParties, modulus, modulus.subtract(BigInteger.ONE));
+    this(myId, noOfParties, modulus, modulus);
   }
 
   /**
    * Computes the next random element and this party's share.
    */
   public Pair<BigInteger, BigInteger> getRandomElementShare() {
-    BigInteger element = sampleRandomBigInteger();
+    BigInteger element = sampleRandomBigInteger(maxOpenValue);
     return new Pair<>(element, sharer.share(element, noOfParties).get(myId - 1));
   }
 
@@ -57,8 +61,8 @@ public class ArithmeticDummyDataSupplier {
    * Computes the next random multiplication triple and this party's shares.
    */
   public MultiplicationTripleShares getMultiplicationTripleShares() {
-    BigInteger left = sampleRandomBigInteger();
-    BigInteger right = sampleRandomBigInteger();
+    BigInteger left = sampleRandomBigInteger(maxOpenValue);
+    BigInteger right = sampleRandomBigInteger(maxOpenValue);
     BigInteger product = left.multiply(right).mod(modulus);
     return new MultiplicationTripleShares(
         new Pair<>(left, sharer.share(left, noOfParties).get(myId - 1)),
@@ -83,7 +87,7 @@ public class ArithmeticDummyDataSupplier {
    * r^{prime} / 2^{d}, i.e., r right-shifted by d.
    */
   public TruncationPairShares getTruncationPairShares(int d) {
-    BigInteger rPrime = sampleRandomBigInteger();
+    BigInteger rPrime = sampleRandomBigInteger(maxOpenValue);
     BigInteger r = rPrime.shiftRight(d);
     return new TruncationPairShares(
         new Pair<>(rPrime, sharer.share(rPrime, noOfParties).get(myId - 1)),
@@ -104,14 +108,18 @@ public class ArithmeticDummyDataSupplier {
   }
 
   private BigInteger sampleRandomBigInteger() {
+    return sampleRandomBigInteger(modulus);
+  }
+
+  private BigInteger sampleRandomBigInteger(BigInteger limit) {
     BigInteger randomElement = new BigInteger(modBitLength, random);
-    return randomElement.mod(maxOpenValue);
+    // this is a biased distribution but we're not in secure-land anyways
+    return randomElement.mod(limit);
   }
 
   private List<BigInteger> getOpenExpPipe(int expPipeLength) {
     List<BigInteger> openExpPipe = new ArrayList<>(expPipeLength);
-    BigInteger first = sampleRandomBigInteger();
-    System.out.println(first + " " + modulus);
+    BigInteger first = sampleRandomBigInteger(maxOpenValue);
     BigInteger inverse = first.modInverse(modulus);
     openExpPipe.add(inverse);
     openExpPipe.add(first);
