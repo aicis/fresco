@@ -20,6 +20,7 @@ import dk.alexandra.fresco.lib.real.RealNumericContext;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzInputProtocol;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzInputTwoPartyProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzKnownSIntProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocolKnownLeft;
@@ -59,7 +60,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
   public RealNumericContext getRealNumericContext() {
     return realNumericContext;
   }
-  
+
   @Override
   public PreprocessedValues createPreprocessedValues(ProtocolBuilderNumeric protocolBuilder) {
     return pipeLength -> {
@@ -159,8 +160,11 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> input(BigInteger value, int inputParty) {
-        SpdzInputProtocol protocol = new SpdzInputProtocol(value, inputParty);
-        return protocolBuilder.append(protocol);
+        if (protocolBuilder.getBasicNumericContext().getNoOfParties() == 2) {
+          return protocolBuilder.append(new SpdzInputTwoPartyProtocol(value, inputParty));
+        } else {
+          return protocolBuilder.append(new SpdzInputProtocol(value, inputParty));
+        }
       }
 
       @Override

@@ -94,6 +94,11 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
   public void beforeBatch(
       ProtocolCollection<SpdzResourcePool> protocols, SpdzResourcePool resourcePool,
       Network network) {
+//    isCheckRequired = StreamSupport.stream(nativeProtocols.spliterator(), false)
+//        .anyMatch(p -> p instanceof RequiresMacCheck);
+//    OpenedValueStore<Spdz2kSIntArithmetic<PlainT>, PlainT> store = resourcePool.getOpenedValueStore();
+//    if (store.hasPendingValues() && isCheckRequired) {
+//      doMacCheck(resourcePool, network);
     isCheckRequired = StreamSupport.stream(protocols.spliterator(), false)
         .anyMatch(p -> p instanceof SpdzOutputProtocol);
     OpenedValueStore<SpdzSInt, BigInteger> store = resourcePool.getOpenedValueStore();

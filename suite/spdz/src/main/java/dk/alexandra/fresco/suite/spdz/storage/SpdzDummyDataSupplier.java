@@ -15,7 +15,7 @@ import java.util.Random;
 
 public class SpdzDummyDataSupplier implements SpdzDataSupplier {
 
-  private static int DEFAULT_MAX_BIT_LENGTH;
+  private static int DEFAULT_MAX_BIT_LENGTH = 512;
 
   private final int myId;
   private final ArithmeticDummyDataSupplier supplier;
