@@ -42,7 +42,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
 
   public SpdzDummyDataSupplier(int myId, int noOfPlayers, BigInteger modulus,
       BigInteger secretSharedKey, int expPipeLength) {
-    this(myId, noOfPlayers, modulus, secretSharedKey, expPipeLength, DEFAULT_MAX_BIT_LENGTH);
+    this(myId, noOfPlayers, modulus, secretSharedKey, expPipeLength, modulus.bitLength() - 1);
   }
 
   public SpdzDummyDataSupplier(int myId, int noOfPlayers, BigInteger modulus,
@@ -53,7 +53,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
     this.expPipeLength = expPipeLength;
     this.maxBitLength = maxBitLength;
     this.supplier = new ArithmeticDummyDataSupplier(myId, noOfPlayers, modulus,
-        BigInteger.ONE.shiftLeft(maxBitLength));
+        BigInteger.ONE.shiftLeft(maxBitLength - 1));
   }
 
   @Override

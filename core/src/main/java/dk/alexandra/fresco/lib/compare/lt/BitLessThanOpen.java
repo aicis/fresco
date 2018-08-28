@@ -6,8 +6,6 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -30,15 +28,9 @@ public class BitLessThanOpen implements Computation<SInt, ProtocolBuilderNumeric
     OInt openValueA = openValueDef.out();
     int numBits = secretBits.size();
     List<OInt> openBits = builder.getOIntArithmetic().toBits(openValueA, numBits);
-    DRes<List<DRes<SInt>>> secretBitsNegated = builder.par(par -> {
-      List<DRes<SInt>> negatedBits = new ArrayList<>(numBits);
-      for (DRes<SInt> secretBit : secretBits) {
-        negatedBits.add(par.logical().not(secretBit));
-      }
-      Collections.reverse(negatedBits);
-      return () -> negatedBits;
-    });
-    DRes<SInt> gt = builder.seq(new CarryOut(() -> openBits, secretBitsNegated, oIntFactory.one()));
+    DRes<List<DRes<SInt>>> secretBitsNegated = builder.logical().batchedNot(secretBitsDef);
+    DRes<SInt> gt = builder
+        .seq(new CarryOut(() -> openBits, secretBitsNegated, oIntFactory.one(), true));
     return builder.logical().not(gt);
   }
 

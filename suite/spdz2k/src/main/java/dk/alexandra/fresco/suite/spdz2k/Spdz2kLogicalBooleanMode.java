@@ -9,12 +9,16 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntBoolean;
+import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAndKnownBatchedProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAndKnownProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAndProtocol;
+import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kNotBatchedProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kOrProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kOutputToAll;
+import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kXorKnownBatchedProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kXorKnownProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kXorProtocol;
+import java.util.List;
 
 /**
  * Logical operators for Spdz2k on boolean shares. <p>NOTE: requires that inputs have previously
@@ -64,6 +68,23 @@ public class Spdz2kLogicalBooleanMode<PlainT extends CompUInt<?, ?, PlainT>> ext
   @Override
   public DRes<SInt> not(DRes<SInt> secretBit) {
     return xorKnown(builder.getOIntFactory().one(), secretBit);
+  }
+
+  @Override
+  public DRes<List<DRes<SInt>>> pairWiseXorKnown(DRes<List<OInt>> knownBits,
+      DRes<List<DRes<SInt>>> secretBits) {
+    return builder.append(new Spdz2kXorKnownBatchedProtocol<>(knownBits, secretBits));
+  }
+
+  @Override
+  public DRes<List<DRes<SInt>>> pairWiseAndKnown(DRes<List<OInt>> knownBits,
+      DRes<List<DRes<SInt>>> secretBits) {
+    return builder.append(new Spdz2kAndKnownBatchedProtocol<>(knownBits, secretBits));
+  }
+
+  @Override
+  public DRes<List<DRes<SInt>>> batchedNot(DRes<List<DRes<SInt>>> bits) {
+    return builder.append(new Spdz2kNotBatchedProtocol<>(bits));
   }
 
   @Override

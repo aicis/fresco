@@ -62,6 +62,11 @@ public interface Logical extends ComputationDirectory {
   DRes<List<DRes<OInt>>> openAsBits(DRes<List<DRes<SInt>>> secretBits);
 
   /**
+   * Negates all given bits.
+   */
+  DRes<List<DRes<SInt>>> batchedNot(DRes<List<DRes<SInt>>> bits);
+
+  /**
    * Computes pairwise logical AND of input bits. <p>NOTE: Inputs must represent 0 or 1 values
    * only.</p>
    */

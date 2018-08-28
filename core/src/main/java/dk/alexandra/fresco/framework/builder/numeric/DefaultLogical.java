@@ -95,6 +95,16 @@ public class DefaultLogical implements Logical {
     });
   }
 
+  @Override
+  public DRes<List<DRes<SInt>>> batchedNot(DRes<List<DRes<SInt>>> bits) {
+    return builder.par(par -> {
+      List<DRes<SInt>> negated =
+          bits.out().stream().map(closed -> par.logical().not(closed))
+              .collect(Collectors.toList());
+      return () -> negated;
+    });
+  }
+
   private DRes<List<DRes<SInt>>> pairWise(
       DRes<List<DRes<SInt>>> bitsA,
       DRes<List<DRes<SInt>>> bitsB,

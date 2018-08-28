@@ -8,6 +8,7 @@ import dk.alexandra.fresco.framework.util.SIntPair;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -19,6 +20,7 @@ public class CarryOut implements Computation<SInt, ProtocolBuilderNumeric> {
   private final DRes<List<OInt>> openBitsDef;
   private final DRes<List<DRes<SInt>>> secretBitsDef;
   private final DRes<OInt> carryIn;
+  private final boolean reverseSecretBits;
 
   /**
    * Constructs new {@link CarryOut}.
@@ -27,17 +29,28 @@ public class CarryOut implements Computation<SInt, ProtocolBuilderNumeric> {
    * @param secretBits secret bits
    * @param carryIn an additional carry-in bit which we add to the least-significant bits of the
    * inputs
+   * @param reverseSecretBits indicates whether secret bits need to be reverse (to account for
+   * endianness)
    */
   public CarryOut(DRes<List<OInt>> clearBits, DRes<List<DRes<SInt>>> secretBits,
-      DRes<OInt> carryIn) {
+      DRes<OInt> carryIn, boolean reverseSecretBits) {
     this.secretBitsDef = secretBits;
     this.openBitsDef = clearBits;
     this.carryIn = carryIn;
+    this.reverseSecretBits = reverseSecretBits;
+  }
+
+  public CarryOut(DRes<List<OInt>> clearBits, DRes<List<DRes<SInt>>> secretBits,
+      DRes<OInt> carryIn) {
+    this(clearBits, secretBits, carryIn, false);
   }
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     List<DRes<SInt>> secretBits = secretBitsDef.out();
+    if (reverseSecretBits) {
+      Collections.reverse(secretBits);
+    }
     List<OInt> openBits = openBitsDef.out();
     if (secretBits.size() != openBits.size()) {
       throw new IllegalArgumentException("Number of bits must be the same");
