@@ -134,7 +134,6 @@ public class TestNumericSuiteLoggingDecorators {
       SecureComputationEngine<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce
           = new SecureComputationEngineImpl<>(ps, evaluator);
 
-      Drbg drbg = new HmacDrbg();
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
@@ -150,13 +149,13 @@ public class TestNumericSuiteLoggingDecorators {
 
       Map<String, Long> loggedValues = logger.getLoggedValues();
       assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_EQ),
-          is((long) 2));
+          is((long) 6));
       assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_LEQ),
           is((long) 0));
       assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_SIGN),
           is((long) 0));
       assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_COMP0),
-          is((long) 2));
+          is((long) 0));
 
       logger.reset();
       loggedValues = logger.getLoggedValues();

@@ -79,14 +79,13 @@ public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger 
 
   @Override
   public DRes<SInt> compareZero(DRes<SInt> x, int bitlength) {
-    comp0Count++;
-    return this.delegate.compareZero(x, bitlength);
+    return this.compareZero(x, bitlength, Algorithm.LOG_ROUNDS);
   }
 
   @Override
   public DRes<SInt> compareZero(DRes<SInt> x, int bitlength, Algorithm algorithm) {
     comp0Count++;
-    return this.delegate.compareZero(x, bitlength);
+    return this.delegate.compareZero(x, bitlength, algorithm);
   }
 
   @Override
