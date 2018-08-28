@@ -24,7 +24,7 @@ public class ArithmeticDummyDataSupplier {
 
   public ArithmeticDummyDataSupplier(int myId, int noOfParties, BigInteger modulus,
       BigInteger maxOpenValue) {
-    if (maxOpenValue.compareTo(modulus) >= 0) {
+    if (maxOpenValue.compareTo(modulus) > 0) {
       throw new IllegalArgumentException(
           "Max open value " + maxOpenValue + " must be less than " + modulus);
     }
