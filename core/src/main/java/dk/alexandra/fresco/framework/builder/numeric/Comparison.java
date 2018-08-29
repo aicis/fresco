@@ -2,6 +2,7 @@ package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
+import dk.alexandra.fresco.framework.util.SIntPair;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.util.List;
@@ -23,42 +24,34 @@ public interface Comparison extends ComputationDirectory {
   /**
    * Computes x == y.
    *
-   * @param x
-   *          the first input
-   * @param y
-   *          the second input
-   * @param bitlength
-   *          the amount of bits to do the equality test on. Must be less than or equal to the max
-   *          bitlength allowed
-   * @param algorithm
-   *          the algorithm to use
+   * @param x the first input
+   * @param y the second input
+   * @param bitlength the amount of bits to do the equality test on. Must be less than or equal to
+   * the max bitlength allowed
+   * @param algorithm the algorithm to use
    * @return A deferred result computing x' == y'. Where x' and y' represent the {@code bitlength}
-   *         least significant bits of x, respectively y. Result will be either [1] (true) or [0]
-   *         (false).
+   * least significant bits of x, respectively y. Result will be either [1] (true) or [0] (false).
    */
   DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y, int bitlength, Algorithm algorithm);
 
   /**
-   * Call to {@link #equals(DRes, DRes, int, Algorithm)} with default comparison
-   * algorithm.
+   * Call to {@link #equals(DRes, DRes, int, Algorithm)} with default comparison algorithm.
    */
   default DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y, int bitlength) {
     return equals(x, y, bitlength, Algorithm.LOG_ROUNDS);
   }
 
   /**
-   * Call to {@link #equals(DRes, DRes, int, Algorithm)} with default comparison
-   * algorithm, checking equality of all bits.
+   * Call to {@link #equals(DRes, DRes, int, Algorithm)} with default comparison algorithm, checking
+   * equality of all bits.
    */
   DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y);
 
   /**
    * Computes if x <= y.
    *
-   * @param x
-   *          the first input
-   * @param y
-   *          the second input
+   * @param x the first input
+   * @param y the second input
    * @return A deferred result computing x <= y. Result will be either [1] (true) or [0] (false).
    */
   DRes<SInt> compareLEQ(DRes<SInt> x, DRes<SInt> y);
@@ -66,12 +59,9 @@ public interface Comparison extends ComputationDirectory {
   /**
    * Computes if x < y.
    *
-   * @param x
-   *          the first input
-   * @param y
-   *          the second input
-   * @param algorithm
-   *          the algorithm to use
+   * @param x the first input
+   * @param y the second input
+   * @param algorithm the algorithm to use
    * @return A deferred result computing x <= y. Result will be either [1] (true) or [0] (false).
    */
   DRes<SInt> compareLT(DRes<SInt> x, DRes<SInt> y, Algorithm algorithm);
@@ -93,14 +83,18 @@ public interface Comparison extends ComputationDirectory {
   DRes<SInt> compareLTBits(DRes<OInt> openValue, DRes<List<DRes<SInt>>> secretBits);
 
   /**
+   * Method used internally in less-than protocol. <p>This is only here since we need a way to plug
+   * in a backend specific native protocol for it.</p>
+   */
+  DRes<List<SIntPair>> carry(List<SIntPair> bitPairs);
+
+  /**
    * Compares if x <= y, but with twice the possible bit-length. Requires that the maximum bit
    * length is set to something that can handle this scenario. It has to be at least less than half
    * the modulus bit size.
    *
-   * @param x
-   *          the first input
-   * @param y
-   *          the second input
+   * @param x the first input
+   * @param y the second input
    * @return A deferred result computing x <= y. Result will be either [1] (true) or [0] (false).
    */
   DRes<SInt> compareLEQLong(DRes<SInt> x, DRes<SInt> y);
@@ -117,15 +111,12 @@ public interface Comparison extends ComputationDirectory {
   /**
    * Test for equality with zero for a bitLength-bit number (positive or negative)
    *
-   * @param x
-   *          the value to test against zero
-   * @param bitlength
-   *          the amount of bits to do the zero-test on. Must be less than or equal to the modulus
-   *          bitlength
-   * @param algorithm
-   *          the algorithm to use for zero-equality test
+   * @param x the value to test against zero
+   * @param bitlength the amount of bits to do the zero-test on. Must be less than or equal to the
+   * modulus bitlength
+   * @param algorithm the algorithm to use for zero-equality test
    * @return A deferred result computing x' == 0 where x' is the {@code bitlength} least significant
-   *         bits of x. Result will be either [1] (true) or [0] (false)
+   * bits of x. Result will be either [1] (true) or [0] (false)
    */
   DRes<SInt> compareZero(DRes<SInt> x, int bitlength, Algorithm algorithm);
 

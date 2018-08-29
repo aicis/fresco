@@ -2,6 +2,7 @@ package dk.alexandra.fresco.logging.arithmetic;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.Comparison;
+import dk.alexandra.fresco.framework.util.SIntPair;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.logging.PerformanceLogger;
@@ -63,6 +64,11 @@ public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger 
   public DRes<SInt> compareLTBits(DRes<OInt> openValue, DRes<List<DRes<SInt>>> secretBits) {
     ltBitsCount++;
     return this.delegate.compareLTBits(openValue, secretBits);
+  }
+
+  @Override
+  public DRes<List<SIntPair>> carry(List<SIntPair> bitPairs) {
+    throw new UnsupportedOperationException("Not implemented");
   }
 
   @Override

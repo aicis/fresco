@@ -62,6 +62,11 @@ public class Spdz2kComparison<PlainT extends CompUInt<?, ?, PlainT>> extends Def
     return compareZero(builder.numeric().sub(x, y), bitlength, algorithm);
   }
 
+//  @Override
+//  public DRes<List<SIntPair>> carry(List<SIntPair> bitPairs) {
+//    return builder.append(new Spdz2kCarryProtocol<>(bitPairs));
+//  }
+
   protected CompUIntFactory<PlainT> getFactory() {
     return factory;
   }
