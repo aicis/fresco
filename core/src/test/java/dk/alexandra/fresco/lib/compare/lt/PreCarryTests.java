@@ -33,11 +33,8 @@ public class PreCarryTests {
             DRes<SInt> g2 = numeric.known(BigInteger.ONE);
             SIntPair pairOne = new SIntPair(p1, g1);
             SIntPair pairTwo = new SIntPair(p2, g2);
-            List<SIntPair> pairs = Arrays.asList(
-                pairOne,
-                pairTwo
-            );
-            DRes<SInt> carried = builder.seq(new PreCarryBits(() -> pairs));
+            List<SIntPair> pairs = Arrays.asList(pairOne, pairTwo);
+            DRes<SInt> carried = builder.seq(new PreCarryBits(pairs));
             return builder.numeric().open(carried);
           };
           BigInteger actual = runApplication(app);

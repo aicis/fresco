@@ -10,17 +10,17 @@ import java.util.List;
 
 public class PreCarryBits implements Computation<SInt, ProtocolBuilderNumeric> {
 
-  private final DRes<List<SIntPair>> pairsDef;
+  private final List<SIntPair> pairsDef;
 
-  PreCarryBits(DRes<List<SIntPair>> pairs) {
+  PreCarryBits(List<SIntPair> pairs) {
     this.pairsDef = pairs;
   }
 
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    return builder.seq(seq -> pairsDef)
+    return builder.seq(seq -> () -> pairsDef)
         .whileLoop((pairs) -> pairs.size() > 1,
-            (prevSeq, pairs) -> prevSeq.par(par -> {
+            (prevScope, pairs) -> prevScope.par(par -> {
               padIfUneven(pairs);
               List<SIntPair> nextRoundInner = new ArrayList<>(pairs.size() / 2);
               for (int i = 0; i < pairs.size() / 2; i++) {

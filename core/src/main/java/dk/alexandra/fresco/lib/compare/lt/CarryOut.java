@@ -77,7 +77,7 @@ public class CarryOut implements Computation<SInt, ProtocolBuilderNumeric> {
           lastPair.getSecond(),
           seq.logical().andKnown(carryIn, lastPair.getFirst()));
       pairs.set(lastIdx, new SIntPair(lastPair.getFirst(), lastCarryPropagator));
-      return seq.seq(new PreCarryBits(() -> pairs));
+      return seq.seq(new PreCarryBits(pairs));
     });
   }
 
