@@ -32,7 +32,6 @@ public class Spdz2kCarryProtocol<PlainT extends CompUInt<?, ?, PlainT>> extends
     PlainT macKeyShare = resourcePool.getDataSupplier().getSecretSharedKey();
     CompUIntFactory<PlainT> factory = resourcePool.getFactory();
     if (round == 0) {
-      System.out.println("bits.size() " + bits.size());
       triples = new ArrayList<>(bits.size());
       epsilons = new ArrayList<>(bits.size());
       deltas = new ArrayList<>(bits.size());
@@ -55,20 +54,19 @@ public class Spdz2kCarryProtocol<PlainT extends CompUInt<?, ?, PlainT>> extends
         Spdz2kSIntBoolean<PlainT> g1 = factory.toSpdz2kSIntBoolean(left.getSecond());
         Spdz2kSIntBoolean<PlainT> p2 = factory.toSpdz2kSIntBoolean(right.getFirst());
 
-        // p1 * p2
-        epsilons.add(factory.toSpdz2kSIntBoolean(p1).xor(p1p2Triple.getLeft()));
-        deltas.add(factory.toSpdz2kSIntBoolean(p2).xor(p1p2Triple.getRight()));
-
         // p2 * g1
         epsilons.add(factory.toSpdz2kSIntBoolean(p2).xor(p2g1Triple.getLeft()));
         deltas.add(factory.toSpdz2kSIntBoolean(g1).xor(p2g1Triple.getRight()));
+
+        // p1 * p2
+        epsilons.add(factory.toSpdz2kSIntBoolean(p1).xor(p1p2Triple.getLeft()));
+        deltas.add(factory.toSpdz2kSIntBoolean(p2).xor(p1p2Triple.getRight()));
       }
 
       serializeAndSend(network, epsilons, deltas);
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
-      receiveAndReconstruct(network, factory, resourcePool.getMyId(),
-          resourcePool.getNoOfParties());
+      receiveAndReconstruct(network, factory, resourcePool.getNoOfParties());
 
       resourcePool.getOpenedValueStore().pushOpenedValues(
           epsilons.stream().map(Spdz2kSIntBoolean::asArithmetic).collect(Collectors.toList()),
@@ -92,11 +90,15 @@ public class Spdz2kCarryProtocol<PlainT extends CompUInt<?, ?, PlainT>> extends
         Spdz2kSIntBoolean<PlainT> p = mult(p1p2E, p1p2D, p1p2Triple, macKeyShare, factory,
             resourcePool.getMyId());
 
-        Spdz2kSIntBoolean<PlainT> p2 = factory.toSpdz2kSIntBoolean(bits.get(2 * i).getSecond());
+        Spdz2kSIntBoolean<PlainT> g2 = factory.toSpdz2kSIntBoolean(bits.get(2 * i).getSecond());
 
-        Spdz2kSIntBoolean<PlainT> q = mult(p2g1E, p2g1D, p2g1Triple, macKeyShare, factory,
-            resourcePool.getMyId()).xor(p2);
-        carried.add(new SIntPair(p, q));
+        Spdz2kSIntBoolean<PlainT> g = mult(p2g1E, p2g1D, p2g1Triple, macKeyShare, factory,
+            resourcePool.getMyId()).xor(g2);
+        carried.add(new SIntPair(p, g));
+      }
+      // if we have an odd number of elements the last pair can just be taken directly from the input
+      if (bits.size() % 2 != 0) {
+        carried.add(bits.get(bits.size() - 1));
       }
       return EvaluationStatus.IS_DONE;
     }
@@ -128,21 +130,33 @@ public class Spdz2kCarryProtocol<PlainT extends CompUInt<?, ?, PlainT>> extends
   /**
    * Retrieves shares for epsilons and deltas and reconstructs each.
    */
-  private void receiveAndReconstruct(Network network, CompUIntFactory<PlainT> factory, int myId,
+  private void receiveAndReconstruct(Network network, CompUIntFactory<PlainT> factory,
       int noOfParties) {
     byte[] rawEpsilons = network.receive(1);
     byte[] rawDeltas = network.receive(1);
+
     for (int i = 0; i < epsilons.size(); i++) {
-      openEpsilons.add(factory.fromBit(rawEpsilons[i]));
-      openDeltas.add(factory.fromBit(rawDeltas[i]));
+      int currentByteIdx = i / Byte.SIZE;
+      int bitIndexWithinByte = i % Byte.SIZE;
+      PlainT e = factory.fromBit((rawEpsilons[currentByteIdx] >>> bitIndexWithinByte));
+      openEpsilons.add(e);
+      PlainT d = factory.fromBit((rawDeltas[currentByteIdx] >>> bitIndexWithinByte));
+      openDeltas.add(d);
     }
+
     for (int i = 2; i <= noOfParties; i++) {
       rawEpsilons = network.receive(i);
       rawDeltas = network.receive(i);
 
       for (int j = 0; j < epsilons.size(); j++) {
-        openEpsilons.set(j, openEpsilons.get(j).add(factory.fromBit(rawEpsilons[j])));
-        openDeltas.set(j, openDeltas.get(j).add(factory.fromBit(rawDeltas[j])));
+        int currentByteIdx = j / Byte.SIZE;
+        int bitIndexWithinByte = j % Byte.SIZE;
+        openEpsilons.set(j, openEpsilons.get(j).add(
+            factory.fromBit((rawEpsilons[currentByteIdx] >>> bitIndexWithinByte))
+        ));
+        openDeltas.set(j, openDeltas.get(j).add(
+            factory.fromBit((rawDeltas[currentByteIdx] >>> bitIndexWithinByte))
+        ));
       }
     }
   }
@@ -153,13 +167,27 @@ public class Spdz2kCarryProtocol<PlainT extends CompUInt<?, ?, PlainT>> extends
   private void serializeAndSend(Network network,
       List<Spdz2kSIntBoolean<PlainT>> epsilons,
       List<Spdz2kSIntBoolean<PlainT>> deltas) {
-    byte[] epsilonBytes = new byte[epsilons.size()];
-    byte[] deltaBytes = new byte[epsilons.size()];
+    int numBytes = epsilons.size() / Byte.SIZE;
+    if (epsilons.size() % 8 != 0) {
+      numBytes++;
+    }
+    byte[] epsilonBytes = new byte[numBytes];
+    byte[] deltaBytes = new byte[numBytes];
+
     for (int i = 0; i < epsilons.size(); i++) {
-      byte[] serializedEpsilon = epsilons.get(i).serializeShareLow();
-      epsilonBytes[i] = serializedEpsilon[0];
-      byte[] serializedDelta = deltas.get(i).serializeShareLow();
-      deltaBytes[i] = serializedDelta[0];
+      int currentByteIdx = i / Byte.SIZE;
+      int bitIndexWithinByte = i % Byte.SIZE;
+
+      int serializedEpsilon = epsilons.get(i).getShare().bitValue();
+      epsilonBytes[currentByteIdx] |= ((serializedEpsilon << bitIndexWithinByte)
+          & (1 << bitIndexWithinByte));
+
+      int serializedDelta = deltas
+          .get(i)
+          .getShare()
+          .bitValue();
+      deltaBytes[currentByteIdx] |= ((serializedDelta << bitIndexWithinByte)
+          & (1 << bitIndexWithinByte));
     }
     network.sendToAll(epsilonBytes);
     network.sendToAll(deltaBytes);

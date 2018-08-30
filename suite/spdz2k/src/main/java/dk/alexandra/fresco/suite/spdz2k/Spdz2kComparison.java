@@ -4,12 +4,14 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.DefaultComparison;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.util.SIntPair;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.protocols.computations.eq.ZeroTestSpdz2k;
 import dk.alexandra.fresco.suite.spdz2k.protocols.computations.lt.MostSignBitSpdz2k;
+import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kCarryProtocol;
 import java.util.List;
 
 /**
@@ -62,10 +64,10 @@ public class Spdz2kComparison<PlainT extends CompUInt<?, ?, PlainT>> extends Def
     return compareZero(builder.numeric().sub(x, y), bitlength, algorithm);
   }
 
-//  @Override
-//  public DRes<List<SIntPair>> carry(List<SIntPair> bitPairs) {
-//    return builder.append(new Spdz2kCarryProtocol<>(bitPairs));
-//  }
+  @Override
+  public DRes<List<SIntPair>> carry(List<SIntPair> bitPairs) {
+    return builder.append(new Spdz2kCarryProtocol<>(bitPairs));
+  }
 
   protected CompUIntFactory<PlainT> getFactory() {
     return factory;

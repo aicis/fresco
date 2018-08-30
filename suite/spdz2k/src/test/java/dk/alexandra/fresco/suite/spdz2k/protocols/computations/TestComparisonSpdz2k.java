@@ -66,7 +66,10 @@ public class TestComparisonSpdz2k extends
 
   @Test
   public void testCarryOutRandom() {
-    runTest(new TestCarryOutSpdz2k<>(new Random(42).nextInt(), new Random(1).nextInt()),
+    Random random = new Random(1);
+    int l = random.nextInt();
+    int r = random.nextInt();
+    runTest(new TestCarryOutSpdz2k<>(l, r),
         EvaluationStrategy.SEQUENTIAL_BATCHED, 2);
   }
 
@@ -110,7 +113,7 @@ public class TestComparisonSpdz2k extends
     private final List<BigInteger> right;
     private final BigInteger expected;
 
-    public TestCarryOutSpdz2k(int l, int r) {
+    TestCarryOutSpdz2k(int l, int r) {
       expected = carry(l, r);
       left = intToBits(l);
       right = new ArrayList<>(left.size());
