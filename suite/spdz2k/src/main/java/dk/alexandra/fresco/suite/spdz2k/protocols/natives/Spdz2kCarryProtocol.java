@@ -1,15 +1,16 @@
 package dk.alexandra.fresco.suite.spdz2k.protocols.natives;
 
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.OpenedValueStore;
 import dk.alexandra.fresco.framework.util.SIntPair;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntArithmetic;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntBoolean;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kTriple;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Spdz2kCarryProtocol<PlainT extends CompUInt<?, ?, PlainT>> extends
     Spdz2kNativeProtocol<List<SIntPair>, PlainT> {
@@ -68,31 +69,42 @@ public class Spdz2kCarryProtocol<PlainT extends CompUInt<?, ?, PlainT>> extends
     } else {
       receiveAndReconstruct(network, factory, resourcePool.getNoOfParties());
 
-      resourcePool.getOpenedValueStore().pushOpenedValues(
-          epsilons.stream().map(Spdz2kSIntBoolean::asArithmetic).collect(Collectors.toList()),
-          openEpsilons.stream().map(e -> e.toArithmeticRep()).collect(Collectors.toList())
-      );
-      resourcePool.getOpenedValueStore().pushOpenedValues(
-          deltas.stream().map(Spdz2kSIntBoolean::asArithmetic).collect(Collectors.toList()),
-          openDeltas.stream().map(e -> e.toArithmeticRep()).collect(Collectors.toList())
-      );
+      OpenedValueStore<Spdz2kSIntArithmetic<PlainT>, PlainT> openedValueStore = resourcePool
+          .getOpenedValueStore();
 
       for (int i = 0; i < bits.size() / 2; i++) {
         Spdz2kTriple<PlainT, Spdz2kSIntBoolean<PlainT>> p1p2Triple = triples.get(2 * i + 1);
         Spdz2kTriple<PlainT, Spdz2kSIntBoolean<PlainT>> p2g1Triple = triples.get(2 * i);
 
         PlainT p1p2E = openEpsilons.get(2 * i + 1);
+        openedValueStore.pushOpenedValue(
+            epsilons.get(2 * i + 1).asArithmetic(),
+            p1p2E.toArithmeticRep()
+        );
         PlainT p2g1E = openEpsilons.get(2 * i);
+        openedValueStore.pushOpenedValue(
+            epsilons.get(2 * i).asArithmetic(),
+            p2g1E.toArithmeticRep()
+        );
 
         PlainT p1p2D = openDeltas.get(2 * i + 1);
+        openedValueStore.pushOpenedValue(
+            deltas.get(2 * i + 1).asArithmetic(),
+            p1p2D.toArithmeticRep()
+        );
         PlainT p2g1D = openDeltas.get(2 * i);
-
-        Spdz2kSIntBoolean<PlainT> p = mult(p1p2E, p1p2D, p1p2Triple, macKeyShare, factory,
+        openedValueStore.pushOpenedValue(
+            deltas.get(2 * i).asArithmetic(),
+            p2g1D.toArithmeticRep()
+        );
+        Spdz2kSIntBoolean<PlainT> p = andAfterReceive(p1p2E, p1p2D, p1p2Triple, macKeyShare,
+            factory,
             resourcePool.getMyId());
 
         Spdz2kSIntBoolean<PlainT> g2 = factory.toSpdz2kSIntBoolean(bits.get(2 * i).getSecond());
 
-        Spdz2kSIntBoolean<PlainT> g = mult(p2g1E, p2g1D, p2g1Triple, macKeyShare, factory,
+        Spdz2kSIntBoolean<PlainT> g = andAfterReceive(p2g1E, p2g1D, p2g1Triple, macKeyShare,
+            factory,
             resourcePool.getMyId()).xor(g2);
         carried.add(new SIntPair(p, g));
       }
@@ -104,7 +116,7 @@ public class Spdz2kCarryProtocol<PlainT extends CompUInt<?, ?, PlainT>> extends
     }
   }
 
-  private Spdz2kSIntBoolean<PlainT> mult(
+  private Spdz2kSIntBoolean<PlainT> andAfterReceive(
       PlainT e,
       PlainT d,
       Spdz2kTriple<PlainT, Spdz2kSIntBoolean<PlainT>> triple,

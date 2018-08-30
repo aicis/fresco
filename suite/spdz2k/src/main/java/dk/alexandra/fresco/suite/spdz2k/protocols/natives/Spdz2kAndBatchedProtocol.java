@@ -2,15 +2,16 @@ package dk.alexandra.fresco.suite.spdz2k.protocols.natives;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.OpenedValueStore;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntArithmetic;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntBoolean;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kTriple;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Native protocol for computing logical AND of two values in boolean form.
@@ -66,22 +67,18 @@ public class Spdz2kAndBatchedProtocol<PlainT extends CompUInt<?, ?, PlainT>> ext
     } else {
       receiveAndReconstruct(network, factory, resourcePool.getNoOfParties());
 
-      resourcePool.getOpenedValueStore().pushOpenedValues(
-          epsilons.stream().map(Spdz2kSIntBoolean::asArithmetic).collect(Collectors.toList()),
-          openEpsilons.stream().map(e -> e.toArithmeticRep()).collect(Collectors.toList())
-      );
-      resourcePool.getOpenedValueStore().pushOpenedValues(
-          deltas.stream().map(Spdz2kSIntBoolean::asArithmetic).collect(Collectors.toList()),
-          openDeltas.stream().map(e -> e.toArithmeticRep()).collect(Collectors.toList())
-      );
+      OpenedValueStore<Spdz2kSIntArithmetic<PlainT>, PlainT> openedValueStore = resourcePool
+          .getOpenedValueStore();
 
       for (int i = 0; i < bitsA.size(); i++) {
         Spdz2kTriple<PlainT, Spdz2kSIntBoolean<PlainT>> triple = triples.get(i);
 
         PlainT e = openEpsilons.get(i);
+        openedValueStore.pushOpenedValue(epsilons.get(i).asArithmetic(), e.toArithmeticRep());
         PlainT d = openDeltas.get(i);
+        openedValueStore.pushOpenedValue(deltas.get(i).asArithmetic(), d.toArithmeticRep());
 
-        Spdz2kSIntBoolean<PlainT> prod = mult(e, d, triple, macKeyShare, factory,
+        Spdz2kSIntBoolean<PlainT> prod = andAfterReceive(e, d, triple, macKeyShare, factory,
             resourcePool.getMyId());
 
         products.add(prod);
@@ -90,7 +87,7 @@ public class Spdz2kAndBatchedProtocol<PlainT extends CompUInt<?, ?, PlainT>> ext
     }
   }
 
-  private Spdz2kSIntBoolean<PlainT> mult(
+  private Spdz2kSIntBoolean<PlainT> andAfterReceive(
       PlainT e,
       PlainT d,
       Spdz2kTriple<PlainT, Spdz2kSIntBoolean<PlainT>> triple,
@@ -120,17 +117,29 @@ public class Spdz2kAndBatchedProtocol<PlainT extends CompUInt<?, ?, PlainT>> ext
       int noOfParties) {
     byte[] rawEpsilons = network.receive(1);
     byte[] rawDeltas = network.receive(1);
+
     for (int i = 0; i < epsilons.size(); i++) {
-      openEpsilons.add(factory.fromBit(rawEpsilons[i]));
-      openDeltas.add(factory.fromBit(rawDeltas[i]));
+      int currentByteIdx = i / Byte.SIZE;
+      int bitIndexWithinByte = i % Byte.SIZE;
+      PlainT e = factory.fromBit((rawEpsilons[currentByteIdx] >>> bitIndexWithinByte));
+      openEpsilons.add(e);
+      PlainT d = factory.fromBit((rawDeltas[currentByteIdx] >>> bitIndexWithinByte));
+      openDeltas.add(d);
     }
+
     for (int i = 2; i <= noOfParties; i++) {
       rawEpsilons = network.receive(i);
       rawDeltas = network.receive(i);
 
       for (int j = 0; j < epsilons.size(); j++) {
-        openEpsilons.set(j, openEpsilons.get(j).add(factory.fromBit(rawEpsilons[j])));
-        openDeltas.set(j, openDeltas.get(j).add(factory.fromBit(rawDeltas[j])));
+        int currentByteIdx = j / Byte.SIZE;
+        int bitIndexWithinByte = j % Byte.SIZE;
+        openEpsilons.set(j, openEpsilons.get(j).add(
+            factory.fromBit((rawEpsilons[currentByteIdx] >>> bitIndexWithinByte))
+        ));
+        openDeltas.set(j, openDeltas.get(j).add(
+            factory.fromBit((rawDeltas[currentByteIdx] >>> bitIndexWithinByte))
+        ));
       }
     }
   }
@@ -141,13 +150,27 @@ public class Spdz2kAndBatchedProtocol<PlainT extends CompUInt<?, ?, PlainT>> ext
   private void serializeAndSend(Network network,
       List<Spdz2kSIntBoolean<PlainT>> epsilons,
       List<Spdz2kSIntBoolean<PlainT>> deltas) {
-    byte[] epsilonBytes = new byte[epsilons.size()];
-    byte[] deltaBytes = new byte[epsilons.size()];
+    int numBytes = epsilons.size() / Byte.SIZE;
+    if (epsilons.size() % 8 != 0) {
+      numBytes++;
+    }
+    byte[] epsilonBytes = new byte[numBytes];
+    byte[] deltaBytes = new byte[numBytes];
+
     for (int i = 0; i < epsilons.size(); i++) {
-      byte[] serializedEpsilon = epsilons.get(i).serializeShareLow();
-      epsilonBytes[i] = serializedEpsilon[0];
-      byte[] serializedDelta = deltas.get(i).serializeShareLow();
-      deltaBytes[i] = serializedDelta[0];
+      int currentByteIdx = i / Byte.SIZE;
+      int bitIndexWithinByte = i % Byte.SIZE;
+
+      int serializedEpsilon = epsilons.get(i).getShare().bitValue();
+      epsilonBytes[currentByteIdx] |= ((serializedEpsilon << bitIndexWithinByte)
+          & (1 << bitIndexWithinByte));
+
+      int serializedDelta = deltas
+          .get(i)
+          .getShare()
+          .bitValue();
+      deltaBytes[currentByteIdx] |= ((serializedDelta << bitIndexWithinByte)
+          & (1 << bitIndexWithinByte));
     }
     network.sendToAll(epsilonBytes);
     network.sendToAll(deltaBytes);
