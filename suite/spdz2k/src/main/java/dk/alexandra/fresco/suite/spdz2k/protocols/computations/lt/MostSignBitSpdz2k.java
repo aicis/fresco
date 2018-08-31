@@ -40,7 +40,8 @@ public class MostSignBitSpdz2k<PlainT extends CompUInt<?, ?, PlainT>> implements
           DRes<SInt> r = numeric.add(rPrime, numeric.multByOpen(twoTo2k1, kthBit));
           DRes<SInt> c = numeric.add(value, r);
           DRes<OInt> cOpen = numeric.openAsOInt(c);
-          return () -> new Pair<>(cOpen, mask);
+          final Pair<DRes<OInt>, RandomBitMask> resPair = new Pair<>(cOpen, mask);
+          return () -> resPair;
         }).seq((seq, pair) -> {
           Numeric nb = seq.numeric();
           PlainT cOpen = factory.fromOInt(pair.getFirst());
@@ -56,7 +57,8 @@ public class MostSignBitSpdz2k<PlainT extends CompUInt<?, ?, PlainT>> implements
           DRes<SInt> b = nb.randomBit();
           DRes<SInt> e = nb.add(d, nb.multByOpen(twoTo2k1, b));
           DRes<OInt> eOpen = nb.openAsOInt(e);
-          return () -> new Pair<>(eOpen, b);
+          final Pair<DRes<OInt>, DRes<SInt>> resPair = new Pair<>(eOpen, b);
+          return () -> resPair;
         }).seq((seq, pair) -> {
           Numeric nb = seq.numeric();
           PlainT eOpen = factory.fromOInt(pair.getFirst());

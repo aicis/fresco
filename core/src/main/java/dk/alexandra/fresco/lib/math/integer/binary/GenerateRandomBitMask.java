@@ -41,7 +41,8 @@ public class GenerateRandomBitMask implements Computation<RandomBitMask, Protoco
         numBits);
     DRes<SInt> recombined = builder.advancedNumeric()
         .innerProductWithPublicPart(() -> powersOfTwo, randomBits);
-    return () -> new RandomBitMask(randomBits, recombined);
+    final RandomBitMask randomBitMask = new RandomBitMask(randomBits, recombined);
+    return () -> randomBitMask;
   }
 
 }

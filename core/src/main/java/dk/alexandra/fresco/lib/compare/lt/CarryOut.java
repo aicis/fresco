@@ -58,10 +58,12 @@ public class CarryOut implements Computation<SInt, ProtocolBuilderNumeric> {
     return builder.par(par -> {
       DRes<List<DRes<SInt>>> xored = par.logical().pairWiseXorKnown(openBitsDef, secretBitsDef);
       DRes<List<DRes<SInt>>> anded = par.logical().pairWiseAndKnown(openBitsDef, secretBitsDef);
-      return () -> new Pair<>(xored.out(), anded.out());
+      final Pair<DRes<List<DRes<SInt>>>, DRes<List<DRes<SInt>>>> pair = new Pair<>(xored,
+          anded);
+      return () -> pair;
     }).par((par, pair) -> {
-      List<DRes<SInt>> xoredBits = pair.getFirst();
-      List<DRes<SInt>> andedBits = pair.getSecond();
+      List<DRes<SInt>> xoredBits = pair.getFirst().out();
+      List<DRes<SInt>> andedBits = pair.getSecond().out();
       List<SIntPair> pairs = new ArrayList<>(andedBits.size());
       for (int i = 0; i < secretBits.size(); i++) {
         DRes<SInt> xoredBit = xoredBits.get(i);
