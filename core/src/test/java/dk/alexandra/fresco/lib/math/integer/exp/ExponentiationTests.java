@@ -1,14 +1,22 @@
 package dk.alexandra.fresco.lib.math.integer.exp;
 
+import static org.junit.Assert.assertEquals;
+
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.BuildStep;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.Assert;
 
 public class ExponentiationTests {
@@ -53,22 +61,40 @@ public class ExponentiationTests {
 
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         private final BigInteger input = BigInteger.valueOf(12332157);
-        private final int exp = 12;
+        // One, powers of two, odd numbers, non-two-power even numbers
+        private final List<Integer> exps = Arrays.asList(1, 2, 3, 6, 12, 16, 19);
 
         @Override
         public void test() throws Exception {
-          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
-            Numeric numeric = producer.numeric();
-            DRes<SInt> base = numeric.known(input);
-            BigInteger exponent = BigInteger.valueOf(exp);
-
-            DRes<SInt> result = producer.advancedNumeric().exp(base, exponent);
-
-            return numeric.open(result);
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = producer -> {
+            return producer.seq(seq -> {
+              DRes<SInt> base = seq.numeric().known(input);
+              return base;
+            }).par((par, base) -> {
+              List<DRes<SInt>> closedResults = new ArrayList<>(exps.size());
+              for (int exp : exps) {
+                DRes<SInt> res = par.advancedNumeric().exp(base, BigInteger.valueOf(exp));
+                closedResults.add(res);
+              }
+              return () -> closedResults;
+            }).par((par, closedResults) -> {
+              List<DRes<BigInteger>> openResults = closedResults.stream()
+                  .map(par.numeric()::open)
+                  .collect(Collectors.toList());
+              return () -> openResults;
+            }).seq((seq, openResults) -> {
+              return () -> openResults.stream().map(DRes::out).collect(Collectors.toList());
+            });
           };
-          BigInteger result = runApplication(app);
-
-          Assert.assertEquals(input.pow(exp), result);
+          List<BigInteger> results = runApplication(app);
+          assertEquals(results.size(), exps.size());
+          Iterator<BigInteger> resIt = results.iterator();
+          Iterator<Integer> expIt = exps.iterator();
+          while (resIt.hasNext() && expIt.hasNext()) {
+            BigInteger actual = resIt.next();
+            BigInteger expected = input.pow(expIt.next());
+            assertEquals(expected, actual);
+          }
         }
       };
     }

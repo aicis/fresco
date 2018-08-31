@@ -28,8 +28,8 @@ import org.apache.commons.cli.Option;
  * operations.</p>
  *
  * <p>Both players input a secret 128-bit AES key (as a 32 char hex string) as well as a list of
- * secret integers. The two AES keys are xored together using 2PC. The resulting key is then used
- * to compute AES encryptions of the two lists of integers. The output (to both players) is the
+ * secret integers. The two AES keys are xored together using 2PC. The resulting key is then used to
+ * compute AES encryptions of the two lists of integers. The output (to both players) is the
  * resulting AES encryptions of the lists of integers under the xored AES key. Note that the output
  * is a single list, with the first half being encryptions of P1's inputs and the second half being
  * encryptions of P2's inputs. The players are themselves responsible for computing the actual
@@ -56,7 +56,8 @@ import org.apache.commons.cli.Option;
  * a5bb0723dd40d10189b8e7e1ab383aa1 result(6): 52cd1dbeeb5f1dce0742aebf285e1472 result(7):
  * 687114568afa5846470e5a5e553c639d</p>
  *
- * <p>The results reveal that P1 indexes 3 and 4 (66 and 1123) also exist in Player 2's input list.</p>
+ * <p>The results reveal that P1 indexes 3 and 4 (66 and 1123) also exist in Player 2's input
+ * list.</p>
  *
  * <p>NOTE: Using the dummy protocol suite is not secure!</p>
  */
@@ -71,6 +72,7 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
 
   /**
    * Construct a new PrivateSetDemo.
+   *
    * @param id the party id
    * @param key the key
    * @param set the input set
@@ -87,11 +89,10 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
    * arguments. Based on the command line arguments it configures the SCE, instantiates the
    * PrivateSetDemo and runs the PrivateSetDemo on the SCE.
    */
-  public static void main(String[] args) throws IOException {
-    CmdLineUtil<ResourcePoolImpl, ProtocolBuilderBinary> util = new CmdLineUtil<>();
-    NetworkConfiguration networkConfiguration = null;
-    Boolean[] key = null;
-    int[] inputs = null;
+  public static <T extends ResourcePoolImpl> void main(String[] args) throws IOException {
+    CmdLineUtil<T, ProtocolBuilderBinary> util = new CmdLineUtil<>();
+    Boolean[] key;
+    int[] inputs;
 
     util.addOption(Option.builder("key")
         .desc("The key to use for encryption. " + "A " + INPUT_LENGTH
@@ -106,7 +107,7 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
         .longOpt("input").hasArg().build());
 
     CommandLine cmd = util.parse(args);
-    networkConfiguration = util.getNetworkConfiguration();
+    NetworkConfiguration networkConfiguration = util.getNetworkConfiguration();
 
     // Get and validate the AES specific input.
     if (networkConfiguration.getMyId() == 1 || networkConfiguration.getMyId() == 2) {
@@ -116,7 +117,7 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
       if (!cmd.hasOption("key") || cmd.getOptionValue("key").length() != INPUT_LENGTH) {
         throw new IllegalArgumentException("Player 1 and 2 must submit keys "
             + "(hex string of length " + INPUT_LENGTH + ")");
-      } 
+      }
       key = ByteAndBitConverter.toBoolean(cmd.getOptionValue("key"));
 
       for (Option o : cmd.getOptions()) {
@@ -130,14 +131,13 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
 
     // Do the secure computation using config from property files.
     PrivateSetDemo privateSetDemo = new PrivateSetDemo(networkConfiguration.getMyId(), key, inputs);
-    ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> psConf = util.getProtocolSuite();
-    SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> sce =
-        new SecureComputationEngineImpl<>(psConf,
-            util.getEvaluator());
+    ProtocolSuite<T, ProtocolBuilderBinary> psConf = util.getProtocolSuite();
+    SecureComputationEngine<T, ProtocolBuilderBinary> sce =
+        new SecureComputationEngineImpl<>(psConf, util.getEvaluator());
 
-    List<List<Boolean>> psiResult = null;
+    List<List<Boolean>> psiResult;
     util.startNetwork();
-    ResourcePoolImpl resourcePool = util.getResourcePool();
+    T resourcePool = util.getResourcePool();
     psiResult = sce.runApplication(privateSetDemo, resourcePool, util.getNetwork());
     util.closeNetwork();
     // Print result.
@@ -238,7 +238,7 @@ public class PrivateSetDemo implements Application<List<List<Boolean>>, Protocol
     });
   }
 
-  private static final class PsiInputs  {
+  private static final class PsiInputs {
 
     private final List<List<DRes<SBool>>> set1;
     private final List<List<DRes<SBool>>> set2;

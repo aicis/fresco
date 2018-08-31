@@ -3,19 +3,20 @@ package dk.alexandra.fresco.suite.tinytables.datatypes;
 import dk.alexandra.fresco.framework.util.RegularBitVector;
 import java.io.Serializable;
 
-
 /**
  * This class implements a storage optimised way of keeping TinyTablesElements. Here each is
  * represented only by it's share in a {@link RegularBitVector}. So if using {@link #setShare},
  * {@link #get} on the same index will not return the same TinyTablesElement but simply a
  * TinyTablesElement with the same share.
- * 
- * @author Jonas Lindstrøm (jonas.lindstrom@alexandra.dk)
  *
  */
 public class TinyTablesElementVector implements Serializable {
 
-  private static final long serialVersionUID = -2405648771000699453L;
+  /**
+   *
+   */
+  private static final long serialVersionUID = 7821130884908398461L;
+
   private final RegularBitVector values;
 
   public TinyTablesElementVector(byte[] shares, int size) {
@@ -31,7 +32,7 @@ public class TinyTablesElementVector implements Serializable {
   }
 
   public TinyTablesElement get(int index) {
-    return new TinyTablesElement(values.getBit(index));
+    return TinyTablesElement.getInstance(values.getBit(index));
   }
 
   public byte[] payload() {

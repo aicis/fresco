@@ -145,7 +145,6 @@ public class AsyncNetwork implements CloseableNetwork {
           SocketChannel channel = SocketChannel.open();
           channel.connect(addr);
           channel.configureBlocking(true);
-          channelMap.put(i, channel);
           ByteBuffer b = ByteBuffer.allocate(PARTY_ID_BYTES);
           b.put((byte) conf.getMyId());
           b.position(0);
@@ -483,7 +482,7 @@ public class AsyncNetwork implements CloseableNetwork {
       ExceptionConverter.safe(() -> {
         c.close();
         return null;
-        }, "");
+      }, "");
     }
     communicationService.shutdownNow();
   }

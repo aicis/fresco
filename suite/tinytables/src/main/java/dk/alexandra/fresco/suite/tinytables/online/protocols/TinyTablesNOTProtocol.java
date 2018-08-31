@@ -33,7 +33,7 @@ public class TinyTablesNOTProtocol extends TinyTablesProtocol<SBool> {
 
   @Override
   public EvaluationStatus evaluate(int round, ResourcePoolImpl resourcePool, Network network) {
-    this.out = new TinyTablesSBool(((TinyTablesSBool) in.out()).getValue().flip());
+    this.out = TinyTablesSBool.getInstance(((TinyTablesSBool) in.out()).getValue().flip());
     return EvaluationStatus.IS_DONE;
   }
 

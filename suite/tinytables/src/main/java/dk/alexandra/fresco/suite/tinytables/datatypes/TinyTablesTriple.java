@@ -1,90 +1,71 @@
 package dk.alexandra.fresco.suite.tinytables.datatypes;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.List;
 
 public class TinyTablesTriple implements Serializable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -2666542565038907636L;
-	private TinyTablesElement a, b, c;
-	
-	public static TinyTablesTriple fromShares(boolean aShare, boolean bShare, boolean cShare) {
-		return new TinyTablesTriple(new TinyTablesElement(aShare), new TinyTablesElement(bShare),
-				new TinyTablesElement(cShare));
-	}
-	
-	public TinyTablesTriple(TinyTablesElement a, TinyTablesElement b, TinyTablesElement c) {
-		this.a = a;
-		this.b = b;
-		this.c = c;
-	}
-	
-	public TinyTablesElement getA() {
-		return this.a;
-	}
-	
-	public TinyTablesElement getB() {
-		return this.b;
-	}
+  private static final long serialVersionUID = 7661693903147118861L;
+  private static final TinyTablesTriple trip0 = new TinyTablesTriple(false, false, false);
+  private static final TinyTablesTriple trip1 = new TinyTablesTriple(false, false, true);
+  private static final TinyTablesTriple trip2 = new TinyTablesTriple(false, true, false);
+  private static final TinyTablesTriple trip3 = new TinyTablesTriple(false, true, true);
+  private static final TinyTablesTriple trip4 = new TinyTablesTriple(true, false, false);
+  private static final TinyTablesTriple trip5 = new TinyTablesTriple(true, false, true);
+  private static final TinyTablesTriple trip6 = new TinyTablesTriple(true, true, false);
+  private static final TinyTablesTriple trip7 = new TinyTablesTriple(true, true, true);
+  private static final TinyTablesTriple[] trips = new TinyTablesTriple[] {
+      trip0,
+      trip1,
+      trip2,
+      trip3,
+      trip4,
+      trip5,
+      trip6,
+      trip7
+  };
 
-	public TinyTablesElement getC() {
-		return this.c;
-	}
-	
-	public void setA(TinyTablesElement a) {
-		this.a = a;
-	}
-	
-	public void setB(TinyTablesElement b) {
-		this.b = b;
-	}
-	
-	public void setC(TinyTablesElement c) {
-		this.c = c;
-	}
-	
-	@Override
-	public String toString() {
-		return "TinyTablesTriple: " + a + ", " + b + ", " + c;
-	}
+  private final TinyTablesElement elementA;
+  private final TinyTablesElement elementB;
+  private final TinyTablesElement elementC;
 
-	public static byte[] encode(List<TinyTablesTriple> triples) {
-		if (triples.size() % 8 != 0) {
-			throw new IllegalArgumentException(
-					"List must have size divisble by 8 to encode it as bytes in an optimal way");
-		}
-		BitSet tmp = new BitSet(triples.size() * 3);
-		for (int i = 0; i < triples.size(); i++) {
-			TinyTablesTriple triple = triples.get(i);
-			tmp.set(3*i+0, triple.getA().getShare());
-			tmp.set(3*i+1, triple.getB().getShare());
-			tmp.set(3*i+2, triple.getC().getShare());
-		}
-		return tmp.toByteArray();
-	}
-	
-	public static List<TinyTablesTriple> decode(byte[] asBytes) {
-		if (asBytes.length % 3 != 0) {
-			throw new IllegalArgumentException(
-					"Array must have size divisble by 3 to be able to decode it to triples in a unique way");
-		}
-		int size = asBytes.length * 8 / 3;
-		BitSet tmp = BitSet.valueOf(asBytes);
-		List<TinyTablesTriple> triples = new ArrayList<TinyTablesTriple>();
-		for (int i = 0; i < size; i++) {
-			boolean a = tmp.get(3*i + 0);
-			boolean b = tmp.get(3*i + 1);
-			boolean c = tmp.get(3*i + 2);
-			TinyTablesTriple triple = new TinyTablesTriple(new TinyTablesElement(a),
-					new TinyTablesElement(b), new TinyTablesElement(c));
-			triples.add(triple);
-		}
-		return triples;
-	}
-	
+  /**
+   * Factory method for TinyTablesTriple.
+   *
+   * @param shareA the value of the first part of the element
+   * @param shareB the value of the second part of the element
+   * @param shareC the value of the third part of the element
+   * @return
+   */
+  public static TinyTablesTriple fromShares(boolean shareA, boolean shareB, boolean shareC) {
+    int index = (shareA ? 4 : 0) + (shareB ? 2 : 0) + (shareC ? 1 : 0);
+    return trips[index];
+  }
+
+  private TinyTablesTriple(TinyTablesElement a, TinyTablesElement b, TinyTablesElement c) {
+    this.elementA = a;
+    this.elementB = b;
+    this.elementC = c;
+  }
+
+  private TinyTablesTriple(boolean a, boolean b, boolean c) {
+    this(TinyTablesElement.getInstance(a), TinyTablesElement.getInstance(b),
+        TinyTablesElement.getInstance(c));
+  }
+
+  public TinyTablesElement getA() {
+    return this.elementA;
+  }
+
+  public TinyTablesElement getB() {
+    return this.elementB;
+  }
+
+  public TinyTablesElement getC() {
+    return this.elementC;
+  }
+
+  @Override
+  public String toString() {
+    return "TinyTablesTriple[" + elementA + "," + elementB + "," + elementC + "]";
+  }
 }
