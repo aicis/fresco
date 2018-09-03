@@ -9,7 +9,7 @@ public class CompUInt64 implements CompUInt<UInt32, UInt32, CompUInt64> {
   private static final CompUInt64 ZERO = new CompUInt64(0);
   private static final CompUInt64 ONE = new CompUInt64(1);
 
-  private final long value;
+  protected final long value;
 
   public CompUInt64(byte[] bytes) {
     this(bytes, false);
@@ -81,7 +81,7 @@ public class CompUInt64 implements CompUInt<UInt32, UInt32, CompUInt64> {
 
   @Override
   public CompUInt64 toBitRep() {
-    return null;
+    return new CompUInt64Bit(value << 31);
   }
 
   @Override
