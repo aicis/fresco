@@ -104,6 +104,32 @@ public class ByteAndBitConverter {
     return hex.toString();
   }
 
+  /**
+   * Given a larger, pre-allocated byte array, reads out a long starting at start index.
+   */
+  public static long toLong(byte[] bytes, int start) {
+    int flipped = bytes.length - start - 1;
+    return (bytes[flipped] & 0xFFL)
+        | (bytes[flipped - 1] & 0xFFL) << 8
+        | (bytes[flipped - 2] & 0xFFL) << 16
+        | (bytes[flipped - 3] & 0xFFL) << 24
+        | (bytes[flipped - 4] & 0xFFL) << 32
+        | (bytes[flipped - 5] & 0xFFL) << 40
+        | (bytes[flipped - 6] & 0xFFL) << 48
+        | (bytes[flipped - 7] & 0xFFL) << 56;
+  }
+
+  /**
+   * Same as {@link #toLong(byte[], int)} but for an int.
+   */
+  public static int toInt(byte[] bytes, int start) {
+    int flipped = bytes.length - start - 1;
+    return (bytes[flipped] & 0xFF)
+        | (bytes[flipped - 1] & 0xFF) << 8
+        | (bytes[flipped - 2] & 0xFF) << 16
+        | (bytes[flipped - 3] & 0xFF) << 24;
+  }
+
   public static String toHex(List<Boolean> bits) {
     Boolean[] bitArray = bits.toArray(new Boolean[1]);
     return toHex(convertArray(bitArray));

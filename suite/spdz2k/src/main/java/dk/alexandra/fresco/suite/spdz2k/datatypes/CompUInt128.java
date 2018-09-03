@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
+import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.framework.value.OInt;
 import java.math.BigInteger;
 
@@ -36,12 +37,12 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
     if (padded.length == 8) {
       // we are instantiating from the least significant bits only
       this.high = 0L;
-      this.mid = toInt(padded, 4);
-      this.low = toInt(padded, 0);
+      this.mid = ByteAndBitConverter.toInt(padded, 4);
+      this.low = ByteAndBitConverter.toInt(padded, 0);
     } else {
-      this.high = toLong(padded, 8);
-      this.mid = toInt(padded, 4);
-      this.low = toInt(padded, 0);
+      this.high = ByteAndBitConverter.toLong(padded, 8);
+      this.mid = ByteAndBitConverter.toInt(padded, 4);
+      this.low = ByteAndBitConverter.toInt(padded, 0);
     }
   }
 
@@ -340,32 +341,6 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
       bytes[offset - i] = (byte) (value & 0xFF);
       value >>>= 8;
     }
-  }
-
-  private static long toLong(byte[] bytes, int start) {
-    int flipped = bytes.length - start - 1;
-    return (bytes[flipped] & 0xFFL)
-        | (bytes[flipped - 1] & 0xFFL) << 8
-        | (bytes[flipped - 2] & 0xFFL) << 16
-        | (bytes[flipped - 3] & 0xFFL) << 24
-        | (bytes[flipped - 4] & 0xFFL) << 32
-        | (bytes[flipped - 5] & 0xFFL) << 40
-        | (bytes[flipped - 6] & 0xFFL) << 48
-        | (bytes[flipped - 7] & 0xFFL) << 56;
-  }
-
-  private static int toInt(byte[] bytes, int start) {
-    int flipped = bytes.length - start - 1;
-    return (bytes[flipped] & 0xFF)
-        | (bytes[flipped - 1] & 0xFF) << 8
-        | (bytes[flipped - 2] & 0xFF) << 16
-        | (bytes[flipped - 3] & 0xFF) << 24;
-  }
-
-  public static void main(String args[]) {
-    int n = (Long.SIZE - 1);
-    System.out.println(n);
-    System.out.println(100 << n);
   }
 
 }
