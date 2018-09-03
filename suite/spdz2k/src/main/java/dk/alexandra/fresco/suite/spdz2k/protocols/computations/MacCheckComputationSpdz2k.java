@@ -67,10 +67,6 @@ public class MacCheckComputationSpdz2k<
   public DRes<Void> buildComputation(ProtocolBuilderNumeric builder) {
     PlainT macKeyShare = supplier.getSecretSharedKey();
     PlainT y = UInt.innerProduct(openValues, randomCoefficients);
-//    System.out.println("macKeyShare " + macKeyShare);
-//    System.out.println("openValues " + openValues);
-//    System.out.println("authenticatedElements " + authenticatedElements);
-//    System.out.println("randomCoefficients " + randomCoefficients);
     Spdz2kSIntArithmetic<PlainT> r = supplier.getNextRandomElementShare();
     return builder
         .seq(seq -> {
@@ -101,11 +97,7 @@ public class MacCheckComputationSpdz2k<
 
   private HighT computePj(PlainT originalShare, PlainT randomCoefficient) {
     HighT overflow = computeDifference(originalShare);
-//    System.out.println("overflow " + overflow);
-//    System.out.println("randomCoefficient " + randomCoefficient);
     HighT randomCoefficientHigh = randomCoefficient.getLeastSignificantAsHigh();
-//    System.out.println(randomCoefficientHigh.getBitLength());
-//    System.out.println("randomCoefficientAsHigh " + randomCoefficientHigh);
     return overflow.multiply(randomCoefficientHigh);
   }
 
@@ -129,7 +121,6 @@ public class MacCheckComputationSpdz2k<
       PlainT macKeyShare, PlainT y, Spdz2kSIntArithmetic<PlainT> r,
       List<byte[]> broadcastPjs) {
     List<PlainT> pjList = serializer.deserializeList(broadcastPjs);
-//    System.out.println(pjList);
     HighT pLow = UInt.sum(
         pjList.stream().map(PlainT::getLeastSignificantAsHigh).collect(Collectors.toList()));
     PlainT p = converter.createFromHigh(pLow);
@@ -141,7 +132,6 @@ public class MacCheckComputationSpdz2k<
         .subtract(mj)
         .subtract(p.multiply(macKeyShare).shiftLowIntoHigh())
         .add(r.getMacShare().shiftLowIntoHigh());
-//    System.out.println("zj " + zj);
     return new CommitmentComputationSpdz2k(commitmentSerializer, serializer.serialize(zj),
         noOfParties, localDrbg).buildComputation(builder);
   }
@@ -165,9 +155,7 @@ public class MacCheckComputationSpdz2k<
    * number of upper bits, compute ((low - s) % 2^{k + s} >> k) % 2^s.
    */
   private HighT computeDifference(PlainT value) {
-//    System.out.println("value " + value);
     PlainT low = converter.createFromLow(value.getLeastSignificant());
-//    System.out.println("low " + low);
     return low.subtract(value).getMostSignificant();
   }
 
