@@ -72,7 +72,7 @@ public class CompUInt128Bit extends CompUInt128 {
 
   @Override
   public CompUInt128 multiplyByBit(int value) {
-    return new CompUInt128Bit(high * value, mid & (value << 31), 0);
+    return multiply(new CompUInt128Bit(0L, value));
   }
 
 }
