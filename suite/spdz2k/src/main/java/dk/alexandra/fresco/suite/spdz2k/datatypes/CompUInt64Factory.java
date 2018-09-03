@@ -26,7 +26,7 @@ public class CompUInt64Factory implements CompUIntFactory<CompUInt64> {
 
   @Override
   public CompUInt64 fromBit(int bit) {
-    throw new UnsupportedOperationException();
+    return new CompUInt64Bit(0, (bit) & 1);
   }
 
   @Override

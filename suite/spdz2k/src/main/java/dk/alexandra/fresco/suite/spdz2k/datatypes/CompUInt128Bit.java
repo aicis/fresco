@@ -10,10 +10,6 @@ public class CompUInt128Bit extends CompUInt128 {
     super(high, bit << 31, 0);
   }
 
-  public CompUInt128Bit(CompUInt128 other) {
-    super(other);
-  }
-
   @Override
   public CompUInt128 multiply(CompUInt128 other) {
     int bit = mid >>> 31;

@@ -30,10 +30,6 @@ public abstract class Spdz2kSInt<PlainT extends CompUInt<?, ?, PlainT>> implemen
     return share.serializeLeastSignificant();
   }
 
-  public byte[] serializeShareWhole() {
-    return share.serializeWhole();
-  }
-
   @Override
   public SInt out() {
     return this;

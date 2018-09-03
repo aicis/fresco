@@ -99,11 +99,11 @@ public class TestCompUInt64Bit {
   public void testSerializeLeastSignificant() {
     Assert.assertArrayEquals(
         new byte[]{0},
-        new CompUInt128Bit(rand(42), 0).serializeLeastSignificant()
+        new CompUInt64Bit(rand(42), 0).serializeLeastSignificant()
     );
     Assert.assertArrayEquals(
         new byte[]{1},
-        new CompUInt128Bit(rand(42), 1).serializeLeastSignificant()
+        new CompUInt64Bit(rand(42), 1).serializeLeastSignificant()
     );
   }
 

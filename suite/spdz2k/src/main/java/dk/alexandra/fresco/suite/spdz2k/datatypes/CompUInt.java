@@ -110,10 +110,6 @@ public interface CompUInt<
     return getCompositeBitLength();
   }
 
-  default byte[] serializeWhole() {
-    return toByteArray();
-  }
-
   default byte[] serializeLeastSignificant() {
     return getLeastSignificant().toByteArray();
   }

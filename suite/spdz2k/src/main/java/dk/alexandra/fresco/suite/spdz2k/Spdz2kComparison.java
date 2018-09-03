@@ -46,8 +46,8 @@ public class Spdz2kComparison<PlainT extends CompUInt<?, ?, PlainT>> extends Def
   }
 
   @Override
-  public DRes<SInt> compareZero(DRes<SInt> x, int bitlength, Algorithm algorithm) {
-    if (bitlength > factory.getLowBitLength()) {
+  public DRes<SInt> compareZero(DRes<SInt> x, int bitLength, Algorithm algorithm) {
+    if (bitLength > factory.getLowBitLength()) {
       throw new IllegalArgumentException(
           "Only support bit lengths up to " + factory.getLowBitLength());
     }

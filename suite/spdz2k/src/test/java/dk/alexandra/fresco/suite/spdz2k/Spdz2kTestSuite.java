@@ -183,7 +183,7 @@ public abstract class Spdz2kTestSuite<Spdz2kResourcePoolT extends Spdz2kResource
 
   @Test
   public void testCompareZeroLogRounds() {
-    runTest(new TestCompareEQZero<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+    runTest(new TestCompareEQZero<>(getMaxBitLength()), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test

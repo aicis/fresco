@@ -7,6 +7,8 @@ import org.junit.Test;
 
 public class TestCompUInt64 {
 
+  private static BigInteger twoTo32 = BigInteger.ONE.shiftLeft(32);
+
   @Test
   public void clearAboveBitAt() {
     for (int i = 0; i < Long.SIZE - 2; i++) {
@@ -56,4 +58,12 @@ public class TestCompUInt64 {
         ByteAndBitConverter.toByteArray(input),
         new CompUInt64(input).toByteArray());
   }
+
+  @Test
+  public void testToBit() {
+    Assert.assertEquals(BigInteger.ZERO, new CompUInt64(0).toBitRep().toBigInteger());
+    Assert.assertEquals(twoTo32.shiftRight(1), new CompUInt64(1).toBitRep().toBigInteger());
+    Assert.assertEquals(twoTo32.shiftLeft(31), new CompUInt64(twoTo32).toBitRep().toBigInteger());
+  }
+
 }

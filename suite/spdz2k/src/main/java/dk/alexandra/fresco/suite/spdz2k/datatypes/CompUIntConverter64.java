@@ -4,12 +4,14 @@ public class CompUIntConverter64 implements CompUIntConverter<UInt32, UInt32, Co
 
   @Override
   public CompUInt64 createFromHigh(UInt32 value) {
-    return new CompUInt64(value.toInt());
+    return new CompUInt64(
+        UInt.toUnLong(value.toInt())
+    );
   }
 
   @Override
   public CompUInt64 createFromLow(UInt32 value) {
-    return new CompUInt64(value.toInt());
+    return new CompUInt64(UInt.toUnLong(value.toInt()));
   }
 
 }

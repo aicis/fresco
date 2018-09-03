@@ -47,7 +47,7 @@ public class CompUInt64Bit extends CompUInt64 {
 
   @Override
   public int bitValue() {
-    return ((int) (value & 0x80000000)) >>> 31;
+    return (int) (((value & 0x80000000L)) >>> 31);
   }
 
   @Override
@@ -57,14 +57,12 @@ public class CompUInt64Bit extends CompUInt64 {
 
   @Override
   public CompUInt64 clearHighBits() {
-    return new CompUInt64Bit((value & 0xffffffffL));
+    return new CompUInt64Bit(value & 0xffffffffL);
   }
 
   @Override
   public CompUInt64 multiplyByBit(int bitValue) {
-    long low = (value & 0x80000000) & (bitValue << 31);
-    long high = (this.value & 0xffffffff00000000L) * bitValue;
-    return new CompUInt64Bit(high | low);
+    return this.multiply(new CompUInt64Bit(0, bitValue));
   }
 
 }

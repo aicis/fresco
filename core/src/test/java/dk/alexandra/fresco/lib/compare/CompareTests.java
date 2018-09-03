@@ -201,26 +201,33 @@ public class CompareTests {
   public static class TestCompareEQZero<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
+    private int bitLength;
+
+    public TestCompareEQZero(int bitLength) {
+      this.bitLength = bitLength;
+    }
+
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
 
+
         @Override
-        public void test() throws Exception {
+        public void test() {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app = builder -> {
             Numeric input = builder.numeric();
             DRes<SInt> w = input.known(BigInteger.valueOf(-1));
             DRes<SInt> x = input.known(BigInteger.valueOf(0));
             // Max positive value
-            DRes<SInt> y = input.known(BigInteger.valueOf(2).pow(63).subtract(
+            DRes<SInt> y = input.known(BigInteger.valueOf(2).pow(bitLength - 1).subtract(
                 BigInteger.ONE));
             // Min negative value
-            DRes<SInt> z = input.known(BigInteger.valueOf(2).pow(63).negate());
+            DRes<SInt> z = input.known(BigInteger.valueOf(2).pow(bitLength - 1).negate());
             Comparison comparison = builder.comparison();
-            DRes<SInt> compResult1 = comparison.compareZero(w, 64);
-            DRes<SInt> compResult2 = comparison.compareZero(x, 64);
-            DRes<SInt> compResult3 = comparison.compareZero(y, 64);
-            DRes<SInt> compResult4 = comparison.compareZero(z, 64);
+            DRes<SInt> compResult1 = comparison.compareZero(w, bitLength);
+            DRes<SInt> compResult2 = comparison.compareZero(x, bitLength);
+            DRes<SInt> compResult3 = comparison.compareZero(y, bitLength);
+            DRes<SInt> compResult4 = comparison.compareZero(z, bitLength);
             Numeric open = builder.numeric();
             DRes<BigInteger> res1 = open.open(compResult1);
             DRes<BigInteger> res2 = open.open(compResult2);

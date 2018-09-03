@@ -421,7 +421,7 @@ public class TestLogicalOperationsSpdz2k extends
             BigInteger.ONE,
             BigInteger.ZERO,
             BigInteger.ONE,
-            BigInteger.ONE
+            BigInteger.ZERO
         );
         private final List<BigInteger> right = Arrays.asList(
             BigInteger.ONE,

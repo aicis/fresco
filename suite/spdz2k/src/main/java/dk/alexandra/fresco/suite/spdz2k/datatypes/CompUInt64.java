@@ -19,7 +19,7 @@ public class CompUInt64 implements CompUInt<UInt32, UInt32, CompUInt64> {
     byte[] padded = requiresPadding ? CompUInt.pad(bytes, 64) : bytes;
     if (padded.length == 4) {
       // we are instantiating from the least significant bits only
-      this.value = ByteAndBitConverter.toInt(padded, 0);
+      this.value = UInt.toUnLong(ByteAndBitConverter.toInt(padded, 0));
     } else {
       this.value = ByteAndBitConverter.toLong(padded, 0);
     }
@@ -40,12 +40,12 @@ public class CompUInt64 implements CompUInt<UInt32, UInt32, CompUInt64> {
 
   @Override
   public UInt32 getLeastSignificant() {
-    return new UInt32((int) (value));
+    return new UInt32((int) (value & 0xfffffffffL));
   }
 
   @Override
   public UInt32 getLeastSignificantAsHigh() {
-    return new UInt32((int) (value));
+    return new UInt32((int) (value & 0xfffffffffL));
   }
 
   @Override
@@ -116,7 +116,7 @@ public class CompUInt64 implements CompUInt<UInt32, UInt32, CompUInt64> {
 
   @Override
   public byte[] serializeLeastSignificant() {
-    return ByteAndBitConverter.toByteArray((int) value);
+    return ByteAndBitConverter.toByteArray((int) (value));
   }
 
   @Override
@@ -176,6 +176,12 @@ public class CompUInt64 implements CompUInt<UInt32, UInt32, CompUInt64> {
 
   @Override
   public int toInt() {
-    return (int) value;
+    return (int) (value & 0xffffffffL);
   }
+
+  @Override
+  public String toString() {
+    return toBigInteger().toString();
+  }
+
 }
