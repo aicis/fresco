@@ -5,7 +5,7 @@
 
 #
 
-[![Build Status](https://travis-ci.org/aicis/fresco.svg?branch=master)](https://travis-ci.org/aicis/fresco) [![codecov](https://codecov.io/gh/aicis/fresco/branch/master/graph/badge.svg)](https://codecov.io/gh/aicis/fresco) [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/FRESCO-MPC/Lobby)
+[![Build Status](https://travis-ci.org/aicis/fresco.svg?branch=master)](https://travis-ci.org/aicis/fresco) [![codecov](https://codecov.io/gh/aicis/fresco/branch/master/graph/badge.svg)](https://codecov.io/gh/aicis/fresco) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/dk.alexandra.fresco/core/badge.svg)](https://search.maven.org/search?q=g:dk.alexandra.fresco) [![Gitter chat](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/FRESCO-MPC/Lobby)
 
 FRESCO is a *FRamework for Efficient and Secure COmputation*, written
 in Java and licensed under the open source MIT license.
