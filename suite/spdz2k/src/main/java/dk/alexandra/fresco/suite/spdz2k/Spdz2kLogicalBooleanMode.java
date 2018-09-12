@@ -14,6 +14,7 @@ import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAndKnownProtocol
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAndProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAndBatchedProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kNotBatchedProtocol;
+import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kOrBatchedProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kOrProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kOutputToAll;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kXorKnownBatchedProtocol;
@@ -92,6 +93,12 @@ public class Spdz2kLogicalBooleanMode<PlainT extends CompUInt<?, ?, PlainT>> ext
   @Override
   public DRes<List<DRes<SInt>>> batchedNot(DRes<List<DRes<SInt>>> bits) {
     return builder.append(new Spdz2kNotBatchedProtocol<>(bits));
+  }
+
+  @Override
+  public DRes<List<DRes<SInt>>> pairWiseOr(DRes<List<DRes<SInt>>> bitsA,
+      DRes<List<DRes<SInt>>> bitsB) {
+    return builder.append(new Spdz2kOrBatchedProtocol<>(bitsA, bitsB));
   }
 
   @Override

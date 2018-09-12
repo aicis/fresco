@@ -109,14 +109,19 @@ public class DefaultLogical implements Logical {
       DRes<List<DRes<SInt>>> bitsA,
       DRes<List<DRes<SInt>>> bitsB,
       BiFunction<DRes<SInt>, DRes<SInt>, DRes<SInt>> op) {
-    List<DRes<SInt>> leftOut = bitsB.out();
-    List<DRes<SInt>> rightOut = bitsA.out();
+    List<DRes<SInt>> leftOut = bitsA.out();
+    List<DRes<SInt>> rightOut = bitsB.out();
     List<DRes<SInt>> resultBits = new ArrayList<>(leftOut.size());
     for (int i = 0; i < leftOut.size(); i++) {
       DRes<SInt> leftBit = leftOut.get(i);
       DRes<SInt> rightBit = rightOut.get(i);
-      DRes<SInt> resultBit = op.apply(leftBit, rightBit);
-      resultBits.add(resultBit);
+      // TODO hack hack hack
+      if (rightBit == null) {
+        resultBits.add(leftBit);
+      } else {
+        DRes<SInt> resultBit = op.apply(leftBit, rightBit);
+        resultBits.add(resultBit);
+      }
     }
     return () -> resultBits;
   }
@@ -187,25 +192,53 @@ public class DefaultLogical implements Logical {
     });
   }
 
+//  @Override
+//  public DRes<SInt> orOfList(DRes<List<DRes<SInt>>> bits) {
+//    return builder.seq(seq -> bits
+//        ).whileLoop((inputs) -> inputs.size() > 1,
+//        (prevSeq, inputs) -> prevSeq.par(par -> {
+//          List<DRes<SInt>> out = new ArrayList<>();
+//          DRes<SInt> left = null;
+//          for (DRes<SInt> currentInput : inputs) {
+//            if (left == null) {
+//              left = currentInput;
+//            } else {
+//              out.add(par.logical().or(left, currentInput));
+//              left = null;
+//            }
+//          }
+//          if (left != null) {
+//            out.add(left);
+//          }
+//          return () -> out;
+//        })).seq((builder, out) -> out.get(0));
+//  }
+
   @Override
   public DRes<SInt> orOfList(DRes<List<DRes<SInt>>> bits) {
     return builder.seq(seq -> bits
-        ).whileLoop((inputs) -> inputs.size() > 1,
+    ).whileLoop((inputs) -> inputs.size() > 1,
         (prevSeq, inputs) -> prevSeq.par(par -> {
-          List<DRes<SInt>> out = new ArrayList<>();
+          List<DRes<SInt>> leftBits = new ArrayList<>();
+          List<DRes<SInt>> rightBits = new ArrayList<>();
           DRes<SInt> left = null;
           for (DRes<SInt> currentInput : inputs) {
             if (left == null) {
               left = currentInput;
             } else {
-              out.add(par.logical().or(left, currentInput));
+              leftBits.add(left);
+              rightBits.add(currentInput);
               left = null;
             }
           }
+          // TODO this is ugly but I'm not sure what a cleaner solution would look like that still
+          // uses pairWiseOr
           if (left != null) {
-            out.add(left);
+            leftBits.add(left);
+            rightBits.add(null);
           }
-          return () -> out;
+
+          return par.logical().pairWiseOr(() -> leftBits, () -> rightBits);
         })).seq((builder, out) -> out.get(0));
   }
 }
