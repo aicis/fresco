@@ -21,7 +21,7 @@ import java.util.stream.StreamSupport;
  */
 public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResourcePool> {
 
-  private static final int DEFAULT_VALUE_THRESHOLD = 1000000;
+  private static final int DEFAULT_VALUE_THRESHOLD = 100000;
   private static final int DEFAULT_BATCH_SIZE = 128;
   private final int openValueThreshold;
   private final SpdzProtocolSuite spdzProtocolSuite;

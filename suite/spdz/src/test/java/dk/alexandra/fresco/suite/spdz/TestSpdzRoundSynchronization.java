@@ -36,7 +36,7 @@ public class TestSpdzRoundSynchronization extends AbstractSpdzTest {
   private class LowThresholdSpdzSuite extends SpdzProtocolSuite {
 
     public LowThresholdSpdzSuite(int maxBitLength, int fixedPointPrecision) {
-      super(maxBitLength, fixedPointPrecision);
+      super(maxBitLength, fixedPointPrecision, 40);
     }
 
     @Override

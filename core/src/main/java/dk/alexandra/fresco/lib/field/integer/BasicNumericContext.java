@@ -38,7 +38,7 @@ public class BasicNumericContext {
    *          my party id
    * @param noOfParties
    *          number of parties in computation
-   * @param statisticalSecurityParameter
+   * @param statisticalSecurityParam
    *          the statistical security parameter
    */
   public BasicNumericContext(int maxBitLength, BigInteger modulus, int myId, int noOfParties,

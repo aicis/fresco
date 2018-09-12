@@ -2,6 +2,8 @@ package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
 public class CompUInt64Bit extends CompUInt64 {
 
+  // TODO switch to smarter representation
+
   public CompUInt64Bit(int high, int bit) {
     super((UInt.toUnLong(high) << 32) | UInt.toUnLong(bit) << 31);
   }
