@@ -107,4 +107,10 @@ public interface Logical extends ComputationDirectory {
    */
   DRes<SInt> orOfList(DRes<List<DRes<SInt>>> bits);
 
+  /**
+   * Given a list of bits, computes or of each neighbor pair of bits, i.e., given b1, b2, b3, b4,
+   * will output b1 OR b2, b3 OR b4. <p>Also handles uneven number of elements.</p>
+   */
+  DRes<List<DRes<SInt>>> orNeighbors(List<DRes<SInt>> bits);
+
 }

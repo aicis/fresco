@@ -26,12 +26,19 @@ public class Spdz2kOrBatchedProtocol<PlainT extends CompUInt<?, ?, PlainT>> exte
   private List<Spdz2kSIntBoolean<PlainT>> deltas;
   private List<PlainT> openEpsilons;
   private List<PlainT> openDeltas;
+  private DRes<SInt> extraBit;
   private List<DRes<SInt>> products;
 
   public Spdz2kOrBatchedProtocol(DRes<List<DRes<SInt>>> bitsA,
-      DRes<List<DRes<SInt>>> bitsB) {
+      DRes<List<DRes<SInt>>> bitsB, DRes<SInt> extraBit) {
     this.bitsADef = bitsA;
     this.bitsBDef = bitsB;
+    this.extraBit = extraBit;
+  }
+
+  public Spdz2kOrBatchedProtocol(DRes<List<DRes<SInt>>> bitsA,
+      DRes<List<DRes<SInt>>> bitsB) {
+    this(bitsA, bitsB, null);
   }
 
   @Override
@@ -84,6 +91,9 @@ public class Spdz2kOrBatchedProtocol<PlainT extends CompUInt<?, ?, PlainT>> exte
             .xor(factory.toSpdz2kSIntBoolean(bitsB.get(i)));
 
         products.add(prod.xor(xored));
+      }
+      if (extraBit != null) {
+        products.add(extraBit);
       }
       return EvaluationStatus.IS_DONE;
     }

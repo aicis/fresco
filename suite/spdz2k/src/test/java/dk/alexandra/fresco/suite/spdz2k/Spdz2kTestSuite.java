@@ -15,6 +15,7 @@ import dk.alexandra.fresco.suite.spdz2k.protocols.computations.TestComparisonSpd
 import dk.alexandra.fresco.suite.spdz2k.protocols.computations.TestLogicalOperationsSpdz2k.TestAndKnownSpdz2k;
 import dk.alexandra.fresco.suite.spdz2k.protocols.computations.TestLogicalOperationsSpdz2k.TestAndSpdz2k;
 import dk.alexandra.fresco.suite.spdz2k.protocols.computations.TestLogicalOperationsSpdz2k.TestNotSpdz2k;
+import dk.alexandra.fresco.suite.spdz2k.protocols.computations.TestLogicalOperationsSpdz2k.TestOrListSpdz2k;
 import dk.alexandra.fresco.suite.spdz2k.protocols.computations.TestLogicalOperationsSpdz2k.TestOrSpdz2k;
 import dk.alexandra.fresco.suite.spdz2k.protocols.computations.TestLogicalOperationsSpdz2k.TestXorKnownSpdz2k;
 import dk.alexandra.fresco.suite.spdz2k.resource.Spdz2kResourcePool;
@@ -164,6 +165,11 @@ public abstract class Spdz2kTestSuite<Spdz2kResourcePoolT extends Spdz2kResource
   @Test
   public void testAnd() {
     runTest(new TestAndSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
+  public void testOrOfList() {
+    runTest(new TestOrListSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
   @Test

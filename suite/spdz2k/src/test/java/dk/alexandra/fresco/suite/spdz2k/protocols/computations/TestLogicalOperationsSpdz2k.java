@@ -46,6 +46,11 @@ public class TestLogicalOperationsSpdz2k extends
   }
 
   @Test
+  public void testOrList() {
+    runTest(new TestOrListSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
   public void testAndXorSequence() {
     runTest(new TestAndXorSequence<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
@@ -90,7 +95,6 @@ public class TestLogicalOperationsSpdz2k extends
     runTest(new TestNotSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 
-
   @Override
   protected Spdz2kResourcePool<CompUInt128> createResourcePool(int playerId, int noOfParties,
       Supplier<Network> networkSupplier) {
@@ -110,6 +114,50 @@ public class TestLogicalOperationsSpdz2k extends
   @Override
   protected ProtocolSuiteNumeric<Spdz2kResourcePool<CompUInt128>> createProtocolSuite() {
     return new Spdz2kProtocolSuite128(true);
+  }
+
+  public static class TestOrListSpdz2k<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        private final List<BigInteger> input1 = Arrays.asList(BigInteger.ZERO,
+            BigInteger.ZERO, BigInteger.ZERO, BigInteger.ZERO, BigInteger.ONE);
+        private final List<BigInteger> input2 = Arrays.asList(BigInteger.ZERO,
+            BigInteger.ZERO, BigInteger.ZERO, BigInteger.ZERO, BigInteger.ZERO);
+        private final List<BigInteger> input3 = Arrays.asList(BigInteger.ZERO,
+            BigInteger.ZERO, BigInteger.ONE, BigInteger.ZERO, BigInteger.ZERO);
+        private final List<BigInteger> input4 = Arrays.asList(BigInteger.ZERO,
+            BigInteger.ZERO, BigInteger.ONE, BigInteger.ZERO, BigInteger.ONE);
+
+        @Override
+        public void test() {
+          List<List<BigInteger>> inputLists = Arrays.asList(input1, input2,
+              input3, input4);
+          List<BigInteger> expectedOutput = Arrays.asList(BigInteger.ONE,
+              BigInteger.ZERO, BigInteger.ONE, BigInteger.ONE);
+
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = root -> {
+            OIntFactory factory = root.getOIntFactory();
+            List<DRes<OInt>> results = inputLists.stream().map(
+                current -> {
+                  final DRes<List<DRes<SInt>>> arithmeticBatch = root.numeric()
+                      .knownAsDRes(current);
+                  final DRes<List<DRes<SInt>>> bits = root.conversion()
+                      .toBooleanBatch(arithmeticBatch);
+                  final DRes<SInt> orred = root.logical().orOfList(bits);
+                  return root.logical().openAsBit(orred);
+                }).collect(Collectors.toList());
+            return () -> results.stream().map(d -> factory.toBigInteger(d.out()))
+                .collect(Collectors.toList());
+          };
+          List<BigInteger> actual = runApplication(app);
+          Assert.assertArrayEquals(expectedOutput.toArray(), actual.toArray());
+        }
+      };
+    }
   }
 
   public static class TestNotSpdz2k<ResourcePoolT extends ResourcePool>

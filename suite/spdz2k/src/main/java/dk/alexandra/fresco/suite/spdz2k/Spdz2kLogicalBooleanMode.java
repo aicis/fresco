@@ -9,10 +9,11 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSIntBoolean;
+import dk.alexandra.fresco.suite.spdz2k.protocols.computations.OrNeighborsComputationSpdz2k;
+import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAndBatchedProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAndKnownBatchedProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAndKnownProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAndProtocol;
-import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAndBatchedProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kNotBatchedProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kOrBatchedProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kOrProtocol;
@@ -99,6 +100,11 @@ public class Spdz2kLogicalBooleanMode<PlainT extends CompUInt<?, ?, PlainT>> ext
   public DRes<List<DRes<SInt>>> pairWiseOr(DRes<List<DRes<SInt>>> bitsA,
       DRes<List<DRes<SInt>>> bitsB) {
     return builder.append(new Spdz2kOrBatchedProtocol<>(bitsA, bitsB));
+  }
+
+  @Override
+  public DRes<List<DRes<SInt>>> orNeighbors(List<DRes<SInt>> bits) {
+    return builder.seq(new OrNeighborsComputationSpdz2k(bits));
   }
 
   @Override
