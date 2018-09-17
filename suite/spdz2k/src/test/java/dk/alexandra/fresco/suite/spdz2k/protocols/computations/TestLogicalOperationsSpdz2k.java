@@ -41,6 +41,11 @@ public class TestLogicalOperationsSpdz2k extends
   }
 
   @Test
+  public void testBatchedAnd() {
+    runTest(new TestBatchedAndSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
   public void testOr() {
     runTest(new TestOrSpdz2k<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
@@ -505,6 +510,50 @@ public class TestLogicalOperationsSpdz2k extends
               BigInteger.ZERO
           );
           Assert.assertEquals(expected, actual);
+        }
+      };
+    }
+  }
+
+  public static class TestBatchedAndSpdz2k<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        BigInteger leftBit = BigInteger.ONE;
+        BigInteger rightBit = BigInteger.ZERO;
+        final int repetitions = 20000;
+
+        @Override
+        public void test() {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app =
+              root -> {
+                DRes<SInt> leftBitClosed =
+                    root.conversion().toBoolean(root.numeric().input(leftBit, 1));
+                DRes<SInt> rightBitClosed =
+                    root.conversion().toBoolean(root.numeric().input(rightBit, 1));
+                List<DRes<SInt>> leftBits = new ArrayList<>(repetitions);
+                List<DRes<SInt>> rightBits = new ArrayList<>(repetitions);
+                for (int i = 0; i < repetitions; i++) {
+                  leftBits.add(leftBitClosed);
+                  rightBits.add(rightBitClosed);
+                }
+                DRes<List<DRes<SInt>>> anded = root.logical().pairWiseAnd(
+                    () ->leftBits,
+                    () -> rightBits
+                );
+                DRes<List<DRes<OInt>>> opened = root.logical().openAsBits(anded);
+                OIntFactory factory = root.getOIntFactory();
+                return () -> opened.out().stream().map(v -> factory.toBigInteger(v.out()))
+                    .collect(Collectors.toList());
+              };
+          List<BigInteger> actual = runApplication(app);
+          Assert.assertEquals(repetitions, actual.size());
+          for (BigInteger actualBit : actual) {
+            Assert.assertEquals(BigInteger.ZERO, actualBit);
+          }
         }
       };
     }

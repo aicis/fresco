@@ -14,13 +14,13 @@ public class NetworkBatchDecoratorTest {
   private Map<Integer, byte[]> transmissions = new HashMap<>();
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     DummyNetwork network = new DummyNetwork();
     networkBatchDecorator = new NetworkBatchDecorator(3, network);
   }
 
   @Test
-  public void receive() throws Exception {
+  public void receive() {
     transmissions.put(1, new byte[]{4, 2, 2, 23, 3, 3, 22, 0, 0});
     transmissions.put(2, new byte[]{0});
     Assert.assertArrayEquals(new byte[]{2, 2, 23, 3}, networkBatchDecorator.receive(1));
@@ -29,7 +29,7 @@ public class NetworkBatchDecoratorTest {
   }
 
   @Test
-  public void receiveFromAll() throws Exception {
+  public void receiveFromAll() {
     transmissions.put(1, new byte[]{4, 2, 2, 23, 3, 42});
     transmissions.put(2, new byte[]{4, 2, 2, 23, 3, 42});
     transmissions.put(3, new byte[]{4, 2, 2, 23, 3, 42});
@@ -40,14 +40,14 @@ public class NetworkBatchDecoratorTest {
   }
 
   @Test(expected = NullPointerException.class)
-  public void receiveFromAllNoData() throws Exception {
+  public void receiveFromAllNoData() {
     transmissions.put(1, new byte[]{4, 2, 2, 23, 3, 42});
     transmissions.put(2, new byte[]{4, 2, 2, 23, 3, 42});
     networkBatchDecorator.receiveFromAll();
   }
 
   @Test
-  public void send() throws Exception {
+  public void send() {
     networkBatchDecorator.send(1, new byte[]{123});
     Assert.assertTrue(transmissions.isEmpty());
     networkBatchDecorator.flush();
@@ -56,7 +56,7 @@ public class NetworkBatchDecoratorTest {
   }
 
   @Test
-  public void sendToAll() throws Exception {
+  public void sendToAll() {
     networkBatchDecorator.sendToAll(new byte[]{123});
     networkBatchDecorator.flush();
     Assert.assertEquals(3, transmissions.size());
@@ -65,25 +65,47 @@ public class NetworkBatchDecoratorTest {
     Assert.assertArrayEquals(new byte[]{1, 123}, transmissions.get(3));
   }
 
-  @Test(expected = RuntimeException.class)
-  public void errorOnBigPackets() throws Exception {
-    networkBatchDecorator.sendToAll(
-        new byte[]{
-            123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
-            123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
-            123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
-            123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
-            123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
-            123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
-            123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
-            123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
-            123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
-            123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
-            123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
-            123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
-            123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
-        });
-
+  @Test
+  public void handleBigPackets() {
+    final byte[] payload = {
+        123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
+        123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
+        123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
+        123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
+        123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
+        123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
+        123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
+        123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
+        123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
+        123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
+        123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
+        123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
+        123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
+        123, 123, 123, 123, 123, 123, 123, 123, 123, 123
+    };
+    networkBatchDecorator.sendToAll(payload);
+    byte[] expected = new byte[]{
+        -128, 0, 0, -116,
+        123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
+        123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
+        123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
+        123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
+        123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
+        123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
+        123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
+        123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
+        123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
+        123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
+        123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
+        123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
+        123, 123, 123, 123, 123, 123, 123, 123, 123, 123,
+        123, 123, 123, 123, 123, 123, 123, 123, 123, 123
+    };
+    networkBatchDecorator.flush();
+    Assert.assertEquals(3, transmissions.size());
+    Assert.assertArrayEquals(expected, transmissions.get(1));
+    Assert.assertArrayEquals(expected, transmissions.get(2));
+    Assert.assertArrayEquals(expected, transmissions.get(3));
   }
 
   private class DummyNetwork implements Network {

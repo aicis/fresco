@@ -32,11 +32,11 @@ public class Connector implements NetworkConnector {
   private final SocketFactory socketFactory;
   private final ServerSocketFactory serverFactory;
 
-  Connector(NetworkConfiguration conf, Duration timeout) {
+  public Connector(NetworkConfiguration conf, Duration timeout) {
     this(conf, timeout, SocketFactory.getDefault(), ServerSocketFactory.getDefault());
   }
 
-  Connector(NetworkConfiguration conf, Duration timeout, SocketFactory socketFactory,
+  public Connector(NetworkConfiguration conf, Duration timeout, SocketFactory socketFactory,
       ServerSocketFactory serverFactory) {
     this.socketFactory = socketFactory;
     this.serverFactory = serverFactory;

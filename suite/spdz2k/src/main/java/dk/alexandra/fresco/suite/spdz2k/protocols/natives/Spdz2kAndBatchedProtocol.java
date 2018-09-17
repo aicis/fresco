@@ -74,11 +74,8 @@ public class Spdz2kAndBatchedProtocol<PlainT extends CompUInt<?, ?, PlainT>> ext
         Spdz2kTriple<PlainT, Spdz2kSIntBoolean<PlainT>> triple = triples.get(i);
 
         PlainT e = openEpsilons.get(i);
-//        System.out.println(macKeyShare);
-//        System.out.println(epsilons.get(i).asArithmetic() + " " + e.toArithmeticRep());
         openedValueStore.pushOpenedValue(epsilons.get(i).asArithmetic(), e.toArithmeticRep());
         PlainT d = openDeltas.get(i);
-//        System.out.println(deltas.get(i).asArithmetic() + " " + d.toArithmeticRep());
         openedValueStore.pushOpenedValue(deltas.get(i).asArithmetic(), d.toArithmeticRep());
 
         Spdz2kSIntBoolean<PlainT> prod = andAfterReceive(e, d, triple, macKeyShare, factory,
