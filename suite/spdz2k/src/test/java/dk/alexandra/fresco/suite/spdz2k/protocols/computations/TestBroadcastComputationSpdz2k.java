@@ -91,7 +91,8 @@ public class TestBroadcastComputationSpdz2k extends
           }
           Application<List<byte[]>, ProtocolBuilderNumeric> testApplication =
               root -> new BroadcastComputation<ProtocolBuilderNumeric>(
-                  inputs.get(root.getBasicNumericContext().getMyId() - 1)).buildComputation(root);
+                  inputs.get(root.getBasicNumericContext().getMyId() - 1), (noParties > 2))
+                  .buildComputation(root);
           List<byte[]> actual = runApplication(testApplication);
           assertEquals(inputs.size(), actual.size());
           for (int i = 0; i < actual.size(); i++) {
@@ -122,10 +123,12 @@ public class TestBroadcastComputationSpdz2k extends
           Application<List<byte[]>, ProtocolBuilderNumeric> testApplication;
           if (partyId == 2) {
             testApplication = root -> new MaliciousBroadcastComputation(
-                inputs.get(root.getBasicNumericContext().getMyId() - 1)).buildComputation(root);
+                inputs.get(root.getBasicNumericContext().getMyId() - 1), noParties > 2)
+                .buildComputation(root);
           } else {
             testApplication = root -> new BroadcastComputation<ProtocolBuilderNumeric>(
-                inputs.get(root.getBasicNumericContext().getMyId() - 1)).buildComputation(root);
+                inputs.get(root.getBasicNumericContext().getMyId() - 1), noParties > 2)
+                .buildComputation(root);
           }
           // we need that new test framework...
           try {
@@ -143,8 +146,8 @@ public class TestBroadcastComputationSpdz2k extends
 
     private final List<byte[]> inputCopy;
 
-    MaliciousBroadcastComputation(byte[] input) {
-      super(input);
+    MaliciousBroadcastComputation(byte[] input, boolean doValidation) {
+      super(input, doValidation);
       this.inputCopy = Collections.singletonList(input);
     }
 

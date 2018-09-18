@@ -33,7 +33,8 @@ public class CommitmentComputationSpdz2k implements
   public DRes<List<byte[]>> buildComputation(ProtocolBuilderNumeric builder) {
     HashBasedCommitment ownCommitment = new HashBasedCommitment();
     byte[] ownOpening = ownCommitment.commit(localDrbg, value);
-    return builder.seq(new BroadcastComputation<>(commitmentSerializer.serialize(ownCommitment)))
+    return builder.seq(new BroadcastComputation<>(
+        commitmentSerializer.serialize(ownCommitment), noOfParties > 2))
         .seq((seq, rawCommitments) -> {
           DRes<List<byte[]>> openingsDRes = seq.append(new InsecureBroadcastProtocol<>(ownOpening));
           List<HashBasedCommitment> commitments = commitmentSerializer

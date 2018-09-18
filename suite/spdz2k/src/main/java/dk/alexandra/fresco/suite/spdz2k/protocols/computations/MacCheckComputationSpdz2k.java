@@ -37,6 +37,7 @@ public class MacCheckComputationSpdz2k<
   private ByteSerializer<HashBasedCommitment> commitmentSerializer;
   private final int noOfParties;
   private final Drbg localDrbg;
+  private long then;
 
   /**
    * Creates new {@link MacCheckComputationSpdz2k}.
@@ -49,6 +50,7 @@ public class MacCheckComputationSpdz2k<
   public MacCheckComputationSpdz2k(Pair<List<Spdz2kSIntArithmetic<PlainT>>, List<PlainT>> toCheck,
       Spdz2kResourcePool<PlainT> resourcePool,
       CompUIntConverter<HighT, LowT, PlainT> converter) {
+    this.then = System.currentTimeMillis();
     this.authenticatedElements = toCheck.getFirst();
     this.openValues = toCheck.getSecond();
     this.converter = converter;
@@ -58,6 +60,11 @@ public class MacCheckComputationSpdz2k<
         resourcePool.getRandomGenerator(),
         resourcePool.getFactory(),
         authenticatedElements.size());
+//    System.out.println("Done sampling " + (System.currentTimeMillis() - then));
+//    then = System.currentTimeMillis();
+//    if (resourcePool.getMyId() == 1) {
+//      System.out.println(authenticatedElements.size());
+//    }
     this.commitmentSerializer = resourcePool.getCommitmentSerializer();
     this.noOfParties = resourcePool.getNoOfParties();
     this.localDrbg = resourcePool.getLocalRandomGenerator();
@@ -66,7 +73,9 @@ public class MacCheckComputationSpdz2k<
   @Override
   public DRes<Void> buildComputation(ProtocolBuilderNumeric builder) {
     PlainT macKeyShare = supplier.getSecretSharedKey();
+    long thenthen = System.currentTimeMillis();
     PlainT y = UInt.innerProduct(openValues, randomCoefficients);
+//    System.out.println("Inner product " + (System.currentTimeMillis() - thenthen));
     Spdz2kSIntArithmetic<PlainT> r = supplier.getNextRandomElementShare();
     return builder
         .seq(seq -> {
@@ -74,7 +83,7 @@ public class MacCheckComputationSpdz2k<
             List<byte[]> sharesLowBits = authenticatedElements.stream()
                 .map(element -> element.getShare().getLeastSignificant().toByteArray())
                 .collect(Collectors.toList());
-            return new BroadcastComputation<ProtocolBuilderNumeric>(sharesLowBits)
+            return new BroadcastComputation<ProtocolBuilderNumeric>(sharesLowBits, true)
                 .buildComputation(seq);
           } else {
             return null;
@@ -91,6 +100,8 @@ public class MacCheckComputationSpdz2k<
           }
           authenticatedElements.clear();
           openValues.clear();
+//          System.out.println("Done mac-check " + (System.currentTimeMillis() - then));
+          then = System.currentTimeMillis();
           return null;
         });
   }
@@ -111,9 +122,9 @@ public class MacCheckComputationSpdz2k<
       pj = pj.add(computePj(share, randomCoefficient));
     }
     final HighT add = pj.add(r.getShare().getLeastSignificantAsHigh());
-//    System.out.println("add " + add);
     byte[] pjBytes = add.toByteArray();
-    return new BroadcastComputation<ProtocolBuilderNumeric>(pjBytes).buildComputation(builder);
+    return new BroadcastComputation<ProtocolBuilderNumeric>(pjBytes, noOfParties > 2)
+        .buildComputation(builder);
   }
 
   private DRes<List<byte[]>> computeZValues(ProtocolBuilderNumeric builder,

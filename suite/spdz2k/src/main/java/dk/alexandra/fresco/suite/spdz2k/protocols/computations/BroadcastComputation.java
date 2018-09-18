@@ -17,13 +17,15 @@ public class BroadcastComputation<BuilderT extends ProtocolBuilderImpl<BuilderT>
     Computation<List<byte[]>, BuilderT> {
 
   private final List<byte[]> input;
+  private final boolean doValidation;
 
-  BroadcastComputation(List<byte[]> input) {
+  BroadcastComputation(List<byte[]> input, boolean doValidation) {
     this.input = input;
+    this.doValidation = doValidation;
   }
 
-  BroadcastComputation(byte[] input) {
-    this(java.util.Collections.singletonList(input));
+  BroadcastComputation(byte[] input, boolean doValidation) {
+    this(java.util.Collections.singletonList(input), doValidation);
   }
 
   @Override
@@ -38,8 +40,12 @@ public class BroadcastComputation<BuilderT extends ProtocolBuilderImpl<BuilderT>
       List<byte[]> toValidate = lst.stream()
           .flatMap(broadcast -> broadcast.out().stream())
           .collect(Collectors.toList());
-      seq.append(new BroadcastValidationProtocol<>(toValidate));
-      return () -> toValidate;
+      if (doValidation) {
+        seq.append(new BroadcastValidationProtocol<>(toValidate));
+        return () -> toValidate;
+      } else {
+        return () -> toValidate;
+      }
     });
   }
 

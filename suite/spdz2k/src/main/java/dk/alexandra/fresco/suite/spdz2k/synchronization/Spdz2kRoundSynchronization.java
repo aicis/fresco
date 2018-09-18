@@ -29,7 +29,7 @@ public class Spdz2kRoundSynchronization<
     PlainT extends CompUInt<HighT, LowT, PlainT>>
     implements RoundSynchronization<Spdz2kResourcePool<PlainT>> {
 
-  private static final int OPEN_VALUE_THRESHOLD = 100000;
+  private static final int OPEN_VALUE_THRESHOLD = 300000;
   private final int openValueThreshold;
   private final int batchSize;
   private boolean isCheckRequired;

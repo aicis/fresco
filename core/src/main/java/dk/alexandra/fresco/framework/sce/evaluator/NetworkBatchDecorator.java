@@ -37,9 +37,7 @@ public class NetworkBatchDecorator implements Network {
     }
 
     int count = byteInputStream.read();
-//    System.out.println(count);
     boolean isLargePacket = (count & 0x80) == 0x80;
-//    System.out.println(isLargePacket);
     if (!isLargePacket) {
       byte[] bytes = new byte[count];
       byteInputStream.read(bytes, 0, count);
