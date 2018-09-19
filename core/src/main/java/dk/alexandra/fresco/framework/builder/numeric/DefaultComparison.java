@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.SIntPair;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -11,6 +12,7 @@ import dk.alexandra.fresco.lib.compare.lt.LessThanZero;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestConstRounds;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestLogRounds;
 
+import dk.alexandra.fresco.lib.math.integer.min.ArgMin;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -111,6 +113,11 @@ public class DefaultComparison implements Comparison {
       default:
         throw new UnsupportedOperationException("Not implemented yet");
     }
+  }
+
+  @Override
+  public DRes<Pair<List<DRes<SInt>>, SInt>> argMin(List<DRes<SInt>> xs) {
+    return builder.seq(new ArgMin(xs));
   }
 
 }

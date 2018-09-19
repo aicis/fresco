@@ -2,6 +2,7 @@ package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.SIntPair;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -119,6 +120,13 @@ public interface Comparison extends ComputationDirectory {
    * bits of x. Result will be either [1] (true) or [0] (false)
    */
   DRes<SInt> compareZero(DRes<SInt> x, int bitlength, Algorithm algorithm);
+
+  /**
+   * Computes the index of the minimum element in a list and the element itself. <p>The index is
+   * expressed as a list of bits where all bits are 0 except for the bit at the index of the minimum
+   * element, which is set to 1.</p>
+   */
+  DRes<Pair<List<DRes<SInt>>, SInt>> argMin(List<DRes<SInt>> xs);
 
   /**
    * Call to {@link #compareZero(DRes, int, Algorithm)} with default comparison algorithm.

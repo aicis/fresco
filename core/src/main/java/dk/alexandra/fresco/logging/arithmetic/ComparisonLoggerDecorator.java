@@ -2,6 +2,7 @@ package dk.alexandra.fresco.logging.arithmetic;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.Comparison;
+import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.SIntPair;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -92,6 +93,11 @@ public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger 
   public DRes<SInt> compareZero(DRes<SInt> x, int bitlength, Algorithm algorithm) {
     comp0Count++;
     return this.delegate.compareZero(x, bitlength, algorithm);
+  }
+
+  @Override
+  public DRes<Pair<List<DRes<SInt>>, SInt>> argMin(List<DRes<SInt>> xs) {
+    throw new UnsupportedOperationException("not implemented");
   }
 
   @Override
