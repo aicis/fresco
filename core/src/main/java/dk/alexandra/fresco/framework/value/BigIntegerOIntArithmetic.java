@@ -13,12 +13,15 @@ public class BigIntegerOIntArithmetic implements OIntArithmetic {
 
   private static final BigInteger TWO = new BigInteger("2");
   private List<OInt> twoPowersList;
+  private final List<OInt> cachedTwoPowersList;
   private final OIntFactory factory;
 
   public BigIntegerOIntArithmetic(OIntFactory factory) {
     this.factory = factory;
     twoPowersList = new ArrayList<>(1);
     twoPowersList.add(new BigIntegerOInt(BigInteger.ONE));
+    cachedTwoPowersList = Collections
+        .unmodifiableList(getPowersOfTwo(2 * factory.getMaxBitLength()));
   }
 
   @Override
@@ -70,14 +73,18 @@ public class BigIntegerOIntArithmetic implements OIntArithmetic {
 
   @Override
   public OInt twoTo(int power) {
-    // TODO look up in pre-computed powers
-    return factory.fromBigInteger(TWO.pow(power));
+    if (power < cachedTwoPowersList.size()) {
+      return cachedTwoPowersList.get(power);
+    } else {
+      System.out.println("Not cached!");
+      return factory.fromBigInteger(TWO.pow(power));
+    }
   }
 
   @Override
   public OInt modTwoTo(OInt input, int power) {
-    return factory.fromBigInteger(factory.toBigInteger(input).mod(TWO.pow(
-        power)));
+    OInt pow = twoTo(power);
+    return factory.fromBigInteger(factory.toBigInteger(input).mod(factory.toBigInteger(pow)));
   }
 
   @Override

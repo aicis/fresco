@@ -47,7 +47,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
   SpdzBuilder(BasicNumericContext basicNumericContext, RealNumericContext realNumericContext) {
     this.basicNumericContext = basicNumericContext;
     this.realNumericContext = realNumericContext;
-    this.oIntFactory = new BigIntegerOIntFactory();
+    this.oIntFactory = new BigIntegerOIntFactory(basicNumericContext.getMaxBitLength());
     this.oIntArithmetic = new BigIntegerOIntArithmetic(oIntFactory);
   }
 

@@ -11,6 +11,11 @@ public class BigIntegerOIntFactory implements OIntFactory {
   private static final OInt ZERO = new BigIntegerOInt(BigInteger.ZERO);
   private static final OInt ONE = new BigIntegerOInt(BigInteger.ONE);
   private static final OInt TWO = new BigIntegerOInt(BigInteger.valueOf(2));
+  private final int maxBitLength;
+
+  public BigIntegerOIntFactory(int maxBitLength) {
+    this.maxBitLength = maxBitLength;
+  }
 
   @Override
   public BigInteger toBigInteger(OInt value) {
@@ -35,6 +40,11 @@ public class BigIntegerOIntFactory implements OIntFactory {
   @Override
   public OInt two() {
     return TWO;
+  }
+
+  @Override
+  public int getMaxBitLength() {
+    return maxBitLength;
   }
 
 }

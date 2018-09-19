@@ -44,4 +44,9 @@ public interface OIntFactory {
    */
   OInt two();
 
+  /**
+   * Returns the bit length of the max. representable value.
+   */
+  int getMaxBitLength();
+
 }

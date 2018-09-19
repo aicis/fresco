@@ -74,6 +74,11 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> extends OI
    */
   int getLowBitLength();
 
+  @Override
+  default int getMaxBitLength() {
+    return getLowBitLength();
+  }
+
   /**
    * Get total bit length.
    */

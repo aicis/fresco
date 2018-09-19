@@ -43,7 +43,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
     this.basicNumericContext = basicNumericContext;
     this.realNumericContext = realNumericContext;
     this.rand = new Random(0);
-    this.oIntFactory = new BigIntegerOIntFactory();
+    this.oIntFactory = new BigIntegerOIntFactory(basicNumericContext.getMaxBitLength());
     this.oIntArithmetic = new BigIntegerOIntArithmetic(oIntFactory);
   }
 
