@@ -159,13 +159,15 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
       @Override
       public DRes<SInt> known(BigInteger value) {
-        return builder.append(new Spdz2kKnownSIntProtocol<>(factory.createFromBigInteger(value)));
+        return builder.append(new Spdz2kKnownSIntProtocol<>(
+            (value != null) ? factory.fromLong(value.longValue()) : null));
       }
 
       @Override
       public DRes<SInt> input(BigInteger value, int inputParty) {
         return builder.seq(
-            new InputComputationSpdz2k<>(factory.createFromBigInteger(value), inputParty)
+            new InputComputationSpdz2k<>(
+                (value != null) ? factory.fromLong(value.longValue()) : null, inputParty)
         );
       }
 

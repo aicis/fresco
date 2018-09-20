@@ -53,6 +53,10 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
     this(value.shiftRight(64).longValue(), value.shiftRight(32).intValue(), value.intValue());
   }
 
+  public CompUInt128(BigInteger value, boolean lowOnly) {
+    this(value.longValue());
+  }
+
   CompUInt128(long high, int mid, int low) {
     this.high = high;
     this.mid = mid;

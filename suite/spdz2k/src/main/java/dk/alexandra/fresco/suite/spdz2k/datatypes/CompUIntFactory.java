@@ -94,6 +94,11 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> extends OI
   }
 
   /**
+   * Creates new {@link CompT} from a {@link long}.
+   */
+  CompT fromLong(long value);
+
+  /**
    * Creates element whose value is zero.
    */
   default CompT zero() {

@@ -50,6 +50,11 @@ public class CompUInt64Factory implements CompUIntFactory<CompUInt64> {
   }
 
   @Override
+  public CompUInt64 fromLong(long value) {
+    return new CompUInt64(value & 0xffffffffL);
+  }
+
+  @Override
   public CompUInt64 zero() {
     return ZERO;
   }

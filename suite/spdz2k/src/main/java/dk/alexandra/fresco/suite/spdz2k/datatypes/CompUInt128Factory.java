@@ -50,6 +50,11 @@ public class CompUInt128Factory implements CompUIntFactory<CompUInt128> {
   }
 
   @Override
+  public CompUInt128 fromLong(long value) {
+    return new CompUInt128(value);
+  }
+
+  @Override
   public CompUInt128 zero() {
     return ZERO;
   }
