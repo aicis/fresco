@@ -75,7 +75,7 @@ public class CarryOut implements Computation<SInt, ProtocolBuilderNumeric> {
       // need to account for carry-in bit
       int lastIdx = pairs.size() - 1;
       SIntPair lastPair = pairs.get(lastIdx);
-      DRes<SInt> lastCarryPropagator = seq.logical().xor(
+      DRes<SInt> lastCarryPropagator = seq.logical().halfOr(
           lastPair.getSecond(),
           seq.logical().andKnown(carryIn, lastPair.getFirst()));
       pairs.set(lastIdx, new SIntPair(lastPair.getFirst(), lastCarryPropagator));
