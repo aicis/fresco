@@ -9,9 +9,8 @@ import dk.alexandra.fresco.framework.value.SInt;
  * Implements an equality protocol -- given inputs x, y set output to x==y.
  *
  */
-public class Equality implements Computation<SInt, ProtocolBuilderNumeric> {
-
-  // params
+public class EqualityConstRounds implements Computation<SInt, ProtocolBuilderNumeric> {
+  
   private final int bitLength;
   private final DRes<SInt> left;
   private final DRes<SInt> right;
@@ -23,7 +22,7 @@ public class Equality implements Computation<SInt, ProtocolBuilderNumeric> {
    * @param left The first element to compare.
    * @param right The second element to compare.
    */
-  public Equality(
+  public EqualityConstRounds(
       int bitLength, DRes<SInt> left, DRes<SInt> right) {
     super();
     this.bitLength = bitLength;

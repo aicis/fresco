@@ -19,7 +19,7 @@ public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger 
   private long leqCount;
   private long signCount;
   private long comp0Count;
-  
+
   public ComparisonLoggerDecorator(Comparison delegate) {
     super();
     this.delegate = delegate;
@@ -30,11 +30,11 @@ public class ComparisonLoggerDecorator implements Comparison, PerformanceLogger 
     eqCount++;
     return this.delegate.equals(x, y);
   }
-  
+
   @Override
-  public DRes<SInt> equals(int bitLength, DRes<SInt> x, DRes<SInt> y) {
+  public DRes<SInt> equals(int bitLength, DRes<SInt> x, DRes<SInt> y, Algorithm algorithm) {
     eqCount++;
-    return this.delegate.equals(x, y);
+    return this.delegate.equals(bitLength, x, y, algorithm);
   }
 
   @Override
