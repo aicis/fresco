@@ -64,7 +64,7 @@ import java.util.stream.IntStream;
  */
 public abstract class AbstractSpdzTest {
 
-  protected Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
+  private Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
   // TODO hack hack hack
   private static final int DEFAULT_MOD_BIT_LENGTH = 512;
   private static final int DEFAULT_MAX_BIT_LENGTH = 150;
@@ -73,8 +73,32 @@ public abstract class AbstractSpdzTest {
   private int maxBitLength = DEFAULT_MAX_BIT_LENGTH;
   private int fixedPointPrecision = DEFAULT_FIXED_POINT_PRECISION;
   private static final int PRG_SEED_LENGTH = 256;
+  private static EvaluationStrategy DEFAULT_EVAL_STRATEGY = EvaluationStrategy.SEQUENTIAL_BATCHED;
 
   protected void runTest(
+      TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
+      PreprocessingStrategy preProStrat,
+      int noOfParties) {
+    runTest(f, DEFAULT_EVAL_STRATEGY, preProStrat, noOfParties);
+  }
+
+  protected void runTest(
+      TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
+      PreprocessingStrategy preProStrat, int noOfParties,
+      boolean logPerformance, int modBitLength, int maxBitLength, int fixedPointPrecision) {
+    runTest(f, DEFAULT_EVAL_STRATEGY, preProStrat, noOfParties, logPerformance, modBitLength,
+        maxBitLength, fixedPointPrecision);
+  }
+
+  // this is here until seq strategy goes away
+  void runTestSequential(TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
+      PreprocessingStrategy preProStrat, int noOfParties,
+      boolean logPerformance, int modBitLength, int maxBitLength, int fixedPointPrecision) {
+    runTest(f, EvaluationStrategy.SEQUENTIAL, preProStrat, noOfParties, logPerformance, modBitLength,
+        maxBitLength, fixedPointPrecision);
+  }
+
+  private void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, PreprocessingStrategy preProStrat, int noOfParties,
       boolean logPerformance, int modBitLength, int maxBitLength, int fixedPointPrecision) {
@@ -168,7 +192,7 @@ public abstract class AbstractSpdzTest {
         fixedPointPrecision);
   }
 
-  DRes<List<DRes<SInt>>> createPipe(int myId, int noOfPlayers, int pipeLength,
+  private DRes<List<DRes<SInt>>> createPipe(int myId, int noOfPlayers, int pipeLength,
       CloseableNetwork pipeNetwork, SpdzMascotDataSupplier tripleSupplier) {
 
     ProtocolBuilderNumeric sequential = new SpdzBuilder(
@@ -187,8 +211,7 @@ public abstract class AbstractSpdzTest {
   private Drbg getDrbg(int myId, int prgSeedLength) {
     byte[] seed = new byte[prgSeedLength / 8];
     new Random(myId).nextBytes(seed);
-    Drbg drbg = AesCtrDrbgFactory.fromDerivedSeed(seed);
-    return drbg;
+    return AesCtrDrbgFactory.fromDerivedSeed(seed);
   }
 
   private Map<Integer, RotList> getSeedOts(int myId, List<Integer> partyIds, int prgSeedLength,

@@ -8,7 +8,7 @@ import org.junit.Test;
 public class TestPerformanceLog extends AbstractSpdzTest {
 
   @Test
-  public void test_log_network() throws Exception {
+  public void test_log_network() {
     runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
         PreprocessingStrategy.DUMMY, 2, true);
   }

@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.AdvancedNumericTests;
 import dk.alexandra.fresco.lib.math.integer.exp.ExponentiationTests.TestExponentiation;
 import dk.alexandra.fresco.lib.math.polynomial.PolynomialTests.TestPolynomialEvaluator;
@@ -10,7 +9,7 @@ import org.junit.Test;
 public class TestSpdzAdvancedNumeric extends AbstractSpdzTest {
 
   @Test
-  public void test_Division() throws Exception {
+  public void test_Division() {
     int[][] examples = new int[][]{
         new int[]{9, 4},
         new int[]{82, 2},
@@ -26,9 +25,9 @@ public class TestSpdzAdvancedNumeric extends AbstractSpdzTest {
     }
   }
 
-  private void test_Division(int numerator, int denominator) throws Exception {
+  private void test_Division(int numerator, int denominator) {
     runTest(new AdvancedNumericTests.TestDivision<>(numerator, denominator),
-        EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2);
+        PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
@@ -48,28 +47,26 @@ public class TestSpdzAdvancedNumeric extends AbstractSpdzTest {
     }
   }
 
-  private void test_DivisionWithKnownDenominator(int numerator, int denominator) throws Exception {
+  private void test_DivisionWithKnownDenominator(int numerator, int denominator) {
     runTest(new AdvancedNumericTests.TestDivisionWithKnownDenominator<>(numerator, denominator),
-        EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2);
-  }
-
-  @Test
-  public void test_Modulus() throws Exception {
-    runTest(new AdvancedNumericTests.TestModulus<>(),
-        EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2);
-  }
-
-  @Test
-  public void test_exponentiation() throws Exception {
-    runTest(new TestExponentiation<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_polynomial() throws Exception {
+  public void test_Modulus() {
+    runTest(new AdvancedNumericTests.TestModulus<>(),
+        PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
+  public void test_exponentiation() {
+    runTest(new TestExponentiation<>(),
+        PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
+  public void test_polynomial() {
     runTest(new TestPolynomialEvaluator<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
   }
 }

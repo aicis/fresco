@@ -22,79 +22,79 @@ public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
   @Ignore
   @Test
   public void test_Division_Sequential_Batched() {
-    runTest(new TestKnownDivisorDivision<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new TestKnownDivisorDivision<>(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_Secret_Shared_Division_Sequential_Batched() {
-    runTest(new TestDivision<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new TestDivision<>(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_Log_Sequential_Batched() {
-    runTest(new TestLogarithm<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new TestLogarithm<>(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_Sqrt_Sequential_Batched() {
-    runTest(new TestSquareRoot<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new TestSquareRoot<>(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_Input_Sequential() {
-    runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new BasicArithmeticTests.TestInput<>(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void testInputFromAll() {
-    runTest(new BasicArithmeticTests.TestInputFromAll<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new BasicArithmeticTests.TestInputFromAll<>(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_OutputToTarget_Sequential() {
-    runTest(new BasicArithmeticTests.TestOutputToSingleParty<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicArithmeticTests.TestOutputToSingleParty<>(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_AddPublicValue_Sequential() {
-    runTest(new BasicArithmeticTests.TestAddPublicValue<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicArithmeticTests.TestAddPublicValue<>(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void testOpenWithConversion() {
-    runTest(new BasicArithmeticTests.TestOpenWithConversion<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicArithmeticTests.TestOpenWithConversion<>(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_MultAndAdd_Sequential() {
-    runTest(new BasicArithmeticTests.TestSimpleMultAndAdd<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicArithmeticTests.TestSimpleMultAndAdd<>(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_Sum_And_Output_Sequential() {
-    runTest(new BasicArithmeticTests.TestSumAndMult<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicArithmeticTests.TestSumAndMult<>(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_MinInfFrac_Sequential() {
-    runTest(new TestMinInfFrac<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new TestMinInfFrac<>(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_MinInfFrac_SequentialBatched() {
-    runTest(new TestMinInfFrac<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new TestMinInfFrac<>(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
@@ -113,13 +113,13 @@ public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
 
   @Test
   public void test_Lots_Of_Mults_Sequential_Batched_Different_Modulus() {
-    runTest(new BasicArithmeticTests.TestLotsMult<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new BasicArithmeticTests.TestLotsMult<>(),
         PreprocessingStrategy.DUMMY, 2, false, 256, 128, 16);
   }
 
   @Test
   public void testOpenWithConversionMascot() {
-    runTest(new BasicArithmeticTests.TestOpenWithConversion<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicArithmeticTests.TestOpenWithConversion<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.MASCOT, 2, 16, 16, 16);
   }
 
