@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.lib.arithmetic.ParallelAndSequenceTests.TestSumAndProduct;
-import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import org.junit.Test;
 
 /**
@@ -10,8 +9,8 @@ import org.junit.Test;
 public class TestSequentialEval extends AbstractSpdzTest {
 
   @Test
-  public void testSumAndProduct() {
-    runTestSequential(new TestSumAndProduct<>(),
-        PreprocessingStrategy.DUMMY, 2, false, 128, 32, 3);
+  public void testSequentialEval() {
+    runTestSequential(new TestSumAndProduct<>());
   }
+
 }

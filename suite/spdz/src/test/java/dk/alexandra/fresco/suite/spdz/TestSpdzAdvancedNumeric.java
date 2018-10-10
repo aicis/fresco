@@ -31,7 +31,7 @@ public class TestSpdzAdvancedNumeric extends AbstractSpdzTest {
   }
 
   @Test
-  public void test_Division_Known_Denominator() throws Exception {
+  public void test_Division_Known_Denominator() {
     int[][] examples = new int[][]{
         new int[]{9, 4},
         new int[]{82, 2},

@@ -84,17 +84,9 @@ public abstract class AbstractSpdzTest {
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
-      PreprocessingStrategy preProStrat, int noOfParties,
-      boolean logPerformance, int modBitLength, int maxBitLength, int fixedPointPrecision) {
-    runTest(f, DEFAULT_EVAL_STRATEGY, preProStrat, noOfParties, logPerformance, modBitLength,
-        maxBitLength, fixedPointPrecision);
-  }
-
-  // this is here until seq strategy goes away
-  void runTestSequential(TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
-      PreprocessingStrategy preProStrat, int noOfParties,
-      boolean logPerformance, int modBitLength, int maxBitLength, int fixedPointPrecision) {
-    runTest(f, EvaluationStrategy.SEQUENTIAL, preProStrat, noOfParties, logPerformance, modBitLength,
+      PreprocessingStrategy preProStrat, int noOfParties, int modBitLength, int maxBitLength,
+      int fixedPointPrecision) {
+    runTest(f, DEFAULT_EVAL_STRATEGY, preProStrat, noOfParties, modBitLength,
         maxBitLength, fixedPointPrecision);
   }
 
@@ -105,6 +97,9 @@ public abstract class AbstractSpdzTest {
     this.modBitLength = modBitLength;
     this.maxBitLength = maxBitLength;
     this.fixedPointPrecision = fixedPointPrecision;
+
+    
+
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * (noOfParties - 1));
@@ -121,18 +116,17 @@ public abstract class AbstractSpdzTest {
       PerformanceLoggerCountingAggregate aggregate = new PerformanceLoggerCountingAggregate();
 
       ProtocolSuiteNumeric<SpdzResourcePool> protocolSuite = createProtocolSuite(maxBitLength);
+      BatchEvaluationStrategy<SpdzResourcePool> batchEvalStrat = evalStrategy.getStrategy();
       if (logPerformance) {
         protocolSuite = new NumericSuiteLogging<>(protocolSuite);
         aggregate.add((PerformanceLogger) protocolSuite);
-      }
-      BatchEvaluationStrategy<SpdzResourcePool> batchEvalStrat = evalStrategy.getStrategy();
-
-      if (logPerformance) {
         batchEvalStrat = new BatchEvaluationLoggingDecorator<>(batchEvalStrat);
         aggregate.add((PerformanceLogger) batchEvalStrat);
       }
+
       ProtocolEvaluator<SpdzResourcePool> evaluator =
           new BatchedProtocolEvaluator<>(batchEvalStrat, protocolSuite);
+
       if (logPerformance) {
         evaluator = new EvaluatorLoggingDecorator<>(evaluator);
         aggregate.add((PerformanceLogger) evaluator);
@@ -171,14 +165,6 @@ public abstract class AbstractSpdzTest {
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
-      EvaluationStrategy evalStrategy, PreprocessingStrategy preProStrat, int noOfParties,
-      boolean logPerformance) {
-    runTest(f, evalStrategy, preProStrat, noOfParties, logPerformance, DEFAULT_MOD_BIT_LENGTH,
-        DEFAULT_MAX_BIT_LENGTH, DEFAULT_FIXED_POINT_PRECISION);
-  }
-
-  protected void runTest(
-      TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, PreprocessingStrategy preProStrat, int noOfParties) {
     runTest(f, evalStrategy, preProStrat, noOfParties, false, DEFAULT_MOD_BIT_LENGTH,
         DEFAULT_MAX_BIT_LENGTH, DEFAULT_FIXED_POINT_PRECISION);
@@ -190,6 +176,19 @@ public abstract class AbstractSpdzTest {
       int modBitLength, int maxBitLength, int fixedPointPrecision) {
     runTest(f, evalStrategy, preProStrat, noOfParties, false, modBitLength, maxBitLength,
         fixedPointPrecision);
+  }
+
+  // this is here until seq strategy goes away
+  void runTestSequential(
+      TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f) {
+    runTest(f, EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2,
+        false, DEFAULT_MOD_BIT_LENGTH, DEFAULT_MAX_BIT_LENGTH, DEFAULT_FIXED_POINT_PRECISION);
+  }
+
+  void runTestWithLogging(
+      TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f) {
+    runTest(f, DEFAULT_EVAL_STRATEGY, PreprocessingStrategy.DUMMY, 2,
+        true, DEFAULT_MOD_BIT_LENGTH, DEFAULT_MAX_BIT_LENGTH, DEFAULT_FIXED_POINT_PRECISION);
   }
 
   private DRes<List<DRes<SInt>>> createPipe(int myId, int noOfPlayers, int pipeLength,

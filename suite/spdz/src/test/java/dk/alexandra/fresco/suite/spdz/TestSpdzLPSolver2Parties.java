@@ -7,19 +7,13 @@ import org.junit.Test;
 public class TestSpdzLPSolver2Parties extends AbstractSpdzTest {
 
   @Test
-  public void test_LPSolver_2_Sequential_dummy() {
-    runTest(new LPSolverTests.TestLPSolver<>(PivotRule.DANZIG),
-        PreprocessingStrategy.DUMMY, 2);
-  }
-
-  @Test
   public void test_LPSolver_2_Sequential_dummy_bland() {
     runTest(new LPSolverTests.TestLPSolver<>(PivotRule.BLAND),
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_LPSolver_2_Sequential_batched_dummy() {
+  public void test_LPSolver_2() {
 
     runTest(new LPSolverTests.TestLPSolver<>(PivotRule.DANZIG),
         PreprocessingStrategy.DUMMY, 2);
@@ -28,7 +22,7 @@ public class TestSpdzLPSolver2Parties extends AbstractSpdzTest {
   @Test
   public void test_LPSolver_2_Sequential_batched_dummy_smaller_mod() {
     runTest(new LPSolverTests.TestLPSolver<>(PivotRule.DANZIG),
-        PreprocessingStrategy.DUMMY, 2, false, 128, 30, 8);
+        PreprocessingStrategy.DUMMY, 2, 128, 30, 8);
   }
 
 }
