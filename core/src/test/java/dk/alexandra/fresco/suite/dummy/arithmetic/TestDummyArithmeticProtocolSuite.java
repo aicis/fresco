@@ -5,7 +5,6 @@ import static org.junit.Assert.assertThat;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.ExponentiationPipeTests;
-import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.arithmetic.AdvancedNumericTests;
@@ -443,7 +442,7 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
     runTest(
         new RandomDataDeaTest<>(2, 1, 5, 1, DeaSolver.AnalysisType.OUTPUT_EFFICIENCY, new Random(),
             1, true),
-        EvaluationStrategy.SEQUENTIAL, 2);
+        new TestParameters().numParties(2));
   }
 
 
