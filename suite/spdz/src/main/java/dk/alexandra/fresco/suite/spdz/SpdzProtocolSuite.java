@@ -10,16 +10,19 @@ public class SpdzProtocolSuite implements ProtocolSuiteNumeric<SpdzResourcePool>
 
   private final int maxBitLength;
   private final int fixedPointPrecision;
+  private final int statisticalSecurityParam;
 
-  public SpdzProtocolSuite(int maxBitLength, int fixedPointPrecision) {
+  public SpdzProtocolSuite(int maxBitLength, int fixedPointPrecision,
+      int statisticalSecurityParam) {
     this.maxBitLength = maxBitLength;
     this.fixedPointPrecision = fixedPointPrecision;
+    this.statisticalSecurityParam = statisticalSecurityParam;
   }
 
   public SpdzProtocolSuite(int maxBitLength) {
-    this(maxBitLength, maxBitLength / 8);
+    this(maxBitLength, maxBitLength / 8, BasicNumericContext.DEFAULT_STATISTICAL_SECURITY);
   }
-  
+
   @Override
   public BuilderFactoryNumeric init(SpdzResourcePool resourcePool, Network network) {
     BasicNumericContext numericContext = createNumericContext(resourcePool);
@@ -28,10 +31,11 @@ public class SpdzProtocolSuite implements ProtocolSuiteNumeric<SpdzResourcePool>
   }
 
   BasicNumericContext createNumericContext(SpdzResourcePool resourcePool) {
-    return new BasicNumericContext(maxBitLength, resourcePool.getModulus(),
+    return new BasicNumericContext(maxBitLength, statisticalSecurityParam,
+        resourcePool.getModulus(),
         resourcePool.getMyId(), resourcePool.getNoOfParties());
   }
-  
+
   RealNumericContext createRealNumericContext() {
     return new RealNumericContext(fixedPointPrecision);
   }

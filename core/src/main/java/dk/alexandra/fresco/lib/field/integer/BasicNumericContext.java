@@ -7,7 +7,7 @@ import java.math.BigInteger;
  */
 public class BasicNumericContext {
 
-  private static int DEFAULT_STATISTICAL_SECURITY = 40;
+  public static int DEFAULT_STATISTICAL_SECURITY = 40;
 
   private final int maxBitLength;
   private final int statisticalSecurityParam;

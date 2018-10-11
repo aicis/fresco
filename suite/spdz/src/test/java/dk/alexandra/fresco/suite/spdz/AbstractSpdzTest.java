@@ -66,14 +66,13 @@ public abstract class AbstractSpdzTest {
 
   private Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
   // TODO hack hack hack
-//  private static final int DEFAULT_MOD_BIT_LENGTH = 512;
-//  private static final int DEFAULT_MAX_BIT_LENGTH = 150;
   private static final int DEFAULT_MOD_BIT_LENGTH = 128;
   private static final int DEFAULT_MAX_BIT_LENGTH = 64;
   private static final int DEFAULT_FIXED_POINT_PRECISION = 16;
   private int modBitLength = DEFAULT_MOD_BIT_LENGTH;
   private int maxBitLength = DEFAULT_MAX_BIT_LENGTH;
   private int fixedPointPrecision = DEFAULT_FIXED_POINT_PRECISION;
+  private int statisticalSecurity = BasicNumericContext.DEFAULT_STATISTICAL_SECURITY;
   private static final int PRG_SEED_LENGTH = 256;
   private static EvaluationStrategy DEFAULT_EVAL_STRATEGY = EvaluationStrategy.SEQUENTIAL_BATCHED;
 
@@ -82,24 +81,27 @@ public abstract class AbstractSpdzTest {
       PreprocessingStrategy preProStrat,
       int noOfParties) {
     runTest(f, DEFAULT_EVAL_STRATEGY, preProStrat, noOfParties,
-        false, DEFAULT_MOD_BIT_LENGTH, DEFAULT_MAX_BIT_LENGTH, DEFAULT_FIXED_POINT_PRECISION);
+        false, DEFAULT_MOD_BIT_LENGTH, DEFAULT_MAX_BIT_LENGTH, DEFAULT_FIXED_POINT_PRECISION,
+        BasicNumericContext.DEFAULT_STATISTICAL_SECURITY);
   }
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       PreprocessingStrategy preProStrat, int noOfParties, int modBitLength, int maxBitLength,
-      int fixedPointPrecision) {
+      int fixedPointPrecision, int statisticalSecurity) {
     runTest(f, DEFAULT_EVAL_STRATEGY, preProStrat, noOfParties, modBitLength,
-        maxBitLength, fixedPointPrecision);
+        maxBitLength, fixedPointPrecision, statisticalSecurity);
   }
 
   private void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, PreprocessingStrategy preProStrat, int noOfParties,
-      boolean logPerformance, int modBitLength, int maxBitLength, int fixedPointPrecision) {
+      boolean logPerformance, int modBitLength, int maxBitLength, int fixedPointPrecision,
+      int statisticalSecurity) {
     this.modBitLength = modBitLength;
     this.maxBitLength = maxBitLength;
     this.fixedPointPrecision = fixedPointPrecision;
+    this.statisticalSecurity = statisticalSecurity;
 
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
@@ -161,35 +163,38 @@ public abstract class AbstractSpdzTest {
   }
 
   protected SpdzProtocolSuite createProtocolSuite(int maxBitLength) {
-    return new SpdzProtocolSuite(maxBitLength);
+    return new SpdzProtocolSuite(maxBitLength, fixedPointPrecision, statisticalSecurity);
   }
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, PreprocessingStrategy preProStrat, int noOfParties,
-      int modBitLength, int maxBitLength, int fixedPointPrecision) {
+      int modBitLength, int maxBitLength, int fixedPointPrecision, int statisticalSecurity) {
     runTest(f, evalStrategy, preProStrat, noOfParties, false, modBitLength, maxBitLength,
-        fixedPointPrecision);
+        fixedPointPrecision, statisticalSecurity);
   }
 
   // this is here until seq strategy goes away
   void runTestSequential(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f) {
     runTest(f, EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2,
-        false, DEFAULT_MOD_BIT_LENGTH, DEFAULT_MAX_BIT_LENGTH, DEFAULT_FIXED_POINT_PRECISION);
+        false, DEFAULT_MOD_BIT_LENGTH, DEFAULT_MAX_BIT_LENGTH, DEFAULT_FIXED_POINT_PRECISION,
+        BasicNumericContext.DEFAULT_STATISTICAL_SECURITY);
   }
 
   void runTestWithLogging(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f) {
     runTest(f, DEFAULT_EVAL_STRATEGY, PreprocessingStrategy.DUMMY, 2,
-        true, DEFAULT_MOD_BIT_LENGTH, DEFAULT_MAX_BIT_LENGTH, DEFAULT_FIXED_POINT_PRECISION);
+        true, DEFAULT_MOD_BIT_LENGTH, DEFAULT_MAX_BIT_LENGTH, DEFAULT_FIXED_POINT_PRECISION,
+        BasicNumericContext.DEFAULT_STATISTICAL_SECURITY);
   }
 
   private DRes<List<DRes<SInt>>> createPipe(int myId, int noOfPlayers, int pipeLength,
       CloseableNetwork pipeNetwork, SpdzMascotDataSupplier tripleSupplier) {
 
     ProtocolBuilderNumeric sequential = new SpdzBuilder(
-        new BasicNumericContext(maxBitLength, tripleSupplier.getModulus(), myId, noOfPlayers),
+        new BasicNumericContext(maxBitLength, statisticalSecurity, tripleSupplier.getModulus(),
+            myId, noOfPlayers),
         new RealNumericContext(fixedPointPrecision)).createSequential();
     SpdzResourcePoolImpl tripleResourcePool =
         new SpdzResourcePoolImpl(myId, noOfPlayers, new OpenedValueStoreImpl<>(), tripleSupplier,

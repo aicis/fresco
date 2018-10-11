@@ -62,13 +62,13 @@ public class TestSpdzBasicArithmetic3Parties extends AbstractSpdzTest {
   @Test
   public void testInputFromAllMascot() {
     runTest(new BasicArithmeticTests.TestInputFromAll<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        PreprocessingStrategy.MASCOT, 3, 16, 16, 16);
+        PreprocessingStrategy.MASCOT, 3, 16, 8, 16, 8);
   }
 
   @Test
   public void test_Input_SequentialBatched_Mascot() {
     runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        PreprocessingStrategy.MASCOT, 3, 16, 16, 16);
+        PreprocessingStrategy.MASCOT, 3, 16, 8, 16, 8);
   }
 
 }

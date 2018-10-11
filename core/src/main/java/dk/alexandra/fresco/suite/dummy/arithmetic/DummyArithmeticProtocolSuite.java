@@ -13,9 +13,9 @@ import java.math.BigInteger;
 
 
 /**
- * The {@link ProtocolSuite} of the Dummy Arithmetic suite. Uses a
- * {@link DummyArithmeticResourcePool} and provides a {@link ProtocolBuilderNumeric}. <b>NB: Do NOT
- * use in production!</b>
+ * The {@link ProtocolSuite} of the Dummy Arithmetic suite. Uses a {@link
+ * DummyArithmeticResourcePool} and provides a {@link ProtocolBuilderNumeric}. <b>NB: Do NOT use in
+ * production!</b>
  */
 public class DummyArithmeticProtocolSuite
     implements ProtocolSuiteNumeric<DummyArithmeticResourcePool> {
@@ -36,7 +36,8 @@ public class DummyArithmeticProtocolSuite
 
   @Override
   public BuilderFactoryNumeric init(DummyArithmeticResourcePool resourcePool, Network network) {
-    BasicNumericContext basicNumericContext = new BasicNumericContext(maxBitLength, modulus,
+    BasicNumericContext basicNumericContext = new BasicNumericContext(maxBitLength,
+        BasicNumericContext.DEFAULT_STATISTICAL_SECURITY, modulus,
         resourcePool.getMyId(), resourcePool.getNoOfParties());
     RealNumericContext realNumericContext = new RealNumericContext(precision);
     return new DummyArithmeticBuilderFactory(basicNumericContext, realNumericContext);
@@ -48,10 +49,12 @@ public class DummyArithmeticProtocolSuite
 
       @Override
       public void finishedBatch(int gatesEvaluated, DummyArithmeticResourcePool resourcePool,
-          Network network) {}
+          Network network) {
+      }
 
       @Override
-      public void finishedEval(DummyArithmeticResourcePool resourcePool, Network network) {}
+      public void finishedEval(DummyArithmeticResourcePool resourcePool, Network network) {
+      }
 
       @Override
       public void beforeBatch(ProtocolCollection<DummyArithmeticResourcePool> protocols,
