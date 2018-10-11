@@ -27,7 +27,7 @@ public class TestSpdzAdvancedNumeric extends AbstractSpdzTest {
 
   private void test_Division(int numerator, int denominator) {
     runTest(new AdvancedNumericTests.TestDivision<>(numerator, denominator),
-        PreprocessingStrategy.DUMMY, 2);
+        PreprocessingStrategy.DUMMY, 2, 256, 150, 16);
   }
 
   @Test
@@ -61,7 +61,7 @@ public class TestSpdzAdvancedNumeric extends AbstractSpdzTest {
   @Test
   public void test_exponentiation() {
     runTest(new TestExponentiation<>(),
-        PreprocessingStrategy.DUMMY, 2);
+        PreprocessingStrategy.DUMMY, 2, 512, 150, 16);
   }
 
   @Test

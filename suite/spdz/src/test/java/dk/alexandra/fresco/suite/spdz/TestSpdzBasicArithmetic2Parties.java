@@ -29,7 +29,7 @@ public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
   @Test
   public void test_Secret_Shared_Division_Sequential_Batched() {
     runTest(new TestDivision<>(),
-        PreprocessingStrategy.DUMMY, 2);
+        PreprocessingStrategy.DUMMY, 2, 512, 150, 16);
   }
 
   @Test
@@ -89,13 +89,13 @@ public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
   @Test
   public void test_MinInfFrac_Sequential() {
     runTest(new TestMinInfFrac<>(),
-        PreprocessingStrategy.DUMMY, 2);
+        PreprocessingStrategy.DUMMY, 2, 512, 150, 16);
   }
 
   @Test
   public void test_MinInfFrac_SequentialBatched() {
     runTest(new TestMinInfFrac<>(),
-        PreprocessingStrategy.DUMMY, 2);
+        PreprocessingStrategy.DUMMY, 2, 512, 150, 16);
   }
 
   @Test

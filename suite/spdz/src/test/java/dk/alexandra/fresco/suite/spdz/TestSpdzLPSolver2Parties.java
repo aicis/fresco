@@ -9,14 +9,14 @@ public class TestSpdzLPSolver2Parties extends AbstractSpdzTest {
   @Test
   public void test_LPSolver_2_Sequential_dummy_bland() {
     runTest(new LPSolverTests.TestLPSolver<>(PivotRule.BLAND),
-        PreprocessingStrategy.DUMMY, 2);
+        PreprocessingStrategy.DUMMY, 2, 512, 150, 16);
   }
 
   @Test
   public void test_LPSolver_2() {
 
     runTest(new LPSolverTests.TestLPSolver<>(PivotRule.DANZIG),
-        PreprocessingStrategy.DUMMY, 2);
+        PreprocessingStrategy.DUMMY, 2, 512, 150, 16);
   }
 
   @Test

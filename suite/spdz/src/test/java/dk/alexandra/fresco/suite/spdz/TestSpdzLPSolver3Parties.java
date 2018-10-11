@@ -6,9 +6,9 @@ import org.junit.Test;
 
 public class TestSpdzLPSolver3Parties extends AbstractSpdzTest {
 
-	@Test
-	public void test_LPSolver_3_Sequential() throws Exception {
+  @Test
+  public void test_LPSolver_3_Sequential() {
     runTest(new LPSolverTests.TestLPSolver<>(PivotRule.DANZIG),
-        PreprocessingStrategy.DUMMY, 3);
+        PreprocessingStrategy.DUMMY, 3, 512, 150, 16);
   }
 }

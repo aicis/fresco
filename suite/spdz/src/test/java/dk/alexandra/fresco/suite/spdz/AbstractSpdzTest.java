@@ -66,9 +66,10 @@ public abstract class AbstractSpdzTest {
 
   private Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
   // TODO hack hack hack
-  private static final int DEFAULT_MOD_BIT_LENGTH = 512;
-  private static final int DEFAULT_MAX_BIT_LENGTH = 150;
-  
+//  private static final int DEFAULT_MOD_BIT_LENGTH = 512;
+//  private static final int DEFAULT_MAX_BIT_LENGTH = 150;
+  private static final int DEFAULT_MOD_BIT_LENGTH = 128;
+  private static final int DEFAULT_MAX_BIT_LENGTH = 64;
   private static final int DEFAULT_FIXED_POINT_PRECISION = 16;
   private int modBitLength = DEFAULT_MOD_BIT_LENGTH;
   private int maxBitLength = DEFAULT_MAX_BIT_LENGTH;
