@@ -40,6 +40,6 @@ public class RandomAdditiveMask implements
     value = innerProductBuilder.innerProductWithPublicPart(twoPows, bits);
     return () -> new RandomBitMask(
         bits,
-        value.out());
+        value);
   }
 }

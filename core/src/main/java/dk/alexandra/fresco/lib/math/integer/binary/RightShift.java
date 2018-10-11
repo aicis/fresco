@@ -53,7 +53,7 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
        */
       AdvancedNumeric additiveMaskBuilder = seq.advancedNumeric();
       DRes<RandomBitMask> randomAdditiveMask = additiveMaskBuilder.randomBitMask(bitLength);
-      DRes<SInt> result = seq.numeric().add(input, randomAdditiveMask.out().getValue());
+      DRes<SInt> result = seq.numeric().add(input, () -> randomAdditiveMask.out().getValue().out());
       DRes<BigInteger> open = seq.numeric().open(result);
       return () -> new Pair<>(open, randomAdditiveMask.out());
     }).seq((seq, maskedInput) -> {
