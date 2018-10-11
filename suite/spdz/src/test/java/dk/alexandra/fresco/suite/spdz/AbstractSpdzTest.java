@@ -68,6 +68,7 @@ public abstract class AbstractSpdzTest {
   // TODO hack hack hack
   private static final int DEFAULT_MOD_BIT_LENGTH = 512;
   private static final int DEFAULT_MAX_BIT_LENGTH = 150;
+  
   private static final int DEFAULT_FIXED_POINT_PRECISION = 16;
   private int modBitLength = DEFAULT_MOD_BIT_LENGTH;
   private int maxBitLength = DEFAULT_MAX_BIT_LENGTH;
@@ -79,7 +80,8 @@ public abstract class AbstractSpdzTest {
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       PreprocessingStrategy preProStrat,
       int noOfParties) {
-    runTest(f, DEFAULT_EVAL_STRATEGY, preProStrat, noOfParties);
+    runTest(f, DEFAULT_EVAL_STRATEGY, preProStrat, noOfParties,
+        false, DEFAULT_MOD_BIT_LENGTH, DEFAULT_MAX_BIT_LENGTH, DEFAULT_FIXED_POINT_PRECISION);
   }
 
   protected void runTest(
@@ -97,8 +99,6 @@ public abstract class AbstractSpdzTest {
     this.modBitLength = modBitLength;
     this.maxBitLength = maxBitLength;
     this.fixedPointPrecision = fixedPointPrecision;
-
-    
 
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
@@ -165,13 +165,6 @@ public abstract class AbstractSpdzTest {
 
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
-      EvaluationStrategy evalStrategy, PreprocessingStrategy preProStrat, int noOfParties) {
-    runTest(f, evalStrategy, preProStrat, noOfParties, false, DEFAULT_MOD_BIT_LENGTH,
-        DEFAULT_MAX_BIT_LENGTH, DEFAULT_FIXED_POINT_PRECISION);
-  }
-
-  protected void runTest(
-      TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, PreprocessingStrategy preProStrat, int noOfParties,
       int modBitLength, int maxBitLength, int fixedPointPrecision) {
     runTest(f, evalStrategy, preProStrat, noOfParties, false, modBitLength, maxBitLength,
@@ -233,8 +226,11 @@ public abstract class AbstractSpdzTest {
     return seedOts;
   }
 
-  private SpdzResourcePool createResourcePool(int myId, int numberOfParties,
-      PreprocessingStrategy preProStrat, NetManager otGenerator, NetManager tripleGenerator,
+  private SpdzResourcePool createResourcePool(int myId,
+      int numberOfParties,
+      PreprocessingStrategy preProStrat,
+      NetManager otGenerator,
+      NetManager tripleGenerator,
       NetManager expPipeGenerator) {
     SpdzDataSupplier supplier;
     if (preProStrat == DUMMY) {

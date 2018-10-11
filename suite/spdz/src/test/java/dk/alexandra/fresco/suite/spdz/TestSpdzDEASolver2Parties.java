@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.statistics.DeaSolver;
 import dk.alexandra.fresco.lib.statistics.DeaSolver.AnalysisType;
 import dk.alexandra.fresco.lib.statistics.DeaSolverTests.RandomDataDeaTest;
@@ -19,14 +18,12 @@ public class TestSpdzDEASolver2Parties extends AbstractSpdzTest {
   @Test
   public void test_DEASolver_2_dummy_minimize_1() {
     runTest(new TestDeaFixed2<>(DeaSolver.AnalysisType.INPUT_EFFICIENCY),
-        EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_DEASolver_2_minimize_2() {
     runTest(new TestDeaFixed1<>(DeaSolver.AnalysisType.INPUT_EFFICIENCY),
-        EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.DUMMY, 2);
   }
 
