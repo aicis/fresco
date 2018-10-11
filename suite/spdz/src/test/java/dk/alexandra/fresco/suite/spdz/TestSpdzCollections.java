@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.arithmetic.SearchingTests;
 import dk.alexandra.fresco.lib.collections.Matrix;
@@ -18,87 +17,87 @@ import org.junit.Test;
 public class TestSpdzCollections extends AbstractSpdzTest {
 
   @Test
-  public void test_close_empty_list() throws Exception {
-    runTest(new CloseListTests.TestCloseEmptyList<>(), EvaluationStrategy.SEQUENTIAL,
+  public void test_close_empty_list() {
+    runTest(new CloseListTests.TestCloseEmptyList<>(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_close_list() throws Exception {
-    runTest(new CloseListTests.TestCloseAndOpenList<>(), EvaluationStrategy.SEQUENTIAL,
+  public void test_close_list() {
+    runTest(new CloseListTests.TestCloseAndOpenList<>(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_close_empty_matrix() throws Exception {
-    runTest(new CloseMatrixTests.TestCloseEmptyMatrix<>(), EvaluationStrategy.SEQUENTIAL,
+  public void test_close_empty_matrix() {
+    runTest(new CloseMatrixTests.TestCloseEmptyMatrix<>(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_close_matrix() throws Exception {
-    runTest(new CloseMatrixTests.TestCloseAndOpenMatrix<>(), EvaluationStrategy.SEQUENTIAL,
+  public void test_close_matrix() {
+    runTest(new CloseMatrixTests.TestCloseAndOpenMatrix<>(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_Test_Is_Sorted() throws Exception {
-    runTest(new SearchingTests.TestIsSorted<>(), EvaluationStrategy.SEQUENTIAL,
+  public void test_Test_Is_Sorted() {
+    runTest(new SearchingTests.TestIsSorted<>(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_permute_empty_rows() throws Exception {
-    runTest(PermuteRowsTests.permuteEmptyRows(), EvaluationStrategy.SEQUENTIAL,
+  public void test_permute_empty_rows() {
+    runTest(PermuteRowsTests.permuteEmptyRows(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_permute_rows() throws Exception {
-    runTest(PermuteRowsTests.permuteRows(), EvaluationStrategy.SEQUENTIAL,
+  public void test_permute_rows() {
+    runTest(PermuteRowsTests.permuteRows(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test(expected = UnsupportedOperationException.class)
-  public void test_permute_rows_non_power_of_two() throws Throwable {
+  public void test_permute_rows_non_power_of_two() {
     ArrayList<ArrayList<DRes<SInt>>> fakeRows = new ArrayList<>();
     Matrix<DRes<SInt>> fakeMatrix = new Matrix<>(3, 2, fakeRows);
-    new PermuteRows(() -> fakeMatrix, new int[] {}, 1, true).buildComputation(null);
+    new PermuteRows(() -> fakeMatrix, new int[]{}, 1, true).buildComputation(null);
   }
 
   @Test
-  public void test_shuffle_rows_two_parties() throws Exception {
-    runTest(ShuffleRowsTests.shuffleRowsTwoParties(), EvaluationStrategy.SEQUENTIAL,
+  public void test_shuffle_rows_two_parties() {
+    runTest(ShuffleRowsTests.shuffleRowsTwoParties(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_shuffle_rows_three_parties() throws Exception {
-    runTest(ShuffleRowsTests.shuffleRowsThreeParties(), EvaluationStrategy.SEQUENTIAL,
+  public void test_shuffle_rows_three_parties() {
+    runTest(ShuffleRowsTests.shuffleRowsThreeParties(),
         PreprocessingStrategy.DUMMY, 3);
   }
 
   @Test
-  public void test_shuffle_rows_empty() throws Exception {
-    runTest(ShuffleRowsTests.shuffleRowsEmpty(), EvaluationStrategy.SEQUENTIAL,
+  public void test_shuffle_rows_empty() {
+    runTest(ShuffleRowsTests.shuffleRowsEmpty(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_MiMC_aggregate_two() throws Exception {
-    runTest(LeakyAggregationTests.aggregate(), EvaluationStrategy.SEQUENTIAL,
+  public void test_MiMC_aggregate_two() {
+    runTest(LeakyAggregationTests.aggregate(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
-  public void test_MiMC_aggregate_three() throws Exception {
-    runTest(LeakyAggregationTests.aggregate(), EvaluationStrategy.SEQUENTIAL,
+  public void test_MiMC_aggregate_three() {
+    runTest(LeakyAggregationTests.aggregate(),
         PreprocessingStrategy.DUMMY, 3);
   }
 
   @Test
-  public void test_MiMC_aggregate_empty() throws Exception {
-    runTest(LeakyAggregationTests.aggregateEmpty(), EvaluationStrategy.SEQUENTIAL,
+  public void test_MiMC_aggregate_empty() {
+    runTest(LeakyAggregationTests.aggregateEmpty(),
         PreprocessingStrategy.DUMMY, 2);
   }
 }

@@ -15,13 +15,13 @@ public class TestSpdzComparison extends AbstractSpdzTest {
 
   @Test
   public void test_compareLT_Sequential() {
-    runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new CompareTests.TestCompareLT<>(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_compareLTEdge_Sequential() {
-    runTest(new CompareTests.TestCompareLTEdgeCases<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new CompareTests.TestCompareLTEdgeCases<>(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
@@ -32,7 +32,7 @@ public class TestSpdzComparison extends AbstractSpdzTest {
     try {
       InitializeStorage.initStreamedStorage(new FilebasedStreamedStorageImpl(new InMemoryStorage()),
           2, noOfThreads, 1000, 100, 10000, 100);
-      runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL,
+      runTest(new CompareTests.TestCompareLT<>(),
           PreprocessingStrategy.STATIC, 2);
     } catch (Exception e) {
       //Should not fail
@@ -44,38 +44,38 @@ public class TestSpdzComparison extends AbstractSpdzTest {
 
   @Test
   public void test_compareEQ_Sequential() {
-    runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new CompareTests.TestCompareEQ<>(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void testCompareEQEdgeCasesSequential() {
-    runTest(new CompareTests.TestCompareEQEdgeCases<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new CompareTests.TestCompareEQEdgeCases<>(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void test_find_duplicates() {
-    runTest(new TestFindDuplicatesOne<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new TestFindDuplicatesOne<>(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
   @Test
   public void testCompareLTBatchedMascot() {
     runTest(new CompareTests.TestCompareLT<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        PreprocessingStrategy.MASCOT, 2, 64,2, 1);
+        PreprocessingStrategy.MASCOT, 2, 64, 2, 1);
   }
 
   @Test
   public void testCompareEQSequentialBatchedMascot() {
     runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        PreprocessingStrategy.MASCOT, 2, 64,2, 1);
+        PreprocessingStrategy.MASCOT, 2, 64, 2, 1);
   }
 
   @Test
   public void testCompareEQEdgeCasesBatchedMascot() {
     runTest(new CompareTests.TestCompareEQEdgeCases<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        PreprocessingStrategy.MASCOT, 2, 64,2, 1);
+        PreprocessingStrategy.MASCOT, 2, 64, 2, 1);
   }
 
 }
