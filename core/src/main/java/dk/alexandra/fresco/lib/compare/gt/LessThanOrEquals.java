@@ -41,16 +41,17 @@ public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeri
     final BigInteger one = BigInteger.ONE;
 
     return builder.seq((seq) -> seq.advancedNumeric()
-        .additiveMask(bitLength + securityParameter))
+        .randomBitMask(bitLength + securityParameter))
         .pairInPar((seq, mask) -> {
-          List<DRes<SInt>> bits = mask.bits.subList(0, bitLength);
+          List<DRes<SInt>> bits = mask.getBits().subList(0, bitLength);
           List<DRes<SInt>> rBottomBits = bits.subList(0, bitLengthBottom);
           List<BigInteger> twoPowsBottom =
               seq.getBigIntegerHelper().getTwoPowersList(bitLengthBottom);
-          return Pair.lazy(mask.random, seq.advancedNumeric().innerProductWithPublicPart(twoPowsBottom, rBottomBits));
+          return Pair.lazy(mask.getValue(),
+              seq.advancedNumeric().innerProductWithPublicPart(twoPowsBottom, rBottomBits));
         }, (seq, mask) -> {
           List<DRes<SInt>> rTopBits =
-              mask.bits.subList(bitLengthBottom, bitLengthBottom + bitLengthTop);
+              mask.getBits().subList(bitLengthBottom, bitLengthBottom + bitLengthTop);
           List<BigInteger> twoPowsTop = seq.getBigIntegerHelper().getTwoPowersList(bitLengthTop);
           AdvancedNumeric innerProduct = seq.advancedNumeric();
 
@@ -58,7 +59,7 @@ public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeri
         }).seq((seq, pair) -> {
           DRes<SInt> rTop = pair::getSecond;
           DRes<SInt> rBottom = pair.getFirst().getSecond();
-          SInt r = pair.getFirst().getFirst();
+          DRes<SInt> r = pair.getFirst().getFirst();
 
           // construct r-values (rBar, rBottom, rTop)
           DRes<SInt> rBar;
@@ -74,10 +75,10 @@ public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeri
           DRes<SInt> z = numeric.add(twoToBitLength, diff);
 
           // mO = open(z + r)
-          DRes<SInt> mS = numeric.add(z, () -> r);
+          DRes<SInt> mS = numeric.add(z, r);
           DRes<BigInteger> mO = seq.numeric().open(mS);
 
-          return () -> new Object[] {mO, rBottom, rTop, rBar, z};
+          return () -> new Object[]{mO, rBottom, rTop, rBar, z};
         }).seq((ProtocolBuilderNumeric seq, Object[] input) -> {
           BigInteger mO = ((DRes<BigInteger>) input[0]).out();
           DRes<SInt> rBottom = (DRes<SInt>) input[1];
@@ -97,7 +98,7 @@ public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeri
 
           // eqResult <- execute eq.test
           DRes<SInt> eqResult = seq.comparison().compareZero(dif, bitLengthTop);
-          return () -> new Object[] {eqResult, rBottom, rTop, mBot, mTop, mBar, rBar, z};
+          return () -> new Object[]{eqResult, rBottom, rTop, mBot, mTop, mBar, rBar, z};
         }).seq((ProtocolBuilderNumeric seq, Object[] input) -> {
           DRes<SInt> eqResult = (DRes<SInt>) input[0];
           DRes<SInt> rBottom = (DRes<SInt>) input[1];
@@ -134,7 +135,7 @@ public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeri
             subComparisonResult =
                 seq.seq(new LessThanOrEquals(nextBitLength, securityParameter, rPrime, mPrime));
           }
-          return () -> new Object[] {subComparisonResult, mBar, rBar, z};
+          return () -> new Object[]{subComparisonResult, mBar, rBar, z};
         }).seq((ProtocolBuilderNumeric seq, Object[] input) -> {
           DRes<SInt> subComparisonResult = (DRes<SInt>) input[0];
           BigInteger mBar = (BigInteger) input[1];

@@ -4,6 +4,9 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.value.OIntArithmetic;
+import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
@@ -58,6 +61,11 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
       }
 
       @Override
+      public DRes<SInt> addOpen(DRes<OInt> a, DRes<SInt> b) {
+        return null;
+      }
+
+      @Override
       public DRes<SInt> sub(DRes<SInt> a, DRes<SInt> b) {
         return () -> (toSpdz2kSInt(a)).subtract(toSpdz2kSInt(b));
       }
@@ -66,6 +74,16 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
       public DRes<SInt> sub(BigInteger a, DRes<SInt> b) {
         return builder.append(
             new Spdz2kSubtractFromKnownProtocol<>(factory.createFromBigInteger(a), b));
+      }
+
+      @Override
+      public DRes<SInt> subFromOpen(DRes<OInt> a, DRes<SInt> b) {
+        return null;
+      }
+
+      @Override
+      public DRes<SInt> subOpen(DRes<SInt> a, DRes<OInt> b) {
+        return null;
       }
 
       @Override
@@ -82,6 +100,11 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
       @Override
       public DRes<SInt> mult(BigInteger a, DRes<SInt> b) {
         return () -> toSpdz2kSInt(b).multiply(factory.createFromBigInteger(a));
+      }
+
+      @Override
+      public DRes<SInt> multByOpen(DRes<OInt> a, DRes<SInt> b) {
+        return null;
       }
 
       @Override
@@ -112,6 +135,16 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
       }
 
       @Override
+      public DRes<OInt> openAsOInt(DRes<SInt> secretShare) {
+        return null;
+      }
+
+      @Override
+      public DRes<OInt> openAsOInt(DRes<SInt> secretShare, int outputParty) {
+        return null;
+      }
+
+      @Override
       public DRes<BigInteger> open(DRes<SInt> secretShare, int outputParty) {
         return builder.append(new Spdz2kOutputSinglePartyProtocol<>(secretShare, outputParty));
       }
@@ -121,6 +154,16 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
   @Override
   public MiscBigIntegerGenerators getBigIntegerHelper() {
     throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public OIntFactory getOIntFactory() {
+    return null;
+  }
+
+  @Override
+  public OIntArithmetic getOIntArithmetic() {
+    return null;
   }
 
   /**

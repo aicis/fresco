@@ -5,6 +5,11 @@ import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.value.BigIntegerOIntArithmetic;
+import dk.alexandra.fresco.framework.value.BigIntegerOIntFactory;
+import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.value.OIntArithmetic;
+import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
@@ -23,11 +28,11 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
   private RealNumericContext realNumericContext;
   private MiscBigIntegerGenerators mog;
   private Random rand;
+  private final OIntFactory oIntFactory;
+  private final OIntArithmetic oIntArithmetic;
 
   /**
    * Creates a dummy arithmetic builder factory which creates basic numeric operations
-   *
-   * @param factory The numeric context we work within.
    */
   public DummyArithmeticBuilderFactory(BasicNumericContext basicNumericContext,
       RealNumericContext realNumericContext) {
@@ -35,6 +40,8 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
     this.basicNumericContext = basicNumericContext;
     this.realNumericContext = realNumericContext;
     this.rand = new Random(0);
+    this.oIntFactory = new BigIntegerOIntFactory(basicNumericContext.getMaxBitLength());
+    this.oIntArithmetic = new BigIntegerOIntArithmetic(oIntFactory);
   }
 
 
@@ -47,7 +54,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
   public RealNumericContext getRealNumericContext() {
     return realNumericContext;
   }
-  
+
   @Override
   public Numeric createNumeric(ProtocolBuilderNumeric builder) {
     return new Numeric() {
@@ -64,6 +71,16 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
         DummyArithmeticSubtractProtocol c =
             new DummyArithmeticSubtractProtocol(() -> new DummyArithmeticSInt(a), b);
         return builder.append(c);
+      }
+
+      @Override
+      public DRes<SInt> subFromOpen(DRes<OInt> a, DRes<SInt> b) {
+        return null;
+      }
+
+      @Override
+      public DRes<SInt> subOpen(DRes<SInt> a, DRes<OInt> b) {
+        return null;
       }
 
       @Override
@@ -125,6 +142,16 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
       }
 
       @Override
+      public DRes<OInt> openAsOInt(DRes<SInt> secretShare) {
+        return null;
+      }
+
+      @Override
+      public DRes<OInt> openAsOInt(DRes<SInt> secretShare, int outputParty) {
+        return null;
+      }
+
+      @Override
       public DRes<BigInteger> open(DRes<SInt> secretShare, int outputParty) {
         DummyArithmeticOpenProtocol c = new DummyArithmeticOpenProtocol(secretShare, outputParty);
         return builder.append(c);
@@ -135,6 +162,11 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
         DummyArithmeticMultProtocol c =
             new DummyArithmeticMultProtocol(() -> new DummyArithmeticSInt(a), b);
         return builder.append(c);
+      }
+
+      @Override
+      public DRes<SInt> multByOpen(DRes<OInt> a, DRes<SInt> b) {
+        return null;
       }
 
       @Override
@@ -179,6 +211,11 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
       }
 
       @Override
+      public DRes<SInt> addOpen(DRes<OInt> a, DRes<SInt> b) {
+        return null;
+      }
+
+      @Override
       public DRes<SInt> add(DRes<SInt> a, DRes<SInt> b) {
         DummyArithmeticAddProtocol c = new DummyArithmeticAddProtocol(a, b);
         return builder.append(c);
@@ -192,6 +229,16 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
       mog = new MiscBigIntegerGenerators(basicNumericContext.getModulus());
     }
     return mog;
+  }
+
+  @Override
+  public OIntFactory getOIntFactory() {
+    return oIntFactory;
+  }
+
+  @Override
+  public OIntArithmetic getOIntArithmetic() {
+    return oIntArithmetic;
   }
 
 }

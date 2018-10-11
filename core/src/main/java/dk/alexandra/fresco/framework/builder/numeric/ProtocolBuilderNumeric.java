@@ -1,6 +1,8 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.builder.ProtocolBuilderImpl;
+import dk.alexandra.fresco.framework.value.OIntArithmetic;
+import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.lib.real.AdvancedRealNumeric;
@@ -24,6 +26,7 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
   private PreprocessedValues preprocessedValues;
   private Debug debug;
   private RealNumeric realNumeric;
+  private Logical logical;
   private AdvancedRealNumeric advancedRealNumeric;
   private RealLinearAlgebra realLinearAlgebra;
   private RealNumericContext realNumericContext;
@@ -37,13 +40,13 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
 
   /**
    * Returns the container for information about the field of operation.
-   * 
+   *
    * @return The {@link BasicNumericContext} used within this protocol builder.
    */
   public BasicNumericContext getBasicNumericContext() {
     return basicNumericContext;
   }
-  
+
   public RealNumericContext getRealNumericContext() {
     return realNumericContext;
   }
@@ -52,7 +55,7 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
    * Creates a {@link Numeric} computation directory for this instance - i.e. this intended
    * producer. Contains only protocol suite native basic operations such as Addition and
    * multiplication.
-   * 
+   *
    * @return The {@link Numeric} computation directory.
    */
   public Numeric numeric() {
@@ -89,6 +92,17 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
   }
 
   /**
+   * Creates a {@link Logical} computation directory for this instance - i.e. this intended
+   * producer. Contains logical operations on arithmetic value.
+   */
+  public Logical logical() {
+    if (logical == null) {
+      logical = factory.createLogical(this);
+    }
+    return logical;
+  }
+
+  /**
    * Creates a {@link Collections} computation directory for this instance - i.e. this intended
    * producer. Contains operations on collections.
    *
@@ -106,7 +120,7 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
    * intended producer. Contains elements which, if created prior to this evaluation, would save
    * computation and network. Preprocessed values does not depend on the input of the function to
    * evaluate.
-   * 
+   *
    * @return The preprocessed values computation directory.
    */
   public PreprocessedValues preprocessedValues() {
@@ -120,7 +134,7 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
    * Creates a {@link Debug} computation directory for this instance - i.e. this intended producer.
    * Contains debugging protocols for use during application development. <b>WARNING: Do not use in
    * production code as most methods within this builder reveals values to all parties.</b>
-   * 
+   *
    * @return The debug computation directory.
    */
   public Debug debug() {
@@ -133,7 +147,7 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
   /**
    * Mostly for use within internal FRESCO protocols. Contains methods helpful for working with the
    * BigInteger class.
-   * 
+   *
    * @return The {@link MiscBigIntegerGenerators} used within the builder.
    */
   public MiscBigIntegerGenerators getBigIntegerHelper() {
@@ -177,6 +191,22 @@ public class ProtocolBuilderNumeric extends ProtocolBuilderImpl<ProtocolBuilderN
       realLinearAlgebra = factory.createRealLinearAlgebra(this);
     }
     return realLinearAlgebra;
+  }
+
+  /**
+   * Returns the backend-specific implementation of {@link OIntFactory}, for converting between
+   * backend-suite representations of open values and native data types.
+   */
+  public OIntFactory getOIntFactory() {
+    return factory.getOIntFactory();
+  }
+
+  /**
+   * Returns the backend-specific implementation of {@link OIntArithmetic}, for locally computing on
+   * backend-suite representations of open values.
+   */
+  public OIntArithmetic getOIntArithmetic() {
+    return factory.getOIntArithmetic();
   }
 
 }

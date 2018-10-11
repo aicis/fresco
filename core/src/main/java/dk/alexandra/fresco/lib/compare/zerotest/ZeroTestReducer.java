@@ -23,11 +23,11 @@ public class ZeroTestReducer implements Computation<SInt, ProtocolBuilderNumeric
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     return builder.seq((seq) -> seq.advancedNumeric()
-        .additiveMask(bitLength + securityParameter)
+        .randomBitMask(bitLength + securityParameter)
     ).seq((seq, mask) -> {
-      DRes<SInt> mS = seq.numeric().add(input, () -> mask.random);
+      DRes<SInt> mS = seq.numeric().add(input, mask.getValue());
       DRes<BigInteger> mO = seq.numeric().open(mS);
-      return () -> new Pair<>(mask.bits.subList(0, bitLength), mO.out());
+      return () -> new Pair<>(mask.getBits().subList(0, bitLength), mO.out());
     }).seq((seq, pair) ->
         new HammingDistance(pair.getFirst(), pair.getSecond()).buildComputation(seq)
     );

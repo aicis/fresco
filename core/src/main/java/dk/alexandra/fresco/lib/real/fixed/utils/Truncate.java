@@ -3,7 +3,7 @@ package dk.alexandra.fresco.lib.real.fixed.utils;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
-import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RandomAdditiveMask;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RandomBitMask;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -15,7 +15,7 @@ import java.math.BigInteger;
  * result will be one larger than the exact result with some non-negligible propability. If you need
  * the exact result you need to use {@link RightShift} instead, but this will be at a significant
  * performance cost.
- * 
+ *
  * The protocol is similar to protocol 3.1 in Catrina O., Saxena A. (2010) Secure Computation with
  * Fixed-Point Numbers. In: Sion R. (eds) Financial Cryptography and Data Security. FC 2010. Lecture
  * Notes in Computer Science, vol 6052. Springer, Berlin, Heidelberg.
@@ -39,26 +39,27 @@ public class Truncate implements Computation<SInt, ProtocolBuilderNumeric> {
        * leakage.
        */
       AdvancedNumeric additiveMaskBuilder = builder.advancedNumeric();
-      DRes<RandomAdditiveMask> mask =
-          additiveMaskBuilder.additiveMask(sequential.getBasicNumericContext().getMaxBitLength());
+      DRes<RandomBitMask> mask =
+          additiveMaskBuilder.randomBitMask(sequential.getBasicNumericContext().getMaxBitLength());
       return mask;
     }).seq((parSubSequential, randomAdditiveMask) -> {
-      DRes<SInt> result = parSubSequential.numeric().add(input, () -> randomAdditiveMask.random);
+      DRes<SInt> result = parSubSequential.numeric().add(input, randomAdditiveMask
+          .getValue());
       DRes<BigInteger> open = parSubSequential.numeric().open(result);
       return () -> new Pair<>(open, randomAdditiveMask);
     }).seq((seq, maskedInput) -> {
       BigInteger masked = maskedInput.getFirst().out();
-      RandomAdditiveMask mask = maskedInput.getSecond();
+      RandomBitMask mask = maskedInput.getSecond();
 
       /*
        * rBottom = r (mod 2^shifts).
        */
       final DRes<SInt> rBottom = seq.advancedNumeric().innerProductWithPublicPart(
-          seq.getBigIntegerHelper().getTwoPowersList(shifts), mask.bits);
+          seq.getBigIntegerHelper().getTwoPowersList(shifts), mask.getBits());
 
       BigInteger inverse =
           BigInteger.ONE.shiftLeft(shifts).modInverse(seq.getBasicNumericContext().getModulus());
-      DRes<SInt> rTop = seq.numeric().sub(mask.random, rBottom);
+      DRes<SInt> rTop = seq.numeric().sub(mask.getValue(), rBottom);
 
       /*
        * rTop is r with the last shifts bits set to zero, and it is hence divisible by 2^shifts, so

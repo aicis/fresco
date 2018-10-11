@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.lib.real.fixed;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RandomAdditiveMask;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RandomBitMask;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.real.DefaultAdvancedRealNumeric;
@@ -38,10 +38,10 @@ public class AdvancedFixedNumeric extends DefaultAdvancedRealNumeric {
   @Override
   public DRes<SReal> random(int bits) {
     return builder.seq(seq -> {
-      DRes<RandomAdditiveMask> random = seq.advancedNumeric().additiveMask(bits);
+      DRes<RandomBitMask> random = seq.advancedNumeric().randomBitMask(bits);
       return random;
     }).seq((seq, random) -> {
-      return () -> new SFixed(random.random, bits);
+      return () -> new SFixed(random.getValue(), bits);
     });
   }
 }

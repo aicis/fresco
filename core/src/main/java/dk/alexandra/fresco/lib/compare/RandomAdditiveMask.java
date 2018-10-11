@@ -3,6 +3,7 @@ package dk.alexandra.fresco.lib.compare;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RandomBitMask;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -11,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RandomAdditiveMask implements
-    Computation<AdvancedNumeric.RandomAdditiveMask, ProtocolBuilderNumeric> {
+    Computation<RandomBitMask, ProtocolBuilderNumeric> {
 
   private final int noOfBits;
 
@@ -23,7 +24,7 @@ public class RandomAdditiveMask implements
   }
 
   @Override
-  public DRes<AdvancedNumeric.RandomAdditiveMask> buildComputation(
+  public DRes<RandomBitMask> buildComputation(
       ProtocolBuilderNumeric builder) {
     Numeric numericBuilder = builder.numeric();
     bits = new ArrayList<>();
@@ -37,7 +38,7 @@ public class RandomAdditiveMask implements
     List<BigInteger> twoPows = oIntGenerators.getTwoPowersList(noOfBits);
     AdvancedNumeric innerProductBuilder = builder.advancedNumeric();
     value = innerProductBuilder.innerProductWithPublicPart(twoPows, bits);
-    return () -> new AdvancedNumeric.RandomAdditiveMask(
+    return () -> new RandomBitMask(
         bits,
         value.out());
   }

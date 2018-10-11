@@ -106,8 +106,13 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
   }
 
   @Override
-  public DRes<RandomAdditiveMask> additiveMask(int noOfBits) {
+  public DRes<RandomBitMask> randomBitMask(int noOfBits) {
     return builder.seq(new dk.alexandra.fresco.lib.compare.RandomAdditiveMask(noOfBits));
+  }
+
+  @Override
+  public DRes<RandomBitMask> randomBitMask(List<DRes<SInt>> randomBits) {
+    return null;
   }
 
   @Override

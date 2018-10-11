@@ -5,6 +5,9 @@ import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.PreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.value.OIntArithmetic;
+import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
@@ -57,6 +60,16 @@ class SpdzBuilder implements BuilderFactoryNumeric {
   }
 
   @Override
+  public OIntFactory getOIntFactory() {
+    return null;
+  }
+
+  @Override
+  public OIntArithmetic getOIntArithmetic() {
+    return null;
+  }
+
+  @Override
   public Numeric createNumeric(ProtocolBuilderNumeric protocolBuilder) {
     return new Numeric() {
       @Override
@@ -72,6 +85,11 @@ class SpdzBuilder implements BuilderFactoryNumeric {
         return protocolBuilder.append(spdzAddProtocolKnownLeft);
       }
 
+      @Override
+      public DRes<SInt> addOpen(DRes<OInt> a, DRes<SInt> b) {
+        return null;
+      }
+
 
       @Override
       public DRes<SInt> sub(DRes<SInt> a, DRes<SInt> b) {
@@ -84,6 +102,16 @@ class SpdzBuilder implements BuilderFactoryNumeric {
         SpdzSubtractProtocolKnownLeft spdzSubtractProtocolKnownLeft =
             new SpdzSubtractProtocolKnownLeft(a, b);
         return protocolBuilder.append(spdzSubtractProtocolKnownLeft);
+      }
+
+      @Override
+      public DRes<SInt> subFromOpen(DRes<OInt> a, DRes<SInt> b) {
+        return null;
+      }
+
+      @Override
+      public DRes<SInt> subOpen(DRes<SInt> a, DRes<OInt> b) {
+        return null;
       }
 
       @Override
@@ -104,6 +132,11 @@ class SpdzBuilder implements BuilderFactoryNumeric {
         SpdzMultProtocolKnownLeft spdzMultProtocol4 = new SpdzMultProtocolKnownLeft(a, b);
         return protocolBuilder.append(spdzMultProtocol4);
 
+      }
+
+      @Override
+      public DRes<SInt> multByOpen(DRes<OInt> a, DRes<SInt> b) {
+        return null;
       }
 
       @Override
@@ -131,6 +164,16 @@ class SpdzBuilder implements BuilderFactoryNumeric {
       public DRes<BigInteger> open(DRes<SInt> secretShare) {
         SpdzOutputToAllProtocol openProtocol = new SpdzOutputToAllProtocol(secretShare);
         return protocolBuilder.append(openProtocol);
+      }
+
+      @Override
+      public DRes<OInt> openAsOInt(DRes<SInt> secretShare) {
+        return null;
+      }
+
+      @Override
+      public DRes<OInt> openAsOInt(DRes<SInt> secretShare, int outputParty) {
+        return null;
       }
 
       @Override

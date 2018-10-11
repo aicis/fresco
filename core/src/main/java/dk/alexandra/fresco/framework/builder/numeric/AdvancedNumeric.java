@@ -132,12 +132,22 @@ public interface AdvancedNumeric extends ComputationDirectory {
   DRes<SInt> innerProductWithPublicPart(List<BigInteger> vectorA, List<DRes<SInt>> vectorB);
 
   /**
-   * Creates a string of random bits.
+   * Creates a random bit mask [b0, ..., bn] along with an {@link SInt} representing the recombined
+   * bits, i.e., sum(2^{i} * bi).
    *
-   * @param noOfBits The amount of bits to create - i.e. the bit string length.
+   * @param noOfBits The amount of bits
    * @return A container holding the bit string once evaluated.
    */
-  DRes<RandomAdditiveMask> additiveMask(int noOfBits);
+  DRes<RandomBitMask> randomBitMask(int noOfBits);
+
+  /**
+   * Takes a list of random bits [b0, ..., bn] and generates a random bit mask along with a {@link
+   * SInt} representing the recombined bits, i.e., sum(2^{i} * bi).
+   *
+   * @param randomBits The bits to use for the bit mask
+   * @return A container holding the bit mask
+   */
+  DRes<RandomBitMask> randomBitMask(List<DRes<SInt>> randomBits);
 
   /**
    * Calculating the result of right shifting of the input by one.
@@ -160,10 +170,9 @@ public interface AdvancedNumeric extends ComputationDirectory {
    * Calculating the result of right shifting of the input by one, including the remainder.
    *
    * @param input input
-   * @return A deferred result computing<br>
-   *         result: input >> 1<br>
-   *         remainder: The <code>shifts</code> least significant bits of the input with the least
-   *         significant having index 0.
+   * @return A deferred result computing<br> result: input >> 1<br> remainder: The
+   * <code>shifts</code> least significant bits of the input with the least significant having index
+   * 0.
    */
   DRes<RightShiftResult> rightShiftWithRemainder(DRes<SInt> input);
 
@@ -173,10 +182,9 @@ public interface AdvancedNumeric extends ComputationDirectory {
    *
    * @param input input
    * @param shifts Number of shifts
-   * @return A deferred result computing <br>
-   *         result: input >> shifts<br>
-   *         remainder: The <code>shifts</code> least significant bits of the input with the least
-   *         significant having index 0.
+   * @return A deferred result computing <br> result: input >> shifts<br> remainder: The
+   * <code>shifts</code> least significant bits of the input with the least significant having index
+   * 0.
    */
   DRes<RightShiftResult> rightShiftWithRemainder(DRes<SInt> input, int shifts);
 
@@ -185,7 +193,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
    *
    * @param input The number to know the bit length of
    * @param maxBitLength The maximum bit length this number can have (if unknown, set this to the
-   *        modulus bit size)
+   * modulus bit size)
    * @return A deferred result computing the bit length of the input number.
    */
   DRes<SInt> bitLength(DRes<SInt> input, int maxBitLength);
@@ -202,7 +210,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
    * Selects left or right based on condition.
    *
    * @param condition the Computation holding the condition on which to select. Must be either 0 or
-   *        1.
+   * 1.
    * @param left the Computation holding the left argument.
    * @param right the Computation holding the right argument.
    * @return a computation holding either left or right depending on the condition.
@@ -217,7 +225,7 @@ public interface AdvancedNumeric extends ComputationDirectory {
    * @param left The left argument
    * @param right The right argument
    * @return A deferred result computing a pair containing [left, right] if the condition is 0 and
-   *         [right, left] if condition is 1.
+   * [right, left] if condition is 1.
    */
   DRes<Pair<DRes<SInt>, DRes<SInt>>> swapIf(DRes<SInt> condition, DRes<SInt> left,
       DRes<SInt> right);
@@ -247,14 +255,22 @@ public interface AdvancedNumeric extends ComputationDirectory {
   /**
    * Container holding a random bitvector and its SInt representation.
    */
-  class RandomAdditiveMask {
+  class RandomBitMask {
 
-    public final List<DRes<SInt>> bits;
-    public final SInt random;
+    private final List<DRes<SInt>> bits;
+    private final DRes<SInt> value;
 
-    public RandomAdditiveMask(List<DRes<SInt>> bits, SInt random) {
+    public RandomBitMask(List<DRes<SInt>> bits, DRes<SInt> value) {
       this.bits = bits;
-      this.random = random;
+      this.value = value;
+    }
+
+    public List<DRes<SInt>> getBits() {
+      return bits;
+    }
+
+    public DRes<SInt> getValue() {
+      return value;
     }
   }
 }

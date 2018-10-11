@@ -4,7 +4,7 @@ package dk.alexandra.fresco.lib.math.integer.binary;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
-import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RandomAdditiveMask;
+import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RandomBitMask;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RightShiftResult;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -25,8 +25,8 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
   /**
    * @param bitLength An upper bound for the bitLength of the input.
    * @param input The input.
-   * @param calculateRemainder true to also calculate remainder, aka input mod 2^shifts. If
-   *     false remainder in result will be null.
+   * @param calculateRemainder true to also calculate remainder, aka input mod 2^shifts. If false
+   * remainder in result will be null.
    */
   public RightShift(int bitLength, DRes<SInt> input, boolean calculateRemainder) {
     this(bitLength, input, 1, calculateRemainder);
@@ -52,25 +52,25 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
        * leakage.
        */
       AdvancedNumeric additiveMaskBuilder = seq.advancedNumeric();
-      DRes<RandomAdditiveMask> randomAdditiveMask = additiveMaskBuilder.additiveMask(bitLength);
-      DRes<SInt> result = seq.numeric().add(input, () -> randomAdditiveMask.out().random);
+      DRes<RandomBitMask> randomAdditiveMask = additiveMaskBuilder.randomBitMask(bitLength);
+      DRes<SInt> result = seq.numeric().add(input, randomAdditiveMask.out().getValue());
       DRes<BigInteger> open = seq.numeric().open(result);
       return () -> new Pair<>(open, randomAdditiveMask.out());
     }).seq((seq, maskedInput) -> {
       BigInteger masked = maskedInput.getFirst().out();
-      RandomAdditiveMask mask = maskedInput.getSecond();
+      RandomBitMask mask = maskedInput.getSecond();
 
       /*
        * m = r + input, so there is a carry from the addition of the first (least significant) bit
        * if and only if m_0 = 0 and r_0 = 1.
        */
       boolean mi = masked.testBit(0);
-      DRes<SInt> ri = mask.bits.get(0);
+      DRes<SInt> ri = mask.getBits().get(0);
       DRes<SInt> currentCarry = mi ? seq.numeric().known(BigInteger.ZERO) : ri;
 
       for (int i = 1; i < shifts; i++) {
         mi = masked.testBit(i);
-        ri = mask.bits.get(i);
+        ri = mask.getBits().get(i);
         DRes<SInt> x = seq.numeric().mult(currentCarry, ri);
 
         /*
@@ -91,11 +91,11 @@ public class RightShift implements Computation<RightShiftResult, ProtocolBuilder
        * rBottom = r (mod 2^shifts).
        */
       final DRes<SInt> rBottom = seq.advancedNumeric().innerProductWithPublicPart(
-          seq.getBigIntegerHelper().getTwoPowersList(shifts), mask.bits);
+          seq.getBigIntegerHelper().getTwoPowersList(shifts), mask.getBits());
 
       BigInteger inverse =
           BigInteger.ONE.shiftLeft(shifts).modInverse(seq.getBasicNumericContext().getModulus());
-      DRes<SInt> rTop = seq.numeric().sub(mask.random, rBottom);
+      DRes<SInt> rTop = seq.numeric().sub(mask.getValue(), rBottom);
 
       /*
        * rTop is r with the last shifts bits set to zero, and it is hence divisible by 2^shifts, so

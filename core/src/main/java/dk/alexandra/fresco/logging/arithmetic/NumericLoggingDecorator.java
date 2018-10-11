@@ -2,6 +2,7 @@ package dk.alexandra.fresco.logging.arithmetic;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
+import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.logging.PerformanceLogger;
 import java.math.BigInteger;
@@ -39,6 +40,11 @@ public class NumericLoggingDecorator implements Numeric, PerformanceLogger {
   }
 
   @Override
+  public DRes<SInt> addOpen(DRes<OInt> a, DRes<SInt> b) {
+    return null;
+  }
+
+  @Override
   public DRes<SInt> sub(DRes<SInt> a, DRes<SInt> b) {
     subCount++;
     return this.delegate.sub(a, b);
@@ -47,6 +53,16 @@ public class NumericLoggingDecorator implements Numeric, PerformanceLogger {
   @Override
   public DRes<SInt> sub(BigInteger a, DRes<SInt> b) {
     return this.delegate.sub(a, b);
+  }
+
+  @Override
+  public DRes<SInt> subFromOpen(DRes<OInt> a, DRes<SInt> b) {
+    return null;
+  }
+
+  @Override
+  public DRes<SInt> subOpen(DRes<SInt> a, DRes<OInt> b) {
+    return null;
   }
 
   @Override
@@ -63,6 +79,11 @@ public class NumericLoggingDecorator implements Numeric, PerformanceLogger {
   @Override
   public DRes<SInt> mult(BigInteger a, DRes<SInt> b) {
     return this.delegate.mult(a, b);
+  }
+
+  @Override
+  public DRes<SInt> multByOpen(DRes<OInt> a, DRes<SInt> b) {
+    return null;
   }
 
   @Override
@@ -90,6 +111,16 @@ public class NumericLoggingDecorator implements Numeric, PerformanceLogger {
   @Override
   public DRes<BigInteger> open(DRes<SInt> secretShare) {
     return this.delegate.open(secretShare);
+  }
+
+  @Override
+  public DRes<OInt> openAsOInt(DRes<SInt> secretShare) {
+    return null;
+  }
+
+  @Override
+  public DRes<OInt> openAsOInt(DRes<SInt> secretShare, int outputParty) {
+    return null;
   }
 
   @Override
