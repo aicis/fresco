@@ -13,49 +13,49 @@ public class TestSpdzBasicArithmetic3Parties extends AbstractSpdzTest {
 
   @Test
   public void test_Input_Sequential() {
-    runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicArithmeticTests.TestInput<>(),
         PreprocessingStrategy.DUMMY, 3);
   }
 
   @Test
   public void test_Input_SequentialBatched() {
-    runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new BasicArithmeticTests.TestInput<>(),
         PreprocessingStrategy.DUMMY, 3);
   }
 
   @Test
   public void test_Sum_And_Output_Sequential() {
-    runTest(new BasicArithmeticTests.TestSumAndMult<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicArithmeticTests.TestSumAndMult<>(),
         PreprocessingStrategy.DUMMY, 3);
   }
 
   @Test
   public void test_Lots_Of_Mults_Sequential() {
-    runTest(new BasicArithmeticTests.TestLotsMult<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new BasicArithmeticTests.TestLotsMult<>(),
         PreprocessingStrategy.DUMMY, 3);
   }
 
   @Test
   public void test_Lots_Of_Mults_Sequential_Batched() {
-    runTest(new BasicArithmeticTests.TestLotsMult<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new BasicArithmeticTests.TestLotsMult<>(),
         PreprocessingStrategy.DUMMY, 3);
   }
 
   @Test
-  public void test_Alternating_Sequential() {
-    runTest(new BasicArithmeticTests.TestAlternatingMultAdd<>(), EvaluationStrategy.SEQUENTIAL,
+  public void test_Alternating() {
+    runTest(new BasicArithmeticTests.TestAlternatingMultAdd<>(),
         PreprocessingStrategy.DUMMY, 3);
   }
 
   @Test
   public void test_Alternating_Sequential_Batched() {
     runTest(new BasicArithmeticTests.TestAlternatingMultAdd<>(),
-        EvaluationStrategy.SEQUENTIAL_BATCHED, PreprocessingStrategy.DUMMY, 3);
+        PreprocessingStrategy.DUMMY, 3);
   }
 
   @Test
   public void testInputFromAll() {
-    runTest(new BasicArithmeticTests.TestInputFromAll<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new BasicArithmeticTests.TestInputFromAll<>(),
         PreprocessingStrategy.DUMMY, 3);
   }
 
@@ -68,7 +68,7 @@ public class TestSpdzBasicArithmetic3Parties extends AbstractSpdzTest {
   @Test
   public void test_Input_SequentialBatched_Mascot() {
     runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
-        PreprocessingStrategy.MASCOT, 3, 16, 16, 4);
+        PreprocessingStrategy.MASCOT, 3, 16, 16, 16);
   }
 
 }

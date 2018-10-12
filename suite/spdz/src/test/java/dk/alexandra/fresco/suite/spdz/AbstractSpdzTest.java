@@ -64,23 +64,41 @@ import java.util.stream.IntStream;
  */
 public abstract class AbstractSpdzTest {
 
-  protected Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
+  private Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
   // TODO hack hack hack
-  private static final int DEFAULT_MOD_BIT_LENGTH = 512;
-  private static final int DEFAULT_MAX_BIT_LENGTH = 150;
+  private static final int DEFAULT_MOD_BIT_LENGTH = 128;
+  private static final int DEFAULT_MAX_BIT_LENGTH = 64;
   private static final int DEFAULT_FIXED_POINT_PRECISION = 16;
   private int modBitLength = DEFAULT_MOD_BIT_LENGTH;
   private int maxBitLength = DEFAULT_MAX_BIT_LENGTH;
   private int fixedPointPrecision = DEFAULT_FIXED_POINT_PRECISION;
   private static final int PRG_SEED_LENGTH = 256;
+  private static EvaluationStrategy DEFAULT_EVAL_STRATEGY = EvaluationStrategy.SEQUENTIAL_BATCHED;
 
   protected void runTest(
+      TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
+      PreprocessingStrategy preProStrat,
+      int noOfParties) {
+    runTest(f, DEFAULT_EVAL_STRATEGY, preProStrat, noOfParties,
+        false, DEFAULT_MOD_BIT_LENGTH, DEFAULT_MAX_BIT_LENGTH, DEFAULT_FIXED_POINT_PRECISION);
+  }
+
+  protected void runTest(
+      TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
+      PreprocessingStrategy preProStrat, int noOfParties, int modBitLength, int maxBitLength,
+      int fixedPointPrecision) {
+    runTest(f, DEFAULT_EVAL_STRATEGY, preProStrat, noOfParties, modBitLength,
+        maxBitLength, fixedPointPrecision);
+  }
+
+  private void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, PreprocessingStrategy preProStrat, int noOfParties,
       boolean logPerformance, int modBitLength, int maxBitLength, int fixedPointPrecision) {
     this.modBitLength = modBitLength;
     this.maxBitLength = maxBitLength;
     this.fixedPointPrecision = fixedPointPrecision;
+
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * (noOfParties - 1));
@@ -97,18 +115,17 @@ public abstract class AbstractSpdzTest {
       PerformanceLoggerCountingAggregate aggregate = new PerformanceLoggerCountingAggregate();
 
       ProtocolSuiteNumeric<SpdzResourcePool> protocolSuite = createProtocolSuite(maxBitLength);
+      BatchEvaluationStrategy<SpdzResourcePool> batchEvalStrat = evalStrategy.getStrategy();
       if (logPerformance) {
         protocolSuite = new NumericSuiteLogging<>(protocolSuite);
         aggregate.add((PerformanceLogger) protocolSuite);
-      }
-      BatchEvaluationStrategy<SpdzResourcePool> batchEvalStrat = evalStrategy.getStrategy();
-
-      if (logPerformance) {
         batchEvalStrat = new BatchEvaluationLoggingDecorator<>(batchEvalStrat);
         aggregate.add((PerformanceLogger) batchEvalStrat);
       }
+
       ProtocolEvaluator<SpdzResourcePool> evaluator =
           new BatchedProtocolEvaluator<>(batchEvalStrat, protocolSuite);
+
       if (logPerformance) {
         evaluator = new EvaluatorLoggingDecorator<>(evaluator);
         aggregate.add((PerformanceLogger) evaluator);
@@ -148,27 +165,25 @@ public abstract class AbstractSpdzTest {
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, PreprocessingStrategy preProStrat, int noOfParties,
-      boolean logPerformance) {
-    runTest(f, evalStrategy, preProStrat, noOfParties, logPerformance, DEFAULT_MOD_BIT_LENGTH,
-        DEFAULT_MAX_BIT_LENGTH, DEFAULT_FIXED_POINT_PRECISION);
-  }
-
-  protected void runTest(
-      TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
-      EvaluationStrategy evalStrategy, PreprocessingStrategy preProStrat, int noOfParties) {
-    runTest(f, evalStrategy, preProStrat, noOfParties, false, DEFAULT_MOD_BIT_LENGTH,
-        DEFAULT_MAX_BIT_LENGTH, DEFAULT_FIXED_POINT_PRECISION);
-  }
-
-  protected void runTest(
-      TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
-      EvaluationStrategy evalStrategy, PreprocessingStrategy preProStrat, int noOfParties,
       int modBitLength, int maxBitLength, int fixedPointPrecision) {
     runTest(f, evalStrategy, preProStrat, noOfParties, false, modBitLength, maxBitLength,
         fixedPointPrecision);
   }
 
-  DRes<List<DRes<SInt>>> createPipe(int myId, int noOfPlayers, int pipeLength,
+  // this is here until seq strategy goes away
+  void runTestSequential(
+      TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f) {
+    runTest(f, EvaluationStrategy.SEQUENTIAL, PreprocessingStrategy.DUMMY, 2,
+        false, DEFAULT_MOD_BIT_LENGTH, DEFAULT_MAX_BIT_LENGTH, DEFAULT_FIXED_POINT_PRECISION);
+  }
+
+  void runTestWithLogging(
+      TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f) {
+    runTest(f, DEFAULT_EVAL_STRATEGY, PreprocessingStrategy.DUMMY, 2,
+        true, DEFAULT_MOD_BIT_LENGTH, DEFAULT_MAX_BIT_LENGTH, DEFAULT_FIXED_POINT_PRECISION);
+  }
+
+  private DRes<List<DRes<SInt>>> createPipe(int myId, int noOfPlayers, int pipeLength,
       CloseableNetwork pipeNetwork, SpdzMascotDataSupplier tripleSupplier) {
 
     ProtocolBuilderNumeric sequential = new SpdzBuilder(
@@ -187,8 +202,7 @@ public abstract class AbstractSpdzTest {
   private Drbg getDrbg(int myId, int prgSeedLength) {
     byte[] seed = new byte[prgSeedLength / 8];
     new Random(myId).nextBytes(seed);
-    Drbg drbg = AesCtrDrbgFactory.fromDerivedSeed(seed);
-    return drbg;
+    return AesCtrDrbgFactory.fromDerivedSeed(seed);
   }
 
   private Map<Integer, RotList> getSeedOts(int myId, List<Integer> partyIds, int prgSeedLength,
@@ -211,8 +225,11 @@ public abstract class AbstractSpdzTest {
     return seedOts;
   }
 
-  private SpdzResourcePool createResourcePool(int myId, int numberOfParties,
-      PreprocessingStrategy preProStrat, NetManager otGenerator, NetManager tripleGenerator,
+  private SpdzResourcePool createResourcePool(int myId,
+      int numberOfParties,
+      PreprocessingStrategy preProStrat,
+      NetManager otGenerator,
+      NetManager tripleGenerator,
       NetManager expPipeGenerator) {
     SpdzDataSupplier supplier;
     if (preProStrat == DUMMY) {

@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.lp.LpBuildingBlockTests;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import org.junit.Test;
@@ -8,10 +7,10 @@ import org.junit.Test;
 public class TestSpdzLPBuildingBlocks extends AbstractSpdzTest {
 
   @Test
-  public void test_entering_variable_sequential() throws Exception {
-    runTest(new LpBuildingBlockTests.TestEnteringVariable<>(), EvaluationStrategy.SEQUENTIAL,
+  public void test_entering_variable_sequential() {
+    runTest(new LpBuildingBlockTests.TestEnteringVariable<>(),
         PreprocessingStrategy.DUMMY, 2);
-    runTest(new LpBuildingBlockTests.TestBlandEnteringVariable<>(), EvaluationStrategy.SEQUENTIAL,
+    runTest(new LpBuildingBlockTests.TestBlandEnteringVariable<>(),
         PreprocessingStrategy.DUMMY, 2);
   }
 

@@ -8,14 +8,14 @@ import org.junit.Test;
 public class TestSpdzStatistics extends AbstractSpdzTest{
 	
 	@Test
-	public void test_Exiting_Variable_2_parties() throws Exception {		
-    runTest(new StatisticsTests.TestStatistics<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+	public void test_Exiting_Variable_2_parties() {
+    runTest(new StatisticsTests.TestStatistics<>(),
         PreprocessingStrategy.DUMMY, 2);
   }
 
 	@Test
-	public void test_Exiting_Variable_3_parties() throws Exception {
-    runTest(new StatisticsTests.TestStatistics<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+	public void test_Exiting_Variable_3_parties() {
+    runTest(new StatisticsTests.TestStatistics<>(),
         PreprocessingStrategy.DUMMY, 3);
   }
 }

@@ -25,8 +25,9 @@ public class CreditRater implements
 
   /**
    * Construct a new CreditRater.
-   * @throws IllegalArgumentException if the intervals, values and intervalScores
-    does not have the same length
+   *
+   * @throws IllegalArgumentException if the intervals, values and intervalScores does not have the
+   * same length
    */
   public CreditRater(
       List<DRes<SInt>> values, List<List<DRes<SInt>>> intervals,
@@ -113,9 +114,14 @@ public class CreditRater implements
         List<DRes<SInt>> innerScores = new ArrayList<>();
         innerScores.add(numericBuilder.mult(comparisons.get(0), scores.get(0)));
         for (int i = 1; i < scores.size() - 1; i++) {
-          DRes<SInt> hit = numericBuilder
-              .sub(comparisons.get(i), comparisons.get(i - 1));
-          innerScores.add(numericBuilder.mult(hit, scores.get(i)));
+          int finalI = i;
+          final DRes<SInt> res = parallelBuilder.seq(seq -> {
+            DRes<SInt> hit = seq.numeric()
+                .sub(comparisons.get(finalI), comparisons.get(finalI - 1));
+            return seq.numeric().mult(hit, scores.get(finalI));
+          });
+
+          innerScores.add(res);
         }
         DRes<SInt> a = comparisons.get(scores.size() - 1);
         DRes<SInt> b = scores.get(scores.size() - 1);

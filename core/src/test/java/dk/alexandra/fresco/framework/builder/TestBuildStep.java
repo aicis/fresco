@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.suite.dummy.arithmetic.AbstractDummyArithmeticTest;
 import java.util.ArrayList;
@@ -38,7 +37,7 @@ public class TestBuildStep extends AbstractDummyArithmeticTest {
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
-        public void test() throws Exception {
+        public void test() {
           // define functionality to be tested
           Application<List<Integer>, ProtocolBuilderNumeric> testApplication = root -> root
               .seq(seq -> {
@@ -76,21 +75,19 @@ public class TestBuildStep extends AbstractDummyArithmeticTest {
   }
 
   @Test
-  public void test_while_no_iteration() throws Exception {
-    System.out.println("Testing no iteration");
-    runTest(new TestWhileLoop<>(0, Collections.emptyList()), EvaluationStrategy.SEQUENTIAL,
-        1);
+  public void test_while_no_iteration() {
+    runTest(new TestWhileLoop<>(0, Collections.emptyList()),
+        new TestParameters());
   }
 
   @Test
-  public void test_while_single_iteration() throws Exception {
-    runTest(new TestWhileLoop<>(1, Collections.singletonList(0)), EvaluationStrategy.SEQUENTIAL,
-        1);
+  public void test_while_single_iteration() {
+    runTest(new TestWhileLoop<>(1, Collections.singletonList(0)), new TestParameters());
   }
 
   @Test
-  public void test_while_multiple_iterations() throws Exception {
+  public void test_while_multiple_iterations() {
     runTest(new TestWhileLoop<>(10, Arrays.asList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)),
-        EvaluationStrategy.SEQUENTIAL, 1);
+        new TestParameters());
   }
 }
