@@ -16,6 +16,7 @@ import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
 import dk.alexandra.fresco.suite.spdz2k.protocols.computations.Spdz2kInputComputation;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAddKnownProtocol;
+import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAddProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kKnownSIntProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kMultiplyProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kOutputSinglePartyProtocol;
@@ -23,6 +24,7 @@ import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kOutputToAllProto
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kRandomBitProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kRandomElementProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kSubtractFromKnownProtocol;
+import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kSubtractProtocol;
 import java.math.BigInteger;
 import java.util.Objects;
 
@@ -52,7 +54,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
     return new Numeric() {
       @Override
       public DRes<SInt> add(DRes<SInt> a, DRes<SInt> b) {
-        return () -> toSpdz2kSInt(a).add(toSpdz2kSInt(b));
+        return builder.append(new Spdz2kAddProtocol<>(a, b));
       }
 
       @Override
@@ -67,13 +69,11 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
       @Override
       public DRes<SInt> sub(DRes<SInt> a, DRes<SInt> b) {
-        // TODO remove lambda!
-        return () -> (toSpdz2kSInt(a)).subtract(toSpdz2kSInt(b));
+        return builder.append(new Spdz2kSubtractProtocol<>(a, b));
       }
 
       @Override
       public DRes<SInt> sub(BigInteger a, DRes<SInt> b) {
-        // TODO remove lambda!
         return builder.append(
             new Spdz2kSubtractFromKnownProtocol<>(factory.createFromBigInteger(a), b));
       }
