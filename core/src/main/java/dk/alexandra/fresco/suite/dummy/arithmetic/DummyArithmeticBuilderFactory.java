@@ -146,8 +146,8 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
 
       @Override
       public DRes<OInt> openAsOInt(DRes<SInt> secretShare) {
-        DummyArithmeticOpenToAllProtocol inner = new DummyArithmeticOpenToAllProtocol(secretShare);
-        return builder.append(new DummyArithmeticOIntProtocolWrapper(inner, oIntFactory));
+        return builder.append(new DummyArithmeticOpenToAllOIntProtocol(
+            secretShare, oIntFactory));
       }
 
       @Override
@@ -175,7 +175,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
             new DummyArithmeticMultProtocol(() -> new DummyArithmeticSInt(a), b);
         return builder.append(c);
       }
-      
+
       @Override
       public DRes<SInt> mult(OInt a, DRes<SInt> b) {
         return mult(builder.getOIntFactory().toBigInteger(a.out()), b);

@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class NumericLoggingDecorator implements Numeric, PerformanceLogger {
 
-  public static final String ARITHMETIC_BASIC_MULT = "MULT_COUNT"; 
+  public static final String ARITHMETIC_BASIC_MULT = "MULT_COUNT";
   public static final String ARITHMETIC_BASIC_ADD = "ADD_COUNT";
   public static final String ARITHMETIC_BASIC_SUB = "SUB_COUNT";
   public static final String ARITHMETIC_BASIC_BIT = "BIT_COUNT";
@@ -22,7 +22,7 @@ public class NumericLoggingDecorator implements Numeric, PerformanceLogger {
   private long bitCount;
   private long randElmCount;
   private long multCount;
-  
+
   public NumericLoggingDecorator(Numeric delegate) {
     super();
     this.delegate = delegate;
@@ -57,12 +57,12 @@ public class NumericLoggingDecorator implements Numeric, PerformanceLogger {
 
   @Override
   public DRes<SInt> sub(OInt a, DRes<SInt> b) {
-    return null;
+    return this.delegate.sub(a, b);
   }
 
   @Override
   public DRes<SInt> sub(DRes<SInt> a, OInt b) {
-    return null;
+    return this.delegate.sub(a, b);
   }
 
   @Override
@@ -83,7 +83,7 @@ public class NumericLoggingDecorator implements Numeric, PerformanceLogger {
 
   @Override
   public DRes<SInt> mult(OInt a, DRes<SInt> b) {
-    return null;
+    return this.delegate.mult(a, b);
   }
 
   @Override
@@ -115,12 +115,12 @@ public class NumericLoggingDecorator implements Numeric, PerformanceLogger {
 
   @Override
   public DRes<OInt> openAsOInt(DRes<SInt> secretShare) {
-    return null;
+    return this.delegate.openAsOInt(secretShare);
   }
 
   @Override
   public DRes<OInt> openAsOInt(DRes<SInt> secretShare, int outputParty) {
-    return null;
+    return this.delegate.openAsOInt(secretShare, outputParty);
   }
 
   @Override
