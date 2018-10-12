@@ -5,6 +5,8 @@ import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.PreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.value.BigIntegerOIntArithmetic;
+import dk.alexandra.fresco.framework.value.BigIntegerOIntFactory;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.OIntArithmetic;
 import dk.alexandra.fresco.framework.value.OIntFactory;
@@ -15,6 +17,7 @@ import dk.alexandra.fresco.lib.real.RealNumericContext;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzAddProtocolKnownLeft;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzInputProtocol;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzInputTwoPartyProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzKnownSIntProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocolKnownLeft;
@@ -34,10 +37,14 @@ class SpdzBuilder implements BuilderFactoryNumeric {
   private BasicNumericContext basicNumericContext;
   private MiscBigIntegerGenerators miscOIntGenerators;
   private RealNumericContext realNumericContext;
+  private final OIntFactory oIntFactory;
+  private final OIntArithmetic oIntArithmetic;
 
   SpdzBuilder(BasicNumericContext basicNumericContext, RealNumericContext realNumericContext) {
     this.basicNumericContext = basicNumericContext;
     this.realNumericContext = realNumericContext;
+    this.oIntFactory = new BigIntegerOIntFactory(basicNumericContext.getMaxBitLength());
+    this.oIntArithmetic = new BigIntegerOIntArithmetic(oIntFactory);
   }
 
   @Override
@@ -49,7 +56,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
   public RealNumericContext getRealNumericContext() {
     return realNumericContext;
   }
-  
+
   @Override
   public PreprocessedValues createPreprocessedValues(ProtocolBuilderNumeric protocolBuilder) {
     return pipeLength -> {
@@ -61,12 +68,12 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
   @Override
   public OIntFactory getOIntFactory() {
-    return null;
+    return oIntFactory;
   }
 
   @Override
   public OIntArithmetic getOIntArithmetic() {
-    return null;
+    return oIntArithmetic;
   }
 
   @Override
@@ -78,7 +85,6 @@ class SpdzBuilder implements BuilderFactoryNumeric {
         return protocolBuilder.append(spdzAddProtocol);
       }
 
-
       @Override
       public DRes<SInt> add(BigInteger a, DRes<SInt> b) {
         SpdzAddProtocolKnownLeft spdzAddProtocolKnownLeft = new SpdzAddProtocolKnownLeft(a, b);
@@ -87,9 +93,8 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> addOpen(DRes<OInt> a, DRes<SInt> b) {
-        return null;
+        return add(protocolBuilder.getOIntFactory().toBigInteger(a.out()), b);
       }
-
 
       @Override
       public DRes<SInt> sub(DRes<SInt> a, DRes<SInt> b) {
@@ -106,12 +111,12 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> subFromOpen(DRes<OInt> a, DRes<SInt> b) {
-        return null;
+        return sub(protocolBuilder.getOIntFactory().toBigInteger(a.out()), b);
       }
 
       @Override
       public DRes<SInt> subOpen(DRes<SInt> a, DRes<OInt> b) {
-        return null;
+        return sub(a, protocolBuilder.getOIntFactory().toBigInteger(b.out()));
       }
 
       @Override
@@ -136,7 +141,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> multByOpen(DRes<OInt> a, DRes<SInt> b) {
-        return null;
+        return mult(protocolBuilder.getOIntFactory().toBigInteger(a.out()), b);
       }
 
       @Override
@@ -156,8 +161,11 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> input(BigInteger value, int inputParty) {
-        SpdzInputProtocol protocol = new SpdzInputProtocol(value, inputParty);
-        return protocolBuilder.append(protocol);
+        if (protocolBuilder.getBasicNumericContext().getNoOfParties() == 2) {
+          return protocolBuilder.append(new SpdzInputTwoPartyProtocol(value, inputParty));
+        } else {
+          return protocolBuilder.append(new SpdzInputProtocol(value, inputParty));
+        }
       }
 
       @Override
@@ -167,21 +175,31 @@ class SpdzBuilder implements BuilderFactoryNumeric {
       }
 
       @Override
-      public DRes<OInt> openAsOInt(DRes<SInt> secretShare) {
-        return null;
-      }
-
-      @Override
-      public DRes<OInt> openAsOInt(DRes<SInt> secretShare, int outputParty) {
-        return null;
-      }
-
-      @Override
       public DRes<BigInteger> open(DRes<SInt> secretShare, int outputParty) {
         SpdzOutputSingleProtocol openProtocol = new SpdzOutputSingleProtocol(secretShare,
             outputParty);
         return protocolBuilder.append(openProtocol);
       }
+
+      @Override
+      public DRes<OInt> openAsOInt(DRes<SInt> secretShare) {
+        DRes<BigInteger> value = open(secretShare);
+        return () -> oIntFactory.fromBigInteger(value.out());
+      }
+
+      @Override
+      public DRes<OInt> openAsOInt(DRes<SInt> secretShare, int outputParty) {
+        DRes<BigInteger> out = open(secretShare, outputParty);
+        return () -> {
+          BigInteger res = out.out();
+          if (res == null) {
+            return null;
+          } else {
+            return oIntFactory.fromBigInteger(res);
+          }
+        };
+      }
+
     };
   }
 
