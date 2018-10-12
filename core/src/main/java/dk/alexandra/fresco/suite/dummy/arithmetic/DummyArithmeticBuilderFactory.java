@@ -75,12 +75,12 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> subFromOpen(DRes<OInt> a, DRes<SInt> b) {
-        return null;
+        return sub(builder.getOIntFactory().toBigInteger(a.out()), b);
       }
 
       @Override
       public DRes<SInt> subOpen(DRes<SInt> a, DRes<OInt> b) {
-        return null;
+        return sub(a, builder.getOIntFactory().toBigInteger(b.out()));
       }
 
       @Override
@@ -143,12 +143,21 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
 
       @Override
       public DRes<OInt> openAsOInt(DRes<SInt> secretShare) {
-        return null;
+        DRes<BigInteger> value = open(secretShare);
+        return () -> oIntFactory.fromBigInteger(value.out());
       }
 
       @Override
       public DRes<OInt> openAsOInt(DRes<SInt> secretShare, int outputParty) {
-        return null;
+        DRes<BigInteger> out = open(secretShare, outputParty);
+        return () -> {
+          BigInteger res = out.out();
+          if (res == null) {
+            return null;
+          } else {
+            return oIntFactory.fromBigInteger(res);
+          }
+        };
       }
 
       @Override
@@ -166,7 +175,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> multByOpen(DRes<OInt> a, DRes<SInt> b) {
-        return null;
+        return mult(builder.getOIntFactory().toBigInteger(a.out()), b);
       }
 
       @Override
@@ -212,7 +221,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> addOpen(DRes<OInt> a, DRes<SInt> b) {
-        return null;
+        return add(builder.getOIntFactory().toBigInteger(a.out()), b);
       }
 
       @Override
