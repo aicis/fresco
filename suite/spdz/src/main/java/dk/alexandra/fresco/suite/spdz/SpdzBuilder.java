@@ -93,7 +93,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> add(OInt a, DRes<SInt> b) {
-        return add(protocolBuilder.getOIntFactory().toBigInteger(a.out()), b);
+        return add(protocolBuilder.getOIntFactory().toBigInteger(a), b);
       }
 
       @Override
@@ -111,12 +111,12 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> sub(OInt a, DRes<SInt> b) {
-        return sub(protocolBuilder.getOIntFactory().toBigInteger(a.out()), b);
+        return sub(protocolBuilder.getOIntFactory().toBigInteger(a), b);
       }
 
       @Override
       public DRes<SInt> sub(DRes<SInt> a, OInt b) {
-        return sub(a, protocolBuilder.getOIntFactory().toBigInteger(b.out()));
+        return sub(a, protocolBuilder.getOIntFactory().toBigInteger(b));
       }
 
       @Override
@@ -141,7 +141,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> mult(OInt a, DRes<SInt> b) {
-        return mult(protocolBuilder.getOIntFactory().toBigInteger(a.out()), b);
+        return mult(protocolBuilder.getOIntFactory().toBigInteger(a), b);
       }
 
       @Override
