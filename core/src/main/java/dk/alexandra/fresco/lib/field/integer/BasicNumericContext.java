@@ -25,12 +25,6 @@ public class BasicNumericContext {
    */
   public BasicNumericContext(int maxBitLength, int statisticalSecurityParam, BigInteger modulus,
       int myId, int noOfParties) {
-    if (modulus.bitLength() < maxBitLength + statisticalSecurityParam) {
-      throw new IllegalArgumentException(
-          "Modulus length was " + modulus.bitLength() + " but must be at least " + (maxBitLength
-              + statisticalSecurityParam) + " to accommodate maxBitLength " + maxBitLength
-              + " and stat security " + statisticalSecurityParam);
-    }
     this.maxBitLength = maxBitLength;
     this.statisticalSecurityParam = statisticalSecurityParam;
     this.modulus = modulus;

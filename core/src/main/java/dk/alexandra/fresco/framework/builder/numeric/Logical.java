@@ -25,81 +25,19 @@ public interface Logical extends ComputationDirectory {
   DRes<SInt> or(DRes<SInt> bitA, DRes<SInt> bitB);
 
   /**
-   * Computes logical OR of inputs but is only safe to use when at least one of the bits is 0.
-   * <p>This allows to express and or as a linear operation and therefore far more efficient.</p>
-   */
-  DRes<SInt> halfOr(DRes<SInt> bitA, DRes<SInt> bitB);
-
-  /**
    * Computes logical XOR of inputs. <p>NOTE: Inputs must represent 0 or 1 values only.</p>
    */
   DRes<SInt> xor(DRes<SInt> bitA, DRes<SInt> bitB);
 
   /**
-   * Computes logical AND of inputs. <p>NOTE: Inputs must represent 0 or 1 values only.</p>
-   */
-  DRes<SInt> andKnown(DRes<OInt> knownBit, DRes<SInt> secretBit);
-
-  /**
    * Computes logical XOR of inputs. <p>NOTE: Inputs must represent 0 or 1 values only.</p>
    */
-  DRes<SInt> xorKnown(DRes<OInt> knownBit, DRes<SInt> secretBit);
+  DRes<SInt> xorKnown(OInt knownBit, DRes<SInt> secretBit);
 
   /**
    * Computes logical NOT of input. <p>NOTE: Input must represent 0 or 1 values only.</p>
    */
   DRes<SInt> not(DRes<SInt> secretBit);
-
-  /**
-   * Opens secret bits, possibly performing conversion before producing final open value. <p>NOTE:
-   * Input must represent 0 or 1 values only.</p>
-   */
-  DRes<OInt> openAsBit(DRes<SInt> secretBit);
-
-  /**
-   * Batch opening of bits.
-   */
-  DRes<List<DRes<OInt>>> openAsBits(DRes<List<DRes<SInt>>> secretBits);
-
-  /**
-   * Negates all given bits.
-   */
-  DRes<List<DRes<SInt>>> batchedNot(DRes<List<DRes<SInt>>> bits);
-
-  /**
-   * Computes pairwise logical AND of input bits. <p>NOTE: Inputs must represent 0 or 1 values
-   * only.</p>
-   */
-  DRes<List<DRes<SInt>>> pairWiseAndKnown(DRes<List<OInt>> knownBits,
-      DRes<List<DRes<SInt>>> secretBits);
-
-  /**
-   * Computes pairwise logical AND of input bits. <p>NOTE: Inputs must represent 0 or 1 values
-   * only.</p>
-   */
-  DRes<List<DRes<SInt>>> pairWiseAnd(DRes<List<DRes<SInt>>> bitsA,
-      DRes<List<DRes<SInt>>> bitsB);
-
-  /**
-   * Computes pairwise logical OR of input bits. <p>NOTE: Inputs must represent 0 or 1 values
-   * only.</p>
-   */
-  DRes<List<DRes<SInt>>> pairWiseOr(DRes<List<DRes<SInt>>> bitsA,
-      DRes<List<DRes<SInt>>> bitsB);
-
-  /**
-   * Computes pairwise logical XOR of input bits. <p>NOTE: Inputs must represent 0 or 1 values
-   * only.</p>
-   */
-  DRes<List<DRes<SInt>>> pairWiseXor(DRes<List<DRes<SInt>>> bitsA,
-      DRes<List<DRes<SInt>>> bitsB);
-
-  /**
-   * Computes pairwise logical XOR of input bits. <p>NOTE: Inputs must represent 0 or 1 values
-   * only.</p>
-   */
-  DRes<List<DRes<SInt>>> pairWiseXorKnown(DRes<List<OInt>> knownBits,
-      DRes<List<DRes<SInt>>> secretBits);
 
   /**
    * Computes logical OR of all input bits. <p> NOTE: Inputs must represent 0 or 1 values only.

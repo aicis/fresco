@@ -155,8 +155,8 @@ public class BasicArithmeticTests {
           };
           ResourcePoolT resourcePool = conf.getResourcePool();
           BigInteger output = runApplication(app);
-          Assert
-              .assertEquals(resourcePool.convertRepresentation(leftValue.add(rightValue)), output);
+          Assert.assertEquals(
+              resourcePool.convertRepresentation(leftValue.add(rightValue)), output);
         }
       };
     }

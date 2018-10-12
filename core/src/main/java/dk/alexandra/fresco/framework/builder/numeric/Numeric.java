@@ -41,7 +41,7 @@ public interface Numeric extends ComputationDirectory {
    * @param b Secret value
    * @return A deferred result computing a+b
    */
-  DRes<SInt> addOpen(DRes<OInt> a, DRes<SInt> b);
+  DRes<SInt> add(OInt a, DRes<SInt> b);
 
   /**
    * Subtracts two secret values and returns the result.
@@ -68,7 +68,7 @@ public interface Numeric extends ComputationDirectory {
    * @param b Secret value
    * @return A deferred result computing a-b
    */
-  DRes<SInt> subFromOpen(DRes<OInt> a, DRes<SInt> b);
+  DRes<SInt> sub(OInt a, DRes<SInt> b);
 
   /**
    * Subtracts a secret value and a public value and returns the result.
@@ -77,7 +77,7 @@ public interface Numeric extends ComputationDirectory {
    * @param b Public value
    * @return A deferred result computing a-b
    */
-  DRes<SInt> subOpen(DRes<SInt> a, DRes<OInt> b);
+  DRes<SInt> sub(DRes<SInt> a, OInt b);
 
   /**
    * Subtracts a secret value and a public value and returns the result.
@@ -113,7 +113,7 @@ public interface Numeric extends ComputationDirectory {
    * @param b Secret value
    * @return A deferred result computing a*b
    */
-  DRes<SInt> multByOpen(DRes<OInt> a, DRes<SInt> b);
+  DRes<SInt> mult(OInt a, DRes<SInt> b);
 
   /**
    * Returns a deferred result which creates a secret shared random bit. (This should be computed

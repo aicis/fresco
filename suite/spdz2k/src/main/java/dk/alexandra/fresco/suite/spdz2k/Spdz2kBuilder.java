@@ -61,28 +61,30 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
       }
 
       @Override
-      public DRes<SInt> addOpen(DRes<OInt> a, DRes<SInt> b) {
+      public DRes<SInt> add(OInt a, DRes<SInt> b) {
         return null;
       }
 
       @Override
       public DRes<SInt> sub(DRes<SInt> a, DRes<SInt> b) {
+        // TODO remove lambda!
         return () -> (toSpdz2kSInt(a)).subtract(toSpdz2kSInt(b));
       }
 
       @Override
       public DRes<SInt> sub(BigInteger a, DRes<SInt> b) {
+        // TODO remove lambda!
         return builder.append(
             new Spdz2kSubtractFromKnownProtocol<>(factory.createFromBigInteger(a), b));
       }
 
       @Override
-      public DRes<SInt> subFromOpen(DRes<OInt> a, DRes<SInt> b) {
+      public DRes<SInt> sub(OInt a, DRes<SInt> b) {
         return null;
       }
 
       @Override
-      public DRes<SInt> subOpen(DRes<SInt> a, DRes<OInt> b) {
+      public DRes<SInt> sub(DRes<SInt> a, OInt b) {
         return null;
       }
 
@@ -103,7 +105,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
       }
 
       @Override
-      public DRes<SInt> multByOpen(DRes<OInt> a, DRes<SInt> b) {
+      public DRes<SInt> mult(OInt a, DRes<SInt> b) {
         return null;
       }
 

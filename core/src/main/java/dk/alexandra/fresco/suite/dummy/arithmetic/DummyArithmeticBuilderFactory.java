@@ -74,13 +74,16 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
       }
 
       @Override
-      public DRes<SInt> subFromOpen(DRes<OInt> a, DRes<SInt> b) {
+      public DRes<SInt> sub(OInt a, DRes<SInt> b) {
         return sub(builder.getOIntFactory().toBigInteger(a.out()), b);
       }
 
       @Override
-      public DRes<SInt> subOpen(DRes<SInt> a, DRes<OInt> b) {
-        return sub(a, builder.getOIntFactory().toBigInteger(b.out()));
+      public DRes<SInt> sub(DRes<SInt> a, OInt b) {
+        DummyArithmeticNativeProtocol<SInt> c =
+            new DummyArithmeticSubtractProtocol(a,
+                () -> new DummyArithmeticSInt(oIntFactory.toBigInteger(b.out())));
+        return builder.append(c);
       }
 
       @Override
@@ -143,8 +146,8 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
 
       @Override
       public DRes<OInt> openAsOInt(DRes<SInt> secretShare) {
-        DRes<BigInteger> value = open(secretShare);
-        return () -> oIntFactory.fromBigInteger(value.out());
+        DummyArithmeticOpenToAllProtocol inner = new DummyArithmeticOpenToAllProtocol(secretShare);
+        return builder.append(new DummyArithmeticOIntProtocolWrapper(inner, oIntFactory));
       }
 
       @Override
@@ -172,9 +175,9 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
             new DummyArithmeticMultProtocol(() -> new DummyArithmeticSInt(a), b);
         return builder.append(c);
       }
-
+      
       @Override
-      public DRes<SInt> multByOpen(DRes<OInt> a, DRes<SInt> b) {
+      public DRes<SInt> mult(OInt a, DRes<SInt> b) {
         return mult(builder.getOIntFactory().toBigInteger(a.out()), b);
       }
 
@@ -220,7 +223,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
       }
 
       @Override
-      public DRes<SInt> addOpen(DRes<OInt> a, DRes<SInt> b) {
+      public DRes<SInt> add(OInt a, DRes<SInt> b) {
         return add(builder.getOIntFactory().toBigInteger(a.out()), b);
       }
 

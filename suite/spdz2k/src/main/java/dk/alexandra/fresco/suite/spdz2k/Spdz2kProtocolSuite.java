@@ -54,7 +54,8 @@ public abstract class Spdz2kProtocolSuite<
 
   public BasicNumericContext createBasicNumericContext(Spdz2kResourcePool<PlainT> resourcePool) {
     return new BasicNumericContext(
-        resourcePool.getMaxBitLength(), resourcePool.getModulus(), resourcePool.getMyId(),
+        resourcePool.getMaxBitLength(), 0,
+        resourcePool.getModulus(), resourcePool.getMyId(),
         resourcePool.getNoOfParties());
   }
 

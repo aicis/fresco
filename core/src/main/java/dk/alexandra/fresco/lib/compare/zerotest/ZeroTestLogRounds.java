@@ -36,7 +36,7 @@ public class ZeroTestLogRounds implements Computation<SInt, ProtocolBuilderNumer
     return builder.seq(seq -> seq.advancedNumeric().randomBitMask(maxBitLength
         + statisticalSecurity)).seq((seq, r) -> {
       // Use the integer interpretation of r to compute c = 2^maxLength+(input + r)
-      DRes<OInt> c = seq.numeric().openAsOInt(seq.numeric().addOpen(seq
+      DRes<OInt> c = seq.numeric().openAsOInt(seq.numeric().add(seq
           .getOIntArithmetic().twoTo(maxBitLength), seq.numeric().add(
           input, r.getValue())));
       final Pair<List<DRes<SInt>>, DRes<OInt>> bitsAndC = new Pair<>(r.getBits(), c);
@@ -53,14 +53,14 @@ public class ZeroTestLogRounds implements Computation<SInt, ProtocolBuilderNumer
       List<DRes<SInt>> d = new ArrayList<>(maxBitLength);
       for (int i = 0; i < maxBitLength; i++) {
         DRes<SInt> ri = pair.getFirst().get(i);
-        DRes<OInt> ci = pair.getSecond().get(i);
+        OInt ci = pair.getSecond().get(i);
         DRes<SInt> di = par.logical().xorKnown(ci, ri);
         d.add(di);
       }
       return () -> d;
     }).seq((seq, d) -> {
       // return 1 - OR-list(d)
-      return seq.numeric().subFromOpen(seq.getOIntArithmetic().one(), seq
+      return seq.numeric().sub(seq.getOIntArithmetic().one(), seq
           .logical().orOfList(() -> d));
     });
   }

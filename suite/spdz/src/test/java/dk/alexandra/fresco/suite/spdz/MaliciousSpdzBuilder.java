@@ -43,7 +43,7 @@ public class MaliciousSpdzBuilder extends SpdzBuilder {
       }
 
       @Override
-      public DRes<SInt> addOpen(DRes<OInt> a, DRes<SInt> b) {
+      public DRes<SInt> add(OInt a, DRes<SInt> b) {
         return null;
       }
 
@@ -62,12 +62,12 @@ public class MaliciousSpdzBuilder extends SpdzBuilder {
       }
 
       @Override
-      public DRes<SInt> subFromOpen(DRes<OInt> a, DRes<SInt> b) {
+      public DRes<SInt> sub(OInt a, DRes<SInt> b) {
         return null;
       }
 
       @Override
-      public DRes<SInt> subOpen(DRes<SInt> a, DRes<OInt> b) {
+      public DRes<SInt> sub(DRes<SInt> a, OInt b) {
         return null;
       }
 
@@ -92,7 +92,7 @@ public class MaliciousSpdzBuilder extends SpdzBuilder {
       }
 
       @Override
-      public DRes<SInt> multByOpen(DRes<OInt> a, DRes<SInt> b) {
+      public DRes<SInt> mult(OInt a, DRes<SInt> b) {
         return null;
       }
 
