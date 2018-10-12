@@ -77,9 +77,6 @@ public abstract class AbstractDummyArithmeticTest {
       TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, int noOfParties, BigInteger mod, int maxBitLength,
       int fixedPointPrecision, boolean logPerformance) {
-    if (evalStrategy == EvaluationStrategy.SEQUENTIAL) {
-      throw new IllegalArgumentException(":(");
-    }
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
       ports.add(9000 + i * (noOfParties - 1));
