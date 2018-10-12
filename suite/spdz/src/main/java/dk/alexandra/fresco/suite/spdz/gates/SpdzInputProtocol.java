@@ -3,25 +3,20 @@ package dk.alexandra.fresco.suite.spdz.gates;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
-import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
 import java.math.BigInteger;
 
-public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
+/**
+ * SPDZ input protocol for multi-party case. <p>This requires broadcast validation.</p>
+ */
+public class SpdzInputProtocol extends SpdzInputTwoPartyProtocol {
 
-  SpdzInputMask inputMask; // is opened by this gate.
-  BigInteger input;
-  BigInteger valueMasked;
-  SpdzSInt out;
-  int inputter;
   private byte[] digest;
 
   public SpdzInputProtocol(BigInteger input, int inputter) {
-    this.input = input;
-    this.inputter = inputter;
+    super(input, inputter);
   }
 
   @Override
