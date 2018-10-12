@@ -4,6 +4,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.Comparison.ComparisonAlgorithm;
 import dk.alexandra.fresco.framework.builder.numeric.ExponentiationPipeTests;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -127,8 +128,15 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
-  public void testCompareEqEdgeCasesSequential() {
-    runTest(new CompareTests.TestCompareEQEdgeCases<>(), new TestParameters());
+  public void testCompareEqEdgeCasesLogRounds() {
+    runTest(new CompareTests.TestCompareEQEdgeCases<>(ComparisonAlgorithm.LOG_ROUNDS),
+        new TestParameters());
+  }
+
+  @Test
+  public void testCompareEqEdgeCasesConstRounds() {
+    runTest(new CompareTests.TestCompareEQEdgeCases<>(ComparisonAlgorithm.CONST_ROUNDS),
+        new TestParameters());
   }
 
   @Test

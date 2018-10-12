@@ -14,11 +14,11 @@ public interface Comparison extends ComputationDirectory {
    * algorithm running in constant rounds or logarithmic rounds should be used. In general the
    * logarithmic round choice is the fastest and is therefore used by default.
    */
-  enum Algorithm {
+  enum ComparisonAlgorithm {
     LOG_ROUNDS, CONST_ROUNDS
   }
 
-  Algorithm DEFAULT_EQUALITY = Algorithm.CONST_ROUNDS;
+  ComparisonAlgorithm DEFAULT_EQUALITY = ComparisonAlgorithm.LOG_ROUNDS;
 
   /**
    * Compares two values and return x == y
@@ -33,10 +33,12 @@ public interface Comparison extends ComputationDirectory {
   }
 
   /**
-   * Call to {@link #equals(int, DRes, DRes, Algorithm)} with default algorithm {@link
+   * Call to {@link #equals(int, DRes, DRes, ComparisonAlgorithm)} with default algorithm {@link
    * #DEFAULT_EQUALITY}.
    */
   DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y);
+
+  DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y, ComparisonAlgorithm algorithm);
 
   /**
    * Computes x == y.
@@ -49,15 +51,7 @@ public interface Comparison extends ComputationDirectory {
    * @return A deferred result computing x' == y'. Where x' and y' represent the {@code bitlength}
    * least significant bits of x, respectively y. Result will be either [1] (true) or [0] (false).
    */
-  DRes<SInt> equals(int bitLength, DRes<SInt> x, DRes<SInt> y, Algorithm algorithm);
-
-//  /**
-//   * Call to {@link #equals(int, DRes, DRes, Algorithm)} with default algorithm {@link
-//   * #DEFAULT_EQUALITY}.
-//   */
-//  default DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y, int bitLength) {
-//    return equals(bitLength, x, y, DEFAULT_EQUALITY);
-//  }
+  DRes<SInt> equals(int bitLength, DRes<SInt> x, DRes<SInt> y, ComparisonAlgorithm algorithm);
 
   /**
    * Computes if x1 <= x2.

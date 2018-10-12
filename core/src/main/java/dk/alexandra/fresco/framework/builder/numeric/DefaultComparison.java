@@ -5,6 +5,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.compare.eq.EqualityConstRounds;
 import dk.alexandra.fresco.lib.compare.gt.LessThanOrEquals;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTest;
+import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestLogRounds;
 import java.math.BigInteger;
 
 /**
@@ -41,11 +42,19 @@ public class DefaultComparison implements Comparison {
   }
 
   @Override
-  public DRes<SInt> equals(int bitLength, DRes<SInt> x, DRes<SInt> y, Algorithm algorithm) {
-    if (algorithm == Algorithm.CONST_ROUNDS) {
+  public DRes<SInt> equals(DRes<SInt> x, DRes<SInt> y, ComparisonAlgorithm algorithm) {
+    int maxBitLength = builder.getBasicNumericContext().getMaxBitLength();
+    return equals(maxBitLength, x, y, algorithm);
+  }
+
+  @Override
+  public DRes<SInt> equals(int bitLength, DRes<SInt> x, DRes<SInt> y,
+      ComparisonAlgorithm algorithm) {
+    if (algorithm == ComparisonAlgorithm.CONST_ROUNDS) {
       return builder.seq(new EqualityConstRounds(bitLength, x, y));
     } else {
-      throw new UnsupportedOperationException("WIP");
+      DRes<SInt> diff = builder.numeric().sub(x, y);
+      return builder.seq(new ZeroTestLogRounds(diff, bitLength));
     }
   }
 

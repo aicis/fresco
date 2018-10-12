@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.builder.numeric.Comparison;
+import dk.alexandra.fresco.framework.builder.numeric.Comparison.ComparisonAlgorithm;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -145,6 +146,13 @@ public class CompareTests {
   public static class TestCompareEQEdgeCases<ResourcePoolT extends ResourcePool>
       extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
+    private final ComparisonAlgorithm algorithm;
+
+    public TestCompareEQEdgeCases(
+        ComparisonAlgorithm algorithm) {
+      this.algorithm = algorithm;
+    }
+
     // returns modulus / 2 + added
     private BigInteger halfModPlus(BigInteger modulus, String added) {
       return modulus.divide(BigInteger.valueOf(2)).add(new BigInteger(added));
@@ -164,36 +172,39 @@ public class CompareTests {
             // check (mod / 2) == (mod / 2)
             DRes<SInt> compResultOne = comparison
                 .equals(input.known(halfModPlus(modulus, "0")),
-                    input.known(halfModPlus(modulus, "0")));
+                    input.known(halfModPlus(modulus, "0")), algorithm);
             // check (mod / 2 + 1) == (mod / 2 + 1)
             DRes<SInt> compResultTwo = comparison
                 .equals(input.known(halfModPlus(modulus, "1")),
-                    input.known(halfModPlus(modulus, "1")));
+                    input.known(halfModPlus(modulus, "1")), algorithm);
             // check (mod / 2 + 1) != (mod / 2 + 2)
             DRes<SInt> compResultThree = comparison
                 .equals(input.known(halfModPlus(modulus, "1")),
-                    input.known(halfModPlus(modulus, "2")));
+                    input.known(halfModPlus(modulus, "2")), algorithm);
             // check (mod / 2 + 2) != 2
             DRes<SInt> compResultFour = comparison
-                .equals(input.known(halfModPlus(modulus, "2")), input.known(new BigInteger("2")));
+                .equals(input.known(halfModPlus(modulus, "2")), input.known(new BigInteger("2")),
+                    algorithm);
             // check -1 == -1
             DRes<SInt> compResultFive = comparison
-                .equals(input.known(BigInteger.valueOf(-1)), input.known(BigInteger.valueOf(-1)));
+                .equals(input.known(BigInteger.valueOf(-1)), input.known(BigInteger.valueOf(-1)),
+                    algorithm);
             // check -1 != -2
             DRes<SInt> compResultSix = comparison
-                .equals(input.known(BigInteger.valueOf(-1)), input.known(BigInteger.valueOf(-2)));
+                .equals(input.known(BigInteger.valueOf(-1)), input.known(BigInteger.valueOf(-2)),
+                    algorithm);
             // check -1 != 1
             DRes<SInt> compResultSeven = comparison
-                .equals(input.known(BigInteger.valueOf(-1)), input.known(BigInteger.valueOf(1)));
+                .equals(input.known(BigInteger.valueOf(-1)), input.known(BigInteger.valueOf(1)),
+                    algorithm);
 
             List<DRes<SInt>> comps = Arrays
                 .asList(compResultOne, compResultTwo, compResultThree, compResultFour,
                     compResultFive, compResultSix, compResultSeven);
             DRes<List<DRes<BigInteger>>> opened = builder.collections().openList(() -> comps);
 
-            return builder.seq((seq) -> {
-              return () -> opened.out().stream().map(DRes::out).collect(Collectors.toList());
-            });
+            return builder.seq(
+                (seq) -> () -> opened.out().stream().map(DRes::out).collect(Collectors.toList()));
           };
           List<BigInteger> output = runApplication(app);
           Assert.assertEquals(BigInteger.ONE, output.get(0));

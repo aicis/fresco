@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.spdz;
 
+import dk.alexandra.fresco.framework.builder.numeric.Comparison.ComparisonAlgorithm;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
@@ -49,8 +50,14 @@ public class TestSpdzComparison extends AbstractSpdzTest {
   }
 
   @Test
-  public void testCompareEQEdgeCasesSequential() {
-    runTest(new CompareTests.TestCompareEQEdgeCases<>(),
+  public void testCompareEQEdgeCasesSequentialLogRounds() {
+    runTest(new CompareTests.TestCompareEQEdgeCases<>(ComparisonAlgorithm.LOG_ROUNDS),
+        PreprocessingStrategy.DUMMY, 2);
+  }
+
+  @Test
+  public void testCompareEQEdgeCasesSequentialConstRounds() {
+    runTest(new CompareTests.TestCompareEQEdgeCases<>(ComparisonAlgorithm.CONST_ROUNDS),
         PreprocessingStrategy.DUMMY, 2);
   }
 
@@ -74,7 +81,8 @@ public class TestSpdzComparison extends AbstractSpdzTest {
 
   @Test
   public void testCompareEQEdgeCasesBatchedMascot() {
-    runTest(new CompareTests.TestCompareEQEdgeCases<>(), EvaluationStrategy.SEQUENTIAL_BATCHED,
+    runTest(new CompareTests.TestCompareEQEdgeCases<>(ComparisonAlgorithm.LOG_ROUNDS),
+        EvaluationStrategy.SEQUENTIAL_BATCHED,
         PreprocessingStrategy.MASCOT, 2, 64, 2, 1, 8);
   }
 
