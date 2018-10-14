@@ -34,12 +34,17 @@ public class ZeroTestLogRounds implements Computation<SInt, ProtocolBuilderNumer
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     final int statisticalSecurity = builder.getBasicNumericContext().getStatisticalSecurityParam();
     return builder.seq(seq -> seq.advancedNumeric().randomBitMask(maxBitLength
-        + statisticalSecurity)).seq((seq, r) -> {
+        + statisticalSecurity)).seq((seq, randomMask) -> {
       // Use the integer interpretation of r to compute c = 2^maxLength+(input + r)
-      DRes<OInt> c = seq.numeric().openAsOInt(seq.numeric().add(seq
-          .getOIntArithmetic().twoTo(maxBitLength), seq.numeric().add(
-          input, r.getValue())));
-      final Pair<List<DRes<SInt>>, DRes<OInt>> bitsAndC = new Pair<>(r.getBits(), c);
+      final OInt twoPower = seq.getOIntArithmetic().twoTo(maxBitLength);
+      System.out.println("twoPower " + twoPower);
+      final DRes<SInt> randomValue = randomMask.getValue();
+      seq.debug().openAndPrint("random ", randomValue, System.out);
+      DRes<OInt> c = seq.numeric().openAsOInt(seq.numeric().add(twoPower, seq.numeric().add(
+          input, randomValue)));
+      final List<DRes<SInt>> bits = randomMask.getBits();
+      System.out.println(bits);
+      final Pair<List<DRes<SInt>>, DRes<OInt>> bitsAndC = new Pair<>(bits, c);
       return () -> bitsAndC;
     }).seq((seq, pair) -> {
       final List<DRes<SInt>> first = pair.getFirst();

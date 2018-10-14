@@ -30,7 +30,7 @@ public class DummyArithmeticOpenToAllOIntProtocol extends DummyArithmeticNativeP
   @Override
   public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool resourcePool,
       Network network) {
-    oIntFactory.fromBigInteger(new DummyArithmeticOpenToAllProtocol(closed).out());
+    opened = oIntFactory.fromBigInteger(new DummyArithmeticOpenToAllProtocol(closed).out());
     return EvaluationStatus.IS_DONE;
   }
 
