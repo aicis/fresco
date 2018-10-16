@@ -12,7 +12,8 @@ import java.util.List;
 
 /**
  * Log round protocol for checking if a secret value equals 0, with secret result. <p>The
- * implementation is based on Protocol ... in ...</p>
+ * implementation is based on Protocol 3.7 in "Improved Primitives for Secure Multiparty Integer
+ * Computation" by Catrina and de Hoogh (<a href="https://www1.cs.fau.de/filepool/publications/octavian_securescm/smcint-scn10.pdf">https://www1.cs.fau.de/filepool/publications/octavian_securescm/smcint-scn10.pdf</a>).</p>
  */
 public class ZeroTestLogRounds implements Computation<SInt, ProtocolBuilderNumeric> {
 
@@ -50,7 +51,8 @@ public class ZeroTestLogRounds implements Computation<SInt, ProtocolBuilderNumer
       // composed r values from random bit mask will be in little endian as
       // it is based on a list of bits
       Collections.reverse(cbits);
-      return () -> new Pair<>(first, cbits);
+      final Pair<List<DRes<SInt>>, List<OInt>> resPair = new Pair<>(first, cbits);
+      return () -> resPair;
     }).par((par, pair) -> {
       List<DRes<SInt>> d = new ArrayList<>(maxBitLength);
       for (int i = 0; i < maxBitLength; i++) {
