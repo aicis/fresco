@@ -37,13 +37,10 @@ public class ZeroTestLogRounds implements Computation<SInt, ProtocolBuilderNumer
         + statisticalSecurity)).seq((seq, randomMask) -> {
       // Use the integer interpretation of r to compute c = 2^maxLength+(input + r)
       final OInt twoPower = seq.getOIntArithmetic().twoTo(maxBitLength);
-      System.out.println("twoPower " + twoPower);
       final DRes<SInt> randomValue = randomMask.getValue();
-      seq.debug().openAndPrint("random ", randomValue, System.out);
-      DRes<OInt> c = seq.numeric().openAsOInt(seq.numeric().add(twoPower, seq.numeric().add(
-          input, randomValue)));
+      final DRes<SInt> masked = seq.numeric().add(input, randomValue);
+      DRes<OInt> c = seq.numeric().openAsOInt(seq.numeric().add(twoPower, masked));
       final List<DRes<SInt>> bits = randomMask.getBits();
-      System.out.println(bits);
       final Pair<List<DRes<SInt>>, DRes<OInt>> bitsAndC = new Pair<>(bits, c);
       return () -> bitsAndC;
     }).seq((seq, pair) -> {

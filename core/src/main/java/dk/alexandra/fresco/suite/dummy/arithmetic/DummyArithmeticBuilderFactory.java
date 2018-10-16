@@ -224,7 +224,6 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> add(OInt a, DRes<SInt> b) {
-        System.out.println("a " + a);
         return add(builder.getOIntFactory().toBigInteger(a), b);
       }
 

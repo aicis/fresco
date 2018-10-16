@@ -112,7 +112,7 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
 
   @Override
   public DRes<RandomBitMask> randomBitMask(List<DRes<SInt>> randomBits) {
-    return null;
+    throw new UnsupportedOperationException("Bad");
   }
 
   @Override

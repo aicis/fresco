@@ -16,9 +16,6 @@ public class RandomAdditiveMask implements
 
   private final int noOfBits;
 
-  private List<DRes<SInt>> bits;
-  private DRes<SInt> value;
-
   public RandomAdditiveMask(int noOfBits) {
     this.noOfBits = noOfBits;
   }
@@ -27,7 +24,7 @@ public class RandomAdditiveMask implements
   public DRes<RandomBitMask> buildComputation(
       ProtocolBuilderNumeric builder) {
     Numeric numericBuilder = builder.numeric();
-    bits = new ArrayList<>();
+    List<DRes<SInt>> bits = new ArrayList<>(noOfBits);
     for (int i = 0; i < noOfBits; i++) {
       DRes<SInt> randomBit = numericBuilder.randomBit();
       bits.add(randomBit);
@@ -37,9 +34,8 @@ public class RandomAdditiveMask implements
 
     List<BigInteger> twoPows = oIntGenerators.getTwoPowersList(noOfBits);
     AdvancedNumeric innerProductBuilder = builder.advancedNumeric();
-    value = innerProductBuilder.innerProductWithPublicPart(twoPows, bits);
-    return () -> new RandomBitMask(
-        bits,
-        value);
+    DRes<SInt> value = innerProductBuilder.innerProductWithPublicPart(twoPows, bits);
+    final RandomBitMask randomBitMask = new RandomBitMask(bits, value);
+    return () -> randomBitMask;
   }
 }

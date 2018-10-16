@@ -21,7 +21,7 @@ public class DummyArithmeticOpenToAllOIntProtocol extends DummyArithmeticNativeP
    *
    * @param s a computation supplying the {@link SInt} to open
    */
-  public DummyArithmeticOpenToAllOIntProtocol(DRes<SInt> s, OIntFactory oIntFactory) {
+  DummyArithmeticOpenToAllOIntProtocol(DRes<SInt> s, OIntFactory oIntFactory) {
     super();
     this.closed = s;
     this.oIntFactory = oIntFactory;
@@ -30,7 +30,10 @@ public class DummyArithmeticOpenToAllOIntProtocol extends DummyArithmeticNativeP
   @Override
   public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool resourcePool,
       Network network) {
-    opened = oIntFactory.fromBigInteger(new DummyArithmeticOpenToAllProtocol(closed).out());
+    final DummyArithmeticOpenToAllProtocol openProtocol = new DummyArithmeticOpenToAllProtocol(
+        closed);
+    openProtocol.evaluate(round, resourcePool, network);
+    opened = oIntFactory.fromBigInteger(openProtocol.out());
     return EvaluationStatus.IS_DONE;
   }
 
