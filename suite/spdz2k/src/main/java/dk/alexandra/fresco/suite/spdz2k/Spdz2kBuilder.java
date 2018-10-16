@@ -25,6 +25,7 @@ import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kRandomBitProtoco
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kRandomElementProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kSubtractFromKnownProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kSubtractProtocol;
+import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kTwoPartyInputProtocol;
 import java.math.BigInteger;
 import java.util.Objects;
 
@@ -126,9 +127,14 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
       @Override
       public DRes<SInt> input(BigInteger value, int inputParty) {
-        return builder.seq(
-            new Spdz2kInputComputation<>(factory.createFromBigInteger(value), inputParty)
-        );
+        if (builder.getBasicNumericContext().getNoOfParties() <= 2) {
+          return builder.append(
+              new Spdz2kTwoPartyInputProtocol<>(factory.createFromBigInteger(value),
+                  inputParty));
+        } else {
+          return builder.seq(
+              new Spdz2kInputComputation<>(factory.createFromBigInteger(value), inputParty));
+        }
       }
 
       @Override
