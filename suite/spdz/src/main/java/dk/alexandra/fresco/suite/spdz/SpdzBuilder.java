@@ -21,6 +21,7 @@ import dk.alexandra.fresco.suite.spdz.gates.SpdzInputTwoPartyProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzKnownSIntProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzMultProtocolKnownLeft;
+import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputOIntWrapperProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputSingleProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzOutputToAllProtocol;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzRandomProtocol;
@@ -183,21 +184,16 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public DRes<OInt> openAsOInt(DRes<SInt> secretShare) {
-        DRes<BigInteger> value = open(secretShare);
-        return () -> oIntFactory.fromBigInteger(value.out());
+        SpdzOutputOIntWrapperProtocol wrapper = new SpdzOutputOIntWrapperProtocol(
+            oIntFactory, new SpdzOutputToAllProtocol(secretShare));
+        return protocolBuilder.append(wrapper);
       }
 
       @Override
       public DRes<OInt> openAsOInt(DRes<SInt> secretShare, int outputParty) {
-        DRes<BigInteger> out = open(secretShare, outputParty);
-        return () -> {
-          BigInteger res = out.out();
-          if (res == null) {
-            return null;
-          } else {
-            return oIntFactory.fromBigInteger(res);
-          }
-        };
+        SpdzOutputOIntWrapperProtocol wrapper = new SpdzOutputOIntWrapperProtocol(
+            oIntFactory, new SpdzOutputSingleProtocol(secretShare, outputParty));
+        return protocolBuilder.append(wrapper);
       }
 
     };

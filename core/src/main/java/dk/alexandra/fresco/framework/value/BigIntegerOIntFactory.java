@@ -24,7 +24,11 @@ public class BigIntegerOIntFactory implements OIntFactory {
 
   @Override
   public OInt fromBigInteger(BigInteger value) {
-    return new BigIntegerOInt(value);
+    if (value == null) {
+      return null;
+    } else {
+      return new BigIntegerOInt(value);
+    }
   }
 
   @Override
