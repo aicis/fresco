@@ -41,7 +41,7 @@ public class NumericLoggingDecorator implements Numeric, PerformanceLogger {
 
   @Override
   public DRes<SInt> add(OInt a, DRes<SInt> b) {
-    return null;
+    return this.delegate.add(a, b);
   }
 
   @Override
