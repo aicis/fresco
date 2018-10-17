@@ -11,7 +11,6 @@ import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
-import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -123,21 +122,31 @@ public class CompareTests {
 
         @Override
         public void test() throws Exception {
-          Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app = builder -> {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = builder -> {
             Numeric input = builder.numeric();
             DRes<SInt> x = input.known(BigInteger.valueOf(3));
             DRes<SInt> y = input.known(BigInteger.valueOf(5));
             Comparison comparison = builder.comparison();
-            DRes<SInt> compResult1 = comparison.equals(x, x);
+            // Test that we can use comparison with or without bitlength argument
+            DRes<SInt> compResult1 = comparison.equals(builder.getBasicNumericContext()
+                .getMaxBitLength(), x, x);
             DRes<SInt> compResult2 = comparison.equals(x, y);
+            // Test that can use comparison with or without explicit algorithm
+            DRes<SInt> compResult3 = comparison.equals(builder.getBasicNumericContext()
+                .getMaxBitLength(), y, y, ComparisonAlgorithm.LOG_ROUNDS);
+            DRes<SInt> compResult4 = comparison.equals(y, x, ComparisonAlgorithm.LOG_ROUNDS);
             Numeric open = builder.numeric();
             DRes<BigInteger> res1 = open.open(compResult1);
             DRes<BigInteger> res2 = open.open(compResult2);
-            return () -> new Pair<>(res1.out(), res2.out());
+            DRes<BigInteger> res3 = open.open(compResult3);
+            DRes<BigInteger> res4 = open.open(compResult4);
+            return () -> Arrays.asList(res1.out(), res2.out(), res3.out(), res4.out());
           };
-          Pair<BigInteger, BigInteger> output = runApplication(app);
-          Assert.assertEquals(BigInteger.ONE, output.getFirst());
-          Assert.assertEquals(BigInteger.ZERO, output.getSecond());
+          List<BigInteger> output = runApplication(app);
+          Assert.assertEquals(BigInteger.ONE, output.get(0));
+          Assert.assertEquals(BigInteger.ZERO, output.get(1));
+          Assert.assertEquals(BigInteger.ONE, output.get(2));
+          Assert.assertEquals(BigInteger.ZERO, output.get(3));
         }
       };
     }
@@ -193,10 +202,10 @@ public class CompareTests {
             DRes<SInt> compResultSix = comparison
                 .equals(input.known(BigInteger.valueOf(-1)), input.known(BigInteger.valueOf(-2)),
                     algorithm);
-            // check -1 != 1
+            // check -1 != 1 using given bitlength argument
             DRes<SInt> compResultSeven = comparison
-                .equals(input.known(BigInteger.valueOf(-1)), input.known(BigInteger.valueOf(1)),
-                    algorithm);
+                .equals(builder.getBasicNumericContext().getMaxBitLength(), input.known(BigInteger
+                    .valueOf(-1)), input.known(BigInteger.valueOf(1)), algorithm);
 
             List<DRes<SInt>> comps = Arrays
                 .asList(compResultOne, compResultTwo, compResultThree, compResultFour,

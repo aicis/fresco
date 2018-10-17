@@ -150,7 +150,7 @@ public class TestNumericSuiteLoggingDecorators {
 
       Map<String, Long> loggedValues = logger.getLoggedValues();
       assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_EQ),
-          is((long) 2));
+          is((long) 4));
       assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_LEQ),
           is((long) 0));
       assertThat(loggedValues.get(ComparisonLoggerDecorator.ARITHMETIC_COMPARISON_SIGN),
