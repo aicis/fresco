@@ -485,14 +485,12 @@ public class BasicArithmeticTests {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() {
-          // for (int partyId = 1; partyId <= conf.getResourcePool().getNoOfParties(); partyId++) {
-          // final int finalPartyId = partyId;
-            Application<BigInteger, ProtocolBuilderNumeric> app = producer -> producer.seq(seq -> {
-              DRes<SInt> input = seq.numeric().input(value, 1);
-              DRes<SInt> sub = seq.numeric().sub(input, seq.getOIntArithmetic().one());
-              DRes<OInt> opened = seq.numeric().openAsOInt(sub, 2);
-            return () -> seq.getOIntFactory().toBigInteger(opened.out());
-            });
+          Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
+            DRes<SInt> input = producer.numeric().input(value, 1);
+            DRes<SInt> sub = producer.numeric().sub(input, producer.getOIntArithmetic().one());
+            DRes<OInt> opened = producer.numeric().openAsOInt(sub, 2);
+            return () -> producer.getOIntFactory().toBigInteger(opened.out());
+          };
 
             BigInteger output = runApplication(app);
             if (conf.getMyId() == 2) {
@@ -501,7 +499,6 @@ public class BasicArithmeticTests {
               Assert.assertNull(output);
             }
           }
-        // }
       };
     }
   }
