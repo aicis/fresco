@@ -19,7 +19,11 @@ public class BigIntegerOIntFactory implements OIntFactory {
 
   @Override
   public BigInteger toBigInteger(OInt value) {
-    return ((BigIntegerOInt) value).getValue();
+    if (value == null) {
+      return null;
+    } else {
+      return ((BigIntegerOInt) value).getValue();
+    }
   }
 
   @Override

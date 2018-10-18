@@ -78,6 +78,12 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
+  public void testOpenAsOIntToSingleParty() {
+    runTest(new BasicArithmeticTests.TestOpenAsOIntToSingleParty<>(), new TestParameters()
+        .numParties(2));
+  }
+
+  @Test
   public void test_AddPublicValue_Sequential() {
     runTest(new BasicArithmeticTests.TestAddPublicValue<>(), new TestParameters());
   }

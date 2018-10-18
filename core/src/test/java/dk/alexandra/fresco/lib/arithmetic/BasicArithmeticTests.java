@@ -11,6 +11,7 @@ import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -19,7 +20,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.hamcrest.core.Is;
 import org.junit.Assert;
-
 
 /**
  * Generic test cases for basic finite field operations.
@@ -32,7 +32,7 @@ import org.junit.Assert;
 public class BasicArithmeticTests {
 
   public static class TestInput<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -54,7 +54,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestInputFromAll<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -84,7 +84,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestOutputToSingleParty<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -112,7 +112,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestAdd<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -136,7 +136,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestAddWithOverflow<ResourcePoolT extends NumericResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -164,7 +164,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestMultiply<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -188,7 +188,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestMultiplyByZero<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -212,7 +212,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestMultiplyWithOverflow<ResourcePoolT extends NumericResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -240,7 +240,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestSubtract<ResourcePoolT extends NumericResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -267,7 +267,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestSubtractNegative<ResourcePoolT extends NumericResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -294,7 +294,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestSubtractPublic<ResourcePoolT extends NumericResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -320,7 +320,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestSubtractFromPublic<ResourcePoolT extends NumericResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -346,7 +346,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestAddPublicValue<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -371,7 +371,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestMultiplyByPublicValue<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -395,7 +395,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestRandomBit<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -425,7 +425,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestRandomElement<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -453,7 +453,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestOpenWithConversion<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -476,8 +476,38 @@ public class BasicArithmeticTests {
     }
   }
 
+  public static class TestOpenAsOIntToSingleParty<ResourcePoolT extends ResourcePool>
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      BigInteger value = BigInteger.valueOf(10);
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() {
+          // for (int partyId = 1; partyId <= conf.getResourcePool().getNoOfParties(); partyId++) {
+          // final int finalPartyId = partyId;
+            Application<BigInteger, ProtocolBuilderNumeric> app = producer -> producer.seq(seq -> {
+              DRes<SInt> input = seq.numeric().input(value, 1);
+              DRes<SInt> sub = seq.numeric().sub(input, seq.getOIntArithmetic().one());
+              DRes<OInt> opened = seq.numeric().openAsOInt(sub, 2);
+            return () -> seq.getOIntFactory().toBigInteger(opened.out());
+            });
+
+            BigInteger output = runApplication(app);
+            if (conf.getMyId() == 2) {
+              Assert.assertEquals(value.subtract(BigInteger.ONE), output);
+            } else {
+              Assert.assertNull(output);
+            }
+          }
+        // }
+      };
+    }
+  }
+
   public static class TestKnownSInt<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -498,9 +528,9 @@ public class BasicArithmeticTests {
                     closed.stream().map(numeric::open).collect(Collectors.toList());
                 return () -> result.stream().map(DRes::out).collect(Collectors.toList());
               });
-          List<BigInteger> output = runApplication(app);
+              List<BigInteger> output = runApplication(app);
 
-          Assert.assertEquals(openInputs, output);
+              Assert.assertEquals(openInputs, output);
         }
       };
     }
@@ -508,13 +538,13 @@ public class BasicArithmeticTests {
 
 
   public static class TestSumAndMult<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
       List<BigInteger> openInputs =
           Stream.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
-              .map(BigInteger::valueOf).collect(Collectors.toList());
+          .map(BigInteger::valueOf).collect(Collectors.toList());
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() {
@@ -543,7 +573,7 @@ public class BasicArithmeticTests {
   }
 
   public static class TestSimpleMultAndAdd<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -576,7 +606,7 @@ public class BasicArithmeticTests {
    * stress-test the protocol suite.
    */
   public static class TestLotsMult<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -608,13 +638,13 @@ public class BasicArithmeticTests {
                     computations.stream().map(numeric::open).collect(Collectors.toList());
                 return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
               });
-          List<BigInteger> output = runApplication(app);
+              List<BigInteger> output = runApplication(app);
 
-          BigInteger multiply = first.multiply(second);
-          Assert.assertThat(output.size(), Is.is(repetitions));
-          for (BigInteger result : output) {
-            Assert.assertEquals(multiply, result);
-          }
+              BigInteger multiply = first.multiply(second);
+              Assert.assertThat(output.size(), Is.is(repetitions));
+              for (BigInteger result : output) {
+                Assert.assertEquals(multiply, result);
+              }
         }
       };
     }
@@ -625,7 +655,7 @@ public class BasicArithmeticTests {
    * This should ensure batches with both types of protocols.
    */
   public static class TestAlternatingMultAdd<ResourcePoolT extends ResourcePool>
-      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+  extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
     @Override
     public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
@@ -662,20 +692,20 @@ public class BasicArithmeticTests {
                     computations.stream().map(numeric1::open).collect(Collectors.toList());
                 return () -> opened.stream().map(DRes::out).collect(Collectors.toList());
               });
-          List<BigInteger> output = runApplication(app);
+              List<BigInteger> output = runApplication(app);
 
-          BigInteger multiply = first.multiply(second);
-          BigInteger add = first.add(second);
-          Assert.assertThat(output.size(), Is.is(numberOfComputations));
-          for (int i = 0; i < output.size(); i++) {
-            BigInteger result = output.get(i);
-            if (i % 2 == 0) {
-              Assert.assertEquals(multiply, result);
-            } else {
-              Assert.assertEquals(add, result);
-            }
+              BigInteger multiply = first.multiply(second);
+              BigInteger add = first.add(second);
+              Assert.assertThat(output.size(), Is.is(numberOfComputations));
+              for (int i = 0; i < output.size(); i++) {
+                BigInteger result = output.get(i);
+                if (i % 2 == 0) {
+                  Assert.assertEquals(multiply, result);
+                } else {
+                  Assert.assertEquals(add, result);
+                }
 
-          }
+              }
         }
       };
     }
