@@ -14,6 +14,7 @@ import java.util.List;
  * Log round protocol for checking if a secret value equals 0, with secret result. <p>The
  * implementation is based on Protocol 3.7 in "Improved Primitives for Secure Multiparty Integer
  * Computation" by Catrina and de Hoogh (<a href="https://www1.cs.fau.de/filepool/publications/octavian_securescm/smcint-scn10.pdf">https://www1.cs.fau.de/filepool/publications/octavian_securescm/smcint-scn10.pdf</a>).</p>
+ * <p>The algorithm is logarithmic in the number of bits determined by {@code maxBitLength}.</p>
  */
 public class ZeroTestLogRounds implements Computation<SInt, ProtocolBuilderNumeric> {
 
