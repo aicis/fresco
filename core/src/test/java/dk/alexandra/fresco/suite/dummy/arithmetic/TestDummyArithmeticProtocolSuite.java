@@ -5,7 +5,6 @@ import static org.junit.Assert.assertThat;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.Comparison.ComparisonAlgorithm;
-import dk.alexandra.fresco.framework.builder.numeric.DefaultAdvancedNumericUnitTests;
 import dk.alexandra.fresco.framework.builder.numeric.DefaultLogicalUnitTests;
 import dk.alexandra.fresco.framework.builder.numeric.ExponentiationPipeTests;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
@@ -59,12 +58,6 @@ import java.util.Random;
 import org.junit.Test;
 
 public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTest {
-
-  @Test
-  public void testUnimplementedRandomMasks() {
-    runTest(new DefaultAdvancedNumericUnitTests.TestRandomMaskNotImplemented<>(), new TestParameters()
-        .numParties(2));
-  }
 
   @Test
   public void testLogicalAnd() {

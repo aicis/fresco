@@ -141,15 +141,6 @@ public interface AdvancedNumeric extends ComputationDirectory {
   DRes<RandomBitMask> randomBitMask(int noOfBits);
 
   /**
-   * Takes a list of random bits [b0, ..., bn] and generates a random bit mask along with a {@link
-   * SInt} representing the recombined bits, i.e., sum(2^{i} * bi).
-   *
-   * @param randomBits The bits to use for the bit mask
-   * @return A container holding the bit mask
-   */
-  DRes<RandomBitMask> randomBitMask(List<DRes<SInt>> randomBits);
-
-  /**
    * Calculating the result of right shifting of the input by one.
    *
    * @param input input.

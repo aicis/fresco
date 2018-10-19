@@ -111,11 +111,6 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
   }
 
   @Override
-  public DRes<RandomBitMask> randomBitMask(List<DRes<SInt>> randomBits) {
-    throw new UnsupportedOperationException("Bad");
-  }
-
-  @Override
   public DRes<SInt> rightShift(DRes<SInt> input) {
     DRes<RightShiftResult> rightShiftResult = builder.seq(
         new RightShift(
