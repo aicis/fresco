@@ -12,7 +12,7 @@ import java.math.BigInteger;
 /**
  * This protocol is an implementation Euclidean division (finding quotient and remainder) on
  * integers with a secret shared divedend and a known divisor. The dividend must have bitlength
- * smaller than <i>(maxBitLenght - divisorBitLength) / 2</i> where the maxBitLength is avabilable
+ * smaller than <i>(maxBitLenght - divisorBitLength) / 3</i> where the maxBitLength is avabilable
  * via {@link ProtocolBuilderNumeric#getBasicNumericContext().getMaxBitLength()} in order for the
  * division protocol to produce a precise result.
  */
