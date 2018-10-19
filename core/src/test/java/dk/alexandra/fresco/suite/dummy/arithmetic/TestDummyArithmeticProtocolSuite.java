@@ -5,7 +5,8 @@ import static org.junit.Assert.assertThat;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.Comparison.ComparisonAlgorithm;
-import dk.alexandra.fresco.framework.builder.numeric.DefaultAdvancedNumericTests;
+import dk.alexandra.fresco.framework.builder.numeric.DefaultAdvancedNumericUnitTests;
+import dk.alexandra.fresco.framework.builder.numeric.DefaultLogicalUnitTests;
 import dk.alexandra.fresco.framework.builder.numeric.ExponentiationPipeTests;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -61,8 +62,28 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
 
   @Test
   public void testUnimplementedRandomMasks() {
-    runTest(new DefaultAdvancedNumericTests.TestRandomMaskNotImplemented<>(), new TestParameters()
+    runTest(new DefaultAdvancedNumericUnitTests.TestRandomMaskNotImplemented<>(), new TestParameters()
         .numParties(2));
+  }
+
+  @Test
+  public void testLogicalAnd() {
+    runTest(new DefaultLogicalUnitTests.TestLogicalAnd<>(), new TestParameters().numParties(2));
+  }
+
+  @Test
+  public void testLogicalXor() {
+    runTest(new DefaultLogicalUnitTests.TestLogicalXor<>(), new TestParameters().numParties(2));
+  }
+
+  @Test
+  public void testLogicalOr() {
+    runTest(new DefaultLogicalUnitTests.TestLogicalOr<>(), new TestParameters().numParties(2));
+  }
+
+  @Test
+  public void testLogicalNot() {
+    runTest(new DefaultLogicalUnitTests.TestLogicalNot<>(), new TestParameters().numParties(2));
   }
 
   @Test
@@ -98,6 +119,11 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   @Test
   public void test_KnownSInt_Sequential() {
     runTest(new BasicArithmeticTests.TestKnownSInt<>(), new TestParameters());
+  }
+
+  @Test
+  public void test_KnownAsDRes_Sequential() {
+    runTest(new BasicArithmeticTests.TestKnownDResSInt<>(), new TestParameters());
   }
 
   @Test

@@ -516,8 +516,7 @@ public class BasicArithmeticTests {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app =
               producer -> producer.par(par -> {
                 Numeric numeric = par.numeric();
-                List<DRes<SInt>> result =
-                    openInputs.stream().map(numeric::known).collect(Collectors.toList());
+                List<DRes<SInt>> result = numeric.known(openInputs);
                 return () -> result;
               }).par((par, closed) -> {
                 Numeric numeric = par.numeric();
@@ -528,6 +527,35 @@ public class BasicArithmeticTests {
               List<BigInteger> output = runApplication(app);
 
               Assert.assertEquals(openInputs, output);
+        }
+      };
+    }
+  }
+
+  public static class TestKnownDResSInt<ResourcePoolT extends ResourcePool> extends
+      TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      List<BigInteger> openInputs = Stream.of(200, 300, 1, 2).map(BigInteger::valueOf).collect(
+          Collectors.toList());
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+        @Override
+        public void test() {
+          Application<List<BigInteger>, ProtocolBuilderNumeric> app = producer -> producer.par(
+              par -> {
+                Numeric numeric = par.numeric();
+                DRes<List<DRes<SInt>>> result = numeric.knownAsDRes(openInputs);
+                return result;
+              }).par((par, closed) -> {
+                Numeric numeric = par.numeric();
+                List<DRes<BigInteger>> result = closed.stream().map(numeric::open).collect(
+                    Collectors.toList());
+                return () -> result.stream().map(DRes::out).collect(Collectors.toList());
+              });
+          List<BigInteger> output = runApplication(app);
+
+          Assert.assertEquals(openInputs, output);
         }
       };
     }

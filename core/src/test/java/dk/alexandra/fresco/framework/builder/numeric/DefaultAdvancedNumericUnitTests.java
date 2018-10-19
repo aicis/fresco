@@ -12,7 +12,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.value.SInt;
 
-public class DefaultAdvancedNumericTests {
+public class DefaultAdvancedNumericUnitTests {
   public static class TestRandomMaskNotImplemented<ResourcePoolT extends ResourcePool> extends
       TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
 
