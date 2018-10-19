@@ -77,6 +77,20 @@ public class TestMaliciousBehaviour {
   }
 
   @Test
+  public void testMaliciousInput4Parties() {
+    try {
+      runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 4,
+          Corrupt.INPUT);
+      Assert.fail("Should not go well");
+    } catch (RuntimeException e) {
+      if (e.getCause().getCause() == null || !(e.getCause()
+          .getCause() instanceof MaliciousException)) {
+        Assert.fail();
+      }
+    }
+  }
+
+  @Test
   public void testMaliciousInput() {
     try {
       runTest(new BasicArithmeticTests.TestInput<>(), EvaluationStrategy.SEQUENTIAL_BATCHED, 2,

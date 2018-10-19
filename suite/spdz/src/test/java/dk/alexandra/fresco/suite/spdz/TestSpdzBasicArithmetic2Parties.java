@@ -63,6 +63,12 @@ public class TestSpdzBasicArithmetic2Parties extends AbstractSpdzTest {
     runTest(new BasicArithmeticTests.TestOutputToSingleParty<>(),
         PreprocessingStrategy.DUMMY, 2);
   }
+  
+  @Test
+  public void test_OutputOIntToTarget_Sequential() {
+    runTest(new BasicArithmeticTests.TestOpenAsOIntToSingleParty<>(),
+        PreprocessingStrategy.DUMMY, 2);
+  }
 
   @Test
   public void test_AddPublicValue_Sequential() {
