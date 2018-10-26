@@ -38,6 +38,7 @@ public class TinyTablesTripleGenerator {
     List<TinyTablesTriple> triples = new ArrayList<>();
 
     if (playerId == 1) {
+      // StrictBitVector only supports bitvectors of and 8 multiple
       StrictBitVector zeroMessage = new StrictBitVector(8);
       StrictBitVector oneMessage = new StrictBitVector(8);
       for (int i = 0; i < amount; i++) {
