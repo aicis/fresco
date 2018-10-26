@@ -11,6 +11,7 @@ import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.storage.BatchTinyTablesTripleProvider;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
 import dk.alexandra.fresco.suite.tinytables.util.TinyTablesTripleGenerator;
+import dk.alexandra.fresco.suite.tinytables.util.Util;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
 import dk.alexandra.fresco.tools.ot.base.DhParameters;
 import dk.alexandra.fresco.tools.ot.base.NaorPinkasOt;
@@ -60,10 +61,9 @@ public class TinyTablesPreproProtocolSuite
       Network network) {
     int computationalSecurity = 128;
     int statisticalSecurity = 40;
-    int batchSize = 8192 - computationalSecurity - statisticalSecurity;
+    int batchSize = 7904;
     int myId = resourcePool.getMyId();
-    // We assume that the player IDs are 1 and 2
-    int otherId = 3 - myId;
+    int otherId = Util.otherPlayerId(myId);
 
     Drbg random = new AesCtrDrbg();
     Ot seedOt = new NaorPinkasOt(otherId, random, network, DhParameters.getStaticDhParams());

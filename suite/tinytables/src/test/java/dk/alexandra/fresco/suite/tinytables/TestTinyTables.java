@@ -207,6 +207,11 @@ public class TestTinyTables {
   }
 
   @Test(expected = UnsupportedOperationException.class)
+  public void testTooManyPlayers() throws Throwable {
+      new TinyTablesPreproResourcePool(1, 3, null);
+  }
+
+  @Test(expected = UnsupportedOperationException.class)
   public void testRandomBitOffline() throws Throwable {
     try {
       runTest(new BasicBooleanTests.TestRandomBit<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED,

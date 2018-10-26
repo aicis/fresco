@@ -1,6 +1,8 @@
 package dk.alexandra.fresco.suite.tinytables.util;
 
 import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.Drng;
+import dk.alexandra.fresco.framework.util.DrngImpl;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesTriple;
 import dk.alexandra.fresco.tools.ot.base.Ot;
@@ -12,12 +14,7 @@ public class TinyTablesTripleGenerator {
 
   private int playerId;
   private Ot ot;
-  private Drbg random;
-
-  // TODO add to Drng as abstract
-  private byte[] randomBytes;
-  private static final int RANDOMBUFFER_SIZE = 16;
-  private int bitsLeft = 0;
+  private Drng random;
 
   /**
    * Creates a new triple generator.
@@ -28,9 +25,8 @@ public class TinyTablesTripleGenerator {
    */
   public TinyTablesTripleGenerator(int playerId, Drbg random, Ot ot) {
     this.playerId = playerId;
-    this.random = random;
+    this.random = new DrngImpl(random);
     this.ot = ot;
-    this.randomBytes = new byte[RANDOMBUFFER_SIZE];
   }
 
   /**
@@ -46,11 +42,11 @@ public class TinyTablesTripleGenerator {
       StrictBitVector oneMessage = new StrictBitVector(8);
       for (int i = 0; i < amount; i++) {
         // Pick random shares of a and b
-        boolean a = nextBit();
-        boolean b = nextBit();
+        boolean a = random.nextBit();
+        boolean b = random.nextBit();
         // Masks for the OTs
-        boolean x = nextBit();
-        boolean y = nextBit();
+        boolean x = random.nextBit();
+        boolean y = random.nextBit();
 
         zeroMessage.setBit(0, x);
         oneMessage.setBit(0, x ^ a);
@@ -68,8 +64,8 @@ public class TinyTablesTripleGenerator {
         /*
          * Pick random shares of a and b and use them for sigmas in the OT's:
          */
-        boolean a = nextBit();
-        boolean b = nextBit();
+        boolean a = random.nextBit();
+        boolean b = random.nextBit();
         StrictBitVector aMessage = ot.receive(b);
         StrictBitVector bMessage = ot.receive(a);
 
@@ -82,17 +78,5 @@ public class TinyTablesTripleGenerator {
       }
     }
     return triples;
-  }
-
-  private boolean nextBit() {
-    if (bitsLeft == 0) {
-      random.nextBytes(randomBytes);
-      bitsLeft = RANDOMBUFFER_SIZE * Byte.BYTES * 8;
-    }
-    int index = RANDOMBUFFER_SIZE * Byte.BYTES * 8 - bitsLeft;
-    byte currentByte = randomBytes[index / (Byte.BYTES * 8)];
-    byte currentBit = (byte) (currentByte >> (index % (Byte.BYTES * 8)));
-    bitsLeft--;
-    return currentBit == 0x00 ? false : true;
   }
 }
