@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.util.DrngImpl;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesTriple;
 import dk.alexandra.fresco.tools.ot.base.Ot;
-
 import java.util.ArrayList;
 import java.util.List;
 
