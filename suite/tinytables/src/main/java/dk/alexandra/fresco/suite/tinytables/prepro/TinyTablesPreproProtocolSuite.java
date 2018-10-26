@@ -4,15 +4,22 @@ import dk.alexandra.fresco.framework.BuilderFactory;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
-import dk.alexandra.fresco.suite.tinytables.ot.OTFactory;
-import dk.alexandra.fresco.suite.tinytables.ot.base.BaseOTFactory;
-import dk.alexandra.fresco.suite.tinytables.ot.extension.SemiHonestOTExtensionFactory;
 import dk.alexandra.fresco.suite.tinytables.storage.BatchTinyTablesTripleProvider;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
 import dk.alexandra.fresco.suite.tinytables.util.TinyTablesTripleGenerator;
-import java.security.SecureRandom;
+import dk.alexandra.fresco.tools.cointossing.CoinTossing;
+import dk.alexandra.fresco.tools.ot.base.DhParameters;
+import dk.alexandra.fresco.tools.ot.base.NaorPinkasOt;
+import dk.alexandra.fresco.tools.ot.base.Ot;
+import dk.alexandra.fresco.tools.ot.otextension.BristolOtFactory;
+import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePool;
+import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePoolImpl;
+import dk.alexandra.fresco.tools.ot.otextension.RotFactory;
+import dk.alexandra.fresco.tools.ot.otextension.RotList;
 
 /**
  * <p>
@@ -47,16 +54,37 @@ public class TinyTablesPreproProtocolSuite
   public TinyTablesPreproProtocolSuite() {
   }
 
+  @Override
   public BuilderFactory<ProtocolBuilderBinary> init(
       TinyTablesPreproResourcePool resourcePool,
       Network network) {
-    SecureRandom secureRandom = new SecureRandom();
-    OTFactory otFactory = new SemiHonestOTExtensionFactory(network, resourcePool.getMyId(), 128,
-        new BaseOTFactory(network, resourcePool.getMyId(), secureRandom), secureRandom);
+    int computationalSecurity = 128;
+    int statisticalSecurity = 40;
+    int batchSize = 8192 - computationalSecurity - statisticalSecurity;
+    int myId = resourcePool.getMyId();
+    // We assume that the player IDs are 1 and 2
+    int otherId = 3 - myId;
+
+    Drbg random = new AesCtrDrbg();
+    Ot seedOt = new NaorPinkasOt(otherId, random, network, DhParameters.getStaticDhParams());
+    CoinTossing ct = new CoinTossing(resourcePool.getMyId(), otherId, random);
+    ct.initialize(network);
+    RotList currentSeedOts = new RotList(random, computationalSecurity);
+    if (myId < otherId) {
+      currentSeedOts.send(seedOt);
+      currentSeedOts.receive(seedOt);
+    } else {
+      currentSeedOts.receive(seedOt);
+      currentSeedOts.send(seedOt);
+    }
+    OtExtensionResourcePool resources = new OtExtensionResourcePoolImpl(myId, otherId,
+        computationalSecurity, statisticalSecurity, 1, random, ct, currentSeedOts);
+    BristolOtFactory otFactory = new BristolOtFactory(new RotFactory(resources, network), resources,
+        network, batchSize);
 
     resourcePool.setTripleGenerator(
         new BatchTinyTablesTripleProvider(
-            new TinyTablesTripleGenerator(resourcePool.getMyId(), secureRandom, otFactory), 8192));
+            new TinyTablesTripleGenerator(resourcePool.getMyId(), random, otFactory), batchSize));
 
     return new TinyTablesPreproBuilderFactory();
   }

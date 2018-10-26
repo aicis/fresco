@@ -51,6 +51,9 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
   public TinyTablesPreproResourcePool(int myId, int noOfPlayers,
       File tinyTablesFile) {
     super(myId, noOfPlayers);
+    if (noOfPlayers != 2) {
+      throw new RuntimeException("TinyTable is only defined for 2 parties");
+    }
     this.random = new SecureRandom();
     this.unprocessedAnds = Collections.synchronizedList(new ArrayList<>());
     this.storage = new TinyTablesStorageImpl();
