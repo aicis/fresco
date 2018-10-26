@@ -25,25 +25,6 @@
       <artifactId>core</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>scapi</groupId>
-      <artifactId>scapi</artifactId>
-      <!-- Normally version should be e.g. 2.4.0, but we currently use a custom version
-           since we need the most recent changes for authenticated channels to work,
-           see https://github.com/cryptobiu/scapi/issues/71. -->
-      <version>dfc8b2da384d87310c8f755b301bc085b1557671</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-exec</artifactId>
-      <version>1.2</version>
-    </dependency>
-    <dependency>
-      <groupId>org.bouncycastle</groupId>
-      <artifactId>bcprov-jdk15on</artifactId>
-      <version>1.53</version>
-    </dependency>
-    <!-- Scapi end -->
 
     <!-- TODO Proper handling would imply these utilities to be present in a seperate module -->
     <dependency>
@@ -110,25 +91,25 @@
     </plugins>
   </build>
 
-    <!-- We has SCAPI as dependency. Since scapi is not included
-       in any standard mvn repository, and we dont want to set up
-       our own corporate repository, we create a 'local' repository
-       in the file system (i.e., in our git reopostory).
+  <!-- We has SCAPI as dependency. Since scapi is not included
+     in any standard mvn repository, and we dont want to set up
+     our own corporate repository, we create a 'local' repository
+     in the file system (i.e., in our git reopostory).
 
-       See e.g. http://stackoverflow.com/questions/2229757/
-                maven-add-a-dependency-to-a-jar-by-relative-path
+     See e.g. http://stackoverflow.com/questions/2229757/
+              maven-add-a-dependency-to-a-jar-by-relative-path
 
-       I installed the SCAPI jar using this command:
+     I installed the SCAPI jar using this command:
 
-        tpj@ubuntu:~/fresco$ mvn org.apache.maven.plugins:maven-install-plugin:2.3.1:install-file 
-	      -Dfile=/Users/tpj/Scapi-2.4.0.jar
-	      -DgroupId=scapi 
-	      -DartifactId=scapi 
-	      -Dpackaging=jar 
-	      -Dversion=2.4.0 
-	      -DlocalRepositoryPath=./lib
+      tpj@ubuntu:~/fresco$ mvn org.apache.maven.plugins:maven-install-plugin:2.3.1:install-file
+      -Dfile=/Users/tpj/Scapi-2.4.0.jar
+      -DgroupId=scapi
+      -DartifactId=scapi
+      -Dpackaging=jar
+      -Dversion=2.4.0
+      -DlocalRepositoryPath=./lib
 
-  -->
+-->
   <repositories>
     <repository>
       <id>mvn-local-repo</id>
