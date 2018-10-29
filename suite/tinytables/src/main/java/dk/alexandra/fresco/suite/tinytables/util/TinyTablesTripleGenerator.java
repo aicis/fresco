@@ -66,8 +66,8 @@ public class TinyTablesTripleGenerator {
          */
         boolean a = random.nextBit();
         boolean b = random.nextBit();
-        StrictBitVector aMessage = ot.receive(b);
-        StrictBitVector bMessage = ot.receive(a);
+        StrictBitVector bMessage = ot.receive(b);
+        StrictBitVector aMessage = ot.receive(a);
 
         // We don't know c until after we have done the OT's
         TinyTablesTriple trip = TinyTablesTriple.fromShares(a, b, false);
