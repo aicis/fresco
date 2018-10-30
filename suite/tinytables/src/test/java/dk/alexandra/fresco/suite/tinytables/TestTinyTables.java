@@ -16,6 +16,8 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.lib.bool.BasicBooleanTests;
 import dk.alexandra.fresco.lib.bool.ComparisonBooleanTests;
 import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
@@ -24,6 +26,8 @@ import dk.alexandra.fresco.lib.math.bool.add.AddTests;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproResourcePool;
+import dk.alexandra.fresco.suite.tinytables.util.Util;
+import dk.alexandra.fresco.tools.ot.base.Ot;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -31,7 +35,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,25 +45,21 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 public class TestTinyTables {
+  private static final int COMPUTATIONAL_SECURITY = 128;
+  private static final int STATISTICAL_SECURITY = 40;
 
   private void runTest(TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f,
       EvaluationStrategy evalStrategy, boolean preprocessing, String name) {
     int noPlayers = 2;
-    // Since SCAPI currently does not work with ports > 9999 we use fixed
-    // ports
-    // here instead of relying on ephemeral ports which are often > 9999.
-    List<Integer> ports = new ArrayList<>(noPlayers);
-    for (int i = 1; i <= noPlayers; i++) {
-      ports.add(9000 + i);
-    }
-
+    List<Integer> ports = NetworkTestUtils.getFreePorts(2 * noPlayers);
     Map<Integer, NetworkConfiguration> netConf =
-        NetworkTestUtils.getNetworkConfigurations(noPlayers, ports);
+        NetworkTestUtils.getNetworkConfigurations(noPlayers, ports.subList(0, noPlayers));
+    Map<Integer, NetworkConfiguration> otNetConf = NetworkTestUtils.getNetworkConfigurations(
+        noPlayers, ports.subList(noPlayers, ports.size()));
     Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
         new HashMap<>();
 
     for (int playerId : netConf.keySet()) {
-
       File tinyTablesFile = new File(getFilenameForTest(playerId, name));
       Supplier<ResourcePoolImpl> resourcePoolSupplier;
       SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> computationEngine;
@@ -68,8 +67,12 @@ public class TestTinyTables {
         BatchEvaluationStrategy<TinyTablesPreproResourcePool> batchStrategy =
             evalStrategy.getStrategy();
         TinyTablesPreproProtocolSuite suite = new TinyTablesPreproProtocolSuite();
+        Ot baseOt = new TinyTablesDummyOtAdapter(Util.otherPlayerId(playerId),
+            () -> new AsyncNetwork(otNetConf.get(playerId)));
+        Drbg random = new AesCtrDrbg();
         resourcePoolSupplier =
-            () -> new TinyTablesPreproResourcePool(playerId, noPlayers, tinyTablesFile);
+            () -> new TinyTablesPreproResourcePool(playerId, noPlayers, baseOt, random,
+                COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, tinyTablesFile);
         ProtocolEvaluator<TinyTablesPreproResourcePool> evaluator =
             new BatchedProtocolEvaluator<>(batchStrategy, suite);
         computationEngine =
@@ -208,7 +211,8 @@ public class TestTinyTables {
 
   @Test(expected = UnsupportedOperationException.class)
   public void testTooManyPlayers() throws Throwable {
-      new TinyTablesPreproResourcePool(1, 3, null);
+    new TinyTablesPreproResourcePool(1, 3, null, new AesCtrDrbg(), COMPUTATIONAL_SECURITY,
+        STATISTICAL_SECURITY, null);
   }
 
   @Test(expected = UnsupportedOperationException.class)

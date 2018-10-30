@@ -1,10 +1,14 @@
 package dk.alexandra.fresco.demo.cli;
 
+import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+import dk.alexandra.fresco.framework.configuration.NetworkTestUtils;
+import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
@@ -17,13 +21,19 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzOpenedValueStoreImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDataSupplier;
+import dk.alexandra.fresco.suite.tinytables.TinyTablesDummyOtAdapter;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproResourcePool;
+import dk.alexandra.fresco.suite.tinytables.util.Util;
+import dk.alexandra.fresco.tools.ot.base.Ot;
+
 import java.io.File;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import org.apache.commons.cli.ParseException;
 
@@ -66,8 +76,15 @@ public class CmdLineProtocolSuite {
       String tinytablesFileOption = "tinytables.file";
       String tinyTablesFilePath = properties.getProperty(tinytablesFileOption, "tinytables");
       this.protocolSuite = tinyTablesPreProFromCmdLine(properties);
+      List<Integer> ports = NetworkTestUtils.getFreePorts(1);
+      Map<Integer, NetworkConfiguration> netConf = NetworkTestUtils.getNetworkConfigurations(
+          1, ports);
+      Ot baseOt = new TinyTablesDummyOtAdapter(Util.otherPlayerId(myId), () -> new AsyncNetwork(
+          netConf.get(1)));
+      Drbg random = new AesCtrDrbg();
       this.resourcePool =
-          new TinyTablesPreproResourcePool(myId, noOfPlayers, new File(tinyTablesFilePath));
+          new TinyTablesPreproResourcePool(myId, noOfPlayers, baseOt, random, 128, 40, new File(
+              tinyTablesFilePath));
     } else {
       this.protocolSuite = tinyTablesFromCmdLine(properties);
       this.resourcePool =

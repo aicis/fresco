@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.suite.tinytables.prepro.protocols;
 
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.util.DrngImpl;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproResourcePool;
@@ -39,7 +40,7 @@ public class TinyTablesPreproCloseProtocol extends TinyTablesPreproProtocol<SBoo
        * you are responsible for picking a random share.
        */
       TinyTablesElement r = TinyTablesElement
-          .getInstance(resourcePool.getSecureRandom().nextBoolean());
+          .getInstance(new DrngImpl(resourcePool.getSecureRandom()).nextBit());
       out = new TinyTablesPreproSBool(r);
 
       // We store the share for the online phase

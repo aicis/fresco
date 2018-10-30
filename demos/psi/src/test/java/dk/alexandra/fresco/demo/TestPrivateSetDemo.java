@@ -16,12 +16,18 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
+import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.TinyTablesDummyOtAdapter;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproResourcePool;
+import dk.alexandra.fresco.suite.tinytables.util.Util;
+import dk.alexandra.fresco.tools.ot.base.Ot;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -35,8 +41,9 @@ import org.junit.experimental.categories.Category;
 
 
 public class TestPrivateSetDemo {
-
-  private int noPlayers = 2;
+  private static final int COMPUTATIONAL_SECURITY = 128;
+  private static final int STATISTICAL_SECURITY = 40;
+  private final int noPlayers = 2;
 
   @Test
   public void dummyTest() {
@@ -78,28 +85,30 @@ public class TestPrivateSetDemo {
   @Test
   public void tinyTablesTest() {
     // Generic configuration
-    List<Integer> ports = new ArrayList<>(noPlayers);
-    for (int i = 1; i <= noPlayers; i++) {
-      ports.add(9000 + i);
-    }
-    final Map<Integer, NetworkConfiguration> netConf =
-        NetworkTestUtils.getNetworkConfigurations(noPlayers, ports);
+    List<Integer> ports = NetworkTestUtils.getFreePorts(2 * noPlayers);
+    Map<Integer, NetworkConfiguration> netConf = NetworkTestUtils.getNetworkConfigurations(
+        noPlayers, ports.subList(0, noPlayers));
+    Map<Integer, NetworkConfiguration> otNetConf = NetworkTestUtils.getNetworkConfigurations(
+        noPlayers, ports.subList(noPlayers, ports.size()));
     Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
         new HashMap<>();
+
     for (int playerId : netConf.keySet()) {
       // Protocol specific configuration + suite
       ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> suite =
-          (ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary>) getTinyTablesPreproProtocolSuite(
-              9000 + playerId);
+          (ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary>) getTinyTablesPreproProtocolSuite();
 
       // More generic configuration
       ProtocolEvaluator<ResourcePoolImpl> evaluator =
           new BatchedProtocolEvaluator<>(new BatchedStrategy<>(), suite);
+      Ot baseOt = new TinyTablesDummyOtAdapter(Util.otherPlayerId(playerId), () -> new AsyncNetwork(
+          otNetConf.get(playerId)));
+      Drbg random = new AesCtrDrbg();
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite, evaluator),
-              () -> new TinyTablesPreproResourcePool(playerId, noPlayers,
-                  getTinyTablesFile(playerId)),
+              () -> new TinyTablesPreproResourcePool(playerId, noPlayers, baseOt, random,
+                  COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, getTinyTablesFile(playerId)),
               () -> new AsyncNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }
@@ -111,7 +120,7 @@ public class TestPrivateSetDemo {
       // Preprocessing is complete, now we configure a new instance of the
       // computation and run it
       Map<Integer, NetworkConfiguration> secondConf = NetworkTestUtils
-          .getNetworkConfigurations(noPlayers, ports);
+          .getNetworkConfigurations(noPlayers, ports.subList(0, noPlayers));
       conf = new HashMap<>();
       for (int playerId : secondConf.keySet()) {
         // These 2 lines are protocol specific, the rest is generic configuration
@@ -207,7 +216,7 @@ public class TestPrivateSetDemo {
     return result;
   }
 
-  private ProtocolSuite<?, ?> getTinyTablesPreproProtocolSuite(int myPort) {
+  private ProtocolSuite<?, ?> getTinyTablesPreproProtocolSuite() {
     TinyTablesPreproProtocolSuite config =
         new TinyTablesPreproProtocolSuite();
     return config;

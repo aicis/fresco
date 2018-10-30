@@ -2,6 +2,7 @@ package dk.alexandra.fresco.suite.tinytables.prepro;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.RegularBitVector;
@@ -16,28 +17,31 @@ import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorageImpl;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesTripleProvider;
 import dk.alexandra.fresco.suite.tinytables.util.Util;
+import dk.alexandra.fresco.tools.ot.base.Ot;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
 
-  private static final Logger logger = LoggerFactory.getLogger(TinyTablesPreproResourcePool.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(TinyTablesPreproResourcePool.class);
 
-  private final Random random;
+  private final Drbg random;
   private final List<TinyTablesPreproANDProtocol> unprocessedAnds;
   private final TinyTablesStorage storage;
   private final File tinyTablesFile;
+  private final Ot baseOt;
+  private final int computationalSecurity;
+  private final int statisticalSecurity;
   private TinyTablesTripleProvider tinyTablesTripleProvider;
 
   /**
@@ -48,20 +52,35 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
    * @param noOfPlayers The amount of parties within the MPC computation.
    * @param tinyTablesFile file for data
    */
-  public TinyTablesPreproResourcePool(int myId, int noOfPlayers,
-      File tinyTablesFile) {
+  public TinyTablesPreproResourcePool(int myId, int noOfPlayers, Ot baseOt, Drbg random,
+      int computationalSecurity, int statisticalSecurity, File tinyTablesFile) {
     super(myId, noOfPlayers);
     if (noOfPlayers != 2) {
       throw new UnsupportedOperationException("TinyTable is only defined for 2 parties");
     }
-    this.random = new SecureRandom();
+    this.random = random;
     this.unprocessedAnds = Collections.synchronizedList(new ArrayList<>());
     this.storage = new TinyTablesStorageImpl();
     this.tinyTablesFile = tinyTablesFile;
+    this.baseOt = baseOt;
+    this.computationalSecurity = computationalSecurity;
+    this.statisticalSecurity = statisticalSecurity;
   }
 
-  public Random getSecureRandom() {
+  public Drbg getSecureRandom() {
     return random;
+  }
+
+  public Ot getBaseOt() {
+    return baseOt;
+  }
+
+  public int getComputationalSecurity() {
+    return computationalSecurity;
+  }
+
+  public int getStatisticalSecurity() {
+    return statisticalSecurity;
   }
 
   public void addAndProtocol(TinyTablesPreproANDProtocol protocol) {
@@ -138,7 +157,7 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
      */
     ExceptionConverter.safe(() -> {
       storeTinyTables(storage, tinyTablesFile);
-      logger.info("TinyTables stored to " + tinyTablesFile);
+      LOGGER.info("TinyTables stored to " + tinyTablesFile);
       return null;
     }, "Failed to store TinyTables");
 
