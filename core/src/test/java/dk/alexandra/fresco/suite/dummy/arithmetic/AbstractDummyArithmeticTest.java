@@ -4,7 +4,6 @@ import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.configuration.NetworkTestUtils;
 import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
@@ -83,7 +82,7 @@ public abstract class AbstractDummyArithmeticTest {
     }
 
     Map<Integer, NetworkConfiguration> netConf =
-        NetworkTestUtils.getNetworkConfigurations(noOfParties, ports);
+        Network.getNetworkConfigurations(noOfParties, ports);
     Map<Integer,
         TestThreadRunner.TestThreadConfiguration<
           DummyArithmeticResourcePool,

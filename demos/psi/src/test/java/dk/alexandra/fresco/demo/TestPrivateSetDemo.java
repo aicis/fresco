@@ -10,8 +10,8 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.configuration.NetworkTestUtils;
 import dk.alexandra.fresco.framework.network.AsyncNetwork;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
@@ -53,7 +53,7 @@ public class TestPrivateSetDemo {
       ports.add(9000 + i * 10);
     }
     Map<Integer, NetworkConfiguration> netConf =
-        NetworkTestUtils.getNetworkConfigurations(noPlayers, ports);
+        Network.getNetworkConfigurations(noPlayers, ports);
     Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
         new HashMap<>();
     for (int playerId : netConf.keySet()) {
@@ -85,10 +85,10 @@ public class TestPrivateSetDemo {
   @Test
   public void tinyTablesTest() {
     // Generic configuration
-    List<Integer> ports = NetworkTestUtils.getFreePorts(2 * noPlayers);
-    Map<Integer, NetworkConfiguration> netConf = NetworkTestUtils.getNetworkConfigurations(
+    List<Integer> ports = Network.getFreePorts(2 * noPlayers);
+    Map<Integer, NetworkConfiguration> netConf = Network.getNetworkConfigurations(
         noPlayers, ports.subList(0, noPlayers));
-    Map<Integer, NetworkConfiguration> otNetConf = NetworkTestUtils.getNetworkConfigurations(
+    Map<Integer, NetworkConfiguration> otNetConf = Network.getNetworkConfigurations(
         noPlayers, ports.subList(noPlayers, ports.size()));
     Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
         new HashMap<>();
@@ -119,7 +119,7 @@ public class TestPrivateSetDemo {
     {
       // Preprocessing is complete, now we configure a new instance of the
       // computation and run it
-      Map<Integer, NetworkConfiguration> secondConf = NetworkTestUtils
+      Map<Integer, NetworkConfiguration> secondConf = Network
           .getNetworkConfigurations(noPlayers, ports.subList(0, noPlayers));
       conf = new HashMap<>();
       for (int playerId : secondConf.keySet()) {

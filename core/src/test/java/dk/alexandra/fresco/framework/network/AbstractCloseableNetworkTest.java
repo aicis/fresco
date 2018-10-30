@@ -6,7 +6,7 @@ import static org.junit.Assert.fail;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
-import dk.alexandra.fresco.framework.configuration.NetworkTestUtils;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.time.Duration;
@@ -299,7 +299,7 @@ public abstract class AbstractCloseableNetworkTest {
   protected List<NetworkConfiguration> getNetConfs(int numParties) {
     Map<Integer, Party> parties = new HashMap<>(numParties);
     List<NetworkConfiguration> confs = new ArrayList<>(numParties);
-    List<Integer> ports = NetworkTestUtils.getFreePorts(numParties);
+    List<Integer> ports = Network.getFreePorts(numParties);
     int id = 1;
     for (Integer port : ports) {
       parties.put(id, new Party(id, "localhost", port));

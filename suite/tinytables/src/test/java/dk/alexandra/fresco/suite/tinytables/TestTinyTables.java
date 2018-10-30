@@ -8,8 +8,8 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.configuration.NetworkTestUtils;
 import dk.alexandra.fresco.framework.network.AsyncNetwork;
+import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
@@ -51,10 +51,10 @@ public class TestTinyTables {
   private void runTest(TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f,
       EvaluationStrategy evalStrategy, boolean preprocessing, String name) {
     int noPlayers = 2;
-    List<Integer> ports = NetworkTestUtils.getFreePorts(2 * noPlayers);
+    List<Integer> ports = Network.getFreePorts(2 * noPlayers);
     Map<Integer, NetworkConfiguration> netConf =
-        NetworkTestUtils.getNetworkConfigurations(noPlayers, ports.subList(0, noPlayers));
-    Map<Integer, NetworkConfiguration> otNetConf = NetworkTestUtils.getNetworkConfigurations(
+        Network.getNetworkConfigurations(noPlayers, ports.subList(0, noPlayers));
+    Map<Integer, NetworkConfiguration> otNetConf = Network.getNetworkConfigurations(
         noPlayers, ports.subList(noPlayers, ports.size()));
     Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
         new HashMap<>();
