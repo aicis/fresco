@@ -21,11 +21,12 @@ import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanProtocolSuite;
-import dk.alexandra.fresco.suite.tinytables.TinyTablesDummyOtAdapter;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproResourcePool;
 import dk.alexandra.fresco.suite.tinytables.util.Util;
+import dk.alexandra.fresco.tools.ot.base.DhParameters;
+import dk.alexandra.fresco.tools.ot.base.NaorPinkasOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 
 import java.io.File;
@@ -34,6 +35,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -101,9 +103,9 @@ public class TestPrivateSetDemo {
       // More generic configuration
       ProtocolEvaluator<ResourcePoolImpl> evaluator =
           new BatchedProtocolEvaluator<>(new BatchedStrategy<>(), suite);
-      Ot baseOt = new TinyTablesDummyOtAdapter(Util.otherPlayerId(playerId), () -> new AsyncNetwork(
-          otNetConf.get(playerId)));
       Drbg random = new AesCtrDrbg();
+      Ot baseOt = new NaorPinkasOt(Util.otherPlayerId(playerId), random, new AsyncNetwork(otNetConf
+          .get(playerId)), DhParameters.getStaticDhParams());
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite, evaluator),
