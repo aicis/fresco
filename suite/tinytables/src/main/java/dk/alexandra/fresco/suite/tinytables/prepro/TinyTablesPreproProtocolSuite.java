@@ -65,8 +65,6 @@ public class TinyTablesPreproProtocolSuite
     Drbg random = resourcePool.getSecureRandom();
     TinyTablesOt baseOt = resourcePool.getBaseOt();
     baseOt.init(network);
-    CoinTossing ct = new CoinTossing(myId, otherId, random);
-    ct.initialize(network);
     // Execute random seed OTs
     RotList currentSeedOts = new RotList(random, computationalSecurity);
     if (myId < otherId) {
@@ -76,6 +74,8 @@ public class TinyTablesPreproProtocolSuite
       currentSeedOts.receive(baseOt);
       currentSeedOts.send(baseOt);
     }
+    CoinTossing ct = new CoinTossing(myId, otherId, random);
+    ct.initialize(network);
     // Setup the OT extension
     OtExtensionResourcePool resources = new OtExtensionResourcePoolImpl(myId, otherId,
         computationalSecurity, statisticalSecurity, 1, random, ct, currentSeedOts);

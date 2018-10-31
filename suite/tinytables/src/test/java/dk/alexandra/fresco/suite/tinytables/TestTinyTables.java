@@ -55,7 +55,7 @@ public class TestTinyTables {
     int noPlayers = 2;
     List<Integer> ports = new ArrayList<>(noPlayers);
     for (int i = 1; i <= noPlayers; i++) {
-      ports.add(9000 + i * 10);
+      ports.add(9000 + i);
     }
     // List<Integer> ports = Network.getFreePorts(noPlayers);
     Map<Integer, NetworkConfiguration> netConf = Network.getNetworkConfigurations(noPlayers, ports);
@@ -71,7 +71,7 @@ public class TestTinyTables {
             evalStrategy.getStrategy();
         TinyTablesPreproProtocolSuite suite = new TinyTablesPreproProtocolSuite();
         TinyTablesOt baseOt = new TinyTablesDummyOt(Util.otherPlayerId(playerId));
-        Drbg random = new AesCtrDrbg();
+        Drbg random = new AesCtrDrbg(new byte[32]);
         resourcePoolSupplier =
             () -> new TinyTablesPreproResourcePool(playerId, noPlayers, baseOt, random,
                 COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, tinyTablesFile);

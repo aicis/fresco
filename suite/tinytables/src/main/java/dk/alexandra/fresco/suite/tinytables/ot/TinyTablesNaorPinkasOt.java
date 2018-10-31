@@ -18,7 +18,7 @@ public class TinyTablesNaorPinkasOt implements TinyTablesOt {
    * Constructs a Naor-Pinkas OT instance using prespecified Diffie-Hellman parameters.
    *
    * @param otherId The ID of the other party
-   * @param randBit The calling party's secure randomness generator
+   * @param random The calling party's secure randomness generator
    * @param params The Diffie-Hellman parameters to use
    */
   public TinyTablesNaorPinkasOt(int otherId, Drbg random, DHParameterSpec params) {
