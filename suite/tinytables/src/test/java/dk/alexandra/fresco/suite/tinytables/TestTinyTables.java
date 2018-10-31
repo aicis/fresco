@@ -36,6 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,9 +53,12 @@ public class TestTinyTables {
   private void runTest(TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f,
       EvaluationStrategy evalStrategy, boolean preprocessing, String name) {
     int noPlayers = 2;
-    List<Integer> ports = Network.getFreePorts(noPlayers);
-    Map<Integer, NetworkConfiguration> netConf =
-        Network.getNetworkConfigurations(noPlayers, ports);
+    List<Integer> ports = new ArrayList<>(noPlayers);
+    for (int i = 1; i <= noPlayers; i++) {
+      ports.add(9000 + i * 10);
+    }
+    // List<Integer> ports = Network.getFreePorts(noPlayers);
+    Map<Integer, NetworkConfiguration> netConf = Network.getNetworkConfigurations(noPlayers, ports);
     Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
         new HashMap<>();
 

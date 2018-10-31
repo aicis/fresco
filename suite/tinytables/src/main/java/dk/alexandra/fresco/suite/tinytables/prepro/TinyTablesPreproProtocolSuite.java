@@ -13,7 +13,6 @@ import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
 import dk.alexandra.fresco.suite.tinytables.util.TinyTablesTripleGenerator;
 import dk.alexandra.fresco.suite.tinytables.util.Util;
 import dk.alexandra.fresco.tools.cointossing.CoinTossing;
-import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.BristolOtFactory;
 import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePool;
 import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePoolImpl;
@@ -66,7 +65,7 @@ public class TinyTablesPreproProtocolSuite
     Drbg random = resourcePool.getSecureRandom();
     TinyTablesOt baseOt = resourcePool.getBaseOt();
     baseOt.init(network);
-    CoinTossing ct = new CoinTossing(resourcePool.getMyId(), otherId, random);
+    CoinTossing ct = new CoinTossing(myId, otherId, random);
     ct.initialize(network);
     // Execute random seed OTs
     RotList currentSeedOts = new RotList(random, computationalSecurity);
@@ -85,7 +84,7 @@ public class TinyTablesPreproProtocolSuite
 
     resourcePool.setTripleGenerator(
         new BatchTinyTablesTripleProvider(
-            new TinyTablesTripleGenerator(resourcePool.getMyId(), random, otFactory),
+            new TinyTablesTripleGenerator(myId, random, otFactory),
             OT_BATCH_SIZE));
 
     return new TinyTablesPreproBuilderFactory();
