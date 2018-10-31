@@ -22,13 +22,12 @@ import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.ot.TinyTablesNaorPinkasOt;
+import dk.alexandra.fresco.suite.tinytables.ot.TinyTablesOt;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproResourcePool;
 import dk.alexandra.fresco.suite.tinytables.util.Util;
 import dk.alexandra.fresco.tools.ot.base.DhParameters;
-import dk.alexandra.fresco.tools.ot.base.NaorPinkasOt;
-import dk.alexandra.fresco.tools.ot.base.Ot;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -87,11 +86,9 @@ public class TestPrivateSetDemo {
   @Test
   public void tinyTablesTest() {
     // Generic configuration
-    List<Integer> ports = Network.getFreePorts(2 * noPlayers);
+    List<Integer> ports = Network.getFreePorts(noPlayers);
     Map<Integer, NetworkConfiguration> netConf = Network.getNetworkConfigurations(
-        noPlayers, ports.subList(0, noPlayers));
-    Map<Integer, NetworkConfiguration> otNetConf = Network.getNetworkConfigurations(
-        noPlayers, ports.subList(noPlayers, ports.size()));
+        noPlayers, ports);
     Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
         new HashMap<>();
 
@@ -99,13 +96,13 @@ public class TestPrivateSetDemo {
       // Protocol specific configuration + suite
       ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary> suite =
           (ProtocolSuite<ResourcePoolImpl, ProtocolBuilderBinary>) getTinyTablesPreproProtocolSuite();
+      Drbg random = new AesCtrDrbg();
+      TinyTablesOt baseOt = new TinyTablesNaorPinkasOt(Util.otherPlayerId(playerId), random,
+          DhParameters.getStaticDhParams());
 
       // More generic configuration
       ProtocolEvaluator<ResourcePoolImpl> evaluator =
           new BatchedProtocolEvaluator<>(new BatchedStrategy<>(), suite);
-      Drbg random = new AesCtrDrbg();
-      Ot baseOt = new NaorPinkasOt(Util.otherPlayerId(playerId), random, new AsyncNetwork(otNetConf
-          .get(playerId)), DhParameters.getStaticDhParams());
       TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite, evaluator),
@@ -122,7 +119,7 @@ public class TestPrivateSetDemo {
       // Preprocessing is complete, now we configure a new instance of the
       // computation and run it
       Map<Integer, NetworkConfiguration> secondConf = Network
-          .getNetworkConfigurations(noPlayers, ports.subList(0, noPlayers));
+          .getNetworkConfigurations(noPlayers, ports);
       conf = new HashMap<>();
       for (int playerId : secondConf.keySet()) {
         // These 2 lines are protocol specific, the rest is generic configuration

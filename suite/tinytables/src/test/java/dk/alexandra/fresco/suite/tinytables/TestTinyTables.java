@@ -24,10 +24,11 @@ import dk.alexandra.fresco.lib.crypto.BristolCryptoTests;
 import dk.alexandra.fresco.lib.field.bool.generic.FieldBoolTests;
 import dk.alexandra.fresco.lib.math.bool.add.AddTests;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.ot.TinyTablesDummyOt;
+import dk.alexandra.fresco.suite.tinytables.ot.TinyTablesOt;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproResourcePool;
 import dk.alexandra.fresco.suite.tinytables.util.Util;
-import dk.alexandra.fresco.tools.ot.base.Ot;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -51,11 +52,9 @@ public class TestTinyTables {
   private void runTest(TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f,
       EvaluationStrategy evalStrategy, boolean preprocessing, String name) {
     int noPlayers = 2;
-    List<Integer> ports = Network.getFreePorts(2 * noPlayers);
+    List<Integer> ports = Network.getFreePorts(noPlayers);
     Map<Integer, NetworkConfiguration> netConf =
-        Network.getNetworkConfigurations(noPlayers, ports.subList(0, noPlayers));
-    Map<Integer, NetworkConfiguration> otNetConf = Network.getNetworkConfigurations(
-        noPlayers, ports.subList(noPlayers, ports.size()));
+        Network.getNetworkConfigurations(noPlayers, ports);
     Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
         new HashMap<>();
 
@@ -67,8 +66,7 @@ public class TestTinyTables {
         BatchEvaluationStrategy<TinyTablesPreproResourcePool> batchStrategy =
             evalStrategy.getStrategy();
         TinyTablesPreproProtocolSuite suite = new TinyTablesPreproProtocolSuite();
-        Ot baseOt = new TinyTablesDummyOtAdapter(Util.otherPlayerId(playerId),
-            () -> new AsyncNetwork(otNetConf.get(playerId)));
+        TinyTablesOt baseOt = new TinyTablesDummyOt(Util.otherPlayerId(playerId));
         Drbg random = new AesCtrDrbg();
         resourcePoolSupplier =
             () -> new TinyTablesPreproResourcePool(playerId, noPlayers, baseOt, random,

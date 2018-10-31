@@ -10,6 +10,7 @@ import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTable;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElementVector;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesTriple;
+import dk.alexandra.fresco.suite.tinytables.ot.TinyTablesOt;
 import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproANDProtocol;
 import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproProtocol;
 import dk.alexandra.fresco.suite.tinytables.storage.BatchTinyTablesTripleProvider;
@@ -17,7 +18,6 @@ import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorageImpl;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesTripleProvider;
 import dk.alexandra.fresco.suite.tinytables.util.Util;
-import dk.alexandra.fresco.tools.ot.base.Ot;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -39,7 +39,7 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
   private final List<TinyTablesPreproANDProtocol> unprocessedAnds;
   private final TinyTablesStorage storage;
   private final File tinyTablesFile;
-  private final Ot baseOt;
+  private final TinyTablesOt baseOt;
   private final int computationalSecurity;
   private final int statisticalSecurity;
   private TinyTablesTripleProvider tinyTablesTripleProvider;
@@ -49,10 +49,12 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
    * resources needed within FRESCO.
    *
    * @param myId The ID of the MPC party.
+   * @param baseOt OT functionality for the base OTs
+   * @param random Secure randomness generator
    * @param noOfPlayers The amount of parties within the MPC computation.
    * @param tinyTablesFile file for data
    */
-  public TinyTablesPreproResourcePool(int myId, int noOfPlayers, Ot baseOt, Drbg random,
+  public TinyTablesPreproResourcePool(int myId, int noOfPlayers, TinyTablesOt baseOt, Drbg random,
       int computationalSecurity, int statisticalSecurity, File tinyTablesFile) {
     super(myId, noOfPlayers);
     if (noOfPlayers != 2) {
@@ -71,7 +73,7 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
     return random;
   }
 
-  public Ot getBaseOt() {
+  public TinyTablesOt getBaseOt() {
     return baseOt;
   }
 

@@ -7,6 +7,7 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.ot.TinyTablesOt;
 import dk.alexandra.fresco.suite.tinytables.storage.BatchTinyTablesTripleProvider;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
 import dk.alexandra.fresco.suite.tinytables.util.TinyTablesTripleGenerator;
@@ -63,7 +64,8 @@ public class TinyTablesPreproProtocolSuite
     int otherId = Util.otherPlayerId(myId);
 
     Drbg random = resourcePool.getSecureRandom();
-    Ot baseOt = resourcePool.getBaseOt();
+    TinyTablesOt baseOt = resourcePool.getBaseOt();
+    baseOt.init(network);
     CoinTossing ct = new CoinTossing(resourcePool.getMyId(), otherId, random);
     ct.initialize(network);
     // Execute random seed OTs

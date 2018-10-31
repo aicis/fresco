@@ -11,9 +11,9 @@ import java.util.List;
 
 public class TinyTablesTripleGenerator {
 
-  private int playerId;
-  private Ot ot;
-  private Drng random;
+  private final int playerId;
+  private final Ot ot;
+  private final Drng random;
 
   /**
    * Creates a new triple generator.
