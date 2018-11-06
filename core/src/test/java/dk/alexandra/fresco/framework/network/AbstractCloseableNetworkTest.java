@@ -349,4 +349,58 @@ public abstract class AbstractCloseableNetworkTest {
     newCloseableNetwork(confs.get(0), Duration.ofMillis(10));
   }
 
+  @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS)
+  public void testAlternateReceivers() throws InterruptedException, ExecutionException {
+    alternateReceivers(10000);
+  }
+
+  private void alternateReceivers(int numMessages) throws InterruptedException, ExecutionException {
+    int numParties = 2;
+    Map<Integer, CloseableNetwork> networks = createNetworks(numParties);
+    ExecutorService es = Executors.newFixedThreadPool(numParties);
+    List<Future<?>> fs = new ArrayList<>(numParties);
+
+    Future<?> taskOne = es.submit(() -> {
+      Random r = new Random(1);
+      final byte[] data = new byte[1024];
+      byte[] receivedData;
+      for (int j = 0; j < numMessages; j++) {
+        networks.get(1).receive(2);
+        r.nextBytes(data);
+        networks.get(1).send(2, data);
+        networks.get(1).send(2, data);
+        // assertArrayEquals(data, receivedData);
+      }
+      try {
+        networks.get(1).close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    });
+
+    Future<?> taskTwo = es.submit(() -> {
+      Random r = new Random(1);
+      final byte[] data = new byte[1024];
+      byte[] receivedData;
+      for (int j = 0; j < numMessages; j++) {
+        // r.nextBytes(data);
+        networks.get(2).send(1, new byte[] { 0x00 });
+        receivedData = networks.get(2).receive(1);
+        receivedData = networks.get(2).receive(1);
+        // assertArrayEquals(data, receivedData);
+      }
+      try {
+        networks.get(2).close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    });
+
+    fs.add(taskOne);
+    fs.add(taskTwo);
+    for (Future<?> future : fs) {
+      future.get();
+    }
+  }
+
 }
