@@ -52,10 +52,6 @@ public class TestTinyTables {
   private void runTest(TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f,
       EvaluationStrategy evalStrategy, boolean preprocessing, String name) {
     int noPlayers = 2;
-    // List<Integer> ports = new ArrayList<>(noPlayers);
-    // for (int i = 1; i <= noPlayers; i++) {
-    // ports.add(9000 + i);
-    // }
     List<Integer> ports = Network.getFreePorts(noPlayers);
     Map<Integer, NetworkConfiguration> netConf = Network.getNetworkConfigurations(noPlayers, ports);
     Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
@@ -358,5 +354,33 @@ public class TestTinyTables {
         true, "testEQ");
     runTest(new ComparisonBooleanTests.TestEquality<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED,
         false, "testEQ");
+  }
+
+  @Test
+  public void testNaorPinkasBaseOtDes() {
+    int noPlayers = 2;
+    List<Integer> ports = Network.getFreePorts(noPlayers);
+    Map<Integer, NetworkConfiguration> netConf = Network.getNetworkConfigurations(noPlayers, ports);
+    Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf = new HashMap<>();
+
+    for (int playerId : netConf.keySet()) {
+      File tinyTablesFile = new File(getFilenameForTest(playerId, "TestNaorPinkasBaseOtDes"));
+      Supplier<ResourcePoolImpl> resourcePoolSupplier;
+      SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> computationEngine;
+      TinyTablesPreproProtocolSuite suite = new TinyTablesPreproProtocolSuite();
+      TinyTablesOt baseOt = new TinyTablesDummyOt(Util.otherPlayerId(playerId));
+      Drbg random = new AesCtrDrbg(new byte[32]);
+      resourcePoolSupplier = () -> new TinyTablesPreproResourcePool(playerId, noPlayers, baseOt,
+          random, COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, tinyTablesFile);
+      ProtocolEvaluator<TinyTablesPreproResourcePool> evaluator = new BatchedProtocolEvaluator<>(
+          EvaluationStrategy.SEQUENTIAL_BATCHED.getStrategy(), suite);
+      computationEngine = (SecureComputationEngine) new SecureComputationEngineImpl<>(suite,
+          evaluator);
+      TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> configuration = new TestThreadConfiguration<>(
+          computationEngine, resourcePoolSupplier, () -> new AsyncNetwork(netConf.get(playerId)));
+      conf.put(playerId, configuration);
+    }
+    TestThreadRunner.run(new BristolCryptoTests.DesTest<>(false), conf);
+
   }
 }
