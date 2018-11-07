@@ -30,6 +30,15 @@ public class TestByteAndBitConverter {
   }
 
   @Test
+  public void intFromBytes() {
+    Assert.assertEquals(1, ByteAndBitConverter.intFromBytes(new byte[]{0, 0, 0, 1}));
+    Assert.assertEquals(16787968, ByteAndBitConverter.intFromBytes(new byte[]{1, 0, 42, 0}));
+    Assert.assertEquals(ByteAndBitConverter.intFromBytes(new byte[]{1, 0, 0, 0}), 1 << 24);
+    Assert.assertEquals(ByteAndBitConverter.intFromBytes(new byte[]{0, 0, 0, 42}), 42);
+    Assert.assertEquals(ByteAndBitConverter.intFromBytes(new byte[]{-1, -1, -1, -1}), 0xffffffff);
+  }
+
+  @Test
   public void toByteArrayLong() {
     Assert
         .assertArrayEquals(new byte[8], ByteAndBitConverter.toByteArray(Integer.toUnsignedLong(0)));
