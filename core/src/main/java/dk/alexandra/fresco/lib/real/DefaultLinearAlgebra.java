@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 import java.util.function.BiFunction;
@@ -287,9 +286,8 @@ public abstract class DefaultLinearAlgebra implements RealLinearAlgebra {
   }
   
   private <A> Matrix<A> transpose(Matrix<A> matrix) {
-    Matrix<A> res = new Matrix<>(matrix.getHeight(), matrix.getWidth(),
-        i -> new ArrayList<>(matrix.getRow(matrix.getHeight() - i)));
-    res.getRows().stream().forEach(row -> Collections.reverse(row));
+    Matrix<A> res = new Matrix<>(matrix.getWidth(), matrix.getHeight(),
+        i -> new ArrayList<>(matrix.getColumn(i)));
     return res;
   }
 

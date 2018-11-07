@@ -433,6 +433,49 @@ public class LinearAlgebraTests {
     }
   }
 
+  public static class TestTransposeMatrix<ResourcePoolT extends ResourcePool>
+      extends TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> {
+
+    @Override
+    public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
+      return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
+
+        @Override
+        public void test() throws Exception {
+          // define input and output
+          ArrayList<BigDecimal> rowOne = new ArrayList<>();
+          rowOne.add(BigDecimal.valueOf(1.1));
+          rowOne.add(BigDecimal.valueOf(2.2));
+          ArrayList<BigDecimal> rowTwo = new ArrayList<>();
+          rowTwo.add(BigDecimal.valueOf(3.3));
+          rowTwo.add(BigDecimal.valueOf(4.4));
+          ArrayList<BigDecimal> rowThree = new ArrayList<>();
+          rowThree.add(BigDecimal.valueOf(5.5));
+          rowThree.add(BigDecimal.valueOf(6.6));
+          ArrayList<ArrayList<BigDecimal>> mat = new ArrayList<>();
+          mat.add(rowOne);
+          mat.add(rowTwo);
+          mat.add(rowThree);
+          Matrix<BigDecimal> input = new Matrix<>(3, 2, mat);
+
+          // define functionality to be tested
+          Application<Matrix<BigDecimal>, ProtocolBuilderNumeric> testApplication = root -> {
+            DRes<Matrix<DRes<SReal>>> closed = root.realLinAlg().input(input, 1);
+            DRes<Matrix<DRes<SReal>>> transposed = root.realLinAlg().transpose(closed);
+            DRes<Matrix<DRes<BigDecimal>>> opened = root.realLinAlg().openMatrix(transposed);
+            return () -> new MatrixUtils().unwrapMatrix(opened);
+          };
+          Matrix<BigDecimal> output = runApplication(testApplication);
+          System.out.println(output);
+          for (int i = 0; i < input.getHeight(); i++) {
+            RealTestUtils.assertEqual(output.getColumn(i), input.getRow(i), 15);
+          }
+        }
+      };
+    }
+  }
+
+
   private static Vector<BigDecimal> allOneVector(int dimension, int precision) {
     Vector<BigDecimal> vector = new Vector<>(dimension);
     for (int i = 0; i < dimension; i++) {

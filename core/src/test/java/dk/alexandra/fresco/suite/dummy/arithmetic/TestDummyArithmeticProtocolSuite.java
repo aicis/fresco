@@ -724,6 +724,12 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
+  public void test_Real_Matrix_Transpose() {
+    runTest(new LinearAlgebraTests.TestTransposeMatrix<>(),
+        new TestParameters());
+  }
+  
+  @Test
   public void test_Real_Exp() {
     runTest(new MathTests.TestExp<>(), new TestParameters().numParties(2));
   }
