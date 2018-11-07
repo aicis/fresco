@@ -76,7 +76,6 @@ public class BigIntegerOIntArithmetic implements OIntArithmetic {
     if (power < cachedTwoPowersList.size()) {
       return cachedTwoPowersList.get(power);
     } else {
-      System.out.println("Not cached!");
       return factory.fromBigInteger(TWO.pow(power));
     }
   }

@@ -82,4 +82,8 @@ public class DefaultComparison implements Comparison {
     return builder.seq(new ZeroTest(bitLength, x, magicSecureNumber));
   }
 
+  protected ProtocolBuilderNumeric getBuilder() {
+    return builder;
+  }
+
 }

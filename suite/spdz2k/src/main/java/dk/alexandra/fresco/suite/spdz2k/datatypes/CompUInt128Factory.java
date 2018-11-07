@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
+import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.suite.spdz2k.util.UIntSerializer;
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -38,13 +39,23 @@ public class CompUInt128Factory implements CompUIntFactory<CompUInt128> {
   }
 
   @Override
-  public CompUInt128 createFromBigInteger(BigInteger value) {
+  public CompUInt128 fromBigInteger(BigInteger value) {
     return value == null ? null : new CompUInt128(value.toByteArray(), true);
+  }
+
+  @Override
+  public BigInteger toBigInteger(OInt value) {
+    return null;
   }
 
   @Override
   public CompUInt128 zero() {
     return ZERO;
+  }
+
+  @Override
+  public int getMaxBitLength() {
+    return 64;
   }
 
 }

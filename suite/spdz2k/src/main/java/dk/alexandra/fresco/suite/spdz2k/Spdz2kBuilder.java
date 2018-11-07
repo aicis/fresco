@@ -2,6 +2,7 @@ package dk.alexandra.fresco.suite.spdz2k;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.Comparison;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.OInt;
@@ -12,6 +13,7 @@ import dk.alexandra.fresco.lib.compare.MiscBigIntegerGenerators;
 import dk.alexandra.fresco.lib.field.integer.BasicNumericContext;
 import dk.alexandra.fresco.lib.real.RealNumericContext;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUInt;
+import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntArithmetic;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.CompUIntFactory;
 import dk.alexandra.fresco.suite.spdz2k.datatypes.Spdz2kSInt;
 import dk.alexandra.fresco.suite.spdz2k.protocols.computations.Spdz2kInputComputation;
@@ -38,16 +40,23 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
     BuilderFactoryNumeric {
 
   private final CompUIntFactory<PlainT> factory;
+  private final CompUIntArithmetic<PlainT> arithmetic;
   private final BasicNumericContext numericContext;
 
   public Spdz2kBuilder(CompUIntFactory<PlainT> factory, BasicNumericContext numericContext) {
     this.factory = factory;
+    this.arithmetic = new CompUIntArithmetic<>(factory);
     this.numericContext = numericContext;
   }
 
   @Override
   public BasicNumericContext getBasicNumericContext() {
     return numericContext;
+  }
+
+  @Override
+  public Comparison createComparison(ProtocolBuilderNumeric builder) {
+    return new Spdz2kComparison<>(this, builder, factory);
   }
 
   @Override
@@ -60,7 +69,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
       @Override
       public DRes<SInt> add(BigInteger a, DRes<SInt> b) {
-        return builder.append(new Spdz2kAddKnownProtocol<>(factory.createFromBigInteger(a), b));
+        return builder.append(new Spdz2kAddKnownProtocol<>(factory.fromBigInteger(a), b));
       }
 
       @Override
@@ -76,7 +85,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
       @Override
       public DRes<SInt> sub(BigInteger a, DRes<SInt> b) {
         return builder.append(
-            new Spdz2kSubtractFromKnownProtocol<>(factory.createFromBigInteger(a), b));
+            new Spdz2kSubtractFromKnownProtocol<>(factory.fromBigInteger(a), b));
       }
 
       @Override
@@ -92,7 +101,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
       @Override
       public DRes<SInt> sub(DRes<SInt> a, BigInteger b) {
         return builder.append(
-            new Spdz2kAddKnownProtocol<>(factory.createFromBigInteger(b).negate(), a));
+            new Spdz2kAddKnownProtocol<>(factory.fromBigInteger(b).negate(), a));
       }
 
       @Override
@@ -102,7 +111,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
       @Override
       public DRes<SInt> mult(BigInteger a, DRes<SInt> b) {
-        return () -> toSpdz2kSInt(b).multiply(factory.createFromBigInteger(a));
+        return () -> toSpdz2kSInt(b).multiply(factory.fromBigInteger(a));
       }
 
       @Override
@@ -122,18 +131,18 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
       @Override
       public DRes<SInt> known(BigInteger value) {
-        return builder.append(new Spdz2kKnownSIntProtocol<>(factory.createFromBigInteger(value)));
+        return builder.append(new Spdz2kKnownSIntProtocol<>(factory.fromBigInteger(value)));
       }
 
       @Override
       public DRes<SInt> input(BigInteger value, int inputParty) {
         if (builder.getBasicNumericContext().getNoOfParties() <= 2) {
           return builder.append(
-              new Spdz2kTwoPartyInputProtocol<>(factory.createFromBigInteger(value),
+              new Spdz2kTwoPartyInputProtocol<>(factory.fromBigInteger(value),
                   inputParty));
         } else {
           return builder.seq(
-              new Spdz2kInputComputation<>(factory.createFromBigInteger(value), inputParty));
+              new Spdz2kInputComputation<>(factory.fromBigInteger(value), inputParty));
         }
       }
 
@@ -166,12 +175,12 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
   @Override
   public OIntFactory getOIntFactory() {
-    return null;
+    return factory;
   }
 
   @Override
   public OIntArithmetic getOIntArithmetic() {
-    return null;
+    return arithmetic;
   }
 
   /**

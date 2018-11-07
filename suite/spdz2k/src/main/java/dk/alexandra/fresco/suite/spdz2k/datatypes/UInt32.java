@@ -41,6 +41,11 @@ public class UInt32 implements UInt<UInt32> {
   }
 
   @Override
+  public boolean isOne() {
+    return value == 1;
+  }
+
+  @Override
   public int getBitLength() {
     return 32;
   }

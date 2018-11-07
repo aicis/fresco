@@ -2,6 +2,7 @@ package dk.alexandra.fresco.framework.builder.numeric;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.conditional.ConditionalSelect;
 import dk.alexandra.fresco.lib.conditional.SwapIf;
@@ -22,6 +23,7 @@ import dk.alexandra.fresco.lib.math.integer.linalg.InnerProductOpen;
 import dk.alexandra.fresco.lib.math.integer.log.Logarithm;
 import dk.alexandra.fresco.lib.math.integer.sqrt.SquareRoot;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -103,6 +105,20 @@ public class DefaultAdvancedNumeric implements AdvancedNumeric {
   @Override
   public DRes<SInt> innerProductWithPublicPart(List<BigInteger> vectorA, List<DRes<SInt>> vectorB) {
     return builder.seq(new InnerProductOpen(vectorA, vectorB));
+  }
+
+  @Override
+  public DRes<SInt> innerProductWithOInt(List<OInt> vectorA, List<DRes<SInt>> vectorB) {
+    return builder.par(parallel -> {
+      List<DRes<SInt>> result = new ArrayList<>(vectorA.size());
+      Numeric numericBuilder = parallel.numeric();
+      for (int i = 0; i < vectorA.size(); i++) {
+        OInt nextA = vectorA.get(i);
+        DRes<SInt> nextB = vectorB.get(i);
+        result.add(numericBuilder.mult(nextA, nextB));
+      }
+      return () -> result;
+    }).seq((seq, list) -> seq.advancedNumeric().sum(list));
   }
 
   @Override

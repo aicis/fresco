@@ -3,6 +3,7 @@ package dk.alexandra.fresco.framework.builder.numeric;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.ComputationDirectory;
 import dk.alexandra.fresco.framework.util.Pair;
+import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.List;
@@ -130,6 +131,15 @@ public interface AdvancedNumeric extends ComputationDirectory {
    * @return A deferred result computing the inner product of the two given vectors
    */
   DRes<SInt> innerProductWithPublicPart(List<BigInteger> vectorA, List<DRes<SInt>> vectorB);
+
+  /**
+   * Computes the inner product between a public vector and a secret vector.
+   *
+   * @param vectorA The public vector
+   * @param vectorB The secret vector
+   * @return A deferred result computing the inner product of the two given vectors
+   */
+  DRes<SInt> innerProductWithOInt(List<OInt> vectorA, List<DRes<SInt>> vectorB);
 
   /**
    * Creates a random bit mask [b0, ..., bn] along with an {@link SInt} representing the recombined

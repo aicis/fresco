@@ -1,12 +1,16 @@
 package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
+import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
+import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.value.OIntFactory;
 import java.math.BigInteger;
+import java.util.Objects;
 
 /**
  * Factory for {@link CompT} instances.
  */
-public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> {
+public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> extends OIntFactory {
 
   /**
    * Creates new {@link CompT} from a raw array of bytes.
@@ -17,6 +21,13 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> {
    * Creates random {@link CompT}.
    */
   CompT createRandom();
+
+  /**
+   * Get result from deferred and downcast result to {@link CompT}.
+   */
+  default CompT fromOInt(OInt value) {
+    return Objects.requireNonNull((CompT) value);
+  }
 
   /**
    * Creates serializer for {@link CompT} instances.
@@ -43,7 +54,8 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> {
   /**
    * Creates new {@link CompT} from a {@link BigInteger}.
    */
-  default CompT createFromBigInteger(BigInteger value) {
+  @Override
+  default CompT fromBigInteger(BigInteger value) {
     return (value == null) ? null : createFromBytes(value.toByteArray());
   }
 
@@ -51,7 +63,21 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> {
    * Creates element whose value is zero.
    */
   default CompT zero() {
-    return createFromBytes(new byte[getCompositeBitLength() / Byte.SIZE]);
+    return fromBigInteger(BigInteger.ZERO);
   }
-  
+
+  /**
+   * Creates element whose value is one.
+   */
+  default CompT one() {
+    return fromBigInteger(BigInteger.ONE);
+  }
+
+  /**
+   * Creates element whose value is two.
+   */
+  default CompT two() {
+    return fromBigInteger(BigInteger.valueOf(2));
+  }
+
 }

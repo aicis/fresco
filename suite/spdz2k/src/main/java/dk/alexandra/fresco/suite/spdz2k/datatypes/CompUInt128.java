@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.spdz2k.datatypes;
 
+import dk.alexandra.fresco.framework.value.OInt;
 import java.math.BigInteger;
 
 /**
@@ -10,6 +11,7 @@ import java.math.BigInteger;
 public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
 
   private static final CompUInt128 ONE = new CompUInt128(1);
+  private static final CompUInt128 ZERO = new CompUInt128(0);
   private final long high;
   private final int mid;
   private final int low;
@@ -138,6 +140,11 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
   }
 
   @Override
+  public boolean isOne() {
+    return low == 1 && mid == 0 && high == 0;
+  }
+
+  @Override
   public BigInteger toBigInteger() {
     return new BigInteger(1, toByteArray());
   }
@@ -168,6 +175,29 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
   }
 
   @Override
+  public boolean testBit(int bit) {
+    // TODO optimize if bottle-neck
+    long section;
+    int relative;
+    if (bit < Integer.SIZE) {
+      section = low;
+      relative = bit;
+    } else if (bit < Long.SIZE) {
+      section = mid;
+      relative = bit - Integer.SIZE;
+    } else {
+      section = high;
+      relative = bit - Long.SIZE;
+    }
+    return (((1L << relative) & section) >>> relative) == 1;
+  }
+
+  @Override
+  public CompUInt128 testBitAsUInt(int bit) {
+    return testBit(bit) ? ONE : ZERO;
+  }
+
+  @Override
   public CompUInt128 shiftLowIntoHigh() {
     return new CompUInt128(toLong(), 0, 0);
   }
@@ -180,6 +210,16 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
   @Override
   public int getHighBitLength() {
     return 64;
+  }
+
+  @Override
+  public int getCompositeBitLength() {
+    return 128;
+  }
+
+  @Override
+  public int getBitLength() {
+    return 128;
   }
 
   @Override
@@ -232,4 +272,8 @@ public class CompUInt128 implements CompUInt<UInt64, UInt64, CompUInt128> {
         | (bytes[flipped - 3] & 0xFF) << 24;
   }
 
+  @Override
+  public OInt out() {
+    return this;
+  }
 }

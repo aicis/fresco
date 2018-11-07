@@ -36,6 +36,11 @@ public interface UInt<T extends UInt> {
   boolean isZero();
 
   /**
+   * Check if values is one.
+   */
+  boolean isOne();
+
+  /**
    * Return bit length.
    */
   int getBitLength();
@@ -59,6 +64,13 @@ public interface UInt<T extends UInt> {
    * Returns this as int.
    */
   int toInt();
+
+  /**
+   * Returns if bit at position is set or not.
+   */
+  default boolean testBit(int bit) {
+    return toBigInteger().testBit(bit);
+  }
 
   /**
    * Compute sum of elements.

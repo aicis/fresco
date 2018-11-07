@@ -6,6 +6,8 @@ import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric.RandomBitMask;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
+import dk.alexandra.fresco.framework.value.OInt;
+import dk.alexandra.fresco.framework.value.OIntFactory;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -30,11 +32,9 @@ public class RandomAdditiveMask implements
       bits.add(randomBit);
     }
 
-    MiscBigIntegerGenerators oIntGenerators = builder.getBigIntegerHelper();
-
-    List<BigInteger> twoPows = oIntGenerators.getTwoPowersList(noOfBits);
+    List<OInt> twoPows = builder.getOIntArithmetic().getPowersOfTwo(noOfBits);
     AdvancedNumeric innerProductBuilder = builder.advancedNumeric();
-    DRes<SInt> value = innerProductBuilder.innerProductWithPublicPart(twoPows, bits);
+    DRes<SInt> value = innerProductBuilder.innerProductWithOInt(twoPows, bits);
     final RandomBitMask randomBitMask = new RandomBitMask(bits, value);
     return () -> randomBitMask;
   }
