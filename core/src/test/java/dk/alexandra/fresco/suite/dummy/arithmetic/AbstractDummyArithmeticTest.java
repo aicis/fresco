@@ -12,6 +12,7 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.lib.real.BasicFixedPointTests;
 import dk.alexandra.fresco.logging.BatchEvaluationLoggingDecorator;
 import dk.alexandra.fresco.logging.DefaultPerformancePrinter;
@@ -35,10 +36,8 @@ import java.util.Map;
 public abstract class AbstractDummyArithmeticTest {
 
   protected Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
-  protected static final BigInteger DEFAULT_MODULUS = new BigInteger(
-      "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443"
-      + "244279389455058889493431223951165286470575994074291745908195329");
-  protected static final int DEFAULT_MAX_BIT_LENGTH = 200;
+  protected static final BigInteger DEFAULT_MODULUS = ModulusFinder.findSuitableModulus(512);
+  protected static final int DEFAULT_MAX_BIT_LENGTH = 196;
   protected static final int DEFAULT_FIXED_POINT_PRECISION = BasicFixedPointTests.DEFAULT_PRECISION;
   protected static final int DEFAULT_PARTIES = 1;
   protected static final EvaluationStrategy DEFAULT_EVALUATION_STRATEGY
