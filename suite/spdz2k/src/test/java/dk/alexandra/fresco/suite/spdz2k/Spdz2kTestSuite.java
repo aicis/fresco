@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.spdz2k;
 
+import dk.alexandra.fresco.framework.builder.numeric.Comparison.ComparisonAlgorithm;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.lib.arithmetic.BasicArithmeticTests;
 import dk.alexandra.fresco.lib.collections.io.CloseListTests.TestCloseAndOpenList;
@@ -130,5 +131,11 @@ public abstract class Spdz2kTestSuite<Spdz2kResourcePoolT extends Spdz2kResource
   @Test
   public void testEquality() {
     runTest(new CompareTests.TestCompareEQ<>(), EvaluationStrategy.SEQUENTIAL_BATCHED);
+  }
+
+  @Test
+  public void testEqualityEdgeCases() {
+    runTest(new CompareTests.TestCompareEQEdgeCases<>(ComparisonAlgorithm.LOG_ROUNDS),
+        EvaluationStrategy.SEQUENTIAL_BATCHED);
   }
 }
