@@ -280,9 +280,7 @@ public abstract class DefaultLinearAlgebra implements RealLinearAlgebra {
   
   @Override
   public DRes<Matrix<DRes<SReal>>> transpose(DRes<Matrix<DRes<SReal>>> matrix) {
-    return builder.seq(seq -> {
-      return () -> transpose(matrix.out());
-    });
+    return () -> transpose(matrix.out());
   }
   
   private <A> Matrix<A> transpose(Matrix<A> matrix) {
