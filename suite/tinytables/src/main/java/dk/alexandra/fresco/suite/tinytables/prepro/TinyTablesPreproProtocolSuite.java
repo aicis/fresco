@@ -40,7 +40,7 @@ import dk.alexandra.fresco.tools.ot.base.Ot;
 public class TinyTablesPreproProtocolSuite
     implements ProtocolSuite<TinyTablesPreproResourcePool, ProtocolBuilderBinary> {
 
-  private static final int TRIP_BATCH_SIZE = 4096;
+  private static final int TRIP_BATCH_SIZE = 8192;
 
   public TinyTablesPreproProtocolSuite() {
   }

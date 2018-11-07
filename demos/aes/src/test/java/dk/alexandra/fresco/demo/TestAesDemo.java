@@ -20,7 +20,6 @@ import dk.alexandra.fresco.framework.util.ByteAndBitConverter;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.bool.DummyBooleanProtocolSuite;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,12 +32,7 @@ public class TestAesDemo {
   @Test
   public void testAESDemo() {
     int noPlayers = 2;
-    // Since SCAPI currently does not work with ports > 9999 we use fixed ports
-    // here instead of relying on ephemeral ports which are often > 9999.
-    List<Integer> ports = new ArrayList<>(noPlayers);
-    for (int i = 1; i <= noPlayers; i++) {
-      ports.add(9000 + i * 10);
-    }
+    List<Integer> ports = Network.getFreePorts(noPlayers);
     Map<Integer, NetworkConfiguration> netConf =
         Network.getNetworkConfigurations(noPlayers, ports);
     Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =

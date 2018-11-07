@@ -18,7 +18,7 @@
  * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
- * FRESCO uses SCAPI - http://crypto.biu.ac.il/SCAPI, Crypto++, Miracl, NTL, and Bouncy Castle.
+ * FRESCO uses Miracl, NTL, and Bouncy Castle.
  * Please see these projects for any further licensing issues.
  *******************************************************************************/
 package dk.alexandra.fresco.lib.crypto;
@@ -39,7 +39,7 @@ import org.junit.Assert;
 
 /**
  * Tests for invalid circuits
- * 
+ *
  */
 public class BadBristolCryptoTests {
 
@@ -584,9 +584,9 @@ public class BadBristolCryptoTests {
                 inp2.add(null);
 
                 String circuit = "1 4\n1 1 1\n\n2 2 0 1 2 3 BAD";
-                
+
                 StringReader reader = new StringReader(circuit);
-                
+
                 BristolCircuitParser parser = new BristolCircuitParser(new BufferedReader(reader).lines(), inp1, inp2);
                 DRes<List<SBool>> l = seq.seq(parser);
                 return l;
@@ -602,5 +602,5 @@ public class BadBristolCryptoTests {
       };
     }
   }
-  
+
 }

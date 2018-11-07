@@ -22,7 +22,6 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzOpenedValueStoreImpl;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,12 +33,7 @@ public class TestInputSumExample {
   @SuppressWarnings("unchecked")
   private static <ResourcePoolT extends ResourcePool> void runTest(
       TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> test, boolean dummy, int n) {
-    // Since SCAPI currently does not work with ports > 9999 we use fixed ports
-    // here instead of relying on ephemeral ports which are often > 9999.
-    List<Integer> ports = new ArrayList<>(n);
-    for (int i = 1; i <= n; i++) {
-      ports.add(9000 + i * 10);
-    }
+    List<Integer> ports = Network.getFreePorts(n);
     Map<Integer, NetworkConfiguration> netConf =
         Network.getNetworkConfigurations(n, ports);
     Map<Integer, TestThreadConfiguration<ResourcePoolT, ProtocolBuilderNumeric>> conf =
