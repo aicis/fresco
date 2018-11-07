@@ -67,13 +67,13 @@ public class TinyTablesPreproProtocolSuite
     baseOt.init(network);
     // Execute random seed OTs
     RotList currentSeedOts = new RotList(random, computationalSecurity);
-    // if (myId < otherId) {
+    if (myId < otherId) {
       currentSeedOts.send(baseOt);
       currentSeedOts.receive(baseOt);
-    // } else {
-    // currentSeedOts.receive(baseOt);
-    // currentSeedOts.send(baseOt);
-    // }
+    } else {
+      currentSeedOts.receive(baseOt);
+      currentSeedOts.send(baseOt);
+    }
     CoinTossing ct = new CoinTossing(myId, otherId, random);
     ct.initialize(network);
     // Setup the OT extension
