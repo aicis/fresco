@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.network.CloseableNetwork;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import java.net.Socket;
-import java.net.SocketException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -81,11 +80,10 @@ public class SocketNetwork implements CloseableNetwork {
       if (!s.isConnected()) {
         throw new IllegalArgumentException("Unconnected socket for P" + i);
       }
-      try {
-        s.setTcpNoDelay(true);
-      } catch (SocketException e) {
-        throw new RuntimeException("Could not set delayless TCP connection", e);
-      }
+        ExceptionConverter.safe(() -> {
+          s.setTcpNoDelay(true);
+          return null;
+        }, "Could not set delayless TCP connection");
     }
     this.conf = conf;
     int externalParties = conf.noOfParties() - 1;

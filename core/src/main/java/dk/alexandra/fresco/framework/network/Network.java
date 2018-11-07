@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.framework.network;
 
-import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,6 +10,7 @@ import java.util.stream.Collectors;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
+import dk.alexandra.fresco.framework.util.ExceptionConverter;
 
 /**
  * Network that allows sending and receiving of bytes between the parties of a MPC computation.
@@ -104,21 +104,17 @@ public interface Network {
   static List<Integer> getFreePorts(int portsRequired) {
     List<ServerSocket> sockets = new ArrayList<>(portsRequired);
     for (int i = 0; i < portsRequired; i++) {
-      try {
-        ServerSocket s = new ServerSocket(0);
-        sockets.add(s);
+      ServerSocket s = ExceptionConverter.safe(() -> new ServerSocket(0),
+          "Could not create new server socket.");
+      sockets.add(s);
         // we keep the socket open to ensure that the port is not re-used in a sub-sequent iteration
-      } catch (IOException e) {
-        throw new RuntimeException("No free ports", e);
-      }
     }
     return sockets.stream().map(socket -> {
       int portNumber = socket.getLocalPort();
-      try {
+      ExceptionConverter.safe(() -> {
         socket.close();
-      } catch (IOException e) {
-        throw new RuntimeException("No free ports", e);
-      }
+        return null;
+      }, "Could not close server port");
       return portNumber;
     }).collect(Collectors.toList());
   }
