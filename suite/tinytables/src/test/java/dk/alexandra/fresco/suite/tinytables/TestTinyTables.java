@@ -25,10 +25,13 @@ import dk.alexandra.fresco.lib.field.bool.generic.FieldBoolTests;
 import dk.alexandra.fresco.lib.math.bool.add.AddTests;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.ot.TinyTablesDummyOt;
+import dk.alexandra.fresco.suite.tinytables.ot.TinyTablesNaorPinkasOt;
 import dk.alexandra.fresco.suite.tinytables.ot.TinyTablesOt;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproResourcePool;
 import dk.alexandra.fresco.suite.tinytables.util.Util;
+import dk.alexandra.fresco.tools.ot.base.DhParameters;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -40,6 +43,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+
+import javax.crypto.spec.DHParameterSpec;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -368,8 +374,10 @@ public class TestTinyTables {
       Supplier<ResourcePoolImpl> resourcePoolSupplier;
       SecureComputationEngine<ResourcePoolImpl, ProtocolBuilderBinary> computationEngine;
       TinyTablesPreproProtocolSuite suite = new TinyTablesPreproProtocolSuite();
-      TinyTablesOt baseOt = new TinyTablesDummyOt(Util.otherPlayerId(playerId));
       Drbg random = new AesCtrDrbg(new byte[32]);
+      DHParameterSpec params = DhParameters.getStaticDhParams();
+      TinyTablesOt baseOt = new TinyTablesNaorPinkasOt(Util.otherPlayerId(playerId), random,
+          params);
       resourcePoolSupplier = () -> new TinyTablesPreproResourcePool(playerId, noPlayers, baseOt,
           random, COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, tinyTablesFile);
       ProtocolEvaluator<TinyTablesPreproResourcePool> evaluator = new BatchedProtocolEvaluator<>(
