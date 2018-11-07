@@ -39,6 +39,18 @@ public interface CompUInt<
   CompT testBitAsUInt(int bit);
 
   /**
+   * Sets s most significant bits to 0.
+   */
+  CompT clearHighBits();
+
+  /**
+   * Serializes the least significant bits of the value to a byte array.
+   */
+  default byte[] serializeLeastSignificant() {
+    return getLeastSignificant().toByteArray();
+  }
+
+  /**
    * Get length of least significant bit segment, i.e., k.
    */
   int getLowBitLength();

@@ -20,16 +20,16 @@ import dk.alexandra.fresco.suite.spdz2k.protocols.computations.Spdz2kInputComput
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAddKnownProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kAddProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kKnownSIntProtocol;
+import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kMultKnownProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kMultiplyProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kOutputSinglePartyProtocol;
-import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kOutputToAllProtocol;
+import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kOutputToAll;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kRandomBitProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kRandomElementProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kSubtractFromKnownProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kSubtractProtocol;
 import dk.alexandra.fresco.suite.spdz2k.protocols.natives.Spdz2kTwoPartyInputProtocol;
 import java.math.BigInteger;
-import java.util.Objects;
 
 /**
  * Basic native builder for the SPDZ2k protocol suite.
@@ -74,7 +74,7 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
       @Override
       public DRes<SInt> add(OInt a, DRes<SInt> b) {
-        return null;
+        return builder.append(new Spdz2kAddKnownProtocol<>(factory.fromOInt(a), b));
       }
 
       @Override
@@ -90,12 +90,14 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
       @Override
       public DRes<SInt> sub(OInt a, DRes<SInt> b) {
-        return null;
+        return builder.append(
+            new Spdz2kSubtractFromKnownProtocol<>(factory.fromOInt(a), b));
       }
 
       @Override
       public DRes<SInt> sub(DRes<SInt> a, OInt b) {
-        return null;
+        return builder.append(
+            new Spdz2kAddKnownProtocol<>(factory.fromOInt(b).negate(), a));
       }
 
       @Override
@@ -111,12 +113,12 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
 
       @Override
       public DRes<SInt> mult(BigInteger a, DRes<SInt> b) {
-        return () -> toSpdz2kSInt(b).multiply(factory.fromBigInteger(a));
+        return builder.append(new Spdz2kMultKnownProtocol<>(factory.fromBigInteger(a), b));
       }
 
       @Override
       public DRes<SInt> mult(OInt a, DRes<SInt> b) {
-        return null;
+        return builder.append(new Spdz2kMultKnownProtocol<>(a, b));
       }
 
       @Override
@@ -147,23 +149,32 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
       }
 
       @Override
-      public DRes<BigInteger> open(DRes<SInt> secretShare) {
-        return builder.append(new Spdz2kOutputToAllProtocol<>(secretShare));
+      public DRes<OInt> openAsOInt(DRes<SInt> secretShare) {
+        return builder.append(new Spdz2kOutputToAll<>(secretShare));
       }
 
       @Override
-      public DRes<OInt> openAsOInt(DRes<SInt> secretShare) {
-        return null;
+      public DRes<BigInteger> open(DRes<SInt> secretShare) {
+        DRes<OInt> out = openAsOInt(secretShare);
+        return () -> factory.fromOInt(out.out()).toBigInteger();
       }
 
       @Override
       public DRes<OInt> openAsOInt(DRes<SInt> secretShare, int outputParty) {
-        return null;
+        return builder.append(new Spdz2kOutputSinglePartyProtocol<>(secretShare, outputParty));
       }
 
       @Override
       public DRes<BigInteger> open(DRes<SInt> secretShare, int outputParty) {
-        return builder.append(new Spdz2kOutputSinglePartyProtocol<>(secretShare, outputParty));
+        DRes<OInt> out = openAsOInt(secretShare, outputParty);
+        return () -> {
+          OInt res = out.out();
+          if (res == null) {
+            return null;
+          } else {
+            return factory.fromOInt(out.out()).toBigInteger();
+          }
+        };
       }
     };
   }
@@ -181,13 +192,6 @@ public class Spdz2kBuilder<PlainT extends CompUInt<?, ?, PlainT>> implements
   @Override
   public OIntArithmetic getOIntArithmetic() {
     return arithmetic;
-  }
-
-  /**
-   * Get result from deferred and downcast result to {@link Spdz2kSInt<PlainT>}.
-   */
-  private Spdz2kSInt<PlainT> toSpdz2kSInt(DRes<SInt> value) {
-    return Objects.requireNonNull((Spdz2kSInt<PlainT>) value.out());
   }
 
   @Override

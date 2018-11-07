@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.value.OInt;
 import dk.alexandra.fresco.framework.value.OIntFactory;
+import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.Objects;
 
@@ -27,6 +28,10 @@ public interface CompUIntFactory<CompT extends CompUInt<?, ?, CompT>> extends OI
    */
   default CompT fromOInt(OInt value) {
     return Objects.requireNonNull((CompT) value);
+  }
+
+  default Spdz2kSInt<CompT> toSpdz2kSInt(DRes<SInt> value) {
+    return Objects.requireNonNull((Spdz2kSInt<CompT>) value.out());
   }
 
   /**

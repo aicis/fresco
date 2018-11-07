@@ -75,6 +75,10 @@ public class Spdz2kSInt<PlainT extends CompUInt<?, ?, PlainT>> implements SInt {
     return add(wrapped);
   }
 
+  public byte[] serializeShareLow() {
+    return share.serializeLeastSignificant();
+  }
+
   /**
    * Return share.
    */
