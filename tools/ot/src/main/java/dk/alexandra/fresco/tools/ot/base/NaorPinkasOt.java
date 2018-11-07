@@ -51,12 +51,14 @@ public class NaorPinkasOt implements Ot {
 
   @Override
   public void send(StrictBitVector messageZero, StrictBitVector messageOne) {
-    int maxBitLength = Math.max(messageZero.getSize(), messageOne.getSize());
+    if (messageZero.getSize() != messageOne.getSize()) {
+      throw new RuntimeException("Messages given to NaorPinkas OT must have the same length");
+    }
     Pair<byte[], byte[]> seedMessages = sendRandomOt();
     byte[] encryptedZeroMessage = PseudoOtp.encrypt(messageZero.toByteArray(),
-        seedMessages.getFirst(), maxBitLength / Byte.SIZE);
+        seedMessages.getFirst(), messageZero.getSize() / Byte.SIZE);
     byte[] encryptedOneMessage = PseudoOtp.encrypt(messageOne.toByteArray(),
-        seedMessages.getSecond(), maxBitLength / Byte.SIZE);
+        seedMessages.getSecond(), messageOne.getSize() / Byte.SIZE);
     network.send(otherId, encryptedZeroMessage);
     network.send(otherId, encryptedOneMessage);
   }

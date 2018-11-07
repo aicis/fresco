@@ -2,7 +2,6 @@ package dk.alexandra.fresco.suite.tinytables.prepro.protocols;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.DrngImpl;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTable;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
@@ -56,7 +55,7 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol<SBool>
      * Here we only pick the mask of the output wire. The TinyTable is calculated after all AND
      * gates has been preprocessed.
      */
-    boolean rO = new DrngImpl(resourcePool.getSecureRandom()).nextBit();
+    boolean rO = resourcePool.getSecureRandom().nextBit();
     out = new TinyTablesPreproSBool(TinyTablesElement.getInstance(rO));
 
     /*

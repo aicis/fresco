@@ -1,8 +1,6 @@
 package dk.alexandra.fresco.suite.tinytables.util;
 
-import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Drng;
-import dk.alexandra.fresco.framework.util.DrngImpl;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesTriple;
 import dk.alexandra.fresco.tools.ot.base.Ot;
@@ -22,9 +20,9 @@ public class TinyTablesTripleGenerator {
    * @param random a source of randomness
    * @param ot class for executing OTs
    */
-  public TinyTablesTripleGenerator(int playerId, Drbg random, Ot ot) {
+  public TinyTablesTripleGenerator(int playerId, Drng random, Ot ot) {
     this.playerId = playerId;
-    this.random = new DrngImpl(random);
+    this.random = random;
     this.ot = ot;
   }
 

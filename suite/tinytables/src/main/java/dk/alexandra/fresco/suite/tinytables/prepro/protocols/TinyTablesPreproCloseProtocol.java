@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.tinytables.prepro.protocols;
 
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.DrngImpl;
 import dk.alexandra.fresco.framework.value.SBool;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproResourcePool;
@@ -39,8 +38,7 @@ public class TinyTablesPreproCloseProtocol extends TinyTablesPreproProtocol<SBoo
        * The masking parameter r is additively shared among the players. If you are the inputter,
        * you are responsible for picking a random share.
        */
-      TinyTablesElement r = TinyTablesElement
-          .getInstance(new DrngImpl(resourcePool.getSecureRandom()).nextBit());
+      TinyTablesElement r = TinyTablesElement.getInstance(resourcePool.getSecureRandom().nextBit());
       out = new TinyTablesPreproSBool(r);
 
       // We store the share for the online phase
