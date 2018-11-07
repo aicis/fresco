@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.lib.collections.Matrix;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 import java.util.function.BiFunction;
@@ -70,6 +71,30 @@ public abstract class DefaultLinearAlgebra implements RealLinearAlgebra {
     return builder.par(par -> {
       return add(par, a, b.out(),
           (builder, x) -> builder.realNumeric().add(x.getFirst(), x.getSecond()));
+    });
+  }
+
+  @Override
+  public DRes<Matrix<DRes<SReal>>> sub(DRes<Matrix<DRes<SReal>>> a, DRes<Matrix<DRes<SReal>>> b) {
+    return builder.par(par -> {
+      return add(par, a.out(), b.out(),
+          (builder, x) -> builder.realNumeric().sub(x.getFirst(), x.getSecond()));
+    });
+  }
+
+  @Override
+  public DRes<Matrix<DRes<SReal>>> sub(Matrix<BigDecimal> a, DRes<Matrix<DRes<SReal>>> b) {
+    return builder.par(par -> {
+      return add(par, a, b.out(),
+          (builder, x) -> builder.realNumeric().sub(x.getFirst(), x.getSecond()));
+    });
+  }
+
+  @Override
+  public DRes<Matrix<DRes<SReal>>> sub(DRes<Matrix<DRes<SReal>>> a, Matrix<BigDecimal> b) {
+    return builder.par(par -> {
+      return add(par, a.out(), b,
+          (builder, x) -> builder.realNumeric().sub(x.getFirst(), x.getSecond()));
     });
   }
 
@@ -252,6 +277,20 @@ public abstract class DefaultLinearAlgebra implements RealLinearAlgebra {
               .collect(Collectors.toCollection(Vector::new));
       return () -> result;
     });
+  }
+  
+  @Override
+  public DRes<Matrix<DRes<SReal>>> transpose(DRes<Matrix<DRes<SReal>>> matrix) {
+    return builder.seq(seq -> {
+      return () -> transpose(matrix.out());
+    });
+  }
+  
+  private <A> Matrix<A> transpose(Matrix<A> matrix) {
+    Matrix<A> res = new Matrix<>(matrix.getHeight(), matrix.getWidth(),
+        i -> new ArrayList<>(matrix.getRow(matrix.getHeight() - i)));
+    res.getRows().stream().forEach(row -> Collections.reverse(row));
+    return res;
   }
 
 }
