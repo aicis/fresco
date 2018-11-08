@@ -1,4 +1,4 @@
 #!/bin/sh
-BASEDIR=..
+BASEDIR=.
 cd $BASEDIR
 mvn clean package -DskipTests
