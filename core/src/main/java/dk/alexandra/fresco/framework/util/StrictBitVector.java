@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.framework.util;
 
+import java.io.Serializable;
 import java.util.Arrays;
 
 /**
@@ -9,7 +10,7 @@ import java.util.Arrays;
  * MUST contain an amount of bits which is divisible by 8 since a byte always
  * contains 8 bits.
  */
-public class StrictBitVector implements BitVector {
+public class StrictBitVector implements BitVector, Serializable {
 
   private byte[] bits;
   private final int size;

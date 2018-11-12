@@ -2,9 +2,10 @@ package dk.alexandra.fresco.tools.mascot.field;
 
 import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 
-public class AuthenticatedElement implements Addable<AuthenticatedElement> {
+public class AuthenticatedElement implements Addable<AuthenticatedElement>, Serializable {
 
   private final FieldElement share;
   private final FieldElement mac;

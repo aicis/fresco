@@ -3,11 +3,14 @@ package dk.alexandra.fresco.tools.mascot.field;
 import dk.alexandra.fresco.framework.util.MathUtils;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.arithm.Addable;
+
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Objects;
 import java.util.function.BinaryOperator;
 
-public final class FieldElement implements Addable<FieldElement> {
+public final class FieldElement
+    implements Addable<FieldElement>, Serializable {
 
   private final BigInteger value;
   private final BigInteger modulus;
@@ -16,7 +19,7 @@ public final class FieldElement implements Addable<FieldElement> {
   /**
    * Creates new field element.
    *
-   * @param value value of element
+   * @param value   value of element
    * @param modulus modulus defining field
    */
   public FieldElement(BigInteger value, BigInteger modulus) {
@@ -43,7 +46,7 @@ public final class FieldElement implements Addable<FieldElement> {
   }
 
   private FieldElement binaryOp(BinaryOperator<BigInteger> op, FieldElement left,
-      FieldElement right) {
+                                FieldElement right) {
     return new FieldElement(op.apply(left.toBigInteger(), right.toBigInteger()).mod(modulus),
         this.modulus);
   }
@@ -131,6 +134,22 @@ public final class FieldElement implements Addable<FieldElement> {
   public String toString() {
     return "FieldElement [value=" + value + ", modulus=" + modulus + ", bitLength=" + bitLength
         + "]";
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (other == null) {
+      return false;
+    }
+    if (getClass() != other.getClass()) {
+      return false;
+    }
+    FieldElement otherFieldElem = (FieldElement) other;
+    return value.equals(otherFieldElem.value) && modulus.equals(otherFieldElem.modulus) &&
+        bitLength == otherFieldElem.bitLength;
   }
 
   private void sanityCheck(BigInteger value, BigInteger modulus, int bitLength) {

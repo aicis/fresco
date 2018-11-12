@@ -49,7 +49,7 @@ public interface MascotResourcePool extends NumericResourcePool {
    *
    * @return PRG
    */
-  FieldElementPrg getLocalSampler();
+  FieldElementPrg   getLocalSampler();
 
   /**
    * Gets serializer for {@link FieldElement}.
