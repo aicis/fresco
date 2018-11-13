@@ -11,8 +11,8 @@ public interface RealLinearAlgebra extends ComputationDirectory {
   /**
    * Adds two secret values and returns the result.
    *
-   * @param a Secret value 1
-   * @param b Secret value 2
+   * @param a First secret value
+   * @param b Second secret value
    * @return A deferred result computing a+b
    */
   DRes<Matrix<DRes<SReal>>> add(DRes<Matrix<DRes<SReal>>> a, DRes<Matrix<DRes<SReal>>> b);
@@ -29,8 +29,8 @@ public interface RealLinearAlgebra extends ComputationDirectory {
   /**
    * Subtracts two secret values and returns the result.
    *
-   * @param a Secret value 1
-   * @param b Secret value 2
+   * @param a First secret value
+   * @param b Second secret value
    * @return A deferred result computing a-b
    */
   DRes<Matrix<DRes<SReal>>> sub(DRes<Matrix<DRes<SReal>>> a, DRes<Matrix<DRes<SReal>>> b);
@@ -56,8 +56,8 @@ public interface RealLinearAlgebra extends ComputationDirectory {
   /**
    * Multiplies two secret values and returns the result.
    *
-   * @param a Secret value 1
-   * @param b Secret value 2
+   * @param a First secret value
+   * @param b Second secret value
    * @return A deferred result computing a*b
    */
   DRes<Matrix<DRes<SReal>>> mult(DRes<Matrix<DRes<SReal>>> a, DRes<Matrix<DRes<SReal>>> b);
@@ -65,8 +65,8 @@ public interface RealLinearAlgebra extends ComputationDirectory {
   /**
    * Multiply a matrix to a vector.
    * 
-   * @param a Secret value 1
-   * @param v Secret value 2
+   * @param a First secret value
+   * @param b Second secret value
    * @return A deferred result computing a*v
    */
   DRes<Vector<DRes<SReal>>> vectorMult(DRes<Matrix<DRes<SReal>>> a, DRes<Vector<DRes<SReal>>> v);
