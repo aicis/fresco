@@ -21,7 +21,7 @@ public class ElementPreprocessingFile
   private final StrictBitVector jointSeed;
   private final int firstUnusedIndex = 0;
   // TODO maybe a linked list is better
-  private final List<AuthenticatedElement> elements = new ArrayList<>();
+  private transient List<AuthenticatedElement> elements;
 
   public ElementPreprocessingFile(MascotResourcePool resources, FieldElement macKeyShare,
                                   StrictBitVector jointSeed) {
@@ -31,6 +31,7 @@ public class ElementPreprocessingFile
     this.modulus = resources.getModulus();
     this.macKeyShare = macKeyShare;
     this.jointSeed = jointSeed;
+    this.elements = new ArrayList<>();
   }
 
   public List<AuthenticatedElement> getElements() {
@@ -84,5 +85,10 @@ public class ElementPreprocessingFile
     FieldElement mac = new FieldElement(byteMac, modulus);
     AuthenticatedElement res = new AuthenticatedElement(share, mac, modulus);
     return res;
+  }
+
+  private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+    in.defaultReadObject();
+    elements = new ArrayList<>();
   }
 }

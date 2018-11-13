@@ -15,6 +15,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.file.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ElementWriter {
@@ -31,6 +32,10 @@ public class ElementWriter {
       writeFile(fileDir, settings);
       return null;
     }, "Could not write file");
+  }
+
+  public ElementPreprocessingFile load(String fileDir) {
+    return ExceptionConverter.safe(() -> readFile(fileDir), "Could not read file");
   }
 
   private FileChannel getFile(String fileDir) throws Exception {
@@ -82,8 +87,22 @@ public class ElementWriter {
 
   private ElementPreprocessingFile readFile(String fileDir) throws Exception {
     Path path = Paths.get(fileDir);
-    FileChannel file = FileChannel.open(path, StandardOpenOption.READ);
-    ObjectInputStream inputStream = new ObjectInputStream(Channels.newInputStream(file));
-    return (ElementPreprocessingFile) inputStream.readObject();
+    FileChannel indexFile = FileChannel.open(path, StandardOpenOption.READ);
+    ObjectInputStream inputStream = new ObjectInputStream(Channels.newInputStream(indexFile));
+    // File with settings, without content yet
+    ElementPreprocessingFile settings = (ElementPreprocessingFile) inputStream.readObject();
+    // Load the content
+    FileChannel contentFile = FileChannel.open(Paths.get(fileDir + ".cont"), StandardOpenOption.READ);
+    int amountOfElements = (int) contentFile.size() / settings.getElementSize();
+    List<AuthenticatedElement> elements = new ArrayList<>(amountOfElements);
+    ByteBuffer buffer = ByteBuffer.allocate(settings.getElementSize());
+    for (int i = 0; i < amountOfElements; i++) {
+      contentFile.read(buffer);
+      buffer.flip();
+      AuthenticatedElement currentElement = settings.deserialize(buffer.array());
+      elements.add(currentElement);
+    }
+    settings.appendElements(elements);
+    return settings;
   }
 }
