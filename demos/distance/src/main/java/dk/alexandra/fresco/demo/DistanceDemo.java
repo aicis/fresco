@@ -84,10 +84,11 @@ public class DistanceDemo implements Application<BigInteger, ProtocolBuilderNume
     MatrixLogger matrixLog = new MatrixLogger();
     matrixLog.startTask("Setup");
     CmdLineUtil<ResourcePoolT, ProtocolBuilderNumeric> cmdUtil = new CmdLineUtil<>();
-    cmdUtil.parse(args);
+    CommandLine cmd = cmdUtil.parse(args);
     NetworkConfiguration networkConfiguration = cmdUtil.getNetworkConfiguration();
-    int x = networkConfiguration.getMyId() == 1 ? 1 : 10;
-    int y = networkConfiguration.getMyId() == 1 ? 2 : 20;
+    int myId = networkConfiguration.getMyId();
+    int x = myId == 1 ? 1 : 10;
+    int y = myId == 1 ? 2 : 20;
     DistanceDemo distDemo = new DistanceDemo(networkConfiguration.getMyId(), x, y);
     SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce = cmdUtil.getSce();
     cmdUtil.startNetwork();
@@ -102,6 +103,6 @@ public class DistanceDemo implements Application<BigInteger, ProtocolBuilderNume
     cmdUtil.closeNetwork();
     sce.shutdownSCE();
     matrixLog.endTask("Teardown");
-    (new MatrixLogPrinter(String.join("*", args))).printPerformanceLog(matrixLog);
+    (new MatrixLogPrinter("distance-demo_" + myId)).printPerformanceLog(matrixLog);
   }
 }
