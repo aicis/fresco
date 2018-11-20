@@ -10,6 +10,8 @@ import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.value.SInt;
+import dk.alexandra.fresco.logging.MatrixLogPrinter;
+import dk.alexandra.fresco.logging.MatrixLogger;
 import java.io.IOException;
 import java.math.BigInteger;
 import org.apache.commons.cli.CommandLine;
@@ -25,7 +27,7 @@ public class DistanceDemo implements Application<BigInteger, ProtocolBuilderNume
   private static Logger log = LoggerFactory.getLogger(DistanceDemo.class);
 
   private int myId;
-  private int myX; 
+  private int myX;
   private int myY;
 
   /**
@@ -79,39 +81,27 @@ public class DistanceDemo implements Application<BigInteger, ProtocolBuilderNume
    * @throws IOException In case of network problems
    */
   public static <ResourcePoolT extends ResourcePool> void main(String[] args) throws IOException {
+    MatrixLogger matrixLog = new MatrixLogger();
+    matrixLog.startTask("Setup");
     CmdLineUtil<ResourcePoolT, ProtocolBuilderNumeric> cmdUtil = new CmdLineUtil<>();
-    int x = 0;
-    int y = 0;
-    cmdUtil.addOption(Option.builder("x").desc("The integer x coordinate of this party. "
-        + "Note only party 1 and 2 should supply this input.").hasArg().build());
-    cmdUtil.addOption(Option.builder("y").desc("The integer y coordinate of this party. "
-        + "Note only party 1 and 2 should supply this input").hasArg().build());
-    CommandLine cmd = cmdUtil.parse(args);
+    cmdUtil.parse(args);
     NetworkConfiguration networkConfiguration = cmdUtil.getNetworkConfiguration();
-
-    if (networkConfiguration.getMyId() == 1 || networkConfiguration.getMyId() == 2) {
-      if (!cmd.hasOption("x") || !cmd.hasOption("y")) {
-        cmdUtil.displayHelp();
-        throw new IllegalArgumentException("Party 1 and 2 must submit input");
-      } else {
-        x = Integer.parseInt(cmd.getOptionValue("x"));
-        y = Integer.parseInt(cmd.getOptionValue("y"));
-      }
-    } else {
-      if (cmd.hasOption("x") || cmd.hasOption("y")) {
-        throw new IllegalArgumentException("Only party 1 and 2 should submit input");
-      }
-    }
-
+    int x = networkConfiguration.getMyId() == 1 ? 1 : 10;
+    int y = networkConfiguration.getMyId() == 1 ? 2 : 20;
     DistanceDemo distDemo = new DistanceDemo(networkConfiguration.getMyId(), x, y);
     SecureComputationEngine<ResourcePoolT, ProtocolBuilderNumeric> sce = cmdUtil.getSce();
     cmdUtil.startNetwork();
     ResourcePoolT resourcePool = cmdUtil.getResourcePool();
+    matrixLog.endTask("Setup");
+    matrixLog.startTask("Evaluation");
     BigInteger bigInteger = sce.runApplication(distDemo, resourcePool, cmdUtil.getNetwork());
+    matrixLog.endTask("Evaluation");
+    matrixLog.startTask("Post Evaluation");
     double dist = Math.sqrt(bigInteger.doubleValue());
     log.info("Distance between party 1 and 2 is: " + dist);
     cmdUtil.closeNetwork();
     sce.shutdownSCE();
-
+    matrixLog.endTask("Post Evaluation");
+    (new MatrixLogPrinter()).printPerformanceLog(matrixLog);
   }
 }
