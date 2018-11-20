@@ -7,6 +7,7 @@ import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.configuration.NetworkUtil;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
@@ -35,11 +36,11 @@ public abstract class AbstractSpdz2kTest<Spdz2kResourcePoolT extends Spdz2kResou
   protected void runTest(
       TestThreadFactory<Spdz2kResourcePoolT, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, int noOfParties) {
-    List<Integer> ports = Network.getFreePorts(2 * noOfParties);
+    List<Integer> ports = NetworkUtil.getFreePorts(2 * noOfParties);
     Map<Integer, NetworkConfiguration> netConf =
-        Network.getNetworkConfigurations(noOfParties, ports.subList(0, noOfParties));
-    Map<Integer, NetworkConfiguration> coinTossingNetConf = Network
-        .getNetworkConfigurations(noOfParties, ports.subList(noOfParties, ports.size()));
+        NetworkUtil.getNetworkConfigurations(ports.subList(0, noOfParties));
+    Map<Integer, NetworkConfiguration> coinTossingNetConf = NetworkUtil
+        .getNetworkConfigurations(ports.subList(noOfParties, ports.size()));
 
     Map<Integer, TestThreadRunner.TestThreadConfiguration<Spdz2kResourcePoolT, ProtocolBuilderNumeric>> conf =
         new HashMap<>();

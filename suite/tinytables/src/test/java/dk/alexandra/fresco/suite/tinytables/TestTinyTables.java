@@ -9,7 +9,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.network.AsyncNetwork;
-import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.configuration.NetworkUtil;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
@@ -31,7 +31,6 @@ import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproResourcePool;
 import dk.alexandra.fresco.suite.tinytables.util.Util;
 import dk.alexandra.fresco.tools.ot.base.DhParameters;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -43,9 +42,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-
 import javax.crypto.spec.DHParameterSpec;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,8 +55,9 @@ public class TestTinyTables {
   private void runTest(TestThreadFactory<ResourcePoolImpl, ProtocolBuilderBinary> f,
       EvaluationStrategy evalStrategy, boolean preprocessing, String name) {
     int noPlayers = 2;
-    List<Integer> ports = Network.getFreePorts(noPlayers);
-    Map<Integer, NetworkConfiguration> netConf = Network.getNetworkConfigurations(noPlayers, ports);
+    List<Integer> ports = NetworkUtil.getFreePorts(noPlayers);
+    Map<Integer, NetworkConfiguration> netConf = NetworkUtil
+        .getNetworkConfigurations(ports);
     Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf =
         new HashMap<>();
 
@@ -74,7 +72,7 @@ public class TestTinyTables {
         TinyTablesOt baseOt = new TinyTablesDummyOt(Util.otherPlayerId(playerId));
         Drbg random = new AesCtrDrbg(new byte[32]);
         resourcePoolSupplier =
-            () -> new TinyTablesPreproResourcePool(playerId, noPlayers, baseOt, random,
+            () -> new TinyTablesPreproResourcePool(playerId, baseOt, random,
                 COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, tinyTablesFile);
         ProtocolEvaluator<TinyTablesPreproResourcePool> evaluator =
             new BatchedProtocolEvaluator<>(batchStrategy, suite);
@@ -210,12 +208,6 @@ public class TestTinyTables {
         "testNOT");
     runTest(new BasicBooleanTests.TestNOT<>(true), EvaluationStrategy.SEQUENTIAL_BATCHED, false,
         "testNOT");
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void testTooManyPlayers() throws Throwable {
-    new TinyTablesPreproResourcePool(1, 3, null, new AesCtrDrbg(), COMPUTATIONAL_SECURITY,
-        STATISTICAL_SECURITY, null);
   }
 
   @Test(expected = UnsupportedOperationException.class)
@@ -365,8 +357,9 @@ public class TestTinyTables {
   @Test
   public void testNaorPinkasBaseOtDes() {
     int noPlayers = 2;
-    List<Integer> ports = Network.getFreePorts(noPlayers);
-    Map<Integer, NetworkConfiguration> netConf = Network.getNetworkConfigurations(noPlayers, ports);
+    List<Integer> ports = NetworkUtil.getFreePorts(noPlayers);
+    Map<Integer, NetworkConfiguration> netConf = NetworkUtil
+        .getNetworkConfigurations(ports);
     Map<Integer, TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary>> conf = new HashMap<>();
 
     for (int playerId : netConf.keySet()) {
@@ -378,7 +371,7 @@ public class TestTinyTables {
       DHParameterSpec params = DhParameters.getStaticDhParams();
       TinyTablesOt baseOt = new TinyTablesNaorPinkasOt(Util.otherPlayerId(playerId), random,
           params);
-      resourcePoolSupplier = () -> new TinyTablesPreproResourcePool(playerId, noPlayers, baseOt,
+      resourcePoolSupplier = () -> new TinyTablesPreproResourcePool(playerId, baseOt,
           random, COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, tinyTablesFile);
       ProtocolEvaluator<TinyTablesPreproResourcePool> evaluator = new BatchedProtocolEvaluator<>(
           EvaluationStrategy.SEQUENTIAL_BATCHED.getStrategy(), suite);

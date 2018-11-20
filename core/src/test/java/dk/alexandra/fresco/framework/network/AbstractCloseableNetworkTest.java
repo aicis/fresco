@@ -22,6 +22,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import javax.net.ServerSocketFactory;
+
+import dk.alexandra.fresco.framework.configuration.NetworkUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -299,7 +301,7 @@ public abstract class AbstractCloseableNetworkTest {
   protected List<NetworkConfiguration> getNetConfs(int numParties) {
     Map<Integer, Party> parties = new HashMap<>(numParties);
     List<NetworkConfiguration> confs = new ArrayList<>(numParties);
-    List<Integer> ports = Network.getFreePorts(numParties);
+    List<Integer> ports = NetworkUtil.getFreePorts(numParties);
     int id = 1;
     for (Integer port : ports) {
       parties.put(id, new Party(id, "localhost", port));
@@ -354,6 +356,10 @@ public abstract class AbstractCloseableNetworkTest {
     alternateReceivers(10000);
   }
 
+  /**
+   * Testing the network by having parties repeatedly alternating as sender and receiver.
+   * @param numMessages Amount of alternating iterations to do
+   */
   private void alternateReceivers(int numMessages) throws InterruptedException, ExecutionException {
     int numParties = 2;
     Map<Integer, CloseableNetwork> networks = createNetworks(numParties);

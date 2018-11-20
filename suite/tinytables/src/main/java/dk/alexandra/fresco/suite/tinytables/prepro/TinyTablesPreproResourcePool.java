@@ -45,7 +45,7 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
   private static final Logger LOGGER = LoggerFactory.getLogger(TinyTablesPreproResourcePool.class);
   private static final int OT_BATCH_SIZE = 16000;
 
-  private final Drng random;
+  private final Drng drng;
   private final List<TinyTablesPreproANDProtocol> unprocessedAnds;
   private final TinyTablesStorage storage;
   private final File tinyTablesFile;
@@ -58,19 +58,15 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
   /**
    * Creates an instance of the default implementation of a resource pool. This contains the basic
    * resources needed within FRESCO.
-   *
    * @param myId The ID of the MPC party.
    * @param baseOt OT functionality for the base OTs
    * @param random Secure randomness generator
-   * @param noOfPlayers The amount of parties within the MPC computation.
    * @param tinyTablesFile file for data
    */
-  public TinyTablesPreproResourcePool(int myId, int noOfPlayers, TinyTablesOt baseOt, Drbg random,
-      int computationalSecurity, int statisticalSecurity, File tinyTablesFile) {
-    super(myId, noOfPlayers);
-    if (noOfPlayers != 2) {
-      throw new UnsupportedOperationException("TinyTable is only defined for 2 parties");
-    }
+  public TinyTablesPreproResourcePool(int myId, TinyTablesOt baseOt, Drbg random,
+                                      int computationalSecurity, int statisticalSecurity,
+                                      File tinyTablesFile) {
+    super(myId, 2);
     this.unprocessedAnds = Collections.synchronizedList(new ArrayList<>());
     this.storage = new TinyTablesStorageImpl();
     this.tinyTablesFile = tinyTablesFile;
@@ -79,7 +75,7 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
     this.ct = new CoinTossing(myId, Util.otherPlayerId(myId), random);
     this.otExtRes = new OtExtensionResourcePoolImpl(myId, Util.otherPlayerId(myId),
         computationalSecurity, statisticalSecurity, 1, random, ct, rotList);
-    this.random = new DrngImpl(random);
+    this.drng = new DrngImpl(random);
   }
 
   public Ot initializeOtExtension(Network network) {
@@ -100,7 +96,7 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
   }
 
   public Drng getSecureRandom() {
-    return random;
+    return drng;
   }
 
   public void addAndProtocol(TinyTablesPreproANDProtocol protocol) {

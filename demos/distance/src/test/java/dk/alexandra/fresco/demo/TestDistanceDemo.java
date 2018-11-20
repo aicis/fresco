@@ -9,7 +9,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.network.AsyncNetwork;
-import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.configuration.NetworkUtil;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
@@ -32,9 +32,9 @@ public class TestDistanceDemo {
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, int noOfParties) {
-    List<Integer> ports = Network.getFreePorts(noOfParties);
+    List<Integer> ports = NetworkUtil.getFreePorts(noOfParties);
     Map<Integer, NetworkConfiguration> netConf =
-        Network.getNetworkConfigurations(noOfParties, ports);
+        NetworkUtil.getNetworkConfigurations(ports);
     Map<Integer, TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     for (int playerId : netConf.keySet()) {
