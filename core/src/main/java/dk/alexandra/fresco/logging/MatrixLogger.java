@@ -2,8 +2,11 @@ package dk.alexandra.fresco.logging;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class MatrixLogger implements PerformanceLogger {
 
@@ -49,7 +52,7 @@ public class MatrixLogger implements PerformanceLogger {
     Map<String, Long> runningTimes = new HashMap<>();
     for (String key : startTimes.keySet()) {
       if (endTimes.containsKey(key)) {
-        long time = Duration.between(startTimes.get(key), endTimes.get(key)).getSeconds();
+        long time = Duration.between(startTimes.get(key), endTimes.get(key)).get(ChronoUnit.MILLIS);
         runningTimes.put(key, time);
       } else {
         throw new IllegalStateException("Task \"" + key + "\" not ended.");

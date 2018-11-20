@@ -96,12 +96,12 @@ public class DistanceDemo implements Application<BigInteger, ProtocolBuilderNume
     matrixLog.startTask("Evaluation");
     BigInteger bigInteger = sce.runApplication(distDemo, resourcePool, cmdUtil.getNetwork());
     matrixLog.endTask("Evaluation");
-    matrixLog.startTask("Post Evaluation");
+    matrixLog.startTask("Teardown");
     double dist = Math.sqrt(bigInteger.doubleValue());
     log.info("Distance between party 1 and 2 is: " + dist);
     cmdUtil.closeNetwork();
     sce.shutdownSCE();
-    matrixLog.endTask("Post Evaluation");
+    matrixLog.endTask("Teardown");
     (new MatrixLogPrinter()).printPerformanceLog(matrixLog);
   }
 }
