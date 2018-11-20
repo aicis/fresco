@@ -43,8 +43,8 @@ import org.slf4j.LoggerFactory;
 public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TinyTablesPreproResourcePool.class);
-  private static final int OT_BATCH_SIZE = 16000;
 
+  private final int otBatchSize;
   private final Drng drng;
   private final List<TinyTablesPreproANDProtocol> unprocessedAnds;
   private final TinyTablesStorage storage;
@@ -61,11 +61,12 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
    * @param myId The ID of the MPC party.
    * @param baseOt OT functionality for the base OTs
    * @param random Secure randomness generator
+   * @param otBatchSize
    * @param tinyTablesFile file for data
    */
   public TinyTablesPreproResourcePool(int myId, TinyTablesOt baseOt, Drbg random,
                                       int computationalSecurity, int statisticalSecurity,
-                                      File tinyTablesFile) {
+                                      int otBatchSize, File tinyTablesFile) {
     super(myId, 2);
     this.unprocessedAnds = Collections.synchronizedList(new ArrayList<>());
     this.storage = new TinyTablesStorageImpl();
@@ -76,6 +77,7 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
     this.otExtRes = new OtExtensionResourcePoolImpl(myId, Util.otherPlayerId(myId),
         computationalSecurity, statisticalSecurity, 1, random, ct, rotList);
     this.drng = new DrngImpl(random);
+    this.otBatchSize = otBatchSize;
   }
 
   public Ot initializeOtExtension(Network network) {
@@ -92,7 +94,7 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
     ct.initialize(network);
     // Setup the OT extension
     return new BristolOtFactory(new RotFactory(otExtRes, network), otExtRes, network,
-        OT_BATCH_SIZE);
+        otBatchSize);
   }
 
   public Drng getSecureRandom() {

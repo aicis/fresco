@@ -49,6 +49,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 public class TestTinyTables {
+  private static final int OT_BATCH_SIZE = 128;
   private static final int COMPUTATIONAL_SECURITY = 128;
   private static final int STATISTICAL_SECURITY = 40;
 
@@ -73,7 +74,7 @@ public class TestTinyTables {
         Drbg random = new AesCtrDrbg(new byte[32]);
         resourcePoolSupplier =
             () -> new TinyTablesPreproResourcePool(playerId, baseOt, random,
-                COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, tinyTablesFile);
+                COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, OT_BATCH_SIZE, tinyTablesFile);
         ProtocolEvaluator<TinyTablesPreproResourcePool> evaluator =
             new BatchedProtocolEvaluator<>(batchStrategy, suite);
         computationEngine =
@@ -372,7 +373,7 @@ public class TestTinyTables {
       TinyTablesOt baseOt = new TinyTablesNaorPinkasOt(Util.otherPlayerId(playerId), random,
           params);
       resourcePoolSupplier = () -> new TinyTablesPreproResourcePool(playerId, baseOt,
-          random, COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, tinyTablesFile);
+          random, COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, OT_BATCH_SIZE, tinyTablesFile);
       ProtocolEvaluator<TinyTablesPreproResourcePool> evaluator = new BatchedProtocolEvaluator<>(
           EvaluationStrategy.SEQUENTIAL_BATCHED.getStrategy(), suite);
       computationEngine = (SecureComputationEngine) new SecureComputationEngineImpl<>(suite,

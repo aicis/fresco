@@ -76,7 +76,7 @@ public class CmdLineProtocolSuite {
           DhParameters
           .getStaticDhParams());
       this.resourcePool =
-          new TinyTablesPreproResourcePool(myId, baseOt, random, 128, 40, new File(
+          new TinyTablesPreproResourcePool(myId, baseOt, random, 128, 40, 16000, new File(
               tinyTablesFilePath));
     } else {
       this.protocolSuite = tinyTablesFromCmdLine(properties);

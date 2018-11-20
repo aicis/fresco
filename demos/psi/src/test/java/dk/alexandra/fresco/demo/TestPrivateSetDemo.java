@@ -42,6 +42,7 @@ import org.junit.experimental.categories.Category;
 
 
 public class TestPrivateSetDemo {
+  private static final int OT_BATCH_SIZE = 16000;
   private static final int COMPUTATIONAL_SECURITY = 128;
   private static final int STATISTICAL_SECURITY = 40;
   private final int noPlayers = 2;
@@ -107,7 +108,7 @@ public class TestPrivateSetDemo {
           new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite, evaluator),
               () -> new TinyTablesPreproResourcePool(playerId, baseOt, random,
-                  COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, getTinyTablesFile(playerId)),
+                  COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, OT_BATCH_SIZE, getTinyTablesFile(playerId)),
               () -> new AsyncNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }
