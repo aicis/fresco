@@ -13,12 +13,12 @@ public class MatrixLogPrinter implements PerformancePrinter {
   private static Logger log = LoggerFactory.getLogger(MatrixLogPrinter.class);
   private File logFile;
 
-  public MatrixLogPrinter(File logFile) {
-    this.logFile = logFile;
+  public MatrixLogPrinter(String experimentName) {
+    this(new File(experimentName + ".log"));
   }
 
-  public MatrixLogPrinter() {
-    this(new File("log.txt"));
+  public MatrixLogPrinter(File logFile) {
+    this.logFile = logFile;
   }
 
   @Override

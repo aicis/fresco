@@ -102,6 +102,6 @@ public class DistanceDemo implements Application<BigInteger, ProtocolBuilderNume
     cmdUtil.closeNetwork();
     sce.shutdownSCE();
     matrixLog.endTask("Teardown");
-    (new MatrixLogPrinter()).printPerformanceLog(matrixLog);
+    (new MatrixLogPrinter(String.join("*", args))).printPerformanceLog(matrixLog);
   }
 }
