@@ -59,7 +59,7 @@ public class DrngImpl implements Drng {
     }
     int index = RANDOMBUFFER_SIZE * Byte.SIZE - bitsLeft;
     byte currentByte = randomBytes[index / (Byte.SIZE)];
-    byte currentBit = (byte) (currentByte >> (index % (Byte.BYTES * 8)));
+    byte currentBit = (byte) (currentByte >> (index % (Byte.SIZE)));
     bitsLeft--;
     return currentBit == 0x00 ? false : true;
   }
