@@ -11,24 +11,24 @@ import org.slf4j.LoggerFactory;
 public class MatrixLogPrinter implements PerformancePrinter {
 
   private static Logger log = LoggerFactory.getLogger(MatrixLogPrinter.class);
-  private File logFile;
+  private static final String MATRIX_LOG_DIR = "MATRIX/logs/";
+  private static final String MATRIX_LOG_EXTENTION = ".log";
+  private final String experimentName;
 
   public MatrixLogPrinter(String experimentName) {
-    this(new File("MATRIX/logs/" + experimentName + ".log"));
-  }
-
-  public MatrixLogPrinter(File logFile) {
-    this.logFile = logFile;
+    this.experimentName = experimentName;
   }
 
   @Override
   public void printPerformanceLog(PerformanceLogger logger) {
-    try (BufferedWriter writer = new BufferedWriter(new FileWriter(logFile))) {
+    String fileName = MATRIX_LOG_DIR + experimentName + MATRIX_LOG_EXTENTION;
+    (new File(MATRIX_LOG_DIR)).mkdirs();
+    try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
       for (Entry<String, Long> e: logger.getLoggedValues().entrySet()) {
         writer.write(e.getKey() + ":" + e.getValue() + "," + "\n");
       }
     } catch (IOException ex) {
-      log.error("Unable to write log to " + logFile.getName(), ex);
+      log.error("Unable to write log to " + fileName, ex);
     }
   }
 
