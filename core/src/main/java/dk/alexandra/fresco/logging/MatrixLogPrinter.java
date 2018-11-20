@@ -14,7 +14,7 @@ public class MatrixLogPrinter implements PerformancePrinter {
   private File logFile;
 
   public MatrixLogPrinter(String experimentName) {
-    this(new File(experimentName + ".log"));
+    this(new File("MATRIX/logs/" + experimentName + ".log"));
   }
 
   public MatrixLogPrinter(File logFile) {
