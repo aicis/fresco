@@ -52,7 +52,7 @@ public class MatrixLogger implements PerformanceLogger {
     Map<String, Long> runningTimes = new HashMap<>();
     for (String key : startTimes.keySet()) {
       if (endTimes.containsKey(key)) {
-        long time = Duration.between(startTimes.get(key), endTimes.get(key)).get(ChronoUnit.MILLIS);
+        long time = Duration.between(startTimes.get(key), endTimes.get(key)).toMillis();
         runningTimes.put(key, time);
       } else {
         throw new IllegalStateException("Task \"" + key + "\" not ended.");
