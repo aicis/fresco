@@ -52,7 +52,7 @@ public class TinyTablesPreproProtocolSuite
     Ot otFactory = resourcePool.initializeOtExtension(network);
 
     resourcePool.setTripleGenerator(new BatchTinyTablesTripleProvider(new TinyTablesTripleGenerator(
-        resourcePool.getMyId(), resourcePool.getSecureRandom(), otFactory), TRIP_BATCH_SIZE));
+        resourcePool.getMyId(), resourcePool.getDrng(), otFactory), TRIP_BATCH_SIZE));
 
     return new TinyTablesPreproBuilderFactory();
   }

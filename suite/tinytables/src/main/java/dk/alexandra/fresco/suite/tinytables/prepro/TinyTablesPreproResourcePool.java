@@ -60,11 +60,11 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
    * resources needed within FRESCO.
    * @param myId The ID of the MPC party.
    * @param baseOt OT functionality for the base OTs
-   * @param random Secure randomness generator
-   * @param otBatchSize
+   * @param drbg Secure bit randomness generator
+   * @param otBatchSize The amount of OTs to preprocess in a batch
    * @param tinyTablesFile file for data
    */
-  public TinyTablesPreproResourcePool(int myId, TinyTablesOt baseOt, Drbg random,
+  public TinyTablesPreproResourcePool(int myId, TinyTablesOt baseOt, Drbg drbg,
                                       int computationalSecurity, int statisticalSecurity,
                                       int otBatchSize, File tinyTablesFile) {
     super(myId, 2);
@@ -72,11 +72,11 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
     this.storage = new TinyTablesStorageImpl();
     this.tinyTablesFile = tinyTablesFile;
     this.baseOt = baseOt;
-    this.rotList = new RotList(random, computationalSecurity);
-    this.ct = new CoinTossing(myId, Util.otherPlayerId(myId), random);
+    this.rotList = new RotList(drbg, computationalSecurity);
+    this.ct = new CoinTossing(myId, Util.otherPlayerId(myId), drbg);
     this.otExtRes = new OtExtensionResourcePoolImpl(myId, Util.otherPlayerId(myId),
-        computationalSecurity, statisticalSecurity, 1, random, ct, rotList);
-    this.drng = new DrngImpl(random);
+        computationalSecurity, statisticalSecurity, 1, drbg, ct, rotList);
+    this.drng = new DrngImpl(drbg);
     this.otBatchSize = otBatchSize;
   }
 
@@ -97,7 +97,7 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
         otBatchSize);
   }
 
-  public Drng getSecureRandom() {
+  public Drng getDrng() {
     return drng;
   }
 

@@ -38,7 +38,7 @@ public class TinyTablesPreproCloseProtocol extends TinyTablesPreproProtocol<SBoo
        * The masking parameter r is additively shared among the players. If you are the inputter,
        * you are responsible for picking a random share.
        */
-      TinyTablesElement r = TinyTablesElement.getInstance(resourcePool.getSecureRandom().nextBit());
+      TinyTablesElement r = TinyTablesElement.getInstance(resourcePool.getDrng().nextBit());
       out = new TinyTablesPreproSBool(r);
 
       // We store the share for the online phase
