@@ -1,16 +1,7 @@
 package dk.alexandra.fresco.framework.network;
 
-import java.net.ServerSocket;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import dk.alexandra.fresco.framework.Party;
-import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
-import dk.alexandra.fresco.framework.util.ExceptionConverter;
 
 /**
  * Network that allows sending and receiving of bytes between the parties of a MPC computation.
