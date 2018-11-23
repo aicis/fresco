@@ -161,7 +161,7 @@ public class TestFunctionalOtExtension {
   @SuppressWarnings("unchecked")
   @Test
   public void testRot() {
-    int extendSize = 2048 - kbitLength - lambdaSecurityParam;
+    int extendSize = 1800;
     Callable<List<?>> partyOneExtend = () -> extendRotSender(extendSize);
     StrictBitVector choices = new StrictBitVector(extendSize,
         new AesCtrDrbg(HelperForTests.seedThree));
@@ -186,7 +186,7 @@ public class TestFunctionalOtExtension {
    */
   @Test
   public void testCheatingInRot() {
-    int extendSize = 2048 - kbitLength - lambdaSecurityParam;
+    int extendSize = 1800;
     Callable<List<?>> partyOneExtend =
         () -> extendRotSender(extendSize);
     StrictBitVector choices = new StrictBitVector(extendSize,

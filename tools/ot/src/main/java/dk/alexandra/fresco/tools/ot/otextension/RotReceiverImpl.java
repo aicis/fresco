@@ -30,14 +30,15 @@ public class RotReceiverImpl extends RotSharedImpl implements RotReceiver {
 
   @Override
   public List<StrictBitVector> extend(StrictBitVector choices) {
-    int ellPrime = choices.getSize() + resources
-        .getComputationalSecurityParameter() + resources
-            .getLambdaSecurityParam();
+    // The underlying scheme requires computational security parameter plus lambda security
+    // parameter extra OTs
+    int minOts = choices.getSize() + resources.getComputationalSecurityParameter() + resources
+        .getLambdaSecurityParam();
+    // Round up to nearest two-power, which is required by the underlying scheme
+    int ellPrime = (int) Math.pow(2, Math.ceil(Math.log(minOts) / Math.log(2)));
     // Extend the choices with random choices for padding
-    StrictBitVector paddingChoices = new StrictBitVector(
-        resources.getComputationalSecurityParameter()
-            + resources.getLambdaSecurityParam(), resources
-                .getRandomGenerator());
+    StrictBitVector paddingChoices = new StrictBitVector(ellPrime - choices.getSize(), resources
+        .getRandomGenerator());
     StrictBitVector extendedChoices = StrictBitVector.concat(choices,
         paddingChoices);
     // Use the choices along with the random padding uses for correlated OT with

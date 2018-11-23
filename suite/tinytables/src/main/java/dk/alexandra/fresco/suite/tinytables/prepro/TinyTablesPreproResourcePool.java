@@ -2,6 +2,9 @@ package dk.alexandra.fresco.suite.tinytables.prepro;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
+import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.Drng;
+import dk.alexandra.fresco.framework.util.DrngImpl;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.RegularBitVector;
@@ -9,6 +12,7 @@ import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTable;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElement;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesElementVector;
 import dk.alexandra.fresco.suite.tinytables.datatypes.TinyTablesTriple;
+import dk.alexandra.fresco.suite.tinytables.ot.TinyTablesOt;
 import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproANDProtocol;
 import dk.alexandra.fresco.suite.tinytables.prepro.protocols.TinyTablesPreproProtocol;
 import dk.alexandra.fresco.suite.tinytables.storage.BatchTinyTablesTripleProvider;
@@ -16,49 +20,85 @@ import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorageImpl;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesTripleProvider;
 import dk.alexandra.fresco.suite.tinytables.util.Util;
+import dk.alexandra.fresco.tools.cointossing.CoinTossing;
+import dk.alexandra.fresco.tools.ot.base.Ot;
+import dk.alexandra.fresco.tools.ot.otextension.BristolOtFactory;
+import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePool;
+import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePoolImpl;
+import dk.alexandra.fresco.tools.ot.otextension.RotFactory;
+import dk.alexandra.fresco.tools.ot.otextension.RotList;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
 
-  private static final Logger logger = LoggerFactory.getLogger(TinyTablesPreproResourcePool.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(TinyTablesPreproResourcePool.class);
 
-  private final Random random;
+  private final int otBatchSize;
+  private final Drng drng;
   private final List<TinyTablesPreproANDProtocol> unprocessedAnds;
   private final TinyTablesStorage storage;
   private final File tinyTablesFile;
+  private final TinyTablesOt baseOt;
+  private final RotList rotList;
+  private final CoinTossing ct;
+  private final OtExtensionResourcePool otExtRes;
   private TinyTablesTripleProvider tinyTablesTripleProvider;
 
   /**
    * Creates an instance of the default implementation of a resource pool. This contains the basic
    * resources needed within FRESCO.
-   *
    * @param myId The ID of the MPC party.
-   * @param noOfPlayers The amount of parties within the MPC computation.
+   * @param baseOt OT functionality for the base OTs
+   * @param drbg Secure bit randomness generator
+   * @param otBatchSize The amount of OTs to preprocess in a batch
    * @param tinyTablesFile file for data
    */
-  public TinyTablesPreproResourcePool(int myId, int noOfPlayers,
-      File tinyTablesFile) {
-    super(myId, noOfPlayers);
-    this.random = new SecureRandom();
+  public TinyTablesPreproResourcePool(int myId, TinyTablesOt baseOt, Drbg drbg,
+                                      int computationalSecurity, int statisticalSecurity,
+                                      int otBatchSize, File tinyTablesFile) {
+    super(myId, 2);
     this.unprocessedAnds = Collections.synchronizedList(new ArrayList<>());
     this.storage = new TinyTablesStorageImpl();
     this.tinyTablesFile = tinyTablesFile;
+    this.baseOt = baseOt;
+    this.rotList = new RotList(drbg, computationalSecurity);
+    this.ct = new CoinTossing(myId, Util.otherPlayerId(myId), drbg);
+    this.otExtRes = new OtExtensionResourcePoolImpl(myId, Util.otherPlayerId(myId),
+        computationalSecurity, statisticalSecurity, 1, drbg, ct, rotList);
+    this.drng = new DrngImpl(drbg);
+    this.otBatchSize = otBatchSize;
   }
 
-  public Random getSecureRandom() {
-    return random;
+  public Ot initializeOtExtension(Network network) {
+    baseOt.init(network);
+    int otherId = Util.otherPlayerId(getMyId());
+    // Execute random seed OTs
+    if (getMyId() < otherId) {
+      rotList.send(baseOt);
+      rotList.receive(baseOt);
+    } else {
+      rotList.receive(baseOt);
+      rotList.send(baseOt);
+    }
+    ct.initialize(network);
+    // Setup the OT extension
+    return new BristolOtFactory(new RotFactory(otExtRes, network), otExtRes, network,
+        otBatchSize);
+  }
+
+  public Drng getDrng() {
+    return drng;
   }
 
   public void addAndProtocol(TinyTablesPreproANDProtocol protocol) {
@@ -135,7 +175,7 @@ public class TinyTablesPreproResourcePool extends ResourcePoolImpl {
      */
     ExceptionConverter.safe(() -> {
       storeTinyTables(storage, tinyTablesFile);
-      logger.info("TinyTables stored to " + tinyTablesFile);
+      LOGGER.info("TinyTables stored to " + tinyTablesFile);
       return null;
     }, "Failed to store TinyTables");
 

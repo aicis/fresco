@@ -143,6 +143,7 @@ public class AsyncNetwork implements CloseableNetwork {
       while (!connectionMade) {
         try {
           SocketChannel channel = SocketChannel.open();
+          channel.socket().setTcpNoDelay(true);
           channel.connect(addr);
           channel.configureBlocking(true);
           ByteBuffer b = ByteBuffer.allocate(PARTY_ID_BYTES);
@@ -187,6 +188,7 @@ public class AsyncNetwork implements CloseableNetwork {
     try {
       for (int i = 1; i < conf.getMyId(); i++) {
         SocketChannel channel = server.accept();
+        channel.socket().setTcpNoDelay(true);
         channel.configureBlocking(true);
         ByteBuffer buf = ByteBuffer.allocate(PARTY_ID_BYTES);
         while (buf.hasRemaining()) {

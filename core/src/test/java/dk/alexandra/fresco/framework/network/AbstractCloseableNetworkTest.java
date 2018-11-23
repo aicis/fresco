@@ -6,7 +6,7 @@ import static org.junit.Assert.fail;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
-import dk.alexandra.fresco.framework.configuration.NetworkTestUtils;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.time.Duration;
@@ -22,6 +22,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import javax.net.ServerSocketFactory;
+
+import dk.alexandra.fresco.framework.configuration.NetworkUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -299,7 +301,7 @@ public abstract class AbstractCloseableNetworkTest {
   protected List<NetworkConfiguration> getNetConfs(int numParties) {
     Map<Integer, Party> parties = new HashMap<>(numParties);
     List<NetworkConfiguration> confs = new ArrayList<>(numParties);
-    List<Integer> ports = NetworkTestUtils.getFreePorts(numParties);
+    List<Integer> ports = NetworkUtil.getFreePorts(numParties);
     int id = 1;
     for (Integer port : ports) {
       parties.put(id, new Party(id, "localhost", port));
@@ -347,6 +349,64 @@ public abstract class AbstractCloseableNetworkTest {
     List<NetworkConfiguration> confs = getNetConfs(2);
     // This should time out waiting for a connection to a party that is not listening
     newCloseableNetwork(confs.get(0), Duration.ofMillis(10));
+  }
+
+  @Test(timeout = TWO_MINUTE_TIMEOUT_MILLIS)
+  public void testAlternateReceivers() throws InterruptedException, ExecutionException {
+    alternateReceivers(10000);
+  }
+
+  /**
+   * Testing the network by having parties repeatedly alternating as sender and receiver.
+   * @param numMessages Amount of alternating iterations to do
+   */
+  private void alternateReceivers(int numMessages) throws InterruptedException, ExecutionException {
+    int numParties = 2;
+    Map<Integer, CloseableNetwork> networks = createNetworks(numParties);
+    ExecutorService es = Executors.newFixedThreadPool(numParties);
+    List<Future<?>> fs = new ArrayList<>(numParties);
+
+    Future<?> taskOne = es.submit(() -> {
+      Random r = new Random(1);
+      final byte[] data = new byte[1024];
+      byte[] receivedData;
+      for (int j = 0; j < numMessages; j++) {
+        receivedData = networks.get(1).receive(2);
+        r.nextBytes(data);
+        networks.get(1).send(2, data);
+        networks.get(1).send(2, data);
+        assertArrayEquals(data, receivedData);
+      }
+      try {
+        networks.get(1).close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    });
+
+    Future<?> taskTwo = es.submit(() -> {
+      Random r = new Random(1);
+      final byte[] data = new byte[1024];
+      byte[] receivedData;
+      for (int j = 0; j < numMessages; j++) {
+        r.nextBytes(data);
+        networks.get(2).send(1, data);
+        receivedData = networks.get(2).receive(1);
+        receivedData = networks.get(2).receive(1);
+        assertArrayEquals(data, receivedData);
+      }
+      try {
+        networks.get(2).close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    });
+
+    fs.add(taskOne);
+    fs.add(taskTwo);
+    for (Future<?> future : fs) {
+      future.get();
+    }
   }
 
 }
