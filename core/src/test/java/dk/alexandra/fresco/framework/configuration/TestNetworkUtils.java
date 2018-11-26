@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.framework.configuration;
 
 import static org.junit.Assert.assertEquals;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.HashSet;
@@ -11,7 +10,7 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestNetworkTestUtils {
+public class TestNetworkUtils {
 
   private Map<Integer, NetworkConfiguration> confs;
 
@@ -19,7 +18,7 @@ public class TestNetworkTestUtils {
 
   @Before
   public void setUp() {
-    confs = NetworkTestUtils.getNetworkConfigurations(n);
+    confs = NetworkUtil.getNetworkConfigurations(n);
   }
 
   @Test
@@ -44,7 +43,7 @@ public class TestNetworkTestUtils {
     int numPorts = 100;
     int numIterations = 5;
     for (int i = 0; i < numIterations; i++) {
-      Set<Integer> uniquePorts = new HashSet<>(NetworkTestUtils.getFreePorts(numPorts));
+      Set<Integer> uniquePorts = new HashSet<>(NetworkUtil.getFreePorts(numPorts));
       assertEquals(numPorts, uniquePorts.size());
     }
   }
@@ -52,7 +51,7 @@ public class TestNetworkTestUtils {
   @Test
   public void testGetFreePortsGivesFreePorts() throws IOException {
     int numPorts = 100;
-    List<Integer> ports = NetworkTestUtils.getFreePorts(numPorts);
+    List<Integer> ports = NetworkUtil.getFreePorts(numPorts);
     for (Integer port : ports) {
       new ServerSocket(port).close();
     }

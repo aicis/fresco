@@ -107,9 +107,8 @@ public class TestFunctionalBristolOt {
   @SuppressWarnings("unchecked")
   @Test
   public void testBristolOt() {
-    // The batchsize of the underlying implementation must be a two power minus
-    // kbitLength and lambdaBitLength
-    int batchSize = 1024 - kbitLength - lambdaSecurityParam;
+    // The batchsize of the underlying implementation must be divisible by 8
+    int batchSize = 800;
     // We execute more OTs than the batchSize to ensure that an automatic
     // extension will take place once preprocessed OTs run out
     int iterations = 1032;
@@ -290,7 +289,7 @@ public class TestFunctionalBristolOt {
 
   @Test
   public void testMaliciousException() throws SecurityException, IllegalArgumentException {
-    int batchSize = 1024 - kbitLength - lambdaSecurityParam;
+    int batchSize = 800;
     StrictBitVector choices = new StrictBitVector(8);
     Callable<Exception> partyOneOt = () -> bristolOtMaliciousSend(senderContext, 8, batchSize);
     Callable<Exception> partyTwoOt =

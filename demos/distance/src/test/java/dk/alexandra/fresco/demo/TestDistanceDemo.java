@@ -8,8 +8,8 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.configuration.NetworkTestUtils;
 import dk.alexandra.fresco.framework.network.AsyncNetwork;
+import dk.alexandra.fresco.framework.configuration.NetworkUtil;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
@@ -21,7 +21,6 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzOpenedValueStoreImpl;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,16 +32,9 @@ public class TestDistanceDemo {
   protected void runTest(
       TestThreadRunner.TestThreadFactory<SpdzResourcePool, ProtocolBuilderNumeric> f,
       EvaluationStrategy evalStrategy, int noOfParties) {
-    // Since SCAPI currently does not work with ports > 9999 we use fixed
-    // ports
-    // here instead of relying on ephemeral ports which are often > 9999.
-    List<Integer> ports = new ArrayList<>(noOfParties);
-    for (int i = 1; i <= noOfParties; i++) {
-      ports.add(9000 + i * (noOfParties - 1));
-    }
-
+    List<Integer> ports = NetworkUtil.getFreePorts(noOfParties);
     Map<Integer, NetworkConfiguration> netConf =
-        NetworkTestUtils.getNetworkConfigurations(noOfParties, ports);
+        NetworkUtil.getNetworkConfigurations(ports);
     Map<Integer, TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
     for (int playerId : netConf.keySet()) {
