@@ -3,10 +3,9 @@ package dk.alexandra.fresco.tools.mascot.file;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import java.io.Serializable;
 import java.math.BigInteger;
 
-public class MascotMetaContent implements  Serializable{
+public class MascotSettings implements Settings {
   private final int noPlayer;
   private final int modBitLength;
   private final int statisticalSecurity;
@@ -14,7 +13,7 @@ public class MascotMetaContent implements  Serializable{
   private final FieldElement macKeyShare;
   private final StrictBitVector jointSeed;
 
-  public MascotMetaContent(MascotResourcePool resources, FieldElement macKeyShare,
+  public MascotSettings(MascotResourcePool resources, FieldElement macKeyShare,
                                   StrictBitVector jointSeed) {
     this.noPlayer = resources.getNoOfParties();
     this.modBitLength = resources.getModBitLength();
@@ -24,21 +23,25 @@ public class MascotMetaContent implements  Serializable{
     this.jointSeed = jointSeed;
   }
 
-
   public BigInteger getModulus() {
     return modulus;
   }
 
+  @Override
   public int getNoPlayers() {
     return noPlayer;
   }
 
-  public boolean isCompatible(MascotMetaContent otherFile) {
-    return noPlayer == otherFile.noPlayer && modBitLength == otherFile.modBitLength &&
-        statisticalSecurity == otherFile.statisticalSecurity &&
-        modulus.equals(otherFile.modulus) && macKeyShare.equals(otherFile.macKeyShare) &&
-        jointSeed.equals(otherFile.jointSeed);
+  @Override
+  public boolean isCompatible(Settings otherSettings) {
+    if (otherSettings.getClass() != MascotSettings.class) {
+      return false;
+    }
+    MascotSettings otherMascot = (MascotSettings) otherSettings;
+    return noPlayer == otherMascot.getNoPlayers() && modBitLength == otherMascot.modBitLength &&
+        statisticalSecurity == otherMascot.statisticalSecurity &&
+        modulus.equals(otherMascot.modulus) && macKeyShare.equals(otherMascot.macKeyShare) &&
+        jointSeed.equals(otherMascot.jointSeed);
   }
-
 
 }

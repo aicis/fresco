@@ -6,7 +6,7 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
-import dk.alexandra.fresco.tools.mascot.file.MascotMetaContent;
+import dk.alexandra.fresco.tools.mascot.file.MascotSettings;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
 import java.math.BigInteger;
 import java.util.Map;
@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 
 public class SpdzMascotFileSupplier implements SpdzDataSupplier {
 
-  private final MascotMetaContent meta;
+  private final MascotSettings meta;
 
   /**
    * Creates {@link SpdzMascotDataSupplier}.

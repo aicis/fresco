@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.tools.mascot.file;
 
-import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
+import dk.alexandra.fresco.framework.network.serializers.StaticSizeByteSerializer;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
@@ -9,14 +9,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class AuthenticatedElementSerializer implements ByteSerializer<AuthenticatedElement> {
+public class AuthenticatedElementSerializer implements StaticSizeByteSerializer<AuthenticatedElement> {
 
-  private final int modBitLength;
+  private final int modByteLength;
   private final BigInteger modulus;
   private final FieldElementSerializer fieldSerializer;
 
   public AuthenticatedElementSerializer( BigInteger modulus) {
-    this.modBitLength = modulus.bitLength();
+    this.modByteLength = (int) Math.ceil((double) modulus.bitLength() / 8.0);
     this.modulus = modulus;
     this.fieldSerializer = new FieldElementSerializer(modulus);
   }
@@ -25,8 +25,9 @@ public class AuthenticatedElementSerializer implements ByteSerializer<Authentica
    * Return size in bytes needed to represent an authenticated element. This is the mac share plus
    * value share. Each of these are max the value of the modulus minus 1.
    */
+  @Override
   public int getElementSize() {
-    return 2 * (modBitLength / 8);
+    return 2 * modByteLength;
   }
 
   @Override
@@ -53,8 +54,8 @@ public class AuthenticatedElementSerializer implements ByteSerializer<Authentica
 
   @Override
   public AuthenticatedElement deserialize(byte[] bytes) {
-    byte[] byteShare = Arrays.copyOfRange(bytes, 0, modBitLength / 8);
-    byte[] byteMac = Arrays.copyOfRange(bytes, modBitLength / 8, bytes.length);
+    byte[] byteShare = Arrays.copyOfRange(bytes, 0, modByteLength);
+    byte[] byteMac = Arrays.copyOfRange(bytes, modByteLength, bytes.length);
     FieldElement share = fieldSerializer.deserialize(byteShare);
     FieldElement mac = fieldSerializer.deserialize(byteMac);
     AuthenticatedElement res = new AuthenticatedElement(share, mac, modulus);
@@ -65,13 +66,11 @@ public class AuthenticatedElementSerializer implements ByteSerializer<Authentica
   public List deserializeList(byte[] bytes) {
     int amount = bytes.length / getElementSize();
     List<AuthenticatedElement> res = new ArrayList<>(amount);
-    System.out.println("Deserializing " + amount);
     for (int i = 0; i < amount; i++) {
       Object currentObj = deserialize(
           Arrays.copyOfRange(bytes, i * getElementSize(), (i + 1) * getElementSize()));
       res.add((AuthenticatedElement) currentObj);
     }
-    System.out.println(res);
     return res;
   }
 }
