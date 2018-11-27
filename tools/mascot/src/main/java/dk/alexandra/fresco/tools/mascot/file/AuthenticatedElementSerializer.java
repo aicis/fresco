@@ -5,11 +5,9 @@ import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
-public class AuthenticatedElementSerializer implements StaticSizeByteSerializer<AuthenticatedElement> {
+public class AuthenticatedElementSerializer extends StaticSizeByteSerializer<AuthenticatedElement> {
 
   private final int modByteLength;
   private final BigInteger modulus;
@@ -41,18 +39,6 @@ public class AuthenticatedElementSerializer implements StaticSizeByteSerializer<
   }
 
   @Override
-  public byte[] serialize(List<AuthenticatedElement> objects) {
-    byte[] res = new byte[getElementSize() * objects.size()];
-    int currentPos = 0;
-    for (AuthenticatedElement currentObj : objects) {
-      byte[] currentSerialized = serialize(currentObj);
-      System.arraycopy(currentSerialized, 0, res, currentPos, currentSerialized.length);
-      currentPos += currentSerialized.length;
-    }
-    return res;
-  }
-
-  @Override
   public AuthenticatedElement deserialize(byte[] bytes) {
     byte[] byteShare = Arrays.copyOfRange(bytes, 0, modByteLength);
     byte[] byteMac = Arrays.copyOfRange(bytes, modByteLength, bytes.length);
@@ -62,15 +48,4 @@ public class AuthenticatedElementSerializer implements StaticSizeByteSerializer<
     return res;
   }
 
-  @Override
-  public List deserializeList(byte[] bytes) {
-    int amount = bytes.length / getElementSize();
-    List<AuthenticatedElement> res = new ArrayList<>(amount);
-    for (int i = 0; i < amount; i++) {
-      Object currentObj = deserialize(
-          Arrays.copyOfRange(bytes, i * getElementSize(), (i + 1) * getElementSize()));
-      res.add((AuthenticatedElement) currentObj);
-    }
-    return res;
-  }
 }

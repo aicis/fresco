@@ -1,21 +1,22 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
-import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
+import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
+import dk.alexandra.fresco.tools.mascot.file.AuthenticatedElementSerializer;
+import dk.alexandra.fresco.tools.mascot.file.ElementIO;
 import dk.alexandra.fresco.tools.mascot.file.MascotSettings;
-import dk.alexandra.fresco.tools.ot.otextension.RotList;
+import dk.alexandra.fresco.tools.mascot.file.MultiplicationTripleSerializer;
+import dk.alexandra.fresco.tools.mascot.file.SettingsIO;
 import java.math.BigInteger;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class SpdzMascotFileSupplier implements SpdzDataSupplier {
 
-  private final MascotSettings meta;
+  private final MascotSettings settings;
+  private final ElementIO<AuthenticatedElementSerializer, AuthenticatedElement> authElemIO;
+  private final ElementIO<MultiplicationTripleSerializer, MultiplicationTriple> tripleIO;
 
   /**
    * Creates {@link SpdzMascotDataSupplier}.
@@ -33,14 +34,20 @@ public class SpdzMascotFileSupplier implements SpdzDataSupplier {
    * @param seedOts pre-computed base OTs
    * @param drbg source of randomness
    */
-  public SpdzMascotFileSupplier(int myId, int numberOfPlayers, int instanceId,
-      Supplier<Network> tripleNetwork, BigInteger modulus, int modBitLength,
-      Function<Integer, SpdzSInt[]> preprocessedValues, int prgSeedLength, int batchSize,
-      FieldElement ssk, Map<Integer, RotList> seedOts, Drbg drbg) {
+  public SpdzMascotFileSupplier(String fileDir) {
+    SettingsIO<MascotSettings> settingsIO = new SettingsIO<>();
+    settings = settingsIO.readFile(fileDir);
+
+    authElemIO = new ElementIO<>(new AuthenticatedElementSerializer(settings.getModulus()));
+    tripleIO = new ElementIO<>(new MultiplicationTripleSerializer(settings.getModulus()));
+  }
 
   @Override
   public SpdzTriple getNextTriple() {
-    return null;
+    logger.trace("Getting another triple batch");
+    tripleIO
+    triples.addAll(mascot.getTriples(batchSize));
+    logger.trace("Got another triple batch");
   }
 
   @Override
