@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
+import dk.alexandra.fresco.tools.mascot.file.FieldElementSerializer;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
