@@ -19,13 +19,14 @@ public class TestPolynomial {
 
   @Test(expected = IndexOutOfBoundsException.class)
   public void testPolynomial() {
-    BasicNumericContext dummyFact = new BasicNumericContext(8, BigInteger.valueOf(1001), 1, 1);
+    BasicNumericContext dummyFact = new BasicNumericContext(8, BigInteger.valueOf(1001), 1, 1
+    );
     RealNumericContext realNumericContext = new RealNumericContext(2);
     BuilderFactoryNumeric builderFactory =
         new DummyArithmeticBuilderFactory(dummyFact, realNumericContext);
     Numeric numeric = builderFactory.createNumeric(builderFactory.createSequential());
 
-    int[] coefficients = new int[] {1, 2, 3, 4};
+    int[] coefficients = new int[]{1, 2, 3, 4};
 
     List<DRes<SInt>> secretCoefficients = Arrays.stream(coefficients).mapToObj(BigInteger::valueOf)
         .map(numeric::known).collect(Collectors.toList());
@@ -43,6 +44,5 @@ public class TestPolynomial {
 
     p.getCoefficient(5);
   }
-
 }
 

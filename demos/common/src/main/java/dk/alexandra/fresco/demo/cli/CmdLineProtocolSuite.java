@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.demo.cli;
 
+import dk.alexandra.fresco.framework.builder.numeric.BigInt;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
@@ -22,10 +23,8 @@ import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproResourcePool;
 import java.io.File;
 import java.math.BigInteger;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Properties;
-import org.apache.commons.cli.ParseException;
 
 /**
  * Utility for reading all configuration from command line. <p> A set of default configurations are
@@ -44,7 +43,7 @@ public class CmdLineProtocolSuite {
   }
 
   CmdLineProtocolSuite(String protocolSuiteName, Properties properties, int myId,
-      int noOfPlayers) throws ParseException, NoSuchAlgorithmException {
+      int noOfPlayers) {
     this.myId = myId;
     this.noOfPlayers = noOfPlayers;
     if (protocolSuiteName.equals("dummybool")) {
@@ -57,7 +56,7 @@ public class CmdLineProtocolSuite {
           "67039039649712985497870124991238141152738485774711365274259660130265015367064643"
               + "54255445443244279389455058889493431223951165286470575994074291745908195329"));
       this.resourcePool =
-          new DummyArithmeticResourcePoolImpl(myId, noOfPlayers, mod);
+          new DummyArithmeticResourcePoolImpl(myId, noOfPlayers, mod, BigInt::fromBytes);
     } else if (protocolSuiteName.equals("spdz")) {
       this.protocolSuite = getSpdzProtocolSuite(properties);
       this.resourcePool =
@@ -82,7 +81,6 @@ public class CmdLineProtocolSuite {
   public ProtocolSuite<?, ?> getProtocolSuite() {
     return this.protocolSuite;
   }
-
 
   private ProtocolSuite<?, ?> dummyArithmeticFromCmdLine(Properties properties) {
     BigInteger mod = new BigInteger(properties.getProperty("modulus",
@@ -116,8 +114,7 @@ public class CmdLineProtocolSuite {
     }
     if (strategy == PreprocessingStrategy.STATIC) {
       int noOfThreadsUsed = 1;
-      String storageName = properties.getProperty("spdz.storage");
-      storageName =
+      String storageName =
           SpdzStorageDataSupplier.STORAGE_NAME_PREFIX + noOfThreadsUsed + "_" + myId + "_" + 0
               + "_";
       supplier = new SpdzStorageDataSupplier(

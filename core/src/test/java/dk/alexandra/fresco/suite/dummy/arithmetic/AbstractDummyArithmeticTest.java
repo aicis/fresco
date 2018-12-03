@@ -2,6 +2,7 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
+import dk.alexandra.fresco.framework.builder.numeric.BigInt;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkTestUtils;
@@ -117,7 +118,8 @@ public abstract class AbstractDummyArithmeticTest {
           DummyArithmeticResourcePool,
           ProtocolBuilderNumeric> ttc =
             new TestThreadRunner.TestThreadConfiguration<>(sce,
-                () -> new DummyArithmeticResourcePoolImpl(playerId, noOfParties, mod),
+                () -> new DummyArithmeticResourcePoolImpl(playerId, noOfParties, mod,
+                    BigInt::fromBytes),
                 () -> {
                   Network asyncNetwork = new AsyncNetwork(partyNetConf);
                   if (logPerformance) {

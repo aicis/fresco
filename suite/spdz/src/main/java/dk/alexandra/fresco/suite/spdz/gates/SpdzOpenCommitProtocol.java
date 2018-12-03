@@ -1,22 +1,22 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.MaliciousException;
+import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigInteger>> {
+public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigIntegerI>> {
 
   private SpdzCommitment commitment;
-  private Map<Integer, BigInteger> ss;
-  private Map<Integer, BigInteger> commitments;
+  private Map<Integer, BigIntegerI> ss;
+  private Map<Integer, BigIntegerI> commitments;
   private byte[] digest;
 
   /**
@@ -26,14 +26,14 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigI
    * @param commitments Other parties commitments.
    */
   public SpdzOpenCommitProtocol(SpdzCommitment commitment,
-      Map<Integer, BigInteger> commitments) {
+      Map<Integer, BigIntegerI> commitments) {
     this.commitment = commitment;
     this.commitments = commitments;
     this.ss = new HashMap<>();
   }
 
   @Override
-  public Map<Integer, BigInteger> out() {
+  public Map<Integer, BigIntegerI> out() {
     return ss;
   }
 
@@ -41,12 +41,12 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigI
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       Network network) {
     int players = spdzResourcePool.getNoOfParties();
-    ByteSerializer<BigInteger> serializer = spdzResourcePool.getSerializer();
+    ByteSerializer<BigIntegerI> serializer = spdzResourcePool.getSerializer();
     if (round == 0) {
       // Send your opening to all players
-      BigInteger value = this.commitment.getValue();
+      BigIntegerI value = this.commitment.getValue();
       network.sendToAll(serializer.serialize(value));
-      BigInteger randomness = this.commitment.getRandomness();
+      BigIntegerI randomness = this.commitment.getRandomness();
       network.sendToAll(serializer.serialize(randomness));
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else if (round == 1) {
@@ -55,11 +55,11 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigI
       List<byte[]> randomnesses = network.receiveFromAll();
 
       boolean openingValidated = true;
-      BigInteger[] broadcastMessages = new BigInteger[2 * players];
+      BigIntegerI[] broadcastMessages = new BigIntegerI[2 * players];
       for (int i = 0; i < players; i++) {
-        BigInteger commitment = commitments.get(i + 1);
-        BigInteger open0 = serializer.deserialize(values.get(i));
-        BigInteger open1 = serializer.deserialize(randomnesses.get(i));
+        BigIntegerI commitment = commitments.get(i + 1);
+        BigIntegerI open0 = serializer.deserialize(values.get(i));
+        BigIntegerI open1 = serializer.deserialize(randomnesses.get(i));
         boolean validate = checkCommitment(
             spdzResourcePool, commitment, open0, open1);
         openingValidated = openingValidated && validate;
@@ -90,13 +90,14 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigI
     }
   }
 
-  private boolean checkCommitment(SpdzResourcePool numericResourcePool, BigInteger commitment,
-      BigInteger value, BigInteger randomness) {
-    MessageDigest messageDigest = numericResourcePool.getMessageDigest();
+  private boolean checkCommitment(SpdzResourcePool resourcePool, BigIntegerI commitment,
+      BigIntegerI value, BigIntegerI randomness) {
+    MessageDigest messageDigest = resourcePool.getMessageDigest();
     messageDigest.update(value.toByteArray());
     messageDigest.update(randomness.toByteArray());
-    BigInteger testSubject = new BigInteger(messageDigest.digest())
-        .mod(numericResourcePool.getModulus());
+    BigIntegerI testSubject =
+        resourcePool.getSerializer().deserialize(messageDigest.digest());
+    testSubject.mod(resourcePool.getModulus());
     return commitment.equals(testSubject);
   }
 }

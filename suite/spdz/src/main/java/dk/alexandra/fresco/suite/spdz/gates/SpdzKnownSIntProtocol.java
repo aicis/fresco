@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
+import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
@@ -8,7 +9,8 @@ import java.math.BigInteger;
 
 public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
 
-  private BigInteger value;
+  private final BigIntegerI value;
+  private final BigIntegerI zero;
   private SpdzSInt secretValue;
 
   /**
@@ -16,8 +18,9 @@ public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
    *
    * @param value the value
    */
-  public SpdzKnownSIntProtocol(BigInteger value) {
+  public SpdzKnownSIntProtocol(BigIntegerI value, BigIntegerI zero) {
     this.value = value;
+    this.zero = zero;
   }
 
   @Override
@@ -26,27 +29,29 @@ public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
   }
 
   @Override
-  public EvaluationStatus evaluate(
-      int round,
-      SpdzResourcePool spdzResourcePool,
-      Network network) {
-    secretValue = createKnownSpdzElement(spdzResourcePool, value);
+  public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool, Network network) {
+    secretValue = createKnownSpdzElement(spdzResourcePool, value, zero);
     return EvaluationStatus.IS_DONE;
   }
 
   static SpdzSInt createKnownSpdzElement(
       SpdzResourcePool spdzResourcePool,
-      BigInteger input) {
+      BigIntegerI input, BigIntegerI zero) {
     BigInteger modulus = spdzResourcePool.getModulus();
-    BigInteger value = input.mod(modulus);
     SpdzSInt elm;
-    BigInteger globalKeyShare = spdzResourcePool.getDataSupplier().getSecretSharedKey();
+    BigIntegerI globalKeyShare =
+        spdzResourcePool.getDataSupplier().getSecretSharedKey();
+
+    BigIntegerI value = input.copy();
+    value.mod(modulus);
+    BigIntegerI mac = value.copy();
+    mac.multiply(globalKeyShare);
+    mac.mod(modulus);
+
     if (spdzResourcePool.getMyId() == 1) {
-      elm = new SpdzSInt(value,
-          value.multiply(globalKeyShare).mod(modulus), modulus);
+      elm = new SpdzSInt(value, mac, modulus);
     } else {
-      elm = new SpdzSInt(BigInteger.ZERO,
-          value.multiply(globalKeyShare).mod(modulus), modulus);
+      elm = new SpdzSInt(zero, mac, modulus);
     }
     return elm;
   }

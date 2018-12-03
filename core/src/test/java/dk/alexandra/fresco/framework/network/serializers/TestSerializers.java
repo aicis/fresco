@@ -1,14 +1,14 @@
 package dk.alexandra.fresco.framework.network.serializers;
 
+import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.util.StrictBitVector;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import org.junit.Assert;
 import org.junit.Test;
-
-import dk.alexandra.fresco.framework.util.StrictBitVector;
 
 /**
  * Tests that the Serializers works as expected.
@@ -16,28 +16,57 @@ import dk.alexandra.fresco.framework.util.StrictBitVector;
 public class TestSerializers {
 
   @Test
-  public void testBigIntegerWithFixedLengthSerializer() {
-    BigInteger b = new BigInteger("1298376217321832");
-    BigIntegerWithFixedLengthSerializer serializer = new BigIntegerWithFixedLengthSerializer(20);
-    byte[] bytes = serializer.serialize(b);
-    BigInteger bb = serializer.deserialize(bytes);
-    Assert.assertEquals(b, bb);
+  public void testBigIntegerWithFixedLengthSerializer0() {
+    testNumber(getOriginal(new BigInteger("0")));
+  }
 
-    b = BigInteger.ZERO;
-    bytes = serializer.serialize(b);
-    bb = serializer.deserialize(bytes);
-    Assert.assertEquals(b, bb);
+  @Test
+  public void testBigIntegerWithFixedLengthSerializer1298376217321832() {
+    testNumber(getOriginal(new BigInteger("1298376217321832")));
+  }
+
+  @Test
+  public void testBigIntegerWithFixedLengthSerializer12983762173218() {
+    testNumber(getOriginal(new BigInteger("12983762173218")));
+  }
+
+  @Test
+  public void testBigIntegerWithFixedLengthSerializer129837621732() {
+    testNumber(getOriginal(new BigInteger("129837621732")));
+  }
+
+  @Test
+  public void testBigIntegerWithFixedLengthSerializer1298376217() {
+    testNumber(getOriginal(new BigInteger("1298376217")));
+  }
+
+  private BigInteger getOriginal(BigInteger original) {
+    return original;
+  }
+
+  private void testNumber(BigInteger original) {
+    BigIntegerWithFixedLengthSerializer serializer =
+        new BigIntegerWithFixedLengthSerializer(20, BigInt::fromBytes);
+    byte[] bytes = serializer.serialize(BigInt.fromConstant(original));
+    BigIntegerI deserializeLargeNumber = serializer.deserialize(bytes);
+    Assert.assertEquals(original, deserializeLargeNumber.asBigInteger());
   }
 
   @Test
   public void testBigIntegerWithFixedLengthSerializerList() {
-    BigInteger b = new BigInteger("1298376217321832");
-    BigIntegerWithFixedLengthSerializer serializer = new BigIntegerWithFixedLengthSerializer(20);
-    byte[] bytes = serializer.serialize(Arrays.asList(b, BigInteger.ZERO, BigInteger.TEN));
-    List<BigInteger> bb = serializer.deserializeList(bytes);
-    Assert.assertEquals(b, bb.get(0));
-    Assert.assertEquals(BigInteger.ZERO, bb.get(1));
-    Assert.assertEquals(BigInteger.TEN, bb.get(2));
+    BigInteger original = new BigInteger("1298376217321832");
+    BigIntegerWithFixedLengthSerializer serializer = new BigIntegerWithFixedLengthSerializer(20,
+        BigInt::fromBytes);
+    byte[] bytes = serializer.serialize(
+        Arrays.asList(
+            new BigInt(original.toString()),
+            new BigInt(0),
+            new BigInt(10)));
+
+    List<BigIntegerI> bb = serializer.deserializeList(bytes);
+    Assert.assertEquals(original, bb.get(0).asBigInteger());
+    Assert.assertEquals(BigInteger.ZERO, bb.get(1).asBigInteger());
+    Assert.assertEquals(BigInteger.TEN, bb.get(2).asBigInteger());
   }
 
   @Test
@@ -60,7 +89,7 @@ public class TestSerializers {
 
   @Test
   public void testBitVectorSerializer() {
-    byte[] input = new byte[] { 0x01, 0x02, 0x03 };
+    byte[] input = new byte[]{0x01, 0x02, 0x03};
     StrictBitVector vector = new StrictBitVector(input);
     StrictBitVectorSerializer serializer = new StrictBitVectorSerializer();
     // Test serialization

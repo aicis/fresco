@@ -4,6 +4,8 @@ import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
+import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkTestUtils;
@@ -24,7 +26,6 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzOpenedValueStoreImpl;
-import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -116,13 +117,12 @@ public class TestMacCheck {
       maliciousCountdown--;
       SpdzTriple trip = super.getNextTriple();
       if (maliciousCountdown == 0) {
-        BigInteger share = trip.getA().getShare();
-        share = share.add(BigInteger.ONE);
+        BigIntegerI share = trip.getA().getShare();
+        share.add(new BigInt(1));
         SpdzSInt newA = new SpdzSInt(share, trip.getA().getMac(), getModulus());
         trip = new SpdzTriple(newA, trip.getB(), trip.getC());
       }
       return trip;
     }
-
   }
 }

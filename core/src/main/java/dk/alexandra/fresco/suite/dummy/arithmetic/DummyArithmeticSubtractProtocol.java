@@ -1,9 +1,9 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
-import java.math.BigInteger;
 
 public class DummyArithmeticSubtractProtocol extends DummyArithmeticNativeProtocol<SInt> {
 
@@ -25,9 +25,10 @@ public class DummyArithmeticSubtractProtocol extends DummyArithmeticNativeProtoc
 
   @Override
   public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool rp, Network network) {
-    BigInteger l = ((DummyArithmeticSInt) left.out()).getValue();
-    BigInteger r = ((DummyArithmeticSInt) right.out()).getValue();
-    BigInteger sub = l.subtract(r).mod(rp.getModulus());
+    BigIntegerI sub = ((DummyArithmeticSInt) left.out()).getValue().copy();
+    BigIntegerI r = ((DummyArithmeticSInt) right.out()).getValue();
+    sub.subtract(r);
+    sub.mod(rp.getModulus());
     out = new DummyArithmeticSInt(sub);
     return EvaluationStatus.IS_DONE;
   }

@@ -1,9 +1,10 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
+import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.exceptions.NoMoreElementsException;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import java.math.BigInteger;
 import org.slf4j.Logger;
@@ -44,7 +45,7 @@ public class SpdzStorageDataSupplier implements SpdzDataSupplier {
   private int[] inputMaskCounters;
   private int bitCounter = 0;
 
-  private BigInteger ssk;
+  private BigIntegerI ssk;
   private BigInteger mod;
 
   /**
@@ -66,8 +67,7 @@ public class SpdzStorageDataSupplier implements SpdzDataSupplier {
   public SpdzTriple getNextTriple() {
     SpdzTriple trip;
     try {
-      trip = this.storage.getNext(storageName
-          + TRIPLE_STORAGE);
+      trip = this.storage.getNext(storageName + TRIPLE_STORAGE);
     } catch (NoMoreElementsException e) {
       logger.error("Triple no. " + tripleCounter + " was not present in the storage: "
           + storageName + TRIPLE_STORAGE);
@@ -145,13 +145,12 @@ public class SpdzStorageDataSupplier implements SpdzDataSupplier {
   }
 
   @Override
-  public BigInteger getSecretSharedKey() {
+  public BigIntegerI getSecretSharedKey() {
     if (this.ssk != null) {
       return this.ssk;
     }
     try {
-      this.ssk = this.storage.getNext(storageName
-          + SSK_KEY);
+      this.ssk = this.storage.getNext(storageName + SSK_KEY);
     } catch (NoMoreElementsException e) {
       throw new IllegalArgumentException("SSK was not present in the storage "
           + storageName + SSK_KEY);

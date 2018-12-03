@@ -1,10 +1,12 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
+import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.suite.spdz.preprocessing.MascotFormatConverter;
 import dk.alexandra.fresco.tools.mascot.Mascot;
@@ -50,6 +52,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   private final int batchSize;
   private final Drbg drbg;
   private final Map<Integer, RotList> seedOts;
+  private final Function<BigInteger, BigIntegerI> converter;
   private Mascot mascot;
 
   /**
@@ -91,6 +94,8 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     this.ssk = ssk;
     this.seedOts = seedOts;
     this.drbg = drbg;
+    // TODO This should be defined in the config by the user
+    this.converter = BigInt::fromConstant;
   }
 
   /**
@@ -176,8 +181,8 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   }
 
   @Override
-  public BigInteger getSecretSharedKey() {
-    return this.ssk.toBigInteger();
+  public BigIntegerI getSecretSharedKey() {
+    return converter.apply(ssk.toBigInteger());
   }
 
   private void ensureInitialized() {
@@ -190,5 +195,4 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
             new MascotSecurityParameters(modBitLength, modBitLength, prgSeedLength,
                 numCandidatesPerTriple)), tripleNetwork.get(), ssk);
   }
-
 }

@@ -3,6 +3,8 @@ package dk.alexandra.fresco.suite.spdz.gates;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -24,8 +26,8 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
   private final BigInteger modulus;
   private final Drbg jointDrbg;
   private final List<SpdzSInt> closedValues;
-  private final List<BigInteger> openedValues;
-  private final BigInteger alpha;
+  private final List<BigIntegerI> openedValues;
+  private final BigIntegerI alpha;
 
   /**
    * Protocol which handles the MAC check internal to SPDZ. If this protocol reaches the end, no
@@ -38,10 +40,10 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
   public SpdzMacCheckProtocol(
       final SecureRandom rand,
       final MessageDigest digest,
-      final Pair<List<SpdzSInt>, List<BigInteger>> toCheck,
+      final Pair<List<SpdzSInt>, List<BigIntegerI>> toCheck,
       final BigInteger modulus,
       final Drbg jointDrbg,
-      final BigInteger alpha) {
+      final BigIntegerI alpha) {
     this.rand = rand;
     this.digest = digest;
     this.closedValues = toCheck.getFirst();
@@ -57,9 +59,14 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
         .seq(seq -> {
           BigInteger[] rs = sampleRandomCoefficients(openedValues.size(), jointDrbg, modulus);
           BigInteger a = BigInteger.ZERO;
+          if (!openedValues.isEmpty()) {
+            a = openedValues.get(0).asBigInteger();
+          }
           int index = 0;
-          for (BigInteger openedValue : openedValues) {
-            a = a.add(openedValue.multiply(rs[index++])).mod(modulus);
+          for (int i = 1; i < openedValues.size(); i++) {
+            BigIntegerI openedValue = openedValues.get(i);
+            BigInteger randomCooefficient = rs[index++];
+            a = a.add(randomCooefficient.multiply(openedValue.asBigInteger()).mod(modulus));
           }
 
           // compute gamma_i as the sum of all MAC's on the opened values times
@@ -67,13 +74,16 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
           BigInteger gamma = BigInteger.ZERO;
           index = 0;
           for (SpdzSInt closedValue : closedValues) {
-            gamma = gamma.add(rs[index++].multiply(closedValue.getMac())).mod(modulus);
+            BigInteger multiply = rs[index++].multiply(closedValue.getMac().asBigInteger());
+            gamma = gamma.add(multiply).mod(modulus);
           }
 
           // compute delta_i as: gamma_i - alpha_i*a
-          BigInteger delta = gamma.subtract(alpha.multiply(a)).mod(modulus);
+          BigInteger delta = gamma.subtract(alpha.asBigInteger().multiply(a)).mod(modulus);
           // Commit to delta and open it afterwards
-          SpdzCommitment deltaCommitment = new SpdzCommitment(digest, delta, rand);
+          // TODO This should not be loaded directly here.
+          SpdzCommitment deltaCommitment = new SpdzCommitment(digest,
+              BigInt.fromConstant(delta), rand);
           return seq.seq((subSeq) -> subSeq.append(new SpdzCommitProtocol(deltaCommitment)))
               .seq((subSeq, commitProtocol) ->
                   subSeq.append(new SpdzOpenCommitProtocol(deltaCommitment, commitProtocol)));
@@ -81,6 +91,7 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
           BigInteger deltaSum =
               commitments.values()
                   .stream()
+                  .map(BigIntegerI::asBigInteger)
                   .reduce(BigInteger.ZERO, BigInteger::add)
                   .mod(modulus);
 
@@ -108,5 +119,4 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
     }
     return coefficients;
   }
-
 }

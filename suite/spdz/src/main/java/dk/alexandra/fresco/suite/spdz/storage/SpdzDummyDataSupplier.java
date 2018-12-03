@@ -1,15 +1,18 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
+import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
 import dk.alexandra.fresco.framework.util.ArithmeticDummyDataSupplier;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.util.MultiplicationTripleShares;
 import dk.alexandra.fresco.framework.util.Pair;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Function;
 
 public class SpdzDummyDataSupplier implements SpdzDataSupplier {
 
@@ -18,6 +21,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
   private final BigInteger modulus;
   private final BigInteger secretSharedKey;
   private final int expPipeLength;
+  private final Function<BigInteger, BigIntegerI> converter;
 
   public SpdzDummyDataSupplier(int myId, int noOfPlayers) {
     // TODO kill this
@@ -42,6 +46,8 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
     this.secretSharedKey = secretSharedKey;
     this.expPipeLength = expPipeLength;
     this.supplier = new ArithmeticDummyDataSupplier(myId, noOfPlayers, modulus);
+    // TODO this should be defined in the config by the user
+    this.converter = BigInt::fromConstant;
   }
 
   @Override
@@ -55,7 +61,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
 
   @Override
   public SpdzSInt[] getNextExpPipe() {
-    List<Pair<BigInteger,BigInteger>> rawExpPipe = supplier.getExpPipe(expPipeLength);
+    List<Pair<BigInteger, BigInteger>> rawExpPipe = supplier.getExpPipe(expPipeLength);
     return rawExpPipe.stream()
         .map(this::toSpdzSInt)
         .toArray(SpdzSInt[]::new);
@@ -63,9 +69,10 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
 
   @Override
   public SpdzInputMask getNextInputMask(int towardPlayerId) {
-    Pair<BigInteger,BigInteger> raw = supplier.getRandomElementShare();
+    Pair<BigInteger, BigInteger> raw = supplier.getRandomElementShare();
     if (myId == towardPlayerId) {
-      return new SpdzInputMask(toSpdzSInt(raw), raw.getFirst());
+      BigIntegerI realValue = converter.apply(raw.getFirst());
+      return new SpdzInputMask(toSpdzSInt(raw), realValue);
     } else {
       return new SpdzInputMask(toSpdzSInt(raw), null);
     }
@@ -82,8 +89,8 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
   }
 
   @Override
-  public BigInteger getSecretSharedKey() {
-    return secretSharedKey;
+  public BigIntegerI getSecretSharedKey() {
+    return getBigIntegerI(secretSharedKey);
   }
 
   @Override
@@ -93,14 +100,17 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
 
   private SpdzSInt toSpdzSInt(Pair<BigInteger, BigInteger> raw) {
     return new SpdzSInt(
-        raw.getSecond(),
-        raw.getFirst().multiply(secretSharedKey).mod(modulus),
+        getBigIntegerI(raw.getSecond()),
+        getBigIntegerI(raw.getFirst().multiply(secretSharedKey).mod(modulus)),
         modulus
     );
+  }
+
+  private BigIntegerI getBigIntegerI(BigInteger value) {
+    return converter.apply(value);
   }
 
   static private BigInteger getSsk(BigInteger modulus) {
     return new BigInteger(modulus.bitLength(), new Random()).mod(modulus);
   }
-
 }

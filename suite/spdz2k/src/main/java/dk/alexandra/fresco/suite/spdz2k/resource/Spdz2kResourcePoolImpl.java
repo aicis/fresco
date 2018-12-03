@@ -113,11 +113,6 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
   }
 
   @Override
-  public ByteSerializer<BigInteger> getSerializer() {
-    throw new UnsupportedOperationException("This suite does not support serializing big integers");
-  }
-
-  @Override
   public Drbg getRandomGenerator() {
     if (drbg == null) {
       throw new IllegalStateException("Joint drbg must be initialized before use");

@@ -5,6 +5,7 @@ import static org.junit.Assert.assertThat;
 
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
+import dk.alexandra.fresco.framework.builder.numeric.BigInt;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkTestUtils;
@@ -54,7 +55,7 @@ public class TestNumericSuiteLoggingDecorators {
         "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
 
     Map<Integer, NumericSuiteLogging<DummyArithmeticResourcePool>> performanceLoggers
-      = new HashMap<>();
+        = new HashMap<>();
 
     for (int playerId : netConf.keySet()) {
       NetworkConfiguration partyNetConf = netConf.get(playerId);
@@ -72,7 +73,7 @@ public class TestNumericSuiteLoggingDecorators {
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  noOfParties, mod),
+                  noOfParties, mod, BigInt::fromBytes),
               () -> new AsyncNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }
@@ -119,7 +120,7 @@ public class TestNumericSuiteLoggingDecorators {
         "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
 
     Map<Integer, NumericSuiteLogging<DummyArithmeticResourcePool>> performanceLoggers
-      = new HashMap<>();
+        = new HashMap<>();
 
     for (int playerId : netConf.keySet()) {
       NetworkConfiguration partyNetConf = netConf.get(playerId);
@@ -138,7 +139,7 @@ public class TestNumericSuiteLoggingDecorators {
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  noOfParties, mod),
+                  noOfParties, mod, BigInt::fromBytes),
               () -> new AsyncNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }

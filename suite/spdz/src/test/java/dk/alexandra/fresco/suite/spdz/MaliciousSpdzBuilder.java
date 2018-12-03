@@ -1,6 +1,8 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -34,13 +36,12 @@ public class MaliciousSpdzBuilder extends SpdzBuilder {
         return protocolBuilder.append(spdzAddProtocol);
       }
 
-
       @Override
       public DRes<SInt> add(BigInteger a, DRes<SInt> b) {
-        SpdzAddProtocolKnownLeft spdzAddProtocolKnownLeft = new SpdzAddProtocolKnownLeft(a, b);
+        SpdzAddProtocolKnownLeft spdzAddProtocolKnownLeft =
+            new SpdzAddProtocolKnownLeft(convert(a), b, getZero());
         return protocolBuilder.append(spdzAddProtocolKnownLeft);
       }
-
 
       @Override
       public DRes<SInt> sub(DRes<SInt> a, DRes<SInt> b) {
@@ -51,14 +52,14 @@ public class MaliciousSpdzBuilder extends SpdzBuilder {
       @Override
       public DRes<SInt> sub(BigInteger a, DRes<SInt> b) {
         SpdzSubtractProtocolKnownLeft spdzSubtractProtocolKnownLeft =
-            new SpdzSubtractProtocolKnownLeft(a, b);
+            new SpdzSubtractProtocolKnownLeft(convert(a), b, getZero());
         return protocolBuilder.append(spdzSubtractProtocolKnownLeft);
       }
 
       @Override
       public DRes<SInt> sub(DRes<SInt> a, BigInteger b) {
         SpdzSubtractProtocolKnownRight spdzSubtractProtocolKnownRight =
-            new SpdzSubtractProtocolKnownRight(a, b);
+            new SpdzSubtractProtocolKnownRight(a, convert(b), getZero());
         return protocolBuilder.append(spdzSubtractProtocolKnownRight);
       }
 
@@ -70,9 +71,8 @@ public class MaliciousSpdzBuilder extends SpdzBuilder {
 
       @Override
       public DRes<SInt> mult(BigInteger a, DRes<SInt> b) {
-        SpdzMultProtocolKnownLeft spdzMultProtocol4 = new SpdzMultProtocolKnownLeft(a, b);
+        SpdzMultProtocolKnownLeft spdzMultProtocol4 = new SpdzMultProtocolKnownLeft(convert(a), b);
         return protocolBuilder.append(spdzMultProtocol4);
-
       }
 
       @Override
@@ -87,12 +87,12 @@ public class MaliciousSpdzBuilder extends SpdzBuilder {
 
       @Override
       public DRes<SInt> known(BigInteger value) {
-        return protocolBuilder.append(new SpdzKnownSIntProtocol(value));
+        return protocolBuilder.append(new SpdzKnownSIntProtocol(convert(value), getZero()));
       }
 
       @Override
       public DRes<SInt> input(BigInteger value, int inputParty) {
-        return protocolBuilder.append(new MaliciousSpdzInputProtocol(value, inputParty));
+        return protocolBuilder.append(new MaliciousSpdzInputProtocol(convert(value), inputParty));
       }
 
       @Override
@@ -110,4 +110,11 @@ public class MaliciousSpdzBuilder extends SpdzBuilder {
     };
   }
 
+  private BigIntegerI getZero() {
+    return convert(BigInteger.ZERO);
+  }
+
+  private BigIntegerI convert(BigInteger value) {
+    return BigInt.fromConstant(value);
+  }
 }

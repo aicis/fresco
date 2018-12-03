@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -35,7 +36,7 @@ public class SpdzOutputSingleProtocol extends SpdzNativeProtocol<BigInteger>
       Network network) {
     int myId = spdzResourcePool.getMyId();
     SpdzDataSupplier dataSupplier = spdzResourcePool.getDataSupplier();
-    ByteSerializer<BigInteger> serializer = spdzResourcePool.getSerializer();
+    ByteSerializer<BigIntegerI> serializer = spdzResourcePool.getSerializer();
     if (round == 0) {
       this.mask = dataSupplier.getNextInputMask(targetPlayer);
       SpdzSInt closedValue = (SpdzSInt) this.in.out();
@@ -44,18 +45,19 @@ public class SpdzOutputSingleProtocol extends SpdzNativeProtocol<BigInteger>
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       List<byte[]> shares = network.receiveFromAll();
-      BigInteger openedVal = BigInteger.valueOf(0);
-      for (byte[] buffer : shares) {
-        openedVal = openedVal.add(serializer.deserialize(buffer));
+      BigIntegerI openedVal = serializer.deserialize(shares.get(0));
+      for (int i = 1; i < shares.size(); i++) {
+        byte[] buffer = shares.get(i);
+        openedVal.add(serializer.deserialize(buffer));
       }
-      openedVal = openedVal.mod(spdzResourcePool.getModulus());
+      openedVal.mod(spdzResourcePool.getModulus());
       spdzResourcePool.getOpenedValueStore().pushOpenedValue(inMinusMask, openedVal);
       if (targetPlayer == myId) {
-        openedVal = openedVal.add(this.mask.getRealValue()).mod(spdzResourcePool.getModulus());
-        this.out = openedVal;
+        openedVal.add(this.mask.getRealValue());
+        openedVal.mod(spdzResourcePool.getModulus());
+        this.out = openedVal.asBigInteger();
       }
       return EvaluationStatus.IS_DONE;
     }
   }
-
 }

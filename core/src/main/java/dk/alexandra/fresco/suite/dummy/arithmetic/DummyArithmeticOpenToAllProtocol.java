@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
@@ -27,11 +28,8 @@ public class DummyArithmeticOpenToAllProtocol extends DummyArithmeticNativeProto
   @Override
   public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool resourcePool,
       Network network) {
-    opened = ((DummyArithmeticSInt) closed.out()).getValue();
-    opened = opened.mod(resourcePool.getModulus());
-    if (opened.compareTo(resourcePool.getModulus().divide(BigInteger.valueOf(2))) > 0) {
-      opened = opened.subtract(resourcePool.getModulus());
-    }
+    BigIntegerI value = ((DummyArithmeticSInt) closed.out()).getValue();
+    opened = resourcePool.convertRepresentation(value);
     return EvaluationStatus.IS_DONE;
   }
 
@@ -39,5 +37,4 @@ public class DummyArithmeticOpenToAllProtocol extends DummyArithmeticNativeProto
   public BigInteger out() {
     return opened;
   }
-
 }

@@ -2,7 +2,6 @@ package dk.alexandra.fresco.framework.builder.numeric;
 
 import static org.junit.Assert.assertEquals;
 
-import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import java.math.BigInteger;
 import org.junit.Test;
 
@@ -13,23 +12,27 @@ public class TestNumericResourcePool {
   @Test
   public void testConvertRepresentationLessThanHalf() {
     NumericResourcePool pool = new MockNumericResourcePool(defaultModulus);
-    BigInteger actual = pool.convertRepresentation(BigInteger.TEN);
+    BigInteger actual = convertRepresentation(pool, BigInteger.TEN);
     assertEquals(BigInteger.TEN, actual);
+  }
+
+  private BigInteger convertRepresentation(NumericResourcePool pool, BigInteger bigInteger) {
+    BigIntegerI value = BigInt.fromConstant(bigInteger);
+    return pool.convertRepresentation(value);
   }
 
   @Test
   public void testConvertRepresentationGreaterThanHalf() {
     NumericResourcePool pool = new MockNumericResourcePool(defaultModulus);
-    BigInteger actual = pool.convertRepresentation(new BigInteger("200"));
+    BigInteger actual = convertRepresentation(pool, new BigInteger("200"));
     assertEquals(new BigInteger("200").subtract(defaultModulus), actual);
   }
 
   @Test
   public void testConvertRepresentationEqualsHalf() {
     NumericResourcePool pool = new MockNumericResourcePool(defaultModulus);
-    BigInteger actual = pool.convertRepresentation(defaultModulus.divide(BigInteger.valueOf(2)));
+    BigInteger actual = convertRepresentation(pool, defaultModulus.divide(BigInteger.valueOf(2)));
     assertEquals(defaultModulus.divide(BigInteger.valueOf(2)), actual);
-
   }
 
   private class MockNumericResourcePool implements NumericResourcePool {
@@ -46,11 +49,6 @@ public class TestNumericResourcePool {
     }
 
     @Override
-    public ByteSerializer<BigInteger> getSerializer() {
-      return null;
-    }
-
-    @Override
     public int getMyId() {
       return 0;
     }
@@ -59,6 +57,5 @@ public class TestNumericResourcePool {
     public int getNoOfParties() {
       return 0;
     }
-
   }
 }

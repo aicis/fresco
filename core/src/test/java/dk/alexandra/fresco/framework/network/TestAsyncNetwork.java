@@ -14,8 +14,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore
 public class TestAsyncNetwork extends AbstractCloseableNetworkTest {
 
   @SuppressWarnings("unchecked")
@@ -150,6 +152,5 @@ public class TestAsyncNetwork extends AbstractCloseableNetworkTest {
   protected CloseableNetwork newCloseableNetwork(NetworkConfiguration conf, Duration timeout) {
     return new AsyncNetwork(conf, timeout);
   }
-
 }
 

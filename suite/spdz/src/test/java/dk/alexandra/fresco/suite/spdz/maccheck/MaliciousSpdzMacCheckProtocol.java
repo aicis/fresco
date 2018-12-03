@@ -3,6 +3,8 @@ package dk.alexandra.fresco.suite.spdz.maccheck;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
+import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -24,13 +26,13 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
   private MessageDigest digest;
   private int round = 0;
   private ProtocolProducer pp;
-  private Map<Integer, BigInteger> commitments;
+  private Map<Integer, BigIntegerI> commitments;
   private BigInteger modulus;
   private MaliciousSpdzCommitProtocol comm;
   private MaliciousSpdzOpenCommitProtocol openComm;
   private final List<SpdzSInt> closedValues;
-  private final List<BigInteger> openedValues;
-  private final BigInteger alpha;
+  private final List<BigIntegerI> openedValues;
+  private final BigIntegerI alpha;
   private final Drbg jointDrbg;
 
   public static boolean corruptCommitRound = false;
@@ -39,10 +41,10 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
   MaliciousSpdzMacCheckProtocol(
       final SecureRandom rand,
       final MessageDigest digest,
-      final Pair<List<SpdzSInt>, List<BigInteger>> toCheck,
+      final Pair<List<SpdzSInt>, List<BigIntegerI>> toCheck,
       final BigInteger modulus,
       final Drbg jointDrbg,
-      final BigInteger alpha) {
+      final BigIntegerI alpha) {
     this.rand = rand;
     this.digest = digest;
     this.closedValues = toCheck.getFirst();
@@ -52,7 +54,6 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
     this.jointDrbg = jointDrbg;
   }
 
-
   @Override
   public <ResourcePoolT extends ResourcePool> void getNextProtocols(
       ProtocolCollection<ResourcePoolT> protocolCollection) {
@@ -61,22 +62,22 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
         BigInteger[] rs = sampleRandomCoefficients(openedValues.size(), jointDrbg, modulus);
         BigInteger a = BigInteger.ZERO;
         int index = 0;
-        for (BigInteger openedValue : openedValues) {
-          a = a.add(openedValue.multiply(rs[index++])).mod(modulus);
+        for (BigIntegerI openedValue : openedValues) {
+          a = a.add(rs[index++].multiply(openedValue.asBigInteger())).mod(modulus);
         }
 
         // compute gamma_i as the sum of all MAC's on the opened values times r_j.
         BigInteger gamma = BigInteger.ZERO;
         index = 0;
         for (SpdzSInt c : closedValues) {
-          gamma = gamma.add(rs[index++].multiply(c.getMac())).mod(modulus);
+          gamma = gamma.add(rs[index++].multiply(c.getMac().asBigInteger())).mod(modulus);
         }
 
         // compute delta_i as: gamma_i - alpha_i*a
-        BigInteger delta = gamma.subtract(alpha.multiply(a)).mod(modulus);
+        BigInteger delta = gamma.subtract(alpha.asBigInteger().multiply(a)).mod(modulus);
         // Commit to delta and open it afterwards
-        SpdzCommitment commitment = new SpdzCommitment(digest, delta, rand);
-        Map<Integer, BigInteger> comms = new HashMap<>();
+        SpdzCommitment commitment = new SpdzCommitment(digest, BigInt.fromConstant(delta), rand);
+        Map<Integer, BigIntegerI> comms = new HashMap<>();
         comm = new MaliciousSpdzCommitProtocol(commitment, comms, corruptCommitRound);
         commitments = new HashMap<>();
         openComm = new MaliciousSpdzOpenCommitProtocol(commitment, comms, commitments,
@@ -94,8 +95,8 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
           throw new MaliciousException("Malicious activity detected: Opening commitments failed.");
         }
         BigInteger deltaSum = BigInteger.ZERO;
-        for (BigInteger d : commitments.values()) {
-          deltaSum = deltaSum.add(d);
+        for (BigIntegerI d : commitments.values()) {
+          deltaSum = deltaSum.add(d.asBigInteger());
         }
         deltaSum = deltaSum.mod(modulus);
         if (!deltaSum.equals(BigInteger.ZERO)) {

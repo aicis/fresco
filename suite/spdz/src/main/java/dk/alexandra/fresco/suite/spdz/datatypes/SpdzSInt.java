@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.datatypes;
 
+import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.io.Serializable;
 import java.math.BigInteger;
@@ -10,8 +11,8 @@ import java.math.BigInteger;
 public class SpdzSInt implements SInt, Serializable {
 
   private static final long serialVersionUID = 8828769687281856043L;
-  private final BigInteger share;
-  private final BigInteger mac;
+  private final BigIntegerI share;
+  private final BigIntegerI mac;
   private final BigInteger mod;
 
   /**
@@ -21,17 +22,17 @@ public class SpdzSInt implements SInt, Serializable {
    * @param mac The mac
    * @param modulus the modulus
    */
-  public SpdzSInt(BigInteger share, BigInteger mac, BigInteger modulus) {
+  public SpdzSInt(BigIntegerI share, BigIntegerI mac, BigInteger modulus) {
     this.share = share;
     this.mac = mac;
     this.mod = modulus;
   }
 
-  public BigInteger getShare() {
+  public BigIntegerI getShare() {
     return share;
   }
 
-  public BigInteger getMac() {
+  public BigIntegerI getMac() {
     return mac;
   }
 
@@ -42,8 +43,13 @@ public class SpdzSInt implements SInt, Serializable {
    * @return The sum
    */
   public SpdzSInt add(SpdzSInt e) {
-    BigInteger share = this.share.add(e.getShare()).mod(mod);
-    BigInteger mac = this.mac.add(e.getMac()).mod(mod);
+    BigIntegerI share = this.share.copy();
+    share.add(e.getShare());
+    share.mod(mod);
+
+    BigIntegerI mac = this.mac.copy();
+    mac.add(e.getMac());
+    mac.mod(mod);
     return new SpdzSInt(share, mac, this.mod);
   }
 
@@ -55,11 +61,13 @@ public class SpdzSInt implements SInt, Serializable {
    * @return The sum
    */
   public SpdzSInt add(SpdzSInt e, int id) {
-    BigInteger share = this.share;
-    BigInteger mac = this.mac;
-    mac = mac.add(e.getMac()).mod(mod);
+    BigIntegerI share = this.share.copy();
+    BigIntegerI mac = this.mac.copy();
+    mac.add(e.getMac());
+    mac.mod(mod);
     if (id == 1) {
-      share = share.add(e.getShare()).mod(mod);
+      share.add(e.getShare());
+      share.mod(mod);
     }
     return new SpdzSInt(share, mac, this.mod);
   }
@@ -71,11 +79,13 @@ public class SpdzSInt implements SInt, Serializable {
    * @return The difference
    */
   public SpdzSInt subtract(SpdzSInt e) {
-    BigInteger share = e.getShare();
-    BigInteger diffShare = this.share.subtract(share).mod(mod);
-    BigInteger mac = e.getMac();
-    BigInteger diffMac = this.mac.subtract(mac).mod(mod);
-    return new SpdzSInt(diffShare, diffMac, this.mod);
+    BigIntegerI share = this.share.copy();
+    share.subtract(e.getShare());
+    share.mod(mod);
+    BigIntegerI mac = this.mac.copy();
+    share.subtract(e.getShare());
+    share.mod(mod);
+    return new SpdzSInt(share, mac, this.mod);
   }
 
   /**
@@ -84,9 +94,13 @@ public class SpdzSInt implements SInt, Serializable {
    * @param c The constant to multiply
    * @return The product
    */
-  public SpdzSInt multiply(BigInteger c) {
-    BigInteger share = this.share.multiply(c).mod(mod);
-    BigInteger mac = this.mac.multiply(c).mod(mod);
+  public SpdzSInt multiply(BigIntegerI c) {
+    BigIntegerI share = this.share.copy();
+    share.multiply(c);
+    share.mod(mod);
+    BigIntegerI mac = this.mac.copy();
+    share.multiply(c);
+    share.mod(mod);
     return new SpdzSInt(share, mac, this.mod);
   }
 
@@ -145,5 +159,4 @@ public class SpdzSInt implements SInt, Serializable {
   public SInt out() {
     return this;
   }
-
 }

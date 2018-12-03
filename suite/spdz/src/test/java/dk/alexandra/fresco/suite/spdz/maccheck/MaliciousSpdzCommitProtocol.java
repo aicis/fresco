@@ -1,11 +1,11 @@
 package dk.alexandra.fresco.suite.spdz.maccheck;
 
+import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzNativeProtocol;
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Collection;
@@ -15,7 +15,7 @@ import java.util.Map;
 public class MaliciousSpdzCommitProtocol extends SpdzNativeProtocol<Boolean> {
 
   private SpdzCommitment commitment;
-  private Map<Integer, BigInteger> comms;
+  private Map<Integer, BigIntegerI> comms;
   private byte[] broadcastDigest;
   private Boolean result;
   private final boolean corruptNow;
@@ -23,7 +23,7 @@ public class MaliciousSpdzCommitProtocol extends SpdzNativeProtocol<Boolean> {
   /**
    * Malicious commitment protocol.
    */
-  public MaliciousSpdzCommitProtocol(SpdzCommitment commitment, Map<Integer, BigInteger> comms,
+  public MaliciousSpdzCommitProtocol(SpdzCommitment commitment, Map<Integer, BigIntegerI> comms,
       boolean corruptNow) {
     this.commitment = commitment;
     this.comms = comms;
@@ -33,10 +33,11 @@ public class MaliciousSpdzCommitProtocol extends SpdzNativeProtocol<Boolean> {
   @Override
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool, Network network) {
     int players = spdzResourcePool.getNoOfParties();
-    ByteSerializer<BigInteger> serializer = spdzResourcePool.getSerializer();
+    ByteSerializer<BigIntegerI> serializer = spdzResourcePool.getSerializer();
     if (round == 0) {
       network.sendToAll(
-          serializer.serialize(commitment.computeCommitment(spdzResourcePool.getModulus())));
+          serializer.serialize(commitment.computeCommitment(
+              spdzResourcePool.getModulus(), spdzResourcePool.getSerializer())));
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else if (round == 1) {
 
@@ -64,8 +65,8 @@ public class MaliciousSpdzCommitProtocol extends SpdzNativeProtocol<Boolean> {
   }
 
   private byte[] sendMaliciousBroadcastValidation(MessageDigest dig, Network network,
-      Collection<BigInteger> bs) {
-    for (BigInteger b : bs) {
+      Collection<BigIntegerI> bs) {
+    for (BigIntegerI b : bs) {
       dig.update(b.toByteArray());
     }
     return sendAndReset(dig, network);

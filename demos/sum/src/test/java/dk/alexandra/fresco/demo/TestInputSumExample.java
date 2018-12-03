@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.numeric.BigInt;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkTestUtils;
@@ -56,7 +57,7 @@ public class TestInputSumExample {
             (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new DummyArithmeticProtocolSuite(
                 mod, 150, 16);
         resourcePool = () -> (ResourcePoolT) new DummyArithmeticResourcePoolImpl(i, n,
-            mod);
+            mod, BigInt::fromBytes);
       } else {
         suite = (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new SpdzProtocolSuite(150);
         resourcePool = () -> {
@@ -77,7 +78,6 @@ public class TestInputSumExample {
       conf.put(i, ttc);
     }
     TestThreadRunner.run(test, conf);
-
   }
 
   private static Network createNetwork(
@@ -86,14 +86,14 @@ public class TestInputSumExample {
   }
 
   @Test
-  public <ResourcePoolT extends ResourcePool> void testInput() throws Exception {
+  public <ResourcePoolT extends ResourcePool> void testInput() {
     final TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> f =
         new TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric>() {
           @Override
           public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
             return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
               @Override
-              public void test() throws Exception {
+              public void test() {
                 new InputSumExample()
                     .runApplication(conf.sce, conf.getResourcePool(), conf.getNetwork());
               }
@@ -104,14 +104,14 @@ public class TestInputSumExample {
   }
 
   @Test
-  public <ResourcePoolT extends ResourcePool> void testInput_dummy() throws Exception {
+  public <ResourcePoolT extends ResourcePool> void testInput_dummy() {
     final TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric> f =
         new TestThreadFactory<ResourcePoolT, ProtocolBuilderNumeric>() {
           @Override
           public TestThread<ResourcePoolT, ProtocolBuilderNumeric> next() {
             return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
               @Override
-              public void test() throws Exception {
+              public void test() {
                 new InputSumExample()
                     .runApplication(conf.sce, conf.getResourcePool(), conf.getNetwork());
               }

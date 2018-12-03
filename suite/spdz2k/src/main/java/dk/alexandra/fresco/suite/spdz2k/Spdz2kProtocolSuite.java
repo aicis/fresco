@@ -34,9 +34,10 @@ public abstract class Spdz2kProtocolSuite<
   /**
    * Constructs new {@link Spdz2kProtocolSuite}.
    *
-   * @param converter helper which allows converting {@link HighT}, and {@link LowT} instances to
-   * {@link PlainT}. This is necessary for the mac-check protocol where we perform arithmetic
-   * between these different types.
+   * @param converter helper which allows converting {@link HighT}, and {@link LowT} instances
+   *     to
+   *     {@link PlainT}. This is necessary for the mac-check protocol where we perform arithmetic
+   *     between these different types.
    */
   Spdz2kProtocolSuite(CompUIntConverter<HighT, LowT, PlainT> converter) {
     this.converter = converter;
@@ -54,8 +55,9 @@ public abstract class Spdz2kProtocolSuite<
 
   public BasicNumericContext createBasicNumericContext(Spdz2kResourcePool<PlainT> resourcePool) {
     return new BasicNumericContext(
-        resourcePool.getMaxBitLength(), resourcePool.getModulus(), resourcePool.getMyId(),
+        resourcePool.getMaxBitLength(),
+        resourcePool.getModulus(),
+        resourcePool.getMyId(),
         resourcePool.getNoOfParties());
   }
-
 }

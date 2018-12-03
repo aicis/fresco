@@ -8,6 +8,7 @@ import static org.junit.Assert.fail;
 import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
+import dk.alexandra.fresco.framework.builder.numeric.BigInt;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialStrategy;
@@ -53,7 +54,7 @@ public class TestSecureComputationEngineImpl {
           return builder.numeric().open(builder.numeric().add(a, b));
         };
     DummyArithmeticResourcePool rp =
-        new DummyArithmeticResourcePoolImpl(0, 1, BigInteger.valueOf(101));
+        new DummyArithmeticResourcePoolImpl(0, 1, BigInteger.valueOf(101), BigInt::fromBytes);
 
     BigInteger b = sce.runApplication(app, rp, null);
     assertThat(b, is(BigInteger.valueOf(20)));
@@ -66,7 +67,7 @@ public class TestSecureComputationEngineImpl {
           throw new RuntimeException();
         };
     DummyArithmeticResourcePool rp =
-        new DummyArithmeticResourcePoolImpl(0, 1, BigInteger.valueOf(101));
+        new DummyArithmeticResourcePoolImpl(0, 1, BigInteger.valueOf(101), BigInt::fromBytes);
     sce.runApplication(app, rp, null);
     fail("Should not be reachable");
   }
@@ -80,7 +81,7 @@ public class TestSecureComputationEngineImpl {
           }
         };
     DummyArithmeticResourcePool rp =
-        new DummyArithmeticResourcePoolImpl(0, 1, BigInteger.valueOf(101));
+        new DummyArithmeticResourcePoolImpl(0, 1, BigInteger.valueOf(101), BigInt::fromBytes);
     sce.runApplication(app, rp, null, Duration.ofNanos(1));
     fail("Should not be reachable");
   }

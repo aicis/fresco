@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
+import dk.alexandra.fresco.framework.builder.numeric.BigInt;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkTestUtils;
@@ -66,7 +67,7 @@ public class TestGenericLoggingDecorators {
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  netConf.keySet().size(), mod),
+                  netConf.keySet().size(), mod, BigInt::fromBytes),
               () -> new AsyncNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }
@@ -108,7 +109,7 @@ public class TestGenericLoggingDecorators {
           .TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  netConf.keySet().size(), mod),
+                  netConf.keySet().size(), mod, BigInt::fromBytes),
               () -> {
                 NetworkLoggingDecorator network = new NetworkLoggingDecorator(
                     new AsyncNetwork(partyNetConf));
@@ -167,7 +168,7 @@ public class TestGenericLoggingDecorators {
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  netConf.keySet().size(), mod),
+                  netConf.keySet().size(), mod, BigInt::fromBytes),
               () -> new AsyncNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }

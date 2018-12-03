@@ -42,11 +42,6 @@ public class MascotMockSupplier {
       }
 
       @Override
-      public ByteSerializer<BigInteger> getSerializer() {
-        return null;
-      }
-
-      @Override
       public BigInteger getModulus() {
         return new BigInteger("251");
       }

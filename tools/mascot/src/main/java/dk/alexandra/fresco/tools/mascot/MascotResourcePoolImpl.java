@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.tools.mascot;
 
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
@@ -35,11 +34,13 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
    *
    * @param myId this party's id
    * @param noOfParties number of parties
-   * @param instanceId the instance ID which is unique for this particular resource pool object, but
-   * only in the given execution.
+   * @param instanceId the instance ID which is unique for this particular resource pool object,
+   *     but
+   *     only in the given execution.
    * @param drbg source of randomness
    * @param seedOts pre-computed base OTs
-   * @param mascotSecurityParameters mascot security parameters ({@link MascotSecurityParameters})
+   * @param mascotSecurityParameters mascot security parameters ({@link
+   *     MascotSecurityParameters})
    */
   public MascotResourcePoolImpl(int myId, int noOfParties, int instanceId, Drbg drbg,
       Map<Integer, RotList> seedOts, MascotSecurityParameters mascotSecurityParameters) {
@@ -105,11 +106,6 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
   }
 
   @Override
-  public ByteSerializer<BigInteger> getSerializer() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public MessageDigest getMessageDigest() {
     return messageDigest;
   }
@@ -118,5 +114,4 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
   public int getPrgSeedLength() {
     return mascotSecurityParameters.getPrgSeedLength();
   }
-
 }

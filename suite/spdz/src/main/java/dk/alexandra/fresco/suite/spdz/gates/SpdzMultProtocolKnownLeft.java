@@ -1,19 +1,19 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
-import java.math.BigInteger;
 
 public class SpdzMultProtocolKnownLeft extends SpdzNativeProtocol<SInt> {
 
-  private BigInteger left;
+  private BigIntegerI left;
   private DRes<SInt> right;
   private SpdzSInt out;
 
-  public SpdzMultProtocolKnownLeft(BigInteger left, DRes<SInt> right) {
+  public SpdzMultProtocolKnownLeft(BigIntegerI left, DRes<SInt> right) {
     this.left = left;
     this.right = right;
   }

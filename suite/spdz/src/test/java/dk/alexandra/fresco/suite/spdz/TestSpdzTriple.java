@@ -3,6 +3,8 @@ package dk.alexandra.fresco.suite.spdz;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import java.math.BigInteger;
@@ -12,8 +14,8 @@ public class TestSpdzTriple {
 
   @Test
   public void testEquals(){
-    SpdzSInt a = new SpdzSInt(BigInteger.ONE, BigInteger.ZERO, BigInteger.ONE);
-    SpdzSInt b = new SpdzSInt(BigInteger.ZERO, BigInteger.ZERO, BigInteger.ONE);
+    SpdzSInt a = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ZERO), BigInteger.ONE);
+    SpdzSInt b = new SpdzSInt(get(BigInteger.ZERO), get(BigInteger.ZERO), BigInteger.ONE);
     SpdzTriple element = new SpdzTriple(a, b, a);
     
     assertTrue(element.equals(element));
@@ -46,5 +48,8 @@ public class TestSpdzTriple {
     element = new SpdzTriple(b, b, a);
     assertFalse(element.equals(element2));
   }
-  
+
+  private BigIntegerI get(BigInteger bigInteger) {
+    return BigInt.fromConstant(bigInteger);
+  }
 }

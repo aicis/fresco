@@ -1,6 +1,8 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.PreprocessedValues;
@@ -46,7 +48,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
   public RealNumericContext getRealNumericContext() {
     return realNumericContext;
   }
-  
+
   @Override
   public PreprocessedValues createPreprocessedValues(ProtocolBuilderNumeric protocolBuilder) {
     return pipeLength -> {
@@ -65,13 +67,12 @@ class SpdzBuilder implements BuilderFactoryNumeric {
         return protocolBuilder.append(spdzAddProtocol);
       }
 
-
       @Override
       public DRes<SInt> add(BigInteger a, DRes<SInt> b) {
-        SpdzAddProtocolKnownLeft spdzAddProtocolKnownLeft = new SpdzAddProtocolKnownLeft(a, b);
+        SpdzAddProtocolKnownLeft spdzAddProtocolKnownLeft =
+            new SpdzAddProtocolKnownLeft(convert(a), b, getZero());
         return protocolBuilder.append(spdzAddProtocolKnownLeft);
       }
-
 
       @Override
       public DRes<SInt> sub(DRes<SInt> a, DRes<SInt> b) {
@@ -82,14 +83,14 @@ class SpdzBuilder implements BuilderFactoryNumeric {
       @Override
       public DRes<SInt> sub(BigInteger a, DRes<SInt> b) {
         SpdzSubtractProtocolKnownLeft spdzSubtractProtocolKnownLeft =
-            new SpdzSubtractProtocolKnownLeft(a, b);
+            new SpdzSubtractProtocolKnownLeft(convert(a), b, getZero());
         return protocolBuilder.append(spdzSubtractProtocolKnownLeft);
       }
 
       @Override
       public DRes<SInt> sub(DRes<SInt> a, BigInteger b) {
         SpdzSubtractProtocolKnownRight spdzSubtractProtocolKnownRight =
-            new SpdzSubtractProtocolKnownRight(a, b);
+            new SpdzSubtractProtocolKnownRight(a, convert(b), getZero());
         return protocolBuilder.append(spdzSubtractProtocolKnownRight);
       }
 
@@ -101,9 +102,8 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> mult(BigInteger a, DRes<SInt> b) {
-        SpdzMultProtocolKnownLeft spdzMultProtocol4 = new SpdzMultProtocolKnownLeft(a, b);
+        SpdzMultProtocolKnownLeft spdzMultProtocol4 = new SpdzMultProtocolKnownLeft(convert(a), b);
         return protocolBuilder.append(spdzMultProtocol4);
-
       }
 
       @Override
@@ -118,12 +118,13 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> known(BigInteger value) {
-        return protocolBuilder.append(new SpdzKnownSIntProtocol(value));
+        BigIntegerI convertedValue = convert(value);
+        return protocolBuilder.append(new SpdzKnownSIntProtocol(convertedValue, getZero()));
       }
 
       @Override
       public DRes<SInt> input(BigInteger value, int inputParty) {
-        SpdzInputProtocol protocol = new SpdzInputProtocol(value, inputParty);
+        SpdzInputProtocol protocol = new SpdzInputProtocol(convert(value), inputParty);
         return protocolBuilder.append(protocol);
       }
 
@@ -142,6 +143,15 @@ class SpdzBuilder implements BuilderFactoryNumeric {
     };
   }
 
+  private BigIntegerI getZero() {
+    return convert(BigInteger.ZERO);
+  }
+
+  private BigIntegerI convert(BigInteger bigInteger) {
+    // TODO Define this in the config
+    return BigInt.fromConstant(bigInteger);
+  }
+
   @Override
   public MiscBigIntegerGenerators getBigIntegerHelper() {
     if (miscOIntGenerators == null) {
@@ -149,5 +159,4 @@ class SpdzBuilder implements BuilderFactoryNumeric {
     }
     return miscOIntGenerators;
   }
-
 }

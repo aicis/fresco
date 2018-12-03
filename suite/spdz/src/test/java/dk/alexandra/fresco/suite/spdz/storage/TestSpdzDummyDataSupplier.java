@@ -4,9 +4,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
 import dk.alexandra.fresco.framework.util.TransposeUtils;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -42,18 +44,18 @@ public class TestSpdzDummyDataSupplier {
     return suppliers;
   }
 
-  private BigInteger getMacKeyFromSuppliers(List<SpdzDummyDataSupplier> suppliers) {
-    BigInteger macKey = BigInteger.ZERO;
+  private BigIntegerI getMacKeyFromSuppliers(List<SpdzDummyDataSupplier> suppliers) {
+    BigIntegerI macKey = new BigInt(0);
     for (SpdzDummyDataSupplier supplier : suppliers) {
-      macKey = macKey.add(supplier.getSecretSharedKey());
+      macKey.add(supplier.getSecretSharedKey());
     }
-    return macKey.mod(suppliers.get(0).getModulus());
+    macKey.mod(suppliers.get(0).getModulus());
+    return macKey;
   }
-
 
   private void testGetNextTriple(int noOfParties, BigInteger modulus) {
     List<SpdzDummyDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
-    BigInteger macKey = getMacKeyFromSuppliers(suppliers);
+    BigIntegerI macKey = getMacKeyFromSuppliers(suppliers);
     List<SpdzTriple> triples = new ArrayList<>(noOfParties);
     for (SpdzDummyDataSupplier supplier : suppliers) {
       triples.add(supplier.getNextTriple());
@@ -70,12 +72,12 @@ public class TestSpdzDummyDataSupplier {
 
   private void testGetNextInputMask(int noOfParties, int towardParty, BigInteger modulus) {
     List<SpdzDummyDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
-    BigInteger macKey = getMacKeyFromSuppliers(suppliers);
+    BigIntegerI macKey = getMacKeyFromSuppliers(suppliers);
     List<SpdzInputMask> masks = new ArrayList<>(noOfParties);
     for (SpdzDummyDataSupplier supplier : suppliers) {
       masks.add(supplier.getNextInputMask(towardParty));
     }
-    BigInteger realValue = null;
+    BigIntegerI realValue = null;
     List<SpdzSInt> shares = new ArrayList<>(noOfParties);
     for (int i = 0; i < noOfParties; i++) {
       SpdzInputMask spdzInputMask = masks.get(i);
@@ -99,16 +101,16 @@ public class TestSpdzDummyDataSupplier {
 
   private void testGetNextBit(int noOfParties, BigInteger modulus) {
     List<SpdzDummyDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
-    BigInteger macKey = getMacKeyFromSuppliers(suppliers);
+    BigIntegerI macKey = getMacKeyFromSuppliers(suppliers);
     List<SpdzSInt> bitShares = new ArrayList<>(noOfParties);
     for (SpdzDummyDataSupplier supplier : suppliers) {
       bitShares.add(supplier.getNextBit());
     }
     SpdzSInt recombined = recombine(bitShares);
     assertMacCorrect(recombined, macKey, modulus);
-    BigInteger value = recombined.getShare();
+    BigIntegerI value = recombined.getShare();
     assertTrue("Value not a bit " + value,
-        value.equals(BigInteger.ZERO) || value.equals(BigInteger.ONE));
+        value.equals(BigInteger.ZERO) || value.asBigInteger().equals(BigInteger.ONE));
   }
 
   private void testGetNextBit(int noOfParties) {
@@ -119,7 +121,7 @@ public class TestSpdzDummyDataSupplier {
 
   private void testGetNextRandomFieldElement(int noOfParties, BigInteger modulus) {
     List<SpdzDummyDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
-    BigInteger macKey = getMacKeyFromSuppliers(suppliers);
+    BigIntegerI macKey = getMacKeyFromSuppliers(suppliers);
     List<SpdzSInt> bitShares = new ArrayList<>(noOfParties);
     for (SpdzDummyDataSupplier supplier : suppliers) {
       bitShares.add(supplier.getNextRandomFieldElement());
@@ -128,8 +130,8 @@ public class TestSpdzDummyDataSupplier {
     assertMacCorrect(recombined, macKey, modulus);
     // sanity check not zero (with 251, that is actually not unlikely enough)
     if (!modulus.equals(new BigInteger("251"))) {
-      BigInteger value = recombined.getShare();
-      assertFalse("Random value was 0 ", value.equals(BigInteger.ZERO));
+      BigIntegerI value = recombined.getShare();
+      assertFalse("Random value was 0 ", value.asBigInteger().equals(BigInteger.ZERO));
     }
   }
 
@@ -141,7 +143,7 @@ public class TestSpdzDummyDataSupplier {
 
   private void testGetNextExpPipe(int noOfParties, BigInteger modulus, int expPipeLength) {
     List<SpdzDummyDataSupplier> suppliers = setupSuppliers(noOfParties, modulus);
-    BigInteger macKey = getMacKeyFromSuppliers(suppliers);
+    BigIntegerI macKey = getMacKeyFromSuppliers(suppliers);
     List<SpdzSInt[]> expPipes = new ArrayList<>(noOfParties);
     for (SpdzDummyDataSupplier supplier : suppliers) {
       expPipes.add(supplier.getNextExpPipe());
@@ -205,7 +207,7 @@ public class TestSpdzDummyDataSupplier {
     SpdzDummyDataSupplier supplier = new SpdzDummyDataSupplier(1, 2, moduli.get(0),
         BigInteger.ONE);
     assertEquals(moduli.get(0), supplier.getModulus());
-    assertEquals(BigInteger.ONE, supplier.getSecretSharedKey());
+    assertEquals(BigInteger.ONE, supplier.getSecretSharedKey().asBigInteger());
   }
 
   private SpdzSInt recombine(List<SpdzSInt> shares) {
@@ -230,32 +232,38 @@ public class TestSpdzDummyDataSupplier {
     return new SpdzTriple(recombine(left), recombine(right), recombine(product));
   }
 
-  private void assertMacCorrect(SpdzSInt recombined, BigInteger macKey, BigInteger modulus) {
-    assertEquals(recombined.getShare().multiply(macKey).mod(modulus), recombined.getMac());
+  private void assertMacCorrect(SpdzSInt recombined, BigIntegerI macKey, BigInteger modulus) {
+    BigIntegerI share = recombined.getShare().copy();
+    share.multiply(macKey);
+    share.mod(modulus);
+    assertEquals(share, recombined.getMac());
   }
 
-  private void assertTripleValid(SpdzTriple recombined, BigInteger macKey, BigInteger modulus) {
+  private void assertTripleValid(SpdzTriple recombined, BigIntegerI macKey, BigInteger modulus) {
     assertMacCorrect(recombined.getA(), macKey, modulus);
     assertMacCorrect(recombined.getB(), macKey, modulus);
     assertMacCorrect(recombined.getC(), macKey, modulus);
+
+    BigIntegerI copy = recombined.getA().getShare().copy();
+    copy.multiply(recombined.getB().getShare());
+    copy.mod(modulus);
     // check that a * b = c
-    assertEquals(recombined.getC().getShare(),
-        recombined.getA().getShare().multiply(recombined.getB().getShare()).mod(modulus));
+    assertEquals(recombined.getC().getShare(), copy
+    );
   }
 
-  private void assertExpPipeValid(List<SpdzSInt> recombined, BigInteger macKey,
+  private void assertExpPipeValid(List<SpdzSInt> recombined, BigIntegerI macKey,
       BigInteger modulus) {
     for (SpdzSInt element : recombined) {
       assertMacCorrect(element, macKey, modulus);
     }
-    List<BigInteger> values = recombined.stream().map(SpdzSInt::getShare)
+    List<BigIntegerI> values = recombined.stream().map(SpdzSInt::getShare)
         .collect(Collectors.toList());
-    BigInteger inverted = values.get(0);
-    BigInteger first = values.get(1);
+    BigIntegerI inverted = values.get(0);
+    BigIntegerI first = values.get(1);
     assertEquals(inverted, first.modInverse(modulus));
     for (int i = 1; i < values.size(); i++) {
-      assertEquals(first.modPow(BigInteger.valueOf(i), modulus), values.get(i));
+      assertEquals(first.modPow(new BigInt(i), modulus), values.get(i));
     }
   }
-
 }

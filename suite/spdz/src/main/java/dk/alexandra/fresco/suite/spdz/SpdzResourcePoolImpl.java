@@ -1,5 +1,7 @@
 package dk.alexandra.fresco.suite.spdz;
 
+import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
@@ -17,7 +19,7 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
   private final int modulusSize;
   private final BigInteger modulus;
   private final BigInteger modulusHalf;
-  private final OpenedValueStore<SpdzSInt, BigInteger> openedValueStore;
+  private final OpenedValueStore<SpdzSInt, BigIntegerI> openedValueStore;
   private final SpdzDataSupplier dataSupplier;
   private Drbg drbg;
 
@@ -30,7 +32,7 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
    * @param dataSupplier Pre-processing material supplier
    */
   public SpdzResourcePoolImpl(int myId, int noOfPlayers,
-      OpenedValueStore<SpdzSInt, BigInteger> openedValueStore, SpdzDataSupplier dataSupplier,
+      OpenedValueStore<SpdzSInt, BigIntegerI> openedValueStore, SpdzDataSupplier dataSupplier,
       Drbg drbg) {
     super(myId, noOfPlayers);
     this.dataSupplier = dataSupplier;
@@ -51,12 +53,13 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
   }
 
   @Override
-  public ByteSerializer<BigInteger> getSerializer() {
-    return new BigIntegerWithFixedLengthSerializer(modulusSize);
+  public ByteSerializer<BigIntegerI> getSerializer() {
+    // TODO Define by the user of this class
+    return new BigIntegerWithFixedLengthSerializer(modulusSize, BigInt::fromBytes);
   }
 
   @Override
-  public OpenedValueStore<SpdzSInt, BigInteger> getOpenedValueStore() {
+  public OpenedValueStore<SpdzSInt, BigIntegerI> getOpenedValueStore() {
     return openedValueStore;
   }
 
@@ -79,8 +82,9 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
   }
 
   @Override
-  public BigInteger convertRepresentation(BigInteger bigInteger) {
-    BigInteger actual = bigInteger.mod(modulus);
+  public BigInteger convertRepresentation(BigIntegerI value) {
+    BigInteger modulus = getModulus();
+    BigInteger actual = value.asBigInteger().mod(modulus);
     if (actual.compareTo(modulusHalf) > 0) {
       actual = actual.subtract(modulus);
     }

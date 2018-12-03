@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.DRes;
+import dk.alexandra.fresco.framework.builder.numeric.BigInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
 import java.math.BigInteger;
@@ -18,7 +19,7 @@ public class TestCreditRater {
     List<List<DRes<SInt>>> intervals = new ArrayList<>();
     List<List<DRes<SInt>>> scores = new ArrayList<>();
 
-    values.add(new DummyArithmeticSInt(BigInteger.ONE));
+    values.add(new DummyArithmeticSInt(BigInt.fromConstant(BigInteger.ONE)));
     intervals.add(new ArrayList<>());
     scores.add(new ArrayList<>());
 
@@ -37,8 +38,8 @@ public class TestCreditRater {
       Assert.assertThat(e.getMessage(), Is.is("Inconsistent data"));
     }
 
-    values.add(new DummyArithmeticSInt(BigInteger.ONE));
-    try{
+    values.add(new DummyArithmeticSInt(new BigInt(1)));
+    try {
       new CreditRater(values, intervals, scores);
       Assert.fail("Inconsistent data should not be accepted");
     } catch (IllegalArgumentException e) {

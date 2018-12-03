@@ -1,8 +1,11 @@
 package dk.alexandra.fresco.suite.spdz;
 
+import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
-import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
+import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -13,11 +16,12 @@ import org.junit.Test;
 
 public class TestSpdzDatatypes {
 
-  private SpdzSInt elm0 = new SpdzSInt(BigInteger.ZERO, BigInteger.ZERO, BigInteger.ZERO);
-  private SpdzSInt elm1 = new SpdzSInt(BigInteger.ONE, BigInteger.ONE, BigInteger.TEN);
-  private SpdzSInt elm2 = new SpdzSInt(BigInteger.ONE, BigInteger.ONE, BigInteger.TEN);
-  private SpdzSInt elmDiff1 = new SpdzSInt(BigInteger.ZERO, BigInteger.ONE, BigInteger.TEN);
-  
+  private SpdzSInt elm0 = new SpdzSInt(get(BigInteger.ZERO), get(BigInteger.ZERO), BigInteger.ZERO);
+  private SpdzSInt elm1 = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ONE), BigInteger.TEN);
+  private SpdzSInt elm2 = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ONE), BigInteger.TEN);
+  private SpdzSInt elmDiff1 =
+      new SpdzSInt(get(BigInteger.ZERO), get(BigInteger.ONE), BigInteger.TEN);
+
   @Test
   public void testElementEquals() {
     Assert.assertEquals(elm1, elm1);
@@ -25,28 +29,34 @@ public class TestSpdzDatatypes {
     Assert.assertNotEquals(elm0, elm2);
     Assert.assertNotEquals(elm0.hashCode(), elm2.hashCode());
     Assert.assertEquals("spdz(1, 1)", elm1.toString());
-    SpdzSInt elm3 = new SpdzSInt(BigInteger.TEN, BigInteger.TEN, BigInteger.TEN);
+    SpdzSInt elm3 = new SpdzSInt(
+        get(BigInteger.TEN), get(BigInteger.TEN), BigInteger.TEN);
     Assert.assertNotEquals(elm2, elm3);
-    Assert.assertNotEquals(elm2, new SpdzSInt(BigInteger.ONE, BigInteger.ZERO, BigInteger.TEN));
+    Assert.assertNotEquals(elm2, new SpdzSInt(
+        get(BigInteger.ONE), get(BigInteger.ZERO), BigInteger.TEN));
     Assert.assertNotEquals(elm2, "");
     Assert.assertNotEquals(elm2, null);
-    
-    SpdzSInt modNull1 = new SpdzSInt(BigInteger.ONE, BigInteger.ONE, null);
-    SpdzSInt modNull2 = new SpdzSInt(BigInteger.ONE, BigInteger.ONE, null);
+
+    SpdzSInt modNull1 = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ONE), null);
+    SpdzSInt modNull2 = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ONE), null);
     Assert.assertEquals(modNull1, modNull2);
     Assert.assertNotEquals(modNull1, elm1);
-    
-    SpdzSInt modDiff = new SpdzSInt(BigInteger.ONE, BigInteger.ONE, BigInteger.ONE);
+
+    SpdzSInt modDiff = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ONE), BigInteger.ONE);
     Assert.assertNotEquals(modDiff, elm1);
-    
-    SpdzSInt shareNull1 = new SpdzSInt(null, BigInteger.ONE, BigInteger.TEN);
-    SpdzSInt shareNull2 = new SpdzSInt(null, BigInteger.ONE, BigInteger.TEN);
+
+    SpdzSInt shareNull1 = new SpdzSInt(null, get(BigInteger.ONE), BigInteger.TEN);
+    SpdzSInt shareNull2 = new SpdzSInt(null, get(BigInteger.ONE), BigInteger.TEN);
     Assert.assertEquals(shareNull1, shareNull2);
     Assert.assertNotEquals(shareNull1, elm1);
   }
-  
+
+  private BigIntegerI get(BigInteger ten) {
+    return BigInt.fromConstant(ten);
+  }
+
   @Test
-  public void testTripleEquals() {    
+  public void testTripleEquals() {
     SpdzTriple trip_empty = new SpdzTriple();
     SpdzTriple trip1 = new SpdzTriple(elm1, elm1, elm1);
     SpdzTriple trip2 = new SpdzTriple(elm1, elm1, elm1);
@@ -64,9 +74,11 @@ public class TestSpdzDatatypes {
     Assert.assertNotEquals(tripCNull, trip1);
     Assert.assertNotEquals(trip1.hashCode(), tripBNull.hashCode());
     Assert.assertNotEquals(tripANull.hashCode(), tripCNull.hashCode());
-    Assert.assertEquals("SpdzTriple [elementA=spdz(1, 1), elementB=spdz(1, 1), elementC=spdz(1, 1)]", trip1.toString());    
+    Assert
+        .assertEquals("SpdzTriple [elementA=spdz(1, 1), elementB=spdz(1, 1), elementC=spdz(1, 1)]",
+            trip1.toString());
   }
-  
+
   @Test
   public void testSpdzSIntEquals() {
     SpdzSInt i1 = elm1;
@@ -79,21 +91,23 @@ public class TestSpdzDatatypes {
     Assert.assertNotEquals(i1, i3);
     Assert.assertEquals("spdz(1, 1)", i1.toString());
   }
-  
+
   @Test
   public void testInputMaskEquals() {
     SpdzInputMask mask = new SpdzInputMask(null);
-    Assert.assertEquals("SpdzInputMask [mask=null, realValue=null]",mask.toString());
+    Assert.assertEquals("SpdzInputMask [mask=null, realValue=null]", mask.toString());
   }
-  
+
   @Test
   public void testCommitment() throws NoSuchAlgorithmException {
     SpdzCommitment comm = new SpdzCommitment(null, null, null);
     Assert.assertEquals("SpdzCommitment[v:null, r:null, commitment:null]", comm.toString());
     MessageDigest H = MessageDigest.getInstance("SHA-256");
-    SpdzCommitment c = new SpdzCommitment(H, BigInteger.ONE, new Random(0));
-    BigInteger c1 = c.computeCommitment(BigInteger.TEN);
-    BigInteger c2 = c.computeCommitment(BigInteger.TEN);
+    SpdzCommitment c = new SpdzCommitment(H, get(BigInteger.ONE), new Random(0));
+    BigIntegerWithFixedLengthSerializer serializer =
+        new BigIntegerWithFixedLengthSerializer(20, BigInt::fromBytes);
+    BigIntegerI c1 = c.computeCommitment(BigInteger.TEN, serializer);
+    BigIntegerI c2 = c.computeCommitment(BigInteger.TEN, serializer);
     Assert.assertEquals(c1, c2);
   }
 }

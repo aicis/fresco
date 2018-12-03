@@ -187,7 +187,8 @@ public abstract class AbstractSpdzTest {
       CloseableNetwork pipeNetwork, SpdzMascotDataSupplier tripleSupplier) {
 
     ProtocolBuilderNumeric sequential = new SpdzBuilder(
-        new BasicNumericContext(maxBitLength, tripleSupplier.getModulus(), myId, noOfPlayers),
+        new BasicNumericContext(maxBitLength, tripleSupplier.getModulus(), myId, noOfPlayers
+        ),
         new RealNumericContext(fixedPointPrecision)).createSequential();
     SpdzResourcePoolImpl tripleResourcePool =
         new SpdzResourcePoolImpl(myId, noOfPlayers, new OpenedValueStoreImpl<>(), tripleSupplier,

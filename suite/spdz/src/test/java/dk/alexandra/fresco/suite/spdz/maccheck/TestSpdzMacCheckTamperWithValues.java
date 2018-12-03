@@ -7,6 +7,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.numeric.BigInt;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -57,7 +58,7 @@ public class TestSpdzMacCheckTamperWithValues extends AbstractSpdzTest {
             return producer.seq(seq -> {
               SInt value = input.out();
               if (seq.getBasicNumericContext().getMyId() == cheatingPartyId) {
-                value = ((SpdzSInt) value).multiply(BigInteger.valueOf(2));
+                value = ((SpdzSInt) value).multiply(new BigInt(2));
               }
               final SInt finalSInt = value;
               return seq.numeric().open(() -> finalSInt);
