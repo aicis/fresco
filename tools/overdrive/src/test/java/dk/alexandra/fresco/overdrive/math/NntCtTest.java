@@ -86,6 +86,12 @@ public class NntCtTest {
   @Test(expected = IllegalArgumentException.class)
   public void testNonTwoPower() {
     NumberTheoreticTransform nntCt = NntCt.getInstance(root, modulus);
+    nntCt.nntInverse(Arrays.asList(BigInteger.ONE, BigInteger.ONE, BigInteger.ONE));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testOneCoeff() {
+    NumberTheoreticTransform nntCt = NntCt.getInstance(root, modulus);
     nntCt.nntInverse(Arrays.asList(BigInteger.ONE));
   }
 

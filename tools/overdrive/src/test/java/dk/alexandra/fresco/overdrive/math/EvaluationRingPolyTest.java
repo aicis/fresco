@@ -59,6 +59,12 @@ public class EvaluationRingPolyTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void testNonTwoPowerLength() {
+    BigInteger one = BigInteger.ONE;
+    EvaluationRingPoly.fromCoefficients(Arrays.asList(one, one, one), root, modulus);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testLengthOne() {
     EvaluationRingPoly.fromCoefficients(Arrays.asList(BigInteger.ONE), root, modulus);
   }
 
