@@ -60,7 +60,7 @@ public abstract class DefaultLinearAlgebra implements RealLinearAlgebra {
   @Override
   public DRes<Matrix<DRes<SReal>>> add(DRes<Matrix<DRes<SReal>>> a, DRes<Matrix<DRes<SReal>>> b) {
     return builder.par(par -> {
-      return add(par, a.out(), b.out(),
+      return entrywiseBinaryOperator(par, a.out(), b.out(),
           (builder, x) -> builder.realNumeric().add(x.getFirst(), x.getSecond()));
     });
   }
@@ -68,23 +68,32 @@ public abstract class DefaultLinearAlgebra implements RealLinearAlgebra {
   @Override
   public DRes<Matrix<DRes<SReal>>> add(Matrix<BigDecimal> a, DRes<Matrix<DRes<SReal>>> b) {
     return builder.par(par -> {
-      return add(par, a, b.out(),
+      return entrywiseBinaryOperator(par, a, b.out(),
           (builder, x) -> builder.realNumeric().add(x.getFirst(), x.getSecond()));
     });
   }
 
   /**
-   * Add two matrices using the given builder and fixed point add operation.
+   * Apply an operator taking two arguments in an entrywise fashion to the entries of two matrices
+   * of equal dimensions.
    *
-   * @param builder The builder to be used for this computation
-   * @param a Matrix of type <code>A</code>
-   * @param b Matrix of type <code>B</code>
-   * @param addOperator The addition operator which adds an element of type <code>A</code> and type
+   * <p>
+   * This can be used to generalize the implementations of operations such as matrix addition and
+   * subtraction.
+   * </p>
+   *
+   * @param builder the builder to be used for this computation
+   * @param a matrix of type <code>A</code>
+   * @param b matrix of type <code>B</code>
+   * @param operator the operator which takes an element of type <code>A</code> and type
    *        <code>B</code> to give an element of type <code>C</code>
-   * @return A matrix of type <code>C</code> which is the sum of the two matrices
+   * @return A matrix of type <code>C</code> which is the result of the entrywise application of the
+   *         <code>operator</code> of the two matrices
+   * @throws IllegalArgumentException if matrices <code>a</code> and <code>b</code> are not of eqaul
+   *         dimensions.
    */
-  private <A, B, C> DRes<Matrix<C>> add(ProtocolBuilderNumeric builder, Matrix<A> a, Matrix<B> b,
-      BiFunction<ProtocolBuilderNumeric, Pair<A, B>, C> addOperator) {
+  private <A, B, C> DRes<Matrix<C>> entrywiseBinaryOperator(ProtocolBuilderNumeric builder,
+      Matrix<A> a, Matrix<B> b, BiFunction<ProtocolBuilderNumeric, Pair<A, B>, C> operator) {
     return builder.par(par -> {
       if (a.getWidth() != b.getWidth() || a.getHeight() != b.getHeight()) {
         throw new IllegalArgumentException("Matrices must have same sizes - " + a.getWidth() + "x"
@@ -95,13 +104,39 @@ public abstract class DefaultLinearAlgebra implements RealLinearAlgebra {
         List<A> rowA = a.getRow(i);
         List<B> rowB = b.getRow(i);
         for (int j = 0; j < a.getWidth(); j++) {
-          row.add(addOperator.apply(par, new Pair<>(rowA.get(j), rowB.get(j))));
+          row.add(operator.apply(par, new Pair<>(rowA.get(j), rowB.get(j))));
         }
         return row;
       });
       return () -> result;
     });
   }
+
+  @Override
+  public DRes<Matrix<DRes<SReal>>> sub(DRes<Matrix<DRes<SReal>>> a, DRes<Matrix<DRes<SReal>>> b) {
+    return builder.par(par -> {
+      return entrywiseBinaryOperator(par, a.out(), b.out(),
+          (builder, x) -> builder.realNumeric().sub(x.getFirst(), x.getSecond()));
+    });
+  }
+
+  @Override
+  public DRes<Matrix<DRes<SReal>>> sub(Matrix<BigDecimal> a, DRes<Matrix<DRes<SReal>>> b) {
+    return builder.par(par -> {
+      return entrywiseBinaryOperator(par, a, b.out(),
+          (builder, x) -> builder.realNumeric().sub(x.getFirst(), x.getSecond()));
+    });
+  }
+
+  @Override
+  public DRes<Matrix<DRes<SReal>>> sub(DRes<Matrix<DRes<SReal>>> a, Matrix<BigDecimal> b) {
+    return builder.par(par -> {
+      return entrywiseBinaryOperator(par, a.out(), b,
+          (builder, x) -> builder.realNumeric().sub(x.getFirst(), x.getSecond()));
+    });
+  }
+
+
 
   @Override
   public DRes<Matrix<DRes<SReal>>> mult(DRes<Matrix<DRes<SReal>>> a, Matrix<BigDecimal> b) {
@@ -252,6 +287,17 @@ public abstract class DefaultLinearAlgebra implements RealLinearAlgebra {
               .collect(Collectors.toCollection(Vector::new));
       return () -> result;
     });
+  }
+
+  @Override
+  public DRes<Matrix<DRes<SReal>>> transpose(DRes<Matrix<DRes<SReal>>> matrix) {
+    return () -> transpose(matrix.out());
+  }
+
+  private <A> Matrix<A> transpose(Matrix<A> matrix) {
+    Matrix<A> res = new Matrix<>(matrix.getWidth(), matrix.getHeight(),
+        i -> new ArrayList<>(matrix.getColumn(i)));
+    return res;
   }
 
 }
