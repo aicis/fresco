@@ -79,6 +79,10 @@ public class SocketNetwork implements CloseableNetwork {
       if (!s.isConnected()) {
         throw new IllegalArgumentException("Unconnected socket for P" + i);
       }
+        ExceptionConverter.safe(() -> {
+          s.setTcpNoDelay(true);
+          return null;
+        }, "Could not set delayless TCP connection");
     }
     this.conf = conf;
     int externalParties = conf.noOfParties() - 1;
