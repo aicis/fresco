@@ -22,13 +22,25 @@ public class CoefficientRingPolyTest {
   private BigInteger modulus;
   private int parameterM;
 
+  /**
+   * Sets up a few polynomials to use for tests.
+   *
+   * <p>
+   * The polynomials are
+   * <ul>
+   * <li><i>polyA = 2 + 4x + 16x^2 + 15x^3 + 12x^4 + 4x^5 + 5x^6 + 14x^7</i> and
+   * <li><i>polyB = 3 + 10x + 16x^2 + 6x^3 + 8x^4 + 4x^5 + 11x^6 + 2x^7</i>
+   * </ul>
+   * For these we use the modulus <i>17</i>.
+   * </p>
+   */
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     // The m parameter must be a power of two, here we use 2^4 = 16
     this.parameterM = 16;
     // The modulus must be a prime, p, so that m|p - 1, here we use m + 1 = 17
     this.modulus = BigInteger.valueOf(17);
- // 2 + 4x + 16x^2 + 15x^3 + 12x^4 + 4x^5 + 5x^6 + 14x^7
+    // 2 + 4x + 16x^2 + 15x^3 + 12x^4 + 4x^5 + 5x^6 + 14x^7
     List<BigInteger> coeffsA = Arrays.asList(2, 4, 16, 15, 12, 4, 5, 14).stream()
         .map(BigInteger::valueOf).collect(Collectors.toList());
     this.polyA = new CoefficientRingPoly(coeffsA, this.modulus);

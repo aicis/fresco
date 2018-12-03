@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 /**
  * A representation of a {@link RingPoly} which represents the polynomial <i>P</i> as a list of
@@ -44,9 +43,15 @@ public final class EvaluationRingPoly implements RingPoly<EvaluationRingPoly> {
    *        conversion back to coefficient representation)
    * @param modulus the modulus
    * @return a new polynomial in evaluation representation
+   * @throws IllegalArgumentException
+   *         if any arguments are null or the list of evaluations is a non-two-power size.
    */
   public static EvaluationRingPoly fromEvaluations(List<BigInteger> evaluations, BigInteger root,
       BigInteger modulus) {
+    Objects.requireNonNull(evaluations);
+    Objects.requireNonNull(root);
+    Objects.requireNonNull(modulus);
+    isTwoPower(evaluations.size());
     return new EvaluationRingPoly(evaluations, root, modulus);
   }
 
@@ -57,11 +62,28 @@ public final class EvaluationRingPoly implements RingPoly<EvaluationRingPoly> {
    * @param root the root of unity to use for conversion
    * @param modulus the modulus
    * @return a new polynomial in evaluation representation
+   * @throws IllegalArgumentException
+   *         if any arguments are null or the list of coefficient is a non-two-power size.
+
    */
   public static EvaluationRingPoly fromCoefficients(List<BigInteger> coefficients, BigInteger root,
       BigInteger modulus) {
+    Objects.requireNonNull(root);
+    Objects.requireNonNull(modulus);
+    int size = Objects.requireNonNull(coefficients).size();
+    isTwoPower(size);
+    /*
+     * We need to evaluate the polynomial in r, r^3, ... , r^m-1. Using the Fourier Transform
+     * naively only gives us the the polynomial evaluated in 1, r, r^2, r^3, ..., r^(m/2 -1).
+     *
+     * So to hack the transform we add m/2 zeroes to the coefficients to get 1, r, r^2, r^3, ...,
+     * r^(m - 1) from the transform. We then use every second entry in this list as the evaluation
+     * representation.
+     *
+     * Note, this is could probably be optimized by modifying the transform instead.
+     */
     coefficients.addAll(Collections.nCopies(coefficients.size(), BigInteger.ZERO));
-    List<BigInteger> evals = NntCt.getInstance(root, modulus).nntNaive(coefficients); // dont use naive!
+    List<BigInteger> evals = NntCt.getInstance(root, modulus).nnt(coefficients);
     List<BigInteger> res = new ArrayList<>(coefficients.size() / 2);
     for (int i = 1; i < evals.size(); i += 2) {
       res.add(evals.get(i));
@@ -69,8 +91,24 @@ public final class EvaluationRingPoly implements RingPoly<EvaluationRingPoly> {
     return new EvaluationRingPoly(res, root, modulus);
   }
 
+  private static void isTwoPower(int size) {
+    boolean isTwoPower = size > 1 && (size & (size - 1)) == 0;
+    if (!isTwoPower) {
+      throw new IllegalArgumentException(
+          "Number of coefficients must be larger than 1 and a power of two, but was " + size);
+    }
+  }
+
+
+
   @Override
   public List<BigInteger> getCoefficients() {
+    /*
+     * See fromCoefficients(...) to see how the trick used there. Here to do the trick in reverse we
+     * pad every entry with a zero and use the inverse transform.
+     *
+     * Again, this can probably be optimized trivially.
+     */
     List<BigInteger> padded = new ArrayList<>(evaluations.size() * 2);
     for (BigInteger e : evaluations) {
       padded.add(BigInteger.ZERO);
@@ -78,12 +116,27 @@ public final class EvaluationRingPoly implements RingPoly<EvaluationRingPoly> {
     }
     padded = NntCt.getInstance(root, modulus).nntInverse(padded);
     ArrayList<BigInteger> result = new ArrayList<>(evaluations.size());
-    BigInteger inv = BigInteger.valueOf(padded.size()).modInverse(modulus);
     for (int i = 0; i < evaluations.size(); i++) {
-      BigInteger reduced = padded.get(i).subtract(padded.get(i + evaluations.size())).multiply(inv).mod(modulus);
+      BigInteger reduced =
+          padded.get(i).subtract(padded.get(i + evaluations.size())).mod(modulus);
       result.add(reduced);
     }
     return result;
+  }
+
+  /**
+   * Gets the evaluations used to represent the polynomial.
+   *
+   * <p>
+   * The evaluations are the values of the polynomial evaluated at <i>r, r<sup>3</sup>, ... r<sup>m
+   * - 1</sup></i> where <i>r</i> is the root of unity used for this representation. In other words
+   * the polynomial evaluated in all points in <i>Z<sub>m</sub><sup>*</sup></i>
+   * </p>
+   *
+   * @return a list of evaluations
+   */
+  List<BigInteger> getEvaluations() {
+    return new ArrayList<>(evaluations);
   }
 
   @Override
@@ -167,8 +220,13 @@ public final class EvaluationRingPoly implements RingPoly<EvaluationRingPoly> {
       throw new IllegalArgumentException("Non-equal m-parameters. m-parameter of first polynomial "
           + this.getM() + " while second polynimial was " + other.getM());
     }
-    if (other.getModulus().equals(this.getModulus())) {
+    if (!other.getModulus().equals(this.getModulus())) {
       throw new IllegalArgumentException("Non-equal moduli. Modulus of first polynomial "
+          + this.getModulus() + " while the second polynomials was " + other.getModulus());
+    }
+
+    if (!other.root.equals(this.root)) {
+      throw new IllegalArgumentException("Non-equal roots. Root of first polynomial "
           + this.getModulus() + " while the second polynomials was " + other.getModulus());
     }
   }
@@ -196,13 +254,16 @@ public final class EvaluationRingPoly implements RingPoly<EvaluationRingPoly> {
 
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder("(");
+    StringBuilder sb = new StringBuilder("[");
     List<String> evals = new ArrayList<>(evaluations.size());
     for (BigInteger e : evaluations) {
       evals.add(e.toString());
     }
     sb.append(String.join(", ", evals));
-    sb.append(")");
+    sb.append("]:");
+    sb.append(root);
+    sb.append(":");
+    sb.append(modulus);
     return sb.toString();
   }
 

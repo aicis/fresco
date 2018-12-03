@@ -20,15 +20,17 @@ public final class CoefficientRingPoly implements RingPoly<CoefficientRingPoly> 
    *
    * @param coefficients a list of <i>m/2</i> coefficients
    * @param modulus the modulus
+   * @throws IllegalArgumentException
+   *         if any arguments are null or the list of coefficients is a non-two-power size.
    */
   CoefficientRingPoly(List<BigInteger> coefficients, BigInteger modulus) {
     this.coeffs = Objects.requireNonNull(coefficients);
     this.modulus = Objects.requireNonNull(modulus);
     int size = Objects.requireNonNull(coefficients).size();
-    boolean isTwoPower = size > 0 && (size & (size - 1)) == 0;
+    boolean isTwoPower = size > 1 && (size & (size - 1)) == 0;
     if (!isTwoPower) {
       throw new IllegalArgumentException(
-          "Number of coefficients must be a non-zero power of two, but was " + size);
+          "Number of coefficients must be larger than 1 and a power of two, but was " + size);
     }
   }
 

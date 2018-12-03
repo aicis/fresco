@@ -18,7 +18,7 @@ import java.util.List;
  *
  * <li>&Phi;<sub>m</sub>(X)</i>=X<sup>m/2</sup> + 1, as <i>m</i> is a power of two.
  * <li>From 1. we have that the polynomials will have degree at most <i>m/2 - 1</i>, i.e., they have
- * <i>m</i> coefficients
+ * <i>m/2</i> coefficients
  * <li>For <i>Z<sub>q</sub></i> to have an <i>m</i>'th primitive root of unity we must pick <i>q</i>
  * so that <i>m|q-1</i>.
  * <li>Btw. an <i>m</i>'th primitive root of unity just means that the is an element <i>r &in;
