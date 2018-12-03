@@ -3,10 +3,26 @@ package dk.alexandra.fresco.overdrive.math;
 import java.math.BigInteger;
 import java.util.List;
 
-public interface NumberTheoreticTransform {
+/**
+ * The number theoretic transform is the Fourier transform in <i>Z_q</i> for some prime <i>q</i>.
+ */
+interface NumberTheoreticTransform {
 
-  public List<BigInteger> nnt(List<BigInteger> coefficients);
+  /**
+   * Computes the forward transform of a list of coefficients.
+   *
+   * @param coefficients the coefficients
+   * @return the forward transform
+   */
+  List<BigInteger> nnt(List<BigInteger> coefficients);
 
-  public List<BigInteger> nntInverse(List<BigInteger> evaluations);
+  /**
+   * Computes the inverse transform of a list of evaluation points as computed by
+   * #{@link NumberTheoreticTransform#nnt(List)}.
+   *
+   * @param evaluations the list of evaluation points
+   * @return the inverse transform
+   */
+  List<BigInteger> nntInverse(List<BigInteger> evaluations);
 
 }
