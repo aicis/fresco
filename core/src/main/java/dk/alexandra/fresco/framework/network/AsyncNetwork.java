@@ -91,7 +91,6 @@ public class AsyncNetwork implements CloseableNetwork {
    * Connects a channels to each external party (i.e., parties other than this party).
    * </p>
    *
-   * @param conf the configuration defining the network to connect
    * @param timeout duration to wait until timeout
    * @return a map from party ids to the associated communication channel
    */
