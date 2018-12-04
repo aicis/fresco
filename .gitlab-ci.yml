@@ -1,4 +1,4 @@
-image: registry.gitlab.com/partisia/dockerimages/maven-jdk:latest
+image: registry.gitlab.com/partisia/dockerimages/maven:latest
 
 run-test:
   stage: build
