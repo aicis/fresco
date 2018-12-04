@@ -84,8 +84,10 @@ in the root of the repository. To build the image simply clone the repository (a
 
   docker build -t fresco .
 
-To run the container using the image run ::
+To run the container interactively using the image run ::
 
   docker run -it --rm fresco
+
+Note that the changes made in the container are not persisted.
 
  
