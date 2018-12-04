@@ -26,6 +26,7 @@ public class MiMCEncryption implements Computation<SInt, ProtocolBuilderNumeric>
   private final DRes<SInt> plainText;
   private final int requestedRounds;
   private static Map<BigInteger, Integer> rounds = new HashMap<>();
+  private static final BigInteger THREE = BigInteger.valueOf(3);
 
   /**
    * Implementation of the MiMC decryption protocol.
@@ -56,13 +57,12 @@ public class MiMCEncryption implements Computation<SInt, ProtocolBuilderNumeric>
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     BigInteger modulus = builder.getBasicNumericContext().getModulus();
     final int requiredRounds = getRequiredRounds(modulus, requestedRounds);
-    BigInteger three = BigInteger.valueOf(3);
     /*
      * In the first round we compute c = (p + K)^{3} where p is the plaintext
      */
     return builder.seq(seq -> {
       DRes<SInt> add = seq.numeric().add(plainText, encryptionKey);
-      return new IterationState(1, seq.advancedNumeric().exp(add, three));
+      return new IterationState(1, seq.advancedNumeric().exp(add, THREE));
     }).whileLoop((state) -> state.round < requiredRounds, (seq, state) -> {
       /*
        * We're in an intermediate round where we compute c_{i} = (c_{i - 1} + K + r_{i})^{3} where K
@@ -73,7 +73,7 @@ public class MiMCEncryption implements Computation<SInt, ProtocolBuilderNumeric>
       Numeric numeric = seq.numeric();
       DRes<SInt> masked =
           numeric.add(roundConstantInteger, numeric.add(state.value, encryptionKey));
-      DRes<SInt> updatedValue = seq.advancedNumeric().exp(masked, three);
+      DRes<SInt> updatedValue = seq.advancedNumeric().exp(masked, THREE);
       return new IterationState(state.round + 1, updatedValue);
     }).seq((seq, state) ->
     /*

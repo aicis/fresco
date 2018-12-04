@@ -32,7 +32,9 @@ public class MimcConstants {
   public static BigInteger getConstant(int roundIndex, BigInteger mod) {
     Pair<Integer, BigInteger> index = new Pair<>(roundIndex, mod);
     if (!roundConstants.containsKey(index)) {
-      roundConstants.put(index, generateConstant(roundIndex, mod));
+      BigInteger constant = generateConstant(roundIndex, mod);
+      roundConstants.put(index, constant);
+      return constant;
     }
     return roundConstants.get(index);
   }
