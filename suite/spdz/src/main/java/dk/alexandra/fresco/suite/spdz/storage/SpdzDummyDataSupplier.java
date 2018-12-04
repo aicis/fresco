@@ -47,7 +47,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
     this.expPipeLength = expPipeLength;
     this.supplier = new ArithmeticDummyDataSupplier(myId, noOfPlayers, modulus);
     // TODO this should be defined in the config by the user
-    this.converter = BigInt::fromConstant;
+    this.converter = bigInteger -> BigInt.fromConstant(bigInteger, modulus);
   }
 
   @Override

@@ -58,7 +58,7 @@ public class TestSpdzMacCheckTamperWithValues extends AbstractSpdzTest {
             return producer.seq(seq -> {
               SInt value = input.out();
               if (seq.getBasicNumericContext().getMyId() == cheatingPartyId) {
-                value = ((SpdzSInt) value).multiply(new BigInt(2));
+                value = ((SpdzSInt) value).multiply(new BigInt(2, BigInteger.TEN));
               }
               final SInt finalSInt = value;
               return seq.numeric().open(() -> finalSInt);
@@ -73,5 +73,4 @@ public class TestSpdzMacCheckTamperWithValues extends AbstractSpdzTest {
       };
     }
   }
-
 }

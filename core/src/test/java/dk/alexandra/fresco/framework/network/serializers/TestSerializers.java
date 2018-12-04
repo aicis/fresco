@@ -45,9 +45,10 @@ public class TestSerializers {
   }
 
   private void testNumber(BigInteger original) {
+    BigInteger modulus = BigInteger.valueOf(1234567);
     BigIntegerWithFixedLengthSerializer serializer =
-        new BigIntegerWithFixedLengthSerializer(20, BigInt::fromBytes);
-    byte[] bytes = serializer.serialize(BigInt.fromConstant(original));
+        new BigIntegerWithFixedLengthSerializer(20, bytes -> BigInt.fromBytes(bytes, modulus));
+    byte[] bytes = serializer.serialize(BigInt.fromConstant(original, modulus));
     BigIntegerI deserializeLargeNumber = serializer.deserialize(bytes);
     Assert.assertEquals(original, deserializeLargeNumber.asBigInteger());
   }
@@ -55,13 +56,14 @@ public class TestSerializers {
   @Test
   public void testBigIntegerWithFixedLengthSerializerList() {
     BigInteger original = new BigInteger("1298376217321832");
+    BigInteger modulus = new BigInteger("1298376217321832123");
     BigIntegerWithFixedLengthSerializer serializer = new BigIntegerWithFixedLengthSerializer(20,
-        BigInt::fromBytes);
+        bytes -> BigInt.fromBytes(bytes, modulus));
     byte[] bytes = serializer.serialize(
         Arrays.asList(
-            new BigInt(original.toString()),
-            new BigInt(0),
-            new BigInt(10)));
+            new BigInt(original.toString(), modulus),
+            new BigInt(0, modulus),
+            new BigInt(10, modulus)));
 
     List<BigIntegerI> bb = serializer.deserializeList(bytes);
     Assert.assertEquals(original, bb.get(0).asBigInteger());

@@ -45,7 +45,8 @@ public class TestSpdzDummyDataSupplier {
   }
 
   private BigIntegerI getMacKeyFromSuppliers(List<SpdzDummyDataSupplier> suppliers) {
-    BigIntegerI macKey = new BigInt(0);
+    BigIntegerI macKey = new BigInt(0, new BigInteger(
+        "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557"));
     for (SpdzDummyDataSupplier supplier : suppliers) {
       macKey.add(supplier.getSecretSharedKey());
     }
@@ -258,7 +259,7 @@ public class TestSpdzDummyDataSupplier {
     BigIntegerI first = values.get(1);
     assertEquals(inverted, first.modInverse(modulus));
     for (int i = 1; i < values.size(); i++) {
-      assertEquals(first.modPow(new BigInt(i), modulus), values.get(i));
+      assertEquals(first.modPow(new BigInt(i, modulus), modulus), values.get(i));
     }
   }
 }

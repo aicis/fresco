@@ -21,6 +21,7 @@ public class TestSpdzDatatypes {
   private SpdzSInt elm2 = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ONE), BigInteger.TEN);
   private SpdzSInt elmDiff1 =
       new SpdzSInt(get(BigInteger.ZERO), get(BigInteger.ONE), BigInteger.TEN);
+  private BigInteger modulus = BigInteger.TEN.multiply(BigInteger.TEN);
 
   @Test
   public void testElementEquals() {
@@ -52,7 +53,7 @@ public class TestSpdzDatatypes {
   }
 
   private BigIntegerI get(BigInteger ten) {
-    return BigInt.fromConstant(ten);
+    return BigInt.fromConstant(ten, modulus);
   }
 
   @Test
@@ -105,9 +106,9 @@ public class TestSpdzDatatypes {
     MessageDigest H = MessageDigest.getInstance("SHA-256");
     SpdzCommitment c = new SpdzCommitment(H, get(BigInteger.ONE), new Random(0));
     BigIntegerWithFixedLengthSerializer serializer =
-        new BigIntegerWithFixedLengthSerializer(20, BigInt::fromBytes);
-    BigIntegerI c1 = c.computeCommitment(BigInteger.TEN, serializer);
-    BigIntegerI c2 = c.computeCommitment(BigInteger.TEN, serializer);
+        new BigIntegerWithFixedLengthSerializer(20, bytes -> BigInt.fromBytes(bytes, modulus));
+    BigIntegerI c1 = c.computeCommitment(modulus, serializer);
+    BigIntegerI c2 = c.computeCommitment(modulus, serializer);
     Assert.assertEquals(c1, c2);
   }
 }

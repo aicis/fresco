@@ -7,9 +7,9 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
+import dk.alexandra.fresco.framework.configuration.NetworkUtil;
 import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.configuration.NetworkUtil;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
@@ -51,7 +51,7 @@ public class TestInputSumExample {
             (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new DummyArithmeticProtocolSuite(
                 mod, 150, 16);
         resourcePool = () -> (ResourcePoolT) new DummyArithmeticResourcePoolImpl(i, n,
-            mod, BigInt::fromBytes);
+            mod, bytes -> BigInt.fromBytes(bytes, mod));
       } else {
         suite = (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new SpdzProtocolSuite(150);
         resourcePool = () -> {

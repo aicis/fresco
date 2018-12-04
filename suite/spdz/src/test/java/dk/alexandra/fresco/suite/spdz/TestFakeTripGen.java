@@ -19,8 +19,9 @@ public class TestFakeTripGen {
       "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
   private static final BigIntegerI alpha =
       BigInt.fromConstant(new BigInteger(
-          "5081587041441179438932635098620319894716368628029284292880408086703438041331200877980213770035569812296677935118715454650749402237663859711459266577679205"));
-  private BigIntegerI zero = BigInt.fromConstant(BigInteger.ZERO);
+              "5081587041441179438932635098620319894716368628029284292880408086703438041331200877980213770035569812296677935118715454650749402237663859711459266577679205"),
+          modulus);
+  private BigIntegerI zero = BigInt.fromConstant(BigInteger.ZERO, modulus);
 
   @Test
   public void testTripleGen() {
@@ -39,7 +40,7 @@ public class TestFakeTripGen {
       BigIntegerI actual = a.multiply(b);
       Assert.assertEquals(c, actual);
 
-      BigIntegerI zero = BigInt.fromConstant(BigInteger.ZERO);
+      BigIntegerI zero = BigInt.fromConstant(BigInteger.ZERO, modulus);
 
       Assert.assertEquals(zero, subtract(a, shareA));
       Assert.assertEquals(zero, subtract(b, shareB));
@@ -142,7 +143,7 @@ public class TestFakeTripGen {
   @Test
   public void testElementToBytes() {
     SpdzSInt element = new SpdzSInt(
-        new BigInt(200), new BigInt(1),
+        new BigInt(200, modulus), new BigInt(1, modulus),
         BigInteger.ZERO);
     ByteBuffer buf = FakeTripGen.elementToBytes(element, 1);
     byte[] arr = buf.array();
@@ -155,7 +156,7 @@ public class TestFakeTripGen {
 
     }
 
-    element = new SpdzSInt(new BigInt(1), new BigInt(200), BigInteger.ZERO);
+    element = new SpdzSInt(new BigInt(1, modulus), new BigInt(200, modulus), BigInteger.ZERO);
     buf = FakeTripGen.elementToBytes(element, 1);
     arr = buf.array();
     Assert.assertArrayEquals(new byte[]{1, (byte) 200}, arr);
@@ -169,7 +170,7 @@ public class TestFakeTripGen {
 
   @Test
   public void testBigIntToBytes() {
-    BigIntegerI b = new BigInt(200);
+    BigIntegerI b = new BigInt(200, modulus);
     int size = 1;
     ByteBuffer buf = FakeTripGen.bigIntToBytes(b, size);
     byte[] arr = buf.array();

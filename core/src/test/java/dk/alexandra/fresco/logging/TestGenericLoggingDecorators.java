@@ -9,8 +9,8 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
+import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
@@ -67,7 +67,7 @@ public class TestGenericLoggingDecorators {
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  netConf.keySet().size(), mod, BigInt::fromBytes),
+                  netConf.keySet().size(), mod, bytes -> BigInt.fromBytes(bytes, mod)),
               () -> new AsyncNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }
@@ -109,7 +109,7 @@ public class TestGenericLoggingDecorators {
           .TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  netConf.keySet().size(), mod, BigInt::fromBytes),
+                  netConf.keySet().size(), mod, bytes -> BigInt.fromBytes(bytes, mod)),
               () -> {
                 NetworkLoggingDecorator network = new NetworkLoggingDecorator(
                     new AsyncNetwork(partyNetConf));
@@ -168,7 +168,7 @@ public class TestGenericLoggingDecorators {
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  netConf.keySet().size(), mod, BigInt::fromBytes),
+                  netConf.keySet().size(), mod, bytes -> BigInt.fromBytes(bytes, mod)),
               () -> new AsyncNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }
