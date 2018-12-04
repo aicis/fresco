@@ -1,0 +1,42 @@
+image: registry.gitlab.com/partisia/dockerimages/maven-jdk:latest
+
+run-test:
+  stage: build
+  script:
+  - mvn test
+  - /script/checkAndPackCodeCoverage.sh
+  artifacts:
+    paths:
+    - test-report/
+
+codequality-build:
+  stage: build
+  script:
+  - mvn compile site
+  - /script/packCodeQuality.sh
+  artifacts:
+    paths:
+    - codequality-report/
+
+pages:
+  stage: deploy
+  dependencies:
+  - codequality-build
+  - run-test
+  script:
+  - /script/packPublicReport.sh
+  - mkdir total
+  - mv test-report/ public/
+  - mv public/ total/
+  - mv total public
+  - cd public
+  - git rev-parse HEAD | xargs mv public/
+  - echo "Find code style on https://BDbS.gitlab.io/fresco/"`git rev-parse HEAD`/project-reports.html
+  - echo "Find code coverage on https://BDbS.gitlab.io/fresco/"`git rev-parse HEAD`/test-report/
+  artifacts:
+    paths:
+    - public/
+    expire_in: 1 days
+  except:
+  - master
+  when: always
