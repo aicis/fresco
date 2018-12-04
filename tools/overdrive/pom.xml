@@ -14,7 +14,7 @@
     <dependency>
       <groupId>dk.alexandra.fresco</groupId>
       <artifactId>core</artifactId>
-      <version>1.1.2</version>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 </project>
