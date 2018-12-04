@@ -28,17 +28,15 @@ public class TestFakeTripGen {
     int noOfParties = 2;
     List<SpdzTriple[]> triples = FakeTripGen.generateTriples(amount, noOfParties, modulus, alpha);
     for (SpdzTriple[] t : triples) {
-      BigIntegerI a = add(t[0].getA().getShare(), t[1].getA().getShare());
-      BigIntegerI b = add(t[0].getB().getShare(), t[1].getB().getShare());
-      BigIntegerI c = add(t[0].getC().getShare(), t[1].getC().getShare());
+      BigIntegerI a = t[0].getA().getShare().add(t[1].getA().getShare());
+      BigIntegerI b = t[0].getB().getShare().add(t[1].getB().getShare());
+      BigIntegerI c = t[0].getC().getShare().add(t[1].getC().getShare());
 
-      BigIntegerI shareA = add(t[0].getA().getMac(), t[1].getA().getMac());
-      BigIntegerI shareB = add(t[0].getB().getMac(), t[1].getB().getMac());
-      BigIntegerI shareC = add(t[0].getC().getMac(), t[1].getC().getMac());
+      BigIntegerI shareA = t[0].getA().getMac().add(t[1].getA().getMac());
+      BigIntegerI shareB = t[0].getB().getMac().add(t[1].getB().getMac());
+      BigIntegerI shareC = t[0].getC().getMac().add(t[1].getC().getMac());
 
-      BigIntegerI actual = a.copy();
-      actual.multiply(b);
-      actual.mod(modulus);
+      BigIntegerI actual = a.multiply(b);
       Assert.assertEquals(c, actual);
 
       BigIntegerI zero = BigInt.fromConstant(BigInteger.ZERO);
@@ -50,19 +48,11 @@ public class TestFakeTripGen {
   }
 
   private BigIntegerI subtract(BigIntegerI a, BigIntegerI shareA) {
-    BigIntegerI copy = shareA.copy();
-    BigIntegerI bigIntegerI = a.copy();
+    BigIntegerI bigIntegerI = a.multiply(alpha);
     bigIntegerI.multiply(alpha);
+    BigIntegerI copy = shareA.subtract(bigIntegerI);
     copy.subtract(bigIntegerI);
-    copy.mod(modulus);
     return copy;
-  }
-
-  private BigIntegerI add(BigIntegerI first, BigIntegerI second) {
-    BigIntegerI value = first.copy();
-    value.add(second);
-    value.mod(modulus);
-    return value;
   }
 
   @Test
@@ -79,9 +69,9 @@ public class TestFakeTripGen {
 
         SpdzInputMask m1 = masks[0];
         SpdzInputMask m2 = masks[1];
-        BigIntegerI share = add(m1.getMask().getShare(), m2.getMask().getShare());
+        BigIntegerI share = m1.getMask().getShare().add(m2.getMask().getShare());
         Assert.assertEquals(realMask.getRealValue(), share);
-        BigIntegerI mac = add(m1.getMask().getMac(), m2.getMask().getMac());
+        BigIntegerI mac = m1.getMask().getMac().add(m2.getMask().getMac());
         Assert.assertEquals(zero, subtract(share, mac));
       }
     }
@@ -100,9 +90,9 @@ public class TestFakeTripGen {
 
       SpdzInputMask m1 = masks[0];
       SpdzInputMask m2 = masks[1];
-      BigIntegerI share = add(m1.getMask().getShare(), m2.getMask().getShare());
+      BigIntegerI share = m1.getMask().getShare().add(m2.getMask().getShare());
       Assert.assertEquals(realMask.getRealValue(), share);
-      BigIntegerI mac = add(m1.getMask().getMac(), m2.getMask().getMac());
+      BigIntegerI mac = m1.getMask().getMac().add(m2.getMask().getMac());
       Assert.assertEquals(zero, subtract(share, mac));
     }
   }
@@ -115,18 +105,17 @@ public class TestFakeTripGen {
     for (SpdzSInt[][] pipe : expPipes) {
       SpdzSInt[] as = pipe[0];
       SpdzSInt[] bs = pipe[1];
-      BigIntegerI r = add(as[1].getShare(), bs[1].getShare());
+      BigIntegerI r = as[1].getShare().add(bs[1].getShare());
       System.out.println(r);
       Assert.assertEquals(r.modInverse(modulus),
-          add(as[0].getShare(), bs[0].getShare()));
+          as[0].getShare().add(bs[0].getShare()));
       BigIntegerI prevR = r;
       for (int i = 0; i < as.length; i++) {
-        BigIntegerI share = add(as[i].getShare(), bs[i].getShare());
-        BigIntegerI mac = add(as[i].getMac(), bs[i].getMac());
+        BigIntegerI share = as[i].getShare().add(bs[i].getShare());
+        BigIntegerI mac = as[i].getMac().add(bs[i].getMac());
         Assert.assertEquals(zero, subtract(share, mac));
         if (i > 1) {
-          BigIntegerI copy = r.copy();
-          copy.multiply(prevR);
+          BigIntegerI copy = r.multiply(prevR);
           Assert.assertEquals(copy, share);
           prevR = share;
         }
@@ -140,8 +129,8 @@ public class TestFakeTripGen {
     int noOfParties = 2;
     List<SpdzSInt[]> bits = FakeTripGen.generateBits(amount, noOfParties, modulus, alpha);
     for (SpdzSInt[] b : bits) {
-      BigIntegerI val = add(b[0].getShare(), b[1].getShare());
-      BigIntegerI mac = add(b[0].getMac(), b[1].getMac());
+      BigIntegerI val = b[0].getShare().add(b[1].getShare());
+      BigIntegerI mac = b[0].getMac().add(b[1].getMac());
 
       Assert.assertTrue(
           val.asBigInteger().equals(BigInteger.ZERO)

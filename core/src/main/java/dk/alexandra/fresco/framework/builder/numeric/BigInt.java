@@ -3046,11 +3046,6 @@ public class BigInt extends Number implements BigIntegerI {
   }
 
   @Override
-  public void mod(BigInteger modulus) {
-    safe(this::mod, fromConstant(modulus, "mod"));
-  }
-
-  @Override
   public BigInt modInverse(BigInteger mod) {
     return fromConstant(asBigInteger().modInverse(mod), "modInverse");
   }
@@ -3066,22 +3061,24 @@ public class BigInt extends Number implements BigIntegerI {
   }
 
   @Override
-  public void subtract(BigIntegerI operand) {
-    safe(this::sub, operand);
+  public BigIntegerI subtract(BigIntegerI operand) {
+    return safe(this::sub, operand);
   }
 
   @Override
-  public void multiply(BigIntegerI operand) {
-    safe(this::mul, operand);
+  public BigIntegerI multiply(BigIntegerI operand) {
+    return safe(this::mul, operand);
   }
 
   @Override
-  public void add(BigIntegerI operand) {
-    safe(this::add, operand);
+  public BigIntegerI add(BigIntegerI operand) {
+    return safe(this::add, operand);
   }
 
-  private void safe(Consumer<BigInt> operation, BigIntegerI operand) {
-    operation.accept(toBigInt(operand));
+  private BigInt safe(Consumer<BigInt> operation, BigIntegerI operand) {
+    BigInt t = toBigInt(operand).copy();
+    operation.accept(t);
+    return t;
   }
 
   private BigInt toBigInt(BigIntegerI operand) {

@@ -26,7 +26,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
   private RealNumericContext realNumericContext;
   private MiscBigIntegerGenerators mog;
   private Random rand;
-  private Function<BigInteger, BigIntegerI> bigIntegerSupplier = BigIntegerClassic::new;
+  private Function<BigInteger, BigIntegerI> bigIntegerSupplier;
 
   /**
    * Creates a dummy arithmetic builder factory which creates basic numeric operations
@@ -40,6 +40,8 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
     this.basicNumericContext = basicNumericContext;
     this.realNumericContext = realNumericContext;
     this.rand = new Random(0);
+    this.bigIntegerSupplier = (number) ->
+        new BigIntegerClassic(number, basicNumericContext.getModulus());
   }
 
   @Override

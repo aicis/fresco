@@ -31,8 +31,7 @@ public class DummyArithmeticAddProtocol extends DummyArithmeticNativeProtocol<SI
       Network network) {
     BigIntegerI l = ((DummyArithmeticSInt) left.out()).getValue();
     BigIntegerI r = ((DummyArithmeticSInt) right.out()).getValue();
-    BigIntegerI value = r.copy();
-    value.add(l);
+    BigIntegerI value = r.add(l);
     out = resourcePool.createSInt(value);
     return EvaluationStatus.IS_DONE;
   }

@@ -35,9 +35,7 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
     if (round == 0) {
       this.inputMask = dataSupplier.getNextInputMask(this.inputter);
       if (myId == this.inputter) {
-        BigIntegerI bcValue = this.input.copy();
-        bcValue.subtract(this.inputMask.getRealValue());
-        bcValue.mod(modulus);
+        BigIntegerI bcValue = this.input.subtract(this.inputMask.getRealValue());
         network.sendToAll(serializer.serialize(bcValue));
       }
       return EvaluationStatus.HAS_MORE_ROUNDS;
@@ -52,9 +50,7 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
       if (!validated) {
         throw new MaliciousException("Broadcast digests did not match");
       }
-      BigIntegerI maskedValue = dataSupplier.getSecretSharedKey().copy();
-      maskedValue.multiply(valueMasked);
-      maskedValue.mod(modulus);
+      BigIntegerI maskedValue = dataSupplier.getSecretSharedKey().multiply(valueMasked);
       SpdzSInt valueMaskedElement =
           new SpdzSInt(
               valueMasked,

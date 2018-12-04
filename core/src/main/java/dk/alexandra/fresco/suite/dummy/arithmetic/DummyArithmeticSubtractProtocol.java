@@ -16,7 +16,6 @@ public class DummyArithmeticSubtractProtocol extends DummyArithmeticNativeProtoc
    *
    * @param left the left operand
    * @param right the right operand
-   *
    */
   public DummyArithmeticSubtractProtocol(DRes<SInt> left, DRes<SInt> right) {
     this.left = left;
@@ -25,11 +24,9 @@ public class DummyArithmeticSubtractProtocol extends DummyArithmeticNativeProtoc
 
   @Override
   public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool rp, Network network) {
-    BigIntegerI sub = ((DummyArithmeticSInt) left.out()).getValue().copy();
-    BigIntegerI r = ((DummyArithmeticSInt) right.out()).getValue();
-    sub.subtract(r);
-    sub.mod(rp.getModulus());
-    out = new DummyArithmeticSInt(sub);
+    BigIntegerI left = ((DummyArithmeticSInt) this.left.out()).getValue();
+    BigIntegerI right = ((DummyArithmeticSInt) this.right.out()).getValue();
+    out = new DummyArithmeticSInt(left.subtract(right));
     return EvaluationStatus.IS_DONE;
   }
 
