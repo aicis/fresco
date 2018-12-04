@@ -49,7 +49,6 @@ public class TestSpdzDummyDataSupplier {
     for (SpdzDummyDataSupplier supplier : suppliers) {
       macKey.add(supplier.getSecretSharedKey());
     }
-    macKey.mod(suppliers.get(0).getModulus());
     return macKey;
   }
 
@@ -233,9 +232,7 @@ public class TestSpdzDummyDataSupplier {
   }
 
   private void assertMacCorrect(SpdzSInt recombined, BigIntegerI macKey, BigInteger modulus) {
-    BigIntegerI share = recombined.getShare().copy();
-    share.multiply(macKey);
-    share.mod(modulus);
+    BigIntegerI share = recombined.getShare().multiply(macKey);
     assertEquals(share, recombined.getMac());
   }
 
@@ -244,9 +241,7 @@ public class TestSpdzDummyDataSupplier {
     assertMacCorrect(recombined.getB(), macKey, modulus);
     assertMacCorrect(recombined.getC(), macKey, modulus);
 
-    BigIntegerI copy = recombined.getA().getShare().copy();
-    copy.multiply(recombined.getB().getShare());
-    copy.mod(modulus);
+    BigIntegerI copy = recombined.getA().getShare().multiply(recombined.getB().getShare());
     // check that a * b = c
     assertEquals(recombined.getC().getShare(), copy
     );

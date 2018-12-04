@@ -30,7 +30,7 @@ public class DummyArithmeticProtocolSuite
   }
 
   public DummyArithmeticProtocolSuite(BigInteger modulus, int maxBitLength, int precision) {
-    this(new BigIntegerClassic(modulus), maxBitLength, precision);
+    this(new BigIntegerClassic(modulus, modulus), maxBitLength, precision);
   }
 
   public DummyArithmeticProtocolSuite(BigIntegerI modulus, int maxBitLength, int precision) {

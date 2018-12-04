@@ -5,15 +5,13 @@ import java.math.BigInteger;
 
 public interface BigIntegerI extends Comparable<BigIntegerI>, Serializable {
 
-  void mod(BigInteger modulus);
-
   BigIntegerI modInverse(BigInteger mod);
 
-  void add(BigIntegerI operand);
+  BigIntegerI add(BigIntegerI operand);
 
-  void subtract(BigIntegerI operand);
+  BigIntegerI subtract(BigIntegerI operand);
 
-  void multiply(BigIntegerI l);
+  BigIntegerI multiply(BigIntegerI l);
 
   BigIntegerI divide(BigIntegerI denominator);
 
@@ -25,5 +23,4 @@ public interface BigIntegerI extends Comparable<BigIntegerI>, Serializable {
 
   BigIntegerI modPow(BigIntegerI valueOf, BigInteger modulus);
 
-  BigIntegerI copy();
 }

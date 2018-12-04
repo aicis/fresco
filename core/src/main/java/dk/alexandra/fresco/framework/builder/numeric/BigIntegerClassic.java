@@ -6,55 +6,50 @@ import java.util.Objects;
 public class BigIntegerClassic implements BigIntegerI {
 
   private BigInteger value;
+  private BigInteger fieldModulus;
 
-  public BigIntegerClassic(BigInteger value) {
+  public BigIntegerClassic(BigInteger value, BigInteger fieldModulus) {
     this.value = value;
-  }
-
-  @Override
-
-  public void mod(BigInteger modulus) {
-    value = value.mod(modulus);
+    this.fieldModulus = fieldModulus;
   }
 
   @Override
   public BigIntegerI modInverse(BigInteger modulus) {
-    return new BigIntegerClassic(value.modInverse(modulus));
+    return new BigIntegerClassic(value.modInverse(modulus), fieldModulus);
   }
 
   @Override
   public BigIntegerI modPow(BigIntegerI pow, BigInteger modulus) {
-    return new BigIntegerClassic(value.modPow(pow.asBigInteger(), modulus));
-  }
-
-  @Override
-  public BigIntegerI copy() {
-    return new BigIntegerClassic(value);
+    return create(value.modPow(pow.asBigInteger(), fieldModulus));
   }
 
   @Override
   public BigIntegerI divide(BigIntegerI denominator) {
-    return new BigIntegerClassic(value.divide(denominator.asBigInteger()));
+    return create(value.divide(denominator.asBigInteger()));
+  }
+
+  private BigIntegerClassic create(BigInteger divide) {
+    return new BigIntegerClassic(divide, fieldModulus);
   }
 
   @Override
   public BigIntegerI divide(int denominator) {
-    return new BigIntegerClassic(value.divide(BigInteger.valueOf(denominator)));
+    return create(value.divide(BigInteger.valueOf(denominator)));
   }
 
   @Override
-  public void subtract(BigIntegerI operand) {
-    value = value.subtract(operand.asBigInteger());
+  public BigIntegerClassic subtract(BigIntegerI operand) {
+    return create(value.subtract(operand.asBigInteger()));
   }
 
   @Override
-  public void multiply(BigIntegerI operand) {
-    value = value.multiply(operand.asBigInteger());
+  public BigIntegerClassic multiply(BigIntegerI operand) {
+    return create(value.multiply(operand.asBigInteger()));
   }
 
   @Override
-  public void add(BigIntegerI operand) {
-    value = value.add(operand.asBigInteger());
+  public BigIntegerClassic add(BigIntegerI operand) {
+    return create(value.add(operand.asBigInteger()));
   }
 
   @Override

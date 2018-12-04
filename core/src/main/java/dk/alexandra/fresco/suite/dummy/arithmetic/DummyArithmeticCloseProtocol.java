@@ -33,7 +33,6 @@ public class DummyArithmeticCloseProtocol extends DummyArithmeticNativeProtocol<
     if (round == 0) {
       if (targetId == rp.getMyId()) {
         BigIntegerI out = open.out();
-        out.mod(rp.getModulus());
         network.sendToAll(rp.getSerializer().serialize(out));
       }
       return EvaluationStatus.HAS_MORE_ROUNDS;

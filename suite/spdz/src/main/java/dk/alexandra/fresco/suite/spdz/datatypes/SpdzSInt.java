@@ -43,13 +43,8 @@ public class SpdzSInt implements SInt, Serializable {
    * @return The sum
    */
   public SpdzSInt add(SpdzSInt e) {
-    BigIntegerI share = this.share.copy();
-    share.add(e.getShare());
-    share.mod(mod);
-
-    BigIntegerI mac = this.mac.copy();
-    mac.add(e.getMac());
-    mac.mod(mod);
+    BigIntegerI share = this.share.add(e.getShare());
+    BigIntegerI mac = this.mac.add(e.getMac());
     return new SpdzSInt(share, mac, this.mod);
   }
 
@@ -61,13 +56,10 @@ public class SpdzSInt implements SInt, Serializable {
    * @return The sum
    */
   public SpdzSInt add(SpdzSInt e, int id) {
-    BigIntegerI share = this.share.copy();
-    BigIntegerI mac = this.mac.copy();
-    mac.add(e.getMac());
-    mac.mod(mod);
+    BigIntegerI share = this.share;
+    BigIntegerI mac = this.mac.add(e.getMac());
     if (id == 1) {
-      share.add(e.getShare());
-      share.mod(mod);
+      share = share.add(e.getShare());
     }
     return new SpdzSInt(share, mac, this.mod);
   }
@@ -79,12 +71,8 @@ public class SpdzSInt implements SInt, Serializable {
    * @return The difference
    */
   public SpdzSInt subtract(SpdzSInt e) {
-    BigIntegerI share = this.share.copy();
-    share.subtract(e.getShare());
-    share.mod(mod);
-    BigIntegerI mac = this.mac.copy();
-    share.subtract(e.getShare());
-    share.mod(mod);
+    BigIntegerI share = this.share.subtract(e.getShare());
+    BigIntegerI mac = this.mac.subtract(e.getMac());
     return new SpdzSInt(share, mac, this.mod);
   }
 
@@ -95,12 +83,8 @@ public class SpdzSInt implements SInt, Serializable {
    * @return The product
    */
   public SpdzSInt multiply(BigIntegerI c) {
-    BigIntegerI share = this.share.copy();
-    share.multiply(c);
-    share.mod(mod);
-    BigIntegerI mac = this.mac.copy();
-    share.multiply(c);
-    share.mod(mod);
+    BigIntegerI share = this.share.multiply(c);
+    BigIntegerI mac = this.mac.multiply(c);
     return new SpdzSInt(share, mac, this.mod);
   }
 

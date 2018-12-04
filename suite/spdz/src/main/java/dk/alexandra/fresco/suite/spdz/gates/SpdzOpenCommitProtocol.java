@@ -97,7 +97,6 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigI
     messageDigest.update(randomness.toByteArray());
     BigIntegerI testSubject =
         resourcePool.getSerializer().deserialize(messageDigest.digest());
-    testSubject.mod(resourcePool.getModulus());
     return commitment.equals(testSubject);
   }
 }

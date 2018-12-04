@@ -14,18 +14,20 @@ public class DummyArithmeticSIntTest {
   @Test
   public void testToString() {
     DummyArithmeticSInt value = new DummyArithmeticSInt(
-        new BigIntegerClassic(BigInteger.valueOf(42)));
+        create(BigInteger.valueOf(42)));
     String toString = value.toString();
     Assert.assertThat(toString, StringContains.containsString("42"));
     Assert.assertThat(value.toString(), Is.is(toString));
   }
 
+  private BigIntegerClassic create(BigInteger value) {
+    return new BigIntegerClassic(value, BigInteger.valueOf(500));
+  }
+
   @Test
   public void testEquals() {
-    DummyArithmeticSInt value1 = new DummyArithmeticSInt(
-        new BigIntegerClassic(BigInteger.valueOf(42)));
-    DummyArithmeticSInt value2 = new DummyArithmeticSInt(
-        new BigIntegerClassic(BigInteger.valueOf(42)));
+    DummyArithmeticSInt value1 = new DummyArithmeticSInt(create(BigInteger.valueOf(42)));
+    DummyArithmeticSInt value2 = new DummyArithmeticSInt(create(BigInteger.valueOf(42)));
     DummyArithmeticSInt value3 = new DummyArithmeticSInt(new BigInt(41));
     Assert.assertThat(value1, Is.is(value2));
     Assert.assertThat(value1, IsNot.not(value3));

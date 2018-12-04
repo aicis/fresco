@@ -40,13 +40,10 @@ public class SpdzCommitment {
     hash.update(value.toByteArray());
     byte[] randomBytes = new byte[modulus.bitLength() / 8 + 1];
     rand.nextBytes(randomBytes);
-    BigIntegerI deserialize = serializer.deserialize(randomBytes);
-    randomness = deserialize.copy();
-    randomness.mod(modulus);
+    randomness = serializer.deserialize(randomBytes);
 
     hash.update(this.randomness.toByteArray());
     commitment = serializer.deserialize(hash.digest());
-    commitment.mod(modulus);
 
     return this.commitment;
   }

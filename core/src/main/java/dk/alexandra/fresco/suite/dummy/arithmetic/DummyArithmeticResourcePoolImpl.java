@@ -59,7 +59,6 @@ public class DummyArithmeticResourcePoolImpl extends ResourcePoolImpl
 
   @Override
   public SInt createSInt(BigIntegerI add) {
-    add.mod(this.modulus);
     return new DummyArithmeticSInt(add);
   }
 }

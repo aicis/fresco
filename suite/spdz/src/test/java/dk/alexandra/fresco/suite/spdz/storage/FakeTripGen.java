@@ -137,9 +137,7 @@ public class FakeTripGen {
       BigIntegerI macB = getMac(b);
       List<SpdzSInt> elementsB = toShares(b, macB, noOfParties);
 
-      BigIntegerI c = b.copy();
-      b.multiply(a);
-      c.mod(mod);
+      BigIntegerI c = b.multiply(a);
       BigIntegerI macC = getMac(c);
       List<SpdzSInt> elementsC = toShares(c, macC, noOfParties);
 
@@ -175,9 +173,7 @@ public class FakeTripGen {
         BigIntegerI macB = getMac(b);
         List<SpdzSInt> elementsB = toShares(b, macB, noOfParties);
 
-        BigIntegerI c = b.copy();
-        b.multiply(a);
-        c.mod(mod);
+        BigIntegerI c = b.multiply(a);
         BigIntegerI macC = getMac(c);
         List<SpdzSInt> elementsC = toShares(c, macC, noOfParties);
 
@@ -383,9 +379,7 @@ public class FakeTripGen {
 
       BigIntegerI exp = BigInt.fromConstant(BigInteger.ONE);
       for (int i = 1; i < EXP_PIPE_SIZE; i++) {
-        exp = exp.copy();
         exp.multiply(r);
-        exp.mod(mod);
         mac = getMac(exp);
         elements = toShares(exp, mac, noOfParties);
         for (int p = 0; p < noOfParties; p++) {
@@ -416,9 +410,7 @@ public class FakeTripGen {
 
         BigIntegerI exp = BigInt.fromConstant(BigInteger.ONE);
         for (int i = 1; i < EXP_PIPE_SIZE; i++) {
-          exp = exp.copy();
-          exp.multiply(r);
-          exp.mod(mod);
+          exp = exp.multiply(r);
           mac = getMac(exp);
           elements = toShares(exp, mac, noOfParties);
           for (int p = 0; p < noOfParties; p++) {
@@ -454,7 +446,6 @@ public class FakeTripGen {
         alphaShares.add(lastShare);
       }
       lastShare.subtract(alphaShare);
-      lastShare.mod(mod);
     }
     return alphaShares;
   }
@@ -619,9 +610,7 @@ public class FakeTripGen {
     for (int i = 0; i < numberOfTriples; i++) {
       a = sample();
       b = sample();
-      c = b.copy();
-      c.multiply(a);
-      c.mod(mod);
+      c = b.multiply(a);
       writeAsShared(a, channels);
       writeAsShared(b, channels);
       writeAsShared(c, channels);
@@ -727,8 +716,7 @@ public class FakeTripGen {
       } else {
         fw.write(lastShare.toString());
       }
-      lastShare.subtract(alphaShare);
-      lastShare.mod(mod);
+      lastShare = lastShare.subtract(alphaShare);
       fw.close();
     }
   }
@@ -749,9 +737,7 @@ public class FakeTripGen {
       writeAsShared(rInv, channels);
       BigIntegerI exp = BigInt.fromConstant(BigInteger.ONE);
       for (int i = 1; i < EXP_PIPE_SIZE; i++) {
-        exp = exp.copy();
-        exp.multiply(r);
-        exp.mod(mod);
+        exp = exp.multiply(r);
         writeAsShared(exp, channels);
       }
     }
@@ -790,13 +776,9 @@ public class FakeTripGen {
     for (int i = 0; i < numberOfParties - 1; i++) {
       valShare = sample();
       macShare = sample();
-      BigIntegerI valueComputed = value.copy();
-      valueComputed.subtract(valShare);
-      valueComputed.mod(mod);
 
-      BigIntegerI macComputed = mac.copy();
-      macComputed.subtract(macShare);
-      macComputed.mod(mod);
+      value = value.subtract(valShare);
+      mac = mac.subtract(macShare);
       elements.add(new SpdzSInt(valShare, macShare, FakeTripGen.mod));
     }
     elements.add(new SpdzSInt(value, mac, FakeTripGen.mod));
@@ -810,10 +792,7 @@ public class FakeTripGen {
    * @return the mac
    */
   private static BigIntegerI getMac(BigIntegerI value) {
-    BigIntegerI result = value.copy();
-    result.multiply(alpha);
-    result.mod(FakeTripGen.mod);
-    return result;
+    return value.multiply(alpha);
   }
 
   /**

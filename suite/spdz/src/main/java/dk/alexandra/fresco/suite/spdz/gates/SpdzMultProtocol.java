@@ -55,15 +55,9 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SInt> {
         d.add(deltaShares[i]);
       }
       BigInteger modulus = spdzResourcePool.getModulus();
-      e.mod(modulus);
-      d.mod(modulus);
 
-      BigIntegerI product = e.copy();
-      product.multiply(d);
-      product.mod(modulus);
-      BigIntegerI mac = dataSupplier.getSecretSharedKey();
-      mac.multiply(product);
-      mac.mod(modulus);
+      BigIntegerI product = e.multiply(d);
+      BigIntegerI mac = dataSupplier.getSecretSharedKey().multiply(product);
 
       SpdzSInt ed = new SpdzSInt(
           product,

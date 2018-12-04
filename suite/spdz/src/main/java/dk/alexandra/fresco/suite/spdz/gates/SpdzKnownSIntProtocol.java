@@ -42,14 +42,10 @@ public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
     BigIntegerI globalKeyShare =
         spdzResourcePool.getDataSupplier().getSecretSharedKey();
 
-    BigIntegerI value = input.copy();
-    value.mod(modulus);
-    BigIntegerI mac = value.copy();
-    mac.multiply(globalKeyShare);
-    mac.mod(modulus);
+    BigIntegerI mac = input.multiply(globalKeyShare);
 
     if (spdzResourcePool.getMyId() == 1) {
-      elm = new SpdzSInt(value, mac, modulus);
+      elm = new SpdzSInt(input, mac, modulus);
     } else {
       elm = new SpdzSInt(zero, mac, modulus);
     }

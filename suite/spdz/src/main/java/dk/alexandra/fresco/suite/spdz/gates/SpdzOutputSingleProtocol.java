@@ -50,11 +50,9 @@ public class SpdzOutputSingleProtocol extends SpdzNativeProtocol<BigInteger>
         byte[] buffer = shares.get(i);
         openedVal.add(serializer.deserialize(buffer));
       }
-      openedVal.mod(spdzResourcePool.getModulus());
       spdzResourcePool.getOpenedValueStore().pushOpenedValue(inMinusMask, openedVal);
       if (targetPlayer == myId) {
         openedVal.add(this.mask.getRealValue());
-        openedVal.mod(spdzResourcePool.getModulus());
         this.out = openedVal.asBigInteger();
       }
       return EvaluationStatus.IS_DONE;

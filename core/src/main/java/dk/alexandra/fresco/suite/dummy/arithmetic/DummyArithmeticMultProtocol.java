@@ -5,11 +5,9 @@ import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
 
-
 /**
  * Implements multiplication for the Dummy Arithmetic protocol suite, where all operations are done
  * in the clear.
- *
  */
 public class DummyArithmeticMultProtocol extends DummyArithmeticNativeProtocol<SInt> {
 
@@ -19,7 +17,7 @@ public class DummyArithmeticMultProtocol extends DummyArithmeticNativeProtocol<S
 
   /**
    * Constructs a protocol to multiply the result of two computations.
-   * 
+   *
    * @param left the left operand
    * @param right the right operand
    */
@@ -30,11 +28,9 @@ public class DummyArithmeticMultProtocol extends DummyArithmeticNativeProtocol<S
 
   @Override
   public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool rp, Network network) {
-    BigIntegerI prod = ((DummyArithmeticSInt) left.out()).getValue().copy();
+    BigIntegerI l = ((DummyArithmeticSInt) left.out()).getValue();
     BigIntegerI r = ((DummyArithmeticSInt) right.out()).getValue();
-    prod.multiply(r);
-    prod.mod(rp.getModulus());
-    out = new DummyArithmeticSInt(prod);
+    out = new DummyArithmeticSInt(l.multiply(r));
     return EvaluationStatus.IS_DONE;
   }
 

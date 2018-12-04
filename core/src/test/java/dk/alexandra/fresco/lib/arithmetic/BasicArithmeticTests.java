@@ -166,7 +166,7 @@ public class BasicArithmeticTests {
   private static BigInteger convertRepresentation(NumericResourcePool resourcePool,
       BigInteger add) {
     BigInteger modulus = resourcePool.getModulus();
-    BigIntegerClassic value = new BigIntegerClassic(add.mod(modulus));
+    BigIntegerClassic value = new BigIntegerClassic(add.mod(modulus), modulus);
     return resourcePool.convertRepresentation(value);
   }
 

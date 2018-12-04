@@ -99,7 +99,6 @@ public class MaliciousSpdzOpenCommitProtocol extends SpdzNativeProtocol<Boolean>
     messageDigest.update(randomness.toByteArray());
     BigIntegerI testSubject =
         spdzResourcePool.getSerializer().deserialize(messageDigest.digest());
-    testSubject.mod(spdzResourcePool.getModulus());
     return commitment.equals(testSubject);
   }
 

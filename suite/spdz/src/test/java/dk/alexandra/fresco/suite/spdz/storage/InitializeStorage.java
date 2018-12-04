@@ -101,7 +101,6 @@ public class InitializeStorage {
     for (BigIntegerI share : alphaShares) {
       alpha.add(share);
     }
-    alpha.mod(p);
 
     List<SpdzTriple[]> triples = FakeTripGen.generateTriples(noOfTriples, noOfPlayers, p, alpha);
     List<List<SpdzInputMask[]>> inputMasks =
@@ -206,7 +205,6 @@ public class InitializeStorage {
     for (BigIntegerI share : alphaShares) {
       alpha.add(share);
     }
-    alpha.mod(p);
 
     FakeTripGen generator = new FakeTripGen();
 

@@ -36,7 +36,6 @@ public class SpdzOutputToAllProtocol extends SpdzNativeProtocol<BigInteger>
         byte[] buffer = shares.get(i);
         openedVal.add(serializer.deserialize(buffer));
       }
-      openedVal.mod(spdzResourcePool.getModulus());
       spdzResourcePool.getOpenedValueStore().pushOpenedValue(((SpdzSInt) in.out()), openedVal);
       this.out = spdzResourcePool.convertRepresentation(openedVal);
       return EvaluationStatus.IS_DONE;
