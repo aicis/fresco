@@ -126,8 +126,6 @@ public class AsyncNetwork implements CloseableNetwork {
     return channelMap;
   }
 
-
-
   /**
    * Makes connections to the opposing parties with higher id's.
    *
@@ -208,6 +206,7 @@ public class AsyncNetwork implements CloseableNetwork {
 
   /**
    * Starts communication threads to handle incoming and outgoing messages.
+   *
    * @param channels a map from party ids to the associated communication channels
    */
   private void startCommunication(Map<Integer, SocketChannel> channels) {
@@ -235,6 +234,7 @@ public class AsyncNetwork implements CloseableNetwork {
 
     /**
      * Create a new Receiver.
+     *
      * @param channel the channel receive messages on
      * @param es the executor used to execute the receiving thread
      */
@@ -264,6 +264,7 @@ public class AsyncNetwork implements CloseableNetwork {
 
     /**
      * Stops the receiver nicely.
+     *
      * @throws ExecutionException if the sender failed due to an exception
      * @throws InterruptedException if the sender was interrupted
      * @throws IOException if exception occurs while closing channel
@@ -272,12 +273,14 @@ public class AsyncNetwork implements CloseableNetwork {
       if (isRunning()) {
         run.set(false);
         channel.shutdownInput();
-        future.get();
+        //todo is cancel correct? get was blocking because partner was already closed
+        future.cancel(true);
       }
     }
 
     /**
      * Polls for a message.
+     *
      * @param timeout when to timeout waiting for a new message
      * @return the message
      */
@@ -305,7 +308,6 @@ public class AsyncNetwork implements CloseableNetwork {
       }
       return null;
     }
-
   }
 
   /**
@@ -336,12 +338,13 @@ public class AsyncNetwork implements CloseableNetwork {
       this.flush.set(true);
       if (queue.isEmpty()) {
         this.ignoreNext.set(true);
-        queue.add(new byte[] {});
+        queue.add(new byte[]{});
       }
     }
 
     /**
      * Queues an outgoing message.
+     *
      * @param msg a message
      */
     void queueMessage(byte[] msg) {
@@ -366,6 +369,7 @@ public class AsyncNetwork implements CloseableNetwork {
 
     /**
      * Stops the sender nicely.
+     *
      * @throws ExecutionException if the sender failed due to an exception
      * @throws InterruptedException if the sender was interrupted
      * @throws IOException if exception occurs while closing channel
@@ -374,7 +378,8 @@ public class AsyncNetwork implements CloseableNetwork {
       if (isRunning()) {
         unblock();
       }
-      future.get();
+      //todo is cancel correct? get was blocking because partner was already closed
+      future.cancel(true);
       channel.shutdownOutput();
     }
 
@@ -394,7 +399,6 @@ public class AsyncNetwork implements CloseableNetwork {
       }
       return null;
     }
-
   }
 
   @Override
@@ -480,7 +484,7 @@ public class AsyncNetwork implements CloseableNetwork {
         logger.warn("P{}: A failed receiver detected while closing network", conf.getMyId());
       }
     }
-    for (SocketChannel c: channels) {
+    for (SocketChannel c : channels) {
       ExceptionConverter.safe(() -> {
         c.close();
         return null;
