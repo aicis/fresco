@@ -687,6 +687,11 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
   }
 
   @Test
+  public void test_Real_Matrix_Subtraction() {
+    runTest(new LinearAlgebraTests.TestMatrixSubtraction<>(), new TestParameters().numParties(2));
+  }
+  
+  @Test
   public void test_Real_Matrix_Multiplication() {
     runTest(new LinearAlgebraTests.TestMatrixMultiplication<>(),
         new TestParameters().numParties(2));
@@ -720,6 +725,12 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
         new TestParameters());
   }
 
+  @Test
+  public void test_Real_Matrix_Transpose() {
+    runTest(new LinearAlgebraTests.TestTransposeMatrix<>(),
+        new TestParameters());
+  }
+  
   @Test
   public void test_Real_Exp() {
     runTest(new MathTests.TestExp<>(), new TestParameters().numParties(2));

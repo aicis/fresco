@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
@@ -19,8 +20,12 @@ import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzOpenedValueStoreImpl;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzStorageDataSupplier;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
+import dk.alexandra.fresco.suite.tinytables.ot.TinyTablesNaorPinkasOt;
+import dk.alexandra.fresco.suite.tinytables.ot.TinyTablesOt;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproResourcePool;
+import dk.alexandra.fresco.suite.tinytables.util.Util;
+import dk.alexandra.fresco.tools.ot.base.DhParameters;
 import java.io.File;
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -65,8 +70,13 @@ public class CmdLineProtocolSuite {
       String tinytablesFileOption = "tinytables.file";
       String tinyTablesFilePath = properties.getProperty(tinytablesFileOption, "tinytables");
       this.protocolSuite = tinyTablesPreProFromCmdLine(properties);
+      Drbg random = new AesCtrDrbg();
+      TinyTablesOt baseOt = new TinyTablesNaorPinkasOt(Util.otherPlayerId(myId), random,
+          DhParameters
+          .getStaticDhParams());
       this.resourcePool =
-          new TinyTablesPreproResourcePool(myId, noOfPlayers, new File(tinyTablesFilePath));
+          new TinyTablesPreproResourcePool(myId, baseOt, random, 128, 40, 16000, new File(
+              tinyTablesFilePath));
     } else {
       this.protocolSuite = tinyTablesFromCmdLine(properties);
       this.resourcePool =

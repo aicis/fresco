@@ -165,6 +165,25 @@ public class TestDrngImpl {
     }
   }
 
+  @Test
+  public void testNextBit() {
+    int iterations = 1000;
+
+    int trueCount = 0;
+    int falseCount = 0;
+    for (int i = 0; i < iterations; i++) {
+      boolean currentRand = drng.nextBit();
+      if (currentRand) {
+        trueCount++;
+      } else {
+        falseCount++;
+      }
+    }
+    // Sanity check the randomness, by verifying that there are both true and false values returned
+    assertTrue(trueCount > iterations / 10);
+    assertTrue(falseCount > iterations / 10);
+  }
+
   /**
    * Asserting that a number is in a given range.
    * @param actual the actual value

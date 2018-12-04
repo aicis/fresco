@@ -6,13 +6,10 @@ import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.tinytables.online.TinyTablesProtocolSuite;
-import dk.alexandra.fresco.suite.tinytables.ot.OTFactory;
-import dk.alexandra.fresco.suite.tinytables.ot.base.BaseOTFactory;
-import dk.alexandra.fresco.suite.tinytables.ot.extension.SemiHonestOTExtensionFactory;
 import dk.alexandra.fresco.suite.tinytables.storage.BatchTinyTablesTripleProvider;
 import dk.alexandra.fresco.suite.tinytables.storage.TinyTablesStorage;
 import dk.alexandra.fresco.suite.tinytables.util.TinyTablesTripleGenerator;
-import java.security.SecureRandom;
+import dk.alexandra.fresco.tools.ot.base.Ot;
 
 /**
  * <p>
@@ -43,20 +40,19 @@ import java.security.SecureRandom;
 public class TinyTablesPreproProtocolSuite
     implements ProtocolSuite<TinyTablesPreproResourcePool, ProtocolBuilderBinary> {
 
+  private static final int TRIP_BATCH_SIZE = 8192;
 
   public TinyTablesPreproProtocolSuite() {
   }
 
+  @Override
   public BuilderFactory<ProtocolBuilderBinary> init(
       TinyTablesPreproResourcePool resourcePool,
       Network network) {
-    SecureRandom secureRandom = new SecureRandom();
-    OTFactory otFactory = new SemiHonestOTExtensionFactory(network, resourcePool.getMyId(), 128,
-        new BaseOTFactory(network, resourcePool.getMyId(), secureRandom), secureRandom);
+    Ot otFactory = resourcePool.initializeOtExtension(network);
 
-    resourcePool.setTripleGenerator(
-        new BatchTinyTablesTripleProvider(
-            new TinyTablesTripleGenerator(resourcePool.getMyId(), secureRandom, otFactory), 8192));
+    resourcePool.setTripleGenerator(new BatchTinyTablesTripleProvider(new TinyTablesTripleGenerator(
+        resourcePool.getMyId(), resourcePool.getDrng(), otFactory), TRIP_BATCH_SIZE));
 
     return new TinyTablesPreproBuilderFactory();
   }

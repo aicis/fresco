@@ -55,7 +55,7 @@ public class TinyTablesPreproANDProtocol extends TinyTablesPreproProtocol<SBool>
      * Here we only pick the mask of the output wire. The TinyTable is calculated after all AND
      * gates has been preprocessed.
      */
-    boolean rO = resourcePool.getSecureRandom().nextBoolean();
+    boolean rO = resourcePool.getDrng().nextBit();
     out = new TinyTablesPreproSBool(TinyTablesElement.getInstance(rO));
 
     /*
