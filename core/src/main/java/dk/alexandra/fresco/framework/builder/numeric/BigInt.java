@@ -3047,22 +3047,22 @@ public class BigInt extends Number implements BigIntegerI {
 
   @Override
   public void mod(BigInteger modulus) {
-    safe(this::mod, new BigInt(modulus.toString()));
+    safe(this::mod, fromConstant(modulus, "mod"));
   }
 
   @Override
-  public BigIntegerI modInverse(BigInteger mod) {
-    return null;
+  public BigInt modInverse(BigInteger mod) {
+    return fromConstant(asBigInteger().modInverse(mod), "modInverse");
   }
 
   @Override
   public BigIntegerI divide(BigIntegerI valueOf) {
-    return null;
+    return fromConstant(asBigInteger().divide(valueOf.asBigInteger()), "divide(BigIntegerI)");
   }
 
   @Override
   public BigIntegerI divide(int i) {
-    return null;
+    return fromConstant(asBigInteger().divide(new BigInt(i).asBigInteger()), "divide(int)");
   }
 
   @Override
@@ -3081,10 +3081,14 @@ public class BigInt extends Number implements BigIntegerI {
   }
 
   private void safe(Consumer<BigInt> operation, BigIntegerI operand) {
+    operation.accept(toBigInt(operand));
+  }
+
+  private BigInt toBigInt(BigIntegerI operand) {
     if (operand instanceof BigInt) {
-      operation.accept((BigInt) operand);
+      return (BigInt) operand;
     } else {
-      operation.accept(fromConstant(operand.asBigInteger()));
+      return fromConstant(operand.asBigInteger(), "toBigInt");
     }
   }
 
@@ -3095,12 +3099,23 @@ public class BigInt extends Number implements BigIntegerI {
 
   @Override
   public int compareTo(BigIntegerI o) {
-    return 0;
+    printSlow("compareTo");
+    return asBigInteger().compareTo(o.asBigInteger());
   }
 
   public static BigInt fromConstant(BigInteger bigInteger) {
-    System.out.println("This is a very slow conversion method");
+    return fromConstant(bigInteger, "N/A");
+  }
+
+  // todo avoid converting to BigInteger
+  private static BigInt fromConstant(BigInteger bigInteger, String methodName) {
+    printSlow(methodName);
     return new BigInt(bigInteger.toString());
+  }
+
+  // todo avoid converting to BigInteger
+  private static void printSlow(String methodName) {
+    System.out.println("Slow conversion to BigInteger: " + methodName);
   }
 
   /**
@@ -3111,11 +3126,11 @@ public class BigInt extends Number implements BigIntegerI {
    * of bytes required to represent this BigInteger, including at
    * least one sign bit, which is {@code (ceil((this.bitLength() +
    * 1)/8))}.  (This representation is compatible with the
-   * {@link #BigInteger(byte[]) (byte[])} constructor.)
+   * {@link BigInteger(byte[]) (byte[])} constructor.)
    *
    * @return a byte array containing the two's-complement representation of
    *     this BigInteger.
-   * @see #BigInteger(byte[])
+   * @see BigInteger(byte[])
    */
   public byte[] toByteArray() {
     // TODO Let caller define the byte array
@@ -3171,6 +3186,6 @@ public class BigInt extends Number implements BigIntegerI {
 
   @Override
   public BigIntegerI modPow(BigIntegerI valueOf, BigInteger modulus) {
-    return null;
+    return fromConstant(asBigInteger().modPow(valueOf.asBigInteger(), modulus), "modPow");
   }
 }
