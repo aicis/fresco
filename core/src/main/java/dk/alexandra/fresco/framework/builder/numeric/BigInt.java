@@ -77,6 +77,7 @@ public class BigInt implements BigIntegerI {
     BigIntMutable copy = value.copy();
     BigIntMutable convertedOperand = toBigInt(operand);
     operation.accept(copy, convertedOperand);
+    convertedOperand.mod(mutableFromConstant(modulus, "EOA"));
     return new BigInt(copy, modulus);
   }
 
