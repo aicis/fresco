@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
 import java.math.BigInteger;
+import java.util.Objects;
 
 public class BigIntegerClassic implements BigIntegerI {
 
@@ -76,5 +77,22 @@ public class BigIntegerClassic implements BigIntegerI {
     return "BigIntegerClassic{" +
         "value=" + value +
         '}';
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    BigIntegerClassic that = (BigIntegerClassic) o;
+    return Objects.equals(value, that.value);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(value);
   }
 }
