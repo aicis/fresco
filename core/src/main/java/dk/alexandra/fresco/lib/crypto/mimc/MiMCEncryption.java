@@ -25,6 +25,7 @@ public class MiMCEncryption implements Computation<SInt, ProtocolBuilderNumeric>
   private final DRes<SInt> encryptionKey;
   private final DRes<SInt> plainText;
   private final int requestedRounds;
+  private final MimcRoundConstantFactory roundConstants;
   private static Map<BigInteger, Integer> rounds = new HashMap<>();
   private static final BigInteger THREE = BigInteger.valueOf(3);
 
@@ -36,6 +37,25 @@ public class MiMCEncryption implements Computation<SInt, ProtocolBuilderNumeric>
    * @param requiredRounds The number of rounds to use.
    */
   public MiMCEncryption(DRes<SInt> plainText, DRes<SInt> encryptionKey, int requiredRounds) {
+    this.roundConstants = new MimcConstants();
+    this.encryptionKey = encryptionKey;
+    this.plainText = plainText;
+    this.requestedRounds = requiredRounds;
+  }
+
+  /**
+   * Implementation of the MiMC decryption protocol.
+   *
+   * @param plainText The secret-shared plain text to encrypt.
+   * @param encryptionKey The symmetric (secret-shared) key we will use to encrypt.
+   * @param requiredRounds The number of rounds to use.
+   * @param roundConstantFactory a factory to produce the round constants used in MiMC. Providing
+   *        this may optimize the local computation involved in MiMC as we only need to sample the
+   *        round constants once.
+   */
+  public MiMCEncryption(DRes<SInt> plainText, DRes<SInt> encryptionKey, int requiredRounds,
+      MimcRoundConstantFactory roundConstantFactory) {
+    this.roundConstants = roundConstantFactory;
     this.encryptionKey = encryptionKey;
     this.plainText = plainText;
     this.requestedRounds = requiredRounds;
@@ -69,7 +89,7 @@ public class MiMCEncryption implements Computation<SInt, ProtocolBuilderNumeric>
        * is the symmetric key i is the reverse of the current round count r_{i} is the round
        * constant c_{i - 1} is the cipher text we have computed in the previous round
        */
-      BigInteger roundConstantInteger = MimcConstants.getConstant(state.round, modulus);
+      BigInteger roundConstantInteger = roundConstants.getConstant(state.round, modulus);
       Numeric numeric = seq.numeric();
       DRes<SInt> masked =
           numeric.add(roundConstantInteger, numeric.add(state.value, encryptionKey));

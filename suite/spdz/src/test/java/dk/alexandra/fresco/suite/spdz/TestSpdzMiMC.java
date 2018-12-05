@@ -32,13 +32,6 @@ public class TestSpdzMiMC extends AbstractSpdzTest {
   }
 
   @Test
-  public void test_mimc_det_enc() {
-    runTest(
-        new MiMCTests.TestMiMCEncryptsDeterministically<>(false),
-        PreprocessingStrategy.DUMMY, 2, 512, 150, 16);
-  }
-
-  @Test
   public void test_mimc_enc_dec() {
     runTest(new MiMCTests.TestMiMCEncDec<>(false),
         PreprocessingStrategy.DUMMY, 2);

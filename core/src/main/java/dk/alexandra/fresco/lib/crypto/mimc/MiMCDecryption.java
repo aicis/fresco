@@ -24,6 +24,7 @@ public class MiMCDecryption implements Computation<SInt, ProtocolBuilderNumeric>
   private final DRes<SInt> encryptionKey;
   private final DRes<SInt> cipherText;
   private final int requestedRounds;
+  private final MimcRoundConstantFactory roundConstants;
   private static final BigInteger THREE = BigInteger.valueOf(3);
   private static Map<BigInteger, BigInteger> threeInverse = new HashMap<>();
 
@@ -35,6 +36,7 @@ public class MiMCDecryption implements Computation<SInt, ProtocolBuilderNumeric>
    * @param requiredRounds The number of rounds to use.
    */
   public MiMCDecryption(DRes<SInt> cipherText, DRes<SInt> encryptionKey, int requiredRounds) {
+    this.roundConstants = new MimcConstants();
     this.cipherText = cipherText;
     this.encryptionKey = encryptionKey;
     this.requestedRounds = requiredRounds;
@@ -80,7 +82,7 @@ public class MiMCDecryption implements Computation<SInt, ProtocolBuilderNumeric>
       int reverseRoundCount = requiredRounds - state.round;
 
       // Get round constant
-      BigInteger roundConstant = MimcConstants.getConstant(reverseRoundCount, modulus);
+      BigInteger roundConstant = roundConstants.getConstant(reverseRoundCount, modulus);
 
       // subtract key and round constant
       Numeric numeric = seq.numeric();

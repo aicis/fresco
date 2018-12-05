@@ -392,12 +392,6 @@ public class TestDummyArithmeticProtocolSuite extends AbstractDummyArithmeticTes
         .modulus(ModulusFinder.findSuitableModulus(512)));
   }
 
-  @Test
-  public void test_MiMC_Deterministically() {
-    runTest(new MiMCTests.TestMiMCEncryptsDeterministically<>(false), new TestParameters()
-        .modulus(ModulusFinder.findSuitableModulus(512)));
-  }
-
   // lib.list
   @Test
   public void test_findDuplicatesOne() {
