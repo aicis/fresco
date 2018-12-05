@@ -34,12 +34,27 @@ public class MiMCDecryption implements Computation<SInt, ProtocolBuilderNumeric>
    * @param cipherText The secret-shared cipher text to decrypt.
    * @param encryptionKey The symmetric (secret-shared) key we will use to decrypt.
    * @param requiredRounds The number of rounds to use.
+   * @param roundConstantFactory a factory to produce the round constants used in MiMC. Providing
+   *        this may optimize the local computation involved in MiMC as we only need to sample the
+   *        round constants once.
    */
-  public MiMCDecryption(DRes<SInt> cipherText, DRes<SInt> encryptionKey, int requiredRounds) {
-    this.roundConstants = new MimcConstants();
+  public MiMCDecryption(DRes<SInt> cipherText, DRes<SInt> encryptionKey, int requiredRounds,
+      MimcRoundConstantFactory roundConstantFactory) {
+    this.roundConstants = roundConstantFactory;
     this.cipherText = cipherText;
     this.encryptionKey = encryptionKey;
     this.requestedRounds = requiredRounds;
+  }
+
+  /**
+   * Implementation of the MiMC decryption protocol.
+   *
+   * @param cipherText The secret-shared cipher text to decrypt.
+   * @param encryptionKey The symmetric (secret-shared) key we will use to decrypt.
+   * @param requiredRounds The number of rounds to use.
+   */
+  public MiMCDecryption(DRes<SInt> cipherText, DRes<SInt> encryptionKey, int requiredRounds) {
+    this(cipherText, encryptionKey, USE_DEFAULT_ROUNDS, new MimcConstants());
   }
 
   /**

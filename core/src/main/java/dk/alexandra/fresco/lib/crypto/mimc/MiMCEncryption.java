@@ -37,10 +37,7 @@ public class MiMCEncryption implements Computation<SInt, ProtocolBuilderNumeric>
    * @param requiredRounds The number of rounds to use.
    */
   public MiMCEncryption(DRes<SInt> plainText, DRes<SInt> encryptionKey, int requiredRounds) {
-    this.roundConstants = new MimcConstants();
-    this.encryptionKey = encryptionKey;
-    this.plainText = plainText;
-    this.requestedRounds = requiredRounds;
+    this(plainText, encryptionKey, USE_DEFAULT_ROUNDS, new MimcConstants());
   }
 
   /**
