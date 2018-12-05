@@ -91,7 +91,7 @@ public class BigInt implements BigIntegerI {
 
   @Override
   public BigInteger asBigInteger() {
-    return new BigInteger(toString());
+    return new BigInteger(value.toString());
   }
 
   @Override
