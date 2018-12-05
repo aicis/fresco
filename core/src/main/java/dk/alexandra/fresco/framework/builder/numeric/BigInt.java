@@ -125,7 +125,7 @@ public class BigInt implements BigIntegerI {
 
   // todo avoid converting to BigInteger
   private static void printSlow(String methodName) {
-    System.out.println("Slow conversion to BigInteger: " + methodName);
+//    System.out.println("Slow conversion to BigInteger: " + methodName);
   }
 
   @Override

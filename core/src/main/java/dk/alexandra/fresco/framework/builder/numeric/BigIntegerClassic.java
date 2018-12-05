@@ -5,8 +5,8 @@ import java.util.Objects;
 
 public class BigIntegerClassic implements BigIntegerI {
 
-  private BigInteger value;
-  private BigInteger fieldModulus;
+  private final BigInteger value;
+  private final BigInteger fieldModulus;
 
   public BigIntegerClassic(BigInteger value, BigInteger fieldModulus) {
     this.value = value.mod(fieldModulus);
