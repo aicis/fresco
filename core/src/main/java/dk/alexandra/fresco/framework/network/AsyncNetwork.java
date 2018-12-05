@@ -272,13 +272,7 @@ public class AsyncNetwork implements CloseableNetwork {
       if (isRunning()) {
         run.set(false);
         channel.shutdownInput();
-        try {
-          future.get(5, TimeUnit.SECONDS);
-        } catch (TimeoutException e) {
-          future.cancel(true);
-        }
-//        future.cancel(true);
-        //todo is cancel correct? get was blocking because partner was already closed
+        future.get();
       }
     }
 
@@ -319,10 +313,10 @@ public class AsyncNetwork implements CloseableNetwork {
    */
   static class Sender implements Callable<Object> {
 
+    public static final byte[] IGNORE = {};
     private final SocketChannel channel;
     private final BlockingQueue<byte[]> queue;
     private final AtomicBoolean flush;
-    private final AtomicBoolean ignoreNext;
     private Future<Object> future;
 
     Sender(SocketChannel channel, ExecutorService es) {
@@ -331,7 +325,6 @@ public class AsyncNetwork implements CloseableNetwork {
       this.channel = channel;
       this.queue = new LinkedBlockingQueue<>();
       this.flush = new AtomicBoolean(false);
-      this.ignoreNext = new AtomicBoolean(false);
       this.future = es.submit(this);
     }
 
@@ -340,10 +333,7 @@ public class AsyncNetwork implements CloseableNetwork {
      */
     private void unblock() {
       this.flush.set(true);
-      if (queue.isEmpty()) {
-        this.ignoreNext.set(true);
-        queue.add(new byte[]{});
-      }
+      queue.add(IGNORE);
     }
 
     /**
@@ -382,12 +372,7 @@ public class AsyncNetwork implements CloseableNetwork {
       if (isRunning()) {
         unblock();
       }
-      try {
-        future.get(5, TimeUnit.SECONDS);
-      } catch (TimeoutException e) {
-        future.cancel(true);
-      }
-      //todo is cancel correct? get was blocking because partner was already closed
+      future.get();
       channel.shutdownOutput();
     }
 
@@ -395,7 +380,7 @@ public class AsyncNetwork implements CloseableNetwork {
     public Object call() throws IOException, InterruptedException {
       while (!queue.isEmpty() || !flush.get()) {
         byte[] data = queue.take();
-        if (!ignoreNext.get()) {
+        if (data != IGNORE) {
           ByteBuffer buf = ByteBuffer.allocate(Integer.BYTES + data.length);
           buf.putInt(data.length);
           buf.put(data);
