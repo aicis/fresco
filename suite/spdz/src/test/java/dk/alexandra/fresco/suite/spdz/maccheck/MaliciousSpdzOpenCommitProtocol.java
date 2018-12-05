@@ -55,7 +55,7 @@ public class MaliciousSpdzOpenCommitProtocol extends SpdzNativeProtocol<Boolean>
       network.sendToAll(serializer.serialize(value));
       BigIntegerI randomness = this.commitment.getRandomness();
       if (corruptNow) {
-        randomness.add(BigInt.fromConstant(BigInteger.ONE));
+        randomness.add(BigInt.fromConstant(BigInteger.ONE, spdzResourcePool.getModulus()));
       }
       network.sendToAll(serializer.serialize(randomness));
       return EvaluationStatus.HAS_MORE_ROUNDS;

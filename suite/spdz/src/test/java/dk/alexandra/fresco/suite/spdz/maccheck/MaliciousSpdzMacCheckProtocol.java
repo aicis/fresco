@@ -76,7 +76,8 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
         // compute delta_i as: gamma_i - alpha_i*a
         BigInteger delta = gamma.subtract(alpha.asBigInteger().multiply(a)).mod(modulus);
         // Commit to delta and open it afterwards
-        SpdzCommitment commitment = new SpdzCommitment(digest, BigInt.fromConstant(delta), rand);
+        SpdzCommitment commitment = new SpdzCommitment(digest, BigInt.fromConstant(delta, modulus),
+            rand);
         Map<Integer, BigIntegerI> comms = new HashMap<>();
         comm = new MaliciousSpdzCommitProtocol(commitment, comms, corruptCommitRound);
         commitments = new HashMap<>();

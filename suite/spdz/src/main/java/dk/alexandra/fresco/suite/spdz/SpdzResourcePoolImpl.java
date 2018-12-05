@@ -55,7 +55,8 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
   @Override
   public ByteSerializer<BigIntegerI> getSerializer() {
     // TODO Define by the user of this class
-    return new BigIntegerWithFixedLengthSerializer(modulusSize, BigInt::fromBytes);
+    return new BigIntegerWithFixedLengthSerializer(modulusSize,
+        bytes -> BigInt.fromBytes(bytes, modulus));
   }
 
   @Override

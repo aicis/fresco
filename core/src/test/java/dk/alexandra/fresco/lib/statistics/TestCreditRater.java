@@ -13,13 +13,15 @@ import org.junit.Test;
 
 public class TestCreditRater {
 
+  private BigInteger modulus = BigInteger.TEN;
+
   @Test
   public void testConsistency() {
     List<DRes<SInt>> values = new ArrayList<>();
     List<List<DRes<SInt>>> intervals = new ArrayList<>();
     List<List<DRes<SInt>>> scores = new ArrayList<>();
 
-    values.add(new DummyArithmeticSInt(BigInt.fromConstant(BigInteger.ONE)));
+    values.add(new DummyArithmeticSInt(BigInt.fromConstant(BigInteger.ONE, modulus)));
     intervals.add(new ArrayList<>());
     scores.add(new ArrayList<>());
 
@@ -38,7 +40,7 @@ public class TestCreditRater {
       Assert.assertThat(e.getMessage(), Is.is("Inconsistent data"));
     }
 
-    values.add(new DummyArithmeticSInt(new BigInt(1)));
+    values.add(new DummyArithmeticSInt(new BigInt(1, modulus)));
     try {
       new CreditRater(values, intervals, scores);
       Assert.fail("Inconsistent data should not be accepted");

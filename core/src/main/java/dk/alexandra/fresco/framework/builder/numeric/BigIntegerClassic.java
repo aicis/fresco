@@ -9,7 +9,7 @@ public class BigIntegerClassic implements BigIntegerI {
   private BigInteger fieldModulus;
 
   public BigIntegerClassic(BigInteger value, BigInteger fieldModulus) {
-    this.value = value;
+    this.value = value.mod(fieldModulus);
     this.fieldModulus = fieldModulus;
   }
 

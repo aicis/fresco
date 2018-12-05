@@ -53,8 +53,10 @@ public class TestSecureComputationEngineImpl {
           DRes<SInt> b = builder.numeric().known(BigInteger.valueOf(10));
           return builder.numeric().open(builder.numeric().add(a, b));
         };
+    BigInteger modulus = BigInteger.valueOf(101);
     DummyArithmeticResourcePool rp =
-        new DummyArithmeticResourcePoolImpl(0, 1, BigInteger.valueOf(101), BigInt::fromBytes);
+        new DummyArithmeticResourcePoolImpl(0, 1, modulus,
+            bytes -> BigInt.fromBytes(bytes, modulus));
 
     BigInteger b = sce.runApplication(app, rp, null);
     assertThat(b, is(BigInteger.valueOf(20)));
@@ -66,8 +68,10 @@ public class TestSecureComputationEngineImpl {
         builder -> {
           throw new RuntimeException();
         };
+    BigInteger modulus = BigInteger.valueOf(101);
     DummyArithmeticResourcePool rp =
-        new DummyArithmeticResourcePoolImpl(0, 1, BigInteger.valueOf(101), BigInt::fromBytes);
+        new DummyArithmeticResourcePoolImpl(0, 1, modulus,
+            bytes -> BigInt.fromBytes(bytes, modulus));
     sce.runApplication(app, rp, null);
     fail("Should not be reachable");
   }
@@ -80,8 +84,10 @@ public class TestSecureComputationEngineImpl {
 
           }
         };
+    BigInteger modulus = BigInteger.valueOf(101);
     DummyArithmeticResourcePool rp =
-        new DummyArithmeticResourcePoolImpl(0, 1, BigInteger.valueOf(101), BigInt::fromBytes);
+        new DummyArithmeticResourcePoolImpl(0, 1, modulus,
+            bytes -> BigInt.fromBytes(bytes, modulus));
     sce.runApplication(app, rp, null, Duration.ofNanos(1));
     fail("Should not be reachable");
   }

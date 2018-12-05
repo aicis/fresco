@@ -13,7 +13,10 @@ import java.math.BigInteger;
 
 public class MascotFormatConverter {
 
-  private MascotFormatConverter() {
+  private BigInteger modulus;
+
+  public MascotFormatConverter(BigInteger modulus) {
+    this.modulus = modulus;
   }
 
   /**
@@ -22,7 +25,7 @@ public class MascotFormatConverter {
    * @param element authenticated element
    * @return spdz element
    */
-  public static SpdzSInt toSpdzSInt(AuthenticatedElement element) {
+  public SpdzSInt toSpdzSInt(AuthenticatedElement element) {
     BigInteger share = element.getShare().toBigInteger();
     BigInteger mac = element.getMac().toBigInteger();
     return new SpdzSInt(convert(share), convert(mac), element.getModulus());
@@ -34,7 +37,7 @@ public class MascotFormatConverter {
    * @param triple triple to convert
    * @return converted triple
    */
-  public static SpdzTriple toSpdzTriple(MultiplicationTriple triple) {
+  public SpdzTriple toSpdzTriple(MultiplicationTriple triple) {
     SpdzSInt a = toSpdzSInt(triple.getLeft());
     SpdzSInt b = toSpdzSInt(triple.getRight());
     SpdzSInt c = toSpdzSInt(triple.getProduct());
@@ -47,7 +50,7 @@ public class MascotFormatConverter {
    * @param mask to convert
    * @return converted mask
    */
-  public static SpdzInputMask toSpdzInputMask(InputMask mask) {
+  public SpdzInputMask toSpdzInputMask(InputMask mask) {
     FieldElement openMask = mask.getOpenValue();
     if (openMask == null) {
       return new SpdzInputMask(toSpdzSInt(mask.getMaskShare()));
@@ -56,7 +59,7 @@ public class MascotFormatConverter {
     }
   }
 
-  private static BigIntegerI convert(BigInteger bigInteger) {
-    return BigInt.fromConstant(bigInteger);
+  private BigIntegerI convert(BigInteger bigInteger) {
+    return BigInt.fromConstant(bigInteger, modulus);
   }
 }

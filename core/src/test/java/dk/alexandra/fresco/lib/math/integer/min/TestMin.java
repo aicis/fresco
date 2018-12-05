@@ -4,21 +4,24 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 
 public class TestMin {
 
+  private BigInteger modulus = BigInteger.TEN;
+
   @Test(expected = IllegalArgumentException.class)
-  public void testMinimumProtocolTooShort(){
+  public void testMinimumProtocolTooShort() {
     List<DRes<SInt>> inputs = new ArrayList<>();
     inputs.add(createSInt(2));
     new Minimum(inputs);
   }
 
   @Test(expected = RuntimeException.class)
-  public void testMinInfFracProtocolInconsistent1(){
+  public void testMinInfFracProtocolInconsistent1() {
     List<DRes<SInt>> inputN = new ArrayList<>();
     inputN.add(createSInt(2));
     inputN.add(createSInt(2));
@@ -34,11 +37,11 @@ public class TestMin {
   }
 
   private DummyArithmeticSInt createSInt(int value) {
-    return new DummyArithmeticSInt(new BigInt(value));
+    return new DummyArithmeticSInt(new BigInt(value, modulus));
   }
 
   @Test(expected = RuntimeException.class)
-  public void testMinInfFracProtocolInconsistent2(){
+  public void testMinInfFracProtocolInconsistent2() {
     List<DRes<SInt>> inputN = new ArrayList<>();
     inputN.add(createSInt(2));
     inputN.add(createSInt(2));

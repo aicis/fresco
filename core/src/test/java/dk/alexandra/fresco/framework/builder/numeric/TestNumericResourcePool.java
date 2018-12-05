@@ -17,7 +17,7 @@ public class TestNumericResourcePool {
   }
 
   private BigInteger convertRepresentation(NumericResourcePool pool, BigInteger bigInteger) {
-    BigIntegerI value = BigInt.fromConstant(bigInteger);
+    BigIntegerI value = BigInt.fromConstant(bigInteger, defaultModulus);
     return pool.convertRepresentation(value);
   }
 

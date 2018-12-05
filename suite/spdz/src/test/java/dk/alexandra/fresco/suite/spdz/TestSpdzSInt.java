@@ -49,7 +49,7 @@ public class TestSpdzSInt {
   }
 
   private BigIntegerI getI(int i) {
-    return BigInt.fromConstant(get(i));
+    return BigInt.fromConstant(get(i), get(123456));
   }
 
   private BigInteger get(int i) {

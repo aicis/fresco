@@ -8,8 +8,8 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
+import dk.alexandra.fresco.framework.network.AsyncNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
@@ -73,7 +73,7 @@ public class TestNumericSuiteLoggingDecorators {
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  noOfParties, mod, BigInt::fromBytes),
+                  noOfParties, mod, bytes -> BigInt.fromBytes(bytes, mod)),
               () -> new AsyncNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }
@@ -139,7 +139,7 @@ public class TestNumericSuiteLoggingDecorators {
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  noOfParties, mod, BigInt::fromBytes),
+                  noOfParties, mod, bytes -> BigInt.fromBytes(bytes, mod)),
               () -> new AsyncNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }

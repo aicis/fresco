@@ -13,15 +13,15 @@ import org.junit.Test;
 public class TestSpdzTriple {
 
   @Test
-  public void testEquals(){
+  public void testEquals() {
     SpdzSInt a = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ZERO), BigInteger.ONE);
     SpdzSInt b = new SpdzSInt(get(BigInteger.ZERO), get(BigInteger.ZERO), BigInteger.ONE);
     SpdzTriple element = new SpdzTriple(a, b, a);
-    
+
     assertTrue(element.equals(element));
     assertFalse(element.equals("This is a String"));
     assertFalse(element.equals(null));
-    
+
     SpdzTriple element2 = new SpdzTriple(a, null, a);
     assertFalse(element.equals(element2));
     element2 = new SpdzTriple(a, a, a);
@@ -30,7 +30,7 @@ public class TestSpdzTriple {
     assertFalse(element.equals(element2));
     element2 = new SpdzTriple(a, null, a);
     assertTrue(element.equals(element2));
-    
+
     element2 = new SpdzTriple(a, null, null);
     assertFalse(element.equals(element2));
     element2 = new SpdzTriple(a, null, b);
@@ -39,7 +39,7 @@ public class TestSpdzTriple {
     assertFalse(element.equals(element2));
     element2 = new SpdzTriple(a, null, null);
     assertTrue(element.equals(element2));
-    
+
     element = new SpdzTriple(null, b, a);
     element2 = new SpdzTriple(a, b, a);
     assertFalse(element.equals(element2));
@@ -50,6 +50,6 @@ public class TestSpdzTriple {
   }
 
   private BigIntegerI get(BigInteger bigInteger) {
-    return BigInt.fromConstant(bigInteger);
+    return BigInt.fromConstant(bigInteger, BigInteger.TEN);
   }
 }

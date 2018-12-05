@@ -28,7 +28,8 @@ public class DummyArithmeticResourcePoolImpl extends ResourcePoolImpl
    * @param noOfPlayers number of parties in the participating
    */
   public DummyArithmeticResourcePoolImpl(int myId, int noOfPlayers) {
-    this(myId, noOfPlayers, ModulusFinder.findSuitableModulus(128), BigInt::fromBytes);
+    this(myId, noOfPlayers, ModulusFinder.findSuitableModulus(128),
+        (bytes) -> BigInt.fromBytes(bytes, ModulusFinder.findSuitableModulus(128)));
   }
 
   /**

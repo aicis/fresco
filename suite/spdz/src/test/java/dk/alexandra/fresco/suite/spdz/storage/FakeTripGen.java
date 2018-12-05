@@ -55,7 +55,8 @@ public class FakeTripGen {
   private static final StandardOpenOption WRITE = StandardOpenOption.WRITE;
   private static final StandardOpenOption CREATE = StandardOpenOption.CREATE;
 
-  private Function<BigInteger, BigIntegerI> converter = BigInt::fromConstant;
+  private Function<BigInteger, BigIntegerI> converter = bigInteger -> BigInt
+      .fromConstant(bigInteger, mod);
 
   /**
    * Generates a byte representation of a SpdzSInt (i.e. a share and mac pair), that is
@@ -321,7 +322,7 @@ public class FakeTripGen {
   }
 
   private static BigIntegerI sampleRandomBits(int bitLength, Random rand) {
-    return BigInt.fromConstant(new BigInteger(bitLength, rand));
+    return BigInt.fromConstant(new BigInteger(bitLength, rand), mod);
   }
 
   /**
@@ -377,7 +378,7 @@ public class FakeTripGen {
         expPipe[i][0] = elements.get(i);
       }
 
-      BigIntegerI exp = BigInt.fromConstant(BigInteger.ONE);
+      BigIntegerI exp = BigInt.fromConstant(BigInteger.ONE, modulus);
       for (int i = 1; i < EXP_PIPE_SIZE; i++) {
         exp.multiply(r);
         mac = getMac(exp);
@@ -408,7 +409,7 @@ public class FakeTripGen {
           expPipe[i][0] = elements.get(i);
         }
 
-        BigIntegerI exp = BigInt.fromConstant(BigInteger.ONE);
+        BigIntegerI exp = BigInt.fromConstant(BigInteger.ONE, modulus);
         for (int i = 1; i < EXP_PIPE_SIZE; i++) {
           exp = exp.multiply(r);
           mac = getMac(exp);
@@ -735,7 +736,7 @@ public class FakeTripGen {
       BigIntegerI r = sample();
       BigIntegerI rInv = r.modInverse(mod);
       writeAsShared(rInv, channels);
-      BigIntegerI exp = BigInt.fromConstant(BigInteger.ONE);
+      BigIntegerI exp = BigInt.fromConstant(BigInteger.ONE, mod);
       for (int i = 1; i < EXP_PIPE_SIZE; i++) {
         exp = exp.multiply(r);
         writeAsShared(exp, channels);

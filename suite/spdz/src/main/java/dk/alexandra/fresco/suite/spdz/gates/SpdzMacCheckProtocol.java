@@ -83,7 +83,7 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
           // Commit to delta and open it afterwards
           // TODO This should not be loaded directly here.
           SpdzCommitment deltaCommitment = new SpdzCommitment(digest,
-              BigInt.fromConstant(delta), rand);
+              BigInt.fromConstant(delta, modulus), rand);
           return seq.seq((subSeq) -> subSeq.append(new SpdzCommitProtocol(deltaCommitment)))
               .seq((subSeq, commitProtocol) ->
                   subSeq.append(new SpdzOpenCommitProtocol(deltaCommitment, commitProtocol)));
