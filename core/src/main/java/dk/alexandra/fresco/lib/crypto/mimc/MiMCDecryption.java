@@ -54,7 +54,7 @@ public class MiMCDecryption implements Computation<SInt, ProtocolBuilderNumeric>
    * @param requiredRounds The number of rounds to use.
    */
   public MiMCDecryption(DRes<SInt> cipherText, DRes<SInt> encryptionKey, int requiredRounds) {
-    this(cipherText, encryptionKey, USE_DEFAULT_ROUNDS, new MimcConstants());
+    this(cipherText, encryptionKey, requiredRounds, new MimcConstants());
   }
 
   /**
