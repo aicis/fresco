@@ -26,7 +26,7 @@ public class MiMCEncryption implements Computation<SInt, ProtocolBuilderNumeric>
   private final DRes<SInt> plainText;
   private final int requestedRounds;
   private final MimcRoundConstantFactory roundConstants;
-  private static Map<BigInteger, Integer> rounds = new HashMap<>();
+  private static final Map<BigInteger, Integer> rounds = new HashMap<>();
   private static final BigInteger THREE = BigInteger.valueOf(3);
 
   /**

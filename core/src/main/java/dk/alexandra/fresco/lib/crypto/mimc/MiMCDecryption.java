@@ -26,7 +26,7 @@ public class MiMCDecryption implements Computation<SInt, ProtocolBuilderNumeric>
   private final int requestedRounds;
   private final MimcRoundConstantFactory roundConstants;
   private static final BigInteger THREE = BigInteger.valueOf(3);
-  private static Map<BigInteger, BigInteger> threeInverse = new HashMap<>();
+  private static final Map<BigInteger, BigInteger> threeInverse = new HashMap<>();
 
   /**
    * Implementation of the MiMC decryption protocol.

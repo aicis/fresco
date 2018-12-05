@@ -18,8 +18,8 @@ import java.util.List;
  */
 public final class MimcConstants implements MimcRoundConstantFactory {
 
-  private List<BigInteger> roundConstants;
-  private Drng drng;
+  private final List<BigInteger> roundConstants;
+  private final Drng drng;
 
   public MimcConstants() {
     this.drng = new DrngImpl(AesCtrDrbgFactory.fromDerivedSeed((byte) 0x00));
