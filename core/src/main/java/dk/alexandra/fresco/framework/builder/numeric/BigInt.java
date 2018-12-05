@@ -146,4 +146,9 @@ public class BigInt implements BigIntegerI {
     return Objects.equals(modulus, bigInt.modulus) &&
         Objects.equals(value, bigInt.value);
   }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(modulus, value);
+  }
 }
