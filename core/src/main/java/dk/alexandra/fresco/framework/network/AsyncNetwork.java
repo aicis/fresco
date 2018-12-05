@@ -272,8 +272,13 @@ public class AsyncNetwork implements CloseableNetwork {
       if (isRunning()) {
         run.set(false);
         channel.shutdownInput();
+        try {
+          future.get(5, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+          future.cancel(true);
+        }
+//        future.cancel(true);
         //todo is cancel correct? get was blocking because partner was already closed
-        future.cancel(true);
       }
     }
 
@@ -377,8 +382,12 @@ public class AsyncNetwork implements CloseableNetwork {
       if (isRunning()) {
         unblock();
       }
+      try {
+        future.get(5, TimeUnit.SECONDS);
+      } catch (TimeoutException e) {
+        future.cancel(true);
+      }
       //todo is cancel correct? get was blocking because partner was already closed
-      future.cancel(true);
       channel.shutdownOutput();
     }
 
