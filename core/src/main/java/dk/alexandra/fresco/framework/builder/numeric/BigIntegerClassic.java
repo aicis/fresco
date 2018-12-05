@@ -58,8 +58,9 @@ public class BigIntegerClassic implements BigIntegerI {
   }
 
   @Override
-  public byte[] toByteArray() {
-    return value.toByteArray();
+  public void toByteArray(byte[] bytes, int offset, int byteLength) {
+    byte[] byteArray = value.toByteArray();
+    System.arraycopy(byteArray, 0, bytes, byteLength - byteArray.length + offset, byteArray.length);
   }
 
   @Override

@@ -63,8 +63,7 @@ public class BigIntegerWithFixedLengthSerializer implements ByteSerializer<BigIn
   }
 
   private byte[] produceBytes(BigIntegerI bigInteger, byte[] bytes, int offset) {
-    byte[] bb = bigInteger.toByteArray();
-    System.arraycopy(bb, 0, bytes, byteLength - bb.length + offset, bb.length);
+    bigInteger.toByteArray(bytes, offset, byteLength);
     return bytes;
   }
 }

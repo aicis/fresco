@@ -23,7 +23,9 @@ public class BigInt implements BigIntegerI {
   }
 
   public static BigIntegerI fromBytes(byte[] bytes, BigInteger modulus) {
-    return new BigInt(BigIntMutable.fromBytes(bytes), modulus);
+    BigIntMutable bigIntMutable = BigIntMutable.fromBytes(bytes);
+    bigIntMutable.mod(mutableFromConstant(modulus, "fromBytes"));
+    return new BigInt(bigIntMutable, modulus);
   }
 
   @Override
@@ -78,7 +80,7 @@ public class BigInt implements BigIntegerI {
     BigIntMutable copy = value.copy();
     BigIntMutable convertedOperand = toBigInt(operand);
     operation.accept(copy, convertedOperand);
-    convertedOperand.mod(mutableFromConstant(modulus, "EOA"));
+    copy.mod(mutableFromConstant(modulus, "EOA"));
     return new BigInt(copy, modulus);
   }
 
@@ -96,8 +98,8 @@ public class BigInt implements BigIntegerI {
   }
 
   @Override
-  public byte[] toByteArray() {
-    return value.toByteArray();
+  public void toByteArray(byte[] bytes, int offset, int byteLength) {
+    value.toByteArray(bytes, offset, byteLength);
   }
 
   @Override
@@ -107,6 +109,9 @@ public class BigInt implements BigIntegerI {
   }
 
   public static BigInt fromConstant(BigInteger bigInteger, BigInteger modulus) {
+    if (bigInteger == null) {
+      return null;
+    }
     return new BigInt(mutableFromConstant(bigInteger, "N/A"), modulus);
   }
 
@@ -120,6 +125,9 @@ public class BigInt implements BigIntegerI {
   private static BigIntMutable mutableFromConstant(BigInteger bigInteger,
       String methodName) {
     printSlow(methodName);
+    if (bigInteger == null) {
+      return null;
+    }
     return new BigIntMutable(bigInteger.toString());
   }
 
@@ -150,5 +158,13 @@ public class BigInt implements BigIntegerI {
   @Override
   public int hashCode() {
     return Objects.hash(modulus, value);
+  }
+
+  @Override
+  public String toString() {
+    return "BigInt{" +
+        "value=" + value +
+        ", modulus =" + modulus +
+        '}';
   }
 }

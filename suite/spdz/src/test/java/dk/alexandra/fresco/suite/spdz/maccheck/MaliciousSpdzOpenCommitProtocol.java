@@ -94,18 +94,19 @@ public class MaliciousSpdzOpenCommitProtocol extends SpdzNativeProtocol<Boolean>
 
   private boolean checkCommitment(SpdzResourcePool spdzResourcePool, BigIntegerI commitment,
       BigIntegerI value, BigIntegerI randomness) {
+    ByteSerializer<BigIntegerI> serializer = spdzResourcePool.getSerializer();
     MessageDigest messageDigest = spdzResourcePool.getMessageDigest();
-    messageDigest.update(value.toByteArray());
-    messageDigest.update(randomness.toByteArray());
+    messageDigest.update(serializer.serialize(value));
+    messageDigest.update(serializer.serialize(randomness));
     BigIntegerI testSubject =
-        spdzResourcePool.getSerializer().deserialize(messageDigest.digest());
+        serializer.deserialize(messageDigest.digest());
     return commitment.equals(testSubject);
   }
 
   private byte[] sendMaliciousBroadcastValidation(MessageDigest dig, Network network,
       Collection<BigIntegerI> bs) {
     for (BigIntegerI b : bs) {
-      dig.update(b.toByteArray());
+      dig.update(b.asBigInteger().toByteArray());
     }
     return sendAndReset(dig, network);
   }

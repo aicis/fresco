@@ -37,12 +37,12 @@ public class SpdzCommitment {
     if (commitment != null) {
       return commitment;
     }
-    hash.update(value.toByteArray());
+    hash.update(serializer.serialize(value));
     byte[] randomBytes = new byte[modulus.bitLength() / 8 + 1];
     rand.nextBytes(randomBytes);
     randomness = serializer.deserialize(randomBytes);
 
-    hash.update(this.randomness.toByteArray());
+    hash.update(serializer.serialize(this.randomness));
     commitment = serializer.deserialize(hash.digest());
 
     return this.commitment;

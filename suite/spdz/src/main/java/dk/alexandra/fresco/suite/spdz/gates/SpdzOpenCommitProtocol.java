@@ -71,9 +71,8 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigI
         checkValidation(openingValidated);
         return EvaluationStatus.IS_DONE;
       } else {
-        digest = sendBroadcastValidation(
-            spdzResourcePool.getMessageDigest(),
-            network, Arrays.asList(broadcastMessages));
+        digest = sendBroadcastValidation(serializer,
+            spdzResourcePool.getMessageDigest(), network, Arrays.asList(broadcastMessages));
       }
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
@@ -92,11 +91,11 @@ public class SpdzOpenCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigI
 
   private boolean checkCommitment(SpdzResourcePool resourcePool, BigIntegerI commitment,
       BigIntegerI value, BigIntegerI randomness) {
+    ByteSerializer<BigIntegerI> serializer = resourcePool.getSerializer();
     MessageDigest messageDigest = resourcePool.getMessageDigest();
-    messageDigest.update(value.toByteArray());
-    messageDigest.update(randomness.toByteArray());
-    BigIntegerI testSubject =
-        resourcePool.getSerializer().deserialize(messageDigest.digest());
+    messageDigest.update(serializer.serialize(value));
+    messageDigest.update(serializer.serialize(randomness));
+    BigIntegerI testSubject = serializer.deserialize(messageDigest.digest());
     return commitment.equals(testSubject);
   }
 }

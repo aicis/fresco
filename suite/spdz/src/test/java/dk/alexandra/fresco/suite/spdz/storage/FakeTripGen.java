@@ -23,7 +23,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
-import java.util.function.Function;
 
 /**
  * Generates "fake" offline data for SPDZ. I.e. correct offline data generated locally to increase
@@ -55,9 +54,6 @@ public class FakeTripGen {
   private static final StandardOpenOption WRITE = StandardOpenOption.WRITE;
   private static final StandardOpenOption CREATE = StandardOpenOption.CREATE;
 
-  private Function<BigInteger, BigIntegerI> converter = bigInteger -> BigInt
-      .fromConstant(bigInteger, mod);
-
   /**
    * Generates a byte representation of a SpdzSInt (i.e. a share and mac pair), that is
    * understood by the SpdzByteDataRetreiver.
@@ -67,9 +63,9 @@ public class FakeTripGen {
    */
   public static ByteBuffer elementToBytes(SpdzSInt element, int size) {
     BigIntegerI share = element.getShare();
-    byte[] shareBytes = share.toByteArray();
+    byte[] shareBytes = share.asBigInteger().toByteArray();
     BigIntegerI mac = element.getMac();
-    byte[] macBytes = mac.toByteArray();
+    byte[] macBytes = mac.asBigInteger().toByteArray();
     byte[] bytes = new byte[size * 2];
     if (shareBytes.length > size) {
       if (shareBytes.length == size + 1) {
@@ -102,7 +98,7 @@ public class FakeTripGen {
    * @return a byte representation.
    */
   public static ByteBuffer bigIntToBytes(BigIntegerI b, int size) {
-    byte[] bBytes = b.toByteArray();
+    byte[] bBytes = b.asBigInteger().toByteArray();
     byte[] bytes = new byte[size];
     if (bBytes.length > size) {
       if (bBytes.length == size + 1) {
@@ -321,10 +317,6 @@ public class FakeTripGen {
     return res;
   }
 
-  private static BigIntegerI sampleRandomBits(int bitLength, Random rand) {
-    return BigInt.fromConstant(new BigInteger(bitLength, rand), mod);
-  }
-
   /**
    * Writes secret shared bits directly to the given streams.
    *
@@ -380,7 +372,7 @@ public class FakeTripGen {
 
       BigIntegerI exp = BigInt.fromConstant(BigInteger.ONE, modulus);
       for (int i = 1; i < EXP_PIPE_SIZE; i++) {
-        exp.multiply(r);
+        exp = exp.multiply(r);
         mac = getMac(exp);
         elements = toShares(exp, mac, noOfParties);
         for (int p = 0; p < noOfParties; p++) {
@@ -446,7 +438,7 @@ public class FakeTripGen {
       } else {
         alphaShares.add(lastShare);
       }
-      lastShare.subtract(alphaShare);
+      lastShare = lastShare.subtract(alphaShare);
     }
     return alphaShares;
   }
@@ -808,6 +800,10 @@ public class FakeTripGen {
     } else {
       return sample();
     }
+  }
+
+  private static BigIntegerI sampleRandomBits(int bitLength, Random rand) {
+    return BigInt.fromConstant(new BigInteger(bitLength, rand), mod);
   }
 
   public static void cleanup() throws IOException {

@@ -59,14 +59,9 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
         .seq(seq -> {
           BigInteger[] rs = sampleRandomCoefficients(openedValues.size(), jointDrbg, modulus);
           BigInteger a = BigInteger.ZERO;
-          if (!openedValues.isEmpty()) {
-            a = openedValues.get(0).asBigInteger();
-          }
           int index = 0;
-          for (int i = 1; i < openedValues.size(); i++) {
-            BigIntegerI openedValue = openedValues.get(i);
-            BigInteger randomCooefficient = rs[index++];
-            a = a.add(randomCooefficient.multiply(openedValue.asBigInteger()).mod(modulus));
+          for (BigIntegerI openedValue : openedValues) {
+            a = a.add(openedValue.asBigInteger().multiply(rs[index++])).mod(modulus);
           }
 
           // compute gamma_i as the sum of all MAC's on the opened values times
@@ -74,8 +69,7 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
           BigInteger gamma = BigInteger.ZERO;
           index = 0;
           for (SpdzSInt closedValue : closedValues) {
-            BigInteger multiply = rs[index++].multiply(closedValue.getMac().asBigInteger());
-            gamma = gamma.add(multiply).mod(modulus);
+            gamma = gamma.add(rs[index++].multiply(closedValue.getMac().asBigInteger())).mod(modulus);
           }
 
           // compute delta_i as: gamma_i - alpha_i*a

@@ -67,7 +67,7 @@ public class MaliciousSpdzCommitProtocol extends SpdzNativeProtocol<Boolean> {
   private byte[] sendMaliciousBroadcastValidation(MessageDigest dig, Network network,
       Collection<BigIntegerI> bs) {
     for (BigIntegerI b : bs) {
-      dig.update(b.toByteArray());
+      dig.update(b.asBigInteger().toByteArray());
     }
     return sendAndReset(dig, network);
   }

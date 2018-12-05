@@ -19,7 +19,7 @@ public interface BigIntegerI extends Comparable<BigIntegerI>, Serializable {
 
   BigInteger asBigInteger();
 
-  byte[] toByteArray();
+  void toByteArray(byte[] bytes, int offset, int byteLength);
 
   BigIntegerI modPow(BigIntegerI valueOf, BigInteger modulus);
 
