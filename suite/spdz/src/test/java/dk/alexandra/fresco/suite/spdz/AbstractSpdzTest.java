@@ -9,7 +9,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.numeric.DefaultPreprocessedValues;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.network.AsyncNetwork;
+import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.network.CloseableNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
@@ -137,7 +137,7 @@ public abstract class AbstractSpdzTest {
       TestThreadRunner.TestThreadConfiguration<SpdzResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce, () -> createResourcePool(playerId,
               noOfParties, preProStrat, otManager, tripleManager, expPipeManager), () -> {
-            Network network = new AsyncNetwork(netConf.get(playerId));
+            Network network = new SocketNetwork(netConf.get(playerId));
             if (logPerformance) {
               network = new NetworkLoggingDecorator(network);
               aggregate.add((NetworkLoggingDecorator) network);

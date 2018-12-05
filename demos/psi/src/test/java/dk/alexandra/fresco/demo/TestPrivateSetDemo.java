@@ -10,7 +10,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.network.AsyncNetwork;
+import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
@@ -71,7 +71,7 @@ public class TestPrivateSetDemo {
           new TestThreadConfiguration<>(
               new SecureComputationEngineImpl<>(suite, evaluator),
               () -> new ResourcePoolImpl(playerId, noPlayers),
-              () -> new AsyncNetwork(netConf.get(playerId)));
+              () -> new SocketNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }
     String[] result = this.setIntersectionDemo(conf);
@@ -109,7 +109,7 @@ public class TestPrivateSetDemo {
               new SecureComputationEngineImpl<>(suite, evaluator),
               () -> new TinyTablesPreproResourcePool(playerId, baseOt, random,
                   COMPUTATIONAL_SECURITY, STATISTICAL_SECURITY, OT_BATCH_SIZE, getTinyTablesFile(playerId)),
-              () -> new AsyncNetwork(netConf.get(playerId)));
+              () -> new SocketNetwork(netConf.get(playerId)));
       conf.put(playerId, ttc);
     }
 
@@ -134,7 +134,7 @@ public class TestPrivateSetDemo {
             new TestThreadConfiguration<>(
                 new SecureComputationEngineImpl<>(suite, evaluator),
                 () -> new ResourcePoolImpl(playerId, noPlayers),
-                () -> new AsyncNetwork(secondConf.get(playerId)));
+                () -> new SocketNetwork(secondConf.get(playerId)));
         conf.put(playerId, ttc);
       }
 

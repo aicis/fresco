@@ -3,7 +3,7 @@ package dk.alexandra.fresco.tools.mascot;
 import dk.alexandra.fresco.framework.Party;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkConfigurationImpl;
-import dk.alexandra.fresco.framework.network.AsyncNetwork;
+import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbgFactory;
 import dk.alexandra.fresco.framework.util.Drbg;
@@ -31,7 +31,7 @@ public class MascotDemo {
 
   private MascotDemo(int myId, int noOfParties) {
        Network network =
-        new AsyncNetwork(defaultNetworkConfiguration(myId, noOfParties));
+        new SocketNetwork(defaultNetworkConfiguration(myId, noOfParties));
     MascotResourcePool resourcePool = defaultResourcePool(myId, noOfParties,
         network);
     FieldElement macKeyShare = resourcePool.getLocalSampler().getNext(
