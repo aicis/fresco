@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
 import java.math.BigInteger;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 
 public class BigInt implements BigIntegerI {
@@ -131,5 +132,18 @@ public class BigInt implements BigIntegerI {
   public BigIntegerI modPow(BigIntegerI valueOf, BigInteger modulus) {
     return fromConstant(asBigInteger().modPow(valueOf.asBigInteger(), modulus), "modPow",
         this.modulus);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    BigInt bigInt = (BigInt) o;
+    return Objects.equals(modulus, bigInt.modulus) &&
+        Objects.equals(value, bigInt.value);
   }
 }
