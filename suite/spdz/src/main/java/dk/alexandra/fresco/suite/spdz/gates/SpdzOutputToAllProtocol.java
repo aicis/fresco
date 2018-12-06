@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
@@ -32,10 +31,9 @@ public class SpdzOutputToAllProtocol extends SpdzNativeProtocol<BigInteger>
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else {
       List<byte[]> shares = network.receiveFromAll();
-      FieldElement openedVal =
-          BigInt.fromConstant(BigInteger.valueOf(0),
-              spdzResourcePool.getModulus());
-      for (byte[] buffer : shares) {
+      FieldElement openedVal = serializer.deserialize(shares.get(0));
+      for (int i = 1; i < shares.size(); i++) {
+        byte[] buffer = shares.get(i);
         openedVal = openedVal.add(serializer.deserialize(buffer));
       }
       spdzResourcePool.getOpenedValueStore().pushOpenedValue(((SpdzSInt) in.out()), openedVal);
