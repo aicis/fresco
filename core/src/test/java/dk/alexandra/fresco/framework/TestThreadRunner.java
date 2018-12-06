@@ -68,7 +68,7 @@ public class TestThreadRunner {
           if (conf.network instanceof Closeable) {
             try {
               try {
-                Thread.sleep(500);
+                Thread.sleep(1000);
               } catch (InterruptedException ignored) {
               }
               ((Closeable) conf.network).close();
