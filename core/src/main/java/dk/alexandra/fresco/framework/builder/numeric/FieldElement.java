@@ -20,7 +20,4 @@ public interface FieldElement extends Comparable<FieldElement>, Serializable {
   BigInteger asBigInteger();
 
   void toByteArray(byte[] bytes, int offset, int byteLength);
-
-  FieldElement modPow(FieldElement valueOf, BigInteger modulus);
-
 }

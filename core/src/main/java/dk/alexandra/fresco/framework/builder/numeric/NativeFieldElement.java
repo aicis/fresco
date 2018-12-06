@@ -19,11 +19,6 @@ public class NativeFieldElement implements FieldElement {
   }
 
   @Override
-  public FieldElement modPow(FieldElement pow, BigInteger modulus) {
-    return create(value.modPow(pow.asBigInteger(), fieldModulus));
-  }
-
-  @Override
   public FieldElement divide(FieldElement denominator) {
     return create(value.divide(denominator.asBigInteger()));
   }

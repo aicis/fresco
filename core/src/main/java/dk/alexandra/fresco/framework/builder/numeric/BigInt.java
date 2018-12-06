@@ -137,12 +137,6 @@ public class BigInt implements FieldElement {
   }
 
   @Override
-  public FieldElement modPow(FieldElement valueOf, BigInteger modulus) {
-    return fromConstant(asBigInteger().modPow(valueOf.asBigInteger(), modulus), "modPow",
-        this.modulus);
-  }
-
-  @Override
   public boolean equals(Object o) {
     if (this == o) {
       return true;

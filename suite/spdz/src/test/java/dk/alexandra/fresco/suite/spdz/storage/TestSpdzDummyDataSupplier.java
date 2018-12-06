@@ -259,7 +259,8 @@ public class TestSpdzDummyDataSupplier {
     FieldElement first = values.get(1);
     assertEquals(inverted, first.modInverse(modulus));
     for (int i = 1; i < values.size(); i++) {
-      assertEquals(first.modPow(new BigInt(i, modulus), modulus), values.get(i));
+      BigInteger expected = first.asBigInteger().modPow(BigInteger.valueOf(i), modulus);
+      assertEquals(expected, values.get(i).asBigInteger());
     }
   }
 }
