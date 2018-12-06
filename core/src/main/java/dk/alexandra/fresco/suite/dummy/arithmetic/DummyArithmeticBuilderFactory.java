@@ -1,9 +1,9 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerClassic;
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.NativeFieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
@@ -41,7 +41,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
     this.realNumericContext = realNumericContext;
     this.rand = new Random(0);
     this.bigIntegerSupplier = (number) ->
-        new BigIntegerClassic(number, basicNumericContext.getModulus());
+        new NativeFieldElement(number, basicNumericContext.getModulus());
   }
 
   @Override

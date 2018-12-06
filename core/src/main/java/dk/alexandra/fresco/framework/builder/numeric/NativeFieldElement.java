@@ -3,19 +3,19 @@ package dk.alexandra.fresco.framework.builder.numeric;
 import java.math.BigInteger;
 import java.util.Objects;
 
-public class BigIntegerClassic implements FieldElement {
+public class NativeFieldElement implements FieldElement {
 
   private final BigInteger value;
   private final BigInteger fieldModulus;
 
-  public BigIntegerClassic(BigInteger value, BigInteger fieldModulus) {
+  public NativeFieldElement(BigInteger value, BigInteger fieldModulus) {
     this.value = value.mod(fieldModulus);
     this.fieldModulus = fieldModulus;
   }
 
   @Override
-  public FieldElement modInverse(BigInteger modulus) {
-    return new BigIntegerClassic(value.modInverse(modulus), fieldModulus);
+  public FieldElement modInverse(BigInteger operand) {
+    return new NativeFieldElement(value.modInverse(operand), fieldModulus);
   }
 
   @Override
@@ -28,8 +28,8 @@ public class BigIntegerClassic implements FieldElement {
     return create(value.divide(denominator.asBigInteger()));
   }
 
-  private BigIntegerClassic create(BigInteger divide) {
-    return new BigIntegerClassic(divide, fieldModulus);
+  private NativeFieldElement create(BigInteger divide) {
+    return new NativeFieldElement(divide, fieldModulus);
   }
 
   @Override
@@ -38,17 +38,17 @@ public class BigIntegerClassic implements FieldElement {
   }
 
   @Override
-  public BigIntegerClassic subtract(FieldElement operand) {
+  public NativeFieldElement subtract(FieldElement operand) {
     return create(value.subtract(operand.asBigInteger()));
   }
 
   @Override
-  public BigIntegerClassic multiply(FieldElement operand) {
+  public NativeFieldElement multiply(FieldElement operand) {
     return create(value.multiply(operand.asBigInteger()));
   }
 
   @Override
-  public BigIntegerClassic add(FieldElement operand) {
+  public NativeFieldElement add(FieldElement operand) {
     return create(value.add(operand.asBigInteger()));
   }
 
@@ -70,7 +70,7 @@ public class BigIntegerClassic implements FieldElement {
 
   @Override
   public String toString() {
-    return "BigIntegerClassic{" +
+    return "NativeFieldElement{" +
         "value=" + value +
         '}';
   }
@@ -83,7 +83,7 @@ public class BigIntegerClassic implements FieldElement {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    BigIntegerClassic that = (BigIntegerClassic) o;
+    NativeFieldElement that = (NativeFieldElement) o;
     return Objects.equals(value, that.value);
   }
 

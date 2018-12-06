@@ -29,8 +29,8 @@ public class BigInt implements FieldElement {
   }
 
   @Override
-  public BigInt modInverse(BigInteger mod) {
-    return fromConstant(asBigInteger().modInverse(mod), "modInverse",
+  public BigInt modInverse(BigInteger operand) {
+    return fromConstant(asBigInteger().modInverse(operand), "modInverse",
         this.modulus);
   }
 

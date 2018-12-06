@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerClassic;
+import dk.alexandra.fresco.framework.builder.numeric.NativeFieldElement;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import java.math.BigInteger;
 import org.hamcrest.core.Is;
@@ -23,8 +23,8 @@ public class DummyArithmeticSIntTest {
     Assert.assertThat(value.toString(), Is.is(toString));
   }
 
-  private BigIntegerClassic create(BigInteger value) {
-    return new BigIntegerClassic(value, BigInteger.valueOf(500));
+  private NativeFieldElement create(BigInteger value) {
+    return new NativeFieldElement(value, BigInteger.valueOf(500));
   }
 
   @Test
