@@ -71,8 +71,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
   public SpdzInputMask getNextInputMask(int towardPlayerId) {
     Pair<BigInteger, BigInteger> raw = supplier.getRandomElementShare();
     if (myId == towardPlayerId) {
-      BigIntegerI realValue = converter.apply(raw.getFirst());
-      return new SpdzInputMask(toSpdzSInt(raw), realValue);
+      return new SpdzInputMask(toSpdzSInt(raw), getBigIntegerI(raw.getFirst()));
     } else {
       return new SpdzInputMask(toSpdzSInt(raw), null);
     }
@@ -111,6 +110,6 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
   }
 
   static private BigInteger getSsk(BigInteger modulus) {
-    return new BigInteger(modulus.bitLength(), new Random()).mod(modulus);
+    return new BigInteger(modulus.bitLength(), new Random(0)).mod(modulus);
   }
 }
