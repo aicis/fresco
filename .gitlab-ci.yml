@@ -4,6 +4,7 @@ run-test:
   stage: build
   script:
   - mvn test
+
   artifacts:
     paths:
     - test-report/
