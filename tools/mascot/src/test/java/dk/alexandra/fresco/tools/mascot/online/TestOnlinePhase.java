@@ -7,7 +7,7 @@ import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
 import dk.alexandra.fresco.tools.mascot.elgen.ElementGeneration;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.triple.TripleGeneration;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;
@@ -23,8 +23,8 @@ public class TestOnlinePhase extends NetworkedTest {
     return new FieldElementPrgImpl(new StrictBitVector(prgSeedLength));
   }
 
-  private List<FieldElement> runMultiply(MascotTestContext ctx, FieldElement macKeyShare,
-      List<FieldElement> inputs) {
+  private List<MascotFieldElement> runMultiply(MascotTestContext ctx, MascotFieldElement macKeyShare,
+      List<MascotFieldElement> inputs) {
     FieldElementPrg prg = getJointPrg(ctx.getPrgSeedLength());
     ElementGeneration elementGeneration = new ElementGeneration(ctx.getResourcePool(),
         ctx.getNetwork(), macKeyShare, prg);
@@ -43,7 +43,7 @@ public class TestOnlinePhase extends NetworkedTest {
       partyTwoInputs = elementGeneration.input(inputs);
     }
     List<AuthenticatedElement> products = onlinePhase.multiply(partyOneInputs, partyTwoInputs);
-    List<FieldElement> opened = elementGeneration.open(products);
+    List<MascotFieldElement> opened = elementGeneration.open(products);
     elementGeneration.check(products, opened);
     return opened;
   }
@@ -53,34 +53,34 @@ public class TestOnlinePhase extends NetworkedTest {
     initContexts(2);
 
     // left party mac key share
-    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), getModulus());
+    MascotFieldElement macKeyShareOne = new MascotFieldElement(new BigInteger("11231"), getModulus());
 
     // right party mac key share
-    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), getModulus());
+    MascotFieldElement macKeyShareTwo = new MascotFieldElement(new BigInteger("7719"), getModulus());
 
     // party one inputs
-    List<FieldElement> partyOneInputs =
+    List<MascotFieldElement> partyOneInputs =
         MascotTestUtils.generateSingleRow(new int[]{12, 11, 1, 2}, getModulus());
     // party two inputs
-    List<FieldElement> partyTwoInputs =
+    List<MascotFieldElement> partyTwoInputs =
         MascotTestUtils.generateSingleRow(new int[]{0, 3, 221, 65518}, getModulus());
 
     // define task each party will run
-    Callable<List<FieldElement>> partyOneTask =
+    Callable<List<MascotFieldElement>> partyOneTask =
         () -> runMultiply(contexts.get(1), macKeyShareOne, partyOneInputs);
-    Callable<List<FieldElement>> partyTwoTask =
+    Callable<List<MascotFieldElement>> partyTwoTask =
         () -> runMultiply(contexts.get(2), macKeyShareTwo, partyTwoInputs);
 
-    List<List<FieldElement>> results =
+    List<List<MascotFieldElement>> results =
         testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
-    List<FieldElement> partyOneOutput = results.get(0);
-    List<FieldElement> partyTwoOutput = results.get(1);
+    List<MascotFieldElement> partyOneOutput = results.get(0);
+    List<MascotFieldElement> partyTwoOutput = results.get(1);
 
     // outputs should be same
     CustomAsserts.assertEquals(partyOneOutput, partyTwoOutput);
 
     // outputs should be correct products
-    List<FieldElement> expected = MascotTestUtils
+    List<MascotFieldElement> expected = MascotTestUtils
         .generateSingleRow(new int[]{0, 33, 221, 65517}, getModulus());
     CustomAsserts.assertEquals(expected, partyOneOutput);
   }

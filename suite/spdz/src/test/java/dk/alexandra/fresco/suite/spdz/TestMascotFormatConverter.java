@@ -8,7 +8,7 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.suite.spdz.preprocessing.MascotFormatConverter;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import java.math.BigInteger;
 import java.util.function.IntFunction;
@@ -17,8 +17,8 @@ import org.junit.Test;
 public class TestMascotFormatConverter {
 
   private AuthenticatedElement getAuthElement(int shareVal, int macVal, BigInteger modulus) {
-    FieldElement share = new FieldElement(shareVal, modulus);
-    FieldElement mac = new FieldElement(macVal, modulus);
+    MascotFieldElement share = new MascotFieldElement(shareVal, modulus);
+    MascotFieldElement mac = new MascotFieldElement(macVal, modulus);
     return new AuthenticatedElement(share, mac, modulus);
   }
 

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class FieldElementSerializer implements ByteSerializer<FieldElement> {
+public class FieldElementSerializer implements ByteSerializer<MascotFieldElement> {
 
   private final BigInteger modulus;
   private final int modBitLength;
@@ -30,8 +30,8 @@ public class FieldElementSerializer implements ByteSerializer<FieldElement> {
    * @return deserialized field element
    */
   @Override
-  public FieldElement deserialize(byte[] data) {
-    return new FieldElement(data, modulus);
+  public MascotFieldElement deserialize(byte[] data) {
+    return new MascotFieldElement(data, modulus);
   }
 
   /**
@@ -41,7 +41,7 @@ public class FieldElementSerializer implements ByteSerializer<FieldElement> {
    * @return serialized field element
    */
   @Override
-  public byte[] serialize(FieldElement obj) {
+  public byte[] serialize(MascotFieldElement obj) {
     if (!obj.getModulus().equals(modulus)) {
       throw new IllegalArgumentException("All elements must have same modulus");
     }
@@ -55,13 +55,13 @@ public class FieldElementSerializer implements ByteSerializer<FieldElement> {
    * @return serialized field elements
    */
   @Override
-  public byte[] serialize(List<FieldElement> elements) {
+  public byte[] serialize(List<MascotFieldElement> elements) {
     // nothing to do for empty list
     if (elements.isEmpty()) {
       return new byte[]{};
     }
     // ensure all field elements are in the same field and have same bit length
-    for (FieldElement element : elements) {
+    for (MascotFieldElement element : elements) {
       if (!element.getModulus().equals(modulus)) {
         throw new IllegalArgumentException("All elements must have same modulus");
       }
@@ -76,7 +76,7 @@ public class FieldElementSerializer implements ByteSerializer<FieldElement> {
    * @return deserialized field elements
    */
   @Override
-  public List<FieldElement> deserializeList(byte[] data) {
+  public List<MascotFieldElement> deserializeList(byte[] data) {
     if (data.length == 0) {
       return new ArrayList<>();
     }

@@ -13,7 +13,7 @@ import dk.alexandra.fresco.tools.mascot.Mascot;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePoolImpl;
 import dk.alexandra.fresco.tools.mascot.MascotSecurityParameters;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.field.InputMask;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
@@ -41,7 +41,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   private final Supplier<Network> tripleNetwork;
   private final BigInteger modulus;
   private final Function<Integer, SpdzSInt[]> preprocessedValues;
-  private final FieldElement ssk;
+  private final MascotFieldElement ssk;
 
   private final ArrayDeque<MultiplicationTriple> triples;
   private final Map<Integer, ArrayDeque<InputMask>> masks;
@@ -74,7 +74,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   public SpdzMascotDataSupplier(int myId, int numberOfPlayers, int instanceId,
       Supplier<Network> tripleNetwork, BigInteger modulus, int modBitLength,
       Function<Integer, SpdzSInt[]> preprocessedValues, int prgSeedLength, int batchSize,
-      FieldElement ssk, Map<Integer, RotList> seedOts, Drbg drbg) {
+      MascotFieldElement ssk, Map<Integer, RotList> seedOts, Drbg drbg) {
     this.myId = myId;
     this.numberOfPlayers = numberOfPlayers;
     this.instanceId = instanceId;
@@ -104,7 +104,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   public static SpdzMascotDataSupplier createSimpleSupplier(int myId, int numberOfPlayers,
       Supplier<Network> tripleNetwork, int modBitLength, BigInteger modulus,
       Function<Integer, SpdzSInt[]> preprocessedValues,
-      Map<Integer, RotList> seedOts, Drbg drbg, FieldElement ssk) {
+      Map<Integer, RotList> seedOts, Drbg drbg, MascotFieldElement ssk) {
     int prgSeedLength = 256;
     return new SpdzMascotDataSupplier(myId, numberOfPlayers, 1, tripleNetwork, modulus,
         modBitLength, preprocessedValues, prgSeedLength, 16, ssk, seedOts, drbg);
@@ -113,7 +113,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   /**
    * Creates random field element that can be used as the mac key share by the calling party.
    */
-  public static FieldElement createRandomSsk(BigInteger modulus, int prgSeedLength) {
+  public static MascotFieldElement createRandomSsk(BigInteger modulus, int prgSeedLength) {
     byte[] seedBytes = new byte[prgSeedLength / 8];
     new SecureRandom().nextBytes(seedBytes);
     StrictBitVector seed = new StrictBitVector(seedBytes);

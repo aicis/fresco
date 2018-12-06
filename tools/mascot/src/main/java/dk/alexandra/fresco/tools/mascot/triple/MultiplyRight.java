@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyRightHelper;
 import java.math.BigInteger;
 import java.util.List;
@@ -61,35 +61,35 @@ class MultiplyRight {
    * @return shares of the products <i>a<sub>0</sub>b<sub>0</sub>, a<sub>1</sub>b<sub>1</sub> ...
    *         </i>
    */
-  public List<FieldElement> multiply(List<FieldElement> rightFactors) {
+  public List<MascotFieldElement> multiply(List<MascotFieldElement> rightFactors) {
     List<Pair<StrictBitVector, StrictBitVector>> seedPairs =
         multiplyRightHelper.generateSeeds(rightFactors.size(), resourcePool.getModBitLength());
     // convert seeds pairs to field elements so we can compute on them
-    List<Pair<FieldElement, FieldElement>> feSeedPairs =
+    List<Pair<MascotFieldElement, MascotFieldElement>> feSeedPairs =
         seedsToFieldElements(seedPairs, resourcePool.getModulus());
     // compute q0 - q1 + b for each seed pair
-    List<FieldElement> diffs = multiplyRightHelper.computeDiffs(feSeedPairs, rightFactors);
+    List<MascotFieldElement> diffs = multiplyRightHelper.computeDiffs(feSeedPairs, rightFactors);
     // send diffs over to other party
     network.send(otherId, resourcePool.getFieldElementSerializer().serialize(diffs));
     // get zero index seeds
-    List<FieldElement> feZeroSeeds =
+    List<MascotFieldElement> feZeroSeeds =
         feSeedPairs.parallelStream().map(Pair::getFirst).collect(Collectors.toList());
     // compute product shares
     return multiplyRightHelper.computeProductShares(feZeroSeeds, rightFactors.size());
   }
 
-  private List<Pair<FieldElement, FieldElement>> seedsToFieldElements(
+  private List<Pair<MascotFieldElement, MascotFieldElement>> seedsToFieldElements(
       List<Pair<StrictBitVector, StrictBitVector>> seedPairs, BigInteger modulus) {
     return seedPairs.parallelStream().map(pair -> {
-      FieldElement t0 = fromBits(pair.getFirst(), modulus);
-      FieldElement t1 = fromBits(pair.getSecond(), modulus);
+      MascotFieldElement t0 = fromBits(pair.getFirst(), modulus);
+      MascotFieldElement t1 = fromBits(pair.getSecond(), modulus);
       return new Pair<>(t0, t1);
     }).collect(Collectors.toList());
   }
 
-  private FieldElement fromBits(StrictBitVector vector, BigInteger modulus) {
+  private MascotFieldElement fromBits(StrictBitVector vector, BigInteger modulus) {
     // safe since the modulus is guaranteed to be close enough to 2^modBitLength
-    return new FieldElement(new BigInteger(vector.toByteArray()).mod(modulus), modulus);
+    return new MascotFieldElement(new BigInteger(vector.toByteArray()).mod(modulus), modulus);
   }
 
 }

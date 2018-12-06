@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.tools.mascot.prg;
 
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +13,7 @@ public interface FieldElementPrg {
    * @param modulus field modulus
    * @return random field element
    */
-  FieldElement getNext(BigInteger modulus);
+  MascotFieldElement getNext(BigInteger modulus);
 
   /**
    * Generates multiple random field elements.
@@ -22,8 +22,8 @@ public interface FieldElementPrg {
    * @param numSamples number of random elements to generate
    * @return random field element
    */
-  default List<FieldElement> getNext(BigInteger modulus, int numSamples) {
-    List<FieldElement> samples = new ArrayList<>();
+  default List<MascotFieldElement> getNext(BigInteger modulus, int numSamples) {
+    List<MascotFieldElement> samples = new ArrayList<>();
     for (int i = 0; i < numSamples; i++) {
       samples.add(getNext(modulus));
     }
@@ -38,9 +38,9 @@ public interface FieldElementPrg {
    * @param numCols number of values per row
    * @return random field element
    */
-  default List<List<FieldElement>> getNext(BigInteger modulus, int numRows,
+  default List<List<MascotFieldElement>> getNext(BigInteger modulus, int numRows,
       int numCols) {
-    List<List<FieldElement>> sampled = new ArrayList<>(numRows);
+    List<List<MascotFieldElement>> sampled = new ArrayList<>(numRows);
     for (int i = 0; i < numRows; i++) {
       sampled.add(getNext(modulus, numCols));
     }

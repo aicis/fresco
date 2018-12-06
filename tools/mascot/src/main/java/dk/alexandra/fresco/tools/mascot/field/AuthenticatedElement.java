@@ -6,8 +6,8 @@ import java.math.BigInteger;
 
 public class AuthenticatedElement implements Addable<AuthenticatedElement> {
 
-  private final FieldElement share;
-  private final FieldElement mac;
+  private final MascotFieldElement share;
+  private final MascotFieldElement mac;
   private final BigInteger modulus;
 
   /**
@@ -17,7 +17,7 @@ public class AuthenticatedElement implements Addable<AuthenticatedElement> {
    * @param mac this party's share of the mac
    * @param modulus modulus of the underlying field elements
    */
-  public AuthenticatedElement(FieldElement share, FieldElement mac, BigInteger modulus) {
+  public AuthenticatedElement(MascotFieldElement share, MascotFieldElement mac, BigInteger modulus) {
     this.share = share;
     this.mac = mac;
     this.modulus = modulus;
@@ -43,11 +43,12 @@ public class AuthenticatedElement implements Addable<AuthenticatedElement> {
    * @param macKeyShare mac key share for maccing open value
    * @return result of sum
    */
-  public AuthenticatedElement add(FieldElement other, int partyId, FieldElement macKeyShare) {
-    FieldElement otherMac = other.multiply(macKeyShare);
+  public AuthenticatedElement add(
+      MascotFieldElement other, int partyId, MascotFieldElement macKeyShare) {
+    MascotFieldElement otherMac = other.multiply(macKeyShare);
     // only party 1 actually adds value to its share
-    FieldElement value = (partyId == 1) ? other :
-        new FieldElement(BigInteger.ZERO, modulus);
+    MascotFieldElement value = (partyId == 1) ? other :
+        new MascotFieldElement(BigInteger.ZERO, modulus);
     AuthenticatedElement wrapped = new AuthenticatedElement(value, otherMac, modulus);
     return add(wrapped);
   }
@@ -66,15 +67,15 @@ public class AuthenticatedElement implements Addable<AuthenticatedElement> {
    * @param constant factor
    * @return product
    */
-  public AuthenticatedElement multiply(FieldElement constant) {
+  public AuthenticatedElement multiply(MascotFieldElement constant) {
     return new AuthenticatedElement(share.multiply(constant), mac.multiply(constant), modulus);
   }
 
-  public FieldElement getMac() {
+  public MascotFieldElement getMac() {
     return mac;
   }
 
-  public FieldElement getShare() {
+  public MascotFieldElement getShare() {
     return share;
   }
 

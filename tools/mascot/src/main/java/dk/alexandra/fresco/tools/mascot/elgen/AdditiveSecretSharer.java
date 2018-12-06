@@ -2,12 +2,12 @@ package dk.alexandra.fresco.tools.mascot.elgen;
 
 import dk.alexandra.fresco.framework.util.SecretSharer;
 import dk.alexandra.fresco.tools.mascot.arithm.Addable;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import java.math.BigInteger;
 import java.util.List;
 
-public class AdditiveSecretSharer implements SecretSharer<FieldElement> {
+public class AdditiveSecretSharer implements SecretSharer<MascotFieldElement> {
 
   private final FieldElementPrg sampler;
   private final BigInteger modulus;
@@ -24,16 +24,16 @@ public class AdditiveSecretSharer implements SecretSharer<FieldElement> {
   }
 
   @Override
-  public List<FieldElement> share(FieldElement input, int numShares) {
-    List<FieldElement> shares = sampler.getNext(modulus, numShares - 1);
-    FieldElement sumShares = Addable.sum(shares);
-    FieldElement diff = input.subtract(sumShares);
+  public List<MascotFieldElement> share(MascotFieldElement input, int numShares) {
+    List<MascotFieldElement> shares = sampler.getNext(modulus, numShares - 1);
+    MascotFieldElement sumShares = Addable.sum(shares);
+    MascotFieldElement diff = input.subtract(sumShares);
     shares.add(diff);
     return shares;
   }
 
   @Override
-  public FieldElement recombine(List<FieldElement> shares) {
+  public MascotFieldElement recombine(List<MascotFieldElement> shares) {
     return Addable.sum(shares);
   }
 

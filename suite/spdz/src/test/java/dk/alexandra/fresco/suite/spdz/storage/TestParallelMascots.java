@@ -9,7 +9,7 @@ import dk.alexandra.fresco.suite.spdz.NetManager;
 import dk.alexandra.fresco.tools.mascot.Mascot;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePoolImpl;
 import dk.alexandra.fresco.tools.mascot.MascotSecurityParameters;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
@@ -99,10 +99,10 @@ public class TestParallelMascots {
     return invokeAndReturn(seedOtTasks);
   }
 
-  private Map<Integer, FieldElement> setupMacKeyShares() {
-    Map<Integer, FieldElement> macKeyShares = new HashMap<>();
+  private Map<Integer, MascotFieldElement> setupMacKeyShares() {
+    Map<Integer, MascotFieldElement> macKeyShares = new HashMap<>();
     for (int myId = 1; myId <= noOfParties; myId++) {
-      FieldElement ssk = SpdzMascotDataSupplier
+      MascotFieldElement ssk = SpdzMascotDataSupplier
           .createRandomSsk(modulus, mascotSecurityParameters.getPrgSeedLength());
       macKeyShares.put(myId, ssk);
     }
@@ -118,13 +118,13 @@ public class TestParallelMascots {
 
   private void constructMascot() throws Exception {
     List<Map<Integer, RotList>> seedOts = setupOts();
-    Map<Integer, FieldElement> perPartyMacKeyShares = setupMacKeyShares();
+    Map<Integer, MascotFieldElement> perPartyMacKeyShares = setupMacKeyShares();
     List<Callable<Mascot>> mascotCreators = new ArrayList<>();
     for (int i = 0; i < iterations; i++) {
       @SuppressWarnings("resource")
       NetManager normalManager = new NetManager(ports);
       for (int myId = 1; myId <= noOfParties; myId++) {
-        FieldElement randomSsk = perPartyMacKeyShares.get(myId);
+        MascotFieldElement randomSsk = perPartyMacKeyShares.get(myId);
         int finalMyId = myId;
         int finalInstanceId = i;
         Map<Integer, RotList> seedOt = seedOts.get(finalMyId - 1);
@@ -141,7 +141,7 @@ public class TestParallelMascots {
   @Test
   public void testFirstTriples() throws Exception {
     List<Map<Integer, RotList>> seedOts = setupOts();
-    Map<Integer, FieldElement> perPartyMacKeyShares = setupMacKeyShares();
+    Map<Integer, MascotFieldElement> perPartyMacKeyShares = setupMacKeyShares();
     List<Callable<List<MultiplicationTriple>>> mascotCreators = new ArrayList<>();
     for (int i = 0; i < iterations; i++) {
       @SuppressWarnings("resource")
@@ -149,7 +149,7 @@ public class TestParallelMascots {
       for (int myId = 1; myId <= noOfParties; myId++) {
         int finalMyId = myId;
         int finalInstanceId = i;
-        FieldElement randomSsk = perPartyMacKeyShares.get(finalMyId);
+        MascotFieldElement randomSsk = perPartyMacKeyShares.get(finalMyId);
         Map<Integer, RotList> seedOt = seedOts.get(finalMyId - 1);
         mascotCreators.add(() -> {
           Mascot mascot = new Mascot(

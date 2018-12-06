@@ -15,7 +15,7 @@ public class FieldElementUtils {
 
   private final BigInteger modulus;
   private final int modBitLength;
-  private final List<FieldElement> generators;
+  private final List<MascotFieldElement> generators;
 
   /**
    * Creates new {@link FieldElementUtils}.
@@ -29,12 +29,12 @@ public class FieldElementUtils {
     this.generators = precomputeGenerators();
   }
 
-  private List<FieldElement> precomputeGenerators() {
-    List<FieldElement> generators = new ArrayList<>(modBitLength);
+  private List<MascotFieldElement> precomputeGenerators() {
+    List<MascotFieldElement> generators = new ArrayList<>(modBitLength);
     BigInteger two = new BigInteger("2");
     BigInteger current = BigInteger.ONE;
     for (int i = 0; i < modBitLength; i++) {
-      generators.add(new FieldElement(current, modulus));
+      generators.add(new MascotFieldElement(current, modulus));
       current = current.multiply(two).mod(modulus);
     }
     return generators;
@@ -47,8 +47,8 @@ public class FieldElementUtils {
    * @param rightFactors right factors
    * @return list of products
    */
-  public List<FieldElement> pairWiseMultiply(List<FieldElement> leftFactors,
-      List<FieldElement> rightFactors) {
+  public List<MascotFieldElement> pairWiseMultiply(List<MascotFieldElement> leftFactors,
+      List<MascotFieldElement> rightFactors) {
     if (leftFactors.size() != rightFactors.size()) {
       throw new IllegalArgumentException("Lists must be same size");
     }
@@ -62,11 +62,11 @@ public class FieldElementUtils {
    * @param rightFactors right factors
    * @return stream of products
    */
-  private Stream<FieldElement> pairWiseMultiplyStream(List<FieldElement> leftFactors,
-      List<FieldElement> rightFactors) {
+  private Stream<MascotFieldElement> pairWiseMultiplyStream(List<MascotFieldElement> leftFactors,
+      List<MascotFieldElement> rightFactors) {
     return IntStream.range(0, leftFactors.size()).mapToObj(idx -> {
-      FieldElement l = leftFactors.get(idx);
-      FieldElement r = rightFactors.get(idx);
+      MascotFieldElement l = leftFactors.get(idx);
+      MascotFieldElement r = rightFactors.get(idx);
       return l.multiply(r);
     });
   }
@@ -78,7 +78,7 @@ public class FieldElementUtils {
    * @param right right factors
    * @return inner product
    */
-  public FieldElement innerProduct(List<FieldElement> left, List<FieldElement> right) {
+  public MascotFieldElement innerProduct(List<MascotFieldElement> left, List<MascotFieldElement> right) {
     if (left.size() != right.size()) {
       throw new IllegalArgumentException("Lists must have same size");
     }
@@ -92,7 +92,7 @@ public class FieldElementUtils {
    * @param scalar scalar factor
    * @return list of products
    */
-  public List<FieldElement> scalarMultiply(List<FieldElement> values, FieldElement scalar) {
+  public List<MascotFieldElement> scalarMultiply(List<MascotFieldElement> values, MascotFieldElement scalar) {
     return values.stream().map(value -> value.multiply(scalar)).collect(Collectors.toList());
   }
 
@@ -103,7 +103,7 @@ public class FieldElementUtils {
    * @param elements elements to recombine
    * @return recombined elements
    */
-  public FieldElement recombine(List<FieldElement> elements) {
+  public MascotFieldElement recombine(List<MascotFieldElement> elements) {
     if (elements.size() > modBitLength) {
       throw new IllegalArgumentException("Number of elements cannot exceed bit-length");
     }
@@ -122,11 +122,11 @@ public class FieldElementUtils {
    * @param stretchBy number of duplications per element
    * @return stretched list
    */
-  public List<FieldElement> stretch(List<FieldElement> elements, int stretchBy) {
-    List<FieldElement> stretched = new ArrayList<>(elements.size() * stretchBy);
-    for (FieldElement element : elements) {
+  public List<MascotFieldElement> stretch(List<MascotFieldElement> elements, int stretchBy) {
+    List<MascotFieldElement> stretched = new ArrayList<>(elements.size() * stretchBy);
+    for (MascotFieldElement element : elements) {
       for (int c = 0; c < stretchBy; c++) {
-        stretched.add(new FieldElement(element));
+        stretched.add(new MascotFieldElement(element));
       }
     }
     return stretched;
@@ -140,9 +140,9 @@ public class FieldElementUtils {
    * @param numPads number of times to pad
    * @return padded list
    */
-  public List<FieldElement> padWith(List<FieldElement> elements, FieldElement padElement,
+  public List<MascotFieldElement> padWith(List<MascotFieldElement> elements, MascotFieldElement padElement,
       int numPads) {
-    List<FieldElement> copy = new ArrayList<>(elements);
+    List<MascotFieldElement> copy = new ArrayList<>(elements);
     copy.addAll(Collections.nCopies(numPads, padElement));
     return copy;
   }
@@ -154,9 +154,9 @@ public class FieldElementUtils {
    * @param reverse indicator whether to reverse the order of bytes
    * @return concatenated field elements in bit representation
    */
-  public StrictBitVector pack(List<FieldElement> elements, boolean reverse) {
+  public StrictBitVector pack(List<MascotFieldElement> elements, boolean reverse) {
     StrictBitVector[] bitVecs =
-        elements.stream().map(FieldElement::toBitVector).toArray(StrictBitVector[]::new);
+        elements.stream().map(MascotFieldElement::toBitVector).toArray(StrictBitVector[]::new);
     if (reverse) {
       Collections.reverse(Arrays.asList(bitVecs));
     }
@@ -169,7 +169,7 @@ public class FieldElementUtils {
    * @param packed concatenated bits representing field elements
    * @return field elements
    */
-  public List<FieldElement> unpack(byte[] packed) {
+  public List<MascotFieldElement> unpack(byte[] packed) {
     int packedBitLength = packed.length * 8;
     if ((packedBitLength % modBitLength) != 0) {
       throw new IllegalArgumentException(
@@ -177,10 +177,10 @@ public class FieldElementUtils {
     }
     int numElements = packedBitLength / modBitLength;
     int byteLength = modBitLength / 8;
-    List<FieldElement> unpacked = new ArrayList<>(numElements);
+    List<MascotFieldElement> unpacked = new ArrayList<>(numElements);
     for (int i = 0; i < numElements; i++) {
       byte[] b = Arrays.copyOfRange(packed, i * byteLength, (i + 1) * byteLength);
-      FieldElement el = new FieldElement(b, modulus);
+      MascotFieldElement el = new MascotFieldElement(b, modulus);
       unpacked.add(el);
     }
     return unpacked;

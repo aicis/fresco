@@ -5,7 +5,7 @@ import dk.alexandra.fresco.framework.util.AesCtrDrbgFactory;
 import dk.alexandra.fresco.framework.util.Drng;
 import dk.alexandra.fresco.framework.util.DrngImpl;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import java.math.BigInteger;
 
 
@@ -14,7 +14,7 @@ public class FieldElementPrgImpl implements FieldElementPrg {
   private final Drng drng;
 
   /**
-   * Creates new FieldElement prg.
+   * Creates new MascotFieldElement prg.
    *
    * @param seed seed to the underlying DRNG.
    */
@@ -28,8 +28,8 @@ public class FieldElementPrgImpl implements FieldElementPrg {
   }
 
   @Override
-  public FieldElement getNext(BigInteger modulus) {
-    return new FieldElement(drng.nextBigInteger(modulus), modulus);
+  public MascotFieldElement getNext(BigInteger modulus) {
+    return new MascotFieldElement(drng.nextBigInteger(modulus), modulus);
   }
 
 }

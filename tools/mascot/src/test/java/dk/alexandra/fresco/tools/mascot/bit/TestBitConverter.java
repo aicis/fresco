@@ -7,7 +7,7 @@ import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
 import dk.alexandra.fresco.tools.mascot.NetworkedTest;
 import dk.alexandra.fresco.tools.mascot.elgen.ElementGeneration;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.online.OnlinePhase;
 import dk.alexandra.fresco.tools.mascot.triple.TripleGeneration;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
@@ -24,8 +24,8 @@ public class TestBitConverter extends NetworkedTest {
     return new FieldElementPrgImpl(new StrictBitVector(prgSeedLength));
   }
 
-  private List<FieldElement> runConvertToBits(MascotTestContext ctx, FieldElement macKeyShare,
-      List<FieldElement> randomValues) {
+  private List<MascotFieldElement> runConvertToBits(MascotTestContext ctx, MascotFieldElement macKeyShare,
+      List<MascotFieldElement> randomValues) {
     FieldElementPrg prg = getJointPrg(ctx.getPrgSeedLength());
     ElementGeneration elementGeneration = new ElementGeneration(ctx.getResourcePool(),
         ctx.getNetwork(), macKeyShare, prg);
@@ -37,7 +37,7 @@ public class TestBitConverter extends NetworkedTest {
     List<AuthenticatedElement> closed = (ctx.getMyId() == 1) ? elementGeneration.input(randomValues)
         : elementGeneration.input(1, randomValues.size());
     List<AuthenticatedElement> bits = bitConverter.convertToBits(closed);
-    List<FieldElement> opened = elementGeneration.open(bits);
+    List<MascotFieldElement> opened = elementGeneration.open(bits);
     elementGeneration.check(bits, opened);
     return opened;
   }
@@ -47,31 +47,31 @@ public class TestBitConverter extends NetworkedTest {
     initContexts(2);
 
     // left party mac key share
-    FieldElement macKeyShareOne = new FieldElement(new BigInteger("11231"), getModulus());
+    MascotFieldElement macKeyShareOne = new MascotFieldElement(new BigInteger("11231"), getModulus());
 
     // right party mac key share
-    FieldElement macKeyShareTwo = new FieldElement(new BigInteger("7719"), getModulus());
+    MascotFieldElement macKeyShareTwo = new MascotFieldElement(new BigInteger("7719"), getModulus());
 
     // party one inputs
-    List<FieldElement> randomValues =
+    List<MascotFieldElement> randomValues =
         MascotTestUtils.generateSingleRow(new int[]{12, 11, 1, 2}, getModulus());
 
     // define task each party will run
-    Callable<List<FieldElement>> partyOneTask =
+    Callable<List<MascotFieldElement>> partyOneTask =
         () -> runConvertToBits(contexts.get(1), macKeyShareOne, randomValues);
-    Callable<List<FieldElement>> partyTwoTask =
+    Callable<List<MascotFieldElement>> partyTwoTask =
         () -> runConvertToBits(contexts.get(2), macKeyShareTwo, randomValues);
 
-    List<List<FieldElement>> results =
+    List<List<MascotFieldElement>> results =
         testRuntime.runPerPartyTasks(Arrays.asList(partyOneTask, partyTwoTask));
-    List<FieldElement> partyOneOutput = results.get(0);
-    List<FieldElement> partyTwoOutput = results.get(1);
+    List<MascotFieldElement> partyOneOutput = results.get(0);
+    List<MascotFieldElement> partyTwoOutput = results.get(1);
 
     // outputs should be same
     CustomAsserts.assertEquals(partyOneOutput, partyTwoOutput);
 
     // outputs should be bits
-    for (FieldElement actualBit : partyOneOutput) {
+    for (MascotFieldElement actualBit : partyOneOutput) {
       CustomAsserts.assertFieldElementIsBit(actualBit);
     }
   }

@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNotEquals;
 
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;
 import java.math.BigInteger;
@@ -24,7 +24,7 @@ public class TestPaddingPrg {
     new Random().nextBytes(seedBytes);
     StrictBitVector seed = new StrictBitVector(seedBytes);
     FieldElementPrg prg = new FieldElementPrgImpl(seed);
-    FieldElement el = prg.getNext(modulus);
+    MascotFieldElement el = prg.getNext(modulus);
     assertEquals(modulus, el.getModulus());
     int modBitLength = 128;
     assertEquals(modBitLength, el.getBitLength());
@@ -36,7 +36,7 @@ public class TestPaddingPrg {
     new Random().nextBytes(seedBytes);
     StrictBitVector seed = new StrictBitVector(seedBytes);
     FieldElementPrg prg = new FieldElementPrgImpl(seed);
-    FieldElement el = prg.getNext(modulus);
+    MascotFieldElement el = prg.getNext(modulus);
     assertFalse(el.isZero());
   }
 
@@ -46,8 +46,8 @@ public class TestPaddingPrg {
     new Random().nextBytes(seedBytes);
     StrictBitVector seed = new StrictBitVector(seedBytes);
     FieldElementPrg prg = new FieldElementPrgImpl(seed);
-    FieldElement elOne = prg.getNext(modulus);
-    FieldElement elTwo = prg.getNext(modulus);
+    MascotFieldElement elOne = prg.getNext(modulus);
+    MascotFieldElement elTwo = prg.getNext(modulus);
     // not equals, without actually using equals
     assertFalse(elOne.subtract(elTwo).isZero());
   }
@@ -60,8 +60,8 @@ public class TestPaddingPrg {
     StrictBitVector seedOther = new StrictBitVector(seedBytes);
     FieldElementPrg prgOne = new FieldElementPrgImpl(seed);
     FieldElementPrg prgTwo = new FieldElementPrgImpl(seedOther);
-    FieldElement elOne = prgOne.getNext(modulus);
-    FieldElement elTwo = prgTwo.getNext(modulus);
+    MascotFieldElement elOne = prgOne.getNext(modulus);
+    MascotFieldElement elTwo = prgTwo.getNext(modulus);
     CustomAsserts.assertEquals(elOne, elTwo);
   }
 
@@ -79,8 +79,8 @@ public class TestPaddingPrg {
     StrictBitVector seedTwo = new StrictBitVector(seedBytesTwo);
     FieldElementPrg prgTwo = new FieldElementPrgImpl(seedTwo);
 
-    FieldElement elOne = prgOne.getNext(modulus);
-    FieldElement elTwo = prgTwo.getNext(modulus);
+    MascotFieldElement elOne = prgOne.getNext(modulus);
+    MascotFieldElement elTwo = prgTwo.getNext(modulus);
     assertNotEquals(elOne, elTwo);
   }
 

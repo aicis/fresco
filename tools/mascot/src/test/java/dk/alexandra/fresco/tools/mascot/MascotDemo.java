@@ -8,7 +8,7 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbgFactory;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import dk.alexandra.fresco.tools.ot.base.DhParameters;
 import dk.alexandra.fresco.tools.ot.base.NaorPinkasOt;
@@ -34,7 +34,7 @@ public class MascotDemo {
         new SocketNetwork(defaultNetworkConfiguration(myId, noOfParties));
     MascotResourcePool resourcePool = defaultResourcePool(myId, noOfParties,
         network);
-    FieldElement macKeyShare = resourcePool.getLocalSampler().getNext(
+    MascotFieldElement macKeyShare = resourcePool.getLocalSampler().getNext(
         resourcePool.getModulus());
     toClose = (Closeable) network;
     mascot = new Mascot(resourcePool, network, macKeyShare);

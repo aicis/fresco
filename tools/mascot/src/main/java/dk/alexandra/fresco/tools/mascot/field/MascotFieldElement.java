@@ -7,7 +7,7 @@ import java.math.BigInteger;
 import java.util.Objects;
 import java.util.function.BinaryOperator;
 
-public final class FieldElement implements Addable<FieldElement> {
+public final class MascotFieldElement implements Addable<MascotFieldElement> {
 
   private final BigInteger value;
   private final BigInteger modulus;
@@ -19,63 +19,63 @@ public final class FieldElement implements Addable<FieldElement> {
    * @param value value of element
    * @param modulus modulus defining field
    */
-  public FieldElement(BigInteger value, BigInteger modulus) {
+  public MascotFieldElement(BigInteger value, BigInteger modulus) {
     this.value = Objects.requireNonNull(value);
     this.modulus = Objects.requireNonNull(modulus);
     this.bitLength = modulus.bitLength();
     sanityCheck(value, modulus, bitLength);
   }
 
-  public FieldElement(FieldElement other) {
+  public MascotFieldElement(MascotFieldElement other) {
     this(other.value, other.modulus);
   }
 
-  public FieldElement(String value, String modulus) {
+  public MascotFieldElement(String value, String modulus) {
     this(new BigInteger(value), new BigInteger(modulus));
   }
 
-  public FieldElement(long value, BigInteger modulus) {
+  public MascotFieldElement(long value, BigInteger modulus) {
     this(BigInteger.valueOf(value), modulus);
   }
 
-  public FieldElement(byte[] value, BigInteger modulus) {
+  public MascotFieldElement(byte[] value, BigInteger modulus) {
     this(new BigInteger(1, value), modulus);
   }
 
-  private FieldElement binaryOp(BinaryOperator<BigInteger> op, FieldElement left,
-      FieldElement right) {
-    return new FieldElement(op.apply(left.toBigInteger(), right.toBigInteger()).mod(modulus),
+  private MascotFieldElement binaryOp(BinaryOperator<BigInteger> op, MascotFieldElement left,
+      MascotFieldElement right) {
+    return new MascotFieldElement(op.apply(left.toBigInteger(), right.toBigInteger()).mod(modulus),
         this.modulus);
   }
 
-  public FieldElement pow(int exponent) {
-    return new FieldElement(this.value.pow(exponent).mod(modulus), modulus);
+  public MascotFieldElement pow(int exponent) {
+    return new MascotFieldElement(this.value.pow(exponent).mod(modulus), modulus);
   }
 
   @Override
-  public FieldElement add(FieldElement other) {
+  public MascotFieldElement add(MascotFieldElement other) {
     return binaryOp(BigInteger::add, this, other);
   }
 
-  public FieldElement subtract(FieldElement other) {
+  public MascotFieldElement subtract(MascotFieldElement other) {
     return binaryOp(BigInteger::subtract, this, other);
   }
 
-  public FieldElement multiply(FieldElement other) {
+  public MascotFieldElement multiply(MascotFieldElement other) {
     return binaryOp(BigInteger::multiply, this, other);
   }
 
-  public FieldElement negate() {
-    return new FieldElement(value.multiply(BigInteger.valueOf(-1)).mod(modulus), modulus);
+  public MascotFieldElement negate() {
+    return new MascotFieldElement(value.multiply(BigInteger.valueOf(-1)).mod(modulus), modulus);
   }
 
-  public FieldElement modInverse() {
-    return new FieldElement(value.modInverse(modulus), modulus);
+  public MascotFieldElement modInverse() {
+    return new MascotFieldElement(value.modInverse(modulus), modulus);
   }
 
-  public FieldElement sqrt() {
+  public MascotFieldElement sqrt() {
     BigInteger rawSqrt = MathUtils.modularSqrt(value, modulus);
-    return new FieldElement(rawSqrt, modulus);
+    return new MascotFieldElement(rawSqrt, modulus);
   }
 
   public BigInteger toBigInteger() {
@@ -86,8 +86,8 @@ public final class FieldElement implements Addable<FieldElement> {
     return value.testBit(bitIndex);
   }
 
-  public FieldElement select(boolean bit) {
-    return bit ? this : new FieldElement(BigInteger.ZERO, modulus);
+  public MascotFieldElement select(boolean bit) {
+    return bit ? this : new MascotFieldElement(BigInteger.ZERO, modulus);
   }
 
   public boolean isZero() {
@@ -129,7 +129,7 @@ public final class FieldElement implements Addable<FieldElement> {
 
   @Override
   public String toString() {
-    return "FieldElement [value=" + value + ", modulus=" + modulus + ", bitLength=" + bitLength
+    return "MascotFieldElement [value=" + value + ", modulus=" + modulus + ", bitLength=" + bitLength
         + "]";
   }
 

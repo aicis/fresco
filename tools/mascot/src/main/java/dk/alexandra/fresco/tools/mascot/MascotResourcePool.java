@@ -8,7 +8,7 @@ import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.network.serializers.StrictBitVectorSerializer;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
-import dk.alexandra.fresco.tools.mascot.field.FieldElement;
+import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementSerializer;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
@@ -52,11 +52,11 @@ public interface MascotResourcePool extends NumericResourcePool {
   FieldElementPrg getLocalSampler();
 
   /**
-   * Gets serializer for {@link FieldElement}.
+   * Gets serializer for {@link MascotFieldElement}.
    *
    * @return serializer
    */
-  default ByteSerializer<FieldElement> getFieldElementSerializer() {
+  default ByteSerializer<MascotFieldElement> getFieldElementSerializer() {
     return new FieldElementSerializer(getModulus());
   }
 
