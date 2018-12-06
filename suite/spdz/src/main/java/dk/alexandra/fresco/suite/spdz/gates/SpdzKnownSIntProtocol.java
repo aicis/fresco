@@ -5,7 +5,6 @@ import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
-import java.math.BigInteger;
 
 public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
 
@@ -37,7 +36,6 @@ public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
   static SpdzSInt createKnownSpdzElement(
       SpdzResourcePool spdzResourcePool,
       FieldElement input, FieldElement zero) {
-    BigInteger modulus = spdzResourcePool.getModulus();
     SpdzSInt elm;
     FieldElement globalKeyShare =
         spdzResourcePool.getDataSupplier().getSecretSharedKey();
@@ -45,9 +43,9 @@ public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
     FieldElement mac = input.multiply(globalKeyShare);
 
     if (spdzResourcePool.getMyId() == 1) {
-      elm = new SpdzSInt(input, mac, modulus);
+      elm = new SpdzSInt(input, mac);
     } else {
-      elm = new SpdzSInt(zero, mac, modulus);
+      elm = new SpdzSInt(zero, mac);
     }
     return elm;
   }

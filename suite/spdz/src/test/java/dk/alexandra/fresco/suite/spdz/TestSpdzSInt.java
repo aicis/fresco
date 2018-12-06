@@ -14,37 +14,37 @@ public class TestSpdzSInt {
 
   @Test
   public void testEquals() {
-    SpdzSInt element = new SpdzSInt(getI(25), getI(15), get(251));
+    SpdzSInt element = new SpdzSInt(getI(25), getI(15));
 
     assertTrue(element.equals(element));
     assertFalse(element.equals("This is a String"));
     assertFalse(element.equals(null));
 
-    SpdzSInt element2 = new SpdzSInt(getI(25), null, get(251));
+    SpdzSInt element2 = new SpdzSInt(getI(25), null);
     assertFalse(element.equals(element2));
-    element2 = new SpdzSInt(getI(25), getI(11),
-        get(251));
+    element2 = new SpdzSInt(getI(25), getI(11)
+    );
     assertFalse(element.equals(element2));
-    element = new SpdzSInt(getI(25), null, get(251));
+    element = new SpdzSInt(getI(25), null);
     assertFalse(element.equals(element2));
-    element2 = new SpdzSInt(getI(25), null, get(251));
+    element2 = new SpdzSInt(getI(25), null);
     assertTrue(element.equals(element2));
 
-    element2 = new SpdzSInt(getI(25), null, null);
+    element2 = new SpdzSInt(getI(25), null);
     assertFalse(element.equals(element2));
-    element2 = new SpdzSInt(getI(25), null, get(23));
+    element2 = new SpdzSInt(getI(25), null);
     assertFalse(element.equals(element2));
-    element = new SpdzSInt(getI(25), null, null);
+    element = new SpdzSInt(getI(25), null);
     assertFalse(element.equals(element2));
-    element2 = new SpdzSInt(getI(25), null, null);
+    element2 = new SpdzSInt(getI(25), null);
     assertTrue(element.equals(element2));
 
-    element = new SpdzSInt(null, getI(11), get(13));
-    element2 = new SpdzSInt(getI(25), getI(11), get(13));
+    element = new SpdzSInt(null, getI(11));
+    element2 = new SpdzSInt(getI(25), getI(11));
     assertFalse(element.equals(element2));
-    element2 = new SpdzSInt(null, getI(11), get(13));
+    element2 = new SpdzSInt(null, getI(11));
     assertTrue(element.equals(element2));
-    element = new SpdzSInt(getI(25), getI(11), get(13));
+    element = new SpdzSInt(getI(25), getI(11));
     assertFalse(element.equals(element2));
   }
 
@@ -58,10 +58,10 @@ public class TestSpdzSInt {
 
   @Test
   public void testHashCode() {
-    SpdzSInt e1 = new SpdzSInt(getI(25), getI(15), get(251));
-    SpdzSInt e2 = new SpdzSInt(null, getI(15), get(251));
-    SpdzSInt e3 = new SpdzSInt(getI(25), null, get(251));
-    SpdzSInt e4 = new SpdzSInt(getI(25), getI(15), null);
+    SpdzSInt e1 = new SpdzSInt(getI(25), getI(15));
+    SpdzSInt e2 = new SpdzSInt(null, getI(15));
+    SpdzSInt e3 = new SpdzSInt(getI(25), null);
+    SpdzSInt e4 = new SpdzSInt(getI(25), getI(15));
     assertAllDifferent(new int[]{
         e1.hashCode(),
         e2.hashCode(),

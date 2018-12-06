@@ -9,7 +9,6 @@ import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
-import java.math.BigInteger;
 
 public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
 
@@ -29,7 +28,6 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       Network network) {
     int myId = spdzResourcePool.getMyId();
-    BigInteger modulus = spdzResourcePool.getModulus();
     SpdzDataSupplier dataSupplier = spdzResourcePool.getDataSupplier();
     ByteSerializer<FieldElement> serializer = spdzResourcePool.getSerializer();
     if (round == 0) {
@@ -55,8 +53,8 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
       SpdzSInt valueMaskedElement =
           new SpdzSInt(
               valueMasked,
-              maskedValue,
-              modulus);
+              maskedValue
+          );
       this.out = this.inputMask.getMask().add(valueMaskedElement, myId);
       return EvaluationStatus.IS_DONE;
     }

@@ -6,8 +6,8 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
-import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.field.InputMask;
+import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import java.math.BigInteger;
 
@@ -28,7 +28,7 @@ public class MascotFormatConverter {
   public SpdzSInt toSpdzSInt(AuthenticatedElement element) {
     BigInteger share = element.getShare().toBigInteger();
     BigInteger mac = element.getMac().toBigInteger();
-    return new SpdzSInt(convert(share), convert(mac), element.getModulus());
+    return new SpdzSInt(convert(share), convert(mac));
   }
 
   /**

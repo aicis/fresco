@@ -3,7 +3,6 @@ package dk.alexandra.fresco.suite.spdz.datatypes;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.io.Serializable;
-import java.math.BigInteger;
 
 /**
  * Spdz-specific representation of a secret integer.
@@ -21,11 +20,6 @@ public class SpdzSInt implements SInt, Serializable {
    * @param mac The mac
    */
   public SpdzSInt(FieldElement share, FieldElement mac) {
-    this.share = share;
-    this.mac = mac;
-  }
-
-  public SpdzSInt(FieldElement share, FieldElement mac, BigInteger modulus) {
     this.share = share;
     this.mac = mac;
   }

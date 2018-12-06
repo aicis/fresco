@@ -24,7 +24,7 @@ public class TestMascotFormatConverter {
 
   private SpdzSInt getSpdzElement(int shareVal, int macVal, BigInteger modulus) {
     IntFunction<FieldElement> converter = (bigint) -> new BigInt(bigint, modulus);
-    return new SpdzSInt(converter.apply(shareVal), converter.apply(macVal), modulus);
+    return new SpdzSInt(converter.apply(shareVal), converter.apply(macVal));
   }
 
   @Test

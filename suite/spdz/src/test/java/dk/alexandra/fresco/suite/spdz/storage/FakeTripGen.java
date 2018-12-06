@@ -774,9 +774,9 @@ public class FakeTripGen {
 
       value = value.subtract(valShare);
       mac = mac.subtract(macShare);
-      elements.add(new SpdzSInt(valShare, macShare, FakeTripGen.mod));
+      elements.add(new SpdzSInt(valShare, macShare));
     }
-    elements.add(new SpdzSInt(value, mac, FakeTripGen.mod));
+    elements.add(new SpdzSInt(value, mac));
     return elements;
   }
 
