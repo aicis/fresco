@@ -363,7 +363,7 @@ public class FakeTripGen {
     for (int j = 0; j < amount; j++) {
       SpdzSInt[][] expPipe = new SpdzSInt[noOfParties][EXP_PIPE_SIZE];
       FieldElement r = sample();
-      FieldElement rInv = r.modInverse(mod);
+      FieldElement rInv = BigInt.fromConstant(r.asBigInteger().modInverse(mod), mod);
       FieldElement mac = getMac(rInv);
       List<SpdzSInt> elements = toShares(rInv, mac, noOfParties);
       for (int i = 0; i < noOfParties; i++) {
@@ -394,7 +394,7 @@ public class FakeTripGen {
       for (int j = 0; j < amount; j++) {
         SpdzSInt[][] expPipe = new SpdzSInt[noOfParties][EXP_PIPE_SIZE];
         FieldElement r = sample();
-        FieldElement rInv = r.modInverse(mod);
+        FieldElement rInv = BigInt.fromConstant(r.asBigInteger().modInverse(mod), mod);
         FieldElement mac = getMac(rInv);
         List<SpdzSInt> elements = toShares(rInv, mac, noOfParties);
         for (int i = 0; i < noOfParties; i++) {
@@ -614,7 +614,8 @@ public class FakeTripGen {
   }
 
   /**
-   * Generates a SPDZ sharing (with macs) of a FieldElement value. Then writes each generated element
+   * Generates a SPDZ sharing (with macs) of a FieldElement value. Then writes each generated
+   * element
    * to a separate file (i.e. one for each party).
    *
    * @param b a BigInteger
@@ -726,7 +727,7 @@ public class FakeTripGen {
     }
     for (int j = 0; j < numberOfExps; j++) {
       FieldElement r = sample();
-      FieldElement rInv = r.modInverse(mod);
+      FieldElement rInv = BigInt.fromConstant(r.asBigInteger().modInverse(mod), mod);
       writeAsShared(rInv, channels);
       FieldElement exp = BigInt.fromConstant(BigInteger.ONE, mod);
       for (int i = 1; i < EXP_PIPE_SIZE; i++) {
@@ -762,7 +763,8 @@ public class FakeTripGen {
    * @param numberOfParties the number of parties
    * @return a list of SpdzElements giving the SPDZ sharing
    */
-  private static List<SpdzSInt> toShares(FieldElement value, FieldElement mac, int numberOfParties) {
+  private static List<SpdzSInt> toShares(FieldElement value, FieldElement mac,
+      int numberOfParties) {
     List<SpdzSInt> elements = new ArrayList<>(numberOfParties);
     FieldElement valShare;
     FieldElement macShare;

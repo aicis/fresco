@@ -5,8 +5,6 @@ import java.math.BigInteger;
 
 public interface FieldElement extends Comparable<FieldElement>, Serializable {
 
-  FieldElement modInverse(BigInteger operand);
-
   FieldElement add(FieldElement operand);
 
   FieldElement subtract(FieldElement operand);

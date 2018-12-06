@@ -107,9 +107,8 @@ public class TestFakeTripGen {
       SpdzSInt[] as = pipe[0];
       SpdzSInt[] bs = pipe[1];
       FieldElement r = as[1].getShare().add(bs[1].getShare());
-      System.out.println(r);
-      Assert.assertEquals(r.modInverse(modulus),
-          as[0].getShare().add(bs[0].getShare()));
+      Assert.assertEquals(r.asBigInteger().modInverse(modulus),
+          as[0].getShare().add(bs[0].getShare()).asBigInteger());
       FieldElement prevR = r;
       for (int i = 0; i < as.length; i++) {
         FieldElement share = as[i].getShare().add(bs[i].getShare());
