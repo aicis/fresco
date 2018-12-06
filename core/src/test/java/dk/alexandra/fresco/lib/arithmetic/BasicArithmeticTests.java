@@ -6,7 +6,6 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Collections;
-import dk.alexandra.fresco.framework.builder.numeric.NativeFieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -166,8 +165,12 @@ public class BasicArithmeticTests {
   private static BigInteger convertRepresentation(NumericResourcePool resourcePool,
       BigInteger add) {
     BigInteger modulus = resourcePool.getModulus();
-    NativeFieldElement value = new NativeFieldElement(add.mod(modulus), modulus);
-    return resourcePool.convertRepresentation(value);
+    BigInteger actual = add.mod(modulus);
+    if (actual.compareTo(modulus.divide(BigInteger.valueOf(2))) > 0) {
+      return actual.subtract(modulus);
+    } else {
+      return actual;
+    }
   }
 
   public static class TestMultiply<ResourcePoolT extends ResourcePool>
