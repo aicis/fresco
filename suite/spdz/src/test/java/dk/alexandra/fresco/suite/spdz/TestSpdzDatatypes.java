@@ -29,7 +29,8 @@ public class TestSpdzDatatypes {
     Assert.assertEquals(elm1, elm2);
     Assert.assertNotEquals(elm0, elm2);
     Assert.assertNotEquals(elm0.hashCode(), elm2.hashCode());
-    Assert.assertEquals("spdz(1, 1)", elm1.toString());
+    Assert.assertEquals("spdz(BigInt{value=1, modulus =null}, BigInt{value=1, modulus =null})",
+        elm1.toString());
     SpdzSInt elm3 = new SpdzSInt(
         get(BigInteger.TEN), get(BigInteger.TEN), BigInteger.TEN);
     Assert.assertNotEquals(elm2, elm3);
@@ -76,7 +77,8 @@ public class TestSpdzDatatypes {
     Assert.assertNotEquals(trip1.hashCode(), tripBNull.hashCode());
     Assert.assertNotEquals(tripANull.hashCode(), tripCNull.hashCode());
     Assert
-        .assertEquals("SpdzTriple [elementA=spdz(1, 1), elementB=spdz(1, 1), elementC=spdz(1, 1)]",
+        .assertEquals(
+            "SpdzTriple [elementA=spdz(BigInt{value=1, modulus =null}, BigInt{value=1, modulus =null}), elementB=spdz(BigInt{value=1, modulus =null}, BigInt{value=1, modulus =null}), elementC=spdz(BigInt{value=1, modulus =null}, BigInt{value=1, modulus =null})]",
             trip1.toString());
   }
 
@@ -90,7 +92,8 @@ public class TestSpdzDatatypes {
     Assert.assertNotEquals(i1, null);
     Assert.assertNotEquals(i1, "");
     Assert.assertNotEquals(i1, i3);
-    Assert.assertEquals("spdz(1, 1)", i1.toString());
+    Assert.assertEquals("spdz(BigInt{value=1, modulus =null}, BigInt{value=1, modulus =null})",
+        i1.toString());
   }
 
   @Test
