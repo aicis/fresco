@@ -45,7 +45,7 @@ public class TestSerializers {
   }
 
   private void testNumber(BigInteger original) {
-    BigInteger modulus = BigInteger.valueOf(1234567);
+    BigInteger modulus = new BigInteger("1234567890123456789");
     BigIntegerWithFixedLengthSerializer serializer =
         new BigIntegerWithFixedLengthSerializer(20, bytes -> BigInt.fromBytes(bytes, modulus));
     byte[] bytes = serializer.serialize(BigInt.fromConstant(original, modulus));
