@@ -104,14 +104,14 @@ public class TestSpdzDatatypes {
 
   @Test
   public void testCommitment() throws NoSuchAlgorithmException {
-    SpdzCommitment comm = new SpdzCommitment(null, null, null);
+    SpdzCommitment comm = new SpdzCommitment(null, null, new Random(1), modulus);
     Assert.assertEquals("SpdzCommitment[v:null, r:null, commitment:null]", comm.toString());
     MessageDigest H = MessageDigest.getInstance("SHA-256");
-    SpdzCommitment c = new SpdzCommitment(H, get(BigInteger.ONE), new Random(0));
+    SpdzCommitment c = new SpdzCommitment(H, get(BigInteger.ONE), new Random(0), modulus);
     BigIntegerWithFixedLengthSerializer serializer =
         new BigIntegerWithFixedLengthSerializer(20, bytes -> BigInt.fromBytes(bytes, modulus));
-    FieldElement c1 = c.computeCommitment(modulus, serializer);
-    FieldElement c2 = c.computeCommitment(modulus, serializer);
+    FieldElement c1 = c.computeCommitment(serializer);
+    FieldElement c2 = c.computeCommitment(serializer);
     Assert.assertEquals(c1, c2);
   }
 }
