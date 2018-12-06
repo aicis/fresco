@@ -48,7 +48,7 @@ public class TestSpdzDummyDataSupplier {
     FieldElement macKey = new BigInt(0, new BigInteger(
         "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557"));
     for (SpdzDummyDataSupplier supplier : suppliers) {
-      macKey.add(supplier.getSecretSharedKey());
+      macKey = macKey.add(supplier.getSecretSharedKey());
     }
     return macKey;
   }
@@ -61,7 +61,7 @@ public class TestSpdzDummyDataSupplier {
       triples.add(supplier.getNextTriple());
     }
     SpdzTriple recombined = recombineTriples(triples);
-    assertTripleValid(recombined, macKey, modulus);
+    assertTripleValid(recombined, macKey);
   }
 
   private void testGetNextTriple(int noOfParties) {
@@ -89,7 +89,7 @@ public class TestSpdzDummyDataSupplier {
       shares.add(spdzInputMask.getMask());
     }
     SpdzSInt recombined = recombine(shares);
-    assertMacCorrect(recombined, macKey, modulus);
+    assertMacCorrect(recombined, macKey);
     assertEquals(realValue, recombined.getShare());
   }
 
@@ -107,7 +107,7 @@ public class TestSpdzDummyDataSupplier {
       bitShares.add(supplier.getNextBit());
     }
     SpdzSInt recombined = recombine(bitShares);
-    assertMacCorrect(recombined, macKey, modulus);
+    assertMacCorrect(recombined, macKey);
     FieldElement value = recombined.getShare();
     assertTrue("Value not a bit " + value,
         value.equals(BigInteger.ZERO) || value.asBigInteger().equals(BigInteger.ONE));
@@ -127,7 +127,7 @@ public class TestSpdzDummyDataSupplier {
       bitShares.add(supplier.getNextRandomFieldElement());
     }
     SpdzSInt recombined = recombine(bitShares);
-    assertMacCorrect(recombined, macKey, modulus);
+    assertMacCorrect(recombined, macKey);
     // sanity check not zero (with 251, that is actually not unlikely enough)
     if (!modulus.equals(new BigInteger("251"))) {
       FieldElement value = recombined.getShare();
@@ -232,15 +232,15 @@ public class TestSpdzDummyDataSupplier {
     return new SpdzTriple(recombine(left), recombine(right), recombine(product));
   }
 
-  private void assertMacCorrect(SpdzSInt recombined, FieldElement macKey, BigInteger modulus) {
+  private void assertMacCorrect(SpdzSInt recombined, FieldElement macKey) {
     FieldElement share = recombined.getShare().multiply(macKey);
     assertEquals(share, recombined.getMac());
   }
 
-  private void assertTripleValid(SpdzTriple recombined, FieldElement macKey, BigInteger modulus) {
-    assertMacCorrect(recombined.getA(), macKey, modulus);
-    assertMacCorrect(recombined.getB(), macKey, modulus);
-    assertMacCorrect(recombined.getC(), macKey, modulus);
+  private void assertTripleValid(SpdzTriple recombined, FieldElement macKey) {
+    assertMacCorrect(recombined.getA(), macKey);
+    assertMacCorrect(recombined.getB(), macKey);
+    assertMacCorrect(recombined.getC(), macKey);
 
     FieldElement copy = recombined.getA().getShare().multiply(recombined.getB().getShare());
     // check that a * b = c
@@ -251,7 +251,7 @@ public class TestSpdzDummyDataSupplier {
   private void assertExpPipeValid(List<SpdzSInt> recombined, FieldElement macKey,
       BigInteger modulus) {
     for (SpdzSInt element : recombined) {
-      assertMacCorrect(element, macKey, modulus);
+      assertMacCorrect(element, macKey);
     }
     List<FieldElement> values = recombined.stream().map(SpdzSInt::getShare)
         .collect(Collectors.toList());
