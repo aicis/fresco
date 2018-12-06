@@ -9,7 +9,7 @@ import java.util.concurrent.Future;
 
 /**
  * <p>A class for arbitrary-precision integer arithmetic purely written in Java.</p>
- * <p>This class does what {@link java.math.BigIntMeger} doesn't.<br />
+ * <p>This class does what {@link java.math.BigInteger} doesn't.<br />
  * It is <b>faster</b>, and it is <b>mutable</b>!<br />
  * It supports <b>ints</b> and <b>longs</b> as parameters!<br />
  * It has a way faster {@link #toString()} method!<br />
@@ -3039,22 +3039,26 @@ public class BigIntMutable extends Number {
    *     this BigInteger.
    * @see BigInteger(byte[])
    */
-  public byte[] toByteArray() {
-    // TODO Let caller define the byte array
-    int byteLen = len * 4;
-    byte[] byteArray = new byte[byteLen];
-
-    for (int i = byteLen - 1, bytesCopied = 4, nextInt = 0, intIndex = 0; i >= 0; i--) {
+  public void toByteArray(byte[] bytes, int offset, int byteLength) {
+    if (sign <= 0) {
+      throw new IllegalStateException("Sign cannot be negative");
+    }
+    int nextInt = 0;
+    int bytesCopied = 4;
+    int intIndex = 0;
+    for (int i = byteLength - 1; i >= 0; i--) {
       if (bytesCopied == 4) {
+        if (intIndex== len) {
+          return;
+        }
         nextInt = dig[intIndex++];
         bytesCopied = 1;
       } else {
         nextInt >>>= 8;
         bytesCopied++;
       }
-      byteArray[i] = (byte) nextInt;
+      bytes[i + offset] = (byte) nextInt;
     }
-    return byteArray;
   }
 
   static BigIntMutable fromBytes(byte[] bytes) {

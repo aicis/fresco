@@ -1,0 +1,10 @@
+image: registry.gitlab.com/partisia/dockerimages/maven-jdk9:latest
+
+run-test:
+  stage: build
+  script:
+  - mvn test
+  - /script/checkAndPackCodeCoverage.sh
+  artifacts:
+    paths:
+    - test-report/

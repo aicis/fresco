@@ -10,7 +10,7 @@ import dk.alexandra.fresco.framework.builder.numeric.BigInt;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
-import dk.alexandra.fresco.framework.network.AsyncNetwork;
+import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
@@ -68,7 +68,7 @@ public class TestGenericLoggingDecorators {
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
                   netConf.keySet().size(), mod, bytes -> BigInt.fromBytes(bytes, mod)),
-              () -> new AsyncNetwork(partyNetConf));
+              () -> new SocketNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
@@ -112,7 +112,7 @@ public class TestGenericLoggingDecorators {
                   netConf.keySet().size(), mod, bytes -> BigInt.fromBytes(bytes, mod)),
               () -> {
                 NetworkLoggingDecorator network = new NetworkLoggingDecorator(
-                    new AsyncNetwork(partyNetConf));
+                    new SocketNetwork(partyNetConf));
                 decoratedLoggers.add(network);
                 return network;
               });
@@ -169,7 +169,7 @@ public class TestGenericLoggingDecorators {
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
                   netConf.keySet().size(), mod, bytes -> BigInt.fromBytes(bytes, mod)),
-              () -> new AsyncNetwork(partyNetConf));
+              () -> new SocketNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);

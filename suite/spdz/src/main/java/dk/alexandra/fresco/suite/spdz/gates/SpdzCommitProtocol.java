@@ -35,7 +35,7 @@ public class SpdzCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigInteg
     if (round == 0) {
       network.sendToAll(serializer
           .serialize(commitment.computeCommitment(spdzResourcePool.getModulus(),
-              spdzResourcePool.getSerializer())));
+              serializer)));
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else if (round == 1) {
 
@@ -47,6 +47,7 @@ public class SpdzCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigInteg
         return EvaluationStatus.IS_DONE;
       } else {
         broadcastDigest = sendBroadcastValidation(
+            serializer,
             spdzResourcePool.getMessageDigest(), network, comms.values()
         );
         return EvaluationStatus.HAS_MORE_ROUNDS;

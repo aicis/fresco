@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
 import java.math.BigInteger;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 
 public class BigInt implements BigIntegerI {
@@ -22,7 +23,9 @@ public class BigInt implements BigIntegerI {
   }
 
   public static BigIntegerI fromBytes(byte[] bytes, BigInteger modulus) {
-    return new BigInt(BigIntMutable.fromBytes(bytes), modulus);
+    BigIntMutable bigIntMutable = BigIntMutable.fromBytes(bytes);
+    bigIntMutable.mod(mutableFromConstant(modulus, "fromBytes"));
+    return new BigInt(bigIntMutable, modulus);
   }
 
   @Override
@@ -77,7 +80,7 @@ public class BigInt implements BigIntegerI {
     BigIntMutable copy = value.copy();
     BigIntMutable convertedOperand = toBigInt(operand);
     operation.accept(copy, convertedOperand);
-    convertedOperand.mod(mutableFromConstant(modulus, "EOA"));
+    copy.mod(mutableFromConstant(modulus, "EOA"));
     return new BigInt(copy, modulus);
   }
 
@@ -91,12 +94,12 @@ public class BigInt implements BigIntegerI {
 
   @Override
   public BigInteger asBigInteger() {
-    return new BigInteger(toString());
+    return new BigInteger(value.toString());
   }
 
   @Override
-  public byte[] toByteArray() {
-    return value.toByteArray();
+  public void toByteArray(byte[] bytes, int offset, int byteLength) {
+    value.toByteArray(bytes, offset, byteLength);
   }
 
   @Override
@@ -106,6 +109,9 @@ public class BigInt implements BigIntegerI {
   }
 
   public static BigInt fromConstant(BigInteger bigInteger, BigInteger modulus) {
+    if (bigInteger == null) {
+      return null;
+    }
     return new BigInt(mutableFromConstant(bigInteger, "N/A"), modulus);
   }
 
@@ -119,17 +125,46 @@ public class BigInt implements BigIntegerI {
   private static BigIntMutable mutableFromConstant(BigInteger bigInteger,
       String methodName) {
     printSlow(methodName);
+    if (bigInteger == null) {
+      return null;
+    }
     return new BigIntMutable(bigInteger.toString());
   }
 
   // todo avoid converting to BigInteger
   private static void printSlow(String methodName) {
-    System.out.println("Slow conversion to BigInteger: " + methodName);
+//    System.out.println("Slow conversion to BigInteger: " + methodName);
   }
 
   @Override
   public BigIntegerI modPow(BigIntegerI valueOf, BigInteger modulus) {
     return fromConstant(asBigInteger().modPow(valueOf.asBigInteger(), modulus), "modPow",
         this.modulus);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    BigInt bigInt = (BigInt) o;
+    return Objects.equals(modulus, bigInt.modulus) &&
+        Objects.equals(value, bigInt.value);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(modulus, value);
+  }
+
+  @Override
+  public String toString() {
+    return "BigInt{" +
+        "value=" + value +
+        ", modulus =" + modulus +
+        '}';
   }
 }

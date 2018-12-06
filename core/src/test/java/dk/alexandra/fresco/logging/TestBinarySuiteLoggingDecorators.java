@@ -7,7 +7,7 @@ import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.binary.ProtocolBuilderBinary;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.network.AsyncNetwork;
+import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
@@ -70,7 +70,7 @@ public class TestBinarySuiteLoggingDecorators {
       TestThreadRunner.TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new ResourcePoolImpl(playerId, noOfParties),
-              () -> new AsyncNetwork(partyNetConf));
+              () -> new SocketNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
@@ -128,7 +128,7 @@ public class TestBinarySuiteLoggingDecorators {
       TestThreadRunner.TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new ResourcePoolImpl(playerId, noOfParties),
-              () -> new AsyncNetwork(partyNetConf));
+              () -> new SocketNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);
@@ -189,7 +189,7 @@ public class TestBinarySuiteLoggingDecorators {
       TestThreadRunner.TestThreadConfiguration<ResourcePoolImpl, ProtocolBuilderBinary> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new ResourcePoolImpl(playerId, noOfParties),
-              () -> new AsyncNetwork(partyNetConf));
+              () -> new SocketNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);

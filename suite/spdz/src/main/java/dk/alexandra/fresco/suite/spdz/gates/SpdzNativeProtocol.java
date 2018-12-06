@@ -3,6 +3,7 @@ package dk.alexandra.fresco.suite.spdz.gates;
 import dk.alexandra.fresco.framework.NativeProtocol;
 import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
 import dk.alexandra.fresco.framework.network.Network;
+import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import java.security.MessageDigest;
 import java.util.Arrays;
@@ -12,15 +13,19 @@ import java.util.List;
 public abstract class SpdzNativeProtocol<OutputT> implements
     NativeProtocol<OutputT, SpdzResourcePool> {
 
-  byte[] sendBroadcastValidation(MessageDigest dig, Network network, BigIntegerI b) {
-    dig.update(b.toByteArray());
+  byte[] sendBroadcastValidation(
+      ByteSerializer<BigIntegerI> serializer,
+      MessageDigest dig, Network network, BigIntegerI b) {
+    dig.update(serializer.serialize(b));
     return sendAndReset(dig, network);
   }
 
-  byte[] sendBroadcastValidation(MessageDigest dig, Network network,
+  byte[] sendBroadcastValidation(
+      ByteSerializer<BigIntegerI> serializer,
+      MessageDigest dig, Network network,
       Collection<BigIntegerI> bs) {
     for (BigIntegerI b : bs) {
-      dig.update(b.toByteArray());
+      dig.update(serializer.serialize(b));
     }
     return sendAndReset(dig, network);
   }

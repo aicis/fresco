@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.network.CloseableNetwork;
 import dk.alexandra.fresco.framework.util.ExceptionConverter;
 import java.net.Socket;
 import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -96,6 +97,10 @@ public class SocketNetwork implements CloseableNetwork {
     } else {
       this.sockets = Collections.emptyList();
     }
+  }
+
+  public SocketNetwork(NetworkConfiguration conf) {
+    this(conf, new Connector(conf, Duration.of(1, ChronoUnit.MINUTES)).getSocketMap());
   }
 
   /**

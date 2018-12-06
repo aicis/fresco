@@ -8,7 +8,7 @@ import dk.alexandra.fresco.framework.builder.numeric.BigInt;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
-import dk.alexandra.fresco.framework.network.AsyncNetwork;
+import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
@@ -76,7 +76,7 @@ public class TestInputSumExample {
 
   private static Network createNetwork(
       NetworkConfiguration networkConfiguration) {
-    return new AsyncNetwork(networkConfiguration);
+    return new SocketNetwork(networkConfiguration);
   }
 
   @Test

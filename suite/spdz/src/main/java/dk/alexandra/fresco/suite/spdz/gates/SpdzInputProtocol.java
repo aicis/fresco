@@ -42,6 +42,7 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
     } else if (round == 1) {
       this.valueMasked = serializer.deserialize(network.receive(inputter));
       this.digest = sendBroadcastValidation(
+          spdzResourcePool.getSerializer(),
           spdzResourcePool.getMessageDigest(), network,
           valueMasked);
       return EvaluationStatus.HAS_MORE_ROUNDS;
