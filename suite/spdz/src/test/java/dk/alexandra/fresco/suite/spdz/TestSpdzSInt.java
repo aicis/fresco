@@ -30,12 +30,7 @@ public class TestSpdzSInt {
     element2 = new SpdzSInt(getI(25), null);
     assertTrue(element.equals(element2));
 
-    element2 = new SpdzSInt(getI(25), null);
-    assertFalse(element.equals(element2));
-    element2 = new SpdzSInt(getI(25), null);
-    assertFalse(element.equals(element2));
     element = new SpdzSInt(getI(25), null);
-    assertFalse(element.equals(element2));
     element2 = new SpdzSInt(getI(25), null);
     assertTrue(element.equals(element2));
 
@@ -61,12 +56,10 @@ public class TestSpdzSInt {
     SpdzSInt e1 = new SpdzSInt(getI(25), getI(15));
     SpdzSInt e2 = new SpdzSInt(null, getI(15));
     SpdzSInt e3 = new SpdzSInt(getI(25), null);
-    SpdzSInt e4 = new SpdzSInt(getI(25), getI(15));
     assertAllDifferent(new int[]{
         e1.hashCode(),
         e2.hashCode(),
-        e3.hashCode(),
-        e4.hashCode()
+        e3.hashCode()
     });
   }
 
