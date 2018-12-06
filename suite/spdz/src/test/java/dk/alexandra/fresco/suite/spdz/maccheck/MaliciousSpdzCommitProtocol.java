@@ -36,8 +36,7 @@ public class MaliciousSpdzCommitProtocol extends SpdzNativeProtocol<Boolean> {
     ByteSerializer<FieldElement> serializer = spdzResourcePool.getSerializer();
     if (round == 0) {
       network.sendToAll(
-          serializer.serialize(commitment.computeCommitment(
-              spdzResourcePool.getModulus(), spdzResourcePool.getSerializer())));
+          serializer.serialize(commitment.computeCommitment(spdzResourcePool.getSerializer())));
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else if (round == 1) {
 

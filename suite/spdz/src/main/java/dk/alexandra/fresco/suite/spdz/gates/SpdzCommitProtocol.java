@@ -33,9 +33,7 @@ public class SpdzCommitProtocol extends SpdzNativeProtocol<Map<Integer, FieldEle
     ByteSerializer<FieldElement> serializer = spdzResourcePool.getSerializer();
 
     if (round == 0) {
-      network.sendToAll(serializer
-          .serialize(commitment.computeCommitment(spdzResourcePool.getModulus(),
-              serializer)));
+      network.sendToAll(serializer.serialize(commitment.computeCommitment(serializer)));
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else if (round == 1) {
 
