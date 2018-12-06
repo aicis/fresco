@@ -23,8 +23,6 @@ public class TestThreadRunner {
   public abstract static class TestThread<ResourcePoolT extends ResourcePool, Builder extends ProtocolBuilder>
       extends Thread {
 
-    private boolean finished = false;
-
     protected TestThreadConfiguration<ResourcePoolT, Builder> conf;
 
     Throwable setupException;
@@ -69,17 +67,20 @@ public class TestThreadRunner {
         if (conf.network != null) {
           if (conf.network instanceof Closeable) {
             try {
+              try {
+                System.out.println("Lets sleep");
+                Thread.sleep(500);
+              } catch (InterruptedException ignored) {
+              }
               ((Closeable) conf.network).close();
             } catch (IOException ignored) {
               // Cannot do anything about this.
             }
           }
         }
-        Thread.currentThread().interrupt();
       } catch (AssertionError e) {
         this.testException = e;
         logger.error("Test assertion failed in " + this + ": ", e);
-        Thread.currentThread().interrupt();
       }
     }
 
@@ -90,7 +91,6 @@ public class TestThreadRunner {
           conf.sce.shutdownSCE();
         }
         tearDown();
-        finished = true;
       } catch (Exception e) {
         logger.error("" + this + " threw exception during tear down:", e);
         this.teardownException = e;

@@ -42,18 +42,4 @@ public class TestSpdzRoundSynchronizationExceedsThreshold extends AbstractSpdzTe
       };
     }
   }
-
-  private class MockSpdzProtocolSuite extends SpdzProtocolSuite {
-
-    public MockSpdzProtocolSuite(int maxBitLength) {
-      super(maxBitLength);
-    }
-
-    @Override
-    public RoundSynchronization<SpdzResourcePool> createRoundSynchronization() {
-      return new SpdzRoundSynchronization(this, 0, 128);
-    }
-
-  }
-
 }
