@@ -9,9 +9,9 @@ on Linux and MacOS.
 Building FRESCO from Source
 ---------------------------
 
-The preferred way to install FRESCO is by building it from the latest source from GitHub. To do
-this, make sure you have installed `git <http://git-scm.org>`_, `Java 8 <http://java.com>`_, and
-`Maven <https://maven.apache.org/>`_.
+The preferred way to install FRESCO is by building it from the latest source from GitHub. This way
+you get all the latest additions to FRESCO. To do this, make sure you have installed `git
+<http://git-scm.org>`_, `Java 8 <http://java.com>`_, and `Maven <https://maven.apache.org/>`_.
 
 Then in a terminal run: ::
 
@@ -79,15 +79,16 @@ possibly adjusting the version tag to the desired version.
 FRESCO in a Docker Container
 ----------------------------
 
-If you prefer to install and run FRESCO in a Docker container we have included a simple `Dockerfile`
-in the root of the repository. To build the image simply clone the repository (as above) and run ::
+If you use Docker and would prefer to work with FRESCO in a Docker container, we have made a docker
+image available which you can run using ::
+
+  docker run -it frescompc/fresco
+
+If you would like to build the docker image yourself we have included the `Dockerfile` in the root
+of the repository. To build the image simply clone the repository (as above) and run ::
 
   docker build -t fresco .
 
 To run the container interactively using the image run ::
 
-  docker run -it --rm fresco
-
-Note that the changes made in the container are not persisted.
-
- 
+  docker run -it fresco
