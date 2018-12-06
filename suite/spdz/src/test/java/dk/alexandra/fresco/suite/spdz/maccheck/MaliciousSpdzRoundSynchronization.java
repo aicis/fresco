@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.maccheck;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedStrategy;
@@ -23,7 +23,7 @@ public class MaliciousSpdzRoundSynchronization extends SpdzRoundSynchronization 
   protected void doMacCheck(SpdzResourcePool resourcePool, Network network) {
     NetworkBatchDecorator networkBatchDecorator =
         new NetworkBatchDecorator(resourcePool.getNoOfParties(), network);
-    OpenedValueStore<SpdzSInt, BigIntegerI> store = resourcePool.getOpenedValueStore();
+    OpenedValueStore<SpdzSInt, FieldElement> store = resourcePool.getOpenedValueStore();
     MaliciousSpdzMacCheckProtocol macCheck = new MaliciousSpdzMacCheckProtocol(new SecureRandom(),
         resourcePool.getMessageDigest(),
         store.popValues(),

@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.exceptions.NoMoreElementsException;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -45,7 +45,7 @@ public class SpdzStorageDataSupplier implements SpdzDataSupplier {
   private int[] inputMaskCounters;
   private int bitCounter = 0;
 
-  private BigIntegerI ssk;
+  private FieldElement ssk;
   private BigInteger mod;
 
   /**
@@ -145,7 +145,7 @@ public class SpdzStorageDataSupplier implements SpdzDataSupplier {
   }
 
   @Override
-  public BigIntegerI getSecretSharedKey() {
+  public FieldElement getSecretSharedKey() {
     if (this.ssk != null) {
       return this.ssk;
     }

@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.util.ArithmeticDummyDataSupplier;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.util.MultiplicationTripleShares;
@@ -21,7 +21,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
   private final BigInteger modulus;
   private final BigInteger secretSharedKey;
   private final int expPipeLength;
-  private final Function<BigInteger, BigIntegerI> converter;
+  private final Function<BigInteger, FieldElement> converter;
 
   public SpdzDummyDataSupplier(int myId, int noOfPlayers) {
     // TODO kill this
@@ -88,7 +88,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
   }
 
   @Override
-  public BigIntegerI getSecretSharedKey() {
+  public FieldElement getSecretSharedKey() {
     return getBigIntegerI(secretSharedKey);
   }
 
@@ -105,7 +105,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
     );
   }
 
-  private BigIntegerI getBigIntegerI(BigInteger value) {
+  private FieldElement getBigIntegerI(BigInteger value) {
     return converter.apply(value);
   }
 

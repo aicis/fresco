@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.datatypes;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -8,9 +8,9 @@ import java.util.Random;
 
 public class SpdzCommitment {
 
-  private BigIntegerI value;
-  private BigIntegerI randomness;
-  private BigIntegerI commitment;
+  private FieldElement value;
+  private FieldElement randomness;
+  private FieldElement commitment;
   private Random rand;
   private MessageDigest hash;
 
@@ -21,7 +21,7 @@ public class SpdzCommitment {
    * @param value The value to commit to use
    * @param rand The randomness to use
    */
-  public SpdzCommitment(MessageDigest hash, BigIntegerI value, Random rand) {
+  public SpdzCommitment(MessageDigest hash, FieldElement value, Random rand) {
     this.value = value;
     this.rand = rand;
     this.hash = hash;
@@ -33,7 +33,7 @@ public class SpdzCommitment {
    * @param modulus The modulus to use
    * @return If a commitment has already been computed, the existing commitment is returned.
    */
-  public BigIntegerI computeCommitment(BigInteger modulus, ByteSerializer<BigIntegerI> serializer) {
+  public FieldElement computeCommitment(BigInteger modulus, ByteSerializer<FieldElement> serializer) {
     if (commitment != null) {
       return commitment;
     }
@@ -48,11 +48,11 @@ public class SpdzCommitment {
     return this.commitment;
   }
 
-  public BigIntegerI getValue() {
+  public FieldElement getValue() {
     return this.value;
   }
 
-  public BigIntegerI getRandomness() {
+  public FieldElement getRandomness() {
     return this.randomness;
   }
 

@@ -2,7 +2,7 @@ package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.PreprocessedValues;
@@ -118,7 +118,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
       @Override
       public DRes<SInt> known(BigInteger value) {
-        BigIntegerI convertedValue = convert(value);
+        FieldElement convertedValue = convert(value);
         return protocolBuilder.append(new SpdzKnownSIntProtocol(convertedValue, getZero()));
       }
 
@@ -143,11 +143,11 @@ class SpdzBuilder implements BuilderFactoryNumeric {
     };
   }
 
-  private BigIntegerI getZero() {
+  private FieldElement getZero() {
     return convert(BigInteger.ZERO);
   }
 
-  private BigIntegerI convert(BigInteger bigInteger) {
+  private FieldElement convert(BigInteger bigInteger) {
     // TODO Define this in the config
     return BigInt.fromConstant(bigInteger, basicNumericContext.getModulus());
   }

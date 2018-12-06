@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.Drbg;
@@ -21,7 +21,7 @@ public interface SpdzResourcePool extends NumericResourcePool {
    *
    * @return the serializer
    */
-  ByteSerializer<BigIntegerI> getSerializer();
+  ByteSerializer<FieldElement> getSerializer();
 
   /**
    * Gets the message digest for this protocol suite invocation.
@@ -42,7 +42,7 @@ public interface SpdzResourcePool extends NumericResourcePool {
   /**
    * Returns instance of {@link OpenedValueStore} which tracks all opened, unchecked values.
    */
-  OpenedValueStore<SpdzSInt, BigIntegerI> getOpenedValueStore();
+  OpenedValueStore<SpdzSInt, FieldElement> getOpenedValueStore();
 
   /**
    * Returns instance of {@link SpdzDataSupplier} which provides pre-processed material such as

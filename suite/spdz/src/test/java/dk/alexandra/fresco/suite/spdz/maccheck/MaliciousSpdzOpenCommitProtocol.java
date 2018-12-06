@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.maccheck;
 
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
@@ -17,8 +17,8 @@ import java.util.Map;
 public class MaliciousSpdzOpenCommitProtocol extends SpdzNativeProtocol<Boolean> {
 
   private SpdzCommitment commitment;
-  private Map<Integer, BigIntegerI> ss;
-  private Map<Integer, BigIntegerI> commitments;
+  private Map<Integer, FieldElement> ss;
+  private Map<Integer, FieldElement> commitments;
   private boolean openingValidated;
   private byte[] digest;
   private Boolean result;
@@ -33,7 +33,7 @@ public class MaliciousSpdzOpenCommitProtocol extends SpdzNativeProtocol<Boolean>
    * @param ss The resulting opened values from the commitments.
    */
   public MaliciousSpdzOpenCommitProtocol(SpdzCommitment commitment,
-      Map<Integer, BigIntegerI> commitments, Map<Integer, BigIntegerI> ss, boolean corruptNow) {
+      Map<Integer, FieldElement> commitments, Map<Integer, FieldElement> ss, boolean corruptNow) {
     this.commitment = commitment;
     this.commitments = commitments;
     this.ss = ss;
@@ -48,12 +48,12 @@ public class MaliciousSpdzOpenCommitProtocol extends SpdzNativeProtocol<Boolean>
   @Override
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool, Network network) {
     int players = spdzResourcePool.getNoOfParties();
-    ByteSerializer<BigIntegerI> serializer = spdzResourcePool.getSerializer();
+    ByteSerializer<FieldElement> serializer = spdzResourcePool.getSerializer();
     if (round == 0) {
       // Send your opening to all players
-      BigIntegerI value = this.commitment.getValue();
+      FieldElement value = this.commitment.getValue();
       network.sendToAll(serializer.serialize(value));
-      BigIntegerI randomness = this.commitment.getRandomness();
+      FieldElement randomness = this.commitment.getRandomness();
       if (corruptNow) {
         randomness = randomness
             .add(BigInt.fromConstant(BigInteger.ONE, spdzResourcePool.getModulus()));
@@ -66,11 +66,11 @@ public class MaliciousSpdzOpenCommitProtocol extends SpdzNativeProtocol<Boolean>
       List<byte[]> randomnesses = network.receiveFromAll();
 
       openingValidated = true;
-      BigIntegerI[] broadcastMessages = new BigIntegerI[2 * players];
+      FieldElement[] broadcastMessages = new FieldElement[2 * players];
       for (int i = 0; i < players; i++) {
-        BigIntegerI com = commitments.get(i + 1);
-        BigIntegerI open0 = serializer.deserialize(values.get(i));
-        BigIntegerI open1 = serializer.deserialize(randomnesses.get(i));
+        FieldElement com = commitments.get(i + 1);
+        FieldElement open0 = serializer.deserialize(values.get(i));
+        FieldElement open1 = serializer.deserialize(randomnesses.get(i));
         boolean validate = checkCommitment(spdzResourcePool, com, open0, open1);
         openingValidated = openingValidated && validate;
         ss.put(i, open0);
@@ -93,20 +93,20 @@ public class MaliciousSpdzOpenCommitProtocol extends SpdzNativeProtocol<Boolean>
     }
   }
 
-  private boolean checkCommitment(SpdzResourcePool spdzResourcePool, BigIntegerI commitment,
-      BigIntegerI value, BigIntegerI randomness) {
-    ByteSerializer<BigIntegerI> serializer = spdzResourcePool.getSerializer();
+  private boolean checkCommitment(SpdzResourcePool spdzResourcePool, FieldElement commitment,
+      FieldElement value, FieldElement randomness) {
+    ByteSerializer<FieldElement> serializer = spdzResourcePool.getSerializer();
     MessageDigest messageDigest = spdzResourcePool.getMessageDigest();
     messageDigest.update(serializer.serialize(value));
     messageDigest.update(serializer.serialize(randomness));
-    BigIntegerI testSubject =
+    FieldElement testSubject =
         serializer.deserialize(messageDigest.digest());
     return commitment.equals(testSubject);
   }
 
   private byte[] sendMaliciousBroadcastValidation(MessageDigest dig, Network network,
-      Collection<BigIntegerI> bs) {
-    for (BigIntegerI b : bs) {
+      Collection<FieldElement> bs) {
+    for (FieldElement b : bs) {
       dig.update(b.asBigInteger().toByteArray());
     }
     return sendAndReset(dig, network);

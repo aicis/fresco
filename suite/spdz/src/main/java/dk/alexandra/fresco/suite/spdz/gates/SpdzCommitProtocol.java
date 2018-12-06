@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.MaliciousException;
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
@@ -10,10 +10,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SpdzCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigIntegerI>> {
+public class SpdzCommitProtocol extends SpdzNativeProtocol<Map<Integer, FieldElement>> {
 
   private SpdzCommitment commitment;
-  private Map<Integer, BigIntegerI> comms;
+  private Map<Integer, FieldElement> comms;
   private byte[] broadcastDigest;
 
   public SpdzCommitProtocol(SpdzCommitment commitment) {
@@ -22,7 +22,7 @@ public class SpdzCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigInteg
   }
 
   @Override
-  public Map<Integer, BigIntegerI> out() {
+  public Map<Integer, FieldElement> out() {
     return comms;
   }
 
@@ -30,7 +30,7 @@ public class SpdzCommitProtocol extends SpdzNativeProtocol<Map<Integer, BigInteg
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool,
       Network network) {
     int players = spdzResourcePool.getNoOfParties();
-    ByteSerializer<BigIntegerI> serializer = spdzResourcePool.getSerializer();
+    ByteSerializer<FieldElement> serializer = spdzResourcePool.getSerializer();
 
     if (round == 0) {
       network.sendToAll(serializer

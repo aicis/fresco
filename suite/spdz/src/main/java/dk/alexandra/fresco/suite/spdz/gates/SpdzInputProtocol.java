@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.MaliciousException;
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -14,13 +14,13 @@ import java.math.BigInteger;
 public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
 
   private SpdzInputMask inputMask; // is opened by this gate.
-  protected BigIntegerI input;
-  private BigIntegerI valueMasked;
+  protected FieldElement input;
+  private FieldElement valueMasked;
   protected SpdzSInt out;
   private int inputter;
   private byte[] digest;
 
-  public SpdzInputProtocol(BigIntegerI input, int inputter) {
+  public SpdzInputProtocol(FieldElement input, int inputter) {
     this.input = input;
     this.inputter = inputter;
   }
@@ -31,11 +31,11 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
     int myId = spdzResourcePool.getMyId();
     BigInteger modulus = spdzResourcePool.getModulus();
     SpdzDataSupplier dataSupplier = spdzResourcePool.getDataSupplier();
-    ByteSerializer<BigIntegerI> serializer = spdzResourcePool.getSerializer();
+    ByteSerializer<FieldElement> serializer = spdzResourcePool.getSerializer();
     if (round == 0) {
       this.inputMask = dataSupplier.getNextInputMask(this.inputter);
       if (myId == this.inputter) {
-        BigIntegerI bcValue = this.input.subtract(this.inputMask.getRealValue());
+        FieldElement bcValue = this.input.subtract(this.inputMask.getRealValue());
         network.sendToAll(serializer.serialize(bcValue));
       }
       return EvaluationStatus.HAS_MORE_ROUNDS;
@@ -51,7 +51,7 @@ public class SpdzInputProtocol extends SpdzNativeProtocol<SInt> {
       if (!validated) {
         throw new MaliciousException("Broadcast digests did not match");
       }
-      BigIntegerI maskedValue = dataSupplier.getSecretSharedKey().multiply(valueMasked);
+      FieldElement maskedValue = dataSupplier.getSecretSharedKey().multiply(valueMasked);
       SpdzSInt valueMaskedElement =
           new SpdzSInt(
               valueMasked,

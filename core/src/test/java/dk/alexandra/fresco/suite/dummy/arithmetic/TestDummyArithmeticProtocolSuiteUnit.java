@@ -2,7 +2,7 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import static org.junit.Assert.assertEquals;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import java.lang.reflect.Field;
 import java.math.BigInteger;
@@ -16,7 +16,7 @@ public class TestDummyArithmeticProtocolSuiteUnit {
     BigInteger expectedModulus = ModulusFinder.findSuitableModulus(128);
     Field field = DummyArithmeticProtocolSuite.class.getDeclaredField("modulus");
     field.setAccessible(true);
-    BigInteger actualModulus = ((BigIntegerI) field.get(suite)).asBigInteger();
+    BigInteger actualModulus = ((FieldElement) field.get(suite)).asBigInteger();
     assertEquals(expectedModulus, actualModulus);
     int expectedMaxBitLength = 32;
     Field otherField = DummyArithmeticProtocolSuite.class.getDeclaredField("maxBitLength");

@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -10,7 +10,7 @@ import dk.alexandra.fresco.framework.value.SInt;
  */
 public interface DummyArithmeticResourcePool extends NumericResourcePool {
 
-  SInt createSInt(BigIntegerI add);
+  SInt createSInt(FieldElement add);
 
   /**
    * Gets a serializer for big integer that is aligned with the current system settings in this
@@ -18,5 +18,5 @@ public interface DummyArithmeticResourcePool extends NumericResourcePool {
    *
    * @return the serializer
    */
-  ByteSerializer<BigIntegerI> getSerializer();
+  ByteSerializer<FieldElement> getSerializer();
 }

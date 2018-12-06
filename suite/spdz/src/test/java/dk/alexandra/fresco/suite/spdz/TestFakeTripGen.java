@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
@@ -17,11 +17,11 @@ public class TestFakeTripGen {
 
   private static final BigInteger modulus = new BigInteger(
       "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
-  private static final BigIntegerI alpha =
+  private static final FieldElement alpha =
       BigInt.fromConstant(new BigInteger(
               "5081587041441179438932635098620319894716368628029284292880408086703438041331200877980213770035569812296677935118715454650749402237663859711459266577679205"),
           modulus);
-  private BigIntegerI zero = BigInt.fromConstant(BigInteger.ZERO, modulus);
+  private FieldElement zero = BigInt.fromConstant(BigInteger.ZERO, modulus);
 
   @Test
   public void testTripleGen() {
@@ -29,18 +29,18 @@ public class TestFakeTripGen {
     int noOfParties = 2;
     List<SpdzTriple[]> triples = FakeTripGen.generateTriples(amount, noOfParties, modulus, alpha);
     for (SpdzTriple[] t : triples) {
-      BigIntegerI a = t[0].getA().getShare().add(t[1].getA().getShare());
-      BigIntegerI b = t[0].getB().getShare().add(t[1].getB().getShare());
-      BigIntegerI c = t[0].getC().getShare().add(t[1].getC().getShare());
+      FieldElement a = t[0].getA().getShare().add(t[1].getA().getShare());
+      FieldElement b = t[0].getB().getShare().add(t[1].getB().getShare());
+      FieldElement c = t[0].getC().getShare().add(t[1].getC().getShare());
 
-      BigIntegerI shareA = t[0].getA().getMac().add(t[1].getA().getMac());
-      BigIntegerI shareB = t[0].getB().getMac().add(t[1].getB().getMac());
-      BigIntegerI shareC = t[0].getC().getMac().add(t[1].getC().getMac());
+      FieldElement shareA = t[0].getA().getMac().add(t[1].getA().getMac());
+      FieldElement shareB = t[0].getB().getMac().add(t[1].getB().getMac());
+      FieldElement shareC = t[0].getC().getMac().add(t[1].getC().getMac());
 
-      BigIntegerI actual = a.multiply(b);
+      FieldElement actual = a.multiply(b);
       Assert.assertEquals(c, actual);
 
-      BigIntegerI zero = BigInt.fromConstant(BigInteger.ZERO, modulus);
+      FieldElement zero = BigInt.fromConstant(BigInteger.ZERO, modulus);
 
       Assert.assertEquals(zero, subtract(a, shareA));
       Assert.assertEquals(zero, subtract(b, shareB));
@@ -48,11 +48,11 @@ public class TestFakeTripGen {
     }
   }
 
-  private BigIntegerI subtract(BigIntegerI a, BigIntegerI shareA) {
-    BigIntegerI bigIntegerI = a.multiply(alpha);
-    bigIntegerI.multiply(alpha);
-    BigIntegerI copy = shareA.subtract(bigIntegerI);
-    copy.subtract(bigIntegerI);
+  private FieldElement subtract(FieldElement a, FieldElement shareA) {
+    FieldElement fieldElement = a.multiply(alpha);
+    fieldElement.multiply(alpha);
+    FieldElement copy = shareA.subtract(fieldElement);
+    copy.subtract(fieldElement);
     return copy;
   }
 
@@ -70,9 +70,9 @@ public class TestFakeTripGen {
 
         SpdzInputMask m1 = masks[0];
         SpdzInputMask m2 = masks[1];
-        BigIntegerI share = m1.getMask().getShare().add(m2.getMask().getShare());
+        FieldElement share = m1.getMask().getShare().add(m2.getMask().getShare());
         Assert.assertEquals(realMask.getRealValue(), share);
-        BigIntegerI mac = m1.getMask().getMac().add(m2.getMask().getMac());
+        FieldElement mac = m1.getMask().getMac().add(m2.getMask().getMac());
         Assert.assertEquals(zero, subtract(share, mac));
       }
     }
@@ -91,9 +91,9 @@ public class TestFakeTripGen {
 
       SpdzInputMask m1 = masks[0];
       SpdzInputMask m2 = masks[1];
-      BigIntegerI share = m1.getMask().getShare().add(m2.getMask().getShare());
+      FieldElement share = m1.getMask().getShare().add(m2.getMask().getShare());
       Assert.assertEquals(realMask.getRealValue(), share);
-      BigIntegerI mac = m1.getMask().getMac().add(m2.getMask().getMac());
+      FieldElement mac = m1.getMask().getMac().add(m2.getMask().getMac());
       Assert.assertEquals(zero, subtract(share, mac));
     }
   }
@@ -106,17 +106,17 @@ public class TestFakeTripGen {
     for (SpdzSInt[][] pipe : expPipes) {
       SpdzSInt[] as = pipe[0];
       SpdzSInt[] bs = pipe[1];
-      BigIntegerI r = as[1].getShare().add(bs[1].getShare());
+      FieldElement r = as[1].getShare().add(bs[1].getShare());
       System.out.println(r);
       Assert.assertEquals(r.modInverse(modulus),
           as[0].getShare().add(bs[0].getShare()));
-      BigIntegerI prevR = r;
+      FieldElement prevR = r;
       for (int i = 0; i < as.length; i++) {
-        BigIntegerI share = as[i].getShare().add(bs[i].getShare());
-        BigIntegerI mac = as[i].getMac().add(bs[i].getMac());
+        FieldElement share = as[i].getShare().add(bs[i].getShare());
+        FieldElement mac = as[i].getMac().add(bs[i].getMac());
         Assert.assertEquals(zero, subtract(share, mac));
         if (i > 1) {
-          BigIntegerI copy = r.multiply(prevR);
+          FieldElement copy = r.multiply(prevR);
           Assert.assertEquals(copy, share);
           prevR = share;
         }
@@ -130,8 +130,8 @@ public class TestFakeTripGen {
     int noOfParties = 2;
     List<SpdzSInt[]> bits = FakeTripGen.generateBits(amount, noOfParties, modulus, alpha);
     for (SpdzSInt[] b : bits) {
-      BigIntegerI val = b[0].getShare().add(b[1].getShare());
-      BigIntegerI mac = b[0].getMac().add(b[1].getMac());
+      FieldElement val = b[0].getShare().add(b[1].getShare());
+      FieldElement mac = b[0].getMac().add(b[1].getMac());
 
       Assert.assertTrue(
           val.asBigInteger().equals(BigInteger.ZERO)
@@ -170,7 +170,7 @@ public class TestFakeTripGen {
 
   @Test
   public void testBigIntToBytes() {
-    BigIntegerI b = new BigInt(200, modulus);
+    FieldElement b = new BigInt(200, modulus);
     int size = 1;
     ByteBuffer buf = FakeTripGen.bigIntToBytes(b, size);
     byte[] arr = buf.array();

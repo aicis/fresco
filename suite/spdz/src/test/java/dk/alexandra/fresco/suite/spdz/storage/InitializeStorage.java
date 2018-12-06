@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -96,9 +96,9 @@ public class InitializeStorage {
     BigInteger p = new BigInteger(
         "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
 
-    List<BigIntegerI> alphaShares = FakeTripGen.generateAlphaShares(noOfPlayers, p);
-    BigIntegerI alpha = new BigInt(0, p);
-    for (BigIntegerI share : alphaShares) {
+    List<FieldElement> alphaShares = FakeTripGen.generateAlphaShares(noOfPlayers, p);
+    FieldElement alpha = new BigInt(0, p);
+    for (FieldElement share : alphaShares) {
       alpha.add(share);
     }
 
@@ -200,9 +200,9 @@ public class InitializeStorage {
       f.mkdirs();
     }
 
-    List<BigIntegerI> alphaShares = FakeTripGen.generateAlphaShares(noOfPlayers, p);
-    BigIntegerI alpha = new BigInt(0, p);
-    for (BigIntegerI share : alphaShares) {
+    List<FieldElement> alphaShares = FakeTripGen.generateAlphaShares(noOfPlayers, p);
+    FieldElement alpha = new BigInt(0, p);
+    for (FieldElement share : alphaShares) {
       alpha.add(share);
     }
 

@@ -4,7 +4,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import java.math.BigInteger;
@@ -49,7 +49,7 @@ public class TestSpdzTriple {
     assertFalse(element.equals(element2));
   }
 
-  private BigIntegerI get(BigInteger bigInteger) {
+  private FieldElement get(BigInteger bigInteger) {
     return BigInt.fromConstant(bigInteger, BigInteger.TEN);
   }
 }

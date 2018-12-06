@@ -4,7 +4,7 @@ import java.math.BigInteger;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 
-public class BigInt implements BigIntegerI {
+public class BigInt implements FieldElement {
 
   private BigInteger modulus;
   private BigIntMutable value;
@@ -22,7 +22,7 @@ public class BigInt implements BigIntegerI {
     this(new BigIntMutable(toString), modulus);
   }
 
-  public static BigIntegerI fromBytes(byte[] bytes, BigInteger modulus) {
+  public static FieldElement fromBytes(byte[] bytes, BigInteger modulus) {
     BigIntMutable bigIntMutable = BigIntMutable.fromBytes(bytes);
     bigIntMutable.mod(mutableFromConstant(modulus, "fromBytes"));
     return new BigInt(bigIntMutable, modulus);
@@ -35,22 +35,22 @@ public class BigInt implements BigIntegerI {
   }
 
   @Override
-  public BigIntegerI divide(BigIntegerI valueOf) {
+  public FieldElement divide(FieldElement valueOf) {
     return fromConstant(asBigInteger().divide(valueOf.asBigInteger()),
-        "divide(BigIntegerI)",
+        "divide(FieldElement)",
         this.modulus
     );
   }
 
   @Override
-  public BigIntegerI divide(int i) {
+  public FieldElement divide(int i) {
     return fromConstant(asBigInteger().divide(new BigInt(i, modulus).asBigInteger()),
         "divide(int)",
         this.modulus);
   }
 
   @Override
-  public BigIntegerI subtract(BigIntegerI operand) {
+  public FieldElement subtract(FieldElement operand) {
     return safe(this::sub, operand);
   }
 
@@ -59,7 +59,7 @@ public class BigInt implements BigIntegerI {
   }
 
   @Override
-  public BigIntegerI multiply(BigIntegerI operand) {
+  public FieldElement multiply(FieldElement operand) {
     return safe(this::mul, operand);
   }
 
@@ -68,7 +68,7 @@ public class BigInt implements BigIntegerI {
   }
 
   @Override
-  public BigIntegerI add(BigIntegerI operand) {
+  public FieldElement add(FieldElement operand) {
     return safe(this::add, operand);
   }
 
@@ -76,7 +76,7 @@ public class BigInt implements BigIntegerI {
     left.add(right);
   }
 
-  private BigInt safe(BiConsumer<BigIntMutable, BigIntMutable> operation, BigIntegerI operand) {
+  private BigInt safe(BiConsumer<BigIntMutable, BigIntMutable> operation, FieldElement operand) {
     BigIntMutable copy = value.copy();
     BigIntMutable convertedOperand = toBigInt(operand);
     operation.accept(copy, convertedOperand);
@@ -84,7 +84,7 @@ public class BigInt implements BigIntegerI {
     return new BigInt(copy, modulus);
   }
 
-  private BigIntMutable toBigInt(BigIntegerI operand) {
+  private BigIntMutable toBigInt(FieldElement operand) {
     if (operand instanceof BigInt) {
       return ((BigInt) operand).value;
     } else {
@@ -103,7 +103,7 @@ public class BigInt implements BigIntegerI {
   }
 
   @Override
-  public int compareTo(BigIntegerI o) {
+  public int compareTo(FieldElement o) {
     printSlow("compareTo");
     return asBigInteger().compareTo(o.asBigInteger());
   }
@@ -137,7 +137,7 @@ public class BigInt implements BigIntegerI {
   }
 
   @Override
-  public BigIntegerI modPow(BigIntegerI valueOf, BigInteger modulus) {
+  public FieldElement modPow(FieldElement valueOf, BigInteger modulus) {
     return fromConstant(asBigInteger().modPow(valueOf.asBigInteger(), modulus), "modPow",
         this.modulus);
   }

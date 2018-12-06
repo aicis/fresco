@@ -2,7 +2,7 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BigIntegerClassic;
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -26,7 +26,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
   private RealNumericContext realNumericContext;
   private MiscBigIntegerGenerators mog;
   private Random rand;
-  private Function<BigInteger, BigIntegerI> bigIntegerSupplier;
+  private Function<BigInteger, FieldElement> bigIntegerSupplier;
 
   /**
    * Creates a dummy arithmetic builder factory which creates basic numeric operations

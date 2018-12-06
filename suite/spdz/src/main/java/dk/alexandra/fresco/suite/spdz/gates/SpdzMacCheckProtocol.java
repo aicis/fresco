@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -26,8 +26,8 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
   private final BigInteger modulus;
   private final Drbg jointDrbg;
   private final List<SpdzSInt> closedValues;
-  private final List<BigIntegerI> openedValues;
-  private final BigIntegerI alpha;
+  private final List<FieldElement> openedValues;
+  private final FieldElement alpha;
 
   /**
    * Protocol which handles the MAC check internal to SPDZ. If this protocol reaches the end, no
@@ -40,10 +40,10 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
   public SpdzMacCheckProtocol(
       final SecureRandom rand,
       final MessageDigest digest,
-      final Pair<List<SpdzSInt>, List<BigIntegerI>> toCheck,
+      final Pair<List<SpdzSInt>, List<FieldElement>> toCheck,
       final BigInteger modulus,
       final Drbg jointDrbg,
-      final BigIntegerI alpha) {
+      final FieldElement alpha) {
     this.rand = rand;
     this.digest = digest;
     this.closedValues = toCheck.getFirst();
@@ -60,7 +60,7 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
           BigInteger[] rs = sampleRandomCoefficients(openedValues.size(), jointDrbg, modulus);
           BigInteger a = BigInteger.ZERO;
           int index = 0;
-          for (BigIntegerI openedValue : openedValues) {
+          for (FieldElement openedValue : openedValues) {
             a = a.add(openedValue.asBigInteger().multiply(rs[index++])).mod(modulus);
           }
 
@@ -85,7 +85,7 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
           BigInteger deltaSum =
               commitments.values()
                   .stream()
-                  .map(BigIntegerI::asBigInteger)
+                  .map(FieldElement::asBigInteger)
                   .reduce(BigInteger.ZERO, BigInteger::add)
                   .mod(modulus);
 

@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.datatypes;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import java.io.Serializable;
 
 /**
@@ -12,9 +12,9 @@ public class SpdzInputMask implements Serializable {
   private static final long serialVersionUID = 8757701490552440720L;
 
   private SpdzSInt mask;
-  private BigIntegerI realValue;
+  private FieldElement realValue;
 
-  public SpdzInputMask(SpdzSInt mask, BigIntegerI realValue) {
+  public SpdzInputMask(SpdzSInt mask, FieldElement realValue) {
     this.mask = mask;
     this.realValue = realValue;
   }
@@ -32,7 +32,7 @@ public class SpdzInputMask implements Serializable {
    * @return For the player that owns this inputmask, the
     shared real value of the mask. Otherwise null.
    */
-  public BigIntegerI getRealValue() {
+  public FieldElement getRealValue() {
     return realValue;
   }
 

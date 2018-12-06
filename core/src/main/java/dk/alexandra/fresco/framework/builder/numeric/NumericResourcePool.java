@@ -25,7 +25,7 @@ public interface NumericResourcePool extends ResourcePool {
    * @param value the unsigned BigInteger
    * @return the signed BigInteger
    */
-  default BigInteger convertRepresentation(BigIntegerI value) {
+  default BigInteger convertRepresentation(FieldElement value) {
     BigInteger modulus = getModulus();
     BigInteger actual = value.asBigInteger().mod(modulus);
     if (actual.compareTo(modulus.divide(BigInteger.valueOf(2))) > 0) {

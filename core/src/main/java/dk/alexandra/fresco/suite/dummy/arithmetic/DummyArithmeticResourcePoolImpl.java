@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -19,7 +19,7 @@ public class DummyArithmeticResourcePoolImpl extends ResourcePoolImpl
 
   private final BigInteger modulus;
   private final int modulusSize;
-  private final Function<byte[], BigIntegerI> bigIntegerSupplier;
+  private final Function<byte[], FieldElement> bigIntegerSupplier;
 
   /**
    * Constructs a new {@link ResourcePool} for the Dummy Arithmetic suite.
@@ -41,7 +41,7 @@ public class DummyArithmeticResourcePoolImpl extends ResourcePoolImpl
    * @param bigIntegerSupplier supplies wrapped big ints
    */
   public DummyArithmeticResourcePoolImpl(int myId, int noOfPlayers, BigInteger modulus,
-      Function<byte[], BigIntegerI> bigIntegerSupplier) {
+      Function<byte[], FieldElement> bigIntegerSupplier) {
     super(myId, noOfPlayers);
     this.bigIntegerSupplier = bigIntegerSupplier;
     this.modulus = modulus;
@@ -54,12 +54,12 @@ public class DummyArithmeticResourcePoolImpl extends ResourcePoolImpl
   }
 
   @Override
-  public ByteSerializer<BigIntegerI> getSerializer() {
+  public ByteSerializer<FieldElement> getSerializer() {
     return new BigIntegerWithFixedLengthSerializer(modulusSize, bigIntegerSupplier);
   }
 
   @Override
-  public SInt createSInt(BigIntegerI add) {
+  public SInt createSInt(FieldElement add) {
     return new DummyArithmeticSInt(add);
   }
 }

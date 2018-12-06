@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.gates;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
@@ -9,12 +9,12 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 
 public class SpdzSubtractProtocolKnownLeft extends SpdzNativeProtocol<SInt> {
 
-  private final BigIntegerI left;
+  private final FieldElement left;
   private final DRes<SInt> right;
-  private final BigIntegerI zero;
+  private final FieldElement zero;
   private SpdzSInt out;
 
-  public SpdzSubtractProtocolKnownLeft(BigIntegerI left, DRes<SInt> right, BigIntegerI zero) {
+  public SpdzSubtractProtocolKnownLeft(FieldElement left, DRes<SInt> right, FieldElement zero) {
     this.left = left;
     this.right = right;
     this.zero = zero;

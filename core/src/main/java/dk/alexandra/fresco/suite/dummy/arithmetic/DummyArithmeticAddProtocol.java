@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.value.SInt;
 
@@ -29,9 +29,9 @@ public class DummyArithmeticAddProtocol extends DummyArithmeticNativeProtocol<SI
   @Override
   public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool resourcePool,
       Network network) {
-    BigIntegerI l = ((DummyArithmeticSInt) left.out()).getValue();
-    BigIntegerI r = ((DummyArithmeticSInt) right.out()).getValue();
-    BigIntegerI value = r.add(l);
+    FieldElement l = ((DummyArithmeticSInt) left.out()).getValue();
+    FieldElement r = ((DummyArithmeticSInt) right.out()).getValue();
+    FieldElement value = r.add(l);
     out = resourcePool.createSInt(value);
     return EvaluationStatus.IS_DONE;
   }

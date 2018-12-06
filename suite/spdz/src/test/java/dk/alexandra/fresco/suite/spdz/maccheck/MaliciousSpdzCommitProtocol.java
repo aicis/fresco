@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.maccheck;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
@@ -15,7 +15,7 @@ import java.util.Map;
 public class MaliciousSpdzCommitProtocol extends SpdzNativeProtocol<Boolean> {
 
   private SpdzCommitment commitment;
-  private Map<Integer, BigIntegerI> comms;
+  private Map<Integer, FieldElement> comms;
   private byte[] broadcastDigest;
   private Boolean result;
   private final boolean corruptNow;
@@ -23,7 +23,7 @@ public class MaliciousSpdzCommitProtocol extends SpdzNativeProtocol<Boolean> {
   /**
    * Malicious commitment protocol.
    */
-  public MaliciousSpdzCommitProtocol(SpdzCommitment commitment, Map<Integer, BigIntegerI> comms,
+  public MaliciousSpdzCommitProtocol(SpdzCommitment commitment, Map<Integer, FieldElement> comms,
       boolean corruptNow) {
     this.commitment = commitment;
     this.comms = comms;
@@ -33,7 +33,7 @@ public class MaliciousSpdzCommitProtocol extends SpdzNativeProtocol<Boolean> {
   @Override
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool, Network network) {
     int players = spdzResourcePool.getNoOfParties();
-    ByteSerializer<BigIntegerI> serializer = spdzResourcePool.getSerializer();
+    ByteSerializer<FieldElement> serializer = spdzResourcePool.getSerializer();
     if (round == 0) {
       network.sendToAll(
           serializer.serialize(commitment.computeCommitment(
@@ -65,8 +65,8 @@ public class MaliciousSpdzCommitProtocol extends SpdzNativeProtocol<Boolean> {
   }
 
   private byte[] sendMaliciousBroadcastValidation(MessageDigest dig, Network network,
-      Collection<BigIntegerI> bs) {
-    for (BigIntegerI b : bs) {
+      Collection<FieldElement> bs) {
+    for (FieldElement b : bs) {
       dig.update(b.asBigInteger().toByteArray());
     }
     return sendAndReset(dig, network);

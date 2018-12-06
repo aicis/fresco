@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.ProtocolCollection;
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
@@ -58,7 +58,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
     BatchEvaluationStrategy<SpdzResourcePool> batchStrategy = new BatchedStrategy<>();
     BatchedProtocolEvaluator<SpdzResourcePool> evaluator =
         new BatchedProtocolEvaluator<>(batchStrategy, spdzProtocolSuite, batchSize);
-    OpenedValueStore<SpdzSInt, BigIntegerI> store = resourcePool.getOpenedValueStore();
+    OpenedValueStore<SpdzSInt, FieldElement> store = resourcePool.getOpenedValueStore();
     SpdzMacCheckProtocol macCheck = new SpdzMacCheckProtocol(secRand,
         resourcePool.getMessageDigest(),
         store.popValues(),
@@ -72,7 +72,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
 
   @Override
   public void finishedBatch(int gatesEvaluated, SpdzResourcePool resourcePool, Network network) {
-    OpenedValueStore<SpdzSInt, BigIntegerI> store = resourcePool.getOpenedValueStore();
+    OpenedValueStore<SpdzSInt, FieldElement> store = resourcePool.getOpenedValueStore();
     if (isCheckRequired) {
       doMacCheck(resourcePool, network);
       isCheckRequired = false;
@@ -84,7 +84,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
 
   @Override
   public void finishedEval(SpdzResourcePool resourcePool, Network network) {
-    OpenedValueStore<SpdzSInt, BigIntegerI> store = resourcePool.getOpenedValueStore();
+    OpenedValueStore<SpdzSInt, FieldElement> store = resourcePool.getOpenedValueStore();
     if (store.hasPendingValues()) {
       doMacCheck(resourcePool, network);
     }
@@ -96,7 +96,7 @@ public class SpdzRoundSynchronization implements RoundSynchronization<SpdzResour
       Network network) {
     isCheckRequired = StreamSupport.stream(protocols.spliterator(), false)
         .anyMatch(p -> p instanceof SpdzOutputProtocol);
-    OpenedValueStore<SpdzSInt, BigIntegerI> store = resourcePool.getOpenedValueStore();
+    OpenedValueStore<SpdzSInt, FieldElement> store = resourcePool.getOpenedValueStore();
     if (store.hasPendingValues() && isCheckRequired) {
       doMacCheck(resourcePool, network);
     }

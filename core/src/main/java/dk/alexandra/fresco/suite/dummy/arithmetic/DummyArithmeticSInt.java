@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 import java.util.Objects;
@@ -15,14 +15,14 @@ import java.util.Objects;
  */
 public class DummyArithmeticSInt implements SInt {
 
-  private final BigIntegerI value;
+  private final FieldElement value;
 
   /**
    * Constructs an SInt with a given value.
    *
    * @param value the given value
    */
-  public DummyArithmeticSInt(BigIntegerI value) {
+  public DummyArithmeticSInt(FieldElement value) {
     this.value = Objects.requireNonNull(value);
   }
 
@@ -31,7 +31,7 @@ public class DummyArithmeticSInt implements SInt {
    *
    * @return the value
    */
-  public BigIntegerI getValue() {
+  public FieldElement getValue() {
     return value;
   }
 

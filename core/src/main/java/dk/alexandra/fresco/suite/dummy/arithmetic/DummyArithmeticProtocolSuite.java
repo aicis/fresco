@@ -2,7 +2,7 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.builder.numeric.BigIntegerClassic;
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
@@ -21,7 +21,7 @@ import java.math.BigInteger;
 public class DummyArithmeticProtocolSuite
     implements ProtocolSuiteNumeric<DummyArithmeticResourcePool> {
 
-  private final BigIntegerI modulus;
+  private final FieldElement modulus;
   private final int maxBitLength;
   private final int precision;
 
@@ -33,7 +33,7 @@ public class DummyArithmeticProtocolSuite
     this(new BigIntegerClassic(modulus, modulus.add(BigInteger.ONE)), maxBitLength, precision);
   }
 
-  public DummyArithmeticProtocolSuite(BigIntegerI modulus, int maxBitLength, int precision) {
+  public DummyArithmeticProtocolSuite(FieldElement modulus, int maxBitLength, int precision) {
     this.modulus = modulus;
     this.maxBitLength = maxBitLength;
     this.precision = precision;

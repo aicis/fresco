@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.lib.compare.zerotest.ZeroTestBruteforce;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -54,7 +54,7 @@ public interface SpdzDataSupplier {
    *
    * @return a share of the key
    */
-  BigIntegerI getSecretSharedKey();
+  FieldElement getSecretSharedKey();
 
   /**
    * Returns the next random field element.

@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
@@ -52,7 +52,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   private final int batchSize;
   private final Drbg drbg;
   private final Map<Integer, RotList> seedOts;
-  private final Function<BigInteger, BigIntegerI> converter;
+  private final Function<BigInteger, FieldElement> converter;
   private Mascot mascot;
 
   /**
@@ -181,7 +181,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   }
 
   @Override
-  public BigIntegerI getSecretSharedKey() {
+  public FieldElement getSecretSharedKey() {
     return converter.apply(ssk.toBigInteger());
   }
 

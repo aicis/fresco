@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -52,7 +52,7 @@ public class TestSpdzDatatypes {
     Assert.assertNotEquals(shareNull1, elm1);
   }
 
-  private BigIntegerI get(BigInteger ten) {
+  private FieldElement get(BigInteger ten) {
     return BigInt.fromConstant(ten, modulus);
   }
 
@@ -107,8 +107,8 @@ public class TestSpdzDatatypes {
     SpdzCommitment c = new SpdzCommitment(H, get(BigInteger.ONE), new Random(0));
     BigIntegerWithFixedLengthSerializer serializer =
         new BigIntegerWithFixedLengthSerializer(20, bytes -> BigInt.fromBytes(bytes, modulus));
-    BigIntegerI c1 = c.computeCommitment(modulus, serializer);
-    BigIntegerI c2 = c.computeCommitment(modulus, serializer);
+    FieldElement c1 = c.computeCommitment(modulus, serializer);
+    FieldElement c2 = c.computeCommitment(modulus, serializer);
     Assert.assertEquals(c1, c2);
   }
 }

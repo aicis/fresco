@@ -3,7 +3,7 @@ package dk.alexandra.fresco.suite.spdz;
 import static org.junit.Assert.assertEquals;
 
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
-import dk.alexandra.fresco.framework.builder.numeric.BigIntegerI;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.suite.spdz.preprocessing.MascotFormatConverter;
@@ -23,7 +23,7 @@ public class TestMascotFormatConverter {
   }
 
   private SpdzSInt getSpdzElement(int shareVal, int macVal, BigInteger modulus) {
-    IntFunction<BigIntegerI> converter = (bigint) -> new BigInt(bigint, modulus);
+    IntFunction<FieldElement> converter = (bigint) -> new BigInt(bigint, modulus);
     return new SpdzSInt(converter.apply(shareVal), converter.apply(macVal), modulus);
   }
 
