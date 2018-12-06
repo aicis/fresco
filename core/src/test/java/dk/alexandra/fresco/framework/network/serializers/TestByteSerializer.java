@@ -1,8 +1,8 @@
 package dk.alexandra.fresco.framework.network.serializers;
 
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.BigIntMutable;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Assert;
@@ -12,7 +12,7 @@ public class TestByteSerializer {
 
   @Test
   public void testDeserializeList() {
-    BigInteger modulus = BigInteger.valueOf(1234);
+    BigIntMutable modulus = new BigIntMutable(1234);
     ByteSerializer<FieldElement> serializer =
         new BigIntegerWithFixedLengthSerializer(2,
             bytes -> BigInt.fromBytes(bytes, modulus));

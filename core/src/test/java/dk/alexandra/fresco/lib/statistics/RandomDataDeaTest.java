@@ -2,10 +2,10 @@ package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.BigIntMutable;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.lib.statistics.DeaSolver.AnalysisType;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import org.hamcrest.core.Is;
@@ -19,7 +19,7 @@ public class RandomDataDeaTest {
   private List<List<DRes<SInt>>> outputValues = new ArrayList<>();
   private List<List<DRes<SInt>>> inputBasis = new ArrayList<>();
   private List<List<DRes<SInt>>> outputBasis = new ArrayList<>();
-  private BigInteger modulus = BigInteger.valueOf(123123123);
+  private BigIntMutable modulus = new BigIntMutable(123123123);
 
   @Before
   public void setup() {

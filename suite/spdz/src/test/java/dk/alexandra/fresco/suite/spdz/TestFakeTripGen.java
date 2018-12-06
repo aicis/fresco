@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.BigIntMutable;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -142,7 +143,7 @@ public class TestFakeTripGen {
   @Test
   public void testElementToBytes() {
     SpdzSInt element = new SpdzSInt(
-        new BigInt(200, modulus), new BigInt(1, modulus),
+        new BigInt(200, new BigIntMutable(modulus)), new BigInt(1, new BigIntMutable(modulus)),
         BigInteger.ZERO);
     ByteBuffer buf = FakeTripGen.elementToBytes(element, 1);
     byte[] arr = buf.array();
@@ -155,7 +156,7 @@ public class TestFakeTripGen {
 
     }
 
-    element = new SpdzSInt(new BigInt(1, modulus), new BigInt(200, modulus), BigInteger.ZERO);
+    element = new SpdzSInt(new BigInt(1, new BigIntMutable(modulus)), new BigInt(200, new BigIntMutable(modulus)), BigInteger.ZERO);
     buf = FakeTripGen.elementToBytes(element, 1);
     arr = buf.array();
     Assert.assertArrayEquals(new byte[]{1, (byte) 200}, arr);
@@ -169,7 +170,7 @@ public class TestFakeTripGen {
 
   @Test
   public void testBigIntToBytes() {
-    FieldElement b = new BigInt(200, modulus);
+    FieldElement b = new BigInt(200, new BigIntMutable(modulus));
     int size = 1;
     ByteBuffer buf = FakeTripGen.bigIntToBytes(b, size);
     byte[] arr = buf.array();

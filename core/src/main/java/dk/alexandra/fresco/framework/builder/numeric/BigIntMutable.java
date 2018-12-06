@@ -146,6 +146,11 @@ public class BigIntMutable extends Number {
   public BigIntMutable(final char[] s) {
     assign(s);
   }
+
+  public BigIntMutable(BigInteger bigInteger) {
+    assign(bigInteger.toString());
+  }
+
   /*** </Constructors> ***/
 
   /*** <General Helper> ***/

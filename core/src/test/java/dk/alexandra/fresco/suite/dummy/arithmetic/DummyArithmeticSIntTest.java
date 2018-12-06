@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.BigIntMutable;
 import dk.alexandra.fresco.framework.builder.numeric.NativeFieldElement;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import java.math.BigInteger;
@@ -12,7 +13,7 @@ import org.junit.Test;
 
 public class DummyArithmeticSIntTest {
 
-  private BigInteger modulus = ModulusFinder.findSuitableModulus(128);
+  private BigIntMutable modulus = new BigIntMutable(ModulusFinder.findSuitableModulus(128));
 
   @Test
   public void testToString() {

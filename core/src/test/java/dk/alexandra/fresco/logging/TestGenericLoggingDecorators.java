@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.BigIntMutable;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;

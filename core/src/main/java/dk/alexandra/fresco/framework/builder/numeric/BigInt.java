@@ -6,41 +6,44 @@ import java.util.function.BiConsumer;
 
 public class BigInt implements FieldElement {
 
-  private BigInteger modulus;
+  private BigIntMutable modulus;
   private BigIntMutable value;
 
-  public BigInt(BigIntMutable value, BigInteger modulus) {
+  public BigInt(BigIntMutable value, BigIntMutable modulus) {
     this.value = value;
     this.modulus = modulus;
   }
 
-  public BigInt(int i, BigInteger modulus) {
+  public BigInt(int i, BigIntMutable modulus) {
     this(new BigIntMutable(i), modulus);
   }
 
-  public BigInt(String toString, BigInteger modulus) {
+  public BigInt(String toString, BigIntMutable modulus) {
     this(new BigIntMutable(toString), modulus);
   }
 
   public static FieldElement fromBytes(byte[] bytes, BigInteger modulus) {
+    return fromBytes(bytes, new BigIntMutable(modulus));
+  }
+
+  public static FieldElement fromBytes(byte[] bytes, BigIntMutable modulus) {
     BigIntMutable bigIntMutable = BigIntMutable.fromBytes(bytes);
-    bigIntMutable.mod(mutableFromConstant(modulus, "fromBytes"));
+    bigIntMutable.mod(modulus);
     return new BigInt(bigIntMutable, modulus);
   }
 
   @Override
-  public FieldElement divide(FieldElement valueOf) {
-    return fromConstant(asBigInteger().divide(valueOf.asBigInteger()),
-        "divide(FieldElement)",
-        this.modulus
-    );
+  public FieldElement divide(int i) {
+    return divide(new BigInt(i, modulus));
   }
 
   @Override
-  public FieldElement divide(int i) {
-    return fromConstant(asBigInteger().divide(new BigInt(i, modulus).asBigInteger()),
-        "divide(int)",
-        this.modulus);
+  public FieldElement divide(FieldElement operand) {
+    return safe(this::div, operand);
+  }
+
+  private void div(BigIntMutable left, BigIntMutable right) {
+    left.div(right);
   }
 
   @Override
@@ -74,7 +77,7 @@ public class BigInt implements FieldElement {
     BigIntMutable copy = value.copy();
     BigIntMutable convertedOperand = toBigInt(operand);
     operation.accept(copy, convertedOperand);
-    copy.mod(mutableFromConstant(modulus, "EOA"));
+    copy.mod(modulus);
     return new BigInt(copy, modulus);
   }
 
@@ -82,7 +85,7 @@ public class BigInt implements FieldElement {
     if (operand instanceof BigInt) {
       return ((BigInt) operand).value;
     } else {
-      return mutableFromConstant(operand.asBigInteger(), "toBigInt");
+      return mutableFromConstant(operand.asBigInteger());
     }
   }
 
@@ -98,36 +101,27 @@ public class BigInt implements FieldElement {
 
   @Override
   public int compareTo(FieldElement o) {
-    printSlow("compareTo");
+    //todo avoid conversion
     return asBigInteger().compareTo(o.asBigInteger());
   }
 
   public static BigInt fromConstant(BigInteger bigInteger, BigInteger modulus) {
+    return fromConstant(bigInteger, new BigIntMutable(modulus));
+  }
+
+  public static BigInt fromConstant(BigInteger bigInteger, BigIntMutable modulus) {
     if (bigInteger == null) {
       return null;
     }
-    return new BigInt(mutableFromConstant(bigInteger, "N/A"), modulus);
+    return new BigInt(mutableFromConstant(bigInteger), modulus);
   }
 
   // todo avoid converting to BigInteger
-  private static BigInt fromConstant(BigInteger bigInteger,
-      String methodName, BigInteger modulus) {
-    return new BigInt(mutableFromConstant(bigInteger, methodName), modulus);
-  }
-
-  // todo avoid converting to BigInteger
-  private static BigIntMutable mutableFromConstant(BigInteger bigInteger,
-      String methodName) {
-    printSlow(methodName);
+  private static BigIntMutable mutableFromConstant(BigInteger bigInteger) {
     if (bigInteger == null) {
       return null;
     }
     return new BigIntMutable(bigInteger.toString());
-  }
-
-  // todo avoid converting to BigInteger
-  private static void printSlow(String methodName) {
-//    System.out.println("Slow conversion to BigInteger: " + methodName);
   }
 
   @Override
