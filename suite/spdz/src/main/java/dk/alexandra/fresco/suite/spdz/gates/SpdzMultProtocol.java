@@ -51,8 +51,8 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SInt> {
       BigIntegerI e = epsilonShares[0];
       BigIntegerI d = deltaShares[0];
       for (int i = 1; i < epsilonShares.length; i++) {
-        e.add(epsilonShares[i]);
-        d.add(deltaShares[i]);
+        e = e.add(epsilonShares[i]);
+        d = d.add(deltaShares[i]);
       }
       BigInteger modulus = spdzResourcePool.getModulus();
 
