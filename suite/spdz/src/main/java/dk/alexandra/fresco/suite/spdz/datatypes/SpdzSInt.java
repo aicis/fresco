@@ -3,7 +3,6 @@ package dk.alexandra.fresco.suite.spdz.datatypes;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.value.SInt;
 import java.io.Serializable;
-import java.math.BigInteger;
 
 /**
  * Spdz-specific representation of a secret integer.
@@ -13,19 +12,16 @@ public class SpdzSInt implements SInt, Serializable {
   private static final long serialVersionUID = 8828769687281856043L;
   private final FieldElement share;
   private final FieldElement mac;
-  private final BigInteger mod;
 
   /**
    * Create a SpdzSInt containing a share, mac and modulus.
    *
    * @param share The share
    * @param mac The mac
-   * @param modulus the modulus
    */
-  public SpdzSInt(FieldElement share, FieldElement mac, BigInteger modulus) {
+  public SpdzSInt(FieldElement share, FieldElement mac) {
     this.share = share;
     this.mac = mac;
-    this.mod = modulus;
   }
 
   public FieldElement getShare() {
@@ -45,7 +41,7 @@ public class SpdzSInt implements SInt, Serializable {
   public SpdzSInt add(SpdzSInt e) {
     FieldElement share = this.share.add(e.getShare());
     FieldElement mac = this.mac.add(e.getMac());
-    return new SpdzSInt(share, mac, this.mod);
+    return new SpdzSInt(share, mac);
   }
 
   /**
@@ -61,7 +57,7 @@ public class SpdzSInt implements SInt, Serializable {
     if (id == 1) {
       share = share.add(e.getShare());
     }
-    return new SpdzSInt(share, mac, this.mod);
+    return new SpdzSInt(share, mac);
   }
 
   /**
@@ -73,7 +69,7 @@ public class SpdzSInt implements SInt, Serializable {
   public SpdzSInt subtract(SpdzSInt e) {
     FieldElement share = this.share.subtract(e.getShare());
     FieldElement mac = this.mac.subtract(e.getMac());
-    return new SpdzSInt(share, mac, this.mod);
+    return new SpdzSInt(share, mac);
   }
 
   /**
@@ -85,7 +81,7 @@ public class SpdzSInt implements SInt, Serializable {
   public SpdzSInt multiply(FieldElement c) {
     FieldElement share = this.share.multiply(c);
     FieldElement mac = this.mac.multiply(c);
-    return new SpdzSInt(share, mac, this.mod);
+    return new SpdzSInt(share, mac);
   }
 
   @Override
@@ -98,7 +94,6 @@ public class SpdzSInt implements SInt, Serializable {
     final int prime = 31;
     int result = 1;
     result = prime * result + ((mac == null) ? 0 : mac.hashCode());
-    result = prime * result + ((mod == null) ? 0 : mod.hashCode());
     result = prime * result + ((share == null) ? 0 : share.hashCode());
     return result;
   }
@@ -120,13 +115,6 @@ public class SpdzSInt implements SInt, Serializable {
         return false;
       }
     } else if (!mac.equals(other.mac)) {
-      return false;
-    }
-    if (mod == null) {
-      if (other.mod != null) {
-        return false;
-      }
-    } else if (!mod.equals(other.mod)) {
       return false;
     }
     if (share == null) {

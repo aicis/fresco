@@ -143,8 +143,7 @@ public class TestFakeTripGen {
   @Test
   public void testElementToBytes() {
     SpdzSInt element = new SpdzSInt(
-        new BigInt(200, new BigIntMutable(modulus)), new BigInt(1, new BigIntMutable(modulus)),
-        BigInteger.ZERO);
+        new BigInt(200, new BigIntMutable(modulus)), new BigInt(1, new BigIntMutable(modulus)));
     ByteBuffer buf = FakeTripGen.elementToBytes(element, 1);
     byte[] arr = buf.array();
     Assert.assertArrayEquals(new byte[]{(byte) 200, 1}, arr);
@@ -156,7 +155,7 @@ public class TestFakeTripGen {
 
     }
 
-    element = new SpdzSInt(new BigInt(1, new BigIntMutable(modulus)), new BigInt(200, new BigIntMutable(modulus)), BigInteger.ZERO);
+    element = new SpdzSInt(new BigInt(1, new BigIntMutable(modulus)), new BigInt(200, new BigIntMutable(modulus)));
     buf = FakeTripGen.elementToBytes(element, 1);
     arr = buf.array();
     Assert.assertArrayEquals(new byte[]{1, (byte) 200}, arr);

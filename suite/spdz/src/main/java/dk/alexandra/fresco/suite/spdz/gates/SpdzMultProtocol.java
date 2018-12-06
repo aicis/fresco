@@ -9,7 +9,6 @@ import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
-import java.math.BigInteger;
 
 public class SpdzMultProtocol extends SpdzNativeProtocol<SInt> {
 
@@ -54,15 +53,14 @@ public class SpdzMultProtocol extends SpdzNativeProtocol<SInt> {
         e = e.add(epsilonShares[i]);
         d = d.add(deltaShares[i]);
       }
-      BigInteger modulus = spdzResourcePool.getModulus();
 
       FieldElement product = e.multiply(d);
       FieldElement mac = dataSupplier.getSecretSharedKey().multiply(product);
 
       SpdzSInt ed = new SpdzSInt(
           product,
-          mac,
-          modulus);
+          mac
+      );
       SpdzSInt res = triple.getC();
       out = res.add(triple.getB().multiply(e))
           .add(triple.getA().multiply(d))

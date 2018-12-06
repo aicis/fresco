@@ -100,8 +100,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
   private SpdzSInt toSpdzSInt(Pair<BigInteger, BigInteger> raw) {
     return new SpdzSInt(
         getBigIntegerI(raw.getSecond()),
-        getBigIntegerI(raw.getFirst().multiply(secretSharedKey).mod(modulus)),
-        modulus
+        getBigIntegerI(raw.getFirst().multiply(secretSharedKey).mod(modulus))
     );
   }
 

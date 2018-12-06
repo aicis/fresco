@@ -122,7 +122,7 @@ public class TestMacCheck {
         FieldElement share = trip.getA().getShare();
         share.add(new BigInt(1, new BigIntMutable(
             "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557")));
-        SpdzSInt newA = new SpdzSInt(share, trip.getA().getMac(), getModulus());
+        SpdzSInt newA = new SpdzSInt(share, trip.getA().getMac());
         trip = new SpdzTriple(newA, trip.getB(), trip.getC());
       }
       return trip;

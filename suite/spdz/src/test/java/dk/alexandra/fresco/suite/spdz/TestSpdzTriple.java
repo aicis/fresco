@@ -14,8 +14,8 @@ public class TestSpdzTriple {
 
   @Test
   public void testEquals() {
-    SpdzSInt a = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ZERO), BigInteger.ONE);
-    SpdzSInt b = new SpdzSInt(get(BigInteger.ZERO), get(BigInteger.ZERO), BigInteger.ONE);
+    SpdzSInt a = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ZERO));
+    SpdzSInt b = new SpdzSInt(get(BigInteger.ZERO), get(BigInteger.ZERO));
     SpdzTriple element = new SpdzTriple(a, b, a);
 
     assertTrue(element.equals(element));

@@ -16,11 +16,11 @@ import org.junit.Test;
 
 public class TestSpdzDatatypes {
 
-  private SpdzSInt elm0 = new SpdzSInt(get(BigInteger.ZERO), get(BigInteger.ZERO), BigInteger.ZERO);
-  private SpdzSInt elm1 = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ONE), BigInteger.TEN);
-  private SpdzSInt elm2 = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ONE), BigInteger.TEN);
+  private SpdzSInt elm0 = new SpdzSInt(get(BigInteger.ZERO), get(BigInteger.ZERO));
+  private SpdzSInt elm1 = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ONE));
+  private SpdzSInt elm2 = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ONE));
   private SpdzSInt elmDiff1 =
-      new SpdzSInt(get(BigInteger.ZERO), get(BigInteger.ONE), BigInteger.TEN);
+      new SpdzSInt(get(BigInteger.ZERO), get(BigInteger.ONE));
   private BigInteger modulus = BigInteger.TEN.multiply(BigInteger.TEN);
 
   @Test
@@ -32,23 +32,23 @@ public class TestSpdzDatatypes {
     Assert.assertEquals("spdz(BigInt{value=1, modulus =null}, BigInt{value=1, modulus =null})",
         elm1.toString());
     SpdzSInt elm3 = new SpdzSInt(
-        get(BigInteger.TEN), get(BigInteger.TEN), BigInteger.TEN);
+        get(BigInteger.TEN), get(BigInteger.TEN));
     Assert.assertNotEquals(elm2, elm3);
     Assert.assertNotEquals(elm2, new SpdzSInt(
-        get(BigInteger.ONE), get(BigInteger.ZERO), BigInteger.TEN));
+        get(BigInteger.ONE), get(BigInteger.ZERO)));
     Assert.assertNotEquals(elm2, "");
     Assert.assertNotEquals(elm2, null);
 
-    SpdzSInt modNull1 = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ONE), null);
-    SpdzSInt modNull2 = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ONE), null);
+    SpdzSInt modNull1 = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ONE));
+    SpdzSInt modNull2 = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ONE));
     Assert.assertEquals(modNull1, modNull2);
     Assert.assertNotEquals(modNull1, elm1);
 
-    SpdzSInt modDiff = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ONE), BigInteger.ONE);
+    SpdzSInt modDiff = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ONE));
     Assert.assertNotEquals(modDiff, elm1);
 
-    SpdzSInt shareNull1 = new SpdzSInt(null, get(BigInteger.ONE), BigInteger.TEN);
-    SpdzSInt shareNull2 = new SpdzSInt(null, get(BigInteger.ONE), BigInteger.TEN);
+    SpdzSInt shareNull1 = new SpdzSInt(null, get(BigInteger.ONE));
+    SpdzSInt shareNull2 = new SpdzSInt(null, get(BigInteger.ONE));
     Assert.assertEquals(shareNull1, shareNull2);
     Assert.assertNotEquals(shareNull1, elm1);
   }
@@ -104,14 +104,15 @@ public class TestSpdzDatatypes {
 
   @Test
   public void testCommitment() throws NoSuchAlgorithmException {
-    SpdzCommitment comm = new SpdzCommitment(null, null, null);
+    SpdzCommitment comm = new SpdzCommitment(null, null, new Random(1), modulus.bitLength());
     Assert.assertEquals("SpdzCommitment[v:null, r:null, commitment:null]", comm.toString());
     MessageDigest H = MessageDigest.getInstance("SHA-256");
-    SpdzCommitment c = new SpdzCommitment(H, get(BigInteger.ONE), new Random(0));
+    SpdzCommitment c = new SpdzCommitment(H, get(BigInteger.ONE), new Random(0),
+        modulus.bitLength());
     BigIntegerWithFixedLengthSerializer serializer =
         new BigIntegerWithFixedLengthSerializer(20, bytes -> BigInt.fromBytes(bytes, modulus));
-    FieldElement c1 = c.computeCommitment(modulus, serializer);
-    FieldElement c2 = c.computeCommitment(modulus, serializer);
+    FieldElement c1 = c.computeCommitment(serializer);
+    FieldElement c2 = c.computeCommitment(serializer);
     Assert.assertEquals(c1, c2);
   }
 }
