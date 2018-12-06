@@ -2,6 +2,7 @@ package dk.alexandra.fresco.lib.math.integer.division;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -32,11 +33,11 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
     this.divisor = divisor;
   }
 
-  private BigInteger convertRepresentation(BigInteger modulus, BigInteger modulusHalf,
+  private BigInteger convertRepresentation(Modulus modulus, Modulus modulusHalf,
       BigInteger b) {
-    BigInteger actual = b.mod(modulus);
-    if (actual.compareTo(modulusHalf) > 0) {
-      actual = actual.subtract(modulus);
+    BigInteger actual = b.mod(modulus.getBigInteger());
+    if (actual.compareTo(modulusHalf.getBigInteger()) > 0) {
+      actual = actual.subtract(modulus.getBigInteger());
     }
     return actual;
   }
@@ -44,8 +45,8 @@ public class KnownDivisor implements Computation<SInt, ProtocolBuilderNumeric> {
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     BasicNumericContext basicNumericContext = builder.getBasicNumericContext();
-    BigInteger modulus = basicNumericContext.getModulus();
-    BigInteger modulusHalf = modulus.divide(BigInteger.valueOf(2));
+    Modulus modulus = basicNumericContext.getModulus();
+    Modulus modulusHalf = new Modulus(modulus.getBigInteger().divide(BigInteger.valueOf(2)));
     /*
      * We use the fact that if 2^{N+l} \leq m * d \leq 2^{N+l} + 2^l, then floor(x/d) = floor(x * m
      * >> N+l) for all x of length <= N (see Thm 4.2 of

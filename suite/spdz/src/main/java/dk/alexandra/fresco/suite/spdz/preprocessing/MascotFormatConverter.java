@@ -2,6 +2,7 @@ package dk.alexandra.fresco.suite.spdz.preprocessing;
 
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
@@ -13,9 +14,9 @@ import java.math.BigInteger;
 
 public class MascotFormatConverter {
 
-  private BigInteger modulus;
+  private Modulus modulus;
 
-  public MascotFormatConverter(BigInteger modulus) {
+  public MascotFormatConverter(Modulus modulus) {
     this.modulus = modulus;
   }
 
@@ -60,6 +61,6 @@ public class MascotFormatConverter {
   }
 
   private FieldElement convert(BigInteger bigInteger) {
-    return BigInt.fromConstant(bigInteger, modulus);
+    return new BigInt(bigInteger.toString(), modulus);
   }
 }

@@ -115,6 +115,6 @@ public class MaliciousSpdzBuilder extends SpdzBuilder {
   }
 
   private FieldElement convert(BigInteger value) {
-    return BigInt.fromConstant(value, getBasicNumericContext().getModulus());
+    return BigInt.fromBigInteger(value, getBasicNumericContext().getModulus());
   }
 }

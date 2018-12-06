@@ -13,7 +13,7 @@ public class TestDummyArithmeticProtocolSuiteUnit {
   @Test
   public void testDefaultConstructor() throws Exception {
     DummyArithmeticProtocolSuite suite = new DummyArithmeticProtocolSuite();
-    BigInteger expectedModulus = ModulusFinder.findSuitableModulus(128);
+    BigInteger expectedModulus = ModulusFinder.findSuitableModulus(128).getBigInteger();
     Field field = DummyArithmeticProtocolSuite.class.getDeclaredField("modulus");
     field.setAccessible(true);
     BigInteger actualModulus = ((FieldElement) field.get(suite)).asBigInteger();

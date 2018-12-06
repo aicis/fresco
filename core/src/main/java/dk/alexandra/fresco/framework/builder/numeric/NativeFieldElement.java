@@ -6,10 +6,10 @@ import java.util.Objects;
 public class NativeFieldElement implements FieldElement {
 
   private final BigInteger value;
-  private final BigInteger fieldModulus;
+  private final Modulus fieldModulus;
 
-  public NativeFieldElement(BigInteger value, BigInteger fieldModulus) {
-    this.value = value.mod(fieldModulus);
+  public NativeFieldElement(BigInteger value, Modulus fieldModulus) {
+    this.value = value.mod(fieldModulus.getBigInteger());
     this.fieldModulus = fieldModulus;
   }
 

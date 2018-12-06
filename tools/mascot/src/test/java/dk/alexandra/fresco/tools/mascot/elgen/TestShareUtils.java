@@ -3,6 +3,7 @@ package dk.alexandra.fresco.tools.mascot.elgen;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.util.SecretSharer;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
@@ -15,7 +16,7 @@ import org.junit.Test;
 
 public class TestShareUtils {
 
-  private final BigInteger modulus = new BigInteger("251");
+  private final Modulus modulus = new Modulus("251");
   private final FieldElementPrg sampler = new FieldElementPrgImpl(new StrictBitVector(256));
   private final SecretSharer<MascotFieldElement> shareUtils = new AdditiveSecretSharer(sampler, modulus);
   

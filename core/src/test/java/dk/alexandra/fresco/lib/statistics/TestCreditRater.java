@@ -3,6 +3,7 @@ package dk.alexandra.fresco.lib.statistics;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
 import dk.alexandra.fresco.framework.builder.numeric.BigIntMutable;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
 import java.math.BigInteger;
@@ -14,7 +15,7 @@ import org.junit.Test;
 
 public class TestCreditRater {
 
-  private BigIntMutable modulus = new BigIntMutable(10);
+  private Modulus modulus = new Modulus(10);
 
   @Test
   public void testConsistency() {
@@ -22,7 +23,7 @@ public class TestCreditRater {
     List<List<DRes<SInt>>> intervals = new ArrayList<>();
     List<List<DRes<SInt>>> scores = new ArrayList<>();
 
-    values.add(new DummyArithmeticSInt(BigInt.fromConstant(BigInteger.ONE, modulus)));
+    values.add(new DummyArithmeticSInt(new BigInt(1,modulus)));
     intervals.add(new ArrayList<>());
     scores.add(new ArrayList<>());
 

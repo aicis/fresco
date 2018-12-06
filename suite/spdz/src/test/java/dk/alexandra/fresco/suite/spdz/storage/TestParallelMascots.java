@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbgFactory;
 import dk.alexandra.fresco.framework.util.Drbg;
@@ -40,7 +41,7 @@ public class TestParallelMascots {
   private MascotSecurityParameters mascotSecurityParameters;
   private List<Integer> ports;
   private int noOfParties;
-  private BigInteger modulus;
+  private Modulus modulus;
   private int iterations;
   private Logger logger = LoggerFactory.getLogger(TestParallelMascots.class);
 

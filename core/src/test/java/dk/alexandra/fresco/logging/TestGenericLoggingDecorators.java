@@ -7,7 +7,7 @@ import static org.junit.Assert.assertTrue;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
-import dk.alexandra.fresco.framework.builder.numeric.BigIntMutable;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
@@ -34,9 +34,9 @@ import org.junit.Test;
 
 public class TestGenericLoggingDecorators {
 
-  private final BigInteger mod
-      = new BigInteger(
-      "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
+  private final Modulus mod = new Modulus("67039039649712985497870124991238141152738485774711365274"
+      + "259660130265015367064643542554454432442793894550588894934312239511652864705759940742917459"
+      + "08195329");
 
   @Test
   public void testEvaluatorLoggingDecorator() {
@@ -148,7 +148,7 @@ public class TestGenericLoggingDecorators {
 
     Map<Integer,
         TestThreadRunner
-        .TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>> conf =
+            .TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric>> conf =
         new HashMap<>();
 
     List<PerformanceLogger> decoratedLoggers = new ArrayList<>();

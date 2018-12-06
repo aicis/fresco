@@ -3,6 +3,7 @@ package dk.alexandra.fresco.lib.compare.gt;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -29,14 +30,14 @@ public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeri
   @SuppressWarnings("unchecked")
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    final BigInteger modulus = builder.getBasicNumericContext().getModulus();
+    final Modulus modulus = builder.getBasicNumericContext().getModulus();
 
     final int bitLengthBottom = bitLength / 2;
     final int bitLengthTop = bitLength - bitLengthBottom;
 
     final BigInteger twoToBitLength = BigInteger.ONE.shiftLeft(this.bitLength);
     final BigInteger twoToBitLengthBottom = BigInteger.ONE.shiftLeft(bitLengthBottom);
-    final BigInteger twoToNegBitLength = twoToBitLength.modInverse(modulus);
+    final BigInteger twoToNegBitLength = twoToBitLength.modInverse(modulus.getBigInteger());
 
     final BigInteger one = BigInteger.ONE;
 

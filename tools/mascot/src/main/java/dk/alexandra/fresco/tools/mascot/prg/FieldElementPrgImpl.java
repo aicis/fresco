@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.tools.mascot.prg;
 
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.AesCtrDrbgFactory;
 import dk.alexandra.fresco.framework.util.Drng;
@@ -28,8 +29,8 @@ public class FieldElementPrgImpl implements FieldElementPrg {
   }
 
   @Override
-  public MascotFieldElement getNext(BigInteger modulus) {
-    return new MascotFieldElement(drng.nextBigInteger(modulus), modulus);
+  public MascotFieldElement getNext(Modulus modulus) {
+    return new MascotFieldElement(drng.nextBigInteger(modulus.getBigInteger()), modulus);
   }
 
 }

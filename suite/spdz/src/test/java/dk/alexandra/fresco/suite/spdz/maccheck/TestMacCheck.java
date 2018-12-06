@@ -7,6 +7,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
 import dk.alexandra.fresco.framework.builder.numeric.BigIntMutable;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
@@ -120,8 +121,8 @@ public class TestMacCheck {
       SpdzTriple trip = super.getNextTriple();
       if (maliciousCountdown == 0) {
         FieldElement share = trip.getA().getShare();
-        share.add(new BigInt(1, new BigIntMutable(
-            "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557")));
+        share.add(new BigInt(1, new Modulus("258224987808690858965591917200301187432970579282922"
+            + "3512830659356540647622016841194629645353280137831435903171972747493557")));
         SpdzSInt newA = new SpdzSInt(share, trip.getA().getMac());
         trip = new SpdzTriple(newA, trip.getB(), trip.getC());
       }

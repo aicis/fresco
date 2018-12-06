@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.lib.field.integer;
 
-import java.math.BigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 
 /**
  * Holds the most crucial properties about the finite field we are working within.
@@ -8,7 +8,7 @@ import java.math.BigInteger;
 public class BasicNumericContext {
 
   private final int maxBitLength;
-  private final BigInteger modulus;
+  private final Modulus modulus;
   private final int myId;
   private final int noOfParties;
 
@@ -20,7 +20,7 @@ public class BasicNumericContext {
    * @param myId my party id
    * @param noOfParties number of parties in computation
    */
-  public BasicNumericContext(int maxBitLength, BigInteger modulus, int myId, int noOfParties) {
+  public BasicNumericContext(int maxBitLength, Modulus modulus, int myId, int noOfParties) {
     this.maxBitLength = maxBitLength;
     this.modulus = modulus;
     this.myId = myId;
@@ -40,7 +40,7 @@ public class BasicNumericContext {
    *
    * @return The modulus used.
    */
-  public BigInteger getModulus() {
+  public Modulus getModulus() {
     return modulus;
   }
 

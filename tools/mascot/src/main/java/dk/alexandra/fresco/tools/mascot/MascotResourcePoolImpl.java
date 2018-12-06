@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.tools.mascot;
 
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
@@ -23,7 +24,7 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
 
   private final Map<Integer, RotList> seedOts;
   private final int instanceId;
-  private final BigInteger modulus;
+  private final Modulus modulus;
   private final FieldElementPrg localSampler;
   private final MessageDigest messageDigest;
   private final MascotSecurityParameters mascotSecurityParameters;
@@ -57,7 +58,7 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
   }
 
   @Override
-  public BigInteger getModulus() {
+  public Modulus getModulus() {
     return modulus;
   }
 

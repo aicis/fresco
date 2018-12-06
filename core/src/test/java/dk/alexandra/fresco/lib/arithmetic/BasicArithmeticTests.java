@@ -6,6 +6,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.AdvancedNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Collections;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -142,8 +143,8 @@ public class BasicArithmeticTests {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() {
-          BigInteger modulus = conf.getResourcePool().getModulus();
-          BigInteger leftValue = modulus.subtract(BigInteger.ONE);
+          Modulus modulus = conf.getResourcePool().getModulus();
+          BigInteger leftValue = modulus.getBigInteger().subtract(BigInteger.ONE);
           BigInteger rightValue = BigInteger.valueOf(4);
           Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
             Numeric numeric = producer.numeric();
@@ -164,7 +165,7 @@ public class BasicArithmeticTests {
 
   private static BigInteger convertRepresentation(NumericResourcePool resourcePool,
       BigInteger add) {
-    BigInteger modulus = resourcePool.getModulus();
+    BigInteger modulus = resourcePool.getModulus().getBigInteger();
     BigInteger actual = add.mod(modulus);
     if (actual.compareTo(modulus.divide(BigInteger.valueOf(2))) > 0) {
       return actual.subtract(modulus);
@@ -229,7 +230,7 @@ public class BasicArithmeticTests {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() {
-          BigInteger modulus = conf.getResourcePool().getModulus();
+          BigInteger modulus = conf.getResourcePool().getModulus().getBigInteger();
           BigInteger leftValue = modulus.subtract(BigInteger.ONE);
           BigInteger rightValue = BigInteger.valueOf(2);
           Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
@@ -467,12 +468,12 @@ public class BasicArithmeticTests {
         @Override
         public void test() {
           Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app = producer -> {
-            BigInteger modulus = producer.getBasicNumericContext().getModulus();
-            BigInteger input = modulus.divide(BigInteger.valueOf(2)).add(BigInteger.ONE);
+            Modulus modulus = producer.getBasicNumericContext().getModulus();
+            BigInteger input = modulus.getBigInteger().divide(BigInteger.valueOf(2)).add(BigInteger.ONE);
             Numeric numeric = producer.numeric();
             DRes<SInt> closed = numeric.input(input, 1);
             DRes<BigInteger> opened = numeric.open(closed);
-            BigInteger expected = input.subtract(modulus);
+            BigInteger expected = input.subtract(modulus.getBigInteger());
             return () -> new Pair<>(opened.out(), expected);
           };
           Pair<BigInteger, BigInteger> actualAndExpected = runApplication(app);

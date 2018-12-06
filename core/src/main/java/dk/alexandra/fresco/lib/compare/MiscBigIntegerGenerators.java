@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.lib.compare;
 
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,9 +17,9 @@ public class MiscBigIntegerGenerators {
 
   private Map<Integer, BigInteger[]> coefficientsOfPolynomiums;
   private List<BigInteger> twoPowersList;
-  private BigInteger modulus;
+  private Modulus modulus;
 
-  public MiscBigIntegerGenerators(BigInteger modulus) {
+  public MiscBigIntegerGenerators(Modulus modulus) {
     coefficientsOfPolynomiums = new HashMap<>();
 
     this.modulus = modulus;
@@ -91,18 +92,18 @@ public class MiscBigIntegerGenerators {
       k++;
 
       // Apply recurrence relation
-      f[i] = f[i - 1].multiply(BigInteger.valueOf(-k)).mod(modulus);
+      f[i] = f[i - 1].multiply(BigInteger.valueOf(-k)).mod(modulus.getBigInteger());
       for (int j = i - 1; j > 0; j--) {
-        f[j] = f[j].subtract(BigInteger.valueOf(k).multiply(f[j - 1]).mod(modulus)).mod(modulus);
+        f[j] = f[j].subtract(BigInteger.valueOf(k).multiply(f[j - 1]).mod(modulus.getBigInteger())).mod(modulus.getBigInteger());
       }
 
-      fm = fm.multiply(BigInteger.valueOf(1 - k)).mod(modulus);
+      fm = fm.multiply(BigInteger.valueOf(1 - k)).mod(modulus.getBigInteger());
     }
 
     // Scale all coefficients of f_l by f_l(m)^{-1}.
-    fm = fm.modInverse(modulus);
+    fm = fm.modInverse(modulus.getBigInteger());
     for (int i = 0; i < f.length; i++) {
-      f[i] = f[i].multiply(fm).mod(modulus);
+      f[i] = f[i].multiply(fm).mod(modulus.getBigInteger());
     }
 
     return f;
@@ -139,7 +140,7 @@ public class MiscBigIntegerGenerators {
     BigInteger[] Ms = new BigInteger[maxBitSize];
     Ms[0] = value;
     for (int i1 = 1; i1 < Ms.length; i1++) {
-      Ms[i1] = Ms[i1 - 1].multiply(value).mod(modulus);
+      Ms[i1] = Ms[i1 - 1].multiply(value).mod(modulus.getBigInteger());
     }
     return Ms;
   }

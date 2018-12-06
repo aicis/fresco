@@ -3,6 +3,7 @@ package dk.alexandra.fresco.suite.spdz.storage;
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
 import dk.alexandra.fresco.framework.builder.numeric.BigIntMutable;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -94,11 +95,11 @@ public class InitializeStorage {
     }
     Storage[] storages = tmpStores.toArray(new Storage[0]);
 
-    BigInteger p = new BigInteger(
-        "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
+    Modulus p = new Modulus("6703903964971298549787012499123814115273848577471136527425966013026501"
+        + "536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
 
     List<FieldElement> alphaShares = FakeTripGen.generateAlphaShares(noOfPlayers, p);
-    FieldElement alpha = new BigInt(0, new BigIntMutable(p));
+    FieldElement alpha = new BigInt(0, p);
     for (FieldElement share : alphaShares) {
       alpha.add(share);
     }
@@ -112,7 +113,7 @@ public class InitializeStorage {
     for (Storage store : storages) {
       for (int i = 1; i < noOfPlayers + 1; i++) {
         String storageName = SpdzStorageDataSupplier.STORAGE_NAME_PREFIX + i;
-        store.putObject(storageName, SpdzStorageDataSupplier.MODULUS_KEY, p);
+        store.putObject(storageName, SpdzStorageDataSupplier.MODULUS_KEY, p.getBigInteger());
         store.putObject(storageName, SpdzStorageDataSupplier.SSK_KEY, alphaShares.get(i - 1));
       }
       // triples
@@ -181,7 +182,7 @@ public class InitializeStorage {
    */
   public static void initStreamedStorage(StreamedStorage storage, int noOfPlayers,
       int noOfThreads, int noOfTriples, int noOfInputMasks, int noOfBits, int noOfExpPipes,
-      BigInteger p) {
+      Modulus p) {
     try {
       // Try get the last thread file. If that fails, we need to
       // generate the files
@@ -202,7 +203,7 @@ public class InitializeStorage {
     }
 
     List<FieldElement> alphaShares = FakeTripGen.generateAlphaShares(noOfPlayers, p);
-    FieldElement alpha = new BigInt(0, new BigIntMutable(p));
+    FieldElement alpha = new BigInt(0, p);
     for (FieldElement share : alphaShares) {
       alpha.add(share);
     }
@@ -214,7 +215,7 @@ public class InitializeStorage {
         String storageName =
             SpdzStorageDataSupplier.STORAGE_NAME_PREFIX + noOfThreads + "_" + i + "_" + threadId
                 + "_";
-        storage.putNext(storageName + SpdzStorageDataSupplier.MODULUS_KEY, p);
+        storage.putNext(storageName + SpdzStorageDataSupplier.MODULUS_KEY, p.getBigInteger());
         storage.putNext(storageName + SpdzStorageDataSupplier.SSK_KEY, alphaShares.get(i - 1));
       }
     }
@@ -378,15 +379,15 @@ public class InitializeStorage {
 
   /**
    * Does the same as
-   * {@link #initStreamedStorage(StreamedStorage, int, int, int, int, int, int, BigInteger)} but
+   * {@link #initStreamedStorage(StreamedStorage, int, int, int, int, int, int, Modulus)} but
    * where the chosen modulus is chosen for you, and is the same as the one found in:
    * {@link SpdzDummyDataSupplier}
    */
   public static void initStreamedStorage(StreamedStorage streamedStorage,
       int noOfPlayers, int noOfThreads, int noOfTriples, int noOfInputMasks, int noOfBits,
       int noOfExpPipes) {
-    BigInteger p = new BigInteger(
-        "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
+    Modulus p = new Modulus("6703903964971298549787012499123814115273848577471136527425966013026501"
+        + "536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
     InitializeStorage.initStreamedStorage(streamedStorage, noOfPlayers, noOfThreads, noOfTriples,
         noOfInputMasks, noOfBits, noOfExpPipes, p);
   }

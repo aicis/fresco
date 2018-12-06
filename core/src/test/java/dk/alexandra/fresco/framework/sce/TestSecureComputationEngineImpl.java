@@ -9,6 +9,7 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.SequentialStrategy;
@@ -24,6 +25,7 @@ import org.junit.Test;
 
 public class TestSecureComputationEngineImpl {
 
+  private final Modulus modulus = new Modulus(101);
   private SecureComputationEngineImpl<DummyArithmeticResourcePool, ProtocolBuilderNumeric> sce;
 
   /**
@@ -32,7 +34,7 @@ public class TestSecureComputationEngineImpl {
   @Before
   public void setup() {
     DummyArithmeticProtocolSuite suite =
-        new DummyArithmeticProtocolSuite(BigInteger.valueOf(101), 2, 0);
+        new DummyArithmeticProtocolSuite(modulus, 2, 0);
     ProtocolEvaluator<DummyArithmeticResourcePool> evaluator =
         new BatchedProtocolEvaluator<>(new SequentialStrategy<>(), suite);
     sce = new SecureComputationEngineImpl<>(suite, evaluator);
@@ -53,7 +55,6 @@ public class TestSecureComputationEngineImpl {
           DRes<SInt> b = builder.numeric().known(BigInteger.valueOf(10));
           return builder.numeric().open(builder.numeric().add(a, b));
         };
-    BigInteger modulus = BigInteger.valueOf(101);
     DummyArithmeticResourcePool rp =
         new DummyArithmeticResourcePoolImpl(0, 1, modulus,
             bytes -> BigInt.fromBytes(bytes, modulus));
@@ -68,7 +69,6 @@ public class TestSecureComputationEngineImpl {
         builder -> {
           throw new RuntimeException();
         };
-    BigInteger modulus = BigInteger.valueOf(101);
     DummyArithmeticResourcePool rp =
         new DummyArithmeticResourcePoolImpl(0, 1, modulus,
             bytes -> BigInt.fromBytes(bytes, modulus));
@@ -84,7 +84,6 @@ public class TestSecureComputationEngineImpl {
 
           }
         };
-    BigInteger modulus = BigInteger.valueOf(101);
     DummyArithmeticResourcePool rp =
         new DummyArithmeticResourcePoolImpl(0, 1, modulus,
             bytes -> BigInt.fromBytes(bytes, modulus));
@@ -99,5 +98,4 @@ public class TestSecureComputationEngineImpl {
   public void tearDown() {
     sce.shutdownSCE();
   }
-
 }

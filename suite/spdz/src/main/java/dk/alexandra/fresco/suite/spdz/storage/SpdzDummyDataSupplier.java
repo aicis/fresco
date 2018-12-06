@@ -2,6 +2,7 @@ package dk.alexandra.fresco.suite.spdz.storage;
 
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.util.ArithmeticDummyDataSupplier;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.util.MultiplicationTripleShares;
@@ -18,7 +19,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
 
   private final int myId;
   private final ArithmeticDummyDataSupplier supplier;
-  private final BigInteger modulus;
+  private final Modulus modulus;
   private final BigInteger secretSharedKey;
   private final int expPipeLength;
   private final Function<BigInteger, FieldElement> converter;
@@ -29,25 +30,25 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
         getSsk(ModulusFinder.findSuitableModulus(512)));
   }
 
-  public SpdzDummyDataSupplier(int myId, int noOfPlayers, BigInteger modulus) {
+  public SpdzDummyDataSupplier(int myId, int noOfPlayers, Modulus modulus) {
     // TODO kill this
     this(myId, noOfPlayers, modulus, getSsk(modulus));
   }
 
-  public SpdzDummyDataSupplier(int myId, int noOfPlayers, BigInteger modulus,
+  public SpdzDummyDataSupplier(int myId, int noOfPlayers, Modulus modulus,
       BigInteger secretSharedKey) {
     this(myId, noOfPlayers, modulus, secretSharedKey, 200);
   }
 
-  public SpdzDummyDataSupplier(int myId, int noOfPlayers, BigInteger modulus,
+  public SpdzDummyDataSupplier(int myId, int noOfPlayers, Modulus modulus,
       BigInteger secretSharedKey, int expPipeLength) {
     this.myId = myId;
     this.modulus = modulus;
     this.secretSharedKey = secretSharedKey;
     this.expPipeLength = expPipeLength;
-    this.supplier = new ArithmeticDummyDataSupplier(myId, noOfPlayers, modulus);
+    this.supplier = new ArithmeticDummyDataSupplier(myId, noOfPlayers, modulus.getBigInteger());
     // TODO this should be defined in the config by the user
-    this.converter = bigInteger -> BigInt.fromConstant(bigInteger, modulus);
+    this.converter = bigInteger -> BigInt.fromBigInteger(bigInteger, modulus);
   }
 
   @Override
@@ -83,7 +84,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
   }
 
   @Override
-  public BigInteger getModulus() {
+  public Modulus getModulus() {
     return modulus;
   }
 
@@ -100,7 +101,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
   private SpdzSInt toSpdzSInt(Pair<BigInteger, BigInteger> raw) {
     return new SpdzSInt(
         getBigIntegerI(raw.getSecond()),
-        getBigIntegerI(raw.getFirst().multiply(secretSharedKey).mod(modulus))
+        getBigIntegerI(raw.getFirst().multiply(secretSharedKey).mod(modulus.getBigInteger()))
     );
   }
 
@@ -108,7 +109,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
     return converter.apply(value);
   }
 
-  static private BigInteger getSsk(BigInteger modulus) {
-    return new BigInteger(modulus.bitLength(), new Random(0)).mod(modulus);
+  static private BigInteger getSsk(Modulus modulus) {
+    return new BigInteger(modulus.getBigInteger().bitLength(), new Random(0)).mod(modulus.getBigInteger());
   }
 }

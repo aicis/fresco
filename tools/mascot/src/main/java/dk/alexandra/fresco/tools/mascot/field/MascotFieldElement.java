@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.util.MathUtils;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.arithm.Addable;
@@ -10,7 +11,7 @@ import java.util.function.BinaryOperator;
 public final class MascotFieldElement implements Addable<MascotFieldElement> {
 
   private final BigInteger value;
-  private final BigInteger modulus;
+  private final Modulus modulus;
   private final int bitLength;
 
   /**
@@ -19,10 +20,10 @@ public final class MascotFieldElement implements Addable<MascotFieldElement> {
    * @param value value of element
    * @param modulus modulus defining field
    */
-  public MascotFieldElement(BigInteger value, BigInteger modulus) {
+  public MascotFieldElement(BigInteger value, Modulus modulus) {
     this.value = Objects.requireNonNull(value);
     this.modulus = Objects.requireNonNull(modulus);
-    this.bitLength = modulus.bitLength();
+    this.bitLength = modulus.getBigInteger().bitLength();
     sanityCheck(value, modulus, bitLength);
   }
 
@@ -31,25 +32,25 @@ public final class MascotFieldElement implements Addable<MascotFieldElement> {
   }
 
   public MascotFieldElement(String value, String modulus) {
-    this(new BigInteger(value), new BigInteger(modulus));
+    this(new BigInteger(value), new Modulus(modulus));
   }
 
-  public MascotFieldElement(long value, BigInteger modulus) {
+  public MascotFieldElement(long value, Modulus modulus) {
     this(BigInteger.valueOf(value), modulus);
   }
 
-  public MascotFieldElement(byte[] value, BigInteger modulus) {
+  public MascotFieldElement(byte[] value, Modulus modulus) {
     this(new BigInteger(1, value), modulus);
   }
 
   private MascotFieldElement binaryOp(BinaryOperator<BigInteger> op, MascotFieldElement left,
       MascotFieldElement right) {
-    return new MascotFieldElement(op.apply(left.toBigInteger(), right.toBigInteger()).mod(modulus),
+    return new MascotFieldElement(op.apply(left.toBigInteger(), right.toBigInteger()).mod(modulus.getBigInteger()),
         this.modulus);
   }
 
   public MascotFieldElement pow(int exponent) {
-    return new MascotFieldElement(this.value.pow(exponent).mod(modulus), modulus);
+    return new MascotFieldElement(this.value.pow(exponent).mod(modulus.getBigInteger()), modulus);
   }
 
   @Override
@@ -66,11 +67,11 @@ public final class MascotFieldElement implements Addable<MascotFieldElement> {
   }
 
   public MascotFieldElement negate() {
-    return new MascotFieldElement(value.multiply(BigInteger.valueOf(-1)).mod(modulus), modulus);
+    return new MascotFieldElement(value.multiply(BigInteger.valueOf(-1)).mod(modulus.getBigInteger()), modulus);
   }
 
   public MascotFieldElement modInverse() {
-    return new MascotFieldElement(value.modInverse(modulus), modulus);
+    return new MascotFieldElement(value.modInverse(modulus.getBigInteger()), modulus);
   }
 
   public MascotFieldElement sqrt() {
@@ -115,7 +116,7 @@ public final class MascotFieldElement implements Addable<MascotFieldElement> {
     return new StrictBitVector(toByteArray());
   }
 
-  public BigInteger getModulus() {
+  public Modulus getModulus() {
     return this.modulus;
   }
 
@@ -133,14 +134,14 @@ public final class MascotFieldElement implements Addable<MascotFieldElement> {
         + "]";
   }
 
-  private void sanityCheck(BigInteger value, BigInteger modulus, int bitLength) {
+  private void sanityCheck(BigInteger value, Modulus modulus, int bitLength) {
     if (bitLength % 8 != 0) {
       throw new IllegalArgumentException("Bit length must be multiple of 8");
     } else if (value.signum() == -1) {
       throw new IllegalArgumentException("Cannot have negative value");
-    } else if (modulus.signum() == -1) {
+    } else if (modulus.getBigInteger().signum() == -1) {
       throw new IllegalArgumentException("Cannot have negative modulus");
-    } else if (value.compareTo(modulus) >= 0) {
+    } else if (value.compareTo(modulus.getBigInteger()) >= 0) {
       throw new IllegalArgumentException("Value must be smaller than modulus");
     }
   }

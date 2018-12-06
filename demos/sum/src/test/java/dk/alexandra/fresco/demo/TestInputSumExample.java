@@ -5,6 +5,7 @@ import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
@@ -45,8 +46,9 @@ public class TestInputSumExample {
 
       Supplier<ResourcePoolT> resourcePool;
       if (dummy) {
-        BigInteger mod = new BigInteger(
-            "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
+        Modulus mod = new Modulus("6703903964971298549787012499123814115273848577471136527425966013"
+            + "026501536706464354255445443244279389455058889493431223951165286470575994074291745908"
+            + "195329");
         suite =
             (ProtocolSuite<ResourcePoolT, ProtocolBuilderNumeric>) new DummyArithmeticProtocolSuite(
                 mod, 150, 16);

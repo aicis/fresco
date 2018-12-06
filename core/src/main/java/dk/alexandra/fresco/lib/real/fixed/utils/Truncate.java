@@ -57,7 +57,7 @@ public class Truncate implements Computation<SInt, ProtocolBuilderNumeric> {
           seq.getBigIntegerHelper().getTwoPowersList(shifts), mask.bits);
 
       BigInteger inverse =
-          BigInteger.ONE.shiftLeft(shifts).modInverse(seq.getBasicNumericContext().getModulus());
+          BigInteger.ONE.shiftLeft(shifts).modInverse(seq.getBasicNumericContext().getModulus().getBigInteger());
       DRes<SInt> rTop = seq.numeric().sub(mask.random, rBottom);
 
       /*

@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.tools.mascot.elgen;
 
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.util.SecretSharer;
 import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
@@ -10,7 +11,7 @@ import java.util.List;
 public class AdditiveSecretSharer implements SecretSharer<MascotFieldElement> {
 
   private final FieldElementPrg sampler;
-  private final BigInteger modulus;
+  private final Modulus modulus;
 
   /**
    * Creates new {@link AdditiveSecretSharer}.
@@ -18,7 +19,7 @@ public class AdditiveSecretSharer implements SecretSharer<MascotFieldElement> {
    * @param sampler source of randomness
    * @param modulus field modulus
    */
-  AdditiveSecretSharer(FieldElementPrg sampler, BigInteger modulus) {
+  AdditiveSecretSharer(FieldElementPrg sampler, Modulus modulus) {
     this.sampler = sampler;
     this.modulus = modulus;
   }

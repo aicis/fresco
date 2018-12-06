@@ -147,10 +147,6 @@ public class BigIntMutable extends Number {
     assign(s);
   }
 
-  public BigIntMutable(BigInteger bigInteger) {
-    assign(bigInteger.toString());
-  }
-
   /*** </Constructors> ***/
 
   /*** <General Helper> ***/
@@ -1750,7 +1746,7 @@ public class BigIntMutable extends Number {
    * @param n The length of each of the two partial arrays.
    * @param lim The recursion depth up until which we will spawn new threads.
    * @param pool Where spawn threads will be added and executed.
-   * @throws Various thread related exceptions.
+   * @throws Exception Various thread related exceptions.
    * @complexity O(n ^ 1.585)
    */
   private static int[] pmul(final int[] x, final int[] y, final int off, final int n, final int lim,
@@ -3028,6 +3024,10 @@ public class BigIntMutable extends Number {
       sign = 1;
       usubMag(1);
     }
+  }
+
+  public int length(){
+    return len;
   }
 
   /**

@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import java.math.BigInteger;
 import org.junit.Test;
@@ -44,11 +45,7 @@ public class TestSpdzSInt {
   }
 
   private FieldElement getI(int i) {
-    return BigInt.fromConstant(get(i), get(123456));
-  }
-
-  private BigInteger get(int i) {
-    return BigInteger.valueOf(i);
+    return BigInt.fromBigInteger(BigInteger.valueOf(i), new Modulus(123456));
   }
 
   @Test

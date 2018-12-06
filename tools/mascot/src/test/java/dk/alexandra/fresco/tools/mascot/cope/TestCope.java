@@ -84,8 +84,9 @@ public class TestCope extends NetworkedTest {
     List<MascotFieldElement> leftResults = results.get(0);
     List<MascotFieldElement> rightResults = results.get(1);
 
-    int[] expectedArr = {7 * 11231 % getModulus().intValue(), 444 * 11231 % getModulus().intValue(),
-        112 * 11231 % getModulus().intValue(), 11 * 11231 % getModulus().intValue()};
+    int modulusInt = getModulus().getBigInteger().intValue();
+    int[] expectedArr = {7 * 11231 % modulusInt, 444 * 11231 % modulusInt,
+        112 * 11231 % modulusInt, 11 * 11231 % modulusInt};
     List<MascotFieldElement> expected =
         MascotTestUtils.generateSingleRow(expectedArr, getModulus());
 

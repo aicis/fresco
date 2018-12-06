@@ -11,7 +11,7 @@ public class TestDummyArithmeticResourcePool {
   @Test
   public void testDefaultConstructor() throws Exception {
     DummyArithmeticResourcePool pool = new DummyArithmeticResourcePoolImpl(1, 1);
-    BigInteger expectedModulus = ModulusFinder.findSuitableModulus(128);
+    BigInteger expectedModulus = ModulusFinder.findSuitableModulus(128).getBigInteger();
     assertEquals(expectedModulus, pool.getModulus());
   }
 

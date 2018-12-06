@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.framework.util;
 
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -18,10 +19,10 @@ public class MathUtils {
    * @param modulus prime modulus (p)
    * @return true if value is quadratic residue
    */
-  public static boolean isQuadraticResidue(BigInteger value, BigInteger modulus) {
+  public static boolean isQuadraticResidue(BigInteger value, Modulus modulus) {
     // return n^((p - 1) / 2) == 1
     BigInteger res = value
-        .modPow(modulus.subtract(BigInteger.ONE).shiftRight(1), modulus);
+        .modPow(modulus.getBigInteger().subtract(BigInteger.ONE).shiftRight(1), modulus.getBigInteger());
     return res.equals(BigInteger.ONE);
   }
 
@@ -34,7 +35,8 @@ public class MathUtils {
    * @param modulus prime modulus (p)
    * @return square root (if it exists)
    */
-  public static BigInteger modularSqrt(BigInteger value, BigInteger modulus) {
+  public static BigInteger modularSqrt(BigInteger value, Modulus modulus) {
+    BigInteger modulusBigInteger = modulus.getBigInteger();
     // check if square root exists
     if (!isQuadraticResidue(value, modulus)) {
       throw new IllegalArgumentException("Value has no square root in field");
@@ -42,7 +44,7 @@ public class MathUtils {
 
     // find q and s such that (p - 1) = q * 2^s
     Pair<BigInteger, Integer> factors = expressAsProductOfPowerOfTwo(
-        modulus.subtract(BigInteger.ONE));
+        modulusBigInteger.subtract(BigInteger.ONE));
     BigInteger q = factors.getFirst();
     int s = factors.getSecond();
 
@@ -50,24 +52,24 @@ public class MathUtils {
     BigInteger z = getNonQuadraticResidue(modulus);
 
     int m = s;
-    BigInteger c = z.modPow(q, modulus);
-    BigInteger t = value.modPow(q, modulus);
-    BigInteger r = value.modPow(q.add(BigInteger.ONE).divide(TWO), modulus);
+    BigInteger c = z.modPow(q, modulusBigInteger);
+    BigInteger t = value.modPow(q, modulusBigInteger);
+    BigInteger r = value.modPow(q.add(BigInteger.ONE).divide(TWO), modulusBigInteger);
 
     while (!t.equals(BigInteger.ONE)) {
       int i = 0;
       BigInteger power = t;
       while (!power.equals(BigInteger.ONE)) {
-        power = power.pow(2).mod(modulus);
+        power = power.pow(2).mod(modulusBigInteger);
         i++;
       }
-      BigInteger exp = TWO.pow(m - i - 1).mod(modulus);
-      BigInteger b = c.modPow(exp, modulus);
+      BigInteger exp = TWO.pow(m - i - 1).mod(modulusBigInteger);
+      BigInteger b = c.modPow(exp, modulusBigInteger);
 
       m = i;
-      c = b.pow(2).mod(modulus);
-      t = t.multiply(c).mod(modulus);
-      r = r.multiply(b).mod(modulus);
+      c = b.pow(2).mod(modulusBigInteger);
+      t = t.multiply(c).mod(modulusBigInteger);
+      r = r.multiply(b).mod(modulusBigInteger);
     }
     return r;
   }
@@ -88,7 +90,7 @@ public class MathUtils {
    * @param modulus modulus of field
    * @return value that is not a quadratic residue
    */
-  private static BigInteger getNonQuadraticResidue(BigInteger modulus) {
+  private static BigInteger getNonQuadraticResidue(Modulus modulus) {
     BigInteger candidate = TWO;
     while (isQuadraticResidue(candidate, modulus)) {
       candidate = candidate.add(BigInteger.ONE);

@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
@@ -51,8 +52,8 @@ public class TestStorage {
   @Test
   public void testMultipleCallsAndRandomElm() throws Throwable {
     SpdzDataSupplier supplier = (new Initializer()).numTriples(1).init();
-    BigInteger m1 = supplier.getModulus();
-    BigInteger m2 = supplier.getModulus();
+    Modulus m1 = supplier.getModulus();
+    Modulus m2 = supplier.getModulus();
     assertEquals(m1, m2);
     FieldElement ssk1 = supplier.getSecretSharedKey();
     FieldElement ssk2 = supplier.getSecretSharedKey();

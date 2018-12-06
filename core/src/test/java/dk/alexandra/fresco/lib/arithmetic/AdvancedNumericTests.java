@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.Application;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -22,7 +23,7 @@ public class AdvancedNumericTests {
 
     private int numerator;
     private int denominator;
-    private BigInteger modulus;
+    private Modulus modulus;
 
     public TestDivision(int numerator, int denominator) {
       this.numerator = numerator;
@@ -56,11 +57,11 @@ public class AdvancedNumericTests {
   }
 
 
-  private static BigInteger convertRepresentation(BigInteger b, BigInteger modulus) {
+  private static BigInteger convertRepresentation(BigInteger b, Modulus modulus) {
     // Stolen from Spdz Util
-    BigInteger actual = b.mod(modulus);
-    if (actual.compareTo(modulus.divide(BigInteger.valueOf(2))) > 0) {
-      actual = actual.subtract(modulus);
+    BigInteger actual = b.mod(modulus.getBigInteger());
+    if (actual.compareTo(modulus.getBigInteger().divide(BigInteger.valueOf(2))) > 0) {
+      actual = actual.subtract(modulus.getBigInteger());
     }
     return actual;
   }
@@ -70,7 +71,7 @@ public class AdvancedNumericTests {
 
     private int numerator;
     private int denominator;
-    private BigInteger modulus;
+    private Modulus modulus;
 
     public TestDivisionWithKnownDenominator(int numerator, int denominator) {
       this.numerator = numerator;

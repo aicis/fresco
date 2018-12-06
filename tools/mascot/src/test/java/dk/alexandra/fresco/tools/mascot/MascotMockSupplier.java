@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.tools.mascot;
 
 import dk.alexandra.fresco.commitment.HashBasedCommitment;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.network.serializers.StrictBitVectorSerializer;
@@ -42,8 +43,8 @@ public class MascotMockSupplier {
       }
 
       @Override
-      public BigInteger getModulus() {
-        return new BigInteger("251");
+      public Modulus getModulus() {
+        return new Modulus("251");
       }
 
       @Override

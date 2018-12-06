@@ -1,5 +1,7 @@
 package dk.alexandra.fresco.tools.mascot;
 
+import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import java.math.BigInteger;
 import java.util.Map;
@@ -13,7 +15,7 @@ public abstract class NetworkedTest {
 
   private final MascotSecurityParameters defaultParameters = new MascotSecurityParameters(16, 16,
       256, 3);
-  private BigInteger modulus = ModulusFinder.findSuitableModulus(16);
+  private Modulus modulus = ModulusFinder.findSuitableModulus(16);
 
   public void initContexts(int noOfParties) {
     initContexts(noOfParties, defaultParameters);
@@ -41,7 +43,7 @@ public abstract class NetworkedTest {
     }
   }
 
-  protected BigInteger getModulus() {
+  protected Modulus getModulus() {
     return modulus;
   }
 

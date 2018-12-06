@@ -3,6 +3,7 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
@@ -36,9 +37,9 @@ import java.util.Map;
 public abstract class AbstractDummyArithmeticTest {
 
   protected Map<Integer, PerformanceLogger> performanceLoggers = new HashMap<>();
-  protected static final BigInteger DEFAULT_MODULUS = new BigInteger(
-      "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443"
-      + "244279389455058889493431223951165286470575994074291745908195329");
+  protected static final Modulus DEFAULT_MODULUS = new Modulus("67039039649712985497870124991238141"
+      + "152738485774711365274259660130265015367064643542554454432442793894550588894934312239511652"
+      + "86470575994074291745908195329");
   protected static final int DEFAULT_MAX_BIT_LENGTH = 200;
   protected static final int DEFAULT_FIXED_POINT_PRECISION = BasicFixedPointTests.DEFAULT_PRECISION;
   protected static final int DEFAULT_PARTIES = 1;
@@ -76,7 +77,7 @@ public abstract class AbstractDummyArithmeticTest {
 
   private void runTest(
       TestThreadRunner.TestThreadFactory<DummyArithmeticResourcePool, ProtocolBuilderNumeric> f,
-      EvaluationStrategy evalStrategy, int noOfParties, BigInteger mod, int maxBitLength,
+      EvaluationStrategy evalStrategy, int noOfParties, Modulus mod, int maxBitLength,
       int fixedPointPrecision, boolean logPerformance) {
     List<Integer> ports = new ArrayList<>(noOfParties);
     for (int i = 1; i <= noOfParties; i++) {
@@ -147,14 +148,14 @@ public abstract class AbstractDummyArithmeticTest {
    */
   public static class TestParameters {
 
-    private BigInteger modulus = DEFAULT_MODULUS;
+    private Modulus modulus = DEFAULT_MODULUS;
     private int maxBitLength = DEFAULT_MAX_BIT_LENGTH;
     private int fixedPointPrecesion = DEFAULT_FIXED_POINT_PRECISION;
     private int numParties = DEFAULT_PARTIES;
     private EvaluationStrategy evaluationStrategy = DEFAULT_EVALUATION_STRATEGY;
     private boolean performanceLogging = DEFAULT_PERFORMANCE_LOGGING;
 
-    public TestParameters modulus(BigInteger modulus) {
+    public TestParameters modulus(Modulus modulus) {
       this.modulus = modulus;
       return this;
     }

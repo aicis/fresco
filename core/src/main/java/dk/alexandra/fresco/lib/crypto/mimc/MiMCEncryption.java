@@ -94,7 +94,7 @@ public class MiMCEncryption implements Computation<SInt, ProtocolBuilderNumeric>
   static int getRequiredRounds(BasicNumericContext basicNumericContext, Integer requestedRounds) {
     final int requiredRounds;
     if (requestedRounds == null) {
-      BigInteger modulus = basicNumericContext.getModulus();
+      BigInteger modulus = basicNumericContext.getModulus().getBigInteger();
       requiredRounds = (int) Math.ceil(Math.log(modulus.doubleValue()) / Math.log(3));
     } else {
       requiredRounds = requestedRounds;

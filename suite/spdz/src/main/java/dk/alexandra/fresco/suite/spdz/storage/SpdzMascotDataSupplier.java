@@ -2,6 +2,7 @@ package dk.alexandra.fresco.suite.spdz.storage;
 
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
@@ -39,7 +40,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   private final int instanceId;
   private final int numberOfPlayers;
   private final Supplier<Network> tripleNetwork;
-  private final BigInteger modulus;
+  private final Modulus modulus;
   private final Function<Integer, SpdzSInt[]> preprocessedValues;
   private final MascotFieldElement ssk;
 
@@ -72,7 +73,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
    * @param drbg source of randomness
    */
   public SpdzMascotDataSupplier(int myId, int numberOfPlayers, int instanceId,
-      Supplier<Network> tripleNetwork, BigInteger modulus, int modBitLength,
+      Supplier<Network> tripleNetwork, Modulus modulus, int modBitLength,
       Function<Integer, SpdzSInt[]> preprocessedValues, int prgSeedLength, int batchSize,
       MascotFieldElement ssk, Map<Integer, RotList> seedOts, Drbg drbg) {
     this.myId = myId;
@@ -95,14 +96,14 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     this.seedOts = seedOts;
     this.drbg = drbg;
     // TODO This should be defined in the config by the user
-    this.converter = bigInteger -> BigInt.fromConstant(bigInteger, modulus);
+    this.converter = bigInteger -> BigInt.fromBigInteger(bigInteger, modulus);
   }
 
   /**
    * Creates instance of {@link SpdzMascotDataSupplier}.
    */
   public static SpdzMascotDataSupplier createSimpleSupplier(int myId, int numberOfPlayers,
-      Supplier<Network> tripleNetwork, int modBitLength, BigInteger modulus,
+      Supplier<Network> tripleNetwork, int modBitLength, Modulus modulus,
       Function<Integer, SpdzSInt[]> preprocessedValues,
       Map<Integer, RotList> seedOts, Drbg drbg, MascotFieldElement ssk) {
     int prgSeedLength = 256;
@@ -113,7 +114,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   /**
    * Creates random field element that can be used as the mac key share by the calling party.
    */
-  public static MascotFieldElement createRandomSsk(BigInteger modulus, int prgSeedLength) {
+  public static MascotFieldElement createRandomSsk(Modulus modulus, int prgSeedLength) {
     byte[] seedBytes = new byte[prgSeedLength / 8];
     new SecureRandom().nextBytes(seedBytes);
     StrictBitVector seed = new StrictBitVector(seedBytes);
@@ -176,7 +177,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
   }
 
   @Override
-  public BigInteger getModulus() {
+  public Modulus getModulus() {
     return modulus;
   }
 

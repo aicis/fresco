@@ -5,6 +5,7 @@ import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
@@ -23,7 +24,7 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
 
   private final SecureRandom rand;
   private final MessageDigest digest;
-  private final BigInteger modulus;
+  private final Modulus modulus;
   private final Drbg jointDrbg;
   private final List<SpdzSInt> closedValues;
   private final List<FieldElement> openedValues;
@@ -41,7 +42,7 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
       final SecureRandom rand,
       final MessageDigest digest,
       final Pair<List<SpdzSInt>, List<FieldElement>> toCheck,
-      final BigInteger modulus,
+      final Modulus modulus,
       final Drbg jointDrbg,
       final FieldElement alpha) {
     this.rand = rand;
@@ -57,11 +58,11 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
   public DRes<Void> buildComputation(ProtocolBuilderNumeric builder) {
     return builder
         .seq(seq -> {
-          BigInteger[] rs = sampleRandomCoefficients(openedValues.size(), jointDrbg, modulus);
+          BigInteger[] rs = sampleRandomCoefficients(openedValues.size(), jointDrbg, modulus.getBigInteger());
           BigInteger a = BigInteger.ZERO;
           int index = 0;
           for (FieldElement openedValue : openedValues) {
-            a = a.add(openedValue.asBigInteger().multiply(rs[index++])).mod(modulus);
+            a = a.add(openedValue.asBigInteger().multiply(rs[index++])).mod(modulus.getBigInteger());
           }
 
           // compute gamma_i as the sum of all MAC's on the opened values times
@@ -69,15 +70,15 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
           BigInteger gamma = BigInteger.ZERO;
           index = 0;
           for (SpdzSInt closedValue : closedValues) {
-            gamma = gamma.add(rs[index++].multiply(closedValue.getMac().asBigInteger())).mod(modulus);
+            gamma = gamma.add(rs[index++].multiply(closedValue.getMac().asBigInteger())).mod(modulus.getBigInteger());
           }
 
           // compute delta_i as: gamma_i - alpha_i*a
-          BigInteger delta = gamma.subtract(alpha.asBigInteger().multiply(a)).mod(modulus);
+          BigInteger delta = gamma.subtract(alpha.asBigInteger().multiply(a)).mod(modulus.getBigInteger());
           // Commit to delta and open it afterwards
           // TODO This should not be loaded directly here.
           SpdzCommitment deltaCommitment = new SpdzCommitment(digest,
-              BigInt.fromConstant(delta, modulus), rand, modulus.bitLength());
+              BigInt.fromBigInteger(delta, modulus), rand, modulus.getBigInteger().bitLength());
           return seq.seq((subSeq) -> subSeq.append(new SpdzCommitProtocol(deltaCommitment)))
               .seq((subSeq, commitProtocol) ->
                   subSeq.append(new SpdzOpenCommitProtocol(deltaCommitment, commitProtocol)));
@@ -87,7 +88,7 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
                   .stream()
                   .map(FieldElement::asBigInteger)
                   .reduce(BigInteger.ZERO, BigInteger::add)
-                  .mod(modulus);
+                  .mod(modulus.getBigInteger());
 
           if (!deltaSum.equals(BigInteger.ZERO)) {
             throw new MaliciousException(

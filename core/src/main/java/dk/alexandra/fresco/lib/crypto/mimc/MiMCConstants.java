@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.lib.crypto.mimc;
 
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import java.math.BigInteger;
 import java.util.Random;
 
@@ -16,12 +17,12 @@ public class MiMCConstants {
 	 * @param mod
 	 * @return
 	 */
-	public static BigInteger getConstant(int roundIndex, BigInteger mod) {
+	public static BigInteger getConstant(int roundIndex, Modulus mod) {
 		Random rnd = new Random(roundIndex);
 		BigInteger r;
 		do {
-		    r = new BigInteger(mod.bitLength(), rnd);
-		} while (r.compareTo(mod) >= 0);
+		    r = new BigInteger(mod.getBigInteger().bitLength(), rnd);
+		} while (r.compareTo(mod.getBigInteger()) >= 0);
 		return r;
 	}
 }

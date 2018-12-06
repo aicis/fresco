@@ -3,6 +3,7 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.builder.numeric.NativeFieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
@@ -21,7 +22,7 @@ import java.math.BigInteger;
 public class DummyArithmeticProtocolSuite
     implements ProtocolSuiteNumeric<DummyArithmeticResourcePool> {
 
-  private final FieldElement modulus;
+  private final Modulus modulus;
   private final int maxBitLength;
   private final int precision;
 
@@ -29,11 +30,7 @@ public class DummyArithmeticProtocolSuite
     this(ModulusFinder.findSuitableModulus(128), 32, 4);
   }
 
-  public DummyArithmeticProtocolSuite(BigInteger modulus, int maxBitLength, int precision) {
-    this(new NativeFieldElement(modulus, modulus.add(BigInteger.ONE)), maxBitLength, precision);
-  }
-
-  public DummyArithmeticProtocolSuite(FieldElement modulus, int maxBitLength, int precision) {
+  public DummyArithmeticProtocolSuite(Modulus modulus, int maxBitLength, int precision) {
     this.modulus = modulus;
     this.maxBitLength = maxBitLength;
     this.precision = precision;
@@ -42,7 +39,7 @@ public class DummyArithmeticProtocolSuite
   @Override
   public BuilderFactoryNumeric init(DummyArithmeticResourcePool resourcePool, Network network) {
     BasicNumericContext basicNumericContext = new BasicNumericContext(maxBitLength,
-        modulus.asBigInteger(),
+        modulus,
         resourcePool.getMyId(), resourcePool.getNoOfParties());
     RealNumericContext realNumericContext = new RealNumericContext(precision);
     return new DummyArithmeticBuilderFactory(basicNumericContext, realNumericContext);

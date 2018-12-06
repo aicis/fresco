@@ -7,6 +7,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.numeric.DefaultPreprocessedValues;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
@@ -240,7 +241,7 @@ public abstract class AbstractSpdzTest {
       List<Integer> partyIds =
           IntStream.range(1, numberOfParties + 1).boxed().collect(Collectors.toList());
       Drbg drbg = getDrbg(myId, PRG_SEED_LENGTH);
-      BigInteger modulus = ModulusFinder.findSuitableModulus(modBitLength);
+      Modulus modulus = ModulusFinder.findSuitableModulus(modBitLength);
       Map<Integer, RotList> seedOts =
           getSeedOts(myId, partyIds, PRG_SEED_LENGTH, drbg, otGenerator.createExtraNetwork(myId));
       MascotFieldElement ssk = SpdzMascotDataSupplier.createRandomSsk(modulus, PRG_SEED_LENGTH);

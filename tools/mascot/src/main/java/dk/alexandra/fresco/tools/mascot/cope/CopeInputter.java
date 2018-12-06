@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.tools.mascot.cope;
 
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
@@ -81,7 +82,7 @@ public class CopeInputter {
     return maskPairs;
   }
 
-  private List<Pair<MascotFieldElement, MascotFieldElement>> generateMaskPairs(BigInteger modulus) {
+  private List<Pair<MascotFieldElement, MascotFieldElement>> generateMaskPairs(Modulus modulus) {
     Stream<Pair<MascotFieldElement, MascotFieldElement>> maskStream =
         IntStream.range(0, leftPrgs.size()).parallel().mapToObj(idx -> {
           MascotFieldElement t0 = this.leftPrgs.get(idx).getNext(modulus);

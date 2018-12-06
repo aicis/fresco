@@ -2,7 +2,7 @@ package dk.alexandra.fresco.lib.math.integer.stat;
 
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
-import dk.alexandra.fresco.framework.builder.numeric.BigIntMutable;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import org.junit.Test;
 
 public class TestStatistics {
 
-  private BigIntMutable modulus = new BigIntMutable(123123123);
+  private Modulus modulus = new Modulus(123123123);
 
   @Test(expected = IllegalArgumentException.class)
   public void testCovarianceBadLength() {

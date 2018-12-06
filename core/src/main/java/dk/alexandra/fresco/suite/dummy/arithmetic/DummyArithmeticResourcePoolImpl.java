@@ -2,6 +2,7 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -17,7 +18,7 @@ import java.util.function.Function;
 public class DummyArithmeticResourcePoolImpl extends ResourcePoolImpl
     implements DummyArithmeticResourcePool {
 
-  private final BigInteger modulus;
+  private final Modulus modulus;
   private final int modulusSize;
   private final Function<byte[], FieldElement> bigIntegerSupplier;
 
@@ -40,16 +41,16 @@ public class DummyArithmeticResourcePoolImpl extends ResourcePoolImpl
    * @param modulus the modulus
    * @param bigIntegerSupplier supplies wrapped big ints
    */
-  public DummyArithmeticResourcePoolImpl(int myId, int noOfPlayers, BigInteger modulus,
+  public DummyArithmeticResourcePoolImpl(int myId, int noOfPlayers, Modulus modulus,
       Function<byte[], FieldElement> bigIntegerSupplier) {
     super(myId, noOfPlayers);
     this.bigIntegerSupplier = bigIntegerSupplier;
     this.modulus = modulus;
-    this.modulusSize = modulus.toByteArray().length;
+    this.modulusSize = modulus.getBigInteger().toByteArray().length;
   }
 
   @Override
-  public BigInteger getModulus() {
+  public Modulus getModulus() {
     return this.modulus;
   }
 

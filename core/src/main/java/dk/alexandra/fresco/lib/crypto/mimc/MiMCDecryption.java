@@ -114,7 +114,7 @@ public class MiMCDecryption implements Computation<SInt, ProtocolBuilderNumeric>
   }
 
   private BigInteger calculateThreeInverse(BasicNumericContext basicNumericContext) {
-    BigInteger modulus = basicNumericContext.getModulus();
+    BigInteger modulus = basicNumericContext.getModulus().getBigInteger();
     BigInteger expP = modulus.subtract(BigInteger.ONE);
     return BigInteger.valueOf(3).modInverse(expP);
   }

@@ -149,7 +149,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
   private FieldElement convert(BigInteger bigInteger) {
     // TODO Define this in the config
-    return BigInt.fromConstant(bigInteger, basicNumericContext.getModulus());
+    return BigInt.fromBigInteger(bigInteger, basicNumericContext.getModulus());
   }
 
   @Override

@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.framework.sce.resources.storage.exceptions.NoMoreElementsException;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -46,7 +47,7 @@ public class SpdzStorageDataSupplier implements SpdzDataSupplier {
   private int bitCounter = 0;
 
   private FieldElement ssk;
-  private BigInteger mod;
+  private Modulus mod;
 
   /**
    * Creates a new supplier which takes preprocessed data from the native
@@ -130,7 +131,7 @@ public class SpdzStorageDataSupplier implements SpdzDataSupplier {
   }
 
   @Override
-  public BigInteger getModulus() {
+  public Modulus getModulus() {
     if (this.mod != null) {
       return this.mod;
     }

@@ -5,6 +5,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.Computation;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
@@ -39,7 +40,7 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
     implements Spdz2kResourcePool<PlainT> {
 
   private final int effectiveBitLength;
-  private final BigInteger modulus;
+  private final Modulus modulus;
   private final OpenedValueStore<Spdz2kSInt<PlainT>, PlainT> storage;
   private final Spdz2kDataSupplier<PlainT> supplier;
   private final CompUIntFactory<PlainT> factory;
@@ -58,7 +59,7 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
     Objects.requireNonNull(supplier);
     Objects.requireNonNull(factory);
     this.effectiveBitLength = factory.getLowBitLength();
-    this.modulus = BigInteger.ONE.shiftLeft(effectiveBitLength);
+    this.modulus = new Modulus(BigInteger.ONE.shiftLeft(effectiveBitLength));
     this.storage = storage;
     this.supplier = supplier;
     this.factory = factory;
@@ -108,7 +109,7 @@ public class Spdz2kResourcePoolImpl<PlainT extends CompUInt<?, ?, PlainT>>
   }
 
   @Override
-  public BigInteger getModulus() {
+  public Modulus getModulus() {
     return modulus;
   }
 

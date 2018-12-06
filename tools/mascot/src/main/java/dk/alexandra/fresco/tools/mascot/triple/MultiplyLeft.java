@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.tools.mascot.triple;
 
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
@@ -76,13 +77,13 @@ class MultiplyLeft {
    * @param modulus the modulus we are working in
    * @return seeds converted to field elements
    */
-  private List<MascotFieldElement> seedsToFieldElements(List<StrictBitVector> seeds, BigInteger modulus) {
+  private List<MascotFieldElement> seedsToFieldElements(List<StrictBitVector> seeds, Modulus modulus) {
     return seeds.parallelStream().map(seed -> fromBits(seed, modulus)).collect(Collectors.toList());
   }
 
-  private MascotFieldElement fromBits(StrictBitVector vector, BigInteger modulus) {
+  private MascotFieldElement fromBits(StrictBitVector vector, Modulus modulus) {
     // safe since the modulus is guaranteed to be close enough to 2^modBitLength
-    return new MascotFieldElement(new BigInteger(vector.toByteArray()).mod(modulus), modulus);
+    return new MascotFieldElement(new BigInteger(vector.toByteArray()).mod(modulus.getBigInteger()), modulus);
   }
 
 }

@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.tools.mascot;
 
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 
 import java.math.BigInteger;
@@ -10,7 +11,7 @@ import java.util.stream.Collectors;
 
 public class MascotTestUtils {
 
-  public static List<MascotFieldElement> generateSingleRow(int[] factors, BigInteger modulus) {
+  public static List<MascotFieldElement> generateSingleRow(int[] factors, Modulus modulus) {
     return Arrays.stream(factors).mapToObj(val -> new MascotFieldElement(val, modulus))
         .collect(Collectors.toList());
   }
@@ -22,7 +23,7 @@ public class MascotTestUtils {
    * @param modulus field modulus
    * @return field element matrix
    */
-  public static List<List<MascotFieldElement>> generateMatrix(int[][] rows, BigInteger modulus) {
+  public static List<List<MascotFieldElement>> generateMatrix(int[][] rows, Modulus modulus) {
     int numMults = rows.length;
     List<List<MascotFieldElement>> input = new ArrayList<>(numMults);
     for (int[] leftFactorRow : rows) {

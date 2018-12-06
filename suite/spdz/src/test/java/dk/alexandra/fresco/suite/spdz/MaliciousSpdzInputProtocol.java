@@ -2,6 +2,7 @@ package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -31,7 +32,6 @@ public class MaliciousSpdzInputProtocol extends SpdzNativeProtocol<SInt> {
   @Override
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool, Network network) {
     int myId = spdzResourcePool.getMyId();
-    BigInteger modulus = spdzResourcePool.getModulus();
     SpdzDataSupplier dataSupplier = spdzResourcePool.getDataSupplier();
     ByteSerializer<FieldElement> serializer = spdzResourcePool.getSerializer();
     if (round == 0) {

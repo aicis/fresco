@@ -7,7 +7,7 @@ import org.junit.Test;
 
 public class TestNumericResourcePool {
 
-  private final BigInteger defaultModulus = new BigInteger("251");
+  private final Modulus defaultModulus = new Modulus(new BigInteger("251"));
 
   @Test
   public void testConvertRepresentationLessThanHalf() {
@@ -17,7 +17,7 @@ public class TestNumericResourcePool {
   }
 
   private BigInteger convertRepresentation(NumericResourcePool pool, BigInteger bigInteger) {
-    FieldElement value = BigInt.fromConstant(bigInteger, defaultModulus);
+    FieldElement value = new BigInt(bigInteger.toString(), defaultModulus);
     return pool.convertRepresentation(value);
   }
 
@@ -25,26 +25,26 @@ public class TestNumericResourcePool {
   public void testConvertRepresentationGreaterThanHalf() {
     NumericResourcePool pool = new MockNumericResourcePool(defaultModulus);
     BigInteger actual = convertRepresentation(pool, new BigInteger("200"));
-    assertEquals(new BigInteger("200").subtract(defaultModulus), actual);
+    assertEquals(new BigInteger("200").subtract(defaultModulus.getBigInteger()), actual);
   }
 
   @Test
   public void testConvertRepresentationEqualsHalf() {
     NumericResourcePool pool = new MockNumericResourcePool(defaultModulus);
-    BigInteger actual = convertRepresentation(pool, defaultModulus.divide(BigInteger.valueOf(2)));
-    assertEquals(defaultModulus.divide(BigInteger.valueOf(2)), actual);
+    BigInteger actual = convertRepresentation(pool, defaultModulus.getBigInteger().divide(BigInteger.valueOf(2)));
+    assertEquals(defaultModulus.getBigInteger().divide(BigInteger.valueOf(2)), actual);
   }
 
   private class MockNumericResourcePool implements NumericResourcePool {
 
-    private final BigInteger modulus;
+    private final Modulus modulus;
 
-    MockNumericResourcePool(BigInteger modulus) {
+    MockNumericResourcePool(Modulus modulus) {
       this.modulus = modulus;
     }
 
     @Override
-    public BigInteger getModulus() {
+    public Modulus getModulus() {
       return this.modulus;
     }
 

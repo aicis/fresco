@@ -93,8 +93,8 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
               Network network) {
             BigInteger r;
             do {
-              r = new BigInteger(basicNumericContext.getModulus().bitLength(), rand);
-            } while (r.compareTo(basicNumericContext.getModulus()) >= 0);
+              r = new BigInteger(basicNumericContext.getModulus().getBigInteger().bitLength(), rand);
+            } while (r.compareTo(basicNumericContext.getModulus().getBigInteger()) >= 0);
             elm = createSIntFromConstant(r);
             return EvaluationStatus.IS_DONE;
           }

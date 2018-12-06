@@ -3,6 +3,7 @@ package dk.alexandra.fresco.suite.spdz;
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
 import dk.alexandra.fresco.framework.builder.numeric.BigIntMutable;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
@@ -16,13 +17,13 @@ import org.junit.Test;
 
 public class TestFakeTripGen {
 
-  private static final BigInteger modulus = new BigInteger(
-      "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
-  private static final FieldElement alpha =
-      BigInt.fromConstant(new BigInteger(
-              "5081587041441179438932635098620319894716368628029284292880408086703438041331200877980213770035569812296677935118715454650749402237663859711459266577679205"),
-          modulus);
-  private FieldElement zero = BigInt.fromConstant(BigInteger.ZERO, modulus);
+  private static final Modulus modulus = new Modulus("670390396497129854978701249912381411527384857"
+      + "747113652742596601302650153670646435425544544324427938945505888949343122395116528647057599"
+      + "4074291745908195329");
+  private static final FieldElement alpha = new BigInt("50815870414411794389326350986203198"
+      + "947163686280292842928804080867034380413312008779802137700355698122966779351187154546507494"
+      + "02237663859711459266577679205", modulus);
+  private FieldElement zero = new BigInt(10, modulus);
 
   @Test
   public void testTripleGen() {
@@ -41,7 +42,7 @@ public class TestFakeTripGen {
       FieldElement actual = a.multiply(b);
       Assert.assertEquals(c, actual);
 
-      FieldElement zero = BigInt.fromConstant(BigInteger.ZERO, modulus);
+      FieldElement zero = new BigInt(0, modulus);
 
       Assert.assertEquals(zero, subtract(a, shareA));
       Assert.assertEquals(zero, subtract(b, shareB));
@@ -108,7 +109,7 @@ public class TestFakeTripGen {
       SpdzSInt[] as = pipe[0];
       SpdzSInt[] bs = pipe[1];
       FieldElement r = as[1].getShare().add(bs[1].getShare());
-      Assert.assertEquals(r.asBigInteger().modInverse(modulus),
+      Assert.assertEquals(r.asBigInteger().modInverse(modulus.getBigInteger()),
           as[0].getShare().add(bs[0].getShare()).asBigInteger());
       FieldElement prevR = r;
       for (int i = 0; i < as.length; i++) {
@@ -143,7 +144,7 @@ public class TestFakeTripGen {
   @Test
   public void testElementToBytes() {
     SpdzSInt element = new SpdzSInt(
-        new BigInt(200, new BigIntMutable(modulus)), new BigInt(1, new BigIntMutable(modulus)));
+        new BigInt(200, modulus), new BigInt(1, modulus));
     ByteBuffer buf = FakeTripGen.elementToBytes(element, 1);
     byte[] arr = buf.array();
     Assert.assertArrayEquals(new byte[]{(byte) 200, 1}, arr);
@@ -155,7 +156,8 @@ public class TestFakeTripGen {
 
     }
 
-    element = new SpdzSInt(new BigInt(1, new BigIntMutable(modulus)), new BigInt(200, new BigIntMutable(modulus)));
+    element = new SpdzSInt(new BigInt(1, modulus),
+        new BigInt(200, modulus));
     buf = FakeTripGen.elementToBytes(element, 1);
     arr = buf.array();
     Assert.assertArrayEquals(new byte[]{1, (byte) 200}, arr);
@@ -169,7 +171,7 @@ public class TestFakeTripGen {
 
   @Test
   public void testBigIntToBytes() {
-    FieldElement b = new BigInt(200, new BigIntMutable(modulus));
+    FieldElement b = new BigInt(200, modulus);
     int size = 1;
     ByteBuffer buf = FakeTripGen.bigIntToBytes(b, size);
     byte[] arr = buf.array();

@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 import java.math.BigInteger;
@@ -13,7 +14,7 @@ import java.util.stream.Stream;
 
 public class FieldElementUtils {
 
-  private final BigInteger modulus;
+  private final Modulus modulus;
   private final int modBitLength;
   private final List<MascotFieldElement> generators;
 
@@ -22,10 +23,10 @@ public class FieldElementUtils {
    *
    * @param modulus modulus for underlying field element operations
    */
-  public FieldElementUtils(BigInteger modulus) {
+  public FieldElementUtils(Modulus modulus) {
     super();
     this.modulus = modulus;
-    this.modBitLength = modulus.bitLength();
+    this.modBitLength = modulus.getBigInteger().bitLength();
     this.generators = precomputeGenerators();
   }
 
@@ -35,7 +36,7 @@ public class FieldElementUtils {
     BigInteger current = BigInteger.ONE;
     for (int i = 0; i < modBitLength; i++) {
       generators.add(new MascotFieldElement(current, modulus));
-      current = current.multiply(two).mod(modulus);
+      current = current.multiply(two).mod(modulus.getBigInteger());
     }
     return generators;
   }
@@ -107,7 +108,7 @@ public class FieldElementUtils {
     if (elements.size() > modBitLength) {
       throw new IllegalArgumentException("Number of elements cannot exceed bit-length");
     }
-    BigInteger elementModulus = elements.get(0).getModulus();
+    Modulus elementModulus = elements.get(0).getModulus();
     if (!elementModulus.equals(modulus)) {
       throw new IllegalArgumentException("Wrong modulus " + elementModulus);
     }

@@ -2,6 +2,7 @@ package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.builder.numeric.BigInt;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -21,7 +22,7 @@ public class TestSpdzDatatypes {
   private SpdzSInt elm2 = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ONE));
   private SpdzSInt elmDiff1 =
       new SpdzSInt(get(BigInteger.ZERO), get(BigInteger.ONE));
-  private BigInteger modulus = BigInteger.TEN.multiply(BigInteger.TEN);
+  private Modulus modulus = new Modulus(BigInteger.TEN.multiply(BigInteger.TEN));
 
   @Test
   public void testElementEquals() {
@@ -54,7 +55,7 @@ public class TestSpdzDatatypes {
   }
 
   private FieldElement get(BigInteger ten) {
-    return BigInt.fromConstant(ten, modulus);
+    return BigInt.fromBigInteger(ten, modulus);
   }
 
   @Test
@@ -104,11 +105,11 @@ public class TestSpdzDatatypes {
 
   @Test
   public void testCommitment() throws NoSuchAlgorithmException {
-    SpdzCommitment comm = new SpdzCommitment(null, null, new Random(1), modulus.bitLength());
+    SpdzCommitment comm = new SpdzCommitment(null, null, new Random(1), modulus.getBigInteger().bitLength());
     Assert.assertEquals("SpdzCommitment[v:null, r:null, commitment:null]", comm.toString());
     MessageDigest H = MessageDigest.getInstance("SHA-256");
     SpdzCommitment c = new SpdzCommitment(H, get(BigInteger.ONE), new Random(0),
-        modulus.bitLength());
+        modulus.getBigInteger().bitLength());
     BigIntegerWithFixedLengthSerializer serializer =
         new BigIntegerWithFixedLengthSerializer(20, bytes -> BigInt.fromBytes(bytes, modulus));
     FieldElement c1 = c.computeCommitment(serializer);

@@ -1,5 +1,6 @@
 package dk.alexandra.fresco.suite.spdz;
 
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.suite.spdz.configuration.PreprocessingStrategy;
 import dk.alexandra.fresco.suite.spdz.storage.FakeTripGen;
@@ -24,7 +25,7 @@ public class TestSpdzMisc {
 
   @Test(expected = IllegalStateException.class)
   public void testSpdzExponentiationPipeProtocolExpPipeFailedLength() {
-    SpdzDummyDataSupplier supplier = new SpdzDummyDataSupplier(1, 2, new BigInteger("251"));
+    SpdzDummyDataSupplier supplier = new SpdzDummyDataSupplier(1, 2, new Modulus("251"));
     SpdzResourcePool rp = new SpdzResourcePoolImpl(1, 2, new SpdzOpenedValueStoreImpl(), supplier,
         new AesCtrDrbg(new byte[32]));
     SpdzExponentiationPipeProtocol pro = new SpdzExponentiationPipeProtocol(
