@@ -10,7 +10,7 @@ public final class Modulus implements Serializable {
 
   private static final Logger logger = LoggerFactory.getLogger(Modulus.class);
 
-  private BigInteger bigInteger;
+  private final BigInteger bigInteger;
   private BigIntMutable bigIntMutable;
 
   public Modulus(BigInteger modulus) {
@@ -25,6 +25,7 @@ public final class Modulus implements Serializable {
       throw new IllegalArgumentException("modulus cannot be null");
     }
     this.bigIntMutable = modulus;
+    this.bigInteger = new BigInteger(modulus.toString());
   }
 
   public Modulus(int modulus) {
@@ -44,10 +45,6 @@ public final class Modulus implements Serializable {
   }
 
   public BigInteger getBigInteger() {
-    if (bigInteger == null) {
-      logger.debug("Converting BigIntMutable to BigInteger");
-      bigInteger = new BigInteger(bigIntMutable.toString());
-    }
     return bigInteger;
   }
 
@@ -60,20 +57,16 @@ public final class Modulus implements Serializable {
       return false;
     }
     Modulus modulus = (Modulus) o;
-    return Objects.equals(getBigInteger(), modulus.bigInteger)
-        || Objects.equals(getBigIntMutable(), modulus.bigIntMutable);
+    return Objects.equals(bigInteger, modulus.bigInteger);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(getBigInteger(), getBigIntMutable());
+    return Objects.hash(bigInteger);
   }
 
   @Override
   public String toString() {
-    if (bigInteger != null) {
-      return bigInteger.toString();
-    }
-    return bigIntMutable.toString();
+    return bigInteger.toString();
   }
 }
