@@ -11,7 +11,7 @@ public final class Modulus implements Serializable {
   private static final Logger logger = LoggerFactory.getLogger(Modulus.class);
 
   private BigInteger bigInteger;
-  private BigIntMutable bigIntImmutable;
+  private BigIntMutable bigIntMutable;
 
   public Modulus(BigInteger modulus) {
     if (modulus == null) {
@@ -24,7 +24,7 @@ public final class Modulus implements Serializable {
     if (modulus == null) {
       throw new IllegalArgumentException("modulus cannot be null");
     }
-    this.bigIntImmutable = modulus;
+    this.bigIntMutable = modulus;
   }
 
   public Modulus(int modulus) {
@@ -36,17 +36,17 @@ public final class Modulus implements Serializable {
   }
 
   public BigIntMutable getBigIntMutable() {
-    if (bigIntImmutable == null) {
+    if (bigIntMutable == null) {
       logger.debug("Converting BigInteger to BigIntMutable");
-      bigIntImmutable = new BigIntMutable(bigInteger.toString());
+      bigIntMutable = new BigIntMutable(bigInteger.toString());
     }
-    return bigIntImmutable;
+    return bigIntMutable;
   }
 
   public BigInteger getBigInteger() {
     if (bigInteger == null) {
       logger.debug("Converting BigIntMutable to BigInteger");
-      bigInteger = new BigInteger(bigIntImmutable.toString());
+      bigInteger = new BigInteger(bigIntMutable.toString());
     }
     return bigInteger;
   }
@@ -60,12 +60,13 @@ public final class Modulus implements Serializable {
       return false;
     }
     Modulus modulus = (Modulus) o;
-    return Objects.equals(bigIntImmutable, modulus.bigIntImmutable);
+    return Objects.equals(getBigInteger(), modulus.bigInteger)
+        || Objects.equals(getBigIntMutable(), modulus.bigIntMutable);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(bigIntImmutable);
+    return Objects.hash(getBigInteger(), getBigIntMutable());
   }
 
   @Override
@@ -73,6 +74,6 @@ public final class Modulus implements Serializable {
     if (bigInteger != null) {
       return bigInteger.toString();
     }
-    return bigIntImmutable.toString();
+    return bigIntMutable.toString();
   }
 }
