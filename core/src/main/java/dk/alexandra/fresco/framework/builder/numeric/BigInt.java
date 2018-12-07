@@ -91,6 +91,9 @@ public class BigInt implements FieldElement {
   }
 
   public static BigInt fromBigInteger(BigInteger bigInteger, Modulus modulus) {
+    if (bigInteger == null) {
+      return null;
+    }
     return new BigInt(bigInteger.toString(), modulus);
   }
 
