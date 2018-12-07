@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.maccheck;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
@@ -107,7 +107,7 @@ public class MaliciousSpdzOpenCommitProtocol extends SpdzNativeProtocol<Boolean>
   private byte[] sendMaliciousBroadcastValidation(MessageDigest dig, Network network,
       Collection<FieldElement> bs) {
     for (FieldElement b : bs) {
-      dig.update(b.asBigInteger().toByteArray());
+      dig.update(b.convertValueToBigInteger().toByteArray());
     }
     return sendAndReset(dig, network);
   }

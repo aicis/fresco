@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -108,8 +108,8 @@ public class TestFakeTripGen {
       SpdzSInt[] as = pipe[0];
       SpdzSInt[] bs = pipe[1];
       FieldElement r = as[1].getShare().add(bs[1].getShare());
-      Assert.assertEquals(r.asBigInteger().modInverse(modulus.getBigInteger()),
-          as[0].getShare().add(bs[0].getShare()).asBigInteger());
+      Assert.assertEquals(r.convertValueToBigInteger().modInverse(modulus.getBigInteger()),
+          as[0].getShare().add(bs[0].getShare()).convertValueToBigInteger());
       FieldElement prevR = r;
       for (int i = 0; i < as.length; i++) {
         FieldElement share = as[i].getShare().add(bs[i].getShare());
@@ -134,8 +134,8 @@ public class TestFakeTripGen {
       FieldElement mac = b[0].getMac().add(b[1].getMac());
 
       Assert.assertTrue(
-          val.asBigInteger().equals(BigInteger.ZERO)
-              || val.asBigInteger().equals(BigInteger.ONE));
+          val.convertValueToBigInteger().equals(BigInteger.ZERO)
+              || val.convertValueToBigInteger().equals(BigInteger.ONE));
       Assert.assertEquals(zero, subtract(val, mac));
     }
   }

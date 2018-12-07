@@ -15,7 +15,7 @@ public interface FieldElement extends Comparable<FieldElement>, Serializable {
 
   FieldElement divide(int i);
 
-  BigInteger asBigInteger();
+  BigInteger convertValueToBigInteger();
 
   void toByteArray(byte[] bytes, int offset, int byteLength);
 }

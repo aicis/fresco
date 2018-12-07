@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.util.TransposeUtils;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -110,7 +110,7 @@ public class TestSpdzDummyDataSupplier {
     assertMacCorrect(recombined, macKey);
     FieldElement value = recombined.getShare();
     assertTrue("Value not a bit " + value,
-        value.equals(BigInteger.ZERO) || value.asBigInteger().equals(BigInteger.ONE));
+        value.equals(BigInteger.ZERO) || value.convertValueToBigInteger().equals(BigInteger.ONE));
   }
 
   private void testGetNextBit(int noOfParties) {
@@ -131,7 +131,7 @@ public class TestSpdzDummyDataSupplier {
     // sanity check not zero (with 251, that is actually not unlikely enough)
     if (!modulus.equals(new BigInteger("251"))) {
       FieldElement value = recombined.getShare();
-      assertFalse("Random value was 0 ", value.asBigInteger().equals(BigInteger.ZERO));
+      assertFalse("Random value was 0 ", value.convertValueToBigInteger().equals(BigInteger.ZERO));
     }
   }
 
@@ -207,7 +207,7 @@ public class TestSpdzDummyDataSupplier {
     SpdzDummyDataSupplier supplier = new SpdzDummyDataSupplier(1, 2, moduli.get(0),
         BigInteger.ONE);
     assertEquals(moduli.get(0), supplier.getModulus());
-    assertEquals(BigInteger.ONE, supplier.getSecretSharedKey().asBigInteger());
+    assertEquals(BigInteger.ONE, supplier.getSecretSharedKey().convertValueToBigInteger());
   }
 
   private SpdzSInt recombine(List<SpdzSInt> shares) {
@@ -257,11 +257,12 @@ public class TestSpdzDummyDataSupplier {
         .collect(Collectors.toList());
     FieldElement inverted = values.get(0);
     FieldElement first = values.get(1);
-    BigInteger bigInteger = first.asBigInteger().modInverse(modulus.getBigInteger());
-    assertEquals(inverted.asBigInteger(), bigInteger);
+    BigInteger bigInteger = first.convertValueToBigInteger().modInverse(modulus.getBigInteger());
+    assertEquals(inverted.convertValueToBigInteger(), bigInteger);
     for (int i = 1; i < values.size(); i++) {
-      BigInteger expected = first.asBigInteger().modPow(BigInteger.valueOf(i), modulus.getBigInteger());
-      assertEquals(expected, values.get(i).asBigInteger());
+      BigInteger expected = first.convertValueToBigInteger()
+          .modPow(BigInteger.valueOf(i), modulus.getBigInteger());
+      assertEquals(expected, values.get(i).convertValueToBigInteger());
     }
   }
 }

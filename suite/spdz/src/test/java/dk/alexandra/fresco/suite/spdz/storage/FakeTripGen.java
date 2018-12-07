@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -64,9 +64,9 @@ public class FakeTripGen {
    */
   public static ByteBuffer elementToBytes(SpdzSInt element, int size) {
     FieldElement share = element.getShare();
-    byte[] shareBytes = share.asBigInteger().toByteArray();
+    byte[] shareBytes = share.convertValueToBigInteger().toByteArray();
     FieldElement mac = element.getMac();
-    byte[] macBytes = mac.asBigInteger().toByteArray();
+    byte[] macBytes = mac.convertValueToBigInteger().toByteArray();
     byte[] bytes = new byte[size * 2];
     if (shareBytes.length > size) {
       if (shareBytes.length == size + 1) {
@@ -99,7 +99,7 @@ public class FakeTripGen {
    * @return a byte representation.
    */
   public static ByteBuffer bigIntToBytes(FieldElement b, int size) {
-    byte[] bBytes = b.asBigInteger().toByteArray();
+    byte[] bBytes = b.convertValueToBigInteger().toByteArray();
     byte[] bytes = new byte[size];
     if (bBytes.length > size) {
       if (bBytes.length == size + 1) {
@@ -365,7 +365,7 @@ public class FakeTripGen {
       SpdzSInt[][] expPipe = new SpdzSInt[noOfParties][EXP_PIPE_SIZE];
       FieldElement r = sample();
       FieldElement rInv = FieldInteger
-          .fromBigInteger(r.asBigInteger().modInverse(mod.getBigInteger()), mod);
+          .fromBigInteger(r.convertValueToBigInteger().modInverse(mod.getBigInteger()), mod);
       FieldElement mac = getMac(rInv);
       List<SpdzSInt> elements = toShares(rInv, mac, noOfParties);
       for (int i = 0; i < noOfParties; i++) {
@@ -397,7 +397,7 @@ public class FakeTripGen {
         SpdzSInt[][] expPipe = new SpdzSInt[noOfParties][EXP_PIPE_SIZE];
         FieldElement r = sample();
         FieldElement rInv = FieldInteger
-            .fromBigInteger(r.asBigInteger().modInverse(mod.getBigInteger()), mod);
+            .fromBigInteger(r.convertValueToBigInteger().modInverse(mod.getBigInteger()), mod);
         FieldElement mac = getMac(rInv);
         List<SpdzSInt> elements = toShares(rInv, mac, noOfParties);
         for (int i = 0; i < noOfParties; i++) {
@@ -731,7 +731,7 @@ public class FakeTripGen {
     for (int j = 0; j < numberOfExps; j++) {
       FieldElement r = sample();
       FieldElement rInv = FieldInteger
-          .fromBigInteger(r.asBigInteger().modInverse(mod.getBigInteger()), mod);
+          .fromBigInteger(r.convertValueToBigInteger().modInverse(mod.getBigInteger()), mod);
       writeAsShared(rInv, channels);
       FieldElement exp = FieldInteger.fromBigInteger(BigInteger.ONE, mod);
       for (int i = 1; i < EXP_PIPE_SIZE; i++) {
@@ -801,7 +801,7 @@ public class FakeTripGen {
    */
   private static FieldElement sample() {
     FieldElement result = sampleRandomBits(mod.getBigInteger().bitLength(), rand);
-    if (result.asBigInteger().compareTo(mod.getBigInteger()) < 0) {
+    if (result.convertValueToBigInteger().compareTo(mod.getBigInteger()) < 0) {
       return result;
     } else {
       return sample();

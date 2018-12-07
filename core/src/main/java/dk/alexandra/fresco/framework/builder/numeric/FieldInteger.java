@@ -81,12 +81,12 @@ public class FieldInteger implements FieldElement {
     if (operand instanceof FieldInteger) {
       return ((FieldInteger) operand).value;
     } else {
-      return new BigIntMutable(operand.asBigInteger().toString());
+      return new BigIntMutable(operand.convertValueToBigInteger().toString());
     }
   }
 
   @Override
-  public BigInteger asBigInteger() {
+  public BigInteger convertValueToBigInteger() {
     return new BigInteger(value.toString());
   }
 
@@ -105,7 +105,7 @@ public class FieldInteger implements FieldElement {
   @Override
   public int compareTo(FieldElement o) {
     //todo avoid conversion
-    return asBigInteger().compareTo(o.asBigInteger());
+    return convertValueToBigInteger().compareTo(o.convertValueToBigInteger());
   }
 
   @Override

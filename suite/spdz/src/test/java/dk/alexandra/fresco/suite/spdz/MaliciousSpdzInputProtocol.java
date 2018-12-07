@@ -2,7 +2,6 @@ package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -10,7 +9,6 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.gates.SpdzNativeProtocol;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.List;
@@ -65,7 +63,7 @@ public class MaliciousSpdzInputProtocol extends SpdzNativeProtocol<SInt> {
 
   private byte[] sendMaliciousBroadcastValidation(MessageDigest dig, Network network,
       FieldElement b) {
-    dig.update(b.asBigInteger().toByteArray());
+    dig.update(b.convertValueToBigInteger().toByteArray());
     return sendAndReset(dig, network);
   }
 

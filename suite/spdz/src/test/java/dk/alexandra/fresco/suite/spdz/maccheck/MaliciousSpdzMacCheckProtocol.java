@@ -3,8 +3,8 @@ package dk.alexandra.fresco.suite.spdz.maccheck;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Drbg;
@@ -65,18 +65,21 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
         BigInteger a = BigInteger.ZERO;
         int index = 0;
         for (FieldElement openedValue : openedValues) {
-          a = a.add(rs[index++].multiply(openedValue.asBigInteger())).mod(modulusBigInteger);
+          a = a.add(rs[index++].multiply(openedValue.convertValueToBigInteger()))
+              .mod(modulusBigInteger);
         }
 
         // compute gamma_i as the sum of all MAC's on the opened values times r_j.
         BigInteger gamma = BigInteger.ZERO;
         index = 0;
         for (SpdzSInt c : closedValues) {
-          gamma = gamma.add(rs[index++].multiply(c.getMac().asBigInteger())).mod(modulusBigInteger);
+          gamma = gamma.add(rs[index++].multiply(c.getMac().convertValueToBigInteger()))
+              .mod(modulusBigInteger);
         }
 
         // compute delta_i as: gamma_i - alpha_i*a
-        BigInteger delta = gamma.subtract(alpha.asBigInteger().multiply(a)).mod(modulusBigInteger);
+        BigInteger delta = gamma.subtract(alpha.convertValueToBigInteger().multiply(a))
+            .mod(modulusBigInteger);
         // Commit to delta and open it afterwards
         SpdzCommitment commitment = new SpdzCommitment(digest, FieldInteger
             .fromBigInteger(delta, modulus),
@@ -100,7 +103,7 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
         }
         BigInteger deltaSum = BigInteger.ZERO;
         for (FieldElement d : commitments.values()) {
-          deltaSum = deltaSum.add(d.asBigInteger());
+          deltaSum = deltaSum.add(d.convertValueToBigInteger());
         }
         deltaSum = deltaSum.mod(modulusBigInteger);
         if (!deltaSum.equals(BigInteger.ZERO)) {

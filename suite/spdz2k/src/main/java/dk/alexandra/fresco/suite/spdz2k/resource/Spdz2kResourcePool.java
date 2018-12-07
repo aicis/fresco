@@ -107,6 +107,7 @@ public interface Spdz2kResourcePool<PlainT extends CompUInt<?, ?, PlainT>>
 
   @Override
   default BigInteger convertRepresentation(FieldElement value) {
-    return convertRepresentation(getFactory().createFromBigInteger(value.asBigInteger()));
+    return convertRepresentation(
+        getFactory().createFromBigInteger(value.convertValueToBigInteger()));
   }
 }

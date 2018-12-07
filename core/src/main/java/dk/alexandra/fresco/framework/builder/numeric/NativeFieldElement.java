@@ -15,7 +15,7 @@ public class NativeFieldElement implements FieldElement {
 
   @Override
   public FieldElement divide(FieldElement denominator) {
-    return create(value.divide(denominator.asBigInteger()));
+    return create(value.divide(denominator.convertValueToBigInteger()));
   }
 
   private NativeFieldElement create(BigInteger divide) {
@@ -29,21 +29,21 @@ public class NativeFieldElement implements FieldElement {
 
   @Override
   public NativeFieldElement subtract(FieldElement operand) {
-    return create(value.subtract(operand.asBigInteger()));
+    return create(value.subtract(operand.convertValueToBigInteger()));
   }
 
   @Override
   public NativeFieldElement multiply(FieldElement operand) {
-    return create(value.multiply(operand.asBigInteger()));
+    return create(value.multiply(operand.convertValueToBigInteger()));
   }
 
   @Override
   public NativeFieldElement add(FieldElement operand) {
-    return create(value.add(operand.asBigInteger()));
+    return create(value.add(operand.convertValueToBigInteger()));
   }
 
   @Override
-  public BigInteger asBigInteger() {
+  public BigInteger convertValueToBigInteger() {
     return value;
   }
 
@@ -55,7 +55,7 @@ public class NativeFieldElement implements FieldElement {
 
   @Override
   public int compareTo(FieldElement o) {
-    return value.compareTo(o.asBigInteger());
+    return value.compareTo(o.convertValueToBigInteger());
   }
 
   @Override
