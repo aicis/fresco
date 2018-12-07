@@ -50,4 +50,5 @@ public interface SpdzResourcePool extends NumericResourcePool {
    */
   SpdzDataSupplier getDataSupplier();
 
+  FieldElement createConstant(int i);
 }

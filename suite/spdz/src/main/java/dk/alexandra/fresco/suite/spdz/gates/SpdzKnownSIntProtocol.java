@@ -29,13 +29,11 @@ public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
 
   @Override
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool, Network network) {
-    secretValue = createKnownSpdzElement(spdzResourcePool, value, zero);
+    secretValue = createKnownSpdzElement(spdzResourcePool, value);
     return EvaluationStatus.IS_DONE;
   }
 
-  static SpdzSInt createKnownSpdzElement(
-      SpdzResourcePool spdzResourcePool,
-      FieldElement input, FieldElement zero) {
+  static SpdzSInt createKnownSpdzElement(SpdzResourcePool spdzResourcePool, FieldElement input) {
     SpdzSInt elm;
     FieldElement globalKeyShare =
         spdzResourcePool.getDataSupplier().getSecretSharedKey();
@@ -45,7 +43,7 @@ public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
     if (spdzResourcePool.getMyId() == 1) {
       elm = new SpdzSInt(input, mac);
     } else {
-      elm = new SpdzSInt(zero, mac);
+      elm = new SpdzSInt(spdzResourcePool.createConstant(0), mac);
     }
     return elm;
   }

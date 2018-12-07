@@ -69,4 +69,8 @@ public final class Modulus implements Serializable {
   public String toString() {
     return bigInteger.toString();
   }
+
+  public int bitLength() {
+    return bigInteger.bitLength();
+  }
 }

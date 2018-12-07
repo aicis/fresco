@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
@@ -68,6 +68,12 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
   @Override
   public SpdzDataSupplier getDataSupplier() {
     return dataSupplier;
+  }
+
+  @Override
+  public FieldElement createConstant(int i) {
+    // TODO Define by the user of this class
+    return new FieldInteger(i, modulus);
   }
 
   @Override

@@ -1,8 +1,8 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -39,7 +39,7 @@ public class MaliciousSpdzBuilder extends SpdzBuilder {
       @Override
       public DRes<SInt> add(BigInteger a, DRes<SInt> b) {
         SpdzAddProtocolKnownLeft spdzAddProtocolKnownLeft =
-            new SpdzAddProtocolKnownLeft(convert(a), b, getZero());
+            new SpdzAddProtocolKnownLeft(convert(a), b);
         return protocolBuilder.append(spdzAddProtocolKnownLeft);
       }
 
@@ -52,14 +52,14 @@ public class MaliciousSpdzBuilder extends SpdzBuilder {
       @Override
       public DRes<SInt> sub(BigInteger a, DRes<SInt> b) {
         SpdzSubtractProtocolKnownLeft spdzSubtractProtocolKnownLeft =
-            new SpdzSubtractProtocolKnownLeft(convert(a), b, getZero());
+            new SpdzSubtractProtocolKnownLeft(convert(a), b);
         return protocolBuilder.append(spdzSubtractProtocolKnownLeft);
       }
 
       @Override
       public DRes<SInt> sub(DRes<SInt> a, BigInteger b) {
         SpdzSubtractProtocolKnownRight spdzSubtractProtocolKnownRight =
-            new SpdzSubtractProtocolKnownRight(a, convert(b), getZero());
+            new SpdzSubtractProtocolKnownRight(a, convert(b));
         return protocolBuilder.append(spdzSubtractProtocolKnownRight);
       }
 
