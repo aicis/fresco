@@ -1,11 +1,12 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class Modulus {
+public final class Modulus implements Serializable {
 
   private static final Logger logger = LoggerFactory.getLogger(Modulus.class);
 
@@ -17,7 +18,7 @@ public final class Modulus {
       throw new IllegalArgumentException("modulus cannot be null");
     }
     this.bigInteger = modulus;
-    logger.warn("converted BigInteger to BigIntMutable");
+    logger.debug("Converting BigInteger to BigIntMutable");
     bigIntMutable = new BigIntMutable(bigInteger.toString());
     ensureModulus();
   }
@@ -49,7 +50,7 @@ public final class Modulus {
 
   public BigInteger getBigInteger() {
     if (bigInteger == null) {
-      logger.warn("converted BigIntMutable to BigInteger");
+      logger.debug("Converting BigIntMutable to BigInteger");
       bigInteger = new BigInteger(bigIntMutable.toString());
     }
     return bigInteger;

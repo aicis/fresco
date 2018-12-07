@@ -704,7 +704,7 @@ public class FakeTripGen {
       FileWriter fw = new FileWriter(f);
       // Share stuff
       alphaShare = sample();
-      fw.write(mod.toString());
+      fw.write(mod.getBigInteger().toString());
       fw.write(" ");
       if (i != numberOfParties - 1) {
         fw.write(alphaShare.toString());

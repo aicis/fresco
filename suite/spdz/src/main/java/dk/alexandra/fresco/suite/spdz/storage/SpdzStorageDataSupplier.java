@@ -136,8 +136,7 @@ public class SpdzStorageDataSupplier implements SpdzDataSupplier {
       return this.mod;
     }
     try {
-      this.mod = this.storage.getNext(storageName
-          + MODULUS_KEY);
+      this.mod = new Modulus(this.storage.<BigInteger>getNext(storageName + MODULUS_KEY));
     } catch (NoMoreElementsException e) {
       throw new IllegalArgumentException("Modulus was not present in the storage "
           + storageName + MODULUS_KEY);
