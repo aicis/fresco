@@ -24,7 +24,7 @@ public class FieldInteger implements FieldElement {
 
   public static FieldElement fromBytes(byte[] bytes, Modulus modulus) {
     BigIntMutable bigIntMutable = BigIntMutable.fromBytes(bytes);
-    bigIntMutable.mod(modulus.getBigIntImmutable());
+    bigIntMutable.mod(modulus.getBigIntMutable());
     return new FieldInteger(bigIntMutable, modulus);
   }
 
@@ -73,7 +73,7 @@ public class FieldInteger implements FieldElement {
     BigIntMutable copy = value.copy();
     BigIntMutable convertedOperand = toBigIntMutable(operand);
     operation.accept(copy, convertedOperand);
-    copy.mod(modulus.getBigIntImmutable());
+    copy.mod(modulus.getBigIntMutable());
     return new FieldInteger(copy, modulus);
   }
 

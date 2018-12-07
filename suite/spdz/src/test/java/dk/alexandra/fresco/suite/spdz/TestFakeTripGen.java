@@ -22,7 +22,7 @@ public class TestFakeTripGen {
   private static final FieldElement alpha = new FieldInteger("50815870414411794389326350986203198"
       + "947163686280292842928804080867034380413312008779802137700355698122966779351187154546507494"
       + "02237663859711459266577679205", modulus);
-  private FieldElement zero = new FieldInteger(10, modulus);
+  private FieldElement zero = new FieldInteger(0, modulus);
 
   @Test
   public void testTripleGen() {

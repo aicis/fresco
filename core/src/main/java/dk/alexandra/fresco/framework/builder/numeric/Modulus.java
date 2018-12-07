@@ -35,8 +35,8 @@ public final class Modulus implements Serializable {
     this(new BigInteger(modulus));
   }
 
-  public BigIntMutable getBigIntImmutable() {
-    if (bigInteger == null) {
+  public BigIntMutable getBigIntMutable() {
+    if (bigIntImmutable == null) {
       logger.debug("Converting BigInteger to BigIntMutable");
       bigIntImmutable = new BigIntMutable(bigInteger.toString());
     }
