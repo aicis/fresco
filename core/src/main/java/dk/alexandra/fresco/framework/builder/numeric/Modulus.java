@@ -10,14 +10,20 @@ public final class Modulus implements Serializable {
 
   private static final Logger logger = LoggerFactory.getLogger(Modulus.class);
 
-  private final BigInteger bigInteger;
+  enum Based {
+    BigInteger, BigIntMutable
+  }
+
+  private BigInteger bigInteger;
   private BigIntMutable bigIntMutable;
+  private final Based based;
 
   public Modulus(BigInteger modulus) {
     if (modulus == null) {
       throw new IllegalArgumentException("modulus cannot be null");
     }
     this.bigInteger = modulus;
+    this.based = Based.BigInteger;
   }
 
   public Modulus(BigIntMutable modulus) {
@@ -25,7 +31,7 @@ public final class Modulus implements Serializable {
       throw new IllegalArgumentException("modulus cannot be null");
     }
     this.bigIntMutable = modulus;
-    this.bigInteger = new BigInteger(modulus.toString());
+    this.based = Based.BigIntMutable;
   }
 
   public Modulus(int modulus) {
@@ -45,6 +51,10 @@ public final class Modulus implements Serializable {
   }
 
   public BigInteger getBigInteger() {
+    if (bigInteger == null) {
+      logger.debug("Converting BigInteger to BigIntMutable");
+      bigInteger = new BigInteger(bigIntMutable.toString());
+    }
     return bigInteger;
   }
 
@@ -57,20 +67,30 @@ public final class Modulus implements Serializable {
       return false;
     }
     Modulus modulus = (Modulus) o;
-    return Objects.equals(bigInteger, modulus.bigInteger);
+    if (based == Based.BigIntMutable && modulus.based == Based.BigIntMutable) {
+      return Objects.equals(bigIntMutable, modulus.bigIntMutable);
+    } else {
+      return Objects.equals(getBigInteger(), modulus.getBigInteger());
+    }
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(bigInteger);
+    if (based == Based.BigInteger) {
+      return Objects.hash(bigInteger);
+    }
+    return Objects.hash(bigIntMutable);
   }
 
   @Override
   public String toString() {
-    return bigInteger.toString();
+    if (based == Based.BigInteger) {
+      return bigInteger.toString();
+    }
+    return bigIntMutable.toString();
   }
 
   public int bitLength() {
-    return bigInteger.bitLength();
+    return getBigInteger().bitLength();
   }
 }
