@@ -71,4 +71,12 @@ public final class Modulus {
   public int hashCode() {
     return Objects.hash(bigIntMutable);
   }
+
+  @Override
+  public String toString() {
+    if (bigInteger != null) {
+      return bigInteger.toString();
+    }
+    return bigIntMutable.toString();
+  }
 }
