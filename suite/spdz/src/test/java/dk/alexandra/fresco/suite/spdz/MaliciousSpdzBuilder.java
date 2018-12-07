@@ -87,7 +87,7 @@ public class MaliciousSpdzBuilder extends SpdzBuilder {
 
       @Override
       public DRes<SInt> known(BigInteger value) {
-        return protocolBuilder.append(new SpdzKnownSIntProtocol(convert(value), getZero()));
+        return protocolBuilder.append(new SpdzKnownSIntProtocol(convert(value)));
       }
 
       @Override
@@ -108,10 +108,6 @@ public class MaliciousSpdzBuilder extends SpdzBuilder {
         return protocolBuilder.append(openProtocol);
       }
     };
-  }
-
-  private FieldElement getZero() {
-    return convert(BigInteger.ZERO);
   }
 
   private FieldElement convert(BigInteger value) {

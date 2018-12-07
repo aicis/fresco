@@ -119,7 +119,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
       @Override
       public DRes<SInt> known(BigInteger value) {
         FieldElement convertedValue = convert(value);
-        return protocolBuilder.append(new SpdzKnownSIntProtocol(convertedValue, getZero()));
+        return protocolBuilder.append(new SpdzKnownSIntProtocol(convertedValue));
       }
 
       @Override

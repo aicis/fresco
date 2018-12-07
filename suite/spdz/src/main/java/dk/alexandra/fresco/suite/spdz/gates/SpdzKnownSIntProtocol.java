@@ -9,7 +9,6 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
 
   private final FieldElement value;
-  private final FieldElement zero;
   private SpdzSInt secretValue;
 
   /**
@@ -17,9 +16,8 @@ public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
    *
    * @param value the value
    */
-  public SpdzKnownSIntProtocol(FieldElement value, FieldElement zero) {
+  public SpdzKnownSIntProtocol(FieldElement value) {
     this.value = value;
-    this.zero = zero;
   }
 
   @Override
