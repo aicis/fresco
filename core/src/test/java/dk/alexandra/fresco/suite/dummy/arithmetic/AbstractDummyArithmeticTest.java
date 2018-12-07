@@ -2,7 +2,7 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
@@ -24,7 +24,6 @@ import dk.alexandra.fresco.logging.PerformanceLogger;
 import dk.alexandra.fresco.logging.PerformanceLoggerCountingAggregate;
 import dk.alexandra.fresco.logging.PerformancePrinter;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -120,7 +119,7 @@ public abstract class AbstractDummyArithmeticTest {
           ProtocolBuilderNumeric> ttc =
             new TestThreadRunner.TestThreadConfiguration<>(sce,
                 () -> new DummyArithmeticResourcePoolImpl(playerId, noOfParties, mod,
-                    bytes -> BigInt.fromBytes(bytes, mod)),
+                    bytes -> FieldInteger.fromBytes(bytes, mod)),
                 () -> {
                   Network asyncNetwork = new SocketNetwork(partyNetConf);
                   if (logPerformance) {

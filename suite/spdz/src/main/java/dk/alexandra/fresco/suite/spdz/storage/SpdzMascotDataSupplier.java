@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.network.Network;
@@ -96,7 +96,7 @@ public class SpdzMascotDataSupplier implements SpdzDataSupplier {
     this.seedOts = seedOts;
     this.drbg = drbg;
     // TODO This should be defined in the config by the user
-    this.converter = bigInteger -> BigInt.fromBigInteger(bigInteger, modulus);
+    this.converter = bigInteger -> FieldInteger.fromBigInteger(bigInteger, modulus);
   }
 
   /**

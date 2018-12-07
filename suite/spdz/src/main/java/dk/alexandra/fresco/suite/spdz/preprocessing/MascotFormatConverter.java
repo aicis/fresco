@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.preprocessing;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -61,6 +61,6 @@ public class MascotFormatConverter {
   }
 
   private FieldElement convert(BigInteger bigInteger) {
-    return new BigInt(bigInteger.toString(), modulus);
+    return new FieldInteger(bigInteger.toString(), modulus);
   }
 }

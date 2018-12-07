@@ -2,8 +2,7 @@ package dk.alexandra.fresco.suite.spdz;
 
 import static org.junit.Assert.assertEquals;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
-import dk.alexandra.fresco.framework.builder.numeric.BigIntMutable;
+import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -12,7 +11,6 @@ import dk.alexandra.fresco.suite.spdz.preprocessing.MascotFormatConverter;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
 import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
-import java.math.BigInteger;
 import java.util.function.IntFunction;
 import org.junit.Test;
 
@@ -25,7 +23,7 @@ public class TestMascotFormatConverter {
   }
 
   private SpdzSInt getSpdzElement(int shareVal, int macVal, Modulus modulus) {
-    IntFunction<FieldElement> converter = (bigint) -> new BigInt(bigint, modulus);
+    IntFunction<FieldElement> converter = (bigint) -> new FieldInteger(bigint, modulus);
     return new SpdzSInt(converter.apply(shareVal), converter.apply(macVal));
   }
 

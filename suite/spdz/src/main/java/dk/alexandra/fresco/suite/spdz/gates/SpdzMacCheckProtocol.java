@@ -3,7 +3,7 @@ package dk.alexandra.fresco.suite.spdz.gates;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.builder.Computation;
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -78,7 +78,7 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
           // Commit to delta and open it afterwards
           // TODO This should not be loaded directly here.
           SpdzCommitment deltaCommitment = new SpdzCommitment(digest,
-              BigInt.fromBigInteger(delta, modulus), rand, modulus.getBigInteger().bitLength());
+              FieldInteger.fromBigInteger(delta, modulus), rand, modulus.getBigInteger().bitLength());
           return seq.seq((subSeq) -> subSeq.append(new SpdzCommitProtocol(deltaCommitment)))
               .seq((subSeq, commitProtocol) ->
                   subSeq.append(new SpdzOpenCommitProtocol(deltaCommitment, commitProtocol)));

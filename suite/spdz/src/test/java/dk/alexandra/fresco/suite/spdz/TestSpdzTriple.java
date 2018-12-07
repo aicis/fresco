@@ -3,7 +3,7 @@ package dk.alexandra.fresco.suite.spdz;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -51,6 +51,6 @@ public class TestSpdzTriple {
   }
 
   private FieldElement get(BigInteger bigInteger) {
-    return BigInt.fromBigInteger(bigInteger, new Modulus(10));
+    return FieldInteger.fromBigInteger(bigInteger, new Modulus(10));
   }
 }

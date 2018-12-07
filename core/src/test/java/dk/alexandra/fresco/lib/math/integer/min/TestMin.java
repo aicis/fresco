@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.lib.math.integer.min;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.BigIntMutable;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -38,7 +38,7 @@ public class TestMin {
   }
 
   private DummyArithmeticSInt createSInt(int value) {
-    return new DummyArithmeticSInt(new BigInt(value, modulus));
+    return new DummyArithmeticSInt(new FieldInteger(value, modulus));
   }
 
   @Test(expected = RuntimeException.class)

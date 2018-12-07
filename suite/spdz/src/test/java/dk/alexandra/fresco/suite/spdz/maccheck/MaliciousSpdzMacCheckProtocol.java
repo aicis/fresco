@@ -3,7 +3,7 @@ package dk.alexandra.fresco.suite.spdz.maccheck;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -78,7 +78,8 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
         // compute delta_i as: gamma_i - alpha_i*a
         BigInteger delta = gamma.subtract(alpha.asBigInteger().multiply(a)).mod(modulusBigInteger);
         // Commit to delta and open it afterwards
-        SpdzCommitment commitment = new SpdzCommitment(digest, BigInt.fromBigInteger(delta, modulus),
+        SpdzCommitment commitment = new SpdzCommitment(digest, FieldInteger
+            .fromBigInteger(delta, modulus),
             rand, modulusBigInteger.bitLength());
         Map<Integer, FieldElement> comms = new HashMap<>();
         comm = new MaliciousSpdzCommitProtocol(commitment, comms, corruptCommitRound);

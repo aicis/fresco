@@ -5,8 +5,7 @@ import static org.junit.Assert.assertThat;
 
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
-import dk.alexandra.fresco.framework.builder.numeric.BigIntMutable;
+import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
@@ -26,7 +25,6 @@ import dk.alexandra.fresco.logging.arithmetic.NumericLoggingDecorator;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePool;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -75,7 +73,7 @@ public class TestNumericSuiteLoggingDecorators {
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  noOfParties, mod, bytes -> BigInt.fromBytes(bytes, mod)),
+                  noOfParties, mod, bytes -> FieldInteger.fromBytes(bytes, mod)),
               () -> new SocketNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }
@@ -141,7 +139,7 @@ public class TestNumericSuiteLoggingDecorators {
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  noOfParties, mod, bytes -> BigInt.fromBytes(bytes, mod)),
+                  noOfParties, mod, bytes -> FieldInteger.fromBytes(bytes, mod)),
               () -> new SocketNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }

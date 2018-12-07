@@ -11,47 +11,42 @@ public final class Modulus implements Serializable {
   private static final Logger logger = LoggerFactory.getLogger(Modulus.class);
 
   private BigInteger bigInteger;
-  private final BigIntMutable bigIntMutable;
+  private BigIntMutable bigIntImmutable;
 
   public Modulus(BigInteger modulus) {
     if (modulus == null) {
       throw new IllegalArgumentException("modulus cannot be null");
     }
     this.bigInteger = modulus;
-    logger.debug("Converting BigInteger to BigIntMutable");
-    bigIntMutable = new BigIntMutable(bigInteger.toString());
-    ensureModulus();
   }
 
   public Modulus(BigIntMutable modulus) {
     if (modulus == null) {
       throw new IllegalArgumentException("modulus cannot be null");
     }
-    this.bigIntMutable = modulus;
+    this.bigIntImmutable = modulus;
   }
 
   public Modulus(int modulus) {
-    this(new BigIntMutable(modulus));
+    this(BigInteger.valueOf(modulus));
   }
 
   public Modulus(String modulus) {
-    this(new BigIntMutable(modulus));
+    this(new BigInteger(modulus));
   }
 
-  private void ensureModulus() {
-    if (bigInteger == null && bigIntMutable == null) {
-      throw new IllegalArgumentException("modulus cannot be null");
+  public BigIntMutable getBigIntImmutable() {
+    if (bigInteger == null) {
+      logger.debug("Converting BigInteger to BigIntMutable");
+      bigIntImmutable = new BigIntMutable(bigInteger.toString());
     }
-  }
-
-  public BigIntMutable getBigIntMutable() {
-    return bigIntMutable;
+    return bigIntImmutable;
   }
 
   public BigInteger getBigInteger() {
     if (bigInteger == null) {
       logger.debug("Converting BigIntMutable to BigInteger");
-      bigInteger = new BigInteger(bigIntMutable.toString());
+      bigInteger = new BigInteger(bigIntImmutable.toString());
     }
     return bigInteger;
   }
@@ -65,12 +60,12 @@ public final class Modulus implements Serializable {
       return false;
     }
     Modulus modulus = (Modulus) o;
-    return Objects.equals(bigIntMutable, modulus.bigIntMutable);
+    return Objects.equals(bigIntImmutable, modulus.bigIntImmutable);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(bigIntMutable);
+    return Objects.hash(bigIntImmutable);
   }
 
   @Override
@@ -78,6 +73,6 @@ public final class Modulus implements Serializable {
     if (bigInteger != null) {
       return bigInteger.toString();
     }
-    return bigIntMutable.toString();
+    return bigIntImmutable.toString();
   }
 }

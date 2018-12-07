@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.lib.math.integer.stat;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
@@ -30,7 +30,7 @@ public class TestStatistics {
   }
 
   private DummyArithmeticSInt createSInt(int value) {
-    return new DummyArithmeticSInt(new BigInt(value, modulus));
+    return new DummyArithmeticSInt(new FieldInteger(value, modulus));
   }
 
   @Test(expected = IllegalArgumentException.class)

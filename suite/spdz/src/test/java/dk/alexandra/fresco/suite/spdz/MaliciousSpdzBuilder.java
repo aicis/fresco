@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
@@ -115,6 +115,6 @@ public class MaliciousSpdzBuilder extends SpdzBuilder {
   }
 
   private FieldElement convert(BigInteger value) {
-    return BigInt.fromBigInteger(value, getBasicNumericContext().getModulus());
+    return FieldInteger.fromBigInteger(value, getBasicNumericContext().getModulus());
   }
 }

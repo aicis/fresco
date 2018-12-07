@@ -1,9 +1,7 @@
 package dk.alexandra.fresco.tools.mascot;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
-import java.math.BigInteger;
 import java.util.Map;
 import org.junit.After;
 import org.junit.Before;

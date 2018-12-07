@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.demo.cli;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
@@ -28,7 +28,6 @@ import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproResourcePool;
 import dk.alexandra.fresco.suite.tinytables.util.Util;
 import dk.alexandra.fresco.tools.ot.base.DhParameters;
 import java.io.File;
-import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Properties;
 
@@ -63,7 +62,7 @@ public class CmdLineProtocolSuite {
               + "54255445443244279389455058889493431223951165286470575994074291745908195329"));
       this.resourcePool =
           new DummyArithmeticResourcePoolImpl(myId, noOfPlayers, mod,
-              bytes -> BigInt.fromBytes(bytes, mod));
+              bytes -> FieldInteger.fromBytes(bytes, mod));
     } else if (protocolSuiteName.equals("spdz")) {
       this.protocolSuite = getSpdzProtocolSuite(properties);
       this.resourcePool =

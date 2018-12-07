@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
@@ -57,7 +57,7 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
   public ByteSerializer<FieldElement> getSerializer() {
     // TODO Define by the user of this class
     return new BigIntegerWithFixedLengthSerializer(modulusSize,
-        bytes -> BigInt.fromBytes(bytes, modulus));
+        bytes -> FieldInteger.fromBytes(bytes, modulus));
   }
 
   @Override

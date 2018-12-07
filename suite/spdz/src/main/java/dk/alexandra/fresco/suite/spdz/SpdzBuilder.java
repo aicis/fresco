@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
@@ -149,7 +149,7 @@ class SpdzBuilder implements BuilderFactoryNumeric {
 
   private FieldElement convert(BigInteger bigInteger) {
     // TODO Define this in the config
-    return BigInt.fromBigInteger(bigInteger, basicNumericContext.getModulus());
+    return FieldInteger.fromBigInteger(bigInteger, basicNumericContext.getModulus());
   }
 
   @Override

@@ -1,7 +1,6 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
-import dk.alexandra.fresco.framework.builder.numeric.BigIntMutable;
+import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -20,10 +19,10 @@ public class TestFakeTripGen {
   private static final Modulus modulus = new Modulus("670390396497129854978701249912381411527384857"
       + "747113652742596601302650153670646435425544544324427938945505888949343122395116528647057599"
       + "4074291745908195329");
-  private static final FieldElement alpha = new BigInt("50815870414411794389326350986203198"
+  private static final FieldElement alpha = new FieldInteger("50815870414411794389326350986203198"
       + "947163686280292842928804080867034380413312008779802137700355698122966779351187154546507494"
       + "02237663859711459266577679205", modulus);
-  private FieldElement zero = new BigInt(10, modulus);
+  private FieldElement zero = new FieldInteger(10, modulus);
 
   @Test
   public void testTripleGen() {
@@ -42,7 +41,7 @@ public class TestFakeTripGen {
       FieldElement actual = a.multiply(b);
       Assert.assertEquals(c, actual);
 
-      FieldElement zero = new BigInt(0, modulus);
+      FieldElement zero = new FieldInteger(0, modulus);
 
       Assert.assertEquals(zero, subtract(a, shareA));
       Assert.assertEquals(zero, subtract(b, shareB));
@@ -144,7 +143,7 @@ public class TestFakeTripGen {
   @Test
   public void testElementToBytes() {
     SpdzSInt element = new SpdzSInt(
-        new BigInt(200, modulus), new BigInt(1, modulus));
+        new FieldInteger(200, modulus), new FieldInteger(1, modulus));
     ByteBuffer buf = FakeTripGen.elementToBytes(element, 1);
     byte[] arr = buf.array();
     Assert.assertArrayEquals(new byte[]{(byte) 200, 1}, arr);
@@ -156,8 +155,8 @@ public class TestFakeTripGen {
 
     }
 
-    element = new SpdzSInt(new BigInt(1, modulus),
-        new BigInt(200, modulus));
+    element = new SpdzSInt(new FieldInteger(1, modulus),
+        new FieldInteger(200, modulus));
     buf = FakeTripGen.elementToBytes(element, 1);
     arr = buf.array();
     Assert.assertArrayEquals(new byte[]{1, (byte) 200}, arr);
@@ -171,7 +170,7 @@ public class TestFakeTripGen {
 
   @Test
   public void testBigIntToBytes() {
-    FieldElement b = new BigInt(200, modulus);
+    FieldElement b = new FieldInteger(200, modulus);
     int size = 1;
     ByteBuffer buf = FakeTripGen.bigIntToBytes(b, size);
     byte[] arr = buf.array();

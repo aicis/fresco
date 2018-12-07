@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.lib.statistics;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.BigIntMutable;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.value.SInt;
@@ -89,7 +89,7 @@ public class RandomDataDeaTest {
   }
 
   private DummyArithmeticSInt getValue() {
-    return new DummyArithmeticSInt(new BigInt(1, modulus));
+    return new DummyArithmeticSInt(new FieldInteger(1, modulus));
   }
 
   @Test

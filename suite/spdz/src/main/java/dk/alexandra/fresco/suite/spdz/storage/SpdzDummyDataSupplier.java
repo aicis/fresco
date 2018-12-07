@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.util.ArithmeticDummyDataSupplier;
@@ -48,7 +48,7 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
     this.expPipeLength = expPipeLength;
     this.supplier = new ArithmeticDummyDataSupplier(myId, noOfPlayers, modulus.getBigInteger());
     // TODO this should be defined in the config by the user
-    this.converter = bigInteger -> BigInt.fromBigInteger(bigInteger, modulus);
+    this.converter = bigInteger -> FieldInteger.fromBigInteger(bigInteger, modulus);
   }
 
   @Override

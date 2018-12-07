@@ -4,7 +4,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -45,7 +45,7 @@ public class TestSpdzSInt {
   }
 
   private FieldElement getI(int i) {
-    return BigInt.fromBigInteger(BigInteger.valueOf(i), new Modulus(123456));
+    return FieldInteger.fromBigInteger(BigInteger.valueOf(i), new Modulus(123456));
   }
 
   @Test

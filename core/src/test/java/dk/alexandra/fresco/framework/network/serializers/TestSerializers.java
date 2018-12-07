@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.framework.network.serializers;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.BigIntMutable;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
@@ -49,8 +49,8 @@ public class TestSerializers {
   private void testNumber(BigInteger original) {
     Modulus modulus = new Modulus(new BigIntMutable("1234567890123456789"));
     BigIntegerWithFixedLengthSerializer serializer =
-        new BigIntegerWithFixedLengthSerializer(20, bytes -> BigInt.fromBytes(bytes, modulus));
-    byte[] bytes = serializer.serialize(BigInt.fromBigInteger(original, modulus));
+        new BigIntegerWithFixedLengthSerializer(20, bytes -> FieldInteger.fromBytes(bytes, modulus));
+    byte[] bytes = serializer.serialize(FieldInteger.fromBigInteger(original, modulus));
     FieldElement deserializeLargeNumber = serializer.deserialize(bytes);
     Assert.assertEquals(original, deserializeLargeNumber.asBigInteger());
   }
@@ -60,12 +60,12 @@ public class TestSerializers {
     BigInteger original = new BigInteger("1298376217321832");
     Modulus modulus = new Modulus(new BigIntMutable("1298376217321832123"));
     BigIntegerWithFixedLengthSerializer serializer = new BigIntegerWithFixedLengthSerializer(20,
-        bytes -> BigInt.fromBytes(bytes, modulus));
+        bytes -> FieldInteger.fromBytes(bytes, modulus));
     byte[] bytes = serializer.serialize(
         Arrays.asList(
-            new BigInt(original.toString(), modulus),
-            new BigInt(0, modulus),
-            new BigInt(10, modulus)));
+            new FieldInteger(original.toString(), modulus),
+            new FieldInteger(0, modulus),
+            new FieldInteger(10, modulus)));
 
     List<FieldElement> bb = serializer.deserializeList(bytes);
     Assert.assertEquals(original, bb.get(0).asBigInteger());

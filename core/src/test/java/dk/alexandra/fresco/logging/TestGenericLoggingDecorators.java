@@ -6,7 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
@@ -24,7 +24,6 @@ import dk.alexandra.fresco.lib.compare.CompareTests;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePool;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -68,7 +67,7 @@ public class TestGenericLoggingDecorators {
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  netConf.keySet().size(), mod, bytes -> BigInt.fromBytes(bytes, mod)),
+                  netConf.keySet().size(), mod, bytes -> FieldInteger.fromBytes(bytes, mod)),
               () -> new SocketNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }
@@ -110,7 +109,7 @@ public class TestGenericLoggingDecorators {
           .TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  netConf.keySet().size(), mod, bytes -> BigInt.fromBytes(bytes, mod)),
+                  netConf.keySet().size(), mod, bytes -> FieldInteger.fromBytes(bytes, mod)),
               () -> {
                 NetworkLoggingDecorator network = new NetworkLoggingDecorator(
                     new SocketNetwork(partyNetConf));
@@ -169,7 +168,7 @@ public class TestGenericLoggingDecorators {
       TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
           new TestThreadRunner.TestThreadConfiguration<>(sce,
               () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  netConf.keySet().size(), mod, bytes -> BigInt.fromBytes(bytes, mod)),
+                  netConf.keySet().size(), mod, bytes -> FieldInteger.fromBytes(bytes, mod)),
               () -> new SocketNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }

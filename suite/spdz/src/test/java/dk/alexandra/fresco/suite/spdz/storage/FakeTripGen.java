@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -364,14 +364,15 @@ public class FakeTripGen {
     for (int j = 0; j < amount; j++) {
       SpdzSInt[][] expPipe = new SpdzSInt[noOfParties][EXP_PIPE_SIZE];
       FieldElement r = sample();
-      FieldElement rInv = BigInt.fromBigInteger(r.asBigInteger().modInverse(mod.getBigInteger()), mod);
+      FieldElement rInv = FieldInteger
+          .fromBigInteger(r.asBigInteger().modInverse(mod.getBigInteger()), mod);
       FieldElement mac = getMac(rInv);
       List<SpdzSInt> elements = toShares(rInv, mac, noOfParties);
       for (int i = 0; i < noOfParties; i++) {
         expPipe[i][0] = elements.get(i);
       }
 
-      FieldElement exp = BigInt.fromBigInteger(BigInteger.ONE, modulus);
+      FieldElement exp = FieldInteger.fromBigInteger(BigInteger.ONE, modulus);
       for (int i = 1; i < EXP_PIPE_SIZE; i++) {
         exp = exp.multiply(r);
         mac = getMac(exp);
@@ -395,14 +396,15 @@ public class FakeTripGen {
       for (int j = 0; j < amount; j++) {
         SpdzSInt[][] expPipe = new SpdzSInt[noOfParties][EXP_PIPE_SIZE];
         FieldElement r = sample();
-        FieldElement rInv = BigInt.fromBigInteger(r.asBigInteger().modInverse(mod.getBigInteger()), mod);
+        FieldElement rInv = FieldInteger
+            .fromBigInteger(r.asBigInteger().modInverse(mod.getBigInteger()), mod);
         FieldElement mac = getMac(rInv);
         List<SpdzSInt> elements = toShares(rInv, mac, noOfParties);
         for (int i = 0; i < noOfParties; i++) {
           expPipe[i][0] = elements.get(i);
         }
 
-        FieldElement exp = BigInt.fromBigInteger(BigInteger.ONE, modulus);
+        FieldElement exp = FieldInteger.fromBigInteger(BigInteger.ONE, modulus);
         for (int i = 1; i < EXP_PIPE_SIZE; i++) {
           exp = exp.multiply(r);
           mac = getMac(exp);
@@ -728,9 +730,10 @@ public class FakeTripGen {
     }
     for (int j = 0; j < numberOfExps; j++) {
       FieldElement r = sample();
-      FieldElement rInv = BigInt.fromBigInteger(r.asBigInteger().modInverse(mod.getBigInteger()), mod);
+      FieldElement rInv = FieldInteger
+          .fromBigInteger(r.asBigInteger().modInverse(mod.getBigInteger()), mod);
       writeAsShared(rInv, channels);
-      FieldElement exp = BigInt.fromBigInteger(BigInteger.ONE, mod);
+      FieldElement exp = FieldInteger.fromBigInteger(BigInteger.ONE, mod);
       for (int i = 1; i < EXP_PIPE_SIZE; i++) {
         exp = exp.multiply(r);
         writeAsShared(exp, channels);
@@ -806,7 +809,7 @@ public class FakeTripGen {
   }
 
   private static FieldElement sampleRandomBits(int bitLength, Random rand) {
-    return BigInt.fromBigInteger(new BigInteger(bitLength, rand), mod);
+    return FieldInteger.fromBigInteger(new BigInteger(bitLength, rand), mod);
   }
 
   public static void cleanup() throws IOException {

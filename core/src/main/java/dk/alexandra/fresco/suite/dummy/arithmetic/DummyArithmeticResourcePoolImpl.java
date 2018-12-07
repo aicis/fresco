@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.dummy.arithmetic;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigInt;
+import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
@@ -9,7 +9,6 @@ import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.value.SInt;
-import java.math.BigInteger;
 import java.util.function.Function;
 
 /**
@@ -30,7 +29,7 @@ public class DummyArithmeticResourcePoolImpl extends ResourcePoolImpl
    */
   public DummyArithmeticResourcePoolImpl(int myId, int noOfPlayers) {
     this(myId, noOfPlayers, ModulusFinder.findSuitableModulus(128),
-        (bytes) -> BigInt.fromBytes(bytes, ModulusFinder.findSuitableModulus(128)));
+        (bytes) -> FieldInteger.fromBytes(bytes, ModulusFinder.findSuitableModulus(128)));
   }
 
   /**
