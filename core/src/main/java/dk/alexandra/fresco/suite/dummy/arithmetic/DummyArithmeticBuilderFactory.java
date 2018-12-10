@@ -4,6 +4,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElementBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
@@ -92,12 +93,10 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
           public EvaluationStatus evaluate(int round, DummyArithmeticResourcePool resourcePool,
               Network network) {
             BigInteger r;
+            Modulus modulus = basicNumericContext.getFieldDefinition().getModulus();
             do {
-              r = new BigInteger(basicNumericContext.getFieldDefinition().getModulus().bitLength(),
-                  rand);
-            } while (
-                r.compareTo(basicNumericContext.getFieldDefinition().getModulus().getBigInteger())
-                    >= 0);
+              r = new BigInteger(modulus.bitLength(), rand);
+            } while (r.compareTo(modulus.getBigInteger()) >= 0);
             elm = createSIntFromConstant(r);
             return EvaluationStatus.IS_DONE;
           }

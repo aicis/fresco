@@ -41,8 +41,7 @@ public final class ModulusBigInteger implements Modulus<BigInteger> {
 
   @Override
   public int bitLength() {
-    // todo bit length
-    return 0;
+    return getBigInteger().bitLength();
   }
 
   @Override
