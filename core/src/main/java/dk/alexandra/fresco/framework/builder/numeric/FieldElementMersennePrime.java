@@ -62,7 +62,7 @@ public class FieldElementMersennePrime implements FieldElement {
       BiConsumer<MersennePrimeInteger, MersennePrimeInteger> operation,
       FieldElement operand) {
     MersennePrimeInteger copy = value.copy();
-    operation.accept(copy, (MersennePrimeInteger) operand);
+    operation.accept(copy, ((FieldElementMersennePrime) operand).value);
     copy.mod((MersennePrimeInteger) modulus.get());
     return new FieldElementMersennePrime(copy, modulus);
   }

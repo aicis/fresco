@@ -50,13 +50,13 @@ public final class ModulusMersennePrime implements Modulus<MersennePrimeInteger>
   @Override
   public int bytesLength() {
     // todo EOA implement
-    return 0;
+    return getBigInteger().toByteArray().length;
   }
 
   @Override
   public int bitLength() {
     // todo EOA implement
-    return 0;
+    return getBigInteger().bitLength();
   }
 
   @Override
