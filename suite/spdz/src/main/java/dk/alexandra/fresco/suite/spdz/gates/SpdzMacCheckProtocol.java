@@ -53,21 +53,35 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
 
   @Override
   public DRes<Void> buildComputation(ProtocolBuilderNumeric builder) {
-    return builder
-        .seq(seq -> {
-          BigInteger[] rs = sampleRandomCoefficients(openedValues.size(), jointDrbg, modulus);
-          BigInteger a = BigInteger.ZERO;
-          int index = 0;
-          for (BigInteger openedValue : openedValues) {
-            a = a.add(openedValue.multiply(rs[index++])).mod(modulus);
+    final SpdzCommitment commitment = new SpdzCommitment(digest,
+        new BigInteger(modulus.bitLength(), rand).mod(modulus), rand);
+    return builder.seq((seq) -> seq.append(new SpdzCommitProtocol(commitment)))
+        .seq((seq, commitProtocol) ->
+            seq.append(new SpdzOpenCommitProtocol(commitment, commitProtocol)))
+        .seq((seq, openCommit) -> {
+          // Add all s's to get the common random value:
+          BigInteger sum = BigInteger.ZERO;
+          for (BigInteger otherS : openCommit.values()) {
+            sum = sum.add(otherS);
           }
 
-          // compute gamma_i as the sum of all MAC's on the opened values times
-          // r_j.
+          int openedValuesSize = openedValues.size();
+
+          BigInteger[] rs = new BigInteger[openedValuesSize];
+          BigInteger temporaryR = sum;
+          for (int i = 0; i < openedValuesSize; i++) {
+            temporaryR = new BigInteger(digest.digest(temporaryR.toByteArray())).mod(modulus);
+            rs[i] = temporaryR;
+          }
+          BigInteger a = BigInteger.ZERO;
+          int index = 0;
+          for (BigInteger aa : openedValues) {
+            a = a.add(aa.multiply(rs[index++])).mod(modulus);
+          }
           BigInteger gamma = BigInteger.ZERO;
           index = 0;
-          for (SpdzSInt closedValue : closedValues) {
-            gamma = gamma.add(rs[index++].multiply(closedValue.getMac())).mod(modulus);
+          for (SpdzSInt c : closedValues) {
+            gamma = gamma.add(rs[index++].multiply(c.getMac())).mod(modulus);
           }
 
           // compute delta_i as: gamma_i - alpha_i*a
@@ -97,16 +111,4 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
           return null;
         });
   }
-
-  private BigInteger[] sampleRandomCoefficients(int numCoefficients, Drbg jointDrbg,
-      BigInteger modulus) {
-    BigInteger[] coefficients = new BigInteger[numCoefficients];
-    for (int i = 0; i < numCoefficients; i++) {
-      byte[] bytes = new byte[modulus.bitLength() / Byte.SIZE];
-      jointDrbg.nextBytes(bytes);
-      coefficients[i] = new BigInteger(bytes).mod(modulus);
-    }
-    return coefficients;
-  }
-
 }
