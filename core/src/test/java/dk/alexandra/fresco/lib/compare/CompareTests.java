@@ -160,7 +160,7 @@ public class CompareTests {
           Application<List<BigInteger>, ProtocolBuilderNumeric> app = builder -> {
             Numeric input = builder.numeric();
             Comparison comparison = builder.comparison();
-            Modulus modulus = builder.getBasicNumericContext().getModulus();
+            Modulus modulus = builder.getBasicNumericContext().getFieldDefinition().getModulus();
 
             // check (mod / 2) == (mod / 2)
             DRes<SInt> compResultOne = comparison

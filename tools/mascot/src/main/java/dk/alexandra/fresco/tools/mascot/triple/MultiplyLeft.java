@@ -62,7 +62,8 @@ class MultiplyLeft {
   public List<MascotFieldElement> multiply(List<MascotFieldElement> leftFactors) {
     List<StrictBitVector> seeds = multiplyLeftHelper.generateSeeds(leftFactors,
         resourcePool.getModBitLength());
-    List<MascotFieldElement> feSeeds = seedsToFieldElements(seeds, resourcePool.getModulus());
+    List<MascotFieldElement> feSeeds = seedsToFieldElements(seeds,
+        resourcePool.getFieldDefinition().getModulus());
     // receive diffs from other party
     List<MascotFieldElement> diffs =
         resourcePool.getFieldElementSerializer()

@@ -11,8 +11,7 @@ import java.math.BigInteger;
 /**
  * MiMC encryption is a symmetric cipher which can be used to great effect when utilizing it within
  * MPC. Implementation is done using <a href="https://eprint.iacr.org/2016/492.pdf">this paper</a>
- * as base line. Encryption is both simple and fast, but decryption is a heavy operation. 
- *
+ * as base line. Encryption is both simple and fast, but decryption is a heavy operation.
  */
 public class MiMCEncryption implements Computation<SInt, ProtocolBuilderNumeric> {
 
@@ -48,15 +47,14 @@ public class MiMCEncryption implements Computation<SInt, ProtocolBuilderNumeric>
     this(plainText, encryptionKey, null);
   }
 
-
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
     final int requiredRounds = getRequiredRounds(builder.getBasicNumericContext(), requestedRounds);
     BigInteger three = BigInteger.valueOf(3);
     /*
      * In the first round we compute c = (p + K)^{3}
-		 * where p is the plain text.
-		 */
+     * where p is the plain text.
+     */
     return builder.seq(seq -> {
       DRes<SInt> add = seq.numeric().add(plainText, encryptionKey);
       return new IterationState(1, seq.advancedNumeric().exp(add, three));
@@ -72,8 +70,8 @@ public class MiMCEncryption implements Computation<SInt, ProtocolBuilderNumeric>
            * c_{i - 1} is the cipher text we have computed
            * in the previous round
            */
-          BigInteger roundConstantInteger = MiMCConstants
-              .getConstant(state.round, seq.getBasicNumericContext().getModulus());
+          BigInteger roundConstantInteger = MiMCConstants.getConstant(state.round,
+              seq.getBasicNumericContext().getFieldDefinition().getModulus());
           Numeric numeric = seq.numeric();
           DRes<SInt> masked = numeric.add(
               roundConstantInteger,
@@ -94,14 +92,13 @@ public class MiMCEncryption implements Computation<SInt, ProtocolBuilderNumeric>
   static int getRequiredRounds(BasicNumericContext basicNumericContext, Integer requestedRounds) {
     final int requiredRounds;
     if (requestedRounds == null) {
-      BigInteger modulus = basicNumericContext.getModulus().getBigInteger();
+      BigInteger modulus = basicNumericContext.getFieldDefinition().getModulus().getBigInteger();
       requiredRounds = (int) Math.ceil(Math.log(modulus.doubleValue()) / Math.log(3));
     } else {
       requiredRounds = requestedRounds;
     }
     return requiredRounds;
   }
-
 
   private static final class IterationState implements DRes<IterationState> {
 

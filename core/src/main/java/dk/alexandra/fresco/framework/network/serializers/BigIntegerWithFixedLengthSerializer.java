@@ -1,10 +1,10 @@
 package dk.alexandra.fresco.framework.network.serializers;
 
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * Serializes {@link BigInteger} to byte arrays using knowledge about the length
@@ -13,18 +13,17 @@ import java.util.function.Function;
 public class BigIntegerWithFixedLengthSerializer implements ByteSerializer<FieldElement> {
 
   private final int byteLength;
-  private final Function<byte[], FieldElement> bigIntegerSupplier;
+  private FieldDefinition fieldDefinition;
 
   /**
    * Creates a new instance that adhere to the interface.
    *
    * @param byteLength the amount of bytes intended to be serialized
-   * @param bigIntegerSupplier the bigInteger deserialization bound to the implementation
+   * @param fieldDefinition definition of field bound to the implementation
    */
-  public BigIntegerWithFixedLengthSerializer(
-      int byteLength, Function<byte[], FieldElement> bigIntegerSupplier) {
+  public BigIntegerWithFixedLengthSerializer(int byteLength, FieldDefinition fieldDefinition) {
     this.byteLength = byteLength;
-    this.bigIntegerSupplier = bigIntegerSupplier;
+    this.fieldDefinition = fieldDefinition;
   }
 
   @Override
@@ -46,7 +45,7 @@ public class BigIntegerWithFixedLengthSerializer implements ByteSerializer<Field
 
   @Override
   public FieldElement deserialize(byte[] data) {
-    return bigIntegerSupplier.apply(data);
+    return fieldDefinition.deserialize(data, 0, byteLength);
   }
 
   @Override
@@ -56,7 +55,7 @@ public class BigIntegerWithFixedLengthSerializer implements ByteSerializer<Field
     while (offset < data.length) {
       byte[] subArray = new byte[byteLength];
       System.arraycopy(data, offset, subArray, 0, byteLength);
-      result.add(bigIntegerSupplier.apply(subArray));
+      result.add(deserialize(subArray));
       offset += byteLength;
     }
     return result;

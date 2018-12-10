@@ -1,6 +1,7 @@
 package dk.alexandra.fresco.tools.mascot.field;
 
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.util.MathUtils;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.arithm.Addable;
@@ -32,7 +33,7 @@ public final class MascotFieldElement implements Addable<MascotFieldElement> {
   }
 
   public MascotFieldElement(String value, String modulus) {
-    this(new BigInteger(value), new Modulus(modulus));
+    this(new BigInteger(value), new ModulusBigInteger(modulus));
   }
 
   public MascotFieldElement(long value, Modulus modulus) {

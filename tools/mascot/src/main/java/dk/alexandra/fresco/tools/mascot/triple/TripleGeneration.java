@@ -5,8 +5,8 @@ import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.arithm.Addable;
 import dk.alexandra.fresco.tools.mascot.elgen.ElementGeneration;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
-import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementUtils;
+import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public class TripleGeneration {
   public TripleGeneration(MascotResourcePool resourcePool, Network network,
       ElementGeneration elementGeneration, FieldElementPrg jointSampler) {
     this.resourcePool = resourcePool;
-    this.fieldElementUtils = new FieldElementUtils(resourcePool.getModulus());
+    this.fieldElementUtils = new FieldElementUtils(resourcePool.getFieldDefinition().getModulus());
     this.leftMultipliers = new HashMap<>();
     this.rightMultipliers = new HashMap<>();
     initializeMultipliers(resourcePool, network);
@@ -83,11 +83,11 @@ public class TripleGeneration {
   public List<MultiplicationTriple> triple(int numTriples) {
     // generate random left factor groups
     List<MascotFieldElement> leftFactorGroups = resourcePool.getLocalSampler()
-        .getNext(resourcePool.getModulus(),
+        .getNext(resourcePool.getFieldDefinition().getModulus(),
             numTriples * resourcePool.getNumCandidatesPerTriple());
     // generate random right factors
     List<MascotFieldElement> rightFactors = resourcePool.getLocalSampler()
-        .getNext(resourcePool.getModulus(), numTriples);
+        .getNext(resourcePool.getFieldDefinition().getModulus(), numTriples);
     // compute product groups
     List<MascotFieldElement> productGroups = multiply(leftFactorGroups, rightFactors);
     // combine into unauthenticated triples
@@ -160,11 +160,11 @@ public class TripleGeneration {
     int numTriples = triples.size();
 
     List<List<MascotFieldElement>> masks = jointSampler
-        .getNext(resourcePool.getModulus(), numTriples,
+        .getNext(resourcePool.getFieldDefinition().getModulus(), numTriples,
             resourcePool.getNumCandidatesPerTriple());
 
     List<List<MascotFieldElement>> sacrificeMasks = jointSampler
-        .getNext(resourcePool.getModulus(),
+        .getNext(resourcePool.getFieldDefinition().getModulus(),
             numTriples, resourcePool.getNumCandidatesPerTriple());
 
     // step 2 of protocol
@@ -205,7 +205,7 @@ public class TripleGeneration {
   private List<MultiplicationTriple> sacrifice(List<AuthenticatedCandidate> candidates) {
     // step 1 or protocol
     List<MascotFieldElement> randomCoefficients = jointSampler
-        .getNext(resourcePool.getModulus(), candidates.size());
+        .getNext(resourcePool.getFieldDefinition().getModulus(), candidates.size());
 
     // step 2
     // compute masked values we will open and use in mac-check
@@ -224,7 +224,7 @@ public class TripleGeneration {
     rhos.addAll(sigmas);
     // pad open rhos with zeroes, one for each sigma
     List<MascotFieldElement> paddedRhos = fieldElementUtils.padWith(openRhos,
-        new MascotFieldElement(0, resourcePool.getModulus()), sigmas.size());
+        new MascotFieldElement(0, resourcePool.getFieldDefinition().getModulus()), sigmas.size());
     // run mac-check
     elementGeneration.check(rhos, paddedRhos);
 

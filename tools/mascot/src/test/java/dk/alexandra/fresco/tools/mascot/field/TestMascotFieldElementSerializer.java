@@ -3,19 +3,16 @@ package dk.alexandra.fresco.tools.mascot.field;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import dk.alexandra.fresco.tools.mascot.MascotTestUtils;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.junit.Test;
 
 public class TestMascotFieldElementSerializer {
 
-  public static Modulus modulus = new Modulus("65521");
-  public static int modBitLength = 16;
+  public static ModulusBigInteger modulus = new ModulusBigInteger("65521");
   public static FieldElementSerializer serializer =
       new FieldElementSerializer(modulus);
 
@@ -64,14 +61,15 @@ public class TestMascotFieldElementSerializer {
 
   @Test(expected = IllegalArgumentException.class)
   public void testSerializeWrongModulusSingleElement() {
-    MascotFieldElement element = new MascotFieldElement(1, new Modulus("251"));
+    MascotFieldElement element = new MascotFieldElement(1, new ModulusBigInteger("251"));
     serializer.serialize(element);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testSerializeWrongModulus() {
     int[] arr = {1, 42, 123, 111};
-    List<MascotFieldElement> elements = MascotTestUtils.generateSingleRow(arr, new Modulus("251"));
+    List<MascotFieldElement> elements = MascotTestUtils
+        .generateSingleRow(arr, new ModulusBigInteger("251"));
     serializer.serialize(elements);
   }
 

@@ -8,7 +8,7 @@ import dk.alexandra.fresco.framework.value.SInt;
 import java.math.BigInteger;
 
 /**
- * Computes the inverse of an element within the field of operation. 
+ * Computes the inverse of an element within the field of operation.
  */
 public class Inversion implements Computation<SInt, ProtocolBuilderNumeric> {
 
@@ -26,7 +26,8 @@ public class Inversion implements Computation<SInt, ProtocolBuilderNumeric> {
     DRes<BigInteger> open = numeric.open(product);
     return builder.seq((seq) -> {
       BigInteger value = open.out();
-      BigInteger inverse = value.modInverse(seq.getBasicNumericContext().getModulus().getBigInteger());
+      BigInteger inverse = value.modInverse(
+          seq.getBasicNumericContext().getFieldDefinition().getModulus().getBigInteger());
       return seq.numeric().mult(inverse, random);
     });
   }

@@ -3,7 +3,7 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.builder.numeric.BuilderFactoryNumeric;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.NativeFieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElementBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.network.Network;
@@ -41,7 +41,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
     this.realNumericContext = realNumericContext;
     this.rand = new Random(0);
     this.bigIntegerSupplier = (number) ->
-        new NativeFieldElement(number, basicNumericContext.getModulus());
+        new FieldElementBigInteger(number, basicNumericContext.getFieldDefinition().getModulus());
   }
 
   @Override
@@ -93,8 +93,11 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
               Network network) {
             BigInteger r;
             do {
-              r = new BigInteger(basicNumericContext.getModulus().getBigInteger().bitLength(), rand);
-            } while (r.compareTo(basicNumericContext.getModulus().getBigInteger()) >= 0);
+              r = new BigInteger(basicNumericContext.getFieldDefinition().getModulus().bitLength(),
+                  rand);
+            } while (
+                r.compareTo(basicNumericContext.getFieldDefinition().getModulus().getBigInteger())
+                    >= 0);
             elm = createSIntFromConstant(r);
             return EvaluationStatus.IS_DONE;
           }
@@ -200,7 +203,7 @@ public class DummyArithmeticBuilderFactory implements BuilderFactoryNumeric {
   @Override
   public MiscBigIntegerGenerators getBigIntegerHelper() {
     if (mog == null) {
-      mog = new MiscBigIntegerGenerators(basicNumericContext.getModulus());
+      mog = new MiscBigIntegerGenerators(basicNumericContext.getFieldDefinition().getModulus());
     }
     return mog;
   }

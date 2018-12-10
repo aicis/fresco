@@ -89,9 +89,9 @@ public interface Spdz2kResourcePool<PlainT extends CompUInt<?, ?, PlainT>>
    * value to a negative value depending on the semantics of the plain text type.</p>
    */
   default BigInteger convertRepresentation(PlainT value) {
-    Modulus modulus = getModulus();
+    Modulus modulus = getFieldDefinition().getModulus();
     BigInteger actual = value.toBigInteger().mod(modulus.getBigInteger());
-    if (actual.compareTo(modulus.getBigInteger().divide(BigInteger.valueOf(2))) > 0) {
+    if (actual.compareTo(modulus.half().getBigInteger()) > 0) {
       return actual.subtract(modulus.getBigInteger());
     } else {
       return actual;
@@ -108,6 +108,6 @@ public interface Spdz2kResourcePool<PlainT extends CompUInt<?, ?, PlainT>>
   @Override
   default BigInteger convertRepresentation(FieldElement value) {
     return convertRepresentation(
-        getFactory().createFromBigInteger(value.convertValueToBigInteger()));
+        getFactory().createFromBigInteger(value.convertToBigInteger()));
   }
 }

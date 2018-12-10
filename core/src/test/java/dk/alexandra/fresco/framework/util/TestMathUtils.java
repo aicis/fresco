@@ -2,7 +2,7 @@ package dk.alexandra.fresco.framework.util;
 
 import static org.junit.Assert.assertEquals;
 
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
@@ -10,7 +10,7 @@ import org.junit.Test;
 
 public class TestMathUtils {
 
-  private Modulus modulus = new Modulus("113");
+  private ModulusBigInteger modulus = new ModulusBigInteger("113");
 
   @Test
   public void testIsQuadraticResidue() {
@@ -29,7 +29,7 @@ public class TestMathUtils {
   @Test
   public void testModularSqrtBigModulus() {
     // do 0, 1 and p - 1
-    Modulus bigModulus = new Modulus("340282366920938463463374607431768211283");
+    ModulusBigInteger bigModulus = new ModulusBigInteger("340282366920938463463374607431768211283");
     // chose this number so it has a root
     BigInteger value = new BigInteger("180740608519057052622341767564917758093");
     BigInteger actual = MathUtils.modularSqrt(value, bigModulus);

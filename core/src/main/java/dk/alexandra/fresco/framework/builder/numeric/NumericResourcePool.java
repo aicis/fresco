@@ -17,7 +17,7 @@ public interface NumericResourcePool extends ResourcePool {
    *
    * @return modulus
    */
-  Modulus getModulus();
+  FieldDefinition getFieldDefinition();
 
   /**
    * Takes a unsigned BigInteger and converts it (reasonable) to a signed version.
@@ -26,8 +26,8 @@ public interface NumericResourcePool extends ResourcePool {
    * @return the signed BigInteger
    */
   default BigInteger convertRepresentation(FieldElement value) {
-    BigInteger modulus = getModulus().getBigInteger();
-    BigInteger actual = value.convertValueToBigInteger().mod(modulus);
+    BigInteger modulus = getFieldDefinition().getModulus().getBigInteger();
+    BigInteger actual = value.convertToBigInteger().mod(modulus);
     if (actual.compareTo(modulus.divide(BigInteger.valueOf(2))) > 0) {
       return actual.subtract(modulus);
     } else {

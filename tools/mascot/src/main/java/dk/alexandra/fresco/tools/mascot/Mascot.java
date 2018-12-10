@@ -7,8 +7,8 @@ import dk.alexandra.fresco.tools.mascot.bit.BitConverter;
 import dk.alexandra.fresco.tools.mascot.cointossing.CoinTossingMpc;
 import dk.alexandra.fresco.tools.mascot.elgen.ElementGeneration;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
-import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.field.InputMask;
+import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import dk.alexandra.fresco.tools.mascot.online.OnlinePhase;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
@@ -94,7 +94,7 @@ public class Mascot {
     for (int partyId = 1; partyId <= resourcePool.getNoOfParties(); partyId++) {
       if (partyId == resourcePool.getMyId()) {
         List<MascotFieldElement> randomElements = resourcePool.getLocalSampler()
-            .getNext(resourcePool.getModulus(), numElements);
+            .getNext(resourcePool.getFieldDefinition().getModulus(), numElements);
         perPartyElements.add(elementGeneration.input(randomElements));
       } else {
         perPartyElements.add(elementGeneration.input(partyId, numElements));
@@ -113,7 +113,7 @@ public class Mascot {
   public List<InputMask> getInputMasks(Integer maskerId, int numMasks) {
     if (maskerId.equals(resourcePool.getMyId())) {
       List<MascotFieldElement> randomMasks = resourcePool.getLocalSampler()
-          .getNext(resourcePool.getModulus(), numMasks);
+          .getNext(resourcePool.getFieldDefinition().getModulus(), numMasks);
       List<AuthenticatedElement> authenticated = input(randomMasks);
       return IntStream.range(0, numMasks)
           .mapToObj(idx -> new InputMask(randomMasks.get(idx), authenticated.get(idx)))

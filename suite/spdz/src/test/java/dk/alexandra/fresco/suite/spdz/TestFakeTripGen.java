@@ -1,8 +1,8 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElementMersennePrime;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusMersennePrime;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
@@ -16,13 +16,15 @@ import org.junit.Test;
 
 public class TestFakeTripGen {
 
-  private static final Modulus modulus = new Modulus("670390396497129854978701249912381411527384857"
+  private static final ModulusMersennePrime modulus = new ModulusMersennePrime(
+      "670390396497129854978701249912381411527384857"
       + "747113652742596601302650153670646435425544544324427938945505888949343122395116528647057599"
       + "4074291745908195329");
-  private static final FieldElement alpha = new FieldInteger("50815870414411794389326350986203198"
+  private static final FieldElement alpha = new FieldElementMersennePrime(
+      "50815870414411794389326350986203198"
       + "947163686280292842928804080867034380413312008779802137700355698122966779351187154546507494"
       + "02237663859711459266577679205", modulus);
-  private FieldElement zero = new FieldInteger(0, modulus);
+  private FieldElement zero = new FieldElementMersennePrime(0, modulus);
 
   @Test
   public void testTripleGen() {
@@ -41,7 +43,7 @@ public class TestFakeTripGen {
       FieldElement actual = a.multiply(b);
       Assert.assertEquals(c, actual);
 
-      FieldElement zero = new FieldInteger(0, modulus);
+      FieldElement zero = new FieldElementMersennePrime(0, modulus);
 
       Assert.assertEquals(zero, subtract(a, shareA));
       Assert.assertEquals(zero, subtract(b, shareB));
@@ -108,8 +110,8 @@ public class TestFakeTripGen {
       SpdzSInt[] as = pipe[0];
       SpdzSInt[] bs = pipe[1];
       FieldElement r = as[1].getShare().add(bs[1].getShare());
-      Assert.assertEquals(r.convertValueToBigInteger().modInverse(modulus.getBigInteger()),
-          as[0].getShare().add(bs[0].getShare()).convertValueToBigInteger());
+      Assert.assertEquals(r.convertToBigInteger().modInverse(modulus.getBigInteger()),
+          as[0].getShare().add(bs[0].getShare()).convertToBigInteger());
       FieldElement prevR = r;
       for (int i = 0; i < as.length; i++) {
         FieldElement share = as[i].getShare().add(bs[i].getShare());
@@ -134,8 +136,8 @@ public class TestFakeTripGen {
       FieldElement mac = b[0].getMac().add(b[1].getMac());
 
       Assert.assertTrue(
-          val.convertValueToBigInteger().equals(BigInteger.ZERO)
-              || val.convertValueToBigInteger().equals(BigInteger.ONE));
+          val.convertToBigInteger().equals(BigInteger.ZERO)
+              || val.convertToBigInteger().equals(BigInteger.ONE));
       Assert.assertEquals(zero, subtract(val, mac));
     }
   }
@@ -143,7 +145,7 @@ public class TestFakeTripGen {
   @Test
   public void testElementToBytes() {
     SpdzSInt element = new SpdzSInt(
-        new FieldInteger(200, modulus), new FieldInteger(1, modulus));
+        new FieldElementMersennePrime(200, modulus), new FieldElementMersennePrime(1, modulus));
     ByteBuffer buf = FakeTripGen.elementToBytes(element, 1);
     byte[] arr = buf.array();
     Assert.assertArrayEquals(new byte[]{(byte) 200, 1}, arr);
@@ -155,8 +157,8 @@ public class TestFakeTripGen {
 
     }
 
-    element = new SpdzSInt(new FieldInteger(1, modulus),
-        new FieldInteger(200, modulus));
+    element = new SpdzSInt(new FieldElementMersennePrime(1, modulus),
+        new FieldElementMersennePrime(200, modulus));
     buf = FakeTripGen.elementToBytes(element, 1);
     arr = buf.array();
     Assert.assertArrayEquals(new byte[]{1, (byte) 200}, arr);
@@ -170,7 +172,7 @@ public class TestFakeTripGen {
 
   @Test
   public void testBigIntToBytes() {
-    FieldElement b = new FieldInteger(200, modulus);
+    FieldElement b = new FieldElementMersennePrime(200, modulus);
     int size = 1;
     ByteBuffer buf = FakeTripGen.bigIntToBytes(b, size);
     byte[] arr = buf.array();

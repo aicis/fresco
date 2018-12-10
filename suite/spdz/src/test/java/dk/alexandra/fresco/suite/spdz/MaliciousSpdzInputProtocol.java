@@ -63,7 +63,7 @@ public class MaliciousSpdzInputProtocol extends SpdzNativeProtocol<SInt> {
 
   private byte[] sendMaliciousBroadcastValidation(MessageDigest dig, Network network,
       FieldElement b) {
-    dig.update(b.convertValueToBigInteger().toByteArray());
+    dig.update(b.convertToBigInteger().toByteArray());
     return sendAndReset(dig, network);
   }
 

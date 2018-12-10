@@ -20,7 +20,7 @@ import java.util.concurrent.Future;
  * @author Simon Klein
  * @version 0.7
  */
-public class BigIntMutable extends Number {
+public class MersennePrimeInteger extends Number {
 
   private static final long serialVersionUID = -1;
 
@@ -55,7 +55,7 @@ public class BigIntMutable extends Number {
    * @param len The (first) number of entries of v that are considered part of the number.
    * @complexity O(1)
    */
-  public BigIntMutable(final int sign, final int[] v, final int len) {
+  public MersennePrimeInteger(final int sign, final int[] v, final int len) {
     assign(sign, v, len);
   }
 
@@ -69,7 +69,7 @@ public class BigIntMutable extends Number {
    * @param vlen The (first) number of entries of v that are considered part of the number.
    * @complexity O(n)
    */
-  public BigIntMutable(final int sign, final byte[] v, int vlen) {
+  public MersennePrimeInteger(final int sign, final byte[] v, int vlen) {
     while (vlen > 1 && v[vlen - 1] == 0) {
       --vlen;
     }
@@ -85,7 +85,7 @@ public class BigIntMutable extends Number {
    * @param val The magnitude of the number.
    * @complexity O(1)
    */
-  public BigIntMutable(final int sign, final int val) {
+  public MersennePrimeInteger(final int sign, final int val) {
     dig = new int[1];
     uassign(sign, val);
   }
@@ -98,7 +98,7 @@ public class BigIntMutable extends Number {
    * @param val The magnitude of the number.
    * @complexity O(1)
    */
-  public BigIntMutable(final int sign, final long val) {
+  public MersennePrimeInteger(final int sign, final long val) {
     dig = new int[2];
     uassign(sign, val);
   }
@@ -110,7 +110,7 @@ public class BigIntMutable extends Number {
    * @param val The value of the number.
    * @complexity O(1)
    */
-  public BigIntMutable(final int val) {
+  public MersennePrimeInteger(final int val) {
     dig = new int[1];
     assign(val);
   }
@@ -122,7 +122,7 @@ public class BigIntMutable extends Number {
    * @param val The value of the number.
    * @complexity O(1)
    */
-  public BigIntMutable(final long val) {
+  public MersennePrimeInteger(final long val) {
     dig = new int[2];
     assign(val);
   }
@@ -133,7 +133,7 @@ public class BigIntMutable extends Number {
    * @param s A string representing the number in decimal.
    * @complexity O(n ^ 2)
    */
-  public BigIntMutable(final String s) {
+  public MersennePrimeInteger(final String s) {
     assign(s);
   }
 
@@ -143,7 +143,7 @@ public class BigIntMutable extends Number {
    * @param s A char array representing the number in decimal.
    * @complexity O(n ^ 2)
    */
-  public BigIntMutable(final char[] s) {
+  public MersennePrimeInteger(final char[] s) {
     assign(s);
   }
 
@@ -228,8 +228,8 @@ public class BigIntMutable extends Number {
    * @return The BigIntM copy.
    * @complexity O(n)
    */
-  public BigIntMutable copy() {
-    return new BigIntMutable(sign, Arrays.copyOf(dig, len), len);
+  public MersennePrimeInteger copy() {
+    return new MersennePrimeInteger(sign, Arrays.copyOf(dig, len), len);
   }
 
   /**
@@ -238,7 +238,7 @@ public class BigIntMutable extends Number {
    * @param other The BigIntM to copy/assign to this BigIntM.
    * @complexity O(n)
    */
-  public void assign(final BigIntMutable other) {
+  public void assign(final MersennePrimeInteger other) {
     sign = other.sign;
     assign(other.dig, other.len);
   }
@@ -445,7 +445,7 @@ public class BigIntMutable extends Number {
    * @return -1 if the absolute value of this number is less, 0 if it's equal, 1 if it's greater.
    * @complexity O(n)
    */
-  public int compareAbsTo(final BigIntMutable a) {
+  public int compareAbsTo(final MersennePrimeInteger a) {
     if (len > a.len) {
       return 1;
     }
@@ -471,7 +471,7 @@ public class BigIntMutable extends Number {
    * @return -1 if the value of this number is less, 0 if it's equal, 1 if it's greater.
    * @complexity O(n)
    */
-  public int compareTo(final BigIntMutable a) {
+  public int compareTo(final MersennePrimeInteger a) {
     if (sign < 0) {
       if (a.sign < 0 || a.isZero()) {
         return -compareAbsTo(a);
@@ -491,7 +491,7 @@ public class BigIntMutable extends Number {
    * @return true if the two numbers are equal, false otherwise.
    * @complexity O(n)
    */
-  public boolean equals(final BigIntMutable a) {
+  public boolean equals(final MersennePrimeInteger a) {
     if (len != a.len) {
       return false;
     }
@@ -515,8 +515,8 @@ public class BigIntMutable extends Number {
   @Override
   public boolean equals(final Object o) //Todo: Equality on other Number objects?
   {
-    if (o instanceof BigIntMutable) {
-      return equals((BigIntMutable) o);
+    if (o instanceof MersennePrimeInteger) {
+      return equals((MersennePrimeInteger) o);
     }
     return false;
   }
@@ -1376,7 +1376,7 @@ public class BigIntMutable extends Number {
    * @param a The number to add.
    * @complexity O(n)
    */
-  public void add(final BigIntMutable a) {
+  public void add(final MersennePrimeInteger a) {
     if (sign == a.sign) {
       addMag(a.dig, a.len);
       return;
@@ -1422,7 +1422,7 @@ public class BigIntMutable extends Number {
    * @param a The number to subtract.
    * @complexity O(n)
    */
-  public void sub(final BigIntMutable a) //Fix naming.
+  public void sub(final MersennePrimeInteger a) //Fix naming.
   {
     if (sign != a.sign) {
       addMag(a.dig, a.len);
@@ -1472,7 +1472,7 @@ public class BigIntMutable extends Number {
    * @param mul The number to multiply with.
    * @complexity O(n ^ 2) - O(n log n)
    */
-  public void mul(final BigIntMutable mul) {
+  public void mul(final MersennePrimeInteger mul) {
     if (isZero()) {
       return;
     } else if (mul.isZero()) {
@@ -1508,7 +1508,7 @@ public class BigIntMutable extends Number {
    * @param mul The number to multiply with.
    * @complexity O(n ^ 2)
    */
-  public void smallMul(final BigIntMutable mul) {
+  public void smallMul(final MersennePrimeInteger mul) {
     if (isZero()) {
       return; //Remove?
     }
@@ -1543,7 +1543,7 @@ public class BigIntMutable extends Number {
    * @param mul The number to multiply with.
    * @complexity O(n ^ 1.585)
    */
-  public void karatsuba(final BigIntMutable mul) //Fix naming?
+  public void karatsuba(final MersennePrimeInteger mul) //Fix naming?
   {
     karatsuba(mul, false);
   }
@@ -1556,7 +1556,7 @@ public class BigIntMutable extends Number {
    * @param parallel true if we should try to parallelize the algorithm, false if we shouldn't.
    * @complexity O(n ^ 1.585)
    */
-  public void karatsuba(final BigIntMutable mul,
+  public void karatsuba(final MersennePrimeInteger mul,
       final boolean parallel) //Not fully tested on small numbers... Fix naming?
   {
     if (mul.dig.length < len) {
@@ -1846,7 +1846,7 @@ public class BigIntMutable extends Number {
    * @param div The number to divide with.
    * @complexity O(n ^ 2)
    */
-  public void div(final BigIntMutable div) {
+  public void div(final MersennePrimeInteger div) {
     if (div.len == 1) {
       sign *= div.sign;
       udiv(div.dig[0]);
@@ -1875,7 +1875,7 @@ public class BigIntMutable extends Number {
     sign *= div.sign;
   }
 
-  public void mod(final BigIntMutable mod) {
+  public void mod(final MersennePrimeInteger mod) {
     rem(mod);
     if (sign < 0) {
       add(mod);
@@ -1888,7 +1888,7 @@ public class BigIntMutable extends Number {
    * @param div The number to use in the division causing the remainder.
    * @complexity O(n ^ 2)
    */
-  public void rem(final BigIntMutable div) {
+  public void rem(final MersennePrimeInteger div) {
     // -7/-3 = 2, 2*-3 + -1
     // -7/3 = -2, -2*3 + -1
     // 7/-3 = -2, -2*-3 + 1
@@ -1925,23 +1925,23 @@ public class BigIntMutable extends Number {
    * @return The remainder.
    * @complexity O(n ^ 2)
    */
-  public BigIntMutable divRem(final BigIntMutable div) {
+  public MersennePrimeInteger divRem(final MersennePrimeInteger div) {
     int tmp = sign;
     if (div.len == 1) {
       sign *= div.sign;
-      return new BigIntMutable(tmp, udiv(div.dig[0]));
+      return new MersennePrimeInteger(tmp, udiv(div.dig[0]));
     }
 
     tmp = compareAbsTo(div);
     if (tmp < 0) {
-      final BigIntMutable cpy = new BigIntMutable(sign, dig, len);
+      final MersennePrimeInteger cpy = new MersennePrimeInteger(sign, dig, len);
       dig = new int[2];
       len = 1; //setToZero()
       return cpy;
     }
     if (tmp == 0) {
       uassign(1, sign *= div.sign);
-      return new BigIntMutable(1, 0);
+      return new MersennePrimeInteger(1, 0);
     }
 
     final int[] q = new int[len - div.len + 1];
@@ -1960,7 +1960,7 @@ public class BigIntMutable extends Number {
       --tmp;
     }
     sign *= div.sign;
-    return new BigIntMutable(sign / div.sign, r, tmp);
+    return new MersennePrimeInteger(sign / div.sign, r, tmp);
   }
 
   /**
@@ -2483,7 +2483,7 @@ public class BigIntMutable extends Number {
    * @param mask The number to bitwise-and with.
    * @complexity O(n)
    */
-  public void and(final BigIntMutable mask) {
+  public void and(final MersennePrimeInteger mask) {
     if (sign > 0) {
       if (mask.sign > 0) {
         if (mask.len < len) {
@@ -2628,7 +2628,7 @@ public class BigIntMutable extends Number {
    * @param mask The number to bitwise-or with.
    * @complexity O(n)
    */
-  public void or(final BigIntMutable mask) {
+  public void or(final MersennePrimeInteger mask) {
     if (sign > 0) {
       if (mask.sign > 0) {
         if (mask.len > len) {
@@ -2755,7 +2755,7 @@ public class BigIntMutable extends Number {
    * @param mask The number to bitwise-xor with.
    * @complexity O(n)
    */
-  public void xor(final BigIntMutable mask) {
+  public void xor(final MersennePrimeInteger mask) {
     if (sign > 0) {
       if (mask.len > len) {
         if (mask.len > dig.length) {
@@ -2912,7 +2912,7 @@ public class BigIntMutable extends Number {
    * @param mask The number to bitwise-and-not with.
    * @complexity O(n)
    */
-  public void andNot(final BigIntMutable mask) {
+  public void andNot(final MersennePrimeInteger mask) {
     final int mlen = Math.min(len, mask.len);
     if (sign > 0) {
       if (mask.sign > 0) {
@@ -3066,7 +3066,7 @@ public class BigIntMutable extends Number {
     }
   }
 
-  static BigIntMutable fromBytes(byte[] bytes) {
+  static MersennePrimeInteger fromBytes(byte[] bytes) {
     int byteLen = findFirstNonZero(bytes);
 
     int usedBytes = bytes.length - byteLen;
@@ -3087,7 +3087,7 @@ public class BigIntMutable extends Number {
         bytesInInt = 0;
       }
     }
-    return new BigIntMutable(1, dig, len);
+    return new MersennePrimeInteger(1, dig, len);
   }
 
   private static int findFirstNonZero(byte[] bytes) {

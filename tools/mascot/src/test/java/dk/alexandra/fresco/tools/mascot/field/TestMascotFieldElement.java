@@ -4,16 +4,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.CustomAsserts;
 import java.math.BigInteger;
-
 import org.junit.Test;
 
 public class TestMascotFieldElement {
 
-  private final Modulus modulus = new Modulus("251");
+  private final ModulusBigInteger modulus = new ModulusBigInteger("251");
   private final int bitLength = 8;
 
   // Positive tests
@@ -125,14 +124,15 @@ public class TestMascotFieldElement {
   public void testConvertToBitVectorAndBack() {
     MascotFieldElement el = new MascotFieldElement("777", "65521");
     StrictBitVector bv = el.toBitVector();
-    MascotFieldElement actual = new MascotFieldElement(bv.toByteArray(), new Modulus("65521"));
+    MascotFieldElement actual = new MascotFieldElement(bv.toByteArray(),
+        new ModulusBigInteger("65521"));
     CustomAsserts.assertEquals(el, actual);
   }
 
   @Test
   public void testGetters() {
     MascotFieldElement el = new MascotFieldElement("777", "65521");
-    assertEquals(new Modulus("65521"), el.getModulus());
+    assertEquals(new ModulusBigInteger("65521"), el.getModulus());
     assertEquals(16, el.getBitLength());
   }
 
@@ -168,17 +168,17 @@ public class TestMascotFieldElement {
 
   @Test(expected = IllegalArgumentException.class)
   public void testSanityCheckNegativeMod() {
-    new MascotFieldElement(111, new Modulus(-251));
+    new MascotFieldElement(111, new ModulusBigInteger(-251));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testSanityCheckBitLengthMismatch() {
-    new MascotFieldElement(111, new Modulus(1111));
+    new MascotFieldElement(111, new ModulusBigInteger(1111));
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testSanityCheckValueTooLarge() {
-    new MascotFieldElement(252, new Modulus(251));
+    new MascotFieldElement(252, new ModulusBigInteger(251));
   }
 
 }

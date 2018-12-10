@@ -30,7 +30,7 @@ public class LessThanOrEquals implements Computation<SInt, ProtocolBuilderNumeri
   @SuppressWarnings("unchecked")
   @Override
   public DRes<SInt> buildComputation(ProtocolBuilderNumeric builder) {
-    final Modulus modulus = builder.getBasicNumericContext().getModulus();
+    final Modulus modulus = builder.getBasicNumericContext().getFieldDefinition().getModulus();
 
     final int bitLengthBottom = bitLength / 2;
     final int bitLengthTop = bitLength - bitLengthBottom;

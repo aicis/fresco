@@ -87,23 +87,24 @@ public class MiscBigIntegerGenerators {
 		 */
     BigInteger fm = BigInteger.ONE;
 
+    BigInteger mod = modulus.getBigInteger();
     for (int i = 1; i <= l; i++) {
       int k = i;
       k++;
 
       // Apply recurrence relation
-      f[i] = f[i - 1].multiply(BigInteger.valueOf(-k)).mod(modulus.getBigInteger());
+      f[i] = f[i - 1].multiply(BigInteger.valueOf(-k)).mod(mod);
       for (int j = i - 1; j > 0; j--) {
-        f[j] = f[j].subtract(BigInteger.valueOf(k).multiply(f[j - 1]).mod(modulus.getBigInteger())).mod(modulus.getBigInteger());
+        f[j] = f[j].subtract(BigInteger.valueOf(k).multiply(f[j - 1]).mod(mod)).mod(mod);
       }
 
-      fm = fm.multiply(BigInteger.valueOf(1 - k)).mod(modulus.getBigInteger());
+      fm = fm.multiply(BigInteger.valueOf(1 - k)).mod(mod);
     }
 
     // Scale all coefficients of f_l by f_l(m)^{-1}.
-    fm = fm.modInverse(modulus.getBigInteger());
+    fm = fm.modInverse(mod);
     for (int i = 0; i < f.length; i++) {
-      f[i] = f[i].multiply(fm).mod(modulus.getBigInteger());
+      f[i] = f[i].multiply(fm).mod(mod);
     }
 
     return f;

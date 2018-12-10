@@ -1,6 +1,5 @@
 package dk.alexandra.fresco.framework.util;
 
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import java.math.BigInteger;
 import java.util.HashMap;
 
@@ -50,15 +49,14 @@ public class ModulusFinder {
    * Find closest prime p to 2^modBitLength such that p - 1 is comprime with 3 (required to MiMC
    * functionality).
    */
-  public static Modulus findSuitableModulus(int modBitLength) {
+  public static BigInteger findSuitableModulus(int modBitLength) {
     if (modBitLength % 8 != 0) {
       throw new IllegalArgumentException("Bit length must be divisible by 8");
     }
     if (precomputed.containsKey(modBitLength)) {
-      return new Modulus(precomputed.get(modBitLength));
+      return precomputed.get(modBitLength);
     } else {
-      return new Modulus(compute(modBitLength));
+      return compute(modBitLength);
     }
   }
-
 }

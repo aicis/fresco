@@ -2,14 +2,14 @@ package dk.alexandra.fresco.tools.mascot.elgen;
 
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.SecretSharer;
+import dk.alexandra.fresco.framework.util.TransposeUtils;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
 import dk.alexandra.fresco.tools.mascot.arithm.Addable;
-import dk.alexandra.fresco.framework.util.TransposeUtils;
 import dk.alexandra.fresco.tools.mascot.cope.CopeInputter;
 import dk.alexandra.fresco.tools.mascot.cope.CopeSigner;
 import dk.alexandra.fresco.tools.mascot.field.AuthenticatedElement;
-import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementUtils;
+import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.maccheck.MacCheck;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import java.util.ArrayList;
@@ -46,12 +46,13 @@ public class ElementGeneration {
       MascotFieldElement macKeyShare, FieldElementPrg jointSampler) {
     this.resourcePool = resourcePool;
     this.network = network;
-    this.fieldElementUtils = new FieldElementUtils(resourcePool.getModulus());
+    this.fieldElementUtils = new FieldElementUtils(resourcePool.getFieldDefinition().getModulus());
     this.macChecker = new MacCheck(resourcePool, network);
     this.macKeyShare = macKeyShare;
     this.localSampler = resourcePool.getLocalSampler();
     this.jointSampler = jointSampler;
-    this.sharer = new AdditiveSecretSharer(localSampler, resourcePool.getModulus());
+    this.sharer = new AdditiveSecretSharer(localSampler,
+        resourcePool.getFieldDefinition().getModulus());
     this.copeSigners = new HashMap<>();
     this.copeInputters = new HashMap<>();
     initializeCope(resourcePool, network);
@@ -69,7 +70,8 @@ public class ElementGeneration {
     values = new ArrayList<>(values);
 
     // add extra random element which will later be used to mask inputs (step 1)
-    MascotFieldElement extraElement = localSampler.getNext(resourcePool.getModulus());
+    MascotFieldElement extraElement = localSampler
+        .getNext(resourcePool.getFieldDefinition().getModulus());
     values.add(extraElement);
 
     // inputter secret-shares input values (step 2)
@@ -80,7 +82,7 @@ public class ElementGeneration {
 
     // generate coefficients for values and macs (step 6)
     List<MascotFieldElement> coefficients = jointSampler
-        .getNext(resourcePool.getModulus(), values.size());
+        .getNext(resourcePool.getFieldDefinition().getModulus(), values.size());
 
     // mask and combine values (step 7)
     MascotFieldElement maskedValue = fieldElementUtils.innerProduct(values, coefficients);
@@ -117,7 +119,7 @@ public class ElementGeneration {
 
     // generate coefficients for macs (step 6)
     List<MascotFieldElement> coefficients = jointSampler
-        .getNext(resourcePool.getModulus(),  numInputs + 1);
+        .getNext(resourcePool.getFieldDefinition().getModulus(), numInputs + 1);
 
     // receive masked value we will use in mac-check (step 7)
     MascotFieldElement maskedValue =
@@ -132,17 +134,17 @@ public class ElementGeneration {
     return toAuthenticatedElements(shares.subList(0, numInputs), inputElementMacs);
   }
 
-
   /**
    * Runs mac-check on opened values. Implements Check sub-protocol of Protocol 3.
    *
    * @param sharesWithMacs authenticated shares holding mac shares
    * @param openValues batch of opened, unchecked values
    */
-  public void check(List<AuthenticatedElement> sharesWithMacs, List<MascotFieldElement> openValues) {
+  public void check(List<AuthenticatedElement> sharesWithMacs,
+      List<MascotFieldElement> openValues) {
     // will use this to mask macs
-    List<MascotFieldElement> masks =
-        jointSampler.getNext(resourcePool.getModulus(), sharesWithMacs.size());
+    List<MascotFieldElement> masks = jointSampler
+        .getNext(resourcePool.getFieldDefinition().getModulus(), sharesWithMacs.size());
     // only need macs
     List<MascotFieldElement> macs =
         sharesWithMacs.stream().map(AuthenticatedElement::getMac).collect(Collectors.toList());
@@ -234,7 +236,8 @@ public class ElementGeneration {
         .mapToObj(idx -> {
           MascotFieldElement share = shares.get(idx);
           MascotFieldElement mac = macs.get(idx);
-          return new AuthenticatedElement(share, mac, resourcePool.getModulus());
+          return new AuthenticatedElement(share, mac,
+              resourcePool.getFieldDefinition().getModulus());
         })
         .collect(Collectors.toList());
   }
@@ -277,5 +280,4 @@ public class ElementGeneration {
       }
     }
   }
-
 }

@@ -143,7 +143,7 @@ public class BasicArithmeticTests {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() {
-          Modulus modulus = conf.getResourcePool().getModulus();
+          Modulus modulus = conf.getResourcePool().getFieldDefinition().getModulus();
           BigInteger leftValue = modulus.getBigInteger().subtract(BigInteger.ONE);
           BigInteger rightValue = BigInteger.valueOf(4);
           Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
@@ -165,7 +165,7 @@ public class BasicArithmeticTests {
 
   private static BigInteger convertRepresentation(NumericResourcePool resourcePool,
       BigInteger add) {
-    BigInteger modulus = resourcePool.getModulus().getBigInteger();
+    BigInteger modulus = resourcePool.getFieldDefinition().getModulus().getBigInteger();
     BigInteger actual = add.mod(modulus);
     if (actual.compareTo(modulus.divide(BigInteger.valueOf(2))) > 0) {
       return actual.subtract(modulus);
@@ -230,7 +230,8 @@ public class BasicArithmeticTests {
       return new TestThread<ResourcePoolT, ProtocolBuilderNumeric>() {
         @Override
         public void test() {
-          BigInteger modulus = conf.getResourcePool().getModulus().getBigInteger();
+          BigInteger modulus = conf.getResourcePool().getFieldDefinition().getModulus()
+              .getBigInteger();
           BigInteger leftValue = modulus.subtract(BigInteger.ONE);
           BigInteger rightValue = BigInteger.valueOf(2);
           Application<BigInteger, ProtocolBuilderNumeric> app = producer -> {
@@ -468,7 +469,7 @@ public class BasicArithmeticTests {
         @Override
         public void test() {
           Application<Pair<BigInteger, BigInteger>, ProtocolBuilderNumeric> app = producer -> {
-            Modulus modulus = producer.getBasicNumericContext().getModulus();
+            Modulus modulus = producer.getBasicNumericContext().getFieldDefinition().getModulus();
             BigInteger input = modulus.getBigInteger().divide(BigInteger.valueOf(2)).add(BigInteger.ONE);
             Numeric numeric = producer.numeric();
             DRes<SInt> closed = numeric.input(input, 1);

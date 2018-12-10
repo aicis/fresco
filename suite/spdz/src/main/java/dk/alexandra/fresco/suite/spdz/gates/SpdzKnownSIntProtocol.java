@@ -41,7 +41,7 @@ public class SpdzKnownSIntProtocol extends SpdzNativeProtocol<SInt> {
     if (spdzResourcePool.getMyId() == 1) {
       elm = new SpdzSInt(input, mac);
     } else {
-      elm = new SpdzSInt(spdzResourcePool.createConstant(0), mac);
+      elm = new SpdzSInt(spdzResourcePool.getFieldDefinition().createElement(0), mac);
     }
     return elm;
   }

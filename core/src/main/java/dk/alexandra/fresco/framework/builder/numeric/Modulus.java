@@ -2,95 +2,22 @@ package dk.alexandra.fresco.framework.builder.numeric;
 
 import java.io.Serializable;
 import java.math.BigInteger;
-import java.util.Objects;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public final class Modulus implements Serializable {
+public interface Modulus<T> extends Serializable {
 
-  private static final Logger logger = LoggerFactory.getLogger(Modulus.class);
+  public Modulus<T> half();
 
-  enum Based {
-    BigInteger, BigIntMutable
-  }
+  public T get();
 
-  private BigInteger bigInteger;
-  private BigIntMutable bigIntMutable;
-  private final Based based;
+  public BigInteger getBigInteger();
 
-  public Modulus(BigInteger modulus) {
-    if (modulus == null) {
-      throw new IllegalArgumentException("modulus cannot be null");
-    }
-    this.bigInteger = modulus;
-    this.based = Based.BigInteger;
-  }
+  public int bytesLength();
 
-  public Modulus(BigIntMutable modulus) {
-    if (modulus == null) {
-      throw new IllegalArgumentException("modulus cannot be null");
-    }
-    this.bigIntMutable = modulus;
-    this.based = Based.BigIntMutable;
-  }
+  public int bitLength();
 
-  public Modulus(int modulus) {
-    this(BigInteger.valueOf(modulus));
-  }
+  public boolean equals(Object o);
 
-  public Modulus(String modulus) {
-    this(new BigInteger(modulus));
-  }
+  public int hashCode();
 
-  public BigIntMutable getBigIntMutable() {
-    if (bigIntMutable == null) {
-      logger.debug("Converting BigInteger to BigIntMutable");
-      bigIntMutable = new BigIntMutable(bigInteger.toString());
-    }
-    return bigIntMutable;
-  }
-
-  public BigInteger getBigInteger() {
-    if (bigInteger == null) {
-      logger.debug("Converting BigInteger to BigIntMutable");
-      bigInteger = new BigInteger(bigIntMutable.toString());
-    }
-    return bigInteger;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    Modulus modulus = (Modulus) o;
-    if (based == Based.BigIntMutable && modulus.based == Based.BigIntMutable) {
-      return Objects.equals(bigIntMutable, modulus.bigIntMutable);
-    } else {
-      return Objects.equals(getBigInteger(), modulus.getBigInteger());
-    }
-  }
-
-  @Override
-  public int hashCode() {
-    if (based == Based.BigInteger) {
-      return Objects.hash(bigInteger);
-    }
-    return Objects.hash(bigIntMutable);
-  }
-
-  @Override
-  public String toString() {
-    if (based == Based.BigInteger) {
-      return bigInteger.toString();
-    }
-    return bigIntMutable.toString();
-  }
-
-  public int bitLength() {
-    return getBigInteger().bitLength();
-  }
+  public String toString();
 }

@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.AesCtrDrbgFactory;
 import dk.alexandra.fresco.framework.util.Drbg;
@@ -15,7 +15,6 @@ import dk.alexandra.fresco.tools.mascot.field.MultiplicationTriple;
 import dk.alexandra.fresco.tools.ot.base.DummyOt;
 import dk.alexandra.fresco.tools.ot.base.Ot;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
-import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,7 +40,7 @@ public class TestParallelMascots {
   private MascotSecurityParameters mascotSecurityParameters;
   private List<Integer> ports;
   private int noOfParties;
-  private Modulus modulus;
+  private ModulusBigInteger modulus;
   private int iterations;
   private Logger logger = LoggerFactory.getLogger(TestParallelMascots.class);
 
@@ -54,7 +53,8 @@ public class TestParallelMascots {
     }
     executorService = Executors.newCachedThreadPool();
     mascotSecurityParameters = new MascotSecurityParameters();
-    modulus = ModulusFinder.findSuitableModulus(mascotSecurityParameters.getModBitLength());
+    modulus = new ModulusBigInteger(
+        ModulusFinder.findSuitableModulus(mascotSecurityParameters.getModBitLength()));
     iterations = 3;
   }
 

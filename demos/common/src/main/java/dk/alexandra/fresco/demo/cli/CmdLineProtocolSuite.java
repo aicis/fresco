@@ -1,13 +1,14 @@
 package dk.alexandra.fresco.demo.cli;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.FilebasedStreamedStorageImpl;
 import dk.alexandra.fresco.framework.sce.resources.storage.InMemoryStorage;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
 import dk.alexandra.fresco.framework.util.Drbg;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.suite.ProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticProtocolSuite;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticResourcePoolImpl;
@@ -28,6 +29,7 @@ import dk.alexandra.fresco.suite.tinytables.prepro.TinyTablesPreproResourcePool;
 import dk.alexandra.fresco.suite.tinytables.util.Util;
 import dk.alexandra.fresco.tools.ot.base.DhParameters;
 import java.io.File;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Properties;
 
@@ -57,12 +59,12 @@ public class CmdLineProtocolSuite {
           new ResourcePoolImpl(myId, noOfPlayers);
     } else if (protocolSuiteName.equals("dummyarithmetic")) {
       this.protocolSuite = dummyArithmeticFromCmdLine(properties);
-      Modulus mod = new Modulus(properties.getProperty("modulus",
+      ModulusBigInteger mod = new ModulusBigInteger(properties.getProperty("modulus",
           "67039039649712985497870124991238141152738485774711365274259660130265015367064643"
               + "54255445443244279389455058889493431223951165286470575994074291745908195329"));
       this.resourcePool =
-          new DummyArithmeticResourcePoolImpl(myId, noOfPlayers, mod,
-              bytes -> FieldInteger.fromBytes(bytes, mod));
+          new DummyArithmeticResourcePoolImpl(myId, noOfPlayers,
+              new FieldDefinitionBigInteger(mod));
     } else if (protocolSuiteName.equals("spdz")) {
       this.protocolSuite = getSpdzProtocolSuite(properties);
       this.resourcePool =
@@ -94,12 +96,13 @@ public class CmdLineProtocolSuite {
   }
 
   private ProtocolSuite<?, ?> dummyArithmeticFromCmdLine(Properties properties) {
-    Modulus mod = new Modulus(properties.getProperty("modulus",
+    ModulusBigInteger mod = new ModulusBigInteger(properties.getProperty("modulus",
         "67039039649712985497870124991238141152738485774711365274259660130265015367064643"
             + "54255445443244279389455058889493431223951165286470575994074291745908195329"));
     int maxBitLength = Integer.parseInt(properties.getProperty("maxbitlength", "150"));
     int fixedPointPrecision = Integer.parseInt(properties.getProperty("fixedPointPrecision", "16"));
-    return new DummyArithmeticProtocolSuite(mod, maxBitLength, fixedPointPrecision);
+    return new DummyArithmeticProtocolSuite(new FieldDefinitionBigInteger(mod), maxBitLength,
+        fixedPointPrecision);
   }
 
   private ProtocolSuite<?, ?> getSpdzProtocolSuite(Properties properties) {
@@ -121,7 +124,9 @@ public class CmdLineProtocolSuite {
     final PreprocessingStrategy strategy = PreprocessingStrategy.valueOf(strat);
     SpdzDataSupplier supplier = null;
     if (strategy == PreprocessingStrategy.DUMMY) {
-      supplier = new SpdzDummyDataSupplier(myId, noOfPlayers);
+      BigInteger modulus = ModulusFinder.findSuitableModulus(512);
+      supplier = new SpdzDummyDataSupplier(myId, noOfPlayers,
+          new FieldDefinitionBigInteger(new ModulusBigInteger(modulus)), modulus);
     }
     if (strategy == PreprocessingStrategy.STATIC) {
       int noOfThreadsUsed = 1;

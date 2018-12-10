@@ -4,7 +4,7 @@ import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.ProtocolCollection;
 import dk.alexandra.fresco.framework.ProtocolProducer;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElementMersennePrime;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
 import dk.alexandra.fresco.framework.util.Drbg;
@@ -65,7 +65,7 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
         BigInteger a = BigInteger.ZERO;
         int index = 0;
         for (FieldElement openedValue : openedValues) {
-          a = a.add(rs[index++].multiply(openedValue.convertValueToBigInteger()))
+          a = a.add(rs[index++].multiply(openedValue.convertToBigInteger()))
               .mod(modulusBigInteger);
         }
 
@@ -73,16 +73,16 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
         BigInteger gamma = BigInteger.ZERO;
         index = 0;
         for (SpdzSInt c : closedValues) {
-          gamma = gamma.add(rs[index++].multiply(c.getMac().convertValueToBigInteger()))
+          gamma = gamma.add(rs[index++].multiply(c.getMac().convertToBigInteger()))
               .mod(modulusBigInteger);
         }
 
         // compute delta_i as: gamma_i - alpha_i*a
-        BigInteger delta = gamma.subtract(alpha.convertValueToBigInteger().multiply(a))
+        BigInteger delta = gamma.subtract(alpha.convertToBigInteger().multiply(a))
             .mod(modulusBigInteger);
         // Commit to delta and open it afterwards
-        SpdzCommitment commitment = new SpdzCommitment(digest, FieldInteger
-            .fromBigInteger(delta, modulus),
+        SpdzCommitment commitment = new SpdzCommitment(digest,
+            new FieldElementMersennePrime(delta, modulus),
             rand, modulusBigInteger.bitLength());
         Map<Integer, FieldElement> comms = new HashMap<>();
         comm = new MaliciousSpdzCommitProtocol(commitment, comms, corruptCommitRound);
@@ -103,7 +103,7 @@ public class MaliciousSpdzMacCheckProtocol implements ProtocolProducer {
         }
         BigInteger deltaSum = BigInteger.ZERO;
         for (FieldElement d : commitments.values()) {
-          deltaSum = deltaSum.add(d.convertValueToBigInteger());
+          deltaSum = deltaSum.add(d.convertToBigInteger());
         }
         deltaSum = deltaSum.mod(modulusBigInteger);
         if (!deltaSum.equals(BigInteger.ZERO)) {

@@ -1,8 +1,9 @@
 package dk.alexandra.fresco.suite.spdz;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionMersennePrime;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElementMersennePrime;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusMersennePrime;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -22,7 +23,7 @@ public class TestSpdzDatatypes {
   private SpdzSInt elm2 = new SpdzSInt(get(BigInteger.ONE), get(BigInteger.ONE));
   private SpdzSInt elmDiff1 =
       new SpdzSInt(get(BigInteger.ZERO), get(BigInteger.ONE));
-  private Modulus modulus = new Modulus(BigInteger.TEN.multiply(BigInteger.TEN));
+  private ModulusMersennePrime modulus = new ModulusMersennePrime(100);
 
   @Test
   public void testElementEquals() {
@@ -30,7 +31,8 @@ public class TestSpdzDatatypes {
     Assert.assertEquals(elm1, elm2);
     Assert.assertNotEquals(elm0, elm2);
     Assert.assertNotEquals(elm0.hashCode(), elm2.hashCode());
-    Assert.assertEquals("spdz(FieldInteger{value=1, modulus =null}, FieldInteger{value=1, modulus =null})",
+    Assert.assertEquals(
+        "spdz(FieldElementMersennePrime{value=1, modulus =null}, FieldElementMersennePrime{value=1, modulus =null})",
         elm1.toString());
     SpdzSInt elm3 = new SpdzSInt(
         get(BigInteger.TEN), get(BigInteger.TEN));
@@ -55,7 +57,7 @@ public class TestSpdzDatatypes {
   }
 
   private FieldElement get(BigInteger ten) {
-    return FieldInteger.fromBigInteger(ten, modulus);
+    return new FieldElementMersennePrime(ten, modulus);
   }
 
   @Test
@@ -79,7 +81,7 @@ public class TestSpdzDatatypes {
     Assert.assertNotEquals(tripANull.hashCode(), tripCNull.hashCode());
     Assert
         .assertEquals(
-            "SpdzTriple [elementA=spdz(FieldInteger{value=1, modulus =null}, FieldInteger{value=1, modulus =null}), elementB=spdz(FieldInteger{value=1, modulus =null}, FieldInteger{value=1, modulus =null}), elementC=spdz(FieldInteger{value=1, modulus =null}, FieldInteger{value=1, modulus =null})]",
+            "SpdzTriple [elementA=spdz(FieldElementMersennePrime{value=1, modulus =null}, FieldElementMersennePrime{value=1, modulus =null}), elementB=spdz(FieldElementMersennePrime{value=1, modulus =null}, FieldElementMersennePrime{value=1, modulus =null}), elementC=spdz(FieldElementMersennePrime{value=1, modulus =null}, FieldElementMersennePrime{value=1, modulus =null})]",
             trip1.toString());
   }
 
@@ -93,7 +95,8 @@ public class TestSpdzDatatypes {
     Assert.assertNotEquals(i1, null);
     Assert.assertNotEquals(i1, "");
     Assert.assertNotEquals(i1, i3);
-    Assert.assertEquals("spdz(FieldInteger{value=1, modulus =null}, FieldInteger{value=1, modulus =null})",
+    Assert.assertEquals(
+        "spdz(FieldElementMersennePrime{value=1, modulus =null}, FieldElementMersennePrime{value=1, modulus =null})",
         i1.toString());
   }
 
@@ -111,7 +114,7 @@ public class TestSpdzDatatypes {
     SpdzCommitment c = new SpdzCommitment(H, get(BigInteger.ONE), new Random(0),
         modulus.getBigInteger().bitLength());
     BigIntegerWithFixedLengthSerializer serializer =
-        new BigIntegerWithFixedLengthSerializer(20, bytes -> FieldInteger.fromBytes(bytes, modulus));
+        new BigIntegerWithFixedLengthSerializer(20, new FieldDefinitionMersennePrime(modulus));
     FieldElement c1 = c.computeCommitment(serializer);
     FieldElement c2 = c.computeCommitment(serializer);
     Assert.assertEquals(c1, c2);

@@ -1,8 +1,9 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElementMersennePrime;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusMersennePrime;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
@@ -64,9 +65,9 @@ public class FakeTripGen {
    */
   public static ByteBuffer elementToBytes(SpdzSInt element, int size) {
     FieldElement share = element.getShare();
-    byte[] shareBytes = share.convertValueToBigInteger().toByteArray();
+    byte[] shareBytes = share.convertToBigInteger().toByteArray();
     FieldElement mac = element.getMac();
-    byte[] macBytes = mac.convertValueToBigInteger().toByteArray();
+    byte[] macBytes = mac.convertToBigInteger().toByteArray();
     byte[] bytes = new byte[size * 2];
     if (shareBytes.length > size) {
       if (shareBytes.length == size + 1) {
@@ -99,7 +100,7 @@ public class FakeTripGen {
    * @return a byte representation.
    */
   public static ByteBuffer bigIntToBytes(FieldElement b, int size) {
-    byte[] bBytes = b.convertValueToBigInteger().toByteArray();
+    byte[] bBytes = b.convertToBigInteger().toByteArray();
     byte[] bytes = new byte[size];
     if (bBytes.length > size) {
       if (bBytes.length == size + 1) {
@@ -364,15 +365,15 @@ public class FakeTripGen {
     for (int j = 0; j < amount; j++) {
       SpdzSInt[][] expPipe = new SpdzSInt[noOfParties][EXP_PIPE_SIZE];
       FieldElement r = sample();
-      FieldElement rInv = FieldInteger
-          .fromBigInteger(r.convertValueToBigInteger().modInverse(mod.getBigInteger()), mod);
+      FieldElement rInv = new FieldElementMersennePrime(
+          r.convertToBigInteger().modInverse(mod.getBigInteger()), mod);
       FieldElement mac = getMac(rInv);
       List<SpdzSInt> elements = toShares(rInv, mac, noOfParties);
       for (int i = 0; i < noOfParties; i++) {
         expPipe[i][0] = elements.get(i);
       }
 
-      FieldElement exp = FieldInteger.fromBigInteger(BigInteger.ONE, modulus);
+      FieldElement exp = new FieldElementMersennePrime(BigInteger.ONE, modulus);
       for (int i = 1; i < EXP_PIPE_SIZE; i++) {
         exp = exp.multiply(r);
         mac = getMac(exp);
@@ -396,15 +397,15 @@ public class FakeTripGen {
       for (int j = 0; j < amount; j++) {
         SpdzSInt[][] expPipe = new SpdzSInt[noOfParties][EXP_PIPE_SIZE];
         FieldElement r = sample();
-        FieldElement rInv = FieldInteger
-            .fromBigInteger(r.convertValueToBigInteger().modInverse(mod.getBigInteger()), mod);
+        FieldElement rInv = new FieldElementMersennePrime(
+            r.convertToBigInteger().modInverse(mod.getBigInteger()), mod);
         FieldElement mac = getMac(rInv);
         List<SpdzSInt> elements = toShares(rInv, mac, noOfParties);
         for (int i = 0; i < noOfParties; i++) {
           expPipe[i][0] = elements.get(i);
         }
 
-        FieldElement exp = FieldInteger.fromBigInteger(BigInteger.ONE, modulus);
+        FieldElement exp = new FieldElementMersennePrime(BigInteger.ONE, modulus);
         for (int i = 1; i < EXP_PIPE_SIZE; i++) {
           exp = exp.multiply(r);
           mac = getMac(exp);
@@ -524,7 +525,7 @@ public class FakeTripGen {
       String key = arg.substring(0, 3);
       String value = arg.substring(3);
       if (key.equals(primeKey)) {
-        mod = new Modulus(value);
+        mod = new ModulusMersennePrime(value);
         primePresent = true;
       } else if (key.equals(tripKey)) {
         numberOfTriples = Integer.parseInt(value);
@@ -730,10 +731,10 @@ public class FakeTripGen {
     }
     for (int j = 0; j < numberOfExps; j++) {
       FieldElement r = sample();
-      FieldElement rInv = FieldInteger
-          .fromBigInteger(r.convertValueToBigInteger().modInverse(mod.getBigInteger()), mod);
+      FieldElement rInv = new FieldElementMersennePrime(
+          r.convertToBigInteger().modInverse(mod.getBigInteger()), mod);
       writeAsShared(rInv, channels);
-      FieldElement exp = FieldInteger.fromBigInteger(BigInteger.ONE, mod);
+      FieldElement exp = new FieldElementMersennePrime(BigInteger.ONE, mod);
       for (int i = 1; i < EXP_PIPE_SIZE; i++) {
         exp = exp.multiply(r);
         writeAsShared(exp, channels);
@@ -801,7 +802,7 @@ public class FakeTripGen {
    */
   private static FieldElement sample() {
     FieldElement result = sampleRandomBits(mod.getBigInteger().bitLength(), rand);
-    if (result.convertValueToBigInteger().compareTo(mod.getBigInteger()) < 0) {
+    if (result.convertToBigInteger().compareTo(mod.getBigInteger()) < 0) {
       return result;
     } else {
       return sample();
@@ -809,7 +810,7 @@ public class FakeTripGen {
   }
 
   private static FieldElement sampleRandomBits(int bitLength, Random rand) {
-    return FieldInteger.fromBigInteger(new BigInteger(bitLength, rand), mod);
+    return new FieldElementMersennePrime(new BigInteger(bitLength, rand), mod);
   }
 
   public static void cleanup() throws IOException {

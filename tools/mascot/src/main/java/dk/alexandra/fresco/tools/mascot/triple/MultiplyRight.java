@@ -67,7 +67,7 @@ class MultiplyRight {
         multiplyRightHelper.generateSeeds(rightFactors.size(), resourcePool.getModBitLength());
     // convert seeds pairs to field elements so we can compute on them
     List<Pair<MascotFieldElement, MascotFieldElement>> feSeedPairs =
-        seedsToFieldElements(seedPairs, resourcePool.getModulus());
+        seedsToFieldElements(seedPairs, resourcePool.getFieldDefinition().getModulus());
     // compute q0 - q1 + b for each seed pair
     List<MascotFieldElement> diffs = multiplyRightHelper.computeDiffs(feSeedPairs, rightFactors);
     // send diffs over to other party

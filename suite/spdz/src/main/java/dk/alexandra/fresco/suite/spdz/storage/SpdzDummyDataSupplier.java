@@ -1,10 +1,8 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.util.ArithmeticDummyDataSupplier;
-import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.framework.util.MultiplicationTripleShares;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -12,43 +10,28 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import java.math.BigInteger;
 import java.util.List;
-import java.util.Random;
-import java.util.function.Function;
 
 public class SpdzDummyDataSupplier implements SpdzDataSupplier {
 
   private final int myId;
   private final ArithmeticDummyDataSupplier supplier;
-  private final Modulus modulus;
+  private final FieldDefinition fieldDefinition;
   private final BigInteger secretSharedKey;
   private final int expPipeLength;
-  private final Function<BigInteger, FieldElement> converter;
 
-  public SpdzDummyDataSupplier(int myId, int noOfPlayers) {
-    // TODO kill this
-    this(myId, noOfPlayers, ModulusFinder.findSuitableModulus(512),
-        getSsk(ModulusFinder.findSuitableModulus(512)));
-  }
-
-  public SpdzDummyDataSupplier(int myId, int noOfPlayers, Modulus modulus) {
-    // TODO kill this
-    this(myId, noOfPlayers, modulus, getSsk(modulus));
-  }
-
-  public SpdzDummyDataSupplier(int myId, int noOfPlayers, Modulus modulus,
+  public SpdzDummyDataSupplier(int myId, int noOfPlayers, FieldDefinition fieldDefinition,
       BigInteger secretSharedKey) {
-    this(myId, noOfPlayers, modulus, secretSharedKey, 200);
+    this(myId, noOfPlayers, fieldDefinition, secretSharedKey, 200);
   }
 
-  public SpdzDummyDataSupplier(int myId, int noOfPlayers, Modulus modulus,
+  public SpdzDummyDataSupplier(int myId, int noOfPlayers, FieldDefinition fieldDefinition,
       BigInteger secretSharedKey, int expPipeLength) {
     this.myId = myId;
-    this.modulus = modulus;
+    this.fieldDefinition = fieldDefinition;
     this.secretSharedKey = secretSharedKey;
     this.expPipeLength = expPipeLength;
-    this.supplier = new ArithmeticDummyDataSupplier(myId, noOfPlayers, modulus.getBigInteger());
-    // TODO this should be defined in the config by the user
-    this.converter = bigInteger -> FieldInteger.fromBigInteger(bigInteger, modulus);
+    this.supplier = new ArithmeticDummyDataSupplier(myId, noOfPlayers,
+        fieldDefinition.getModulus().getBigInteger());
   }
 
   @Override
@@ -84,8 +67,8 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
   }
 
   @Override
-  public Modulus getModulus() {
-    return modulus;
+  public FieldDefinition getFieldDefinition() {
+    return fieldDefinition;
   }
 
   @Override
@@ -101,15 +84,12 @@ public class SpdzDummyDataSupplier implements SpdzDataSupplier {
   private SpdzSInt toSpdzSInt(Pair<BigInteger, BigInteger> raw) {
     return new SpdzSInt(
         getBigIntegerI(raw.getSecond()),
-        getBigIntegerI(raw.getFirst().multiply(secretSharedKey).mod(modulus.getBigInteger()))
+        getBigIntegerI(raw.getFirst().multiply(secretSharedKey)
+            .mod(fieldDefinition.getModulus().getBigInteger()))
     );
   }
 
   private FieldElement getBigIntegerI(BigInteger value) {
-    return converter.apply(value);
-  }
-
-  static private BigInteger getSsk(Modulus modulus) {
-    return new BigInteger(modulus.getBigInteger().bitLength(), new Random(0)).mod(modulus.getBigInteger());
+    return fieldDefinition.createElement(value);
   }
 }

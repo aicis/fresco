@@ -1,9 +1,9 @@
 package dk.alexandra.fresco.framework.network.serializers;
 
-import dk.alexandra.fresco.framework.builder.numeric.BigIntMutable;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionMersennePrime;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElementMersennePrime;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusMersennePrime;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -47,30 +47,30 @@ public class TestSerializers {
   }
 
   private void testNumber(BigInteger original) {
-    Modulus modulus = new Modulus(new BigIntMutable("1234567890123456789"));
+    ModulusMersennePrime modulus = new ModulusMersennePrime("1234567890123456789");
     BigIntegerWithFixedLengthSerializer serializer =
-        new BigIntegerWithFixedLengthSerializer(20, bytes -> FieldInteger.fromBytes(bytes, modulus));
-    byte[] bytes = serializer.serialize(FieldInteger.fromBigInteger(original, modulus));
+        new BigIntegerWithFixedLengthSerializer(20, new FieldDefinitionMersennePrime(modulus));
+    byte[] bytes = serializer.serialize(new FieldElementMersennePrime(original, modulus));
     FieldElement deserializeLargeNumber = serializer.deserialize(bytes);
-    Assert.assertEquals(original, deserializeLargeNumber.convertValueToBigInteger());
+    Assert.assertEquals(original, deserializeLargeNumber.convertToBigInteger());
   }
 
   @Test
   public void testBigIntegerWithFixedLengthSerializerList() {
     BigInteger original = new BigInteger("1298376217321832");
-    Modulus modulus = new Modulus(new BigIntMutable("1298376217321832123"));
+    ModulusMersennePrime modulus = new ModulusMersennePrime("1298376217321832123");
     BigIntegerWithFixedLengthSerializer serializer = new BigIntegerWithFixedLengthSerializer(20,
-        bytes -> FieldInteger.fromBytes(bytes, modulus));
+        new FieldDefinitionMersennePrime(modulus));
     byte[] bytes = serializer.serialize(
         Arrays.asList(
-            new FieldInteger(original.toString(), modulus),
-            new FieldInteger(0, modulus),
-            new FieldInteger(10, modulus)));
+            new FieldElementMersennePrime(original.toString(), modulus),
+            new FieldElementMersennePrime(0, modulus),
+            new FieldElementMersennePrime(10, modulus)));
 
     List<FieldElement> bb = serializer.deserializeList(bytes);
-    Assert.assertEquals(original, bb.get(0).convertValueToBigInteger());
-    Assert.assertEquals(BigInteger.ZERO, bb.get(1).convertValueToBigInteger());
-    Assert.assertEquals(BigInteger.TEN, bb.get(2).convertValueToBigInteger());
+    Assert.assertEquals(original, bb.get(0).convertToBigInteger());
+    Assert.assertEquals(BigInteger.ZERO, bb.get(1).convertToBigInteger());
+    Assert.assertEquals(BigInteger.TEN, bb.get(2).convertToBigInteger());
   }
 
   @Test

@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 /**
  * MPC Decryption of an already MIMC encrypted number. See {@link MiMCEncryption} for more
  * information.
- *
  */
 public class MiMCDecryption implements Computation<SInt, ProtocolBuilderNumeric> {
 
@@ -93,7 +92,8 @@ public class MiMCDecryption implements Computation<SInt, ProtocolBuilderNumeric>
 
           // Get round constant
           BigInteger roundConstant =
-              MiMCConstants.getConstant(reverseRoundCount, basicNumericContext.getModulus());
+              MiMCConstants.getConstant(reverseRoundCount,
+                  basicNumericContext.getFieldDefinition().getModulus());
 
           // subtract key and round constant
           Numeric numeric = seq.numeric();
@@ -104,8 +104,8 @@ public class MiMCDecryption implements Computation<SInt, ProtocolBuilderNumeric>
     ).seq((seq, state) -> {
       /*
        * We're in the last round so we just need to compute
-			 * c^{-3} - K
-			 */
+       * c^{-3} - K
+       */
       AdvancedNumeric advancedNumericBuilder = seq.advancedNumeric();
       DRes<SInt> inverted = advancedNumericBuilder.exp(state.value, threeInverse);
 
@@ -114,7 +114,7 @@ public class MiMCDecryption implements Computation<SInt, ProtocolBuilderNumeric>
   }
 
   private BigInteger calculateThreeInverse(BasicNumericContext basicNumericContext) {
-    BigInteger modulus = basicNumericContext.getModulus().getBigInteger();
+    BigInteger modulus = basicNumericContext.getFieldDefinition().getModulus().getBigInteger();
     BigInteger expP = modulus.subtract(BigInteger.ONE);
     return BigInteger.valueOf(3).modInverse(expP);
   }

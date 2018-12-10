@@ -4,9 +4,13 @@ import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadConfiguration;
-import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionMersennePrime;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElementMersennePrime;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusMersennePrime;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
 import dk.alexandra.fresco.framework.configuration.NetworkUtil;
@@ -17,6 +21,7 @@ import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchedProtocolEvaluator;
 import dk.alexandra.fresco.framework.sce.evaluator.EvaluationStrategy;
 import dk.alexandra.fresco.framework.util.AesCtrDrbg;
+import dk.alexandra.fresco.framework.util.ModulusFinder;
 import dk.alexandra.fresco.lib.math.integer.division.DivisionTests.TestDivision;
 import dk.alexandra.fresco.suite.ProtocolSuiteNumeric;
 import dk.alexandra.fresco.suite.spdz.SpdzProtocolSuite;
@@ -27,6 +32,7 @@ import dk.alexandra.fresco.suite.spdz.datatypes.SpdzTriple;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzDummyDataSupplier;
 import dk.alexandra.fresco.suite.spdz.storage.SpdzOpenedValueStoreImpl;
+import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -95,11 +101,14 @@ public class TestMacCheck {
 
   private SpdzResourcePool createResourcePool(int myId, int size, Random rand, SecureRandom secRand,
       boolean corruptMac) {
+    BigInteger modulus = ModulusFinder.findSuitableModulus(512);
     SpdzDataSupplier supplier;
     if (myId == 1 && corruptMac) {
-      supplier = new DummyMaliciousDataSupplier(myId, size);
+      supplier = new DummyMaliciousDataSupplier(myId, size,
+          new FieldDefinitionMersennePrime(new ModulusMersennePrime(modulus.toString())), modulus);
     } else {
-      supplier = new SpdzDummyDataSupplier(myId, size);
+      supplier = new SpdzDummyDataSupplier(myId, size,
+          new FieldDefinitionBigInteger(new ModulusBigInteger(modulus)), modulus);
     }
     return new SpdzResourcePoolImpl(myId, size, new SpdzOpenedValueStoreImpl(), supplier,
         new AesCtrDrbg(new byte[32]));
@@ -109,8 +118,9 @@ public class TestMacCheck {
 
     int maliciousCountdown = 10;
 
-    DummyMaliciousDataSupplier(int myId, int numberOfPlayers) {
-      super(myId, numberOfPlayers);
+    DummyMaliciousDataSupplier(int myId, int numberOfPlayers, FieldDefinition fieldDefinition,
+        BigInteger secretSharedKey) {
+      super(myId, numberOfPlayers, fieldDefinition, secretSharedKey);
     }
 
     @Override
@@ -119,8 +129,8 @@ public class TestMacCheck {
       SpdzTriple trip = super.getNextTriple();
       if (maliciousCountdown == 0) {
         FieldElement share = trip.getA().getShare();
-        share.add(new FieldInteger(1, new Modulus("258224987808690858965591917200301187432970579282922"
-            + "3512830659356540647622016841194629645353280137831435903171972747493557")));
+        share.add(new FieldElementMersennePrime(1, new ModulusMersennePrime(
+            "2582249878086908589655919172003011874329705792829223512830659356540647622016841194629645353280137831435903171972747493557")));
         SpdzSInt newA = new SpdzSInt(share, trip.getA().getMac());
         trip = new SpdzTriple(newA, trip.getB(), trip.getC());
       }

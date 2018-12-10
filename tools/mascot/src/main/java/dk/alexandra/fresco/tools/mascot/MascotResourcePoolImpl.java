@@ -1,6 +1,8 @@
 package dk.alexandra.fresco.tools.mascot;
 
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePoolImpl;
 import dk.alexandra.fresco.framework.util.Drbg;
@@ -16,7 +18,6 @@ import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePool;
 import dk.alexandra.fresco.tools.ot.otextension.OtExtensionResourcePoolImpl;
 import dk.alexandra.fresco.tools.ot.otextension.RotFactory;
 import dk.alexandra.fresco.tools.ot.otextension.RotList;
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Map;
 
@@ -24,7 +25,7 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
 
   private final Map<Integer, RotList> seedOts;
   private final int instanceId;
-  private final Modulus modulus;
+  private final FieldDefinition fieldDefinition;
   private final FieldElementPrg localSampler;
   private final MessageDigest messageDigest;
   private final MascotSecurityParameters mascotSecurityParameters;
@@ -49,7 +50,8 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
     this.drbg = drbg;
     this.instanceId = instanceId;
     this.seedOts = seedOts;
-    this.modulus = ModulusFinder.findSuitableModulus(mascotSecurityParameters.getModBitLength());
+    this.fieldDefinition = new FieldDefinitionBigInteger(new ModulusBigInteger(
+        ModulusFinder.findSuitableModulus(mascotSecurityParameters.getModBitLength())));
     this.mascotSecurityParameters = mascotSecurityParameters;
     this.localSampler = new FieldElementPrgImpl(
         new StrictBitVector(mascotSecurityParameters.getPrgSeedLength(), drbg));
@@ -58,8 +60,8 @@ public class MascotResourcePoolImpl extends ResourcePoolImpl implements MascotRe
   }
 
   @Override
-  public Modulus getModulus() {
-    return modulus;
+  public FieldDefinition getFieldDefinition() {
+    return fieldDefinition;
   }
 
   @Override

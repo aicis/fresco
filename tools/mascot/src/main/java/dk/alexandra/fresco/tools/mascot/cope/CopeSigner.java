@@ -8,7 +8,6 @@ import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.mult.MultiplyLeftHelper;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrg;
 import dk.alexandra.fresco.tools.mascot.prg.FieldElementPrgImpl;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -63,7 +62,8 @@ public class CopeSigner {
    */
   public List<MascotFieldElement> extend(int numInputs) {
     // compute chosen masks
-    List<MascotFieldElement> chosenMasks = generateMasks(numInputs, resourcePool.getModulus());
+    List<MascotFieldElement> chosenMasks = generateMasks(numInputs,
+        resourcePool.getFieldDefinition().getModulus());
     // use mac share for each input
     List<MascotFieldElement> macKeyShares =
         IntStream.range(0, numInputs).mapToObj(idx -> macKeyShare).collect(Collectors.toList());

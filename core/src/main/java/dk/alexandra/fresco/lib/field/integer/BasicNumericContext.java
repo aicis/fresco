@@ -1,6 +1,6 @@
 package dk.alexandra.fresco.lib.field.integer;
 
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
 
 /**
  * Holds the most crucial properties about the finite field we are working within.
@@ -8,23 +8,23 @@ import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 public class BasicNumericContext {
 
   private final int maxBitLength;
-  private final Modulus modulus;
   private final int myId;
   private final int noOfParties;
-
+  private FieldDefinition fieldDefinition;
 
   /**
    * @param maxBitLength The maximum length in bits that the numbers in the application will
    *     have.
-   * @param modulus the modules used in the application
    * @param myId my party id
    * @param noOfParties number of parties in computation
+   * @param fieldDefinition the field definition used in the application
    */
-  public BasicNumericContext(int maxBitLength, Modulus modulus, int myId, int noOfParties) {
+  public BasicNumericContext(int maxBitLength, int myId, int noOfParties,
+      FieldDefinition fieldDefinition) {
     this.maxBitLength = maxBitLength;
-    this.modulus = modulus;
     this.myId = myId;
     this.noOfParties = noOfParties;
+    this.fieldDefinition = fieldDefinition;
   }
 
   /**
@@ -34,16 +34,14 @@ public class BasicNumericContext {
     return this.maxBitLength;
   }
 
-
   /**
-   * Returns the modulus used in the underlying arithmetic protocol suite.
+   * Returns the field definition used in the underlying arithmetic protocol suite.
    *
-   * @return The modulus used.
+   * @return The field definition used.
    */
-  public Modulus getModulus() {
-    return modulus;
+  public FieldDefinition getFieldDefinition() {
+    return fieldDefinition;
   }
-
 
   /**
    * Returns the id of the party

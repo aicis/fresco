@@ -7,13 +7,14 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.numeric.DefaultPreprocessedValues;
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
-import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
+import dk.alexandra.fresco.framework.configuration.NetworkUtil;
 import dk.alexandra.fresco.framework.network.CloseableNetwork;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.configuration.NetworkUtil;
+import dk.alexandra.fresco.framework.network.socket.SocketNetwork;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngine;
 import dk.alexandra.fresco.framework.sce.SecureComputationEngineImpl;
 import dk.alexandra.fresco.framework.sce.evaluator.BatchEvaluationStrategy;
@@ -188,8 +189,8 @@ public abstract class AbstractSpdzTest {
       CloseableNetwork pipeNetwork, SpdzMascotDataSupplier tripleSupplier) {
 
     ProtocolBuilderNumeric sequential = new SpdzBuilder(
-        new BasicNumericContext(maxBitLength, tripleSupplier.getModulus(), myId, noOfPlayers
-        ),
+        new BasicNumericContext(maxBitLength, myId, noOfPlayers,
+            tripleSupplier.getFieldDefinition()),
         new RealNumericContext(fixedPointPrecision)).createSequential();
     SpdzResourcePoolImpl tripleResourcePool =
         new SpdzResourcePoolImpl(myId, noOfPlayers, new OpenedValueStoreImpl<>(), tripleSupplier,
@@ -235,18 +236,23 @@ public abstract class AbstractSpdzTest {
       NetManager expPipeGenerator) {
     SpdzDataSupplier supplier;
     if (preProStrat == DUMMY) {
-      supplier = new SpdzDummyDataSupplier(myId, numberOfParties,
+      supplier = new SpdzDummyDataSupplier(myId, numberOfParties, new FieldDefinitionBigInteger(
+          new ModulusBigInteger(
+              new BigInteger(ModulusFinder.findSuitableModulus(512).bitLength(), new Random(0))
+                  .mod(ModulusFinder.findSuitableModulus(512)))),
           ModulusFinder.findSuitableModulus(modBitLength));
     } else if (preProStrat == MASCOT) {
       List<Integer> partyIds =
           IntStream.range(1, numberOfParties + 1).boxed().collect(Collectors.toList());
       Drbg drbg = getDrbg(myId, PRG_SEED_LENGTH);
-      Modulus modulus = ModulusFinder.findSuitableModulus(modBitLength);
+      ModulusBigInteger modulus = new ModulusBigInteger(
+          ModulusFinder.findSuitableModulus(modBitLength));
       Map<Integer, RotList> seedOts =
           getSeedOts(myId, partyIds, PRG_SEED_LENGTH, drbg, otGenerator.createExtraNetwork(myId));
       MascotFieldElement ssk = SpdzMascotDataSupplier.createRandomSsk(modulus, PRG_SEED_LENGTH);
       supplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, numberOfParties,
-          () -> tripleGenerator.createExtraNetwork(myId), modBitLength, modulus,
+          () -> tripleGenerator.createExtraNetwork(myId), modBitLength,
+          new FieldDefinitionBigInteger(modulus),
           new Function<Integer, SpdzSInt[]>() {
 
             private SpdzMascotDataSupplier tripleSupplier;
@@ -257,7 +263,8 @@ public abstract class AbstractSpdzTest {
               if (pipeNetwork == null) {
                 pipeNetwork = expPipeGenerator.createExtraNetwork(myId);
                 tripleSupplier = SpdzMascotDataSupplier.createSimpleSupplier(myId, numberOfParties,
-                    () -> pipeNetwork, modBitLength, modulus, null, seedOts, drbg, ssk);
+                    () -> pipeNetwork, modBitLength, new FieldDefinitionBigInteger(modulus), null,
+                    seedOts, drbg, ssk);
               }
               DRes<List<DRes<SInt>>> pipe =
                   createPipe(myId, numberOfParties, pipeLength, pipeNetwork, tripleSupplier);
@@ -295,5 +302,4 @@ public abstract class AbstractSpdzTest {
         new BatchedProtocolEvaluator<>(batchedStrategy, spdzProtocolSuite);
     batchedProtocolEvaluator.eval(spdzBuilder.build(), tripleResourcePool, network);
   }
-
 }

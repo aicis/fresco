@@ -1,8 +1,9 @@
 package dk.alexandra.fresco.suite.spdz.storage;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElementMersennePrime;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.sce.resources.storage.Storage;
 import dk.alexandra.fresco.framework.sce.resources.storage.StreamedStorage;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
@@ -93,11 +94,11 @@ public class InitializeStorage {
     }
     Storage[] storages = tmpStores.toArray(new Storage[0]);
 
-    Modulus p = new Modulus("6703903964971298549787012499123814115273848577471136527425966013026501"
-        + "536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
+    ModulusBigInteger p = new ModulusBigInteger(
+        "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
 
     List<FieldElement> alphaShares = FakeTripGen.generateAlphaShares(noOfPlayers, p);
-    FieldElement alpha = new FieldInteger(0, p);
+    FieldElement alpha = new FieldElementMersennePrime(0, p);
     for (FieldElement share : alphaShares) {
       alpha.add(share);
     }
@@ -201,7 +202,7 @@ public class InitializeStorage {
     }
 
     List<FieldElement> alphaShares = FakeTripGen.generateAlphaShares(noOfPlayers, p);
-    FieldElement alpha = new FieldInteger(0, p);
+    FieldElement alpha = new FieldElementMersennePrime(0, p);
     for (FieldElement share : alphaShares) {
       alpha.add(share);
     }
@@ -384,8 +385,8 @@ public class InitializeStorage {
   public static void initStreamedStorage(StreamedStorage streamedStorage,
       int noOfPlayers, int noOfThreads, int noOfTriples, int noOfInputMasks, int noOfBits,
       int noOfExpPipes) {
-    Modulus p = new Modulus("6703903964971298549787012499123814115273848577471136527425966013026501"
-        + "536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
+    ModulusBigInteger p = new ModulusBigInteger(
+        "6703903964971298549787012499123814115273848577471136527425966013026501536706464354255445443244279389455058889493431223951165286470575994074291745908195329");
     InitializeStorage.initStreamedStorage(streamedStorage, noOfPlayers, noOfThreads, noOfTriples,
         noOfInputMasks, noOfBits, noOfExpPipes, p);
   }

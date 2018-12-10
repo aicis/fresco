@@ -158,7 +158,7 @@ public class DeaSolverTests {
         public void test() {
 
           Application<DeaSolver, ProtocolBuilderNumeric> app = producer -> {
-            modulus = producer.getBasicNumericContext().getModulus();
+            modulus = producer.getBasicNumericContext().getFieldDefinition().getModulus();
             Numeric numeric = producer.numeric();
             List<List<BigInteger>> rawTargetOutputs = TestDeaSolver.this.rawTargetOutputs;
             List<List<DRes<SInt>>> targetOutputs = knownMatrix(numeric, rawTargetOutputs);

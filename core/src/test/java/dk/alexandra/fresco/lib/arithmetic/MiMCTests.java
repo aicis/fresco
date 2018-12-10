@@ -5,6 +5,7 @@ import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThread;
 import dk.alexandra.fresco.framework.TestThreadRunner.TestThreadFactory;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.Numeric;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.sce.resources.ResourcePool;
@@ -37,7 +38,7 @@ public class MiMCTests {
           final Modulus[] modulus = new Modulus[1];
           Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
             Numeric intFactory = builder.numeric();
-            modulus[0] = builder.getBasicNumericContext().getModulus();
+            modulus[0] = builder.getBasicNumericContext().getFieldDefinition().getModulus();
             DRes<SInt> encryptionKey = intFactory.known(BigInteger.valueOf(527618));
             DRes<SInt> plainText = intFactory.known(BigInteger.valueOf(10));
             DRes<SInt> cipherText = builder.seq(new MiMCEncryption(plainText, encryptionKey));
@@ -46,7 +47,7 @@ public class MiMCTests {
 
           BigInteger result = runApplication(app);
 
-          Modulus expectedModulus = new Modulus(
+          ModulusBigInteger expectedModulus = new ModulusBigInteger(
               "13407807929942597099574024998205846127479365820592393377723561443721764030073546976801874298166903427690031858186486050853753882811946569946433649006083527");
           Assert.assertEquals(expectedModulus, modulus[0]);
           BigInteger expectedCipherText = new BigInteger(
@@ -167,5 +168,4 @@ public class MiMCTests {
       };
     }
   }
-
 }

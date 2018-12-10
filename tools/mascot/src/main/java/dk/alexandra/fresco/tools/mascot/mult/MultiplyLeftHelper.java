@@ -3,8 +3,8 @@ package dk.alexandra.fresco.tools.mascot.mult;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.util.StrictBitVector;
 import dk.alexandra.fresco.tools.mascot.MascotResourcePool;
-import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.mascot.field.FieldElementUtils;
+import dk.alexandra.fresco.tools.mascot.field.MascotFieldElement;
 import dk.alexandra.fresco.tools.ot.base.RotBatch;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,7 +23,7 @@ public class MultiplyLeftHelper {
 
   public MultiplyLeftHelper(MascotResourcePool resourcePool, Network network, int otherId) {
     this.resourcePool = resourcePool;
-    this.fieldElementUtils = new FieldElementUtils(resourcePool.getModulus());
+    this.fieldElementUtils = new FieldElementUtils(resourcePool.getFieldDefinition().getModulus());
     this.rot = resourcePool.createRot(otherId, network);
   }
 

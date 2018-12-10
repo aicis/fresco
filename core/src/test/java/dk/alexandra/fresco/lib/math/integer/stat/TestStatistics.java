@@ -1,8 +1,8 @@
 package dk.alexandra.fresco.lib.math.integer.stat;
 
 import dk.alexandra.fresco.framework.DRes;
-import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElementMersennePrime;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusMersennePrime;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.dummy.arithmetic.DummyArithmeticSInt;
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import org.junit.Test;
 
 public class TestStatistics {
 
-  private Modulus modulus = new Modulus(123123123);
+  private ModulusMersennePrime modulus = new ModulusMersennePrime(123123123);
 
   @Test(expected = IllegalArgumentException.class)
   public void testCovarianceBadLength() {
@@ -30,7 +30,7 @@ public class TestStatistics {
   }
 
   private DummyArithmeticSInt createSInt(int value) {
-    return new DummyArithmeticSInt(new FieldInteger(value, modulus));
+    return new DummyArithmeticSInt(new FieldElementMersennePrime(value, modulus));
   }
 
   @Test(expected = IllegalArgumentException.class)

@@ -2,19 +2,21 @@ package dk.alexandra.fresco.suite.dummy.arithmetic;
 
 import static org.junit.Assert.assertEquals;
 
-import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
+import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.util.ModulusFinder;
 import java.lang.reflect.Field;
-import java.math.BigInteger;
 import org.junit.Test;
 
 public class TestDummyArithmeticProtocolSuiteUnit {
 
   @Test
   public void testDefaultConstructor() throws Exception {
-    DummyArithmeticProtocolSuite suite = new DummyArithmeticProtocolSuite();
-    Modulus expectedModulus = ModulusFinder.findSuitableModulus(128);
+    DummyArithmeticProtocolSuite suite = new DummyArithmeticProtocolSuite(
+        new FieldDefinitionBigInteger(
+            new ModulusBigInteger(ModulusFinder.findSuitableModulus(128))), 32, 4);
+    Modulus expectedModulus = new ModulusBigInteger(ModulusFinder.findSuitableModulus(128));
     Field field = DummyArithmeticProtocolSuite.class.getDeclaredField("modulus");
     field.setAccessible(true);
     Modulus actualModulus = (Modulus) field.get(suite);

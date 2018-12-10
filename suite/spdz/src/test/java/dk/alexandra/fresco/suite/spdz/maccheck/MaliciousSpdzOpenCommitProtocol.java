@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.maccheck;
 
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
+import dk.alexandra.fresco.framework.builder.numeric.FieldElementMersennePrime;
 import dk.alexandra.fresco.framework.network.Network;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.suite.spdz.SpdzResourcePool;
@@ -56,7 +56,8 @@ public class MaliciousSpdzOpenCommitProtocol extends SpdzNativeProtocol<Boolean>
       FieldElement randomness = this.commitment.getRandomness();
       if (corruptNow) {
         randomness = randomness
-            .add(FieldInteger.fromBigInteger(BigInteger.ONE, spdzResourcePool.getModulus()));
+            .add(new FieldElementMersennePrime(BigInteger.ONE,
+                spdzResourcePool.getFieldDefinition().getModulus()));
       }
       network.sendToAll(serializer.serialize(randomness));
       return EvaluationStatus.HAS_MORE_ROUNDS;
@@ -107,7 +108,7 @@ public class MaliciousSpdzOpenCommitProtocol extends SpdzNativeProtocol<Boolean>
   private byte[] sendMaliciousBroadcastValidation(MessageDigest dig, Network network,
       Collection<FieldElement> bs) {
     for (FieldElement b : bs) {
-      dig.update(b.convertValueToBigInteger().toByteArray());
+      dig.update(b.convertToBigInteger().toByteArray());
     }
     return sendAndReset(dig, network);
   }

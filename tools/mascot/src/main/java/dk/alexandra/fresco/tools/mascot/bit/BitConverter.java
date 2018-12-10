@@ -48,8 +48,9 @@ public class BitConverter {
       AuthenticatedElement oneOrNegativeOne =
           randomElement.multiply(root.modInverse()); // division
       MascotFieldElement two =
-          new MascotFieldElement(2, resourcePool.getModulus());
-      MascotFieldElement one = new MascotFieldElement(1, resourcePool.getModulus());
+          new MascotFieldElement(2, resourcePool.getFieldDefinition().getModulus());
+      MascotFieldElement one = new MascotFieldElement(1,
+          resourcePool.getFieldDefinition().getModulus());
       AuthenticatedElement bit = oneOrNegativeOne.add(one, resourcePool.getMyId(), macKeyShare)
           .multiply(two.modInverse());
       bits.add(bit);

@@ -36,7 +36,7 @@ public class AdvancedNumericTests {
         @Override
         public void test() throws Exception {
           Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
-            modulus = builder.getBasicNumericContext().getModulus();
+            modulus = builder.getBasicNumericContext().getFieldDefinition().getModulus();
 
             DRes<SInt> p = builder.numeric().known(BigInteger.valueOf(numerator));
             DRes<SInt> q = builder.numeric().known(BigInteger.valueOf(denominator));
@@ -84,7 +84,7 @@ public class AdvancedNumericTests {
         @Override
         public void test() throws Exception {
           Application<BigInteger, ProtocolBuilderNumeric> app = builder -> {
-            modulus = builder.getBasicNumericContext().getModulus();
+            modulus = builder.getBasicNumericContext().getFieldDefinition().getModulus();
 
             DRes<SInt> p = builder.numeric().known(BigInteger.valueOf(numerator));
             BigInteger q = BigInteger.valueOf(denominator);

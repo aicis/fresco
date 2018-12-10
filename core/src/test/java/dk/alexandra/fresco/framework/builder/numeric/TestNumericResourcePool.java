@@ -7,45 +7,43 @@ import org.junit.Test;
 
 public class TestNumericResourcePool {
 
-  private final Modulus defaultModulus = new Modulus(new BigInteger("251"));
+  private final FieldDefinitionBigInteger fieldDefinition = new FieldDefinitionBigInteger(
+      new ModulusBigInteger("251"));
 
   @Test
   public void testConvertRepresentationLessThanHalf() {
-    NumericResourcePool pool = new MockNumericResourcePool(defaultModulus);
+    NumericResourcePool pool = new MockNumericResourcePool(fieldDefinition);
     BigInteger actual = convertRepresentation(pool, BigInteger.TEN);
     assertEquals(BigInteger.TEN, actual);
   }
 
   private BigInteger convertRepresentation(NumericResourcePool pool, BigInteger bigInteger) {
-    FieldElement value = new FieldInteger(bigInteger.toString(), defaultModulus);
+    FieldElement value = new FieldElementBigInteger(bigInteger, fieldDefinition.getModulus());
     return pool.convertRepresentation(value);
   }
 
   @Test
   public void testConvertRepresentationGreaterThanHalf() {
-    NumericResourcePool pool = new MockNumericResourcePool(defaultModulus);
+    NumericResourcePool pool = new MockNumericResourcePool(fieldDefinition);
     BigInteger actual = convertRepresentation(pool, new BigInteger("200"));
-    assertEquals(new BigInteger("200").subtract(defaultModulus.getBigInteger()), actual);
+    assertEquals(new BigInteger("200").subtract(fieldDefinition.getModulus().getBigInteger()),
+        actual);
   }
 
   @Test
   public void testConvertRepresentationEqualsHalf() {
-    NumericResourcePool pool = new MockNumericResourcePool(defaultModulus);
-    BigInteger actual = convertRepresentation(pool, defaultModulus.getBigInteger().divide(BigInteger.valueOf(2)));
-    assertEquals(defaultModulus.getBigInteger().divide(BigInteger.valueOf(2)), actual);
+    NumericResourcePool pool = new MockNumericResourcePool(fieldDefinition);
+    BigInteger actual = convertRepresentation(pool,
+        fieldDefinition.getModulus().half().getBigInteger());
+    assertEquals(fieldDefinition.getModulus().half().getBigInteger(), actual);
   }
 
   private class MockNumericResourcePool implements NumericResourcePool {
 
-    private final Modulus modulus;
+    private final FieldDefinition fieldDefinition;
 
-    MockNumericResourcePool(Modulus modulus) {
-      this.modulus = modulus;
-    }
-
-    @Override
-    public Modulus getModulus() {
-      return this.modulus;
+    MockNumericResourcePool(FieldDefinition fieldDefinition) {
+      this.fieldDefinition = fieldDefinition;
     }
 
     @Override
@@ -56,6 +54,11 @@ public class TestNumericResourcePool {
     @Override
     public int getNoOfParties() {
       return 0;
+    }
+
+    @Override
+    public FieldDefinition getFieldDefinition() {
+      return fieldDefinition;
     }
   }
 }

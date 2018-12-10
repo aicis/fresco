@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz;
 
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.builder.numeric.FieldInteger;
 import dk.alexandra.fresco.framework.builder.numeric.Modulus;
 import dk.alexandra.fresco.framework.network.serializers.BigIntegerWithFixedLengthSerializer;
 import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
@@ -19,7 +19,7 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
   private final MessageDigest messageDigest;
   private final int modulusSize;
   private final Modulus modulus;
-  private final BigInteger modulusHalf;
+  private final Modulus modulusHalf;
   private final OpenedValueStore<SpdzSInt, FieldElement> openedValueStore;
   private final SpdzDataSupplier dataSupplier;
   private Drbg drbg;
@@ -42,22 +42,21 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
         () -> MessageDigest.getInstance("SHA-256"),
         "Configuration error, SHA-256 is needed for Spdz");
     // Initialize various fields global to the computation.
-    this.modulus = dataSupplier.getModulus();
-    this.modulusHalf = this.modulus.getBigInteger().divide(BigInteger.valueOf(2));
-    this.modulusSize = this.modulus.getBigInteger().toByteArray().length;
+    this.modulus = dataSupplier.getFieldDefinition().getModulus();
+    this.modulusHalf = dataSupplier.getFieldDefinition().getModulus().half();
+    this.modulusSize = dataSupplier.getFieldDefinition().getModulus().bytesLength();
     this.drbg = drbg;
   }
 
   @Override
-  public Modulus getModulus() {
-    return modulus;
+  public FieldDefinition getFieldDefinition() {
+    return dataSupplier.getFieldDefinition();
   }
 
   @Override
   public ByteSerializer<FieldElement> getSerializer() {
     // TODO Define by the user of this class
-    return new BigIntegerWithFixedLengthSerializer(modulusSize,
-        bytes -> FieldInteger.fromBytes(bytes, modulus));
+    return new BigIntegerWithFixedLengthSerializer(modulusSize, getFieldDefinition());
   }
 
   @Override
@@ -68,12 +67,6 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
   @Override
   public SpdzDataSupplier getDataSupplier() {
     return dataSupplier;
-  }
-
-  @Override
-  public FieldElement createConstant(int i) {
-    // TODO Define by the user of this class
-    return new FieldInteger(i, modulus);
   }
 
   @Override
@@ -91,9 +84,8 @@ public class SpdzResourcePoolImpl extends ResourcePoolImpl implements SpdzResour
 
   @Override
   public BigInteger convertRepresentation(FieldElement value) {
-    Modulus modulus = getModulus();
-    BigInteger actual = value.convertValueToBigInteger().mod(modulus.getBigInteger());
-    if (actual.compareTo(modulusHalf) > 0) {
+    BigInteger actual = value.convertToBigInteger().mod(modulus.getBigInteger());
+    if (actual.compareTo(modulusHalf.getBigInteger()) > 0) {
       actual = actual.subtract(modulus.getBigInteger());
     }
     return actual;

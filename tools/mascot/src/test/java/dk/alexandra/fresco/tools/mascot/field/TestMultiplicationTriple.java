@@ -2,14 +2,12 @@ package dk.alexandra.fresco.tools.mascot.field;
 
 import static org.junit.Assert.assertEquals;
 
-import dk.alexandra.fresco.framework.builder.numeric.Modulus;
-import java.math.BigInteger;
-
+import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import org.junit.Test;
 
 public class TestMultiplicationTriple {
 
-  private final Modulus modulus = new Modulus("251");
+  private final ModulusBigInteger modulus = new ModulusBigInteger("251");
 
   @Test
   public void testToString() {
