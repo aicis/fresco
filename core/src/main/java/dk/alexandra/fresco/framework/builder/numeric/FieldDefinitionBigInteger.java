@@ -17,7 +17,13 @@ public final class FieldDefinitionBigInteger implements FieldDefinition {
 
   @Override
   public FieldElement deserialize(byte[] bytes, int offset, int length) {
-    return new FieldElementBigInteger(bytes, modulus);
+    if (bytes.length > length) {
+      byte[] dest = new byte[length];
+      System.arraycopy(bytes, offset, dest, 0, length);
+      return new FieldElementBigInteger(dest, modulus);
+    } else {
+      return new FieldElementBigInteger(bytes, modulus);
+    }
   }
 
   @Override
