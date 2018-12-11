@@ -1,9 +1,10 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Objects;
 
-public final class ModulusMersennePrime implements Modulus {
+public final class ModulusMersennePrime implements Serializable {
 
   private final MersennePrimeInteger mersenne;
   private final BigInteger value;
@@ -20,12 +21,10 @@ public final class ModulusMersennePrime implements Modulus {
     return mersenne;
   }
 
-  @Override
   public BigInteger getBigInteger() {
     return value;
   }
 
-  @Override
   public BigInteger getBigIntegerHalved() {
     return halved;
   }
