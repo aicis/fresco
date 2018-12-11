@@ -21,6 +21,21 @@ public final class FieldDefinitionBigInteger implements FieldDefinition {
   }
 
   @Override
+  public FieldElement createElement(int value) {
+    return new FieldElementBigInteger(value, modulus);
+  }
+
+  @Override
+  public FieldElement createElement(String value) {
+    return new FieldElementBigInteger(value, modulus);
+  }
+
+  @Override
+  public FieldElement createElement(BigInteger value) {
+    return new FieldElementBigInteger(value, modulus);
+  }
+
+  @Override
   public FieldElement deserialize(byte[] bytes) {
     return deserialize(bytes, 0, bytes.length);
   }
@@ -46,20 +61,5 @@ public final class FieldDefinitionBigInteger implements FieldDefinition {
   @Override
   public void serialize(FieldElement fieldElement, byte[] bytes, int offset, int length) {
     fieldElement.toByteArray(bytes, offset, length);
-  }
-
-  @Override
-  public FieldElement createElement(int value) {
-    return new FieldElementBigInteger(value, modulus);
-  }
-
-  @Override
-  public FieldElement createElement(String value) {
-    return new FieldElementBigInteger(value, modulus);
-  }
-
-  @Override
-  public FieldElement createElement(BigInteger value) {
-    return new FieldElementBigInteger(value, modulus);
   }
 }
