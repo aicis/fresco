@@ -92,8 +92,7 @@ public class MiMCDecryption implements Computation<SInt, ProtocolBuilderNumeric>
 
           // Get round constant
           BigInteger roundConstant =
-              MiMCConstants.getConstant(reverseRoundCount,
-                  basicNumericContext.getModulus());
+              MiMCConstants.getConstant(reverseRoundCount, basicNumericContext.getModulus());
 
           // subtract key and round constant
           Numeric numeric = seq.numeric();

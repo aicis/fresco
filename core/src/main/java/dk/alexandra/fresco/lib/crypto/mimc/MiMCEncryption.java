@@ -70,8 +70,8 @@ public class MiMCEncryption implements Computation<SInt, ProtocolBuilderNumeric>
            * c_{i - 1} is the cipher text we have computed
            * in the previous round
            */
-          BigInteger roundConstantInteger = MiMCConstants.getConstant(state.round,
-              seq.getBasicNumericContext().getModulus());
+          BigInteger roundConstantInteger = MiMCConstants
+              .getConstant(state.round, seq.getBasicNumericContext().getModulus());
           Numeric numeric = seq.numeric();
           DRes<SInt> masked = numeric.add(
               roundConstantInteger,

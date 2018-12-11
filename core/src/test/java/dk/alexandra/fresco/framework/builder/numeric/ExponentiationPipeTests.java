@@ -67,8 +67,7 @@ public class ExponentiationPipeTests {
             assertEquals(base.modInverse(modulus), baseInv.mod(modulus));
             for (int i = 2; i < length + 2; i++) {
               BigInteger b = output.get(offset++);
-              assertEquals(b.mod(modulus),
-                  base.modPow(BigInteger.valueOf(i), modulus));
+              assertEquals(b.mod(modulus), base.modPow(BigInteger.valueOf(i), modulus));
             }
           }
         }
