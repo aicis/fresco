@@ -1,9 +1,10 @@
 package dk.alexandra.fresco.framework.builder.numeric;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Objects;
 
-public final class ModulusBigInteger {
+public final class ModulusBigInteger implements Serializable {
 
   private final BigInteger value;
   private final BigInteger halved;
