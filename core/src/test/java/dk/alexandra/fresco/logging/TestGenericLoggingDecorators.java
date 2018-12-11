@@ -7,8 +7,6 @@ import static org.junit.Assert.assertTrue;
 import dk.alexandra.fresco.framework.ProtocolEvaluator;
 import dk.alexandra.fresco.framework.TestThreadRunner;
 import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.FieldDefinitionBigInteger;
-import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.ModulusBigInteger;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
 import dk.alexandra.fresco.framework.configuration.NetworkConfiguration;
@@ -66,11 +64,9 @@ public class TestGenericLoggingDecorators {
       decoratedLoggers.add(decoratedEvaluator);
 
       Drbg drbg = new HmacDrbg();
-      TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc =
-          new TestThreadRunner.TestThreadConfiguration<>(sce,
-              () -> new DummyArithmeticResourcePoolImpl(playerId,
-                  netConf.keySet().size(), fieldDefinition),
-              () -> new SocketNetwork(partyNetConf));
+      TestThreadRunner.TestThreadConfiguration<DummyArithmeticResourcePool, ProtocolBuilderNumeric> ttc = new TestThreadRunner.TestThreadConfiguration<>(
+          sce, () -> new DummyArithmeticResourcePoolImpl(playerId, netConf.keySet().size(),
+          fieldDefinition), () -> new SocketNetwork(partyNetConf));
       conf.put(playerId, ttc);
     }
     TestThreadRunner.run(f, conf);

@@ -1,9 +1,9 @@
 package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.MaliciousException;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.network.Network;
-import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.value.SInt;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzInputMask;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -31,16 +31,16 @@ public class MaliciousSpdzInputProtocol extends SpdzNativeProtocol<SInt> {
   public EvaluationStatus evaluate(int round, SpdzResourcePool spdzResourcePool, Network network) {
     int myId = spdzResourcePool.getMyId();
     SpdzDataSupplier dataSupplier = spdzResourcePool.getDataSupplier();
-    ByteSerializer<FieldElement> serializer = spdzResourcePool.getSerializer();
+    FieldDefinition definition = spdzResourcePool.getFieldDefinition();
     if (round == 0) {
       this.inputMask = dataSupplier.getNextInputMask(this.inputter);
       if (myId == this.inputter) {
         FieldElement bcValue = this.input.subtract(this.inputMask.getRealValue());
-        network.sendToAll(serializer.serialize(bcValue));
+        network.sendToAll(definition.serialize(bcValue));
       }
       return EvaluationStatus.HAS_MORE_ROUNDS;
     } else if (round == 1) {
-      this.valueMasked = serializer.deserialize(network.receive(inputter));
+      this.valueMasked = definition.deserialize(network.receive(inputter));
       this.digest = sendMaliciousBroadcastValidation(spdzResourcePool.getMessageDigest(), network,
           valueMasked);
       return EvaluationStatus.HAS_MORE_ROUNDS;

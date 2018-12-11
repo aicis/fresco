@@ -3,9 +3,9 @@ package dk.alexandra.fresco.suite.spdz.gates;
 import dk.alexandra.fresco.framework.DRes;
 import dk.alexandra.fresco.framework.MaliciousException;
 import dk.alexandra.fresco.framework.builder.Computation;
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.ProtocolBuilderNumeric;
-import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.Pair;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzCommitment;
@@ -28,7 +28,6 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
   private final List<SpdzSInt> closedValues;
   private final List<FieldElement> openedValues;
   private final FieldElement alpha;
-  private final ByteSerializer<FieldElement> serializer;
   private final FieldElement zero;
 
   /**
@@ -46,7 +45,6 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
       final BigInteger modulus,
       final Drbg jointDrbg,
       final FieldElement alpha,
-      final ByteSerializer<FieldElement> serializer,
       FieldElement zero) {
     this.rand = rand;
     this.digest = digest;
@@ -55,7 +53,6 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
     this.modulus = modulus;
     this.jointDrbg = jointDrbg;
     this.alpha = alpha;
-    this.serializer = serializer;
     this.zero = zero;
   }
 
@@ -63,7 +60,8 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
   public DRes<Void> buildComputation(ProtocolBuilderNumeric builder) {
     return builder
         .seq(seq -> {
-          FieldElement[] rs = sampleRandomCoefficients(openedValues.size());
+          FieldElement[] rs = sampleRandomCoefficients(openedValues.size(),
+              builder.getBasicNumericContext().getFieldDefinition());
           FieldElement a = zero;
           int index = 0;
           for (FieldElement openedValue : openedValues) {
@@ -108,12 +106,13 @@ public class SpdzMacCheckProtocol implements Computation<Void, ProtocolBuilderNu
         });
   }
 
-  private FieldElement[] sampleRandomCoefficients(int numCoefficients) {
+  private FieldElement[] sampleRandomCoefficients(int numCoefficients,
+      FieldDefinition fieldDefinition) {
     FieldElement[] coefficients = new FieldElement[numCoefficients];
     for (int i = 0; i < numCoefficients; i++) {
       byte[] bytes = new byte[modulus.bitLength() / Byte.SIZE];
       jointDrbg.nextBytes(bytes);
-      coefficients[i] = serializer.deserialize(bytes);
+      coefficients[i] = fieldDefinition.deserialize(bytes);
     }
     return coefficients;
   }

@@ -1,7 +1,7 @@
 package dk.alexandra.fresco.suite.spdz.datatypes;
 
+import dk.alexandra.fresco.framework.builder.numeric.FieldDefinition;
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
-import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import java.security.MessageDigest;
 import java.util.Random;
 
@@ -36,16 +36,16 @@ public class SpdzCommitment {
    *
    * @return If a commitment has already been computed, the existing commitment is returned.
    */
-  public FieldElement computeCommitment(ByteSerializer<FieldElement> serializer) {
+  public FieldElement computeCommitment(FieldDefinition definition) {
     if (commitment != null) {
       return commitment;
     }
-    hash.update(serializer.serialize(value));
+    hash.update(definition.serialize(value));
     rand.nextBytes(randomBytes);
-    randomness = serializer.deserialize(randomBytes);
+    randomness = definition.deserialize(randomBytes);
 
-    hash.update(serializer.serialize(this.randomness));
-    commitment = serializer.deserialize(hash.digest());
+    hash.update(definition.serialize(this.randomness));
+    commitment = definition.deserialize(hash.digest());
 
     return this.commitment;
   }

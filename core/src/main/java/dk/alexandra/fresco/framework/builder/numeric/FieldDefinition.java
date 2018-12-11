@@ -10,7 +10,11 @@ public interface FieldDefinition {
 
   FieldElement deserialize(byte[] bytes, int offset, int length);
 
+  FieldElement deserialize(byte[] bytes);
+
   void serialize(FieldElement fieldElement, byte[] bytes, int offset, int length);
+
+  byte[] serialize(FieldElement fieldElement);
 
   FieldElement createElement(int value);
 

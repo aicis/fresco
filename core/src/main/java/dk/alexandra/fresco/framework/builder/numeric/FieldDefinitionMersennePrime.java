@@ -21,6 +21,11 @@ public final class FieldDefinitionMersennePrime implements FieldDefinition {
   }
 
   @Override
+  public FieldElement deserialize(byte[] bytes) {
+    return deserialize(bytes, 0, bytes.length);
+  }
+
+  @Override
   public FieldElement deserialize(byte[] bytes, int offset, int length) {
     if (bytes.length > length) {
       byte[] dest = new byte[length];
@@ -29,6 +34,13 @@ public final class FieldDefinitionMersennePrime implements FieldDefinition {
     } else {
       return new FieldElementMersennePrime(bytes, modulus);
     }
+  }
+
+  @Override
+  public byte[] serialize(FieldElement fieldElement) {
+    byte[] bytes = new byte[fieldElement.convertToBigInteger().toByteArray().length];
+    serialize(fieldElement, bytes, 0, bytes.length);
+    return bytes;
   }
 
   @Override

@@ -2,7 +2,6 @@ package dk.alexandra.fresco.suite.spdz;
 
 import dk.alexandra.fresco.framework.builder.numeric.FieldElement;
 import dk.alexandra.fresco.framework.builder.numeric.NumericResourcePool;
-import dk.alexandra.fresco.framework.network.serializers.ByteSerializer;
 import dk.alexandra.fresco.framework.util.Drbg;
 import dk.alexandra.fresco.framework.util.OpenedValueStore;
 import dk.alexandra.fresco.suite.spdz.datatypes.SpdzSInt;
@@ -14,14 +13,6 @@ import java.security.MessageDigest;
  * suite.
  */
 public interface SpdzResourcePool extends NumericResourcePool {
-
-  /**
-   * Gets a serializer for big integer that is aligned with the current system settings in this
-   * invocation - hence byte length of big integer.
-   *
-   * @return the serializer
-   */
-  ByteSerializer<FieldElement> getSerializer();
 
   /**
    * Gets the message digest for this protocol suite invocation.
