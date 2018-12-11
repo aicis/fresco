@@ -1,9 +1,11 @@
 package dk.alexandra.fresco.framework.util;
 
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigInteger;
 import java.util.Random;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,8 +21,7 @@ public class TestDrngImpl {
     Random rand = new Random(42);
     byte[] seed = new byte[32];
     rand.nextBytes(seed);
-    Drbg drbg = null;
-    drbg = new AesCtrDrbg(seed);
+    Drbg drbg = new AesCtrDrbg(seed);
     this.drng = new DrngImpl(drbg);
   }
 
@@ -162,6 +163,15 @@ public class TestDrngImpl {
     for (int i = 0; i < 10; i++) {
       BigInteger b = drng.nextBigInteger(limit);
       assertInRange(b, BigInteger.ZERO, limit);
+    }
+  }
+
+  @Test
+  public void testNextDouble() {
+    for (int i = 0; i < 10; i++) {
+      double v = drng.nextDouble();
+      assertThat(v, Matchers.greaterThan(0d));
+      assertThat(v, Matchers.lessThan(1d));
     }
   }
 

@@ -7,7 +7,10 @@ import java.math.BigInteger;
  */
 public class DrngImpl implements Drng {
 
-  private Drbg drbg;
+  // Multiplying by DOUBLE_UNIT is equivalent to dividing with 1L << 53.
+  private static final double DOUBLE_UNIT = 0x1.0p-53; // 1.0 / (1L << 53)
+
+  private final Drbg drbg;
 
   /**
    * Creates a number generator from a bit generator.
@@ -28,12 +31,7 @@ public class DrngImpl implements Drng {
       throw new IllegalArgumentException("Limit must be strictly positive, but is: " + limit);
     }
     int bitSize = (Long.SIZE - Long.numberOfLeadingZeros(limit - 1));
-    byte[] bytes = getBytes(bitSize);
-    long result = Byte.toUnsignedLong(bytes[0]);
-    for (int i = 1; i < bytes.length; i++) {
-      result <<= 8;
-      result ^= Byte.toUnsignedLong(bytes[i]);
-    }
+    long result = longWithBits(bitSize);
     return result < limit ? result : nextLong(limit);
   }
 
@@ -46,6 +44,20 @@ public class DrngImpl implements Drng {
     byte[] bytes = getBytes(bitSize);
     BigInteger result = new BigInteger(1, bytes);
     return result.compareTo(limit) < 0 ? result : nextBigInteger(limit);
+  }
+
+  @Override
+  public double nextDouble() {
+    return longWithBits(53) * DOUBLE_UNIT;
+  }
+
+  private long longWithBits(int bitSize) {
+    byte[] bytes = getBytes(bitSize);
+    long result = 0L;
+    for (byte next : bytes) {
+      result = (result << 8) ^ Byte.toUnsignedLong(next);
+    }
+    return result;
   }
 
   private byte[] getBytes(int bitSize) {

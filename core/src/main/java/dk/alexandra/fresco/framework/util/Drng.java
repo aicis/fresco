@@ -24,10 +24,15 @@ public interface Drng {
   /**
    * Gets the next integer of this DRNG in a given range.
    *
-   * @param limit
-   *          a limit on the value returned
+   * @param limit a limit on the value returned
    * @return an integer in the range <i>0,...,limit-1</i>
    */
   BigInteger nextBigInteger(BigInteger limit);
 
+  /**
+   * Get the next double between 0.0d and 1.0d (exclusive).
+   *
+   * @return the random double
+   */
+  double nextDouble();
 }
