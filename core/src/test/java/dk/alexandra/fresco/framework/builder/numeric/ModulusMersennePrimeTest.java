@@ -13,15 +13,16 @@ public class ModulusMersennePrimeTest {
   public void equals() {
     ModulusMersennePrime first = new ModulusMersennePrime(512, 569);
     ModulusMersennePrime firstAgain = new ModulusMersennePrime(512, 569);
-    ModulusMersennePrime second = new ModulusMersennePrime(512, 629);
-    ModulusMersennePrime invalidMersenne = new ModulusMersennePrime(256, 629);
+    ModulusMersennePrime differentConstant = new ModulusMersennePrime(512, 629);
+    ModulusMersennePrime invalidMersenneWithDifferentBitLength =
+        new ModulusMersennePrime(256, 569);
 
     assertTrue(first.equals(first));
     assertTrue(first.equals(firstAgain));
-    assertFalse(first.equals(second));
+    assertFalse(first.equals(differentConstant));
     assertFalse(first.equals(""));
     assertFalse(first.equals(null));
-    assertFalse(first.equals(invalidMersenne));
+    assertFalse(first.equals(invalidMersenneWithDifferentBitLength));
   }
 
   @Test
