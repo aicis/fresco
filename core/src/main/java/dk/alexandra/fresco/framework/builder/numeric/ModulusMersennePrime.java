@@ -6,19 +6,26 @@ import java.util.Objects;
 
 public final class ModulusMersennePrime implements Serializable {
 
-  private final MersennePrime mersenne;
+  private final int bitLength;
+  private final BigInteger constant;
+  private final BigInteger precomputedBitMask;
+  private final BigInteger prime;
   private final BigInteger halved;
 
   public ModulusMersennePrime(int bitLength, int constant) {
-    this.mersenne = new MersennePrime(bitLength, constant);
-    this.halved = this.mersenne.getPrime().divide(BigInteger.valueOf(2));
+    this.bitLength = bitLength;
+    this.constant = BigInteger.valueOf(constant);
+    BigInteger shifted = BigInteger.ONE.shiftLeft(bitLength);
+    this.precomputedBitMask = shifted.subtract(BigInteger.ONE);
+    this.prime = shifted.subtract(BigInteger.valueOf(constant));
+    this.halved = this.prime.divide(BigInteger.valueOf(2));
   }
 
-  public BigInteger getBigInteger() {
-    return mersenne.getPrime();
+  BigInteger getBigInteger() {
+    return prime;
   }
 
-  public BigInteger getBigIntegerHalved() {
+  BigInteger getBigIntegerHalved() {
     return halved;
   }
 
@@ -31,93 +38,44 @@ public final class ModulusMersennePrime implements Serializable {
       return false;
     }
     ModulusMersennePrime that = (ModulusMersennePrime) o;
-    return Objects.equals(mersenne, that.mersenne);
+    return bitLength == that.bitLength && constant.equals(that.constant);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(mersenne);
+    return Objects.hash(bitLength, constant);
   }
 
   @Override
   public String toString() {
     return "ModulusMersennePrime{" +
-        "value=" + mersenne.getPrime() +
+        "value=" + prime +
         '}';
   }
 
   BigInteger mod(BigInteger value) {
-    int comparison = value.compareTo(mersenne.getPrime());
+    int comparison = value.compareTo(prime);
     if (comparison < 0) {
       return value;
     } else if (comparison == 0) {
       return BigInteger.ZERO;
     }
-    BigInteger quotient = value.shiftRight(mersenne.getBitLength());
+    BigInteger quotient = value.shiftRight(bitLength);
     // q = z / b^n
     // r = z mod b^n
-    BigInteger result = value.and(mersenne.getModulo());
+    BigInteger result = value.and(precomputedBitMask);
     while (quotient.compareTo(BigInteger.ZERO) > 0) {
-      BigInteger product = quotient.multiply(mersenne.getConstant());
+      BigInteger product = quotient.multiply(constant);
       //r = r + (c * q mod b^n)
-      result = result.add(product.and(mersenne.getModulo()));
+      result = result.add(product.and(precomputedBitMask));
 
       //q = c*q / b^n
-      quotient = product.shiftRight(mersenne.getBitLength());
+      quotient = product.shiftRight(bitLength);
     }
 
-    while (result.compareTo(mersenne.getPrime()) >= 0) {
-      result = result.subtract(mersenne.getPrime());
+    while (result.compareTo(prime) >= 0) {
+      result = result.subtract(prime);
     }
     return result;
-  }
-
-  private static final class MersennePrime {
-
-    private final int bitLength;
-    private final BigInteger constant;
-    private final BigInteger modulo;
-    private final BigInteger prime;
-
-    private MersennePrime(int bitLength, int constant) {
-      this.bitLength = bitLength;
-      this.constant = BigInteger.valueOf(constant);
-      BigInteger shifted = BigInteger.ONE.shiftLeft(bitLength);
-      this.modulo = shifted.subtract(BigInteger.ONE);
-      this.prime = shifted.subtract(BigInteger.valueOf(constant));
-    }
-
-    private int getBitLength() {
-      return bitLength;
-    }
-
-    private BigInteger getConstant() {
-      return constant;
-    }
-
-    private BigInteger getModulo() {
-      return modulo;
-    }
-
-    private BigInteger getPrime() {
-      return prime;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-      MersennePrime that = (MersennePrime) o;
-      return bitLength == that.bitLength && constant.equals(that.constant);
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(bitLength, constant);
-    }
   }
 }
