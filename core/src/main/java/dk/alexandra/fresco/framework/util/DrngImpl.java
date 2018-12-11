@@ -53,11 +53,11 @@ public class DrngImpl implements Drng {
 
   private long longWithBits(int bitSize) {
     byte[] bytes = getBytes(bitSize);
-    long valueFromBits = 0L;
+    long result = 0L;
     for (byte next : bytes) {
-      valueFromBits = (valueFromBits << 8) ^ Byte.toUnsignedLong(next);
+      result = (result << 8) ^ Byte.toUnsignedLong(next);
     }
-    return valueFromBits;
+    return result;
   }
 
   private byte[] getBytes(int bitSize) {
